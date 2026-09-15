@@ -2047,7 +2047,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=223;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=224;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9953,17 +9953,56 @@ const BS_ENONCES=[
    un taux à un chiffre remis dans le tirage rendrait 0,96 × 0,6 = 0,576 sans
    que rien ne rougisse. Un contrôle l'exige désormais, sur le tirage comme sur
    l'écran : c'est la seule chose qui empêche une propriété heureuse de se
-   perdre le jour où l'on touche au tirage. */
-function genBaisses(){
-  let n1,n2;
-  do{
-    n1=rand(2,9); n2=rand(2,9);                 /* numérateurs des coefficients : 0,2 à 0,9 */
-  }while(n1*n2<10);
-  const P1=100-n1*10, P2=100-n2*10;             /* 8 -> 20 %, 6 -> 40 % */
-  const fA={num:n1,den:10}, fB={num:n2,den:10};
-  const prodNum=n1*n2, prodDen=100;             /* 8 × 6 = 48, sur 100 */
-  const baisseNum=100-prodNum;                  /* 52 % pile */
-  const q={P1,P2,n1,n2,fA,fB,prodNum,prodDen,baisseNum,
+   perdre le jour où l'on touche au tirage.
+   LE VIVIER EST UNE LISTE, ET LA SÉANCE LE TIRE SANS REMISE — comme au 2.2.7
+   (demande de Turquet, septembre 2026 : « fais la même chose pour le 2.3.7 »,
+   après le vivier partagé du 2.2.8). Le do/while d'avant ne disait jamais
+   combien de paires il restait, et rien n'empêchait deux fois le même calcul
+   dans la même séance : une séance sur dix, mesurée. Les 32 paires ne changent
+   pas d'une ligne — c'est la MÉCANIQUE du choix qui rejoint celle du 2.2.7,
+   pas le choix lui-même : le vivier du 2.2.7 (HS_TAUX) admet les taux à un
+   chiffre, dont le coefficient porte trois chiffres (1,04 = 104/100) et
+   réclame la pose que cet exercice n'a pas.
+   LE FILTRE DU 2.2.7 — (P1·P2) multiple de 100 — N'EST PAS ÉCRIT ICI : les
+   deux taux étant des multiples de dix, leur produit est TOUJOURS un multiple
+   de 100, et le garde n'écarterait jamais rien. Un garde-fou qui n'écarte
+   jamais rien fait croire qu'on vérifie quelque chose ; c'est le CONTRÔLE qui
+   exige la propriété, par une seconde arithmétique. Celui du produit à deux
+   chiffres, lui, est VIVANT : il retire 4 paires des 36 (80/80, 80/70, 80/60,
+   70/70), celles dont la baisse globale dépasse 90 %. */
+const BS_TAUX=[10,20,30,40,50,60,70,80];
+/* Le coefficient d'une baisse : 1 − 0,20 = 8/10, un CHIFFRE seul au numérateur
+   — c'est ce qui fait qu'il n'y a pas de multiplication posée ici, là où
+   hsCoef rend 104/100 pour 4 % et impose la sienne.
+   90 % N'EST PAS DANS LA LISTE parce que multiplier par 1 n'est pas un calcul,
+   mais la propriété est TENUE AILLEURS, une opérande plus loin : toute paire
+   qui le porterait a un produit de numérateurs au plus égal à 9, donc le garde
+   du produit à deux chiffres l'écarte déjà. Le sabotage l'a montré en restant
+   VERT — remettre 90 dans la liste ne change pas une paire du vivier. Ce n'est
+   pas un garde-fou mort de plus : la liste dit ce qu'elle tire, et un taux qui
+   n'est jamais tiré n'a rien à y faire. */
+function bsCoef(P){ return {num:10-P/10,den:10}; }
+const BS_PAIRES=(function(){
+  const l=[];
+  for(let i=0;i<BS_TAUX.length;i++) for(let j=i;j<BS_TAUX.length;j++){
+    const fa=bsCoef(BS_TAUX[i]), fb=bsCoef(BS_TAUX[j]);
+    if(fa.num*fb.num<10) continue;               /* baisse globale au-delà de 90 % */
+    l.push([BS_TAUX[i],BS_TAUX[j]]);
+  }
+  return l;
+})();
+/* Les questions d'une séance portent des paires DISTINCTES : le vivier est
+   fini, et deux fois le même calcul dans la même séance se verrait. */
+function genBaisses(dejaVues){
+  const prises=dejaVues||[];
+  const libres=BS_PAIRES.filter(p=>prises.indexOf(p.join('-'))<0);
+  const paire=pick(libres.length?libres:BS_PAIRES);
+  const ordre=pick([true,false]);                 /* rien ne dit lequel vient d'abord */
+  const P1=ordre?paire[0]:paire[1], P2=ordre?paire[1]:paire[0];
+  const fA=bsCoef(P1), fB=bsCoef(P2);
+  const prodNum=fA.num*fB.num, prodDen=fA.den*fB.den;   /* 8 × 6 = 48, sur 100 */
+  const baisseNum=100-prodNum*100/prodDen;        /* 52 % pile */
+  const q={P1,P2,paire:paire.join('-'),n1:fA.num,n2:fB.num,fA,fB,prodNum,prodDen,baisseNum,
     c1:100-P1, c2:100-P2,                       /* coefficients sur 100 : 80 et 60 */
     coefStr:String(prodNum/prodDen).replace('.', ','),
     baisseStr:String(baisseNum),
@@ -9975,7 +10014,8 @@ async function startBaisses(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='bs'; test.qId='baisses-successives';
-  test.questions=Array.from({length:EVOL_NB},genBaisses);
+  test.questions=[]; const vues=[];
+  for(let i=0;i<EVOL_NB;i++){ const q=genBaisses(vues); vues.push(q.paire); test.questions.push(q); }
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;

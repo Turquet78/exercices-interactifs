@@ -16583,6 +16583,73 @@ function coefficientGlobalCourtBaisses(w, P){
     if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
     return vus.join(" | ");
   })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.3.7 : le vivier est une LISTE, et la séance en tire des paires distinctes', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* ---- 1. LE VIVIER, refait par une SECONDE arithmétique : sur les
+       pourcentages BRUTS là où la page passe par les numérateurs en dixièmes.
+       Les deux règles sont celles du 2.2.7, avec les taux que la décision
+       d’août 2026 a fixés ici : un seul chiffre non nul au COEFFICIENT, donc
+       des multiples de dix — c’est le bord qu’il faudrait rouvrir pour
+       admettre 5 % ou 4 %, et le rouvrir ici est le geste qui le dit. ---- */
+    const attendues=[];
+    for(let a=10;a<=80;a+=10) for(let b=a;b<=80;b+=10){
+      if((a*b)%100!==0) continue;                    /* trois décimales ou plus */
+      if((100-a)*(100-b)<1000) continue;             /* baisse globale au-delà de 90 % */
+      attendues.push(a+"-"+b);
+    }
+    if(attendues.length<12) vus.push("le vivier attendu ne compte que "+attendues.length+" paires : le contrôle n’a rien à mesurer");
+    /* le garde du produit à deux chiffres est VIVANT, et l’arithmétique du
+       contrôle le dit d’elle-même : ces quatre paires doivent rester dehors */
+    ["60-80","70-70","70-80","80-80"].forEach(function(c){
+      if(attendues.indexOf(c)>=0) vus.push("le contrôle attend "+c+", dont la baisse globale dépasse 90 % : sa propre arithmétique a glissé"); });
+
+    /* On mesure le vivier que la page TIRE, jamais la constante qu’elle nomme :
+       genBaisses tirant SANS REMISE, une séance de la taille du vivier le rend
+       en entier — un filtre resserré en douce se voit comme une paire
+       manquante, une règle relâchée comme une paire de trop. */
+    const clef=function(q){ return Math.min(q.P1,q.P2)+"-"+Math.max(q.P1,q.P2); };
+    const vues=[], dedans={};
+    for(let i=0;i<attendues.length;i++){
+      const q=genBaisses(vues);
+      if(q.paire!==clef(q)) vus.push("la clef de la paire vaut "+q.paire+" au lieu de "+clef(q)+" : le tirage sans remise ne peut pas la reconnaître");
+      vues.push(q.paire);
+      if(dedans[clef(q)]) vus.push("la paire "+clef(q)+" sort deux fois : le tirage n’est pas SANS REMISE");
+      dedans[clef(q)]=1;
+    }
+    attendues.forEach(function(c){ if(!dedans[c]) vus.push("la paire "+c+" manque au vivier du 2.3.7"); });
+    Object.keys(dedans).forEach(function(c){ if(attendues.indexOf(c)<0) vus.push("la paire "+c+" est tirable alors que les règles du 2.3.7 la refusent"); });
+
+    /* ---- 2. L’ORDRE de la paire est TIRÉ : rien ne dit lequel des deux taux
+       vient d’abord, et figé la première baisse serait toujours la plus
+       petite — ou la plus grande — des deux. ---- */
+    const ordres={};
+    for(let i=0;i<300;i++){ const q=genBaisses(); if(q.P1!==q.P2) ordres[q.P1<q.P2?"croissant":"décroissant"]=1; }
+    if(Object.keys(ordres).length<2) vus.push("les deux taux sortent toujours dans l’ordre "+Object.keys(ordres).join("")+" : l’ordre de la paire est figé");
+
+    /* ---- 3. LE DÉMARREUR, et pas seulement le tirage : le contrôle du seul
+       genBaisses n’aurait pas vu un startBaisses revenu à trois tirages
+       indépendants (la leçon du 2.15). ON REND LE HASARD MUET pour cette
+       mesure — pick prend toujours le premier —, sans quoi le bord serait
+       INTERMITTENT : trois tirages indépendants ne se heurtent qu’une séance
+       sur dix, et un contrôle qui ne rougit qu’une fois sur dix parle d’autre
+       chose. Le vrai pick est rendu en sortant, le piège documenté du double
+       volé à son voisin. ---- */
+    const vraiPick=pick;
+    try{
+      pick=function(a){ return a[0]; };
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      startBaisses();
+      const qs=test.questions||[];
+      if(qs.length!==EVOL_NB) vus.push("la séance compte "+qs.length+" question(s) au lieu de "+EVOL_NB);
+      const vu={};
+      qs.forEach(function(q){
+        if(vu[clef(q)]) vus.push("la séance pose deux fois le même calcul ("+clef(q)+") : startBaisses ne tire pas SANS REMISE");
+        vu[clef(q)]=1; });
+    } finally { pick=vraiPick; }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
 }
 /* ---- 2.5.1 : le coefficient de chaque transformation s'écrit court --------
    « fais la même chose pour le 2.5.1 » (Turquet, septembre 2026), après la
