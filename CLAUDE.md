@@ -6972,6 +6972,51 @@ portrait », jsdom restant vert à bon droit. La Seconde porte le même
 clavier, avec le même « ✓ » : elle n'est pas dans la demande et n'est pas
 touchée — le dire vaut mieux que le taire.
 
+**Puis, en PORTRAIT sur une tablette, le clavier tient sur TROIS rangées.**
+Demande de Turquet (septembre 2026), sur les pourcentages de la Première :
+« sur les tablettes, pour le clavier virtuel en mode portrait, fais en sorte
+que le clavier tienne sur 3 lignes au lieu de 4 ». Le paysage avait sa forme
+compacte ; debout, la plaque reprenait ses quatre rangées et 232 px — 23 % de
+l'écran d'une tablette, avant même l'énoncé. `buildKbTerm(vars, compact,
+portrait)` rend une TROISIÈME forme, `prem-portrait` : 182 px, 18 % de
+l'écran, mesurés à 768 × 1024. Les chiffres y GARDENT leurs colonnes — 7 8 9,
+4 5 6, 1 2 3 : l'élève qui tourne sa tablette retrouve le même pavé, et c'est
+la seule chose qu'une rangée en moins pouvait lui coûter. Ce qui tenait sur la
+quatrième rangée remonte : les parenthèses à côté de la fraction, les flèches à
+côté des opérations, et le 0 rejoint le 1 2 3 avec la virgule, le `=`, le `%`
+et le `⏎`. La forme se décide dans `kbPortraitTablette`, à côté de `kbCompact`
+et sur le même patron : clavier ANCRÉ, hors paysage, et l'écran tactile d'au
+moins 600 px qui définit la tablette dans TOUTE la page (la police, la chaîne
+à nombres, la feuille de calcul). Un TÉLÉPHONE en portrait garde donc ses
+quatre rangées — huit touches sur une rangée de 390 px ne se toucheraient
+plus —, et la fenêtre flottante de l'ordinateur les garde aussi.
+Les deux bancs suivent. jsdom ÉVALUE la troisième forme depuis la source : le
+nombre de rangées déclaré (`clavierEcran.portraitTablette` dans
+`tests/profils.js`, deux sources), le MÊME jeu de touches que la forme normale,
+le `⏎` qui commit sur sa couche — et les QUATRE cases de la table de routage,
+là où il y en avait trois : paysage, portrait de TABLETTE, portrait de
+TÉLÉPHONE, fenêtre flottante. Son faux écran répond désormais à deux requêtes,
+l'orientation et la largeur minimale, et ne répond rien aux autres : un routage
+qui s'appuierait sur autre chose se verrait. Le NAVIGATEUR (« 11 quinquies »)
+tourne la tablette en portrait, compte les rangées RENDUES, exige des touches
+d'au moins 36 px sans débord, puis RÉTRÉCIT la fenêtre à la taille d'un
+téléphone où les quatre rangées reviennent — et lui REND sa largeur de tablette
+avant de continuer, sans quoi le contrôle suivant mesurait la feuille de calcul
+sur un téléphone et rougissait sur une page juste : c'est arrivé au premier
+essai, et c'est le genre de détour qui laisse une section verte mesurer autre
+chose que ce qu'elle nomme. Six sabotages, chacun rougissant en nommant son
+défaut — cinq en jsdom (une quatrième rangée dans la forme portrait, le `%`
+retiré, le `⏎` redevenu « cacher », la forme courte qui fuit sur le téléphone,
+la forme portrait jamais construite), et le dernier repris au navigateur
+(`kbPortraitTablette` toujours faux : « 4 rangée(s) rendue(s) en portrait »,
+plaque revenue à 232 px). Le contrôle jsdom a changé de nom avec sa portée —
+« le clavier ancré tient sur moins de rangées avec les mêmes touches » —, et la
+phrase du paragraphe précédent, « puis tourne en portrait où les quatre rangées
+reviennent », raconte le banc d'avant ce jour-là. La Seconde porte le même
+clavier et n'est toujours pas dans la demande : elle n'est pas touchée, et sa
+plaque de portrait reste à 232 px — le banc l'imprime, à côté de celle de la
+Première.
+
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
 calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,

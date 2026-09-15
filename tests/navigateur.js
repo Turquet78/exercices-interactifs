@@ -7393,8 +7393,11 @@ async function parcours(page, N){
        de lui-même, politique « auto »), on compte les rangées rendues, on
        exige des touches encore touchables et aucun débord, on CLIQUE la vraie
        touche ⏎ — une ligne de plus, le curseur dedans, le clavier toujours
-       là — puis on tourne en portrait, où les rangées de la forme normale
-       reviennent. */
+       là — puis on tourne en PORTRAIT, où le clavier prend sa forme de portrait
+       (trois rangées sur une tablette, demande de Turquet, septembre 2026 :
+       « en mode portrait, que le clavier tienne sur 3 lignes au lieu de 4 »),
+       et enfin on rétrécit à la taille d'un TÉLÉPHONE, où les rangées
+       d'origine reviennent : la forme courte ne doit pas y fuir. */
     titre('11 quinquies. LE CLAVIER MATHÉMATIQUE SUR UNE TABLETTE EN PAYSAGE');
     if(!(P.clavierEcran && P.clavierEcran.paysage)){
       ignorer('sur une tablette en paysage, le clavier mathématique tient sur moins de rangées', 'ce fichier ne déclare pas de clavier de paysage');
@@ -7453,15 +7456,45 @@ async function parcours(page, N){
             : apres.lignes !== pay.lignes + 1 ? pay.lignes + ' ligne(s) avant, ' + apres.lignes + ' après : la touche ne passe pas à la ligne'
             : apres.focus !== pay.lignes ? 'la nouvelle ligne n\'a pas le curseur (ligne active : ' + apres.focus + ')'
             : 'le clavier s\'est refermé');
-        /* et en portrait, la forme normale revient : plus de rangées */
+        /* et tournée en PORTRAIT, la forme du portrait : trois rangées sur une
+           tablette (clavierEcran.portraitTablette, deux sources), les rangées
+           de la forme normale là où rien n'est déclaré */
         await s.page.setViewportSize({ width: 768, height: 1024 });
         await s.page.waitForTimeout(1200);
+        const KP = K.portraitTablette || null;
         const por = await s.page.evaluate(mesurerRangees, arg);
-        verifier('tournée en portrait, la tablette retrouve les rangées de la forme normale du clavier',
-          por.visible && por.rangees > KL.rangees && !!por.entree && por.debord <= 1,
+        verifier(KP ? 'tournée en portrait, la tablette tient sur ' + KP.rangees + ' rangées, touches touchables, sans débord'
+                    : 'tournée en portrait, la tablette retrouve les rangées de la forme normale du clavier',
+          por.visible && !!por.entree && por.debord <= 1
+            && (KP ? (por.rangees === KP.rangees && por.hMin >= 36) : por.rangees > KL.rangees),
           !por.visible ? 'le clavier s\'est refermé à la rotation'
-            : por.rangees + ' rangée(s) rendue(s) en portrait (' + KL.rangees + ' en paysage)' + (por.entree ? '' : ', et plus de touche « ' + K.entree + ' »')
+            : por.rangees + ' rangée(s) rendue(s) en portrait (' + KL.rangees + ' en paysage), '
+              + por.touches + ' touches, plaque ' + por.plaque + ' px = ' + por.part + ' % de l\'écran'
+              + ', touche la plus basse ' + por.hMin + ' px'
+              + (por.entree ? '' : ', et plus de touche « ' + K.entree + ' »')
               + (por.debord > 1 ? ', DÉBORDE de ' + por.debord + ' px' : ''));
+        console.log('   · la plaque du clavier : ' + pay.plaque + ' px en paysage (' + pay.rangees + ' rangées), '
+          + por.plaque + ' px en portrait (' + por.rangees + ' rangées), sur un écran de ' + por.part + ' %');
+        /* le bord opposé, et il compte autant : un TÉLÉPHONE en portrait garde
+           les rangées d'origine — huit touches sur une rangée de 390 px ne se
+           toucheraient plus. Une forme courte qui fuirait sur le téléphone
+           passerait inaperçue sans cette mesure. */
+        if(KP){
+          await s.page.setViewportSize({ width: 390, height: 844 });
+          await s.page.waitForTimeout(1200);
+          const tel = await s.page.evaluate(mesurerRangees, arg);
+          verifier('sur un téléphone en portrait, les ' + KP.telephone + ' rangées d\'origine reviennent : la forme courte ne fuit pas',
+            tel.visible && tel.rangees === KP.telephone && tel.debord <= 1,
+            !tel.visible ? 'le clavier s\'est refermé au changement de taille'
+              : tel.rangees + ' rangée(s) rendue(s) sur un téléphone en portrait (' + KP.telephone + ' attendues)'
+                + (tel.debord > 1 ? ', DÉBORDE de ' + tel.debord + ' px' : ''));
+          /* et on REND la tablette : ce qui suit mesure la tablette, et l'a
+             mesurée à 390 px de large tant que ce détour n'était pas défait —
+             une feuille restée grande parce que la page était devenue un
+             téléphone. */
+          await s.page.setViewportSize({ width: 768, height: 1024 });
+          await s.page.waitForTimeout(700);
+        }
         /* la feuille écrit plus PETIT sur la tablette (feuilleTablette) : police
            rendue de la case au plus pxMax — et, sur un ordinateur ouvert au même
            exercice, plus grande : une règle qui réduirait partout ne serait pas
