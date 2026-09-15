@@ -7583,6 +7583,89 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11 nonies. Le clavier ancré déployé ne recouvre plus les commandes ----
+       Signalé par Turquet (septembre 2026) : « occupe-toi du clavier qui
+       recouvre les commandes ». Mesuré avant tout correctif sur les TROIS
+       niveaux, dans les deux orientations : « Signaler », « Abandonner » et
+       « Mettre en pause » vivaient ENTIÈREMENT sous le clavier ancré et y
+       étaient INTOUCHABLES (elementFromPoint rend une touche du clavier) —
+       aucune erreur nulle part, le bouton ne répondait simplement pas.
+       jsdom lit la règle et la classe ; seul un navigateur sait OÙ tombe un
+       bouton. Trois bords, et il les faut tous les trois : clavier déployé,
+       aucune commande sous lui et toutes atteignables ; aucune ne recouvre la
+       CASE où l'élève écrit — c'est ce qui a écarté la place « juste au-dessus
+       du clavier », la leçon de la bulle « Comprendre mon erreur » ; et
+       clavier REFERMÉ, elles redescendent au bas de l'écran, sans quoi une
+       règle qui les monterait pour de bon passerait au vert. */
+    titre('11 nonies. LE CLAVIER ANCRÉ DÉPLOYÉ NE RECOUVRE PLUS LES COMMANDES');
+    {
+      const KE = P.clavierEcran || {};
+      const E = [KE.paysage, KE.tablette, KE.portrait].find(x => x && x.exercice && x.champ);
+      if(!E){
+        ignorer('le clavier ancré déployé ne recouvre plus les commandes du bas',
+                'ce fichier ne déclare aucun écran à clavier mathématique');
+      } else {
+        /* ce que chaque commande devient : sous le clavier ? atteignable ?
+           par-dessus la case où l'élève écrit ? */
+        const mesurer = () => {
+          const H = innerHeight;
+          const kb = document.querySelector('body > .ML__keyboard .MLK__backdrop');
+          const haut = kb ? kb.getBoundingClientRect().top : null;
+          const a = document.activeElement;
+          const c = (a && a.tagName === 'MATH-FIELD') ? a.getBoundingClientRect() : null;
+          const tc = document.getElementById('testCtrls');
+          const out = { deploye: !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible),
+                        haut: haut === null ? null : Math.round(haut), casePresente: !!c,
+                        sous: [], sourdes: [], surCase: [], bas: [] };
+          if(tc && !tc.hidden) [...tc.querySelectorAll('button')].forEach(b => {
+            const r = b.getBoundingClientRect();
+            if(r.width < 2 || r.height < 2) return;
+            out.bas.push(Math.round(H - r.bottom));
+            if(haut !== null && r.bottom > haut) out.sous.push('« ' + b.id + ' » dépasse de ' + Math.round(r.bottom - haut) + ' px sous le haut du clavier');
+            const e = document.elementFromPoint(Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2));
+            if(!(e === b || b.contains(e))) out.sourdes.push('« ' + b.id + ' » recouverte par ' + ((e && (e.className || e.tagName)) || '?').toString().trim().slice(0, 30));
+            if(c && !(r.right < c.left || r.left > c.right || r.bottom < c.top || r.top > c.bottom))
+              out.surCase.push('« ' + b.id + ' » recouvre la case où l\'élève écrit');
+          });
+          return out;
+        };
+        for(const vue of [{ n: 'paysage', w: 1024, h: 768 }, { n: 'portrait', w: 768, h: 1024 }]){
+          s = await ouvrir(chromium, ml, { viewport: { width: vue.w, height: vue.h }, hasTouch: true });
+          if(await connecter(s.page) !== 'scr-space'){
+            ignorer('le clavier ancré déployé ne recouvre plus les commandes du bas (' + vue.n + ')', 'connexion impossible');
+          } else {
+            await s.page.evaluate(i => openTest(i), E.exercice);
+            await s.page.waitForTimeout(300);
+            await s.page.evaluate(() => {
+              const b = [...document.querySelectorAll('#modeChoices button')]
+                .find(x => (x.getAttribute('onclick') || '').indexOf('train') >= 0);
+              if(b) b.click();
+            });
+            await s.page.waitForTimeout(800);
+            await s.page.click(E.champ);
+            await s.page.waitForTimeout(900);
+            const ouvert = await s.page.evaluate(mesurer);
+            verifier('clavier déployé (' + vue.n + ') : aucune commande sous le clavier, toutes atteignables, aucune sur la case',
+              ouvert.deploye && ouvert.haut !== null && ouvert.bas.length > 0
+                && ouvert.sous.length === 0 && ouvert.sourdes.length === 0 && ouvert.surCase.length === 0,
+              !ouvert.deploye ? 'le clavier ne se déploie pas' : ouvert.haut === null ? 'aucun clavier rendu'
+                : !ouvert.bas.length ? 'aucune commande affichée'
+                : [].concat(ouvert.sous, ouvert.sourdes, ouvert.surCase).slice(0, 3).join(' ; '));
+            /* LE BORD OPPOSÉ : refermé, le clavier leur rend le bas de l'écran.
+               Sans cette mesure, des commandes montées pour de bon passeraient. */
+            await s.page.evaluate(() => { try{ mathVirtualKeyboard.hide(); }catch(e){} document.activeElement.blur(); });
+            await s.page.waitForTimeout(600);
+            const ferme = await s.page.evaluate(mesurer);
+            verifier('clavier refermé (' + vue.n + ') : les commandes redescendent au bas de l\'écran',
+              !ferme.deploye && ferme.bas.length > 0 && Math.max.apply(null, ferme.bas) <= 120,
+              ferme.deploye ? 'le clavier ne se referme pas' : !ferme.bas.length ? 'aucune commande affichée'
+                : 'la plus haute est à ' + Math.max.apply(null, ferme.bas) + ' px du bas : elles ne sont pas redescendues');
+          }
+          await s.nav.close(); s = null;
+        }
+      }
+    }
+
     /* ---- 11 octies. En mode application, la bande du bas est rendue au système ----
        Signalé par Turquet (septembre 2026) sur une tablette Samsung, la page
        posée sur l'écran d'accueil : « la ligne la plus basse du clavier virtuel

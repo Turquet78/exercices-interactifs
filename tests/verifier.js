@@ -3514,6 +3514,7 @@ function exercices(suite){
     paveNumerique(w, P);
     manifesteAppli(w, P);
     basSysteme(w, P);
+    commandesSousClavier(w, P);
     toucheEgalClavier(w, P);
     toucheEntreeClavier(w, P);
     clavierPaysageCompact(w, P);
@@ -10037,6 +10038,66 @@ function basSysteme(w, P){
     rendre();
     return vus.length ? vus.join(' ; ') : true;
   })()`);
+}
+
+/* ---------- Le clavier ancré prend le bas : les commandes montent en haut ---------- */
+/* Signalé par Turquet (septembre 2026). Mesuré avant tout correctif, sur les
+   TROIS niveaux et dans les deux orientations : « Signaler », « Abandonner »
+   et « Mettre en pause » vivent ENTIÈREMENT sous le clavier ancré dès qu'il
+   est déployé, et elles y sont INTOUCHABLES — aucune erreur nulle part, le
+   bouton ne répond simplement pas. Elles montent donc EN HAUT tant qu'il est
+   déployé : c'est le seul coin que ni le clavier ni la case où l'élève écrit
+   n'occupent (juste au-dessus du clavier, elles recouvrent la ligne qu'il
+   tape — la leçon de la bulle « Comprendre mon erreur »).
+   jsdom tient la mécanique ; le RENDU — les commandes hors du clavier et
+   touchables pour de vrai — est au banc navigateur, seul à savoir où tombe un
+   bouton. Trois bords ici, et n'en tenir qu'un ne tient rien : la règle
+   existe et remonte vraiment les commandes ; elle vient APRÈS celles de
+   « pave-actif », qui posent le même « bottom » — à spécificité égale c'est
+   l'ordre qui tranche, et une règle écrite plus haut ne ferait RIEN sans
+   qu'aucune erreur ne se lève ; la classe suit le clavier dans les deux sens
+   et ne se pose jamais sur la fenêtre FLOTTANTE de l'ordinateur, qui ne
+   recouvre rien ; et pinKbToViewport l'APPELLE — une fonction juste que
+   personne n'appelle est la moitié morte du correctif. */
+function commandesSousClavier(w, P){
+  const nom = 'le clavier ancré déployé ne recouvre plus les commandes du bas';
+  const src = lire(CIBLE), pbs = [];
+  /* la règle, et ce qu'elle pose vraiment */
+  const mRegle = /body\.clavier-ouvert\s+#testCtrls\{([^}]*)\}/.exec(src);
+  if(!mRegle) pbs.push('aucune règle « body.clavier-ouvert #testCtrls » : les commandes restent sous le clavier');
+  else{
+    const d = mRegle[1];
+    if(!/(^|;)\s*top\s*:/.test(d)) pbs.push('la règle ne pose aucun « top » : les commandes ne remontent nulle part');
+    if(!/(^|;)\s*bottom\s*:\s*auto/.test(d)) pbs.push('la règle ne rend pas « bottom:auto » : le bas continue de la tenir en place');
+    /* l'ORDRE : après toutes les règles qui posent un « bottom » aux commandes */
+    const iRegle = mRegle.index;
+    const rx = /body\.pave-actif\s+#testCtrls\{([^}]*)\}/g; let m, apres = [];
+    while((m = rx.exec(src))) if(/bottom\s*:/.test(m[1]) && m.index > iRegle) apres.push(m[0]);
+    if(apres.length) pbs.push(apres.length + ' règle(s) « pave-actif » posent un bottom APRÈS la nôtre, à spécificité égale : elle ne fait rien (' + apres[0].slice(0, 60) + ')');
+  }
+  /* la classe suit le clavier, dans les deux sens, et jamais sur la fenêtre flottante */
+  const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const fCh = fns.find(o => o.nom === 'clavierHaut'), fPin = fns.find(o => o.nom === 'pinKbToViewport');
+  if(!fCh) pbs.push('clavierHaut est introuvable dans la source');
+  else{
+    const vus = [];
+    const jouer = (visible, flottant) => {
+      const cls = new Set();
+      const body = { classList: { toggle: (c, on) => { if(on) cls.add(c); else cls.delete(c); } } };
+      const win = { mathVirtualKeyboard: { visible: visible }, __kbFloating: flottant };
+      try{
+        new Function('window', 'document', fCh.texte + '\nclavierHaut();')(win, { body: body });
+      }catch(e){ vus.push('clavierHaut ne s\'évalue pas : ' + e.message); }
+      return cls.has('clavier-ouvert');
+    };
+    if(!jouer(true, false)) vus.push('la classe manque quand le clavier ancré est déployé');
+    if(jouer(false, false)) vus.push('la classe reste posée une fois le clavier refermé');
+    if(jouer(true, true)) vus.push('la classe est posée sur la fenêtre flottante de l\'ordinateur, qui ne recouvre rien');
+    pbs.push.apply(pbs, vus);
+  }
+  if(!fPin) pbs.push('pinKbToViewport est introuvable dans la source');
+  else if(!/clavierHaut\s*\(/.test(fPin.texte)) pbs.push('pinKbToViewport n\'appelle pas clavierHaut : la classe ne serait jamais posée');
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 
 /* ---------- Le manifeste d'application : déclaré en tactile, jamais ailleurs ---------- */
