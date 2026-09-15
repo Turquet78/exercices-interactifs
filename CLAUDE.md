@@ -4779,6 +4779,54 @@ décimales lui reste sous les yeux. Retirés des deux côtés, le bord « le
 contrôle ne mesure qu'une seule forme » rougit. Dix sabotages en tout, neuf
 rougissant en nommant leur défaut.
 
+**Et au 2.1.3, la règle est vraie plus largement qu'elle ne demande.**
+« fais la même chose pour le 2.1.3 » (Turquet, septembre 2026), après le
+2.2.7, le 2.3.7, le 2.2.8 et le 2.5.1. « Prendre P % », c'est multiplier par
+P/100 : voilà le coefficient de cet exercice-là.
+**LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT** : sur 20 000
+tirages de `genPercent`, le coefficient a TOUJOURS une seule décimale, et tout
+ce qui vient après lui — le produit de l'étape ②, le résultat de l'étape ③ —
+est ENTIER. **Rien à changer au tirage, donc**, et le 2.1.3 n'écrit d'ailleurs
+jamais son coefficient en décimal : l'étape ① l'écrit en FRACTION, et ce que
+l'élève écrit en décimal est le résultat, qui n'a aucune décimale.
+**CE QUI LA TIENT EST QUE LE TAUX EST UN ENTIER DE POURCENT**, et c'est la
+seule chose qui puisse la rompre. 12,5 % — un taux d'école, 1/8 — donnerait
+0,125, trois décimales, et **passerait tous les gardes de la page** : 12,5 × 80
+fait 1000, donc un résultat parfaitement entier, et le contrôle voisin
+(« générateur genPercent : 5000 questions conformes ») n'exige que l'ENTIER —
+il serait resté vert. Une propriété heureuse n'est pas une propriété tenue, la
+leçon du 2.3.7 et du 2.5.1 retombée telle quelle.
+**AUCUN GARDE N'EST POSÉ DANS LA PAGE** : P est entier par construction, un
+garde n'écarterait jamais rien. La raison est ÉCRITE là où le tirage la tient —
+à côté de `PCT_PCTS`, dans le bloc même qui invite à élargir la plage — et
+c'est le contrôle qui EXIGE la propriété, sur le VIVIER (tout taux est un
+entier de pourcent, toute valeur est entière) comme sur chaque tirage, par une
+seconde arithmétique en entiers là où la page divise par 100. Le vivier étant
+partagé — le 2.1.2, le 2.1.4, le 2.1.5 et les deux évolutions y puisent
+aussi —, l'exiger sur le vivier les tient a fortiori.
+**ET LA MOITIÉ « P × N divisible par 100 » DE `pctCoupleOk` N'ÉCARTE RIEN** :
+mesuré exhaustivement, 162 couples possibles, 104 retenus, 58 écartés par
+`PCT_MAXPROD` et ZÉRO par cette divisibilité — les deux viviers n'ayant que des
+multiples de dix, le produit est toujours un multiple de 100. Elle RESTE, et le
+dire vaut mieux que de le taire : elle est exactement le filtre qui tiendrait
+l'intégralité le jour où `PCT_VALEURS` s'ouvrirait (15 y ferait écarter 30 %
+mais pas 20 %), et la propriété, elle, est désormais exigée par le banc. Le
+sabotage le démontre plutôt que de le supposer : la retirer laisse le contrôle
+vert, à bon droit ; la retirer ET ouvrir `PCT_VALEURS` le fait rougir.
+**Et le contrôle lit une TROISIÈME fois, sur ce que la PAGE écrit** : la copie
+juste est cliquée sur la question du RAPPEL de cours — prise au vrai générateur,
+parce qu'un rappel qui enseigne la méthode sur un cas impossible est la leçon du
+2.2.8 — puis une copie fausse, et la phrase de correction (« Réponse : 30/100 ×
+40 = 1200/100 = 12 ») ne doit porter aucun nombre à virgule : c'est le seul
+endroit où l'élève LIT le résultat en décimal.
+Dix sabotages, neuf rougissant en nommant leur défaut ; le dixième est celui de
+la moitié inerte ci-dessus, vert à bon droit. **Et un onzième n'a rien pu dire** :
+réduire `PCT_PCTS` à un seul taux FIGE la page — deux générateurs voisins bouclent
+sur « au moins quatre pourcentages admissibles » — et un sabotage qui fige la page
+ne dit rien du contrôle visé, comme celui qui en casse la syntaxe. Rejoué à quatre
+taux, sous le seuil du garde, il rougit (« le vivier des pourcentages est vide, le
+contrôle ne mesure rien »).
+
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
 (`details.test`). Le renommer ferait disparaître toutes les notes passées de cet

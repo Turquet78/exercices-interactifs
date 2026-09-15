@@ -2015,7 +2015,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=221;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=222;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7156,12 +7156,32 @@ const QLET=['a','b','c','d'];
      - le produit reste sous PCT_MAXPROD ;
      - le résultat est toujours entier.
    Élargir la plage se fait ici : ajouter des pourcentages à PCT_PCTS, ouvrir
-   PCT_VALEURS, relever PCT_MAXPROD. Les trois générateurs de 3.1 suivent. */
+   PCT_VALEURS, relever PCT_MAXPROD. Les trois générateurs de 3.1 suivent.
+   ET LE COEFFICIENT S'ÉCRIT AVEC AU PLUS DEUX DÉCIMALES (demande de Turquet,
+   septembre 2026, après le 2.2.7, le 2.3.7, le 2.2.8 et le 2.5.1) : « prendre
+   P % », c'est multiplier par P/100, et ce qui tient la règle est que P est un
+   ENTIER de pourcent. Sur les viviers d'aujourd'hui le coefficient n'a même
+   qu'UNE décimale — les taux sont des multiples de dix — et tout le reste de la
+   chaîne est entier.
+   AUCUN GARDE N'EST POSÉ : il n'écarterait jamais rien, P étant entier par
+   construction, et ferait croire qu'on vérifie quelque chose. La raison est
+   écrite ICI parce que c'est ici qu'on élargit : 12,5 % — un taux d'école,
+   1/8 — donnerait 0,125, et passerait TOUS les gardes de la page (12,5 × 80
+   fait 1000, donc un résultat parfaitement entier). C'est le banc qui exige la
+   propriété, sur le vivier comme sur chaque tirage. */
 const PCT_MAXPROD=9999;                        /* étape ② : 4 chiffres au maximum */
 const PCT_PCTS=[10,20,30,40,50,60,70,80,90];
 const PCT_VALEURS=(()=>{ const t=[]; for(let k=1;k<=2;k++) for(let d=1;d<=9;d++) t.push(d*Math.pow(10,k)); return t; })();  /* 10 … 90, 100 … 900 */
 /* Un couple n'est retenu que s'il tient dans la plage ET donne un résultat entier :
-   l'étape ③ ne doit pas basculer en décimal, ce serait un autre exercice. */
+   l'étape ③ ne doit pas basculer en décimal, ce serait un autre exercice.
+   La divisibilité par 100 n'écarte RIEN sur les viviers d'aujourd'hui — mesuré
+   exhaustivement : 162 couples, 104 retenus, 58 écartés par PCT_MAXPROD et zéro
+   par elle, les deux viviers n'ayant que des multiples de dix. Elle reste parce
+   qu'elle est exactement le filtre qui tiendrait l'intégralité le jour où
+   PCT_VALEURS s'ouvrirait (15 y ferait écarter 30 % mais pas 20 %), et parce que
+   la propriété, elle, est exigée par le banc. Le sabotage le dit : la retirer
+   laisse le contrôle vert, à bon droit ; la retirer ET ouvrir PCT_VALEURS le
+   fait rougir. */
 function pctCoupleOk(P,N){ const pr=P*N; return pr<=PCT_MAXPROD && pr%100===0; }
 const QD_PCTS=PCT_PCTS;
 /* L'euro apparaît deux fois : c'est de loin le contexte le plus courant des
