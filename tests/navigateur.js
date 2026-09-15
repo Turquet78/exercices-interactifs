@@ -5888,6 +5888,159 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies nonies. la suite monotone : l'escalier se CLIQUE ===== */
+    /* {suite-variation-recurrence} : le tracé en escalier se pose au CLIC, et
+       c'est le NAVIGATEUR qui décide sur quel rail l'élève a cliqué — chaque
+       courbe est doublée d'un chemin transparent épais (pointer-events:stroke).
+       jsdom n'a pas de mise en page : un SVG y a un rectangle nul, et
+       getScreenCTM n'existe pas — le banc principal éprouve svrPoser(), seul
+       celui-ci CLIQUE. On lit les coordonnées sur le SVG RENDU (aucune
+       coordonnée recopiée : la même transformation que le dessin), on pose les
+       trois points, on vérifie, et on mesure ce que jsdom ne peut pas voir :
+       le repère à une taille lisible, l'escalier vert d'étendue non nulle, et
+       les trois rangées de la démonstration d'un seul tenant. */
+    titre('6 vicies nonies. LA SUITE MONOTONE : L\'ESCALIER SE CLIQUE');
+    if(!P.suiteVariation){
+      ignorer('le tracé en escalier se pose au clic, sur le bon rail',
+        'ce niveau n\'a pas l\'exercice du sens de variation par récurrence');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 950 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.suiteVariation.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* on ÉPINGLE le cas de la fiche : la mesure ne doit pas dépendre du tirage */
+      await s.page.evaluate(() => {
+        test.questions[test.idx] = { l:1, L:3, U0:2, sens:'dec',
+          ordre:['l','un1','u1','un','u0','un2'], ordreLim:['u0','l','zero','L'], pts:[] };
+        renderSVR();
+      });
+      await s.page.waitForTimeout(300);
+      /* le repère est RENDU à une taille lisible — un CSS perdu le réduirait
+         sans qu'aucune erreur ne se lève, et les graduations deviendraient
+         illisibles */
+      const geo = await s.page.evaluate(() => {
+        const svg = document.querySelector('#svrGraph svg');
+        if(!svg) return { manque: true };
+        const r = svg.getBoundingClientRect();
+        const hits = [...document.querySelectorAll('#svrGraph .svr-hit')].map(h => ({
+          rail: h.getAttribute('data-rail'),
+          ep: parseFloat(getComputedStyle(h).strokeWidth),
+          pe: getComputedStyle(h).pointerEvents }));
+        return { manque: false, w: Math.round(r.width), h: Math.round(r.height), hits };
+      });
+      if(geo.manque) dits.push('aucun repère rendu');
+      else {
+        if(geo.w < 420 || geo.h < 420) dits.push('le repère est rendu à ' + geo.w + ' × ' + geo.h + ' px : les graduations ne se lisent plus');
+        if(geo.hits.length !== 2) dits.push(geo.hits.length + ' rail(s) cliquable(s) au lieu de 2');
+        geo.hits.forEach(hh => {
+          if(hh.pe !== 'stroke') dits.push('le rail ' + hh.rail + ' ne reçoit pas les clics (pointer-events : ' + hh.pe + ')');
+          if(!(hh.ep >= 10)) dits.push('la zone de clic du rail ' + hh.rail + ' ne fait que ' + hh.ep + ' px');
+        });
+      }
+      /* le point d'un rail, lu sur le SVG RENDU : on repasse par la
+         transformation du dessin, jamais par une constante recopiée */
+      const posRail = async (rail, x) => await s.page.evaluate(([rail, x]) => {
+        const svg = document.querySelector('#svrGraph svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const k = r.width / vb.width;
+        const a = svrAns(test.questions[test.idx]);
+        const y = (rail === 'c') ? svrFn(a)(x) : x;
+        return { px: r.left + (SVR_PADL + x * SVR_PLOT / a.W) * k,
+                 py: r.top + (SVR_PADT + SVR_PLOT - y * SVR_PLOT / a.W) * k };
+      }, [rail, x]);
+      const clicRail = async (rail, x) => { const p = await posRail(rail, x); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(140); };
+      const A = await s.page.evaluate(() => { const a = svrAns(test.questions[test.idx]); return { U0: a.U0, U1: a.U1, U2: a.U2, W: a.W }; });
+      /* LE RAIL EST CELUI QU'ON A CLIQUÉ : à l'abscisse U1, la droite et la
+         courbe portent chacune un point attendu — c'est le navigateur qui les
+         départage, et c'est tout ce que ce contrôle mesure ici */
+      await clicRail('c', A.U0);
+      await clicRail('d', A.U1);
+      await clicRail('c', A.U1);
+      const poses = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = svrAns(q);
+        return { pts: q.pts.slice(), verd: [0,1,2].map(i => svrPtJuste(a, i, q.pts[i])),
+                 dessines: document.querySelectorAll('#svrGraph .svr-pt').length };
+      });
+      if(poses.pts.length !== 3) dits.push('trois clics posent ' + poses.pts.length + ' point(s)');
+      else {
+        const rails = poses.pts.map(p => p.r).join('');
+        if(rails !== 'cdc') dits.push('les clics tombent sur les rails « ' + rails +' » au lieu de « cdc » : le navigateur ne départage pas les deux courbes');
+        if(!poses.verd.every(Boolean)) dits.push('les trois points cliqués sont jugés ' + JSON.stringify(poses.verd));
+      }
+      if(poses.dessines !== 3) dits.push(poses.dessines + ' point(s) dessiné(s) après trois clics');
+      /* un clic LOIN des deux rails ne pose rien */
+      await s.page.evaluate(() => { test.questions[test.idx].pts = []; svrDessiner(); });
+      { const p = await posRail('d', A.W * 0.5);
+        await s.page.mouse.click(p.px, p.py - 90);            /* bien au-dessus de la droite, loin de la courbe */
+        await s.page.waitForTimeout(140);
+        const n = await s.page.evaluate(() => test.questions[test.idx].pts.length);
+        if(n) dits.push('un clic posé entre les deux rails pose quand même un point'); }
+      /* la copie juste, puis la vérification : la méthode se DESSINE, avec une
+         étendue non nulle — un CSS perdu la rendrait invisible sans erreur */
+      await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = svrAns(q);
+        q.pts = []; svrDessiner();
+        svrCases(q).forEach(x => { const e = document.getElementById(x.id); if(e) e.value = svrCorrVal(a, x); });
+        svrPtsAttendus(a).forEach(e => svrPoser(e.r, e.x));
+      });
+      await s.page.click('#svrActions button.btn-primary');
+      await s.page.waitForTimeout(400);
+      const fin = await s.page.evaluate(() => {
+        const boite = sel => { const e = document.querySelector(sel); if(!e) return null;
+          const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; };
+        const pt = document.querySelector('#svrGraph .svr-pt.ok circle');
+        return { score: test.score, note: ptsEcran(),
+                 esc: boite('#svrGraph .svr-esc-sol'), lect: document.querySelectorAll('#svrGraph .svr-lect').length,
+                 bleus: document.querySelectorAll('#svrGraph .svr-pt.ok').length,
+                 encre: pt ? getComputedStyle(pt).fill : '' };
+      });
+      if(fin.score !== 1) dits.push('la copie juste cliquée ne vaut pas le point (score ' + fin.score + ')');
+      if(!fin.note || fin.note.justes !== fin.note.cases) dits.push('la note affichée compte ' + (fin.note ? fin.note.justes + '/' + fin.note.cases : 'rien'));
+      if(!fin.esc || fin.esc.w < 20 || fin.esc.h < 20) dits.push('l\'escalier vert de la méthode est dessiné mais d\'étendue presque nulle');
+      if(fin.lect !== 2) dits.push(fin.lect + ' trait(s) de lecture au lieu de 2 (U1 sur l\'axe, U2 en hauteur)');
+      if(fin.bleus !== 3) dits.push(fin.bleus + ' point(s) peint(s) en bleu au lieu de 3');
+      { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(fin.encre || '');
+        if(m){ const c = [+m[1], +m[2], +m[3]];
+          if(!(c[2] >= Math.max(c[0], c[1]))) dits.push('le point juste n\'est pas peint en bleu : ' + fin.encre); } }
+      /* LES TROIS RANGÉES DE LA DÉMONSTRATION SONT D'UN SEUL TENANT : coupée en
+         deux, une chaîne d'inégalités se lit comme deux chaînes. On mesure à
+         DEUX largeurs, et la seconde est celle qui compte — à 1400 px la
+         rangée tient, donc un repli ne s'y voit pas : le sabotage y restait
+         vert en parlant d'autre chose. À 900 px elle NE tient plus, et c'est
+         là qu'on lit ce qu'elle fait : elle doit DÉFILER dans sa boîte, jamais
+         se replier. */
+      const mesurerRangs = async () => await s.page.evaluate(() => {
+        const sc = document.querySelector('#svrPartE .svr-scroll');
+        return { rangs: [...document.querySelectorAll('#svrPartE .svr-drow')].map(d => {
+            const r = d.getBoundingClientRect();
+            const hauts = [...d.children].filter(c => c.getBoundingClientRect().height > 0)
+              .map(c => c.getBoundingClientRect().height);
+            return { h: Math.round(r.height), max: Math.round(Math.max.apply(null, hauts.concat([0]))) };
+          }),
+          debord: sc ? Math.round(sc.scrollWidth - sc.clientWidth) : -1 };
+      });
+      const jugerRangs = (m, large) => {
+        if(large && m.debord > 2) dits.push('la démonstration défile de ' + m.debord + ' px à 1400 px de large');
+        if(!large && m.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs');
+        m.rangs.forEach((r, i) => {
+          if(r.h > r.max * 1.6) dits.push('à ' + (large ? 1400 : 900) + ' px, la rangée ' + (i + 1)
+            + ' de la démonstration s\'est repliée (' + r.h + ' px pour des éléments de ' + r.max + ' px)');
+        });
+      };
+      jugerRangs(await mesurerRangs(), true);
+      await s.page.setViewportSize({ width: 900, height: 950 });
+      await s.page.waitForTimeout(300);
+      jugerRangs(await mesurerRangs(), false);
+      verifier('le tracé en escalier se pose au clic, sur le bon rail', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de la suite monotone ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
     /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
        de mise en page — seul un navigateur voit le geste), puis la partie

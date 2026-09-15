@@ -6970,6 +6970,92 @@ REFUSÉE — le contrôle l'épingle parmi les refus, et exige le « + » rendu
 entre les deux cases —, et la consigne, le message et le contexte du modèle
 disent le nouveau geste. Le dénominateur, lui, portait déjà son « + ».
 
+**Le sens de variation se conjecture sur un ESCALIER, puis se démontre par
+récurrence.** {suite-variation-recurrence} (Terminale, 6.11, demande de
+Turquet, septembre 2026, repris de la fiche « Exercice 2 ») ferme le thème
+Suites : U₀ = 2, Uₙ₊₁ = 3/(4 − Uₙ), donc Uₙ₊₁ = f (Uₙ) avec f (x) = 3/(4 − x),
+et les cinq questions de la fiche dans son ordre, sur un seul écran — a) tracer
+les 3 premiers termes en escalier, b) calculer U₁, c) conjecturer le sens de
+variation et la limite, d) étudier les variations de f, e) démontrer par
+récurrence 1 ≤ Uₙ₊₁ ≤ Uₙ ≤ 2. Les quatre premières préparent la cinquième : le
+dessin fait conjecturer, l'étude de f donne la CROISSANCE, et c'est elle qui
+conserve les inégalités dans l'hérédité.
+**L'ENCADREMENT DIT LE SENS ET LA BORNE D'UN SEUL COUP, et c'est ce qui le
+distingue du {recurrence-encadrement}** : celui-là démontre m ≤ Uₙ ≤ M — la
+suite est bornée, on ne sait rien de son sens ; celui-ci glisse Uₙ₊₁ dans la
+chaîne, et la même récurrence rend la monotonie par-dessus le marché.
+**LA FAMILLE, ET POURQUOI ELLE EST HONNÊTE** : f (x) = ℓL/(ℓ+L − x) a pour
+points fixes EXACTEMENT ℓ et L, puisque x(ℓ+L−x) = ℓL s'écrit (x−ℓ)(x−L) = 0,
+et elle est croissante partout où elle est définie. Le tirage place U₀ d'un
+côté ou de l'autre du petit point fixe, et les DEUX VISAGES SORTENT DANS CHAQUE
+SÉANCE, en ordre mélangé : ℓ < U₀ < L donne une suite DÉCROISSANTE minorée par
+ℓ (le cas de la fiche), 0 ≤ U₀ < ℓ une suite CROISSANTE majorée par ℓ. Sans
+eux, la réponse de c) serait toujours « décroissante » et l'élève répondrait
+sans lire le dessin. Le contrôle ne suppose pas l'encadrement : il SIMULE la
+suite sur trente rangs et le vérifie rang par rang — sans quoi l'énoncé serait
+faux avant que l'élève ne commence, le pire défaut du projet (la leçon du 6.3).
+**LA DERNIÈRE LIGNE A CINQ TERMES, ET C'EST LA FICHE QUI LE DIT** : on applique
+f aux quatre termes de l'hypothèse, puis il faut ÉLARGIR pour retrouver la
+propriété — à la décroissante le terme en trop est à DROITE
+(1 ≤ Uₙ₊₂ ≤ Uₙ₊₁ ≤ U₁ ≤ U₀), à la croissante tout se retourne et il passe à
+GAUCHE. Le terme qui élargit est f (U₀), c'est-à-dire U₁ — celui-là même que
+l'élève vient de calculer en b). Le contrôle le REDÉRIVE par sa propre table
+(f (ℓ) = ℓ, f (Uₙ) = Uₙ₊₁, f (Uₙ₊₁) = Uₙ₊₂, f (U₀) = U₁) plutôt que de le lire
+dans la page.
+**LES TERMES DE LA DÉMONSTRATION SE CHOISISSENT, ILS NE SE TAPENT PAS** :
+« Un+1 » écrit dans un champ de texte est Uₙ₊₁ pour l'œil et Uₙ + 1 pour la
+machine — le piège documenté du 6.7 et du 6.8 —, et une saisie libre y
+recalerait une lecture juste. Les onze cases de la chaîne sont donc des listes
+aux six mêmes options (ℓ, U₀, U₁, Uₙ, Uₙ₊₁, Uₙ₊₂), dont l'ORDRE est tiré par
+question et conservé : à visage égal, le rang de la bonne varie. Les RANGS (les
+petites cases d'indice) et les NOMBRES se tapent, eux, et sont lus par `rfrLin`
+et `rfrNb`, les lecteurs MÊMES du 6.10 — « n+1 », « 1+n » et « n + 1 » valent
+la même chose.
+**L'ESCALIER SE CLIQUE, ET LES DEUX RAILS SONT DEUX CIBLES** : la courbe et la
+droite y = x sont chacune doublées d'un chemin TRANSPARENT épais
+(`pointer-events:stroke`), si bien que c'est le NAVIGATEUR qui dit sur quel
+rail l'élève a cliqué — jamais une arithmétique de distance, qui hésiterait là
+où les deux courbes se rapprochent. TROIS points, et c'est voulu : (U₀ ; U₁)
+sur la courbe, (U₁ ; U₁) sur la droite, (U₁ ; U₂) sur la courbe — on lit alors
+U₁ sous la droite et U₂ à hauteur du dernier point. Un quatrième demanderait de
+cliquer en (U₂ ; U₂), où les rails sont déjà trop proches pour qu'on les
+distingue du doigt : le tirage EXIGE un écart d'au moins 44 unités de dessin
+aux abscisses cliquées, et ce garde-là est VIVANT — il écarte la moitié du
+vivier brut (11 tirages décroissants et 19 croissants lui survivent).
+**Les trois points sont des RÉPONSES, pas un décor** : `pts-case`, la classe de
+{simplifier-barres} portée en Terminale — sans elle l'écran aurait annoncé
+« 35 cases justes sur 35 » sur une question qui en vaut 38, le défaut de
+« good » au lieu de « ok » par une autre porte. La MÉTHODE (l'escalier juste en
+vert et les deux lectures d'axe) est dessinée à la VÉRIFICATION, jamais avant,
+et rien n'est coloré au fil des clics (la règle de {solutions-graphique}) :
+colorer une cible au moment où on la pose dirait laquelle est juste avant même
+de vérifier. Le tracé de l'élève est VIOLET — ni bleu ni rouge ni vert, les
+encres du verdict : la leçon du liseré de {croiser-denominateurs}.
+**Les deux bornes de l'intervalle se jugent sur ce qu'elles PROMETTENT** : f
+étant croissante partout où elle est définie, [0 ; 2] et [1 ; 2] sont tous deux
+vrais, et refuser le second serait refuser une lecture juste. Le contrôle exige
+les deux bords — la borne qui ne contient pas les termes, et celle qui franchit
+l'asymptote, sont refusées.
+**Deux défauts ne se sont vus que sur la capture** : « y = x » était posé PILE
+sur la droite qu'il nomme et se lisait barré (les étiquettes portent un halo
+désormais), et la chaîne de la conclusion se coupait en deux — une chaîne
+d'inégalités coupée se lit comme deux chaînes.
+Vingt-cinq sabotages au banc principal, chacun rougissant en nommant son
+défaut — et DEUX sont d'abord restés VERTS en montrant des trous du CONTRÔLE :
+il n'exerçait jamais la correction EN DIRECT (la branche « live » n'était pas
+touchée, et une case vide colorée sous la frappe passait), et sa clause de
+secret se cherchait en `/STRICTEMENT/i`, qui attrapait le « strictement
+positive » que l'exercice écrit lui-même — un contrôle qui passe au vert sous
+le sabotage parle d'autre chose. Un troisième était IMPOSSIBLE : ouvrir le
+garde du côté de U₀ à U₀ = ℓ ne produit aucun tirage, l'écart des rails y
+valant zéro. Le banc NAVIGATEUR (« 6 vicies nonies », déclaré par
+`suiteVariation` dans `tests/profils.js`) tient ce que jsdom ne peut pas voir —
+il n'a ni mise en page ni `getScreenCTM` : les trois points CLIQUÉS pour de
+vrai aux coordonnées lues sur le SVG RENDU, le rail que le navigateur
+départage, un clic entre les deux rails qui ne pose rien, le repère à une
+taille lisible, l'escalier vert d'étendue non nulle et les trois rangées de la
+démonstration d'un seul tenant.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
