@@ -9551,6 +9551,7 @@ function toucheEntreeClavier(w, P){
   if(bk){
     const formes = [['normale', [[]]]];
     if(C.paysage) formes.push(['paysage', [[], true]]);
+    if(C.portraitTablette) formes.push(['portrait', [[], false, true]]);
     formes.forEach(([quelle, args]) => {
       let dispo = null;
       try{ dispo = bk.apply(null, args); }catch(e){ pbs.push('buildKbTerm (forme ' + quelle + ') échoue : ' + e.message); return; }
@@ -9571,63 +9572,90 @@ function toucheEntreeClavier(w, P){
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 
-/* ---------- En paysage, le clavier ancré tient sur DEUX rangées — les mêmes touches ---------- */
+/* ---------- Le clavier ancré tient sur MOINS de rangées : deux en paysage, trois en portrait ---------- */
 /* Demande de Turquet (septembre 2026) : « en mode paysage je veux que le
    clavier prenne moins de place en hauteur en mettant plus de touches sur une
-   même ligne ». buildKbTerm(vars, true) rend la forme COMPACTE : chaque couche
-   a exactement le nombre de rangées déclaré (clavierEcran.paysage.rangees), et
-   le JEU de touches — latex, key, insert, command — est le MÊME que celui de
+   même ligne », puis, sur les pourcentages de la Première : « en mode
+   portrait, que le clavier tienne sur 3 lignes au lieu de 4 ».
+   buildKbTerm(vars, true) rend la forme COMPACTE et buildKbTerm(vars, false,
+   true) la forme PORTRAIT : chaque couche a exactement le nombre de rangées
+   déclaré (clavierEcran.paysage.rangees, clavierEcran.portraitTablette.rangees),
+   et le JEU de touches — latex, key, insert, command — est le MÊME que celui de
    la forme normale : une touche perdue d'un côté serait intapable dans une
    orientation, sans qu'aucune erreur ne se lève. Le bord opposé : la forme
    normale a PLUS de rangées, sinon rien n'est compacté. Et la TABLE DE
-   ROUTAGE est évaluée depuis la source (kbCompact + applyKbLayout) sur un
-   faux clavier : ancré en paysage → compact ; en portrait → normal ; la
-   fenêtre flottante de l'ordinateur → normale, même en paysage (un écran
-   d'ordinateur est toujours en paysage). Le rendu se mesure au banc
-   navigateur (« 11 quinquies »). */
+   ROUTAGE est évaluée depuis la source (kbCompact + kbPortraitTablette +
+   applyKbLayout) sur un faux clavier : ancré en paysage → compact ; ancré en
+   portrait sur une TABLETTE → la forme courte ; ancré en portrait sur un
+   TÉLÉPHONE → la forme normale, huit touches sur une rangée de 390 px ne se
+   touchant plus ; la fenêtre flottante de l'ordinateur → normale, même en
+   paysage (un écran d'ordinateur est toujours en paysage). Le rendu se mesure
+   au banc navigateur (« 11 quinquies »). */
 function clavierPaysageCompact(w, P){
-  const nom = 'en paysage, le clavier ancré tient sur moins de rangées avec les mêmes touches, et la fenêtre flottante garde les siennes';
+  const nom = 'le clavier ancré tient sur moins de rangées avec les mêmes touches, et la fenêtre flottante garde les siennes';
   const C = P.clavierEcran;
   if(!C || !C.paysage){ ignorer(nom, 'ce fichier ne déclare pas de clavier de paysage'); return; }
   const pbs = [];
   const bk = evaluerClavier(pbs);
   const sig = k => JSON.stringify([k.latex || '', k.key || '', k.insert || '', k.command || '']);
-  let normale = null, compact = null;
+  const PT = C.portraitTablette || null;
+  let normale = null, compact = null, portrait = null;
   if(bk){
     try{ normale = bk([]); }catch(e){ pbs.push('buildKbTerm([]) échoue : ' + e.message); }
     try{ compact = bk([], true); }catch(e){ pbs.push('buildKbTerm([], true) échoue : ' + e.message); }
+    if(PT){ try{ portrait = bk([], false, true); }catch(e){ pbs.push('buildKbTerm([], false, true) échoue : ' + e.message); } }
   }
-  if(normale && compact){
-    const cn = normale.layers || [], cc = compact.layers || [];
-    if(!cc.length) pbs.push('la forme compacte n\'a aucune couche');
-    cc.forEach(l => { const n = (l.rows || []).length;
-      if(n !== C.paysage.rangees) pbs.push('la couche ' + l.id + ' de la forme compacte a ' + n + ' rangée(s) au lieu de ' + C.paysage.rangees); });
-    cn.forEach(l => { const n = (l.rows || []).length;
-      if(n <= C.paysage.rangees) pbs.push('la forme normale (' + l.id + ') n\'a que ' + n + ' rangée(s) : rien n\'est compacté'); });
-    const sn = touchesDe(normale).map(sig), sc = touchesDe(compact).map(sig);
-    const perdues = sn.filter(x => sc.indexOf(x) === -1), ajoutees = sc.filter(x => sn.indexOf(x) === -1);
-    if(perdues.length) pbs.push('touche(s) absente(s) de la forme compacte : ' + perdues.join(', '));
-    if(ajoutees.length) pbs.push('touche(s) de la forme compacte absente(s) de la forme normale : ' + ajoutees.join(', '));
+  if(normale && compact && (!PT || portrait)){
+    const cn = normale.layers || [];
+    /* chaque forme courte : ses couches ont le compte déclaré, et pas une touche de moins */
+    const courte = (quelle, forme, rangees) => {
+      const cc = forme.layers || [];
+      if(!cc.length){ pbs.push('la forme ' + quelle + ' n\'a aucune couche'); return; }
+      cc.forEach(l => { const n = (l.rows || []).length;
+        if(n !== rangees) pbs.push('la couche ' + l.id + ' de la forme ' + quelle + ' a ' + n + ' rangée(s) au lieu de ' + rangees); });
+      cn.forEach(l => { const n = (l.rows || []).length;
+        if(n <= rangees) pbs.push('la forme normale (' + l.id + ') n\'a que ' + n + ' rangée(s) : rien n\'est compacté pour la forme ' + quelle); });
+      const sn = touchesDe(normale).map(sig), sc = touchesDe(forme).map(sig);
+      const perdues = sn.filter(x => sc.indexOf(x) === -1), ajoutees = sc.filter(x => sn.indexOf(x) === -1);
+      if(perdues.length) pbs.push('touche(s) absente(s) de la forme ' + quelle + ' : ' + perdues.join(', '));
+      if(ajoutees.length) pbs.push('touche(s) de la forme ' + quelle + ' absente(s) de la forme normale : ' + ajoutees.join(', '));
+    };
+    courte('compacte', compact, C.paysage.rangees);
+    if(PT) courte('portrait', portrait, PT.rangees);
     /* la table de routage, évaluée depuis la source sur un faux clavier */
     const src = lire(CIBLE);
     const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
     const fA = fns.find(o => o.nom === 'applyKbLayout'), fC = fns.find(o => o.nom === 'kbCompact');
+    const fT = fns.find(o => o.nom === 'kbPortraitTablette');
     if(!fA || !fC) pbs.push('applyKbLayout ou kbCompact est introuvable dans la source');
+    else if(PT && !fT) pbs.push('kbPortraitTablette est introuvable dans la source : rien ne décide la forme du portrait');
     else{
-      const rangees = (flottant, paysage) => {
+      /* le faux écran : « (orientation: landscape) » répond au paysage, la
+         requête de la tablette — celle qui porte une largeur minimale — à la
+         tablette. Une requête inconnue ne répond rien : un routage qui
+         s'appuierait sur autre chose se verrait ici. */
+      const ecran = (paysage, tablette) => q => ({ matches: /landscape/.test(q) ? !!paysage : /min-width/.test(q) ? !!tablette : false });
+      const rangees = (flottant, paysage, tablette) => {
         const vk = { layouts: null };
-        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: q => ({ matches: /landscape/.test(q) && paysage }) };
+        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: ecran(paysage, tablette) };
         try{
           const apply = new Function('window', 'matchMedia', 'currentTestId', 'kbVarsFor', 'buildKbTerm', 'JSON',
-            'let __kbVarsKey = null;\n' + fC.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, null, () => [], bk, JSON);
+            'let __kbVarsKey = null;\n' + fC.texte + '\n' + (fT ? fT.texte + '\n' : '') + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, null, () => [], bk, JSON);
           apply();
           return vk.layouts && vk.layouts[0] && vk.layouts[0].layers[0] ? vk.layouts[0].layers[0].rows.length : -1;
         }catch(e){ pbs.push('la table de routage ne s\'évalue pas : ' + e.message); return -1; }
       };
-      const ancrePaysage = rangees(false, true), ancrePortrait = rangees(false, false), flottant = rangees(true, true);
+      const ancrePaysage = rangees(false, true, true), ancreTablette = rangees(false, false, true),
+            ancreTelephone = rangees(false, false, false), flottant = rangees(true, true, true);
       if(ancrePaysage !== C.paysage.rangees) pbs.push('clavier ancré en paysage : ' + ancrePaysage + ' rangée(s) au lieu de ' + C.paysage.rangees);
-      if(ancrePortrait <= C.paysage.rangees) pbs.push('clavier ancré en portrait : ' + ancrePortrait + ' rangée(s), la forme compacte fuit sur le portrait');
-      if(flottant <= C.paysage.rangees) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s), la forme compacte fuit sur l\'ordinateur');
+      if(PT){
+        if(ancreTablette !== PT.rangees) pbs.push('tablette ancrée en portrait : ' + ancreTablette + ' rangée(s) au lieu de ' + PT.rangees);
+        if(ancreTelephone !== PT.telephone) pbs.push('téléphone ancré en portrait : ' + ancreTelephone + ' rangée(s) au lieu de ' + PT.telephone + ' — la forme courte fuit sur le téléphone');
+        if(flottant !== PT.telephone) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s) au lieu de ' + PT.telephone + ' — une forme courte fuit sur l\'ordinateur');
+      } else {
+        if(ancreTablette <= C.paysage.rangees) pbs.push('clavier ancré en portrait : ' + ancreTablette + ' rangée(s), la forme compacte fuit sur le portrait');
+        if(flottant <= C.paysage.rangees) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s), la forme compacte fuit sur l\'ordinateur');
+      }
     }
   }
   verifier(nom, pbs.length === 0, pbs.join(' | '));

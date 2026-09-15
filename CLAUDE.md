@@ -7020,6 +7020,51 @@ portrait », jsdom restant vert à bon droit. La Seconde porte le même
 clavier, avec le même « ✓ » : elle n'est pas dans la demande et n'est pas
 touchée — le dire vaut mieux que le taire.
 
+**Puis, en PORTRAIT sur une tablette, le clavier tient sur TROIS rangées.**
+Demande de Turquet (septembre 2026), sur les pourcentages de la Première :
+« sur les tablettes, pour le clavier virtuel en mode portrait, fais en sorte
+que le clavier tienne sur 3 lignes au lieu de 4 ». Le paysage avait sa forme
+compacte ; debout, la plaque reprenait ses quatre rangées et 232 px — 23 % de
+l'écran d'une tablette, avant même l'énoncé. `buildKbTerm(vars, compact,
+portrait)` rend une TROISIÈME forme, `prem-portrait` : 182 px, 18 % de
+l'écran, mesurés à 768 × 1024. Les chiffres y GARDENT leurs colonnes — 7 8 9,
+4 5 6, 1 2 3 : l'élève qui tourne sa tablette retrouve le même pavé, et c'est
+la seule chose qu'une rangée en moins pouvait lui coûter. Ce qui tenait sur la
+quatrième rangée remonte : les parenthèses à côté de la fraction, les flèches à
+côté des opérations, et le 0 rejoint le 1 2 3 avec la virgule, le `=`, le `%`
+et le `⏎`. La forme se décide dans `kbPortraitTablette`, à côté de `kbCompact`
+et sur le même patron : clavier ANCRÉ, hors paysage, et l'écran tactile d'au
+moins 600 px qui définit la tablette dans TOUTE la page (la police, la chaîne
+à nombres, la feuille de calcul). Un TÉLÉPHONE en portrait garde donc ses
+quatre rangées — huit touches sur une rangée de 390 px ne se toucheraient
+plus —, et la fenêtre flottante de l'ordinateur les garde aussi.
+Les deux bancs suivent. jsdom ÉVALUE la troisième forme depuis la source : le
+nombre de rangées déclaré (`clavierEcran.portraitTablette` dans
+`tests/profils.js`, deux sources), le MÊME jeu de touches que la forme normale,
+le `⏎` qui commit sur sa couche — et les QUATRE cases de la table de routage,
+là où il y en avait trois : paysage, portrait de TABLETTE, portrait de
+TÉLÉPHONE, fenêtre flottante. Son faux écran répond désormais à deux requêtes,
+l'orientation et la largeur minimale, et ne répond rien aux autres : un routage
+qui s'appuierait sur autre chose se verrait. Le NAVIGATEUR (« 11 quinquies »)
+tourne la tablette en portrait, compte les rangées RENDUES, exige des touches
+d'au moins 36 px sans débord, puis RÉTRÉCIT la fenêtre à la taille d'un
+téléphone où les quatre rangées reviennent — et lui REND sa largeur de tablette
+avant de continuer, sans quoi le contrôle suivant mesurait la feuille de calcul
+sur un téléphone et rougissait sur une page juste : c'est arrivé au premier
+essai, et c'est le genre de détour qui laisse une section verte mesurer autre
+chose que ce qu'elle nomme. Six sabotages, chacun rougissant en nommant son
+défaut — cinq en jsdom (une quatrième rangée dans la forme portrait, le `%`
+retiré, le `⏎` redevenu « cacher », la forme courte qui fuit sur le téléphone,
+la forme portrait jamais construite), et le dernier repris au navigateur
+(`kbPortraitTablette` toujours faux : « 4 rangée(s) rendue(s) en portrait »,
+plaque revenue à 232 px). Le contrôle jsdom a changé de nom avec sa portée —
+« le clavier ancré tient sur moins de rangées avec les mêmes touches » —, et la
+phrase du paragraphe précédent, « puis tourne en portrait où les quatre rangées
+reviennent », raconte le banc d'avant ce jour-là. La Seconde porte le même
+clavier et n'est toujours pas dans la demande : elle n'est pas touchée, et sa
+plaque de portrait reste à 232 px — le banc l'imprime, à côté de celle de la
+Première.
+
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
 calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
@@ -7459,12 +7504,38 @@ vit à UN SEUL endroit (`--bas-systeme`, 48 px, déclarée aussi dans
 `window.__appForce`, et la classe se RETIRE à la sortie du plein écran — sans
 quoi un onglet mis puis sorti du plein écran garderait la mise en page de
 l'application.
-**Le clavier remonte en BLOC, et c'est la mesure qui l'a décidé** : une
-bordure ou un rembourrage posés sur son fond n'ont RIEN donné — sa hauteur est
-ÉCRITE par MathLive et sa plaque de touches est accrochée au HAUT du fond, si
-bien que les touches n'avaient pas bougé d'un pixel et débordaient simplement
-de leur boîte. C'est une marge qui le remonte, et on l'a su en mesurant, pas
-en relisant.
+**Le clavier a d'abord remonté EN BLOC (v221), et c'est la mesure qui l'a
+décidé** : une bordure ou un rembourrage posés sur son fond n'ont RIEN donné —
+sa hauteur est ÉCRITE par MathLive en BOÎTE DE BORDURE et sa plaque de touches
+est accrochée au HAUT du fond, si bien que les touches n'avaient pas bougé d'un
+pixel et débordaient simplement de leur boîte. C'est une marge qui l'a remonté,
+et on l'a su en mesurant, pas en relisant.
+**MAIS UNE MARGE LAISSE UN TROU, et Turquet l'a dit le lendemain** (« le trou
+sous le clavier me gêne ») : le fond opaque s'arrêtait 48 px au-dessus du bord,
+et une bande de page se voyait dessous. Il ne demandait pas de redescendre les
+touches — la question était « peut-on mettre le clavier tout en bas ? », et la
+réponse est NON tant qu'on veut des touches qui répondent : la bande appartient
+à Android. **Les deux se tiennent pourtant, en posant le rembourrage sur les
+RANGÉES et non sur le fond** (v222) : le fond GRANDIT d'autant, son décalage et
+sa translation suivent tout seuls, il reste collé au bord — et les touches
+montent avec lui. La sonde a départagé les quatre essais plutôt que de les
+supposer : le fond passe de 247 à 295 px et la rangée du bas de 7 à 55 px du
+bord (les 48 de la réserve plus les 8 de marge que les rangées avaient déjà),
+quand une MARGE sur ces mêmes rangées ne rendait que 47 px — elle REMPLACE la
+marge de 8 au lieu de s'y ajouter, et passait SOUS la réserve. Le pavé et les
+commandes gardent la leur : ce sont des cartes flottantes à coins arrondis,
+elles n'ont aucun bord à épouser, et aucun trou ne se voit sous elles.
+**Le contrôle du trou est au NAVIGATEUR, et lui seul peut le voir** : il mesure
+le bas du fond du clavier contre le bord de l'écran, dans les deux
+orientations. **Cinq sabotages de plus, et les deux du navigateur se
+répondent** — trois au banc jsdom (la marge revenue sur le fond, le
+rembourrage retiré, le profil resté sur `.MLK__backdrop`) ; et au navigateur,
+la marge revenue sur le fond ne fait rougir QUE le contrôle du trou (« trou
+sous le clavier : 48 px en paysage, 48 px en portrait ») pendant que les deux
+contrôles des touches restent verts — c'est exactement le défaut signalé —,
+quand le rembourrage retiré fait l'INVERSE (« 11 dans la bande : la touche
+« + » à 7 px du bord ») en laissant le contrôle du trou vert. Les deux
+propriétés se mesurent séparément, et aucune ne couvre l'autre.
 **Le bord OPPOSÉ compte autant, et il a son contrôle** : un niveau en
 « standalone » ne doit RIEN porter de tout cela — 48 px coûtés pour rien —, et
 un niveau qui passerait en plein écran sans réserve rougit aussitôt : le

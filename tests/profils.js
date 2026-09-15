@@ -298,7 +298,10 @@ module.exports = {
        mesure ce qui reste dans la bande, dans les deux orientations. */
     basSysteme: { px: 48, exercice: 'synthese-diminutions-libre',
                   champ: '#salSheet math-field',
-                  regles: ['#testCtrls', '#paveNum', '.MLK__backdrop'] },
+                  regles: ['#testCtrls', '#paveNum', '.MLK__rows'] },
+    /* le fond du clavier, lui, reste collé au bord : c'est ce qui distingue
+       le rembourrage des rangées de la marge d'avant — pas de trou sous le
+       clavier, et pas une touche dans la bande. Mesuré au navigateur. */
     policeTablette: 90,
     /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.10,
        2.3.9) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
@@ -348,7 +351,16 @@ module.exports = {
        rangées reviennent. */
     clavierEcran: { entree: '\u23ce',
                     paysage: { rangees: 2, exercice: 'synthese-augmentations-libre',
-                               champ: '#salSheet math-field', lignes: '#salSheet .dexp2-line' } },
+                               champ: '#salSheet math-field', lignes: '#salSheet .dexp2-line' },
+                    /* Et sur une tablette DEBOUT, le clavier ancré tient sur TROIS
+                       rangées — les mêmes touches, une rangée de moins (demande de
+                       Turquet, septembre 2026 : « en mode portrait, que le clavier
+                       tienne sur 3 lignes au lieu de 4 »). Un TÉLÉPHONE en portrait,
+                       trop étroit pour huit touches sur une rangée, garde les
+                       quatre : c'est le bord opposé, et il est aussi vérifié —
+                       une forme courte qui fuirait sur le téléphone rendrait ses
+                       touches intouchables. */
+                    portraitTablette: { rangees: 3, telephone: 4 } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,

@@ -365,16 +365,28 @@
    (--bas-systeme, déclarée dans tests/profils.js — deux sources) et la
    classe est posée par le script (modeApp), comme pave-actif : la requête
    média reste au navigateur, le banc force par window.__appForce.
-   Le clavier ANCRÉ remonte en bloc, par une marge posée sur son fond
-   (.MLK__backdrop). Une bordure ou un rembourrage n'auraient rien donné : sa
-   hauteur est ÉCRITE par MathLive et sa plaque de touches est accrochée au
-   HAUT du fond — mesuré, pas supposé : bordure posée, les touches n'avaient
-   pas bougé d'un pixel et débordaient simplement de leur boîte. */
+   LE CLAVIER GARDE SON FOND AU RAS DU BORD, ET SEULES SES TOUCHES REMONTENT
+   (demande de Turquet, septembre 2026 : « le trou sous le clavier me gêne »).
+   La v221 remontait le clavier EN BLOC, par une marge sur son fond : plus
+   aucune touche dans la bande, mais une bande de page visible sous le
+   clavier. Un rembourrage posé sur les RANGÉES fait les deux à la fois — le
+   fond GRANDIT d'autant et reste collé au bord, les touches montent avec
+   lui. Mesuré, pas supposé, et c'est la sonde qui a départagé les quatre
+   essais : la hauteur du fond est écrite par MathLive en BOÎTE DE BORDURE,
+   si bien qu'une bordure ou un rembourrage posés sur LUI n'ont pas déplacé
+   une seule touche (elles débordaient simplement de leur boîte) ; posé sur
+   les rangées, le fond passe de 247 à 295 px, son décalage et sa
+   translation suivent tout seuls, et la rangée du bas passe de 7 à 55 px du
+   bord — les 48 px de la réserve, plus les 8 px de marge que les rangées
+   avaient déjà. Une MARGE sur les rangées n'aurait rendu que 47 px : elle
+   remplace cette marge de 8 au lieu de s'y ajouter, et passait SOUS la
+   réserve. Le pavé et les commandes gardent leur marge : ce sont des cartes
+   flottantes à coins arrondis, elles n'ont aucun bord à épouser. */
 :root{--bas-systeme:0px}
 body.mode-app{--bas-systeme:48px}
 #testCtrls{margin-bottom:var(--bas-systeme)}
 #paveNum{margin-bottom:var(--bas-systeme)}
-body > .ML__keyboard .MLK__backdrop{margin-bottom:var(--bas-systeme)}
+body > .ML__keyboard .MLK__rows{padding-bottom:var(--bas-systeme)}
 body.pave-actif #testCtrls{bottom:6px;right:8px}
 body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
@@ -2015,7 +2027,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=222;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=224;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14298,7 +14310,7 @@ try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0
    d'une fraction / racine / exposant / indice. ∫ en \smallint pour ne pas être rogné. */
 const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="12" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="2" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSuperscript"]};
 const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
-function buildKbTerm(vars, compact){
+function buildKbTerm(vars, compact, portrait){
   /* Clavier adapte aux exercices de calcul : chiffres, virgule, fraction, operations,
      pourcentage (pas de variables f/x, inutiles ici). La touche « = » (demande de
      Turquet, septembre 2026) : sur tablette la greffe coupe le clavier du SYSTEME
@@ -14309,10 +14321,16 @@ function buildKbTerm(vars, compact){
      remplace un « ✓ » qui ne faisait que CACHER le clavier : sur tablette
      l'eleve croyait valider et rien ne se passait (signale par Turquet,
      septembre 2026). Le clavier se referme en quittant la case, ou par ⌨️.
-     « compact » (paysage, clavier ancre) : les MEMES touches sur DEUX rangees
-     au lieu de quatre — un clavier deux fois moins haut, la place rendue a
-     l'exercice (demande de Turquet, septembre 2026). Aucune touche ne manque
-     d'un cote : un controle compare les deux jeux. */
+     La FORME suit l'ecran, et les MEMES touches s'y trouvent toutes :
+     « compact » (paysage, clavier ancre) les met sur DEUX rangees au lieu de
+     quatre — un clavier deux fois moins haut, la place rendue a l'exercice
+     (demande de Turquet, septembre 2026) ; « portrait » (clavier ancre sur
+     une TABLETTE debout) sur TROIS rangees — une rangee de moins, la meme
+     place rendue a l'exercice la ou la plaque prenait pres d'un quart de
+     l'ecran (demande de Turquet, septembre 2026). Sans forme — la fenetre flottante
+     de l'ordinateur, et le portrait d'un TELEPHONE, trop etroit pour huit
+     touches sur une rangee — les quatre rangees d'origine. Aucune touche ne
+     manque d'une forme a l'autre : un controle compare les jeux. */
   const K = {
     n: d => ({latex: d}),
     frac: {label:"/",insert:"\\frac{#@}{#?}"},
@@ -14336,6 +14354,23 @@ function buildKbTerm(vars, compact){
       ]
     };
   }
+  if(portrait){
+    /* Les chiffres gardent leurs colonnes — 7 8 9 / 4 5 6 / 1 2 3 : l'eleve
+       qui tourne sa tablette retrouve le meme pave. Ce qui tenait sur la
+       quatrieme rangee remonte : les parentheses a cote de la fraction, les
+       fleches a cote des operations, et le 0 rejoint le 1 2 3 avec la
+       virgule, le =, le % et le ⏎. */
+    return {
+      label: "Calcul",
+      layers: [
+        { id: "prem-portrait", rows: [
+          [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.po,K.pf,K.eff ],
+          [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.moins,K.plus,K.gauche,K.droite ],
+          [ K.n("1"),K.n("2"),K.n("3"),K.n("0"),K.virg,K.egal,K.pct,K.entree ]
+        ] }
+      ]
+    };
+  }
   return {
     label: "Calcul",
     layers: [
@@ -14355,22 +14390,35 @@ function kbVarsFor(id){
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
-/* Le clavier ANCRE (tablette) en PAYSAGE prend la forme compacte a deux rangees ;
-   la fenetre flottante de l'ordinateur et le portrait gardent les quatre rangees.
+/* Le clavier ANCRE (tablette) en PAYSAGE prend la forme compacte a deux rangees,
+   et en PORTRAIT la forme a trois rangees ; la fenetre flottante de l'ordinateur
+   garde les quatre rangees.
    La cle memorise l'orientation : une rotation, un changement d'exercice ou un
    rendu (upgrade) reappliquent la bonne forme. */
 function kbCompact(){
   try{ return !window.__kbFloating && !!(window.matchMedia && matchMedia("(orientation: landscape)").matches); }catch(e){ return false; }
 }
+/* Le clavier ANCRE d'une TABLETTE DEBOUT tient sur TROIS rangees (demande de
+   Turquet, septembre 2026 : sur les pourcentages de la Premiere, « en mode
+   portrait, que le clavier tienne sur 3 lignes au lieu de 4 »). La tablette est
+   celle de toute la page — ecran tactile d'au moins 600 px : un TELEPHONE en
+   portrait garde ses quatre rangees, huit touches sur une rangee de 390 px ne
+   se touchant plus. La fenetre flottante de l'ordinateur n'est jamais ancree,
+   et le paysage a deja sa forme : les deux formes s'excluent ici, la table de
+   routage ne peut pas en appliquer deux. */
+function kbPortraitTablette(){
+  try{ return !window.__kbFloating && !kbCompact()
+              && !!(window.matchMedia && matchMedia("(pointer: coarse) and (min-width: 600px)").matches); }catch(e){ return false; }
+}
 function applyKbLayout(){
   const vk = window.mathVirtualKeyboard; if(!vk) return;
   let id = null; try { id = currentTestId; } catch(e) {}   /* variable globale du script principal */
   const vars = kbVarsFor(id);
-  const compact = kbCompact();
-  const key = JSON.stringify([compact, vars.map(v => v.insert || v.latex || v.label)]);
+  const compact = kbCompact(), portrait = kbPortraitTablette();
+  const key = JSON.stringify([compact, portrait, vars.map(v => v.insert || v.latex || v.label)]);
   if(key === __kbVarsKey) return;   /* déjà appliqué pour ce contexte */
   __kbVarsKey = key;
-  try { vk.layouts = [ buildKbTerm(vars, compact) ]; } catch(e) {}
+  try { vk.layouts = [ buildKbTerm(vars, compact, portrait) ]; } catch(e) {}
 }
 
 const FIELD_FIX_CSS =
@@ -14648,7 +14696,7 @@ function kbOnRotate(){
   clearTimeout(kbRotTimer);
   kbRotTimer = setTimeout(()=>{
     pinKbToViewport();
-    applyKbLayout();   /* paysage <-> portrait : la forme du clavier suit (compact ou non) */
+    applyKbLayout();   /* paysage <-> portrait : la forme du clavier suit (deux, trois ou quatre rangees) */
     const vk = window.mathVirtualKeyboard;
     if(!vk || !vk.visible || window.__kbFloating) return;
     const ae = document.activeElement;
