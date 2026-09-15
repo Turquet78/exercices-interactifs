@@ -10081,9 +10081,18 @@ function commandesSousClavier(w, P){
   if(!fCh) pbs.push('clavierHaut est introuvable dans la source');
   else{
     const vus = [];
+    /* UNE SEULE mémoire de classes pour toute la séquence : mesurée à neuf à
+       chaque tour, « la classe reste posée après le repli » devient
+       inatteignable — une fonction qui ne saurait qu'AJOUTER passerait au
+       vert. Le sabotage l'a montré. */
+    const cls = new Set();
     const jouer = (visible, flottant) => {
-      const cls = new Set();
-      const body = { classList: { toggle: (c, on) => { if(on) cls.add(c); else cls.delete(c); } } };
+      /* un faux classList COMPLET : un correctif qui poserait la classe par
+         add/remove plutôt que par toggle doit être mesuré pour ce qu'il fait,
+         pas échouer sur une méthode que le double n'aurait pas — le sabotage
+         nommerait alors un autre défaut que le sien. */
+      const body = { classList: { toggle: (c, on) => { if(on === undefined ? cls.has(c) : !on) cls.delete(c); else cls.add(c); },
+                                  add: c => cls.add(c), remove: c => cls.delete(c), contains: c => cls.has(c) } };
       const win = { mathVirtualKeyboard: { visible: visible }, __kbFloating: flottant };
       try{
         new Function('window', 'document', fCh.texte + '\nclavierHaut();')(win, { body: body });
