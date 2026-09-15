@@ -4753,6 +4753,58 @@ plus 90 %, et la justification écrite dans la page — qui parlait de décimale
 a été corrigée avec lui. Six sabotages, chacun rougissant en nommant son
 défaut ; le sixième seulement après que le contrôle a gagné ce bord.
 
+**Et au 2.5.1, la règle ne porte plus que sur UN coefficient — vraie elle
+aussi, tenue par rien elle aussi.** « fais la même chose pour le 2.5.1 »
+(Turquet, septembre 2026), après le 2.2.7, le 2.3.7 et le 2.2.8. La synthèse
+ne pose qu'UNE transformation par question : son « coefficient global » est le
+coefficient tout court, 1 ± P/100 pour une évolution, P/100 pour « prendre ».
+**LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT** : 900 tirages
+passés par les TROIS portes du générateur et par les trois inconnues, chacun
+relu sur ses QUATRE propositions — aucun coefficient à plus de deux décimales,
+aucune valeur de la chaîne qui ne soit entière. **Rien à changer au tirage,
+donc** : la propriété tient par le choix des taux (un seul chiffre non nul :
+un multiple de dix, ou un chiffre ; « prendre P % » puise dans `PCT_PCTS`, qui
+n'a que des multiples de dix) et par une valeur de départ multiple de 100. Ce
+qui manquait est le CONTRÔLE.
+**Le contrôle d'à côté serait resté vert**, et c'est ce qui rend celui-ci
+nécessaire : « générateur genSyn : 8000 questions conformes » n'exige que
+l'ENTIER — or 12,5 % de 800 font 100, un entier parfait, avec un coefficient
+1,125 à trois décimales. Une propriété heureuse n'est pas une propriété tenue,
+la leçon du 2.3.7 retombée telle quelle.
+**Il refait la propriété par une SECONDE arithmétique** — en centièmes ENTIERS
+là où la page divise par 100 — et la relit une TROISIÈME fois sur l'écriture
+que la page PRODUIT (`synCouple().coefDec`), puis une QUATRIÈME sur ce que la
+CORRECTION écrit à l'élève : après un vrai clic sur « Vérifier », la phrase
+« car 1 + 7/100 = 1,07 = 107/100, puis… » ne doit porter aucun nombre à plus
+de deux décimales. C'est là que l'élève LIT le coefficient.
+**Et il passe par les TROIS portes du tirage**, la libre et les deux
+imposées : `genSyn` sert six exercices — le 2.5.1, le 2.2.9, le 2.3.8 et les
+rédigées 2.2.10, 2.3.9 et 2.5.2 —, et un `famVoulu` ignoré poserait des
+hausses sous un titre de baisses.
+**AUCUN GARDE N'EST POSÉ DANS LA PAGE** : il n'écarterait jamais rien, et
+ferait croire qu'on vérifie quelque chose. La raison, elle, est ÉCRITE là où
+le tirage la tient — sans quoi le prochain taux ajouté la romprait sans que
+rien ne le dise.
+**Un essai s'est pris en défaut AVANT la page** : « la valeur de départ est un
+multiple de 100 » est vrai du TIRAGE et faux des PROPOSITIONS — les leurres de
+la valeur initiale valent 70, 50, 90…, et la chaîne y tombe juste quand même,
+le taux étant alors un multiple de dix. Le contrôle mesure donc la propriété
+qui compte (P × N tombe sur un entier de centièmes), pas celle qu'on croyait :
+un essai faux se reconnaît à ce qu'il rougit sur une page juste.
+**Et DEUX sabotages ont appris quelque chose de plus.** L'un s'est montré
+INTERMITTENT, ce qui ne se devinait pas : faire écrire à la correction le
+coefficient divisé par 300 ne produit une longue décimale que deux fois sur
+trois — 105/300 fait 0,35 tout rond, et le contrôle restait vert à bon droit.
+Un sabotage qui n'atteint sa cible qu'une fois sur deux ne dit rien du contrôle
+visé, exactement comme un sabotage posé sur une ancre partagée ; divisé par
+1000, il rougit à tous les coups. L'autre est resté VERT en disant vrai :
+retirer les taux à un chiffre du TIRAGE ne prive le contrôle de rien, parce que
+les LEURRES de « retrouve le pourcentage » en offrent encore — et c'est exact,
+l'élève vérifie la proposition qu'il a choisie, donc un coefficient à deux
+décimales lui reste sous les yeux. Retirés des deux côtés, le bord « le
+contrôle ne mesure qu'une seule forme » rougit. Dix sabotages en tout, neuf
+rougissant en nommant leur défaut.
+
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
 (`details.test`). Le renommer ferait disparaître toutes les notes passées de cet
@@ -6946,6 +6998,51 @@ portrait », jsdom restant vert à bon droit. La Seconde porte le même
 clavier, avec le même « ✓ » : elle n'est pas dans la demande et n'est pas
 touchée — le dire vaut mieux que le taire.
 
+**Puis, en PORTRAIT sur une tablette, le clavier tient sur TROIS rangées.**
+Demande de Turquet (septembre 2026), sur les pourcentages de la Première :
+« sur les tablettes, pour le clavier virtuel en mode portrait, fais en sorte
+que le clavier tienne sur 3 lignes au lieu de 4 ». Le paysage avait sa forme
+compacte ; debout, la plaque reprenait ses quatre rangées et 232 px — 23 % de
+l'écran d'une tablette, avant même l'énoncé. `buildKbTerm(vars, compact,
+portrait)` rend une TROISIÈME forme, `prem-portrait` : 182 px, 18 % de
+l'écran, mesurés à 768 × 1024. Les chiffres y GARDENT leurs colonnes — 7 8 9,
+4 5 6, 1 2 3 : l'élève qui tourne sa tablette retrouve le même pavé, et c'est
+la seule chose qu'une rangée en moins pouvait lui coûter. Ce qui tenait sur la
+quatrième rangée remonte : les parenthèses à côté de la fraction, les flèches à
+côté des opérations, et le 0 rejoint le 1 2 3 avec la virgule, le `=`, le `%`
+et le `⏎`. La forme se décide dans `kbPortraitTablette`, à côté de `kbCompact`
+et sur le même patron : clavier ANCRÉ, hors paysage, et l'écran tactile d'au
+moins 600 px qui définit la tablette dans TOUTE la page (la police, la chaîne
+à nombres, la feuille de calcul). Un TÉLÉPHONE en portrait garde donc ses
+quatre rangées — huit touches sur une rangée de 390 px ne se toucheraient
+plus —, et la fenêtre flottante de l'ordinateur les garde aussi.
+Les deux bancs suivent. jsdom ÉVALUE la troisième forme depuis la source : le
+nombre de rangées déclaré (`clavierEcran.portraitTablette` dans
+`tests/profils.js`, deux sources), le MÊME jeu de touches que la forme normale,
+le `⏎` qui commit sur sa couche — et les QUATRE cases de la table de routage,
+là où il y en avait trois : paysage, portrait de TABLETTE, portrait de
+TÉLÉPHONE, fenêtre flottante. Son faux écran répond désormais à deux requêtes,
+l'orientation et la largeur minimale, et ne répond rien aux autres : un routage
+qui s'appuierait sur autre chose se verrait. Le NAVIGATEUR (« 11 quinquies »)
+tourne la tablette en portrait, compte les rangées RENDUES, exige des touches
+d'au moins 36 px sans débord, puis RÉTRÉCIT la fenêtre à la taille d'un
+téléphone où les quatre rangées reviennent — et lui REND sa largeur de tablette
+avant de continuer, sans quoi le contrôle suivant mesurait la feuille de calcul
+sur un téléphone et rougissait sur une page juste : c'est arrivé au premier
+essai, et c'est le genre de détour qui laisse une section verte mesurer autre
+chose que ce qu'elle nomme. Six sabotages, chacun rougissant en nommant son
+défaut — cinq en jsdom (une quatrième rangée dans la forme portrait, le `%`
+retiré, le `⏎` redevenu « cacher », la forme courte qui fuit sur le téléphone,
+la forme portrait jamais construite), et le dernier repris au navigateur
+(`kbPortraitTablette` toujours faux : « 4 rangée(s) rendue(s) en portrait »,
+plaque revenue à 232 px). Le contrôle jsdom a changé de nom avec sa portée —
+« le clavier ancré tient sur moins de rangées avec les mêmes touches » —, et la
+phrase du paragraphe précédent, « puis tourne en portrait où les quatre rangées
+reviennent », raconte le banc d'avant ce jour-là. La Seconde porte le même
+clavier et n'est toujours pas dans la demande : elle n'est pas touchée, et sa
+plaque de portrait reste à 232 px — le banc l'imprime, à côté de celle de la
+Première.
+
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
 calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
@@ -7352,6 +7449,170 @@ Paramètres → Affichage → Barre de navigation → Gestes de balayage, puis
 « Indicateur de geste » décoché, cache la barre pour TOUTES les
 applications. Le dire vaut mieux que le taire — c'est le seul chemin si le
 plein écran de l'application ne suffit pas.
+
+**Et la bande du bas appartient au SYSTÈME : la Première y descendait.**
+Signalé par Turquet (septembre 2026), tablette Samsung, la page ouverte depuis
+l'écran d'accueil : « pour les exercices de Première où il faut rédiger une
+justification avec les pourcentages, par exemple le 2.3.9, la ligne la plus
+basse du clavier virtuel ne fonctionne pas — les caractères ne s'affichent
+pas, que ce soit en portrait ou en paysage ».
+**La sonde a mesuré avant qu'on ne touche à quoi que ce soit** : cette
+rangée-là vit à 7..49 px du bord BAS de l'écran en paysage (7..67 en
+portrait), et le CENTRE de ses touches à 28 px et 37 px du bord — les rangées
+du dessus, elles, sont à 78 et 97 px, et personne ne s'en est jamais plaint.
+Or Android se réserve les 48 dp du bas pour le geste de retour à l'accueil,
+que l'indicateur de geste de Samsung occupe en plus : le système y prend les
+touches, et rien n'arrive à la page. Aucune erreur nulle part — la touche ne
+répond simplement pas.
+**POURQUOI LA PREMIÈRE, ET POURQUOI EN APPLICATION SEULEMENT** : c'est le seul
+niveau dont le manifeste demande « fullscreen » (la demande du paragraphe
+ci-dessus), donc le seul qui dessine jusqu'au bord PHYSIQUE de l'écran. Dans
+un onglet, et dans les deux autres niveaux restés en « standalone », le
+navigateur ou la barre du système occupent cette bande et la page ne
+l'atteint jamais. Les trois conditions du signalement — Samsung, mode
+application, Première — sont chacune une moitié de la cause, et c'est la
+demande d'hier qui a produit le défaut d'aujourd'hui.
+**ON REND DONC LA BANDE, en mode application seulement** : rien de ce qui se
+touche n'y descend plus — le clavier mathématique ancré, les commandes du bas
+(Signaler / Abandonner / Pause) et le pavé numérique, qui vivait lui aussi à
+6 px du bord en paysage et serait devenu le signalement suivant. La réserve
+vit à UN SEUL endroit (`--bas-systeme`, 48 px, déclarée aussi dans
+`tests/profils.js` — deux sources) et la classe est posée par le script comme
+`pave-actif` : la requête média reste au navigateur, le banc force par
+`window.__appForce`, et la classe se RETIRE à la sortie du plein écran — sans
+quoi un onglet mis puis sorti du plein écran garderait la mise en page de
+l'application.
+**Le clavier a d'abord remonté EN BLOC (v221), et c'est la mesure qui l'a
+décidé** : une bordure ou un rembourrage posés sur son fond n'ont RIEN donné —
+sa hauteur est ÉCRITE par MathLive en BOÎTE DE BORDURE et sa plaque de touches
+est accrochée au HAUT du fond, si bien que les touches n'avaient pas bougé d'un
+pixel et débordaient simplement de leur boîte. C'est une marge qui l'a remonté,
+et on l'a su en mesurant, pas en relisant.
+**MAIS UNE MARGE LAISSE UN TROU, et Turquet l'a dit le lendemain** (« le trou
+sous le clavier me gêne ») : le fond opaque s'arrêtait 48 px au-dessus du bord,
+et une bande de page se voyait dessous. Il ne demandait pas de redescendre les
+touches — la question était « peut-on mettre le clavier tout en bas ? », et la
+réponse est NON tant qu'on veut des touches qui répondent : la bande appartient
+à Android. **Les deux se tiennent pourtant, en posant le rembourrage sur les
+RANGÉES et non sur le fond** (v222) : le fond GRANDIT d'autant, son décalage et
+sa translation suivent tout seuls, il reste collé au bord — et les touches
+montent avec lui. La sonde a départagé les quatre essais plutôt que de les
+supposer : le fond passe de 247 à 295 px et la rangée du bas de 7 à 55 px du
+bord (les 48 de la réserve plus les 8 de marge que les rangées avaient déjà),
+quand une MARGE sur ces mêmes rangées ne rendait que 47 px — elle REMPLACE la
+marge de 8 au lieu de s'y ajouter, et passait SOUS la réserve. Le pavé et les
+commandes gardent la leur : ce sont des cartes flottantes à coins arrondis,
+elles n'ont aucun bord à épouser, et aucun trou ne se voit sous elles.
+**Le contrôle du trou est au NAVIGATEUR, et lui seul peut le voir** : il mesure
+le bas du fond du clavier contre le bord de l'écran, dans les deux
+orientations. **Cinq sabotages de plus, et les deux du navigateur se
+répondent** — trois au banc jsdom (la marge revenue sur le fond, le
+rembourrage retiré, le profil resté sur `.MLK__backdrop`) ; et au navigateur,
+la marge revenue sur le fond ne fait rougir QUE le contrôle du trou (« trou
+sous le clavier : 48 px en paysage, 48 px en portrait ») pendant que les deux
+contrôles des touches restent verts — c'est exactement le défaut signalé —,
+quand le rembourrage retiré fait l'INVERSE (« 11 dans la bande : la touche
+« + » à 7 px du bord ») en laissant le contrôle du trou vert. Les deux
+propriétés se mesurent séparément, et aucune ne couvre l'autre.
+**Le bord OPPOSÉ compte autant, et il a son contrôle** : un niveau en
+« standalone » ne doit RIEN porter de tout cela — 48 px coûtés pour rien —, et
+un niveau qui passerait en plein écran sans réserve rougit aussitôt : le
+contrôle lit `manifeste.display` et `basSysteme` dans le MÊME profil et exige
+qu'ils aillent ensemble.
+**Deux bancs, la répartition habituelle.** jsdom tient les règles et la classe
+(la valeur comparée au profil, une seule déclaration non nulle et portée par
+la classe, chacun des trois meubles qui la LIT, la classe posée et retirée
+dans les deux sens, l'écouteur de la requête média). Le NAVIGATEUR
+(« 11 octies ») mesure ce que jsdom ne peut pas : il ouvre l'exercice SIGNALÉ,
+déploie le clavier et regarde ce qui reste dans la bande, en paysage puis en
+portrait, touche par touche et au RECTANGLE — plus `elementFromPoint` sur
+chaque centre, sans quoi une touche remontée mais RECOUVERTE passerait au
+vert. Et il mesure d'abord le bord opposé, dans un onglet : la rangée du bas y
+descend toujours à 7 px du bord — sans cette mesure, une réserve posée pour
+tout le monde passerait au vert.
+**CE QU'AUCUN BANC D'ICI NE PEUT DIRE, C'EST LA HAUTEUR DE LA BANDE.** 48 px
+est la valeur d'Android, pas une mesure prise sur la tablette de Turquet —
+aucun navigateur piloté ne reproduit ce que le système intercepte.
+`tests/diagnostic/bande-basse.html` existe pour cela, comme les trois pages de
+l'installation avant elle : son manifeste demande « fullscreen » comme la
+Première, elle empile sept barres à des hauteurs connues du bord et affiche le
+point le plus bas qu'une touche ait atteint. Si la première barre qui répond
+est plus haut que 48 px, c'est la réserve qu'il faut relever ; si tout répond
+dès le bord, la cause est ailleurs. C'est la règle du diagnostic, déjà payée
+sur l'installation : quand l'appareil dit le contraire du banc, on change de
+couche et on demande son avis à l'appareil.
+**Et la gêne d'à côté a été traitée le lendemain** (« occupe-toi du clavier
+qui recouvre les commandes ») — paragraphe ci-dessous.
+Quatorze sabotages, chacun rougissant en nommant son défaut — dix au banc
+jsdom (la réserve à zéro, à 24 px, chacun des trois meubles débranché, la
+classe posée partout, la classe qui ne se retire plus, `__appForce` ignoré,
+l'écouteur retiré, le profil qui ne déclare plus rien, la réserve qui fuit sur
+la Seconde) et quatre au navigateur, qui nomment la touche ET sa distance au
+bord (« la touche « + » à 7 px du bord »). Le sabotage du seul clavier laisse
+le contrôle du pavé VERT, et c'est la preuve que les trois meubles se mesurent
+séparément.
+
+**LE CLAVIER ANCRÉ PREND LE BAS, LES COMMANDES MONTENT EN HAUT.** Demande de
+Turquet (septembre 2026) : « occupe-toi du clavier qui recouvre les
+commandes ». La gêne était plus large que ce que j'en avais dit : la sonde l'a
+mesurée avant tout correctif, et « Signaler », « Abandonner » et « Mettre en
+pause » vivent ENTIÈREMENT sous le clavier ancré dès qu'il est déployé — sur
+les TROIS niveaux, dans les DEUX orientations, en mode application comme dans
+un onglet, et non « en paysage » seulement. Elles n'y sont pas seulement
+cachées : `elementFromPoint` rend une touche du clavier, donc elles sont
+INTOUCHABLES. Aucune erreur nulle part, le bouton ne répond simplement pas.
+**LA PLACE ÉVIDENTE A ÉTÉ ÉCARTÉE PAR LA MESURE** : posées juste AU-DESSUS du
+clavier, les commandes deviennent atteignables — mais elles recouvrent la
+ligne où l'élève écrit, 4 mesures sur 6. La case d'une rédaction est pleine
+largeur et MathLive l'amène au ras du clavier : il n'y a pas de place entre
+les deux. C'est l'objection de la bulle « Comprendre mon erreur », qui ne
+recouvre ni la case qu'on remplit ni les commandes du bas — ici elle écarte un
+correctif qui marchait.
+**LE COIN HAUT EST LE SEUL LIBRE, et c'est mesuré, pas supposé** : dix-huit
+configurations (trois niveaux × deux orientations × onglet et mode
+application), page défilée comme remontée, rien sous les commandes et jamais
+de chevauchement avec la case. Une seule CLASSE suffit donc
+(`body.clavier-ouvert`), sans mesurer la hauteur du clavier : le haut est
+libre quelle que soit sa forme, compacte ou non.
+**La fenêtre FLOTTANTE de l'ordinateur ne les déplace pas** : elle ne recouvre
+rien (`window.__kbFloating`). Et la classe est posée dans `pinKbToViewport`
+plutôt que sur un écouteur de plus — elle est déjà rappelée à chaque instant
+où la géométrie du clavier change (déploiement, repli, `geometrychange`,
+redimensionnement, rotation) : un écouteur de plus aurait été une seconde
+liste à tenir.
+**L'ORDRE de la règle CSS compte, et c'est le bord silencieux** : à
+spécificité égale (`body.pave-actif #testCtrls` et `body.clavier-ouvert
+#testCtrls` pèsent pareil), c'est la position dans la feuille qui tranche.
+Écrite plus haut, notre règle ne ferait RIEN — aucune erreur, aucune classe
+manquante, les commandes simplement restées sous le clavier. Le contrôle jsdom
+l'exige donc explicitement.
+**Deux bancs, la répartition habituelle.** jsdom tient la mécanique : la règle
+existe et pose `top` et `bottom:auto`, elle vient après celles de
+`pave-actif`, la classe suit le clavier dans les deux sens et jamais sur la
+fenêtre flottante (`clavierHaut` ÉVALUÉE depuis la source — le clavier vit
+dans la greffe module, que jsdom ne sait pas charger), et `pinKbToViewport`
+l'APPELLE : une fonction juste que personne n'appelle est la moitié morte du
+correctif. Le NAVIGATEUR (« 11 nonies ») mesure ce que jsdom ne peut pas
+voir — clavier déployé, aucune commande sous lui, toutes atteignables au
+centre, aucune sur la case — et le bord OPPOSÉ : clavier refermé, elles
+redescendent au bas de l'écran, sans quoi des commandes montées pour de bon
+passeraient au vert.
+**Neuf sabotages, chacun rougissant en nommant son défaut** — six au banc
+jsdom, trois au navigateur, dont celui de la place écartée, qui répond
+« recouvre la case où l'élève écrit », et celui de la règle retirée, qui
+chiffre la rechute (« signalBtn dépasse de 125 px sous le haut du clavier »,
+231 px en portrait). **Et l'un d'eux a renforcé le contrôle AVANT la page** :
+« la classe reste posée une fois le clavier refermé » passait au VERT parce
+que le double du banc repartait d'une mémoire de classes NEUVE à chaque tour —
+une fonction qui ne saurait qu'AJOUTER y était inatteignable. La séquence se
+joue sur un seul état désormais, et le faux `classList` connaît `add` et
+`remove` en plus de `toggle` : sans eux, le sabotage échouait sur une méthode
+absente du double et nommait un autre défaut que le sien. Un dernier a
+d'abord semblé ne frapper que le VOISIN — la classe posée en permanence
+déplace les commandes sur tous les écrans, et les contrôles du pavé rougissent
+les premiers : rejoué en lisant TOUTES les lignes rouges, le contrôle visé
+rougit bien lui aussi (« la plus haute est à 730 px du bas : elles ne sont pas
+redescendues »).
 
 ## Fiches imprimées (`.docx`)
 

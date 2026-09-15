@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnostic — la bande du bas de l'écran</title>
+<link rel="manifest" href="bande-basse.webmanifest">
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;padding:12px 12px 200px;font-size:17px;background:#fff;color:#1E2A4A}
+  h1{font-size:1.15rem;margin:0 0 8px}
+  p{background:#eef2ff;padding:10px;border-radius:8px;margin:8px 0}
+  .l{margin:4px 0;word-break:break-all}
+  .ok{color:#15803d;font-weight:700}.ko{color:#b91c1c;font-weight:700}
+  #bandes{position:fixed;left:0;right:0;bottom:0;pointer-events:none}
+  .b{position:fixed;left:8px;right:8px;height:24px;line-height:24px;text-align:center;
+     font-size:13px;font-weight:700;border-radius:6px;pointer-events:auto;
+     background:#e5e7eb;border:1px solid #9ca3af;color:#374151;user-select:none}
+  .b.vu{background:#16a34a;border-color:#15803d;color:#fff}
+  #bas{font-size:1.25rem;font-weight:800}
+</style></head>
+<body>
+<h1>Diagnostic — la bande du bas de l'écran</h1>
+<p><b>Ce que cette page mesure.</b> Sur une tablette, le système se réserve une
+bande au bas de l'écran (le geste « retour à l'accueil ») : les touches qui y
+tombent n'arrivent jamais à la page. Cette page dit à quelle hauteur elles
+recommencent à arriver — chez TOI, sur TA tablette.<br><br>
+<b>Le geste à faire.</b> 1) Pose la page sur l'écran d'accueil (menu ⋮ →
+« Ajouter à l'écran d'accueil ») et ouvre-la depuis l'icône : c'est le mode
+application, celui où le défaut se produit. 2) Touche chaque barre du bas vers
+le haut, une par une : celles qui répondent deviennent vertes. 3) Fais-le en
+portrait ET en paysage. La première barre verte en partant du bas donne la
+hauteur de la bande perdue.</p>
+<div class="l">le point le plus bas qu'une touche ait atteint : <span id="bas">—</span></div>
+<div id="out"></div>
+<div id="bandes"></div>
+<script>
+(function(){
+  var out=document.getElementById('out');
+  function ligne(k,v){ var d=document.createElement('div'); d.className='l'; d.innerHTML='<b>'+k+'</b> : '+v; out.appendChild(d); return d; }
+  function mode(){ return ['fullscreen','standalone','minimal-ui','browser'].filter(function(m){
+    return matchMedia('(display-mode: '+m+')').matches; }).join(', ') || '(aucun)'; }
+  var lMode=ligne('display-mode', '<span class="ok">'+mode()+'</span>');
+  ligne('écran de la page (innerWidth × innerHeight)', innerWidth+' × '+innerHeight);
+  ligne('écran de l’appareil (screen)', screen.width+' × '+screen.height+', densité '+(devicePixelRatio||1));
+  if(window.visualViewport) ligne('fenêtre visible', Math.round(visualViewport.width)+' × '+Math.round(visualViewport.height)+', décalée de '+Math.round(visualViewport.offsetTop));
+  var p=document.createElement('div');
+  p.style.cssText='position:fixed;bottom:0;height:env(safe-area-inset-bottom,0px);width:1px;visibility:hidden';
+  document.body.appendChild(p);
+  ligne('env(safe-area-inset-bottom)', Math.round(p.getBoundingClientRect().height)+' px (0 sans viewport-fit=cover)');
+  ligne('orientation', matchMedia('(orientation: portrait)').matches ? 'portrait' : 'paysage');
+  ligne('userAgent', navigator.userAgent);
+
+  /* Les barres : chacune occupe 24 px, à une distance connue du bord BAS. */
+  var hotes=document.getElementById('bandes'), barres=[];
+  for(var i=0;i<7;i++){
+    var b=document.createElement('div'); b.className='b';
+    var bas=i*26; b.style.bottom=bas+'px';
+    b.textContent=bas+' à '+(bas+24)+' px du bord';
+    b.setAttribute('data-bas', bas);
+    hotes.appendChild(b); barres.push(b);
+  }
+  hotes.addEventListener('pointerdown', function(e){
+    var b=e.target.closest ? e.target.closest('.b') : null; if(!b) return;
+    b.classList.add('vu'); b.textContent=b.getAttribute('data-bas')+' px — touché ✓';
+  });
+  /* Et la mesure qui ne demande aucun geste précis : le point le PLUS BAS
+     qu'une touche ait atteint. Pose le doigt tout en bas et remonte : le
+     nombre s'arrête à la hauteur où le système a cessé de tout prendre. */
+  var bas=document.getElementById('bas'), mini=null;
+  function vu(y){ var d=Math.round(innerHeight-y); if(mini===null||d<mini){ mini=d;
+    bas.innerHTML='<span class="'+(mini<8?'ok':'ko')+'">'+mini+' px du bord</span>'; } }
+  document.addEventListener('pointerdown', function(e){ vu(e.clientY); }, true);
+  document.addEventListener('pointermove', function(e){ vu(e.clientY); }, true);
+  addEventListener('resize', function(){ lMode.innerHTML='<b>display-mode</b> : <span class="ok">'+mode()+'</span> — '+innerWidth+' × '+innerHeight; });
+})();
+</script>
+</body></html>

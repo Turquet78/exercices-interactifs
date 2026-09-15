@@ -3540,6 +3540,8 @@ function exercices(suite){
     inequationGraphique(w, P);
     paveNumerique(w, P);
     manifesteAppli(w, P);
+    basSysteme(w, P);
+    commandesSousClavier(w, P);
     toucheEgalClavier(w, P);
     toucheEntreeClavier(w, P);
     clavierPaysageCompact(w, P);
@@ -3577,6 +3579,7 @@ function exercices(suite){
     paireFausseCaseFautive(w, P);
     coefficientGlobalCourt(w, P);
     coefficientGlobalCourtBaisses(w, P);
+    coefficientDeuxDecimalesSynthese(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     jetonsSignePremier(w, P);
@@ -9575,6 +9578,7 @@ function toucheEntreeClavier(w, P){
   if(bk){
     const formes = [['normale', [[]]]];
     if(C.paysage) formes.push(['paysage', [[], true]]);
+    if(C.portraitTablette) formes.push(['portrait', [[], false, true]]);
     formes.forEach(([quelle, args]) => {
       let dispo = null;
       try{ dispo = bk.apply(null, args); }catch(e){ pbs.push('buildKbTerm (forme ' + quelle + ') échoue : ' + e.message); return; }
@@ -9595,63 +9599,90 @@ function toucheEntreeClavier(w, P){
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 
-/* ---------- En paysage, le clavier ancré tient sur DEUX rangées — les mêmes touches ---------- */
+/* ---------- Le clavier ancré tient sur MOINS de rangées : deux en paysage, trois en portrait ---------- */
 /* Demande de Turquet (septembre 2026) : « en mode paysage je veux que le
    clavier prenne moins de place en hauteur en mettant plus de touches sur une
-   même ligne ». buildKbTerm(vars, true) rend la forme COMPACTE : chaque couche
-   a exactement le nombre de rangées déclaré (clavierEcran.paysage.rangees), et
-   le JEU de touches — latex, key, insert, command — est le MÊME que celui de
+   même ligne », puis, sur les pourcentages de la Première : « en mode
+   portrait, que le clavier tienne sur 3 lignes au lieu de 4 ».
+   buildKbTerm(vars, true) rend la forme COMPACTE et buildKbTerm(vars, false,
+   true) la forme PORTRAIT : chaque couche a exactement le nombre de rangées
+   déclaré (clavierEcran.paysage.rangees, clavierEcran.portraitTablette.rangees),
+   et le JEU de touches — latex, key, insert, command — est le MÊME que celui de
    la forme normale : une touche perdue d'un côté serait intapable dans une
    orientation, sans qu'aucune erreur ne se lève. Le bord opposé : la forme
    normale a PLUS de rangées, sinon rien n'est compacté. Et la TABLE DE
-   ROUTAGE est évaluée depuis la source (kbCompact + applyKbLayout) sur un
-   faux clavier : ancré en paysage → compact ; en portrait → normal ; la
-   fenêtre flottante de l'ordinateur → normale, même en paysage (un écran
-   d'ordinateur est toujours en paysage). Le rendu se mesure au banc
-   navigateur (« 11 quinquies »). */
+   ROUTAGE est évaluée depuis la source (kbCompact + kbPortraitTablette +
+   applyKbLayout) sur un faux clavier : ancré en paysage → compact ; ancré en
+   portrait sur une TABLETTE → la forme courte ; ancré en portrait sur un
+   TÉLÉPHONE → la forme normale, huit touches sur une rangée de 390 px ne se
+   touchant plus ; la fenêtre flottante de l'ordinateur → normale, même en
+   paysage (un écran d'ordinateur est toujours en paysage). Le rendu se mesure
+   au banc navigateur (« 11 quinquies »). */
 function clavierPaysageCompact(w, P){
-  const nom = 'en paysage, le clavier ancré tient sur moins de rangées avec les mêmes touches, et la fenêtre flottante garde les siennes';
+  const nom = 'le clavier ancré tient sur moins de rangées avec les mêmes touches, et la fenêtre flottante garde les siennes';
   const C = P.clavierEcran;
   if(!C || !C.paysage){ ignorer(nom, 'ce fichier ne déclare pas de clavier de paysage'); return; }
   const pbs = [];
   const bk = evaluerClavier(pbs);
   const sig = k => JSON.stringify([k.latex || '', k.key || '', k.insert || '', k.command || '']);
-  let normale = null, compact = null;
+  const PT = C.portraitTablette || null;
+  let normale = null, compact = null, portrait = null;
   if(bk){
     try{ normale = bk([]); }catch(e){ pbs.push('buildKbTerm([]) échoue : ' + e.message); }
     try{ compact = bk([], true); }catch(e){ pbs.push('buildKbTerm([], true) échoue : ' + e.message); }
+    if(PT){ try{ portrait = bk([], false, true); }catch(e){ pbs.push('buildKbTerm([], false, true) échoue : ' + e.message); } }
   }
-  if(normale && compact){
-    const cn = normale.layers || [], cc = compact.layers || [];
-    if(!cc.length) pbs.push('la forme compacte n\'a aucune couche');
-    cc.forEach(l => { const n = (l.rows || []).length;
-      if(n !== C.paysage.rangees) pbs.push('la couche ' + l.id + ' de la forme compacte a ' + n + ' rangée(s) au lieu de ' + C.paysage.rangees); });
-    cn.forEach(l => { const n = (l.rows || []).length;
-      if(n <= C.paysage.rangees) pbs.push('la forme normale (' + l.id + ') n\'a que ' + n + ' rangée(s) : rien n\'est compacté'); });
-    const sn = touchesDe(normale).map(sig), sc = touchesDe(compact).map(sig);
-    const perdues = sn.filter(x => sc.indexOf(x) === -1), ajoutees = sc.filter(x => sn.indexOf(x) === -1);
-    if(perdues.length) pbs.push('touche(s) absente(s) de la forme compacte : ' + perdues.join(', '));
-    if(ajoutees.length) pbs.push('touche(s) de la forme compacte absente(s) de la forme normale : ' + ajoutees.join(', '));
+  if(normale && compact && (!PT || portrait)){
+    const cn = normale.layers || [];
+    /* chaque forme courte : ses couches ont le compte déclaré, et pas une touche de moins */
+    const courte = (quelle, forme, rangees) => {
+      const cc = forme.layers || [];
+      if(!cc.length){ pbs.push('la forme ' + quelle + ' n\'a aucune couche'); return; }
+      cc.forEach(l => { const n = (l.rows || []).length;
+        if(n !== rangees) pbs.push('la couche ' + l.id + ' de la forme ' + quelle + ' a ' + n + ' rangée(s) au lieu de ' + rangees); });
+      cn.forEach(l => { const n = (l.rows || []).length;
+        if(n <= rangees) pbs.push('la forme normale (' + l.id + ') n\'a que ' + n + ' rangée(s) : rien n\'est compacté pour la forme ' + quelle); });
+      const sn = touchesDe(normale).map(sig), sc = touchesDe(forme).map(sig);
+      const perdues = sn.filter(x => sc.indexOf(x) === -1), ajoutees = sc.filter(x => sn.indexOf(x) === -1);
+      if(perdues.length) pbs.push('touche(s) absente(s) de la forme ' + quelle + ' : ' + perdues.join(', '));
+      if(ajoutees.length) pbs.push('touche(s) de la forme ' + quelle + ' absente(s) de la forme normale : ' + ajoutees.join(', '));
+    };
+    courte('compacte', compact, C.paysage.rangees);
+    if(PT) courte('portrait', portrait, PT.rangees);
     /* la table de routage, évaluée depuis la source sur un faux clavier */
     const src = lire(CIBLE);
     const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
     const fA = fns.find(o => o.nom === 'applyKbLayout'), fC = fns.find(o => o.nom === 'kbCompact');
+    const fT = fns.find(o => o.nom === 'kbPortraitTablette');
     if(!fA || !fC) pbs.push('applyKbLayout ou kbCompact est introuvable dans la source');
+    else if(PT && !fT) pbs.push('kbPortraitTablette est introuvable dans la source : rien ne décide la forme du portrait');
     else{
-      const rangees = (flottant, paysage) => {
+      /* le faux écran : « (orientation: landscape) » répond au paysage, la
+         requête de la tablette — celle qui porte une largeur minimale — à la
+         tablette. Une requête inconnue ne répond rien : un routage qui
+         s'appuierait sur autre chose se verrait ici. */
+      const ecran = (paysage, tablette) => q => ({ matches: /landscape/.test(q) ? !!paysage : /min-width/.test(q) ? !!tablette : false });
+      const rangees = (flottant, paysage, tablette) => {
         const vk = { layouts: null };
-        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: q => ({ matches: /landscape/.test(q) && paysage }) };
+        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: ecran(paysage, tablette) };
         try{
           const apply = new Function('window', 'matchMedia', 'currentTestId', 'kbVarsFor', 'buildKbTerm', 'JSON',
-            'let __kbVarsKey = null;\n' + fC.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, null, () => [], bk, JSON);
+            'let __kbVarsKey = null;\n' + fC.texte + '\n' + (fT ? fT.texte + '\n' : '') + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, null, () => [], bk, JSON);
           apply();
           return vk.layouts && vk.layouts[0] && vk.layouts[0].layers[0] ? vk.layouts[0].layers[0].rows.length : -1;
         }catch(e){ pbs.push('la table de routage ne s\'évalue pas : ' + e.message); return -1; }
       };
-      const ancrePaysage = rangees(false, true), ancrePortrait = rangees(false, false), flottant = rangees(true, true);
+      const ancrePaysage = rangees(false, true, true), ancreTablette = rangees(false, false, true),
+            ancreTelephone = rangees(false, false, false), flottant = rangees(true, true, true);
       if(ancrePaysage !== C.paysage.rangees) pbs.push('clavier ancré en paysage : ' + ancrePaysage + ' rangée(s) au lieu de ' + C.paysage.rangees);
-      if(ancrePortrait <= C.paysage.rangees) pbs.push('clavier ancré en portrait : ' + ancrePortrait + ' rangée(s), la forme compacte fuit sur le portrait');
-      if(flottant <= C.paysage.rangees) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s), la forme compacte fuit sur l\'ordinateur');
+      if(PT){
+        if(ancreTablette !== PT.rangees) pbs.push('tablette ancrée en portrait : ' + ancreTablette + ' rangée(s) au lieu de ' + PT.rangees);
+        if(ancreTelephone !== PT.telephone) pbs.push('téléphone ancré en portrait : ' + ancreTelephone + ' rangée(s) au lieu de ' + PT.telephone + ' — la forme courte fuit sur le téléphone');
+        if(flottant !== PT.telephone) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s) au lieu de ' + PT.telephone + ' — une forme courte fuit sur l\'ordinateur');
+      } else {
+        if(ancreTablette <= C.paysage.rangees) pbs.push('clavier ancré en portrait : ' + ancreTablette + ' rangée(s), la forme compacte fuit sur le portrait');
+        if(flottant <= C.paysage.rangees) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s), la forme compacte fuit sur l\'ordinateur');
+      }
     }
   }
   verifier(nom, pbs.length === 0, pbs.join(' | '));
@@ -9973,6 +10004,164 @@ function policeTablette(w, P){
     if(+m[1] < 500 || +m[1] > 800) pbs.push('la borne de largeur (' + m[1] + ' px) ne distingue plus une tablette d\'un téléphone');
   }
   if(regles.length !== 1) pbs.push(regles.length + ' règle(s) html{font-size} dans la source au lieu d\'une seule : ' + regles.join(' ; '));
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- La bande du bas appartient au système, en mode application ---------- */
+/* Signalé par Turquet (septembre 2026) sur une tablette Samsung, la page posée
+   sur l'écran d'accueil : « la ligne la plus basse du clavier virtuel ne
+   fonctionne pas, les caractères ne s'affichent pas — en portrait comme en
+   paysage ». La Première demande « fullscreen » : elle dessine jusqu'au bord
+   physique de l'écran, et les 48 dp du bas y sont la zone du geste d'Android,
+   où le système prend les touches. Rien n'arrive à la page, et rien ne rougit
+   nulle part.
+   DEUX BORDS, et n'en tenir qu'un ne tient rien. Un niveau en « fullscreen »
+   DOIT porter la réserve — la valeur vit ici et dans la page, deux sources —
+   et chacun des trois meubles fixes du bas doit la LIRE : le clavier ancré,
+   les commandes, le pavé. Un niveau en « standalone », lui, ne doit rien en
+   porter : la barre du système y occupe déjà la bande, et une réserve y
+   coûterait 48 px pour rien. La classe est posée par le script, comme
+   pave-actif : le banc la force (window.__appForce), la requête média reste
+   au navigateur — et elle se RETIRE quand on quitte le plein écran, sans quoi
+   un onglet mis puis sorti du plein écran garderait la mise en page de
+   l'application. Le RENDU, lui, se mesure au banc navigateur (« 11 octies »),
+   qui déploie le clavier sur l'exercice signalé et regarde ce qui reste dans
+   la bande. */
+function basSysteme(w, P){
+  const nom = 'en mode application, rien de ce qui se touche ne descend dans la bande du système';
+  const plein = !!(P.manifeste && P.manifeste.display === 'fullscreen');
+  const src = lire(CIBLE);
+  if(!P.basSysteme){
+    /* le bord opposé se MESURE au lieu d'être tu : pas de réserve ici, et pas
+       une ligne qui la ferait fuir */
+    const fuites = [];
+    if(plein) fuites.push('le manifeste demande « fullscreen » mais le profil ne déclare aucune réserve : la page descend jusqu\'au bord de l\'écran');
+    if(/--bas-systeme/.test(src)) fuites.push('la page porte « --bas-systeme » alors que le profil n\'en déclare pas');
+    if(/mode-app/.test(src)) fuites.push('la page porte la classe « mode-app » alors que le profil n\'en déclare pas');
+    verifier(nom + ' — et ce niveau, en « ' + ((P.manifeste && P.manifeste.display) || '?') + ' », n\'en a pas besoin',
+      fuites.length === 0, fuites.join(' | '));
+    return;
+  }
+  const B = P.basSysteme, pbs = [];
+  if(!plein) pbs.push('le profil déclare une réserve alors que le manifeste demande « ' + ((P.manifeste && P.manifeste.display) || '?') + ' » : elle ne servirait à rien');
+  /* la valeur : un défaut de 0 partout, et UNE seule déclaration non nulle,
+     portée par la classe du mode application */
+  const decls = src.match(/--bas-systeme:\s*[^;}]+/g) || [];
+  const nonNuls = decls.filter(d => !/:\s*0(px)?\s*$/.test(d));
+  if(!/:root\{--bas-systeme:0px\}/.test(src)) pbs.push('aucun défaut « :root{--bas-systeme:0px} » : hors mode application la réserve serait indéfinie');
+  if(nonNuls.length !== 1) pbs.push(nonNuls.length + ' déclaration(s) non nulle(s) de --bas-systeme au lieu d\'une seule : ' + nonNuls.join(' ; '));
+  else {
+    const m = /body\.mode-app\{--bas-systeme:(\d+)px\}/.exec(src);
+    if(!m) pbs.push('la réserve n\'est pas portée par « body.mode-app » : ' + nonNuls[0]);
+    else if(+m[1] !== B.px) pbs.push('la page réserve ' + m[1] + ' px quand le profil déclare ' + B.px + ' px');
+  }
+  /* chaque meuble fixe du bas LIT la réserve */
+  const blocs = src.match(/[^{}<>;]+\{[^{}]*\}/g) || [];
+  (B.regles || []).forEach(sel => {
+    const lu = blocs.some(b => b.slice(0, b.indexOf('{')).indexOf(sel) >= 0 && /var\(--bas-systeme\)/.test(b));
+    if(!lu) pbs.push('« ' + sel +' » ne lit pas var(--bas-systeme) : ce meuble reste dans la bande du système');
+  });
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+
+  /* et la classe suit le mode, dans les deux sens */
+  verifierEval(w, 'la classe du mode application est posée en plein écran, retirée sinon, et le banc peut la forcer', `(function(){
+    const vus=[], ecoutes=[];
+    const ancien = window.matchMedia;
+    const faux = function(v){ window.matchMedia = function(q){
+      return { matches: !!v && /fullscreen/.test(q),
+               addEventListener: function(t,f){ ecoutes.push(t); },
+               addListener: function(){} }; }; };
+    const rendre = function(){ if(ancien) window.matchMedia = ancien; else { try{ delete window.matchMedia; }catch(e){ window.matchMedia = undefined; } }
+                               document.body.classList.remove('mode-app'); };
+    try{
+      delete window.__appForce;
+      /* la page pose son écouteur UNE fois : on rouvre la porte pour que le
+         nôtre soit posé sur le faux matchMedia, sans quoi ce contrôle
+         rougirait sur une page juste. */
+      try{ delete window.__modeAppLie; }catch(e){ window.__modeAppLie=false; }
+      faux(false); document.body.classList.remove('mode-app'); modeAppSuivre();
+      if(document.body.classList.contains('mode-app')) vus.push("la classe est posée hors du mode application");
+      faux(true); modeAppSuivre();
+      if(!document.body.classList.contains('mode-app')) vus.push("la classe manque quand le navigateur dit « display-mode: fullscreen »");
+      faux(false); modeAppSuivre();
+      if(document.body.classList.contains('mode-app')) vus.push("la classe reste posée après la sortie du plein écran");
+      window.__appForce = true; modeAppSuivre();
+      if(!document.body.classList.contains('mode-app')) vus.push("window.__appForce ne force rien : le banc navigateur ne pourrait rien mesurer");
+      delete window.__appForce;
+      if(!ecoutes.length) vus.push("aucun écouteur sur la requête média : un onglet mis en plein écran garderait la mise en page de l’onglet");
+    } catch(e){ vus.push('erreur : ' + e.message); }
+    window.__modeAppLie = true;   /* plus aucun écouteur après le contrôle */
+    rendre();
+    return vus.length ? vus.join(' ; ') : true;
+  })()`);
+}
+
+/* ---------- Le clavier ancré prend le bas : les commandes montent en haut ---------- */
+/* Signalé par Turquet (septembre 2026). Mesuré avant tout correctif, sur les
+   TROIS niveaux et dans les deux orientations : « Signaler », « Abandonner »
+   et « Mettre en pause » vivent ENTIÈREMENT sous le clavier ancré dès qu'il
+   est déployé, et elles y sont INTOUCHABLES — aucune erreur nulle part, le
+   bouton ne répond simplement pas. Elles montent donc EN HAUT tant qu'il est
+   déployé : c'est le seul coin que ni le clavier ni la case où l'élève écrit
+   n'occupent (juste au-dessus du clavier, elles recouvrent la ligne qu'il
+   tape — la leçon de la bulle « Comprendre mon erreur »).
+   jsdom tient la mécanique ; le RENDU — les commandes hors du clavier et
+   touchables pour de vrai — est au banc navigateur, seul à savoir où tombe un
+   bouton. Trois bords ici, et n'en tenir qu'un ne tient rien : la règle
+   existe et remonte vraiment les commandes ; elle vient APRÈS celles de
+   « pave-actif », qui posent le même « bottom » — à spécificité égale c'est
+   l'ordre qui tranche, et une règle écrite plus haut ne ferait RIEN sans
+   qu'aucune erreur ne se lève ; la classe suit le clavier dans les deux sens
+   et ne se pose jamais sur la fenêtre FLOTTANTE de l'ordinateur, qui ne
+   recouvre rien ; et pinKbToViewport l'APPELLE — une fonction juste que
+   personne n'appelle est la moitié morte du correctif. */
+function commandesSousClavier(w, P){
+  const nom = 'le clavier ancré déployé ne recouvre plus les commandes du bas';
+  const src = lire(CIBLE), pbs = [];
+  /* la règle, et ce qu'elle pose vraiment */
+  const mRegle = /body\.clavier-ouvert\s+#testCtrls\{([^}]*)\}/.exec(src);
+  if(!mRegle) pbs.push('aucune règle « body.clavier-ouvert #testCtrls » : les commandes restent sous le clavier');
+  else{
+    const d = mRegle[1];
+    if(!/(^|;)\s*top\s*:/.test(d)) pbs.push('la règle ne pose aucun « top » : les commandes ne remontent nulle part');
+    if(!/(^|;)\s*bottom\s*:\s*auto/.test(d)) pbs.push('la règle ne rend pas « bottom:auto » : le bas continue de la tenir en place');
+    /* l'ORDRE : après toutes les règles qui posent un « bottom » aux commandes */
+    const iRegle = mRegle.index;
+    const rx = /body\.pave-actif\s+#testCtrls\{([^}]*)\}/g; let m, apres = [];
+    while((m = rx.exec(src))) if(/bottom\s*:/.test(m[1]) && m.index > iRegle) apres.push(m[0]);
+    if(apres.length) pbs.push(apres.length + ' règle(s) « pave-actif » posent un bottom APRÈS la nôtre, à spécificité égale : elle ne fait rien (' + apres[0].slice(0, 60) + ')');
+  }
+  /* la classe suit le clavier, dans les deux sens, et jamais sur la fenêtre flottante */
+  const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const fCh = fns.find(o => o.nom === 'clavierHaut'), fPin = fns.find(o => o.nom === 'pinKbToViewport');
+  if(!fCh) pbs.push('clavierHaut est introuvable dans la source');
+  else{
+    const vus = [];
+    /* UNE SEULE mémoire de classes pour toute la séquence : mesurée à neuf à
+       chaque tour, « la classe reste posée après le repli » devient
+       inatteignable — une fonction qui ne saurait qu'AJOUTER passerait au
+       vert. Le sabotage l'a montré. */
+    const cls = new Set();
+    const jouer = (visible, flottant) => {
+      /* un faux classList COMPLET : un correctif qui poserait la classe par
+         add/remove plutôt que par toggle doit être mesuré pour ce qu'il fait,
+         pas échouer sur une méthode que le double n'aurait pas — le sabotage
+         nommerait alors un autre défaut que le sien. */
+      const body = { classList: { toggle: (c, on) => { if(on === undefined ? cls.has(c) : !on) cls.delete(c); else cls.add(c); },
+                                  add: c => cls.add(c), remove: c => cls.delete(c), contains: c => cls.has(c) } };
+      const win = { mathVirtualKeyboard: { visible: visible }, __kbFloating: flottant };
+      try{
+        new Function('window', 'document', fCh.texte + '\nclavierHaut();')(win, { body: body });
+      }catch(e){ vus.push('clavierHaut ne s\'évalue pas : ' + e.message); }
+      return cls.has('clavier-ouvert');
+    };
+    if(!jouer(true, false)) vus.push('la classe manque quand le clavier ancré est déployé');
+    if(jouer(false, false)) vus.push('la classe reste posée une fois le clavier refermé');
+    if(jouer(true, true)) vus.push('la classe est posée sur la fenêtre flottante de l\'ordinateur, qui ne recouvre rien');
+    pbs.push.apply(pbs, vus);
+  }
+  if(!fPin) pbs.push('pinKbToViewport est introuvable dans la source');
+  else if(!/clavierHaut\s*\(/.test(fPin.texte)) pbs.push('pinKbToViewport n\'appelle pas clavierHaut : la classe ne serait jamais posée');
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 
@@ -16420,6 +16609,134 @@ function coefficientGlobalCourtBaisses(w, P){
       if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
     if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
     return vus.join(" | ");
+  })()`, v => v === '', undefined);
+}
+/* ---- 2.5.1 : le coefficient de chaque transformation s'écrit court --------
+   « fais la même chose pour le 2.5.1 » (Turquet, septembre 2026), après la
+   règle posée sur le 2.2.7, puis sur le 2.3.7, puis sur le 2.2.8 : un seul
+   chiffre non nul par taux, et un coefficient qui s'écrit avec au plus DEUX
+   décimales.
+   LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT : sur 900 tirages
+   passés par les TROIS portes et sur CHACUNE de leurs propositions, aucun
+   coefficient à plus de deux décimales, aucune valeur de la chaîne qui ne soit
+   entière. La règle y était donc DÉJÀ vraie — et tenue par rien, comme au
+   2.3.7 : le contrôle voisin (« générateur genSyn : 8000 questions
+   conformes ») n'exige que l'ENTIER, or 12,5 % de 800 fait 100, un entier
+   parfait, avec un coefficient 1,125 à trois décimales. Il serait resté vert.
+   Le contrôle refait donc la propriété par une SECONDE arithmétique — en
+   CENTIÈMES entiers là où la page divise par 100 — et la relit une TROISIÈME
+   fois sur l'écriture que la page PRODUIT (synCouple().coefDec).
+   genSyn sert cinq exercices — le 2.5.1, le 2.2.9, le 2.3.8 et les rédigées
+   2.2.10, 2.3.9, 2.5.2 — et les trois portes du tirage sont éprouvées : la
+   libre et les deux imposées.
+   Un essai s'est pris en défaut AVANT la page : « la valeur de départ est un
+   multiple de 100 » est vrai du TIRAGE et faux des PROPOSITIONS — les leurres
+   de la valeur initiale valent 70, 50, 90… et la chaîne y tombe juste quand
+   même, le taux étant alors un multiple de dix. On mesure donc la propriété
+   qui compte (P × N tombe sur un entier de centièmes), pas celle qu'on
+   croyait. */
+function coefficientDeuxDecimalesSynthese(w, P){
+  const present = evaluer(w, "typeof genSyn==='function' && typeof synCouple==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.5.1 : le coefficient de chaque transformation s\'écrit avec au plus deux décimales',
+      'ce niveau n\'a pas la synthèse sur les pourcentages');
+    ignorer('2.5.1 : la copie juste vaut le point, et la correction n\'écrit aucun nombre à trois décimales',
+      'ce niveau n\'a pas la synthèse sur les pourcentages');
+    return;
+  }
+  verifierEval(w, '2.5.1 : le coefficient de chaque transformation s\'écrit avec au plus deux décimales', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    const dec=function(x){ const s=String(x); const i=s.indexOf("."); return i<0?0:s.length-i-1; };
+    const decVir=function(s){ const i=String(s).indexOf(","); return i<0?0:String(s).length-i-1; };
+    const portes=[null,"aug","dim"], incs=["fin","ini","pct"];
+    const fams={}, incsVus={}, nbDec={}, taux={};
+    for(let t=0;t<450 && vus.length===0;t++){
+      const fam=portes[t%3], inc=incs[(t/3|0)%3];
+      const q=genSyn(fam||undefined, inc);
+      const eti="tirage "+t+" ("+q.fam+"/"+q.inc+")";
+      /* les portes imposées : le 2.2.9 et le 2.3.8 passent par elles */
+      if(fam && q.fam!==fam){ vus.push(eti+" : la porte "+fam+" rend la famille "+q.fam); break; }
+      if(q.inc!==inc){ vus.push(eti+" : l inconnue imposee "+inc+" rend "+q.inc); break; }
+      fams[q.fam]=1; incsVus[q.inc]=1;
+      /* le TIRAGE pose une valeur de depart qui fait tout tomber juste */
+      if(q.fam!=="pct" && q.N%100!==0) vus.push(eti+" : le tirage pose N="+q.N+", qui n est pas un multiple de 100");
+      /* chaque PROPOSITION : c est la sienne que l eleve verifie */
+      const opts=q.opts||[];
+      for(let i=0;i<opts.length && vus.length===0;i++){
+        q.choisi=i; const c=synCouple(q);
+        if(!c){ vus.push(eti+" : aucune paire sur la proposition "+i); break; }
+        /* le taux : un seul chiffre non nul, la regle du 2.2.7 */
+        if(c.P!==Math.round(c.P)) vus.push(eti+" : le taux "+c.P+" n est pas entier");
+        else if(!((c.P%10===0 && c.P>=10 && c.P<=90) || (c.P>=1 && c.P<=9)))
+          vus.push(eti+" : le taux "+c.P+" % porte deux chiffres non nuls");
+        /* SECONDE ARITHMETIQUE : le coefficient compte en CENTIEMES entiers */
+        const cent=(q.fam==="pct")?c.P:(100+q.sens*c.P);
+        if(cent!==Math.round(cent)){ vus.push(eti+" : le coefficient "+(cent/100)+" ne s ecrit pas en centiemes entiers"); break; }
+        const d=(cent%100===0)?0:((cent%10===0)?1:2);
+        if(dec(cent/100)!==d) vus.push(eti+" : le coefficient "+(cent/100)+" s ecrit avec "+dec(cent/100)+" decimales, les centiemes "+cent+" en annoncent "+d);
+        if(d>2) vus.push(eti+" : le coefficient "+(cent/100)+" s ecrit avec "+d+" decimales");
+        nbDec[d]=1; taux[c.P]=1;
+        /* TROISIEME lecture : l ecriture que la PAGE produit */
+        if(q.fam!=="pct"){
+          if(decVir(c.coefDec)>2) vus.push(eti+" : la page ecrit le coefficient "+c.coefDec);
+          if(c.coefDec!==String(cent/100).replace(".",",")) vus.push(eti+" : la page ecrit "+c.coefDec+" la ou les centiemes disent "+(cent/100));
+        }
+        /* et toute la chaine tombe sur des entiers, proposition par proposition */
+        if(c.N*c.P%100!==0) vus.push(eti+" : "+c.P+" % de "+c.N+" ne tombe pas sur un entier");
+        if(c.res!==Math.round(c.res)) vus.push(eti+" : le resultat "+c.res+" n est pas entier");
+        if(c.fin!==Math.round(c.fin)) vus.push(eti+" : la valeur finale "+c.fin+" n est pas entiere");
+        if(c.prodNum%100!==0) vus.push(eti+" : le produit "+c.prodNum+"/100 n est pas entier");
+      }
+      q.choisi=null;
+    }
+    /* un controle qui n a rien a mesurer ne mesure rien, et doit le dire */
+    if(vus.length===0){
+      if(Object.keys(fams).length<3) vus.push("les trois familles ne sortent pas : "+Object.keys(fams).join(", "));
+      if(Object.keys(incsVus).length<3) vus.push("les trois inconnues ne sortent pas : "+Object.keys(incsVus).join(", "));
+      if(!nbDec["1"] || !nbDec["2"]) vus.push("aucun coefficient a "+(nbDec["2"]?"une":"deux")+" decimale(s) : le controle ne mesure qu une seule forme");
+      if(Object.keys(taux).length<12) vus.push("seulement "+Object.keys(taux).length+" taux differents sur 450 tirages");
+    }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.5.1 : la copie juste vaut le point, et la correction n\'écrit aucun nombre à trois décimales', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* une HAUSSE a taux d un chiffre : le seul cas ou le coefficient prend ses
+       deux decimales, donc le plus exposé à la règle */
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genSyn("aug","fin"); if(q.P<10) Q=q; }
+    if(!Q) return "le tirage ne produit jamais de hausse a taux d un chiffre";
+    const pin=function(choix){
+      const q=JSON.parse(JSON.stringify(Q)); q.choisi=choix; q.meth="coef";
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:"syn", qId:"synthese-pourcentages", questions:[q], idx:0, score:0,
+                          answers:[], startTime:Date.now(), locked:false, maxScore:1});
+      show("syntest"); renderSynTest();
+      return q;
+    };
+    /* 1. la copie JUSTE, cliquee */
+    const q=pin(Q.bon), c=synCouple(q);
+    if(decVirgule(c.coefDec)>2) vus.push("le coefficient de la question epinglee s ecrit "+c.coefDec);
+    const deuxCh=function(n){ const s=String(n); return s.length<2?("0"+s):s; };
+    const copie={y1n:""+c.P, y1d:"100", y1p:deuxCh(c.P), y1dec:String(c.coef).slice(1),
+                 y2n:""+c.coef, y2d:"100", y3n:""+c.coef, y3d:"100", y3v:""+c.N,
+                 y4n:""+c.prodNum, y4d:"100", y5:String(c.prodNum/100).replace(".",",")};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkSynAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    /* 2. la correction ECRITE : c est la que l eleve lit le coefficient */
+    pin((Q.bon+1)%4); checkSynAnswer();
+    const fb=document.getElementById("syFeedback"), txt=fb?fb.textContent:"";
+    if(txt.indexOf("car")<0) vus.push("la correction ne donne pas la preuve : « "+txt.slice(0,60)+" »");
+    const trop=txt.match(/[0-9]+,[0-9]{3,}/);
+    if(trop) vus.push("la correction ecrit "+trop[0]+", un nombre a plus de deux decimales");
+    return vus.join(" | ");
+    function decVirgule(s){ const i=String(s).indexOf(","); return i<0?0:String(s).length-i-1; }
   })()`, v => v === '', undefined);
 }
 /* ---- Associer f à f' : la fiche 9, purement graphique ---------------------
