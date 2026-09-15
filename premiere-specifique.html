@@ -343,6 +343,50 @@
    police — et ses touches GRANDISSENT pour occuper cette largeur (flex),
    plafonnées à 80 px pour rester des touches et non des barres ; au-delà,
    la rangée se centre. Il faisait 634 px sur toutes les tablettes. */
+/* ---- MODE APPLICATION : LE BAS DE L'ÉCRAN APPARTIENT AU SYSTÈME ----
+   Signalé par Turquet (septembre 2026) sur une tablette Samsung, la page
+   posée sur l'écran d'accueil : « la ligne la plus basse du clavier virtuel
+   ne fonctionne pas, les caractères ne s'affichent pas — en portrait comme
+   en paysage ». Mesuré : cette rangée-là vit à 7..49 px du bord BAS de
+   l'écran en paysage (7..67 en portrait), et ses touches ont leur centre à
+   28 px et 37 px du bord. Or Android se réserve cette bande — 48 dp, la
+   zone du geste « retour à l'accueil », qu'un indicateur de geste occupe en
+   plus chez Samsung : le système y prend les touches, et rien n'arrive à la
+   page. Aucune erreur nulle part, la touche ne répond simplement pas.
+   POURQUOI LA PREMIÈRE, ET POURQUOI EN APPLICATION SEULEMENT : c'est le seul
+   niveau dont le manifeste demande « fullscreen » (demande de Turquet,
+   septembre 2026 : supprimer la bande du bas d'Android) — la page dessine
+   donc jusqu'au bord physique. Dans un onglet, et dans les deux autres
+   niveaux (« standalone »), le navigateur ou la barre système occupent cette
+   bande et la page ne l'atteint jamais.
+   ON REND DONC LA BANDE AU SYSTÈME, en mode application seulement : rien de
+   ce qui se touche — le clavier mathématique ancré, les commandes du bas, le
+   pavé numérique — n'y descend plus. La réserve vit à UN SEUL endroit
+   (--bas-systeme, déclarée dans tests/profils.js — deux sources) et la
+   classe est posée par le script (modeApp), comme pave-actif : la requête
+   média reste au navigateur, le banc force par window.__appForce.
+   LE CLAVIER GARDE SON FOND AU RAS DU BORD, ET SEULES SES TOUCHES REMONTENT
+   (demande de Turquet, septembre 2026 : « le trou sous le clavier me gêne »).
+   La v221 remontait le clavier EN BLOC, par une marge sur son fond : plus
+   aucune touche dans la bande, mais une bande de page visible sous le
+   clavier. Un rembourrage posé sur les RANGÉES fait les deux à la fois — le
+   fond GRANDIT d'autant et reste collé au bord, les touches montent avec
+   lui. Mesuré, pas supposé, et c'est la sonde qui a départagé les quatre
+   essais : la hauteur du fond est écrite par MathLive en BOÎTE DE BORDURE,
+   si bien qu'une bordure ou un rembourrage posés sur LUI n'ont pas déplacé
+   une seule touche (elles débordaient simplement de leur boîte) ; posé sur
+   les rangées, le fond passe de 247 à 295 px, son décalage et sa
+   translation suivent tout seuls, et la rangée du bas passe de 7 à 55 px du
+   bord — les 48 px de la réserve, plus les 8 px de marge que les rangées
+   avaient déjà. Une MARGE sur les rangées n'aurait rendu que 47 px : elle
+   remplace cette marge de 8 au lieu de s'y ajouter, et passait SOUS la
+   réserve. Le pavé et les commandes gardent leur marge : ce sont des cartes
+   flottantes à coins arrondis, elles n'ont aucun bord à épouser. */
+:root{--bas-systeme:0px}
+body.mode-app{--bas-systeme:48px}
+#testCtrls{margin-bottom:var(--bas-systeme)}
+#paveNum{margin-bottom:var(--bas-systeme)}
+body > .ML__keyboard .MLK__rows{padding-bottom:var(--bas-systeme)}
 body.pave-actif #testCtrls{bottom:6px;right:8px}
 body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
@@ -1989,7 +2033,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=221;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=224;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6673,7 +6717,21 @@ async function finishA2Q(){
    je veux 3 questions ») ; les trois inconnues sortent chacune UNE fois, en
    ordre mélangé — à trois questions, un tirage au hasard répéterait souvent
    le même genre, et l'élève apprendrait que la question est toujours du même
-   genre. La famille (pct/aug/dim), elle, reste tirée au hasard. */
+   genre. La famille (pct/aug/dim), elle, reste tirée au hasard.
+   LE COEFFICIENT DE CHAQUE TRANSFORMATION S'ÉCRIT AVEC AU PLUS DEUX DÉCIMALES
+   (demande de Turquet, septembre 2026 : « fais la même chose pour le 2.5.1 »,
+   après la même règle posée sur le 2.2.7, le 2.3.7 puis le 2.2.8). Elle tient
+   par le CHOIX DES TAUX — un seul chiffre non nul : un multiple de dix, ou un
+   chiffre ; « prendre P % » les prend dans PCT_PCTS, qui n'a que des multiples
+   de dix — et par une valeur de départ multiple de 100, qui fait tomber toute
+   la chaîne sur des entiers.
+   AUCUN GARDE NE LA RÉPÈTE : il n'écarterait jamais rien, et ferait croire
+   qu'on vérifie quelque chose — c'est le CONTRÔLE qui exige la propriété, sur
+   chaque tirage ET sur chacune de ses propositions, par une arithmétique en
+   centièmes entiers. Le bord n'est pas théorique : un taux à deux chiffres
+   non nuls remis ici (12,5 %) donnerait le coefficient 1,125 sans qu'aucune
+   autre mesure ne bronche, celle d'à côté n'exigeant que l'ENTIER — et 12,5 %
+   de 800 font 100, un entier parfait. */
 function genSyn(famVoulu, incVoulu){
   const fam=famVoulu||pick(['pct','aug','dim']);
   const inc=incVoulu||pick(['fin','ini','pct']);
@@ -6700,7 +6758,7 @@ function genSyn(famVoulu, incVoulu){
     const sens=(fam==='aug')?1:-1;
     let P,N;
     if(inc==='ini'){ P=pick([10,20,30,40,50,60,70,80,90]); }   /* leurres fins : multiples de 10 */
-    else { P=Math.random()<0.5?pick([10,20,30,40,50,60,70,80,90]):rand(1,9); }
+    else { P=Math.random()<0.5?pick([10,20,30,40,50,60,70,80,90]):rand(1,9); }   /* un seul chiffre non nul : le coefficient garde au plus deux décimales */
     N=rand(1,9)*Math.pow(10,pick([2,3]));                      /* multiple de 100 : tout tombe juste */
     const aug=P*N/100, fin=N+sens*aug;
     q={fam,inc,sens,P,N,aug,fin,decStr:String(fin).replace('.',',')};
@@ -6764,7 +6822,9 @@ async function startSyn(){
   test.maxScore=test.questions.length;
   show('syntest'); renderSynTest();
 }
-/* {synthese-augmentations} (2.2.8, demande de Turquet, août 2026) : la
+/* {synthese-augmentations} (2.2.9, demande de Turquet, août 2026 — elle
+   portait le numéro 2.2.8 avant que {hausses-successives-cent} ne le prenne,
+   et un commentaire qui s'affiche sous le nom d'un autre trompe) : la
    synthèse de {synthese-pourcentages} restreinte aux HAUSSES — même moteur,
    pas même identité (test.qId, le motif du calcul mental). Les trois
    inconnues — le résultat, la valeur initiale, le pourcentage — sortent
@@ -7567,7 +7627,7 @@ async function finishPsl(){
    et un préfixe « = » automatique les aurait soudées en une égalité fausse.
    Le calcul se juge sur la proposition CHOISIE (la règle des synthèses) :
    elle remplace l'inconnue, et c'est la vérification qui révèle qu'une
-   proposition ne convient pas. Même moteur de tirage que 2.2.8, pas même
+   proposition ne convient pas. Même moteur de tirage que 2.2.9, pas même
    identité : la note part sous test.qId, le rappel vit dans RAPPELS_ID, les
    questions dans QIA_SUGG. */
 let salFeuille=null;
@@ -12731,9 +12791,33 @@ function manifesteTablette(){
   return true;
 }
 
+/* ============ MODE APPLICATION : LA BANDE DU BAS EST AU SYSTÈME ============
+   Voir le bloc « MODE APPLICATION » de la feuille de styles. La page posée
+   sur l'écran d'accueil s'ouvre en « fullscreen » : elle dessine jusqu'au
+   bord physique de l'écran, et les 48 dp du bas y sont la zone de geste
+   d'Android — le système y prend les touches. La classe dit à la feuille de
+   styles de rendre cette bande, et RIEN d'autre ne change.
+   Elle est posée par le script et non par une requête média dans la feuille,
+   pour la raison de pave-actif : le banc peut alors la forcer
+   (window.__appForce), la requête média restant au navigateur. Le
+   navigateur signale l'entrée et la sortie du plein écran : on suit, sans
+   quoi une page ouverte en onglet puis mise en plein écran garderait la
+   mise en page de l'onglet. */
+function modeApp(){ return window.__appForce===true || (typeof matchMedia==='function' && matchMedia('(display-mode: fullscreen)').matches); }
+function modeAppSuivre(){
+  const poser=function(){ try{ document.body.classList.toggle('mode-app', modeApp()); }catch(e){} };
+  poser();
+  /* l'écouteur ne se pose qu'une fois : le banc rappelle cette fonction, et
+     dix écouteurs qui font le même geste ne valent pas mieux qu'un. */
+  if(!window.__modeAppLie){ window.__modeAppLie=true;
+    try{ matchMedia('(display-mode: fullscreen)').addEventListener('change', poser); }catch(e){ window.__modeAppLie=false; } }
+  return true;
+}
+
 /* démarrage */
 try{ paveObserver(); }catch(e){}
 try{ manifesteTablette(); }catch(e){}
+try{ modeAppSuivre(); }catch(e){}
 if(configReady()){ initSupabase(); demarrer(); }
 else { show('setup'); }
 
@@ -14255,7 +14339,7 @@ try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0
    d'une fraction / racine / exposant / indice. ∫ en \smallint pour ne pas être rogné. */
 const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="12" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="2" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSuperscript"]};
 const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
-function buildKbTerm(vars, compact){
+function buildKbTerm(vars, compact, portrait){
   /* Clavier adapte aux exercices de calcul : chiffres, virgule, fraction, operations,
      pourcentage (pas de variables f/x, inutiles ici). La touche « = » (demande de
      Turquet, septembre 2026) : sur tablette la greffe coupe le clavier du SYSTEME
@@ -14266,10 +14350,16 @@ function buildKbTerm(vars, compact){
      remplace un « ✓ » qui ne faisait que CACHER le clavier : sur tablette
      l'eleve croyait valider et rien ne se passait (signale par Turquet,
      septembre 2026). Le clavier se referme en quittant la case, ou par ⌨️.
-     « compact » (paysage, clavier ancre) : les MEMES touches sur DEUX rangees
-     au lieu de quatre — un clavier deux fois moins haut, la place rendue a
-     l'exercice (demande de Turquet, septembre 2026). Aucune touche ne manque
-     d'un cote : un controle compare les deux jeux. */
+     La FORME suit l'ecran, et les MEMES touches s'y trouvent toutes :
+     « compact » (paysage, clavier ancre) les met sur DEUX rangees au lieu de
+     quatre — un clavier deux fois moins haut, la place rendue a l'exercice
+     (demande de Turquet, septembre 2026) ; « portrait » (clavier ancre sur
+     une TABLETTE debout) sur TROIS rangees — une rangee de moins, la meme
+     place rendue a l'exercice la ou la plaque prenait pres d'un quart de
+     l'ecran (demande de Turquet, septembre 2026). Sans forme — la fenetre flottante
+     de l'ordinateur, et le portrait d'un TELEPHONE, trop etroit pour huit
+     touches sur une rangee — les quatre rangees d'origine. Aucune touche ne
+     manque d'une forme a l'autre : un controle compare les jeux. */
   const K = {
     n: d => ({latex: d}),
     frac: {label:"/",insert:"\\frac{#@}{#?}"},
@@ -14293,6 +14383,23 @@ function buildKbTerm(vars, compact){
       ]
     };
   }
+  if(portrait){
+    /* Les chiffres gardent leurs colonnes — 7 8 9 / 4 5 6 / 1 2 3 : l'eleve
+       qui tourne sa tablette retrouve le meme pave. Ce qui tenait sur la
+       quatrieme rangee remonte : les parentheses a cote de la fraction, les
+       fleches a cote des operations, et le 0 rejoint le 1 2 3 avec la
+       virgule, le =, le % et le ⏎. */
+    return {
+      label: "Calcul",
+      layers: [
+        { id: "prem-portrait", rows: [
+          [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.po,K.pf,K.eff ],
+          [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.moins,K.plus,K.gauche,K.droite ],
+          [ K.n("1"),K.n("2"),K.n("3"),K.n("0"),K.virg,K.egal,K.pct,K.entree ]
+        ] }
+      ]
+    };
+  }
   return {
     label: "Calcul",
     layers: [
@@ -14312,22 +14419,35 @@ function kbVarsFor(id){
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
-/* Le clavier ANCRE (tablette) en PAYSAGE prend la forme compacte a deux rangees ;
-   la fenetre flottante de l'ordinateur et le portrait gardent les quatre rangees.
+/* Le clavier ANCRE (tablette) en PAYSAGE prend la forme compacte a deux rangees,
+   et en PORTRAIT la forme a trois rangees ; la fenetre flottante de l'ordinateur
+   garde les quatre rangees.
    La cle memorise l'orientation : une rotation, un changement d'exercice ou un
    rendu (upgrade) reappliquent la bonne forme. */
 function kbCompact(){
   try{ return !window.__kbFloating && !!(window.matchMedia && matchMedia("(orientation: landscape)").matches); }catch(e){ return false; }
 }
+/* Le clavier ANCRE d'une TABLETTE DEBOUT tient sur TROIS rangees (demande de
+   Turquet, septembre 2026 : sur les pourcentages de la Premiere, « en mode
+   portrait, que le clavier tienne sur 3 lignes au lieu de 4 »). La tablette est
+   celle de toute la page — ecran tactile d'au moins 600 px : un TELEPHONE en
+   portrait garde ses quatre rangees, huit touches sur une rangee de 390 px ne
+   se touchant plus. La fenetre flottante de l'ordinateur n'est jamais ancree,
+   et le paysage a deja sa forme : les deux formes s'excluent ici, la table de
+   routage ne peut pas en appliquer deux. */
+function kbPortraitTablette(){
+  try{ return !window.__kbFloating && !kbCompact()
+              && !!(window.matchMedia && matchMedia("(pointer: coarse) and (min-width: 600px)").matches); }catch(e){ return false; }
+}
 function applyKbLayout(){
   const vk = window.mathVirtualKeyboard; if(!vk) return;
   let id = null; try { id = currentTestId; } catch(e) {}   /* variable globale du script principal */
   const vars = kbVarsFor(id);
-  const compact = kbCompact();
-  const key = JSON.stringify([compact, vars.map(v => v.insert || v.latex || v.label)]);
+  const compact = kbCompact(), portrait = kbPortraitTablette();
+  const key = JSON.stringify([compact, portrait, vars.map(v => v.insert || v.latex || v.label)]);
   if(key === __kbVarsKey) return;   /* déjà appliqué pour ce contexte */
   __kbVarsKey = key;
-  try { vk.layouts = [ buildKbTerm(vars, compact) ]; } catch(e) {}
+  try { vk.layouts = [ buildKbTerm(vars, compact, portrait) ]; } catch(e) {}
 }
 
 const FIELD_FIX_CSS =
@@ -14605,7 +14725,7 @@ function kbOnRotate(){
   clearTimeout(kbRotTimer);
   kbRotTimer = setTimeout(()=>{
     pinKbToViewport();
-    applyKbLayout();   /* paysage <-> portrait : la forme du clavier suit (compact ou non) */
+    applyKbLayout();   /* paysage <-> portrait : la forme du clavier suit (deux, trois ou quatre rangees) */
     const vk = window.mathVirtualKeyboard;
     if(!vk || !vk.visible || window.__kbFloating) return;
     const ae = document.activeElement;
