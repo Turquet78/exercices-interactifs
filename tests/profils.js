@@ -276,6 +276,13 @@ module.exports = {
        qu'il refuse rend la page non installable, et il le NOMME. */
     manifeste: { display: 'fullscreen' },
     policeTablette: 90,
+    /* Combien de poses de « mp-feedback … iafb » n'ont PAS de couleur de
+       verdict (ni good ni bad). Zéro partout où un verdict connu se peint
+       toujours ; quatre en Terminale, où le 6.7 et le 6.8 affichent le bilan
+       AVANT de savoir — « L'IA relit ton calcul… » — et quand la relecture est
+       indisponible : rien n'est décidé, donc rien n'est peint. Un verdict qui
+       perdrait sa couleur fait monter ce compte, et le banc le NOMME. */
+    verdictSansCouleur: 0,
     /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.10,
        2.3.8) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
        septembre 2026 : « la case d'édition du calcul peut-elle avoir une police
@@ -650,6 +657,13 @@ module.exports = {
        niveau qui ne l'a pas demandée. */
     manifeste: { display: 'standalone' },
     policeTablette: 90,
+    /* Combien de poses de « mp-feedback … iafb » n'ont PAS de couleur de
+       verdict (ni good ni bad). Zéro partout où un verdict connu se peint
+       toujours ; quatre en Terminale, où le 6.7 et le 6.8 affichent le bilan
+       AVANT de savoir — « L'IA relit ton calcul… » — et quand la relecture est
+       indisponible : rien n'est décidé, donc rien n'est peint. Un verdict qui
+       perdrait sa couleur fait monter ce compte, et le banc le NOMME. */
+    verdictSansCouleur: 0,
     /* Même feuille de calcul libre qu'en Première (4.5, 4.7, 4.9 et la
        synthèse) : sur tablette elle écrit à cette taille au lieu de 2 rem
        (« même chose en Seconde », Turquet, septembre 2026). */
@@ -858,6 +872,13 @@ module.exports = {
        niveau qui ne l'a pas demandée. */
     manifeste: { display: 'standalone' },
     policeTablette: 90,
+    /* Combien de poses de « mp-feedback … iafb » n'ont PAS de couleur de
+       verdict (ni good ni bad). Zéro partout où un verdict connu se peint
+       toujours ; quatre en Terminale, où le 6.7 et le 6.8 affichent le bilan
+       AVANT de savoir — « L'IA relit ton calcul… » — et quand la relecture est
+       indisponible : rien n'est décidé, donc rien n'est peint. Un verdict qui
+       perdrait sa couleur fait monter ce compte, et le banc le NOMME. */
+    verdictSansCouleur: 4,
     pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'],
             /* LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET en paysage

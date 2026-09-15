@@ -2625,6 +2625,47 @@ séquentielle des contrôles asynchrones (il remplace `sb` — le piège documen
 stubbe le verdict du modèle ET la feuille (jsdom n'a pas MathLive), mais exerce
 la vraie fonction qui peint et relit la COULEUR.
 
+**Et la même règle était PERDUE en Première et en Terminale — par deux portes
+différentes.** Demande de Turquet (septembre 2026) : « répare la couleur des
+verdicts en première et terminale ». Le paragraphe ci-dessus raconte la Seconde
+d'août 2026 ; les deux autres fichiers écrivaient toujours leur verdict en
+NOIR, et il a fallu les deux correctifs — n'en tenir qu'un ne tient rien.
+· **La CASCADE, en Première.** La page posait bien la classe
+  (`'mp-feedback iafb '+(correct?'good':'bad')`), et la phrase s'écrivait quand
+  même en noir : `.mp-feedback.iafb{color:var(--ink)}` a la MÊME spécificité
+  que `.mp-feedback.good` et se déclare plus bas, donc il gagnait. La cascade
+  trompait, pas le balisage — la leçon de la phrase des couleurs du 6.3,
+  retombée telle quelle, et aucun banc jsdom ne pouvait la voir : le contrôle
+  qui existait lit des CLASSES et restait vert. `.iafb` ne pose plus d'encre
+  du tout ; sans elle le bloc hérite de l'encre ordinaire, exactement comme
+  avant. Le 2.1.7, le 2.2.10, le 2.3.8, le 2.5.2 et le 5.5 de la Terminale
+  retrouvent leur couleur d'un coup.
+· **Les POSES, en Terminale.** Elle ne demandait simplement pas la couleur :
+  vingt-trois écrans écrivaient `'mp-feedback '+(fbHTML?'iafb':'bad')` — donc
+  VERT ou ROUGE quand le modèle se tait, NOIR dès qu'il répond, sur le même
+  écran et pour le même verdict —, et les dérivées rédigées (2.2, 2.3) comme
+  les bilans du 6.7 et du 6.8 posaient `iafb` seul. Ils portent tous leur
+  verdict désormais. **Quatre poses restent neutres, et c'est voulu** : le
+  bilan affiché AVANT de savoir (« L'IA relit ton calcul… ») et celui d'une
+  relecture indisponible — rien n'est décidé, donc rien n'est peint, et les
+  lignes ✓/✗ du bilan portent déjà leur propre couleur.
+**Deux bancs, et chacun tient le bord que l'autre ne voit pas.** jsdom nomme la
+CAUSE — aucune encre sur `.iafb`, et le COMPTE des poses de `iafb` sans
+verdict, comparé au profil (`verdictSansCouleur`, deux sources) : une pose qui
+perdrait sa couleur fait monter ce compte et se NOMME. Le NAVIGATEUR
+(« 9 ter ») mesure l'ENCRE RÉSOLUE de quatre témoins : `iafb good` vaut
+`--green`, `iafb bad` vaut `--red`, un `iafb` SEUL reste l'encre ordinaire — le
+bord opposé, sans lequel une règle qui peindrait tout en vert passerait — et à
+l'intérieur d'un verdict coloré les phrases balisées par le modèle gardent LEUR
+encre (`fb-ok` vert, `fb-ko` rouge), que remettre les règles dans un autre ordre
+casserait. Il vaut pour les TROIS fichiers sans rien déclarer.
+**Et l'encre neutre n'est PAS redéclarée sur `.mp-feedback`** : le bloc en
+hérite, donc l'écrire serait un garde-fou de plus qui n'écarte jamais rien — et
+le contrôle jsdom accepte que la règle `.iafb` n'existe pas du tout, ce qui est
+le cas de la Seconde et explique qu'elle n'ait jamais eu ce défaut. Dix
+sabotages, chacun rougissant en nommant son défaut — sept au banc jsdom, trois
+que seul le navigateur voit.
+
 **Un garde-fou MORT y a été écrit, puis retiré** — le troisième du projet, et
 toujours pour la même raison. « ne pas diviser par 1 » (`n2 !== d2`) n'écartait
 jamais rien : si `n2 = d2 = k`, le quotient vaut `n1·k/(d1·k)` et son PGCD vaut

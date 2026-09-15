@@ -6376,6 +6376,57 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- 9 ter. Le verdict d'une vérification par l'IA porte SA couleur ----
+       « Les phrases qui commentent une vérification par l'IA sont VERTES quand
+       c'est bon, ROUGES quand c'est faux » (demande de Turquet, août 2026).
+       La classe était bien posée et la phrase s'écrivait quand même en NOIR :
+       « .mp-feedback.iafb » portait une encre neutre, de même spécificité que
+       « .mp-feedback.good » et déclarée plus bas — la cascade trompait, pas le
+       balisage, et AUCUN banc hors navigateur ne pouvait le voir (la leçon de
+       la phrase des couleurs du 6.3, retombée telle quelle : le contrôle jsdom
+       lit des classes et reste vert).
+       On MESURE donc l'encre RÉSOLUE de trois témoins, et les trois bords
+       comptent : le verdict juste vaut --green, le faux vaut --red, et un
+       « iafb » SEUL reste l'encre ordinaire — sans ce dernier bord, une règle
+       qui peindrait tout en vert passerait. Un quatrième tient la promesse
+       d'à côté : à l'intérieur d'un verdict coloré, les phrases balisées par
+       le modèle gardent LEUR encre (fb-ok vert, fb-ko rouge), que remettre les
+       règles dans un autre ordre casserait. */
+    titre('9 ter. LE VERDICT DE L\'IA PORTE SA COULEUR (ENCRE RÉSOLUE)');
+    s = await ouvrir(chromium, ml);
+    {
+      const encres = await s.page.evaluate(() => {
+        const jeton = t => getComputedStyle(document.documentElement).getPropertyValue(t).trim();
+        const rgb = v => { const d = document.createElement('div'); d.style.color = v;
+          document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; };
+        const hote = document.createElement('div');
+        hote.innerHTML = '<div class="mp-feedback iafb good" id="_t1">juste <span class="fb-ko">manque</span></div>'
+          + '<div class="mp-feedback iafb bad" id="_t2">faux <span class="fb-ok">acquis</span></div>'
+          + '<div class="mp-feedback iafb" id="_t3">en cours</div>'
+          + '<div class="mp-feedback" id="_t4">neutre</div>';
+        document.body.appendChild(hote);
+        const lu = id => getComputedStyle(document.getElementById(id)).color;
+        const luSpan = id => getComputedStyle(document.querySelector('#' + id + ' span')).color;
+        const r = { vert: rgb(jeton('--green')), rouge: rgb(jeton('--red')),
+          t1: lu('_t1'), t2: lu('_t2'), t3: lu('_t3'), t4: lu('_t4'),
+          s1: luSpan('_t1'), s2: luSpan('_t2') };
+        hote.remove();
+        return r;
+      });
+      const pbs = [];
+      if(!encres.vert || !encres.rouge) pbs.push('les jetons --green / --red ne se résolvent pas : rien à mesurer');
+      if(encres.t1 !== encres.vert) pbs.push('un verdict « iafb good » s\'écrit ' + encres.t1 + ' au lieu du vert ' + encres.vert);
+      if(encres.t2 !== encres.rouge) pbs.push('un verdict « iafb bad » s\'écrit ' + encres.t2 + ' au lieu du rouge ' + encres.rouge);
+      if(encres.t3 !== encres.t4) pbs.push('un « iafb » seul s\'écrit ' + encres.t3 + ' quand l\'encre ordinaire est ' + encres.t4);
+      if(encres.s1 !== encres.rouge) pbs.push('une phrase [KO] dans un verdict vert s\'écrit ' + encres.s1 + ' au lieu du rouge');
+      if(encres.s2 !== encres.vert) pbs.push('une phrase [OK] dans un verdict rouge s\'écrit ' + encres.s2 + ' au lieu du vert');
+      verifier('le verdict de l\'IA porte sa couleur, et les phrases balisées gardent la leur',
+        pbs.length === 0, pbs.slice(0, 3).join(' | '));
+      verifier('la mesure des encres de verdict ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ---- 10. Les retours à la ligne du modèle arrivent-ils à l'écran ? ----
        Le modèle a pour consigne d'aller à la ligne souvent — une étape par
        ligne, une ligne vide entre deux parties. Cette consigne a DEUX moitiés,
