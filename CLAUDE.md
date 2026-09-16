@@ -2579,6 +2579,75 @@ rougissant en nommant son défaut — la seconde affectation remise dans le
 tirage (« la variable « points » est affectée deux fois »), le visage texte
 perdu, la règle ④ remise dans le rappel.
 
+**Les trois types de variables s'EXPLIQUENT sur l'écran, puis se TESTENT —
+et c'est Python qui a le dernier mot.** {python-types} (Seconde, 5.2,
+demande de Turquet, septembre 2026 : « créer un exercice qui explique les 3
+types de variables et qui teste les élèves ») est repris de la page « Types
+de variables » du cours : 15 est un `int` (un entier relatif), 15.5 un
+`float` (un nombre à virgule, écrit avec un point), "15H30" un `str` (une
+chaîne de caractères — il y a le H, qui n'est pas un chiffre) et "Thomas"
+aussi (ce n'est pas un nombre). Les trois cadres du cours sont SUR l'écran,
+à chaque question — l'exercice explique avant de tester, c'est la demande —,
+puis un programme de trois affectations, et le type de chacune à choisir
+parmi int / float / str. Puis « Exécuter », qui ne se débloque qu'après la
+vérification (la chaîne de portes de {python-affichage}) : le programme
+porte un `print(type(…))` par variable, et c'est l'interpréteur de la page
+qui répond `<class 'int'>` — il a appris `type()` pour l'occasion, écrit
+comme CPython l'écrit, et refuse en nommant toute opération sur un type.
+**LE TYPE ATTENDU N'EST JAMAIS RANGÉ À CÔTÉ DE LA QUESTION** : il est lu dans
+l'état final de `pyRun`, la fonction MÊME qui exécute le programme sous le
+bouton, si bien que la correction ne peut pas contredire la console. La
+question ne porte que le programme et le visage, et le contrôle refuse tout
+autre champ.
+**Quatre visages, chacun une fois par séance, en ordre mélangé, et deux
+d'entre eux sont des CONTRASTES** — le même nombre sous deux écritures,
+c'est le contraste qui enseigne : le trio du COURS (le jeu de
+{python-affichage} : un entier, un décimal, un texte) ; les GUILLEMETS
+("2026" contre 2026 — ce sont les guillemets qui décident, pas les
+chiffres) ; le POINT (15.0 contre 15 — un point fait un float, même à partie
+décimale nulle) ; le MÉLANGE ("15H30", une lettre parmi des chiffres, et
+−3, négatif mais entier). Le nombre de types par question VARIE d'un visage
+à l'autre — un élève qui aurait appris « un de chaque » se tromperait, et le
+contrôle exige cette variation — et les noms des variables des pièges ne
+disent rien de leur type. Le message de la correction nomme ce qui décide —
+les guillemets, le point, le signe — et la bonne réponse se montre en vert à
+côté de la case rouge, en entraînement seulement ; aucune correction au fil
+des clics (`soutienEnDirect.sans`) : à trois propositions, il suffirait
+d'essayer.
+**Un nombre dans une balise `code` n'est pas un numéro d'exercice.** Le
+rappel de cours doit montrer 15.5 et 15.0 — un rappel sur les types sans un
+seul décimal n'enseignerait pas le float —, et le contrôle des numéros en
+dur lisait « 15.5 » comme le numéro d'un exercice. Il retire désormais le
+contenu des balises `<code>` AVANT de chercher : du code est du code, pas de
+la prose, et une référence à un exercice ne s'écrit jamais dans une balise
+code. Le bord opposé est tenu par sabotage : « (voir l'exercice 5.1) » écrit
+dans la PROSE du même rappel rougit toujours.
+Deux bancs, la répartition habituelle : jsdom tient la page du cours
+épinglée, la place au menu (5.2, rien d'autre ne bouge), le tirage (400
+séances), la copie juste cliquée, la copie fausse sur le visage des
+guillemets et sa raison, le soutien, les branchements, et `type()` comparé à
+un vrai CPython sur 172 programmes ; le NAVIGATEUR (« 6 vicies undecies »,
+déclaré par `pythonTypes` dans `tests/profils.js`) mesure ce que jsdom ne
+voit pas — les trois cadres RENDUS côte à côte, au rectangle, puis empilés
+sur toute la largeur d'un téléphone, le code et la console à chasse fixe, le
+vrai clic sur le bouton verrouillé, les trois listes choisies pour de vrai et
+les trois `<class '…'>` à l'écran. Dix-sept sabotages au banc jsdom, chacun rougissant en nommant son
+défaut — `type()` retiré de l’interpréteur, `<class int>` sans les
+apostrophes de CPython, « Exécuter » cliquable d’emblée, le soutien qui
+débloque sur une copie fausse, « Question suivante » avant l’exécution, la
+case vide rougie, le contraste des guillemets perdu, le `.0` du point perdu,
+un type de chaque à toutes les questions, le type rangé dans la question, les
+cadres retirés de l’écran, la copie juste à un point, l’exercice hors du
+thème, la correction au fil des clics, le bouton des tables revenu, le numéro
+d’exercice dans la prose du rappel, le message qui ne nomme plus les
+guillemets — et un dix-huitième que seul le NAVIGATEUR voit : les trois cadres
+cachés par une règle CSS (`display:none`). jsdom lit le DOM, où les cadres
+existent, et reste vert à bon droit ; le navigateur les mesure au rectangle et
+nomme le vide (« 0x0 / 0x0 / 0x0 »). La campagne a restauré la page depuis une
+copie propre hors dépôt à chaque tour, et le sabotage du navigateur s’est joué
+dans une copie de travail séparée, pendant que la page propre passait son
+propre banc.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
@@ -7400,18 +7469,31 @@ quand la suite décroît (1 ≤ Uₙ₊₂ ≤ Uₙ₊₁ ≤ U₁ ≤ U₀), à
 lignes de l'hypothèse et des f(…) commencent une colonne de terme plus loin
 dans ce second cas. Le contrôle exige que le terme qui élargit n'ait RIEN
 au-dessus de lui, au bon bout.
-**La justification a changé de place, et c'est la MESURE qui l'a décidé** :
+**La justification a d'abord changé de place, puis Turquet l'a REMISE** :
 « car f (x) est croissante sur [0 ; 2] » vivait au bout de la ligne des f(…).
 Les colonnes se calant désormais sur le plus large de chaque colonne, cette
 ligne débordait de la carte dès 1400 px — 66 px de trop quand la suite
-décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. La
-justification OUVRE donc le bloc, sur sa propre ligne (« f est [croissante]
-sur [ 0 ; 2 ], et on l'applique à l'encadrement : »), et les trois chaînes se
-suivent sans rien entre elles — c'est ce que la demande veut. Une dixième
-colonne SOUPLE (`minmax(0,1fr)`) prend le reste de la ligne, pour que « c'est
-vrai » et cette justification s'étalent sans élargir les colonnes qu'ils
-enjambent — un élément qui enjambe une piste souple ne compte pas dans la
-largeur des pistes.
+décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. Le
+premier jet l'avait donc mise en tête du bloc, sur sa propre ligne (« f est
+croissante sur [ 0 ; 2 ], et on l'applique à l'encadrement : »). Turquet a
+tranché le lendemain : « je préfère que l'on écrive sur la même ligne que
+f(…) ≤ f(…) ≤ f(…) ≤ f(…) « car f(x) est … sur [ ; ] » et enlever la 1re
+ligne de la démonstration qui dit la même chose ». Elle est donc AU BOUT de
+la ligne des f(…), et **c'est sa cellule qui cède, pas la démonstration** :
+elle va jusqu'au bout de la grille — une dixième colonne SOUPLE
+(`minmax(0,1fr)`) prend le reste de la ligne, et un élément qui enjambe une
+piste souple ne compte pas dans la largeur des pistes — et elle SE REPLIE
+(`flex-wrap`) quand la place manque, en DEUX morceaux insécables
+(« car f(x) est [croissante] » / « sur [ 0 ; 2 ] », `.svr-morceau`) : le
+premier repli libre coupait entre une borne et son crochet (« sur [ 0 ; » /
+« 2 ] »), vu sur la capture. Mesuré à 1400 px : les deux morceaux font
+534 px pour 575 de place quand la suite décroît — une ligne sur l'écran
+neuf, deux dès que les badges de correction élargissent les colonnes du
+dessous (la cellule perd 45 px) ; deux lignes quand la suite croît, deux à
+1280 px dans les deux sens. La démonstration ne défile plus ni à 1400 ni à
+1280, et la récurrence non plus — elle défilait de 22 px à 1280 avant que
+les « ≤ » ne perdent 2 px de marge de chaque côté. La même colonne souple
+porte le « c'est vrai » de l'initialisation.
 **Chaque cellule est ENVELOPPÉE (`.svr-cel`), et il le faut** : `corrCase`
 insère son badge de correction APRÈS la case, et un badge posé nu dans une
 grille deviendrait une cellule de plus, qui décalerait tout ce qui suit. Le
@@ -7443,13 +7525,40 @@ colonne pour un terme de la ligne « donc » et son homologue de la première
 ligne, pour chaque terme de l'hérédité et le sien, pour une valeur et son
 terme (rangée 3 sous rangée 2), pour chaque
 f(…) et son résultat — les deux visages, le croissant pris au vivier —, la
-justification en tête, le terme qui élargit au bon bout, le badge dans sa
-cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
+justification sur la ligne des f(…) en deux morceaux, le terme qui élargit
+au bon bout, le badge dans sa cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
 perdu laisse toutes les classes en place et met tout à la file — il exige que
 les cellules d'une même colonne aient le même CENTRE d'une rangée à l'autre, que
 chaque rangée soit d'un seul tenant, que les valeurs soient centrées SOUS
-leur terme et une ligne plus bas, que rien ne défile à 1400 px et que la
-démonstration défile à 900 — une grille ne sait pas se replier.
+leur terme et une ligne plus bas, que la justification partage sa bande avec
+les f(…), que rien ne défile à 1400 px et que la démonstration défile à
+900 — une grille ne sait pas se replier. Il rend aussi le visage CROISSANT
+à 1400 px : c'est lui qui manque de place au bout de la ligne des f(…), et
+un repli débranché s'y voit (« la démonstration défile de 97 px »), pas sur
+le décroissant.
+**Vingt-quatre sabotages en tout, sur quatre jours de demandes** — treize au
+banc jsdom (la ligne « donc » décalée, les valeurs remontées, les valeurs
+croisées, le décalage oublié, le décalage au mauvais visage, la justification
+remise en tête, les résultats posés nus, l'hérédité décalée, sa ligne « donc »
+sortie de la grille, ses « ≤ » glissés, la justification en un seul morceau…)
+et onze au navigateur —, **vingt-deux rougissant en nommant leur défaut**.
+Les deux verts ont chacun appris quelque chose. Le premier a nommé un TROU
+DU CONTRÔLE : « les cellules ne se centrent plus dans leur colonne »
+restait vert parce que le banc mesurait la BOÎTE de la cellule — qui
+s'étire sur toute sa colonne, donc a le centre de la colonne quoi qu'elle
+fasse de son contenu ; il mesure le CONTENU (un `Range`, qui rend la boîte du
+glyphe « ≤ » comme celle d'une liste), et le sabotage rejoué rougit (« la
+colonne 4 de la récurrence n'est pas alignée : 18 px d'écart »). Le second
+disait vrai : « le décalage du visage croissant est oublié » ne pouvait pas
+atteindre un banc navigateur qui ne rendait alors que le visage décroissant,
+où le décalage vaut zéro de toute façon — c'est jsdom qui tient ce bord et le
+nomme (« croissante : le résultat svr-g2 n'est pas SOUS svr-f1 »), et le
+navigateur rend le visage croissant depuis, pour la place et l'alignement.
+Un troisième sabotage a manqué sa cible sans rester vert : la ligne « donc »
+de l'hérédité sortie de la grille fait rougir jsdom (« une case de
+l'hérédité n'est pas dans une cellule ») comme le navigateur (« la rangée 6
+de la récurrence porte 0 « ≤ » au lieu de 3 : l'hérédité a quitté la
+grille »).
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
@@ -7786,11 +7895,53 @@ même `kbPortraitTablette`, la même déclaration
 232, mesurés sur la feuille du 4.5. Les cinq sabotages de jsdom ont été
 rejoués sur elle, et rougissent de même. Ce qui distingue les deux niveaux
 reste ce qui les distinguait : la Première s'installe en plein écran, la
-Seconde garde la barre de navigation d'Android. La TERMINALE, elle, n'a
-jamais eu de forme compacte — son profil ne déclare ni `paysage` ni
-`portraitTablette`, ses contrôles de forme s'affichent « non applicable »,
-et son clavier à deux couches nommées répond à une autre demande : elle
-n'est pas touchée, et le dire vaut mieux que le taire.
+Seconde garde la barre de navigation d'Android. La TERMINALE, ce jour-là,
+n'était pas dans la demande — elle l'a été le lendemain, au paragraphe
+suivant ; elle reste le seul niveau sans forme compacte en PAYSAGE.
+
+**Et la TERMINALE, le lendemain : « fais pareil pour la terminale ».** Elle ne
+pouvait pas recevoir le même correctif à la lettre, et c'est le chiffre qui l'a
+dit : son **clavier A fait TRENTE unités** — la Première et la Seconde n'en ont
+que vingt-trois. Sur trois rangées il en faut **dix par rangée**, or la règle de
+la tablette donnait aux touches un HUITIÈME de la largeur, et le fichier disait
+déjà pourquoi : « la rangée la plus chargée en compte huit, et sans cela elle se
+rétrécirait SEULE ». Deux sorties se présentaient — des touches plus étroites,
+ou déménager six unités du clavier A vers le clavier B. **Turquet a choisi les
+touches plus étroites** : aucune touche ne bouge, l'élève retrouve le clavier
+qu'il connaît. Une règle média de plus, `(pointer:coarse) and (min-width:600px)
+and (orientation:portrait)`, pose `--keycap-width` sur DIX unités : la touche
+passe de 92 à **74 px de large** sur une tablette de 820, la hauteur (48 px) et
+la police (24 px) ne bougent pas. Le PAYSAGE n'est pas concerné — il garde ses
+quatre rangées de huit unités, et sa largeur y est de toute façon plafonnée à
+96 px. `buildKbTerm(vars, portrait)` décrit désormais ses touches **une seule
+fois**, dans un objet `K`, et les deux formes s'y composent ; les deux couches
+gardent leurs identifiants d'une forme à l'autre, si bien que « clavier A » et
+« clavier B » basculent sans rien savoir de la forme. En portrait, le clavier A
+tient sur `7 8 9 / e √ ( ) exposant ⌫`, puis `4 5 6 × ln − + = ← →`, puis
+`1 2 3 0 , espace ⏎ clavierB` ; le clavier B sur les variables + ∞ ⟶ ⌫, puis
+∫ π ∈ indice sin cos tan espace, puis arcsin arccos arctan clavierA ← → ⏎.
+Le contrôle des deux couches mesure maintenant les DEUX formes — comptes de
+rangées, partage `surA`/`surB`, place des variables, largeur maximale, et le
+MÊME jeu de touches d'une forme à l'autre —, plus les quatre cases de la table
+de routage (tablette debout, tablette couchée, téléphone, fenêtre flottante).
+Le faux écran des contrôles de forme est devenu commun aux deux familles de
+clavier (`fauxEcran`) : il honore l'orientation, la largeur minimale et le
+tactile, et ne répond rien à une requête inconnue.
+**Un sabotage a rougi l'idée que je me faisais du rendu, et c'est le meilleur
+moment de ce correctif.** Retirer la règle CSS des dix unités ne faisait pas
+déborder le clavier : MathLive **resserre tout seul** la rangée trop large — la
+touche « 5 » passait de 74 à 77 px — et laisse les autres rangées à 96 px. Le
+contrôle du navigateur, qui ne mesurait qu'UNE touche, restait vert sur une
+page fautive : deux tailles de touches sur le même écran, exactement ce que la
+règle du fichier interdit. Il mesure donc maintenant DEUX touches d'une unité
+posées sur des rangées DIFFÉRENTES du clavier B (∞ et π) et les exige égales —
+sans la règle, ∞ fait 92 px et π 87. Huit sabotages en tout, chacun rougissant
+en nommant son défaut : six en jsdom (une quatrième rangée en portrait, une
+rangée de onze unités, le `ln` retiré, le `=` sorti du clavier A, la forme
+courte qui fuit partout, la forme portrait jamais appliquée) et deux que seul
+le navigateur voit (`kbOnRotate` qui ne réapplique plus la forme — « 3 rangée(s)
+rendue(s) en paysage au lieu de 4 » — et la règle CSS retirée). Les trois
+niveaux ont maintenant leur forme de portrait.
 
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
