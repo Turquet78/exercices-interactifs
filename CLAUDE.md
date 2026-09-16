@@ -2872,6 +2872,98 @@ l'exécution, l'exercice sorti de sa place au menu. La campagne a joué dans
 une copie séparée du dépôt pendant que le banc navigateur mesurait la page
 propre.
 
+**Puis l'élève a ÉCRIT son premier print — et c'est la SORTIE qui le juge.**
+{python-print} (Seconde, 5.6, demande de Turquet, septembre 2026 : « un
+exercice qui explique le fonctionnement de print avec un texte entre "", puis
+demander à l'élève d'écrire un programme qui affiche "je suis en seconde" ; il
+peut l'exécuter ; le programme doit ensuite vérifier la solution ; en mode
+soutien, expliquer ce qui ne va pas dans le programme ») ferme le thème 5 —
+{python-afficher-variable}, {python-noms-variables} et {python-nom-variable},
+arrivés sur `main` le même jour par trois autres branches, ont pris le 5.3, le
+5.4 et le 5.5, et la fusion a donné 5.6 à celui-ci, en dernier :
+c'est le chemin INVERSE de {python-affichage} — là on LIT un print, ici on
+l'ÉCRIT, dans une zone de texte libre, le premier programme entier tapé sur
+la page. Le cours est SUR l'écran (le motif de {python-types}) : trois
+cadres — print et ses parenthèses, le texte entre guillemets qui s'affiche
+SANS eux, les guillemets DROITS du clavier. Une séance = trois programmes : la
+phrase de la demande d'abord, TOUJOURS, puis deux phrases tirées pour refaire
+le geste plutôt que le recopier — c'est un arbitrage nommé, la demande ne
+parlait que d'une phrase, et un exercice d'une seule question aurait noté 0
+ou 10.
+**« EXÉCUTER » EST LIBRE, et c'est ce qui le distingue des deux autres** : au
+5.1 et au 5.2 le bouton attend la vérification parce que la sortie EST la
+réponse ; ici la sortie est l'OUTIL — l'élève exécute, lit ce qui s'affiche ou
+l'erreur que Python lui rend, corrige, réexécute, comme sur un vrai notebook.
+**LE JUGE EST LA SORTIE, JAMAIS L'ÉCRITURE** : `pypDiag` lit `pyRun(prog)` —
+la fonction MÊME qui répond sous le bouton — et compare ce qui s'affiche à la
+phrase demandée. `print("je suis", "en seconde")`, `print('…')` ou `x = "…"`
+puis `print(x)` sont donc justes : on demande un programme qui AFFICHE la
+phrase, pas une écriture. Comparer au programme modèle aurait compté faux un
+élève qui a raison, le pire défaut du projet ; le modèle ne sert qu'à la
+correction en vert, en entraînement. Les espaces aux deux bouts de la ligne
+sont ignorées — invisibles à l'écran — ; la casse, les accents, une ligne de
+trop, des guillemets affichés comptent, et se DISENT.
+**LE DIAGNOSTIC NE PRONONCE QUE DES FAITS PROUVABLES**, dans les mots de
+l'élève : print en majuscules ou mal orthographié (à deux lettres près),
+parenthèses absentes ou dépareillées, guillemets absents, non fermés,
+dépareillés ou TYPOGRAPHIQUES (« » et “ ” — le piège d'un clavier français),
+puis, si le programme tourne, ce que sa sortie a de différent. Il lit le
+TEXTE du programme d'abord, les chaînes bien formées RETIRÉES — sans quoi
+l'apostrophe de « c'est » passerait pour un guillemet dépareillé, et le
+contrôle tient ce bord — et l'erreur de l'interpréteur ensuite, traduite, pour
+ce que l'analyse n'explique pas. En SOUTIEN c'est ce diagnostic qui s'affiche
+et rien d'autre : jamais le programme modèle, l'élève corrige et revérifie,
+et la frappe efface le rouge d'avant. En ENTRAÎNEMENT la question se
+verrouille à 0 ou 1, et un programme qui convient s'écrit en vert (`sol`).
+Une zone VIDE ne rougit jamais : en entraînement elle reçoit le modèle en
+`sol`, en soutien rien.
+**Le point-virgule est la divergence ASSUMÉE avec CPython** : `print("…");`
+passe en Python, l'interpréteur de la page le refuse (« caractère inattendu »)
+et le diagnostic le dit en toutes lettres plutôt que d'imiter. Le contrôle
+l'épingle comme tel, et compare à un vrai python3 dix-huit programmes qu'un
+élève écrit — même sortie pour les justes, REFUS des deux côtés pour les
+faux : un interpréteur qui accepterait ce que Python refuse ferait mentir le
+diagnostic.
+**Le programme est une RÉPONSE et voyage dans la QUESTION** : `pts-case` (la
+leçon des barres de {simplifier-barres}) pour que la note affichée le compte
+« 1 case juste sur 1 », et `q.prog` parce que `captureBoxes` ne connaît que
+les input, select et math-field — une zone de texte y serait perdue à la
+pause. La zone refuse la correction automatique du clavier (`autocapitalize`,
+`autocorrect`, `spellcheck`) : sur tablette, « print » deviendrait « Print »
+sous les doigts — l'erreur même que le diagnostic nomme, fabriquée par la
+page. Aucune correction au fil de la frappe (`soutienEnDirect.sans`) : juger un
+programme qu'on n'a pas fini d'écrire dirait « faux » sur `print("`.
+Deux bancs, la répartition habituelle : jsdom tient la demande épinglée (la
+phrase, les écritures que le juge DOIT accepter), la place au menu, le
+tirage, le diagnostic cas par cas, la copie juste TAPÉE (le bouton libre, la
+console, la note), les copies fausse et vide, le soutien, les branchements et
+CPython ; le NAVIGATEUR (« 6 tricies bis », déclaré par `pythonPrint`
+dans `tests/profils.js`) TAPE au clavier dans la vraie zone, clique le vrai
+bouton, lit l'erreur en ROUGE dans la console puis la phrase après correction,
+mesure le bleu de la copie juste et le rouge du soutien à l'encre RENDUE, la
+zone à chasse fixe et large comme la console, les cadres empilés sur un
+téléphone — et joue le trajet d'un élève qui se trompe deux fois avant de
+réussir.
+**Dix-neuf sabotages, dix-huit rougissant en nommant leur défaut** — seize au
+banc jsdom (la casse ignorée, le juge qui compare au modèle, la réponse sans
+`pts-case`, « Exécuter » verrouillé, le programme qui ne voyage plus, le
+soutien qui révèle, la zone vide rougie, la phrase changée, les chaînes non
+retirées, les tables revenues, la correction automatique laissée, l'exercice
+hors du thème, la majuscule tue, la clause de secret perdue, le soutien qui
+juge à la frappe, le point-virgule imité), trois au navigateur. **Deux ont
+appris quelque chose.** Le bleu de la copie juste se mesurait d'abord à la
+DOMINANTE : le bord de REPOS de la zone est déjà un bleu clair, et une règle
+`.ok` qui ne peignait plus rien passait au vert en parlant d'autre chose — un
+verdict se compare à la VARIABLE de la convention (`--blue`, `--red`), la
+leçon de la phrase des couleurs du 6.3, et le sabotage rejoué rougit en
+nommant l'encre (« rgb(187, 208, 247) »). Et le dix-neuvième est resté VERT
+à bon droit : la chasse fixe retirée de la feuille de styles ne change rien,
+parce qu'une zone de texte est à chasse fixe par défaut dans le navigateur —
+la propriété est tenue, par la feuille du NAVIGATEUR, la règle écrite n'est
+qu'une ceinture. Un dernier a frappé le VOISIN : `checkPYP` contient
+`checkPY`, et le contrôle du 5.1 rougissait sous le nom du 5.1 pour un
+défaut du 5.3 — son ancre est devenue « checkPY( ».
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
