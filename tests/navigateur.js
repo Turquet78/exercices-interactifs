@@ -6995,6 +6995,129 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies bis. {python-print} : écrire un print, l'exécuter, le faire vérifier =====
+       Le banc jsdom tient le diagnostic cas par cas, le juge (la sortie de
+       pyRun comparée à CPython), les portes et la note. Ce qu'il ne voit
+       pas : la zone de texte RENDUE — à chasse fixe, large comme la console,
+       une règle CSS perdue la ferait écrire en Nunito sur 20 caractères —,
+       les trois cadres du cours au rectangle, l'ENCRE des verdicts (le rouge
+       de l'erreur dans la console, le bleu de la copie juste, le rouge du
+       soutien), et le geste : TAPER au clavier dans la vraie zone, cliquer le
+       vrai bouton « Exécuter », lire la console, corriger, revérifier. Il
+       joue le trajet d'un élève qui se trompe deux fois avant de réussir. */
+    titre('6 tricies bis. ÉCRIRE UN PRINT : L\'EXÉCUTER, LE FAIRE VÉRIFIER, ET LE SOUTIEN QUI EXPLIQUE');
+    if(!P.pythonPrint){
+      ignorer('écrire un print, l\'exécuter, le faire vérifier', 'ce niveau n\'a pas l\'exercice d\'écriture d\'un print');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonPrint.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* L'encre d'un verdict se compare à la VARIABLE de la convention (--blue,
+         --red), jamais à une dominante : le bord de REPOS de la zone est déjà
+         un bleu clair, et une règle .ok qui ne peindrait rien serait passée à
+         la dominante — le sabotage l'a montré en restant vert. La dominante
+         reste pour dire « pas de rouge » sur une console saine. */
+      const dominante = 'const encre = tok => { const p = document.createElement("i"); document.body.appendChild(p); p.style.color = tok; const c = getComputedStyle(p).color; p.remove(); return c; };'
+        + ' const dominante = c => { const m = String(c).match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/); if(!m) return null;'
+        + ' const r = +m[1], g = +m[2], b = +m[3], max = Math.max(r, g, b), min = Math.min(r, g, b);'
+        + ' if(max < 100 || max - min < 30) return null; return b >= max ? "bleu" : (g >= max ? "vert" : "rouge"); };';
+      const avant = await s.page.evaluate(() => {
+        const ta = document.getElementById('pyp-prog'), cons = document.getElementById('pypConsole'), run = document.getElementById('pypRun');
+        const cible = document.getElementById('pypCible');
+        const cadres = [...document.querySelectorAll('#pypHost .pyp-regle')].map(e => e.getBoundingClientRect());
+        const tr = ta.getBoundingClientRect(), kr = cons.getBoundingClientRect(), rr = run.getBoundingClientRect();
+        return { police: getComputedStyle(ta).fontFamily, taille: parseFloat(getComputedStyle(ta).fontSize),
+                 zone: Math.round(tr.width) + 'x' + Math.round(tr.height), zoneVisible: tr.width > 500 && tr.height > 60,
+                 memeLargeur: Math.abs(tr.width - kr.width) < 4 && Math.abs(tr.left - kr.left) < 4,
+                 runLibre: !run.disabled && rr.width > 40 && rr.height > 20,
+                 cible: cible && cible.textContent, texte: test.questions[0].texte, 
+                 cadres: cadres.map(r => Math.round(r.width) + 'x' + Math.round(r.height)),
+                 cadresVisibles: cadres.length === 3 && cadres.every(r => r.width > 200 && r.height > 60),
+                 cadresCoteACote: cadres.length === 3 && Math.abs(cadres[0].top - cadres[2].top) < 4,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('les trois cadres du cours de print sont rendus côte à côte, à une taille lisible', avant.cadresVisibles && avant.cadresCoteACote, avant.cadres.join(' / '));
+      verifier('la phrase à afficher est celle de la demande, et elle est à l\'écran', avant.cible === avant.texte && avant.texte === P.pythonPrint.premier, JSON.stringify(avant.cible));
+      verifier('la zone où l\'élève écrit est rendue à chasse fixe, large comme la console, à une taille lisible',
+        /mono|menlo|consolas|courier/i.test(avant.police) && avant.zoneVisible && avant.memeLargeur && avant.taille >= 16, avant.police + ' — ' + avant.zone);
+      verifier('« Exécuter » est libre dès le départ, et la page ne déborde pas à 1400 px', avant.runLibre && !avant.page, '');
+      /* on TAPE une copie fausse, on l'exécute : l'erreur se lit en rouge */
+      await s.page.click('#pyp-prog');
+      await s.page.keyboard.type('Print("' + P.pythonPrint.premier + '")');
+      await s.page.click('#pypRun');
+      await s.page.waitForTimeout(250);
+      const err = await s.page.evaluate(new Function(dominante + ' const c = document.getElementById("pypConsole"); const st = getComputedStyle(c);'
+        + ' return { texte: c.textContent, encre: st.color === encre("var(--red)") ? "rouge" : dominante(st.color), bord: st.borderTopColor === encre("var(--red)") ? "rouge" : dominante(st.borderTopColor), locked: test.locked, prog: test.questions[0].prog };'));
+      verifier('exécuter une copie fausse écrit l\'erreur de Python dans la console, en rouge, sans rien verrouiller',
+        /^Erreur/.test(err.texte) && err.encre === 'rouge' && err.bord === 'rouge' && !err.locked, JSON.stringify(err.texte) + ' — encre ' + err.encre);
+      verifier('ce qui est tapé au clavier voyage dans la question (la pause le garde)', err.prog === 'Print("' + P.pythonPrint.premier + '")', JSON.stringify(err.prog));
+      /* on corrige au clavier, on réexécute : la phrase s'affiche */
+      await s.page.fill('#pyp-prog', 'print("' + P.pythonPrint.premier + '")');
+      await s.page.click('#pypRun');
+      await s.page.waitForTimeout(250);
+      const ok1 = await s.page.evaluate(new Function(dominante + ' const c = document.getElementById("pypConsole"); const st = getComputedStyle(c);'
+        + ' return { texte: c.textContent, encre: dominante(st.color), bord: dominante(st.borderColor), police: st.fontFamily, visible: c.getBoundingClientRect().height > 40 };'));
+      verifier('réexécuté après correction, le programme affiche la phrase dans la console, à chasse fixe, sans rouge',
+        ok1.texte === P.pythonPrint.premier && ok1.encre !== 'rouge' && ok1.bord !== 'rouge' && ok1.visible && /mono|menlo|consolas|courier/i.test(ok1.police),
+        JSON.stringify(ok1.texte) + ' — encre ' + ok1.encre + ', bord ' + ok1.bord);
+      await s.page.click('#pypValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(new Function(dominante + ' const ta = document.getElementById("pyp-prog"), st = getComputedStyle(ta);'
+        + ' return { ok: ta.classList.contains("ok"), bord: st.borderTopColor === encre("var(--blue)") ? "bleu" : "autre (" + st.borderTopColor + ")", score: test.score, locked: test.locked, lecture: ta.readOnly,'
+        + ' suivant: !!document.getElementById("pypNext"), focus: document.activeElement && document.activeElement.id,'
+        + ' runDisabled: document.getElementById("pypRun").disabled, note: (document.querySelector("#pypFeedback .note-exo") || {}).textContent || "" };'));
+      verifier('vérifiée, la copie juste est peinte ok en BLEU, vaut 1, se verrouille, et « Question suivante » reçoit le focus',
+        apres.ok && apres.bord === 'bleu' && apres.score === 1 && apres.locked && apres.lecture && apres.suivant && apres.focus === 'pypNext' && apres.runDisabled,
+        'bord ' + apres.bord + ', note ' + apres.score + ', focus ' + apres.focus);
+      verifier('la note affichée compte le programme comme UNE case juste sur 1', /1 case juste sur 1/.test(apres.note), JSON.stringify(apres.note));
+      /* à la largeur d'un téléphone : les cadres s'empilent, la zone tient, rien ne déborde */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const cadres = [...document.querySelectorAll('#pypHost .pyp-regle')].map(e => e.getBoundingClientRect());
+        const tr = document.getElementById('pyp-prog').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 empiles: cadres.length === 3 && cadres[1].top >= cadres[0].bottom - 1 && cadres[2].top >= cadres[1].bottom - 1,
+                 larges: cadres.every(r => r.width > 250 && r.right <= 391), zone: tr.width > 250 && tr.right <= 391 };
+      });
+      verifier('sur un téléphone, les trois cadres s\'empilent, la zone de texte tient dans l\'écran et la page ne déborde pas', !tel.page && tel.empiles && tel.larges && tel.zone, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le SOUTIEN : deux erreurs nommées, puis la réussite */
+      await s.page.evaluate(id => openTest(id), P.pythonPrint.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      await s.page.click('#pyp-prog');
+      await s.page.keyboard.type('print(' + P.pythonPrint.premier + ')');
+      await s.page.click('#pypValidate');
+      await s.page.waitForTimeout(400);
+      const sout1 = await s.page.evaluate(new Function(dominante + ' const ta = document.getElementById("pyp-prog"), st = getComputedStyle(ta), fb = document.getElementById("pypFeedback");'
+        + ' const M = "print(" + String.fromCharCode(34) + test.questions[0].texte + String.fromCharCode(34) + ")";'
+        + ' return { bad: ta.classList.contains("bad"), bord: st.borderTopColor === encre("var(--red)") ? "rouge" : "autre (" + st.borderTopColor + ")", fond: dominante(st.backgroundColor), locked: test.locked, lecture: ta.readOnly,'
+        + ' message: fb.textContent, encreMsg: dominante(getComputedStyle(fb).color), revele: document.getElementById("pypHost").textContent.indexOf(M) >= 0 || fb.textContent.indexOf(M) >= 0,'
+        + ' rev: (document.getElementById("pypValidate") || {}).textContent || "", modele: !!document.querySelector("#pypModele .sol") };'));
+      verifier('en soutien, la copie fausse rougit (bord rouge), reste modifiable, et le message explique en rouge ce qui ne va pas — les guillemets manquent',
+        sout1.bad && sout1.bord === 'rouge' && !sout1.locked && !sout1.lecture && /guillemets/.test(sout1.message) && sout1.encreMsg === 'rouge',
+        'bord ' + sout1.bord + ' — ' + JSON.stringify(sout1.message));
+      verifier('et il ne révèle jamais le programme modèle : « Revérifier » est proposé', !sout1.revele && !sout1.modele && /Rev/.test(sout1.rev), sout1.rev);
+      await s.page.fill('#pyp-prog', 'print("' + P.pythonPrint.premier + '"');
+      await s.page.click('#pypValidate');
+      await s.page.waitForTimeout(400);
+      const sout2 = await s.page.evaluate(() => ({ message: document.getElementById('pypFeedback').textContent, locked: test.locked }));
+      verifier('la seconde erreur — la parenthèse fermante — est nommée à son tour, sans verrouiller', /fermante/.test(sout2.message) && !sout2.locked, JSON.stringify(sout2.message));
+      await s.page.fill('#pyp-prog', 'print("' + P.pythonPrint.premier + '")');
+      await s.page.click('#pypValidate');
+      await s.page.waitForTimeout(400);
+      const sout3 = await s.page.evaluate(new Function(dominante + ' const ta = document.getElementById("pyp-prog"), st = getComputedStyle(ta);'
+        + ' return { ok: ta.classList.contains("ok"), bord: st.borderTopColor === encre("var(--blue)") ? "bleu" : "autre (" + st.borderTopColor + ")", score: test.score, console: document.getElementById("pypConsole").textContent };'));
+      verifier('la copie corrigée en soutien est peinte ok en bleu, vaut 1, et la console montre la phrase',
+        sout3.ok && sout3.bord === 'bleu' && sout3.score === 1 && sout3.console === P.pythonPrint.premier, 'bord ' + sout3.bord + ', note ' + sout3.score + ', console ' + JSON.stringify(sout3.console));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
     /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
        de mise en page — seul un navigateur voit le geste), puis la partie
