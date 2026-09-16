@@ -7752,7 +7752,7 @@ la vérification, et le bord opposé du 6.3 est tenu ici dès le premier jour :
 « Vérifier » sur une copie vide ne fige aucune case. La bonne réponse n'est
 jamais rangée à côté de la question (famille, sens, forme, coefficients,
 bornes — le contrôle refuse tout autre champ) : `tclAns()` recalcule tout.
-Le banc NAVIGATEUR (« 6 vicies terdecies », déclaré par `suiteTcmLimite`)
+Le banc NAVIGATEUR (« 6 vicies quaterdecies », déclaré par `suiteTcmLimite`)
 tient ce que jsdom ne voit pas : le « lim » qui porte son « n → +∞ » EN
 DESSOUS, les rangées qui ne défilent pas, puis la copie de la fiche CHOISIE
 dans les vraies listes et TAPÉE dans les vraies cases, « Vérifier » cliqué,
