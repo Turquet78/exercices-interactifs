@@ -3068,7 +3068,7 @@ un flex, et un badge `display:block` y reste un élément de la rangée. Elle
 occupe désormais toute la rangée (`flex:0 0 100%`) et tombe sous la case ;
 le banc navigateur mesure les deux rectangles, parce que jsdom n'a pas de
 mise en page.
-Le banc NAVIGATEUR (« 6 vicies duodecies », déclaré par `pythonCompleter`
+Le banc NAVIGATEUR (« 6 tricies ter », déclaré par `pythonCompleter`
 dans `tests/profils.js`) tient ce que jsdom ne voit pas : le cours rendu, la
 ligne 1 et la case à chasse fixe et à la MÊME taille, un VRAI clic sur
 « Vérifier » fermé qui ne juge rien, la ligne fausse TAPÉE au clavier et sa
@@ -3082,6 +3082,63 @@ elle-même payé la règle « une campagne de sabotage se joue seule sur la
 machine » : lancée pendant que le banc NAVIGATEUR tournait encore, elle lui
 a fait mesurer la page sabotée (« le soutien verrouille une copie fausse »),
 et ses deux rouges accusaient une page juste. Rejoué seul, il est vert.
+
+**Un texte presque bon est un texte bon.** Décision de Turquet (septembre
+2026) : « en seconde pour les algorithmes qui affichent un texte, accepter les
+textes qui sont presque bons. Dans le texte des espaces en trop ou en moins ne
+sont pas pénalisés, un ou 2 caractères faux ou en trop ne sont pas
+pénalisés. » Les deux exercices qui font AFFICHER un texte — {python-print},
+où l'élève écrit le print entier, et {python-completer}, où il écrit le texte
+suivi de la valeur d'une variable — comptaient faux « je suis en séconde », ou
+« la note est » sans les deux points : ce qu'ils évaluent est print, les
+guillemets et la virgule, pas la dactylographie.
+**UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE** : `pyTexteProche` compare
+ce que le programme AFFICHE à ce qu'on demande, et les deux juges l'appellent.
+Deux tolérances auraient fini par diverger, et le même texte aurait été
+accepté d'un côté et refusé de l'autre, sous les yeux de l'élève.
+**DEUX GARDES, ET N'EN TENIR QU'UN NE TIENT RIEN.**
+· **Les CHIFFRES comptent toujours.** « la note est : 13 » n'est pas « la note
+  est : 12 » à un caractère près : c'est une autre note. Sans ce garde,
+  `print("la note est :", note + 1)` passerait, et l'exercice enseignerait
+  l'inverse de ce qu'il dit. Il est VIVANT : le sabotage qui le retire fait
+  accepter deux lignes fausses du contrôle.
+· **Un caractère par tranche de quatre, deux au plus.** Le plus court texte
+  des deux exercices affiche « age : 16 » — six caractères une fois les
+  espaces retirées : deux fautes n'y seraient plus une faute de frappe mais un
+  autre texte. Et ce plus court texte est MESURÉ sur les deux tirages plutôt
+  que supposé (`toleranceTexte.plusCourt` dans `tests/profils.js`, deux
+  sources) : un texte de deux lettres ajouté demain rougit en se nommant.
+Les espaces, elles, ne comptent JAMAIS — c'est la demande, et elle va plus
+loin qu'une espace de trop : « la note est:12 » est accepté. Un retour à la
+ligne n'est pas une espace : deux print restent deux lignes, et c'est un autre
+défaut.
+**ET LA VALEUR N'EST JAMAIS PRESQUE BONNE** : au 5.7 elle doit se lire dans la
+sortie telle que Python l'écrit. Les espaces ne comptant plus,
+`print("la note est :", note // 10, note % 10)` affiche « la note est : 1 2 »
+et passerait sans ce garde-là — le sabotage qui le retire le nomme.
+**ET LA PAGE DIT CE QU'ELLE A TOLÉRÉ.** Sans cette moitié, l'élève croirait
+avoir écrit le texte exact : le « Bravo » nomme l'écart (« attention aux
+majuscules », « il y a une espace en trop ou en moins », « les guillemets ne
+s'affichent pas ») et redonne le texte demandé. Les messages qui nommaient ces
+défauts n'ont donc pas disparu — ils ont CHANGÉ DE CÔTÉ, du refus vers
+l'acceptation —, et les branches du diagnostic qu'ils occupaient sont
+RETIRÉES : devenues inatteignables, aucun sabotage ne pouvait plus les faire
+rougir. Les contrôles qui les épinglaient ont été retournés, pas supprimés :
+la même copie, le même mot, du côté des copies acceptées. Ce qui reste au
+diagnostic est ce qui reste faux — la casse d'un bout à l'autre
+(« JE SUIS EN SECONDE »), et un texte qui n'est plus celui-là.
+**{python-afficher-variable} RESTE DEHORS, et c'est un arbitrage nommé** : sa
+sortie EST la valeur de la variable — il n'y a aucun texte à mal taper, et un
+caractère de tolérance y accepterait une autre valeur. Le contrôle tient ce
+bord : une espace de plus après la valeur y est refusée. Un sabotage l'a
+montré en restant VERT à bon droit — la tolérance posée sur sa seule
+comparaison de sortie ne change rien, sa SECONDE méthode (la première ligne
+change de valeur, l'affichage doit suivre) tenant le bord toute seule ; la
+fuite complète, elle, rougit.
+**Aucun contrôle du NAVIGATEUR, et le dire vaut mieux que le taire** : la
+tolérance est une affaire de chaînes, et le message qui nomme l'écart se lit
+dans le DOM — jsdom le voit, un vrai Chromium n'en dirait pas plus. Treize
+sabotages, douze rougissant en nommant leur défaut.
 
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —

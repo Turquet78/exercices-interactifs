@@ -3588,6 +3588,7 @@ function exercices(suite){
     pythonNoms(w, P);
     pythonNomVariable(w, P);
     pythonPrint(w, P);
+    pythonTexteProche(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -17324,7 +17325,7 @@ function pythonPrint(w, P){
   })()`, v => v === '');
 
   /* ---- 4. le diagnostic, cas par cas ---- */
-  verifierEval(w, 'le diagnostic nomme chaque défaut — print en majuscules ou mal écrit, parenthèses, guillemets absents, non fermés, dépareillés ou typographiques, casse, espaces, accents, guillemets affichés, ligne de trop, rien d’affiché, point-virgule — et l’apostrophe de « c’est » n’est pas un guillemet dépareillé', `(function(){
+  verifierEval(w, 'le diagnostic nomme chaque défaut — print en majuscules ou mal écrit, parenthèses, guillemets absents, non fermés, dépareillés ou typographiques, la casse d’un bout à l’autre, un autre texte, une ligne de trop, rien d’affiché, point-virgule — et l’apostrophe de « c’est » n’est pas un guillemet dépareillé', `(function(){
     const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), T="${PREMIER}";
     const cas=[
       ["Print("+Q+T+Q+")", /minuscules/],
@@ -17336,10 +17337,7 @@ function pythonPrint(w, P){
       ["print("+Q+T+")", /pas fermé/],
       ["print("+Q+T+A+")", /MÊMES/],
       ["print(«"+T+"»)", /droits/],
-      ["print("+Q+"Je suis en seconde"+Q+")", /majuscules/],
-      ["print("+A+Q+T+Q+A+")", /s’affichent/],
-      ["print("+Q+"je  suis en seconde"+Q+")", /espace/],
-      ["print("+Q+"je suis en séconde"+Q+")", /accents/],
+      ["print("+Q+"JE SUIS EN SECONDE"+Q+")", /majuscules/],
       ["print("+Q+"bonjour"+Q+")", /« bonjour » au lieu de « je suis en seconde »/],
       ["print("+Q+T+Q+")"+NL+"print("+Q+T+Q+")", /2 lignes/],
       ["x = "+Q+T+Q, /aucun print/],
@@ -17521,6 +17519,156 @@ function pythonPrint(w, P){
   }
 }
 
+/* LA TOLÉRANCE DES TEXTES AFFICHÉS (Seconde) — décision de Turquet
+   (septembre 2026) : « en seconde, pour les algorithmes qui affichent un
+   texte, accepter les textes qui sont presque bons. Dans le texte, des espaces
+   en trop ou en moins ne sont pas pénalisés, un ou deux caractères faux ou en
+   trop ne sont pas pénalisés. »
+   Elle vit à UN SEUL endroit (pyTexteProche) et sert {python-print} comme
+   {python-completer} : le contrôle l'éprouve donc sur les DEUX JUGES et sur
+   l'ÉCRAN, jamais sur la fonction seule — lire la fonction de la page et la
+   comparer à elle-même ne prouverait rien.
+   Quatre bords, et n'en tenir qu'un ne tient rien :
+   · ce qui est ACCEPTÉ — l'espace, l'accent, la majuscule isolée, les
+     guillemets affichés, un ou deux caractères — et l'écart NOMMÉ dans le
+     « Bravo » : sans cette moitié, l'élève croirait avoir écrit le texte
+     exact, et les quatre messages qui nommaient ces défauts auraient
+     simplement disparu ;
+   · ce qui reste REFUSÉ : les CHIFFRES, qui ne sont jamais « presque bons »
+     (print("la note est :", note + 1) affiche une autre note), et un texte
+     qui n'est plus celui-là ;
+   · la TRANCHE DE QUATRE : sur « age : 16 » — six caractères une fois les
+     espaces retirées, le plus court des deux exercices — une faute est
+     tolérée, deux ne le sont pas ; sur une phrase entière, deux le sont et
+     trois ne le sont pas. Et le plus court texte est MESURÉ sur les deux
+     tirages plutôt que supposé : un texte plus court ajouté demain rougit ;
+   · {python-afficher-variable} reste DEHORS : sa sortie EST la valeur de la
+     variable, et une espace de plus y est refusée.
+   Aucun antislash littéral ni accent grave dans le code évalué. */
+function pythonTexteProche(w, P){
+  const nom = 'la tolérance des textes affichés : les deux juges acceptent un texte presque bon, et l’écran dit ce qu’il a toléré';
+  const T = P.toleranceTexte;
+  if(!T){ ignorer(nom, 'ce niveau n\'a aucun exercice qui fasse afficher un texte'); return; }
+  if(!P.pythonPrint || !P.pythonCompleter){
+    verifier(nom, false, 'le profil déclare la tolérance sans les deux exercices qui l\'emploient'); return;
+  }
+  const present = evaluer(w, "typeof pypDiag==='function' && typeof pyxJuge==='function' && typeof pycJuge==='function'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'pypDiag / pyxJuge / pycJuge introuvables'); return; }
+  const ID = P.pythonPrint.exercice, PREMIER = P.pythonPrint.premier;
+
+  /* ---- 1. {python-print} : accepté, et l'écart nommé à l'écran ---- */
+  verifierEval(w, 'le texte presque bon est ACCEPTÉ par {python-print} — l’espace, l’accent, la majuscule, les guillemets affichés, un caractère en trop ou en moins — et le « Bravo » nomme ce qui a été toléré', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), T="${PREMIER}";
+    const cas=[["print("+Q+"Je suis en seconde"+Q+")", /majuscules/],
+               ["print("+Q+"je  suis en seconde"+Q+")", /espace/],
+               ["print("+Q+"jesuisenseconde"+Q+")", /espace/],
+               ["print("+Q+"je suis en séconde"+Q+")", /accents/],
+               ["print("+A+Q+T+Q+A+")", /guillemets/],
+               ["print("+Q+T+"s"+Q+")", /caractère/],
+               ["print("+Q+"je suis en second"+Q+")", /caractère/]];
+    cas.forEach(function(c){
+      const d=pypDiag(c[0],T);
+      if(!d.ok){ vus.push("refusé : "+JSON.stringify(c[0])+" — "+d.dits.join(" ")); return; }
+      if(!c[1].test(d.ecart)) vus.push(JSON.stringify(c[0])+" : l’écart est dit « "+d.ecart+" »");
+    });
+    if(pypDiag("print("+Q+T+Q+")",T).ecart!=="") vus.push("le texte EXACT reçoit un écart : « "+pypDiag("print("+Q+T+Q+")",T).ecart+" »");
+    /* et l'écran le dit : la copie tolérée vaut 1, en vert, et le message porte l'écart et le texte demandé */
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYP();
+    const ta=document.getElementById("pyp-prog");
+    ta.value="print("+Q+"Je suis en seconde"+Q+")"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYP();
+    const fb=document.getElementById("pypFeedback");
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie tolérée ne vaut pas 1 : "+ta.className+", note "+test.score);
+    if(fb.className.indexOf("good")<0) vus.push("le retour de la copie tolérée n’est pas vert : "+fb.className);
+    if(fb.textContent.indexOf("Je suis en seconde")<0||!/majuscules/.test(fb.textContent)||fb.textContent.indexOf(T)<0)
+      vus.push("le message ne dit pas ce qui a été toléré : "+fb.textContent);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. {python-completer} : accepté, et l'écart nommé à l'écran ---- */
+  verifierEval(w, 'le texte presque bon est ACCEPTÉ par {python-completer} — la majuscule, le « : » oublié, l’espace en trop ou manquante — et le « Bravo » nomme ce qui a été toléré', `(function(){
+    const vus=[], q=Object.assign({},PYX_FICHE);
+    const cas=[['print("La note est :", note)', /majuscules/],
+               ['print("la note est", note)', /caractère/],
+               ['print("la note est : ", note)', /espace/],
+               ['print("la note est :" + str(note))', /espace/]];
+    cas.forEach(function(c){
+      const j=pyxJuge(q,c[0]);
+      if(!j.ok){ vus.push("refusé : "+c[0]+" — "+(j.diag||j.erreur)); return; }
+      if(!c[1].test(j.ecart)) vus.push(c[0]+" : l’écart est dit « "+j.ecart+" »");
+    });
+    if(pyxJuge(q,'print("la note est :", note)').ecart!=="") vus.push("la ligne EXACTE reçoit un écart");
+    /* l'écran : on tape la ligne tolérée, on l'exécute, on vérifie */
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${P.pythonCompleter.exercice}";
+    startPYX();
+    const q1=test.questions[0], inp=document.getElementById("pyx-in"), fb=document.getElementById("pyxFeedback");
+    inp.value='print("La '+q1.texte.slice(3)+'", '+q1.nom+')'; inp.dispatchEvent(new Event("input",{bubbles:true}));
+    pyxExecuter(); checkPYX();
+    if(!inp.classList.contains("ok")||test.score!==1) vus.push("la ligne tolérée ne vaut pas 1 : "+inp.className+", note "+test.score);
+    if(fb.className.indexOf("good")<0) vus.push("le retour de la ligne tolérée n’est pas vert : "+fb.className);
+    if(!/majuscules/.test(fb.textContent)||fb.textContent.indexOf("La "+q1.texte.slice(3))<0) vus.push("le message ne dit pas ce qui a été toléré : "+fb.textContent);
+    if(inp.nextElementSibling&&inp.nextElementSibling.classList&&inp.nextElementSibling.classList.contains("mf-cor")) vus.push("la ligne tolérée reçoit quand même la correction en vert");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. les chiffres ne sont jamais « presque bons » ---- */
+  verifierEval(w, 'les CHIFFRES comptent toujours : print(texte, note + 1) affiche une autre note et reste refusé en nommant le calcul, la valeur coupée en deux par une espace aussi, et un chiffre glissé dans une phrase ne passe pas non plus', `(function(){
+    const vus=[], Q=String.fromCharCode(34), q=Object.assign({},PYX_FICHE);
+    const j=pyxJuge(q,'print("la note est :", note + 1)');
+    if(j.ok) vus.push("print(texte, note + 1) est accepté : la page afficherait 13 pour 12");
+    else if(j.diag.indexOf("calcul")<0) vus.push("le diagnostic ne nomme pas le calcul : "+j.diag);
+    const j2=pyxJuge(q,'print("la note est :", note - 1)');
+    if(j2.ok) vus.push("print(texte, note - 1) est accepté");
+    /* et la VALEUR se lit telle quelle : les espaces ne comptent pas, mais une
+       valeur COUPÉE par une espace n'est plus cette valeur */
+    const j3=pyxJuge(q,'print("la note est :", note // 10, note % 10)');
+    if(j3.ok) vus.push("« la note est : 1 2 » est accepté pour 12 : la valeur ne se lit plus telle quelle");
+    const d=pypDiag("print("+Q+"je suis en 2econde"+Q+")","${PREMIER}");
+    if(d.ok) vus.push("un chiffre glissé dans la phrase passe pour une faute de frappe");
+    /* et le message reste VRAI quand le texte a été toléré : la valeur
+       recopiée à la main se NOMME, au lieu de montrer deux textes qui se
+       ressemblent (« affiche X alors qu'il devrait afficher Y ») */
+    const j4=pyxJuge(q,'print("La note est : 12")');
+    if(j4.ok) vus.push("la valeur recopiée passe parce que le texte a été toléré");
+    else if(j4.diag.indexOf("recopiée")<0) vus.push("le diagnostic ne nomme plus la valeur recopiée quand le texte a été toléré : "+j4.diag);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. un caractère par tranche de quatre, deux au plus ---- */
+  verifierEval(w, 'un caractère par tranche de quatre, deux au plus : sur « age : 16 » une faute passe et deux ne passent pas ; sur une phrase entière, deux passent et trois ne passent pas', `(function(){
+    const vus=[], Q=String.fromCharCode(34), T="${PREMIER}", q={nom:"age", lit:"16", texte:"age :", vis:"int"};
+    if(pyxAns(q).sortie.indexOf("age : 16")!==0) vus.push("le témoin court n’affiche pas « age : 16 » : "+JSON.stringify(pyxAns(q).sortie));
+    if(!pyxJuge(q,'print("agi :", age)').ok) vus.push("une faute sur un texte court est refusée : « agi : 16 »");
+    if(pyxJuge(q,'print("agi ;", age)').ok) vus.push("deux fautes sur six caractères sont acceptées : « agi ; 16 » passerait pour « age : 16 »");
+    if(!pypDiag("print("+Q+T+"s !"+Q+")",T).ok) vus.push("deux caractères en trop sur la phrase sont refusés");
+    if(pypDiag("print("+Q+T+"s !!"+Q+")",T).ok) vus.push("trois caractères en trop sur la phrase sont acceptés");
+    /* le plus court texte des deux tirages, MESURÉ */
+    let court=null;
+    const court1=function(t){ const n=t.split(" ").join("").length; if(court===null||n<court[0]) court=[n,t]; };
+    for(let s=0;s<200;s++){
+      pypBuildQuestions().forEach(function(x){ court1(x.texte); });
+      pyxBuildQuestions().forEach(function(x){ const o=pyxAns(x).sortie; court1(o.slice(0,o.length-1)); });
+    }
+    if(!court||court[0]<${T.plusCourt}) vus.push("le plus court texte affiché fait "+(court&&court[0])+" caractères (« "+(court&&court[1])+" ») : deux fautes n’y seraient plus une faute de frappe");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le bord opposé : un autre texte, et {python-afficher-variable} ---- */
+  verifierEval(w, 'le bord opposé : un texte qui n’est plus celui-là reste refusé et montré, et {python-afficher-variable} reste DEHORS — sa sortie est une VALEUR, une espace de plus y est refusée', `(function(){
+    const vus=[], Q=String.fromCharCode(34), T="${PREMIER}", q=Object.assign({},PYX_FICHE);
+    const d=pypDiag("print("+Q+"bonjour"+Q+")",T);
+    if(d.ok||d.dits.join(" ").indexOf("au lieu de")<0) vus.push("un autre texte n’est pas refusé en montrant les deux : "+d.dits.join(" "));
+    const j=pyxJuge(q,'print("salut :", note)');
+    if(j.ok) vus.push("« salut : 12 » est accepté pour « la note est : 12 »");
+    const qs=pycBuildQuestions(), qc=qs[0];
+    const jc=pycJuge(qc,"print("+qc.nom+", "+Q+Q+")");
+    if(jc.ok) vus.push("la tolérance a fui sur {python-afficher-variable} : une espace de plus après la valeur y est acceptée");
+    if(!pycJuge(qc,"print("+qc.nom+")").ok) vus.push("le contrôle ne mesure rien : la copie juste de {python-afficher-variable} est refusée");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
 /* {python-completer} (Seconde) : le cours sur l'écran, puis un programme à
    COMPLÉTER — la ligne 1 donnée (note = 12), la ligne 2 à écrire — que
    l'élève EXÉCUTE avant de vérifier ; le juge compare la SORTIE de sa ligne à
@@ -17562,7 +17710,7 @@ function pythonCompleter(w, P){
   })()`, v => v === '');
 
   /* ---- 2. le diagnostic : vingt-deux lignes fausses, et le mot que chacune doit recevoir ---- */
-  verifierEval(w, 'chaque ligne fausse est refusée ET reçoit le diagnostic qui nomme son erreur (le texte sans guillemets, Print, la parenthèse, la virgule, la variable entre guillemets, l’ordre, l’espace, le « : », la majuscule, la valeur recopiée…)', `(function(){
+  verifierEval(w, 'chaque ligne fausse est refusée ET reçoit le diagnostic qui nomme son erreur (le texte sans guillemets, Print, la parenthèse, la virgule, la variable entre guillemets, l’ordre, le calcul, la valeur recopiée, la casse d’un bout à l’autre…)', `(function(){
     const vus=[], q=Object.assign({},PYX_FICHE);
     const cas=[
       ['print(la note est :, note)', 'guillemets'],
@@ -17579,12 +17727,9 @@ function pythonCompleter(w, P){
       ['print("la note est :" note)', 'virgule'],
       ['print("la note est :", "note")', 'TEXTE'],
       ['print(note, "la note est :")', 'inversé'],
-      ['print("la note est : ", note)', 'espace en trop'],
-      ['print("La note est :", note)', 'majuscules comprises'],
-      ['print("la note est", note)', 'manque le « : »'],
+      ['print("LA NOTE EST :", note)', 'majuscules comprises'],
       ['print("la note est :")', 'pas la valeur'],
       ['print("la note est :", 12)', 'recopiée'],
-      ['print("la note est :" + str(note))', 'manque l’espace'],
       ['print("la note est :", note + 1)', 'pas un calcul'],
       ['print("la note est :", note, note)', '3 choses'],
       ['print("la note est :" + note)', 'VIRGULE'],
