@@ -2579,6 +2579,75 @@ rougissant en nommant son défaut — la seconde affectation remise dans le
 tirage (« la variable « points » est affectée deux fois »), le visage texte
 perdu, la règle ④ remise dans le rappel.
 
+**Les trois types de variables s'EXPLIQUENT sur l'écran, puis se TESTENT —
+et c'est Python qui a le dernier mot.** {python-types} (Seconde, 5.2,
+demande de Turquet, septembre 2026 : « créer un exercice qui explique les 3
+types de variables et qui teste les élèves ») est repris de la page « Types
+de variables » du cours : 15 est un `int` (un entier relatif), 15.5 un
+`float` (un nombre à virgule, écrit avec un point), "15H30" un `str` (une
+chaîne de caractères — il y a le H, qui n'est pas un chiffre) et "Thomas"
+aussi (ce n'est pas un nombre). Les trois cadres du cours sont SUR l'écran,
+à chaque question — l'exercice explique avant de tester, c'est la demande —,
+puis un programme de trois affectations, et le type de chacune à choisir
+parmi int / float / str. Puis « Exécuter », qui ne se débloque qu'après la
+vérification (la chaîne de portes de {python-affichage}) : le programme
+porte un `print(type(…))` par variable, et c'est l'interpréteur de la page
+qui répond `<class 'int'>` — il a appris `type()` pour l'occasion, écrit
+comme CPython l'écrit, et refuse en nommant toute opération sur un type.
+**LE TYPE ATTENDU N'EST JAMAIS RANGÉ À CÔTÉ DE LA QUESTION** : il est lu dans
+l'état final de `pyRun`, la fonction MÊME qui exécute le programme sous le
+bouton, si bien que la correction ne peut pas contredire la console. La
+question ne porte que le programme et le visage, et le contrôle refuse tout
+autre champ.
+**Quatre visages, chacun une fois par séance, en ordre mélangé, et deux
+d'entre eux sont des CONTRASTES** — le même nombre sous deux écritures,
+c'est le contraste qui enseigne : le trio du COURS (le jeu de
+{python-affichage} : un entier, un décimal, un texte) ; les GUILLEMETS
+("2026" contre 2026 — ce sont les guillemets qui décident, pas les
+chiffres) ; le POINT (15.0 contre 15 — un point fait un float, même à partie
+décimale nulle) ; le MÉLANGE ("15H30", une lettre parmi des chiffres, et
+−3, négatif mais entier). Le nombre de types par question VARIE d'un visage
+à l'autre — un élève qui aurait appris « un de chaque » se tromperait, et le
+contrôle exige cette variation — et les noms des variables des pièges ne
+disent rien de leur type. Le message de la correction nomme ce qui décide —
+les guillemets, le point, le signe — et la bonne réponse se montre en vert à
+côté de la case rouge, en entraînement seulement ; aucune correction au fil
+des clics (`soutienEnDirect.sans`) : à trois propositions, il suffirait
+d'essayer.
+**Un nombre dans une balise `code` n'est pas un numéro d'exercice.** Le
+rappel de cours doit montrer 15.5 et 15.0 — un rappel sur les types sans un
+seul décimal n'enseignerait pas le float —, et le contrôle des numéros en
+dur lisait « 15.5 » comme le numéro d'un exercice. Il retire désormais le
+contenu des balises `<code>` AVANT de chercher : du code est du code, pas de
+la prose, et une référence à un exercice ne s'écrit jamais dans une balise
+code. Le bord opposé est tenu par sabotage : « (voir l'exercice 5.1) » écrit
+dans la PROSE du même rappel rougit toujours.
+Deux bancs, la répartition habituelle : jsdom tient la page du cours
+épinglée, la place au menu (5.2, rien d'autre ne bouge), le tirage (400
+séances), la copie juste cliquée, la copie fausse sur le visage des
+guillemets et sa raison, le soutien, les branchements, et `type()` comparé à
+un vrai CPython sur 172 programmes ; le NAVIGATEUR (« 6 vicies undecies »,
+déclaré par `pythonTypes` dans `tests/profils.js`) mesure ce que jsdom ne
+voit pas — les trois cadres RENDUS côte à côte, au rectangle, puis empilés
+sur toute la largeur d'un téléphone, le code et la console à chasse fixe, le
+vrai clic sur le bouton verrouillé, les trois listes choisies pour de vrai et
+les trois `<class '…'>` à l'écran. Dix-sept sabotages au banc jsdom, chacun rougissant en nommant son
+défaut — `type()` retiré de l’interpréteur, `<class int>` sans les
+apostrophes de CPython, « Exécuter » cliquable d’emblée, le soutien qui
+débloque sur une copie fausse, « Question suivante » avant l’exécution, la
+case vide rougie, le contraste des guillemets perdu, le `.0` du point perdu,
+un type de chaque à toutes les questions, le type rangé dans la question, les
+cadres retirés de l’écran, la copie juste à un point, l’exercice hors du
+thème, la correction au fil des clics, le bouton des tables revenu, le numéro
+d’exercice dans la prose du rappel, le message qui ne nomme plus les
+guillemets — et un dix-huitième que seul le NAVIGATEUR voit : les trois cadres
+cachés par une règle CSS (`display:none`). jsdom lit le DOM, où les cadres
+existent, et reste vert à bon droit ; le navigateur les mesure au rectangle et
+nomme le vide (« 0x0 / 0x0 / 0x0 »). La campagne a restauré la page depuis une
+copie propre hors dépôt à chaque tour, et le sabotage du navigateur s’est joué
+dans une copie de travail séparée, pendant que la page propre passait son
+propre banc.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
