@@ -6343,7 +6343,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies ter. {suite-vocabulaire} : la fiche se COCHE =====
+    /* ===== 6 tricies quater. {suite-vocabulaire} : la fiche se COCHE =====
        Le banc jsdom tient le tirage (refait sur les termes montrés), le juge
        et les gestes. Ce qu'il ne voit pas : le quadrillage RENDU à une taille
        lisible avec ses treize croix et la droite y = ℓ d'étendue non nulle,
@@ -6351,7 +6351,7 @@ async function parcours(page, N){
        en bleu, cochée à tort en rouge, oubliée en vert —, le badge de la bonne
        borne mesuré au RECTANGLE, et la page qui ne déborde ni à 1400 px ni sur
        une tablette en portrait, où la fiche passe sous le dessin. */
-    titre('6 tricies ter. VOCABULAIRE SUR LES SUITES : LA FICHE SE COCHE');
+    titre('6 tricies quater. VOCABULAIRE SUR LES SUITES : LA FICHE SE COCHE');
     if(!P.suiteVocabulaire){
       ignorer('la fiche du vocabulaire se coche, et ses couleurs disent le verdict',
         'ce niveau n\'a pas l\'exercice du vocabulaire sur les suites');
@@ -7395,7 +7395,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -7570,6 +7570,32 @@ async function parcours(page, N){
                ne mène nulle part (signalé par Turquet, août 2026). On mesure
                ICI, sur tous les exercices visités : celui qu'on ajoutera
                demain est couvert sans rien déclarer. */
+            /* AUCUNE ÉTIQUETTE DE COURBE NE TOMBE SUR SA COURBE (signalé par
+               Turquet sur une capture du 5.4, septembre 2026 : « Cf′ » posée en
+               travers de la courbe de f′). Toute étiquette « Cf », « Cf′ », « Cg »
+               d'un dessin visible est mesurée contre les courbes RENDUES du même
+               dessin : on parcourt chaque chemin de courbe au pas de 1,5 px et
+               aucun point ne doit tomber dans la boîte du texte (rognée d'un
+               pixel — un contact au bord n'est pas une superposition). Sur tous
+               les exercices visités : l'exercice ajouté demain est couvert. */
+            const etiquettes = [];
+            for(const svg of on.querySelectorAll('svg')){
+              if(!visible(svg)) continue;
+              const labs = [...svg.querySelectorAll('text.lv-cf, text.sv-cf, text.eqg-cg')].filter(visible);
+              const courbes = [...svg.querySelectorAll('path[class*="curve"], path[class*="courbe"], path.eqg-g, line.eqg-g')];
+              for(const t of labs){
+                const b = t.getBoundingClientRect(); let touche = 0;
+                for(const p of courbes){
+                  let L = 0; try{ L = p.getTotalLength(); }catch(e){ continue; }
+                  const M = p.getScreenCTM(); if(!M) continue;
+                  for(let d = 0; d <= L; d += 1.5){
+                    const q = p.getPointAtLength(d), X = M.a * q.x + M.c * q.y + M.e, Y = M.b * q.x + M.d * q.y + M.f;
+                    if(X >= b.left + 1 && X <= b.right - 1 && Y >= b.top + 1 && Y <= b.bottom - 1) touche++;
+                  }
+                }
+                if(touche) etiquettes.push('« ' + t.textContent.replace(/\s+/g, '') + ' » posée sur sa courbe (' + touche + ' point(s) de la courbe dans la boîte du texte)');
+              }
+            }
             const champsMaths = [...on.querySelectorAll('math-field')].filter(visible).length > 0;
             const boutonClavier = [...on.querySelectorAll('button')].filter(visible)
               .some(b => /clavier math/i.test(b.getAttribute('title') || ''));
@@ -7597,7 +7623,7 @@ async function parcours(page, N){
                       return { c:Math.round(c.getBoundingClientRect().width),
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
                     accolades: [...new Set(connus)], gabarits: gabarits, cases: cases, signes: [...new Set(signes)],
-                    debuts: [...new Set(debuts)]};
+                    debuts: [...new Set(debuts)], etiquettes: etiquettes};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
@@ -7615,6 +7641,8 @@ async function parcours(page, N){
             tetes.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.debuts[0]);
           if(mode === 'train' && vu.clavier === false)
             sansClavier.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + vu.ecran + ')');
+          if(vu.etiquettes && vu.etiquettes.length)
+            surCourbe.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.etiquettes[0]);
           /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
              C'est la règle que la Seconde a réapprise trois fois en une seule
              journée d'août 2026, chaque fois sur un exercice différent, et
@@ -7658,6 +7686,14 @@ async function parcours(page, N){
         tetes.length === 0, tetes.slice(0, 3).join(' | '));
       verifier('le clavier mathématique est atteignable sur tout écran à champ mathématique',
         sansClavier.length === 0, sansClavier.join(', ') + ' — aucun bouton « Clavier mathématique »');
+      /* Une étiquette de courbe posée SUR sa courbe se lit barrée (capture de
+         Turquet, 5.4, septembre 2026) : mesurée ici sur toute étiquette de tout
+         dessin visité, contre les courbes RENDUES. */
+      /* le COMPTE et la liste ENTIÈRE des exercices touchés (numéro et étiquette), pas
+         trois cas : un quatrième resterait caché derrière les trois premiers */
+      verifier('aucune étiquette de courbe ne tombe sur sa courbe',
+        surCourbe.length === 0, surCourbe.length + ' cas — ' + surCourbe.slice(0, 2).join(' | ')
+          + ' — exercices : ' + [...new Set(surCourbe.map(c => c.replace(/ \((train|soutien)\).*« (.+?) ».*/, ' $2')))].join(', '));
       /* Le COMPTE d'abord : la liste était tronquée à quatre, et un cinquième
          exercice fautif est resté caché derrière les quatre premiers jusqu'à
          ce qu'ils soient corrigés. Un contrôle qui dit moins que ce qu'il sait
@@ -8695,13 +8731,36 @@ async function parcours(page, N){
         await s.page.waitForTimeout(700);
         const deploye = await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible));
         if(!deploye){ await s.page.click(KT.bouton); await s.page.waitForTimeout(900); }
-        /* la couche RENDUE : ses rangées, sa touche témoin, et qui s'y trouve */
+        /* On mesure un clavier STABLE, jamais à délai fixe : ce contrôle a rougi
+           une fois sur trois exécutions (« encore sur le clavier A : n »), sous
+           forte charge — trois bancs et deux campagnes en parallèle —, et dix
+           ouvertures isolées n'ont rien reproduit. Un délai fixe mesure ce qui se
+           trouve là à cet instant, un clavier en cours de (re)construction
+           compris ; on attend que la couche visible garde le MÊME jeu de touches
+           d'un quart de seconde au suivant, et on le dit si elle n'y arrive pas. */
+        const stable = await s.page.evaluate(async () => {
+          const sig = () => { const kb = document.querySelector('body > .ML__keyboard'); if(!kb) return '';
+            return [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
+              .filter(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; })
+              .map(el => el.textContent.trim()).join('|'); };
+          const vk = window.mathVirtualKeyboard; const t0 = Date.now(); let a = sig();
+          while(Date.now() - t0 < 6000){
+            await new Promise(r => setTimeout(r, 250));
+            const b = sig(); if(vk && vk.visible && b && b === a) return { ok: true, ms: Date.now() - t0 };
+            a = b;
+          }
+          return { ok: false, ms: Date.now() - t0 };
+        });
+        verifier('le clavier de la tablette est stable avant qu\'on le mesure', stable.ok,
+          'la couche visible change encore après ' + stable.ms + ' ms');
+        /* la couche RENDUE — celle que MathLive déclare visible (is-visible), pas
+           tout ce qui a un rectangle — : ses rangées, sa touche témoin, et qui s'y trouve */
         const mesurerCouche = ({ versA, versB }) => {
           const kb = document.querySelector('body > .ML__keyboard');
           const vk = window.mathVirtualKeyboard;
           if(!kb) return { absent: true, visible: !!(vk && vk.visible) };
           const vis = el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; };
-          const caps = [...kb.querySelectorAll('.MLK__rows > .MLK__row > *')].filter(vis);
+          const caps = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')].filter(vis);
           const de = t => caps.find(c => c.textContent.trim() === t) || null;
           const info = el => { if(!el) return null; const q = el.getBoundingClientRect();
             return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2),
