@@ -2460,6 +2460,79 @@ verts et les quatre crochets RENDUS avec une étendue non nulle (un CSS perdu
 les rendrait invisibles sans qu'une erreur ne se lève), et le pavé des
 tablettes en portrait comme en paysage.
 
+**Un programme Python se PRÉDIT avant de s'EXÉCUTER — et il s'exécute dans
+la page, sans rien charger.** {python-affichage} (Seconde, thème 5
+« Algorithmique et Python », demande de Turquet, septembre 2026 : « est-il
+possible de créer un exercice qui donne le programme Python comme dans le
+PDF et qui affiche le résultat quand on l'exécute ? », puis « prédire
+d'abord, puis le bouton exécuter se débloque ») est repris de l'exercice 9
+du carnet : trois variables, un print, et « Le programme affiche le texte …
+puis … qui est la valeur de la variable … ». L'ordre du carnet — a)
+exécuter, b) qu'affiche-t-il ? — est RENVERSÉ : sur un notebook le
+professeur est à côté ; ici, un bouton cliquable avant la réponse
+transformerait la question en recopie. « Exécuter » ne se débloque qu'une
+fois la réponse VÉRIFIÉE — la chaîne de portes de {placer-image}, tenue par
+l'ÉTAT du bouton et non par une consigne —, et « Question suivante » attend
+l'exécution : voir le programme tourner est le a) de la fiche, pas une
+option. En soutien, une copie fausse le laisse verrouillé : la sortie EST la
+réponse.
+**Trois chemins mesurés pour « exécuter », et le plus petit l'a emporté** :
+Pyodide (un vrai CPython en WASM, 9,6 + 2,2 Mo — neuf fois la page),
+Brython (1,1 Mo depuis un CDN), ou un interpréteur MAISON du sous-ensemble
+d'une première séance — affectations, nombres, textes, + − × / // % **,
+print à plusieurs arguments, str/int/float — en cent lignes et zéro réseau.
+Les deux premiers sont une dépendance de plus dont la panne rend
+« Exécuter » MORT sans une erreur, sur le réseau d'un lycée ; le troisième
+est éprouvé : 0 écart avec CPython 3.11 sur 1 600 programmes tirés.
+**Le risque propre est l'interpréteur qui MENT, et il ne se relit pas** :
+sur 27 cas limites choisis exprès, le premier prototype divergeait 7 fois —
+`round()` (Python arrondit AU PAIR : round(2.5) vaut 2), l'écriture des
+flottants extrêmes (1e16 et 0.00001 basculent en exponentielle à d'autres
+seuils qu'en JavaScript), la priorité de « ** » (2 ** 3 ** 2 vaut 512,
+−2 ** 2 vaut −4). L'élève aurait prédit juste, la page aurait affiché sa
+propre erreur et l'aurait compté faux — le pire défaut du projet, par la
+porte d'un exécuteur. TROIS POSITIONS, la doctrine du juge : ce que
+l'interpréteur sait faire, il le fait comme CPython (l'écriture des
+flottants réécrite aux seuils de Python — 100.0 s'affiche 100.0, 4 / 2
+s'affiche 2.0) ; ce qu'il ne sait pas faire — round, un entier au-delà de
+2^53 — il le REFUSE en nommant, plutôt que de répondre à côté ; et le
+tirage n'emploie ni **, ni round, ni /. **Le banc compare la page à un VRAI
+python3**, tirage après tirage (240 programmes) et sur les cas limites
+épinglés avec la sortie de CPython 3.11 — la seconde méthode qui n'a rien
+en commun avec la première. python3 est sur ubuntu-latest ; sans lui,
+l'intégration continue ROUGIT (« la sortie n'a été comparée à RIEN ») et
+une machine de développement le dit en « non applicable » — le motif de
+base.js, pris du bon côté.
+**La sortie affichée et la correction sortent de la MÊME fonction** : le
+bouton, le juge (`pyAns`) et le message lisent tous `pyRun(q.src)` ; la
+question ne porte que le programme, le visage tiré et l'ordre des
+propositions — le contrôle refuse tout autre champ.
+**Les quatre visages sortent chacun UNE fois par séance, en ordre
+mélangé** : entier, décimal (Python l'écrit avec un point), texte (il
+s'affiche sans ses guillemets), variable RÉAFFECTÉE — c'est la DERNIÈRE
+valeur qui compte, et l'ancienne est proposée. Les propositions ne
+diffèrent que par ce qui fait l'erreur (la leçon d'{intervalles-inegalite})
+: le texte AVEC ses guillemets, le NOM de la variable à la place de sa
+valeur, la valeur d'une AUTRE variable. Tout se choisit dans des listes —
+à chasse fixe, ce sont des morceaux de code —, jamais tapé. Aucune
+correction au fil des clics, et c'est déclaré (`soutienEnDirect.sans`) : à
+quatre propositions, il suffirait d'essayer.
+**Le thème 5 vient EN DERNIER, et c'est ce qui rend l'ajout sûr** : un
+thème ajouté à la fin ne renumérote rien, et le contrôle exige que le
+pourcentage reste 3.1. **Et le rappel de cours ne cite AUCUN décimal** : le
+contrôle des numéros en dur lit tout « chiffres.chiffres » d'un rappel
+comme un numéro d'exercice, et « 15.5 » l'aurait fait rougir — la règle du
+point s'y dit en mots.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée, la
+place au menu, le tirage (400 séances), la copie juste CLIQUÉE, la copie
+fausse, le soutien, les branchements et CPython ; le NAVIGATEUR (« 6 vicies
+decies », déclaré par `pythonAffichage` dans `tests/profils.js`) mesure ce
+que jsdom ne voit pas — le code et la console RENDUS à chasse fixe, un VRAI
+clic sur le bouton verrouillé qui ne fait rien, les trois listes choisies
+pour de vrai, la console au RECTANGLE, et le soutien. Les contrôles
+universels des deux bancs ont couvert l'exercice au premier passage sans
+rien déclarer, exactement ce pour quoi ils existent. SABOTAGES_PY
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en

@@ -6041,6 +6041,87 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies decies. {python-affichage} : prédire, puis exécuter =====
+       Le banc jsdom tient l'interpréteur (comparé à un vrai CPython), le
+       tirage, le juge et les portes. Ce qu'il ne voit pas : le code et la
+       console RENDUS à chasse fixe (une police perdue dans la cascade ferait
+       lire un programme en Nunito), le bouton « Exécuter » vraiment inerte
+       sous un VRAI clic tant que rien n'est vérifié, la page qui ne déborde
+       pas, et la console mesurée au RECTANGLE une fois exécutée — jamais à
+       une propriété. Il CHOISIT dans les trois listes pour de vrai, clique
+       Vérifier puis Exécuter, relit la sortie à l'écran, puis rejoue le bord
+       du soutien : une copie fausse laisse le bouton verrouillé. */
+    titre('6 vicies decies. QU\'AFFICHE CE PROGRAMME ? PRÉDIRE, PUIS EXÉCUTER');
+    if(!P.pythonAffichage){
+      ignorer('le programme se prédit, puis s\'exécute', 'ce niveau n\'a pas l\'exercice Python');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonAffichage.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const code = document.querySelector('#pyHost .py-code'), cons = document.getElementById('pyConsole'), run = document.getElementById('pyRun');
+        const fam = el => getComputedStyle(el).fontFamily;
+        const cr = code.getBoundingClientRect(), kr = cons.getBoundingClientRect(), rr = run.getBoundingClientRect();
+        return { police: fam(code), codeVisible: cr.width > 200 && cr.height > 60, consoleVisible: kr.height > 20,
+                 runDisabled: run.disabled, runVisible: rr.width > 40 && rr.height > 20,
+                 texte: code.textContent, src: test.questions[0].src,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 listes: document.querySelectorAll('#pyHost select.py-sel').length };
+      });
+      verifier('le code est rendu à chasse fixe, à une taille lisible', /mono|menlo|consolas|courier/i.test(avant.police) && avant.codeVisible, avant.police);
+      verifier('le code affiché est le programme de la question', avant.texte === avant.src, JSON.stringify(avant.texte));
+      verifier('« Exécuter » est visible et verrouillé tant que rien n\'est vérifié', avant.runDisabled && avant.runVisible, '');
+      verifier('la phrase porte ses trois listes, et la page ne déborde pas à 1400 px', avant.listes === 3 && !avant.page, avant.listes + ' liste(s)');
+      /* un VRAI clic sur le bouton verrouillé ne fait rien */
+      await s.page.click('#pyRun', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const cons0 = await s.page.evaluate(() => document.getElementById('pyConsole').textContent);
+      verifier('un clic sur le bouton verrouillé ne remplit pas la console', cons0 === '', JSON.stringify(cons0));
+      /* on CHOISIT juste, dans les vraies listes */
+      const bon = await s.page.evaluate(() => pyAns(test.questions[0]));
+      await s.page.selectOption('#py-s-t', bon.texte);
+      await s.page.selectOption('#py-s-v', bon.valeur);
+      await s.page.selectOption('#py-s-n', bon.variable);
+      await s.page.click('#pyValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => ({
+        ok: document.querySelectorAll('#pyHost select.ok').length, score: test.score,
+        runDisabled: document.getElementById('pyRun').disabled,
+        focus: document.activeElement && document.activeElement.id,
+        suivant: !!document.getElementById('pyNext') }));
+      verifier('les trois listes choisies justes sont peintes ok et valent 3', apres.ok === 3 && apres.score === 3, apres.ok + ' ok, note ' + apres.score);
+      verifier('« Exécuter » se débloque et reçoit le focus', !apres.runDisabled && apres.focus === 'pyRun', 'focus sur ' + apres.focus);
+      verifier('« Question suivante » attend l\'exécution', !apres.suivant, '');
+      await s.page.click('#pyRun');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => {
+        const cons = document.getElementById('pyConsole'), r = cons.getBoundingClientRect();
+        return { texte: cons.textContent, attendu: pyRun(test.questions[0].src).out.trim(), visible: r.height > 20 && r.width > 100,
+                 police: getComputedStyle(cons).fontFamily, suivant: !!document.getElementById('pyNext'),
+                 runDisabled: document.getElementById('pyRun').disabled };
+      });
+      verifier('la console montre la sortie du programme, à chasse fixe, dans un cadre visible',
+        fin.texte === fin.attendu && fin.visible && /mono|menlo|consolas|courier/i.test(fin.police), JSON.stringify(fin.texte) + ' / ' + fin.police);
+      verifier('après l\'exécution, « Question suivante » apparaît et « Exécuter » se referme', fin.suivant && fin.runDisabled, '');
+      /* le bord du soutien : une copie fausse laisse le bouton verrouillé — la sortie EST la réponse */
+      await s.page.evaluate(id => openTest(id), P.pythonAffichage.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const faux = await s.page.evaluate(() => { const q = test.questions[0], a = pyAns(q); return { t: a.texte, v: q.opt.v.filter(x => x !== a.valeur)[0], n: a.variable }; });
+      await s.page.selectOption('#py-s-t', faux.t); await s.page.selectOption('#py-s-v', faux.v); await s.page.selectOption('#py-s-n', faux.n);
+      await s.page.click('#pyValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => ({ bad: document.querySelectorAll('#pyHost select.bad').length,
+        runDisabled: document.getElementById('pyRun').disabled, console: document.getElementById('pyConsole').textContent }));
+      verifier('en soutien, la copie fausse rougit sa case et laisse « Exécuter » verrouillé', sout.bad === 1 && sout.runDisabled && sout.console === '',
+        sout.bad + ' rouge(s), verrouillé : ' + sout.runDisabled);
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
     /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
        de mise en page — seul un navigateur voit le geste), puis la partie
