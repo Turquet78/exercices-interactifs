@@ -8464,6 +8464,13 @@ croît, et le banc accusait la page d'un défaut qui était le sien. Le point
 « loin » se CHERCHE désormais : on balaie le cadre, on retient le plus éloigné
 des deux rails RENDUS, et on exige que la distance soit franche — un contrôle
 qui n'a rien à mesurer le dit.
+**Trois sabotages au banc NAVIGATEUR, chacun rougissant en nommant son
+défaut** — la grille de e) rendue en `display:block` (« la colonne 2 de la
+récurrence n'est pas alignée : 2645 px d'écart »), une chaîne de i) forcée à se
+replier (« 78 px pour un contenu de 36 »), et la coupe au cadre retirée, qui
+ramène le pôle et son chemin invalide (« trois clics posent 1 point »). jsdom
+reste vert à bon droit sur les trois : il n'a ni mise en page, ni test de
+survol, ni police.
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
