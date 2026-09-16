@@ -7575,6 +7575,70 @@ l'hérédité n'est pas dans une cellule ») comme le navigateur (« la rangée 
 de la récurrence porte 0 « ≤ » au lieu de 3 : l'hérédité a quitté la
 grille »).
 
+**Le théorème de convergence monotone, puis la limite par passage à la
+limite : la fiche, case par case.** {suite-tcm-limite} (Terminale, 6.12,
+demande de Turquet, septembre 2026, repris de la fiche « suite TCM et
+limite ») ferme le thème Suites — ajouté en DERNIER, il ne renumérote rien.
+On DONNE une hypothèse — la chaîne m ≤ Uₙ ≤ Uₙ₊₁ ≤ M, ou les bornes et le
+signe de Uₙ₊₁ − Uₙ, les deux écritures de la fiche — et ses trois questions :
+a) en déduire les variations, b) « la suite est [croissante] et [majorée] par
+[4], avec le [théorème de convergence monotone], elle admet une [limite]
+finie (ou elle est [convergente]) », c) déterminer ℓ par passage à la limite
+dans Uₙ₊₁ = f (Uₙ) : lim Uₙ = [ℓ] et lim Uₙ₊₁ = [ℓ], la relation devient
+[ℓ] = 0,5 [ℓ] + 1, puis la résolution ligne par ligne, puis « Donc lim Uₙ = [2] ».
+**Deux familles de récurrence, celles de la fiche** : l'AFFINE Uₙ₊₁ = a Uₙ + b
+(0 < a < 1, ℓ = b/(1−a) entier — seize couples, calculés en centièmes ENTIERS
+parce que 1 − 0,8 vaut 0,19999999999999996 en JavaScript) et la QUADRATIQUE
+Uₙ₊₁ = Uₙ² − Uₙ + 1 de la fiche, généralisée en f(x) = x ± (x − r)² : le
+passage à la limite donne ℓ² − 2rℓ + r² = 0, soit (ℓ − r)² = 0, une racine
+DOUBLE — une seule limite possible.
+**LE RISQUE PROPRE EST L'ÉNONCÉ QUI CONTREDIT SA CORRECTION, et la fiche
+elle-même le porte** : son exemple 2 donne « 3 ≤ Uₙ ≤ 7 », une suite
+DÉCROISSANTE, et trouve ℓ = 1 — or une suite décroissante minorée par 3 a une
+limite au moins égale à 3 (la leçon du 2.18 et du 2.19 de la Seconde, la fiche
+qui se contredit). Chaque tirage est HONNÊTE : il existe un U₀ pour lequel
+l'hypothèse est vraie ET la limite est celle qu'on trouve — pour l'affine,
+U₀ = m (croissante) ou M (décroissante) ; pour f(x) = x + (x − r)², f(x) ≤ r
+exactement quand r − 1 ≤ x ≤ r, donc m = r − 1 ; pour f(x) = x − (x − r)²,
+M = r + 1. Le contrôle ne suppose rien : il SIMULE la suite par sa propre
+arithmétique sur chaque tirage — 5000 rangs, parce que la quadratique
+converge LENTEMENT (l'écart à r suit 1/n) — et exige la monotonie annoncée,
+les bornes, et la limite que la correction attend. L'exemple 2 est épinglé
+dans sa version honnête (0 ≤ Uₙ ≤ Uₙ₊₁ ≤ 1, croissante, ℓ = 1).
+**Les deux visages de chaque chose sortent dans chaque séance, en ordre
+mélangé** : les deux familles, les deux SENS (sans quoi « croissante »
+tomberait toujours juste) et les deux FORMES de l'hypothèse.
+**Les mots se choisissent, les nombres se tapent** (le motif du 6.3 et du
+6.11) : « croissante », « majorée », le nom du théorème, « limite »,
+« convergente » et le symbole ℓ sont des listes ; les bornes et les
+coefficients sont les cases étroites du 6.3, qui grandissent sous la frappe.
+Deux justifications ÉQUIVALENTES sont acceptées en a) — « Uₙ ≤ Uₙ₊₁ » et
+« Uₙ₊₁ − Uₙ ≥ 0 » disent la même chose, refuser l'une serait refuser une
+lecture juste — et la correction écrit la forme de l'ÉNONCÉ ; « 1/2 » vaut
+0,5 dans une case à nombre. Une case vide ne rougit jamais — en direct comme à
+la vérification, et le bord opposé du 6.3 est tenu ici dès le premier jour :
+« Vérifier » sur une copie vide ne fige aucune case. La bonne réponse n'est
+jamais rangée à côté de la question (famille, sens, forme, coefficients,
+bornes — le contrôle refuse tout autre champ) : `tclAns()` recalcule tout.
+Le banc NAVIGATEUR (« 6 vicies terdecies », déclaré par `suiteTcmLimite`)
+tient ce que jsdom ne voit pas : le « lim » qui porte son « n → +∞ » EN
+DESSOUS, les rangées qui ne défilent pas, puis la copie de la fiche CHOISIE
+dans les vraies listes et TAPÉE dans les vraies cases, « Vérifier » cliqué,
+la note relue et l'encre RENDUE de la liste juste, sur les deux visages.
+**Onze sabotages, neuf rougissant en nommant leur défaut** — les bornes qui
+passent sous la limite (« la limite 3 n'est pas dans [4 ; 4] », le défaut de
+la fiche à l'envers), la borne inversée, la case vide rougie par les deux
+chemins, la justification équivalente refusée, les familles au même rang, la
+limite affine faussée, la fraction refusée, le sens décroissant perdu, le
+contexte sans clause. **Les deux verts disaient vrai**, et chacun a appris
+quelque chose : élargir le MINORANT d'une suite croissante (m = r − 2) ne rend
+pas l'énoncé faux — « minorée par r − 2 » reste vrai, le sabotage était
+impossible et c'est celui du majorant qui l'atteint ; et retirer UNE des deux
+phrases de secret du contexte laisse l'autre — la propriété est tenue une
+phrase plus loin, et retirer les deux rougit. Un contrôle qui passe au vert
+sous le sabotage n'est pas forcément un contrôle mort : il faut d'abord
+vérifier que le sabotage pouvait l'atteindre.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
