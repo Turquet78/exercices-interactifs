@@ -6285,7 +6285,7 @@ Bézier, et exige la boîte rendue à ≥ 3 px de la courbe (la marge moins la
 tolérance de l'échantillonnage), ≤ 20 px (une étiquette posée dans un coin
 ne nommerait plus rien), dans le dessin, hors des deux axes — sur 400 courbes,
 le tirage du 2.8 et celui de la Seconde, dans les deux habillages. Le
-NAVIGATEUR (« 6 vicies undecies », déclaré par `etiquetteCourbe` dans
+NAVIGATEUR (« 6 vicies duodecies », déclaré par `etiquetteCourbe` dans
 `tests/profils.js`) mesure ce que jsdom n'a pas — la POLICE : la boîte par
 `getBBox`, la courbe par `getPointAtLength`, sur chacun des trois exercices
 ouverts pour de vrai puis sur quarante courbes de plus dessinées par la

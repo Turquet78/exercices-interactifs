@@ -4776,7 +4776,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies undecies. L'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE ===== */
+    /* ===== 6 vicies duodecies. L'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE ===== */
     /* Signalé par Turquet (septembre 2026) sur le 2.8 : « le nom de la courbe
        Cf′ doit toujours être à côté de la courbe et pas sur la courbe ». La
        page choisit la place en échantillonnant sa propre courbe ; le banc
@@ -4790,7 +4790,7 @@ async function parcours(page, N){
        bords : jamais SUR la courbe (≥ 3 px), jamais LOIN (≤ 22 px), et une
        boîte non nulle — un CSS perdu rendrait l'étiquette invisible sans
        qu'une erreur ne se lève. */
-    titre('6 vicies undecies. L\'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE (BOÎTE RENDUE)');
+    titre('6 vicies duodecies. L\'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE (BOÎTE RENDUE)');
     if(!P.etiquetteCourbe){
       ignorer('l\'étiquette Cf′ rendue reste à côté de la courbe, jamais dessus',
         'ce niveau n\'a pas le dessin partagé des dérivées (afGraphSVG)');
