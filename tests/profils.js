@@ -1079,6 +1079,12 @@ module.exports = {
        déborde pas, et le bouton ∞ réellement CLIQUÉ, qui écrit dans la case
        et lève l'événement input. */
     alphaSigne: { exercice: 'tvi-alpha-signe' },
+    /* L'étiquette « Cf′ » du dessin partagé des dérivées (afGraphSVG) se pose
+       À CÔTÉ de la courbe, jamais dessus : le banc navigateur mesure la boîte
+       RENDUE (getBBox) contre le chemin RENDU (getPointAtLength) sur chacun
+       des trois exercices, puis sur quarante courbes de plus dessinées par la
+       fonction même de la page — jsdom n'a ni police ni mise en page. */
+    etiquetteCourbe: { exercices: ['associer-derivee', 'variations-depuis-derivee', 'signe-derivee-qcm'] },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même

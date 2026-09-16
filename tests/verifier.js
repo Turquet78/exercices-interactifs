@@ -3596,6 +3596,7 @@ function exercices(suite){
     jetonsSignePremier(w, P);
     variationsDerivee(w, P);
     signeDeriveeQcm(w, P);
+    etiquetteCourbe(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -18926,6 +18927,65 @@ function jetonsSignePremier(w, P){
    comptée), le piège du sommet posé SUR un zéro (il ne piègerait plus rien),
    et la bonne qui tombe toujours au même rang — à forme égale le rang change,
    la leçon d'{intervalles-inegalite}. */
+
+/* L'étiquette « Cf′ » du dessin partagé (2.6, 2.7, 2.8) se pose À CÔTÉ de la
+   courbe, jamais dessus (signalé par Turquet, septembre 2026, sur le 2.8).
+   Le contrôle ne fait AUCUNE confiance au placement de la page : il lit le
+   SVG que la page ÉCRIT — la position du texte et le chemin de la courbe —,
+   échantillonne lui-même les Bézier du chemin, et mesure la distance de la
+   boîte de l'étiquette (celle que Chromium rend, relevée par getBBox) à la
+   courbe. Trois bords : jamais sur la courbe (≥ 3 px, la marge de la page
+   moins la tolérance de l'échantillonnage), jamais LOIN (≤ 20 px — une
+   étiquette posée dans un coin ne nommerait plus rien), et hors des deux
+   axes et de leurs nombres, dans le dessin. Un contrôle qui n'a rien à
+   mesurer le dit : le tirage du 2.8 et celui de la Seconde, 400 courbes,
+   dans les deux habillages (Cf et Cf′). */
+function etiquetteCourbe(w, P){
+  const nom='l\'étiquette Cf′ se pose à côté de la courbe, jamais dessus (2.6, 2.7, 2.8)';
+  const present = evaluer(w, "typeof afGraphSVG==='function' && typeof afEtiquettePos==='function' && typeof afpCourbeDer==='function' && typeof lvGenPts==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas le dessin partagé des dérivées (afGraphSVG)');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const fautes=[]; let n=0;
+    const mesure=function(pts, prime){
+      const svg=afGraphSVG(pts, prime); n++;
+      const t=svg.match(/<text x="([\\d.]+)" y="([\\d.]+)" class="lv-cf"/);
+      if(!t){ fautes.push('pas d\\'étiquette Cf'); return; }
+      const x=+t[1], y=+t[2];
+      const d=svg.match(/class="lv-curve" d="([^"]+)"/); if(!d){ fautes.push('pas de courbe'); return; }
+      const nums=d[1].match(/-?[\\d.]+/g).map(Number);
+      /* la courbe, rééchantillonnée par le contrôle sur les Bézier ÉCRITES */
+      const ech=[[nums[0],nums[1]]];
+      for(let i=2;i<nums.length;i+=6){ const Q=[ech[ech.length-1],[nums[i],nums[i+1]],[nums[i+2],nums[i+3]],[nums[i+4],nums[i+5]]];
+        for(let k=1;k<=30;k++){ const tt=k/30, u=1-tt;
+          ech.push([u*u*u*Q[0][0]+3*u*u*tt*Q[1][0]+3*u*tt*tt*Q[2][0]+tt*tt*tt*Q[3][0], u*u*u*Q[0][1]+3*u*u*tt*Q[1][1]+3*u*tt*tt*Q[2][1]+tt*tt*tt*Q[3][1]]); } }
+      /* la boîte que Chromium rend pour « Cf′ » (getBBox, Fredoka 14 px + indice 10 px), avec un peu de marge */
+      const B={l:x, r:x+18, t:y-13, b:y+6};
+      let dm=Infinity; ech.forEach(function(p){ const dx=Math.max(B.l-p[0],0,p[0]-B.r), dy=Math.max(B.t-p[1],0,p[1]-B.b); dm=Math.min(dm,Math.hypot(dx,dy)); });
+      const tag='['+pts.join(',')+'] '+(prime?'Cf′':'Cf')+' en ('+x.toFixed(0)+', '+y.toFixed(0)+')';
+      if(dm<3) fautes.push(tag+' : SUR la courbe ('+dm.toFixed(1)+' px)');
+      else if(dm>20) fautes.push(tag+' : loin de la courbe ('+dm.toFixed(1)+' px)');
+      /* dans le dessin (viewBox 0 0 362 206) */
+      if(B.l<0 || B.r>362 || B.t<0 || B.b>206) fautes.push(tag+' : hors du dessin');
+      /* hors des axes et de leurs nombres — lus sur les lignes lv-axis écrites */
+      const ax=svg.match(/<line x1="[\\d.]+" y1="([\\d.]+)" x2="[\\d.]+" y2="[\\d.]+" class="lv-axis"\\/><line x1="([\\d.]+)"/);
+      if(!ax){ fautes.push('axes introuvables'); return; }
+      const y0=+ax[1], x0=+ax[2];
+      const croise=function(l,r,t,b){ return B.r>l && B.l<r && B.b>t && B.t<b; };
+      if(croise(0, 362, y0-2, y0+16)) fautes.push(tag+' : sur l\\'axe des x ou ses nombres');
+      if(croise(x0-22, x0+2, 0, 206)) fautes.push(tag+' : sur l\\'axe des y ou ses nombres');
+    };
+    for(let i=0;i<300;i++){
+      const roots=(i%2)?[[-2,-1,0,1,2][i%5]]:[-2,[0,1,2][i%3]];
+      mesure(afpCourbeDer(roots, (i%4<2)?1:-1), i%3!==0);
+    }
+    for(let i=0;i<100;i++) mesure(lvGenPts(i%2?2:3).pts, i%3===0);
+    if(n<400) return 'le contrôle n\\'a mesuré que '+n+' courbes';
+    return fautes.length ? fautes.length+' défaut(s) sur '+n+' courbes — '+fautes.slice(0,3).join(' ; ') : '';
+  })()`, v => v === '');
+}
 function variationsDerivee(w, P){
   const present = evaluer(w, "typeof startAfq==='function' && typeof afqBuildQuestions==='function'");
   if(!present.ok || !present.valeur){
