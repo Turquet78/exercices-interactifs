@@ -970,6 +970,16 @@ module.exports = {
                        touches nommées ici doivent vivre sur B et NULLE PART sur
                        A : la page et le profil sont deux sources. */
                     couches: { rangeesA: 4, rangeesB: 4, unitesMax: 8,
+                               /* Et sur une TABLETTE DEBOUT, les deux couches tiennent
+                                  sur TROIS rangées (« fais pareil pour la terminale »,
+                                  Turquet, septembre 2026). Le clavier A fait trente
+                                  unités : sur trois rangées il en met DIX, et la règle
+                                  CSS du portrait de tablette donne aux touches un
+                                  dixième de la largeur — les deux sources doivent
+                                  s'accorder, sinon la rangée déborde. Le partage des
+                                  couches, lui, ne bouge pas : surA et surB valent pour
+                                  les deux formes. */
+                               portraitTablette: { rangeesA: 3, rangeesB: 3, unitesMax: 10 },
                                surB: ['\\infty', '\\longrightarrow', '\\smallint'],
                                surA: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', ','] },
                     /* Et sur une TABLETTE, les touches sont légèrement réduites :
