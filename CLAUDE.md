@@ -2648,15 +2648,110 @@ copie propre hors dépôt à chaque tour, et le sabotage du navigateur s’est j
 dans une copie de travail séparée, pendant que la page propre passait son
 propre banc.
 
+**Afficher une variable, c'est la première ligne de Python que l'élève ÉCRIT —
+et le juge l'EXÉCUTE au lieu de la comparer.** {python-afficher-variable}
+(Seconde, 5.3, demande de Turquet, septembre 2026 : « expliquer comment on
+affiche une variable en python, puis l'élève doit compléter un programme qui
+commence par note = 12 pour qu'il affiche la valeur de cette variable ; il
+peut exécuter ce programme ; il faut vérifier le résultat et en mode soutien
+expliquer où se trouve l'erreur ») ferme le thème 5 : le 5.1 fait LIRE un
+programme, le 5.2 fait CLASSER des variables, celui-ci fait ÉCRIRE. Le cours —
+comment on affiche une variable — est SUR l'écran, avant le programme, sur une
+variable qui ne sort jamais du tirage (« nombre ») : l'élève transpose, il ne
+recopie pas. La première ligne (« note = 12 ») est écrite par la page ; l'élève
+écrit la suite dans une zone à chasse fixe, à la taille de la ligne qu'elle
+prolonge.
+**LA PREMIÈRE QUESTION EST CELLE DE LA DEMANDE — note = 12, toujours —**, puis
+les trois types du 5.2 chacun une fois, en ordre mélangé : un décimal
+s'affiche avec son point, un texte s'affiche SANS ses guillemets — et c'est
+lui qui tend le piège print("prenom"). Le contrôle exige les deux : la
+demande en tête, et les types mélangés derrière.
+**LE JUGE NE COMPARE JAMAIS À UNE LIGNE ATTENDUE : il exécute la copie** avec
+`pyRun`, l'interpréteur même du bouton « Exécuter » — la console et la
+correction ne peuvent donc pas se contredire — et exige que la sortie soit la
+valeur de la variable, et elle seule. Puis LA SECONDE MÉTHODE, celle qui
+distingue « afficher 12 » d'« afficher la variable » : il change la valeur de
+la première ligne (note = 47) et rejoue la copie — un programme qui affiche la
+VARIABLE la suit, print(12) ne la suit pas, et le message le dit avec ce
+nombre-là. print(note), print( note ), x = note puis print(x), print(str(note))
+passent ; print(12), print("12"), print("note"), print("la note est", note),
+deux print, le nom écrit tout seul sont refusés — chacun pour SA raison. Toute
+écriture juste est acceptée, la leçon d'{ecrire-solutions} : refuser une
+écriture juste serait le pire défaut du projet, par la porte d'un exécuteur.
+**ET IL DIT OÙ.** Chaque refus porte le LIEU de l'erreur — la ligne (la ligne 1
+est celle que la page écrit, la première de l'élève est donc la ligne 2) et le
+mot — et sa RAISON, jamais la réponse : c'est ce que le soutien affiche
+(« Erreur repérée à la ligne 2, dans le mot « Print ». Python ne connaît pas
+« Print » : le mot s'écrit print, tout en minuscules. »), et l'entraînement y
+ajoute la ligne attendue en vert à côté (badge `mf-cor`). Les diagnostics de
+FORME passent avant l'exécution — Print, print sans parenthèses, la parenthèse
+jamais refermée ou de trop, le guillemet seul, les guillemets typographiques,
+la première ligne RÉÉCRITE (une variable ne s'affecte qu'une fois par
+programme : la règle du 5.1, retournée vers l'élève) — parce que
+l'interpréteur les nommerait moins bien ; puis l'interpréteur, rejoué ligne à
+ligne pour trouver celle qui l'arrête, nomme Note pour note (« Python
+distingue les majuscules des minuscules »), une variable inconnue, un mot que
+Python ne connaît pas ; puis la SORTIE se lit — le mot au lieu de la valeur,
+du texte autour, deux lignes, rien. Le contrôle épingle dix-sept copies avec
+leur raison ET leur ligne, et exige que le message ne contienne jamais
+print(note) — sauf pour CITER la ligne de l'élève, qui a le droit de la
+contenir : le premier jet du contrôle prenait cette citation pour la réponse.
+**« EXÉCUTER » EST LIBRE, ET C'EST L'INVERSE DU 5.1** : là-bas le bouton se
+débloque après la réponse parce que la sortie EST la réponse ; ici c'est le
+programme de l'ÉLÈVE qu'il fait tourner, et il ne peut rien révéler qu'il
+n'ait écrit — voir ce que fait sa ligne (« note » pour print("note"), « Erreur :
+la variable « Note » n'existe pas ») est la façon même d'apprendre à
+programmer, en soutien surtout. La console se vide à la frappe suivante : une
+sortie périmée sous un programme modifié mentirait. « Question suivante »
+n'attend pas l'exécution : « il peut exécuter », dit la demande.
+**L'INTERPRÉTEUR A APPRIS DEUX CHOSES, comparées à CPython** : une ligne qui
+n'est qu'une EXPRESSION (« note » tout seul) s'évalue et n'affiche RIEN, comme
+dans un script — c'est ce que le cours fait VOIR en exécutant, là où le
+5.1 refusait la ligne ; et « print note » reçoit l'erreur de CPython
+(« il manque les parenthèses après print »). Une seule divergence, nommée dans
+le code : un « print » NU, qui vaut la fonction en CPython et n'affiche rien,
+reçoit ici la même erreur — mieux vaut une erreur qu'un silence sur une ligne
+inutile. Le banc compare au vrai python3 ce que le juge accepte ET ce qu'il
+refuse : 600 programmes tirés (print(nom), print(valeur), print("nom"), le nom
+seul, une variable inconnue) et vingt-et-une copies épinglées — même sortie,
+ou plantage des deux côtés.
+**La copie VIDE n'est pas vérifiée** : rien n'est peint, rien n'est verrouillé,
+le message redemande la ligne (la règle de {placer-image}). Aucune correction
+au fil de la frappe (`soutienEnDirect.sans`) : une ligne de code à moitié
+tapée est toujours fausse. La zone est une `pts-case` : la note affichée la
+compte (« 1 case juste sur 1 »), et la copie voyage dans la question (`q.rep`)
+— `captureBoxes` ne connaît pas les textarea, c'est la question que la pause
+photographie, et le rendu la remet. Le banc NAVIGATEUR (« 6 vicies
+duodecies », déclaré par `pythonAfficherVariable` dans `tests/profils.js`)
+tient ce que jsdom ne voit pas : la zone rendue à chasse fixe et à la taille
+de la ligne qu'elle prolonge, une VRAIE frappe au clavier, un vrai clic sur
+« Exécuter » et la console qui suit, l'encre RÉSOLUE des verdicts et la
+correction verte dans une boîte visible, la page qui ne déborde pas sur un
+téléphone, puis le soutien qui nomme la ligne et le mot sans écrire la réponse.
 **Puis l'élève a ÉCRIT sa première ligne de code : afficher un texte suivi
-d'une variable.** {python-completer} (Seconde, 5.3, demande de Turquet,
+d'une variable.** {python-completer} (Seconde, 5.4, demande de Turquet,
 septembre 2026 : « un exercice Python où on explique comment afficher du
 texte suivi d'une variable ; on donne un programme qui commence par
 note = 12 et l'élève doit compléter le programme pour qu'il affiche le texte
 "la note est :" suivi de la valeur de la variable ; l'élève peut ensuite
 exécuter le programme puis on doit vérifier le résultat ; en mode soutien le
 programme doit être capable d'expliquer où se trouve l'erreur ») suit
-{python-types} au menu. Le 5.1 fait PRÉDIRE un print, le 5.2 fait
+{python-afficher-variable} au menu — arrivé sur `main` le même jour par une
+autre branche (#255), et qui fait afficher la VALEUR seule : celui-ci fait
+écrire le TEXTE suivi de la variable, l'étape d'après. Son préfixe est `pyx`
+et non `pyc`, que #255 porte déjà : deux exercices sous un même préfixe se
+seraient marché dessus (kind, écran, rappel, questions), sans qu'aucune
+erreur ne le dise — la leçon du 6.10.
+**Et la fusion elle-même a laissé un piège que seul le banc a vu** : deux
+exercices ajoutés au MÊME endroit font des hunks « les deux côtés ont
+ajouté », et les lignes COMMUNES qui suivent un hunk — la `</section>` de
+l'écran, la fin d'une fonction, la ligne `RAPPELS` — n'appartiennent qu'à UN
+des deux blocs une fois qu'on garde les deux. L'écran de #255 n'était plus
+refermé, les écrans suivants vivaient DEDANS, et son verdict comptait « 17
+cases » sur une copie d'une case ; une fonction de #255 restait ouverte, et
+`RAPPELS` était déclaré deux fois. Aucun marqueur de conflit ne le disait :
+c'est `npm test` qui a nommé les trois, et la zone a été reconstruite depuis
+les blocs COMPLETS de chaque côté plutôt que hunk par hunk. Le 5.1 fait PRÉDIRE un print, le 5.2 fait
 RECONNAÎTRE un type ; ici il faut PRODUIRE la ligne — dans une case de code
 à chasse fixe, sous la ligne 1 écrite par la page. Le cours est SUR l'écran,
 avant le programme (le motif des trois cadres du 5.2), et son exemple n'est
@@ -7490,18 +7585,31 @@ quand la suite décroît (1 ≤ Uₙ₊₂ ≤ Uₙ₊₁ ≤ U₁ ≤ U₀), à
 lignes de l'hypothèse et des f(…) commencent une colonne de terme plus loin
 dans ce second cas. Le contrôle exige que le terme qui élargit n'ait RIEN
 au-dessus de lui, au bon bout.
-**La justification a changé de place, et c'est la MESURE qui l'a décidé** :
+**La justification a d'abord changé de place, puis Turquet l'a REMISE** :
 « car f (x) est croissante sur [0 ; 2] » vivait au bout de la ligne des f(…).
 Les colonnes se calant désormais sur le plus large de chaque colonne, cette
 ligne débordait de la carte dès 1400 px — 66 px de trop quand la suite
-décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. La
-justification OUVRE donc le bloc, sur sa propre ligne (« f est [croissante]
-sur [ 0 ; 2 ], et on l'applique à l'encadrement : »), et les trois chaînes se
-suivent sans rien entre elles — c'est ce que la demande veut. Une dixième
-colonne SOUPLE (`minmax(0,1fr)`) prend le reste de la ligne, pour que « c'est
-vrai » et cette justification s'étalent sans élargir les colonnes qu'ils
-enjambent — un élément qui enjambe une piste souple ne compte pas dans la
-largeur des pistes.
+décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. Le
+premier jet l'avait donc mise en tête du bloc, sur sa propre ligne (« f est
+croissante sur [ 0 ; 2 ], et on l'applique à l'encadrement : »). Turquet a
+tranché le lendemain : « je préfère que l'on écrive sur la même ligne que
+f(…) ≤ f(…) ≤ f(…) ≤ f(…) « car f(x) est … sur [ ; ] » et enlever la 1re
+ligne de la démonstration qui dit la même chose ». Elle est donc AU BOUT de
+la ligne des f(…), et **c'est sa cellule qui cède, pas la démonstration** :
+elle va jusqu'au bout de la grille — une dixième colonne SOUPLE
+(`minmax(0,1fr)`) prend le reste de la ligne, et un élément qui enjambe une
+piste souple ne compte pas dans la largeur des pistes — et elle SE REPLIE
+(`flex-wrap`) quand la place manque, en DEUX morceaux insécables
+(« car f(x) est [croissante] » / « sur [ 0 ; 2 ] », `.svr-morceau`) : le
+premier repli libre coupait entre une borne et son crochet (« sur [ 0 ; » /
+« 2 ] »), vu sur la capture. Mesuré à 1400 px : les deux morceaux font
+534 px pour 575 de place quand la suite décroît — une ligne sur l'écran
+neuf, deux dès que les badges de correction élargissent les colonnes du
+dessous (la cellule perd 45 px) ; deux lignes quand la suite croît, deux à
+1280 px dans les deux sens. La démonstration ne défile plus ni à 1400 ni à
+1280, et la récurrence non plus — elle défilait de 22 px à 1280 avant que
+les « ≤ » ne perdent 2 px de marge de chaque côté. La même colonne souple
+porte le « c'est vrai » de l'initialisation.
 **Chaque cellule est ENVELOPPÉE (`.svr-cel`), et il le faut** : `corrCase`
 insère son badge de correction APRÈS la case, et un badge posé nu dans une
 grille deviendrait une cellule de plus, qui décalerait tout ce qui suit. Le
@@ -7533,13 +7641,40 @@ colonne pour un terme de la ligne « donc » et son homologue de la première
 ligne, pour chaque terme de l'hérédité et le sien, pour une valeur et son
 terme (rangée 3 sous rangée 2), pour chaque
 f(…) et son résultat — les deux visages, le croissant pris au vivier —, la
-justification en tête, le terme qui élargit au bon bout, le badge dans sa
-cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
+justification sur la ligne des f(…) en deux morceaux, le terme qui élargit
+au bon bout, le badge dans sa cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
 perdu laisse toutes les classes en place et met tout à la file — il exige que
 les cellules d'une même colonne aient le même CENTRE d'une rangée à l'autre, que
 chaque rangée soit d'un seul tenant, que les valeurs soient centrées SOUS
-leur terme et une ligne plus bas, que rien ne défile à 1400 px et que la
-démonstration défile à 900 — une grille ne sait pas se replier.
+leur terme et une ligne plus bas, que la justification partage sa bande avec
+les f(…), que rien ne défile à 1400 px et que la démonstration défile à
+900 — une grille ne sait pas se replier. Il rend aussi le visage CROISSANT
+à 1400 px : c'est lui qui manque de place au bout de la ligne des f(…), et
+un repli débranché s'y voit (« la démonstration défile de 97 px »), pas sur
+le décroissant.
+**Vingt-quatre sabotages en tout, sur quatre jours de demandes** — treize au
+banc jsdom (la ligne « donc » décalée, les valeurs remontées, les valeurs
+croisées, le décalage oublié, le décalage au mauvais visage, la justification
+remise en tête, les résultats posés nus, l'hérédité décalée, sa ligne « donc »
+sortie de la grille, ses « ≤ » glissés, la justification en un seul morceau…)
+et onze au navigateur —, **vingt-deux rougissant en nommant leur défaut**.
+Les deux verts ont chacun appris quelque chose. Le premier a nommé un TROU
+DU CONTRÔLE : « les cellules ne se centrent plus dans leur colonne »
+restait vert parce que le banc mesurait la BOÎTE de la cellule — qui
+s'étire sur toute sa colonne, donc a le centre de la colonne quoi qu'elle
+fasse de son contenu ; il mesure le CONTENU (un `Range`, qui rend la boîte du
+glyphe « ≤ » comme celle d'une liste), et le sabotage rejoué rougit (« la
+colonne 4 de la récurrence n'est pas alignée : 18 px d'écart »). Le second
+disait vrai : « le décalage du visage croissant est oublié » ne pouvait pas
+atteindre un banc navigateur qui ne rendait alors que le visage décroissant,
+où le décalage vaut zéro de toute façon — c'est jsdom qui tient ce bord et le
+nomme (« croissante : le résultat svr-g2 n'est pas SOUS svr-f1 »), et le
+navigateur rend le visage croissant depuis, pour la place et l'alignement.
+Un troisième sabotage a manqué sa cible sans rester vert : la ligne « donc »
+de l'hérédité sortie de la grille fait rougir jsdom (« une case de
+l'hérédité n'est pas dans une cellule ») comme le navigateur (« la rangée 6
+de la récurrence porte 0 « ≤ » au lieu de 3 : l'hérédité a quitté la
+grille »).
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
@@ -7876,11 +8011,53 @@ même `kbPortraitTablette`, la même déclaration
 232, mesurés sur la feuille du 4.5. Les cinq sabotages de jsdom ont été
 rejoués sur elle, et rougissent de même. Ce qui distingue les deux niveaux
 reste ce qui les distinguait : la Première s'installe en plein écran, la
-Seconde garde la barre de navigation d'Android. La TERMINALE, elle, n'a
-jamais eu de forme compacte — son profil ne déclare ni `paysage` ni
-`portraitTablette`, ses contrôles de forme s'affichent « non applicable »,
-et son clavier à deux couches nommées répond à une autre demande : elle
-n'est pas touchée, et le dire vaut mieux que le taire.
+Seconde garde la barre de navigation d'Android. La TERMINALE, ce jour-là,
+n'était pas dans la demande — elle l'a été le lendemain, au paragraphe
+suivant ; elle reste le seul niveau sans forme compacte en PAYSAGE.
+
+**Et la TERMINALE, le lendemain : « fais pareil pour la terminale ».** Elle ne
+pouvait pas recevoir le même correctif à la lettre, et c'est le chiffre qui l'a
+dit : son **clavier A fait TRENTE unités** — la Première et la Seconde n'en ont
+que vingt-trois. Sur trois rangées il en faut **dix par rangée**, or la règle de
+la tablette donnait aux touches un HUITIÈME de la largeur, et le fichier disait
+déjà pourquoi : « la rangée la plus chargée en compte huit, et sans cela elle se
+rétrécirait SEULE ». Deux sorties se présentaient — des touches plus étroites,
+ou déménager six unités du clavier A vers le clavier B. **Turquet a choisi les
+touches plus étroites** : aucune touche ne bouge, l'élève retrouve le clavier
+qu'il connaît. Une règle média de plus, `(pointer:coarse) and (min-width:600px)
+and (orientation:portrait)`, pose `--keycap-width` sur DIX unités : la touche
+passe de 92 à **74 px de large** sur une tablette de 820, la hauteur (48 px) et
+la police (24 px) ne bougent pas. Le PAYSAGE n'est pas concerné — il garde ses
+quatre rangées de huit unités, et sa largeur y est de toute façon plafonnée à
+96 px. `buildKbTerm(vars, portrait)` décrit désormais ses touches **une seule
+fois**, dans un objet `K`, et les deux formes s'y composent ; les deux couches
+gardent leurs identifiants d'une forme à l'autre, si bien que « clavier A » et
+« clavier B » basculent sans rien savoir de la forme. En portrait, le clavier A
+tient sur `7 8 9 / e √ ( ) exposant ⌫`, puis `4 5 6 × ln − + = ← →`, puis
+`1 2 3 0 , espace ⏎ clavierB` ; le clavier B sur les variables + ∞ ⟶ ⌫, puis
+∫ π ∈ indice sin cos tan espace, puis arcsin arccos arctan clavierA ← → ⏎.
+Le contrôle des deux couches mesure maintenant les DEUX formes — comptes de
+rangées, partage `surA`/`surB`, place des variables, largeur maximale, et le
+MÊME jeu de touches d'une forme à l'autre —, plus les quatre cases de la table
+de routage (tablette debout, tablette couchée, téléphone, fenêtre flottante).
+Le faux écran des contrôles de forme est devenu commun aux deux familles de
+clavier (`fauxEcran`) : il honore l'orientation, la largeur minimale et le
+tactile, et ne répond rien à une requête inconnue.
+**Un sabotage a rougi l'idée que je me faisais du rendu, et c'est le meilleur
+moment de ce correctif.** Retirer la règle CSS des dix unités ne faisait pas
+déborder le clavier : MathLive **resserre tout seul** la rangée trop large — la
+touche « 5 » passait de 74 à 77 px — et laisse les autres rangées à 96 px. Le
+contrôle du navigateur, qui ne mesurait qu'UNE touche, restait vert sur une
+page fautive : deux tailles de touches sur le même écran, exactement ce que la
+règle du fichier interdit. Il mesure donc maintenant DEUX touches d'une unité
+posées sur des rangées DIFFÉRENTES du clavier B (∞ et π) et les exige égales —
+sans la règle, ∞ fait 92 px et π 87. Huit sabotages en tout, chacun rougissant
+en nommant son défaut : six en jsdom (une quatrième rangée en portrait, une
+rangée de onze unités, le `ln` retiré, le `=` sorti du clavier A, la forme
+courte qui fuit partout, la forme portrait jamais appliquée) et deux que seul
+le navigateur voit (`kbOnRotate` qui ne réapplique plus la forme — « 3 rangée(s)
+rendue(s) en paysage au lieu de 4 » — et la règle CSS retirée). Les trois
+niveaux ont maintenant leur forme de portrait.
 
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du

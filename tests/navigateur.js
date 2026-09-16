@@ -6142,8 +6142,9 @@ async function parcours(page, N){
             if(Math.abs(t.x - v.x) > 3) dits.push('la valeur n\'est pas centrée sous son terme (' + Math.round(t.x - v.x) + ' px)');
             if(v.top < t.bot - 2) dits.push('la valeur n\'est pas une ligne EN DESSOUS de son terme (haut ' + Math.round(v.top) + ', bas du terme ' + Math.round(t.bot) + ')');
           }); }
-        /* la démonstration : chaque f(…) a son résultat juste en dessous — même colonne, rangée suivante — et chaque « ≤ » le sien */
-        { const f = m.demo.cels.filter(c => c.r === 3 && !c.le), res = m.demo.cels.filter(c => c.r === 4 && !c.le);
+        /* la démonstration : chaque f(…) a son résultat juste en dessous — même colonne, rangée suivante — et chaque « ≤ » le sien
+           (la justification « car f(x) est … » vit au bout de la rangée des f(…) : elle n'est pas un terme) */
+        { const f = m.demo.cels.filter(c => c.r === 2 && !c.le && !c.libre), res = m.demo.cels.filter(c => c.r === 3 && !c.le);
           if(f.length !== 4) dits.push(f.length + ' f(…) au lieu de 4 dans la démonstration');
           if(res.length !== 5) dits.push(res.length + ' terme(s) au lieu de 5 sur la dernière ligne de la démonstration');
           f.forEach(k => {
@@ -6151,14 +6152,32 @@ async function parcours(page, N){
             if(!r) dits.push('le f(…) de la colonne ' + k.c + ' n\'a aucun résultat sous lui');
             else if(Math.abs(r.x - k.x) > 3 || r.top < k.bot - 2) dits.push('le résultat n\'est pas juste sous son f(…) (' + Math.round(r.x - k.x) + ' px de côté)');
           });
-          const le3 = m.demo.cels.filter(c => c.le && c.r === 3), le4 = m.demo.cels.filter(c => c.le && c.r === 4);
-          le3.forEach(k => { if(!le4.some(c => c.c === k.c && Math.abs(c.x - k.x) <= 3)) dits.push('un « ≤ » de la ligne des f(…) n\'a pas de « ≤ » sous lui (colonne ' + k.c + ')'); });
+          const le2 = m.demo.cels.filter(c => c.le && c.r === 2), le3 = m.demo.cels.filter(c => c.le && c.r === 3);
+          le2.forEach(k => { if(!le3.some(c => c.c === k.c && Math.abs(c.x - k.x) <= 3)) dits.push('un « ≤ » de la ligne des f(…) n\'a pas de « ≤ » sous lui (colonne ' + k.c + ')'); });
+          /* la justification est SUR la ligne des f(…) : sa cellule et les f(…) partagent une bande verticale */
+          const just = m.demo.cels.find(c => c.libre && c.r === 2);
+          if(!just) dits.push('« car f(x) est … » n\'est pas sur la ligne des f(…)');
+          else if(f.length && !(Math.max(just.top, ...f.map(c => c.top)) < Math.min(just.bot, ...f.map(c => c.bot)) - 4)) dits.push('« car f(x) est … » ne partage pas sa ligne avec les f(…)');
           if(!large && m.demo.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs'); }
       };
       jugerGrilles(await mesurerGrilles(), true);
       await s.page.setViewportSize({ width: 900, height: 950 });
       await s.page.waitForTimeout(300);
       jugerGrilles(await mesurerGrilles(), false);
+      /* LE VISAGE CROISSANT, rendu pour de vrai à 1400 px : c'est lui que le décalage
+         d'une colonne de terme concerne, et lui qui manque de place au bout de la
+         ligne des f(…) — 214 px de trop avant que la justification ne sache se
+         replier. Le banc jsdom tient la STRUCTURE du décalage ; ici on mesure que
+         la grille rendue tient dans sa boîte et reste alignée. */
+      await s.page.setViewportSize({ width: 1400, height: 950 });
+      await s.page.evaluate(() => {
+        const vc = svrVivier('cro')[0];
+        test.questions[test.idx] = { l: vc.l, L: vc.L, U0: vc.U0, sens: 'cro', pts: [] }; test.locked = false;
+        renderSVR();
+      });
+      await s.page.waitForTimeout(500);
+      { const avant = dits.length; jugerGrilles(await mesurerGrilles(), true);
+        for(let i = avant; i < dits.length; i++) dits[i] = 'suite croissante : ' + dits[i]; }
       verifier('le tracé en escalier se pose au clic, sur le bon rail', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la suite monotone ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
@@ -6346,7 +6365,118 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies duodecies. {python-completer} : la ligne 2 se tape, s'exécute, puis se vérifie =====
+    /* ===== 6 vicies duodecies. {python-afficher-variable} : le programme se complète, s'exécute, se vérifie =====
+       Le banc jsdom tient le juge (copie par copie, contre CPython), le
+       tirage, les portes et le soutien. Ce qu'il ne voit pas : la zone où
+       l'élève écrit, RENDUE à chasse fixe et à la taille de la ligne de code
+       qu'elle prolonge — une case plus petite ferait passer le programme de
+       l'élève pour une note en bas de page —, le cours rendu au rectangle,
+       une VRAIE frappe au clavier dans la zone, un vrai clic sur « Exécuter »
+       et la console qui suit, l'encre RÉSOLUE des verdicts (rouge, puis bleu)
+       et la correction verte à côté, et la page qui ne déborde ni à 1400 px
+       ni à la largeur d'un téléphone. Puis le bord du soutien : la zone
+       rougit, le retour nomme la ligne et le mot, aucune correction verte, et
+       la copie corrigée passe au bleu. */
+    titre('6 vicies duodecies. AFFICHE LA VARIABLE ! LE PROGRAMME SE COMPLÈTE, S\'EXÉCUTE, SE VÉRIFIE');
+    if(!P.pythonAfficherVariable){
+      ignorer('le programme se complète, s\'exécute, se vérifie', 'ce niveau n\'a pas l\'exercice « afficher une variable »');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonAfficherVariable.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const cours = document.querySelector('#pycHost .pyc-cours'), l1 = document.getElementById('pycL1'), ta = document.getElementById('pyc-in');
+        const run = document.getElementById('pycRun'), cons = document.getElementById('pycConsole');
+        const r = e => e ? e.getBoundingClientRect() : { width: 0, height: 0 };
+        const cs = e => getComputedStyle(e);
+        return { cours: r(cours), coursTexte: cours ? cours.textContent : '',
+                 l1: l1 && l1.textContent, l1Taille: l1 ? parseFloat(cs(l1).fontSize) : 0,
+                 taTaille: ta ? parseFloat(cs(ta).fontSize) : 0, taPolice: ta ? cs(ta).fontFamily : '', ta: r(ta),
+                 runDisabled: !run || run.disabled, run: r(run), cons: r(cons),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 src: test.questions[0].nom + ' = ' + test.questions[0].lit };
+      });
+      verifier('le cours « comment afficher une variable » est rendu, lisible, et montre print', avant.cours.width > 400 && avant.cours.height > 60 && /print/.test(avant.coursTexte) && /guillemets/.test(avant.coursTexte),
+        Math.round(avant.cours.width) + 'x' + Math.round(avant.cours.height));
+      verifier('la première ligne est écrite par la page, et la zone où l\'élève écrit est rendue à chasse fixe, à la taille de cette ligne',
+        avant.l1 === avant.src && avant.ta.width > 300 && avant.ta.height > 30 && /mono|menlo|consolas|courier/i.test(avant.taPolice) && Math.abs(avant.taTaille - avant.l1Taille) < 0.5,
+        JSON.stringify(avant.l1) + ' ; zone ' + avant.taTaille + 'px contre ' + avant.l1Taille + 'px, ' + avant.taPolice);
+      verifier('« Exécuter » est libre dès le départ, la console est là, et la page ne déborde pas à 1400 px',
+        !avant.runDisabled && avant.run.width > 40 && avant.cons.height > 20 && !avant.page, '');
+      /* une VRAIE frappe : la copie fausse, exécutée, puis vérifiée */
+      await s.page.click('#pyc-in');
+      await s.page.keyboard.type('print("note")');
+      await s.page.click('#pycRun');
+      await s.page.waitForTimeout(250);
+      const exec1 = await s.page.evaluate(() => ({ console: document.getElementById('pycConsole').textContent, rep: test.questions[0].rep,
+        police: getComputedStyle(document.getElementById('pycConsole')).fontFamily }));
+      verifier('la frappe se range dans la question, et un vrai clic sur « Exécuter » montre ce que fait la copie (note), à chasse fixe',
+        exec1.rep === 'print("note")' && exec1.console === 'note' && /mono|menlo|consolas|courier/i.test(exec1.police), JSON.stringify(exec1));
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const faux = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        const parVar = v => { t.style.color = 'var(' + v + ')'; return getComputedStyle(t).color; };
+        const ref = { bleu: parVar('--blue'), rouge: parVar('--red'), vert: parVar('--green') };
+        t.remove();
+        const ta = document.getElementById('pyc-in'), badge = ta.nextElementSibling;
+        const br = badge ? badge.getBoundingClientRect() : { width: 0, height: 0 };
+        return { ref: ref, encre: getComputedStyle(ta).color, badge: badge && badge.classList.contains('mf-cor') ? badge.textContent : null,
+                 badgeEncre: badge ? getComputedStyle(badge).color : '', badgeVisible: br.width > 30 && br.height > 12,
+                 fb: document.getElementById('pycFeedback').textContent, score: test.score, suivant: !!document.getElementById('pycNext') };
+      });
+      verifier('la copie fausse vérifiée est peinte en ROUGE (encre résolue), et le retour nomme la ligne 2 et les guillemets',
+        faux.encre === faux.ref.rouge && /ligne 2/.test(faux.fb) && /guillemets/.test(faux.fb), faux.encre + ' / ' + faux.fb.slice(0, 90));
+      verifier('la ligne attendue est écrite en VERT à côté, dans une boîte visible, et « Question suivante » est proposé',
+        faux.badge === 'print(note)' && faux.badgeEncre === faux.ref.vert && faux.badgeVisible && faux.suivant && faux.score === 0,
+        JSON.stringify(faux.badge) + ' ' + faux.badgeEncre);
+      /* à la largeur d'un téléphone, rien ne déborde */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const ta = document.getElementById('pyc-in').getBoundingClientRect(), c = document.querySelector('#pycHost .pyc-cours').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth, ta: ta.right <= 391 && ta.width > 200, cours: c.right <= 391 };
+      });
+      verifier('sur un téléphone, le cours et la zone tiennent dans l\'écran et la page ne déborde pas', !tel.page && tel.ta && tel.cours, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le bord du soutien : OÙ est l'erreur, sans la réponse, puis la copie corrigée */
+      await s.page.evaluate(id => openTest(id), P.pythonAfficherVariable.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      await s.page.click('#pyc-in');
+      await s.page.keyboard.type('Print(note)');
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        t.style.color = 'var(--red)'; const rouge = getComputedStyle(t).color; t.remove();
+        const ta = document.getElementById('pyc-in'), fb = document.getElementById('pycFeedback').textContent;
+        return { rouge: rouge, encre: getComputedStyle(ta).color, badge: !!(ta.nextElementSibling && ta.nextElementSibling.classList.contains('mf-cor')),
+                 fb: fb, disabled: ta.disabled, locked: test.locked, revoir: /Rev/.test((document.getElementById('pycValidate') || {}).textContent || '') };
+      });
+      verifier('en soutien, la copie fausse rougit la zone sans correction verte ni verrou, et le retour dit « Erreur repérée à la ligne 2 » avec le mot fautif — jamais la réponse',
+        sout.encre === sout.rouge && !sout.badge && !sout.disabled && !sout.locked && sout.revoir && /^Erreur repérée à la ligne 2/.test(sout.fb) && /Print/.test(sout.fb) && sout.fb.indexOf('print(note)') < 0,
+        sout.encre + ' / ' + sout.fb.slice(0, 90));
+      await s.page.fill('#pyc-in', 'print(note)');
+      await s.page.click('#pycRun');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const fin = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        t.style.color = 'var(--blue)'; const bleu = getComputedStyle(t).color; t.remove();
+        return { bleu: bleu, encre: getComputedStyle(document.getElementById('pyc-in')).color, console: document.getElementById('pycConsole').textContent,
+                 score: test.score, note: (document.querySelector('#pycFeedback .note-exo') || {}).textContent || document.getElementById('pycFeedback').textContent };
+      });
+      verifier('la copie corrigée s\'exécute (12) et passe au BLEU, pour 1 case juste', fin.encre === fin.bleu && fin.console === '12' && fin.score === 1, fin.encre + ' / ' + fin.console + ' / ' + fin.note.slice(0, 60));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 vicies terdecies. {python-completer} : la ligne 2 se tape, s'exécute, puis se vérifie =====
        Le banc jsdom tient le juge (les lignes justes et fausses, chacune
        avec son diagnostic), les portes et le soutien. Ce qu'il ne voit pas :
        le cours RENDU au rectangle, la ligne 1 et la case de la ligne 2 à
@@ -6358,7 +6488,7 @@ async function parcours(page, N){
        page qui ne déborde pas à la largeur d'un téléphone. Puis il rejoue le
        soutien : la ligne fausse rougit, le message dit où est l'erreur, la
        correction tapée referme puis rouvre le bouton. */
-    titre('6 vicies duodecies. AFFICHER UN TEXTE SUIVI D\'UNE VARIABLE : LA LIGNE SE TAPE, S\'EXÉCUTE, SE VÉRIFIE');
+    titre('6 vicies terdecies. AFFICHER UN TEXTE SUIVI D\'UNE VARIABLE : LA LIGNE SE TAPE, S\'EXÉCUTE, SE VÉRIFIE');
     if(!P.pythonCompleter){
       ignorer('la ligne 2 se tape, s\'exécute, puis se vérifie', 'ce niveau n\'a pas l\'exercice du print à compléter');
     } else {
@@ -7957,6 +8087,12 @@ async function parcours(page, N){
         'ce fichier ne déclare pas de clavier de tablette');
     } else {
       const K = P.clavierEcran, KT = K.tablette, KC = K.couches || {};
+      /* La tablette du banc est DEBOUT (820 × 1180) : quand le fichier déclare
+         une forme de portrait, c'est elle qui doit s'y rendre — les rangées
+         attendues viennent de là. La forme normale est reprise plus bas, la
+         fenêtre tournée en paysage. */
+      const KP = KC.portraitTablette || null;
+      const attA = KP ? KP.rangeesA : (KC.rangeesA || 4), attB = KP ? KP.rangeesB : (KC.rangeesB || 4);
       s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
       if(await connecter(s.page) !== 'scr-space'){
         ignorer('sur une tablette, le clavier A tient sur moins de rangées et ses touches sont réduites', 'connexion impossible');
@@ -7989,19 +8125,26 @@ async function parcours(page, N){
           const tops = []; caps.forEach(c => { const t = Math.round(c.getBoundingClientRect().top);
             if(!tops.some(v => Math.abs(v - t) < 6)) tops.push(t); });
           const cinq = de('5');
+          /* DEUX touches d'UNE unité posées sur des rangées DIFFÉRENTES : elles
+             doivent faire la même largeur. C'est ainsi que se voit une rangée
+             qui s'est rétrécie SEULE — MathLive ne déborde pas, il resserre la
+             rangée trop large et laisse les autres à leur taille, et l'élève a
+             deux tailles de touches sur le même écran. */
+          const large = el => el ? Math.round(el.getBoundingClientRect().width) : null;
           return { visible: !!(vk && vk.visible), rangees: tops.length,
+                   unite: [large(de('∞')), large(de('π'))],
                    touche: info(cinq), police: police(cinq),
                    debord: Math.round(Math.max(0, ...caps.map(c => c.getBoundingClientRect().right)) - window.innerWidth),
                    inf: !!de('∞'), integ: !!de('∫'), n: !!de('n'), cinqLa: !!cinq,
                    versA: info(de(versA)), versB: info(de(versB)) };
         };
         const cA = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
-        verifier('sur une tablette, le clavier A tient sur ' + (KC.rangeesA || 4) + ' rangées et ses touches sont réduites',
-          !cA.absent && cA.visible && cA.rangees === (KC.rangeesA || 4)
+        verifier('sur une tablette, le clavier A tient sur ' + attA + ' rangées et ses touches sont réduites',
+          !cA.absent && cA.visible && cA.rangees === attA
             && !!cA.touche && cA.touche.h <= KT.hauteurMax && cA.police <= KT.policeMax && cA.debord <= 1,
           cA.absent ? 'aucun clavier ancré dans la page'
             : !cA.visible ? 'le clavier ne se déploie pas'
-            : cA.rangees !== (KC.rangeesA || 4) ? cA.rangees + ' rangée(s) rendue(s) au lieu de ' + (KC.rangeesA || 4)
+            : cA.rangees !== attA ? cA.rangees + ' rangée(s) rendue(s) au lieu de ' + attA
             : !cA.touche ? 'la touche « 5 » est introuvable sur le clavier A'
             : 'touche « 5 » : ' + cA.touche.w + '×' + cA.touche.h + ' px (plafond ' + KT.hauteurMax + '), police '
               + cA.police + ' px (plafond ' + KT.policeMax + ')'
@@ -8014,15 +8157,49 @@ async function parcours(page, N){
         let cB = null;
         if(cA.versB){ await s.page.mouse.click(cA.versB.x, cA.versB.y); await s.page.waitForTimeout(400);
           cB = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB }); }
-        verifier('elles sont sur le clavier B, qui tient sur ' + (KC.rangeesB || 4) + ' rangées',
-          !!cB && cB.inf && cB.integ && cB.n && !cB.cinqLa && cB.rangees === (KC.rangeesB || 4) && cB.debord <= 1,
+        verifier('elles sont sur le clavier B, qui tient sur ' + attB + ' rangées',
+          !!cB && cB.inf && cB.integ && cB.n && !cB.cinqLa && cB.rangees === attB && cB.debord <= 1,
           !cA.versB ? 'aucune touche « ' + K.versB +' » sur le clavier A'
             : !cB ? 'la seconde couche ne se rend pas'
             : cB.cinqLa ? 'les chiffres sont toujours là : la couche n\'a pas changé'
             : (!cB.inf || !cB.integ || !cB.n) ? 'manque sur le clavier B : '
                 + [cB.inf ? '' : '∞', cB.integ ? '' : '∫', cB.n ? '' : 'n'].filter(Boolean).join(' ')
-            : cB.rangees + ' rangée(s) rendue(s) au lieu de ' + (KC.rangeesB || 4)
+            : cB.rangees + ' rangée(s) rendue(s) au lieu de ' + (attB)
               + (cB.debord > 1 ? ', et il DÉBORDE de ' + cB.debord + ' px' : ''));
+        /* LE BORD OPPOSÉ : la tablette TOURNÉE EN PAYSAGE retrouve la forme
+           normale. Sans lui, une forme courte qui fuirait sur le paysage —
+           où la rangée de dix unités n'a plus la largeur de touche qu'il lui
+           faut — passerait inaperçue. Le clavier se reconstruit à la rotation
+           (kbOnRotate) et revient sur le clavier A ; s'il restait sur B, on
+           l'y ramène par sa touche. */
+        if(KP){
+          await s.page.setViewportSize({ width: 1180, height: 820 });
+          await s.page.waitForTimeout(1200);
+          let cL = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
+          if(!cL.cinqLa && cL.versA){
+            await s.page.mouse.click(cL.versA.x, cL.versA.y); await s.page.waitForTimeout(400);
+            cL = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
+          }
+          verifier('tournée en paysage, la tablette retrouve les ' + (KC.rangeesA || 4) + ' rangées de la forme normale',
+            cL.visible && cL.cinqLa && cL.rangees === (KC.rangeesA || 4) && cL.debord <= 1,
+            !cL.visible ? 'le clavier s\'est refermé à la rotation'
+              : !cL.cinqLa ? 'le clavier A ne revient pas à la rotation'
+              : cL.rangees + ' rangée(s) rendue(s) en paysage au lieu de ' + (KC.rangeesA || 4)
+                + (cL.debord > 1 ? ', et il DÉBORDE de ' + cL.debord + ' px' : ''));
+          console.log('   · la plaque du clavier : ' + attA + ' rangées en portrait de tablette, '
+            + cL.rangees + ' en paysage ; touche « 5 » ' + (cA.touche ? cA.touche.w + '×' + cA.touche.h : '?')
+            + ' px debout, ' + (cL.touche ? cL.touche.w + '×' + cL.touche.h : '?') + ' px couché');
+        }
+        /* et AUCUNE rangée ne s'est rétrécie seule : les deux touches d'une
+           unité prises sur des rangées différentes du clavier B font la même
+           largeur. Sans la règle de largeur du portrait de tablette, la rangée
+           de dix unités du clavier A se resserre toute seule et celles du
+           clavier B restent larges — deux tailles de touches sur un écran. */
+        if(KP) verifier('aucune rangée ne se rétrécit seule : les touches d\'une unité font toutes la même largeur',
+          !!cB && cB.unite[0] && cB.unite[1] && Math.abs(cB.unite[0] - cB.unite[1]) <= 1,
+          !cB ? 'la seconde couche ne se rend pas'
+            : (!cB.unite[0] || !cB.unite[1]) ? 'les touches témoins ∞ et π sont introuvables sur le clavier B'
+            : '∞ fait ' + cB.unite[0] + ' px et π ' + cB.unite[1] + ' px : une rangée s\'est rétrécie seule');
         verifier('le clavier de la tablette ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
