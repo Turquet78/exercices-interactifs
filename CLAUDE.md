@@ -2729,6 +2729,72 @@ de la ligne qu'elle prolonge, une VRAIE frappe au clavier, un vrai clic sur
 correction verte dans une boîte visible, la page qui ne déborde pas sur un
 téléphone, puis le soutien qui nomme la ligne et le mot sans écrire la réponse.
 
+**Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
+{python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
+« un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
+en Python et faire un exercice comme le 4 ; il faudra compléter une
+justification si c'est faux ») suit {python-afficher-variable} au menu, repris de la
+fiche « Noms de variables en Python » : le RAPPEL porte ses quatre règles
+dans son ordre et avec ses exemples (lettres, chiffres et `_` seulement ; pas
+de chiffre en tête ; majuscules et minuscules distinguées ; pas d'accent), et
+l'exercice pose des noms — `prix achat`, `prix_achat`, `2ndeG`, `SecondeG`,
+`Seconde:G`, `dix-huit`… — dont l'élève dit pour chacun s'il est correct ou
+incorrect, et, s'il est incorrect, POURQUOI, en choisissant la règle dans une
+liste. Trois questions de six noms, de deux à quatre incorrects par question.
+**LA JUSTIFICATION EST UNE PORTE, tenue par l'ÉTAT de la case** (le motif de
+{placer-image}) : la liste des raisons est visible mais grisée et fermée tant
+que le nom n'est pas déclaré incorrect, s'ouvre dès qu'il l'est, se referme
+et se vide si l'élève revient sur « correct ». Le navigateur le mesure sous un
+VRAI choix : Playwright refuse de choisir dans une liste fermée, et c'est le
+bord qu'on tient. Après une reprise de pause les valeurs reviennent APRÈS le
+rendu : `pvnPortes()` rouvre un instant plus tard les justifications des noms
+déjà déclarés incorrects — sans quoi l'élève reprenait devant une liste morte.
+**LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION** : celle-ci ne
+porte que les noms et l'ordre des raisons ; `pvnDefauts(nom)` — la fonction
+qui corrige — relit le nom lui-même, et le contrôle refait la correction par
+une SECONDE méthode (l'expression régulière d'un identifiant, et des tests de
+caractères qui n'ont rien en commun avec ceux de la page) sur toute la banque.
+**UN NOM INCORRECT N'A QU'UN SEUL DÉFAUT, et c'est la banque qui le
+garantit** : « 2ème » — un chiffre en tête ET un accent — aurait deux bonnes
+justifications dont une seule comptée, une lecture juste comptée fausse. Les
+accents ont LEUR règle, la 4 de la fiche, et non la règle 1 : « é » est une
+lettre, la raison « caractère interdit » nomme les symboles (espace, -, :, =).
+**LES RAISONS NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR** (la leçon
+d'{intervalles-inegalite}) : trois vraies règles, et trois PIÈGES qui ne
+justifient jamais rien — « il contient une majuscule », « il contient un
+chiffre », « il contient le caractère _ » —, les erreurs réelles de l'élève
+qui confond « contient » et « commence par », et le message y RÉPOND en
+nommant la règle. L'ordre des raisons est tiré par question et le même sur ses
+rangées : à forme égale, le rang de la bonne varie. Chaque séance montre les
+trois défauts ET les trois pièges parmi les noms corrects (un avec majuscule,
+un avec chiffre, un avec `_`) — la composition même de la fiche.
+**CHAQUE CASE SE JUGE SEULE** : le verdict d'un nom, et sa justification s'il
+est incorrect — un nom correct n'en a pas à compter, sa liste reste sans
+couleur. Un nom incorrect déclaré « correct » perd ses deux cases : sa
+justification, restée fermée, reçoit la correction en vert, mais elle n'est
+pas une case OUBLIÉE et le message ne la compte pas parmi les manquantes
+(`induit`) — le premier jet du contrôle s'y est pris, en exigeant « 2 cases
+manquantes » sur une page qui disait juste. La case vide ne rougit jamais.
+Aucune correction au fil des clics, et c'est déclaré (`soutienEnDirect.sans`)
+: à deux propositions, il suffirait d'essayer ; en soutien la case juste se
+verrouille en bleu, la fausse rougit sans badge, et la porte se rouvre quand
+l'élève corrige son verdict. Le rappel est en HTML pur — rien n'y empile — et
+n'écrit aucun « chiffre.chiffre » (le contrôle des numéros en dur lirait un
+numéro d'exercice). Deux bancs, la répartition habituelle : jsdom tient la
+fiche épinglée, la place au menu, la banque, le tirage (400 séances), la
+porte, la copie juste et la copie fausse cliquées, le soutien et les
+branchements ; le NAVIGATEUR (« 6 vicies terdecies », déclaré par
+`pythonNoms` dans `tests/profils.js`) mesure les rangées d'un seul tenant à
+1400 px, le nom rendu à chasse fixe avec ses espaces, la liste fermée qui
+refuse un vrai choix, l'encre RENDUE du verdict, et le soutien. Treize
+sabotages au banc jsdom, chacun rougissant en nommant son défaut — le juge
+qui ignore les accents, « 2ème » glissé dans la banque, la porte ouverte au
+rendu, le soutien qui touche la justification fermée, la séance sans ses
+trois défauts, le piège de la majuscule tu, la justification fermée comptée
+manquante, la règle 3 perdue, le bouton des tables revenu, l'ordre des
+raisons figé, le verdict vide rougi, la porte qui ne se rouvre plus après une
+reprise, l'exercice sorti du thème 5.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
