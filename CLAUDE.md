@@ -7575,6 +7575,93 @@ l'hérédité n'est pas dans une cellule ») comme le navigateur (« la rangée 
 de la récurrence porte 0 « ≤ » au lieu de 3 : l'hérédité a quitté la
 grille »).
 
+**La même suite, par la DIFFÉRENCE : l'encadrement opération par opération,
+puis le signe de Uₙ₊₁ − Uₙ.** {suite-variation-difference} (Terminale, 6.12,
+demande de Turquet, septembre 2026, repris de la fiche « VARIATION
+DIFFÉRENCE ») suit {suite-variation-recurrence} au menu : la MÊME suite —
+U₀ = 0, Uₙ₊₁ = 3/(4 − Uₙ) — et l'AUTRE méthode. Là-bas la récurrence
+démontre d'un coup le sens et la borne en appliquant f croissante ; ici elle
+ne démontre que l'ENCADREMENT 0 ≤ Uₙ ≤ 1, en transformant les deux bornes
+opération par opération — l'opposé ÉCHANGE, ajouter 4 conserve, l'inverse
+ÉCHANGE, multiplier par 3 conserve, la discipline de {suites-encadrement} —,
+puis le sens vient du SIGNE de Uₙ₊₁ − Uₙ, mis au même dénominateur
+(Uₙ² − 4Uₙ + 3 sur 4 − Uₙ) et lu dans un tableau de signes. Six questions,
+celles de la fiche dans son ordre : a) l'escalier, b) la conjecture, c) la
+récurrence, d) la fraction, e) le signe, f) les variations.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ, et le REPÈRE est PARTAGÉ pour de bon** :
+le tirage est `svrVivier` — le vivier même du 6.11, points fixes ℓ < L —,
+l'arithmétique `svrAns`, et le repère, ses deux rails cliquables, la pose,
+le juge des points et la méthode dessinée sont `svrSVG`, `svrPoser`,
+`svrPtJuste`, appelés tels quels : `svrHote()` choisit l'hôte par le kind
+(`svdGraph` ou `svrGraph`), et `svrClic` accepte les deux kinds — un second
+repère aurait fini par diverger, et deux exercices voisins auraient dessiné
+la même courbe autrement. Les grilles à colonnes du 6.11 (`.svr-grille`, les
+« ≤ » les uns sous les autres — la demande de Turquet, tenue ici dès le
+premier jour), les cases qui grandissent (`sa2In`), les fractions
+(`sa2Frac`), les lecteurs du 6.10 (`rfrNb` : entier, décimal ou fraction,
+comparé EXACTEMENT — « 1/3 » se tape en fraction ; `rfrLin` pour les rangs),
+la correction commune (`corrCase`, `msgCorrCouleurs`) : rien de neuf.
+**LES DEUX VISAGES sortent dans chaque séance**, en ordre mélangé : U₀ < ℓ
+donne une suite CROISSANTE (le cas de la fiche, différence positive), ℓ < U₀
+une suite DÉCROISSANTE (ℓ ≤ Uₙ ≤ U₀, différence négative) — sans eux l'élève
+apprendrait que le signe est toujours « + ». L'encadrement est
+[min(U₀, ℓ) ; max(U₀, ℓ)], et la DERNIÈRE ligne ÉLARGIT : quand la suite
+croît, 0 ≤ 3/4 ≤ Uₙ₊₁ ≤ 1 (la fiche — le terme qui élargit est f(m) = U₁, à
+GAUCHE) ; quand elle décroît, m ≤ Uₙ₊₁ ≤ U₁ ≤ M (à DROITE). Le contrôle
+REFAIT la chaîne par sa propre arithmétique, vérifie que f envoie [m ; M]
+dans lui-même (sans quoi l'hérédité mentirait), que (x − ℓ)(x − L)/(s − x) a
+le signe annoncé sur tout l'intervalle, que ℓ et L sont bien les racines du
+trinôme, et SIMULE la suite — la leçon du 6.11.
+**LES FRACTIONS DE d) SE LISENT COMME DES FONCTIONS DE Uₙ** : les cases sont
+des champs mathématiques, « Uₙ » tapé U_n, Un ou U devient la variable de
+`checkExprFn` (le juge du 2.1), et toute écriture ÉGALE est acceptée —
+3 − Uₙ(4 − Uₙ) comme 3 − 4Uₙ + Uₙ². La DERNIÈRE ligne exige en plus la forme
+DÉVELOPPÉE (aucune parenthèse — l'exposant « ^(2) » que l'aplatissement
+écrit n'en est pas une) : c'est elle que l'énoncé fait démontrer, et
+recopier la ligne d'avant n'y suffit pas, la leçon de {recurrence-formule}.
+Le clavier à l'écran offre Uₓ et n (`kbVarsFor`), et le contrôle l'ÉVALUE
+depuis la source — le clavier vit dans la greffe module, que jsdom ne
+charge pas, et une recherche dans l'`outerHTML` restait vide : le premier
+jet du contrôle a rougi sur une page juste.
+**LES PAIRES, ET LE SIGNE QUI SUIT SON ÉTIQUETTE** : les racines de e) et les
+deux étiquettes du tableau (le numérateur, le dénominateur, parmi cinq
+propositions à l'ordre tiré par question) suivent la règle des paires
+d'{antecedent-nombre} — l'ordre est libre, le doublon défendable une fois et
+faux la seconde —, et la case restée vide reçoit la valeur RESTANTE, jamais
+la première. Le signe d'une ligne se juge sur l'étiquette CHOISIE dans cette
+ligne, et sur sa promesse (être l'un des deux signes attendus) si
+l'étiquette est fausse : c'est le visage décroissant qui rend ce bord
+mesurable — le numérateur y est négatif et le dénominateur positif —, sur
+la fiche les deux signes sont « + » et un juge qui ignorerait l'étiquette
+resterait vert. Une case vide ne rougit jamais, chaque case se juge seule
+(un refus ne rougit QUE sa case, le contrôle le compte), les trois points
+du tracé sont des réponses (`pts-case` : 48 réponses par question), rien
+n'est révélé en soutien, la méthode se dessine à la vérification, et les
+champs mathématiques se jugent à la SORTIE, jamais à la frappe.
+Le banc NAVIGATEUR (« 6 vicies terdecies », déclaré par
+`suiteVariationDifference` dans `tests/profils.js`) tient ce que jsdom ne
+voit pas : les trois clics qui posent dans le repère de CET écran et non
+dans celui du 6.11, le trinôme TAPÉ pour de vrai (U, indice, exposant — la
+sérialisation réelle relue comme une fonction ET comme une forme
+développée), les deux grilles RENDUES au même centre par colonne sans rien
+qui défile, le tableau de signes avec une boîte, et la copie juste cliquée
+qui vaut le point, sur les deux visages.
+**Vingt et un sabotages au banc jsdom, chacun rougissant en nommant son
+défaut** — l'opposé qui ne renverse plus les bornes, f(M) à la place de f(m),
+les deux visages perdus, la réponse rangée dans la question, la forme non
+développée acceptée, le signe qui ne suit plus son étiquette, le doublon
+compté deux fois, la case vide rougie (à la vérification, puis sous la
+frappe), la méthode révélée en soutien, le champ mathématique jugé à la
+frappe, le clic refusé sur le kind svd, le repère dessiné dans l'hôte du
+6.11, Uₙ₊₁ hors de la colonne des termes, la valeur de U₀ posée à côté, le
+badge en LaTeX nu, la racine restante confondue avec la première, le clavier
+sans Uₓ, la clause anti-recopie retirée, les étiquettes à ordre figé, et le
+`pts-case` retiré des points du tracé — ce dernier rougit AUSSI chez le 6.11
+(« 35/35 au lieu de 38/38 »), la preuve que le repère est bien partagé et non
+recopié. Les deux bancs ont couvert l'exercice au premier passage sans rien
+déclarer — les contrôles universels, exactement ce pour quoi ils existent —
+et le premier échec du banc était celui du contrôle, pas de la page.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons

@@ -1066,6 +1066,10 @@ module.exports = {
        chemin transparent épais. jsdom n'a ni mise en page ni getScreenCTM :
        le banc principal éprouve svrPoser(), seul celui-ci clique. */
     suiteVariation: { exercice: 'suite-variation-recurrence' },
+    /* LA SUITE PAR LA DIFFÉRENCE (6.12) : le repère du 6.11 servi dans un autre
+       hôte — seul un clic réel dit qu'il pose dans le bon —, la fraction de d)
+       TAPÉE dans un vrai MathLive, et les grilles à colonnes RENDUES. */
+    suiteVariationDifference: { exercice: 'suite-variation-difference' },
     /* Le 4.6 (l'étude menée au TVI) : ce que jsdom ne voit pas — le tableau
        du 5.3 RENDU (flèches dessinées à taille non nulle), la page qui ne
        déborde pas, et le bouton ∞ réellement CLIQUÉ, qui écrit dans la case

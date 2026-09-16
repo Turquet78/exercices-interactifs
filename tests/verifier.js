@@ -3537,6 +3537,7 @@ function exercices(suite){
     suiteAuxiliaireCompleter(w, P);
     recurrenceFractions(w, P);
     suiteVariationRecurrence(w, P);
+    suiteVariationDifference(w, P);
     phraseCouleurs(w);
     verdictSansCouleur(w, P);
     antecedentNombre(w, P);
@@ -8859,6 +8860,324 @@ function suiteVariationRecurrence(w, P){
     /* « /STRICTEMENT/i » attrapait « strictement positive », que l’exercice écrit
        lui-même : le bord restait vert sous le sabotage, en parlant d’autre chose.
        On vise la clause, et l’anti-recopie que CET exercice ajoute. */
+    if(!/JAMAIS révéler|STRICTEMENT SECR/.test(c)) dit('le contexte part sans clause de secret');
+    if(c.indexOf('ANTI-RECOPIE')<0) dit('le contexte part sans sa clause anti-recopie');
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* LA SUITE PAR LA DIFFÉRENCE (Terminale 6.12) : la fiche « VARIATION DIFFÉRENCE »
+   — la suite du 6.11, par l’autre méthode : l’encadrement démontré par
+   récurrence OPÉRATION PAR OPÉRATION, puis le signe de U(n+1) − U(n), mis au
+   même dénominateur et lu dans un tableau de signes.
+   LE RISQUE PROPRE EST L’ÉNONCÉ QUI CONTREDIT SA CORRECTION : le contrôle
+   REFAIT la chaîne par sa propre arithmétique (opposé, ajout, inverse,
+   produit — deux bornes qui s’échangent deux fois), vérifie que f envoie
+   [m ; M] dans lui-même (sans quoi l’hérédité mentirait), que le signe de
+   (x − ℓ)(x − L)/(s − x) est celui annoncé sur tout l’intervalle, que ℓ et L
+   sont bien les racines du trinôme, et SIMULE la suite. Puis la fiche est
+   épinglée, la copie juste jouée, et chaque bord tenu : les fractions de d)
+   lues comme des fonctions de Uₙ (toute écriture égale), la dernière ligne
+   qui exige la forme développée, les paires (racines, étiquettes) à ordre
+   libre et doublon défendable une fois, le signe qui suit l’étiquette de sa
+   ligne, la case vide qui ne rougit jamais, le soutien qui ne révèle rien,
+   et le repère PARTAGÉ avec le 6.11 (svrHote choisit l’hôte par le kind). */
+function suiteVariationDifference(w, P){
+  const present = evaluer(w, "typeof startSVD==='function' && typeof svdAns==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la suite par la différence : l\'encadrement opération par opération, la fraction et le tableau de signes',
+      'ce niveau n\'a pas l\'exercice du sens de variation par la différence');
+    return;
+  }
+  /* le clavier à l'écran vit dans la greffe module, que jsdom ne charge pas :
+     on ÉVALUE kbVarsFor depuis la SOURCE (le motif du 6.7) — la table de
+     routage doit offrir Uₓ et n sur cet exercice, dont les fractions de d)
+     s'écrivent en Uₙ */
+  let kbOk = false;
+  try{
+    const fKb = corpsFonctions(lire(CIBLE), /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o => o.nom === 'kbVarsFor');
+    const kv = new Function('KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')({ usq: 1 }, { n: 1 });
+    const t = kv('suite-variation-difference') || [];
+    kbOk = t.length >= 2 && t.some(k => k && k.usq === 1) && t.some(k => k && k.n === 1);
+  }catch(e){ kbOk = false; }
+  verifierEval(w, 'la suite par la différence : l\'encadrement opération par opération, la fraction et le tableau de signes', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='suite-variation-difference'; test.kind='svd';
+    const dit=function(m){ if(vus.indexOf(m)<0) vus.push(m); };
+    const MOINS=String.fromCharCode(0x2212);
+
+    /* ---- 1. LE VIVIER PARTAGÉ ET L’ARITHMÉTIQUE DE LA CHAÎNE, refaits ------ */
+    ['dec','cro'].forEach(function(sens){
+      const v=svrVivier(sens);
+      if(!v.length){ dit('le vivier « '+sens+' » est VIDE : le contrôle ne mesure rien'); return; }
+      v.forEach(function(c){
+        const q={l:c.l,L:c.L,U0:c.U0,sens:sens,pts:[]}, a=svdAns(q), p=c.l*c.L, s=c.l+c.L;
+        const nom='f(x)='+p+'/('+s+MOINS+'x), U0='+c.U0;
+        const m=Math.min(c.l,c.U0), M=Math.max(c.l,c.U0), f=function(x){ return p/(s-x); };
+        if(a.m!==m||a.M!==M) dit(nom+' : l’encadrement annoncé est ['+a.m+' ; '+a.M+'] au lieu de ['+m+' ; '+M+']');
+        if(!(f(m)>=m-1e-12 && f(M)<=M+1e-12)) dit(nom+' : f([m ; M]) sort de [m ; M] — l’hérédité mentirait');
+        if(!(s-M>0)) dit(nom+' : le dénominateur s’annule sur [m ; M]');
+        const att=[[m,M],[-M,-m],[s-M,s-m],[1/(s-m),1/(s-M)],[p/(s-m),p/(s-M)]];
+        att.forEach(function(l,i){ const L=a.chaine[i];
+          if(!L||Math.abs(L[0].v-l[0])>1e-9||Math.abs(L[1].v-l[1])>1e-9) dit(nom+' : la ligne '+(i+1)+' de la chaîne vaut « '+(L?L[0].s+' ≤ … ≤ '+L[1].s:'?')+' »'); });
+        const fin=(sens==='dec')?[m,f(M),M]:[m,f(m),M];
+        fin.forEach(function(x,i){ if(!a.fin6[i]||Math.abs(a.fin6[i].v-x)>1e-9) dit(nom+' : la dernière ligne, terme '+(i+1)+', vaut '+(a.fin6[i]?a.fin6[i].s:'?')); });
+        if(Math.abs(a.fin6[1].v-a.U1)>1e-9) dit(nom+' : le terme qui élargit n’est pas U1');
+        for(let i=0;i<=20;i++){ const x=m+(M-m)*i/20, d=(x-c.l)*(x-c.L)/(s-x);
+          if(sens==='dec' ? d>1e-12 : d<-1e-12){ dit(nom+' : U(n+1)−U(n) n’a pas le signe annoncé en x='+x); break; } }
+        if(a.sgnDiff!==(sens==='dec'?MOINS:'+')||a.sgnNum!==a.sgnDiff||a.sgnDen!=='+') dit(nom+' : les signes du tableau sont '+a.sgnNum+' '+a.sgnDen+' '+a.sgnDiff);
+        if(c.l*c.l-s*c.l+p!==0||c.L*c.L-s*c.L+p!==0) dit(nom+' : ℓ et L ne sont pas les racines du trinôme');
+        const U=[c.U0]; for(let k=0;k<30;k++) U.push(f(U[k]));
+        for(let k=0;k<30;k++){
+          const mono=(sens==='dec')?(U[k+1]<=U[k]+1e-12):(U[k+1]>=U[k]-1e-12), dans=(U[k]>=m-1e-12&&U[k]<=M+1e-12);
+          if(!mono||!dans){ dit(nom+' : la suite n’est pas '+(sens==='dec'?'décroissante':'croissante')+' dans [m ; M] au rang '+k); break; } }
+      });
+    });
+
+    /* ---- 2. LA SÉANCE : les deux visages, en ordre mélangé, et la question
+            ne range rien d’autre que son tirage ---------------------------- */
+    let ordres=0, formes={}, rangs={};
+    const CLES='L,U0,l,ordreLab,pts,sens'.split(',').sort().join(',');
+    for(let t=0;t<120;t++){
+      const qs=svdSession();
+      if(qs.length!==2){ dit('séance : '+qs.length+' question(s) au lieu de 2'); break; }
+      const sens=qs.map(function(q){ return q.sens; }).sort().join('+');
+      if(sens!=='cro+dec') dit('séance : les deux visages ne sortent pas ('+sens+')');
+      if(qs[0].sens==='cro') ordres++;
+      qs.forEach(function(q){ formes[q.sens]=1;
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!==CLES) dit('la question porte autre chose que son tirage : '+cles);
+        rangs[q.sens+':'+q.ordreLab.indexOf('num')]=1;
+        if(q.ordreLab.slice().sort().join()!==SVD_LABS.slice().sort().join()) dit('les étiquettes proposées ne sont pas celles attendues : '+q.ordreLab.join());
+      });
+    }
+    if(!formes.dec||!formes.cro) dit('les deux visages ne sortent pas sur 120 séances');
+    if(ordres===0||ordres===120) dit('l’ordre des deux visages est FIGÉ');
+    if(Object.keys(rangs).length<4) dit('à visage égal, le rang de l’étiquette du numérateur ne varie pas');
+
+    /* ---- 3. LA FICHE, épinglée : U0 = 0, U(n+1) = 3/(4 − U(n)), 0 ≤ U(n) ≤ 1 */
+    if(!svrVivier('cro').some(function(c){ return c.l===1&&c.L===3&&c.U0===0; })) dit('le cas de la fiche (ℓ=1, L=3, U0=0) n’est pas dans le vivier');
+    const q={l:1,L:3,U0:0,sens:'cro',ordreLab:['un','num','cst','den','un1'],pts:[]};
+    const a=svdAns(q);
+    if(a.p!==3||a.s!==4) dit('la fiche : f(x) = '+a.p+'/('+a.s+' − x)');
+    if(a.m!==0||a.M!==1) dit('la fiche : l’encadrement est ['+a.m+' ; '+a.M+'] au lieu de [0 ; 1]');
+    { const ch=a.chaine.map(function(l){ return l[0].s+'|'+l[1].s; }).join(' ; ');
+      const att=['0|1', MOINS+'1|0', '3|4', '1/4|1/3', '3/4|1'].join(' ; ');
+      if(ch!==att) dit('la fiche : la chaîne est « '+ch+' » au lieu de « '+att+' »'); }
+    if(a.fin6.map(function(f){ return f.s; }).join('|')!=='0|3/4|1') dit('la fiche : la dernière ligne est « '+a.fin6.map(function(f){ return f.s; }).join(' ≤ ')+' »');
+    if(a.rac.join()!=='1,3') dit('la fiche : les racines sont '+a.rac.join(' et '));
+    if(a.sgnNum!=='+'||a.sgnDiff!=='+') dit('la fiche : le signe n’est pas +');
+    if(svdLabTexte(a,'num')!=='Uₙ² '+MOINS+' 4Uₙ + 3') dit('la fiche : le numérateur s’écrit « '+svdLabTexte(a,'num')+' »');
+
+    /* ---- 4. L’ÉCRAN : les cases, le repère partagé, les grilles à colonnes */
+    const rejouer=function(){ test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; q.pts=[]; show('svd'); renderSVD(); };
+    rejouer();
+    SVD_IDS.forEach(function(id){ if(!document.getElementById(id)) dit('case absente : '+id); });
+    SVD_MF.forEach(function(id){ const e=document.getElementById(id); if(e&&e.tagName!=='MATH-FIELD') dit(id+' n’est pas un champ mathématique'); });
+    { const rails=[...document.querySelectorAll('#svdGraph .svr-hit')].map(function(h){ return h.getAttribute('data-rail'); }).sort().join(',');
+      if(rails!=='c,d') dit('le repère de cet écran n’offre pas ses deux rails cliquables (« '+rails+' ») — le repère partagé ne se dessine pas dans l’hôte svd'); }
+    { const fr=document.querySelectorAll('#svdPrompt .sa2-frac');
+      const den=fr.length?String((fr[0].querySelector('.den')||{}).textContent||'').replace(/\\s/g,''):'';
+      if(den!=='4'+MOINS+'Un') dit('l’énoncé affiche « '+den+' » au lieu de « 4−Un »'); }
+    { const t=String((document.getElementById('svdTitreC')||{}).textContent||'').replace(/\\s/g,'');
+      if(t.indexOf('0≤Un≤1')<0) dit('le titre de c) n’annonce pas 0 ≤ Un ≤ 1 (« '+t+' »)'); }
+    { const t=String((document.getElementById('svdTitreD')||{}).textContent||'').replace(/\\s/g,'');
+      if(t.indexOf('Un2'+MOINS+'4Un+3')<0) dit('le titre de d) n’annonce pas la fraction à démontrer (« '+t+' »)'); }
+    const celDe=function(id){ const e=document.getElementById(id); const c=e&&e.closest('.svr-cel'); return c?{r:+c.dataset.r,c:+c.dataset.c}:null; };
+    const colsLE=function(g,r){ return [...g.querySelectorAll('.svr-cel.svr-le[data-r="'+r+'"]')].map(function(c){ return +c.dataset.c; }).sort(function(x,y){ return x-y; }); };
+    { const gi=document.querySelector('#svdPartC .svd-grec');
+      if(!gi) dit('la récurrence n’est pas une grille à colonnes (.svd-grec)');
+      else {
+        const l1=colsLE(gi,1);
+        if(l1.length!==2) dit('la ligne de l’initialisation porte '+l1.length+' « ≤ » au lieu de 2');
+        [3,4].forEach(function(r){ if(colsLE(gi,r).join()!==l1.join()) dit('les « ≤ » de la rangée '+r+' de l’hérédité ne sont pas dans les colonnes de ceux de l’initialisation'); });
+        const i2=celDe('svd-i2'), v0=celDe('svd-v0'), h2=celDe('svd-h2'), m2=celDe('svd-m2');
+        if(!i2||!v0||!h2||!m2) dit('une case de la récurrence n’est pas dans une cellule de la grille');
+        else {
+          if(v0.r!==2||v0.c!==i2.c) dit('la valeur de U0 n’est pas SOUS son terme, une ligne en dessous (rangée '+v0.r+', colonne '+v0.c+' contre '+i2.c+')');
+          if(h2.c!==i2.c||m2.c!==i2.c) dit('les termes de l’hérédité ne sont pas dans la colonne du terme de l’initialisation');
+        }
+      } }
+    const verifierDemo=function(dec){
+      const nom=dec?'décroissante':'croissante';
+      const gd=document.querySelector('#svdPartC .svd-gdemo');
+      if(!gd){ dit(nom+' : la démonstration n’est pas une grille à colonnes (.svd-gdemo)'); return; }
+      const l1=colsLE(gd,1);
+      if(l1.length!==2) dit(nom+' : la première ligne de la démonstration porte '+l1.length+' « ≤ »');
+      [2,3,4,5].forEach(function(r){ if(colsLE(gd,r).join()!==l1.join()) dit(nom+' : les « ≤ » de la ligne '+r+' ne sont pas sous ceux de la ligne 1'); });
+      const l6=colsLE(gd,6);
+      if(l6.length!==3) dit(nom+' : la dernière ligne porte '+l6.length+' « ≤ » au lieu de 3');
+      l1.forEach(function(c){ if(l6.indexOf(c)<0) dit(nom+' : le « ≤ » de la colonne '+c+' n’a pas de « ≤ » sous lui sur la dernière ligne'); });
+      const t1=gd.querySelector('.svr-cel.svr-terme[data-r="1"]'), t6=gd.querySelector('.svr-cel.svr-terme[data-r="6"]');
+      if(!t1||!t6||t1.dataset.c!==t6.dataset.c) dit(nom+' : Uₙ₊₁ n’est pas dans la colonne des termes');
+      const b=celDe('svd-d6b'), aa=celDe('svd-d6a'), cc=celDe('svd-d6c');
+      if(!b||!aa||!cc) { dit(nom+' : une borne de la dernière ligne n’est pas dans la grille'); return; }
+      if(dec ? !(b.c>+t6.dataset.c) : !(b.c<+t6.dataset.c)) dit(nom+' : le terme qui élargit (svd-d6b) est du mauvais côté de Uₙ₊₁');
+      const extra=dec?cc:aa;
+      if(gd.querySelector('.svr-cel[data-r="5"][data-c="'+extra.c+'"]')) dit(nom+' : le terme qui élargit a une borne au-dessus de lui');
+    };
+    verifierDemo(false);
+    { const vd=svrVivier('dec')[0]; const qd={l:vd.l,L:vd.L,U0:vd.U0,sens:'dec',pts:[]};
+      test.questions=[qd]; test.idx=0; test.locked=false; renderSVD();
+      verifierDemo(true);
+      const ad=svdAns(qd);
+      /* le signe d’une ligne SUIT l’étiquette qu’elle porte : sur ce visage le numérateur est négatif */
+      const poserD=function(id,v){ const e=document.getElementById(id); if(e) e.value=v; };
+      poserD('svd-t1','num'); poserD('svd-s1','+'); poserD('svd-t2','den'); poserD('svd-s2','+');
+      { const V=svdVerdicts(qd);
+        if(V.ok['svd-s1']) dit('décroissante : « + » sous le numérateur est accepté (il est négatif)');
+        if(!V.ok['svd-s2']) dit('décroissante : « + » sous le dénominateur est refusé');
+        if(V.cor['svd-s1']!==MOINS) dit('décroissante : la correction du signe du numérateur est « '+V.cor['svd-s1']+' »'); }
+      poserD('svd-t1','den'); poserD('svd-s1',MOINS); poserD('svd-t2','num'); poserD('svd-s2',MOINS);
+      { const V=svdVerdicts(qd);
+        if(V.ok['svd-s1']) dit('décroissante : « − » sous le dénominateur est accepté');
+        if(!V.ok['svd-s2']) dit('décroissante : le numérateur en seconde ligne, avec son « − », est refusé — l’ordre des lignes doit être libre'); }
+      if(ad.fin6[1].v!==ad.U1) dit('décroissante : f(M) n’est pas U1');
+    }
+    rejouer();
+    /* les étiquettes proposées : les cinq, à l’ordre de la question */
+    { const t1=document.getElementById('svd-t1');
+      const opts=[...t1.options].map(function(o){ return o.value; }).filter(Boolean);
+      if(opts.join()!==q.ordreLab.join()) dit('les étiquettes du tableau ne suivent pas l’ordre tiré (« '+opts.join()+' »)'); }
+    { const tbl=document.querySelector('#svdPartE table.svd-tbl');
+      if(!tbl) dit('e) n’a pas de tableau de signes');
+      else if(tbl.querySelectorAll('tr').length!==4) dit('le tableau de signes a '+tbl.querySelectorAll('tr').length+' lignes au lieu de 4'); }
+
+    /* ---- 5. LE TRACÉ, par la porte partagée --------------------------------- */
+    const E=svrPtsAttendus(a);
+    if(E.map(function(e){ return e.r+'@'+e.x; }).join(' ')!=='c@0 d@0.75 c@0.75') dit('les trois points attendus sont « '+E.map(function(e){ return e.r+'@'+e.x; }).join(' ')+' »');
+    E.forEach(function(e){ svrPoser(e.r,e.x); });
+    if(q.pts.length!==3) dit('svrPoser ne pose pas les trois points sur cet écran');
+    if(document.querySelectorAll('#svdGraph .svr-pt').length!==3) dit('les points posés ne se dessinent pas dans l’hôte svd ('+document.querySelectorAll('#svdGraph .svr-pt').length+')');
+    svrEffacer(); if(q.pts.length) dit('« Effacer le tracé » ne vide pas le tracé de cet écran');
+    { const srcPage=document.documentElement.outerHTML;
+      const m=srcPage.match(/function svrClic\\(evt\\)\\{[\\s\\S]*?\\n\\}/);
+      if(!m||m[0].indexOf("'svd'")<0) dit('svrClic ignore le kind svd : le clic sur le repère de cet écran ne poserait rien'); }
+
+    /* ---- 6. LA COPIE VIDE ne rougit jamais ---------------------------------- */
+    rejouer(); checkSVD();
+    { const rouges=SVD_IDS.filter(function(id){ const e=document.getElementById(id); return e.classList.contains('bad')||e.classList.contains('sol'); });
+      if(rouges.length) dit('copie vide : '+rouges.length+' case(s) se colorent — '+rouges.slice(0,3).join(', '));
+      if(!/Complète au moins une case/.test(String((document.getElementById('svdFeedback')||{}).textContent||''))) dit('copie vide : le message ne demande pas de compléter');
+      if(test.locked) dit('copie vide : l’écran se verrouille'); }
+
+    /* ---- 7. LA COPIE JUSTE vaut toutes ses cases, points du tracé compris -- */
+    const poser=function(id,v){ const e=document.getElementById(id); if(!e) return;
+      if(e.tagName==='MATH-FIELD'){ try{ e.setValue(v); }catch(x){} } else e.value=v; };
+    /* jsdom lit le LaTeX tel quel (le passe-plat) : on écrit les champs en clair */
+    const PLAIN={'svd-e1n':'3','svd-e1d':'4-U_n','svd-e2n':'3','svd-e2d':'4-U_n','svd-e2k1':'4-U_n','svd-e2k2':'4-U_n',
+                 'svd-e3n':'3-U_n*(4-U_n)','svd-e3d':'4-U_n','svd-e4n':'U_n^2-4U_n+3','svd-e4d':'4-U_n'};
+    const remplir=function(){
+      const V=svdVerdicts(q);
+      SVD_IDS.forEach(function(id){ poser(id, PLAIN[id]!=null?PLAIN[id]:V.cor[id]); });
+      E.forEach(function(e){ svrPoser(e.r,e.x); });
+    };
+    const rouges=function(){ return SVD_IDS.filter(function(id){ return document.getElementById(id).classList.contains('bad'); }); };
+    const TOT=SVD_IDS.length+3;
+    rejouer(); remplir(); checkSVD();
+    if(rouges().length) dit('copie juste : '+rouges().length+' case(s) rougissent — '+rouges().slice(0,4).join(', '));
+    if(test.score!==1) dit('copie juste : le point n’est pas accordé (score '+test.score+')');
+    { const note=ptsEcran();
+      if(!note||note.justes!==TOT||note.cases!==TOT) dit('copie juste : la note affichée compte '+(note?note.justes+'/'+note.cases:'rien')+' au lieu de '+TOT+'/'+TOT+' — les trois points du tracé sont des réponses');
+      if(document.querySelectorAll('#svdGraph .svr-pt.ok').length!==3) dit('copie juste : les trois points ne sont pas peints en bleu');
+      if(!document.querySelector('#svdGraph .svr-esc-sol')) dit('copie juste : l’escalier de la méthode n’est pas tracé'); }
+
+    /* ---- 8. TOUTE ÉCRITURE ÉGALE est acceptée ------------------------------- */
+    rejouer(); remplir();
+    poser('svd-d4a','0,25'); poser('svd-d5a','0,75'); poser('svd-d6b','0,75'); poser('svd-m2','1+n'); poser('svd-h2','0+n');
+    poser('svd-e1d','4-Un'); poser('svd-e2d','4-u_n'); poser('svd-e3n','U_(n)^(2)-4U_(n)+3'); poser('svd-e4n','3-4U_n+U_n^2');
+    poser('svd-r1','3'); poser('svd-r2','1');
+    poser('svd-t1','den'); poser('svd-s1','+'); poser('svd-t2','num'); poser('svd-s2','+');
+    checkSVD();
+    if(rouges().length) dit('écritures égales refusées : '+rouges().join(', '));
+    if(test.score!==1) dit('les écritures égales ne valent pas le point');
+
+    /* ---- 9. LES REFUS, chacun sur SA case ----------------------------------- */
+    const refuse=function(id,v,quoi){
+      rejouer(); remplir(); poser(id,v); checkSVD();
+      const r=rouges();
+      if(r.indexOf(id)<0) dit('accepté à tort : '+quoi);
+      if(r.length>1) dit(quoi+' : '+r.length+' cases rougissent au lieu d’une seule ('+r.join(', ')+') — chaque case se juge seule');
+    };
+    refuse('svd-d6b','1','la dernière ligne avec 1 à la place de U1 = 3/4');
+    refuse('svd-d2a','0','l’opposé sans échanger les bornes');
+    refuse('svd-d4a','1/3','l’inverse sans échanger les bornes');
+    refuse('svd-e4n','3-U_n*(4-U_n)','la dernière ligne de d) NON développée (elle recopie la ligne précédente)');
+    refuse('svd-e4n','U_n^2-4U_n-3','un trinôme faux');
+    refuse('svd-e1d','4+U_n','le dénominateur au mauvais signe');
+    refuse('svd-m2','n','le rang n là où on montre au rang n + 1');
+    refuse('svd-b1','dec','la conjecture inversée');
+    refuse('svd-f1','neg','une différence déclarée négative');
+    refuse('svd-s3',MOINS,'le signe du quotient inversé');
+    refuse('svd-r2','1','la racine 1 posée deux fois — le doublon est faux la seconde fois');
+    refuse('svd-t2','num','le numérateur choisi sur les deux lignes — le doublon est faux la seconde fois');
+    { rejouer(); remplir(); poser('svd-t1','un'); checkSVD();
+      if(!document.getElementById('svd-t1').classList.contains('bad')) dit('une étiquette étrangère (Uₙ) est acceptée');
+      if(document.getElementById('svd-s1').classList.contains('bad')) dit('le signe d’une ligne à l’étiquette fausse rougit alors qu’il est l’un des deux signes attendus (sa promesse)'); }
+
+    /* ---- 10. LA CORRECTION : le rouge garde la saisie, la bonne réponse
+             s’affiche en vert, la case vide est complétée ------------------- */
+    rejouer(); remplir(); poser('svd-d6b','1'); poser('svd-v0',''); poser('svd-e4n','U_n^2-4U_n-3'); poser('svd-e1n',''); poser('svd-r1','3'); poser('svd-r2','');
+    checkSVD();
+    if(String(document.getElementById('svd-d6b').value)!=='1') dit('la correction écrase la réponse fausse de l’élève');
+    if(!document.querySelector('#svdPartC .mf-cor')) dit('la bonne borne ne s’affiche pas à côté de la case fausse');
+    { const v0=document.getElementById('svd-v0');
+      if(!v0.classList.contains('sol')||String(v0.value)!=='0') dit('la case vide de U0 n’est pas complétée en vert avec 0'); }
+    { const e4=document.getElementById('svd-e4n'), cor=e4.nextElementSibling;
+      if(!e4.classList.contains('bad')) dit('le trinôme faux ne rougit pas');
+      if(!cor||!cor.classList.contains('mf-cor')) dit('la bonne fraction ne s’affiche pas à côté du champ faux');
+      else if(String(cor.innerHTML).indexOf('<sup>2</sup>')<0) dit('le badge de d) n’écrit pas l’exposant rendu (« '+cor.textContent+' »)'); }
+    { const e1=document.getElementById('svd-e1n');
+      if(!e1.classList.contains('sol')||String(e1.getValue())!=='3') dit('le champ vide de d) n’est pas complété en vert (« '+e1.getValue()+' »)'); }
+    { const r2=document.getElementById('svd-r2');
+      if(!r2.classList.contains('sol')||String(r2.value)!=='1') dit('la racine restée vide ne reçoit pas la racine RESTANTE (« '+r2.value+' » au lieu de 1)'); }
+    if(test.score!==0) dit('une copie fausse vaut le point');
+
+    /* ---- 11. LA MÉTHODE n’est PAS montrée avant la vérification ------------ */
+    rejouer();
+    if(document.querySelector('#svdGraph .svr-esc-sol')) dit('l’escalier juste est montré AVANT la vérification');
+
+    /* ---- 12. LE SOUTIEN : rien n’est révélé, la case vide ne rougit pas,
+             et la correction suit la frappe — les champs math à la SORTIE --- */
+    currentMode='soutien'; rejouer();
+    poser('svd-n0','0'); poser('svd-d6b','1'); svrPoser(E[0].r,E[0].x);
+    checkSVD();
+    { const vides=SVD_IDS.filter(function(id){ const e=document.getElementById(id);
+        const v=(e.tagName==='MATH-FIELD')?String(e.getValue()||''):String(e.value||'');
+        return v.trim()==='' && (e.classList.contains('bad')||e.classList.contains('sol')); });
+      if(vides.length) dit('en soutien, '+vides.length+' case(s) VIDES se colorent — '+vides.slice(0,3).join(', '));
+      if(!document.getElementById('svd-n0').classList.contains('ok')) dit('en soutien, la case juste ne bleuit pas');
+      if(!document.getElementById('svd-d6b').classList.contains('bad')) dit('en soutien, la case fausse ne rougit pas');
+      if(test.locked) dit('en soutien, une copie incomplète verrouille l’écran');
+      if(document.querySelector('#svdGraph .svr-esc-sol')) dit('en soutien, l’escalier juste est révélé'); }
+    rejouer();
+    { const c=document.getElementById('svd-n0'); c.value='0'; c.dispatchEvent(new Event('input',{bubbles:true}));
+      if(!c.classList.contains('ok')) dit('en direct, la case juste ne bleuit pas');
+      const videsDirect=SVD_IDS.filter(function(id){ const e=document.getElementById(id); return id!=='svd-n0' && (e.classList.contains('bad')||e.classList.contains('ok')||e.classList.contains('sol')); });
+      if(videsDirect.length) dit('en direct, des cases VIDES se colorent — '+videsDirect.slice(0,3).join(', '));
+      const mf=document.getElementById('svd-e1d'); mf.setValue('4+U_n');
+      mf.dispatchEvent(new Event('input',{bubbles:true}));
+      if(mf.classList.contains('bad')) dit('en soutien, un champ mathématique rougit à la FRAPPE');
+      mf.dispatchEvent(new Event('focusout',{bubbles:true}));
+      if(!mf.classList.contains('bad')) dit('en soutien, le champ mathématique faux ne rougit pas à la sortie');
+      mf.setValue('4-U_n'); mf.dispatchEvent(new Event('focusout',{bubbles:true}));
+      if(!mf.classList.contains('ok')) dit('en soutien, le champ mathématique juste ne bleuit pas à la sortie');
+      if(test.locked) dit('en direct, l’écran se verrouille'); }
+    currentMode='train';
+
+    /* ---- 13. L’identité de l’exercice, et ses branchements ----------------- */
+    if(!TESTS['suite-variation-difference']) dit('l’exercice n’est pas dans TESTS');
+    if(!THEMES.some(function(t){ return t.ids.indexOf('suite-variation-difference')>=0; })) dit('l’exercice n’est dans aucun thème');
+    if(typeof RAPPELS==='undefined'||!RAPPELS.svd) dit('aucun rappel de cours pour svd');
+    if(typeof QIA_SUGG==='undefined'||!QIA_SUGG.svd) dit('aucune question proposée pour svd');
+    if(!afficherEcranDe('svd')) dit('la reprise après pause ne connaît pas l’écran svd');
+    { const srcPage=document.documentElement.outerHTML;
+      const m=srcPage.match(/const testScreens=\\[([^\\]]*)\\]/);
+      if(!m||m[1].indexOf("'svd'")<0) dit('l’écran svd n’est pas dans testScreens');
+      if(!${kbOk}) dit('le clavier à l’écran n’offre pas Uₓ et n sur cet exercice (kbVarsFor)'); }
+    test.questions=[q]; test.idx=0; test.kind='svd'; renderSVD();
+    const c=String(conseilCtxCourant()||'');
+    if(!/DIFFÉRENCE/.test(c)||c.indexOf('escalier')<0) dit('le contexte envoyé au modèle ne décrit pas cet exercice');
     if(!/JAMAIS révéler|STRICTEMENT SECR/.test(c)) dit('le contexte part sans clause de secret');
     if(c.indexOf('ANTI-RECOPIE')<0) dit('le contexte part sans sa clause anti-recopie');
     return vus.slice(0,5).join(' | ');

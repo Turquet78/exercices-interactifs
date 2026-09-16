@@ -6184,6 +6184,152 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies terdecies. la suite par la DIFFÉRENCE : le repère partagé, la fraction tapée ===== */
+    /* {suite-variation-difference} : le repère et ses deux rails sont ceux du
+       6.11, servis dans un AUTRE hôte (svrHote choisit par le kind) — jsdom ne
+       clique pas, seul celui-ci voit que le clic pose bien dans cet écran-là.
+       Puis ce que jsdom ne peut pas lire : la fraction de d) TAPÉE dans un vrai
+       MathLive (U, indice, exposant — la sérialisation réelle que le juge doit
+       relire comme une fonction de Uₙ), les deux grilles à colonnes RENDUES
+       (les « ≤ » au même centre d'une rangée à l'autre, Uₙ₊₁ sous les termes,
+       rien qui défile à 1400 px), le tableau de signes avec une BOÎTE, et la
+       copie juste cliquée qui vaut le point. */
+    titre('6 vicies terdecies. LA SUITE PAR LA DIFFÉRENCE : LE REPÈRE PARTAGÉ, LA FRACTION TAPÉE');
+    if(!P.suiteVariationDifference){
+      ignorer('la suite par la différence : le clic pose dans son repère, la fraction tapée se relit',
+        'ce niveau n\'a pas l\'exercice du sens de variation par la différence');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 950 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.suiteVariationDifference.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* on ÉPINGLE le cas de la fiche : U0 = 0, 0 ≤ Un ≤ 1, la suite croît */
+      await s.page.evaluate(() => {
+        test.questions[test.idx] = { l:1, L:3, U0:0, sens:'cro', ordreLab:['un','num','cst','den','un1'], pts:[] };
+        renderSVD();
+      });
+      await s.page.waitForTimeout(600);
+      { const g = await s.page.evaluate(() => {
+          const svg = document.querySelector('#svdGraph svg'), autre = document.querySelector('#svrGraph svg');
+          const r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+          return { w: Math.round(r.width), h: Math.round(r.height), rails: document.querySelectorAll('#svdGraph .svr-hit').length,
+                   autre: !!autre, deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth + 2 }; });
+        if(g.w < 420 || g.h < 420) dits.push('le repère est rendu à ' + g.w + ' × ' + g.h + ' px dans l\'hôte svd');
+        if(g.rails !== 2) dits.push(g.rails + ' rail(s) cliquable(s) dans l\'hôte svd au lieu de 2');
+        if(g.autre) dits.push('le repère s\'est dessiné dans l\'hôte du 6.11 (svrGraph) au lieu du sien');
+        if(g.deborde) dits.push('la page déborde horizontalement à 1400 px'); }
+      const posRail = async (rail, x) => await s.page.evaluate(([rail, x]) => {
+        const svg = document.querySelector('#svdGraph svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal, k = r.width / vb.width;
+        const a = svrAns(test.questions[test.idx]);
+        const y = (rail === 'c') ? svrFn(a)(x) : x;
+        return { px: r.left + (SVR_PADL + x * SVR_PLOT / a.W) * k, py: r.top + (SVR_PADT + SVR_PLOT - y * SVR_PLOT / a.W) * k };
+      }, [rail, x]);
+      const clicRail = async (rail, x) => { const p = await posRail(rail, x); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(140); };
+      const A = await s.page.evaluate(() => { const a = svdAns(test.questions[test.idx]); return { U0: a.U0, U1: a.U1 }; });
+      await clicRail('c', A.U0); await clicRail('d', A.U1); await clicRail('c', A.U1);
+      { const p = await s.page.evaluate(() => {
+          const q = test.questions[test.idx], a = svdAns(q);
+          return { n: (q.pts || []).length, rails: (q.pts || []).map(x => x.r).join(''),
+                   verd: [0, 1, 2].map(i => svrPtJuste(a, i, (q.pts || [])[i])), dessines: document.querySelectorAll('#svdGraph .svr-pt').length }; });
+        if(p.n !== 3) dits.push('trois clics sur le repère de cet écran posent ' + p.n + ' point(s)');
+        else { if(p.rails !== 'cdc') dits.push('les clics tombent sur les rails « ' + p.rails + ' » au lieu de « cdc »');
+               if(!p.verd.every(Boolean)) dits.push('les trois points cliqués sont jugés ' + JSON.stringify(p.verd)); }
+        if(p.dessines !== 3) dits.push(p.dessines + ' point(s) dessiné(s) dans l\'hôte svd après trois clics'); }
+      /* LA FRACTION DE d) EST TAPÉE POUR DE VRAI : U, son indice, l'exposant — la
+         sérialisation réelle de MathLive, que jsdom n'a pas, doit se relire comme
+         une fonction de Uₙ, et comme une forme DÉVELOPPÉE */
+      { const boite = await s.page.evaluate(() => { const e = document.getElementById('svd-e4n'); if(!e) return null;
+          const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), police: parseFloat(getComputedStyle(e).fontSize) }; });
+        if(!boite || boite.w < 60 || boite.h < 20) dits.push('le champ de la dernière ligne de d) n\'a pas de boîte');
+        else {
+          if(boite.police < 18) dits.push('le champ de d) écrit à ' + boite.police + ' px, plus petit que sa rangée');
+          await s.page.click('#svd-e4n');
+          await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide */
+          await s.page.keyboard.type('U_n', { delay: 50 }); await s.page.keyboard.press('ArrowRight');
+          await s.page.keyboard.type('^2', { delay: 50 }); await s.page.keyboard.press('ArrowRight');
+          await s.page.keyboard.type('-4U_n', { delay: 50 }); await s.page.keyboard.press('ArrowRight');
+          await s.page.keyboard.type('+3', { delay: 50 });
+          await s.page.waitForTimeout(300);
+          const t = await s.page.evaluate(() => { const a = svdAns(test.questions[test.idx]);
+            const plain = svdMfPlain('svd-e4n'); return { plain, fn: svdFnOk(plain, svdTrin(a)), dev: svdDevOk(plain, svdTrin(a)) }; });
+          if(!t.fn) dits.push('le trinôme TAPÉ n\'est pas relu comme une fonction de Uₙ (lu : « ' + t.plain + ' »)');
+          else if(!t.dev) dits.push('le trinôme TAPÉ, développé, est refusé comme non développé (lu : « ' + t.plain + ' »)');
+        } }
+      /* LES GRILLES RENDUES : même colonne → même centre, chaque rangée d'un seul
+         tenant, rien ne défile à 1400 px (un display:grid perdu laisse toutes les
+         classes en place et met tout à la file) */
+      const mesurer = async () => await s.page.evaluate(() => {
+        const lire = g => {
+          const cels = [...g.querySelectorAll('.svr-cel')].map(c => {
+            const rg = document.createRange(); rg.selectNodeContents(c); const r = rg.getBoundingClientRect();
+            return { r: +c.dataset.r, c: +c.dataset.c, x: (r.left + r.right) / 2, top: r.top, bot: r.bottom,
+                     libre: c.classList.contains('svr-lib') || c.classList.contains('svr-suite') || c.classList.contains('svr-just') }; });
+          const sc = g.parentElement;
+          return { cels, debord: Math.round(sc.scrollWidth - sc.clientWidth), coupe: Math.round(sc.scrollHeight - sc.clientHeight) }; };
+        const gi = document.querySelector('#svdPartC .svd-grec'), gd = document.querySelector('#svdPartC .svd-gdemo');
+        const tbl = document.querySelector('#svdPartE table.svd-tbl');
+        const tr = tbl ? tbl.getBoundingClientRect() : null;
+        return { init: gi ? lire(gi) : null, demo: gd ? lire(gd) : null, tbl: tr ? { w: Math.round(tr.width), h: Math.round(tr.height) } : null,
+                 sg: [...document.querySelectorAll('#svdPartE select.svd-sg')].map(e => { const r = e.getBoundingClientRect(); return Math.round(r.width * r.height); }) };
+      });
+      const juger = (m, nom) => {
+        if(!m.init) { dits.push(nom + ' : la récurrence n\'est pas une grille à colonnes (.svd-grec)'); return; }
+        if(!m.demo) { dits.push(nom + ' : la démonstration n\'est pas une grille à colonnes (.svd-gdemo)'); return; }
+        [['la récurrence', m.init], ['la démonstration', m.demo]].forEach(([quoi, g]) => {
+          const rangs = {}; g.cels.forEach(c => { (rangs[c.r] = rangs[c.r] || []).push(c); });
+          Object.keys(rangs).forEach(r => { const cs = rangs[r], haut = Math.max(...cs.map(c => c.top)), bas = Math.min(...cs.map(c => c.bot));
+            if(haut >= bas - 4) dits.push(nom + ' : la rangée ' + r + ' de ' + quoi + ' n\'est pas d\'un seul tenant'); });
+          const cols = {}; g.cels.filter(c => !c.libre).forEach(c => { (cols[c.c] = cols[c.c] || []).push(c); });
+          Object.keys(cols).forEach(c => { const xs = cols[c].map(k => k.x), ecart = Math.max(...xs) - Math.min(...xs);
+            if(ecart > 3) dits.push(nom + ' : la colonne ' + c + ' de ' + quoi + ' n\'est pas alignée : ' + Math.round(ecart) + ' px d\'écart'); });
+          if(g.debord > 2) dits.push(nom + ' : ' + quoi + ' défile de ' + g.debord + ' px à 1400 px');
+          if(g.coupe > 0) dits.push(nom + ' : le bas de ' + quoi + ' est coupé par sa boîte (' + g.coupe + ' px)');
+        });
+        if(!m.tbl || m.tbl.w < 200 || m.tbl.h < 60) dits.push(nom + ' : le tableau de signes n\'a pas de boîte');
+        if(m.sg.length !== 3 || m.sg.some(a => a < 400)) dits.push(nom + ' : les trois listes de signe ne sont pas toutes rendues (' + m.sg.join(', ') + ')');
+      };
+      juger(await mesurer(), 'suite croissante');
+      /* la copie juste, CLIQUÉE : la note se lit sur ce que le bouton enregistre */
+      await s.page.evaluate(() => {
+        const q = test.questions[test.idx], V = svdVerdicts(q), a = svdAns(q);
+        SVD_IDS.forEach(id => { if(id === 'svd-e4n') return; const e = document.getElementById(id); if(!e) return;
+          if(e.tagName === 'MATH-FIELD') e.setValue(V.cor[id].tex); else e.value = V.cor[id]; });
+        q.pts = []; svrPtsAttendus(a).forEach(e => svrPoser(e.r, e.x));
+      });
+      await s.page.click('#svdActions button.btn-primary');
+      await s.page.waitForTimeout(400);
+      { const fin = await s.page.evaluate(() => {
+          const boite = sel => { const e = document.querySelector(sel); if(!e) return null; const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; };
+          const rouges = SVD_IDS.filter(id => document.getElementById(id).classList.contains('bad'));
+          const sel = document.getElementById('svd-s3');
+          return { score: test.score, note: ptsEcran(), rouges, esc: boite('#svdGraph .svr-esc-sol'),
+                   bleus: document.querySelectorAll('#svdGraph .svr-pt.ok').length, encre: sel ? getComputedStyle(sel).borderTopColor : '' }; });
+        if(fin.score !== 1) dits.push('la copie juste cliquée ne vaut pas le point (score ' + fin.score + (fin.rouges.length ? ', rouges : ' + fin.rouges.slice(0, 3).join(', ') : '') + ')');
+        if(!fin.note || fin.note.justes !== fin.note.cases) dits.push('la note affichée compte ' + (fin.note ? fin.note.justes + '/' + fin.note.cases : 'rien'));
+        if(!fin.esc || fin.esc.w < 20 || fin.esc.h < 20) dits.push('l\'escalier vert de la méthode n\'a pas d\'étendue');
+        if(fin.bleus !== 3) dits.push(fin.bleus + ' point(s) peint(s) en bleu au lieu de 3');
+        { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(fin.encre || '');
+          if(m){ const c = [+m[1], +m[2], +m[3]]; if(!(c[2] >= Math.max(c[0], c[1]))) dits.push('la liste juste du tableau de signes n\'est pas bordée de bleu : ' + fin.encre); } } }
+      /* LE VISAGE DÉCROISSANT, rendu pour de vrai : c'est lui dont la dernière ligne
+         déborde à DROITE (m ≤ Uₙ₊₁ ≤ f(M) ≤ M) */
+      await s.page.evaluate(() => {
+        const vd = svrVivier('dec')[0];
+        test.questions[test.idx] = { l: vd.l, L: vd.L, U0: vd.U0, sens: 'dec', pts: [] }; test.locked = false;
+        renderSVD();
+      });
+      await s.page.waitForTimeout(500);
+      juger(await mesurer(), 'suite décroissante');
+      verifier('la suite par la différence : le clic pose dans son repère, la fraction tapée se relit', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de la suite par la différence ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies decies. {python-affichage} : prédire, puis exécuter =====
        Le banc jsdom tient l'interpréteur (comparé à un vrai CPython), le
        tirage, le juge et les portes. Ce qu'il ne voit pas : le code et la
