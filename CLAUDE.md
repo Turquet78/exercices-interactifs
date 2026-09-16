@@ -7214,7 +7214,31 @@ leur terme et une ligne plus bas, que la justification partage sa bande avec
 les f(…), que rien ne défile à 1400 px et que la démonstration défile à
 900 — une grille ne sait pas se replier. Il rend aussi le visage CROISSANT
 à 1400 px : c'est lui qui manque de place au bout de la ligne des f(…), et
-un repli débranché s'y voit (214 px de défilement), pas sur le décroissant.
+un repli débranché s'y voit (« la démonstration défile de 97 px »), pas sur
+le décroissant.
+**Vingt-quatre sabotages en tout, sur quatre jours de demandes** — treize au
+banc jsdom (la ligne « donc » décalée, les valeurs remontées, les valeurs
+croisées, le décalage oublié, le décalage au mauvais visage, la justification
+remise en tête, les résultats posés nus, l'hérédité décalée, sa ligne « donc »
+sortie de la grille, ses « ≤ » glissés, la justification en un seul morceau…)
+et onze au navigateur —, **vingt-deux rougissant en nommant leur défaut**.
+Les deux verts ont chacun appris quelque chose. Le premier a nommé un TROU
+DU CONTRÔLE : « les cellules ne se centrent plus dans leur colonne »
+restait vert parce que le banc mesurait la BOÎTE de la cellule — qui
+s'étire sur toute sa colonne, donc a le centre de la colonne quoi qu'elle
+fasse de son contenu ; il mesure le CONTENU (un `Range`, qui rend la boîte du
+glyphe « ≤ » comme celle d'une liste), et le sabotage rejoué rougit (« la
+colonne 4 de la récurrence n'est pas alignée : 18 px d'écart »). Le second
+disait vrai : « le décalage du visage croissant est oublié » ne pouvait pas
+atteindre un banc navigateur qui ne rendait alors que le visage décroissant,
+où le décalage vaut zéro de toute façon — c'est jsdom qui tient ce bord et le
+nomme (« croissante : le résultat svr-g2 n'est pas SOUS svr-f1 »), et le
+navigateur rend le visage croissant depuis, pour la place et l'alignement.
+Un troisième sabotage a manqué sa cible sans rester vert : la ligne « donc »
+de l'hérédité sortie de la grille fait rougir jsdom (« une case de
+l'hérédité n'est pas dans une cellule ») comme le navigateur (« la rangée 6
+de la récurrence porte 0 « ≤ » au lieu de 3 : l'hérédité a quitté la
+grille »).
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
