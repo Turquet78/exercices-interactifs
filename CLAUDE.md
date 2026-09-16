@@ -7391,11 +7391,53 @@ même `kbPortraitTablette`, la même déclaration
 232, mesurés sur la feuille du 4.5. Les cinq sabotages de jsdom ont été
 rejoués sur elle, et rougissent de même. Ce qui distingue les deux niveaux
 reste ce qui les distinguait : la Première s'installe en plein écran, la
-Seconde garde la barre de navigation d'Android. La TERMINALE, elle, n'a
-jamais eu de forme compacte — son profil ne déclare ni `paysage` ni
-`portraitTablette`, ses contrôles de forme s'affichent « non applicable »,
-et son clavier à deux couches nommées répond à une autre demande : elle
-n'est pas touchée, et le dire vaut mieux que le taire.
+Seconde garde la barre de navigation d'Android. La TERMINALE, ce jour-là,
+n'était pas dans la demande — elle l'a été le lendemain, au paragraphe
+suivant ; elle reste le seul niveau sans forme compacte en PAYSAGE.
+
+**Et la TERMINALE, le lendemain : « fais pareil pour la terminale ».** Elle ne
+pouvait pas recevoir le même correctif à la lettre, et c'est le chiffre qui l'a
+dit : son **clavier A fait TRENTE unités** — la Première et la Seconde n'en ont
+que vingt-trois. Sur trois rangées il en faut **dix par rangée**, or la règle de
+la tablette donnait aux touches un HUITIÈME de la largeur, et le fichier disait
+déjà pourquoi : « la rangée la plus chargée en compte huit, et sans cela elle se
+rétrécirait SEULE ». Deux sorties se présentaient — des touches plus étroites,
+ou déménager six unités du clavier A vers le clavier B. **Turquet a choisi les
+touches plus étroites** : aucune touche ne bouge, l'élève retrouve le clavier
+qu'il connaît. Une règle média de plus, `(pointer:coarse) and (min-width:600px)
+and (orientation:portrait)`, pose `--keycap-width` sur DIX unités : la touche
+passe de 92 à **74 px de large** sur une tablette de 820, la hauteur (48 px) et
+la police (24 px) ne bougent pas. Le PAYSAGE n'est pas concerné — il garde ses
+quatre rangées de huit unités, et sa largeur y est de toute façon plafonnée à
+96 px. `buildKbTerm(vars, portrait)` décrit désormais ses touches **une seule
+fois**, dans un objet `K`, et les deux formes s'y composent ; les deux couches
+gardent leurs identifiants d'une forme à l'autre, si bien que « clavier A » et
+« clavier B » basculent sans rien savoir de la forme. En portrait, le clavier A
+tient sur `7 8 9 / e √ ( ) exposant ⌫`, puis `4 5 6 × ln − + = ← →`, puis
+`1 2 3 0 , espace ⏎ clavierB` ; le clavier B sur les variables + ∞ ⟶ ⌫, puis
+∫ π ∈ indice sin cos tan espace, puis arcsin arccos arctan clavierA ← → ⏎.
+Le contrôle des deux couches mesure maintenant les DEUX formes — comptes de
+rangées, partage `surA`/`surB`, place des variables, largeur maximale, et le
+MÊME jeu de touches d'une forme à l'autre —, plus les quatre cases de la table
+de routage (tablette debout, tablette couchée, téléphone, fenêtre flottante).
+Le faux écran des contrôles de forme est devenu commun aux deux familles de
+clavier (`fauxEcran`) : il honore l'orientation, la largeur minimale et le
+tactile, et ne répond rien à une requête inconnue.
+**Un sabotage a rougi l'idée que je me faisais du rendu, et c'est le meilleur
+moment de ce correctif.** Retirer la règle CSS des dix unités ne faisait pas
+déborder le clavier : MathLive **resserre tout seul** la rangée trop large — la
+touche « 5 » passait de 74 à 77 px — et laisse les autres rangées à 96 px. Le
+contrôle du navigateur, qui ne mesurait qu'UNE touche, restait vert sur une
+page fautive : deux tailles de touches sur le même écran, exactement ce que la
+règle du fichier interdit. Il mesure donc maintenant DEUX touches d'une unité
+posées sur des rangées DIFFÉRENTES du clavier B (∞ et π) et les exige égales —
+sans la règle, ∞ fait 92 px et π 87. Huit sabotages en tout, chacun rougissant
+en nommant son défaut : six en jsdom (une quatrième rangée en portrait, une
+rangée de onze unités, le `ln` retiré, le `=` sorti du clavier A, la forme
+courte qui fuit partout, la forme portrait jamais appliquée) et deux que seul
+le navigateur voit (`kbOnRotate` qui ne réapplique plus la forme — « 3 rangée(s)
+rendue(s) en paysage au lieu de 4 » — et la règle CSS retirée). Les trois
+niveaux ont maintenant leur forme de portrait.
 
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
