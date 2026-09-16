@@ -6142,8 +6142,9 @@ async function parcours(page, N){
             if(Math.abs(t.x - v.x) > 3) dits.push('la valeur n\'est pas centrée sous son terme (' + Math.round(t.x - v.x) + ' px)');
             if(v.top < t.bot - 2) dits.push('la valeur n\'est pas une ligne EN DESSOUS de son terme (haut ' + Math.round(v.top) + ', bas du terme ' + Math.round(t.bot) + ')');
           }); }
-        /* la démonstration : chaque f(…) a son résultat juste en dessous — même colonne, rangée suivante — et chaque « ≤ » le sien */
-        { const f = m.demo.cels.filter(c => c.r === 3 && !c.le), res = m.demo.cels.filter(c => c.r === 4 && !c.le);
+        /* la démonstration : chaque f(…) a son résultat juste en dessous — même colonne, rangée suivante — et chaque « ≤ » le sien
+           (la justification « car f(x) est … » vit au bout de la rangée des f(…) : elle n'est pas un terme) */
+        { const f = m.demo.cels.filter(c => c.r === 2 && !c.le && !c.libre), res = m.demo.cels.filter(c => c.r === 3 && !c.le);
           if(f.length !== 4) dits.push(f.length + ' f(…) au lieu de 4 dans la démonstration');
           if(res.length !== 5) dits.push(res.length + ' terme(s) au lieu de 5 sur la dernière ligne de la démonstration');
           f.forEach(k => {
@@ -6151,14 +6152,32 @@ async function parcours(page, N){
             if(!r) dits.push('le f(…) de la colonne ' + k.c + ' n\'a aucun résultat sous lui');
             else if(Math.abs(r.x - k.x) > 3 || r.top < k.bot - 2) dits.push('le résultat n\'est pas juste sous son f(…) (' + Math.round(r.x - k.x) + ' px de côté)');
           });
-          const le3 = m.demo.cels.filter(c => c.le && c.r === 3), le4 = m.demo.cels.filter(c => c.le && c.r === 4);
-          le3.forEach(k => { if(!le4.some(c => c.c === k.c && Math.abs(c.x - k.x) <= 3)) dits.push('un « ≤ » de la ligne des f(…) n\'a pas de « ≤ » sous lui (colonne ' + k.c + ')'); });
+          const le2 = m.demo.cels.filter(c => c.le && c.r === 2), le3 = m.demo.cels.filter(c => c.le && c.r === 3);
+          le2.forEach(k => { if(!le3.some(c => c.c === k.c && Math.abs(c.x - k.x) <= 3)) dits.push('un « ≤ » de la ligne des f(…) n\'a pas de « ≤ » sous lui (colonne ' + k.c + ')'); });
+          /* la justification est SUR la ligne des f(…) : sa cellule et les f(…) partagent une bande verticale */
+          const just = m.demo.cels.find(c => c.libre && c.r === 2);
+          if(!just) dits.push('« car f(x) est … » n\'est pas sur la ligne des f(…)');
+          else if(f.length && !(Math.max(just.top, ...f.map(c => c.top)) < Math.min(just.bot, ...f.map(c => c.bot)) - 4)) dits.push('« car f(x) est … » ne partage pas sa ligne avec les f(…)');
           if(!large && m.demo.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs'); }
       };
       jugerGrilles(await mesurerGrilles(), true);
       await s.page.setViewportSize({ width: 900, height: 950 });
       await s.page.waitForTimeout(300);
       jugerGrilles(await mesurerGrilles(), false);
+      /* LE VISAGE CROISSANT, rendu pour de vrai à 1400 px : c'est lui que le décalage
+         d'une colonne de terme concerne, et lui qui manque de place au bout de la
+         ligne des f(…) — 214 px de trop avant que la justification ne sache se
+         replier. Le banc jsdom tient la STRUCTURE du décalage ; ici on mesure que
+         la grille rendue tient dans sa boîte et reste alignée. */
+      await s.page.setViewportSize({ width: 1400, height: 950 });
+      await s.page.evaluate(() => {
+        const vc = svrVivier('cro')[0];
+        test.questions[test.idx] = { l: vc.l, L: vc.L, U0: vc.U0, sens: 'cro', pts: [] }; test.locked = false;
+        renderSVR();
+      });
+      await s.page.waitForTimeout(500);
+      { const avant = dits.length; jugerGrilles(await mesurerGrilles(), true);
+        for(let i = avant; i < dits.length; i++) dits[i] = 'suite croissante : ' + dits[i]; }
       verifier('le tracé en escalier se pose au clic, sur le bon rail', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la suite monotone ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
