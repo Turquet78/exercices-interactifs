@@ -3588,6 +3588,7 @@ function exercices(suite){
     signePremierDegre(w, P);
     jetonsSignePremier(w, P);
     variationsDerivee(w, P);
+    signeDeriveeQcm(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -18200,6 +18201,186 @@ function variationsDerivee(w, P){
     r=pose(null);      /* rien choisi */
     if(r.fb.indexOf('Choisis un tableau')<0) vus.push('une copie vide devrait demander de choisir, pas juger');
     if(/\\bbad\\b/.test(r.selCls)) vus.push('le menu vide rougit');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Signe de f', variations de f et QCM : une seule affirmation vraie ----
+   La fiche « Exercice 3 : QCM » (demande de Turquet, septembre 2026) : la
+   courbe de f' donnée, l'élève complète le tableau de signes de f' et les
+   variations de f, puis choisit la SEULE affirmation vraie parmi quatre. Le
+   contrôle recompte TOUT par sa propre arithmétique — zéros et signes sur les
+   valeurs de la courbe, sommets sur les différences, et la VÉRITÉ de chaque
+   affirmation relue sur ces signes, sans jamais appeler sdqVrai —, puis exige
+   exactement une vraie par question (deux vraies : une seule comptée, une
+   lecture juste comptée fausse ; zéro vraie : l'énoncé ment), quatre
+   affirmations deux à deux différentes, deux sur un extremum et deux sur un
+   sens (la composition de la fiche), le piège du SOMMET sur chaque question,
+   les deux familles de la vraie chacune deux fois par séance, et à famille
+   égale le rang de la vraie qui change. Le repli est repassé par les mêmes
+   gardes. Puis les gestes, sur une question FIXE : la copie juste vaut le
+   point et compte ses cases (le tableau ET le QCM), la case vide ne rougit
+   jamais (en entraînement comme en soutien), le QCM faux nomme son piège, la
+   liste du QCM ne se colore pas en direct, et les hôtes FANTÔMES sont vidés
+   — le tableau porte les ids ef-* de quatre autres écrans. */
+function signeDeriveeQcm(w, P){
+  const nom='signe de f\', variations de f et QCM : une seule affirmation vraie';
+  const present = evaluer(w, "typeof startSdq==='function' && typeof sdqBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du QCM sur la courbe de f\'');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='signe-derivee-qcm';
+    const MOINS='\\u2212';
+    const zerosDe=function(p){ const out=[]; for(let x=-3;x<=3;x++){ if(p[x+3]===0) out.push(x); } return out; };
+    const signesDe=function(p, roots){
+      const seps=[-3.5].concat(roots,[3.5]), out=[];
+      for(let i=0;i<seps.length-1;i++){ let sg=null;
+        for(let x=-3;x<=3;x++){ if(x>seps[i]&&x<seps[i+1]&&p[x+3]!==0){ sg=(p[x+3]>0)?'+':'-'; break; } }
+        out.push(sg); }
+      return out;
+    };
+    const sommetsDe=function(p){ const out=[]; let d0=Math.sign(p[1]-p[0]);
+      for(let i=1;i<6;i++){ const d=Math.sign(p[i+1]-p[i]); if(d!==0&&d0!==0&&d!==d0) out.push(i-3); if(d!==0) d0=d; }
+      return out;
+    };
+    /* la vérité d'une affirmation, par la SECONDE arithmétique : sur les
+       signes relus, jamais par sdqVrai */
+    const vraiSelonMoi=function(p, roots, sg, prop){
+      if(prop.t==='ext'){ const i=roots.indexOf(prop.x); if(i<0) return false;
+        return prop.k==='min' ? (sg[i]==='-'&&sg[i+1]==='+') : (sg[i]==='+'&&sg[i+1]==='-'); }
+      if(prop.t!=='mono') return null;
+      if(roots.some(function(r){ return r>prop.a&&r<prop.b; })) return false;
+      let i=0; while(i<roots.length && roots[i]<(prop.a+prop.b)/2) i++;
+      return (sg[i]==='+')===(prop.d==='croissante');
+    };
+    const sig=function(p){ return p.t==='ext' ? ('e'+p.k+p.x) : ('m'+p.d+p.a+'|'+p.b); };
+    const jugeQuestion=function(q, ou){
+      const cles=Object.keys(q).filter(function(k){ return ['ptsp','props'].indexOf(k)<0; });
+      if(cles.length) vus.push(ou+' : la question range autre chose que la courbe et les affirmations : '+cles.join(','));
+      if(!Array.isArray(q.props) || q.props.length!==4){ vus.push(ou+' : '+(q.props||[]).length+' affirmations au lieu de 4'); return null; }
+      q.props.forEach(function(p){
+        const ok=(p.t==='ext') ? ['t','k','x'] : ['t','d','a','b'];
+        const etr=Object.keys(p).filter(function(k){ return ok.indexOf(k)<0; });
+        if(etr.length) vus.push(ou+' : une affirmation range autre chose que sa nature ('+etr.join(',')+') — sa vérité ou son piège seraient rangés à côté de la question');
+        if(p.t==='ext' && (['min','max'].indexOf(p.k)<0 || p.x<=-3 || p.x>=3)) vus.push(ou+' : extremum mal formé '+JSON.stringify(p));
+        if(p.t==='mono' && (['croissante','décroissante'].indexOf(p.d)<0 || !(p.a<p.b) || p.a<-3 || p.b>3)) vus.push(ou+' : sens mal formé '+JSON.stringify(p));
+      });
+      const zeros=zerosDe(q.ptsp);
+      if(!zeros.length||zeros.length>2) vus.push(ou+' : '+zeros.length+' zéro(s) sur la courbe de f\\'');
+      if(zeros.some(function(r){ return r<=-3||r>=3; })) vus.push(ou+' : un zéro de f\\' au bord du dessin');
+      for(let i=1;i<zeros.length;i++){ if(zeros[i]-zeros[i-1]<2) vus.push(ou+' : deux zéros voisins : '+zeros.join(',')); }
+      const sg=signesDe(q.ptsp, zeros);
+      if(sg.some(function(x){ return x===null; })) vus.push(ou+' : un intervalle sans graduation pour porter son signe');
+      for(let i=1;i<sg.length;i++){ if(sg[i]===sg[i-1]) vus.push(ou+' : f\\' ne change pas de signe à un zéro'); }
+      q.ptsp.forEach(function(v){ if(v!==0&&Math.abs(v)<1) vus.push(ou+' : f\\' frôle l\\'axe sans le toucher'); });
+      const som=sommetsDe(q.ptsp);
+      if(!som.length) vus.push(ou+' : aucun sommet sur la courbe de f\\' : le piège de la fiche n\\'a rien à lire');
+      if(!q.props.some(function(p){ return p.t==='ext' && som.indexOf(p.x)>=0; }))
+        vus.push(ou+' : aucune affirmation ne pose un extremum sur un SOMMET de f\\' — le piège de la fiche manque');
+      const verites=q.props.map(function(p){ return vraiSelonMoi(p, zeros, sg, p); });
+      const nbV=verites.filter(function(v){ return v===true; }).length;
+      if(nbV!==1) vus.push(ou+' : '+nbV+' affirmation(s) vraie(s) au lieu d\\'une — '+q.props.map(function(p){ return sig(p); }).join(' ; '));
+      if(new Set(q.props.map(sig)).size!==4) vus.push(ou+' : deux affirmations identiques : deux bonnes réponses, une seule comptée');
+      const nExt=q.props.filter(function(p){ return p.t==='ext'; }).length;
+      if(nExt!==2) vus.push(ou+' : '+nExt+' affirmation(s) sur un extremum au lieu de 2 — la composition de la fiche est perdue');
+      const iv=verites.indexOf(true);
+      return { fam: iv<0?null:q.props[iv].t, rang: iv };
+    };
+    const parFam={ext:new Set(), mono:new Set()};
+    for(let t=0;t<150 && !vus.length;t++){
+      const qs=sdqBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      const fams=[];
+      qs.forEach(function(q,i){ const r=jugeQuestion(q, 'question '+(i+1)); if(r&&r.fam){ fams.push(r.fam); parFam[r.fam].add(r.rang); } });
+      const nE=fams.filter(function(f){ return f==='ext'; }).length;
+      if(fams.length===4 && nE!==2) vus.push('la séance pose '+nE+' vraie(s) sur un extremum et '+(4-nE)+' sur un sens : chaque visage doit sortir deux fois');
+    }
+    if(!vus.length){
+      Object.keys(parFam).forEach(function(f){
+        if(parFam[f].size<2) vus.push('à famille égale ('+f+'), la vraie tombe toujours au rang '+Array.from(parFam[f]).join(''));
+      });
+      /* le repli de la courbe, par les mêmes gardes, avec les affirmations
+         des deux familles construites dessus */
+      ['ext','mono'].forEach(function(f){ jugeQuestion({ptsp:SDQ_REPLI.slice(), props:sdqProps(SDQ_REPLI.slice(), f)}, 'le repli SDQ_REPLI ('+f+')'); });
+    }
+
+    /* ---- les gestes, sur une question FIXE : f' = (−1,−2,−3,0,1,2,3), zéro en 0
+       (− puis +), creux de f' en −1. L'intervalle qui enjambe est
+       « décroissante sur [−1 ; 1] » — la phrase de la fiche, et le SEUL bord
+       qui atteigne sdqVrai : un juge qui oublierait le zéro intérieur lirait
+       le signe au milieu (0, le zéro même, compté à droite : −) et la
+       tiendrait pour vraie — deux vraies, la copie juste refusée. Avec
+       « croissante », le sabotage restait vert en parlant d'autre chose. ---- */
+    const Q0={ptsp:[-1,-2,-3,0,1,2,3], props:[{t:'ext',k:'min',x:-1},{t:'mono',d:'décroissante',a:-1,b:1},{t:'ext',k:'min',x:0},{t:'mono',d:'croissante',a:-3,b:0}]};
+    const JUSTE={'ef-r0':'0','ef-l0s0':MOINS,'ef-l0s1':'+','ef-a0':'down','ef-a1':'up','sdq-sel':'2'};
+    function pose(valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'sdq', questions:[JSON.parse(JSON.stringify(Q0))], idx:0, score:0,
+        answers:[], startTime:Date.now(), locked:false});
+      show('sdq'); renderSdq();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkSdq();
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      return { score:test.score, fb:document.getElementById('sdqFeedback').textContent,
+        cls:cls, cases:(test.answers[0]||{}).cases,
+        rouges:[].slice.call(document.querySelectorAll('#scr-sdq .bad')).filter(function(e){ return /^(INPUT|SELECT)$/.test(e.tagName); }).map(function(e){ return e.id; }),
+        props:[].slice.call(document.querySelectorAll('#sdqHost .sdq-prop')).map(function(e){ return e.className.replace('sdq-prop','').trim(); }) };
+    }
+    /* les hôtes FANTÔMES : un reste dans un autre hôte gagnerait getElementById */
+    document.getElementById('efTable').innerHTML='<input id="ef-r0" value="fantôme">';
+    document.getElementById('afpHost').innerHTML='<input id="ef-a0" value="fantôme">';
+    let r=pose(JUSTE);
+    if(document.getElementById('efTable').innerHTML!=='' || document.getElementById('afpHost').innerHTML!=='')
+      vus.push('les hôtes des autres écrans ne sont pas vidés au rendu : le tableau fantôme reprendrait la main');
+    { const el=document.getElementById('ef-r0'); if(!el || !el.closest('#sdqHost')) vus.push('getElementById(ef-r0) ne rend pas la case de CET écran'); }
+    if(r.score!==1) vus.push('la copie juste ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==6) vus.push('la copie juste compte '+r.cases+' cases au lieu de 6 (tableau + QCM)');
+    if(r.props[2].indexOf('ok')<0) vus.push('la bonne affirmation choisie ne se marque pas juste (ok)');
+    if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    /* le QCM faux : le piège du sommet, nommé */
+    r=pose(Object.assign({},JUSTE,{'sdq-sel':'0'}));
+    if(r.score!==0) vus.push('le piège du sommet vaut le point');
+    if(!/SOMMET/.test(r.fb)) vus.push('le retour ne nomme pas le piège du sommet choisi : '+r.fb.slice(0,120));
+    if(r.props[0].indexOf('bad')<0 || r.props[2].indexOf('sol')<0) vus.push('les affirmations ne montrent pas la choisie (bad) et la bonne en correction (sol)');
+    if(!/\\bbad\\b/.test(r.cls('sdq-sel'))) vus.push('le menu du QCM faux ne rougit pas');
+    r=pose(Object.assign({},JUSTE,{'sdq-sel':'1'}));
+    if(!/INTÉRIEUR/.test(r.fb)) vus.push('le retour ne nomme pas l\\'intervalle qui enjambe un zéro : '+r.fb.slice(0,120));
+    r=pose(Object.assign({},JUSTE,{'sdq-sel':'3'}));
+    if(!/SENS/.test(r.fb)) vus.push('le retour ne nomme pas le sens inversé : '+r.fb.slice(0,120));
+    /* le tableau faux : la case fausse reste rouge, sa voisine juste bleue */
+    r=pose(Object.assign({},JUSTE,{'ef-l0s0':'+'}));
+    if(r.score!==0) vus.push('un signe faux vaut encore le point');
+    if(r.rouges.join(',')!=='ef-l0s0') vus.push('un signe faux rougit autre chose que lui-même : '+r.rouges.join(','));
+    if(!/\\bok\\b/.test(r.cls('ef-l0s1'))) vus.push('le signe juste à côté d\\'un signe faux n\\'est pas bleu');
+    /* la case vide ne rougit jamais, en entraînement comme en soutien */
+    r=pose({'sdq-sel':'2'});
+    if(r.rouges.length) vus.push('en entraînement, une case vide rougit : '+r.rouges.join(','));
+    if(!/\\bsol\\b/.test(r.cls('ef-r0'))) vus.push('la case vide ne reçoit pas la correction (sol)');
+    r=pose({'ef-r0':'0','sdq-sel':'0'},'soutien');
+    if(r.rouges.join(',')!=='sdq-sel') vus.push('en soutien, autre chose que le QCM faux rougit : '+r.rouges.join(','));
+    if(!/Revérifier/.test(document.getElementById('sdqActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(test.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    /* la liste du QCM ne se colore pas en direct (à quatre propositions, il
+       suffirait d'essayer), les cases du tableau si */
+    pose(null,'soutien');
+    { const sel=document.getElementById('sdq-sel'); sel.value='0'; sel.dispatchEvent(new Event('change'));
+      const s0=document.getElementById('ef-l0s0'); s0.value='+'; s0.dispatchEvent(new Event('change'));
+      if(/\\b(ok|bad)\\b/.test(sel.className)) vus.push('la liste du QCM se colore en direct');
+      if(!/\\bbad\\b/.test(s0.className)) vus.push('en soutien, un signe faux ne se colore pas en direct'); }
+    r=pose(null);
+    if(!/Complète au moins une case/.test(r.fb)) vus.push('une copie vide devrait demander de compléter, pas juger');
+    /* cliquer une affirmation la choisit dans le menu */
+    pose(null);
+    { const p=document.querySelectorAll('#sdqHost .sdq-prop')[1]; p.click();
+      if(document.getElementById('sdq-sel').value!=='1') vus.push('cliquer une affirmation ne la choisit pas');
+      if(!/\\bchoisie\\b/.test(p.className)) vus.push('l\\'affirmation cliquée ne se marque pas choisie'); }
+    /* le contexte du modèle porte la clause de secret et la bonne lettre */
+    pose(null);
+    { const c=sdqConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/affirmation vraie : c/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec la bonne lettre'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
