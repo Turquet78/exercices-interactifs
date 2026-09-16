@@ -6184,6 +6184,91 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies terdecies. {suite-vocabulaire} : la fiche se COCHE =====
+       Le banc jsdom tient le tirage (refait sur les termes montrés), le juge
+       et les gestes. Ce qu'il ne voit pas : le quadrillage RENDU à une taille
+       lisible avec ses treize croix et la droite y = ℓ d'étendue non nulle,
+       les cases à cocher CLIQUÉES pour de vrai et leur encre RÉSOLUE — juste
+       en bleu, cochée à tort en rouge, oubliée en vert —, le badge de la bonne
+       borne mesuré au RECTANGLE, et la page qui ne déborde ni à 1400 px ni sur
+       une tablette en portrait, où la fiche passe sous le dessin. */
+    titre('6 vicies terdecies. VOCABULAIRE SUR LES SUITES : LA FICHE SE COCHE');
+    if(!P.suiteVocabulaire){
+      ignorer('la fiche du vocabulaire se coche, et ses couleurs disent le verdict',
+        'ce niveau n\'a pas l\'exercice du vocabulaire sur les suites');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 950 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.suiteVocabulaire.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(700);
+      const dits = [];
+      /* on ÉPINGLE l'exemple 1 de la fiche : la mesure ne doit pas dépendre du tirage */
+      await s.page.evaluate(q => { test.questions[test.idx] = q; test.locked = false; renderSVQ(); },
+        { fam: 'decconv', L: 1, A: 3, q: 0.8, rep: {} });
+      await s.page.waitForTimeout(300);
+      const geo = await s.page.evaluate(() => {
+        const svg = document.querySelector('#svqGraph svg'); if(!svg) return { manque: true };
+        const r = svg.getBoundingClientRect();
+        const croix = [...svg.querySelectorAll('.svq-terme')].filter(g => { const b = g.getBoundingClientRect(); return b.width > 4 && b.height > 4; }).length;
+        const lim = svg.querySelector('.svq-lim'); const lr = lim ? lim.getBoundingClientRect() : null;
+        return { manque: false, w: Math.round(r.width), h: Math.round(r.height), croix, lim: lr ? Math.round(lr.width) : 0,
+                 deborde: document.documentElement.scrollWidth > window.innerWidth + 1 };
+      });
+      if(geo.manque) dits.push('aucun quadrillage rendu');
+      else {
+        if(geo.w < 420 || geo.h < 220) dits.push('le quadrillage est rendu à ' + geo.w + ' × ' + geo.h + ' px : les graduations ne se lisent plus');
+        if(geo.croix !== 13) dits.push(geo.croix + ' croix rendues au lieu de 13');
+        if(geo.lim < 300) dits.push('la droite y = 1 n\'a pas d\'étendue (' + geo.lim + ' px)');
+        if(geo.deborde) dits.push('la page déborde à 1400 px');
+      }
+      /* les cases se COCHENT au clic, et la valeur ne s'ouvre qu'avec sa case */
+      const coche = async (grp, val) => {
+        await s.page.click('#svqForm .svq-coche[data-grp="' + grp + '"]' + (val ? '[data-val="' + val + '"]' : '')); };
+      const ferme = await s.page.$eval('#svq-maj', e => e.disabled);
+      await coche('sens', 'dec'); await coche('maj'); await coche('min'); await coche('lim', 'a'); await coche('nat', 'div');
+      const ouvert = await s.page.$eval('#svq-maj', e => !e.disabled);
+      if(!ferme || !ouvert) dits.push('la valeur du majorant n\'est pas fermée avant le clic sur « majorée » et ouverte après');
+      await s.page.fill('#svq-maj', '3'); await s.page.fill('#svq-min', '1'); await s.page.fill('#svq-lim', '1');
+      await s.page.click('#svqActions button.btn-primary');
+      await s.page.waitForTimeout(400);
+      /* l'encre RÉSOLUE, comparée aux variables de la convention — jamais à une classe */
+      const enc = await s.page.evaluate(() => {
+        const probe = document.createElement('span'); document.body.appendChild(probe);
+        const par = v => { probe.style.color = 'var(' + v + ')'; return getComputedStyle(probe).color; };
+        const ref = { bleu: par('--blue'), rouge: par('--red'), vert: par('--green') }; probe.remove();
+        const box = sel => { const e = document.querySelector(sel + ' .svq-box'); if(!e) return null;
+          const cs = getComputedStyle(e); return { bord: cs.borderTopColor, fond: cs.backgroundColor, style: cs.borderTopStyle }; };
+        const badge = document.querySelector('#svq-maj + .mf-cor'); const br = badge ? badge.getBoundingClientRect() : null;
+        return { ref, juste: box('#svq-g-sens .svq-coche[data-val="dec"]'), tort: box('#svq-g-nat .svq-coche[data-val="div"]'),
+                 oubli: box('#svq-c-bor'), bonne: box('#svq-g-nat .svq-coche[data-val="conv"]'),
+                 badge: br ? { w: Math.round(br.width), txt: badge.textContent } : null,
+                 score: test.score, cases: (test.answers[0] || {}).cases };
+      });
+      if(enc.score !== 0) dits.push('la copie fausse vaut le point');
+      if(enc.cases !== 9) dits.push('la note compte ' + enc.cases + ' cases au lieu de 9');
+      if(!enc.juste || enc.juste.bord !== enc.ref.bleu) dits.push('la case cochée juste n\'a pas le bord BLEU de la convention (' + (enc.juste && enc.juste.bord) + ')');
+      if(!enc.tort || enc.tort.fond !== enc.ref.rouge) dits.push('la case cochée à tort n\'a pas le fond ROUGE de la convention (' + (enc.tort && enc.tort.fond) + ')');
+      if(!enc.oubli || enc.oubli.bord !== enc.ref.vert || enc.oubli.style !== 'dashed') dits.push('la case oubliée « bornée » n\'a pas le bord VERT pointillé de la correction');
+      if(!enc.bonne || enc.bonne.bord !== enc.ref.vert) dits.push('la bonne nature non choisie n\'est pas montrée en vert');
+      if(!enc.badge || enc.badge.w < 8 || enc.badge.txt.trim() !== '4') dits.push('la bonne borne (4) ne s\'affiche pas à côté de la valeur fausse');
+      /* sur une tablette en portrait, la fiche passe sous le dessin sans déborder */
+      await s.page.setViewportSize({ width: 820, height: 1180 });
+      await s.page.waitForTimeout(300);
+      const tab = await s.page.evaluate(() => {
+        const g = document.querySelector('#svqGraph svg').getBoundingClientRect(), f = document.getElementById('svqForm').getBoundingClientRect();
+        return { deborde: document.documentElement.scrollWidth > window.innerWidth + 1, svgW: Math.round(g.width), dessous: f.top >= g.bottom - 2 };
+      });
+      if(tab.deborde) dits.push('la page déborde sur une tablette en portrait');
+      if(tab.svgW > 820 || tab.svgW < 300) dits.push('sur tablette le quadrillage fait ' + tab.svgW + ' px');
+      if(!tab.dessous) dits.push('sur tablette la fiche ne passe pas sous le dessin');
+      verifier('la fiche du vocabulaire se coche, et ses couleurs disent le verdict', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran du vocabulaire sur les suites ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies decies. {python-affichage} : prédire, puis exécuter =====
        Le banc jsdom tient l'interpréteur (comparé à un vrai CPython), le
        tirage, le juge et les portes. Ce qu'il ne voit pas : le code et la

@@ -3595,6 +3595,7 @@ function exercices(suite){
     jetonsSignePremier(w, P);
     variationsDerivee(w, P);
     signeDeriveeQcm(w, P);
+    suiteVocabulaire(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -18938,6 +18939,205 @@ function signeDeriveeQcm(w, P){
     /* le contexte du modèle porte la clause de secret et la bonne lettre */
     pose(null);
     { const c=sdqConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/affirmation vraie : c/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec la bonne lettre'); }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Vocabulaire sur les suites : la fiche à cocher ----
+   La fiche « Vocabulaire sur les suites » (demande de Turquet, septembre
+   2026) : les termes U₀ à U₁₂ d'une suite sur un quadrillage, et l'élève
+   coche ce qu'elle semble être — le sens, les bornes, la limite, la nature.
+   Le contrôle refait TOUT par une SECONDE arithmétique, sur les treize termes
+   que le dessin montre et jamais par svqAns : le sens se relit sur les
+   différences, une borne annoncée doit tenir sur chaque terme et être
+   ATTEINTE (ou être la limite, pour la suite monotone convergente, dont la
+   droite y = ℓ doit alors être dessinée), une suite dite « non majorée » doit
+   s'échapper vers le haut sur les termes montrés, une limite finie doit être
+   approchée, une limite infinie doit emporter la suite, et « pas de limite »
+   doit encore osciller au bout. Les extremums tombent sur des demi-graduations
+   au moins, sans quoi la fiche ferait lire ce qui ne se lit pas. La séance
+   pose une croissante, une décroissante, deux non monotones distinctes, les
+   deux natures, en ordre mélangé, et les neuf visages sortent tous sur cent
+   séances. Puis les gestes, sur trois questions ÉPINGLÉES : la copie juste
+   vaut le point et compte ses cases, une borne plus large est JUSTE (« majorée
+   par 10 » devant une suite qui plafonne à 4 est vraie) quand une borne trop
+   serrée rougit seule, la limite infinie se lit par « inf », une case NON
+   cochée qui aurait dû l'être est laissée VIDE (verte, jamais rouge), le
+   groupe exclusif ne garde qu'une case, une valeur n'est ouverte qu'une fois
+   sa case cochée, le soutien ne révèle rien et verrouille le juste, la copie
+   vide redemande, et le contexte du modèle porte la clause de secret. */
+function suiteVocabulaire(w, P){
+  const nom='vocabulaire sur les suites : la fiche à cocher';
+  const present = evaluer(w, "typeof startSVQ==='function' && typeof svqSession==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du vocabulaire sur les suites');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='suite-vocabulaire';
+    const CHAMPS={ decconv:['L','A','q'], croconv:['L','A','q'], croinf:['U0','k'], decinf:['U0','k'],
+      noninfm:['U0','k','s'], noninfp:['U0','k','s'], period:['a','d','dep'], amorti:['L','i','sg'], oscinf:['c','s'] };
+    const termes=function(q){ const t=[]; for(let n=0;n<=12;n++) t.push(Math.round(svqVal(q,n)*100)/100); return t; };
+    /* le sens, relu sur les DIFFÉRENCES des termes montrés */
+    const sensDe=function(t){ let inc=true, dec=true;
+      for(let i=0;i<t.length-1;i++){ if(!(t[i+1]>t[i])) inc=false; if(!(t[i+1]<t[i])) dec=false; }
+      return inc?'cro':(dec?'dec':'non'); };
+    const jugeQuestion=function(q, ou){
+      if(!CHAMPS[q.fam]){ vus.push(ou+' : famille inconnue '+q.fam); return null; }
+      const etr=Object.keys(q).filter(function(k){ return k!=='fam' && k!=='rep' && CHAMPS[q.fam].indexOf(k)<0; });
+      if(etr.length) vus.push(ou+' : la question range autre chose que la famille et ses paramètres : '+etr.join(','));
+      const a=svqAns(q), t=termes(q), mx=Math.max.apply(null,t), mn=Math.min.apply(null,t);
+      if(sensDe(t)!==a.sens) vus.push(ou+' ('+q.fam+') : la page dit « '+a.sens+' », les termes montrés disent « '+sensDe(t)+' »');
+      const finie=(typeof a.lim==='number');
+      if(a.maj){
+        if(a.sup<mx-1e-9) vus.push(ou+' ('+q.fam+') : « majorée par '+a.sup+' » et un terme vaut '+mx);
+        if(Math.abs(a.sup-mx)>1e-9 && !(finie && Math.abs(a.sup-a.lim)<1e-9)) vus.push(ou+' ('+q.fam+') : le majorant '+a.sup+' n\\'est ni atteint ni la limite — il ne se lit pas sur le dessin');
+        if(!Number.isInteger(a.sup*2)) vus.push(ou+' ('+q.fam+') : le majorant '+a.sup+' ne tombe pas sur une demi-graduation');
+      } else {
+        const debut=Math.max.apply(null,t.slice(0,3)), fin=Math.max.apply(null,t.slice(10));
+        if(fin-debut<2) vus.push(ou+' ('+q.fam+') : dite non majorée, mais les termes montrés ne s\\'échappent pas vers le haut ('+debut+' → '+fin+')');
+      }
+      if(a.min){
+        if(a.inf>mn+1e-9) vus.push(ou+' ('+q.fam+') : « minorée par '+a.inf+' » et un terme vaut '+mn);
+        if(Math.abs(a.inf-mn)>1e-9 && !(finie && Math.abs(a.inf-a.lim)<1e-9)) vus.push(ou+' ('+q.fam+') : le minorant '+a.inf+' n\\'est ni atteint ni la limite');
+        if(!Number.isInteger(a.inf*2)) vus.push(ou+' ('+q.fam+') : le minorant '+a.inf+' ne tombe pas sur une demi-graduation');
+      } else {
+        const debut=Math.min.apply(null,t.slice(0,3)), fin=Math.min.apply(null,t.slice(10));
+        if(debut-fin<2) vus.push(ou+' ('+q.fam+') : dite non minorée, mais les termes montrés ne s\\'échappent pas vers le bas');
+      }
+      if(a.bor!==(a.maj&&a.min)) vus.push(ou+' : bornée ≠ majorée ET minorée');
+      if(a.conv!==finie) vus.push(ou+' : convergente ≠ limite finie');
+      if(a.aLim!==(a.lim!==null)) vus.push(ou+' : aLim ne suit pas lim');
+      if(finie){
+        if(Math.abs(t[12]-a.lim)>0.6 || Math.abs(t[12]-a.lim)>=Math.abs(t[0]-a.lim)) vus.push(ou+' ('+q.fam+') : la limite annoncée '+a.lim+' n\\'est pas approchée (U0 = '+t[0]+', U12 = '+t[12]+')');
+        if(!Number.isInteger(a.lim)) vus.push(ou+' : la limite '+a.lim+' n\\'est pas entière');
+      } else if(a.lim==='+∞'){ if(t[12]-t[0]<3) vus.push(ou+' ('+q.fam+') : dite de limite +∞, la suite ne monte que de '+(t[12]-t[0])); }
+      else if(a.lim==='−∞'){ if(t[0]-t[12]<3) vus.push(ou+' ('+q.fam+') : dite de limite −∞, la suite ne descend que de '+(t[0]-t[12])); }
+      else if(a.lim===null){ if(Math.abs(t[12]-t[11])<1) vus.push(ou+' ('+q.fam+') : dite sans limite, la suite s\\'est calmée au bout ('+t[11]+' ; '+t[12]+')'); }
+      else vus.push(ou+' : limite illisible '+a.lim);
+      /* la droite y = ℓ : dessinée pour la suite MONOTONE convergente, et pour elle seule */
+      const attendLigne=(a.sens!=='non' && finie);
+      if(attendLigne && a.ligne!==a.lim) vus.push(ou+' ('+q.fam+') : la droite y = ℓ n\\'est pas dessinée — « majorée par » ne se lirait pas sur treize termes');
+      if(!attendLigne && a.ligne!==null) vus.push(ou+' ('+q.fam+') : une droite est dessinée là où la fiche n\\'en met pas');
+      /* les réponses de l'écran : 6 à 9, une valeur par borne ou limite qui existe */
+      const C=svqCases(q), ids=C.map(function(x){ return x.id; });
+      const attendu=6+(a.maj?1:0)+(a.min?1:0)+(a.aLim?1:0);
+      if(C.length!==attendu) vus.push(ou+' ('+q.fam+') : '+C.length+' réponses au lieu de '+attendu);
+      if((ids.indexOf('svq-maj')>=0)!==a.maj || (ids.indexOf('svq-min')>=0)!==a.min || (ids.indexOf('svq-lim')>=0)!==a.aLim) vus.push(ou+' : une valeur est demandée pour une borne ou une limite qui n\\'existe pas (ou l\\'inverse)');
+      return a;
+    };
+    const famsVues=new Set(), premiers=new Set();
+    for(let s=0;s<100 && vus.length<6;s++){
+      const qs=svqSession();
+      if(qs.length!==SVQ_NB){ vus.push('la séance pose '+qs.length+' questions au lieu de '+SVQ_NB); break; }
+      const fams=qs.map(function(q){ return q.fam; });
+      if(new Set(fams).size!==fams.length) vus.push('deux questions de la même famille dans une séance : '+fams.join(','));
+      const ans=qs.map(function(q,i){ return jugeQuestion(q,'séance '+s+', question '+(i+1)); });
+      if(ans.some(function(a){ return !a; })) break;
+      const sens=ans.map(function(a){ return a.sens; });
+      if(sens.filter(function(x){ return x==='cro'; }).length!==1 || sens.filter(function(x){ return x==='dec'; }).length!==1 || sens.filter(function(x){ return x==='non'; }).length!==2)
+        vus.push('la séance ne pose pas une croissante, une décroissante et deux non monotones : '+fams.join(','));
+      if(!ans.some(function(a){ return a.conv; }) || !ans.some(function(a){ return !a.conv; })) vus.push('la séance ne montre pas les deux natures : '+fams.join(','));
+      fams.forEach(function(f){ famsVues.add(f); }); premiers.add(sens[0]);
+    }
+    if(!vus.length){
+      SVQ_FAMS.forEach(function(f){ if(!famsVues.has(f)) vus.push('le visage « '+f+' » ne sort jamais sur 100 séances'); });
+      if(premiers.size<3) vus.push('l\\'ordre des questions ne varie pas : la première est toujours '+Array.from(premiers).join(','));
+    }
+
+    /* ---- les gestes, sur des questions ÉPINGLÉES ---- */
+    const Q1={fam:'decconv',L:1,A:3,q:0.8,rep:{}};     /* l'exemple 1 de la fiche : 4, 3,4, … → 1 ; majorée par 4, minorée par 1 */
+    const Q2={fam:'croinf',U0:1,k:0.05,rep:{}};        /* l'exemple 3 : croissante vers +∞, minorée par 1 */
+    const Q3={fam:'period',a:1,d:3,dep:'bas',rep:{}};  /* l'exemple 7 : 1, 4, 1, 4 … bornée, sans limite */
+    const coche=function(grp,val){ const el=document.querySelector('#svqForm .svq-coche[data-grp="'+grp+'"]'+(val?'[data-val="'+val+'"]':'')); if(el) el.click(); return el; };
+    const cls=function(sel){ const el=document.querySelector(sel); return el?el.className:'(absent)'; };
+    const rouges=function(){ return [].slice.call(document.querySelectorAll('#scr-svq .bad')).filter(function(e){ return /^(INPUT|SELECT)$/.test(e.tagName); }).map(function(e){ return e.id; }); };
+    function pose(Q, coches, valeurs, mode, sansVerif){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'svq', questions:[JSON.parse(JSON.stringify(Q))], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('svq'); renderSVQ();
+      (coches||[]).forEach(function(c){ coche(c[0],c[1]); });
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      if(!sansVerif) checkSVQ();
+      return { score:test.score, fb:document.getElementById('svqFeedback').textContent, cases:(test.answers[0]||{}).cases, locked:!!test.locked, rouges:rouges() };
+    }
+    const JUSTE1=[['sens','dec'],['maj'],['min'],['bor'],['lim','a'],['nat','conv']], VAL1={'svq-maj':'4','svq-min':'1','svq-lim':'1'};
+    let r=pose(Q1, JUSTE1, VAL1);
+    if(r.score!==1) vus.push('la copie juste de l\\'exemple 1 ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==9) vus.push('la copie juste compte '+r.cases+' cases au lieu de 9');
+    if(!r.locked) vus.push('la copie juste ne verrouille pas');
+    if(!/\\bok\\b/.test(cls('#svq-g-sens')) || !/\\bok\\b/.test(cls('#svq-c-bor'))) vus.push('les groupes justes ne se marquent pas ok');
+    /* une borne plus LARGE est une phrase vraie ; une borne trop serrée est fausse — et rougit SEULE */
+    r=pose(Q1, JUSTE1, {'svq-maj':'10','svq-min':'0','svq-lim':'1,0'});
+    if(r.score!==1) vus.push('« majorée par 10, minorée par 0 » est refusé sur une suite entre 1 et 4 : une lecture juste comptée fausse');
+    r=pose(Q1, JUSTE1, {'svq-maj':'3','svq-min':'1','svq-lim':'1'});
+    if(r.score!==0) vus.push('« majorée par 3 » vaut le point alors que U0 = 4');
+    if(r.rouges.join(',')!=='svq-maj') vus.push('la borne trop serrée rougit autre chose qu\\'elle-même : '+r.rouges.join(','));
+    if(!/\\bok\\b/.test(cls('#svq-c-maj'))) vus.push('la case « majorée » cochée à raison n\\'est plus bleue quand sa valeur est fausse');
+    if(!document.querySelector('#svqForm #svq-maj + .mf-cor')) vus.push('la bonne borne ne s\\'affiche pas en correction à côté de la valeur fausse');
+    /* la nature fausse : la case choisie rouge, la bonne en vert, la note compte 8 sur 9 */
+    r=pose(Q1, [['sens','dec'],['maj'],['min'],['bor'],['lim','a'],['nat','div']], VAL1);
+    if(r.score!==0) vus.push('« divergente » vaut le point sur une suite qui converge');
+    if(!/\\bbad\\b/.test(cls('#svq-g-nat .svq-coche[data-val="div"]')) || !/\\bsol\\b/.test(cls('#svq-g-nat .svq-coche[data-val="conv"]'))) vus.push('la nature fausse ne montre pas la choisie en rouge et la bonne en vert');
+    if(!/\\bbad\\b/.test(cls('#svq-g-nat'))) vus.push('le groupe faux ne compte pas comme une case fausse');
+    { const a=test.answers[0]; if(!a || a.cases!==9 || Math.abs(a.pts-8/9)>1e-9) vus.push('la nature fausse ne coûte pas exactement une case sur 9'); }
+    if(!/convergente/.test(r.fb) || !/FINIE/.test(r.fb)) vus.push('le retour ne rappelle pas ce que convergente veut dire');
+    /* une case NON cochée qui aurait dû l'être est VIDE : verte, jamais rouge — et un groupe sans choix aussi */
+    r=pose(Q1, [['sens','dec'],['maj'],['min'],['nat','conv']], {'svq-maj':'4','svq-min':'1'});
+    if(r.rouges.length) vus.push('en entraînement, une case laissée vide rougit : '+r.rouges.join(','));
+    if(!/\\bsol\\b/.test(cls('#svq-c-bor')) || /\\bbad\\b/.test(cls('#svq-c-bor'))) vus.push('« bornée » oubliée n\\'est pas cochée en vert (elle rougit, ou rien)');
+    if(!/\\bsol\\b/.test(cls('#svq-g-lim .svq-coche[data-val="a"]'))) vus.push('la limite non choisie n\\'est pas montrée en vert');
+    if(!/\\bsol\\b/.test(cls('#svq-lim'))) vus.push('la valeur de la limite laissée vide n\\'est pas complétée en vert');
+    if(!/complétées/.test(r.fb)) vus.push('le message ne dit pas que des cases oubliées ont été complétées');
+    /* une case cochée À TORT rougit */
+    r=pose(Q2, [['sens','cro'],['maj'],['min'],['lim','a'],['nat','div']], {'svq-maj':'9','svq-min':'1','svq-lim':'inf'});
+    if(r.score!==0) vus.push('« majorée » cochée sur une suite qui tend vers +∞ vaut le point');
+    if(!/\\bbad\\b/.test(cls('#svq-c-maj'))) vus.push('« majorée » cochée à tort ne rougit pas');
+    if(r.cases!==8) vus.push('l\\'exemple 3 compte '+r.cases+' cases au lieu de 8 (pas de majorant à écrire)');
+    r=pose(Q2, [['sens','cro'],['min'],['lim','a'],['nat','div']], {'svq-min':'1','svq-lim':'inf'});
+    if(r.score!==1) vus.push('la copie juste de l\\'exemple 3 (limite « inf », divergente) ne vaut pas le point ('+r.fb+')');
+    if(!/\\bok\\b/.test(cls('#svq-c-maj'))) vus.push('« majorée » laissée décochée à raison n\\'est pas bleue');
+    r=pose(Q2, [['sens','cro'],['min'],['lim','a'],['nat','conv']], {'svq-min':'1','svq-lim':'+∞'});
+    if(r.score!==0) vus.push('« convergente » vaut le point sur une suite de limite +∞');
+    r=pose(Q3, [['sens','non'],['maj'],['min'],['bor'],['lim','non'],['nat','div']], {'svq-maj':'4','svq-min':'1'});
+    if(r.score!==1) vus.push('la copie juste de l\\'exemple 7 (1, 4, 1, 4 : sans limite) ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==8) vus.push('l\\'exemple 7 compte '+r.cases+' cases au lieu de 8 (pas de limite à écrire)');
+    /* le soutien : rien n'est révélé, le juste se verrouille, le faux rougit, puis on corrige */
+    r=pose(Q1, [['sens','dec'],['maj'],['min'],['bor'],['lim','a'],['nat','div']], VAL1, 'soutien');
+    if(r.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    if(!/Revérifier/.test(document.getElementById('svqActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(document.querySelector('#svqForm .sol')) vus.push('en soutien, la bonne réponse est révélée en vert');
+    if(!/\\bbad\\b/.test(cls('#svq-g-nat .svq-coche[data-val="div"]'))) vus.push('en soutien, la nature fausse ne rougit pas');
+    if(!/\\bfige\\b/.test(cls('#svq-g-sens .svq-coche[data-val="dec"]'))) vus.push('en soutien, le groupe juste ne se verrouille pas');
+    if(coche('sens','cro') && test.questions[0].rep.sens!=='dec') vus.push('en soutien, un groupe verrouillé se laisse encore changer');
+    coche('nat','conv'); checkSVQ();
+    if(test.score!==1 || !test.locked) vus.push('en soutien, la copie corrigée ne vaut pas le point');
+    /* les cases : un groupe exclusif ne garde qu'une case, recliquer décoche, une valeur ne s'ouvre qu'une fois cochée */
+    pose(Q1, [], {}, 'train', true);
+    coche('sens','cro'); coche('sens','dec');
+    if(test.questions[0].rep.sens!=='dec' || document.querySelectorAll('#svq-g-sens .svq-coche.on').length!==1) vus.push('le groupe du sens garde deux cases cochées');
+    coche('sens','dec');
+    if(test.questions[0].rep.sens!==null) vus.push('recliquer une case cochée ne la décoche pas');
+    if(!document.getElementById('svq-maj').disabled) vus.push('la valeur du majorant est ouverte avant que « majorée » soit cochée');
+    coche('maj');
+    if(document.getElementById('svq-maj').disabled) vus.push('cocher « majorée » n\\'ouvre pas sa valeur');
+    if(document.querySelector('#svq-c-maj').getAttribute('aria-checked')!=='true') vus.push('la case cochée ne le dit pas (aria-checked)');
+    svqInf('+∞');
+    if(document.getElementById('svq-lim').value!=='') vus.push('le bouton +∞ écrit dans une limite fermée');
+    coche('lim','a'); svqInf('−∞');
+    if(document.getElementById('svq-lim').value!=='−∞') vus.push('le bouton −∞ n\\'écrit pas dans la limite ouverte');
+    /* l'état coché voyage dans la QUESTION : un aller-retour JSON puis un rendu le remet */
+    { const copie=JSON.parse(JSON.stringify(test.questions[0])); test.questions[0]=copie; renderSVQ();
+      if(!/\\bon\\b/.test(cls('#svq-c-maj')) || !/\\bon\\b/.test(cls('#svq-g-lim .svq-coche[data-val="a"]'))) vus.push('après un aller-retour JSON, les cases cochées ne reviennent pas'); }
+    /* la copie vide redemande, sans rien peindre */
+    r=pose(Q1, [], {});
+    if(!/Coche au moins une case/.test(r.fb)) vus.push('une copie vide devrait demander de cocher, pas juger');
+    if(document.querySelector('#svqForm .bad, #svqForm .sol')) vus.push('une copie vide reçoit des couleurs');
+    /* le contexte du modèle : la clause de secret et la phrase entière */
+    pose(Q1, [], {}, 'train', true);
+    { const c=svqConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/décroissante, majorée par 4 et minorée par 1/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec la lecture attendue'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
