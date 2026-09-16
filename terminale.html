@@ -674,7 +674,7 @@
   .svr-pt.ok circle{fill:var(--blue)}
   .svr-pt.bad circle{fill:var(--red)}
   .svr-pt.sol circle{fill:var(--surface);stroke:var(--green);stroke-width:3.2}
-  .svr-le{padding:0 7px;font-weight:800}
+  .svr-le{padding:0 5px;font-weight:800}
   .svr-fix{font-weight:700}
   .svr-uw{display:inline-flex;align-items:baseline}
   .svr-sub{display:inline-flex;align-items:center;gap:1px;font-size:.72em;position:relative;top:.32em}
@@ -690,11 +690,12 @@
      (le « c'est vrai » de l'initialisation, la justification de la demonstration)
      s'y etale sans elargir les colonnes qu'elle enjambe — un element qui enjambe
      une piste souple ne compte pas dans la largeur des pistes. */
-  .svr-grille{display:grid;grid-template-columns:repeat(9,max-content) minmax(0,1fr);align-items:center;column-gap:4px;row-gap:8px;font-size:1.25rem;justify-content:start;white-space:nowrap}
+  .svr-grille{display:grid;grid-template-columns:repeat(9,max-content) minmax(0,1fr);align-items:center;column-gap:3px;row-gap:8px;font-size:1.25rem;justify-content:start;white-space:nowrap}
   .svr-cel{display:inline-flex;align-items:center;justify-content:center;gap:6px}
   .svr-cel.svr-lib{justify-content:flex-end;padding-right:4px}
-  .svr-cel.svr-suite{justify-content:flex-start;padding-left:10px}
-  .svr-cel.svr-just{justify-content:flex-start;margin-bottom:2px}
+  .svr-cel.svr-suite{justify-content:flex-start;padding-left:6px}
+  .svr-cel.svr-just{justify-content:flex-start;flex-wrap:wrap;row-gap:2px;padding-left:8px}   /* la justification se replie plutôt que de faire défiler la démonstration */
+  .svr-morceau{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
   .svr-cel.svr-val .svr-eg{color:var(--ink-soft)}
   .svr-cel.svr-bloc{margin-top:10px}   /* l'hérédité se détache de l'initialisation, dans la même grille */
   .svr-etape{row-gap:10px}
@@ -18128,22 +18129,26 @@ function renderSVR(){
     +cel(6,1,T('donc :'),'svr-lib')
     +chaineInit(6, svrU('svr-m3',false), svrU('svr-m4',false))
     +'</div></div>';
-  /* la démonstration : le résultat de f(…) tombe SOUS son f(…), et les trois
-     chaînes se suivent SANS rien entre elles. La justification (f croissante sur
-     son intervalle) ouvre donc le bloc, sur sa propre ligne : posée au bout de
-     la ligne des f(…), elle la faisait DÉFILER dès 1400 px (66 px de trop quand
-     la suite décroît, 214 quand elle croît — mesuré). La dernière chaîne a CINQ
-     termes — le terme qui élargit est à DROITE quand la suite décroît, à GAUCHE
-     quand elle croît (voir svrAns) : dans ce second cas les deux chaînes du
-     dessus commencent une colonne de terme plus loin, pour que chaque f(…) reste
-     au-dessus de son résultat. */
+  /* la démonstration : le résultat de f(…) tombe SOUS son f(…). La justification
+     (« car f(x) est croissante sur [0 ; 2] ») s'écrit AU BOUT de la ligne des f(…)
+     — demande de Turquet, septembre 2026, qui a retiré la ligne d'ouverture qui
+     la disait à part. Les colonnes se calant sur le plus large, il lui manquait de
+     la place sur cette ligne (66 px de trop quand la suite décroît, 214 quand elle
+     croît, à 1400 px) : sa cellule va jusqu'au bout de la grille et SE REPLIE sur
+     deux ou trois lignes quand la place manque, plutôt que de faire défiler la
+     démonstration. La dernière chaîne a CINQ termes — le terme qui élargit est à
+     DROITE quand la suite décroît, à GAUCHE quand elle croît (voir svrAns) : dans
+     ce second cas les deux chaînes du dessus commencent une colonne de terme plus
+     loin, pour que chaque f(…) reste au-dessus de son résultat. */
   const off=a.dec?0:2;
   const demoHTML='<div class="svr-scroll"><div class="svr-grille svr-gdemo">'
-    +cel(1,1,T('<i>f</i> est')+svrSel('svr-mono',a,[['cro','croissante'],['dec','décroissante']])
-      +T('sur [&nbsp;')+svrIn('svr-b3',false)+T('&nbsp;;&nbsp;')+svrIn('svr-b4',false)+T('&nbsp;], et on l’applique à l’encadrement :'),'svr-just',true)
-    +cel(2,1+off,fixG)+leC(2,2+off)+cel(2,3+off,svrSel('svr-p1',a))+leC(2,4+off)+cel(2,5+off,svrSel('svr-p2',a))+leC(2,6+off)+cel(2,7+off,fixD)
-    +[1,2,3,4].map(function(i){ return (i>1?leC(3,2*i-2+off):'')+cel(3,2*i-1+off,'<span class="svr-fapp"><i>f</i> (&nbsp;'+svrSel('svr-f'+i,a)+'&nbsp;)</span>'); }).join('')
-    +[1,2,3,4,5].map(function(i){ return (i>1?leC(4,2*i-2):'')+cel(4,2*i-1,svrSel('svr-g'+i,a)); }).join('')
+    +cel(1,1+off,fixG)+leC(1,2+off)+cel(1,3+off,svrSel('svr-p1',a))+leC(1,4+off)+cel(1,5+off,svrSel('svr-p2',a))+leC(1,6+off)+cel(1,7+off,fixD)
+    +[1,2,3,4].map(function(i){ return (i>1?leC(2,2*i-2+off):'')+cel(2,2*i-1+off,'<span class="svr-fapp"><i>f</i> ('+svrSel('svr-f'+i,a)+')</span>'); }).join('')
+    /* deux MORCEAUX insécables — « car f(x) est [croissante] » et « sur [ 0 ; 2 ] » : la
+       cellule ne se replie qu'entre eux, jamais entre une borne et son crochet */
+    +cel(2,8+off,'<span class="svr-morceau">'+T('car <i>f</i> (<i>x</i>) est')+svrSel('svr-mono',a,[['cro','croissante'],['dec','décroissante']])+'</span>'
+      +'<span class="svr-morceau">'+T('sur [&nbsp;')+svrIn('svr-b3',false)+T('&nbsp;;&nbsp;')+svrIn('svr-b4',false)+T('&nbsp;]')+'</span>','svr-just',true)
+    +[1,2,3,4,5].map(function(i){ return (i>1?leC(3,2*i-2):'')+cel(3,2*i-1,svrSel('svr-g'+i,a)); }).join('')
     +'</div></div>';
   $('svrTitreE').innerHTML='Démontre par récurrence que&nbsp;: <b>'+G+' ≤ '
     +(a.dec?(U+'<sub>'+n+'+1</sub> ≤ '+U+'<sub>'+n+'</sub>'):(U+'<sub>'+n+'</sub> ≤ '+U+'<sub>'+n+'+1</sub>'))
