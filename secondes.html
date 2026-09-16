@@ -3045,7 +3045,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=173;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=174;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5085,7 +5085,7 @@ const RAP_PVN=`<b>Le nom d’une variable en Python</b><br>
 /* Nommer une variable : les règles de la fiche, en mots — aucun décimal dans
    la prose (le contrôle des numéros en dur), aucune fraction à empiler. */
 const RAP_PNV=`<b>Nommer une variable</b><br>
-<b>① Un nom de variable dit ce qu’il stocke</b> : pour le nombre de filles, <code class="inline">nb_filles</code> ou <code class="inline">filles</code> — pas <code class="inline">x</code>, qui ne dit rien. Pas trop long non plus : on doit pouvoir le retaper sans se tromper.<br>
+<b>① Un nom de variable dit ce qu’il stocke</b> : pour le nombre de filles, <code class="inline">nb_filles</code> ou <code class="inline">filles</code> se relisent mieux que <code class="inline">x</code>, qui ne dit rien. En maths une lettre suffit souvent (<code class="inline">v</code> pour une vitesse, <code class="inline">r</code> pour un rayon), et elle est acceptée ici ; en informatique on préfère un nom qui se lit. Pas trop long non plus : on doit pouvoir le retaper sans se tromper.<br>
 <b>② Seulement des lettres, des chiffres et le tiret bas</b> <code class="inline">_</code> : <b>jamais d’espace</b> (Python lirait deux mots), pas de tiret (<code class="inline">nb-filles</code> serait une soustraction), pas d’apostrophe ni de point. Pour deux mots, on les colle ou on met un tiret bas : <code class="inline">tarif_repas</code>, <code class="inline">tarifRepas</code>.<br>
 <b>③ Il ne commence pas par un chiffre</b> : <code class="inline">note2</code> est permis, <code class="inline">2note</code> ne l’est pas.<br>
 <b>④ Pas un mot de Python</b> : <code class="inline">for</code>, <code class="inline">if</code>, <code class="inline">print</code>, <code class="inline">type</code>… sont déjà pris.<br>
@@ -17178,13 +17178,19 @@ function ctxPvn(q){
    honnête : lettres, chiffres et tiret bas seulement (pas d'espace — la
    remarque de la fiche —, pas de tiret, pas d'apostrophe), ne commence pas
    par un chiffre, n'est pas un mot réservé de Python ni le nom d'une fonction
-   du cours (print, type, int…), au moins 2 caractères — un nom d'une lettre
-   ne dit pas ce qu'il stocke —, au plus PNV_MAX (« pas trop long »). Et deux
+   du cours (print, type, int…), au plus PNV_MAX (« pas trop long »). Et deux
    grandeurs de la même question ne peuvent pas porter le MÊME nom : ce serait
    une seule variable — la seconde occurrence est fausse, la première reste
    défendable (la règle des paires d'{antecedent-nombre}). La PERTINENCE du nom
    (dit-il ce qu'il stocke ?) n'est pas prouvable : elle est expliquée, jamais
-   notée — le modèle peut en parler, la page ne rougit pas dessus.
+   notée — le modèle peut en parler, la page ne rougit pas dessus. C'EST CE QUI
+   A RETIRÉ LA LONGUEUR MINIMALE de 2 caractères (demande de Turquet, septembre
+   2026) : elle prétendait tenir cette pertinence et la tenait À L'ENVERS — elle
+   refusait « v » pour une vitesse et « r » pour un rayon, les notations MÊMES du
+   cours de maths, et acceptait « xy », qui ne dit rien. Un garde qui refuse du
+   juste et accepte du faux ne tient pas la propriété qu'il annonce. Le rappel ①
+   DIT la préférence — et dit aussi qu'une lettre est acceptée, sans quoi l'écran
+   promettrait un refus que le juge ne prononce plus.
    L'alphabet du juge est CELUI DE L'INTERPRÉTEUR (pyLex : lettres latines,
    accents compris, chiffres, tiret bas) : un nom accepté doit pouvoir
    s'exécuter, puisque la page ÉCRIT ensuite le programme avec les noms de
@@ -17197,7 +17203,7 @@ function ctxPvn(q){
    porte que les INDICES des grandeurs (on range l'indice, jamais l'objet). */
 const PNV_NB=3;
 const PNV_PAR_Q=4;
-const PNV_MIN=2, PNV_MAX=20;
+const PNV_MAX=20;
 /* les mots réservés de Python 3 (keyword.kwlist), et les noms de fonctions
    que le cours emploie : « print = 3 » est légal mais tue print — on le refuse
    en le nommant */
@@ -17254,7 +17260,6 @@ function pnvForme(nom){
   if(m) return {ok:false, code:'caractere', raison:'le caractère « '+m[0]+' » n’est pas autorisé dans « '+nom+' » : seulement des lettres, des chiffres et le tiret bas _'};
   if(PNV_RESERVES.indexOf(nom)>=0) return {ok:false, code:'reserve', raison:'« '+nom+' » est un mot réservé de Python : il ne peut pas servir de nom de variable'};
   if(PNV_FONCTIONS.indexOf(nom)>=0) return {ok:false, code:'fonction', raison:'« '+nom+' » est déjà le nom d’une fonction de Python : choisis un autre nom'};
-  if(nom.length<PNV_MIN) return {ok:false, code:'court', raison:'« '+nom+' » n’a qu’une lettre : un nom doit dire ce qu’il stocke — au moins '+PNV_MIN+' caractères'};
   if(nom.length>PNV_MAX) return {ok:false, code:'long', raison:'« '+nom+' » est trop long ('+nom.length+' caractères) : au plus '+PNV_MAX};
   return {ok:true, code:'ok', raison:''};
 }
@@ -17382,7 +17387,7 @@ function nextPNV(){ if(test.idx<test.questions.length-1){ test.idx++; renderPNV(
 function ctxPnv(q){
   const cases=pnvCases(q), donne=cases.map(function(c){ const el=$(c.id); return c.g.txt+' → '+((el&&el.value.trim())||'(vide)'); }).join(' ; ');
   let c='L’élève doit proposer un nom de variable Python pour chacune de ces grandeurs : '+cases.map(function(c){ return c.g.txt; }).join(' ; ')+'. '
-    +'Il n’y a pas UNE bonne réponse : tout nom qui respecte les règles convient. Les règles, annoncées à l’élève : seulement des lettres, des chiffres et le tiret bas _ (pas d’espace — c’est le piège de la fiche —, pas de tiret, pas d’apostrophe) ; le nom ne commence pas par un chiffre ; ce n’est ni un mot réservé de Python (for, if, while…) ni le nom d’une fonction (print, type, int…) ; au moins '+PNV_MIN+' caractères, au plus '+PNV_MAX+' ; deux grandeurs de la même question ne portent pas le même nom. Un bon nom DIT ce qu’il stocke : on colle les mots ou on les sépare par un tiret bas. '
+    +'Il n’y a pas UNE bonne réponse : tout nom qui respecte les règles convient. Les règles, annoncées à l’élève : seulement des lettres, des chiffres et le tiret bas _ (pas d’espace — c’est le piège de la fiche —, pas de tiret, pas d’apostrophe) ; le nom ne commence pas par un chiffre ; ce n’est ni un mot réservé de Python (for, if, while…) ni le nom d’une fonction (print, type, int…) ; au plus '+PNV_MAX+' caractères ; deux grandeurs de la même question ne portent pas le même nom. Un bon nom DIT ce qu’il stocke : on colle les mots ou on les sépare par un tiret bas — mais un nom d’UNE LETTRE est ACCEPTÉ ici (v, l, r sont les notations du cours de maths) : tu peux conseiller un nom plus parlant, jamais dire qu’une lettre est refusée. '
     +'Exemples possibles (STRICTEMENT SECRETS, ne jamais les donner tels quels : rappelle les règles et laisse l’élève trouver son nom) : '+cases.map(function(c){ return c.g.ex; }).join(', ')+'. '
     +'Ce que l’élève a écrit : '+donne+'.';
   return {nombre:'', contexte:c};

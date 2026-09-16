@@ -17071,11 +17071,11 @@ function pythonNomVariable(w, P){
   })()`, v => v === '');
 
   /* ---- 4. le juge, cas par cas ---- */
-  verifierEval(w, 'le juge de la forme : l’espace, le chiffre en tête, le tiret et l’apostrophe, les mots réservés, les fonctions de Python, une seule lettre et le nom trop long sont refusés en se nommant ; les écritures valides passent, accents et chiffres compris', `(function(){
+  verifierEval(w, 'le juge de la forme : l’espace, le chiffre en tête, le tiret et l’apostrophe, les mots réservés, les fonctions de Python et le nom trop long sont refusés en se nommant ; les écritures valides passent, accents et chiffres compris — et un nom d’UNE LETTRE est ACCEPTÉ (v, l, r : les notations du cours de maths)', `(function(){
     const vus=[];
-    const refus=[["nb filles","espace"],["tarif du repas","espace"],["2note","chiffre"],["nb-filles","caractere"],["l’aire","caractere"],["tarif.repas","caractere"],["for","reserve"],["while","reserve"],["True","reserve"],["print","fonction"],["type","fonction"],["int","fonction"],["x","court"],["n","court"],["le_nombre_de_filles_de_seconde","long"]];
+    const refus=[["nb filles","espace"],["tarif du repas","espace"],["2note","chiffre"],["nb-filles","caractere"],["l’aire","caractere"],["tarif.repas","caractere"],["for","reserve"],["while","reserve"],["True","reserve"],["print","fonction"],["type","fonction"],["int","fonction"],["le_nombre_de_filles_de_seconde","long"]];
     refus.forEach(function(r){ const f=pnvForme(r[0]); if(f.ok||f.code!==r[1]) vus.push("« "+r[0]+" » : attendu "+r[1]+", obtenu "+JSON.stringify(f)); else if(!f.raison||f.raison.indexOf(r[0])<0) vus.push("le refus de « "+r[0]+" » ne nomme pas la saisie : "+f.raison); });
-    ["nb_filles","nbFilles","aire","note2","_x","Note","tarifRepas","eleves","élèves","nombre_de_filles","ab"].forEach(function(n){ const f=pnvForme(n); if(!f.ok) vus.push("« "+n+" » refusé : "+f.raison); });
+    ["nb_filles","nbFilles","aire","note2","_x","Note","tarifRepas","eleves","élèves","nombre_de_filles","ab","v","l","r","x","n"].forEach(function(n){ const f=pnvForme(n); if(!f.ok) vus.push("« "+n+" » refusé : "+f.raison); });
     const v=pnvForme(""); if(v.ok||v.code!=="vide") vus.push("la case vide n’est pas « vide » : "+JSON.stringify(v));
     const v2=pnvForme("   "); if(v2.ok||v2.code!=="vide") vus.push("trois espaces ne font pas une case vide : "+JSON.stringify(v2));
     if(pnvForme("nb-filles").raison.indexOf("-")<0) vus.push("le refus du tiret ne nomme pas le caractère");
@@ -17206,6 +17206,9 @@ function pythonNomVariable(w, P){
     const rap=RAPPELS.pnv||""; if(!rap) vus.push("pas de rappel RAPPELS.pnv");
     if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
     ["espace","chiffre","tiret bas","print"].forEach(function(m){ if(rap.indexOf(m)<0) vus.push("le rappel ne dit pas « "+m+" »"); });
+    /* la longueur minimale RETIRÉE : l'écran ne doit plus promettre un refus que
+       le juge ne prononce plus — le rappel ① dit qu'une lettre est acceptée */
+    if(rap.indexOf("accept")<0) vus.push("le rappel ne dit pas qu’un nom d’une lettre est accepté : l’écran promettrait un refus que le juge ne prononce plus");
     if(!QIA_SUGG.pnv||QIA_SUGG.pnv.length<3) vus.push("pas de questions à l’IA pour pnv");
     currentMode="train"; startPNV(); const q=test.questions[0], cases=pnvCases(q);
     document.getElementById(cases[0].id).value="ma saisie";
@@ -17214,6 +17217,11 @@ function pythonNomVariable(w, P){
     if(c.indexOf("ma saisie")<0) vus.push("le contexte ne porte pas la saisie de l’élève");
     if(c.indexOf("espace")<0||c.indexOf("chiffre")<0) vus.push("le contexte ne dit pas les règles");
     if(c.indexOf("SECR")<0||c.indexOf(cases[0].g.ex)<0) vus.push("le contexte ne déclare pas les exemples secrets");
+    if(c.indexOf("UNE LETTRE")<0) vus.push("le contexte ne dit pas au modèle qu’un nom d’une lettre est accepté : son conseil contredirait le juge");
+    /* aucun antislash dans ce contrôle : il traverse le gabarit de verifier.js
+       PUIS l'évaluation dans la page, et un \d y deviendrait un d (le piège
+       documenté) — une simple recherche de chaîne, donc */
+    if(c.indexOf("au moins")>=0) vus.push("le contexte annonce encore une longueur minimale : " + c.slice(c.indexOf("au moins"), c.indexOf("au moins")+40));
     if(!afficherEcranDe("pnv")) vus.push("afficherEcranDe ne connaît pas pnv (reprise et rejeu)");
     if(String(liveCheckCurrent).indexOf("checkPNV")<0) vus.push("liveCheckCurrent ne corrige pas pnv en direct");
     if(typeof pnvCases!=="function"||pnvCases(q).length!==${PARQ}) vus.push("pnvCases (la convention de la coupe d’un devoir) ne rend pas ${PARQ} cases");
@@ -17223,10 +17231,10 @@ function pythonNomVariable(w, P){
   /* ---- 10. la seconde méthode : CPython sur les bords de SYNTAXE du juge ----
      Les refus de la première famille (espace, chiffre, caractère, réservé)
      doivent être des refus de Python ; les acceptations doivent être des
-     acceptations ; et les refus de la seconde famille (fonction, court, long)
+     acceptations ; et les refus de la seconde famille (fonction, long)
      doivent être des noms que Python ACCEPTE — c'est ce qui en fait des règles
      de l'exercice, annoncées à l'écran, et non des faits de syntaxe. */
-  const CANDIDATS = ['nb_filles','nbFilles','aire','note2','_x','Note','tarifRepas','eleves','élèves','nombre_de_filles','ab','nb filles','tarif du repas','2note','nb-filles','l’aire','tarif.repas','for','while','True','None','class','print','type','int','x','n','le_nombre_de_filles_de_seconde','nb__filles','été','a1b2'];
+  const CANDIDATS = ['nb_filles','nbFilles','aire','note2','_x','Note','tarifRepas','eleves','élèves','nombre_de_filles','ab','nb filles','tarif du repas','2note','nb-filles','l’aire','tarif.repas','for','while','True','None','class','print','type','int','x','n','v','le_nombre_de_filles_de_seconde','nb__filles','été','a1b2'];
   const pageVerdicts = evaluer(w, 'JSON.stringify(' + JSON.stringify(CANDIDATS) + '.map(function(n){ return pnvForme(n).code; }))');
   const codes = pageVerdicts.ok ? JSON.parse(pageVerdicts.valeur) : [];
   verifier('le juge classe chaque candidat', codes.length === CANDIDATS.length && codes.indexOf('vide') < 0, codes.join(','));
@@ -17247,7 +17255,7 @@ function pythonNomVariable(w, P){
         if(syntaxe && pyOk) ecarts.push('« ' + n + ' » refusé par la page (' + code + '), accepté par CPython');
         if(!syntaxe && code !== 'ok' && !pyOk) ecarts.push('« ' + n + ' » : la règle « ' + code + ' » de l’exercice porte sur un nom que Python refuse aussi (' + ref[i].trim() + ') — ce n’est pas une règle de l’exercice');
       });
-      const syntaxes = codes.filter(c => ['espace','chiffre','caractere','reserve'].indexOf(c) >= 0).length, propres = codes.filter(c => ['fonction','court','long'].indexOf(c) >= 0).length;
+      const syntaxes = codes.filter(c => ['espace','chiffre','caractere','reserve'].indexOf(c) >= 0).length, propres = codes.filter(c => ['fonction','long'].indexOf(c) >= 0).length;
       if(syntaxes < 4 || propres < 3) ecarts.push('les candidats ne couvrent pas les deux familles de refus (' + syntaxes + ' / ' + propres + ') : le contrôle ne mesure rien');
       verifier(nomPy + ' (' + CANDIDATS.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
     }
