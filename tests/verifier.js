@@ -8505,7 +8505,13 @@ function suiteVariationRecurrence(w, P){
     if(svrDerStr(a)!=='3/(4 − x)²') dit('la fiche : f ′(x) s’écrit « '+svrDerStr(a)+' »');
 
     /* ---- 4. L’ÉCRAN : les cases, les deux rails cliquables, l’énoncé ----- */
-    const rejouer=function(){ test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; q.pts=[]; show('svr'); renderSVR(); };
+    const rejouer=function(){ delete test.svrLignes; test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; q.pts=[]; show('svr'); renderSVR(); };
+    /* d) est présentée comme le 2.5 : on ÉCRIT dans la feuille, ligne par ligne. */
+    const feuille=function(vals){
+      while(svrFeuille.lignes.length<vals.length) svrFeuille.ajouterLigne();
+      vals.forEach(function(v,i){ svrFeuille.lignes[i].mf.setValue(v); });
+    };
+    const ligneRouge=function(i){ return svrFeuille.lignes[i].line.classList.contains('bad'); };
     rejouer();
     SVR_IDS.forEach(function(id){ if(!document.getElementById(id)) dit('case absente : '+id); });
     if(svrCases(q).length!==SVR_IDS.length) dit('svrCases rend '+svrCases(q).length+' case(s) pour '+SVR_IDS.length+' identifiants');
@@ -8516,6 +8522,31 @@ function suiteVariationRecurrence(w, P){
       if(fr.length<2 || den!=='4−Un') dit('l’énoncé affiche « '+den+' » au lieu de « 4−Un » — l’énoncé contredirait sa correction'); }
     { const ccl=String((document.querySelector('#svrPartE .svr-ccl')||{}).textContent||'');
       if(ccl.indexOf('décroissante')<0 || ccl.indexOf('minorée')<0) dit('la conclusion ne dit pas que la suite est décroissante et minorée'); }
+
+    /* ---- 4 bis. d) EST PRÉSENTÉE COMME LE 2.5 (demande de Turquet, sept. 2026)
+            — le bloc facultatif u/v/u′/v′, puis la feuille ligne par ligne du
+            2.5, avec ses préfixes. La case unique d’avant ne doit plus exister :
+            deux endroits où écrire f ′(x) en laisseraient un sans juge. ------ */
+    if(document.getElementById('svr-d1')) dit('la case unique de f ′(x) est toujours là : d) n’est pas présentée comme le 2.5');
+    if(!document.querySelector('#svrPartD .dexp-facblock')) dit('d) n’a pas le bloc facultatif u / v / u′ / v′ du 2.5');
+    ['svr-u','svr-v','svr-du','svr-dv'].forEach(function(id){
+      const e=document.getElementById(id);
+      if(!e) dit('case facultative absente : '+id);
+      else if(e.tagName!=='MATH-FIELD') dit(id+' n’est pas un champ mathématique (<'+e.tagName.toLowerCase()+'>)'); });
+    { const sh=document.getElementById('svrSheet');
+      if(!sh) dit('d) n’a pas la feuille du 2.5');
+      else {
+        if(!sh.classList.contains('dexp2-sheet')) dit('la feuille de d) n’est pas celle du 2.5 (dexp2-sheet)');
+        if(!sh.classList.contains('pts-case')) dit('la feuille de d) n’est pas une réponse comptée (pts-case)');
+        if(!svrFeuille || !svrFeuille.lignes.length) dit('la feuille de d) n’a aucune ligne');
+        if(sh.querySelectorAll('math-field').length<1) dit('la feuille de d) n’a aucun champ mathématique');
+        const p0=String((sh.querySelector('.dexp2-prefix')||{}).textContent||'').replace(/\\s/g,'');
+        if(p0.indexOf('′(x)=')<0) dit('la première ligne de la feuille ne porte pas le préfixe « f ′(x) = » (« '+p0+' »)');
+        svrFeuille.ajouterLigne();
+        const p1=String((sh.querySelectorAll('.dexp2-prefix')[1]||{}).textContent||'').replace(/\\s/g,'');
+        if(p1!=='=') dit('la deuxième ligne de la feuille ne porte pas le préfixe « = » (« '+p1+' »)');
+        rejouer();
+      } }
 
     /* ---- 5. LE TRACÉ : le rail compte, la tolérance aussi, et le quatrième
             point est refusé ------------------------------------------------ */
@@ -8543,25 +8574,84 @@ function suiteVariationRecurrence(w, P){
     if(!/Complète au moins une case/.test(String((document.getElementById('svrFeedback')||{}).textContent||'')))
       dit('copie vide : le message ne demande pas de compléter');
     if(test.locked) dit('copie vide : l’écran se verrouille');
+    { const sh=document.getElementById('svrSheet');
+      if(sh.classList.contains('bad')||sh.classList.contains('sol')) dit('copie vide : la feuille de d) se colore');
+      if(svrFeuille.lignes.some(function(L){ return L.line.classList.contains('bad'); })) dit('copie vide : une ligne de la feuille rougit');
+      const rougesMF=['svr-u','svr-v','svr-du','svr-dv'].filter(function(id){ return document.getElementById(id).classList.contains('bad'); });
+      if(rougesMF.length) dit('copie vide : '+rougesMF.length+' case(s) facultative(s) rougissent'); }
 
     /* ---- 7. LA COPIE JUSTE vaut toutes ses cases, points du tracé compris - */
     const poser=function(id,v){ const e=document.getElementById(id); if(e) e.value=v; };
-    const remplir=function(){ svrCases(q).forEach(function(x){ poser(x.id, svrCorrVal(a,x)); }); };
+    const remplir=function(){ svrCases(q).forEach(function(x){ poser(x.id, svrCorrVal(a,x)); }); feuille([svrDerStr(a)]); };
     const rouges=function(){ return SVR_IDS.filter(function(id){ return document.getElementById(id).classList.contains('bad'); }); };
     rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); }); checkSVR();
     if(rouges().length) dit('copie juste : '+rouges().length+' case(s) rougissent — '+rouges().slice(0,4).join(', '));
     if(test.score!==1) dit('copie juste : le point n’est pas accordé (score '+test.score+')');
-    { const note=ptsEcran(), tot=SVR_IDS.length+3;
+    { const note=ptsEcran(), tot=SVR_IDS.length+3+1;   /* +3 points du tracé, +1 la feuille de d) */
       if(!note || note.justes!==tot || note.cases!==tot)
-        dit('copie juste : la note affichée compte '+(note?note.justes+'/'+note.cases:'rien')+' au lieu de '+tot+'/'+tot+' — les trois points du tracé sont des réponses');
-      if([...document.querySelectorAll('#scr-svr .svr-pt.ok')].length!==3) dit('copie juste : les trois points ne sont pas peints en bleu'); }
+        dit('copie juste : la note affichée compte '+(note?note.justes+'/'+note.cases:'rien')+' au lieu de '+tot+'/'+tot+' — les trois points du tracé ET la feuille de d) sont des réponses');
+      if([...document.querySelectorAll('#scr-svr .svr-pt.ok')].length!==3) dit('copie juste : les trois points ne sont pas peints en bleu');
+      if(!document.getElementById('svrSheet').classList.contains('ok')) dit('copie juste : la feuille de d) n’est pas peinte en bleu');
+      if(!svrFeuille.lignes[0].line.classList.contains('ok')) dit('copie juste : la ligne juste de la feuille n’est pas peinte en bleu'); }
+
+    /* ---- 7 bis. LA FEUILLE EST UNE RÉPONSE, et une seule : la note ne doit
+            pas dépendre du NOMBRE de lignes écrites, sans quoi l’élève qui
+            détaille son calcul serait noté sur un autre total. Et CHAQUE ligne
+            vaut f ′(x) : une étape fausse au milieu d’une chaîne qui aboutit
+            juste rougit SEULE — la leçon du 6.8, où la structure avait béni
+            une chaîne fausse. -------------------------------------------- */
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(['(0*(4-x)-3*(-1))/(4-x)^2','3/(4-x)^2','3/((4-x)*(4-x))']);
+    checkSVR();
+    { const note=ptsEcran(), tot=SVR_IDS.length+3+1;
+      if(!note || note.cases!==tot) dit('une chaîne de trois lignes change le total : '+(note?note.cases:'rien')+' au lieu de '+tot);
+      if(test.score!==1) dit('une chaîne de trois lignes toutes justes ne vaut pas le point'); }
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(['3/(4-x)','3/(4-x)^2']);
+    checkSVR();
+    if(!ligneRouge(0)) dit('une étape FAUSSE au milieu de la chaîne ne rougit pas : la structure bénit une chaîne fausse');
+    if(ligneRouge(1)) dit('la ligne JUSTE rougit parce que sa voisine est fausse : chaque ligne se juge seule');
+    if(!document.getElementById('svrSheet').classList.contains('bad')) dit('la feuille ne rougit pas alors qu’une de ses lignes est fausse');
+    if(test.score!==0) dit('une chaîne qui porte une égalité fausse vaut quand même le point');
+
+    /* ---- 7 ter. LES CASES FACULTATIVES sont jugées, et ne comptent PAS.
+            Le 2.5 les tient hors de la note ; ici la note se lit à l’écran,
+            donc une case facultative colorée AVANT la mesure changerait le
+            total sous les yeux de l’élève. ------------------------------ */
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    document.getElementById('svr-u').setValue(String(a.p));
+    document.getElementById('svr-v').setValue(a.s+'-x');
+    document.getElementById('svr-du').setValue('');         /* laissée VIDE : elle ne doit prendre aucune couleur */
+    document.getElementById('svr-dv').setValue('7');        /* faux : v′ = −1 */
+    checkSVR();
+    { const tot=SVR_IDS.length+3+1;
+      const a1=test.answers[test.answers.length-1];
+      if(!a1 || a1.cases!==tot) dit('les cases facultatives entrent dans la note : la note enregistrée compte '+(a1?a1.cases:'rien')+' cases au lieu de '+tot);
+      if(test.score!==1) dit('une case facultative fausse fait perdre le point de l’exercice');
+      ['svr-u','svr-v'].forEach(function(id){
+        if(!document.getElementById(id).classList.contains('ok')) dit('la case facultative '+id+' juste ne bleuit pas'); });
+      if(!document.getElementById('svr-dv').classList.contains('bad')) dit('la case facultative v′ fausse ne rougit pas');
+      { const du=document.getElementById('svr-du');
+        if(du.classList.contains('ok')||du.classList.contains('bad')||du.classList.contains('sol'))
+          dit('une case facultative laissée VIDE se colore'); } }
+
+    /* ---- 7 quater. LE BROUILLON de la feuille survit à un réaffichage —
+            elle n’a aucun id, donc _boxes ne sait pas la restaurer. -------- */
+    rejouer();
+    { const mf=svrFeuille.lignes[0].mf;
+      mf.setValue('3/(4-x)^2');
+      document.getElementById('svrSheet').dispatchEvent(new Event('input',{bubbles:true}));
+      test.questions=[q]; test.idx=0; test.locked=false; renderSVR();
+      const lu=svrFeuille.lignes[0].mf.getValue();
+      if(String(lu||'')!=='3/(4-x)^2') dit('la feuille de d) ne survit pas à un réaffichage (lu : « '+lu+' »)'); }
 
     /* ---- 8. TOUTE ÉCRITURE ÉGALE est acceptée : f ′(x) et les rangs ------- */
     rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
-    poser('svr-d1','3/((4-x)*(4-x))'); poser('svr-h1','0+n'); poser('svr-m1','1+n'); poser('svr-m3','n + 2'); poser('svr-b2','3/2');
+    feuille(['3/((4-x)*(4-x))']); poser('svr-h1','0+n'); poser('svr-m1','1+n'); poser('svr-m3','n + 2'); poser('svr-b2','3/2');
     poser('svr-b3','1');                                   /* [1 ; 2] est aussi vrai que [0 ; 2] */
     checkSVR();
     if(rouges().length) dit('écritures égales refusées : '+rouges().join(', '));
+    if(ligneRouge(0)) dit('une autre écriture de la dérivée est refusée dans la feuille');
     if(test.score!==1) dit('les écritures égales ne valent pas le point');
 
     /* ---- 9. LES REFUS : une borne qui ne contient pas les termes, un rang
@@ -8574,8 +8664,20 @@ function suiteVariationRecurrence(w, P){
     refuse('svr-b4','4','la borne droite 4, où f n’est pas définie');
     refuse('svr-b3','2','la borne gauche 2, qui ne contient pas ℓ = 1');
     refuse('svr-m1','n','le rang n là où on montre au rang n + 1');
-    refuse('svr-d1','3/(4-x)','la dérivée confondue avec la fonction');
     refuse('svr-g4','un1','un terme de la dernière ligne mis à la place d’un autre');
+    /* la dérivée fausse vit dans la feuille depuis qu’elle est présentée comme le 2.5 */
+    const refuseD=function(v,quoi){
+      rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); }); feuille([v]); checkSVR();
+      if(!ligneRouge(0)) dit('accepté à tort : '+quoi);
+      if(test.score!==0) dit('accepté à tort (le point est accordé) : '+quoi);
+    };
+    refuseD('3/(4-x)','la dérivée confondue avec la fonction');
+    refuseD('-3/(4-x)^2','la dérivée au signe inversé');
+    refuseD('3/(4-x)^3','la dérivée à la mauvaise puissance');
+    { /* une feuille VIDE n’est pas une réponse : le reste tout juste ne vaut pas le point */
+      rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); }); feuille(['']); checkSVR();
+      if(test.score!==0) dit('une feuille de d) VIDE vaut quand même le point');
+      if(svrFeuille.lignes[0].line.classList.contains('bad')) dit('une feuille de d) vide rougit'); }
 
     /* ---- 10. LA CORRECTION : le rouge garde la saisie, la bonne réponse
              s’affiche en vert, la case vide est complétée ------------------ */
@@ -8587,6 +8689,19 @@ function suiteVariationRecurrence(w, P){
     { const v1=document.getElementById('svr-v1');
       if(!v1.classList.contains('sol')) dit('la case laissée vide n’est pas complétée en vert'); }
     if(!document.querySelector('#svrGraph .svr-esc-sol')) dit('l’escalier juste n’est pas tracé à la vérification');
+    /* la feuille suit la convention commune : le rouge GARDE la copie et la bonne
+       réponse s’écrit en vert à côté ; la feuille vide est remplie en sol */
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); }); feuille(['3/(4-x)']); checkSVR();
+    if(String(svrFeuille.lignes[0].mf.getValue()||'')!=='3/(4-x)') dit('la correction écrase la dérivée fausse de l’élève');
+    { const cor=document.querySelector('#svrPartD .mf-cor');
+      if(!cor) dit('la bonne dérivée ne s’affiche pas à côté de la feuille fausse');
+      else if(String(cor.textContent||'').indexOf(svrDerStr(a))<0) dit('le badge de d) n’écrit pas la dérivée (« '+cor.textContent+' »)'); }
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); }); feuille(['']); poser('svr-b2','42'); checkSVR();
+    { const sh=document.getElementById('svrSheet');
+      if(!sh.classList.contains('sol')) dit('la feuille laissée vide n’est pas complétée en vert');
+      const lu=String(svrFeuille.lignes[0].mf.getValue()||'');
+      if(lu!==svrDerTex(a)) dit('la feuille vide reçoit « '+lu+' » au lieu de la dérivée « '+svrDerTex(a)+' »');
+      if(!svrFeuille.lignes[0].line.classList.contains('sol')) dit('la ligne complétée par la correction n’est pas marquée sol'); }
 
     /* ---- 11. LA MÉTHODE n’est PAS montrée avant la vérification ---------- */
     rejouer();
@@ -8618,6 +8733,24 @@ function suiteVariationRecurrence(w, P){
       faux.value='42'; faux.dispatchEvent(new Event('input',{bubbles:true}));
       if(!faux.classList.contains('bad')) dit('en direct, la case fausse ne rougit pas');
       if(test.locked) dit('en direct, l’écran se verrouille'); }
+    /* La feuille de d) se juge à la SORTIE, jamais à la frappe : colorée au fil
+       des touches, « 3/ » déclarerait fausse une dérivée qu’on n’a pas fini
+       d’écrire. Les deux bords comptent — sans le premier, le soutien ne
+       corrigerait plus rien sur d) ; sans le second, il mentirait à la frappe. */
+    currentMode='soutien'; rejouer();
+    { const sh=document.getElementById('svrSheet');
+      svrFeuille.lignes[0].mf.setValue('3/(4-x)');
+      sh.dispatchEvent(new Event('input',{bubbles:true}));
+      if(ligneRouge(0)) dit('en soutien, la feuille de d) rougit à la FRAPPE : une dérivée non finie est déclarée fausse');
+      sh.dispatchEvent(new Event('focusout',{bubbles:true}));
+      if(!ligneRouge(0)) dit('en soutien, la feuille de d) ne rougit pas à la sortie');
+      svrFeuille.lignes[0].mf.setValue(svrDerStr(a));
+      sh.dispatchEvent(new Event('focusout',{bubbles:true}));
+      if(!svrFeuille.lignes[0].line.classList.contains('ok')) dit('en soutien, la dérivée juste ne bleuit pas à la sortie');
+      rejouer();
+      sh.dispatchEvent(new Event('focusout',{bubbles:true}));
+      if(document.getElementById('svrSheet').classList.contains('bad')) dit('en soutien, une feuille VIDE rougit à la sortie');
+      if(test.locked) dit('en soutien, la sortie de la feuille verrouille l’écran'); }
     currentMode='train';
 
     /* ---- 13. L’identité de l’exercice, et ses branchements ---------------- */
