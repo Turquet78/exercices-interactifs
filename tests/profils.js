@@ -1128,6 +1128,13 @@ module.exports = {
        chemin transparent épais. jsdom n'a ni mise en page ni getScreenCTM :
        le banc principal éprouve svrPoser(), seul celui-ci clique. */
     suiteVariation: { exercice: 'suite-variation-recurrence' },
+    /* LA SYNTHÈSE SUR LES VARIATIONS (6.14) : la fiche 3 entière. Le banc
+       jsdom tient le tirage honnête, la fiche épinglée et les deux juges ;
+       celui-ci CLIQUE l'escalier pour de vrai — c'est le navigateur qui
+       départage les deux rails —, TAPE la dérivée dans un vrai MathLive,
+       mesure les « ≤ » de la récurrence alignés en colonnes et exige que les
+       chaînes de f) et de i) tiennent sur UNE ligne. */
+    suiteSynthese: { exercice: 'suite-synthese-variations' },
     /* LE VOCABULAIRE SUR LES SUITES (6.12) : la fiche se COCHE. Le banc
        principal tient le tirage et le juge ; celui-ci clique les cases pour de
        vrai, lit l'encre RÉSOLUE des verdicts et mesure le quadrillage rendu. */
