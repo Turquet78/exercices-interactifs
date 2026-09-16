@@ -3584,6 +3584,7 @@ function exercices(suite){
     pythonAffichage(w, P);
     pythonTypes(w, P);
     pythonAfficherVariable(w, P);
+    pythonNoms(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -3596,6 +3597,7 @@ function exercices(suite){
     jetonsSignePremier(w, P);
     variationsDerivee(w, P);
     signeDeriveeQcm(w, P);
+    etiquetteCourbe(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -16740,6 +16742,260 @@ function pythonAfficherVariable(w, P){
   }
 }
 
+/* {python-noms-variables} (Seconde) : pour chaque nom de variable proposé,
+   correct ou incorrect — et la RAISON s'il est incorrect (demande de
+   Turquet, septembre 2026, repris de la fiche « Noms de variables en
+   Python », exercice 4). La bonne réponse n'est jamais rangée à côté de la
+   question : pvnDefauts(nom) relit le nom lui-même. Ce contrôle refait donc
+   la correction par une SECONDE méthode — l'expression régulière d'un
+   identifiant, et des tests de caractères qui n'ont rien en commun avec
+   ceux de la page — sur toute la banque, épingle la fiche, éprouve le
+   tirage (les trois défauts et les trois pièges dans chaque séance, un seul
+   défaut par nom), CLIQUE la copie juste et la copie fausse, tient la PORTE
+   de la justification et le soutien. Aucun accent grave ni antislash
+   littéral dans le code évalué : il vit dans un template littéral — les
+   caractères non ASCII se reconnaissent par leur code. */
+function pythonNoms(w, P){
+  const nom = '{python-noms-variables} : correct ou incorrect, et pourquoi';
+  if(!P.pythonNoms){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des noms de variables'); return; }
+  const ID = P.pythonNoms.exercice, NB = P.pythonNoms.nb, PAR = P.pythonNoms.par;
+  const present = evaluer(w, "typeof startPVN==='function' && typeof pvnDefauts==='function' && typeof pvnBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPVN / pvnDefauts / pvnBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la fiche, épinglée : si elle ne passe pas, c'est la page qui a tort ---- */
+  verifierEval(w, 'la fiche (exercice 4) : prix achat, 2ndeG, Seconde:G et dix-huit sont interdits — pour la bonne règle —, prix_achat, note et SecondeG sont autorisés', `(function(){
+    const vus=[];
+    const att={"prix achat":"interdit","prix_achat":null,"note":null,"2ndeG":"chiffre","SecondeG":null,"Seconde:G":"interdit","dix-huit":"interdit"};
+    Object.keys(att).forEach(function(n){
+      const c=pvnCorrect(n), r=pvnRaison(n);
+      if(att[n]===null){ if(!c) vus.push("« "+n+" » est compté incorrect ("+pvnDefauts(n).join(",")+")"); }
+      else { if(c) vus.push("« "+n+" » est compté correct"); else if(r!==att[n]) vus.push("« "+n+" » : raison « "+r+" » au lieu de « "+att[n]+" »"); }
+    });
+    if(pvnFautif("prix achat")!=="une espace") vus.push("le caractère fautif de « prix achat » se dit « "+pvnFautif("prix achat")+" »");
+    if(!/« : »/.test(pvnFautif("Seconde:G"))) vus.push("le caractère fautif de « Seconde:G » se dit « "+pvnFautif("Seconde:G")+" »");
+    if(!/chiffre/.test(pvnExplique("2ndeG"))||!/2/.test(pvnExplique("2ndeG"))) vus.push("l’explication de 2ndeG : "+pvnExplique("2ndeG"));
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la place au menu : dans le thème 5, juste après {python-affichage} ---- */
+  verifierEval(w, 'il vit dans le thème 5, juste après {python-afficher-variable}, numéroté 5.4 — et rien d’autre ne bouge', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const i=th?th.ids.indexOf("${ID}"):-1;
+    if(i<0) vus.push("l’exercice n’est pas dans le thème 5");
+    else if(th.ids[i-1]!=="python-afficher-variable") vus.push("il ne suit pas {python-afficher-variable} : "+th.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="5.4") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-types"]!=="5.2"||TEST_NUM["python-afficher-variable"]!=="5.3"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’ajout a renuméroté un voisin");
+    if(!TESTS["${ID}"]||!/variable/i.test(TESTS["${ID}"].name)) vus.push("TESTS ne le nomme pas");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. la banque et le juge, par une SECONDE méthode ---- */
+  verifierEval(w, 'la banque : chaque nom correct est un identifiant (seconde méthode : l’expression régulière), chaque nom incorrect ne l’est pas et n’a qu’UN défaut, dit par la même règle que la page ; six raisons distinctes, trois vraies et trois pièges', `(function(){
+    const vus=[];
+    const ident=/^[A-Za-z_][A-Za-z0-9_]*$/;
+    const nonAscii=function(n){ return n.split("").some(function(c){ return c.charCodeAt(0)>127; }); };
+    const symbole=function(n){ return n.split("").some(function(c){ const k=c.charCodeAt(0); return k<128 && !/[A-Za-z0-9_]/.test(c); }); };
+    if(PVN_NOMS_OK.length<${NB}*(${PAR}-2)||PVN_NOMS_KO.length<${NB}*(${PAR}-2)) vus.push("banque trop courte pour une séance : "+PVN_NOMS_OK.length+" corrects, "+PVN_NOMS_KO.length+" incorrects");
+    const tous=PVN_NOMS_OK.concat(PVN_NOMS_KO);
+    if(tous.some(function(x,i){ return tous.indexOf(x)!==i; })) vus.push("un nom apparaît deux fois dans la banque");
+    PVN_NOMS_OK.forEach(function(n){
+      if(!ident.test(n)) vus.push("« "+n+" » est dans la banque des corrects et n’est pas un identifiant");
+      if(!pvnCorrect(n)) vus.push("la page compte « "+n+" » incorrect");
+    });
+    PVN_NOMS_KO.forEach(function(n){
+      if(ident.test(n)) vus.push("« "+n+" » est dans la banque des incorrects et EST un identifiant");
+      const d=pvnDefauts(n);
+      if(d.length!==1){ vus.push("« "+n+" » a "+d.length+" défaut(s) : "+d.join(",")); return; }
+      /* la seconde arithmétique : chiffre en tête, sinon lettre hors ASCII, sinon symbole */
+      const att=/^[0-9]/.test(n)?"chiffre":(nonAscii(n)?"accent":(symbole(n)?"interdit":"?"));
+      if(d[0]!==att) vus.push("« "+n+" » : la page dit « "+d[0]+" », la seconde méthode « "+att+" »");
+      /* un seul défaut : pas de chiffre en tête ET un accent, etc. */
+      const nb=(/^[0-9]/.test(n)?1:0)+(nonAscii(n)?1:0)+(symbole(n)?1:0);
+      if(nb!==1) vus.push("« "+n+" » cumule "+nb+" défauts selon la seconde méthode");
+    });
+    const cles=PVN_RAISONS.map(function(r){ return r.k; });
+    if(cles.length!==6||cles.some(function(x,i){ return cles.indexOf(x)!==i; })) vus.push("raisons : "+cles.join(","));
+    ["interdit","chiffre","accent"].forEach(function(k){ if(cles.indexOf(k)<0) vus.push("la raison « "+k+" » n’est pas proposée"); });
+    ["maj","nombre","souligne"].forEach(function(k){ if(cles.indexOf(k)<0) vus.push("le piège « "+k+" » n’est pas proposé"); if(!pvnPiege(k)) vus.push("le piège « "+k+" » n’a pas d’explication"); });
+    if(PVN_RAISONS.some(function(r){ return !r.lib||r.lib.length<8; })) vus.push("une raison sans libellé");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le tirage ---- */
+  verifierEval(w, 'le tirage : '+NB+' questions de '+PAR+' noms, de 2 à 4 incorrects par question, les trois défauts et les trois pièges (majuscule, chiffre, _) chacun au moins une fois par séance, des noms tous distincts, la question ne porte que les noms et l’ordre des raisons, l’ordre varie (400 séances)', `(function(){
+    const vus=[], ordres={}, nbs={};
+    for(let s=0;s<400 && vus.length<4;s++){
+      const qs=pvnBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      const defauts={}, traits={}, vus2=[];
+      for(const q of qs){
+        if(Object.keys(q).sort().join(",")!=="noms,ordre"){ vus.push("la question porte autre chose que noms / ordre : "+Object.keys(q).join(",")); break; }
+        if(q.noms.length!==${PAR}){ vus.push("question de "+q.noms.length+" noms"); break; }
+        const ko=q.noms.filter(function(n){ return !pvnCorrect(n); });
+        nbs[ko.length]=1;
+        if(ko.length<2||ko.length>${PAR}-2){ vus.push(ko.length+" nom(s) incorrect(s) dans une question"); break; }
+        ko.forEach(function(n){ const r=pvnRaison(n); if(!r) vus.push("« "+n+" » n’a pas UNE raison"); defauts[r]=1; });
+        q.noms.filter(pvnCorrect).forEach(function(n){ pvnTraits(n).forEach(function(t){ traits[t]=1; }); });
+        q.noms.forEach(function(n){ vus2.push(n); });
+        const o=q.ordre.slice().sort().join(","), att=PVN_RAISONS.map(function(r){ return r.k; }).sort().join(",");
+        if(o!==att){ vus.push("l’ordre des raisons n’est pas une permutation des six : "+q.ordre.join(",")); break; }
+        ordres[q.ordre.join(",")]=1;
+        const cs=pvnCases(q);
+        if(cs.length!==${PAR}+ko.length) vus.push("pvnCases rend "+cs.length+" cases pour "+ko.length+" incorrects");
+        if(cs.some(function(c){ return !c.bon; })) vus.push("une case sans réponse attendue");
+      }
+      if(vus2.some(function(x,i){ return vus2.indexOf(x)!==i; })) vus.push("un nom revient deux fois dans la séance");
+      ["interdit","chiffre","accent"].forEach(function(k){ if(!defauts[k]) vus.push("la séance ne montre pas le défaut « "+k+" »"); });
+      ["maj","nombre","souligne"].forEach(function(k){ if(!traits[k]) vus.push("la séance ne tend pas le piège « "+k+" » parmi les noms corrects"); });
+    }
+    if(Object.keys(ordres).length<3) vus.push("l’ordre des raisons ne varie pas");
+    if(Object.keys(nbs).length<2) vus.push("le nombre d’incorrects par question ne varie pas : "+Object.keys(nbs).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. la porte, puis la copie juste CLIQUÉE ---- */
+  verifierEval(w, 'la justification est une PORTE — fermée tant que le nom n’est pas déclaré incorrect, ouverte dès qu’il l’est, refermée et vidée sur « correct » — et la copie juste vaut toutes ses cases, « Question suivante » à la clé', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPVN();
+    const vus=[], q=test.questions[0], cs=pvnCases(q);
+    if(test.maxScore!==test.questions.reduce(function(s,x){ return s+pvnCases(x).length; },0)) vus.push("barème "+test.maxScore);
+    if(document.querySelectorAll("#pvnHost .pvn-row").length!==${PAR}) vus.push(document.querySelectorAll("#pvnHost .pvn-row").length+" rangées");
+    const noms=[].map.call(document.querySelectorAll("#pvnHost .pvn-nom"), function(e){ return e.textContent; });
+    if(noms.join("|")!==q.noms.join("|")) vus.push("les noms affichés ne sont pas ceux de la question : "+noms.join("|"));
+    const r0=document.getElementById("pvn-r0"), v0=document.getElementById("pvn-v0");
+    if(!r0.disabled||!r0.classList.contains("pvn-off")) vus.push("la justification est ouverte avant tout verdict");
+    v0.value="ko"; pvnBascule(0);
+    if(r0.disabled||r0.classList.contains("pvn-off")) vus.push("la justification reste fermée sur « incorrect »");
+    r0.value=q.ordre[0];
+    v0.value="ok"; pvnBascule(0);
+    if(!r0.disabled||r0.value!=="") vus.push("revenir sur « correct » ne referme pas et ne vide pas la justification : "+r0.value);
+    /* la copie juste */
+    q.noms.forEach(function(n,i){ document.getElementById("pvn-v"+i).value=pvnCorrect(n)?"ok":"ko"; pvnBascule(i); if(!pvnCorrect(n)) document.getElementById("pvn-r"+i).value=pvnRaison(n); });
+    checkPVN();
+    const ok=document.querySelectorAll("#pvnHost select.ok").length;
+    if(ok!==cs.length||test.score!==cs.length) vus.push(ok+" cases ok, note "+test.score+" pour "+cs.length+" cases");
+    if(document.querySelectorAll("#pvnHost select.bad, #pvnHost select.sol").length) vus.push("une case rouge ou verte sur une copie juste");
+    if(!test.locked) vus.push("la question n’est pas verrouillée");
+    const a=test.answers[test.answers.length-1];
+    if(!a||a.cases!==cs.length||!a.correct||a.justes!==cs.length) vus.push("la note de la question ne compte pas "+cs.length+" cases justes : "+JSON.stringify(a));
+    if(!document.getElementById("pvnNext")) vus.push("« Question suivante » n’apparaît pas");
+    if(!/Bravo|Parfait|Excellent/.test(document.getElementById("pvnFeedback").textContent)) vus.push("message : "+document.getElementById("pvnFeedback").textContent);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la copie fausse, en entraînement ---- */
+  verifierEval(w, 'la copie fausse (entraînement) : l’incorrect déclaré correct rougit et sa justification se remplit en vert sans passer pour oubliée, le correct déclaré incorrect « à cause d’une majuscule » rougit et le message répond au piège, la mauvaise raison rougit avec la bonne en vert à côté, le verdict vide se remplit en vert et se dit manquant', `(function(){
+    currentMode="train"; startPVN();
+    /* la question qui tend le piège de la MAJUSCULE : la séance en garantit
+       une, pas la première — mesurer la première rendait le bord intermittent */
+    const qi=test.questions.findIndex(function(x){ return x.noms.some(function(n){ return pvnCorrect(n)&&/[A-Z]/.test(n); }); });
+    if(qi<0) return "aucune question ne tend le piège de la majuscule — le contrôle ne mesure rien";
+    test.idx=qi; renderPVN();
+    const vus=[], q=test.questions[qi];
+    const iKo=q.noms.findIndex(function(n){ return !pvnCorrect(n); });
+    const iKo2=q.noms.findIndex(function(n,i){ return !pvnCorrect(n) && i!==iKo; });
+    const iOkMaj=q.noms.findIndex(function(n){ return pvnCorrect(n) && /[A-Z]/.test(n); });
+    const iOk=q.noms.findIndex(function(n){ return pvnCorrect(n) && !/[A-Z]/.test(n); });
+    const iVide=q.noms.findIndex(function(n,i){ return [iKo,iKo2,iOkMaj,iOk].indexOf(i)<0; });
+    if(iKo<0||iKo2<0||iOkMaj<0||iVide<0){ return "tirage sans deux incorrects, un correct à majuscule et un reste — le contrôle ne mesure rien"; }
+    /* tout juste d’abord */
+    q.noms.forEach(function(n,i){ document.getElementById("pvn-v"+i).value=pvnCorrect(n)?"ok":"ko"; pvnBascule(i); if(!pvnCorrect(n)) document.getElementById("pvn-r"+i).value=pvnRaison(n); });
+    /* puis les fautes : iKo déclaré correct ; iKo2 avec une mauvaise raison ; iOkMaj déclaré incorrect « majuscule » ; iVide laissé vide */
+    document.getElementById("pvn-v"+iKo).value="ok"; pvnBascule(iKo);
+    const mauvaise=q.ordre.filter(function(k){ return k!==pvnRaison(q.noms[iKo2]); })[0];
+    document.getElementById("pvn-r"+iKo2).value=mauvaise;
+    let attMaj=0;
+    if(iOkMaj>=0){ document.getElementById("pvn-v"+iOkMaj).value="ko"; pvnBascule(iOkMaj); document.getElementById("pvn-r"+iOkMaj).value="maj"; attMaj=1; }
+    document.getElementById("pvn-v"+iVide).value=""; pvnBascule(iVide);
+    const cs=pvnCases(q), attJustes=cs.length-2-1-attMaj-(pvnCorrect(q.noms[iVide])?1:2);
+    checkPVN();
+    const V=function(i){ return document.getElementById("pvn-v"+i); }, R=function(i){ return document.getElementById("pvn-r"+i); };
+    if(!V(iKo).classList.contains("bad")) vus.push("l’incorrect déclaré correct n’est pas rouge");
+    const b=V(iKo).nextElementSibling;
+    if(!b||!b.classList.contains("mf-cor")||b.textContent!=="incorrect") vus.push("pas de badge « incorrect » à côté du verdict faux");
+    if(!R(iKo).classList.contains("sol")||R(iKo).value!==pvnRaison(q.noms[iKo])) vus.push("la justification fermée ne reçoit pas la correction en vert : "+R(iKo).className+" / "+R(iKo).value);
+    if(R(iKo).classList.contains("bad")) vus.push("la justification fermée est rouge");
+    if(!R(iKo2).classList.contains("bad")) vus.push("la mauvaise raison n’est pas rouge");
+    const b2=R(iKo2).nextElementSibling;
+    if(!b2||!b2.classList.contains("mf-cor")||b2.textContent!==pvnLib(pvnRaison(q.noms[iKo2]))) vus.push("pas de badge avec le LIBELLÉ de la bonne raison : "+(b2?b2.textContent:"aucun"));
+    if(!V(iKo2).classList.contains("ok")) vus.push("le verdict juste de la mauvaise raison n’est pas bleu");
+    if(iOkMaj>=0){
+      if(!V(iOkMaj).classList.contains("bad")) vus.push("le correct déclaré incorrect n’est pas rouge");
+      if(R(iOkMaj).classList.contains("ok")||R(iOkMaj).classList.contains("bad")||R(iOkMaj).classList.contains("sol")) vus.push("la justification d’un nom correct porte une couleur : "+R(iOkMaj).className);
+      if(!R(iOkMaj).disabled) vus.push("la justification d’un nom correct reste modifiable après la vérification");
+    }
+    if(!V(iVide).classList.contains("sol")||V(iVide).value!==(pvnCorrect(q.noms[iVide])?"ok":"ko")) vus.push("le verdict vide n’est pas rempli en vert : "+V(iVide).className);
+    if(V(iVide).classList.contains("bad")) vus.push("le verdict vide est rouge");
+    const fb=document.getElementById("pvnFeedback").textContent;
+    /* UNE seule case manquante — le verdict vide — même quand le nom est
+       incorrect : sa justification, restée fermée, n’est pas une case oubliée */
+    if(fb.indexOf("manquait 1 case")<0) vus.push("le message ne compte pas exactement 1 case manquante — la justification fermée n’en est pas une : "+fb);
+    if(fb.indexOf("("+(iKo+1)+") "+q.noms[iKo])<0||fb.indexOf("est interdit")<0) vus.push("le message ne nomme pas l’incorrect déclaré correct : "+fb);
+    if(fb.indexOf("pas pour cette raison")<0) vus.push("le message ne dit pas la mauvaise raison : "+fb);
+    if(iOkMaj>=0&&(fb.indexOf("("+(iOkMaj+1)+") "+q.noms[iOkMaj])<0||fb.indexOf("majuscule est autorisée")<0)) vus.push("le message ne répond pas au piège de la majuscule : "+fb);
+    if(test.score!==attJustes) vus.push("note "+test.score+" au lieu de "+attJustes);
+    const a=test.answers[test.answers.length-1];
+    if(!a||a.cases!==cs.length||a.justes!==attJustes) vus.push("la note enregistrée : "+JSON.stringify(a)+" pour "+cs.length+" cases");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. le soutien ---- */
+  verifierEval(w, 'en soutien : l’incorrect déclaré correct rougit sans badge et sa justification reste fermée et vide, le verdict vide ne reçoit rien, rien n’est verrouillé, « Revérifier » — puis la copie corrigée vaut tout', `(function(){
+    currentMode="soutien"; startPVN();
+    const vus=[], q=test.questions[0], cs=pvnCases(q);
+    const iKo=q.noms.findIndex(function(n){ return !pvnCorrect(n); });
+    const iVide=q.noms.findIndex(function(n,i){ return i!==iKo; });
+    q.noms.forEach(function(n,i){ document.getElementById("pvn-v"+i).value=pvnCorrect(n)?"ok":"ko"; pvnBascule(i); if(!pvnCorrect(n)) document.getElementById("pvn-r"+i).value=pvnRaison(n); });
+    document.getElementById("pvn-v"+iKo).value="ok"; pvnBascule(iKo);
+    document.getElementById("pvn-v"+iVide).value=""; pvnBascule(iVide);
+    checkPVN();
+    const V=function(i){ return document.getElementById("pvn-v"+i); }, R=function(i){ return document.getElementById("pvn-r"+i); };
+    if(!V(iKo).classList.contains("bad")) vus.push("l’incorrect déclaré correct n’est pas rouge en soutien");
+    if(V(iKo).nextElementSibling&&V(iKo).nextElementSibling.classList.contains("mf-cor")) vus.push("le badge de la bonne réponse fuit en soutien");
+    if(R(iKo).className.match(/ok|bad|sol/)||R(iKo).value!==""||!R(iKo).disabled) vus.push("la justification fermée reçoit quelque chose en soutien : "+R(iKo).className+" / "+R(iKo).value+" / disabled="+R(iKo).disabled);
+    if(V(iVide).className.match(/ok|bad|sol/)||V(iVide).value!=="") vus.push("le verdict vide reçoit une couleur en soutien : "+V(iVide).className);
+    if(test.locked) vus.push("le soutien verrouille une copie fausse");
+    const rv=document.getElementById("pvnValidate"); if(!rv||rv.textContent.indexOf("Rev")<0) vus.push("pas de bouton Revérifier");
+    if(document.getElementById("pvnFeedback").textContent.indexOf("manque")<0) vus.push("le message ne dit pas la case manquante : "+document.getElementById("pvnFeedback").textContent);
+    /* l’élève corrige : le verdict rouge devient « incorrect », la porte s’ouvre, il choisit la raison */
+    V(iKo).value="ko"; pvnBascule(iKo);
+    if(R(iKo).disabled) vus.push("la porte ne se rouvre pas quand l’élève corrige son verdict en soutien");
+    R(iKo).value=pvnRaison(q.noms[iKo]);
+    V(iVide).value=pvnCorrect(q.noms[iVide])?"ok":"ko"; pvnBascule(iVide);
+    if(!pvnCorrect(q.noms[iVide])) R(iVide).value=pvnRaison(q.noms[iVide]);
+    checkPVN();
+    if(document.querySelectorAll("#pvnHost select.ok").length!==cs.length||test.score!==cs.length) vus.push("la copie corrigée ne vaut pas "+cs.length+" : "+test.score+", "+document.querySelectorAll("#pvnHost select.ok").length+" ok");
+    if(!test.locked) vus.push("la copie toute juste ne verrouille pas");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. les branchements ---- */
+  verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX avec ses quatre règles, les questions à l’IA, le contexte porte les noms et déclare les réponses secrètes, la reprise connaît l’écran et rouvre les portes, aucune correction au fil des clics', `(function(){
+    const vus=[];
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
+    const rap=RAPPELS.pvn||""; if(!rap) vus.push("pas de rappel RAPPELS.pvn");
+    if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
+    if(!/Règle 1/.test(rap)||!/Règle 2/.test(rap)||!/Règle 3/.test(rap)||!/Règle 4/.test(rap)) vus.push("le rappel ne dit pas les quatre règles");
+    if(!/chiffre/.test(rap)||!/accentu/.test(rap)||!/majuscule/i.test(rap)||rap.indexOf("_")<0) vus.push("le rappel ne parle pas du chiffre, de l’accent, de la majuscule et du _");
+    if(!QIA_SUGG.pvn||QIA_SUGG.pvn.length<3) vus.push("pas de questions à l’IA pour pvn");
+    currentMode="train"; startPVN(); const q=test.questions[0];
+    const c=ctxPvn(q).contexte;
+    q.noms.forEach(function(n){ if(c.indexOf("« "+n+" »")<0) vus.push("le contexte ne porte pas « "+n+" »"); });
+    if(c.indexOf("SECR")<0) vus.push("le contexte ne déclare pas les réponses secrètes");
+    /* la reprise : les valeurs reviennent après le rendu, et les portes se rouvrent */
+    const iKo=q.noms.findIndex(function(n){ return !pvnCorrect(n); });
+    renderPVN(); document.getElementById("pvn-v"+iKo).value="ko"; pvnPortes();
+    if(document.getElementById("pvn-r"+iKo).disabled) vus.push("après une reprise, la justification d’un nom déjà déclaré incorrect reste fermée");
+    if(!afficherEcranDe("pvn")) vus.push("afficherEcranDe ne connaît pas pvn (reprise et rejeu)");
+    if(String(liveCheckCurrent).indexOf("checkPVN")>=0) vus.push("le soutien colore au fil des clics : à deux propositions, il suffirait d’essayer");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
 /* {tableau-equations} (Seconde) : un tableau de variation, « combien de
    solutions a f(x) = k ? » puis deux inéquations dont l'énoncé DONNE les
    abscisses où f vaut k. Le contrôle compare la page à LA FICHE (Exercice 8),
@@ -18919,6 +19175,65 @@ function jetonsSignePremier(w, P){
    comptée), le piège du sommet posé SUR un zéro (il ne piègerait plus rien),
    et la bonne qui tombe toujours au même rang — à forme égale le rang change,
    la leçon d'{intervalles-inegalite}. */
+
+/* L'étiquette « Cf′ » du dessin partagé (2.6, 2.7, 2.8) se pose À CÔTÉ de la
+   courbe, jamais dessus (signalé par Turquet, septembre 2026, sur le 2.8).
+   Le contrôle ne fait AUCUNE confiance au placement de la page : il lit le
+   SVG que la page ÉCRIT — la position du texte et le chemin de la courbe —,
+   échantillonne lui-même les Bézier du chemin, et mesure la distance de la
+   boîte de l'étiquette (celle que Chromium rend, relevée par getBBox) à la
+   courbe. Trois bords : jamais sur la courbe (≥ 3 px, la marge de la page
+   moins la tolérance de l'échantillonnage), jamais LOIN (≤ 20 px — une
+   étiquette posée dans un coin ne nommerait plus rien), et hors des deux
+   axes et de leurs nombres, dans le dessin. Un contrôle qui n'a rien à
+   mesurer le dit : le tirage du 2.8 et celui de la Seconde, 400 courbes,
+   dans les deux habillages (Cf et Cf′). */
+function etiquetteCourbe(w, P){
+  const nom='l\'étiquette Cf′ se pose à côté de la courbe, jamais dessus (2.6, 2.7, 2.8)';
+  const present = evaluer(w, "typeof afGraphSVG==='function' && typeof afEtiquettePos==='function' && typeof afpCourbeDer==='function' && typeof lvGenPts==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas le dessin partagé des dérivées (afGraphSVG)');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const fautes=[]; let n=0;
+    const mesure=function(pts, prime){
+      const svg=afGraphSVG(pts, prime); n++;
+      const t=svg.match(/<text x="([\\d.]+)" y="([\\d.]+)" class="lv-cf"/);
+      if(!t){ fautes.push('pas d\\'étiquette Cf'); return; }
+      const x=+t[1], y=+t[2];
+      const d=svg.match(/class="lv-curve" d="([^"]+)"/); if(!d){ fautes.push('pas de courbe'); return; }
+      const nums=d[1].match(/-?[\\d.]+/g).map(Number);
+      /* la courbe, rééchantillonnée par le contrôle sur les Bézier ÉCRITES */
+      const ech=[[nums[0],nums[1]]];
+      for(let i=2;i<nums.length;i+=6){ const Q=[ech[ech.length-1],[nums[i],nums[i+1]],[nums[i+2],nums[i+3]],[nums[i+4],nums[i+5]]];
+        for(let k=1;k<=30;k++){ const tt=k/30, u=1-tt;
+          ech.push([u*u*u*Q[0][0]+3*u*u*tt*Q[1][0]+3*u*tt*tt*Q[2][0]+tt*tt*tt*Q[3][0], u*u*u*Q[0][1]+3*u*u*tt*Q[1][1]+3*u*tt*tt*Q[2][1]+tt*tt*tt*Q[3][1]]); } }
+      /* la boîte que Chromium rend pour « Cf′ » (getBBox, Fredoka 14 px + indice 10 px), avec un peu de marge */
+      const B={l:x, r:x+18, t:y-13, b:y+6};
+      let dm=Infinity; ech.forEach(function(p){ const dx=Math.max(B.l-p[0],0,p[0]-B.r), dy=Math.max(B.t-p[1],0,p[1]-B.b); dm=Math.min(dm,Math.hypot(dx,dy)); });
+      const tag='['+pts.join(',')+'] '+(prime?'Cf′':'Cf')+' en ('+x.toFixed(0)+', '+y.toFixed(0)+')';
+      if(dm<3) fautes.push(tag+' : SUR la courbe ('+dm.toFixed(1)+' px)');
+      else if(dm>20) fautes.push(tag+' : loin de la courbe ('+dm.toFixed(1)+' px)');
+      /* dans le dessin (viewBox 0 0 362 206) */
+      if(B.l<0 || B.r>362 || B.t<0 || B.b>206) fautes.push(tag+' : hors du dessin');
+      /* hors des axes et de leurs nombres — lus sur les lignes lv-axis écrites */
+      const ax=svg.match(/<line x1="[\\d.]+" y1="([\\d.]+)" x2="[\\d.]+" y2="[\\d.]+" class="lv-axis"\\/><line x1="([\\d.]+)"/);
+      if(!ax){ fautes.push('axes introuvables'); return; }
+      const y0=+ax[1], x0=+ax[2];
+      const croise=function(l,r,t,b){ return B.r>l && B.l<r && B.b>t && B.t<b; };
+      if(croise(0, 362, y0-2, y0+16)) fautes.push(tag+' : sur l\\'axe des x ou ses nombres');
+      if(croise(x0-22, x0+2, 0, 206)) fautes.push(tag+' : sur l\\'axe des y ou ses nombres');
+    };
+    for(let i=0;i<300;i++){
+      const roots=(i%2)?[[-2,-1,0,1,2][i%5]]:[-2,[0,1,2][i%3]];
+      mesure(afpCourbeDer(roots, (i%4<2)?1:-1), i%3!==0);
+    }
+    for(let i=0;i<100;i++) mesure(lvGenPts(i%2?2:3).pts, i%3===0);
+    if(n<400) return 'le contrôle n\\'a mesuré que '+n+' courbes';
+    return fautes.length ? fautes.length+' défaut(s) sur '+n+' courbes — '+fautes.slice(0,3).join(' ; ') : '';
+  })()`, v => v === '');
+}
 function variationsDerivee(w, P){
   const present = evaluer(w, "typeof startAfq==='function' && typeof afqBuildQuestions==='function'");
   if(!present.ok || !present.valeur){

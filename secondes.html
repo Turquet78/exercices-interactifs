@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -614,6 +614,24 @@
   .py-sel.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
   .py-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
   .py-sel:disabled{opacity:1;cursor:default}
+  /* ---- Noms de variables en Python : une rangée par nom — le nom en chasse
+     fixe, « est » [correct / incorrect], « car » [la raison]. La raison est
+     une PORTE : grisée tant que le nom n'est pas déclaré incorrect (pvn-off),
+     jamais cachée — l'élève voit qu'une justification l'attend. ---- */
+  .pvn-liste{width:100%;max-width:1100px;margin:0 auto;text-align:left}
+  .pvn-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 4px;border-bottom:1px dashed var(--line)}
+  .pvn-row:last-child{border-bottom:none}
+  .pvn-num{font-family:"Fredoka";font-weight:600;color:var(--ink-soft);min-width:2.2em}
+  .pvn-nom{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.15rem;background:#f1f1f1;border:1px solid var(--line);border-radius:6px;padding:3px 10px;white-space:pre;color:var(--ink)}
+  .pvn-mot{font-size:1.1rem;color:var(--ink)}
+  .pvn-sel{flex:0 0 auto;appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;width:auto;max-width:100%;min-width:96px;padding:0 12px;height:44px;font-family:"Nunito",system-ui,sans-serif;font-weight:700;font-size:1.02rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;cursor:pointer}
+  .pvn-sel:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .pvn-sel.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+  .pvn-sel.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  .pvn-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
+  .pvn-sel:disabled{opacity:1;cursor:default}
+  .pvn-sel.pvn-off{opacity:.45;cursor:default}
+  @media(max-width:520px){ .pvn-nom{font-size:1rem} .pvn-sel{min-width:80px;padding:0 8px;font-size:.95rem} }
   #pyHost .mf-cor{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
   /* {python-types} : les trois cadres du cours, sur l’écran de l’exercice — trois
      colonnes qui s’empilent sur un téléphone ; puis une ligne par variable */
@@ -2539,6 +2557,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : NOMS DE VARIABLES EN PYTHON -->
+  <section class="screen" id="scr-pvn">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPVN"></span><span class="q-idx" id="pvnIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pvnLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Quels sont les noms de variables <b>incorrects</b> parmi ceux propos&eacute;s&nbsp;? Pour chaque nom, dis s&rsquo;il est correct ou incorrect&nbsp;; s&rsquo;il est incorrect, indique pourquoi.</p>
+      <div class="mp-stage"><div style="width:100%" id="pvnHost"></div></div>
+      <div class="mp-feedback" id="pvnFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pvnActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pvnValidate" onclick="checkPVN()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : SOMME ET DIFFÉRENCE DE FRACTIONS -->
   <section class="screen" id="scr-sf">
     <div class="test-top">
@@ -2882,7 +2916,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=168;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=169;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3464,6 +3498,7 @@ const TESTS={
   'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
   'python-types': { name:'int, float ou str\u00a0?', icon:'\ud83c\udff7\ufe0f', desc:'Trois types de variables : un entier (int), un nombre \u00e0 virgule (float), un texte entre guillemets (str). Le cours est sur l\u2019\u00e9cran ; lis chaque programme, dis le type de chaque variable \u2014 puis ex\u00e9cute-le : Python te r\u00e9pond avec type().', start:()=>startPTY() },
   'python-afficher-variable': { name:'Affiche la variable\u00a0!', icon:'\ud83d\udda8\ufe0f', desc:'On t\u2019explique comment afficher une variable, puis un programme commence par note = 12 : \u00e0 toi d\u2019\u00e9crire la suite pour qu\u2019il affiche la valeur de la variable. Ex\u00e9cute-le, puis v\u00e9rifie \u2014 en soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYC() },
+  'python-noms-variables': { name:'Noms de variables en Python', icon:'\ud83c\udff7\ufe0f', desc:'Le nom d\u2019une variable doit respecter quatre r\u00e8gles. Pour chaque nom propos\u00e9, dis s\u2019il est correct ou incorrect \u2014 et, s\u2019il est incorrect, pourquoi.', start:()=>startPVN() },
   'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
   'simplifier-fractions': { name:'Somme de fractions \u00e0 simplifier', icon:'\u2702\ufe0f', desc:'Comme {somme-fractions}, mais les deux d\u00e9nominateurs ont un diviseur commun et le r\u00e9sultat se simplifie : on divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le d\u00e9nominateur commun reste libre.', start:()=>startSFSimp() },
   'somme-fractions-libre': { name:'Somme de fractions \u2014 tu \u00e9cris ton calcul', icon:'\u270d\ufe0f', desc:'Les m\u00eames nombres que {simplifier-fractions}, mais plus aucune case : tu \u00e9cris ton calcul toi-m\u00eame, une \u00e9tape par ligne. Il faut l\u2019\u00e9tape du m\u00eame d\u00e9nominateur, et un r\u00e9sultat simplifi\u00e9 \u2014 l\u2019IA v\u00e9rifie que tout y est.', start:()=>startSFL() },
@@ -3515,7 +3550,7 @@ const THEMES=[
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
-  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable'] }
+  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -4159,6 +4194,7 @@ function conseilPaire(){
   else if(test.kind==='py' && q) b=ctxPy(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
+  else if(test.kind==='pvn' && q) b=ctxPvn(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
   else if(test.kind==='plc' && q) b=ctxPlc(q);
@@ -4408,6 +4444,7 @@ const QIA_SUGG={
   cfx:["Comment placer un point pour respecter f ( −2 ) = 3 ?","Que veut dire « l’antécédent de −4 est 3 » pour mon tracé ?","Pourquoi ma courbe ne doit-elle pas recouper l’axe ailleurs que sur S ?","Comment respecter une inéquation dont la solution est un intervalle ?"],
   ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Pourquoi les bouts de la courbe sont-ils toujours pris ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
+  pvn:["Pourquoi un nom de variable ne peut-il pas commencer par un chiffre ?","Est-ce que les majuscules sont autorisées dans un nom de variable ?","Comment écrire un nom en deux mots, comme « prix d’achat » ?","Pourquoi les lettres accentuées sont-elles interdites ?"],
   pty:["Quelle est la différence entre 15 et \"15\" ?","Pourquoi 15.0 est-il un float et pas un int ?","Un nombre négatif comme -3, c’est quel type ?","À quoi sert type() ?"],
   pyc:["Comment afficher la valeur d’une variable ?","Quelle est la différence entre note et \"note\" dans un print ?","Pourquoi écrire juste le nom de la variable n’affiche rien ?","Que veut dire l’erreur « n’existe pas » ?"],
   py:["Pourquoi le texte s’affiche-t-il sans les guillemets ?","Quelle est la différence entre note1 et \"note1\" dans un print ?","À quoi sert la virgule dans print ?","Comment s’écrit et s’affiche un nombre à virgule en Python ?"],
@@ -4889,7 +4926,16 @@ const RAP_PYC=`<b>Afficher une variable avec <code class="inline">print</code></
 <b>② Avec des guillemets, ce n’est plus la variable</b> : <code class="inline">print("nombre")</code> affiche le mot <code class="inline">nombre</code>, parce qu’un texte entre guillemets s’affiche tel quel.<br>
 <b>③ Écrire le nom tout seul n’affiche rien</b> : la ligne <code class="inline">nombre</code> ne fait rien. Seul <code class="inline">print(…)</code> affiche quelque chose.<br>
 <b>④ Attention à l’orthographe</b> : <code class="inline">print</code> s’écrit tout en minuscules, et Python distingue <code class="inline">nombre</code> de <code class="inline">Nombre</code>. Les parenthèses et les guillemets vont par deux.`;
-const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC };
+/* Le rappel du nom de variable : les QUATRE règles de la fiche, dans son
+   ordre, avec ses exemples. Aucun LaTeX — rien n'y empile — et aucun nombre à
+   virgule ni « chiffre.chiffre » : le contrôle des numéros en dur lirait un
+   numéro d'exercice. */
+const RAP_PVN=`<b>Le nom d’une variable en Python</b><br>
+<b>Règle 1</b> : un nom ne contient que des lettres (de a à z, de A à Z), des chiffres (de 0 à 9) et le caractère <code class="inline">_</code> (underscore). <code class="inline">nbr_depart</code> est autorisé ; <code class="inline">nbr depart</code> (une espace) et <code class="inline">nbr=depart</code> (un signe =) sont interdits.<br>
+<b>Règle 2</b> : un nom ne commence jamais par un chiffre : <code class="inline">2var</code> est interdit, <code class="inline">var2</code> est autorisé.<br>
+<b>Règle 3</b> : les minuscules et les majuscules sont distinguées : <code class="inline">snt</code> et <code class="inline">Snt</code> sont deux variables DIFFÉRENTES. Une majuscule est donc autorisée — il faut juste toujours écrire le nom de la même façon.<br>
+<b>Règle 4</b> : pas de lettre accentuée : <code class="inline">prénom</code> est interdit à cause du « é » — on écrit <code class="inline">prenom</code>.`;
+const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4998,7 +5044,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -5427,7 +5473,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5551,7 +5597,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -16563,6 +16609,272 @@ function ctxPyc(q){
   return {nombre:'', contexte:c};
 }
 
+/* ---------- Exercice : noms de variables en Python -----------------------
+   Repris de la fiche « Noms de variables en Python » (exercice 4) : une liste
+   de noms — prix achat, prix_achat, note, 2ndeG, SecondeG, Seconde:G,
+   dix-huit —, « quels sont les noms incorrects ? Vous indiquerez pourquoi. »
+   (demande de Turquet, septembre 2026). Pour CHAQUE nom l'élève dit s'il est
+   correct ou incorrect, et s'il est incorrect il COMPLÈTE la justification en
+   choisissant la règle que le nom ne respecte pas.
+
+   LA JUSTIFICATION EST UNE PORTE, tenue par l'ÉTAT de la case et non par une
+   consigne : la liste des raisons reste grisée tant que le nom n'est pas
+   déclaré incorrect, s'ouvre dès qu'il l'est, et se referme (vidée) si
+   l'élève revient sur « correct » — la chaîne de portes de {placer-image}.
+   Après une reprise de pause, les valeurs reviennent APRÈS le rendu
+   (restoreBoxes) : pvnPortes() est donc rappelée un instant plus tard, pour
+   rouvrir les justifications des noms déjà déclarés incorrects.
+
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : celle-ci ne
+   porte que les noms et l'ordre des raisons proposées ; pvnDefauts(nom) —
+   la fonction qui corrige — relit le nom lui-même, et l'énoncé ne peut pas
+   contredire sa correction. Le contrôle refait la correction par une SECONDE
+   méthode (l'expression régulière d'un identifiant) sur toute la banque.
+
+   UN NOM INCORRECT N'A QU'UN SEUL DÉFAUT, et c'est la banque qui le
+   garantit : « 2ème » (un chiffre en tête ET un accent) aurait deux bonnes
+   justifications dont une seule comptée — le contrôle exige la propriété sur
+   chaque nom de la banque. Les accents ont LEUR règle (la 4 de la fiche) et
+   non la règle 1 : « é » est une lettre, la raison « caractère interdit »
+   nomme les symboles (espace, -, :, =…).
+
+   LES RAISONS NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR (la leçon
+   d'{intervalles-inegalite}) : trois vraies règles, et trois PIÈGES qui ne
+   justifient jamais rien — « il contient une majuscule » (règle 3 : Snt et
+   snt sont deux variables, la majuscule est autorisée), « il contient un
+   chiffre » (var2 est autorisé, seul le chiffre en TÊTE est interdit), « il
+   contient le caractère _ » (c'est lui qui remplace l'espace). Ce sont les
+   erreurs réelles de l'élève qui confond « contient » et « commence par », et
+   le message les nomme. L'ordre des raisons est tiré par question et le
+   MÊME sur toutes ses rangées : à forme égale, le rang de la bonne varie.
+
+   UNE SÉANCE MONTRE TOUT : PVN_NB questions de PVN_PAR noms, de 2 à 4
+   incorrects par question, les trois défauts chacun au moins une fois dans
+   la séance, et parmi les noms CORRECTS au moins un avec une majuscule, un
+   avec un chiffre, un avec _ — les pièges où l'élève dit « incorrect » à
+   tort, exactement la composition de la fiche (2ndeG contre SecondeG,
+   prix achat contre prix_achat).
+
+   CHAQUE CASE SE JUGE SEULE : le verdict d'un nom, et sa justification s'il
+   est incorrect — un nom correct n'a pas de justification à compter. Un nom
+   incorrect déclaré « correct » perd ses deux cases : sa justification,
+   restée fermée, reçoit la correction en vert (sol) — mais elle n'est pas
+   une case OUBLIÉE, et le message ne la compte pas parmi les cases
+   manquantes (« induit »). La case vide ne rougit jamais.
+   Aucune correction au fil des clics, et c'est déclaré (soutienEnDirect.sans
+   dans tests/profils.js) : à deux propositions, il suffirait d'essayer. En
+   soutien, la case juste se verrouille en bleu, la fausse rougit et reste à
+   reprendre, rien ne révèle la bonne réponse. */
+const PVN_NB=3, PVN_PAR=6;
+/* La banque des noms CORRECTS : avec majuscules, chiffres et _, pour que les
+   pièges soient réels. */
+const PVN_NOMS_OK=['prix_achat','note','SecondeG','var2','nbr_depart','age','total_points','moyenne','x1','NOTE','prixTTC','nb_eleves','largeur','Aire','note_1','compteur','somme2','valeur_max','Rayon','point3D','vitesse','nb2','PI','mot','Perimetre','jour_7'];
+/* La banque des noms INCORRECTS : chacun n'a qu'UN défaut — caractère
+   interdit, chiffre en tête, ou lettre accentuée. */
+const PVN_NOMS_KO=['prix achat','nbr depart','Seconde:G','dix-huit','nbr=depart','prix-vente','note/2','a+b','moyenne classe','total!','nb.eleves','prix TTC',
+  '2ndeG','2var','1ere_note','3x','10points','2nde','4eme','1er_prix','7sur10',
+  'prénom','élève','âge','année','numéro','côté','résultat','prix_à_payer','entrée','vérité','Élève'];
+/* Les raisons proposées : trois vraies (les règles 1, 2 et 4), trois pièges. */
+const PVN_RAISONS=[
+  {k:'interdit', lib:'il contient un caractère interdit (espace, -, :, =, …)'},
+  {k:'chiffre',  lib:'il commence par un chiffre'},
+  {k:'accent',   lib:'il contient une lettre accentuée'},
+  {k:'maj',      lib:'il contient une majuscule'},
+  {k:'nombre',   lib:'il contient un chiffre'},
+  {k:'souligne', lib:'il contient le caractère _'}
+];
+function pvnLib(k){ const r=PVN_RAISONS.filter(function(x){ return x.k===k; })[0]; return r?r.lib:String(k); }
+/* Le JUGE : les défauts d'un nom, relus sur le nom lui-même. Les plages
+   À-Ö, Ø-ö, ø-ÿ sont les lettres accentuées (× et ÷ en sont exclus). */
+function pvnDefauts(nom){
+  const d=[];
+  if(/^[0-9]/.test(nom)) d.push('chiffre');
+  if(/[À-ÖØ-öø-ÿ]/.test(nom)) d.push('accent');
+  if(/[^A-Za-z0-9_À-ÖØ-öø-ÿ]/.test(nom)) d.push('interdit');
+  return d;
+}
+function pvnCorrect(nom){ return pvnDefauts(nom).length===0; }
+function pvnRaison(nom){ const d=pvnDefauts(nom); return d.length===1?d[0]:null; }
+/* le caractère fautif, nommé dans le message */
+function pvnFautif(nom){ const m=nom.match(/[^A-Za-z0-9_À-ÖØ-öø-ÿ]/); if(!m) return ''; return m[0]===' '?'une espace':'le caractère « '+m[0]+' »'; }
+/* les traits d'un nom correct — les pièges qu'il tend */
+function pvnTraits(nom){ const t=[]; if(/[A-Z]/.test(nom)) t.push('maj'); if(/[0-9]/.test(nom)) t.push('nombre'); if(/_/.test(nom)) t.push('souligne'); return t; }
+function pvnExplique(n){
+  const r=pvnRaison(n);
+  if(r==='chiffre') return 'il commence par un chiffre (règle 2)';
+  if(r==='accent') return 'il contient une lettre accentuée (règle 4)';
+  return 'il contient '+pvnFautif(n)+', un caractère interdit (règle 1)';
+}
+function pvnPiege(k){
+  if(k==='maj') return ' Une majuscule est autorisée : Snt et snt sont simplement deux variables différentes (règle 3).';
+  if(k==='nombre') return ' Un chiffre est autorisé dans un nom — sauf en première position (règle 2).';
+  if(k==='souligne') return ' Le caractère _ est autorisé : c’est lui qui remplace l’espace (règle 1).';
+  return '';
+}
+
+/* ---- le tirage ---- */
+/* Prend n noms distincts dans la banque, en s'assurant d'abord que chaque
+   trait exigé est représenté au moins une fois. */
+function pvnChoisir(banque, n, exiges, traitsDe){
+  const a=ensShuffle(banque.slice()), pris=[];
+  exiges.forEach(function(t){
+    const i=a.findIndex(function(x){ return [].concat(traitsDe(x)).indexOf(t)>=0; });
+    if(i>=0) pris.push(a.splice(i,1)[0]);
+  });
+  while(pris.length<n && a.length) pris.push(a.shift());
+  return ensShuffle(pris);
+}
+function pvnBuildQuestions(){
+  const nbKo=[]; for(let i=0;i<PVN_NB;i++) nbKo.push(rand(2,PVN_PAR-2));
+  const totKo=nbKo.reduce(function(a,b){ return a+b; },0), totOk=PVN_NB*PVN_PAR-totKo;
+  const ko=pvnChoisir(PVN_NOMS_KO, totKo, ['interdit','chiffre','accent'], pvnRaison);
+  const ok=pvnChoisir(PVN_NOMS_OK, totOk, ['maj','nombre','souligne'], pvnTraits);
+  const qs=[];
+  for(let i=0;i<PVN_NB;i++){
+    const noms=ko.splice(0,nbKo[i]).concat(ok.splice(0,PVN_PAR-nbKo[i]));
+    qs.push({noms:ensShuffle(noms), ordre:ensShuffle(PVN_RAISONS.map(function(r){ return r.k; }))});
+  }
+  return qs;
+}
+/* Les cases d'une question : un verdict par nom, plus une justification par
+   nom incorrect. « bon » est recalculé depuis le nom, jamais rangé. */
+function pvnCases(q){
+  const cs=[];
+  q.noms.forEach(function(n,i){
+    cs.push({id:'pvn-v'+i, cle:'verdict', i:i, bon:pvnCorrect(n)?'ok':'ko'});
+    if(!pvnCorrect(n)) cs.push({id:'pvn-r'+i, cle:'raison', i:i, bon:pvnRaison(n)});
+  });
+  return cs;
+}
+
+/* ---- cycle de vie ---- */
+async function startPVN(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pvnBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pvn', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+pvnCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pvn'); renderPVN();
+}
+let _pvnSaveTimer=null;
+function renderPVN(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('pvnIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPVN').innerHTML=modeTagHTML();
+  $('pvnLiveScore').textContent=test.score;
+  $('pvnFeedback').textContent=''; $('pvnFeedback').className='mp-feedback';
+  $('pvnActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pvnValidate" onclick="checkPVN()">Vérifier</button>';
+  $('pvnHost').innerHTML='<div class="pvn-liste">'+q.noms.map(function(n,i){
+    return '<div class="pvn-row" id="pvn-row'+i+'">'
+      +'<span class="pvn-num">('+(i+1)+')</span>'
+      +'<code class="pvn-nom">'+esc(n)+'</code>'
+      +'<span class="pvn-mot">est</span>'
+      +'<select class="pvn-sel pvn-verdict" id="pvn-v'+i+'" aria-label="le nom '+esc(n)+' est-il correct ?" onchange="pvnBascule('+i+')">'
+      +'<option value="" selected disabled>?</option><option value="ok">correct</option><option value="ko">incorrect</option></select>'
+      +'<span class="pvn-mot">car</span>'
+      +'<select class="pvn-sel pvn-raison pvn-off" id="pvn-r'+i+'" disabled aria-label="pourquoi le nom '+esc(n)+' est incorrect">'
+      +'<option value="" selected disabled>…</option>'
+      +q.ordre.map(function(k){ return '<option value="'+k+'">'+esc(pvnLib(k))+'</option>'; }).join('')
+      +'</select></div>';
+  }).join('')+'</div>';
+  $('pvnHost').querySelectorAll('select').forEach(function(s){
+    s.addEventListener('change',function(){ clearTimeout(_pvnSaveTimer); _pvnSaveTimer=setTimeout(autoSave,1000); }); });
+  /* la reprise de pause repose les valeurs APRÈS le rendu : on rouvre les portes un instant plus tard */
+  setTimeout(pvnPortes,0);
+}
+/* La porte : la justification n'est ouverte que sur « incorrect ». */
+function pvnBascule(i){
+  const v=$('pvn-v'+i), r=$('pvn-r'+i); if(!v||!r) return;
+  if(v.value==='ko'){ r.disabled=false; r.classList.remove('pvn-off'); }
+  else { r.value=''; r.disabled=true; r.classList.add('pvn-off'); }
+}
+function pvnPortes(){
+  if(!test||test.kind!=='pvn'||test.locked) return;
+  const q=test.questions&&test.questions[test.idx]; if(!q) return;
+  q.noms.forEach(function(n,i){ const v=$('pvn-v'+i), r=$('pvn-r'+i); if(v&&r&&!v.disabled&&!r.classList.contains('ok')&&!r.classList.contains('bad')) pvnBascule(i); });
+}
+/* Le message nomme chaque nom mal jugé et la règle en cause, et répond au
+   piège choisi — sans redire ce qui est juste. */
+function pvnPourquoi(q, subs){
+  const dits=[];
+  q.noms.forEach(function(n,i){
+    const sv=subs.filter(function(s){ return s.cle==='verdict'&&s.i===i; })[0];
+    const sr=subs.filter(function(s){ return s.cle==='raison'&&s.i===i; })[0];
+    const vfaux=sv&&!sv.ok&&!sv.vide, rfaux=sr&&!sr.ok&&!sr.vide&&!sr.induit;
+    if(!vfaux&&!rfaux) return;
+    const num='('+(i+1)+') '+n;
+    if(pvnCorrect(n)){
+      const r=$('pvn-r'+i), k=r?String(r.value):'';
+      dits.push(num+' est autorisé : il ne contient que des lettres, des chiffres et _, et il ne commence pas par un chiffre.'+pvnPiege(k));
+    } else if(vfaux){
+      dits.push(num+' est interdit : '+pvnExplique(n)+'.');
+    } else {
+      dits.push(num+' est bien interdit, mais pas pour cette raison : '+pvnExplique(n)+'.'+pvnPiege(sr.val));
+    }
+  });
+  return dits.join(' ');
+}
+function checkPVN(live){
+  if(live) return;            /* pas de correction au fil des clics — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const subs=pvnCases(q).map(function(c){
+    const sel=$(c.id), v=sel?String(sel.value):'';
+    return {c:c, cle:c.cle, i:c.i, sel:sel, val:v, vide:v==='', ok:!!sel&&v===c.bon, induit:false};
+  });
+  /* la justification d'un nom incorrect déclaré « correct » est restée fermée :
+     elle est perdue, mais ce n'est pas une case oubliée */
+  subs.forEach(function(s){
+    if(s.cle!=='raison'||!s.vide) return;
+    const sv=subs.filter(function(x){ return x.cle==='verdict'&&x.i===s.i; })[0];
+    if(sv&&sv.val!=='ko') s.induit=true;
+  });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  if(!allOk && isSoutien()){
+    /* une justification fermée (induite) ne se touche pas : corrChoix la rouvrirait */
+    subs.forEach(function(s){ if(!s.induit) corrChoix(s.sel, s.c.bon, s.ok); });
+    const vides=subs.filter(function(s){ return s.vide&&!s.induit; }).length;
+    $('pvnFeedback').textContent=vides
+      ? ('Il te manque '+vides+(vides>1?' cases':' case')+' — complète, puis revérifie.')
+      : 'Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('pvnFeedback').className='mp-feedback bad';
+    $('pvnActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pvnValidate" onclick="checkPVN()">Revérifier</button>';
+    const bad=$('pvnHost').querySelector('.bad'); if(bad&&!bad.disabled) setTimeout(function(){ bad.focus(); },40);
+    return;
+  }
+  test.locked=true;
+  subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
+  /* la justification d'un nom CORRECT n'est pas une case : figée, sans couleur */
+  q.noms.forEach(function(n,i){ if(pvnCorrect(n)){ const r=$('pvn-r'+i); if(r) r.disabled=true; } });
+  test.score+=nCorrect; $('pvnLiveScore').textContent=test.score;
+  if(allOk){ $('pvnFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !']); $('pvnFeedback').className='mp-feedback good'; }
+  else { $('pvnFeedback').textContent=msgAvecVides(subs.filter(function(s){ return !s.induit; }), pvnPourquoi(q, subs)); $('pvnFeedback').className='mp-feedback bad'; }
+  const given=q.noms.map(function(n,i){ const v=$('pvn-v'+i), r=$('pvn-r'+i); return (v&&v.value||'?')+(r&&r.value?':'+r.value:''); }).join(' | ');
+  const answer=q.noms.map(function(n){ return pvnCorrect(n)?'ok':'ko:'+pvnRaison(n); }).join(' | ');
+  test.answers.push({...(ptsExo()||{}), correct:allOk, q:q.noms.join(' , '), answer:answer, given:given});
+  const last=test.idx===test.questions.length-1;
+  $('pvnActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pvnNext" onclick="nextPVN()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pvnNext'); if(nb) nb.focus();
+}
+function nextPVN(){ if(test.idx<test.questions.length-1){ test.idx++; renderPVN(); autoSave(); } else finishTest(); }
+function ctxPvn(q){
+  const donne=q.noms.map(function(n,i){
+    const v=$('pvn-v'+i), r=$('pvn-r'+i);
+    const vv=v&&v.value?(v.value==='ok'?'correct':'incorrect'):'(vide)';
+    const rr=r&&r.value?(' car '+pvnLib(r.value)):'';
+    return '« '+n+' » → '+vv+rr;
+  }).join(' ; ');
+  let c='L’élève doit dire, pour chacun des noms de variables Python proposés, s’il est correct ou incorrect, et justifier chaque nom incorrect en choisissant la règle qu’il ne respecte pas (règle 1 : seulement des lettres, des chiffres et le caractère _ ; règle 2 : un nom ne commence pas par un chiffre ; règle 3 : majuscules et minuscules sont distinguées, une majuscule est autorisée ; règle 4 : pas de lettre accentuée). Les noms proposés sont : '
+    +q.noms.map(function(n){ return '« '+n+' »'; }).join(', ')+'.\n';
+  c+='Réponses attendues (STRICTEMENT SECRÈTES, ne jamais les donner ni les laisser deviner) : '
+    +q.noms.map(function(n){ return '« '+n+' » '+(pvnCorrect(n)?'correct':'incorrect, '+pvnExplique(n)); }).join(' ; ')+'. ';
+  c+='Ce que l’élève a choisi : '+donne+'. Rappelle les règles sans dire quel nom est correct ou incorrect.';
+  return {nombre:'', contexte:c};
+}
+
 /* La rangée d'aide, propre au niveau : la Seconde la pose elle-même dans
    « sfActions », la Première la fait poser par iaBoutons(). Le moteur ne
    choisit pas — c'est le seul endroit où les deux fichiers diffèrent. */
@@ -20023,7 +20335,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
