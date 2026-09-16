@@ -2755,7 +2755,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=320;
+const APP_VERSION=321;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -10511,6 +10511,69 @@ function afpCases(q){
   c.fleches.forEach(function(d,i){ out.push({id:'ef-a'+i, type:'sel', good:d}); });
   return out;
 }
+/* L'ÉTIQUETTE « Cf′ » SE POSE À CÔTÉ DE LA COURBE, JAMAIS DESSUS. Posée à
+   une place FIXE — au-dessus du point d'abscisse −2 —, elle tombait SUR la
+   courbe chaque fois que celle-ci DESCEND entre −3 et −2 : la courbe passe
+   alors au-dessus de ce point, exactement là où l'étiquette s'écrit (signalé
+   par Turquet, septembre 2026, sur le 2.8 : « le nom de la courbe Cf′ doit
+   toujours être à côté de la courbe et pas sur la courbe »). On ÉCHANTILLONNE
+   donc la courbe sur les Bézier mêmes que lvPath écrit — aucune coordonnée
+   supposée — et on BALAIE le dessin par pas de 3 px : une place est bonne si
+   sa boîte est dans le dessin, hors de l'axe des x et de ses nombres, et à
+   côté de la courbe — entre AF_CF_MARGE et AF_CF_MARGE + 10 px de tout point
+   de la courbe, ni dessus ni loin. Parmi les bonnes, la plus proche du point
+   où la courbe ENTRE dans le dessin (x = −3), pour que l'étiquette reste là
+   où l'œil la cherche. Le premier jet essayait six places au-dessus et
+   au-dessous de la courbe, calées sur sa hauteur : sur une courbe qui MONTE
+   ou DESCEND raide, une boîte de 30 px calée sur un point est traversée par
+   la courbe quelle que soit sa hauteur — 132 courbes sur 600 la touchaient
+   encore, mesuré avant de changer de méthode. Sonde sur 600 courbes (le
+   tirage du 2.8, celui de la Seconde) : distance minimale 5 px, jamais plus
+   de 15 px de la courbe, jamais plus de 32 px du point d'entrée, 0 recours au
+   secours. Le dessin est partagé par le 2.6, le 2.7 et le 2.8 : les trois y
+   gagnent. La boîte est celle que Chromium REND (getBBox : 17,5 px de large,
+   12,6 au-dessus de la ligne de base, 5,5 dessous), prise avec de la marge. */
+function afEchantillons(pts, sx, sy){
+  const xs=[-3,-2,-1,0,1,2,3], m=lvTangents(pts), out=[];
+  for(let i=0;i<6;i++){
+    const P=[[sx(xs[i]),sy(pts[i])],[sx(xs[i]+1/3),sy(pts[i]+m[i]/3)],[sx(xs[i+1]-1/3),sy(pts[i+1]-m[i+1]/3)],[sx(xs[i+1]),sy(pts[i+1])]];
+    for(let k=0;k<=24;k++){ const t=k/24, u=1-t;
+      out.push([u*u*u*P[0][0]+3*u*u*t*P[1][0]+3*u*t*t*P[2][0]+t*t*t*P[3][0], u*u*u*P[0][1]+3*u*u*t*P[1][1]+3*u*t*t*P[2][1]+t*t*t*P[3][1]]); }
+  }
+  return out;
+}
+/* la boîte de « Cf′ » autour de son point d'ancrage (x, y = ligne de base) :
+   14 px d'italique et l'indice posé 3 px plus bas */
+const AF_CF_W=28, AF_CF_HAUT=13, AF_CF_BAS=6, AF_CF_MARGE=5;
+function afBoiteCf(x,y){ return {l:x-2, r:x+AF_CF_W, t:y-AF_CF_HAUT, b:y+AF_CF_BAS}; }
+function afEtiquettePos(pts, sx, sy, x0, y0, PL, PR, PT, PB){
+  const ech=afEchantillons(pts,sx,sy);
+  const dist=function(B){ let d=Infinity; ech.forEach(function(p){
+    const dx=Math.max(B.l-p[0],0,p[0]-B.r), dy=Math.max(B.t-p[1],0,p[1]-B.b); d=Math.min(d,Math.hypot(dx,dy)); }); return d; };
+  const croise=function(B,l,r,t,b){ return B.r>l && B.l<r && B.b>t && B.t<b; };
+  const licite=function(B){
+    if(B.l<PL-4 || B.r>PR || B.t<PT-8 || B.b>PB+8) return false;         /* dans le dessin */
+    if(croise(B, PL-40, PR+10, y0-3, y0+17)) return false;                /* l'axe des x et ses nombres */
+    /* pas de bande pour l'axe des y : l'étiquette se pose près du point
+       d'entrée (x = −3), à 110 px de lui — une bande posée là n'a changé
+       AUCUN placement sur 3000 courbes, et c'est le contrôle qui tient ce bord */
+    return true;
+  };
+  /* le point où la courbe ENTRE dans le dessin : l'étiquette se pose près de lui */
+  const dep=[sx(-3), sy(pts[0])];
+  let meilleur=null, sMin=Infinity, secours=null, dMax=-1;
+  for(let x=PL-2; x<=PR-AF_CF_W; x+=3){
+    for(let y=PT+AF_CF_HAUT; y<=PB+8-AF_CF_BAS; y+=3){
+      const B=afBoiteCf(x,y); if(!licite(B)) continue;
+      const d=dist(B);
+      if(d>dMax){ dMax=d; secours=[x,y]; }
+      if(d<AF_CF_MARGE || d>AF_CF_MARGE+10) continue;                    /* à côté : ni dessus, ni loin */
+      const cx=(B.l+B.r)/2, cy=(B.t+B.b)/2, sc=Math.hypot(cx-dep[0], cy-dep[1]);
+      if(sc<sMin){ sMin=sc; meilleur=[x,y]; }
+    }
+  }
+  return meilleur || secours;   /* le secours : la plus éloignée, si aucune place n'est « à côté » (jamais vu sur 600 courbes) */
+}
 /* Le dessin de la Seconde, avec l'étiquette de la fiche : Cf ou Cf'. */
 function afGraphSVG(pts, prime){
   const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
@@ -10528,7 +10591,8 @@ function afGraphSVG(pts, prime){
   let labels='';
   for(let x=-3;x<=3;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
   for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
-  const cf='<text x="'+sx(-2.7).toFixed(1)+'" y="'+(sy(pts[1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f'+(prime?'\u2009\u2032':'')+'</tspan></text>';
+  const pos=afEtiquettePos(pts,sx,sy,x0,y0,PL,PR,PT,PB);
+  const cf='<text x="'+pos[0].toFixed(1)+'" y="'+pos[1].toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f'+(prime?'\u2009\u2032':'')+'</tspan></text>';
   return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy)+'"/>'+cf+'</svg>';
 }
 async function startAfp(){

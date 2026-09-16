@@ -4776,6 +4776,67 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies. L'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE ===== */
+    /* Signalé par Turquet (septembre 2026) sur le 2.8 : « le nom de la courbe
+       Cf′ doit toujours être à côté de la courbe et pas sur la courbe ». La
+       page choisit la place en échantillonnant sa propre courbe ; le banc
+       jsdom relit le SVG écrit et refait l'arithmétique. Ce que jsdom ne
+       peut PAS voir, c'est la boîte que la POLICE donne à l'étiquette —
+       Fredoka 14 px, italique, l'indice 10 px posé 3 px plus bas — et le
+       chemin tel que Chromium le trace : la boîte est mesurée ici par
+       getBBox, la courbe par getPointAtLength, sur chacun des trois
+       exercices ouverts pour de vrai, puis sur quarante courbes de plus
+       dessinées dans le même hôte par la fonction même de la page. Trois
+       bords : jamais SUR la courbe (≥ 3 px), jamais LOIN (≤ 22 px), et une
+       boîte non nulle — un CSS perdu rendrait l'étiquette invisible sans
+       qu'une erreur ne se lève. */
+    titre('6 tricies. L\'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE (BOÎTE RENDUE)');
+    if(!P.etiquetteCourbe){
+      ignorer('l\'étiquette Cf′ rendue reste à côté de la courbe, jamais dessus',
+        'ce niveau n\'a pas le dessin partagé des dérivées (afGraphSVG)');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
+      await connecter(s.page);
+      for(const id of P.etiquetteCourbe.exercices){
+        await s.page.evaluate(id => openTest(id), id);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(700);
+        const r = await s.page.evaluate(() => {
+          const mesure = function(svg){
+            const t = svg.querySelector('.lv-cf'), path = svg.querySelector('.lv-curve');
+            if(!t || !path) return { err: 'pas d\'étiquette ou pas de courbe' };
+            const bb = t.getBBox();
+            if(!(bb.width > 8 && bb.height > 8)) return { err: 'boîte de l\'étiquette nulle (' + bb.width.toFixed(0) + '×' + bb.height.toFixed(0) + ')' };
+            const B = { l: bb.x, r: bb.x + bb.width, t: bb.y, b: bb.y + bb.height };
+            const L = path.getTotalLength(); let dm = Infinity;
+            for(let u = 0; u <= L; u += 1){ const q = path.getPointAtLength(u);
+              const dx = Math.max(B.l - q.x, 0, q.x - B.r), dy = Math.max(B.t - q.y, 0, q.y - B.b); dm = Math.min(dm, Math.hypot(dx, dy)); }
+            const vb = svg.viewBox.baseVal;
+            const dedans = B.l >= vb.x && B.r <= vb.x + vb.width && B.t >= vb.y && B.b <= vb.y + vb.height;
+            if(dm < 3) return { err: 'SUR la courbe (' + dm.toFixed(1) + ' px)' };
+            if(dm > 22) return { err: 'loin de la courbe (' + dm.toFixed(1) + ' px)' };
+            if(!dedans) return { err: 'hors du dessin' };
+            return { d: dm };
+          };
+          const num = document.querySelector('.screen.on .q-idx') ? document.querySelector('.screen.on h2, .screen.on .titre-exo, .screen.on .exo-num') : null;
+          const ecran = []; document.querySelectorAll('.screen.on .af-graph svg').forEach(function(svg){ ecran.push(mesure(svg)); });
+          const host = document.querySelector('.screen.on .af-graph'); const tirage = [];
+          for(let i = 0; i < 40; i++){ const roots = (i % 2) ? [[-2, -1, 0, 1, 2][i % 5]] : [-2, [0, 1, 2][i % 3]];
+            host.innerHTML = afGraphSVG(afpCourbeDer(roots, (i % 4 < 2) ? 1 : -1), i % 3 !== 0);
+            tirage.push(mesure(host.querySelector('svg'))); }
+          return { ecran: ecran, tirage: tirage };
+        });
+        const fautesE = r.ecran.filter(m => m.err).map(m => m.err), fautesT = r.tirage.filter(m => m.err).map(m => m.err);
+        verifier(id + ' : l\'étiquette rendue de l\'exercice ouvert est à côté de sa courbe (' + r.ecran.length + ' dessin(s))',
+          r.ecran.length >= 1 && fautesE.length === 0, fautesE.slice(0, 2).join(' ; '));
+        verifier(id + ' : sur 40 courbes de plus, l\'étiquette rendue reste à côté (≥ 3 px, ≤ 22 px), boîte non nulle',
+          r.tirage.length === 40 && fautesT.length === 0, fautesT.length + ' défaut(s) : ' + fautesT.slice(0, 2).join(' ; '));
+      }
+      verifier('l\'étiquette Cf′ : aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies ter. LE 4.6 : LE TABLEAU RENDU, LES FLÈCHES ET LE BOUTON ∞ ===== */
     /* L'étude menée au TVI réutilise le tableau du 5.3 (ids ef-*) : jsdom lit
        les classes, seul un navigateur voit les flèches DESSINÉES à une taille
@@ -6184,7 +6245,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies terdecies. {suite-vocabulaire} : la fiche se COCHE =====
+    /* ===== 6 tricies ter. {suite-vocabulaire} : la fiche se COCHE =====
        Le banc jsdom tient le tirage (refait sur les termes montrés), le juge
        et les gestes. Ce qu'il ne voit pas : le quadrillage RENDU à une taille
        lisible avec ses treize croix et la droite y = ℓ d'étendue non nulle,
@@ -6192,7 +6253,7 @@ async function parcours(page, N){
        en bleu, cochée à tort en rouge, oubliée en vert —, le badge de la bonne
        borne mesuré au RECTANGLE, et la page qui ne déborde ni à 1400 px ni sur
        une tablette en portrait, où la fiche passe sous le dessin. */
-    titre('6 vicies terdecies. VOCABULAIRE SUR LES SUITES : LA FICHE SE COCHE');
+    titre('6 tricies ter. VOCABULAIRE SUR LES SUITES : LA FICHE SE COCHE');
     if(!P.suiteVocabulaire){
       ignorer('la fiche du vocabulaire se coche, et ses couleurs disent le verdict',
         'ce niveau n\'a pas l\'exercice du vocabulaire sur les suites');
@@ -6563,6 +6624,220 @@ async function parcours(page, N){
                  score: test.score, note: (document.querySelector('#pycFeedback .note-exo') || {}).textContent || document.getElementById('pycFeedback').textContent };
       });
       verifier('la copie corrigée s\'exécute (12) et passe au BLEU, pour 1 case juste', fin.encre === fin.bleu && fin.console === '12' && fin.score === 1, fin.encre + ' / ' + fin.console + ' / ' + fin.note.slice(0, 60));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 vicies terdecies. {python-noms-variables} : correct, incorrect, et pourquoi =====
+       Le banc jsdom tient la banque (par une seconde méthode), le tirage, la
+       porte de la justification, la copie juste et la copie fausse. Ce qu'il
+       ne voit pas : chaque rangée « (1) prix achat est [ ? ] car [ … ] »
+       d'un seul tenant à 1400 px — repliée, la raison se lirait sous un autre
+       nom —, le nom RENDU à chasse fixe (une espace dans « prix achat » ne se
+       voit qu'à cette police), la justification VRAIMENT inerte sous un vrai
+       clic tant que le nom n'est pas déclaré incorrect (Playwright refuse de
+       choisir dans une liste désactivée — c'est le bord qu'on mesure), et
+       l'encre RENDUE du verdict. On choisit dans les vraies listes, on clique
+       Vérifier, puis on rejoue le bord du soutien. */
+    titre('6 vicies terdecies. NOMS DE VARIABLES EN PYTHON : CORRECT, INCORRECT, ET POURQUOI');
+    if(!P.pythonNoms){
+      ignorer('les noms de variables se jugent et se justifient', 'ce niveau n\'a pas l\'exercice des noms de variables');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonNoms.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const rows = [...document.querySelectorAll('#pvnHost .pvn-row')];
+        const replis = rows.filter(r => {
+          const kids = [...r.children].filter(k => k.getBoundingClientRect().width > 0);
+          const h = Math.max(...kids.map(k => k.getBoundingClientRect().height));
+          return r.getBoundingClientRect().height > h * 1.6;
+        }).length;
+        const nom = document.querySelector('#pvnHost .pvn-nom');
+        const r0 = document.getElementById('pvn-r0');
+        return { rangees: rows.length, replis, police: nom ? getComputedStyle(nom).fontFamily : '',
+                 nomVisible: nom && nom.getBoundingClientRect().width > 20,
+                 espace: [...document.querySelectorAll('#pvnHost .pvn-nom')].some(e => / /.test(e.textContent)),
+                 whiteSpace: nom ? getComputedStyle(nom).whiteSpace : '',
+                 raisonFermee: r0 && r0.disabled && parseFloat(getComputedStyle(r0).opacity) < 0.7,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 verdicts: document.querySelectorAll('#pvnHost select.pvn-verdict').length };
+      });
+      verifier('la question pose ses ' + P.pythonNoms.par + ' rangées, chacune d\'un seul tenant à 1400 px, et la page ne déborde pas',
+        avant.rangees === P.pythonNoms.par && avant.replis === 0 && !avant.page && avant.verdicts === P.pythonNoms.par,
+        avant.rangees + ' rangée(s), ' + avant.replis + ' repliée(s)');
+      verifier('le nom est rendu à chasse fixe et garde ses espaces', /mono|menlo|consolas|courier/i.test(avant.police) && avant.nomVisible && avant.whiteSpace === 'pre', avant.police + ' / ' + avant.whiteSpace);
+      verifier('la justification est visible mais fermée et grisée avant tout verdict', !!avant.raisonFermee, '');
+      /* un VRAI choix dans la liste fermée est refusé par le navigateur */
+      let refuse = false;
+      try{ await s.page.selectOption('#pvn-r0', { index: 1 }, { timeout: 1500 }); }catch(e){ refuse = true; }
+      verifier('choisir une raison AVANT de déclarer le nom incorrect est impossible', refuse, 'la liste fermée a accepté un choix');
+      /* on répond JUSTE, dans les vraies listes */
+      const bon = await s.page.evaluate(() => test.questions[0].noms.map(n => ({ v: pvnCorrect(n) ? 'ok' : 'ko', r: pvnRaison(n) })));
+      for(let i = 0; i < bon.length; i++){
+        await s.page.selectOption('#pvn-v' + i, bon[i].v);
+        if(bon[i].r){ await s.page.selectOption('#pvn-r' + i, bon[i].r); }
+      }
+      const ouverte = await s.page.evaluate(() => [...document.querySelectorAll('#pvnHost .pvn-raison')].filter(r => !r.disabled).length);
+      verifier('déclarer un nom incorrect ouvre sa justification, et elle seule', ouverte === bon.filter(b => b.r).length, ouverte + ' ouverte(s) pour ' + bon.filter(b => b.r).length + ' incorrect(s)');
+      await s.page.click('#pvnValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => {
+        const ok = [...document.querySelectorAll('#pvnHost select.ok')];
+        const bleu = getComputedStyle(document.documentElement).getPropertyValue('--blue').trim();
+        const dom = c => { const m = c.match(/\d+/g) || []; return m.length >= 3 ? (Math.max(+m[0], +m[1], +m[2]) === +m[2] ? 'bleu' : (Math.max(+m[0], +m[1], +m[2]) === +m[0] ? 'rouge' : 'vert')) : '?'; };
+        return { ok: ok.length, cases: pvnCases(test.questions[0]).length, score: test.score,
+                 encres: [...new Set(ok.map(e => dom(getComputedStyle(e).color)))],
+                 suivant: !!document.getElementById('pvnNext'), note: (document.querySelector('#pvnFeedback .note-exo') || {}).textContent || '' };
+      });
+      verifier('la copie juste choisie dans les listes peint toutes ses cases en BLEU et vaut toutes ses cases',
+        apres.ok === apres.cases && apres.score === apres.cases && apres.encres.length === 1 && apres.encres[0] === 'bleu',
+        apres.ok + ' ok sur ' + apres.cases + ', note ' + apres.score + ', encres ' + apres.encres.join(','));
+      verifier('« Question suivante » apparaît et la note affichée compte toutes les cases', apres.suivant && new RegExp(apres.cases + ' cases justes sur ' + apres.cases).test(apres.note), apres.note.trim());
+      /* le bord du soutien : un incorrect déclaré correct rougit, sans révéler sa raison */
+      await s.page.evaluate(id => openTest(id), P.pythonNoms.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const plan = await s.page.evaluate(() => { const q = test.questions[0]; const iKo = q.noms.findIndex(n => !pvnCorrect(n));
+        return { iKo, rep: q.noms.map((n, i) => ({ v: (i === iKo) ? 'ok' : (pvnCorrect(n) ? 'ok' : 'ko'), r: (i === iKo) ? null : pvnRaison(n) })) }; });
+      for(let i = 0; i < plan.rep.length; i++){
+        await s.page.selectOption('#pvn-v' + i, plan.rep[i].v);
+        if(plan.rep[i].r){ await s.page.selectOption('#pvn-r' + i, plan.rep[i].r); }
+      }
+      await s.page.click('#pvnValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(i => {
+        const v = document.getElementById('pvn-v' + i), r = document.getElementById('pvn-r' + i);
+        const dom = c => { const m = c.match(/\d+/g) || []; return m.length >= 3 ? (Math.max(+m[0], +m[1], +m[2]) === +m[0] ? 'rouge' : 'autre') : '?'; };
+        return { bad: document.querySelectorAll('#pvnHost select.bad').length, encre: dom(getComputedStyle(v).color),
+                 badge: !!(v.nextElementSibling && v.nextElementSibling.classList.contains('mf-cor')),
+                 raison: r.value, fermee: r.disabled, locked: test.locked,
+                 rev: (document.getElementById('pvnValidate') || {}).textContent || '' };
+      }, plan.iKo);
+      verifier('en soutien, l\'incorrect déclaré correct rougit à l\'encre rendue, sans badge, sa raison reste fermée et vide, et « Revérifier » est proposé',
+        sout.bad === 1 && sout.encre === 'rouge' && !sout.badge && sout.raison === '' && sout.fermee && !sout.locked && /Rev/.test(sout.rev),
+        sout.bad + ' rouge(s), encre ' + sout.encre + ', badge ' + sout.badge + ', raison « ' + sout.raison + ' »');
+      /* il corrige : le verdict passe à « incorrect », la porte s'ouvre pour de vrai, il choisit — tout est juste */
+      await s.page.selectOption('#pvn-v' + plan.iKo, 'ko');
+      const raison = await s.page.evaluate(i => pvnRaison(test.questions[0].noms[i]), plan.iKo);
+      await s.page.selectOption('#pvn-r' + plan.iKo, raison);
+      await s.page.click('#pvnValidate');
+      await s.page.waitForTimeout(400);
+      const fin = await s.page.evaluate(() => ({ ok: document.querySelectorAll('#pvnHost select.ok').length, cases: pvnCases(test.questions[0]).length, score: test.score, locked: test.locked }));
+      verifier('la copie corrigée en soutien vaut toutes ses cases', fin.ok === fin.cases && fin.score === fin.cases && fin.locked, fin.ok + ' ok sur ' + fin.cases + ', note ' + fin.score);
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 vicies quaterdecies. {python-nom-variable} : un nom par grandeur, puis le programme =====
+       Le banc jsdom tient le juge (comparé à un vrai CPython), le tirage, le
+       doublon, les portes et le soutien. Ce qu'il ne voit pas : la cellule du
+       carnet RENDUE — chaque phrase et sa case sur UNE ligne à chasse fixe, la
+       case à la taille de la phrase qui la précède —, la frappe dans de VRAIES
+       cases, l'encre du verdict, le programme et la console rendus, et la
+       page qui ne déborde ni à 1400 px ni à la largeur d'un téléphone, où la
+       phrase du carnet se REPLIE au lieu de sortir de l'écran. */
+    titre('6 vicies quaterdecies. NOMMER UNE VARIABLE : UN NOM PAR GRANDEUR, PUIS LE PROGRAMME');
+    if(!P.pythonNomVariable){
+      ignorer('un nom par grandeur, puis le programme', 'ce niveau n\'a pas l\'exercice des noms de variables');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonNomVariable.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const li = [...document.querySelectorAll('#pnvHost .pnv-enonce li')].map(e => e.getBoundingClientRect());
+        const lignes = [...document.querySelectorAll('#pnvHost .pnv-ligne')].map(l => {
+          const code = l.querySelector('code'), inp = l.querySelector('input.pnv-in');
+          const cr = code.getBoundingClientRect(), ir = inp.getBoundingClientRect();
+          return { police: getComputedStyle(inp).fontFamily, memeTaille: getComputedStyle(inp).fontSize === getComputedStyle(code).fontSize,
+                   taille: getComputedStyle(inp).fontSize + ' / ' + getComputedStyle(code).fontSize,
+                   memeLigne: ir.top < cr.bottom && ir.bottom > cr.top && ir.left >= cr.right - 2,
+                   caseVisible: ir.width > 80 && ir.height > 24 };
+        });
+        return { grandeurs: li.length, grandeursVisibles: li.every(r => r.width > 100 && r.height > 14),
+                 lignes: lignes.length, monospace: lignes.every(l => /mono|menlo|consolas|courier/i.test(l.police)),
+                 memeTaille: lignes.every(l => l.memeTaille), tailles: lignes.map(l => l.taille).join(' ; '),
+                 memeLigne: lignes.every(l => l.memeLigne), casesVisibles: lignes.every(l => l.caseVisible),
+                 run: !!document.getElementById('pnvRun'), code: !!document.querySelector('#pnvHost .py-code'),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('les quatre grandeurs de l\'énoncé sont rendues', avant.grandeurs === P.pythonNomVariable.parQ && avant.grandeursVisibles, avant.grandeurs + ' grandeur(s)');
+      verifier('les quatre lignes du carnet sont à chasse fixe, et chaque case écrit à la taille de la phrase qui la précède', avant.lignes === P.pythonNomVariable.parQ && avant.monospace && avant.memeTaille, avant.tailles);
+      verifier('à 1400 px, chaque phrase et sa case tiennent sur UNE ligne, la case visible, et la page ne déborde pas', avant.memeLigne && avant.casesVisibles && !avant.page, JSON.stringify(avant));
+      verifier('ni programme ni « Exécuter » avant la vérification', !avant.run && !avant.code, '');
+      /* on TAPE dans les vraies cases */
+      const noms = ['nb_filles_2nde', 'tarifRepas', 'aire_figure', 'note_devoir'];
+      for(let i = 0; i < noms.length; i++) await s.page.fill('#pnv-s-' + i, noms[i]);
+      await s.page.click('#pnvValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(noms => {
+        const ins = [...document.querySelectorAll('#pnvHost input.pnv-in')];
+        const rgb = c => (c.match(/\d+/g) || []).map(Number);
+        const bleues = ins.filter(i => { const c = rgb(getComputedStyle(i).color); return i.classList.contains('ok') && c[2] > c[0] && c[2] > c[1]; }).length;
+        const code = document.getElementById('pnvCode'), run = document.getElementById('pnvRun');
+        const cr = code && code.getBoundingClientRect();
+        return { ok: ins.filter(i => i.classList.contains('ok')).length, bleues, score: test.score,
+                 codeVisible: !!code && cr.width > 300 && cr.height > 100, police: code && getComputedStyle(code).fontFamily,
+                 nomsDansCode: !!code && noms.every(n => code.textContent.indexOf(n + ' = ') >= 0),
+                 runOk: !!run && !run.disabled, focus: document.activeElement && document.activeElement.id,
+                 suivant: !!document.getElementById('pnvNext') };
+      }, noms);
+      verifier('les quatre noms tapés sont peints ok, à l\'encre BLEUE, et valent 4', apres.ok === 4 && apres.bleues === 4 && apres.score === 4, apres.ok + ' ok, ' + apres.bleues + ' bleues, note ' + apres.score);
+      verifier('le programme rendu porte les noms de l\'élève, à chasse fixe, dans un cadre visible', apres.codeVisible && apres.nomsDansCode && /mono|menlo|consolas|courier/i.test(apres.police || ''), JSON.stringify(apres));
+      verifier('« Exécuter » est cliquable et reçoit le focus ; « Question suivante » attend l\'exécution', apres.runOk && apres.focus === 'pnvRun' && !apres.suivant, 'focus sur ' + apres.focus);
+      await s.page.click('#pnvRun');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(noms => {
+        const cons = document.getElementById('pnvConsole'), r = cons.getBoundingClientRect();
+        return { lignes: cons.textContent.split('\n').length, visible: r.height > 60 && r.width > 300,
+                 police: getComputedStyle(cons).fontFamily, suivant: !!document.getElementById('pnvNext'),
+                 texte: cons.textContent };
+      }, noms);
+      verifier('la console montre les quatre valeurs, à chasse fixe, dans un cadre visible, et « Question suivante » apparaît',
+        fin.lignes === 4 && fin.visible && /mono|menlo|consolas|courier/i.test(fin.police) && fin.suivant, JSON.stringify(fin.texte));
+      /* à la largeur d'un téléphone, la phrase du carnet se replie et rien ne déborde */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const lignes = [...document.querySelectorAll('#pnvHost .pnv-ligne')].map(l => {
+          const code = l.querySelector('code'), inp = l.querySelector('input.pnv-in');
+          const cr = code.getBoundingClientRect(), ir = inp.getBoundingClientRect(), lh = parseFloat(getComputedStyle(code).lineHeight);
+          return { replie: cr.height > lh * 1.5, caseDedans: ir.right <= 391 && ir.left >= 0 && ir.width > 60 };
+        });
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 replies: lignes.every(l => l.replie), cases: lignes.every(l => l.caseDedans) };
+      });
+      verifier('sur un téléphone, la phrase du carnet se replie, la case reste dans l\'écran, et la page ne déborde pas', !tel.page && tel.replies && tel.cases, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le bord du soutien : l'espace rougit à la sortie de la case, sans badge, et rien ne se débloque */
+      await s.page.evaluate(id => openTest(id), P.pythonNomVariable.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      await s.page.click('#pnv-s-0');
+      await s.page.keyboard.type('nb filles');
+      const pendant = await s.page.evaluate(() => document.getElementById('pnv-s-0').className);
+      await s.page.keyboard.press('Tab');
+      await s.page.waitForTimeout(300);
+      const sorti = await s.page.evaluate(() => {
+        const i = document.getElementById('pnv-s-0'), c = (getComputedStyle(i).borderColor.match(/\d+/g) || []).map(Number);
+        return { classe: i.className, rouge: c[0] > c[1] && c[0] > c[2], badge: !!(i.nextElementSibling && i.nextElementSibling.classList.contains('mf-cor')) };
+      });
+      verifier('en soutien, la case où l\'élève écrit ne se colore pas, et l\'espace rougit à la SORTIE de la case, sans badge',
+        !/\b(ok|bad)\b/.test(pendant) && /\bbad\b/.test(sorti.classe) && sorti.rouge && !sorti.badge, 'pendant : « ' + pendant + ' », sorti : ' + JSON.stringify(sorti));
+      await s.page.fill('#pnv-s-1', 'tarif');
+      await s.page.click('#pnvValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => ({ bad: document.querySelectorAll('#pnvHost input.bad').length, ok: document.querySelectorAll('#pnvHost input.ok').length,
+        run: !!document.getElementById('pnvRun'), code: !!document.getElementById('pnvCode'), locked: test.locked,
+        badge: !!document.querySelector('#pnvHost .mf-cor') }));
+      verifier('en soutien, la copie fausse vérifiée rougit sa case, garde la juste bleue, ne montre ni programme ni « Exécuter », et ne verrouille rien',
+        sout.bad === 1 && sout.ok === 1 && !sout.run && !sout.code && !sout.locked && !sout.badge, JSON.stringify(sout));
       await s.nav.close(); s = null;
     }
 
