@@ -2648,6 +2648,83 @@ copie propre hors dépôt à chaque tour, et le sabotage du navigateur s’est j
 dans une copie de travail séparée, pendant que la page propre passait son
 propre banc.
 
+**Nommer une variable, c'est la fiche « Exercice 5 » — et il n'y a pas UNE
+bonne réponse, ce qui décide de tout.** {python-nom-variable} (Seconde, 5.3,
+demande de Turquet, septembre 2026 : « en seconde créer un exercice comme le
+pdf ») suit {python-types} au menu : quatre grandeurs — le nombre de filles de
+Seconde, le tarif d'un repas, l'aire d'une figure, la note à un devoir — et
+pour chacune un nom de variable à proposer, dans la cellule du carnet (« La
+variable représentant "…" peut être nommée par : … »). nb_filles, nbFilles,
+filles et effectif_filles sont tous justes.
+**Le juge ne tient donc que ce qui se PROUVE — la FORME du nom — et chaque
+règle est ANNONCÉE à l'écran avant que l'élève n'écrive** (la doctrine des
+trois positions, prise du côté du refus prouvable ; un critère mesuré sans
+avoir été demandé donnerait tort à une copie honnête) : lettres, chiffres et
+tiret bas seulement — pas d'espace (la remarque de la fiche), pas de tiret,
+pas d'apostrophe —, ne commence pas par un chiffre, n'est ni un mot réservé de
+Python ni le nom d'une fonction du cours (print, type, int…), au moins 2
+caractères — un nom d'une lettre ne dit pas ce qu'il stocke —, au plus 20
+(« pas trop long »). Deux grandeurs d'une même question ne portent pas le
+MÊME nom — ce serait une seule variable —, et c'est la règle des paires : la
+seconde occurrence est fausse, la première reste défendable ; « Note » et
+« note » sont deux noms, comme en Python. La PERTINENCE du nom n'est pas
+prouvable : elle est expliquée (le rappel, le contexte du modèle), jamais
+notée. Chaque refus se NOMME avec la saisie de l'élève (« le caractère « - »
+n'est pas autorisé dans « nb-filles » »), et la correction écrit UN nom
+possible en vert, en disant que ce n'est qu'un exemple.
+**Les refus sont de DEUX familles, et le banc les départage par un vrai
+CPython** : l'espace, le chiffre en tête, le caractère étranger et le mot
+réservé sont des refus de Python — sur chacun, `nom = 1` doit lever une
+SyntaxError ; la fonction du cours, la lettre seule et le nom trop long sont
+des règles de l'EXERCICE, et le banc exige que Python, lui, les ACCEPTE :
+c'est ce qui en fait des règles annoncées et non des faits de syntaxe.
+L'alphabet du juge est celui de l'INTERPRÉTEUR de la page (pyLex : lettres
+latines, accents compris, chiffres, tiret bas), parce que la page ÉCRIT
+ensuite le programme avec les noms de l'élève — « nb_filles = 14 » puis
+« print("le nombre de filles de Seconde :", nb_filles) » — et « Exécuter »
+ne se débloque qu'après la vérification, la chaîne de portes de
+{python-affichage} : Python accepte les noms, et l'élève le voit. Le nom faux
+ou vide y est remplacé par l'exemple de la correction : un programme qui
+reprendrait « nb filles » ne s'exécuterait pas.
+**La séance : trois questions de quatre grandeurs, les quatre de la fiche
+TOUJOURS dans la séance**, mélangées aux huit autres tirées dans le vivier —
+la fiche entière, sans que la première question soit toujours elle ; la
+question ne porte que les INDICES des grandeurs (on range l'indice, jamais
+l'objet), et le contrôle refuse tout autre champ. Le soutien corrige en
+DIRECT — la forme, sans badge, jamais sur une case vide, sous le garde de la
+saisie qui retient la couleur tant que la case a le curseur — et la copie
+fausse vérifiée ne verrouille rien et ne montre pas le programme.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée
+(« nb filles » refusé pour l'espace), la place au menu, le tirage (400
+séances), le juge cas par cas, le doublon, la copie juste tapée et le
+programme aux noms de l'ÉLÈVE, la copie fausse, le soutien, les branchements
+et CPython ; le NAVIGATEUR (« 6 vicies duodecies », déclaré par
+`pythonNomVariable` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — la cellule du carnet RENDUE, chaque phrase et sa case sur UNE ligne à
+chasse fixe et à la même taille, la frappe dans de vraies cases, l'encre bleue
+du verdict, le programme et la console rendus, la phrase qui se REPLIE sur un
+téléphone au lieu de sortir de l'écran, et l'espace qui rougit à la SORTIE de
+la case, jamais pendant la frappe. Les contrôles universels des deux bancs ont
+couvert l'exercice au premier passage sans rien déclarer. Deux essais du
+contrôle ont d'abord rougi sur une page JUSTE : la recherche de l'exemple
+attrapait « aire = » dans « mon3_aire = » — on cherche en tête de ligne —, et
+le témoin CPython faisait `print(print)` après avoir renommé print. Un essai
+faux se reconnaît à ce qu'il rougit sur du code juste.
+**Et un défaut de mise en page ne s'est vu qu'au banc navigateur, à sa
+première exécution** : la phrase la plus longue du carnet fait 82 caractères à
+chasse fixe (830 px), et dans les 960 px de la cellule Python la case tombait
+SOUS sa phrase — une réponse qu'on cherche à la ligne suivante. La cellule de
+cet écran est élargie à 1160 px ; sur un téléphone la phrase se replie, et
+c'est mesuré aussi. Quatorze sabotages au banc jsdom, chacun rougissant en
+nommant son défaut — l'espace accepté, le doublon accepté, le mot réservé, le
+tiret et « print » acceptés (les deux premiers nommés aussi par CPython), le
+programme écrit avec les exemples au lieu des noms de l'élève, la case vide
+rougie, la fiche perdue ou toujours en première question, le soutien
+débranché, le badge qui fuit en soutien, « Question suivante » avant
+l'exécution, l'exercice sorti de sa place au menu. La campagne a joué dans
+une copie séparée du dépôt pendant que le banc navigateur mesurait la page
+propre.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
