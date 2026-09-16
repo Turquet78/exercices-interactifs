@@ -2648,6 +2648,87 @@ copie propre hors dépôt à chaque tour, et le sabotage du navigateur s’est j
 dans une copie de travail séparée, pendant que la page propre passait son
 propre banc.
 
+**Afficher une variable, c'est la première ligne de Python que l'élève ÉCRIT —
+et le juge l'EXÉCUTE au lieu de la comparer.** {python-afficher-variable}
+(Seconde, 5.3, demande de Turquet, septembre 2026 : « expliquer comment on
+affiche une variable en python, puis l'élève doit compléter un programme qui
+commence par note = 12 pour qu'il affiche la valeur de cette variable ; il
+peut exécuter ce programme ; il faut vérifier le résultat et en mode soutien
+expliquer où se trouve l'erreur ») ferme le thème 5 : le 5.1 fait LIRE un
+programme, le 5.2 fait CLASSER des variables, celui-ci fait ÉCRIRE. Le cours —
+comment on affiche une variable — est SUR l'écran, avant le programme, sur une
+variable qui ne sort jamais du tirage (« nombre ») : l'élève transpose, il ne
+recopie pas. La première ligne (« note = 12 ») est écrite par la page ; l'élève
+écrit la suite dans une zone à chasse fixe, à la taille de la ligne qu'elle
+prolonge.
+**LA PREMIÈRE QUESTION EST CELLE DE LA DEMANDE — note = 12, toujours —**, puis
+les trois types du 5.2 chacun une fois, en ordre mélangé : un décimal
+s'affiche avec son point, un texte s'affiche SANS ses guillemets — et c'est
+lui qui tend le piège print("prenom"). Le contrôle exige les deux : la
+demande en tête, et les types mélangés derrière.
+**LE JUGE NE COMPARE JAMAIS À UNE LIGNE ATTENDUE : il exécute la copie** avec
+`pyRun`, l'interpréteur même du bouton « Exécuter » — la console et la
+correction ne peuvent donc pas se contredire — et exige que la sortie soit la
+valeur de la variable, et elle seule. Puis LA SECONDE MÉTHODE, celle qui
+distingue « afficher 12 » d'« afficher la variable » : il change la valeur de
+la première ligne (note = 47) et rejoue la copie — un programme qui affiche la
+VARIABLE la suit, print(12) ne la suit pas, et le message le dit avec ce
+nombre-là. print(note), print( note ), x = note puis print(x), print(str(note))
+passent ; print(12), print("12"), print("note"), print("la note est", note),
+deux print, le nom écrit tout seul sont refusés — chacun pour SA raison. Toute
+écriture juste est acceptée, la leçon d'{ecrire-solutions} : refuser une
+écriture juste serait le pire défaut du projet, par la porte d'un exécuteur.
+**ET IL DIT OÙ.** Chaque refus porte le LIEU de l'erreur — la ligne (la ligne 1
+est celle que la page écrit, la première de l'élève est donc la ligne 2) et le
+mot — et sa RAISON, jamais la réponse : c'est ce que le soutien affiche
+(« Erreur repérée à la ligne 2, dans le mot « Print ». Python ne connaît pas
+« Print » : le mot s'écrit print, tout en minuscules. »), et l'entraînement y
+ajoute la ligne attendue en vert à côté (badge `mf-cor`). Les diagnostics de
+FORME passent avant l'exécution — Print, print sans parenthèses, la parenthèse
+jamais refermée ou de trop, le guillemet seul, les guillemets typographiques,
+la première ligne RÉÉCRITE (une variable ne s'affecte qu'une fois par
+programme : la règle du 5.1, retournée vers l'élève) — parce que
+l'interpréteur les nommerait moins bien ; puis l'interpréteur, rejoué ligne à
+ligne pour trouver celle qui l'arrête, nomme Note pour note (« Python
+distingue les majuscules des minuscules »), une variable inconnue, un mot que
+Python ne connaît pas ; puis la SORTIE se lit — le mot au lieu de la valeur,
+du texte autour, deux lignes, rien. Le contrôle épingle dix-sept copies avec
+leur raison ET leur ligne, et exige que le message ne contienne jamais
+print(note) — sauf pour CITER la ligne de l'élève, qui a le droit de la
+contenir : le premier jet du contrôle prenait cette citation pour la réponse.
+**« EXÉCUTER » EST LIBRE, ET C'EST L'INVERSE DU 5.1** : là-bas le bouton se
+débloque après la réponse parce que la sortie EST la réponse ; ici c'est le
+programme de l'ÉLÈVE qu'il fait tourner, et il ne peut rien révéler qu'il
+n'ait écrit — voir ce que fait sa ligne (« note » pour print("note"), « Erreur :
+la variable « Note » n'existe pas ») est la façon même d'apprendre à
+programmer, en soutien surtout. La console se vide à la frappe suivante : une
+sortie périmée sous un programme modifié mentirait. « Question suivante »
+n'attend pas l'exécution : « il peut exécuter », dit la demande.
+**L'INTERPRÉTEUR A APPRIS DEUX CHOSES, comparées à CPython** : une ligne qui
+n'est qu'une EXPRESSION (« note » tout seul) s'évalue et n'affiche RIEN, comme
+dans un script — c'est ce que le cours fait VOIR en exécutant, là où le
+5.1 refusait la ligne ; et « print note » reçoit l'erreur de CPython
+(« il manque les parenthèses après print »). Une seule divergence, nommée dans
+le code : un « print » NU, qui vaut la fonction en CPython et n'affiche rien,
+reçoit ici la même erreur — mieux vaut une erreur qu'un silence sur une ligne
+inutile. Le banc compare au vrai python3 ce que le juge accepte ET ce qu'il
+refuse : 600 programmes tirés (print(nom), print(valeur), print("nom"), le nom
+seul, une variable inconnue) et vingt-et-une copies épinglées — même sortie,
+ou plantage des deux côtés.
+**La copie VIDE n'est pas vérifiée** : rien n'est peint, rien n'est verrouillé,
+le message redemande la ligne (la règle de {placer-image}). Aucune correction
+au fil de la frappe (`soutienEnDirect.sans`) : une ligne de code à moitié
+tapée est toujours fausse. La zone est une `pts-case` : la note affichée la
+compte (« 1 case juste sur 1 »), et la copie voyage dans la question (`q.rep`)
+— `captureBoxes` ne connaît pas les textarea, c'est la question que la pause
+photographie, et le rendu la remet. Le banc NAVIGATEUR (« 6 vicies
+duodecies », déclaré par `pythonAfficherVariable` dans `tests/profils.js`)
+tient ce que jsdom ne voit pas : la zone rendue à chasse fixe et à la taille
+de la ligne qu'elle prolonge, une VRAIE frappe au clavier, un vrai clic sur
+« Exécuter » et la console qui suit, l'encre RÉSOLUE des verdicts et la
+correction verte dans une boîte visible, la page qui ne déborde pas sur un
+téléphone, puis le soutien qui nomme la ligne et le mot sans écrire la réponse.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en

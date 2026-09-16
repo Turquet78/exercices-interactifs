@@ -86,7 +86,7 @@ const RAPPELS_SECONDE = `(function(){
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
                'diviser-fractions':'mlt','diviser-fractions-libre':'mll',
-               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty',
+               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'synthese-fonction':'syn' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -662,7 +662,7 @@ module.exports = {
        réponse ENTIÈRE : la colorer au fil de la frappe dirait à l'élève qu'il
        a juste avant même qu'il ne vérifie. Le soutien y colore à la
        vérification, sans jamais révéler l'écriture attendue. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -805,7 +805,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -851,6 +851,15 @@ module.exports = {
        un vrai python3 ; le navigateur mesure les cadres RENDUS, choisit dans
        les listes, clique Vérifier puis Exécuter, et relit la console. */
     pythonTypes: { exercice: 'python-types', nb: 4 },
+    /* {python-afficher-variable} : le cours (comment on affiche une variable)
+       sur l'écran, puis un programme qui commence par « note = 12 » à
+       COMPLÉTER pour qu'il affiche la valeur de la variable — l'élève écrit la
+       suite, peut l'exécuter, la page vérifie et le soutien dit OÙ est
+       l'erreur (demande de Turquet, septembre 2026). « nb » est la SECONDE
+       source du nombre de questions (la page a PYC_NB). Le banc jsdom éprouve
+       le juge copie par copie et le compare à un vrai python3 ; le navigateur
+       TAPE dans la vraie zone, exécute, vérifie et relit l'encre rendue. */
+    pythonAfficherVariable: { exercice: 'python-afficher-variable', nb: 4 },
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
               ordre: true, sur20: true, compacte: true },
