@@ -7381,10 +7381,21 @@ la forme portrait jamais construite), et le dernier repris au navigateur
 plaque revenue à 232 px). Le contrôle jsdom a changé de nom avec sa portée —
 « le clavier ancré tient sur moins de rangées avec les mêmes touches » —, et la
 phrase du paragraphe précédent, « puis tourne en portrait où les quatre rangées
-reviennent », raconte le banc d'avant ce jour-là. La Seconde porte le même
-clavier et n'est toujours pas dans la demande : elle n'est pas touchée, et sa
-plaque de portrait reste à 232 px — le banc l'imprime, à côté de celle de la
-Première.
+reviennent », raconte le banc d'avant ce jour-là.
+
+**Puis la Seconde, le jour même : « fais pareil pour la Seconde ».** Son
+clavier était le même à la lettre près — jusqu'aux couches nommées
+`prem-base` et `prem-paysage` — et il reçoit la même troisième forme, la
+même `kbPortraitTablette`, la même déclaration
+`clavierEcran.portraitTablette` dans son profil : 182 px de plaque contre
+232, mesurés sur la feuille du 4.5. Les cinq sabotages de jsdom ont été
+rejoués sur elle, et rougissent de même. Ce qui distingue les deux niveaux
+reste ce qui les distinguait : la Première s'installe en plein écran, la
+Seconde garde la barre de navigation d'Android. La TERMINALE, elle, n'a
+jamais eu de forme compacte — son profil ne déclare ni `paysage` ni
+`portraitTablette`, ses contrôles de forme s'affichent « non applicable »,
+et son clavier à deux couches nommées répond à une autre demande : elle
+n'est pas touchée, et le dire vaut mieux que le taire.
 
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
