@@ -2811,7 +2811,8 @@ tiret bas seulement — pas d'espace (la remarque de la fiche), pas de tiret,
 pas d'apostrophe —, ne commence pas par un chiffre, n'est ni un mot réservé de
 Python ni le nom d'une fonction du cours (print, type, int…), au moins 2
 caractères — un nom d'une lettre ne dit pas ce qu'il stocke —, au plus 20
-(« pas trop long »). Deux grandeurs d'une même question ne portent pas le
+(« pas trop long »). **La longueur minimale a été RETIRÉE** (paragraphe
+ci-dessous) : ce paragraphe raconte le juge de son époque. Deux grandeurs d'une même question ne portent pas le
 MÊME nom — ce serait une seule variable —, et c'est la règle des paires : la
 seconde occurrence est fausse, la première reste défendable ; « Note » et
 « note » sont deux noms, comme en Python. La PERTINENCE du nom n'est pas
@@ -2871,6 +2872,47 @@ débranché, le badge qui fuit en soutien, « Question suivante » avant
 l'exécution, l'exercice sorti de sa place au menu. La campagne a joué dans
 une copie séparée du dépôt pendant que le banc navigateur mesurait la page
 propre.
+
+**Puis la longueur minimale est tombée : une lettre est un nom.** Signalé par
+Turquet sur une capture (septembre 2026) : ses quatre réponses — `v` pour la
+vitesse, `l` pour la longueur, `r` pour le rayon, `abs` pour une valeur
+absolue — rougissaient toutes les quatre, « il faut accepter les variables que
+j'ai placées dans les cases aussi ». Deux règles distinctes les refusaient, et
+**une seule est tombée** : la longueur minimale (`PNV_MIN`, retirée). La liste
+des fonctions de Python reste, `abs` avec elle — le rappel ④ la couvre
+(« Pas un mot de Python : for, if, print, type… »), et c'est une décision à
+prendre à part.
+**LE GARDE TENAIT SA PROPRIÉTÉ À L'ENVERS, et c'est ce qui l'a fait tomber.** Il
+prétendait tenir le ① du rappel (« un nom dit ce qu'il stocke — pas x, qui ne
+dit rien ») en COMPTANT des caractères : il refusait donc `v` et `r`, les
+notations MÊMES du cours de maths, et acceptait `xy`, qui ne dit rien. Un garde
+qui refuse du juste et accepte du faux ne tient pas ce qu'il annonce — et la
+doctrine de l'exercice le disait déjà en toutes lettres, une ligne plus bas :
+« la PERTINENCE du nom n'est pas prouvable : elle est expliquée, jamais notée ».
+La longueur minimale était la seule chose qui la notait, à moitié.
+**CE QU'ON PERD EST NOMMÉ, parce que c'est réel** : `a`, `b`, `c`, `d` valent
+désormais 12/12 sur la séance entière. C'est le prix du refus de noter ce qu'on
+ne prouve pas, et l'explication prend le relais — le rappel ① dit la
+préférence (« en informatique on préfère un nom qui se lit ») et le contexte du
+modèle l'autorise à la conseiller. Rien d'autre ne bouge : `v = 90` puis son
+print s'exécutent dans l'interpréteur de la page comme dans un vrai CPython, le
+doublon interdit toujours deux `v` dans la même question, et les notes déjà
+enregistrées ne bougent pas — elles portent l'identifiant.
+**QUATRE ENDROITS BOUGENT ENSEMBLE, sinon l'écran ment** : le juge, le rappel ①,
+le commentaire de doctrine et le contexte envoyé au modèle. Et le rappel ① DIT
+maintenant qu'une lettre est ACCEPTÉE — sans cette moitié, l'écran promettrait
+un refus que le juge ne prononce plus, et le modèle, lui, répondrait à l'élève
+que son `v` est faux. Les deux ont leur contrôle.
+**Le banc est RETOURNÉ, pas retiré** : les refus épinglés `x` et `n` passent dans
+la liste des ACCEPTÉS (avec `v`, `l`, `r`), le nom du contrôle le dit, et la
+partition CPython perd le code `court` — sa seconde famille (fonction, long)
+garde quatre candidats, donc son garde « le contrôle ne mesure rien » a encore
+quelque chose à compter. Un piège d'outillage s'y est montré à l'écriture, le
+piège documenté de l'antislash : le premier jet du bord « le contexte n'annonce
+plus de longueur minimale » s'écrivait en expression régulière, et son `\d`
+traverse le gabarit de `verifier.js` PUIS l'évaluation dans la page — il y
+serait devenu un `d`, et le contrôle aurait mesuré zéro en restant vert. C'est
+une recherche de chaîne, sans un seul antislash.
 
 **Puis l'élève a ÉCRIT son premier print — et c'est la SORTIE qui le juge.**
 {python-print} (Seconde, 5.6, demande de Turquet, septembre 2026 : « un
