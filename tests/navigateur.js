@@ -6213,12 +6213,17 @@ async function parcours(page, N){
         const r = svg.getBoundingClientRect();
         const croix = [...svg.querySelectorAll('.svq-terme')].filter(g => { const b = g.getBoundingClientRect(); return b.width > 4 && b.height > 4; }).length;
         const lim = svg.querySelector('.svq-lim'); const lr = lim ? lim.getBoundingClientRect() : null;
+        /* la hauteur d'une RANGÉE rendue, lue entre les graduations de l'axe des
+           ordonnées : un dessin de cinq rangées est court sans être illisible */
+        const ys = [...svg.querySelectorAll('.svq-ax[text-anchor="end"]')].map(t => t.getBoundingClientRect().top).sort((a, b) => a - b);
+        const rangee = ys.length > 1 ? (ys[ys.length - 1] - ys[0]) / (ys.length - 1) : 0;
         return { manque: false, w: Math.round(r.width), h: Math.round(r.height), croix, lim: lr ? Math.round(lr.width) : 0,
-                 deborde: document.documentElement.scrollWidth > window.innerWidth + 1 };
+                 rangee: Math.round(rangee), deborde: document.documentElement.scrollWidth > window.innerWidth + 1 };
       });
       if(geo.manque) dits.push('aucun quadrillage rendu');
       else {
-        if(geo.w < 420 || geo.h < 220) dits.push('le quadrillage est rendu à ' + geo.w + ' × ' + geo.h + ' px : les graduations ne se lisent plus');
+        if(geo.w < 420) dits.push('le quadrillage est rendu à ' + geo.w + ' px de large : les graduations ne se lisent plus');
+        if(geo.rangee < 24) dits.push('une rangée du quadrillage fait ' + geo.rangee + ' px : les graduations ne se lisent plus');
         if(geo.croix !== 13) dits.push(geo.croix + ' croix rendues au lieu de 13');
         if(geo.lim < 300) dits.push('la droite y = 1 n\'a pas d\'étendue (' + geo.lim + ' px)');
         if(geo.deborde) dits.push('la page déborde à 1400 px');

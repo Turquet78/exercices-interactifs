@@ -19105,14 +19105,17 @@ function suiteVocabulaire(w, P){
     if(r.score!==1) vus.push('la copie juste de l\\'exemple 7 (1, 4, 1, 4 : sans limite) ne vaut pas le point ('+r.fb+')');
     if(r.cases!==8) vus.push('l\\'exemple 7 compte '+r.cases+' cases au lieu de 8 (pas de limite à écrire)');
     /* le soutien : rien n'est révélé, le juste se verrouille, le faux rougit, puis on corrige */
-    r=pose(Q1, [['sens','dec'],['maj'],['min'],['bor'],['lim','a'],['nat','div']], VAL1, 'soutien');
+    /* la copie de soutien OUBLIE « bornée » : sans une case oubliée, « rien n'est
+       révélé » n'aurait rien à mesurer — le sabotage l'a montré en restant vert */
+    r=pose(Q1, [['sens','dec'],['maj'],['min'],['lim','a'],['nat','div']], VAL1, 'soutien');
     if(r.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
     if(!/Revérifier/.test(document.getElementById('svqActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
     if(document.querySelector('#svqForm .sol')) vus.push('en soutien, la bonne réponse est révélée en vert');
     if(!/\\bbad\\b/.test(cls('#svq-g-nat .svq-coche[data-val="div"]'))) vus.push('en soutien, la nature fausse ne rougit pas');
     if(!/\\bfige\\b/.test(cls('#svq-g-sens .svq-coche[data-val="dec"]'))) vus.push('en soutien, le groupe juste ne se verrouille pas');
     if(coche('sens','cro') && test.questions[0].rep.sens!=='dec') vus.push('en soutien, un groupe verrouillé se laisse encore changer');
-    coche('nat','conv'); checkSVQ();
+    if(/\\b(sol|bad)\\b/.test(cls('#svq-c-bor'))) vus.push('en soutien, la case oubliée « bornée » est peinte');
+    coche('nat','conv'); coche('bor'); checkSVQ();
     if(test.score!==1 || !test.locked) vus.push('en soutien, la copie corrigée ne vaut pas le point');
     /* les cases : un groupe exclusif ne garde qu'une case, recliquer décoche, une valeur ne s'ouvre qu'une fois cochée */
     pose(Q1, [], {}, 'train', true);

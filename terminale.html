@@ -18483,7 +18483,7 @@ function svqSVG(q){
   let lo=Math.min.apply(null,t), hi=Math.max.apply(null,t);
   if(a.ligne!==null){ lo=Math.min(lo,a.ligne); hi=Math.max(hi,a.ligne); }
   const yLo=Math.min(0,Math.floor(lo)-1), yHi=Math.max(1,Math.ceil(hi)+1), rows=yHi-yLo;
-  const ux=40, uy=Math.max(18,Math.min(30,Math.round(300/rows)));
+  const ux=40, uy=Math.max(18,Math.min(36,Math.round(300/rows)));   /* une rangée reste lisible : 18 px au moins, 36 au plus */
   const PL=36, PR=30, PT=18, PB=26;
   const W=PL+SVQ_N*ux+PR, H=PT+rows*uy+PB;
   const X=function(n){ return PL+n*ux; }, Y=function(v){ return PT+(yHi-v)*uy; };
