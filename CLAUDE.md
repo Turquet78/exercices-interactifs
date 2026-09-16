@@ -2507,10 +2507,11 @@ base.js, pris du bon côté.
 bouton, le juge (`pyAns`) et le message lisent tous `pyRun(q.src)` ; la
 question ne porte que le programme, le visage tiré et l'ordre des
 propositions — le contrôle refuse tout autre champ.
-**Les quatre visages sortent chacun UNE fois par séance, en ordre
+**Les quatre visages sortaient chacun UNE fois par séance, en ordre
 mélangé** : entier, décimal (Python l'écrit avec un point), texte (il
 s'affiche sans ses guillemets), variable RÉAFFECTÉE — c'est la DERNIÈRE
-valeur qui compte, et l'ancienne est proposée. Les propositions ne
+valeur qui compte, et l'ancienne est proposée. Le quatrième a été RETIRÉ
+le mois suivant (paragraphe ci-dessous). Les propositions ne
 diffèrent que par ce qui fait l'erreur (la leçon d'{intervalles-inegalite})
 : le texte AVEC ses guillemets, le NOM de la variable à la place de sa
 valeur, la valeur d'une AUTRE variable. Tout se choisit dans des listes —
@@ -2545,6 +2546,38 @@ vert à bon droit, et le navigateur nomme l’encre (« Nunito, system-ui… »)
 La campagne a restauré la page depuis une copie propre hors dépôt à chaque
 tour, et le sabotage du navigateur s’est joué dans une copie de travail
 séparée, pendant que la page propre passait son propre banc.
+
+**Puis la variable RÉAFFECTÉE a quitté le tirage : une variable ne s'affecte
+qu'UNE fois par programme.** Demande de Turquet (septembre 2026) : « en
+seconde dans l'exercice 5.1 je ne veux pas qu'il y ait deux fois la même
+variable dans les égalités, par exemple age = 14 puis age = 15 ». C'était le
+quatrième visage — la réaffectation, avec l'ancienne valeur proposée en
+piège. Il est retiré des trois endroits qui le portaient, parce que n'en
+tenir qu'un ne tient rien : le TIRAGE (`PY_VISAGES` n'a plus que l'entier,
+le décimal et le texte, et `pyTirage` n'insère plus de seconde affectation),
+le MESSAGE de correction (la phrase « c'est sa DERNIÈRE valeur qui
+s'affiche » n'a plus d'occasion) et les AIDES — la règle ④ du rappel, la
+question à l'IA « que se passe-t-il si la variable change de valeur avant
+le print ? » et la clause du contexte : un rappel qui enseigne un cas que
+l'élève ne rencontrera jamais est la leçon du 2.2.8 (« un rappel qui montre
+un tirage impossible »), et la question à l'IA est remplacée par l'écriture
+du nombre à virgule, qui EST un des trois visages.
+**La séance garde ses QUATRE questions** (`PY_NB`, deux sources) : les trois
+visages sortent chacun au moins une fois, la quatrième question reprend l'un
+d'eux au hasard, ordre mélangé — le motif de {pourcentage-synthese}
+(« chacun au moins une fois, mélangés »). Raccourcir la séance n'était pas
+demandé, et l'interpréteur, lui, sait toujours réaffecter (`x = x + 1` reste
+un cas limite épinglé contre CPython) : ce qui change est ce que le tirage
+POSE, pas ce que la page sait exécuter.
+**Le contrôle EXIGE la propriété sur chaque tirage plutôt que de la
+supposer** : il relit chaque ligne d'affectation du programme et rougit en
+nommant la variable affectée deux fois — une réaffectation revenue par une
+autre porte ne casserait rien, et personne ne la verrait avant un élève. Le
+bord OPPOSÉ compte autant : les trois visages doivent encore sortir tous, et
+le rappel ne doit plus enseigner la réaffectation. Trois sabotages, chacun
+rougissant en nommant son défaut — la seconde affectation remise dans le
+tirage (« la variable « points » est affectée deux fois »), le visage texte
+perdu, la règle ④ remise dans le rappel.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire

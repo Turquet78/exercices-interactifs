@@ -15750,13 +15750,18 @@ function pythonAffichage(w, P){
   })()`, v => v === '');
 
   /* ---- 3. le tirage ---- */
-  verifierEval(w, 'le tirage : '+NB+' questions, les quatre visages chacun une fois en ordre mélangé, la réponse recalculée depuis le seul programme, les pièges proposés (400 séances)', `(function(){
+  /* Le visage « variable réaffectée » (age = 14 puis age = 15) a été RETIRÉ
+     à la demande de Turquet (septembre 2026) : aucune variable ne s'affecte
+     deux fois dans un programme. Le contrôle l'EXIGE sur chaque tirage — un
+     tirage qui le réintroduirait ne casserait rien, et personne ne le verrait
+     avant un élève. */
+  verifierEval(w, 'le tirage : '+NB+' questions, les trois visages (entier, décimal, texte) chacun au moins une fois en ordre mélangé, AUCUNE variable affectée deux fois dans un programme, la réponse recalculée depuis le seul programme, les pièges proposés (400 séances)', `(function(){
     const vus=[], NL=String.fromCharCode(10), ordres={};
     for(let s=0;s<400 && vus.length<4;s++){
       const qs=pyBuildQuestions();
       if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
       const vs=qs.map(function(q){ return q.vis; }); ordres[vs.join(",")]=1;
-      if(vs.slice().sort().join(",")!=="float,int,re,str"){ vus.push("visages : "+vs.join(",")); break; }
+      if(vs.indexOf("int")<0||vs.indexOf("float")<0||vs.indexOf("str")<0||vs.some(function(v){ return ["int","float","str"].indexOf(v)<0; })){ vus.push("visages : "+vs.join(",")); break; }
       for(const q of qs){
         if(Object.keys(q).sort().join(",")!=="opt,src,vis"){ vus.push("la question porte autre chose que src / vis / opt : "+Object.keys(q).join(",")); break; }
         let a; try{ a=pyAns(q); }catch(e){ vus.push("pyAns refuse un tirage : "+e.message); break; }
@@ -15765,13 +15770,11 @@ function pythonAffichage(w, P){
         if(q.opt.t.indexOf('"'+a.texte+'"')<0) vus.push("le texte AVEC guillemets n’est pas proposé (le piège de l’exercice)");
         if(q.opt.v.indexOf(a.variable)<0) vus.push("le NOM de la variable n’est pas proposé comme valeur (le piège de l’exercice)");
         if(q.opt.t.length<3||q.opt.v.length<3||q.opt.n.length<3) vus.push("moins de trois propositions : "+q.opt.t.length+"/"+q.opt.v.length+"/"+q.opt.n.length);
-        if(q.vis==="re"){
-          const lignes=q.src.split(NL).filter(function(l){ return l.indexOf(a.variable+" =")===0; });
-          if(lignes.length<2) vus.push("visage « re » sans réaffectation");
-          else { const ancien=lignes[0].split("= ")[1];
-            if(ancien===a.valeur) vus.push("réaffectation à la même valeur");
-            if(q.opt.v.indexOf(ancien)<0) vus.push("l’ancienne valeur n’est pas proposée (le piège de la réaffectation)"); }
-        }
+        /* le bord de Turquet : chaque variable n'est affectée qu'UNE fois */
+        const affectees=q.src.split(NL).map(function(l){ const m=l.match(/^([A-Za-z_][A-Za-z0-9_]*)\\s*=/); return m?m[1]:null; }).filter(function(x){ return x; });
+        const deuxFois=affectees.filter(function(x,i){ return affectees.indexOf(x)!==i; });
+        if(deuxFois.length){ vus.push("la variable « "+deuxFois[0]+" » est affectée deux fois dans le programme : "+q.src.replace(/\\n+/g," ⏎ ")); break; }
+        if(affectees.length!==3) vus.push("le programme n’affecte pas trois variables : "+affectees.join(","));
         if(q.vis==="float"&&a.valeur.indexOf(".")<0) vus.push("visage décimal sans point : "+a.valeur);
         if(q.vis==="str"&&/^[0-9]/.test(a.valeur)) vus.push("visage texte qui affiche un nombre : "+a.valeur);
         if(q.vis==="int"&&!/^[0-9]+$/.test(a.valeur)) vus.push("visage entier qui affiche "+a.valeur);
@@ -15857,12 +15860,13 @@ function pythonAffichage(w, P){
   })()`, v => v === '');
 
   /* ---- 7. les branchements ---- */
-  verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX et avec ses deux règles, les questions à l’IA, le contexte porte le programme et déclare la réponse secrète, la reprise connaît l’écran, aucune correction au fil des clics', `(function(){
+  verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX, avec ses deux règles et sans la réaffectation, les questions à l’IA, le contexte porte le programme et déclare la réponse secrète, la reprise connaît l’écran, aucune correction au fil des clics', `(function(){
     const vus=[];
     if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
     const rap=RAPPELS.py||""; if(!rap) vus.push("pas de rappel RAPPELS.py");
     if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
-    if(!/guillemets/.test(rap)||!/AU MOMENT/.test(rap)) vus.push("le rappel ne dit pas les deux règles (les guillemets, le moment du print)");
+    if(!/guillemets/.test(rap)||!/VALEUR/.test(rap)) vus.push("le rappel ne dit pas les deux règles (les guillemets, la valeur et non le nom)");
+    if(/AU MOMENT|réaffect|remplacé l’ancienne/i.test(rap)) vus.push("le rappel enseigne encore la réaffectation, un cas que le tirage ne pose plus (décision de Turquet)");
     if(!QIA_SUGG.py||QIA_SUGG.py.length<3) vus.push("pas de questions à l’IA pour py");
     currentMode="train"; startPY(); const q=test.questions[0], a=pyAns(q);
     const c=ctxPy(q).contexte;
