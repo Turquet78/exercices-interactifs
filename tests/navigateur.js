@@ -6245,6 +6245,104 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies quindecies. {suite-tcm-limite} : la fiche choisie et tapée pour de vrai =====
+       Le banc jsdom tient le tirage HONNÊTE (la suite simulée par sa propre
+       arithmétique), la fiche épinglée et les deux juges. Ce qu'il ne voit pas :
+       le « lim » qui porte son « n → +∞ » EN DESSOUS (un CSS perdu le mettrait
+       à la suite, sur la ligne), les rangées de la fiche qui ne DÉFILENT pas
+       et une page qui ne déborde pas, puis la copie de la fiche CHOISIE dans
+       les vraies listes et TAPÉE dans les vraies cases, « Vérifier » cliqué,
+       la note relue sur ce que le bouton enregistre et l'encre RENDUE de la
+       liste juste — bleue, jamais lue à la classe. */
+    titre('6 vicies quindecies. LA CONVERGENCE MONOTONE : LA FICHE CHOISIE ET TAPÉE POUR DE VRAI');
+    if(!P.suiteTcmLimite){
+      ignorer('le 6.12 : le « lim » est empilé, rien ne défile',
+        'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
+      ignorer('le 6.12 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
+        'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.suiteTcmLimite.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* la question est ÉPINGLÉE sur l'exemple 1 de la fiche, puis le second
+         visage (quadratique, décroissante) : la copie tapée doit coller à
+         l'énoncé tiré */
+      await s.page.evaluate(() => {
+        test.questions = [{ fam: 'aff', sens: 'cr', forme: 'chaine', a: 0.5, b: 1, m: 1, M: 4 },
+                          { fam: 'quad', sens: 'de', forme: 'diff', r: 2, m: 1, M: 3 }];
+        test.idx = 0; test.score = 0; test.answers = []; renderTCL();
+      });
+      await s.page.waitForTimeout(500);
+      const dominante = c => { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(c || ''); if(!m) return '?';
+        const r = +m[1], v = +m[2], b = +m[3], max = Math.max(r, v, b);
+        return b >= max && b > r + 20 ? 'bleu' : (v >= max && v > r + 20 ? 'vert' : (r >= max && r > v + 20 ? 'rouge' : 'autre')); };
+      const mesurer = () => s.page.evaluate(() => {
+        const ids = tclIds(test.questions[test.idx]);
+        const cases = ids.map(id => document.getElementById(id)).filter(Boolean);
+        const visibles = cases.filter(e => { const r = e.getBoundingClientRect(); return r.width > 10 && r.height > 10; }).length;
+        const rows = [...document.querySelectorAll('#scr-tcl .sa2-row')];
+        const defile = rows.filter(r => r.scrollWidth > r.clientWidth + 1).length;
+        /* le « lim » : le mot et son « n → +∞ » sont l'un SOUS l'autre */
+        const lims = [...document.querySelectorAll('#scr-tcl .tcl-lim')].map(l => {
+          const petit = l.querySelector('small'); const L = l.getBoundingClientRect(), p = petit ? petit.getBoundingClientRect() : null;
+          return p ? { empile: p.top >= L.top + L.height * 0.4 && p.height > 3, largeur: L.width } : { empile: false, largeur: 0 };
+        });
+        return { n: ids.length, cases: cases.length, visibles, rows: rows.length, defile, lims: lims.length,
+                 limsPlats: lims.filter(l => !l.empile).length,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 };
+      });
+      const vu = await mesurer();
+      verifier('le 6.12 : les dix-huit cases sont rendues et visibles, les trois « lim » sont empilés',
+        vu.n === 18 && vu.cases === 18 && vu.visibles === 18 && vu.lims === 3 && vu.limsPlats === 0,
+        vu.cases + ' case(s) sur ' + vu.n + ', ' + vu.visibles + ' visible(s), ' + vu.lims + ' « lim » dont ' + vu.limsPlats + ' à plat');
+      verifier('le 6.12 : le « lim » est empilé, rien ne défile',
+        vu.defile === 0 && !vu.page && vu.rows >= 10, vu.defile + ' rangée(s) qui défile(nt) sur ' + vu.rows + (vu.page ? ', la page déborde' : ''));
+      /* LA COPIE DE LA FICHE, choisie et tapée pour de vrai, puis le CLIC */
+      const jouerCopie = async () => {
+        const copie = await s.page.evaluate(() => {
+          const q = test.questions[test.idx], att = tclAttendu(q);
+          return tclIds(q).map(id => [id, att[id][0], att[id][0] === 'choix' ? att[id][1][0] : String(att[id][1]).replace('.', ',')]);
+        });
+        for(const [id, type, val] of copie){
+          if(type === 'choix') await s.page.selectOption('#' + id, val);
+          else { await s.page.fill('#' + id, ''); await s.page.click('#' + id); await s.page.keyboard.type(val, { delay: 10 }); }
+        }
+        await s.page.click('#tclActions .btn-primary');
+        await s.page.waitForTimeout(500);
+        return s.page.evaluate(() => {
+          const ids = tclIds(test.questions[test.idx]);
+          const cl = c => ids.filter(id => (document.getElementById(id) || { classList: { contains: () => false } }).classList.contains(c)).length;
+          const sel = document.getElementById('tcl-thm'), inp = document.getElementById('tcl-fin');
+          return { ok: cl('ok'), bad: cl('bad'), sol: cl('sol'), score: test.score, locked: test.locked,
+                   encreSel: sel ? getComputedStyle(sel).borderColor : '', encreInp: inp ? getComputedStyle(inp).borderColor : '',
+                   note: ((document.querySelector('#tclFeedback .note-exo') || {}).textContent || '').replace(/\s+/g, ' '),
+                   suivant: ((document.querySelector('#tclActions .btn-primary') || {}).textContent || '') };
+        });
+      };
+      const b1 = await jouerCopie();
+      verifier('le 6.12 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
+        b1.ok === 18 && b1.bad === 0 && b1.sol === 0 && b1.score === 1 && b1.locked && /18 cases justes sur 18/.test(b1.note),
+        b1.ok + ' ok, ' + b1.bad + ' bad, ' + b1.sol + ' sol, note ' + b1.score + ', « ' + b1.note + ' »' + (b1.locked ? '' : ', écran non verrouillé'));
+      verifier('le 6.12 : la liste juste et la case juste sont peintes en BLEU, à l\'encre rendue',
+        dominante(b1.encreSel) === 'bleu' && dominante(b1.encreInp) === 'bleu',
+        'liste : ' + b1.encreSel + ' (' + dominante(b1.encreSel) + '), case : ' + b1.encreInp + ' (' + dominante(b1.encreInp) + ')');
+      /* le second visage — quadratique, décroissante — par le vrai bouton « Question suivante » */
+      verifier('le 6.12 : le bouton propose la question suivante', /suivante/.test(b1.suivant), '« ' + b1.suivant + ' »');
+      await s.page.click('#tclActions .btn-primary');
+      await s.page.waitForTimeout(500);
+      const vu2 = await mesurer();
+      const b2 = await jouerCopie();
+      verifier('le 6.12 : la quadratique décroissante se rend et se joue de même — rien ne défile, le point est accordé',
+        vu2.n === 18 && vu2.visibles === 18 && vu2.defile === 0 && !vu2.page && vu2.limsPlats === 0 && b2.ok === 18 && b2.bad === 0 && b2.score === 2 && /résultats/.test(b2.suivant),
+        vu2.visibles + ' case(s) visibles, ' + vu2.defile + ' rangée(s) qui défile(nt), ' + b2.ok + ' ok, ' + b2.bad + ' bad, note ' + b2.score + ', « ' + b2.suivant + ' »');
+      verifier('la convergence monotone ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies decies. {python-affichage} : prédire, puis exécuter =====
        Le banc jsdom tient l'interpréteur (comparé à un vrai CPython), le
        tirage, le juge et les portes. Ce qu'il ne voit pas : le code et la
@@ -6748,6 +6846,266 @@ async function parcours(page, N){
         badge: !!document.querySelector('#pnvHost .mf-cor') }));
       verifier('en soutien, la copie fausse vérifiée rougit sa case, garde la juste bleue, ne montre ni programme ni « Exécuter », et ne verrouille rien',
         sout.bad === 1 && sout.ok === 1 && !sout.run && !sout.code && !sout.locked && !sout.badge, JSON.stringify(sout));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies bis. {python-print} : écrire un print, l'exécuter, le faire vérifier =====
+       Le banc jsdom tient le diagnostic cas par cas, le juge (la sortie de
+       pyRun comparée à CPython), les portes et la note. Ce qu'il ne voit
+       pas : la zone de texte RENDUE — à chasse fixe, large comme la console,
+       une règle CSS perdue la ferait écrire en Nunito sur 20 caractères —,
+       les trois cadres du cours au rectangle, l'ENCRE des verdicts (le rouge
+       de l'erreur dans la console, le bleu de la copie juste, le rouge du
+       soutien), et le geste : TAPER au clavier dans la vraie zone, cliquer le
+       vrai bouton « Exécuter », lire la console, corriger, revérifier. Il
+       joue le trajet d'un élève qui se trompe deux fois avant de réussir. */
+    titre('6 tricies bis. ÉCRIRE UN PRINT : L\'EXÉCUTER, LE FAIRE VÉRIFIER, ET LE SOUTIEN QUI EXPLIQUE');
+    if(!P.pythonPrint){
+      ignorer('écrire un print, l\'exécuter, le faire vérifier', 'ce niveau n\'a pas l\'exercice d\'écriture d\'un print');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonPrint.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* L'encre d'un verdict se compare à la VARIABLE de la convention (--blue,
+         --red), jamais à une dominante : le bord de REPOS de la zone est déjà
+         un bleu clair, et une règle .ok qui ne peindrait rien serait passée à
+         la dominante — le sabotage l'a montré en restant vert. La dominante
+         reste pour dire « pas de rouge » sur une console saine. */
+      const dominante = 'const encre = tok => { const p = document.createElement("i"); document.body.appendChild(p); p.style.color = tok; const c = getComputedStyle(p).color; p.remove(); return c; };'
+        + ' const dominante = c => { const m = String(c).match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/); if(!m) return null;'
+        + ' const r = +m[1], g = +m[2], b = +m[3], max = Math.max(r, g, b), min = Math.min(r, g, b);'
+        + ' if(max < 100 || max - min < 30) return null; return b >= max ? "bleu" : (g >= max ? "vert" : "rouge"); };';
+      const avant = await s.page.evaluate(() => {
+        const ta = document.getElementById('pyp-prog'), cons = document.getElementById('pypConsole'), run = document.getElementById('pypRun');
+        const cible = document.getElementById('pypCible');
+        const cadres = [...document.querySelectorAll('#pypHost .pyp-regle')].map(e => e.getBoundingClientRect());
+        const tr = ta.getBoundingClientRect(), kr = cons.getBoundingClientRect(), rr = run.getBoundingClientRect();
+        return { police: getComputedStyle(ta).fontFamily, taille: parseFloat(getComputedStyle(ta).fontSize),
+                 zone: Math.round(tr.width) + 'x' + Math.round(tr.height), zoneVisible: tr.width > 500 && tr.height > 60,
+                 memeLargeur: Math.abs(tr.width - kr.width) < 4 && Math.abs(tr.left - kr.left) < 4,
+                 runLibre: !run.disabled && rr.width > 40 && rr.height > 20,
+                 cible: cible && cible.textContent, texte: test.questions[0].texte, 
+                 cadres: cadres.map(r => Math.round(r.width) + 'x' + Math.round(r.height)),
+                 cadresVisibles: cadres.length === 3 && cadres.every(r => r.width > 200 && r.height > 60),
+                 cadresCoteACote: cadres.length === 3 && Math.abs(cadres[0].top - cadres[2].top) < 4,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('les trois cadres du cours de print sont rendus côte à côte, à une taille lisible', avant.cadresVisibles && avant.cadresCoteACote, avant.cadres.join(' / '));
+      verifier('la phrase à afficher est celle de la demande, et elle est à l\'écran', avant.cible === avant.texte && avant.texte === P.pythonPrint.premier, JSON.stringify(avant.cible));
+      verifier('la zone où l\'élève écrit est rendue à chasse fixe, large comme la console, à une taille lisible',
+        /mono|menlo|consolas|courier/i.test(avant.police) && avant.zoneVisible && avant.memeLargeur && avant.taille >= 16, avant.police + ' — ' + avant.zone);
+      verifier('« Exécuter » est libre dès le départ, et la page ne déborde pas à 1400 px', avant.runLibre && !avant.page, '');
+      /* on TAPE une copie fausse, on l'exécute : l'erreur se lit en rouge */
+      await s.page.click('#pyp-prog');
+      await s.page.keyboard.type('Print("' + P.pythonPrint.premier + '")');
+      await s.page.click('#pypRun');
+      await s.page.waitForTimeout(250);
+      const err = await s.page.evaluate(new Function(dominante + ' const c = document.getElementById("pypConsole"); const st = getComputedStyle(c);'
+        + ' return { texte: c.textContent, encre: st.color === encre("var(--red)") ? "rouge" : dominante(st.color), bord: st.borderTopColor === encre("var(--red)") ? "rouge" : dominante(st.borderTopColor), locked: test.locked, prog: test.questions[0].prog };'));
+      verifier('exécuter une copie fausse écrit l\'erreur de Python dans la console, en rouge, sans rien verrouiller',
+        /^Erreur/.test(err.texte) && err.encre === 'rouge' && err.bord === 'rouge' && !err.locked, JSON.stringify(err.texte) + ' — encre ' + err.encre);
+      verifier('ce qui est tapé au clavier voyage dans la question (la pause le garde)', err.prog === 'Print("' + P.pythonPrint.premier + '")', JSON.stringify(err.prog));
+      /* on corrige au clavier, on réexécute : la phrase s'affiche */
+      await s.page.fill('#pyp-prog', 'print("' + P.pythonPrint.premier + '")');
+      await s.page.click('#pypRun');
+      await s.page.waitForTimeout(250);
+      const ok1 = await s.page.evaluate(new Function(dominante + ' const c = document.getElementById("pypConsole"); const st = getComputedStyle(c);'
+        + ' return { texte: c.textContent, encre: dominante(st.color), bord: dominante(st.borderColor), police: st.fontFamily, visible: c.getBoundingClientRect().height > 40 };'));
+      verifier('réexécuté après correction, le programme affiche la phrase dans la console, à chasse fixe, sans rouge',
+        ok1.texte === P.pythonPrint.premier && ok1.encre !== 'rouge' && ok1.bord !== 'rouge' && ok1.visible && /mono|menlo|consolas|courier/i.test(ok1.police),
+        JSON.stringify(ok1.texte) + ' — encre ' + ok1.encre + ', bord ' + ok1.bord);
+      await s.page.click('#pypValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(new Function(dominante + ' const ta = document.getElementById("pyp-prog"), st = getComputedStyle(ta);'
+        + ' return { ok: ta.classList.contains("ok"), bord: st.borderTopColor === encre("var(--blue)") ? "bleu" : "autre (" + st.borderTopColor + ")", score: test.score, locked: test.locked, lecture: ta.readOnly,'
+        + ' suivant: !!document.getElementById("pypNext"), focus: document.activeElement && document.activeElement.id,'
+        + ' runDisabled: document.getElementById("pypRun").disabled, note: (document.querySelector("#pypFeedback .note-exo") || {}).textContent || "" };'));
+      verifier('vérifiée, la copie juste est peinte ok en BLEU, vaut 1, se verrouille, et « Question suivante » reçoit le focus',
+        apres.ok && apres.bord === 'bleu' && apres.score === 1 && apres.locked && apres.lecture && apres.suivant && apres.focus === 'pypNext' && apres.runDisabled,
+        'bord ' + apres.bord + ', note ' + apres.score + ', focus ' + apres.focus);
+      verifier('la note affichée compte le programme comme UNE case juste sur 1', /1 case juste sur 1/.test(apres.note), JSON.stringify(apres.note));
+      /* à la largeur d'un téléphone : les cadres s'empilent, la zone tient, rien ne déborde */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const cadres = [...document.querySelectorAll('#pypHost .pyp-regle')].map(e => e.getBoundingClientRect());
+        const tr = document.getElementById('pyp-prog').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 empiles: cadres.length === 3 && cadres[1].top >= cadres[0].bottom - 1 && cadres[2].top >= cadres[1].bottom - 1,
+                 larges: cadres.every(r => r.width > 250 && r.right <= 391), zone: tr.width > 250 && tr.right <= 391 };
+      });
+      verifier('sur un téléphone, les trois cadres s\'empilent, la zone de texte tient dans l\'écran et la page ne déborde pas', !tel.page && tel.empiles && tel.larges && tel.zone, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le SOUTIEN : deux erreurs nommées, puis la réussite */
+      await s.page.evaluate(id => openTest(id), P.pythonPrint.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      await s.page.click('#pyp-prog');
+      await s.page.keyboard.type('print(' + P.pythonPrint.premier + ')');
+      await s.page.click('#pypValidate');
+      await s.page.waitForTimeout(400);
+      const sout1 = await s.page.evaluate(new Function(dominante + ' const ta = document.getElementById("pyp-prog"), st = getComputedStyle(ta), fb = document.getElementById("pypFeedback");'
+        + ' const M = "print(" + String.fromCharCode(34) + test.questions[0].texte + String.fromCharCode(34) + ")";'
+        + ' return { bad: ta.classList.contains("bad"), bord: st.borderTopColor === encre("var(--red)") ? "rouge" : "autre (" + st.borderTopColor + ")", fond: dominante(st.backgroundColor), locked: test.locked, lecture: ta.readOnly,'
+        + ' message: fb.textContent, encreMsg: dominante(getComputedStyle(fb).color), revele: document.getElementById("pypHost").textContent.indexOf(M) >= 0 || fb.textContent.indexOf(M) >= 0,'
+        + ' rev: (document.getElementById("pypValidate") || {}).textContent || "", modele: !!document.querySelector("#pypModele .sol") };'));
+      verifier('en soutien, la copie fausse rougit (bord rouge), reste modifiable, et le message explique en rouge ce qui ne va pas — les guillemets manquent',
+        sout1.bad && sout1.bord === 'rouge' && !sout1.locked && !sout1.lecture && /guillemets/.test(sout1.message) && sout1.encreMsg === 'rouge',
+        'bord ' + sout1.bord + ' — ' + JSON.stringify(sout1.message));
+      verifier('et il ne révèle jamais le programme modèle : « Revérifier » est proposé', !sout1.revele && !sout1.modele && /Rev/.test(sout1.rev), sout1.rev);
+      await s.page.fill('#pyp-prog', 'print("' + P.pythonPrint.premier + '"');
+      await s.page.click('#pypValidate');
+      await s.page.waitForTimeout(400);
+      const sout2 = await s.page.evaluate(() => ({ message: document.getElementById('pypFeedback').textContent, locked: test.locked }));
+      verifier('la seconde erreur — la parenthèse fermante — est nommée à son tour, sans verrouiller', /fermante/.test(sout2.message) && !sout2.locked, JSON.stringify(sout2.message));
+      await s.page.fill('#pyp-prog', 'print("' + P.pythonPrint.premier + '")');
+      await s.page.click('#pypValidate');
+      await s.page.waitForTimeout(400);
+      const sout3 = await s.page.evaluate(new Function(dominante + ' const ta = document.getElementById("pyp-prog"), st = getComputedStyle(ta);'
+        + ' return { ok: ta.classList.contains("ok"), bord: st.borderTopColor === encre("var(--blue)") ? "bleu" : "autre (" + st.borderTopColor + ")", score: test.score, console: document.getElementById("pypConsole").textContent };'));
+      verifier('la copie corrigée en soutien est peinte ok en bleu, vaut 1, et la console montre la phrase',
+        sout3.ok && sout3.bord === 'bleu' && sout3.score === 1 && sout3.console === P.pythonPrint.premier, 'bord ' + sout3.bord + ', note ' + sout3.score + ', console ' + JSON.stringify(sout3.console));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies ter. {python-completer} : la ligne 2 se tape, s'exécute, puis se vérifie =====
+       Le banc jsdom tient le juge (les lignes justes et fausses, chacune
+       avec son diagnostic), les portes et le soutien. Ce qu'il ne voit pas :
+       le cours RENDU au rectangle, la ligne 1 et la case de la ligne 2 à
+       chasse fixe et à la MÊME taille (une case plus petite que le code
+       qu'elle prolonge se lirait comme une note), la case qui ne s'étire pas
+       hors de l'écran, un VRAI clic sur « Vérifier » fermé qui ne fait rien,
+       la ligne TAPÉE au clavier — Entrée exécute —, la console et le verdict
+       à l'encre RENDUE, l'erreur de Python en rouge dans la console, et la
+       page qui ne déborde pas à la largeur d'un téléphone. Puis il rejoue le
+       soutien : la ligne fausse rougit, le message dit où est l'erreur, la
+       correction tapée referme puis rouvre le bouton. */
+    titre('6 tricies ter. AFFICHER UN TEXTE SUIVI D\'UNE VARIABLE : LA LIGNE SE TAPE, S\'EXÉCUTE, SE VÉRIFIE');
+    if(!P.pythonCompleter){
+      ignorer('la ligne 2 se tape, s\'exécute, puis se vérifie', 'ce niveau n\'a pas l\'exercice du print à compléter');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonCompleter.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const cours = document.querySelector('#pyxHost .pyx-cours'), l1 = document.querySelector('#pyxHost .pyx-l1'), inp = document.getElementById('pyx-in');
+        const cons = document.getElementById('pyxConsole'), run = document.getElementById('pyxRun'), val = document.getElementById('pyxValidate');
+        const fam = el => getComputedStyle(el).fontFamily, px = el => Math.round(parseFloat(getComputedStyle(el).fontSize) * 10) / 10;
+        const cr = cours.getBoundingClientRect(), ir = inp.getBoundingClientRect(), rr = run.getBoundingClientRect(), vr = val.getBoundingClientRect();
+        return { coursVisible: cr.width > 400 && cr.height > 60, coursTexte: cours.textContent,
+                 policeL1: fam(l1), policeIn: fam(inp), pxL1: px(l1), pxIn: px(inp),
+                 l1: l1.textContent, inVisible: ir.width > 200 && ir.height > 28 && ir.right <= document.documentElement.clientWidth,
+                 runOk: !run.disabled && rr.width > 40 && rr.height > 20, valFerme: val.disabled && vr.width > 40,
+                 consoleVisible: cons.getBoundingClientRect().height > 20,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('le cours est rendu à une taille lisible, et il nomme la virgule et les guillemets', avant.coursVisible && /virgule/.test(avant.coursTexte) && /guillemets/.test(avant.coursTexte), '');
+      verifier('la ligne 1 « note = 12 » et la case de la ligne 2 sont à chasse fixe, à la même taille',
+        avant.l1 === 'note = 12' && /mono|menlo|consolas|courier/i.test(avant.policeL1) && /mono|menlo|consolas|courier/i.test(avant.policeIn) && Math.abs(avant.pxL1 - avant.pxIn) < 0.6,
+        avant.policeIn + ' — ' + avant.pxL1 + 'px / ' + avant.pxIn + 'px');
+      verifier('la case tient dans l\'écran, « Exécuter » est ouvert, « Vérifier » est fermé, et la page ne déborde pas à 1400 px',
+        avant.inVisible && avant.runOk && avant.valFerme && avant.consoleVisible && !avant.page, JSON.stringify(avant));
+      /* un VRAI clic sur « Vérifier » fermé ne fait rien */
+      await s.page.click('#pyxValidate', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const rien = await s.page.evaluate(() => ({ fb: document.getElementById('pyxFeedback').textContent, cl: document.getElementById('pyx-in').className }));
+      verifier('un clic sur « Vérifier » fermé ne juge rien', rien.fb === '' && !/ok|bad/.test(rien.cl), JSON.stringify(rien));
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      /* on TAPE d'abord une ligne FAUSSE (la variable entre guillemets), et
+         Entrée l'exécute : en entraînement, la ligne juste doit s'écrire en
+         VERT et SOUS la case — posée en ligne, elle se rangeait à droite,
+         vu sur une capture, et jsdom n'a pas de mise en page */
+      await s.page.click('#pyx-in');
+      await s.page.keyboard.type('print("la note est :", "note")');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pyxValidate');
+      await s.page.waitForTimeout(400);
+      const faux1 = await s.page.evaluate(() => {
+        const inp = document.getElementById('pyx-in'), b = inp.nextElementSibling;
+        const ri = inp.getBoundingClientRect(), rb = b ? b.getBoundingClientRect() : null;
+        return { bad: inp.classList.contains('bad'), encre: getComputedStyle(inp).color, badge: !!(b && b.classList.contains('mf-cor')),
+                 texte: b && b.textContent, encreBadge: b ? getComputedStyle(b).color : '', dessous: !!rb && rb.top >= ri.bottom - 1 && rb.width > 100,
+                 dedans: !!rb && rb.right <= document.documentElement.clientWidth, fb: document.getElementById('pyxFeedback').textContent,
+                 score: test.score, suivant: !!document.getElementById('pyxNext') };
+      });
+      verifier('la ligne fausse vérifiée rougit (encre rouge rendue), le message nomme l\'erreur, et la ligne juste s\'écrit en VERT, SOUS la case, dans l\'écran',
+        faux1.bad && dom(faux1.encre) === 'rouge' && faux1.badge && faux1.texte === 'print("la note est :", note)' && dom(faux1.encreBadge) === 'vert'
+        && faux1.dessous && faux1.dedans && /TEXTE/.test(faux1.fb) && faux1.score === 0 && faux1.suivant, JSON.stringify(faux1));
+      /* question 2 : on TAPE la ligne juste de CE tirage, et Entrée l'exécute */
+      await s.page.click('#pyxNext');
+      await s.page.waitForTimeout(300);
+      const q2 = await s.page.evaluate(() => { const a = pyxAns(test.questions[test.idx]); return { ligne: a.ligne, sortie: a.sortie.trim(), idx: test.idx }; });
+      await s.page.click('#pyx-in');
+      await s.page.keyboard.type(q2.ligne);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const exec = await s.page.evaluate(() => {
+        const cons = document.getElementById('pyxConsole'), r = cons.getBoundingClientRect();
+        return { texte: cons.textContent, visible: r.height > 20 && r.width > 100, police: getComputedStyle(cons).fontFamily,
+                 valOuvert: !document.getElementById('pyxValidate').disabled, valeur: document.getElementById('pyx-in').value };
+      });
+      verifier('question 2 : Entrée exécute la ligne tapée, la console montre la sortie attendue à chasse fixe, et « Vérifier » s\'ouvre',
+        q2.idx === 1 && exec.texte === q2.sortie && exec.visible && /mono|menlo|consolas|courier/i.test(exec.police) && exec.valOuvert,
+        JSON.stringify(exec) + ' / attendu ' + JSON.stringify(q2.sortie));
+      await s.page.click('#pyxValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => {
+        const inp = document.getElementById('pyx-in');
+        const cs = getComputedStyle(inp);
+        return { ok: inp.classList.contains('ok'), score: test.score, encre: cs.color, verrou: inp.disabled, badge: !!(inp.nextElementSibling && inp.nextElementSibling.classList.contains('mf-cor')),
+                 suivant: !!document.getElementById('pyxNext'), focus: document.activeElement && document.activeElement.id };
+      });
+      verifier('la ligne juste vérifiée est peinte ok, à l\'encre BLEUE rendue, sans ligne verte, vaut 1, se verrouille, et « Question suivante » reçoit le focus',
+        apres.ok && apres.score === 1 && dom(apres.encre) === 'bleu' && !apres.badge && apres.verrou && apres.suivant && apres.focus === 'pyxNext', JSON.stringify(apres));
+      /* à la largeur d'un téléphone, rien ne déborde et la case reste dans l'écran */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const inp = document.getElementById('pyx-in').getBoundingClientRect(), prog = document.querySelector('#pyxHost .pyx-prog').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth, caseDedans: inp.right <= 391 && inp.width > 150, progDedans: prog.right <= 391 };
+      });
+      verifier('sur un téléphone, la case et le programme restent dans l\'écran et la page ne déborde pas', !tel.page && tel.caseDedans && tel.progDedans, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le soutien : la ligne fausse rougit, la page dit OÙ est l'erreur, la correction rouvre la porte */
+      await s.page.evaluate(id => openTest(id), P.pythonCompleter.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      await s.page.click('#pyx-in');
+      await s.page.keyboard.type('print(la note est :, note)');
+      await s.page.click('#pyxRun');
+      await s.page.waitForTimeout(300);
+      const err = await s.page.evaluate(() => { const c = document.getElementById('pyxConsole'); return { texte: c.textContent, encre: getComputedStyle(c).color, valOuvert: !document.getElementById('pyxValidate').disabled }; });
+      verifier('en soutien, l\'erreur de Python s\'affiche dans la console, en rouge, et « Vérifier » s\'ouvre quand même', /^Erreur/.test(err.texte) && dom(err.encre) === 'rouge' && err.valOuvert, JSON.stringify(err));
+      await s.page.click('#pyxValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const inp = document.getElementById('pyx-in'), fb = document.getElementById('pyxFeedback');
+        return { bad: inp.classList.contains('bad'), encre: getComputedStyle(inp).color, badge: !!(inp.nextElementSibling && inp.nextElementSibling.classList.contains('mf-cor')),
+                 fb: fb.textContent, fbVisible: fb.getBoundingClientRect().height > 10, verrou: inp.disabled,
+                 rev: (document.getElementById('pyxValidate') || {}).textContent || '' };
+      });
+      verifier('la ligne fausse rougit (encre rouge rendue), sans ligne juste en vert, et le message dit où est l\'erreur — les guillemets — puis propose Revérifier',
+        sout.bad && dom(sout.encre) === 'rouge' && !sout.badge && /Où est l’erreur/.test(sout.fb) && /guillemets/.test(sout.fb) && sout.fbVisible && !sout.verrou && /Rev/.test(sout.rev), JSON.stringify(sout));
+      /* la correction tapée referme le bouton, l'exécution le rouvre, Revérifier vaut le point */
+      await s.page.fill('#pyx-in', 'print("la note est :", note)');
+      await s.page.waitForTimeout(150);
+      const modif = await s.page.evaluate(() => ({ bad: document.getElementById('pyx-in').classList.contains('bad'), valFerme: document.getElementById('pyxValidate').disabled, console: document.getElementById('pyxConsole').textContent }));
+      verifier('la ligne modifiée perd son rouge, referme Revérifier et vide la console', !modif.bad && modif.valFerme && modif.console === '', JSON.stringify(modif));
+      await s.page.press('#pyx-in', 'Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pyxValidate');
+      await s.page.waitForTimeout(400);
+      const fin = await s.page.evaluate(() => ({ ok: document.getElementById('pyx-in').classList.contains('ok'), score: test.score, suivant: !!document.getElementById('pyxNext') }));
+      verifier('la correction exécutée puis revérifiée vaut 1 en soutien et propose la suite', fin.ok && fin.score === 1 && fin.suivant, JSON.stringify(fin));
       await s.nav.close(); s = null;
     }
 
