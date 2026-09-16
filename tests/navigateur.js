@@ -7065,7 +7065,9 @@ async function parcours(page, N){
     /* ===== 6 tricies ter. {python-completer} : la ligne 2 se tape, s'exécute, puis se vérifie =====
        Le banc jsdom tient le juge (les lignes justes et fausses, chacune
        avec son diagnostic), les portes et le soutien. Ce qu'il ne voit pas :
-       le cours RENDU au rectangle, la ligne 1 et la case de la ligne 2 à
+       le COURS qui ouvre la séance rendu au rectangle, son exemple à chasse
+       fixe, un VRAI clic sur « J'ai compris » fermé qui ne franchit rien, la
+       ligne 1 et la case de la ligne 2 à
        chasse fixe et à la MÊME taille (une case plus petite que le code
        qu'elle prolonge se lirait comme une note), la case qui ne s'étire pas
        hors de l'écran, un VRAI clic sur « Vérifier » fermé qui ne fait rien,
@@ -7084,19 +7086,56 @@ async function parcours(page, N){
       await s.page.waitForTimeout(400);
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(900);
+      /* LE COURS OUVRE LA SÉANCE, et son exemple est un VRAI programme
+         (demande de Turquet, septembre 2026). jsdom tient les états ; ce
+         qu'il ne voit pas, c'est le cours rendu à une taille lisible,
+         l'exemple à chasse fixe, et un VRAI clic sur une porte fermée —
+         une porte tenue par le seul « disabled » se franchit au clic si une
+         règle CSS la laisse cliquable. */
+      const cours = await s.page.evaluate(() => {
+        const c = document.querySelector('#pyxHost .pyx-cours'), ex = document.querySelector('#pyxHost .pyx-prog');
+        const l = [...document.querySelectorAll('#pyxHost .pyx-prog .pyx-l1')];
+        const run = document.getElementById('pyxExRun'), b = document.getElementById('pyxCompris'), cons = document.getElementById('pyxExConsole');
+        const r = c ? c.getBoundingClientRect() : null, er = ex ? ex.getBoundingClientRect() : null;
+        return { coursVisible: !!r && r.width > 400 && r.height > 60, texte: c ? c.textContent : '',
+                 lignes: l.map(x => x.textContent), police: l[0] ? getComputedStyle(l[0]).fontFamily : '',
+                 exVisible: !!er && er.width > 200 && er.height > 30, runOk: !!run && !run.disabled,
+                 porteFermee: !!b && b.disabled, console: cons ? cons.textContent : null,
+                 question: !!document.getElementById('pyx-in'),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('le cours ouvre la séance à une taille lisible, il nomme la virgule et les guillemets, son exemple est à chasse fixe, et la question n\'est pas encore là',
+        cours.coursVisible && /virgule/.test(cours.texte) && /guillemets/.test(cours.texte)
+        && cours.lignes.length === 2 && /^annee = /.test(cours.lignes[0]) && /print\(/.test(cours.lignes[1])
+        && /mono|menlo|consolas|courier/i.test(cours.police) && cours.exVisible && cours.runOk
+        && cours.porteFermee && cours.console === '' && !cours.question && !cours.page, JSON.stringify(cours));
+      await s.page.click('#pyxCompris', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      verifier('un clic sur « J\'ai compris » fermé ne montre pas la question',
+        await s.page.evaluate(() => !document.getElementById('pyx-in')), 'la question s\'ouvre sans que l\'exemple ait tourné');
+      await s.page.click('#pyxExRun');
+      await s.page.waitForTimeout(300);
+      const exemple = await s.page.evaluate(() => ({
+        console: document.getElementById('pyxExConsole').textContent,
+        police: getComputedStyle(document.getElementById('pyxExConsole')).fontFamily,
+        porteOuverte: !document.getElementById('pyxCompris').disabled }));
+      verifier('l\'exemple exécuté affiche « ' + P.pythonCompleter.exemple + ' » à chasse fixe, et ouvre « J\'ai compris »',
+        exemple.console === P.pythonCompleter.exemple && /mono|menlo|consolas|courier/i.test(exemple.police) && exemple.porteOuverte, JSON.stringify(exemple));
+      await s.page.click('#pyxCompris');
+      await s.page.waitForTimeout(400);
       const avant = await s.page.evaluate(() => {
-        const cours = document.querySelector('#pyxHost .pyx-cours'), l1 = document.querySelector('#pyxHost .pyx-l1'), inp = document.getElementById('pyx-in');
+        const l1 = document.querySelector('#pyxHost .pyx-l1'), inp = document.getElementById('pyx-in');
         const cons = document.getElementById('pyxConsole'), run = document.getElementById('pyxRun'), val = document.getElementById('pyxValidate');
         const fam = el => getComputedStyle(el).fontFamily, px = el => Math.round(parseFloat(getComputedStyle(el).fontSize) * 10) / 10;
-        const cr = cours.getBoundingClientRect(), ir = inp.getBoundingClientRect(), rr = run.getBoundingClientRect(), vr = val.getBoundingClientRect();
-        return { coursVisible: cr.width > 400 && cr.height > 60, coursTexte: cours.textContent,
+        const ir = inp.getBoundingClientRect(), rr = run.getBoundingClientRect(), vr = val.getBoundingClientRect();
+        return { coursParti: !document.querySelector('#pyxHost .pyx-cours') && !document.getElementById('pyxExRun'),
                  policeL1: fam(l1), policeIn: fam(inp), pxL1: px(l1), pxIn: px(inp),
                  l1: l1.textContent, inVisible: ir.width > 200 && ir.height > 28 && ir.right <= document.documentElement.clientWidth,
                  runOk: !run.disabled && rr.width > 40 && rr.height > 20, valFerme: val.disabled && vr.width > 40,
                  consoleVisible: cons.getBoundingClientRect().height > 20,
                  page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
       });
-      verifier('le cours est rendu à une taille lisible, et il nomme la virgule et les guillemets', avant.coursVisible && /virgule/.test(avant.coursTexte) && /guillemets/.test(avant.coursTexte), '');
+      verifier('« J\'ai compris » ouvre la question, et le cours comme son exemple quittent l\'écran', avant.coursParti, JSON.stringify(avant));
       verifier('la ligne 1 « note = 12 » et la case de la ligne 2 sont à chasse fixe, à la même taille',
         avant.l1 === 'note = 12' && /mono|menlo|consolas|courier/i.test(avant.policeL1) && /mono|menlo|consolas|courier/i.test(avant.policeIn) && Math.abs(avant.pxL1 - avant.pxIn) < 0.6,
         avant.policeIn + ' — ' + avant.pxL1 + 'px / ' + avant.pxIn + 'px');
@@ -7169,6 +7208,10 @@ async function parcours(page, N){
       await s.page.waitForTimeout(400);
       await s.page.click('#modeChoices [onclick*="soutien"]');
       await s.page.waitForTimeout(900);
+      await s.page.click('#pyxExRun');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#pyxCompris');
+      await s.page.waitForTimeout(400);
       await s.page.click('#pyx-in');
       await s.page.keyboard.type('print(la note est :, note)');
       await s.page.click('#pyxRun');
@@ -7420,7 +7463,8 @@ async function parcours(page, N){
           await s.page.waitForTimeout(650);
           /* Certains exercices n'ouvrent pas directement leur écran : les
              tables et le calcul mental passent par un « Commencer », le signe
-             du second degré par un choix de niveau. Mesurer là revenait à
+             du second degré par un choix de niveau, {python-completer} par son
+             COURS et l'exemple qu'on y exécute. Mesurer là revenait à
              constater l'absence de boutons d'aide sur un écran de départ — le
              contrôle criait sur quatre exercices parfaitement corrects. On
              franchit donc ces écrans avant de regarder. */
@@ -7434,8 +7478,16 @@ async function parcours(page, N){
                 return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'none';
               };
               const b = [...on.querySelectorAll('button')].filter(visible)
-                .find(x => /^(Commencer|Démarrer|C'est parti|Niveau 1)/.test(x.textContent.trim()));
+                .find(x => !x.disabled && /^(Commencer|Démarrer|C'est parti|Niveau 1|J’ai compris)/.test(x.textContent.trim()));
               if(b){ b.click(); return true; }
+              /* {python-completer} ouvre sur son COURS, et sa porte ne s'ouvre
+                 qu'une fois l'exemple exécuté (demande de Turquet, septembre
+                 2026) : on lance l'exemple, et le tour suivant franchit
+                 « J'ai compris ». On vise le bouton de l'EXEMPLE et lui seul —
+                 celui de l'exercice dit « le programme », pas « l'exemple ». */
+              const r = [...on.querySelectorAll('button')].filter(visible)
+                .find(x => !x.disabled && /exemple/i.test(x.textContent) && /^▶/.test(x.textContent.trim()));
+              if(r){ r.click(); return true; }
               return false;
             });
             if(!passe) break;

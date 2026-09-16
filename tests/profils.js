@@ -902,8 +902,14 @@ module.exports = {
        la fiche épinglée, le juge sur des lignes justes et fausses — chacune
        avec le diagnostic qu'elle doit recevoir —, les portes et le soutien ;
        le navigateur TAPE la ligne dans la vraie case, clique Exécuter puis
-       Vérifier, et relit la console et le verdict RENDUS. */
-    pythonCompleter: { exercice: 'python-completer', nb: 4 },
+       Vérifier, et relit la console et le verdict RENDUS.
+       LE COURS OUVRE LA SÉANCE, sur son propre écran, avec un exemple qui
+       S'EXÉCUTE (demande de Turquet, septembre 2026) : « J'ai compris » ne
+       s'ouvre qu'une fois l'exemple lancé, puis les quatre questions
+       s'enchaînent sans lui. « exemple » est la SECONDE source de ce que cet
+       exemple affiche : la page a PYX_EXEMPLE, et lire sa sortie pour la
+       comparer à elle-même ne prouverait rien. */
+    pythonCompleter: { exercice: 'python-completer', nb: 4, exemple: 'nous sommes en 2026' },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont

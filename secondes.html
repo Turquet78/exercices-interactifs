@@ -672,8 +672,10 @@
   #pycHost .mf-cor{display:inline-block;margin:6px 0 0;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem}
   .py-console.py-err{border-color:var(--red);background:var(--red-soft);color:var(--red)}
   @media(max-width:520px){ .pyc-in{font-size:.92rem} .pyc-exemple .py-code,.pyc-exemple .py-console{font-size:.9rem} }
-  /* {python-completer} : le cours en un cadre, puis le programme à compléter —
-     la ligne 1 écrite par la page, la ligne 2 une case de CODE à chasse fixe,
+  /* {python-completer} : le cours en un cadre, sur son PROPRE écran, avec
+     l'exemple qu'on y exécute (même cadre .pyx-prog que le programme de
+     l'exercice) ; puis le programme à compléter — la ligne 1 écrite par la
+     page, la ligne 2 une case de CODE à chasse fixe,
      à la taille de la ligne du dessus. La ligne juste s’écrit en vert SOUS la
      case (entraînement) : un badge en ligne, à droite, sortirait de l’écran
      sur un téléphone. */
@@ -2693,7 +2695,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pyxLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">Lis le cours, puis compl&egrave;te le programme : la ligne 1 est &eacute;crite, &agrave; toi d&rsquo;&eacute;crire la ligne 2 pour qu&rsquo;il affiche le texte demand&eacute; suivi de la valeur de la variable. Ex&eacute;cute ton programme pour voir ce qu&rsquo;il affiche, puis v&eacute;rifie.</p>
+      <p class="mp-instr">Lis le cours et ex&eacute;cute son exemple pour voir ce qu&rsquo;il affiche ; quand tu as compris, compl&egrave;te le programme : la ligne 1 est &eacute;crite, &agrave; toi d&rsquo;&eacute;crire la ligne 2 pour qu&rsquo;il affiche le texte demand&eacute; suivi de la valeur de la variable. Ex&eacute;cute ton programme pour voir ce qu&rsquo;il affiche, puis v&eacute;rifie.</p>
       <div class="mp-stage"><div style="width:100%" id="pyxHost"></div></div>
       <div class="mp-feedback" id="pyxFeedback"></div>
       <div class="row" style="justify-content:center">
@@ -3045,7 +3047,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=174;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=175;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -17902,8 +17904,36 @@ function pyxJuge(q, ligne){
   const ok=pyxAffiche(r.out, att) && pyxUtilise(l,q.nom);
   return {ok:ok, vide:false, sortie:r.out, ecart:ok?pyEcart(r.out.replace(/\n$/,''), att.sortie.replace(/\n$/,'')):'', diag:ok?'':pyxDiagSortie(q,l,r,att)};
 }
-/* Le cours, SUR l'écran : l'exercice explique avant de faire écrire. Son
-   exemple n'est aucune des questions. */
+/* ---- Le cours, sur son PROPRE écran, avec un exemple qui S'EXÉCUTE ----
+   Demande de Turquet (septembre 2026) : « je souhaite que le cours soit
+   affiché avec un programme à exécuter d'un exemple du cours ; l'élève clique
+   quand il pense avoir compris ; et on voit après l'énoncé du programme à
+   compléter comme c'est déjà le cas ; et on continue sur l'énoncé suivant du
+   programme à compléter. » Le cours était POSÉ en tête de chaque question,
+   lu ou non ; il ouvre maintenant la séance, UNE fois, et son exemple n'est
+   plus une phrase qui donne sa réponse — c'est un programme que l'élève fait
+   TOURNER. Puis les quatre questions s'enchaînent, chacune avec son seul
+   énoncé : le cours reste à un clic, par « 📘 Rappel de cours ».
+
+   LA PORTE EST TENUE PAR L'ÉTAT DU BOUTON, pas par une consigne qu'on peut ne
+   pas lire (la leçon de {placer-image}) : « J'ai compris » ne s'ouvre qu'une
+   fois l'exemple EXÉCUTÉ. C'est un arbitrage assumé — la demande dit QUAND
+   l'élève clique, elle ne dit pas qu'il peut sauter l'exemple, et un exemple
+   qu'on n'exécute pas rend l'écran à ce qu'il était avant la demande. C'est
+   déjà la règle du 5.1, où « voir le programme tourner est le a) de la fiche,
+   pas une option ». Le garde vit sur le BOUTON et nulle part ailleurs :
+   pyxCompris() n'en porte pas — un second garde, que le premier rend
+   inatteignable, ferait croire qu'on vérifie quelque chose.
+
+   LA SORTIE DE L'EXEMPLE VIENT DE pyRun, la fonction même qui exécutera la
+   ligne de l'élève — jamais une chaîne écrite à côté : un cours qui
+   annoncerait autre chose que ce que l'interpréteur affiche enseignerait le
+   faux. Le cours ne DIT donc plus ce que l'exemple affiche ; il le montre. Le
+   rappel de cours (RAP_PYX), lui, garde sa phrase entière : il se lit hors de
+   l'écran, où il n'y a aucun programme à lancer.
+
+   ET L'EXEMPLE N'EST AUCUNE DES QUESTIONS : « annee » n'est dans aucun jeu de
+   PY_JEUX, et le contrôle l'exige plutôt que de le supposer. */
 function pyxCoursHTML(){
   return '<div class="pyx-cours">'
     +'<p class="pyx-titre">Afficher un texte suivi de la valeur d’une variable</p>'
@@ -17913,9 +17943,43 @@ function pyxCoursHTML(){
     +'<li><b>②</b> la <b>virgule</b> sépare les deux — et print ajoute tout seul une espace entre eux ;</li>'
     +'<li><b>③</b> la <b>variable</b> s’écrit <b>sans guillemets</b> — c’est sa VALEUR qui s’affiche, pas son nom.</li>'
     +'</ul>'
-    +'<p class="pyx-ex">Exemple : <code>annee = 2026</code> puis <code>print("nous sommes en", annee)</code> affiche <code>nous sommes en 2026</code>.</p>'
+    +'<p class="pyx-ex">Un exemple est écrit juste en dessous : exécute-le pour voir ce qu’il affiche.</p>'
     +'</div>';
 }
+const PYX_EXEMPLE='annee = 2026\nprint("nous sommes en", annee)';
+function pyxExempleHTML(){
+  return PYX_EXEMPLE.split('\n').map(function(l,i){
+    return '<div class="pyx-ligne"><span class="pyx-num">'+(i+1)+'</span><span class="pyx-l1">'+pyColorie(l)+'</span></div>';
+  }).join('');
+}
+function pyxRenderCours(){
+  test.locked=false; test.pyxExec=null;
+  $('pyxIdx').textContent='Le cours';
+  $('modeTagPYX').innerHTML=modeTagHTML();
+  $('pyxLiveScore').textContent=test.score;
+  $('pyxFeedback').textContent=''; $('pyxFeedback').className='mp-feedback';
+  $('pyxActions').innerHTML=conseilInlineBtn()
+    +'<button class="btn btn-primary" id="pyxCompris" type="button" onclick="pyxCompris()" disabled title="Exécute d’abord l’exemple">J’ai compris</button>';
+  $('pyxHost').innerHTML=
+    '<div class="py-cell">'
+    +pyxCoursHTML()
+    +'<p class="py-label">L’exemple du cours — exécute-le : qu’affiche-t-il ?</p>'
+    +'<div class="pyx-prog">'+pyxExempleHTML()+'</div>'
+    +'<div class="py-runrow"><button class="btn btn-primary" id="pyxExRun" type="button" onclick="pyxExempleExecuter()">▶ Exécuter l’exemple</button>'
+    +'<span class="py-hint" id="pyxExHint">Exécute l’exemple pour voir ce que print affiche.</span></div>'
+    +'<p class="py-label">Ce que le programme affiche</p>'
+    +'<pre class="py-console" id="pyxExConsole"></pre>'
+    +'</div>';
+}
+function pyxExempleExecuter(){
+  const c=$('pyxExConsole'); if(!c) return;
+  let out=''; try{ out=pyRun(PYX_EXEMPLE).out; }catch(e){ out='Erreur : '+e.message; }
+  c.textContent=out.replace(/\n$/,''); c.classList.add('py-exec');
+  const h=$('pyxExHint');
+  if(h) h.textContent='Le texte s’affiche sans ses guillemets, puis la VALEUR de la variable — séparés par une espace. Quand tu as compris, clique « J’ai compris ».';
+  const b=$('pyxCompris'); if(b){ b.disabled=false; b.title=''; b.focus(); }
+}
+function pyxCompris(){ renderPYX(); }
 
 /* ---- Cycle de vie ---- */
 async function startPYX(){
@@ -17927,7 +17991,7 @@ async function startPYX(){
     maxScore:qs.reduce(function(s,q){ return s+pyxCases(q).length; },0), answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false, pyxExec:null});
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
-  show('pyx'); renderPYX();
+  show('pyx'); pyxRenderCours();
 }
 function renderPYX(){
   const q=test.questions[test.idx], att=pyxAns(q); test.locked=false; test.pyxExec=null;
@@ -17938,7 +18002,6 @@ function renderPYX(){
   $('pyxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyxValidate" onclick="checkPYX()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
   $('pyxHost').innerHTML=
     '<div class="py-cell">'
-    +pyxCoursHTML()
     +'<p class="py-label">À toi : complète le programme pour qu’il affiche le texte <code class="pyx-code">'+esc(q.texte)+'</code> suivi de la valeur de la variable <code class="pyx-code">'+esc(q.nom)+'</code> — c’est-à-dire : <code class="pyx-code pyx-attendu">'+esc(att.sortie.trim())+'</code></p>'
     +'<div class="pyx-prog">'
     +'<div class="pyx-ligne"><span class="pyx-num">1</span><span class="pyx-l1">'+pyColorie(pyxLigne1(q))+'</span></div>'
