@@ -904,6 +904,18 @@ module.exports = {
        le navigateur TAPE la ligne dans la vraie case, clique Exécuter puis
        Vérifier, et relit la console et le verdict RENDUS. */
     pythonCompleter: { exercice: 'python-completer', nb: 4 },
+    /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
+       2026) : « pour les algorithmes qui affichent un texte, accepter les
+       textes qui sont presque bons : des espaces en trop ou en moins ne sont
+       pas pénalisés, un ou deux caractères faux ou en trop ne sont pas
+       pénalisés. » Elle vit à un seul endroit dans la page (pyTexteProche) et
+       sert {python-print} comme {python-completer} ; {python-afficher-variable}
+       reste dehors, sa sortie étant une VALEUR. « plusCourt » est la SECONDE
+       source du plus court texte que les deux exercices font afficher —
+       « age : 16 », six caractères une fois les espaces retirées : en dessous,
+       deux fautes ne seraient plus une faute de frappe mais un autre texte, et
+       le banc MESURE les deux tirages plutôt que de le supposer. */
+    toleranceTexte: { plusCourt: 6 },
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
               ordre: true, sur20: true, compacte: true },

@@ -3045,7 +3045,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=173;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=174;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -17388,6 +17388,76 @@ function ctxPnv(q){
   return {nombre:'', contexte:c};
 }
 
+/* ---------- Le texte affiché est-il celui qu'on demande ? -----------------
+   Décision de Turquet (septembre 2026) : « en seconde, pour les algorithmes
+   qui affichent un texte, accepter les textes qui sont presque bons. Dans le
+   texte, des espaces en trop ou en moins ne sont pas pénalisés ; un ou deux
+   caractères faux ou en trop ne sont pas pénalisés. » Un élève qui écrit
+   « je suis en séconde » ou « la note est » sans les deux points a compris
+   print, les guillemets et la virgule — c'est cela que les deux exercices
+   évaluent, pas la dactylographie.
+
+   UN SEUL ENDROIT, et il sert {python-print} comme {python-completer} : deux
+   tolérances auraient fini par diverger, et le même texte aurait été accepté
+   dans un exercice et refusé dans l'autre, sous les yeux de l'élève.
+   {python-afficher-variable} reste DEHORS, et c'est un arbitrage nommé : il
+   n'affiche aucun texte — sa sortie EST la valeur de la variable, et un
+   caractère de tolérance y accepterait une autre valeur.
+
+   DEUX GARDES, et n'en tenir qu'un ne tient rien.
+   · LES CHIFFRES COMPTENT TOUJOURS. « la note est : 13 » n'est pas « la note
+     est : 12 » à un caractère près : c'est une autre note. Sans ce garde,
+     print("la note est :", note + 1) passerait, et l'exercice enseignerait
+     l'inverse de ce qu'il dit.
+   · UN CARACTÈRE PAR TRANCHE DE QUATRE, DEUX AU PLUS. Le plus court texte des
+     deux exercices affiche « age : 16 » — six caractères une fois les espaces
+     retirées : deux fautes n'y seraient plus une faute de frappe mais un
+     autre texte. Le contrôle MESURE ce plus court texte sur les deux tirages
+     plutôt que de le supposer : un texte plus court ajouté demain le fait
+     rougir.
+   Les espaces, elles, ne comptent JAMAIS — c'est la demande, et elle va plus
+   loin qu'une espace de trop : « la note est:12 » est accepté. Un retour à la
+   ligne n'est pas une espace : deux print restent deux lignes, et c'est un
+   autre défaut.
+
+   ET LA PAGE DIT CE QU'ELLE A ACCEPTÉ. Sans cela, l'élève croirait avoir
+   écrit le texte exact, et les messages qui nommaient l'espace, l'accent, la
+   majuscule et les guillemets affichés auraient simplement disparu : ils ont
+   changé de côté — ils accompagnent maintenant le « Bravo » au lieu du refus.
+   Les branches du diagnostic qu'ils occupaient sont retirées : elles étaient
+   devenues inatteignables, et un contrôle ne peut plus les faire rougir. */
+function pyDist(a,b){
+  const m=a.length, n=b.length; if(!m) return n; if(!n) return m;
+  let prev=[]; for(let j=0;j<=n;j++) prev.push(j);
+  for(let i=1;i<=m;i++){
+    const cur=[i];
+    for(let j=1;j<=n;j++) cur.push(Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1)));
+    prev=cur;
+  }
+  return prev[n];
+}
+function pySansEspaces(s){ return String(s).replace(/\s+/g,''); }
+function pySansAccents(s){ return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+/* un caractère par tranche de quatre, deux au plus */
+function pyTolerance(att){ return Math.min(2, Math.floor(pySansEspaces(att).length/4)); }
+function pyTexteProche(vu, att){
+  const a=pySansEspaces(vu), b=pySansEspaces(att);
+  if(a===b) return true;                                        /* seules les espaces diffèrent */
+  if(a.replace(/[^0-9]/g,'')!==b.replace(/[^0-9]/g,'')) return false;   /* un nombre n'est jamais « presque bon » */
+  return pyDist(a,b)<=pyTolerance(b);
+}
+/* Ce qui diffère, NOMMÉ — rend '' quand l'élève a écrit le texte exact. */
+function pyEcart(vu, att){
+  const v=String(vu), a=String(att);
+  if(v===a) return '';
+  const nv=pySansEspaces(v), na=pySansEspaces(a);
+  if(nv===na) return 'il y a une espace en trop ou en moins';
+  if(nv.replace(/["']/g,'')===na) return 'les guillemets ne s’affichent pas : ils entourent le texte, ils n’en font pas partie';
+  if(pySansAccents(nv)===pySansAccents(na)) return 'attention aux accents';
+  if(nv.toLowerCase()===na.toLowerCase()) return 'attention aux majuscules';
+  return pyDist(nv,na)<=1?'un caractère diffère':'deux caractères diffèrent';
+}
+
 /* ---------- Exercice : écris ton premier print (Python) ------------------
    Demande de Turquet (septembre 2026) : « un exercice qui explique le
    fonctionnement de print avec un texte entre "", puis demander à l'élève
@@ -17415,16 +17485,17 @@ function ctxPnv(q){
    phrase demandée. print("je suis", "en seconde"), ou x = "…" puis print(x),
    sont donc justes : on demande un programme qui AFFICHE la phrase, pas une
    écriture particulière. Comparer le programme au modèle aurait compté faux
-   un élève qui a raison — le pire défaut du projet. La comparaison ignore les
-   espaces aux deux bouts de la ligne, invisibles à l'écran ; tout le reste —
-   casse, accents, guillemets affichés, une ligne de plus — compte, et se dit.
+   un élève qui a raison — le pire défaut du projet. La comparaison est celle
+   de pyTexteProche, PARTAGÉE avec {python-completer} : les espaces ne comptent
+   pas, un ou deux caractères non plus, et la page NOMME ce qu'elle a toléré
+   au lieu de le taire. Une ligne de plus, elle, reste une ligne de plus.
 
    LE DIAGNOSTIC NE PRONONCE QUE DES FAITS PROUVABLES, et il les nomme dans
    les mots de l'élève : print en majuscules ou mal orthographié, parenthèses
    absentes ou dépareillées, guillemets absents, non fermés, dépareillés ou
-   typographiques, texte qui diffère par la casse, les accents, les espaces,
-   des guillemets affichés, une ligne de trop, rien d'affiché. Il lit le
-   TEXTE du programme d'abord — les chaînes bien formées retirées, sans quoi
+   typographiques, texte franchement autre — la casse d'un bout à l'autre, ou
+   un texte qui n'est pas celui-là —, une ligne de trop, rien d'affiché. Il
+   lit le TEXTE du programme d'abord — les chaînes bien formées retirées, sans quoi
    l'apostrophe de « c'est » passerait pour un guillemet dépareillé —, puis
    l'interpréteur : ce que l'analyse n'explique pas, l'erreur de pyRun le dit,
    traduite. En SOUTIEN c'est ce diagnostic qui s'affiche, jamais le programme
@@ -17457,17 +17528,6 @@ function pypModele(q){ return 'print("'+q.texte+'")'; }
 function pypCases(q){ return [{id:'pyp-prog'}]; }
 
 /* ---- 1. Le diagnostic ---- */
-function pypDist(a,b){
-  const m=a.length, n=b.length; if(!m) return n; if(!n) return m;
-  let prev=[]; for(let j=0;j<=n;j++) prev.push(j);
-  for(let i=1;i<=m;i++){
-    const cur=[i];
-    for(let j=1;j<=n;j++) cur.push(Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1)));
-    prev=cur;
-  }
-  return prev[n];
-}
-function pypSansAccents(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,''); }
 /* L'erreur de l'interpréteur, dite avec les mots d'un élève de Seconde. */
 function pypTraduire(msg){
   let m;
@@ -17483,8 +17543,9 @@ function pypTraduire(msg){
   if(/SyntaxError/.test(msg)) return 'Il y a une erreur d’écriture : relis la ligne — print, une parenthèse ouvrante, le texte entre guillemets, une parenthèse fermante.';
   return 'Python signale : '+msg;
 }
-/* pypDiag rend { ok, vide, sortie, erreur, dits } : ok quand la sortie est la
-   phrase demandée, sinon la liste des défauts NOMMÉS. */
+/* pypDiag rend { ok, vide, sortie, ligne, ecart, erreur, dits } : ok quand la
+   sortie est la phrase demandée — à un ou deux caractères près, « ecart »
+   disant alors ce qui a été toléré —, sinon la liste des défauts NOMMÉS. */
 function pypDiag(src, attendu){
   src=String(src||''); attendu=String(attendu);
   const dits=[];
@@ -17495,7 +17556,8 @@ function pypDiag(src, attendu){
   try{ r=pyRun(src); }catch(e){ erreur=e.message||String(e); }
   if(r){
     const lignes=r.out.replace(/\n$/,'').split('\n');
-    if(r.out && lignes.length===1 && lignes[0].trim()===attendu) return {ok:true, vide:false, sortie:r.out, erreur:null, dits:[]};
+    if(r.out && lignes.length===1 && pyTexteProche(lignes[0], attendu))
+      return {ok:true, vide:false, sortie:r.out, ligne:lignes[0].trim(), ecart:pyEcart(lignes[0].trim(), attendu), erreur:null, dits:[]};
   }
   /* le texte du programme, chaînes bien formées et commentaires retirés */
   const nu=src.replace(/"[^"\n]*"|'[^'\n]*'/g,'""').replace(/#[^\n]*/g,'');
@@ -17504,7 +17566,7 @@ function pypDiag(src, attendu){
   const maj=mots.filter(function(w){ return w!=='print' && w.toLowerCase()==='print'; });
   if(maj.length) dits.push('« '+maj[0]+' » : print s’écrit tout en minuscules.');
   else if(mots.indexOf('print')<0){
-    const proche=mots.filter(function(w){ return pypDist(w.toLowerCase(),'print')<=2; })[0];
+    const proche=mots.filter(function(w){ return pyDist(w.toLowerCase(),'print')<=2; })[0];
     if(proche) dits.push('« '+proche+' » n’existe pas en Python : la fonction qui affiche s’écrit print.');
     else dits.push('Ton programme n’a aucun print : rien ne s’affichera. C’est print(…) qui affiche.');
   }
@@ -17531,11 +17593,10 @@ function pypDiag(src, attendu){
     if(lignes.length>1) dits.push('Ton programme affiche '+lignes.length+' lignes ; il doit afficher une seule ligne : « '+attendu+' ».');
     else {
       const l=lignes[0].trim();
+      /* les petits écarts sont ACCEPTÉS plus haut : ne restent ici que la
+         casse d'un bout à l'autre, et un texte qui n'est pas celui-là */
       if(l==='') dits.push('print() n’a rien entre ses parenthèses : il affiche une ligne vide. Écris le texte entre les parenthèses, entre guillemets.');
-      else if(l.toLowerCase()===attendu.toLowerCase()) dits.push('Ton programme affiche « '+l+' » : les majuscules et les minuscules comptent, il faut exactement « '+attendu+' ».');
-      else if(l.replace(/["']/g,'')===attendu) dits.push('Les guillemets s’affichent : « '+l+' ». Ils délimitent le texte, ils ne doivent pas être écrits DANS le texte.');
-      else if(l.replace(/\s+/g,' ')===attendu.replace(/\s+/g,' ')) dits.push('Ton programme affiche « '+l+' » : il y a une espace en trop ou en moins. Il faut exactement « '+attendu+' ».');
-      else if(pypSansAccents(l)===pypSansAccents(attendu)) dits.push('Ton programme affiche « '+l+' » : attention aux accents, il faut exactement « '+attendu+' ».');
+      else if(pySansEspaces(l).toLowerCase()===pySansEspaces(attendu).toLowerCase()) dits.push('Ton programme affiche « '+l+' » : les majuscules et les minuscules comptent, il faut écrire « '+attendu+' ».');
       else dits.push('Ton programme affiche « '+l+' » au lieu de « '+attendu+' » : relis le texte à afficher, lettre par lettre.');
     }
   }
@@ -17638,7 +17699,12 @@ function checkPYP(live){
   test.locked=true; ta.readOnly=true;
   if(d.ok){
     ta.classList.add('ok'); test.score+=1;
-    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme affiche bien « '+q.texte+' ».'; fb.className='mp-feedback good';
+    /* accepté à un détail près : on le DIT, sinon l'élève croirait avoir
+       écrit le texte exact (décision de Turquet, septembre 2026) */
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+(d.ecart
+      ? ' C’est accepté : ton programme affiche « '+d.ligne+' » — '+d.ecart+', et on demandait « '+q.texte+' ».'
+      : ' Ton programme affiche bien « '+q.texte+' ».');
+    fb.className='mp-feedback good';
   } else if(d.vide){
     ta.value=pypModele(q); ta.classList.add('sol');
     fb.textContent='Tu n’avais rien écrit — la correction a écrit en vert un programme qui convient.'; fb.className='mp-feedback bad';
@@ -17694,18 +17760,23 @@ function ctxPyp(q){
    str(note)) est juste, comme le serait toute écriture qui affiche la même
    chose — ET exige que la variable soit EMPLOYÉE : « la note est : 12 »
    recopié à la main affiche la bonne chose sans rien apprendre, et le message
-   le dit.
+   le dit. Le TEXTE est toléré à un ou deux caractères près (pyTexteProche,
+   partagée avec {python-print} — décision de Turquet, septembre 2026), la
+   VALEUR jamais : elle doit se lire dans la sortie telle que Python l'écrit,
+   sans quoi print("la note est :", note + 1) passerait.
 
    LE DIAGNOSTIC NOMME OÙ EST L'ERREUR, en soutien comme en entraînement — la
    demande. Il ne prononce que des faits PROUVABLES sur la ligne : le texte
    posé sans guillemets (Python cherche alors une variable « la »), le print
    absent ou en majuscules, la parenthèse ou le guillemet non fermé, la
    virgule manquante entre le texte et la variable, la variable entre
-   guillemets (c'est son NOM qui s'affiche), l'ordre inversé, l'espace en
-   trop ou manquante, le « : » oublié, la majuscule dans le texte, la valeur
-   recopiée. Ce qu'il ne sait pas nommer, il le montre : « ton programme
-   affiche X au lieu de Y ». En entraînement, la ligne juste s'écrit en vert
-   sous la case ; en soutien, jamais — l'élève corrige et revérifie.
+   guillemets (c'est son NOM qui s'affiche), l'ordre inversé, le calcul à la
+   place de la valeur, la valeur recopiée, la casse d'un bout à l'autre.
+   L'espace en trop, le « : » oublié et la majuscule isolée n'y sont plus :
+   ils sont ACCEPTÉS, et nommés dans le « Bravo ». Ce qu'il ne sait pas
+   nommer, il le montre : « ton programme affiche X au lieu de Y ». En
+   entraînement, la ligne juste s'écrit en vert sous la case ; en soutien,
+   jamais — l'élève corrige et revérifie.
 
    La première question est celle de la demande, ÉPINGLÉE (note = 12, « la
    note est : ») ; les trois suivantes tirent les trois visages de
@@ -17788,17 +17859,17 @@ function pyxDiagErreur(q, l, msg, att){
   if(mc) return 'Python ne comprend pas le caractère « '+mc[1]+' » : il n’a rien à faire dans cette ligne. Relis : print, une parenthèse, le texte entre guillemets, une virgule, la variable, la parenthèse fermante.';
   return 'Python s’arrête sur une erreur : « '+msg+' ». Relis ta ligne : print, une parenthèse, le texte entre guillemets, une virgule, la variable, la parenthèse fermante.';
 }
+/* Le texte diffère assez pour n'être plus « presque » celui qu'on demande —
+   l'espace, l'accent et le caractère isolé ont été acceptés plus haut : reste
+   la casse d'un bout à l'autre, qu'on nomme, et le reste, qu'on montre. */
 function pyxDiagTexte(vu, att){
-  const fin=att.trim().slice(-1);
-  if(vu.trim()===att.trim()) return 'Le texte porte une espace en trop, au début ou à la fin : print ajoute déjà l’espace entre le texte et la valeur. Le texte doit s’arrêter juste après « '+fin+' ».';
-  if(vu.toLowerCase()===att.toLowerCase()) return 'Python affiche le texte tel quel, majuscules comprises : « '+vu+' » n’est pas « '+att+' ».';
-  if(vu.replace(/\s*:\s*$/,'')===att.replace(/\s*:\s*$/,'')) return (/:$/.test(att.trim())) ? 'Il manque le « : » à la fin du texte : tu affiches « '+vu+' » au lieu de « '+att+' ».' : 'Le texte porte un « : » en trop : tu affiches « '+vu+' » au lieu de « '+att+' ».';
+  if(pySansEspaces(vu).toLowerCase()===pySansEspaces(att).toLowerCase()) return 'Python affiche le texte tel quel, majuscules comprises : « '+vu+' » n’est pas « '+att+' ».';
   return 'La forme est bonne, mais le texte affiché est « '+vu+' » au lieu de « '+att+' » : relis-le caractère par caractère.';
 }
 function pyxDiagSortie(q, l, r, att){
   const p=r.prints[0];
   if(!p) return 'Ta ligne s’exécute sans erreur, mais elle n’affiche RIEN : pour afficher, il faut print(…).';
-  if(r.out===att.sortie) return 'Ton programme affiche bien « '+att.sortie.trim()+' », mais sans se servir de la variable '+q.nom+' : la valeur est recopiée à la main. Après la virgule, écris le NOM de la variable, sans guillemets — si sa valeur changeait, l’affichage suivrait.';
+  if(pyxAffiche(r.out, att)) return 'Ton programme affiche bien « '+r.out.trim()+' », mais sans se servir de la variable '+q.nom+' : la valeur est recopiée à la main. Après la virgule, écris le NOM de la variable, sans guillemets — si sa valeur changeait, l’affichage suivrait.';
   const a=p.args, v=p.vals;
   if(a.length>2) return 'Ton print affiche '+a.length+' choses ; il n’en faut que deux : le texte, puis la variable.';
   if(a.length===2 && a[0].k==='str' && a[1].k==='str' && a[1].v===q.nom) return '« '+q.nom+' » entre guillemets est un TEXTE : Python affiche le mot '+q.nom+', pas sa valeur. Après la virgule, la variable s’écrit SANS guillemets.';
@@ -17806,13 +17877,15 @@ function pyxDiagSortie(q, l, r, att){
   if(a.length===2 && a[0].k==='str' && a[1].k==='nom') return pyxDiagTexte(a[0].v, att.texte);
   if(a.length===2 && a[0].k==='str' && a[1].k==='expr') return 'Après la virgule, c’est la valeur de la variable '+q.nom+' qu’il faut afficher, telle quelle — pas un calcul : ton programme affiche « '+pyRep(v[1])+' » à la place.';
   if(a.length===1 && a[0].k==='str' && a[0].v===att.texte) return 'Le texte s’affiche, mais pas la valeur de la variable : après le texte, ajoute une virgule puis le nom de la variable, '+q.nom+'.';
-  const sansEsp=function(s){ return s.replace(/\s+/g,''); };
-  if(sansEsp(r.out)===sansEsp(att.sortie)){
-    if(r.out.length<att.sortie.length) return 'Il manque l’espace entre le texte et la valeur : avec une VIRGULE entre les deux, print l’ajoute tout seul.';
-    return 'Il y a une espace en trop : print en met déjà une entre le texte et la valeur — le texte doit s’arrêter juste après « '+att.texte.trim().slice(-1)+' ».';
-  }
   return 'Ton programme affiche « '+r.out.trim()+' » alors qu’il devrait afficher « '+att.sortie.trim()+' ».';
 }
+/* La sortie est-elle celle du témoin ? Le TEXTE est toléré à un ou deux
+   caractères près, les espaces ne comptant jamais (pyTexteProche) ; la VALEUR,
+   elle, doit s'y lire telle que Python l'écrit. Une valeur CHANGÉE est déjà
+   écartée par les chiffres de pyTexteProche ; ce garde-ci écarte la valeur
+   COUPÉE par une espace — print("la note est :", note // 10, note % 10)
+   affiche « la note est : 1 2 », que les espaces retirées rendraient juste. */
+function pyxAffiche(out, att){ return pyTexteProche(out, att.sortie) && String(out).indexOf(att.valeur)>=0; }
 /* Le juge : la SORTIE de la ligne comparée à celle du témoin, et la variable
    employée. Sur une ligne fausse, il dit OÙ est l'erreur. */
 function pyxJuge(q, ligne){
@@ -17821,8 +17894,8 @@ function pyxJuge(q, ligne){
   let r=null, err=null;
   try{ r=pyRun(pyxSrc(q,l)); }catch(e){ err=e; }
   if(err) return {ok:false, vide:false, erreur:err.message, diag:pyxDiagErreur(q,l,err.message,att)};
-  const ok=(r.out===att.sortie) && pyxUtilise(l,q.nom);
-  return {ok:ok, vide:false, sortie:r.out, diag:ok?'':pyxDiagSortie(q,l,r,att)};
+  const ok=pyxAffiche(r.out, att) && pyxUtilise(l,q.nom);
+  return {ok:ok, vide:false, sortie:r.out, ecart:ok?pyEcart(r.out.replace(/\n$/,''), att.sortie.replace(/\n$/,'')):'', diag:ok?'':pyxDiagSortie(q,l,r,att)};
 }
 /* Le cours, SUR l'écran : l'exercice explique avant de faire écrire. Son
    exemple n'est aucune des questions. */
@@ -17929,7 +18002,11 @@ function checkPYX(live){
   test.locked=true; inp.disabled=true;
   const run=$('pyxRun'); if(run) run.disabled=true;
   const h=$('pyxRunHint'); if(h) h.textContent='Programme exécuté et vérifié.';
-  if(j.ok){ test.score+=1; fb.textContent=pick(['Bravo, ta ligne est juste !','Parfait !','Excellent !'])+' Le programme affiche exactement ce qui était demandé.'; fb.className='mp-feedback good'; }
+  /* accepté à un détail près : on le DIT, sinon l'élève croirait avoir écrit
+     le texte exact (décision de Turquet, septembre 2026) */
+  if(j.ok){ test.score+=1; fb.textContent=pick(['Bravo, ta ligne est juste !','Parfait !','Excellent !'])+(j.ecart
+      ? ' C’est accepté : le programme affiche « '+String(j.sortie).replace(/\n$/,'')+' » — '+j.ecart+', et on demandait « '+att.sortie.trim()+' ».'
+      : ' Le programme affiche exactement ce qui était demandé.'); fb.className='mp-feedback good'; }
   else {
     fb.innerHTML='<b>Où est l’erreur ?</b> '+esc(j.diag)+' La ligne juste est écrite en vert sous la tienne.';
     fb.className='mp-feedback bad';
