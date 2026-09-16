@@ -1191,7 +1191,8 @@ math-field.dexp-mf.sol{border-color:var(--green);background:var(--green-soft);}
   .lv-axis{stroke:#5b6b8c;stroke-width:1.6}
   .lv-axfill{fill:#5b6b8c}
   .lv-ax{font-family:"Nunito";font-size:10.5px;fill:#5b6b8c}
-  .lv-cf{font-family:"Fredoka";font-weight:600;font-size:14px;font-style:italic;fill:var(--blue-dark)}
+  .lv-cf{font-family:"Fredoka";font-weight:600;font-size:14px;font-style:italic;fill:var(--blue-dark);
+         paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}   /* le halo : lisible sur le quadrillage */
   .lv-curve{fill:none;stroke:var(--blue-dark);stroke-width:3;stroke-linecap:round}
   .af-graph{width:100%;max-width:470px;margin:0 auto;background:#fff;border:1.5px solid #DCE7FB;border-radius:14px;padding:8px 6px;box-sizing:border-box}
   .af-deux{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;width:100%}
@@ -2687,7 +2688,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=318;
+const APP_VERSION=319;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -10441,6 +10442,73 @@ function afpCases(q){
   c.fleches.forEach(function(d,i){ out.push({id:'ef-a'+i, type:'sel', good:d}); });
   return out;
 }
+/* UNE ÉTIQUETTE DE COURBE NE SE POSE JAMAIS SUR SA COURBE (signalé par Turquet
+   sur une capture, septembre 2026). lvEchantillon ÉCHANTILLONNE la spline que le
+   chemin trace (les mêmes Bézier : nœuds aux abscisses x0 + i, tangentes m), et
+   etqLibre essaie des places — au-dessus puis au-dessous de la courbe, à chaque
+   abscisse candidate — et garde la première dont la boîte tient dans le cadre
+   sans mordre un axe ni ses graduations. Chaque place est CONSTRUITE 4 px
+   au-dessus du point le plus haut (ou au-dessous du plus bas) de la courbe sur
+   l'étendue de la boîte, donc elle ne peut pas la toucher : c'est le CONTRÔLE
+   qui exige la propriété, sur les dessins rendus. Le même texte dans la Seconde
+   et la Terminale, comparé au caractère près. */
+function lvEchantillon(pts, x0, m, sx, sy, a, b){
+  const out=[];
+  for(let i=a;i<b;i++){
+    const xa=x0+i, xb=x0+i+1, ya=pts[i], yb=pts[i+1];
+    const P=[[xa,ya],[xa+1/3,ya+m[i]/3],[xb-1/3,yb-m[i+1]/3],[xb,yb]];
+    for(let k=0;k<=30;k++){ const t=k/30,u=1-t;
+      const x=u*u*u*P[0][0]+3*u*u*t*P[1][0]+3*u*t*t*P[2][0]+t*t*t*P[3][0];
+      const y=u*u*u*P[0][1]+3*u*u*t*P[1][1]+3*u*t*t*P[2][1]+t*t*t*P[3][1];
+      out.push([sx(x),sy(y)]); }
+  }
+  return out;
+}
+function etqLibre(ech, cadre, xsCand, W, H, obst){
+  /* obst (facultatif) : des points, en px, que la boîte ne doit pas recouvrir non
+     plus — l'AUTRE courbe d'un dessin à deux courbes, l'étiquette déjà posée.
+     Une place libre de SA courbe peut tomber sur l'autre ; le contrôle mesure
+     chaque étiquette contre TOUTES les courbes du dessin, et l'a montré. */
+  const admissible=function(bx,by){
+    if(bx<cadre.PL||bx+W>cadre.PR+6||by<cadre.PT||by+H>cadre.PB) return false;        /* le cadre */
+    if(!(by+H<cadre.y0-1||by>cadre.y0+17)) return false;                                /* l'axe des abscisses et ses graduations */
+    if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) return false;                                /* l'axe des ordonnées et ses graduations */
+    if(obst&&obst.some(function(p){ return p[0]>=bx-2&&p[0]<=bx+W+2&&p[1]>=by-2&&p[1]<=by+H+2; })) return false; /* l'autre courbe, l'autre étiquette */
+    return true;
+  };
+  const cands=[];
+  xsCand.forEach(function(lx){
+    const dans=ech.filter(function(p){ return p[0]>=lx-2&&p[0]<=lx+W+2; });
+    if(!dans.length) return;
+    const haut=Math.min.apply(null,dans.map(function(p){ return p[1]; })), bas=Math.max.apply(null,dans.map(function(p){ return p[1]; }));
+    cands.push([lx, haut-4-H]); cands.push([lx, bas+4]);
+  });
+  for(let i=0;i<cands.length;i++){ if(admissible(cands[i][0],cands[i][1])) return {x:cands[i][0], y:cands[i][1]+13, place:i}; }
+  /* dernier recours : aucune place n'est libre — on prend la MOINS MAUVAISE, ramenée
+     dans le cadre : le moins de points de courbe (la sienne, les obstacles) dans la
+     boîte, un axe recouvert comptant pour beaucoup. Le contrôle compte ces replis. */
+  const tous=ech.concat(obst||[]), base=cands.length?cands:[[cadre.PL+4, cadre.PT]];
+  let meilleur=null, pire=Infinity;
+  base.forEach(function(c){
+    const bx=Math.min(Math.max(c[0],cadre.PL),cadre.PR+6-W), by=Math.min(Math.max(c[1],cadre.PT),cadre.PB-H);
+    let n=tous.filter(function(p){ return p[0]>=bx-2&&p[0]<=bx+W+2&&p[1]>=by-2&&p[1]<=by+H+2; }).length;
+    if(!(by+H<cadre.y0-1||by>cadre.y0+17)) n+=200;
+    if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) n+=200;
+    if(n<pire){ pire=n; meilleur=[bx,by]; }
+  });
+  return {x:meilleur[0], y:meilleur[1]+13, place:-1};
+}
+const ETQ_W=30, ETQ_H=17;   /* la boîte du texte « Cf », marge comprise : 14 px de police, le tspan à 10 px sous la ligne */
+/* Le 5.4 et le 5.5 : la courbe de f ou de f′ sur les sept nœuds de lvPath —
+   posée 9 px au-dessus du point x = −2, l'étiquette tombait sur la courbe dès que
+   celle-ci descendait entre −3 et −2 (mesuré sur le fichier en ligne : 36 tirages
+   sur 120 au 5.4, 85 étiquettes sur 240 au 5.5). Les bouts d'abord, puis vers le
+   centre : une courbe qui court de 3 à 0 aux deux bouts ([3,0,−1,1,2,3,0]) ne
+   laisse rien de libre aux bouts. */
+function afEtiquette(pts, sx, sy, cadre){
+  const ech=lvEchantillon(pts,-3,lvTangents(pts),sx,sy,0,6);
+  return etqLibre(ech, cadre, [-2.95,1.95,-1.95,0.95,-0.95].map(sx), ETQ_W, ETQ_H);
+}
 /* Le dessin de la Seconde, avec l'étiquette de la fiche : Cf ou Cf'. */
 function afGraphSVG(pts, prime){
   const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
@@ -10458,7 +10526,8 @@ function afGraphSVG(pts, prime){
   let labels='';
   for(let x=-3;x<=3;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
   for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
-  const cf='<text x="'+sx(-2.7).toFixed(1)+'" y="'+(sy(pts[1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f'+(prime?'\u2009\u2032':'')+'</tspan></text>';
+  const etq=afEtiquette(pts,sx,sy,{PL:PL,PR:PR,PT:PT,PB:PB,x0:x0,y0:y0});
+  const cf='<text x="'+etq.x.toFixed(1)+'" y="'+etq.y.toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f'+(prime?'\u2009\u2032':'')+'</tspan></text>';
   return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy)+'"/>'+cf+'</svg>';
 }
 async function startAfp(){

@@ -6155,6 +6155,123 @@ vide. Éprouvé en le cassant treize fois — et le sabotage de la case vide est
 d'abord resté vert : le bord n'est atteignable qu'en SOUTIEN, l'entraînement
 le masque sous la correction — la leçon des sabotages impossibles, encore.
 
+**L'étiquette « Cf′ » se posait SUR la courbe — une pose sur trois.** Signalé
+par Turquet sur une capture du 5.4 (septembre 2026) : « L'écriture "Cf′" est
+toujours sur la courbe ». `afGraphSVG` posait l'étiquette 9 px au-dessus du
+point x = −2, un endroit choisi une fois pour toutes ; dès que la courbe
+DESCEND entre −3 et −2, elle passe dedans. **La mesure a été faite AVANT de
+toucher à quoi que ce soit**, sur le fichier en ligne : 36 tirages sur 120 au
+5.4, 85 étiquettes sur 240 au 5.5 — un défaut sur trois, pas un cas rare.
+**La pose se CHOISIT désormais, elle ne se suppose plus** : `afEtiquette`
+échantillonne la spline que `lvPath` trace (les mêmes Bézier, `afEchantillon`),
+essaie dix places — au-dessus puis au-dessous des bouts gauche et droit, puis en
+se rapprochant du centre (une courbe qui court de 3 à 0 aux deux bouts, comme
+[3, 0, −1, 1, 2, 3, 0], ne laisse rien de libre aux bouts) — et garde la
+première dont la boîte tient dans le cadre sans mordre un axe ni ses
+graduations. **Chaque place est CONSTRUITE 4 px au-dessus du point le plus
+haut de la courbe sur l'étendue de la boîte (ou au-dessous du plus bas), donc
+elle ne peut pas la toucher** — et le test de collision que le premier jet
+posait en plus n'écartait jamais rien : le sabotage l'a montré en restant
+vert, à bon droit, le QUINZIÈME garde-fou mort du projet, retiré. C'est le
+CONTRÔLE qui exige la propriété, et le sabotage qui remplace le point le plus
+haut par le point x = −2 — l'ancienne pose — le fait rougir. Faute de place
+admissible, la première place ramenée dans le cadre, et le contrôle compte ces
+replis (0 sur 300 tirages). L'étiquette reçoit aussi le halo des étiquettes du
+6.11 (`paint-order:stroke`) : lisible sur le quadrillage.
+**Deux bancs, la répartition habituelle.** jsdom refait la géométrie par sa
+PROPRE arithmétique — la spline de Hermite à 40 pas par segment, pas les
+fonctions de la page — sur le cas de la capture (dont il exige d'abord que
+l'ANCIENNE pose le mette en défaut : un contrôle qui n'a rien à mesurer ne
+mesure rien) puis sur 300 tirages, et vérifie que le dessin rendu porte bien
+la pose calculée. Le NAVIGATEUR mesure le RENDU, et **universellement** : sur
+tous les exercices visités des trois niveaux, toute étiquette de courbe
+(« Cf », « Cf′ », « Cg » — classes `lv-cf`, `sv-cf`, `eqg-cg`) est mesurée
+contre les courbes RENDUES de son dessin, parcourues au pas de 1,5 px
+(`getPointAtLength`) ; aucun point ne doit tomber dans la boîte du texte,
+rognée d'un pixel. C'est la règle du projet : un défaut vu dans un coin
+devient un contrôle qui va PARTOUT — les deux autres dessins de la Terminale
+(`tvgSVG`, le repère du 4.5) et ceux de la Seconde sont couverts sans rien
+déclarer, et un exercice à courbe ajouté demain aussi.
+**Et il en a trouvé VINGT en Seconde le jour même**, sur deux dessins qui
+posaient leur « Cf » de la même façon — `lvGraphSVG` (9 px au-dessus du
+deuxième nœud du morceau) et `adrSVG` (le grand dessin). La sonde a mesuré le
+fichier en ligne avant d'y toucher : sur 150 tirages, 63 étiquettes sur la
+courbe pour le petit dessin, 69 sur un morceau (et 51 posées sur une
+GRADUATION), 39 et 46 pour le grand — un défaut sur trois ou quatre, là aussi.
+Les deux aides (`lvEchantillon`, `etqLibre`) sont le MÊME TEXTE dans les deux
+fichiers, et le contrôle d'identité du moteur de courbes les compare au
+caractère près — sept fonctions désormais, cinq avant. Chaque dessin garde ses
+candidats : les bouts du MORCEAU d'abord (une courbe qui n'existe que de −1 à
+2 n'a rien à offrir en −3), puis vers le centre. Après ce premier jet, la
+sonde rendait 0 sur 600 — et le banc navigateur nommait aussitôt « Cg »,
+l'étiquette de la SECONDE courbe, que ce jet n'avait pas touchée (paragraphe
+ci-dessous).
+**Une constante ne se hisse pas, une fonction si — et la page entière est
+morte au chargement.** `ETQ_W` posée à côté du moteur de courbes, comme en
+Terminale, tombait dans sa zone morte : le rappel de cours du 2.4 (`RAP_ING`)
+DESSINE au chargement avec `lvGraphSVG`, bien avant que la ligne de la
+constante ne s'exécute — « Cannot access 'ETQ_W' before initialization », et
+le bloc de script s'arrête là, tout ce qui suit n'existe plus. Le commentaire
+de `RAP_ING` le disait déjà en toutes lettres (« toutes les fonctions appelées
+ici sont des déclarations, donc hissées ») : la règle valait pour une
+constante ajoutée quatre mille lignes plus loin, et rien d'autre que le banc
+ne pouvait le voir — c'est lui qui l'a nommé, à la première exécution, avant
+la sonde. La constante vit donc AVANT `RAP_ING` en Seconde ; la Terminale, où
+rien ne dessine au chargement, la garde à côté du moteur. Et le contrôle jsdom
+du 5.4 lisait encore l'ANCIEN nom des constantes (`AF_ETQ_W`) : `npm test`
+l'a nommé aussi (« AF_ETQ_W is not defined ») — un contrôle qui lève une
+erreur JavaScript n'est pas un contrôle vert, et c'est la règle 2 qui l'a
+attrapé.
+
+**Puis « Cg » est venue à son tour, et l'AUTRE courbe est devenue un
+obstacle.** Le banc navigateur l'a nommée le jour même où « Cf » a été
+corrigée — « Cg posée sur sa courbe », sur {lecture-deux-courbes} et
+{equation-graphique}. Les trois poses de la seconde courbe — la droite de g du
+2.5 (`eqgExtra`) et de la synthèse (`synDessus`), la spline de g du 2.6
+(`ifgExtra`) — choisissaient un point une fois pour toutes, un demi-carreau
+au-dessus du bout droit ; et une étiquette libre de SA courbe peut tomber sur
+l'AUTRE, ou sur « Cf ». La sonde a mesuré le fichier en ligne avant d'y
+toucher, sur 150 tirages par dessin : au 2.5, « Cf » sur une courbe 105 fois
+et « Cg » 71 ; au 2.6, 92 et 79, plus 51 « Cg » posées sur une graduation ; à
+la synthèse, 61 et 65 — plus d'une étiquette sur deux, parce que le premier
+correctif n'évitait que la courbe de f, jamais celle de g.
+`etqLibre` apprend donc des OBSTACLES — un sixième paramètre, facultatif, le
+même texte dans les deux fichiers, que le contrôle d'identité compare — : la
+boîte ne recouvre ni un point de l'autre courbe ni l'étiquette déjà posée. Le
+dessin reçoit la courbe de g en obstacle pour poser « Cf » (`lvGraphSVG` et
+`adrSVG` ont gagné un dernier paramètre `obst`) et transmet la BOÎTE de
+« Cf » à ce qui dessine par-dessus — le troisième argument des fonctions
+`extra`/`dessus`, qu'un dessin sans étiquette ignore ; `cgEtiquette` pose
+« Cg » par le même chemin, la courbe de f et cette boîte en obstacles, le
+cadre RELU dans les sx/sy mêmes du dessin (`lvCadre`) plutôt que recopié.
+**Le contrôle mesure aussi les DROITES** (`line.eqg-g`) : il ne regardait que
+les chemins, et une « Cg » posée sur la droite du 2.5 lui échappait.
+**Et le repli a dû devenir la place la MOINS MAUVAISE.** Cinq abscisses
+candidates laissaient, au 2.6, une étiquette sur seize au repli — deux
+courbes et deux étiquettes se disputent un dessin de 258 px —, et le repli
+prenait la PREMIÈRE place, ramenée dans le cadre : sur la courbe, ou sur une
+graduation (9 « Cf » et 9 graduations sur 150, mesurés après le premier
+jet). Les candidats vont désormais par demi-graduation jusqu'au centre
+(`etqCandidats`, les bouts d'abord — le droit pour « Cg », où elle a toujours
+été), et faute de place libre `etqLibre` choisit la boîte qui contient le
+moins de points de courbe, un axe recouvert comptant pour beaucoup.
+Après correction, la sonde rend ZÉRO sur 300 tirages de chacun des quatre
+dessins — la scène et les cartes du 2.5, le 2.6, la synthèse — : aucune
+étiquette sur une courbe, aucune sur une graduation, aucune sur l'autre
+étiquette, et le banc navigateur est vert sur les trois niveaux.
+**Deux sabotages au banc navigateur, chacun rougissant en nommant son
+défaut** — « Cg » posée en plein milieu de sa courbe, SANS hasard (le banc
+nomme {lecture-deux-courbes}, {equation-graphique} et {synthese-fonction} :
+l'ancienne pose, elle, n'atteignait sa cible qu'une fois sur deux, et un
+sabotage intermittent ne dit rien du contrôle visé), et la droite de g
+retirée des obstacles de « Cf », qui rougit sur {equation-graphique}. Mais
+un obstacle retiré ne fait tomber l'étiquette dessus qu'un tirage sur deux
+ou sur quatre : ces sabotages-là se COMPTENT à la sonde plutôt qu'au banc —
+la droite de g retirée des obstacles de « Cf » remet 63 « Cf » sur 150 sur
+une courbe au 2.5 ; les obstacles retirés de la pose de « Cg » en remettent
+36 au 2.5, 30 au 2.6 et 18 à la synthèse, et une fois « Cg » sur « Cf ».
+Compté sur 150 tirages, un sabotage dit exactement ce qu'il retire.
+
 **Et le même savoir, à l'envers du QCM : choisir le tableau de f parmi
 quatre.** {variations-depuis-derivee} (Terminale, thème Dérivée, demande de
 Turquet, août 2026) est l'exercice 4 de la fiche 9 : la courbe de f′ donnée,
@@ -7969,6 +8086,20 @@ les y trouver. Un piège de banc s'y est montré : la touche de bascule ne porte
 pas la classe « keycap » de MathLive, et le sélecteur qui la manquait faisait
 échouer la mesure du 6.7 sur une page juste — on cherche parmi les enfants
 DIRECTS des rangées. Huit sabotages, chacun rougissant en nommant son défaut.
+**Et ce contrôle a rougi UNE fois sur trois exécutions, sans que la page ait
+changé** (« encore sur le clavier A : n », septembre 2026) — sous forte
+charge : trois bancs et deux campagnes de sabotage tournaient en même temps
+sur la machine. Dix ouvertures isolées du 6.9 sur tablette n'ont rien
+reproduit : la couche visible portait ses 28 touches, sans n. Le banc mesurait
+à DÉLAI FIXE — 700 ms après le clic dans la case —, c'est-à-dire ce qui se
+trouvait là à cet instant, un clavier en cours de (re)construction compris.
+Il attend désormais un clavier STABLE (la couche visible garde le même jeu de
+touches d'un quart de seconde au suivant, six secondes au plus, et il le DIT
+si elle n'y arrive pas) et ne lit que la couche que MathLive déclare visible
+(`.MLK__layer.is-visible`), jamais tout ce qui a un rectangle. La cause
+exacte n'est pas établie — le dire vaut mieux que de le taire — ; ce qui est
+établi est qu'un contrôle intermittent parle d'autre chose que de la page, et
+qu'un délai fixe est la première chose qu'une machine chargée fait mentir.
 
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la

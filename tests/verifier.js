@@ -18047,7 +18047,7 @@ function associerDerivee(w, P){
     return;
   }
   /* le moteur de courbes porté de la Seconde, au caractère près */
-  const LV_PORT=['lvPickSubset','lvGenPts','lvAnalyze','lvTangents','lvPath'];
+  const LV_PORT=['lvPickSubset','lvGenPts','lvAnalyze','lvTangents','lvPath','lvEchantillon','etqLibre'];
   const corpsLv=(texte,nom)=>{
     const f=corpsFonctions(texte, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o=>o.nom===nom);
     return f ? f.texte : null;
@@ -18096,6 +18096,47 @@ function associerDerivee(w, P){
       const A=tableDeF(q.pts), B=tableDeFp(q.ptsp);
       return A.roots.join(',')===B.roots.join(',') && A.s.join('')===B.s.join('');
     };
+
+    /* ---- 0. L’ÉTIQUETTE « Cf » / « Cf′ » NE SE POSE JAMAIS SUR LA COURBE (signalé
+            par Turquet sur une capture, septembre 2026). jsdom n’a pas de mise en
+            page : on refait la géométrie par notre propre arithmétique — la spline
+            de Hermite que lvPath écrit en Bézier, échantillonnée finement — et on
+            exige que la boîte du texte choisie par la page ne touche aucun point de
+            la courbe, sur le cas de la capture puis sur 300 tirages. Le RENDU, lui,
+            se mesure au banc navigateur, sur tous les exercices. ---------------- */
+    { const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
+      const sx=function(x){ return PL+(x-XA)/(XB-XA)*(PR-PL); }, sy=function(y){ return PB-(y-YA)/(YB-YA)*(PB-PT); };
+      const cadre={PL:PL,PR:PR,PT:PT,PB:PB,x0:sx(0),y0:sy(0)};
+      /* notre échantillonnage : Hermite, 40 pas par segment, tangentes de la page */
+      const courbe=function(pts){ const m=lvTangents(pts), out=[];
+        for(let i=0;i<6;i++){ for(let k=0;k<=40;k++){ const t=k/40, h00=2*t*t*t-3*t*t+1, h10=t*t*t-2*t*t+t, h01=-2*t*t*t+3*t*t, h11=t*t*t-t*t;
+          out.push([sx(-3+i+t), sy(h00*pts[i]+h10*m[i]+h01*pts[i+1]+h11*m[i+1])]); } }
+        return out; };
+      const boite=function(e){ return {l:e.x, r:e.x+ETQ_W, t:e.y-13, b:e.y-13+ETQ_H}; };
+      const touche=function(pts,e){ const b=boite(e); return courbe(pts).filter(function(p){ return p[0]>=b.l-1&&p[0]<=b.r+1&&p[1]>=b.t-1&&p[1]<=b.b+1; }).length; };
+      /* le cas de la capture : f′ descend entre −3 et −2, et l’ancienne pose (9 px au-dessus de x = −2) tombait dedans */
+      const capture=[-1,-2,0,2,1,0,-3];
+      const ancienne={x:sx(-2.7), y:sy(capture[1])-9};
+      if(!touche(capture,ancienne)) vus.push('le cas de la capture ne met plus l’ancienne pose en défaut : le contrôle ne mesure rien');
+      const e0=afEtiquette(capture,sx,sy,cadre);
+      if(touche(capture,e0)) vus.push('sur le cas de la capture, « Cf′ » est encore posée sur la courbe ('+touche(capture,e0)+' point(s) dans la boîte)');
+      if(e0.place<0) vus.push('sur le cas de la capture, l’étiquette est au repli du coin');
+      /* le dessin RENDU porte bien la pose calculée */
+      { const svg=afGraphSVG(capture,true), m=/<text x="([0-9.]+)" y="([0-9.]+)" class="lv-cf">/.exec(svg);
+        if(!m) vus.push('le dessin ne porte pas l’étiquette lv-cf');
+        else if(Math.abs(+m[1]-e0.x)>0.06||Math.abs(+m[2]-e0.y)>0.06) vus.push('le dessin pose l’étiquette ailleurs que là où afEtiquette la met ('+m[1]+','+m[2]+' contre '+e0.x.toFixed(1)+','+e0.y.toFixed(1)+')'); }
+      /* 300 tirages, les deux courbes de chaque paire */
+      let nb=0, replis=0, surCourbe=0, ex=null;
+      for(let t=0;t<150;t++){ const q=afpPaire(t%2===0);
+        [q.pts,q.ptsp].forEach(function(pts){ nb++; const e=afEtiquette(pts,sx,sy,cadre);
+          if(e.place<0) replis++;
+          const n=touche(pts,e); if(n){ surCourbe++; if(!ex) ex=JSON.stringify(pts); }
+          const b=boite(e);
+          if(b.l<PL||b.r>PR+6||b.t<PT||b.b>PB) vus.push('une étiquette sort du cadre : '+JSON.stringify(pts));
+          if(!(b.b<cadre.y0-1||b.t>cadre.y0+17)) vus.push('une étiquette est posée sur l’axe des abscisses ou ses graduations : '+JSON.stringify(pts)); }); }
+      if(surCourbe) vus.push(surCourbe+' étiquette(s) sur '+nb+' posée(s) sur leur courbe — ex. '+ex);
+      if(replis>nb/20) vus.push(replis+' repli(s) au coin sur '+nb+' étiquettes : les quatre places ne suffisent pas');
+    }
 
     /* ---- 1. le tirage : 200 séances ---- */
     const rangsCompat=new Set();

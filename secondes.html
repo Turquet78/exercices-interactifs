@@ -2841,7 +2841,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=167;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=168;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4600,6 +4600,14 @@ Piège classique : répondre avec les hauteurs — S se lit sur l'axe <b>horizon
    Les signes des légendes sont écrits en clair — ING_SIGNE vit plus bas et
    n'existe pas encore au chargement ; c'est du texte de cours, pas une
    seconde source de vérité : le contrôle relie chaque légende à son dessin. */
+/* La boîte du texte « Cf », marge comprise (14 px de police, le tspan à 10 px
+   sous la ligne) — lue par etqLibre, plus bas. Elle vit ICI, avant RAP_ING, et
+   non à côté du moteur de courbes comme en Terminale : RAP_ING dessine au
+   chargement avec lvGraphSVG, et une constante posée après lui serait encore
+   dans sa zone morte à cet instant — la page entière mourait au chargement
+   (« Cannot access 'ETQ_W' before initialization »), ce que le banc a nommé
+   à la première exécution. Une fonction se hisse, une constante non. */
+const ETQ_W=30, ETQ_H=17;
 const RAP_ING_EX={pts:[-3,-2,1,3,1,-1,-3], k:1};
 function rapIngDessins(){
   const legs=[['ge','≥','la partie AU-DESSUS de la droite, croisements PRIS (points pleins)'],
@@ -6661,7 +6669,97 @@ function lvPath(pts, sx, sy, ia, ib){
   }
   return d;
 }
-function lvGraphSVG(pts, extra, ia, ib){
+/* UNE ÉTIQUETTE DE COURBE NE SE POSE JAMAIS SUR SA COURBE (signalé par Turquet
+   sur une capture, septembre 2026). lvEchantillon ÉCHANTILLONNE la spline que le
+   chemin trace (les mêmes Bézier : nœuds aux abscisses x0 + i, tangentes m), et
+   etqLibre essaie des places — au-dessus puis au-dessous de la courbe, à chaque
+   abscisse candidate — et garde la première dont la boîte tient dans le cadre
+   sans mordre un axe ni ses graduations. Chaque place est CONSTRUITE 4 px
+   au-dessus du point le plus haut (ou au-dessous du plus bas) de la courbe sur
+   l'étendue de la boîte, donc elle ne peut pas la toucher : c'est le CONTRÔLE
+   qui exige la propriété, sur les dessins rendus. Le même texte dans la Seconde
+   et la Terminale, comparé au caractère près. */
+function lvEchantillon(pts, x0, m, sx, sy, a, b){
+  const out=[];
+  for(let i=a;i<b;i++){
+    const xa=x0+i, xb=x0+i+1, ya=pts[i], yb=pts[i+1];
+    const P=[[xa,ya],[xa+1/3,ya+m[i]/3],[xb-1/3,yb-m[i+1]/3],[xb,yb]];
+    for(let k=0;k<=30;k++){ const t=k/30,u=1-t;
+      const x=u*u*u*P[0][0]+3*u*u*t*P[1][0]+3*u*t*t*P[2][0]+t*t*t*P[3][0];
+      const y=u*u*u*P[0][1]+3*u*u*t*P[1][1]+3*u*t*t*P[2][1]+t*t*t*P[3][1];
+      out.push([sx(x),sy(y)]); }
+  }
+  return out;
+}
+function etqLibre(ech, cadre, xsCand, W, H, obst){
+  /* obst (facultatif) : des points, en px, que la boîte ne doit pas recouvrir non
+     plus — l'AUTRE courbe d'un dessin à deux courbes, l'étiquette déjà posée.
+     Une place libre de SA courbe peut tomber sur l'autre ; le contrôle mesure
+     chaque étiquette contre TOUTES les courbes du dessin, et l'a montré. */
+  const admissible=function(bx,by){
+    if(bx<cadre.PL||bx+W>cadre.PR+6||by<cadre.PT||by+H>cadre.PB) return false;        /* le cadre */
+    if(!(by+H<cadre.y0-1||by>cadre.y0+17)) return false;                                /* l'axe des abscisses et ses graduations */
+    if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) return false;                                /* l'axe des ordonnées et ses graduations */
+    if(obst&&obst.some(function(p){ return p[0]>=bx-2&&p[0]<=bx+W+2&&p[1]>=by-2&&p[1]<=by+H+2; })) return false; /* l'autre courbe, l'autre étiquette */
+    return true;
+  };
+  const cands=[];
+  xsCand.forEach(function(lx){
+    const dans=ech.filter(function(p){ return p[0]>=lx-2&&p[0]<=lx+W+2; });
+    if(!dans.length) return;
+    const haut=Math.min.apply(null,dans.map(function(p){ return p[1]; })), bas=Math.max.apply(null,dans.map(function(p){ return p[1]; }));
+    cands.push([lx, haut-4-H]); cands.push([lx, bas+4]);
+  });
+  for(let i=0;i<cands.length;i++){ if(admissible(cands[i][0],cands[i][1])) return {x:cands[i][0], y:cands[i][1]+13, place:i}; }
+  /* dernier recours : aucune place n'est libre — on prend la MOINS MAUVAISE, ramenée
+     dans le cadre : le moins de points de courbe (la sienne, les obstacles) dans la
+     boîte, un axe recouvert comptant pour beaucoup. Le contrôle compte ces replis. */
+  const tous=ech.concat(obst||[]), base=cands.length?cands:[[cadre.PL+4, cadre.PT]];
+  let meilleur=null, pire=Infinity;
+  base.forEach(function(c){
+    const bx=Math.min(Math.max(c[0],cadre.PL),cadre.PR+6-W), by=Math.min(Math.max(c[1],cadre.PT),cadre.PB-H);
+    let n=tous.filter(function(p){ return p[0]>=bx-2&&p[0]<=bx+W+2&&p[1]>=by-2&&p[1]<=by+H+2; }).length;
+    if(!(by+H<cadre.y0-1||by>cadre.y0+17)) n+=200;
+    if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) n+=200;
+    if(n<pire){ pire=n; meilleur=[bx,by]; }
+  });
+  return {x:meilleur[0], y:meilleur[1]+13, place:-1};
+}
+/* « Cg » SE POSE COMME « Cf », ET CHACUNE ÉVITE L'AUTRE. Le banc navigateur a
+   nommé « Cg » posée sur une courbe le jour où « Cf » a été corrigée : les
+   trois poses de la seconde courbe (la droite du 2.5 et de la synthèse, la
+   spline du 2.6) choisissaient un point une fois pour toutes, et une
+   étiquette libre de SA courbe peut tomber sur l'AUTRE — ou sur « Cf ».
+   lvCadre relit le cadre dans les MÊMES sx/sy que le dessin (il ne peut pas
+   diverger de ses constantes), etqObstBoite fait d'une étiquette déjà posée un
+   obstacle (ses coins et son centre : deux boîtes de même taille qui se
+   recouvrent ont toujours un coin de l'une dans l'autre), et cgEtiquette pose
+   « Cg » par etqLibre — hors du cadre, des axes, de la courbe de f et de
+   « Cf ». Le dessin, lui, reçoit la courbe de g en obstacle (obst) pour poser
+   « Cf », et transmet la boîte de « Cf » à ce qui dessine par-dessus. */
+/* Les abscisses candidates d'une étiquette sur le morceau [a ; b] (en unités, la
+   boîte faisant « larg » unités) : les deux BOUTS d'abord — le gauche, ou le droit
+   si droiteDabord —, puis vers le centre par pas d'une demi-graduation. Cinq
+   abscisses laissaient un repli sur seize au 2.6, où deux courbes et deux
+   étiquettes se disputent un petit dessin (sonde, septembre 2026). */
+function etqCandidats(a, b, larg, droiteDabord){
+  const out=[];
+  for(let k=0;k<40;k++){
+    const g=a+0.05+0.5*k, d=b-larg-0.05-0.5*k, gOk=g<=b-larg, dOk=d>=a&&Math.abs(d-g)>1e-9;
+    if(!gOk&&!dOk) break;
+    if(droiteDabord){ if(dOk) out.push(d); if(gOk) out.push(g); } else { if(gOk) out.push(g); if(dOk) out.push(d); }
+  }
+  return out;
+}
+function lvCadre(sx,sy){ return {PL:sx(-3.5),PR:sx(3.5),PT:sy(3.6),PB:sy(-3.6),x0:sx(0),y0:sy(0)}; }
+function etqObstBoite(b){ if(!b) return []; return [[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h],[b.x+b.w/2,b.y+b.h/2]]; }
+function cgEtiquette(echG, sx, cadre, candsX, obst, boite){
+  const etq=etqLibre(echG, cadre, candsX.map(sx), ETQ_W, ETQ_H, (obst||[]).concat(etqObstBoite(boite)));
+  return '<text class="eqg-cg" x="'+etq.x.toFixed(1)+'" y="'+etq.y.toFixed(1)+'">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+}
+/* l'échantillon, en px, d'un SEGMENT de droite y=g(x) sur [xa ; xb] */
+function segEch(xa, xb, g, sx, sy){ const out=[]; for(let k=0;k<=60;k++){ const x=xa+(xb-xa)*k/60; out.push([sx(x),sy(g(x))]); } return out; }
+function lvGraphSVG(pts, extra, ia, ib, obst){
   const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
   const sx=x=> PL + (x-XA)/(XB-XA)*(PR-PL);
   const sy=y=> PB - (y-YA)/(YB-YA)*(PB-PT);
@@ -6679,9 +6777,14 @@ function lvGraphSVG(pts, extra, ia, ib){
   for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
   /* {lecture-deux-courbes} : la courbe peut n'exister que sur un MORCEAU
      (ia..ib) — l'étiquette Cf suit son début. Par défaut, rien ne change. */
-  const a0=(ia==null)?0:ia;
-  const cf='<text x="'+sx(-3+a0+0.3).toFixed(1)+'" y="'+(sy(pts[a0+1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
-  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy,ia,ib)+'"/>'+cf+(extra?extra(sx,sy):'')+'</svg>';
+  const a0=(ia==null)?0:ia, b0=(ib==null)?6:ib;
+  /* et sa PLACE se choisit (etqLibre) : les bouts du morceau d'abord, puis vers le
+     centre, au-dessus ou au-dessous de la courbe, jamais dessus ni sur un axe */
+  const ech=lvEchantillon(pts,-3,lvTangents(pts),sx,sy,a0,b0);
+  const cands=etqCandidats(-3+a0,-3+b0,0.85);
+  const etq=etqLibre(ech,{PL:PL,PR:PR,PT:PT,PB:PB,x0:x0,y0:y0},cands.map(sx),ETQ_W,ETQ_H, obst?obst(sx,sy):null);
+  const cf='<text x="'+etq.x.toFixed(1)+'" y="'+etq.y.toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
+  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy,ia,ib)+'"/>'+cf+(extra?extra(sx,sy,{x:etq.x,y:etq.y-13,w:ETQ_W,h:ETQ_H}):'')+'</svg>';
 }
 
 /* ---- Cycle de l'exercice ---- */
@@ -7597,7 +7700,7 @@ function adrPath(pts, sx, sy, ia, ib){
    la convention d'« extra » de lvGraphSVG, portée telle quelle sur le grand
    dessin pour que {maximum-minimum} y trace sa méthode. Appelée sans lui — les
    deux exercices d'avant — rien ne change. */
-function adrSVG(q, verdict, dessus){
+function adrSVG(q, verdict, dessus, obst){
   const R=ADR_R, XA=-R-0.5, XB=R+0.5, YA=-R-0.6, YB=R+0.6, PL=44, PR=644, PT=16, PB=416;
   const sx=x=> PL + (x-XA)/(XB-XA)*(PR-PL);
   const sy=y=> PB - (y-YA)/(YB-YA)*(PB-PT);
@@ -7613,8 +7716,12 @@ function adrSVG(q, verdict, dessus){
   let labels='';
   for(let x=-R;x<=R;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
   for(let y=-R;y<=R;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
-  const _ia=(q.ia==null?0:q.ia);
-  const cf='<text x="'+sx(_ia-R+0.3).toFixed(1)+'" y="'+(sy(q.pts[Math.min(_ia+1,q.pts.length-1)])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
+  const _ia=(q.ia==null?0:q.ia), _ib=(q.ib==null?q.pts.length-1:q.ib);
+  /* la place de « Cf » se choisit (etqLibre), comme sur le petit dessin */
+  const _ech=lvEchantillon(q.pts,-R,lvTangents(q.pts),sx,sy,_ia,_ib);
+  const _cands=etqCandidats(_ia-R,_ib-R,0.75);
+  const _etq=etqLibre(_ech,{PL:PL,PR:PR,PT:PT,PB:PB,x0:x0,y0:y0},_cands.map(sx),ETQ_W,ETQ_H, obst?obst(sx,sy):null);
+  const cf='<text x="'+_etq.x.toFixed(1)+'" y="'+_etq.y.toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
   let extra='';
   if(verdict && verdict.solDr)
     extra+='<line class="adr-sol" x1="'+sx(XA).toFixed(1)+'" y1="'+sy(q.y0).toFixed(1)+'" x2="'+sx(XB).toFixed(1)+'" y2="'+sy(q.y0).toFixed(1)+'"/>';
@@ -7636,7 +7743,7 @@ function adrSVG(q, verdict, dessus){
     bouts='<circle class="ifg-bout" cx="'+sx(mia-R).toFixed(1)+'" cy="'+sy(q.pts[mia]).toFixed(1)+'" r="4.5"/>'
          +'<circle class="ifg-bout" cx="'+sx(mib-R).toFixed(1)+'" cy="'+sy(q.pts[mib]).toFixed(1)+'" r="4.5"/>';
   }
-  return '<svg viewBox="0 0 690 432" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+adrPath(q.pts,sx,sy,mia,mib)+'"/>'+bouts+cf+extra+(dessus?dessus(sx,sy):'')+'</svg>';
+  return '<svg viewBox="0 0 690 432" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+adrPath(q.pts,sx,sy,mia,mib)+'"/>'+bouts+cf+extra+(dessus?dessus(sx,sy,{x:_etq.x,y:_etq.y-13,w:ETQ_W,h:ETQ_H}):'')+'</svg>';
 }
 function adrDessiner(verdict){
   const q=test.questions[test.idx]; if(!q) return;
@@ -8627,13 +8734,18 @@ function eqgDroite(q){
 /* Le dessin : la droite de g en pointillés et son étiquette, plus — APRÈS la
    vérification seulement — le trait qui montre la méthode de la question.
    Montré pendant la recherche, il donnerait ce qu'on demande de trouver. */
+/* l'échantillon de la droite DESSINÉE (coupée aux bords), en px : c'est lui que
+   « Cg » longe, et lui que « Cf » évite (obstacle du dessin) */
+function eqgEchG(q, sx, sy){ const d=eqgDroite(q); return segEch(d.xa, d.xb, function(x){ return eqgG(q,x); }, sx, sy); }
+function eqgObst(q){ return function(sx,sy){ return eqgEchG(q,sx,sy); }; }
 function eqgExtra(q, montrer){
-  return function(sx,sy){
+  return function(sx,sy,boiteCf){
     const d=eqgDroite(q);
     let out='<line class="eqg-g" x1="'+sx(d.xa).toFixed(1)+'" y1="'+sy(d.ya).toFixed(1)+'" x2="'+sx(d.xb).toFixed(1)+'" y2="'+sy(d.yb).toFixed(1)+'"/>';
-    let lx=d.xb-0.35, ly=eqgG(q,lx)+0.45;
-    if(ly>3.3) ly=eqgG(q,lx)-0.55;
-    out+='<text class="eqg-cg" x="'+sx(lx).toFixed(1)+'" y="'+sy(ly).toFixed(1)+'" text-anchor="middle">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+    /* « Cg » : le bout droit de la droite d'abord, puis le gauche, puis vers le
+       centre — jamais sur la droite, sur la courbe de f ni sur « Cf » */
+    const cands=etqCandidats(d.xa,d.xb,0.85,true);
+    out+=cgEtiquette(eqgEchG(q,sx,sy),sx,lvCadre(sx,sy),cands,lvEchantillon(q.pts,-3,lvTangents(q.pts),sx,sy,0,6),boiteCf);
     if(!montrer) return out;
     const vert=(x,y)=>'<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(0).toFixed(1)+'" x2="'+sx(x).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>';
     const horiz=(x,y)=>'<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(y).toFixed(1)+'" x2="'+sx(0).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>';
@@ -8667,8 +8779,8 @@ function eqgExtra(q, montrer){
    pour f(x) = k, ou l'inverse. Des dessins qui différeraient par autre chose
    se laisseraient éliminer sans lire les courbes. */
 function eqgCarteExtra(q, forme){
-  return function(sx,sy){
-    let out=eqgExtra(q,false)(sx,sy);
+  return function(sx,sy,boiteCf){
+    let out=eqgExtra(q,false)(sx,sy,boiteCf);
     const niv=h=>'<line class="ing-niv" x1="'+sx(-3.5).toFixed(1)+'" y1="'+sy(h).toFixed(1)+'" x2="'+sx(3.5).toFixed(1)+'" y2="'+sy(h).toFixed(1)+'"/>';
     const plein=(x,y)=>'<circle class="ing-pt" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="5"/>';
     const vide=(x,y)=>'<circle class="ing-vide" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="5"/>';
@@ -8915,13 +9027,13 @@ function renderEqgTest(){
   let scene;
   if(eqgACarte(q)){
     const cartes=eqgPerm(q).map(function(forme,i){
-      return '<div class="itq-carte ing-carte"><span class="itq-lettre">'+ITQ_LETTRES[i]+'</span>'+lvGraphSVG(q.pts, eqgCarteExtra(q,forme))+'</div>';
+      return '<div class="itq-carte ing-carte"><span class="itq-lettre">'+ITQ_LETTRES[i]+'</span>'+lvGraphSVG(q.pts, eqgCarteExtra(q,forme), null, null, eqgObst(q))+'</div>';
     }).join('');
     scene='<div class="ing-cartes">'+cartes+'</div>'
       +'<div class="itv-ligne"><span class="itv-lbl">Dessin</span><span class="itv-corps"><span class="itv-fixe">Le problème correspond au dessin</span>'
       +itvSelHTML('eqg-sch', ITQ_LETTRES.map(function(l,i){ return [String(i),l]; }), 'Dessin correspondant')+'</span></div>';
   } else {
-    scene='<div id="eqgGraph" class="itv-schema">'+lvGraphSVG(q.pts, eqgExtra(q,false))+'</div>';
+    scene='<div id="eqgGraph" class="itv-schema">'+lvGraphSVG(q.pts, eqgExtra(q,false), null, null, eqgObst(q))+'</div>';
   }
   $('eqgHost').innerHTML='<div class="itv-fiche">'
     +'<div class="itq-ineg">'+eqgTitre(q)+'</div>'
@@ -9028,7 +9140,7 @@ function checkEqgAnswer(live){
   test.locked=true;
   /* le trait de la méthode se dessine MAINTENANT, jamais avant — sur le
      dessin nu de l'image ; les questions à cartes montrent la bonne carte */
-  { const gEl=$('eqgGraph'); if(gEl) gEl.innerHTML=lvGraphSVG(q.pts, eqgExtra(q,true)); }
+  { const gEl=$('eqgGraph'); if(gEl) gEl.innerHTML=lvGraphSVG(q.pts, eqgExtra(q,true), null, null, eqgObst(q)); }
   test.score+=res.nCorrect; $('eqgLiveScore').textContent=test.score;
   if(res.allOk){ $('eqgFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('eqgFeedback').className='mp-feedback good'; }
   else { $('eqgFeedback').textContent=msgAvecVides(res.subs, eqgWhy(q)); $('eqgFeedback').className='mp-feedback bad'; }
@@ -10512,15 +10624,20 @@ function ifgTitre(q){
 /* Le dessin : g en pointillés sur SON domaine, les BOUTS des deux courbes
    (c'est là que se lisent les domaines), l'étiquette Cg — et, APRÈS la
    vérification seulement, le trait de la méthode. */
+/* l'échantillon de la courbe de g sur SON domaine — les Bézier mêmes que lvPath
+   trace —, que « Cg » longe et que « Cf » évite */
+function ifgEchG(q, sx, sy){ const dG=q.domG; return lvEchantillon(q.ptsG,-3,lvTangents(q.ptsG),sx,sy,dG[0]+3,dG[1]+3); }
+function ifgObst(q){ return function(sx,sy){ return ifgEchG(q,sx,sy); }; }
 function ifgExtra(q, montrer){
-  return function(sx,sy){
+  return function(sx,sy,boiteCf){
     const dF=q.domF, dG=q.domG;
     let out='<path class="eqg-g" d="'+lvPath(q.ptsG,sx,sy,dG[0]+3,dG[1]+3)+'"/>';
     const bout=function(x,y,g2){ return '<circle class="'+(g2?'ifg-boutg':'ifg-bout')+'" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="3.4"/>'; };
     out+=bout(dF[0],q.ptsF[dF[0]+3])+bout(dF[1],q.ptsF[dF[1]+3])
         +bout(dG[0],q.ptsG[dG[0]+3],1)+bout(dG[1],q.ptsG[dG[1]+3],1);
-    let ly=q.ptsG[dG[1]+3]+0.55; if(ly>3.3) ly=q.ptsG[dG[1]+3]-0.65;
-    out+='<text class="eqg-cg" x="'+sx(dG[1]-0.2).toFixed(1)+'" y="'+sy(ly).toFixed(1)+'" text-anchor="middle">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+    /* « Cg » : le bout droit du morceau de g d'abord — jamais sur g, sur f ni sur « Cf » */
+    const cands=etqCandidats(dG[0],dG[1],0.85,true);
+    out+=cgEtiquette(ifgEchG(q,sx,sy),sx,lvCadre(sx,sy),cands,lvEchantillon(q.ptsF,-3,lvTangents(q.ptsF),sx,sy,dF[0]+3,dF[1]+3),boiteCf);
     if(!montrer) return out;
     const vert=function(x,y){ return '<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(0).toFixed(1)+'" x2="'+sx(x).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>'; };
     const horiz=function(x,y){ return '<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(y).toFixed(1)+'" x2="'+sx(0).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>'; };
@@ -10618,7 +10735,7 @@ function renderIfgTest(){
   $('ifgHost').innerHTML='<div class="itv-fiche">'
     +'<div class="itq-ineg">'+ifgTitre(q)+'</div>'
     +fgLegende('courbe de <i>g</i>')
-    +'<div id="ifgGraph" class="itv-schema">'+lvGraphSVG(q.ptsF, ifgExtra(q,false), q.domF[0]+3, q.domF[1]+3)+'</div>'
+    +'<div id="ifgGraph" class="itv-schema">'+lvGraphSVG(q.ptsF, ifgExtra(q,false), q.domF[0]+3, q.domF[1]+3, ifgObst(q))+'</div>'
     +corps+'</div>';
   $('ifgHost').querySelectorAll('input,select').forEach(function(el){
     ['input','change'].forEach(function(ev){ el.addEventListener(ev,function(){ ifgLive(); clearTimeout(_ifgSaveTimer); _ifgSaveTimer=setTimeout(autoSave,1000); }); });
@@ -10683,7 +10800,7 @@ function checkIfgAnswer(live){
   if(!res.allOk && isSoutien()){ soutienAgain('ifgFeedback','ifgActions','checkIfgAnswer','ifgHost'); return; }
   test.locked=true;
   /* le trait de la méthode se dessine MAINTENANT, jamais avant */
-  $('ifgGraph').innerHTML=lvGraphSVG(q.ptsF, ifgExtra(q,true), q.domF[0]+3, q.domF[1]+3);
+  $('ifgGraph').innerHTML=lvGraphSVG(q.ptsF, ifgExtra(q,true), q.domF[0]+3, q.domF[1]+3, ifgObst(q));
   test.score+=res.nCorrect; $('ifgLiveScore').textContent=test.score;
   if(res.allOk){ $('ifgFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('ifgFeedback').className='mp-feedback good'; }
   else { $('ifgFeedback').textContent=msgAvecVides(res.subs, ifgWhy(q)); $('ifgFeedback').className='mp-feedback bad'; }
@@ -11984,20 +12101,29 @@ function startSYN(){
    crochet « dessus » : les classes sont celles du 2.5 et du 2.6 (.eqg-g en
    pointillés orange, .eqg-cg pour l'étiquette) — une couleur propre à cet
    écran pourrait contredire les autres le jour où l'une des deux change. */
+/* Le morceau de la droite qui reste DANS la fenêtre du dessin : tracée d'un
+   bord à l'autre, elle sortait du quadrillage par le haut et son étiquette se
+   posait sur les graduations — vu sur une capture, pas au banc. */
+function synSegment(q){
+  const L=SYN_R+0.5, xh=[(L-q.gb)/q.ga, (-L-q.gb)/q.ga];
+  let x1=Math.max(-L, Math.min(xh[0],xh[1])), x2=Math.min(L, Math.max(xh[0],xh[1]));
+  if(!(x2>x1)){ x1=-L; x2=L; }
+  return {x1:x1, x2:x2};
+}
+function synEchG(q, sx, sy){ const s=synSegment(q); return segEch(s.x1, s.x2, function(x){ return synG(q,x); }, sx, sy); }
+function synObst(q){ return function(sx,sy){ return synEchG(q,sx,sy); }; }
 function synDessus(q){
-  return function(sx,sy){
-    /* La droite est COUPÉE au cadre : tracée d'un bord à l'autre, elle sortait
-       du quadrillage par le haut et son étiquette se posait sur les
-       graduations — vu sur une capture, pas au banc. On ne garde que le
-       morceau où elle reste dans la fenêtre du dessin. */
-    const L=SYN_R+0.5, xh=[(L-q.gb)/q.ga, (-L-q.gb)/q.ga];
-    let x1=Math.max(-L, Math.min(xh[0],xh[1])), x2=Math.min(L, Math.max(xh[0],xh[1]));
-    if(!(x2>x1)){ x1=-L; x2=L; }
-    const xe=Math.max(x1, Math.min(x2-0.9, synB(q)));
-    return '<line class="eqg-g" x1="'+sx(x1).toFixed(1)+'" y1="'+sy(synG(q,x1)).toFixed(1)
-      +'" x2="'+sx(x2).toFixed(1)+'" y2="'+sy(synG(q,x2)).toFixed(1)+'"/>'
-      +'<text x="'+sx(xe).toFixed(1)+'" y="'+(sy(synG(q,xe))-8).toFixed(1)
-      +'" class="eqg-cg">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+  return function(sx,sy,boiteCf){
+    const s=synSegment(q), R=SYN_R;
+    /* « Cg » : près du bout du domaine de f d'abord (là où elle a toujours été),
+       puis les bouts de la droite — jamais sur la droite, sur f ni sur « Cf » ;
+       le cadre est relu dans les sx/sy mêmes d'adrSVG */
+    const cadre={PL:sx(-R-0.5),PR:sx(R+0.5),PT:sy(R+0.6),PB:sy(-R-0.6),x0:sx(0),y0:sy(0)};
+    const xe=Math.max(s.x1, Math.min(s.x2-0.9, synB(q)));
+    const cands=[xe, s.x2-0.75, s.x1+0.05, xe-1, xe+1, s.x1+1.05].filter(function(x){ return x>=s.x1&&x<=s.x2-0.7; });
+    return '<line class="eqg-g" x1="'+sx(s.x1).toFixed(1)+'" y1="'+sy(synG(q,s.x1)).toFixed(1)
+      +'" x2="'+sx(s.x2).toFixed(1)+'" y2="'+sy(synG(q,s.x2)).toFixed(1)+'"/>'
+      +cgEtiquette(synEchG(q,sx,sy),sx,cadre,cands,lvEchantillon(q.pts,-R,lvTangents(q.pts),sx,sy,q.ia,q.ib),boiteCf);
   };
 }
 function synOpt(vals){ return '<option value="">—</option>'+vals.map(function(v){ return '<option value="'+esc(v[0])+'">'+esc(v[1])+'</option>'; }).join(''); }
@@ -12021,7 +12147,7 @@ function renderSYN(){
     const qb=$('synQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
   $('synSub').textContent=SYN_TITRES[q.part];
   $('synLeg').innerHTML=fgLegende('droite de <i>g</i>');
-  $('synGraph').innerHTML=adrSVG({pts:q.pts, ia:q.ia, ib:q.ib, dr:null, rep:[]}, null, synDessus(q));
+  $('synGraph').innerHTML=adrSVG({pts:q.pts, ia:q.ia, ib:q.ib, dr:null, rep:[]}, null, synDessus(q), synObst(q));
   const nbs=synNombres(q);
   let corps='';
   if(q.part==='a'){
