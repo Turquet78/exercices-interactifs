@@ -6245,7 +6245,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies quaterdecies. {suite-tcm-limite} : la fiche choisie et tapée pour de vrai =====
+    /* ===== 6 vicies quindecies. {suite-tcm-limite} : la fiche choisie et tapée pour de vrai =====
        Le banc jsdom tient le tirage HONNÊTE (la suite simulée par sa propre
        arithmétique), la fiche épinglée et les deux juges. Ce qu'il ne voit pas :
        le « lim » qui porte son « n → +∞ » EN DESSOUS (un CSS perdu le mettrait
@@ -6254,7 +6254,7 @@ async function parcours(page, N){
        les vraies listes et TAPÉE dans les vraies cases, « Vérifier » cliqué,
        la note relue sur ce que le bouton enregistre et l'encre RENDUE de la
        liste juste — bleue, jamais lue à la classe. */
-    titre('6 vicies quaterdecies. LA CONVERGENCE MONOTONE : LA FICHE CHOISIE ET TAPÉE POUR DE VRAI');
+    titre('6 vicies quindecies. LA CONVERGENCE MONOTONE : LA FICHE CHOISIE ET TAPÉE POUR DE VRAI');
     if(!P.suiteTcmLimite){
       ignorer('le 6.12 : le « lim » est empilé, rien ne défile',
         'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
