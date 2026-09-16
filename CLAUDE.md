@@ -2460,6 +2460,194 @@ verts et les quatre crochets RENDUS avec une étendue non nulle (un CSS perdu
 les rendrait invisibles sans qu'une erreur ne se lève), et le pavé des
 tablettes en portrait comme en paysage.
 
+**Un programme Python se PRÉDIT avant de s'EXÉCUTER — et il s'exécute dans
+la page, sans rien charger.** {python-affichage} (Seconde, thème 5
+« Algorithmique et Python », demande de Turquet, septembre 2026 : « est-il
+possible de créer un exercice qui donne le programme Python comme dans le
+PDF et qui affiche le résultat quand on l'exécute ? », puis « prédire
+d'abord, puis le bouton exécuter se débloque ») est repris de l'exercice 9
+du carnet : trois variables, un print, et « Le programme affiche le texte …
+puis … qui est la valeur de la variable … ». L'ordre du carnet — a)
+exécuter, b) qu'affiche-t-il ? — est RENVERSÉ : sur un notebook le
+professeur est à côté ; ici, un bouton cliquable avant la réponse
+transformerait la question en recopie. « Exécuter » ne se débloque qu'une
+fois la réponse VÉRIFIÉE — la chaîne de portes de {placer-image}, tenue par
+l'ÉTAT du bouton et non par une consigne —, et « Question suivante » attend
+l'exécution : voir le programme tourner est le a) de la fiche, pas une
+option. En soutien, une copie fausse le laisse verrouillé : la sortie EST la
+réponse.
+**Trois chemins mesurés pour « exécuter », et le plus petit l'a emporté** :
+Pyodide (un vrai CPython en WASM, 9,6 + 2,2 Mo — neuf fois la page),
+Brython (1,1 Mo depuis un CDN), ou un interpréteur MAISON du sous-ensemble
+d'une première séance — affectations, nombres, textes, + − × / // % **,
+print à plusieurs arguments, str/int/float — en cent lignes et zéro réseau.
+Les deux premiers sont une dépendance de plus dont la panne rend
+« Exécuter » MORT sans une erreur, sur le réseau d'un lycée ; le troisième
+est éprouvé : 0 écart avec CPython 3.11 sur 1 600 programmes tirés.
+**Le risque propre est l'interpréteur qui MENT, et il ne se relit pas** :
+sur 27 cas limites choisis exprès, le premier prototype divergeait 7 fois —
+`round()` (Python arrondit AU PAIR : round(2.5) vaut 2), l'écriture des
+flottants extrêmes (1e16 et 0.00001 basculent en exponentielle à d'autres
+seuils qu'en JavaScript), la priorité de « ** » (2 ** 3 ** 2 vaut 512,
+−2 ** 2 vaut −4). L'élève aurait prédit juste, la page aurait affiché sa
+propre erreur et l'aurait compté faux — le pire défaut du projet, par la
+porte d'un exécuteur. TROIS POSITIONS, la doctrine du juge : ce que
+l'interpréteur sait faire, il le fait comme CPython (l'écriture des
+flottants réécrite aux seuils de Python — 100.0 s'affiche 100.0, 4 / 2
+s'affiche 2.0) ; ce qu'il ne sait pas faire — round, un entier au-delà de
+2^53 — il le REFUSE en nommant, plutôt que de répondre à côté ; et le
+tirage n'emploie ni **, ni round, ni /. **Le banc compare la page à un VRAI
+python3**, tirage après tirage (240 programmes) et sur les cas limites
+épinglés avec la sortie de CPython 3.11 — la seconde méthode qui n'a rien
+en commun avec la première. python3 est sur ubuntu-latest ; sans lui,
+l'intégration continue ROUGIT (« la sortie n'a été comparée à RIEN ») et
+une machine de développement le dit en « non applicable » — le motif de
+base.js, pris du bon côté.
+**La sortie affichée et la correction sortent de la MÊME fonction** : le
+bouton, le juge (`pyAns`) et le message lisent tous `pyRun(q.src)` ; la
+question ne porte que le programme, le visage tiré et l'ordre des
+propositions — le contrôle refuse tout autre champ.
+**Les quatre visages sortaient chacun UNE fois par séance, en ordre
+mélangé** : entier, décimal (Python l'écrit avec un point), texte (il
+s'affiche sans ses guillemets), variable RÉAFFECTÉE — c'est la DERNIÈRE
+valeur qui compte, et l'ancienne est proposée. Le quatrième a été RETIRÉ
+le mois suivant (paragraphe ci-dessous). Les propositions ne
+diffèrent que par ce qui fait l'erreur (la leçon d'{intervalles-inegalite})
+: le texte AVEC ses guillemets, le NOM de la variable à la place de sa
+valeur, la valeur d'une AUTRE variable. Tout se choisit dans des listes —
+à chasse fixe, ce sont des morceaux de code —, jamais tapé. Aucune
+correction au fil des clics, et c'est déclaré (`soutienEnDirect.sans`) : à
+quatre propositions, il suffirait d'essayer.
+**Le thème 5 vient EN DERNIER, et c'est ce qui rend l'ajout sûr** : un
+thème ajouté à la fin ne renumérote rien, et le contrôle exige que le
+pourcentage reste 3.1. **Et le rappel de cours ne cite AUCUN décimal** : le
+contrôle des numéros en dur lit tout « chiffres.chiffres » d'un rappel
+comme un numéro d'exercice, et « 15.5 » l'aurait fait rougir — la règle du
+point s'y dit en mots.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée, la
+place au menu, le tirage (400 séances), la copie juste CLIQUÉE, la copie
+fausse, le soutien, les branchements et CPython ; le NAVIGATEUR (« 6 vicies
+decies », déclaré par `pythonAffichage` dans `tests/profils.js`) mesure ce
+que jsdom ne voit pas — le code et la console RENDUS à chasse fixe, un VRAI
+clic sur le bouton verrouillé qui ne fait rien, les trois listes choisies
+pour de vrai, la console au RECTANGLE, et le soutien. Les contrôles
+universels des deux bancs ont couvert l'exercice au premier passage sans
+rien déclarer, exactement ce pour quoi ils existent. Seize sabotages au banc jsdom, chacun rougissant en nommant son défaut — les
+deux mensonges de l’interpréteur (« 2 » pour 2.0, « ** » associé à gauche),
+`round` imité au lieu d’être refusé, « Exécuter » cliquable d’emblée, le
+soutien qui débloque sur une copie fausse, « Question suivante » avant
+l’exécution, la réaffectation perdue, le piège des guillemets retiré des
+propositions, la case vide rougie, la copie juste à un point, la séance à
+trois questions, le thème disparu, le décimal dans le rappel, la correction
+au fil des clics, le bouton des tables revenu, la sortie rangée à côté du
+programme. Et un dix-septième que seul le NAVIGATEUR voit : la chasse fixe
+retirée du code et de la console — jsdom, qui ne lit pas une police, reste
+vert à bon droit, et le navigateur nomme l’encre (« Nunito, system-ui… »).
+La campagne a restauré la page depuis une copie propre hors dépôt à chaque
+tour, et le sabotage du navigateur s’est joué dans une copie de travail
+séparée, pendant que la page propre passait son propre banc.
+
+**Puis la variable RÉAFFECTÉE a quitté le tirage : une variable ne s'affecte
+qu'UNE fois par programme.** Demande de Turquet (septembre 2026) : « en
+seconde dans l'exercice 5.1 je ne veux pas qu'il y ait deux fois la même
+variable dans les égalités, par exemple age = 14 puis age = 15 ». C'était le
+quatrième visage — la réaffectation, avec l'ancienne valeur proposée en
+piège. Il est retiré des trois endroits qui le portaient, parce que n'en
+tenir qu'un ne tient rien : le TIRAGE (`PY_VISAGES` n'a plus que l'entier,
+le décimal et le texte, et `pyTirage` n'insère plus de seconde affectation),
+le MESSAGE de correction (la phrase « c'est sa DERNIÈRE valeur qui
+s'affiche » n'a plus d'occasion) et les AIDES — la règle ④ du rappel, la
+question à l'IA « que se passe-t-il si la variable change de valeur avant
+le print ? » et la clause du contexte : un rappel qui enseigne un cas que
+l'élève ne rencontrera jamais est la leçon du 2.2.8 (« un rappel qui montre
+un tirage impossible »), et la question à l'IA est remplacée par l'écriture
+du nombre à virgule, qui EST un des trois visages.
+**La séance garde ses QUATRE questions** (`PY_NB`, deux sources) : les trois
+visages sortent chacun au moins une fois, la quatrième question reprend l'un
+d'eux au hasard, ordre mélangé — le motif de {pourcentage-synthese}
+(« chacun au moins une fois, mélangés »). Raccourcir la séance n'était pas
+demandé, et l'interpréteur, lui, sait toujours réaffecter (`x = x + 1` reste
+un cas limite épinglé contre CPython) : ce qui change est ce que le tirage
+POSE, pas ce que la page sait exécuter.
+**Le contrôle EXIGE la propriété sur chaque tirage plutôt que de la
+supposer** : il relit chaque ligne d'affectation du programme et rougit en
+nommant la variable affectée deux fois — une réaffectation revenue par une
+autre porte ne casserait rien, et personne ne la verrait avant un élève. Le
+bord OPPOSÉ compte autant : les trois visages doivent encore sortir tous, et
+le rappel ne doit plus enseigner la réaffectation. Trois sabotages, chacun
+rougissant en nommant son défaut — la seconde affectation remise dans le
+tirage (« la variable « points » est affectée deux fois »), le visage texte
+perdu, la règle ④ remise dans le rappel.
+
+**Les trois types de variables s'EXPLIQUENT sur l'écran, puis se TESTENT —
+et c'est Python qui a le dernier mot.** {python-types} (Seconde, 5.2,
+demande de Turquet, septembre 2026 : « créer un exercice qui explique les 3
+types de variables et qui teste les élèves ») est repris de la page « Types
+de variables » du cours : 15 est un `int` (un entier relatif), 15.5 un
+`float` (un nombre à virgule, écrit avec un point), "15H30" un `str` (une
+chaîne de caractères — il y a le H, qui n'est pas un chiffre) et "Thomas"
+aussi (ce n'est pas un nombre). Les trois cadres du cours sont SUR l'écran,
+à chaque question — l'exercice explique avant de tester, c'est la demande —,
+puis un programme de trois affectations, et le type de chacune à choisir
+parmi int / float / str. Puis « Exécuter », qui ne se débloque qu'après la
+vérification (la chaîne de portes de {python-affichage}) : le programme
+porte un `print(type(…))` par variable, et c'est l'interpréteur de la page
+qui répond `<class 'int'>` — il a appris `type()` pour l'occasion, écrit
+comme CPython l'écrit, et refuse en nommant toute opération sur un type.
+**LE TYPE ATTENDU N'EST JAMAIS RANGÉ À CÔTÉ DE LA QUESTION** : il est lu dans
+l'état final de `pyRun`, la fonction MÊME qui exécute le programme sous le
+bouton, si bien que la correction ne peut pas contredire la console. La
+question ne porte que le programme et le visage, et le contrôle refuse tout
+autre champ.
+**Quatre visages, chacun une fois par séance, en ordre mélangé, et deux
+d'entre eux sont des CONTRASTES** — le même nombre sous deux écritures,
+c'est le contraste qui enseigne : le trio du COURS (le jeu de
+{python-affichage} : un entier, un décimal, un texte) ; les GUILLEMETS
+("2026" contre 2026 — ce sont les guillemets qui décident, pas les
+chiffres) ; le POINT (15.0 contre 15 — un point fait un float, même à partie
+décimale nulle) ; le MÉLANGE ("15H30", une lettre parmi des chiffres, et
+−3, négatif mais entier). Le nombre de types par question VARIE d'un visage
+à l'autre — un élève qui aurait appris « un de chaque » se tromperait, et le
+contrôle exige cette variation — et les noms des variables des pièges ne
+disent rien de leur type. Le message de la correction nomme ce qui décide —
+les guillemets, le point, le signe — et la bonne réponse se montre en vert à
+côté de la case rouge, en entraînement seulement ; aucune correction au fil
+des clics (`soutienEnDirect.sans`) : à trois propositions, il suffirait
+d'essayer.
+**Un nombre dans une balise `code` n'est pas un numéro d'exercice.** Le
+rappel de cours doit montrer 15.5 et 15.0 — un rappel sur les types sans un
+seul décimal n'enseignerait pas le float —, et le contrôle des numéros en
+dur lisait « 15.5 » comme le numéro d'un exercice. Il retire désormais le
+contenu des balises `<code>` AVANT de chercher : du code est du code, pas de
+la prose, et une référence à un exercice ne s'écrit jamais dans une balise
+code. Le bord opposé est tenu par sabotage : « (voir l'exercice 5.1) » écrit
+dans la PROSE du même rappel rougit toujours.
+Deux bancs, la répartition habituelle : jsdom tient la page du cours
+épinglée, la place au menu (5.2, rien d'autre ne bouge), le tirage (400
+séances), la copie juste cliquée, la copie fausse sur le visage des
+guillemets et sa raison, le soutien, les branchements, et `type()` comparé à
+un vrai CPython sur 172 programmes ; le NAVIGATEUR (« 6 vicies undecies »,
+déclaré par `pythonTypes` dans `tests/profils.js`) mesure ce que jsdom ne
+voit pas — les trois cadres RENDUS côte à côte, au rectangle, puis empilés
+sur toute la largeur d'un téléphone, le code et la console à chasse fixe, le
+vrai clic sur le bouton verrouillé, les trois listes choisies pour de vrai et
+les trois `<class '…'>` à l'écran. Dix-sept sabotages au banc jsdom, chacun rougissant en nommant son
+défaut — `type()` retiré de l’interpréteur, `<class int>` sans les
+apostrophes de CPython, « Exécuter » cliquable d’emblée, le soutien qui
+débloque sur une copie fausse, « Question suivante » avant l’exécution, la
+case vide rougie, le contraste des guillemets perdu, le `.0` du point perdu,
+un type de chaque à toutes les questions, le type rangé dans la question, les
+cadres retirés de l’écran, la copie juste à un point, l’exercice hors du
+thème, la correction au fil des clics, le bouton des tables revenu, le numéro
+d’exercice dans la prose du rappel, le message qui ne nomme plus les
+guillemets — et un dix-huitième que seul le NAVIGATEUR voit : les trois cadres
+cachés par une règle CSS (`display:none`). jsdom lit le DOM, où les cadres
+existent, et reste vert à bon droit ; le navigateur les mesure au rectangle et
+nomme le vide (« 0x0 / 0x0 / 0x0 »). La campagne a restauré la page depuis une
+copie propre hors dépôt à chaque tour, et le sabotage du navigateur s’est joué
+dans une copie de travail séparée, pendant que la page propre passait son
+propre banc.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
@@ -5988,6 +6176,72 @@ jamais rien (une courbe traverse l'axe en montant, jamais en tournant) :
 le cinquième garde-fou mort du projet, retiré, sabotage à l'appui. Éprouvé
 en le cassant neuf fois.
 
+**Le QCM de la fiche : le tableau de f′ ET de f, puis UNE SEULE affirmation vraie.**
+{signe-derivee-qcm} (Terminale, thème Dérivée, demande de Turquet, septembre
+2026 — « un exercice comme le pdf : l'élève complète le tableau de signe de
+f'(x) avec les variations de f(x) sur la ligne suivante et répond au QCM, il
+ne doit y avoir qu'une seule bonne réponse ») suit {variations-depuis-derivee}
+au menu. On donne la COURBE de f′, l'élève complète le tableau — zéros, signes
+de f′, flèches de f — puis choisit parmi quatre affirmations : « f admet un
+minimum en 1 », « f admet un minimum en 0 », « f est décroissante sur
+[−1 ; 1] », « f est décroissante sur [0 ; 2] », la fiche au mot près.
+**Tout est repris, rien n'est recopié** : le dessin et la table lue sont ceux
+d'{associer-derivee} (afGraphSVG, afpZeros, afpCourbeDer), le tableau celui du
+5.3 (efTableHTML, ids ef-* partagés — un CINQUIÈME écran entre dans la règle
+des hôtes vidés symétriquement, et le contrôle sème un fantôme pour l'exiger),
+le sommet celui de {variations-depuis-derivee} (afqSommets).
+**LES QUATRE NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR**, et ce sont les
+pièges mêmes de la fiche : un extremum posé sur un SOMMET de f′ (c'est f′ qui
+a un creux en 1, pas f — f′ ne s'y annule pas), le bon zéro pris pour le
+mauvais GENRE (« minimum en 0 » là où f′ passe du + au − : un maximum), un
+intervalle qui ENJAMBE un zéro (« décroissante sur [−1 ; 1] » quand f′ change
+de signe en 0), le SENS inversé sur un bon intervalle. Deux affirmations sur
+un extremum, deux sur un sens — la composition de la fiche — et la vraie est
+tantôt de l'une, tantôt de l'autre famille, chaque visage deux fois par séance
+en ordre mélangé ; à famille égale, son rang change.
+**« UNE SEULE BONNE RÉPONSE » EST TENU PAR LA CONSTRUCTION, ET EXIGÉ PAR LE
+CONTRÔLE — pas par un garde du tirage.** La question ne porte que la courbe
+et les quatre affirmations — leur NATURE, jamais leur vérité ni le nom de
+leur piège, qui seraient la réponse rangée à côté de la question — ;
+sdqVrai() relit chacune sur la courbe pour juger l'élève, et sdqPourquoi()
+retrouve le piège choisi de la même façon pour le NOMMER dans le retour.
+Chaque famille de piège est fausse par définition (un sommet n'est pas un
+zéro, l'autre genre au même zéro, un zéro strictement dans l'intervalle, le
+signe contraire sur un morceau sans zéro) et les quatre sont distinctes par
+construction : le garde qui relisait les quatre par sdqVrai avant de retenir
+la question — le premier jet le portait — n'écartait donc JAMAIS rien, le
+sabotage l'a montré en restant vert, et il est retiré, le QUINZIÈME garde-fou
+mort du projet. Le contrôle refait la vérité de chaque affirmation par une
+SECONDE arithmétique — sur les signes relus dans les valeurs de la courbe,
+sans jamais appeler sdqVrai — et exige exactement une vraie sur chaque
+tirage (une dérive de la construction, l'intervalle qui enjambe devenu un
+vrai morceau, rougit en nommant les deux vraies), le piège du sommet sur
+chaque question, la composition 2 + 2, les deux familles, le rang qui varie,
+et construit sur le repli de la courbe les affirmations des deux familles
+pour les juger de même : le premier repli, inventé à la main, posait son
+« sommet » en −2 quand le creux de f′ est en −1 — la sonde l'a montré avant
+le premier banc.
+**Et la question ÉPINGLÉE du contrôle a dû porter la phrase de la fiche pour
+atteindre le juge** : avec « croissante sur [−1 ; 1] », un sdqVrai qui
+oublie le zéro intérieur restait vert en parlant d'autre chose — il lit le
+signe au milieu, c'est-à-dire en 0, le zéro même, compté à droite, donc −,
+et « croissante » y est fausse de toute façon. Avec « décroissante sur
+[−1 ; 1] », la phrase de la fiche, le même sabotage fabrique deux vraies et
+refuse la copie juste — la leçon du sabotage impossible, une fois de plus.
+**« f admet un minimum en 2 » s'écrit comme sur la fiche**, sans « local » :
+c'est la phrase du professeur, et le tableau ne dit rien des valeurs — l'élève
+lit un changement de signe, la page juge la même chose.
+**Le QCM se choisit au CLIC comme une carte** (la choisie s'entoure en encre
+NEUTRE — jamais un verdict avant la vérification, à quatre propositions il
+suffirait d'essayer, et la liste ne se colore pas en direct même en soutien,
+là où les cases du tableau le font), la bonne choisie est bleue, la bonne
+montrée verte, la fausse choisie rouge ; chaque case se juge seule, la case
+vide ne rougit jamais, et le QCM COMPTE une case dans la note affichée
+(6 cases sur la question épinglée : 5 du tableau, 1 du QCM). Les contrôles
+universels des deux bancs ont couvert l'exercice au premier passage sans rien
+déclarer. Dix sabotages, neuf rougissant en nommant leur défaut ; le dixième,
+le garde mort ci-dessus, est resté vert et disait vrai.
+
 **Le 1.3 (Signes & variations) suit la convention commune de correction.**
 Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases
 correctes, mais 0,9/1 ». L'écran RÉVÉLAIT tout en vert par-dessus la copie —
@@ -7149,36 +7403,96 @@ quand la suite décroît (1 ≤ Uₙ₊₂ ≤ Uₙ₊₁ ≤ U₁ ≤ U₀), à
 lignes de l'hypothèse et des f(…) commencent une colonne de terme plus loin
 dans ce second cas. Le contrôle exige que le terme qui élargit n'ait RIEN
 au-dessus de lui, au bon bout.
-**La justification a changé de place, et c'est la MESURE qui l'a décidé** :
+**La justification a d'abord changé de place, puis Turquet l'a REMISE** :
 « car f (x) est croissante sur [0 ; 2] » vivait au bout de la ligne des f(…).
 Les colonnes se calant désormais sur le plus large de chaque colonne, cette
 ligne débordait de la carte dès 1400 px — 66 px de trop quand la suite
-décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. La
-justification OUVRE donc le bloc, sur sa propre ligne (« f est [croissante]
-sur [ 0 ; 2 ], et on l'applique à l'encadrement : »), et les trois chaînes se
-suivent sans rien entre elles — c'est ce que la demande veut. Une dixième
-colonne SOUPLE (`minmax(0,1fr)`) prend le reste de la ligne, pour que « c'est
-vrai » et cette justification s'étalent sans élargir les colonnes qu'ils
-enjambent — un élément qui enjambe une piste souple ne compte pas dans la
-largeur des pistes.
+décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. Le
+premier jet l'avait donc mise en tête du bloc, sur sa propre ligne (« f est
+croissante sur [ 0 ; 2 ], et on l'applique à l'encadrement : »). Turquet a
+tranché le lendemain : « je préfère que l'on écrive sur la même ligne que
+f(…) ≤ f(…) ≤ f(…) ≤ f(…) « car f(x) est … sur [ ; ] » et enlever la 1re
+ligne de la démonstration qui dit la même chose ». Elle est donc AU BOUT de
+la ligne des f(…), et **c'est sa cellule qui cède, pas la démonstration** :
+elle va jusqu'au bout de la grille — une dixième colonne SOUPLE
+(`minmax(0,1fr)`) prend le reste de la ligne, et un élément qui enjambe une
+piste souple ne compte pas dans la largeur des pistes — et elle SE REPLIE
+(`flex-wrap`) quand la place manque, en DEUX morceaux insécables
+(« car f(x) est [croissante] » / « sur [ 0 ; 2 ] », `.svr-morceau`) : le
+premier repli libre coupait entre une borne et son crochet (« sur [ 0 ; » /
+« 2 ] »), vu sur la capture. Mesuré à 1400 px : les deux morceaux font
+534 px pour 575 de place quand la suite décroît — une ligne sur l'écran
+neuf, deux dès que les badges de correction élargissent les colonnes du
+dessous (la cellule perd 45 px) ; deux lignes quand la suite croît, deux à
+1280 px dans les deux sens. La démonstration ne défile plus ni à 1400 ni à
+1280, et la récurrence non plus — elle défilait de 22 px à 1280 avant que
+les « ≤ » ne perdent 2 px de marge de chaque côté. La même colonne souple
+porte le « c'est vrai » de l'initialisation.
 **Chaque cellule est ENVELOPPÉE (`.svr-cel`), et il le faut** : `corrCase`
 insère son badge de correction APRÈS la case, et un badge posé nu dans une
 grille deviendrait une cellule de plus, qui décalerait tout ce qui suit. Le
 contrôle pose une copie fausse et exige que chaque badge vive DANS sa cellule.
-**Les lignes de l'hérédité (« on suppose », « on montre », « donc ») ne sont
-pas touchées** : la demande nomme l'initialisation et la démonstration, et le
-dire vaut mieux que de le taire.
+**Puis l'hérédité a suivi** (« fais la même chose pour les lignes de
+l'hérédité », Turquet, le même jour) : ses trois lignes — « on suppose »,
+« on montre », « donc » — ont trois étiquettes de largeurs différentes, donc
+leurs « ≤ » ne pouvaient pas tomber au même endroit. Elles vivent dans la
+MÊME grille que l'initialisation (`.svr-grec`, rangées 4 à 6), dont elles
+partagent les colonnes : tous les « ≤ » de la récurrence tombent les uns
+sous les autres, l'hérédité sous l'initialisation comprise — c'est la
+conséquence de la grille unique, pas une demande de plus, et elle coûte à
+l'initialisation une colonne d'étiquette élargie à celle de « Hérédité — on
+suppose que c'est vrai pour n : ». Le premier jet de ce paragraphe disait
+« l'hérédité n'est pas touchée » ; il racontait la première demande.
+**Et la dernière rangée s'est fait TRANCHER ses indices, ce qui ne s'est vu que
+sur la capture** : `overflow-x:auto` emporte `overflow-y`, donc ce qui
+dépasse la boîte EN BAS est coupé — et l'indice d'un terme Uₙ descend sous
+sa ligne (`.svr-sub`, `top:.32em`). Tant que la grille finissait par la
+rangée des VALEURS, rien ne dépassait ; l'hérédité venue, la dernière rangée
+porte des indices, et leurs cases sortaient de 4 px sous le bord. La boîte
+garde une réserve de 10 px en bas. **Et le contrôle qui la tient a d'abord
+mesuré autre chose** : un `Range` sur le contenu des cellules ne voit PAS
+l'indice décalé (1899 contre 1903 pour la case, sondé), et restait à zéro
+sur une grille tranchée ; il lit le DÉBORD VERTICAL de la boîte
+(`scrollHeight − clientHeight`), le signal direct de ce qui est coupé.
 **Deux bancs, la répartition habituelle.** jsdom lit la STRUCTURE : la même
 colonne pour un terme de la ligne « donc » et son homologue de la première
-ligne, pour une valeur et son terme (rangée 3 sous rangée 2), pour chaque
+ligne, pour chaque terme de l'hérédité et le sien, pour une valeur et son
+terme (rangée 3 sous rangée 2), pour chaque
 f(…) et son résultat — les deux visages, le croissant pris au vivier —, la
-justification en tête, le terme qui élargit au bon bout, le badge dans sa
-cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
+justification sur la ligne des f(…) en deux morceaux, le terme qui élargit
+au bon bout, le badge dans sa cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
 perdu laisse toutes les classes en place et met tout à la file — il exige que
 les cellules d'une même colonne aient le même CENTRE d'une rangée à l'autre, que
 chaque rangée soit d'un seul tenant, que les valeurs soient centrées SOUS
-leur terme et une ligne plus bas, que rien ne défile à 1400 px et que la
-démonstration défile à 900 — une grille ne sait pas se replier.
+leur terme et une ligne plus bas, que la justification partage sa bande avec
+les f(…), que rien ne défile à 1400 px et que la démonstration défile à
+900 — une grille ne sait pas se replier. Il rend aussi le visage CROISSANT
+à 1400 px : c'est lui qui manque de place au bout de la ligne des f(…), et
+un repli débranché s'y voit (« la démonstration défile de 97 px »), pas sur
+le décroissant.
+**Vingt-quatre sabotages en tout, sur quatre jours de demandes** — treize au
+banc jsdom (la ligne « donc » décalée, les valeurs remontées, les valeurs
+croisées, le décalage oublié, le décalage au mauvais visage, la justification
+remise en tête, les résultats posés nus, l'hérédité décalée, sa ligne « donc »
+sortie de la grille, ses « ≤ » glissés, la justification en un seul morceau…)
+et onze au navigateur —, **vingt-deux rougissant en nommant leur défaut**.
+Les deux verts ont chacun appris quelque chose. Le premier a nommé un TROU
+DU CONTRÔLE : « les cellules ne se centrent plus dans leur colonne »
+restait vert parce que le banc mesurait la BOÎTE de la cellule — qui
+s'étire sur toute sa colonne, donc a le centre de la colonne quoi qu'elle
+fasse de son contenu ; il mesure le CONTENU (un `Range`, qui rend la boîte du
+glyphe « ≤ » comme celle d'une liste), et le sabotage rejoué rougit (« la
+colonne 4 de la récurrence n'est pas alignée : 18 px d'écart »). Le second
+disait vrai : « le décalage du visage croissant est oublié » ne pouvait pas
+atteindre un banc navigateur qui ne rendait alors que le visage décroissant,
+où le décalage vaut zéro de toute façon — c'est jsdom qui tient ce bord et le
+nomme (« croissante : le résultat svr-g2 n'est pas SOUS svr-f1 »), et le
+navigateur rend le visage croissant depuis, pour la place et l'alignement.
+Un troisième sabotage a manqué sa cible sans rester vert : la ligne « donc »
+de l'hérédité sortie de la grille fait rougir jsdom (« une case de
+l'hérédité n'est pas dans une cellule ») comme le navigateur (« la rangée 6
+de la récurrence porte 0 « ≤ » au lieu de 3 : l'hérédité a quitté la
+grille »).
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par

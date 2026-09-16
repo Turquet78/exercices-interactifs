@@ -3439,7 +3439,11 @@ function exercices(suite){
        pas un numéro que l'élève lit. L'espace de remplacement compte : un
        textContent nu COLLE deux paragraphes voisins, et « …n+1.</p><p>2.
        Remplacer… » fabriquait le faux numéro « 1.2 » dans un rappel de la
-       Terminale. Un numéro écrit dans le texte, lui, reste attrapé. */
+       Terminale. Un numéro écrit dans le texte, lui, reste attrapé.
+       Une balise <code> est du CODE, pas de la prose : le 15.5 du rappel de
+       {python-types} y est un nombre Python, pas un numéro d'exercice — on
+       la retire AVANT de chercher, et un numéro écrit dans une phrase reste
+       attrapé (une référence ne s'écrit jamais dans une balise code). */
     verifierEval(w, 'aucun numéro d\'exercice écrit en dur dans un texte vu par l\'élève', `(function(){
       var fautifs=[], suspect=/\\d+\\.\\d+(?:\\.\\d+)?/;
       Object.keys(TESTS).forEach(function(id){
@@ -3450,7 +3454,7 @@ function exercices(suite){
        ['RAPPELS_ID', typeof RAPPELS_ID!=='undefined'?RAPPELS_ID:null]].forEach(function(t){
         if(!t[1]) return;
         Object.keys(t[1]).forEach(function(k){
-          var v=t[1][k]; v=String((typeof v==='function'?v():v)||'').replace(/<[^>]*>/g,' ');
+          var v=t[1][k]; v=String((typeof v==='function'?v():v)||'').replace(/<code\\b[^>]*>[\\s\\S]*?<\\/code>/g,' ').replace(/<[^>]*>/g,' ');
           if(suspect.test(v)) fautifs.push(t[0]+'.'+k+' cite '+v.match(suspect)[0]);
         });
       });
@@ -3576,6 +3580,8 @@ function exercices(suite){
     maximumMinimum(w, P);
     maximumMinimumTableau(w, P);
     tableauEquations(w, P);
+    pythonAffichage(w, P);
+    pythonTypes(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -3587,6 +3593,7 @@ function exercices(suite){
     signePremierDegre(w, P);
     jetonsSignePremier(w, P);
     variationsDerivee(w, P);
+    signeDeriveeQcm(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -8556,8 +8563,8 @@ function suiteVariationRecurrence(w, P){
             mesure au banc navigateur. --------------------------------------- */
     const celDe=function(id){ const e=document.getElementById(id); const c=e&&e.closest('.svr-cel'); return c?{r:+c.dataset.r,c:+c.dataset.c}:null; };
     const colsLE=function(g,r){ return [...g.querySelectorAll('.svr-cel.svr-le[data-r="'+r+'"]')].map(function(c){ return +c.dataset.c; }).sort(function(a,b){ return a-b; }); };
-    { const gi=document.querySelector('#svrPartE .svr-ginit');
-      if(!gi) dit('l’initialisation n’est pas une grille à colonnes (.svr-ginit)');
+    { const gi=document.querySelector('#svrPartE .svr-grec');
+      if(!gi) dit('la récurrence (initialisation et hérédité) n’est pas une grille à colonnes (.svr-grec)');
       else {
         const l1=colsLE(gi,1), l2=colsLE(gi,2);
         if(l1.length!==3 || l1.join()!==l2.join()) dit('les « ≤ » de la ligne « donc » ne sont pas dans les colonnes de ceux de la première ligne ('+l1.join()+' / '+l2.join()+')');
@@ -8570,29 +8577,46 @@ function suiteVariationRecurrence(w, P){
           if(v.c!==a2.c) dit('la valeur '+t[2]+' n’est pas SOUS son terme (colonne '+v.c+' contre '+a2.c+')');
         });
         const ci=celDe('svr-init'); if(!ci||ci.r!==2) dit('« c’est vrai / faux » a quitté la ligne « donc »');
+        /* l’hérédité suit, dans la MÊME grille (demande de Turquet, sept. 2026) :
+           ses trois lignes aux rangées 4, 5, 6, chaque terme dans la colonne de
+           son homologue de l’initialisation, ses « ≤ » dans les mêmes colonnes */
+        [['svr-h1','svr-h2',4],['svr-m1','svr-m2',5],['svr-m3','svr-m4',6]].forEach(function(t){
+          const g=celDe(t[0]), d=celDe(t[1]), i1=celDe('svr-i1'), i2=celDe('svr-i2');
+          if(!g||!d){ dit('une case de l’hérédité n’est pas dans une cellule de la grille : '+t[0]+', '+t[1]); return; }
+          if(g.r!==t[2]||d.r!==t[2]) dit(t[0]+' et '+t[1]+' ne sont pas à la rangée '+t[2]+' ('+g.r+', '+d.r+')');
+          if(g.c!==i1.c||d.c!==i2.c) dit('les termes de l’hérédité ('+t[0]+', '+t[1]+') ne sont pas dans les colonnes de ceux de l’initialisation ('+g.c+', '+d.c+' contre '+i1.c+', '+i2.c+')');
+          if(colsLE(gi,t[2]).join()!==l1.join()) dit('les « ≤ » de la rangée '+t[2]+' de l’hérédité ne sont pas dans les colonnes de ceux de l’initialisation ('+colsLE(gi,t[2]).join()+' / '+l1.join()+')');
+        });
       } }
     const verifierDemo=function(dec){
       const nom=dec?'décroissante':'croissante';
       const gd=document.querySelector('#svrPartE .svr-gdemo');
       if(!gd){ dit(nom+' : la démonstration n’est pas une grille à colonnes (.svr-gdemo)'); return; }
-      const rangs=[1,2,3,4].map(function(r){ return gd.querySelectorAll('.svr-cel[data-r="'+r+'"]').length; });
-      if(rangs.some(function(k){ return !k; })) dit(nom+' : la démonstration n’a pas ses quatre rangées ('+rangs.join(', ')+')');
-      /* la justification OUVRE le bloc, sur sa propre ligne — au bout de la ligne des f(…) elle la faisait défiler */
-      const j=celDe('svr-mono'), b3=celDe('svr-b3');
-      if(!j||j.r!==1) dit(nom+' : « f est … sur [ ; ] » n’ouvre pas la démonstration (rangée '+(j?j.r:'?')+')');
-      if(!b3||b3.r!==1) dit(nom+' : les bornes de l’intervalle ne sont pas sur la ligne de la justification');
+      const rangs=[1,2,3].map(function(r){ return gd.querySelectorAll('.svr-cel[data-r="'+r+'"]').length; });
+      if(rangs.some(function(k){ return !k; })) dit(nom+' : la démonstration n’a pas ses trois rangées ('+rangs.join(', ')+')');
+      /* la justification « car f(x) est … sur [ ; ] » est AU BOUT de la ligne des f(…) — demande de
+         Turquet, qui a retiré la ligne d’ouverture qui la disait à part — en deux morceaux insécables */
+      const j=celDe('svr-mono'), b3=celDe('svr-b3'), f1=celDe('svr-f1');
+      if(!j||!f1||j.r!==f1.r) dit(nom+' : « car f(x) est … » n’est pas sur la ligne des f(…) (rangée '+(j?j.r:'?')+' contre '+(f1?f1.r:'?')+')');
+      if(!b3||!j||b3.r!==j.r) dit(nom+' : les bornes de l’intervalle ne sont pas sur la ligne de la justification');
+      if(gd.querySelector('.svr-cel[data-r="1"] #svr-mono')) dit(nom+' : la ligne d’ouverture « f est … » est revenue au-dessus de la démonstration');
+      { const mono=document.getElementById('svr-mono'), b4=document.getElementById('svr-b4');
+        const m1=mono&&mono.closest('.svr-morceau'), m2=b4&&b4.closest('.svr-morceau');
+        if(!m1||!m2) dit(nom+' : la justification n’est pas en deux morceaux insécables (« car f(x) est [ ] » / « sur [ ; ] »)');
+        else if(m1===m2) dit(nom+' : la justification est un seul morceau — elle ne peut plus se replier entre « croissante » et « sur »');
+        else if(b3&&b3.r===j.r&&document.getElementById('svr-b3').closest('.svr-morceau')!==m2) dit(nom+' : « sur [ » et sa seconde borne ne sont pas dans le même morceau'); }
       /* f(…) sous son terme de l’hypothèse, résultat sous son f(…) */
       [['svr-p1','svr-f2'],['svr-p2','svr-f3']].forEach(function(t){ const a=celDe(t[0]), b=celDe(t[1]);
-        if(!a||!b||a.c!==b.c||a.r!==2||b.r!==3) dit(nom+' : '+t[1]+' n’est pas SOUS '+t[0]); });
+        if(!a||!b||a.c!==b.c||a.r!==1||b.r!==2) dit(nom+' : '+t[1]+' n’est pas SOUS '+t[0]); });
       const decal=dec?0:1;
       [1,2,3,4].forEach(function(i){ const f=celDe('svr-f'+i), g=celDe('svr-g'+(i+decal));
-        if(!f||!g||f.c!==g.c||f.r!==3||g.r!==4) dit(nom+' : le résultat svr-g'+(i+decal)+' n’est pas SOUS svr-f'+i+(f&&g?' (colonnes '+g.c+' / '+f.c+')':'')); });
+        if(!f||!g||f.c!==g.c||f.r!==2||g.r!==3) dit(nom+' : le résultat svr-g'+(i+decal)+' n’est pas SOUS svr-f'+i+(f&&g?' (colonnes '+g.c+' / '+f.c+')':'')); });
       /* le terme qui élargit est au bon bout — à DROITE quand la suite décroît, à GAUCHE quand elle croît — et rien au-dessus de lui */
       const extra=celDe(dec?'svr-g5':'svr-g1');
-      if(!extra || gd.querySelector('.svr-cel[data-r="3"][data-c="'+extra.c+'"]')) dit(nom+' : le terme qui élargit ('+(dec?'svr-g5, à droite':'svr-g1, à gauche')+') a un f(…) au-dessus de lui');
-      const le3=colsLE(gd,3), le4=colsLE(gd,4);
-      le3.forEach(function(c){ if(le4.indexOf(c)<0) dit(nom+' : le « ≤ » de la colonne '+c+' n’a pas de « ≤ » sous lui'); });
-      if(le4.length!==4) dit(nom+' : la dernière ligne porte '+le4.length+' « ≤ » au lieu de 4');
+      if(!extra || gd.querySelector('.svr-cel[data-r="2"][data-c="'+extra.c+'"]:not(.svr-just)')) dit(nom+' : le terme qui élargit ('+(dec?'svr-g5, à droite':'svr-g1, à gauche')+') a un f(…) au-dessus de lui');
+      const le2=colsLE(gd,2), le3=colsLE(gd,3);
+      le2.forEach(function(c){ if(le3.indexOf(c)<0) dit(nom+' : le « ≤ » de la colonne '+c+' n’a pas de « ≤ » sous lui'); });
+      if(le3.length!==4) dit(nom+' : la dernière ligne porte '+le3.length+' « ≤ » au lieu de 4');
     };
     verifierDemo(true);
     /* le visage CROISSANT, pris au vivier : c’est lui qui décale les deux chaînes
@@ -15727,6 +15751,493 @@ function maximumMinimumTableau(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* {python-affichage} (Seconde) : un programme Python de trois variables et
+   un print, à PRÉDIRE avant de l'EXÉCUTER (décision de Turquet, septembre
+   2026). Le programme s'exécute DANS la page, par un interpréteur maison du
+   sous-ensemble d'une première séance — aucun Python chargé depuis le
+   réseau. Le risque propre est l'interpréteur qui MENT : la page afficherait
+   sa propre erreur et compterait faux l'élève qui a prédit juste. Ce
+   contrôle compare donc la page à un VRAI CPython — la seconde méthode qui
+   n'a rien en commun avec la première —, tirage après tirage et sur des cas
+   limites épinglés (l'écriture des flottants, la division, la priorité de
+   « ** », le signe moins) ; sur ce que l'interpréteur ne sait pas faire
+   (round, qui arrondit au pair ; les entiers au-delà de 2^53), il exige
+   qu'il S'ABSTIENNE en nommant plutôt qu'il ne réponde à côté. Aucun accent
+   grave ni antislash littéral dans le code évalué : il vit dans un template
+   littéral, et les retours à la ligne des programmes passent par
+   String.fromCharCode(10). */
+function pythonDisponible(){
+  for(const cmd of ['python3', 'python']){
+    try{
+      const v = execFileSync(cmd, ['-c', 'import sys; print(sys.version_info[0])'],
+        { encoding:'utf8', stdio:['ignore', 'pipe', 'ignore'], timeout: 15000 });
+      if(v.trim() === '3') return cmd;
+    }catch(e){}
+  }
+  return null;
+}
+function pythonExecuter(cmd, progs){
+  const script = [
+    'import sys, json, io, contextlib',
+    'progs = json.load(sys.stdin)',
+    'out = []',
+    'for p in progs:',
+    '    b = io.StringIO()',
+    '    try:',
+    '        with contextlib.redirect_stdout(b):',
+    '            exec(compile(p, "<prog>", "exec"), {})',
+    '        out.append(b.getvalue())',
+    '    except Exception as e:',
+    '        out.append("ERREUR:" + type(e).__name__)',
+    'json.dump(out, sys.stdout)'
+  ].join('\n');
+  return JSON.parse(execFileSync(cmd, ['-c', script],
+    { input: JSON.stringify(progs), encoding:'utf8', timeout: 120000, maxBuffer: 1 << 26 }));
+}
+function pythonAffichage(w, P){
+  const nom = '{python-affichage} : le programme se lit, se prédit, puis s’exécute';
+  if(!P.pythonAffichage){ ignorer(nom, 'ce niveau n\'a pas l\'exercice Python'); return; }
+  const ID = P.pythonAffichage.exercice, NB = P.pythonAffichage.nb;
+  const present = evaluer(w, "typeof startPY==='function' && typeof pyRun==='function' && typeof pyAns==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPY / pyRun / pyAns introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la fiche, épinglée : si elle ne passe pas, c'est la page qui a tort ---- */
+  verifierEval(w, 'la fiche (exercice 9) : le programme affiche « la 1ère note est: 14 », et la phrase se complète avec ce texte, 14 et note1', `(function(){
+    const NL=String.fromCharCode(10);
+    const src=["note1 = 14","note2 = 15.5",'prenom = "Louane"',"",'print("la 1ère note est:",note1)'].join(NL);
+    const r=pyRun(src), a=pyAns({src:src}), vus=[];
+    if(r.out!=="la 1ère note est: 14"+NL) vus.push("sortie : "+JSON.stringify(r.out));
+    if(a.texte!=="la 1ère note est:"||a.valeur!=="14"||a.variable!=="note1") vus.push("phrase : "+JSON.stringify(a));
+    if(pyRep(r.env.note2)!=="15.5") vus.push("note2 se lit "+pyRep(r.env.note2));
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la place au menu : un thème 5, à la FIN — rien d'autre ne bouge ---- */
+  verifierEval(w, 'il vit dans un thème 5 « Algorithmique et Python », dernier du menu, numéroté 5.1 — et les autres thèmes gardent leurs numéros', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
+    if(TEST_NUM["${ID}"]!=="5.1") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["pourcentage"]!=="3.1"||TEST_NUM["simplifier-barres"]!=="4.1") vus.push("le thème ajouté a renuméroté les autres");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le tirage ---- */
+  /* Le visage « variable réaffectée » (age = 14 puis age = 15) a été RETIRÉ
+     à la demande de Turquet (septembre 2026) : aucune variable ne s'affecte
+     deux fois dans un programme. Le contrôle l'EXIGE sur chaque tirage — un
+     tirage qui le réintroduirait ne casserait rien, et personne ne le verrait
+     avant un élève. */
+  verifierEval(w, 'le tirage : '+NB+' questions, les trois visages (entier, décimal, texte) chacun au moins une fois en ordre mélangé, AUCUNE variable affectée deux fois dans un programme, la réponse recalculée depuis le seul programme, les pièges proposés (400 séances)', `(function(){
+    const vus=[], NL=String.fromCharCode(10), ordres={};
+    for(let s=0;s<400 && vus.length<4;s++){
+      const qs=pyBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      const vs=qs.map(function(q){ return q.vis; }); ordres[vs.join(",")]=1;
+      if(vs.indexOf("int")<0||vs.indexOf("float")<0||vs.indexOf("str")<0||vs.some(function(v){ return ["int","float","str"].indexOf(v)<0; })){ vus.push("visages : "+vs.join(",")); break; }
+      for(const q of qs){
+        if(Object.keys(q).sort().join(",")!=="opt,src,vis"){ vus.push("la question porte autre chose que src / vis / opt : "+Object.keys(q).join(",")); break; }
+        let a; try{ a=pyAns(q); }catch(e){ vus.push("pyAns refuse un tirage : "+e.message); break; }
+        if(a.sortie!==a.texte+" "+a.valeur+NL){ vus.push("la sortie ne recolle pas la phrase : "+JSON.stringify(a)); break; }
+        if(q.opt.t.indexOf(a.texte)<0||q.opt.v.indexOf(a.valeur)<0||q.opt.n.indexOf(a.variable)<0){ vus.push("la bonne réponse manque aux propositions"); break; }
+        if(q.opt.t.indexOf('"'+a.texte+'"')<0) vus.push("le texte AVEC guillemets n’est pas proposé (le piège de l’exercice)");
+        if(q.opt.v.indexOf(a.variable)<0) vus.push("le NOM de la variable n’est pas proposé comme valeur (le piège de l’exercice)");
+        if(q.opt.t.length<3||q.opt.v.length<3||q.opt.n.length<3) vus.push("moins de trois propositions : "+q.opt.t.length+"/"+q.opt.v.length+"/"+q.opt.n.length);
+        /* le bord de Turquet : chaque variable n'est affectée qu'UNE fois */
+        const affectees=q.src.split(NL).map(function(l){ const m=l.match(/^([A-Za-z_][A-Za-z0-9_]*)\\s*=/); return m?m[1]:null; }).filter(function(x){ return x; });
+        const deuxFois=affectees.filter(function(x,i){ return affectees.indexOf(x)!==i; });
+        if(deuxFois.length){ vus.push("la variable « "+deuxFois[0]+" » est affectée deux fois dans le programme : "+q.src.replace(/\\n+/g," ⏎ ")); break; }
+        if(affectees.length!==3) vus.push("le programme n’affecte pas trois variables : "+affectees.join(","));
+        if(q.vis==="float"&&a.valeur.indexOf(".")<0) vus.push("visage décimal sans point : "+a.valeur);
+        if(q.vis==="str"&&/^[0-9]/.test(a.valeur)) vus.push("visage texte qui affiche un nombre : "+a.valeur);
+        if(q.vis==="int"&&!/^[0-9]+$/.test(a.valeur)) vus.push("visage entier qui affiche "+a.valeur);
+        if(q.src.indexOf("**")>=0||q.src.indexOf("round")>=0||q.src.indexOf("/")>=0) vus.push("le tirage sort du sous-ensemble sûr : "+q.src);
+      }
+    }
+    if(Object.keys(ordres).length<3) vus.push("les visages ne sont pas mélangés : "+Object.keys(ordres).join(" ; "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. la copie juste, CLIQUÉE ---- */
+  verifierEval(w, 'la copie juste cliquée vaut 3, débloque « Exécuter » (verrouillé et inerte avant), et la console montre la sortie de pyRun', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPY();
+    const vus=[], q=test.questions[0], a=pyAns(q);
+    if(test.maxScore!==${NB}*3) vus.push("barème "+test.maxScore);
+    if(pyCases(q).length!==3) vus.push("pyCases rend "+pyCases(q).length);
+    const run=document.getElementById("pyRun"), cons=document.getElementById("pyConsole"), code=document.querySelector("#pyHost .py-code");
+    if(!run||!run.disabled) vus.push("« Exécuter » n’est pas verrouillé avant la réponse");
+    pyExecuter();
+    if(cons.textContent!=="") vus.push("« Exécuter » verrouillé écrit quand même dans la console");
+    if(!code||code.textContent!==q.src) vus.push("le code affiché n’est pas le programme");
+    document.getElementById("py-s-t").value=a.texte; document.getElementById("py-s-v").value=a.valeur; document.getElementById("py-s-n").value=a.variable;
+    checkPY();
+    const ok=document.querySelectorAll("#pyHost select.ok").length;
+    if(ok!==3||test.score!==3) vus.push(ok+" cases ok, note "+test.score);
+    if(!test.locked) vus.push("la question n’est pas verrouillée après la vérification");
+    if(run.disabled) vus.push("« Exécuter » reste verrouillé après une réponse vérifiée");
+    if(document.getElementById("pyNext")) vus.push("« Question suivante » est proposé avant l’exécution");
+    pyExecuter();
+    if(cons.textContent.trim()!==a.sortie.trim()) vus.push("la console montre "+JSON.stringify(cons.textContent));
+    if(!cons.classList.contains("py-exec")) vus.push("la console n’est pas marquée exécutée");
+    if(!document.getElementById("pyNext")) vus.push("« Question suivante » n’apparaît pas après l’exécution");
+    if(!run.disabled) vus.push("« Exécuter » reste cliquable après l’exécution");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==3||!ans.correct) vus.push("la note de la question ne compte pas 3 cases justes : "+JSON.stringify(ans));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. la copie fausse, en entraînement ---- */
+  verifierEval(w, 'la copie fausse (entraînement) : rouge avec le libellé de la bonne réponse en vert, la case vide remplie en sol, le message dit la case manquante — et « Exécuter » se débloque quand même', `(function(){
+    currentMode="train"; startPY();
+    const vus=[], q=test.questions[0], a=pyAns(q);
+    const faux=q.opt.t.filter(function(x){ return x!==a.texte; })[0];
+    document.getElementById("py-s-t").value=faux; document.getElementById("py-s-v").value=a.valeur;
+    checkPY();
+    const t=document.getElementById("py-s-t"), v=document.getElementById("py-s-v"), n=document.getElementById("py-s-n");
+    if(!t.classList.contains("bad")) vus.push("la case fausse n’est pas rouge");
+    const badge=t.nextElementSibling;
+    if(!badge||!badge.classList.contains("mf-cor")||badge.textContent!==a.texte) vus.push("pas de badge vert avec le texte attendu à côté de la case fausse");
+    if(!v.classList.contains("ok")) vus.push("la case juste n’est pas bleue");
+    if(!n.classList.contains("sol")||n.value!==a.variable) vus.push("la case vide n’est pas remplie en sol");
+    if(n.classList.contains("bad")) vus.push("la case vide est rouge");
+    const fb=document.getElementById("pyFeedback").textContent;
+    if(fb.indexOf("manquait")<0) vus.push("le message ne dit pas la case manquante : "+fb);
+    if(fb.indexOf("guillemets")<0&&fb.indexOf("texte")<0) vus.push("le message ne nomme pas l’erreur sur le texte : "+fb);
+    if(test.score!==1) vus.push("note "+test.score+" au lieu de 1");
+    if(document.getElementById("pyRun").disabled) vus.push("« Exécuter » reste verrouillé après une copie fausse vérifiée (entraînement)");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. le soutien ---- */
+  verifierEval(w, 'en soutien : la copie fausse rougit sa case sans badge et laisse « Exécuter » verrouillé, la case vide ne reçoit rien, et la copie corrigée le débloque', `(function(){
+    currentMode="soutien"; startPY();
+    const vus=[], q=test.questions[0], a=pyAns(q);
+    const faux=q.opt.v.filter(function(x){ return x!==a.valeur; })[0];
+    document.getElementById("py-s-t").value=a.texte; document.getElementById("py-s-v").value=faux;
+    checkPY();
+    const v=document.getElementById("py-s-v"), n=document.getElementById("py-s-n");
+    if(!v.classList.contains("bad")) vus.push("la case fausse n’est pas rouge en soutien");
+    if(v.nextElementSibling&&v.nextElementSibling.classList.contains("mf-cor")) vus.push("le badge de la bonne réponse fuit en soutien");
+    if(n.classList.contains("bad")||n.classList.contains("sol")||n.value!=="") vus.push("la case vide reçoit une couleur en soutien : "+n.className);
+    if(test.locked) vus.push("le soutien verrouille une copie fausse");
+    if(!document.getElementById("pyRun").disabled) vus.push("« Exécuter » se débloque sur une copie fausse en soutien — il révélerait la réponse");
+    if(document.getElementById("pyConsole").textContent!=="") vus.push("la console s’est remplie");
+    const rv=document.getElementById("pyValidate"); if(!rv||rv.textContent.indexOf("Rev")<0) vus.push("pas de bouton Revérifier");
+    v.value=a.valeur; n.value=a.variable;
+    checkPY();
+    if(document.querySelectorAll("#pyHost select.ok").length!==3||test.score!==3) vus.push("la copie corrigée ne vaut pas 3 : "+test.score);
+    if(document.getElementById("pyRun").disabled) vus.push("« Exécuter » reste verrouillé sur une copie toute juste en soutien");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. les branchements ---- */
+  verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX, avec ses deux règles et sans la réaffectation, les questions à l’IA, le contexte porte le programme et déclare la réponse secrète, la reprise connaît l’écran, aucune correction au fil des clics', `(function(){
+    const vus=[];
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
+    const rap=RAPPELS.py||""; if(!rap) vus.push("pas de rappel RAPPELS.py");
+    if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
+    if(!/guillemets/.test(rap)||!/VALEUR/.test(rap)) vus.push("le rappel ne dit pas les deux règles (les guillemets, la valeur et non le nom)");
+    if(/AU MOMENT|réaffect|remplacé l’ancienne/i.test(rap)) vus.push("le rappel enseigne encore la réaffectation, un cas que le tirage ne pose plus (décision de Turquet)");
+    if(!QIA_SUGG.py||QIA_SUGG.py.length<3) vus.push("pas de questions à l’IA pour py");
+    currentMode="train"; startPY(); const q=test.questions[0], a=pyAns(q);
+    const c=ctxPy(q).contexte;
+    if(c.indexOf(q.src)<0) vus.push("le contexte ne porte pas le programme");
+    if(c.indexOf("SECR")<0||c.indexOf(a.valeur)<0) vus.push("le contexte ne déclare pas la réponse attendue secrète");
+    if(!afficherEcranDe("py")) vus.push("afficherEcranDe ne connaît pas py (reprise et rejeu)");
+    if(String(liveCheckCurrent).indexOf("checkPY")>=0) vus.push("le soutien colore au fil des clics : à quatre propositions, il suffirait d’essayer");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. la seconde méthode : CPython ----
+     Les cas limites sont ÉPINGLÉS avec la sortie de CPython 3.11, mesurée
+     avant d'écrire une ligne : ils tiennent même sans python sur la machine.
+     Le troisième champ marque ce que l'interpréteur doit REFUSER en nommant. */
+  const FICHE = ['note1 = 14', 'note2 = 15.5', 'prenom = "Louane"', '', 'print("la 1ère note est:",note1)'].join('\n');
+  const BORDS = [
+    [FICHE, 'la 1ère note est: 14\n'],
+    ['print(4 / 2)', '2.0\n'], ['print(10 / 4)', '2.5\n'], ['print(0.1 + 0.2)', '0.30000000000000004\n'],
+    ['print(100.0)', '100.0\n'], ['print(15.50)', '15.5\n'], ['print(3 * 1.1)', '3.3000000000000003\n'],
+    ['print(-7 // 2, -7 % 2)', '-4 1\n'], ['print(7 // -2, 7 % -2)', '-4 -1\n'],
+    ['x = 1e16\nprint(x)', '1e+16\n'], ['x = 0.00001\nprint(x)', '1e-05\n'],
+    ['print(1000000000000000.0)', '1000000000000000.0\n'], ['print(1.5e-7)', '1.5e-07\n'],
+    ['print(2 ** 3 ** 2)', '512\n'], ['print(-2 ** 2)', '-4\n'], ['print(2 ** -1)', '0.5\n'],
+    ['print("a" + "b", 5)', 'ab 5\n'], ['print(1, 2, 3)', '1 2 3\n'], ['print()', '\n'],
+    ['print(int(15.9), int(-15.9))', '15 -15\n'], ['print(str(15.5) + "!")', '15.5!\n'], ['print(float(14))', '14.0\n'],
+    ['x = 5\nx = x + 1\nprint(x)', '6\n'], ['prenom = "Louane"\nprint("bonjour", prenom)', 'bonjour Louane\n'],
+    ['print("note1", 3)', 'note1 3\n'],
+    ['print(round(2.5))', '2\n', true], ['print(2 ** 100)', '1267650600228229401496703205376\n', true]
+  ];
+  const lirePage = progs => {
+    const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(progs) + '.map(function(p){ try{ return pyRun(p).out; }catch(e){ return "ERREUR:"+e.message; } }))');
+    return r.ok ? JSON.parse(r.valeur) : null;
+  };
+  const mienBords = lirePage(BORDS.map(b => b[0])) || [];
+  const ecartsBords = [];
+  BORDS.forEach((b, i) => {
+    if(b[2]){ if(!/^ERREUR:/.test(mienBords[i] || '')) ecartsBords.push(JSON.stringify(b[0]) + ' : la page répond ' + JSON.stringify(mienBords[i]) + ' au lieu de s\'abstenir'); }
+    else if(mienBords[i] !== b[1]) ecartsBords.push(JSON.stringify(b[0]) + ' : page ' + JSON.stringify(mienBords[i]) + ' / CPython ' + JSON.stringify(b[1]));
+  });
+  verifier('sur les cas limites épinglés, la page répond comme CPython — ou s\'abstient en nommant ce qu\'elle ne sait pas faire (' + BORDS.length + ')',
+    ecartsBords.length === 0, ecartsBords.slice(0, 3).join(' | '));
+
+  const nomPy = 'la sortie de la page est celle d\'un vrai CPython, sur les programmes tirés et les cas limites';
+  const progs = evaluer(w, '(function(){ const o=[]; for(let i=0;i<60;i++) pyBuildQuestions().forEach(function(q){ o.push(q.src); }); return JSON.stringify(o); })()');
+  const tires = progs.ok ? JSON.parse(progs.valeur) : [];
+  verifier('le tirage fournit des programmes à comparer', tires.length >= 200, tires.length + ' programme(s)');
+  const py = pythonDisponible();
+  if(!py){
+    /* Sur l'intégration continue (ubuntu-latest), python3 est là : un banc
+       vert sans cette comparaison serait un banc qui ne mesure rien. Sur une
+       machine sans Python, on le dit plutôt que de passer au vert en silence. */
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    const tous = tires.concat(BORDS.map(b => b[0]));
+    let ref = null; try{ ref = pythonExecuter(py, tous); }catch(e){ ref = null; }
+    if(!ref || ref.length !== tous.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); }
+    else {
+      const mien = lirePage(tous) || [];
+      const ecarts = [];
+      tous.forEach((p, i) => {
+        const abst = i >= tires.length && BORDS[i - tires.length][2];
+        if(abst) return;                       /* déjà tenu ci-dessus : la page s'abstient */
+        if(mien[i] !== ref[i]) ecarts.push(JSON.stringify(p) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i]));
+      });
+      /* et les sorties épinglées disent vrai : si CPython les contredit, c'est la liste qui a tort */
+      BORDS.forEach((b, i) => { if(ref[tires.length + i] !== b[1]) ecarts.push('la sortie épinglée de ' + JSON.stringify(b[0]) + ' n\'est pas celle de CPython : ' + JSON.stringify(ref[tires.length + i])); });
+      verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+  }
+}
+
+/* {python-types} (Seconde) : les trois types de variables — int, float, str —
+   expliqués par les trois cadres du cours SUR l'écran, puis testés sur un
+   programme de trois affectations ; « Exécuter » se débloque après la
+   vérification et fait répondre type(). Le contrôle épingle la page du cours
+   (15 / 15.5 / "15H30" / "Thomas"), tient la place au menu (5.2, rien d'autre
+   ne bouge), le tirage (les quatre visages, les deux CONTRASTES — "2026"
+   contre 2026, 15.0 contre 15 —, la question qui ne porte que le programme et
+   le visage, le nombre de types qui varie), la copie juste CLIQUÉE, la copie
+   fausse et sa raison, le soutien, les branchements, puis compare type() à un
+   vrai CPython. Aucun accent grave ni antislash littéral dans le code évalué. */
+function pythonTypes(w, P){
+  const nom = '{python-types} : le cours en trois cadres, le type de chaque variable, puis type()';
+  if(!P.pythonTypes){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des types Python'); return; }
+  const ID = P.pythonTypes.exercice, NB = P.pythonTypes.nb;
+  const present = evaluer(w, "typeof startPTY==='function' && typeof pyRun==='function' && typeof ptyAns==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPTY / pyRun / ptyAns introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la page du cours, épinglée : si elle ne passe pas, c'est la page qui a tort ---- */
+  verifierEval(w, 'la page du cours, épinglée : 15 est un int, 15.5 un float, "15H30" et "Thomas" des str — et print(type(15)) affiche <class \'int\'>', `(function(){
+    const NL=String.fromCharCode(10), vus=[];
+    const r=pyRun(["a = 15","b = 15.5",'c = "15H30"','d = "Thomas"'].join(NL)).env;
+    if(r.a.t!=="int") vus.push("15 lu "+r.a.t);
+    if(r.b.t!=="float") vus.push("15.5 lu "+r.b.t);
+    if(r.c.t!=="str") vus.push("15H30 lu "+r.c.t);
+    if(r.d.t!=="str") vus.push("Thomas lu "+r.d.t);
+    const o=pyRun("print(type(15))"+NL+"print(type(15.0))"+NL+'print(type("15"))'+NL+"print(type(-3))").out;
+    if(o!=="<class 'int'>"+NL+"<class 'float'>"+NL+"<class 'str'>"+NL+"<class 'int'>"+NL) vus.push("type() affiche "+JSON.stringify(o));
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la place au menu ---- */
+  verifierEval(w, 'il suit {python-affichage} dans le thème 5, numéroté 5.2 — et rien d’autre ne bouge', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
+    if(TEST_NUM["${ID}"]!=="5.2") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le tirage ---- */
+  verifierEval(w, 'le tirage : '+NB+' questions, les quatre visages chacun une fois en ordre mélangé, la question ne porte que le programme et le visage, les deux contrastes posés, le nombre de types qui varie (400 séances)', `(function(){
+    const vus=[], NL=String.fromCharCode(10), ordres={}, multis={};
+    for(let s=0;s<400 && vus.length<4;s++){
+      const qs=ptyBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      const vs=qs.map(function(q){ return q.vis; }); ordres[vs.join(",")]=1;
+      if(vs.slice().sort().join(",")!=="cours,guillemets,melange,point"){ vus.push("visages : "+vs.join(",")); break; }
+      for(const q of qs){
+        if(Object.keys(q).sort().join(",")!=="src,vis"){ vus.push("la question porte autre chose que src / vis : "+Object.keys(q).join(",")); break; }
+        let a; try{ a=ptyAns(q); }catch(e){ vus.push("ptyAns refuse un tirage : "+e.message); break; }
+        if(a.noms.length!==3){ vus.push(a.noms.length+" variables"); break; }
+        const lits={}; q.src.split(NL).forEach(function(l){ const m=l.match(/^(\\w+) = (.+)$/); if(m) lits[m[1]]=m[2]; });
+        const attendu=a.noms.map(function(n){ return "<class '"+a.types[n]+"'>"; }).join(NL)+NL;
+        if(a.sortie!==attendu) vus.push("la sortie n’est pas les trois type() : "+JSON.stringify(a.sortie));
+        if(q.src.indexOf("**")>=0||q.src.indexOf("round")>=0||q.src.indexOf("/")>=0) vus.push("le tirage sort du sous-ensemble sûr : "+q.src);
+        const ts=a.noms.map(function(n){ return a.types[n]; }); multis[ts.slice().sort().join(",")]=1;
+        const strs=a.noms.filter(function(n){ return a.types[n]==="str"; }), ints=a.noms.filter(function(n){ return a.types[n]==="int"; }), floats=a.noms.filter(function(n){ return a.types[n]==="float"; });
+        if(q.vis==="cours"&&!(ints.length===1&&floats.length===1&&strs.length===1)) vus.push("le visage du cours n’a pas un type de chaque : "+ts.join(","));
+        if(q.vis==="guillemets"){
+          const sd=strs.filter(function(n){ return /^"\\d+"$/.test(lits[n]); });
+          if(!sd.length) vus.push("guillemets : aucun texte fait de chiffres seuls");
+          else if(!ints.some(function(n){ return '"'+lits[n]+'"'===lits[sd[0]]; })) vus.push("guillemets : l’entier aux mêmes chiffres manque (le contraste)");
+        }
+        if(q.vis==="point"){
+          const f0=floats.filter(function(n){ return /\\.0$/.test(lits[n]); });
+          if(!f0.length) vus.push("point : aucun décimal en .0");
+          else if(!ints.some(function(n){ return lits[n]+".0"===lits[f0[0]]; })) vus.push("point : l’entier de même valeur manque (le contraste)");
+        }
+        if(q.vis==="melange"){
+          if(!strs.some(function(n){ return /[A-Za-z]/.test(lits[n].slice(1,-1))&&/\\d/.test(lits[n]); })) vus.push("mélange : aucun texte qui mêle lettres et chiffres");
+          if(!ints.some(function(n){ return /^-/.test(lits[n]); })) vus.push("mélange : aucun entier négatif");
+        }
+      }
+    }
+    if(Object.keys(ordres).length<3) vus.push("les visages ne sont pas mélangés : "+Object.keys(ordres).join(" ; "));
+    if(Object.keys(multis).length<2) vus.push("chaque question a toujours les mêmes types ("+Object.keys(multis).join(" ; ")+") — le motif s’apprendrait");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le cours sur l'écran, et la copie juste CLIQUÉE ---- */
+  verifierEval(w, 'les trois cadres du cours sont sur l’écran, la copie juste cliquée vaut 3, débloque « Exécuter » (verrouillé et inerte avant), et la console montre les trois type()', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPTY();
+    const vus=[], q=test.questions[0], a=ptyAns(q);
+    if(test.maxScore!==${NB}*3) vus.push("barème "+test.maxScore);
+    if(ptyCases(q).length!==3) vus.push("ptyCases rend "+ptyCases(q).length);
+    const cours=document.querySelector("#ptyHost .pty-cours"), cadres=document.querySelectorAll("#ptyHost .pty-type");
+    if(!cours||cadres.length!==3) vus.push("le cours n’est pas sur l’écran : "+cadres.length+" cadre(s)");
+    else { const tx=cours.textContent; ["int","float","str","guillemets","15H30","Thomas"].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); }); }
+    if(document.getElementById("ptyHost").textContent.indexOf("type(")<0) vus.push("l’écran n’explique pas type()");
+    const run=document.getElementById("ptyRun"), cons=document.getElementById("ptyConsole"), code=document.querySelector("#ptyHost .py-code");
+    if(!run||!run.disabled) vus.push("« Exécuter » n’est pas verrouillé avant la réponse");
+    ptyExecuter();
+    if(cons.textContent!=="") vus.push("« Exécuter » verrouillé écrit quand même dans la console");
+    if(!code||code.textContent!==q.src) vus.push("le code affiché n’est pas le programme");
+    if(document.querySelectorAll("#ptyHost select.py-sel").length!==3) vus.push(document.querySelectorAll("#ptyHost select.py-sel").length+" listes");
+    ptyCases(q).forEach(function(c){ document.getElementById(c.id).value=a.types[c.nom]; });
+    checkPTY();
+    const ok=document.querySelectorAll("#ptyHost select.ok").length;
+    if(ok!==3||test.score!==3) vus.push(ok+" cases ok, note "+test.score);
+    if(!test.locked) vus.push("la question n’est pas verrouillée après la vérification");
+    if(run.disabled) vus.push("« Exécuter » reste verrouillé après une réponse vérifiée");
+    if(document.getElementById("ptyNext")) vus.push("« Question suivante » est proposé avant l’exécution");
+    ptyExecuter();
+    if(cons.textContent.trim()!==a.sortie.trim()) vus.push("la console montre "+JSON.stringify(cons.textContent));
+    if(cons.textContent.indexOf("<class '")<0) vus.push("la console ne montre pas de <class '…'>");
+    if(!cons.classList.contains("py-exec")) vus.push("la console n’est pas marquée exécutée");
+    if(!document.getElementById("ptyNext")) vus.push("« Question suivante » n’apparaît pas après l’exécution");
+    if(!run.disabled) vus.push("« Exécuter » reste cliquable après l’exécution");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==3||!ans.correct) vus.push("la note de la question ne compte pas 3 cases justes : "+JSON.stringify(ans));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. la copie fausse, en entraînement — sur le visage des guillemets ---- */
+  verifierEval(w, 'la copie fausse (entraînement) sur le visage des guillemets : rouge avec le libellé « str » en vert, la case vide remplie en sol, le message nomme les guillemets et la case manquante — et « Exécuter » se débloque quand même', `(function(){
+    currentMode="train"; startPTY();
+    const vus=[]; test.idx=test.questions.findIndex(function(q){ return q.vis==="guillemets"; }); renderPTY();
+    const q=test.questions[test.idx], a=ptyAns(q), cases=ptyCases(q);
+    const lits={}; q.src.split(String.fromCharCode(10)).forEach(function(l){ const m=l.match(/^(\\w+) = (.+)$/); if(m) lits[m[1]]=m[2]; });
+    const cs=cases.filter(function(c){ return /^"/.test(lits[c.nom]); })[0], ci=cases.filter(function(c){ return a.types[c.nom]==="int"; })[0];
+    const cv=cases.filter(function(c){ return c!==cs&&c!==ci; })[0];
+    document.getElementById(cs.id).value="int"; document.getElementById(ci.id).value="int";
+    checkPTY();
+    const s=document.getElementById(cs.id), i=document.getElementById(ci.id), v=document.getElementById(cv.id);
+    if(!s.classList.contains("bad")) vus.push("la case fausse n’est pas rouge");
+    const badge=s.nextElementSibling;
+    if(!badge||!badge.classList.contains("mf-cor")||badge.textContent!=="str") vus.push("pas de badge vert « str » à côté de la case fausse : "+(badge&&badge.textContent));
+    if(!i.classList.contains("ok")) vus.push("la case juste n’est pas bleue");
+    if(!v.classList.contains("sol")||v.value!==a.types[cv.nom]) vus.push("la case vide n’est pas remplie en sol");
+    if(v.classList.contains("bad")) vus.push("la case vide est rouge");
+    const fb=document.getElementById("ptyFeedback").textContent;
+    if(fb.indexOf("manquait")<0) vus.push("le message ne dit pas la case manquante : "+fb);
+    if(fb.indexOf("guillemets")<0) vus.push("le message ne nomme pas les guillemets : "+fb);
+    if(test.score!==1) vus.push("note "+test.score+" au lieu de 1");
+    if(document.getElementById("ptyRun").disabled) vus.push("« Exécuter » reste verrouillé après une copie fausse vérifiée (entraînement)");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. le soutien ---- */
+  verifierEval(w, 'en soutien : la copie fausse rougit sa case sans badge et laisse « Exécuter » verrouillé, la case vide ne reçoit rien, le cours reste affiché, et la copie corrigée le débloque', `(function(){
+    currentMode="soutien"; startPTY();
+    const vus=[], q=test.questions[0], a=ptyAns(q), cases=ptyCases(q);
+    if(document.querySelectorAll("#ptyHost .pty-type").length!==3) vus.push("le cours n’est pas sur l’écran en soutien");
+    const faux=PTY_TYPES.filter(function(t){ return t!==a.types[cases[0].nom]; })[0];
+    document.getElementById(cases[0].id).value=faux; document.getElementById(cases[1].id).value=a.types[cases[1].nom];
+    checkPTY();
+    const s0=document.getElementById(cases[0].id), s2=document.getElementById(cases[2].id);
+    if(!s0.classList.contains("bad")) vus.push("la case fausse n’est pas rouge en soutien");
+    if(s0.nextElementSibling&&s0.nextElementSibling.classList.contains("mf-cor")) vus.push("le badge de la bonne réponse fuit en soutien");
+    if(s2.classList.contains("bad")||s2.classList.contains("sol")||s2.value!=="") vus.push("la case vide reçoit une couleur en soutien : "+s2.className);
+    if(test.locked) vus.push("le soutien verrouille une copie fausse");
+    if(!document.getElementById("ptyRun").disabled) vus.push("« Exécuter » se débloque sur une copie fausse en soutien — il révélerait la réponse");
+    if(document.getElementById("ptyConsole").textContent!=="") vus.push("la console s’est remplie");
+    const rv=document.getElementById("ptyValidate"); if(!rv||rv.textContent.indexOf("Rev")<0) vus.push("pas de bouton Revérifier");
+    cases.forEach(function(c){ document.getElementById(c.id).value=a.types[c.nom]; });
+    checkPTY();
+    if(document.querySelectorAll("#ptyHost select.ok").length!==3||test.score!==3) vus.push("la copie corrigée ne vaut pas 3 : "+test.score);
+    if(document.getElementById("ptyRun").disabled) vus.push("« Exécuter » reste verrouillé sur une copie toute juste en soutien");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. les branchements ---- */
+  verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX et avec ses trois types et type(), les questions à l’IA, le contexte porte le programme et déclare la réponse secrète, la reprise connaît l’écran, aucune correction au fil des clics', `(function(){
+    const vus=[];
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
+    const rap=RAPPELS.pty||""; if(!rap) vus.push("pas de rappel RAPPELS.pty");
+    if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
+    ["guillemets","point","type("].forEach(function(m){ if(rap.indexOf(m)<0) vus.push("le rappel ne dit pas « "+m+" »"); });
+    if(!QIA_SUGG.pty||QIA_SUGG.pty.length<3) vus.push("pas de questions à l’IA pour pty");
+    currentMode="train"; startPTY(); const q=test.questions[0], a=ptyAns(q);
+    const c=ctxPty(q).contexte;
+    if(c.indexOf(q.src)<0) vus.push("le contexte ne porte pas le programme");
+    if(c.indexOf("SECR")<0||c.indexOf(a.noms[0]+" est de type "+a.types[a.noms[0]])<0) vus.push("le contexte ne déclare pas la réponse attendue secrète");
+    if(!afficherEcranDe("pty")) vus.push("afficherEcranDe ne connaît pas pty (reprise et rejeu)");
+    if(String(liveCheckCurrent).indexOf("checkPTY")>=0) vus.push("le soutien colore au fil des clics : à trois propositions, il suffirait d’essayer");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. la seconde méthode : CPython, sur type() ----
+     Les sorties sont ÉPINGLÉES avec celles de CPython 3.11 : elles tiennent
+     même sans python sur la machine. */
+  const BORDS = [
+    ['print(type(15))', "<class 'int'>\n"], ['print(type(15.5))', "<class 'float'>\n"], ['print(type(15.0))', "<class 'float'>\n"],
+    ['print(type("15H30"))', "<class 'str'>\n"], ['print(type("Thomas"))', "<class 'str'>\n"], ['print(type("2026"))', "<class 'str'>\n"],
+    ['print(type(-3))', "<class 'int'>\n"], ['print(type(-2.5))', "<class 'float'>\n"], ['x = 2026\nprint(type(x))', "<class 'int'>\n"],
+    ['print(str(type(1)))', "<class 'int'>\n"], ['print(type(type(1)))', "<class 'type'>\n"], ['print(type(1 + 2.5))', "<class 'float'>\n"]
+  ];
+  const lirePage = progs => {
+    const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(progs) + '.map(function(p){ try{ return pyRun(p).out; }catch(e){ return "ERREUR:"+e.message; } }))');
+    return r.ok ? JSON.parse(r.valeur) : null;
+  };
+  const mienBords = lirePage(BORDS.map(b => b[0])) || [];
+  const ecartsBords = [];
+  BORDS.forEach((b, i) => { if(mienBords[i] !== b[1]) ecartsBords.push(JSON.stringify(b[0]) + ' : page ' + JSON.stringify(mienBords[i]) + ' / CPython ' + JSON.stringify(b[1])); });
+  verifier('sur les type() épinglés, la page répond comme CPython (' + BORDS.length + ')', ecartsBords.length === 0, ecartsBords.slice(0, 3).join(' | '));
+
+  const nomPy = 'la sortie des programmes de {python-types} est celle d\'un vrai CPython';
+  const progs = evaluer(w, '(function(){ const o=[]; for(let i=0;i<40;i++) ptyBuildQuestions().forEach(function(q){ o.push(q.src); }); return JSON.stringify(o); })()');
+  const tires = progs.ok ? JSON.parse(progs.valeur) : [];
+  verifier('le tirage de {python-types} fournit des programmes à comparer', tires.length >= 150, tires.length + ' programme(s)');
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    const tous = tires.concat(BORDS.map(b => b[0]));
+    let ref = null; try{ ref = pythonExecuter(py, tous); }catch(e){ ref = null; }
+    if(!ref || ref.length !== tous.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); }
+    else {
+      const mien = lirePage(tous) || [];
+      const ecarts = [];
+      tous.forEach((p, i) => { if(mien[i] !== ref[i]) ecarts.push(JSON.stringify(p) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
+      BORDS.forEach((b, i) => { if(ref[tires.length + i] !== b[1]) ecarts.push('la sortie épinglée de ' + JSON.stringify(b[0]) + ' n\'est pas celle de CPython : ' + JSON.stringify(ref[tires.length + i])); });
+      verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+  }
+}
+
 /* {tableau-equations} (Seconde) : un tableau de variation, « combien de
    solutions a f(x) = k ? » puis deux inéquations dont l'énoncé DONNE les
    abscisses où f vaut k. Le contrôle compare la page à LA FICHE (Exercice 8),
@@ -17993,6 +18504,186 @@ function variationsDerivee(w, P){
     r=pose(null);      /* rien choisi */
     if(r.fb.indexOf('Choisis un tableau')<0) vus.push('une copie vide devrait demander de choisir, pas juger');
     if(/\\bbad\\b/.test(r.selCls)) vus.push('le menu vide rougit');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Signe de f', variations de f et QCM : une seule affirmation vraie ----
+   La fiche « Exercice 3 : QCM » (demande de Turquet, septembre 2026) : la
+   courbe de f' donnée, l'élève complète le tableau de signes de f' et les
+   variations de f, puis choisit la SEULE affirmation vraie parmi quatre. Le
+   contrôle recompte TOUT par sa propre arithmétique — zéros et signes sur les
+   valeurs de la courbe, sommets sur les différences, et la VÉRITÉ de chaque
+   affirmation relue sur ces signes, sans jamais appeler sdqVrai —, puis exige
+   exactement une vraie par question (deux vraies : une seule comptée, une
+   lecture juste comptée fausse ; zéro vraie : l'énoncé ment), quatre
+   affirmations deux à deux différentes, deux sur un extremum et deux sur un
+   sens (la composition de la fiche), le piège du SOMMET sur chaque question,
+   les deux familles de la vraie chacune deux fois par séance, et à famille
+   égale le rang de la vraie qui change. Le repli est repassé par les mêmes
+   gardes. Puis les gestes, sur une question FIXE : la copie juste vaut le
+   point et compte ses cases (le tableau ET le QCM), la case vide ne rougit
+   jamais (en entraînement comme en soutien), le QCM faux nomme son piège, la
+   liste du QCM ne se colore pas en direct, et les hôtes FANTÔMES sont vidés
+   — le tableau porte les ids ef-* de quatre autres écrans. */
+function signeDeriveeQcm(w, P){
+  const nom='signe de f\', variations de f et QCM : une seule affirmation vraie';
+  const present = evaluer(w, "typeof startSdq==='function' && typeof sdqBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du QCM sur la courbe de f\'');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='signe-derivee-qcm';
+    const MOINS='\\u2212';
+    const zerosDe=function(p){ const out=[]; for(let x=-3;x<=3;x++){ if(p[x+3]===0) out.push(x); } return out; };
+    const signesDe=function(p, roots){
+      const seps=[-3.5].concat(roots,[3.5]), out=[];
+      for(let i=0;i<seps.length-1;i++){ let sg=null;
+        for(let x=-3;x<=3;x++){ if(x>seps[i]&&x<seps[i+1]&&p[x+3]!==0){ sg=(p[x+3]>0)?'+':'-'; break; } }
+        out.push(sg); }
+      return out;
+    };
+    const sommetsDe=function(p){ const out=[]; let d0=Math.sign(p[1]-p[0]);
+      for(let i=1;i<6;i++){ const d=Math.sign(p[i+1]-p[i]); if(d!==0&&d0!==0&&d!==d0) out.push(i-3); if(d!==0) d0=d; }
+      return out;
+    };
+    /* la vérité d'une affirmation, par la SECONDE arithmétique : sur les
+       signes relus, jamais par sdqVrai */
+    const vraiSelonMoi=function(p, roots, sg, prop){
+      if(prop.t==='ext'){ const i=roots.indexOf(prop.x); if(i<0) return false;
+        return prop.k==='min' ? (sg[i]==='-'&&sg[i+1]==='+') : (sg[i]==='+'&&sg[i+1]==='-'); }
+      if(prop.t!=='mono') return null;
+      if(roots.some(function(r){ return r>prop.a&&r<prop.b; })) return false;
+      let i=0; while(i<roots.length && roots[i]<(prop.a+prop.b)/2) i++;
+      return (sg[i]==='+')===(prop.d==='croissante');
+    };
+    const sig=function(p){ return p.t==='ext' ? ('e'+p.k+p.x) : ('m'+p.d+p.a+'|'+p.b); };
+    const jugeQuestion=function(q, ou){
+      const cles=Object.keys(q).filter(function(k){ return ['ptsp','props'].indexOf(k)<0; });
+      if(cles.length) vus.push(ou+' : la question range autre chose que la courbe et les affirmations : '+cles.join(','));
+      if(!Array.isArray(q.props) || q.props.length!==4){ vus.push(ou+' : '+(q.props||[]).length+' affirmations au lieu de 4'); return null; }
+      q.props.forEach(function(p){
+        const ok=(p.t==='ext') ? ['t','k','x'] : ['t','d','a','b'];
+        const etr=Object.keys(p).filter(function(k){ return ok.indexOf(k)<0; });
+        if(etr.length) vus.push(ou+' : une affirmation range autre chose que sa nature ('+etr.join(',')+') — sa vérité ou son piège seraient rangés à côté de la question');
+        if(p.t==='ext' && (['min','max'].indexOf(p.k)<0 || p.x<=-3 || p.x>=3)) vus.push(ou+' : extremum mal formé '+JSON.stringify(p));
+        if(p.t==='mono' && (['croissante','décroissante'].indexOf(p.d)<0 || !(p.a<p.b) || p.a<-3 || p.b>3)) vus.push(ou+' : sens mal formé '+JSON.stringify(p));
+      });
+      const zeros=zerosDe(q.ptsp);
+      if(!zeros.length||zeros.length>2) vus.push(ou+' : '+zeros.length+' zéro(s) sur la courbe de f\\'');
+      if(zeros.some(function(r){ return r<=-3||r>=3; })) vus.push(ou+' : un zéro de f\\' au bord du dessin');
+      for(let i=1;i<zeros.length;i++){ if(zeros[i]-zeros[i-1]<2) vus.push(ou+' : deux zéros voisins : '+zeros.join(',')); }
+      const sg=signesDe(q.ptsp, zeros);
+      if(sg.some(function(x){ return x===null; })) vus.push(ou+' : un intervalle sans graduation pour porter son signe');
+      for(let i=1;i<sg.length;i++){ if(sg[i]===sg[i-1]) vus.push(ou+' : f\\' ne change pas de signe à un zéro'); }
+      q.ptsp.forEach(function(v){ if(v!==0&&Math.abs(v)<1) vus.push(ou+' : f\\' frôle l\\'axe sans le toucher'); });
+      const som=sommetsDe(q.ptsp);
+      if(!som.length) vus.push(ou+' : aucun sommet sur la courbe de f\\' : le piège de la fiche n\\'a rien à lire');
+      if(!q.props.some(function(p){ return p.t==='ext' && som.indexOf(p.x)>=0; }))
+        vus.push(ou+' : aucune affirmation ne pose un extremum sur un SOMMET de f\\' — le piège de la fiche manque');
+      const verites=q.props.map(function(p){ return vraiSelonMoi(p, zeros, sg, p); });
+      const nbV=verites.filter(function(v){ return v===true; }).length;
+      if(nbV!==1) vus.push(ou+' : '+nbV+' affirmation(s) vraie(s) au lieu d\\'une — '+q.props.map(function(p){ return sig(p); }).join(' ; '));
+      if(new Set(q.props.map(sig)).size!==4) vus.push(ou+' : deux affirmations identiques : deux bonnes réponses, une seule comptée');
+      const nExt=q.props.filter(function(p){ return p.t==='ext'; }).length;
+      if(nExt!==2) vus.push(ou+' : '+nExt+' affirmation(s) sur un extremum au lieu de 2 — la composition de la fiche est perdue');
+      const iv=verites.indexOf(true);
+      return { fam: iv<0?null:q.props[iv].t, rang: iv };
+    };
+    const parFam={ext:new Set(), mono:new Set()};
+    for(let t=0;t<150 && !vus.length;t++){
+      const qs=sdqBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      const fams=[];
+      qs.forEach(function(q,i){ const r=jugeQuestion(q, 'question '+(i+1)); if(r&&r.fam){ fams.push(r.fam); parFam[r.fam].add(r.rang); } });
+      const nE=fams.filter(function(f){ return f==='ext'; }).length;
+      if(fams.length===4 && nE!==2) vus.push('la séance pose '+nE+' vraie(s) sur un extremum et '+(4-nE)+' sur un sens : chaque visage doit sortir deux fois');
+    }
+    if(!vus.length){
+      Object.keys(parFam).forEach(function(f){
+        if(parFam[f].size<2) vus.push('à famille égale ('+f+'), la vraie tombe toujours au rang '+Array.from(parFam[f]).join(''));
+      });
+      /* le repli de la courbe, par les mêmes gardes, avec les affirmations
+         des deux familles construites dessus */
+      ['ext','mono'].forEach(function(f){ jugeQuestion({ptsp:SDQ_REPLI.slice(), props:sdqProps(SDQ_REPLI.slice(), f)}, 'le repli SDQ_REPLI ('+f+')'); });
+    }
+
+    /* ---- les gestes, sur une question FIXE : f' = (−1,−2,−3,0,1,2,3), zéro en 0
+       (− puis +), creux de f' en −1. L'intervalle qui enjambe est
+       « décroissante sur [−1 ; 1] » — la phrase de la fiche, et le SEUL bord
+       qui atteigne sdqVrai : un juge qui oublierait le zéro intérieur lirait
+       le signe au milieu (0, le zéro même, compté à droite : −) et la
+       tiendrait pour vraie — deux vraies, la copie juste refusée. Avec
+       « croissante », le sabotage restait vert en parlant d'autre chose. ---- */
+    const Q0={ptsp:[-1,-2,-3,0,1,2,3], props:[{t:'ext',k:'min',x:-1},{t:'mono',d:'décroissante',a:-1,b:1},{t:'ext',k:'min',x:0},{t:'mono',d:'croissante',a:-3,b:0}]};
+    const JUSTE={'ef-r0':'0','ef-l0s0':MOINS,'ef-l0s1':'+','ef-a0':'down','ef-a1':'up','sdq-sel':'2'};
+    function pose(valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'sdq', questions:[JSON.parse(JSON.stringify(Q0))], idx:0, score:0,
+        answers:[], startTime:Date.now(), locked:false});
+      show('sdq'); renderSdq();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkSdq();
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      return { score:test.score, fb:document.getElementById('sdqFeedback').textContent,
+        cls:cls, cases:(test.answers[0]||{}).cases,
+        rouges:[].slice.call(document.querySelectorAll('#scr-sdq .bad')).filter(function(e){ return /^(INPUT|SELECT)$/.test(e.tagName); }).map(function(e){ return e.id; }),
+        props:[].slice.call(document.querySelectorAll('#sdqHost .sdq-prop')).map(function(e){ return e.className.replace('sdq-prop','').trim(); }) };
+    }
+    /* les hôtes FANTÔMES : un reste dans un autre hôte gagnerait getElementById */
+    document.getElementById('efTable').innerHTML='<input id="ef-r0" value="fantôme">';
+    document.getElementById('afpHost').innerHTML='<input id="ef-a0" value="fantôme">';
+    let r=pose(JUSTE);
+    if(document.getElementById('efTable').innerHTML!=='' || document.getElementById('afpHost').innerHTML!=='')
+      vus.push('les hôtes des autres écrans ne sont pas vidés au rendu : le tableau fantôme reprendrait la main');
+    { const el=document.getElementById('ef-r0'); if(!el || !el.closest('#sdqHost')) vus.push('getElementById(ef-r0) ne rend pas la case de CET écran'); }
+    if(r.score!==1) vus.push('la copie juste ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==6) vus.push('la copie juste compte '+r.cases+' cases au lieu de 6 (tableau + QCM)');
+    if(r.props[2].indexOf('ok')<0) vus.push('la bonne affirmation choisie ne se marque pas juste (ok)');
+    if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    /* le QCM faux : le piège du sommet, nommé */
+    r=pose(Object.assign({},JUSTE,{'sdq-sel':'0'}));
+    if(r.score!==0) vus.push('le piège du sommet vaut le point');
+    if(!/SOMMET/.test(r.fb)) vus.push('le retour ne nomme pas le piège du sommet choisi : '+r.fb.slice(0,120));
+    if(r.props[0].indexOf('bad')<0 || r.props[2].indexOf('sol')<0) vus.push('les affirmations ne montrent pas la choisie (bad) et la bonne en correction (sol)');
+    if(!/\\bbad\\b/.test(r.cls('sdq-sel'))) vus.push('le menu du QCM faux ne rougit pas');
+    r=pose(Object.assign({},JUSTE,{'sdq-sel':'1'}));
+    if(!/INTÉRIEUR/.test(r.fb)) vus.push('le retour ne nomme pas l\\'intervalle qui enjambe un zéro : '+r.fb.slice(0,120));
+    r=pose(Object.assign({},JUSTE,{'sdq-sel':'3'}));
+    if(!/SENS/.test(r.fb)) vus.push('le retour ne nomme pas le sens inversé : '+r.fb.slice(0,120));
+    /* le tableau faux : la case fausse reste rouge, sa voisine juste bleue */
+    r=pose(Object.assign({},JUSTE,{'ef-l0s0':'+'}));
+    if(r.score!==0) vus.push('un signe faux vaut encore le point');
+    if(r.rouges.join(',')!=='ef-l0s0') vus.push('un signe faux rougit autre chose que lui-même : '+r.rouges.join(','));
+    if(!/\\bok\\b/.test(r.cls('ef-l0s1'))) vus.push('le signe juste à côté d\\'un signe faux n\\'est pas bleu');
+    /* la case vide ne rougit jamais, en entraînement comme en soutien */
+    r=pose({'sdq-sel':'2'});
+    if(r.rouges.length) vus.push('en entraînement, une case vide rougit : '+r.rouges.join(','));
+    if(!/\\bsol\\b/.test(r.cls('ef-r0'))) vus.push('la case vide ne reçoit pas la correction (sol)');
+    r=pose({'ef-r0':'0','sdq-sel':'0'},'soutien');
+    if(r.rouges.join(',')!=='sdq-sel') vus.push('en soutien, autre chose que le QCM faux rougit : '+r.rouges.join(','));
+    if(!/Revérifier/.test(document.getElementById('sdqActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(test.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    /* la liste du QCM ne se colore pas en direct (à quatre propositions, il
+       suffirait d'essayer), les cases du tableau si */
+    pose(null,'soutien');
+    { const sel=document.getElementById('sdq-sel'); sel.value='0'; sel.dispatchEvent(new Event('change'));
+      const s0=document.getElementById('ef-l0s0'); s0.value='+'; s0.dispatchEvent(new Event('change'));
+      if(/\\b(ok|bad)\\b/.test(sel.className)) vus.push('la liste du QCM se colore en direct');
+      if(!/\\bbad\\b/.test(s0.className)) vus.push('en soutien, un signe faux ne se colore pas en direct'); }
+    r=pose(null);
+    if(!/Complète au moins une case/.test(r.fb)) vus.push('une copie vide devrait demander de compléter, pas juger');
+    /* cliquer une affirmation la choisit dans le menu */
+    pose(null);
+    { const p=document.querySelectorAll('#sdqHost .sdq-prop')[1]; p.click();
+      if(document.getElementById('sdq-sel').value!=='1') vus.push('cliquer une affirmation ne la choisit pas');
+      if(!/\\bchoisie\\b/.test(p.className)) vus.push('l\\'affirmation cliquée ne se marque pas choisie'); }
+    /* le contexte du modèle porte la clause de secret et la bonne lettre */
+    pose(null);
+    { const c=sdqConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/affirmation vraie : c/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec la bonne lettre'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

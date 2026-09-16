@@ -6087,23 +6087,30 @@ async function parcours(page, N){
          qui aurait « trouvé la place ailleurs » dirait qu'elle n'en est plus une. */
       const mesurerGrilles = async () => await s.page.evaluate(() => {
         const lire = g => {
+          /* on mesure le CONTENU de la cellule, jamais sa boîte : une cellule de
+             grille s'étire sur toute sa colonne, donc son centre est celui de la
+             colonne quoi qu'elle fasse de son contenu — un « ≤ » poussé à gauche
+             (justify-content perdu) passait au vert en parlant d'autre chose ;
+             le sabotage l'a montré. Un Range sur le contenu rend la boîte du
+             glyphe comme celle d'une liste. */
           const cels = [...g.querySelectorAll('.svr-cel')].map(c => {
-            const r = c.getBoundingClientRect();
+            const rg = document.createRange(); rg.selectNodeContents(c);
+            const r = rg.getBoundingClientRect();
             return { r: +c.dataset.r, c: +c.dataset.c, x: (r.left + r.right) / 2, top: r.top, bot: r.bottom,
                      le: c.classList.contains('svr-le'), val: c.classList.contains('svr-val'),
                      libre: c.classList.contains('svr-just') || c.classList.contains('svr-lib') || c.classList.contains('svr-suite') };
           });
           const sc = g.parentElement;
-          return { cels, debord: Math.round(sc.scrollWidth - sc.clientWidth) };
+          return { cels, debord: Math.round(sc.scrollWidth - sc.clientWidth), coupe: Math.round(sc.scrollHeight - sc.clientHeight) };
         };
-        const gi = document.querySelector('#svrPartE .svr-ginit'), gd = document.querySelector('#svrPartE .svr-gdemo');
+        const gi = document.querySelector('#svrPartE .svr-grec'), gd = document.querySelector('#svrPartE .svr-gdemo');
         return { init: gi ? lire(gi) : null, demo: gd ? lire(gd) : null };
       });
       const jugerGrilles = (m, large) => {
         const L = large ? 1400 : 900;
-        if(!m.init) { dits.push('l\'initialisation n\'est pas une grille à colonnes (.svr-ginit)'); return; }
+        if(!m.init) { dits.push('la récurrence (initialisation et hérédité) n\'est pas une grille à colonnes (.svr-grec)'); return; }
         if(!m.demo) { dits.push('la démonstration n\'est pas une grille à colonnes (.svr-gdemo)'); return; }
-        [['l\'initialisation', m.init], ['la démonstration', m.demo]].forEach(([nom, g]) => {
+        [['la récurrence', m.init], ['la démonstration', m.demo]].forEach(([nom, g]) => {
           const rangs = {}; g.cels.forEach(c => { (rangs[c.r] = rangs[c.r] || []).push(c); });
           Object.keys(rangs).forEach(r => {
             const cs = rangs[r], haut = Math.max(...cs.map(c => c.top)), bas = Math.min(...cs.map(c => c.bot));
@@ -6116,10 +6123,17 @@ async function parcours(page, N){
             if(ecart > 3) dits.push('à ' + L + ' px, la colonne ' + c + ' de ' + nom + ' n\'est pas alignée : ' + Math.round(ecart) + ' px d\'écart entre ses cellules');
           });
           if(large && g.debord > 2) dits.push(nom + ' défile de ' + g.debord + ' px à 1400 px de large');
+          /* overflow-x:auto emporte overflow-y : ce qui dépasse la boîte EN BAS est coupé, et
+             l'indice d'un terme U_n descend sous sa ligne — la dernière rangée en porte. On lit
+             le DÉBORD VERTICAL de la boîte (scrollHeight − clientHeight) : un Range sur les
+             cellules ne voit pas l'indice décalé, la sonde l'a montré (1899 contre 1903). */
+          if(g.coupe > 0) dits.push('à ' + L + ' px, le bas de ' + nom + ' est coupé par sa boîte : ' + g.coupe + ' px (les indices de la dernière rangée)');
         });
-        /* l'initialisation : trois « ≤ » par ligne, et les deux valeurs SOUS leur terme, une ligne plus bas */
-        { const le1 = m.init.cels.filter(c => c.le && c.r === 1), le2 = m.init.cels.filter(c => c.le && c.r === 2);
-          if(le1.length !== 3 || le2.length !== 3) dits.push('l\'initialisation porte ' + le1.length + ' et ' + le2.length + ' « ≤ » au lieu de 3 et 3');
+        /* la récurrence : trois « ≤ » sur chacune de ses cinq lignes de chaîne — les
+           deux de l'initialisation, les trois de l'hérédité (rangées 4, 5, 6) —, et
+           les deux valeurs SOUS leur terme, une ligne plus bas */
+        { [1, 2, 4, 5, 6].forEach(r => { const n = m.init.cels.filter(c => c.le && c.r === r).length;
+            if(n !== 3) dits.push('la rangée ' + r + ' de la récurrence porte ' + n + ' « ≤ » au lieu de 3' + (r >= 4 ? ' : l\'hérédité a quitté la grille' : '')); });
           const vals = m.init.cels.filter(c => c.val);
           if(vals.length !== 2) dits.push(vals.length + ' valeur(s) sous les termes de l\'initialisation au lieu de 2');
           vals.forEach(v => {
@@ -6128,8 +6142,9 @@ async function parcours(page, N){
             if(Math.abs(t.x - v.x) > 3) dits.push('la valeur n\'est pas centrée sous son terme (' + Math.round(t.x - v.x) + ' px)');
             if(v.top < t.bot - 2) dits.push('la valeur n\'est pas une ligne EN DESSOUS de son terme (haut ' + Math.round(v.top) + ', bas du terme ' + Math.round(t.bot) + ')');
           }); }
-        /* la démonstration : chaque f(…) a son résultat juste en dessous — même colonne, rangée suivante — et chaque « ≤ » le sien */
-        { const f = m.demo.cels.filter(c => c.r === 3 && !c.le), res = m.demo.cels.filter(c => c.r === 4 && !c.le);
+        /* la démonstration : chaque f(…) a son résultat juste en dessous — même colonne, rangée suivante — et chaque « ≤ » le sien
+           (la justification « car f(x) est … » vit au bout de la rangée des f(…) : elle n'est pas un terme) */
+        { const f = m.demo.cels.filter(c => c.r === 2 && !c.le && !c.libre), res = m.demo.cels.filter(c => c.r === 3 && !c.le);
           if(f.length !== 4) dits.push(f.length + ' f(…) au lieu de 4 dans la démonstration');
           if(res.length !== 5) dits.push(res.length + ' terme(s) au lieu de 5 sur la dernière ligne de la démonstration');
           f.forEach(k => {
@@ -6137,17 +6152,216 @@ async function parcours(page, N){
             if(!r) dits.push('le f(…) de la colonne ' + k.c + ' n\'a aucun résultat sous lui');
             else if(Math.abs(r.x - k.x) > 3 || r.top < k.bot - 2) dits.push('le résultat n\'est pas juste sous son f(…) (' + Math.round(r.x - k.x) + ' px de côté)');
           });
-          const le3 = m.demo.cels.filter(c => c.le && c.r === 3), le4 = m.demo.cels.filter(c => c.le && c.r === 4);
-          le3.forEach(k => { if(!le4.some(c => c.c === k.c && Math.abs(c.x - k.x) <= 3)) dits.push('un « ≤ » de la ligne des f(…) n\'a pas de « ≤ » sous lui (colonne ' + k.c + ')'); });
+          const le2 = m.demo.cels.filter(c => c.le && c.r === 2), le3 = m.demo.cels.filter(c => c.le && c.r === 3);
+          le2.forEach(k => { if(!le3.some(c => c.c === k.c && Math.abs(c.x - k.x) <= 3)) dits.push('un « ≤ » de la ligne des f(…) n\'a pas de « ≤ » sous lui (colonne ' + k.c + ')'); });
+          /* la justification est SUR la ligne des f(…) : sa cellule et les f(…) partagent une bande verticale */
+          const just = m.demo.cels.find(c => c.libre && c.r === 2);
+          if(!just) dits.push('« car f(x) est … » n\'est pas sur la ligne des f(…)');
+          else if(f.length && !(Math.max(just.top, ...f.map(c => c.top)) < Math.min(just.bot, ...f.map(c => c.bot)) - 4)) dits.push('« car f(x) est … » ne partage pas sa ligne avec les f(…)');
           if(!large && m.demo.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs'); }
       };
       jugerGrilles(await mesurerGrilles(), true);
       await s.page.setViewportSize({ width: 900, height: 950 });
       await s.page.waitForTimeout(300);
       jugerGrilles(await mesurerGrilles(), false);
+      /* LE VISAGE CROISSANT, rendu pour de vrai à 1400 px : c'est lui que le décalage
+         d'une colonne de terme concerne, et lui qui manque de place au bout de la
+         ligne des f(…) — 214 px de trop avant que la justification ne sache se
+         replier. Le banc jsdom tient la STRUCTURE du décalage ; ici on mesure que
+         la grille rendue tient dans sa boîte et reste alignée. */
+      await s.page.setViewportSize({ width: 1400, height: 950 });
+      await s.page.evaluate(() => {
+        const vc = svrVivier('cro')[0];
+        test.questions[test.idx] = { l: vc.l, L: vc.L, U0: vc.U0, sens: 'cro', pts: [] }; test.locked = false;
+        renderSVR();
+      });
+      await s.page.waitForTimeout(500);
+      { const avant = dits.length; jugerGrilles(await mesurerGrilles(), true);
+        for(let i = avant; i < dits.length; i++) dits[i] = 'suite croissante : ' + dits[i]; }
       verifier('le tracé en escalier se pose au clic, sur le bon rail', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la suite monotone ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 vicies decies. {python-affichage} : prédire, puis exécuter =====
+       Le banc jsdom tient l'interpréteur (comparé à un vrai CPython), le
+       tirage, le juge et les portes. Ce qu'il ne voit pas : le code et la
+       console RENDUS à chasse fixe (une police perdue dans la cascade ferait
+       lire un programme en Nunito), le bouton « Exécuter » vraiment inerte
+       sous un VRAI clic tant que rien n'est vérifié, la page qui ne déborde
+       pas, et la console mesurée au RECTANGLE une fois exécutée — jamais à
+       une propriété. Il CHOISIT dans les trois listes pour de vrai, clique
+       Vérifier puis Exécuter, relit la sortie à l'écran, puis rejoue le bord
+       du soutien : une copie fausse laisse le bouton verrouillé. */
+    titre('6 vicies decies. QU\'AFFICHE CE PROGRAMME ? PRÉDIRE, PUIS EXÉCUTER');
+    if(!P.pythonAffichage){
+      ignorer('le programme se prédit, puis s\'exécute', 'ce niveau n\'a pas l\'exercice Python');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonAffichage.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const code = document.querySelector('#pyHost .py-code'), cons = document.getElementById('pyConsole'), run = document.getElementById('pyRun');
+        const fam = el => getComputedStyle(el).fontFamily;
+        const cr = code.getBoundingClientRect(), kr = cons.getBoundingClientRect(), rr = run.getBoundingClientRect();
+        return { police: fam(code), codeVisible: cr.width > 200 && cr.height > 60, consoleVisible: kr.height > 20,
+                 runDisabled: run.disabled, runVisible: rr.width > 40 && rr.height > 20,
+                 texte: code.textContent, src: test.questions[0].src,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 listes: document.querySelectorAll('#pyHost select.py-sel').length };
+      });
+      verifier('le code est rendu à chasse fixe, à une taille lisible', /mono|menlo|consolas|courier/i.test(avant.police) && avant.codeVisible, avant.police);
+      verifier('le code affiché est le programme de la question', avant.texte === avant.src, JSON.stringify(avant.texte));
+      verifier('« Exécuter » est visible et verrouillé tant que rien n\'est vérifié', avant.runDisabled && avant.runVisible, '');
+      verifier('la phrase porte ses trois listes, et la page ne déborde pas à 1400 px', avant.listes === 3 && !avant.page, avant.listes + ' liste(s)');
+      /* un VRAI clic sur le bouton verrouillé ne fait rien */
+      await s.page.click('#pyRun', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const cons0 = await s.page.evaluate(() => document.getElementById('pyConsole').textContent);
+      verifier('un clic sur le bouton verrouillé ne remplit pas la console', cons0 === '', JSON.stringify(cons0));
+      /* on CHOISIT juste, dans les vraies listes */
+      const bon = await s.page.evaluate(() => pyAns(test.questions[0]));
+      await s.page.selectOption('#py-s-t', bon.texte);
+      await s.page.selectOption('#py-s-v', bon.valeur);
+      await s.page.selectOption('#py-s-n', bon.variable);
+      await s.page.click('#pyValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => ({
+        ok: document.querySelectorAll('#pyHost select.ok').length, score: test.score,
+        runDisabled: document.getElementById('pyRun').disabled,
+        focus: document.activeElement && document.activeElement.id,
+        suivant: !!document.getElementById('pyNext') }));
+      verifier('les trois listes choisies justes sont peintes ok et valent 3', apres.ok === 3 && apres.score === 3, apres.ok + ' ok, note ' + apres.score);
+      verifier('« Exécuter » se débloque et reçoit le focus', !apres.runDisabled && apres.focus === 'pyRun', 'focus sur ' + apres.focus);
+      verifier('« Question suivante » attend l\'exécution', !apres.suivant, '');
+      await s.page.click('#pyRun');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => {
+        const cons = document.getElementById('pyConsole'), r = cons.getBoundingClientRect();
+        return { texte: cons.textContent, attendu: pyRun(test.questions[0].src).out.trim(), visible: r.height > 20 && r.width > 100,
+                 police: getComputedStyle(cons).fontFamily, suivant: !!document.getElementById('pyNext'),
+                 runDisabled: document.getElementById('pyRun').disabled };
+      });
+      verifier('la console montre la sortie du programme, à chasse fixe, dans un cadre visible',
+        fin.texte === fin.attendu && fin.visible && /mono|menlo|consolas|courier/i.test(fin.police), JSON.stringify(fin.texte) + ' / ' + fin.police);
+      verifier('après l\'exécution, « Question suivante » apparaît et « Exécuter » se referme', fin.suivant && fin.runDisabled, '');
+      /* le bord du soutien : une copie fausse laisse le bouton verrouillé — la sortie EST la réponse */
+      await s.page.evaluate(id => openTest(id), P.pythonAffichage.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const faux = await s.page.evaluate(() => { const q = test.questions[0], a = pyAns(q); return { t: a.texte, v: q.opt.v.filter(x => x !== a.valeur)[0], n: a.variable }; });
+      await s.page.selectOption('#py-s-t', faux.t); await s.page.selectOption('#py-s-v', faux.v); await s.page.selectOption('#py-s-n', faux.n);
+      await s.page.click('#pyValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => ({ bad: document.querySelectorAll('#pyHost select.bad').length,
+        runDisabled: document.getElementById('pyRun').disabled, console: document.getElementById('pyConsole').textContent }));
+      verifier('en soutien, la copie fausse rougit sa case et laisse « Exécuter » verrouillé', sout.bad === 1 && sout.runDisabled && sout.console === '',
+        sout.bad + ' rouge(s), verrouillé : ' + sout.runDisabled);
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 vicies undecies. {python-types} : le cours en trois cadres, puis type() =====
+       Le banc jsdom tient l'interpréteur (type() comparé à un vrai CPython),
+       le tirage, le juge et les portes. Ce qu'il ne voit pas : les trois
+       cadres du cours RENDUS — mesurés au rectangle, une règle CSS perdue les
+       ferait disparaître sans qu'aucune classe ne manque —, le code et la
+       console à chasse fixe, le bouton « Exécuter » vraiment inerte sous un
+       VRAI clic, et la page qui ne déborde ni à 1400 px ni à la largeur d'un
+       téléphone, où les trois cadres s'empilent. Il CHOISIT dans les trois
+       listes pour de vrai, clique Vérifier puis Exécuter, relit les trois
+       <class '…'> à l'écran, puis rejoue le bord du soutien. */
+    titre('6 vicies undecies. INT, FLOAT OU STR ? LE COURS EN TROIS CADRES, PUIS TYPE()');
+    if(!P.pythonTypes){
+      ignorer('le cours en trois cadres, puis type()', 'ce niveau n\'a pas l\'exercice des types Python');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonTypes.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const code = document.querySelector('#ptyHost .py-code'), cons = document.getElementById('ptyConsole'), run = document.getElementById('ptyRun');
+        const cadres = [...document.querySelectorAll('#ptyHost .pty-type')].map(e => e.getBoundingClientRect());
+        const fam = el => getComputedStyle(el).fontFamily;
+        const cr = code.getBoundingClientRect(), kr = cons.getBoundingClientRect(), rr = run.getBoundingClientRect();
+        const lignes = [...document.querySelectorAll('#ptyHost .pty-ligne')].map(e => e.getBoundingClientRect());
+        return { police: fam(code), codeVisible: cr.width > 200 && cr.height > 60, consoleVisible: kr.height > 20,
+                 runDisabled: run.disabled, runVisible: rr.width > 40 && rr.height > 20,
+                 texte: code.textContent, src: test.questions[0].src,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 cadres: cadres.map(r => Math.round(r.width) + 'x' + Math.round(r.height)),
+                 cadresVisibles: cadres.length === 3 && cadres.every(r => r.width > 200 && r.height > 60),
+                 cadresCoteACote: cadres.length === 3 && Math.abs(cadres[0].top - cadres[2].top) < 4,
+                 lignes: lignes.length, lignesHautes: lignes.every(r => r.height > 30 && r.height < 120),
+                 listes: document.querySelectorAll('#ptyHost select.py-sel').length };
+      });
+      verifier('les trois cadres du cours sont rendus côte à côte, à une taille lisible', avant.cadresVisibles && avant.cadresCoteACote, avant.cadres.join(' / '));
+      verifier('le code est rendu à chasse fixe, à une taille lisible', /mono|menlo|consolas|courier/i.test(avant.police) && avant.codeVisible, avant.police);
+      verifier('le code affiché est le programme de la question', avant.texte === avant.src, JSON.stringify(avant.texte));
+      verifier('« Exécuter » est visible et verrouillé tant que rien n\'est vérifié', avant.runDisabled && avant.runVisible, '');
+      verifier('les trois lignes « … est de type » portent leur liste, chacune d\'un seul tenant, et la page ne déborde pas à 1400 px',
+        avant.listes === 3 && avant.lignes === 3 && avant.lignesHautes && !avant.page, avant.listes + ' liste(s), ' + avant.lignes + ' ligne(s)');
+      /* un VRAI clic sur le bouton verrouillé ne fait rien */
+      await s.page.click('#ptyRun', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const cons0 = await s.page.evaluate(() => document.getElementById('ptyConsole').textContent);
+      verifier('un clic sur le bouton verrouillé ne remplit pas la console', cons0 === '', JSON.stringify(cons0));
+      /* on CHOISIT juste, dans les vraies listes */
+      const bon = await s.page.evaluate(() => { const q = test.questions[0], a = ptyAns(q); return ptyCases(q).map(c => ({ id: c.id, t: a.types[c.nom] })); });
+      for(const c of bon) await s.page.selectOption('#' + c.id, c.t);
+      await s.page.click('#ptyValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => ({
+        ok: document.querySelectorAll('#ptyHost select.ok').length, score: test.score,
+        runDisabled: document.getElementById('ptyRun').disabled,
+        focus: document.activeElement && document.activeElement.id,
+        suivant: !!document.getElementById('ptyNext') }));
+      verifier('les trois listes choisies justes sont peintes ok et valent 3', apres.ok === 3 && apres.score === 3, apres.ok + ' ok, note ' + apres.score);
+      verifier('« Exécuter » se débloque et reçoit le focus', !apres.runDisabled && apres.focus === 'ptyRun', 'focus sur ' + apres.focus);
+      verifier('« Question suivante » attend l\'exécution', !apres.suivant, '');
+      await s.page.click('#ptyRun');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => {
+        const cons = document.getElementById('ptyConsole'), r = cons.getBoundingClientRect();
+        return { texte: cons.textContent, attendu: pyRun(test.questions[0].src).out.trim(), visible: r.height > 40 && r.width > 100,
+                 police: getComputedStyle(cons).fontFamily, suivant: !!document.getElementById('ptyNext'),
+                 runDisabled: document.getElementById('ptyRun').disabled };
+      });
+      verifier('la console montre les trois <class \'…\'> de Python, à chasse fixe, dans un cadre visible',
+        fin.texte === fin.attendu && (fin.texte.match(/<class '/g) || []).length === 3 && fin.visible && /mono|menlo|consolas|courier/i.test(fin.police),
+        JSON.stringify(fin.texte) + ' / ' + fin.police);
+      verifier('après l\'exécution, « Question suivante » apparaît et « Exécuter » se referme', fin.suivant && fin.runDisabled, '');
+      /* à la largeur d'un téléphone, les cadres s'empilent et rien ne déborde */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const cadres = [...document.querySelectorAll('#ptyHost .pty-type')].map(e => e.getBoundingClientRect());
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 empiles: cadres.length === 3 && cadres[1].top >= cadres[0].bottom - 1 && cadres[2].top >= cadres[1].bottom - 1,
+                 larges: cadres.every(r => r.width > 250 && r.right <= 391) };
+      });
+      verifier('sur un téléphone, les trois cadres s\'empilent sur toute la largeur et la page ne déborde pas', !tel.page && tel.empiles && tel.larges, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le bord du soutien : une copie fausse laisse le bouton verrouillé */
+      await s.page.evaluate(id => openTest(id), P.pythonTypes.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const faux = await s.page.evaluate(() => { const q = test.questions[0], a = ptyAns(q); return ptyCases(q).map((c, i) => ({ id: c.id, t: i ? a.types[c.nom] : PTY_TYPES.filter(t => t !== a.types[c.nom])[0] })); });
+      for(const c of faux) await s.page.selectOption('#' + c.id, c.t);
+      await s.page.click('#ptyValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => ({ bad: document.querySelectorAll('#ptyHost select.bad').length,
+        runDisabled: document.getElementById('ptyRun').disabled, console: document.getElementById('ptyConsole').textContent,
+        cadres: document.querySelectorAll('#ptyHost .pty-type').length }));
+      verifier('en soutien, la copie fausse rougit sa case, laisse « Exécuter » verrouillé, et le cours reste affiché', sout.bad === 1 && sout.runDisabled && sout.console === '' && sout.cadres === 3,
+        sout.bad + ' rouge(s), verrouillé : ' + sout.runDisabled);
       await s.nav.close(); s = null;
     }
 

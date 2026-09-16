@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -587,6 +587,48 @@
   .app-nb{font-family:"Fredoka";font-weight:600;color:var(--blue-dark);font-size:1.35rem;justify-self:end;display:inline-flex;align-items:center}
   .app-iv{font-family:"Fredoka";font-weight:600;color:var(--ink);font-size:1.3rem;justify-self:start;white-space:nowrap}
   @media(max-width:520px){ .app-rows{gap:10px 8px;max-width:100%} .app-nb{font-size:1.15rem} .app-iv{font-size:1.1rem} }
+  /* ---- Qu'affiche ce programme ? (Python) — le code et la console sont à
+     chasse fixe, comme dans le carnet ; les listes de la phrase aussi, parce
+     qu'elles proposent des morceaux de code. Les trois verdicts sont ceux de
+     la famille .itv-sel : bleu juste, rouge faux, vert correction. ---- */
+  .py-cell{width:100%;max-width:960px;margin:0 auto;text-align:left}
+  .py-label{font-family:"Fredoka";font-weight:600;font-size:.95rem;color:var(--ink-soft);margin:14px 0 6px}
+  .py-cell .py-label:first-child{margin-top:0}
+  .py-code,.py-console{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.55;white-space:pre;overflow-x:auto;text-align:left;margin:0;color:var(--ink);tab-size:4}
+  .py-code{background:#f7f7f7;border:1px solid var(--line);border-left:4px solid #6c8ebf;border-radius:10px;padding:12px 16px}
+  .py-num{color:#0a8a2a}.py-str{color:#ba2121}.py-kw{color:#008000;font-weight:600}.py-op{color:#aa22ff}.py-cm{color:#408080;font-style:italic}
+  .py-runrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 0}
+  .py-hint{font-size:.92rem;color:var(--ink-soft)}
+  .py-console{min-height:46px;background:#fff;border:1.5px dashed var(--line);border-radius:10px;padding:10px 16px}
+  .py-console.py-exec{border-style:solid;border-color:#6c8ebf;background:#f4f8ff}
+  .py-console:empty::before{content:"(rien pour l’instant : exécute le programme)";color:var(--ink-soft);font-family:"Nunito",system-ui,sans-serif;font-size:.92rem;white-space:normal}
+  .py-fin{display:inline-flex;align-items:center;gap:2px}
+  /* Sur un téléphone, le code écrit plus petit : à 1,05 rem la ligne du print
+     se coupait derrière le défilement horizontal — précisément la ligne que
+     l’élève doit lire. Vu sur une capture à 390 px, pas au banc. */
+  @media(max-width:520px){ .py-code,.py-console{font-size:.92rem;padding:10px 12px} .py-phrase{font-size:1.05rem;gap:6px 8px} }
+  .py-phrase{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 10px;font-size:1.15rem;line-height:1.6;color:var(--ink);padding:4px 0}
+  .py-sel{flex:0 0 auto;appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;width:auto;max-width:100%;min-width:96px;padding:0 12px;height:44px;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;font-size:1.05rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;cursor:pointer}
+  .py-sel:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .py-sel.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+  .py-sel.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  .py-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
+  .py-sel:disabled{opacity:1;cursor:default}
+  #pyHost .mf-cor{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
+  /* {python-types} : les trois cadres du cours, sur l’écran de l’exercice — trois
+     colonnes qui s’empilent sur un téléphone ; puis une ligne par variable */
+  #ptyHost .mf-cor{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
+  .pty-cours{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 10px}
+  .pty-type{border:1px solid var(--line);border-left:5px solid #f0a020;border-radius:10px;background:#fff8ee;padding:10px 12px;font-size:.98rem;line-height:1.45;color:var(--ink);text-align:left}
+  .pty-type b{font-family:"Fredoka";font-weight:600}
+  .pty-type code,.pty-note code,.pty-ligne code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px;white-space:nowrap}
+  .pty-type .pty-ex{display:block;margin-top:5px;color:var(--ink-soft);font-size:.92rem}
+  .pty-note{font-size:.95rem;color:var(--ink-soft);margin:0 0 6px;text-align:left}
+  .pty-lignes{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+  .pty-ligne{justify-content:flex-start;padding:2px 0}
+  .pty-ligne code{font-size:1.05rem;border:1px solid var(--line);background:#f7f7f7;padding:2px 8px}
+  .pty-q{display:inline-flex;align-items:center;gap:8px 10px;flex-wrap:nowrap}
+  @media(max-width:760px){ .pty-cours{grid-template-columns:1fr} }
 /* ---- Somme et différence de fractions ----
    Un seul bloc pour les deux niveaux : le moteur est le même, sa présentation
    doit l'être aussi. Deux blocs auraient fini par diverger. */
@@ -2424,6 +2466,38 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : QU'AFFICHE CE PROGRAMME ? (PYTHON) -->
+  <section class="screen" id="scr-py">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPY"></span><span class="q-idx" id="pyIdx">Question 1 / 4</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pyLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Lis le programme et dis ce qu&rsquo;il va afficher, en compl&eacute;tant la phrase. Une fois ta r&eacute;ponse v&eacute;rifi&eacute;e, tu pourras ex&eacute;cuter le programme pour le voir.</p>
+      <div class="mp-stage"><div style="width:100%" id="pyHost"></div></div>
+      <div class="mp-feedback" id="pyFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pyActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pyValidate" onclick="checkPY()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEST : INT, FLOAT OU STR ? (PYTHON, TYPES DE VARIABLES) -->
+  <section class="screen" id="scr-pty">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPTY"></span><span class="q-idx" id="ptyIdx">Question 1 / 4</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ptyLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Lis le cours en trois cadres, puis le programme : dis le type de chaque variable &mdash; int, float ou str. Une fois ta r&eacute;ponse v&eacute;rifi&eacute;e, ex&eacute;cute le programme : c&rsquo;est Python qui r&eacute;pond, avec type().</p>
+      <div class="mp-stage"><div style="width:100%" id="ptyHost"></div></div>
+      <div class="mp-feedback" id="ptyFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="ptyActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ptyValidate" onclick="checkPTY()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : SOMME ET DIFFÉRENCE DE FRACTIONS -->
   <section class="screen" id="scr-sf">
     <div class="test-top">
@@ -2767,7 +2841,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=164;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=167;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3346,6 +3420,8 @@ const TESTS={
      diverger, et les deux exercices auraient cessé de parler des mêmes
      pièges. */
   'ordre-croissant': { name:'Ranger trois nombres dans l\u2019ordre croissant', icon:'\ud83d\udcc8', desc:'Trois nombres d\u00e9cimaux \u2014 les pi\u00e8ges de {placer-intervalle} \u2014 \u00e0 ranger du plus petit au plus grand avec le symbole \u00ab\u00a0<\u00a0\u00bb. Le bouton des z\u00e9ros t\u2019aide \u00e0 les comparer, tant que tu le maintiens appuy\u00e9.', start:()=>startOrd() },
+  'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
+  'python-types': { name:'int, float ou str\u00a0?', icon:'\ud83c\udff7\ufe0f', desc:'Trois types de variables : un entier (int), un nombre \u00e0 virgule (float), un texte entre guillemets (str). Le cours est sur l\u2019\u00e9cran ; lis chaque programme, dis le type de chaque variable \u2014 puis ex\u00e9cute-le : Python te r\u00e9pond avec type().', start:()=>startPTY() },
   'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
   'simplifier-fractions': { name:'Somme de fractions \u00e0 simplifier', icon:'\u2702\ufe0f', desc:'Comme {somme-fractions}, mais les deux d\u00e9nominateurs ont un diviseur commun et le r\u00e9sultat se simplifie : on divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le d\u00e9nominateur commun reste libre.', start:()=>startSFSimp() },
   'somme-fractions-libre': { name:'Somme de fractions \u2014 tu \u00e9cris ton calcul', icon:'\u270d\ufe0f', desc:'Les m\u00eames nombres que {simplifier-fractions}, mais plus aucune case : tu \u00e9cris ton calcul toi-m\u00eame, une \u00e9tape par ligne. Il faut l\u2019\u00e9tape du m\u00eame d\u00e9nominateur, et un r\u00e9sultat simplifi\u00e9 \u2014 l\u2019IA v\u00e9rifie que tout y est.', start:()=>startSFL() },
@@ -3393,7 +3469,11 @@ const THEMES=[
      additionner deux. Les numéros suivent la position — il est 4.1, tout se
      renumérote derrière — et les notes déjà obtenues ne bougent pas : elles
      portent l'IDENTIFIANT, pas le numéro. */
-  { num:4, nom:'Fractions', ids:['simplifier-barres','croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre'] }
+  { num:4, nom:'Fractions', ids:['simplifier-barres','croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre'] },
+  /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
+     thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
+     leurs numéros, et aucun renvoi {identifiant} ne bouge. */
+  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -4034,6 +4114,8 @@ function conseilPaire(){
   else if(test.kind==='app' && q) b=ctxApp(q);
   else if(test.kind==='tvg' && q) b=ctxTvg(q);
   else if(test.kind==='ecs' && q) b=ctxEcs(q);
+  else if(test.kind==='py' && q) b=ctxPy(q);
+  else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
   else if(test.kind==='plc' && q) b=ctxPlc(q);
@@ -4283,6 +4365,8 @@ const QIA_SUGG={
   cfx:["Comment placer un point pour respecter f ( −2 ) = 3 ?","Que veut dire « l’antécédent de −4 est 3 » pour mon tracé ?","Pourquoi ma courbe ne doit-elle pas recouper l’axe ailleurs que sur S ?","Comment respecter une inéquation dont la solution est un intervalle ?"],
   ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Pourquoi les bouts de la courbe sont-ils toujours pris ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
+  pty:["Quelle est la différence entre 15 et \"15\" ?","Pourquoi 15.0 est-il un float et pas un int ?","Un nombre négatif comme -3, c’est quel type ?","À quoi sert type() ?"],
+  py:["Pourquoi le texte s’affiche-t-il sans les guillemets ?","Quelle est la différence entre note1 et \"note1\" dans un print ?","À quoi sert la virgule dans print ?","Comment s’écrit et s’affiche un nombre à virgule en Python ?"],
   sfl:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelles \u00e9tapes dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Comment savoir si ma fraction est bien simplifi\u00e9e\u00a0?","Est-ce que je peux choisir un autre d\u00e9nominateur commun\u00a0?"],
   sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
   mlt:["Faut-il mettre au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Pourquoi multiplie-t-on les num\u00e9rateurs entre eux\u00a0?","Que devient le d\u00e9nominateur\u00a0?","Est-ce que l\u2019ordre des deux fractions change le r\u00e9sultat\u00a0?"],
@@ -4741,7 +4825,20 @@ const RAP_SYN=`<b>Tout lire sur un seul graphique</b><br>
 • Le <b>tableau de variation</b> dit où la courbe monte et où elle descend : on écrit les abscisses des changements de sens, la valeur de f à chaque étape, et une flèche ↗ ou ↘ entre deux valeurs. Le <b>tableau de signes</b> dit où la courbe est au-dessus de l’axe (+) et où elle est en dessous (−) : les racines sont les abscisses où elle COUPE l’axe, et on écrit 0 sous chacune.<br>
 • <b>f (x) &gt; g (x)</b> se lit là où la courbe de f est AU-DESSUS de la droite de g : les bornes sont les abscisses des deux croisements, et les crochets sont ouverts parce que l’inégalité est stricte.<br>
 • Le <b>maximum</b> et le <b>minimum</b> se répondent en deux temps : la valeur (la hauteur), et l’abscisse où elle est atteinte.`;
-const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAP_PY=`<b>Qu’affiche <code class="inline">print</code> ?</b><br>
+<b>① Un texte entre guillemets s’affiche tel quel</b>, SANS les guillemets : <code class="inline">print("bonjour")</code> affiche <code class="inline">bonjour</code>.<br>
+<b>② Une variable sans guillemets s’affiche par sa VALEUR</b>, pas par son nom : si <code class="inline">note1 = 14</code>, alors <code class="inline">print(note1)</code> affiche <code class="inline">14</code>. Avec des guillemets, <code class="inline">print("note1")</code> afficherait le mot <code class="inline">note1</code>.<br>
+<b>③ Plusieurs choses séparées par une virgule</b> s’affichent sur la même ligne, séparées par une espace : <code class="inline">print("la note est :", note1)</code> affiche <code class="inline">la note est : 14</code>.<br>
+En Python, un nombre à virgule s’écrit avec un point — et s’affiche avec un point.`;
+/* Les trois types, comme sur la page du cours. Les nombres à virgule vivent
+   dans des balises code : le contrôle des numéros en dur ne lit pas le code,
+   seulement la prose — un 15.5 dans une phrase serait un numéro d’exercice. */
+const RAP_PTY=`<b>Les trois types de variables</b><br>
+<b>① <code class="inline">int</code> (<i>integer</i>, « entier ») :</b> un entier relatif, positif ou négatif — <code class="inline">15</code>, <code class="inline">-3</code>, <code class="inline">2026</code>. Sans point, sans guillemets.<br>
+<b>② <code class="inline">float</code> (<i>floating</i>, « flottant ») :</b> un nombre à virgule — en Python, la virgule s’écrit avec un POINT : <code class="inline">15.5</code>, <code class="inline">1.65</code>. Et <code class="inline">15.0</code> est un float aussi : il a un point, même si sa partie décimale est 0.<br>
+<b>③ <code class="inline">str</code> (<i>string</i>, « chaîne de caractères ») :</b> du texte, entre guillemets — <code class="inline">"Thomas"</code>, <code class="inline">"15H30"</code> (il y a le H, qui n’est pas un chiffre). Et <code class="inline">"2026"</code> entre guillemets est un texte, pas un nombre : ce sont les guillemets qui décident.<br>
+<b>④ Pour demander son type à Python :</b> <code class="inline">print(type(x))</code> affiche par exemple <code class="inline">&lt;class 'int'&gt;</code>.`;
+const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4850,7 +4947,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -5279,7 +5376,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5403,7 +5500,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -15543,6 +15640,605 @@ function checkAppAnswer(live){
   const nb=$('appNext'); if(nb) nb.focus();
 }
 function nextAppQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderAppTest(); autoSave(); } else finishTest(); }
+/* ---------- Exercice : qu'affiche ce programme ? (Python) -----------------
+   Repris de la fiche « Exercice 9 » du cahier d'algorithmique : un petit
+   programme — des variables, puis un print(…) —, a) l'exécuter, b) dire ce
+   qu'il affiche : « Le programme affiche le texte … puis … qui est la valeur
+   de la variable … ». Ici l'ordre est RENVERSÉ (décision de Turquet,
+   septembre 2026) : l'élève PRÉDIT d'abord, en complétant la phrase, et le
+   bouton « Exécuter » ne se débloque qu'une fois la réponse vérifiée. Un
+   bouton cliquable avant la réponse transformerait la question en recopie.
+   C'est la chaîne de portes de {placer-image} : la demande est tenue par
+   l'ÉTAT du bouton, pas par une consigne qu'on peut ne pas lire.
+
+   LE PROGRAMME S'EXÉCUTE DANS LA PAGE, SANS RIEN CHARGER. Un vrai Python dans
+   le navigateur (Pyodide, 12 Mo — neuf fois la page ; Brython, 1 Mo depuis un
+   CDN) serait une dépendance réseau de plus : bloquée, « Exécuter » ne ferait
+   rien — la doctrine du bouton mort. pyRun() interprète le sous-ensemble
+   d'une première séance — affectations, nombres, textes, + − × / // % **,
+   print à plusieurs arguments, str/int/float — en une centaine de lignes.
+   TROIS POSITIONS, pas deux : ce qu'il sait faire, il le fait comme CPython
+   (l'écriture des flottants suit les seuils de repr, 100.0 s'affiche 100.0,
+   4 / 2 s'affiche 2.0) ; ce qu'il ne sait pas faire — round(), dont Python
+   arrondit AU PAIR ; un entier au-delà de 2^53 — il le REFUSE en le nommant,
+   plutôt que d'afficher une sortie fausse. Une sortie fausse serait le pire
+   défaut du projet : l'élève prédit juste, la page affiche sa propre erreur
+   et le compte faux. Le banc COMPARE pyRun à un vrai python3, tirage après
+   tirage et sur des cas limites épinglés — la seconde méthode qui n'a rien
+   en commun avec la première.
+
+   LA SORTIE AFFICHÉE ET LA CORRECTION SORTENT DE LA MÊME FONCTION : le
+   bouton « Exécuter », le juge (pyAns) et le message lisent tous pyRun(q.src).
+   Deux calculs auraient donné deux vérités, et l'énoncé aurait fini par
+   contredire sa correction. La question ne porte que le programme (src), le
+   visage tiré et l'ordre des propositions : la bonne réponse n'est jamais
+   rangée à côté.
+
+   LES TROIS VISAGES sortent chacun au moins UNE fois par séance, en ordre
+   mélangé — la quatrième question reprend l'un d'eux au hasard : la
+   variable affichée est un ENTIER, un DÉCIMAL (Python l'écrit avec un
+   point) ou un TEXTE (il s'affiche sans ses guillemets). Il y eut un
+   quatrième visage, la variable RÉAFFECTÉE (age = 14 puis age = 15) ;
+   Turquet l'a retiré (septembre 2026) : AUCUNE variable n'est affectée deux
+   fois dans un programme — le contrôle exige la propriété sur chaque tirage
+   plutôt que de la supposer. Les propositions ne diffèrent que par ce qui
+   fait l'erreur (la leçon d'{intervalles-inegalite}) : le texte AVEC ses
+   guillemets, le NOM de la variable à la place de sa valeur, la valeur d'une
+   AUTRE variable. Tout se choisit dans des listes, jamais tapé : une saisie
+   libre recalerait un élève sur une espace ou un deux-points.
+   Aucune correction au fil des clics, et c'est déclaré (soutienEnDirect.sans)
+   : colorer une liste au moment où on la choisit dirait si elle est juste
+   avant même de vérifier, et il n'y aurait plus qu'à essayer les quatre. En
+   soutien, « Exécuter » ne se débloque qu'avec une copie TOUTE juste : la
+   sortie du programme EST la réponse. */
+const PY_NB=4;
+const PY_PRENOMS=['Louane','Ethan','Maëlys','Noah','Jade','Tom','Inès','Lucas','Emma','Sacha'];
+/* Trois jeux de variables — un entier, un décimal, un texte — et les textes
+   qui vont avec chacune. Une question en tire un. Les décimaux gardent une
+   décimale non nulle (15.5) : 15.0 s'afficherait « 15.0 », ce qui est vrai
+   mais serait une seconde leçon dans le même exercice. */
+const PY_JEUX=[
+  { i:{nom:'note1',  ent:[8,20],  txt:['la 1ère note est:','ta note est :','la note est :']},
+    f:{nom:'note2',  ent:[8,19],  txt:['la 2ème note est:','la moyenne est :']},
+    s:{nom:'prenom',              txt:['bonjour','ton prénom est :','bienvenue']} },
+  { i:{nom:'age',    ent:[14,18], txt:['ton âge est :','age :']},
+    f:{nom:'taille', ent:[1,1],   txt:['ta taille est :','taille en m :']},
+    s:{nom:'prenom',              txt:['bonjour','salut']} },
+  { i:{nom:'points', ent:[3,50],  txt:['nombre de points :','score :']},
+    f:{nom:'prix',   ent:[5,30],  txt:['le prix est :','prix en euros :']},
+    s:{nom:'ville', vals:['Paris','Lyon','Nantes','Lille','Brest'], txt:['tu habites à','ville :']} }
+];
+const PY_VISAGES=['int','float','str'];
+
+/* ---- 1. L'interpréteur ---- */
+/* L'écriture d'un flottant suit repr() de CPython : la plus courte écriture
+   qui redonne le nombre (JavaScript la connaît aussi), puis les seuils de
+   Python — exponentielle au-delà de 1e16 et en dessous de 1e-4, toujours au
+   moins une décimale (100.0), exposant signé sur deux chiffres (1e-05). JS
+   et Python ne basculent pas aux mêmes seuils : mesuré contre python3 avant
+   d'écrire une ligne. */
+function pyFloatRepr(v){
+  if(!isFinite(v)) return v>0?'inf':(v<0?'-inf':'nan');
+  if(v===0) return (1/v<0)?'-0.0':'0.0';
+  const neg=v<0, s=Math.abs(v).toString();
+  const m=s.match(/^(\d+)(?:\.(\d+))?(?:e([+-]\d+))?$/);
+  if(!m) return String(v);
+  let digits=m[1]+(m[2]||''), decpt=m[1].length+(m[3]?parseInt(m[3],10):0);
+  const lead=digits.match(/^0*/)[0].length; digits=digits.slice(lead); decpt-=lead;
+  digits=digits.replace(/0+$/,''); if(!digits){ digits='0'; decpt=1; }
+  let out;
+  if(decpt<=-4 || decpt>16){
+    const e=decpt-1, mant=digits.length>1?digits[0]+'.'+digits.slice(1):digits;
+    out=mant+'e'+(e<0?'-':'+')+(Math.abs(e)<10?'0':'')+Math.abs(e);
+  } else if(decpt<=0) out='0.'+'0'.repeat(-decpt)+digits;
+  else if(decpt>=digits.length) out=digits+'0'.repeat(decpt-digits.length)+'.0';
+  else out=digits.slice(0,decpt)+'.'+digits.slice(decpt);
+  return (neg?'-':'')+out;
+}
+/* Un TYPE s'écrit comme CPython l'écrit : <class 'int'> — c'est ce que
+   print(type(x)) affiche dans {python-types}. */
+function pyRep(x){ return x.t==='str'?x.v:(x.t==='int'?String(x.v):(x.t==='type'?"<class '"+x.v+"'>":pyFloatRepr(x.v))); }
+function pyBin(op,a,b){
+  if(a.t==='type'||b.t==='type') throw new Error('TypeError : « '+op+' » sur un type');
+  if(op==='+' && a.t==='str' && b.t==='str') return {t:'str',v:a.v+b.v};
+  if(op==='*' && ((a.t==='str'&&b.t==='int')||(a.t==='int'&&b.t==='str'))){
+    const s=a.t==='str'?a:b, n=a.t==='str'?b:a; return {t:'str',v:n.v>0?s.v.repeat(n.v):''}; }
+  if(a.t==='str'||b.t==='str') throw new Error('TypeError : « '+op+' » entre un texte et un nombre');
+  const A=a.v, B=b.v, ent=(a.t==='int'&&b.t==='int');
+  if(op==='/'){ if(B===0) throw new Error('ZeroDivisionError : division par zéro'); return {t:'float',v:A/B}; }
+  let r;
+  if(op==='+') r=A+B;
+  else if(op==='-') r=A-B;
+  else if(op==='*') r=A*B;
+  else if(op==='//'){ if(B===0) throw new Error('ZeroDivisionError : division par zéro'); r=Math.floor(A/B); }
+  else if(op==='%'){ if(B===0) throw new Error('ZeroDivisionError : division par zéro'); r=A-Math.floor(A/B)*B; }
+  else if(op==='**'){ r=Math.pow(A,B); if(ent && B<0) return {t:'float',v:r}; }
+  else throw new Error('opérateur inconnu : '+op);
+  if(ent){ if(!Number.isSafeInteger(r)) throw new Error('nombre entier trop grand pour cet interpréteur'); return {t:'int',v:r}; }
+  return {t:'float',v:r};
+}
+function pyAppel(nom,a){
+  if(a.length!==1) throw new Error('TypeError : '+nom+'() attend un seul argument');
+  const x=a[0];
+  if(nom==='type') return {t:'type',v:x.t};
+  if(nom==='str') return {t:'str',v:pyRep(x)};
+  if(x.t==='type') throw new Error('TypeError : '+nom+'() ne s’applique pas à un type');
+  if(nom==='int'){
+    if(x.t==='int') return x;
+    if(x.t==='float') return {t:'int',v:Math.trunc(x.v)};
+    const s=x.v.trim(); if(!/^[+-]?\d+$/.test(s)) throw new Error('ValueError : int() ne sait pas lire « '+x.v+' »');
+    return {t:'int',v:Number(s)};
+  }
+  if(nom==='float'){
+    if(x.t!=='str') return {t:'float',v:x.v};
+    const s=x.v.trim(); if(!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(s)) throw new Error('ValueError : float() ne sait pas lire « '+x.v+' »');
+    return {t:'float',v:Number(s)};
+  }
+  /* round() n'est PAS pris en charge, exprès : Python arrondit au pair
+     (round(2.5) vaut 2), et une imitation approximative afficherait une
+     sortie fausse. Refuser en nommant vaut mieux que mentir. */
+  throw new Error('NameError : la fonction « '+nom+' » n’est pas prise en charge par cet interpréteur');
+}
+function pyLex(s){
+  const t=[]; let i=0;
+  while(i<s.length){
+    const c=s[i];
+    if(c===' '||c==='\t'||c==='\r'){ i++; continue; }
+    if(c==='#') break;
+    if(c==='"'||c==='\''){
+      let j=i+1, v='';
+      while(j<s.length && s[j]!==c){
+        if(s[j]==='\\' && j+1<s.length){ const e=s[j+1]; v+=(e==='n'?'\n':(e==='t'?'\t':e)); j+=2; }
+        else v+=s[j++];
+      }
+      if(j>=s.length) throw new Error('SyntaxError : guillemet non fermé');
+      t.push({k:'str',v:v}); i=j+1; continue;
+    }
+    if(/[0-9]/.test(c) || (c==='.' && /[0-9]/.test(s[i+1]||''))){
+      const lit=s.slice(i).match(/^(\d[\d_]*)?(\.\d*)?([eE][+-]?\d+)?/)[0];
+      t.push({k:'num', flo:/[.eE]/.test(lit), v:Number(lit.replace(/_/g,''))}); i+=lit.length; continue;
+    }
+    if(/[A-Za-z_À-ɏ]/.test(c)){
+      let j=i; while(j<s.length && /[A-Za-z0-9_À-ɏ]/.test(s[j])) j++;
+      t.push({k:'nom',v:s.slice(i,j)}); i=j; continue;
+    }
+    const deux=s.slice(i,i+2);
+    if(deux==='//'||deux==='**'){ t.push({k:'op',v:deux}); i+=2; continue; }
+    if('+-*/%(),='.indexOf(c)>=0){ t.push({k:'op',v:c}); i++; continue; }
+    throw new Error('SyntaxError : caractère inattendu « '+c+' »');
+  }
+  return t;
+}
+/* La priorité est celle de Python : « - » se lie moins fort que « ** »
+   (-2 ** 2 vaut -4) et « ** » s'associe à droite (2 ** 3 ** 2 vaut 512).
+   Les deux se sont vus en comparant à python3, pas en relisant. */
+function pyExpr(t, p0, env){
+  let p=p0;
+  const isOp=function(v){ return !!t[p] && t[p].k==='op' && t[p].v===v; };
+  function primary(){
+    const x=t[p]; if(!x) throw new Error('SyntaxError : expression incomplète');
+    if(x.k==='str'){ p++; return {t:'str',v:x.v}; }
+    if(x.k==='num'){ p++; if(!x.flo && !Number.isSafeInteger(x.v)) throw new Error('nombre entier trop grand pour cet interpréteur'); return {t:x.flo?'float':'int', v:x.v}; }
+    if(x.k==='op' && x.v==='('){ p++; const v=arith(); if(!isOp(')')) throw new Error('SyntaxError : parenthèse non fermée'); p++; return v; }
+    if(x.k==='nom'){
+      p++;
+      if(isOp('(')){
+        p++; const args=[];
+        if(!isOp(')')){ args.push(arith()); while(isOp(',')){ p++; args.push(arith()); } }
+        if(!isOp(')')) throw new Error('SyntaxError : parenthèse non fermée'); p++;
+        return pyAppel(x.v,args);
+      }
+      if(!Object.prototype.hasOwnProperty.call(env,x.v)) throw new Error('NameError : la variable « '+x.v+' » n’existe pas');
+      return env[x.v];
+    }
+    throw new Error('SyntaxError : « '+x.v+' » inattendu');
+  }
+  function power(){ const a=primary(); if(isOp('**')){ p++; const b=factor(); return pyBin('**',a,b); } return a; }
+  function factor(){
+    if(isOp('-')){ p++; const v=factor(); if(v.t==='str') throw new Error('TypeError : « - » devant un texte'); return {t:v.t,v:-v.v}; }
+    if(isOp('+')){ p++; return factor(); }
+    return power();
+  }
+  function term(){ let a=factor(); while(t[p]&&t[p].k==='op'&&['*','/','//','%'].indexOf(t[p].v)>=0){ const o=t[p].v; p++; a=pyBin(o,a,factor()); } return a; }
+  function arith(){ let a=term(); while(t[p]&&t[p].k==='op'&&(t[p].v==='+'||t[p].v==='-')){ const o=t[p].v; p++; a=pyBin(o,a,term()); } return a; }
+  const v=arith(); return {v:v, p:p};
+}
+/* pyRun rend la SORTIE, l'état final des variables, et la trace des print :
+   pour chaque argument, s'il était un texte nu, un nom nu, ou une expression.
+   C'est cette trace que pyAns lit pour savoir quel texte et quelle variable
+   l'énoncé fait dire. */
+function pyRun(src){
+  const env={}, prints=[]; let out='';
+  String(src).split('\n').forEach(function(ligne, n){
+    const t=pyLex(ligne); if(!t.length) return;
+    const op=function(i,v){ return !!t[i] && t[i].k==='op' && t[i].v===v; };
+    if(t[0].k==='nom' && t[0].v==='print' && op(1,'(')){
+      let p=2; const args=[], vals=[];
+      if(!op(p,')')){
+        for(;;){
+          const a0=t[p], r=pyExpr(t,p,env); vals.push(r.v);
+          args.push((a0.k==='str'&&r.p===p+1)?{k:'str',v:a0.v}:((a0.k==='nom'&&r.p===p+1)?{k:'nom',v:a0.v}:{k:'expr'}));
+          p=r.p; if(op(p,',')){ p++; continue; } break;
+        }
+      }
+      if(!op(p,')') || t[p+1]) throw new Error('SyntaxError ligne '+(n+1));
+      out+=vals.map(pyRep).join(' ')+'\n'; prints.push({args:args, vals:vals}); return;
+    }
+    if(t[0].k==='nom' && op(1,'=')){
+      const r=pyExpr(t,2,env); if(t[r.p]) throw new Error('SyntaxError ligne '+(n+1));
+      env[t[0].v]=r.v; return;
+    }
+    throw new Error('ligne '+(n+1)+' non prise en charge : '+ligne.trim());
+  });
+  return {out:out, env:env, prints:prints};
+}
+/* Le code s'affiche coloré comme dans le carnet Jupyter de la fiche : les
+   nombres et print en vert, les textes en rouge, le « = » en violet. */
+function pyColorie(src){
+  const re=/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(#[^\n]*)|(\b\d+(?:\.\d*)?(?:[eE][+-]?\d+)?\b)|(\bprint\b|\bstr\b|\bint\b|\bfloat\b|\btype\b)|([=+\-*\/%])/g;
+  let out='', i=0, m;
+  while((m=re.exec(src))){
+    out+=esc(src.slice(i,m.index));
+    const cl=m[1]?'py-str':(m[2]?'py-cm':(m[3]?'py-num':(m[4]?'py-kw':'py-op')));
+    out+='<span class="'+cl+'">'+esc(m[0])+'</span>'; i=m.index+m[0].length;
+  }
+  return out+esc(src.slice(i));
+}
+
+/* ---- 2. Le tirage ---- */
+/* La réponse attendue se RECALCULE depuis le programme : le dernier print
+   porte un texte puis un nom, et la valeur est celle de l'état final. */
+function pyAns(q){
+  const r=pyRun(q.src), p=r.prints[r.prints.length-1];
+  if(!p || p.args.length!==2 || p.args[0].k!=='str' || p.args[1].k!=='nom') throw new Error('programme hors de la forme print("texte", variable)');
+  return {texte:p.args[0].v, valeur:pyRep(p.vals[1]), variable:p.args[1].v, sortie:r.out};
+}
+function pyTirage(vis, jeu){
+  const J=PY_JEUX[jeu];
+  const vi=rand(J.i.ent[0],J.i.ent[1]);
+  const vf=rand(J.f.ent[0],J.f.ent[1])+'.'+rand(1,9);
+  const vs=J.s.vals?pick(J.s.vals):pick(PY_PRENOMS);
+  const lignes=ensShuffle([J.i.nom+' = '+vi, J.f.nom+' = '+vf, J.s.nom+' = "'+vs+'"']);
+  const cible=(vis==='int')?J.i:(vis==='float'?J.f:J.s);
+  const texte=pick(cible.txt);
+  const src=lignes.join('\n')+'\n\nprint("'+texte+'", '+cible.nom+')';
+  const env=pyRun(src).env;
+  const noms=[J.i.nom,J.f.nom,J.s.nom];
+  const dedup=function(a){ return a.filter(function(x,i){ return x!=='' && a.indexOf(x)===i; }); };
+  /* les propositions ne diffèrent que par ce qui fait l'erreur */
+  const autreTexte=(vis==='str')?pick(J.i.txt):vs;
+  const t=ensShuffle(dedup([texte, '"'+texte+'"', cible.nom, autreTexte]));
+  const v=ensShuffle(dedup(noms.map(function(n){ return pyRep(env[n]); }).concat([cible.nom])));
+  const n=ensShuffle(noms.slice());
+  return {src:src, vis:vis, opt:{t:t, v:v, n:n}};
+}
+function pyBuildQuestions(){
+  /* les trois visages, puis des visages tirés au hasard jusqu'à PY_NB */
+  const vis=PY_VISAGES.slice(); while(vis.length<PY_NB) vis.push(pick(PY_VISAGES));
+  ensShuffle(vis); const jeux=ensShuffle([0,1,2]);
+  return vis.map(function(v,i){ return pyTirage(v, jeux[i%jeux.length]); });
+}
+function pyCases(q){ return [{id:'py-s-t',cle:'texte'},{id:'py-s-v',cle:'valeur'},{id:'py-s-n',cle:'variable'}]; }
+
+/* ---- 3. Cycle de vie ---- */
+async function startPY(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pyBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'py', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+pyCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('py'); renderPY();
+}
+let _pySaveTimer=null;
+function renderPY(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('pyIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPY').innerHTML=modeTagHTML();
+  $('pyLiveScore').textContent=test.score;
+  $('pyFeedback').textContent=''; $('pyFeedback').className='mp-feedback';
+  $('pyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyValidate" onclick="checkPY()">Vérifier</button>';
+  const sel=function(id, opts, aria){
+    return '<select class="py-sel" id="'+id+'" aria-label="'+aria+'"><option value="" selected disabled>?</option>'
+      +opts.map(function(o){ return '<option value="'+esc(o)+'">'+esc(o)+'</option>'; }).join('')+'</select>';
+  };
+  $('pyHost').innerHTML=
+    '<div class="py-cell">'
+    +'<p class="py-label">Le programme</p>'
+    +'<pre class="py-code">'+pyColorie(q.src)+'</pre>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="pyRun" type="button" disabled onclick="pyExecuter()">▶ Exécuter le programme</button>'
+    +'<span class="py-hint" id="pyRunHint">Réponds d’abord à la question, puis tu pourras l’exécuter.</span></div>'
+    +'<p class="py-label">Ce que le programme affiche</p>'
+    +'<pre class="py-console" id="pyConsole"></pre>'
+    +'<p class="py-label">Qu’affiche ce programme ? Complète la phrase.</p>'
+    +'<div class="py-phrase">Le programme affiche le texte '+sel('py-s-t',q.opt.t,'le texte affiché')
+    +' puis '+sel('py-s-v',q.opt.v,'la valeur affichée')
+    +' qui est la valeur de la variable <span class="py-fin">'+sel('py-s-n',q.opt.n,'la variable')+'.</span></div>'
+    +'</div>';
+  pyCases(q).forEach(function(c){ const s=$(c.id); if(!s) return;
+    s.addEventListener('change',function(){ clearTimeout(_pySaveTimer); _pySaveTimer=setTimeout(autoSave,1000); }); });
+}
+/* Le message nomme l'erreur commise, sans redonner ce qui est juste. */
+function pyPourquoi(q, ans, subs){
+  const dits=[];
+  subs.forEach(function(s){
+    if(s.ok||s.vide) return;
+    const v=s.sel.value;
+    if(s.c.cle==='texte'){
+      if(v==='"'+ans.texte+'"') dits.push('Le texte entre guillemets s’affiche tel quel, mais SANS les guillemets.');
+      else if(v===ans.variable) dits.push('Ce qui est entre guillemets dans le print est un texte : il s’affiche tel quel.');
+      else dits.push('Le texte affiché est celui qui est écrit entre guillemets dans le print.');
+    } else if(s.c.cle==='valeur'){
+      if(v===ans.variable) dits.push(ans.variable+' sans guillemets n’affiche pas le mot « '+ans.variable+' » mais sa valeur.');
+      else dits.push('Après le texte, print affiche la valeur de la variable '+ans.variable+', pas celle d’une autre variable.');
+    } else dits.push('Dans le print, après la virgule, c’est '+ans.variable+' qui est écrit.');
+  });
+  return dits.join(' ');
+}
+function checkPY(live){
+  if(live) return;            /* pas de correction au fil des clics — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], ans=pyAns(q);
+  const subs=pyCases(q).map(function(c){ const sel=$(c.id), v=sel?String(sel.value):''; return {c:c, sel:sel, vide:v==='', ok:!!sel&&v===ans[c.cle]}; });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  subs.forEach(function(s){ corrChoix(s.sel, ans[s.c.cle], s.ok); });
+  if(!allOk && isSoutien()){
+    const vides=subs.filter(function(s){ return s.vide; }).length;
+    $('pyFeedback').textContent=vides
+      ? ('Il te manque '+vides+(vides>1?' cases':' case')+' — complète, puis revérifie.')
+      : 'Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('pyFeedback').className='mp-feedback bad';
+    $('pyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyValidate" onclick="checkPY()">Revérifier</button>';
+    const bad=$('pyHost').querySelector('.bad'); if(bad&&!bad.disabled) setTimeout(function(){ bad.focus(); },40);
+    return;
+  }
+  test.locked=true;
+  test.score+=nCorrect; $('pyLiveScore').textContent=test.score;
+  if(allOk){ $('pyFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !'])+' Exécute le programme pour le voir.'; $('pyFeedback').className='mp-feedback good'; }
+  else { $('pyFeedback').textContent=msgAvecVides(subs, pyPourquoi(q, ans, subs))+' Exécute le programme pour le voir.'; $('pyFeedback').className='mp-feedback bad'; }
+  const given=subs.map(function(s){ return s.sel&&s.sel.value?s.sel.value:'?'; }).join(' | ');
+  test.answers.push({...(ptsExo()||{}), correct:allOk, q:q.src.replace(/\n+/g,' ⏎ '), answer:ans.texte+' | '+ans.valeur+' | '+ans.variable, given:given});
+  $('pyActions').innerHTML=conseilInlineBtn();
+  pyDebloquer();
+}
+function pyDebloquer(){
+  const b=$('pyRun'); if(!b) return;
+  b.disabled=false; b.classList.remove('btn-ghost'); b.classList.add('btn-primary');
+  const h=$('pyRunHint'); if(h) h.textContent='Clique pour voir ce que le programme affiche vraiment.';
+  b.focus();
+}
+function pyExecuter(){
+  const b=$('pyRun'); if(!b||b.disabled) return;
+  const q=test.questions[test.idx]; let out;
+  try{ out=pyRun(q.src).out; }catch(e){ out='Erreur : '+e.message; }
+  const c=$('pyConsole'); c.textContent=out.replace(/\n$/,''); c.classList.add('py-exec');
+  b.disabled=true;
+  const h=$('pyRunHint'); if(h) h.textContent='Programme exécuté.';
+  const last=test.idx===test.questions.length-1;
+  $('pyActions').innerHTML='<button class="btn btn-primary" id="pyNext" onclick="nextPY()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pyNext'); if(nb) nb.focus();
+}
+function nextPY(){ if(test.idx<test.questions.length-1){ test.idx++; renderPY(); autoSave(); } else finishTest(); }
+function ctxPy(q){
+  let ans=null; try{ ans=pyAns(q); }catch(e){}
+  const donne=pyCases(q).map(function(c){ const s=$(c.id); return c.cle+' : '+((s&&s.value)||'(vide)'); }).join(' ; ');
+  let c='L’élève lit un petit programme Python et doit dire ce qu’il affiche, en complétant « Le programme affiche le texte … puis … qui est la valeur de la variable … ». Le programme est :\n'+q.src+'\n';
+  if(ans) c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais la donner) : le programme affiche « '+ans.sortie.trim()+' » — le texte « '+ans.texte+' », puis '+ans.valeur+', la valeur de la variable '+ans.variable+'. ';
+  c+='Ce que l’élève a choisi : '+donne+'. Règles à rappeler sans donner la réponse : un texte entre guillemets s’affiche tel quel, sans les guillemets ; une variable sans guillemets s’affiche par sa VALEUR, pas par son nom ; les éléments séparés par une virgule s’affichent séparés par une espace.';
+  return {nombre:'', contexte:c};
+}
+
+/* ---------- Exercice : int, float ou str ? (Python, types de variables) ----------
+   Repris de la page « Types de variables » du cours : 15 est un int (un
+   entier relatif), 15.5 un float (un nombre à virgule, écrit avec un point),
+   "15H30" un str (une chaîne de caractères — il y a le H, qui n'est pas un
+   chiffre) et "Thomas" aussi (ce n'est pas un nombre). L'exercice EXPLIQUE
+   d'abord — les trois cadres du cours sont sur l'écran, à chaque question —
+   puis TESTE : un programme de trois affectations, et le type de chacune à
+   choisir parmi int / float / str. Puis « Exécuter », qui ne se débloque
+   qu'une fois la réponse vérifiée (la chaîne de portes de {python-affichage})
+   : le programme porte un print(type(...)) par variable, et c'est Python —
+   l'interpréteur de la page — qui répond <class 'int'>.
+   LE TYPE ATTENDU N'EST JAMAIS RANGÉ À CÔTÉ DE LA QUESTION : il est lu dans
+   l'état final de pyRun, la fonction MÊME qui exécute le programme sous le
+   bouton, si bien que la correction ne peut pas contredire la console. La
+   question ne porte que le programme et le visage.
+   Quatre visages, chacun une fois par séance, en ordre mélangé : le trio du
+   COURS (un entier, un décimal, un texte — le jeu de {python-affichage}) ; les
+   GUILLEMETS ("2026" contre 2026 : ce sont les guillemets qui décident, pas
+   les chiffres) ; le POINT (15.0 contre 15 : un point fait un float, même
+   avec une partie décimale nulle) ; le MÉLANGE ("15H30" — une lettre parmi
+   des chiffres — et -3, négatif mais entier). Les deux pièges de contraste
+   posent le MÊME nombre sous deux écritures : c'est le contraste qui
+   enseigne. Le nombre de types par question VARIE d'un visage à l'autre — un
+   élève qui aurait appris « un de chaque » se tromperait —, et les noms des
+   variables des pièges ne disent rien de leur type.
+   Tout se choisit dans des listes, et aucune correction au fil des clics
+   (soutienEnDirect.sans) : à trois propositions, il suffirait d'essayer. */
+const PTY_NB=4;
+const PTY_VISAGES=['cours','guillemets','point','melange'];
+const PTY_TYPES=['int','float','str'];
+const PTY_NOMS_NB=['a','b','x','n','numero','valeur','total','resultat'];
+const PTY_NOMS_TXT=['mot','reponse','texte','c'];
+const PTY_CHIFFRES=['2026','15','7','100','0','2024','42'];
+const PTY_MOTS=['lundi','Paris','maths','oui','Lyon','Brest'];
+const PTY_FLOATS=['12.5','1.65','0.5','2.75','3.14','19.5'];
+/* un texte qui MÊLE lettres et chiffres, avec un nom qui ne dit pas son type */
+const PTY_MELANGE=[['heure','15H30'],['heure','8H45'],['salle','A12'],['salle','B2'],['duree','12 ans'],['masse','3 kg'],['ref','x5']];
+const PTY_NOMS_NEG=['temperature','solde','etage','ecart'];
+const PTY_NEG_INT=[-3,-12,-1,-7,-20];
+const PTY_FLOATS_MEL=['-2.5','-0.5','-7.25','2.5','0.75'];
+
+function ptyDistincts(pool, n){ return ensShuffle(pool.slice()).slice(0,n); }
+function ptyTirage(vis){
+  let vars;
+  if(vis==='cours'){
+    const J=pick(PY_JEUX);
+    vars=[[J.i.nom, String(rand(J.i.ent[0],J.i.ent[1]))],
+          [J.f.nom, rand(J.f.ent[0],J.f.ent[1])+'.'+rand(1,9)],
+          [J.s.nom, '"'+(J.s.vals?pick(J.s.vals):pick(PY_PRENOMS))+'"']];
+  } else if(vis==='guillemets'){
+    const v=pick(PTY_CHIFFRES), n=ptyDistincts(PTY_NOMS_NB,3);
+    const tiers=Math.random()<0.5?[n[2],pick(PTY_FLOATS)]:[pick(PTY_NOMS_TXT),'"'+pick(PTY_MOTS)+'"'];
+    vars=[[n[0],'"'+v+'"'],[n[1],v],tiers];
+  } else if(vis==='point'){
+    const v=rand(2,30), n=ptyDistincts(PTY_NOMS_NB,2);
+    const tiers=[pick(PTY_NOMS_TXT), '"'+(Math.random()<0.5?pick(PTY_MOTS):pick(PTY_CHIFFRES))+'"'];
+    vars=[[n[0],String(v)],[n[1],v+'.0'],tiers];
+  } else {
+    const m=pick(PTY_MELANGE);
+    vars=[[m[0],'"'+m[1]+'"'],[pick(PTY_NOMS_NEG),String(pick(PTY_NEG_INT))],[pick(PTY_NOMS_NB),pick(PTY_FLOATS_MEL)]];
+  }
+  vars=ensShuffle(vars);
+  const src=vars.map(function(v){ return v[0]+' = '+v[1]; }).join('\n')
+    +'\n\n'+vars.map(function(v){ return 'print(type('+v[0]+'))'; }).join('\n');
+  return {src:src, vis:vis};
+}
+function ptyBuildQuestions(){ return ensShuffle(PTY_VISAGES.slice()).map(ptyTirage); }
+/* La réponse se RECALCULE depuis le programme : le type de chaque variable
+   est celui de l'état final de pyRun, dans l'ordre des affectations. */
+function ptyAns(q){
+  const r=pyRun(q.src), noms=Object.keys(r.env), types={};
+  noms.forEach(function(n){ types[n]=r.env[n].t; });
+  return {noms:noms, types:types, sortie:r.out};
+}
+function ptyCases(q){ return ptyAns(q).noms.map(function(n,i){ return {id:'pty-s-'+i, nom:n}; }); }
+function ptyLitteraux(q){
+  const lits={};
+  q.src.split('\n').forEach(function(l){ const m=l.match(/^(\w+) = (.+)$/); if(m) lits[m[1]]=m[2]; });
+  return lits;
+}
+/* Les trois cadres du cours — sur l'écran, à chaque question : l'exercice
+   explique AVANT de tester. */
+function ptyCoursHTML(){
+  return '<div class="pty-cours">'
+    +'<div class="pty-type"><b>⚠ 15 est de type entier, ou <code>int</code></b> : un entier relatif (positif ou négatif), sans point ni guillemets.'
+    +'<span class="pty-ex">Pour enregistrer 15 ans, il faut une variable de type int (<i>integer</i>, « entier » en anglais). −3 est aussi un int.</span></div>'
+    +'<div class="pty-type"><b>⚠ 15.5 est de type flottant, ou <code>float</code></b> : un nombre à virgule — en Python, la virgule s’écrit avec un POINT.'
+    +'<span class="pty-ex">Pour stocker 15.5 kg, il faut un float (<i>floating</i>, « flottant »). 15.0 a un point : c’est un float, même si sa partie décimale est 0.</span></div>'
+    +'<div class="pty-type"><b>⚠ "15H30" est de type chaîne de caractères, ou <code>str</code></b> : du TEXTE, entre guillemets — il y a le caractère H, qui n’est pas un chiffre.'
+    +'<span class="pty-ex">"Thomas" aussi : ce n’est pas un nombre (<i>string</i>, « chaîne »). Et "2026" entre guillemets est un texte : ce sont les guillemets qui décident.</span></div>'
+    +'</div>'
+    +'<p class="pty-note"><code>print(type(x))</code> demande son type à Python : il affiche par exemple <code>&lt;class \'int\'&gt;</code>.</p>';
+}
+
+/* ---- Cycle de vie ---- */
+async function startPTY(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=ptyBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pty', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+ptyCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pty'); renderPTY();
+}
+let _ptySaveTimer=null;
+function renderPTY(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('ptyIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPTY').innerHTML=modeTagHTML();
+  $('ptyLiveScore').textContent=test.score;
+  $('ptyFeedback').textContent=''; $('ptyFeedback').className='mp-feedback';
+  $('ptyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptyValidate" onclick="checkPTY()">Vérifier</button>';
+  const cases=ptyCases(q), lits=ptyLitteraux(q);
+  const sel=function(id, aria){
+    return '<select class="py-sel" id="'+id+'" aria-label="'+aria+'"><option value="" selected disabled>?</option>'
+      +PTY_TYPES.map(function(o){ return '<option value="'+o+'">'+o+'</option>'; }).join('')+'</select>';
+  };
+  $('ptyHost').innerHTML=
+    '<div class="py-cell">'
+    +ptyCoursHTML()
+    +'<p class="py-label">Le programme</p>'
+    +'<pre class="py-code">'+pyColorie(q.src)+'</pre>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="ptyRun" type="button" disabled onclick="ptyExecuter()">▶ Exécuter le programme</button>'
+    +'<span class="py-hint" id="ptyRunHint">Réponds d’abord, puis tu pourras demander à Python.</span></div>'
+    +'<p class="py-label">Ce que le programme affiche</p>'
+    +'<pre class="py-console" id="ptyConsole"></pre>'
+    +'<p class="py-label">Quel est le type de chaque variable ?</p>'
+    +'<div class="pty-lignes">'
+    +cases.map(function(c){
+      return '<div class="py-phrase pty-ligne"><code>'+esc(c.nom+' = '+(lits[c.nom]||''))+'</code>'
+        +'<span class="pty-q"><span>→ <b>'+esc(c.nom)+'</b> est de type</span>'+sel(c.id,'le type de '+c.nom)+'</span></div>';
+    }).join('')
+    +'</div></div>';
+  cases.forEach(function(c){ const s=$(c.id); if(!s) return;
+    s.addEventListener('change',function(){ clearTimeout(_ptySaveTimer); _ptySaveTimer=setTimeout(autoSave,1000); }); });
+}
+/* Le message nomme ce qui décide du type — les guillemets, le point, le signe. */
+function ptyPourquoi(q, ans, subs){
+  const lits=ptyLitteraux(q), dits=[];
+  subs.forEach(function(s){
+    if(s.ok||s.vide) return;
+    const lit=lits[s.c.nom]||'', t=ans.types[s.c.nom];
+    if(t==='str'){
+      if(/^"\d+"$/.test(lit)) dits.push('« '+lit+' » est entre guillemets : c’est un texte (str), même s’il ne contient que des chiffres — ce sont les guillemets qui décident.');
+      else if(/\d/.test(lit)) dits.push('« '+lit+' » est entre guillemets, et il contient un caractère qui n’est pas un chiffre : c’est un texte (str), pas un nombre.');
+      else dits.push('« '+lit+' » est entre guillemets : c’est un texte (str), pas un nombre.');
+    } else if(t==='float'){
+      dits.push('« '+lit+' » s’écrit avec un point : c’est un nombre à virgule, donc un float'+(/\.0$/.test(lit)?' — même si sa partie décimale est 0.':'.'));
+    } else {
+      dits.push('« '+lit+' » est un entier'+(/^-/.test(lit)?' (négatif, mais entier)':'')+' : sans point ni guillemets, c’est un int.');
+    }
+  });
+  return dits.join(' ');
+}
+function checkPTY(live){
+  if(live) return;            /* pas de correction au fil des clics — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], ans=ptyAns(q);
+  const subs=ptyCases(q).map(function(c){ const sel=$(c.id), v=sel?String(sel.value):''; return {c:c, sel:sel, vide:v==='', ok:!!sel&&v===ans.types[c.nom]}; });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  subs.forEach(function(s){ corrChoix(s.sel, ans.types[s.c.nom], s.ok); });
+  if(!allOk && isSoutien()){
+    const vides=subs.filter(function(s){ return s.vide; }).length;
+    $('ptyFeedback').textContent=vides
+      ? ('Il te manque '+vides+(vides>1?' cases':' case')+' — complète, puis revérifie.')
+      : 'Presque ! Relis les trois cadres du cours, corrige les cases en rouge, puis revérifie.';
+    $('ptyFeedback').className='mp-feedback bad';
+    $('ptyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptyValidate" onclick="checkPTY()">Revérifier</button>';
+    const bad=$('ptyHost').querySelector('.bad'); if(bad&&!bad.disabled) setTimeout(function(){ bad.focus(); },40);
+    return;
+  }
+  test.locked=true;
+  test.score+=nCorrect; $('ptyLiveScore').textContent=test.score;
+  if(allOk){ $('ptyFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !'])+' Exécute le programme : Python va le confirmer.'; $('ptyFeedback').className='mp-feedback good'; }
+  else { $('ptyFeedback').textContent=msgAvecVides(subs, ptyPourquoi(q, ans, subs))+' Exécute le programme pour voir ce que Python répond.'; $('ptyFeedback').className='mp-feedback bad'; }
+  const given=subs.map(function(s){ return s.sel&&s.sel.value?s.sel.value:'?'; }).join(' | ');
+  test.answers.push({...(ptsExo()||{}), correct:allOk, q:q.src.replace(/\n+/g,' ⏎ '), answer:ans.noms.map(function(n){ return n+' : '+ans.types[n]; }).join(' | '), given:given});
+  $('ptyActions').innerHTML=conseilInlineBtn();
+  ptyDebloquer();
+}
+function ptyDebloquer(){
+  const b=$('ptyRun'); if(!b) return;
+  b.disabled=false; b.classList.remove('btn-ghost'); b.classList.add('btn-primary');
+  const h=$('ptyRunHint'); if(h) h.textContent='Clique pour voir ce que Python répond.';
+  b.focus();
+}
+function ptyExecuter(){
+  const b=$('ptyRun'); if(!b||b.disabled) return;
+  const q=test.questions[test.idx]; let out;
+  try{ out=pyRun(q.src).out; }catch(e){ out='Erreur : '+e.message; }
+  const c=$('ptyConsole'); c.textContent=out.replace(/\n$/,''); c.classList.add('py-exec');
+  b.disabled=true;
+  const h=$('ptyRunHint'); if(h) h.textContent='Programme exécuté.';
+  const last=test.idx===test.questions.length-1;
+  $('ptyActions').innerHTML='<button class="btn btn-primary" id="ptyNext" onclick="nextPTY()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('ptyNext'); if(nb) nb.focus();
+}
+function nextPTY(){ if(test.idx<test.questions.length-1){ test.idx++; renderPTY(); autoSave(); } else finishTest(); }
+function ctxPty(q){
+  let ans=null; try{ ans=ptyAns(q); }catch(e){}
+  const donne=ptyCases(q).map(function(c){ const s=$(c.id); return c.nom+' : '+((s&&s.value)||'(vide)'); }).join(' ; ');
+  let c='L’élève lit un petit programme Python et doit dire le type de chaque variable — int (entier), float (nombre à virgule) ou str (texte entre guillemets). Le programme est :\n'+q.src+'\n';
+  if(ans) c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais la donner) : '+ans.noms.map(function(n){ return n+' est de type '+ans.types[n]; }).join(', ')+'. ';
+  c+='Ce que l’élève a choisi : '+donne+'. Règles à rappeler sans donner la réponse : un entier relatif sans point ni guillemets est un int, même négatif ; un nombre écrit avec un point est un float, même si sa partie décimale est 0 ; ce qui est entre guillemets est un texte (str), même si ce ne sont que des chiffres — ce sont les guillemets qui décident ; print(type(x)) affiche le type de x.';
+  return {nombre:'', contexte:c};
+}
+
 /* La rangée d'aide, propre au niveau : la Seconde la pose elle-même dans
    « sfActions », la Première la fait poser par iaBoutons(). Le moteur ne
    choisit pas — c'est le seul endroit où les deux fichiers diffèrent. */
@@ -19003,7 +19699,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
