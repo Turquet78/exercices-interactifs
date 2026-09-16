@@ -5898,7 +5898,7 @@ async function parcours(page, N){
        coordonnée recopiée : la même transformation que le dessin), on pose les
        trois points, on vérifie, et on mesure ce que jsdom ne peut pas voir :
        le repère à une taille lisible, l'escalier vert d'étendue non nulle, et
-       les trois rangées de la démonstration d'un seul tenant. */
+       les « ≤ » de l'initialisation et de la démonstration alignés en colonnes. */
     titre('6 vicies nonies. LA SUITE MONOTONE : L\'ESCALIER SE CLIQUE');
     if(!P.suiteVariation){
       ignorer('le tracé en escalier se pose au clic, sur le bon rail',
@@ -6073,35 +6073,92 @@ async function parcours(page, N){
       { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(fin.encre || '');
         if(m){ const c = [+m[1], +m[2], +m[3]];
           if(!(c[2] >= Math.max(c[0], c[1]))) dits.push('le point juste n\'est pas peint en bleu : ' + fin.encre); } }
-      /* LES TROIS RANGÉES DE LA DÉMONSTRATION SONT D'UN SEUL TENANT : coupée en
-         deux, une chaîne d'inégalités se lit comme deux chaînes. On mesure à
-         DEUX largeurs, et la seconde est celle qui compte — à 1400 px la
-         rangée tient, donc un repli ne s'y voit pas : le sabotage y restait
-         vert en parlant d'autre chose. À 900 px elle NE tient plus, et c'est
-         là qu'on lit ce qu'elle fait : elle doit DÉFILER dans sa boîte, jamais
-         se replier. */
-      const mesurerRangs = async () => await s.page.evaluate(() => {
-        const sc = document.querySelector('#svrPartE .svr-scroll');
-        return { rangs: [...document.querySelectorAll('#svrPartE .svr-drow')].map(d => {
-            const r = d.getBoundingClientRect();
-            const hauts = [...d.children].filter(c => c.getBoundingClientRect().height > 0)
-              .map(c => c.getBoundingClientRect().height);
-            return { h: Math.round(r.height), max: Math.round(Math.max.apply(null, hauts.concat([0]))) };
-          }),
-          debord: sc ? Math.round(sc.scrollWidth - sc.clientWidth) : -1 };
+      /* LES « ≤ » TOMBENT LES UNS SOUS LES AUTRES (demande de Turquet, septembre
+         2026) : l'initialisation et la démonstration sont des GRILLES à colonnes,
+         et jsdom n'a pas de mise en page — seul un navigateur sait où tombe une
+         colonne. On lit les cellules RENDUES (data-r / data-c), jamais la feuille
+         de styles : un display:grid perdu laisse toutes les classes en place et
+         met tout à la file. Trois bords, et n'en tenir qu'un ne tient rien :
+         chaque rangée d'un seul tenant (une bande verticale commune), les « ≤ »
+         et les termes d'une même colonne au même CENTRE d'une rangée à l'autre,
+         et les valeurs de l'initialisation SOUS leur terme, une ligne plus bas.
+         Puis le défilement : à 1400 px rien ne défile, à 900 px la démonstration
+         DÉFILE dans sa boîte — une grille ne sait pas se replier, mais un contenu
+         qui aurait « trouvé la place ailleurs » dirait qu'elle n'en est plus une. */
+      const mesurerGrilles = async () => await s.page.evaluate(() => {
+        const lire = g => {
+          /* on mesure le CONTENU de la cellule, jamais sa boîte : une cellule de
+             grille s'étire sur toute sa colonne, donc son centre est celui de la
+             colonne quoi qu'elle fasse de son contenu — un « ≤ » poussé à gauche
+             (justify-content perdu) passait au vert en parlant d'autre chose ;
+             le sabotage l'a montré. Un Range sur le contenu rend la boîte du
+             glyphe comme celle d'une liste. */
+          const cels = [...g.querySelectorAll('.svr-cel')].map(c => {
+            const rg = document.createRange(); rg.selectNodeContents(c);
+            const r = rg.getBoundingClientRect();
+            return { r: +c.dataset.r, c: +c.dataset.c, x: (r.left + r.right) / 2, top: r.top, bot: r.bottom,
+                     le: c.classList.contains('svr-le'), val: c.classList.contains('svr-val'),
+                     libre: c.classList.contains('svr-just') || c.classList.contains('svr-lib') || c.classList.contains('svr-suite') };
+          });
+          const sc = g.parentElement;
+          return { cels, debord: Math.round(sc.scrollWidth - sc.clientWidth), coupe: Math.round(sc.scrollHeight - sc.clientHeight) };
+        };
+        const gi = document.querySelector('#svrPartE .svr-grec'), gd = document.querySelector('#svrPartE .svr-gdemo');
+        return { init: gi ? lire(gi) : null, demo: gd ? lire(gd) : null };
       });
-      const jugerRangs = (m, large) => {
-        if(large && m.debord > 2) dits.push('la démonstration défile de ' + m.debord + ' px à 1400 px de large');
-        if(!large && m.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs');
-        m.rangs.forEach((r, i) => {
-          if(r.h > r.max * 1.6) dits.push('à ' + (large ? 1400 : 900) + ' px, la rangée ' + (i + 1)
-            + ' de la démonstration s\'est repliée (' + r.h + ' px pour des éléments de ' + r.max + ' px)');
+      const jugerGrilles = (m, large) => {
+        const L = large ? 1400 : 900;
+        if(!m.init) { dits.push('la récurrence (initialisation et hérédité) n\'est pas une grille à colonnes (.svr-grec)'); return; }
+        if(!m.demo) { dits.push('la démonstration n\'est pas une grille à colonnes (.svr-gdemo)'); return; }
+        [['la récurrence', m.init], ['la démonstration', m.demo]].forEach(([nom, g]) => {
+          const rangs = {}; g.cels.forEach(c => { (rangs[c.r] = rangs[c.r] || []).push(c); });
+          Object.keys(rangs).forEach(r => {
+            const cs = rangs[r], haut = Math.max(...cs.map(c => c.top)), bas = Math.min(...cs.map(c => c.bot));
+            if(haut >= bas - 4) dits.push('à ' + L + ' px, la rangée ' + r + ' de ' + nom + ' n\'est pas d\'un seul tenant : ses cellules ne partagent aucune bande verticale');
+          });
+          /* même colonne → même centre, d'une rangée à l'autre (les cellules libres — étiquette, suite, justification — ne sont pas des colonnes) */
+          const cols = {}; g.cels.filter(c => !c.libre).forEach(c => { (cols[c.c] = cols[c.c] || []).push(c); });
+          Object.keys(cols).forEach(c => {
+            const xs = cols[c].map(k => k.x), ecart = Math.max(...xs) - Math.min(...xs);
+            if(ecart > 3) dits.push('à ' + L + ' px, la colonne ' + c + ' de ' + nom + ' n\'est pas alignée : ' + Math.round(ecart) + ' px d\'écart entre ses cellules');
+          });
+          if(large && g.debord > 2) dits.push(nom + ' défile de ' + g.debord + ' px à 1400 px de large');
+          /* overflow-x:auto emporte overflow-y : ce qui dépasse la boîte EN BAS est coupé, et
+             l'indice d'un terme U_n descend sous sa ligne — la dernière rangée en porte. On lit
+             le DÉBORD VERTICAL de la boîte (scrollHeight − clientHeight) : un Range sur les
+             cellules ne voit pas l'indice décalé, la sonde l'a montré (1899 contre 1903). */
+          if(g.coupe > 0) dits.push('à ' + L + ' px, le bas de ' + nom + ' est coupé par sa boîte : ' + g.coupe + ' px (les indices de la dernière rangée)');
         });
+        /* la récurrence : trois « ≤ » sur chacune de ses cinq lignes de chaîne — les
+           deux de l'initialisation, les trois de l'hérédité (rangées 4, 5, 6) —, et
+           les deux valeurs SOUS leur terme, une ligne plus bas */
+        { [1, 2, 4, 5, 6].forEach(r => { const n = m.init.cels.filter(c => c.le && c.r === r).length;
+            if(n !== 3) dits.push('la rangée ' + r + ' de la récurrence porte ' + n + ' « ≤ » au lieu de 3' + (r >= 4 ? ' : l\'hérédité a quitté la grille' : '')); });
+          const vals = m.init.cels.filter(c => c.val);
+          if(vals.length !== 2) dits.push(vals.length + ' valeur(s) sous les termes de l\'initialisation au lieu de 2');
+          vals.forEach(v => {
+            const t = m.init.cels.find(c => c.r === 2 && c.c === v.c && !c.le);
+            if(!t) { dits.push('la valeur de la colonne ' + v.c + ' n\'a aucun terme au-dessus d\'elle'); return; }
+            if(Math.abs(t.x - v.x) > 3) dits.push('la valeur n\'est pas centrée sous son terme (' + Math.round(t.x - v.x) + ' px)');
+            if(v.top < t.bot - 2) dits.push('la valeur n\'est pas une ligne EN DESSOUS de son terme (haut ' + Math.round(v.top) + ', bas du terme ' + Math.round(t.bot) + ')');
+          }); }
+        /* la démonstration : chaque f(…) a son résultat juste en dessous — même colonne, rangée suivante — et chaque « ≤ » le sien */
+        { const f = m.demo.cels.filter(c => c.r === 3 && !c.le), res = m.demo.cels.filter(c => c.r === 4 && !c.le);
+          if(f.length !== 4) dits.push(f.length + ' f(…) au lieu de 4 dans la démonstration');
+          if(res.length !== 5) dits.push(res.length + ' terme(s) au lieu de 5 sur la dernière ligne de la démonstration');
+          f.forEach(k => {
+            const r = res.find(c => c.c === k.c);
+            if(!r) dits.push('le f(…) de la colonne ' + k.c + ' n\'a aucun résultat sous lui');
+            else if(Math.abs(r.x - k.x) > 3 || r.top < k.bot - 2) dits.push('le résultat n\'est pas juste sous son f(…) (' + Math.round(r.x - k.x) + ' px de côté)');
+          });
+          const le3 = m.demo.cels.filter(c => c.le && c.r === 3), le4 = m.demo.cels.filter(c => c.le && c.r === 4);
+          le3.forEach(k => { if(!le4.some(c => c.c === k.c && Math.abs(c.x - k.x) <= 3)) dits.push('un « ≤ » de la ligne des f(…) n\'a pas de « ≤ » sous lui (colonne ' + k.c + ')'); });
+          if(!large && m.demo.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs'); }
       };
-      jugerRangs(await mesurerRangs(), true);
+      jugerGrilles(await mesurerGrilles(), true);
       await s.page.setViewportSize({ width: 900, height: 950 });
       await s.page.waitForTimeout(300);
-      jugerRangs(await mesurerRangs(), false);
+      jugerGrilles(await mesurerGrilles(), false);
       verifier('le tracé en escalier se pose au clic, sur le bon rail', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la suite monotone ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));

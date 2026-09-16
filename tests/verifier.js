@@ -8548,6 +8548,83 @@ function suiteVariationRecurrence(w, P){
         rejouer();
       } }
 
+    /* ---- 4 ter. LES « ≤ » TOMBENT LES UNS SOUS LES AUTRES (demande de Turquet,
+            septembre 2026) : l’initialisation et la démonstration sont des
+            GRILLES à colonnes. jsdom n’a pas de mise en page — il lit la
+            STRUCTURE : chaque cellule dit sa rangée et sa colonne (data-r,
+            data-c), et c’est la MÊME colonne qui met un « ≤ » sous un « ≤ », une
+            valeur sous son terme, un résultat sous son f(…). Le RENDU, lui, se
+            mesure au banc navigateur. --------------------------------------- */
+    const celDe=function(id){ const e=document.getElementById(id); const c=e&&e.closest('.svr-cel'); return c?{r:+c.dataset.r,c:+c.dataset.c}:null; };
+    const colsLE=function(g,r){ return [...g.querySelectorAll('.svr-cel.svr-le[data-r="'+r+'"]')].map(function(c){ return +c.dataset.c; }).sort(function(a,b){ return a-b; }); };
+    { const gi=document.querySelector('#svrPartE .svr-grec');
+      if(!gi) dit('la récurrence (initialisation et hérédité) n’est pas une grille à colonnes (.svr-grec)');
+      else {
+        const l1=colsLE(gi,1), l2=colsLE(gi,2);
+        if(l1.length!==3 || l1.join()!==l2.join()) dit('les « ≤ » de la ligne « donc » ne sont pas dans les colonnes de ceux de la première ligne ('+l1.join()+' / '+l2.join()+')');
+        [['svr-i1','svr-i3','svr-v1'],['svr-i2','svr-i4','svr-v2']].forEach(function(t){
+          const a1=celDe(t[0]), a2=celDe(t[1]), v=celDe(t[2]);
+          if(!a1||!a2||!v){ dit('une case de l’initialisation n’est pas dans une cellule de la grille : '+t.join(', ')); return; }
+          if(a1.r!==1||a2.r!==2) dit(t[0]+' et '+t[1]+' ne sont pas aux rangées 1 et 2 ('+a1.r+', '+a2.r+')');
+          if(a1.c!==a2.c) dit('le terme de la ligne « donc » ('+t[1]+') n’est pas dans la colonne de '+t[0]+' ('+a2.c+' contre '+a1.c+')');
+          if(v.r!==3) dit('la valeur '+t[2]+' n’est pas une ligne EN DESSOUS (rangée '+v.r+')');
+          if(v.c!==a2.c) dit('la valeur '+t[2]+' n’est pas SOUS son terme (colonne '+v.c+' contre '+a2.c+')');
+        });
+        const ci=celDe('svr-init'); if(!ci||ci.r!==2) dit('« c’est vrai / faux » a quitté la ligne « donc »');
+        /* l’hérédité suit, dans la MÊME grille (demande de Turquet, sept. 2026) :
+           ses trois lignes aux rangées 4, 5, 6, chaque terme dans la colonne de
+           son homologue de l’initialisation, ses « ≤ » dans les mêmes colonnes */
+        [['svr-h1','svr-h2',4],['svr-m1','svr-m2',5],['svr-m3','svr-m4',6]].forEach(function(t){
+          const g=celDe(t[0]), d=celDe(t[1]), i1=celDe('svr-i1'), i2=celDe('svr-i2');
+          if(!g||!d){ dit('une case de l’hérédité n’est pas dans une cellule de la grille : '+t[0]+', '+t[1]); return; }
+          if(g.r!==t[2]||d.r!==t[2]) dit(t[0]+' et '+t[1]+' ne sont pas à la rangée '+t[2]+' ('+g.r+', '+d.r+')');
+          if(g.c!==i1.c||d.c!==i2.c) dit('les termes de l’hérédité ('+t[0]+', '+t[1]+') ne sont pas dans les colonnes de ceux de l’initialisation ('+g.c+', '+d.c+' contre '+i1.c+', '+i2.c+')');
+          if(colsLE(gi,t[2]).join()!==l1.join()) dit('les « ≤ » de la rangée '+t[2]+' de l’hérédité ne sont pas dans les colonnes de ceux de l’initialisation ('+colsLE(gi,t[2]).join()+' / '+l1.join()+')');
+        });
+      } }
+    const verifierDemo=function(dec){
+      const nom=dec?'décroissante':'croissante';
+      const gd=document.querySelector('#svrPartE .svr-gdemo');
+      if(!gd){ dit(nom+' : la démonstration n’est pas une grille à colonnes (.svr-gdemo)'); return; }
+      const rangs=[1,2,3,4].map(function(r){ return gd.querySelectorAll('.svr-cel[data-r="'+r+'"]').length; });
+      if(rangs.some(function(k){ return !k; })) dit(nom+' : la démonstration n’a pas ses quatre rangées ('+rangs.join(', ')+')');
+      /* la justification OUVRE le bloc, sur sa propre ligne — au bout de la ligne des f(…) elle la faisait défiler */
+      const j=celDe('svr-mono'), b3=celDe('svr-b3');
+      if(!j||j.r!==1) dit(nom+' : « f est … sur [ ; ] » n’ouvre pas la démonstration (rangée '+(j?j.r:'?')+')');
+      if(!b3||b3.r!==1) dit(nom+' : les bornes de l’intervalle ne sont pas sur la ligne de la justification');
+      /* f(…) sous son terme de l’hypothèse, résultat sous son f(…) */
+      [['svr-p1','svr-f2'],['svr-p2','svr-f3']].forEach(function(t){ const a=celDe(t[0]), b=celDe(t[1]);
+        if(!a||!b||a.c!==b.c||a.r!==2||b.r!==3) dit(nom+' : '+t[1]+' n’est pas SOUS '+t[0]); });
+      const decal=dec?0:1;
+      [1,2,3,4].forEach(function(i){ const f=celDe('svr-f'+i), g=celDe('svr-g'+(i+decal));
+        if(!f||!g||f.c!==g.c||f.r!==3||g.r!==4) dit(nom+' : le résultat svr-g'+(i+decal)+' n’est pas SOUS svr-f'+i+(f&&g?' (colonnes '+g.c+' / '+f.c+')':'')); });
+      /* le terme qui élargit est au bon bout — à DROITE quand la suite décroît, à GAUCHE quand elle croît — et rien au-dessus de lui */
+      const extra=celDe(dec?'svr-g5':'svr-g1');
+      if(!extra || gd.querySelector('.svr-cel[data-r="3"][data-c="'+extra.c+'"]')) dit(nom+' : le terme qui élargit ('+(dec?'svr-g5, à droite':'svr-g1, à gauche')+') a un f(…) au-dessus de lui');
+      const le3=colsLE(gd,3), le4=colsLE(gd,4);
+      le3.forEach(function(c){ if(le4.indexOf(c)<0) dit(nom+' : le « ≤ » de la colonne '+c+' n’a pas de « ≤ » sous lui'); });
+      if(le4.length!==4) dit(nom+' : la dernière ligne porte '+le4.length+' « ≤ » au lieu de 4');
+    };
+    verifierDemo(true);
+    /* le visage CROISSANT, pris au vivier : c’est lui qui décale les deux chaînes
+       du dessus d’une colonne de terme — sans ce décalage, U1 tomberait sous f(U(n)) */
+    { const vc=svrVivier('cro')[0]; const qc={l:vc.l,L:vc.L,U0:vc.U0,sens:'cro',pts:[]};
+      test.questions=[qc]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; delete test.svrLignes; renderSVR();
+      verifierDemo(false);
+      /* et le badge de correction reste DANS sa cellule : posé nu dans une grille,
+         il deviendrait une cellule de plus, qui décalerait tout ce qui suit */
+      const ac=svrAns(qc);
+      svrCases(qc).forEach(function(x){ const e=document.getElementById(x.id); if(e) e.value=svrCorrVal(ac,x); });
+      svrPtsAttendus(ac).forEach(function(e){ svrPoser(e.r,e.x); });
+      feuille([svrDerTex(ac)]);
+      document.getElementById('svr-g2').value=(ac.fin[1]==='u1'?'u0':'u1'); document.getElementById('svr-v1').value='9';
+      checkSVR();
+      const badges=[...document.querySelectorAll('#svrPartE .mf-cor')];
+      if(badges.length<2) dit('la copie fausse ne pose pas ses deux badges de correction ('+badges.length+')');
+      badges.forEach(function(b){ if(!b.closest('.svr-cel')) dit('un badge de correction est posé HORS de sa cellule : il devient une cellule de plus et décale la grille'); });
+    }
+    rejouer();
+
     /* ---- 5. LE TRACÉ : le rail compte, la tolérance aussi, et le quatrième
             point est refusé ------------------------------------------------ */
     const E=svrPtsAttendus(a);

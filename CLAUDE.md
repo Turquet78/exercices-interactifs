@@ -7214,6 +7214,78 @@ navigateur, seul à avoir une mise en page et un défilement, et il tient les
 trois bords : la page n'a pas défilé, le graphique de a) est à l'écran, et la
 feuille ne garde pas le focus.
 
+**Puis les « ≤ » du 6.11 sont tombés les uns SOUS les autres.** Demande de
+Turquet (septembre 2026) : dans l'initialisation, que les deux termes de la
+ligne « donc » soient alignés avec les « ≤ », leur VALEUR une ligne en
+dessous, et les « ≤ » de cette ligne sous ceux de la première ; dans la
+démonstration, que les « ≤ » soient alignés « pour que le résultat du dessus
+soit juste en dessous à la ligne suivante ». Les chaînes étaient des rangées
+flex indépendantes — l'étiquette « Initialisation — vrai pour n = 0 : » et le
+« donc : » n'ont pas la même largeur, donc leurs « ≤ » ne pouvaient pas tomber
+au même endroit, et la ligne « donc » empilait chaque terme SUR sa valeur
+(`svrPile`), ce qui les désalignait encore. **Ce sont désormais deux GRILLES à
+colonnes** (`.svr-grille`) : les termes aux colonnes IMPAIRES, les « ≤ » aux
+colonnes PAIRES, chaque cellule placée en toutes lettres (rangée / colonne,
+relues par les bancs en `data-r` / `data-c`). Un « ≤ » tombe sous un « ≤ »
+par construction, pas par vigilance.
+**Le visage CROISSANT décale les deux chaînes du dessus d'une colonne de
+terme.** La dernière ligne a CINQ termes, et celui qui élargit est à DROITE
+quand la suite décroît (1 ≤ Uₙ₊₂ ≤ Uₙ₊₁ ≤ U₁ ≤ U₀), à GAUCHE quand elle croît
+(U₀ ≤ U₁ ≤ Uₙ₊₁ ≤ Uₙ₊₂ ≤ ℓ) : pour que f(U₀) reste au-dessus de U₁, les
+lignes de l'hypothèse et des f(…) commencent une colonne de terme plus loin
+dans ce second cas. Le contrôle exige que le terme qui élargit n'ait RIEN
+au-dessus de lui, au bon bout.
+**La justification a changé de place, et c'est la MESURE qui l'a décidé** :
+« car f (x) est croissante sur [0 ; 2] » vivait au bout de la ligne des f(…).
+Les colonnes se calant désormais sur le plus large de chaque colonne, cette
+ligne débordait de la carte dès 1400 px — 66 px de trop quand la suite
+décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. La
+justification OUVRE donc le bloc, sur sa propre ligne (« f est [croissante]
+sur [ 0 ; 2 ], et on l'applique à l'encadrement : »), et les trois chaînes se
+suivent sans rien entre elles — c'est ce que la demande veut. Une dixième
+colonne SOUPLE (`minmax(0,1fr)`) prend le reste de la ligne, pour que « c'est
+vrai » et cette justification s'étalent sans élargir les colonnes qu'ils
+enjambent — un élément qui enjambe une piste souple ne compte pas dans la
+largeur des pistes.
+**Chaque cellule est ENVELOPPÉE (`.svr-cel`), et il le faut** : `corrCase`
+insère son badge de correction APRÈS la case, et un badge posé nu dans une
+grille deviendrait une cellule de plus, qui décalerait tout ce qui suit. Le
+contrôle pose une copie fausse et exige que chaque badge vive DANS sa cellule.
+**Puis l'hérédité a suivi** (« fais la même chose pour les lignes de
+l'hérédité », Turquet, le même jour) : ses trois lignes — « on suppose »,
+« on montre », « donc » — ont trois étiquettes de largeurs différentes, donc
+leurs « ≤ » ne pouvaient pas tomber au même endroit. Elles vivent dans la
+MÊME grille que l'initialisation (`.svr-grec`, rangées 4 à 6), dont elles
+partagent les colonnes : tous les « ≤ » de la récurrence tombent les uns
+sous les autres, l'hérédité sous l'initialisation comprise — c'est la
+conséquence de la grille unique, pas une demande de plus, et elle coûte à
+l'initialisation une colonne d'étiquette élargie à celle de « Hérédité — on
+suppose que c'est vrai pour n : ». Le premier jet de ce paragraphe disait
+« l'hérédité n'est pas touchée » ; il racontait la première demande.
+**Et la dernière rangée s'est fait TRANCHER ses indices, ce qui ne s'est vu que
+sur la capture** : `overflow-x:auto` emporte `overflow-y`, donc ce qui
+dépasse la boîte EN BAS est coupé — et l'indice d'un terme Uₙ descend sous
+sa ligne (`.svr-sub`, `top:.32em`). Tant que la grille finissait par la
+rangée des VALEURS, rien ne dépassait ; l'hérédité venue, la dernière rangée
+porte des indices, et leurs cases sortaient de 4 px sous le bord. La boîte
+garde une réserve de 10 px en bas. **Et le contrôle qui la tient a d'abord
+mesuré autre chose** : un `Range` sur le contenu des cellules ne voit PAS
+l'indice décalé (1899 contre 1903 pour la case, sondé), et restait à zéro
+sur une grille tranchée ; il lit le DÉBORD VERTICAL de la boîte
+(`scrollHeight − clientHeight`), le signal direct de ce qui est coupé.
+**Deux bancs, la répartition habituelle.** jsdom lit la STRUCTURE : la même
+colonne pour un terme de la ligne « donc » et son homologue de la première
+ligne, pour chaque terme de l'hérédité et le sien, pour une valeur et son
+terme (rangée 3 sous rangée 2), pour chaque
+f(…) et son résultat — les deux visages, le croissant pris au vivier —, la
+justification en tête, le terme qui élargit au bon bout, le badge dans sa
+cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
+perdu laisse toutes les classes en place et met tout à la file — il exige que
+les cellules d'une même colonne aient le même CENTRE d'une rangée à l'autre, que
+chaque rangée soit d'un seul tenant, que les valeurs soient centrées SOUS
+leur terme et une ligne plus bas, que rien ne défile à 1400 px et que la
+démonstration défile à 900 — une grille ne sait pas se replier.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
