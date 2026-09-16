@@ -7056,6 +7056,130 @@ départage, un clic entre les deux rails qui ne pose rien, le repère à une
 taille lisible, l'escalier vert d'étendue non nulle et les trois rangées de la
 démonstration d'un seul tenant.
 
+**Puis la dérivée du 6.11 s'est présentée COMME AU 2.5.** Demande de Turquet
+(septembre 2026) : « dans l'exercice 6.11 en terminale je veux que la question
+sur le calcul de la dérivée soit présentée comme dans l'exercice 2.5 ». Le
+d) faisait écrire f ′(x) dans UNE case de texte de 260 px — la dérivée d'un
+quotient n'y tient pas, et rien n'y aidait à la trouver. Il porte maintenant
+la présentation du 2.5, au mot près : le bloc « Facultatif — On pose (u =
+numérateur, v = dénominateur) » et ses quatre champs mathématiques, puis la
+FEUILLE ligne par ligne, préfixée « f ′(x) = » puis « = ». Les deux listes du
+signe et des variations n'ont pas bougé.
+**LA DEMANDE PORTE SUR LA PRÉSENTATION, PAS SUR LE JUGE, et c'est tout
+l'arbitrage** : le 2.5 confie sa dérivée au modèle parce que c'est son sujet et
+qu'il n'a rien d'autre à noter ; ici les trente-sept autres réponses de l'écran
+se calculent, et **un verdict qu'on peut PROUVER ne se confie pas à un modèle**
+(la doctrine de `libreJuge`, de `salJuge` et du 6.8). La dérivée reste donc lue
+par `checkExprFn` — comme une FONCTION, en sept points —, exactement le juge de
+la case qu'elle remplace : même sévérité, même tolérance, toute écriture égale
+acceptée.
+**CHAQUE LIGNE VAUT f ′(x), et c'est la leçon du 6.8** : les préfixes
+l'affirment, l'écran le dit, donc une ligne qui ne vaut pas f ′(x) est une
+égalité fausse. Elle rougit SEULE — la ligne juste d'à côté garde son bleu — et
+la feuille entière porte le verdict de la RÉPONSE. Ne juger que la dernière
+ligne aurait laissé passer « f ′(x) = 3/(4 − x) = 3/(4 − x)² », c'est-à-dire
+« la structure a béni une chaîne FAUSSE », le signalement du 6.8 retombé tel
+quel.
+**LA FEUILLE EST UNE RÉPONSE, ET UNE SEULE** (`pts-case`, la classe des trois
+points du tracé) : la note ne peut pas dépendre du NOMBRE de lignes écrites,
+sans quoi l'élève qui détaille son calcul serait noté sur un autre total.
+L'exercice vaut donc toujours 38 réponses — la case unique en a cédé une, la
+feuille l'a reprise — et le contrôle le mesure sur une chaîne de trois lignes.
+**LES QUATRE CASES FACULTATIVES SE PEIGNENT APRÈS LA MESURE** : elles sont
+jugées localement (u = p, v = s − x, u′ = 0, v′ = −1) et ne valent AUCUN point,
+comme au 2.5 — mais ici la note se lit à l'écran par `ptsEcran()`, qui compte
+les `math-field` colorés : colorées avant `ptsExo()`, elles auraient changé le
+total sous les yeux de l'élève, le défaut de « good » au lieu de « ok » par une
+porte de plus. Une case facultative vide ne reçoit jamais de couleur.
+**EN SOUTIEN, LA FEUILLE SE JUGE À LA SORTIE, JAMAIS À LA FRAPPE** : colorée au
+fil des touches, « 3/ » déclarerait fausse une dérivée qu'on n'a pas fini
+d'écrire — c'est la convention des champs mathématiques de la Terminale (le
+`focusout` du 2.1), et les deux bords ont leur contrôle : sans le premier le
+soutien ne corrigerait plus rien sur d), sans le second il mentirait.
+**RIEN N'EST TOUCHÉ DANS `mlFeuille`** : le composant est le même texte dans les
+trois fichiers et un contrôle le compare au caractère près — on s'en SERT
+(mode « calcul », les préfixes en paramètre), on n'y touche pas. Et comme la
+feuille n'a AUCUN id, `_boxes` ne sait pas la restaurer : elle voyage dans
+`test.svrLignes`, que `snapshotTest` photographie — le motif du 6.7 —, et
+`startSVR` l'efface, `test` étant global.
+**`renderSVR` entre dans la liste des rendus enveloppés** : l'écran porte des
+champs mathématiques désormais, donc il lui faut sa rangée « Clavier
+mathématique » — le contrôle universel l'exige, et le banc navigateur la
+mesure.
+Le banc NAVIGATEUR TAPE la dérivée au clavier dans la vraie feuille MathLive
+(jsdom n'a pas la sérialisation réelle que le juge doit lire), mesure la BOÎTE
+du bloc facultatif et de la feuille — un CSS perdu les rendrait invisibles sans
+qu'une erreur ne se lève — et relit l'encre RENDUE du verdict.
+**ET UN DÉFAUT EST NÉ AVEC LA FEUILLE, que seule la SONDE a vu** : `mlFeuille`
+donne le focus à sa première ligne — c'est ce que veut le 2.5, dont la feuille
+EST l'exercice. Ici l'écran commence par le TRACÉ, et ce focus faisait descendre
+la page de **485 px** à l'arrivée : le graphique de a) sortait par le haut, et
+l'élève découvrait l'exercice sur la question d). **Sur TABLETTE la sonde a
+mesuré pire** — 820 × 1180, écran tactile : 764 px de défilement, le graphique
+370 px au-dessus du bord, et le clavier mathématique déployé tout seul avant
+que l'élève n'ait rien fait ; avec le correctif, aucun défilement, pas de
+clavier, le graphique à l'écran. `renderSVR` rend donc la main
+— elle relit la position AVANT et la repose, et relâche le champ — à TROIS
+instants, parce que MathLive reprend le focus après coup (le motif que
+`mlFeuille` emploie déjà pour son curseur) : à un seul instant, la mesure
+montrait le champ encore focalisé. `mlFeuille` n'est pas touchée — c'est
+l'appelant qui reprend ce qu'il n'a pas demandé. Le contrôle vit au banc
+navigateur, seul à avoir une mise en page et un défilement, et il tient les
+trois bords : la page n'a pas défilé, le graphique de a) est à l'écran, et la
+feuille ne garde pas le focus.
+
+**Puis les « ≤ » du 6.11 sont tombés les uns SOUS les autres.** Demande de
+Turquet (septembre 2026) : dans l'initialisation, que les deux termes de la
+ligne « donc » soient alignés avec les « ≤ », leur VALEUR une ligne en
+dessous, et les « ≤ » de cette ligne sous ceux de la première ; dans la
+démonstration, que les « ≤ » soient alignés « pour que le résultat du dessus
+soit juste en dessous à la ligne suivante ». Les chaînes étaient des rangées
+flex indépendantes — l'étiquette « Initialisation — vrai pour n = 0 : » et le
+« donc : » n'ont pas la même largeur, donc leurs « ≤ » ne pouvaient pas tomber
+au même endroit, et la ligne « donc » empilait chaque terme SUR sa valeur
+(`svrPile`), ce qui les désalignait encore. **Ce sont désormais deux GRILLES à
+colonnes** (`.svr-grille`) : les termes aux colonnes IMPAIRES, les « ≤ » aux
+colonnes PAIRES, chaque cellule placée en toutes lettres (rangée / colonne,
+relues par les bancs en `data-r` / `data-c`). Un « ≤ » tombe sous un « ≤ »
+par construction, pas par vigilance.
+**Le visage CROISSANT décale les deux chaînes du dessus d'une colonne de
+terme.** La dernière ligne a CINQ termes, et celui qui élargit est à DROITE
+quand la suite décroît (1 ≤ Uₙ₊₂ ≤ Uₙ₊₁ ≤ U₁ ≤ U₀), à GAUCHE quand elle croît
+(U₀ ≤ U₁ ≤ Uₙ₊₁ ≤ Uₙ₊₂ ≤ ℓ) : pour que f(U₀) reste au-dessus de U₁, les
+lignes de l'hypothèse et des f(…) commencent une colonne de terme plus loin
+dans ce second cas. Le contrôle exige que le terme qui élargit n'ait RIEN
+au-dessus de lui, au bon bout.
+**La justification a changé de place, et c'est la MESURE qui l'a décidé** :
+« car f (x) est croissante sur [0 ; 2] » vivait au bout de la ligne des f(…).
+Les colonnes se calant désormais sur le plus large de chaque colonne, cette
+ligne débordait de la carte dès 1400 px — 66 px de trop quand la suite
+décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. La
+justification OUVRE donc le bloc, sur sa propre ligne (« f est [croissante]
+sur [ 0 ; 2 ], et on l'applique à l'encadrement : »), et les trois chaînes se
+suivent sans rien entre elles — c'est ce que la demande veut. Une dixième
+colonne SOUPLE (`minmax(0,1fr)`) prend le reste de la ligne, pour que « c'est
+vrai » et cette justification s'étalent sans élargir les colonnes qu'ils
+enjambent — un élément qui enjambe une piste souple ne compte pas dans la
+largeur des pistes.
+**Chaque cellule est ENVELOPPÉE (`.svr-cel`), et il le faut** : `corrCase`
+insère son badge de correction APRÈS la case, et un badge posé nu dans une
+grille deviendrait une cellule de plus, qui décalerait tout ce qui suit. Le
+contrôle pose une copie fausse et exige que chaque badge vive DANS sa cellule.
+**Les lignes de l'hérédité (« on suppose », « on montre », « donc ») ne sont
+pas touchées** : la demande nomme l'initialisation et la démonstration, et le
+dire vaut mieux que de le taire.
+**Deux bancs, la répartition habituelle.** jsdom lit la STRUCTURE : la même
+colonne pour un terme de la ligne « donc » et son homologue de la première
+ligne, pour une valeur et son terme (rangée 3 sous rangée 2), pour chaque
+f(…) et son résultat — les deux visages, le croissant pris au vivier —, la
+justification en tête, le terme qui élargit au bon bout, le badge dans sa
+cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
+perdu laisse toutes les classes en place et met tout à la file — il exige que
+les cellules d'une même colonne aient le même CENTRE d'une rangée à l'autre, que
+chaque rangée soit d'un seul tenant, que les valeurs soient centrées SOUS
+leur terme et une ligne plus bas, que rien ne défile à 1400 px et que la
+démonstration défile à 900 — une grille ne sait pas se replier.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons

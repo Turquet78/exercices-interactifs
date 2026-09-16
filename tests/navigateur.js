@@ -5898,7 +5898,7 @@ async function parcours(page, N){
        coordonnée recopiée : la même transformation que le dessin), on pose les
        trois points, on vérifie, et on mesure ce que jsdom ne peut pas voir :
        le repère à une taille lisible, l'escalier vert d'étendue non nulle, et
-       les trois rangées de la démonstration d'un seul tenant. */
+       les « ≤ » de l'initialisation et de la démonstration alignés en colonnes. */
     titre('6 vicies nonies. LA SUITE MONOTONE : L\'ESCALIER SE CLIQUE');
     if(!P.suiteVariation){
       ignorer('le tracé en escalier se pose au clic, sur le bon rail',
@@ -5917,7 +5917,22 @@ async function parcours(page, N){
           ordre:['l','un1','u1','un','u0','un2'], ordreLim:['u0','l','zero','L'], pts:[] };
         renderSVR();
       });
-      await s.page.waitForTimeout(300);
+      await s.page.waitForTimeout(600);
+      /* L'ÉCRAN S'OUVRE SUR LE TRACÉ, PAS SUR LA FEUILLE. mlFeuille donne le
+         focus à sa première ligne — c'est ce que veut le 2.5, dont la feuille
+         EST l'exercice ; ici l'écran commence par le graphique de a), et ce
+         focus faisait DESCENDRE la page de 485 px : l'élève arrivait sur d)
+         sans avoir vu le dessin. Sur TABLETTE la sonde a mesuré pire — 764 px
+         de défilement et le clavier mathématique déployé tout seul. jsdom n'a
+         ni mise en page ni défilement : seul ce banc peut le voir. */
+      { const arrivee = await s.page.evaluate(() => {
+          const g = document.getElementById('svrGraph').getBoundingClientRect();
+          const sh = document.getElementById('svrSheet'), a = document.activeElement;
+          return { y: Math.round(window.scrollY), top: Math.round(g.top),
+                   dansFeuille: !!(sh && a && sh.contains(a)) }; });
+        if(arrivee.y > 8) dits.push('l\'écran s\'ouvre en ayant défilé de ' + arrivee.y + ' px : la feuille de d) a pris le focus');
+        if(arrivee.top < 0) dits.push('le graphique de a) est déjà sorti par le haut (' + arrivee.top + ' px)');
+        if(arrivee.dansFeuille) dits.push('la feuille de d) garde le focus à l\'arrivée : la première touche frappée écrirait dedans'); }
       /* le repère est RENDU à une taille lisible — un CSS perdu le réduirait
          sans qu'aucune erreur ne se lève, et les graduations deviendraient
          illisibles */
@@ -5979,6 +5994,42 @@ async function parcours(page, N){
         await s.page.waitForTimeout(140);
         const n = await s.page.evaluate(() => test.questions[test.idx].pts.length);
         if(n) dits.push('un clic posé entre les deux rails pose quand même un point'); }
+      /* d) EST PRÉSENTÉE COMME LE 2.5 (demande de Turquet, septembre 2026) :
+         le bloc facultatif u/v/u′/v′ et la feuille ligne par ligne. jsdom lit
+         des classes ; seul un navigateur voit qu'elles ont une BOÎTE — un CSS
+         perdu les rendrait invisibles sans qu'une erreur ne se lève. */
+      let feuilleVue = true;
+      { const d = await s.page.evaluate(() => {
+          const b = sel => { const e = document.querySelector(sel); if(!e) return null;
+            const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; };
+          return { fac: b('#svrPartD .dexp-facblock'), sheet: b('#svrSheet'),
+                   mf: [...document.querySelectorAll('#svrPartD .dexp-facblock math-field')].length,
+                   pfx: String((document.querySelector('#svrSheet .dexp2-prefix') || {}).textContent || '').replace(/\s/g, ''),
+                   clavier: [...document.querySelectorAll('#scr-svr .rc-jetons button')]
+                     .some(b2 => /clavier/i.test(b2.getAttribute('title') || '')) };
+        });
+        if(!d.fac || d.fac.w < 100 || d.fac.h < 20) dits.push('le bloc facultatif u/v/u′/v′ de d) n\'a pas de boîte');
+        if(d.mf !== 4) dits.push(d.mf + ' champ(s) facultatif(s) au lieu de 4');
+        if(!d.sheet || d.sheet.w < 100 || d.sheet.h < 20){ dits.push('la feuille de d) n\'a pas de boîte'); feuilleVue = false; }
+        if(d.pfx.indexOf('′(x)=') < 0) dits.push('la feuille de d) ne porte pas le préfixe « f ′(x) = » (« ' + d.pfx + ' »)');
+        if(!d.clavier) dits.push('l\'écran porte des champs mathématiques sans bouton « Clavier mathématique »'); }
+      /* LA DÉRIVÉE EST TAPÉE POUR DE VRAI : jsdom n'a pas la sérialisation
+         réelle que le juge doit lire — c'est le seul bord qui dise que ce que
+         l'élève écrit à la main est bien relu comme une fonction. */
+      /* on ne TAPE que dans une feuille qui a une boîte : sans elle le clic
+         expire au bout de trente secondes et le banc rend une panne de
+         Playwright à la place du défaut qu'il venait de mesurer — un
+         contrôle qui s'affiche sous le nom d'un autre. */
+      if(feuilleVue){
+        await s.page.click('#svrSheet math-field');
+        await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide */
+        await s.page.keyboard.type('3/(4-x)^2', { delay: 50 });
+        await s.page.waitForTimeout(300);
+        const t = await s.page.evaluate(() => {
+          const lg = svrDerLignes(), a = svrAns(test.questions[test.idx]);
+          return { plain: lg.length ? lg[0].plain : '', ok: lg.length ? checkExprFn(lg[0].plain, svrDer(a)) : false }; });
+        if(!t.ok) dits.push('la dérivée TAPÉE dans la feuille n\'est pas relue comme juste (lu : « ' + t.plain + ' »)');
+      }
       /* la copie juste, puis la vérification : la méthode se DESSINE, avec une
          étendue non nulle — un CSS perdu la rendrait invisible sans erreur */
       await s.page.evaluate(() => {
@@ -6003,38 +6054,97 @@ async function parcours(page, N){
       if(!fin.esc || fin.esc.w < 20 || fin.esc.h < 20) dits.push('l\'escalier vert de la méthode est dessiné mais d\'étendue presque nulle');
       if(fin.lect !== 2) dits.push(fin.lect + ' trait(s) de lecture au lieu de 2 (U1 sur l\'axe, U2 en hauteur)');
       if(fin.bleus !== 3) dits.push(fin.bleus + ' point(s) peint(s) en bleu au lieu de 3');
+      /* la feuille de d) porte le verdict de la réponse, et son encre se MESURE :
+         une classe posée pendant qu'une règle la peint autrement est un défaut
+         de PEINTURE, et seul un navigateur le voit. */
+      { const f = await s.page.evaluate(() => {
+          const sh = document.getElementById('svrSheet'), L = document.querySelector('#svrSheet .dexp2-line');
+          return { sh: sh ? sh.className : '', l: L ? L.className : '',
+                   bord: sh ? getComputedStyle(sh).borderTopColor : '',
+                   filet: L ? getComputedStyle(L).borderLeftColor : '' }; });
+        if(f.sh.indexOf('ok') < 0) dits.push('copie juste : la feuille de d) n\'est pas marquée juste (« ' + f.sh + ' »)');
+        if(f.l.indexOf('ok') < 0) dits.push('copie juste : la ligne de la feuille n\'est pas marquée juste (« ' + f.l + ' »)');
+        [['la bordure de la feuille', f.bord], ['le filet de la ligne juste', f.filet]].forEach(([quoi, enc]) => {
+          const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(enc || '');
+          if(!m) { dits.push(quoi + ' n\'a pas d\'encre lisible'); return; }
+          const c = [+m[1], +m[2], +m[3]];
+          if(!(c[2] >= Math.max(c[0], c[1]) && c[2] - Math.min(c[0], c[1]) >= 30))
+            dits.push(quoi + ' n\'est pas bleu : ' + enc); }); }
       { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(fin.encre || '');
         if(m){ const c = [+m[1], +m[2], +m[3]];
           if(!(c[2] >= Math.max(c[0], c[1]))) dits.push('le point juste n\'est pas peint en bleu : ' + fin.encre); } }
-      /* LES TROIS RANGÉES DE LA DÉMONSTRATION SONT D'UN SEUL TENANT : coupée en
-         deux, une chaîne d'inégalités se lit comme deux chaînes. On mesure à
-         DEUX largeurs, et la seconde est celle qui compte — à 1400 px la
-         rangée tient, donc un repli ne s'y voit pas : le sabotage y restait
-         vert en parlant d'autre chose. À 900 px elle NE tient plus, et c'est
-         là qu'on lit ce qu'elle fait : elle doit DÉFILER dans sa boîte, jamais
-         se replier. */
-      const mesurerRangs = async () => await s.page.evaluate(() => {
-        const sc = document.querySelector('#svrPartE .svr-scroll');
-        return { rangs: [...document.querySelectorAll('#svrPartE .svr-drow')].map(d => {
-            const r = d.getBoundingClientRect();
-            const hauts = [...d.children].filter(c => c.getBoundingClientRect().height > 0)
-              .map(c => c.getBoundingClientRect().height);
-            return { h: Math.round(r.height), max: Math.round(Math.max.apply(null, hauts.concat([0]))) };
-          }),
-          debord: sc ? Math.round(sc.scrollWidth - sc.clientWidth) : -1 };
+      /* LES « ≤ » TOMBENT LES UNS SOUS LES AUTRES (demande de Turquet, septembre
+         2026) : l'initialisation et la démonstration sont des GRILLES à colonnes,
+         et jsdom n'a pas de mise en page — seul un navigateur sait où tombe une
+         colonne. On lit les cellules RENDUES (data-r / data-c), jamais la feuille
+         de styles : un display:grid perdu laisse toutes les classes en place et
+         met tout à la file. Trois bords, et n'en tenir qu'un ne tient rien :
+         chaque rangée d'un seul tenant (une bande verticale commune), les « ≤ »
+         et les termes d'une même colonne au même CENTRE d'une rangée à l'autre,
+         et les valeurs de l'initialisation SOUS leur terme, une ligne plus bas.
+         Puis le défilement : à 1400 px rien ne défile, à 900 px la démonstration
+         DÉFILE dans sa boîte — une grille ne sait pas se replier, mais un contenu
+         qui aurait « trouvé la place ailleurs » dirait qu'elle n'en est plus une. */
+      const mesurerGrilles = async () => await s.page.evaluate(() => {
+        const lire = g => {
+          const cels = [...g.querySelectorAll('.svr-cel')].map(c => {
+            const r = c.getBoundingClientRect();
+            return { r: +c.dataset.r, c: +c.dataset.c, x: (r.left + r.right) / 2, top: r.top, bot: r.bottom,
+                     le: c.classList.contains('svr-le'), val: c.classList.contains('svr-val'),
+                     libre: c.classList.contains('svr-just') || c.classList.contains('svr-lib') || c.classList.contains('svr-suite') };
+          });
+          const sc = g.parentElement;
+          return { cels, debord: Math.round(sc.scrollWidth - sc.clientWidth) };
+        };
+        const gi = document.querySelector('#svrPartE .svr-ginit'), gd = document.querySelector('#svrPartE .svr-gdemo');
+        return { init: gi ? lire(gi) : null, demo: gd ? lire(gd) : null };
       });
-      const jugerRangs = (m, large) => {
-        if(large && m.debord > 2) dits.push('la démonstration défile de ' + m.debord + ' px à 1400 px de large');
-        if(!large && m.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs');
-        m.rangs.forEach((r, i) => {
-          if(r.h > r.max * 1.6) dits.push('à ' + (large ? 1400 : 900) + ' px, la rangée ' + (i + 1)
-            + ' de la démonstration s\'est repliée (' + r.h + ' px pour des éléments de ' + r.max + ' px)');
+      const jugerGrilles = (m, large) => {
+        const L = large ? 1400 : 900;
+        if(!m.init) { dits.push('l\'initialisation n\'est pas une grille à colonnes (.svr-ginit)'); return; }
+        if(!m.demo) { dits.push('la démonstration n\'est pas une grille à colonnes (.svr-gdemo)'); return; }
+        [['l\'initialisation', m.init], ['la démonstration', m.demo]].forEach(([nom, g]) => {
+          const rangs = {}; g.cels.forEach(c => { (rangs[c.r] = rangs[c.r] || []).push(c); });
+          Object.keys(rangs).forEach(r => {
+            const cs = rangs[r], haut = Math.max(...cs.map(c => c.top)), bas = Math.min(...cs.map(c => c.bot));
+            if(haut >= bas - 4) dits.push('à ' + L + ' px, la rangée ' + r + ' de ' + nom + ' n\'est pas d\'un seul tenant : ses cellules ne partagent aucune bande verticale');
+          });
+          /* même colonne → même centre, d'une rangée à l'autre (les cellules libres — étiquette, suite, justification — ne sont pas des colonnes) */
+          const cols = {}; g.cels.filter(c => !c.libre).forEach(c => { (cols[c.c] = cols[c.c] || []).push(c); });
+          Object.keys(cols).forEach(c => {
+            const xs = cols[c].map(k => k.x), ecart = Math.max(...xs) - Math.min(...xs);
+            if(ecart > 3) dits.push('à ' + L + ' px, la colonne ' + c + ' de ' + nom + ' n\'est pas alignée : ' + Math.round(ecart) + ' px d\'écart entre ses cellules');
+          });
+          if(large && g.debord > 2) dits.push(nom + ' défile de ' + g.debord + ' px à 1400 px de large');
         });
+        /* l'initialisation : trois « ≤ » par ligne, et les deux valeurs SOUS leur terme, une ligne plus bas */
+        { const le1 = m.init.cels.filter(c => c.le && c.r === 1), le2 = m.init.cels.filter(c => c.le && c.r === 2);
+          if(le1.length !== 3 || le2.length !== 3) dits.push('l\'initialisation porte ' + le1.length + ' et ' + le2.length + ' « ≤ » au lieu de 3 et 3');
+          const vals = m.init.cels.filter(c => c.val);
+          if(vals.length !== 2) dits.push(vals.length + ' valeur(s) sous les termes de l\'initialisation au lieu de 2');
+          vals.forEach(v => {
+            const t = m.init.cels.find(c => c.r === 2 && c.c === v.c && !c.le);
+            if(!t) { dits.push('la valeur de la colonne ' + v.c + ' n\'a aucun terme au-dessus d\'elle'); return; }
+            if(Math.abs(t.x - v.x) > 3) dits.push('la valeur n\'est pas centrée sous son terme (' + Math.round(t.x - v.x) + ' px)');
+            if(v.top < t.bot - 2) dits.push('la valeur n\'est pas une ligne EN DESSOUS de son terme (haut ' + Math.round(v.top) + ', bas du terme ' + Math.round(t.bot) + ')');
+          }); }
+        /* la démonstration : chaque f(…) a son résultat juste en dessous — même colonne, rangée suivante — et chaque « ≤ » le sien */
+        { const f = m.demo.cels.filter(c => c.r === 3 && !c.le), res = m.demo.cels.filter(c => c.r === 4 && !c.le);
+          if(f.length !== 4) dits.push(f.length + ' f(…) au lieu de 4 dans la démonstration');
+          if(res.length !== 5) dits.push(res.length + ' terme(s) au lieu de 5 sur la dernière ligne de la démonstration');
+          f.forEach(k => {
+            const r = res.find(c => c.c === k.c);
+            if(!r) dits.push('le f(…) de la colonne ' + k.c + ' n\'a aucun résultat sous lui');
+            else if(Math.abs(r.x - k.x) > 3 || r.top < k.bot - 2) dits.push('le résultat n\'est pas juste sous son f(…) (' + Math.round(r.x - k.x) + ' px de côté)');
+          });
+          const le3 = m.demo.cels.filter(c => c.le && c.r === 3), le4 = m.demo.cels.filter(c => c.le && c.r === 4);
+          le3.forEach(k => { if(!le4.some(c => c.c === k.c && Math.abs(c.x - k.x) <= 3)) dits.push('un « ≤ » de la ligne des f(…) n\'a pas de « ≤ » sous lui (colonne ' + k.c + ')'); });
+          if(!large && m.demo.debord <= 2) dits.push('à 900 px la démonstration ne défile pas : elle a trouvé la place ailleurs'); }
       };
-      jugerRangs(await mesurerRangs(), true);
+      jugerGrilles(await mesurerGrilles(), true);
       await s.page.setViewportSize({ width: 900, height: 950 });
       await s.page.waitForTimeout(300);
-      jugerRangs(await mesurerRangs(), false);
+      jugerGrilles(await mesurerGrilles(), false);
       verifier('le tracé en escalier se pose au clic, sur le bon rail', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran de la suite monotone ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
