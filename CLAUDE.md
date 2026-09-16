@@ -2964,6 +2964,191 @@ qu'une ceinture. Un dernier a frappé le VOISIN : `checkPYP` contient
 `checkPY`, et le contrôle du 5.1 rougissait sous le nom du 5.1 pour un
 défaut du 5.3 — son ancre est devenue « checkPY( ».
 
+**Puis l'élève a ÉCRIT sa première ligne de code : afficher un texte suivi
+d'une variable.** {python-completer} (Seconde, 5.7, demande de Turquet,
+septembre 2026 : « un exercice Python où on explique comment afficher du
+texte suivi d'une variable ; on donne un programme qui commence par
+note = 12 et l'élève doit compléter le programme pour qu'il affiche le texte
+"la note est :" suivi de la valeur de la variable ; l'élève peut ensuite
+exécuter le programme puis on doit vérifier le résultat ; en mode soutien le
+programme doit être capable d'expliquer où se trouve l'erreur ») suit
+{python-print} au menu et FERME le thème 5. Quatre exercices Python sont
+arrivés sur `main` le même jour par d'autres branches :
+{python-afficher-variable} (#255), qui fait afficher la VALEUR seule — celui-ci
+fait écrire le TEXTE suivi de la variable, l'étape d'après —, puis
+{python-noms-variables} (#252), {python-nom-variable} (#254) et
+{python-print} (#256), qui fait écrire un print de TEXTE seul. Son préfixe est `pyx`
+et non `pyc`, que #255 porte déjà : deux exercices sous un même préfixe se
+seraient marché dessus (kind, écran, rappel, questions), sans qu'aucune
+erreur ne le dise — la leçon du 6.10.
+**Et la fusion elle-même a laissé un piège que seul le banc a vu** : deux
+exercices ajoutés au MÊME endroit font des hunks « les deux côtés ont
+ajouté », et les lignes COMMUNES qui suivent un hunk — la `</section>` de
+l'écran, la fin d'une fonction, la ligne `RAPPELS` — n'appartiennent qu'à UN
+des deux blocs une fois qu'on garde les deux. L'écran de #255 n'était plus
+refermé, les écrans suivants vivaient DEDANS, et son verdict comptait « 17
+cases » sur une copie d'une case ; une fonction de #255 restait ouverte, et
+`RAPPELS` était déclaré deux fois. Aucun marqueur de conflit ne le disait :
+c'est `npm test` qui a nommé les trois, et la zone a été reconstruite depuis
+les blocs COMPLETS de chaque côté plutôt que hunk par hunk. La seconde fusion du
+même jour (#252 entre-temps) a été faite AINSI d'emblée — le fichier de `main`
+plus mes blocs à des ancres nommées — et l'extraction du bloc CSS s'est
+arrêtée sur un commentaire INTERNE : sept règles perdues, dont la ligne verte
+sous la case et la console rouge. jsdom restait vert ; seul le banc NAVIGATEUR
+les a nommées, à l'encre rendue. Un bloc s'extrait entre deux ancres qu'on
+VÉRIFIE, jamais « jusqu'au prochain commentaire ». **Et la troisième fusion du même
+jour a montré le bord d'à côté** : une entrée posée juste après la ligne
+`pythonNomVariable: {` de `tests/profils.js` est tombée DANS cet objet, qui
+tient sur dix lignes — `P.pythonCompleter` valait alors `undefined`, et mes
+onze contrôles se sont affichés « non applicable » au lieu de rougir. C'est
+exactement ce pour quoi cette mention existe : **un contrôle qui n'a rien à
+mesurer le DIT**, et c'est ce qui l'a fait voir. Une ancre d'insertion se
+choisit par la STRUCTURE (avant le bloc suivant, jamais après la ligne qui
+OUVRE le voisin), et le compte des contrôles — 343 puis 354 — le confirme. Le 5.1 fait PRÉDIRE un print, le 5.2 fait
+RECONNAÎTRE un type ; ici il faut PRODUIRE la ligne — dans une case de code
+à chasse fixe, sous la ligne 1 écrite par la page. Le cours est SUR l'écran,
+avant le programme (le motif des trois cadres du 5.2), et son exemple n'est
+aucune des questions.
+**LA CHAÎNE DES PORTES EST CELLE DE LA DEMANDE : écrire, EXÉCUTER, puis
+vérifier.** « Vérifier » ne s'ouvre qu'une fois la ligne exécutée telle
+qu'elle est écrite, et se referme sur une ligne modifiée — la console se vide
+avec lui, sans quoi elle montrerait la sortie d'une ligne qui n'est plus celle
+écrite. L'élève voit ce que SA ligne affiche, le compare à ce qui est demandé
+(l'écran le dit : « c'est-à-dire : la note est : 12 »), et demande le verdict
+ensuite. C'est le geste du carnet, tenu par l'ÉTAT du bouton et non par une
+consigne (la leçon de {placer-image}) ; Entrée dans la case exécute. Et
+« Vérifier » exécute LUI-MÊME une ligne qui ne l'aurait pas été : la console
+montre toujours ce que le juge a lu.
+**LA SORTIE AFFICHÉE ET LA CORRECTION SORTENT DE LA MÊME FONCTION** : le
+bouton, le juge (`pyxJuge`) et le diagnostic lisent tous `pyRun` sur le
+programme de l'élève — l'interpréteur du 5.1, comparé à un vrai CPython par
+le banc, ici sur 974 programmes : les témoins ET huit lignes d'élève par
+question, justes et fausses, refus pour refus. Le témoin est ÉCRIT depuis la
+question (`pyxAns`), jamais rangé à côté : elle ne porte que le nom, la
+valeur, le texte et le visage, et le contrôle refuse tout autre champ.
+**Le verdict compare la SORTIE — et exige la variable EMPLOYÉE.** Toute
+écriture qui affiche la même chose est juste : les guillemets simples,
+`"la note est :" + " " + str(note)`, un commentaire au bout. Mais
+`print("la note est :", 12)` affiche la bonne chose sans rien apprendre — la
+valeur est recopiée à la main —, et le message le dit : c'est un fait
+prouvable sur la ligne (aucun jeton `note` hors guillemets), pas une opinion.
+**LE DIAGNOSTIC NOMME OÙ EST L'ERREUR, en soutien comme en entraînement.**
+Il ne prononce que des faits PROUVABLES sur la ligne, dans un ordre qui
+compte : le guillemet ouvert et jamais fermé d'abord — sans lui, tout ce qui
+suit passerait pour du texte nu — ; le texte posé SANS guillemets (Python le
+prend pour des noms de variables, et c'est l'erreur la plus fréquente) ;
+`Print` en majuscule ; « afficher » à la place de print ; la parenthèse
+ouvrante manquante ; la parenthèse jamais fermée, COMPTÉE hors guillemets
+(l'interpréteur ne dit que « SyntaxError ligne 2 » sur ce cas-là — le
+premier jet du diagnostic l'a appris au premier banc) ; la variable en
+majuscule, ou inconnue ; la virgule manquante entre le texte et la variable ;
+le « + » entre un texte et un nombre. Puis, sur une ligne qui s'exécute : la
+variable entre guillemets (c'est son NOM qui s'affiche), l'ordre inversé,
+l'espace en trop ou manquante, le « : » oublié, la majuscule dans le texte,
+un calcul à la place de la variable, trois choses au lieu de deux, une ligne
+qui n'affiche rien. Ce qu'il ne sait pas nommer, il le MONTRE : « ton
+programme affiche X au lieu de Y ». Vingt-cinq lignes fausses sont ÉPINGLÉES
+au contrôle, chacune avec le mot que son diagnostic doit porter — un
+diagnostic qui dirait autre chose que l'erreur serait pire que « faux ».
+**En entraînement la ligne juste s'écrit en VERT SOUS la case** (un badge en
+ligne, à droite, sortirait de l'écran sur un téléphone) et la question se
+verrouille ; **en soutien, jamais** : la case rougit, le message dit « Où est
+l'erreur ? », l'élève corrige — le rouge s'en va dès la première frappe, le
+bouton se referme, il ré-exécute et revérifie. La ligne VIDE n'est jamais
+peinte : elle est redemandée. La première question est celle de la demande,
+ÉPINGLÉE (note = 12, « la note est : ») ; les trois suivantes tirent les
+trois visages du 5.1 — un entier, un décimal, un texte — dans ses jeux de
+variables (`PY_JEUX`, partagé, pas recopié), en ordre mélangé. Aucune
+correction au fil de la frappe (`soutienEnDirect.sans`) : une ligne de code
+se juge écrite, pas lettre par lettre. Une case par question, `pyxCases` pour
+la coupe d'un devoir.
+**Un défaut ne s'est vu que sur la capture** : la ligne juste en vert se
+posait À DROITE de la case au lieu de dessous — la rangée du programme est
+un flex, et un badge `display:block` y reste un élément de la rangée. Elle
+occupe désormais toute la rangée (`flex:0 0 100%`) et tombe sous la case ;
+le banc navigateur mesure les deux rectangles, parce que jsdom n'a pas de
+mise en page.
+Le banc NAVIGATEUR (« 6 vicies duodecies », déclaré par `pythonCompleter`
+dans `tests/profils.js`) tient ce que jsdom ne voit pas : le cours rendu, la
+ligne 1 et la case à chasse fixe et à la MÊME taille, un VRAI clic sur
+« Vérifier » fermé qui ne juge rien, la ligne fausse TAPÉE au clavier et sa
+ligne juste en VERT SOUS la case, la ligne juste de la question suivante
+tapée puis exécutée par Entrée, l'encre RENDUE du verdict, l'erreur de Python
+en rouge dans la console, la page qui ne déborde pas sur un téléphone, puis
+le soutien joué de bout en bout. Les contrôles universels des deux bancs ont
+couvert l'exercice au premier passage sans rien déclarer. Douze sabotages au
+banc jsdom, chacun rougissant en nommant son défaut — et la campagne a
+elle-même payé la règle « une campagne de sabotage se joue seule sur la
+machine » : lancée pendant que le banc NAVIGATEUR tournait encore, elle lui
+a fait mesurer la page sabotée (« le soutien verrouille une copie fausse »),
+et ses deux rouges accusaient une page juste. Rejoué seul, il est vert.
+
+**Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
+{python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
+« un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
+en Python et faire un exercice comme le 4 ; il faudra compléter une
+justification si c'est faux ») suit {python-afficher-variable} au menu, repris de la
+fiche « Noms de variables en Python » : le RAPPEL porte ses quatre règles
+dans son ordre et avec ses exemples (lettres, chiffres et `_` seulement ; pas
+de chiffre en tête ; majuscules et minuscules distinguées ; pas d'accent), et
+l'exercice pose des noms — `prix achat`, `prix_achat`, `2ndeG`, `SecondeG`,
+`Seconde:G`, `dix-huit`… — dont l'élève dit pour chacun s'il est correct ou
+incorrect, et, s'il est incorrect, POURQUOI, en choisissant la règle dans une
+liste. Trois questions de six noms, de deux à quatre incorrects par question.
+**LA JUSTIFICATION EST UNE PORTE, tenue par l'ÉTAT de la case** (le motif de
+{placer-image}) : la liste des raisons est visible mais grisée et fermée tant
+que le nom n'est pas déclaré incorrect, s'ouvre dès qu'il l'est, se referme
+et se vide si l'élève revient sur « correct ». Le navigateur le mesure sous un
+VRAI choix : Playwright refuse de choisir dans une liste fermée, et c'est le
+bord qu'on tient. Après une reprise de pause les valeurs reviennent APRÈS le
+rendu : `pvnPortes()` rouvre un instant plus tard les justifications des noms
+déjà déclarés incorrects — sans quoi l'élève reprenait devant une liste morte.
+**LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION** : celle-ci ne
+porte que les noms et l'ordre des raisons ; `pvnDefauts(nom)` — la fonction
+qui corrige — relit le nom lui-même, et le contrôle refait la correction par
+une SECONDE méthode (l'expression régulière d'un identifiant, et des tests de
+caractères qui n'ont rien en commun avec ceux de la page) sur toute la banque.
+**UN NOM INCORRECT N'A QU'UN SEUL DÉFAUT, et c'est la banque qui le
+garantit** : « 2ème » — un chiffre en tête ET un accent — aurait deux bonnes
+justifications dont une seule comptée, une lecture juste comptée fausse. Les
+accents ont LEUR règle, la 4 de la fiche, et non la règle 1 : « é » est une
+lettre, la raison « caractère interdit » nomme les symboles (espace, -, :, =).
+**LES RAISONS NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR** (la leçon
+d'{intervalles-inegalite}) : trois vraies règles, et trois PIÈGES qui ne
+justifient jamais rien — « il contient une majuscule », « il contient un
+chiffre », « il contient le caractère _ » —, les erreurs réelles de l'élève
+qui confond « contient » et « commence par », et le message y RÉPOND en
+nommant la règle. L'ordre des raisons est tiré par question et le même sur ses
+rangées : à forme égale, le rang de la bonne varie. Chaque séance montre les
+trois défauts ET les trois pièges parmi les noms corrects (un avec majuscule,
+un avec chiffre, un avec `_`) — la composition même de la fiche.
+**CHAQUE CASE SE JUGE SEULE** : le verdict d'un nom, et sa justification s'il
+est incorrect — un nom correct n'en a pas à compter, sa liste reste sans
+couleur. Un nom incorrect déclaré « correct » perd ses deux cases : sa
+justification, restée fermée, reçoit la correction en vert, mais elle n'est
+pas une case OUBLIÉE et le message ne la compte pas parmi les manquantes
+(`induit`) — le premier jet du contrôle s'y est pris, en exigeant « 2 cases
+manquantes » sur une page qui disait juste. La case vide ne rougit jamais.
+Aucune correction au fil des clics, et c'est déclaré (`soutienEnDirect.sans`)
+: à deux propositions, il suffirait d'essayer ; en soutien la case juste se
+verrouille en bleu, la fausse rougit sans badge, et la porte se rouvre quand
+l'élève corrige son verdict. Le rappel est en HTML pur — rien n'y empile — et
+n'écrit aucun « chiffre.chiffre » (le contrôle des numéros en dur lirait un
+numéro d'exercice). Deux bancs, la répartition habituelle : jsdom tient la
+fiche épinglée, la place au menu, la banque, le tirage (400 séances), la
+porte, la copie juste et la copie fausse cliquées, le soutien et les
+branchements ; le NAVIGATEUR (« 6 vicies terdecies », déclaré par
+`pythonNoms` dans `tests/profils.js`) mesure les rangées d'un seul tenant à
+1400 px, le nom rendu à chasse fixe avec ses espaces, la liste fermée qui
+refuse un vrai choix, l'encre RENDUE du verdict, et le soutien. Treize
+sabotages au banc jsdom, chacun rougissant en nommant son défaut — le juge
+qui ignore les accents, « 2ème » glissé dans la banque, la porte ouverte au
+rendu, le soutien qui touche la justification fermée, la séance sans ses
+trois défauts, le piège de la majuscule tu, la justification fermée comptée
+manquante, la règle 3 perdue, le bouton des tables revenu, l'ordre des
+raisons figé, le verdict vide rougi, la porte qui ne se rouvre plus après une
+reprise, l'exercice sorti du thème 5.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
