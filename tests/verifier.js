@@ -3582,6 +3582,7 @@ function exercices(suite){
     tableauEquations(w, P);
     pythonAffichage(w, P);
     pythonTypes(w, P);
+    pythonAfficherVariable(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -16234,6 +16235,259 @@ function pythonTypes(w, P){
       const ecarts = [];
       tous.forEach((p, i) => { if(mien[i] !== ref[i]) ecarts.push(JSON.stringify(p) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
       BORDS.forEach((b, i) => { if(ref[tires.length + i] !== b[1]) ecarts.push('la sortie épinglée de ' + JSON.stringify(b[0]) + ' n\'est pas celle de CPython : ' + JSON.stringify(ref[tires.length + i])); });
+      verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+  }
+}
+/* {python-afficher-variable} (Seconde) : le cours (comment on affiche une
+   variable) sur l'écran, puis un programme qui commence par « note = 12 » à
+   COMPLÉTER pour qu'il affiche la valeur de la variable ; l'élève écrit la
+   suite, peut l'exécuter, la page vérifie et le soutien dit OÙ est l'erreur.
+   Le contrôle épingle la demande (note = 12 : print(note) accepté, print(12),
+   print("note") et le nom seul refusés, chacun pour SA raison, sans jamais
+   écrire la réponse), tient la place au menu (5.3, rien d'autre ne bouge), le
+   tirage (la demande en tête, les trois types chacun une fois, la question qui
+   ne porte que le programme et la copie, la seconde méthode qui distingue
+   afficher 12 d'afficher la variable sur CHAQUE tirage), la copie juste TAPÉE
+   et vérifiée, la copie fausse et sa correction en vert, la copie vide qui ne
+   peint rien, le soutien qui nomme la ligne et le mot sans badge, les
+   branchements, la reprise — puis compare au vrai CPython ce que le juge
+   accepte et refuse. Aucun accent grave ni antislash littéral dans le code
+   évalué ; les retours à la ligne passent par String.fromCharCode(10). */
+function pythonAfficherVariable(w, P){
+  const nom = '{python-afficher-variable} : le cours, puis le programme à compléter pour afficher la variable';
+  if(!P.pythonAfficherVariable){ ignorer(nom, 'ce niveau n\'a pas l\'exercice « afficher une variable »'); return; }
+  const ID = P.pythonAfficherVariable.exercice, NB = P.pythonAfficherVariable.nb;
+  const present = evaluer(w, "typeof startPYC==='function' && typeof pyRun==='function' && typeof pycJuge==='function' && typeof pycAns==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPYC / pyRun / pycJuge / pycAns introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la demande, épinglée : note = 12 — si elle ne passe pas au juge, c'est le juge qui a tort ---- */
+  verifierEval(w, 'la demande, épinglée : sous « note = 12 », print(note) et ses écritures égales sont acceptés ; print(12), print("note"), le nom seul, Print, print sans parenthèses, la parenthèse ouverte, Note, une variable inconnue, du texte autour, deux lignes, la première ligne réécrite sont refusés — chacun avec SA raison et SON lieu, jamais la réponse', `(function(){
+    const NL=String.fromCharCode(10), vus=[], q={nom:"note",lit:"12",vis:"premiere",rep:""}, a=pycAns(q);
+    if(a.valeur!=="12"||a.solution!=="print(note)"||a.sortie!=="12"+NL) vus.push("pycAns : "+JSON.stringify(a));
+    ["print(note)","print( note )","  print(note)  ","x = note"+NL+"print(x)","print(str(note))","print(note + 0)","# j’affiche"+NL+"print(note)"].forEach(function(c){
+      const v=pycJuge(q,c); if(!v.ok) vus.push("refusée à tort : "+JSON.stringify(c)+" — "+v.ou+" / "+v.pourquoi);
+      else if(v.sortie!=="12"+NL) vus.push("acceptée avec la sortie "+JSON.stringify(v.sortie));
+    });
+    const refus=[
+      ["print(12)", /VARIABLE/, /note = 47/, 2],
+      ['print("note")', /guillemets/, /MOT/, 2],
+      ["note", /print/, /tout seul/, 2],
+      ["Print(note)", /minuscules/, /Print/, 2],
+      ["print note", /parenth/, /après « print »/, 2],
+      ["print(note", /refermée/, /manque/, 2],
+      ["print(Note)", /majuscules/, /Note/, 2],
+      ["print(notee)", /s’appelle/, /notee/, 2],
+      ['print("la note est", note)', /autre chose/, /la note est 12/, 2],
+      ["print(note)"+NL+"print(note)", /2 lignes/, /une seule/, 2],
+      ["note = 12"+NL+"print(note)", /déjà écrite/, /une fois/, 2],
+      ["afficher(note)", /ne connaît pas/, /afficher/, 2],
+      ["x = 5"+NL+"print(Note)", /majuscules/, /Note/, 3],
+      ['print("12")', /VARIABLE/, /note = 47/, 2],
+      ["print(note))", /de trop/, /\\)/, 2],
+      ['print("note)', /guillemet/, /par deux/, 2],
+      ["x = note", /Rien ne s’affiche/, /print/, 2]
+    ];
+    refus.forEach(function(r){
+      const v=pycJuge(q,r[0]);
+      if(v.ok){ vus.push("acceptée à tort : "+JSON.stringify(r[0])); return; }
+      const tout=v.pourquoi+" "+v.ou;
+      if(!r[1].test(tout)||!r[2].test(tout)) vus.push(JSON.stringify(r[0])+" : la raison ne dit pas "+r[1]+" et "+r[2]+" — "+tout);
+      if(v.ligne!==r[3]||v.ou.indexOf("à la ligne "+r[3])<0) vus.push(JSON.stringify(r[0])+" : le lieu n’est pas la ligne "+r[3]+" — "+v.ou);
+      /* le message ne donne JAMAIS la réponse — il a seulement le droit de CITER la ligne de l’élève */
+      if(r[0].indexOf("print(note)")<0 && tout.indexOf("print(note)")>=0) vus.push(JSON.stringify(r[0])+" : le message ÉCRIT la réponse");
+    });
+    const vide=pycJuge(q,"   "+NL); if(!vide.vide||vide.ok) vus.push("la copie vide n’est pas reconnue vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la place au menu ---- */
+  verifierEval(w, 'il suit {python-types} dans le thème 5, numéroté 5.3 — et rien d’autre ne bouge', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
+    if(TEST_NUM["${ID}"]!=="5.3") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-types"]!=="5.2"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(!/note = 12/.test(TESTS["${ID}"].desc)) vus.push("la description ne dit pas le programme de la demande");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le tirage, et la seconde méthode sur CHAQUE tirage ---- */
+  verifierEval(w, 'le tirage : '+NB+' questions, « note = 12 » toujours en tête, puis un entier, un décimal et un texte chacun une fois en ordre mélangé, la question ne porte que le programme et la copie, la variable du cours ne sort jamais — et sur chaque tirage print(nom) est accepté, print(valeur) et print("nom") refusés (200 séances)', `(function(){
+    const vus=[], ordres={};
+    for(let s=0;s<200 && vus.length<4;s++){
+      const qs=pycBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      const q0=qs[0]; if(q0.nom!=="note"||q0.lit!=="12"||q0.vis!=="premiere") vus.push("la première question n’est pas note = 12 : "+JSON.stringify(q0));
+      const vs=qs.slice(1).map(function(q){ return q.vis; }); ordres[vs.join(",")]=1;
+      if(vs.slice().sort().join(",")!=="float,int,str"){ vus.push("les trois types ne sortent pas chacun une fois : "+vs.join(",")); break; }
+      for(const q of qs){
+        if(Object.keys(q).sort().join(",")!=="lit,nom,rep,vis"){ vus.push("la question porte autre chose que nom / lit / vis / rep : "+Object.keys(q).join(",")); break; }
+        if(q.rep!=="") vus.push("la copie n’est pas vide au tirage");
+        if(q.nom==="nombre") vus.push("la variable du cours (nombre) sort du tirage : l’élève recopierait");
+        if(q!==q0 && q.nom==="note") vus.push("« note » ressort hors de la première question");
+        let a; try{ a=pycAns(q); }catch(e){ vus.push("pycAns refuse un tirage : "+e.message); break; }
+        if(q.vis==="int"&&a.type!=="int") vus.push("visage int, type "+a.type+" : "+q.lit);
+        if(q.vis==="float"&&(a.type!=="float"||q.lit.indexOf(".")<0)) vus.push("visage float : "+q.lit);
+        if(q.vis==="str"&&(a.type!=="str"||!/^".+"$/.test(q.lit)||a.valeur!==q.lit.slice(1,-1))) vus.push("visage str : "+q.lit+" affiche "+a.valeur);
+        const q2=Object.assign({},q,{lit:pycAutreLit(q)}); let a2; try{ a2=pycAns(q2); }catch(e){ vus.push("pycAutreLit rend un littéral illisible : "+q2.lit); break; }
+        if(a2.type!==a.type||a2.valeur===a.valeur) vus.push("la seconde valeur ne change pas ou change de type : "+q.lit+" → "+q2.lit);
+        const ok=pycJuge(q,"print("+q.nom+")"); if(!ok.ok||ok.sortie!==a.sortie) vus.push("print("+q.nom+") refusé sur "+q.lit+" : "+(ok.pourquoi||ok.sortie));
+        const v1=pycJuge(q,"print("+q.lit+")"); if(v1.ok||!/VARIABLE/.test(v1.pourquoi)) vus.push("print("+q.lit+") — la valeur recopiée — n’est pas refusé comme « pas la variable »");
+        const v2=pycJuge(q,'print("'+q.nom+'")'); if(v2.ok||!/guillemets/.test(v2.pourquoi)) vus.push('print("'+q.nom+'") n’est pas refusé pour ses guillemets');
+      }
+    }
+    if(Object.keys(ordres).length<3) vus.push("les types ne sont pas mélangés : "+Object.keys(ordres).join(" ; "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, l'exécution libre, et la copie juste TAPÉE puis vérifiée ---- */
+  verifierEval(w, 'le cours est sur l’écran, la première ligne est écrite par la page, « Exécuter » est libre dès le départ (vide : « n’affiche rien »), la copie juste tapée s’exécute (12) et vérifiée vaut 1, verrouille, compte une case, et propose la question suivante', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYC();
+    const vus=[], q=test.questions[0], a=pycAns(q), NL=String.fromCharCode(10);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    if(pycCases(q).length!==1) vus.push("pycCases rend "+pycCases(q).length);
+    const cours=document.querySelector("#pycHost .pyc-cours");
+    if(!cours) vus.push("le cours n’est pas sur l’écran");
+    else { const tx=cours.textContent; ["print","guillemets","nombre","afficher"].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); }); if(!cours.querySelector(".py-code")) vus.push("le cours ne montre pas d’exemple de programme"); }
+    const l1=document.getElementById("pycL1"), ta=document.getElementById("pyc-in"), run=document.getElementById("pycRun"), cons=document.getElementById("pycConsole");
+    if(!l1||l1.textContent!=="note = 12") vus.push("la première ligne affichée n’est pas « note = 12 » : "+(l1&&l1.textContent));
+    if(!ta||ta.tagName!=="TEXTAREA"||!ta.classList.contains("pts-case")||ta.value!=="") vus.push("pas de zone de saisie pts-case vide");
+    if(document.getElementById("pycHost").textContent.indexOf("variable note")<0) vus.push("la consigne ne nomme pas la variable");
+    if(!run||run.disabled) vus.push("« Exécuter » n’est pas libre dès le départ");
+    pycExecuter();
+    if(!/n’affiche rien/.test(cons.textContent)) vus.push("le programme vide exécuté ne dit pas qu’il n’affiche rien : "+JSON.stringify(cons.textContent));
+    ta.value="print(note)"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.rep!=="print(note)") vus.push("la frappe ne se range pas dans la question (q.rep = "+JSON.stringify(q.rep)+")");
+    if(cons.textContent!=="") vus.push("la console garde une sortie périmée après la frappe");
+    pycExecuter();
+    if(cons.textContent!=="12"||!cons.classList.contains("py-exec")||cons.classList.contains("py-err")) vus.push("l’exécution de print(note) montre "+JSON.stringify(cons.textContent));
+    if(test.locked) vus.push("exécuter a verrouillé la question");
+    checkPYC();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : classe "+ta.className+", note "+test.score);
+    if(!test.locked||!ta.disabled) vus.push("la question n’est pas verrouillée après la vérification");
+    if(!document.getElementById("pycNext")) vus.push("« Question suivante » n’est pas proposé");
+    if(!/12/.test(document.getElementById("pycFeedback").textContent)||document.getElementById("pycFeedback").className.indexOf("good")<0) vus.push("le retour ne dit pas la valeur affichée en vert");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct||ans.given!=="print(note)") vus.push("la note de la question ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(document.getElementById("pycRun").disabled) vus.push("« Exécuter » se ferme après la vérification");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. la copie fausse en entraînement, et la copie vide ---- */
+  verifierEval(w, 'en entraînement : la copie vide ne peint rien et ne verrouille rien ; print("note") est rouge avec la ligne attendue en vert à côté, le retour nomme la ligne 2 et les guillemets, la note vaut 0 — et « Exécuter » montre encore ce que fait la copie (note)', `(function(){
+    currentMode="train"; startPYC();
+    const vus=[], q=test.questions[0], ta=document.getElementById("pyc-in"), fb=document.getElementById("pycFeedback");
+    checkPYC();
+    if(ta.className.indexOf("bad")>=0||ta.className.indexOf("sol")>=0||test.locked||ta.disabled) vus.push("la copie vide est peinte ou verrouillée : "+ta.className);
+    if(!/Écris d’abord/.test(fb.textContent)) vus.push("la copie vide n’est pas redemandée : "+fb.textContent);
+    if(document.getElementById("pycNext")) vus.push("« Question suivante » proposé sur une copie vide");
+    ta.value='print("note")'; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYC();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse n’est pas rouge : "+ta.className);
+    const badge=ta.nextElementSibling;
+    if(!badge||!badge.classList.contains("mf-cor")||badge.textContent!=="print(note)") vus.push("pas de correction verte « print(note) » à côté : "+(badge&&badge.textContent));
+    if(!/ligne 2/.test(fb.textContent)||!/guillemets/.test(fb.textContent)) vus.push("le retour ne nomme pas la ligne et la raison : "+fb.textContent);
+    if(test.score!==0||!test.locked) vus.push("note "+test.score+", verrouillé "+test.locked);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==0||ans.correct) vus.push("la note enregistrée : "+JSON.stringify(ans));
+    pycExecuter();
+    if(document.getElementById("pycConsole").textContent!=="note") vus.push("après la vérification, l’exécution ne montre plus la copie : "+JSON.stringify(document.getElementById("pycConsole").textContent));
+    /* une copie qui plante s'exécute en erreur, encadrée de rouge */
+    startPYC(); const ta2=document.getElementById("pyc-in"); ta2.value="print(Note)"; ta2.dispatchEvent(new Event("input",{bubbles:true})); pycExecuter();
+    const c2=document.getElementById("pycConsole");
+    if(!/^Erreur/.test(c2.textContent)||!/Note/.test(c2.textContent)||!c2.classList.contains("py-err")) vus.push("l’exécution d’une copie qui plante ne montre pas l’erreur en rouge : "+JSON.stringify(c2.textContent)+" / "+c2.className);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. le soutien : OÙ est l'erreur, sans la réponse ---- */
+  verifierEval(w, 'en soutien : la copie fausse rougit la zone SANS badge et sans verrouiller, le retour dit « Erreur repérée à la ligne 2 » avec le mot fautif et la raison (jamais la réponse), Revérifier est proposé, la frappe efface le rouge, print(12) est expliqué par la variable qui change, et la copie corrigée vaut 1', `(function(){
+    currentMode="soutien"; startPYC();
+    const vus=[], q=test.questions[0], ta=document.getElementById("pyc-in"), fb=document.getElementById("pycFeedback");
+    const tape=function(c){ ta.value=c; ta.dispatchEvent(new Event("input",{bubbles:true})); };
+    tape("Print(note)"); checkPYC();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse n’est pas rouge en soutien : "+ta.className);
+    if(ta.nextElementSibling&&ta.nextElementSibling.classList.contains("mf-cor")) vus.push("la correction verte fuit en soutien");
+    if(test.locked||ta.disabled) vus.push("le soutien verrouille une copie fausse");
+    if(!/^Erreur repérée à la ligne 2/.test(fb.textContent)||!/Print/.test(fb.textContent)||!/minuscules/.test(fb.textContent)) vus.push("le retour ne dit pas où est l’erreur : "+fb.textContent);
+    if(fb.textContent.indexOf("print(note)")>=0) vus.push("le retour du soutien ÉCRIT la réponse");
+    const rv=document.getElementById("pycValidate"); if(!rv||rv.textContent.indexOf("Rev")<0) vus.push("pas de bouton Revérifier");
+    tape("Print(not"); if(ta.classList.contains("bad")) vus.push("la frappe ne retire pas le rouge");
+    tape("print(12)"); checkPYC();
+    if(!/VARIABLE/.test(fb.textContent)||!/note = 47/.test(fb.textContent)) vus.push("print(12) n’est pas expliqué par la variable qui change : "+fb.textContent);
+    if(test.score!==0) vus.push("note "+test.score+" sur une copie fausse");
+    tape("print(note)"); checkPYC();
+    if(!ta.classList.contains("ok")||test.score!==1||!test.locked) vus.push("la copie corrigée ne vaut pas 1 : "+ta.className+", note "+test.score);
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. les branchements, et la reprise ---- */
+  verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX qui dit print, les guillemets et les minuscules, les questions à l’IA, le contexte porte la ligne donnée, la copie et déclare la réponse secrète, la reprise remet la copie dans la zone, aucune correction au fil de la frappe', `(function(){
+    const vus=[];
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
+    const rap=RAPPELS.pyc||""; if(!rap) vus.push("pas de rappel RAPPELS.pyc");
+    if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
+    ["print","guillemets","minuscules","tout seul"].forEach(function(m){ if(rap.indexOf(m)<0) vus.push("le rappel ne dit pas « "+m+" »"); });
+    if(!QIA_SUGG.pyc||QIA_SUGG.pyc.length<3) vus.push("pas de questions à l’IA pour pyc");
+    currentMode="train"; startPYC(); const q=test.questions[0];
+    const ta=document.getElementById("pyc-in"); ta.value="print(Note)"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    const c=ctxPyc(q).contexte;
+    if(c.indexOf("note = 12")<0) vus.push("le contexte ne porte pas la ligne donnée");
+    if(c.indexOf("print(Note)")<0) vus.push("le contexte ne porte pas la copie de l’élève");
+    if(c.indexOf("SECR")<0||c.indexOf("print(note)")<0) vus.push("le contexte ne déclare pas la réponse attendue secrète");
+    if(!afficherEcranDe("pyc")) vus.push("afficherEcranDe ne connaît pas pyc (reprise et rejeu)");
+    /* la reprise : la copie voyage dans la question, et le rendu la remet */
+    q.rep="print(note"; renderPYC();
+    if(document.getElementById("pyc-in").value!=="print(note") vus.push("la copie n’est pas remise dans la zone au rendu (reprise après pause)");
+    if(String(liveCheckCurrent).indexOf("checkPYC")>=0) vus.push("le soutien colore au fil de la frappe : une ligne de code à moitié tapée est toujours fausse");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. la seconde méthode : CPython, sur ce que le juge accepte et refuse ----
+     Les sorties sont ÉPINGLÉES avec celles de CPython 3.11 : elles tiennent
+     même sans python sur la machine. Une copie qui plante plante des deux
+     côtés ; une copie qui affiche affiche la même chose. */
+  const BORDS = [
+    ['note = 12\nprint(note)', '12\n'], ['note = 12\nprint( note )', '12\n'], ['note = 12\nx = note\nprint(x)', '12\n'],
+    ['note = 12\nprint(str(note))', '12\n'], ['note = 12\nprint(12)', '12\n'], ['note = 12\nprint("note")', 'note\n'],
+    ['note = 12\nprint("la note est", note)', 'la note est 12\n'], ['note = 12\nprint(note)\nprint(note)', '12\n12\n'],
+    ['note = 12\nnote', ''], ['note = 12\nx = note', ''], ['prix = 8.5\nprint(prix)', '8.5\n'], ['taille = 1.7\nprint(taille)', '1.7\n'],
+    ['prenom = "Léa"\nprint(prenom)', 'Léa\n'], ['prenom = "Léa"\nprint("prenom")', 'prenom\n'], ['note = 47\nprint(12)', '12\n'],
+    ['note = 12\nprint(Note)', 'ERREUR'], ['note = 12\nprint(notee)', 'ERREUR'], ['note = 12\nPrint(note)', 'ERREUR'],
+    ['note = 12\nprint note', 'ERREUR'], ['note = 12\nprint(note', 'ERREUR'], ['note = 12\nafficher(note)', 'ERREUR']
+  ];
+  const lirePage = progs => {
+    const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(progs) + '.map(function(p){ try{ return pyRun(p).out; }catch(e){ return "ERREUR"; } }))');
+    return r.ok ? JSON.parse(r.valeur) : null;
+  };
+  const meme = (a, b) => (a === 'ERREUR' || /^ERREUR/.test(String(a))) ? /^ERREUR/.test(String(b)) : a === b;
+  const mienBords = lirePage(BORDS.map(b => b[0])) || [];
+  const ecartsBords = [];
+  BORDS.forEach((b, i) => { if(!meme(mienBords[i], b[1])) ecartsBords.push(JSON.stringify(b[0]) + ' : page ' + JSON.stringify(mienBords[i]) + ' / CPython ' + JSON.stringify(b[1])); });
+  verifier('sur les copies épinglées, la page répond comme CPython — même sortie, ou plantage des deux côtés (' + BORDS.length + ')', ecartsBords.length === 0, ecartsBords.slice(0, 3).join(' | '));
+
+  const nomPy = 'les copies que le juge de {python-afficher-variable} accepte ou refuse donnent la même sortie sous un vrai CPython';
+  const progs = evaluer(w, '(function(){ const o=[]; for(let i=0;i<30;i++) pycBuildQuestions().forEach(function(q){ ["print("+q.nom+")","print("+q.lit+")",\'print("\'+q.nom+\'")\',q.nom,"print(x)"].forEach(function(c){ o.push(pycProgramme(q,c)); }); }); return JSON.stringify(o); })()');
+  const tires = progs.ok ? JSON.parse(progs.valeur) : [];
+  verifier('le tirage de {python-afficher-variable} fournit des programmes à comparer', tires.length >= 400, tires.length + ' programme(s)');
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    const tous = tires.concat(BORDS.map(b => b[0]));
+    let ref = null; try{ ref = pythonExecuter(py, tous); }catch(e){ ref = null; }
+    if(!ref || ref.length !== tous.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); }
+    else {
+      const mien = lirePage(tous) || [];
+      const ecarts = [];
+      tous.forEach((p, i) => { if(!meme(mien[i], ref[i])) ecarts.push(JSON.stringify(p) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
+      BORDS.forEach((b, i) => { if(!meme(ref[tires.length + i], b[1])) ecarts.push('la sortie épinglée de ' + JSON.stringify(b[0]) + ' n\'est pas celle de CPython : ' + JSON.stringify(ref[tires.length + i])); });
       verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
     }
   }
