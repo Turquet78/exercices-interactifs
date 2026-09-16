@@ -679,14 +679,28 @@
   .svr-uw{display:inline-flex;align-items:baseline}
   .svr-sub{display:inline-flex;align-items:center;gap:1px;font-size:.72em;position:relative;top:.32em}
   .svr-p1{font-weight:700}
-  .svr-pile{display:inline-flex;flex-direction:column;align-items:center;gap:1px}
-  .svr-pile .svr-b{font-size:.8em;color:var(--ink-soft)}
+  /* Les chaines de l'INITIALISATION et de la DEMONSTRATION sont des GRILLES a
+     colonnes (demande de Turquet, septembre 2026) : un « <= » tombe sous le « <= »
+     de la ligne du dessus, la valeur d'un terme tombe sous ce terme, et le
+     resultat de f(…) tombe sous son f(…). Chaque cellule est ENVELOPPEE
+     (.svr-cel) : le badge de correction s'insere apres la case, et pose nu dans
+     une grille il deviendrait une cellule de plus, qui decalerait tout ce qui suit. */
+  /* neuf colonnes au contenu (cinq termes, quatre « <= »), puis une dixieme
+     SOUPLE qui prend le reste de la ligne : une cellule qui va « jusqu'au bout »
+     (le « c'est vrai » de l'initialisation, la justification de la demonstration)
+     s'y etale sans elargir les colonnes qu'elle enjambe — un element qui enjambe
+     une piste souple ne compte pas dans la largeur des pistes. */
+  .svr-grille{display:grid;grid-template-columns:repeat(9,max-content) minmax(0,1fr);align-items:center;column-gap:4px;row-gap:8px;font-size:1.25rem;justify-content:start;white-space:nowrap}
+  .svr-cel{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .svr-cel.svr-lib{justify-content:flex-end;padding-right:4px}
+  .svr-cel.svr-suite{justify-content:flex-start;padding-left:10px}
+  .svr-cel.svr-just{justify-content:flex-start;margin-bottom:2px}
+  .svr-cel.svr-val .svr-eg{color:var(--ink-soft)}
   .svr-etape{row-gap:10px}
   .svr-chaine{display:inline-flex;align-items:center;white-space:nowrap}
   .svr-scroll{overflow-x:auto;padding-bottom:2px}
-  .svr-drow{display:flex;align-items:center;gap:4px;white-space:nowrap;margin:10px 0;font-size:1.25rem}
   .svr-fapp{white-space:nowrap}
-  .sa2-row .svr-sel,.svr-drow .svr-sel{font-size:inherit;font-family:inherit}
+  .sa2-row .svr-sel,.svr-grille .svr-sel{font-size:inherit;font-family:inherit}
   /* d) est presentee comme le 2.5 : le bloc facultatif u/v/u'/v' puis la
      feuille ligne par ligne. Le VERDICT, lui, reste local (voir svrDerLignes).
      La feuille porte le verdict de la REPONSE (bordure), chaque ligne le sien
@@ -2637,7 +2651,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=315;
+const APP_VERSION=316;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -17667,9 +17681,6 @@ function svrSel(id,a,opts){
 function svrU(id,plus){
   return '<span class="svr-uw"><i>U</i><span class="svr-sub">'+svrIn(id,true)+(plus?'<span class="svr-p1">+1</span>':'')+'</span></span>';
 }
-function svrPile(id,idv){
-  return '<span class="svr-pile"><span class="svr-h">'+svrU(id,false)+'</span><span class="svr-b">= '+svrIn(idv,false)+'</span></span>';
-}
 function svrAjusterTout(){ SVR_IDS.forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
 function svrAjusterTout2(){ svrAjusterTout(); setTimeout(svrAjusterTout,0); }
 async function startSVR(){
@@ -17760,25 +17771,53 @@ function renderSVR(){
   const G=numFmt(a.dec?a.l:a.U0), Dr=numFmt(a.dec?a.U0:a.l);
   const fixG='<span class="svr-fix">'+G+'</span>', fixD='<span class="svr-fix">'+Dr+'</span>';
   const ligne=function(idA,idB){ return fixG+LE+svrU(idA,a.plus===0)+LE+svrU(idB,a.plus===1)+LE+fixD; };
-  const lignePile=function(idA,vA,idB,vB){ return fixG+LE+svrPile(idA,vA)+LE+svrPile(idB,vB)+LE+fixD; };
   const ligneNue=function(idA,idB){ return fixG+LE+svrU(idA,false)+LE+svrU(idB,false)+LE+fixD; };
+  /* Les GRILLES (voir la feuille de styles) : une cellule = une case de la grille,
+     placée en toutes lettres (rangée / colonne). Les termes vivent aux colonnes
+     IMPAIRES, les « ≤ » aux colonnes PAIRES, si bien qu'un « ≤ » tombe sous le
+     « ≤ » de la ligne du dessus. */
+  const cel=function(r,c,html,cls,aBout){ return '<span class="svr-cel'+(cls?' '+cls:'')+'" data-r="'+r+'" data-c="'+c+'" style="grid-area:'+r+' / '+c+(aBout?' / auto / -1':'')+'">'+html+'</span>'; };
+  const leC=function(r,c){ return cel(r,c,'≤','svr-le'); };
+  /* l'initialisation : la ligne « donc » reprend les DEUX termes sous ceux de la
+     première ligne, et leurs VALEURS s'écrivent une ligne en dessous, chacune sous
+     son terme (demande de Turquet, septembre 2026) */
+  const chaineInit=function(r,tA,tB){ return cel(r,2,fixG)+leC(r,3)+cel(r,4,tA)+leC(r,5)+cel(r,6,tB)+leC(r,7)+cel(r,8,fixD); };
+  const eg=function(idv){ return '<span class="sa2-t svr-eg">=</span>'+svrIn(idv,false); };
+  const initHTML='<div class="svr-scroll"><div class="svr-grille svr-ginit">'
+    +cel(1,1,'<b>Initialisation</b>'+T('— vrai pour '+n+' =')+svrIn('svr-n0',false)+T(' :'),'svr-lib')
+    +chaineInit(1, svrU('svr-i1',a.plus===0), svrU('svr-i2',a.plus===1))
+    +cel(2,1,T('donc :'),'svr-lib')
+    +chaineInit(2, svrU('svr-i3',false), svrU('svr-i4',false))
+    +cel(2,9,T('c’est')+svrSel('svr-init',a,[['vrai','vrai'],['faux','faux']]),'svr-suite',true)
+    +cel(3,4,eg('svr-v1'),'svr-val')+cel(3,6,eg('svr-v2'),'svr-val')
+    +'</div></div>';
+  /* la démonstration : le résultat de f(…) tombe SOUS son f(…), et les trois
+     chaînes se suivent SANS rien entre elles. La justification (f croissante sur
+     son intervalle) ouvre donc le bloc, sur sa propre ligne : posée au bout de
+     la ligne des f(…), elle la faisait DÉFILER dès 1400 px (66 px de trop quand
+     la suite décroît, 214 quand elle croît — mesuré). La dernière chaîne a CINQ
+     termes — le terme qui élargit est à DROITE quand la suite décroît, à GAUCHE
+     quand elle croît (voir svrAns) : dans ce second cas les deux chaînes du
+     dessus commencent une colonne de terme plus loin, pour que chaque f(…) reste
+     au-dessus de son résultat. */
+  const off=a.dec?0:2;
+  const demoHTML='<div class="svr-scroll"><div class="svr-grille svr-gdemo">'
+    +cel(1,1,T('<i>f</i> est')+svrSel('svr-mono',a,[['cro','croissante'],['dec','décroissante']])
+      +T('sur [&nbsp;')+svrIn('svr-b3',false)+T('&nbsp;;&nbsp;')+svrIn('svr-b4',false)+T('&nbsp;], et on l’applique à l’encadrement :'),'svr-just',true)
+    +cel(2,1+off,fixG)+leC(2,2+off)+cel(2,3+off,svrSel('svr-p1',a))+leC(2,4+off)+cel(2,5+off,svrSel('svr-p2',a))+leC(2,6+off)+cel(2,7+off,fixD)
+    +[1,2,3,4].map(function(i){ return (i>1?leC(3,2*i-2+off):'')+cel(3,2*i-1+off,'<span class="svr-fapp"><i>f</i> (&nbsp;'+svrSel('svr-f'+i,a)+'&nbsp;)</span>'); }).join('')
+    +[1,2,3,4,5].map(function(i){ return (i>1?leC(4,2*i-2):'')+cel(4,2*i-1,svrSel('svr-g'+i,a)); }).join('')
+    +'</div></div>';
   $('svrTitreE').innerHTML='Démontre par récurrence que&nbsp;: <b>'+G+' ≤ '
     +(a.dec?(U+'<sub>'+n+'+1</sub> ≤ '+U+'<sub>'+n+'</sub>'):(U+'<sub>'+n+'</sub> ≤ '+U+'<sub>'+n+'+1</sub>'))
     +' ≤ '+Dr+'</b> pour tout entier '+n+' ≥ 0.';
   $('svrPartE').innerHTML=
-     '<div class="sa2-row svr-etape"><b>Initialisation</b>'+T('— vrai pour '+n+' =')+svrIn('svr-n0',false)+T(' :')+'<span class="svr-chaine">'+ligne('svr-i1','svr-i2')+'</span></div>'
-    +'<div class="sa2-row svr-etape">'+T('donc :')+'<span class="svr-chaine">'+lignePile('svr-i3','svr-v1','svr-i4','svr-v2')+'</span>'
-      +T('c’est')+svrSel('svr-init',a,[['vrai','vrai'],['faux','faux']])+'</div>'
-    +'<div class="sa2-row svr-etape"><b>Hérédité</b>'+T('— on <b>suppose</b> que c’est vrai pour '+n+' :')+'<span class="svr-chaine">'+ligne('svr-h1','svr-h2')+'</span></div>'
-    +'<div class="sa2-row svr-etape">'+T('On <b>montre</b> que c’est vrai pour '+n+' + 1 :')+'<span class="svr-chaine">'+ligne('svr-m1','svr-m2')+'</span></div>'
-    +'<div class="sa2-row svr-etape">'+T('donc :')+'<span class="svr-chaine">'+ligneNue('svr-m3','svr-m4')+'</span></div>'
+     initHTML
+    +'<div class="sa2-row svr-etape"><b>Hérédité</b>'+T('— on <b>suppose</b> que c’est vrai pour '+n+' :')+'<span class="svr-chaine">'+ligne('svr-h1','svr-h2')+'</span></div>'
+    +'<div class="sa2-row svr-etape">'+T('On <b>montre</b> que c’est vrai pour '+n+' + 1 :')+'<span class="svr-chaine">'+ligne('svr-m1','svr-m2')+'</span></div>'
+    +'<div class="sa2-row svr-etape">'+T('donc :')+'<span class="svr-chaine">'+ligneNue('svr-m3','svr-m4')+'</span></div>'
     +'<div class="svr-demo"><div class="sa2-row svr-etape"><b>Démonstration</b></div>'
-    +'<div class="svr-scroll"><div class="svr-drow">'+fixG+LE+svrSel('svr-p1',a)+LE+svrSel('svr-p2',a)+LE+fixD+'</div>'
-    +'<div class="svr-drow">'
-      +[1,2,3,4].map(function(i){ return '<span class="svr-fapp"><i>f</i> (&nbsp;'+svrSel('svr-f'+i,a)+'&nbsp;)</span>'; }).join(LE)
-      +T('car <i>f</i> (<i>x</i>) est')+svrSel('svr-mono',a,[['cro','croissante'],['dec','décroissante']])
-      +T('sur [&nbsp;')+svrIn('svr-b3',false)+T('&nbsp;;&nbsp;')+svrIn('svr-b4',false)+T('&nbsp;]')+'</div>'
-    +'<div class="svr-drow">'+[1,2,3,4,5].map(function(i){ return svrSel('svr-g'+i,a); }).join(LE)+'</div></div></div>'
+    +demoHTML+'</div>'
     +'<div class="s1-res svr-ccl"><div class="s1-line">Conclusion : la propriété est vraie au rang 0 et héréditaire — donc, pour tout entier '+n+' ≥ 0,&nbsp; '
       +'<span class="svr-nowrap">'+G+' ≤ '+(a.dec?(U+'<sub>'+n+'+1</sub> ≤ '+U+'<sub>'+n+'</sub>'):(U+'<sub>'+n+'</sub> ≤ '+U+'<sub>'+n+'+1</sub>'))+' ≤ '+Dr+'.</span>'
       +'<br>La suite ('+Un+') est donc <b>'+(a.dec?'décroissante':'croissante')+'</b> et <b>'+(a.dec?'minorée':'majorée')+' par '+numFmt(a.l)+'</b>.</div></div>'
