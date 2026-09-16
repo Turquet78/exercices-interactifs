@@ -6256,9 +6256,9 @@ async function parcours(page, N){
        liste juste — bleue, jamais lue à la classe. */
     titre('6 vicies quindecies. LA CONVERGENCE MONOTONE : LA FICHE CHOISIE ET TAPÉE POUR DE VRAI');
     if(!P.suiteTcmLimite){
-      ignorer('le 6.13 : le « lim » est empilé, rien ne défile',
+      ignorer('le 6.12 : le « lim » est empilé, rien ne défile',
         'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
-      ignorer('le 6.13 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
+      ignorer('le 6.12 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
         'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
@@ -6295,10 +6295,10 @@ async function parcours(page, N){
                  page: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 };
       });
       const vu = await mesurer();
-      verifier('le 6.13 : les dix-huit cases sont rendues et visibles, les trois « lim » sont empilés',
+      verifier('le 6.12 : les dix-huit cases sont rendues et visibles, les trois « lim » sont empilés',
         vu.n === 18 && vu.cases === 18 && vu.visibles === 18 && vu.lims === 3 && vu.limsPlats === 0,
         vu.cases + ' case(s) sur ' + vu.n + ', ' + vu.visibles + ' visible(s), ' + vu.lims + ' « lim » dont ' + vu.limsPlats + ' à plat');
-      verifier('le 6.13 : le « lim » est empilé, rien ne défile',
+      verifier('le 6.12 : le « lim » est empilé, rien ne défile',
         vu.defile === 0 && !vu.page && vu.rows >= 10, vu.defile + ' rangée(s) qui défile(nt) sur ' + vu.rows + (vu.page ? ', la page déborde' : ''));
       /* LA COPIE DE LA FICHE, choisie et tapée pour de vrai, puis le CLIC */
       const jouerCopie = async () => {
@@ -6323,19 +6323,19 @@ async function parcours(page, N){
         });
       };
       const b1 = await jouerCopie();
-      verifier('le 6.13 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
+      verifier('le 6.12 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
         b1.ok === 18 && b1.bad === 0 && b1.sol === 0 && b1.score === 1 && b1.locked && /18 cases justes sur 18/.test(b1.note),
         b1.ok + ' ok, ' + b1.bad + ' bad, ' + b1.sol + ' sol, note ' + b1.score + ', « ' + b1.note + ' »' + (b1.locked ? '' : ', écran non verrouillé'));
-      verifier('le 6.13 : la liste juste et la case juste sont peintes en BLEU, à l\'encre rendue',
+      verifier('le 6.12 : la liste juste et la case juste sont peintes en BLEU, à l\'encre rendue',
         dominante(b1.encreSel) === 'bleu' && dominante(b1.encreInp) === 'bleu',
         'liste : ' + b1.encreSel + ' (' + dominante(b1.encreSel) + '), case : ' + b1.encreInp + ' (' + dominante(b1.encreInp) + ')');
       /* le second visage — quadratique, décroissante — par le vrai bouton « Question suivante » */
-      verifier('le 6.13 : le bouton propose la question suivante', /suivante/.test(b1.suivant), '« ' + b1.suivant + ' »');
+      verifier('le 6.12 : le bouton propose la question suivante', /suivante/.test(b1.suivant), '« ' + b1.suivant + ' »');
       await s.page.click('#tclActions .btn-primary');
       await s.page.waitForTimeout(500);
       const vu2 = await mesurer();
       const b2 = await jouerCopie();
-      verifier('le 6.13 : la quadratique décroissante se rend et se joue de même — rien ne défile, le point est accordé',
+      verifier('le 6.12 : la quadratique décroissante se rend et se joue de même — rien ne défile, le point est accordé',
         vu2.n === 18 && vu2.visibles === 18 && vu2.defile === 0 && !vu2.page && vu2.limsPlats === 0 && b2.ok === 18 && b2.bad === 0 && b2.score === 2 && /résultats/.test(b2.suivant),
         vu2.visibles + ' case(s) visibles, ' + vu2.defile + ' rangée(s) qui défile(nt), ' + b2.ok + ' ok, ' + b2.bad + ' bad, note ' + b2.score + ', « ' + b2.suivant + ' »');
       verifier('la convergence monotone ne lève aucune erreur JavaScript',
@@ -6343,7 +6343,97 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies quater. la suite par la DIFFÉRENCE : le repère partagé, la fraction tapée ===== */
+    /* ===== 6 tricies quater. {suite-vocabulaire} : la fiche se COCHE =====
+       Le banc jsdom tient le tirage (refait sur les termes montrés), le juge
+       et les gestes. Ce qu'il ne voit pas : le quadrillage RENDU à une taille
+       lisible avec ses treize croix et la droite y = ℓ d'étendue non nulle,
+       les cases à cocher CLIQUÉES pour de vrai et leur encre RÉSOLUE — juste
+       en bleu, cochée à tort en rouge, oubliée en vert —, le badge de la bonne
+       borne mesuré au RECTANGLE, et la page qui ne déborde ni à 1400 px ni sur
+       une tablette en portrait, où la fiche passe sous le dessin. */
+    titre('6 tricies quater. VOCABULAIRE SUR LES SUITES : LA FICHE SE COCHE');
+    if(!P.suiteVocabulaire){
+      ignorer('la fiche du vocabulaire se coche, et ses couleurs disent le verdict',
+        'ce niveau n\'a pas l\'exercice du vocabulaire sur les suites');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 950 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.suiteVocabulaire.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(700);
+      const dits = [];
+      /* on ÉPINGLE l'exemple 1 de la fiche : la mesure ne doit pas dépendre du tirage */
+      await s.page.evaluate(q => { test.questions[test.idx] = q; test.locked = false; renderSVQ(); },
+        { fam: 'decconv', L: 1, A: 3, q: 0.8, rep: {} });
+      await s.page.waitForTimeout(300);
+      const geo = await s.page.evaluate(() => {
+        const svg = document.querySelector('#svqGraph svg'); if(!svg) return { manque: true };
+        const r = svg.getBoundingClientRect();
+        const croix = [...svg.querySelectorAll('.svq-terme')].filter(g => { const b = g.getBoundingClientRect(); return b.width > 4 && b.height > 4; }).length;
+        const lim = svg.querySelector('.svq-lim'); const lr = lim ? lim.getBoundingClientRect() : null;
+        /* la hauteur d'une RANGÉE rendue, lue entre les graduations de l'axe des
+           ordonnées : un dessin de cinq rangées est court sans être illisible */
+        const ys = [...svg.querySelectorAll('.svq-ax[text-anchor="end"]')].map(t => t.getBoundingClientRect().top).sort((a, b) => a - b);
+        const rangee = ys.length > 1 ? (ys[ys.length - 1] - ys[0]) / (ys.length - 1) : 0;
+        return { manque: false, w: Math.round(r.width), h: Math.round(r.height), croix, lim: lr ? Math.round(lr.width) : 0,
+                 rangee: Math.round(rangee), deborde: document.documentElement.scrollWidth > window.innerWidth + 1 };
+      });
+      if(geo.manque) dits.push('aucun quadrillage rendu');
+      else {
+        if(geo.w < 420) dits.push('le quadrillage est rendu à ' + geo.w + ' px de large : les graduations ne se lisent plus');
+        if(geo.rangee < 24) dits.push('une rangée du quadrillage fait ' + geo.rangee + ' px : les graduations ne se lisent plus');
+        if(geo.croix !== 13) dits.push(geo.croix + ' croix rendues au lieu de 13');
+        if(geo.lim < 300) dits.push('la droite y = 1 n\'a pas d\'étendue (' + geo.lim + ' px)');
+        if(geo.deborde) dits.push('la page déborde à 1400 px');
+      }
+      /* les cases se COCHENT au clic, et la valeur ne s'ouvre qu'avec sa case */
+      const coche = async (grp, val) => {
+        await s.page.click('#svqForm .svq-coche[data-grp="' + grp + '"]' + (val ? '[data-val="' + val + '"]' : '')); };
+      const ferme = await s.page.$eval('#svq-maj', e => e.disabled);
+      await coche('sens', 'dec'); await coche('maj'); await coche('min'); await coche('lim', 'a'); await coche('nat', 'div');
+      const ouvert = await s.page.$eval('#svq-maj', e => !e.disabled);
+      if(!ferme || !ouvert) dits.push('la valeur du majorant n\'est pas fermée avant le clic sur « majorée » et ouverte après');
+      await s.page.fill('#svq-maj', '3'); await s.page.fill('#svq-min', '1'); await s.page.fill('#svq-lim', '1');
+      await s.page.click('#svqActions button.btn-primary');
+      await s.page.waitForTimeout(400);
+      /* l'encre RÉSOLUE, comparée aux variables de la convention — jamais à une classe */
+      const enc = await s.page.evaluate(() => {
+        const probe = document.createElement('span'); document.body.appendChild(probe);
+        const par = v => { probe.style.color = 'var(' + v + ')'; return getComputedStyle(probe).color; };
+        const ref = { bleu: par('--blue'), rouge: par('--red'), vert: par('--green') }; probe.remove();
+        const box = sel => { const e = document.querySelector(sel + ' .svq-box'); if(!e) return null;
+          const cs = getComputedStyle(e); return { bord: cs.borderTopColor, fond: cs.backgroundColor, style: cs.borderTopStyle }; };
+        const badge = document.querySelector('#svq-maj + .mf-cor'); const br = badge ? badge.getBoundingClientRect() : null;
+        return { ref, juste: box('#svq-g-sens .svq-coche[data-val="dec"]'), tort: box('#svq-g-nat .svq-coche[data-val="div"]'),
+                 oubli: box('#svq-c-bor'), bonne: box('#svq-g-nat .svq-coche[data-val="conv"]'),
+                 badge: br ? { w: Math.round(br.width), txt: badge.textContent } : null,
+                 score: test.score, cases: (test.answers[0] || {}).cases };
+      });
+      if(enc.score !== 0) dits.push('la copie fausse vaut le point');
+      if(enc.cases !== 9) dits.push('la note compte ' + enc.cases + ' cases au lieu de 9');
+      if(!enc.juste || enc.juste.bord !== enc.ref.bleu) dits.push('la case cochée juste n\'a pas le bord BLEU de la convention (' + (enc.juste && enc.juste.bord) + ')');
+      if(!enc.tort || enc.tort.fond !== enc.ref.rouge) dits.push('la case cochée à tort n\'a pas le fond ROUGE de la convention (' + (enc.tort && enc.tort.fond) + ')');
+      if(!enc.oubli || enc.oubli.bord !== enc.ref.vert || enc.oubli.style !== 'dashed') dits.push('la case oubliée « bornée » n\'a pas le bord VERT pointillé de la correction');
+      if(!enc.bonne || enc.bonne.bord !== enc.ref.vert) dits.push('la bonne nature non choisie n\'est pas montrée en vert');
+      if(!enc.badge || enc.badge.w < 8 || enc.badge.txt.trim() !== '4') dits.push('la bonne borne (4) ne s\'affiche pas à côté de la valeur fausse');
+      /* sur une tablette en portrait, la fiche passe sous le dessin sans déborder */
+      await s.page.setViewportSize({ width: 820, height: 1180 });
+      await s.page.waitForTimeout(300);
+      const tab = await s.page.evaluate(() => {
+        const g = document.querySelector('#svqGraph svg').getBoundingClientRect(), f = document.getElementById('svqForm').getBoundingClientRect();
+        return { deborde: document.documentElement.scrollWidth > window.innerWidth + 1, svgW: Math.round(g.width), dessous: f.top >= g.bottom - 2 };
+      });
+      if(tab.deborde) dits.push('la page déborde sur une tablette en portrait');
+      if(tab.svgW > 820 || tab.svgW < 300) dits.push('sur tablette le quadrillage fait ' + tab.svgW + ' px');
+      if(!tab.dessous) dits.push('sur tablette la fiche ne passe pas sous le dessin');
+      verifier('la fiche du vocabulaire se coche, et ses couleurs disent le verdict', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran du vocabulaire sur les suites ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies quinquies. la suite par la DIFFÉRENCE : le repère partagé, la fraction tapée ===== */
     /* {suite-variation-difference} : le repère et ses deux rails sont ceux du
        6.11, servis dans un AUTRE hôte (svrHote choisit par le kind) — jsdom ne
        clique pas, seul celui-ci voit que le clic pose bien dans cet écran-là.
@@ -6353,7 +6443,7 @@ async function parcours(page, N){
        (les « ≤ » au même centre d'une rangée à l'autre, Uₙ₊₁ sous les termes,
        rien qui défile à 1400 px), le tableau de signes avec une BOÎTE, et la
        copie juste cliquée qui vaut le point. */
-    titre('6 tricies quater. LA SUITE PAR LA DIFFÉRENCE : LE REPÈRE PARTAGÉ, LA FRACTION TAPÉE');
+    titre('6 tricies quinquies. LA SUITE PAR LA DIFFÉRENCE : LE REPÈRE PARTAGÉ, LA FRACTION TAPÉE');
     if(!P.suiteVariationDifference){
       ignorer('la suite par la différence : le clic pose dans son repère, la fraction tapée se relit',
         'ce niveau n\'a pas l\'exercice du sens de variation par la différence');
@@ -7451,7 +7541,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -7626,6 +7716,32 @@ async function parcours(page, N){
                ne mène nulle part (signalé par Turquet, août 2026). On mesure
                ICI, sur tous les exercices visités : celui qu'on ajoutera
                demain est couvert sans rien déclarer. */
+            /* AUCUNE ÉTIQUETTE DE COURBE NE TOMBE SUR SA COURBE (signalé par
+               Turquet sur une capture du 5.4, septembre 2026 : « Cf′ » posée en
+               travers de la courbe de f′). Toute étiquette « Cf », « Cf′ », « Cg »
+               d'un dessin visible est mesurée contre les courbes RENDUES du même
+               dessin : on parcourt chaque chemin de courbe au pas de 1,5 px et
+               aucun point ne doit tomber dans la boîte du texte (rognée d'un
+               pixel — un contact au bord n'est pas une superposition). Sur tous
+               les exercices visités : l'exercice ajouté demain est couvert. */
+            const etiquettes = [];
+            for(const svg of on.querySelectorAll('svg')){
+              if(!visible(svg)) continue;
+              const labs = [...svg.querySelectorAll('text.lv-cf, text.sv-cf, text.eqg-cg')].filter(visible);
+              const courbes = [...svg.querySelectorAll('path[class*="curve"], path[class*="courbe"], path.eqg-g, line.eqg-g')];
+              for(const t of labs){
+                const b = t.getBoundingClientRect(); let touche = 0;
+                for(const p of courbes){
+                  let L = 0; try{ L = p.getTotalLength(); }catch(e){ continue; }
+                  const M = p.getScreenCTM(); if(!M) continue;
+                  for(let d = 0; d <= L; d += 1.5){
+                    const q = p.getPointAtLength(d), X = M.a * q.x + M.c * q.y + M.e, Y = M.b * q.x + M.d * q.y + M.f;
+                    if(X >= b.left + 1 && X <= b.right - 1 && Y >= b.top + 1 && Y <= b.bottom - 1) touche++;
+                  }
+                }
+                if(touche) etiquettes.push('« ' + t.textContent.replace(/\s+/g, '') + ' » posée sur sa courbe (' + touche + ' point(s) de la courbe dans la boîte du texte)');
+              }
+            }
             const champsMaths = [...on.querySelectorAll('math-field')].filter(visible).length > 0;
             const boutonClavier = [...on.querySelectorAll('button')].filter(visible)
               .some(b => /clavier math/i.test(b.getAttribute('title') || ''));
@@ -7653,7 +7769,7 @@ async function parcours(page, N){
                       return { c:Math.round(c.getBoundingClientRect().width),
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
                     accolades: [...new Set(connus)], gabarits: gabarits, cases: cases, signes: [...new Set(signes)],
-                    debuts: [...new Set(debuts)]};
+                    debuts: [...new Set(debuts)], etiquettes: etiquettes};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
@@ -7671,6 +7787,8 @@ async function parcours(page, N){
             tetes.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.debuts[0]);
           if(mode === 'train' && vu.clavier === false)
             sansClavier.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + vu.ecran + ')');
+          if(vu.etiquettes && vu.etiquettes.length)
+            surCourbe.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.etiquettes[0]);
           /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
              C'est la règle que la Seconde a réapprise trois fois en une seule
              journée d'août 2026, chaque fois sur un exercice différent, et
@@ -7714,6 +7832,14 @@ async function parcours(page, N){
         tetes.length === 0, tetes.slice(0, 3).join(' | '));
       verifier('le clavier mathématique est atteignable sur tout écran à champ mathématique',
         sansClavier.length === 0, sansClavier.join(', ') + ' — aucun bouton « Clavier mathématique »');
+      /* Une étiquette de courbe posée SUR sa courbe se lit barrée (capture de
+         Turquet, 5.4, septembre 2026) : mesurée ici sur toute étiquette de tout
+         dessin visité, contre les courbes RENDUES. */
+      /* le COMPTE et la liste ENTIÈRE des exercices touchés (numéro et étiquette), pas
+         trois cas : un quatrième resterait caché derrière les trois premiers */
+      verifier('aucune étiquette de courbe ne tombe sur sa courbe',
+        surCourbe.length === 0, surCourbe.length + ' cas — ' + surCourbe.slice(0, 2).join(' | ')
+          + ' — exercices : ' + [...new Set(surCourbe.map(c => c.replace(/ \((train|soutien)\).*« (.+?) ».*/, ' $2')))].join(', '));
       /* Le COMPTE d'abord : la liste était tronquée à quatre, et un cinquième
          exercice fautif est resté caché derrière les quatre premiers jusqu'à
          ce qu'ils soient corrigés. Un contrôle qui dit moins que ce qu'il sait
@@ -8751,13 +8877,36 @@ async function parcours(page, N){
         await s.page.waitForTimeout(700);
         const deploye = await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible));
         if(!deploye){ await s.page.click(KT.bouton); await s.page.waitForTimeout(900); }
-        /* la couche RENDUE : ses rangées, sa touche témoin, et qui s'y trouve */
+        /* On mesure un clavier STABLE, jamais à délai fixe : ce contrôle a rougi
+           une fois sur trois exécutions (« encore sur le clavier A : n »), sous
+           forte charge — trois bancs et deux campagnes en parallèle —, et dix
+           ouvertures isolées n'ont rien reproduit. Un délai fixe mesure ce qui se
+           trouve là à cet instant, un clavier en cours de (re)construction
+           compris ; on attend que la couche visible garde le MÊME jeu de touches
+           d'un quart de seconde au suivant, et on le dit si elle n'y arrive pas. */
+        const stable = await s.page.evaluate(async () => {
+          const sig = () => { const kb = document.querySelector('body > .ML__keyboard'); if(!kb) return '';
+            return [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
+              .filter(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; })
+              .map(el => el.textContent.trim()).join('|'); };
+          const vk = window.mathVirtualKeyboard; const t0 = Date.now(); let a = sig();
+          while(Date.now() - t0 < 6000){
+            await new Promise(r => setTimeout(r, 250));
+            const b = sig(); if(vk && vk.visible && b && b === a) return { ok: true, ms: Date.now() - t0 };
+            a = b;
+          }
+          return { ok: false, ms: Date.now() - t0 };
+        });
+        verifier('le clavier de la tablette est stable avant qu\'on le mesure', stable.ok,
+          'la couche visible change encore après ' + stable.ms + ' ms');
+        /* la couche RENDUE — celle que MathLive déclare visible (is-visible), pas
+           tout ce qui a un rectangle — : ses rangées, sa touche témoin, et qui s'y trouve */
         const mesurerCouche = ({ versA, versB }) => {
           const kb = document.querySelector('body > .ML__keyboard');
           const vk = window.mathVirtualKeyboard;
           if(!kb) return { absent: true, visible: !!(vk && vk.visible) };
           const vis = el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; };
-          const caps = [...kb.querySelectorAll('.MLK__rows > .MLK__row > *')].filter(vis);
+          const caps = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')].filter(vis);
           const de = t => caps.find(c => c.textContent.trim() === t) || null;
           const info = el => { if(!el) return null; const q = el.getBoundingClientRect();
             return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2),

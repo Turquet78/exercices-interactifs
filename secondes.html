@@ -3045,7 +3045,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=172;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=174;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4820,6 +4820,14 @@ Piège classique : répondre avec les hauteurs — S se lit sur l'axe <b>horizon
    Les signes des légendes sont écrits en clair — ING_SIGNE vit plus bas et
    n'existe pas encore au chargement ; c'est du texte de cours, pas une
    seconde source de vérité : le contrôle relie chaque légende à son dessin. */
+/* La boîte du texte « Cf », marge comprise (14 px de police, le tspan à 10 px
+   sous la ligne) — lue par etqLibre, plus bas. Elle vit ICI, avant RAP_ING, et
+   non à côté du moteur de courbes comme en Terminale : RAP_ING dessine au
+   chargement avec lvGraphSVG, et une constante posée après lui serait encore
+   dans sa zone morte à cet instant — la page entière mourait au chargement
+   (« Cannot access 'ETQ_W' before initialization »), ce que le banc a nommé
+   à la première exécution. Une fonction se hisse, une constante non. */
+const ETQ_W=30, ETQ_H=17;
 const RAP_ING_EX={pts:[-3,-2,1,3,1,-1,-3], k:1};
 function rapIngDessins(){
   const legs=[['ge','≥','la partie AU-DESSUS de la droite, croisements PRIS (points pleins)'],
@@ -6921,7 +6929,97 @@ function lvPath(pts, sx, sy, ia, ib){
   }
   return d;
 }
-function lvGraphSVG(pts, extra, ia, ib){
+/* UNE ÉTIQUETTE DE COURBE NE SE POSE JAMAIS SUR SA COURBE (signalé par Turquet
+   sur une capture, septembre 2026). lvEchantillon ÉCHANTILLONNE la spline que le
+   chemin trace (les mêmes Bézier : nœuds aux abscisses x0 + i, tangentes m), et
+   etqLibre essaie des places — au-dessus puis au-dessous de la courbe, à chaque
+   abscisse candidate — et garde la première dont la boîte tient dans le cadre
+   sans mordre un axe ni ses graduations. Chaque place est CONSTRUITE 4 px
+   au-dessus du point le plus haut (ou au-dessous du plus bas) de la courbe sur
+   l'étendue de la boîte, donc elle ne peut pas la toucher : c'est le CONTRÔLE
+   qui exige la propriété, sur les dessins rendus. Le même texte dans la Seconde
+   et la Terminale, comparé au caractère près. */
+function lvEchantillon(pts, x0, m, sx, sy, a, b){
+  const out=[];
+  for(let i=a;i<b;i++){
+    const xa=x0+i, xb=x0+i+1, ya=pts[i], yb=pts[i+1];
+    const P=[[xa,ya],[xa+1/3,ya+m[i]/3],[xb-1/3,yb-m[i+1]/3],[xb,yb]];
+    for(let k=0;k<=30;k++){ const t=k/30,u=1-t;
+      const x=u*u*u*P[0][0]+3*u*u*t*P[1][0]+3*u*t*t*P[2][0]+t*t*t*P[3][0];
+      const y=u*u*u*P[0][1]+3*u*u*t*P[1][1]+3*u*t*t*P[2][1]+t*t*t*P[3][1];
+      out.push([sx(x),sy(y)]); }
+  }
+  return out;
+}
+function etqLibre(ech, cadre, xsCand, W, H, obst){
+  /* obst (facultatif) : des points, en px, que la boîte ne doit pas recouvrir non
+     plus — l'AUTRE courbe d'un dessin à deux courbes, l'étiquette déjà posée.
+     Une place libre de SA courbe peut tomber sur l'autre ; le contrôle mesure
+     chaque étiquette contre TOUTES les courbes du dessin, et l'a montré. */
+  const admissible=function(bx,by){
+    if(bx<cadre.PL||bx+W>cadre.PR+6||by<cadre.PT||by+H>cadre.PB) return false;        /* le cadre */
+    if(!(by+H<cadre.y0-1||by>cadre.y0+17)) return false;                                /* l'axe des abscisses et ses graduations */
+    if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) return false;                                /* l'axe des ordonnées et ses graduations */
+    if(obst&&obst.some(function(p){ return p[0]>=bx-2&&p[0]<=bx+W+2&&p[1]>=by-2&&p[1]<=by+H+2; })) return false; /* l'autre courbe, l'autre étiquette */
+    return true;
+  };
+  const cands=[];
+  xsCand.forEach(function(lx){
+    const dans=ech.filter(function(p){ return p[0]>=lx-2&&p[0]<=lx+W+2; });
+    if(!dans.length) return;
+    const haut=Math.min.apply(null,dans.map(function(p){ return p[1]; })), bas=Math.max.apply(null,dans.map(function(p){ return p[1]; }));
+    cands.push([lx, haut-4-H]); cands.push([lx, bas+4]);
+  });
+  for(let i=0;i<cands.length;i++){ if(admissible(cands[i][0],cands[i][1])) return {x:cands[i][0], y:cands[i][1]+13, place:i}; }
+  /* dernier recours : aucune place n'est libre — on prend la MOINS MAUVAISE, ramenée
+     dans le cadre : le moins de points de courbe (la sienne, les obstacles) dans la
+     boîte, un axe recouvert comptant pour beaucoup. Le contrôle compte ces replis. */
+  const tous=ech.concat(obst||[]), base=cands.length?cands:[[cadre.PL+4, cadre.PT]];
+  let meilleur=null, pire=Infinity;
+  base.forEach(function(c){
+    const bx=Math.min(Math.max(c[0],cadre.PL),cadre.PR+6-W), by=Math.min(Math.max(c[1],cadre.PT),cadre.PB-H);
+    let n=tous.filter(function(p){ return p[0]>=bx-2&&p[0]<=bx+W+2&&p[1]>=by-2&&p[1]<=by+H+2; }).length;
+    if(!(by+H<cadre.y0-1||by>cadre.y0+17)) n+=200;
+    if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) n+=200;
+    if(n<pire){ pire=n; meilleur=[bx,by]; }
+  });
+  return {x:meilleur[0], y:meilleur[1]+13, place:-1};
+}
+/* « Cg » SE POSE COMME « Cf », ET CHACUNE ÉVITE L'AUTRE. Le banc navigateur a
+   nommé « Cg » posée sur une courbe le jour où « Cf » a été corrigée : les
+   trois poses de la seconde courbe (la droite du 2.5 et de la synthèse, la
+   spline du 2.6) choisissaient un point une fois pour toutes, et une
+   étiquette libre de SA courbe peut tomber sur l'AUTRE — ou sur « Cf ».
+   lvCadre relit le cadre dans les MÊMES sx/sy que le dessin (il ne peut pas
+   diverger de ses constantes), etqObstBoite fait d'une étiquette déjà posée un
+   obstacle (ses coins et son centre : deux boîtes de même taille qui se
+   recouvrent ont toujours un coin de l'une dans l'autre), et cgEtiquette pose
+   « Cg » par etqLibre — hors du cadre, des axes, de la courbe de f et de
+   « Cf ». Le dessin, lui, reçoit la courbe de g en obstacle (obst) pour poser
+   « Cf », et transmet la boîte de « Cf » à ce qui dessine par-dessus. */
+/* Les abscisses candidates d'une étiquette sur le morceau [a ; b] (en unités, la
+   boîte faisant « larg » unités) : les deux BOUTS d'abord — le gauche, ou le droit
+   si droiteDabord —, puis vers le centre par pas d'une demi-graduation. Cinq
+   abscisses laissaient un repli sur seize au 2.6, où deux courbes et deux
+   étiquettes se disputent un petit dessin (sonde, septembre 2026). */
+function etqCandidats(a, b, larg, droiteDabord){
+  const out=[];
+  for(let k=0;k<40;k++){
+    const g=a+0.05+0.5*k, d=b-larg-0.05-0.5*k, gOk=g<=b-larg, dOk=d>=a&&Math.abs(d-g)>1e-9;
+    if(!gOk&&!dOk) break;
+    if(droiteDabord){ if(dOk) out.push(d); if(gOk) out.push(g); } else { if(gOk) out.push(g); if(dOk) out.push(d); }
+  }
+  return out;
+}
+function lvCadre(sx,sy){ return {PL:sx(-3.5),PR:sx(3.5),PT:sy(3.6),PB:sy(-3.6),x0:sx(0),y0:sy(0)}; }
+function etqObstBoite(b){ if(!b) return []; return [[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h],[b.x+b.w/2,b.y+b.h/2]]; }
+function cgEtiquette(echG, sx, cadre, candsX, obst, boite){
+  const etq=etqLibre(echG, cadre, candsX.map(sx), ETQ_W, ETQ_H, (obst||[]).concat(etqObstBoite(boite)));
+  return '<text class="eqg-cg" x="'+etq.x.toFixed(1)+'" y="'+etq.y.toFixed(1)+'">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+}
+/* l'échantillon, en px, d'un SEGMENT de droite y=g(x) sur [xa ; xb] */
+function segEch(xa, xb, g, sx, sy){ const out=[]; for(let k=0;k<=60;k++){ const x=xa+(xb-xa)*k/60; out.push([sx(x),sy(g(x))]); } return out; }
+function lvGraphSVG(pts, extra, ia, ib, obst){
   const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
   const sx=x=> PL + (x-XA)/(XB-XA)*(PR-PL);
   const sy=y=> PB - (y-YA)/(YB-YA)*(PB-PT);
@@ -6939,9 +7037,14 @@ function lvGraphSVG(pts, extra, ia, ib){
   for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
   /* {lecture-deux-courbes} : la courbe peut n'exister que sur un MORCEAU
      (ia..ib) — l'étiquette Cf suit son début. Par défaut, rien ne change. */
-  const a0=(ia==null)?0:ia;
-  const cf='<text x="'+sx(-3+a0+0.3).toFixed(1)+'" y="'+(sy(pts[a0+1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
-  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy,ia,ib)+'"/>'+cf+(extra?extra(sx,sy):'')+'</svg>';
+  const a0=(ia==null)?0:ia, b0=(ib==null)?6:ib;
+  /* et sa PLACE se choisit (etqLibre) : les bouts du morceau d'abord, puis vers le
+     centre, au-dessus ou au-dessous de la courbe, jamais dessus ni sur un axe */
+  const ech=lvEchantillon(pts,-3,lvTangents(pts),sx,sy,a0,b0);
+  const cands=etqCandidats(-3+a0,-3+b0,0.85);
+  const etq=etqLibre(ech,{PL:PL,PR:PR,PT:PT,PB:PB,x0:x0,y0:y0},cands.map(sx),ETQ_W,ETQ_H, obst?obst(sx,sy):null);
+  const cf='<text x="'+etq.x.toFixed(1)+'" y="'+etq.y.toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
+  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy,ia,ib)+'"/>'+cf+(extra?extra(sx,sy,{x:etq.x,y:etq.y-13,w:ETQ_W,h:ETQ_H}):'')+'</svg>';
 }
 
 /* ---- Cycle de l'exercice ---- */
@@ -7857,7 +7960,7 @@ function adrPath(pts, sx, sy, ia, ib){
    la convention d'« extra » de lvGraphSVG, portée telle quelle sur le grand
    dessin pour que {maximum-minimum} y trace sa méthode. Appelée sans lui — les
    deux exercices d'avant — rien ne change. */
-function adrSVG(q, verdict, dessus){
+function adrSVG(q, verdict, dessus, obst){
   const R=ADR_R, XA=-R-0.5, XB=R+0.5, YA=-R-0.6, YB=R+0.6, PL=44, PR=644, PT=16, PB=416;
   const sx=x=> PL + (x-XA)/(XB-XA)*(PR-PL);
   const sy=y=> PB - (y-YA)/(YB-YA)*(PB-PT);
@@ -7873,8 +7976,12 @@ function adrSVG(q, verdict, dessus){
   let labels='';
   for(let x=-R;x<=R;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
   for(let y=-R;y<=R;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
-  const _ia=(q.ia==null?0:q.ia);
-  const cf='<text x="'+sx(_ia-R+0.3).toFixed(1)+'" y="'+(sy(q.pts[Math.min(_ia+1,q.pts.length-1)])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
+  const _ia=(q.ia==null?0:q.ia), _ib=(q.ib==null?q.pts.length-1:q.ib);
+  /* la place de « Cf » se choisit (etqLibre), comme sur le petit dessin */
+  const _ech=lvEchantillon(q.pts,-R,lvTangents(q.pts),sx,sy,_ia,_ib);
+  const _cands=etqCandidats(_ia-R,_ib-R,0.75);
+  const _etq=etqLibre(_ech,{PL:PL,PR:PR,PT:PT,PB:PB,x0:x0,y0:y0},_cands.map(sx),ETQ_W,ETQ_H, obst?obst(sx,sy):null);
+  const cf='<text x="'+_etq.x.toFixed(1)+'" y="'+_etq.y.toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
   let extra='';
   if(verdict && verdict.solDr)
     extra+='<line class="adr-sol" x1="'+sx(XA).toFixed(1)+'" y1="'+sy(q.y0).toFixed(1)+'" x2="'+sx(XB).toFixed(1)+'" y2="'+sy(q.y0).toFixed(1)+'"/>';
@@ -7896,7 +8003,7 @@ function adrSVG(q, verdict, dessus){
     bouts='<circle class="ifg-bout" cx="'+sx(mia-R).toFixed(1)+'" cy="'+sy(q.pts[mia]).toFixed(1)+'" r="4.5"/>'
          +'<circle class="ifg-bout" cx="'+sx(mib-R).toFixed(1)+'" cy="'+sy(q.pts[mib]).toFixed(1)+'" r="4.5"/>';
   }
-  return '<svg viewBox="0 0 690 432" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+adrPath(q.pts,sx,sy,mia,mib)+'"/>'+bouts+cf+extra+(dessus?dessus(sx,sy):'')+'</svg>';
+  return '<svg viewBox="0 0 690 432" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+adrPath(q.pts,sx,sy,mia,mib)+'"/>'+bouts+cf+extra+(dessus?dessus(sx,sy,{x:_etq.x,y:_etq.y-13,w:ETQ_W,h:ETQ_H}):'')+'</svg>';
 }
 function adrDessiner(verdict){
   const q=test.questions[test.idx]; if(!q) return;
@@ -8887,13 +8994,18 @@ function eqgDroite(q){
 /* Le dessin : la droite de g en pointillés et son étiquette, plus — APRÈS la
    vérification seulement — le trait qui montre la méthode de la question.
    Montré pendant la recherche, il donnerait ce qu'on demande de trouver. */
+/* l'échantillon de la droite DESSINÉE (coupée aux bords), en px : c'est lui que
+   « Cg » longe, et lui que « Cf » évite (obstacle du dessin) */
+function eqgEchG(q, sx, sy){ const d=eqgDroite(q); return segEch(d.xa, d.xb, function(x){ return eqgG(q,x); }, sx, sy); }
+function eqgObst(q){ return function(sx,sy){ return eqgEchG(q,sx,sy); }; }
 function eqgExtra(q, montrer){
-  return function(sx,sy){
+  return function(sx,sy,boiteCf){
     const d=eqgDroite(q);
     let out='<line class="eqg-g" x1="'+sx(d.xa).toFixed(1)+'" y1="'+sy(d.ya).toFixed(1)+'" x2="'+sx(d.xb).toFixed(1)+'" y2="'+sy(d.yb).toFixed(1)+'"/>';
-    let lx=d.xb-0.35, ly=eqgG(q,lx)+0.45;
-    if(ly>3.3) ly=eqgG(q,lx)-0.55;
-    out+='<text class="eqg-cg" x="'+sx(lx).toFixed(1)+'" y="'+sy(ly).toFixed(1)+'" text-anchor="middle">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+    /* « Cg » : le bout droit de la droite d'abord, puis le gauche, puis vers le
+       centre — jamais sur la droite, sur la courbe de f ni sur « Cf » */
+    const cands=etqCandidats(d.xa,d.xb,0.85,true);
+    out+=cgEtiquette(eqgEchG(q,sx,sy),sx,lvCadre(sx,sy),cands,lvEchantillon(q.pts,-3,lvTangents(q.pts),sx,sy,0,6),boiteCf);
     if(!montrer) return out;
     const vert=(x,y)=>'<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(0).toFixed(1)+'" x2="'+sx(x).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>';
     const horiz=(x,y)=>'<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(y).toFixed(1)+'" x2="'+sx(0).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>';
@@ -8927,8 +9039,8 @@ function eqgExtra(q, montrer){
    pour f(x) = k, ou l'inverse. Des dessins qui différeraient par autre chose
    se laisseraient éliminer sans lire les courbes. */
 function eqgCarteExtra(q, forme){
-  return function(sx,sy){
-    let out=eqgExtra(q,false)(sx,sy);
+  return function(sx,sy,boiteCf){
+    let out=eqgExtra(q,false)(sx,sy,boiteCf);
     const niv=h=>'<line class="ing-niv" x1="'+sx(-3.5).toFixed(1)+'" y1="'+sy(h).toFixed(1)+'" x2="'+sx(3.5).toFixed(1)+'" y2="'+sy(h).toFixed(1)+'"/>';
     const plein=(x,y)=>'<circle class="ing-pt" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="5"/>';
     const vide=(x,y)=>'<circle class="ing-vide" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="5"/>';
@@ -9175,13 +9287,13 @@ function renderEqgTest(){
   let scene;
   if(eqgACarte(q)){
     const cartes=eqgPerm(q).map(function(forme,i){
-      return '<div class="itq-carte ing-carte"><span class="itq-lettre">'+ITQ_LETTRES[i]+'</span>'+lvGraphSVG(q.pts, eqgCarteExtra(q,forme))+'</div>';
+      return '<div class="itq-carte ing-carte"><span class="itq-lettre">'+ITQ_LETTRES[i]+'</span>'+lvGraphSVG(q.pts, eqgCarteExtra(q,forme), null, null, eqgObst(q))+'</div>';
     }).join('');
     scene='<div class="ing-cartes">'+cartes+'</div>'
       +'<div class="itv-ligne"><span class="itv-lbl">Dessin</span><span class="itv-corps"><span class="itv-fixe">Le problème correspond au dessin</span>'
       +itvSelHTML('eqg-sch', ITQ_LETTRES.map(function(l,i){ return [String(i),l]; }), 'Dessin correspondant')+'</span></div>';
   } else {
-    scene='<div id="eqgGraph" class="itv-schema">'+lvGraphSVG(q.pts, eqgExtra(q,false))+'</div>';
+    scene='<div id="eqgGraph" class="itv-schema">'+lvGraphSVG(q.pts, eqgExtra(q,false), null, null, eqgObst(q))+'</div>';
   }
   $('eqgHost').innerHTML='<div class="itv-fiche">'
     +'<div class="itq-ineg">'+eqgTitre(q)+'</div>'
@@ -9288,7 +9400,7 @@ function checkEqgAnswer(live){
   test.locked=true;
   /* le trait de la méthode se dessine MAINTENANT, jamais avant — sur le
      dessin nu de l'image ; les questions à cartes montrent la bonne carte */
-  { const gEl=$('eqgGraph'); if(gEl) gEl.innerHTML=lvGraphSVG(q.pts, eqgExtra(q,true)); }
+  { const gEl=$('eqgGraph'); if(gEl) gEl.innerHTML=lvGraphSVG(q.pts, eqgExtra(q,true), null, null, eqgObst(q)); }
   test.score+=res.nCorrect; $('eqgLiveScore').textContent=test.score;
   if(res.allOk){ $('eqgFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('eqgFeedback').className='mp-feedback good'; }
   else { $('eqgFeedback').textContent=msgAvecVides(res.subs, eqgWhy(q)); $('eqgFeedback').className='mp-feedback bad'; }
@@ -10772,15 +10884,20 @@ function ifgTitre(q){
 /* Le dessin : g en pointillés sur SON domaine, les BOUTS des deux courbes
    (c'est là que se lisent les domaines), l'étiquette Cg — et, APRÈS la
    vérification seulement, le trait de la méthode. */
+/* l'échantillon de la courbe de g sur SON domaine — les Bézier mêmes que lvPath
+   trace —, que « Cg » longe et que « Cf » évite */
+function ifgEchG(q, sx, sy){ const dG=q.domG; return lvEchantillon(q.ptsG,-3,lvTangents(q.ptsG),sx,sy,dG[0]+3,dG[1]+3); }
+function ifgObst(q){ return function(sx,sy){ return ifgEchG(q,sx,sy); }; }
 function ifgExtra(q, montrer){
-  return function(sx,sy){
+  return function(sx,sy,boiteCf){
     const dF=q.domF, dG=q.domG;
     let out='<path class="eqg-g" d="'+lvPath(q.ptsG,sx,sy,dG[0]+3,dG[1]+3)+'"/>';
     const bout=function(x,y,g2){ return '<circle class="'+(g2?'ifg-boutg':'ifg-bout')+'" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="3.4"/>'; };
     out+=bout(dF[0],q.ptsF[dF[0]+3])+bout(dF[1],q.ptsF[dF[1]+3])
         +bout(dG[0],q.ptsG[dG[0]+3],1)+bout(dG[1],q.ptsG[dG[1]+3],1);
-    let ly=q.ptsG[dG[1]+3]+0.55; if(ly>3.3) ly=q.ptsG[dG[1]+3]-0.65;
-    out+='<text class="eqg-cg" x="'+sx(dG[1]-0.2).toFixed(1)+'" y="'+sy(ly).toFixed(1)+'" text-anchor="middle">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+    /* « Cg » : le bout droit du morceau de g d'abord — jamais sur g, sur f ni sur « Cf » */
+    const cands=etqCandidats(dG[0],dG[1],0.85,true);
+    out+=cgEtiquette(ifgEchG(q,sx,sy),sx,lvCadre(sx,sy),cands,lvEchantillon(q.ptsF,-3,lvTangents(q.ptsF),sx,sy,dF[0]+3,dF[1]+3),boiteCf);
     if(!montrer) return out;
     const vert=function(x,y){ return '<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(0).toFixed(1)+'" x2="'+sx(x).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>'; };
     const horiz=function(x,y){ return '<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(y).toFixed(1)+'" x2="'+sx(0).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>'; };
@@ -10878,7 +10995,7 @@ function renderIfgTest(){
   $('ifgHost').innerHTML='<div class="itv-fiche">'
     +'<div class="itq-ineg">'+ifgTitre(q)+'</div>'
     +fgLegende('courbe de <i>g</i>')
-    +'<div id="ifgGraph" class="itv-schema">'+lvGraphSVG(q.ptsF, ifgExtra(q,false), q.domF[0]+3, q.domF[1]+3)+'</div>'
+    +'<div id="ifgGraph" class="itv-schema">'+lvGraphSVG(q.ptsF, ifgExtra(q,false), q.domF[0]+3, q.domF[1]+3, ifgObst(q))+'</div>'
     +corps+'</div>';
   $('ifgHost').querySelectorAll('input,select').forEach(function(el){
     ['input','change'].forEach(function(ev){ el.addEventListener(ev,function(){ ifgLive(); clearTimeout(_ifgSaveTimer); _ifgSaveTimer=setTimeout(autoSave,1000); }); });
@@ -10943,7 +11060,7 @@ function checkIfgAnswer(live){
   if(!res.allOk && isSoutien()){ soutienAgain('ifgFeedback','ifgActions','checkIfgAnswer','ifgHost'); return; }
   test.locked=true;
   /* le trait de la méthode se dessine MAINTENANT, jamais avant */
-  $('ifgGraph').innerHTML=lvGraphSVG(q.ptsF, ifgExtra(q,true), q.domF[0]+3, q.domF[1]+3);
+  $('ifgGraph').innerHTML=lvGraphSVG(q.ptsF, ifgExtra(q,true), q.domF[0]+3, q.domF[1]+3, ifgObst(q));
   test.score+=res.nCorrect; $('ifgLiveScore').textContent=test.score;
   if(res.allOk){ $('ifgFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('ifgFeedback').className='mp-feedback good'; }
   else { $('ifgFeedback').textContent=msgAvecVides(res.subs, ifgWhy(q)); $('ifgFeedback').className='mp-feedback bad'; }
@@ -12244,20 +12361,29 @@ function startSYN(){
    crochet « dessus » : les classes sont celles du 2.5 et du 2.6 (.eqg-g en
    pointillés orange, .eqg-cg pour l'étiquette) — une couleur propre à cet
    écran pourrait contredire les autres le jour où l'une des deux change. */
+/* Le morceau de la droite qui reste DANS la fenêtre du dessin : tracée d'un
+   bord à l'autre, elle sortait du quadrillage par le haut et son étiquette se
+   posait sur les graduations — vu sur une capture, pas au banc. */
+function synSegment(q){
+  const L=SYN_R+0.5, xh=[(L-q.gb)/q.ga, (-L-q.gb)/q.ga];
+  let x1=Math.max(-L, Math.min(xh[0],xh[1])), x2=Math.min(L, Math.max(xh[0],xh[1]));
+  if(!(x2>x1)){ x1=-L; x2=L; }
+  return {x1:x1, x2:x2};
+}
+function synEchG(q, sx, sy){ const s=synSegment(q); return segEch(s.x1, s.x2, function(x){ return synG(q,x); }, sx, sy); }
+function synObst(q){ return function(sx,sy){ return synEchG(q,sx,sy); }; }
 function synDessus(q){
-  return function(sx,sy){
-    /* La droite est COUPÉE au cadre : tracée d'un bord à l'autre, elle sortait
-       du quadrillage par le haut et son étiquette se posait sur les
-       graduations — vu sur une capture, pas au banc. On ne garde que le
-       morceau où elle reste dans la fenêtre du dessin. */
-    const L=SYN_R+0.5, xh=[(L-q.gb)/q.ga, (-L-q.gb)/q.ga];
-    let x1=Math.max(-L, Math.min(xh[0],xh[1])), x2=Math.min(L, Math.max(xh[0],xh[1]));
-    if(!(x2>x1)){ x1=-L; x2=L; }
-    const xe=Math.max(x1, Math.min(x2-0.9, synB(q)));
-    return '<line class="eqg-g" x1="'+sx(x1).toFixed(1)+'" y1="'+sy(synG(q,x1)).toFixed(1)
-      +'" x2="'+sx(x2).toFixed(1)+'" y2="'+sy(synG(q,x2)).toFixed(1)+'"/>'
-      +'<text x="'+sx(xe).toFixed(1)+'" y="'+(sy(synG(q,xe))-8).toFixed(1)
-      +'" class="eqg-cg">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+  return function(sx,sy,boiteCf){
+    const s=synSegment(q), R=SYN_R;
+    /* « Cg » : près du bout du domaine de f d'abord (là où elle a toujours été),
+       puis les bouts de la droite — jamais sur la droite, sur f ni sur « Cf » ;
+       le cadre est relu dans les sx/sy mêmes d'adrSVG */
+    const cadre={PL:sx(-R-0.5),PR:sx(R+0.5),PT:sy(R+0.6),PB:sy(-R-0.6),x0:sx(0),y0:sy(0)};
+    const xe=Math.max(s.x1, Math.min(s.x2-0.9, synB(q)));
+    const cands=[xe, s.x2-0.75, s.x1+0.05, xe-1, xe+1, s.x1+1.05].filter(function(x){ return x>=s.x1&&x<=s.x2-0.7; });
+    return '<line class="eqg-g" x1="'+sx(s.x1).toFixed(1)+'" y1="'+sy(synG(q,s.x1)).toFixed(1)
+      +'" x2="'+sx(s.x2).toFixed(1)+'" y2="'+sy(synG(q,s.x2)).toFixed(1)+'"/>'
+      +cgEtiquette(synEchG(q,sx,sy),sx,cadre,cands,lvEchantillon(q.pts,-R,lvTangents(q.pts),sx,sy,q.ia,q.ib),boiteCf);
   };
 }
 function synOpt(vals){ return '<option value="">—</option>'+vals.map(function(v){ return '<option value="'+esc(v[0])+'">'+esc(v[1])+'</option>'; }).join(''); }
@@ -12281,7 +12407,7 @@ function renderSYN(){
     const qb=$('synQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
   $('synSub').textContent=SYN_TITRES[q.part];
   $('synLeg').innerHTML=fgLegende('droite de <i>g</i>');
-  $('synGraph').innerHTML=adrSVG({pts:q.pts, ia:q.ia, ib:q.ib, dr:null, rep:[]}, null, synDessus(q));
+  $('synGraph').innerHTML=adrSVG({pts:q.pts, ia:q.ia, ib:q.ib, dr:null, rep:[]}, null, synDessus(q), synObst(q));
   const nbs=synNombres(q);
   let corps='';
   if(q.part==='a'){
@@ -17262,6 +17388,76 @@ function ctxPnv(q){
   return {nombre:'', contexte:c};
 }
 
+/* ---------- Le texte affiché est-il celui qu'on demande ? -----------------
+   Décision de Turquet (septembre 2026) : « en seconde, pour les algorithmes
+   qui affichent un texte, accepter les textes qui sont presque bons. Dans le
+   texte, des espaces en trop ou en moins ne sont pas pénalisés ; un ou deux
+   caractères faux ou en trop ne sont pas pénalisés. » Un élève qui écrit
+   « je suis en séconde » ou « la note est » sans les deux points a compris
+   print, les guillemets et la virgule — c'est cela que les deux exercices
+   évaluent, pas la dactylographie.
+
+   UN SEUL ENDROIT, et il sert {python-print} comme {python-completer} : deux
+   tolérances auraient fini par diverger, et le même texte aurait été accepté
+   dans un exercice et refusé dans l'autre, sous les yeux de l'élève.
+   {python-afficher-variable} reste DEHORS, et c'est un arbitrage nommé : il
+   n'affiche aucun texte — sa sortie EST la valeur de la variable, et un
+   caractère de tolérance y accepterait une autre valeur.
+
+   DEUX GARDES, et n'en tenir qu'un ne tient rien.
+   · LES CHIFFRES COMPTENT TOUJOURS. « la note est : 13 » n'est pas « la note
+     est : 12 » à un caractère près : c'est une autre note. Sans ce garde,
+     print("la note est :", note + 1) passerait, et l'exercice enseignerait
+     l'inverse de ce qu'il dit.
+   · UN CARACTÈRE PAR TRANCHE DE QUATRE, DEUX AU PLUS. Le plus court texte des
+     deux exercices affiche « age : 16 » — six caractères une fois les espaces
+     retirées : deux fautes n'y seraient plus une faute de frappe mais un
+     autre texte. Le contrôle MESURE ce plus court texte sur les deux tirages
+     plutôt que de le supposer : un texte plus court ajouté demain le fait
+     rougir.
+   Les espaces, elles, ne comptent JAMAIS — c'est la demande, et elle va plus
+   loin qu'une espace de trop : « la note est:12 » est accepté. Un retour à la
+   ligne n'est pas une espace : deux print restent deux lignes, et c'est un
+   autre défaut.
+
+   ET LA PAGE DIT CE QU'ELLE A ACCEPTÉ. Sans cela, l'élève croirait avoir
+   écrit le texte exact, et les messages qui nommaient l'espace, l'accent, la
+   majuscule et les guillemets affichés auraient simplement disparu : ils ont
+   changé de côté — ils accompagnent maintenant le « Bravo » au lieu du refus.
+   Les branches du diagnostic qu'ils occupaient sont retirées : elles étaient
+   devenues inatteignables, et un contrôle ne peut plus les faire rougir. */
+function pyDist(a,b){
+  const m=a.length, n=b.length; if(!m) return n; if(!n) return m;
+  let prev=[]; for(let j=0;j<=n;j++) prev.push(j);
+  for(let i=1;i<=m;i++){
+    const cur=[i];
+    for(let j=1;j<=n;j++) cur.push(Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1)));
+    prev=cur;
+  }
+  return prev[n];
+}
+function pySansEspaces(s){ return String(s).replace(/\s+/g,''); }
+function pySansAccents(s){ return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+/* un caractère par tranche de quatre, deux au plus */
+function pyTolerance(att){ return Math.min(2, Math.floor(pySansEspaces(att).length/4)); }
+function pyTexteProche(vu, att){
+  const a=pySansEspaces(vu), b=pySansEspaces(att);
+  if(a===b) return true;                                        /* seules les espaces diffèrent */
+  if(a.replace(/[^0-9]/g,'')!==b.replace(/[^0-9]/g,'')) return false;   /* un nombre n'est jamais « presque bon » */
+  return pyDist(a,b)<=pyTolerance(b);
+}
+/* Ce qui diffère, NOMMÉ — rend '' quand l'élève a écrit le texte exact. */
+function pyEcart(vu, att){
+  const v=String(vu), a=String(att);
+  if(v===a) return '';
+  const nv=pySansEspaces(v), na=pySansEspaces(a);
+  if(nv===na) return 'il y a une espace en trop ou en moins';
+  if(nv.replace(/["']/g,'')===na) return 'les guillemets ne s’affichent pas : ils entourent le texte, ils n’en font pas partie';
+  if(pySansAccents(nv)===pySansAccents(na)) return 'attention aux accents';
+  if(nv.toLowerCase()===na.toLowerCase()) return 'attention aux majuscules';
+  return pyDist(nv,na)<=1?'un caractère diffère':'deux caractères diffèrent';
+}
+
 /* ---------- Exercice : écris ton premier print (Python) ------------------
    Demande de Turquet (septembre 2026) : « un exercice qui explique le
    fonctionnement de print avec un texte entre "", puis demander à l'élève
@@ -17289,16 +17485,17 @@ function ctxPnv(q){
    phrase demandée. print("je suis", "en seconde"), ou x = "…" puis print(x),
    sont donc justes : on demande un programme qui AFFICHE la phrase, pas une
    écriture particulière. Comparer le programme au modèle aurait compté faux
-   un élève qui a raison — le pire défaut du projet. La comparaison ignore les
-   espaces aux deux bouts de la ligne, invisibles à l'écran ; tout le reste —
-   casse, accents, guillemets affichés, une ligne de plus — compte, et se dit.
+   un élève qui a raison — le pire défaut du projet. La comparaison est celle
+   de pyTexteProche, PARTAGÉE avec {python-completer} : les espaces ne comptent
+   pas, un ou deux caractères non plus, et la page NOMME ce qu'elle a toléré
+   au lieu de le taire. Une ligne de plus, elle, reste une ligne de plus.
 
    LE DIAGNOSTIC NE PRONONCE QUE DES FAITS PROUVABLES, et il les nomme dans
    les mots de l'élève : print en majuscules ou mal orthographié, parenthèses
    absentes ou dépareillées, guillemets absents, non fermés, dépareillés ou
-   typographiques, texte qui diffère par la casse, les accents, les espaces,
-   des guillemets affichés, une ligne de trop, rien d'affiché. Il lit le
-   TEXTE du programme d'abord — les chaînes bien formées retirées, sans quoi
+   typographiques, texte franchement autre — la casse d'un bout à l'autre, ou
+   un texte qui n'est pas celui-là —, une ligne de trop, rien d'affiché. Il
+   lit le TEXTE du programme d'abord — les chaînes bien formées retirées, sans quoi
    l'apostrophe de « c'est » passerait pour un guillemet dépareillé —, puis
    l'interpréteur : ce que l'analyse n'explique pas, l'erreur de pyRun le dit,
    traduite. En SOUTIEN c'est ce diagnostic qui s'affiche, jamais le programme
@@ -17331,17 +17528,6 @@ function pypModele(q){ return 'print("'+q.texte+'")'; }
 function pypCases(q){ return [{id:'pyp-prog'}]; }
 
 /* ---- 1. Le diagnostic ---- */
-function pypDist(a,b){
-  const m=a.length, n=b.length; if(!m) return n; if(!n) return m;
-  let prev=[]; for(let j=0;j<=n;j++) prev.push(j);
-  for(let i=1;i<=m;i++){
-    const cur=[i];
-    for(let j=1;j<=n;j++) cur.push(Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1)));
-    prev=cur;
-  }
-  return prev[n];
-}
-function pypSansAccents(s){ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,''); }
 /* L'erreur de l'interpréteur, dite avec les mots d'un élève de Seconde. */
 function pypTraduire(msg){
   let m;
@@ -17357,8 +17543,9 @@ function pypTraduire(msg){
   if(/SyntaxError/.test(msg)) return 'Il y a une erreur d’écriture : relis la ligne — print, une parenthèse ouvrante, le texte entre guillemets, une parenthèse fermante.';
   return 'Python signale : '+msg;
 }
-/* pypDiag rend { ok, vide, sortie, erreur, dits } : ok quand la sortie est la
-   phrase demandée, sinon la liste des défauts NOMMÉS. */
+/* pypDiag rend { ok, vide, sortie, ligne, ecart, erreur, dits } : ok quand la
+   sortie est la phrase demandée — à un ou deux caractères près, « ecart »
+   disant alors ce qui a été toléré —, sinon la liste des défauts NOMMÉS. */
 function pypDiag(src, attendu){
   src=String(src||''); attendu=String(attendu);
   const dits=[];
@@ -17369,7 +17556,8 @@ function pypDiag(src, attendu){
   try{ r=pyRun(src); }catch(e){ erreur=e.message||String(e); }
   if(r){
     const lignes=r.out.replace(/\n$/,'').split('\n');
-    if(r.out && lignes.length===1 && lignes[0].trim()===attendu) return {ok:true, vide:false, sortie:r.out, erreur:null, dits:[]};
+    if(r.out && lignes.length===1 && pyTexteProche(lignes[0], attendu))
+      return {ok:true, vide:false, sortie:r.out, ligne:lignes[0].trim(), ecart:pyEcart(lignes[0].trim(), attendu), erreur:null, dits:[]};
   }
   /* le texte du programme, chaînes bien formées et commentaires retirés */
   const nu=src.replace(/"[^"\n]*"|'[^'\n]*'/g,'""').replace(/#[^\n]*/g,'');
@@ -17378,7 +17566,7 @@ function pypDiag(src, attendu){
   const maj=mots.filter(function(w){ return w!=='print' && w.toLowerCase()==='print'; });
   if(maj.length) dits.push('« '+maj[0]+' » : print s’écrit tout en minuscules.');
   else if(mots.indexOf('print')<0){
-    const proche=mots.filter(function(w){ return pypDist(w.toLowerCase(),'print')<=2; })[0];
+    const proche=mots.filter(function(w){ return pyDist(w.toLowerCase(),'print')<=2; })[0];
     if(proche) dits.push('« '+proche+' » n’existe pas en Python : la fonction qui affiche s’écrit print.');
     else dits.push('Ton programme n’a aucun print : rien ne s’affichera. C’est print(…) qui affiche.');
   }
@@ -17405,11 +17593,10 @@ function pypDiag(src, attendu){
     if(lignes.length>1) dits.push('Ton programme affiche '+lignes.length+' lignes ; il doit afficher une seule ligne : « '+attendu+' ».');
     else {
       const l=lignes[0].trim();
+      /* les petits écarts sont ACCEPTÉS plus haut : ne restent ici que la
+         casse d'un bout à l'autre, et un texte qui n'est pas celui-là */
       if(l==='') dits.push('print() n’a rien entre ses parenthèses : il affiche une ligne vide. Écris le texte entre les parenthèses, entre guillemets.');
-      else if(l.toLowerCase()===attendu.toLowerCase()) dits.push('Ton programme affiche « '+l+' » : les majuscules et les minuscules comptent, il faut exactement « '+attendu+' ».');
-      else if(l.replace(/["']/g,'')===attendu) dits.push('Les guillemets s’affichent : « '+l+' ». Ils délimitent le texte, ils ne doivent pas être écrits DANS le texte.');
-      else if(l.replace(/\s+/g,' ')===attendu.replace(/\s+/g,' ')) dits.push('Ton programme affiche « '+l+' » : il y a une espace en trop ou en moins. Il faut exactement « '+attendu+' ».');
-      else if(pypSansAccents(l)===pypSansAccents(attendu)) dits.push('Ton programme affiche « '+l+' » : attention aux accents, il faut exactement « '+attendu+' ».');
+      else if(pySansEspaces(l).toLowerCase()===pySansEspaces(attendu).toLowerCase()) dits.push('Ton programme affiche « '+l+' » : les majuscules et les minuscules comptent, il faut écrire « '+attendu+' ».');
       else dits.push('Ton programme affiche « '+l+' » au lieu de « '+attendu+' » : relis le texte à afficher, lettre par lettre.');
     }
   }
@@ -17512,7 +17699,12 @@ function checkPYP(live){
   test.locked=true; ta.readOnly=true;
   if(d.ok){
     ta.classList.add('ok'); test.score+=1;
-    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme affiche bien « '+q.texte+' ».'; fb.className='mp-feedback good';
+    /* accepté à un détail près : on le DIT, sinon l'élève croirait avoir
+       écrit le texte exact (décision de Turquet, septembre 2026) */
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+(d.ecart
+      ? ' C’est accepté : ton programme affiche « '+d.ligne+' » — '+d.ecart+', et on demandait « '+q.texte+' ».'
+      : ' Ton programme affiche bien « '+q.texte+' ».');
+    fb.className='mp-feedback good';
   } else if(d.vide){
     ta.value=pypModele(q); ta.classList.add('sol');
     fb.textContent='Tu n’avais rien écrit — la correction a écrit en vert un programme qui convient.'; fb.className='mp-feedback bad';
@@ -17568,18 +17760,23 @@ function ctxPyp(q){
    str(note)) est juste, comme le serait toute écriture qui affiche la même
    chose — ET exige que la variable soit EMPLOYÉE : « la note est : 12 »
    recopié à la main affiche la bonne chose sans rien apprendre, et le message
-   le dit.
+   le dit. Le TEXTE est toléré à un ou deux caractères près (pyTexteProche,
+   partagée avec {python-print} — décision de Turquet, septembre 2026), la
+   VALEUR jamais : elle doit se lire dans la sortie telle que Python l'écrit,
+   sans quoi print("la note est :", note + 1) passerait.
 
    LE DIAGNOSTIC NOMME OÙ EST L'ERREUR, en soutien comme en entraînement — la
    demande. Il ne prononce que des faits PROUVABLES sur la ligne : le texte
    posé sans guillemets (Python cherche alors une variable « la »), le print
    absent ou en majuscules, la parenthèse ou le guillemet non fermé, la
    virgule manquante entre le texte et la variable, la variable entre
-   guillemets (c'est son NOM qui s'affiche), l'ordre inversé, l'espace en
-   trop ou manquante, le « : » oublié, la majuscule dans le texte, la valeur
-   recopiée. Ce qu'il ne sait pas nommer, il le montre : « ton programme
-   affiche X au lieu de Y ». En entraînement, la ligne juste s'écrit en vert
-   sous la case ; en soutien, jamais — l'élève corrige et revérifie.
+   guillemets (c'est son NOM qui s'affiche), l'ordre inversé, le calcul à la
+   place de la valeur, la valeur recopiée, la casse d'un bout à l'autre.
+   L'espace en trop, le « : » oublié et la majuscule isolée n'y sont plus :
+   ils sont ACCEPTÉS, et nommés dans le « Bravo ». Ce qu'il ne sait pas
+   nommer, il le montre : « ton programme affiche X au lieu de Y ». En
+   entraînement, la ligne juste s'écrit en vert sous la case ; en soutien,
+   jamais — l'élève corrige et revérifie.
 
    La première question est celle de la demande, ÉPINGLÉE (note = 12, « la
    note est : ») ; les trois suivantes tirent les trois visages de
@@ -17662,17 +17859,17 @@ function pyxDiagErreur(q, l, msg, att){
   if(mc) return 'Python ne comprend pas le caractère « '+mc[1]+' » : il n’a rien à faire dans cette ligne. Relis : print, une parenthèse, le texte entre guillemets, une virgule, la variable, la parenthèse fermante.';
   return 'Python s’arrête sur une erreur : « '+msg+' ». Relis ta ligne : print, une parenthèse, le texte entre guillemets, une virgule, la variable, la parenthèse fermante.';
 }
+/* Le texte diffère assez pour n'être plus « presque » celui qu'on demande —
+   l'espace, l'accent et le caractère isolé ont été acceptés plus haut : reste
+   la casse d'un bout à l'autre, qu'on nomme, et le reste, qu'on montre. */
 function pyxDiagTexte(vu, att){
-  const fin=att.trim().slice(-1);
-  if(vu.trim()===att.trim()) return 'Le texte porte une espace en trop, au début ou à la fin : print ajoute déjà l’espace entre le texte et la valeur. Le texte doit s’arrêter juste après « '+fin+' ».';
-  if(vu.toLowerCase()===att.toLowerCase()) return 'Python affiche le texte tel quel, majuscules comprises : « '+vu+' » n’est pas « '+att+' ».';
-  if(vu.replace(/\s*:\s*$/,'')===att.replace(/\s*:\s*$/,'')) return (/:$/.test(att.trim())) ? 'Il manque le « : » à la fin du texte : tu affiches « '+vu+' » au lieu de « '+att+' ».' : 'Le texte porte un « : » en trop : tu affiches « '+vu+' » au lieu de « '+att+' ».';
+  if(pySansEspaces(vu).toLowerCase()===pySansEspaces(att).toLowerCase()) return 'Python affiche le texte tel quel, majuscules comprises : « '+vu+' » n’est pas « '+att+' ».';
   return 'La forme est bonne, mais le texte affiché est « '+vu+' » au lieu de « '+att+' » : relis-le caractère par caractère.';
 }
 function pyxDiagSortie(q, l, r, att){
   const p=r.prints[0];
   if(!p) return 'Ta ligne s’exécute sans erreur, mais elle n’affiche RIEN : pour afficher, il faut print(…).';
-  if(r.out===att.sortie) return 'Ton programme affiche bien « '+att.sortie.trim()+' », mais sans se servir de la variable '+q.nom+' : la valeur est recopiée à la main. Après la virgule, écris le NOM de la variable, sans guillemets — si sa valeur changeait, l’affichage suivrait.';
+  if(pyxAffiche(r.out, att)) return 'Ton programme affiche bien « '+r.out.trim()+' », mais sans se servir de la variable '+q.nom+' : la valeur est recopiée à la main. Après la virgule, écris le NOM de la variable, sans guillemets — si sa valeur changeait, l’affichage suivrait.';
   const a=p.args, v=p.vals;
   if(a.length>2) return 'Ton print affiche '+a.length+' choses ; il n’en faut que deux : le texte, puis la variable.';
   if(a.length===2 && a[0].k==='str' && a[1].k==='str' && a[1].v===q.nom) return '« '+q.nom+' » entre guillemets est un TEXTE : Python affiche le mot '+q.nom+', pas sa valeur. Après la virgule, la variable s’écrit SANS guillemets.';
@@ -17680,13 +17877,15 @@ function pyxDiagSortie(q, l, r, att){
   if(a.length===2 && a[0].k==='str' && a[1].k==='nom') return pyxDiagTexte(a[0].v, att.texte);
   if(a.length===2 && a[0].k==='str' && a[1].k==='expr') return 'Après la virgule, c’est la valeur de la variable '+q.nom+' qu’il faut afficher, telle quelle — pas un calcul : ton programme affiche « '+pyRep(v[1])+' » à la place.';
   if(a.length===1 && a[0].k==='str' && a[0].v===att.texte) return 'Le texte s’affiche, mais pas la valeur de la variable : après le texte, ajoute une virgule puis le nom de la variable, '+q.nom+'.';
-  const sansEsp=function(s){ return s.replace(/\s+/g,''); };
-  if(sansEsp(r.out)===sansEsp(att.sortie)){
-    if(r.out.length<att.sortie.length) return 'Il manque l’espace entre le texte et la valeur : avec une VIRGULE entre les deux, print l’ajoute tout seul.';
-    return 'Il y a une espace en trop : print en met déjà une entre le texte et la valeur — le texte doit s’arrêter juste après « '+att.texte.trim().slice(-1)+' ».';
-  }
   return 'Ton programme affiche « '+r.out.trim()+' » alors qu’il devrait afficher « '+att.sortie.trim()+' ».';
 }
+/* La sortie est-elle celle du témoin ? Le TEXTE est toléré à un ou deux
+   caractères près, les espaces ne comptant jamais (pyTexteProche) ; la VALEUR,
+   elle, doit s'y lire telle que Python l'écrit. Une valeur CHANGÉE est déjà
+   écartée par les chiffres de pyTexteProche ; ce garde-ci écarte la valeur
+   COUPÉE par une espace — print("la note est :", note // 10, note % 10)
+   affiche « la note est : 1 2 », que les espaces retirées rendraient juste. */
+function pyxAffiche(out, att){ return pyTexteProche(out, att.sortie) && String(out).indexOf(att.valeur)>=0; }
 /* Le juge : la SORTIE de la ligne comparée à celle du témoin, et la variable
    employée. Sur une ligne fausse, il dit OÙ est l'erreur. */
 function pyxJuge(q, ligne){
@@ -17695,8 +17894,8 @@ function pyxJuge(q, ligne){
   let r=null, err=null;
   try{ r=pyRun(pyxSrc(q,l)); }catch(e){ err=e; }
   if(err) return {ok:false, vide:false, erreur:err.message, diag:pyxDiagErreur(q,l,err.message,att)};
-  const ok=(r.out===att.sortie) && pyxUtilise(l,q.nom);
-  return {ok:ok, vide:false, sortie:r.out, diag:ok?'':pyxDiagSortie(q,l,r,att)};
+  const ok=pyxAffiche(r.out, att) && pyxUtilise(l,q.nom);
+  return {ok:ok, vide:false, sortie:r.out, ecart:ok?pyEcart(r.out.replace(/\n$/,''), att.sortie.replace(/\n$/,'')):'', diag:ok?'':pyxDiagSortie(q,l,r,att)};
 }
 /* Le cours, SUR l'écran : l'exercice explique avant de faire écrire. Son
    exemple n'est aucune des questions. */
@@ -17803,7 +18002,11 @@ function checkPYX(live){
   test.locked=true; inp.disabled=true;
   const run=$('pyxRun'); if(run) run.disabled=true;
   const h=$('pyxRunHint'); if(h) h.textContent='Programme exécuté et vérifié.';
-  if(j.ok){ test.score+=1; fb.textContent=pick(['Bravo, ta ligne est juste !','Parfait !','Excellent !'])+' Le programme affiche exactement ce qui était demandé.'; fb.className='mp-feedback good'; }
+  /* accepté à un détail près : on le DIT, sinon l'élève croirait avoir écrit
+     le texte exact (décision de Turquet, septembre 2026) */
+  if(j.ok){ test.score+=1; fb.textContent=pick(['Bravo, ta ligne est juste !','Parfait !','Excellent !'])+(j.ecart
+      ? ' C’est accepté : le programme affiche « '+String(j.sortie).replace(/\n$/,'')+' » — '+j.ecart+', et on demandait « '+att.sortie.trim()+' ».'
+      : ' Le programme affiche exactement ce qui était demandé.'); fb.className='mp-feedback good'; }
   else {
     fb.innerHTML='<b>Où est l’erreur ?</b> '+esc(j.diag)+' La ligne juste est écrite en vert sous la tienne.';
     fb.className='mp-feedback bad';

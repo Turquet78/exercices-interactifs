@@ -3589,6 +3589,7 @@ function exercices(suite){
     pythonNoms(w, P);
     pythonNomVariable(w, P);
     pythonPrint(w, P);
+    pythonTexteProche(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -3601,6 +3602,7 @@ function exercices(suite){
     jetonsSignePremier(w, P);
     variationsDerivee(w, P);
     signeDeriveeQcm(w, P);
+    suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
@@ -8214,7 +8216,7 @@ function suiteAuxiliaireCompleter(w, P){
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
-/* LA CONVERGENCE MONOTONE ET LA LIMITE (Terminale 6.13) : la fiche « suite TCM
+/* LA CONVERGENCE MONOTONE ET LA LIMITE (Terminale 6.12) : la fiche « suite TCM
    et limite », case par case. Le risque propre est l'ÉNONCÉ QUI CONTREDIT SA
    CORRECTION — la fiche elle-même le porte (son exemple 2 donne une suite
    décroissante minorée par 3 et trouve ℓ = 1) : le contrôle SIMULE la suite par
@@ -8448,7 +8450,7 @@ function suiteTcmLimite(w, P){
     if(!TESTS['suite-tcm-limite']) vus.push('l’exercice n’est pas dans TESTS');
     const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-tcm-limite')>=0; })[0];
     if(!th || th.nom!=='Suites') vus.push('l’exercice n’est pas dans le thème Suites');
-    else if(th.ids[th.ids.length-1]!=='suite-tcm-limite') vus.push('l’exercice n’est pas le dernier du thème : il renumérote ses voisins');
+    else if(TEST_NUM['suite-tcm-limite']!=='6.12') vus.push('l’exercice a changé de numéro (' + TEST_NUM['suite-tcm-limite'] + ' au lieu de 6.12) : un exercice inséré AVANT lui renumérote ses voisins');
     if(typeof RAPPELS==='undefined' || !RAPPELS.tcl) vus.push('aucun rappel de cours pour tcl');
     else if(!/convergence monotone/.test(RAPPELS.tcl) || !/passage à la limite/i.test(RAPPELS.tcl)) vus.push('le rappel ne nomme pas le théorème ou le passage à la limite');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.tcl) vus.push('aucune question proposée pour tcl');
@@ -9118,7 +9120,7 @@ function suiteVariationRecurrence(w, P){
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
-/* LA SUITE PAR LA DIFFÉRENCE (Terminale 6.12) : la fiche « VARIATION DIFFÉRENCE »
+/* LA SUITE PAR LA DIFFÉRENCE (Terminale 6.13) : la fiche « VARIATION DIFFÉRENCE »
    — la suite du 6.11, par l’autre méthode : l’encadrement démontré par
    récurrence OPÉRATION PAR OPÉRATION, puis le signe de U(n+1) − U(n), mis au
    même dénominateur et lu dans un tableau de signes.
@@ -17642,7 +17644,7 @@ function pythonPrint(w, P){
   })()`, v => v === '');
 
   /* ---- 4. le diagnostic, cas par cas ---- */
-  verifierEval(w, 'le diagnostic nomme chaque défaut — print en majuscules ou mal écrit, parenthèses, guillemets absents, non fermés, dépareillés ou typographiques, casse, espaces, accents, guillemets affichés, ligne de trop, rien d’affiché, point-virgule — et l’apostrophe de « c’est » n’est pas un guillemet dépareillé', `(function(){
+  verifierEval(w, 'le diagnostic nomme chaque défaut — print en majuscules ou mal écrit, parenthèses, guillemets absents, non fermés, dépareillés ou typographiques, la casse d’un bout à l’autre, un autre texte, une ligne de trop, rien d’affiché, point-virgule — et l’apostrophe de « c’est » n’est pas un guillemet dépareillé', `(function(){
     const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), T="${PREMIER}";
     const cas=[
       ["Print("+Q+T+Q+")", /minuscules/],
@@ -17654,10 +17656,7 @@ function pythonPrint(w, P){
       ["print("+Q+T+")", /pas fermé/],
       ["print("+Q+T+A+")", /MÊMES/],
       ["print(«"+T+"»)", /droits/],
-      ["print("+Q+"Je suis en seconde"+Q+")", /majuscules/],
-      ["print("+A+Q+T+Q+A+")", /s’affichent/],
-      ["print("+Q+"je  suis en seconde"+Q+")", /espace/],
-      ["print("+Q+"je suis en séconde"+Q+")", /accents/],
+      ["print("+Q+"JE SUIS EN SECONDE"+Q+")", /majuscules/],
       ["print("+Q+"bonjour"+Q+")", /« bonjour » au lieu de « je suis en seconde »/],
       ["print("+Q+T+Q+")"+NL+"print("+Q+T+Q+")", /2 lignes/],
       ["x = "+Q+T+Q, /aucun print/],
@@ -17839,6 +17838,156 @@ function pythonPrint(w, P){
   }
 }
 
+/* LA TOLÉRANCE DES TEXTES AFFICHÉS (Seconde) — décision de Turquet
+   (septembre 2026) : « en seconde, pour les algorithmes qui affichent un
+   texte, accepter les textes qui sont presque bons. Dans le texte, des espaces
+   en trop ou en moins ne sont pas pénalisés, un ou deux caractères faux ou en
+   trop ne sont pas pénalisés. »
+   Elle vit à UN SEUL endroit (pyTexteProche) et sert {python-print} comme
+   {python-completer} : le contrôle l'éprouve donc sur les DEUX JUGES et sur
+   l'ÉCRAN, jamais sur la fonction seule — lire la fonction de la page et la
+   comparer à elle-même ne prouverait rien.
+   Quatre bords, et n'en tenir qu'un ne tient rien :
+   · ce qui est ACCEPTÉ — l'espace, l'accent, la majuscule isolée, les
+     guillemets affichés, un ou deux caractères — et l'écart NOMMÉ dans le
+     « Bravo » : sans cette moitié, l'élève croirait avoir écrit le texte
+     exact, et les quatre messages qui nommaient ces défauts auraient
+     simplement disparu ;
+   · ce qui reste REFUSÉ : les CHIFFRES, qui ne sont jamais « presque bons »
+     (print("la note est :", note + 1) affiche une autre note), et un texte
+     qui n'est plus celui-là ;
+   · la TRANCHE DE QUATRE : sur « age : 16 » — six caractères une fois les
+     espaces retirées, le plus court des deux exercices — une faute est
+     tolérée, deux ne le sont pas ; sur une phrase entière, deux le sont et
+     trois ne le sont pas. Et le plus court texte est MESURÉ sur les deux
+     tirages plutôt que supposé : un texte plus court ajouté demain rougit ;
+   · {python-afficher-variable} reste DEHORS : sa sortie EST la valeur de la
+     variable, et une espace de plus y est refusée.
+   Aucun antislash littéral ni accent grave dans le code évalué. */
+function pythonTexteProche(w, P){
+  const nom = 'la tolérance des textes affichés : les deux juges acceptent un texte presque bon, et l’écran dit ce qu’il a toléré';
+  const T = P.toleranceTexte;
+  if(!T){ ignorer(nom, 'ce niveau n\'a aucun exercice qui fasse afficher un texte'); return; }
+  if(!P.pythonPrint || !P.pythonCompleter){
+    verifier(nom, false, 'le profil déclare la tolérance sans les deux exercices qui l\'emploient'); return;
+  }
+  const present = evaluer(w, "typeof pypDiag==='function' && typeof pyxJuge==='function' && typeof pycJuge==='function'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'pypDiag / pyxJuge / pycJuge introuvables'); return; }
+  const ID = P.pythonPrint.exercice, PREMIER = P.pythonPrint.premier;
+
+  /* ---- 1. {python-print} : accepté, et l'écart nommé à l'écran ---- */
+  verifierEval(w, 'le texte presque bon est ACCEPTÉ par {python-print} — l’espace, l’accent, la majuscule, les guillemets affichés, un caractère en trop ou en moins — et le « Bravo » nomme ce qui a été toléré', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), T="${PREMIER}";
+    const cas=[["print("+Q+"Je suis en seconde"+Q+")", /majuscules/],
+               ["print("+Q+"je  suis en seconde"+Q+")", /espace/],
+               ["print("+Q+"jesuisenseconde"+Q+")", /espace/],
+               ["print("+Q+"je suis en séconde"+Q+")", /accents/],
+               ["print("+A+Q+T+Q+A+")", /guillemets/],
+               ["print("+Q+T+"s"+Q+")", /caractère/],
+               ["print("+Q+"je suis en second"+Q+")", /caractère/]];
+    cas.forEach(function(c){
+      const d=pypDiag(c[0],T);
+      if(!d.ok){ vus.push("refusé : "+JSON.stringify(c[0])+" — "+d.dits.join(" ")); return; }
+      if(!c[1].test(d.ecart)) vus.push(JSON.stringify(c[0])+" : l’écart est dit « "+d.ecart+" »");
+    });
+    if(pypDiag("print("+Q+T+Q+")",T).ecart!=="") vus.push("le texte EXACT reçoit un écart : « "+pypDiag("print("+Q+T+Q+")",T).ecart+" »");
+    /* et l'écran le dit : la copie tolérée vaut 1, en vert, et le message porte l'écart et le texte demandé */
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYP();
+    const ta=document.getElementById("pyp-prog");
+    ta.value="print("+Q+"Je suis en seconde"+Q+")"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYP();
+    const fb=document.getElementById("pypFeedback");
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie tolérée ne vaut pas 1 : "+ta.className+", note "+test.score);
+    if(fb.className.indexOf("good")<0) vus.push("le retour de la copie tolérée n’est pas vert : "+fb.className);
+    if(fb.textContent.indexOf("Je suis en seconde")<0||!/majuscules/.test(fb.textContent)||fb.textContent.indexOf(T)<0)
+      vus.push("le message ne dit pas ce qui a été toléré : "+fb.textContent);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. {python-completer} : accepté, et l'écart nommé à l'écran ---- */
+  verifierEval(w, 'le texte presque bon est ACCEPTÉ par {python-completer} — la majuscule, le « : » oublié, l’espace en trop ou manquante — et le « Bravo » nomme ce qui a été toléré', `(function(){
+    const vus=[], q=Object.assign({},PYX_FICHE);
+    const cas=[['print("La note est :", note)', /majuscules/],
+               ['print("la note est", note)', /caractère/],
+               ['print("la note est : ", note)', /espace/],
+               ['print("la note est :" + str(note))', /espace/]];
+    cas.forEach(function(c){
+      const j=pyxJuge(q,c[0]);
+      if(!j.ok){ vus.push("refusé : "+c[0]+" — "+(j.diag||j.erreur)); return; }
+      if(!c[1].test(j.ecart)) vus.push(c[0]+" : l’écart est dit « "+j.ecart+" »");
+    });
+    if(pyxJuge(q,'print("la note est :", note)').ecart!=="") vus.push("la ligne EXACTE reçoit un écart");
+    /* l'écran : on tape la ligne tolérée, on l'exécute, on vérifie */
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${P.pythonCompleter.exercice}";
+    startPYX();
+    const q1=test.questions[0], inp=document.getElementById("pyx-in"), fb=document.getElementById("pyxFeedback");
+    inp.value='print("La '+q1.texte.slice(3)+'", '+q1.nom+')'; inp.dispatchEvent(new Event("input",{bubbles:true}));
+    pyxExecuter(); checkPYX();
+    if(!inp.classList.contains("ok")||test.score!==1) vus.push("la ligne tolérée ne vaut pas 1 : "+inp.className+", note "+test.score);
+    if(fb.className.indexOf("good")<0) vus.push("le retour de la ligne tolérée n’est pas vert : "+fb.className);
+    if(!/majuscules/.test(fb.textContent)||fb.textContent.indexOf("La "+q1.texte.slice(3))<0) vus.push("le message ne dit pas ce qui a été toléré : "+fb.textContent);
+    if(inp.nextElementSibling&&inp.nextElementSibling.classList&&inp.nextElementSibling.classList.contains("mf-cor")) vus.push("la ligne tolérée reçoit quand même la correction en vert");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. les chiffres ne sont jamais « presque bons » ---- */
+  verifierEval(w, 'les CHIFFRES comptent toujours : print(texte, note + 1) affiche une autre note et reste refusé en nommant le calcul, la valeur coupée en deux par une espace aussi, et un chiffre glissé dans une phrase ne passe pas non plus', `(function(){
+    const vus=[], Q=String.fromCharCode(34), q=Object.assign({},PYX_FICHE);
+    const j=pyxJuge(q,'print("la note est :", note + 1)');
+    if(j.ok) vus.push("print(texte, note + 1) est accepté : la page afficherait 13 pour 12");
+    else if(j.diag.indexOf("calcul")<0) vus.push("le diagnostic ne nomme pas le calcul : "+j.diag);
+    const j2=pyxJuge(q,'print("la note est :", note - 1)');
+    if(j2.ok) vus.push("print(texte, note - 1) est accepté");
+    /* et la VALEUR se lit telle quelle : les espaces ne comptent pas, mais une
+       valeur COUPÉE par une espace n'est plus cette valeur */
+    const j3=pyxJuge(q,'print("la note est :", note // 10, note % 10)');
+    if(j3.ok) vus.push("« la note est : 1 2 » est accepté pour 12 : la valeur ne se lit plus telle quelle");
+    const d=pypDiag("print("+Q+"je suis en 2econde"+Q+")","${PREMIER}");
+    if(d.ok) vus.push("un chiffre glissé dans la phrase passe pour une faute de frappe");
+    /* et le message reste VRAI quand le texte a été toléré : la valeur
+       recopiée à la main se NOMME, au lieu de montrer deux textes qui se
+       ressemblent (« affiche X alors qu'il devrait afficher Y ») */
+    const j4=pyxJuge(q,'print("La note est : 12")');
+    if(j4.ok) vus.push("la valeur recopiée passe parce que le texte a été toléré");
+    else if(j4.diag.indexOf("recopiée")<0) vus.push("le diagnostic ne nomme plus la valeur recopiée quand le texte a été toléré : "+j4.diag);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. un caractère par tranche de quatre, deux au plus ---- */
+  verifierEval(w, 'un caractère par tranche de quatre, deux au plus : sur « age : 16 » une faute passe et deux ne passent pas ; sur une phrase entière, deux passent et trois ne passent pas', `(function(){
+    const vus=[], Q=String.fromCharCode(34), T="${PREMIER}", q={nom:"age", lit:"16", texte:"age :", vis:"int"};
+    if(pyxAns(q).sortie.indexOf("age : 16")!==0) vus.push("le témoin court n’affiche pas « age : 16 » : "+JSON.stringify(pyxAns(q).sortie));
+    if(!pyxJuge(q,'print("agi :", age)').ok) vus.push("une faute sur un texte court est refusée : « agi : 16 »");
+    if(pyxJuge(q,'print("agi ;", age)').ok) vus.push("deux fautes sur six caractères sont acceptées : « agi ; 16 » passerait pour « age : 16 »");
+    if(!pypDiag("print("+Q+T+"s !"+Q+")",T).ok) vus.push("deux caractères en trop sur la phrase sont refusés");
+    if(pypDiag("print("+Q+T+"s !!"+Q+")",T).ok) vus.push("trois caractères en trop sur la phrase sont acceptés");
+    /* le plus court texte des deux tirages, MESURÉ */
+    let court=null;
+    const court1=function(t){ const n=t.split(" ").join("").length; if(court===null||n<court[0]) court=[n,t]; };
+    for(let s=0;s<200;s++){
+      pypBuildQuestions().forEach(function(x){ court1(x.texte); });
+      pyxBuildQuestions().forEach(function(x){ const o=pyxAns(x).sortie; court1(o.slice(0,o.length-1)); });
+    }
+    if(!court||court[0]<${T.plusCourt}) vus.push("le plus court texte affiché fait "+(court&&court[0])+" caractères (« "+(court&&court[1])+" ») : deux fautes n’y seraient plus une faute de frappe");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le bord opposé : un autre texte, et {python-afficher-variable} ---- */
+  verifierEval(w, 'le bord opposé : un texte qui n’est plus celui-là reste refusé et montré, et {python-afficher-variable} reste DEHORS — sa sortie est une VALEUR, une espace de plus y est refusée', `(function(){
+    const vus=[], Q=String.fromCharCode(34), T="${PREMIER}", q=Object.assign({},PYX_FICHE);
+    const d=pypDiag("print("+Q+"bonjour"+Q+")",T);
+    if(d.ok||d.dits.join(" ").indexOf("au lieu de")<0) vus.push("un autre texte n’est pas refusé en montrant les deux : "+d.dits.join(" "));
+    const j=pyxJuge(q,'print("salut :", note)');
+    if(j.ok) vus.push("« salut : 12 » est accepté pour « la note est : 12 »");
+    const qs=pycBuildQuestions(), qc=qs[0];
+    const jc=pycJuge(qc,"print("+qc.nom+", "+Q+Q+")");
+    if(jc.ok) vus.push("la tolérance a fui sur {python-afficher-variable} : une espace de plus après la valeur y est acceptée");
+    if(!pycJuge(qc,"print("+qc.nom+")").ok) vus.push("le contrôle ne mesure rien : la copie juste de {python-afficher-variable} est refusée");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
 /* {python-completer} (Seconde) : le cours sur l'écran, puis un programme à
    COMPLÉTER — la ligne 1 donnée (note = 12), la ligne 2 à écrire — que
    l'élève EXÉCUTE avant de vérifier ; le juge compare la SORTIE de sa ligne à
@@ -17880,7 +18029,7 @@ function pythonCompleter(w, P){
   })()`, v => v === '');
 
   /* ---- 2. le diagnostic : vingt-deux lignes fausses, et le mot que chacune doit recevoir ---- */
-  verifierEval(w, 'chaque ligne fausse est refusée ET reçoit le diagnostic qui nomme son erreur (le texte sans guillemets, Print, la parenthèse, la virgule, la variable entre guillemets, l’ordre, l’espace, le « : », la majuscule, la valeur recopiée…)', `(function(){
+  verifierEval(w, 'chaque ligne fausse est refusée ET reçoit le diagnostic qui nomme son erreur (le texte sans guillemets, Print, la parenthèse, la virgule, la variable entre guillemets, l’ordre, le calcul, la valeur recopiée, la casse d’un bout à l’autre…)', `(function(){
     const vus=[], q=Object.assign({},PYX_FICHE);
     const cas=[
       ['print(la note est :, note)', 'guillemets'],
@@ -17897,12 +18046,9 @@ function pythonCompleter(w, P){
       ['print("la note est :" note)', 'virgule'],
       ['print("la note est :", "note")', 'TEXTE'],
       ['print(note, "la note est :")', 'inversé'],
-      ['print("la note est : ", note)', 'espace en trop'],
-      ['print("La note est :", note)', 'majuscules comprises'],
-      ['print("la note est", note)', 'manque le « : »'],
+      ['print("LA NOTE EST :", note)', 'majuscules comprises'],
       ['print("la note est :")', 'pas la valeur'],
       ['print("la note est :", 12)', 'recopiée'],
-      ['print("la note est :" + str(note))', 'manque l’espace'],
       ['print("la note est :", note + 1)', 'pas un calcul'],
       ['print("la note est :", note, note)', '3 choses'],
       ['print("la note est :" + note)', 'VIRGULE'],
@@ -20629,6 +20775,212 @@ function signeDeriveeQcm(w, P){
     /* le contexte du modèle porte la clause de secret et la bonne lettre */
     pose(null);
     { const c=sdqConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/affirmation vraie : c/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec la bonne lettre'); }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Vocabulaire sur les suites : la fiche à cocher ----
+   La fiche « Vocabulaire sur les suites » (demande de Turquet, septembre
+   2026) : les termes U₀ à U₁₂ d'une suite sur un quadrillage, et l'élève
+   coche ce qu'elle semble être — le sens, les bornes, la limite, la nature.
+   Le contrôle refait TOUT par une SECONDE arithmétique, sur les treize termes
+   que le dessin montre et jamais par svqAns : le sens se relit sur les
+   différences, une borne annoncée doit tenir sur chaque terme et être
+   ATTEINTE (ou être la limite, pour la suite monotone convergente, dont la
+   droite y = ℓ doit alors être dessinée), une suite dite « non majorée » doit
+   s'échapper vers le haut sur les termes montrés, une limite finie doit être
+   approchée, une limite infinie doit emporter la suite, et « pas de limite »
+   doit encore osciller au bout. Les extremums tombent sur des demi-graduations
+   au moins, sans quoi la fiche ferait lire ce qui ne se lit pas. La séance
+   pose une croissante, une décroissante, deux non monotones distinctes, les
+   deux natures, en ordre mélangé, et les neuf visages sortent tous sur cent
+   séances. Puis les gestes, sur trois questions ÉPINGLÉES : la copie juste
+   vaut le point et compte ses cases, une borne plus large est JUSTE (« majorée
+   par 10 » devant une suite qui plafonne à 4 est vraie) quand une borne trop
+   serrée rougit seule, la limite infinie se lit par « inf », une case NON
+   cochée qui aurait dû l'être est laissée VIDE (verte, jamais rouge), le
+   groupe exclusif ne garde qu'une case, une valeur n'est ouverte qu'une fois
+   sa case cochée, le soutien ne révèle rien et verrouille le juste, la copie
+   vide redemande, et le contexte du modèle porte la clause de secret. */
+function suiteVocabulaire(w, P){
+  const nom='vocabulaire sur les suites : la fiche à cocher';
+  const present = evaluer(w, "typeof startSVQ==='function' && typeof svqSession==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du vocabulaire sur les suites');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='suite-vocabulaire';
+    const CHAMPS={ decconv:['L','A','q'], croconv:['L','A','q'], croinf:['U0','k'], decinf:['U0','k'],
+      noninfm:['U0','k','s'], noninfp:['U0','k','s'], period:['a','d','dep'], amorti:['L','i','sg'], oscinf:['c','s'] };
+    const termes=function(q){ const t=[]; for(let n=0;n<=12;n++) t.push(Math.round(svqVal(q,n)*100)/100); return t; };
+    /* le sens, relu sur les DIFFÉRENCES des termes montrés */
+    const sensDe=function(t){ let inc=true, dec=true;
+      for(let i=0;i<t.length-1;i++){ if(!(t[i+1]>t[i])) inc=false; if(!(t[i+1]<t[i])) dec=false; }
+      return inc?'cro':(dec?'dec':'non'); };
+    const jugeQuestion=function(q, ou){
+      if(!CHAMPS[q.fam]){ vus.push(ou+' : famille inconnue '+q.fam); return null; }
+      const etr=Object.keys(q).filter(function(k){ return k!=='fam' && k!=='rep' && CHAMPS[q.fam].indexOf(k)<0; });
+      if(etr.length) vus.push(ou+' : la question range autre chose que la famille et ses paramètres : '+etr.join(','));
+      const a=svqAns(q), t=termes(q), mx=Math.max.apply(null,t), mn=Math.min.apply(null,t);
+      if(sensDe(t)!==a.sens) vus.push(ou+' ('+q.fam+') : la page dit « '+a.sens+' », les termes montrés disent « '+sensDe(t)+' »');
+      const finie=(typeof a.lim==='number');
+      if(a.maj){
+        if(a.sup<mx-1e-9) vus.push(ou+' ('+q.fam+') : « majorée par '+a.sup+' » et un terme vaut '+mx);
+        if(Math.abs(a.sup-mx)>1e-9 && !(finie && Math.abs(a.sup-a.lim)<1e-9)) vus.push(ou+' ('+q.fam+') : le majorant '+a.sup+' n\\'est ni atteint ni la limite — il ne se lit pas sur le dessin');
+        if(!Number.isInteger(a.sup*2)) vus.push(ou+' ('+q.fam+') : le majorant '+a.sup+' ne tombe pas sur une demi-graduation');
+      } else {
+        const debut=Math.max.apply(null,t.slice(0,3)), fin=Math.max.apply(null,t.slice(10));
+        if(fin-debut<2) vus.push(ou+' ('+q.fam+') : dite non majorée, mais les termes montrés ne s\\'échappent pas vers le haut ('+debut+' → '+fin+')');
+      }
+      if(a.min){
+        if(a.inf>mn+1e-9) vus.push(ou+' ('+q.fam+') : « minorée par '+a.inf+' » et un terme vaut '+mn);
+        if(Math.abs(a.inf-mn)>1e-9 && !(finie && Math.abs(a.inf-a.lim)<1e-9)) vus.push(ou+' ('+q.fam+') : le minorant '+a.inf+' n\\'est ni atteint ni la limite');
+        if(!Number.isInteger(a.inf*2)) vus.push(ou+' ('+q.fam+') : le minorant '+a.inf+' ne tombe pas sur une demi-graduation');
+      } else {
+        const debut=Math.min.apply(null,t.slice(0,3)), fin=Math.min.apply(null,t.slice(10));
+        if(debut-fin<2) vus.push(ou+' ('+q.fam+') : dite non minorée, mais les termes montrés ne s\\'échappent pas vers le bas');
+      }
+      if(a.bor!==(a.maj&&a.min)) vus.push(ou+' : bornée ≠ majorée ET minorée');
+      if(a.conv!==finie) vus.push(ou+' : convergente ≠ limite finie');
+      if(a.aLim!==(a.lim!==null)) vus.push(ou+' : aLim ne suit pas lim');
+      if(finie){
+        if(Math.abs(t[12]-a.lim)>0.6 || Math.abs(t[12]-a.lim)>=Math.abs(t[0]-a.lim)) vus.push(ou+' ('+q.fam+') : la limite annoncée '+a.lim+' n\\'est pas approchée (U0 = '+t[0]+', U12 = '+t[12]+')');
+        if(!Number.isInteger(a.lim)) vus.push(ou+' : la limite '+a.lim+' n\\'est pas entière');
+      } else if(a.lim==='+∞'){ if(t[12]-t[0]<3) vus.push(ou+' ('+q.fam+') : dite de limite +∞, la suite ne monte que de '+(t[12]-t[0])); }
+      else if(a.lim==='−∞'){ if(t[0]-t[12]<3) vus.push(ou+' ('+q.fam+') : dite de limite −∞, la suite ne descend que de '+(t[0]-t[12])); }
+      else if(a.lim===null){ if(Math.abs(t[12]-t[11])<1) vus.push(ou+' ('+q.fam+') : dite sans limite, la suite s\\'est calmée au bout ('+t[11]+' ; '+t[12]+')'); }
+      else vus.push(ou+' : limite illisible '+a.lim);
+      /* la droite y = ℓ : dessinée pour la suite MONOTONE convergente, et pour elle seule */
+      const attendLigne=(a.sens!=='non' && finie);
+      if(attendLigne && a.ligne!==a.lim) vus.push(ou+' ('+q.fam+') : la droite y = ℓ n\\'est pas dessinée — « majorée par » ne se lirait pas sur treize termes');
+      if(!attendLigne && a.ligne!==null) vus.push(ou+' ('+q.fam+') : une droite est dessinée là où la fiche n\\'en met pas');
+      /* les réponses de l'écran : 6 à 9, une valeur par borne ou limite qui existe */
+      const C=svqCases(q), ids=C.map(function(x){ return x.id; });
+      const attendu=6+(a.maj?1:0)+(a.min?1:0)+(a.aLim?1:0);
+      if(C.length!==attendu) vus.push(ou+' ('+q.fam+') : '+C.length+' réponses au lieu de '+attendu);
+      if((ids.indexOf('svq-maj')>=0)!==a.maj || (ids.indexOf('svq-min')>=0)!==a.min || (ids.indexOf('svq-lim')>=0)!==a.aLim) vus.push(ou+' : une valeur est demandée pour une borne ou une limite qui n\\'existe pas (ou l\\'inverse)');
+      return a;
+    };
+    const famsVues=new Set(), premiers=new Set();
+    for(let s=0;s<100 && vus.length<6;s++){
+      const qs=svqSession();
+      if(qs.length!==SVQ_NB){ vus.push('la séance pose '+qs.length+' questions au lieu de '+SVQ_NB); break; }
+      const fams=qs.map(function(q){ return q.fam; });
+      if(new Set(fams).size!==fams.length) vus.push('deux questions de la même famille dans une séance : '+fams.join(','));
+      const ans=qs.map(function(q,i){ return jugeQuestion(q,'séance '+s+', question '+(i+1)); });
+      if(ans.some(function(a){ return !a; })) break;
+      const sens=ans.map(function(a){ return a.sens; });
+      if(sens.filter(function(x){ return x==='cro'; }).length!==1 || sens.filter(function(x){ return x==='dec'; }).length!==1 || sens.filter(function(x){ return x==='non'; }).length!==2)
+        vus.push('la séance ne pose pas une croissante, une décroissante et deux non monotones : '+fams.join(','));
+      if(!ans.some(function(a){ return a.conv; }) || !ans.some(function(a){ return !a.conv; })) vus.push('la séance ne montre pas les deux natures : '+fams.join(','));
+      fams.forEach(function(f){ famsVues.add(f); }); premiers.add(sens[0]);
+    }
+    if(!vus.length){
+      SVQ_FAMS.forEach(function(f){ if(!famsVues.has(f)) vus.push('le visage « '+f+' » ne sort jamais sur 100 séances'); });
+      if(premiers.size<3) vus.push('l\\'ordre des questions ne varie pas : la première est toujours '+Array.from(premiers).join(','));
+    }
+
+    /* ---- les gestes, sur des questions ÉPINGLÉES ---- */
+    const Q1={fam:'decconv',L:1,A:3,q:0.8,rep:{}};     /* l'exemple 1 de la fiche : 4, 3,4, … → 1 ; majorée par 4, minorée par 1 */
+    const Q2={fam:'croinf',U0:1,k:0.05,rep:{}};        /* l'exemple 3 : croissante vers +∞, minorée par 1 */
+    const Q3={fam:'period',a:1,d:3,dep:'bas',rep:{}};  /* l'exemple 7 : 1, 4, 1, 4 … bornée, sans limite */
+    const coche=function(grp,val){ const el=document.querySelector('#svqForm .svq-coche[data-grp="'+grp+'"]'+(val?'[data-val="'+val+'"]':'')); if(el) el.click(); return el; };
+    const cls=function(sel){ const el=document.querySelector(sel); return el?el.className:'(absent)'; };
+    const rouges=function(){ return [].slice.call(document.querySelectorAll('#scr-svq .bad')).filter(function(e){ return /^(INPUT|SELECT)$/.test(e.tagName); }).map(function(e){ return e.id; }); };
+    function pose(Q, coches, valeurs, mode, sansVerif){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'svq', questions:[JSON.parse(JSON.stringify(Q))], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('svq'); renderSVQ();
+      (coches||[]).forEach(function(c){ coche(c[0],c[1]); });
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      if(!sansVerif) checkSVQ();
+      return { score:test.score, fb:document.getElementById('svqFeedback').textContent, cases:(test.answers[0]||{}).cases, locked:!!test.locked, rouges:rouges() };
+    }
+    const JUSTE1=[['sens','dec'],['maj'],['min'],['bor'],['lim','a'],['nat','conv']], VAL1={'svq-maj':'4','svq-min':'1','svq-lim':'1'};
+    let r=pose(Q1, JUSTE1, VAL1);
+    if(r.score!==1) vus.push('la copie juste de l\\'exemple 1 ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==9) vus.push('la copie juste compte '+r.cases+' cases au lieu de 9');
+    if(!r.locked) vus.push('la copie juste ne verrouille pas');
+    if(!/\\bok\\b/.test(cls('#svq-g-sens')) || !/\\bok\\b/.test(cls('#svq-c-bor'))) vus.push('les groupes justes ne se marquent pas ok');
+    /* une borne plus LARGE est une phrase vraie ; une borne trop serrée est fausse — et rougit SEULE */
+    r=pose(Q1, JUSTE1, {'svq-maj':'10','svq-min':'0','svq-lim':'1,0'});
+    if(r.score!==1) vus.push('« majorée par 10, minorée par 0 » est refusé sur une suite entre 1 et 4 : une lecture juste comptée fausse');
+    r=pose(Q1, JUSTE1, {'svq-maj':'3','svq-min':'1','svq-lim':'1'});
+    if(r.score!==0) vus.push('« majorée par 3 » vaut le point alors que U0 = 4');
+    if(r.rouges.join(',')!=='svq-maj') vus.push('la borne trop serrée rougit autre chose qu\\'elle-même : '+r.rouges.join(','));
+    if(!/\\bok\\b/.test(cls('#svq-c-maj'))) vus.push('la case « majorée » cochée à raison n\\'est plus bleue quand sa valeur est fausse');
+    if(!document.querySelector('#svqForm #svq-maj + .mf-cor')) vus.push('la bonne borne ne s\\'affiche pas en correction à côté de la valeur fausse');
+    /* la nature fausse : la case choisie rouge, la bonne en vert, la note compte 8 sur 9 */
+    r=pose(Q1, [['sens','dec'],['maj'],['min'],['bor'],['lim','a'],['nat','div']], VAL1);
+    if(r.score!==0) vus.push('« divergente » vaut le point sur une suite qui converge');
+    if(!/\\bbad\\b/.test(cls('#svq-g-nat .svq-coche[data-val="div"]')) || !/\\bsol\\b/.test(cls('#svq-g-nat .svq-coche[data-val="conv"]'))) vus.push('la nature fausse ne montre pas la choisie en rouge et la bonne en vert');
+    if(!/\\bbad\\b/.test(cls('#svq-g-nat'))) vus.push('le groupe faux ne compte pas comme une case fausse');
+    { const a=test.answers[0]; if(!a || a.cases!==9 || Math.abs(a.pts-8/9)>1e-9) vus.push('la nature fausse ne coûte pas exactement une case sur 9'); }
+    if(!/convergente/.test(r.fb) || !/FINIE/.test(r.fb)) vus.push('le retour ne rappelle pas ce que convergente veut dire');
+    /* une case NON cochée qui aurait dû l'être est VIDE : verte, jamais rouge — et un groupe sans choix aussi */
+    r=pose(Q1, [['sens','dec'],['maj'],['min'],['nat','conv']], {'svq-maj':'4','svq-min':'1'});
+    if(r.rouges.length) vus.push('en entraînement, une case laissée vide rougit : '+r.rouges.join(','));
+    if(!/\\bsol\\b/.test(cls('#svq-c-bor')) || /\\bbad\\b/.test(cls('#svq-c-bor'))) vus.push('« bornée » oubliée n\\'est pas cochée en vert (elle rougit, ou rien)');
+    if(!/\\bsol\\b/.test(cls('#svq-g-lim .svq-coche[data-val="a"]'))) vus.push('la limite non choisie n\\'est pas montrée en vert');
+    if(!/\\bsol\\b/.test(cls('#svq-lim'))) vus.push('la valeur de la limite laissée vide n\\'est pas complétée en vert');
+    if(!/complétées/.test(r.fb)) vus.push('le message ne dit pas que des cases oubliées ont été complétées');
+    /* une case cochée À TORT rougit */
+    r=pose(Q2, [['sens','cro'],['maj'],['min'],['lim','a'],['nat','div']], {'svq-maj':'9','svq-min':'1','svq-lim':'inf'});
+    if(r.score!==0) vus.push('« majorée » cochée sur une suite qui tend vers +∞ vaut le point');
+    if(!/\\bbad\\b/.test(cls('#svq-c-maj'))) vus.push('« majorée » cochée à tort ne rougit pas');
+    if(r.cases!==8) vus.push('l\\'exemple 3 compte '+r.cases+' cases au lieu de 8 (pas de majorant à écrire)');
+    r=pose(Q2, [['sens','cro'],['min'],['lim','a'],['nat','div']], {'svq-min':'1','svq-lim':'inf'});
+    if(r.score!==1) vus.push('la copie juste de l\\'exemple 3 (limite « inf », divergente) ne vaut pas le point ('+r.fb+')');
+    if(!/\\bok\\b/.test(cls('#svq-c-maj'))) vus.push('« majorée » laissée décochée à raison n\\'est pas bleue');
+    r=pose(Q2, [['sens','cro'],['min'],['lim','a'],['nat','conv']], {'svq-min':'1','svq-lim':'+∞'});
+    if(r.score!==0) vus.push('« convergente » vaut le point sur une suite de limite +∞');
+    r=pose(Q3, [['sens','non'],['maj'],['min'],['bor'],['lim','non'],['nat','div']], {'svq-maj':'4','svq-min':'1'});
+    if(r.score!==1) vus.push('la copie juste de l\\'exemple 7 (1, 4, 1, 4 : sans limite) ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==8) vus.push('l\\'exemple 7 compte '+r.cases+' cases au lieu de 8 (pas de limite à écrire)');
+    /* le soutien : rien n'est révélé, le juste se verrouille, le faux rougit, puis on corrige */
+    /* la copie de soutien OUBLIE « bornée » : sans une case oubliée, « rien n'est
+       révélé » n'aurait rien à mesurer — le sabotage l'a montré en restant vert */
+    r=pose(Q1, [['sens','dec'],['maj'],['min'],['lim','a'],['nat','div']], VAL1, 'soutien');
+    if(r.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    if(!/Revérifier/.test(document.getElementById('svqActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(document.querySelector('#svqForm .sol')) vus.push('en soutien, la bonne réponse est révélée en vert');
+    if(!/\\bbad\\b/.test(cls('#svq-g-nat .svq-coche[data-val="div"]'))) vus.push('en soutien, la nature fausse ne rougit pas');
+    if(!/\\bfige\\b/.test(cls('#svq-g-sens .svq-coche[data-val="dec"]'))) vus.push('en soutien, le groupe juste ne se verrouille pas');
+    if(coche('sens','cro') && test.questions[0].rep.sens!=='dec') vus.push('en soutien, un groupe verrouillé se laisse encore changer');
+    if(/\\b(sol|bad)\\b/.test(cls('#svq-c-bor'))) vus.push('en soutien, la case oubliée « bornée » est peinte');
+    coche('nat','conv'); coche('bor'); checkSVQ();
+    if(test.score!==1 || !test.locked) vus.push('en soutien, la copie corrigée ne vaut pas le point');
+    /* les cases : un groupe exclusif ne garde qu'une case, recliquer décoche, une valeur ne s'ouvre qu'une fois cochée */
+    pose(Q1, [], {}, 'train', true);
+    coche('sens','cro'); coche('sens','dec');
+    if(test.questions[0].rep.sens!=='dec' || document.querySelectorAll('#svq-g-sens .svq-coche.on').length!==1) vus.push('le groupe du sens garde deux cases cochées');
+    coche('sens','dec');
+    if(test.questions[0].rep.sens!==null) vus.push('recliquer une case cochée ne la décoche pas');
+    if(!document.getElementById('svq-maj').disabled) vus.push('la valeur du majorant est ouverte avant que « majorée » soit cochée');
+    coche('maj');
+    if(document.getElementById('svq-maj').disabled) vus.push('cocher « majorée » n\\'ouvre pas sa valeur');
+    if(document.querySelector('#svq-c-maj').getAttribute('aria-checked')!=='true') vus.push('la case cochée ne le dit pas (aria-checked)');
+    svqInf('+∞');
+    if(document.getElementById('svq-lim').value!=='') vus.push('le bouton +∞ écrit dans une limite fermée');
+    coche('lim','a'); svqInf('−∞');
+    if(document.getElementById('svq-lim').value!=='−∞') vus.push('le bouton −∞ n\\'écrit pas dans la limite ouverte');
+    /* l'état coché voyage dans la QUESTION : un aller-retour JSON puis un rendu le remet */
+    { const copie=JSON.parse(JSON.stringify(test.questions[0])); test.questions[0]=copie; renderSVQ();
+      if(!/\\bon\\b/.test(cls('#svq-c-maj')) || !/\\bon\\b/.test(cls('#svq-g-lim .svq-coche[data-val="a"]'))) vus.push('après un aller-retour JSON, les cases cochées ne reviennent pas'); }
+    /* la copie vide redemande, sans rien peindre */
+    r=pose(Q1, [], {});
+    if(!/Coche au moins une case/.test(r.fb)) vus.push('une copie vide devrait demander de cocher, pas juger');
+    if(document.querySelector('#svqForm .bad, #svqForm .sol')) vus.push('une copie vide reçoit des couleurs');
+    /* le contexte du modèle : la clause de secret et la phrase entière */
+    pose(Q1, [], {}, 'train', true);
+    { const c=svqConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/décroissante, majorée par 4 et minorée par 1/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec la lecture attendue'); }
+    /* la place au menu : ajouté en FIN de thème, il ne renumérote rien */
+    { const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-vocabulaire')>=0; })[0];
+      if(!th || th.nom!=='Suites') vus.push('l\\'exercice n\\'est pas dans le th\u00e8me Suites');
+      else if(th.ids[th.ids.length-1]!=='suite-vocabulaire') vus.push('l\\'exercice n\\'est pas le dernier du th\u00e8me : il renum\u00e9rote ses voisins'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

@@ -3068,7 +3068,7 @@ un flex, et un badge `display:block` y reste un élément de la rangée. Elle
 occupe désormais toute la rangée (`flex:0 0 100%`) et tombe sous la case ;
 le banc navigateur mesure les deux rectangles, parce que jsdom n'a pas de
 mise en page.
-Le banc NAVIGATEUR (« 6 vicies duodecies », déclaré par `pythonCompleter`
+Le banc NAVIGATEUR (« 6 tricies ter », déclaré par `pythonCompleter`
 dans `tests/profils.js`) tient ce que jsdom ne voit pas : le cours rendu, la
 ligne 1 et la case à chasse fixe et à la MÊME taille, un VRAI clic sur
 « Vérifier » fermé qui ne juge rien, la ligne fausse TAPÉE au clavier et sa
@@ -3082,6 +3082,63 @@ elle-même payé la règle « une campagne de sabotage se joue seule sur la
 machine » : lancée pendant que le banc NAVIGATEUR tournait encore, elle lui
 a fait mesurer la page sabotée (« le soutien verrouille une copie fausse »),
 et ses deux rouges accusaient une page juste. Rejoué seul, il est vert.
+
+**Un texte presque bon est un texte bon.** Décision de Turquet (septembre
+2026) : « en seconde pour les algorithmes qui affichent un texte, accepter les
+textes qui sont presque bons. Dans le texte des espaces en trop ou en moins ne
+sont pas pénalisés, un ou 2 caractères faux ou en trop ne sont pas
+pénalisés. » Les deux exercices qui font AFFICHER un texte — {python-print},
+où l'élève écrit le print entier, et {python-completer}, où il écrit le texte
+suivi de la valeur d'une variable — comptaient faux « je suis en séconde », ou
+« la note est » sans les deux points : ce qu'ils évaluent est print, les
+guillemets et la virgule, pas la dactylographie.
+**UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE** : `pyTexteProche` compare
+ce que le programme AFFICHE à ce qu'on demande, et les deux juges l'appellent.
+Deux tolérances auraient fini par diverger, et le même texte aurait été
+accepté d'un côté et refusé de l'autre, sous les yeux de l'élève.
+**DEUX GARDES, ET N'EN TENIR QU'UN NE TIENT RIEN.**
+· **Les CHIFFRES comptent toujours.** « la note est : 13 » n'est pas « la note
+  est : 12 » à un caractère près : c'est une autre note. Sans ce garde,
+  `print("la note est :", note + 1)` passerait, et l'exercice enseignerait
+  l'inverse de ce qu'il dit. Il est VIVANT : le sabotage qui le retire fait
+  accepter deux lignes fausses du contrôle.
+· **Un caractère par tranche de quatre, deux au plus.** Le plus court texte
+  des deux exercices affiche « age : 16 » — six caractères une fois les
+  espaces retirées : deux fautes n'y seraient plus une faute de frappe mais un
+  autre texte. Et ce plus court texte est MESURÉ sur les deux tirages plutôt
+  que supposé (`toleranceTexte.plusCourt` dans `tests/profils.js`, deux
+  sources) : un texte de deux lettres ajouté demain rougit en se nommant.
+Les espaces, elles, ne comptent JAMAIS — c'est la demande, et elle va plus
+loin qu'une espace de trop : « la note est:12 » est accepté. Un retour à la
+ligne n'est pas une espace : deux print restent deux lignes, et c'est un autre
+défaut.
+**ET LA VALEUR N'EST JAMAIS PRESQUE BONNE** : au 5.7 elle doit se lire dans la
+sortie telle que Python l'écrit. Les espaces ne comptant plus,
+`print("la note est :", note // 10, note % 10)` affiche « la note est : 1 2 »
+et passerait sans ce garde-là — le sabotage qui le retire le nomme.
+**ET LA PAGE DIT CE QU'ELLE A TOLÉRÉ.** Sans cette moitié, l'élève croirait
+avoir écrit le texte exact : le « Bravo » nomme l'écart (« attention aux
+majuscules », « il y a une espace en trop ou en moins », « les guillemets ne
+s'affichent pas ») et redonne le texte demandé. Les messages qui nommaient ces
+défauts n'ont donc pas disparu — ils ont CHANGÉ DE CÔTÉ, du refus vers
+l'acceptation —, et les branches du diagnostic qu'ils occupaient sont
+RETIRÉES : devenues inatteignables, aucun sabotage ne pouvait plus les faire
+rougir. Les contrôles qui les épinglaient ont été retournés, pas supprimés :
+la même copie, le même mot, du côté des copies acceptées. Ce qui reste au
+diagnostic est ce qui reste faux — la casse d'un bout à l'autre
+(« JE SUIS EN SECONDE »), et un texte qui n'est plus celui-là.
+**{python-afficher-variable} RESTE DEHORS, et c'est un arbitrage nommé** : sa
+sortie EST la valeur de la variable — il n'y a aucun texte à mal taper, et un
+caractère de tolérance y accepterait une autre valeur. Le contrôle tient ce
+bord : une espace de plus après la valeur y est refusée. Un sabotage l'a
+montré en restant VERT à bon droit — la tolérance posée sur sa seule
+comparaison de sortie ne change rien, sa SECONDE méthode (la première ligne
+change de valeur, l'affichage doit suivre) tenant le bord toute seule ; la
+fuite complète, elle, rougit.
+**Aucun contrôle du NAVIGATEUR, et le dire vaut mieux que le taire** : la
+tolérance est une affaire de chaînes, et le message qui nomme l'écart se lit
+dans le DOM — jsdom le voit, un vrai Chromium n'en dirait pas plus. Treize
+sabotages, douze rougissant en nommant leur défaut.
 
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
@@ -6809,6 +6866,107 @@ l'étiquette rendue.
 le portent sur la courbe. La demande nomme le 2.8 de la Terminale ; le dire
 vaut mieux que le taire, et c'est une décision à prendre.
 
+**Puis la Seconde a suivi — par une AUTRE branche, le même jour, et avec un
+contrôle qui va PARTOUT.** Une seconde capture de Turquet — le 5.4, « L'écriture
+"Cf′" est toujours sur la courbe » — avait lancé une deuxième session sur le
+même défaut pendant que la #253 corrigeait la Terminale : deux moteurs pour la
+même étiquette sont nés le même jour. C'est celui de la #253, en ligne et
+éprouvé, qui reste en Terminale ; la seconde branche n'a gardé que ce que la
+#253 n'avait pas fait — la SECONDE, que le paragraphe ci-dessus laissait en
+décision à prendre, et le contrôle universel.
+**Le contrôle vit dans le banc navigateur, greffé sur la visite de TOUS les
+exercices** (section « 9 ») : toute étiquette de courbe (« Cf », « Cf′ »,
+« Cg » — classes `lv-cf`, `sv-cf`, `eqg-cg`) est mesurée contre les courbes
+RENDUES de son dessin, chemins ET droites, parcourues au pas de 1,5 px
+(`getPointAtLength`) ; aucun point ne doit tomber dans la boîte du texte,
+rognée d'un pixel. Il ne remplace pas le « 6 tricies » de la #253 — qui tient
+en plus « ni loin » et la boîte de la police — : il tient le bord COMMUN sur
+les trois niveaux, les dessins que personne n'avait déclarés (`tvgSVG`, le
+repère du 4.5) et l'exercice à courbe qu'on ajoutera demain. C'est la règle du
+projet : un défaut vu dans un coin devient un contrôle qui va partout.
+**Et il en a trouvé VINGT en Seconde à sa première visite**, sur deux dessins
+qui posaient leur « Cf » à une place fixe — `lvGraphSVG` (9 px au-dessus du
+deuxième nœud du morceau) et `adrSVG` (le grand dessin). La sonde a mesuré le
+fichier en ligne avant d'y toucher : sur 150 tirages, 63 étiquettes sur la
+courbe pour le petit dessin, 69 sur un morceau (et 51 posées sur une
+GRADUATION), 39 et 46 pour le grand — un défaut sur trois ou quatre.
+**La pose se CHOISIT** (`lvEchantillon`, `etqLibre`) : la spline que `lvPath`
+ou `adrPath` trace est échantillonnée sur ses Bézier mêmes, et des places sont
+CONSTRUITES 4 px au-dessus du point le plus HAUT de la courbe sur toute
+l'étendue de la boîte (ou au-dessous du plus bas), à des abscisses candidates
+— les bouts du MORCEAU d'abord (une courbe qui n'existe que de −1 à 2 n'a rien
+à offrir en −3), puis vers le centre — ; la première qui tient dans le cadre
+sans mordre un axe ni ses graduations est retenue. **C'est un AUTRE moteur que
+celui de la Terminale, et c'est nommé plutôt que tu** : la #253 balaie le
+dessin et cherche « à côté » — 5 à 15 px, près du point d'entrée — sur UNE
+courbe de sept nœuds ; la Seconde a des morceaux, treize nœuds, et deux courbes
+qui se disputent un dessin de 258 px. La leçon de la #253 sur les « places
+calées sur la hauteur » ne s'applique pas ici : une place est construite
+au-dessus du plus haut point sur toute la LARGEUR de la boîte, pas calée sur
+un point — une courbe raide ne la traverse pas. Le contrôle universel tient la
+règle commune aux deux moteurs, et le dire vaut mieux que de le taire.
+**Une constante ne se hisse pas, une fonction si — et la page entière est
+morte au chargement.** `ETQ_W` posée à côté du moteur de courbes tombait dans
+sa zone morte : le rappel de cours du 2.4 (`RAP_ING`) DESSINE au chargement
+avec `lvGraphSVG`, bien avant que la ligne de la constante ne s'exécute —
+« Cannot access 'ETQ_W' before initialization », et le bloc de script
+s'arrête là, tout ce qui suit n'existe plus. Le commentaire de `RAP_ING` le
+disait déjà en toutes lettres (« toutes les fonctions appelées ici sont des
+déclarations, donc hissées ») : la règle valait pour une constante ajoutée
+quatre mille lignes plus loin, et rien d'autre que le banc ne pouvait le
+voir — c'est `npm test` qui l'a nommé, à la première exécution, avant la sonde
+(« RAPPELS_ID before initialization », la page entière rouge). La constante
+vit donc AVANT `RAP_ING`.
+
+**Puis « Cg » est venue à son tour, et l'AUTRE courbe est devenue un
+obstacle.** Le banc navigateur l'a nommée le jour même où « Cf » a été
+corrigée — « Cg posée sur sa courbe », sur {lecture-deux-courbes} et
+{equation-graphique}. Les trois poses de la seconde courbe — la droite de g du
+2.5 (`eqgExtra`) et de la synthèse (`synDessus`), la spline de g du 2.6
+(`ifgExtra`) — choisissaient un point une fois pour toutes, un demi-carreau
+au-dessus du bout droit ; et une étiquette libre de SA courbe peut tomber sur
+l'AUTRE, ou sur « Cf ». La sonde a mesuré le fichier en ligne avant d'y
+toucher, sur 150 tirages par dessin : au 2.5, « Cf » sur une courbe 105 fois
+et « Cg » 71 ; au 2.6, 92 et 79, plus 51 « Cg » posées sur une graduation ; à
+la synthèse, 61 et 65 — plus d'une étiquette sur deux, parce que le premier
+correctif n'évitait que la courbe de f, jamais celle de g.
+`etqLibre` apprend donc des OBSTACLES — un sixième paramètre, facultatif — :
+la boîte ne recouvre ni un point de l'autre courbe ni l'étiquette déjà posée. Le
+dessin reçoit la courbe de g en obstacle pour poser « Cf » (`lvGraphSVG` et
+`adrSVG` ont gagné un dernier paramètre `obst`) et transmet la BOÎTE de
+« Cf » à ce qui dessine par-dessus — le troisième argument des fonctions
+`extra`/`dessus`, qu'un dessin sans étiquette ignore ; `cgEtiquette` pose
+« Cg » par le même chemin, la courbe de f et cette boîte en obstacles, le
+cadre RELU dans les sx/sy mêmes du dessin (`lvCadre`) plutôt que recopié.
+**Le contrôle mesure aussi les DROITES** (`line.eqg-g`) : il ne regardait que
+les chemins, et une « Cg » posée sur la droite du 2.5 lui échappait.
+**Et le repli a dû devenir la place la MOINS MAUVAISE.** Cinq abscisses
+candidates laissaient, au 2.6, une étiquette sur seize au repli — deux
+courbes et deux étiquettes se disputent un dessin de 258 px —, et le repli
+prenait la PREMIÈRE place, ramenée dans le cadre : sur la courbe, ou sur une
+graduation (9 « Cf » et 9 graduations sur 150, mesurés après le premier
+jet). Les candidats vont désormais par demi-graduation jusqu'au centre
+(`etqCandidats`, les bouts d'abord — le droit pour « Cg », où elle a toujours
+été), et faute de place libre `etqLibre` choisit la boîte qui contient le
+moins de points de courbe, un axe recouvert comptant pour beaucoup.
+Après correction, la sonde rend ZÉRO sur 300 tirages de chacun des quatre
+dessins — la scène et les cartes du 2.5, le 2.6, la synthèse — : aucune
+étiquette sur une courbe, aucune sur une graduation, aucune sur l'autre
+étiquette, et le banc navigateur est vert sur les trois niveaux.
+**Deux sabotages au banc navigateur, chacun rougissant en nommant son
+défaut** — « Cg » posée en plein milieu de sa courbe, SANS hasard (le banc
+nomme {lecture-deux-courbes}, {equation-graphique} et {synthese-fonction} :
+l'ancienne pose, elle, n'atteignait sa cible qu'une fois sur deux, et un
+sabotage intermittent ne dit rien du contrôle visé), et la droite de g
+retirée des obstacles de « Cf », qui rougit sur {equation-graphique}. Mais
+un obstacle retiré ne fait tomber l'étiquette dessus qu'un tirage sur deux
+ou sur quatre : ces sabotages-là se COMPTENT à la sonde plutôt qu'au banc —
+la droite de g retirée des obstacles de « Cf » remet 63 « Cf » sur 150 sur
+une courbe au 2.5 ; les obstacles retirés de la pose de « Cg » en remettent
+36 au 2.5, 30 au 2.6 et 18 à la synthèse, et une fois « Cg » sur « Cf ».
+Compté sur 150 tirages, un sabotage dit exactement ce qu'il retire.
+
+
 **Le 1.3 (Signes & variations) suit la convention commune de correction.**
 Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases
 correctes, mais 0,9/1 ». L'écran RÉVÉLAIT tout en vert par-dessus la copie —
@@ -8062,7 +8220,7 @@ de la récurrence porte 0 « ≤ » au lieu de 3 : l'hérédité a quitté la
 grille »).
 
 **Le théorème de convergence monotone, puis la limite par passage à la
-limite : la fiche, case par case.** {suite-tcm-limite} (Terminale, 6.13,
+limite : la fiche, case par case.** {suite-tcm-limite} (Terminale, 6.12,
 demande de Turquet, septembre 2026, repris de la fiche « suite TCM et
 limite ») ferme le thème Suites — ajouté en DERNIER, il ne renumérote rien.
 On DONNE une hypothèse — la chaîne m ≤ Uₙ ≤ Uₙ₊₁ ≤ M, ou les bornes et le
@@ -8126,9 +8284,9 @@ sous le sabotage n'est pas forcément un contrôle mort : il faut d'abord
 vérifier que le sabotage pouvait l'atteindre.
 
 **La même suite, par la DIFFÉRENCE : l'encadrement opération par opération,
-puis le signe de Uₙ₊₁ − Uₙ.** {suite-variation-difference} (Terminale, 6.12,
+puis le signe de Uₙ₊₁ − Uₙ.** {suite-variation-difference} (Terminale, 6.13,
 demande de Turquet, septembre 2026, repris de la fiche « VARIATION
-DIFFÉRENCE ») suit {suite-variation-recurrence} au menu : la MÊME suite —
+DIFFÉRENCE ») suit {suite-tcm-limite} au menu : la MÊME suite que le 6.11 —
 U₀ = 0, Uₙ₊₁ = 3/(4 − Uₙ) — et l'AUTRE méthode. Là-bas la récurrence
 démontre d'un coup le sens et la borne en appliquant f croissante ; ici elle
 ne démontre que l'ENCADREMENT 0 ≤ Uₙ ≤ 1, en transformant les deux bornes
@@ -8188,7 +8346,7 @@ resterait vert. Une case vide ne rougit jamais, chaque case se juge seule
 du tracé sont des réponses (`pts-case` : 48 réponses par question), rien
 n'est révélé en soutien, la méthode se dessine à la vérification, et les
 champs mathématiques se jugent à la SORTIE, jamais à la frappe.
-Le banc NAVIGATEUR (« 6 tricies quater », déclaré par
+Le banc NAVIGATEUR (« 6 tricies quinquies », déclaré par
 `suiteVariationDifference` dans `tests/profils.js`) tient ce que jsdom ne
 voit pas : les trois clics qui posent dans le repère de CET écran et non
 dans celui du 6.11, le trinôme TAPÉ pour de vrai (U, indice, exposant — la
@@ -8211,6 +8369,63 @@ sans Uₓ, la clause anti-recopie retirée, les étiquettes à ordre figé, et l
 recopié. Les deux bancs ont couvert l'exercice au premier passage sans rien
 déclarer — les contrôles universels, exactement ce pour quoi ils existent —
 et le premier échec du banc était celui du contrôle, pas de la page.
+
+**Le vocabulaire des suites se COCHE sur un dessin — et une borne plus large
+est une phrase vraie.** {suite-vocabulaire} (Terminale, 6.14, demande de
+Turquet, septembre 2026 : « créer un exercice en terminale comme le pdf sur
+les suites », la fiche « Vocabulaire sur les suites ») ferme le thème
+Suites : les termes U₀ à U₁₂ d'une suite en croix sur un quadrillage, et
+l'élève coche ce qu'elle SEMBLE être, ligne par ligne comme sur le papier —
+croissante / décroissante / non monotone ; majorée par … / minorée par … /
+bornée ; a comme limite … / n'a pas de limite ; convergente / divergente.
+Les neuf exemples de la fiche sont neuf VISAGES tirés au hasard (décroissante
+ou croissante vers ℓ, vers +∞ ou −∞, non monotone vers l'infini, alternée
+sans limite, oscillation amortie, oscillation qui s'amplifie), et une séance
+en pose quatre : une croissante, une décroissante, deux non monotones
+distinctes, les deux natures toujours présentes, en ordre mélangé — sans quoi
+l'élève apprendrait que la réponse est toujours du même genre.
+**LE JUGE EST LARGE SUR LA VALEUR ET EXACT SUR LA PROPRIÉTÉ** : « majorée
+par 10 » devant une suite qui plafonne à 4 est VRAIE, et la refuser serait le
+pire défaut du projet — toute borne au-delà du plus grand terme de la suite
+ENTIÈRE (jamais des treize dessinés) est acceptée, la correction écrit la
+plus serrée. Les extremums tombent sur des graduations par CONSTRUCTION
+(U₀ et ℓ entiers, et pour l'oscillation amortie un couple (A, q) dont le
+produit est entier), et la suite monotone convergente, dont les termes
+n'atteignent jamais leur borne côté limite, reçoit la droite y = ℓ dessinée —
+les exemples 1 et 2 de la fiche font exactement cela : sans elle, « majorée
+par 4 » devant une suite qui tend vers 5 serait défendable sur treize termes
+et fausse sur la suite. **Une limite infinie EST une limite** (« a comme
+limite +∞ »), et la suite est alors divergente : c'est le rappel de la fiche,
+et « inf » se lit par `lgLimOK`, le lecteur du 3.2.
+**LES CASES COCHÉES VIVENT DANS LA QUESTION (`q.rep`)**, pas dans un état de
+l'écran : `captureBoxes` ne photographie que la VALEUR d'un champ, et une case
+à cocher n'en a pas — la pause aurait tout perdu. Trois groupes sont EXCLUSIFS
+(le sens, la limite, la nature) et valent chacun UNE réponse ; la ligne des
+bornes est un vrai choix multiple, trois réponses oui / non ; les valeurs
+n'ouvrent qu'une fois leur case cochée. Une case NON cochée qui aurait dû
+l'être est une case laissée VIDE : cochée en vert par la correction, jamais
+rougie. Aucune correction au fil des clics, même en soutien — à trois options
+par ligne il suffirait d'essayer, la règle du QCM du 2.8 — et le soutien ne
+révèle rien. Les cases sont des `span` à rôle de case à cocher, pas des
+boutons : la photo du circuit papier retire les boutons, et la fiche du
+professeur doit garder ses cases. **Deux bancs, la répartition habituelle** :
+jsdom refait le tirage par une SECONDE arithmétique sur les treize termes
+(le sens sur les différences, une borne annoncée atteinte ou égale à la
+limite, une suite « non majorée » qui s'échappe vraiment, une limite finie
+approchée, la droite y = ℓ là et seulement là) et joue les gestes sur trois
+questions ÉPINGLÉES ; le NAVIGATEUR (« 6 tricies quater », déclaré par
+`suiteVocabulaire` dans `tests/profils.js`) CLIQUE les cases, lit l'encre
+RÉSOLUE des verdicts, mesure la hauteur d'une RANGÉE rendue — un dessin de
+cinq rangées est court sans être illisible, et le premier jet mesurait la
+hauteur brute — et la fiche sous le dessin sur une tablette en portrait.
+Treize sabotages, chacun rougissant en nommant son défaut ; l'un d'eux est
+d'abord resté VERT en montrant un trou du contrôle — la copie de soutien ne
+laissait aucune case oubliée, donc « rien n'est révélé » n'avait rien à
+mesurer. Le premier jet du contrôle a rougi sur du code JUSTE (7 réponses
+attendues là où l'écran en compte 8) : un essai faux se reconnaît à ce qu'il
+rougit sur une page juste. L'exercice est placé en FIN de thème, en 6.14 :
+ajouté en tête — où le vocabulaire aurait sa place — il aurait renuméroté les
+onze autres, et les numéros écrits du banc avec.
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
@@ -8729,6 +8944,20 @@ les y trouver. Un piège de banc s'y est montré : la touche de bascule ne porte
 pas la classe « keycap » de MathLive, et le sélecteur qui la manquait faisait
 échouer la mesure du 6.7 sur une page juste — on cherche parmi les enfants
 DIRECTS des rangées. Huit sabotages, chacun rougissant en nommant son défaut.
+**Et ce contrôle a rougi UNE fois sur trois exécutions, sans que la page ait
+changé** (« encore sur le clavier A : n », septembre 2026) — sous forte
+charge : trois bancs et deux campagnes de sabotage tournaient en même temps
+sur la machine. Dix ouvertures isolées du 6.9 sur tablette n'ont rien
+reproduit : la couche visible portait ses 28 touches, sans n. Le banc mesurait
+à DÉLAI FIXE — 700 ms après le clic dans la case —, c'est-à-dire ce qui se
+trouvait là à cet instant, un clavier en cours de (re)construction compris.
+Il attend désormais un clavier STABLE (la couche visible garde le même jeu de
+touches d'un quart de seconde au suivant, six secondes au plus, et il le DIT
+si elle n'y arrive pas) et ne lit que la couche que MathLive déclare visible
+(`.MLK__layer.is-visible`), jamais tout ce qui a un rectangle. La cause
+exacte n'est pas établie — le dire vaut mieux que de le taire — ; ce qui est
+établi est qu'un contrôle intermittent parle d'autre chose que de la page, et
+qu'un délai fixe est la première chose qu'une machine chargée fait mentir.
 
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la
@@ -9335,9 +9564,32 @@ bis » et « 10 » portaient leur doctrine en commentaire mais pas leur numéro 
 la première ligne, et leur titre était donc rattaché à l'en-tête de la section
 d'avant. Le filet d'un en-tête s'écrit « ===== » ici et « ---- » là : le
 contrôle accepte les deux plutôt que d'imposer une convention de plus.
+**Et il a resservi le jour même, sur `main`** : deux branches ont numéroté leur
+section « 6 tricies ter » à trente-neuf minutes d'écart — le print de la Seconde
+puis le vocabulaire des suites — et `main` s'est retrouvé ROUGE sur ses TROIS
+bancs navigateur, un échec par niveau, sans qu'une seule page soit en cause. Le
+contrôle avait fait exactement ce pour quoi il existe : nommer l'ambiguïté avant
+qu'un contrôle ne s'affiche sous le nom d'un autre. Le numéro revient à qui l'a
+pris EN PREMIER, le second prend le suivant (« 6 tricies quater »), et la
+citation de ce fichier suit le jour même — sans quoi la doctrine désignerait une
+section qui n'existe plus.
 Un dernier bord le garde honnête — il compte ce qu'il a trouvé et le DIT s'il
 n'a rien à mesurer : une expression régulière qui cesserait de reconnaître les
-titres le rendrait vert sur un banc entièrement dupliqué. Cinq sabotages,
+titres le rendrait vert sur un banc entièrement dupliqué.
+**Et la collision qu'aucune branche ne peut voir seule est celle de la FUSION**
+(septembre 2026) : deux branches ouvertes le même jour ont pris « 6 tricies
+ter » chacune de son côté — {python-completer} en Seconde et {suite-vocabulaire}
+en Terminale. Les deux bancs étaient verts sur leur branche, à bon droit : le
+contrôle lit la source du banc, et chaque branche n'avait qu'un seul de ces
+numéros. C'est `main` qui a rougi, sur les TROIS niveaux d'un coup — le banc
+étant partagé —, une fois la seconde fusion faite. **Le contrôle a donc fait
+exactement son travail**, au seul endroit où le défaut existe ; ce qu'il ne
+peut pas faire est prévenir avant. La règle qui en découle : au moment de
+refusionner `main`, on relit les numéros de section comme on relit les numéros
+d'exercice et `APP_VERSION` — c'est la même famille de collisions, et elle se
+règle de la même façon, le dernier arrivé cède. Ici {suite-vocabulaire} est
+passé à « 6 tricies quater » : {python-completer} avait fusionné le premier et
+était déjà en ligne. Cinq sabotages,
 chacun rougissant en nommant son défaut (un numéro imprimé deux fois, un
 en-tête privé de son titre, une moitié renommée seule, la lecture des titres
 débranchée, un sous-bloc déclaré qui n'existe plus).
