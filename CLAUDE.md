@@ -2507,10 +2507,11 @@ base.js, pris du bon côté.
 bouton, le juge (`pyAns`) et le message lisent tous `pyRun(q.src)` ; la
 question ne porte que le programme, le visage tiré et l'ordre des
 propositions — le contrôle refuse tout autre champ.
-**Les quatre visages sortent chacun UNE fois par séance, en ordre
+**Les quatre visages sortaient chacun UNE fois par séance, en ordre
 mélangé** : entier, décimal (Python l'écrit avec un point), texte (il
 s'affiche sans ses guillemets), variable RÉAFFECTÉE — c'est la DERNIÈRE
-valeur qui compte, et l'ancienne est proposée. Les propositions ne
+valeur qui compte, et l'ancienne est proposée. Le quatrième a été RETIRÉ
+le mois suivant (paragraphe ci-dessous). Les propositions ne
 diffèrent que par ce qui fait l'erreur (la leçon d'{intervalles-inegalite})
 : le texte AVEC ses guillemets, le NOM de la variable à la place de sa
 valeur, la valeur d'une AUTRE variable. Tout se choisit dans des listes —
@@ -2545,6 +2546,38 @@ vert à bon droit, et le navigateur nomme l’encre (« Nunito, system-ui… »)
 La campagne a restauré la page depuis une copie propre hors dépôt à chaque
 tour, et le sabotage du navigateur s’est joué dans une copie de travail
 séparée, pendant que la page propre passait son propre banc.
+
+**Puis la variable RÉAFFECTÉE a quitté le tirage : une variable ne s'affecte
+qu'UNE fois par programme.** Demande de Turquet (septembre 2026) : « en
+seconde dans l'exercice 5.1 je ne veux pas qu'il y ait deux fois la même
+variable dans les égalités, par exemple age = 14 puis age = 15 ». C'était le
+quatrième visage — la réaffectation, avec l'ancienne valeur proposée en
+piège. Il est retiré des trois endroits qui le portaient, parce que n'en
+tenir qu'un ne tient rien : le TIRAGE (`PY_VISAGES` n'a plus que l'entier,
+le décimal et le texte, et `pyTirage` n'insère plus de seconde affectation),
+le MESSAGE de correction (la phrase « c'est sa DERNIÈRE valeur qui
+s'affiche » n'a plus d'occasion) et les AIDES — la règle ④ du rappel, la
+question à l'IA « que se passe-t-il si la variable change de valeur avant
+le print ? » et la clause du contexte : un rappel qui enseigne un cas que
+l'élève ne rencontrera jamais est la leçon du 2.2.8 (« un rappel qui montre
+un tirage impossible »), et la question à l'IA est remplacée par l'écriture
+du nombre à virgule, qui EST un des trois visages.
+**La séance garde ses QUATRE questions** (`PY_NB`, deux sources) : les trois
+visages sortent chacun au moins une fois, la quatrième question reprend l'un
+d'eux au hasard, ordre mélangé — le motif de {pourcentage-synthese}
+(« chacun au moins une fois, mélangés »). Raccourcir la séance n'était pas
+demandé, et l'interpréteur, lui, sait toujours réaffecter (`x = x + 1` reste
+un cas limite épinglé contre CPython) : ce qui change est ce que le tirage
+POSE, pas ce que la page sait exécuter.
+**Le contrôle EXIGE la propriété sur chaque tirage plutôt que de la
+supposer** : il relit chaque ligne d'affectation du programme et rougit en
+nommant la variable affectée deux fois — une réaffectation revenue par une
+autre porte ne casserait rien, et personne ne la verrait avant un élève. Le
+bord OPPOSÉ compte autant : les trois visages doivent encore sortir tous, et
+le rappel ne doit plus enseigner la réaffectation. Trois sabotages, chacun
+rougissant en nommant son défaut — la seconde affectation remise dans le
+tirage (« la variable « points » est affectée deux fois »), le visage texte
+perdu, la règle ④ remise dans le rappel.
 
 **Les trois types de variables s'EXPLIQUENT sur l'écran, puis se TESTENT —
 et c'est Python qui a le dernier mot.** {python-types} (Seconde, 5.2,
@@ -6142,6 +6175,72 @@ d'où afqSommets — et un garde-fou « sommet sur un zéro » qui n'écartait
 jamais rien (une courbe traverse l'axe en montant, jamais en tournant) :
 le cinquième garde-fou mort du projet, retiré, sabotage à l'appui. Éprouvé
 en le cassant neuf fois.
+
+**Le QCM de la fiche : le tableau de f′ ET de f, puis UNE SEULE affirmation vraie.**
+{signe-derivee-qcm} (Terminale, thème Dérivée, demande de Turquet, septembre
+2026 — « un exercice comme le pdf : l'élève complète le tableau de signe de
+f'(x) avec les variations de f(x) sur la ligne suivante et répond au QCM, il
+ne doit y avoir qu'une seule bonne réponse ») suit {variations-depuis-derivee}
+au menu. On donne la COURBE de f′, l'élève complète le tableau — zéros, signes
+de f′, flèches de f — puis choisit parmi quatre affirmations : « f admet un
+minimum en 1 », « f admet un minimum en 0 », « f est décroissante sur
+[−1 ; 1] », « f est décroissante sur [0 ; 2] », la fiche au mot près.
+**Tout est repris, rien n'est recopié** : le dessin et la table lue sont ceux
+d'{associer-derivee} (afGraphSVG, afpZeros, afpCourbeDer), le tableau celui du
+5.3 (efTableHTML, ids ef-* partagés — un CINQUIÈME écran entre dans la règle
+des hôtes vidés symétriquement, et le contrôle sème un fantôme pour l'exiger),
+le sommet celui de {variations-depuis-derivee} (afqSommets).
+**LES QUATRE NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR**, et ce sont les
+pièges mêmes de la fiche : un extremum posé sur un SOMMET de f′ (c'est f′ qui
+a un creux en 1, pas f — f′ ne s'y annule pas), le bon zéro pris pour le
+mauvais GENRE (« minimum en 0 » là où f′ passe du + au − : un maximum), un
+intervalle qui ENJAMBE un zéro (« décroissante sur [−1 ; 1] » quand f′ change
+de signe en 0), le SENS inversé sur un bon intervalle. Deux affirmations sur
+un extremum, deux sur un sens — la composition de la fiche — et la vraie est
+tantôt de l'une, tantôt de l'autre famille, chaque visage deux fois par séance
+en ordre mélangé ; à famille égale, son rang change.
+**« UNE SEULE BONNE RÉPONSE » EST TENU PAR LA CONSTRUCTION, ET EXIGÉ PAR LE
+CONTRÔLE — pas par un garde du tirage.** La question ne porte que la courbe
+et les quatre affirmations — leur NATURE, jamais leur vérité ni le nom de
+leur piège, qui seraient la réponse rangée à côté de la question — ;
+sdqVrai() relit chacune sur la courbe pour juger l'élève, et sdqPourquoi()
+retrouve le piège choisi de la même façon pour le NOMMER dans le retour.
+Chaque famille de piège est fausse par définition (un sommet n'est pas un
+zéro, l'autre genre au même zéro, un zéro strictement dans l'intervalle, le
+signe contraire sur un morceau sans zéro) et les quatre sont distinctes par
+construction : le garde qui relisait les quatre par sdqVrai avant de retenir
+la question — le premier jet le portait — n'écartait donc JAMAIS rien, le
+sabotage l'a montré en restant vert, et il est retiré, le QUINZIÈME garde-fou
+mort du projet. Le contrôle refait la vérité de chaque affirmation par une
+SECONDE arithmétique — sur les signes relus dans les valeurs de la courbe,
+sans jamais appeler sdqVrai — et exige exactement une vraie sur chaque
+tirage (une dérive de la construction, l'intervalle qui enjambe devenu un
+vrai morceau, rougit en nommant les deux vraies), le piège du sommet sur
+chaque question, la composition 2 + 2, les deux familles, le rang qui varie,
+et construit sur le repli de la courbe les affirmations des deux familles
+pour les juger de même : le premier repli, inventé à la main, posait son
+« sommet » en −2 quand le creux de f′ est en −1 — la sonde l'a montré avant
+le premier banc.
+**Et la question ÉPINGLÉE du contrôle a dû porter la phrase de la fiche pour
+atteindre le juge** : avec « croissante sur [−1 ; 1] », un sdqVrai qui
+oublie le zéro intérieur restait vert en parlant d'autre chose — il lit le
+signe au milieu, c'est-à-dire en 0, le zéro même, compté à droite, donc −,
+et « croissante » y est fausse de toute façon. Avec « décroissante sur
+[−1 ; 1] », la phrase de la fiche, le même sabotage fabrique deux vraies et
+refuse la copie juste — la leçon du sabotage impossible, une fois de plus.
+**« f admet un minimum en 2 » s'écrit comme sur la fiche**, sans « local » :
+c'est la phrase du professeur, et le tableau ne dit rien des valeurs — l'élève
+lit un changement de signe, la page juge la même chose.
+**Le QCM se choisit au CLIC comme une carte** (la choisie s'entoure en encre
+NEUTRE — jamais un verdict avant la vérification, à quatre propositions il
+suffirait d'essayer, et la liste ne se colore pas en direct même en soutien,
+là où les cases du tableau le font), la bonne choisie est bleue, la bonne
+montrée verte, la fausse choisie rouge ; chaque case se juge seule, la case
+vide ne rougit jamais, et le QCM COMPTE une case dans la note affichée
+(6 cases sur la question épinglée : 5 du tableau, 1 du QCM). Les contrôles
+universels des deux bancs ont couvert l'exercice au premier passage sans rien
+déclarer. Dix sabotages, neuf rougissant en nommant leur défaut ; le dixième,
+le garde mort ci-dessus, est resté vert et disait vrai.
 
 **Le 1.3 (Signes & variations) suit la convention commune de correction.**
 Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases

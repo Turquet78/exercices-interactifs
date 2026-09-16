@@ -2841,7 +2841,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=166;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=167;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4366,7 +4366,7 @@ const QIA_SUGG={
   ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Pourquoi les bouts de la courbe sont-ils toujours pris ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
   pty:["Quelle est la différence entre 15 et \"15\" ?","Pourquoi 15.0 est-il un float et pas un int ?","Un nombre négatif comme -3, c’est quel type ?","À quoi sert type() ?"],
-  py:["Pourquoi le texte s’affiche-t-il sans les guillemets ?","Quelle est la différence entre note1 et \"note1\" dans un print ?","À quoi sert la virgule dans print ?","Que se passe-t-il si la variable change de valeur avant le print ?"],
+  py:["Pourquoi le texte s’affiche-t-il sans les guillemets ?","Quelle est la différence entre note1 et \"note1\" dans un print ?","À quoi sert la virgule dans print ?","Comment s’écrit et s’affiche un nombre à virgule en Python ?"],
   sfl:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelles \u00e9tapes dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Comment savoir si ma fraction est bien simplifi\u00e9e\u00a0?","Est-ce que je peux choisir un autre d\u00e9nominateur commun\u00a0?"],
   sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
   mlt:["Faut-il mettre au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Pourquoi multiplie-t-on les num\u00e9rateurs entre eux\u00a0?","Que devient le d\u00e9nominateur\u00a0?","Est-ce que l\u2019ordre des deux fractions change le r\u00e9sultat\u00a0?"],
@@ -4829,7 +4829,6 @@ const RAP_PY=`<b>Qu’affiche <code class="inline">print</code> ?</b><br>
 <b>① Un texte entre guillemets s’affiche tel quel</b>, SANS les guillemets : <code class="inline">print("bonjour")</code> affiche <code class="inline">bonjour</code>.<br>
 <b>② Une variable sans guillemets s’affiche par sa VALEUR</b>, pas par son nom : si <code class="inline">note1 = 14</code>, alors <code class="inline">print(note1)</code> affiche <code class="inline">14</code>. Avec des guillemets, <code class="inline">print("note1")</code> afficherait le mot <code class="inline">note1</code>.<br>
 <b>③ Plusieurs choses séparées par une virgule</b> s’affichent sur la même ligne, séparées par une espace : <code class="inline">print("la note est :", note1)</code> affiche <code class="inline">la note est : 14</code>.<br>
-<b>④ La valeur d’une variable est celle qu’elle a AU MOMENT du print.</b> Si on écrit <code class="inline">note1 = 14</code> puis, plus bas, <code class="inline">note1 = 17</code>, c’est 17 qui s’affiche : la nouvelle valeur a remplacé l’ancienne.<br>
 En Python, un nombre à virgule s’écrit avec un point — et s’affiche avec un point.`;
 /* Les trois types, comme sur la page du cours. Les nombres à virgule vivent
    dans des balises code : le contrôle des numéros en dur ne lit pas le code,
@@ -15675,11 +15674,14 @@ function nextAppQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
    visage tiré et l'ordre des propositions : la bonne réponse n'est jamais
    rangée à côté.
 
-   LES QUATRE VISAGES sortent chacun UNE fois par séance, en ordre mélangé :
-   la variable affichée est un ENTIER, un DÉCIMAL (Python l'écrit avec un
-   point), un TEXTE (il s'affiche sans ses guillemets), ou une variable
-   RÉAFFECTÉE — c'est la DERNIÈRE valeur qui compte, et l'ancienne est
-   proposée parmi les réponses. Les propositions ne diffèrent que par ce qui
+   LES TROIS VISAGES sortent chacun au moins UNE fois par séance, en ordre
+   mélangé — la quatrième question reprend l'un d'eux au hasard : la
+   variable affichée est un ENTIER, un DÉCIMAL (Python l'écrit avec un
+   point) ou un TEXTE (il s'affiche sans ses guillemets). Il y eut un
+   quatrième visage, la variable RÉAFFECTÉE (age = 14 puis age = 15) ;
+   Turquet l'a retiré (septembre 2026) : AUCUNE variable n'est affectée deux
+   fois dans un programme — le contrôle exige la propriété sur chaque tirage
+   plutôt que de la supposer. Les propositions ne diffèrent que par ce qui
    fait l'erreur (la leçon d'{intervalles-inegalite}) : le texte AVEC ses
    guillemets, le NOM de la variable à la place de sa valeur, la valeur d'une
    AUTRE variable. Tout se choisit dans des listes, jamais tapé : une saisie
@@ -15706,7 +15708,7 @@ const PY_JEUX=[
     f:{nom:'prix',   ent:[5,30],  txt:['le prix est :','prix en euros :']},
     s:{nom:'ville', vals:['Paris','Lyon','Nantes','Lille','Brest'], txt:['tu habites à','ville :']} }
 ];
-const PY_VISAGES=['int','float','str','re'];
+const PY_VISAGES=['int','float','str'];
 
 /* ---- 1. L'interpréteur ---- */
 /* L'écriture d'un flottant suit repr() de CPython : la plus courte écriture
@@ -15897,14 +15899,7 @@ function pyTirage(vis, jeu){
   const vf=rand(J.f.ent[0],J.f.ent[1])+'.'+rand(1,9);
   const vs=J.s.vals?pick(J.s.vals):pick(PY_PRENOMS);
   const lignes=ensShuffle([J.i.nom+' = '+vi, J.f.nom+' = '+vf, J.s.nom+' = "'+vs+'"']);
-  const cible=(vis==='int'||vis==='re')?J.i:(vis==='float'?J.f:J.s);
-  let ancien=null;
-  if(vis==='re'){
-    let v2; do{ v2=rand(J.i.ent[0],J.i.ent[1]); }while(v2===vi);
-    ancien=String(vi);
-    const pos=lignes.indexOf(J.i.nom+' = '+vi);
-    lignes.splice(rand(pos+1,lignes.length),0,J.i.nom+' = '+v2);
-  }
+  const cible=(vis==='int')?J.i:(vis==='float'?J.f:J.s);
   const texte=pick(cible.txt);
   const src=lignes.join('\n')+'\n\nprint("'+texte+'", '+cible.nom+')';
   const env=pyRun(src).env;
@@ -15913,12 +15908,14 @@ function pyTirage(vis, jeu){
   /* les propositions ne diffèrent que par ce qui fait l'erreur */
   const autreTexte=(vis==='str')?pick(J.i.txt):vs;
   const t=ensShuffle(dedup([texte, '"'+texte+'"', cible.nom, autreTexte]));
-  const v=ensShuffle(dedup(noms.map(function(n){ return pyRep(env[n]); }).concat([ancien, cible.nom]).filter(function(x){ return x!==null; })));
+  const v=ensShuffle(dedup(noms.map(function(n){ return pyRep(env[n]); }).concat([cible.nom])));
   const n=ensShuffle(noms.slice());
   return {src:src, vis:vis, opt:{t:t, v:v, n:n}};
 }
 function pyBuildQuestions(){
-  const vis=ensShuffle(PY_VISAGES.slice()), jeux=ensShuffle([0,1,2]);
+  /* les trois visages, puis des visages tirés au hasard jusqu'à PY_NB */
+  const vis=PY_VISAGES.slice(); while(vis.length<PY_NB) vis.push(pick(PY_VISAGES));
+  ensShuffle(vis); const jeux=ensShuffle([0,1,2]);
   return vis.map(function(v,i){ return pyTirage(v, jeux[i%jeux.length]); });
 }
 function pyCases(q){ return [{id:'py-s-t',cle:'texte'},{id:'py-s-v',cle:'valeur'},{id:'py-s-n',cle:'variable'}]; }
@@ -15974,8 +15971,7 @@ function pyPourquoi(q, ans, subs){
       else if(v===ans.variable) dits.push('Ce qui est entre guillemets dans le print est un texte : il s’affiche tel quel.');
       else dits.push('Le texte affiché est celui qui est écrit entre guillemets dans le print.');
     } else if(s.c.cle==='valeur'){
-      if(q.vis==='re' && v!==ans.valeur && v!==ans.variable) dits.push('La variable '+ans.variable+' a changé de valeur avant le print : c’est sa DERNIÈRE valeur qui s’affiche.');
-      else if(v===ans.variable) dits.push(ans.variable+' sans guillemets n’affiche pas le mot « '+ans.variable+' » mais sa valeur.');
+      if(v===ans.variable) dits.push(ans.variable+' sans guillemets n’affiche pas le mot « '+ans.variable+' » mais sa valeur.');
       else dits.push('Après le texte, print affiche la valeur de la variable '+ans.variable+', pas celle d’une autre variable.');
     } else dits.push('Dans le print, après la virgule, c’est '+ans.variable+' qui est écrit.');
   });
@@ -16030,7 +16026,7 @@ function ctxPy(q){
   const donne=pyCases(q).map(function(c){ const s=$(c.id); return c.cle+' : '+((s&&s.value)||'(vide)'); }).join(' ; ');
   let c='L’élève lit un petit programme Python et doit dire ce qu’il affiche, en complétant « Le programme affiche le texte … puis … qui est la valeur de la variable … ». Le programme est :\n'+q.src+'\n';
   if(ans) c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais la donner) : le programme affiche « '+ans.sortie.trim()+' » — le texte « '+ans.texte+' », puis '+ans.valeur+', la valeur de la variable '+ans.variable+'. ';
-  c+='Ce que l’élève a choisi : '+donne+'. Règles à rappeler sans donner la réponse : un texte entre guillemets s’affiche tel quel, sans les guillemets ; une variable sans guillemets s’affiche par sa VALEUR, pas par son nom ; c’est la valeur qu’elle a AU MOMENT du print ; les éléments séparés par une virgule s’affichent séparés par une espace.';
+  c+='Ce que l’élève a choisi : '+donne+'. Règles à rappeler sans donner la réponse : un texte entre guillemets s’affiche tel quel, sans les guillemets ; une variable sans guillemets s’affiche par sa VALEUR, pas par son nom ; les éléments séparés par une virgule s’affichent séparés par une espace.';
   return {nombre:'', contexte:c};
 }
 
