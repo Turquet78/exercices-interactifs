@@ -6087,8 +6087,15 @@ async function parcours(page, N){
          qui aurait « trouvé la place ailleurs » dirait qu'elle n'en est plus une. */
       const mesurerGrilles = async () => await s.page.evaluate(() => {
         const lire = g => {
+          /* on mesure le CONTENU de la cellule, jamais sa boîte : une cellule de
+             grille s'étire sur toute sa colonne, donc son centre est celui de la
+             colonne quoi qu'elle fasse de son contenu — un « ≤ » poussé à gauche
+             (justify-content perdu) passait au vert en parlant d'autre chose ;
+             le sabotage l'a montré. Un Range sur le contenu rend la boîte du
+             glyphe comme celle d'une liste. */
           const cels = [...g.querySelectorAll('.svr-cel')].map(c => {
-            const r = c.getBoundingClientRect();
+            const rg = document.createRange(); rg.selectNodeContents(c);
+            const r = rg.getBoundingClientRect();
             return { r: +c.dataset.r, c: +c.dataset.c, x: (r.left + r.right) / 2, top: r.top, bot: r.bottom,
                      le: c.classList.contains('svr-le'), val: c.classList.contains('svr-val'),
                      libre: c.classList.contains('svr-just') || c.classList.contains('svr-lib') || c.classList.contains('svr-suite') };
