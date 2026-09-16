@@ -591,7 +591,7 @@
      chasse fixe, comme dans le carnet ; les listes de la phrase aussi, parce
      qu'elles proposent des morceaux de code. Les trois verdicts sont ceux de
      la famille .itv-sel : bleu juste, rouge faux, vert correction. ---- */
-  .py-cell{width:100%;max-width:780px;margin:0 auto;text-align:left}
+  .py-cell{width:100%;max-width:960px;margin:0 auto;text-align:left}
   .py-label{font-family:"Fredoka";font-weight:600;font-size:.95rem;color:var(--ink-soft);margin:14px 0 6px}
   .py-cell .py-label:first-child{margin-top:0}
   .py-code,.py-console{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.55;white-space:pre;overflow-x:auto;text-align:left;margin:0;color:var(--ink);tab-size:4}
@@ -601,7 +601,12 @@
   .py-hint{font-size:.92rem;color:var(--ink-soft)}
   .py-console{min-height:46px;background:#fff;border:1.5px dashed var(--line);border-radius:10px;padding:10px 16px}
   .py-console.py-exec{border-style:solid;border-color:#6c8ebf;background:#f4f8ff}
-  .py-console:empty::before{content:"(rien pour l’instant : exécute le programme)";color:var(--ink-soft);font-family:"Nunito",system-ui,sans-serif;font-size:.92rem}
+  .py-console:empty::before{content:"(rien pour l’instant : exécute le programme)";color:var(--ink-soft);font-family:"Nunito",system-ui,sans-serif;font-size:.92rem;white-space:normal}
+  .py-fin{display:inline-flex;align-items:center;gap:2px}
+  /* Sur un téléphone, le code écrit plus petit : à 1,05 rem la ligne du print
+     se coupait derrière le défilement horizontal — précisément la ligne que
+     l’élève doit lire. Vu sur une capture à 390 px, pas au banc. */
+  @media(max-width:520px){ .py-code,.py-console{font-size:.92rem;padding:10px 12px} .py-phrase{font-size:1.05rem;gap:6px 8px} }
   .py-phrase{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 10px;font-size:1.15rem;line-height:1.6;color:var(--ink);padding:4px 0}
   .py-sel{flex:0 0 auto;appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;width:auto;max-width:100%;min-width:96px;padding:0 12px;height:44px;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;font-size:1.05rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;cursor:pointer}
   .py-sel:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
@@ -15907,7 +15912,7 @@ function renderPY(){
     +'<p class="py-label">Qu’affiche ce programme ? Complète la phrase.</p>'
     +'<div class="py-phrase">Le programme affiche le texte '+sel('py-s-t',q.opt.t,'le texte affiché')
     +' puis '+sel('py-s-v',q.opt.v,'la valeur affichée')
-    +' qui est la valeur de la variable '+sel('py-s-n',q.opt.n,'la variable')+'.</div>'
+    +' qui est la valeur de la variable <span class="py-fin">'+sel('py-s-n',q.opt.n,'la variable')+'.</span></div>'
     +'</div>';
   pyCases(q).forEach(function(c){ const s=$(c.id); if(!s) return;
     s.addEventListener('change',function(){ clearTimeout(_pySaveTimer); _pySaveTimer=setTimeout(autoSave,1000); }); });

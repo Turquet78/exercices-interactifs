@@ -2531,7 +2531,15 @@ que jsdom ne voit pas — le code et la console RENDUS à chasse fixe, un VRAI
 clic sur le bouton verrouillé qui ne fait rien, les trois listes choisies
 pour de vrai, la console au RECTANGLE, et le soutien. Les contrôles
 universels des deux bancs ont couvert l'exercice au premier passage sans
-rien déclarer, exactement ce pour quoi ils existent. SABOTAGES_PY
+rien déclarer, exactement ce pour quoi ils existent. Seize sabotages au banc jsdom, chacun rougissant en nommant son défaut — les
+deux mensonges de l’interpréteur (« 2 » pour 2.0, « ** » associé à gauche),
+`round` imité au lieu d’être refusé, « Exécuter » cliquable d’emblée, le
+soutien qui débloque sur une copie fausse, « Question suivante » avant
+l’exécution, la réaffectation perdue, le piège des guillemets retiré des
+propositions, la case vide rougie, la copie juste à un point, la séance à
+trois questions, le thème disparu, le décimal dans le rappel, la correction
+au fil des clics, le bouton des tables revenu, la sortie rangée à côté du
+programme.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
