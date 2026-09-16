@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -690,7 +690,11 @@
   .pyx-prog{display:flex;flex-direction:column;gap:8px;background:#f7f7f7;border:1px solid var(--line);border-left:4px solid #6c8ebf;border-radius:10px;padding:12px 16px;text-align:left}
   .pyx-ligne{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:1.05rem;line-height:1.55}
   .pyx-num{flex:0 0 auto;width:1.2em;text-align:right;color:var(--ink-soft);font-size:.9rem;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
-  .pyx-l1{white-space:pre}
+  /* Une ligne écrite du programme ne se replie JAMAIS — un calcul coupé se
+     lit de travers — et elle ne se laisse pas COUPER non plus : elle défile.
+     Mesuré sur un téléphone de 390 px, la ligne modèle de {python-deux-lignes}
+     fait 300 px dans un cadre de 285, et sa fin disparaissait en silence. */
+  .pyx-l1{white-space:pre;flex:1 1 0;min-width:0;overflow-x:auto}
   .pyx-in{flex:1 1 auto;min-width:0;max-width:560px;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.4;padding:6px 10px;border:2px solid #BBD0F7;border-radius:10px;background:#fff;color:var(--ink);outline:none}
   .pyx-in::placeholder{color:var(--ink-soft);opacity:.8;font-family:"Nunito",system-ui,sans-serif;font-size:.95rem}
   .pyx-in:focus{border-color:var(--blue);background:#FBFDFF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
@@ -700,10 +704,28 @@
   /* la ligne juste occupe TOUTE la rangée (flex:0 0 100%) : posée en
      ligne, elle se rangeait à DROITE de la case — vu sur une capture, pas au
      banc, qui le mesure depuis */
-  #pyxHost .mf-cor.pyx-cor{flex:0 0 100%;box-sizing:border-box;display:block;margin:0 0 0 calc(1.2em + 10px);width:auto;max-width:calc(100% - 1.2em - 10px);font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;white-space:pre;overflow-x:auto}
+  #pyxHost .mf-cor.pyx-cor,#pydHost .mf-cor.pyx-cor{flex:0 0 100%;box-sizing:border-box;display:block;margin:0 0 0 calc(1.2em + 10px);width:auto;max-width:calc(100% - 1.2em - 10px);font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;white-space:pre;overflow-x:auto}
   .py-console.pyx-err{border-color:#f0b3bb;background:var(--red-soft);color:var(--red)}
   .py-console.pyx-vide:empty::before{content:"(le programme n’affiche rien)"}
   @media(max-width:520px){ .pyx-in,.pyx-ligne{font-size:.92rem} .pyx-prog{padding:10px 12px} }
+  /* {python-deux-lignes} : la consigne à puces du carnet et ses deux coups de
+     pouce, repliés. Le PROGRAMME, lui, reprend les classes de
+     {python-completer} (pyx-prog, pyx-ligne, pyx-num, pyx-l1, pyx-in) : deux
+     feuilles de styles auraient fini par diverger, et deux exercices voisins
+     se seraient dessinés différemment sous les yeux de l'élève. Le cadre des
+     coups de pouce est celui du cours du 5.7, pour la même raison — et parce
+     qu'aucune encre de verdict (bleu juste, rouge faux, vert correction) ne
+     doit servir à autre chose. */
+  .pyd-puces{margin:0 0 8px;padding-left:24px;text-align:left;font-size:1rem;line-height:1.6}
+  .pyd-puces li{margin:3px 0}
+  .pyd-puces code,.pyd-pouce code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
+  .pyd-note{margin:0 0 12px;text-align:left;font-size:.96rem;color:var(--ink-soft)}
+  .pyd-pouces{display:flex;flex-direction:column;gap:6px;margin:0 0 12px;text-align:left}
+  .pyd-pouce{border:1px solid var(--line);border-left:5px solid #6c8ebf;border-radius:10px;background:#f4f8ff;padding:7px 14px;font-size:.96rem}
+  .pyd-pouce>summary{cursor:pointer;font-family:"Fredoka";font-weight:600;color:var(--ink);list-style:none}
+  .pyd-pouce>summary::-webkit-details-marker{display:none}
+  .pyd-pouce>summary::before{content:"🔥\00a0"}
+  .pyd-pouce p{margin:7px 0 2px;line-height:1.55}
   /* {python-nom-variable} : la fiche — l'énoncé en cadre SANS étiquette (le
      .mp-instr de l'écran la porte déjà), puis la cellule de réponse du carnet,
      une ligne par grandeur, à chasse fixe ; la case écrit à la taille et à la
@@ -2702,6 +2724,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : COMPLÉTER UN PROGRAMME À PLUSIEURS VARIABLES (PYTHON, DEUX LIGNES) -->
+  <section class="screen" id="scr-pyd">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPYD"></span><span class="q-idx" id="pydIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pydLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Le programme affecte trois variables et en affiche d&eacute;j&agrave; une&nbsp;: cette ligne-l&agrave; est ton <b>mod&egrave;le</b>. &Eacute;cris les deux lignes qui manquent, ex&eacute;cute le programme pour voir ce qu&rsquo;il affiche, puis v&eacute;rifie.</p>
+      <div class="mp-stage"><div style="width:100%" id="pydHost"></div></div>
+      <div class="mp-feedback" id="pydFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pydActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pydValidate" onclick="checkPYD()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : SOMME ET DIFFÉRENCE DE FRACTIONS -->
   <section class="screen" id="scr-sf">
     <div class="test-top">
@@ -3045,7 +3083,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=174;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=175;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3626,6 +3664,10 @@ const TESTS={
   'ordre-croissant': { name:'Ranger trois nombres dans l\u2019ordre croissant', icon:'\ud83d\udcc8', desc:'Trois nombres d\u00e9cimaux \u2014 les pi\u00e8ges de {placer-intervalle} \u2014 \u00e0 ranger du plus petit au plus grand avec le symbole \u00ab\u00a0<\u00a0\u00bb. Le bouton des z\u00e9ros t\u2019aide \u00e0 les comparer, tant que tu le maintiens appuy\u00e9.', start:()=>startOrd() },
   'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
   'python-completer': { name:'Afficher un texte suivi d\u2019une variable', icon:'\ud83d\udda8\ufe0f', desc:'Le cours explique comment afficher un texte suivi de la valeur d\u2019une variable : print("texte", variable). Puis \u00e0 toi d\u2019\u00e9crire : le programme commence par note = 12, compl\u00e8te-le pour qu\u2019il affiche \u00ab la note est : 12 \u00bb, ex\u00e9cute-le et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYX() },
+  /* La suite du 5.7 : le programme porte TROIS variables et une ligne
+     d'affichage déjà écrite, qui sert de modèle — et c'est l'élève qui écrit
+     les deux lignes qui manquent (demande de Turquet, septembre 2026). */
+  'python-deux-lignes': { name:'Compl\u00e9ter\u00a0: deux affichages \u00e0 \u00e9crire', icon:'\ud83e\udde9', desc:'La suite de {python-completer}\u00a0: un programme \u00e0 trois variables, dont une est d\u00e9j\u00e0 affich\u00e9e \u2014 cette ligne est ton mod\u00e8le. \u00c9cris les deux lignes qui manquent, chacune avec LA bonne variable, ex\u00e9cute le programme et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYD() },
   'python-types': { name:'int, float ou str\u00a0?', icon:'\ud83c\udff7\ufe0f', desc:'Trois types de variables : un entier (int), un nombre \u00e0 virgule (float), un texte entre guillemets (str). Le cours est sur l\u2019\u00e9cran ; lis chaque programme, dis le type de chaque variable \u2014 puis ex\u00e9cute-le : Python te r\u00e9pond avec type().', start:()=>startPTY() },
   'python-afficher-variable': { name:'Affiche la variable\u00a0!', icon:'\ud83d\udda8\ufe0f', desc:'On t\u2019explique comment afficher une variable, puis un programme commence par note = 12 : \u00e0 toi d\u2019\u00e9crire la suite pour qu\u2019il affiche la valeur de la variable. Ex\u00e9cute-le, puis v\u00e9rifie \u2014 en soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYC() },
   'python-noms-variables': { name:'Noms de variables en Python', icon:'\ud83c\udff7\ufe0f', desc:'Le nom d\u2019une variable doit respecter quatre r\u00e8gles. Pour chaque nom propos\u00e9, dis s\u2019il est correct ou incorrect \u2014 et, s\u2019il est incorrect, pourquoi.', start:()=>startPVN() },
@@ -3682,7 +3724,7 @@ const THEMES=[
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
-  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer'] }
+  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -4326,6 +4368,7 @@ function conseilPaire(){
   else if(test.kind==='ecs' && q) b=ctxEcs(q);
   else if(test.kind==='py' && q) b=ctxPy(q);
   else if(test.kind==='pyx' && q) b=ctxPyx(q);
+  else if(test.kind==='pyd' && q) b=ctxPyd(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
@@ -4586,6 +4629,7 @@ const QIA_SUGG={
   pnv:["Pourquoi l’espace est-il interdit dans un nom de variable ?","Est-ce que je peux mettre un chiffre dans un nom de variable ?","Pourquoi « print » ne peut-il pas être un nom de variable ?","Comment écrire un nom qui contient deux mots ?"],
   pyp:["Pourquoi faut-il des guillemets autour du texte ?","Quelle est la différence entre print(bonjour) et print(\"bonjour\") ?","Pourquoi Print avec une majuscule ne marche pas ?","À quoi servent les parenthèses de print ?"],
   pyx:["Pourquoi faut-il des guillemets autour du texte, mais pas autour de la variable ?","À quoi sert la virgule dans print ?","Que se passe-t-il si j’écris la variable entre guillemets ?","Pourquoi Python dit-il que la variable « la » n’existe pas ?"],
+  pyd:["Comment savoir quelle variable écrire dans chaque ligne ?","Que se passe-t-il si je recopie la ligne déjà écrite sans rien changer ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Est-ce que je peux écrire les deux lignes dans l’ordre que je veux ?"],
   py:["Pourquoi le texte s’affiche-t-il sans les guillemets ?","Quelle est la différence entre note1 et \"note1\" dans un print ?","À quoi sert la virgule dans print ?","Comment s’écrit et s’affiche un nombre à virgule en Python ?"],
   sfl:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelles \u00e9tapes dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Comment savoir si ma fraction est bien simplifi\u00e9e\u00a0?","Est-ce que je peux choisir un autre d\u00e9nominateur commun\u00a0?"],
   sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
@@ -5106,7 +5150,17 @@ On écrit les deux dans le MÊME <code class="inline">print</code>, séparés pa
 <b>② La virgule sépare les deux</b> — et <code class="inline">print</code> ajoute tout seul une espace entre eux.<br>
 <b>③ La variable s’écrit sans guillemets</b> — c’est sa VALEUR qui s’affiche, pas son nom : avec des guillemets, <code class="inline">print("note")</code> afficherait le mot <code class="inline">note</code>.<br>
 Exemple : <code class="inline">annee = 2026</code> puis <code class="inline">print("nous sommes en", annee)</code> affiche <code class="inline">nous sommes en 2026</code>.`;
-const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX };
+/* Compléter un programme à PLUSIEURS variables : la méthode du 5.7, plus ce
+   que celui-ci ajoute — chaque print doit nommer LA bonne variable. Les
+   nombres vivent dans des balises code (le contrôle des numéros en dur ne lit
+   que la prose). */
+const RAP_PYD=`<b>Compléter un programme : afficher les autres variables</b><br>
+La ligne d’affichage <b>déjà écrite</b> est le modèle : <code class="inline">print("texte", variable)</code> — <code class="inline">print(</code>, le texte entre guillemets, une <b>virgule</b>, le <b>nom</b> de la variable, puis <code class="inline">)</code>.<br>
+<b>① Le texte se met entre guillemets</b> — il s’affiche tel quel, SANS les guillemets.<br>
+<b>② Le nom de la variable s’écrit sans guillemets</b> — c’est sa VALEUR qui s’affiche, pas son nom.<br>
+<b>③ Quand le programme a plusieurs variables</b>, chaque ligne doit nommer <b>LA bonne</b> : recopier la ligne du modèle afficherait la valeur de l’autre variable. Relis les premières lignes pour prendre celle qu’on te demande.<br>
+Exemple : avec <code class="inline">ville = "Brest"</code>, la ligne <code class="inline">print("tu habites à", ville)</code> affiche <code class="inline">tu habites à Brest</code>.`;
+const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -5215,7 +5269,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -5644,7 +5698,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5768,7 +5822,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -17825,7 +17879,11 @@ function pyxParentheses(l){
   const sans=l.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g,'""');
   return (sans.match(/\(/g)||[]).length-(sans.match(/\)/g)||[]).length;
 }
+/* q.noms — la LISTE des variables du programme — est le seul paramètre que
+   {python-deux-lignes} ajoute : son programme en porte trois, quand celui du
+   5.7 n'en a qu'une. Appelée sans elle, la fonction ne change pas d'un mot. */
 function pyxDiagErreur(q, l, msg, att){
+  const noms=(q.noms&&q.noms.length)?q.noms:[q.nom];
   /* le guillemet ouvert et jamais fermé AVANT tout : sans lui, tout ce qui
      suit passe pour du texte nu */
   if(/guillemet non fermé/.test(msg)) return 'Un guillemet est ouvert et jamais fermé : le texte doit être entouré de DEUX guillemets, un au début et un à la fin.';
@@ -17842,9 +17900,12 @@ function pyxDiagErreur(q, l, msg, att){
   if(par<0) return 'Il y a une parenthèse fermante « ) » en trop : print n’en ouvre qu’une, et il n’en faut qu’une pour la fermer.';
   const mn=msg.match(/NameError : la variable « ([^»]+) » n’existe pas/);
   if(mn){
-    const x=mn[1];
-    if(x.toLowerCase()===q.nom.toLowerCase()) return 'Python distingue les majuscules : la variable s’appelle « '+q.nom+' », pas « '+x+' » — elle s’écrit exactement comme à la ligne 1.';
-    return '« '+x+' » n’est pas une variable du programme : la seule variable est celle de la ligne 1, '+q.nom+', et elle s’écrit exactement pareil. Un texte, lui, se met entre guillemets.';
+    const x=mn[1], j=noms.map(function(n){ return n.toLowerCase(); }).indexOf(x.toLowerCase());
+    if(j>=0) return 'Python distingue les majuscules : la variable s’appelle « '+noms[j]+' », pas « '+x+' » — elle s’écrit exactement comme plus haut dans le programme.';
+    return '« '+x+' » n’est pas une variable du programme : '+(noms.length>1
+      ? ('les variables sont '+noms.slice(0,-1).join(', ')+' et '+noms[noms.length-1]+', et elles s’écrivent')
+      : ('la seule variable est celle de la ligne 1, '+noms[0]+', et elle s’écrit'))
+      +' exactement pareil. Un texte, lui, se met entre guillemets.';
   }
   try{
     const t=pyLex(l);
@@ -18031,6 +18092,325 @@ function ctxPyx(q){
       : ('Sa ligne est fausse'+(j.erreur?' — Python s’arrête sur : '+j.erreur:(typeof j.sortie==='string'?' — elle affiche « '+j.sortie.trim()+' »':''))+'. Diagnostic de la page : '+j.diag+' ');
   }
   c+='Règles à rappeler sans donner la réponse : le texte se met entre guillemets et s’affiche sans elles ; la variable s’écrit sans guillemets, c’est sa valeur qui s’affiche ; une virgule sépare les deux dans print, et print ajoute une espace entre eux.';
+  return {nombre:'', contexte:c};
+}
+
+/* ---------- Exercice : compléter un programme à plusieurs variables -------
+   Demande de Turquet (septembre 2026) : « en seconde créer un exercice comme
+   le pdf » — l'exercice 9 (suite et fin) du carnet. Trois variables sont
+   affectées, UNE ligne d'affichage est déjà écrite, et il faut compléter le
+   programme pour qu'il affiche deux autres textes suivis de deux autres
+   variables. « Vérifier en l'exécutant », dit la fiche.
+
+   CE QU'IL AJOUTE AU 5.7, ET C'EST TOUT LE SUJET : là-bas il n'y a qu'UNE
+   variable et AUCUN modèle — la page explique, l'élève applique. Ici le
+   programme porte TROIS variables qui se ressemblent (note1, note2, prenom)
+   et une ligne d'affichage DÉJÀ ÉCRITE : l'élève TRANSPOSE, et le seul vrai
+   risque est de recopier la ligne du modèle sans changer la variable. C'est
+   l'erreur que le diagnostic NOMME en premier.
+
+   TOUT EST REPRIS, RIEN N'EST RECOPIÉ : le jeu de variables est PY_JEUX
+   (partagé avec {python-affichage} et {python-completer} — un second jeu
+   aurait fini par diverger), l'interpréteur est pyRun, la comparaison des
+   textes pyTexteProche et pyEcart (la tolérance de Turquet, septembre 2026),
+   les diagnostics pyxDiagErreur et pyxDiagSortie — les fonctions MÊMES du
+   5.7, auxquelles on passe la ligne à juger et sa cible. pyxDiagErreur a
+   seulement appris la LISTE des variables du programme (q.noms) : appelée
+   sans elle — le cas du 5.7 — elle ne change pas d'un mot.
+
+   L'ORDRE DES DEUX LIGNES EST LIBRE, et il le faut : rien à l'écran ne dit
+   quelle case porte laquelle, et un programme qui affiche les deux choses
+   demandées est juste. C'est la règle des paires d'{antecedent-nombre} :
+   chaque ligne se juge sur ce qu'elle PROMET — afficher l'un des deux
+   affichages attendus — et la liste les prend une fois chacune ; la même
+   ligne écrite deux fois est défendable une fois, fausse la seconde.
+
+   UNE LIGNE VIDE N'EST JAMAIS PEINTE : la vérification la redemande, sans
+   rien colorer ni verrouiller — rouge veut dire FAUX, jamais « pas fini »
+   (la règle de {placer-image}).
+
+   LA SÉANCE : la fiche du carnet en tête, ÉPINGLÉE (note1 = 15, note2 = 15.5,
+   prenom = "Louane", le modèle sur note1), puis les DEUX autres visages en
+   modèle, chacun une fois, sur deux jeux distincts. Chaque visage sert donc
+   de modèle une fois et s'écrit deux fois — un entier, un décimal (Python
+   l'écrit avec un point) et un texte (il s'affiche sans ses guillemets). Le
+   compte n'est pas un réglage : c'est la structure de la séance, et
+   tests/profils.js en est la seconde source.
+
+   LES DEUX COUPS DE POUCE sont ceux du carnet, repliés : ils disent la
+   MÉTHODE — la forme de la ligne, le nom de la variable sans guillemets — et
+   jamais la réponse, que l'énoncé porte déjà.
+
+   Aucune correction au fil de la frappe (soutienEnDirect.sans) : une ligne de
+   code se juge écrite, pas lettre par lettre. */
+const PYD_FICHE={
+  aff:[{nom:'note1',lit:'15'},{nom:'note2',lit:'15.5'},{nom:'prenom',lit:'"Louane"'}],
+  mod:{nom:'note1',texte:'la 1ère note vaut:'},
+  att:[{nom:'note2',texte:'la 2ème note vaut'},{nom:'prenom',texte:'le prénom est'}],
+  vis:'int'
+};
+function pydTirage(jeu, visMod){
+  const J=PY_JEUX[jeu];
+  const par={ int:{nom:J.i.nom, lit:String(rand(J.i.ent[0],J.i.ent[1])), txt:J.i.txt},
+              float:{nom:J.f.nom, lit:rand(J.f.ent[0],J.f.ent[1])+'.'+rand(1,9), txt:J.f.txt},
+              str:{nom:J.s.nom, lit:'"'+(J.s.vals?pick(J.s.vals):pick(PY_PRENOMS))+'"', txt:J.s.txt} };
+  const aff=ensShuffle(PY_VISAGES.map(function(v){ return {nom:par[v].nom, lit:par[v].lit}; }));
+  const autres=ensShuffle(PY_VISAGES.filter(function(v){ return v!==visMod; }));
+  return {aff:aff, mod:{nom:par[visMod].nom, texte:pick(par[visMod].txt)},
+          att:autres.map(function(v){ return {nom:par[v].nom, texte:pick(par[v].txt)}; }), vis:visMod};
+}
+function pydBuildQuestions(){
+  const qs=[JSON.parse(JSON.stringify(PYD_FICHE))];
+  const vis=ensShuffle(PY_VISAGES.filter(function(v){ return v!==PYD_FICHE.vis; }));
+  const jeux=ensShuffle([0,1,2]);
+  vis.forEach(function(v,i){ qs.push(pydTirage(jeux[i], v)); });
+  return qs;
+}
+function pydAffects(q){ return q.aff.map(function(a){ return a.nom+' = '+a.lit; }).join('\n'); }
+function pydNoms(q){ return q.aff.map(function(a){ return a.nom; }); }
+function pydModLigne(q){ return 'print("'+q.mod.texte+'", '+q.mod.nom+')'; }
+function pydNet(l){ return String(l==null?'':l).replace(/[\r\n]+/g,' ').trim(); }
+/* la source d'UNE ligne : les trois affectations, puis cette ligne — c'est
+   elle que le juge exécute, si bien que r.prints[0] est le print de l'élève
+   et non celui du modèle. */
+function pydSrcLigne(q, l){ return pydAffects(q)+'\n'+pydNet(l); }
+/* le programme ENTIER, celui que « Exécuter » fait tourner */
+function pydProg(q, lignes){
+  const suite=(lignes||[]).map(pydNet).filter(function(l){ return l!==''; });
+  return pydAffects(q)+'\n'+pydModLigne(q)+(suite.length?'\n'+suite.join('\n'):'');
+}
+/* Un attendu est ÉCRIT depuis la question, et sa sortie vient de pyRun — la
+   fonction même qui exécute le programme sous « Exécuter ». */
+function pydCible(q, nom, texte){
+  const ligne='print("'+texte+'", '+nom+')';
+  const r=pyRun(pydSrcLigne(q,ligne));
+  return {ligne:ligne, sortie:r.out, texte:texte, valeur:pyRep(r.env[nom]), variable:nom};
+}
+function pydAns(q){ return q.att.map(function(a){ return pydCible(q, a.nom, a.texte); }); }
+function pydModAns(q){ return pydCible(q, q.mod.nom, q.mod.texte); }
+function pydCases(q){ return q.att.map(function(a,i){ return {id:'pyd-in'+i}; }); }
+/* La règle des paires : les deux lignes se prennent une fois chacune. Avec
+   deux cases et deux cibles, les deux appariements s'énumèrent — on garde
+   celui qui compte le plus de lignes justes. */
+function pydApparier(prom){
+  let best=[0,1], n=-1;
+  [[0,1],[1,0]].forEach(function(m){
+    const k=m.reduce(function(s,j,i){ return s+((prom[i]&&prom[i][j])?1:0); },0);
+    if(k>n){ n=k; best=m; }
+  });
+  return best;
+}
+/* Le diagnostic : les DEUX erreurs propres à cet exercice d'abord — la ligne
+   du modèle recopiée, et la ligne qui affiche la valeur d'une AUTRE variable
+   du programme —, puis le diagnostic du 5.7, qui dit tout le reste. */
+function pydDiag(q, s, a, autre){
+  const qi={nom:a.variable, texte:a.texte, noms:pydNoms(q)};
+  if(s.err) return pyxDiagErreur(qi, s.l, s.err.message, a);
+  const mo=pydModAns(q);
+  if(pyxAffiche(s.r.out, mo) && pyxUtilise(s.l, mo.variable))
+    return 'Tu as recopié la ligne déjà écrite : elle affiche la valeur de « '+mo.variable+' ». Ici, il faut le texte « '+a.texte+' » puis la valeur de « '+a.variable+' ».';
+  if(autre && pyxAffiche(s.r.out, autre) && pyxUtilise(s.l, autre.variable))
+    return 'Cette ligne affiche la même chose que l’autre : les deux lignes qui manquent affichent deux choses DIFFÉRENTES. Il reste à écrire celle qui affiche « '+a.texte+' » puis la valeur de « '+a.variable+' ».';
+  const p=s.r.prints[0];
+  if(p && p.args.length===2 && p.args[0].k==='str' && p.args[1].k==='nom' && p.args[1].v!==a.variable && pydNoms(q).indexOf(p.args[1].v)>=0)
+    return 'Ta ligne affiche la valeur de « '+p.args[1].v+' », alors qu’on demande celle de « '+a.variable+' » : les variables du programme se ressemblent — relis les premières lignes pour prendre la bonne.';
+  return pyxDiagSortie(qi, s.l, s.r, a);
+}
+/* Le juge : chaque ligne se juge SEULE, sur la SORTIE qu'elle produit avec
+   les trois affectations — et sur la variable employée. */
+function pydJuge(q, lignes){
+  const att=pydAns(q);
+  const res=(lignes||[]).map(function(x){
+    const l=pydNet(x);
+    if(!l) return {l:'', vide:true, prom:att.map(function(){ return false; })};
+    let r=null, err=null;
+    try{ r=pyRun(pydSrcLigne(q,l)); }catch(e){ err=e; }
+    return {l:l, vide:false, r:r, err:err,
+            prom:att.map(function(a){ return !!r && pyxAffiche(r.out,a) && pyxUtilise(l,a.variable); })};
+  });
+  const m=pydApparier(res.map(function(s){ return s.prom; }));
+  return res.map(function(s,i){
+    const j=m[i], a=att[j], autre=att[1-j];
+    if(s.vide) return {vide:true, ok:false, att:a, diag:''};
+    const ok=!!s.prom[j];
+    return {vide:false, ok:ok, att:a,
+            sortie:s.r?s.r.out:'', erreur:s.err?s.err.message:'',
+            ecart:(ok&&s.r)?pyEcart(s.r.out.replace(/\n$/,''), a.sortie.replace(/\n$/,'')):'',
+            diag:ok?'':pydDiag(q, s, a, autre)};
+  });
+}
+/* La consigne du carnet, à puces — l'ordre des deux lignes est libre, et
+   l'écran le dit. */
+function pydConsigneHTML(q){
+  return '<p class="py-label">Complète le programme, ci-dessous, pour&nbsp;:</p>'
+    +'<ul class="pyd-puces">'
+    +q.att.map(function(a){ return '<li>qu’il affiche <code>'+esc(a.texte)+'</code> puis la valeur de la variable <code>'+esc(a.nom)+'</code>&nbsp;;</li>'; }).join('')
+    +'</ul>'
+    +'<p class="pyd-note">Écris les deux lignes dans l’ordre que tu veux, puis <b>vérifie en l’exécutant</b>.</p>';
+}
+/* Les deux coups de pouce du carnet : la MÉTHODE, jamais la réponse. */
+function pydPoucesHTML(){
+  return '<div class="pyd-pouces">'
+    +'<details class="pyd-pouce"><summary>coup de pouce 1</summary>'
+    +'<p>Regarde la ligne d’affichage <b>déjà écrite</b> : elle commence par <code>print(</code> puis, dans l’ordre, le texte <b>entre guillemets</b>, une <b>virgule</b>, le <b>nom</b> de la variable, et la parenthèse fermante. Les deux lignes qui manquent s’écrivent exactement de la même façon.</p></details>'
+    +'<details class="pyd-pouce"><summary>coup de pouce 2</summary>'
+    +'<p>La forme est toujours <code>print("texte", variable)</code> — on remplace <code>texte</code> par le texte demandé et <code>variable</code> par le <b>nom</b> de la variable, <b>sans guillemets</b> autour du nom : sinon c’est le mot qui s’affiche, et non sa valeur.</p></details>'
+    +'</div>';
+}
+
+/* ---- Cycle de vie ---- */
+async function startPYD(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pydBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pyd', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+pydCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false, pydExec:null});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pyd'); renderPYD();
+}
+function pydLignes(){ return pydCases(test.questions[test.idx]).map(function(c){ const e=$(c.id); return e?e.value:''; }); }
+function renderPYD(){
+  const q=test.questions[test.idx]; test.locked=false; test.pydExec=null;
+  $('pydIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPYD').innerHTML=modeTagHTML();
+  $('pydLiveScore').textContent=test.score;
+  $('pydFeedback').textContent=''; $('pydFeedback').className='mp-feedback';
+  $('pydActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pydValidate" onclick="checkPYD()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
+  const n0=q.aff.length;
+  $('pydHost').innerHTML=
+    '<div class="py-cell">'
+    +pydConsigneHTML(q)
+    +pydPoucesHTML()
+    +'<div class="pyx-prog">'
+    +q.aff.map(function(a,i){ return '<div class="pyx-ligne"><span class="pyx-num">'+(i+1)+'</span><span class="pyx-l1">'+pyColorie(a.nom+' = '+a.lit)+'</span></div>'; }).join('')
+    +'<div class="pyx-ligne"><span class="pyx-num">'+(n0+1)+'</span><span class="pyx-l1">'+pyColorie(pydModLigne(q))+'</span></div>'
+    +pydCases(q).map(function(c,i){ return '<div class="pyx-ligne"><span class="pyx-num">'+(n0+2+i)+'</span><input class="pyx-in" id="'+c.id+'" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ligne '+(n0+2+i)+' du programme" placeholder="écris ici une des deux lignes qui manquent…"></div>'; }).join('')
+    +'</div>'
+    +'<div class="py-runrow"><button class="btn btn-primary" id="pydRun" type="button" onclick="pydExecuter()">▶ Exécuter le programme</button>'
+    +'<span class="py-hint" id="pydRunHint">Écris les deux lignes, puis exécute le programme pour voir ce qu’il affiche.</span></div>'
+    +'<p class="py-label">Ce que le programme affiche</p>'
+    +'<pre class="py-console" id="pydConsole"></pre>'
+    +'</div>';
+  pydCases(q).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.addEventListener('input', pydModifiee);
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); pydExecuter(); } });
+  });
+  pydMaj();
+}
+/* « Vérifier » ne s'ouvre que sur un programme exécuté tel qu'il est écrit */
+function pydMaj(){
+  const v=$('pydValidate'); if(!v) return;
+  const pret=(typeof test.pydExec==='string') && test.pydExec===JSON.stringify(pydLignes().map(pydNet));
+  v.disabled=!pret; v.title=pret?'':'Exécute d’abord ton programme';
+}
+function pydModifiee(){
+  if(test.locked) return;
+  pydCases(test.questions[test.idx]).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
+  });
+  const c=$('pydConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','pyx-vide','pyx-err'); }
+  const h=$('pydRunHint'); if(h) h.textContent=(typeof test.pydExec==='string')?'Tu as modifié le programme : exécute-le à nouveau pour voir ce qu’il affiche, puis vérifie.':'Écris les deux lignes, puis exécute le programme pour voir ce qu’il affiche.';
+  pydMaj();
+}
+function pydExecuter(depuisVerif){
+  if(test.locked) return;
+  const q=test.questions[test.idx], c=$('pydConsole'); if(!c) return;
+  const lignes=pydLignes().map(pydNet); let out='', err=false;
+  try{ out=pyRun(pydProg(q,lignes)).out; }catch(e){ out='Erreur : '+e.message; err=true; }
+  c.textContent=out.replace(/\n$/,'');
+  c.classList.add('py-exec'); c.classList.toggle('pyx-err',err); c.classList.toggle('pyx-vide',!err&&!out);
+  test.pydExec=JSON.stringify(lignes);
+  const h=$('pydRunHint');
+  if(h) h.textContent=lignes.filter(function(l){ return l!==''; }).length
+    ? 'Programme exécuté : compare ce qu’il affiche avec ce qui est demandé, puis clique « Vérifier ».'
+    : 'Les deux lignes sont vides : le programme n’affiche que la ligne déjà écrite. Écris-les, puis exécute-le.';
+  pydMaj();
+  if(!depuisVerif && lignes.some(function(l){ return l!==''; })){ const v=$('pydValidate'); if(v&&!v.disabled) v.focus(); }
+}
+function checkPYD(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], cases=pydCases(q), fb=$('pydFeedback');
+  const lignes=pydLignes().map(pydNet);
+  /* la console montre TOUJOURS ce que le juge a lu */
+  if(test.pydExec!==JSON.stringify(lignes)) pydExecuter(true);
+  const j=pydJuge(q, lignes);
+  cases.forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
+  });
+  /* UNE LIGNE VIDE N'EST JAMAIS PEINTE : on la redemande, sans rien colorer
+     ni verrouiller — rouge veut dire FAUX, jamais « pas fini ». */
+  const vides=j.filter(function(x){ return x.vide; }).length;
+  if(vides){
+    fb.textContent='Il te manque '+vides+' ligne'+(vides>1?'s':'')+' — écris-'+(vides>1?'les':'la')+', exécute le programme, puis vérifie.';
+    fb.className='mp-feedback bad';
+    const vide=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && !pydNet(e.value); });
+    if(vide) vide.focus();
+    return;
+  }
+  j.forEach(function(x,i){ const inp=$(cases[i].id); if(inp) inp.classList.add(x.ok?'ok':'bad'); });
+  const justes=j.filter(function(x){ return x.ok; }).length, allOk=justes===j.length;
+  if(!allOk && isSoutien()){
+    fb.innerHTML='<b>Où est l’erreur&nbsp;?</b> '+j.map(function(x,i){ return x.ok?'':('<b>Ligne '+(q.aff.length+2+i)+'&nbsp;:</b> '+esc(x.diag)); }).filter(function(t){ return t; }).join('<br>')+'<br>Corrige, exécute le programme, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('pydActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pydValidate" onclick="checkPYD()">Revérifier</button>';
+    pydMaj();
+    const bad=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && e.classList.contains('bad'); });
+    if(bad) setTimeout(function(){ bad.focus(); },40);
+    return;
+  }
+  test.locked=true;
+  cases.forEach(function(c){ const inp=$(c.id); if(inp) inp.disabled=true; });
+  const run=$('pydRun'); if(run) run.disabled=true;
+  const h=$('pydRunHint'); if(h) h.textContent='Programme exécuté et vérifié.';
+  test.score+=justes;
+  if(allOk){
+    const ecarts=j.map(function(x){ return x.ecart; }).filter(function(e){ return e; });
+    /* accepté à un détail près : on le DIT, sinon l'élève croirait avoir
+       écrit le texte exact (décision de Turquet, septembre 2026) */
+    fb.textContent=pick(['Bravo, tes deux lignes sont justes !','Parfait !','Excellent !'])
+      +(ecarts.length?(' C’est accepté : '+ecarts.join(', ')+' — le programme affiche bien les deux choses demandées.')
+                     :' Le programme affiche exactement ce qui était demandé.');
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML='<b>Où est l’erreur&nbsp;?</b> '+j.map(function(x,i){ return x.ok?'':('<b>Ligne '+(q.aff.length+2+i)+'&nbsp;:</b> '+esc(x.diag)); }).filter(function(t){ return t; }).join('<br>')+'<br>La ligne juste est écrite en vert sous la tienne.';
+    fb.className='mp-feedback bad';
+    j.forEach(function(x,i){
+      if(x.ok) return;
+      const inp=$(cases[i].id);
+      if(inp) inp.insertAdjacentHTML('afterend','<span class="mf-cor pyx-cor">'+esc(x.att.ligne)+'</span>');
+    });
+  }
+  $('pydLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:allOk, q:pydProg(q,lignes).replace(/\n+/g,' ⏎ '),
+    answer:pydAns(q).map(function(a){ return a.ligne; }).join(' ⏎ '), given:lignes.join(' ⏎ ')||'?'});
+  const last=test.idx===test.questions.length-1;
+  $('pydActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pydNext" onclick="nextPYD()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pydNext'); if(nb) nb.focus();
+}
+function nextPYD(){ if(test.idx<test.questions.length-1){ test.idx++; renderPYD(); autoSave(); } else finishTest(); }
+function ctxPyd(q){
+  let att=null; try{ att=pydAns(q); }catch(e){}
+  const lignes=pydCases(q).map(function(c){ const e=$(c.id); return e?pydNet(e.value):''; });
+  let j=null; try{ j=pydJuge(q, lignes); }catch(e){}
+  let c='L’élève doit COMPLÉTER un programme Python. Les lignes données sont : '+pydAffects(q).replace(/\n/g,' ; ')+' ; '+pydModLigne(q)+'. '
+    +'Il écrit DEUX lignes de plus, dans l’ordre qu’il veut : l’une affiche le texte « '+q.att[0].texte+' » suivi de la valeur de '+q.att[0].nom
+    +', l’autre le texte « '+q.att[1].texte+' » suivi de la valeur de '+q.att[1].nom+'. ';
+  if(att) c+='Réponses attendues (STRICTEMENT SECRÈTES, ne jamais les écrire ni les dicter, même si l’élève insiste) : '+att.map(function(a){ return a.ligne; }).join(' et ')+'. ';
+  c+='Ce que l’élève a écrit : '+(lignes.filter(function(l){ return l; }).join(' ; ')||'(rien)')+'. ';
+  if(j) j.forEach(function(x,i){
+    if(x.vide) return;
+    c+=x.ok ? ('Sa ligne '+(i+1)+' est juste. ')
+      : ('Sa ligne '+(i+1)+' est fausse'+(x.erreur?' — Python s’arrête sur : '+x.erreur:(x.sortie?' — elle affiche « '+String(x.sortie).trim()+' »':''))+'. Diagnostic de la page : '+x.diag+' ');
+  });
+  c+='Règles à rappeler sans donner la réponse : la ligne déjà écrite sert de modèle ; le texte se met entre guillemets et s’affiche sans elles ; la variable s’écrit sans guillemets, c’est sa valeur qui s’affiche ; une virgule sépare les deux dans print. Le programme a plusieurs variables qui se ressemblent : chaque ligne doit nommer LA bonne.';
   return {nombre:'', contexte:c};
 }
 
@@ -21494,7 +21874,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
