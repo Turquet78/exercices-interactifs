@@ -8168,7 +8168,7 @@ jsdom refait le tirage par une SECONDE arithmétique sur les treize termes
 (le sens sur les différences, une borne annoncée atteinte ou égale à la
 limite, une suite « non majorée » qui s'échappe vraiment, une limite finie
 approchée, la droite y = ℓ là et seulement là) et joue les gestes sur trois
-questions ÉPINGLÉES ; le NAVIGATEUR (« 6 tricies ter », déclaré par
+questions ÉPINGLÉES ; le NAVIGATEUR (« 6 tricies quater », déclaré par
 `suiteVocabulaire` dans `tests/profils.js`) CLIQUE les cases, lit l'encre
 RÉSOLUE des verdicts, mesure la hauteur d'une RANGÉE rendue — un dessin de
 cinq rangées est court sans être illisible, et le premier jet mesurait la
@@ -9307,7 +9307,21 @@ d'avant. Le filet d'un en-tête s'écrit « ===== » ici et « ---- » là : le
 contrôle accepte les deux plutôt que d'imposer une convention de plus.
 Un dernier bord le garde honnête — il compte ce qu'il a trouvé et le DIT s'il
 n'a rien à mesurer : une expression régulière qui cesserait de reconnaître les
-titres le rendrait vert sur un banc entièrement dupliqué. Cinq sabotages,
+titres le rendrait vert sur un banc entièrement dupliqué.
+**Et la collision qu'aucune branche ne peut voir seule est celle de la FUSION**
+(septembre 2026) : deux branches ouvertes le même jour ont pris « 6 tricies
+ter » chacune de son côté — {python-completer} en Seconde et {suite-vocabulaire}
+en Terminale. Les deux bancs étaient verts sur leur branche, à bon droit : le
+contrôle lit la source du banc, et chaque branche n'avait qu'un seul de ces
+numéros. C'est `main` qui a rougi, sur les TROIS niveaux d'un coup — le banc
+étant partagé —, une fois la seconde fusion faite. **Le contrôle a donc fait
+exactement son travail**, au seul endroit où le défaut existe ; ce qu'il ne
+peut pas faire est prévenir avant. La règle qui en découle : au moment de
+refusionner `main`, on relit les numéros de section comme on relit les numéros
+d'exercice et `APP_VERSION` — c'est la même famille de collisions, et elle se
+règle de la même façon, le dernier arrivé cède. Ici {suite-vocabulaire} est
+passé à « 6 tricies quater » : {python-completer} avait fusionné le premier et
+était déjà en ligne. Cinq sabotages,
 chacun rougissant en nommant son défaut (un numéro imprimé deux fois, un
 en-tête privé de son titre, une moitié renommée seule, la lecture des titres
 débranchée, un sous-bloc déclaré qui n'existe plus).
