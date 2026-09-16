@@ -696,9 +696,13 @@
   .svr-cel.svr-suite{justify-content:flex-start;padding-left:10px}
   .svr-cel.svr-just{justify-content:flex-start;margin-bottom:2px}
   .svr-cel.svr-val .svr-eg{color:var(--ink-soft)}
+  .svr-cel.svr-bloc{margin-top:10px}   /* l'hérédité se détache de l'initialisation, dans la même grille */
   .svr-etape{row-gap:10px}
-  .svr-chaine{display:inline-flex;align-items:center;white-space:nowrap}
-  .svr-scroll{overflow-x:auto;padding-bottom:2px}
+  /* overflow-x:auto emporte overflow-y : ce qui depasse la boite EN BAS est
+     coupe — et l'indice d'un terme U_n descend sous sa ligne (.svr-sub). La
+     derniere rangee de la recurrence porte des indices : sans cette reserve,
+     leurs cases sont tranchees au bord (vu sur une capture). */
+  .svr-scroll{overflow-x:auto;padding-bottom:10px}
   .svr-fapp{white-space:nowrap}
   .sa2-row .svr-sel,.svr-grille .svr-sel{font-size:inherit;font-family:inherit}
   /* d) est presentee comme le 2.5 : le bloc facultatif u/v/u'/v' puis la
@@ -2651,7 +2655,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=316;
+const APP_VERSION=317;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -17705,7 +17709,6 @@ function renderSVR(){
   $('svrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSVR()">Vérifier</button>';
   const U='<i>U</i>', n='<i>n</i>', T=function(s){ return '<span class="sa2-t">'+s+'</span>'; };
   const Un=U+'<sub>'+n+'</sub>', Un1=U+'<sub>'+n+'+1</sub>';
-  const LE='<span class="svr-le">≤</span>';
   const D='[ 0 ; '+numFmt(a.Dmax)+' ]';
   const frec=sa2Frac(numFmt(a.p), numFmt(a.s)+' − '+Un);
   const ffx =sa2Frac(numFmt(a.p), numFmt(a.s)+' − <i>x</i>');
@@ -17770,8 +17773,6 @@ function renderSVR(){
   /* e) */
   const G=numFmt(a.dec?a.l:a.U0), Dr=numFmt(a.dec?a.U0:a.l);
   const fixG='<span class="svr-fix">'+G+'</span>', fixD='<span class="svr-fix">'+Dr+'</span>';
-  const ligne=function(idA,idB){ return fixG+LE+svrU(idA,a.plus===0)+LE+svrU(idB,a.plus===1)+LE+fixD; };
-  const ligneNue=function(idA,idB){ return fixG+LE+svrU(idA,false)+LE+svrU(idB,false)+LE+fixD; };
   /* Les GRILLES (voir la feuille de styles) : une cellule = une case de la grille,
      placée en toutes lettres (rangée / colonne). Les termes vivent aux colonnes
      IMPAIRES, les « ≤ » aux colonnes PAIRES, si bien qu'un « ≤ » tombe sous le
@@ -17783,13 +17784,24 @@ function renderSVR(){
      son terme (demande de Turquet, septembre 2026) */
   const chaineInit=function(r,tA,tB){ return cel(r,2,fixG)+leC(r,3)+cel(r,4,tA)+leC(r,5)+cel(r,6,tB)+leC(r,7)+cel(r,8,fixD); };
   const eg=function(idv){ return '<span class="sa2-t svr-eg">=</span>'+svrIn(idv,false); };
-  const initHTML='<div class="svr-scroll"><div class="svr-grille svr-ginit">'
+  /* … et l'hérédité suit, dans la MÊME grille (demande de Turquet, septembre
+     2026) : ses trois lignes ont trois étiquettes de largeurs différentes, donc
+     leurs « ≤ » ne pouvaient pas tomber au même endroit ; posées sous
+     l'initialisation, elles partagent ses colonnes, et tous les « ≤ » de la
+     récurrence tombent les uns sous les autres. */
+  const recHTML='<div class="svr-scroll"><div class="svr-grille svr-grec">'
     +cel(1,1,'<b>Initialisation</b>'+T('— vrai pour '+n+' =')+svrIn('svr-n0',false)+T(' :'),'svr-lib')
     +chaineInit(1, svrU('svr-i1',a.plus===0), svrU('svr-i2',a.plus===1))
     +cel(2,1,T('donc :'),'svr-lib')
     +chaineInit(2, svrU('svr-i3',false), svrU('svr-i4',false))
     +cel(2,9,T('c’est')+svrSel('svr-init',a,[['vrai','vrai'],['faux','faux']]),'svr-suite',true)
     +cel(3,4,eg('svr-v1'),'svr-val')+cel(3,6,eg('svr-v2'),'svr-val')
+    +cel(4,1,'<b>Hérédité</b>'+T('— on <b>suppose</b> que c’est vrai pour '+n+' :'),'svr-lib svr-bloc')
+    +chaineInit(4, svrU('svr-h1',a.plus===0), svrU('svr-h2',a.plus===1)).replace(/class="svr-cel/g,'class="svr-cel svr-bloc')
+    +cel(5,1,T('On <b>montre</b> que c’est vrai pour '+n+' + 1 :'),'svr-lib')
+    +chaineInit(5, svrU('svr-m1',a.plus===0), svrU('svr-m2',a.plus===1))
+    +cel(6,1,T('donc :'),'svr-lib')
+    +chaineInit(6, svrU('svr-m3',false), svrU('svr-m4',false))
     +'</div></div>';
   /* la démonstration : le résultat de f(…) tombe SOUS son f(…), et les trois
      chaînes se suivent SANS rien entre elles. La justification (f croissante sur
@@ -17812,10 +17824,7 @@ function renderSVR(){
     +(a.dec?(U+'<sub>'+n+'+1</sub> ≤ '+U+'<sub>'+n+'</sub>'):(U+'<sub>'+n+'</sub> ≤ '+U+'<sub>'+n+'+1</sub>'))
     +' ≤ '+Dr+'</b> pour tout entier '+n+' ≥ 0.';
   $('svrPartE').innerHTML=
-     initHTML
-    +'<div class="sa2-row svr-etape"><b>Hérédité</b>'+T('— on <b>suppose</b> que c’est vrai pour '+n+' :')+'<span class="svr-chaine">'+ligne('svr-h1','svr-h2')+'</span></div>'
-    +'<div class="sa2-row svr-etape">'+T('On <b>montre</b> que c’est vrai pour '+n+' + 1 :')+'<span class="svr-chaine">'+ligne('svr-m1','svr-m2')+'</span></div>'
-    +'<div class="sa2-row svr-etape">'+T('donc :')+'<span class="svr-chaine">'+ligneNue('svr-m3','svr-m4')+'</span></div>'
+     recHTML
     +'<div class="svr-demo"><div class="sa2-row svr-etape"><b>Démonstration</b></div>'
     +demoHTML+'</div>'
     +'<div class="s1-res svr-ccl"><div class="s1-line">Conclusion : la propriété est vraie au rang 0 et héréditaire — donc, pour tout entier '+n+' ≥ 0,&nbsp; '

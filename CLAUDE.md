@@ -7165,12 +7165,32 @@ largeur des pistes.
 insère son badge de correction APRÈS la case, et un badge posé nu dans une
 grille deviendrait une cellule de plus, qui décalerait tout ce qui suit. Le
 contrôle pose une copie fausse et exige que chaque badge vive DANS sa cellule.
-**Les lignes de l'hérédité (« on suppose », « on montre », « donc ») ne sont
-pas touchées** : la demande nomme l'initialisation et la démonstration, et le
-dire vaut mieux que de le taire.
+**Puis l'hérédité a suivi** (« fais la même chose pour les lignes de
+l'hérédité », Turquet, le même jour) : ses trois lignes — « on suppose »,
+« on montre », « donc » — ont trois étiquettes de largeurs différentes, donc
+leurs « ≤ » ne pouvaient pas tomber au même endroit. Elles vivent dans la
+MÊME grille que l'initialisation (`.svr-grec`, rangées 4 à 6), dont elles
+partagent les colonnes : tous les « ≤ » de la récurrence tombent les uns
+sous les autres, l'hérédité sous l'initialisation comprise — c'est la
+conséquence de la grille unique, pas une demande de plus, et elle coûte à
+l'initialisation une colonne d'étiquette élargie à celle de « Hérédité — on
+suppose que c'est vrai pour n : ». Le premier jet de ce paragraphe disait
+« l'hérédité n'est pas touchée » ; il racontait la première demande.
+**Et la dernière rangée s'est fait TRANCHER ses indices, ce qui ne s'est vu que
+sur la capture** : `overflow-x:auto` emporte `overflow-y`, donc ce qui
+dépasse la boîte EN BAS est coupé — et l'indice d'un terme Uₙ descend sous
+sa ligne (`.svr-sub`, `top:.32em`). Tant que la grille finissait par la
+rangée des VALEURS, rien ne dépassait ; l'hérédité venue, la dernière rangée
+porte des indices, et leurs cases sortaient de 4 px sous le bord. La boîte
+garde une réserve de 10 px en bas. **Et le contrôle qui la tient a d'abord
+mesuré autre chose** : un `Range` sur le contenu des cellules ne voit PAS
+l'indice décalé (1899 contre 1903 pour la case, sondé), et restait à zéro
+sur une grille tranchée ; il lit le DÉBORD VERTICAL de la boîte
+(`scrollHeight − clientHeight`), le signal direct de ce qui est coupé.
 **Deux bancs, la répartition habituelle.** jsdom lit la STRUCTURE : la même
 colonne pour un terme de la ligne « donc » et son homologue de la première
-ligne, pour une valeur et son terme (rangée 3 sous rangée 2), pour chaque
+ligne, pour chaque terme de l'hérédité et le sien, pour une valeur et son
+terme (rangée 3 sous rangée 2), pour chaque
 f(…) et son résultat — les deux visages, le croissant pris au vivier —, la
 justification en tête, le terme qui élargit au bon bout, le badge dans sa
 cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
