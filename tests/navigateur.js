@@ -6246,7 +6246,107 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies undecies. {python-noms-variables} : correct, incorrect, et pourquoi =====
+    /* ===== 6 vicies undecies. {python-types} : le cours en trois cadres, puis type() =====
+       Le banc jsdom tient l'interpréteur (type() comparé à un vrai CPython),
+       le tirage, le juge et les portes. Ce qu'il ne voit pas : les trois
+       cadres du cours RENDUS — mesurés au rectangle, une règle CSS perdue les
+       ferait disparaître sans qu'aucune classe ne manque —, le code et la
+       console à chasse fixe, le bouton « Exécuter » vraiment inerte sous un
+       VRAI clic, et la page qui ne déborde ni à 1400 px ni à la largeur d'un
+       téléphone, où les trois cadres s'empilent. Il CHOISIT dans les trois
+       listes pour de vrai, clique Vérifier puis Exécuter, relit les trois
+       <class '…'> à l'écran, puis rejoue le bord du soutien. */
+    titre('6 vicies undecies. INT, FLOAT OU STR ? LE COURS EN TROIS CADRES, PUIS TYPE()');
+    if(!P.pythonTypes){
+      ignorer('le cours en trois cadres, puis type()', 'ce niveau n\'a pas l\'exercice des types Python');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonTypes.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const code = document.querySelector('#ptyHost .py-code'), cons = document.getElementById('ptyConsole'), run = document.getElementById('ptyRun');
+        const cadres = [...document.querySelectorAll('#ptyHost .pty-type')].map(e => e.getBoundingClientRect());
+        const fam = el => getComputedStyle(el).fontFamily;
+        const cr = code.getBoundingClientRect(), kr = cons.getBoundingClientRect(), rr = run.getBoundingClientRect();
+        const lignes = [...document.querySelectorAll('#ptyHost .pty-ligne')].map(e => e.getBoundingClientRect());
+        return { police: fam(code), codeVisible: cr.width > 200 && cr.height > 60, consoleVisible: kr.height > 20,
+                 runDisabled: run.disabled, runVisible: rr.width > 40 && rr.height > 20,
+                 texte: code.textContent, src: test.questions[0].src,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 cadres: cadres.map(r => Math.round(r.width) + 'x' + Math.round(r.height)),
+                 cadresVisibles: cadres.length === 3 && cadres.every(r => r.width > 200 && r.height > 60),
+                 cadresCoteACote: cadres.length === 3 && Math.abs(cadres[0].top - cadres[2].top) < 4,
+                 lignes: lignes.length, lignesHautes: lignes.every(r => r.height > 30 && r.height < 120),
+                 listes: document.querySelectorAll('#ptyHost select.py-sel').length };
+      });
+      verifier('les trois cadres du cours sont rendus côte à côte, à une taille lisible', avant.cadresVisibles && avant.cadresCoteACote, avant.cadres.join(' / '));
+      verifier('le code est rendu à chasse fixe, à une taille lisible', /mono|menlo|consolas|courier/i.test(avant.police) && avant.codeVisible, avant.police);
+      verifier('le code affiché est le programme de la question', avant.texte === avant.src, JSON.stringify(avant.texte));
+      verifier('« Exécuter » est visible et verrouillé tant que rien n\'est vérifié', avant.runDisabled && avant.runVisible, '');
+      verifier('les trois lignes « … est de type » portent leur liste, chacune d\'un seul tenant, et la page ne déborde pas à 1400 px',
+        avant.listes === 3 && avant.lignes === 3 && avant.lignesHautes && !avant.page, avant.listes + ' liste(s), ' + avant.lignes + ' ligne(s)');
+      /* un VRAI clic sur le bouton verrouillé ne fait rien */
+      await s.page.click('#ptyRun', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const cons0 = await s.page.evaluate(() => document.getElementById('ptyConsole').textContent);
+      verifier('un clic sur le bouton verrouillé ne remplit pas la console', cons0 === '', JSON.stringify(cons0));
+      /* on CHOISIT juste, dans les vraies listes */
+      const bon = await s.page.evaluate(() => { const q = test.questions[0], a = ptyAns(q); return ptyCases(q).map(c => ({ id: c.id, t: a.types[c.nom] })); });
+      for(const c of bon) await s.page.selectOption('#' + c.id, c.t);
+      await s.page.click('#ptyValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => ({
+        ok: document.querySelectorAll('#ptyHost select.ok').length, score: test.score,
+        runDisabled: document.getElementById('ptyRun').disabled,
+        focus: document.activeElement && document.activeElement.id,
+        suivant: !!document.getElementById('ptyNext') }));
+      verifier('les trois listes choisies justes sont peintes ok et valent 3', apres.ok === 3 && apres.score === 3, apres.ok + ' ok, note ' + apres.score);
+      verifier('« Exécuter » se débloque et reçoit le focus', !apres.runDisabled && apres.focus === 'ptyRun', 'focus sur ' + apres.focus);
+      verifier('« Question suivante » attend l\'exécution', !apres.suivant, '');
+      await s.page.click('#ptyRun');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => {
+        const cons = document.getElementById('ptyConsole'), r = cons.getBoundingClientRect();
+        return { texte: cons.textContent, attendu: pyRun(test.questions[0].src).out.trim(), visible: r.height > 40 && r.width > 100,
+                 police: getComputedStyle(cons).fontFamily, suivant: !!document.getElementById('ptyNext'),
+                 runDisabled: document.getElementById('ptyRun').disabled };
+      });
+      verifier('la console montre les trois <class \'…\'> de Python, à chasse fixe, dans un cadre visible',
+        fin.texte === fin.attendu && (fin.texte.match(/<class '/g) || []).length === 3 && fin.visible && /mono|menlo|consolas|courier/i.test(fin.police),
+        JSON.stringify(fin.texte) + ' / ' + fin.police);
+      verifier('après l\'exécution, « Question suivante » apparaît et « Exécuter » se referme', fin.suivant && fin.runDisabled, '');
+      /* à la largeur d'un téléphone, les cadres s'empilent et rien ne déborde */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const cadres = [...document.querySelectorAll('#ptyHost .pty-type')].map(e => e.getBoundingClientRect());
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 empiles: cadres.length === 3 && cadres[1].top >= cadres[0].bottom - 1 && cadres[2].top >= cadres[1].bottom - 1,
+                 larges: cadres.every(r => r.width > 250 && r.right <= 391) };
+      });
+      verifier('sur un téléphone, les trois cadres s\'empilent sur toute la largeur et la page ne déborde pas', !tel.page && tel.empiles && tel.larges, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le bord du soutien : une copie fausse laisse le bouton verrouillé */
+      await s.page.evaluate(id => openTest(id), P.pythonTypes.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const faux = await s.page.evaluate(() => { const q = test.questions[0], a = ptyAns(q); return ptyCases(q).map((c, i) => ({ id: c.id, t: i ? a.types[c.nom] : PTY_TYPES.filter(t => t !== a.types[c.nom])[0] })); });
+      for(const c of faux) await s.page.selectOption('#' + c.id, c.t);
+      await s.page.click('#ptyValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => ({ bad: document.querySelectorAll('#ptyHost select.bad').length,
+        runDisabled: document.getElementById('ptyRun').disabled, console: document.getElementById('ptyConsole').textContent,
+        cadres: document.querySelectorAll('#ptyHost .pty-type').length }));
+      verifier('en soutien, la copie fausse rougit sa case, laisse « Exécuter » verrouillé, et le cours reste affiché', sout.bad === 1 && sout.runDisabled && sout.console === '' && sout.cadres === 3,
+        sout.bad + ' rouge(s), verrouillé : ' + sout.runDisabled);
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 vicies duodecies. {python-noms-variables} : correct, incorrect, et pourquoi =====
        Le banc jsdom tient la banque (par une seconde méthode), le tirage, la
        porte de la justification, la copie juste et la copie fausse. Ce qu'il
        ne voit pas : chaque rangée « (1) prix achat est [ ? ] car [ … ] »
@@ -6257,7 +6357,7 @@ async function parcours(page, N){
        choisir dans une liste désactivée — c'est le bord qu'on mesure), et
        l'encre RENDUE du verdict. On choisit dans les vraies listes, on clique
        Vérifier, puis on rejoue le bord du soutien. */
-    titre('6 vicies undecies. NOMS DE VARIABLES EN PYTHON : CORRECT, INCORRECT, ET POURQUOI');
+    titre('6 vicies duodecies. NOMS DE VARIABLES EN PYTHON : CORRECT, INCORRECT, ET POURQUOI');
     if(!P.pythonNoms){
       ignorer('les noms de variables se jugent et se justifient', 'ce niveau n\'a pas l\'exercice des noms de variables');
     } else {
