@@ -8003,7 +8003,7 @@ resterait vert. Une case vide ne rougit jamais, chaque case se juge seule
 du tracé sont des réponses (`pts-case` : 48 réponses par question), rien
 n'est révélé en soutien, la méthode se dessine à la vérification, et les
 champs mathématiques se jugent à la SORTIE, jamais à la frappe.
-Le banc NAVIGATEUR (« 6 tricies bis », déclaré par
+Le banc NAVIGATEUR (« 6 tricies ter », déclaré par
 `suiteVariationDifference` dans `tests/profils.js`) tient ce que jsdom ne
 voit pas : les trois clics qui posent dans le repère de CET écran et non
 dans celui du 6.11, le trinôme TAPÉ pour de vrai (U, indice, exposant — la

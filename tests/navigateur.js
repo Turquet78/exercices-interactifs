@@ -6343,7 +6343,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies bis. la suite par la DIFFÉRENCE : le repère partagé, la fraction tapée ===== */
+    /* ===== 6 tricies ter. la suite par la DIFFÉRENCE : le repère partagé, la fraction tapée ===== */
     /* {suite-variation-difference} : le repère et ses deux rails sont ceux du
        6.11, servis dans un AUTRE hôte (svrHote choisit par le kind) — jsdom ne
        clique pas, seul celui-ci voit que le clic pose bien dans cet écran-là.
@@ -6353,7 +6353,7 @@ async function parcours(page, N){
        (les « ≤ » au même centre d'une rangée à l'autre, Uₙ₊₁ sous les termes,
        rien qui défile à 1400 px), le tableau de signes avec une BOÎTE, et la
        copie juste cliquée qui vaut le point. */
-    titre('6 tricies bis. LA SUITE PAR LA DIFFÉRENCE : LE REPÈRE PARTAGÉ, LA FRACTION TAPÉE');
+    titre('6 tricies ter. LA SUITE PAR LA DIFFÉRENCE : LE REPÈRE PARTAGÉ, LA FRACTION TAPÉE');
     if(!P.suiteVariationDifference){
       ignorer('la suite par la différence : le clic pose dans son repère, la fraction tapée se relit',
         'ce niveau n\'a pas l\'exercice du sens de variation par la différence');
