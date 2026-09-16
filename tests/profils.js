@@ -1081,6 +1081,12 @@ module.exports = {
        les cases doivent grandir sous « 3n+9 ». Le banc TAPE la copie de la
        fiche pour de vrai avant de relire la note. */
     recurrenceFractions: { exercice: 'recurrence-fractions' },
+    /* LA CONVERGENCE MONOTONE ET LA LIMITE (6.12) : le banc jsdom tient le
+       tirage honnête, la fiche épinglée et les deux juges ; le NAVIGATEUR
+       choisit dans les vraies listes, tape les nombres, clique « Vérifier » et
+       lit la note et l'encre RENDUE — et mesure le « lim » empilé et les
+       rangées qui ne défilent pas. */
+    suiteTcmLimite: { exercice: 'suite-tcm-limite' },
     /* LA SUITE MONOTONE (6.11) : le tracé en escalier se pose au CLIC, et c'est
        le NAVIGATEUR qui dit sur quel rail — chaque courbe est doublée d'un
        chemin transparent épais. jsdom n'a ni mise en page ni getScreenCTM :

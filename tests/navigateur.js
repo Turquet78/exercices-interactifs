@@ -6245,6 +6245,104 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies quindecies. {suite-tcm-limite} : la fiche choisie et tapée pour de vrai =====
+       Le banc jsdom tient le tirage HONNÊTE (la suite simulée par sa propre
+       arithmétique), la fiche épinglée et les deux juges. Ce qu'il ne voit pas :
+       le « lim » qui porte son « n → +∞ » EN DESSOUS (un CSS perdu le mettrait
+       à la suite, sur la ligne), les rangées de la fiche qui ne DÉFILENT pas
+       et une page qui ne déborde pas, puis la copie de la fiche CHOISIE dans
+       les vraies listes et TAPÉE dans les vraies cases, « Vérifier » cliqué,
+       la note relue sur ce que le bouton enregistre et l'encre RENDUE de la
+       liste juste — bleue, jamais lue à la classe. */
+    titre('6 vicies quindecies. LA CONVERGENCE MONOTONE : LA FICHE CHOISIE ET TAPÉE POUR DE VRAI');
+    if(!P.suiteTcmLimite){
+      ignorer('le 6.12 : le « lim » est empilé, rien ne défile',
+        'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
+      ignorer('le 6.12 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
+        'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.suiteTcmLimite.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* la question est ÉPINGLÉE sur l'exemple 1 de la fiche, puis le second
+         visage (quadratique, décroissante) : la copie tapée doit coller à
+         l'énoncé tiré */
+      await s.page.evaluate(() => {
+        test.questions = [{ fam: 'aff', sens: 'cr', forme: 'chaine', a: 0.5, b: 1, m: 1, M: 4 },
+                          { fam: 'quad', sens: 'de', forme: 'diff', r: 2, m: 1, M: 3 }];
+        test.idx = 0; test.score = 0; test.answers = []; renderTCL();
+      });
+      await s.page.waitForTimeout(500);
+      const dominante = c => { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(c || ''); if(!m) return '?';
+        const r = +m[1], v = +m[2], b = +m[3], max = Math.max(r, v, b);
+        return b >= max && b > r + 20 ? 'bleu' : (v >= max && v > r + 20 ? 'vert' : (r >= max && r > v + 20 ? 'rouge' : 'autre')); };
+      const mesurer = () => s.page.evaluate(() => {
+        const ids = tclIds(test.questions[test.idx]);
+        const cases = ids.map(id => document.getElementById(id)).filter(Boolean);
+        const visibles = cases.filter(e => { const r = e.getBoundingClientRect(); return r.width > 10 && r.height > 10; }).length;
+        const rows = [...document.querySelectorAll('#scr-tcl .sa2-row')];
+        const defile = rows.filter(r => r.scrollWidth > r.clientWidth + 1).length;
+        /* le « lim » : le mot et son « n → +∞ » sont l'un SOUS l'autre */
+        const lims = [...document.querySelectorAll('#scr-tcl .tcl-lim')].map(l => {
+          const petit = l.querySelector('small'); const L = l.getBoundingClientRect(), p = petit ? petit.getBoundingClientRect() : null;
+          return p ? { empile: p.top >= L.top + L.height * 0.4 && p.height > 3, largeur: L.width } : { empile: false, largeur: 0 };
+        });
+        return { n: ids.length, cases: cases.length, visibles, rows: rows.length, defile, lims: lims.length,
+                 limsPlats: lims.filter(l => !l.empile).length,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 };
+      });
+      const vu = await mesurer();
+      verifier('le 6.12 : les dix-huit cases sont rendues et visibles, les trois « lim » sont empilés',
+        vu.n === 18 && vu.cases === 18 && vu.visibles === 18 && vu.lims === 3 && vu.limsPlats === 0,
+        vu.cases + ' case(s) sur ' + vu.n + ', ' + vu.visibles + ' visible(s), ' + vu.lims + ' « lim » dont ' + vu.limsPlats + ' à plat');
+      verifier('le 6.12 : le « lim » est empilé, rien ne défile',
+        vu.defile === 0 && !vu.page && vu.rows >= 10, vu.defile + ' rangée(s) qui défile(nt) sur ' + vu.rows + (vu.page ? ', la page déborde' : ''));
+      /* LA COPIE DE LA FICHE, choisie et tapée pour de vrai, puis le CLIC */
+      const jouerCopie = async () => {
+        const copie = await s.page.evaluate(() => {
+          const q = test.questions[test.idx], att = tclAttendu(q);
+          return tclIds(q).map(id => [id, att[id][0], att[id][0] === 'choix' ? att[id][1][0] : String(att[id][1]).replace('.', ',')]);
+        });
+        for(const [id, type, val] of copie){
+          if(type === 'choix') await s.page.selectOption('#' + id, val);
+          else { await s.page.fill('#' + id, ''); await s.page.click('#' + id); await s.page.keyboard.type(val, { delay: 10 }); }
+        }
+        await s.page.click('#tclActions .btn-primary');
+        await s.page.waitForTimeout(500);
+        return s.page.evaluate(() => {
+          const ids = tclIds(test.questions[test.idx]);
+          const cl = c => ids.filter(id => (document.getElementById(id) || { classList: { contains: () => false } }).classList.contains(c)).length;
+          const sel = document.getElementById('tcl-thm'), inp = document.getElementById('tcl-fin');
+          return { ok: cl('ok'), bad: cl('bad'), sol: cl('sol'), score: test.score, locked: test.locked,
+                   encreSel: sel ? getComputedStyle(sel).borderColor : '', encreInp: inp ? getComputedStyle(inp).borderColor : '',
+                   note: ((document.querySelector('#tclFeedback .note-exo') || {}).textContent || '').replace(/\s+/g, ' '),
+                   suivant: ((document.querySelector('#tclActions .btn-primary') || {}).textContent || '') };
+        });
+      };
+      const b1 = await jouerCopie();
+      verifier('le 6.12 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
+        b1.ok === 18 && b1.bad === 0 && b1.sol === 0 && b1.score === 1 && b1.locked && /18 cases justes sur 18/.test(b1.note),
+        b1.ok + ' ok, ' + b1.bad + ' bad, ' + b1.sol + ' sol, note ' + b1.score + ', « ' + b1.note + ' »' + (b1.locked ? '' : ', écran non verrouillé'));
+      verifier('le 6.12 : la liste juste et la case juste sont peintes en BLEU, à l\'encre rendue',
+        dominante(b1.encreSel) === 'bleu' && dominante(b1.encreInp) === 'bleu',
+        'liste : ' + b1.encreSel + ' (' + dominante(b1.encreSel) + '), case : ' + b1.encreInp + ' (' + dominante(b1.encreInp) + ')');
+      /* le second visage — quadratique, décroissante — par le vrai bouton « Question suivante » */
+      verifier('le 6.12 : le bouton propose la question suivante', /suivante/.test(b1.suivant), '« ' + b1.suivant + ' »');
+      await s.page.click('#tclActions .btn-primary');
+      await s.page.waitForTimeout(500);
+      const vu2 = await mesurer();
+      const b2 = await jouerCopie();
+      verifier('le 6.12 : la quadratique décroissante se rend et se joue de même — rien ne défile, le point est accordé',
+        vu2.n === 18 && vu2.visibles === 18 && vu2.defile === 0 && !vu2.page && vu2.limsPlats === 0 && b2.ok === 18 && b2.bad === 0 && b2.score === 2 && /résultats/.test(b2.suivant),
+        vu2.visibles + ' case(s) visibles, ' + vu2.defile + ' rangée(s) qui défile(nt), ' + b2.ok + ' ok, ' + b2.bad + ' bad, note ' + b2.score + ', « ' + b2.suivant + ' »');
+      verifier('la convergence monotone ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies decies. {python-affichage} : prédire, puis exécuter =====
        Le banc jsdom tient l'interpréteur (comparé à un vrai CPython), le
        tirage, le juge et les portes. Ce qu'il ne voit pas : le code et la
