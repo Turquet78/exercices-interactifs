@@ -6173,6 +6173,72 @@ universels des deux bancs ont couvert l'exercice au premier passage sans rien
 déclarer. Dix sabotages, neuf rougissant en nommant leur défaut ; le dixième,
 le garde mort ci-dessus, est resté vert et disait vrai.
 
+**L'étiquette « Cf′ » se pose À CÔTÉ de la courbe, jamais dessus — et c'est
+la courbe ÉCRITE qui décide de la place.** Signalé par Turquet (septembre
+2026) sur le 2.8 : « le nom de la courbe Cf′ doit toujours être à côté de la
+courbe et pas sur la courbe comme cela peut arriver de temps en temps ».
+L'étiquette du dessin partagé des dérivées (`afGraphSVG` — le 2.6, le 2.7 et
+le 2.8) était posée à une place FIXE, au-dessus du point d'abscisse −2 : chaque
+fois que la courbe DESCEND entre −3 et −2, elle passe au-dessus de ce point,
+exactement là où l'étiquette s'écrit. Mesuré avant tout correctif : 132
+courbes sur 600 la portaient sur la courbe — « de temps en temps » était une
+fois sur cinq.
+**LA COURBE EST ÉCHANTILLONNÉE SUR LES BÉZIER MÊMES QUE `lvPath` ÉCRIT**
+(`afEchantillons`, les tangentes de `lvTangents`) — aucune coordonnée
+supposée, une échelle qui changerait resterait mesurée juste (la leçon du
+schéma des intervalles) — et `afEtiquettePos` BALAIE le dessin par pas de
+3 px : une place est bonne si sa boîte est dans le dessin, hors de l'axe des
+x et de ses nombres, et À CÔTÉ de la courbe — entre 5 et 15 px de tout point
+de la courbe, ni dessus ni loin ; parmi les bonnes, la plus proche du point où
+la courbe ENTRE dans le dessin, là où l'œil la cherche.
+**Le premier jet calait des places SUR LA HAUTEUR de la courbe, et la sonde
+l'a renvoyé** : six abscisses, au-dessus puis au-dessous — 132 échecs sur 600
+encore. Sur une courbe qui monte ou descend raide, une boîte de 30 px de large
+calée sur un point est TRAVERSÉE par la courbe quelle que soit sa hauteur :
+c'est à GAUCHE ou à DROITE de la courbe qu'il faut aller, et seul un balayage
+le trouve. Sonde après correction, 600 courbes : distance minimale 5 px,
+jamais plus de 15 px de la courbe, jamais plus de 32 px du point d'entrée,
+0 recours au secours.
+**La boîte de l'étiquette est celle que Chromium REND** — relevée par
+`getBBox` sur du vrai Fredoka (17,5 px de large, 12,6 au-dessus de la ligne
+de base, 5,5 dessous) et prise avec de la marge — jamais devinée : le premier
+jet la supposait 12 px au-dessus, et le rendu débordait de 0,6 px.
+**UN SEIZIÈME GARDE-FOU MORT y a été écrit, puis retiré** : la bande qui
+écartait l'axe des y et ses nombres. L'étiquette se pose près du point
+d'entrée, à 110 px de cet axe — retirer la bande n'a changé AUCUN placement
+sur 3000 courbes, et le sabotage l'a montré en restant vert. C'est le
+CONTRÔLE qui tient ce bord. La bande de l'axe des x, elle, est VIVANTE :
+retirée, 44 étiquettes sur 400 tombent sur les nombres de l'axe.
+**Deux bancs, la répartition habituelle.** jsdom ne fait AUCUNE confiance
+au placement : il lit le SVG que la page ÉCRIT — la position du texte, le
+chemin de la courbe, les lignes des axes —, rééchantillonne lui-même les
+Bézier, et exige la boîte rendue à ≥ 3 px de la courbe (la marge moins la
+tolérance de l'échantillonnage), ≤ 20 px (une étiquette posée dans un coin
+ne nommerait plus rien), dans le dessin, hors des deux axes — sur 400 courbes,
+le tirage du 2.8 et celui de la Seconde, dans les deux habillages. Le
+NAVIGATEUR (« 6 vicies undecies », déclaré par `etiquetteCourbe` dans
+`tests/profils.js`) mesure ce que jsdom n'a pas — la POLICE : la boîte par
+`getBBox`, la courbe par `getPointAtLength`, sur chacun des trois exercices
+ouverts pour de vrai puis sur quarante courbes de plus dessinées par la
+fonction même de la page, et une boîte non nulle (un CSS perdu rendrait
+l'étiquette invisible sans qu'une erreur ne se lève).
+Sept sabotages au banc jsdom, cinq rougissant en nommant leur défaut — la
+place fixe d'avant (260 sur 400), la marge à zéro, la borne « ni loin »
+retirée (« loin de la courbe (99 px) »), la bande de l'axe des x oubliée, la
+courbe échantillonnée à ses seuls nœuds (201 sur 400 : la page se croit à
+côté, le contrôle voit la courbe passer sous l'étiquette). **Les deux verts
+disaient vrai** : le score inversé (« la plus loin possible ») reste vert
+parce que la borne des 15 px tient « à côté » à elle seule — le score ne fait
+qu'ORDONNER les bonnes places, et sans la borne il rougit ; et la bande de
+l'axe des y est le garde mort ci-dessus. Un huitième ne rougit QU'AU
+NAVIGATEUR : la police de l'étiquette doublée — jsdom, qui ne lit pas une
+police, reste vert sur sa boîte supposée, et Chromium nomme la courbe sous
+l'étiquette rendue.
+**La Seconde porte le même défaut, et n'est pas touchée** : `lvGraphSVG` et
+`adrSVG` posent leur « Cf » à une place fixe — sondé : 160 courbes sur 300
+le portent sur la courbe. La demande nomme le 2.8 de la Terminale ; le dire
+vaut mieux que le taire, et c'est une décision à prendre.
+
 **Le 1.3 (Signes & variations) suit la convention commune de correction.**
 Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases
 correctes, mais 0,9/1 ». L'écran RÉVÉLAIT tout en vert par-dessus la copie —

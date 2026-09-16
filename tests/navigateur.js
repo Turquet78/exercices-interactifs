@@ -4776,6 +4776,67 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies undecies. L'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE ===== */
+    /* Signalé par Turquet (septembre 2026) sur le 2.8 : « le nom de la courbe
+       Cf′ doit toujours être à côté de la courbe et pas sur la courbe ». La
+       page choisit la place en échantillonnant sa propre courbe ; le banc
+       jsdom relit le SVG écrit et refait l'arithmétique. Ce que jsdom ne
+       peut PAS voir, c'est la boîte que la POLICE donne à l'étiquette —
+       Fredoka 14 px, italique, l'indice 10 px posé 3 px plus bas — et le
+       chemin tel que Chromium le trace : la boîte est mesurée ici par
+       getBBox, la courbe par getPointAtLength, sur chacun des trois
+       exercices ouverts pour de vrai, puis sur quarante courbes de plus
+       dessinées dans le même hôte par la fonction même de la page. Trois
+       bords : jamais SUR la courbe (≥ 3 px), jamais LOIN (≤ 22 px), et une
+       boîte non nulle — un CSS perdu rendrait l'étiquette invisible sans
+       qu'une erreur ne se lève. */
+    titre('6 vicies undecies. L\'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE (BOÎTE RENDUE)');
+    if(!P.etiquetteCourbe){
+      ignorer('l\'étiquette Cf′ rendue reste à côté de la courbe, jamais dessus',
+        'ce niveau n\'a pas le dessin partagé des dérivées (afGraphSVG)');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
+      await connecter(s.page);
+      for(const id of P.etiquetteCourbe.exercices){
+        await s.page.evaluate(id => openTest(id), id);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(700);
+        const r = await s.page.evaluate(() => {
+          const mesure = function(svg){
+            const t = svg.querySelector('.lv-cf'), path = svg.querySelector('.lv-curve');
+            if(!t || !path) return { err: 'pas d\'étiquette ou pas de courbe' };
+            const bb = t.getBBox();
+            if(!(bb.width > 8 && bb.height > 8)) return { err: 'boîte de l\'étiquette nulle (' + bb.width.toFixed(0) + '×' + bb.height.toFixed(0) + ')' };
+            const B = { l: bb.x, r: bb.x + bb.width, t: bb.y, b: bb.y + bb.height };
+            const L = path.getTotalLength(); let dm = Infinity;
+            for(let u = 0; u <= L; u += 1){ const q = path.getPointAtLength(u);
+              const dx = Math.max(B.l - q.x, 0, q.x - B.r), dy = Math.max(B.t - q.y, 0, q.y - B.b); dm = Math.min(dm, Math.hypot(dx, dy)); }
+            const vb = svg.viewBox.baseVal;
+            const dedans = B.l >= vb.x && B.r <= vb.x + vb.width && B.t >= vb.y && B.b <= vb.y + vb.height;
+            if(dm < 3) return { err: 'SUR la courbe (' + dm.toFixed(1) + ' px)' };
+            if(dm > 22) return { err: 'loin de la courbe (' + dm.toFixed(1) + ' px)' };
+            if(!dedans) return { err: 'hors du dessin' };
+            return { d: dm };
+          };
+          const num = document.querySelector('.screen.on .q-idx') ? document.querySelector('.screen.on h2, .screen.on .titre-exo, .screen.on .exo-num') : null;
+          const ecran = []; document.querySelectorAll('.screen.on .af-graph svg').forEach(function(svg){ ecran.push(mesure(svg)); });
+          const host = document.querySelector('.screen.on .af-graph'); const tirage = [];
+          for(let i = 0; i < 40; i++){ const roots = (i % 2) ? [[-2, -1, 0, 1, 2][i % 5]] : [-2, [0, 1, 2][i % 3]];
+            host.innerHTML = afGraphSVG(afpCourbeDer(roots, (i % 4 < 2) ? 1 : -1), i % 3 !== 0);
+            tirage.push(mesure(host.querySelector('svg'))); }
+          return { ecran: ecran, tirage: tirage };
+        });
+        const fautesE = r.ecran.filter(m => m.err).map(m => m.err), fautesT = r.tirage.filter(m => m.err).map(m => m.err);
+        verifier(id + ' : l\'étiquette rendue de l\'exercice ouvert est à côté de sa courbe (' + r.ecran.length + ' dessin(s))',
+          r.ecran.length >= 1 && fautesE.length === 0, fautesE.slice(0, 2).join(' ; '));
+        verifier(id + ' : sur 40 courbes de plus, l\'étiquette rendue reste à côté (≥ 3 px, ≤ 22 px), boîte non nulle',
+          r.tirage.length === 40 && fautesT.length === 0, fautesT.length + ' défaut(s) : ' + fautesT.slice(0, 2).join(' ; '));
+      }
+      verifier('l\'étiquette Cf′ : aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies ter. LE 4.6 : LE TABLEAU RENDU, LES FLÈCHES ET LE BOUTON ∞ ===== */
     /* L'étude menée au TVI réutilise le tableau du 5.3 (ids ef-*) : jsdom lit
        les classes, seul un navigateur voit les flèches DESSINÉES à une taille
