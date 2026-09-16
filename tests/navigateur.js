@@ -6087,23 +6087,30 @@ async function parcours(page, N){
          qui aurait « trouvé la place ailleurs » dirait qu'elle n'en est plus une. */
       const mesurerGrilles = async () => await s.page.evaluate(() => {
         const lire = g => {
+          /* on mesure le CONTENU de la cellule, jamais sa boîte : une cellule de
+             grille s'étire sur toute sa colonne, donc son centre est celui de la
+             colonne quoi qu'elle fasse de son contenu — un « ≤ » poussé à gauche
+             (justify-content perdu) passait au vert en parlant d'autre chose ;
+             le sabotage l'a montré. Un Range sur le contenu rend la boîte du
+             glyphe comme celle d'une liste. */
           const cels = [...g.querySelectorAll('.svr-cel')].map(c => {
-            const r = c.getBoundingClientRect();
+            const rg = document.createRange(); rg.selectNodeContents(c);
+            const r = rg.getBoundingClientRect();
             return { r: +c.dataset.r, c: +c.dataset.c, x: (r.left + r.right) / 2, top: r.top, bot: r.bottom,
                      le: c.classList.contains('svr-le'), val: c.classList.contains('svr-val'),
                      libre: c.classList.contains('svr-just') || c.classList.contains('svr-lib') || c.classList.contains('svr-suite') };
           });
           const sc = g.parentElement;
-          return { cels, debord: Math.round(sc.scrollWidth - sc.clientWidth) };
+          return { cels, debord: Math.round(sc.scrollWidth - sc.clientWidth), coupe: Math.round(sc.scrollHeight - sc.clientHeight) };
         };
-        const gi = document.querySelector('#svrPartE .svr-ginit'), gd = document.querySelector('#svrPartE .svr-gdemo');
+        const gi = document.querySelector('#svrPartE .svr-grec'), gd = document.querySelector('#svrPartE .svr-gdemo');
         return { init: gi ? lire(gi) : null, demo: gd ? lire(gd) : null };
       });
       const jugerGrilles = (m, large) => {
         const L = large ? 1400 : 900;
-        if(!m.init) { dits.push('l\'initialisation n\'est pas une grille à colonnes (.svr-ginit)'); return; }
+        if(!m.init) { dits.push('la récurrence (initialisation et hérédité) n\'est pas une grille à colonnes (.svr-grec)'); return; }
         if(!m.demo) { dits.push('la démonstration n\'est pas une grille à colonnes (.svr-gdemo)'); return; }
-        [['l\'initialisation', m.init], ['la démonstration', m.demo]].forEach(([nom, g]) => {
+        [['la récurrence', m.init], ['la démonstration', m.demo]].forEach(([nom, g]) => {
           const rangs = {}; g.cels.forEach(c => { (rangs[c.r] = rangs[c.r] || []).push(c); });
           Object.keys(rangs).forEach(r => {
             const cs = rangs[r], haut = Math.max(...cs.map(c => c.top)), bas = Math.min(...cs.map(c => c.bot));
@@ -6116,10 +6123,17 @@ async function parcours(page, N){
             if(ecart > 3) dits.push('à ' + L + ' px, la colonne ' + c + ' de ' + nom + ' n\'est pas alignée : ' + Math.round(ecart) + ' px d\'écart entre ses cellules');
           });
           if(large && g.debord > 2) dits.push(nom + ' défile de ' + g.debord + ' px à 1400 px de large');
+          /* overflow-x:auto emporte overflow-y : ce qui dépasse la boîte EN BAS est coupé, et
+             l'indice d'un terme U_n descend sous sa ligne — la dernière rangée en porte. On lit
+             le DÉBORD VERTICAL de la boîte (scrollHeight − clientHeight) : un Range sur les
+             cellules ne voit pas l'indice décalé, la sonde l'a montré (1899 contre 1903). */
+          if(g.coupe > 0) dits.push('à ' + L + ' px, le bas de ' + nom + ' est coupé par sa boîte : ' + g.coupe + ' px (les indices de la dernière rangée)');
         });
-        /* l'initialisation : trois « ≤ » par ligne, et les deux valeurs SOUS leur terme, une ligne plus bas */
-        { const le1 = m.init.cels.filter(c => c.le && c.r === 1), le2 = m.init.cels.filter(c => c.le && c.r === 2);
-          if(le1.length !== 3 || le2.length !== 3) dits.push('l\'initialisation porte ' + le1.length + ' et ' + le2.length + ' « ≤ » au lieu de 3 et 3');
+        /* la récurrence : trois « ≤ » sur chacune de ses cinq lignes de chaîne — les
+           deux de l'initialisation, les trois de l'hérédité (rangées 4, 5, 6) —, et
+           les deux valeurs SOUS leur terme, une ligne plus bas */
+        { [1, 2, 4, 5, 6].forEach(r => { const n = m.init.cels.filter(c => c.le && c.r === r).length;
+            if(n !== 3) dits.push('la rangée ' + r + ' de la récurrence porte ' + n + ' « ≤ » au lieu de 3' + (r >= 4 ? ' : l\'hérédité a quitté la grille' : '')); });
           const vals = m.init.cels.filter(c => c.val);
           if(vals.length !== 2) dits.push(vals.length + ' valeur(s) sous les termes de l\'initialisation au lieu de 2');
           vals.forEach(v => {

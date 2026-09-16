@@ -8556,8 +8556,8 @@ function suiteVariationRecurrence(w, P){
             mesure au banc navigateur. --------------------------------------- */
     const celDe=function(id){ const e=document.getElementById(id); const c=e&&e.closest('.svr-cel'); return c?{r:+c.dataset.r,c:+c.dataset.c}:null; };
     const colsLE=function(g,r){ return [...g.querySelectorAll('.svr-cel.svr-le[data-r="'+r+'"]')].map(function(c){ return +c.dataset.c; }).sort(function(a,b){ return a-b; }); };
-    { const gi=document.querySelector('#svrPartE .svr-ginit');
-      if(!gi) dit('l’initialisation n’est pas une grille à colonnes (.svr-ginit)');
+    { const gi=document.querySelector('#svrPartE .svr-grec');
+      if(!gi) dit('la récurrence (initialisation et hérédité) n’est pas une grille à colonnes (.svr-grec)');
       else {
         const l1=colsLE(gi,1), l2=colsLE(gi,2);
         if(l1.length!==3 || l1.join()!==l2.join()) dit('les « ≤ » de la ligne « donc » ne sont pas dans les colonnes de ceux de la première ligne ('+l1.join()+' / '+l2.join()+')');
@@ -8570,6 +8570,16 @@ function suiteVariationRecurrence(w, P){
           if(v.c!==a2.c) dit('la valeur '+t[2]+' n’est pas SOUS son terme (colonne '+v.c+' contre '+a2.c+')');
         });
         const ci=celDe('svr-init'); if(!ci||ci.r!==2) dit('« c’est vrai / faux » a quitté la ligne « donc »');
+        /* l’hérédité suit, dans la MÊME grille (demande de Turquet, sept. 2026) :
+           ses trois lignes aux rangées 4, 5, 6, chaque terme dans la colonne de
+           son homologue de l’initialisation, ses « ≤ » dans les mêmes colonnes */
+        [['svr-h1','svr-h2',4],['svr-m1','svr-m2',5],['svr-m3','svr-m4',6]].forEach(function(t){
+          const g=celDe(t[0]), d=celDe(t[1]), i1=celDe('svr-i1'), i2=celDe('svr-i2');
+          if(!g||!d){ dit('une case de l’hérédité n’est pas dans une cellule de la grille : '+t[0]+', '+t[1]); return; }
+          if(g.r!==t[2]||d.r!==t[2]) dit(t[0]+' et '+t[1]+' ne sont pas à la rangée '+t[2]+' ('+g.r+', '+d.r+')');
+          if(g.c!==i1.c||d.c!==i2.c) dit('les termes de l’hérédité ('+t[0]+', '+t[1]+') ne sont pas dans les colonnes de ceux de l’initialisation ('+g.c+', '+d.c+' contre '+i1.c+', '+i2.c+')');
+          if(colsLE(gi,t[2]).join()!==l1.join()) dit('les « ≤ » de la rangée '+t[2]+' de l’hérédité ne sont pas dans les colonnes de ceux de l’initialisation ('+colsLE(gi,t[2]).join()+' / '+l1.join()+')');
+        });
       } }
     const verifierDemo=function(dec){
       const nom=dec?'décroissante':'croissante';
