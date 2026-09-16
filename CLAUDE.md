@@ -2539,7 +2539,12 @@ l’exécution, la réaffectation perdue, le piège des guillemets retiré des
 propositions, la case vide rougie, la copie juste à un point, la séance à
 trois questions, le thème disparu, le décimal dans le rappel, la correction
 au fil des clics, le bouton des tables revenu, la sortie rangée à côté du
-programme.
+programme. Et un dix-septième que seul le NAVIGATEUR voit : la chasse fixe
+retirée du code et de la console — jsdom, qui ne lit pas une police, reste
+vert à bon droit, et le navigateur nomme l’encre (« Nunito, system-ui… »).
+La campagne a restauré la page depuis une copie propre hors dépôt à chaque
+tour, et le sabotage du navigateur s’est joué dans une copie de travail
+séparée, pendant que la page propre passait son propre banc.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
