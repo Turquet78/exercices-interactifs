@@ -3582,6 +3582,7 @@ function exercices(suite){
     tableauEquations(w, P);
     pythonAffichage(w, P);
     pythonTypes(w, P);
+    pythonPrint(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -15878,7 +15879,8 @@ function pythonAffichage(w, P){
     if(c.indexOf(q.src)<0) vus.push("le contexte ne porte pas le programme");
     if(c.indexOf("SECR")<0||c.indexOf(a.valeur)<0) vus.push("le contexte ne déclare pas la réponse attendue secrète");
     if(!afficherEcranDe("py")) vus.push("afficherEcranDe ne connaît pas py (reprise et rejeu)");
-    if(String(liveCheckCurrent).indexOf("checkPY")>=0) vus.push("le soutien colore au fil des clics : à quatre propositions, il suffirait d’essayer");
+    /* « checkPY( » et non « checkPY » : « checkPYP » ({python-print}) le contient, et un sabotage posé sur l’exercice voisin faisait rougir celui-ci sous le nom du 5.1 */
+    if(String(liveCheckCurrent).indexOf("checkPY(")>=0) vus.push("le soutien colore au fil des clics : à quatre propositions, il suffirait d’essayer");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -16164,6 +16166,273 @@ function pythonTypes(w, P){
       tous.forEach((p, i) => { if(mien[i] !== ref[i]) ecarts.push(JSON.stringify(p) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
       BORDS.forEach((b, i) => { if(ref[tires.length + i] !== b[1]) ecarts.push('la sortie épinglée de ' + JSON.stringify(b[0]) + ' n\'est pas celle de CPython : ' + JSON.stringify(ref[tires.length + i])); });
       verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+  }
+}
+
+/* {python-print} (Seconde) : le cours de print en trois cadres, puis l'élève
+   ÉCRIT un programme qui affiche la phrase demandée — « je suis en seconde »
+   en première question —, l'exécute librement, le fait vérifier, et en
+   soutien la page lui dit ce qui ne va pas dans son programme (demande de
+   Turquet, septembre 2026). Le contrôle épingle la demande (la phrase, et les
+   écritures justes que le juge DOIT accepter puisqu'il juge la SORTIE : les
+   deux guillemets, la virgule, la variable), tient la place au menu (5.3,
+   rien d'autre ne bouge), le tirage, le diagnostic cas par cas — chaque
+   défaut nommé avec le mot qui le nomme, et l'apostrophe de « c'est » qui ne
+   passe PAS pour un guillemet dépareillé —, la copie juste TAPÉE (le bouton
+   libre, la console, la note), la copie fausse et la copie vide en
+   entraînement, le soutien qui explique sans révéler, la reprise, les
+   branchements, puis compare la page à un vrai CPython sur les programmes
+   qu'un élève écrit. Aucun accent grave ni antislash littéral dans le code
+   évalué ; les apostrophes des messages sont typographiques. */
+function pythonPrint(w, P){
+  const nom = '{python-print} : le cours de print, puis un programme à écrire, exécuter et faire vérifier';
+  if(!P.pythonPrint){ ignorer(nom, 'ce niveau n\'a pas l\'exercice d\'écriture d\'un print'); return; }
+  const ID = P.pythonPrint.exercice, NB = P.pythonPrint.nb, PREMIER = P.pythonPrint.premier;
+  const present = evaluer(w, "typeof startPYP==='function' && typeof pyRun==='function' && typeof pypDiag==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPYP / pyRun / pypDiag introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+  const Q = String.fromCharCode(34), A = String.fromCharCode(39);   /* " et ' — sans les écrire dans le code évalué */
+
+  /* ---- 1. la demande, épinglée : la phrase, et les écritures justes ---- */
+  verifierEval(w, 'la demande, épinglée : la première question est « ' + PREMIER + ' », et le juge accepte tout programme qui l’AFFICHE — guillemets doubles ou simples, virgule, variable, espace au bout', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), T="${PREMIER}";
+    const qs=pypBuildQuestions();
+    if(qs[0].texte!==T) vus.push("la première question demande « "+qs[0].texte+" »");
+    if(pypModele(qs[0])!=="print("+Q+T+Q+")") vus.push("le modèle est "+pypModele(qs[0]));
+    const justes=["print("+Q+T+Q+")", "print("+A+T+A+")", "print("+Q+"je suis"+Q+", "+Q+"en seconde"+Q+")",
+                  "x = "+Q+T+Q+NL+"print(x)", "print( "+Q+T+Q+" )", "print("+Q+T+" "+Q+")", "print("+Q+T+Q+")  # mon premier print"];
+    justes.forEach(function(p){ const d=pypDiag(p,T); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la place au menu ---- */
+  verifierEval(w, 'il ferme le thème 5, numéroté 5.3 — et rien d’autre ne bouge', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("l’exercice ne ferme pas le thème : "+(th&&th.ids.join(",")));
+    if(TEST_NUM["${ID}"]!=="5.3") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-types"]!=="5.2"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le tirage ---- */
+  verifierEval(w, 'le tirage : ' + NB + ' questions, la phrase de la demande d’abord, puis des phrases distinctes qui changent d’une séance à l’autre ; la question ne porte que le texte et le programme de l’élève (200 séances)', `(function(){
+    const vus=[], secondes={};
+    for(let s=0;s<200 && vus.length<4;s++){
+      const qs=pypBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      if(qs[0].texte!=="${PREMIER}"){ vus.push("la première question demande « "+qs[0].texte+" »"); break; }
+      const textes=qs.map(function(q){ return q.texte; });
+      if(new Set(textes).size!==textes.length){ vus.push("deux fois la même phrase : "+textes.join(" / ")); break; }
+      for(const q of qs){
+        if(Object.keys(q).sort().join(",")!=="prog,texte"){ vus.push("la question porte autre chose que texte / prog : "+Object.keys(q).join(",")); break; }
+        if(q.prog!=="") vus.push("le programme de l’élève n’est pas vide au départ");
+        if(!q.texte.trim()||q.texte!==q.texte.trim()) vus.push("phrase vide ou bordée d’espaces : "+JSON.stringify(q.texte));
+        if(!pypDiag(pypModele(q), q.texte).ok) vus.push("le modèle de « "+q.texte+" » n’est pas accepté par le juge");
+      }
+      if(qs[1]) secondes[qs[1].texte]=1;
+    }
+    if(Object.keys(secondes).length<3) vus.push("la deuxième phrase ne change pas d’une séance à l’autre : "+Object.keys(secondes).join(" / "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le diagnostic, cas par cas ---- */
+  verifierEval(w, 'le diagnostic nomme chaque défaut — print en majuscules ou mal écrit, parenthèses, guillemets absents, non fermés, dépareillés ou typographiques, casse, espaces, accents, guillemets affichés, ligne de trop, rien d’affiché, point-virgule — et l’apostrophe de « c’est » n’est pas un guillemet dépareillé', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), T="${PREMIER}";
+    const cas=[
+      ["Print("+Q+T+Q+")", /minuscules/],
+      ["prnit("+Q+T+Q+")", /prnit.*print/],
+      ["print "+Q+T+Q, /parenth/],
+      ["print("+Q+T+Q, /fermante/],
+      ["print("+Q+T+Q+"))", /en trop/],
+      ["print("+T+")", /pas entre guillemets.*« je »/],
+      ["print("+Q+T+")", /pas fermé/],
+      ["print("+Q+T+A+")", /MÊMES/],
+      ["print(«"+T+"»)", /droits/],
+      ["print("+Q+"Je suis en seconde"+Q+")", /majuscules/],
+      ["print("+A+Q+T+Q+A+")", /s’affichent/],
+      ["print("+Q+"je  suis en seconde"+Q+")", /espace/],
+      ["print("+Q+"je suis en séconde"+Q+")", /accents/],
+      ["print("+Q+"bonjour"+Q+")", /« bonjour » au lieu de « je suis en seconde »/],
+      ["print("+Q+T+Q+")"+NL+"print("+Q+T+Q+")", /2 lignes/],
+      ["x = "+Q+T+Q, /aucun print/],
+      ["print()", /ligne vide/],
+      ["print("+Q+T+Q+");", /point-virgule/],
+      ["", /vide/],
+      ["   ", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pypDiag(c[0],T);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+      if(d.dits.length>2) vus.push(JSON.stringify(c[0])+" : "+d.dits.length+" explications, l’élève n’en lira aucune");
+    });
+    /* le bord opposé : une apostrophe DANS un texte bien formé n'est pas un guillemet dépareillé */
+    const dc=pypDiag("print("+Q+"c"+A+"est"+Q+")", T);
+    if(dc.ok||/guillemet/i.test(dc.dits.join(" "))) vus.push("l’apostrophe de « c’est » passe pour un guillemet : "+dc.dits.join(" "));
+    /* et les guillemets typographiques ne déclenchent pas en plus « pas entre guillemets » */
+    const dt=pypDiag("print(«"+T+"»)", T);
+    if(dt.dits.length!==1) vus.push("les guillemets « » reçoivent "+dt.dits.length+" explications : "+dt.dits.join(" | "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le cours sur l'écran, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'le cours en trois cadres est sur l’écran, la zone refuse la correction automatique, « Exécuter » est LIBRE dès le départ et montre la sortie sans rien verrouiller, la copie juste tapée puis vérifiée vaut 1 et propose la question suivante', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYP();
+    const vus=[], q=test.questions[0], Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const cours=document.querySelector("#pypHost .pyp-cours"), cadres=document.querySelectorAll("#pypHost .pyp-regle");
+    if(!cours||cadres.length!==3) vus.push("le cours n’est pas sur l’écran : "+cadres.length+" cadre(s)");
+    else { const tx=cours.textContent; ["print","guillemets","parenth","minuscules","« »"].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); }); }
+    const cible=document.getElementById("pypCible"); if(!cible||cible.textContent!==q.texte) vus.push("la phrase à afficher n’est pas à l’écran");
+    const ta=document.getElementById("pyp-prog"), run=document.getElementById("pypRun"), cons=document.getElementById("pypConsole");
+    if(!ta||ta.tagName!=="TEXTAREA") { vus.push("pas de zone de texte"); return vus.join(" | "); }
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une réponse (pts-case) : la note affichée ne le compterait pas");
+    if(ta.getAttribute("autocapitalize")!=="off"||ta.getAttribute("spellcheck")!=="false") vus.push("la zone laisse le clavier corriger : « print » deviendrait « Print » sur tablette");
+    if(!run||run.disabled) vus.push("« Exécuter » est verrouillé au départ — ici la sortie est l’outil, pas la réponse");
+    pypExecuter();
+    if(cons.textContent.indexOf("vide")<0) vus.push("exécuter un programme vide ne le dit pas : "+JSON.stringify(cons.textContent));
+    if(test.locked) vus.push("exécuter verrouille la question");
+    ta.value="print("+Q+q.texte+Q+")"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question (q.prog) : la pause le perdrait");
+    pypExecuter();
+    if(cons.textContent!==q.texte) vus.push("la console montre "+JSON.stringify(cons.textContent));
+    if(!cons.classList.contains("py-exec")||cons.classList.contains("py-err")) vus.push("la console n’est pas marquée exécutée sans erreur : "+cons.className);
+    if(test.locked||run.disabled) vus.push("exécuter verrouille : on ne peut plus corriger ni réexécuter");
+    if(document.getElementById("pypNext")) vus.push("« Question suivante » est proposé avant la vérification");
+    checkPYP();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : classe "+ta.className+", note "+test.score);
+    if(!test.locked||!ta.readOnly) vus.push("la question n’est pas verrouillée après la vérification");
+    if(!run.disabled) vus.push("« Exécuter » reste cliquable après la vérification");
+    if(!document.getElementById("pypNext")) vus.push("« Question suivante » n’apparaît pas après la vérification");
+    if(document.getElementById("pypFeedback").className.indexOf("good")<0) vus.push("le retour n’est pas vert");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note de la question ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPYP();
+    if(test.idx!==1||document.getElementById("pyp-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la copie fausse et la copie vide, en entraînement ---- */
+  verifierEval(w, 'en entraînement : la copie fausse rougit, se verrouille à 0, le message nomme le défaut et un programme qui convient s’écrit en vert ; la console montre l’erreur en rouge ; la copie VIDE ne rougit pas et reçoit le modèle en sol', `(function(){
+    currentMode="train"; startPYP();
+    const vus=[], q=test.questions[0], Q=String.fromCharCode(34), M="print("+Q+q.texte+Q+")";
+    const ta=document.getElementById("pyp-prog"), cons=document.getElementById("pypConsole");
+    ta.value="Print("+Q+q.texte+Q+")"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYP();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse n’est pas rouge : "+ta.className);
+    if(!test.locked||test.score!==0) vus.push("verrouillée : "+test.locked+", note "+test.score);
+    const fb=document.getElementById("pypFeedback").textContent;
+    if(fb.indexOf("minuscules")<0) vus.push("le message ne nomme pas le défaut : "+fb);
+    const mod=document.querySelector("#pypModele .sol");
+    if(!mod||mod.textContent!==M) vus.push("le programme qui convient n’est pas écrit en vert : "+(mod&&mod.textContent));
+    if(!cons.classList.contains("py-err")||cons.textContent.indexOf("Erreur")<0) vus.push("la console ne montre pas l’erreur de Python : "+cons.className+" "+JSON.stringify(cons.textContent));
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==0||ans.correct) vus.push("la note de la question fausse : "+JSON.stringify(ans));
+    /* la copie vide */
+    nextPYP();
+    const q2=test.questions[1], ta2=document.getElementById("pyp-prog");
+    checkPYP();
+    if(ta2.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta2.classList.contains("sol")||ta2.value!=="print("+Q+q2.texte+Q+")") vus.push("la copie vide ne reçoit pas le modèle en sol : "+ta2.className+" "+JSON.stringify(ta2.value));
+    if(!test.locked) vus.push("la copie vide vérifiée ne verrouille pas en entraînement");
+    if(document.getElementById("pypFeedback").textContent.indexOf("rien écrit")<0) vus.push("le message ne dit pas la copie vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. le soutien : expliquer sans révéler ---- */
+  verifierEval(w, 'en soutien : la copie fausse rougit sans verrouiller, le message explique ce qui ne va pas et ne révèle jamais le programme modèle, la frappe efface le rouge, la copie vide ne reçoit rien, et la copie corrigée vaut 1', `(function(){
+    currentMode="soutien"; startPYP();
+    const vus=[], q=test.questions[0], Q=String.fromCharCode(34), M="print("+Q+q.texte+Q+")";
+    const ta=document.getElementById("pyp-prog"), host=document.getElementById("pypHost");
+    checkPYP();
+    if(ta.className.indexOf("bad")>=0||ta.className.indexOf("sol")>=0||ta.value!=="") vus.push("la copie vide reçoit une couleur ou une valeur en soutien : "+ta.className);
+    if(test.locked) vus.push("le soutien verrouille une copie vide");
+    ta.value="print("+q.texte+")"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYP();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse n’est pas rouge en soutien");
+    if(test.locked||ta.readOnly) vus.push("le soutien verrouille une copie fausse");
+    const fb=document.getElementById("pypFeedback").textContent;
+    if(fb.indexOf("guillemets")<0) vus.push("le message n’explique pas le défaut : "+fb);
+    if(fb.indexOf(M)>=0||host.textContent.indexOf(M)>=0||document.querySelector("#pypModele .sol")) vus.push("le programme modèle est révélé en soutien");
+    const rv=document.getElementById("pypValidate"); if(!rv||rv.textContent.indexOf("Rev")<0) vus.push("pas de bouton Revérifier");
+    ta.value="print("+Q+q.texte; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(ta.classList.contains("bad")) vus.push("le rouge survit à la frappe qui corrige");
+    checkPYP();
+    if(!ta.classList.contains("bad")||document.getElementById("pypFeedback").textContent.indexOf("fermante")<0) vus.push("la seconde vérification ne nomme pas le nouveau défaut : "+document.getElementById("pypFeedback").textContent);
+    ta.value=M; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYP();
+    if(!ta.classList.contains("ok")||test.score!==1||!test.locked) vus.push("la copie corrigée ne vaut pas 1 : "+ta.className+", note "+test.score);
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. les branchements ---- */
+  verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX et qui dit print, les guillemets et les parenthèses, les questions à l’IA, le contexte porte le programme de l’élève et déclare le modèle secret, la reprise connaît l’écran et remet le programme, aucune correction au fil de la frappe', `(function(){
+    const vus=[], Q=String.fromCharCode(34);
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
+    const rap=RAPPELS.pyp||""; if(!rap) vus.push("pas de rappel RAPPELS.pyp");
+    if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
+    ["print","guillemets","parenth"].forEach(function(m){ if(rap.indexOf(m)<0) vus.push("le rappel ne dit pas « "+m+" »"); });
+    if(!QIA_SUGG.pyp||QIA_SUGG.pyp.length<3) vus.push("pas de questions à l’IA pour pyp");
+    currentMode="train"; startPYP(); const q=test.questions[0];
+    const ta=document.getElementById("pyp-prog"); ta.value="Print("+Q+q.texte+Q+")"; ta.dispatchEvent(new Event("input",{bubbles:true}));
+    const c=ctxPyp(q).contexte;
+    if(c.indexOf("Print("+Q+q.texte+Q+")")<0) vus.push("le contexte ne porte pas le programme de l’élève");
+    if(c.indexOf("minuscules")<0) vus.push("le contexte ne porte pas le diagnostic");
+    if(c.indexOf("SECR")<0||c.indexOf("print("+Q+q.texte+Q+")")<0) vus.push("le contexte ne déclare pas le modèle secret");
+    if(!afficherEcranDe("pyp")) vus.push("afficherEcranDe ne connaît pas pyp (reprise et rejeu)");
+    /* la reprise : le programme voyage dans la question, et le rendu le remet */
+    test.questions[0].prog="print("+Q+"brouillon"+Q; renderPYP();
+    if(document.getElementById("pyp-prog").value!=="print("+Q+"brouillon"+Q) vus.push("le rendu ne remet pas le programme de la question (reprise après pause)");
+    if(String(liveCheckCurrent).indexOf("checkPYP")>=0) vus.push("le soutien juge au fil de la frappe : un programme qu’on n’a pas fini d’écrire serait déclaré faux");
+    const snap=snapshotTest(); if(!snap.questions||snap.questions[0].prog!=="print("+Q+"brouillon"+Q) vus.push("la photographie de la pause ne porte pas le programme");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. la seconde méthode : CPython, sur ce qu'un élève écrit ----
+     Les programmes JUSTES doivent afficher la même chose que CPython ; les
+     programmes FAUX doivent être refusés des deux côtés — un interpréteur qui
+     accepterait ce que Python refuse (ou l'inverse) ferait mentir le
+     diagnostic. Le point-virgule est la divergence ASSUMÉE : CPython l'accepte,
+     l'interpréteur le refuse en le nommant, et le diagnostic le dit. */
+  const NL = '\n';
+  const progs = [
+    'print(' + Q + PREMIER + Q + ')', 'print(' + A + PREMIER + A + ')', 'print(' + Q + 'je suis' + Q + ', ' + Q + 'en seconde' + Q + ')',
+    'x = ' + Q + PREMIER + Q + NL + 'print(x)', 'print( ' + Q + PREMIER + Q + ' )', 'print(' + Q + PREMIER + Q + ')  # commentaire',
+    'print()', 'print(' + Q + 'c' + A + 'est' + Q + ')', 'print(' + Q + PREMIER + Q + ')' + NL + 'print(' + Q + PREMIER + Q + ')',
+    'Print(' + Q + PREMIER + Q + ')', 'print ' + Q + PREMIER + Q, 'print(' + Q + PREMIER + Q, 'print(' + PREMIER + ')', 'print(' + Q + PREMIER + ')',
+    'print(' + Q + PREMIER + A + ')', 'print(«' + PREMIER + '»)', 'x = ' + Q + PREMIER + Q, 'print(' + Q + PREMIER + Q + '))'
+  ];
+  const nomPy = 'sur ce qu’un élève écrit, la page répond comme un vrai CPython — même sortie, et refus des mêmes programmes';
+  const lirePage = ps => {
+    const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(ps) + '.map(function(p){ try{ return pyRun(p).out; }catch(e){ return "ERREUR:"+e.message; } }))');
+    return r.ok ? JSON.parse(r.valeur) : null;
+  };
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    let ref = null; try{ ref = pythonExecuter(py, progs.concat(['print(' + Q + PREMIER + Q + ');'])); }catch(e){ ref = null; }
+    if(!ref || ref.length !== progs.length + 1){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); }
+    else {
+      const mien = lirePage(progs) || [];
+      const ecarts = [];
+      progs.forEach((p, i) => {
+        const eM = /^ERREUR/.test(String(mien[i])), eR = /^ERREUR/.test(String(ref[i]));
+        if(eM !== eR) ecarts.push(JSON.stringify(p) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i]));
+        else if(!eM && mien[i] !== ref[i]) ecarts.push(JSON.stringify(p) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i]));
+      });
+      verifier(nomPy + ' (' + progs.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+      const pv = ref[progs.length];
+      verifier('la divergence assumée est nommée : CPython accepte le point-virgule final, l’interpréteur le refuse et le diagnostic le dit',
+        pv === PREMIER + '\n' && (lirePage(['print(' + Q + PREMIER + Q + ');']) || [''])[0].indexOf('ERREUR') === 0,
+        'CPython : ' + JSON.stringify(pv));
     }
   }
 }
