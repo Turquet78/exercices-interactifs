@@ -8269,7 +8269,7 @@ jsdom refait le tirage par une SECONDE arithmétique sur les treize termes
 (le sens sur les différences, une borne annoncée atteinte ou égale à la
 limite, une suite « non majorée » qui s'échappe vraiment, une limite finie
 approchée, la droite y = ℓ là et seulement là) et joue les gestes sur trois
-questions ÉPINGLÉES ; le NAVIGATEUR (« 6 tricies ter », déclaré par
+questions ÉPINGLÉES ; le NAVIGATEUR (« 6 tricies quater », déclaré par
 `suiteVocabulaire` dans `tests/profils.js`) CLIQUE les cases, lit l'encre
 RÉSOLUE des verdicts, mesure la hauteur d'une RANGÉE rendue — un dessin de
 cinq rangées est court sans être illisible, et le premier jet mesurait la
@@ -9420,6 +9420,15 @@ bis » et « 10 » portaient leur doctrine en commentaire mais pas leur numéro 
 la première ligne, et leur titre était donc rattaché à l'en-tête de la section
 d'avant. Le filet d'un en-tête s'écrit « ===== » ici et « ---- » là : le
 contrôle accepte les deux plutôt que d'imposer une convention de plus.
+**Et il a resservi le jour même, sur `main`** : deux branches ont numéroté leur
+section « 6 tricies ter » à trente-neuf minutes d'écart — le print de la Seconde
+puis le vocabulaire des suites — et `main` s'est retrouvé ROUGE sur ses TROIS
+bancs navigateur, un échec par niveau, sans qu'une seule page soit en cause. Le
+contrôle avait fait exactement ce pour quoi il existe : nommer l'ambiguïté avant
+qu'un contrôle ne s'affiche sous le nom d'un autre. Le numéro revient à qui l'a
+pris EN PREMIER, le second prend le suivant (« 6 tricies quater »), et la
+citation de ce fichier suit le jour même — sans quoi la doctrine désignerait une
+section qui n'existe plus.
 Un dernier bord le garde honnête — il compte ce qu'il a trouvé et le DIT s'il
 n'a rien à mesurer : une expression régulière qui cesserait de reconnaître les
 titres le rendrait vert sur un banc entièrement dupliqué. Cinq sabotages,

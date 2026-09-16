@@ -6343,7 +6343,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies ter. {suite-vocabulaire} : la fiche se COCHE =====
+    /* ===== 6 tricies quater. {suite-vocabulaire} : la fiche se COCHE =====
        Le banc jsdom tient le tirage (refait sur les termes montrés), le juge
        et les gestes. Ce qu'il ne voit pas : le quadrillage RENDU à une taille
        lisible avec ses treize croix et la droite y = ℓ d'étendue non nulle,
@@ -6351,7 +6351,7 @@ async function parcours(page, N){
        en bleu, cochée à tort en rouge, oubliée en vert —, le badge de la bonne
        borne mesuré au RECTANGLE, et la page qui ne déborde ni à 1400 px ni sur
        une tablette en portrait, où la fiche passe sous le dessin. */
-    titre('6 tricies ter. VOCABULAIRE SUR LES SUITES : LA FICHE SE COCHE');
+    titre('6 tricies quater. VOCABULAIRE SUR LES SUITES : LA FICHE SE COCHE');
     if(!P.suiteVocabulaire){
       ignorer('la fiche du vocabulaire se coche, et ses couleurs disent le verdict',
         'ce niveau n\'a pas l\'exercice du vocabulaire sur les suites');
