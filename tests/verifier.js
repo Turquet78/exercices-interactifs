@@ -3535,6 +3535,7 @@ function exercices(suite){
     alphaSigne(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
+    suiteTcmLimite(w, P);
     recurrenceFractions(w, P);
     suiteVariationRecurrence(w, P);
     phraseCouleurs(w);
@@ -8206,6 +8207,253 @@ function suiteAuxiliaireCompleter(w, P){
       test.questions=[q]; test.idx=0; test.kind='sa2';
       const c=String(conseilCtxCourant()||'');
       if(!/suite auxiliaire/i.test(c)) vus.push('le contexte envoyé au modèle ne décrit pas cet exercice');
+      if(!/JAMAIS révéler|STRICTEMENT/i.test(c)) vus.push('le contexte part sans clause de secret');
+    }
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* LA CONVERGENCE MONOTONE ET LA LIMITE (Terminale 6.12) : la fiche « suite TCM
+   et limite », case par case. Le risque propre est l'ÉNONCÉ QUI CONTREDIT SA
+   CORRECTION — la fiche elle-même le porte (son exemple 2 donne une suite
+   décroissante minorée par 3 et trouve ℓ = 1) : le contrôle SIMULE la suite par
+   sa propre arithmétique sur chaque tirage, depuis un U₀ qui rend l'hypothèse
+   vraie, et exige qu'elle soit monotone dans le sens annoncé, dans les bornes,
+   et qu'elle tende vers la limite que la correction attend. Puis les deux
+   exemples de la fiche sont épinglés (le second dans sa version HONNÊTE), la
+   copie juste est jouée, l'écriture équivalente de la justification acceptée,
+   la fraction acceptée dans une case à nombre, la case fausse laissée rouge
+   avec la bonne réponse à côté, la case vide jamais rougie — en soutien, par
+   les deux chemins. */
+function suiteTcmLimite(w, P){
+  const present = evaluer(w, "typeof startTCL==='function' && typeof tclAttendu==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la convergence monotone et la limite : la fiche, case par case',
+      'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
+    return;
+  }
+  verifierEval(w, 'la convergence monotone et la limite : la fiche, case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='suite-tcm-limite'; test.kind='tcl';
+    const CHAMPS=['fam','sens','forme','a','b','r','m','M'];
+
+    /* ---- 1. LE TIRAGE, refait par une SECONDE arithmétique ------------------- */
+    /* la limite, la fonction de récurrence et le U₀ témoin, écrits ICI et non
+       lus dans la page : deux méthodes qui n'ont rien en commun doivent tomber
+       d'accord */
+    const limite=function(q){ return q.fam==='aff' ? q.b*100/(100-Math.round(q.a*100)) : q.r; };
+    const f=function(q,x){ if(q.fam==='aff') return q.a*x+q.b;
+      const d=(x-q.r)*(x-q.r); return q.sens==='cr' ? x+d : x-d; };
+    const u0=function(q){ if(q.fam==='aff') return q.sens==='cr'?q.m:q.M; return q.sens==='cr'?q.r-0.5:q.r+0.5; };
+    const compte={aff:0,quad:0,cr:0,de:0,chaine:0,diff:0,affPremier:0,crPremier:0,chainePremier:0};
+    const rangs={};
+    for(let t=0;t<300;t++){
+      const qs=tclGenSession();
+      if(qs.length!==2){ vus.push('tirage : '+qs.length+' question(s) au lieu de 2'); break; }
+      const fams=qs.map(function(q){ return q.fam; }).sort().join(','),
+            sens=qs.map(function(q){ return q.sens; }).sort().join(','),
+            formes=qs.map(function(q){ return q.forme; }).sort().join(',');
+      if(fams!=='aff,quad') vus.push('tirage : les deux familles ne sortent pas chacune une fois ('+fams+')');
+      if(sens!=='cr,de') vus.push('tirage : les deux sens ne sortent pas chacun une fois ('+sens+')');
+      if(formes!=='chaine,diff') vus.push('tirage : les deux formes de l’hypothèse ne sortent pas chacune une fois ('+formes+')');
+      if(qs[0].fam==='aff') compte.affPremier++;
+      if(qs[0].sens==='cr') compte.crPremier++;
+      if(qs[0].forme==='chaine') compte.chainePremier++;
+      qs.forEach(function(q){
+        Object.keys(q).forEach(function(k){ if(CHAMPS.indexOf(k)<0) vus.push('la question porte un champ étranger : '+k); });
+        if(q.m!==Math.round(q.m) || q.M!==Math.round(q.M) || !(q.m<q.M) || q.m<0)
+          vus.push('tirage : bornes '+q.m+' et '+q.M);
+        const l=limite(q);
+        if(l!==Math.round(l)) vus.push('tirage : limite non entière '+l);
+        if(!(q.m<=l && l<=q.M)) vus.push('tirage : la limite '+l+' n’est pas dans ['+q.m+' ; '+q.M+']');
+        if(q.fam==='aff'){
+          if(!(q.a>0 && q.a<1)) vus.push('tirage : coefficient '+q.a+' hors de ]0 ; 1[');
+          if(Math.round(q.a*100)!==q.a*100) vus.push('tirage : coefficient '+q.a+' à plus de deux décimales');
+          if(q.b!==Math.round(q.b) || q.b<1) vus.push('tirage : constante '+q.b);
+        } else if(!(q.r>=1 && q.r===Math.round(q.r))) vus.push('tirage : racine '+q.r);
+        /* L'HONNÊTETÉ : depuis le U₀ témoin, la suite est monotone dans le sens
+           annoncé, reste dans les bornes et tend vers la limite attendue */
+        /* la quadratique converge LENTEMENT (l'écart à r suit 1/n) : on itère
+           longtemps, et on exige en plus que la limite soit un point fixe */
+        let x=u0(q), mono=true, dedans=true;
+        for(let n=0;n<5000;n++){
+          const y=f(q,x);
+          if(q.sens==='cr' ? y<x-1e-12 : y>x+1e-12) mono=false;
+          if(y<q.m-1e-12 || y>q.M+1e-12) dedans=false;
+          x=y;
+        }
+        if(!mono) vus.push('tirage : la suite n’est pas '+(q.sens==='cr'?'croissante':'décroissante')+' ('+JSON.stringify(q)+')');
+        if(!dedans) vus.push('tirage : la suite sort de ['+q.m+' ; '+q.M+'] ('+JSON.stringify(q)+')');
+        if(Math.abs(x-l)>1e-2 || Math.abs(f(q,l)-l)>1e-9) vus.push('tirage : la suite tend vers '+x+' et non vers '+l+' ('+JSON.stringify(q)+')');
+        /* et la page trouve la MÊME limite que cette arithmétique-ci */
+        if(tclAns(q).l!==l) vus.push('tclAns trouve '+tclAns(q).l+' au lieu de '+l);
+        const cle=q.fam+'|'+q.sens+'|'+q.forme; rangs[cle]=(rangs[cle]||0)+1;
+      });
+    }
+    if(vus.length) return vus.slice(0,5).join(' | ');
+    if(compte.affPremier===0 || compte.affPremier===300) vus.push('la famille affine tombe toujours au même rang');
+    if(compte.crPremier===0 || compte.crPremier===300) vus.push('la suite croissante tombe toujours au même rang');
+    if(compte.chainePremier===0 || compte.chainePremier===300) vus.push('la forme « chaîne » tombe toujours au même rang');
+    if(Object.keys(rangs).length<8) vus.push('les huit combinaisons famille × sens × forme ne sortent pas toutes ('+Object.keys(rangs).length+' vues)');
+    /* les seize couples (a, b) de la page, refaits en centièmes entiers */
+    const couples=[];
+    [20,25,40,50,60,75,80].forEach(function(A){ for(let b=1;b<=6;b++){ if((b*100)%(100-A)===0){ const l=b*100/(100-A); if(l>=2&&l<=10) couples.push(A+'/'+b); } } });
+    const pageCouples=(typeof TCL_AFF!=='undefined'?TCL_AFF:[]).map(function(c){ return Math.round(c.a*100)+'/'+c.b; });
+    if(pageCouples.slice().sort().join()!==couples.slice().sort().join())
+      vus.push('les couples (a, b) de la page ne sont pas ceux dont la limite est entière : '+pageCouples.length+' contre '+couples.length);
+
+    /* ET LE DÉMARREUR TIRE PAR CETTE PORTE-LÀ */
+    const corpsStart=String(startTCL).replace(/\\/\\*[\\s\\S]*?\\*\\//g,'');
+    if(corpsStart.indexOf('tclGenSession')<0) vus.push('startTCL ne tire pas par tclGenSession');
+
+    /* ---- 2. LA FICHE ÉPINGLÉE — exemple 1 ------------------------------------ */
+    const poser=function(id,v){ const e=document.getElementById(id); if(!e) return false; e.value=v; return true; };
+    const texte=function(id){ return ((document.getElementById(id)||{}).textContent||'').replace(/\\s+/g,' '); };
+    const q1={fam:'aff',sens:'cr',forme:'chaine',a:0.5,b:1,m:1,M:4};
+    test.questions=[q1]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+    show('tcl'); renderTCL();
+    const A1=tclAns(q1), att1=tclAttendu(q1), ids1=tclIds(q1);
+    if(A1.l!==2) vus.push('la fiche : la limite vaut '+A1.l+' au lieu de 2');
+    if(A1.borne!=='maj' || A1.bn!==4) vus.push('la fiche : « croissante et majorée par 4 » attendu, la page attend '+A1.borne+' par '+A1.bn);
+    if(!/1 ≤ Un ≤ Un\\+1 ≤ 4/.test(texte('tclPrompt'))) vus.push('la fiche : l’hypothèse affichée n’est pas « 1 ≤ Uₙ ≤ Uₙ₊₁ ≤ 4 » (« '+texte('tclPrompt')+' »)');
+    if(!/0,5.?Un \\+ 1/.test(texte('tclTitreC'))) vus.push('la fiche : la récurrence affichée n’est pas « 0,5 Uₙ + 1 » (« '+texte('tclTitreC')+' »)');
+    if(att1['tcl-s3'][1]!==0.5 || att1['tcl-s1'][1]!==0.5 || att1['tcl-s2'][1]!==1) vus.push('la fiche : la résolution attend '+att1['tcl-s1'][1]+', '+att1['tcl-s2'][1]+', '+att1['tcl-s3'][1]);
+    if(att1['tcl-car'][1].join()!=='c1,d1') vus.push('la fiche : la justification attendue est '+att1['tcl-car'][1].join()+' au lieu de c1,d1 (la forme de l’énoncé d’abord)');
+    /* le nombre de cases : 18, et chacune existe à l'écran */
+    const absentes=ids1.filter(function(id){ return !document.getElementById(id); });
+    if(ids1.length!==18 || absentes.length) vus.push('la question vaut '+ids1.length+' case(s), '+absentes.length+' absente(s) de l’écran : '+absentes.join(', '));
+    /* les mots se CHOISISSENT, les nombres se tapent */
+    ['tcl-sens','tcl-car','tcl-borne','tcl-thm','tcl-lim','tcl-conv','tcl-l1','tcl-p1'].forEach(function(id){
+      const e=document.getElementById(id); if(!e || e.tagName!=='SELECT') vus.push(id+' se tape au lieu de se choisir'); });
+    ['tcl-bn','tcl-s1','tcl-fin'].forEach(function(id){
+      const e=document.getElementById(id); if(!e || e.tagName!=='INPUT') vus.push(id+' n’est pas une case à nombre'); });
+    const thm=document.getElementById('tcl-thm');
+    if(thm && !Array.prototype.some.call(thm.options, function(o){ return /convergence monotone/.test(o.textContent); }))
+      vus.push('la liste des théorèmes ne propose pas la convergence monotone');
+
+    /* ---- 3. UNE CASE VIDE NE ROUGIT JAMAIS ------------------------------------ */
+    checkTCL();
+    const rougesVide=ids1.filter(function(id){ const e=document.getElementById(id); return e && e.classList.contains('bad'); });
+    if(rougesVide.length) vus.push('copie vide : '+rougesVide.length+' case(s) rougissent — '+rougesVide.slice(0,3).join(', '));
+    if(!/Complète au moins une case/.test(texte('tclFeedback'))) vus.push('copie vide : le message ne demande pas de compléter');
+    const figees=ids1.filter(function(id){ const e=document.getElementById(id); return e && e.disabled; });
+    if(figees.length) vus.push('copie vide : '+figees.length+' case(s) restent figées après « Vérifier »');
+
+    /* ---- 4. LA COPIE JUSTE vaut toutes ses cases ------------------------------ */
+    const ecrit=function(a){ return a[0]==='choix' ? a[1][0] : String(a[1]).replace('.',','); };
+    const jouer=function(q, modif){
+      test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; renderTCL();
+      const att=tclAttendu(q); tclIds(q).forEach(function(id){ poser(id, ecrit(att[id])); });
+      if(modif) modif(att);
+      test.locked=false; checkTCL();
+      return tclIds(q).filter(function(id){ const e=document.getElementById(id); return e && e.classList.contains('bad'); });
+    };
+    const rouges=jouer(q1);
+    if(rouges.length) vus.push('copie juste : '+rouges.length+' case(s) rougissent — '+rouges.slice(0,4).join(', '));
+    if(test.score!==1) vus.push('copie juste : le point n’est pas accordé (score '+test.score+')');
+    const note=(typeof ptsEcran==='function')?ptsEcran():null;
+    if(!note || note.justes!==18 || note.cases!==18)
+      vus.push('copie juste : la note affichée compte '+(note?note.justes+'/'+note.cases:'rien')+' au lieu de 18/18');
+    if(!test.locked) vus.push('copie juste : l’écran n’est pas verrouillé');
+
+    /* ---- 5. L'ÉCRITURE ÉQUIVALENTE de la justification est acceptée ----------
+       « Uₙ ≤ Uₙ₊₁ » et « Uₙ₊₁ − Uₙ ≥ 0 » disent la même chose ; refuser l'une
+       serait refuser une lecture juste. Le sens contraire, lui, reste faux. */
+    const r5=jouer(q1, function(){ poser('tcl-car','d1'); });
+    if(r5.length) vus.push('la justification équivalente « Uₙ₊₁ − Uₙ ≥ 0 » est refusée : '+r5.join(', '));
+    const r5b=jouer(q1, function(){ poser('tcl-car','c2'); });
+    if(r5b.join()!=='tcl-car') vus.push('la justification du sens contraire devrait rougir seule ('+r5b.join(', ')+')');
+    /* et le point décimal, et la fraction, dans une case à nombre */
+    const r5c=jouer(q1, function(){ poser('tcl-s1','0.5'); poser('tcl-s3','1/2'); });
+    if(r5c.length) vus.push('le point décimal ou la fraction 1/2 sont refusés : '+r5c.join(', '));
+
+    /* ---- 6. UNE CASE FAUSSE reste rouge, la bonne réponse à côté -------------- */
+    const r6=jouer(q1, function(){ poser('tcl-fin','7'); poser('tcl-thm','gend'); });
+    if(r6.slice().sort().join()!=='tcl-fin,tcl-thm') vus.push('deux cases fausses : '+r6.join(', ')+' rougissent au lieu de tcl-fin et tcl-thm seules');
+    const el6=document.getElementById('tcl-fin');
+    if(String(el6&&el6.value)!=='7') vus.push('la case fausse a été écrasée : l’élève ne voit plus son erreur');
+    const cor6=el6&&el6.nextElementSibling;
+    if(!cor6 || !cor6.classList || !cor6.classList.contains('mf-cor') || cor6.textContent!=='2')
+      vus.push('la bonne réponse « 2 » ne s’affiche pas à côté de la case fausse');
+    const corThm=(document.getElementById('tcl-thm')||{}).nextElementSibling;
+    if(!corThm || !/convergence monotone/.test(corThm.textContent||''))
+      vus.push('la bonne réponse de la liste des théorèmes n’écrit pas son libellé');
+    if(test.score!==0) vus.push('copie fausse : le point est accordé');
+    /* une case laissée VIDE reçoit la correction, en vert, jamais du rouge */
+    const r6b=jouer(q1, function(){ poser('tcl-bn',''); poser('tcl-conv',''); });
+    if(r6b.length) vus.push('une case vide sur une copie sinon juste rougit : '+r6b.join(', '));
+    const bn=document.getElementById('tcl-bn');
+    if(!bn || !bn.classList.contains('sol') || String(bn.value)!=='4') vus.push('la case vide ne reçoit pas la correction « 4 » en sol');
+    const cv=document.getElementById('tcl-conv');
+    if(!cv || !cv.classList.contains('sol') || cv.value!=='convergente') vus.push('la liste vide ne reçoit pas « convergente » en sol');
+
+    /* ---- 7. LA FICHE, exemple 2 — dans sa version HONNÊTE --------------------
+       La fiche donne « 3 ≤ Uₙ ≤ 7 », une suite décroissante, et trouve ℓ = 1 :
+       une suite décroissante minorée par 3 ne peut pas tendre vers 1. La
+       récurrence Uₙ₊₁ = Uₙ² − Uₙ + 1 est gardée, avec les bornes qui la rendent
+       vraie (0 ≤ Uₙ ≤ Uₙ₊₁ ≤ 1, croissante), et l'autre visage quadratique. */
+    const q2={fam:'quad',sens:'cr',forme:'diff',r:1,m:0,M:1};
+    const r7=jouer(q2);
+    if(r7.length) vus.push('exemple 2 : la copie juste rougit '+r7.join(', '));
+    if(!/Un\\+1 − Un ≥ 0/.test(texte('tclPrompt'))) vus.push('exemple 2 : l’hypothèse affichée n’écrit pas le signe de la différence (« '+texte('tclPrompt')+' »)');
+    if(!/Un2 − Un \\+ 1/.test(texte('tclTitreC'))) vus.push('exemple 2 : la récurrence affichée n’est pas « Uₙ² − Uₙ + 1 » (« '+texte('tclTitreC')+' »)');
+    const att2=tclAttendu(q2);
+    if(att2['tcl-q1'][1]!==2 || att2['tcl-q2'][1]!==1 || att2['tcl-q3'][1]!==1 || att2['tcl-fin'][1]!==1)
+      vus.push('exemple 2 : la page attend ℓ² − '+att2['tcl-q1'][1]+'ℓ + '+att2['tcl-q2'][1]+' = 0, (ℓ − '+att2['tcl-q3'][1]+')² = 0, ℓ = '+att2['tcl-fin'][1]);
+    if(tclIds(q2).length!==18) vus.push('exemple 2 : '+tclIds(q2).length+' cases au lieu de 18');
+    /* le visage DÉCROISSANT : « décroissante et minorée par m », le signe de la
+       différence négatif, et la récurrence à coefficient dominant négatif */
+    const q3={fam:'quad',sens:'de',forme:'chaine',r:2,m:1,M:3};
+    const r8=jouer(q3);
+    if(r8.length) vus.push('quadratique décroissante : la copie juste rougit '+r8.join(', '));
+    const A3=tclAns(q3);
+    if(A3.borne!=='min' || A3.bn!==1 || A3.l!==2 || A3.car.join()!=='c2,d2') vus.push('quadratique décroissante : la page attend '+A3.borne+' par '+A3.bn+', limite '+A3.l+', justification '+A3.car.join());
+    if(!/1 ≤ Un\\+1 ≤ Un ≤ 3/.test(texte('tclPrompt'))) vus.push('décroissante : l’hypothèse affichée n’est pas « 1 ≤ Uₙ₊₁ ≤ Uₙ ≤ 3 » (« '+texte('tclPrompt')+' »)');
+    if(!/−Un2 \\+ 5.?Un − 4/.test(texte('tclTitreC'))) vus.push('décroissante : la récurrence affichée n’est pas « −Uₙ² + 5Uₙ − 4 » (« '+texte('tclTitreC')+' »)');
+    const q4={fam:'aff',sens:'de',forme:'diff',a:0.75,b:1,m:2,M:6};
+    const r9=jouer(q4);
+    if(r9.length) vus.push('affine décroissante : la copie juste rougit '+r9.join(', '));
+    const att4=tclAttendu(q4);
+    if(att4['tcl-s3'][1]!==0.25 || att4['tcl-fin'][1]!==4 || att4['tcl-bn'][1]!==2 || att4['tcl-borne'][1][0]!=='min')
+      vus.push('affine décroissante : la page attend 1 − a = '+att4['tcl-s3'][1]+', ℓ = '+att4['tcl-fin'][1]+', minorée par '+att4['tcl-bn'][1]);
+
+    /* ---- 8. EN SOUTIEN, une case vide ne rougit pas — par les DEUX chemins --- */
+    currentMode='soutien';
+    test.questions=[q1]; test.idx=0; test.locked=false; renderTCL();
+    poser('tcl-sens','cr'); poser('tcl-fin','9');            /* une juste, une fausse, le reste vide */
+    test.locked=false; checkTCL();
+    const videsSoutien=ids1.filter(function(id){ const e=document.getElementById(id);
+      return e && String(e.value||'').trim()==='' && e.classList.contains('bad'); });
+    if(videsSoutien.length) vus.push('en soutien, '+videsSoutien.length+' case(s) VIDES rougissent — '+videsSoutien.slice(0,3).join(', '));
+    if(!(document.getElementById('tcl-fin')||{}).classList.contains('bad')) vus.push('en soutien, la case fausse ne rougit pas');
+    if((document.getElementById('tcl-fin')||{}).disabled) vus.push('en soutien, la case fausse est figée : l’élève ne peut plus la corriger');
+    if(!(document.getElementById('tcl-sens')||{}).classList.contains('ok')) vus.push('en soutien, la case juste ne bleuit pas');
+    if(test.locked) vus.push('en soutien, une copie fausse verrouille l’écran');
+    if(!/Presque/.test(texte('tclFeedback'))) vus.push('en soutien, le message ne demande pas de revérifier');
+    test.questions=[q1]; test.idx=0; test.locked=false; renderTCL();
+    const cible=document.getElementById('tcl-bn');
+    if(cible){ cible.value='4'; cible.dispatchEvent(new Event('input',{bubbles:true})); }
+    const videsDirect=ids1.filter(function(id){ const e=document.getElementById(id);
+      return e && String(e.value||'').trim()==='' && (e.classList.contains('bad')||e.classList.contains('ok')); });
+    if(videsDirect.length) vus.push('en direct, '+videsDirect.length+' case(s) VIDES se colorent — '+videsDirect.slice(0,3).join(', '));
+    if(cible && !cible.classList.contains('ok')) vus.push('en direct, la case juste ne bleuit pas : la correction du soutien ne suit pas la frappe');
+    const sel=document.getElementById('tcl-thm');
+    if(sel){ sel.value='gend'; sel.dispatchEvent(new Event('change',{bubbles:true})); }
+    if(sel && !sel.classList.contains('bad')) vus.push('en direct, la liste fausse ne rougit pas au changement');
+    currentMode='train';
+
+    /* ---- 9. L'IDENTITÉ ET LES BRANCHEMENTS ------------------------------------ */
+    if(!TESTS['suite-tcm-limite']) vus.push('l’exercice n’est pas dans TESTS');
+    const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-tcm-limite')>=0; })[0];
+    if(!th || th.nom!=='Suites') vus.push('l’exercice n’est pas dans le thème Suites');
+    else if(th.ids[th.ids.length-1]!=='suite-tcm-limite') vus.push('l’exercice n’est pas le dernier du thème : il renumérote ses voisins');
+    if(typeof RAPPELS==='undefined' || !RAPPELS.tcl) vus.push('aucun rappel de cours pour tcl');
+    else if(!/convergence monotone/.test(RAPPELS.tcl) || !/passage à la limite/i.test(RAPPELS.tcl)) vus.push('le rappel ne nomme pas le théorème ou le passage à la limite');
+    if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.tcl) vus.push('aucune question proposée pour tcl');
+    if(typeof conseilCtxCourant==='function'){
+      test.questions=[q1]; test.idx=0; test.kind='tcl';
+      const c=String(conseilCtxCourant()||'');
+      if(!/convergence monotone/i.test(c)) vus.push('le contexte envoyé au modèle ne décrit pas cet exercice');
       if(!/JAMAIS révéler|STRICTEMENT/i.test(c)) vus.push('le contexte part sans clause de secret');
     }
     return vus.slice(0,5).join(' | ');
