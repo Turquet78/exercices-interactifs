@@ -3584,6 +3584,7 @@ function exercices(suite){
     pythonTypes(w, P);
     pythonAfficherVariable(w, P);
     pythonNoms(w, P);
+    pythonNomVariable(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -16746,6 +16747,260 @@ function pythonNoms(w, P){
     if(String(liveCheckCurrent).indexOf("checkPVN")>=0) vus.push("le soutien colore au fil des clics : à deux propositions, il suffirait d’essayer");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
+}
+
+/* {python-nom-variable} (Seconde) : la fiche « Exercice 5 » — un nom de
+   variable à proposer pour chaque grandeur, sans espace. Il n'y a pas UNE
+   bonne réponse : le juge ne tient que la FORME (ce qui se prouve), et le
+   contrôle épingle la fiche (« nb filles » refusé pour l'espace, « nb_filles »
+   accepté), tient la place au menu (5.5, rien d'autre ne bouge), le tirage
+   (les quatre grandeurs du carnet dans chaque séance, mélangées ; la question
+   ne porte que les indices ; aucune grandeur deux fois), le juge cas par cas
+   sur ses deux familles de refus — ceux de Python et ceux de l'exercice —, la
+   règle du doublon (la seconde occurrence fausse, la première juste), la copie
+   juste CLIQUÉE, le programme écrit avec les noms de l'ÉLÈVE, la copie fausse
+   et son message, le soutien et sa correction en direct, les branchements,
+   puis compare les bords de syntaxe du juge à un vrai CPython. Aucun accent
+   grave ni antislash littéral dans le code évalué. */
+function pythonNomVariable(w, P){
+  const nom = '{python-nom-variable} : un nom de variable pour chaque grandeur, sans espace, puis le programme avec ses noms';
+  if(!P.pythonNomVariable){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des noms de variables'); return; }
+  const D = P.pythonNomVariable, ID = D.exercice, NB = D.nb, PARQ = D.parQ, FICHE = D.fiche;
+  const present = evaluer(w, "typeof startPNV==='function' && typeof pnvForme==='function' && typeof pnvJuge==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPNV / pnvForme / pnvJuge introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la fiche, épinglée ---- */
+  verifierEval(w, 'la fiche, épinglée : ses quatre grandeurs sont dans le vivier, « nb filles » est refusé pour l’espace, « nb_filles » et « nbFilles » acceptés', `(function(){
+    const vus=[], F=${JSON.stringify(FICHE)};
+    F.forEach(function(t){ if(!PNV_GRANDEURS.some(function(g){ return g.txt===t; })) vus.push("la grandeur « "+t+" » n’est pas dans le vivier"); });
+    const e=pnvForme("nb filles"); if(e.ok||e.code!=="espace"||e.raison.indexOf("espace")<0) vus.push("« nb filles » : "+JSON.stringify(e));
+    ["nb_filles","nbFilles","tarif_repas","aire","note","filles"].forEach(function(n){ if(!pnvForme(n).ok) vus.push("« "+n+" » refusé : "+pnvForme(n).raison); });
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la place au menu ---- */
+  verifierEval(w, 'il suit {python-noms-variables} dans le thème 5, numéroté 5.5 — et rien d’autre ne bouge', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
+    if(TEST_NUM["${ID}"]!=="5.5") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-types"]!=="5.2"||TEST_NUM["python-afficher-variable"]!=="5.3"||TEST_NUM["python-noms-variables"]!=="5.4"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le tirage ---- */
+  verifierEval(w, 'le tirage : '+NB+' questions de '+PARQ+' grandeurs, les quatre de la fiche dans chaque séance et mélangées avec les autres, aucune grandeur deux fois, la question ne porte que les indices, chaque valeur un littéral que Python lit (400 séances)', `(function(){
+    const vus=[], F=${JSON.stringify(FICHE)}, NL=String.fromCharCode(10); let ficheEnTete=0;
+    const idxFiche=F.map(function(t){ return PNV_GRANDEURS.findIndex(function(g){ return g.txt===t; }); });
+    for(let s=0;s<400 && vus.length<4;s++){
+      const qs=pnvBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      const tous=[];
+      qs.forEach(function(q){
+        if(Object.keys(q).join(",")!=="ids") vus.push("la question porte autre chose que ids : "+Object.keys(q).join(","));
+        if(q.ids.length!==${PARQ}) vus.push("question de "+q.ids.length+" grandeurs");
+        q.ids.forEach(function(i){ tous.push(i); if(!PNV_GRANDEURS[i]) vus.push("indice hors du vivier : "+i); });
+        if(pnvCases(q).length!==${PARQ}) vus.push("pnvCases rend "+pnvCases(q).length);
+      });
+      if(new Set(tous).size!==tous.length) vus.push("une grandeur sort deux fois dans la séance");
+      idxFiche.forEach(function(i){ if(tous.indexOf(i)<0) vus.push("la séance ne porte pas « "+PNV_GRANDEURS[i].txt+" »"); });
+      if(qs[0].ids.slice().sort().join(",")===idxFiche.slice().sort().join(",")) ficheEnTete++;
+    }
+    if(ficheEnTete>200) vus.push("la fiche tombe toujours en première question ("+ficheEnTete+" fois sur 400) : rien n’est mélangé");
+    PNV_GRANDEURS.forEach(function(g,i){
+      let r; try{ r=pyRun("v = "+g.val+NL+"print(v)").out; }catch(e){ vus.push("la valeur de « "+g.txt+" » ne se lit pas : "+e.message); return; }
+      if(!pnvForme(g.ex).ok) vus.push("l’exemple « "+g.ex+" » ne passe pas le juge");
+      if(g.txt.indexOf(String.fromCharCode(34))>=0) vus.push("la grandeur « "+g.txt+" » porte un guillemet droit : le print le refermerait");
+    });
+    const exs=PNV_GRANDEURS.map(function(g){ return g.ex; }); if(new Set(exs).size!==exs.length) vus.push("deux grandeurs ont le même exemple de nom");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le juge, cas par cas ---- */
+  verifierEval(w, 'le juge de la forme : l’espace, le chiffre en tête, le tiret et l’apostrophe, les mots réservés, les fonctions de Python, une seule lettre et le nom trop long sont refusés en se nommant ; les écritures valides passent, accents et chiffres compris', `(function(){
+    const vus=[];
+    const refus=[["nb filles","espace"],["tarif du repas","espace"],["2note","chiffre"],["nb-filles","caractere"],["l’aire","caractere"],["tarif.repas","caractere"],["for","reserve"],["while","reserve"],["True","reserve"],["print","fonction"],["type","fonction"],["int","fonction"],["x","court"],["n","court"],["le_nombre_de_filles_de_seconde","long"]];
+    refus.forEach(function(r){ const f=pnvForme(r[0]); if(f.ok||f.code!==r[1]) vus.push("« "+r[0]+" » : attendu "+r[1]+", obtenu "+JSON.stringify(f)); else if(!f.raison||f.raison.indexOf(r[0])<0) vus.push("le refus de « "+r[0]+" » ne nomme pas la saisie : "+f.raison); });
+    ["nb_filles","nbFilles","aire","note2","_x","Note","tarifRepas","eleves","élèves","nombre_de_filles","ab"].forEach(function(n){ const f=pnvForme(n); if(!f.ok) vus.push("« "+n+" » refusé : "+f.raison); });
+    const v=pnvForme(""); if(v.ok||v.code!=="vide") vus.push("la case vide n’est pas « vide » : "+JSON.stringify(v));
+    const v2=pnvForme("   "); if(v2.ok||v2.code!=="vide") vus.push("trois espaces ne font pas une case vide : "+JSON.stringify(v2));
+    if(pnvForme("nb-filles").raison.indexOf("-")<0) vus.push("le refus du tiret ne nomme pas le caractère");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le doublon : la seconde occurrence fausse, la première juste ---- */
+  verifierEval(w, 'deux grandeurs au même nom : la seconde case est fausse et le message nomme la grandeur qui a déjà ce nom, la première reste juste ; « Note » et « note » sont deux noms', `(function(){
+    const vus=[], q={ids:[0,1,2,3]};
+    const s=pnvJuge(q, ["nb","tarif","nb","note"]);
+    if(!s[0].ok) vus.push("la première occurrence est fausse");
+    if(s[2].ok||s[2].code!=="doublon") vus.push("la seconde occurrence n’est pas refusée : "+JSON.stringify(s[2]));
+    else if(s[2].raison.indexOf(PNV_GRANDEURS[0].txt)<0) vus.push("le message ne nomme pas la grandeur qui a le nom : "+s[2].raison);
+    if(!s[1].ok||!s[3].ok) vus.push("une case juste rougit parce qu’une AUTRE est en double");
+    const t=pnvJuge(q, ["Note","note","nb filles","nb filles"]);
+    if(!t[0].ok||!t[1].ok) vus.push("« Note » et « note » sont pris pour le même nom");
+    if(t[2].code!=="espace"||t[3].code!=="espace") vus.push("un nom faux deux fois est jugé doublon au lieu de faux : "+t[3].code);
+    const u=pnvJuge(q, ["", "aire", "", "note"]);
+    if(!u[0].vide||!u[2].vide||u[0].ok) vus.push("deux cases vides se prennent pour des doublons");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la copie juste, CLIQUÉE — et le programme écrit avec les noms de l'élève ---- */
+  verifierEval(w, 'la copie juste tapée vaut '+PARQ+', verrouille la question, écrit le programme avec les noms de l’ÉLÈVE (pas les exemples), « Exécuter » n’existe pas avant et la console affiche les quatre valeurs après ; « Question suivante » attend l’exécution', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPNV();
+    const vus=[], q=test.questions[0], cases=pnvCases(q), NL=String.fromCharCode(10);
+    if(test.maxScore!==${NB}*${PARQ}) vus.push("barème "+test.maxScore);
+    const li=document.querySelectorAll("#pnvHost .pnv-enonce li");
+    if(li.length!==${PARQ}) vus.push(li.length+" grandeurs dans l’énoncé");
+    else cases.forEach(function(c,i){ if(li[i].textContent!==c.g.txt) vus.push("l’énoncé ne dit pas « "+c.g.txt+" »"); });
+    if(document.getElementById("pnvHost").textContent.indexOf("espace")<0) vus.push("la remarque de la fiche (l’espace interdit) n’est pas sur l’écran");
+    const ins=document.querySelectorAll("#pnvHost input.pnv-in");
+    if(ins.length!==${PARQ}) vus.push(ins.length+" cases");
+    if(document.getElementById("pnvRun")) vus.push("« Exécuter » est proposé avant la vérification");
+    if(document.querySelector("#pnvHost .py-code")) vus.push("le programme est montré avant la vérification");
+    const miens=cases.map(function(c,i){ return "mon"+(i+1)+"_"+c.g.ex.replace(/[^a-z]/g,"").slice(0,6); });
+    cases.forEach(function(c,i){ document.getElementById(c.id).value=miens[i]; });
+    checkPNV();
+    const ok=document.querySelectorAll("#pnvHost input.ok").length;
+    if(ok!==${PARQ}||test.score!==${PARQ}) vus.push(ok+" cases ok, note "+test.score);
+    if(!test.locked) vus.push("la question n’est pas verrouillée après la vérification");
+    if(document.querySelector("#pnvHost .mf-cor")) vus.push("un badge de correction sur une copie juste");
+    const code=document.getElementById("pnvCode"), run=document.getElementById("pnvRun"), cons=document.getElementById("pnvConsole");
+    if(!code) vus.push("le programme n’est pas écrit après la vérification");
+    else miens.forEach(function(n,i){ if(code.textContent.indexOf(n+" = "+cases[i].g.val)<0) vus.push("le programme n’écrit pas « "+n+" = "+cases[i].g.val+" » : "+JSON.stringify(code.textContent)); });
+    if(code&&cases.some(function(c){ return (NL+code.textContent).indexOf(NL+c.g.ex+" =")>=0; })) vus.push("le programme écrit un exemple de la page à la place du nom de l’élève");
+    if(!run||run.disabled) vus.push("« Exécuter » n’est pas cliquable après la vérification");
+    if(document.getElementById("pnvNext")) vus.push("« Question suivante » est proposé avant l’exécution");
+    pnvExecuter();
+    if(!cons||cons.textContent.split(NL).length!==${PARQ}) vus.push("la console n’a pas ${PARQ} lignes : "+JSON.stringify(cons&&cons.textContent));
+    else cases.forEach(function(c){ const attendu=c.g.txt+" : "+pyRun("v = "+c.g.val+NL+"print(v)").out.trim(); if(cons.textContent.indexOf(attendu)<0) vus.push("la console ne montre pas « "+attendu+" »"); });
+    if(!cons||!cons.classList.contains("py-exec")) vus.push("la console n’est pas marquée exécutée");
+    if(!document.getElementById("pnvNext")) vus.push("« Question suivante » n’apparaît pas après l’exécution");
+    if(!run.disabled) vus.push("« Exécuter » reste cliquable après l’exécution");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==${PARQ}||!ans.correct||ans.justes!==${PARQ}) vus.push("la note de la question ne compte pas ${PARQ} cases justes : "+JSON.stringify(ans));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. la copie fausse, en entraînement ---- */
+  verifierEval(w, 'la copie fausse (entraînement) : l’espace rougit sa case avec un exemple en vert à côté, la case vide est remplie en sol, le message nomme l’espace et la case manquante et dit que l’exemple n’est qu’un exemple ; le programme reprend l’exemple à la place du nom faux, et « Exécuter » se débloque quand même', `(function(){
+    currentMode="train"; startPNV();
+    const vus=[], q=test.questions[0], cases=pnvCases(q);
+    const c0=document.getElementById(cases[0].id), c1=document.getElementById(cases[1].id), c2=document.getElementById(cases[2].id), c3=document.getElementById(cases[3].id);
+    c0.value="nb filles"; c1.value="ok_"+cases[1].g.ex; c2.value=""; c3.value="print";
+    checkPNV();
+    if(!c0.classList.contains("bad")) vus.push("la case à l’espace n’est pas rouge");
+    const badge=c0.nextElementSibling;
+    if(!badge||!badge.classList.contains("mf-cor")||badge.textContent!==cases[0].g.ex) vus.push("pas de badge vert « "+cases[0].g.ex+" » à côté de la case fausse : "+(badge&&badge.textContent));
+    if(!c1.classList.contains("ok")) vus.push("la case juste n’est pas bleue");
+    if(!c2.classList.contains("sol")||c2.value!==cases[2].g.ex) vus.push("la case vide n’est pas remplie en sol : "+c2.className+" / "+c2.value);
+    if(c2.classList.contains("bad")) vus.push("la case vide est rouge");
+    if(!c3.classList.contains("bad")) vus.push("« print » n’est pas rouge");
+    const fb=document.getElementById("pnvFeedback").textContent;
+    if(fb.indexOf("manquait")<0) vus.push("le message ne dit pas la case manquante : "+fb);
+    if(fb.indexOf("espace")<0) vus.push("le message ne nomme pas l’espace : "+fb);
+    if(fb.indexOf("print")<0) vus.push("le message ne nomme pas « print » : "+fb);
+    if(fb.indexOf("exemple")<0) vus.push("le message ne dit pas que le nom en vert n’est qu’un exemple : "+fb);
+    if(test.score!==1) vus.push("note "+test.score+" au lieu de 1");
+    const code=document.getElementById("pnvCode");
+    if(!code||code.textContent.indexOf(cases[0].g.ex+" = ")<0||code.textContent.indexOf("ok_"+cases[1].g.ex+" = ")<0) vus.push("le programme ne mêle pas le nom juste de l’élève et l’exemple à la place du faux : "+JSON.stringify(code&&code.textContent));
+    if(code&&code.textContent.indexOf("nb filles")>=0) vus.push("le programme reprend le nom faux : il ne s’exécuterait pas");
+    const run=document.getElementById("pnvRun"); if(!run||run.disabled) vus.push("« Exécuter » reste verrouillé après une copie fausse vérifiée (entraînement)");
+    pnvExecuter();
+    if(document.getElementById("pnvConsole").textContent.indexOf("Erreur")>=0) vus.push("le programme corrigé ne s’exécute pas : "+document.getElementById("pnvConsole").textContent);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==${PARQ}||ans.justes!==1) vus.push("la note de la question compte "+JSON.stringify(ans));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. le soutien : la vérification, puis la correction en direct ---- */
+  verifierEval(w, 'en soutien : la copie fausse rougit sa case sans badge, la case vide ne reçoit rien, la question n’est pas verrouillée et le programme n’est pas montré ; en direct, la frappe colore la forme sans badge ni verrou et laisse la case vide sans couleur ; la copie corrigée vaut '+PARQ+' et débloque le programme', `(function(){
+    currentMode="soutien"; startPNV();
+    const vus=[], q=test.questions[0], cases=pnvCases(q);
+    const c0=document.getElementById(cases[0].id), c1=document.getElementById(cases[1].id), c2=document.getElementById(cases[2].id), c3=document.getElementById(cases[3].id);
+    /* en direct */
+    c0.value="nb filles"; c1.value="tarif"; liveCheckCurrent();
+    if(!c0.classList.contains("bad")) vus.push("en direct, l’espace ne rougit pas");
+    if(!c1.classList.contains("ok")) vus.push("en direct, le nom juste ne bleuit pas");
+    if(c2.classList.contains("bad")||c2.classList.contains("sol")||c2.classList.contains("ok")) vus.push("en direct, la case vide reçoit une couleur : "+c2.className);
+    if(c0.disabled||c1.disabled) vus.push("la correction en direct verrouille une case");
+    if(c0.nextElementSibling&&c0.nextElementSibling.classList.contains("mf-cor")) vus.push("la correction en direct pose un badge");
+    c0.value="nb_filles"; liveCheckCurrent();
+    if(!c0.classList.contains("ok")||c0.classList.contains("bad")) vus.push("en direct, la case corrigée ne repasse pas au bleu");
+    /* la vérification */
+    c0.value="nb filles"; c3.value="note";
+    checkPNV();
+    if(!c0.classList.contains("bad")) vus.push("la case fausse n’est pas rouge en soutien");
+    if(c0.nextElementSibling&&c0.nextElementSibling.classList.contains("mf-cor")) vus.push("le badge de l’exemple fuit en soutien");
+    if(c2.classList.contains("bad")||c2.classList.contains("sol")||c2.value!=="") vus.push("la case vide reçoit une couleur en soutien : "+c2.className);
+    if(test.locked) vus.push("le soutien verrouille une copie fausse");
+    if(document.getElementById("pnvCode")||document.getElementById("pnvRun")) vus.push("le programme est montré sur une copie fausse en soutien");
+    const rv=document.getElementById("pnvValidate"); if(!rv||rv.textContent.indexOf("Rev")<0) vus.push("pas de bouton Revérifier");
+    const fb=document.getElementById("pnvFeedback").textContent; if(fb.indexOf("manque")<0) vus.push("le message ne dit pas la case manquante : "+fb);
+    c0.value="nb_filles"; c2.value="aire"; checkPNV();
+    if(document.querySelectorAll("#pnvHost input.ok").length!==${PARQ}||test.score!==${PARQ}) vus.push("la copie corrigée ne vaut pas ${PARQ} : "+test.score);
+    if(!test.locked) vus.push("la copie toute juste ne verrouille pas en soutien");
+    if(!document.getElementById("pnvRun")||document.getElementById("pnvRun").disabled) vus.push("« Exécuter » n’est pas débloqué sur une copie toute juste en soutien");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. les branchements ---- */
+  verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX et avec ses règles, les questions à l’IA, le contexte porte les grandeurs, les règles et la saisie et déclare les exemples secrets, la reprise connaît l’écran, le soutien corrige en direct, la coupe d’un devoir lit pnvCases', `(function(){
+    const vus=[];
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
+    const rap=RAPPELS.pnv||""; if(!rap) vus.push("pas de rappel RAPPELS.pnv");
+    if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
+    ["espace","chiffre","tiret bas","print"].forEach(function(m){ if(rap.indexOf(m)<0) vus.push("le rappel ne dit pas « "+m+" »"); });
+    if(!QIA_SUGG.pnv||QIA_SUGG.pnv.length<3) vus.push("pas de questions à l’IA pour pnv");
+    currentMode="train"; startPNV(); const q=test.questions[0], cases=pnvCases(q);
+    document.getElementById(cases[0].id).value="ma saisie";
+    const c=ctxPnv(q).contexte;
+    cases.forEach(function(x){ if(c.indexOf(x.g.txt)<0) vus.push("le contexte ne porte pas « "+x.g.txt+" »"); });
+    if(c.indexOf("ma saisie")<0) vus.push("le contexte ne porte pas la saisie de l’élève");
+    if(c.indexOf("espace")<0||c.indexOf("chiffre")<0) vus.push("le contexte ne dit pas les règles");
+    if(c.indexOf("SECR")<0||c.indexOf(cases[0].g.ex)<0) vus.push("le contexte ne déclare pas les exemples secrets");
+    if(!afficherEcranDe("pnv")) vus.push("afficherEcranDe ne connaît pas pnv (reprise et rejeu)");
+    if(String(liveCheckCurrent).indexOf("checkPNV")<0) vus.push("liveCheckCurrent ne corrige pas pnv en direct");
+    if(typeof pnvCases!=="function"||pnvCases(q).length!==${PARQ}) vus.push("pnvCases (la convention de la coupe d’un devoir) ne rend pas ${PARQ} cases");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 10. la seconde méthode : CPython sur les bords de SYNTAXE du juge ----
+     Les refus de la première famille (espace, chiffre, caractère, réservé)
+     doivent être des refus de Python ; les acceptations doivent être des
+     acceptations ; et les refus de la seconde famille (fonction, court, long)
+     doivent être des noms que Python ACCEPTE — c'est ce qui en fait des règles
+     de l'exercice, annoncées à l'écran, et non des faits de syntaxe. */
+  const CANDIDATS = ['nb_filles','nbFilles','aire','note2','_x','Note','tarifRepas','eleves','élèves','nombre_de_filles','ab','nb filles','tarif du repas','2note','nb-filles','l’aire','tarif.repas','for','while','True','None','class','print','type','int','x','n','le_nombre_de_filles_de_seconde','nb__filles','été','a1b2'];
+  const pageVerdicts = evaluer(w, 'JSON.stringify(' + JSON.stringify(CANDIDATS) + '.map(function(n){ return pnvForme(n).code; }))');
+  const codes = pageVerdicts.ok ? JSON.parse(pageVerdicts.valeur) : [];
+  verifier('le juge classe chaque candidat', codes.length === CANDIDATS.length && codes.indexOf('vide') < 0, codes.join(','));
+  const nomPy = 'les bords de syntaxe du juge sont ceux d\'un vrai CPython, et ses règles propres portent sur des noms que Python accepte';
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : le juge n\'a été comparé à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    let ref = null; try{ ref = pythonExecuter(py, CANDIDATS.map(n => n + ' = 1')); }catch(e){ ref = null; }
+    if(!ref || ref.length !== CANDIDATS.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les affectations'); }
+    else {
+      const ecarts = [];
+      CANDIDATS.forEach((n, i) => {
+        const pyOk = ref[i] === '', code = codes[i];
+        const syntaxe = ['espace','chiffre','caractere','reserve'].indexOf(code) >= 0;
+        if(code === 'ok' && !pyOk) ecarts.push('« ' + n + ' » accepté par la page, refusé par CPython (' + ref[i].trim() + ')');
+        if(syntaxe && pyOk) ecarts.push('« ' + n + ' » refusé par la page (' + code + '), accepté par CPython');
+        if(!syntaxe && code !== 'ok' && !pyOk) ecarts.push('« ' + n + ' » : la règle « ' + code + ' » de l’exercice porte sur un nom que Python refuse aussi (' + ref[i].trim() + ') — ce n’est pas une règle de l’exercice');
+      });
+      const syntaxes = codes.filter(c => ['espace','chiffre','caractere','reserve'].indexOf(c) >= 0).length, propres = codes.filter(c => ['fonction','court','long'].indexOf(c) >= 0).length;
+      if(syntaxes < 4 || propres < 3) ecarts.push('les candidats ne couvrent pas les deux familles de refus (' + syntaxes + ' / ' + propres + ') : le contrôle ne mesure rien');
+      verifier(nomPy + ' (' + CANDIDATS.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+  }
 }
 
 /* {tableau-equations} (Seconde) : un tableau de variation, « combien de

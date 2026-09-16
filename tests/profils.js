@@ -87,6 +87,8 @@ const RAPPELS_SECONDE = `(function(){
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
                'diviser-fractions':'mlt','diviser-fractions-libre':'mll',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
+               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
+               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
                'synthese-fonction':'syn' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -805,7 +807,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -868,6 +870,16 @@ module.exports = {
        justification ; le navigateur choisit dans les vraies listes et mesure
        les rangées rendues. */
     pythonNoms: { exercice: 'python-noms-variables', nb: 3, par: 6 },
+    /* {python-nom-variable} : la fiche « Exercice 5 » — un nom de variable à
+       proposer pour chaque grandeur, sans espace (demande de Turquet,
+       septembre 2026). « nb » est la SECONDE source du nombre de questions
+       (la page a PNV_NB), « parQ » celle des grandeurs par question
+       (PNV_PAR_Q), « fiche » les quatre grandeurs du carnet, toujours dans la
+       séance. Le banc jsdom compare le juge de la forme à un vrai python3 ;
+       le navigateur TAPE les noms dans les vraies cases, clique Vérifier puis
+       Exécuter, et relit la console. */
+    pythonNomVariable: { exercice: 'python-nom-variable', nb: 3, parQ: 4,
+                         fiche: ['le nombre de filles de Seconde', 'le tarif d’un repas', 'l’aire d’une figure', 'la note à un devoir'] },
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
               ordre: true, sur20: true, compacte: true },
