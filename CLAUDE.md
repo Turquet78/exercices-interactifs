@@ -7056,6 +7056,78 @@ départage, un clic entre les deux rails qui ne pose rien, le repère à une
 taille lisible, l'escalier vert d'étendue non nulle et les trois rangées de la
 démonstration d'un seul tenant.
 
+**Puis la dérivée du 6.11 s'est présentée COMME AU 2.5.** Demande de Turquet
+(septembre 2026) : « dans l'exercice 6.11 en terminale je veux que la question
+sur le calcul de la dérivée soit présentée comme dans l'exercice 2.5 ». Le
+d) faisait écrire f ′(x) dans UNE case de texte de 260 px — la dérivée d'un
+quotient n'y tient pas, et rien n'y aidait à la trouver. Il porte maintenant
+la présentation du 2.5, au mot près : le bloc « Facultatif — On pose (u =
+numérateur, v = dénominateur) » et ses quatre champs mathématiques, puis la
+FEUILLE ligne par ligne, préfixée « f ′(x) = » puis « = ». Les deux listes du
+signe et des variations n'ont pas bougé.
+**LA DEMANDE PORTE SUR LA PRÉSENTATION, PAS SUR LE JUGE, et c'est tout
+l'arbitrage** : le 2.5 confie sa dérivée au modèle parce que c'est son sujet et
+qu'il n'a rien d'autre à noter ; ici les trente-sept autres réponses de l'écran
+se calculent, et **un verdict qu'on peut PROUVER ne se confie pas à un modèle**
+(la doctrine de `libreJuge`, de `salJuge` et du 6.8). La dérivée reste donc lue
+par `checkExprFn` — comme une FONCTION, en sept points —, exactement le juge de
+la case qu'elle remplace : même sévérité, même tolérance, toute écriture égale
+acceptée.
+**CHAQUE LIGNE VAUT f ′(x), et c'est la leçon du 6.8** : les préfixes
+l'affirment, l'écran le dit, donc une ligne qui ne vaut pas f ′(x) est une
+égalité fausse. Elle rougit SEULE — la ligne juste d'à côté garde son bleu — et
+la feuille entière porte le verdict de la RÉPONSE. Ne juger que la dernière
+ligne aurait laissé passer « f ′(x) = 3/(4 − x) = 3/(4 − x)² », c'est-à-dire
+« la structure a béni une chaîne FAUSSE », le signalement du 6.8 retombé tel
+quel.
+**LA FEUILLE EST UNE RÉPONSE, ET UNE SEULE** (`pts-case`, la classe des trois
+points du tracé) : la note ne peut pas dépendre du NOMBRE de lignes écrites,
+sans quoi l'élève qui détaille son calcul serait noté sur un autre total.
+L'exercice vaut donc toujours 38 réponses — la case unique en a cédé une, la
+feuille l'a reprise — et le contrôle le mesure sur une chaîne de trois lignes.
+**LES QUATRE CASES FACULTATIVES SE PEIGNENT APRÈS LA MESURE** : elles sont
+jugées localement (u = p, v = s − x, u′ = 0, v′ = −1) et ne valent AUCUN point,
+comme au 2.5 — mais ici la note se lit à l'écran par `ptsEcran()`, qui compte
+les `math-field` colorés : colorées avant `ptsExo()`, elles auraient changé le
+total sous les yeux de l'élève, le défaut de « good » au lieu de « ok » par une
+porte de plus. Une case facultative vide ne reçoit jamais de couleur.
+**EN SOUTIEN, LA FEUILLE SE JUGE À LA SORTIE, JAMAIS À LA FRAPPE** : colorée au
+fil des touches, « 3/ » déclarerait fausse une dérivée qu'on n'a pas fini
+d'écrire — c'est la convention des champs mathématiques de la Terminale (le
+`focusout` du 2.1), et les deux bords ont leur contrôle : sans le premier le
+soutien ne corrigerait plus rien sur d), sans le second il mentirait.
+**RIEN N'EST TOUCHÉ DANS `mlFeuille`** : le composant est le même texte dans les
+trois fichiers et un contrôle le compare au caractère près — on s'en SERT
+(mode « calcul », les préfixes en paramètre), on n'y touche pas. Et comme la
+feuille n'a AUCUN id, `_boxes` ne sait pas la restaurer : elle voyage dans
+`test.svrLignes`, que `snapshotTest` photographie — le motif du 6.7 —, et
+`startSVR` l'efface, `test` étant global.
+**`renderSVR` entre dans la liste des rendus enveloppés** : l'écran porte des
+champs mathématiques désormais, donc il lui faut sa rangée « Clavier
+mathématique » — le contrôle universel l'exige, et le banc navigateur la
+mesure.
+Le banc NAVIGATEUR TAPE la dérivée au clavier dans la vraie feuille MathLive
+(jsdom n'a pas la sérialisation réelle que le juge doit lire), mesure la BOÎTE
+du bloc facultatif et de la feuille — un CSS perdu les rendrait invisibles sans
+qu'une erreur ne se lève — et relit l'encre RENDUE du verdict.
+**ET UN DÉFAUT EST NÉ AVEC LA FEUILLE, que seule la SONDE a vu** : `mlFeuille`
+donne le focus à sa première ligne — c'est ce que veut le 2.5, dont la feuille
+EST l'exercice. Ici l'écran commence par le TRACÉ, et ce focus faisait descendre
+la page de **485 px** à l'arrivée : le graphique de a) sortait par le haut, et
+l'élève découvrait l'exercice sur la question d). **Sur TABLETTE la sonde a
+mesuré pire** — 820 × 1180, écran tactile : 764 px de défilement, le graphique
+370 px au-dessus du bord, et le clavier mathématique déployé tout seul avant
+que l'élève n'ait rien fait ; avec le correctif, aucun défilement, pas de
+clavier, le graphique à l'écran. `renderSVR` rend donc la main
+— elle relit la position AVANT et la repose, et relâche le champ — à TROIS
+instants, parce que MathLive reprend le focus après coup (le motif que
+`mlFeuille` emploie déjà pour son curseur) : à un seul instant, la mesure
+montrait le champ encore focalisé. `mlFeuille` n'est pas touchée — c'est
+l'appelant qui reprend ce qu'il n'a pas demandé. Le contrôle vit au banc
+navigateur, seul à avoir une mise en page et un défilement, et il tient les
+trois bords : la page n'a pas défilé, le graphique de a) est à l'écran, et la
+feuille ne garde pas le focus.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
