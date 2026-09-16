@@ -2672,11 +2672,11 @@ consigne (la leçon de {placer-image}) ; Entrée dans la case exécute. Et
 « Vérifier » exécute LUI-MÊME une ligne qui ne l'aurait pas été : la console
 montre toujours ce que le juge a lu.
 **LA SORTIE AFFICHÉE ET LA CORRECTION SORTENT DE LA MÊME FONCTION** : le
-bouton, le juge (`pycJuge`) et le diagnostic lisent tous `pyRun` sur le
+bouton, le juge (`pyxJuge`) et le diagnostic lisent tous `pyRun` sur le
 programme de l'élève — l'interpréteur du 5.1, comparé à un vrai CPython par
 le banc, ici sur 974 programmes : les témoins ET huit lignes d'élève par
 question, justes et fausses, refus pour refus. Le témoin est ÉCRIT depuis la
-question (`pycAns`), jamais rangé à côté : elle ne porte que le nom, la
+question (`pyxAns`), jamais rangé à côté : elle ne porte que le nom, la
 valeur, le texte et le visage, et le contrôle refuse tout autre champ.
 **Le verdict compare la SORTIE — et exige la variable EMPLOYÉE.** Toute
 écriture qui affiche la même chose est juste : les guillemets simples,
@@ -2712,7 +2712,7 @@ peinte : elle est redemandée. La première question est celle de la demande,
 trois visages du 5.1 — un entier, un décimal, un texte — dans ses jeux de
 variables (`PY_JEUX`, partagé, pas recopié), en ordre mélangé. Aucune
 correction au fil de la frappe (`soutienEnDirect.sans`) : une ligne de code
-se juge écrite, pas lettre par lettre. Une case par question, `pycCases` pour
+se juge écrite, pas lettre par lettre. Une case par question, `pyxCases` pour
 la coupe d'un devoir.
 **Un défaut ne s'est vu que sur la capture** : la ligne juste en vert se
 posait À DROITE de la case au lieu de dessous — la rangée du programme est

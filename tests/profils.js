@@ -86,7 +86,7 @@ const RAPPELS_SECONDE = `(function(){
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
                'diviser-fractions':'mlt','diviser-fractions-libre':'mll',
-               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-completer':'pyc',
+               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-completer':'pyx',
                'synthese-fonction':'syn' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -662,11 +662,11 @@ module.exports = {
        réponse ENTIÈRE : la colorer au fil de la frappe dirait à l'élève qu'il
        a juste avant même qu'il ne vérifie. Le soutien y colore à la
        vérification, sans jamais révéler l'écriture attendue. */
-    /* « pyc » — {python-completer} — n'a qu'une case, et c'est une LIGNE DE
+    /* « pyx » — {python-completer} — n'a qu'une case, et c'est une LIGNE DE
        CODE : la juger lettre par lettre déclarerait fausse une ligne qu'on
        n'a pas fini d'écrire. Le soutien y juge à la vérification, et NOMME
        où est l'erreur, sans révéler la ligne attendue. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyx'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -859,7 +859,7 @@ module.exports = {
        COMPLÉTER — la ligne 1 donnée (note = 12), la ligne 2 à écrire — que
        l'élève EXÉCUTE avant de vérifier ; en soutien la page dit OÙ est
        l'erreur (demande de Turquet, septembre 2026). « nb » est la SECONDE
-       source du nombre de questions (la page a PYC_NB). Le banc jsdom tient
+       source du nombre de questions (la page a PYX_NB). Le banc jsdom tient
        la fiche épinglée, le juge sur des lignes justes et fausses — chacune
        avec le diagnostic qu'elle doit recevoir —, les portes et le soutien ;
        le navigateur TAPE la ligne dans la vraie case, clique Exécuter puis

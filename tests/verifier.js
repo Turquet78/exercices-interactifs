@@ -16189,29 +16189,29 @@ function pythonCompleter(w, P){
   const nom = '{python-completer} : le cours, puis la ligne 2 à écrire, exécuter et vérifier';
   if(!P.pythonCompleter){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du print à compléter'); return; }
   const ID = P.pythonCompleter.exercice, NB = P.pythonCompleter.nb;
-  const present = evaluer(w, "typeof startPYC==='function' && typeof pyRun==='function' && typeof pycJuge==='function' && typeof pycAns==='function'");
+  const present = evaluer(w, "typeof startPYX==='function' && typeof pyRun==='function' && typeof pyxJuge==='function' && typeof pyxAns==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPYC / pyRun / pycJuge / pycAns introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPYX / pyRun / pyxJuge / pyxAns introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   /* ---- 1. la fiche, épinglée : si elle ne passe pas au juge, c'est le juge qui a tort ---- */
   verifierEval(w, 'la fiche épinglée : note = 12, le témoin print("la note est :", note) affiche « la note est : 12 », et les écritures justes passent toutes au juge', `(function(){
-    const vus=[], NL=String.fromCharCode(10), q=Object.assign({},PYC_FICHE), a=pycAns(q);
+    const vus=[], NL=String.fromCharCode(10), q=Object.assign({},PYX_FICHE), a=pyxAns(q);
     if(q.nom!=="note"||q.lit!=="12"||q.texte!=="la note est :") vus.push("la fiche n’est pas note = 12 / « la note est : » : "+JSON.stringify(q));
-    if(pycLigne1(q)!=="note = 12") vus.push("ligne 1 : "+pycLigne1(q));
+    if(pyxLigne1(q)!=="note = 12") vus.push("ligne 1 : "+pyxLigne1(q));
     if(a.ligne!=='print("la note est :", note)') vus.push("témoin : "+a.ligne);
     if(a.sortie!=="la note est : 12"+NL) vus.push("sortie du témoin : "+JSON.stringify(a.sortie));
     ['print("la note est :", note)', "print('la note est :', note)", 'print("la note est :",note)', 'print( "la note est :" , note )',
      '  print("la note est :", note)  ', 'print("la note est :" + " " + str(note))', 'print("la note est : " + str(note))',
      'print("la note est :", note)  # affiche la note'].forEach(function(l){
-      const j=pycJuge(q,l); if(!j.ok) vus.push("ligne juste refusée : "+l+" — "+(j.diag||j.erreur));
+      const j=pyxJuge(q,l); if(!j.ok) vus.push("ligne juste refusée : "+l+" — "+(j.diag||j.erreur));
     });
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
   /* ---- 2. le diagnostic : vingt-deux lignes fausses, et le mot que chacune doit recevoir ---- */
   verifierEval(w, 'chaque ligne fausse est refusée ET reçoit le diagnostic qui nomme son erreur (le texte sans guillemets, Print, la parenthèse, la virgule, la variable entre guillemets, l’ordre, l’espace, le « : », la majuscule, la valeur recopiée…)', `(function(){
-    const vus=[], q=Object.assign({},PYC_FICHE);
+    const vus=[], q=Object.assign({},PYX_FICHE);
     const cas=[
       ['print(la note est :, note)', 'guillemets'],
       ['print(la note est, note)', 'guillemets'],
@@ -16240,11 +16240,11 @@ function pythonCompleter(w, P){
       ['print("la note est :", note);', 'caractère']
     ];
     cas.forEach(function(c){
-      let j; try{ j=pycJuge(q,c[0]); }catch(e){ vus.push("le juge lève sur « "+c[0]+" » : "+e.message); return; }
+      let j; try{ j=pyxJuge(q,c[0]); }catch(e){ vus.push("le juge lève sur « "+c[0]+" » : "+e.message); return; }
       if(j.ok){ vus.push("ligne fausse acceptée : "+c[0]); return; }
       if(!j.diag||j.diag.indexOf(c[1])<0) vus.push("« "+c[0]+" » : le diagnostic ne dit pas « "+c[1]+" » — "+j.diag);
     });
-    const v=pycJuge(q,"   "); if(!v.vide||v.ok) vus.push("la ligne vide n’est pas dite vide");
+    const v=pyxJuge(q,"   "); if(!v.vide||v.ok) vus.push("la ligne vide n’est pas dite vide");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -16263,22 +16263,22 @@ function pythonCompleter(w, P){
   verifierEval(w, 'le tirage : '+NB+' questions, la fiche en tête, puis les trois visages chacun une fois en ordre mélangé, la question ne porte que nom / lit / texte / vis, le témoin affiche le texte puis la valeur (400 séances)', `(function(){
     const vus=[], NL=String.fromCharCode(10), ordres={};
     for(let s=0;s<400 && vus.length<4;s++){
-      const qs=pycBuildQuestions();
+      const qs=pyxBuildQuestions();
       if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
       const f=qs[0]; if(f.nom!=="note"||f.lit!=="12"||f.texte!=="la note est :") { vus.push("la première question n’est pas la fiche : "+JSON.stringify(f)); break; }
       const vs=qs.slice(1).map(function(q){ return q.vis; }); ordres[vs.join(",")]=1;
       if(vs.slice().sort().join(",")!=="float,int,str"){ vus.push("visages des questions 2 à 4 : "+vs.join(",")); break; }
       for(const q of qs){
         if(Object.keys(q).sort().join(",")!=="lit,nom,texte,vis"){ vus.push("la question porte autre chose que nom / lit / texte / vis : "+Object.keys(q).join(",")); break; }
-        let a; try{ a=pycAns(q); }catch(e){ vus.push("pycAns refuse un tirage : "+e.message); break; }
+        let a; try{ a=pyxAns(q); }catch(e){ vus.push("pyxAns refuse un tirage : "+e.message); break; }
         if(a.sortie!==q.texte+" "+a.valeur+NL) vus.push("le témoin n’affiche pas le texte puis la valeur : "+JSON.stringify(a.sortie));
         if(q.vis==="str"&&!/^".+"$/.test(q.lit)) vus.push("visage texte sans guillemets : "+q.lit);
         if(q.vis==="float"&&!/^[0-9]+[.][0-9]$/.test(q.lit)) vus.push("visage décimal : "+q.lit);
         if(q.vis==="int"&&!/^[0-9]+$/.test(q.lit)) vus.push("visage entier : "+q.lit);
         if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(q.nom)) vus.push("nom de variable : "+q.nom);
         if(/["]/.test(q.texte)) vus.push("un texte porte un guillemet : "+q.texte);
-        const j=pycJuge(q,a.ligne); if(!j.ok) vus.push("le témoin ne passe pas au juge : "+a.ligne+" — "+j.diag);
-        const j2=pycJuge(q,'print("'+q.texte+'", "'+q.nom+'")'); if(j2.ok||j2.diag.indexOf("TEXTE")<0) vus.push("la variable entre guillemets n’est pas nommée sur "+q.nom);
+        const j=pyxJuge(q,a.ligne); if(!j.ok) vus.push("le témoin ne passe pas au juge : "+a.ligne+" — "+j.diag);
+        const j2=pyxJuge(q,'print("'+q.texte+'", "'+q.nom+'")'); if(j2.ok||j2.diag.indexOf("TEXTE")<0) vus.push("la variable entre guillemets n’est pas nommée sur "+q.nom);
       }
     }
     if(Object.keys(ordres).length<3) vus.push("les visages ne sont pas mélangés : "+Object.keys(ordres).join(" ; "));
@@ -16288,23 +16288,23 @@ function pythonCompleter(w, P){
   /* ---- 5. la copie juste TAPÉE et les portes ---- */
   verifierEval(w, 'le cours est sur l’écran, « Vérifier » est fermé tant que la ligne n’est pas exécutée, s’ouvre après, se referme sur une ligne modifiée, et la copie juste vérifiée vaut 1, verrouille et propose « Question suivante »', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPYC();
-    const vus=[], q=test.questions[0], a=pycAns(q), NL=String.fromCharCode(10);
+    startPYX();
+    const vus=[], q=test.questions[0], a=pyxAns(q), NL=String.fromCharCode(10);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
-    if(pycCases(q).length!==1) vus.push("pycCases rend "+pycCases(q).length);
-    const cours=document.querySelector("#pycHost .pyc-cours");
+    if(pyxCases(q).length!==1) vus.push("pyxCases rend "+pyxCases(q).length);
+    const cours=document.querySelector("#pyxHost .pyx-cours");
     if(!cours) vus.push("le cours n’est pas sur l’écran");
     else { const tx=cours.textContent; ["virgule","guillemets","print("].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); }); if(tx.indexOf("la note est")>=0) vus.push("le cours donne la réponse de la fiche"); }
-    const l1=document.querySelector("#pycHost .pyc-l1"), inp=document.getElementById("pyc-in"), run=document.getElementById("pycRun"), cons=document.getElementById("pycConsole");
+    const l1=document.querySelector("#pyxHost .pyx-l1"), inp=document.getElementById("pyx-in"), run=document.getElementById("pyxRun"), cons=document.getElementById("pyxConsole");
     if(!l1||l1.textContent!=="note = 12") vus.push("la ligne 1 affichée n’est pas « note = 12 » : "+(l1&&l1.textContent));
     if(!inp||inp.tagName!=="INPUT") vus.push("pas de case pour la ligne 2");
-    if(document.getElementById("pycHost").textContent.indexOf("la note est : 12")<0) vus.push("l’écran ne dit pas ce que le programme doit afficher");
-    const v=function(){ return document.getElementById("pycValidate"); };
+    if(document.getElementById("pyxHost").textContent.indexOf("la note est : 12")<0) vus.push("l’écran ne dit pas ce que le programme doit afficher");
+    const v=function(){ return document.getElementById("pyxValidate"); };
     if(!v()||!v().disabled) vus.push("« Vérifier » est ouvert avant toute exécution");
     if(!run||run.disabled) vus.push("« Exécuter » n’est pas cliquable d’emblée");
     inp.value='print("la note est :", note)'; inp.dispatchEvent(new Event("input",{bubbles:true}));
     if(!v().disabled) vus.push("« Vérifier » s’ouvre sur une ligne écrite mais pas exécutée");
-    pycExecuter();
+    pyxExecuter();
     if(cons.textContent!=="la note est : 12") vus.push("la console montre "+JSON.stringify(cons.textContent));
     if(!cons.classList.contains("py-exec")) vus.push("la console n’est pas marquée exécutée");
     if(v().disabled) vus.push("« Vérifier » reste fermé après l’exécution");
@@ -16314,34 +16314,34 @@ function pythonCompleter(w, P){
     if(!v().disabled) vus.push("« Vérifier » reste ouvert sur une ligne MODIFIÉE depuis l’exécution");
     if(cons.textContent!=="") vus.push("la console garde la sortie d’une ligne qui n’est plus celle écrite");
     inp.value='print("la note est :", note)'; inp.dispatchEvent(new Event("input",{bubbles:true}));
-    pycExecuter();
-    checkPYC();
+    pyxExecuter();
+    checkPYX();
     if(!inp.classList.contains("ok")) vus.push("la ligne juste n’est pas peinte ok : "+inp.className);
     if(test.score!==1) vus.push("note "+test.score+" au lieu de 1");
     if(!test.locked) vus.push("la question n’est pas verrouillée après la vérification");
     if(!inp.disabled) vus.push("la case reste modifiable après le verrou");
-    if(!document.getElementById("pycNext")) vus.push("« Question suivante » n’apparaît pas");
+    if(!document.getElementById("pyxNext")) vus.push("« Question suivante » n’apparaît pas");
     const ans=test.answers[test.answers.length-1];
     if(!ans||ans.cases!==1||!ans.correct||ans.answer!==a.ligne) vus.push("la note de la question ne compte pas 1 case juste : "+JSON.stringify(ans));
-    if(!afficherEcranDe("pyc")) vus.push("afficherEcranDe ne connaît pas pyc (reprise et rejeu)");
+    if(!afficherEcranDe("pyx")) vus.push("afficherEcranDe ne connaît pas pyx (reprise et rejeu)");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
   /* ---- 6. la copie fausse, en entraînement ---- */
   verifierEval(w, 'la copie fausse (entraînement) : la case rougit, le diagnostic nomme l’erreur, la ligne juste s’écrit en vert sous la case, la note vaut 0 et la question est verrouillée — et « Vérifier » exécute lui-même une ligne qui ne l’a pas été', `(function(){
-    currentMode="train"; startPYC();
-    const vus=[], q=test.questions[0], a=pycAns(q), inp=document.getElementById("pyc-in"), cons=document.getElementById("pycConsole");
+    currentMode="train"; startPYX();
+    const vus=[], q=test.questions[0], a=pyxAns(q), inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
     inp.value='print("la note est :", "note")'; inp.dispatchEvent(new Event("input",{bubbles:true}));
-    checkPYC();
+    checkPYX();
     if(!inp.classList.contains("bad")) vus.push("la ligne fausse n’est pas rouge : "+inp.className);
     if(cons.textContent!=="la note est : note") vus.push("la console ne montre pas ce que le juge a lu : "+JSON.stringify(cons.textContent));
     const badge=inp.nextElementSibling;
     if(!badge||!badge.classList.contains("mf-cor")||badge.textContent!==a.ligne) vus.push("pas de ligne juste en vert sous la case : "+(badge&&badge.textContent));
-    const fb=document.getElementById("pycFeedback").textContent;
+    const fb=document.getElementById("pyxFeedback").textContent;
     if(fb.indexOf("erreur")<0||fb.indexOf("TEXTE")<0) vus.push("le message ne nomme pas l’erreur : "+fb);
     if(test.score!==0) vus.push("note "+test.score+" au lieu de 0");
     if(!test.locked||!inp.disabled) vus.push("la copie fausse n’est pas verrouillée en entraînement");
-    if(!document.getElementById("pycNext")) vus.push("« Question suivante » n’apparaît pas");
+    if(!document.getElementById("pyxNext")) vus.push("« Question suivante » n’apparaît pas");
     const ans=test.answers[test.answers.length-1];
     if(!ans||ans.cases!==1||ans.correct||ans.justes!==0) vus.push("la note enregistrée ne dit pas 0 sur 1 : "+JSON.stringify(ans));
     return vus.slice(0,4).join(" | ");
@@ -16349,19 +16349,19 @@ function pythonCompleter(w, P){
 
   /* ---- 7. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
   verifierEval(w, 'en soutien : la ligne fausse rougit sans badge, le message dit « Où est l’erreur ? » et la nomme, rien n’est verrouillé, Revérifier est proposé ; modifier la ligne retire le rouge et referme le bouton ; la ligne vide n’est pas peinte ; la correction exécutée puis revérifiée vaut 1', `(function(){
-    currentMode="soutien"; startPYC();
-    const vus=[], q=test.questions[0], inp=document.getElementById("pyc-in"), cons=document.getElementById("pycConsole");
-    const v=function(){ return document.getElementById("pycValidate"); };
-    checkPYC();
+    currentMode="soutien"; startPYX();
+    const vus=[], q=test.questions[0], inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
+    const v=function(){ return document.getElementById("pyxValidate"); };
+    checkPYX();
     if(inp.classList.contains("bad")||inp.classList.contains("ok")) vus.push("la ligne vide reçoit une couleur : "+inp.className);
-    if(document.getElementById("pycFeedback").textContent.indexOf("Écris")<0) vus.push("la ligne vide n’est pas redemandée");
+    if(document.getElementById("pyxFeedback").textContent.indexOf("Écris")<0) vus.push("la ligne vide n’est pas redemandée");
     inp.value='print("la note est :" note)'; inp.dispatchEvent(new Event("input",{bubbles:true}));
-    pycExecuter();
-    if(!/Erreur/.test(cons.textContent)||!cons.classList.contains("pyc-err")) vus.push("la console ne montre pas l’erreur de Python : "+JSON.stringify(cons.textContent));
-    checkPYC();
+    pyxExecuter();
+    if(!/Erreur/.test(cons.textContent)||!cons.classList.contains("pyx-err")) vus.push("la console ne montre pas l’erreur de Python : "+JSON.stringify(cons.textContent));
+    checkPYX();
     if(!inp.classList.contains("bad")) vus.push("la ligne fausse n’est pas rouge en soutien");
     if(inp.nextElementSibling&&inp.nextElementSibling.classList.contains("mf-cor")) vus.push("la ligne juste fuit en soutien");
-    const fb=document.getElementById("pycFeedback").textContent;
+    const fb=document.getElementById("pyxFeedback").textContent;
     if(fb.indexOf("Où est l’erreur")<0||fb.indexOf("virgule")<0) vus.push("le soutien ne dit pas où est l’erreur : "+fb);
     if(fb.indexOf('print("la note est :", note)')>=0) vus.push("le soutien écrit la ligne attendue dans le message");
     if(test.locked||inp.disabled) vus.push("le soutien verrouille une copie fausse");
@@ -16371,8 +16371,8 @@ function pythonCompleter(w, P){
     inp.value='print("la note est :", note)'; inp.dispatchEvent(new Event("input",{bubbles:true}));
     if(inp.classList.contains("bad")) vus.push("le rouge reste sur une ligne modifiée");
     if(!v().disabled) vus.push("Revérifier reste ouvert sur une ligne modifiée non exécutée");
-    pycExecuter();
-    checkPYC();
+    pyxExecuter();
+    checkPYX();
     if(!inp.classList.contains("ok")||test.score!==1) vus.push("la copie corrigée ne vaut pas 1 : "+inp.className+" / "+test.score);
     if(!test.locked) vus.push("la copie juste ne verrouille pas en soutien");
     currentMode="train";
@@ -16383,18 +16383,18 @@ function pythonCompleter(w, P){
   verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX et avec la virgule et les guillemets, les questions à l’IA, le contexte porte la ligne 1, ce que l’élève a écrit, le diagnostic, et déclare la réponse secrète, aucune correction au fil de la frappe', `(function(){
     const vus=[];
     if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
-    const rap=RAPPELS.pyc||""; if(!rap) vus.push("pas de rappel RAPPELS.pyc");
+    const rap=RAPPELS.pyx||""; if(!rap) vus.push("pas de rappel RAPPELS.pyx");
     if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
     ["virgule","guillemets","print("].forEach(function(m){ if(rap.indexOf(m)<0) vus.push("le rappel ne dit pas « "+m+" »"); });
-    if(!QIA_SUGG.pyc||QIA_SUGG.pyc.length<3) vus.push("pas de questions à l’IA pour pyc");
-    currentMode="soutien"; startPYC(); const q=test.questions[0], a=pycAns(q);
-    const inp=document.getElementById("pyc-in"); inp.value='print(la note est :, note)'; inp.dispatchEvent(new Event("input",{bubbles:true}));
-    const c=ctxPyc(q).contexte;
+    if(!QIA_SUGG.pyx||QIA_SUGG.pyx.length<3) vus.push("pas de questions à l’IA pour pyx");
+    currentMode="soutien"; startPYX(); const q=test.questions[0], a=pyxAns(q);
+    const inp=document.getElementById("pyx-in"); inp.value='print(la note est :, note)'; inp.dispatchEvent(new Event("input",{bubbles:true}));
+    const c=ctxPyx(q).contexte;
     if(c.indexOf("note = 12")<0) vus.push("le contexte ne porte pas la ligne 1");
     if(c.indexOf("SECR")<0||c.indexOf(a.ligne)<0) vus.push("le contexte ne déclare pas la réponse attendue secrète");
     if(c.indexOf("print(la note est :, note)")<0) vus.push("le contexte ne porte pas ce que l’élève a écrit");
     if(c.indexOf("guillemets")<0) vus.push("le contexte ne porte pas le diagnostic");
-    if(String(liveCheckCurrent).indexOf("checkPYC")>=0) vus.push("le soutien juge au fil de la frappe : une ligne de code se juge écrite");
+    if(String(liveCheckCurrent).indexOf("checkPYX")>=0) vus.push("le soutien juge au fil de la frappe : une ligne de code se juge écrite");
     currentMode="train";
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
@@ -16432,7 +16432,7 @@ function pythonCompleter(w, P){
   const nomPy = 'les programmes de {python-completer} — témoins et lignes d\'élève — donnent la sortie d\'un vrai CPython';
   const progs = evaluer(w, `(function(){ const o=[], NL=String.fromCharCode(10);
     const lignes=function(q){ return ['print("'+q.texte+'", '+q.nom+')', 'print("'+q.texte+'", "'+q.nom+'")', 'print('+q.nom+', "'+q.texte+'")', 'print("'+q.texte+'" + str('+q.nom+'))', 'print("'+q.texte+' ", '+q.nom+')', 'print("'+q.texte+'")', 'print("'+q.texte+'" '+q.nom+')', 'print("'+q.texte+'" + '+q.nom+')']; };
-    for(let i=0;i<30;i++) pycBuildQuestions().forEach(function(q){ lignes(q).forEach(function(l){ o.push(pycLigne1(q)+NL+l); }); });
+    for(let i=0;i<30;i++) pyxBuildQuestions().forEach(function(q){ lignes(q).forEach(function(l){ o.push(pyxLigne1(q)+NL+l); }); });
     return JSON.stringify(o); })()`);
   const tires = progs.ok ? JSON.parse(progs.valeur) : [];
   verifier('le tirage de {python-completer} fournit des programmes à comparer', tires.length >= 500, tires.length + ' programme(s)');
