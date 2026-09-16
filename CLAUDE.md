@@ -8226,6 +8226,63 @@ phrase plus loin, et retirer les deux rougit. Un contrôle qui passe au vert
 sous le sabotage n'est pas forcément un contrôle mort : il faut d'abord
 vérifier que le sabotage pouvait l'atteindre.
 
+**Le vocabulaire des suites se COCHE sur un dessin — et une borne plus large
+est une phrase vraie.** {suite-vocabulaire} (Terminale, 6.13, demande de
+Turquet, septembre 2026 : « créer un exercice en terminale comme le pdf sur
+les suites », la fiche « Vocabulaire sur les suites ») ferme le thème
+Suites : les termes U₀ à U₁₂ d'une suite en croix sur un quadrillage, et
+l'élève coche ce qu'elle SEMBLE être, ligne par ligne comme sur le papier —
+croissante / décroissante / non monotone ; majorée par … / minorée par … /
+bornée ; a comme limite … / n'a pas de limite ; convergente / divergente.
+Les neuf exemples de la fiche sont neuf VISAGES tirés au hasard (décroissante
+ou croissante vers ℓ, vers +∞ ou −∞, non monotone vers l'infini, alternée
+sans limite, oscillation amortie, oscillation qui s'amplifie), et une séance
+en pose quatre : une croissante, une décroissante, deux non monotones
+distinctes, les deux natures toujours présentes, en ordre mélangé — sans quoi
+l'élève apprendrait que la réponse est toujours du même genre.
+**LE JUGE EST LARGE SUR LA VALEUR ET EXACT SUR LA PROPRIÉTÉ** : « majorée
+par 10 » devant une suite qui plafonne à 4 est VRAIE, et la refuser serait le
+pire défaut du projet — toute borne au-delà du plus grand terme de la suite
+ENTIÈRE (jamais des treize dessinés) est acceptée, la correction écrit la
+plus serrée. Les extremums tombent sur des graduations par CONSTRUCTION
+(U₀ et ℓ entiers, et pour l'oscillation amortie un couple (A, q) dont le
+produit est entier), et la suite monotone convergente, dont les termes
+n'atteignent jamais leur borne côté limite, reçoit la droite y = ℓ dessinée —
+les exemples 1 et 2 de la fiche font exactement cela : sans elle, « majorée
+par 4 » devant une suite qui tend vers 5 serait défendable sur treize termes
+et fausse sur la suite. **Une limite infinie EST une limite** (« a comme
+limite +∞ »), et la suite est alors divergente : c'est le rappel de la fiche,
+et « inf » se lit par `lgLimOK`, le lecteur du 3.2.
+**LES CASES COCHÉES VIVENT DANS LA QUESTION (`q.rep`)**, pas dans un état de
+l'écran : `captureBoxes` ne photographie que la VALEUR d'un champ, et une case
+à cocher n'en a pas — la pause aurait tout perdu. Trois groupes sont EXCLUSIFS
+(le sens, la limite, la nature) et valent chacun UNE réponse ; la ligne des
+bornes est un vrai choix multiple, trois réponses oui / non ; les valeurs
+n'ouvrent qu'une fois leur case cochée. Une case NON cochée qui aurait dû
+l'être est une case laissée VIDE : cochée en vert par la correction, jamais
+rougie. Aucune correction au fil des clics, même en soutien — à trois options
+par ligne il suffirait d'essayer, la règle du QCM du 2.8 — et le soutien ne
+révèle rien. Les cases sont des `span` à rôle de case à cocher, pas des
+boutons : la photo du circuit papier retire les boutons, et la fiche du
+professeur doit garder ses cases. **Deux bancs, la répartition habituelle** :
+jsdom refait le tirage par une SECONDE arithmétique sur les treize termes
+(le sens sur les différences, une borne annoncée atteinte ou égale à la
+limite, une suite « non majorée » qui s'échappe vraiment, une limite finie
+approchée, la droite y = ℓ là et seulement là) et joue les gestes sur trois
+questions ÉPINGLÉES ; le NAVIGATEUR (« 6 tricies ter », déclaré par
+`suiteVocabulaire` dans `tests/profils.js`) CLIQUE les cases, lit l'encre
+RÉSOLUE des verdicts, mesure la hauteur d'une RANGÉE rendue — un dessin de
+cinq rangées est court sans être illisible, et le premier jet mesurait la
+hauteur brute — et la fiche sous le dessin sur une tablette en portrait.
+Treize sabotages, chacun rougissant en nommant son défaut ; l'un d'eux est
+d'abord resté VERT en montrant un trou du contrôle — la copie de soutien ne
+laissait aucune case oubliée, donc « rien n'est révélé » n'avait rien à
+mesurer. Le premier jet du contrôle a rougi sur du code JUSTE (7 réponses
+attendues là où l'écran en compte 8) : un essai faux se reconnaît à ce qu'il
+rougit sur une page juste. L'exercice est placé en FIN de thème, en 6.13 :
+ajouté en tête — où le vocabulaire aurait sa place — il aurait renuméroté les
+onze autres, et les numéros écrits du banc avec.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons

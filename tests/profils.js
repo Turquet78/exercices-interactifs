@@ -1116,6 +1116,10 @@ module.exports = {
        chemin transparent épais. jsdom n'a ni mise en page ni getScreenCTM :
        le banc principal éprouve svrPoser(), seul celui-ci clique. */
     suiteVariation: { exercice: 'suite-variation-recurrence' },
+    /* LE VOCABULAIRE SUR LES SUITES (6.12) : la fiche se COCHE. Le banc
+       principal tient le tirage et le juge ; celui-ci clique les cases pour de
+       vrai, lit l'encre RÉSOLUE des verdicts et mesure le quadrillage rendu. */
+    suiteVocabulaire: { exercice: 'suite-vocabulaire' },
     /* Le 4.6 (l'étude menée au TVI) : ce que jsdom ne voit pas — le tableau
        du 5.3 RENDU (flèches dessinées à taille non nulle), la page qui ne
        déborde pas, et le bouton ∞ réellement CLIQUÉ, qui écrit dans la case

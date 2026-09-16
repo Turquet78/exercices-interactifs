@@ -650,6 +650,42 @@
    vert, qui sont les encres du verdict (la leçon du liseré de
    {croiser-denominateurs}), et ses points prennent les couleurs de la
    convention à la vérification seulement. ---- */
+  /* ---- 6.12 Vocabulaire sur les suites : la fiche à cocher ---- */
+  .svq-haut{display:flex;flex-wrap:wrap;gap:18px 26px;align-items:flex-start;margin:0 0 6px}
+  .svq-colg{flex:1 1 440px;min-width:300px;max-width:640px}
+  .svq-cold{flex:1 1 380px;min-width:280px}
+  .svq-graph{margin:0}
+  .svq-graph svg{display:block;width:100%;max-width:620px;height:auto}
+  .svq-ax{font-family:'Nunito',sans-serif;font-size:11px;fill:var(--ink-soft)}
+  .svq-lbl{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:12px;fill:var(--ink)}
+  .svq-croix{stroke:var(--ink);stroke-width:1.9;stroke-linecap:round}
+  .svq-lim{stroke:var(--ink);stroke-width:2.4}
+  .svq-limlbl{font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;fill:var(--ink)}
+  .svq-titre{font-family:"Fredoka";font-weight:600;font-size:1.25rem;color:var(--blue-dark);margin:0 0 10px}
+  .svq-ligne{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;margin:0 0 12px}
+  .svq-item{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .svq-coche{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:1.15rem;padding:4px 6px;border-radius:8px;line-height:1.3}
+  .svq-coche:focus-visible{outline:3px solid var(--blue-dark);outline-offset:2px}
+  .svq-coche.fige{cursor:default}
+  /* la case dessinée : vide, cochée, puis son verdict — juste en BLEU, à tort en
+     ROUGE, oubliée en VERT (la correction), la convention d'août 2026 */
+  .svq-box{flex:0 0 auto;width:24px;height:24px;border:2px solid var(--ink-soft);border-radius:6px;background:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;line-height:1;color:#fff}
+  .svq-coche.on .svq-box{background:var(--blue-dark);border-color:var(--blue-dark)}
+  .svq-coche.on .svq-box::after{content:'\2713'}
+  .svq-coche.ok .svq-box{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.18)}
+  .svq-coche.on.ok .svq-box{background:var(--blue)}
+  .svq-coche.bad .svq-box{border-color:var(--red);box-shadow:0 0 0 3px rgba(214,69,80,.15)}
+  .svq-coche.on.bad .svq-box{background:var(--red)}
+  .svq-coche.sol .svq-box{border-color:var(--green);border-style:dashed;color:var(--green);box-shadow:0 0 0 3px rgba(31,169,113,.18)}
+  .svq-coche.sol .svq-box::after{content:'\2713'}
+  .svq-in{width:74px;font:inherit;font-size:1.15rem;text-align:center;padding:4px 8px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .svq-in:disabled{background:#f3f5fa;color:var(--ink-soft);border-style:dashed}
+  .svq-in.ok{border-color:var(--blue);background:#eaf1ff}
+  .svq-in.bad{border-color:var(--red);background:#fee2e2}
+  .svq-in.sol{border-color:var(--green);background:#dcfce7;border-style:dashed;color:var(--green)}
+  .svq-inf{font:inherit;font-size:1rem;font-weight:800;padding:3px 9px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer}
+  .svq-inf:disabled{opacity:.45;cursor:default}
+  #svqForm .mf-cor{margin-left:4px}
   .svr-haut{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;margin:0 0 6px}
   .svr-colg{flex:1 1 380px;min-width:300px;max-width:580px}
   .svr-cold{flex:1 1 340px;min-width:280px}
@@ -730,7 +766,7 @@
   .svr-dcor{display:inline-block;margin:2px 0 8px}
   .svr-ccl{margin-top:12px}
   .svr-nowrap{white-space:nowrap}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-svq{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2419,6 +2455,22 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="mp-actions" id="svrActions"></div>
     </div>
   </section>
+  <!-- 6.12 SUITES — VOCABULAIRE (la fiche à cocher) -->
+  <section class="screen" id="scr-svq">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="svqModeTag"></span><span class="q-idx" id="svqQIdx">Question 1 / 4</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="svqLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="svqPrompt"></p>
+      <div class="svq-haut">
+        <div class="svq-colg"><div class="sv-graph svq-graph" id="svqGraph"></div></div>
+        <div class="svq-cold" id="svqForm"></div>
+      </div>
+      <div class="mp-feedback" id="svqFeedback"></div>
+      <div class="mp-actions" id="svqActions"></div>
+    </div>
+  </section>
   <!-- 6.3 SUITES — ENCADREMENTS (préparer la récurrence) -->
   <section class="screen" id="scr-enc">
     <div class="test-top">
@@ -2732,7 +2784,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=321;
+const APP_VERSION=322;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2932,6 +2984,7 @@ const TESTS={
   'recurrence-fractions': { name:'R\u00e9currence \u2014 la formule explicite en fraction', icon:'n+3', desc:'La fiche \u00ab r\u00e9currence et fractions \u00bb : une suite U\u2099\u208a\u2081 = (3U\u2099 \u2212 1)/(U\u2099 + 1) et sa formule explicite U\u2099 = (n+3)/(n+1). a) Tu v\u00e9rifies la formule sur U\u2080, U\u2081, U\u2082 par les deux voies ; b) tu la d\u00e9montres par r\u00e9currence \u2014 initialisation, hypoth\u00e8se, but, puis la cha\u00eene de calcul \u00e9tape par \u00e9tape : la formule de U\u2099 plac\u00e9e dans la r\u00e9currence, le m\u00eame d\u00e9nominateur, les simplifications, et on doit retrouver la formule au rang n+1.', start:()=>startRFR() },
   'suite-variation-recurrence': { name:'Suites \u2014 sens de variation et r\u00e9currence', icon:'\ud83d\udcc9', desc:'La fiche enti\u00e8re, sur une suite U\u2099\u208a\u2081 = f\u2009(U\u2099)\u00a0: a) trace les 3 premiers termes en escalier sur le graphique, b) calcule U\u2081, c) conjecture le sens de variation et la limite, d) \u00e9tudie les variations de f, puis e) d\u00e9montre par r\u00e9currence l\u2019encadrement qui dit \u00e0 la fois que la suite est monotone et born\u00e9e \u2014 la cha\u00eene du {recurrence-encadrement}, avec f croissante pour conserver les in\u00e9galit\u00e9s.', start:()=>startSVR() },
   'suite-tcm-limite': { name:'Suites \u2014 convergence monotone et limite', icon:'\ud83c\udfaf', desc:'On te donne un encadrement de (U\u2099)\u00a0: lis-y le sens de variation, conclus avec le th\u00e9or\u00e8me de convergence monotone que la suite admet une limite finie, puis d\u00e9termine \u2113 par passage \u00e0 la limite dans U\u2099\u208a\u2081 = f\u2009(U\u2099) \u2014 la fiche, case par case.', start:()=>startTCL() },
+  'suite-vocabulaire': { name:'Suites \u2014 vocabulaire (croissante, born\u00e9e, convergente\u2026)', icon:'\ud83d\udccb', desc:'La fiche \u00ab\u00a0Vocabulaire sur les suites\u00a0\u00bb\u00a0: on te montre les termes U\u2080 \u00e0 U\u2081\u2082 d\u2019une suite sur un quadrillage, et tu coches ce qu\u2019elle semble \u00eatre \u2014 croissante, d\u00e9croissante ou non monotone\u00a0; major\u00e9e par\u2026, minor\u00e9e par\u2026, born\u00e9e\u00a0; a comme limite\u2026 ou n\u2019a pas de limite\u00a0; convergente ou divergente. Quatre suites par s\u00e9ance, jamais du m\u00eame genre.', start:()=>startSVQ() },
   'suites-encadrement': { name:'Suites \u2014 encadrements (pr\u00e9parer la r\u00e9currence)', icon:'\u2264', desc:'\u00c0 partir de m \u2264 x \u2264 M, encadre pas \u00e0 pas 0,5x + b, \u221a(x + c), k/(x + 1) ou a \u2212 b/(x + c), justifie chaque \u00e9tape, puis conclus que f(x) \u2208 [m ; M] \u2014 la cl\u00e9 de l\u2019h\u00e9r\u00e9dit\u00e9 dans une r\u00e9currence.', start:()=>startENC() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
@@ -2945,7 +2998,7 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique','tvi-alpha-signe'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-formule','recurrence-complete','recurrence-redaction','suite-auxiliaire-redaction','recurrence-fractions','suite-variation-recurrence','suite-tcm-limite'] }
+  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-formule','recurrence-complete','recurrence-redaction','suite-auxiliaire-redaction','recurrence-fractions','suite-variation-recurrence','suite-tcm-limite','suite-vocabulaire'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -3516,6 +3569,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='tcl' && test.questions && test.questions[test.idx]){ c=tclConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
+  else if(test && test.kind==='svq' && test.questions && test.questions[test.idx]){ c=svqConseilCtx(); }
   else if(test && test.kind==='enc' && test.questions && test.questions[test.idx]){ c=encConseilCtx(); }
   else if(test && test.kind==='rec' && test.questions && test.questions[test.idx]){ c=recConseilCtx(); }
   else if(test && test.kind==='sp' && test.questions && test.questions[test.idx]){ c=spConseilCtx(); }
@@ -4313,7 +4367,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], rfr:['rfr',renderRFR], svr:['svr',renderSVR], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4435,7 +4489,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','enc','rec','ef','eq','rc','rf','rfr','svr','rr','sar','lr','ec','afp','afq','sdq','asg'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','enc','rec','ef','eq','rc','rf','rfr','svr','svq','rr','sar','lr','ec','afp','afq','sdq','asg'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -14982,7 +15036,12 @@ const RAP_TCL=`<b>Théorème de convergence monotone, et limite d’une suite U<
 • <b>Le théorème de convergence monotone</b> : une suite <b>croissante et majorée</b> converge — elle admet une limite finie ℓ. De même, une suite <b>décroissante et minorée</b> converge. C’est la borne du BON côté qui compte : pour une suite croissante, c’est le majorant qui l’empêche de partir vers +∞.<br>
 • <b>Trouver ℓ par passage à la limite</b> : si U<sub>n</sub> tend vers ℓ, alors U<sub>n+1</sub> tend vers ℓ aussi — c’est la même suite, décalée d’un rang. Dans la relation U<sub>n+1</sub> = f (U<sub>n</sub>), quand f est continue, on remplace U<sub>n+1</sub> et U<sub>n</sub> par ℓ : l’équation ℓ = f (ℓ) donne la limite. Exemple : U<sub>n+1</sub> = 0,5 U<sub>n</sub> + 1 devient ℓ = 0,5 ℓ + 1, donc ℓ − 0,5 ℓ = 1, soit 0,5 ℓ = 1 et ℓ = 2.<br>
 • <b>Quand l’équation est du second degré</b>, on la ramène à zéro et on factorise. Avec U<sub>n+1</sub> = U<sub>n</sub><sup>2</sup> − U<sub>n</sub> + 1, on obtient ℓ = ℓ<sup>2</sup> − ℓ + 1, donc ℓ<sup>2</sup> − 2ℓ + 1 = 0, c’est-à-dire (ℓ − 1)<sup>2</sup> = 0 : ℓ = 1. S’il y avait deux solutions, la limite serait celle qui est dans l’encadrement de la suite.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, svr:RAP_SVR, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ,
+const RAP_SVQ=`<b>Vocabulaire sur les suites</b><br>
+• <b>Croissante</b> : chaque terme est plus grand que le précédent (U<sub>n+1</sub> ≥ U<sub>n</sub>) — sur le graphique, les croix MONTENT. <b>Décroissante</b> : elles descendent. <b>Monotone</b> veut dire « toujours dans le même sens » ; <b>non monotone</b> : la suite change de sens — elle monte puis descend, ou elle oscille.<br>
+• <b>Majorée par M</b> : tous les termes sont inférieurs ou égaux à M — aucune croix n’est au-dessus de la droite d’équation y = M. <b>Minorée par m</b> : tous les termes sont supérieurs ou égaux à m. <b>Bornée</b> = majorée ET minorée : toutes les croix restent entre deux droites horizontales. Un majorant n’est pas unique : si la suite est majorée par 4, elle l’est aussi par 10 — on donne en général le plus petit qu’on lit sur le dessin.<br>
+• <b>Convergente</b> : la suite a une limite FINIE — les croix se rapprochent d’une hauteur ℓ, et finissent par s’y coller. <b>Divergente</b> : la suite a une limite INFINIE (les croix montent ou descendent sans jamais s’arrêter : on écrit « a comme limite +∞ » ou « −∞ »), OU elle n’a pas de limite du tout (elle oscille sans se stabiliser).<br>
+• Deux repères : une suite croissante et majorée converge, une suite décroissante et minorée converge (c’est le théorème de la limite monotone). Mais une suite NON monotone peut converger quand même (une oscillation qui s’amortit), et une suite bornée peut n’avoir aucune limite (1, 4, 1, 4, …).`;
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, svr:RAP_SVR, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -18711,6 +18770,416 @@ function svrConseilCtx(){
    +'Tu peux lui rappeler qu’il trouve le cours complet avec le bouton « Voir le rappel de cours » de cette fenêtre. '
    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
 }
+/* ======================================================================
+   6.12 VOCABULAIRE SUR LES SUITES — la fiche « Vocabulaire sur les suites »
+   ======================================================================
+   Demande de Turquet (septembre 2026) : « créer un exercice en terminale
+   comme le pdf sur les suites ». La fiche montre les termes U₀ à U₁₂ d'une
+   suite sur un quadrillage, et l'élève COCHE ce que la suite semble être :
+   croissante / décroissante / non monotone ; majorée par … / minorée par … /
+   bornée ; a comme limite … / n'a pas de limite ; convergente / divergente.
+   Neuf exemples sur le papier, neuf VISAGES ici — chacun une famille de
+   suites tirée au hasard, pour que la même fiche se refasse sans se répéter :
+
+     decconv  décroissante vers une limite ℓ (ex. 1 : majorée par U₀, minorée par ℓ)
+     croconv  croissante vers ℓ            (ex. 2)
+     croinf   croissante vers +∞           (ex. 3 : minorée par U₀, non majorée)
+     decinf   décroissante vers −∞         (ex. 4)
+     noninfm  non monotone vers −∞         (ex. 5 : des paliers et des creux)
+     noninfp  non monotone vers +∞         (ex. 6)
+     period   alternée, bornée, sans limite (ex. 7 : 1, 4, 1, 4…)
+     amorti   oscillation amortie vers ℓ   (ex. 8 : bornée et convergente)
+     oscinf   oscillation qui s'amplifie   (ex. 9 : ni majorée ni minorée)
+
+   LES BORNES SONT DES NOMBRES QUE L'ÉLÈVE ÉCRIT, ET LE JUGE EST LARGE SUR
+   LA VALEUR, EXACT SUR LA PROPRIÉTÉ : « majorée par M » est juste pour TOUT
+   M supérieur ou égal au plus grand terme de la suite ENTIÈRE — « majorée
+   par 10 » devant une suite qui plafonne à 4 est une phrase vraie, et la
+   refuser serait le pire défaut du projet (une lecture juste comptée
+   fausse). La correction, elle, écrit la borne la plus serrée, celle qu'on
+   lit sur le dessin. Les extremums de chaque famille tombent sur des
+   graduations par CONSTRUCTION (U₀ entier, ℓ entier, et pour l'oscillation
+   amortie un couple (A, q) dont le produit est entier), si bien que ce que
+   la fiche fait lire se lit vraiment. La suite convergente MONOTONE ne
+   montre jamais sa borne côté limite — ses termes s'en approchent sans
+   l'atteindre —, donc la droite y = ℓ est DESSINÉE, comme sur les exemples
+   1 et 2 de la fiche : sans elle « majorée par 4 » devant une suite qui
+   tend vers 5 serait défendable sur 13 termes et fausse sur la suite.
+
+   LA LIMITE INFINIE EST UNE LIMITE : « a comme limite +∞ » se coche, et la
+   suite est DIVERGENTE — c'est le rappel de la fiche (« divergente signifie
+   la suite a une limite infinie, ou n'a pas de limite »). Convergente =
+   limite FINIE, rien d'autre. Les valeurs se lisent par lgLimOK, le lecteur
+   du 3.2 (« inf », « +∞ », « -inf » acceptés).
+
+   LES CASES À COCHER VIVENT DANS LA QUESTION (q.rep), pas dans un état de
+   l'écran : captureBoxes ne connaît que la VALEUR d'un champ, et un
+   checkbox n'en a pas — la pause perdrait tout ce qui est coché. Les
+   valeurs tapées, elles, sont des inputs à id que _boxes photographie. Trois
+   groupes sont EXCLUSIFS (le sens, la limite, la nature) et valent chacun UNE
+   réponse — la fiche les dessine en cases à cocher, mais cocher « croissante »
+   ET « décroissante » ne veut rien dire ; la ligne des bornes est un vrai
+   choix multiple : trois réponses oui / non. Une case NON cochée qui aurait
+   dû l'être n'est pas une case fausse — elle est laissée VIDE : la
+   correction la coche en vert, jamais en rouge. La note affichée compte
+   6 à 9 réponses selon le visage (une borne qui n'existe pas n'a pas de
+   valeur à écrire).
+
+   AUCUNE CORRECTION AU FIL DES CLICS, même en soutien : à trois options par
+   ligne, il suffirait d'essayer — la règle du QCM du 2.8. En soutien,
+   « Vérifier » bleuit ce qui est juste et le verrouille, rougit ce qui est
+   coché à tort, et se tait sur ce qui manque ; l'élève revérifie.
+   La bonne réponse n'est jamais rangée à côté de la question : celle-ci ne
+   porte que la famille, ses paramètres et les choix de l'élève — svqAns()
+   recalcule tout, et le contrôle refuse tout autre champ. */
+const SVQ_N=12;                                       /* U₀ … U₁₂, comme sur la fiche */
+const SVQ_NB=4;                                       /* questions par séance : une croissante, une décroissante, deux non monotones */
+const SVQ_FAMS=['decconv','croconv','croinf','decinf','noninfm','noninfp','period','amorti','oscinf'];
+const SVQ_AMORTI=[[4,0.5],[4,0.75],[5,0.6]];          /* (A, q) avec A·q ENTIER : les deux extremums tombent sur des graduations */
+const SVQ_Q=[0.75,0.8,0.85], SVQ_K=[0.05,0.06,0.08];
+function svqGen(fam){
+  const q={fam:fam, rep:{}};
+  if(fam==='decconv'){ q.L=rand(1,3); q.A=pick([2,3,4]); q.q=pick(SVQ_Q); }
+  else if(fam==='croconv'){ q.L=rand(3,6); q.A=pick([2,3]); q.q=pick(SVQ_Q); }
+  else if(fam==='croinf'||fam==='decinf'){ q.U0=rand(0,2); q.k=pick(SVQ_K); }
+  else if(fam==='noninfm'||fam==='noninfp'){ q.U0=rand(0,2); q.k=pick([0.05,0.06]); q.s=pick([0.8,1]); }
+  else if(fam==='period'){ q.a=rand(0,2); q.d=pick([2,3]); q.dep=pick(['bas','haut']); }
+  else if(fam==='amorti'){ q.L=rand(2,5); q.i=rand(0,SVQ_AMORTI.length-1); q.sg=pick([1,-1]); }
+  else if(fam==='oscinf'){ q.c=rand(0,2); q.s=pick([0.5,1]); }
+  return q;
+}
+/* Le terme de rang n — la formule MÊME dont le dessin et la correction sont faits. */
+function svqVal(q,n){
+  switch(q.fam){
+    case 'decconv': return q.L+q.A*Math.pow(q.q,n);
+    case 'croconv': return q.L-q.A*Math.pow(q.q,n);
+    case 'croinf':  return q.U0+q.k*n*n;
+    case 'decinf':  return q.U0-q.k*n*n;
+    case 'noninfm': return q.U0-q.k*n*n-(n%3===2?q.s:0);    /* un creux un rang sur trois : la suite remonte, puis replonge */
+    case 'noninfp': return q.U0+q.k*n*n+(n%3===2?q.s:0);
+    case 'period':  { const pair=(n%2===0); return ((q.dep==='bas')===pair) ? q.a : q.a+q.d; }
+    case 'amorti':  { const A=SVQ_AMORTI[q.i][0], r=SVQ_AMORTI[q.i][1]; return q.L+q.sg*(n%2===0?1:-1)*A*Math.pow(r,n); }
+    case 'oscinf':  return q.c+(n%2===1?1:-1)*Math.floor(n/2)*q.s;
+  }
+  return NaN;
+}
+function svqTermes(q){ const t=[]; for(let n=0;n<=SVQ_N;n++) t.push(Math.round(svqVal(q,n)*100)/100); return t; }
+/* Toutes les réponses, calculées depuis la question et elle seule. sup et inf
+   sont ceux de la suite ENTIÈRE (la limite pour une suite monotone
+   convergente), jamais ceux des treize termes dessinés. */
+function svqAns(q){
+  const f=q.fam, r={sens:'non', maj:false, sup:null, min:false, inf:null, lim:null, ligne:null};
+  if(f==='decconv'){ r.sens='dec'; r.maj=true; r.sup=q.L+q.A; r.min=true; r.inf=q.L; r.lim=q.L; r.ligne=q.L; }
+  else if(f==='croconv'){ r.sens='cro'; r.maj=true; r.sup=q.L; r.min=true; r.inf=q.L-q.A; r.lim=q.L; r.ligne=q.L; }
+  else if(f==='croinf'){ r.sens='cro'; r.min=true; r.inf=q.U0; r.lim='+∞'; }
+  else if(f==='decinf'){ r.sens='dec'; r.maj=true; r.sup=q.U0; r.lim='−∞'; }
+  else if(f==='noninfm'){ r.maj=true; r.sup=q.U0; r.lim='−∞'; }
+  else if(f==='noninfp'){ r.min=true; r.inf=q.U0; r.lim='+∞'; }
+  else if(f==='period'){ r.maj=true; r.sup=q.a+q.d; r.min=true; r.inf=q.a; }
+  else if(f==='amorti'){ const A=SVQ_AMORTI[q.i][0], rq=SVQ_AMORTI[q.i][1];
+    r.maj=true; r.min=true; r.sup=(q.sg===1)?q.L+A:q.L+A*rq; r.inf=(q.sg===1)?q.L-A*rq:q.L-A; r.lim=q.L; }
+  r.bor=r.maj&&r.min;
+  r.aLim=(r.lim!==null);
+  r.conv=(typeof r.lim==='number');
+  return r;
+}
+/* Une séance : une croissante, une décroissante, deux non monotones distinctes,
+   en ordre mélangé — et les deux natures, convergente ET divergente, toujours
+   présentes : sans quoi l'élève apprendrait que la réponse est toujours la
+   même. Le repli, si le tirage n'y arrive pas, est une séance réelle. */
+function svqSession(){
+  for(let t=0;t<200;t++){
+    const fams=[pick(['croconv','croinf']), pick(['decconv','decinf'])]
+      .concat(afqMelange(['noninfm','noninfp','period','amorti','oscinf']).slice(0,2));
+    const qs=fams.map(svqGen);
+    const natures=qs.map(function(q){ return svqAns(q).conv; });
+    if(natures.indexOf(true)>=0 && natures.indexOf(false)>=0) return afqMelange(qs).slice(0,SVQ_NB);
+  }
+  return afqMelange(['croconv','decinf','period','oscinf'].map(svqGen));
+}
+/* ---- le dessin : treize croix sur un quadrillage, comme sur la fiche ---- */
+function svqSVG(q){
+  const t=svqTermes(q), a=svqAns(q);
+  let lo=Math.min.apply(null,t), hi=Math.max.apply(null,t);
+  if(a.ligne!==null){ lo=Math.min(lo,a.ligne); hi=Math.max(hi,a.ligne); }
+  const yLo=Math.min(0,Math.floor(lo)-1), yHi=Math.max(1,Math.ceil(hi)+1), rows=yHi-yLo;
+  const ux=40, uy=Math.max(18,Math.min(36,Math.round(300/rows)));   /* une rangée reste lisible : 18 px au moins, 36 au plus */
+  const PL=36, PR=30, PT=18, PB=26;
+  const W=PL+SVQ_N*ux+PR, H=PT+rows*uy+PB;
+  const X=function(n){ return PL+n*ux; }, Y=function(v){ return PT+(yHi-v)*uy; };
+  const f1=function(v){ return v.toFixed(1); };
+  let g='';
+  for(let n=0;n<=SVQ_N;n++) g+='<line x1="'+f1(X(n))+'" y1="'+f1(Y(yLo))+'" x2="'+f1(X(n))+'" y2="'+f1(Y(yHi))+'" stroke="var(--grid)" stroke-width="1"/>';
+  for(let v=yLo;v<=yHi;v++) g+='<line x1="'+f1(X(0))+'" y1="'+f1(Y(v))+'" x2="'+f1(X(SVQ_N))+'" y2="'+f1(Y(v))+'" stroke="var(--grid)" stroke-width="1"/>';
+  /* les axes : celui des abscisses passe par 0 */
+  g+='<line x1="'+f1(X(0))+'" y1="'+f1(Y(0))+'" x2="'+f1(X(SVQ_N)+8)+'" y2="'+f1(Y(0))+'" stroke="var(--ink-soft)" stroke-width="1.8"/>'
+    +'<line x1="'+f1(X(0))+'" y1="'+f1(Y(yLo))+'" x2="'+f1(X(0))+'" y2="'+f1(Y(yHi)-6)+'" stroke="var(--ink-soft)" stroke-width="1.8"/>';
+  for(let n=1;n<=SVQ_N;n++) g+='<text class="svq-ax" x="'+f1(X(n))+'" y="'+f1(Y(0)+14)+'" text-anchor="middle">'+n+'</text>';
+  for(let v=yLo;v<=yHi;v++) g+='<text class="svq-ax" x="'+f1(X(0)-6)+'" y="'+f1(Y(v)+4)+'" text-anchor="end">'+numFmt(v)+'</text>';
+  /* la droite y = ℓ, pour la suite monotone convergente — les exemples 1 et 2 de la fiche */
+  if(a.ligne!==null){
+    g+='<line class="svq-lim" x1="'+f1(X(0))+'" y1="'+f1(Y(a.ligne))+'" x2="'+f1(X(SVQ_N)+8)+'" y2="'+f1(Y(a.ligne))+'"/>'
+      +'<text class="svq-limlbl" x="'+f1(X(0)+6)+'" y="'+f1(Y(a.ligne)-5)+'">y = '+numFmt(a.ligne)+'</text>';
+  }
+  /* les croix et leurs étiquettes U₀ … U₁₂ */
+  t.forEach(function(v,n){
+    const x=X(n), y=Y(v);
+    g+='<g class="svq-terme" data-n="'+n+'"><line class="svq-croix" x1="'+f1(x-4)+'" y1="'+f1(y-4)+'" x2="'+f1(x+4)+'" y2="'+f1(y+4)+'"/>'
+      +'<line class="svq-croix" x1="'+f1(x-4)+'" y1="'+f1(y+4)+'" x2="'+f1(x+4)+'" y2="'+f1(y-4)+'"/>'
+      +'<text class="svq-lbl" x="'+f1(x+3)+'" y="'+f1(y-7)+'">U<tspan font-size="9" dy="3">'+n+'</tspan></text></g>';
+  });
+  return '<svg class="svq-svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="les termes de la suite sur un quadrillage">'+g+'</svg>';
+}
+/* ---- le formulaire de la fiche ---- */
+function svqCoche(grp,val,lib,idCase){
+  return '<span class="svq-coche'+(idCase?' pts-case':'')+'" role="checkbox" tabindex="0" aria-checked="false" data-grp="'+grp+'"'
+    +(val?' data-val="'+val+'"':'')+(idCase?' id="'+idCase+'"':'')+'>'
+    +'<span class="svq-box" aria-hidden="true"></span><span class="svq-lib">'+lib+'</span></span>';
+}
+function svqIn(id){
+  return '<input class="svq-in" id="'+id+'" type="text" inputmode="numeric" autocomplete="off" aria-label="valeur à compléter">';
+}
+function svqFormHTML(){
+  const U='<i>U</i><sub><i>n</i></sub>';
+  return '<p class="svq-titre">La suite ('+U+') semble :</p>'
+    +'<div class="svq-ligne svq-grp pts-case" id="svq-g-sens">'
+      +svqCoche('sens','cro','Croissante.')+svqCoche('sens','dec','Décroissante.')+svqCoche('sens','non','Non monotone.')+'</div>'
+    +'<div class="svq-ligne">'
+      +'<span class="svq-item">'+svqCoche('maj',null,'Majorée par','svq-c-maj')+svqIn('svq-maj')+'</span>'
+      +'<span class="svq-item">'+svqCoche('min',null,'Minorée par','svq-c-min')+svqIn('svq-min')+'</span>'
+      +svqCoche('bor',null,'Bornée','svq-c-bor')+'</div>'
+    +'<div class="svq-ligne svq-grp pts-case" id="svq-g-lim">'
+      +'<span class="svq-item">'+svqCoche('lim','a','A comme limite')+svqIn('svq-lim')
+        +'<button type="button" class="svq-inf" onclick="svqInf(\'+∞\')" title="Écrire +∞">+∞</button>'
+        +'<button type="button" class="svq-inf" onclick="svqInf(\'−∞\')" title="Écrire −∞">−∞</button></span>'
+      +svqCoche('lim','non','N’a pas de limite')+'</div>'
+    +'<div class="svq-ligne svq-grp pts-case" id="svq-g-nat">'
+      +svqCoche('nat','conv','Convergente')+svqCoche('nat','div','Divergente')+'</div>';
+}
+/* Les réponses de l'écran, dans l'ordre de la fiche. */
+function svqCases(q){
+  const a=svqAns(q), C=[];
+  C.push({id:'svq-g-sens', t:'grp', grp:'sens', v:a.sens});
+  C.push({id:'svq-c-maj', t:'coche', grp:'maj', v:a.maj});
+  if(a.maj) C.push({id:'svq-maj', t:'sup', v:a.sup});
+  C.push({id:'svq-c-min', t:'coche', grp:'min', v:a.min});
+  if(a.min) C.push({id:'svq-min', t:'inf', v:a.inf});
+  C.push({id:'svq-c-bor', t:'coche', grp:'bor', v:a.bor});
+  C.push({id:'svq-g-lim', t:'grp', grp:'lim', v:a.aLim?'a':'non'});
+  if(a.aLim) C.push({id:'svq-lim', t:'lim', v:a.lim});
+  C.push({id:'svq-g-nat', t:'grp', grp:'nat', v:a.conv?'conv':'div'});
+  return C;
+}
+function svqLireNb(raw){
+  const s=String(raw==null?'':raw).trim().replace(/\s+/g,'').replace(/−/g,'-').replace(/,/g,'.');
+  if(s===''||!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(s)) return NaN;
+  return Number(s);
+}
+/* Le verdict d'une réponse. Chaque réponse se juge SEULE : une borne fausse ne
+   fait pas payer la nature, et un sens faux ne fait pas payer la limite. */
+function svqJuste(q,x,lire){
+  const rep=q.rep||{};
+  if(x.t==='grp') return rep[x.grp]===x.v;
+  if(x.t==='coche') return !!rep[x.grp]===x.v;
+  const raw=lire(x.id);
+  if(x.t==='sup'){ const v=svqLireNb(raw); return isFinite(v) && v>=x.v-1e-9; }
+  if(x.t==='inf'){ const v=svqLireNb(raw); return isFinite(v) && v<=x.v+1e-9; }
+  if(x.t==='lim') return lgLimOK({lim:x.v}, raw);
+  return false;
+}
+function svqLimStr(v){ return (typeof v==='number')?numFmt(v):String(v); }
+function svqCorrVal(x){ return (x.t==='lim')?svqLimStr(x.v):numFmt(x.v); }
+/* Ce que la suite EST, en une phrase — pour la correction, le bilan et le contexte du modèle. */
+function svqPhrase(a){
+  const sens={cro:'croissante',dec:'décroissante',non:'non monotone'}[a.sens];
+  const bornes=a.bor ? 'majorée par '+numFmt(a.sup)+' et minorée par '+numFmt(a.inf)+', donc bornée'
+    : a.maj ? 'majorée par '+numFmt(a.sup)+' mais pas minorée'
+    : a.min ? 'minorée par '+numFmt(a.inf)+' mais pas majorée'
+    : 'ni majorée ni minorée';
+  const lim=a.aLim ? 'elle a pour limite '+svqLimStr(a.lim) : 'elle n’a pas de limite';
+  return sens+', '+bornes+' ; '+lim+' : elle est '+(a.conv?'convergente':'divergente')+'.';
+}
+function svqResumeEleve(q){
+  const rep=q.rep||{}, v=function(id){ const el=$(id); return el&&String(el.value||'').trim()?String(el.value).trim():'(vide)'; };
+  const sens={cro:'croissante',dec:'décroissante',non:'non monotone'}[rep.sens]||'(rien)';
+  return 'sens : '+sens+' ; majorée : '+(rep.maj?'oui, par '+v('svq-maj'):'non')+' ; minorée : '+(rep.min?'oui, par '+v('svq-min'):'non')
+    +' ; bornée : '+(rep.bor?'oui':'non')+' ; limite : '+(rep.lim==='a'?v('svq-lim'):(rep.lim==='non'?'aucune':'(rien)'))
+    +' ; nature : '+(rep.nat==='conv'?'convergente':(rep.nat==='div'?'divergente':'(rien)'));
+}
+/* ---- l'écran ---- */
+async function startSVQ(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='suite-vocabulaire'; test.kind='svq';
+  test.questions=svqSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('svq'); renderSVQ();
+}
+function renderSVQ(){
+  const q=test.questions[test.idx]; test.locked=false;
+  if(!q.rep||typeof q.rep!=='object') q.rep={};
+  $('svqQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('svqModeTag').innerHTML=modeTagHTML();
+  $('svqLiveScore').textContent=test.score;
+  $('svqFeedback').textContent=''; $('svqFeedback').className='mp-feedback';
+  $('svqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSVQ()">Vérifier</button>';
+  $('svqPrompt').innerHTML='<b>Exemple '+(test.idx+1)+'.</b> On a représenté les premiers termes <i>U</i><sub>0</sub>, <i>U</i><sub>1</sub>, …, <i>U</i><sub>12</sub> d’une suite (<i>U</i><sub><i>n</i></sub>) par des croix. '
+    +'En lisant le graphique, coche ce que la suite <b>semble</b> être, et complète les valeurs demandées.';
+  $('svqGraph').innerHTML=svqSVG(q);
+  const form=$('svqForm'); form.innerHTML=svqFormHTML();
+  form.onclick=function(e){
+    const c=e.target.closest ? e.target.closest('.svq-coche') : null;
+    if(!c||!form.contains(c)) return;
+    svqBasculer(c.getAttribute('data-grp'), c.getAttribute('data-val'));
+  };
+  form.onkeydown=function(e){
+    if(e.key!=='Enter'&&e.key!==' ') return;
+    const c=e.target&&e.target.classList&&e.target.classList.contains('svq-coche')?e.target:null;
+    if(!c) return;
+    e.preventDefault(); svqBasculer(c.getAttribute('data-grp'), c.getAttribute('data-val'));
+  };
+  svqPeindreEtat();
+}
+/* Cocher : un groupe EXCLUSIF (sens, limite, nature) ne garde qu'une case — la
+   recliquer la décoche ; une case de la ligne des bornes se bascule seule. */
+function svqBasculer(grp,val){
+  const q=test.questions[test.idx]; if(!q||test.locked) return false;
+  if(!q.rep) q.rep={};
+  const el=document.querySelector('#svqForm .svq-coche[data-grp="'+grp+'"]'+(val?'[data-val="'+val+'"]':''));
+  if(el&&el.classList.contains('fige')) return false;
+  if(val) q.rep[grp]=(q.rep[grp]===val)?null:val;
+  else q.rep[grp]=!q.rep[grp];
+  /* le verdict du tour précédent ne colle pas à un choix qui vient de changer */
+  document.querySelectorAll('#svqForm .svq-coche[data-grp="'+grp+'"]').forEach(function(c){ c.classList.remove('ok','bad','sol'); });
+  svqPeindreEtat();
+  return true;
+}
+/* L'état des cases, relu depuis la question : la reprise après une pause et le
+   rejeu passent par là sans rien savoir de plus. */
+function svqPeindreEtat(){
+  const q=test.questions[test.idx]; const rep=(q&&q.rep)||{};
+  document.querySelectorAll('#svqForm .svq-coche').forEach(function(c){
+    const grp=c.getAttribute('data-grp'), val=c.getAttribute('data-val');
+    const on=val ? (rep[grp]===val) : !!rep[grp];
+    c.classList.toggle('on', on); c.setAttribute('aria-checked', on?'true':'false');
+  });
+  const ouvrir=function(id, ouvert){ const el=$(id); if(!el||test.locked) return; el.disabled=!ouvert; };
+  ouvrir('svq-maj', !!rep.maj); ouvrir('svq-min', !!rep.min); ouvrir('svq-lim', rep.lim==='a');
+  document.querySelectorAll('#svqForm .svq-inf').forEach(function(b){ b.disabled=!(rep.lim==='a')||!!test.locked; });
+}
+function svqInf(ch){
+  const el=$('svq-lim'); if(!el||el.disabled) return;
+  el.value=ch; el.dispatchEvent(new Event('input',{bubbles:true})); try{ el.focus(); }catch(e){}
+}
+function svqFiger(){
+  document.querySelectorAll('#svqForm .svq-coche').forEach(function(c){ c.classList.add('fige'); c.setAttribute('aria-disabled','true'); });
+  ['svq-maj','svq-min','svq-lim'].forEach(function(id){ const el=$(id); if(el) el.disabled=true; });
+  document.querySelectorAll('#svqForm .svq-inf').forEach(function(b){ b.disabled=true; });
+}
+/* La peinture. Groupe exclusif : la case choisie juste est bleue, la case
+   choisie à tort rouge, la bonne case NON choisie verte (correction) — jamais
+   en soutien, où l'élève corrige lui-même. Ligne des bornes : cochée juste
+   bleue, cochée à tort rouge, oubliée verte. Une valeur passe par corrCase, la
+   convention commune. */
+function svqPeindre(etats, final){
+  etats.forEach(function(e){
+    const x=e.x;
+    if(x.t==='grp'){
+      const w=$(x.id); if(!w) return;
+      w.classList.remove('ok','bad','sol');
+      w.classList.add(e.ok?'ok':(e.vide?'sol':'bad'));
+      w.querySelectorAll('.svq-coche').forEach(function(c){
+        const val=c.getAttribute('data-val'), choisie=c.classList.contains('on');
+        c.classList.remove('ok','bad','sol');
+        if(val===x.v){ if(choisie) c.classList.add('ok'); else if(final) c.classList.add('sol'); }
+        else if(choisie) c.classList.add('bad');
+        if(e.ok) c.classList.add('fige');
+      });
+      return;
+    }
+    if(x.t==='coche'){
+      const c=$(x.id); if(!c) return;
+      c.classList.remove('ok','bad','sol');
+      if(e.ok){ c.classList.add('ok','fige'); }
+      else if(!e.vide) c.classList.add('bad');
+      else if(final) c.classList.add('sol');
+      return;
+    }
+    const el=$(x.id); if(!el) return;
+    if(final){ corrCase(x.id, svqCorrVal(x), e.ok); return; }
+    el.classList.remove('ok','bad','sol');
+    if(!e.vide){ el.classList.add(e.ok?'ok':'bad'); if(e.ok) el.disabled=true; }
+  });
+}
+function checkSVQ(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], a=svqAns(q), cases=svqCases(q), rep=q.rep||{};
+  const lire=function(id){ const el=$(id); return el?String(el.value==null?'':el.value):''; };
+  let allOk=true, anyFilled=false;
+  const etats=cases.map(function(x){
+    const ok=svqJuste(q,x,lire);
+    let vide;
+    if(x.t==='grp') vide=(rep[x.grp]==null);
+    else if(x.t==='coche') vide=!rep[x.grp];          /* une case NON cochée est une case laissée vide, jamais une case fausse */
+    else vide=(lire(x.id).trim()==='');
+    if(!vide) anyFilled=true;
+    if(!ok) allOk=false;
+    return {x:x, ok:ok, vide:vide};
+  });
+  if(!anyFilled){
+    $('svqFeedback').textContent='Coche au moins une case avant de vérifier.';
+    $('svqFeedback').className='mp-feedback';
+    return;
+  }
+  if(!allOk&&isSoutien()){
+    svqPeindre(etats,false);
+    $('svqFeedback').textContent='Presque ! Corrige ce qui est en rouge — ou ce qui manque —, puis revérifie.';
+    $('svqFeedback').className='mp-feedback bad';
+    $('svqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSVQ()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  svqPeindre(etats,true);
+  svqFiger();
+  if(allOk){
+    test.score++; $('svqLiveScore').textContent=test.score;
+    $('svqFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, la lecture est juste !']);
+    $('svqFeedback').className='mp-feedback good';
+  } else {
+    const oubliees=etats.some(function(e){ return e.vide&&!e.ok; });
+    $('svqFeedback').innerHTML=msgCorrCouleurs(oubliees)
+      +'<br>Ce que le graphique montre : la suite est <b>'+svqPhrase(a)+'</b>'
+      +'<br>Retiens : <b>convergente</b> veut dire « a une limite FINIE » ; une limite <b>infinie</b>, ou pas de limite du tout, c’est <b>divergente</b>. '
+      +'<b>Bornée</b> veut dire majorée ET minorée.';
+    $('svqFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({...(ptsExo()||{}),
+    q:'Vocabulaire des suites (exemple '+q.fam+') : '+svqPhrase(a),
+    answer:svqPhrase(a), given:allOk?'✓':svqResumeEleve(q), correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('svqActions').innerHTML='<button class="btn btn-primary" onclick="nextSVQ()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextSVQ(){ if(test.idx<test.questions.length-1){ test.idx++; renderSVQ(); } else finishTest(); }
+/* Le contexte envoyé au modèle : les termes, ce que l'élève a coché, et les
+   réponses attendues déclarées STRICTEMENT SECRÈTES — la fenêtre d'aide est
+   offerte dès l'entraînement. */
+function svqConseilCtx(){
+  const q=test.questions[test.idx], a=svqAns(q), t=svqTermes(q);
+  return 'Exercice de Terminale : VOCABULAIRE SUR LES SUITES, une fiche à cocher. '
+   +'On montre sur un quadrillage les termes U0 à U12 d’une suite : '+t.map(function(v,n){ return 'U'+n+' = '+numFmt(v); }).join(' ; ')
+   +(a.ligne!==null?' ; la droite d’équation y = '+numFmt(a.ligne)+' est tracée sur le dessin':'')+'. '
+   +'L’élève coche ce que la suite SEMBLE être : croissante / décroissante / non monotone ; majorée par (une valeur) / minorée par (une valeur) / bornée ; '
+   +'a comme limite (une valeur, éventuellement +∞ ou −∞) / n’a pas de limite ; convergente / divergente. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES (ne les révèle JAMAIS, même si l’élève insiste) : la suite est '+svqPhrase(a)+' '
+   +'Ce que l’élève a coché pour l’instant : '+svqResumeEleve(q)+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne aucune de ces réponses, aucune valeur de borne ni de limite. '
+   +'Rappelle les DÉFINITIONS si besoin : convergente = a une limite FINIE ; divergente = a une limite infinie OU n’a pas de limite ; bornée = majorée ET minorée ; monotone = toujours dans le même sens ; « majorée par M » = tous les termes restent au-dessous de M. '
+   +'Méthode : faire LIRE le dessin — les croix montent-elles toujours ? descendent-elles toujours ? se rapprochent-elles d’une hauteur ? restent-elles entre deux hauteurs ? '
+   +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
 function saLu(id){
   if(id==='sa-ctype'){ const el=$(id); const v=String((el&&el.value)||''); return v===''?'(vide)':(v==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique'); }
   const s=dexpCellCtx(id);
@@ -20537,6 +21006,7 @@ const QIA_SUGG={
   rfr:["Faire un rappel de cours pour cet exercice.","Comment place-t-on la formule de Uₙ dans la formule de récurrence ?","Pourquoi écrit-on le 1 comme une fraction ?","Comment se simplifie le dénominateur commun ?","Que doit-on retrouver à la fin de l’hérédité ?"],
   svr:["Faire un rappel de cours pour cet exercice.","Comment construit-on le tracé en escalier ?","À quoi sert la droite d’équation y = x ?","Comment dérive-t-on une fonction de la forme 1/(a − x) ?","Pourquoi f croissante conserve-t-elle les inégalités ?","Que veut dire « décroissante et minorée » ?"],
   tcl:["Faire un rappel de cours pour cet exercice.","Comment lire le sens de variation dans l’encadrement ?","Pourquoi faut-il « croissante ET majorée » pour conclure ?","Pourquoi Uₙ₊₁ a-t-elle la même limite que Uₙ ?","Comment résoudre l’équation obtenue par passage à la limite ?"],
+  svq:["Faire un rappel de cours pour cet exercice.","Quelle différence entre convergente et divergente ?","Une suite qui tend vers +∞ a-t-elle une limite ?","Que veut dire « bornée » ?","Comment voir sur le graphique qu’une suite n’est pas monotone ?","Une suite non monotone peut-elle converger ?"],
   sa2:["Faire un rappel de cours pour cet exercice.","Pourquoi factorise-t-on par la raison ?","Comment retrouver le nombre qui va dans la case ?","À quoi sert la suite auxiliaire (Vₙ) ?","Comment revenir à Uₙ une fois Vₙ connue ?"],
   sa:["Faire un rappel de cours pour cet exercice.","À quoi sert une suite auxiliaire ?","Comment montrer qu’une suite est géométrique ?","Comment trouver la raison et le premier terme de (Vₙ) ?","Comment revenir à Uₙ une fois Vₙ connue ?"],
   rec:["Faire un rappel de cours pour cet exercice.","Comment conjecturer la limite avec les termes affich\u00e9s ?","Que veut dire \u00ab majorant \u00bb et \u00ab minorant \u00bb ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb dans l\u2019h\u00e9r\u00e9dit\u00e9 ?"],
