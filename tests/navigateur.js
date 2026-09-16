@@ -6346,6 +6346,117 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies duodecies. {python-afficher-variable} : le programme se complète, s'exécute, se vérifie =====
+       Le banc jsdom tient le juge (copie par copie, contre CPython), le
+       tirage, les portes et le soutien. Ce qu'il ne voit pas : la zone où
+       l'élève écrit, RENDUE à chasse fixe et à la taille de la ligne de code
+       qu'elle prolonge — une case plus petite ferait passer le programme de
+       l'élève pour une note en bas de page —, le cours rendu au rectangle,
+       une VRAIE frappe au clavier dans la zone, un vrai clic sur « Exécuter »
+       et la console qui suit, l'encre RÉSOLUE des verdicts (rouge, puis bleu)
+       et la correction verte à côté, et la page qui ne déborde ni à 1400 px
+       ni à la largeur d'un téléphone. Puis le bord du soutien : la zone
+       rougit, le retour nomme la ligne et le mot, aucune correction verte, et
+       la copie corrigée passe au bleu. */
+    titre('6 vicies duodecies. AFFICHE LA VARIABLE ! LE PROGRAMME SE COMPLÈTE, S\'EXÉCUTE, SE VÉRIFIE');
+    if(!P.pythonAfficherVariable){
+      ignorer('le programme se complète, s\'exécute, se vérifie', 'ce niveau n\'a pas l\'exercice « afficher une variable »');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonAfficherVariable.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const cours = document.querySelector('#pycHost .pyc-cours'), l1 = document.getElementById('pycL1'), ta = document.getElementById('pyc-in');
+        const run = document.getElementById('pycRun'), cons = document.getElementById('pycConsole');
+        const r = e => e ? e.getBoundingClientRect() : { width: 0, height: 0 };
+        const cs = e => getComputedStyle(e);
+        return { cours: r(cours), coursTexte: cours ? cours.textContent : '',
+                 l1: l1 && l1.textContent, l1Taille: l1 ? parseFloat(cs(l1).fontSize) : 0,
+                 taTaille: ta ? parseFloat(cs(ta).fontSize) : 0, taPolice: ta ? cs(ta).fontFamily : '', ta: r(ta),
+                 runDisabled: !run || run.disabled, run: r(run), cons: r(cons),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 src: test.questions[0].nom + ' = ' + test.questions[0].lit };
+      });
+      verifier('le cours « comment afficher une variable » est rendu, lisible, et montre print', avant.cours.width > 400 && avant.cours.height > 60 && /print/.test(avant.coursTexte) && /guillemets/.test(avant.coursTexte),
+        Math.round(avant.cours.width) + 'x' + Math.round(avant.cours.height));
+      verifier('la première ligne est écrite par la page, et la zone où l\'élève écrit est rendue à chasse fixe, à la taille de cette ligne',
+        avant.l1 === avant.src && avant.ta.width > 300 && avant.ta.height > 30 && /mono|menlo|consolas|courier/i.test(avant.taPolice) && Math.abs(avant.taTaille - avant.l1Taille) < 0.5,
+        JSON.stringify(avant.l1) + ' ; zone ' + avant.taTaille + 'px contre ' + avant.l1Taille + 'px, ' + avant.taPolice);
+      verifier('« Exécuter » est libre dès le départ, la console est là, et la page ne déborde pas à 1400 px',
+        !avant.runDisabled && avant.run.width > 40 && avant.cons.height > 20 && !avant.page, '');
+      /* une VRAIE frappe : la copie fausse, exécutée, puis vérifiée */
+      await s.page.click('#pyc-in');
+      await s.page.keyboard.type('print("note")');
+      await s.page.click('#pycRun');
+      await s.page.waitForTimeout(250);
+      const exec1 = await s.page.evaluate(() => ({ console: document.getElementById('pycConsole').textContent, rep: test.questions[0].rep,
+        police: getComputedStyle(document.getElementById('pycConsole')).fontFamily }));
+      verifier('la frappe se range dans la question, et un vrai clic sur « Exécuter » montre ce que fait la copie (note), à chasse fixe',
+        exec1.rep === 'print("note")' && exec1.console === 'note' && /mono|menlo|consolas|courier/i.test(exec1.police), JSON.stringify(exec1));
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const faux = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        const parVar = v => { t.style.color = 'var(' + v + ')'; return getComputedStyle(t).color; };
+        const ref = { bleu: parVar('--blue'), rouge: parVar('--red'), vert: parVar('--green') };
+        t.remove();
+        const ta = document.getElementById('pyc-in'), badge = ta.nextElementSibling;
+        const br = badge ? badge.getBoundingClientRect() : { width: 0, height: 0 };
+        return { ref: ref, encre: getComputedStyle(ta).color, badge: badge && badge.classList.contains('mf-cor') ? badge.textContent : null,
+                 badgeEncre: badge ? getComputedStyle(badge).color : '', badgeVisible: br.width > 30 && br.height > 12,
+                 fb: document.getElementById('pycFeedback').textContent, score: test.score, suivant: !!document.getElementById('pycNext') };
+      });
+      verifier('la copie fausse vérifiée est peinte en ROUGE (encre résolue), et le retour nomme la ligne 2 et les guillemets',
+        faux.encre === faux.ref.rouge && /ligne 2/.test(faux.fb) && /guillemets/.test(faux.fb), faux.encre + ' / ' + faux.fb.slice(0, 90));
+      verifier('la ligne attendue est écrite en VERT à côté, dans une boîte visible, et « Question suivante » est proposé',
+        faux.badge === 'print(note)' && faux.badgeEncre === faux.ref.vert && faux.badgeVisible && faux.suivant && faux.score === 0,
+        JSON.stringify(faux.badge) + ' ' + faux.badgeEncre);
+      /* à la largeur d'un téléphone, rien ne déborde */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const ta = document.getElementById('pyc-in').getBoundingClientRect(), c = document.querySelector('#pycHost .pyc-cours').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth, ta: ta.right <= 391 && ta.width > 200, cours: c.right <= 391 };
+      });
+      verifier('sur un téléphone, le cours et la zone tiennent dans l\'écran et la page ne déborde pas', !tel.page && tel.ta && tel.cours, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le bord du soutien : OÙ est l'erreur, sans la réponse, puis la copie corrigée */
+      await s.page.evaluate(id => openTest(id), P.pythonAfficherVariable.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      await s.page.click('#pyc-in');
+      await s.page.keyboard.type('Print(note)');
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        t.style.color = 'var(--red)'; const rouge = getComputedStyle(t).color; t.remove();
+        const ta = document.getElementById('pyc-in'), fb = document.getElementById('pycFeedback').textContent;
+        return { rouge: rouge, encre: getComputedStyle(ta).color, badge: !!(ta.nextElementSibling && ta.nextElementSibling.classList.contains('mf-cor')),
+                 fb: fb, disabled: ta.disabled, locked: test.locked, revoir: /Rev/.test((document.getElementById('pycValidate') || {}).textContent || '') };
+      });
+      verifier('en soutien, la copie fausse rougit la zone sans correction verte ni verrou, et le retour dit « Erreur repérée à la ligne 2 » avec le mot fautif — jamais la réponse',
+        sout.encre === sout.rouge && !sout.badge && !sout.disabled && !sout.locked && sout.revoir && /^Erreur repérée à la ligne 2/.test(sout.fb) && /Print/.test(sout.fb) && sout.fb.indexOf('print(note)') < 0,
+        sout.encre + ' / ' + sout.fb.slice(0, 90));
+      await s.page.fill('#pyc-in', 'print(note)');
+      await s.page.click('#pycRun');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const fin = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        t.style.color = 'var(--blue)'; const bleu = getComputedStyle(t).color; t.remove();
+        return { bleu: bleu, encre: getComputedStyle(document.getElementById('pyc-in')).color, console: document.getElementById('pycConsole').textContent,
+                 score: test.score, note: (document.querySelector('#pycFeedback .note-exo') || {}).textContent || document.getElementById('pycFeedback').textContent };
+      });
+      verifier('la copie corrigée s\'exécute (12) et passe au BLEU, pour 1 case juste', fin.encre === fin.bleu && fin.console === '12' && fin.score === 1, fin.encre + ' / ' + fin.console + ' / ' + fin.note.slice(0, 60));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
     /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
        de mise en page — seul un navigateur voit le geste), puis la partie
