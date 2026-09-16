@@ -2648,6 +2648,93 @@ copie propre hors dépôt à chaque tour, et le sabotage du navigateur s’est j
 dans une copie de travail séparée, pendant que la page propre passait son
 propre banc.
 
+**Puis l'élève a ÉCRIT sa première ligne de code : afficher un texte suivi
+d'une variable.** {python-completer} (Seconde, 5.3, demande de Turquet,
+septembre 2026 : « un exercice Python où on explique comment afficher du
+texte suivi d'une variable ; on donne un programme qui commence par
+note = 12 et l'élève doit compléter le programme pour qu'il affiche le texte
+"la note est :" suivi de la valeur de la variable ; l'élève peut ensuite
+exécuter le programme puis on doit vérifier le résultat ; en mode soutien le
+programme doit être capable d'expliquer où se trouve l'erreur ») suit
+{python-types} au menu. Le 5.1 fait PRÉDIRE un print, le 5.2 fait
+RECONNAÎTRE un type ; ici il faut PRODUIRE la ligne — dans une case de code
+à chasse fixe, sous la ligne 1 écrite par la page. Le cours est SUR l'écran,
+avant le programme (le motif des trois cadres du 5.2), et son exemple n'est
+aucune des questions.
+**LA CHAÎNE DES PORTES EST CELLE DE LA DEMANDE : écrire, EXÉCUTER, puis
+vérifier.** « Vérifier » ne s'ouvre qu'une fois la ligne exécutée telle
+qu'elle est écrite, et se referme sur une ligne modifiée — la console se vide
+avec lui, sans quoi elle montrerait la sortie d'une ligne qui n'est plus celle
+écrite. L'élève voit ce que SA ligne affiche, le compare à ce qui est demandé
+(l'écran le dit : « c'est-à-dire : la note est : 12 »), et demande le verdict
+ensuite. C'est le geste du carnet, tenu par l'ÉTAT du bouton et non par une
+consigne (la leçon de {placer-image}) ; Entrée dans la case exécute. Et
+« Vérifier » exécute LUI-MÊME une ligne qui ne l'aurait pas été : la console
+montre toujours ce que le juge a lu.
+**LA SORTIE AFFICHÉE ET LA CORRECTION SORTENT DE LA MÊME FONCTION** : le
+bouton, le juge (`pycJuge`) et le diagnostic lisent tous `pyRun` sur le
+programme de l'élève — l'interpréteur du 5.1, comparé à un vrai CPython par
+le banc, ici sur 974 programmes : les témoins ET huit lignes d'élève par
+question, justes et fausses, refus pour refus. Le témoin est ÉCRIT depuis la
+question (`pycAns`), jamais rangé à côté : elle ne porte que le nom, la
+valeur, le texte et le visage, et le contrôle refuse tout autre champ.
+**Le verdict compare la SORTIE — et exige la variable EMPLOYÉE.** Toute
+écriture qui affiche la même chose est juste : les guillemets simples,
+`"la note est :" + " " + str(note)`, un commentaire au bout. Mais
+`print("la note est :", 12)` affiche la bonne chose sans rien apprendre — la
+valeur est recopiée à la main —, et le message le dit : c'est un fait
+prouvable sur la ligne (aucun jeton `note` hors guillemets), pas une opinion.
+**LE DIAGNOSTIC NOMME OÙ EST L'ERREUR, en soutien comme en entraînement.**
+Il ne prononce que des faits PROUVABLES sur la ligne, dans un ordre qui
+compte : le guillemet ouvert et jamais fermé d'abord — sans lui, tout ce qui
+suit passerait pour du texte nu — ; le texte posé SANS guillemets (Python le
+prend pour des noms de variables, et c'est l'erreur la plus fréquente) ;
+`Print` en majuscule ; « afficher » à la place de print ; la parenthèse
+ouvrante manquante ; la parenthèse jamais fermée, COMPTÉE hors guillemets
+(l'interpréteur ne dit que « SyntaxError ligne 2 » sur ce cas-là — le
+premier jet du diagnostic l'a appris au premier banc) ; la variable en
+majuscule, ou inconnue ; la virgule manquante entre le texte et la variable ;
+le « + » entre un texte et un nombre. Puis, sur une ligne qui s'exécute : la
+variable entre guillemets (c'est son NOM qui s'affiche), l'ordre inversé,
+l'espace en trop ou manquante, le « : » oublié, la majuscule dans le texte,
+un calcul à la place de la variable, trois choses au lieu de deux, une ligne
+qui n'affiche rien. Ce qu'il ne sait pas nommer, il le MONTRE : « ton
+programme affiche X au lieu de Y ». Vingt-cinq lignes fausses sont ÉPINGLÉES
+au contrôle, chacune avec le mot que son diagnostic doit porter — un
+diagnostic qui dirait autre chose que l'erreur serait pire que « faux ».
+**En entraînement la ligne juste s'écrit en VERT SOUS la case** (un badge en
+ligne, à droite, sortirait de l'écran sur un téléphone) et la question se
+verrouille ; **en soutien, jamais** : la case rougit, le message dit « Où est
+l'erreur ? », l'élève corrige — le rouge s'en va dès la première frappe, le
+bouton se referme, il ré-exécute et revérifie. La ligne VIDE n'est jamais
+peinte : elle est redemandée. La première question est celle de la demande,
+ÉPINGLÉE (note = 12, « la note est : ») ; les trois suivantes tirent les
+trois visages du 5.1 — un entier, un décimal, un texte — dans ses jeux de
+variables (`PY_JEUX`, partagé, pas recopié), en ordre mélangé. Aucune
+correction au fil de la frappe (`soutienEnDirect.sans`) : une ligne de code
+se juge écrite, pas lettre par lettre. Une case par question, `pycCases` pour
+la coupe d'un devoir.
+**Un défaut ne s'est vu que sur la capture** : la ligne juste en vert se
+posait À DROITE de la case au lieu de dessous — la rangée du programme est
+un flex, et un badge `display:block` y reste un élément de la rangée. Elle
+occupe désormais toute la rangée (`flex:0 0 100%`) et tombe sous la case ;
+le banc navigateur mesure les deux rectangles, parce que jsdom n'a pas de
+mise en page.
+Le banc NAVIGATEUR (« 6 vicies duodecies », déclaré par `pythonCompleter`
+dans `tests/profils.js`) tient ce que jsdom ne voit pas : le cours rendu, la
+ligne 1 et la case à chasse fixe et à la MÊME taille, un VRAI clic sur
+« Vérifier » fermé qui ne juge rien, la ligne fausse TAPÉE au clavier et sa
+ligne juste en VERT SOUS la case, la ligne juste de la question suivante
+tapée puis exécutée par Entrée, l'encre RENDUE du verdict, l'erreur de Python
+en rouge dans la console, la page qui ne déborde pas sur un téléphone, puis
+le soutien joué de bout en bout. Les contrôles universels des deux bancs ont
+couvert l'exercice au premier passage sans rien déclarer. Douze sabotages au
+banc jsdom, chacun rougissant en nommant son défaut — et la campagne a
+elle-même payé la règle « une campagne de sabotage se joue seule sur la
+machine » : lancée pendant que le banc NAVIGATEUR tournait encore, elle lui
+a fait mesurer la page sabotée (« le soutien verrouille une copie fausse »),
+et ses deux rouges accusaient une page juste. Rejoué seul, il est vert.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en

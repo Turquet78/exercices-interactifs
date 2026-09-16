@@ -6346,6 +6346,143 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies duodecies. {python-completer} : la ligne 2 se tape, s'exécute, puis se vérifie =====
+       Le banc jsdom tient le juge (les lignes justes et fausses, chacune
+       avec son diagnostic), les portes et le soutien. Ce qu'il ne voit pas :
+       le cours RENDU au rectangle, la ligne 1 et la case de la ligne 2 à
+       chasse fixe et à la MÊME taille (une case plus petite que le code
+       qu'elle prolonge se lirait comme une note), la case qui ne s'étire pas
+       hors de l'écran, un VRAI clic sur « Vérifier » fermé qui ne fait rien,
+       la ligne TAPÉE au clavier — Entrée exécute —, la console et le verdict
+       à l'encre RENDUE, l'erreur de Python en rouge dans la console, et la
+       page qui ne déborde pas à la largeur d'un téléphone. Puis il rejoue le
+       soutien : la ligne fausse rougit, le message dit où est l'erreur, la
+       correction tapée referme puis rouvre le bouton. */
+    titre('6 vicies duodecies. AFFICHER UN TEXTE SUIVI D\'UNE VARIABLE : LA LIGNE SE TAPE, S\'EXÉCUTE, SE VÉRIFIE');
+    if(!P.pythonCompleter){
+      ignorer('la ligne 2 se tape, s\'exécute, puis se vérifie', 'ce niveau n\'a pas l\'exercice du print à compléter');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonCompleter.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(() => {
+        const cours = document.querySelector('#pycHost .pyc-cours'), l1 = document.querySelector('#pycHost .pyc-l1'), inp = document.getElementById('pyc-in');
+        const cons = document.getElementById('pycConsole'), run = document.getElementById('pycRun'), val = document.getElementById('pycValidate');
+        const fam = el => getComputedStyle(el).fontFamily, px = el => Math.round(parseFloat(getComputedStyle(el).fontSize) * 10) / 10;
+        const cr = cours.getBoundingClientRect(), ir = inp.getBoundingClientRect(), rr = run.getBoundingClientRect(), vr = val.getBoundingClientRect();
+        return { coursVisible: cr.width > 400 && cr.height > 60, coursTexte: cours.textContent,
+                 policeL1: fam(l1), policeIn: fam(inp), pxL1: px(l1), pxIn: px(inp),
+                 l1: l1.textContent, inVisible: ir.width > 200 && ir.height > 28 && ir.right <= document.documentElement.clientWidth,
+                 runOk: !run.disabled && rr.width > 40 && rr.height > 20, valFerme: val.disabled && vr.width > 40,
+                 consoleVisible: cons.getBoundingClientRect().height > 20,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('le cours est rendu à une taille lisible, et il nomme la virgule et les guillemets', avant.coursVisible && /virgule/.test(avant.coursTexte) && /guillemets/.test(avant.coursTexte), '');
+      verifier('la ligne 1 « note = 12 » et la case de la ligne 2 sont à chasse fixe, à la même taille',
+        avant.l1 === 'note = 12' && /mono|menlo|consolas|courier/i.test(avant.policeL1) && /mono|menlo|consolas|courier/i.test(avant.policeIn) && Math.abs(avant.pxL1 - avant.pxIn) < 0.6,
+        avant.policeIn + ' — ' + avant.pxL1 + 'px / ' + avant.pxIn + 'px');
+      verifier('la case tient dans l\'écran, « Exécuter » est ouvert, « Vérifier » est fermé, et la page ne déborde pas à 1400 px',
+        avant.inVisible && avant.runOk && avant.valFerme && avant.consoleVisible && !avant.page, JSON.stringify(avant));
+      /* un VRAI clic sur « Vérifier » fermé ne fait rien */
+      await s.page.click('#pycValidate', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const rien = await s.page.evaluate(() => ({ fb: document.getElementById('pycFeedback').textContent, cl: document.getElementById('pyc-in').className }));
+      verifier('un clic sur « Vérifier » fermé ne juge rien', rien.fb === '' && !/ok|bad/.test(rien.cl), JSON.stringify(rien));
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      /* on TAPE d'abord une ligne FAUSSE (la variable entre guillemets), et
+         Entrée l'exécute : en entraînement, la ligne juste doit s'écrire en
+         VERT et SOUS la case — posée en ligne, elle se rangeait à droite,
+         vu sur une capture, et jsdom n'a pas de mise en page */
+      await s.page.click('#pyc-in');
+      await s.page.keyboard.type('print("la note est :", "note")');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const faux1 = await s.page.evaluate(() => {
+        const inp = document.getElementById('pyc-in'), b = inp.nextElementSibling;
+        const ri = inp.getBoundingClientRect(), rb = b ? b.getBoundingClientRect() : null;
+        return { bad: inp.classList.contains('bad'), encre: getComputedStyle(inp).color, badge: !!(b && b.classList.contains('mf-cor')),
+                 texte: b && b.textContent, encreBadge: b ? getComputedStyle(b).color : '', dessous: !!rb && rb.top >= ri.bottom - 1 && rb.width > 100,
+                 dedans: !!rb && rb.right <= document.documentElement.clientWidth, fb: document.getElementById('pycFeedback').textContent,
+                 score: test.score, suivant: !!document.getElementById('pycNext') };
+      });
+      verifier('la ligne fausse vérifiée rougit (encre rouge rendue), le message nomme l\'erreur, et la ligne juste s\'écrit en VERT, SOUS la case, dans l\'écran',
+        faux1.bad && dom(faux1.encre) === 'rouge' && faux1.badge && faux1.texte === 'print("la note est :", note)' && dom(faux1.encreBadge) === 'vert'
+        && faux1.dessous && faux1.dedans && /TEXTE/.test(faux1.fb) && faux1.score === 0 && faux1.suivant, JSON.stringify(faux1));
+      /* question 2 : on TAPE la ligne juste de CE tirage, et Entrée l'exécute */
+      await s.page.click('#pycNext');
+      await s.page.waitForTimeout(300);
+      const q2 = await s.page.evaluate(() => { const a = pycAns(test.questions[test.idx]); return { ligne: a.ligne, sortie: a.sortie.trim(), idx: test.idx }; });
+      await s.page.click('#pyc-in');
+      await s.page.keyboard.type(q2.ligne);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const exec = await s.page.evaluate(() => {
+        const cons = document.getElementById('pycConsole'), r = cons.getBoundingClientRect();
+        return { texte: cons.textContent, visible: r.height > 20 && r.width > 100, police: getComputedStyle(cons).fontFamily,
+                 valOuvert: !document.getElementById('pycValidate').disabled, valeur: document.getElementById('pyc-in').value };
+      });
+      verifier('question 2 : Entrée exécute la ligne tapée, la console montre la sortie attendue à chasse fixe, et « Vérifier » s\'ouvre',
+        q2.idx === 1 && exec.texte === q2.sortie && exec.visible && /mono|menlo|consolas|courier/i.test(exec.police) && exec.valOuvert,
+        JSON.stringify(exec) + ' / attendu ' + JSON.stringify(q2.sortie));
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => {
+        const inp = document.getElementById('pyc-in');
+        const cs = getComputedStyle(inp);
+        return { ok: inp.classList.contains('ok'), score: test.score, encre: cs.color, verrou: inp.disabled, badge: !!(inp.nextElementSibling && inp.nextElementSibling.classList.contains('mf-cor')),
+                 suivant: !!document.getElementById('pycNext'), focus: document.activeElement && document.activeElement.id };
+      });
+      verifier('la ligne juste vérifiée est peinte ok, à l\'encre BLEUE rendue, sans ligne verte, vaut 1, se verrouille, et « Question suivante » reçoit le focus',
+        apres.ok && apres.score === 1 && dom(apres.encre) === 'bleu' && !apres.badge && apres.verrou && apres.suivant && apres.focus === 'pycNext', JSON.stringify(apres));
+      /* à la largeur d'un téléphone, rien ne déborde et la case reste dans l'écran */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const inp = document.getElementById('pyc-in').getBoundingClientRect(), prog = document.querySelector('#pycHost .pyc-prog').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth, caseDedans: inp.right <= 391 && inp.width > 150, progDedans: prog.right <= 391 };
+      });
+      verifier('sur un téléphone, la case et le programme restent dans l\'écran et la page ne déborde pas', !tel.page && tel.caseDedans && tel.progDedans, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le soutien : la ligne fausse rougit, la page dit OÙ est l'erreur, la correction rouvre la porte */
+      await s.page.evaluate(id => openTest(id), P.pythonCompleter.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      await s.page.click('#pyc-in');
+      await s.page.keyboard.type('print(la note est :, note)');
+      await s.page.click('#pycRun');
+      await s.page.waitForTimeout(300);
+      const err = await s.page.evaluate(() => { const c = document.getElementById('pycConsole'); return { texte: c.textContent, encre: getComputedStyle(c).color, valOuvert: !document.getElementById('pycValidate').disabled }; });
+      verifier('en soutien, l\'erreur de Python s\'affiche dans la console, en rouge, et « Vérifier » s\'ouvre quand même', /^Erreur/.test(err.texte) && dom(err.encre) === 'rouge' && err.valOuvert, JSON.stringify(err));
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const inp = document.getElementById('pyc-in'), fb = document.getElementById('pycFeedback');
+        return { bad: inp.classList.contains('bad'), encre: getComputedStyle(inp).color, badge: !!(inp.nextElementSibling && inp.nextElementSibling.classList.contains('mf-cor')),
+                 fb: fb.textContent, fbVisible: fb.getBoundingClientRect().height > 10, verrou: inp.disabled,
+                 rev: (document.getElementById('pycValidate') || {}).textContent || '' };
+      });
+      verifier('la ligne fausse rougit (encre rouge rendue), sans ligne juste en vert, et le message dit où est l\'erreur — les guillemets — puis propose Revérifier',
+        sout.bad && dom(sout.encre) === 'rouge' && !sout.badge && /Où est l’erreur/.test(sout.fb) && /guillemets/.test(sout.fb) && sout.fbVisible && !sout.verrou && /Rev/.test(sout.rev), JSON.stringify(sout));
+      /* la correction tapée referme le bouton, l'exécution le rouvre, Revérifier vaut le point */
+      await s.page.fill('#pyc-in', 'print("la note est :", note)');
+      await s.page.waitForTimeout(150);
+      const modif = await s.page.evaluate(() => ({ bad: document.getElementById('pyc-in').classList.contains('bad'), valFerme: document.getElementById('pycValidate').disabled, console: document.getElementById('pycConsole').textContent }));
+      verifier('la ligne modifiée perd son rouge, referme Revérifier et vide la console', !modif.bad && modif.valFerme && modif.console === '', JSON.stringify(modif));
+      await s.page.press('#pyc-in', 'Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pycValidate');
+      await s.page.waitForTimeout(400);
+      const fin = await s.page.evaluate(() => ({ ok: document.getElementById('pyc-in').classList.contains('ok'), score: test.score, suivant: !!document.getElementById('pycNext') }));
+      verifier('la correction exécutée puis revérifiée vaut 1 en soutien et propose la suite', fin.ok && fin.score === 1 && fin.suivant, JSON.stringify(fin));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
     /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
        de mise en page — seul un navigateur voit le geste), puis la partie

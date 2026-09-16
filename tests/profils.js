@@ -86,7 +86,7 @@ const RAPPELS_SECONDE = `(function(){
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
                'diviser-fractions':'mlt','diviser-fractions-libre':'mll',
-               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty',
+               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-completer':'pyc',
                'synthese-fonction':'syn' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -662,7 +662,11 @@ module.exports = {
        réponse ENTIÈRE : la colorer au fil de la frappe dirait à l'élève qu'il
        a juste avant même qu'il ne vérifie. Le soutien y colore à la
        vérification, sans jamais révéler l'écriture attendue. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty'] },
+    /* « pyc » — {python-completer} — n'a qu'une case, et c'est une LIGNE DE
+       CODE : la juger lettre par lettre déclarerait fausse une ligne qu'on
+       n'a pas fini d'écrire. Le soutien y juge à la vérification, et NOMME
+       où est l'erreur, sans révéler la ligne attendue. */
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -805,7 +809,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-completer'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -851,6 +855,16 @@ module.exports = {
        un vrai python3 ; le navigateur mesure les cadres RENDUS, choisit dans
        les listes, clique Vérifier puis Exécuter, et relit la console. */
     pythonTypes: { exercice: 'python-types', nb: 4 },
+    /* {python-completer} : le cours sur l'écran, puis un programme à
+       COMPLÉTER — la ligne 1 donnée (note = 12), la ligne 2 à écrire — que
+       l'élève EXÉCUTE avant de vérifier ; en soutien la page dit OÙ est
+       l'erreur (demande de Turquet, septembre 2026). « nb » est la SECONDE
+       source du nombre de questions (la page a PYC_NB). Le banc jsdom tient
+       la fiche épinglée, le juge sur des lignes justes et fausses — chacune
+       avec le diagnostic qu'elle doit recevoir —, les portes et le soutien ;
+       le navigateur TAPE la ligne dans la vraie case, clique Exécuter puis
+       Vérifier, et relit la console et le verdict RENDUS. */
+    pythonCompleter: { exercice: 'python-completer', nb: 4 },
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
               ordre: true, sur20: true, compacte: true },
