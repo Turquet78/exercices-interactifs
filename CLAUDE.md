@@ -2795,6 +2795,83 @@ manquante, la règle 3 perdue, le bouton des tables revenu, l'ordre des
 raisons figé, le verdict vide rougi, la porte qui ne se rouvre plus après une
 reprise, l'exercice sorti du thème 5.
 
+**Nommer une variable, c'est la fiche « Exercice 5 » — et il n'y a pas UNE
+bonne réponse, ce qui décide de tout.** {python-nom-variable} (Seconde, 5.5,
+demande de Turquet, septembre 2026 : « en seconde créer un exercice comme le
+pdf ») suit {python-noms-variables} au menu : quatre grandeurs — le nombre de filles de
+Seconde, le tarif d'un repas, l'aire d'une figure, la note à un devoir — et
+pour chacune un nom de variable à proposer, dans la cellule du carnet (« La
+variable représentant "…" peut être nommée par : … »). nb_filles, nbFilles,
+filles et effectif_filles sont tous justes.
+**Le juge ne tient donc que ce qui se PROUVE — la FORME du nom — et chaque
+règle est ANNONCÉE à l'écran avant que l'élève n'écrive** (la doctrine des
+trois positions, prise du côté du refus prouvable ; un critère mesuré sans
+avoir été demandé donnerait tort à une copie honnête) : lettres, chiffres et
+tiret bas seulement — pas d'espace (la remarque de la fiche), pas de tiret,
+pas d'apostrophe —, ne commence pas par un chiffre, n'est ni un mot réservé de
+Python ni le nom d'une fonction du cours (print, type, int…), au moins 2
+caractères — un nom d'une lettre ne dit pas ce qu'il stocke —, au plus 20
+(« pas trop long »). Deux grandeurs d'une même question ne portent pas le
+MÊME nom — ce serait une seule variable —, et c'est la règle des paires : la
+seconde occurrence est fausse, la première reste défendable ; « Note » et
+« note » sont deux noms, comme en Python. La PERTINENCE du nom n'est pas
+prouvable : elle est expliquée (le rappel, le contexte du modèle), jamais
+notée. Chaque refus se NOMME avec la saisie de l'élève (« le caractère « - »
+n'est pas autorisé dans « nb-filles » »), et la correction écrit UN nom
+possible en vert, en disant que ce n'est qu'un exemple.
+**Les refus sont de DEUX familles, et le banc les départage par un vrai
+CPython** : l'espace, le chiffre en tête, le caractère étranger et le mot
+réservé sont des refus de Python — sur chacun, `nom = 1` doit lever une
+SyntaxError ; la fonction du cours, la lettre seule et le nom trop long sont
+des règles de l'EXERCICE, et le banc exige que Python, lui, les ACCEPTE :
+c'est ce qui en fait des règles annoncées et non des faits de syntaxe.
+L'alphabet du juge est celui de l'INTERPRÉTEUR de la page (pyLex : lettres
+latines, accents compris, chiffres, tiret bas), parce que la page ÉCRIT
+ensuite le programme avec les noms de l'élève — « nb_filles = 14 » puis
+« print("le nombre de filles de Seconde :", nb_filles) » — et « Exécuter »
+ne se débloque qu'après la vérification, la chaîne de portes de
+{python-affichage} : Python accepte les noms, et l'élève le voit. Le nom faux
+ou vide y est remplacé par l'exemple de la correction : un programme qui
+reprendrait « nb filles » ne s'exécuterait pas.
+**La séance : trois questions de quatre grandeurs, les quatre de la fiche
+TOUJOURS dans la séance**, mélangées aux huit autres tirées dans le vivier —
+la fiche entière, sans que la première question soit toujours elle ; la
+question ne porte que les INDICES des grandeurs (on range l'indice, jamais
+l'objet), et le contrôle refuse tout autre champ. Le soutien corrige en
+DIRECT — la forme, sans badge, jamais sur une case vide, sous le garde de la
+saisie qui retient la couleur tant que la case a le curseur — et la copie
+fausse vérifiée ne verrouille rien et ne montre pas le programme.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée
+(« nb filles » refusé pour l'espace), la place au menu, le tirage (400
+séances), le juge cas par cas, le doublon, la copie juste tapée et le
+programme aux noms de l'ÉLÈVE, la copie fausse, le soutien, les branchements
+et CPython ; le NAVIGATEUR (« 6 vicies quaterdecies », déclaré par
+`pythonNomVariable` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — la cellule du carnet RENDUE, chaque phrase et sa case sur UNE ligne à
+chasse fixe et à la même taille, la frappe dans de vraies cases, l'encre bleue
+du verdict, le programme et la console rendus, la phrase qui se REPLIE sur un
+téléphone au lieu de sortir de l'écran, et l'espace qui rougit à la SORTIE de
+la case, jamais pendant la frappe. Les contrôles universels des deux bancs ont
+couvert l'exercice au premier passage sans rien déclarer. Deux essais du
+contrôle ont d'abord rougi sur une page JUSTE : la recherche de l'exemple
+attrapait « aire = » dans « mon3_aire = » — on cherche en tête de ligne —, et
+le témoin CPython faisait `print(print)` après avoir renommé print. Un essai
+faux se reconnaît à ce qu'il rougit sur du code juste.
+**Et un défaut de mise en page ne s'est vu qu'au banc navigateur, à sa
+première exécution** : la phrase la plus longue du carnet fait 82 caractères à
+chasse fixe (830 px), et dans les 960 px de la cellule Python la case tombait
+SOUS sa phrase — une réponse qu'on cherche à la ligne suivante. La cellule de
+cet écran est élargie à 1160 px ; sur un téléphone la phrase se replie, et
+c'est mesuré aussi. Quatorze sabotages au banc jsdom, chacun rougissant en
+nommant son défaut — l'espace accepté, le doublon accepté, le mot réservé, le
+tiret et « print » acceptés (les deux premiers nommés aussi par CPython), le
+programme écrit avec les exemples au lieu des noms de l'élève, la case vide
+rougie, la fiche perdue ou toujours en première question, le soutien
+débranché, le badge qui fuit en soutien, « Question suivante » avant
+l'exécution, l'exercice sorti de sa place au menu. La campagne a joué dans
+une copie séparée du dépôt pendant que le banc navigateur mesurait la page
+propre.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
@@ -7706,6 +7783,70 @@ de l'hérédité sortie de la grille fait rougir jsdom (« une case de
 l'hérédité n'est pas dans une cellule ») comme le navigateur (« la rangée 6
 de la récurrence porte 0 « ≤ » au lieu de 3 : l'hérédité a quitté la
 grille »).
+
+**Le théorème de convergence monotone, puis la limite par passage à la
+limite : la fiche, case par case.** {suite-tcm-limite} (Terminale, 6.13,
+demande de Turquet, septembre 2026, repris de la fiche « suite TCM et
+limite ») ferme le thème Suites — ajouté en DERNIER, il ne renumérote rien.
+On DONNE une hypothèse — la chaîne m ≤ Uₙ ≤ Uₙ₊₁ ≤ M, ou les bornes et le
+signe de Uₙ₊₁ − Uₙ, les deux écritures de la fiche — et ses trois questions :
+a) en déduire les variations, b) « la suite est [croissante] et [majorée] par
+[4], avec le [théorème de convergence monotone], elle admet une [limite]
+finie (ou elle est [convergente]) », c) déterminer ℓ par passage à la limite
+dans Uₙ₊₁ = f (Uₙ) : lim Uₙ = [ℓ] et lim Uₙ₊₁ = [ℓ], la relation devient
+[ℓ] = 0,5 [ℓ] + 1, puis la résolution ligne par ligne, puis « Donc lim Uₙ = [2] ».
+**Deux familles de récurrence, celles de la fiche** : l'AFFINE Uₙ₊₁ = a Uₙ + b
+(0 < a < 1, ℓ = b/(1−a) entier — seize couples, calculés en centièmes ENTIERS
+parce que 1 − 0,8 vaut 0,19999999999999996 en JavaScript) et la QUADRATIQUE
+Uₙ₊₁ = Uₙ² − Uₙ + 1 de la fiche, généralisée en f(x) = x ± (x − r)² : le
+passage à la limite donne ℓ² − 2rℓ + r² = 0, soit (ℓ − r)² = 0, une racine
+DOUBLE — une seule limite possible.
+**LE RISQUE PROPRE EST L'ÉNONCÉ QUI CONTREDIT SA CORRECTION, et la fiche
+elle-même le porte** : son exemple 2 donne « 3 ≤ Uₙ ≤ 7 », une suite
+DÉCROISSANTE, et trouve ℓ = 1 — or une suite décroissante minorée par 3 a une
+limite au moins égale à 3 (la leçon du 2.18 et du 2.19 de la Seconde, la fiche
+qui se contredit). Chaque tirage est HONNÊTE : il existe un U₀ pour lequel
+l'hypothèse est vraie ET la limite est celle qu'on trouve — pour l'affine,
+U₀ = m (croissante) ou M (décroissante) ; pour f(x) = x + (x − r)², f(x) ≤ r
+exactement quand r − 1 ≤ x ≤ r, donc m = r − 1 ; pour f(x) = x − (x − r)²,
+M = r + 1. Le contrôle ne suppose rien : il SIMULE la suite par sa propre
+arithmétique sur chaque tirage — 5000 rangs, parce que la quadratique
+converge LENTEMENT (l'écart à r suit 1/n) — et exige la monotonie annoncée,
+les bornes, et la limite que la correction attend. L'exemple 2 est épinglé
+dans sa version honnête (0 ≤ Uₙ ≤ Uₙ₊₁ ≤ 1, croissante, ℓ = 1).
+**Les deux visages de chaque chose sortent dans chaque séance, en ordre
+mélangé** : les deux familles, les deux SENS (sans quoi « croissante »
+tomberait toujours juste) et les deux FORMES de l'hypothèse.
+**Les mots se choisissent, les nombres se tapent** (le motif du 6.3 et du
+6.11) : « croissante », « majorée », le nom du théorème, « limite »,
+« convergente » et le symbole ℓ sont des listes ; les bornes et les
+coefficients sont les cases étroites du 6.3, qui grandissent sous la frappe.
+Deux justifications ÉQUIVALENTES sont acceptées en a) — « Uₙ ≤ Uₙ₊₁ » et
+« Uₙ₊₁ − Uₙ ≥ 0 » disent la même chose, refuser l'une serait refuser une
+lecture juste — et la correction écrit la forme de l'ÉNONCÉ ; « 1/2 » vaut
+0,5 dans une case à nombre. Une case vide ne rougit jamais — en direct comme à
+la vérification, et le bord opposé du 6.3 est tenu ici dès le premier jour :
+« Vérifier » sur une copie vide ne fige aucune case. La bonne réponse n'est
+jamais rangée à côté de la question (famille, sens, forme, coefficients,
+bornes — le contrôle refuse tout autre champ) : `tclAns()` recalcule tout.
+Le banc NAVIGATEUR (« 6 vicies quindecies », déclaré par `suiteTcmLimite`)
+tient ce que jsdom ne voit pas : le « lim » qui porte son « n → +∞ » EN
+DESSOUS, les rangées qui ne défilent pas, puis la copie de la fiche CHOISIE
+dans les vraies listes et TAPÉE dans les vraies cases, « Vérifier » cliqué,
+la note relue et l'encre RENDUE de la liste juste, sur les deux visages.
+**Onze sabotages, neuf rougissant en nommant leur défaut** — les bornes qui
+passent sous la limite (« la limite 3 n'est pas dans [4 ; 4] », le défaut de
+la fiche à l'envers), la borne inversée, la case vide rougie par les deux
+chemins, la justification équivalente refusée, les familles au même rang, la
+limite affine faussée, la fraction refusée, le sens décroissant perdu, le
+contexte sans clause. **Les deux verts disaient vrai**, et chacun a appris
+quelque chose : élargir le MINORANT d'une suite croissante (m = r − 2) ne rend
+pas l'énoncé faux — « minorée par r − 2 » reste vrai, le sabotage était
+impossible et c'est celui du majorant qui l'atteint ; et retirer UNE des deux
+phrases de secret du contexte laisse l'autre — la propriété est tenue une
+phrase plus loin, et retirer les deux rougit. Un contrôle qui passe au vert
+sous le sabotage n'est pas forcément un contrôle mort : il faut d'abord
+vérifier que le sabotage pouvait l'atteindre.
 
 **La même suite, par la DIFFÉRENCE : l'encadrement opération par opération,
 puis le signe de Uₙ₊₁ − Uₙ.** {suite-variation-difference} (Terminale, 6.12,
