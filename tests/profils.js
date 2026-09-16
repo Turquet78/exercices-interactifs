@@ -86,7 +86,9 @@ const RAPPELS_SECONDE = `(function(){
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
                'diviser-fractions':'mlt','diviser-fractions-libre':'mll',
-               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty',
+               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
+               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
+               'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
                'synthese-fonction':'syn' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -662,7 +664,7 @@ module.exports = {
        réponse ENTIÈRE : la colorer au fil de la frappe dirait à l'élève qu'il
        a juste avant même qu'il ne vérifie. Le soutien y colore à la
        vérification, sans jamais révéler l'écriture attendue. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -805,7 +807,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -851,6 +853,33 @@ module.exports = {
        un vrai python3 ; le navigateur mesure les cadres RENDUS, choisit dans
        les listes, clique Vérifier puis Exécuter, et relit la console. */
     pythonTypes: { exercice: 'python-types', nb: 4 },
+    /* {python-afficher-variable} : le cours (comment on affiche une variable)
+       sur l'écran, puis un programme qui commence par « note = 12 » à
+       COMPLÉTER pour qu'il affiche la valeur de la variable — l'élève écrit la
+       suite, peut l'exécuter, la page vérifie et le soutien dit OÙ est
+       l'erreur (demande de Turquet, septembre 2026). « nb » est la SECONDE
+       source du nombre de questions (la page a PYC_NB). Le banc jsdom éprouve
+       le juge copie par copie et le compare à un vrai python3 ; le navigateur
+       TAPE dans la vraie zone, exécute, vérifie et relit l'encre rendue. */
+    pythonAfficherVariable: { exercice: 'python-afficher-variable', nb: 4 },
+    /* {python-noms-variables} : pour chaque nom proposé, correct ou incorrect,
+       et la RAISON s'il est incorrect (demande de Turquet, septembre 2026).
+       « nb » et « par » sont la SECONDE source du nombre de questions et de
+       noms par question (la page a PVN_NB et PVN_PAR). Le banc jsdom refait la
+       correction par une seconde méthode et tient la porte de la
+       justification ; le navigateur choisit dans les vraies listes et mesure
+       les rangées rendues. */
+    pythonNoms: { exercice: 'python-noms-variables', nb: 3, par: 6 },
+    /* {python-nom-variable} : la fiche « Exercice 5 » — un nom de variable à
+       proposer pour chaque grandeur, sans espace (demande de Turquet,
+       septembre 2026). « nb » est la SECONDE source du nombre de questions
+       (la page a PNV_NB), « parQ » celle des grandeurs par question
+       (PNV_PAR_Q), « fiche » les quatre grandeurs du carnet, toujours dans la
+       séance. Le banc jsdom compare le juge de la forme à un vrai python3 ;
+       le navigateur TAPE les noms dans les vraies cases, clique Vérifier puis
+       Exécuter, et relit la console. */
+    pythonNomVariable: { exercice: 'python-nom-variable', nb: 3, parQ: 4,
+                         fiche: ['le nombre de filles de Seconde', 'le tarif d’un repas', 'l’aire d’une figure', 'la note à un devoir'] },
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
               ordre: true, sur20: true, compacte: true },
@@ -970,6 +999,16 @@ module.exports = {
                        touches nommées ici doivent vivre sur B et NULLE PART sur
                        A : la page et le profil sont deux sources. */
                     couches: { rangeesA: 4, rangeesB: 4, unitesMax: 8,
+                               /* Et sur une TABLETTE DEBOUT, les deux couches tiennent
+                                  sur TROIS rangées (« fais pareil pour la terminale »,
+                                  Turquet, septembre 2026). Le clavier A fait trente
+                                  unités : sur trois rangées il en met DIX, et la règle
+                                  CSS du portrait de tablette donne aux touches un
+                                  dixième de la largeur — les deux sources doivent
+                                  s'accorder, sinon la rangée déborde. Le partage des
+                                  couches, lui, ne bouge pas : surA et surB valent pour
+                                  les deux formes. */
+                               portraitTablette: { rangeesA: 3, rangeesB: 3, unitesMax: 10 },
                                surB: ['\\infty', '\\longrightarrow', '\\smallint'],
                                surA: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', ','] },
                     /* Et sur une TABLETTE, les touches sont légèrement réduites :
@@ -1052,6 +1091,12 @@ module.exports = {
        déborde pas, et le bouton ∞ réellement CLIQUÉ, qui écrit dans la case
        et lève l'événement input. */
     alphaSigne: { exercice: 'tvi-alpha-signe' },
+    /* L'étiquette « Cf′ » du dessin partagé des dérivées (afGraphSVG) se pose
+       À CÔTÉ de la courbe, jamais dessus : le banc navigateur mesure la boîte
+       RENDUE (getBBox) contre le chemin RENDU (getPointAtLength) sur chacun
+       des trois exercices, puis sur quarante courbes de plus dessinées par la
+       fonction même de la page — jsdom n'a ni police ni mise en page. */
+    etiquetteCourbe: { exercices: ['associer-derivee', 'variations-depuis-derivee', 'signe-derivee-qcm'] },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même

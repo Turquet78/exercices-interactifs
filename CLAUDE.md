@@ -2648,6 +2648,230 @@ copie propre hors dépôt à chaque tour, et le sabotage du navigateur s’est j
 dans une copie de travail séparée, pendant que la page propre passait son
 propre banc.
 
+**Afficher une variable, c'est la première ligne de Python que l'élève ÉCRIT —
+et le juge l'EXÉCUTE au lieu de la comparer.** {python-afficher-variable}
+(Seconde, 5.3, demande de Turquet, septembre 2026 : « expliquer comment on
+affiche une variable en python, puis l'élève doit compléter un programme qui
+commence par note = 12 pour qu'il affiche la valeur de cette variable ; il
+peut exécuter ce programme ; il faut vérifier le résultat et en mode soutien
+expliquer où se trouve l'erreur ») ferme le thème 5 : le 5.1 fait LIRE un
+programme, le 5.2 fait CLASSER des variables, celui-ci fait ÉCRIRE. Le cours —
+comment on affiche une variable — est SUR l'écran, avant le programme, sur une
+variable qui ne sort jamais du tirage (« nombre ») : l'élève transpose, il ne
+recopie pas. La première ligne (« note = 12 ») est écrite par la page ; l'élève
+écrit la suite dans une zone à chasse fixe, à la taille de la ligne qu'elle
+prolonge.
+**LA PREMIÈRE QUESTION EST CELLE DE LA DEMANDE — note = 12, toujours —**, puis
+les trois types du 5.2 chacun une fois, en ordre mélangé : un décimal
+s'affiche avec son point, un texte s'affiche SANS ses guillemets — et c'est
+lui qui tend le piège print("prenom"). Le contrôle exige les deux : la
+demande en tête, et les types mélangés derrière.
+**LE JUGE NE COMPARE JAMAIS À UNE LIGNE ATTENDUE : il exécute la copie** avec
+`pyRun`, l'interpréteur même du bouton « Exécuter » — la console et la
+correction ne peuvent donc pas se contredire — et exige que la sortie soit la
+valeur de la variable, et elle seule. Puis LA SECONDE MÉTHODE, celle qui
+distingue « afficher 12 » d'« afficher la variable » : il change la valeur de
+la première ligne (note = 47) et rejoue la copie — un programme qui affiche la
+VARIABLE la suit, print(12) ne la suit pas, et le message le dit avec ce
+nombre-là. print(note), print( note ), x = note puis print(x), print(str(note))
+passent ; print(12), print("12"), print("note"), print("la note est", note),
+deux print, le nom écrit tout seul sont refusés — chacun pour SA raison. Toute
+écriture juste est acceptée, la leçon d'{ecrire-solutions} : refuser une
+écriture juste serait le pire défaut du projet, par la porte d'un exécuteur.
+**ET IL DIT OÙ.** Chaque refus porte le LIEU de l'erreur — la ligne (la ligne 1
+est celle que la page écrit, la première de l'élève est donc la ligne 2) et le
+mot — et sa RAISON, jamais la réponse : c'est ce que le soutien affiche
+(« Erreur repérée à la ligne 2, dans le mot « Print ». Python ne connaît pas
+« Print » : le mot s'écrit print, tout en minuscules. »), et l'entraînement y
+ajoute la ligne attendue en vert à côté (badge `mf-cor`). Les diagnostics de
+FORME passent avant l'exécution — Print, print sans parenthèses, la parenthèse
+jamais refermée ou de trop, le guillemet seul, les guillemets typographiques,
+la première ligne RÉÉCRITE (une variable ne s'affecte qu'une fois par
+programme : la règle du 5.1, retournée vers l'élève) — parce que
+l'interpréteur les nommerait moins bien ; puis l'interpréteur, rejoué ligne à
+ligne pour trouver celle qui l'arrête, nomme Note pour note (« Python
+distingue les majuscules des minuscules »), une variable inconnue, un mot que
+Python ne connaît pas ; puis la SORTIE se lit — le mot au lieu de la valeur,
+du texte autour, deux lignes, rien. Le contrôle épingle dix-sept copies avec
+leur raison ET leur ligne, et exige que le message ne contienne jamais
+print(note) — sauf pour CITER la ligne de l'élève, qui a le droit de la
+contenir : le premier jet du contrôle prenait cette citation pour la réponse.
+**« EXÉCUTER » EST LIBRE, ET C'EST L'INVERSE DU 5.1** : là-bas le bouton se
+débloque après la réponse parce que la sortie EST la réponse ; ici c'est le
+programme de l'ÉLÈVE qu'il fait tourner, et il ne peut rien révéler qu'il
+n'ait écrit — voir ce que fait sa ligne (« note » pour print("note"), « Erreur :
+la variable « Note » n'existe pas ») est la façon même d'apprendre à
+programmer, en soutien surtout. La console se vide à la frappe suivante : une
+sortie périmée sous un programme modifié mentirait. « Question suivante »
+n'attend pas l'exécution : « il peut exécuter », dit la demande.
+**L'INTERPRÉTEUR A APPRIS DEUX CHOSES, comparées à CPython** : une ligne qui
+n'est qu'une EXPRESSION (« note » tout seul) s'évalue et n'affiche RIEN, comme
+dans un script — c'est ce que le cours fait VOIR en exécutant, là où le
+5.1 refusait la ligne ; et « print note » reçoit l'erreur de CPython
+(« il manque les parenthèses après print »). Une seule divergence, nommée dans
+le code : un « print » NU, qui vaut la fonction en CPython et n'affiche rien,
+reçoit ici la même erreur — mieux vaut une erreur qu'un silence sur une ligne
+inutile. Le banc compare au vrai python3 ce que le juge accepte ET ce qu'il
+refuse : 600 programmes tirés (print(nom), print(valeur), print("nom"), le nom
+seul, une variable inconnue) et vingt-et-une copies épinglées — même sortie,
+ou plantage des deux côtés.
+**La copie VIDE n'est pas vérifiée** : rien n'est peint, rien n'est verrouillé,
+le message redemande la ligne (la règle de {placer-image}). Aucune correction
+au fil de la frappe (`soutienEnDirect.sans`) : une ligne de code à moitié
+tapée est toujours fausse. La zone est une `pts-case` : la note affichée la
+compte (« 1 case juste sur 1 »), et la copie voyage dans la question (`q.rep`)
+— `captureBoxes` ne connaît pas les textarea, c'est la question que la pause
+photographie, et le rendu la remet. Le banc NAVIGATEUR (« 6 vicies
+duodecies », déclaré par `pythonAfficherVariable` dans `tests/profils.js`)
+tient ce que jsdom ne voit pas : la zone rendue à chasse fixe et à la taille
+de la ligne qu'elle prolonge, une VRAIE frappe au clavier, un vrai clic sur
+« Exécuter » et la console qui suit, l'encre RÉSOLUE des verdicts et la
+correction verte dans une boîte visible, la page qui ne déborde pas sur un
+téléphone, puis le soutien qui nomme la ligne et le mot sans écrire la réponse.
+
+**Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
+{python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
+« un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
+en Python et faire un exercice comme le 4 ; il faudra compléter une
+justification si c'est faux ») suit {python-afficher-variable} au menu, repris de la
+fiche « Noms de variables en Python » : le RAPPEL porte ses quatre règles
+dans son ordre et avec ses exemples (lettres, chiffres et `_` seulement ; pas
+de chiffre en tête ; majuscules et minuscules distinguées ; pas d'accent), et
+l'exercice pose des noms — `prix achat`, `prix_achat`, `2ndeG`, `SecondeG`,
+`Seconde:G`, `dix-huit`… — dont l'élève dit pour chacun s'il est correct ou
+incorrect, et, s'il est incorrect, POURQUOI, en choisissant la règle dans une
+liste. Trois questions de six noms, de deux à quatre incorrects par question.
+**LA JUSTIFICATION EST UNE PORTE, tenue par l'ÉTAT de la case** (le motif de
+{placer-image}) : la liste des raisons est visible mais grisée et fermée tant
+que le nom n'est pas déclaré incorrect, s'ouvre dès qu'il l'est, se referme
+et se vide si l'élève revient sur « correct ». Le navigateur le mesure sous un
+VRAI choix : Playwright refuse de choisir dans une liste fermée, et c'est le
+bord qu'on tient. Après une reprise de pause les valeurs reviennent APRÈS le
+rendu : `pvnPortes()` rouvre un instant plus tard les justifications des noms
+déjà déclarés incorrects — sans quoi l'élève reprenait devant une liste morte.
+**LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION** : celle-ci ne
+porte que les noms et l'ordre des raisons ; `pvnDefauts(nom)` — la fonction
+qui corrige — relit le nom lui-même, et le contrôle refait la correction par
+une SECONDE méthode (l'expression régulière d'un identifiant, et des tests de
+caractères qui n'ont rien en commun avec ceux de la page) sur toute la banque.
+**UN NOM INCORRECT N'A QU'UN SEUL DÉFAUT, et c'est la banque qui le
+garantit** : « 2ème » — un chiffre en tête ET un accent — aurait deux bonnes
+justifications dont une seule comptée, une lecture juste comptée fausse. Les
+accents ont LEUR règle, la 4 de la fiche, et non la règle 1 : « é » est une
+lettre, la raison « caractère interdit » nomme les symboles (espace, -, :, =).
+**LES RAISONS NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR** (la leçon
+d'{intervalles-inegalite}) : trois vraies règles, et trois PIÈGES qui ne
+justifient jamais rien — « il contient une majuscule », « il contient un
+chiffre », « il contient le caractère _ » —, les erreurs réelles de l'élève
+qui confond « contient » et « commence par », et le message y RÉPOND en
+nommant la règle. L'ordre des raisons est tiré par question et le même sur ses
+rangées : à forme égale, le rang de la bonne varie. Chaque séance montre les
+trois défauts ET les trois pièges parmi les noms corrects (un avec majuscule,
+un avec chiffre, un avec `_`) — la composition même de la fiche.
+**CHAQUE CASE SE JUGE SEULE** : le verdict d'un nom, et sa justification s'il
+est incorrect — un nom correct n'en a pas à compter, sa liste reste sans
+couleur. Un nom incorrect déclaré « correct » perd ses deux cases : sa
+justification, restée fermée, reçoit la correction en vert, mais elle n'est
+pas une case OUBLIÉE et le message ne la compte pas parmi les manquantes
+(`induit`) — le premier jet du contrôle s'y est pris, en exigeant « 2 cases
+manquantes » sur une page qui disait juste. La case vide ne rougit jamais.
+Aucune correction au fil des clics, et c'est déclaré (`soutienEnDirect.sans`)
+: à deux propositions, il suffirait d'essayer ; en soutien la case juste se
+verrouille en bleu, la fausse rougit sans badge, et la porte se rouvre quand
+l'élève corrige son verdict. Le rappel est en HTML pur — rien n'y empile — et
+n'écrit aucun « chiffre.chiffre » (le contrôle des numéros en dur lirait un
+numéro d'exercice). Deux bancs, la répartition habituelle : jsdom tient la
+fiche épinglée, la place au menu, la banque, le tirage (400 séances), la
+porte, la copie juste et la copie fausse cliquées, le soutien et les
+branchements ; le NAVIGATEUR (« 6 vicies terdecies », déclaré par
+`pythonNoms` dans `tests/profils.js`) mesure les rangées d'un seul tenant à
+1400 px, le nom rendu à chasse fixe avec ses espaces, la liste fermée qui
+refuse un vrai choix, l'encre RENDUE du verdict, et le soutien. Treize
+sabotages au banc jsdom, chacun rougissant en nommant son défaut — le juge
+qui ignore les accents, « 2ème » glissé dans la banque, la porte ouverte au
+rendu, le soutien qui touche la justification fermée, la séance sans ses
+trois défauts, le piège de la majuscule tu, la justification fermée comptée
+manquante, la règle 3 perdue, le bouton des tables revenu, l'ordre des
+raisons figé, le verdict vide rougi, la porte qui ne se rouvre plus après une
+reprise, l'exercice sorti du thème 5.
+
+**Nommer une variable, c'est la fiche « Exercice 5 » — et il n'y a pas UNE
+bonne réponse, ce qui décide de tout.** {python-nom-variable} (Seconde, 5.5,
+demande de Turquet, septembre 2026 : « en seconde créer un exercice comme le
+pdf ») suit {python-noms-variables} au menu : quatre grandeurs — le nombre de filles de
+Seconde, le tarif d'un repas, l'aire d'une figure, la note à un devoir — et
+pour chacune un nom de variable à proposer, dans la cellule du carnet (« La
+variable représentant "…" peut être nommée par : … »). nb_filles, nbFilles,
+filles et effectif_filles sont tous justes.
+**Le juge ne tient donc que ce qui se PROUVE — la FORME du nom — et chaque
+règle est ANNONCÉE à l'écran avant que l'élève n'écrive** (la doctrine des
+trois positions, prise du côté du refus prouvable ; un critère mesuré sans
+avoir été demandé donnerait tort à une copie honnête) : lettres, chiffres et
+tiret bas seulement — pas d'espace (la remarque de la fiche), pas de tiret,
+pas d'apostrophe —, ne commence pas par un chiffre, n'est ni un mot réservé de
+Python ni le nom d'une fonction du cours (print, type, int…), au moins 2
+caractères — un nom d'une lettre ne dit pas ce qu'il stocke —, au plus 20
+(« pas trop long »). Deux grandeurs d'une même question ne portent pas le
+MÊME nom — ce serait une seule variable —, et c'est la règle des paires : la
+seconde occurrence est fausse, la première reste défendable ; « Note » et
+« note » sont deux noms, comme en Python. La PERTINENCE du nom n'est pas
+prouvable : elle est expliquée (le rappel, le contexte du modèle), jamais
+notée. Chaque refus se NOMME avec la saisie de l'élève (« le caractère « - »
+n'est pas autorisé dans « nb-filles » »), et la correction écrit UN nom
+possible en vert, en disant que ce n'est qu'un exemple.
+**Les refus sont de DEUX familles, et le banc les départage par un vrai
+CPython** : l'espace, le chiffre en tête, le caractère étranger et le mot
+réservé sont des refus de Python — sur chacun, `nom = 1` doit lever une
+SyntaxError ; la fonction du cours, la lettre seule et le nom trop long sont
+des règles de l'EXERCICE, et le banc exige que Python, lui, les ACCEPTE :
+c'est ce qui en fait des règles annoncées et non des faits de syntaxe.
+L'alphabet du juge est celui de l'INTERPRÉTEUR de la page (pyLex : lettres
+latines, accents compris, chiffres, tiret bas), parce que la page ÉCRIT
+ensuite le programme avec les noms de l'élève — « nb_filles = 14 » puis
+« print("le nombre de filles de Seconde :", nb_filles) » — et « Exécuter »
+ne se débloque qu'après la vérification, la chaîne de portes de
+{python-affichage} : Python accepte les noms, et l'élève le voit. Le nom faux
+ou vide y est remplacé par l'exemple de la correction : un programme qui
+reprendrait « nb filles » ne s'exécuterait pas.
+**La séance : trois questions de quatre grandeurs, les quatre de la fiche
+TOUJOURS dans la séance**, mélangées aux huit autres tirées dans le vivier —
+la fiche entière, sans que la première question soit toujours elle ; la
+question ne porte que les INDICES des grandeurs (on range l'indice, jamais
+l'objet), et le contrôle refuse tout autre champ. Le soutien corrige en
+DIRECT — la forme, sans badge, jamais sur une case vide, sous le garde de la
+saisie qui retient la couleur tant que la case a le curseur — et la copie
+fausse vérifiée ne verrouille rien et ne montre pas le programme.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée
+(« nb filles » refusé pour l'espace), la place au menu, le tirage (400
+séances), le juge cas par cas, le doublon, la copie juste tapée et le
+programme aux noms de l'ÉLÈVE, la copie fausse, le soutien, les branchements
+et CPython ; le NAVIGATEUR (« 6 vicies quaterdecies », déclaré par
+`pythonNomVariable` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — la cellule du carnet RENDUE, chaque phrase et sa case sur UNE ligne à
+chasse fixe et à la même taille, la frappe dans de vraies cases, l'encre bleue
+du verdict, le programme et la console rendus, la phrase qui se REPLIE sur un
+téléphone au lieu de sortir de l'écran, et l'espace qui rougit à la SORTIE de
+la case, jamais pendant la frappe. Les contrôles universels des deux bancs ont
+couvert l'exercice au premier passage sans rien déclarer. Deux essais du
+contrôle ont d'abord rougi sur une page JUSTE : la recherche de l'exemple
+attrapait « aire = » dans « mon3_aire = » — on cherche en tête de ligne —, et
+le témoin CPython faisait `print(print)` après avoir renommé print. Un essai
+faux se reconnaît à ce qu'il rougit sur du code juste.
+**Et un défaut de mise en page ne s'est vu qu'au banc navigateur, à sa
+première exécution** : la phrase la plus longue du carnet fait 82 caractères à
+chasse fixe (830 px), et dans les 960 px de la cellule Python la case tombait
+SOUS sa phrase — une réponse qu'on cherche à la ligne suivante. La cellule de
+cet écran est élargie à 1160 px ; sur un téléphone la phrase se replie, et
+c'est mesuré aussi. Quatorze sabotages au banc jsdom, chacun rougissant en
+nommant son défaut — l'espace accepté, le doublon accepté, le mot réservé, le
+tiret et « print » acceptés (les deux premiers nommés aussi par CPython), le
+programme écrit avec les exemples au lieu des noms de l'élève, la case vide
+rougie, la fiche perdue ou toujours en première question, le soutien
+débranché, le badge qui fuit en soutien, « Question suivante » avant
+l'exécution, l'exercice sorti de sa place au menu. La campagne a joué dans
+une copie séparée du dépôt pendant que le banc navigateur mesurait la page
+propre.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
@@ -6155,123 +6379,6 @@ vide. Éprouvé en le cassant treize fois — et le sabotage de la case vide est
 d'abord resté vert : le bord n'est atteignable qu'en SOUTIEN, l'entraînement
 le masque sous la correction — la leçon des sabotages impossibles, encore.
 
-**L'étiquette « Cf′ » se posait SUR la courbe — une pose sur trois.** Signalé
-par Turquet sur une capture du 5.4 (septembre 2026) : « L'écriture "Cf′" est
-toujours sur la courbe ». `afGraphSVG` posait l'étiquette 9 px au-dessus du
-point x = −2, un endroit choisi une fois pour toutes ; dès que la courbe
-DESCEND entre −3 et −2, elle passe dedans. **La mesure a été faite AVANT de
-toucher à quoi que ce soit**, sur le fichier en ligne : 36 tirages sur 120 au
-5.4, 85 étiquettes sur 240 au 5.5 — un défaut sur trois, pas un cas rare.
-**La pose se CHOISIT désormais, elle ne se suppose plus** : `afEtiquette`
-échantillonne la spline que `lvPath` trace (les mêmes Bézier, `afEchantillon`),
-essaie dix places — au-dessus puis au-dessous des bouts gauche et droit, puis en
-se rapprochant du centre (une courbe qui court de 3 à 0 aux deux bouts, comme
-[3, 0, −1, 1, 2, 3, 0], ne laisse rien de libre aux bouts) — et garde la
-première dont la boîte tient dans le cadre sans mordre un axe ni ses
-graduations. **Chaque place est CONSTRUITE 4 px au-dessus du point le plus
-haut de la courbe sur l'étendue de la boîte (ou au-dessous du plus bas), donc
-elle ne peut pas la toucher** — et le test de collision que le premier jet
-posait en plus n'écartait jamais rien : le sabotage l'a montré en restant
-vert, à bon droit, le QUINZIÈME garde-fou mort du projet, retiré. C'est le
-CONTRÔLE qui exige la propriété, et le sabotage qui remplace le point le plus
-haut par le point x = −2 — l'ancienne pose — le fait rougir. Faute de place
-admissible, la première place ramenée dans le cadre, et le contrôle compte ces
-replis (0 sur 300 tirages). L'étiquette reçoit aussi le halo des étiquettes du
-6.11 (`paint-order:stroke`) : lisible sur le quadrillage.
-**Deux bancs, la répartition habituelle.** jsdom refait la géométrie par sa
-PROPRE arithmétique — la spline de Hermite à 40 pas par segment, pas les
-fonctions de la page — sur le cas de la capture (dont il exige d'abord que
-l'ANCIENNE pose le mette en défaut : un contrôle qui n'a rien à mesurer ne
-mesure rien) puis sur 300 tirages, et vérifie que le dessin rendu porte bien
-la pose calculée. Le NAVIGATEUR mesure le RENDU, et **universellement** : sur
-tous les exercices visités des trois niveaux, toute étiquette de courbe
-(« Cf », « Cf′ », « Cg » — classes `lv-cf`, `sv-cf`, `eqg-cg`) est mesurée
-contre les courbes RENDUES de son dessin, parcourues au pas de 1,5 px
-(`getPointAtLength`) ; aucun point ne doit tomber dans la boîte du texte,
-rognée d'un pixel. C'est la règle du projet : un défaut vu dans un coin
-devient un contrôle qui va PARTOUT — les deux autres dessins de la Terminale
-(`tvgSVG`, le repère du 4.5) et ceux de la Seconde sont couverts sans rien
-déclarer, et un exercice à courbe ajouté demain aussi.
-**Et il en a trouvé VINGT en Seconde le jour même**, sur deux dessins qui
-posaient leur « Cf » de la même façon — `lvGraphSVG` (9 px au-dessus du
-deuxième nœud du morceau) et `adrSVG` (le grand dessin). La sonde a mesuré le
-fichier en ligne avant d'y toucher : sur 150 tirages, 63 étiquettes sur la
-courbe pour le petit dessin, 69 sur un morceau (et 51 posées sur une
-GRADUATION), 39 et 46 pour le grand — un défaut sur trois ou quatre, là aussi.
-Les deux aides (`lvEchantillon`, `etqLibre`) sont le MÊME TEXTE dans les deux
-fichiers, et le contrôle d'identité du moteur de courbes les compare au
-caractère près — sept fonctions désormais, cinq avant. Chaque dessin garde ses
-candidats : les bouts du MORCEAU d'abord (une courbe qui n'existe que de −1 à
-2 n'a rien à offrir en −3), puis vers le centre. Après ce premier jet, la
-sonde rendait 0 sur 600 — et le banc navigateur nommait aussitôt « Cg »,
-l'étiquette de la SECONDE courbe, que ce jet n'avait pas touchée (paragraphe
-ci-dessous).
-**Une constante ne se hisse pas, une fonction si — et la page entière est
-morte au chargement.** `ETQ_W` posée à côté du moteur de courbes, comme en
-Terminale, tombait dans sa zone morte : le rappel de cours du 2.4 (`RAP_ING`)
-DESSINE au chargement avec `lvGraphSVG`, bien avant que la ligne de la
-constante ne s'exécute — « Cannot access 'ETQ_W' before initialization », et
-le bloc de script s'arrête là, tout ce qui suit n'existe plus. Le commentaire
-de `RAP_ING` le disait déjà en toutes lettres (« toutes les fonctions appelées
-ici sont des déclarations, donc hissées ») : la règle valait pour une
-constante ajoutée quatre mille lignes plus loin, et rien d'autre que le banc
-ne pouvait le voir — c'est lui qui l'a nommé, à la première exécution, avant
-la sonde. La constante vit donc AVANT `RAP_ING` en Seconde ; la Terminale, où
-rien ne dessine au chargement, la garde à côté du moteur. Et le contrôle jsdom
-du 5.4 lisait encore l'ANCIEN nom des constantes (`AF_ETQ_W`) : `npm test`
-l'a nommé aussi (« AF_ETQ_W is not defined ») — un contrôle qui lève une
-erreur JavaScript n'est pas un contrôle vert, et c'est la règle 2 qui l'a
-attrapé.
-
-**Puis « Cg » est venue à son tour, et l'AUTRE courbe est devenue un
-obstacle.** Le banc navigateur l'a nommée le jour même où « Cf » a été
-corrigée — « Cg posée sur sa courbe », sur {lecture-deux-courbes} et
-{equation-graphique}. Les trois poses de la seconde courbe — la droite de g du
-2.5 (`eqgExtra`) et de la synthèse (`synDessus`), la spline de g du 2.6
-(`ifgExtra`) — choisissaient un point une fois pour toutes, un demi-carreau
-au-dessus du bout droit ; et une étiquette libre de SA courbe peut tomber sur
-l'AUTRE, ou sur « Cf ». La sonde a mesuré le fichier en ligne avant d'y
-toucher, sur 150 tirages par dessin : au 2.5, « Cf » sur une courbe 105 fois
-et « Cg » 71 ; au 2.6, 92 et 79, plus 51 « Cg » posées sur une graduation ; à
-la synthèse, 61 et 65 — plus d'une étiquette sur deux, parce que le premier
-correctif n'évitait que la courbe de f, jamais celle de g.
-`etqLibre` apprend donc des OBSTACLES — un sixième paramètre, facultatif, le
-même texte dans les deux fichiers, que le contrôle d'identité compare — : la
-boîte ne recouvre ni un point de l'autre courbe ni l'étiquette déjà posée. Le
-dessin reçoit la courbe de g en obstacle pour poser « Cf » (`lvGraphSVG` et
-`adrSVG` ont gagné un dernier paramètre `obst`) et transmet la BOÎTE de
-« Cf » à ce qui dessine par-dessus — le troisième argument des fonctions
-`extra`/`dessus`, qu'un dessin sans étiquette ignore ; `cgEtiquette` pose
-« Cg » par le même chemin, la courbe de f et cette boîte en obstacles, le
-cadre RELU dans les sx/sy mêmes du dessin (`lvCadre`) plutôt que recopié.
-**Le contrôle mesure aussi les DROITES** (`line.eqg-g`) : il ne regardait que
-les chemins, et une « Cg » posée sur la droite du 2.5 lui échappait.
-**Et le repli a dû devenir la place la MOINS MAUVAISE.** Cinq abscisses
-candidates laissaient, au 2.6, une étiquette sur seize au repli — deux
-courbes et deux étiquettes se disputent un dessin de 258 px —, et le repli
-prenait la PREMIÈRE place, ramenée dans le cadre : sur la courbe, ou sur une
-graduation (9 « Cf » et 9 graduations sur 150, mesurés après le premier
-jet). Les candidats vont désormais par demi-graduation jusqu'au centre
-(`etqCandidats`, les bouts d'abord — le droit pour « Cg », où elle a toujours
-été), et faute de place libre `etqLibre` choisit la boîte qui contient le
-moins de points de courbe, un axe recouvert comptant pour beaucoup.
-Après correction, la sonde rend ZÉRO sur 300 tirages de chacun des quatre
-dessins — la scène et les cartes du 2.5, le 2.6, la synthèse — : aucune
-étiquette sur une courbe, aucune sur une graduation, aucune sur l'autre
-étiquette, et le banc navigateur est vert sur les trois niveaux.
-**Deux sabotages au banc navigateur, chacun rougissant en nommant son
-défaut** — « Cg » posée en plein milieu de sa courbe, SANS hasard (le banc
-nomme {lecture-deux-courbes}, {equation-graphique} et {synthese-fonction} :
-l'ancienne pose, elle, n'atteignait sa cible qu'une fois sur deux, et un
-sabotage intermittent ne dit rien du contrôle visé), et la droite de g
-retirée des obstacles de « Cf », qui rougit sur {equation-graphique}. Mais
-un obstacle retiré ne fait tomber l'étiquette dessus qu'un tirage sur deux
-ou sur quatre : ces sabotages-là se COMPTENT à la sonde plutôt qu'au banc —
-la droite de g retirée des obstacles de « Cf » remet 63 « Cf » sur 150 sur
-une courbe au 2.5 ; les obstacles retirés de la pose de « Cg » en remettent
-36 au 2.5, 30 au 2.6 et 18 à la synthèse, et une fois « Cg » sur « Cf ».
-Compté sur 150 tirages, un sabotage dit exactement ce qu'il retire.
-
 **Et le même savoir, à l'envers du QCM : choisir le tableau de f parmi
 quatre.** {variations-depuis-derivee} (Terminale, thème Dérivée, demande de
 Turquet, août 2026) est l'exercice 4 de la fiche 9 : la courbe de f′ donnée,
@@ -6358,6 +6465,173 @@ vide ne rougit jamais, et le QCM COMPTE une case dans la note affichée
 universels des deux bancs ont couvert l'exercice au premier passage sans rien
 déclarer. Dix sabotages, neuf rougissant en nommant leur défaut ; le dixième,
 le garde mort ci-dessus, est resté vert et disait vrai.
+
+**L'étiquette « Cf′ » se pose À CÔTÉ de la courbe, jamais dessus — et c'est
+la courbe ÉCRITE qui décide de la place.** Signalé par Turquet (septembre
+2026) sur le 2.8 : « le nom de la courbe Cf′ doit toujours être à côté de la
+courbe et pas sur la courbe comme cela peut arriver de temps en temps ».
+L'étiquette du dessin partagé des dérivées (`afGraphSVG` — le 2.6, le 2.7 et
+le 2.8) était posée à une place FIXE, au-dessus du point d'abscisse −2 : chaque
+fois que la courbe DESCEND entre −3 et −2, elle passe au-dessus de ce point,
+exactement là où l'étiquette s'écrit. Mesuré avant tout correctif : 132
+courbes sur 600 la portaient sur la courbe — « de temps en temps » était une
+fois sur cinq.
+**LA COURBE EST ÉCHANTILLONNÉE SUR LES BÉZIER MÊMES QUE `lvPath` ÉCRIT**
+(`afEchantillons`, les tangentes de `lvTangents`) — aucune coordonnée
+supposée, une échelle qui changerait resterait mesurée juste (la leçon du
+schéma des intervalles) — et `afEtiquettePos` BALAIE le dessin par pas de
+3 px : une place est bonne si sa boîte est dans le dessin, hors de l'axe des
+x et de ses nombres, et À CÔTÉ de la courbe — entre 5 et 15 px de tout point
+de la courbe, ni dessus ni loin ; parmi les bonnes, la plus proche du point où
+la courbe ENTRE dans le dessin, là où l'œil la cherche.
+**Le premier jet calait des places SUR LA HAUTEUR de la courbe, et la sonde
+l'a renvoyé** : six abscisses, au-dessus puis au-dessous — 132 échecs sur 600
+encore. Sur une courbe qui monte ou descend raide, une boîte de 30 px de large
+calée sur un point est TRAVERSÉE par la courbe quelle que soit sa hauteur :
+c'est à GAUCHE ou à DROITE de la courbe qu'il faut aller, et seul un balayage
+le trouve. Sonde après correction, 600 courbes : distance minimale 5 px,
+jamais plus de 15 px de la courbe, jamais plus de 32 px du point d'entrée,
+0 recours au secours.
+**La boîte de l'étiquette est celle que Chromium REND** — relevée par
+`getBBox` sur du vrai Fredoka (17,5 px de large, 12,6 au-dessus de la ligne
+de base, 5,5 dessous) et prise avec de la marge — jamais devinée : le premier
+jet la supposait 12 px au-dessus, et le rendu débordait de 0,6 px.
+**UN SEIZIÈME GARDE-FOU MORT y a été écrit, puis retiré** : la bande qui
+écartait l'axe des y et ses nombres. L'étiquette se pose près du point
+d'entrée, à 110 px de cet axe — retirer la bande n'a changé AUCUN placement
+sur 3000 courbes, et le sabotage l'a montré en restant vert. C'est le
+CONTRÔLE qui tient ce bord. La bande de l'axe des x, elle, est VIVANTE :
+retirée, 44 étiquettes sur 400 tombent sur les nombres de l'axe.
+**Deux bancs, la répartition habituelle.** jsdom ne fait AUCUNE confiance
+au placement : il lit le SVG que la page ÉCRIT — la position du texte, le
+chemin de la courbe, les lignes des axes —, rééchantillonne lui-même les
+Bézier, et exige la boîte rendue à ≥ 3 px de la courbe (la marge moins la
+tolérance de l'échantillonnage), ≤ 20 px (une étiquette posée dans un coin
+ne nommerait plus rien), dans le dessin, hors des deux axes — sur 400 courbes,
+le tirage du 2.8 et celui de la Seconde, dans les deux habillages. Le
+NAVIGATEUR (« 6 tricies », déclaré par `etiquetteCourbe` dans
+`tests/profils.js`) mesure ce que jsdom n'a pas — la POLICE : la boîte par
+`getBBox`, la courbe par `getPointAtLength`, sur chacun des trois exercices
+ouverts pour de vrai puis sur quarante courbes de plus dessinées par la
+fonction même de la page, et une boîte non nulle (un CSS perdu rendrait
+l'étiquette invisible sans qu'une erreur ne se lève).
+Sept sabotages au banc jsdom, cinq rougissant en nommant leur défaut — la
+place fixe d'avant (260 sur 400), la marge à zéro, la borne « ni loin »
+retirée (« loin de la courbe (99 px) »), la bande de l'axe des x oubliée, la
+courbe échantillonnée à ses seuls nœuds (201 sur 400 : la page se croit à
+côté, le contrôle voit la courbe passer sous l'étiquette). **Les deux verts
+disaient vrai** : le score inversé (« la plus loin possible ») reste vert
+parce que la borne des 15 px tient « à côté » à elle seule — le score ne fait
+qu'ORDONNER les bonnes places, et sans la borne il rougit ; et la bande de
+l'axe des y est le garde mort ci-dessus. Un huitième ne rougit QU'AU
+NAVIGATEUR : la police de l'étiquette doublée — jsdom, qui ne lit pas une
+police, reste vert sur sa boîte supposée, et Chromium nomme la courbe sous
+l'étiquette rendue.
+**La Seconde porte le même défaut, et n'est pas touchée** : `lvGraphSVG` et
+`adrSVG` posent leur « Cf » à une place fixe — sondé : 160 courbes sur 300
+le portent sur la courbe. La demande nomme le 2.8 de la Terminale ; le dire
+vaut mieux que le taire, et c'est une décision à prendre.
+
+**Puis la Seconde a suivi — par une AUTRE branche, le même jour, et avec un
+contrôle qui va PARTOUT.** Une seconde capture de Turquet — le 5.4, « L'écriture
+"Cf′" est toujours sur la courbe » — avait lancé une deuxième session sur le
+même défaut pendant que la #253 corrigeait la Terminale : deux moteurs pour la
+même étiquette sont nés le même jour. C'est celui de la #253, en ligne et
+éprouvé, qui reste en Terminale ; la seconde branche n'a gardé que ce que la
+#253 n'avait pas fait — la SECONDE, que le paragraphe ci-dessus laissait en
+décision à prendre, et le contrôle universel.
+**Le contrôle vit dans le banc navigateur, greffé sur la visite de TOUS les
+exercices** (section « 9 ») : toute étiquette de courbe (« Cf », « Cf′ »,
+« Cg » — classes `lv-cf`, `sv-cf`, `eqg-cg`) est mesurée contre les courbes
+RENDUES de son dessin, chemins ET droites, parcourues au pas de 1,5 px
+(`getPointAtLength`) ; aucun point ne doit tomber dans la boîte du texte,
+rognée d'un pixel. Il ne remplace pas le « 6 tricies » de la #253 — qui tient
+en plus « ni loin » et la boîte de la police — : il tient le bord COMMUN sur
+les trois niveaux, les dessins que personne n'avait déclarés (`tvgSVG`, le
+repère du 4.5) et l'exercice à courbe qu'on ajoutera demain. C'est la règle du
+projet : un défaut vu dans un coin devient un contrôle qui va partout.
+**Et il en a trouvé VINGT en Seconde à sa première visite**, sur deux dessins
+qui posaient leur « Cf » à une place fixe — `lvGraphSVG` (9 px au-dessus du
+deuxième nœud du morceau) et `adrSVG` (le grand dessin). La sonde a mesuré le
+fichier en ligne avant d'y toucher : sur 150 tirages, 63 étiquettes sur la
+courbe pour le petit dessin, 69 sur un morceau (et 51 posées sur une
+GRADUATION), 39 et 46 pour le grand — un défaut sur trois ou quatre.
+**La pose se CHOISIT** (`lvEchantillon`, `etqLibre`) : la spline que `lvPath`
+ou `adrPath` trace est échantillonnée sur ses Bézier mêmes, et des places sont
+CONSTRUITES 4 px au-dessus du point le plus HAUT de la courbe sur toute
+l'étendue de la boîte (ou au-dessous du plus bas), à des abscisses candidates
+— les bouts du MORCEAU d'abord (une courbe qui n'existe que de −1 à 2 n'a rien
+à offrir en −3), puis vers le centre — ; la première qui tient dans le cadre
+sans mordre un axe ni ses graduations est retenue. **C'est un AUTRE moteur que
+celui de la Terminale, et c'est nommé plutôt que tu** : la #253 balaie le
+dessin et cherche « à côté » — 5 à 15 px, près du point d'entrée — sur UNE
+courbe de sept nœuds ; la Seconde a des morceaux, treize nœuds, et deux courbes
+qui se disputent un dessin de 258 px. La leçon de la #253 sur les « places
+calées sur la hauteur » ne s'applique pas ici : une place est construite
+au-dessus du plus haut point sur toute la LARGEUR de la boîte, pas calée sur
+un point — une courbe raide ne la traverse pas. Le contrôle universel tient la
+règle commune aux deux moteurs, et le dire vaut mieux que de le taire.
+**Une constante ne se hisse pas, une fonction si — et la page entière est
+morte au chargement.** `ETQ_W` posée à côté du moteur de courbes tombait dans
+sa zone morte : le rappel de cours du 2.4 (`RAP_ING`) DESSINE au chargement
+avec `lvGraphSVG`, bien avant que la ligne de la constante ne s'exécute —
+« Cannot access 'ETQ_W' before initialization », et le bloc de script
+s'arrête là, tout ce qui suit n'existe plus. Le commentaire de `RAP_ING` le
+disait déjà en toutes lettres (« toutes les fonctions appelées ici sont des
+déclarations, donc hissées ») : la règle valait pour une constante ajoutée
+quatre mille lignes plus loin, et rien d'autre que le banc ne pouvait le
+voir — c'est `npm test` qui l'a nommé, à la première exécution, avant la sonde
+(« RAPPELS_ID before initialization », la page entière rouge). La constante
+vit donc AVANT `RAP_ING`.
+
+**Puis « Cg » est venue à son tour, et l'AUTRE courbe est devenue un
+obstacle.** Le banc navigateur l'a nommée le jour même où « Cf » a été
+corrigée — « Cg posée sur sa courbe », sur {lecture-deux-courbes} et
+{equation-graphique}. Les trois poses de la seconde courbe — la droite de g du
+2.5 (`eqgExtra`) et de la synthèse (`synDessus`), la spline de g du 2.6
+(`ifgExtra`) — choisissaient un point une fois pour toutes, un demi-carreau
+au-dessus du bout droit ; et une étiquette libre de SA courbe peut tomber sur
+l'AUTRE, ou sur « Cf ». La sonde a mesuré le fichier en ligne avant d'y
+toucher, sur 150 tirages par dessin : au 2.5, « Cf » sur une courbe 105 fois
+et « Cg » 71 ; au 2.6, 92 et 79, plus 51 « Cg » posées sur une graduation ; à
+la synthèse, 61 et 65 — plus d'une étiquette sur deux, parce que le premier
+correctif n'évitait que la courbe de f, jamais celle de g.
+`etqLibre` apprend donc des OBSTACLES — un sixième paramètre, facultatif — :
+la boîte ne recouvre ni un point de l'autre courbe ni l'étiquette déjà posée. Le
+dessin reçoit la courbe de g en obstacle pour poser « Cf » (`lvGraphSVG` et
+`adrSVG` ont gagné un dernier paramètre `obst`) et transmet la BOÎTE de
+« Cf » à ce qui dessine par-dessus — le troisième argument des fonctions
+`extra`/`dessus`, qu'un dessin sans étiquette ignore ; `cgEtiquette` pose
+« Cg » par le même chemin, la courbe de f et cette boîte en obstacles, le
+cadre RELU dans les sx/sy mêmes du dessin (`lvCadre`) plutôt que recopié.
+**Le contrôle mesure aussi les DROITES** (`line.eqg-g`) : il ne regardait que
+les chemins, et une « Cg » posée sur la droite du 2.5 lui échappait.
+**Et le repli a dû devenir la place la MOINS MAUVAISE.** Cinq abscisses
+candidates laissaient, au 2.6, une étiquette sur seize au repli — deux
+courbes et deux étiquettes se disputent un dessin de 258 px —, et le repli
+prenait la PREMIÈRE place, ramenée dans le cadre : sur la courbe, ou sur une
+graduation (9 « Cf » et 9 graduations sur 150, mesurés après le premier
+jet). Les candidats vont désormais par demi-graduation jusqu'au centre
+(`etqCandidats`, les bouts d'abord — le droit pour « Cg », où elle a toujours
+été), et faute de place libre `etqLibre` choisit la boîte qui contient le
+moins de points de courbe, un axe recouvert comptant pour beaucoup.
+Après correction, la sonde rend ZÉRO sur 300 tirages de chacun des quatre
+dessins — la scène et les cartes du 2.5, le 2.6, la synthèse — : aucune
+étiquette sur une courbe, aucune sur une graduation, aucune sur l'autre
+étiquette, et le banc navigateur est vert sur les trois niveaux.
+**Deux sabotages au banc navigateur, chacun rougissant en nommant son
+défaut** — « Cg » posée en plein milieu de sa courbe, SANS hasard (le banc
+nomme {lecture-deux-courbes}, {equation-graphique} et {synthese-fonction} :
+l'ancienne pose, elle, n'atteignait sa cible qu'une fois sur deux, et un
+sabotage intermittent ne dit rien du contrôle visé), et la droite de g
+retirée des obstacles de « Cf », qui rougit sur {equation-graphique}. Mais
+un obstacle retiré ne fait tomber l'étiquette dessus qu'un tirage sur deux
+ou sur quatre : ces sabotages-là se COMPTENT à la sonde plutôt qu'au banc —
+la droite de g retirée des obstacles de « Cf » remet 63 « Cf » sur 150 sur
+une courbe au 2.5 ; les obstacles retirés de la pose de « Cg » en remettent
+36 au 2.5, 30 au 2.6 et 18 à la synthèse, et une fois « Cg » sur « Cf ».
+Compté sur 150 tirages, un sabotage dit exactement ce qu'il retire.
+
 
 **Le 1.3 (Signes & variations) suit la convention commune de correction.**
 Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases
@@ -7946,11 +8220,53 @@ même `kbPortraitTablette`, la même déclaration
 232, mesurés sur la feuille du 4.5. Les cinq sabotages de jsdom ont été
 rejoués sur elle, et rougissent de même. Ce qui distingue les deux niveaux
 reste ce qui les distinguait : la Première s'installe en plein écran, la
-Seconde garde la barre de navigation d'Android. La TERMINALE, elle, n'a
-jamais eu de forme compacte — son profil ne déclare ni `paysage` ni
-`portraitTablette`, ses contrôles de forme s'affichent « non applicable »,
-et son clavier à deux couches nommées répond à une autre demande : elle
-n'est pas touchée, et le dire vaut mieux que le taire.
+Seconde garde la barre de navigation d'Android. La TERMINALE, ce jour-là,
+n'était pas dans la demande — elle l'a été le lendemain, au paragraphe
+suivant ; elle reste le seul niveau sans forme compacte en PAYSAGE.
+
+**Et la TERMINALE, le lendemain : « fais pareil pour la terminale ».** Elle ne
+pouvait pas recevoir le même correctif à la lettre, et c'est le chiffre qui l'a
+dit : son **clavier A fait TRENTE unités** — la Première et la Seconde n'en ont
+que vingt-trois. Sur trois rangées il en faut **dix par rangée**, or la règle de
+la tablette donnait aux touches un HUITIÈME de la largeur, et le fichier disait
+déjà pourquoi : « la rangée la plus chargée en compte huit, et sans cela elle se
+rétrécirait SEULE ». Deux sorties se présentaient — des touches plus étroites,
+ou déménager six unités du clavier A vers le clavier B. **Turquet a choisi les
+touches plus étroites** : aucune touche ne bouge, l'élève retrouve le clavier
+qu'il connaît. Une règle média de plus, `(pointer:coarse) and (min-width:600px)
+and (orientation:portrait)`, pose `--keycap-width` sur DIX unités : la touche
+passe de 92 à **74 px de large** sur une tablette de 820, la hauteur (48 px) et
+la police (24 px) ne bougent pas. Le PAYSAGE n'est pas concerné — il garde ses
+quatre rangées de huit unités, et sa largeur y est de toute façon plafonnée à
+96 px. `buildKbTerm(vars, portrait)` décrit désormais ses touches **une seule
+fois**, dans un objet `K`, et les deux formes s'y composent ; les deux couches
+gardent leurs identifiants d'une forme à l'autre, si bien que « clavier A » et
+« clavier B » basculent sans rien savoir de la forme. En portrait, le clavier A
+tient sur `7 8 9 / e √ ( ) exposant ⌫`, puis `4 5 6 × ln − + = ← →`, puis
+`1 2 3 0 , espace ⏎ clavierB` ; le clavier B sur les variables + ∞ ⟶ ⌫, puis
+∫ π ∈ indice sin cos tan espace, puis arcsin arccos arctan clavierA ← → ⏎.
+Le contrôle des deux couches mesure maintenant les DEUX formes — comptes de
+rangées, partage `surA`/`surB`, place des variables, largeur maximale, et le
+MÊME jeu de touches d'une forme à l'autre —, plus les quatre cases de la table
+de routage (tablette debout, tablette couchée, téléphone, fenêtre flottante).
+Le faux écran des contrôles de forme est devenu commun aux deux familles de
+clavier (`fauxEcran`) : il honore l'orientation, la largeur minimale et le
+tactile, et ne répond rien à une requête inconnue.
+**Un sabotage a rougi l'idée que je me faisais du rendu, et c'est le meilleur
+moment de ce correctif.** Retirer la règle CSS des dix unités ne faisait pas
+déborder le clavier : MathLive **resserre tout seul** la rangée trop large — la
+touche « 5 » passait de 74 à 77 px — et laisse les autres rangées à 96 px. Le
+contrôle du navigateur, qui ne mesurait qu'UNE touche, restait vert sur une
+page fautive : deux tailles de touches sur le même écran, exactement ce que la
+règle du fichier interdit. Il mesure donc maintenant DEUX touches d'une unité
+posées sur des rangées DIFFÉRENTES du clavier B (∞ et π) et les exige égales —
+sans la règle, ∞ fait 92 px et π 87. Huit sabotages en tout, chacun rougissant
+en nommant son défaut : six en jsdom (une quatrième rangée en portrait, une
+rangée de onze unités, le `ln` retiré, le `=` sorti du clavier A, la forme
+courte qui fuit partout, la forme portrait jamais appliquée) et deux que seul
+le navigateur voit (`kbOnRotate` qui ne réapplique plus la forme — « 3 rangée(s)
+rendue(s) en paysage au lieu de 4 » — et la règle CSS retirée). Les trois
+niveaux ont maintenant leur forme de portrait.
 
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
