@@ -7149,18 +7149,31 @@ quand la suite décroît (1 ≤ Uₙ₊₂ ≤ Uₙ₊₁ ≤ U₁ ≤ U₀), à
 lignes de l'hypothèse et des f(…) commencent une colonne de terme plus loin
 dans ce second cas. Le contrôle exige que le terme qui élargit n'ait RIEN
 au-dessus de lui, au bon bout.
-**La justification a changé de place, et c'est la MESURE qui l'a décidé** :
+**La justification a d'abord changé de place, puis Turquet l'a REMISE** :
 « car f (x) est croissante sur [0 ; 2] » vivait au bout de la ligne des f(…).
 Les colonnes se calant désormais sur le plus large de chaque colonne, cette
 ligne débordait de la carte dès 1400 px — 66 px de trop quand la suite
-décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. La
-justification OUVRE donc le bloc, sur sa propre ligne (« f est [croissante]
-sur [ 0 ; 2 ], et on l'applique à l'encadrement : »), et les trois chaînes se
-suivent sans rien entre elles — c'est ce que la demande veut. Une dixième
-colonne SOUPLE (`minmax(0,1fr)`) prend le reste de la ligne, pour que « c'est
-vrai » et cette justification s'étalent sans élargir les colonnes qu'ils
-enjambent — un élément qui enjambe une piste souple ne compte pas dans la
-largeur des pistes.
+décroît, 214 quand elle croît, mesurés — et la démonstration DÉFILAIT. Le
+premier jet l'avait donc mise en tête du bloc, sur sa propre ligne (« f est
+croissante sur [ 0 ; 2 ], et on l'applique à l'encadrement : »). Turquet a
+tranché le lendemain : « je préfère que l'on écrive sur la même ligne que
+f(…) ≤ f(…) ≤ f(…) ≤ f(…) « car f(x) est … sur [ ; ] » et enlever la 1re
+ligne de la démonstration qui dit la même chose ». Elle est donc AU BOUT de
+la ligne des f(…), et **c'est sa cellule qui cède, pas la démonstration** :
+elle va jusqu'au bout de la grille — une dixième colonne SOUPLE
+(`minmax(0,1fr)`) prend le reste de la ligne, et un élément qui enjambe une
+piste souple ne compte pas dans la largeur des pistes — et elle SE REPLIE
+(`flex-wrap`) quand la place manque, en DEUX morceaux insécables
+(« car f(x) est [croissante] » / « sur [ 0 ; 2 ] », `.svr-morceau`) : le
+premier repli libre coupait entre une borne et son crochet (« sur [ 0 ; » /
+« 2 ] »), vu sur la capture. Mesuré à 1400 px : les deux morceaux font
+534 px pour 575 de place quand la suite décroît — une ligne sur l'écran
+neuf, deux dès que les badges de correction élargissent les colonnes du
+dessous (la cellule perd 45 px) ; deux lignes quand la suite croît, deux à
+1280 px dans les deux sens. La démonstration ne défile plus ni à 1400 ni à
+1280, et la récurrence non plus — elle défilait de 22 px à 1280 avant que
+les « ≤ » ne perdent 2 px de marge de chaque côté. La même colonne souple
+porte le « c'est vrai » de l'initialisation.
 **Chaque cellule est ENVELOPPÉE (`.svr-cel`), et il le faut** : `corrCase`
 insère son badge de correction APRÈS la case, et un badge posé nu dans une
 grille deviendrait une cellule de plus, qui décalerait tout ce qui suit. Le
@@ -7192,13 +7205,16 @@ colonne pour un terme de la ligne « donc » et son homologue de la première
 ligne, pour chaque terme de l'hérédité et le sien, pour une valeur et son
 terme (rangée 3 sous rangée 2), pour chaque
 f(…) et son résultat — les deux visages, le croissant pris au vivier —, la
-justification en tête, le terme qui élargit au bon bout, le badge dans sa
-cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
+justification sur la ligne des f(…) en deux morceaux, le terme qui élargit
+au bon bout, le badge dans sa cellule. Le NAVIGATEUR mesure le RENDU, que jsdom n'a pas : un `display:grid`
 perdu laisse toutes les classes en place et met tout à la file — il exige que
 les cellules d'une même colonne aient le même CENTRE d'une rangée à l'autre, que
 chaque rangée soit d'un seul tenant, que les valeurs soient centrées SOUS
-leur terme et une ligne plus bas, que rien ne défile à 1400 px et que la
-démonstration défile à 900 — une grille ne sait pas se replier.
+leur terme et une ligne plus bas, que la justification partage sa bande avec
+les f(…), que rien ne défile à 1400 px et que la démonstration défile à
+900 — une grille ne sait pas se replier. Il rend aussi le visage CROISSANT
+à 1400 px : c'est lui qui manque de place au bout de la ligne des f(…), et
+un repli débranché s'y voit (214 px de défilement), pas sur le décroissant.
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par

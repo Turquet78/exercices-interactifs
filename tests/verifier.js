@@ -8585,24 +8585,31 @@ function suiteVariationRecurrence(w, P){
       const nom=dec?'décroissante':'croissante';
       const gd=document.querySelector('#svrPartE .svr-gdemo');
       if(!gd){ dit(nom+' : la démonstration n’est pas une grille à colonnes (.svr-gdemo)'); return; }
-      const rangs=[1,2,3,4].map(function(r){ return gd.querySelectorAll('.svr-cel[data-r="'+r+'"]').length; });
-      if(rangs.some(function(k){ return !k; })) dit(nom+' : la démonstration n’a pas ses quatre rangées ('+rangs.join(', ')+')');
-      /* la justification OUVRE le bloc, sur sa propre ligne — au bout de la ligne des f(…) elle la faisait défiler */
-      const j=celDe('svr-mono'), b3=celDe('svr-b3');
-      if(!j||j.r!==1) dit(nom+' : « f est … sur [ ; ] » n’ouvre pas la démonstration (rangée '+(j?j.r:'?')+')');
-      if(!b3||b3.r!==1) dit(nom+' : les bornes de l’intervalle ne sont pas sur la ligne de la justification');
+      const rangs=[1,2,3].map(function(r){ return gd.querySelectorAll('.svr-cel[data-r="'+r+'"]').length; });
+      if(rangs.some(function(k){ return !k; })) dit(nom+' : la démonstration n’a pas ses trois rangées ('+rangs.join(', ')+')');
+      /* la justification « car f(x) est … sur [ ; ] » est AU BOUT de la ligne des f(…) — demande de
+         Turquet, qui a retiré la ligne d’ouverture qui la disait à part — en deux morceaux insécables */
+      const j=celDe('svr-mono'), b3=celDe('svr-b3'), f1=celDe('svr-f1');
+      if(!j||!f1||j.r!==f1.r) dit(nom+' : « car f(x) est … » n’est pas sur la ligne des f(…) (rangée '+(j?j.r:'?')+' contre '+(f1?f1.r:'?')+')');
+      if(!b3||!j||b3.r!==j.r) dit(nom+' : les bornes de l’intervalle ne sont pas sur la ligne de la justification');
+      if(gd.querySelector('.svr-cel[data-r="1"] #svr-mono')) dit(nom+' : la ligne d’ouverture « f est … » est revenue au-dessus de la démonstration');
+      { const mono=document.getElementById('svr-mono'), b4=document.getElementById('svr-b4');
+        const m1=mono&&mono.closest('.svr-morceau'), m2=b4&&b4.closest('.svr-morceau');
+        if(!m1||!m2) dit(nom+' : la justification n’est pas en deux morceaux insécables (« car f(x) est [ ] » / « sur [ ; ] »)');
+        else if(m1===m2) dit(nom+' : la justification est un seul morceau — elle ne peut plus se replier entre « croissante » et « sur »');
+        else if(b3&&b3.r===j.r&&document.getElementById('svr-b3').closest('.svr-morceau')!==m2) dit(nom+' : « sur [ » et sa seconde borne ne sont pas dans le même morceau'); }
       /* f(…) sous son terme de l’hypothèse, résultat sous son f(…) */
       [['svr-p1','svr-f2'],['svr-p2','svr-f3']].forEach(function(t){ const a=celDe(t[0]), b=celDe(t[1]);
-        if(!a||!b||a.c!==b.c||a.r!==2||b.r!==3) dit(nom+' : '+t[1]+' n’est pas SOUS '+t[0]); });
+        if(!a||!b||a.c!==b.c||a.r!==1||b.r!==2) dit(nom+' : '+t[1]+' n’est pas SOUS '+t[0]); });
       const decal=dec?0:1;
       [1,2,3,4].forEach(function(i){ const f=celDe('svr-f'+i), g=celDe('svr-g'+(i+decal));
-        if(!f||!g||f.c!==g.c||f.r!==3||g.r!==4) dit(nom+' : le résultat svr-g'+(i+decal)+' n’est pas SOUS svr-f'+i+(f&&g?' (colonnes '+g.c+' / '+f.c+')':'')); });
+        if(!f||!g||f.c!==g.c||f.r!==2||g.r!==3) dit(nom+' : le résultat svr-g'+(i+decal)+' n’est pas SOUS svr-f'+i+(f&&g?' (colonnes '+g.c+' / '+f.c+')':'')); });
       /* le terme qui élargit est au bon bout — à DROITE quand la suite décroît, à GAUCHE quand elle croît — et rien au-dessus de lui */
       const extra=celDe(dec?'svr-g5':'svr-g1');
-      if(!extra || gd.querySelector('.svr-cel[data-r="3"][data-c="'+extra.c+'"]')) dit(nom+' : le terme qui élargit ('+(dec?'svr-g5, à droite':'svr-g1, à gauche')+') a un f(…) au-dessus de lui');
-      const le3=colsLE(gd,3), le4=colsLE(gd,4);
-      le3.forEach(function(c){ if(le4.indexOf(c)<0) dit(nom+' : le « ≤ » de la colonne '+c+' n’a pas de « ≤ » sous lui'); });
-      if(le4.length!==4) dit(nom+' : la dernière ligne porte '+le4.length+' « ≤ » au lieu de 4');
+      if(!extra || gd.querySelector('.svr-cel[data-r="2"][data-c="'+extra.c+'"]:not(.svr-just)')) dit(nom+' : le terme qui élargit ('+(dec?'svr-g5, à droite':'svr-g1, à gauche')+') a un f(…) au-dessus de lui');
+      const le2=colsLE(gd,2), le3=colsLE(gd,3);
+      le2.forEach(function(c){ if(le3.indexOf(c)<0) dit(nom+' : le « ≤ » de la colonne '+c+' n’a pas de « ≤ » sous lui'); });
+      if(le3.length!==4) dit(nom+' : la dernière ligne porte '+le3.length+' « ≤ » au lieu de 4');
     };
     verifierDemo(true);
     /* le visage CROISSANT, pris au vivier : c’est lui qui décale les deux chaînes
