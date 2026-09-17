@@ -946,7 +946,10 @@ module.exports = {
        programme — prolongé par le TABLEAU DE VALEURS qu'on remplit en
        modifiant x dans ce programme et en l'exécutant (demande de Turquet,
        septembre 2026). « nb » et « cols » sont la SECONDE source du nombre de
-       questions et de colonnes (la page a PTV_NB et PTV_COLS) ; « fiche » est
+       questions et de colonnes (la page a PTV_NB et PTV_COLS) ; « ecart » celle
+       de l'écart minimal entre deux abscisses, en dixièmes — le contrôle lisait
+       d'abord PTV_ECART dans la page et le comparait à lui-même : le sabotage
+       qui collait les colonnes restait vert, à bon droit ; « fiche » est
        le programme de la demande, épinglé en première question, avec ce que
        CPython en affiche — un ENTIER, là où une abscisse décimale donne un
        flottant. Le banc jsdom refait le GARDE du tirage par sa propre
@@ -955,7 +958,7 @@ module.exports = {
        compare l'interpréteur à un vrai python3 ; le navigateur TAPE la valeur
        de x dans la vraie case, clique Exécuter, remplit le tableau rendu et
        relit l'encre RENDUE des verdicts. */
-    pythonTableauValeurs: { exercice: 'python-tableau-valeurs', nb: 3, cols: 5,
+    pythonTableauValeurs: { exercice: 'python-tableau-valeurs', nb: 3, cols: 5, ecart: 5,
                             fiche: { lignes: ['x = 2', 'fonction = 2*x+3', 'print(fonction)'],
                                      sortie: '7', calcul: '2x + 3' } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre

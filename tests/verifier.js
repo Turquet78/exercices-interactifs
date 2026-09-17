@@ -19070,7 +19070,7 @@ function pythonDeuxLignes(w, P){
 function pythonTableauValeurs(w, P){
   const nom = '{python-tableau-valeurs} : le tableau de valeurs rempli en exécutant le programme';
   if(!P.pythonTableauValeurs){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du tableau de valeurs'); return; }
-  const T = P.pythonTableauValeurs, ID = T.exercice, NB = T.nb, COLS = T.cols, F = T.fiche, J = JSON.stringify;
+  const T = P.pythonTableauValeurs, ID = T.exercice, NB = T.nb, COLS = T.cols, ECART = T.ecart, F = T.fiche, J = JSON.stringify;
   const present = evaluer(w, "typeof startPTV==='function' && typeof ptvJuge==='function' && typeof ptvAns==='function' && typeof pyRun==='function'");
   if(!present.ok || !present.valeur){
     verifier(nom, false, 'startPTV / ptvJuge / ptvAns introuvables alors que tests/profils.js déclare l\'exercice'); return;
@@ -19127,7 +19127,7 @@ function pythonTableauValeurs(w, P){
           if(!Number.isInteger(n)||n<1||n>99) vus.push("abscisse hors bornes : "+n);
           if(n%10===0) vus.push("abscisse sans décimale : "+ptvX(n));
           if(Math.floor(n/10)>9) vus.push("plus d’un chiffre devant la virgule : "+ptvX(n));
-          if(i&&q.ns[i]-q.ns[i-1]<PTV_ECART) vus.push("deux abscisses collées : "+q.ns.map(ptvXfr).join(" ; "));
+          if(i&&q.ns[i]-q.ns[i-1]<${ECART}) vus.push("deux abscisses collées : "+q.ns.map(ptvXfr).join(" ; "));
           /* LA SECONDE ARITHMÉTIQUE : la valeur exacte, en dixièmes entiers */
           const e=q.a*n+10*q.b, m=Math.abs(e);
           const att=(e<0?"-":"")+Math.floor(m/10)+"."+(m%10);
@@ -19158,7 +19158,7 @@ function pythonTableauValeurs(w, P){
     for(let i=0;i<q.ns.length;i++){
       const n=q.ns[i];
       if(n%10===0) vus.push("abscisse sans décimale : "+ptvX(n));
-      if(i&&q.ns[i]-q.ns[i-1]<PTV_ECART) vus.push("deux abscisses collées");
+      if(i&&q.ns[i]-q.ns[i-1]<${ECART}) vus.push("deux abscisses collées (repli)");
       const e=q.a*n+10*q.b, m=Math.abs(e);
       const att=(e<0?"-":"")+Math.floor(m/10)+"."+(m%10);
       if(ptvSortie(q,ptvX(n))!==att) vus.push("sortie illisible du repli : x = "+ptvX(n)+" affiche "+ptvSortie(q,ptvX(n))+" au lieu de "+att);
@@ -19166,6 +19166,7 @@ function pythonTableauValeurs(w, P){
     /* et le garde qui l’appelle EXISTE : un tirage impossible doit retomber
        sur lui, jamais rendre un tableau à trous */
     if(String(ptvTirage).indexOf("PTV_REPLI")<0) vus.push("ptvTirage ne lit pas le repli");
+    if(PTV_ECART!==${ECART}) vus.push("l’écart minimal de la page ("+PTV_ECART+") n’est pas celui que le banc déclare (${ECART})");
     if(ptvAbscisses(2,3)===null) vus.push("le générateur ne rend rien sur le programme de la demande");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
@@ -19253,8 +19254,22 @@ function pythonTableauValeurs(w, P){
     x.value=ptvX(q.ns[1])+"0"; ptvExecuter();
     if(cases()[1].disabled) vus.push("« "+ptvX(q.ns[1])+"0 » n’ouvre pas la colonne "+ptvXfr(q.ns[1]));
     const avant=cases().filter(function(e){ return !e.disabled; }).length;
-    x.value="0.2+0.1"; ptvExecuter();
+    /* la valeur APPROCHÉE se construit sur une abscisse RÉELLE du tableau :
+       « 0.2+0.1 » ne vaut 0,3 que si 0,3 est une colonne, et le sabotage de la
+       tolérance restait vert en parlant d’autre chose */
+    x.value=String(Number(ptvX(q.ns[3]))+0.004); ptvExecuter();
+    if(cases()[3].disabled!==true) vus.push("une valeur approchée ("+x.value+") ouvre la colonne "+ptvXfr(q.ns[3]));
     if(cases().filter(function(e){ return !e.disabled; }).length!==avant) vus.push("une valeur approchée ouvre une colonne");
+    /* L’ÉNONCÉ FIGÉ est le bord le plus sournois — la leçon du numéro
+       d’exercice de show() : écrit en dur, il annoncerait « 2x + 3 » devant un
+       programme qui en calcule un autre. On rend donc une SECONDE question,
+       épinglée à un AUTRE calcul, et l’énoncé doit suivre. Ce bord vient en
+       DERNIER : il remplace le tirage, et tout ce qui précède en dépend. */
+    const qf={a:5,b:-4,dep:3,ns:q.ns.slice()};
+    test.questions=[qf]; test.idx=0; test.ptvOuv=[]; renderPTV();
+    const en2=document.getElementById("ptvInstr").textContent;
+    if(en2.indexOf(ptvMaths(qf))<0) vus.push("l’énoncé est FIGÉ : devant « "+ptvMaths(qf)+" » il annonce « "+en2.slice(en2.indexOf("valeurs de")+11,en2.indexOf("valeurs de")+22)+" »");
+    if(ptvMaths(q)!==ptvMaths(qf)&&en2.indexOf(ptvMaths(q))>=0) vus.push("l’énoncé nomme le calcul d’une AUTRE question : "+en2.slice(0,90));
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 

@@ -3561,8 +3561,30 @@ vrai python3 ; le NAVIGATEUR (« 6 tricies octies », déclaré par
 pas — la case de x posée DANS la ligne 1 à la chasse et à la taille du code, le
 tableau rendu, les colonnes fermées qui SE VOIENT fermées (grisées, en
 pointillés), une VRAIE frappe au clavier puis un VRAI clic sur « Exécuter »,
-l'encre RENDUE des trois verdicts, et le tableau qui DÉFILE dans sa boîte sur
-un téléphone au lieu de faire déborder la page.
+l'encre RENDUE des trois verdicts comparée aux VARIABLES de la convention (le
+piège du 5.6 : l'encre de repos d'une case est déjà un bleu nuit, et une règle
+`.ok` qui ne peindrait plus rien passerait pour du bleu à la dominante), et le
+tableau qui DÉFILE dans sa boîte sur un téléphone au lieu de faire déborder la
+page. Les contrôles universels des deux bancs ont couvert l'exercice au premier
+passage sans rien déclarer.
+**Vingt-deux sabotages, chacun rougissant en nommant son défaut** — mais SIX
+n'y sont arrivés qu'au second essai, et chacun a appris quelque chose.
+· **Un TROU DU CONTRÔLE, réel** : les abscisses collées restaient vertes parce
+  que le banc lisait `PTV_ECART` DANS la page et le comparait à lui-même — la
+  doctrine des deux sources, oubliée sur cette seule ligne. L'écart minimal est
+  déclaré dans `tests/profils.js`, et le banc exige en plus que la page porte
+  CET écart : la divergence se nomme.
+· **Deux sabotages IMPOSSIBLES**, qui mesuraient autre chose. « Une valeur
+  approchée ouvre une colonne » était éprouvé par « 0.2+0.1 », qui ne vaut 0,3
+  que si 0,3 est une colonne du tirage — la valeur voisine se construit
+  désormais sur une abscisse RÉELLE de la question. Et « l'énoncé est figé sur
+  2x + 3 » était mesuré sur la question de la FICHE, dont le calcul EST 2x + 3 :
+  le banc rend maintenant une seconde question épinglée à un autre calcul, en
+  DERNIER — ce bord remplace le tirage, et tout ce qui précède en dépend.
+· **Trois ancres PARTAGÉES** : `if(!allOk && isSoutien()){` vit seize fois dans
+  le fichier, la ligne des cases vides deux fois — un sabotage se pose sur une
+  ancre PROPRE à sa cible, la leçon d'{antecedents-droite}, retombée telle
+  quelle.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
