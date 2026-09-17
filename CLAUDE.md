@@ -9922,6 +9922,108 @@ exacte n'est pas établie — le dire vaut mieux que de le taire — ; ce qui es
 établi est qu'un contrôle intermittent parle d'autre chose que de la page, et
 qu'un délai fixe est la première chose qu'une machine chargée fait mentir.
 
+**Puis la TABLETTE COUCHÉE a pris la forme courte, et un exercice sur les
+limites a rendu ses quatre touches au clavier A.** Demande de Turquet
+(septembre 2026) : « en terminale sur une tablette, pour le clavier virtuel de
+l'exercice 2.2, mais qui est sans doute utilisé ailleurs aussi, en mode
+paysage, les touches doivent être plus petites de façon à tenir sur 3 lignes.
+Quand c'est un exercice sur les limites, mettre les touches "inf" ; "-->" ;
+"x" ; "f" sur le clavier A. » Deux demandes, et la seconde a décidé de la
+forme que prend la première.
+**LA MESURE A ÉTÉ FAITE AVANT DE TOUCHER À QUOI QUE CE SOIT, et elle a élargi
+le signalement** : le clavier de la Terminale est celui de TOUS ses champs
+mathématiques (seule sa rangée de variables change avec l'exercice), donc le
+2.2 n'est qu'une porte d'entrée. Couchée, la plaque de quatre rangées faisait
+**208 px sur un écran de 768 — plus d'un quart** de ce que l'élève a devant
+lui, quand elle en prend 156 debout ; après, 132 px, soit 16 à 17 %. La forme
+COURTE à trois rangées existait déjà pour le portrait depuis la demande du
+mois précédent : elle sert maintenant la tablette DEBOUT COMME COUCHÉE
+(`kbPortraitTablette` est devenue `kbTablette`), et la règle CSS du paysage ne
+touche que la HAUTEUR et la POLICE — 48 px et 24 px deviennent 40 et 20 : en
+paysage la largeur ne manque pas, c'est l'écran qui est COURT.
+**Un TÉLÉPHONE COUCHÉ y gagne plus que la tablette, et ce n'était pas
+demandé** : à 844 × 390 il est « large d'au moins 600 px », donc il prend la
+forme courte lui aussi — sa plaque passe de 208 px à 132, de 53 % de l'écran
+à 34 %. Le dire vaut mieux que de le taire : c'est une conséquence de la
+borne, pas un cas traité.
+**LES QUATRE TOUCHES DES LIMITES SONT LA RANGÉE DES VARIABLES, et elle revient
+d'où elle était partie** : f, x, ∞ et ⟶ vivaient en tête du clavier A jusqu'en
+septembre 2026, où « une ligne en moins dans le clavier A » les a envoyées sur
+le B. Sur un exercice sur les limites — là où l'on écrit « x ⟶ +∞ » à chaque
+ligne — elles reviennent sur A, et le clavier B perd sa première rangée, le ⌫
+qu'elle portait passant sur la suivante. **Le JEU de touches ne change pas
+d'une variante à l'autre, seul son PARTAGE change**, et le contrôle compare
+les jeux : 43 touches des deux côtés, dans les quatre formes.
+**LA PAGE NE TIENT AUCUNE LISTE D'EXERCICES** : `kbLimites` lit le THÈME
+auquel l'exercice appartient (et l'identifiant qui nomme lui-même la limite),
+si bien qu'un exercice ajouté demain au thème des limites est couvert sans
+rien déclarer. Le prix de cette souplesse est qu'un thème RENOMMÉ ferait
+repartir ∞ sur le clavier B en silence : des témoins déclarés dans
+`tests/profils.js` l'attrapent — et le bord OPPOSÉ avec eux, trois exercices
+qui ne sont PAS sur les limites et doivent garder le clavier d'avant.
+**ET C'EST LA LARGEUR DES TOUCHES QUI A DÛ CHANGER DE SOURCE.** Le clavier A
+n'a plus une taille mais quatre : 8 unités par rangée sur la forme normale,
+10 sur la courte, 9 et 12 avec les variables revenues. Or la feuille de styles
+RECOPIAIT ce compte (`(100cqw - 32px) / 8`, `/ 10`), et une rangée plus large
+que ce que la largeur prévoit se rétrécit SEULE dans le navigateur — l'élève
+aurait eu deux tailles de touches sur le même écran, la leçon déjà payée en
+septembre. La page POSE donc `--kb-unites` depuis la disposition qu'elle vient
+d'installer (`kbUnites` : la rangée la plus large), et une formule unique
+(`--keycap-auto`) s'y règle : une source, pas une liste — la règle de largeur
+propre au portrait de tablette a disparu avec le compte qu'elle portait.
+**Le coût est mesuré et nommé** : sur un TÉLÉPHONE les touches passent de
+45 px à 41 px de large, parce que la formule compte enfin les 8 unités réelles
+de la rangée la plus chargée au lieu de 7. La rangée y tenait par chance ;
+elle tient maintenant par construction.
+**UN PIÈGE DE BANC s'y est montré** : la touche ⟶ (`\longrightarrow`) est une
+flèche ÉTIRABLE, que MathLive dessine en morceaux — son `textContent` est
+VIDE. Le banc navigateur, qui reconnaissait ses touches au texte, cherchait une
+touche bien présente et disait qu'elle manquait ; il lit aussi
+`data-keycap-value` désormais. Aucun contrôle ne pouvait le voir avant, ⟶
+n'ayant jamais été cherchée nommément.
+**Dix-huit sabotages, chacun rougissant en nommant son défaut** — quinze au
+banc jsdom (le paysage revenu aux quatre rangées, la forme courte qui fuit sur
+le téléphone, la variante des limites jamais demandée par `applyKbLayout`, ∞
+resté sur le clavier B, les variables restées sur B, le ⌫ parti du clavier B,
+`kbLimites` qui ne reconnaît plus son thème, qui ne lit plus l'identifiant, qui
+dit oui partout, `--kb-unites` jamais posée, `kbUnites` qui rend la première
+rangée au lieu de la plus large, une règle de largeur revenue à un compte en
+dur, la règle CSS du paysage retirée, la même qui ne réduit rien, une rangée de
+treize unités) et trois que seul le NAVIGATEUR voit : la règle du paysage
+retirée (« touche « 5 » : 92×48 px, plaque 156 px »), la variante des limites
+débranchée (« manque sur le clavier A : ∞ ⟶ f x ») et `--kb-unites` figée à
+dix, où la rangée de douze se rétrécit seule.
+**QUATRE D'ENTRE EUX SONT D'ABORD RESTÉS VERTS, et chacun a nommé un trou du
+CONTRÔLE plutôt qu'un défaut de la page.**
+· **Le FAUX ÉCRAN du banc modélisait un téléphone comme « pas tactile »** : il
+  répondait `pointer: coarse` en même temps que `min-width`, si bien qu'un
+  routage qui aurait cessé de regarder la LARGEUR restait vert — le téléphone
+  du banc n'était coarse pour personne. Un téléphone est tactile ET étroit, une
+  tablette tactile et large : les deux réponses sont séparées, et le sabotage
+  rougit (« téléphone ancré en portrait : 3 rangée(s) au lieu de 4 »).
+· **Le ⌫ retiré du clavier B ne perdait aucune touche** — il est aussi sur le
+  clavier A, donc le JEU restait complet et la comparaison des jeux disait vrai.
+  Mais l'élève qui écrit sur le B devrait changer de couche pour reprendre une
+  lettre : la propriété que le sabotage cassait n'était tenue nulle part. Chaque
+  COUCHE porte de quoi effacer, désormais, et le contrôle l'exige.
+· **La moitié « thème » de `kbLimites` n'était mesurée par personne** : les
+  quatre témoins déclarés portaient tous « limite » dans leur identifiant, donc
+  la première ligne de la fonction répondait avant elle. `equation-droite-h-v`
+  (le 3.1) est le témoin qui l'éprouve — son identifiant ne dit rien de la
+  limite, seul son thème le dit —, et `suite-tcm-limite` éprouve l'autre moitié,
+  puisqu'il vit dans le thème des Suites. Un contrôle qui n'a rien à mesurer ne
+  mesure rien.
+· **Et « la rangée de douze se rétrécit seule » se mesure DEBOUT, pas
+  couché** — c'est le seul des quatre dont le vert disait VRAI. Mesuré plutôt
+  que supposé : en PAYSAGE, un `--kb-unites` figé trop bas ne fait pas deux
+  tailles de touches, MathLive resserrant la plaque ENTIÈRE — toutes les
+  touches à 92 px —, et le plafond de 96 px absorbe l'écart. En PORTRAIT la
+  largeur mord : les rangées de onze font 70 px et celle de douze 64, deux
+  tailles sur le même écran. Le contrôle tourne donc la tablette avant de
+  mesurer ce bord-là, et le sabotage rougit en nommant l'écart. Un sabotage
+  qui reste vert à la largeur où rien ne peut le voir parle d'autre chose —
+  la leçon du sabotage impossible, à une orientation près.
+
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la
 barre d'adresse et les onglets de Chrome prennent sur l'écran d'une tablette,

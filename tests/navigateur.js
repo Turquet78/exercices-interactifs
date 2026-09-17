@@ -10144,7 +10144,7 @@ async function parcours(page, N){
          une forme de portrait, c'est elle qui doit s'y rendre — les rangées
          attendues viennent de là. La forme normale est reprise plus bas, la
          fenêtre tournée en paysage. */
-      const KP = KC.portraitTablette || null;
+      const KP = KC.courte || null;
       const attA = KP ? KP.rangeesA : (KC.rangeesA || 4), attB = KP ? KP.rangeesB : (KC.rangeesB || 4);
       s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
       if(await connecter(s.page) !== 'scr-space'){
@@ -10192,7 +10192,14 @@ async function parcours(page, N){
           if(!kb) return { absent: true, visible: !!(vk && vk.visible) };
           const vis = el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; };
           const caps = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')].filter(vis);
-          const de = t => caps.find(c => c.textContent.trim() === t) || null;
+          /* Une touche se reconnaît à son TEXTE… sauf celles que MathLive dessine
+             au lieu de les écrire : « ⟶ » (\longrightarrow) est une flèche
+             étirable, composée de morceaux, et son textContent est VIDE. On
+             accepte donc aussi la valeur que MathLive pose sur la touche — sans
+             quoi le contrôle chercherait une touche bien présente et dirait
+             qu'elle manque. */
+          const val = c => c.getAttribute('data-keycap-value') || c.getAttribute('aria-label') || '';
+          const de = t => caps.find(c => c.textContent.trim() === t || val(c) === t) || null;
           const info = el => { if(!el) return null; const q = el.getBoundingClientRect();
             return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2),
                      w: Math.round(q.width), h: Math.round(q.height) }; };
@@ -10207,11 +10214,15 @@ async function parcours(page, N){
              rangée trop large et laisse les autres à leur taille, et l'élève a
              deux tailles de touches sur le même écran. */
           const large = el => el ? Math.round(el.getBoundingClientRect().width) : null;
+          const plaque = kb.querySelector('.MLK__plate');
           return { visible: !!(vk && vk.visible), rangees: tops.length,
                    unite: [large(de('∞')), large(de('π'))],
                    touche: info(cinq), police: police(cinq),
+                   plaque: Math.round((plaque || kb).getBoundingClientRect().height),
+                   uniteA: [large(de('7')), large(de('1'))],
                    debord: Math.round(Math.max(0, ...caps.map(c => c.getBoundingClientRect().right)) - window.innerWidth),
                    inf: !!de('∞'), integ: !!de('∫'), n: !!de('n'), cinqLa: !!cinq,
+                   f: !!de('f'), x: !!de('x'), vers: !!de('\\longrightarrow'),
                    versA: info(de(versA)), versB: info(de(versB)) };
         };
         const cA = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
@@ -10242,12 +10253,15 @@ async function parcours(page, N){
                 + [cB.inf ? '' : '∞', cB.integ ? '' : '∫', cB.n ? '' : 'n'].filter(Boolean).join(' ')
             : cB.rangees + ' rangée(s) rendue(s) au lieu de ' + (attB)
               + (cB.debord > 1 ? ', et il DÉBORDE de ' + cB.debord + ' px' : ''));
-        /* LE BORD OPPOSÉ : la tablette TOURNÉE EN PAYSAGE retrouve la forme
-           normale. Sans lui, une forme courte qui fuirait sur le paysage —
-           où la rangée de dix unités n'a plus la largeur de touche qu'il lui
-           faut — passerait inaperçue. Le clavier se reconstruit à la rotation
-           (kbOnRotate) et revient sur le clavier A ; s'il restait sur B, on
-           l'y ramène par sa touche. */
+        /* LA TABLETTE TOURNÉE EN PAYSAGE : la forme COURTE aussi, et des touches
+           PLUS PETITES (demande de Turquet, septembre 2026 — « en mode paysage,
+           les touches doivent être plus petites de façon à tenir sur 3 lignes »).
+           En paysage l'écran est COURT, et la plaque de quatre rangées y prenait
+           un quart de ce que l'élève a devant lui : c'est la HAUTEUR de la plaque
+           qu'on mesure, pas seulement le compte de rangées — trois rangées de
+           grosses touches ne rendraient rien. Le clavier se reconstruit à la
+           rotation (kbOnRotate) et revient sur le clavier A ; s'il restait sur B,
+           on l'y ramène par sa touche. */
         if(KP){
           await s.page.setViewportSize({ width: 1180, height: 820 });
           await s.page.waitForTimeout(1200);
@@ -10256,21 +10270,96 @@ async function parcours(page, N){
             await s.page.mouse.click(cL.versA.x, cL.versA.y); await s.page.waitForTimeout(400);
             cL = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
           }
-          verifier('tournée en paysage, la tablette retrouve les ' + (KC.rangeesA || 4) + ' rangées de la forme normale',
-            cL.visible && cL.cinqLa && cL.rangees === (KC.rangeesA || 4) && cL.debord <= 1,
+          const PY = KT.paysage || {};
+          verifier('tournée en paysage, la tablette garde les ' + attA + ' rangées et réduit ses touches',
+            cL.visible && cL.cinqLa && cL.rangees === attA && cL.debord <= 1
+              && !!cL.touche && (!PY.hauteurMax || cL.touche.h <= PY.hauteurMax)
+              && (!PY.policeMax || cL.police <= PY.policeMax)
+              && (!PY.plaqueMax || cL.plaque <= PY.plaqueMax),
             !cL.visible ? 'le clavier s\'est refermé à la rotation'
               : !cL.cinqLa ? 'le clavier A ne revient pas à la rotation'
-              : cL.rangees + ' rangée(s) rendue(s) en paysage au lieu de ' + (KC.rangeesA || 4)
-                + (cL.debord > 1 ? ', et il DÉBORDE de ' + cL.debord + ' px' : ''));
-          console.log('   · la plaque du clavier : ' + attA + ' rangées en portrait de tablette, '
-            + cL.rangees + ' en paysage ; touche « 5 » ' + (cA.touche ? cA.touche.w + '×' + cA.touche.h : '?')
+              : cL.rangees !== attA ? cL.rangees + ' rangée(s) rendue(s) en paysage au lieu de ' + attA
+              : !cL.touche ? 'la touche « 5 » est introuvable en paysage'
+              : 'touche « 5 » : ' + cL.touche.w + '×' + cL.touche.h + ' px (plafond ' + PY.hauteurMax
+                + '), police ' + cL.police + ' px (plafond ' + PY.policeMax + '), plaque ' + cL.plaque
+                + ' px (plafond ' + PY.plaqueMax + ')'
+                + (cL.debord > 1 ? ', DÉBORDE de ' + cL.debord + ' px' : ''));
+          /* et le bord opposé de la mesure : le paysage réduit VRAIMENT, il ne
+             reprend pas la taille du portrait — une règle média qui cesserait de
+             s'appliquer laisserait les trois rangées et des touches de 48 px */
+          verifier('les touches du paysage sont plus petites que celles du portrait',
+            !!cA.touche && !!cL.touche && cL.touche.h < cA.touche.h && cL.plaque < cA.plaque,
+            (cA.touche && cL.touche)
+              ? 'debout ' + cA.touche.h + ' px de haut (plaque ' + cA.plaque + '), couché ' + cL.touche.h + ' px (plaque ' + cL.plaque + ')'
+              : 'la touche « 5 » est introuvable');
+          console.log('   · la plaque du clavier : ' + cA.plaque + ' px debout, ' + cL.plaque
+            + ' px couché ; touche « 5 » ' + (cA.touche ? cA.touche.w + '×' + cA.touche.h : '?')
             + ' px debout, ' + (cL.touche ? cL.touche.w + '×' + cL.touche.h : '?') + ' px couché');
+        }
+        /* UN EXERCICE SUR LES LIMITES : les quatre touches sur le clavier A,
+           mesurées sur la couche RENDUE (demande de Turquet, septembre 2026 —
+           « quand c'est un exercice sur les limites, mettre les touches inf,
+           -->, x, f sur le clavier A »). jsdom lit la disposition déclarée ;
+           seul un navigateur dit ce qui s'affiche vraiment quand l'élève ouvre
+           l'exercice, et si la rangée qui s'est allongée tient encore dans
+           l'écran. On reste en PAYSAGE : c'est là que la place manque. */
+        const KL = KT.limites;
+        if(KL){
+          await s.page.evaluate(i => openTest(i), KL.exercice);
+          await s.page.waitForTimeout(400);
+          await s.page.evaluate(() => {
+            const b = [...document.querySelectorAll('#modeChoices button')]
+              .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+            if(b) b.click();
+          });
+          await s.page.waitForTimeout(1200);
+          try{ await s.page.click(KL.champ, { timeout: 6000 }); }catch(e){}
+          await s.page.waitForTimeout(700);
+          if(!await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible))){
+            try{ await s.page.click(KL.bouton, { timeout: 5000 }); }catch(e){}
+            await s.page.waitForTimeout(900);
+          }
+          const cX = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
+          verifier('sur un exercice sur les limites, ∞, ⟶, f et x sont sur le clavier A',
+            !cX.absent && cX.visible && cX.cinqLa && cX.inf && cX.vers && cX.f && cX.x
+              && !cX.integ && cX.rangees === attA && cX.debord <= 1,
+            cX.absent ? 'aucun clavier ancré dans la page'
+              : !cX.visible ? 'le clavier ne se déploie pas'
+              : !cX.cinqLa ? 'ce n\'est pas le clavier A qui est affiché'
+              : cX.integ ? 'l\'intégrale est passée sur le clavier A avec elles'
+              : (!cX.inf || !cX.vers || !cX.f || !cX.x) ? 'manque sur le clavier A : '
+                  + [cX.inf ? '' : '∞', cX.vers ? '' : '⟶', cX.f ? '' : 'f', cX.x ? '' : 'x'].filter(Boolean).join(' ')
+              : cX.rangees + ' rangée(s) rendue(s) au lieu de ' + attA
+                + (cX.debord > 1 ? ', et il DÉBORDE de ' + cX.debord + ' px' : ''));
+          /* ET LA RANGÉE QUI S'EST ALLONGÉE N'A PAS RÉTRÉCI SEULE : les deux
+             touches d'une unité prises sur des rangées différentes du clavier A
+             font la même largeur. C'est le bord que --kb-unites tient — et il
+             se mesure DEBOUT, pas couché. Mesuré : en PAYSAGE, un compte figé
+             trop bas ne fait pas deux tailles de touches, MathLive resserrant
+             la plaque ENTIÈRE (toutes les touches à 92 px) — le plafond de
+             96 px absorbe l'écart, et le sabotage y reste vert à bon droit. En
+             PORTRAIT la largeur mord : les rangées de onze font 70 px et celle
+             de douze 64, deux tailles sur le même écran. On tourne donc la
+             tablette avant de mesurer. */
+          await s.page.setViewportSize({ width: 820, height: 1180 });
+          await s.page.waitForTimeout(1200);
+          const cP = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
+          const uA = cP.uniteA || [];
+          verifier('debout, la rangée allongée n\'a pas rétréci seule : les touches d\'une unité font la même largeur',
+            cP.visible && cP.cinqLa && !!uA[0] && !!uA[1] && Math.abs(uA[0] - uA[1]) <= 1,
+            !cP.visible ? 'le clavier s\'est refermé à la rotation'
+              : !cP.cinqLa ? 'le clavier A ne revient pas à la rotation'
+              : (!uA[0] || !uA[1]) ? 'les touches témoins « 7 » et « 1 » sont introuvables sur le clavier A'
+              : '« 7 » fait ' + uA[0] + ' px et « 1 » ' + uA[1] + ' px : une rangée s\'est rétrécie seule');
+          console.log('   · sur les limites, le clavier A : ' + cX.rangees + ' rangées, touche « 5 » '
+            + (cX.touche ? cX.touche.w + '×' + cX.touche.h : '?') + ' px couché, '
+            + (cP.touche ? cP.touche.w + '×' + cP.touche.h : '?') + ' px debout ; plaque ' + cX.plaque + ' px couché');
         }
         /* et AUCUNE rangée ne s'est rétrécie seule : les deux touches d'une
            unité prises sur des rangées différentes du clavier B font la même
-           largeur. Sans la règle de largeur du portrait de tablette, la rangée
-           de dix unités du clavier A se resserre toute seule et celles du
-           clavier B restent larges — deux tailles de touches sur un écran. */
+           largeur. Sans la règle de largeur de la tablette, la rangée la plus
+           longue du clavier A se resserre toute seule et celles du clavier B
+           restent larges — deux tailles de touches sur un écran. */
         if(KP) verifier('aucune rangée ne se rétrécit seule : les touches d\'une unité font toutes la même largeur',
           !!cB && cB.unite[0] && cB.unite[1] && Math.abs(cB.unite[0] - cB.unite[1]) <= 1,
           !cB ? 'la seconde couche ne se rend pas'
