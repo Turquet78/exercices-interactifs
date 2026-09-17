@@ -3125,6 +3125,68 @@ machine » : lancée pendant que le banc NAVIGATEUR tournait encore, elle lui
 a fait mesurer la page sabotée (« le soutien verrouille une copie fausse »),
 et ses deux rouges accusaient une page juste. Rejoué seul, il est vert.
 
+**Puis le cours a pris son PROPRE écran, avec un exemple qui S'EXÉCUTE.**
+Demande de Turquet (septembre 2026) : « dans l'exercice 5.7 en seconde je
+souhaite que le cours soit affiché avec un programme à exécuter d'un exemple
+du cours ; l'élève clique quand il pense avoir compris ; et on voit après
+l'énoncé du programme à compléter comme c'est déjà le cas ; et on continue sur
+l'énoncé suivant du programme à compléter. » Le cours était POSÉ en tête de
+chacune des quatre questions — lu ou non, et redit trois fois de trop — et son
+exemple n'était qu'une phrase qui donnait sa propre réponse (« … affiche nous
+sommes en 2026 »). Il OUVRE maintenant la séance, sur son écran à lui, et cet
+exemple est un vrai programme que l'élève fait TOURNER ; les quatre questions
+s'enchaînent ensuite, chacune avec son seul énoncé.
+**LE COURS QUITTE L'ÉCRAN DE LA QUESTION, et c'est le « après » de la
+demande** — il reste à un clic, par « 📘 Rappel de cours », que l'écran porte
+déjà. Le garder en tête de chaque question aurait fait de la porte une
+décoration : on aurait cliqué « J'ai compris » sur un cours qu'on relit juste
+en dessous.
+**LA PORTE EST TENUE PAR L'ÉTAT DU BOUTON** (la leçon de {placer-image}) :
+« J'ai compris » ne s'ouvre qu'une fois l'exemple EXÉCUTÉ. C'est un arbitrage
+assumé — la demande dit QUAND l'élève clique, elle ne dit pas qu'il peut sauter
+l'exemple, et un exemple qu'on n'exécute pas rend l'écran à ce qu'il était
+avant la demande ; c'est déjà la règle du 5.1, où « voir le programme tourner
+est le a) de la fiche, pas une option ». Le garde vit sur le BOUTON et nulle
+part ailleurs : `pyxCompris()` n'en porte pas — un second garde, que le premier
+rend inatteignable, serait un garde-fou mort de plus.
+**LA SORTIE DE L'EXEMPLE VIENT DE `pyRun`**, la fonction même qui exécutera la
+ligne de l'élève, jamais une chaîne écrite à côté : un cours qui annoncerait
+autre chose que ce que l'interpréteur affiche enseignerait le faux. Le cours ne
+DIT donc plus ce que l'exemple affiche, il le MONTRE — et le contrôle tient les
+deux bords, la phrase retirée du cours ET la sortie lue dans la source. Le
+rappel (RAP_PYX), lui, garde sa phrase entière : il se lit hors de l'écran, où
+il n'y a aucun programme à lancer. Et l'exemple n'est AUCUNE des questions :
+« annee » n'est dans aucun jeu de `PY_JEUX`, et le contrôle l'exige plutôt que
+de le supposer. Son programme entre en plus dans la comparaison à un vrai
+CPython : il tourne chez l'élève, sa sortie se compare comme les autres.
+**Le bord qu'aucun écran ne dirait est celui du devoir sur PAPIER** : la photo
+de l'énoncé et la reprise d'une pause passent toutes deux par
+`afficherEcranDe`, qui appelle `renderPYX` — donc la QUESTION. Un cours rendu
+là serait photographié sur la feuille du professeur à la place de l'exercice,
+et rien ne le dirait.
+**Et le contrôle UNIVERSEL a dû apprendre la porte** : la visite du banc
+navigateur qui ouvre TOUS les exercices dans les deux modes franchissait déjà
+les écrans de départ (« Commencer », le choix de niveau) ; elle exécute
+maintenant l'exemple, puis franchit « J'ai compris » — sans quoi elle aurait
+mesuré un écran de cours en croyant mesurer un exercice, et le bouton d'aide,
+les accolades, le gabarit non interprété et le cadre pleine largeur n'auraient
+plus rien dit du 5.7. Elle ne clique que des boutons ACTIFS désormais, et vise
+le bouton de l'EXEMPLE et lui seul — celui de l'exercice dit « le programme »,
+pas « l'exemple ».
+**Onze sabotages, chacun rougissant en nommant son défaut** — neuf au banc
+jsdom (le cours qui ne s'ouvre plus, la porte ouverte d'emblée, la porte qui
+reste fermée après l'exécution, le cours resté en tête de la question,
+l'exemple quitté de l'écran, sa sortie écrite à la main, sa variable prise à
+une question, le cours qui redit ce que l'exemple affiche, `afficherEcranDe`
+qui rend le cours), deux que seul le NAVIGATEUR voit (le cours caché par une
+règle CSS, la chasse fixe retirée des lignes de programme). **Et deux d'entre
+eux ont d'abord montré un défaut du CONTRÔLE, pas de la page** : privé de
+l'écran du cours, il LEVAIT sur une console absente au lieu de nommer quoi que
+ce soit — un contrôle qui lève ne nomme rien, il dit maintenant ce qui manque
+et s'arrête ; et le sabotage de la variable ne changeait que la PREMIÈRE ligne
+de l'exemple, si bien que le programme tombait en erreur et que le contrôle
+parlait d'autre chose. Rejoué sur un programme valide, il nomme la variable.
+
 **Un texte presque bon est un texte bon.** Décision de Turquet (septembre
 2026) : « en seconde pour les algorithmes qui affichent un texte, accepter les
 textes qui sont presque bons. Dans le texte des espaces en trop ou en moins ne
@@ -3250,7 +3312,7 @@ ne passe pas au juge, c'est le juge qui a tort), la place au menu, le tirage
 (400 séances), le juge sur des écritures JUSTES variées et sur vingt-quatre
 lignes FAUSSES — chacune avec le mot que son diagnostic doit porter —, les
 portes, la ligne vide, le soutien, les branchements, et compare l'interpréteur
-à un vrai CPython sur 822 programmes ; le NAVIGATEUR (« 6 tricies quinquies »,
+à un vrai CPython sur 822 programmes ; le NAVIGATEUR (« 6 tricies sexies »,
 déclaré par `pythonDeuxLignes` dans `tests/profils.js`) mesure ce que jsdom ne
 voit pas — la consigne à puces et les coups de pouce RENDUS, repliés puis
 OUVERTS au clic, les quatre lignes écrites du programme et les deux cases à
@@ -9732,6 +9794,14 @@ bon droit. Le défaut n'existe que sur `main`, et il s'y voit à la première
 fusion. La règle qui en découle : au moment de refusionner `main`, on relit les
 numéros de section comme on relit les numéros d'exercice et `APP_VERSION` —
 c'est la même famille de collisions, et elle se règle de la même façon.
+**Et elle a resservi seize secondes plus tard** : « 6 tricies quinquies »,
+pris le même jour par la suite à la différence (Terminale) et par le
+programme à deux lignes (Seconde), deux fusions à seize secondes d'écart. La
+règle a tranché sans qu'on ait à réfléchir — le premier garde le numéro, le
+second prend « 6 tricies sexies », la citation de ce fichier suit — et c'est
+la troisième fusion de suite à porter cette collision : ce n'est pas un
+accident, c'est ce que produit un dépôt où plusieurs branches ajoutent une
+section le même jour.
 **Et la réparation s'est heurtée à la même chose** : deux sessions ont corrigé
 ce numéro le même quart d'heure, chacune sur sa branche, et la seconde fusion
 n'a plus rien apporté que son paragraphe — écrit à côté du premier, il racontait

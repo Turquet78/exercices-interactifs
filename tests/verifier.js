@@ -17929,7 +17929,7 @@ function pythonTexteProche(w, P){
     if(pyxJuge(q,'print("la note est :", note)').ecart!=="") vus.push("la ligne EXACTE reçoit un écart");
     /* l'écran : on tape la ligne tolérée, on l'exécute, on vérifie */
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${P.pythonCompleter.exercice}";
-    startPYX();
+    startPYX(); pyxExempleExecuter(); pyxCompris();
     const q1=test.questions[0], inp=document.getElementById("pyx-in"), fb=document.getElementById("pyxFeedback");
     inp.value='print("La '+q1.texte.slice(3)+'", '+q1.nom+')'; inp.dispatchEvent(new Event("input",{bubbles:true}));
     pyxExecuter(); checkPYX();
@@ -18019,7 +18019,7 @@ function pythonTexteProche(w, P){
 function pythonCompleter(w, P){
   const nom = '{python-completer} : le cours, puis la ligne 2 à écrire, exécuter et vérifier';
   if(!P.pythonCompleter){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du print à compléter'); return; }
-  const ID = P.pythonCompleter.exercice, NB = P.pythonCompleter.nb;
+  const ID = P.pythonCompleter.exercice, NB = P.pythonCompleter.nb, EX = P.pythonCompleter.exemple;
   const present = evaluer(w, "typeof startPYX==='function' && typeof pyRun==='function' && typeof pyxJuge==='function' && typeof pyxAns==='function'");
   if(!present.ok || !present.valeur){
     verifier(nom, false, 'startPYX / pyRun / pyxJuge / pyxAns introuvables alors que tests/profils.js déclare l\'exercice'); return;
@@ -18115,16 +18115,65 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 5. la copie juste TAPÉE et les portes ---- */
-  verifierEval(w, 'le cours est sur l’écran, « Vérifier » est fermé tant que la ligne n’est pas exécutée, s’ouvre après, se referme sur une ligne modifiée, et la copie juste vérifiée vaut 1, verrouille et propose « Question suivante »', `(function(){
+  /* ---- 5. le cours ouvre la séance, et son exemple s'EXÉCUTE ----
+     Demande de Turquet (septembre 2026). Le cours ne vit plus en tête de
+     chaque question : il ouvre la séance sur son propre écran, son exemple
+     est un vrai programme qu'on lance, et « J'ai compris » ne s'ouvre qu'une
+     fois l'exemple exécuté. Trois bords, et n'en tenir qu'un ne tient rien :
+     la porte FERMÉE au départ, la porte OUVERTE après l'exécution, et la
+     question qui suit — sans le cours, l'exemple parti avec lui. Le quatrième
+     est celui qu'aucun écran ne dirait : la reprise d'une pause et l'énoncé
+     papier d'un devoir passent par afficherEcranDe, qui doit tomber sur la
+     QUESTION et jamais sur le cours, sans quoi la feuille du professeur
+     photographierait un cours. */
+  verifierEval(w, 'le cours ouvre la séance sur son propre écran, son exemple est un vrai programme qui s’exécute, « J’ai compris » n’ouvre qu’ensuite, et la question qui suit ne porte plus le cours', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPYX();
+    const vus=[], NL=String.fromCharCode(10);
+    const cours=function(){ return document.querySelector("#pyxHost .pyx-cours"); };
+    if(!cours()) vus.push("le cours n’est pas sur l’écran d’ouverture");
+    else { const tx=cours().textContent;
+           ["virgule","guillemets","print("].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); });
+           if(tx.indexOf("la note est")>=0) vus.push("le cours donne la réponse de la fiche");
+           if(tx.indexOf("${EX}")>=0) vus.push("le cours DIT ce que l’exemple affiche : il n’y aurait plus rien à exécuter"); }
+    if(document.getElementById("pyx-in")) vus.push("la question est déjà là : le cours ne fait pas écran");
+    const lignes=Array.prototype.map.call(document.querySelectorAll("#pyxHost .pyx-prog .pyx-l1"), function(e){ return e.textContent; });
+    if(lignes.join(NL)!==PYX_EXEMPLE) vus.push("l’exemple rendu n’est pas PYX_EXEMPLE : "+JSON.stringify(lignes));
+    const run=document.getElementById("pyxExRun"), cons=document.getElementById("pyxExConsole");
+    const porte=function(){ return document.getElementById("pyxCompris"); };
+    /* un contrôle qui lève ne nomme rien : on dit ce qui manque, et on s’arrête */
+    if(!run) vus.push("pas de bouton « Exécuter l’exemple » sur l’écran d’ouverture");
+    if(!cons) vus.push("pas de console pour l’exemple sur l’écran d’ouverture");
+    if(!porte()) vus.push("pas de bouton « J’ai compris » sur l’écran d’ouverture");
+    if(!run||!cons||!porte()) return vus.slice(0,4).join(" | ");
+    if(run.disabled) vus.push("« Exécuter l’exemple » n’est pas cliquable d’emblée");
+    if(cons.textContent!=="") vus.push("la console de l’exemple n’est pas vide avant l’exécution");
+    if(!porte().disabled) vus.push("« J’ai compris » est ouvert avant toute exécution");
+    pyxExempleExecuter();
+    if(cons.textContent!=="${EX}") vus.push("l’exemple affiche "+JSON.stringify(cons.textContent)+" au lieu de « ${EX} »");
+    if(!cons.classList.contains("py-exec")) vus.push("la console de l’exemple n’est pas marquée exécutée");
+    if(String(pyxExempleExecuter).indexOf("pyRun")<0) vus.push("la sortie de l’exemple ne vient pas de pyRun : le cours pourrait annoncer autre chose que l’interpréteur");
+    if(porte().disabled) vus.push("« J’ai compris » reste fermé après l’exécution de l’exemple");
+    const vex=PYX_EXEMPLE.split(NL)[0].split("=")[0].trim(), noms=[PYX_FICHE.nom];
+    PY_JEUX.forEach(function(J){ noms.push(J.i.nom, J.f.nom, J.s.nom); });
+    if(noms.indexOf(vex)>=0) vus.push("la variable de l’exemple ("+vex+") est celle d’une question");
+    pyxCompris();
+    if(!document.getElementById("pyx-in")) vus.push("« J’ai compris » n’ouvre pas la question");
+    if(cours()) vus.push("le cours reste posé en tête de la question");
+    if(document.getElementById("pyxExRun")) vus.push("l’exemple du cours reste sur l’écran de la question");
+    if(document.getElementById("pyxIdx").textContent.indexOf("1 / ${NB}")<0) vus.push("la question n’est pas annoncée : "+document.getElementById("pyxIdx").textContent);
+    if(!afficherEcranDe("pyx")) vus.push("afficherEcranDe ne connaît pas pyx (reprise et rejeu)");
+    if(!document.getElementById("pyx-in")||document.querySelector("#pyxHost .pyx-cours")) vus.push("afficherEcranDe rend le cours au lieu de la question");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la copie juste TAPÉE et les portes ---- */
+  verifierEval(w, '« Vérifier » est fermé tant que la ligne n’est pas exécutée, s’ouvre après, se referme sur une ligne modifiée, et la copie juste vérifiée vaut 1, verrouille et propose « Question suivante »', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYX(); pyxExempleExecuter(); pyxCompris();
     const vus=[], q=test.questions[0], a=pyxAns(q), NL=String.fromCharCode(10);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     if(pyxCases(q).length!==1) vus.push("pyxCases rend "+pyxCases(q).length);
-    const cours=document.querySelector("#pyxHost .pyx-cours");
-    if(!cours) vus.push("le cours n’est pas sur l’écran");
-    else { const tx=cours.textContent; ["virgule","guillemets","print("].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); }); if(tx.indexOf("la note est")>=0) vus.push("le cours donne la réponse de la fiche"); }
     const l1=document.querySelector("#pyxHost .pyx-l1"), inp=document.getElementById("pyx-in"), run=document.getElementById("pyxRun"), cons=document.getElementById("pyxConsole");
     if(!l1||l1.textContent!=="note = 12") vus.push("la ligne 1 affichée n’est pas « note = 12 » : "+(l1&&l1.textContent));
     if(!inp||inp.tagName!=="INPUT") vus.push("pas de case pour la ligne 2");
@@ -18157,9 +18206,9 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 6. la copie fausse, en entraînement ---- */
+  /* ---- 7. la copie fausse, en entraînement ---- */
   verifierEval(w, 'la copie fausse (entraînement) : la case rougit, le diagnostic nomme l’erreur, la ligne juste s’écrit en vert sous la case, la note vaut 0 et la question est verrouillée — et « Vérifier » exécute lui-même une ligne qui ne l’a pas été', `(function(){
-    currentMode="train"; startPYX();
+    currentMode="train"; startPYX(); pyxExempleExecuter(); pyxCompris();
     const vus=[], q=test.questions[0], a=pyxAns(q), inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
     inp.value='print("la note est :", "note")'; inp.dispatchEvent(new Event("input",{bubbles:true}));
     checkPYX();
@@ -18177,9 +18226,9 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 7. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
+  /* ---- 8. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
   verifierEval(w, 'en soutien : la ligne fausse rougit sans badge, le message dit « Où est l’erreur ? » et la nomme, rien n’est verrouillé, Revérifier est proposé ; modifier la ligne retire le rouge et referme le bouton ; la ligne vide n’est pas peinte ; la correction exécutée puis revérifiée vaut 1', `(function(){
-    currentMode="soutien"; startPYX();
+    currentMode="soutien"; startPYX(); pyxExempleExecuter(); pyxCompris();
     const vus=[], q=test.questions[0], inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
     const v=function(){ return document.getElementById("pyxValidate"); };
     checkPYX();
@@ -18209,7 +18258,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 8. les branchements ---- */
+  /* ---- 9. les branchements ---- */
   verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX et avec la virgule et les guillemets, les questions à l’IA, le contexte porte la ligne 1, ce que l’élève a écrit, le diagnostic, et déclare la réponse secrète, aucune correction au fil de la frappe', `(function(){
     const vus=[];
     if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
@@ -18217,7 +18266,7 @@ function pythonCompleter(w, P){
     if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
     ["virgule","guillemets","print("].forEach(function(m){ if(rap.indexOf(m)<0) vus.push("le rappel ne dit pas « "+m+" »"); });
     if(!QIA_SUGG.pyx||QIA_SUGG.pyx.length<3) vus.push("pas de questions à l’IA pour pyx");
-    currentMode="soutien"; startPYX(); const q=test.questions[0], a=pyxAns(q);
+    currentMode="soutien"; startPYX(); pyxExempleExecuter(); pyxCompris(); const q=test.questions[0], a=pyxAns(q);
     const inp=document.getElementById("pyx-in"); inp.value='print(la note est :, note)'; inp.dispatchEvent(new Event("input",{bubbles:true}));
     const c=ctxPyx(q).contexte;
     if(c.indexOf("note = 12")<0) vus.push("le contexte ne porte pas la ligne 1");
@@ -18229,7 +18278,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 9. la seconde méthode : CPython, sur ce que l'exercice ferait tourner ----
+  /* ---- 10. la seconde méthode : CPython, sur ce que l'exercice ferait tourner ----
      Les sorties des lignes de la fiche sont ÉPINGLÉES avec celles de
      CPython 3.11 : elles tiennent même sans python sur la machine. Une
      ligne que CPython refuse doit être refusée par la page aussi. */
@@ -18260,7 +18309,9 @@ function pythonCompleter(w, P){
   verifier('sur les lignes épinglées de la fiche, la page répond comme CPython — sortie pour sortie, refus pour refus (' + BORDS.length + ')', ecartsBords.length === 0, ecartsBords.slice(0, 3).join(' | '));
 
   const nomPy = 'les programmes de {python-completer} — témoins et lignes d\'élève — donnent la sortie d\'un vrai CPython';
-  const progs = evaluer(w, `(function(){ const o=[], NL=String.fromCharCode(10);
+  /* L'exemple du cours en fait partie : il TOURNE chez l'élève, donc sa sortie
+     se compare à celle d'un vrai CPython comme les autres. */
+  const progs = evaluer(w, `(function(){ const o=[PYX_EXEMPLE], NL=String.fromCharCode(10);
     const lignes=function(q){ return ['print("'+q.texte+'", '+q.nom+')', 'print("'+q.texte+'", "'+q.nom+'")', 'print('+q.nom+', "'+q.texte+'")', 'print("'+q.texte+'" + str('+q.nom+'))', 'print("'+q.texte+' ", '+q.nom+')', 'print("'+q.texte+'")', 'print("'+q.texte+'" '+q.nom+')', 'print("'+q.texte+'" + '+q.nom+')']; };
     for(let i=0;i<30;i++) pyxBuildQuestions().forEach(function(q){ lignes(q).forEach(function(l){ o.push(pyxLigne1(q)+NL+l); }); });
     return JSON.stringify(o); })()`);
