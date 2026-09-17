@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -668,7 +668,9 @@ module.exports = {
        CODE : la juger lettre par lettre déclarerait fausse une ligne qu'on
        n'a pas fini d'écrire. Le soutien y juge à la vérification, et NOMME
        où est l'erreur, sans révéler la ligne attendue. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx'] },
+    /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
+       loin : ses deux cases portent chacune une LIGNE DE CODE. */
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -811,7 +813,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -910,17 +912,33 @@ module.exports = {
        exemple affiche : la page a PYX_EXEMPLE, et lire sa sortie pour la
        comparer à elle-même ne prouverait rien. */
     pythonCompleter: { exercice: 'python-completer', nb: 4, exemple: 'nous sommes en 2026' },
+    /* {python-deux-lignes} : l'exercice 9 (suite et fin) du carnet — un
+       programme à TROIS variables dont une est déjà affichée, et DEUX lignes
+       à écrire, chacune avec LA bonne variable (demande de Turquet, septembre
+       2026). « nb » est la SECONDE source du nombre de questions : le compte
+       n'est pas un réglage de la page, c'est la structure de la séance — la
+       fiche du carnet, puis un modèle par visage restant. « fiche » est celle
+       du carnet, épinglée en première question. Le banc jsdom tient le
+       tirage, le juge — dont les deux erreurs propres à l'exercice, le modèle
+       recopié et la mauvaise variable —, la règle des paires, les portes et
+       le soutien ; le navigateur TAPE les deux lignes, exécute, vérifie et
+       relit la console et l'encre RENDUES. */
+    pythonDeuxLignes: { exercice: 'python-deux-lignes', nb: 3,
+                        fiche: { aff: ['note1 = 15', 'note2 = 15.5', 'prenom = "Louane"'],
+                                 modele: 'print("la 1ère note vaut:", note1)',
+                                 lignes: ['print("la 2ème note vaut", note2)', 'print("le prénom est", prenom)'] } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
        pas pénalisés, un ou deux caractères faux ou en trop ne sont pas
        pénalisés. » Elle vit à un seul endroit dans la page (pyTexteProche) et
-       sert {python-print} comme {python-completer} ; {python-afficher-variable}
-       reste dehors, sa sortie étant une VALEUR. « plusCourt » est la SECONDE
-       source du plus court texte que les deux exercices font afficher —
-       « age : 16 », six caractères une fois les espaces retirées : en dessous,
-       deux fautes ne seraient plus une faute de frappe mais un autre texte, et
-       le banc MESURE les deux tirages plutôt que de le supposer. */
+       sert {python-print}, {python-completer} et {python-deux-lignes} — dont le
+       juge passe par pyxAffiche ; {python-afficher-variable} reste dehors, sa
+       sortie étant une VALEUR. « plusCourt » est la SECONDE source du plus
+       court texte que ces exercices font afficher — « age : 16 », six
+       caractères une fois les espaces retirées : en dessous, deux fautes ne
+       seraient plus une faute de frappe mais un autre texte, et le banc MESURE
+       les trois tirages plutôt que de le supposer. */
     toleranceTexte: { plusCourt: 6 },
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
@@ -1138,6 +1156,10 @@ module.exports = {
        principal tient le tirage et le juge ; celui-ci clique les cases pour de
        vrai, lit l'encre RÉSOLUE des verdicts et mesure le quadrillage rendu. */
     suiteVocabulaire: { exercice: 'suite-vocabulaire' },
+    /* LA SUITE PAR LA DIFFÉRENCE (6.12) : le repère du 6.11 servi dans un autre
+       hôte — seul un clic réel dit qu'il pose dans le bon —, la fraction de d)
+       TAPÉE dans un vrai MathLive, et les grilles à colonnes RENDUES. */
+    suiteVariationDifference: { exercice: 'suite-variation-difference' },
     /* Le 4.6 (l'étude menée au TVI) : ce que jsdom ne voit pas — le tableau
        du 5.3 RENDU (flèches dessinées à taille non nulle), la page qui ne
        déborde pas, et le bouton ∞ réellement CLIQUÉ, qui écrit dans la case

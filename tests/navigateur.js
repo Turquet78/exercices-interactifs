@@ -6433,6 +6433,152 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies quinquies. la suite par la DIFFÉRENCE : le repère partagé, la fraction tapée ===== */
+    /* {suite-variation-difference} : le repère et ses deux rails sont ceux du
+       6.11, servis dans un AUTRE hôte (svrHote choisit par le kind) — jsdom ne
+       clique pas, seul celui-ci voit que le clic pose bien dans cet écran-là.
+       Puis ce que jsdom ne peut pas lire : la fraction de d) TAPÉE dans un vrai
+       MathLive (U, indice, exposant — la sérialisation réelle que le juge doit
+       relire comme une fonction de Uₙ), les deux grilles à colonnes RENDUES
+       (les « ≤ » au même centre d'une rangée à l'autre, Uₙ₊₁ sous les termes,
+       rien qui défile à 1400 px), le tableau de signes avec une BOÎTE, et la
+       copie juste cliquée qui vaut le point. */
+    titre('6 tricies quinquies. LA SUITE PAR LA DIFFÉRENCE : LE REPÈRE PARTAGÉ, LA FRACTION TAPÉE');
+    if(!P.suiteVariationDifference){
+      ignorer('la suite par la différence : le clic pose dans son repère, la fraction tapée se relit',
+        'ce niveau n\'a pas l\'exercice du sens de variation par la différence');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 950 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.suiteVariationDifference.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* on ÉPINGLE le cas de la fiche : U0 = 0, 0 ≤ Un ≤ 1, la suite croît */
+      await s.page.evaluate(() => {
+        test.questions[test.idx] = { l:1, L:3, U0:0, sens:'cro', ordreLab:['un','num','cst','den','un1'], pts:[] };
+        renderSVD();
+      });
+      await s.page.waitForTimeout(600);
+      { const g = await s.page.evaluate(() => {
+          const svg = document.querySelector('#svdGraph svg'), autre = document.querySelector('#svrGraph svg');
+          const r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+          return { w: Math.round(r.width), h: Math.round(r.height), rails: document.querySelectorAll('#svdGraph .svr-hit').length,
+                   autre: !!autre, deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth + 2 }; });
+        if(g.w < 420 || g.h < 420) dits.push('le repère est rendu à ' + g.w + ' × ' + g.h + ' px dans l\'hôte svd');
+        if(g.rails !== 2) dits.push(g.rails + ' rail(s) cliquable(s) dans l\'hôte svd au lieu de 2');
+        if(g.autre) dits.push('le repère s\'est dessiné dans l\'hôte du 6.11 (svrGraph) au lieu du sien');
+        if(g.deborde) dits.push('la page déborde horizontalement à 1400 px'); }
+      const posRail = async (rail, x) => await s.page.evaluate(([rail, x]) => {
+        const svg = document.querySelector('#svdGraph svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal, k = r.width / vb.width;
+        const a = svrAns(test.questions[test.idx]);
+        const y = (rail === 'c') ? svrFn(a)(x) : x;
+        return { px: r.left + (SVR_PADL + x * SVR_PLOT / a.W) * k, py: r.top + (SVR_PADT + SVR_PLOT - y * SVR_PLOT / a.W) * k };
+      }, [rail, x]);
+      const clicRail = async (rail, x) => { const p = await posRail(rail, x); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(140); };
+      const A = await s.page.evaluate(() => { const a = svdAns(test.questions[test.idx]); return { U0: a.U0, U1: a.U1 }; });
+      await clicRail('c', A.U0); await clicRail('d', A.U1); await clicRail('c', A.U1);
+      { const p = await s.page.evaluate(() => {
+          const q = test.questions[test.idx], a = svdAns(q);
+          return { n: (q.pts || []).length, rails: (q.pts || []).map(x => x.r).join(''),
+                   verd: [0, 1, 2].map(i => svrPtJuste(a, i, (q.pts || [])[i])), dessines: document.querySelectorAll('#svdGraph .svr-pt').length }; });
+        if(p.n !== 3) dits.push('trois clics sur le repère de cet écran posent ' + p.n + ' point(s)');
+        else { if(p.rails !== 'cdc') dits.push('les clics tombent sur les rails « ' + p.rails + ' » au lieu de « cdc »');
+               if(!p.verd.every(Boolean)) dits.push('les trois points cliqués sont jugés ' + JSON.stringify(p.verd)); }
+        if(p.dessines !== 3) dits.push(p.dessines + ' point(s) dessiné(s) dans l\'hôte svd après trois clics'); }
+      /* LA FRACTION DE d) EST TAPÉE POUR DE VRAI : U, son indice, l'exposant — la
+         sérialisation réelle de MathLive, que jsdom n'a pas, doit se relire comme
+         une fonction de Uₙ, et comme une forme DÉVELOPPÉE */
+      { const boite = await s.page.evaluate(() => { const e = document.getElementById('svd-e4n'); if(!e) return null;
+          const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), police: parseFloat(getComputedStyle(e).fontSize) }; });
+        if(!boite || boite.w < 60 || boite.h < 20) dits.push('le champ de la dernière ligne de d) n\'a pas de boîte');
+        else {
+          if(boite.police < 18) dits.push('le champ de d) écrit à ' + boite.police + ' px, plus petit que sa rangée');
+          await s.page.click('#svd-e4n');
+          await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide */
+          await s.page.keyboard.type('U_n', { delay: 50 }); await s.page.keyboard.press('ArrowRight');
+          await s.page.keyboard.type('^2', { delay: 50 }); await s.page.keyboard.press('ArrowRight');
+          await s.page.keyboard.type('-4U_n', { delay: 50 }); await s.page.keyboard.press('ArrowRight');
+          await s.page.keyboard.type('+3', { delay: 50 });
+          await s.page.waitForTimeout(300);
+          const t = await s.page.evaluate(() => { const a = svdAns(test.questions[test.idx]);
+            const plain = svdMfPlain('svd-e4n'); return { plain, fn: svdFnOk(plain, svdTrin(a)), dev: svdDevOk(plain, svdTrin(a)) }; });
+          if(!t.fn) dits.push('le trinôme TAPÉ n\'est pas relu comme une fonction de Uₙ (lu : « ' + t.plain + ' »)');
+          else if(!t.dev) dits.push('le trinôme TAPÉ, développé, est refusé comme non développé (lu : « ' + t.plain + ' »)');
+        } }
+      /* LES GRILLES RENDUES : même colonne → même centre, chaque rangée d'un seul
+         tenant, rien ne défile à 1400 px (un display:grid perdu laisse toutes les
+         classes en place et met tout à la file) */
+      const mesurer = async () => await s.page.evaluate(() => {
+        const lire = g => {
+          const cels = [...g.querySelectorAll('.svr-cel')].map(c => {
+            const rg = document.createRange(); rg.selectNodeContents(c); const r = rg.getBoundingClientRect();
+            return { r: +c.dataset.r, c: +c.dataset.c, x: (r.left + r.right) / 2, top: r.top, bot: r.bottom,
+                     libre: c.classList.contains('svr-lib') || c.classList.contains('svr-suite') || c.classList.contains('svr-just') }; });
+          const sc = g.parentElement;
+          return { cels, debord: Math.round(sc.scrollWidth - sc.clientWidth), coupe: Math.round(sc.scrollHeight - sc.clientHeight) }; };
+        const gi = document.querySelector('#svdPartC .svd-grec'), gd = document.querySelector('#svdPartC .svd-gdemo');
+        const tbl = document.querySelector('#svdPartE table.svd-tbl');
+        const tr = tbl ? tbl.getBoundingClientRect() : null;
+        return { init: gi ? lire(gi) : null, demo: gd ? lire(gd) : null, tbl: tr ? { w: Math.round(tr.width), h: Math.round(tr.height) } : null,
+                 sg: [...document.querySelectorAll('#svdPartE select.svd-sg')].map(e => { const r = e.getBoundingClientRect(); return Math.round(r.width * r.height); }) };
+      });
+      const juger = (m, nom) => {
+        if(!m.init) { dits.push(nom + ' : la récurrence n\'est pas une grille à colonnes (.svd-grec)'); return; }
+        if(!m.demo) { dits.push(nom + ' : la démonstration n\'est pas une grille à colonnes (.svd-gdemo)'); return; }
+        [['la récurrence', m.init], ['la démonstration', m.demo]].forEach(([quoi, g]) => {
+          const rangs = {}; g.cels.forEach(c => { (rangs[c.r] = rangs[c.r] || []).push(c); });
+          Object.keys(rangs).forEach(r => { const cs = rangs[r], haut = Math.max(...cs.map(c => c.top)), bas = Math.min(...cs.map(c => c.bot));
+            if(haut >= bas - 4) dits.push(nom + ' : la rangée ' + r + ' de ' + quoi + ' n\'est pas d\'un seul tenant'); });
+          const cols = {}; g.cels.filter(c => !c.libre).forEach(c => { (cols[c.c] = cols[c.c] || []).push(c); });
+          Object.keys(cols).forEach(c => { const xs = cols[c].map(k => k.x), ecart = Math.max(...xs) - Math.min(...xs);
+            if(ecart > 3) dits.push(nom + ' : la colonne ' + c + ' de ' + quoi + ' n\'est pas alignée : ' + Math.round(ecart) + ' px d\'écart'); });
+          if(g.debord > 2) dits.push(nom + ' : ' + quoi + ' défile de ' + g.debord + ' px à 1400 px');
+          if(g.coupe > 0) dits.push(nom + ' : le bas de ' + quoi + ' est coupé par sa boîte (' + g.coupe + ' px)');
+        });
+        if(!m.tbl || m.tbl.w < 200 || m.tbl.h < 60) dits.push(nom + ' : le tableau de signes n\'a pas de boîte');
+        if(m.sg.length !== 3 || m.sg.some(a => a < 400)) dits.push(nom + ' : les trois listes de signe ne sont pas toutes rendues (' + m.sg.join(', ') + ')');
+      };
+      juger(await mesurer(), 'suite croissante');
+      /* la copie juste, CLIQUÉE : la note se lit sur ce que le bouton enregistre */
+      await s.page.evaluate(() => {
+        const q = test.questions[test.idx], V = svdVerdicts(q), a = svdAns(q);
+        SVD_IDS.forEach(id => { if(id === 'svd-e4n') return; const e = document.getElementById(id); if(!e) return;
+          if(e.tagName === 'MATH-FIELD') e.setValue(V.cor[id].tex); else e.value = V.cor[id]; });
+        q.pts = []; svrPtsAttendus(a).forEach(e => svrPoser(e.r, e.x));
+      });
+      await s.page.click('#svdActions button.btn-primary');
+      await s.page.waitForTimeout(400);
+      { const fin = await s.page.evaluate(() => {
+          const boite = sel => { const e = document.querySelector(sel); if(!e) return null; const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; };
+          const rouges = SVD_IDS.filter(id => document.getElementById(id).classList.contains('bad'));
+          const sel = document.getElementById('svd-s3');
+          return { score: test.score, note: ptsEcran(), rouges, esc: boite('#svdGraph .svr-esc-sol'),
+                   bleus: document.querySelectorAll('#svdGraph .svr-pt.ok').length, encre: sel ? getComputedStyle(sel).borderTopColor : '' }; });
+        if(fin.score !== 1) dits.push('la copie juste cliquée ne vaut pas le point (score ' + fin.score + (fin.rouges.length ? ', rouges : ' + fin.rouges.slice(0, 3).join(', ') : '') + ')');
+        if(!fin.note || fin.note.justes !== fin.note.cases) dits.push('la note affichée compte ' + (fin.note ? fin.note.justes + '/' + fin.note.cases : 'rien'));
+        if(!fin.esc || fin.esc.w < 20 || fin.esc.h < 20) dits.push('l\'escalier vert de la méthode n\'a pas d\'étendue');
+        if(fin.bleus !== 3) dits.push(fin.bleus + ' point(s) peint(s) en bleu au lieu de 3');
+        { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(fin.encre || '');
+          if(m){ const c = [+m[1], +m[2], +m[3]]; if(!(c[2] >= Math.max(c[0], c[1]))) dits.push('la liste juste du tableau de signes n\'est pas bordée de bleu : ' + fin.encre); } } }
+      /* LE VISAGE DÉCROISSANT, rendu pour de vrai : c'est lui dont la dernière ligne
+         déborde à DROITE (m ≤ Uₙ₊₁ ≤ f(M) ≤ M) */
+      await s.page.evaluate(() => {
+        const vd = svrVivier('dec')[0];
+        test.questions[test.idx] = { l: vd.l, L: vd.L, U0: vd.U0, sens: 'dec', pts: [] }; test.locked = false;
+        renderSVD();
+      });
+      await s.page.waitForTimeout(500);
+      juger(await mesurer(), 'suite décroissante');
+      verifier('la suite par la différence : le clic pose dans son repère, la fraction tapée se relit', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de la suite par la différence ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies decies. {python-affichage} : prédire, puis exécuter =====
        Le banc jsdom tient l'interpréteur (comparé à un vrai CPython), le
        tirage, le juge et les portes. Ce qu'il ne voit pas : le code et la
@@ -7239,6 +7385,205 @@ async function parcours(page, N){
       await s.page.waitForTimeout(400);
       const fin = await s.page.evaluate(() => ({ ok: document.getElementById('pyx-in').classList.contains('ok'), score: test.score, suivant: !!document.getElementById('pyxNext') }));
       verifier('la correction exécutée puis revérifiée vaut 1 en soutien et propose la suite', fin.ok && fin.score === 1 && fin.suivant, JSON.stringify(fin));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies sexies. {python-deux-lignes} : deux lignes se tapent, s'exécutent, se vérifient =====
+       Le banc jsdom tient le juge (la règle des paires, les deux erreurs
+       propres à l'exercice, chaque diagnostic), les portes, la ligne vide et
+       le soutien. Ce qu'il ne voit pas : la consigne à puces et les deux
+       coups de pouce RENDUS — repliés au départ, et qui S'OUVRENT au clic —,
+       les quatre lignes écrites du programme et les deux cases à chasse fixe
+       et à la MÊME taille, un VRAI clic sur « Vérifier » fermé qui ne juge
+       rien, les deux lignes TAPÉES au clavier dans l'ordre inverse des puces
+       — Entrée exécute —, l'encre RENDUE des deux verdicts sur la même
+       question (l'une bleue, l'autre rouge : c'est la règle « chaque ligne se
+       juge seule », et seule une couleur rendue la montre), la ligne juste en
+       VERT et SOUS la case fausse, et la page qui ne déborde pas sur un
+       téléphone. Puis le soutien, où rien ne se révèle. */
+    titre('6 tricies sexies. COMPLÉTER À PLUSIEURS VARIABLES : DEUX LIGNES SE TAPENT, S\'EXÉCUTENT, SE VÉRIFIENT');
+    if(!P.pythonDeuxLignes){
+      ignorer('les deux lignes se tapent, s\'exécutent, puis se vérifient', 'ce niveau n\'a pas l\'exercice des deux affichages à compléter');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonDeuxLignes.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const avant = await s.page.evaluate(() => {
+        const host = document.getElementById('pydHost');
+        const puces = [...host.querySelectorAll('.pyd-puces li')], pouces = [...host.querySelectorAll('.pyd-pouce')];
+        const l = [...host.querySelectorAll('.pyx-l1')], in0 = document.getElementById('pyd-in0'), in1 = document.getElementById('pyd-in1');
+        const run = document.getElementById('pydRun'), val = document.getElementById('pydValidate'), cons = document.getElementById('pydConsole');
+        const fam = e => getComputedStyle(e).fontFamily, px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const r = e => e.getBoundingClientRect();
+        return { puces: puces.length, pucesVisibles: puces.every(p => r(p).width > 100 && r(p).height > 8),
+                 pouces: pouces.length, pouceOuvert: pouces.some(p => p.open),
+                 pouceVisible: pouces.every(p => r(p).width > 200 && r(p).height > 14),
+                 lignes: l.map(e => e.textContent), policeL: l.map(fam), pxL: l.map(px),
+                 policeIn: [fam(in0), fam(in1)], pxIn: [px(in0), px(in1)],
+                 casesVisibles: [in0, in1].every(e => r(e).width > 200 && r(e).height > 28 && r(e).right <= document.documentElement.clientWidth),
+                 runOk: !run.disabled && r(run).width > 40, valFerme: val.disabled && r(val).width > 40,
+                 consoleVisible: r(cons).height > 20,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('la consigne à puces et les deux coups de pouce sont rendus, repliés au départ',
+        avant.puces === 2 && avant.pucesVisibles && avant.pouces === 2 && !avant.pouceOuvert && avant.pouceVisible, JSON.stringify(avant).slice(0, 300));
+      verifier('les quatre lignes écrites du programme et les deux cases sont à chasse fixe, à la même taille',
+        avant.lignes.length === 4 && avant.policeL.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && avant.policeIn.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && Math.max(...avant.pxL.concat(avant.pxIn)) - Math.min(...avant.pxL.concat(avant.pxIn)) < 0.6,
+        JSON.stringify({ l: avant.lignes, pxL: avant.pxL, pxIn: avant.pxIn }));
+      verifier('les deux cases tiennent dans l\'écran, « Exécuter » est ouvert, « Vérifier » est fermé, et la page ne déborde pas à 1400 px',
+        avant.casesVisibles && avant.runOk && avant.valFerme && avant.consoleVisible && !avant.page, JSON.stringify(avant).slice(0, 300));
+      /* un coup de pouce s'OUVRE au clic — un « details » sans marqueur reste
+         un bouton mort si la page a caché son résumé */
+      await s.page.click('#pydHost .pyd-pouce summary');
+      await s.page.waitForTimeout(200);
+      const pouce = await s.page.evaluate(() => {
+        const p = document.querySelector('#pydHost .pyd-pouce'), t = p.querySelector('p');
+        return { ouvert: p.open, texte: t.textContent, haut: t.getBoundingClientRect().height };
+      });
+      verifier('un coup de pouce s\'ouvre au clic et dit la MÉTHODE — print, les guillemets, la virgule',
+        pouce.ouvert && pouce.haut > 10 && /guillemets/.test(pouce.texte) && /virgule/.test(pouce.texte), JSON.stringify(pouce));
+      /* un VRAI clic sur « Vérifier » fermé ne juge rien */
+      await s.page.click('#pydValidate', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const rien = await s.page.evaluate(() => ({ fb: document.getElementById('pydFeedback').textContent,
+        c0: document.getElementById('pyd-in0').className, c1: document.getElementById('pyd-in1').className }));
+      verifier('un clic sur « Vérifier » fermé ne juge rien', rien.fb === '' && !/ok|bad/.test(rien.c0) && !/ok|bad/.test(rien.c1), JSON.stringify(rien));
+      /* LE TÉLÉPHONE SE MESURE SUR LA QUESTION 1 — la fiche du carnet, dont la
+         ligne modèle est LONGUE par construction (34 caractères à chasse fixe
+         pour un cadre de 285 px). Mesuré sur un tirage au hasard, « la ligne
+         qui ne tient pas » n'existerait pas toujours, et le contrôle serait
+         INTERMITTENT : il parlerait d'autre chose une fois sur deux. */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyd-in0').getBoundingClientRect(), boite = document.querySelector('#pydHost .pyx-prog');
+        const prog = boite.getBoundingClientRect(), pouce = document.querySelector('#pydHost .pyd-pouce').getBoundingClientRect();
+        /* UNE LIGNE ÉCRITE DU PROGRAMME NE SE LAISSE PAS COUPER : elle DÉFILE.
+           Mesuré à 390 px, la ligne modèle fait 300 px dans un cadre de 285, et
+           sa fin — « note1) » — disparaissait sans que rien ne le dise. */
+        const l = [...document.querySelectorAll('#pydHost .pyx-l1')].map(e => {
+          const r = e.getBoundingClientRect();
+          return { t: e.textContent, deborde: r.right > prog.right + 1,
+                   longue: e.scrollWidth > e.clientWidth + 1, ovf: getComputedStyle(e).overflowX };
+        });
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 caseDedans: in0.right <= 391 && in0.width > 120, progDedans: prog.right <= 391, pouceDedans: pouce.right <= 391,
+                 progDefile: boite.scrollWidth > boite.clientWidth + 1, lignes: l };
+      });
+      verifier('sur un téléphone, les cases, le programme et les coups de pouce restent dans l\'écran et la page ne déborde pas',
+        !tel.page && tel.caseDedans && tel.progDedans && tel.pouceDedans, JSON.stringify(tel).slice(0, 300));
+      verifier('sur un téléphone, aucune ligne écrite du programme ne déborde de son cadre — celle qui n\'y tient pas DÉFILE au lieu d\'être coupée',
+        !tel.progDefile && tel.lignes.every(x => !x.deborde) && tel.lignes.some(x => x.longue)
+        && tel.lignes.every(x => /auto|scroll/.test(x.ovf)),
+        JSON.stringify(tel.lignes));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      await s.page.waitForTimeout(300);
+      /* on TAPE la ligne du MODÈLE dans la première case — l'erreur que vise
+         l'exercice — et la ligne juste de l'autre puce dans la seconde */
+      const q1 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = pydAns(q);
+        return { modele: pydModLigne(q), lignes: a.map(x => x.ligne), sorties: a.map(x => x.sortie) };
+      });
+      await s.page.click('#pyd-in0');
+      await s.page.keyboard.type(q1.modele);
+      await s.page.click('#pyd-in1');
+      await s.page.keyboard.type(q1.lignes[1]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pydValidate');
+      await s.page.waitForTimeout(400);
+      const mix = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyd-in0'), in1 = document.getElementById('pyd-in1'), b = in0.nextElementSibling;
+        const r0 = in0.getBoundingClientRect(), rb = b ? b.getBoundingClientRect() : null;
+        return { c0: in0.className, c1: in1.className, e0: getComputedStyle(in0).color, e1: getComputedStyle(in1).color,
+                 badge: !!(b && b.classList.contains('mf-cor')), texte: b && b.textContent, encreBadge: b ? getComputedStyle(b).color : '',
+                 dessous: !!rb && rb.top >= r0.bottom - 1 && rb.width > 100, dedans: !!rb && rb.right <= document.documentElement.clientWidth,
+                 badge1: !!(in1.nextElementSibling && in1.nextElementSibling.classList.contains('mf-cor')),
+                 fb: document.getElementById('pydFeedback').textContent, score: test.score, suivant: !!document.getElementById('pydNext') };
+      });
+      verifier('chaque ligne se juge SEULE : la ligne du modèle recopiée rougit (encre rouge rendue) pendant que l\'autre reste BLEUE, la ligne juste s\'écrit en VERT et SOUS la case fausse — et elle seule',
+        /bad/.test(mix.c0) && dom(mix.e0) === 'rouge' && /ok/.test(mix.c1) && dom(mix.e1) === 'bleu'
+        && mix.badge && mix.texte === q1.lignes[0] && dom(mix.encreBadge) === 'vert' && mix.dessous && mix.dedans && !mix.badge1
+        && /déjà écrite/.test(mix.fb) && mix.score === 1 && mix.suivant, JSON.stringify(mix));
+      /* question 2 : on TAPE les deux lignes justes, DANS L'ORDRE INVERSE des
+         puces — la règle des paires ne se voit qu'ici, au clavier */
+      await s.page.click('#pydNext');
+      await s.page.waitForTimeout(300);
+      const q2 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = pydAns(q), s = pydModAns(q).sortie + a[1].sortie + a[0].sortie;
+        return { lignes: a.map(x => x.ligne), console: s.slice(0, s.length - 1), idx: test.idx };
+      });
+      await s.page.click('#pyd-in0');
+      await s.page.keyboard.type(q2.lignes[1]);
+      await s.page.click('#pyd-in1');
+      await s.page.keyboard.type(q2.lignes[0]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const exec = await s.page.evaluate(() => {
+        const c = document.getElementById('pydConsole'), r = c.getBoundingClientRect();
+        return { texte: c.textContent, visible: r.height > 20 && r.width > 100, police: getComputedStyle(c).fontFamily,
+                 valOuvert: !document.getElementById('pydValidate').disabled };
+      });
+      verifier('question 2 : Entrée exécute le programme entier, la console montre les TROIS lignes affichées à chasse fixe, et « Vérifier » s\'ouvre',
+        q2.idx === 1 && exec.texte === q2.console && exec.visible && /mono|menlo|consolas|courier/i.test(exec.police) && exec.valOuvert,
+        JSON.stringify(exec) + ' / attendu ' + JSON.stringify(q2.console));
+      await s.page.click('#pydValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyd-in0'), in1 = document.getElementById('pyd-in1');
+        return { ok: /ok/.test(in0.className) && /ok/.test(in1.className), e0: getComputedStyle(in0).color, e1: getComputedStyle(in1).color,
+                 score: test.score, verrou: in0.disabled && in1.disabled,
+                 badge: !!(in0.nextElementSibling && in0.nextElementSibling.classList.contains('mf-cor')),
+                 suivant: !!document.getElementById('pydNext'), focus: document.activeElement && document.activeElement.id };
+      });
+      verifier('les deux lignes justes écrites dans l\'AUTRE ORDRE sont peintes ok, à l\'encre BLEUE rendue, sans ligne verte, valent 2, verrouillent, et « Question suivante » reçoit le focus',
+        apres.ok && dom(apres.e0) === 'bleu' && dom(apres.e1) === 'bleu' && apres.score === 3 && apres.verrou && !apres.badge && apres.suivant && apres.focus === 'pydNext', JSON.stringify(apres));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le soutien : la ligne fausse rougit, la page dit OÙ est l'erreur, rien ne se révèle */
+      await s.page.evaluate(id => openTest(id), P.pythonDeuxLignes.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const q3 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = pydAns(q);
+        return { faux: 'print("' + q.att[0].texte + '", ' + q.mod.nom + ')', variable: q.mod.nom, lignes: a.map(x => x.ligne) };
+      });
+      await s.page.click('#pyd-in0');
+      await s.page.keyboard.type(q3.faux);
+      await s.page.click('#pyd-in1');
+      await s.page.keyboard.type(q3.lignes[1]);
+      await s.page.click('#pydRun');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pydValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyd-in0'), fb = document.getElementById('pydFeedback');
+        return { bad: /bad/.test(in0.className), encre: getComputedStyle(in0).color,
+                 badge: !!(in0.nextElementSibling && in0.nextElementSibling.classList.contains('mf-cor')),
+                 fb: fb.textContent, fbVisible: fb.getBoundingClientRect().height > 10, verrou: in0.disabled,
+                 rev: (document.getElementById('pydValidate') || {}).textContent || '' };
+      });
+      verifier('en soutien, la ligne fausse rougit (encre rouge rendue), sans ligne juste en vert, le message dit où est l\'erreur — la variable prise à la place — puis propose Revérifier',
+        sout.bad && dom(sout.encre) === 'rouge' && !sout.badge && /Où est l’erreur/.test(sout.fb)
+        && sout.fb.indexOf(q3.variable) >= 0 && sout.fb.indexOf(q3.lignes[0]) < 0 && sout.fbVisible && !sout.verrou && /Rev/.test(sout.rev), JSON.stringify(sout));
+      await s.page.fill('#pyd-in0', q3.lignes[0]);
+      await s.page.waitForTimeout(150);
+      const modif = await s.page.evaluate(() => ({ bad: /bad/.test(document.getElementById('pyd-in0').className),
+        valFerme: document.getElementById('pydValidate').disabled, console: document.getElementById('pydConsole').textContent }));
+      verifier('la ligne modifiée perd son rouge, referme Revérifier et vide la console', !modif.bad && modif.valFerme && modif.console === '', JSON.stringify(modif));
+      await s.page.press('#pyd-in0', 'Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pydValidate');
+      await s.page.waitForTimeout(400);
+      const fin2 = await s.page.evaluate(() => ({ ok: /ok/.test(document.getElementById('pyd-in0').className),
+        score: test.score, suivant: !!document.getElementById('pydNext') }));
+      verifier('la correction exécutée puis revérifiée vaut 2 en soutien et propose la suite', fin2.ok && fin2.score === 2 && fin2.suivant, JSON.stringify(fin2));
       await s.nav.close(); s = null;
     }
 
