@@ -713,6 +713,27 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'image-nombre', champ: '#img-c', valeur: '9' },
+    /* Le témoin de la BULLE LEVÉE PAR LA VÉRIFICATION (demande de Turquet,
+       septembre 2026). Il faut un exercice SANS correction en direct — la
+       partie Algorithmique et Python en est faite —, le seul endroit où la
+       couleur n'arrive qu'au clic sur « Vérifier » : c'est là que la bulle ne
+       paraissait jamais. « faux » pose une copie qui ne PEUT pas être juste :
+       elle lit la réponse par la fonction même qui corrige pour en choisir une
+       AUTRE — le banc ne mesure pas la réponse, il conduit — et rend le nombre
+       de cases faussées, sans quoi un renommage de champ laisserait le banc
+       vert devant un écran que personne n'a rempli. */
+    bulleVerification: {
+      exercice: 'python-affichage',
+      valider: '#pyActions button.btn-primary',
+      cases: '#pyHost select',
+      faux: "(function(){ var q=test.questions[test.idx], a=pyAns(q), n=0;"
+          + " pyCases(q).forEach(function(c){ var e=document.getElementById(c.id); if(!e) return;"
+          + "   var att=String(a[c.cle]);"
+          + "   var o=[].slice.call(e.options).filter(function(x){"
+          + "     return !x.disabled && x.value!=='' && x.value!==att; })[0];"
+          + "   if(o){ e.value=o.value; n++; } });"
+          + " return n; })()",
+    },
     /* Comme en Première : le pavé sert aussi les cases MathLive (toutes les
        pm-mf n'attendent qu'un nombre), tapées au banc navigateur dans un
        contexte tactile, et une seule rangée dans les deux orientations

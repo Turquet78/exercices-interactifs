@@ -2583,8 +2583,9 @@ async function parcours(page, N){
            pour obtenir un rouge GARANTI — un contrôle qui mesurerait une case
            parfois juste serait intermittent, le péché documenté. Puis le clic
            du bouton obtient la réponse du double (« Indice de contrôle. »),
-           et reprendre la case efface la bulle. ----- */
-        let bulle = null, bulleClic = null, bulleReprise = null, bulleSouci = '';
+           et la MODIFIER l'efface — y entrer, non : la page pose elle-même le
+           curseur dans la première case rouge après une vérification. ----- */
+        let bulle = null, bulleClic = null, bulleEntre = null, bulleReprise = null, bulleSouci = '';
         try{
           let rouge = false;
           for(const v of ['9', '4']){
@@ -2680,12 +2681,21 @@ async function parcours(page, N){
               return { texte: (fb && fb.textContent) || '',
                        visible: !!fb && fb.getBoundingClientRect().height > 0 };
             });
-            await boite.click();
-            await s.page.waitForTimeout(150);
-            bulleReprise = await s.page.evaluate(() => {
+            /* ENTRER dans la case ne l'efface plus : après une vérification,
+               la page pose elle-même le curseur dans la première case rouge,
+               et la bulle s'éteindrait 40 ms après être née. La MODIFIER
+               l'efface — reprendre sa case, c'est la CORRIGER. */
+            const cachee = () => s.page.evaluate(() => {
               const b = document.getElementById('bexpBulle');
               return !b || b.getBoundingClientRect().height === 0;
             });
+            await boite.click();
+            await s.page.waitForTimeout(150);
+            bulleEntre = !(await cachee());
+            await s.page.keyboard.press('Control+a');
+            await s.page.keyboard.type('7', { delay: 40 });
+            await s.page.waitForTimeout(250);
+            bulleReprise = await cachee();
           }
         }catch(e){ bulleSouci = e.message; }
         verifier('en soutien, une case rouge quittée fait paraître la bulle « Comprendre mon erreur »',
@@ -2723,11 +2733,137 @@ async function parcours(page, N){
         verifier('le bouton de la bulle obtient une explication du modèle, affichée dedans',
           !!bulleClic && bulleClic.visible && bulleClic.texte.indexOf('Indice de contrôle') >= 0,
           bulleSouci || 'réponse affichée : « ' + ((bulleClic && bulleClic.texte) || '') + ' »');
-        verifier('reprendre la case efface la bulle',
-          bulleReprise === true,
-          bulleSouci || 'la bulle reste affichée pendant que l\'élève corrige sa case');
+        verifier('entrer dans la case n\'efface plus la bulle ; la MODIFIER l\'efface',
+          bulleEntre === true && bulleReprise === true,
+          bulleSouci || 'à l\'entrée dans la case : ' + bulleEntre + ', après la frappe : ' + bulleReprise);
 
         verifier('le garde de la saisie n\'a levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 septies decies. la bulle que lève la VÉRIFICATION ===== */
+    /* Demande de Turquet (septembre 2026) : « en mode soutien, pour la partie
+       algorithme en Seconde, je veux qu'il y ait des bulles qui apparaissent
+       dès qu'une case est fausse, comme ça devrait être la règle pour tous
+       les exercices. » Un exercice SANS correction en direct ne peint qu'au
+       clic sur « Vérifier », et l'élève n'y quitte alors aucune case : la
+       bulle n'y paraissait JAMAIS.
+
+       jsdom mesure le MÉCANISME sur des cases posées à la main ; ici c'est le
+       GESTE — un vrai exercice de la partie Algorithmique et Python, une copie
+       fausse choisie dans les vraies listes, un vrai clic sur « Vérifier » —
+       et le RECTANGLE, jamais la propriété hidden ([hidden] pose display:none
+       depuis la feuille du NAVIGATEUR, le piège documenté).
+
+       ET LE BORD QUE SEUL UN NAVIGATEUR VOIT EST LE CURSEUR : la page pose
+       elle-même le curseur dans la première case rouge, 40 ms après la
+       vérification. La bulle doit y SURVIVRE — c'est pour cela que « reprendre
+       sa case » est devenu « la CORRIGER ». */
+    titre('6 septies decies. LA VÉRIFICATION LÈVE LA BULLE « COMPRENDRE MON ERREUR »');
+    if(!P.bulleVerification){
+      ignorer('la vérification lève la bulle « Comprendre mon erreur »',
+        'ce niveau ne déclare pas d\'exercice témoin sans correction en direct');
+    } else {
+      const BV = P.bulleVerification;
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('la vérification lève la bulle « Comprendre mon erreur »',
+          'connexion impossible — rien à mesurer');
+      } else {
+        await s.page.evaluate(id => openTest(id), BV.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='soutien'") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(800);
+        let posees = 0, m = null, apres = null, souci = '';
+        try{
+          await s.page.waitForSelector(BV.cases, { timeout: 8000 });
+          posees = await s.page.evaluate(code => eval(code), BV.faux);
+          await s.page.click(BV.valider);
+          /* on mesure APRÈS le curseur que la page pose elle-même (40 ms) */
+          await s.page.waitForTimeout(700);
+          m = await s.page.evaluate(() => {
+            const b = document.getElementById('bexpBulle');
+            const r = b ? b.getBoundingClientRect() : null;
+            const rouges = [...document.querySelectorAll('.screen.on .bad')];
+            const cas = rouges[0] || null;
+            const btn = b && b.querySelector('[data-bexp-btn]');
+            const cmd = document.getElementById('testCtrls');
+            const rc = cmd ? cmd.getBoundingClientRect() : null;
+            const chev = (a, o) => !(a.right <= o.left || a.left >= o.right ||
+                                     a.bottom <= o.top || a.top >= o.bottom);
+            const recouvre = sel => (!r || !cas) ? -1 : [...document.querySelectorAll(sel)]
+              .filter(e => e !== cas && !e.contains(cas))
+              .map(e => e.getBoundingClientRect())
+              .filter(o => o.width > 0 && o.height > 0 && chev(r, o)).length;
+            const couvertes = recouvre('.screen.on input,.screen.on select,' +
+              '.screen.on textarea,.screen.on math-field,.screen.on .pts-case');
+            /* et aucun BOUTON : la bulle paraît au moment précis où la rangée
+               d'actions dit « Revérifier » — posée dessus, elle le rendrait
+               incliquable, et l'élève ne pourrait plus rien vérifier. */
+            const boutons = recouvre('.screen.on button');
+            return {
+              rouges: rouges.length,
+              verrou: !!(typeof test !== 'undefined' && test.locked),
+              visible: !!r && r.width > 0 && r.height > 0,
+              l: r ? Math.round(r.width) : 0, h: r ? Math.round(r.height) : 0,
+              bouton: !!btn && !btn.hidden,
+              surLaPremiere: !!cas && bexpCase === cas,
+              curseur: !!cas && document.activeElement === cas,
+              cote: (b && b.dataset.bexpCote) || '',
+              couvertes: couvertes, boutons: boutons,
+              surCommandes: (r && rc) ? chev(r, rc) : false,
+            };
+          });
+          /* et la MODIFIER l'efface : c'est ça, reprendre sa case */
+          const prem = s.page.locator(BV.cases).first();
+          const choix = await prem.evaluate(e => {
+            const l = [].slice.call(e.options);
+            for(let i = 0; i < l.length; i++){
+              if(!l[i].disabled && l[i].value !== '' && i !== e.selectedIndex) return i;
+            }
+            return -1;
+          });
+          if(choix >= 0){
+            await prem.selectOption({ index: choix });
+            await s.page.waitForTimeout(300);
+            apres = await s.page.evaluate(() => {
+              const b = document.getElementById('bexpBulle');
+              return !b || b.getBoundingClientRect().height === 0;
+            });
+          }
+        }catch(e){ souci = e.message; }
+
+        verifier('la copie fausse est posée et la vérification laisse des cases rouges',
+          posees > 0 && !!m && m.rouges > 0 && m.verrou === false,
+          souci || 'cases faussées : ' + posees + ', cases rouges après vérification : ' +
+            (m && m.rouges) + ', écran verrouillé : ' + (m && m.verrou) +
+            ' (rien de rouge = le contrôle ne mesure rien)');
+        verifier('la bulle paraît à la VÉRIFICATION, sur la première case rouge, bouton offert',
+          !!m && m.visible === true && m.l > 0 && m.h > 0 && m.bouton === true && m.surLaPremiere === true,
+          souci || 'bulle mesurée : ' + JSON.stringify(m || {}));
+        verifier('la page pose le curseur dans la case rouge, et la bulle y SURVIT',
+          !!m && m.curseur === true && m.visible === true,
+          souci || (m && m.curseur === false
+            ? 'la page n\'a pas posé le curseur dans la case rouge : le bord n\'est pas mesuré'
+            : 'la bulle s\'est éteinte au moment où la page a posé le curseur'));
+        verifier('elle ne recouvre ni les commandes du bas, ni une autre case, ni un BOUTON',
+          !!m && m.surCommandes === false && m.couvertes === 0 && m.boutons === 0,
+          souci || ((m && m.couvertes === -1)
+            ? 'aucune bulle à mesurer : le contrôle d\'au-dessus dit pourquoi'
+            : 'commandes recouvertes : ' + (m && m.surCommandes) +
+              ', cases recouvertes : ' + (m && m.couvertes) +
+              ', boutons recouverts : ' + (m && m.boutons) +
+              ' (un bouton sous la bulle, c\'est « Revérifier » devenu incliquable)'));
+        verifier('changer la réponse efface la bulle — reprendre sa case, c\'est la CORRIGER',
+          apres === true,
+          souci || 'la bulle reste affichée alors que l\'élève vient de changer sa réponse');
+        verifier('la bulle de la vérification n\'a levé aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
       await s.nav.close(); s = null;

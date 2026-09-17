@@ -724,6 +724,75 @@ atteignable qu'en resserrant l'obstacle du banc : posé trop grand, il bloquait
 aussi les places hors portée, et le sabotage restait vert en parlant d'autre
 chose.
 
+**Puis la VÉRIFICATION a levé la bulle — et c'est la partie Algorithmique qui
+l'a montré.** Demande de Turquet (septembre 2026) : « en mode soutien pour la
+partie algorithme en seconde je veux qu'il y ait des bulles qui apparaissent
+dès qu'une case est fausse, comme ça devrait être la règle pour tous les
+exercices ». La bulle ne paraissait qu'à la SORTIE d'une case — le moment où
+le garde de la saisie pose la couleur — or un exercice SANS correction en
+direct ne peint qu'au clic sur « Vérifier », et l'élève n'y quitte alors
+aucune case : les HUIT exercices Python de la Seconde n'en voyaient JAMAIS une
+seule, non plus que la lecture graphique, les antécédents, la définition ou
+l'écriture des solutions — les seize `kind` que `soutienEnDirect.sans`
+déclare. Le défaut vivait exactement dans l'angle mort du contrôle, qui posait
+sa case d'essai et la QUITTAIT.
+**UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE** — le motif du garde, tenu
+une fois de plus : un observateur de classes posé sur le document, et dès
+qu'une correction laisse une case FAUSSE, la bulle se pose sur la PREMIÈRE
+d'entre elles. Il n'y avait PAS d'entonnoir de vérification à greffer —
+`soutienAgain` n'en sert que dix-neuf sur quarante-six, et les Python écrivent
+chacun leur message pour compter les cases vides —, et une liste d'appels à
+tenir aurait laissé dehors l'exercice qu'on ajoutera demain.
+**LE MOMENT SE RECONNAÎT SANS CONNAÎTRE AUCUN EXERCICE** : une correction en
+direct tourne pendant que l'élève ÉCRIT — l'événement qui la déclenche part de
+la case qui porte le curseur —, une vérification tourne quand il a quitté ses
+cases, le clic parti sur un bouton. Tant qu'une case de l'écran porte le
+curseur, on ne lève donc rien : c'est le domaine du garde, et la sortie de
+case s'en charge. Deux autres bords, et n'en tenir qu'un ne tient rien : seules
+comptent les cases que la correction vient de TOUCHER — une case rouge que
+personne ne vient de regarder n'appelle rien, et une correction qui ne repeint
+qu'une case ne fait donc pas surgir de bulle à l'autre bout de l'écran — et une
+bulle DÉJÀ ouverte sur une case ENCORE fausse ne saute pas ailleurs : elle
+emporterait l'explication que l'élève est en train de lire.
+**ET ELLE S'EFFACE QUAND IL MODIFIE SA CASE, PLUS QUAND IL Y ENTRE.** C'est un
+renversement, et c'est la demande qui l'exige : après une vérification, la page
+pose ELLE-MÊME le curseur dans la première case rouge (`soutienAgain`, et les
+Python font de même, 40 ms plus tard). L'ancienne règle éteignait donc la bulle
+au moment précis où elle venait de naître, sans qu'aucune erreur ne le dise.
+Reprendre sa case, c'est la CORRIGER : une frappe, un choix dans une liste — la
+promesse ne change pas, elle revient s'il ressort en faux ou à la vérification
+suivante. Les deux bancs ont RETOURNÉ leur contrôle plutôt que de le retirer.
+**Et une ZONE DE TEXTE est une case comme une autre** : `bexpCible` ne
+connaissait que les champs et les listes, quand {python-afficher-variable} et
+{python-print} font écrire le programme dans un `textarea` que la correction
+peint `bad` — deux exercices sur huit seraient restés dehors même une fois le
+moment trouvé.
+**Et les BOUTONS de l'écran sont devenus des obstacles** : la bulle paraît
+maintenant au moment précis où la rangée d'actions dit « Revérifier », et posée
+dessus elle rendrait incliquable le bouton dont l'élève a besoin — la leçon du
+pavé numérique, au même endroit. Le coût est MESURÉ plutôt que supposé : sur
+les deux écrans témoins du banc navigateur, la bulle trouve toujours un côté et
+ne retombe pas au coin.
+**Le bloc est le MÊME TEXTE dans les trois fichiers**, comparé au caractère
+près : la règle vaut donc pour les trois niveaux, ce que « pour tous les
+exercices » demandait.
+Deux bancs, la répartition habituelle : jsdom mesure le MÉCANISME sur des cases
+posées à la main — une liste, une zone de texte et un champ, les quatre bords,
+et les trois refus (copie juste, entraînement, écran verrouillé) — ; le
+NAVIGATEUR mesure le GESTE sur le 5.1, déclaré par `bulleVerification` dans
+`tests/profils.js` : une copie fausse choisie dans les vraies listes, un vrai
+clic sur « Vérifier », la bulle au RECTANGLE — jamais à la propriété `hidden` —
+et le bord que lui seul voit : la page pose le curseur dans la case rouge, et
+la bulle y SURVIT.
+Onze sabotages, chacun rougissant en nommant son défaut — neuf au banc jsdom
+(l'observateur débranché, n'importe quelle case rouge au lieu de celles que la
+correction a touchées, la bulle qui saute, le garde « l'élève écrit » retiré,
+la zone de texte sortie des cibles, le mode et le verrou non relus, la DERNIÈRE
+case fausse au lieu de la première, entrer qui efface à nouveau, modifier qui
+n'efface plus) et deux au navigateur, dont celui qui nomme le défaut d'origine
+en toutes lettres : « la bulle s'est éteinte au moment où la page a posé le
+curseur ».
+
 
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
