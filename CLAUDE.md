@@ -3250,7 +3250,7 @@ ne passe pas au juge, c'est le juge qui a tort), la place au menu, le tirage
 (400 séances), le juge sur des écritures JUSTES variées et sur vingt-quatre
 lignes FAUSSES — chacune avec le mot que son diagnostic doit porter —, les
 portes, la ligne vide, le soutien, les branchements, et compare l'interpréteur
-à un vrai CPython sur 822 programmes ; le NAVIGATEUR (« 6 tricies quinquies »,
+à un vrai CPython sur 822 programmes ; le NAVIGATEUR (« 6 tricies sexies »,
 déclaré par `pythonDeuxLignes` dans `tests/profils.js`) mesure ce que jsdom ne
 voit pas — la consigne à puces et les coups de pouce RENDUS, repliés puis
 OUVERTS au clic, les quatre lignes écrites du programme et les deux cases à

@@ -7345,7 +7345,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies quinquies. {python-deux-lignes} : deux lignes se tapent, s'exécutent, se vérifient =====
+    /* ===== 6 tricies sexies. {python-deux-lignes} : deux lignes se tapent, s'exécutent, se vérifient =====
        Le banc jsdom tient le juge (la règle des paires, les deux erreurs
        propres à l'exercice, chaque diagnostic), les portes, la ligne vide et
        le soutien. Ce qu'il ne voit pas : la consigne à puces et les deux
@@ -7358,7 +7358,7 @@ async function parcours(page, N){
        juge seule », et seule une couleur rendue la montre), la ligne juste en
        VERT et SOUS la case fausse, et la page qui ne déborde pas sur un
        téléphone. Puis le soutien, où rien ne se révèle. */
-    titre('6 tricies quinquies. COMPLÉTER À PLUSIEURS VARIABLES : DEUX LIGNES SE TAPENT, S\'EXÉCUTENT, SE VÉRIFIENT');
+    titre('6 tricies sexies. COMPLÉTER À PLUSIEURS VARIABLES : DEUX LIGNES SE TAPENT, S\'EXÉCUTENT, SE VÉRIFIENT');
     if(!P.pythonDeuxLignes){
       ignorer('les deux lignes se tapent, s\'exécutent, puis se vérifient', 'ce niveau n\'a pas l\'exercice des deux affichages à compléter');
     } else {
