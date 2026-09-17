@@ -113,6 +113,18 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+    /* ET LA FENÊTRE FERMÉE SE ROUVRE. Détachée, sa carte est DÉPLACÉE dans la
+       fenêtre du système : la page ne l’a plus. Fermer la fenêtre, puis
+       recliquer, n’ouvrait plus rien (signalé par Turquet sur le 6.14,
+       septembre 2026). Le banc rejoue le GESTE sur chaque fenêtre déclarée ;
+       la Seconde ne détache que la Question à l’IA, son soutien reste en page.
+       « bouton » est le nom de la fonction que l’onclick appelle : c’est le
+       bouton de l’écran, celui que l’élève a sous la souris — sans vrai clic,
+       Chromium bloque la pop-up et le contrôle mesurerait le repli en page. */
+    fenetresDetachees: { exercice: "pourcentage", fenetres: [
+      { nom: 'Soutien', bouton: 'conseilCourant', carte: '.conseil-card' },
+      { nom: 'Question à l’IA', bouton: 'ouvrirQIA', carte: '.qia-card' },
+    ] },
     /* La Première l'a depuis toujours ; on le mesure pour que les deux
        niveaux ne divergent pas — c'est d'elle que la Seconde tient sa
        largeur. « somme-fractions » partage son moteur avec la Seconde. */
@@ -525,6 +537,17 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+    /* ET LA FENÊTRE FERMÉE SE ROUVRE. Détachée, sa carte est DÉPLACÉE dans la
+       fenêtre du système : la page ne l’a plus. Fermer la fenêtre, puis
+       recliquer, n’ouvrait plus rien (signalé par Turquet sur le 6.14,
+       septembre 2026). Le banc rejoue le GESTE sur chaque fenêtre déclarée ;
+       la Seconde ne détache que la Question à l’IA, son soutien reste en page.
+       « bouton » est le nom de la fonction que l’onclick appelle : c’est le
+       bouton de l’écran, celui que l’élève a sous la souris — sans vrai clic,
+       Chromium bloque la pop-up et le contrôle mesurerait le repli en page. */
+    fenetresDetachees: { exercice: "pourcentage", fenetres: [
+      { nom: 'Question à l’IA', bouton: 'ouvrirQIA', carte: '.qia-card' },
+    ] },
     /* L'écran d'un exercice prend toute la largeur, et les étapes d'une même
        égalité tiennent sur une seule ligne. « chaine » dit combien de blocs
        empilés un exercice a le droit de garder : au-delà, la chaîne est
@@ -1151,6 +1174,18 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'derivee-exp' },
+    /* ET LA FENÊTRE FERMÉE SE ROUVRE. Détachée, sa carte est DÉPLACÉE dans la
+       fenêtre du système : la page ne l’a plus. Fermer la fenêtre, puis
+       recliquer, n’ouvrait plus rien (signalé par Turquet sur le 6.14,
+       septembre 2026). Le banc rejoue le GESTE sur chaque fenêtre déclarée ;
+       la Seconde ne détache que la Question à l’IA, son soutien reste en page.
+       « bouton » est le nom de la fonction que l’onclick appelle : c’est le
+       bouton de l’écran, celui que l’élève a sous la souris — sans vrai clic,
+       Chromium bloque la pop-up et le contrôle mesurerait le repli en page. */
+    fenetresDetachees: { exercice: "suite-vocabulaire", fenetres: [
+      { nom: 'Soutien', bouton: 'conseilCourant', carte: '.conseil-card' },
+      { nom: 'Question à l’IA', bouton: 'ouvrirQIA', carte: '.qia-card' },
+    ] },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
        réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case

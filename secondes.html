@@ -4527,20 +4527,40 @@ function detacherFenetre(conteneur, carte, titre, nom, larg, haut){
   }catch(e){}
   garnirFenetre(pop, titre);
   pop.__carte=carte; pop.__origine=conteneur;
+  /* La carte est PRÊTÉE à la fenêtre, elle ne lui appartient pas : la référence
+     vit AUSSI sur le conteneur, qui est dans la page et ne ferme jamais. C'est
+     elle qui permet de la ramener quand une fenêtre s'en va sans la rendre. */
+  conteneur.__carte=carte;
   try{ pop.document.body.appendChild(pop.document.adoptNode(carte)); }catch(e){ toast('Détachement impossible sur ce navigateur.'); try{ pop.close(); }catch(_e){} return null; }
   L.push(pop);
-  /* pagehide : fermeture réelle → rapatriement ; remplacement de document (vieux Firefox
-     malgré le write) → on regarnit le nouveau document et on ré-adopte la carte. */
+  let docPrete=pop.document;
+  /* pagehide : la fenêtre s'en va — fermeture réelle, ou (vieux Firefox malgré le
+     write) remplacement du document initial. La carte revient dans la page TOUT
+     DE SUITE, synchroniquement : à cet instant elle est encore atteignable, et
+     « la fenêtre est-elle fermée ? » ne l'est PAS — window.closed ne bascule
+     qu'une fois le contexte détruit, et il vaut ENCORE false un tick plus tard
+     quand l'élève clique la croix du système (mesuré), alors qu'il vaut déjà
+     true après un close() programmé : c'est ce qui faisait marcher le bouton ✕
+     et échouer la croix. Le setTimeout(0) qui posait cette question ne
+     rapatriait donc RIEN sur le geste de l'élève, la carte partait avec la
+     fenêtre, et rouvrir n'affichait plus qu'une fenêtre VIDE (signalé par
+     Turquet, septembre 2026). On ne suppose plus rien du MOMENT. */
   try{
     pop.addEventListener('pagehide', function(){
+      rapatrierFenetre(pop);
+      /* Le remplacement de document se reconnaît à un document DIFFÉRENT, jamais
+         à « closed », qui ment ici dans les deux sens : on regarnit le nouveau
+         et on y ré-adopte la carte. */
       setTimeout(function(){
-        if(pop.closed){ rapatrierFenetre(pop); return; }
-        if(pop.__carte && pop.__carte.ownerDocument!==pop.document){
-          try{
-            garnirFenetre(pop, titre);
-            pop.document.body.appendChild(pop.document.adoptNode(pop.__carte));
-          }catch(e){ rapatrierFenetre(pop); try{ pop.close(); }catch(_e){} }
-        }
+        let neuf=null;
+        try{ if(!pop.closed && pop.document && pop.document!==docPrete) neuf=pop.document; }catch(e){}
+        if(!neuf) return;
+        try{
+          garnirFenetre(pop, titre);
+          neuf.body.appendChild(neuf.adoptNode(carte));
+          docPrete=neuf;
+          if(L.indexOf(pop)<0) L.push(pop);
+        }catch(e){ try{ pop.close(); }catch(_e){} }
       },0);
     });
   }catch(e){}
@@ -4580,6 +4600,23 @@ function rapatrierFenetre(pop){
   }catch(e){}
   const i=window.__fenetresDetachees.indexOf(pop);
   if(i>=0) window.__fenetresDetachees.splice(i,1);
+}
+/* La carte est PRÊTÉE à la fenêtre détachée ; si celle-ci s'en va sans la rendre
+   — un navigateur qui ne lève pas pagehide, une fenêtre que le système emporte —
+   l'élève rouvrirait sur une fenêtre VIDE, et rien ne le dirait. On la ramène
+   donc AVANT d'ouvrir, depuis la référence gardée sur le conteneur : ramener une
+   carte d'un document déjà détruit fonctionne (mesuré en Chromium). Jamais quand
+   une fenêtre VIVANTE la porte — ce serait la lui prendre sous les yeux de l'élève. */
+function ramenerCarte(conteneur, selecteur){
+  if(!conteneur) return null;
+  let c=conteneur.querySelector(selecteur);
+  if(c) return c;
+  c=conteneur.__carte;
+  if(!c) return null;
+  const prise=(window.__fenetresDetachees||[]).some(function(p){ try{ return p && !p.closed && p.__carte===c; }catch(e){ return false; } });
+  if(prise) return null;
+  try{ conteneur.appendChild(c.ownerDocument===document ? c : document.adoptNode(c)); }catch(e){ return null; }
+  return conteneur.querySelector(selecteur);
 }
 function reattacherFenetres(){
   window.__fenetresDetachees.slice().forEach(function(pop){
@@ -4771,6 +4808,7 @@ function ouvrirQIA(){
   const ov=$('qiaOverlay'); if(!ov) return;
   const dejaPop=(window.__fenetresDetachees||[]).find(function(x){ return x.__origine===ov && !x.closed; });
   if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
+  ramenerCarte(ov, '.qia-card');
   const bd=ov.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
   rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
   $('qiaSugg').innerHTML=((typeof rappelDispo==='function'&&rappelDispo())?'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">\ud83d\udcd8 Faire un rappel de cours pour cet exercice.</button>':'')
@@ -4795,7 +4833,7 @@ function ouvrirQIA(){
 function fermerQIA(){
   const ov=document.getElementById('qiaOverlay');
   if(ov){
-    (window.__fenetresDetachees||[]).slice().forEach(function(x){ if(x.__origine===ov){ try{ x.close(); }catch(e){} } });
+    (window.__fenetresDetachees||[]).slice().forEach(function(x){ if(x.__origine===ov){ rapatrierFenetre(x); try{ x.close(); }catch(e){} } });
     ov.classList.remove('on');
   }
   qiaMicStop();
