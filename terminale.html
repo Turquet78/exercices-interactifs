@@ -1220,7 +1220,19 @@ math-field.dexp-mf.sol{border-color:var(--green);background:var(--green-soft);}
   --keyboard-padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));
   --keyboard-padding-top:2px;
   --keycap-gap:4px;
-  --keycap-width:calc((100cqw - 28px) / 7);
+  /* LA LARGEUR D'UNE TOUCHE SUIT LA RANGÉE LA PLUS LARGE — applyKbLayout pose
+     --kb-unites depuis la disposition qu'elle vient d'installer (kbUnites), et
+     la formule s'y règle. Recopié ici, ce compte aurait fini par diverger de la
+     disposition : la rangée trop large se rétrécit SEULE, et l'élève a deux
+     tailles de touches sur le même écran. Le 7 du repli est la valeur d'avant :
+     il ne sert qu'à l'instant — s'il existe — où le clavier se dessinerait
+     avant applyKbLayout, qui tourne au démarrage et à chaque rendu de champ.
+     L'écart entre touches est écrit 4px et non var(--keycap-gap) : une propriété
+     personnalisée se résout là où elle est DÉCLARÉE, donc toujours avec le 4px
+     de :root ; là où l'écart est plus serré (3px sur un téléphone), la formule
+     rend une touche un peu plus étroite que nécessaire — jamais plus large. */
+  --keycap-auto:calc((100cqw - 4px - (var(--kb-unites,7) - 1) * 4px) / var(--kb-unites,7));
+  --keycap-width:var(--keycap-auto);
   --keycap-max-width:999px;
   --keycap-height:clamp(40px,6.5vh,58px);
   --keycap-font-size:clamp(20px,5.5vw,30px);
@@ -1572,7 +1584,7 @@ math-field.rc-mf{min-width:64px;max-width:120px;}
 @media (orientation:portrait) and (max-width:600px){
   body > .ML__keyboard{
     --keycap-height:34px;
-    --keycap-width:min(48px,calc((100cqw - 28px) / 7));
+    --keycap-width:min(48px,var(--keycap-auto));
     --keycap-gap:3px;
     --keycap-font-size:17px;
     --keycap-glyph-size:17px;
@@ -1586,32 +1598,35 @@ math-field.rc-mf{min-width:64px;max-width:120px;}
    périmètre que les deux règles ci-dessus : le clavier ANCRÉ, jamais la fenêtre
    flottante de l'ordinateur, et la même borne que la police de la page (un écran
    tactile d'au moins 600 px est une tablette, pas un téléphone).
-   La largeur se règle sur HUIT unités et non sept : la rangée la plus chargée du
-   clavier en compte huit, et sans cela elle se rétrécirait SEULE — le clavier
-   aurait deux tailles de touches sur le même écran. ---- */
+   La largeur, elle, ne compte plus d'unités ici : elle suit --kb-unites, que la
+   page pose depuis la disposition installée (voir :root). Elle valait « huit
+   unités » du temps où la forme de la tablette en comptait huit ; une variante
+   plus large — la rangée de douze d'un exercice sur les limites — se
+   rétrécissait SEULE, et le clavier aurait eu deux tailles de touches sur le
+   même écran. ---- */
 @media (pointer:coarse) and (min-width:600px){
   body > .ML__keyboard{
     --keycap-height:48px;
-    --keycap-width:min(96px,calc((100cqw - 32px) / 8));
+    --keycap-width:min(96px,var(--keycap-auto));
     --keycap-gap:4px;
     --keycap-font-size:24px;
     --keycap-glyph-size:24px;
   }
 }
-/* ---- La tablette DEBOUT : la forme à trois rangées, donc DIX unités ----
-   Demande de Turquet (septembre 2026 — « en mode portrait, que le clavier
-   tienne sur 3 lignes au lieu de 4 »). Le clavier A fait trente unités : sur
-   trois rangées il en met dix par rangée, et la largeur de touche doit suivre
-   sinon la rangée déborde. Seule la LARGEUR bouge — 92 px deviennent 74 sur
-   une tablette de 768 — la hauteur et la police restent celles de la règle
-   ci-dessus. Le PAYSAGE n'est pas concerné : il garde ses quatre rangées de
-   huit unités, et sa largeur y est de toute façon plafonnée à 96 px. Les
-   32 px retirés deviennent 40 : le rembourrage (2 × 2 px) plus les
-   intervalles, neuf au lieu de sept, à 4 px. Règle posée APRÈS celle de la
-   tablette, à spécificité égale : c'est l'ORDRE qui tranche. ---- */
-@media (pointer:coarse) and (min-width:600px) and (orientation:portrait){
+/* ---- La tablette COUCHÉE : des touches plus petites ----
+   Demande de Turquet (septembre 2026 — « en mode paysage, les touches doivent
+   être plus petites de façon à tenir sur 3 lignes »). En paysage l'écran est
+   COURT : la plaque de quatre rangées prenait 208 px sur 768, soit un quart de
+   ce que l'élève a devant lui. La rangée de moins (kbTablette) et ces touches
+   réduites la ramènent à 132 px. Seules la HAUTEUR et la POLICE bougent — la
+   largeur suit --kb-unites comme partout, et le paysage a de la place. Règle
+   posée APRÈS celle de la tablette, à spécificité égale : c'est l'ORDRE qui
+   tranche. ---- */
+@media (pointer:coarse) and (min-width:600px) and (orientation:landscape){
   body > .ML__keyboard{
-    --keycap-width:min(96px,calc((100cqw - 40px) / 10));
+    --keycap-height:40px;
+    --keycap-font-size:20px;
+    --keycap-glyph-size:20px;
   }
 }
 .rc-jetons{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 14px;}
@@ -2919,7 +2934,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=326;
+const APP_VERSION=327;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -23242,14 +23257,14 @@ try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0
    d'une fraction / racine / exposant / indice. ∫ en \smallint pour ne pas être rogné. */
 const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="12" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="2" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSuperscript"]};
 const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
-function buildKbTerm(vars, portrait){
+function buildKbTerm(vars, court, limites){
   const V = (vars && vars.length) ? vars : [];
-  /* Les touches sont decrites UNE fois : les deux formes — QUATRE rangees, et
-     TROIS sur une tablette debout — composent le meme jeu. Une touche ajoutee
-     ici se pose dans les deux, et un controle compare les jeux. Les deux
-     couches gardent leurs identifiants d'une forme a l'autre : une seule
-     disposition est installee a la fois, et « clavier A » / « clavier B »
-     basculent donc sans rien savoir de la forme. */
+  /* Les touches sont decrites UNE fois : les formes — QUATRE rangees, et TROIS
+     sur une TABLETTE — composent le meme jeu. Une touche ajoutee ici se pose
+     dans toutes, et un controle compare les jeux. Les deux couches gardent
+     leurs identifiants d'une forme a l'autre : une seule disposition est
+     installee a la fois, et « clavier A » / « clavier B » basculent donc sans
+     rien savoir de la forme. */
   const K = {
     n: d => ({latex: d}),
     frac: {label:"/",insert:"\\frac{#@}{#?}"},
@@ -23277,16 +23292,40 @@ function buildKbTerm(vars, portrait){
     arccos: {label:"arccos",width:1.5,insert:"\\arccos\\left(#0\\right)"},
     arctan: {label:"arctan",width:1.5,insert:"\\arctan\\left(#0\\right)"}
   };
-  if(portrait){
-    /* TABLETTE DEBOUT — les memes touches sur TROIS rangees (demande de
+  /* LA RANGEE DES VARIABLES — f et x (ou Uₙ et n), puis ∞ et ⟶. Elle vit en tete
+     du clavier B depuis septembre 2026… SAUF sur un exercice SUR LES LIMITES, ou
+     elle revient sur le clavier A (demande de Turquet, septembre 2026 : « quand
+     c'est un exercice sur les limites, mettre les touches inf, -->, x, f sur le
+     clavier A ») : c'est la qu'on ecrit « x ⟶ +∞ », et deux touches d'ecart se
+     paient a chaque ligne. Le clavier B perd alors sa premiere rangee, et le ⌫
+     qu'elle portait passe sur la suivante : le JEU de touches ne change pas
+     d'une variante a l'autre, seul son PARTAGE change — un controle compare les
+     jeux, et la largeur des touches suit la rangee la plus large (kbUnites). */
+  if(court){
+    /* TABLETTE — les memes touches sur TROIS rangees. Debout (demande de
        Turquet, septembre 2026 : « en mode portrait, que le clavier tienne sur
-       3 lignes au lieu de 4 »). Les chiffres gardent leurs colonnes — 7 8 9 /
+       3 lignes au lieu de 4 ») COMME COUCHEE (« en mode paysage, les touches
+       doivent etre plus petites de facon a tenir sur 3 lignes ») : en paysage
+       l'ecran est COURT, et la rangee de moins y vaut plus qu'ailleurs — la
+       plaque passe de 208 a 132 px sur une tablette de 768, un quart de
+       l'ecran rendu a l'exercice. Les chiffres gardent leurs colonnes — 7 8 9 /
        4 5 6 / 1 2 3 —, la rangee du haut prend ce qui construit une ecriture
        (fraction, e, racine, parentheses, exposant), celle du milieu les
        operations et les fleches, celle du bas le 0, la virgule et les
-       commandes. Dix unites par rangee au lieu de huit : la regle de la
-       tablette DEBOUT donne aux touches un dixieme de la largeur, sans quoi
-       une rangee deborderait. */
+       commandes. */
+    if(limites) return {
+      label: "Terminale",
+      layers: [
+        { id: "term-base", rows: [
+          [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac,K.po,K.pf,KB_EXP,K.inf,K.eff ],
+          [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.moins,K.plus,K.egal,K.vers,K.gauche,K.droite ],
+          [ K.n("1"),K.n("2"),K.n("3"),K.n("0"),K.virg ].concat(V, [ K.espace,K.entree,K.versB ]) ]},
+        { id: "term-fn", rows: [
+          [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan,K.espace,K.eff ],
+          [ K.arcsin,K.arccos,K.arctan,K.versA,K.gauche,K.droite,K.entree ]
+        ]}
+      ]
+    };
     return {
       label: "Terminale",
       layers: [
@@ -23303,16 +23342,33 @@ function buildKbTerm(vars, portrait){
       ]
     };
   }
+  /* CLAVIER A — les nombres et les operations, QUATRE rangees (demande de
+     Turquet, septembre 2026 : « faire passer les touches U.., n, inf, --> et
+     l'integrale sur le clavier B ; une ligne en moins dans le clavier A »). La
+     rangee des variables a donc quitte cette couche : elle vit en tete du
+     clavier B, avec ∞, ⟶ et l'integrale — et revient ici sur un exercice sur
+     les limites. Cette forme sert le TELEPHONE et la fenetre flottante de
+     l'ordinateur ; la tablette, elle, prend la forme courte ci-dessus.
+     CLAVIER B — les lettres, les fonctions et les symboles. */
+  if(limites) return {
+    label: "Terminale",
+    layers: [
+      { id: "term-base", rows: [
+        [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac ].concat(V, [ K.eff ]),
+        [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.inf,K.vers,K.po,K.pf ],
+        [ K.n("1"),K.n("2"),K.n("3"),K.moins,K.egal,KB_EXP,K.gauche,K.droite ],
+        [ K.n("0"),K.virg,K.plus,K.espace,K.entree,K.versB ]
+      ]},
+      { id: "term-fn", rows: [
+        [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan ],
+        [ K.arcsin,K.arccos,K.arctan,K.eff ],
+        [ K.versA,K.espace,K.gauche,K.droite,K.entree ]
+      ]}
+    ]
+  };
   return {
     label: "Terminale",
     layers: [
-      /* CLAVIER A — les nombres et les operations, QUATRE rangees (demande de
-         Turquet, septembre 2026 : « faire passer les touches U.., n, inf, -->
-         et l'integrale sur le clavier B ; une ligne en moins dans le clavier
-         A »). La rangee des variables a donc quitte cette couche : elle vit
-         maintenant en tete du clavier B, avec ∞, ⟶ et l'integrale. Huit unites
-         au plus par rangee — c'est la largeur que la regle de la tablette
-         donne aux touches, et une rangee plus large se retrecirait seule. */
       { id: "term-base", rows: [
         [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac,K.eff ],
         [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.po,K.pf ],
@@ -23322,10 +23378,6 @@ function buildKbTerm(vars, portrait){
         [ K.n("1"),K.n("2"),K.n("3"),K.moins,K.egal,KB_EXP,K.gauche,K.droite ],
         [ K.n("0"),K.virg,K.plus,K.espace,K.entree,K.versB ]
       ]},
-      /* CLAVIER B — les lettres, les fonctions et les symboles. Sa PREMIERE
-         rangee est celle qui vivait sur le clavier A : les variables de
-         l'exercice (Uₙ et n pour les suites, f et x pour les fonctions, plus
-         ≤ ≥ < > au 6.7), ∞ et ⟶ ; l'integrale suit a la rangee d'apres. */
       { id: "term-fn", rows: [
         V.concat([ K.inf,K.vers ]),
         [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan ],
@@ -23334,6 +23386,20 @@ function buildKbTerm(vars, portrait){
       ]}
     ]
   };
+}
+/* La rangee la plus large de la disposition REELLEMENT installee : c'est elle
+   que la largeur des touches suit (--kb-unites, lue par la feuille de styles).
+   Une seule source — la disposition elle-meme — plutot qu'un compte recopie
+   dans le CSS : une rangee plus large que ce que la largeur prevoit se
+   retrecirait SEULE, et l'eleve aurait deux tailles de touches sur le meme
+   ecran. Une variante ajoutee demain est couverte sans rien declarer. */
+function kbUnites(dispo){
+  let m = 0;
+  ((dispo && dispo.layers) || []).forEach(l => (l.rows || []).forEach(r => {
+    const u = (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0);
+    if(u > m) m = u;
+  }));
+  return m || 7;
 }
 /* Touches variables selon l'exercice courant. Fonctions -> f, x (défaut).
    Suites -> n, Uₙ (, Vₙ). Table simple à étendre au besoin. */
@@ -23351,27 +23417,44 @@ function kbVarsFor(id){
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
-/* Le clavier ANCRE d'une TABLETTE DEBOUT prend la forme a TROIS rangees
+/* Le clavier ANCRE d'une TABLETTE prend la forme a TROIS rangees — DEBOUT
    (demande de Turquet, septembre 2026 : apres la Premiere et la Seconde,
-   « fais pareil pour la terminale »). La tablette est celle de toute la page —
-   ecran tactile d'au moins 600 px : un TELEPHONE en portrait, deja servi par
-   sa propre regle de touches reduites, garde ses quatre rangees. En PAYSAGE et
-   dans la fenetre flottante de l'ordinateur, les quatre rangees aussi. La forme
-   se decide ICI, dans une seule fonction ; la cle d'applyKbLayout la memorise,
-   et kbOnRotate la reapplique a la rotation. */
-function kbPortraitTablette(){
+   « fais pareil pour la terminale ») COMME COUCHEE (« en mode paysage, les
+   touches doivent etre plus petites de facon a tenir sur 3 lignes »). La
+   tablette est celle de toute la page — ecran tactile d'au moins 600 px : un
+   TELEPHONE en portrait, deja servi par sa propre regle de touches reduites,
+   garde ses quatre rangees, et la fenetre flottante de l'ordinateur aussi. La
+   forme se decide ICI, dans une seule fonction ; la cle d'applyKbLayout la
+   memorise, et kbOnRotate la reapplique a la rotation. */
+function kbTablette(){
   try{ return !window.__kbFloating
-              && !!(window.matchMedia && matchMedia("(orientation: portrait) and (pointer: coarse) and (min-width: 600px)").matches); }catch(e){ return false; }
+              && !!(window.matchMedia && matchMedia("(pointer: coarse) and (min-width: 600px)").matches); }catch(e){ return false; }
+}
+/* UN EXERCICE SUR LES LIMITES rend la rangee des variables au clavier A (f, x,
+   ∞ et ⟶ : demande de Turquet, septembre 2026). On ne tient AUCUNE liste — on
+   lit le THEME auquel l'exercice appartient, plus les identifiants qui nomment
+   eux-memes la limite : un exercice ajoute demain au theme des limites est
+   couvert sans rien declarer. Un controle exige que les temoins declares dans
+   tests/profils.js soient bien reconnus — sans quoi un theme renomme ferait
+   repartir ∞ sur le clavier B en silence. */
+function kbLimites(id){
+  if(!id) return false;
+  if(/limite/i.test(id)) return true;
+  try{ return THEMES.some(t => /limite/i.test(t.nom) && t.ids.indexOf(id) >= 0); }catch(e){ return false; }
 }
 function applyKbLayout(){
   const vk = window.mathVirtualKeyboard; if(!vk) return;
   let id = null; try { id = currentTestId; } catch(e) {}   /* variable globale du script principal */
   const vars = kbVarsFor(id);
-  const portrait = kbPortraitTablette();
-  const key = JSON.stringify([portrait, vars.map(v => v.insert || v.latex || v.label)]);
+  const court = kbTablette(), limites = kbLimites(id);
+  const key = JSON.stringify([court, limites, vars.map(v => v.insert || v.latex || v.label)]);
   if(key === __kbVarsKey) return;   /* déjà appliqué pour ce contexte */
   __kbVarsKey = key;
-  try { vk.layouts = [ buildKbTerm(vars, portrait) ]; } catch(e) {}
+  let dispo = null;
+  try { dispo = buildKbTerm(vars, court, limites); vk.layouts = [ dispo ]; } catch(e) {}
+  /* la largeur des touches suit la rangee la plus large de la disposition qu'on
+     vient d'installer — une source, jamais un compte recopie dans le CSS */
+  try { if(dispo) document.documentElement.style.setProperty('--kb-unites', String(kbUnites(dispo))); } catch(e) {}
 }
 
 const FIELD_FIX_CSS =
@@ -23653,7 +23736,7 @@ function kbOnRotate(){
   clearTimeout(kbRotTimer);
   kbRotTimer = setTimeout(()=>{
     pinKbToViewport();
-    applyKbLayout();   /* portrait <-> paysage : la forme du clavier suit (trois ou quatre rangees) */
+    applyKbLayout();   /* tablette <-> telephone, et la largeur des touches : la forme du clavier suit */
     const vk = window.mathVirtualKeyboard;
     if(!vk || !vk.visible || window.__kbFloating) return;
     const ae = document.activeElement;

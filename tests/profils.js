@@ -1181,19 +1181,43 @@ module.exports = {
                        B porte les variables de l'exercice et les symboles. Les
                        touches nommées ici doivent vivre sur B et NULLE PART sur
                        A : la page et le profil sont deux sources. */
-                    couches: { rangeesA: 4, rangeesB: 4, unitesMax: 8,
-                               /* Et sur une TABLETTE DEBOUT, les deux couches tiennent
-                                  sur TROIS rangées (« fais pareil pour la terminale »,
-                                  Turquet, septembre 2026). Le clavier A fait trente
-                                  unités : sur trois rangées il en met DIX, et la règle
-                                  CSS du portrait de tablette donne aux touches un
-                                  dixième de la largeur — les deux sources doivent
-                                  s'accorder, sinon la rangée déborde. Le partage des
-                                  couches, lui, ne bouge pas : surA et surB valent pour
-                                  les deux formes. */
-                               portraitTablette: { rangeesA: 3, rangeesB: 3, unitesMax: 10 },
+                    couches: { rangeesA: 4, rangeesB: 4, unitesMax: 8, effacer: '\u232b',
+                               /* Et sur une TABLETTE, les deux couches tiennent sur
+                                  TROIS rangées — DEBOUT (« fais pareil pour la
+                                  terminale », Turquet, septembre 2026) comme COUCHÉE
+                                  (« en mode paysage, les touches doivent être plus
+                                  petites de façon à tenir sur 3 lignes »). D'où le nom :
+                                  la forme COURTE, et non « celle du portrait ». Le
+                                  partage des couches, lui, ne bouge pas : surA et surB
+                                  valent pour toutes les formes. */
+                               courte: { rangeesA: 3, rangeesB: 3, unitesMax: 10 },
                                surB: ['\\infty', '\\longrightarrow', '\\smallint'],
-                               surA: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', ','] },
+                               surA: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', ','],
+                               /* UN EXERCICE SUR LES LIMITES rend la rangée des variables
+                                  au clavier A (demande de Turquet, septembre 2026 : « quand
+                                  c'est un exercice sur les limites, mettre les touches
+                                  inf, -->, x, f sur le clavier A ») : c'est là qu'on écrit
+                                  « x ⟶ +∞ ». Le clavier B perd alors sa première rangée.
+                                  La page ne tient aucune liste — elle lit le THÈME — et
+                                  ces témoins sont là pour que le banc l'éprouve : un thème
+                                  renommé ferait repartir ∞ sur le clavier B en silence.
+                                  « hors » est le bord opposé : un exercice qui n'est PAS
+                                  sur les limites garde le clavier d'avant. */
+                               limites: { /* « equation-droite-h-v » n'a PAS « limite » dans son
+                                              identifiant : c'est le témoin du THÈME, le seul
+                                              qui éprouve cette moitié de kbLimites — sans lui
+                                              le thème pouvait être renommé sans que rien ne
+                                              rougisse, et le sabotage l'a montré en restant
+                                              vert. « suite-tcm-limite », lui, éprouve l'autre
+                                              moitié : il vit dans le thème des Suites. */
+                                           exercices: ['limites-redaction', 'limites-graphiques',
+                                                      'limites-graphiques-3', 'equation-droite-h-v',
+                                                      'suite-tcm-limite'],
+                                          hors: ['derivee-exp-2', 'suite-auxiliaire', 'tvi'],
+                                          rangeesA: 4, rangeesB: 3, unitesMax: 9,
+                                          courte: { rangeesA: 3, rangeesB: 2, unitesMax: 12 },
+                                          surA: ['\\infty', '\\longrightarrow'],
+                                          surB: ['\\smallint'] } },
                     /* Et sur une TABLETTE, les touches sont légèrement réduites :
                        le banc navigateur ouvre l'exercice déclaré à la taille
                        d'une tablette et mesure la touche RENDUE contre ces
@@ -1201,7 +1225,21 @@ module.exports = {
                     tablette: { exercice: 'suite-auxiliaire-redaction',
                                 champ: '#sarSheetA math-field',
                                 bouton: '#sarOutils button[aria-label^="Afficher ou masquer le clavier"]',
-                                hauteurMax: 48, policeMax: 24 } },
+                                hauteurMax: 48, policeMax: 24,
+                                /* ET COUCHÉE, plus petites encore (demande de Turquet,
+                                   septembre 2026) : en paysage l'écran est COURT, et la
+                                   plaque de quatre rangées prenait 208 px sur 768 — un
+                                   quart de ce que l'élève a devant lui. La rangée de
+                                   moins et ces touches réduites la ramènent à 132 px,
+                                   mesurés. Le banc navigateur tourne la tablette et
+                                   exige les deux : la forme courte, et ces plafonds. */
+                                paysage: { hauteurMax: 40, policeMax: 20, plaqueMax: 140 },
+                                /* L'exercice SUR LES LIMITES, celui où ∞ et ⟶ passent sur
+                                   le clavier A : le banc l'ouvre pour de vrai et cherche
+                                   les quatre touches sur la couche RENDUE. */
+                                limites: { exercice: 'limites-redaction',
+                                           champ: '#lrSheet math-field',
+                                           bouton: '#lrActions button[aria-label^="Afficher ou masquer le clavier"]' } } },
     /* Le signe du premier degré : 5 questions par séance (demande de Turquet,
        août 2026), et non plus 15 — les trois niveaux tous représentés. */
     nbQuestionsSignePremier: 5,

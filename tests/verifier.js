@@ -3583,8 +3583,10 @@ function exercices(suite){
     toucheEntreeClavier(w, P);
     clavierPaysageCompact(w, P);
     couchesClavierNommees(w, P);
-  clavierCouches(w, P);
-  clavierTablette(w, P);
+    clavierCouches(w, P);
+    clavierLimites(w, P);
+    clavierUnites(w, P);
+    clavierTablette(w, P);
     policeTablette(w, P);
     feuilleTablette(w, P);
     chaineTablette(w, P);
@@ -10994,15 +10996,23 @@ function evaluerClavier(pbs){
    largeur minimale est honorée ; une requête inconnue ne répond rien, si bien
    qu'un routage qui s'appuierait sur autre chose se verrait ici. Il sert aux
    deux tables de routage — celle de la Première et de la Seconde (kbCompact +
-   kbPortraitTablette) et celle de la Terminale, qui pose les trois conditions
-   dans une seule requête. */
-function fauxEcran(paysage, tablette){
+   kbPortraitTablette) et celle de la Terminale (kbTablette), qui pose ses deux
+   conditions dans une seule requête. */
+function fauxEcran(paysage, tablette, tactile){
+  /* Un TÉLÉPHONE est tactile ET étroit ; une TABLETTE est tactile et large. Le
+     premier jet confondait les deux — « coarse » y répondait comme
+     « min-width » —, si bien qu'un routage qui aurait cessé de regarder la
+     LARGEUR passait au vert : le faux écran disait « pas tactile » à un
+     téléphone, et la forme des tablettes ne pouvait pas y fuir. Le sabotage l'a
+     montré en restant vert. L'écran de l'ordinateur, lui, n'a pas à être
+     modélisé : ces routages s'arrêtent avant, sur __kbFloating. */
+  const doigt = (tactile === undefined) ? true : !!tactile;
   return q => {
     let ok = true;
     if(/landscape/.test(q)) ok = ok && !!paysage;
     if(/portrait/.test(q)) ok = ok && !paysage;
     if(/min-width/.test(q)) ok = ok && !!tablette;
-    if(/coarse/.test(q)) ok = ok && !!tablette;   /* un écran tactile : la tablette du banc */
+    if(/coarse/.test(q)) ok = ok && doigt;
     return { matches: ok };
   };
 }
@@ -11186,111 +11196,261 @@ function couchesClavierNommees(w, P){
    et les opérations — quatre rangées — et le clavier B porte les variables de
    l'exercice (Uₙ et n pour les suites, f et x pour les fonctions, ≤ ≥ < > au
    6.7), ∞, ⟶ et l'intégrale.
+   … SAUF sur un exercice SUR LES LIMITES (demande de Turquet, septembre 2026 :
+   « mettre les touches inf, -->, x, f sur le clavier A ») : la rangée des
+   variables y revient sur le clavier A, qui porte alors ∞ et ⟶, et le clavier B
+   perd sa première rangée. Le JEU de touches ne change pas d'une variante à
+   l'autre, seul son PARTAGE change — et le contrôle compare les jeux.
    Le clavier vit dans la greffe module, invisible à jsdom : on ÉVALUE
    buildKbTerm depuis la SOURCE, avec des variables RECONNAISSABLES, et on
    regarde où chaque touche tombe. Deux sources : les comptes de rangées, les
    touches qui doivent être sur B, celles qui doivent RESTER sur A et la
    largeur maximale d'une rangée vivent dans tests/profils.js.
    Le bord opposé compte autant : sans « surA », déménager les chiffres eux
-   aussi passerait au vert. Et la largeur : une rangée plus large que le
-   maximum se rétrécit SEULE dans le navigateur — le clavier aurait deux
-   tailles de touches sur le même écran, ce que la règle de la tablette ne
-   peut pas rattraper. La taille RENDUE, elle, se mesure au banc navigateur. */
+   aussi passerait au vert. Et la largeur : une rangée plus large que ce que la
+   feuille de styles prévoit se rétrécit SEULE dans le navigateur — le clavier
+   aurait deux tailles de touches sur le même écran. C'est pourquoi la page
+   POSE --kb-unites depuis la disposition qu'elle vient d'installer, et le
+   contrôle d'à côté (« la largeur des touches suit la rangée la plus large »)
+   l'exige. La taille RENDUE, elle, se mesure au banc navigateur. */
 function clavierCouches(w, P){
   const nom = 'le clavier A garde les nombres, le clavier B porte les variables et les symboles';
   const C = P.clavierEcran && P.clavierEcran.couches;
   if(!C){ ignorer(nom, 'ce fichier ne déclare pas de partage des couches'); return; }
   const pbs = [];
   const src = lire(CIBLE);
-  const fKb = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
-    .find(o => o.nom === 'buildKbTerm');
+  const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const fKb = fns.find(o => o.nom === 'buildKbTerm');
   if(!fKb) pbs.push('buildKbTerm est introuvable dans la source');
   else{
     let bk = null;
     try{ bk = new Function('KB_EXP', 'KB_IDX', 'KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')(
       {latex:'EXP'}, {latex:'IDX'}, {latex:'USQ'}, {latex:'N'}); }
     catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); }
-    let dispo = null;
-    /* des variables RECONNAISSABLES : c'est leur place qu'on mesure */
-    if(bk){ try{ dispo = bk([{latex:'VAR-UN'}, {latex:'VAR-DEUX'}]); }catch(e){ pbs.push('buildKbTerm échoue : ' + e.message); } }
     const cle = k => String((k && (k.latex || k.key || k.insert || k.label)) || '');
     const dedans = (l) => [].concat.apply([], (l.rows || []).map(r => (r || []).map(cle)));
-    /* le partage et la largeur, mesurés sur UNE forme — la normale, puis celle
-       du portrait de tablette quand le fichier en déclare une */
-    const mesurer = (dispo, quelle, rangeesA, rangeesB, unitesMax) => {
+    /* le partage et la largeur, mesurés sur UNE forme */
+    const mesurer = (dispo, quelle, att, surA, surB, varsSurA) => {
       const couches = (dispo && dispo.layers) || [];
       if(couches.length < 2){
         pbs.push('la forme ' + quelle + ' n\'a que ' + couches.length + ' couche(s) : le contrôle n\'a rien à mesurer');
         return null;
       }
       const A = dedans(couches[0]), B = dedans(couches[1]);
-      if((couches[0].rows || []).length !== rangeesA)
-        pbs.push('le clavier A (' + quelle + ') a ' + (couches[0].rows || []).length + ' rangée(s) au lieu de ' + rangeesA);
-      if((couches[1].rows || []).length !== rangeesB)
-        pbs.push('le clavier B (' + quelle + ') a ' + (couches[1].rows || []).length + ' rangée(s) au lieu de ' + rangeesB);
-      (C.surB || []).forEach(t => {
+      if((couches[0].rows || []).length !== att.rangeesA)
+        pbs.push('le clavier A (' + quelle + ') a ' + (couches[0].rows || []).length + ' rangée(s) au lieu de ' + att.rangeesA);
+      if((couches[1].rows || []).length !== att.rangeesB)
+        pbs.push('le clavier B (' + quelle + ') a ' + (couches[1].rows || []).length + ' rangée(s) au lieu de ' + att.rangeesB);
+      surB.forEach(t => {
         if(A.indexOf(t) >= 0) pbs.push('la touche « ' + t + ' » est restée sur le clavier A (' + quelle + ')');
         else if(B.indexOf(t) < 0) pbs.push('la touche « ' + t + ' » n\'est sur aucune des deux couches (' + quelle + ')');
       });
-      (C.surA || []).forEach(t => {
-        if(A.indexOf(t) < 0) pbs.push('la touche « ' + t + ' » a quitté le clavier A (' + quelle + ')');
+      surA.forEach(t => {
+        if(A.indexOf(t) < 0) pbs.push('la touche « ' + t + ' » n\'est pas sur le clavier A (' + quelle + ')');
       });
       ['VAR-UN', 'VAR-DEUX'].forEach(v => {
-        if(A.indexOf(v) >= 0) pbs.push('les variables de l\'exercice sont restées sur le clavier A (' + quelle + ')');
-        else if(B.indexOf(v) < 0) pbs.push('les variables de l\'exercice ne sont sur aucune des deux couches (' + quelle + ')');
+        const ici = varsSurA ? A : B, la = varsSurA ? 'A' : 'B', ailleurs = varsSurA ? B : A;
+        if(ailleurs.indexOf(v) >= 0) pbs.push('les variables de l\'exercice ne sont pas sur le clavier ' + la + ' (' + quelle + ')');
+        else if(ici.indexOf(v) < 0) pbs.push('les variables de l\'exercice ne sont sur aucune des deux couches (' + quelle + ')');
       });
-      if(unitesMax) couches.forEach((l, i) => (l.rows || []).forEach((r, j) => {
+      /* et CHAQUE couche porte de quoi EFFACER. Le jeu de touches, lui, ne dit
+         rien de leur partage : un ⌫ resté sur le seul clavier A laisserait
+         l'élève qui écrit sur le B sans effacement — il devrait changer de
+         couche pour reprendre une lettre. C'est le sabotage qui l'a montré, en
+         restant vert sur un jeu pourtant complet. */
+      if(C.effacer) couches.forEach((l, i) => {
+        if(dedans(l).indexOf(C.effacer) < 0)
+          pbs.push('le clavier ' + (i ? 'B' : 'A') + ' (' + quelle + ') n\'a pas de touche « ' + C.effacer + ' »');
+      });
+      if(att.unitesMax) couches.forEach((l, i) => (l.rows || []).forEach((r, j) => {
         const u = (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0);
-        if(u > unitesMax) pbs.push('la rangée ' + (j + 1) + ' du clavier ' + (i ? 'B' : 'A') + ' (' + quelle + ') fait '
-          + u + ' unités (' + unitesMax + ' au plus) : elle se rétrécirait seule');
+        if(u > att.unitesMax) pbs.push('la rangée ' + (j + 1) + ' du clavier ' + (i ? 'B' : 'A') + ' (' + quelle + ') fait '
+          + u + ' unités (' + att.unitesMax + ' au plus) : la feuille de styles ne lui donnerait pas sa largeur');
       }));
       return couches;
     };
-    const normale = mesurer(dispo, 'normale', C.rangeesA, C.rangeesB, C.unitesMax);
-    /* LA FORME DU PORTRAIT DE TABLETTE : moins de rangées, plus d'unités, et
-       PAS UNE TOUCHE de moins — une touche perdue d'un côté serait intapable
-       dans une orientation, sans qu'aucune erreur ne se lève. Bord opposé : la
-       forme normale a PLUS de rangées, sinon rien n'est compacté. */
-    const PT = C.portraitTablette;
-    if(PT && bk){
-      let court = null;
-      try{ court = bk([{latex:'VAR-UN'}, {latex:'VAR-DEUX'}], true); }
-      catch(e){ pbs.push('buildKbTerm (forme portrait) échoue : ' + e.message); }
-      const couchesC = court && mesurer(court, 'portrait', PT.rangeesA, PT.rangeesB, PT.unitesMax);
-      if(normale && couchesC){
-        if(PT.rangeesA >= C.rangeesA) pbs.push('la forme portrait a autant de rangées que la normale sur le clavier A : rien n\'est compacté');
+    /* LES FORMES : normale et COURTE (la tablette, debout comme couchée), et la
+       même paire pour la variante des LIMITES. Une touche perdue d'un côté
+       serait intapable dans une orientation, sans qu'aucune erreur ne se lève :
+       les jeux se comparent forme à forme, variante par variante. */
+    const V = [{latex:'VAR-UN'}, {latex:'VAR-DEUX'}];
+    const L = C.limites || null;
+    const variantes = [['', false, C, C.courte, C.surA || [], C.surB || [], false]];
+    if(L) variantes.push([' + limites', true, L, L.courte, (C.surA || []).concat(L.surA || []), L.surB || [], true]);
+    let normaleBase = null;
+    if(bk) variantes.forEach(([suffixe, lim, attN, attC, surA, surB, varsSurA]) => {
+      let normale = null, courte = null;
+      try{ normale = bk(V, false, lim); }catch(e){ pbs.push('buildKbTerm (normale' + suffixe + ') échoue : ' + e.message); }
+      try{ courte  = bk(V, true,  lim); }catch(e){ pbs.push('buildKbTerm (courte' + suffixe + ') échoue : ' + e.message); }
+      const cN = normale && mesurer(normale, 'normale' + suffixe, attN, surA, surB, varsSurA);
+      const cC = (courte && attC) && mesurer(courte, 'courte' + suffixe, attC, surA, surB, varsSurA);
+      if(!lim) normaleBase = normale;
+      if(cN && cC){
+        if(attC.rangeesA >= attN.rangeesA)
+          pbs.push('la forme courte' + suffixe + ' a autant de rangées que la normale sur le clavier A : rien n\'est compacté');
         const sig = k => JSON.stringify([k.latex || '', k.key || '', k.insert || '', k.label || '', k.width || 1, k.command || '']);
-        const toutes = cs => [].concat.apply([], cs.map(l => [].concat.apply([], (l.rows || [])))).map(sig);
-        const sn = toutes(normale), sc = toutes(couchesC);
+        const toutes = d => [].concat.apply([], (d.layers || []).map(l => [].concat.apply([], (l.rows || [])))).map(sig);
+        const sn = toutes(normale), sc = toutes(courte);
         const perdues = sn.filter(x => sc.indexOf(x) === -1), ajoutees = sc.filter(x => sn.indexOf(x) === -1);
-        if(perdues.length) pbs.push('touche(s) absente(s) de la forme portrait : ' + perdues.join(', '));
-        if(ajoutees.length) pbs.push('touche(s) de la forme portrait absente(s) de la forme normale : ' + ajoutees.join(', '));
+        if(perdues.length) pbs.push('touche(s) absente(s) de la forme courte' + suffixe + ' : ' + perdues.join(', '));
+        if(ajoutees.length) pbs.push('touche(s) de la forme courte' + suffixe + ' absente(s) de la normale : ' + ajoutees.join(', '));
       }
-      /* la table de routage, évaluée depuis la source sur un faux écran :
-         tablette DEBOUT -> forme courte ; tablette en PAYSAGE, téléphone en
-         portrait et fenêtre flottante de l'ordinateur -> forme normale */
-      const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
-      const fA = fns.find(o => o.nom === 'applyKbLayout'), fT = fns.find(o => o.nom === 'kbPortraitTablette');
-      if(!fA || !fT) pbs.push('applyKbLayout ou kbPortraitTablette est introuvable dans la source');
-      else{
-        const rangees = (flottant, paysage, tablette) => {
-          const vk = { layouts: null };
-          const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: fauxEcran(paysage, tablette) };
-          try{
-            const apply = new Function('window', 'matchMedia', 'currentTestId', 'kbVarsFor', 'buildKbTerm', 'JSON',
-              'let __kbVarsKey = null;\n' + fT.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, null, () => [], bk, JSON);
-            apply();
-            return vk.layouts && vk.layouts[0] && vk.layouts[0].layers[0] ? vk.layouts[0].layers[0].rows.length : -1;
-          }catch(e){ pbs.push('la table de routage ne s\'évalue pas : ' + e.message); return -1; }
-        };
-        const debout = rangees(false, false, true), paysage = rangees(false, true, true),
-              telephone = rangees(false, false, false), flottant = rangees(true, false, true);
-        if(debout !== PT.rangeesA) pbs.push('tablette ancrée en portrait : ' + debout + ' rangée(s) au lieu de ' + PT.rangeesA);
-        if(paysage !== C.rangeesA) pbs.push('tablette ancrée en paysage : ' + paysage + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur le paysage');
-        if(telephone !== C.rangeesA) pbs.push('téléphone ancré en portrait : ' + telephone + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur le téléphone');
-        if(flottant !== C.rangeesA) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur l\'ordinateur');
+      /* et la variante des limites porte EXACTEMENT les mêmes touches que la
+         forme d'origine : seul leur partage change, jamais le jeu */
+      if(lim && normale && normaleBase){
+        const sig = k => JSON.stringify([k.latex || '', k.key || '', k.insert || '', k.label || '', k.width || 1, k.command || '']);
+        const toutes = d => [].concat.apply([], (d.layers || []).map(l => [].concat.apply([], (l.rows || [])))).map(sig);
+        const a = toutes(normaleBase), b = toutes(normale);
+        const perdues = a.filter(x => b.indexOf(x) === -1), ajoutees = b.filter(x => a.indexOf(x) === -1);
+        if(perdues.length) pbs.push('touche(s) perdue(s) par la variante des limites : ' + perdues.join(', '));
+        if(ajoutees.length) pbs.push('touche(s) inventée(s) par la variante des limites : ' + ajoutees.join(', '));
       }
+    });
+    /* LA TABLE DE ROUTAGE, évaluée depuis la source sur un faux écran : une
+       TABLETTE (debout comme couchée) -> la forme courte ; un TÉLÉPHONE en
+       portrait et la fenêtre flottante de l'ordinateur -> la forme normale. */
+    const fA = fns.find(o => o.nom === 'applyKbLayout'), fT = fns.find(o => o.nom === 'kbTablette');
+    if(!fA || !fT) pbs.push('applyKbLayout ou kbTablette est introuvable dans la source');
+    else if(bk){
+      const dispo = (flottant, paysage, tablette, lim, couche) => {
+        const vk = { layouts: null };
+        const racine = { style: { setProperty(){} } };
+        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: fauxEcran(paysage, tablette),
+                      document: { documentElement: racine } };
+        try{
+          const apply = new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLimites', 'kbUnites', 'buildKbTerm', 'JSON',
+            'let __kbVarsKey = null;\n' + fT.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(
+              win, win.matchMedia, win.document, null, () => [], () => !!lim, () => 7, bk, JSON);
+          apply();
+          const l = vk.layouts && vk.layouts[0] && vk.layouts[0].layers[couche || 0];
+          return l ? l.rows.length : -1;
+        }catch(e){ pbs.push('la table de routage ne s\'évalue pas : ' + e.message); return -1; }
+      };
+      const courteA = (C.courte || {}).rangeesA;
+      const debout = dispo(false, false, true), couchee = dispo(false, true, true),
+            telephone = dispo(false, false, false), flottant = dispo(true, false, true);
+      /* et applyKbLayout PASSE le drapeau des limites à buildKbTerm : une
+         variante juste que personne n'appelle est la moitié morte du correctif.
+         On la reconnaît au clavier B, qui perd sa première rangée. */
+      if(C.limites && C.limites.courte){
+        const bLim = dispo(false, false, true, true, 1);
+        if(bLim !== C.limites.courte.rangeesB)
+          pbs.push('applyKbLayout ne demande pas la variante des limites : le clavier B rend ' + bLim
+            + ' rangée(s) au lieu de ' + C.limites.courte.rangeesB);
+      }
+      if(courteA){
+        if(debout !== courteA) pbs.push('tablette ancrée DEBOUT : ' + debout + ' rangée(s) au lieu de ' + courteA);
+        if(couchee !== courteA) pbs.push('tablette ancrée COUCHÉE : ' + couchee + ' rangée(s) au lieu de ' + courteA + ' — le paysage n\'a pas la forme courte');
+      }
+      if(telephone !== C.rangeesA) pbs.push('téléphone ancré en portrait : ' + telephone + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur le téléphone');
+      if(flottant !== C.rangeesA) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur l\'ordinateur');
     }
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Un exercice SUR LES LIMITES est reconnu, et lui seul ---------- */
+/* La page ne tient AUCUNE liste : kbLimites lit le THÈME auquel l'exercice
+   appartient (et l'identifiant qui nomme lui-même la limite), si bien qu'un
+   exercice ajouté demain au thème des limites est couvert sans rien déclarer.
+   Le prix de cette souplesse est qu'un thème RENOMMÉ ferait repartir ∞ sur le
+   clavier B en silence : les témoins déclarés dans tests/profils.js sont là
+   pour l'attraper — et le bord opposé avec eux, un exercice qui n'est PAS sur
+   les limites gardant le clavier d'avant. kbLimites vit dans la greffe module,
+   que jsdom ne charge pas, mais elle lit THEMES, qui est bien dans la page :
+   on évalue sa SOURCE dans le contexte de la page. */
+function clavierLimites(w, P){
+  const nom = 'un exercice sur les limites rend la rangée des variables au clavier A, et lui seul';
+  const L = P.clavierEcran && P.clavierEcran.couches && P.clavierEcran.couches.limites;
+  if(!L){ ignorer(nom, 'ce fichier ne déclare pas d\'exercice sur les limites'); return; }
+  const pbs = [];
+  const fL = corpsFonctions(lire(CIBLE), /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === 'kbLimites');
+  if(!fL) pbs.push('kbLimites est introuvable dans la source');
+  else{
+    const r = evaluer(w, '(function(){ var f = ' + fL.texte + '; return { oui: '
+      + JSON.stringify(L.exercices) + '.filter(function(i){ return !kbLimites(i); }), non: '
+      + JSON.stringify(L.hors) + '.filter(function(i){ return kbLimites(i); }) };'
+      + ' function kbLimites(i){ return f(i); } })()');
+    if(!r.ok) pbs.push('kbLimites ne s\'évalue pas dans la page : ' + r.erreur);
+    else{
+      if(r.valeur.oui.length) pbs.push('exercice(s) sur les limites non reconnu(s) : ' + r.valeur.oui.join(', ')
+        + ' — ∞ et ⟶ repartiraient sur le clavier B');
+      if(r.valeur.non.length) pbs.push('exercice(s) pris à tort pour des limites : ' + r.valeur.non.join(', '));
+    }
+    /* un contrôle qui n'a rien à mesurer ne mesure rien */
+    if(!L.exercices.length || !L.hors.length) pbs.push('aucun témoin déclaré : le contrôle ne mesure rien');
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- La largeur des touches suit la rangée la plus large ---------- */
+/* Le clavier de la Terminale n'a plus UNE disposition mais quatre — normale et
+   courte, sans et avec la variante des limites —, et leurs rangées n'ont pas la
+   même largeur : huit unités, dix, neuf, douze. Un compte RECOPIÉ dans la
+   feuille de styles aurait fini par diverger de la disposition, et la rangée
+   trop large se serait rétrécie SEULE : l'élève aurait eu deux tailles de
+   touches sur le même écran (la leçon du clavier de la tablette, payée une
+   fois). La page POSE donc --kb-unites depuis la disposition qu'elle vient
+   d'installer, et la feuille de styles s'y règle. Trois bords, et n'en tenir
+   qu'un ne tient rien : kbUnites rend bien la rangée la plus large,
+   applyKbLayout la POSE (une fonction juste que personne n'appelle est la
+   moitié morte du correctif), et CHAQUE règle de largeur la LIT — une qui
+   garderait son compte en dur rendrait le reste inutile. */
+function clavierUnites(w, P){
+  const nom = 'la largeur des touches suit la rangée la plus large de la disposition installée';
+  const C = P.clavierEcran && P.clavierEcran.couches;
+  if(!C){ ignorer(nom, 'ce fichier ne déclare pas de partage des couches'); return; }
+  const pbs = [];
+  const src = lire(CIBLE);
+  const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const fU = fns.find(o => o.nom === 'kbUnites'), fA = fns.find(o => o.nom === 'applyKbLayout'),
+        fT = fns.find(o => o.nom === 'kbTablette'), fKb = fns.find(o => o.nom === 'buildKbTerm');
+  if(!fU || !fA || !fT || !fKb) pbs.push('kbUnites, kbTablette, applyKbLayout ou buildKbTerm est introuvable dans la source');
+  else{
+    let bk = null, ku = null;
+    try{ bk = new Function('KB_EXP', 'KB_IDX', 'return (' + fKb.texte + ')')({}, {}); }catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); }
+    try{ ku = new Function('return (' + fU.texte + ')')(); }catch(e){ pbs.push('kbUnites ne s\'évalue pas : ' + e.message); }
+    /* kbUnites rend bien la rangée la plus large — recomptée ici, jamais par
+       la fonction elle-même : la comparer à elle-même ne prouverait rien */
+    if(bk && ku){
+      const V = [{latex:'f'}, {latex:'x'}];
+      [[false, false, 'normale'], [true, false, 'courte'], [false, true, 'normale + limites'], [true, true, 'courte + limites']]
+        .forEach(([court, lim, quelle]) => {
+          const d = bk(V, court, lim);
+          let max = 0;
+          (d.layers || []).forEach(l => (l.rows || []).forEach(r => {
+            const u = (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0); if(u > max) max = u; }));
+          const rendu = ku(d);
+          if(rendu !== max) pbs.push('kbUnites rend ' + rendu + ' pour la forme ' + quelle + ' dont la rangée la plus large fait ' + max);
+        });
+      /* et applyKbLayout la POSE sur la racine du document */
+      const poses = [];
+      const vk = { layouts: null };
+      const racine = { style: { setProperty(n, v){ poses.push([n, v]); } } };
+      const win = { __kbFloating: false, mathVirtualKeyboard: vk, matchMedia: fauxEcran(false, true),
+                    document: { documentElement: racine } };
+      try{
+        const apply = new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLimites', 'kbUnites', 'buildKbTerm', 'JSON',
+          'let __kbVarsKey = null;\n' + fT.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(
+            win, win.matchMedia, win.document, null, () => V, () => false, ku, bk, JSON);
+        apply();
+      }catch(e){ pbs.push('applyKbLayout ne s\'évalue pas : ' + e.message); }
+      const pose = poses.find(p => p[0] === '--kb-unites');
+      if(!pose) pbs.push('applyKbLayout ne pose pas --kb-unites : la feuille de styles garderait son compte de repli');
+      else if(+pose[1] !== ku(bk(V, true, false))) pbs.push('applyKbLayout pose --kb-unites à ' + pose[1] + ' au lieu de ' + ku(bk(V, true, false)));
+    }
+    /* et CHAQUE règle qui donne sa largeur à une touche la lit */
+    const regles = [...src.matchAll(/--keycap-width\s*:\s*([^;}]+)/g)].map(m => m[1].trim());
+    if(!regles.length) pbs.push('aucune règle --keycap-width : le contrôle ne mesure rien');
+    regles.forEach(v => {
+      if(/^\d+px$/.test(v)) return;   /* la fenêtre flottante de l'ordinateur : une largeur fixe, rangées centrées */
+      if(v.indexOf('--keycap-auto') < 0 && v.indexOf('--kb-unites') < 0)
+        pbs.push('une règle de largeur garde un compte d\'unités en dur : « ' + v + ' »');
+    });
+    const auto = /--keycap-auto\s*:\s*([^;}]+)/.exec(src);
+    if(!auto) pbs.push('--keycap-auto est introuvable : rien ne calcule la largeur d\'une touche');
+    else if(auto[1].indexOf('--kb-unites') < 0) pbs.push('--keycap-auto ne lit pas --kb-unites : « ' + auto[1].trim() + ' »');
   }
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
@@ -11316,6 +11476,7 @@ function clavierTablette(w, P){
     const borne = +bloc[1], corps = bloc[2];
     if(!(borne >= 500 && borne <= 800)) pbs.push('la borne de ' + borne + 'px ne distingue plus une tablette d\'un téléphone');
     const h = /--keycap-height:(\d+)px/.exec(corps), f = /--keycap-font-size:(\d+)px/.exec(corps);
+    /* h et f servent deux fois : ici, et plus bas comme repère de la règle du PAYSAGE */
     if(!h) pbs.push('la règle ne pose pas --keycap-height');
     else{
       if(+h[1] > T.hauteurMax) pbs.push('les touches font ' + h[1] + 'px de haut, plus que les ' + T.hauteurMax + ' déclarés');
@@ -11325,6 +11486,31 @@ function clavierTablette(w, P){
     else{
       if(+f[1] > T.policeMax) pbs.push('la police des touches fait ' + f[1] + 'px, plus que les ' + T.policeMax + ' déclarés');
       if(genF && +f[1] >= +genF[1]) pbs.push('la police de la tablette (' + f[1] + 'px) ne réduit rien : le réglage général en donne ' + genF[1]);
+    }
+    /* ET COUCHÉE, plus petites encore (demande de Turquet, septembre 2026 : « en
+       mode paysage, les touches doivent être plus petites de façon à tenir sur
+       3 lignes »). Même périmètre, une orientation en plus — et le bord qui
+       compte est qu'elle RÉDUISE encore : une règle qui reprendrait la hauteur
+       du portrait ne rendrait pas la rangée qu'on vient de retirer. */
+    const PY = T.paysage;
+    if(PY){
+      const bl = /@media \(pointer:coarse\) and \(min-width:(\d+)px\) and \(orientation:landscape\)\{\s*body > \.ML__keyboard\{([\s\S]*?)\}\s*\}/.exec(src);
+      if(!bl) pbs.push('aucune règle de PAYSAGE « @media (pointer:coarse) and (min-width:…px) and (orientation:landscape) » — les touches d\'une tablette couchée gardent la taille du portrait');
+      else{
+        const bo = +bl[1], co = bl[2];
+        if(bo !== borne) pbs.push('la règle du paysage borne à ' + bo + 'px quand celle de la tablette borne à ' + borne + 'px');
+        const hp = /--keycap-height:(\d+)px/.exec(co), fp = /--keycap-font-size:(\d+)px/.exec(co);
+        if(!hp) pbs.push('la règle du paysage ne pose pas --keycap-height');
+        else{
+          if(+hp[1] > PY.hauteurMax) pbs.push('en paysage les touches font ' + hp[1] + 'px de haut, plus que les ' + PY.hauteurMax + ' déclarés');
+          if(h && +hp[1] >= +h[1]) pbs.push('la hauteur du paysage (' + hp[1] + 'px) ne réduit rien : la tablette debout en donne ' + h[1]);
+        }
+        if(!fp) pbs.push('la règle du paysage ne pose pas --keycap-font-size');
+        else{
+          if(+fp[1] > PY.policeMax) pbs.push('en paysage la police fait ' + fp[1] + 'px, plus que les ' + PY.policeMax + ' déclarés');
+          if(f && +fp[1] >= +f[1]) pbs.push('la police du paysage (' + fp[1] + 'px) ne réduit rien : la tablette debout en donne ' + f[1]);
+        }
+      }
     }
   }
   verifier(nom, pbs.length === 0, pbs.join(' | '));
