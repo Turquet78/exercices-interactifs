@@ -3374,6 +3374,88 @@ async function parcours(page, N){
         repliees > 0, 'aucune rangée repliée : le contrôle ne mesure rien à ces largeurs');
     }
 
+
+    /* ===== 6 octies bis. la fenêtre d'aide FERMÉE se rouvre ===== */
+    /* Sur ordinateur, « Soutien » et « Question à l'IA » s'ouvrent dans une
+       VRAIE fenêtre du système et leur carte y est DÉPLACÉE : la page ne l'a
+       plus. Signalé par Turquet (septembre 2026) sur le 6.14 — fermer cette
+       fenêtre, puis recliquer, n'ouvrait plus rien.
+       SEUL UN VRAI NAVIGATEUR VOIT CE DÉFAUT : il faut une vraie fenêtre, une
+       vraie fermeture, et le vrai pagehide que le navigateur lève alors. Le
+       banc jsdom rejoue le MOMENT (pagehide avec closed encore faux) ; celui-ci
+       rejoue le GESTE. Et il faut un VRAI clic : sans activation utilisateur,
+       Chromium bloque la pop-up, et le contrôle mesurerait le repli en page. */
+    titre('6 octies bis. LA FENÊTRE D\'AIDE FERMÉE SE ROUVRE');
+    if(!P.fenetresDetachees){
+      ignorer('la fenêtre d\'aide fermée se rouvre',
+        'ce niveau ne déclare aucune fenêtre d\'aide détachable');
+    } else {
+      const FD = P.fenetresDetachees;
+      s = await ouvrir(chromium, ml);
+      if(await connecter(s.page) !== 'scr-space'){
+        verifier('la fenêtre d\'aide fermée se rouvre', false, 'connexion impossible — rien à mesurer');
+      } else {
+        await s.page.evaluate(id => openTest(id), FD.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="soutien"]');
+        await s.page.waitForTimeout(900);
+        const contexte = s.page.context();
+        /* On clique le VRAI bouton de l'écran, celui que l'élève a sous la
+           souris, et on attend la fenêtre que Chromium ouvre. */
+        const ouvrirFenetre = async nom => {
+          /* Le bouton de l'ÉCRAN, et lui seul : « le premier du document » résout
+             #cmConseilBtn, le bouton CACHÉ du calcul mental, et le clic expire
+             sur un élément que personne ne voit — la mesure accusait alors la
+             page de ne pas ouvrir de fenêtre. Une ancre se prend PROPRE à sa
+             cible. Et on le CENTRE avant de cliquer : les commandes du bas sont
+             en position fixe et avalent le clic, le piège déjà payé sur la
+             grille de {construire-fonction}. */
+          const loc = s.page.locator('section.screen.on button[onclick*="' + nom + '"]:visible').first();
+          if(await loc.count() === 0) return null;
+          await loc.evaluate(b => b.scrollIntoView({ block: 'center' })).catch(() => {});
+          const [pop] = await Promise.all([
+            contexte.waitForEvent('page', { timeout: 8000 }).catch(() => null),
+            loc.click({ timeout: 5000 }).catch(() => {}),
+          ]);
+          await s.page.waitForTimeout(700);
+          return pop;
+        };
+        const carteDe = async (pop, sel) => {
+          if(!pop || pop.isClosed()) return null;
+          return pop.evaluate(x => {
+            const c = document.querySelector(x);
+            if(!c) return null;
+            const r = c.getBoundingClientRect();
+            return { l: Math.round(r.width), h: Math.round(r.height) };
+          }, sel).catch(() => null);
+        };
+        for(const F of FD.fenetres){
+          const pop1 = await ouvrirFenetre(F.bouton);
+          const vue1 = await carteDe(pop1, F.carte);
+          verifier(F.nom + ' : la fenêtre s\'ouvre détachée, carte comprise',
+            !!(vue1 && vue1.l > 2 && vue1.h > 2),
+            pop1 ? 'la fenêtre s\'est ouverte sans sa carte : le contrôle ne mesure rien'
+                 : 'aucune fenêtre du système : le contrôle ne mesure rien');
+          if(!vue1) continue;
+          /* LA CROIX DU SYSTÈME — le geste signalé. */
+          await pop1.close();
+          await s.page.waitForTimeout(800);
+          const rendue = await s.page.evaluate(x => !!document.querySelector(x), F.carte);
+          verifier(F.nom + ' : fermée, la carte revient dans la page', rendue,
+            'la carte est partie avec la fenêtre : plus rien ne peut la rouvrir');
+          const pop2 = await ouvrirFenetre(F.bouton);
+          const vue2 = await carteDe(pop2, F.carte);
+          verifier(F.nom + ' : on la rouvre, et elle montre sa carte',
+            !!(vue2 && vue2.l > 2 && vue2.h > 2),
+            pop2 ? 'la fenêtre rouverte est VIDE' : 'rien ne se rouvre (le défaut signalé sur le 6.14)');
+          if(pop2 && !pop2.isClosed()){ await pop2.close(); await s.page.waitForTimeout(500); }
+        }
+        verifier('ouvrir, fermer et rouvrir ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 nonies. les zéros ne durent que le temps de l'appui ===== */
     /* Le bouton d'aide de « Placer des nombres sur une droite graduée » réécrit
        les cinq nombres à la même longueur — mais SEULEMENT tant qu'on le garde

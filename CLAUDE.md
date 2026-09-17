@@ -6875,6 +6875,70 @@ quatre cents pixels. Il mesure maintenant POINTEUR ENCORE ENFONCÉ.
 déplacée. `document.getElementById` ne les trouve plus : la fonction `$` doit
 chercher aussi dans `window.__fenetresDetachees`.
 
+**Une fenêtre d'aide FERMÉE doit se rouvrir — et « est-elle fermée ? » n'a pas
+de réponse au moment où on la pose.** Signalé par Turquet (septembre 2026) sur
+le 6.14 : « quand je clique sur soutien et que je ferme la fenêtre, impossible
+de la rouvrir, même chose pour question à l'IA. Peut-être que ce problème se
+retrouve ailleurs. » Il s'y retrouvait, et la sonde l'a MESURÉ avant qu'on ne
+touche à quoi que ce soit : les CINQ fenêtres détachables des TROIS niveaux — la
+Question à l'IA partout, le Soutien en Première et en Terminale — perdaient leur
+carte, sur n'importe quel exercice et pas seulement le 6.14.
+**LA CARTE EST DÉPLACÉE, elle n'est pas recopiée** : détacher, c'est
+`adoptNode` — la page n'a plus sa carte, la fenêtre l'a. Fermée sans la rendre,
+elle l'emporte ; `ouvrirSoutien` ne trouve alors plus rien à détacher et
+l'écran montre une fenêtre VIDE, sans la moindre erreur nulle part.
+**LA CAUSE EST UN MOMENT.** Au `pagehide`, la page demandait « la fenêtre
+est-elle fermée ? » un tick plus tard, et ne rapatriait la carte que si la
+réponse était oui. Or `window.closed` ne bascule qu'une fois le contexte
+détruit : mesuré ENCORE à false un tick après la croix du système, et déjà à
+true après un `close()` programmé — le bouton ✕ de la carte marchait donc, par
+chance, et la croix perdait la carte. **On ne suppose plus rien du MOMENT** : la
+carte revient dans la page SYNCHRONIQUEMENT, dans le `pagehide` lui-même, où
+tout est encore atteignable. Et le remplacement de document (vieux Firefox) se
+reconnaît à un document DIFFÉRENT, jamais à « closed », qui ment ici dans les
+deux sens.
+**LE SECOND BORD EST UN FILET, et il tient quelle que soit la cause** : la carte
+est PRÊTÉE à la fenêtre, donc sa référence vit AUSSI sur le conteneur, qui est
+dans la page et ne ferme jamais. `ramenerCarte()` la ramène AVANT d'ouvrir —
+ramener une carte d'un document déjà DÉTRUIT fonctionne, mesuré en Chromium — si
+bien qu'un navigateur qui ne lèverait pas `pagehide`, ou une fenêtre que le
+système emporte, ne cassent plus rien. Le bord OPPOSÉ compte autant : on ne
+reprend JAMAIS la carte d'une fenêtre VIVANTE, ce serait la lui prendre sous les
+yeux de l'élève. Et `fermerQIA`/`fermerConseil` la REPRENNENT avant de fermer,
+comme `reattacherFenetres` le faisait déjà : le rapatriement du `pagehide` est un
+filet, pas un plan.
+**Le moteur est le MÊME TEXTE dans les trois fichiers, et rien ne le
+comparait** — il a fallu le corriger dans les trois d'un coup. Six fonctions
+sont comparées au caractère près désormais ; `garnirFenetre` DIVERGE
+volontairement, elle porte les ponts onclick propres à chaque niveau, et c'est
+nommé plutôt que tu.
+**Deux bancs, la répartition habituelle.** jsdom rejoue le MOMENT — `pagehide`
+avec `closed` encore FAUX, le filet d'une fenêtre partie sans rien lever, le
+bord opposé de la fenêtre vivante, et le ✕ qui rend la carte. Le NAVIGATEUR
+rejoue le GESTE (« 6 octies bis », déclaré par `fenetresDetachees` dans
+`tests/profils.js`, deux sources) : une VRAIE fenêtre du système, une vraie
+croix, sur l'exercice SIGNALÉ en Terminale — et il faut un VRAI clic, sans
+activation utilisateur Chromium bloque la pop-up et le contrôle mesurerait le
+repli en page.
+**Et ce contrôle-là s'est pris en défaut avant la page** : son locator prenait
+le PREMIER bouton du document dont l'onclick appelle `conseilCourant` — c'est
+`#cmConseilBtn`, celui du calcul mental, CACHÉ —, le clic expirait sur un
+élément que personne ne voit, et la mesure accusait la page de n'ouvrir aucune
+fenêtre. Une ancre se prend PROPRE à sa cible, sur l'écran VISIBLE ; et le
+bouton est CENTRÉ avant le clic, les commandes du bas étant en position fixe.
+**Sept sabotages, chacun rougissant en nommant son défaut** — six au banc jsdom
+(le rapatriement remis dans un setTimeout, la référence perdue sur le conteneur,
+la carte reprise à une fenêtre vivante, le filet retiré de l'ouverture, le ✕ qui
+ne rend plus la carte, le moteur qui diverge d'un niveau à l'autre) et un au
+NAVIGATEUR, le défaut d'origine remis. **Ce dernier a montré que les deux
+moitiés se répondent** : c'est « fermée, la carte revient dans la page » qui
+rougit, et non « on la rouvre » — le FILET la ramène à l'ouverture même quand le
+rapatriement a échoué, et c'est exactement ce pour quoi il existe. Et deux
+sabotages ont d'abord fait LEVER le contrôle jsdom au lieu de nommer quoi que ce
+soit : privé de sa carte, `ouvrirQIA` va chercher `#qiaSugg`, qui vit DEDANS, et
+meurt sur un null. Un contrôle qui lève ne nomme rien : il attrape, et il dit ce
+qui manque.
+
 **Portage depuis `terminale.html`** — ne jamais extraire par script en filtrant
 sur `function`, `const` et `let` : les affectations comme
 `window.__fenetresDetachees = […]` et les redéfinitions de `$` sont invisibles à
