@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -760,6 +760,36 @@
      leurs cases) : la cellule de cet écran est élargie, comme celle du 5.5 */
   #pyvHost .py-cell{max-width:1160px}
   @media(max-width:520px){ .pyv-l{font-size:.92rem} }
+  /* {python-tableau-valeurs} : le programme dont la ligne 1 se MODIFIE — une
+     case à chasse fixe posée DANS le code — et le tableau de valeurs qu'on
+     remplit en l'exécutant. Le cadre du programme, la console et les verdicts
+     sont ceux de {python-completer} (pyx-prog, pyx-ligne, pyx-num, pyx-l1,
+     py-console, py-runrow) : deux feuilles de styles auraient fini par
+     diverger, et deux exercices voisins se seraient dessinés différemment
+     sous les yeux de l'élève.
+     UNE COLONNE FERMÉE SE VOIT : sa case est grisée et son cadre en
+     pointillés — sinon l'élève chercherait pourquoi il ne peut pas y écrire.
+     La bonne valeur s'écrit en vert SOUS la case fausse et non à côté : dans
+     une colonne de tableau, un badge en ligne sortirait de sa cellule. */
+  .ptv-lx{flex:0 0 auto;overflow:visible}
+  .ptv-x{width:6ch;min-width:6ch;text-align:center;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.4;padding:3px 6px;border:2px solid #BBD0F7;border-radius:8px;background:#fff;color:var(--ink);outline:none}
+  .ptv-x:focus{border-color:var(--blue);background:#FBFDFF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .ptv-x:disabled{opacity:1}
+  .ptv-wrap{overflow-x:auto;margin:0 0 6px;padding:2px}
+  .ptv-tab{border-collapse:collapse;margin:0 auto;background:var(--surface)}
+  .ptv-tab th,.ptv-tab td{border:1.5px solid var(--line);padding:8px 10px;text-align:center;font-size:1.15rem;line-height:1.4}
+  .ptv-tab th{background:#f4f8ff;font-family:"Fredoka";font-weight:600;white-space:nowrap;text-align:right}
+  .ptv-tab td{min-width:88px;font-family:"Fredoka";font-weight:600}
+  .ptv-in{width:8ch;max-width:100%;text-align:center;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.15rem;line-height:1.4;padding:5px 6px;border:2px solid #BBD0F7;border-radius:8px;background:#fff;color:var(--ink);outline:none}
+  .ptv-in:focus{border-color:var(--blue);background:#FBFDFF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .ptv-in:disabled{background:#f1f1f1;border-style:dashed;border-color:var(--line);color:var(--ink-soft);opacity:1;cursor:not-allowed}
+  .ptv-in.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+  .ptv-in.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  #ptvHost .mf-cor.ptv-cor{display:block;margin:5px auto 0;width:-moz-fit-content;width:fit-content;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;white-space:nowrap}
+  .ptv-etat{margin:0 0 10px;text-align:left;font-size:.96rem;color:var(--ink-soft);line-height:1.5}
+  .ptv-etat b{font-family:"Fredoka";font-weight:600;color:var(--ink)}
+  .ptv-etat code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px;white-space:nowrap}
+  @media(max-width:520px){ .ptv-tab th,.ptv-tab td{font-size:1rem;padding:6px 6px} .ptv-in{font-size:1rem;width:7ch} }
   /* {python-nom-variable} : la fiche — l'énoncé en cadre SANS étiquette (le
      .mp-instr de l'écran la porte déjà), puis la cellule de réponse du carnet,
      une ligne par grandeur, à chasse fixe ; la case écrit à la taille et à la
@@ -2793,6 +2823,25 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : LE TABLEAU DE VALEURS, REMPLI EN EXÉCUTANT LE PROGRAMME (PYTHON) -->
+  <section class="screen" id="scr-ptv">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPTV"></span><span class="q-idx" id="ptvIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ptvLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <!-- L'énoncé est ÉCRIT par le rendu, et par lui seul : il NOMME le calcul
+           de sa question, et un texte posé ici en plus serait une seconde
+           source — celle qui dérive sans que rien ne le dise. -->
+      <p class="mp-instr" id="ptvInstr"></p>
+      <div class="mp-stage"><div style="width:100%" id="ptvHost"></div></div>
+      <div class="mp-feedback" id="ptvFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="ptvActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ptvValidate" onclick="checkPTV()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : SOMME ET DIFFÉRENCE DE FRACTIONS -->
   <section class="screen" id="scr-sf">
     <div class="test-top">
@@ -3721,6 +3770,7 @@ const TESTS={
      d'affichage déjà écrite, qui sert de modèle — et c'est l'élève qui écrit
      les deux lignes qui manquent (demande de Turquet, septembre 2026). */
   'python-deux-lignes': { name:'Compl\u00e9ter\u00a0: deux affichages \u00e0 \u00e9crire', icon:'\ud83e\udde9', desc:'La suite de {python-completer}\u00a0: un programme \u00e0 trois variables, dont une est d\u00e9j\u00e0 affich\u00e9e \u2014 cette ligne est ton mod\u00e8le. \u00c9cris les deux lignes qui manquent, chacune avec LA bonne variable, ex\u00e9cute le programme et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYD() },
+  'python-tableau-valeurs': { name:'Un tableau de valeurs avec Python', icon:'\ud83d\udcca', desc:'Le programme calcule 2x+3 pour la valeur de x que tu lui donnes. Ex\u00e9cute-le, puis compl\u00e8te le tableau de valeurs\u00a0: pour chaque colonne, \u00e9cris sa valeur de x \u00e0 la ligne 1 \u2014 avec un point, comme Python l\u2019\u00e9crit \u2014, ex\u00e9cute, et recopie ce qui s\u2019affiche.', start:()=>startPTV() },
   'python-types': { name:'int, float ou str\u00a0?', icon:'\ud83c\udff7\ufe0f', desc:'Trois types de variables : un entier (int), un nombre \u00e0 virgule (float), un texte entre guillemets (str). Le cours est sur l\u2019\u00e9cran ; lis chaque programme, dis le type de chaque variable \u2014 puis ex\u00e9cute-le : Python te r\u00e9pond avec type().', start:()=>startPTY() },
   'python-afficher-variable': { name:'Affiche la variable\u00a0!', icon:'\ud83d\udda8\ufe0f', desc:'On t\u2019explique comment afficher une variable, puis un programme commence par note = 12 : \u00e0 toi d\u2019\u00e9crire la suite pour qu\u2019il affiche la valeur de la variable. Ex\u00e9cute-le, puis v\u00e9rifie \u2014 en soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYC() },
   'python-noms-variables': { name:'Noms de variables en Python', icon:'\ud83c\udff7\ufe0f', desc:'Le nom d\u2019une variable doit respecter quatre r\u00e8gles. Pour chaque nom propos\u00e9, dis s\u2019il est correct ou incorrect \u2014 et, s\u2019il est incorrect, pourquoi.', start:()=>startPVN() },
@@ -3781,7 +3831,7 @@ const THEMES=[
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
-  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables'] }
+  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -4426,6 +4476,7 @@ function conseilPaire(){
   else if(test.kind==='py' && q) b=ctxPy(q);
   else if(test.kind==='pyx' && q) b=ctxPyx(q);
   else if(test.kind==='pyd' && q) b=ctxPyd(q);
+  else if(test.kind==='ptv' && q) b=ctxPtv(q);
   else if(test.kind==='pyv' && q) b=ctxPyv(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
@@ -4725,6 +4776,7 @@ const QIA_SUGG={
   pyp:["Pourquoi faut-il des guillemets autour du texte ?","Quelle est la différence entre print(bonjour) et print(\"bonjour\") ?","Pourquoi Print avec une majuscule ne marche pas ?","À quoi servent les parenthèses de print ?"],
   pyx:["Pourquoi faut-il des guillemets autour du texte, mais pas autour de la variable ?","À quoi sert la virgule dans print ?","Que se passe-t-il si j’écris la variable entre guillemets ?","Pourquoi Python dit-il que la variable « la » n’existe pas ?"],
   pyv:["Comment savoir quelle variable écrire dans chaque case ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Que se passe-t-il si j’échange deux variables dans le print ?","Pourquoi Python met-il une espace entre les morceaux du print ?"],
+  ptv:["Pourquoi faut-il écrire 0.5 et non 0,5 dans le programme ?","Pourquoi le programme affiche-t-il 4.0 et pas 4 ?","À quoi sert un tableau de valeurs ?","Pourquoi la case du tableau reste-t-elle grise ?"],
   pyd:["Comment savoir quelle variable écrire dans chaque ligne ?","Que se passe-t-il si je recopie la ligne déjà écrite sans rien changer ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Est-ce que je peux écrire les deux lignes dans l’ordre que je veux ?"],
   py:["Pourquoi le texte s’affiche-t-il sans les guillemets ?","Quelle est la différence entre note1 et \"note1\" dans un print ?","À quoi sert la virgule dans print ?","Comment s’écrit et s’affiche un nombre à virgule en Python ?"],
   sfl:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelles \u00e9tapes dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Comment savoir si ma fraction est bien simplifi\u00e9e\u00a0?","Est-ce que je peux choisir un autre d\u00e9nominateur commun\u00a0?"],
@@ -5284,7 +5336,17 @@ Dans <code class="inline">print(…)</code>, les morceaux sont séparés par des
 <b>② Le nom d’une variable s’écrit SANS guillemets</b> — c’est sa VALEUR qui s’affiche. Entre guillemets, c’est le mot lui-même qui s’affiche.<br>
 <b>③ Le texte juste avant une case dit quelle variable on attend</b> : c’est la phrase entière qu’il faut lire. Deux variables échangées ne provoquent <b>aucune erreur</b> — le programme s’exécute, mais la phrase ne veut plus rien dire. C’est pour cela qu’on l’exécute et qu’on la relit.<br>
 Exemple : avec <code class="inline">ville = "Brest"</code> et <code class="inline">age = 15</code>, la ligne <code class="inline">print("à", ville, "tu as", age, "ans")</code> affiche <code class="inline">à Brest tu as 15 ans</code>.`;
-const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV };
+/* Le tableau de valeurs rempli en exécutant : ce que l'exercice ajoute est
+   la ligne qu'on MODIFIE, et le point décimal de Python. Les nombres vivent
+   dans des balises code — le contrôle des numéros en dur ne lit que la
+   prose, et « 0.5 » y passerait pour le numéro d'un exercice. */
+const RAP_PTV=`<b>Compléter un tableau de valeurs avec un programme</b><br>
+Le programme calcule <code class="inline">fonction = 2*x+3</code> pour la valeur de <code class="inline">x</code> écrite à la ligne&nbsp;1, et <code class="inline">print(fonction)</code> l’affiche.<br>
+<b>① Une colonne à la fois</b> — tu remplaces la valeur de <code class="inline">x</code> à la ligne&nbsp;1, tu exécutes, et tu recopies ce qui s’affiche dans la colonne de cette valeur.<br>
+<b>② Dans un programme, un nombre à virgule s’écrit avec un POINT</b> : le tableau écrit <code class="inline">0,5</code>, Python veut <code class="inline">0.5</code>. Avec une virgule, il s’arrête.<br>
+<b>③ Le résultat garde son point, lui aussi</b> — dès que <code class="inline">x</code> est un nombre à virgule, le résultat est un <code class="inline">float</code>, et Python l’écrit avec au moins une décimale : <code class="inline">4.0</code>.<br>
+Exemple : avec <code class="inline">x = 0.5</code>, le programme affiche <code class="inline">4.0</code> — c’est la valeur à recopier sous <code class="inline">0,5</code>.`;
+const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -5393,7 +5455,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -5822,7 +5884,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5946,7 +6008,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -19073,6 +19135,381 @@ function ctxPyv(q){
   return {nombre:'', contexte:c};
 }
 
+/* ---------- Exercice : le tableau de valeurs, rempli en EXÉCUTANT ---------
+   Demande de Turquet (septembre 2026) : « en seconde faire un exercice comme
+   le pdf, puis qui demande de compléter un tableau de valeurs, avec x en 1ère
+   ligne et des nombres décimaux avec 1 chiffre après la virgule et un chiffre
+   devant la virgule ; le calcul du programme en 2e ligne, ici 2x+3 ; dire à
+   l'élève de compléter le tableau en modifiant x dans le programme du dessus
+   et en l'exécutant. » C'est l'exercice 11 du carnet — a) exécuter le
+   programme — prolongé par le tableau de valeurs, et il FERME le thème 5 :
+   ajouté en dernier, il ne renumérote rien.
+
+   CE QU'IL AJOUTE AUX HUIT AUTRES : le 5.1 fait PRÉDIRE ce qu'un programme
+   affiche, le 5.6, le 5.7 et le 5.8 le font ÉCRIRE ; ici on s'en SERT. Le
+   programme est donné, entier et juste ; l'élève n'en change qu'UNE chose —
+   la valeur de x — et lit le résultat. C'est le premier exercice où Python
+   est un OUTIL et non le sujet : un tableau de valeurs de Seconde, calculé
+   par la machine.
+
+   LA DEMANDE EST TENUE PAR L'ÉTAT DES CASES, PAS PAR UNE CONSIGNE QU'ON PEUT
+   NE PAS LIRE (le motif de {placer-image}) : une colonne du tableau ne
+   s'ouvre que lorsque le programme a été EXÉCUTÉ avec SA valeur de x, et elle
+   reste ouverte ensuite. « Modifier x dans le programme et l'exécuter » n'est
+   donc pas une phrase à croire : c'est le seul chemin vers la case.
+
+   LE RISQUE PROPRE EST SILENCIEUX, ET IL EST ÉNORME : a×x+b se calcule en
+   VIRGULE FLOTTANTE, et Python affiche alors « -3.5999999999999996 » là où la
+   valeur exacte est −3,6. L'élève recopierait ce que la machine affiche — ce
+   que la consigne lui demande — et serait compté faux, le pire défaut du
+   projet. Le garde est VIVANT, et mesuré plutôt que supposé : sur les 12 960
+   triplets (a, b, x) possibles, 4 156 — UN SUR TROIS — s'affichent ainsi. Le
+   tirage n'admet donc que les valeurs dont la sortie de pyRun est l'écriture
+   décimale EXACTE, et le contrôle refait la propriété sur chaque tirage par
+   sa propre arithmétique — en DIXIÈMES entiers, là où la page passe par
+   l'interpréteur.
+
+   LA SORTIE AFFICHÉE ET LA CORRECTION SORTENT DE LA MÊME FONCTION : le bouton
+   « Exécuter », le juge (ptvJuste) et la correction lisent tous
+   pyRun(ptvProg(q, x)). La question ne porte que le calcul (a, b), la valeur
+   de départ et les abscisses en DIXIÈMES (on range l'entier, jamais
+   l'écriture) : la bonne réponse n'est jamais rangée à côté, et le contrôle
+   refuse tout autre champ.
+
+   LE JUGE EST LARGE SUR L'ÉCRITURE ET EXACT SUR LA VALEUR : la console écrit
+   « 4.0 » (un flottant garde son point, la leçon du 5.2) et le tableau est
+   français, donc « 4 », « 4.0 » et « 4,0 » valent tous le point — refuser une
+   écriture juste serait le pire défaut du projet ; en revanche la VALEUR est
+   comparée exactement, en entiers, jamais en virgule flottante.
+
+   LA VIRGULE EST LE PIÈGE DE L'EXERCICE, et il s'enseigne : le tableau écrit
+   « 0,5 » et le programme veut « 0.5 ». Une virgule tapée dans la case de x
+   ne reçoit pas la SyntaxError brute de l'interpréteur mais la phrase qui
+   nomme la règle — c'est le « un float s'écrit avec un point » du 5.2,
+   rencontré là où il coûte quelque chose.
+
+   LES DEUX SIGNES SORTENT DANS CHAQUE SÉANCE : la fiche de la demande
+   (2*x+3) ouvre, puis un « + » et un « − » (3*x-1 est la forme du carnet) en
+   ordre mélangé — sans quoi l'élève apprendrait que le programme ajoute
+   toujours.
+
+   Aucune correction au fil de la frappe (soutienEnDirect.sans) : la valeur
+   cherchée est DÉJÀ à l'écran, dans la console — une couleur posée pendant la
+   frappe ne dirait que si l'élève a bien recopié, et « 4 » tapé avant « .5 »
+   se déclarerait faux au milieu d'un nombre juste. */
+const PTV_NB=3;              /* trois programmes par séance */
+const PTV_COLS=5;            /* cinq colonnes — la forme d'un tableau de valeurs */
+const PTV_ECART=5;           /* deux abscisses voisines s'écartent d'au moins 0,5 */
+const PTV_ESSAIS=200;        /* au-delà, le repli — mesuré : il ne sert jamais */
+/* Le programme de la demande, épinglé en première question : x = 2 et
+   fonction = 2*x+3, comme le carnet le pose. */
+const PTV_FICHE={a:2,b:3,dep:2};
+/* Le REPLI est réel, RELEVÉ SUR LE GÉNÉRATEUR, et il repasse par les gardes
+   MÊMES du tirage — le contrôle l'exige plutôt que de le supposer. Le premier,
+   inventé à la main, portait DEUX sorties sales sur cinq (« -0.20000000000000018 »
+   pour x = 1.2) : c'est exactement le défaut qu'on écarte, revenu par la porte
+   du secours. */
+const PTV_REPLI={a:4,b:-5,dep:3,ns:[1,29,55,65,89]};
+const PTV_AS=[2,3,4,5,6];    /* le coefficient : ni 0 ni 1, où « a*x » ne dirait rien */
+
+/* l'écriture PYTHON d'une abscisse rangée en dixièmes : 5 -> 0.5, 99 -> 9.9 */
+function ptvX(n){ return Math.floor(n/10)+'.'+(n%10); }
+/* son écriture FRANÇAISE, celle du tableau : 5 -> 0,5 */
+function ptvXfr(n){ return Math.floor(n/10)+','+(n%10); }
+/* le calcul, tel que le programme l'écrit (2*x+3) et tel que le tableau le
+   titre (2x + 3) — deux écritures d'une seule vérité, lues dans la question */
+function ptvExpr(q){ return q.a+'*x'+(q.b<0?'-'+(-q.b):'+'+q.b); }
+function ptvMaths(q){ return q.a+'x '+(q.b<0?'−':'+')+' '+Math.abs(q.b); }
+function ptvProg(q,x){ return 'x = '+x+'\nfonction = '+ptvExpr(q)+'\nprint(fonction)'; }
+/* ce que le programme AFFICHE pour cette abscisse — la fonction même que le
+   bouton « Exécuter » appelle */
+function ptvSortie(q,x){ return pyRun(ptvProg(q,x)).out.replace(/\n$/,''); }
+function ptvAns(q){ return q.ns.map(function(n){ return ptvSortie(q,ptvX(n)); }); }
+/* LE GARDE : la sortie doit être l'écriture décimale EXACTE à une décimale.
+   La valeur exacte se calcule en DIXIÈMES entiers, jamais en flottant. */
+function ptvPropre(a,b,n){
+  const e=a*n+10*b, m=Math.abs(e);
+  const att=(e<0?'-':'')+Math.floor(m/10)+'.'+(m%10);
+  let s=''; try{ s=ptvSortie({a:a,b:b},ptvX(n)); }catch(err){ return false; }
+  return s===att;
+}
+function ptvPropres(a,b){
+  const ok=[];
+  for(let n=1;n<=99;n++){ if(n%10===0) continue; if(ptvPropre(a,b,n)) ok.push(n); }
+  return ok;
+}
+/* cinq abscisses croissantes, distinctes, écartées d'au moins PTV_ECART —
+   collées, elles se taperaient toutes pareil et le tableau ne dirait rien */
+function ptvAbscisses(a,b){
+  const ok=ptvPropres(a,b);
+  if(ok.length<PTV_COLS) return null;
+  for(let essai=0;essai<PTV_ESSAIS;essai++){
+    const c=ensShuffle(ok.slice()).slice(0,PTV_COLS).sort(function(u,v){ return u-v; });
+    let bon=true;
+    for(let i=0;i+1<c.length;i++) if(c[i+1]-c[i]<PTV_ECART) bon=false;
+    if(bon) return c;
+  }
+  return null;
+}
+function ptvTirage(a,b,dep){
+  const ns=ptvAbscisses(a,b);
+  if(!ns) return JSON.parse(JSON.stringify(PTV_REPLI));
+  return {a:a,b:b,dep:dep,ns:ns};
+}
+/* LA SÉANCE : la fiche de la demande d'abord, puis un « + » et un « − » en
+   ordre mélangé. Les trois COEFFICIENTS sont distincts — sondé, un tirage
+   libre donnait deux fois le même « a » une séance sur deux, et trois
+   programmes qui commencent tous par « 2*x » se lisent comme un seul. */
+function ptvBuildQuestions(){
+  const qs=[ptvTirage(PTV_FICHE.a,PTV_FICHE.b,PTV_FICHE.dep)];
+  qs[0].dep=PTV_FICHE.dep;
+  const as=ensShuffle(PTV_AS.filter(function(a){ return a!==PTV_FICHE.a; })).slice(0,2);
+  ensShuffle([1,-1]).forEach(function(sgn,i){
+    qs.push(ptvTirage(as[i], sgn*rand(1,9), rand(1,9)));
+  });
+  return qs;
+}
+
+/* ---- Le juge ---- */
+/* Lire ce que l'élève a écrit : « 4 », « 4.0 », « 4,0 », « −0.7 » sont la même
+   valeur. On rend la fraction EXACTE (v / 10^k), jamais un flottant. */
+function ptvLire(s){
+  const t=String(s==null?'':s).replace(/\s/g,'').replace(/−/g,'-').replace(/,/g,'.');
+  if(!/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(t)) return null;
+  const neg=t.charAt(0)==='-', u=t.replace(/^[+-]/,'');
+  const pt=u.indexOf('.');
+  const ent=pt<0?u:u.slice(0,pt), dec=pt<0?'':u.slice(pt+1);
+  if(dec.length>9) return null;                 /* au-delà, ce n'est plus un nombre recopié */
+  const v=parseInt((ent+dec)||'0',10);
+  return {v:(neg?-v:v), k:dec.length};
+}
+/* Une case est juste si elle VAUT ce que le programme a affiché : on lit les
+   deux avec la même fonction, et on compare en entiers. */
+function ptvJuste(q,i,saisie){
+  const att=ptvLire(ptvSortie(q,ptvX(q.ns[i]))), r=ptvLire(saisie);
+  if(!att||!r) return false;
+  return r.v*Math.pow(10,att.k)===att.v*Math.pow(10,r.k);
+}
+function ptvCases(q){ return q.ns.map(function(n,i){ return {id:'ptv-c'+i}; }); }
+function ptvSaisies(){ return ptvCases(test.questions[test.idx]).map(function(c){ const e=$(c.id); return e?String(e.value).trim():''; }); }
+function ptvJuge(q,saisies){
+  return q.ns.map(function(n,i){
+    const s=String((saisies||[])[i]==null?'':(saisies||[])[i]).trim();
+    return {vide:s==='', ok:s!==''&&ptvJuste(q,i,s), att:ptvSortie(q,ptvX(n))};
+  });
+}
+
+/* ---- L'énoncé, le programme, le tableau ---- */
+/* L'ÉNONCÉ NOMME LE CALCUL DE SA QUESTION : écrit en dur, il annoncerait
+   « 2x + 3 » devant un programme qui en calcule un autre, sans qu'aucune
+   correction ne bronche — la leçon du numéro d'exercice de show(). */
+function ptvEnonceHTML(q){
+  return '<b>a)</b> Exécute le programme ci-dessous. <b>b)</b> Complète le tableau de valeurs de <code class="pyx-code">'
+    +esc(ptvMaths(q))+'</code>&nbsp;: pour chaque valeur de <i>x</i>, écris-la dans le programme, exécute-le et recopie ce qu’il affiche.';
+}
+function ptvProgHTML(q){
+  return '<div class="pyx-prog">'
+    +'<div class="pyx-ligne"><span class="pyx-num">1</span><span class="pyx-l1 ptv-lx">'+pyColorie('x = ')+'</span>'
+      +'<input class="ptv-x" id="ptv-x" type="text" inputmode="decimal" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="valeur de x dans le programme"></div>'
+    +'<div class="pyx-ligne"><span class="pyx-num">2</span><span class="pyx-l1">'+pyColorie('fonction = '+ptvExpr(q))+'</span></div>'
+    +'<div class="pyx-ligne"><span class="pyx-num">3</span><span class="pyx-l1">'+pyColorie('print(fonction)')+'</span></div>'
+    +'</div>';
+}
+function ptvTabHTML(q){
+  return '<div class="ptv-wrap"><table class="ptv-tab"><tbody>'
+    +'<tr><th><i>x</i></th>'+q.ns.map(function(n){ return '<td>'+ptvXfr(n)+'</td>'; }).join('')+'</tr>'
+    +'<tr><th>'+esc(ptvMaths(q))+'</th>'
+    +ptvCases(q).map(function(c,i){ return '<td><input class="ptv-in" id="'+c.id+'" type="text" inputmode="decimal" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="valeur pour x = '+ptvXfr(q.ns[i])+'" disabled></td>'; }).join('')
+    +'</tr></tbody></table></div>';
+}
+
+/* ---- Cycle de vie ---- */
+async function startPTV(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=ptvBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'ptv', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+ptvCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false, ptvOuv:[]});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('ptv'); renderPTV();
+}
+function renderPTV(){
+  const q=test.questions[test.idx]; test.locked=false;
+  /* les colonnes déjà ouvertes survivent à une pause : elles vivent dans
+     « test », que snapshotTest photographie en entier */
+  if(!Array.isArray(test.ptvOuv)||test.ptvOuv.length!==q.ns.length) test.ptvOuv=q.ns.map(function(){ return 0; });
+  $('ptvIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('ptvInstr').innerHTML=ptvEnonceHTML(q);
+  $('modeTagPTV').innerHTML=modeTagHTML();
+  $('ptvLiveScore').textContent=test.score;
+  $('ptvFeedback').textContent=''; $('ptvFeedback').className='mp-feedback';
+  $('ptvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptvValidate" onclick="checkPTV()">Vérifier</button>';
+  $('ptvHost').innerHTML=
+    '<div class="py-cell">'
+    +ptvProgHTML(q)
+    +'<div class="py-runrow"><button class="btn btn-primary" id="ptvRun" type="button" onclick="ptvExecuter()">▶ Exécuter le programme</button>'
+    +'<span class="py-hint" id="ptvRunHint">Écris une valeur de x à la ligne 1, puis exécute le programme.</span></div>'
+    +'<p class="py-label">Ce que le programme affiche</p>'
+    +'<pre class="py-console" id="ptvConsole"></pre>'
+    +'<p class="py-label">Le tableau de valeurs — recopie ce que le programme affiche</p>'
+    +ptvTabHTML(q)
+    +'<p class="ptv-etat" id="ptvEtat"></p>'
+    +'</div>';
+  const x=$('ptv-x');
+  if(x){
+    x.value=String(q.dep);
+    x.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); ptvExecuter(); } });
+  }
+  ptvCases(q).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.addEventListener('input', ptvModifiee);
+    /* Entrée dans une case du tableau ramène à la valeur de x, prête à être
+       remplacée : l'élève fait cinq allers-retours par question. */
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); const b=$('ptv-x'); if(b&&!b.disabled){ b.focus(); b.select(); } } });
+  });
+  ptvMaj();
+}
+/* L'ÉTAT DIT CE QU'IL RESTE À FAIRE, EN ÉCRITURE PYTHON — jamais les
+   résultats : c'est le chemin vers la case, pas la réponse. */
+function ptvMaj(){
+  const q=test.questions[test.idx], e=$('ptvEtat'); if(!e) return;
+  const reste=q.ns.filter(function(n,i){ return !test.ptvOuv[i]; });
+  const ouvertes=q.ns.length-reste.length;
+  ptvCases(q).forEach(function(c,i){
+    const inp=$(c.id); if(!inp||test.locked) return;
+    inp.disabled=!test.ptvOuv[i];
+    inp.title=test.ptvOuv[i]?'':'Exécute le programme avec x = '+ptvX(q.ns[i])+' pour ouvrir cette case';
+  });
+  e.innerHTML='<b>Colonnes ouvertes&nbsp;: '+ouvertes+'&nbsp;/&nbsp;'+q.ns.length+'.</b> '
+    +(reste.length
+      ? 'Pour ouvrir '+(reste.length>1?'une colonne':'la dernière')+', écris sa valeur à la ligne 1 du programme et exécute-le — il reste <code>x = '
+        +reste.map(ptvX).join('</code>, <code>x = ')+'</code>.'
+      : 'Le tableau est ouvert en entier : complète-le, puis vérifie.');
+}
+function ptvModifiee(){
+  if(test.locked) return;
+  ptvCases(test.questions[test.idx]).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const td=inp.parentNode, anc=td&&td.querySelector('.mf-cor'); if(anc) anc.remove();
+  });
+  const fb=$('ptvFeedback'); if(fb&&fb.className.indexOf('bad')>=0){ fb.textContent=''; fb.className='mp-feedback'; }
+}
+/* Une virgule tapée dans la case de x reçoit la RÈGLE, pas la SyntaxError
+   brute : le tableau écrit 0,5 et Python veut 0.5 — c'est le piège de
+   l'exercice, et il s'enseigne. */
+function ptvDiag(saisie,msg){
+  if(/\d\s*,\s*\d/.test(saisie)) return 'en Python, un nombre à virgule s’écrit avec un POINT — écris '+String(saisie).replace(/,/g,'.')+' et non '+saisie+'.';
+  if(!String(saisie).trim()) return 'la valeur de x est vide — écris un nombre à la ligne 1.';
+  return msg;
+}
+function ptvExecuter(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], x=$('ptv-x'), c=$('ptvConsole'); if(!x||!c) return;
+  const saisie=String(x.value).replace(/[\r\n]+/g,' ').trim();
+  let out='', err=false, val=null;
+  try{
+    const r=pyRun(ptvProg(q,saisie));
+    out=r.out;
+    if(r.env.x&&(r.env.x.t==='int'||r.env.x.t==='float')) val=r.env.x.v;
+  }catch(e){ out='Erreur : '+ptvDiag(saisie,e.message); err=true; }
+  c.textContent=out.replace(/\n$/,'');
+  c.classList.add('py-exec'); c.classList.toggle('pyx-err',err); c.classList.toggle('pyx-vide',!err&&!out);
+  /* LA COLONNE DONT C'EST LA VALEUR S'OUVRE, et elle reste ouverte. La
+     comparaison est EXACTE : « 0.2+0.1 » ne vaut pas 0.3, et son résultat ne
+     serait pas celui que le garde du tirage a validé. */
+  let ouverte=-1, colonne=-1;
+  if(val!==null) q.ns.forEach(function(n,i){ if(val===Number(ptvX(n))){ if(!test.ptvOuv[i]) ouverte=i; test.ptvOuv[i]=1; colonne=i; } });
+  ptvMaj();
+  const h=$('ptvRunHint');
+  if(h){
+    h.textContent=err
+      ? 'Le programme s’est arrêté : lis le message, corrige la ligne 1, puis relance.'
+      : (colonne>=0
+         ? 'x = '+saisie+' : recopie ce qui s’affiche dans la colonne ' + ptvXfr(q.ns[colonne]) + ' du tableau.'
+         : (val===null
+            ? 'Programme exécuté.'
+            : 'x = '+saisie+' n’est pas une colonne du tableau — le programme a quand même calculé sa valeur.'));
+  }
+  if(ouverte>=0){ const inp=$('ptv-c'+ouverte); if(inp&&!String(inp.value).trim()) inp.focus(); }
+}
+function checkPTV(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], cases=ptvCases(q), fb=$('ptvFeedback');
+  const saisies=ptvSaisies(), j=ptvJuge(q,saisies);
+  cases.forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const td=inp.parentNode, anc=td&&td.querySelector('.mf-cor'); if(anc) anc.remove();
+  });
+  /* UNE CASE VIDE N'EST JAMAIS PEINTE : on la redemande, sans colorer ni
+     verrouiller — rouge veut dire FAUX, jamais « pas fini » (la règle de
+     {placer-image}). Une colonne encore FERMÉE est vide elle aussi, et le
+     message dit alors le geste qui l'ouvre. */
+  const vides=j.filter(function(x){ return x.vide; }).length;
+  if(vides){
+    const fermees=test.ptvOuv.filter(function(o){ return !o; }).length;
+    fb.textContent='Il te manque '+vides+' valeur'+(vides>1?'s':'')+' dans le tableau'
+      +(fermees?' — écris leur valeur de x à la ligne 1 du programme, exécute-le, puis recopie ce qu’il affiche.':' : complète-'+(vides>1?'les':'la')+', puis vérifie.');
+    fb.className='mp-feedback bad';
+    const vide=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && !e.disabled && !String(e.value).trim(); });
+    if(vide) vide.focus(); else { const b=$('ptv-x'); if(b){ b.focus(); b.select(); } }
+    return;
+  }
+  j.forEach(function(x,i){ const inp=$(cases[i].id); if(inp) inp.classList.add(x.ok?'ok':'bad'); });
+  const justes=j.filter(function(x){ return x.ok; }).length, allOk=justes===j.length;
+  if(!allOk && isSoutien()){
+    fb.innerHTML='<b>Ce n’est pas ce que le programme affiche.</b> Reprends les colonnes en rouge&nbsp;: réécris leur valeur de x à la ligne 1, exécute le programme, et recopie ce qu’il affiche. Puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('ptvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptvValidate" onclick="checkPTV()">Revérifier</button>';
+    const bad=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && e.classList.contains('bad'); });
+    if(bad) setTimeout(function(){ bad.focus(); },40);
+    return;
+  }
+  test.locked=true;
+  cases.forEach(function(c){ const inp=$(c.id); if(inp) inp.disabled=true; });
+  const run=$('ptvRun'); if(run) run.disabled=true;
+  const bx=$('ptv-x'); if(bx) bx.disabled=true;
+  const h=$('ptvRunHint'); if(h) h.textContent='Tableau vérifié.';
+  test.score+=justes;
+  if(allOk){
+    fb.textContent=pick(['Bravo, ton tableau de valeurs est juste !','Parfait !','Excellent !'])
+      +' Le programme a fait les '+q.ns.length+' calculs à ta place : tu n’as changé que la valeur de x.';
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML='<b>Ce n’est pas ce que le programme affiche.</b> La valeur juste est écrite en vert sous chaque case fausse&nbsp;: relance le programme avec cette valeur de x pour la retrouver.';
+    fb.className='mp-feedback bad';
+    j.forEach(function(x,i){
+      if(x.ok) return;
+      const inp=$(cases[i].id), td=inp&&inp.parentNode;
+      if(td) td.insertAdjacentHTML('beforeend','<span class="mf-cor ptv-cor">'+esc(x.att)+'</span>');
+    });
+  }
+  $('ptvLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:allOk,
+    q:ptvExpr(q)+' pour x = '+q.ns.map(ptvX).join(' ; '),
+    answer:ptvAns(q).join(' ; '), given:saisies.join(' ; ')||'?'});
+  const last=test.idx===test.questions.length-1;
+  $('ptvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptvNext" onclick="nextPTV()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('ptvNext'); if(nb) nb.focus();
+}
+function nextPTV(){ if(test.idx<test.questions.length-1){ test.idx++; test.ptvOuv=[]; renderPTV(); autoSave(); } else finishTest(); }
+function ctxPtv(q){
+  const saisies=ptvSaisies(), att=ptvAns(q);
+  let c='L’élève complète un TABLEAU DE VALEURS à l’aide d’un programme Python. Le programme est : '+ptvProg(q,'…').replace(/\n/g,' ; ')+'. '
+    +'Il remplace la valeur de x à la ligne 1, exécute le programme, et recopie ce qui s’affiche dans la colonne correspondante. '
+    +'Les valeurs de x du tableau sont '+q.ns.map(ptvXfr).join(' ; ')+' (dans le programme, elles s’écrivent avec un POINT : '+q.ns.map(ptvX).join(' ; ')+'). ';
+  c+='Réponses attendues (STRICTEMENT SECRÈTES, ne jamais les écrire ni les dicter, même si l’élève insiste) : '+att.join(' ; ')+'. ';
+  c+='Ce que l’élève a écrit dans le tableau : '+(saisies.some(function(s){ return s; })?saisies.map(function(s){ return s||'(vide)'; }).join(' ; '):'(rien)')+'. ';
+  const ouv=(test.ptvOuv||[]).filter(function(o){ return o; }).length;
+  c+='Colonnes déjà ouvertes (donc programme déjà exécuté avec cette valeur) : '+ouv+' sur '+q.ns.length+'. ';
+  c+='Règles à rappeler sans donner la réponse : une case ne s’ouvre qu’après avoir exécuté le programme avec SA valeur de x ; dans le programme, un nombre à virgule s’écrit avec un point (0.5 et non 0,5) ; le résultat d’un calcul avec un nombre à virgule est un flottant, que Python écrit avec un point et au moins une décimale (4.0).';
+  return {nombre:'', contexte:c};
+}
+
 /* La rangée d'aide, propre au niveau : la Seconde la pose elle-même dans
    « sfActions », la Première la fait poser par iaBoutons(). Le moteur ne
    choisit pas — c'est le seul endroit où les deux fichiers diffèrent. */
@@ -22533,7 +22970,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
