@@ -3606,6 +3606,7 @@ function exercices(suite){
     signeDeriveeQcm(w, P);
     suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
+    etiquetteCourbeSeconde(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -21233,6 +21234,167 @@ function etiquetteCourbe(w, P){
     for(let i=0;i<100;i++) mesure(lvGenPts(i%2?2:3).pts, i%3===0);
     if(n<400) return 'le contrôle n\\'a mesuré que '+n+' courbes';
     return fautes.length ? fautes.length+' défaut(s) sur '+n+' courbes — '+fautes.slice(0,3).join(' ; ') : '';
+  })()`, v => v === '');
+}
+/* L'ÉTIQUETTE « Cf » DE LA SECONDE SE POSE AUSSI À CÔTÉ DE SA COURBE
+   (demande de Turquet, septembre 2026 : « même chose en seconde », après le
+   dessin des dérivées de la Terminale). Ses étiquettes ne se posaient DÉJÀ
+   plus dessus — etqLibre construit chaque place au-dessus ou au-dessous de la
+   courbe échantillonnée —, mais la boîte qu'elle écartait était SUPPOSÉE
+   30 × 17 quand l'encre en fait 15,5 × 21,2 : l'étiquette débordait de 2 px en
+   haut et de 2,2 px en bas, et les 4 px d'air se réduisaient à moins de 2.
+   Mesuré avant tout correctif : 684 étiquettes sur 1200 à moins de 3 px de
+   leur courbe.
+   Le contrôle ne fait AUCUNE confiance au placement de la page : il lit le SVG
+   qu'elle ÉCRIT — la position de CHAQUE étiquette, le chemin de CHAQUE courbe,
+   les lignes des axes —, rééchantillonne lui-même les Bézier, et mesure la
+   distance de la boîte RENDUE (relevée au getBBox sur les vraies polices) à
+   toutes les courbes du même dessin. Trois bords : jamais sur une courbe
+   (≥ 3 px, la marge de la page moins la tolérance de l'échantillonnage),
+   jamais LOIN (≤ 17 px — une étiquette posée dans un coin ne nommerait plus
+   rien ; la page borne le balayage à ETQ_MARGE + 10, soit 15, et le contrôle
+   mesure l'ENCRE là où la page mesure sa boîte réservée, 0,8 px plus haute en
+   bas : 15,4 px ont été mesurés sur une page juste, et une borne à 16 n'aurait
+   laissé que 0,6 px de marge à un banc. Les places calées, elles, mesurent au
+   plus 7,7 px), et dans le dessin, hors des deux axes. Les SIX
+   dessins qui portent une étiquette y passent, « Cg » comprise : le petit
+   dessin, le grand, les deux dessins à deux courbes, la synthèse et les
+   petites cartes du QCM — 800 étiquettes.
+   Il COMPTE aussi les REPLIS et les refuse : le repli prend la place la moins
+   mauvaise, sans marge garantie — elle peut tomber à côté par chance, et une
+   propriété heureuse n'est pas une propriété tenue. */
+function etiquetteCourbeSeconde(w, P){
+  const nom = 'l’étiquette de courbe se pose à côté de la courbe, jamais dessus (les six dessins)';
+  const present = evaluer(w, "typeof lvGraphSVG==='function' && typeof adrSVG==='function' && typeof etqLibre==='function' && typeof ETQ_MARGE!=='undefined'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n’a pas le moteur de dessin de la Seconde (lvGraphSVG / adrSVG / etqLibre)');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const fautes=[]; let n=0, etq=0;
+    /* la boîte que Chromium REND, relevée au getBBox sur les vraies polices :
+       Nunito 800 italique 15 px pour « Cf », Fredoka 700 15 px pour « Cg » —
+       15,5 px de large, 15 px au-dessus de la ligne de base, 6,2 px dessous */
+    const boite=function(x,y){ return {l:x, r:x+16, t:y-15, b:y+6.2}; };
+    const bezier=function(d, out){
+      const nums=d.match(/-?[\\d.]+/g).map(Number);
+      let prec=[nums[0],nums[1]]; out.push(prec);
+      for(let i=2;i+5<nums.length;i+=6){
+        const Q=[prec,[nums[i],nums[i+1]],[nums[i+2],nums[i+3]],[nums[i+4],nums[i+5]]];
+        for(let k=1;k<=40;k++){ const t=k/40,u=1-t;
+          out.push([u*u*u*Q[0][0]+3*u*u*t*Q[1][0]+3*u*t*t*Q[2][0]+t*t*t*Q[3][0],
+                    u*u*u*Q[0][1]+3*u*u*t*Q[1][1]+3*u*t*t*Q[2][1]+t*t*t*Q[3][1]]); }
+        prec=Q[3];
+      }
+    };
+    const mesure=function(svg, tag){
+      n++;
+      /* TOUTES les courbes du dessin : la spline de f, et la droite ou la
+         spline de g — une étiquette libre de SA courbe peut tomber sur l'autre */
+      const ech=[];
+      let m, re=/class="(?:lv-curve|eqg-g)"[^>]*\\sd="([^"]+)"/g;
+      while((m=re.exec(svg))) bezier(m[1], ech);
+      re=/<line class="eqg-g" x1="([-\\d.]+)" y1="([-\\d.]+)" x2="([-\\d.]+)" y2="([-\\d.]+)"/g;
+      while((m=re.exec(svg))){ const x1=+m[1],y1=+m[2],x2=+m[3],y2=+m[4];
+        for(let k=0;k<=80;k++){ const t=k/80; ech.push([x1+(x2-x1)*t, y1+(y2-y1)*t]); } }
+      if(!ech.length){ fautes.push(tag+' : aucune courbe dans le dessin'); return; }
+      const vb=svg.match(/viewBox="0 0 ([\\d.]+) ([\\d.]+)"/);
+      if(!vb){ fautes.push(tag+' : viewBox introuvable'); return; }
+      const VW=+vb[1], VH=+vb[2];
+      const ax=svg.match(/<line x1="[\\d.]+" y1="([\\d.]+)" x2="[\\d.]+" y2="[\\d.]+" class="lv-axis"\\/><line x1="([\\d.]+)"/);
+      if(!ax){ fautes.push(tag+' : axes introuvables'); return; }
+      const y0=+ax[1], x0=+ax[2];
+      const textes=[];
+      re=/<text x="([-\\d.]+)" y="([-\\d.]+)" class="lv-cf">/g;
+      while((m=re.exec(svg))) textes.push(['Cf', +m[1], +m[2]]);
+      re=/<text class="eqg-cg" x="([-\\d.]+)" y="([-\\d.]+)">/g;
+      while((m=re.exec(svg))) textes.push(['Cg', +m[1], +m[2]]);
+      if(!textes.length){ fautes.push(tag+' : aucune étiquette de courbe'); return; }
+      textes.forEach(function(t){
+        etq++;
+        const B=boite(t[1], t[2]);
+        let dm=Infinity;
+        for(let i=0;i<ech.length;i++){ const p=ech[i];
+          const dx=Math.max(B.l-p[0],0,p[0]-B.r), dy=Math.max(B.t-p[1],0,p[1]-B.b);
+          const d=Math.hypot(dx,dy); if(d<dm) dm=d; }
+        const ou=tag+' — '+t[0]+' en ('+t[1].toFixed(0)+', '+t[2].toFixed(0)+')';
+        if(dm<3) fautes.push(ou+' : SUR la courbe ('+dm.toFixed(1)+' px)');
+        else if(dm>17) fautes.push(ou+' : loin de la courbe ('+dm.toFixed(1)+' px)');
+        if(B.l<0||B.r>VW||B.t<0||B.b>VH) fautes.push(ou+' : hors du dessin');
+        const croise=function(l,r,t2,b){ return B.r>l && B.l<r && B.b>t2 && B.t<b; };
+        if(croise(0, VW, y0-1, y0+16)) fautes.push(ou+' : sur l\\'axe des x ou ses nombres');
+        if(croise(x0-22, x0+2, 0, VH)) fautes.push(ou+' : sur l\\'axe des y ou ses nombres');
+      });
+    };
+    /* LE REPLI EST COMPTÉ, ET IL DOIT RESTER À ZÉRO. etqLibre balaie le dessin
+       plutôt que de renoncer ; quand même le balayage ne trouve rien, elle
+       prend la place la MOINS MAUVAISE, qui n'a aucune marge garantie — elle
+       peut tomber à côté par chance, et une propriété heureuse n'est pas une
+       propriété tenue. On enveloppe donc la fonction de la page pour relever ce
+       qu'elle rend, et on la REND en sortant (le piège documenté du double volé
+       au voisin). */
+    let replis=0;
+    const vraiEtqLibre=etqLibre;
+    etqLibre=function(){ const r=vraiEtqLibre.apply(null, arguments); if(r && r.place===-1) replis++; return r; };
+    for(let i=0;i<80;i++) mesure(lvGraphSVG(lvGenPts(i%2?2:3).pts), 'lvGraphSVG');
+    for(let i=0;i<80;i++) mesure(adrSVG({pts:adrGenPts()}), 'adrSVG');
+    for(let i=0;i<80;i++){ const q=eqgGen();
+      mesure(lvGraphSVG(q.pts, eqgExtra(q,false), null, null, eqgObst(q)), '{equation-graphique}');
+      mesure(lvGraphSVG(q.pts, eqgCarteExtra(q,'bon'), null, null, eqgObst(q)), '{equation-graphique} (carte)'); }
+    for(let i=0;i<80;i++){ const q=ifgGen();
+      mesure(lvGraphSVG(q.ptsF, ifgExtra(q,false), q.domF[0]+3, q.domF[1]+3, ifgObst(q)), '{lecture-deux-courbes}'); }
+    for(let i=0;i<80;i++){ const q=synGen();
+      mesure(adrSVG({pts:q.pts, ia:q.ia, ib:q.ib, dr:null, rep:[]}, null, synDessus(q), synObst(q)), '{synthese-fonction}'); }
+    etqLibre=vraiEtqLibre;
+    /* LE BALAYAGE, ÉPROUVÉ DIRECTEMENT. Il ne sort qu'un dessin sur quelques
+       centaines au tirage — 18 fois sur 1600 dessins du 2.6, jamais ailleurs,
+       mesuré : un contrôle qui l'attendrait ne le rencontrerait qu'une fois sur
+       plusieurs exécutions, et son sabotage resterait vert en parlant d'autre
+       chose. On le force donc, sur de VRAIES courbes, en ne
+       donnant AUCUNE abscisse candidate : les places calées n'ont alors rien à
+       proposer et seul le balayage peut répondre. Il doit rendre une place
+       (jamais le repli), à côté de la courbe et pas loin. */
+    let nb=0;
+    const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
+    const sx=function(x){ return PL+(x-XA)/(XB-XA)*(PR-PL); };
+    const sy=function(y){ return PB-(y-YA)/(YB-YA)*(PB-PT); };
+    const cadre={PL:PL,PR:PR,PT:PT,PB:PB,x0:sx(0),y0:sy(0)};
+    for(let i=0;i<40;i++){
+      /* la moitié des cas sur le dessin ENCOMBRÉ du 2.6, et pour « Cg » — la
+         seconde étiquette, qui doit éviter la courbe de f ET « Cf » déjà
+         posée. C'est là que la borne HAUTE du balayage se joue : une place
+         libre peut y être à 6 px de la courbe de f et à 32 px de la droite
+         qu'elle nomme, et elle ne nomme alors plus rien. */
+      let e, o=null;
+      if(i%2){ const pts=lvGenPts(i%3?2:3).pts; e=lvEchantillon(pts,-3,lvTangents(pts),sx,sy,0,6); }
+      else { const q=ifgGen();
+        const eF=lvEchantillon(q.ptsF,-3,lvTangents(q.ptsF),sx,sy,q.domF[0]+3,q.domF[1]+3);
+        e=ifgEchG(q,sx,sy);
+        const rf=etqLibre(eF,cadre,etqCandidats(-3+q.domF[0]+3,-3+q.domF[1]+3,0.85).map(sx),ETQ_W,ETQ_H,e);
+        o=eF.concat(etqObstBoite({x:rf.x,y:rf.y-ETQ_MONTEE,w:ETQ_W,h:ETQ_H})); }
+      const r=etqLibre(e,cadre,[],ETQ_W,ETQ_H,o);
+      nb++;
+      if(r.place!==-2){ fautes.push('balayage : sans abscisse candidate, etqLibre rend '+(r.place===-1?'le repli':'une place calée')); continue; }
+      const B={l:r.x, r:r.x+16, t:r.y-15, b:r.y+6.2};
+      /* l'écart à SA courbe est borné des deux côtés, l'écart aux autres
+         seulement par le bas : une étiquette doit rester près de ce qu'elle
+         nomme, et seulement loin du reste */
+      const ecart=function(pts){ let d=Infinity;
+        for(let k=0;k<pts.length;k++){ const p=pts[k];
+          const dx=Math.max(B.l-p[0],0,p[0]-B.r), dy=Math.max(B.t-p[1],0,p[1]-B.b);
+          const q=Math.hypot(dx,dy); if(q<d) d=q; }
+        return d; };
+      const dm=ecart(e);
+      if(dm<3) fautes.push('balayage : SUR la courbe ('+dm.toFixed(1)+' px)');
+      else if(dm>17) fautes.push('balayage : loin de la courbe qu\\'elle nomme ('+dm.toFixed(1)+' px)');
+      if(o && ecart(o)<3) fautes.push('balayage : sur l\\'autre courbe ou sur l\\'autre étiquette ('+ecart(o).toFixed(1)+' px)');
+      if(B.l<PL||B.r>PR+6||B.t<PT||B.b>PB) fautes.push('balayage : hors du dessin');
+    }
+    if(nb<40) return 'le balayage n\\'a été éprouvé que '+nb+' fois';
+    if(n<400) return 'le contrôle n\\'a mesuré que '+n+' dessins';
+    if(etq<n) return 'le contrôle n\\'a mesuré que '+etq+' étiquettes sur '+n+' dessins';
+    if(replis) fautes.push(replis+' pose(s) par le repli — la place la moins mauvaise, sans marge garantie');
+    return fautes.length ? fautes.length+' défaut(s) sur '+etq+' étiquettes ('+n+' dessins) — '+fautes.slice(0,3).join(' ; ') : '';
   })()`, v => v === '');
 }
 function variationsDerivee(w, P){
