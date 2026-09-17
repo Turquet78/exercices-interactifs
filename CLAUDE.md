@@ -3354,6 +3354,83 @@ sur un bouton disparu (« Cannot read properties of null ») au lieu de nommer
 quoi que ce soit — un contrôle qui plante ne dit rien du défaut visé, et il
 garde son bouton désormais.
 
+**Changer les valeurs, et tout ce qui se calcule SUIT.** {python-changer-valeurs}
+(Seconde, 5.9, demande de Turquet, septembre 2026 — « en seconde faire un
+exercice comme le pdf ») est l'exercice 12 du carnet : `a = 6`, `b = 5`,
+`somme = a + b`, `produit = a * b`, deux `print`, et ses deux consignes —
+« a) Exécuter le programme ci-dessous. b) Changer les valeurs des variables
+a et b et exécuter à nouveau. » Il ferme le thème 5 ; ajouté en dernier, il
+ne renumérote rien.
+**CE QU'IL FAIT TRAVAILLER EST LA VARIABLE CALCULÉE, et aucun exercice du
+thème ne la posait** : partout ailleurs une variable reçoit un LITTÉRAL
+(`note = 12`, `prenom = "Louane"`). Ici `somme = a + b` range le RÉSULTAT du
+calcul, pas le calcul — et tout ce qui en découle suit quand a et b changent.
+C'est ce que le b) du carnet fait voir, et c'est la moitié la plus importante
+de l'exercice.
+**L'ORDRE DU CARNET EST RENVERSÉ, comme au 5.1** : sur un notebook le
+professeur est à côté ; ici, un bouton cliquable avant la réponse
+transformerait la question en recopie. L'élève PRÉDIT ce que le programme va
+afficher — la somme et le produit, dans deux cases —, puis « Exécuter » se
+débloque et il voit. « Question suivante » attend l'exécution : voir le
+programme tourner est le a) de la fiche, pas une option ; et en soutien une
+copie fausse le laisse verrouillé, la sortie ÉTANT la réponse.
+**DEUX VISAGES, LES DEUX TEMPS DE LA FICHE** : « donne » (le a) — a et b sont
+ÉCRITS par la page ; « change » (le b) — les deux premières lignes portent des
+CASES, pré-remplies avec les valeurs d'origine, et c'est l'élève qui les
+change, comme on modifie une ligne dans un notebook. La séance ouvre sur la
+fiche du carnet épinglée (visage « donne », a = 6 et b = 5), les suivantes
+sont en « change » : l'ordre du carnet, et PCV_NB en est la structure, pas un
+réglage — `tests/profils.js` en est la seconde source.
+**LA CONSIGNE « CHANGE LES VALEURS » EST TENUE PAR L'ÉTAT DU BOUTON** (le
+motif de {placer-image}) : « Vérifier » ne juge RIEN tant que les deux cases
+ne portent pas un entier, ou tant qu'aucune des deux valeurs n'a bougé — et le
+message dit lequel des deux manque, sans rien peindre : rouge veut dire FAUX,
+jamais « pas fini ». Les valeurs de a et b ne sont PAS des réponses et ne
+comptent dans aucune note : la fiche dit « changer », elle ne dit pas
+« changer en 12 ».
+**LE RISQUE PROPRE EST SILENCIEUX** : la phrase de prédiction reprend le texte
+des `print` AVEC LES VALEURS COURANTES, et elle se réécrit à chaque frappe.
+Figée, elle ferait prédire sur des valeurs que le programme ne porte plus —
+une lecture juste comptée fausse, le pire défaut du projet : la leçon du
+numéro d'exercice de `show()`, transposée. Le banc jsdom l'exige, et le banc
+navigateur la mesure sous un VRAI clavier.
+**LA VALEUR ATTENDUE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION** : elle est
+lue dans `pyRun(pcvProg(…)).env` — la fonction MÊME qui exécute le programme
+sous le bouton —, si bien que la correction ne peut pas contredire la console.
+La question ne porte que les noms, les valeurs de départ et le visage ; le
+contrôle refuse tout autre champ. Et **la valeur n'est jamais presque bonne**
+— la doctrine de `pyTexteProche` prise du côté des nombres : les espaces ne
+comptent pas, un chiffre de trop est FAUX.
+**LES ZÉROS DE TÊTE SONT REFUSÉS, et c'est une divergence évitée plutôt que
+subie** : `007` est une erreur de syntaxe en Python 3, quand l'interpréteur de
+la page, lui, l'accepterait — le banc, qui compare à un vrai CPython, l'aurait
+nommée. Une valeur est donc un entier de quatre chiffres au plus, signe
+compris : le produit le plus grand reste très en deçà de ce que l'interpréteur
+sait faire, et un négatif ou un zéro restent du Python valide, que l'exercice
+accepte.
+**LE BOUTON DES TABLES EST LÀ, et c'est le seul exercice Python qui l'ait** :
+`produit = a * b` est un calcul de table, et le bouton n'est proposé que là où
+il SERT. Les sept autres sont dans `TABLES_SANS` ; celui-ci n'y entre pas, et
+les deux sources le disent.
+**Aucune correction au fil de la frappe** (`soutienEnDirect.sans`) : colorer
+la prédiction pendant qu'on la tape la transformerait en tâtonnement — l'élève
+corrigerait jusqu'au bleu sans jamais prédire, et prédire EST l'exercice.
+C'est l'argument du 5.1 (« à quatre propositions, il suffirait d'essayer »),
+transposé à une case qu'on tape.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée (si elle
+ne passe pas au juge, c'est le juge qui a tort), la lecture d'une valeur, le
+tirage et ses deux visages, les trois portes, la phrase qui suit, la case vide
+jamais peinte, le soutien, les branchements, et compare l'interpréteur à un
+vrai CPython ; le NAVIGATEUR (« 6 tricies octies », déclaré par
+`pythonChangerValeurs` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — les six lignes du programme RENDUES à chasse fixe avec les cases de
+valeur à la MÊME taille que le code, la case de prédiction à la taille des
+nombres de sa phrase (le contrôle universel ne mesure que les `math-field`, et
+celles-ci sont des `input`), un VRAI clic sur « Exécuter » verrouillé qui ne
+fait rien, les valeurs TAPÉES au clavier et la phrase qui les suit sous les
+doigts, l'encre RENDUE des verdicts, la console, et la page qui ne déborde pas
+sur un téléphone.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
