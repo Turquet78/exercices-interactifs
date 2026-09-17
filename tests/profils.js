@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -698,7 +698,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1026,6 +1026,30 @@ module.exports = {
     pythonTableauValeurs: { exercice: 'python-tableau-valeurs', nb: 3, cols: 5, ecart: 5,
                             fiche: { lignes: ['x = 2', 'fonction = 2*x+3', 'print(fonction)'],
                                      sortie: '7', calcul: '2x + 3' } },
+    /* {python-changer-valeurs} : l'exercice 12 du carnet — un programme qui
+       range deux CALCULS (somme = a + b, produit = a * b), qu'on exécute,
+       puis dont on CHANGE les valeurs pour l'exécuter à nouveau (demande de
+       Turquet, septembre 2026). L'ordre du carnet est renversé, comme au
+       5.1 : l'élève PRÉDIT avant d'exécuter. « nb » est la SECONDE source du
+       nombre de questions : ce n'est pas un réglage, c'est la structure de la
+       séance — la fiche du carnet (valeurs DONNÉES, le a) en tête, puis les
+       suivantes en valeurs À CHANGER (le b). « fiche » est celle du carnet,
+       épinglée ; « sortie » ce qu'elle affiche, l'espace de « est égal à »
+       comprise, que print double en séparant ses arguments — lire la page
+       pour la comparer à elle-même ne prouverait rien. Le banc jsdom tient la
+       fiche, le tirage, le juge, les trois portes et la phrase de prédiction
+       qui SUIT les valeurs ; le navigateur TAPE les valeurs et les
+       prédictions dans les vraies cases, clique Vérifier puis Exécuter, et
+       relit la console et l'encre RENDUES.
+       IL N'EST PAS DANS « tablesAide.sans », et c'est le seul exercice Python
+       qui n'y soit pas : « produit = a * b » est un calcul de table, et le
+       bouton n'est proposé que là où il SERT. */
+    pythonChangerValeurs: { exercice: 'python-changer-valeurs', nb: 3,
+                            fiche: { prog: ['a = 6', 'b = 5', 'somme = a + b', 'produit = a * b',
+                                            'print("La somme de",a,"et",b,"est \u00e9gal \u00e0 ",somme)',
+                                            'print("Le produit de",a,"et",b,"est \u00e9gal \u00e0 ",produit)'],
+                                     somme: '11', produit: '30',
+                                     sortie: 'La somme de 6 et 5 est \u00e9gal \u00e0  11\nLe produit de 6 et 5 est \u00e9gal \u00e0  30\n' } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
