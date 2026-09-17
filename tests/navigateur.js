@@ -2583,8 +2583,9 @@ async function parcours(page, N){
            pour obtenir un rouge GARANTI — un contrôle qui mesurerait une case
            parfois juste serait intermittent, le péché documenté. Puis le clic
            du bouton obtient la réponse du double (« Indice de contrôle. »),
-           et reprendre la case efface la bulle. ----- */
-        let bulle = null, bulleClic = null, bulleReprise = null, bulleSouci = '';
+           et la MODIFIER l'efface — y entrer, non : la page pose elle-même le
+           curseur dans la première case rouge après une vérification. ----- */
+        let bulle = null, bulleClic = null, bulleEntre = null, bulleReprise = null, bulleSouci = '';
         try{
           let rouge = false;
           for(const v of ['9', '4']){
@@ -2680,12 +2681,21 @@ async function parcours(page, N){
               return { texte: (fb && fb.textContent) || '',
                        visible: !!fb && fb.getBoundingClientRect().height > 0 };
             });
-            await boite.click();
-            await s.page.waitForTimeout(150);
-            bulleReprise = await s.page.evaluate(() => {
+            /* ENTRER dans la case ne l'efface plus : après une vérification,
+               la page pose elle-même le curseur dans la première case rouge,
+               et la bulle s'éteindrait 40 ms après être née. La MODIFIER
+               l'efface — reprendre sa case, c'est la CORRIGER. */
+            const cachee = () => s.page.evaluate(() => {
               const b = document.getElementById('bexpBulle');
               return !b || b.getBoundingClientRect().height === 0;
             });
+            await boite.click();
+            await s.page.waitForTimeout(150);
+            bulleEntre = !(await cachee());
+            await s.page.keyboard.press('Control+a');
+            await s.page.keyboard.type('7', { delay: 40 });
+            await s.page.waitForTimeout(250);
+            bulleReprise = await cachee();
           }
         }catch(e){ bulleSouci = e.message; }
         verifier('en soutien, une case rouge quittée fait paraître la bulle « Comprendre mon erreur »',
@@ -2723,11 +2733,137 @@ async function parcours(page, N){
         verifier('le bouton de la bulle obtient une explication du modèle, affichée dedans',
           !!bulleClic && bulleClic.visible && bulleClic.texte.indexOf('Indice de contrôle') >= 0,
           bulleSouci || 'réponse affichée : « ' + ((bulleClic && bulleClic.texte) || '') + ' »');
-        verifier('reprendre la case efface la bulle',
-          bulleReprise === true,
-          bulleSouci || 'la bulle reste affichée pendant que l\'élève corrige sa case');
+        verifier('entrer dans la case n\'efface plus la bulle ; la MODIFIER l\'efface',
+          bulleEntre === true && bulleReprise === true,
+          bulleSouci || 'à l\'entrée dans la case : ' + bulleEntre + ', après la frappe : ' + bulleReprise);
 
         verifier('le garde de la saisie n\'a levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 septies decies. la bulle que lève la VÉRIFICATION ===== */
+    /* Demande de Turquet (septembre 2026) : « en mode soutien, pour la partie
+       algorithme en Seconde, je veux qu'il y ait des bulles qui apparaissent
+       dès qu'une case est fausse, comme ça devrait être la règle pour tous
+       les exercices. » Un exercice SANS correction en direct ne peint qu'au
+       clic sur « Vérifier », et l'élève n'y quitte alors aucune case : la
+       bulle n'y paraissait JAMAIS.
+
+       jsdom mesure le MÉCANISME sur des cases posées à la main ; ici c'est le
+       GESTE — un vrai exercice de la partie Algorithmique et Python, une copie
+       fausse choisie dans les vraies listes, un vrai clic sur « Vérifier » —
+       et le RECTANGLE, jamais la propriété hidden ([hidden] pose display:none
+       depuis la feuille du NAVIGATEUR, le piège documenté).
+
+       ET LE BORD QUE SEUL UN NAVIGATEUR VOIT EST LE CURSEUR : la page pose
+       elle-même le curseur dans la première case rouge, 40 ms après la
+       vérification. La bulle doit y SURVIVRE — c'est pour cela que « reprendre
+       sa case » est devenu « la CORRIGER ». */
+    titre('6 septies decies. LA VÉRIFICATION LÈVE LA BULLE « COMPRENDRE MON ERREUR »');
+    if(!P.bulleVerification){
+      ignorer('la vérification lève la bulle « Comprendre mon erreur »',
+        'ce niveau ne déclare pas d\'exercice témoin sans correction en direct');
+    } else {
+      const BV = P.bulleVerification;
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('la vérification lève la bulle « Comprendre mon erreur »',
+          'connexion impossible — rien à mesurer');
+      } else {
+        await s.page.evaluate(id => openTest(id), BV.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='soutien'") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(800);
+        let posees = 0, m = null, apres = null, souci = '';
+        try{
+          await s.page.waitForSelector(BV.cases, { timeout: 8000 });
+          posees = await s.page.evaluate(code => eval(code), BV.faux);
+          await s.page.click(BV.valider);
+          /* on mesure APRÈS le curseur que la page pose elle-même (40 ms) */
+          await s.page.waitForTimeout(700);
+          m = await s.page.evaluate(() => {
+            const b = document.getElementById('bexpBulle');
+            const r = b ? b.getBoundingClientRect() : null;
+            const rouges = [...document.querySelectorAll('.screen.on .bad')];
+            const cas = rouges[0] || null;
+            const btn = b && b.querySelector('[data-bexp-btn]');
+            const cmd = document.getElementById('testCtrls');
+            const rc = cmd ? cmd.getBoundingClientRect() : null;
+            const chev = (a, o) => !(a.right <= o.left || a.left >= o.right ||
+                                     a.bottom <= o.top || a.top >= o.bottom);
+            const recouvre = sel => (!r || !cas) ? -1 : [...document.querySelectorAll(sel)]
+              .filter(e => e !== cas && !e.contains(cas))
+              .map(e => e.getBoundingClientRect())
+              .filter(o => o.width > 0 && o.height > 0 && chev(r, o)).length;
+            const couvertes = recouvre('.screen.on input,.screen.on select,' +
+              '.screen.on textarea,.screen.on math-field,.screen.on .pts-case');
+            /* et aucun BOUTON : la bulle paraît au moment précis où la rangée
+               d'actions dit « Revérifier » — posée dessus, elle le rendrait
+               incliquable, et l'élève ne pourrait plus rien vérifier. */
+            const boutons = recouvre('.screen.on button');
+            return {
+              rouges: rouges.length,
+              verrou: !!(typeof test !== 'undefined' && test.locked),
+              visible: !!r && r.width > 0 && r.height > 0,
+              l: r ? Math.round(r.width) : 0, h: r ? Math.round(r.height) : 0,
+              bouton: !!btn && !btn.hidden,
+              surLaPremiere: !!cas && bexpCase === cas,
+              curseur: !!cas && document.activeElement === cas,
+              cote: (b && b.dataset.bexpCote) || '',
+              couvertes: couvertes, boutons: boutons,
+              surCommandes: (r && rc) ? chev(r, rc) : false,
+            };
+          });
+          /* et la MODIFIER l'efface : c'est ça, reprendre sa case */
+          const prem = s.page.locator(BV.cases).first();
+          const choix = await prem.evaluate(e => {
+            const l = [].slice.call(e.options);
+            for(let i = 0; i < l.length; i++){
+              if(!l[i].disabled && l[i].value !== '' && i !== e.selectedIndex) return i;
+            }
+            return -1;
+          });
+          if(choix >= 0){
+            await prem.selectOption({ index: choix });
+            await s.page.waitForTimeout(300);
+            apres = await s.page.evaluate(() => {
+              const b = document.getElementById('bexpBulle');
+              return !b || b.getBoundingClientRect().height === 0;
+            });
+          }
+        }catch(e){ souci = e.message; }
+
+        verifier('la copie fausse est posée et la vérification laisse des cases rouges',
+          posees > 0 && !!m && m.rouges > 0 && m.verrou === false,
+          souci || 'cases faussées : ' + posees + ', cases rouges après vérification : ' +
+            (m && m.rouges) + ', écran verrouillé : ' + (m && m.verrou) +
+            ' (rien de rouge = le contrôle ne mesure rien)');
+        verifier('la bulle paraît à la VÉRIFICATION, sur la première case rouge, bouton offert',
+          !!m && m.visible === true && m.l > 0 && m.h > 0 && m.bouton === true && m.surLaPremiere === true,
+          souci || 'bulle mesurée : ' + JSON.stringify(m || {}));
+        verifier('la page pose le curseur dans la case rouge, et la bulle y SURVIT',
+          !!m && m.curseur === true && m.visible === true,
+          souci || (m && m.curseur === false
+            ? 'la page n\'a pas posé le curseur dans la case rouge : le bord n\'est pas mesuré'
+            : 'la bulle s\'est éteinte au moment où la page a posé le curseur'));
+        verifier('elle ne recouvre ni les commandes du bas, ni une autre case, ni un BOUTON',
+          !!m && m.surCommandes === false && m.couvertes === 0 && m.boutons === 0,
+          souci || ((m && m.couvertes === -1)
+            ? 'aucune bulle à mesurer : le contrôle d\'au-dessus dit pourquoi'
+            : 'commandes recouvertes : ' + (m && m.surCommandes) +
+              ', cases recouvertes : ' + (m && m.couvertes) +
+              ', boutons recouverts : ' + (m && m.boutons) +
+              ' (un bouton sous la bulle, c\'est « Revérifier » devenu incliquable)'));
+        verifier('changer la réponse efface la bulle — reprendre sa case, c\'est la CORRIGER',
+          apres === true,
+          souci || 'la bulle reste affichée alors que l\'élève vient de changer sa réponse');
+        verifier('la bulle de la vérification n\'a levé aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
       await s.nav.close(); s = null;
@@ -8236,6 +8372,384 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies nonies. le tableau de valeurs se remplit en exécutant ===== */
+    /* {python-tableau-valeurs} : ce que jsdom ne peut pas voir — le programme
+       et le tableau RENDUS, la case de x posée DANS la ligne 1 à la chasse et
+       à la taille du code, une VRAIE frappe au clavier puis un VRAI clic sur
+       « Exécuter », les colonnes fermées qui se VOIENT (grisées, en
+       pointillés), l'encre RENDUE des verdicts et de la valeur juste en vert,
+       et la page qui ne déborde pas sur un téléphone. */
+    titre('6 tricies nonies. LE TABLEAU DE VALEURS SE REMPLIT EN EXÉCUTANT LE PROGRAMME');
+    if(!P.pythonTableauValeurs){
+      ignorer('le tableau de valeurs se remplit en exécutant le programme', 'ce niveau n\'a pas l\'exercice du tableau de valeurs');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonTableauValeurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      /* LES TROIS ENCRES DE LA CONVENTION, résolues par le navigateur : l'encre
+         de REPOS d'une case est déjà un bleu nuit, si bien qu'une règle « .ok »
+         qui ne peindrait plus rien passerait pour du bleu à la dominante — le
+         piège payé sur {python-print}. On compare à la VARIABLE. */
+      const encres = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        const lire = v => { t.style.color = 'var(' + v + ')'; return getComputedStyle(t).color; };
+        const o = { blue: lire('--blue'), red: lire('--red'), green: lire('--green'), ink: lire('--ink') };
+        t.remove(); return o;
+      });
+      const q = await s.page.evaluate(() => {
+        const q = test.questions[test.idx];
+        return { dep: String(q.dep), xs: q.ns.map(n => ptvX(n)), fr: q.ns.map(n => ptvXfr(n)),
+                 sorties: q.ns.map(n => ptvSortie(q, ptvX(n))), depSortie: ptvSortie(q, String(q.dep)), calcul: ptvMaths(q) };
+      });
+      const avant = await s.page.evaluate(() => {
+        const host = document.getElementById('ptvHost'), r = e => e.getBoundingClientRect();
+        const fam = e => getComputedStyle(e).fontFamily, px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const l = [...host.querySelectorAll('.pyx-l1')], x = document.getElementById('ptv-x');
+        const cases = [...host.querySelectorAll('.ptv-in')], tab = host.querySelector('.ptv-tab');
+        const boite = host.querySelector('.ptv-wrap');
+        return { lignes: l.length, policeL: l.map(fam), pxL: l.map(px),
+                 xVisible: r(x).width > 30 && r(x).height > 20, policeX: fam(x), pxX: px(x),
+                 /* la case de x vit DANS la ligne 1, à sa hauteur : posée
+                    ailleurs, le programme ne se lirait plus d'un trait */
+                 xDansLigne: Math.min(r(x).bottom, r(l[0]).bottom) - Math.max(r(x).top, r(l[0]).top) > 5,
+                 cases: cases.length, fermees: cases.filter(e => e.disabled).length,
+                 /* une colonne fermée SE VOIT : elle n'a pas l'encre d'une case
+                    ouverte, et son cadre est en pointillés */
+                 fondFerme: getComputedStyle(cases[0]).backgroundColor, traitFerme: getComputedStyle(cases[0]).borderTopStyle,
+                 policeC: cases.map(fam), pxC: cases.map(px),
+                 rangees: tab.querySelectorAll('tr').length, colonnes: tab.querySelectorAll('tr')[0].querySelectorAll('td').length,
+                 tabVisible: r(tab).width > 300 && r(tab).height > 60,
+                 tabDefile: boite.scrollWidth > boite.clientWidth + 1,
+                 run: !document.getElementById('ptvRun').disabled && r(document.getElementById('ptvRun')).width > 40,
+                 etat: document.getElementById('ptvEtat').textContent,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('le programme est rendu en trois lignes à chasse fixe, et la case de x vit DANS la ligne 1, à sa taille',
+        avant.lignes === 3 && avant.policeL.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && /mono|menlo|consolas|courier/i.test(avant.policeX) && avant.xVisible && avant.xDansLigne
+        && Math.abs(avant.pxX - Math.max(...avant.pxL)) < 0.6, JSON.stringify(avant).slice(0, 300));
+      verifier('le tableau est rendu : deux rangées, ' + P.pythonTableauValeurs.cols + ' colonnes, sans défilement à 1400 px — et ses ' + P.pythonTableauValeurs.cols + ' cases sont FERMÉES et se VOIENT fermées',
+        avant.rangees === 2 && avant.colonnes === P.pythonTableauValeurs.cols && avant.tabVisible && !avant.tabDefile
+        && avant.cases === P.pythonTableauValeurs.cols && avant.fermees === P.pythonTableauValeurs.cols
+        && avant.traitFerme === 'dashed' && dom(avant.fondFerme) === 'autre'
+        && avant.run && !avant.page, JSON.stringify(avant).slice(0, 360));
+      /* a) UN VRAI CLIC SUR « EXÉCUTER » : la console répond, rien ne s'ouvre */
+      await s.page.click('#ptvRun');
+      await s.page.waitForTimeout(300);
+      const aa = await s.page.evaluate(() => {
+        const c = document.getElementById('ptvConsole'), r = c.getBoundingClientRect();
+        return { texte: c.textContent, visible: r.height > 20 && r.width > 100, police: getComputedStyle(c).fontFamily,
+                 fermees: [...document.querySelectorAll('#ptvHost .ptv-in')].filter(e => e.disabled).length };
+      });
+      verifier('a) le programme s\'exécute au clic : la console affiche « ' + q.depSortie + ' » à chasse fixe, et aucune colonne ne s\'ouvre sur une valeur qui n\'est pas la sienne',
+        aa.texte === q.depSortie && aa.visible && /mono|menlo|consolas|courier/i.test(aa.police)
+        && aa.fermees === P.pythonTableauValeurs.cols, JSON.stringify(aa));
+      /* LA VIRGULE, TAPÉE POUR DE VRAI : le tableau écrit 0,5 et Python veut 0.5 */
+      await s.page.click('#ptv-x');
+      await s.page.keyboard.press('Control+a');
+      await s.page.keyboard.type(q.fr[0]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const virg = await s.page.evaluate(() => {
+        const c = document.getElementById('ptvConsole');
+        return { texte: c.textContent, encre: getComputedStyle(c).color,
+                 fermees: [...document.querySelectorAll('#ptvHost .ptv-in')].filter(e => e.disabled).length };
+      });
+      verifier('la virgule tapée dans la case de x reçoit la RÈGLE, en rouge rendu, et n\'ouvre aucune colonne',
+        /POINT/.test(virg.texte) && virg.texte.indexOf(q.xs[0]) >= 0 && virg.encre === encres.red
+        && virg.fermees === P.pythonTableauValeurs.cols, JSON.stringify(virg));
+      /* LA PORTE : on TAPE la valeur d'une colonne, Entrée exécute, elle s'ouvre */
+      await s.page.click('#ptv-x');
+      await s.page.keyboard.press('Control+a');
+      await s.page.keyboard.type(q.xs[2]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const porte = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#ptvHost .ptv-in')];
+        return { texte: document.getElementById('ptvConsole').textContent,
+                 ouvertes: cases.filter(e => !e.disabled).map((e, i) => e.id), ouverte2: !cases[2].disabled,
+                 fond: getComputedStyle(cases[2]).backgroundColor, trait: getComputedStyle(cases[2]).borderTopStyle,
+                 focus: document.activeElement && document.activeElement.id,
+                 etat: document.getElementById('ptvEtat').textContent };
+      });
+      verifier('la colonne dont on a exécuté la valeur s\'OUVRE — elle seule —, se voit ouverte, et reçoit le focus',
+        porte.texte === q.sorties[2] && porte.ouverte2 && porte.ouvertes.length === 1
+        && porte.trait === 'solid' && porte.focus === 'ptv-c2' && /1/.test(porte.etat), JSON.stringify(porte));
+      /* on remplit le tableau en entier — une case FAUSSE, pour lire les trois encres */
+      for(let i = 0; i < q.xs.length; i++){
+        await s.page.click('#ptv-x');
+        await s.page.keyboard.press('Control+a');
+        await s.page.keyboard.type(q.xs[i]);
+        await s.page.keyboard.press('Enter');
+        await s.page.waitForTimeout(150);
+        await s.page.click('#ptv-c' + i);
+        await s.page.keyboard.type(i === 1 ? '99' : q.sorties[i]);
+      }
+      await s.page.waitForTimeout(200);
+      const pret = await s.page.evaluate(() => ({
+        ouvertes: [...document.querySelectorAll('#ptvHost .ptv-in')].filter(e => !e.disabled).length,
+        etat: document.getElementById('ptvEtat').textContent }));
+      verifier('les ' + P.pythonTableauValeurs.cols + ' colonnes s\'ouvrent une à une et le restent — l\'état le dit',
+        pret.ouvertes === P.pythonTableauValeurs.cols && /complète/.test(pret.etat), JSON.stringify(pret));
+      await s.page.click('#ptvValidate');
+      await s.page.waitForTimeout(400);
+      const verd = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#ptvHost .ptv-in')];
+        const b = cases[1].parentNode.querySelector('.mf-cor'), rb = b ? b.getBoundingClientRect() : null;
+        const r1 = cases[1].getBoundingClientRect();
+        return { classes: cases.map(e => e.className.replace('ptv-in', '').trim()),
+                 encres: cases.map(e => getComputedStyle(e).color),
+                 badge: !!b, texte: b && b.textContent, encreBadge: b ? getComputedStyle(b).color : '',
+                 dessous: !!rb && rb.top >= r1.bottom - 1 && rb.width > 10,
+                 dedans: !!rb && rb.right <= document.documentElement.clientWidth,
+                 autresBadges: cases.filter((e, i) => i !== 1 && e.parentNode.querySelector('.mf-cor')).length,
+                 score: test.score, verrou: cases.every(e => e.disabled), suivant: !!document.getElementById('ptvNext'),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('chaque case se juge SEULE, à l\'encre RENDUE : la fausse porte l\'encre --red, les autres --blue, et la valeur juste s\'écrit en --green sous la case fausse — elle seule',
+        verd.encres[1] === encres.red && /bad/.test(verd.classes[1])
+        && [0, 2, 3, 4].every(i => verd.encres[i] === encres.blue && /ok/.test(verd.classes[i]))
+        && verd.badge && verd.texte === q.sorties[1] && verd.encreBadge === encres.green
+        && verd.dessous && verd.dedans && verd.autresBadges === 0
+        && verd.score === P.pythonTableauValeurs.cols - 1 && verd.verrou && verd.suivant && !verd.page,
+        JSON.stringify(verd).slice(0, 400));
+      /* SUR UN TÉLÉPHONE : le tableau ne tient pas en largeur — il DÉFILE dans
+         sa boîte, jamais la page, qui emmènerait tout l'écran de travers. */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const host = document.getElementById('ptvHost'), boite = host.querySelector('.ptv-wrap');
+        const prog = host.querySelector('.pyx-prog').getBoundingClientRect();
+        const x = document.getElementById('ptv-x').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 progDedans: prog.right <= 391, xDedans: x.right <= 391,
+                 boiteDedans: boite.getBoundingClientRect().right <= 391,
+                 boiteDefile: boite.scrollWidth > boite.clientWidth + 1,
+                 ovf: getComputedStyle(boite).overflowX };
+      });
+      verifier('sur un téléphone, le programme et sa case restent dans l\'écran, et le tableau DÉFILE dans sa boîte au lieu de faire déborder la page',
+        !tel.page && tel.progDedans && tel.xDedans && tel.boiteDedans && /auto|scroll/.test(tel.ovf), JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* LE SOUTIEN : la case fausse rougit, et RIEN ne se révèle */
+      await s.page.evaluate(id => openTest(id), P.pythonTableauValeurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const qs = await s.page.evaluate(() => {
+        const q = test.questions[test.idx];
+        return { xs: q.ns.map(n => ptvX(n)), sorties: q.ns.map(n => ptvSortie(q, ptvX(n))) };
+      });
+      for(let i = 0; i < qs.xs.length; i++){
+        await s.page.click('#ptv-x');
+        await s.page.keyboard.press('Control+a');
+        await s.page.keyboard.type(qs.xs[i]);
+        await s.page.keyboard.press('Enter');
+        await s.page.waitForTimeout(150);
+        await s.page.click('#ptv-c' + i);
+        await s.page.keyboard.type(i === 0 ? '0' : qs.sorties[i]);
+      }
+      await s.page.click('#ptvValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#ptvHost .ptv-in')];
+        return { classe: cases[0].className, encre: getComputedStyle(cases[0]).color,
+                 badges: cases.filter(e => e.parentNode.querySelector('.mf-cor')).length,
+                 fb: document.getElementById('ptvFeedback').textContent,
+                 verrou: cases[0].disabled, score: test.score,
+                 bouton: (document.getElementById('ptvValidate') || {}).textContent || '' };
+      });
+      verifier('en soutien : la case fausse rougit à l\'encre rendue, AUCUNE valeur verte, rien n\'est verrouillé, et « Revérifier » est proposé',
+        /bad/.test(sout.classe) && sout.encre === encres.red && sout.badges === 0
+        && sout.fb.indexOf(qs.sorties[0]) < 0 && !sout.verrou && sout.score === 0
+        && /Rev/.test(sout.bouton), JSON.stringify(sout));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies decies. {python-changer-valeurs} : les valeurs se changent, le programme suit =====
+       Le banc jsdom tient la fiche du carnet, le tirage, le juge, les trois
+       portes et la phrase de prédiction qui suit les valeurs. Ce qu'il ne voit
+       pas : les six lignes du programme RENDUES à chasse fixe avec les deux
+       cases de valeur à la MÊME taille que le code qui les entoure, la case de
+       prédiction à la taille des nombres de sa phrase — le contrôle universel
+       ne mesure que les math-field, et celles-ci sont des input —, un VRAI clic
+       sur « Exécuter » verrouillé qui ne fait rien, les valeurs TAPÉES au
+       clavier et la phrase qui les suit sous les doigts, l'encre RENDUE des
+       verdicts, la console, et la page qui ne déborde pas sur un téléphone. */
+    titre('6 tricies decies. CHANGER LES VALEURS : LE PROGRAMME SUIT, ET LA PHRASE AUSSI');
+    if(!P.pythonChangerValeurs){
+      ignorer('les valeurs se changent et tout ce qui se calcule suit', 'ce niveau n\'a pas l\'exercice des valeurs qu\'on change');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonChangerValeurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      /* ---- question 1 : la fiche du carnet, valeurs DONNÉES ---- */
+      const un = await s.page.evaluate(() => {
+        const host = document.getElementById('pcvHost');
+        const l = [...host.querySelectorAll('.pyx-l1')], pred = [...host.querySelectorAll('.pcv-ligne')];
+        const s0 = document.getElementById('pcv-s'), p0 = document.getElementById('pcv-p');
+        const run = document.getElementById('pcvRun'), cons = document.getElementById('pcvConsole');
+        const fam = e => getComputedStyle(e).fontFamily, px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const r = e => e.getBoundingClientRect();
+        /* la case de prédiction a la taille des nombres qui l'entourent : ceux
+           de sa propre phrase, mis en gras par la page */
+        const voisins = pred.map(d => px(d.querySelector('.pcv-txt b')));
+        return { lignes: l.map(e => e.textContent), policeL: l.map(fam), pxL: l.map(px),
+                 pred: pred.length, texte: pred.map(d => d.querySelector('.pcv-txt').textContent),
+                 pxIn: [px(s0), px(p0)], voisins: voisins,
+                 casesVisibles: [s0, p0].every(e => r(e).width > 50 && r(e).height > 28 && r(e).right <= document.documentElement.clientWidth),
+                 runFerme: run.disabled && r(run).width > 40, consoleVide: cons.textContent === '',
+                 policeC: fam(cons), pasDeValeur: !document.getElementById('pcv-a'),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('les six lignes du programme sont rendues à chasse fixe, à la même taille',
+        un.lignes.length === 6 && un.policeL.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && Math.max(...un.pxL) - Math.min(...un.pxL) < 0.6, JSON.stringify({ l: un.lignes, px: un.pxL }));
+      verifier('la phrase de prédiction reprend les DEUX lignes du programme, et sa case a la taille des nombres qui l\'entourent',
+        un.pred === 2 && /La somme de/.test(un.texte[0]) && /Le produit de/.test(un.texte[1])
+        && un.casesVisibles && un.voisins.every((v, i) => Math.abs(v - un.pxIn[i]) < 0.6),
+        JSON.stringify({ t: un.texte, pxIn: un.pxIn, voisins: un.voisins }));
+      verifier('au visage DONNÉ il n\'y a aucune case de valeur, « Exécuter » est verrouillé, la console est vide et à chasse fixe, et la page ne déborde pas à 1400 px',
+        un.pasDeValeur && un.runFerme && un.consoleVide && /mono|menlo|consolas|courier/i.test(un.policeC) && !un.page, JSON.stringify(un).slice(0, 300));
+      /* un VRAI clic sur « Exécuter » verrouillé ne fait rien */
+      await s.page.click('#pcvRun', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const rien = await s.page.evaluate(() => ({ console: document.getElementById('pcvConsole').textContent,
+        suivant: !!document.getElementById('pcvNext') }));
+      verifier('un clic sur « Exécuter » verrouillé n\'exécute rien', rien.console === '' && !rien.suivant, JSON.stringify(rien));
+      /* on TAPE une prédiction FAUSSE sur la somme et la juste sur le produit */
+      const att1 = await s.page.evaluate(() => { const q = test.questions[test.idx]; const a = pcvAns(q, q.va, q.vb); return { s: a.somme, p: a.produit, sortie: a.sortie }; });
+      await s.page.click('#pcv-s');
+      await s.page.keyboard.type(String(Number(att1.s) + 1));
+      await s.page.click('#pcv-p');
+      await s.page.keyboard.type(att1.p);
+      await s.page.click('#pcvValidate');
+      await s.page.waitForTimeout(400);
+      const mix = await s.page.evaluate(() => {
+        const s0 = document.getElementById('pcv-s'), p0 = document.getElementById('pcv-p'), b = s0.nextElementSibling;
+        return { c0: s0.className, c1: p0.className, e0: getComputedStyle(s0).color, e1: getComputedStyle(p0).color,
+                 badge: !!(b && b.classList.contains('mf-cor')), texte: b && b.textContent,
+                 encreBadge: b ? getComputedStyle(b).color : '', badgeVisible: b ? b.getBoundingClientRect().width > 8 : false,
+                 badge1: !!(p0.nextElementSibling && p0.nextElementSibling.classList.contains('mf-cor')),
+                 score: test.score, run: !document.getElementById('pcvRun').disabled };
+      });
+      verifier('chaque case se juge SEULE : la prédiction fausse rougit (encre rouge rendue) pendant que la juste reste BLEUE, et la bonne valeur s\'écrit en VERT à côté de la fausse — et d\'elle seule',
+        /bad/.test(mix.c0) && dom(mix.e0) === 'rouge' && /ok/.test(mix.c1) && dom(mix.e1) === 'bleu'
+        && mix.badge && mix.texte === att1.s && dom(mix.encreBadge) === 'vert' && mix.badgeVisible && !mix.badge1
+        && mix.score === 1 && mix.run, JSON.stringify(mix));
+      await s.page.click('#pcvRun');
+      await s.page.waitForTimeout(300);
+      const cons1 = await s.page.evaluate(() => { const c = document.getElementById('pcvConsole');
+        return { t: c.textContent, h: c.getBoundingClientRect().height, suivant: !!document.getElementById('pcvNext') }; });
+      verifier('« Exécuter » montre ce que le programme affiche vraiment, puis « Question suivante » paraît',
+        cons1.t === att1.sortie.replace(/\n$/, '') && cons1.h > 20 && cons1.suivant, JSON.stringify(cons1));
+      /* ---- question 2 : les valeurs se CHANGENT au clavier ---- */
+      await s.page.click('#pcvNext');
+      await s.page.waitForTimeout(400);
+      const q2 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { na: q.na, nb: q.nb, va: q.va, vb: q.vb }; });
+      const deux = await s.page.evaluate(() => {
+        const a = document.getElementById('pcv-a'), l = [...document.querySelectorAll('#pcvHost .pyx-l1')];
+        const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        return { valeur: a ? a.value : null, police: a ? getComputedStyle(a).fontFamily : '',
+                 pxA: a ? px(a) : 0, pxCode: px(l[l.length - 1]),
+                 pred: document.getElementById('pcvPred').textContent };
+      });
+      verifier('au visage À CHANGER, la case de valeur est pré-remplie, à chasse fixe et à la taille du code qui l\'entoure',
+        deux.valeur === String(q2.va) && /mono|menlo|consolas|courier/i.test(deux.police)
+        && Math.abs(deux.pxA - deux.pxCode) < 0.6 && deux.pred.indexOf(String(q2.va)) >= 0, JSON.stringify(deux));
+      /* LA PHRASE SUIT SOUS LES DOIGTS : c'est le risque propre, et seul un
+         vrai clavier montre qu'elle se réécrit à la frappe */
+      const neuf = q2.va + 7;
+      await s.page.fill('#pcv-a', '');
+      await s.page.click('#pcv-a');
+      await s.page.keyboard.type(String(neuf));
+      await s.page.waitForTimeout(250);
+      const suit = await s.page.evaluate(() => ({ pred: document.getElementById('pcvPred').textContent,
+        focus: document.activeElement && document.activeElement.id }));
+      verifier('la phrase de prédiction se réécrit sous les doigts : elle dit la valeur TAPÉE, jamais l\'ancienne',
+        suit.pred.indexOf('de ' + neuf + ' et ' + q2.vb) >= 0 && suit.pred.indexOf('de ' + q2.va + ' et') < 0,
+        JSON.stringify(suit) + ' / tapé ' + neuf + ', attendu « de ' + neuf + ' et ' + q2.vb + ' »');
+      const att2 = await s.page.evaluate(n => { const a = pcvAns(test.questions[test.idx], n, test.questions[test.idx].vb); return { s: a.somme, p: a.produit, sortie: a.sortie }; }, neuf);
+      await s.page.click('#pcv-s');
+      await s.page.keyboard.type(att2.s);
+      await s.page.click('#pcv-p');
+      await s.page.keyboard.type(att2.p);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(400);
+      const juste = await s.page.evaluate(() => {
+        const s0 = document.getElementById('pcv-s'), p0 = document.getElementById('pcv-p'), a = document.getElementById('pcv-a');
+        return { ok: /ok/.test(s0.className) && /ok/.test(p0.className), e0: getComputedStyle(s0).color,
+                 verrou: s0.disabled && p0.disabled && a.disabled, score: test.score,
+                 badge: !!(s0.nextElementSibling && s0.nextElementSibling.classList.contains('mf-cor')),
+                 run: !document.getElementById('pcvRun').disabled };
+      });
+      verifier('Entrée vérifie : la copie juste sur les valeurs CHANGÉES est bleue, verrouille les trois cases, vaut 2 et débloque « Exécuter »',
+        juste.ok && dom(juste.e0) === 'bleu' && juste.verrou && juste.score === 3 && !juste.badge && juste.run, JSON.stringify(juste));
+      await s.page.click('#pcvRun');
+      await s.page.waitForTimeout(300);
+      const cons2 = await s.page.evaluate(() => document.getElementById('pcvConsole').textContent);
+      verifier('la console exécute le programme AUX VALEURS DE L\'ÉLÈVE',
+        cons2 === att2.sortie.replace(/\n$/, '') && cons2.indexOf('de ' + neuf + ' et') >= 0, JSON.stringify(cons2));
+      /* ---- le téléphone ---- */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const boite = document.querySelector('#pcvHost .pyx-prog'), prog = boite.getBoundingClientRect();
+        const l = [...document.querySelectorAll('#pcvHost .pyx-l1')].map(e => ({
+          deborde: e.getBoundingClientRect().right > prog.right + 1,
+          longue: e.scrollWidth > e.clientWidth + 1, ovf: getComputedStyle(e).overflowX }));
+        const pred = [...document.querySelectorAll('#pcvHost .pcv-ligne')].map(e => e.getBoundingClientRect().right);
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 progDedans: prog.right <= 391, progDefile: boite.scrollWidth > boite.clientWidth + 1,
+                 predDedans: pred.every(r => r <= 391), lignes: l };
+      });
+      verifier('sur un téléphone la page ne déborde pas, le programme et la phrase restent dans l\'écran, et la ligne qui n\'y tient pas DÉFILE au lieu d\'être coupée',
+        !tel.page && tel.progDedans && !tel.progDefile && tel.predDedans
+        && tel.lignes.every(x => !x.deborde) && tel.lignes.some(x => x.longue)
+        && tel.lignes.every(x => /auto|scroll/.test(x.ovf)), JSON.stringify(tel).slice(0, 300));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* ---- le soutien : rien ne se révèle ---- */
+      await s.page.evaluate(id => openTest(id), P.pythonChangerValeurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const att3 = await s.page.evaluate(() => { const q = test.questions[test.idx]; const a = pcvAns(q, q.va, q.vb); return { s: a.somme, p: a.produit }; });
+      await s.page.click('#pcv-s');
+      await s.page.keyboard.type(String(Number(att3.s) + 1));
+      await s.page.click('#pcv-p');
+      await s.page.keyboard.type(att3.p);
+      await s.page.click('#pcvValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const s0 = document.getElementById('pcv-s'), fb = document.getElementById('pcvFeedback');
+        return { bad: /bad/.test(s0.className), encre: getComputedStyle(s0).color,
+                 badge: !!(s0.nextElementSibling && s0.nextElementSibling.classList.contains('mf-cor')),
+                 fb: fb.textContent, fbVisible: fb.getBoundingClientRect().height > 10,
+                 verrou: s0.disabled, run: !document.getElementById('pcvRun').disabled,
+                 rev: (document.getElementById('pcvValidate') || {}).textContent || '' };
+      });
+      verifier('en soutien la prédiction fausse rougit (encre rouge rendue) sans que la bonne valeur ne s\'écrive, rien n\'est verrouillé, « Exécuter » reste fermé et « Revérifier » est proposé',
+        sout.bad && dom(sout.encre) === 'rouge' && !sout.badge && sout.fb.indexOf(att3.s) < 0
+        && sout.fbVisible && !sout.verrou && !sout.run && /Rev/.test(sout.rev), JSON.stringify(sout));
+      await s.page.fill('#pcv-s', att3.s);
+      await s.page.waitForTimeout(150);
+      const repris = await s.page.evaluate(() => ({ bad: /bad/.test(document.getElementById('pcv-s').className) }));
+      verifier('la prédiction reprise perd son rouge', !repris.bad, JSON.stringify(repris));
+      await s.page.click('#pcvValidate');
+      await s.page.waitForTimeout(400);
+      const fin = await s.page.evaluate(() => ({ ok: /ok/.test(document.getElementById('pcv-s').className),
+        score: test.score, run: !document.getElementById('pcvRun').disabled }));
+      verifier('la prédiction corrigée vaut 2 en soutien et débloque « Exécuter »', fin.ok && fin.score === 2 && fin.run, JSON.stringify(fin));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
     /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
        de mise en page — seul un navigateur voit le geste), puis la partie
@@ -9811,7 +10325,7 @@ async function parcours(page, N){
          une forme de portrait, c'est elle qui doit s'y rendre — les rangées
          attendues viennent de là. La forme normale est reprise plus bas, la
          fenêtre tournée en paysage. */
-      const KP = KC.portraitTablette || null;
+      const KP = KC.courte || null;
       const attA = KP ? KP.rangeesA : (KC.rangeesA || 4), attB = KP ? KP.rangeesB : (KC.rangeesB || 4);
       s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
       if(await connecter(s.page) !== 'scr-space'){
@@ -9859,7 +10373,14 @@ async function parcours(page, N){
           if(!kb) return { absent: true, visible: !!(vk && vk.visible) };
           const vis = el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; };
           const caps = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')].filter(vis);
-          const de = t => caps.find(c => c.textContent.trim() === t) || null;
+          /* Une touche se reconnaît à son TEXTE… sauf celles que MathLive dessine
+             au lieu de les écrire : « ⟶ » (\longrightarrow) est une flèche
+             étirable, composée de morceaux, et son textContent est VIDE. On
+             accepte donc aussi la valeur que MathLive pose sur la touche — sans
+             quoi le contrôle chercherait une touche bien présente et dirait
+             qu'elle manque. */
+          const val = c => c.getAttribute('data-keycap-value') || c.getAttribute('aria-label') || '';
+          const de = t => caps.find(c => c.textContent.trim() === t || val(c) === t) || null;
           const info = el => { if(!el) return null; const q = el.getBoundingClientRect();
             return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2),
                      w: Math.round(q.width), h: Math.round(q.height) }; };
@@ -9874,11 +10395,15 @@ async function parcours(page, N){
              rangée trop large et laisse les autres à leur taille, et l'élève a
              deux tailles de touches sur le même écran. */
           const large = el => el ? Math.round(el.getBoundingClientRect().width) : null;
+          const plaque = kb.querySelector('.MLK__plate');
           return { visible: !!(vk && vk.visible), rangees: tops.length,
                    unite: [large(de('∞')), large(de('π'))],
                    touche: info(cinq), police: police(cinq),
+                   plaque: Math.round((plaque || kb).getBoundingClientRect().height),
+                   uniteA: [large(de('7')), large(de('1'))],
                    debord: Math.round(Math.max(0, ...caps.map(c => c.getBoundingClientRect().right)) - window.innerWidth),
                    inf: !!de('∞'), integ: !!de('∫'), n: !!de('n'), cinqLa: !!cinq,
+                   f: !!de('f'), x: !!de('x'), vers: !!de('\\longrightarrow'),
                    versA: info(de(versA)), versB: info(de(versB)) };
         };
         const cA = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
@@ -9909,12 +10434,15 @@ async function parcours(page, N){
                 + [cB.inf ? '' : '∞', cB.integ ? '' : '∫', cB.n ? '' : 'n'].filter(Boolean).join(' ')
             : cB.rangees + ' rangée(s) rendue(s) au lieu de ' + (attB)
               + (cB.debord > 1 ? ', et il DÉBORDE de ' + cB.debord + ' px' : ''));
-        /* LE BORD OPPOSÉ : la tablette TOURNÉE EN PAYSAGE retrouve la forme
-           normale. Sans lui, une forme courte qui fuirait sur le paysage —
-           où la rangée de dix unités n'a plus la largeur de touche qu'il lui
-           faut — passerait inaperçue. Le clavier se reconstruit à la rotation
-           (kbOnRotate) et revient sur le clavier A ; s'il restait sur B, on
-           l'y ramène par sa touche. */
+        /* LA TABLETTE TOURNÉE EN PAYSAGE : la forme COURTE aussi, et des touches
+           PLUS PETITES (demande de Turquet, septembre 2026 — « en mode paysage,
+           les touches doivent être plus petites de façon à tenir sur 3 lignes »).
+           En paysage l'écran est COURT, et la plaque de quatre rangées y prenait
+           un quart de ce que l'élève a devant lui : c'est la HAUTEUR de la plaque
+           qu'on mesure, pas seulement le compte de rangées — trois rangées de
+           grosses touches ne rendraient rien. Le clavier se reconstruit à la
+           rotation (kbOnRotate) et revient sur le clavier A ; s'il restait sur B,
+           on l'y ramène par sa touche. */
         if(KP){
           await s.page.setViewportSize({ width: 1180, height: 820 });
           await s.page.waitForTimeout(1200);
@@ -9923,21 +10451,96 @@ async function parcours(page, N){
             await s.page.mouse.click(cL.versA.x, cL.versA.y); await s.page.waitForTimeout(400);
             cL = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
           }
-          verifier('tournée en paysage, la tablette retrouve les ' + (KC.rangeesA || 4) + ' rangées de la forme normale',
-            cL.visible && cL.cinqLa && cL.rangees === (KC.rangeesA || 4) && cL.debord <= 1,
+          const PY = KT.paysage || {};
+          verifier('tournée en paysage, la tablette garde les ' + attA + ' rangées et réduit ses touches',
+            cL.visible && cL.cinqLa && cL.rangees === attA && cL.debord <= 1
+              && !!cL.touche && (!PY.hauteurMax || cL.touche.h <= PY.hauteurMax)
+              && (!PY.policeMax || cL.police <= PY.policeMax)
+              && (!PY.plaqueMax || cL.plaque <= PY.plaqueMax),
             !cL.visible ? 'le clavier s\'est refermé à la rotation'
               : !cL.cinqLa ? 'le clavier A ne revient pas à la rotation'
-              : cL.rangees + ' rangée(s) rendue(s) en paysage au lieu de ' + (KC.rangeesA || 4)
-                + (cL.debord > 1 ? ', et il DÉBORDE de ' + cL.debord + ' px' : ''));
-          console.log('   · la plaque du clavier : ' + attA + ' rangées en portrait de tablette, '
-            + cL.rangees + ' en paysage ; touche « 5 » ' + (cA.touche ? cA.touche.w + '×' + cA.touche.h : '?')
+              : cL.rangees !== attA ? cL.rangees + ' rangée(s) rendue(s) en paysage au lieu de ' + attA
+              : !cL.touche ? 'la touche « 5 » est introuvable en paysage'
+              : 'touche « 5 » : ' + cL.touche.w + '×' + cL.touche.h + ' px (plafond ' + PY.hauteurMax
+                + '), police ' + cL.police + ' px (plafond ' + PY.policeMax + '), plaque ' + cL.plaque
+                + ' px (plafond ' + PY.plaqueMax + ')'
+                + (cL.debord > 1 ? ', DÉBORDE de ' + cL.debord + ' px' : ''));
+          /* et le bord opposé de la mesure : le paysage réduit VRAIMENT, il ne
+             reprend pas la taille du portrait — une règle média qui cesserait de
+             s'appliquer laisserait les trois rangées et des touches de 48 px */
+          verifier('les touches du paysage sont plus petites que celles du portrait',
+            !!cA.touche && !!cL.touche && cL.touche.h < cA.touche.h && cL.plaque < cA.plaque,
+            (cA.touche && cL.touche)
+              ? 'debout ' + cA.touche.h + ' px de haut (plaque ' + cA.plaque + '), couché ' + cL.touche.h + ' px (plaque ' + cL.plaque + ')'
+              : 'la touche « 5 » est introuvable');
+          console.log('   · la plaque du clavier : ' + cA.plaque + ' px debout, ' + cL.plaque
+            + ' px couché ; touche « 5 » ' + (cA.touche ? cA.touche.w + '×' + cA.touche.h : '?')
             + ' px debout, ' + (cL.touche ? cL.touche.w + '×' + cL.touche.h : '?') + ' px couché');
+        }
+        /* UN EXERCICE SUR LES LIMITES : les quatre touches sur le clavier A,
+           mesurées sur la couche RENDUE (demande de Turquet, septembre 2026 —
+           « quand c'est un exercice sur les limites, mettre les touches inf,
+           -->, x, f sur le clavier A »). jsdom lit la disposition déclarée ;
+           seul un navigateur dit ce qui s'affiche vraiment quand l'élève ouvre
+           l'exercice, et si la rangée qui s'est allongée tient encore dans
+           l'écran. On reste en PAYSAGE : c'est là que la place manque. */
+        const KL = KT.limites;
+        if(KL){
+          await s.page.evaluate(i => openTest(i), KL.exercice);
+          await s.page.waitForTimeout(400);
+          await s.page.evaluate(() => {
+            const b = [...document.querySelectorAll('#modeChoices button')]
+              .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+            if(b) b.click();
+          });
+          await s.page.waitForTimeout(1200);
+          try{ await s.page.click(KL.champ, { timeout: 6000 }); }catch(e){}
+          await s.page.waitForTimeout(700);
+          if(!await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible))){
+            try{ await s.page.click(KL.bouton, { timeout: 5000 }); }catch(e){}
+            await s.page.waitForTimeout(900);
+          }
+          const cX = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
+          verifier('sur un exercice sur les limites, ∞, ⟶, f et x sont sur le clavier A',
+            !cX.absent && cX.visible && cX.cinqLa && cX.inf && cX.vers && cX.f && cX.x
+              && !cX.integ && cX.rangees === attA && cX.debord <= 1,
+            cX.absent ? 'aucun clavier ancré dans la page'
+              : !cX.visible ? 'le clavier ne se déploie pas'
+              : !cX.cinqLa ? 'ce n\'est pas le clavier A qui est affiché'
+              : cX.integ ? 'l\'intégrale est passée sur le clavier A avec elles'
+              : (!cX.inf || !cX.vers || !cX.f || !cX.x) ? 'manque sur le clavier A : '
+                  + [cX.inf ? '' : '∞', cX.vers ? '' : '⟶', cX.f ? '' : 'f', cX.x ? '' : 'x'].filter(Boolean).join(' ')
+              : cX.rangees + ' rangée(s) rendue(s) au lieu de ' + attA
+                + (cX.debord > 1 ? ', et il DÉBORDE de ' + cX.debord + ' px' : ''));
+          /* ET LA RANGÉE QUI S'EST ALLONGÉE N'A PAS RÉTRÉCI SEULE : les deux
+             touches d'une unité prises sur des rangées différentes du clavier A
+             font la même largeur. C'est le bord que --kb-unites tient — et il
+             se mesure DEBOUT, pas couché. Mesuré : en PAYSAGE, un compte figé
+             trop bas ne fait pas deux tailles de touches, MathLive resserrant
+             la plaque ENTIÈRE (toutes les touches à 92 px) — le plafond de
+             96 px absorbe l'écart, et le sabotage y reste vert à bon droit. En
+             PORTRAIT la largeur mord : les rangées de onze font 70 px et celle
+             de douze 64, deux tailles sur le même écran. On tourne donc la
+             tablette avant de mesurer. */
+          await s.page.setViewportSize({ width: 820, height: 1180 });
+          await s.page.waitForTimeout(1200);
+          const cP = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
+          const uA = cP.uniteA || [];
+          verifier('debout, la rangée allongée n\'a pas rétréci seule : les touches d\'une unité font la même largeur',
+            cP.visible && cP.cinqLa && !!uA[0] && !!uA[1] && Math.abs(uA[0] - uA[1]) <= 1,
+            !cP.visible ? 'le clavier s\'est refermé à la rotation'
+              : !cP.cinqLa ? 'le clavier A ne revient pas à la rotation'
+              : (!uA[0] || !uA[1]) ? 'les touches témoins « 7 » et « 1 » sont introuvables sur le clavier A'
+              : '« 7 » fait ' + uA[0] + ' px et « 1 » ' + uA[1] + ' px : une rangée s\'est rétrécie seule');
+          console.log('   · sur les limites, le clavier A : ' + cX.rangees + ' rangées, touche « 5 » '
+            + (cX.touche ? cX.touche.w + '×' + cX.touche.h : '?') + ' px couché, '
+            + (cP.touche ? cP.touche.w + '×' + cP.touche.h : '?') + ' px debout ; plaque ' + cX.plaque + ' px couché');
         }
         /* et AUCUNE rangée ne s'est rétrécie seule : les deux touches d'une
            unité prises sur des rangées différentes du clavier B font la même
-           largeur. Sans la règle de largeur du portrait de tablette, la rangée
-           de dix unités du clavier A se resserre toute seule et celles du
-           clavier B restent larges — deux tailles de touches sur un écran. */
+           largeur. Sans la règle de largeur de la tablette, la rangée la plus
+           longue du clavier A se resserre toute seule et celles du clavier B
+           restent larges — deux tailles de touches sur un écran. */
         if(KP) verifier('aucune rangée ne se rétrécit seule : les touches d\'une unité font toutes la même largeur',
           !!cB && cB.unite[0] && cB.unite[1] && Math.abs(cB.unite[0] - cB.unite[1]) <= 1,
           !cB ? 'la seconde couche ne se rend pas'

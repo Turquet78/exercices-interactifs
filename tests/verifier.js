@@ -3583,8 +3583,10 @@ function exercices(suite){
     toucheEntreeClavier(w, P);
     clavierPaysageCompact(w, P);
     couchesClavierNommees(w, P);
-  clavierCouches(w, P);
-  clavierTablette(w, P);
+    clavierCouches(w, P);
+    clavierLimites(w, P);
+    clavierUnites(w, P);
+    clavierTablette(w, P);
     policeTablette(w, P);
     feuilleTablette(w, P);
     chaineTablette(w, P);
@@ -3614,6 +3616,8 @@ function exercices(suite){
     pythonAffichage(w, P);
     pythonCompleter(w, P);
     pythonDeuxLignes(w, P);
+    pythonTableauValeurs(w, P);
+    pythonChangerValeurs(w, P);
     pythonPlacerVariables(w, P);
     pythonTypes(w, P);
     pythonAfficherVariable(w, P);
@@ -11069,15 +11073,23 @@ function evaluerClavier(pbs){
    largeur minimale est honorée ; une requête inconnue ne répond rien, si bien
    qu'un routage qui s'appuierait sur autre chose se verrait ici. Il sert aux
    deux tables de routage — celle de la Première et de la Seconde (kbCompact +
-   kbPortraitTablette) et celle de la Terminale, qui pose les trois conditions
-   dans une seule requête. */
-function fauxEcran(paysage, tablette){
+   kbPortraitTablette) et celle de la Terminale (kbTablette), qui pose ses deux
+   conditions dans une seule requête. */
+function fauxEcran(paysage, tablette, tactile){
+  /* Un TÉLÉPHONE est tactile ET étroit ; une TABLETTE est tactile et large. Le
+     premier jet confondait les deux — « coarse » y répondait comme
+     « min-width » —, si bien qu'un routage qui aurait cessé de regarder la
+     LARGEUR passait au vert : le faux écran disait « pas tactile » à un
+     téléphone, et la forme des tablettes ne pouvait pas y fuir. Le sabotage l'a
+     montré en restant vert. L'écran de l'ordinateur, lui, n'a pas à être
+     modélisé : ces routages s'arrêtent avant, sur __kbFloating. */
+  const doigt = (tactile === undefined) ? true : !!tactile;
   return q => {
     let ok = true;
     if(/landscape/.test(q)) ok = ok && !!paysage;
     if(/portrait/.test(q)) ok = ok && !paysage;
     if(/min-width/.test(q)) ok = ok && !!tablette;
-    if(/coarse/.test(q)) ok = ok && !!tablette;   /* un écran tactile : la tablette du banc */
+    if(/coarse/.test(q)) ok = ok && doigt;
     return { matches: ok };
   };
 }
@@ -11261,111 +11273,261 @@ function couchesClavierNommees(w, P){
    et les opérations — quatre rangées — et le clavier B porte les variables de
    l'exercice (Uₙ et n pour les suites, f et x pour les fonctions, ≤ ≥ < > au
    6.7), ∞, ⟶ et l'intégrale.
+   … SAUF sur un exercice SUR LES LIMITES (demande de Turquet, septembre 2026 :
+   « mettre les touches inf, -->, x, f sur le clavier A ») : la rangée des
+   variables y revient sur le clavier A, qui porte alors ∞ et ⟶, et le clavier B
+   perd sa première rangée. Le JEU de touches ne change pas d'une variante à
+   l'autre, seul son PARTAGE change — et le contrôle compare les jeux.
    Le clavier vit dans la greffe module, invisible à jsdom : on ÉVALUE
    buildKbTerm depuis la SOURCE, avec des variables RECONNAISSABLES, et on
    regarde où chaque touche tombe. Deux sources : les comptes de rangées, les
    touches qui doivent être sur B, celles qui doivent RESTER sur A et la
    largeur maximale d'une rangée vivent dans tests/profils.js.
    Le bord opposé compte autant : sans « surA », déménager les chiffres eux
-   aussi passerait au vert. Et la largeur : une rangée plus large que le
-   maximum se rétrécit SEULE dans le navigateur — le clavier aurait deux
-   tailles de touches sur le même écran, ce que la règle de la tablette ne
-   peut pas rattraper. La taille RENDUE, elle, se mesure au banc navigateur. */
+   aussi passerait au vert. Et la largeur : une rangée plus large que ce que la
+   feuille de styles prévoit se rétrécit SEULE dans le navigateur — le clavier
+   aurait deux tailles de touches sur le même écran. C'est pourquoi la page
+   POSE --kb-unites depuis la disposition qu'elle vient d'installer, et le
+   contrôle d'à côté (« la largeur des touches suit la rangée la plus large »)
+   l'exige. La taille RENDUE, elle, se mesure au banc navigateur. */
 function clavierCouches(w, P){
   const nom = 'le clavier A garde les nombres, le clavier B porte les variables et les symboles';
   const C = P.clavierEcran && P.clavierEcran.couches;
   if(!C){ ignorer(nom, 'ce fichier ne déclare pas de partage des couches'); return; }
   const pbs = [];
   const src = lire(CIBLE);
-  const fKb = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
-    .find(o => o.nom === 'buildKbTerm');
+  const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const fKb = fns.find(o => o.nom === 'buildKbTerm');
   if(!fKb) pbs.push('buildKbTerm est introuvable dans la source');
   else{
     let bk = null;
     try{ bk = new Function('KB_EXP', 'KB_IDX', 'KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')(
       {latex:'EXP'}, {latex:'IDX'}, {latex:'USQ'}, {latex:'N'}); }
     catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); }
-    let dispo = null;
-    /* des variables RECONNAISSABLES : c'est leur place qu'on mesure */
-    if(bk){ try{ dispo = bk([{latex:'VAR-UN'}, {latex:'VAR-DEUX'}]); }catch(e){ pbs.push('buildKbTerm échoue : ' + e.message); } }
     const cle = k => String((k && (k.latex || k.key || k.insert || k.label)) || '');
     const dedans = (l) => [].concat.apply([], (l.rows || []).map(r => (r || []).map(cle)));
-    /* le partage et la largeur, mesurés sur UNE forme — la normale, puis celle
-       du portrait de tablette quand le fichier en déclare une */
-    const mesurer = (dispo, quelle, rangeesA, rangeesB, unitesMax) => {
+    /* le partage et la largeur, mesurés sur UNE forme */
+    const mesurer = (dispo, quelle, att, surA, surB, varsSurA) => {
       const couches = (dispo && dispo.layers) || [];
       if(couches.length < 2){
         pbs.push('la forme ' + quelle + ' n\'a que ' + couches.length + ' couche(s) : le contrôle n\'a rien à mesurer');
         return null;
       }
       const A = dedans(couches[0]), B = dedans(couches[1]);
-      if((couches[0].rows || []).length !== rangeesA)
-        pbs.push('le clavier A (' + quelle + ') a ' + (couches[0].rows || []).length + ' rangée(s) au lieu de ' + rangeesA);
-      if((couches[1].rows || []).length !== rangeesB)
-        pbs.push('le clavier B (' + quelle + ') a ' + (couches[1].rows || []).length + ' rangée(s) au lieu de ' + rangeesB);
-      (C.surB || []).forEach(t => {
+      if((couches[0].rows || []).length !== att.rangeesA)
+        pbs.push('le clavier A (' + quelle + ') a ' + (couches[0].rows || []).length + ' rangée(s) au lieu de ' + att.rangeesA);
+      if((couches[1].rows || []).length !== att.rangeesB)
+        pbs.push('le clavier B (' + quelle + ') a ' + (couches[1].rows || []).length + ' rangée(s) au lieu de ' + att.rangeesB);
+      surB.forEach(t => {
         if(A.indexOf(t) >= 0) pbs.push('la touche « ' + t + ' » est restée sur le clavier A (' + quelle + ')');
         else if(B.indexOf(t) < 0) pbs.push('la touche « ' + t + ' » n\'est sur aucune des deux couches (' + quelle + ')');
       });
-      (C.surA || []).forEach(t => {
-        if(A.indexOf(t) < 0) pbs.push('la touche « ' + t + ' » a quitté le clavier A (' + quelle + ')');
+      surA.forEach(t => {
+        if(A.indexOf(t) < 0) pbs.push('la touche « ' + t + ' » n\'est pas sur le clavier A (' + quelle + ')');
       });
       ['VAR-UN', 'VAR-DEUX'].forEach(v => {
-        if(A.indexOf(v) >= 0) pbs.push('les variables de l\'exercice sont restées sur le clavier A (' + quelle + ')');
-        else if(B.indexOf(v) < 0) pbs.push('les variables de l\'exercice ne sont sur aucune des deux couches (' + quelle + ')');
+        const ici = varsSurA ? A : B, la = varsSurA ? 'A' : 'B', ailleurs = varsSurA ? B : A;
+        if(ailleurs.indexOf(v) >= 0) pbs.push('les variables de l\'exercice ne sont pas sur le clavier ' + la + ' (' + quelle + ')');
+        else if(ici.indexOf(v) < 0) pbs.push('les variables de l\'exercice ne sont sur aucune des deux couches (' + quelle + ')');
       });
-      if(unitesMax) couches.forEach((l, i) => (l.rows || []).forEach((r, j) => {
+      /* et CHAQUE couche porte de quoi EFFACER. Le jeu de touches, lui, ne dit
+         rien de leur partage : un ⌫ resté sur le seul clavier A laisserait
+         l'élève qui écrit sur le B sans effacement — il devrait changer de
+         couche pour reprendre une lettre. C'est le sabotage qui l'a montré, en
+         restant vert sur un jeu pourtant complet. */
+      if(C.effacer) couches.forEach((l, i) => {
+        if(dedans(l).indexOf(C.effacer) < 0)
+          pbs.push('le clavier ' + (i ? 'B' : 'A') + ' (' + quelle + ') n\'a pas de touche « ' + C.effacer + ' »');
+      });
+      if(att.unitesMax) couches.forEach((l, i) => (l.rows || []).forEach((r, j) => {
         const u = (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0);
-        if(u > unitesMax) pbs.push('la rangée ' + (j + 1) + ' du clavier ' + (i ? 'B' : 'A') + ' (' + quelle + ') fait '
-          + u + ' unités (' + unitesMax + ' au plus) : elle se rétrécirait seule');
+        if(u > att.unitesMax) pbs.push('la rangée ' + (j + 1) + ' du clavier ' + (i ? 'B' : 'A') + ' (' + quelle + ') fait '
+          + u + ' unités (' + att.unitesMax + ' au plus) : la feuille de styles ne lui donnerait pas sa largeur');
       }));
       return couches;
     };
-    const normale = mesurer(dispo, 'normale', C.rangeesA, C.rangeesB, C.unitesMax);
-    /* LA FORME DU PORTRAIT DE TABLETTE : moins de rangées, plus d'unités, et
-       PAS UNE TOUCHE de moins — une touche perdue d'un côté serait intapable
-       dans une orientation, sans qu'aucune erreur ne se lève. Bord opposé : la
-       forme normale a PLUS de rangées, sinon rien n'est compacté. */
-    const PT = C.portraitTablette;
-    if(PT && bk){
-      let court = null;
-      try{ court = bk([{latex:'VAR-UN'}, {latex:'VAR-DEUX'}], true); }
-      catch(e){ pbs.push('buildKbTerm (forme portrait) échoue : ' + e.message); }
-      const couchesC = court && mesurer(court, 'portrait', PT.rangeesA, PT.rangeesB, PT.unitesMax);
-      if(normale && couchesC){
-        if(PT.rangeesA >= C.rangeesA) pbs.push('la forme portrait a autant de rangées que la normale sur le clavier A : rien n\'est compacté');
+    /* LES FORMES : normale et COURTE (la tablette, debout comme couchée), et la
+       même paire pour la variante des LIMITES. Une touche perdue d'un côté
+       serait intapable dans une orientation, sans qu'aucune erreur ne se lève :
+       les jeux se comparent forme à forme, variante par variante. */
+    const V = [{latex:'VAR-UN'}, {latex:'VAR-DEUX'}];
+    const L = C.limites || null;
+    const variantes = [['', false, C, C.courte, C.surA || [], C.surB || [], false]];
+    if(L) variantes.push([' + limites', true, L, L.courte, (C.surA || []).concat(L.surA || []), L.surB || [], true]);
+    let normaleBase = null;
+    if(bk) variantes.forEach(([suffixe, lim, attN, attC, surA, surB, varsSurA]) => {
+      let normale = null, courte = null;
+      try{ normale = bk(V, false, lim); }catch(e){ pbs.push('buildKbTerm (normale' + suffixe + ') échoue : ' + e.message); }
+      try{ courte  = bk(V, true,  lim); }catch(e){ pbs.push('buildKbTerm (courte' + suffixe + ') échoue : ' + e.message); }
+      const cN = normale && mesurer(normale, 'normale' + suffixe, attN, surA, surB, varsSurA);
+      const cC = (courte && attC) && mesurer(courte, 'courte' + suffixe, attC, surA, surB, varsSurA);
+      if(!lim) normaleBase = normale;
+      if(cN && cC){
+        if(attC.rangeesA >= attN.rangeesA)
+          pbs.push('la forme courte' + suffixe + ' a autant de rangées que la normale sur le clavier A : rien n\'est compacté');
         const sig = k => JSON.stringify([k.latex || '', k.key || '', k.insert || '', k.label || '', k.width || 1, k.command || '']);
-        const toutes = cs => [].concat.apply([], cs.map(l => [].concat.apply([], (l.rows || [])))).map(sig);
-        const sn = toutes(normale), sc = toutes(couchesC);
+        const toutes = d => [].concat.apply([], (d.layers || []).map(l => [].concat.apply([], (l.rows || [])))).map(sig);
+        const sn = toutes(normale), sc = toutes(courte);
         const perdues = sn.filter(x => sc.indexOf(x) === -1), ajoutees = sc.filter(x => sn.indexOf(x) === -1);
-        if(perdues.length) pbs.push('touche(s) absente(s) de la forme portrait : ' + perdues.join(', '));
-        if(ajoutees.length) pbs.push('touche(s) de la forme portrait absente(s) de la forme normale : ' + ajoutees.join(', '));
+        if(perdues.length) pbs.push('touche(s) absente(s) de la forme courte' + suffixe + ' : ' + perdues.join(', '));
+        if(ajoutees.length) pbs.push('touche(s) de la forme courte' + suffixe + ' absente(s) de la normale : ' + ajoutees.join(', '));
       }
-      /* la table de routage, évaluée depuis la source sur un faux écran :
-         tablette DEBOUT -> forme courte ; tablette en PAYSAGE, téléphone en
-         portrait et fenêtre flottante de l'ordinateur -> forme normale */
-      const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
-      const fA = fns.find(o => o.nom === 'applyKbLayout'), fT = fns.find(o => o.nom === 'kbPortraitTablette');
-      if(!fA || !fT) pbs.push('applyKbLayout ou kbPortraitTablette est introuvable dans la source');
-      else{
-        const rangees = (flottant, paysage, tablette) => {
-          const vk = { layouts: null };
-          const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: fauxEcran(paysage, tablette) };
-          try{
-            const apply = new Function('window', 'matchMedia', 'currentTestId', 'kbVarsFor', 'buildKbTerm', 'JSON',
-              'let __kbVarsKey = null;\n' + fT.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, null, () => [], bk, JSON);
-            apply();
-            return vk.layouts && vk.layouts[0] && vk.layouts[0].layers[0] ? vk.layouts[0].layers[0].rows.length : -1;
-          }catch(e){ pbs.push('la table de routage ne s\'évalue pas : ' + e.message); return -1; }
-        };
-        const debout = rangees(false, false, true), paysage = rangees(false, true, true),
-              telephone = rangees(false, false, false), flottant = rangees(true, false, true);
-        if(debout !== PT.rangeesA) pbs.push('tablette ancrée en portrait : ' + debout + ' rangée(s) au lieu de ' + PT.rangeesA);
-        if(paysage !== C.rangeesA) pbs.push('tablette ancrée en paysage : ' + paysage + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur le paysage');
-        if(telephone !== C.rangeesA) pbs.push('téléphone ancré en portrait : ' + telephone + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur le téléphone');
-        if(flottant !== C.rangeesA) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur l\'ordinateur');
+      /* et la variante des limites porte EXACTEMENT les mêmes touches que la
+         forme d'origine : seul leur partage change, jamais le jeu */
+      if(lim && normale && normaleBase){
+        const sig = k => JSON.stringify([k.latex || '', k.key || '', k.insert || '', k.label || '', k.width || 1, k.command || '']);
+        const toutes = d => [].concat.apply([], (d.layers || []).map(l => [].concat.apply([], (l.rows || [])))).map(sig);
+        const a = toutes(normaleBase), b = toutes(normale);
+        const perdues = a.filter(x => b.indexOf(x) === -1), ajoutees = b.filter(x => a.indexOf(x) === -1);
+        if(perdues.length) pbs.push('touche(s) perdue(s) par la variante des limites : ' + perdues.join(', '));
+        if(ajoutees.length) pbs.push('touche(s) inventée(s) par la variante des limites : ' + ajoutees.join(', '));
       }
+    });
+    /* LA TABLE DE ROUTAGE, évaluée depuis la source sur un faux écran : une
+       TABLETTE (debout comme couchée) -> la forme courte ; un TÉLÉPHONE en
+       portrait et la fenêtre flottante de l'ordinateur -> la forme normale. */
+    const fA = fns.find(o => o.nom === 'applyKbLayout'), fT = fns.find(o => o.nom === 'kbTablette');
+    if(!fA || !fT) pbs.push('applyKbLayout ou kbTablette est introuvable dans la source');
+    else if(bk){
+      const dispo = (flottant, paysage, tablette, lim, couche) => {
+        const vk = { layouts: null };
+        const racine = { style: { setProperty(){} } };
+        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: fauxEcran(paysage, tablette),
+                      document: { documentElement: racine } };
+        try{
+          const apply = new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLimites', 'kbUnites', 'buildKbTerm', 'JSON',
+            'let __kbVarsKey = null;\n' + fT.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(
+              win, win.matchMedia, win.document, null, () => [], () => !!lim, () => 7, bk, JSON);
+          apply();
+          const l = vk.layouts && vk.layouts[0] && vk.layouts[0].layers[couche || 0];
+          return l ? l.rows.length : -1;
+        }catch(e){ pbs.push('la table de routage ne s\'évalue pas : ' + e.message); return -1; }
+      };
+      const courteA = (C.courte || {}).rangeesA;
+      const debout = dispo(false, false, true), couchee = dispo(false, true, true),
+            telephone = dispo(false, false, false), flottant = dispo(true, false, true);
+      /* et applyKbLayout PASSE le drapeau des limites à buildKbTerm : une
+         variante juste que personne n'appelle est la moitié morte du correctif.
+         On la reconnaît au clavier B, qui perd sa première rangée. */
+      if(C.limites && C.limites.courte){
+        const bLim = dispo(false, false, true, true, 1);
+        if(bLim !== C.limites.courte.rangeesB)
+          pbs.push('applyKbLayout ne demande pas la variante des limites : le clavier B rend ' + bLim
+            + ' rangée(s) au lieu de ' + C.limites.courte.rangeesB);
+      }
+      if(courteA){
+        if(debout !== courteA) pbs.push('tablette ancrée DEBOUT : ' + debout + ' rangée(s) au lieu de ' + courteA);
+        if(couchee !== courteA) pbs.push('tablette ancrée COUCHÉE : ' + couchee + ' rangée(s) au lieu de ' + courteA + ' — le paysage n\'a pas la forme courte');
+      }
+      if(telephone !== C.rangeesA) pbs.push('téléphone ancré en portrait : ' + telephone + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur le téléphone');
+      if(flottant !== C.rangeesA) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur l\'ordinateur');
     }
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Un exercice SUR LES LIMITES est reconnu, et lui seul ---------- */
+/* La page ne tient AUCUNE liste : kbLimites lit le THÈME auquel l'exercice
+   appartient (et l'identifiant qui nomme lui-même la limite), si bien qu'un
+   exercice ajouté demain au thème des limites est couvert sans rien déclarer.
+   Le prix de cette souplesse est qu'un thème RENOMMÉ ferait repartir ∞ sur le
+   clavier B en silence : les témoins déclarés dans tests/profils.js sont là
+   pour l'attraper — et le bord opposé avec eux, un exercice qui n'est PAS sur
+   les limites gardant le clavier d'avant. kbLimites vit dans la greffe module,
+   que jsdom ne charge pas, mais elle lit THEMES, qui est bien dans la page :
+   on évalue sa SOURCE dans le contexte de la page. */
+function clavierLimites(w, P){
+  const nom = 'un exercice sur les limites rend la rangée des variables au clavier A, et lui seul';
+  const L = P.clavierEcran && P.clavierEcran.couches && P.clavierEcran.couches.limites;
+  if(!L){ ignorer(nom, 'ce fichier ne déclare pas d\'exercice sur les limites'); return; }
+  const pbs = [];
+  const fL = corpsFonctions(lire(CIBLE), /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === 'kbLimites');
+  if(!fL) pbs.push('kbLimites est introuvable dans la source');
+  else{
+    const r = evaluer(w, '(function(){ var f = ' + fL.texte + '; return { oui: '
+      + JSON.stringify(L.exercices) + '.filter(function(i){ return !kbLimites(i); }), non: '
+      + JSON.stringify(L.hors) + '.filter(function(i){ return kbLimites(i); }) };'
+      + ' function kbLimites(i){ return f(i); } })()');
+    if(!r.ok) pbs.push('kbLimites ne s\'évalue pas dans la page : ' + r.erreur);
+    else{
+      if(r.valeur.oui.length) pbs.push('exercice(s) sur les limites non reconnu(s) : ' + r.valeur.oui.join(', ')
+        + ' — ∞ et ⟶ repartiraient sur le clavier B');
+      if(r.valeur.non.length) pbs.push('exercice(s) pris à tort pour des limites : ' + r.valeur.non.join(', '));
+    }
+    /* un contrôle qui n'a rien à mesurer ne mesure rien */
+    if(!L.exercices.length || !L.hors.length) pbs.push('aucun témoin déclaré : le contrôle ne mesure rien');
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- La largeur des touches suit la rangée la plus large ---------- */
+/* Le clavier de la Terminale n'a plus UNE disposition mais quatre — normale et
+   courte, sans et avec la variante des limites —, et leurs rangées n'ont pas la
+   même largeur : huit unités, dix, neuf, douze. Un compte RECOPIÉ dans la
+   feuille de styles aurait fini par diverger de la disposition, et la rangée
+   trop large se serait rétrécie SEULE : l'élève aurait eu deux tailles de
+   touches sur le même écran (la leçon du clavier de la tablette, payée une
+   fois). La page POSE donc --kb-unites depuis la disposition qu'elle vient
+   d'installer, et la feuille de styles s'y règle. Trois bords, et n'en tenir
+   qu'un ne tient rien : kbUnites rend bien la rangée la plus large,
+   applyKbLayout la POSE (une fonction juste que personne n'appelle est la
+   moitié morte du correctif), et CHAQUE règle de largeur la LIT — une qui
+   garderait son compte en dur rendrait le reste inutile. */
+function clavierUnites(w, P){
+  const nom = 'la largeur des touches suit la rangée la plus large de la disposition installée';
+  const C = P.clavierEcran && P.clavierEcran.couches;
+  if(!C){ ignorer(nom, 'ce fichier ne déclare pas de partage des couches'); return; }
+  const pbs = [];
+  const src = lire(CIBLE);
+  const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const fU = fns.find(o => o.nom === 'kbUnites'), fA = fns.find(o => o.nom === 'applyKbLayout'),
+        fT = fns.find(o => o.nom === 'kbTablette'), fKb = fns.find(o => o.nom === 'buildKbTerm');
+  if(!fU || !fA || !fT || !fKb) pbs.push('kbUnites, kbTablette, applyKbLayout ou buildKbTerm est introuvable dans la source');
+  else{
+    let bk = null, ku = null;
+    try{ bk = new Function('KB_EXP', 'KB_IDX', 'return (' + fKb.texte + ')')({}, {}); }catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); }
+    try{ ku = new Function('return (' + fU.texte + ')')(); }catch(e){ pbs.push('kbUnites ne s\'évalue pas : ' + e.message); }
+    /* kbUnites rend bien la rangée la plus large — recomptée ici, jamais par
+       la fonction elle-même : la comparer à elle-même ne prouverait rien */
+    if(bk && ku){
+      const V = [{latex:'f'}, {latex:'x'}];
+      [[false, false, 'normale'], [true, false, 'courte'], [false, true, 'normale + limites'], [true, true, 'courte + limites']]
+        .forEach(([court, lim, quelle]) => {
+          const d = bk(V, court, lim);
+          let max = 0;
+          (d.layers || []).forEach(l => (l.rows || []).forEach(r => {
+            const u = (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0); if(u > max) max = u; }));
+          const rendu = ku(d);
+          if(rendu !== max) pbs.push('kbUnites rend ' + rendu + ' pour la forme ' + quelle + ' dont la rangée la plus large fait ' + max);
+        });
+      /* et applyKbLayout la POSE sur la racine du document */
+      const poses = [];
+      const vk = { layouts: null };
+      const racine = { style: { setProperty(n, v){ poses.push([n, v]); } } };
+      const win = { __kbFloating: false, mathVirtualKeyboard: vk, matchMedia: fauxEcran(false, true),
+                    document: { documentElement: racine } };
+      try{
+        const apply = new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLimites', 'kbUnites', 'buildKbTerm', 'JSON',
+          'let __kbVarsKey = null;\n' + fT.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(
+            win, win.matchMedia, win.document, null, () => V, () => false, ku, bk, JSON);
+        apply();
+      }catch(e){ pbs.push('applyKbLayout ne s\'évalue pas : ' + e.message); }
+      const pose = poses.find(p => p[0] === '--kb-unites');
+      if(!pose) pbs.push('applyKbLayout ne pose pas --kb-unites : la feuille de styles garderait son compte de repli');
+      else if(+pose[1] !== ku(bk(V, true, false))) pbs.push('applyKbLayout pose --kb-unites à ' + pose[1] + ' au lieu de ' + ku(bk(V, true, false)));
+    }
+    /* et CHAQUE règle qui donne sa largeur à une touche la lit */
+    const regles = [...src.matchAll(/--keycap-width\s*:\s*([^;}]+)/g)].map(m => m[1].trim());
+    if(!regles.length) pbs.push('aucune règle --keycap-width : le contrôle ne mesure rien');
+    regles.forEach(v => {
+      if(/^\d+px$/.test(v)) return;   /* la fenêtre flottante de l'ordinateur : une largeur fixe, rangées centrées */
+      if(v.indexOf('--keycap-auto') < 0 && v.indexOf('--kb-unites') < 0)
+        pbs.push('une règle de largeur garde un compte d\'unités en dur : « ' + v + ' »');
+    });
+    const auto = /--keycap-auto\s*:\s*([^;}]+)/.exec(src);
+    if(!auto) pbs.push('--keycap-auto est introuvable : rien ne calcule la largeur d\'une touche');
+    else if(auto[1].indexOf('--kb-unites') < 0) pbs.push('--keycap-auto ne lit pas --kb-unites : « ' + auto[1].trim() + ' »');
   }
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
@@ -11391,6 +11553,7 @@ function clavierTablette(w, P){
     const borne = +bloc[1], corps = bloc[2];
     if(!(borne >= 500 && borne <= 800)) pbs.push('la borne de ' + borne + 'px ne distingue plus une tablette d\'un téléphone');
     const h = /--keycap-height:(\d+)px/.exec(corps), f = /--keycap-font-size:(\d+)px/.exec(corps);
+    /* h et f servent deux fois : ici, et plus bas comme repère de la règle du PAYSAGE */
     if(!h) pbs.push('la règle ne pose pas --keycap-height');
     else{
       if(+h[1] > T.hauteurMax) pbs.push('les touches font ' + h[1] + 'px de haut, plus que les ' + T.hauteurMax + ' déclarés');
@@ -11400,6 +11563,31 @@ function clavierTablette(w, P){
     else{
       if(+f[1] > T.policeMax) pbs.push('la police des touches fait ' + f[1] + 'px, plus que les ' + T.policeMax + ' déclarés');
       if(genF && +f[1] >= +genF[1]) pbs.push('la police de la tablette (' + f[1] + 'px) ne réduit rien : le réglage général en donne ' + genF[1]);
+    }
+    /* ET COUCHÉE, plus petites encore (demande de Turquet, septembre 2026 : « en
+       mode paysage, les touches doivent être plus petites de façon à tenir sur
+       3 lignes »). Même périmètre, une orientation en plus — et le bord qui
+       compte est qu'elle RÉDUISE encore : une règle qui reprendrait la hauteur
+       du portrait ne rendrait pas la rangée qu'on vient de retirer. */
+    const PY = T.paysage;
+    if(PY){
+      const bl = /@media \(pointer:coarse\) and \(min-width:(\d+)px\) and \(orientation:landscape\)\{\s*body > \.ML__keyboard\{([\s\S]*?)\}\s*\}/.exec(src);
+      if(!bl) pbs.push('aucune règle de PAYSAGE « @media (pointer:coarse) and (min-width:…px) and (orientation:landscape) » — les touches d\'une tablette couchée gardent la taille du portrait');
+      else{
+        const bo = +bl[1], co = bl[2];
+        if(bo !== borne) pbs.push('la règle du paysage borne à ' + bo + 'px quand celle de la tablette borne à ' + borne + 'px');
+        const hp = /--keycap-height:(\d+)px/.exec(co), fp = /--keycap-font-size:(\d+)px/.exec(co);
+        if(!hp) pbs.push('la règle du paysage ne pose pas --keycap-height');
+        else{
+          if(+hp[1] > PY.hauteurMax) pbs.push('en paysage les touches font ' + hp[1] + 'px de haut, plus que les ' + PY.hauteurMax + ' déclarés');
+          if(h && +hp[1] >= +h[1]) pbs.push('la hauteur du paysage (' + hp[1] + 'px) ne réduit rien : la tablette debout en donne ' + h[1]);
+        }
+        if(!fp) pbs.push('la règle du paysage ne pose pas --keycap-font-size');
+        else{
+          if(+fp[1] > PY.policeMax) pbs.push('en paysage la police fait ' + fp[1] + 'px, plus que les ' + PY.policeMax + ' déclarés');
+          if(f && +fp[1] >= +f[1]) pbs.push('la police du paysage (' + fp[1] + 'px) ne réduit rien : la tablette debout en donne ' + f[1]);
+        }
+      }
     }
   }
   verifier(nom, pbs.length === 0, pbs.join(' | '));
@@ -12548,7 +12736,16 @@ function gardeSaisie(w, apres){
    — le clic envoie l'action « conseil » avec la SAISIE de l'élève et l'ordre
      de ne JAMAIS donner la réponse — le contexte seul serait pire que pas de
      contexte du tout —, et la réponse du modèle s'affiche dans la bulle ;
-   — reprendre sa case efface la bulle (l'élève corrige) ;
+   — la MODIFIER efface la bulle (l'élève corrige) ; y ENTRER, non — après une
+     vérification, la page pose elle-même le curseur dans la première case
+     rouge, et la bulle s'éteindrait 40 ms après être née ;
+   — la VÉRIFICATION la lève elle aussi, sur la PREMIÈRE case fausse que la
+     correction vient de TOUCHER : c'est le seul moment où peignent les
+     exercices sans correction en direct, qui n'en voyaient donc JAMAIS — toute
+     la partie Algorithmique et Python de la Seconde. Une zone de texte y est
+     une case comme une autre ; une bulle déjà ouverte sur une case ENCORE
+     fausse ne saute pas ailleurs ; et tant qu'une case porte le curseur on ne
+     lève rien, c'est le domaine du garde de la saisie ;
    — une case JUSTE quittée, l'entraînement et l'écran verrouillé ne montrent
      rien : la bulle est une aide du soutien, pas un badge de plus.
    jsdom lit ici la propriété hidden — il n'a pas de mise en page ; le
@@ -12732,6 +12929,22 @@ function bulleErreur(w, apres){
     const avaitOn=ecran.classList.contains('on'); ecran.classList.add('on');
     const hote=document.createElement('div'); ecran.appendChild(hote);
     const boite=document.createElement('input'); boite.type='text'; hote.appendChild(boite);
+    /* les trois cases de la VÉRIFICATION, posées APRÈS la case d'essai : une
+       liste, une zone de texte et un champ, dans cet ordre de document. La
+       case d'essai reste rouge de l'essai précédent sans que personne ne la
+       repeigne — c'est le bord « seules les cases TOUCHÉES comptent ». */
+    const juste=document.createElement('input'); juste.type='text'; juste.value='7'; hote.appendChild(juste);
+    const liste=document.createElement('select');
+    ['a','b'].forEach(function(v){ const o=document.createElement('option');
+      o.value=v; o.textContent='le '+v.toUpperCase(); liste.appendChild(o); });
+    liste.value='b'; hote.appendChild(liste);
+    const zone=document.createElement('textarea'); zone.value='print(note)'; hote.appendChild(zone);
+    const peindre=function(v1,v2,v3){
+      [[juste,v1],[liste,v2],[zone,v3]].forEach(function(p){
+        p[0].classList.remove('ok','bad','sol');
+        if(p[1]) p[0].classList.add(p[1]);
+      });
+    };
     let verdict='bad';
     const corriger=function(){
       boite.classList.remove('ok','bad');
@@ -12778,9 +12991,14 @@ function bulleErreur(w, apres){
       const fb=bulle() && bulle().querySelector('[data-bexp-r]');
       bilan.reponse=!!fb && !fb.hidden && fb.textContent.indexOf('essai de bulle')>=0;
 
-      /* 3. il reprend sa case : la bulle s'efface */
+      /* 3. ENTRER dans sa case ne l'efface plus — après une vérification, la
+         page pose elle-même le curseur dans la première case rouge, et la
+         bulle s'éteindrait 40 ms après être née. La MODIFIER l'efface :
+         reprendre sa case, c'est la CORRIGER. */
       boite.focus(); boite.dispatchEvent(new window.Event('focusin',{bubbles:true}));
       await attendre();
+      bilan.entre=visible();
+      await frapper('1');
       bilan.reprise=visible();
 
       /* 4. une case JUSTE quittée ne montre rien */
@@ -12798,6 +13016,55 @@ function bulleErreur(w, apres){
       currentMode='soutien'; test.locked=true;
       boite.blur(); boite.focus(); await frapper('4'); await sortir();
       bilan.verrou=visible();
+
+      /* 7. LA VÉRIFICATION lève la bulle. Les exercices sans correction en
+         direct — toute la partie Algorithmique et Python de la Seconde — ne
+         peignent qu'alors, et l'élève n'y quitte aucune case : la bulle n'y
+         paraissait JAMAIS. Elle se pose sur la PREMIÈRE case fausse que la
+         correction vient de TOUCHER, jamais sur la case d'essai, rouge mais
+         que personne n'a repeinte. */
+      bexpMasquer(); currentMode='soutien'; test.locked=false;
+      boite.blur();
+      if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      await attendre();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.verif=visible();
+      bilan.verifCase=(bexpCase===liste);
+      bilan.verifAilleurs=boite.classList.contains('bad');
+      bilan.verifVal=bexpVal;
+
+      /* 8. une bulle DÉJÀ ouverte sur une case ENCORE fausse ne saute pas
+         ailleurs : elle emporterait l'explication en cours de lecture. */
+      peindre('bad','bad','bad'); await attendre();
+      bilan.pasDeSaut=(bexpCase===liste);
+
+      /* 9. une ZONE DE TEXTE est une case comme une autre : les programmes
+         Python s'y écrivent, et rien ne les couvrait. */
+      bexpMasquer(); peindre('','',''); await attendre();
+      peindre('ok','ok','bad'); await attendre();
+      bilan.zone=(bexpCase===zone);
+      bilan.zoneVal=bexpVal;
+
+      /* 10. l'élève ÉCRIT : rien ne se lève — c'est le domaine du garde de la
+         saisie, et sans ce bord une bulle surgirait sur la case d'à côté à
+         chaque frappe. */
+      bexpMasquer(); peindre('','',''); await attendre();
+      zone.focus();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.ecrit=visible();
+      zone.blur();
+
+      /* 11. copie juste, entraînement, écran verrouillé : rien non plus. */
+      bexpMasquer(); peindre('','',''); await attendre();
+      peindre('ok','ok','ok'); await attendre();
+      bilan.verifJuste=visible();
+      peindre('','',''); currentMode='train'; await attendre();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.verifTrain=visible();
+      currentMode='soutien'; test.locked=true;
+      peindre('','',''); await attendre();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.verifVerrou=visible();
     } finally {
       sb.functions.invoke=invokeAvant;
       currentEleve=eleveAvant;
@@ -12822,12 +13089,40 @@ function bulleErreur(w, apres){
     verifier('la réponse du modèle s’affiche dans la bulle',
       r.ok && b.reponse === true,
       souci || 'la réponse du double n’est pas arrivée dans la bulle');
-    verifier('reprendre sa case efface la bulle',
-      r.ok && b.reprise === false,
-      souci || 'la bulle reste affichée pendant que l’élève corrige sa case');
+    verifier('entrer dans sa case n’efface plus la bulle ; la MODIFIER l’efface',
+      r.ok && b.entre === true && b.reprise === false,
+      souci || 'à l’entrée dans la case : ' + b.entre + ', après la frappe : ' + b.reprise);
     verifier('case juste, entraînement, écran verrouillé : la bulle ne se montre pas',
       r.ok && b.juste === false && b.train === false && b.verrou === false,
       souci || 'case juste : ' + b.juste + ', entraînement : ' + b.train + ', verrouillé : ' + b.verrou);
+    /* ----- la VÉRIFICATION lève la bulle (demande de Turquet, septembre
+       2026) : sans ce moment-là, les exercices SANS correction en direct —
+       toute la partie Algorithmique et Python de la Seconde — n'en voyaient
+       jamais une seule. ----- */
+    verifier('la VÉRIFICATION lève la bulle, sur la PREMIÈRE case fausse',
+      r.ok && b.verif === true && b.verifCase === true,
+      souci || 'bulle visible : ' + b.verif + ', posée sur la première case fausse : ' + b.verifCase);
+    verifier('elle ne se pose que sur une case que la correction vient de TOUCHER',
+      r.ok && b.verifAilleurs === true && b.verifCase === true,
+      souci || (r.ok && b.verifAilleurs !== true
+        ? 'aucune case rouge laissée de côté : le contrôle ne mesure rien'
+        : 'la bulle a sauté sur une case rouge que la correction n’a pas touchée'));
+    verifier('la saisie lue est le LIBELLÉ de la liste, jamais sa valeur interne',
+      r.ok && b.verifVal === 'le B',
+      souci || 'saisie retenue : « ' + b.verifVal +' »');
+    verifier('une bulle déjà ouverte sur une case ENCORE fausse ne saute pas ailleurs',
+      r.ok && b.pasDeSaut === true,
+      souci || 'la bulle a changé de case, emportant l’explication en cours de lecture');
+    verifier('une ZONE DE TEXTE est une case comme une autre — les programmes Python s’y écrivent',
+      r.ok && b.zone === true && b.zoneVal === 'print(note)',
+      souci || 'bulle posée sur la zone : ' + b.zone + ', saisie lue : « ' + b.zoneVal + ' »');
+    verifier('pendant que l’élève écrit, rien ne se lève — c’est le domaine du garde',
+      r.ok && b.ecrit === false,
+      souci || 'une bulle a surgi sur la case d’à côté pendant la frappe');
+    verifier('copie juste, entraînement, écran verrouillé : la vérification ne lève rien',
+      r.ok && b.verifJuste === false && b.verifTrain === false && b.verifVerrou === false,
+      souci || 'copie juste : ' + b.verifJuste + ', entraînement : ' + b.verifTrain
+             + ', verrouillé : ' + b.verifVerrou);
     moyennesDevoirs(w, apres);
   });
 }
@@ -19245,10 +19540,13 @@ function pythonPlacerVariables(w, P){
   })()`, v => v === '');
 
   /* ---- 3. la place au menu ---- */
-  verifierEval(w, 'il FERME le thème 5, numéroté 5.9 après {python-deux-lignes} — et rien d’autre ne bouge', `(function(){
+  /* IL FERMAIT LE THÈME 5 ; {python-tableau-valeurs} le suit depuis septembre
+     2026, et le bord a été RETOURNÉ plutôt que retiré : il vit dans le thème,
+     numéroté 5.9, et rien d'autre n'a bougé. */
+  verifierEval(w, 'il vit dans le thème 5, numéroté 5.9 après {python-deux-lignes} — et rien d’autre ne bouge', `(function(){
     const th=THEMES[THEMES.length-1], vus=[];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
-    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("l’exercice ne ferme pas le thème : "+(th&&th.ids.join(",")));
+    if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans le thème : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="5.9") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-types"]!=="5.2"||TEST_NUM["python-afficher-variable"]!=="5.3"||TEST_NUM["python-noms-variables"]!=="5.4"||TEST_NUM["python-nom-variable"]!=="5.5"||TEST_NUM["python-print"]!=="5.6"||TEST_NUM["python-completer"]!=="5.7"||TEST_NUM["python-deux-lignes"]!=="5.8"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -19306,6 +19604,67 @@ function pythonPlacerVariables(w, P){
       }
     }
     if(Object.keys(premiers).length<3) vus.push("la variable du PREMIER trou ne varie pas : "+Object.keys(premiers).join(" ; "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4 bis. AUCUN LIBELLÉ NE PROMET UN CALCUL ----
+     Signalé par Turquet (septembre 2026) sur le 5.9 : « je ne comprends pas
+     pourquoi il y a "sa moyenne" dans la phrase ». Le jeu des notes écrivait
+     « la 1ère note de Maëlys est 16 et sa moyenne est 18.4 sur 20 » — or
+     note2 est la 2ème note, et 18,4 n'est la moyenne de rien : la page
+     affirmait une fausseté arithmétique dans un cours de mathématiques.
+     LA SONDE A MESURÉ AVANT TOUT CORRECTIF, ET ELLE A ÉLARGI LE SIGNALEMENT :
+     le mensonge vivait dans QUATRE exercices, par le même libellé de PY_JEUX —
+     400 questions sur 400 au 5.9 (ses DEUX phrases du jeu), 92 sur 400 séances
+     au 5.1 (« la moyenne est : 16.8 » sous un « note1 = 13 » affiché deux
+     lignes plus haut), 64 au 5.7 et 134 au 5.8. Un défaut vu dans un coin se
+     corrige PARTOUT.
+     AU 5.9 IL EST PIRE QU'AILLEURS, et c'est ce que le signalement dit : le
+     texte devant la case EST la question — « et sa moyenne est » réclame une
+     grandeur qu'AUCUNE variable ne porte, et l'élève qui raisonne juste ne
+     peut pas répondre.
+     DEUX BORDS, ET N'EN TENIR QU'UN NE TIENT RIEN. Aucun libellé ne nomme une
+     grandeur CALCULÉE ; et aucun programme tiré ne porte d'opérateur — c'est
+     ce second bord qui DONNE SA RAISON au premier : ces programmes affectent
+     puis affichent, donc toute valeur montrée est une valeur DONNÉE, jamais
+     dérivée d'une autre. Le jour où un tirage calculerait vraiment, il
+     rougirait, et la règle serait à revoir plutôt qu'à contourner. */
+  verifierEval(w, 'aucun libellé du thème 5 ne promet un CALCUL — ni dans PY_JEUX (5.1, 5.7, 5.8) ni dans les phrases du 5.9 — et aucun programme tiré ne porte d’opérateur, ce qui est la raison de la règle', `(function(){
+    const vus=[], NL=String.fromCharCode(10), G=String.fromCharCode(34);
+    /* tous les libellés qui annoncent une variable, les quatre exercices */
+    const lib=[];
+    PY_JEUX.forEach(function(J,j){
+      [J.i,J.f,J.s].forEach(function(c){ (c.txt||[]).forEach(function(t){ lib.push({ou:"PY_JEUX["+j+"] "+c.nom, t:t}); }); });
+    });
+    PYV_FICHE.seg.forEach(function(s){ if(s.t!==undefined) lib.push({ou:"PYV_FICHE", t:s.t}); });
+    PYV_PHRASES.forEach(function(ph,j){ ph.forEach(function(p,k){ p.forEach(function(s){
+      if(s.t!==undefined) lib.push({ou:"PYV_PHRASES["+j+"]["+k+"]", t:s.t}); }); }); });
+    /* un contrôle qui n’a rien à mesurer ne mesure rien, et doit le dire */
+    if(lib.length<25){ vus.push("seulement "+lib.length+" libellé(s) relus : le contrôle ne mesure rien"); return vus.join(" | "); }
+    const CALC=["moyenne","somme","total","produit","difference","différence","ecart","écart"];
+    lib.forEach(function(L){
+      const t=String(L.t).toLowerCase();
+      CALC.forEach(function(m){ if(t.indexOf(m)>=0)
+        vus.push(L.ou+" promet un calcul que le programme ne fait pas : "+JSON.stringify(L.t)); });
+    });
+    /* LE BORD OPPOSÉ : aucun programme n’exécute d’opération. On retire les
+       chaînes — les indices pairs sont ce qui vit hors guillemets — et il ne
+       doit rester aucun opérateur. */
+    const nu=function(src){ return String(src).split(G).filter(function(x,i){ return i%2===0; }).join(" "); };
+    const progs=[];
+    for(let i=0;i<40;i++){
+      pyBuildQuestions().forEach(function(q){ progs.push({ou:"5.1", src:q.src}); });
+      pyxBuildQuestions().forEach(function(q){ progs.push({ou:"5.7", src:pyxLigne1(q)+NL+pyxAns(q).ligne}); });
+      pydBuildQuestions().forEach(function(q){ progs.push({ou:"5.8", src:pydProg(q, pydAns(q).map(function(a){ return a.ligne; }))}); });
+      pyvBuildQuestions().forEach(function(q){ progs.push({ou:"5.9", src:pyvTemoin(q)}); });
+    }
+    if(progs.length<500){ vus.push("seulement "+progs.length+" programme(s) relus : le contrôle ne mesure rien"); return vus.slice(0,4).join(" | "); }
+    const OPS="+-*/%".split("");
+    progs.forEach(function(p){
+      const hors=nu(p.src);
+      OPS.forEach(function(o){ if(hors.indexOf(o)>=0)
+        vus.push(p.ou+" : un programme porte l’opérateur « "+o+" » — un libellé de calcul pourrait alors dire vrai, la règle est à revoir : "+JSON.stringify(p.src)); });
+    });
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -19508,6 +19867,707 @@ function pythonPlacerVariables(w, P){
       tous.forEach((p, i) => { if(!meme(mien[i], ref[i])) ecarts.push(JSON.stringify(p.split('\n').pop()) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
       BORDS.forEach((b, i) => { if(!meme(ref[tires.length + i], b[1])) ecarts.push('la sortie épinglée de ' + JSON.stringify(b[0].split('\n').pop()) + ' n\'est pas celle de CPython : ' + JSON.stringify(ref[tires.length + i])); });
       verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+  }
+}
+
+/* {python-tableau-valeurs} (Seconde) : l'exercice 11 du carnet — un programme
+   qu'on EXÉCUTE — prolongé par le tableau de valeurs qu'on remplit en
+   modifiant x dans ce programme. Le contrôle refait le GARDE du tirage par sa
+   propre arithmétique (en DIXIÈMES entiers, là où la page passe par
+   l'interpréteur), tient les PORTES des colonnes, le juge, le soutien, et
+   compare la page à un vrai python3. Aucun accent grave dans ce texte : il vit
+   dans un template littéral. */
+function pythonTableauValeurs(w, P){
+  const nom = '{python-tableau-valeurs} : le tableau de valeurs rempli en exécutant le programme';
+  if(!P.pythonTableauValeurs){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du tableau de valeurs'); return; }
+  const T = P.pythonTableauValeurs, ID = T.exercice, NB = T.nb, COLS = T.cols, ECART = T.ecart, F = T.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPTV==='function' && typeof ptvJuge==='function' && typeof ptvAns==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPTV / ptvJuge / ptvAns introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. le programme de la demande, épinglé ---- */
+  verifierEval(w, 'le programme de la demande, épinglé : x = 2, fonction = 2*x+3, print(fonction) — et il affiche « ' + F.sortie + ' », un ENTIER, là où une abscisse décimale donne un flottant', `(function(){
+    const vus=[], q=JSON.parse(JSON.stringify(PTV_FICHE));
+    if(ptvProg(q,String(PTV_FICHE.dep))!==${J(F.lignes.join('\n'))}) vus.push("le programme : "+JSON.stringify(ptvProg(q,String(PTV_FICHE.dep))));
+    if(ptvSortie(q,String(PTV_FICHE.dep))!==${J(F.sortie)}) vus.push("sa sortie : "+JSON.stringify(ptvSortie(q,String(PTV_FICHE.dep))));
+    if(ptvMaths(q)!==${J(F.calcul)}) vus.push("le titre du tableau : "+JSON.stringify(ptvMaths(q)));
+    /* une abscisse DÉCIMALE donne un flottant, que Python écrit avec un point
+       et au moins une décimale — la leçon du 5.2, rencontrée ici */
+    if(ptvSortie(q,"0.5")!=="4.0") vus.push("x = 0.5 affiche "+JSON.stringify(ptvSortie(q,"0.5"))+" au lieu de 4.0");
+    if(ptvExpr(q)!=="2*x+3") vus.push("l’expression du programme : "+ptvExpr(q));
+    if(ptvExpr({a:3,b:-1})!=="3*x-1") vus.push("la forme du carnet (3*x-1) s’écrit : "+ptvExpr({a:3,b:-1}));
+    if(ptvMaths({a:3,b:-1})!=="3x "+String.fromCharCode(8722)+" 1") vus.push("son titre : "+ptvMaths({a:3,b:-1}));
+    /* l’écriture d’une abscisse : POINT dans le programme, VIRGULE au tableau */
+    if(ptvX(5)!=="0.5"||ptvX(99)!=="9.9"||ptvX(62)!=="6.2") vus.push("l’écriture Python : "+ptvX(5)+" / "+ptvX(99));
+    if(ptvXfr(5)!=="0,5"||ptvXfr(99)!=="9,9") vus.push("l’écriture du tableau : "+ptvXfr(5)+" / "+ptvXfr(99));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. LE GARDE DU TIRAGE, refait par une SECONDE arithmétique ----
+     C'est le risque propre de l'exercice, et il est silencieux : a×x+b se
+     calcule en virgule flottante, et un triplet sur TROIS s'affiche
+     « -3.5999999999999996 ». L'élève recopierait ce que la machine affiche et
+     serait compté faux. Le contrôle recalcule la valeur exacte en DIXIÈMES
+     ENTIERS — rien en commun avec l'interpréteur — et exige que la sortie
+     soit exactement cette écriture. */
+  verifierEval(w, 'le tirage (400 séances) : ' + NB + ' questions, la fiche en tête, trois coefficients distincts et les deux signes, ' + COLS + ' abscisses croissantes à UNE décimale non nulle et UN chiffre devant la virgule — et CHAQUE sortie est l’écriture décimale EXACTE, recomptée en dixièmes entiers', `(function(){
+    const vus=[], ordres={}, deps={};
+    for(let s=0;s<400 && vus.length<4;s++){
+      const qs=ptvBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      if(qs[0].a!==PTV_FICHE.a||qs[0].b!==PTV_FICHE.b||qs[0].dep!==PTV_FICHE.dep){ vus.push("la première question n’est pas le programme de la demande : "+ptvExpr(qs[0])+", x = "+qs[0].dep); break; }
+      const as=qs.map(function(q){ return q.a; });
+      if(as.filter(function(a,i){ return as.indexOf(a)===i; }).length!==qs.length){ vus.push("deux questions au même coefficient : "+qs.map(ptvExpr).join(" / ")); break; }
+      const sg=qs.slice(1).map(function(q){ return q.b<0?"-":"+"; }).sort().join("");
+      if(sg!=="+-"){ vus.push("les deux signes ne sortent pas : "+qs.map(ptvExpr).join(" / ")); break; }
+      ordres[qs.slice(1).map(function(q){ return q.b<0?"-":"+"; }).join("")]=1;
+      for(const q of qs){
+        if(Object.keys(q).sort().join(",")!=="a,b,dep,ns"){ vus.push("la question porte autre chose que a / b / dep / ns : "+Object.keys(q).join(",")); break; }
+        if(q.ns.length!==${COLS}){ vus.push("le tableau a "+q.ns.length+" colonne(s)"); break; }
+        if(q.b===0) vus.push("le programme n’ajoute rien : "+ptvExpr(q));
+        if(PTV_AS.indexOf(q.a)<0) vus.push("coefficient hors du vivier : "+q.a);
+        /* la valeur de DÉPART est un entier, et jamais une colonne du tableau :
+           sinon une colonne s’ouvrirait sans qu’on ait rien modifié */
+        if(!Number.isInteger(q.dep)||q.dep<1||q.dep>9) vus.push("valeur de départ : "+q.dep);
+        if(q.ns.indexOf(q.dep*10)>=0) vus.push("la valeur de départ est une colonne du tableau : "+q.dep);
+        deps[q.dep]=1;
+        for(let i=0;i<q.ns.length;i++){
+          const n=q.ns[i];
+          if(!Number.isInteger(n)||n<1||n>99) vus.push("abscisse hors bornes : "+n);
+          if(n%10===0) vus.push("abscisse sans décimale : "+ptvX(n));
+          if(Math.floor(n/10)>9) vus.push("plus d’un chiffre devant la virgule : "+ptvX(n));
+          if(i&&q.ns[i]-q.ns[i-1]<${ECART}) vus.push("deux abscisses collées : "+q.ns.map(ptvXfr).join(" ; "));
+          /* LA SECONDE ARITHMÉTIQUE : la valeur exacte, en dixièmes entiers */
+          const e=q.a*n+10*q.b, m=Math.abs(e);
+          const att=(e<0?"-":"")+Math.floor(m/10)+"."+(m%10);
+          const vue=ptvSortie(q,ptvX(n));
+          if(vue!==att) vus.push("sortie illisible : "+ptvExpr(q)+" en x = "+ptvX(n)+" affiche "+vue+" au lieu de "+att);
+        }
+        /* ptvAns lit la MÊME fonction que le bouton — un témoin qui diverge
+           ferait mentir la correction */
+        const a=ptvAns(q);
+        if(a.join(" ; ")!==q.ns.map(function(n){ return ptvSortie(q,ptvX(n)); }).join(" ; ")) vus.push("ptvAns ne rend pas ce que le programme affiche");
+        a.forEach(function(x,i){ if(!ptvJuste(q,i,x)) vus.push("le témoin est refusé par le juge : "+x); });
+      }
+    }
+    if(Object.keys(ordres).length<2) vus.push("l’ordre des deux signes ne varie pas : "+Object.keys(ordres).join(" ; "));
+    if(Object.keys(deps).length<3) vus.push("la valeur de départ ne varie pas : "+Object.keys(deps).join(" ; "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le repli passe par les gardes MÊMES du tirage ----
+     Le premier, inventé à la main, portait DEUX sorties sales sur cinq : c'est
+     exactement le défaut qu'on écarte, revenu par la porte du secours. */
+  verifierEval(w, 'le repli est un tirage RÉEL : ses abscisses passent les gardes mêmes — sorties exactes, décimale non nulle, écart, et la valeur de départ hors du tableau', `(function(){
+    const vus=[], q=JSON.parse(JSON.stringify(PTV_REPLI));
+    if(Object.keys(q).sort().join(",")!=="a,b,dep,ns") vus.push("le repli porte autre chose que a / b / dep / ns");
+    if(q.ns.length!==${COLS}) vus.push("le repli a "+q.ns.length+" colonne(s)");
+    if(PTV_AS.indexOf(q.a)<0||q.b===0) vus.push("le repli sort du vivier : "+ptvExpr(q));
+    if(!Number.isInteger(q.dep)||q.ns.indexOf(q.dep*10)>=0) vus.push("la valeur de départ du repli : "+q.dep);
+    for(let i=0;i<q.ns.length;i++){
+      const n=q.ns[i];
+      if(n%10===0) vus.push("abscisse sans décimale : "+ptvX(n));
+      if(i&&q.ns[i]-q.ns[i-1]<${ECART}) vus.push("deux abscisses collées (repli)");
+      const e=q.a*n+10*q.b, m=Math.abs(e);
+      const att=(e<0?"-":"")+Math.floor(m/10)+"."+(m%10);
+      if(ptvSortie(q,ptvX(n))!==att) vus.push("sortie illisible du repli : x = "+ptvX(n)+" affiche "+ptvSortie(q,ptvX(n))+" au lieu de "+att);
+    }
+    /* et le garde qui l’appelle EXISTE : un tirage impossible doit retomber
+       sur lui, jamais rendre un tableau à trous */
+    if(String(ptvTirage).indexOf("PTV_REPLI")<0) vus.push("ptvTirage ne lit pas le repli");
+    if(PTV_ECART!==${ECART}) vus.push("l’écart minimal de la page ("+PTV_ECART+") n’est pas celui que le banc déclare (${ECART})");
+    if(ptvAbscisses(2,3)===null) vus.push("le générateur ne rend rien sur le programme de la demande");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le juge : large sur l'écriture, exact sur la valeur ---- */
+  verifierEval(w, 'le juge accepte toute écriture de la bonne valeur — « 4 », « 4.0 », « 4,0 », les espaces, le signe moins typographique — et refuse toute autre valeur', `(function(){
+    const vus=[], q={a:2,b:3,dep:2,ns:[5,15,25,35,45]};
+    const MOINS=String.fromCharCode(8722);
+    /* x = 0.5 affiche 4.0 : le tableau est français, la console écrit un point */
+    [["4.0",true],["4",true],["4,0",true],["4.00",true],[" 4.0 ",true],["+4",true],
+     ["4.1",false],["3.9",false],["40",false],["0.4",false],["",false],["quatre",false],["4 ans",false],["",false]].forEach(function(c){
+      if(ptvJuste(q,0,c[0])!==c[1]) vus.push(JSON.stringify(c[0])+" : le juge dit "+ptvJuste(q,0,c[0])+" au lieu de "+c[1]);
+    });
+    /* une valeur NÉGATIVE se lit des deux écritures du signe */
+    const qn={a:2,b:-9,dep:2,ns:[5,15,25,35,45]};
+    if(ptvSortie(qn,"0.5")!=="-8.0") vus.push("le témoin négatif affiche "+ptvSortie(qn,"0.5"));
+    [["-8.0",true],["-8",true],[MOINS+"8",true],[MOINS+"8,0",true],["8.0",false],["-8.1",false]].forEach(function(c){
+      if(ptvJuste(qn,0,c[0])!==c[1]) vus.push(JSON.stringify(c[0])+" : le juge dit "+ptvJuste(qn,0,c[0])+" au lieu de "+c[1]);
+    });
+    /* une valeur à une décimale ne se confond pas avec son entier */
+    const q1={a:2,b:3,dep:2,ns:[3,15,25,35,45]};
+    if(ptvSortie(q1,"0.3")!=="3.6") vus.push("le témoin décimal affiche "+ptvSortie(q1,"0.3"));
+    [["3.6",true],["3,6",true],["3.60",true],["3",false],["4",false],["36",false]].forEach(function(c){
+      if(ptvJuste(q1,0,c[0])!==c[1]) vus.push(JSON.stringify(c[0])+" : le juge dit "+ptvJuste(q1,0,c[0])+" au lieu de "+c[1]);
+    });
+    /* une case vide est VIDE, jamais fausse — la case juste d’à côté est
+       celle de SA colonne, pas celle de la première */
+    const j=ptvJuge(q,["","  ",null,undefined,ptvSortie(q,ptvX(q.ns[4]))]);
+    if(!j[0].vide||!j[1].vide||!j[2].vide||!j[3].vide) vus.push("les cases vides ne sont pas dites vides");
+    if(j.slice(0,4).some(function(x){ return x.ok; })) vus.push("une case vide est comptée juste");
+    if(!j[4].ok) vus.push("la case juste d’à côté est refusée");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. l'écran et LES PORTES : une colonne s'ouvre en EXÉCUTANT ---- */
+  verifierEval(w, 'les ' + COLS + ' colonnes sont FERMÉES au départ ; exécuter avec une valeur hors du tableau n’en ouvre aucune, exécuter avec CELLE d’une colonne l’ouvre et elle le reste ; une virgule reçoit la RÈGLE et non la SyntaxError brute', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPTV();
+    const vus=[], q=test.questions[0];
+    if(test.maxScore!==${NB*COLS}) vus.push("barème "+test.maxScore);
+    if(ptvCases(q).length!==${COLS}) vus.push("ptvCases rend "+ptvCases(q).length);
+    const cases=function(){ return ptvCases(q).map(function(c){ return document.getElementById(c.id); }); };
+    if(cases().some(function(e){ return !e||e.tagName!=="INPUT"; })) vus.push("les cases du tableau ne sont pas des champs de saisie");
+    if(cases().some(function(e){ return !e.disabled; })) vus.push("une colonne est ouverte avant toute exécution");
+    /* l’ÉNONCÉ nomme le calcul de SA question — figé, il annoncerait un autre
+       programme sans qu’aucune correction ne bronche */
+    const en=document.getElementById("ptvInstr").textContent;
+    if(en.indexOf(ptvMaths(q))<0) vus.push("l’énoncé ne nomme pas le calcul de sa question : "+en.slice(0,90));
+    /* le programme rendu : trois lignes, dont la première porte la CASE */
+    const l=[...document.querySelectorAll("#ptvHost .pyx-l1")].map(function(e){ return e.textContent; });
+    if(l.length!==3||l[1]!=="fonction = "+ptvExpr(q)||l[2]!=="print(fonction)") vus.push("les lignes du programme : "+l.join(" | "));
+    const x=document.getElementById("ptv-x");
+    if(!x||x.tagName!=="INPUT") vus.push("la valeur de x n’est pas une case de saisie");
+    if(x.value!==String(q.dep)) vus.push("la valeur de départ affichée : "+x.value);
+    /* le tableau : la ligne des x en écriture FRANÇAISE */
+    const tds=[...document.querySelectorAll("#ptvHost .ptv-tab tr")[0].querySelectorAll("td")].map(function(e){ return e.textContent; });
+    if(tds.join(" ; ")!==q.ns.map(ptvXfr).join(" ; ")) vus.push("la ligne des x : "+tds.join(" ; "));
+    const th=[...document.querySelectorAll("#ptvHost .ptv-tab th")].map(function(e){ return e.textContent; });
+    if(th.length!==2||th[1]!==ptvMaths(q)) vus.push("les en-têtes du tableau : "+th.join(" | "));
+    /* a) on exécute avec la valeur de DÉPART : la console répond, rien ne s’ouvre */
+    ptvExecuter();
+    const cons=document.getElementById("ptvConsole");
+    if(cons.textContent!==ptvSortie(q,String(q.dep))) vus.push("la console après a) : "+JSON.stringify(cons.textContent));
+    if(!cons.classList.contains("py-exec")) vus.push("la console n’est pas marquée exécutée");
+    if(cases().some(function(e){ return !e.disabled; })) vus.push("une colonne s’ouvre sur une valeur qui n’est pas la sienne");
+    /* LA VIRGULE : le tableau écrit 0,5 et Python veut 0.5 */
+    x.value=ptvXfr(q.ns[0]); ptvExecuter();
+    if(cons.textContent.indexOf("POINT")<0) vus.push("une virgule ne reçoit pas la règle : "+JSON.stringify(cons.textContent));
+    if(cons.textContent.indexOf(ptvX(q.ns[0]))<0) vus.push("le message ne montre pas l’écriture attendue : "+JSON.stringify(cons.textContent));
+    if(!cons.classList.contains("pyx-err")) vus.push("la console n’est pas marquée en erreur");
+    if(cases().some(function(e){ return !e.disabled; })) vus.push("une colonne s’ouvre sur un programme en erreur");
+    /* LA BONNE VALEUR : la colonne s’ouvre, et elle SEULE */
+    x.value=ptvX(q.ns[2]); ptvExecuter();
+    if(cons.textContent!==ptvSortie(q,ptvX(q.ns[2]))) vus.push("la console : "+JSON.stringify(cons.textContent));
+    if(cases()[2].disabled) vus.push("la colonne exécutée ne s’ouvre pas");
+    if(cases().filter(function(e){ return !e.disabled; }).length!==1) vus.push("plus d’une colonne s’est ouverte");
+    if(document.getElementById("ptvEtat").textContent.indexOf("1")<0) vus.push("l’état ne compte pas les colonnes ouvertes");
+    /* elle RESTE ouverte quand on passe à une autre */
+    x.value=ptvX(q.ns[0]); ptvExecuter();
+    if(cases()[2].disabled||cases()[0].disabled) vus.push("une colonne ouverte se referme");
+    if(cases().filter(function(e){ return !e.disabled; }).length!==2) vus.push("les colonnes ouvertes : "+cases().filter(function(e){ return !e.disabled; }).length);
+    /* UNE ÉCRITURE ÉQUIVALENTE OUVRE LA MÊME COLONNE — c’est la VALEUR qui
+       compte —, une valeur approchée n’ouvre RIEN : sa sortie ne serait pas
+       celle que le garde du tirage a validée */
+    x.value=ptvX(q.ns[1])+"0"; ptvExecuter();
+    if(cases()[1].disabled) vus.push("« "+ptvX(q.ns[1])+"0 » n’ouvre pas la colonne "+ptvXfr(q.ns[1]));
+    const avant=cases().filter(function(e){ return !e.disabled; }).length;
+    /* la valeur APPROCHÉE se construit sur une abscisse RÉELLE du tableau :
+       « 0.2+0.1 » ne vaut 0,3 que si 0,3 est une colonne, et le sabotage de la
+       tolérance restait vert en parlant d’autre chose */
+    x.value=String(Number(ptvX(q.ns[3]))+0.004); ptvExecuter();
+    if(cases()[3].disabled!==true) vus.push("une valeur approchée ("+x.value+") ouvre la colonne "+ptvXfr(q.ns[3]));
+    if(cases().filter(function(e){ return !e.disabled; }).length!==avant) vus.push("une valeur approchée ouvre une colonne");
+    /* L’ÉNONCÉ FIGÉ est le bord le plus sournois — la leçon du numéro
+       d’exercice de show() : écrit en dur, il annoncerait « 2x + 3 » devant un
+       programme qui en calcule un autre. On rend donc une SECONDE question,
+       épinglée à un AUTRE calcul, et l’énoncé doit suivre. Ce bord vient en
+       DERNIER : il remplace le tirage, et tout ce qui précède en dépend. */
+    const qf={a:5,b:-4,dep:3,ns:q.ns.slice()};
+    test.questions=[qf]; test.idx=0; test.ptvOuv=[]; renderPTV();
+    const en2=document.getElementById("ptvInstr").textContent;
+    if(en2.indexOf(ptvMaths(qf))<0) vus.push("l’énoncé est FIGÉ : devant « "+ptvMaths(qf)+" » il annonce « "+en2.slice(en2.indexOf("valeurs de")+11,en2.indexOf("valeurs de")+22)+" »");
+    if(ptvMaths(q)!==ptvMaths(qf)&&en2.indexOf(ptvMaths(q))>=0) vus.push("l’énoncé nomme le calcul d’une AUTRE question : "+en2.slice(0,90));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la copie juste : la note, le verrouillage, la suite ---- */
+  verifierEval(w, 'le tableau rempli avec ce que le programme affiche vaut ' + COLS + ', verrouille la question, ferme « Exécuter » et propose la suite', `(function(){
+    currentMode="train"; startPTV();
+    const vus=[], q=test.questions[0], x=document.getElementById("ptv-x");
+    q.ns.forEach(function(n,i){ x.value=ptvX(n); ptvExecuter(); document.getElementById("ptv-c"+i).value=ptvSortie(q,ptvX(n)); });
+    checkPTV();
+    const cl=ptvCases(q).map(function(c){ return document.getElementById(c.id).className; });
+    if(cl.some(function(c){ return c.indexOf("ok")<0; })) vus.push("une case juste n’est pas peinte ok : "+cl.join(" / "));
+    if(test.score!==${COLS}) vus.push("note "+test.score+" au lieu de ${COLS}");
+    if(!test.locked) vus.push("la question n’est pas verrouillée");
+    if(ptvCases(q).some(function(c){ return !document.getElementById(c.id).disabled; })) vus.push("les cases restent modifiables après le verrou");
+    if(!document.getElementById("ptvRun").disabled||!x.disabled) vus.push("le programme reste modifiable après le verrou");
+    if(!document.getElementById("ptvNext")) vus.push("« Question suivante » n’apparaît pas");
+    const fb=document.getElementById("ptvFeedback");
+    if(fb.className.indexOf("good")<0) vus.push("le retour n’est pas marqué juste : "+fb.className);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==${COLS}||ans.justes!==${COLS}||!ans.correct) vus.push("la note de la question : "+JSON.stringify(ans));
+    if(!afficherEcranDe("ptv")) vus.push("afficherEcranDe ne connaît pas ptv (reprise et rejeu)");
+    /* LA REPRISE APRÈS UNE PAUSE retrouve les colonnes OUVERTES : elles vivent
+       dans « test », que snapshotTest photographie — rangées ailleurs, l’élève
+       reprendrait devant un tableau refermé, à tout réexécuter. */
+    startPTV();
+    const q2=test.questions[0], x2=document.getElementById("ptv-x");
+    x2.value=ptvX(q2.ns[1]); ptvExecuter();
+    document.getElementById("ptv-c1").value=ptvSortie(q2,ptvX(q2.ns[1]));
+    const snap=snapshotTest(), boites=captureBoxes();
+    if(!snap.ptvOuv||snap.ptvOuv[1]!==1) vus.push("la pause ne photographie pas les colonnes ouvertes : "+JSON.stringify(snap.ptvOuv));
+    /* on repart d’une séance NEUVE, puis on remet le brouillon en place */
+    startPTV();
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test, JSON.parse(JSON.stringify(snap)));
+    show("ptv"); renderPTV(); restoreBoxes(boites);
+    const rc=[...document.querySelectorAll("#ptvHost .ptv-in")];
+    if(rc[1].disabled) vus.push("après la reprise, la colonne déjà ouverte s’est refermée");
+    if(rc[0].disabled!==true||rc[2].disabled!==true) vus.push("après la reprise, une colonne jamais exécutée est ouverte");
+    if(rc[1].value!==ptvSortie(q2,ptvX(q2.ns[1]))) vus.push("après la reprise, la valeur écrite est perdue : "+JSON.stringify(rc[1].value));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. chaque case se juge SEULE, et la valeur juste s'écrit en vert ---- */
+  verifierEval(w, 'la copie à moitié fausse (entraînement) : la case fausse rougit et ses voisines restent bleues, la valeur juste s’écrit en vert sous la case fausse SEULEMENT, et la note vaut ' + (COLS - 1) + ' sur ' + COLS, `(function(){
+    currentMode="train"; startPTV();
+    const vus=[], q=test.questions[0], x=document.getElementById("ptv-x");
+    q.ns.forEach(function(n,i){ x.value=ptvX(n); ptvExecuter(); document.getElementById("ptv-c"+i).value=(i===2?"99":ptvSortie(q,ptvX(n))); });
+    checkPTV();
+    const cl=ptvCases(q).map(function(c){ return document.getElementById(c.id).className; });
+    if(cl[2].indexOf("bad")<0) vus.push("la case fausse n’est pas rouge : "+cl[2]);
+    if([0,1,3,4].some(function(i){ return cl[i].indexOf("ok")<0; })) vus.push("une case juste d’à côté ne reste pas bleue : "+cl.join(" / "));
+    const cor=function(i){ const e=document.getElementById("ptv-c"+i); return e.parentNode.querySelector(".mf-cor"); };
+    if(!cor(2)||cor(2).textContent!==ptvSortie(q,ptvX(q.ns[2]))) vus.push("pas de valeur juste en vert sous la case fausse : "+(cor(2)&&cor(2).textContent));
+    if([0,1,3,4].some(function(i){ return !!cor(i); })) vus.push("une case juste reçoit elle aussi une correction");
+    if(test.score!==${COLS-1}) vus.push("note "+test.score+" au lieu de ${COLS-1}");
+    if(!test.locked) vus.push("la copie fausse n’est pas verrouillée en entraînement");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.justes!==${COLS-1}||ans.correct) vus.push("la note enregistrée : "+JSON.stringify(ans));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. le soutien : rien ne se révèle ---- */
+  verifierEval(w, 'en soutien : la case fausse rougit SANS valeur verte, rien n’est verrouillé, « Revérifier » est proposé ; la corriger et revérifier vaut ' + COLS, `(function(){
+    currentMode="soutien"; startPTV();
+    const vus=[], q=test.questions[0], x=document.getElementById("ptv-x");
+    q.ns.forEach(function(n,i){ x.value=ptvX(n); ptvExecuter(); document.getElementById("ptv-c"+i).value=(i===1?"0":ptvSortie(q,ptvX(n))); });
+    checkPTV();
+    const c1=document.getElementById("ptv-c1");
+    if(c1.className.indexOf("bad")<0) vus.push("la case fausse n’est pas rouge en soutien");
+    if(c1.parentNode.querySelector(".mf-cor")) vus.push("la valeur juste fuit en soutien");
+    const fb=document.getElementById("ptvFeedback").textContent;
+    if(fb.indexOf(ptvSortie(q,ptvX(q.ns[1])))>=0) vus.push("le soutien écrit la valeur attendue dans le message");
+    if(test.locked||c1.disabled) vus.push("le soutien verrouille une copie fausse");
+    if(test.score!==0) vus.push("note "+test.score);
+    const v=document.getElementById("ptvValidate");
+    if(!v||v.textContent.indexOf("Rev")<0) vus.push("pas de bouton Revérifier");
+    /* la corriger retire le rouge, et la revérification compte */
+    c1.value=ptvSortie(q,ptvX(q.ns[1])); c1.dispatchEvent(new Event("input",{bubbles:true}));
+    if(c1.className.indexOf("bad")>=0) vus.push("le rouge reste sur une case modifiée");
+    checkPTV();
+    if(test.score!==${COLS}||!test.locked) vus.push("la copie corrigée ne vaut pas ${COLS} : "+test.score+" / "+test.locked);
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. une case vide n'est JAMAIS peinte ---- */
+  verifierEval(w, 'une case laissée vide — ou dont la colonne est encore fermée — n’est jamais peinte : la vérification la redemande, sans colorer ni verrouiller, dans les deux modes', `(function(){
+    const vus=[];
+    ["train","soutien"].forEach(function(m){
+      currentMode=m; startPTV();
+      const q=test.questions[0], x=document.getElementById("ptv-x");
+      const cl=function(){ return ptvCases(q).map(function(c){ return document.getElementById(c.id).className; }).join(" / "); };
+      /* rien de fait : aucune colonne ouverte */
+      checkPTV();
+      if(/ok|bad/.test(cl())) vus.push(m+" : la copie vide reçoit une couleur : "+cl());
+      if(test.locked||test.score) vus.push(m+" : la copie vide verrouille ou compte");
+      let fb=document.getElementById("ptvFeedback").textContent;
+      if(fb.indexOf("${COLS}")<0) vus.push(m+" : la copie vide n’est pas redemandée : "+fb);
+      /* une seule colonne remplie : les autres restent vides, rien n’est peint */
+      x.value=ptvX(q.ns[0]); ptvExecuter();
+      document.getElementById("ptv-c0").value=ptvSortie(q,ptvX(q.ns[0]));
+      checkPTV();
+      if(/ok|bad/.test(cl())) vus.push(m+" : une copie à moitié écrite fait peindre : "+cl());
+      if(test.locked||test.score) vus.push(m+" : une copie à moitié écrite verrouille ou compte");
+      fb=document.getElementById("ptvFeedback").textContent;
+      if(fb.indexOf(String(${COLS}-1))<0) vus.push(m+" : les colonnes qui manquent ne sont pas comptées : "+fb);
+    });
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 10. la place au menu, et les branchements ---- */
+  verifierEval(w, 'il vit dans le thème 5, numéroté 5.10 — entre {python-placer-variables} et {python-changer-valeurs} — et rien d’autre ne bouge ; pas de bouton des tables, un rappel sans LaTeX, les questions à l’IA, un contexte qui déclare les réponses secrètes, et aucune correction au fil de la frappe', `(function(){
+    const vus=[], th=THEMES[THEMES.length-1];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const k=th?th.ids.indexOf("${ID}"):-1;
+    if(k<0) vus.push("l’exercice n’est pas dans le thème 5 : "+(th&&th.ids.join(",")));
+    else if(th.ids[k-1]!=="python-placer-variables"||th.ids[k+1]!=="python-changer-valeurs") vus.push("il n’est plus entre {python-placer-variables} et {python-changer-valeurs} : "+th.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="5.10") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-deux-lignes"]!=="5.8"||TEST_NUM["python-placer-variables"]!=="5.9"||TEST_NUM["python-completer"]!=="5.7"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
+    const rap=RAPPELS.ptv||""; if(!rap) vus.push("pas de rappel RAPPELS.ptv");
+    if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
+    ["POINT","float","print(fonction)"].forEach(function(m){ if(rap.indexOf(m)<0) vus.push("le rappel ne dit pas « "+m+" »"); });
+    if(!QIA_SUGG.ptv||QIA_SUGG.ptv.length<3) vus.push("pas de questions à l’IA pour ptv");
+    currentMode="soutien"; startPTV();
+    const q=test.questions[0], x=document.getElementById("ptv-x");
+    x.value=ptvX(q.ns[0]); ptvExecuter(); document.getElementById("ptv-c0").value="99";
+    const c=ctxPtv(q).contexte;
+    if(c.indexOf(ptvExpr(q))<0) vus.push("le contexte ne porte pas le programme");
+    if(c.indexOf("SECR")<0||c.indexOf(ptvSortie(q,ptvX(q.ns[0])))<0) vus.push("le contexte ne déclare pas les réponses attendues secrètes");
+    if(c.indexOf("99")<0) vus.push("le contexte ne porte pas ce que l’élève a écrit");
+    if(c.indexOf(ptvXfr(q.ns[0]))<0||c.indexOf(ptvX(q.ns[0]))<0) vus.push("le contexte ne porte pas les deux écritures des abscisses");
+    if(String(liveCheckCurrent).indexOf("checkPTV")>=0) vus.push("le soutien juge au fil de la frappe : la valeur est déjà à l’écran");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 11. la seconde méthode : CPython ----
+     Les deux derniers bords ÉPINGLÉS sont le risque de l'exercice, prouvé chez
+     CPython lui-même : ce sont les sorties que le garde du tirage écarte. */
+  const BORDS = [
+    [F.lignes.join('\n'), F.sortie + '\n'],
+    ['x = 0.5\nfonction = 2*x+3\nprint(fonction)', '4.0\n'],
+    ['x = 3\nfonction = 3*x-1\nprint(fonction)', '8\n'],
+    ['x = 9.9\nfonction = 3*x-1\nprint(fonction)', '28.700000000000003\n'],
+    ['x = 1.2\nfonction = 4*x-5\nprint(fonction)', '-0.20000000000000018\n'],
+    ['x = 0,5\nfonction = 2*x+3\nprint(fonction)', 'ERREUR:'],
+    ['x = \nfonction = 2*x+3\nprint(fonction)', 'ERREUR:'],
+    ['x = deux\nfonction = 2*x+3\nprint(fonction)', 'ERREUR:']
+  ];
+  const lirePage = progs => {
+    const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(progs) + '.map(function(p){ try{ return pyRun(p).out; }catch(e){ return "ERREUR:"+e.message; } }))');
+    return r.ok ? JSON.parse(r.valeur) : null;
+  };
+  const meme = (a, b) => (a === b) || (String(a).indexOf('ERREUR:') === 0 && String(b).indexOf('ERREUR:') === 0);
+  const mienBords = lirePage(BORDS.map(b => b[0])) || [];
+  const ecartsBords = [];
+  BORDS.forEach((b, i) => { if(!meme(mienBords[i], b[1])) ecartsBords.push(JSON.stringify(b[0].split('\n')[0] + ' / ' + b[0].split('\n')[1]) + ' : page ' + JSON.stringify(mienBords[i]) + ' / CPython ' + JSON.stringify(b[1])); });
+  verifier('sur les programmes épinglés, la page répond comme CPython — dont les DEUX sorties illisibles que le garde du tirage écarte (' + BORDS.length + ')', ecartsBords.length === 0, ecartsBords.slice(0, 3).join(' | '));
+
+  const nomPy = 'les programmes de {python-tableau-valeurs} donnent la sortie d\'un vrai CPython';
+  const progs = evaluer(w, `(function(){ const o=[];
+    for(let i=0;i<20;i++) ptvBuildQuestions().forEach(function(q){
+      o.push(ptvProg(q,String(q.dep)));
+      q.ns.forEach(function(n){ o.push(ptvProg(q,ptvX(n))); });
+    });
+    return JSON.stringify(o); })()`);
+  const tires = progs.ok ? JSON.parse(progs.valeur) : [];
+  verifier('le tirage de {python-tableau-valeurs} fournit des programmes à comparer', tires.length >= 300, tires.length + ' programme(s)');
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    const tous = tires.concat(BORDS.map(b => b[0]));
+    let ref = null; try{ ref = pythonExecuter(py, tous); }catch(e){ ref = null; }
+    if(!ref || ref.length !== tous.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); }
+    else {
+      const mien = lirePage(tous) || [];
+      const ecarts = [];
+      tous.forEach((p, i) => { if(!meme(mien[i], ref[i])) ecarts.push(JSON.stringify(p.replace(/\n/g, ' ; ')) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
+      BORDS.forEach((b, i) => { if(!meme(ref[tires.length + i], b[1])) ecarts.push('la sortie épinglée de ' + JSON.stringify(b[0].replace(/\n/g, ' ; ')) + ' n\'est pas celle de CPython : ' + JSON.stringify(ref[tires.length + i])); });
+      verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+  }
+}
+
+/* {python-changer-valeurs} (Seconde) : l'exercice 12 du carnet — un programme
+   qui range deux CALCULS, qu'on exécute, puis dont on CHANGE les valeurs pour
+   l'exécuter à nouveau. Le contrôle tient la fiche épinglée (si elle ne passe
+   pas au juge, c'est le juge qui a tort), le tirage et ses deux visages, le
+   juge — dont la valeur qui n'est jamais presque bonne —, les TROIS portes,
+   la phrase de prédiction qui SUIT les valeurs (le risque propre, et il est
+   silencieux), la case vide jamais peinte, le soutien, et compare
+   l'interpréteur à un vrai CPython. Aucun accent grave ni antislash dans ce
+   texte : il vit dans un template littéral, et les deux y changeraient de
+   sens. */
+function pythonChangerValeurs(w, P){
+  const nom = '{python-changer-valeurs} : changer les valeurs, et tout ce qui se calcule suit';
+  if(!P.pythonChangerValeurs){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des valeurs qu\'on change'); return; }
+  const D = P.pythonChangerValeurs, ID = D.exercice, NB = D.nb, F = D.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPCV==='function' && typeof pcvAns==='function' && typeof pcvProg==='function' && typeof pcvBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPCV / pcvAns / pcvProg introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la fiche du carnet, épinglée ---- */
+  verifierEval(w, 'la fiche du carnet, épinglée : le programme de l’exercice 12 au caractère près, ce qu’il affiche, et les deux valeurs attendues — lues dans pyRun, jamais rangées à côté', `(function(){
+    const vus=[], NL=String.fromCharCode(10), q=Object.assign({},PCV_FICHE), a=pcvAns(q,q.va,q.vb);
+    const prog=pcvProg(q,q.va,q.vb);
+    if(prog!==${J(F.prog.join('\n'))}) vus.push("le programme : "+JSON.stringify(prog));
+    if(a.somme!==${J(F.somme)}) vus.push("la somme : "+a.somme);
+    if(a.produit!==${J(F.produit)}) vus.push("le produit : "+a.produit);
+    if(a.sortie!==${J(F.sortie)}) vus.push("ce qu’il affiche : "+JSON.stringify(a.sortie));
+    /* la valeur attendue SORT de l’interpréteur : elle suit le programme */
+    const b=pcvAns(q,12,7);
+    if(b.somme!=="19"||b.produit!=="84") vus.push("avec 12 et 7 : "+b.somme+" / "+b.produit);
+    if(b.sortie.indexOf("La somme de 12 et 7")<0) vus.push("la sortie ne suit pas les valeurs : "+JSON.stringify(b.sortie));
+    /* un négatif et un zéro sont du Python valide, et l’exercice les accepte */
+    const c=pcvAns(q,-3,0);
+    if(c.somme!=="-3"||c.produit!=="0") vus.push("avec -3 et 0 : "+c.somme+" / "+c.produit);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la lecture d'une valeur : un entier, et les zéros de tête refusés ---- */
+  verifierEval(w, 'une valeur est un entier écrit en chiffres — signe compris —, et les zéros de tête sont REFUSÉS : « 007 » est une erreur de syntaxe en Python 3, que l’interpréteur de la page, lui, accepterait', `(function(){
+    const vus=[];
+    [["12",12],["0",0],["-3",-3],["9999",9999],[" 7 ",7],["-0",0],
+     [String.fromCharCode(8722)+"3",-3],[String.fromCharCode(8211)+"12",-12]].forEach(function(c){
+      if(pcvEntier(c[0])!==c[1]) vus.push("« "+c[0]+" » devrait valoir "+c[1]+" : "+pcvEntier(c[0]));
+    });
+    ["","007","1.5","1,5","abc","12a","10000","--3","+3"," "].forEach(function(s){
+      if(pcvEntier(s)!==null) vus.push("« "+s+" » est accepté : "+pcvEntier(s));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le tirage et ses deux visages ---- */
+  verifierEval(w, 'le tirage : '+NB+' questions, la fiche du carnet en tête au visage DONNÉ, les suivantes au visage À CHANGER, deux noms distincts et deux valeurs de départ distinctes, et la question ne porte QUE les noms, les valeurs et le visage (400 séances)', `(function(){
+    const vus=[], modes={};
+    for(let s=0;s<400 && vus.length<4;s++){
+      const qs=pcvBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      const f=qs[0];
+      if(f.na!=="a"||f.nb!=="b"||f.va!==6||f.vb!==5||f.mode!=="donne"){ vus.push("la première question n’est pas la fiche du carnet : "+JSON.stringify(f)); break; }
+      if(pcvProg(f,f.va,f.vb)!==${J(F.prog.join('\n'))}){ vus.push("la première question ne rend pas le programme du carnet"); break; }
+      const noms=[];
+      qs.forEach(function(q,i){
+        if(Object.keys(q).sort().join(",")!=="mode,na,nb,va,vb") vus.push("la question porte autre chose que na / nb / va / vb / mode : "+Object.keys(q).join(","));
+        if(i>0 && q.mode!=="change") vus.push("la question "+(i+1)+" n’est pas au visage à changer : "+q.mode);
+        if(q.na===q.nb) vus.push("les deux variables portent le même nom : "+q.na);
+        if(q.va===q.vb) vus.push("les deux valeurs de départ sont égales : "+q.va);
+        if(pcvEntier(String(q.va))===null||pcvEntier(String(q.vb))===null) vus.push("une valeur de départ n’est pas un entier lisible : "+q.va+" / "+q.vb);
+        noms.push(q.na+q.nb);
+      });
+      if(noms.filter(function(n,i){ return noms.indexOf(n)===i; }).length!==noms.length) vus.push("deux questions portent les mêmes variables : "+noms.join(","));
+      modes[qs.map(function(q){ return q.mode; }).join(",")]=1;
+    }
+    /* LES DEUX VISAGES SORTENT : le a) une fois, le b) pour tout le reste */
+    const m=Object.keys(modes);
+    if(m.length!==1||m[0].indexOf("donne")!==0||m[0].indexOf("change")<0) vus.push("les visages d’une séance : "+m.join(" / "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le visage DONNÉ : prédire, puis la porte d'« Exécuter » ---- */
+  verifierEval(w, 'au visage DONNÉ : le programme est écrit en six lignes, « Exécuter » est VERROUILLÉ avant la vérification, la copie juste vaut 2 et le débloque, la console montre ce que le programme affiche, et « Question suivante » n’arrive qu’APRÈS l’exécution', `(function(){
+    currentMode="train"; startPCV();
+    const vus=[], q=test.questions[0], a=pcvAns(q,q.va,q.vb), NL=String.fromCharCode(10);
+    const l=[...document.querySelectorAll("#pcvHost .pyx-l1")].map(function(e){ return e.textContent; });
+    if(l.length!==6||l.join(NL)!==pcvProg(q,q.va,q.vb)) vus.push("les lignes écrites du programme : "+l.join(" | "));
+    if(document.getElementById("pcv-a")||document.getElementById("pcv-b")) vus.push("le visage DONNÉ porte des cases de valeur");
+    const s=document.getElementById("pcv-s"), p=document.getElementById("pcv-p"), run=document.getElementById("pcvRun");
+    if(!s||!p||s.tagName!=="INPUT"||p.tagName!=="INPUT") vus.push("il n’y a pas deux cases de prédiction");
+    if(!run||!run.disabled) vus.push("« Exécuter » n’est pas verrouillé avant la vérification");
+    if(document.getElementById("pcvNext")) vus.push("« Question suivante » est là avant toute réponse");
+    s.value=a.somme; p.value=a.produit; checkPCV();
+    if(!s.classList.contains("ok")||!p.classList.contains("ok")) vus.push("la copie juste n’est pas peinte ok : "+s.className+" / "+p.className);
+    if(test.score!==2) vus.push("note "+test.score+" au lieu de 2");
+    if(!test.locked) vus.push("la question n’est pas verrouillée");
+    if(!s.disabled||!p.disabled) vus.push("les cases restent modifiables après le verrou");
+    if(run.disabled) vus.push("« Exécuter » reste verrouillé après une copie juste");
+    if(document.getElementById("pcvNext")) vus.push("« Question suivante » arrive AVANT l’exécution");
+    pcvExecuter();
+    const cons=document.getElementById("pcvConsole");
+    if(cons.textContent!==a.sortie.slice(0,a.sortie.length-1)) vus.push("la console montre "+JSON.stringify(cons.textContent));
+    if(!cons.classList.contains("py-exec")) vus.push("la console n’est pas marquée exécutée");
+    if(!document.getElementById("pcvNext")) vus.push("« Question suivante » n’apparaît pas après l’exécution");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==2||ans.justes!==2||!ans.correct) vus.push("la note de la question ne compte pas 2 cases justes : "+JSON.stringify(ans));
+    if(!afficherEcranDe("pcv")) vus.push("afficherEcranDe ne connaît pas pcv (reprise et rejeu)");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le visage À CHANGER : la porte, et la phrase qui SUIT ---- */
+  verifierEval(w, 'au visage À CHANGER : les deux premières lignes portent des cases pré-remplies avec les valeurs d’origine, « Vérifier » ne juge RIEN tant qu’aucune n’a bougé — ni sur une valeur qui n’est pas un entier —, et la phrase de prédiction SUIT les valeurs écrites au lieu de rester figée', `(function(){
+    currentMode="train"; startPCV(); test.idx=1; renderPCV();
+    const vus=[], q=test.questions[1];
+    const A=function(){ return document.getElementById("pcv-a"); }, B=function(){ return document.getElementById("pcv-b"); };
+    const S=function(){ return document.getElementById("pcv-s"); }, Pp=function(){ return document.getElementById("pcv-p"); };
+    const fb=function(){ return document.getElementById("pcvFeedback"); };
+    const pred=function(){ return document.getElementById("pcvPred").textContent; };
+    if(!A()||!B()||A().tagName!=="INPUT"||B().tagName!=="INPUT"){ vus.push("les deux valeurs ne sont pas des cases"); return vus.join(" | "); }
+    if(A().value!==String(q.va)||B().value!==String(q.vb)) vus.push("les cases ne sont pas pré-remplies avec les valeurs d’origine : "+A().value+" / "+B().value);
+    if(pred().indexOf(String(q.va))<0||pred().indexOf(String(q.vb))<0) vus.push("la phrase de prédiction ne dit pas les valeurs de départ : "+pred());
+    /* RIEN DE CHANGÉ : la porte le dit, et ne peint rien */
+    S().value="1"; Pp().value="1"; checkPCV();
+    if(/ok|bad/.test(S().className)||/ok|bad/.test(Pp().className)) vus.push("la porte a peint les cases : "+S().className);
+    if(test.locked) vus.push("la porte a verrouillé la question");
+    if(fb().textContent.indexOf("rien chang")<0) vus.push("le message ne dit pas que rien n’a changé : "+fb().textContent);
+    /* UNE VALEUR QUI N’EST PAS UN ENTIER : la porte le dit aussi */
+    A().value="1.5"; A().dispatchEvent(new Event("input",{bubbles:true})); checkPCV();
+    if(fb().textContent.indexOf("ENTIER")<0) vus.push("le message ne réclame pas un entier : "+fb().textContent);
+    if(test.locked) vus.push("une valeur illisible verrouille la question");
+    /* UNE VALEUR VIDE : la porte la redemande */
+    A().value=""; A().dispatchEvent(new Event("input",{bubbles:true})); checkPCV();
+    if(fb().textContent.indexOf("manque")<0) vus.push("le message ne redemande pas la valeur manquante : "+fb().textContent);
+    if(pred().indexOf(String(q.va))>=0) vus.push("la phrase garde l’ancienne valeur alors que la case est vide : "+pred());
+    /* LA PHRASE SUIT : c’est le risque propre, et il est silencieux */
+    const neuf=q.va+7;
+    A().value=String(neuf); A().dispatchEvent(new Event("input",{bubbles:true}));
+    if(pred().indexOf(String(neuf))<0) vus.push("la phrase de prédiction ne suit pas la valeur écrite : "+pred());
+    const a=pcvAns(q,neuf,q.vb);
+    S().value=a.somme; Pp().value=a.produit; checkPCV();
+    if(!S().classList.contains("ok")||!Pp().classList.contains("ok")) vus.push("la copie juste sur les valeurs CHANGÉES est refusée : "+S().className+" / "+Pp().className);
+    if(test.score!==2) vus.push("note "+test.score+" au lieu de 2");
+    pcvExecuter();
+    const cons=document.getElementById("pcvConsole").textContent;
+    if(cons.indexOf("La somme de "+neuf+" et "+q.vb)<0) vus.push("la console n’exécute pas le programme aux valeurs de l’élève : "+JSON.stringify(cons));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5 bis. la reprise d'une pause : la phrase suit les valeurs RESTAURÉES ---- */
+  verifierEval(w, 'après une reprise de pause, la phrase de prédiction suit les valeurs RESTAURÉES : restoreBoxes() pose « .value » sans lever d’événement, et la phrase dirait sinon les valeurs d’origine devant un programme qui en porte d’autres', `(function(){
+    currentMode="train"; startPCV(); test.idx=1; renderPCV();
+    const vus=[], q=test.questions[1], neuf=q.va+3;
+    /* le chemin EXACT de la reprise : l’écran est rendu, puis les cases sont
+       remplies sans qu’aucun événement ne parte */
+    restoreBoxes({"pcv-a":String(neuf)});
+    pcvRendrePred();
+    const pred=document.getElementById("pcvPred").textContent;
+    if(pred.indexOf("de "+neuf+" et "+q.vb)<0) vus.push("la phrase ne suit pas la valeur restaurée : "+pred);
+    if(pred.indexOf("de "+q.va+" et")>=0) vus.push("la phrase garde la valeur d’origine : "+pred);
+    /* le garde de signature : rappelée pour rien, elle ne reprend pas le focus */
+    const avant=document.getElementById("pcv-s");
+    pcvRendrePred();
+    if(document.getElementById("pcv-s")!==avant) vus.push("la phrase se reconstruit alors que rien n’a changé : elle reprendrait le focus de l’élève");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+  /* ET LE RENDU BRANCHE BIEN CES DEUX REGARDS — sans eux, la fonction est
+     juste et personne ne l'appelle après la restauration. On le lit dans la
+     SOURCE de la page : les rendus sont ENVELOPPÉS par la greffe des jetons,
+     et la chaîne d'une enveloppe parle d'autre chose (le piège du 2.14). */
+  const srcPage = lire(CIBLE);
+  const corpsPcv = (corpsFonctions(srcPage, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o => o.nom === 'renderPCV') || {}).texte || '';
+  verifier('et renderPCV BRANCHE ces deux regards : sans eux la phrase serait juste et personne ne la replacerait après la restauration',
+    corpsPcv.indexOf('setTimeout(pcvRendrePred,0)') >= 0 && corpsPcv.indexOf('setTimeout(pcvRendrePred,120)') >= 0,
+    corpsPcv ? (corpsPcv.indexOf('setTimeout(pcvRendrePred') < 0 ? 'aucun regard différé dans renderPCV' : 'un seul regard') : 'renderPCV introuvable dans la source');
+
+  /* ---- 6. la valeur n'est jamais presque bonne, la case vide jamais peinte ---- */
+  verifierEval(w, 'la valeur n’est jamais presque bonne — un chiffre de trop est FAUX, les espaces ne comptent pas —, chaque case se juge SEULE, et une case laissée vide n’est jamais peinte : la vérification la redemande sans rien colorer ni verrouiller', `(function(){
+    const vus=[];
+    const poser=function(mode,s,p){ currentMode=mode; startPCV(); const a=pcvAns(test.questions[0],6,5);
+      document.getElementById("pcv-s").value=s; document.getElementById("pcv-p").value=p; checkPCV(); return a; };
+    /* la case vide, dans les DEUX modes */
+    ["train","soutien"].forEach(function(m){
+      const a=poser(m,"11","");
+      const s=document.getElementById("pcv-s"), p=document.getElementById("pcv-p");
+      if(/ok|bad/.test(s.className)||/ok|bad/.test(p.className)) vus.push(m+" : la copie à case vide est peinte — "+s.className+" / "+p.className);
+      if(test.locked) vus.push(m+" : la copie à case vide verrouille la question");
+      if(test.score!==0) vus.push(m+" : la copie à case vide compte "+test.score);
+      if(document.getElementById("pcvFeedback").textContent.indexOf("manque")<0) vus.push(m+" : le message ne redemande pas la case vide");
+      if(p.nextElementSibling&&p.nextElementSibling.classList&&p.nextElementSibling.classList.contains("mf-cor")) vus.push(m+" : la case vide reçoit une correction avant d’être jugée");
+    });
+    /* un chiffre de trop, ou un espace : la valeur exacte et elle seule */
+    [["110","30",1],["11","300",1],[" 11 "," 30 ",2],["11.0","30",1],["11","30",2]].forEach(function(c){
+      poser("train",c[0],c[1]);
+      if(test.score!==c[2]) vus.push("« "+c[0]+" » / « "+c[1]+" » vaut "+test.score+" au lieu de "+c[2]);
+    });
+    /* CHAQUE CASE SE JUGE SEULE, et la fausse reçoit la bonne en vert */
+    poser("train","110","30");
+    const s=document.getElementById("pcv-s"), p=document.getElementById("pcv-p");
+    if(!s.classList.contains("bad")) vus.push("la case fausse n’est pas rouge : "+s.className);
+    if(!p.classList.contains("ok")) vus.push("la case juste d’à côté ne reste pas bleue : "+p.className);
+    const b=s.nextElementSibling;
+    if(!b||!b.classList.contains("mf-cor")||b.textContent!=="11") vus.push("la bonne valeur n’est pas écrite en vert à côté de la case fausse : "+(b&&b.textContent));
+    if(p.nextElementSibling&&p.nextElementSibling.classList&&p.nextElementSibling.classList.contains("mf-cor")) vus.push("la case juste reçoit elle aussi une correction");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. le soutien : il ne révèle rien, et « Exécuter » attend une copie juste ---- */
+  verifierEval(w, 'en soutien : la case fausse rougit SANS que la bonne valeur ne s’écrive, rien n’est verrouillé, « Revérifier » est proposé et « Exécuter » reste fermé ; la copie corrigée vaut 2 et le débloque', `(function(){
+    currentMode="soutien"; startPCV();
+    const vus=[], a=pcvAns(test.questions[0],6,5);
+    const s=document.getElementById("pcv-s"), p=document.getElementById("pcv-p");
+    s.value="110"; p.value=a.produit; checkPCV();
+    if(!s.classList.contains("bad")) vus.push("la case fausse n’est pas rouge : "+s.className);
+    if(s.nextElementSibling&&s.nextElementSibling.classList&&s.nextElementSibling.classList.contains("mf-cor")) vus.push("le soutien écrit la bonne valeur à côté");
+    if(document.getElementById("pcvFeedback").textContent.indexOf(a.somme)>=0) vus.push("le message du soutien donne la réponse");
+    if(test.locked) vus.push("le soutien verrouille une copie fausse");
+    if(!document.getElementById("pcvRun").disabled) vus.push("« Exécuter » se débloque sur une copie fausse : la sortie EST la réponse");
+    const v=document.getElementById("pcvValidate");
+    if(!v||v.textContent.indexOf("Revérifier")<0) vus.push("« Revérifier » n’est pas proposé : "+(v&&v.textContent));
+    s.value=a.somme; s.dispatchEvent(new Event("input",{bubbles:true}));
+    if(/ok|bad/.test(s.className)) vus.push("le rouge ne s’en va pas à la frappe : "+s.className);
+    checkPCV();
+    if(test.score!==2) vus.push("note "+test.score+" au lieu de 2 après correction");
+    if(document.getElementById("pcvRun").disabled) vus.push("« Exécuter » reste fermé après une copie juste");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. la place au menu ---- */
+  verifierEval(w, 'il FERME le thème 5, numéroté 5.11 après {python-tableau-valeurs} — et rien d’autre ne bouge', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("l’exercice ne ferme pas le thème : "+(th&&th.ids.join(",")));
+    if(!th||th.ids[th.ids.length-2]!=="python-tableau-valeurs") vus.push("il ne suit pas {python-tableau-valeurs} : "+(th&&th.ids.join(",")));
+    if(TEST_NUM["${ID}"]!=="5.11") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-deux-lignes"]!=="5.8"||TEST_NUM["python-placer-variables"]!=="5.9"||TEST_NUM["python-tableau-valeurs"]!=="5.10"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. les branchements ---- */
+  verifierEval(w, 'les branchements : le bouton des tables est LÀ — le produit est un calcul de table, et c’est le seul exercice Python qui l’ait —, le rappel dit la variable qui reçoit un calcul, les questions à l’IA sont les siennes, le contexte porte le programme et déclare les réponses secrètes, et aucune correction au fil de la frappe', `(function(){
+    const vus=[];
+    currentTestId="${ID}"; currentMode="train"; startPCV();
+    if(TABLES_SANS.indexOf("${ID}")>=0) vus.push("l’exercice est dans TABLES_SANS alors que « produit = a * b » est un calcul de table");
+    if(!tablesBtnHTML()) vus.push("le bouton des tables n’est pas proposé");
+    const rap=RAPPELS["pcv"]||"";
+    if(!rap) vus.push("pas de rappel de cours");
+    if(rap.indexOf(String.fromCharCode(92))>=0) vus.push("le rappel écrit du LaTeX alors que rien n’y empile");
+    if(rap.indexOf("somme = a + b")<0||rap.indexOf("produit = a * b")<0) vus.push("le rappel ne montre pas les deux calculs");
+    if(!/chang/i.test(rap)) vus.push("le rappel ne dit pas ce qui se passe quand on change une valeur");
+    const qia=QIA_SUGG["pcv"]||[];
+    if(qia.length<3) vus.push("les questions à l’IA : "+qia.length);
+    const q=test.questions[0], c=ctxPcv(q).contexte;
+    if(c.indexOf("somme = a + b")<0) vus.push("le contexte ne porte pas le programme");
+    if(c.indexOf("SECR")<0) vus.push("le contexte ne déclare pas les réponses secrètes");
+    if(c.indexOf("11")<0||c.indexOf("30")<0) vus.push("le contexte ne porte pas les réponses attendues");
+    /* AUCUNE CORRECTION AU FIL DE LA FRAPPE : checkPCV(true) ne juge rien.
+       La copie doit être ENTIÈRE pour que le bord soit atteignable — une case
+       vide arrête la vérification avant toute peinture, et le sabotage
+       resterait vert en parlant d'autre chose (la leçon du sabotage
+       impossible) — et en SOUTIEN, le seul mode où une correction en direct
+       existerait. */
+    currentMode="soutien"; startPCV();
+    const att=pcvAns(test.questions[0],6,5);
+    document.getElementById("pcv-s").value="999";
+    document.getElementById("pcv-p").value=att.produit;
+    checkPCV(true);
+    const cs=document.getElementById("pcv-s"), cp=document.getElementById("pcv-p");
+    if(/ok|bad/.test(cs.className)||/ok|bad/.test(cp.className)) vus.push("une correction au fil de la frappe peint les cases : "+cs.className+" / "+cp.className);
+    if(test.score!==0) vus.push("une correction au fil de la frappe compte des points : "+test.score);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 10. l'interpréteur contre un vrai CPython ---- */
+  const nomPy = 'les programmes de {python-changer-valeurs} — la fiche et les valeurs que l\'élève peut écrire — donnent la sortie d\'un vrai CPython';
+  const progs = evaluer(w, `(function(){ const o=[];
+    for(let i=0;i<40;i++) pcvBuildQuestions().forEach(function(q){
+      o.push(pcvProg(q,q.va,q.vb));
+      [[12,7],[-3,0],[0,0],[9999,9999],[-9999,-9999],[1,-1]].forEach(function(v){ o.push(pcvProg(q,v[0],v[1])); });
+    });
+    return JSON.stringify(o); })()`);
+  const tires = progs.ok ? JSON.parse(progs.valeur) : [];
+  verifier('le tirage de {python-changer-valeurs} fournit des programmes à comparer', tires.length >= 500, tires.length + ' programme(s)');
+  const lirePage = ps => {
+    const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(ps) + '.map(function(p){ try{ return pyRun(p).out; }catch(e){ return "ERREUR:"+e.message; } }))');
+    return r.ok ? JSON.parse(r.valeur) : null;
+  };
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    let ref = null; try{ ref = pythonExecuter(py, tires); }catch(e){ ref = null; }
+    if(!ref || ref.length !== tires.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); }
+    else {
+      const mien = lirePage(tires) || [], ecarts = [];
+      tires.forEach((p, i) => { if(mien[i] !== ref[i]) ecarts.push(JSON.stringify(p.split('\n')[0] + ' / ' + p.split('\n')[1]) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
+      /* le premier programme tiré EST celui de la fiche, et sa sortie est
+         celle que tests/profils.js épingle : une page et un CPython d'accord
+         sur un texte faux diraient faux ensemble */
+      if(ref[0] !== F.sortie) ecarts.push('CPython n\'affiche pas la sortie épinglée de la fiche : ' + JSON.stringify(ref[0]));
+      verifier(nomPy + ' (' + tires.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
     }
   }
 }

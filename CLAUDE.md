@@ -724,6 +724,75 @@ atteignable qu'en resserrant l'obstacle du banc : posé trop grand, il bloquait
 aussi les places hors portée, et le sabotage restait vert en parlant d'autre
 chose.
 
+**Puis la VÉRIFICATION a levé la bulle — et c'est la partie Algorithmique qui
+l'a montré.** Demande de Turquet (septembre 2026) : « en mode soutien pour la
+partie algorithme en seconde je veux qu'il y ait des bulles qui apparaissent
+dès qu'une case est fausse, comme ça devrait être la règle pour tous les
+exercices ». La bulle ne paraissait qu'à la SORTIE d'une case — le moment où
+le garde de la saisie pose la couleur — or un exercice SANS correction en
+direct ne peint qu'au clic sur « Vérifier », et l'élève n'y quitte alors
+aucune case : les HUIT exercices Python de la Seconde n'en voyaient JAMAIS une
+seule, non plus que la lecture graphique, les antécédents, la définition ou
+l'écriture des solutions — les seize `kind` que `soutienEnDirect.sans`
+déclare. Le défaut vivait exactement dans l'angle mort du contrôle, qui posait
+sa case d'essai et la QUITTAIT.
+**UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE** — le motif du garde, tenu
+une fois de plus : un observateur de classes posé sur le document, et dès
+qu'une correction laisse une case FAUSSE, la bulle se pose sur la PREMIÈRE
+d'entre elles. Il n'y avait PAS d'entonnoir de vérification à greffer —
+`soutienAgain` n'en sert que dix-neuf sur quarante-six, et les Python écrivent
+chacun leur message pour compter les cases vides —, et une liste d'appels à
+tenir aurait laissé dehors l'exercice qu'on ajoutera demain.
+**LE MOMENT SE RECONNAÎT SANS CONNAÎTRE AUCUN EXERCICE** : une correction en
+direct tourne pendant que l'élève ÉCRIT — l'événement qui la déclenche part de
+la case qui porte le curseur —, une vérification tourne quand il a quitté ses
+cases, le clic parti sur un bouton. Tant qu'une case de l'écran porte le
+curseur, on ne lève donc rien : c'est le domaine du garde, et la sortie de
+case s'en charge. Deux autres bords, et n'en tenir qu'un ne tient rien : seules
+comptent les cases que la correction vient de TOUCHER — une case rouge que
+personne ne vient de regarder n'appelle rien, et une correction qui ne repeint
+qu'une case ne fait donc pas surgir de bulle à l'autre bout de l'écran — et une
+bulle DÉJÀ ouverte sur une case ENCORE fausse ne saute pas ailleurs : elle
+emporterait l'explication que l'élève est en train de lire.
+**ET ELLE S'EFFACE QUAND IL MODIFIE SA CASE, PLUS QUAND IL Y ENTRE.** C'est un
+renversement, et c'est la demande qui l'exige : après une vérification, la page
+pose ELLE-MÊME le curseur dans la première case rouge (`soutienAgain`, et les
+Python font de même, 40 ms plus tard). L'ancienne règle éteignait donc la bulle
+au moment précis où elle venait de naître, sans qu'aucune erreur ne le dise.
+Reprendre sa case, c'est la CORRIGER : une frappe, un choix dans une liste — la
+promesse ne change pas, elle revient s'il ressort en faux ou à la vérification
+suivante. Les deux bancs ont RETOURNÉ leur contrôle plutôt que de le retirer.
+**Et une ZONE DE TEXTE est une case comme une autre** : `bexpCible` ne
+connaissait que les champs et les listes, quand {python-afficher-variable} et
+{python-print} font écrire le programme dans un `textarea` que la correction
+peint `bad` — deux exercices sur huit seraient restés dehors même une fois le
+moment trouvé.
+**Et les BOUTONS de l'écran sont devenus des obstacles** : la bulle paraît
+maintenant au moment précis où la rangée d'actions dit « Revérifier », et posée
+dessus elle rendrait incliquable le bouton dont l'élève a besoin — la leçon du
+pavé numérique, au même endroit. Le coût est MESURÉ plutôt que supposé : sur
+les deux écrans témoins du banc navigateur, la bulle trouve toujours un côté et
+ne retombe pas au coin.
+**Le bloc est le MÊME TEXTE dans les trois fichiers**, comparé au caractère
+près : la règle vaut donc pour les trois niveaux, ce que « pour tous les
+exercices » demandait.
+Deux bancs, la répartition habituelle : jsdom mesure le MÉCANISME sur des cases
+posées à la main — une liste, une zone de texte et un champ, les quatre bords,
+et les trois refus (copie juste, entraînement, écran verrouillé) — ; le
+NAVIGATEUR mesure le GESTE sur le 5.1, déclaré par `bulleVerification` dans
+`tests/profils.js` : une copie fausse choisie dans les vraies listes, un vrai
+clic sur « Vérifier », la bulle au RECTANGLE — jamais à la propriété `hidden` —
+et le bord que lui seul voit : la page pose le curseur dans la case rouge, et
+la bulle y SURVIT.
+Onze sabotages, chacun rougissant en nommant son défaut — neuf au banc jsdom
+(l'observateur débranché, n'importe quelle case rouge au lieu de celles que la
+correction a touchées, la bulle qui saute, le garde « l'élève écrit » retiré,
+la zone de texte sortie des cibles, le mode et le verrou non relus, la DERNIÈRE
+case fausse au lieu de la première, entrer qui efface à nouveau, modifier qui
+n'efface plus) et deux au navigateur, dont celui qui nomme le défaut d'origine
+en toutes lettres : « la bulle s'est éteinte au moment où la page a posé le
+curseur ».
+
 
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
@@ -3551,6 +3620,168 @@ rougit.
 nom NU — rougissait sous SON nom pour un défaut du 5.9. Son ancre vise
 désormais l'APPEL, parenthèse comprise. Un contrôle qui s'affiche sous le nom
 d'un autre est pire qu'un contrôle sans nom.
+**Changer les valeurs, et tout ce qui se calcule SUIT.** {python-changer-valeurs}
+(Seconde, 5.11, demande de Turquet, septembre 2026 — « en seconde faire un
+exercice comme le pdf ») est l'exercice 12 du carnet : `a = 6`, `b = 5`,
+`somme = a + b`, `produit = a * b`, deux `print`, et ses deux consignes —
+« a) Exécuter le programme ci-dessous. b) Changer les valeurs des variables
+a et b et exécuter à nouveau. » Il ferme le thème 5 ; ajouté en dernier, il
+ne renumérote rien.
+**CE QU'IL FAIT TRAVAILLER EST LA VARIABLE CALCULÉE, et aucun exercice du
+thème ne la posait** : partout ailleurs une variable reçoit un LITTÉRAL
+(`note = 12`, `prenom = "Louane"`). Ici `somme = a + b` range le RÉSULTAT du
+calcul, pas le calcul — et tout ce qui en découle suit quand a et b changent.
+C'est ce que le b) du carnet fait voir, et c'est la moitié la plus importante
+de l'exercice.
+**L'ORDRE DU CARNET EST RENVERSÉ, comme au 5.1** : sur un notebook le
+professeur est à côté ; ici, un bouton cliquable avant la réponse
+transformerait la question en recopie. L'élève PRÉDIT ce que le programme va
+afficher — la somme et le produit, dans deux cases —, puis « Exécuter » se
+débloque et il voit. « Question suivante » attend l'exécution : voir le
+programme tourner est le a) de la fiche, pas une option ; et en soutien une
+copie fausse le laisse verrouillé, la sortie ÉTANT la réponse.
+**DEUX VISAGES, LES DEUX TEMPS DE LA FICHE** : « donne » (le a) — a et b sont
+ÉCRITS par la page ; « change » (le b) — les deux premières lignes portent des
+CASES, pré-remplies avec les valeurs d'origine, et c'est l'élève qui les
+change, comme on modifie une ligne dans un notebook. La séance ouvre sur la
+fiche du carnet épinglée (visage « donne », a = 6 et b = 5), les suivantes
+sont en « change » : l'ordre du carnet, et PCV_NB en est la structure, pas un
+réglage — `tests/profils.js` en est la seconde source.
+**LA CONSIGNE « CHANGE LES VALEURS » EST TENUE PAR L'ÉTAT DU BOUTON** (le
+motif de {placer-image}) : « Vérifier » ne juge RIEN tant que les deux cases
+ne portent pas un entier, ou tant qu'aucune des deux valeurs n'a bougé — et le
+message dit lequel des deux manque, sans rien peindre : rouge veut dire FAUX,
+jamais « pas fini ». Les valeurs de a et b ne sont PAS des réponses et ne
+comptent dans aucune note : la fiche dit « changer », elle ne dit pas
+« changer en 12 ».
+**LE RISQUE PROPRE EST SILENCIEUX** : la phrase de prédiction reprend le texte
+des `print` AVEC LES VALEURS COURANTES, et elle se réécrit à chaque frappe.
+Figée, elle ferait prédire sur des valeurs que le programme ne porte plus —
+une lecture juste comptée fausse, le pire défaut du projet : la leçon du
+numéro d'exercice de `show()`, transposée. Le banc jsdom l'exige, et le banc
+navigateur la mesure sous un VRAI clavier.
+**LA VALEUR ATTENDUE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION** : elle est
+lue dans `pyRun(pcvProg(…)).env` — la fonction MÊME qui exécute le programme
+sous le bouton —, si bien que la correction ne peut pas contredire la console.
+La question ne porte que les noms, les valeurs de départ et le visage ; le
+contrôle refuse tout autre champ. Et **la valeur n'est jamais presque bonne**
+— la doctrine de `pyTexteProche` prise du côté des nombres : les espaces ne
+comptent pas, un chiffre de trop est FAUX.
+**LES ZÉROS DE TÊTE SONT REFUSÉS, et c'est une divergence évitée plutôt que
+subie** : `007` est une erreur de syntaxe en Python 3, quand l'interpréteur de
+la page, lui, l'accepterait — le banc, qui compare à un vrai CPython, l'aurait
+nommée. Une valeur est donc un entier de quatre chiffres au plus, signe
+compris : le produit le plus grand reste très en deçà de ce que l'interpréteur
+sait faire, et un négatif ou un zéro restent du Python valide, que l'exercice
+accepte.
+**LE BOUTON DES TABLES EST LÀ, et c'est le seul exercice Python qui l'ait** :
+`produit = a * b` est un calcul de table, et le bouton n'est proposé que là où
+il SERT. Les sept autres sont dans `TABLES_SANS` ; celui-ci n'y entre pas, et
+les deux sources le disent.
+**Aucune correction au fil de la frappe** (`soutienEnDirect.sans`) : colorer
+la prédiction pendant qu'on la tape la transformerait en tâtonnement — l'élève
+corrigerait jusqu'au bleu sans jamais prédire, et prédire EST l'exercice.
+C'est l'argument du 5.1 (« à quatre propositions, il suffirait d'essayer »),
+transposé à une case qu'on tape.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée (si elle
+ne passe pas au juge, c'est le juge qui a tort), la lecture d'une valeur, le
+tirage et ses deux visages, les trois portes, la phrase qui suit, la case vide
+jamais peinte, le soutien, les branchements, et compare l'interpréteur à un
+vrai CPython ; le NAVIGATEUR (« 6 tricies decies », déclaré par
+`pythonChangerValeurs` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — les six lignes du programme RENDUES à chasse fixe avec les cases de
+valeur à la MÊME taille que le code, la case de prédiction à la taille des
+nombres de sa phrase (le contrôle universel ne mesure que les `math-field`, et
+celles-ci sont des `input`), un VRAI clic sur « Exécuter » verrouillé qui ne
+fait rien, les valeurs TAPÉES au clavier et la phrase qui les suit sous les
+doigts, l'encre RENDUE des verdicts, la console, et la page qui ne déborde pas
+sur un téléphone.
+**Vingt-trois sabotages au banc jsdom et trois au navigateur**, vingt-cinq
+rougissant en nommant leur défaut. **Deux sont d'abord restés VERTS, et aucun
+des deux n'était un contrôle mort** : « la correction au fil de la frappe »
+posait sa copie avec une case VIDE, or une case vide arrête la vérification
+avant toute peinture — le sabotage ne pouvait pas atteindre ce qu'il visait,
+et la copie du contrôle est ENTIÈRE depuis ; et « la phrase ne se replie plus
+sur un téléphone » disait vrai — à 390 px la phrase la plus longue tient sans
+repli, le `flex-wrap` est une ceinture et non un garde-fou éprouvé. Le dire
+vaut mieux que de le taire.
+**DEUX DÉFAUTS ONT ÉTÉ TROUVÉS EN RELECTURE, qu'aucun banc n'aurait
+nommés** : la description de la carte passe par `esc(numeros(desc))`, donc les
+balises `<code>` que j'y avais écrites se seraient affichées EN TOUTES LETTRES
+à l'élève — le contrôle universel des gabarits ne vise que `${…}` et les
+`{identifiant}` connus ; et le signe moins TYPOGRAPHIQUE, celui qu'affiche le
+pavé des tablettes, était refusé par le juge, ce qui aurait compté fausse une
+réponse juste.
+**ET TROIS FUSIONS DE `main` L'ONT RENUMÉROTÉ, avec les trois collisions
+que le projet connaît.** {python-placer-variables} puis
+{python-tableau-valeurs} sont arrivés sur `main` pendant la préparation de la
+branche et ont pris le 5.9 et le 5.10 : celui-ci ferme le thème en **5.11**, et
+la section du banc navigateur est descendue de « nonies » à « **decies** », le
+numéro revenant chaque fois au premier arrivé. **`APP_VERSION` est la collision
+la plus silencieuse des trois** : elle a monté à 179, puis 180, puis **181**
+quand la bulle « Comprendre mon erreur » l'a posée à 180 de son côté — or deux
+écritures du MÊME nombre ne font aucun conflit textuel, et rien ne le dit. Les
+trois numéros se relisent donc À LA MAIN à chaque fusion : celui de l'exercice,
+celui de la section du banc, et celui de la version.
+**Et les deux pièges de la fusion « les deux côtés ont ajouté » sont retombés
+tels quels** : la ligne `RAPPELS` s'est retrouvée
+DÉCLARÉE DEUX FOIS et l'écran de {python-placer-variables} n'était plus
+REFERMÉ — ses trois lignes de fermeture étaient communes aux deux blocs, et
+« garder les deux » ne les a gardées qu'une fois. Aucun marqueur de conflit ne
+le disait ; c'est `npm test` qui a nommé les deux. **Un troisième s'y est
+ajouté, et c'est le piège d'ETQ_W** : `RAP_PCV` s'est retrouvé APRÈS le
+`RAPPELS` qui le lit — une constante ne se hisse pas, et la page entière
+mourait au chargement. **Et mon propre remplacement a frappé le VOISIN** : le
+libellé « il FERME le thème 5 » est le même, au caractère près, dans le
+contrôle de {python-placer-variables} — un remplacement se pose sur une ancre
+PROPRE à sa cible, la leçon d'{antecedents-droite}, retombée dans un fichier
+de banc. Le bord du 5.9 a été RETOURNÉ, pas retiré : il ne ferme plus le
+thème, il vit après {python-deux-lignes} — et celui du 5.10 l'a été à son tour
+à la fusion suivante.
+
+**Un libellé qui promet un CALCUL ment sur la variable qu'il annonce.**
+Signalé par Turquet (septembre 2026) sur le 5.9 : « je ne comprends pas
+pourquoi il y a "sa moyenne" dans la phrase ». Le jeu des notes écrivait
+« la 1ère note de Maëlys est 16 et sa moyenne est 18.4 sur 20 » — or `note2`
+est la 2ème note, et 18,4 n'est la moyenne de rien : la page affirmait une
+fausseté arithmétique dans un cours de mathématiques.
+**LA SONDE A MESURÉ AVANT TOUT CORRECTIF, ET ELLE A ÉLARGI LE SIGNALEMENT** :
+le mensonge vivait dans QUATRE exercices, par le même libellé de `PY_JEUX` —
+400 questions sur 400 au 5.9 (ses DEUX phrases du jeu des notes), 92 sur 400
+séances au 5.1 (« la moyenne est : 16.8 » sous un « note1 = 13 » affiché deux
+lignes plus haut), 64 au 5.7 et 134 au 5.8. Un défaut vu dans un coin se
+corrige PARTOUT.
+**AU 5.9 IL EST PIRE QU'AILLEURS, et c'est ce que le signalement dit** : le
+texte devant la case EST la question — « et sa moyenne est » réclame une
+grandeur qu'AUCUNE variable ne porte, et l'élève qui raisonne juste ne peut pas
+répondre. Les deux phrases du jeu disent maintenant « et sa 2ème note est » et
+« 1ère note : … 2ème note : », et le libellé partagé « la deuxième note est : ».
+**LES NOMS NE BOUGENT PAS, et c'est un arbitrage nommé** : renommer `note2` en
+`moyenne` aurait rendu la phrase vraie et DÉTRUIT le piège du 5.8, dont tout le
+sujet est de transposer une ligne modèle entre trois variables qui SE
+RESSEMBLENT (note1, note2, prenom). On corrige les LIBELLÉS, jamais les
+variables — les notes déjà obtenues ne bougent pas non plus, elles portent
+l'identifiant.
+**DEUX BORDS AU CONTRÔLE, ET N'EN TENIR QU'UN NE TIENT RIEN** : aucun libellé
+des quatre exercices ne nomme une grandeur CALCULÉE (moyenne, somme, total,
+produit, différence, écart) ; et aucun programme tiré ne porte d'opérateur —
+c'est ce second bord qui DONNE SA RAISON au premier et l'empêche d'être une
+liste noire : ces programmes affectent puis affichent, donc toute valeur montrée
+est une valeur DONNÉE, jamais dérivée d'une autre. Le jour où un tirage
+calculerait vraiment, il rougirait, et la règle serait à revoir plutôt qu'à
+contourner. Le contrôle COMPTE ce qu'il relit — 44 libellés, 600 programmes —
+et le DIT s'il n'a rien à mesurer : une collecte devenue muette le rendrait vert
+sur un mensonge.
+**Aucun contrôle du NAVIGATEUR, et le dire vaut mieux que de le taire** : un
+libellé est une chaîne, et la phrase se lit dans le DOM — jsdom la voit, un vrai
+Chromium n'en dirait pas plus. Six sabotages, chacun rougissant en nommant son
+défaut : le libellé de `PY_JEUX` remis (« PY_JEUX[0] note2 promet un calcul que
+le programme ne fait pas »), chacune des DEUX phrases du 5.9 remise (il nomme
+`PYV_PHRASES[0][0]` puis `[0][1]` — n'en tenir qu'une ne tiendrait rien), un
+programme qui calcule (le bord opposé, qui nomme l'opérateur ET le programme),
+et les deux gardes « le contrôle ne mesure rien » — la collecte des phrases
+débranchée (23 libellés au lieu de 44) et une source de programmes débranchée
+(480 au lieu de 600).
 
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
@@ -3617,6 +3848,119 @@ trois défauts, le piège de la majuscule tu, la justification fermée comptée
 manquante, la règle 3 perdue, le bouton des tables revenu, l'ordre des
 raisons figé, le verdict vide rougi, la porte qui ne se rouvre plus après une
 reprise, l'exercice sorti du thème 5.
+
+**Python devient un OUTIL : le tableau de valeurs se remplit en EXÉCUTANT.**
+{python-tableau-valeurs} (Seconde, 5.10, demande de Turquet, septembre 2026 :
+« faire un exercice comme le pdf, puis qui demande de compléter un tableau de
+valeurs, avec x en 1ère ligne et des nombres décimaux avec 1 chiffre après la
+virgule et un chiffre devant la virgule ; le calcul du programme en 2e ligne,
+ici 2x+3 ; dire à l'élève de compléter le tableau en modifiant x dans le
+programme du dessus et en l'exécutant ») ferme le thème 5 — ajouté en dernier,
+il ne renumérote rien. **Et la fusion de `main` l'a renuméroté** :
+{python-placer-variables} est arrivé en 5.9 pendant la préparation de la
+branche, `APP_VERSION` y était déjà à 178, et le numéro de section du banc
+« 6 tricies octies » était pris — les trois collisions que ce fichier nomme,
+réglées de la même façon : le premier arrivé garde, le second prend le suivant
+(5.10, v179, « 6 tricies nonies »). Le bord « il FERME le thème 5 » du 5.9 a
+été RETOURNÉ plutôt que retiré, comme celui du 5.8 avant lui. C'est l'exercice 11 du carnet (« a) Exécuter le nouveau
+programme ci-dessous ») prolongé par le tableau de valeurs.
+**CE QU'IL AJOUTE AUX HUIT AUTRES** : le 5.1 fait PRÉDIRE ce qu'un programme
+affiche, le 5.6, le 5.7 et le 5.8 le font ÉCRIRE ; ici on s'en SERT. Le
+programme est donné, entier et juste ; l'élève n'en change qu'UNE chose — la
+valeur de x — et lit le résultat. C'est le premier exercice où Python est un
+OUTIL et non le sujet.
+**LA DEMANDE EST TENUE PAR L'ÉTAT DES CASES, PAS PAR UNE CONSIGNE QU'ON PEUT NE
+PAS LIRE** (le motif de {placer-image}) : une colonne du tableau ne s'ouvre que
+lorsque le programme a été EXÉCUTÉ avec SA valeur de x, et elle reste ouverte
+ensuite. « Modifier x dans le programme et l'exécuter » n'est donc pas une
+phrase à croire : c'est le seul chemin vers la case. L'état sous le tableau dit
+ce qu'il reste à faire, en écriture PYTHON — jamais les résultats.
+**LE RISQUE PROPRE EST SILENCIEUX, ET IL EST ÉNORME** : a×x+b se calcule en
+VIRGULE FLOTTANTE, et Python affiche alors « -3.5999999999999996 » là où la
+valeur exacte est −3,6. L'élève recopierait ce que la machine affiche — ce que
+la consigne lui demande — et serait compté faux, le pire défaut du projet.
+**Le garde est VIVANT, et mesuré plutôt que supposé** : sur les 12 960 triplets
+(a, b, x) possibles, **4 156 — un sur trois — s'affichent ainsi**. Le tirage
+n'admet que les valeurs dont la sortie de `pyRun` est l'écriture décimale
+EXACTE, et le contrôle refait la propriété sur chaque tirage par sa propre
+arithmétique — en DIXIÈMES entiers, là où la page passe par l'interpréteur. Les
+deux sorties sales sont ÉPINGLÉES au contrôle avec celles de CPython : le
+risque est prouvé chez Python lui-même, pas supposé.
+**ET LE PREMIER REPLI, INVENTÉ À LA MAIN, PORTAIT EXACTEMENT CE DÉFAUT** — deux
+sorties sales sur cinq (« -0.20000000000000018 » pour x = 1.2). La règle « un
+repli RÉEL, relevé sur le générateur » existe précisément pour ça, et c'est la
+sonde qui l'a nommé avant le premier banc ; celui qui est figé repasse par les
+gardes mêmes, et le contrôle l'exige.
+**LA SORTIE AFFICHÉE ET LA CORRECTION SORTENT DE LA MÊME FONCTION** : le bouton
+« Exécuter », le juge (`ptvJuste`) et la correction lisent tous
+`pyRun(ptvProg(q, x))`. La question ne porte que le calcul (a, b), la valeur de
+départ et les abscisses en DIXIÈMES — on range l'entier, jamais l'écriture — et
+le contrôle refuse tout autre champ.
+**LE JUGE EST LARGE SUR L'ÉCRITURE ET EXACT SUR LA VALEUR** : la console écrit
+« 4.0 » (un flottant garde son point, la leçon du 5.2) et le tableau est
+français, donc « 4 », « 4.0 » et « 4,0 » valent tous le point — refuser une
+écriture juste serait le pire défaut du projet ; en revanche la VALEUR est
+comparée exactement, en entiers, jamais en virgule flottante.
+**LA VIRGULE EST LE PIÈGE DE L'EXERCICE, et il s'enseigne** : le tableau écrit
+« 0,5 » et le programme veut « 0.5 ». Une virgule tapée dans la case de x ne
+reçoit pas la SyntaxError brute de l'interpréteur mais la phrase qui nomme la
+règle — c'est le « un float s'écrit avec un point » du 5.2, rencontré là où il
+coûte quelque chose. Et la comparaison qui ouvre une colonne est EXACTE :
+« 0.2+0.1 » n'ouvre rien, parce que sa sortie ne serait pas celle que le garde
+du tirage a validée.
+**LA SÉANCE** : le programme de la demande en tête, ÉPINGLÉ (x = 2,
+fonction = 2*x+3), puis un « + » et un « − » — 3*x-1 est la forme du carnet —
+en ordre mélangé, les trois coefficients distincts. Ce dernier point est une
+mesure, pas une précaution : un tirage libre donnait deux fois le même « a »
+une séance sur deux, et trois programmes qui commencent tous par « 2*x » se
+lisent comme un seul. La valeur de DÉPART est un entier et jamais une colonne
+du tableau — elle donne d'ailleurs un `int` (« 7 ») là où une abscisse décimale
+donne un `float` (« 4.0 »), ce qui est le a) de la fiche.
+Chaque case se juge SEULE, la case vide ne rougit jamais (une colonne encore
+fermée est vide elle aussi, et le message dit alors le geste qui l'ouvre), la
+valeur juste s'écrit en VERT sous la case fausse — jamais en soutien, où
+l'élève reprend et revérifie. Aucune correction au fil de la frappe
+(`soutienEnDirect.sans`) : la valeur cherchée est DÉJÀ à l'écran, dans la
+console, et « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre
+juste.
+Deux bancs, la répartition habituelle : jsdom tient le programme épinglé, le
+GARDE refait par une seconde arithmétique (400 séances), le repli, le juge cas
+par cas, les portes des colonnes, la copie juste, la copie fausse, le soutien,
+la reprise après une pause et les branchements, et compare l'interpréteur à un
+vrai python3 ; le NAVIGATEUR (« 6 tricies octies », déclaré par
+`pythonTableauValeurs` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — la case de x posée DANS la ligne 1 à la chasse et à la taille du code, le
+tableau rendu, les colonnes fermées qui SE VOIENT fermées (grisées, en
+pointillés), une VRAIE frappe au clavier puis un VRAI clic sur « Exécuter »,
+l'encre RENDUE des trois verdicts comparée aux VARIABLES de la convention (le
+piège du 5.6 : l'encre de repos d'une case est déjà un bleu nuit, et une règle
+`.ok` qui ne peindrait plus rien passerait pour du bleu à la dominante), et le
+tableau qui DÉFILE dans sa boîte sur un téléphone au lieu de faire déborder la
+page. Les contrôles universels des deux bancs ont couvert l'exercice au premier
+passage sans rien déclarer.
+**Vingt-deux sabotages, chacun rougissant en nommant son défaut** — mais SIX
+n'y sont arrivés qu'au second essai, et chacun a appris quelque chose.
+· **Un TROU DU CONTRÔLE, réel** : les abscisses collées restaient vertes parce
+  que le banc lisait `PTV_ECART` DANS la page et le comparait à lui-même — la
+  doctrine des deux sources, oubliée sur cette seule ligne. L'écart minimal est
+  déclaré dans `tests/profils.js`, et le banc exige en plus que la page porte
+  CET écart : la divergence se nomme.
+· **Deux sabotages IMPOSSIBLES**, qui mesuraient autre chose. « Une valeur
+  approchée ouvre une colonne » était éprouvé par « 0.2+0.1 », qui ne vaut 0,3
+  que si 0,3 est une colonne du tirage — la valeur voisine se construit
+  désormais sur une abscisse RÉELLE de la question. Et « l'énoncé est figé sur
+  2x + 3 » était mesuré sur la question de la FICHE, dont le calcul EST 2x + 3 :
+  le banc rend maintenant une seconde question épinglée à un autre calcul, en
+  DERNIER — ce bord remplace le tirage, et tout ce qui précède en dépend.
+· **Trois ancres PARTAGÉES** : `if(!allOk && isSoutien()){` vit seize fois dans
+  le fichier, la ligne des cases vides deux fois — un sabotage se pose sur une
+  ancre PROPRE à sa cible, la leçon d'{antecedents-droite}, retombée telle
+  quelle.
+**Et la fusion a repayé le piège des deux exercices ajoutés au MÊME endroit** :
+quatorze hunks « les deux côtés ont ajouté », dont les lignes communes
+n'appartiennent qu'à un des deux blocs. La zone n'a pas été recousue hunk par
+hunk : on repart du fichier de `main` et on y REPOSE ses blocs COMPLETS, à des
+ancres vérifiées une par une — la méthode que le 5.8 avait déjà éprouvée.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
@@ -9809,6 +10153,108 @@ si elle n'y arrive pas) et ne lit que la couche que MathLive déclare visible
 exacte n'est pas établie — le dire vaut mieux que de le taire — ; ce qui est
 établi est qu'un contrôle intermittent parle d'autre chose que de la page, et
 qu'un délai fixe est la première chose qu'une machine chargée fait mentir.
+
+**Puis la TABLETTE COUCHÉE a pris la forme courte, et un exercice sur les
+limites a rendu ses quatre touches au clavier A.** Demande de Turquet
+(septembre 2026) : « en terminale sur une tablette, pour le clavier virtuel de
+l'exercice 2.2, mais qui est sans doute utilisé ailleurs aussi, en mode
+paysage, les touches doivent être plus petites de façon à tenir sur 3 lignes.
+Quand c'est un exercice sur les limites, mettre les touches "inf" ; "-->" ;
+"x" ; "f" sur le clavier A. » Deux demandes, et la seconde a décidé de la
+forme que prend la première.
+**LA MESURE A ÉTÉ FAITE AVANT DE TOUCHER À QUOI QUE CE SOIT, et elle a élargi
+le signalement** : le clavier de la Terminale est celui de TOUS ses champs
+mathématiques (seule sa rangée de variables change avec l'exercice), donc le
+2.2 n'est qu'une porte d'entrée. Couchée, la plaque de quatre rangées faisait
+**208 px sur un écran de 768 — plus d'un quart** de ce que l'élève a devant
+lui, quand elle en prend 156 debout ; après, 132 px, soit 16 à 17 %. La forme
+COURTE à trois rangées existait déjà pour le portrait depuis la demande du
+mois précédent : elle sert maintenant la tablette DEBOUT COMME COUCHÉE
+(`kbPortraitTablette` est devenue `kbTablette`), et la règle CSS du paysage ne
+touche que la HAUTEUR et la POLICE — 48 px et 24 px deviennent 40 et 20 : en
+paysage la largeur ne manque pas, c'est l'écran qui est COURT.
+**Un TÉLÉPHONE COUCHÉ y gagne plus que la tablette, et ce n'était pas
+demandé** : à 844 × 390 il est « large d'au moins 600 px », donc il prend la
+forme courte lui aussi — sa plaque passe de 208 px à 132, de 53 % de l'écran
+à 34 %. Le dire vaut mieux que de le taire : c'est une conséquence de la
+borne, pas un cas traité.
+**LES QUATRE TOUCHES DES LIMITES SONT LA RANGÉE DES VARIABLES, et elle revient
+d'où elle était partie** : f, x, ∞ et ⟶ vivaient en tête du clavier A jusqu'en
+septembre 2026, où « une ligne en moins dans le clavier A » les a envoyées sur
+le B. Sur un exercice sur les limites — là où l'on écrit « x ⟶ +∞ » à chaque
+ligne — elles reviennent sur A, et le clavier B perd sa première rangée, le ⌫
+qu'elle portait passant sur la suivante. **Le JEU de touches ne change pas
+d'une variante à l'autre, seul son PARTAGE change**, et le contrôle compare
+les jeux : 43 touches des deux côtés, dans les quatre formes.
+**LA PAGE NE TIENT AUCUNE LISTE D'EXERCICES** : `kbLimites` lit le THÈME
+auquel l'exercice appartient (et l'identifiant qui nomme lui-même la limite),
+si bien qu'un exercice ajouté demain au thème des limites est couvert sans
+rien déclarer. Le prix de cette souplesse est qu'un thème RENOMMÉ ferait
+repartir ∞ sur le clavier B en silence : des témoins déclarés dans
+`tests/profils.js` l'attrapent — et le bord OPPOSÉ avec eux, trois exercices
+qui ne sont PAS sur les limites et doivent garder le clavier d'avant.
+**ET C'EST LA LARGEUR DES TOUCHES QUI A DÛ CHANGER DE SOURCE.** Le clavier A
+n'a plus une taille mais quatre : 8 unités par rangée sur la forme normale,
+10 sur la courte, 9 et 12 avec les variables revenues. Or la feuille de styles
+RECOPIAIT ce compte (`(100cqw - 32px) / 8`, `/ 10`), et une rangée plus large
+que ce que la largeur prévoit se rétrécit SEULE dans le navigateur — l'élève
+aurait eu deux tailles de touches sur le même écran, la leçon déjà payée en
+septembre. La page POSE donc `--kb-unites` depuis la disposition qu'elle vient
+d'installer (`kbUnites` : la rangée la plus large), et une formule unique
+(`--keycap-auto`) s'y règle : une source, pas une liste — la règle de largeur
+propre au portrait de tablette a disparu avec le compte qu'elle portait.
+**Le coût est mesuré et nommé** : sur un TÉLÉPHONE les touches passent de
+45 px à 41 px de large, parce que la formule compte enfin les 8 unités réelles
+de la rangée la plus chargée au lieu de 7. La rangée y tenait par chance ;
+elle tient maintenant par construction.
+**UN PIÈGE DE BANC s'y est montré** : la touche ⟶ (`\longrightarrow`) est une
+flèche ÉTIRABLE, que MathLive dessine en morceaux — son `textContent` est
+VIDE. Le banc navigateur, qui reconnaissait ses touches au texte, cherchait une
+touche bien présente et disait qu'elle manquait ; il lit aussi
+`data-keycap-value` désormais. Aucun contrôle ne pouvait le voir avant, ⟶
+n'ayant jamais été cherchée nommément.
+**Dix-huit sabotages, chacun rougissant en nommant son défaut** — quinze au
+banc jsdom (le paysage revenu aux quatre rangées, la forme courte qui fuit sur
+le téléphone, la variante des limites jamais demandée par `applyKbLayout`, ∞
+resté sur le clavier B, les variables restées sur B, le ⌫ parti du clavier B,
+`kbLimites` qui ne reconnaît plus son thème, qui ne lit plus l'identifiant, qui
+dit oui partout, `--kb-unites` jamais posée, `kbUnites` qui rend la première
+rangée au lieu de la plus large, une règle de largeur revenue à un compte en
+dur, la règle CSS du paysage retirée, la même qui ne réduit rien, une rangée de
+treize unités) et trois que seul le NAVIGATEUR voit : la règle du paysage
+retirée (« touche « 5 » : 92×48 px, plaque 156 px »), la variante des limites
+débranchée (« manque sur le clavier A : ∞ ⟶ f x ») et `--kb-unites` figée à
+dix, où la rangée de douze se rétrécit seule.
+**QUATRE D'ENTRE EUX SONT D'ABORD RESTÉS VERTS, et chacun a nommé un trou du
+CONTRÔLE plutôt qu'un défaut de la page.**
+· **Le FAUX ÉCRAN du banc modélisait un téléphone comme « pas tactile »** : il
+  répondait `pointer: coarse` en même temps que `min-width`, si bien qu'un
+  routage qui aurait cessé de regarder la LARGEUR restait vert — le téléphone
+  du banc n'était coarse pour personne. Un téléphone est tactile ET étroit, une
+  tablette tactile et large : les deux réponses sont séparées, et le sabotage
+  rougit (« téléphone ancré en portrait : 3 rangée(s) au lieu de 4 »).
+· **Le ⌫ retiré du clavier B ne perdait aucune touche** — il est aussi sur le
+  clavier A, donc le JEU restait complet et la comparaison des jeux disait vrai.
+  Mais l'élève qui écrit sur le B devrait changer de couche pour reprendre une
+  lettre : la propriété que le sabotage cassait n'était tenue nulle part. Chaque
+  COUCHE porte de quoi effacer, désormais, et le contrôle l'exige.
+· **La moitié « thème » de `kbLimites` n'était mesurée par personne** : les
+  quatre témoins déclarés portaient tous « limite » dans leur identifiant, donc
+  la première ligne de la fonction répondait avant elle. `equation-droite-h-v`
+  (le 3.1) est le témoin qui l'éprouve — son identifiant ne dit rien de la
+  limite, seul son thème le dit —, et `suite-tcm-limite` éprouve l'autre moitié,
+  puisqu'il vit dans le thème des Suites. Un contrôle qui n'a rien à mesurer ne
+  mesure rien.
+· **Et « la rangée de douze se rétrécit seule » se mesure DEBOUT, pas
+  couché** — c'est le seul des quatre dont le vert disait VRAI. Mesuré plutôt
+  que supposé : en PAYSAGE, un `--kb-unites` figé trop bas ne fait pas deux
+  tailles de touches, MathLive resserrant la plaque ENTIÈRE — toutes les
+  touches à 92 px —, et le plafond de 96 px absorbe l'écart. En PORTRAIT la
+  largeur mord : les rangées de onze font 70 px et celle de douze 64, deux
+  tailles sur le même écran. Le contrôle tourne donc la tablette avant de
+  mesurer ce bord-là, et le sabotage rougit en nommant l'écart. Un sabotage
+  qui reste vert à la largeur où rien ne peut le voir parle d'autre chose —
+  la leçon du sabotage impossible, à une orientation près.
 
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la

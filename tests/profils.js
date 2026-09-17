@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -223,6 +223,11 @@ module.exports = {
        listes — colorer une ligne au moment où il la choisit lui dirait si elle
        est juste avant même qu'il vérifie, et il n'aurait plus qu'à essayer les
        six. C'est la règle de {solutions-graphique} en Seconde. */
+    /* « ptv » — {python-tableau-valeurs} — recopie dans ses cases ce que la
+       console affiche : la valeur cherchée est DÉJÀ à l'écran, et une couleur
+       posée pendant la frappe ne dirait que si l'élève a bien recopié. Pire,
+       « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre juste.
+       Le soutien y colore à la vérification, sans jamais révéler la valeur. */
     soutienEnDirect: { sans: ['psl', 'sal', 'ac'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
@@ -693,7 +698,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -708,6 +713,27 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'image-nombre', champ: '#img-c', valeur: '9' },
+    /* Le témoin de la BULLE LEVÉE PAR LA VÉRIFICATION (demande de Turquet,
+       septembre 2026). Il faut un exercice SANS correction en direct — la
+       partie Algorithmique et Python en est faite —, le seul endroit où la
+       couleur n'arrive qu'au clic sur « Vérifier » : c'est là que la bulle ne
+       paraissait jamais. « faux » pose une copie qui ne PEUT pas être juste :
+       elle lit la réponse par la fonction même qui corrige pour en choisir une
+       AUTRE — le banc ne mesure pas la réponse, il conduit — et rend le nombre
+       de cases faussées, sans quoi un renommage de champ laisserait le banc
+       vert devant un écran que personne n'a rempli. */
+    bulleVerification: {
+      exercice: 'python-affichage',
+      valider: '#pyActions button.btn-primary',
+      cases: '#pyHost select',
+      faux: "(function(){ var q=test.questions[test.idx], a=pyAns(q), n=0;"
+          + " pyCases(q).forEach(function(c){ var e=document.getElementById(c.id); if(!e) return;"
+          + "   var att=String(a[c.cle]);"
+          + "   var o=[].slice.call(e.options).filter(function(x){"
+          + "     return !x.disabled && x.value!=='' && x.value!==att; })[0];"
+          + "   if(o){ e.value=o.value; n++; } });"
+          + " return n; })()",
+    },
     /* Comme en Première : le pavé sert aussi les cases MathLive (toutes les
        pm-mf n'attendent qu'un nombre), tapées au banc navigateur dans un
        contexte tactile, et une seule rangée dans les deux orientations
@@ -836,7 +862,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-tableau-valeurs'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -981,6 +1007,49 @@ module.exports = {
                                       noms: ['prenom', 'note'],
                                       sortie: 'la note de  Mathéo  est de  14 sur 20',
                                       interversion: 'la note de  14  est de  Mathéo sur 20' } },
+    /* {python-tableau-valeurs} : l'exercice 11 du carnet — a) exécuter le
+       programme — prolongé par le TABLEAU DE VALEURS qu'on remplit en
+       modifiant x dans ce programme et en l'exécutant (demande de Turquet,
+       septembre 2026). « nb » et « cols » sont la SECONDE source du nombre de
+       questions et de colonnes (la page a PTV_NB et PTV_COLS) ; « ecart » celle
+       de l'écart minimal entre deux abscisses, en dixièmes — le contrôle lisait
+       d'abord PTV_ECART dans la page et le comparait à lui-même : le sabotage
+       qui collait les colonnes restait vert, à bon droit ; « fiche » est
+       le programme de la demande, épinglé en première question, avec ce que
+       CPython en affiche — un ENTIER, là où une abscisse décimale donne un
+       flottant. Le banc jsdom refait le GARDE du tirage par sa propre
+       arithmétique en dixièmes entiers — un affichage sur trois serait sale
+       sans lui —, tient les portes des colonnes, le juge et le soutien, et
+       compare l'interpréteur à un vrai python3 ; le navigateur TAPE la valeur
+       de x dans la vraie case, clique Exécuter, remplit le tableau rendu et
+       relit l'encre RENDUE des verdicts. */
+    pythonTableauValeurs: { exercice: 'python-tableau-valeurs', nb: 3, cols: 5, ecart: 5,
+                            fiche: { lignes: ['x = 2', 'fonction = 2*x+3', 'print(fonction)'],
+                                     sortie: '7', calcul: '2x + 3' } },
+    /* {python-changer-valeurs} : l'exercice 12 du carnet — un programme qui
+       range deux CALCULS (somme = a + b, produit = a * b), qu'on exécute,
+       puis dont on CHANGE les valeurs pour l'exécuter à nouveau (demande de
+       Turquet, septembre 2026). L'ordre du carnet est renversé, comme au
+       5.1 : l'élève PRÉDIT avant d'exécuter. « nb » est la SECONDE source du
+       nombre de questions : ce n'est pas un réglage, c'est la structure de la
+       séance — la fiche du carnet (valeurs DONNÉES, le a) en tête, puis les
+       suivantes en valeurs À CHANGER (le b). « fiche » est celle du carnet,
+       épinglée ; « sortie » ce qu'elle affiche, l'espace de « est égal à »
+       comprise, que print double en séparant ses arguments — lire la page
+       pour la comparer à elle-même ne prouverait rien. Le banc jsdom tient la
+       fiche, le tirage, le juge, les trois portes et la phrase de prédiction
+       qui SUIT les valeurs ; le navigateur TAPE les valeurs et les
+       prédictions dans les vraies cases, clique Vérifier puis Exécuter, et
+       relit la console et l'encre RENDUES.
+       IL N'EST PAS DANS « tablesAide.sans », et c'est le seul exercice Python
+       qui n'y soit pas : « produit = a * b » est un calcul de table, et le
+       bouton n'est proposé que là où il SERT. */
+    pythonChangerValeurs: { exercice: 'python-changer-valeurs', nb: 3,
+                            fiche: { prog: ['a = 6', 'b = 5', 'somme = a + b', 'produit = a * b',
+                                            'print("La somme de",a,"et",b,"est \u00e9gal \u00e0 ",somme)',
+                                            'print("Le produit de",a,"et",b,"est \u00e9gal \u00e0 ",produit)'],
+                                     somme: '11', produit: '30',
+                                     sortie: 'La somme de 6 et 5 est \u00e9gal \u00e0  11\nLe produit de 6 et 5 est \u00e9gal \u00e0  30\n' } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
@@ -1112,19 +1181,43 @@ module.exports = {
                        B porte les variables de l'exercice et les symboles. Les
                        touches nommées ici doivent vivre sur B et NULLE PART sur
                        A : la page et le profil sont deux sources. */
-                    couches: { rangeesA: 4, rangeesB: 4, unitesMax: 8,
-                               /* Et sur une TABLETTE DEBOUT, les deux couches tiennent
-                                  sur TROIS rangées (« fais pareil pour la terminale »,
-                                  Turquet, septembre 2026). Le clavier A fait trente
-                                  unités : sur trois rangées il en met DIX, et la règle
-                                  CSS du portrait de tablette donne aux touches un
-                                  dixième de la largeur — les deux sources doivent
-                                  s'accorder, sinon la rangée déborde. Le partage des
-                                  couches, lui, ne bouge pas : surA et surB valent pour
-                                  les deux formes. */
-                               portraitTablette: { rangeesA: 3, rangeesB: 3, unitesMax: 10 },
+                    couches: { rangeesA: 4, rangeesB: 4, unitesMax: 8, effacer: '\u232b',
+                               /* Et sur une TABLETTE, les deux couches tiennent sur
+                                  TROIS rangées — DEBOUT (« fais pareil pour la
+                                  terminale », Turquet, septembre 2026) comme COUCHÉE
+                                  (« en mode paysage, les touches doivent être plus
+                                  petites de façon à tenir sur 3 lignes »). D'où le nom :
+                                  la forme COURTE, et non « celle du portrait ». Le
+                                  partage des couches, lui, ne bouge pas : surA et surB
+                                  valent pour toutes les formes. */
+                               courte: { rangeesA: 3, rangeesB: 3, unitesMax: 10 },
                                surB: ['\\infty', '\\longrightarrow', '\\smallint'],
-                               surA: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', ','] },
+                               surA: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', ','],
+                               /* UN EXERCICE SUR LES LIMITES rend la rangée des variables
+                                  au clavier A (demande de Turquet, septembre 2026 : « quand
+                                  c'est un exercice sur les limites, mettre les touches
+                                  inf, -->, x, f sur le clavier A ») : c'est là qu'on écrit
+                                  « x ⟶ +∞ ». Le clavier B perd alors sa première rangée.
+                                  La page ne tient aucune liste — elle lit le THÈME — et
+                                  ces témoins sont là pour que le banc l'éprouve : un thème
+                                  renommé ferait repartir ∞ sur le clavier B en silence.
+                                  « hors » est le bord opposé : un exercice qui n'est PAS
+                                  sur les limites garde le clavier d'avant. */
+                               limites: { /* « equation-droite-h-v » n'a PAS « limite » dans son
+                                              identifiant : c'est le témoin du THÈME, le seul
+                                              qui éprouve cette moitié de kbLimites — sans lui
+                                              le thème pouvait être renommé sans que rien ne
+                                              rougisse, et le sabotage l'a montré en restant
+                                              vert. « suite-tcm-limite », lui, éprouve l'autre
+                                              moitié : il vit dans le thème des Suites. */
+                                           exercices: ['limites-redaction', 'limites-graphiques',
+                                                      'limites-graphiques-3', 'equation-droite-h-v',
+                                                      'suite-tcm-limite'],
+                                          hors: ['derivee-exp-2', 'suite-auxiliaire', 'tvi'],
+                                          rangeesA: 4, rangeesB: 3, unitesMax: 9,
+                                          courte: { rangeesA: 3, rangeesB: 2, unitesMax: 12 },
+                                          surA: ['\\infty', '\\longrightarrow'],
+                                          surB: ['\\smallint'] } },
                     /* Et sur une TABLETTE, les touches sont légèrement réduites :
                        le banc navigateur ouvre l'exercice déclaré à la taille
                        d'une tablette et mesure la touche RENDUE contre ces
@@ -1132,7 +1225,21 @@ module.exports = {
                     tablette: { exercice: 'suite-auxiliaire-redaction',
                                 champ: '#sarSheetA math-field',
                                 bouton: '#sarOutils button[aria-label^="Afficher ou masquer le clavier"]',
-                                hauteurMax: 48, policeMax: 24 } },
+                                hauteurMax: 48, policeMax: 24,
+                                /* ET COUCHÉE, plus petites encore (demande de Turquet,
+                                   septembre 2026) : en paysage l'écran est COURT, et la
+                                   plaque de quatre rangées prenait 208 px sur 768 — un
+                                   quart de ce que l'élève a devant lui. La rangée de
+                                   moins et ces touches réduites la ramènent à 132 px,
+                                   mesurés. Le banc navigateur tourne la tablette et
+                                   exige les deux : la forme courte, et ces plafonds. */
+                                paysage: { hauteurMax: 40, policeMax: 20, plaqueMax: 140 },
+                                /* L'exercice SUR LES LIMITES, celui où ∞ et ⟶ passent sur
+                                   le clavier A : le banc l'ouvre pour de vrai et cherche
+                                   les quatre touches sur la couche RENDUE. */
+                                limites: { exercice: 'limites-redaction',
+                                           champ: '#lrSheet math-field',
+                                           bouton: '#lrActions button[aria-label^="Afficher ou masquer le clavier"]' } } },
     /* Le signe du premier degré : 5 questions par séance (demande de Turquet,
        août 2026), et non plus 15 — les trois niveaux tous représentés. */
     nbQuestionsSignePremier: 5,
