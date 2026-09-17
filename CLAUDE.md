@@ -3712,14 +3712,19 @@ balises `<code>` que j'y avais écrites se seraient affichées EN TOUTES LETTRES
 `{identifiant}` connus ; et le signe moins TYPOGRAPHIQUE, celui qu'affiche le
 pavé des tablettes, était refusé par le juge, ce qui aurait compté fausse une
 réponse juste.
-**ET LA FUSION DE `main` A RENUMÉROTÉ L'EXERCICE, avec les trois collisions
-que le projet connaît.** {python-placer-variables} est arrivé sur `main`
-pendant la préparation de la branche et a pris le 5.9 : celui-ci ferme le
-thème en 5.10, `APP_VERSION` passe à 179 (les deux côtés avaient écrit 178 —
-deux écritures du MÊME nombre ne font aucun conflit textuel, et rien ne le
-dit), et la section du banc navigateur passe à « 6 tricies nonies », le numéro
-revenant au premier arrivé. **Et les deux pièges de la fusion « les deux côtés
-ont ajouté » sont retombés tels quels** : la ligne `RAPPELS` s'est retrouvée
+**ET TROIS FUSIONS DE `main` L'ONT RENUMÉROTÉ, avec les trois collisions
+que le projet connaît.** {python-placer-variables} puis
+{python-tableau-valeurs} sont arrivés sur `main` pendant la préparation de la
+branche et ont pris le 5.9 et le 5.10 : celui-ci ferme le thème en **5.11**, et
+la section du banc navigateur est descendue de « nonies » à « **decies** », le
+numéro revenant chaque fois au premier arrivé. **`APP_VERSION` est la collision
+la plus silencieuse des trois** : elle a monté à 179, puis 180, puis **181**
+quand la bulle « Comprendre mon erreur » l'a posée à 180 de son côté — or deux
+écritures du MÊME nombre ne font aucun conflit textuel, et rien ne le dit. Les
+trois numéros se relisent donc À LA MAIN à chaque fusion : celui de l'exercice,
+celui de la section du banc, et celui de la version.
+**Et les deux pièges de la fusion « les deux côtés ont ajouté » sont retombés
+tels quels** : la ligne `RAPPELS` s'est retrouvée
 DÉCLARÉE DEUX FOIS et l'écran de {python-placer-variables} n'était plus
 REFERMÉ — ses trois lignes de fermeture étaient communes aux deux blocs, et
 « garder les deux » ne les a gardées qu'une fois. Aucun marqueur de conflit ne
@@ -3731,7 +3736,8 @@ libellé « il FERME le thème 5 » est le même, au caractère près, dans le
 contrôle de {python-placer-variables} — un remplacement se pose sur une ancre
 PROPRE à sa cible, la leçon d'{antecedents-droite}, retombée dans un fichier
 de banc. Le bord du 5.9 a été RETOURNÉ, pas retiré : il ne ferme plus le
-thème, il vit entre {python-deux-lignes} et {python-changer-valeurs}.
+thème, il vit après {python-deux-lignes} — et celui du 5.10 l'a été à son tour
+à la fusion suivante.
 
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
