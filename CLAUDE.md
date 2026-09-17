@@ -3620,9 +3620,129 @@ rougit.
 nom NU — rougissait sous SON nom pour un défaut du 5.9. Son ancre vise
 désormais l'APPEL, parenthèse comprise. Un contrôle qui s'affiche sous le nom
 d'un autre est pire qu'un contrôle sans nom.
+**Changer les valeurs, et tout ce qui se calcule SUIT.** {python-changer-valeurs}
+(Seconde, 5.11, demande de Turquet, septembre 2026 — « en seconde faire un
+exercice comme le pdf ») est l'exercice 12 du carnet : `a = 6`, `b = 5`,
+`somme = a + b`, `produit = a * b`, deux `print`, et ses deux consignes —
+« a) Exécuter le programme ci-dessous. b) Changer les valeurs des variables
+a et b et exécuter à nouveau. » **Il a FERMÉ le thème 5, et ce bord a été
+RETOURNÉ plutôt que retiré** — le QUATRIÈME à l'être, après le 5.8, le 5.9 et
+le 5.10 : {python-operations} le suit depuis septembre 2026, et il vit
+désormais en 5.11, entre {python-tableau-valeurs} et lui.
+**CE QU'IL FAIT TRAVAILLER EST LA VARIABLE CALCULÉE, et aucun exercice du
+thème ne la posait** : partout ailleurs une variable reçoit un LITTÉRAL
+(`note = 12`, `prenom = "Louane"`). Ici `somme = a + b` range le RÉSULTAT du
+calcul, pas le calcul — et tout ce qui en découle suit quand a et b changent.
+C'est ce que le b) du carnet fait voir, et c'est la moitié la plus importante
+de l'exercice.
+**L'ORDRE DU CARNET EST RENVERSÉ, comme au 5.1** : sur un notebook le
+professeur est à côté ; ici, un bouton cliquable avant la réponse
+transformerait la question en recopie. L'élève PRÉDIT ce que le programme va
+afficher — la somme et le produit, dans deux cases —, puis « Exécuter » se
+débloque et il voit. « Question suivante » attend l'exécution : voir le
+programme tourner est le a) de la fiche, pas une option ; et en soutien une
+copie fausse le laisse verrouillé, la sortie ÉTANT la réponse.
+**DEUX VISAGES, LES DEUX TEMPS DE LA FICHE** : « donne » (le a) — a et b sont
+ÉCRITS par la page ; « change » (le b) — les deux premières lignes portent des
+CASES, pré-remplies avec les valeurs d'origine, et c'est l'élève qui les
+change, comme on modifie une ligne dans un notebook. La séance ouvre sur la
+fiche du carnet épinglée (visage « donne », a = 6 et b = 5), les suivantes
+sont en « change » : l'ordre du carnet, et PCV_NB en est la structure, pas un
+réglage — `tests/profils.js` en est la seconde source.
+**LA CONSIGNE « CHANGE LES VALEURS » EST TENUE PAR L'ÉTAT DU BOUTON** (le
+motif de {placer-image}) : « Vérifier » ne juge RIEN tant que les deux cases
+ne portent pas un entier, ou tant qu'aucune des deux valeurs n'a bougé — et le
+message dit lequel des deux manque, sans rien peindre : rouge veut dire FAUX,
+jamais « pas fini ». Les valeurs de a et b ne sont PAS des réponses et ne
+comptent dans aucune note : la fiche dit « changer », elle ne dit pas
+« changer en 12 ».
+**LE RISQUE PROPRE EST SILENCIEUX** : la phrase de prédiction reprend le texte
+des `print` AVEC LES VALEURS COURANTES, et elle se réécrit à chaque frappe.
+Figée, elle ferait prédire sur des valeurs que le programme ne porte plus —
+une lecture juste comptée fausse, le pire défaut du projet : la leçon du
+numéro d'exercice de `show()`, transposée. Le banc jsdom l'exige, et le banc
+navigateur la mesure sous un VRAI clavier.
+**LA VALEUR ATTENDUE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION** : elle est
+lue dans `pyRun(pcvProg(…)).env` — la fonction MÊME qui exécute le programme
+sous le bouton —, si bien que la correction ne peut pas contredire la console.
+La question ne porte que les noms, les valeurs de départ et le visage ; le
+contrôle refuse tout autre champ. Et **la valeur n'est jamais presque bonne**
+— la doctrine de `pyTexteProche` prise du côté des nombres : les espaces ne
+comptent pas, un chiffre de trop est FAUX.
+**LES ZÉROS DE TÊTE SONT REFUSÉS, et c'est une divergence évitée plutôt que
+subie** : `007` est une erreur de syntaxe en Python 3, quand l'interpréteur de
+la page, lui, l'accepterait — le banc, qui compare à un vrai CPython, l'aurait
+nommée. Une valeur est donc un entier de quatre chiffres au plus, signe
+compris : le produit le plus grand reste très en deçà de ce que l'interpréteur
+sait faire, et un négatif ou un zéro restent du Python valide, que l'exercice
+accepte.
+**LE BOUTON DES TABLES EST LÀ, et c'est le seul exercice Python qui l'ait** :
+`produit = a * b` est un calcul de table, et le bouton n'est proposé que là où
+il SERT. Les sept autres sont dans `TABLES_SANS` ; celui-ci n'y entre pas, et
+les deux sources le disent.
+**Aucune correction au fil de la frappe** (`soutienEnDirect.sans`) : colorer
+la prédiction pendant qu'on la tape la transformerait en tâtonnement — l'élève
+corrigerait jusqu'au bleu sans jamais prédire, et prédire EST l'exercice.
+C'est l'argument du 5.1 (« à quatre propositions, il suffirait d'essayer »),
+transposé à une case qu'on tape.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée (si elle
+ne passe pas au juge, c'est le juge qui a tort), la lecture d'une valeur, le
+tirage et ses deux visages, les trois portes, la phrase qui suit, la case vide
+jamais peinte, le soutien, les branchements, et compare l'interpréteur à un
+vrai CPython ; le NAVIGATEUR (« 6 tricies decies », déclaré par
+`pythonChangerValeurs` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — les six lignes du programme RENDUES à chasse fixe avec les cases de
+valeur à la MÊME taille que le code, la case de prédiction à la taille des
+nombres de sa phrase (le contrôle universel ne mesure que les `math-field`, et
+celles-ci sont des `input`), un VRAI clic sur « Exécuter » verrouillé qui ne
+fait rien, les valeurs TAPÉES au clavier et la phrase qui les suit sous les
+doigts, l'encre RENDUE des verdicts, la console, et la page qui ne déborde pas
+sur un téléphone.
+**Vingt-trois sabotages au banc jsdom et trois au navigateur**, vingt-cinq
+rougissant en nommant leur défaut. **Deux sont d'abord restés VERTS, et aucun
+des deux n'était un contrôle mort** : « la correction au fil de la frappe »
+posait sa copie avec une case VIDE, or une case vide arrête la vérification
+avant toute peinture — le sabotage ne pouvait pas atteindre ce qu'il visait,
+et la copie du contrôle est ENTIÈRE depuis ; et « la phrase ne se replie plus
+sur un téléphone » disait vrai — à 390 px la phrase la plus longue tient sans
+repli, le `flex-wrap` est une ceinture et non un garde-fou éprouvé. Le dire
+vaut mieux que de le taire.
+**DEUX DÉFAUTS ONT ÉTÉ TROUVÉS EN RELECTURE, qu'aucun banc n'aurait
+nommés** : la description de la carte passe par `esc(numeros(desc))`, donc les
+balises `<code>` que j'y avais écrites se seraient affichées EN TOUTES LETTRES
+à l'élève — le contrôle universel des gabarits ne vise que `${…}` et les
+`{identifiant}` connus ; et le signe moins TYPOGRAPHIQUE, celui qu'affiche le
+pavé des tablettes, était refusé par le juge, ce qui aurait compté fausse une
+réponse juste.
+**ET TROIS FUSIONS DE `main` L'ONT RENUMÉROTÉ, avec les trois collisions
+que le projet connaît.** {python-placer-variables} puis
+{python-tableau-valeurs} sont arrivés sur `main` pendant la préparation de la
+branche et ont pris le 5.9 et le 5.10 : celui-ci ferme le thème en **5.11**, et
+la section du banc navigateur est descendue de « nonies » à « **decies** », le
+numéro revenant chaque fois au premier arrivé. **`APP_VERSION` est la collision
+la plus silencieuse des trois** : elle a monté à 179, puis 180, puis **181**
+quand la bulle « Comprendre mon erreur » l'a posée à 180 de son côté — or deux
+écritures du MÊME nombre ne font aucun conflit textuel, et rien ne le dit. Les
+trois numéros se relisent donc À LA MAIN à chaque fusion : celui de l'exercice,
+celui de la section du banc, et celui de la version.
+**Et les deux pièges de la fusion « les deux côtés ont ajouté » sont retombés
+tels quels** : la ligne `RAPPELS` s'est retrouvée
+DÉCLARÉE DEUX FOIS et l'écran de {python-placer-variables} n'était plus
+REFERMÉ — ses trois lignes de fermeture étaient communes aux deux blocs, et
+« garder les deux » ne les a gardées qu'une fois. Aucun marqueur de conflit ne
+le disait ; c'est `npm test` qui a nommé les deux. **Un troisième s'y est
+ajouté, et c'est le piège d'ETQ_W** : `RAP_PCV` s'est retrouvé APRÈS le
+`RAPPELS` qui le lit — une constante ne se hisse pas, et la page entière
+mourait au chargement. **Et mon propre remplacement a frappé le VOISIN** : le
+libellé « il FERME le thème 5 » est le même, au caractère près, dans le
+contrôle de {python-placer-variables} — un remplacement se pose sur une ancre
+PROPRE à sa cible, la leçon d'{antecedents-droite}, retombée dans un fichier
+de banc. Le bord du 5.9 a été RETOURNÉ, pas retiré : il ne ferme plus le
+thème, il vit après {python-deux-lignes} — et celui du 5.10 l'a été à son tour
+à la fusion suivante.
 
 **Les quatre opérations dans un programme : on exécute, on CHANGE a et b, puis
-on complète.** {python-operations} (Seconde, 5.11, demande de Turquet, septembre
+on complète.** {python-operations} (Seconde, 5.12, demande de Turquet, septembre
 2026 : « faire un exercice en seconde comme les 2 images ») ferme le thème 5 —
 ajouté en dernier, il ne renumérote rien. C'est l'exercice 12 du carnet et sa
 suite, en quatre temps : a) exécuter un programme qui calcule la SOMME et le
@@ -3740,13 +3860,28 @@ se pose désormais dans la TRANCHE de chaque contrôle, bornée par sa propre
 `function`. Deux branches qui ajoutent un exercice au même thème le même jour
 produisent cette collision à CHAQUE fois : ce n'est pas un accident, c'est ce
 qu'il faut relire au moment de refusionner `main`.
+**Puis une TROISIÈME fusion, et la règle n'a plus rien coûté** :
+{python-changer-valeurs} est arrivé en 5.11 — celui-ci ferme donc le thème en
+**5.12** —, `APP_VERSION` était passée à 181 → 182, et « 6 tricies decies »
+était pris → « undecies ». Le bord « il FERME le thème 5 » de
+{python-changer-valeurs} a été RETOURNÉ à son tour, le QUATRIÈME. **Et la
+CINQUIÈME collision du même jour n'est pas une collision de plus, c'est la
+même** : deux exercices écrits sur le même carnet, le 12, arrivés par deux
+branches — le nôtre le prolonge (c) et d)), l'autre s'arrête à son b). Les deux
+gardent leur place, et les deux lignes du carnet se lisent à la suite dans le
+menu. La leçon qui reste est celle des blocs COMPLETS : à la troisième fusion,
+les huit conflits de `secondes.html` se sont résolus sans une seule recouture
+hunk par hunk — le `const RAPPELS` commun aux deux blocs, la ligne
+`return {nombre:'', contexte:c};` commune aux deux contextes et la liste des
+rendus enveloppés étaient exactement là où les deux fusions précédentes les
+avaient laissées.
 **Deux bancs, la répartition habituelle.** jsdom tient les deux programmes des
 images épinglés (s'ils ne passent pas au juge, c'est le juge qui a tort), le
 juge cas par cas — quinze calculs faux et quatorze lignes d'affichage fausses,
 chacun avec le mot que son diagnostic doit porter —, la seconde méthode, le
 tirage sur 400 séances, les portes, la case vide, le soutien, le contexte du
 modèle, et il compare l'interpréteur à un vrai CPython sur 671 programmes. Le
-NAVIGATEUR (« 6 tricies decies », déclaré par `pythonOperations` dans
+NAVIGATEUR (« 6 tricies undecies », déclaré par `pythonOperations` dans
 `tests/profils.js`) mesure ce que jsdom ne voit pas : les deux cases de valeur
 du cours sur la ligne de leur nom, une VRAIE frappe dans a et b puis un vrai
 clic qui ouvre la porte, les coups de pouce qui S'OUVRENT au clic, les six
