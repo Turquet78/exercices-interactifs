@@ -1899,27 +1899,40 @@ async function parcours(page, N){
         annonce.length === 2 && annonce[1].indexOf(BO.mot) < 0,
         'la seconde ligne dit : ' + (annonce[1] || '(aucune)'));
 
-      /* LE TRAJET : énoncé du circuit papier, écran des modes, écran de travail. */
+      /* LE TRAJET : écran des modes, énoncé du circuit papier, écran de travail.
+         L'ORDRE A SUIVI LA DEMANDE de septembre 2026 : le choix vient AVANT
+         l'énoncé, qui n'est plus qu'une des trois cartes. Le contrôle est
+         RETOURNÉ, pas retiré — les trois écrans portent toujours le mot. */
       await s.page.evaluate(() => ouvrirDevoirDetail('dm-bonus'));
       await s.page.waitForTimeout(600);
       await s.page.evaluate(o => openTestDevoir('dm-bonus', o.bonus), { bonus:BO.bonus });
-      await s.page.waitForTimeout(2000);
-      const surEnonce = await s.page.evaluate(() => {
-        const e = document.querySelector('.screen.on'); return e ? e.id : '(aucun)'; });
-      verifier('l\'exercice du devoir s\'ouvre sur son énoncé complet', surEnonce === 'scr-dmenonce',
-        'écran affiché : ' + surEnonce);
-      const bEnonce = await badge('#dmeTitre .dm-bonus');
-      verifier('l\'énoncé du devoir dit que l\'exercice est un bonus',
-        vu(bEnonce) && bEnonce.mot.indexOf(BO.mot) >= 0,
-        bEnonce ? 'badge de ' + bEnonce.l + '×' + bEnonce.h + ' px' : 'aucun badge dans le titre de l\'énoncé');
-
-      await s.page.click('#dmeOrdiBtn');
       await s.page.waitForTimeout(900);
+      const surModes = await s.page.evaluate(() => {
+        const e = document.querySelector('.screen.on'); return e ? e.id : '(aucun)'; });
+      verifier('l\'exercice du devoir s\'ouvre sur la page des modes', surModes === 'scr-mode',
+        'écran affiché : ' + surModes);
       const bModes = await badge('#modeTitle .dm-bonus');
-      verifier('l\'écran des modes le dit aussi',
+      verifier('la page des modes dit que l\'exercice est un bonus',
         vu(bModes) && bModes.mot.indexOf(BO.mot) >= 0,
         bModes ? 'badge de ' + bModes.l + '×' + bModes.h + ' px' : 'aucun badge dans le titre des modes');
 
+      await s.page.click('#modeChoices [onclick*="dmePapierOuvrir"]');
+      await s.page.waitForTimeout(2000);
+      const surEnonce = await s.page.evaluate(() => {
+        const e = document.querySelector('.screen.on'); return e ? e.id : '(aucun)'; });
+      verifier('la carte « sur papier » ouvre l\'énoncé complet', surEnonce === 'scr-dmenonce',
+        'écran affiché : ' + surEnonce);
+      const bEnonce = await badge('#dmeTitre .dm-bonus');
+      verifier('l\'énoncé du devoir le dit aussi',
+        vu(bEnonce) && bEnonce.mot.indexOf(BO.mot) >= 0,
+        bEnonce ? 'badge de ' + bEnonce.l + '×' + bEnonce.h + ' px' : 'aucun badge dans le titre de l\'énoncé');
+
+      /* retour au devoir, puis l\'entraînement par la carte : c\'est le chemin
+         de l\'élève qui a lu son énoncé et préfère finalement l\'ordinateur */
+      await s.page.evaluate(() => dmeRetour());
+      await s.page.waitForTimeout(700);
+      await s.page.evaluate(o => openTestDevoir('dm-bonus', o.bonus), { bonus:BO.bonus });
+      await s.page.waitForTimeout(900);
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(1200);
       const bExo = await badge('.screen.on .exo-title .dm-bonus');

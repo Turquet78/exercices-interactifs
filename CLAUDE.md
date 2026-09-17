@@ -8503,6 +8503,86 @@ sonde mesurait un devoir sans réglages, pas la page. Un réglage de devoir se
 sème dans le DOUBLE (`__faux.semer('parametres', …)`), jamais dans le seul
 global.
 
+**Puis le CHOIX est venu avant l'énoncé : trois cartes, et le papier se
+confirme.** Demande de Turquet (septembre 2026) : « en terminale pour les
+devoirs maison, afficher plutôt la page quand on choisit un exercice : mode
+soutien ; mode entraînement, sur papier ; si l'élève choisit papier alors on
+affiche la version papier et on demande la confirmation avant d'envoyer le
+document au professeur ». C'est un RENVERSEMENT du paragraphe ci-dessus :
+l'énoncé ne vient plus EN PREMIER, il est devenu le contenu d'un des trois
+choix — les deux paragraphes qui précèdent racontent le circuit de leur époque.
+**CE QUE LE RENVERSEMENT CORRIGE SE MESURE** : l'élève qui venait s'entraîner
+traversait la VERSION PAPIER de son exercice — l'énoncé entier, toutes les
+questions — pour arriver à la question 1 ; et son exercice était TIRÉ deux
+fois, le tirage de l'aperçu étant jeté aussitôt. La page des modes existait
+déjà (soutien, entraînement) : elle gagne une troisième carte, et c'est là, et
+là seulement, que le papier se décide.
+**L'ENVOI NE SE DÉFAIT PAS, ET C'EST TOUTE LA RAISON DE LA CONFIRMATION** : le
+professeur reçoit une ligne que l'élève ne peut pas retirer, et un clic parti
+tout seul lui laisserait l'énoncé d'un devoir que personne ne rendra. C'est
+`confirm()`, la convention du fichier pour un geste irréversible côté élève —
+celle d'« Abandonner cet exercice » — et le bord OPPOSÉ compte autant : refusée,
+RIEN ne part, rien n'est marqué « envoyé », et le bouton reste utilisable. Le
+contrôle tient les deux.
+**IL N'Y A QU'UNE PORTE, et la règle des « deux portes » mesurait un écran
+DISPARU.** Le panneau des devoirs de l'accueil — `renderDM()` et
+`lancerDevoir()` — écrivait dans un `#dmPanel` qui n'existe plus dans la page :
+aucun appelant, aucun hôte, deux fonctions MORTES, et le contrôle qui exigeait
+que « les deux portes passent par l'énoncé » les exerçait sans rien mesurer de
+ce que l'élève voit. Elles sont retirées avec leur feuille de styles, et c'est
+le CONTRÔLE qui tient désormais la propriété : l'entonnoir `lancerDevoirExo()`
+n'est appelé QUE par les cartes de la page des modes — tout appel ailleurs est
+une seconde porte, et il le NOMME. Au passage, la coupe « Questions » du devoir
+manquait à ce chemin mort : l'accueil lançait la séance entière quand la page
+du devoir la coupait.
+**LE CONTRÔLE COMPTE SUR LA SOURCE SANS SES COMMENTAIRES**, et il a fallu le
+lui apprendre : un commentaire a le droit de nommer la fonction qu'il
+explique — celui de la porte unique le fait — et le premier jet comptait sa
+propre doctrine comme une seconde porte.
+**UN EXERCICE QUI NE SAIT PAS S'ÉNONCER LE DIT, et rend le choix.** Avant, le
+repli enchaînait en SILENCE sur le chemin direct (« sur l'ordinateur ») ;
+maintenant qu'il n'y a plus de suite, le silence laisserait l'élève dans l'écran
+que le tirage vient d'afficher — un exercice qu'il n'a pas choisi. On revient
+donc à la page des modes, avec un message qui dit pourquoi. Le minuteur d'un
+exercice à chronomètre est coupé AVANT ce repli, et plus seulement avant
+l'énoncé : sans quoi il avancerait tout seul derrière la page des modes.
+**RIEN D'AUTRE NE BOUGE, et c'est ce qui rend le geste sûr** : la photo est
+toujours `dmEnonceHTML()` — les rendus MÊMES de l'exercice, cases remplacées
+par des pointillés, aucun id (le piège du clone) —, la coupe « Questions »
+s'applique toujours AVANT la photographie, l'énoncé part toujours par le canal
+des signalements avec le prénom et le tirage EXACT, et la vue du professeur —
+ligne distinguée, énoncé rejoué, verrou REJEU — n'a pas changé d'une ligne.
+**Le contrôle a été RETOURNÉ, pas retiré** : « l'énoncé d'abord, et il part
+avec le prénom » est devenu « un choix de la page des modes, et l'envoi se
+confirme », et ses neuf sections suivent le parcours entier — la page des modes
+et ses trois cartes, l'exercice qui n'est PAS tiré avant le choix, l'énoncé
+sans une case, la confirmation refusée puis acceptée, le second clic muet,
+l'échec d'envoi DIT, la porte unique, la vue professeur, et le repli.
+**Quatorze sabotages, chacun rougissant en nommant son défaut** — l'énoncé
+revenu avant le choix, la carte papier retirée, la confirmation retirée puis
+demandée-mais-ignorée, le bouton d'envoi laissé hors service après un refus, le
+second envoi qui repart, le repli muet, le repli qui affiche un énoncé étranger,
+le repli qui laisse l'élève dans l'exercice, la coupe « Questions » perdue, le
+panneau mort revenu, une seconde porte, le tirage avant le choix, le tirage
+envoyé qui n'est plus celui montré. **Et le premier jet de l'un d'eux ne
+sabotait RIEN** : il ajoutait une ligne inerte au lieu de déplacer la
+désactivation du bouton AVANT la confirmation — son vert ne disait rien du
+contrôle visé, et rejoué sur la vraie ancre il rougit en nommant le bouton.
+**Le parcours a été joué dans un vrai Chromium**, et lui seul montre la
+confirmation comme l'élève la voit : la page du devoir, les trois cartes, la
+version papier (deux questions — la coupe du devoir —, 61 pointillés, aucune
+case), le dialogue REFUSÉ qui n'envoie rien, puis accepté.
+**ET LE BADGE « BONUS » EST ARRIVÉ SUR LES MÊMES LIGNES, par une autre branche,
+le jour même** : son contrôle du banc NAVIGATEUR suivait le trajet d'avant —
+`openTestDevoir` menait à l'énoncé, puis `#dmeOrdiBtn` menait aux modes —, et
+ce bouton n'existe plus. Il a été RETOURNÉ, pas retiré : les modes d'abord, la
+carte « sur papier » ensuite, le retour au devoir puis l'entraînement par sa
+carte — les trois écrans portent toujours le mot, et c'est la propriété que le
+contrôle tient, jamais le chemin. Le titre de l'énoncé garde donc son badge, et
+le passe en `innerHTML` avec `esc()` : le libellé d'un exercice est du texte, le
+badge est du balisage, et poser l'un sans échapper l'autre est le piège que ce
+fichier nomme ailleurs.
+
 **La même démonstration, mais l'élève ne pose que des nombres.**
 {suite-auxiliaire-2} (Terminale, 6.3, demande de Turquet, août 2026) est repris
 de la fiche « Exercice suite Vn » : U₀ = 10 000, Uₙ₊₁ = 0,95 Uₙ + 200,
