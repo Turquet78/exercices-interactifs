@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-tableau-valeurs':'ptv' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -211,6 +211,11 @@ module.exports = {
        listes — colorer une ligne au moment où il la choisit lui dirait si elle
        est juste avant même qu'il vérifie, et il n'aurait plus qu'à essayer les
        six. C'est la règle de {solutions-graphique} en Seconde. */
+    /* « ptv » — {python-tableau-valeurs} — recopie dans ses cases ce que la
+       console affiche : la valeur cherchée est DÉJÀ à l'écran, et une couleur
+       posée pendant la frappe ne dirait que si l'élève a bien recopié. Pire,
+       « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre juste.
+       Le soutien y colore à la vérification, sans jamais révéler la valeur. */
     soutienEnDirect: { sans: ['psl', 'sal', 'ac'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
@@ -670,12 +675,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    /* « ptv » — {python-tableau-valeurs} — recopie dans ses cases ce que la
-       console affiche : la valeur cherchée est DÉJÀ à l'écran, et une couleur
-       posée pendant la frappe ne dirait que si l'élève a bien recopié. Pire,
-       « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre juste.
-       Le soutien y colore à la vérification, sans jamais révéler la valeur. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'ptv'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -818,7 +818,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-tableau-valeurs'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-tableau-valeurs'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -942,6 +942,27 @@ module.exports = {
                         fiche: { aff: ['note1 = 15', 'note2 = 15.5', 'prenom = "Louane"'],
                                  modele: 'print("la 1ère note vaut:", note1)',
                                  lignes: ['print("la 2ème note vaut", note2)', 'print("le prénom est", prenom)'] } },
+    /* {python-placer-variables} : l'exercice 10 du carnet — le programme est
+       ÉCRIT en entier, print compris, et seuls les NOMS des variables
+       manquent : « compléter LOGIQUEMENT avec les noms des variables »
+       (demande de Turquet, septembre 2026). « nb » est la SECONDE source du
+       nombre de questions : le compte n'est pas un réglage de la page, c'est
+       la structure de la séance — la fiche du carnet, puis un jeu de
+       variables par question. « fiche » est celle du carnet, épinglée en
+       première question, avec ses textes au caractère près (leurs espaces de
+       frappe comprises, d'où les DEUX espaces que Python affiche), la phrase
+       obtenue quand les variables sont bien placées, et celle que donne leur
+       INTERVERSION — parfaitement valide pour Python, et c'est tout le sujet.
+       Le banc jsdom tient le tirage, le juge, le diagnostic, les portes, la
+       case vide et le soutien, et compare l'interpréteur à un vrai python3 ;
+       le navigateur TAPE les noms dans les vraies cases, exécute, vérifie et
+       relit l'encre RENDUE. */
+    pythonPlacerVariables: { exercice: 'python-placer-variables', nb: 4,
+                             fiche: { aff: ['note = 14', 'prenom = "Mathéo"'],
+                                      ligne: 'print("la note de ", prenom, " est de ", note, "sur 20")',
+                                      noms: ['prenom', 'note'],
+                                      sortie: 'la note de  Mathéo  est de  14 sur 20',
+                                      interversion: 'la note de  14  est de  Mathéo sur 20' } },
     /* {python-tableau-valeurs} : l'exercice 11 du carnet — a) exécuter le
        programme — prolongé par le TABLEAU DE VALEURS qu'on remplit en
        modifiant x dans ce programme et en l'exécutant (demande de Turquet,
