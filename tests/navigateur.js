@@ -7345,6 +7345,205 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies quinquies. {python-deux-lignes} : deux lignes se tapent, s'exécutent, se vérifient =====
+       Le banc jsdom tient le juge (la règle des paires, les deux erreurs
+       propres à l'exercice, chaque diagnostic), les portes, la ligne vide et
+       le soutien. Ce qu'il ne voit pas : la consigne à puces et les deux
+       coups de pouce RENDUS — repliés au départ, et qui S'OUVRENT au clic —,
+       les quatre lignes écrites du programme et les deux cases à chasse fixe
+       et à la MÊME taille, un VRAI clic sur « Vérifier » fermé qui ne juge
+       rien, les deux lignes TAPÉES au clavier dans l'ordre inverse des puces
+       — Entrée exécute —, l'encre RENDUE des deux verdicts sur la même
+       question (l'une bleue, l'autre rouge : c'est la règle « chaque ligne se
+       juge seule », et seule une couleur rendue la montre), la ligne juste en
+       VERT et SOUS la case fausse, et la page qui ne déborde pas sur un
+       téléphone. Puis le soutien, où rien ne se révèle. */
+    titre('6 tricies quinquies. COMPLÉTER À PLUSIEURS VARIABLES : DEUX LIGNES SE TAPENT, S\'EXÉCUTENT, SE VÉRIFIENT');
+    if(!P.pythonDeuxLignes){
+      ignorer('les deux lignes se tapent, s\'exécutent, puis se vérifient', 'ce niveau n\'a pas l\'exercice des deux affichages à compléter');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonDeuxLignes.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const avant = await s.page.evaluate(() => {
+        const host = document.getElementById('pydHost');
+        const puces = [...host.querySelectorAll('.pyd-puces li')], pouces = [...host.querySelectorAll('.pyd-pouce')];
+        const l = [...host.querySelectorAll('.pyx-l1')], in0 = document.getElementById('pyd-in0'), in1 = document.getElementById('pyd-in1');
+        const run = document.getElementById('pydRun'), val = document.getElementById('pydValidate'), cons = document.getElementById('pydConsole');
+        const fam = e => getComputedStyle(e).fontFamily, px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const r = e => e.getBoundingClientRect();
+        return { puces: puces.length, pucesVisibles: puces.every(p => r(p).width > 100 && r(p).height > 8),
+                 pouces: pouces.length, pouceOuvert: pouces.some(p => p.open),
+                 pouceVisible: pouces.every(p => r(p).width > 200 && r(p).height > 14),
+                 lignes: l.map(e => e.textContent), policeL: l.map(fam), pxL: l.map(px),
+                 policeIn: [fam(in0), fam(in1)], pxIn: [px(in0), px(in1)],
+                 casesVisibles: [in0, in1].every(e => r(e).width > 200 && r(e).height > 28 && r(e).right <= document.documentElement.clientWidth),
+                 runOk: !run.disabled && r(run).width > 40, valFerme: val.disabled && r(val).width > 40,
+                 consoleVisible: r(cons).height > 20,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('la consigne à puces et les deux coups de pouce sont rendus, repliés au départ',
+        avant.puces === 2 && avant.pucesVisibles && avant.pouces === 2 && !avant.pouceOuvert && avant.pouceVisible, JSON.stringify(avant).slice(0, 300));
+      verifier('les quatre lignes écrites du programme et les deux cases sont à chasse fixe, à la même taille',
+        avant.lignes.length === 4 && avant.policeL.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && avant.policeIn.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && Math.max(...avant.pxL.concat(avant.pxIn)) - Math.min(...avant.pxL.concat(avant.pxIn)) < 0.6,
+        JSON.stringify({ l: avant.lignes, pxL: avant.pxL, pxIn: avant.pxIn }));
+      verifier('les deux cases tiennent dans l\'écran, « Exécuter » est ouvert, « Vérifier » est fermé, et la page ne déborde pas à 1400 px',
+        avant.casesVisibles && avant.runOk && avant.valFerme && avant.consoleVisible && !avant.page, JSON.stringify(avant).slice(0, 300));
+      /* un coup de pouce s'OUVRE au clic — un « details » sans marqueur reste
+         un bouton mort si la page a caché son résumé */
+      await s.page.click('#pydHost .pyd-pouce summary');
+      await s.page.waitForTimeout(200);
+      const pouce = await s.page.evaluate(() => {
+        const p = document.querySelector('#pydHost .pyd-pouce'), t = p.querySelector('p');
+        return { ouvert: p.open, texte: t.textContent, haut: t.getBoundingClientRect().height };
+      });
+      verifier('un coup de pouce s\'ouvre au clic et dit la MÉTHODE — print, les guillemets, la virgule',
+        pouce.ouvert && pouce.haut > 10 && /guillemets/.test(pouce.texte) && /virgule/.test(pouce.texte), JSON.stringify(pouce));
+      /* un VRAI clic sur « Vérifier » fermé ne juge rien */
+      await s.page.click('#pydValidate', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const rien = await s.page.evaluate(() => ({ fb: document.getElementById('pydFeedback').textContent,
+        c0: document.getElementById('pyd-in0').className, c1: document.getElementById('pyd-in1').className }));
+      verifier('un clic sur « Vérifier » fermé ne juge rien', rien.fb === '' && !/ok|bad/.test(rien.c0) && !/ok|bad/.test(rien.c1), JSON.stringify(rien));
+      /* LE TÉLÉPHONE SE MESURE SUR LA QUESTION 1 — la fiche du carnet, dont la
+         ligne modèle est LONGUE par construction (34 caractères à chasse fixe
+         pour un cadre de 285 px). Mesuré sur un tirage au hasard, « la ligne
+         qui ne tient pas » n'existerait pas toujours, et le contrôle serait
+         INTERMITTENT : il parlerait d'autre chose une fois sur deux. */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyd-in0').getBoundingClientRect(), boite = document.querySelector('#pydHost .pyx-prog');
+        const prog = boite.getBoundingClientRect(), pouce = document.querySelector('#pydHost .pyd-pouce').getBoundingClientRect();
+        /* UNE LIGNE ÉCRITE DU PROGRAMME NE SE LAISSE PAS COUPER : elle DÉFILE.
+           Mesuré à 390 px, la ligne modèle fait 300 px dans un cadre de 285, et
+           sa fin — « note1) » — disparaissait sans que rien ne le dise. */
+        const l = [...document.querySelectorAll('#pydHost .pyx-l1')].map(e => {
+          const r = e.getBoundingClientRect();
+          return { t: e.textContent, deborde: r.right > prog.right + 1,
+                   longue: e.scrollWidth > e.clientWidth + 1, ovf: getComputedStyle(e).overflowX };
+        });
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 caseDedans: in0.right <= 391 && in0.width > 120, progDedans: prog.right <= 391, pouceDedans: pouce.right <= 391,
+                 progDefile: boite.scrollWidth > boite.clientWidth + 1, lignes: l };
+      });
+      verifier('sur un téléphone, les cases, le programme et les coups de pouce restent dans l\'écran et la page ne déborde pas',
+        !tel.page && tel.caseDedans && tel.progDedans && tel.pouceDedans, JSON.stringify(tel).slice(0, 300));
+      verifier('sur un téléphone, aucune ligne écrite du programme ne déborde de son cadre — celle qui n\'y tient pas DÉFILE au lieu d\'être coupée',
+        !tel.progDefile && tel.lignes.every(x => !x.deborde) && tel.lignes.some(x => x.longue)
+        && tel.lignes.every(x => /auto|scroll/.test(x.ovf)),
+        JSON.stringify(tel.lignes));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      await s.page.waitForTimeout(300);
+      /* on TAPE la ligne du MODÈLE dans la première case — l'erreur que vise
+         l'exercice — et la ligne juste de l'autre puce dans la seconde */
+      const q1 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = pydAns(q);
+        return { modele: pydModLigne(q), lignes: a.map(x => x.ligne), sorties: a.map(x => x.sortie) };
+      });
+      await s.page.click('#pyd-in0');
+      await s.page.keyboard.type(q1.modele);
+      await s.page.click('#pyd-in1');
+      await s.page.keyboard.type(q1.lignes[1]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pydValidate');
+      await s.page.waitForTimeout(400);
+      const mix = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyd-in0'), in1 = document.getElementById('pyd-in1'), b = in0.nextElementSibling;
+        const r0 = in0.getBoundingClientRect(), rb = b ? b.getBoundingClientRect() : null;
+        return { c0: in0.className, c1: in1.className, e0: getComputedStyle(in0).color, e1: getComputedStyle(in1).color,
+                 badge: !!(b && b.classList.contains('mf-cor')), texte: b && b.textContent, encreBadge: b ? getComputedStyle(b).color : '',
+                 dessous: !!rb && rb.top >= r0.bottom - 1 && rb.width > 100, dedans: !!rb && rb.right <= document.documentElement.clientWidth,
+                 badge1: !!(in1.nextElementSibling && in1.nextElementSibling.classList.contains('mf-cor')),
+                 fb: document.getElementById('pydFeedback').textContent, score: test.score, suivant: !!document.getElementById('pydNext') };
+      });
+      verifier('chaque ligne se juge SEULE : la ligne du modèle recopiée rougit (encre rouge rendue) pendant que l\'autre reste BLEUE, la ligne juste s\'écrit en VERT et SOUS la case fausse — et elle seule',
+        /bad/.test(mix.c0) && dom(mix.e0) === 'rouge' && /ok/.test(mix.c1) && dom(mix.e1) === 'bleu'
+        && mix.badge && mix.texte === q1.lignes[0] && dom(mix.encreBadge) === 'vert' && mix.dessous && mix.dedans && !mix.badge1
+        && /déjà écrite/.test(mix.fb) && mix.score === 1 && mix.suivant, JSON.stringify(mix));
+      /* question 2 : on TAPE les deux lignes justes, DANS L'ORDRE INVERSE des
+         puces — la règle des paires ne se voit qu'ici, au clavier */
+      await s.page.click('#pydNext');
+      await s.page.waitForTimeout(300);
+      const q2 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = pydAns(q), s = pydModAns(q).sortie + a[1].sortie + a[0].sortie;
+        return { lignes: a.map(x => x.ligne), console: s.slice(0, s.length - 1), idx: test.idx };
+      });
+      await s.page.click('#pyd-in0');
+      await s.page.keyboard.type(q2.lignes[1]);
+      await s.page.click('#pyd-in1');
+      await s.page.keyboard.type(q2.lignes[0]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const exec = await s.page.evaluate(() => {
+        const c = document.getElementById('pydConsole'), r = c.getBoundingClientRect();
+        return { texte: c.textContent, visible: r.height > 20 && r.width > 100, police: getComputedStyle(c).fontFamily,
+                 valOuvert: !document.getElementById('pydValidate').disabled };
+      });
+      verifier('question 2 : Entrée exécute le programme entier, la console montre les TROIS lignes affichées à chasse fixe, et « Vérifier » s\'ouvre',
+        q2.idx === 1 && exec.texte === q2.console && exec.visible && /mono|menlo|consolas|courier/i.test(exec.police) && exec.valOuvert,
+        JSON.stringify(exec) + ' / attendu ' + JSON.stringify(q2.console));
+      await s.page.click('#pydValidate');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyd-in0'), in1 = document.getElementById('pyd-in1');
+        return { ok: /ok/.test(in0.className) && /ok/.test(in1.className), e0: getComputedStyle(in0).color, e1: getComputedStyle(in1).color,
+                 score: test.score, verrou: in0.disabled && in1.disabled,
+                 badge: !!(in0.nextElementSibling && in0.nextElementSibling.classList.contains('mf-cor')),
+                 suivant: !!document.getElementById('pydNext'), focus: document.activeElement && document.activeElement.id };
+      });
+      verifier('les deux lignes justes écrites dans l\'AUTRE ORDRE sont peintes ok, à l\'encre BLEUE rendue, sans ligne verte, valent 2, verrouillent, et « Question suivante » reçoit le focus',
+        apres.ok && dom(apres.e0) === 'bleu' && dom(apres.e1) === 'bleu' && apres.score === 3 && apres.verrou && !apres.badge && apres.suivant && apres.focus === 'pydNext', JSON.stringify(apres));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* le soutien : la ligne fausse rougit, la page dit OÙ est l'erreur, rien ne se révèle */
+      await s.page.evaluate(id => openTest(id), P.pythonDeuxLignes.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const q3 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = pydAns(q);
+        return { faux: 'print("' + q.att[0].texte + '", ' + q.mod.nom + ')', variable: q.mod.nom, lignes: a.map(x => x.ligne) };
+      });
+      await s.page.click('#pyd-in0');
+      await s.page.keyboard.type(q3.faux);
+      await s.page.click('#pyd-in1');
+      await s.page.keyboard.type(q3.lignes[1]);
+      await s.page.click('#pydRun');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pydValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyd-in0'), fb = document.getElementById('pydFeedback');
+        return { bad: /bad/.test(in0.className), encre: getComputedStyle(in0).color,
+                 badge: !!(in0.nextElementSibling && in0.nextElementSibling.classList.contains('mf-cor')),
+                 fb: fb.textContent, fbVisible: fb.getBoundingClientRect().height > 10, verrou: in0.disabled,
+                 rev: (document.getElementById('pydValidate') || {}).textContent || '' };
+      });
+      verifier('en soutien, la ligne fausse rougit (encre rouge rendue), sans ligne juste en vert, le message dit où est l\'erreur — la variable prise à la place — puis propose Revérifier',
+        sout.bad && dom(sout.encre) === 'rouge' && !sout.badge && /Où est l’erreur/.test(sout.fb)
+        && sout.fb.indexOf(q3.variable) >= 0 && sout.fb.indexOf(q3.lignes[0]) < 0 && sout.fbVisible && !sout.verrou && /Rev/.test(sout.rev), JSON.stringify(sout));
+      await s.page.fill('#pyd-in0', q3.lignes[0]);
+      await s.page.waitForTimeout(150);
+      const modif = await s.page.evaluate(() => ({ bad: /bad/.test(document.getElementById('pyd-in0').className),
+        valFerme: document.getElementById('pydValidate').disabled, console: document.getElementById('pydConsole').textContent }));
+      verifier('la ligne modifiée perd son rouge, referme Revérifier et vide la console', !modif.bad && modif.valFerme && modif.console === '', JSON.stringify(modif));
+      await s.page.press('#pyd-in0', 'Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pydValidate');
+      await s.page.waitForTimeout(400);
+      const fin2 = await s.page.evaluate(() => ({ ok: /ok/.test(document.getElementById('pyd-in0').className),
+        score: test.score, suivant: !!document.getElementById('pydNext') }));
+      verifier('la correction exécutée puis revérifiée vaut 2 en soutien et propose la suite', fin2.ok && fin2.score === 2 && fin2.suivant, JSON.stringify(fin2));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
     /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
        de mise en page — seul un navigateur voit le geste), puis la partie

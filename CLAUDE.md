@@ -3182,6 +3182,116 @@ tolérance est une affaire de chaînes, et le message qui nomme l'écart se lit
 dans le DOM — jsdom le voit, un vrai Chromium n'en dirait pas plus. Treize
 sabotages, douze rougissant en nommant leur défaut.
 
+**La suite du 5.7 : un modèle DÉJÀ écrit, et deux lignes à compléter.**
+{python-deux-lignes} (Seconde, 5.8, demande de Turquet, septembre 2026 : « en
+seconde créer un exercice comme le pdf ») est l'exercice 9 (suite et fin) du
+carnet, et il ferme le thème 5 — ajouté en dernier, il ne renumérote rien.
+Trois variables sont affectées, UNE ligne d'affichage est déjà écrite, et
+l'élève complète le programme pour qu'il affiche deux autres textes suivis de
+deux autres variables. « Vérifier en l'exécutant », dit la fiche, et la chaîne
+des portes du 5.7 le tient : écrire, EXÉCUTER, puis vérifier — « Vérifier » ne
+s'ouvre qu'une fois le programme exécuté tel qu'il est écrit, et se referme
+dès qu'une ligne change.
+**CE QU'IL AJOUTE AU 5.7 EST LE MODÈLE, et c'est tout le sujet** : là-bas il
+n'y a qu'UNE variable et aucun modèle — la page explique, l'élève applique.
+Ici le programme porte TROIS variables qui se ressemblent (note1, note2,
+prenom) et une ligne d'affichage déjà écrite : l'élève TRANSPOSE, et le seul
+vrai risque est de recopier cette ligne sans changer la variable. C'est la
+première chose que le diagnostic NOMME (« tu as recopié la ligne déjà écrite :
+elle affiche la valeur de note1 »), la seconde étant la variable voisine prise
+à la place (« ta ligne affiche la valeur de note1, alors qu'on demande celle
+de note2 »). Sans ces deux branches, le juge du 5.7 aurait répondu à côté : le
+texte étant juste, il aurait comparé « la 2ème note vaut » à lui-même.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ** : le jeu de variables est `PY_JEUX` —
+partagé avec {python-affichage} et {python-completer}, et dont la première
+entrée EST celle du carnet (note1, note2, prenom) —, l'interpréteur est
+`pyRun`, la tolérance des textes `pyTexteProche` et `pyEcart`, et les
+diagnostics sont `pyxDiagErreur` et `pyxDiagSortie`, les fonctions MÊMES du
+5.7, à qui l'on passe la ligne à juger et sa cible. Le programme se dessine
+avec les classes du 5.7 (`pyx-prog`, `pyx-ligne`, `pyx-in`) : deux feuilles de
+styles auraient fini par diverger, et deux exercices voisins se seraient
+dessinés différemment sous les yeux de l'élève. `pyxDiagErreur` a seulement
+appris la LISTE des variables du programme (`q.noms`) — « les variables sont
+note1, note2 et prenom » au lieu de « la seule variable est celle de la ligne
+1 » — et appelée sans elle, le cas du 5.7, elle ne change pas d'un mot.
+**L'ORDRE DES DEUX LIGNES EST LIBRE**, et il le faut : rien à l'écran ne dit
+quelle case porte laquelle, et un programme qui affiche les deux choses
+demandées est juste — refuser une écriture juste serait le pire défaut du
+projet. C'est la règle des paires d'{antecedent-nombre} : chaque ligne se juge
+sur ce qu'elle PROMET — afficher l'un des deux affichages attendus — et la
+liste les prend une fois chacune ; la même ligne écrite deux fois est
+défendable une fois, fausse la seconde, et le message le dit.
+**CHAQUE LIGNE SE JUGE SEULE** : deux cases dans la note, six pour la séance.
+Une ligne fausse ne fait pas rougir sa voisine, et la ligne juste s'écrit en
+VERT sous la fausse SEULEMENT — en entraînement, jamais en soutien, où l'élève
+corrige et revérifie. **Une ligne VIDE n'est jamais peinte** : la vérification
+la redemande, sans rien colorer ni verrouiller — rouge veut dire FAUX, jamais
+« pas fini » (la règle de {placer-image}).
+**LA SÉANCE** : la fiche du carnet en tête, ÉPINGLÉE (note1 = 15,
+note2 = 15.5, prenom = "Louane", le modèle sur note1), puis les DEUX autres
+visages en modèle, chacun une fois, sur deux jeux distincts. Chaque visage
+sert donc de modèle une fois et s'écrit deux fois — un entier, un décimal
+(Python l'écrit avec un point) et un texte (il s'affiche sans ses guillemets).
+Le compte n'est pas un réglage : c'est la structure de la séance, et
+`tests/profils.js` en est la seconde source.
+**LES DEUX COUPS DE POUCE sont ceux du carnet**, repliés : ils disent la
+MÉTHODE — la forme de la ligne, le nom de la variable sans guillemets — et
+jamais la réponse, que l'énoncé porte déjà. Le contrôle l'exige : aucune des
+deux lignes attendues ne s'y écrit.
+**LE RISQUE SILENCIEUX EST LA CONFUSION DES DEUX LIGNES** : si deux affichages
+attendus se ressemblaient à un caractère près, la tolérance des textes ferait
+passer l'un pour l'autre et la règle des paires perdrait son sens. Le tirage
+ne porte AUCUN garde là-dessus — sondé, la propriété tient d'elle-même sur
+1 200 questions, et un garde qui n'écarte jamais rien ferait croire qu'on
+vérifie quelque chose —, et c'est le CONTRÔLE qui l'exige, tirage après
+tirage, sur les deux lignes entre elles ET sur la ligne du modèle.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée (si elle
+ne passe pas au juge, c'est le juge qui a tort), la place au menu, le tirage
+(400 séances), le juge sur des écritures JUSTES variées et sur vingt-quatre
+lignes FAUSSES — chacune avec le mot que son diagnostic doit porter —, les
+portes, la ligne vide, le soutien, les branchements, et compare l'interpréteur
+à un vrai CPython sur 822 programmes ; le NAVIGATEUR (« 6 tricies quinquies »,
+déclaré par `pythonDeuxLignes` dans `tests/profils.js`) mesure ce que jsdom ne
+voit pas — la consigne à puces et les coups de pouce RENDUS, repliés puis
+OUVERTS au clic, les quatre lignes écrites du programme et les deux cases à
+chasse fixe et à la MÊME taille, un VRAI clic sur « Vérifier » fermé qui ne
+juge rien, les deux lignes TAPÉES au clavier dans l'ordre inverse des puces,
+l'encre RENDUE des deux verdicts sur la même question — l'une bleue, l'autre
+rouge, ce que seule une couleur rendue montre —, la ligne verte SOUS la case
+fausse, et la page qui ne déborde pas sur un téléphone.
+**ET UN DÉFAUT NE S'EST VU QUE SUR LA CAPTURE, à la largeur d'un téléphone** :
+la ligne du MODÈLE fait 300 px à chasse fixe quand le cadre du programme en
+offre 285, et sa fin — « note1) » — était simplement COUPÉE, sans rien qui le
+dise (mesuré : 312 px de contenu dans 285, la page ne débordant pas). Le 5.7 ne
+pouvait pas le montrer : sa ligne 1, « note = 12 », tient partout. Une ligne de
+code ne se replie JAMAIS — un calcul coupé en deux se lit de travers — donc
+elle DÉFILE, chacune dans sa propre bande (`.pyx-l1{overflow-x:auto}`). **Et sa
+base de flex vaut ZÉRO, pas « auto »** : à `auto`, la ligne trop longue passe
+SOUS son numéro avant même de rétrécir — dans une rangée flex le repli arrive
+avant le rétrécissement —, et c'est la capture refaite qui l'a montré. Le banc
+NAVIGATEUR tient les deux bords (aucune ligne ne déborde du cadre, celle qui
+n'y tient pas peut défiler) et il les mesure sur la QUESTION 1, la fiche
+épinglée, dont la ligne modèle est longue par construction : mesuré sur un
+tirage au hasard, « la ligne qui ne tient pas » n'existerait pas toujours et le
+contrôle serait INTERMITTENT.
+**Vingt-trois sabotages, chacun rougissant en nommant son défaut** — dix-neuf
+au banc jsdom (l'ordre imposé, le doublon accepté, la variable employée qui
+n'est plus exigée, chacune des trois branches du diagnostic débranchée, la
+liste des variables perdue, la fiche qui n'ouvre plus la séance, les visages
+modèles au hasard, la ligne vide peinte, la ligne juste qui fuit en soutien,
+« Vérifier » cliquable d'emblée, les deux cases jugées ENSEMBLE, l'exercice
+sorti du thème 5, le rappel qui n'enseigne plus la variable à choisir, le
+bouton des tables revenu, le soutien qui juge à la frappe, le contexte sans
+clause de secret, un coup de pouce qui écrit la réponse) et quatre que seul le
+NAVIGATEUR voit — la chasse fixe retirée des cases (il nomme l'encre :
+« Arial »), la ligne verte rangée À DROITE au lieu de dessous, les coups de
+pouce dépliés d'emblée, et la ligne écrite qui ne défile plus —, jsdom restant
+vert à bon droit sur ces quatre-là. Un sabotage a montré un trou du CONTRÔLE
+avant la page : « la ligne juste fuit en soutien » faisait LEVER le contrôle
+sur un bouton disparu (« Cannot read properties of null ») au lieu de nommer
+quoi que ce soit — un contrôle qui plante ne dit rien du défaut visé, et il
+garde son bouton désormais.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
