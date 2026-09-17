@@ -717,7 +717,12 @@
      se seraient dessinés différemment sous les yeux de l'élève. Le cadre des
      coups de pouce est celui du cours du 5.7, pour la même raison — et parce
      qu'aucune encre de verdict (bleu juste, rouge faux, vert correction) ne
-     doit servir à autre chose. */
+     doit servir à autre chose.
+     LES CLASSES pyd-pouce SERVENT LES DEUX EXERCICES depuis que le 5.7 a reçu
+     son coup de pouce (demande de Turquet, septembre 2026) : une seule
+     fabrique les écrit (pyPoucesHTML), et le préfixe pyd- reste celui de
+     l'exercice où le cadre est né — la convention de pyx-prog, prise dans
+     l'autre sens. */
   .pyd-puces{margin:0 0 8px;padding-left:24px;text-align:left;font-size:1rem;line-height:1.6}
   .pyd-puces li{margin:3px 0}
   .pyd-puces code,.pyd-pouce code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
@@ -2717,7 +2722,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pyxLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">Lis le cours et ex&eacute;cute son exemple pour voir ce qu&rsquo;il affiche ; quand tu as compris, compl&egrave;te le programme : la ligne 1 est &eacute;crite, &agrave; toi d&rsquo;&eacute;crire la ligne 2 pour qu&rsquo;il affiche le texte demand&eacute; suivi de la valeur de la variable. Ex&eacute;cute ton programme pour voir ce qu&rsquo;il affiche, puis v&eacute;rifie.</p>
+      <!-- L'énoncé est ÉCRIT par le rendu, et par lui seul : le cours et la
+           question n'en disent pas le même, et un texte posé ici en plus serait
+           une seconde source — celle qui dérive sans que rien ne le dise. -->
+      <p class="mp-instr" id="pyxInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pyxHost"></div></div>
       <div class="mp-feedback" id="pyxFeedback"></div>
       <div class="row" style="justify-content:center">
@@ -3085,7 +3093,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=176;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=177;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -18007,6 +18015,51 @@ function pyxCoursHTML(){
     +'<p class="pyx-ex">Un exemple est écrit juste en dessous : exécute-le pour voir ce qu’il affiche.</p>'
     +'</div>';
 }
+/* L'ÉNONCÉ SUIT L'ÉCRAN, ET IL NOMME LES NOMBRES DE SA QUESTION.
+   Demande de Turquet (septembre 2026) : « je veux que le 1er énoncé soit par
+   exemple : lis le cours et exécute le programme pour comprendre. et les
+   énoncés suivants sont : par exemple : "complète le programme pour qu'il
+   affiche « la note de Simon est : » suivi du contenu de la variable
+   note." » L'énoncé était STATIQUE et disait les deux phases à la fois — la
+   lecture du cours ET la ligne à écrire —, si bien qu'il parlait toujours à
+   moitié à côté : sur l'écran du cours il annonçait un programme à compléter
+   qui n'était pas encore là, et sur une question il redisait un cours qui
+   l'avait quitté.
+   LE BORD QUI COMPTE EST L'ÉNONCÉ FIGÉ, le plus sournois — la leçon du numéro
+   d'exercice de show() : un texte ou une variable écrits en dur nommeraient
+   ceux d'une AUTRE question, et l'élève chercherait à afficher ce qu'on ne lui
+   demande pas, sans qu'aucune correction ne bronche. Il est donc ÉCRIT depuis
+   la question, et le contrôle rend deux questions épinglées aux textes et aux
+   variables différents pour l'exiger.
+   ET LA DEMANDE N'EST DITE QU'UNE FOIS : l'étiquette au-dessus du programme la
+   répétait mot pour mot, ce qui faisait deux énoncés sur le même écran ; elle
+   ne porte plus que ce que le programme doit AFFICHER — la seule chose que
+   l'élève ait à comparer avec sa console. */
+const PYX_INSTR_COURS='Lis le cours et exécute le programme pour comprendre.';
+function pyxEnonceHTML(q){
+  return 'Complète le programme pour qu’il affiche <code class="pyx-code">'+esc(q.texte)+'</code> suivi du contenu de la variable <code class="pyx-code">'+esc(q.nom)+'</code>.';
+}
+/* Le cadre des coups de pouce, PARTAGÉ par {python-completer} et
+   {python-deux-lignes} : un seul endroit écrit le repli et ses classes, chaque
+   exercice n'écrit que ses mots — deux fabriques auraient fini par diverger,
+   et deux exercices voisins auraient replié leur aide différemment. */
+function pyPoucesHTML(liste){
+  return '<div class="pyd-pouces">'
+    +liste.map(function(p){ return '<details class="pyd-pouce"><summary>'+p[0]+'</summary><p>'+p[1]+'</p></details>'; }).join('')
+    +'</div>';
+}
+/* UN COUP DE POUCE, COMME AU 5.8 (demande de Turquet, septembre 2026) — et il
+   n'a de sens que depuis que le cours a quitté l'écran de la question : l'élève
+   qui a oublié la forme du print n'avait plus que « 📘 Rappel de cours », un
+   écran entier pour une ligne.
+   UN SEUL, et c'est un arbitrage nommé : le 5.8 en a deux parce que son
+   programme porte une ligne MODÈLE à imiter, que le 5.7 n'a pas. Ce qui reste à
+   dire ici est la FORME, jamais la réponse — un second coup de pouce n'aurait
+   plus que la ligne elle-même à donner. */
+function pyxPoucesHTML(){
+  return pyPoucesHTML([['coup de pouce',
+    'La forme est toujours <code>print("texte", variable)</code> : le texte <b>entre guillemets</b>, une <b>virgule</b>, puis le <b>nom</b> de la variable <b>sans guillemets</b> — sinon c’est le mot qui s’affiche, et non sa valeur.']]);
+}
 const PYX_EXEMPLE='annee = 2026\nprint("nous sommes en", annee)';
 function pyxExempleHTML(){
   return PYX_EXEMPLE.split('\n').map(function(l,i){
@@ -18016,6 +18069,7 @@ function pyxExempleHTML(){
 function pyxRenderCours(){
   test.locked=false; test.pyxExec=null;
   $('pyxIdx').textContent='Le cours';
+  $('pyxInstr').textContent=PYX_INSTR_COURS;
   $('modeTagPYX').innerHTML=modeTagHTML();
   $('pyxLiveScore').textContent=test.score;
   $('pyxFeedback').textContent=''; $('pyxFeedback').className='mp-feedback';
@@ -18057,13 +18111,15 @@ async function startPYX(){
 function renderPYX(){
   const q=test.questions[test.idx], att=pyxAns(q); test.locked=false; test.pyxExec=null;
   $('pyxIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('pyxInstr').innerHTML=pyxEnonceHTML(q);
   $('modeTagPYX').innerHTML=modeTagHTML();
   $('pyxLiveScore').textContent=test.score;
   $('pyxFeedback').textContent=''; $('pyxFeedback').className='mp-feedback';
   $('pyxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyxValidate" onclick="checkPYX()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
   $('pyxHost').innerHTML=
     '<div class="py-cell">'
-    +'<p class="py-label">À toi : complète le programme pour qu’il affiche le texte <code class="pyx-code">'+esc(q.texte)+'</code> suivi de la valeur de la variable <code class="pyx-code">'+esc(q.nom)+'</code> — c’est-à-dire : <code class="pyx-code pyx-attendu">'+esc(att.sortie.trim())+'</code></p>'
+    +'<p class="py-label">Ton programme doit afficher : <code class="pyx-code pyx-attendu">'+esc(att.sortie.trim())+'</code></p>'
+    +pyxPoucesHTML()
     +'<div class="pyx-prog">'
     +'<div class="pyx-ligne"><span class="pyx-num">1</span><span class="pyx-l1">'+pyColorie(pyxLigne1(q))+'</span></div>'
     +'<div class="pyx-ligne"><span class="pyx-num">2</span><input class="pyx-in" id="pyx-in" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ligne 2 du programme" placeholder="écris ici la ligne qui affiche…"></div>'
@@ -18318,12 +18374,10 @@ function pydConsigneHTML(q){
 }
 /* Les deux coups de pouce du carnet : la MÉTHODE, jamais la réponse. */
 function pydPoucesHTML(){
-  return '<div class="pyd-pouces">'
-    +'<details class="pyd-pouce"><summary>coup de pouce 1</summary>'
-    +'<p>Regarde la ligne d’affichage <b>déjà écrite</b> : elle commence par <code>print(</code> puis, dans l’ordre, le texte <b>entre guillemets</b>, une <b>virgule</b>, le <b>nom</b> de la variable, et la parenthèse fermante. Les deux lignes qui manquent s’écrivent exactement de la même façon.</p></details>'
-    +'<details class="pyd-pouce"><summary>coup de pouce 2</summary>'
-    +'<p>La forme est toujours <code>print("texte", variable)</code> — on remplace <code>texte</code> par le texte demandé et <code>variable</code> par le <b>nom</b> de la variable, <b>sans guillemets</b> autour du nom : sinon c’est le mot qui s’affiche, et non sa valeur.</p></details>'
-    +'</div>';
+  return pyPoucesHTML([
+    ['coup de pouce 1', 'Regarde la ligne d’affichage <b>déjà écrite</b> : elle commence par <code>print(</code> puis, dans l’ordre, le texte <b>entre guillemets</b>, une <b>virgule</b>, le <b>nom</b> de la variable, et la parenthèse fermante. Les deux lignes qui manquent s’écrivent exactement de la même façon.'],
+    ['coup de pouce 2', 'La forme est toujours <code>print("texte", variable)</code> — on remplace <code>texte</code> par le texte demandé et <code>variable</code> par le <b>nom</b> de la variable, <b>sans guillemets</b> autour du nom : sinon c’est le mot qui s’affiche, et non sa valeur.']
+  ]);
 }
 
 /* ---- Cycle de vie ---- */

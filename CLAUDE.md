@@ -3187,6 +3187,70 @@ et s'arrête ; et le sabotage de la variable ne changeait que la PREMIÈRE ligne
 de l'exemple, si bien que le programme tombait en erreur et que le contrôle
 parlait d'autre chose. Rejoué sur un programme valide, il nomme la variable.
 
+**Puis l'ÉNONCÉ a suivi l'écran, et un coup de pouce est venu.** Demande de
+Turquet (septembre 2026) : « je veux que le 1er énoncé soit par exemple : lis
+le cours et exécute le programme pour comprendre ; et les énoncés suivants
+sont : complète le programme pour qu'il affiche "la note de simon est :" suivi
+du contenu de la variable note. Rajouter aussi un coup de pouce comme dans
+5.8. » L'écran portait UN énoncé écrit dans le HTML, le même sur les deux
+écrans : il annonçait la ligne à compléter devant un cours qu'on n'avait pas
+encore lu, et il redisait la demande sous une étiquette du programme qui la
+disait déjà.
+**L'ÉNONCÉ EST ÉCRIT PAR LE RENDU, ET PAR LUI SEUL** : le `<p class="mp-instr">`
+de l'écran est VIDE, `pyxRenderCours()` y pose la phrase du cours et
+`renderPYX()` celle de la question. Un texte laissé dans le HTML « au cas
+où » aurait été une SECONDE source — celle qui dérive sans que rien ne le
+dise : le sabotage « le rendu ne pose plus l'énoncé du cours » serait resté
+VERT, couvert par le texte statique, et c'est ce premier jet qui l'a montré.
+**L'ÉNONCÉ DE LA QUESTION NOMME LES NOMBRES DE SA QUESTION** — son texte et sa
+variable, lus dans `q` —, et **le bord qui compte est l'énoncé FIGÉ**, le plus
+sournois : « la note est : » écrit en dur nommerait un texte que la question
+ne porte pas, sans qu'aucune correction ne bronche — la leçon du numéro
+d'exercice de `show()`, transposée. Le contrôle rend donc DEUX questions
+ÉPINGLÉES (« la note de Simon est : » / note, puis « le prix est : » / total,
+la seconde ayant sa variable ABSENTE de son texte, sans quoi le texte seul
+satisferait les deux mesures) et relit les deux pastilles `<code>`.
+**ET LA DEMANDE N'EST DITE QU'UNE FOIS** : l'étiquette au-dessus du programme
+ne garde que ce qu'il doit afficher (« Ton programme doit afficher : … »), et
+le contrôle COMPTE les occurrences de « complèt » sur l'écran — exactement
+une. Deux phrases qui disent la même chose finissent par n'en dire plus
+qu'une à moitié.
+**UN SEUL COUP DE POUCE, et c'est un arbitrage nommé** : le 5.8 en a DEUX
+parce que son programme porte une ligne MODÈLE à imiter — le premier dit de la
+regarder ; le 5.7 n'en a pas, et un second coup de pouce n'aurait plus eu que
+la réponse à donner. Il dit la FORME (`print("texte", variable)`, les
+guillemets, la virgule, le nom sans guillemets) et jamais la ligne attendue :
+le contrôle exige que `pyxAns(q).ligne` ne s'y trouve pas.
+**LE CADRE DES COUPS DE POUCE EST PARTAGÉ, PAS RECOPIÉ** (`pyPoucesHTML`) :
+un seul endroit écrit le repli et ses classes, chaque exercice n'écrit que ses
+mots — deux fabriques auraient fini par diverger, et deux exercices voisins se
+seraient dessinés différemment sous les yeux de l'élève. Les classes gardent le
+préfixe `pyd-` de l'exercice où le cadre est né, comme le 5.8 garde les classes
+`pyx-` du programme : la convention de `pyx-prog`, prise dans l'autre sens.
+Douze sabotages au banc jsdom, chacun rougissant en nommant son défaut —
+l'énoncé du cours retiré, l'énoncé du cours qui parle déjà de compléter,
+l'énoncé de la question retiré, l'énoncé FIGÉ, la variable qui n'est plus
+nommée, l'étiquette qui redit la demande, l'écran qui ne montre plus la sortie
+attendue, le coup de pouce disparu, déplié d'emblée, muet sur la forme, qui
+écrit la ligne, et le 5.8 sorti de la fabrique partagée.
+**Et le banc NAVIGATEUR tient ce que jsdom ne voit pas** : l'énoncé rendu dans
+sa BOÎTE sous UNE seule étiquette « Énoncé » — le contrôle universel « 6 » ne
+visite pas cet exercice, et un énoncé vidé garderait son élément dans le DOM —,
+les deux écrans qui ne disent pas la même chose, et le coup de pouce qui
+S'OUVRE au clic : jsdom lit un attribut, pas un geste. Deux sabotages de plus,
+chacun rougissant en nommant son défaut et laissant jsdom VERT à bon droit —
+l'énoncé caché par une règle CSS (« boite: false », le texte toujours dans le
+DOM) et le clic du coup de pouce avalé par un `preventDefault`. Ce dernier
+rougit AUSSI chez {python-deux-lignes} : c'est la preuve que le cadre est
+partagé et non recopié.
+**ET LE BANC S'EST PRIS EN DÉFAUT AVANT LA PAGE** : son clic FORCÉ sur
+« J'ai compris » fermé tombait sur les commandes du bas, en position FIXE —
+il ouvrait la modale de signalement, qui interceptait ensuite tout, et le banc
+accusait la page. L'élève, lui, fait défiler : la réserve du bas (84 px) lui
+rend le bouton, mesuré. Le banc CENTRE donc le bouton avant de cliquer — le
+piège déjà payé sur la grille de {construire-fonction}, et la règle « une
+mesure qui accuse la page se mesure elle-même d'abord ».
+
 **Un texte presque bon est un texte bon.** Décision de Turquet (septembre
 2026) : « en seconde pour les algorithmes qui affichent un texte, accepter les
 textes qui sont presque bons. Dans le texte des espaces en trop ou en moins ne
