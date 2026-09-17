@@ -8042,6 +8042,7 @@ async function parcours(page, N){
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
+      const indicesPlats = []; let nIndicesFlex = 0;
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -8252,6 +8253,38 @@ async function parcours(page, N){
               }
             }
             const champsMaths = [...on.querySelectorAll('math-field')].filter(visible).length > 0;
+            /* UN INDICE POSÉ NU DANS UN CONTENEUR FLEX REMONTE SUR SA LIGNE.
+               Un <sub> ou un <sup> enfant DIRECT d'un conteneur flex en devient
+               un ITEM : la spécification y IGNORE vertical-align — l'indice se
+               pose sur la ligne de la lettre — et le gap du conteneur l'en
+               écarte par-dessus le marché, si bien que « Uₙ » se lit « U n » et
+               « eˣ » « e x », c'est-à-dire autre chose (signalé par Turquet,
+               septembre 2026, sur le 6.13 ; mesuré : 59 indices sur DIX
+               exercices, le 6.13 n'en étant que le plus visible). La page rend
+               sa place à ces indices-là ; on EXIGE ici qu'elle le fasse, sur
+               tous les exercices visités et sur les trois niveaux — celui qu'on
+               écrira demain rougit s'il pose un indice dans un conteneur que la
+               règle ne couvre pas encore. On mesure la RÈGLE EN USAGE, jamais
+               la feuille de styles : une règle écrite mais perdue dans la
+               cascade laisserait le contrôle vert, le piège du 2.1.2. */
+            const indices = []; let nIndices = 0;
+            for(const sb of [...on.querySelectorAll('sub,sup')]){
+              const pa = sb.parentElement;
+              if(!pa || !visible(sb)) continue;
+              const cp = getComputedStyle(pa);
+              if(!/flex/.test(cp.display)) continue;
+              nIndices++;
+              const cs = getComputedStyle(sb);
+              const dec = parseFloat(sb.tagName === 'SUB' ? cs.top : cs.bottom);
+              const gap = parseFloat(cp.columnGap) || 0;
+              const mg = parseFloat(cs.marginInlineStart || cs.marginLeft) || 0;
+              const quoi = (pa.className || pa.tagName).toString().split(' ')[0]
+                + ' : « ' + (sb.textContent || '').trim().slice(0, 8) + ' »';
+              if(cs.position !== 'relative' || !(dec > 0))
+                indices.push(quoi + ' — posé sur la ligne de sa lettre');
+              else if(gap > 0 && Math.abs(mg + gap) > 0.5)
+                indices.push(quoi + ' — écarté de sa lettre de ' + gap + 'px par le gap');
+            }
             const boutonClavier = [...on.querySelectorAll('button')].filter(visible)
               .some(b => /clavier math/i.test(b.getAttribute('title') || ''));
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
@@ -8278,7 +8311,8 @@ async function parcours(page, N){
                       return { c:Math.round(c.getBoundingClientRect().width),
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
                     accolades: [...new Set(connus)], gabarits: gabarits, cases: cases, signes: [...new Set(signes)],
-                    debuts: [...new Set(debuts)], etiquettes: etiquettes};
+                    debuts: [...new Set(debuts)], etiquettes: etiquettes,
+                    indices: [...new Set(indices)], nIndices: nIndices};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
@@ -8298,6 +8332,9 @@ async function parcours(page, N){
             sansClavier.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + vu.ecran + ')');
           if(vu.etiquettes && vu.etiquettes.length)
             surCourbe.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.etiquettes[0]);
+          nIndicesFlex += (vu.nIndices || 0);
+          if(vu.indices && vu.indices.length)
+            indicesPlats.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.indices[0]);
           /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
              C'est la règle que la Seconde a réapprise trois fois en une seule
              journée d'août 2026, chaque fois sur un exercice différent, et
@@ -8346,6 +8383,21 @@ async function parcours(page, N){
          dessin visité, contre les courbes RENDUES. */
       /* le COMPTE et la liste ENTIÈRE des exercices touchés (numéro et étiquette), pas
          trois cas : un quatrième resterait caché derrière les trois premiers */
+      /* le COMPTE et la liste : un onzième exercice resterait caché derrière
+         les dix premiers, et « un contrôle qui dit moins que ce qu'il sait
+         fait croire qu'on a fini ». */
+      verifier('aucun indice ne remonte sur la ligne de sa lettre',
+        indicesPlats.length === 0, indicesPlats.length + ' cas — ' + indicesPlats.slice(0, 3).join(' | '));
+      /* LE BORD OPPOSÉ : un contrôle qui n'a rien à mesurer ne mesure rien, et
+         doit le dire. Le niveau qui DÉCLARE poser des indices dans un flex doit
+         en offrir au banc ; celui qui n'en déclare pas s'affiche « non
+         applicable » plutôt que d'être tu. */
+      if(P.indicesEnFlex)
+        verifier('des indices sont bien posés dans un conteneur flex (le contrôle mesure quelque chose)',
+          nIndicesFlex > 0, nIndicesFlex + ' indice(s) relevé(s) sur toute la visite');
+      else
+        ignorer('aucun indice ne remonte sur la ligne de sa lettre',
+          'ce niveau ne déclare aucun indice posé dans un conteneur flex (mesuré : ' + nIndicesFlex + ')');
       verifier('aucune étiquette de courbe ne tombe sur sa courbe',
         surCourbe.length === 0, surCourbe.length + ' cas — ' + surCourbe.slice(0, 2).join(' | ')
           + ' — exercices : ' + [...new Set(surCourbe.map(c => c.replace(/ \((train|soutien)\).*« (.+?) ».*/, ' $2')))].join(', '));

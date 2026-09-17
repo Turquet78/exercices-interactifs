@@ -1178,6 +1178,20 @@ module.exports = {
        des trois exercices, puis sur quarante courbes de plus dessinées par la
        fonction même de la page — jsdom n'a ni police ni mise en page. */
     etiquetteCourbe: { exercices: ['associer-derivee', 'variations-depuis-derivee', 'signe-derivee-qcm'] },
+    /* LA TERMINALE EST LE SEUL NIVEAU qui pose des indices — Uₙ, eˣ — DANS des
+       conteneurs flex : les cellules des grilles de récurrence, les
+       numérateurs et les dénominateurs des fractions, les lignes tg et s1. Un
+       <sub> ou un <sup> enfant direct d'un flex en devient un ITEM, où la
+       spécification ignore vertical-align : il remonte sur la ligne de sa
+       lettre, et le gap l'en écarte — « Uₙ » se lit « U n » (signalé par
+       Turquet, septembre 2026, sur le 6.13). La page lui rend sa place ; le
+       banc navigateur l'exige sur tous les exercices visités, et ce drapeau
+       est son BORD OPPOSÉ : il dit que ce niveau a bien des indices à
+       mesurer. La Seconde et la Première n'en posent aucun (mesuré : 0), donc
+       elles ne le déclarent pas et le contrôle s'y affiche « non
+       applicable » — un contrôle qui ne s'applique pas se déclare, il ne se
+       retire pas. */
+    indicesEnFlex: true,
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même
