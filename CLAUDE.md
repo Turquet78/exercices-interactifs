@@ -3741,6 +3741,50 @@ de banc. Le bord du 5.9 a été RETOURNÉ, pas retiré : il ne ferme plus le
 thème, il vit après {python-deux-lignes} — et celui du 5.10 l'a été à son tour
 à la fusion suivante.
 
+**Un libellé qui promet un CALCUL ment sur la variable qu'il annonce.**
+Signalé par Turquet (septembre 2026) sur le 5.9 : « je ne comprends pas
+pourquoi il y a "sa moyenne" dans la phrase ». Le jeu des notes écrivait
+« la 1ère note de Maëlys est 16 et sa moyenne est 18.4 sur 20 » — or `note2`
+est la 2ème note, et 18,4 n'est la moyenne de rien : la page affirmait une
+fausseté arithmétique dans un cours de mathématiques.
+**LA SONDE A MESURÉ AVANT TOUT CORRECTIF, ET ELLE A ÉLARGI LE SIGNALEMENT** :
+le mensonge vivait dans QUATRE exercices, par le même libellé de `PY_JEUX` —
+400 questions sur 400 au 5.9 (ses DEUX phrases du jeu des notes), 92 sur 400
+séances au 5.1 (« la moyenne est : 16.8 » sous un « note1 = 13 » affiché deux
+lignes plus haut), 64 au 5.7 et 134 au 5.8. Un défaut vu dans un coin se
+corrige PARTOUT.
+**AU 5.9 IL EST PIRE QU'AILLEURS, et c'est ce que le signalement dit** : le
+texte devant la case EST la question — « et sa moyenne est » réclame une
+grandeur qu'AUCUNE variable ne porte, et l'élève qui raisonne juste ne peut pas
+répondre. Les deux phrases du jeu disent maintenant « et sa 2ème note est » et
+« 1ère note : … 2ème note : », et le libellé partagé « la deuxième note est : ».
+**LES NOMS NE BOUGENT PAS, et c'est un arbitrage nommé** : renommer `note2` en
+`moyenne` aurait rendu la phrase vraie et DÉTRUIT le piège du 5.8, dont tout le
+sujet est de transposer une ligne modèle entre trois variables qui SE
+RESSEMBLENT (note1, note2, prenom). On corrige les LIBELLÉS, jamais les
+variables — les notes déjà obtenues ne bougent pas non plus, elles portent
+l'identifiant.
+**DEUX BORDS AU CONTRÔLE, ET N'EN TENIR QU'UN NE TIENT RIEN** : aucun libellé
+des quatre exercices ne nomme une grandeur CALCULÉE (moyenne, somme, total,
+produit, différence, écart) ; et aucun programme tiré ne porte d'opérateur —
+c'est ce second bord qui DONNE SA RAISON au premier et l'empêche d'être une
+liste noire : ces programmes affectent puis affichent, donc toute valeur montrée
+est une valeur DONNÉE, jamais dérivée d'une autre. Le jour où un tirage
+calculerait vraiment, il rougirait, et la règle serait à revoir plutôt qu'à
+contourner. Le contrôle COMPTE ce qu'il relit — 44 libellés, 600 programmes —
+et le DIT s'il n'a rien à mesurer : une collecte devenue muette le rendrait vert
+sur un mensonge.
+**Aucun contrôle du NAVIGATEUR, et le dire vaut mieux que de le taire** : un
+libellé est une chaîne, et la phrase se lit dans le DOM — jsdom la voit, un vrai
+Chromium n'en dirait pas plus. Six sabotages, chacun rougissant en nommant son
+défaut : le libellé de `PY_JEUX` remis (« PY_JEUX[0] note2 promet un calcul que
+le programme ne fait pas »), chacune des DEUX phrases du 5.9 remise (il nomme
+`PYV_PHRASES[0][0]` puis `[0][1]` — n'en tenir qu'une ne tiendrait rien), un
+programme qui calcule (le bord opposé, qui nomme l'opérateur ET le programme),
+et les deux gardes « le contrôle ne mesure rien » — la collecte des phrases
+débranchée (23 libellés au lieu de 44) et une source de programmes débranchée
+(480 au lieu de 600).
+
 **Les quatre opérations dans un programme : on exécute, on CHANGE a et b, puis
 on complète.** {python-operations} (Seconde, 5.12, demande de Turquet, septembre
 2026 : « faire un exercice en seconde comme les 2 images ») ferme le thème 5 —
@@ -10218,6 +10262,108 @@ si elle n'y arrive pas) et ne lit que la couche que MathLive déclare visible
 exacte n'est pas établie — le dire vaut mieux que de le taire — ; ce qui est
 établi est qu'un contrôle intermittent parle d'autre chose que de la page, et
 qu'un délai fixe est la première chose qu'une machine chargée fait mentir.
+
+**Puis la TABLETTE COUCHÉE a pris la forme courte, et un exercice sur les
+limites a rendu ses quatre touches au clavier A.** Demande de Turquet
+(septembre 2026) : « en terminale sur une tablette, pour le clavier virtuel de
+l'exercice 2.2, mais qui est sans doute utilisé ailleurs aussi, en mode
+paysage, les touches doivent être plus petites de façon à tenir sur 3 lignes.
+Quand c'est un exercice sur les limites, mettre les touches "inf" ; "-->" ;
+"x" ; "f" sur le clavier A. » Deux demandes, et la seconde a décidé de la
+forme que prend la première.
+**LA MESURE A ÉTÉ FAITE AVANT DE TOUCHER À QUOI QUE CE SOIT, et elle a élargi
+le signalement** : le clavier de la Terminale est celui de TOUS ses champs
+mathématiques (seule sa rangée de variables change avec l'exercice), donc le
+2.2 n'est qu'une porte d'entrée. Couchée, la plaque de quatre rangées faisait
+**208 px sur un écran de 768 — plus d'un quart** de ce que l'élève a devant
+lui, quand elle en prend 156 debout ; après, 132 px, soit 16 à 17 %. La forme
+COURTE à trois rangées existait déjà pour le portrait depuis la demande du
+mois précédent : elle sert maintenant la tablette DEBOUT COMME COUCHÉE
+(`kbPortraitTablette` est devenue `kbTablette`), et la règle CSS du paysage ne
+touche que la HAUTEUR et la POLICE — 48 px et 24 px deviennent 40 et 20 : en
+paysage la largeur ne manque pas, c'est l'écran qui est COURT.
+**Un TÉLÉPHONE COUCHÉ y gagne plus que la tablette, et ce n'était pas
+demandé** : à 844 × 390 il est « large d'au moins 600 px », donc il prend la
+forme courte lui aussi — sa plaque passe de 208 px à 132, de 53 % de l'écran
+à 34 %. Le dire vaut mieux que de le taire : c'est une conséquence de la
+borne, pas un cas traité.
+**LES QUATRE TOUCHES DES LIMITES SONT LA RANGÉE DES VARIABLES, et elle revient
+d'où elle était partie** : f, x, ∞ et ⟶ vivaient en tête du clavier A jusqu'en
+septembre 2026, où « une ligne en moins dans le clavier A » les a envoyées sur
+le B. Sur un exercice sur les limites — là où l'on écrit « x ⟶ +∞ » à chaque
+ligne — elles reviennent sur A, et le clavier B perd sa première rangée, le ⌫
+qu'elle portait passant sur la suivante. **Le JEU de touches ne change pas
+d'une variante à l'autre, seul son PARTAGE change**, et le contrôle compare
+les jeux : 43 touches des deux côtés, dans les quatre formes.
+**LA PAGE NE TIENT AUCUNE LISTE D'EXERCICES** : `kbLimites` lit le THÈME
+auquel l'exercice appartient (et l'identifiant qui nomme lui-même la limite),
+si bien qu'un exercice ajouté demain au thème des limites est couvert sans
+rien déclarer. Le prix de cette souplesse est qu'un thème RENOMMÉ ferait
+repartir ∞ sur le clavier B en silence : des témoins déclarés dans
+`tests/profils.js` l'attrapent — et le bord OPPOSÉ avec eux, trois exercices
+qui ne sont PAS sur les limites et doivent garder le clavier d'avant.
+**ET C'EST LA LARGEUR DES TOUCHES QUI A DÛ CHANGER DE SOURCE.** Le clavier A
+n'a plus une taille mais quatre : 8 unités par rangée sur la forme normale,
+10 sur la courte, 9 et 12 avec les variables revenues. Or la feuille de styles
+RECOPIAIT ce compte (`(100cqw - 32px) / 8`, `/ 10`), et une rangée plus large
+que ce que la largeur prévoit se rétrécit SEULE dans le navigateur — l'élève
+aurait eu deux tailles de touches sur le même écran, la leçon déjà payée en
+septembre. La page POSE donc `--kb-unites` depuis la disposition qu'elle vient
+d'installer (`kbUnites` : la rangée la plus large), et une formule unique
+(`--keycap-auto`) s'y règle : une source, pas une liste — la règle de largeur
+propre au portrait de tablette a disparu avec le compte qu'elle portait.
+**Le coût est mesuré et nommé** : sur un TÉLÉPHONE les touches passent de
+45 px à 41 px de large, parce que la formule compte enfin les 8 unités réelles
+de la rangée la plus chargée au lieu de 7. La rangée y tenait par chance ;
+elle tient maintenant par construction.
+**UN PIÈGE DE BANC s'y est montré** : la touche ⟶ (`\longrightarrow`) est une
+flèche ÉTIRABLE, que MathLive dessine en morceaux — son `textContent` est
+VIDE. Le banc navigateur, qui reconnaissait ses touches au texte, cherchait une
+touche bien présente et disait qu'elle manquait ; il lit aussi
+`data-keycap-value` désormais. Aucun contrôle ne pouvait le voir avant, ⟶
+n'ayant jamais été cherchée nommément.
+**Dix-huit sabotages, chacun rougissant en nommant son défaut** — quinze au
+banc jsdom (le paysage revenu aux quatre rangées, la forme courte qui fuit sur
+le téléphone, la variante des limites jamais demandée par `applyKbLayout`, ∞
+resté sur le clavier B, les variables restées sur B, le ⌫ parti du clavier B,
+`kbLimites` qui ne reconnaît plus son thème, qui ne lit plus l'identifiant, qui
+dit oui partout, `--kb-unites` jamais posée, `kbUnites` qui rend la première
+rangée au lieu de la plus large, une règle de largeur revenue à un compte en
+dur, la règle CSS du paysage retirée, la même qui ne réduit rien, une rangée de
+treize unités) et trois que seul le NAVIGATEUR voit : la règle du paysage
+retirée (« touche « 5 » : 92×48 px, plaque 156 px »), la variante des limites
+débranchée (« manque sur le clavier A : ∞ ⟶ f x ») et `--kb-unites` figée à
+dix, où la rangée de douze se rétrécit seule.
+**QUATRE D'ENTRE EUX SONT D'ABORD RESTÉS VERTS, et chacun a nommé un trou du
+CONTRÔLE plutôt qu'un défaut de la page.**
+· **Le FAUX ÉCRAN du banc modélisait un téléphone comme « pas tactile »** : il
+  répondait `pointer: coarse` en même temps que `min-width`, si bien qu'un
+  routage qui aurait cessé de regarder la LARGEUR restait vert — le téléphone
+  du banc n'était coarse pour personne. Un téléphone est tactile ET étroit, une
+  tablette tactile et large : les deux réponses sont séparées, et le sabotage
+  rougit (« téléphone ancré en portrait : 3 rangée(s) au lieu de 4 »).
+· **Le ⌫ retiré du clavier B ne perdait aucune touche** — il est aussi sur le
+  clavier A, donc le JEU restait complet et la comparaison des jeux disait vrai.
+  Mais l'élève qui écrit sur le B devrait changer de couche pour reprendre une
+  lettre : la propriété que le sabotage cassait n'était tenue nulle part. Chaque
+  COUCHE porte de quoi effacer, désormais, et le contrôle l'exige.
+· **La moitié « thème » de `kbLimites` n'était mesurée par personne** : les
+  quatre témoins déclarés portaient tous « limite » dans leur identifiant, donc
+  la première ligne de la fonction répondait avant elle. `equation-droite-h-v`
+  (le 3.1) est le témoin qui l'éprouve — son identifiant ne dit rien de la
+  limite, seul son thème le dit —, et `suite-tcm-limite` éprouve l'autre moitié,
+  puisqu'il vit dans le thème des Suites. Un contrôle qui n'a rien à mesurer ne
+  mesure rien.
+· **Et « la rangée de douze se rétrécit seule » se mesure DEBOUT, pas
+  couché** — c'est le seul des quatre dont le vert disait VRAI. Mesuré plutôt
+  que supposé : en PAYSAGE, un `--kb-unites` figé trop bas ne fait pas deux
+  tailles de touches, MathLive resserrant la plaque ENTIÈRE — toutes les
+  touches à 92 px —, et le plafond de 96 px absorbe l'écart. En PORTRAIT la
+  largeur mord : les rangées de onze font 70 px et celle de douze 64, deux
+  tailles sur le même écran. Le contrôle tourne donc la tablette avant de
+  mesurer ce bord-là, et le sabotage rougit en nommant l'écart. Un sabotage
+  qui reste vert à la largeur où rien ne peut le voir parle d'autre chose —
+  la leçon du sabotage impossible, à une orientation près.
 
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la
