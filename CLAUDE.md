@@ -724,6 +724,75 @@ atteignable qu'en resserrant l'obstacle du banc : posé trop grand, il bloquait
 aussi les places hors portée, et le sabotage restait vert en parlant d'autre
 chose.
 
+**Puis la VÉRIFICATION a levé la bulle — et c'est la partie Algorithmique qui
+l'a montré.** Demande de Turquet (septembre 2026) : « en mode soutien pour la
+partie algorithme en seconde je veux qu'il y ait des bulles qui apparaissent
+dès qu'une case est fausse, comme ça devrait être la règle pour tous les
+exercices ». La bulle ne paraissait qu'à la SORTIE d'une case — le moment où
+le garde de la saisie pose la couleur — or un exercice SANS correction en
+direct ne peint qu'au clic sur « Vérifier », et l'élève n'y quitte alors
+aucune case : les HUIT exercices Python de la Seconde n'en voyaient JAMAIS une
+seule, non plus que la lecture graphique, les antécédents, la définition ou
+l'écriture des solutions — les seize `kind` que `soutienEnDirect.sans`
+déclare. Le défaut vivait exactement dans l'angle mort du contrôle, qui posait
+sa case d'essai et la QUITTAIT.
+**UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE** — le motif du garde, tenu
+une fois de plus : un observateur de classes posé sur le document, et dès
+qu'une correction laisse une case FAUSSE, la bulle se pose sur la PREMIÈRE
+d'entre elles. Il n'y avait PAS d'entonnoir de vérification à greffer —
+`soutienAgain` n'en sert que dix-neuf sur quarante-six, et les Python écrivent
+chacun leur message pour compter les cases vides —, et une liste d'appels à
+tenir aurait laissé dehors l'exercice qu'on ajoutera demain.
+**LE MOMENT SE RECONNAÎT SANS CONNAÎTRE AUCUN EXERCICE** : une correction en
+direct tourne pendant que l'élève ÉCRIT — l'événement qui la déclenche part de
+la case qui porte le curseur —, une vérification tourne quand il a quitté ses
+cases, le clic parti sur un bouton. Tant qu'une case de l'écran porte le
+curseur, on ne lève donc rien : c'est le domaine du garde, et la sortie de
+case s'en charge. Deux autres bords, et n'en tenir qu'un ne tient rien : seules
+comptent les cases que la correction vient de TOUCHER — une case rouge que
+personne ne vient de regarder n'appelle rien, et une correction qui ne repeint
+qu'une case ne fait donc pas surgir de bulle à l'autre bout de l'écran — et une
+bulle DÉJÀ ouverte sur une case ENCORE fausse ne saute pas ailleurs : elle
+emporterait l'explication que l'élève est en train de lire.
+**ET ELLE S'EFFACE QUAND IL MODIFIE SA CASE, PLUS QUAND IL Y ENTRE.** C'est un
+renversement, et c'est la demande qui l'exige : après une vérification, la page
+pose ELLE-MÊME le curseur dans la première case rouge (`soutienAgain`, et les
+Python font de même, 40 ms plus tard). L'ancienne règle éteignait donc la bulle
+au moment précis où elle venait de naître, sans qu'aucune erreur ne le dise.
+Reprendre sa case, c'est la CORRIGER : une frappe, un choix dans une liste — la
+promesse ne change pas, elle revient s'il ressort en faux ou à la vérification
+suivante. Les deux bancs ont RETOURNÉ leur contrôle plutôt que de le retirer.
+**Et une ZONE DE TEXTE est une case comme une autre** : `bexpCible` ne
+connaissait que les champs et les listes, quand {python-afficher-variable} et
+{python-print} font écrire le programme dans un `textarea` que la correction
+peint `bad` — deux exercices sur huit seraient restés dehors même une fois le
+moment trouvé.
+**Et les BOUTONS de l'écran sont devenus des obstacles** : la bulle paraît
+maintenant au moment précis où la rangée d'actions dit « Revérifier », et posée
+dessus elle rendrait incliquable le bouton dont l'élève a besoin — la leçon du
+pavé numérique, au même endroit. Le coût est MESURÉ plutôt que supposé : sur
+les deux écrans témoins du banc navigateur, la bulle trouve toujours un côté et
+ne retombe pas au coin.
+**Le bloc est le MÊME TEXTE dans les trois fichiers**, comparé au caractère
+près : la règle vaut donc pour les trois niveaux, ce que « pour tous les
+exercices » demandait.
+Deux bancs, la répartition habituelle : jsdom mesure le MÉCANISME sur des cases
+posées à la main — une liste, une zone de texte et un champ, les quatre bords,
+et les trois refus (copie juste, entraînement, écran verrouillé) — ; le
+NAVIGATEUR mesure le GESTE sur le 5.1, déclaré par `bulleVerification` dans
+`tests/profils.js` : une copie fausse choisie dans les vraies listes, un vrai
+clic sur « Vérifier », la bulle au RECTANGLE — jamais à la propriété `hidden` —
+et le bord que lui seul voit : la page pose le curseur dans la case rouge, et
+la bulle y SURVIT.
+Onze sabotages, chacun rougissant en nommant son défaut — neuf au banc jsdom
+(l'observateur débranché, n'importe quelle case rouge au lieu de celles que la
+correction a touchées, la bulle qui saute, le garde « l'élève écrit » retiré,
+la zone de texte sortie des cibles, le mode et le verrou non relus, la DERNIÈRE
+case fausse au lieu de la première, entrer qui efface à nouveau, modifier qui
+n'efface plus) et deux au navigateur, dont celui qui nomme le défaut d'origine
+en toutes lettres : « la bulle s'est éteinte au moment où la page a posé le
+curseur ».
+
 
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
@@ -3553,7 +3622,7 @@ désormais l'APPEL, parenthèse comprise. Un contrôle qui s'affiche sous le nom
 d'un autre est pire qu'un contrôle sans nom.
 
 **Les quatre opérations dans un programme : on exécute, on CHANGE a et b, puis
-on complète.** {python-operations} (Seconde, 5.10, demande de Turquet, septembre
+on complète.** {python-operations} (Seconde, 5.11, demande de Turquet, septembre
 2026 : « faire un exercice en seconde comme les 2 images ») ferme le thème 5 —
 ajouté en dernier, il ne renumérote rien. C'est l'exercice 12 du carnet et sa
 suite, en quatre temps : a) exécuter un programme qui calcule la SOMME et le
@@ -3656,13 +3725,28 @@ Et mon propre remplacement a frappé le VOISIN : le libellé « il FERME le thè
 numéroté 5.9 » est le même, au caractère près, dans le contrôle de
 {python-placer-variables} — une ancre se choisit PROPRE à sa cible, ici le corps
 qui lit `RAPPELS.pop`.
+**Puis une SECONDE fusion a présenté les TROIS MÊMES collisions, et la règle a
+tranché sans qu'on ait à réfléchir** : {python-tableau-valeurs} est arrivé en
+5.10 — celui-ci ferme donc le thème en **5.11** —, `APP_VERSION` était passée à
+180 → 181, et « 6 tricies nonies » était pris → « decies », le numéro revenant
+au premier arrivé. Le bord « il FERME le thème 5 » de {python-tableau-valeurs} a
+été RETOURNÉ à son tour — il est le TROISIÈME à l'être, après le 5.8 et le 5.9 :
+un bord retiré ne dit plus rien, un bord retourné dit la règle du jour. Et
+l'ancre a frappé le VOISIN une seconde fois, au même endroit : « il FERME le
+thème 5, numéroté 5.10 après {python-placer-variables} » était le même libellé,
+au caractère près, dans les DEUX contrôles — l'assertion du script l'a refusé
+(« trouvé 2 fois, attendu 1 ») au lieu de saboter le voisin, et le remplacement
+se pose désormais dans la TRANCHE de chaque contrôle, bornée par sa propre
+`function`. Deux branches qui ajoutent un exercice au même thème le même jour
+produisent cette collision à CHAQUE fois : ce n'est pas un accident, c'est ce
+qu'il faut relire au moment de refusionner `main`.
 **Deux bancs, la répartition habituelle.** jsdom tient les deux programmes des
 images épinglés (s'ils ne passent pas au juge, c'est le juge qui a tort), le
 juge cas par cas — quinze calculs faux et quatorze lignes d'affichage fausses,
 chacun avec le mot que son diagnostic doit porter —, la seconde méthode, le
 tirage sur 400 séances, les portes, la case vide, le soutien, le contexte du
 modèle, et il compare l'interpréteur à un vrai CPython sur 671 programmes. Le
-NAVIGATEUR (« 6 tricies nonies », déclaré par `pythonOperations` dans
+NAVIGATEUR (« 6 tricies decies », déclaré par `pythonOperations` dans
 `tests/profils.js`) mesure ce que jsdom ne voit pas : les deux cases de valeur
 du cours sur la ligne de leur nom, une VRAIE frappe dans a et b puis un vrai
 clic qui ouvre la porte, les coups de pouce qui S'OUVRENT au clic, les six
@@ -3762,6 +3846,121 @@ trois défauts, le piège de la majuscule tu, la justification fermée comptée
 manquante, la règle 3 perdue, le bouton des tables revenu, l'ordre des
 raisons figé, le verdict vide rougi, la porte qui ne se rouvre plus après une
 reprise, l'exercice sorti du thème 5.
+
+**Python devient un OUTIL : le tableau de valeurs se remplit en EXÉCUTANT.**
+{python-tableau-valeurs} (Seconde, 5.10, demande de Turquet, septembre 2026 :
+« faire un exercice comme le pdf, puis qui demande de compléter un tableau de
+valeurs, avec x en 1ère ligne et des nombres décimaux avec 1 chiffre après la
+virgule et un chiffre devant la virgule ; le calcul du programme en 2e ligne,
+ici 2x+3 ; dire à l'élève de compléter le tableau en modifiant x dans le
+programme du dessus et en l'exécutant ») vit en fin de thème 5 — ajouté en
+dernier, il n'a rien renuméroté ; {python-operations} l'a suivi le jour même, et
+son bord « il FERME le thème 5 » a été RETOURNÉ plutôt que retiré, comme celui du
+5.8 et celui du 5.9 avant lui. **Et la fusion de `main` l'a renuméroté** :
+{python-placer-variables} est arrivé en 5.9 pendant la préparation de la
+branche, `APP_VERSION` y était déjà à 178, et le numéro de section du banc
+« 6 tricies octies » était pris — les trois collisions que ce fichier nomme,
+réglées de la même façon : le premier arrivé garde, le second prend le suivant
+(5.10, v179, « 6 tricies nonies »). Le bord « il FERME le thème 5 » du 5.9 a
+été RETOURNÉ plutôt que retiré, comme celui du 5.8 avant lui. C'est l'exercice 11 du carnet (« a) Exécuter le nouveau
+programme ci-dessous ») prolongé par le tableau de valeurs.
+**CE QU'IL AJOUTE AUX HUIT AUTRES** : le 5.1 fait PRÉDIRE ce qu'un programme
+affiche, le 5.6, le 5.7 et le 5.8 le font ÉCRIRE ; ici on s'en SERT. Le
+programme est donné, entier et juste ; l'élève n'en change qu'UNE chose — la
+valeur de x — et lit le résultat. C'est le premier exercice où Python est un
+OUTIL et non le sujet.
+**LA DEMANDE EST TENUE PAR L'ÉTAT DES CASES, PAS PAR UNE CONSIGNE QU'ON PEUT NE
+PAS LIRE** (le motif de {placer-image}) : une colonne du tableau ne s'ouvre que
+lorsque le programme a été EXÉCUTÉ avec SA valeur de x, et elle reste ouverte
+ensuite. « Modifier x dans le programme et l'exécuter » n'est donc pas une
+phrase à croire : c'est le seul chemin vers la case. L'état sous le tableau dit
+ce qu'il reste à faire, en écriture PYTHON — jamais les résultats.
+**LE RISQUE PROPRE EST SILENCIEUX, ET IL EST ÉNORME** : a×x+b se calcule en
+VIRGULE FLOTTANTE, et Python affiche alors « -3.5999999999999996 » là où la
+valeur exacte est −3,6. L'élève recopierait ce que la machine affiche — ce que
+la consigne lui demande — et serait compté faux, le pire défaut du projet.
+**Le garde est VIVANT, et mesuré plutôt que supposé** : sur les 12 960 triplets
+(a, b, x) possibles, **4 156 — un sur trois — s'affichent ainsi**. Le tirage
+n'admet que les valeurs dont la sortie de `pyRun` est l'écriture décimale
+EXACTE, et le contrôle refait la propriété sur chaque tirage par sa propre
+arithmétique — en DIXIÈMES entiers, là où la page passe par l'interpréteur. Les
+deux sorties sales sont ÉPINGLÉES au contrôle avec celles de CPython : le
+risque est prouvé chez Python lui-même, pas supposé.
+**ET LE PREMIER REPLI, INVENTÉ À LA MAIN, PORTAIT EXACTEMENT CE DÉFAUT** — deux
+sorties sales sur cinq (« -0.20000000000000018 » pour x = 1.2). La règle « un
+repli RÉEL, relevé sur le générateur » existe précisément pour ça, et c'est la
+sonde qui l'a nommé avant le premier banc ; celui qui est figé repasse par les
+gardes mêmes, et le contrôle l'exige.
+**LA SORTIE AFFICHÉE ET LA CORRECTION SORTENT DE LA MÊME FONCTION** : le bouton
+« Exécuter », le juge (`ptvJuste`) et la correction lisent tous
+`pyRun(ptvProg(q, x))`. La question ne porte que le calcul (a, b), la valeur de
+départ et les abscisses en DIXIÈMES — on range l'entier, jamais l'écriture — et
+le contrôle refuse tout autre champ.
+**LE JUGE EST LARGE SUR L'ÉCRITURE ET EXACT SUR LA VALEUR** : la console écrit
+« 4.0 » (un flottant garde son point, la leçon du 5.2) et le tableau est
+français, donc « 4 », « 4.0 » et « 4,0 » valent tous le point — refuser une
+écriture juste serait le pire défaut du projet ; en revanche la VALEUR est
+comparée exactement, en entiers, jamais en virgule flottante.
+**LA VIRGULE EST LE PIÈGE DE L'EXERCICE, et il s'enseigne** : le tableau écrit
+« 0,5 » et le programme veut « 0.5 ». Une virgule tapée dans la case de x ne
+reçoit pas la SyntaxError brute de l'interpréteur mais la phrase qui nomme la
+règle — c'est le « un float s'écrit avec un point » du 5.2, rencontré là où il
+coûte quelque chose. Et la comparaison qui ouvre une colonne est EXACTE :
+« 0.2+0.1 » n'ouvre rien, parce que sa sortie ne serait pas celle que le garde
+du tirage a validée.
+**LA SÉANCE** : le programme de la demande en tête, ÉPINGLÉ (x = 2,
+fonction = 2*x+3), puis un « + » et un « − » — 3*x-1 est la forme du carnet —
+en ordre mélangé, les trois coefficients distincts. Ce dernier point est une
+mesure, pas une précaution : un tirage libre donnait deux fois le même « a »
+une séance sur deux, et trois programmes qui commencent tous par « 2*x » se
+lisent comme un seul. La valeur de DÉPART est un entier et jamais une colonne
+du tableau — elle donne d'ailleurs un `int` (« 7 ») là où une abscisse décimale
+donne un `float` (« 4.0 »), ce qui est le a) de la fiche.
+Chaque case se juge SEULE, la case vide ne rougit jamais (une colonne encore
+fermée est vide elle aussi, et le message dit alors le geste qui l'ouvre), la
+valeur juste s'écrit en VERT sous la case fausse — jamais en soutien, où
+l'élève reprend et revérifie. Aucune correction au fil de la frappe
+(`soutienEnDirect.sans`) : la valeur cherchée est DÉJÀ à l'écran, dans la
+console, et « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre
+juste.
+Deux bancs, la répartition habituelle : jsdom tient le programme épinglé, le
+GARDE refait par une seconde arithmétique (400 séances), le repli, le juge cas
+par cas, les portes des colonnes, la copie juste, la copie fausse, le soutien,
+la reprise après une pause et les branchements, et compare l'interpréteur à un
+vrai python3 ; le NAVIGATEUR (« 6 tricies octies », déclaré par
+`pythonTableauValeurs` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — la case de x posée DANS la ligne 1 à la chasse et à la taille du code, le
+tableau rendu, les colonnes fermées qui SE VOIENT fermées (grisées, en
+pointillés), une VRAIE frappe au clavier puis un VRAI clic sur « Exécuter »,
+l'encre RENDUE des trois verdicts comparée aux VARIABLES de la convention (le
+piège du 5.6 : l'encre de repos d'une case est déjà un bleu nuit, et une règle
+`.ok` qui ne peindrait plus rien passerait pour du bleu à la dominante), et le
+tableau qui DÉFILE dans sa boîte sur un téléphone au lieu de faire déborder la
+page. Les contrôles universels des deux bancs ont couvert l'exercice au premier
+passage sans rien déclarer.
+**Vingt-deux sabotages, chacun rougissant en nommant son défaut** — mais SIX
+n'y sont arrivés qu'au second essai, et chacun a appris quelque chose.
+· **Un TROU DU CONTRÔLE, réel** : les abscisses collées restaient vertes parce
+  que le banc lisait `PTV_ECART` DANS la page et le comparait à lui-même — la
+  doctrine des deux sources, oubliée sur cette seule ligne. L'écart minimal est
+  déclaré dans `tests/profils.js`, et le banc exige en plus que la page porte
+  CET écart : la divergence se nomme.
+· **Deux sabotages IMPOSSIBLES**, qui mesuraient autre chose. « Une valeur
+  approchée ouvre une colonne » était éprouvé par « 0.2+0.1 », qui ne vaut 0,3
+  que si 0,3 est une colonne du tirage — la valeur voisine se construit
+  désormais sur une abscisse RÉELLE de la question. Et « l'énoncé est figé sur
+  2x + 3 » était mesuré sur la question de la FICHE, dont le calcul EST 2x + 3 :
+  le banc rend maintenant une seconde question épinglée à un autre calcul, en
+  DERNIER — ce bord remplace le tirage, et tout ce qui précède en dépend.
+· **Trois ancres PARTAGÉES** : `if(!allOk && isSoutien()){` vit seize fois dans
+  le fichier, la ligne des cases vides deux fois — un sabotage se pose sur une
+  ancre PROPRE à sa cible, la leçon d'{antecedents-droite}, retombée telle
+  quelle.
+**Et la fusion a repayé le piège des deux exercices ajoutés au MÊME endroit** :
+quatorze hunks « les deux côtés ont ajouté », dont les lignes communes
+n'appartiennent qu'à un des deux blocs. La zone n'a pas été recousue hunk par
+hunk : on repart du fichier de `main` et on y REPOSE ses blocs COMPLETS, à des
+ancres vérifiées une par une — la méthode que le 5.8 avait déjà éprouvée.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
@@ -7019,6 +7218,70 @@ quatre cents pixels. Il mesure maintenant POINTEUR ENCORE ENFONCÉ.
 « Question à l'IA » s'ouvrent dans une fenêtre indépendante et leur carte y est
 déplacée. `document.getElementById` ne les trouve plus : la fonction `$` doit
 chercher aussi dans `window.__fenetresDetachees`.
+
+**Une fenêtre d'aide FERMÉE doit se rouvrir — et « est-elle fermée ? » n'a pas
+de réponse au moment où on la pose.** Signalé par Turquet (septembre 2026) sur
+le 6.14 : « quand je clique sur soutien et que je ferme la fenêtre, impossible
+de la rouvrir, même chose pour question à l'IA. Peut-être que ce problème se
+retrouve ailleurs. » Il s'y retrouvait, et la sonde l'a MESURÉ avant qu'on ne
+touche à quoi que ce soit : les CINQ fenêtres détachables des TROIS niveaux — la
+Question à l'IA partout, le Soutien en Première et en Terminale — perdaient leur
+carte, sur n'importe quel exercice et pas seulement le 6.14.
+**LA CARTE EST DÉPLACÉE, elle n'est pas recopiée** : détacher, c'est
+`adoptNode` — la page n'a plus sa carte, la fenêtre l'a. Fermée sans la rendre,
+elle l'emporte ; `ouvrirSoutien` ne trouve alors plus rien à détacher et
+l'écran montre une fenêtre VIDE, sans la moindre erreur nulle part.
+**LA CAUSE EST UN MOMENT.** Au `pagehide`, la page demandait « la fenêtre
+est-elle fermée ? » un tick plus tard, et ne rapatriait la carte que si la
+réponse était oui. Or `window.closed` ne bascule qu'une fois le contexte
+détruit : mesuré ENCORE à false un tick après la croix du système, et déjà à
+true après un `close()` programmé — le bouton ✕ de la carte marchait donc, par
+chance, et la croix perdait la carte. **On ne suppose plus rien du MOMENT** : la
+carte revient dans la page SYNCHRONIQUEMENT, dans le `pagehide` lui-même, où
+tout est encore atteignable. Et le remplacement de document (vieux Firefox) se
+reconnaît à un document DIFFÉRENT, jamais à « closed », qui ment ici dans les
+deux sens.
+**LE SECOND BORD EST UN FILET, et il tient quelle que soit la cause** : la carte
+est PRÊTÉE à la fenêtre, donc sa référence vit AUSSI sur le conteneur, qui est
+dans la page et ne ferme jamais. `ramenerCarte()` la ramène AVANT d'ouvrir —
+ramener une carte d'un document déjà DÉTRUIT fonctionne, mesuré en Chromium — si
+bien qu'un navigateur qui ne lèverait pas `pagehide`, ou une fenêtre que le
+système emporte, ne cassent plus rien. Le bord OPPOSÉ compte autant : on ne
+reprend JAMAIS la carte d'une fenêtre VIVANTE, ce serait la lui prendre sous les
+yeux de l'élève. Et `fermerQIA`/`fermerConseil` la REPRENNENT avant de fermer,
+comme `reattacherFenetres` le faisait déjà : le rapatriement du `pagehide` est un
+filet, pas un plan.
+**Le moteur est le MÊME TEXTE dans les trois fichiers, et rien ne le
+comparait** — il a fallu le corriger dans les trois d'un coup. Six fonctions
+sont comparées au caractère près désormais ; `garnirFenetre` DIVERGE
+volontairement, elle porte les ponts onclick propres à chaque niveau, et c'est
+nommé plutôt que tu.
+**Deux bancs, la répartition habituelle.** jsdom rejoue le MOMENT — `pagehide`
+avec `closed` encore FAUX, le filet d'une fenêtre partie sans rien lever, le
+bord opposé de la fenêtre vivante, et le ✕ qui rend la carte. Le NAVIGATEUR
+rejoue le GESTE (« 6 octies bis », déclaré par `fenetresDetachees` dans
+`tests/profils.js`, deux sources) : une VRAIE fenêtre du système, une vraie
+croix, sur l'exercice SIGNALÉ en Terminale — et il faut un VRAI clic, sans
+activation utilisateur Chromium bloque la pop-up et le contrôle mesurerait le
+repli en page.
+**Et ce contrôle-là s'est pris en défaut avant la page** : son locator prenait
+le PREMIER bouton du document dont l'onclick appelle `conseilCourant` — c'est
+`#cmConseilBtn`, celui du calcul mental, CACHÉ —, le clic expirait sur un
+élément que personne ne voit, et la mesure accusait la page de n'ouvrir aucune
+fenêtre. Une ancre se prend PROPRE à sa cible, sur l'écran VISIBLE ; et le
+bouton est CENTRÉ avant le clic, les commandes du bas étant en position fixe.
+**Sept sabotages, chacun rougissant en nommant son défaut** — six au banc jsdom
+(le rapatriement remis dans un setTimeout, la référence perdue sur le conteneur,
+la carte reprise à une fenêtre vivante, le filet retiré de l'ouverture, le ✕ qui
+ne rend plus la carte, le moteur qui diverge d'un niveau à l'autre) et un au
+NAVIGATEUR, le défaut d'origine remis. **Ce dernier a montré que les deux
+moitiés se répondent** : c'est « fermée, la carte revient dans la page » qui
+rougit, et non « on la rouvre » — le FILET la ramène à l'ouverture même quand le
+rapatriement a échoué, et c'est exactement ce pour quoi il existe. Et deux
+sabotages ont d'abord fait LEVER le contrôle jsdom au lieu de nommer quoi que ce
+soit : privé de sa carte, `ouvrirQIA` va chercher `#qiaSugg`, qui vit DEDANS, et
+meurt sur un null. Un contrôle qui lève ne nomme rien : il attrape, et il dit ce
+qui manque.
 
 **Portage depuis `terminale.html`** — ne jamais extraire par script en filtrant
 sur `function`, `const` et `let` : les affectations comme

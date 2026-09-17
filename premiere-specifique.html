@@ -2060,7 +2060,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=226;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=228;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -12289,12 +12289,45 @@ function bexpLancer(contexte, fb){ return lancerConseil(contexte, fb); }
    sans quoi la pointe se poserait sur la case du voisin. Faute de place, le
    coin d'avant, et alors SANS flèche : une flèche qui ne désigne rien
    mentirait. Elle s'efface quand l'élève
-   REPREND sa case (il corrige — elle reviendra s'il ressort en faux), quand
-   la case cesse d'être fausse ou disparaît (au premier clic hors de la
-   bulle), à Échap et à la croix ; elle ne s'efface PAS quand il passe
-   simplement à la case suivante, sans quoi elle s'éteindrait au moment
+   CORRIGE sa case — une frappe, un choix dans une liste ; elle reviendra
+   s'il ressort en faux —, quand la case cesse d'être fausse ou disparaît (au
+   premier clic hors de la bulle), à Échap et à la croix ; elle ne s'efface
+   PAS quand il passe à la case suivante, sans quoi elle s'éteindrait au moment
    précis où elle vient de naître — quitter une case, c'est presque toujours
    en prendre une autre.
+
+   ET LA VÉRIFICATION LA LÈVE, ELLE AUSSI (demande de Turquet, septembre
+   2026 : « en mode soutien, pour la partie algorithme en Seconde, je veux
+   qu'il y ait des bulles qui apparaissent dès qu'une case est fausse, comme
+   ça devrait être la règle pour tous les exercices »). La sortie de case ne
+   suffisait pas : un exercice SANS correction en direct — les huit exercices
+   Python de la Seconde, mais aussi la lecture graphique, les antécédents, la
+   définition, l'écriture des solutions — ne peint qu'au clic sur
+   « Vérifier », et l'élève ne quitte alors aucune case : la bulle n'y
+   paraissait JAMAIS. On observe donc les classes de l'écran, et dès qu'une
+   correction laisse une case FAUSSE, la bulle se pose sur la PREMIÈRE
+   d'entre elles.
+   LE MOMENT SE RECONNAÎT SANS CONNAÎTRE AUCUN EXERCICE : une correction en
+   direct tourne pendant que l'élève ÉCRIT — l'événement qui la déclenche
+   part de la case qui porte le curseur —, une vérification tourne quand il a
+   quitté ses cases, le clic parti sur un bouton. Tant qu'une case de l'écran
+   porte le curseur, on ne lève donc rien : c'est le domaine du garde de la
+   saisie, et la sortie de case s'en charge. Deux autres bords, et n'en tenir
+   qu'un ne tient rien : on ne retient que les cases que la correction vient
+   de TOUCHER — une case rouge que personne ne vient de regarder n'appelle
+   rien, et une correction qui ne repeint qu'une case ne fait donc pas surgir
+   de bulle à l'autre bout de l'écran —, et une bulle DÉJÀ ouverte sur une
+   case ENCORE fausse ne saute pas ailleurs : elle emporterait l'explication
+   que l'élève est en train de lire.
+
+   ELLE S'EFFACE QUAND IL MODIFIE SA CASE, PLUS QUAND IL Y ENTRE. C'est le
+   renversement qu'exige le paragraphe ci-dessus : après une vérification, la
+   plupart des exercices posent eux-mêmes le curseur dans la première case
+   rouge (soutienAgain, et les Python font de même) — la bulle se serait
+   éteinte 40 ms après être née, sans qu'aucune erreur ne le dise. Reprendre
+   sa case, c'est la CORRIGER : une frappe, un choix dans une liste. La
+   promesse ne change pas — elle reviendra s'il ressort en faux, ou à la
+   vérification suivante.
 
    Le verdict reste celui de la PAGE — la case est rouge parce que la
    correction locale l'a jugée — et le modèle ne fait qu'EXPLIQUER : le
@@ -12306,10 +12339,12 @@ function bexpLancer(contexte, fb){ return lancerConseil(contexte, fb); }
    page a remplie elle-même (sol). */
 let bexpCase=null, bexpVal='';
 /* la cible : toute case qui se colore (le prédicat du garde), plus les listes
-   déroulantes — corrChoix les peint comme des cases */
+   déroulantes et les zones de texte — corrChoix peint les unes, les
+   programmes Python s'écrivent dans les autres, et les deux se comptent
+   fausses comme une case */
 function bexpCible(el){
   return !!el && !!el.closest && !!el.closest('.screen.on')
-      && (el.tagName==='SELECT' || caseQuiSeColore(el));
+      && (el.tagName==='SELECT' || el.tagName==='TEXTAREA' || caseQuiSeColore(el));
 }
 function bexpElt(){
   let b=document.getElementById('bexpBulle');
@@ -12396,7 +12431,12 @@ function bexpCoin(b){
 function bexpObstacles(anc){
   const out=[], vus=[];
   const ecr=document.querySelector('.screen.on');
-  if(ecr) vus.push.apply(vus, ecr.querySelectorAll('input,select,textarea,math-field,.pts-case'));
+  /* les BOUTONS de l'écran sont des obstacles eux aussi, depuis que la
+     VÉRIFICATION lève la bulle : elle paraît au moment précis où la rangée
+     d'actions dit « Revérifier », et une bulle posée dessus rendrait
+     incliquable le bouton dont l'élève a besoin — la leçon du pavé numérique,
+     au même endroit. */
+  if(ecr) vus.push.apply(vus, ecr.querySelectorAll('input,select,textarea,math-field,.pts-case,button'));
   const cmd=document.getElementById('testCtrls');
   if(cmd && !cmd.hidden) vus.push(cmd);
   for(let i=0;i<vus.length;i++){
@@ -12544,10 +12584,48 @@ document.addEventListener('focusout', function(e){
     if(el.isConnected && el.classList.contains('bad') && !el.classList.contains('sol')) bexpMontrer(el);
   }, 150);
 });
-/* il reprend sa case : la bulle s'efface — elle reviendra s'il ressort en faux */
-document.addEventListener('focusin', function(e){
-  if(bexpCase && e.target===bexpCase) bexpMasquer();
-});
+/* LA VÉRIFICATION AUSSI LÈVE LA BULLE. On regarde les classes de l'écran :
+   dès qu'une correction laisse une case FAUSSE, la bulle se pose sur la
+   PREMIÈRE d'entre elles — c'est le seul moment où peignent les exercices
+   sans correction en direct, qui n'en voyaient donc jamais. */
+function bexpPremiereFausse(elts){
+  let v=null;
+  for(let i=0;i<elts.length;i++){
+    const el=elts[i];
+    if(!el.classList || !el.classList.contains('bad') || el.classList.contains('sol')) continue;
+    if(el===document.activeElement || !bexpCible(el)) continue;
+    if(!v || (v.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING)) v=el;
+  }
+  return v;
+}
+if(typeof MutationObserver==='function'){
+  new MutationObserver(function(recs){
+    if(!isSoutien() || test.locked) return;
+    /* l'élève ÉCRIT : la couleur qui se pose est celle d'une correction en
+       direct, et c'est le garde de la saisie qui en décide — la sortie de
+       case lèvera la bulle le moment venu */
+    if(bexpCible(document.activeElement)) return;
+    /* une bulle ouverte sur une case ENCORE fausse reste où elle est */
+    const b=document.getElementById('bexpBulle');
+    if(b && !b.hidden && bexpCase && bexpCase.isConnected
+       && bexpCase.classList.contains('bad')) return;
+    const vues=[];
+    for(let i=0;i<recs.length;i++){
+      const t=recs[i].target;
+      if(t && t.nodeType===1 && vues.indexOf(t)<0) vues.push(t);
+    }
+    const el=bexpPremiereFausse(vues);
+    if(el) bexpMontrer(el);
+  }).observe(document.documentElement,
+             {subtree:true, attributes:true, attributeFilter:['class']});
+}
+/* il CORRIGE sa case : la bulle s'efface — elle reviendra s'il ressort en
+   faux, ou à la vérification suivante. Entrer dans la case ne l'efface PAS :
+   après une vérification, la page y pose elle-même le curseur, et la bulle
+   s'éteindrait au moment précis où elle vient de naître. */
+function bexpCorrige(e){ if(bexpCase && e.target===bexpCase) bexpMasquer(); }
+document.addEventListener('input', bexpCorrige);
+document.addEventListener('change', bexpCorrige);
 /* un clic hors de la bulle la ferme dès qu'elle ne parle plus de rien :
    case corrigée ou disparue, écran vérifié, sortie du soutien */
 document.addEventListener('click', function(e){
@@ -13306,6 +13384,7 @@ function ouvrirSoutien(){
   const rr=$('conseilRappelRow'); if(rr) rr.hidden=!rappelDispo();
   const dejaPop=(window.__fenetresDetachees||[]).find(function(p){ return p.__origine===m && !p.closed; });
   if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
+  ramenerCarte(m, '.conseil-card');
   const bd=m.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
   if(detachementPossible()){
     detacherSoutien();
@@ -13318,7 +13397,7 @@ function ouvrirSoutien(){
 function fermerConseil(){
   const m=document.getElementById('conseilModal');
   if(m){
-    (window.__fenetresDetachees||[]).slice().forEach(function(p){ if(p.__origine===m){ try{ p.close(); }catch(e){} } });
+    (window.__fenetresDetachees||[]).slice().forEach(function(p){ if(p.__origine===m){ rapatrierFenetre(p); try{ p.close(); }catch(e){} } });
     m.hidden=true;
   }
 }
@@ -13360,6 +13439,7 @@ function ouvrirQIA(){
   const ov=$('qiaOverlay'); if(!ov) return;
   const dejaPop=(window.__fenetresDetachees||[]).find(function(p){ return p.__origine===ov && !p.closed; });
   if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
+  ramenerCarte(ov, '.qia-card');
   const bd=ov.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
   rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
   $('qiaSugg').innerHTML=(rappelDispo()?'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">\ud83d\udcd8 Faire un rappel de cours pour cet exercice.</button>':'')
@@ -13387,7 +13467,7 @@ function ouvrirQIA(){
 function fermerQIA(){
   const ov=document.getElementById('qiaOverlay');
   if(ov){
-    (window.__fenetresDetachees||[]).slice().forEach(function(p){ if(p.__origine===ov){ try{ p.close(); }catch(e){} } });
+    (window.__fenetresDetachees||[]).slice().forEach(function(p){ if(p.__origine===ov){ rapatrierFenetre(p); try{ p.close(); }catch(e){} } });
     ov.classList.remove('on');
   }
   qiaMicStop();
@@ -13519,20 +13599,40 @@ function detacherFenetre(conteneur, carte, titre, nom, larg, haut){
   }catch(e){}
   garnirFenetre(pop, titre);
   pop.__carte=carte; pop.__origine=conteneur;
+  /* La carte est PRÊTÉE à la fenêtre, elle ne lui appartient pas : la référence
+     vit AUSSI sur le conteneur, qui est dans la page et ne ferme jamais. C'est
+     elle qui permet de la ramener quand une fenêtre s'en va sans la rendre. */
+  conteneur.__carte=carte;
   try{ pop.document.body.appendChild(pop.document.adoptNode(carte)); }catch(e){ toast('Détachement impossible sur ce navigateur.'); try{ pop.close(); }catch(_e){} return null; }
   L.push(pop);
-  /* pagehide : fermeture réelle → rapatriement ; remplacement de document (vieux Firefox
-     malgré le write) → on regarnit le nouveau document et on ré-adopte la carte. */
+  let docPrete=pop.document;
+  /* pagehide : la fenêtre s'en va — fermeture réelle, ou (vieux Firefox malgré le
+     write) remplacement du document initial. La carte revient dans la page TOUT
+     DE SUITE, synchroniquement : à cet instant elle est encore atteignable, et
+     « la fenêtre est-elle fermée ? » ne l'est PAS — window.closed ne bascule
+     qu'une fois le contexte détruit, et il vaut ENCORE false un tick plus tard
+     quand l'élève clique la croix du système (mesuré), alors qu'il vaut déjà
+     true après un close() programmé : c'est ce qui faisait marcher le bouton ✕
+     et échouer la croix. Le setTimeout(0) qui posait cette question ne
+     rapatriait donc RIEN sur le geste de l'élève, la carte partait avec la
+     fenêtre, et rouvrir n'affichait plus qu'une fenêtre VIDE (signalé par
+     Turquet, septembre 2026). On ne suppose plus rien du MOMENT. */
   try{
     pop.addEventListener('pagehide', function(){
+      rapatrierFenetre(pop);
+      /* Le remplacement de document se reconnaît à un document DIFFÉRENT, jamais
+         à « closed », qui ment ici dans les deux sens : on regarnit le nouveau
+         et on y ré-adopte la carte. */
       setTimeout(function(){
-        if(pop.closed){ rapatrierFenetre(pop); return; }
-        if(pop.__carte && pop.__carte.ownerDocument!==pop.document){
-          try{
-            garnirFenetre(pop, titre);
-            pop.document.body.appendChild(pop.document.adoptNode(pop.__carte));
-          }catch(e){ rapatrierFenetre(pop); try{ pop.close(); }catch(_e){} }
-        }
+        let neuf=null;
+        try{ if(!pop.closed && pop.document && pop.document!==docPrete) neuf=pop.document; }catch(e){}
+        if(!neuf) return;
+        try{
+          garnirFenetre(pop, titre);
+          neuf.body.appendChild(neuf.adoptNode(carte));
+          docPrete=neuf;
+          if(L.indexOf(pop)<0) L.push(pop);
+        }catch(e){ try{ pop.close(); }catch(_e){} }
       },0);
     });
   }catch(e){}
@@ -13574,6 +13674,23 @@ function rapatrierFenetre(pop){
   }catch(e){}
   const i=window.__fenetresDetachees.indexOf(pop);
   if(i>=0) window.__fenetresDetachees.splice(i,1);
+}
+/* La carte est PRÊTÉE à la fenêtre détachée ; si celle-ci s'en va sans la rendre
+   — un navigateur qui ne lève pas pagehide, une fenêtre que le système emporte —
+   l'élève rouvrirait sur une fenêtre VIDE, et rien ne le dirait. On la ramène
+   donc AVANT d'ouvrir, depuis la référence gardée sur le conteneur : ramener une
+   carte d'un document déjà détruit fonctionne (mesuré en Chromium). Jamais quand
+   une fenêtre VIVANTE la porte — ce serait la lui prendre sous les yeux de l'élève. */
+function ramenerCarte(conteneur, selecteur){
+  if(!conteneur) return null;
+  let c=conteneur.querySelector(selecteur);
+  if(c) return c;
+  c=conteneur.__carte;
+  if(!c) return null;
+  const prise=(window.__fenetresDetachees||[]).some(function(p){ try{ return p && !p.closed && p.__carte===c; }catch(e){ return false; } });
+  if(prise) return null;
+  try{ conteneur.appendChild(c.ownerDocument===document ? c : document.adoptNode(c)); }catch(e){ return null; }
+  return conteneur.querySelector(selecteur);
 }
 /*### reattacherFenetres ###*/
 function reattacherFenetres(){

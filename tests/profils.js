@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-operations':'pop' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-operations':'pop', 'python-tableau-valeurs':'ptv' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -113,6 +113,18 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+    /* ET LA FENÊTRE FERMÉE SE ROUVRE. Détachée, sa carte est DÉPLACÉE dans la
+       fenêtre du système : la page ne l’a plus. Fermer la fenêtre, puis
+       recliquer, n’ouvrait plus rien (signalé par Turquet sur le 6.14,
+       septembre 2026). Le banc rejoue le GESTE sur chaque fenêtre déclarée ;
+       la Seconde ne détache que la Question à l’IA, son soutien reste en page.
+       « bouton » est le nom de la fonction que l’onclick appelle : c’est le
+       bouton de l’écran, celui que l’élève a sous la souris — sans vrai clic,
+       Chromium bloque la pop-up et le contrôle mesurerait le repli en page. */
+    fenetresDetachees: { exercice: "pourcentage", fenetres: [
+      { nom: 'Soutien', bouton: 'conseilCourant', carte: '.conseil-card' },
+      { nom: 'Question à l’IA', bouton: 'ouvrirQIA', carte: '.qia-card' },
+    ] },
     /* La Première l'a depuis toujours ; on le mesure pour que les deux
        niveaux ne divergent pas — c'est d'elle que la Seconde tient sa
        largeur. « somme-fractions » partage son moteur avec la Seconde. */
@@ -211,6 +223,11 @@ module.exports = {
        listes — colorer une ligne au moment où il la choisit lui dirait si elle
        est juste avant même qu'il vérifie, et il n'aurait plus qu'à essayer les
        six. C'est la règle de {solutions-graphique} en Seconde. */
+    /* « ptv » — {python-tableau-valeurs} — recopie dans ses cases ce que la
+       console affiche : la valeur cherchée est DÉJÀ à l'écran, et une couleur
+       posée pendant la frappe ne dirait que si l'élève a bien recopié. Pire,
+       « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre juste.
+       Le soutien y colore à la vérification, sans jamais révéler la valeur. */
     soutienEnDirect: { sans: ['psl', 'sal', 'ac'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
@@ -525,6 +542,17 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+    /* ET LA FENÊTRE FERMÉE SE ROUVRE. Détachée, sa carte est DÉPLACÉE dans la
+       fenêtre du système : la page ne l’a plus. Fermer la fenêtre, puis
+       recliquer, n’ouvrait plus rien (signalé par Turquet sur le 6.14,
+       septembre 2026). Le banc rejoue le GESTE sur chaque fenêtre déclarée ;
+       la Seconde ne détache que la Question à l’IA, son soutien reste en page.
+       « bouton » est le nom de la fonction que l’onclick appelle : c’est le
+       bouton de l’écran, celui que l’élève a sous la souris — sans vrai clic,
+       Chromium bloque la pop-up et le contrôle mesurerait le repli en page. */
+    fenetresDetachees: { exercice: "pourcentage", fenetres: [
+      { nom: 'Question à l’IA', bouton: 'ouvrirQIA', carte: '.qia-card' },
+    ] },
     /* L'écran d'un exercice prend toute la largeur, et les étapes d'une même
        égalité tiennent sur une seule ligne. « chaine » dit combien de blocs
        empilés un exercice a le droit de garder : au-delà, la chaîne est
@@ -670,7 +698,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'pop'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'pop', 'ptv'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -685,6 +713,27 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'image-nombre', champ: '#img-c', valeur: '9' },
+    /* Le témoin de la BULLE LEVÉE PAR LA VÉRIFICATION (demande de Turquet,
+       septembre 2026). Il faut un exercice SANS correction en direct — la
+       partie Algorithmique et Python en est faite —, le seul endroit où la
+       couleur n'arrive qu'au clic sur « Vérifier » : c'est là que la bulle ne
+       paraissait jamais. « faux » pose une copie qui ne PEUT pas être juste :
+       elle lit la réponse par la fonction même qui corrige pour en choisir une
+       AUTRE — le banc ne mesure pas la réponse, il conduit — et rend le nombre
+       de cases faussées, sans quoi un renommage de champ laisserait le banc
+       vert devant un écran que personne n'a rempli. */
+    bulleVerification: {
+      exercice: 'python-affichage',
+      valider: '#pyActions button.btn-primary',
+      cases: '#pyHost select',
+      faux: "(function(){ var q=test.questions[test.idx], a=pyAns(q), n=0;"
+          + " pyCases(q).forEach(function(c){ var e=document.getElementById(c.id); if(!e) return;"
+          + "   var att=String(a[c.cle]);"
+          + "   var o=[].slice.call(e.options).filter(function(x){"
+          + "     return !x.disabled && x.value!=='' && x.value!==att; })[0];"
+          + "   if(o){ e.value=o.value; n++; } });"
+          + " return n; })()",
+    },
     /* Comme en Première : le pavé sert aussi les cases MathLive (toutes les
        pm-mf n'attendent qu'un nombre), tapées au banc navigateur dans un
        contexte tactile, et une seule rangée dans les deux orientations
@@ -813,7 +862,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -958,6 +1007,25 @@ module.exports = {
                                       noms: ['prenom', 'note'],
                                       sortie: 'la note de  Mathéo  est de  14 sur 20',
                                       interversion: 'la note de  14  est de  Mathéo sur 20' } },
+    /* {python-tableau-valeurs} : l'exercice 11 du carnet — a) exécuter le
+       programme — prolongé par le TABLEAU DE VALEURS qu'on remplit en
+       modifiant x dans ce programme et en l'exécutant (demande de Turquet,
+       septembre 2026). « nb » et « cols » sont la SECONDE source du nombre de
+       questions et de colonnes (la page a PTV_NB et PTV_COLS) ; « ecart » celle
+       de l'écart minimal entre deux abscisses, en dixièmes — le contrôle lisait
+       d'abord PTV_ECART dans la page et le comparait à lui-même : le sabotage
+       qui collait les colonnes restait vert, à bon droit ; « fiche » est
+       le programme de la demande, épinglé en première question, avec ce que
+       CPython en affiche — un ENTIER, là où une abscisse décimale donne un
+       flottant. Le banc jsdom refait le GARDE du tirage par sa propre
+       arithmétique en dixièmes entiers — un affichage sur trois serait sale
+       sans lui —, tient les portes des colonnes, le juge et le soutien, et
+       compare l'interpréteur à un vrai python3 ; le navigateur TAPE la valeur
+       de x dans la vraie case, clique Exécuter, remplit le tableau rendu et
+       relit l'encre RENDUE des verdicts. */
+    pythonTableauValeurs: { exercice: 'python-tableau-valeurs', nb: 3, cols: 5, ecart: 5,
+                            fiche: { lignes: ['x = 2', 'fonction = 2*x+3', 'print(fonction)'],
+                                     sortie: '7', calcul: '2x + 3' } },
     /* {python-operations} : l'exercice 12 du carnet et sa suite — a) exécuter
        un programme qui calcule la SOMME et le PRODUIT de a et b, b) CHANGER
        les valeurs de a et de b et exécuter à nouveau, c) le compléter pour
@@ -1153,6 +1221,18 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'derivee-exp' },
+    /* ET LA FENÊTRE FERMÉE SE ROUVRE. Détachée, sa carte est DÉPLACÉE dans la
+       fenêtre du système : la page ne l’a plus. Fermer la fenêtre, puis
+       recliquer, n’ouvrait plus rien (signalé par Turquet sur le 6.14,
+       septembre 2026). Le banc rejoue le GESTE sur chaque fenêtre déclarée ;
+       la Seconde ne détache que la Question à l’IA, son soutien reste en page.
+       « bouton » est le nom de la fonction que l’onclick appelle : c’est le
+       bouton de l’écran, celui que l’élève a sous la souris — sans vrai clic,
+       Chromium bloque la pop-up et le contrôle mesurerait le repli en page. */
+    fenetresDetachees: { exercice: "suite-vocabulaire", fenetres: [
+      { nom: 'Soutien', bouton: 'conseilCourant', carte: '.conseil-card' },
+      { nom: 'Question à l’IA', bouton: 'ouvrirQIA', carte: '.qia-card' },
+    ] },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
        réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case

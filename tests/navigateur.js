@@ -2583,8 +2583,9 @@ async function parcours(page, N){
            pour obtenir un rouge GARANTI — un contrôle qui mesurerait une case
            parfois juste serait intermittent, le péché documenté. Puis le clic
            du bouton obtient la réponse du double (« Indice de contrôle. »),
-           et reprendre la case efface la bulle. ----- */
-        let bulle = null, bulleClic = null, bulleReprise = null, bulleSouci = '';
+           et la MODIFIER l'efface — y entrer, non : la page pose elle-même le
+           curseur dans la première case rouge après une vérification. ----- */
+        let bulle = null, bulleClic = null, bulleEntre = null, bulleReprise = null, bulleSouci = '';
         try{
           let rouge = false;
           for(const v of ['9', '4']){
@@ -2680,12 +2681,21 @@ async function parcours(page, N){
               return { texte: (fb && fb.textContent) || '',
                        visible: !!fb && fb.getBoundingClientRect().height > 0 };
             });
-            await boite.click();
-            await s.page.waitForTimeout(150);
-            bulleReprise = await s.page.evaluate(() => {
+            /* ENTRER dans la case ne l'efface plus : après une vérification,
+               la page pose elle-même le curseur dans la première case rouge,
+               et la bulle s'éteindrait 40 ms après être née. La MODIFIER
+               l'efface — reprendre sa case, c'est la CORRIGER. */
+            const cachee = () => s.page.evaluate(() => {
               const b = document.getElementById('bexpBulle');
               return !b || b.getBoundingClientRect().height === 0;
             });
+            await boite.click();
+            await s.page.waitForTimeout(150);
+            bulleEntre = !(await cachee());
+            await s.page.keyboard.press('Control+a');
+            await s.page.keyboard.type('7', { delay: 40 });
+            await s.page.waitForTimeout(250);
+            bulleReprise = await cachee();
           }
         }catch(e){ bulleSouci = e.message; }
         verifier('en soutien, une case rouge quittée fait paraître la bulle « Comprendre mon erreur »',
@@ -2723,11 +2733,137 @@ async function parcours(page, N){
         verifier('le bouton de la bulle obtient une explication du modèle, affichée dedans',
           !!bulleClic && bulleClic.visible && bulleClic.texte.indexOf('Indice de contrôle') >= 0,
           bulleSouci || 'réponse affichée : « ' + ((bulleClic && bulleClic.texte) || '') + ' »');
-        verifier('reprendre la case efface la bulle',
-          bulleReprise === true,
-          bulleSouci || 'la bulle reste affichée pendant que l\'élève corrige sa case');
+        verifier('entrer dans la case n\'efface plus la bulle ; la MODIFIER l\'efface',
+          bulleEntre === true && bulleReprise === true,
+          bulleSouci || 'à l\'entrée dans la case : ' + bulleEntre + ', après la frappe : ' + bulleReprise);
 
         verifier('le garde de la saisie n\'a levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 septies decies. la bulle que lève la VÉRIFICATION ===== */
+    /* Demande de Turquet (septembre 2026) : « en mode soutien, pour la partie
+       algorithme en Seconde, je veux qu'il y ait des bulles qui apparaissent
+       dès qu'une case est fausse, comme ça devrait être la règle pour tous
+       les exercices. » Un exercice SANS correction en direct ne peint qu'au
+       clic sur « Vérifier », et l'élève n'y quitte alors aucune case : la
+       bulle n'y paraissait JAMAIS.
+
+       jsdom mesure le MÉCANISME sur des cases posées à la main ; ici c'est le
+       GESTE — un vrai exercice de la partie Algorithmique et Python, une copie
+       fausse choisie dans les vraies listes, un vrai clic sur « Vérifier » —
+       et le RECTANGLE, jamais la propriété hidden ([hidden] pose display:none
+       depuis la feuille du NAVIGATEUR, le piège documenté).
+
+       ET LE BORD QUE SEUL UN NAVIGATEUR VOIT EST LE CURSEUR : la page pose
+       elle-même le curseur dans la première case rouge, 40 ms après la
+       vérification. La bulle doit y SURVIVRE — c'est pour cela que « reprendre
+       sa case » est devenu « la CORRIGER ». */
+    titre('6 septies decies. LA VÉRIFICATION LÈVE LA BULLE « COMPRENDRE MON ERREUR »');
+    if(!P.bulleVerification){
+      ignorer('la vérification lève la bulle « Comprendre mon erreur »',
+        'ce niveau ne déclare pas d\'exercice témoin sans correction en direct');
+    } else {
+      const BV = P.bulleVerification;
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('la vérification lève la bulle « Comprendre mon erreur »',
+          'connexion impossible — rien à mesurer');
+      } else {
+        await s.page.evaluate(id => openTest(id), BV.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='soutien'") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(800);
+        let posees = 0, m = null, apres = null, souci = '';
+        try{
+          await s.page.waitForSelector(BV.cases, { timeout: 8000 });
+          posees = await s.page.evaluate(code => eval(code), BV.faux);
+          await s.page.click(BV.valider);
+          /* on mesure APRÈS le curseur que la page pose elle-même (40 ms) */
+          await s.page.waitForTimeout(700);
+          m = await s.page.evaluate(() => {
+            const b = document.getElementById('bexpBulle');
+            const r = b ? b.getBoundingClientRect() : null;
+            const rouges = [...document.querySelectorAll('.screen.on .bad')];
+            const cas = rouges[0] || null;
+            const btn = b && b.querySelector('[data-bexp-btn]');
+            const cmd = document.getElementById('testCtrls');
+            const rc = cmd ? cmd.getBoundingClientRect() : null;
+            const chev = (a, o) => !(a.right <= o.left || a.left >= o.right ||
+                                     a.bottom <= o.top || a.top >= o.bottom);
+            const recouvre = sel => (!r || !cas) ? -1 : [...document.querySelectorAll(sel)]
+              .filter(e => e !== cas && !e.contains(cas))
+              .map(e => e.getBoundingClientRect())
+              .filter(o => o.width > 0 && o.height > 0 && chev(r, o)).length;
+            const couvertes = recouvre('.screen.on input,.screen.on select,' +
+              '.screen.on textarea,.screen.on math-field,.screen.on .pts-case');
+            /* et aucun BOUTON : la bulle paraît au moment précis où la rangée
+               d'actions dit « Revérifier » — posée dessus, elle le rendrait
+               incliquable, et l'élève ne pourrait plus rien vérifier. */
+            const boutons = recouvre('.screen.on button');
+            return {
+              rouges: rouges.length,
+              verrou: !!(typeof test !== 'undefined' && test.locked),
+              visible: !!r && r.width > 0 && r.height > 0,
+              l: r ? Math.round(r.width) : 0, h: r ? Math.round(r.height) : 0,
+              bouton: !!btn && !btn.hidden,
+              surLaPremiere: !!cas && bexpCase === cas,
+              curseur: !!cas && document.activeElement === cas,
+              cote: (b && b.dataset.bexpCote) || '',
+              couvertes: couvertes, boutons: boutons,
+              surCommandes: (r && rc) ? chev(r, rc) : false,
+            };
+          });
+          /* et la MODIFIER l'efface : c'est ça, reprendre sa case */
+          const prem = s.page.locator(BV.cases).first();
+          const choix = await prem.evaluate(e => {
+            const l = [].slice.call(e.options);
+            for(let i = 0; i < l.length; i++){
+              if(!l[i].disabled && l[i].value !== '' && i !== e.selectedIndex) return i;
+            }
+            return -1;
+          });
+          if(choix >= 0){
+            await prem.selectOption({ index: choix });
+            await s.page.waitForTimeout(300);
+            apres = await s.page.evaluate(() => {
+              const b = document.getElementById('bexpBulle');
+              return !b || b.getBoundingClientRect().height === 0;
+            });
+          }
+        }catch(e){ souci = e.message; }
+
+        verifier('la copie fausse est posée et la vérification laisse des cases rouges',
+          posees > 0 && !!m && m.rouges > 0 && m.verrou === false,
+          souci || 'cases faussées : ' + posees + ', cases rouges après vérification : ' +
+            (m && m.rouges) + ', écran verrouillé : ' + (m && m.verrou) +
+            ' (rien de rouge = le contrôle ne mesure rien)');
+        verifier('la bulle paraît à la VÉRIFICATION, sur la première case rouge, bouton offert',
+          !!m && m.visible === true && m.l > 0 && m.h > 0 && m.bouton === true && m.surLaPremiere === true,
+          souci || 'bulle mesurée : ' + JSON.stringify(m || {}));
+        verifier('la page pose le curseur dans la case rouge, et la bulle y SURVIT',
+          !!m && m.curseur === true && m.visible === true,
+          souci || (m && m.curseur === false
+            ? 'la page n\'a pas posé le curseur dans la case rouge : le bord n\'est pas mesuré'
+            : 'la bulle s\'est éteinte au moment où la page a posé le curseur'));
+        verifier('elle ne recouvre ni les commandes du bas, ni une autre case, ni un BOUTON',
+          !!m && m.surCommandes === false && m.couvertes === 0 && m.boutons === 0,
+          souci || ((m && m.couvertes === -1)
+            ? 'aucune bulle à mesurer : le contrôle d\'au-dessus dit pourquoi'
+            : 'commandes recouvertes : ' + (m && m.surCommandes) +
+              ', cases recouvertes : ' + (m && m.couvertes) +
+              ', boutons recouverts : ' + (m && m.boutons) +
+              ' (un bouton sous la bulle, c\'est « Revérifier » devenu incliquable)'));
+        verifier('changer la réponse efface la bulle — reprendre sa case, c\'est la CORRIGER',
+          apres === true,
+          souci || 'la bulle reste affichée alors que l\'élève vient de changer sa réponse');
+        verifier('la bulle de la vérification n\'a levé aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
       await s.nav.close(); s = null;
@@ -3372,6 +3508,88 @@ async function parcours(page, N){
         mesures >= TC.minimum, mesures + ' « = » suivis d\'une case, ' + TC.minimum + ' attendus au moins');
       verifier('aux largeurs mesurées, les rangées se replient pour de vrai',
         repliees > 0, 'aucune rangée repliée : le contrôle ne mesure rien à ces largeurs');
+    }
+
+
+    /* ===== 6 octies bis. la fenêtre d'aide FERMÉE se rouvre ===== */
+    /* Sur ordinateur, « Soutien » et « Question à l'IA » s'ouvrent dans une
+       VRAIE fenêtre du système et leur carte y est DÉPLACÉE : la page ne l'a
+       plus. Signalé par Turquet (septembre 2026) sur le 6.14 — fermer cette
+       fenêtre, puis recliquer, n'ouvrait plus rien.
+       SEUL UN VRAI NAVIGATEUR VOIT CE DÉFAUT : il faut une vraie fenêtre, une
+       vraie fermeture, et le vrai pagehide que le navigateur lève alors. Le
+       banc jsdom rejoue le MOMENT (pagehide avec closed encore faux) ; celui-ci
+       rejoue le GESTE. Et il faut un VRAI clic : sans activation utilisateur,
+       Chromium bloque la pop-up, et le contrôle mesurerait le repli en page. */
+    titre('6 octies bis. LA FENÊTRE D\'AIDE FERMÉE SE ROUVRE');
+    if(!P.fenetresDetachees){
+      ignorer('la fenêtre d\'aide fermée se rouvre',
+        'ce niveau ne déclare aucune fenêtre d\'aide détachable');
+    } else {
+      const FD = P.fenetresDetachees;
+      s = await ouvrir(chromium, ml);
+      if(await connecter(s.page) !== 'scr-space'){
+        verifier('la fenêtre d\'aide fermée se rouvre', false, 'connexion impossible — rien à mesurer');
+      } else {
+        await s.page.evaluate(id => openTest(id), FD.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="soutien"]');
+        await s.page.waitForTimeout(900);
+        const contexte = s.page.context();
+        /* On clique le VRAI bouton de l'écran, celui que l'élève a sous la
+           souris, et on attend la fenêtre que Chromium ouvre. */
+        const ouvrirFenetre = async nom => {
+          /* Le bouton de l'ÉCRAN, et lui seul : « le premier du document » résout
+             #cmConseilBtn, le bouton CACHÉ du calcul mental, et le clic expire
+             sur un élément que personne ne voit — la mesure accusait alors la
+             page de ne pas ouvrir de fenêtre. Une ancre se prend PROPRE à sa
+             cible. Et on le CENTRE avant de cliquer : les commandes du bas sont
+             en position fixe et avalent le clic, le piège déjà payé sur la
+             grille de {construire-fonction}. */
+          const loc = s.page.locator('section.screen.on button[onclick*="' + nom + '"]:visible').first();
+          if(await loc.count() === 0) return null;
+          await loc.evaluate(b => b.scrollIntoView({ block: 'center' })).catch(() => {});
+          const [pop] = await Promise.all([
+            contexte.waitForEvent('page', { timeout: 8000 }).catch(() => null),
+            loc.click({ timeout: 5000 }).catch(() => {}),
+          ]);
+          await s.page.waitForTimeout(700);
+          return pop;
+        };
+        const carteDe = async (pop, sel) => {
+          if(!pop || pop.isClosed()) return null;
+          return pop.evaluate(x => {
+            const c = document.querySelector(x);
+            if(!c) return null;
+            const r = c.getBoundingClientRect();
+            return { l: Math.round(r.width), h: Math.round(r.height) };
+          }, sel).catch(() => null);
+        };
+        for(const F of FD.fenetres){
+          const pop1 = await ouvrirFenetre(F.bouton);
+          const vue1 = await carteDe(pop1, F.carte);
+          verifier(F.nom + ' : la fenêtre s\'ouvre détachée, carte comprise',
+            !!(vue1 && vue1.l > 2 && vue1.h > 2),
+            pop1 ? 'la fenêtre s\'est ouverte sans sa carte : le contrôle ne mesure rien'
+                 : 'aucune fenêtre du système : le contrôle ne mesure rien');
+          if(!vue1) continue;
+          /* LA CROIX DU SYSTÈME — le geste signalé. */
+          await pop1.close();
+          await s.page.waitForTimeout(800);
+          const rendue = await s.page.evaluate(x => !!document.querySelector(x), F.carte);
+          verifier(F.nom + ' : fermée, la carte revient dans la page', rendue,
+            'la carte est partie avec la fenêtre : plus rien ne peut la rouvrir');
+          const pop2 = await ouvrirFenetre(F.bouton);
+          const vue2 = await carteDe(pop2, F.carte);
+          verifier(F.nom + ' : on la rouvre, et elle montre sa carte',
+            !!(vue2 && vue2.l > 2 && vue2.h > 2),
+            pop2 ? 'la fenêtre rouverte est VIDE' : 'rien ne se rouvre (le défaut signalé sur le 6.14)');
+          if(pop2 && !pop2.isClosed()){ await pop2.close(); await s.page.waitForTimeout(500); }
+        }
+        verifier('ouvrir, fermer et rouvrir ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
     }
 
     /* ===== 6 nonies. les zéros ne durent que le temps de l'appui ===== */
@@ -8154,7 +8372,204 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies nonies. {python-operations} : a et b se changent, les quatre lignes se tapent =====
+    /* ===== 6 tricies nonies. le tableau de valeurs se remplit en exécutant ===== */
+    /* {python-tableau-valeurs} : ce que jsdom ne peut pas voir — le programme
+       et le tableau RENDUS, la case de x posée DANS la ligne 1 à la chasse et
+       à la taille du code, une VRAIE frappe au clavier puis un VRAI clic sur
+       « Exécuter », les colonnes fermées qui se VOIENT (grisées, en
+       pointillés), l'encre RENDUE des verdicts et de la valeur juste en vert,
+       et la page qui ne déborde pas sur un téléphone. */
+    titre('6 tricies nonies. LE TABLEAU DE VALEURS SE REMPLIT EN EXÉCUTANT LE PROGRAMME');
+    if(!P.pythonTableauValeurs){
+      ignorer('le tableau de valeurs se remplit en exécutant le programme', 'ce niveau n\'a pas l\'exercice du tableau de valeurs');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonTableauValeurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      /* LES TROIS ENCRES DE LA CONVENTION, résolues par le navigateur : l'encre
+         de REPOS d'une case est déjà un bleu nuit, si bien qu'une règle « .ok »
+         qui ne peindrait plus rien passerait pour du bleu à la dominante — le
+         piège payé sur {python-print}. On compare à la VARIABLE. */
+      const encres = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        const lire = v => { t.style.color = 'var(' + v + ')'; return getComputedStyle(t).color; };
+        const o = { blue: lire('--blue'), red: lire('--red'), green: lire('--green'), ink: lire('--ink') };
+        t.remove(); return o;
+      });
+      const q = await s.page.evaluate(() => {
+        const q = test.questions[test.idx];
+        return { dep: String(q.dep), xs: q.ns.map(n => ptvX(n)), fr: q.ns.map(n => ptvXfr(n)),
+                 sorties: q.ns.map(n => ptvSortie(q, ptvX(n))), depSortie: ptvSortie(q, String(q.dep)), calcul: ptvMaths(q) };
+      });
+      const avant = await s.page.evaluate(() => {
+        const host = document.getElementById('ptvHost'), r = e => e.getBoundingClientRect();
+        const fam = e => getComputedStyle(e).fontFamily, px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const l = [...host.querySelectorAll('.pyx-l1')], x = document.getElementById('ptv-x');
+        const cases = [...host.querySelectorAll('.ptv-in')], tab = host.querySelector('.ptv-tab');
+        const boite = host.querySelector('.ptv-wrap');
+        return { lignes: l.length, policeL: l.map(fam), pxL: l.map(px),
+                 xVisible: r(x).width > 30 && r(x).height > 20, policeX: fam(x), pxX: px(x),
+                 /* la case de x vit DANS la ligne 1, à sa hauteur : posée
+                    ailleurs, le programme ne se lirait plus d'un trait */
+                 xDansLigne: Math.min(r(x).bottom, r(l[0]).bottom) - Math.max(r(x).top, r(l[0]).top) > 5,
+                 cases: cases.length, fermees: cases.filter(e => e.disabled).length,
+                 /* une colonne fermée SE VOIT : elle n'a pas l'encre d'une case
+                    ouverte, et son cadre est en pointillés */
+                 fondFerme: getComputedStyle(cases[0]).backgroundColor, traitFerme: getComputedStyle(cases[0]).borderTopStyle,
+                 policeC: cases.map(fam), pxC: cases.map(px),
+                 rangees: tab.querySelectorAll('tr').length, colonnes: tab.querySelectorAll('tr')[0].querySelectorAll('td').length,
+                 tabVisible: r(tab).width > 300 && r(tab).height > 60,
+                 tabDefile: boite.scrollWidth > boite.clientWidth + 1,
+                 run: !document.getElementById('ptvRun').disabled && r(document.getElementById('ptvRun')).width > 40,
+                 etat: document.getElementById('ptvEtat').textContent,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('le programme est rendu en trois lignes à chasse fixe, et la case de x vit DANS la ligne 1, à sa taille',
+        avant.lignes === 3 && avant.policeL.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && /mono|menlo|consolas|courier/i.test(avant.policeX) && avant.xVisible && avant.xDansLigne
+        && Math.abs(avant.pxX - Math.max(...avant.pxL)) < 0.6, JSON.stringify(avant).slice(0, 300));
+      verifier('le tableau est rendu : deux rangées, ' + P.pythonTableauValeurs.cols + ' colonnes, sans défilement à 1400 px — et ses ' + P.pythonTableauValeurs.cols + ' cases sont FERMÉES et se VOIENT fermées',
+        avant.rangees === 2 && avant.colonnes === P.pythonTableauValeurs.cols && avant.tabVisible && !avant.tabDefile
+        && avant.cases === P.pythonTableauValeurs.cols && avant.fermees === P.pythonTableauValeurs.cols
+        && avant.traitFerme === 'dashed' && dom(avant.fondFerme) === 'autre'
+        && avant.run && !avant.page, JSON.stringify(avant).slice(0, 360));
+      /* a) UN VRAI CLIC SUR « EXÉCUTER » : la console répond, rien ne s'ouvre */
+      await s.page.click('#ptvRun');
+      await s.page.waitForTimeout(300);
+      const aa = await s.page.evaluate(() => {
+        const c = document.getElementById('ptvConsole'), r = c.getBoundingClientRect();
+        return { texte: c.textContent, visible: r.height > 20 && r.width > 100, police: getComputedStyle(c).fontFamily,
+                 fermees: [...document.querySelectorAll('#ptvHost .ptv-in')].filter(e => e.disabled).length };
+      });
+      verifier('a) le programme s\'exécute au clic : la console affiche « ' + q.depSortie + ' » à chasse fixe, et aucune colonne ne s\'ouvre sur une valeur qui n\'est pas la sienne',
+        aa.texte === q.depSortie && aa.visible && /mono|menlo|consolas|courier/i.test(aa.police)
+        && aa.fermees === P.pythonTableauValeurs.cols, JSON.stringify(aa));
+      /* LA VIRGULE, TAPÉE POUR DE VRAI : le tableau écrit 0,5 et Python veut 0.5 */
+      await s.page.click('#ptv-x');
+      await s.page.keyboard.press('Control+a');
+      await s.page.keyboard.type(q.fr[0]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const virg = await s.page.evaluate(() => {
+        const c = document.getElementById('ptvConsole');
+        return { texte: c.textContent, encre: getComputedStyle(c).color,
+                 fermees: [...document.querySelectorAll('#ptvHost .ptv-in')].filter(e => e.disabled).length };
+      });
+      verifier('la virgule tapée dans la case de x reçoit la RÈGLE, en rouge rendu, et n\'ouvre aucune colonne',
+        /POINT/.test(virg.texte) && virg.texte.indexOf(q.xs[0]) >= 0 && virg.encre === encres.red
+        && virg.fermees === P.pythonTableauValeurs.cols, JSON.stringify(virg));
+      /* LA PORTE : on TAPE la valeur d'une colonne, Entrée exécute, elle s'ouvre */
+      await s.page.click('#ptv-x');
+      await s.page.keyboard.press('Control+a');
+      await s.page.keyboard.type(q.xs[2]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const porte = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#ptvHost .ptv-in')];
+        return { texte: document.getElementById('ptvConsole').textContent,
+                 ouvertes: cases.filter(e => !e.disabled).map((e, i) => e.id), ouverte2: !cases[2].disabled,
+                 fond: getComputedStyle(cases[2]).backgroundColor, trait: getComputedStyle(cases[2]).borderTopStyle,
+                 focus: document.activeElement && document.activeElement.id,
+                 etat: document.getElementById('ptvEtat').textContent };
+      });
+      verifier('la colonne dont on a exécuté la valeur s\'OUVRE — elle seule —, se voit ouverte, et reçoit le focus',
+        porte.texte === q.sorties[2] && porte.ouverte2 && porte.ouvertes.length === 1
+        && porte.trait === 'solid' && porte.focus === 'ptv-c2' && /1/.test(porte.etat), JSON.stringify(porte));
+      /* on remplit le tableau en entier — une case FAUSSE, pour lire les trois encres */
+      for(let i = 0; i < q.xs.length; i++){
+        await s.page.click('#ptv-x');
+        await s.page.keyboard.press('Control+a');
+        await s.page.keyboard.type(q.xs[i]);
+        await s.page.keyboard.press('Enter');
+        await s.page.waitForTimeout(150);
+        await s.page.click('#ptv-c' + i);
+        await s.page.keyboard.type(i === 1 ? '99' : q.sorties[i]);
+      }
+      await s.page.waitForTimeout(200);
+      const pret = await s.page.evaluate(() => ({
+        ouvertes: [...document.querySelectorAll('#ptvHost .ptv-in')].filter(e => !e.disabled).length,
+        etat: document.getElementById('ptvEtat').textContent }));
+      verifier('les ' + P.pythonTableauValeurs.cols + ' colonnes s\'ouvrent une à une et le restent — l\'état le dit',
+        pret.ouvertes === P.pythonTableauValeurs.cols && /complète/.test(pret.etat), JSON.stringify(pret));
+      await s.page.click('#ptvValidate');
+      await s.page.waitForTimeout(400);
+      const verd = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#ptvHost .ptv-in')];
+        const b = cases[1].parentNode.querySelector('.mf-cor'), rb = b ? b.getBoundingClientRect() : null;
+        const r1 = cases[1].getBoundingClientRect();
+        return { classes: cases.map(e => e.className.replace('ptv-in', '').trim()),
+                 encres: cases.map(e => getComputedStyle(e).color),
+                 badge: !!b, texte: b && b.textContent, encreBadge: b ? getComputedStyle(b).color : '',
+                 dessous: !!rb && rb.top >= r1.bottom - 1 && rb.width > 10,
+                 dedans: !!rb && rb.right <= document.documentElement.clientWidth,
+                 autresBadges: cases.filter((e, i) => i !== 1 && e.parentNode.querySelector('.mf-cor')).length,
+                 score: test.score, verrou: cases.every(e => e.disabled), suivant: !!document.getElementById('ptvNext'),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('chaque case se juge SEULE, à l\'encre RENDUE : la fausse porte l\'encre --red, les autres --blue, et la valeur juste s\'écrit en --green sous la case fausse — elle seule',
+        verd.encres[1] === encres.red && /bad/.test(verd.classes[1])
+        && [0, 2, 3, 4].every(i => verd.encres[i] === encres.blue && /ok/.test(verd.classes[i]))
+        && verd.badge && verd.texte === q.sorties[1] && verd.encreBadge === encres.green
+        && verd.dessous && verd.dedans && verd.autresBadges === 0
+        && verd.score === P.pythonTableauValeurs.cols - 1 && verd.verrou && verd.suivant && !verd.page,
+        JSON.stringify(verd).slice(0, 400));
+      /* SUR UN TÉLÉPHONE : le tableau ne tient pas en largeur — il DÉFILE dans
+         sa boîte, jamais la page, qui emmènerait tout l'écran de travers. */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const host = document.getElementById('ptvHost'), boite = host.querySelector('.ptv-wrap');
+        const prog = host.querySelector('.pyx-prog').getBoundingClientRect();
+        const x = document.getElementById('ptv-x').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 progDedans: prog.right <= 391, xDedans: x.right <= 391,
+                 boiteDedans: boite.getBoundingClientRect().right <= 391,
+                 boiteDefile: boite.scrollWidth > boite.clientWidth + 1,
+                 ovf: getComputedStyle(boite).overflowX };
+      });
+      verifier('sur un téléphone, le programme et sa case restent dans l\'écran, et le tableau DÉFILE dans sa boîte au lieu de faire déborder la page',
+        !tel.page && tel.progDedans && tel.xDedans && tel.boiteDedans && /auto|scroll/.test(tel.ovf), JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* LE SOUTIEN : la case fausse rougit, et RIEN ne se révèle */
+      await s.page.evaluate(id => openTest(id), P.pythonTableauValeurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const qs = await s.page.evaluate(() => {
+        const q = test.questions[test.idx];
+        return { xs: q.ns.map(n => ptvX(n)), sorties: q.ns.map(n => ptvSortie(q, ptvX(n))) };
+      });
+      for(let i = 0; i < qs.xs.length; i++){
+        await s.page.click('#ptv-x');
+        await s.page.keyboard.press('Control+a');
+        await s.page.keyboard.type(qs.xs[i]);
+        await s.page.keyboard.press('Enter');
+        await s.page.waitForTimeout(150);
+        await s.page.click('#ptv-c' + i);
+        await s.page.keyboard.type(i === 0 ? '0' : qs.sorties[i]);
+      }
+      await s.page.click('#ptvValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#ptvHost .ptv-in')];
+        return { classe: cases[0].className, encre: getComputedStyle(cases[0]).color,
+                 badges: cases.filter(e => e.parentNode.querySelector('.mf-cor')).length,
+                 fb: document.getElementById('ptvFeedback').textContent,
+                 verrou: cases[0].disabled, score: test.score,
+                 bouton: (document.getElementById('ptvValidate') || {}).textContent || '' };
+      });
+      verifier('en soutien : la case fausse rougit à l\'encre rendue, AUCUNE valeur verte, rien n\'est verrouillé, et « Revérifier » est proposé',
+        /bad/.test(sout.classe) && sout.encre === encres.red && sout.badges === 0
+        && sout.fb.indexOf(qs.sorties[0]) < 0 && !sout.verrou && sout.score === 0
+        && /Rev/.test(sout.bouton), JSON.stringify(sout));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies decies. {python-operations} : a et b se changent, les quatre lignes se tapent =====
        Le banc jsdom tient le juge (les deux familles de cases, la seconde
        méthode qui rejoue sous d'autres valeurs, la règle des paires), le
        tirage, les portes, la case vide et le soutien. Ce qu'il ne voit pas :
@@ -8169,7 +8584,7 @@ async function parcours(page, N){
        « chaque case se juge seule », et seule une couleur rendue la montre),
        le rejeu sous d'autres valeurs mesuré au RECTANGLE, et la page qui ne
        déborde pas sur un téléphone. Puis le soutien, où rien ne se révèle. */
-    titre('6 tricies nonies. LES QUATRE OPÉRATIONS : a ET b SE CHANGENT, LES QUATRE LIGNES SE TAPENT');
+    titre('6 tricies decies. LES QUATRE OPÉRATIONS : a ET b SE CHANGENT, LES QUATRE LIGNES SE TAPENT');
     if(!P.pythonOperations){
       ignorer('les quatre lignes se tapent, s\'exécutent, puis se vérifient', 'ce niveau n\'a pas l\'exercice des quatre opérations');
     } else {
