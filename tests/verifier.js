@@ -19343,6 +19343,67 @@ function pythonPlacerVariables(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
+  /* ---- 4 bis. AUCUN LIBELLÉ NE PROMET UN CALCUL ----
+     Signalé par Turquet (septembre 2026) sur le 5.9 : « je ne comprends pas
+     pourquoi il y a "sa moyenne" dans la phrase ». Le jeu des notes écrivait
+     « la 1ère note de Maëlys est 16 et sa moyenne est 18.4 sur 20 » — or
+     note2 est la 2ème note, et 18,4 n'est la moyenne de rien : la page
+     affirmait une fausseté arithmétique dans un cours de mathématiques.
+     LA SONDE A MESURÉ AVANT TOUT CORRECTIF, ET ELLE A ÉLARGI LE SIGNALEMENT :
+     le mensonge vivait dans QUATRE exercices, par le même libellé de PY_JEUX —
+     400 questions sur 400 au 5.9 (ses DEUX phrases du jeu), 92 sur 400 séances
+     au 5.1 (« la moyenne est : 16.8 » sous un « note1 = 13 » affiché deux
+     lignes plus haut), 64 au 5.7 et 134 au 5.8. Un défaut vu dans un coin se
+     corrige PARTOUT.
+     AU 5.9 IL EST PIRE QU'AILLEURS, et c'est ce que le signalement dit : le
+     texte devant la case EST la question — « et sa moyenne est » réclame une
+     grandeur qu'AUCUNE variable ne porte, et l'élève qui raisonne juste ne
+     peut pas répondre.
+     DEUX BORDS, ET N'EN TENIR QU'UN NE TIENT RIEN. Aucun libellé ne nomme une
+     grandeur CALCULÉE ; et aucun programme tiré ne porte d'opérateur — c'est
+     ce second bord qui DONNE SA RAISON au premier : ces programmes affectent
+     puis affichent, donc toute valeur montrée est une valeur DONNÉE, jamais
+     dérivée d'une autre. Le jour où un tirage calculerait vraiment, il
+     rougirait, et la règle serait à revoir plutôt qu'à contourner. */
+  verifierEval(w, 'aucun libellé du thème 5 ne promet un CALCUL — ni dans PY_JEUX (5.1, 5.7, 5.8) ni dans les phrases du 5.9 — et aucun programme tiré ne porte d’opérateur, ce qui est la raison de la règle', `(function(){
+    const vus=[], NL=String.fromCharCode(10), G=String.fromCharCode(34);
+    /* tous les libellés qui annoncent une variable, les quatre exercices */
+    const lib=[];
+    PY_JEUX.forEach(function(J,j){
+      [J.i,J.f,J.s].forEach(function(c){ (c.txt||[]).forEach(function(t){ lib.push({ou:"PY_JEUX["+j+"] "+c.nom, t:t}); }); });
+    });
+    PYV_FICHE.seg.forEach(function(s){ if(s.t!==undefined) lib.push({ou:"PYV_FICHE", t:s.t}); });
+    PYV_PHRASES.forEach(function(ph,j){ ph.forEach(function(p,k){ p.forEach(function(s){
+      if(s.t!==undefined) lib.push({ou:"PYV_PHRASES["+j+"]["+k+"]", t:s.t}); }); }); });
+    /* un contrôle qui n’a rien à mesurer ne mesure rien, et doit le dire */
+    if(lib.length<25){ vus.push("seulement "+lib.length+" libellé(s) relus : le contrôle ne mesure rien"); return vus.join(" | "); }
+    const CALC=["moyenne","somme","total","produit","difference","différence","ecart","écart"];
+    lib.forEach(function(L){
+      const t=String(L.t).toLowerCase();
+      CALC.forEach(function(m){ if(t.indexOf(m)>=0)
+        vus.push(L.ou+" promet un calcul que le programme ne fait pas : "+JSON.stringify(L.t)); });
+    });
+    /* LE BORD OPPOSÉ : aucun programme n’exécute d’opération. On retire les
+       chaînes — les indices pairs sont ce qui vit hors guillemets — et il ne
+       doit rester aucun opérateur. */
+    const nu=function(src){ return String(src).split(G).filter(function(x,i){ return i%2===0; }).join(" "); };
+    const progs=[];
+    for(let i=0;i<40;i++){
+      pyBuildQuestions().forEach(function(q){ progs.push({ou:"5.1", src:q.src}); });
+      pyxBuildQuestions().forEach(function(q){ progs.push({ou:"5.7", src:pyxLigne1(q)+NL+pyxAns(q).ligne}); });
+      pydBuildQuestions().forEach(function(q){ progs.push({ou:"5.8", src:pydProg(q, pydAns(q).map(function(a){ return a.ligne; }))}); });
+      pyvBuildQuestions().forEach(function(q){ progs.push({ou:"5.9", src:pyvTemoin(q)}); });
+    }
+    if(progs.length<500){ vus.push("seulement "+progs.length+" programme(s) relus : le contrôle ne mesure rien"); return vus.slice(0,4).join(" | "); }
+    const OPS="+-*/%".split("");
+    progs.forEach(function(p){
+      const hors=nu(p.src);
+      OPS.forEach(function(o){ if(hors.indexOf(o)>=0)
+        vus.push(p.ou+" : un programme porte l’opérateur « "+o+" » — un libellé de calcul pourrait alors dire vrai, la règle est à revoir : "+JSON.stringify(p.src)); });
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
   /* ---- 5. l'écran, les portes, et la copie juste ---- */
   verifierEval(w, 'l’écran porte la consigne, les affectations et la ligne de print à trous ; « Vérifier » est fermé tant que le programme n’est pas exécuté et se referme sur une case modifiée ; la copie juste vaut ses cases, verrouille et propose la suite', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
