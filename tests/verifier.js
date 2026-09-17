@@ -3586,6 +3586,7 @@ function exercices(suite){
     pythonAffichage(w, P);
     pythonCompleter(w, P);
     pythonDeuxLignes(w, P);
+    pythonPlacerVariables(w, P);
     pythonChangerValeurs(w, P);
     pythonTypes(w, P);
     pythonAfficherVariable(w, P);
@@ -16838,7 +16839,10 @@ function pythonAffichage(w, P){
     if(c.indexOf(q.src)<0) vus.push("le contexte ne porte pas le programme");
     if(c.indexOf("SECR")<0||c.indexOf(a.valeur)<0) vus.push("le contexte ne déclare pas la réponse attendue secrète");
     if(!afficherEcranDe("py")) vus.push("afficherEcranDe ne connaît pas py (reprise et rejeu)");
-    if(String(liveCheckCurrent).indexOf("checkPY")>=0) vus.push("le soutien colore au fil des clics : à quatre propositions, il suffirait d’essayer");
+    /* « checkPY » tout court attrape aussi checkPYP, checkPYX, checkPYD et
+       checkPYV : le contrôle du 5.1 rougissait alors sous SON nom pour le
+       défaut d’un autre exercice. On vise l’appel, parenthèse comprise. */
+    if(String(liveCheckCurrent).indexOf("checkPY(")>=0) vus.push("le soutien colore au fil des clics : à quatre propositions, il suffirait d’essayer");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -18391,7 +18395,7 @@ function pythonCompleter(w, P){
   })()`, v => v === '');
 
   /* ---- 3. la place au menu ---- */
-  verifierEval(w, 'il vit dans le thème 5, numéroté 5.7 — entre {python-print} et {python-deux-lignes}, qui ferme le thème — et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il vit dans le thème 5, numéroté 5.7 — entre {python-print} et {python-deux-lignes} — et rien d’autre ne bouge', `(function(){
     const th=THEMES[THEMES.length-1], vus=[];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
     const i=th?th.ids.indexOf("${ID}"):-1;
@@ -18481,7 +18485,65 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 6. la copie juste TAPÉE et les portes ---- */
+  /* ---- 6. l'ÉNONCÉ suit l'écran ET sa question, et le coup de pouce ----
+     Demande de Turquet (septembre 2026) : le premier énoncé dit de lire le
+     cours et d'exécuter le programme, les suivants disent de compléter le
+     programme en nommant le texte et la variable — et un coup de pouce arrive,
+     comme au 5.8.
+     Le bord qui compte est l'énoncé FIGÉ : un texte ou une variable écrits en
+     dur nommeraient ceux d'une AUTRE question sans qu'aucune correction ne
+     bronche, donc le contrôle rend DEUX questions épinglées et lit les deux
+     puces de code de l'énoncé — la première est le texte, la seconde la
+     variable, et la seconde question a une variable que son texte ne contient
+     pas, sans quoi le texte seul satisferait les deux. Les deux autres bords :
+     la demande n'est dite qu'UNE fois sur l'écran (l'étiquette du programme la
+     répétait, ce qui faisait deux énoncés), et le coup de pouce donne la FORME
+     sans jamais donner la ligne attendue. */
+  verifierEval(w, 'l\u2019\u00e9nonc\u00e9 dit « lis le cours » \u00e0 l\u2019ouverture puis « compl\u00e8te le programme » en nommant le TEXTE et la VARIABLE de SA question, la demande n\u2019est dite qu\u2019une fois, et le coup de pouce donne la forme sans donner la ligne', `(function(){
+    const vus=[], NL=String.fromCharCode(10);
+    const sansAcc=function(t){ return t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); };
+    const enonce=function(){ const e=document.querySelector('#scr-pyx .mp-instr'); return e?e.textContent.trim():''; };
+    const puces=function(){ return Array.prototype.map.call(document.querySelectorAll('#scr-pyx .mp-instr code'), function(c){ return c.textContent; }); };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='${ID}';
+    startPYX();
+    const ec=enonce(), sc=sansAcc(ec);
+    if(!ec) vus.push('l\u2019\u00e9cran du cours n\u2019a pas d\u2019\u00e9nonc\u00e9');
+    if(sc.indexOf('cours')<0) vus.push('l\u2019\u00e9nonc\u00e9 du cours ne dit pas de lire le cours : '+ec);
+    if(sc.indexOf('execut')<0) vus.push('l\u2019\u00e9nonc\u00e9 du cours ne dit pas d\u2019ex\u00e9cuter le programme : '+ec);
+    if(sc.indexOf('complet')>=0) vus.push('l\u2019\u00e9nonc\u00e9 du cours parle d\u00e9j\u00e0 de compl\u00e9ter le programme : '+ec);
+    pyxExempleExecuter(); pyxCompris();
+    /* la seconde paire porte une variable que son texte ne contient PAS */
+    [['la note de Simon est :','note','12'],['le prix est :','total','7']].forEach(function(P){
+      test.questions[test.idx]={nom:P[1], lit:P[2], texte:P[0], vis:'int'};
+      renderPYX();
+      const e=enonce(), se=sansAcc(e), c=puces();
+      if(se.indexOf('complet')<0) vus.push('l\u2019\u00e9nonc\u00e9 de la question ne dit pas de compl\u00e9ter le programme : '+e);
+      if(c[0]!==P[0]) vus.push('l\u2019\u00e9nonc\u00e9 ne nomme pas le texte de SA question (« '+P[0]+' ») : '+JSON.stringify(c));
+      if(c[1]!==P[1]) vus.push('l\u2019\u00e9nonc\u00e9 ne nomme pas la variable de SA question (« '+P[1]+' ») : '+JSON.stringify(c));
+      const carte=document.querySelector('#scr-pyx .card').textContent;
+      const n=sansAcc(carte).split('complet').length-1;
+      if(n!==1) vus.push('la demande est dite '+n+' fois sur l\u2019\u00e9cran au lieu d\u2019une');
+      const att=pyxAns(test.questions[test.idx]);
+      if(carte.indexOf(att.sortie.trim())<0) vus.push('l\u2019\u00e9cran ne montre plus ce que le programme doit afficher : '+att.sortie.trim());
+      const po=document.querySelectorAll('#pyxHost .pyd-pouce');
+      if(po.length!==1){ vus.push(po.length+' coup(s) de pouce sur l\u2019\u00e9cran au lieu d\u2019un'); return; }
+      if(po[0].tagName!=='DETAILS') vus.push('le coup de pouce n\u2019est pas un bloc repliable : '+po[0].tagName);
+      if(po[0].open) vus.push('le coup de pouce est d\u00e9pli\u00e9 d\u2019embl\u00e9e');
+      const tp=po[0].textContent;
+      ['print("texte", variable)','guillemets','virgule'].forEach(function(m){
+        if(tp.indexOf(m)<0) vus.push('le coup de pouce ne dit pas la forme (« '+m+' ») : '+tp.slice(0,90));
+      });
+      if(tp.indexOf(att.ligne)>=0) vus.push('le coup de pouce écrit la ligne attendue : '+att.ligne);
+    });
+    /* une seule fabrique écrit le cadre replié, pour les deux exercices */
+    if(typeof pyPoucesHTML!=='function') vus.push('pyPoucesHTML : la fabrique partagée du cadre n\u2019existe pas');
+    else [['pyxPoucesHTML',pyxPoucesHTML],['pydPoucesHTML',pydPoucesHTML]].forEach(function(F){
+      if(String(F[1]).indexOf('pyPoucesHTML')<0) vus.push(F[0]+' ne passe plus par la fabrique partagée : deux cadres à tenir');
+    });
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '');
+
+  /* ---- 7. la copie juste TAPÉE et les portes ---- */
   verifierEval(w, '« Vérifier » est fermé tant que la ligne n’est pas exécutée, s’ouvre après, se referme sur une ligne modifiée, et la copie juste vérifiée vaut 1, verrouille et propose « Question suivante »', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPYX(); pyxExempleExecuter(); pyxCompris();
@@ -18520,7 +18582,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 7. la copie fausse, en entraînement ---- */
+  /* ---- 8. la copie fausse, en entraînement ---- */
   verifierEval(w, 'la copie fausse (entraînement) : la case rougit, le diagnostic nomme l’erreur, la ligne juste s’écrit en vert sous la case, la note vaut 0 et la question est verrouillée — et « Vérifier » exécute lui-même une ligne qui ne l’a pas été', `(function(){
     currentMode="train"; startPYX(); pyxExempleExecuter(); pyxCompris();
     const vus=[], q=test.questions[0], a=pyxAns(q), inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
@@ -18540,7 +18602,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 8. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
+  /* ---- 9. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
   verifierEval(w, 'en soutien : la ligne fausse rougit sans badge, le message dit « Où est l’erreur ? » et la nomme, rien n’est verrouillé, Revérifier est proposé ; modifier la ligne retire le rouge et referme le bouton ; la ligne vide n’est pas peinte ; la correction exécutée puis revérifiée vaut 1', `(function(){
     currentMode="soutien"; startPYX(); pyxExempleExecuter(); pyxCompris();
     const vus=[], q=test.questions[0], inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
@@ -18572,7 +18634,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 9. les branchements ---- */
+  /* ---- 10. les branchements ---- */
   verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX et avec la virgule et les guillemets, les questions à l’IA, le contexte porte la ligne 1, ce que l’élève a écrit, le diagnostic, et déclare la réponse secrète, aucune correction au fil de la frappe', `(function(){
     const vus=[];
     if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
@@ -18592,7 +18654,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 10. la seconde méthode : CPython, sur ce que l'exercice ferait tourner ----
+  /* ---- 11. la seconde méthode : CPython, sur ce que l'exercice ferait tourner ----
      Les sorties des lignes de la fiche sont ÉPINGLÉES avec celles de
      CPython 3.11 : elles tiennent même sans python sur la machine. Une
      ligne que CPython refuse doit être refusée par la page aussi. */
@@ -18737,12 +18799,12 @@ function pythonDeuxLignes(w, P){
   })()`, v => v === '');
 
   /* ---- 3. la place au menu ---- */
-  verifierEval(w, 'il vit dans le thème 5, numéroté 5.8 — entre {python-completer} et {python-changer-valeurs} — et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il vit dans le thème 5, numéroté 5.8 — entre {python-completer} et {python-placer-variables} — et rien d’autre ne bouge', `(function(){
     const th=THEMES[THEMES.length-1], vus=[];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
     const i=th?th.ids.indexOf("${ID}"):-1;
-    if(i<0) vus.push("l’exercice n’est pas dans le thème 5 : "+(th&&th.ids.join(",")));
-    else if(th.ids[i-1]!=="python-completer"||th.ids[i+1]!=="python-changer-valeurs") vus.push("il n’est plus entre {python-completer} et {python-changer-valeurs} : "+th.ids.join(","));
+    if(i<0) vus.push("l’exercice a quitté le thème 5 : "+(th&&th.ids.join(",")));
+    else if(th.ids[i-1]!=="python-completer"||th.ids[i+1]!=="python-placer-variables") vus.push("il n’est plus entre {python-completer} et {python-placer-variables} : "+th.ids.join(","));
     if(TEST_NUM["${ID}"]!=="5.8") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-types"]!=="5.2"||TEST_NUM["python-afficher-variable"]!=="5.3"||TEST_NUM["python-noms-variables"]!=="5.4"||TEST_NUM["python-nom-variable"]!=="5.5"||TEST_NUM["python-print"]!=="5.6"||TEST_NUM["python-completer"]!=="5.7"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -19001,6 +19063,352 @@ function pythonDeuxLignes(w, P){
   }
 }
 
+/* {python-placer-variables} (Seconde) : l'exercice 10 du carnet — le programme
+   est ÉCRIT en entier, print compris, et seuls les NOMS des variables
+   manquent. Le contrôle tient la fiche épinglée (si elle ne passe pas au juge,
+   c'est le juge qui a tort), le tirage — dont les propriétés SILENCIEUSES :
+   deux valeurs jamais identiques, un texte devant chaque trou, chaque variable
+   une fois dans la phrase —, le juge et son diagnostic cas par cas, les
+   portes, la case vide jamais peinte, le soutien, et compare l'interpréteur à
+   un vrai CPython. Aucun accent grave dans ce texte : il vit dans un template
+   littéral. */
+function pythonPlacerVariables(w, P){
+  const nom = '{python-placer-variables} : le print est écrit, les noms des variables se placent';
+  if(!P.pythonPlacerVariables){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des variables à placer dans un print'); return; }
+  const D = P.pythonPlacerVariables, ID = D.exercice, NB = D.nb, F = D.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPYV==='function' && typeof pyvJuge==='function' && typeof pyvAns==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPYV / pyvJuge / pyvAns introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la fiche du carnet, épinglée ----
+     Ses textes portent leurs espaces de frappe : Python affiche donc DEUX
+     espaces là où le carnet en a écrit une de trop, et c'est ce que la page
+     doit montrer. L'INTERVERSION est épinglée avec elle : elle ne lève AUCUNE
+     erreur, et c'est tout le sujet de l'exercice. */
+  verifierEval(w, 'la fiche du carnet, épinglée : les deux affectations, la ligne de print, les variables attendues et la phrase obtenue — et l’INTERVERSION, qui s’exécute sans la moindre erreur', `(function(){
+    const vus=[], NL=String.fromCharCode(10), q=JSON.parse(JSON.stringify(PYV_FICHE)), a=pyvAns(q);
+    if(pyvAffects(q)!==${J(F.aff.join('\n'))}) vus.push("les affectations : "+JSON.stringify(pyvAffects(q)));
+    if(pyvTemoin(q).split(NL).pop()!==${J(F.ligne)}) vus.push("la ligne de print : "+pyvTemoin(q).split(NL).pop());
+    if(a.map(function(x){ return x.variable; }).join(",")!==${J(F.noms.join(','))}) vus.push("les variables attendues : "+a.map(function(x){ return x.variable; }).join(","));
+    if(pyvSortie(q)!==${J(F.sortie)}+NL) vus.push("la phrase obtenue : "+JSON.stringify(pyvSortie(q)));
+    /* l'interversion : Python ne bronche pas, c'est la phrase qui ne dit plus rien */
+    let sortieInv=""; try{ sortieInv=pyRun(pyvProg(q,[a[1].variable,a[0].variable])).out; }catch(e){ vus.push("l’interversion lève une erreur : "+e.message); }
+    if(sortieInv && sortieInv!==${J(F.interversion)}+NL) vus.push("la phrase de l’interversion : "+JSON.stringify(sortieInv));
+    const ji=pyvJuge(q,[a[1].variable,a[0].variable]);
+    if(ji[0].ok||ji[1].ok) vus.push("l’interversion est acceptée");
+    /* toute écriture du bon NOM est juste — les espaces autour ne comptent pas */
+    [[a[0].variable,a[1].variable],["  "+a[0].variable+" "," "+a[1].variable+"  "]].forEach(function(c){
+      pyvJuge(q,c).forEach(function(x,i){ if(!x.ok) vus.push("copie juste refusée : "+JSON.stringify(c[i])+" — "+x.diag); });
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. le juge et le diagnostic, case par case ----
+     La case porte un NOM, pas une ligne : le diagnostic est donc propre à cet
+     exercice — celui du 5.7 parle de print, de virgule et de parenthèses, ce
+     qui n'aurait aucun sens ici. Chaque refus nomme un fait PROUVABLE. */
+  verifierEval(w, 'chaque case fausse est refusée ET reçoit le diagnostic qui nomme son défaut — dont celui qui est propre à l’exercice : l’interversion, que Python accepte sans broncher', `(function(){
+    const vus=[], G=String.fromCharCode(34), q=JSON.parse(JSON.stringify(PYV_FICHE)), a=pyvAns(q), bonne=a[0].variable;
+    const cas=[
+      [a[0].variable, "affiche"],
+      ["14", "recopiée à la main"],
+      [G+"note"+G, "TEXTE"],
+      ["Note", "majuscules"],
+      ["moyenne", "n’est pas une variable du programme"],
+      ["note + 1", "pas une valeur ni un calcul"],
+      ["note, note", "qu’UNE variable"],
+      [G+"14"+G, "entre guillemets"],
+      ["note)", "Python s’arrête"],
+      [G+"note", "guillemet"],
+      ["print", "n’est pas une variable du programme"]
+    ];
+    cas.forEach(function(c){
+      let j; try{ j=pyvJuge(q,[bonne,c[0]]); }catch(e){ vus.push("le juge lève sur « "+c[0]+" » : "+e.message); return; }
+      if(!j[0].ok){ vus.push("la case juste d’à côté est refusée avec « "+c[0]+" » : "+j[0].diag); return; }
+      if(j[1].ok){ vus.push("case fausse acceptée : "+c[0]); return; }
+      if(!j[1].diag||j[1].diag.indexOf(c[1])<0) vus.push("« "+c[0]+" » : le diagnostic ne dit pas « "+c[1]+" » — "+j[1].diag);
+    });
+    /* LE DIAGNOSTIC NE DONNE JAMAIS LA RÉPONSE : la variable attendue EST la
+       réponse, là où la consigne du 5.8 la donne déjà. */
+    pyvJuge(q,[a[1].variable,a[0].variable]).forEach(function(x,i){
+      if(x.diag.indexOf(a[i].variable)>=0) vus.push("le diagnostic de la case "+(i+1)+" nomme la variable attendue : "+x.diag);
+    });
+    const v=pyvJuge(q,["   ","  "]);
+    if(!v[0].vide||!v[1].vide||v[0].ok||v[1].ok) vus.push("les cases vides ne sont pas dites vides");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. la place au menu ---- */
+  verifierEval(w, 'il vit dans le thème 5, numéroté 5.9 — entre {python-deux-lignes} et {python-changer-valeurs} — et rien d’autre ne bouge', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const k=th?th.ids.indexOf("${ID}"):-1;
+    if(k<0) vus.push("l’exercice n’est pas dans le thème 5 : "+(th&&th.ids.join(",")));
+    else if(th.ids[k-1]!=="python-deux-lignes"||th.ids[k+1]!=="python-changer-valeurs") vus.push("il n’est plus entre {python-deux-lignes} et {python-changer-valeurs} : "+th.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="5.9") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-types"]!=="5.2"||TEST_NUM["python-afficher-variable"]!=="5.3"||TEST_NUM["python-noms-variables"]!=="5.4"||TEST_NUM["python-nom-variable"]!=="5.5"||TEST_NUM["python-print"]!=="5.6"||TEST_NUM["python-completer"]!=="5.7"||TEST_NUM["python-deux-lignes"]!=="5.8"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le tirage, et ses propriétés SILENCIEUSES ----
+     Deux variables de MÊME valeur rendraient la question indécidable : les
+     deux noms afficheraient la même chose, et la page en compterait un faux —
+     une lecture juste comptée fausse. Un garde n'écarterait JAMAIS rien dans
+     la page (un entier, un décimal à décimale non nulle et un texte ne
+     s'écrivent jamais pareil, mesuré sur 2400 questions), c'est donc ICI que
+     la propriété est exigée. Il en va de même du texte devant chaque trou —
+     sans lui, rien ne dirait quelle variable on attend. */
+  verifierEval(w, 'le tirage : '+NB+' questions, la fiche en tête, un jeu de variables par question, chaque variable de la phrase une seule fois, un texte devant chaque trou, des textes et des VALEURS jamais identiques, le témoin passe au juge et les variables décalées sont refusées (400 séances)', `(function(){
+    const vus=[], NL=String.fromCharCode(10), G=String.fromCharCode(34), premiers={};
+    for(let s=0;s<400 && vus.length<4;s++){
+      const qs=pyvBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      if(pyvAffects(qs[0])!==${J(F.aff.join('\n'))}||pyvTemoin(qs[0]).split(NL).pop()!==${J(F.ligne)}){ vus.push("la première question n’est pas la fiche du carnet"); break; }
+      const jeux=qs.slice(1).map(function(q){ return pyvNoms(q).slice().sort().join(","); });
+      if(jeux.filter(function(x,i){ return jeux.indexOf(x)===i; }).length!==3){ vus.push("les trois jeux de variables ne sortent pas chacun une fois : "+jeux.join(" / ")); break; }
+      for(const q of qs){
+        if(Object.keys(q).sort().join(",")!=="aff,seg"){ vus.push("la question porte autre chose que aff / seg : "+Object.keys(q).join(",")); break; }
+        const noms=pyvNoms(q);
+        if(noms.filter(function(n,i){ return noms.indexOf(n)===i; }).length!==noms.length){ vus.push("deux affectations portent le même nom : "+noms.join(",")); break; }
+        let a=null;
+        try{ a=pyvAns(q); }catch(e){ vus.push("pyvAns refuse un tirage : "+e.message); break; }
+        /* chaque variable du programme paraît EXACTEMENT une fois dans la phrase */
+        const dans=a.map(function(x){ return x.variable; });
+        if(dans.slice().sort().join(",")!==noms.slice().sort().join(",")) vus.push("la phrase ne nomme pas chaque variable une fois : "+dans.join(",")+" contre "+noms.join(","));
+        /* un texte devant chaque trou, et deux textes jamais identiques */
+        if(a.some(function(x){ return !x.texte.trim(); })) vus.push("un trou n’a aucun texte devant lui : "+pyvTemoin(q).split(NL).pop());
+        const txt=a.map(function(x){ return x.texte.trim(); });
+        if(txt.filter(function(t,i){ return txt.indexOf(t)===i; }).length!==txt.length) vus.push("deux trous portent le même texte : "+txt.join(" / "));
+        if(txt.some(function(t){ return t.indexOf(G)>=0; })) vus.push("un texte porte un guillemet : "+txt.join(" / "));
+        /* LES VALEURS SONT DEUX À DEUX DISTINCTES : sinon deux noms
+           afficheraient la même chose et l'un serait compté faux */
+        const env=pyRun(pyvAffects(q)).env, vals=noms.map(function(n){ return pyRep(env[n]); });
+        if(vals.filter(function(v,i){ return vals.indexOf(v)===i; }).length!==vals.length) vus.push("deux variables ont la même valeur : "+vals.join(" / "));
+        /* le témoin passe, les variables décalées d'un cran sont refusées */
+        const bons=dans, permute=bons.slice(1).concat(bons.slice(0,1));
+        if(pyvJuge(q,bons).some(function(x){ return !x.ok; })) vus.push("le témoin ne passe pas au juge : "+bons.join(" ; "));
+        const jp=pyvJuge(q,permute);
+        if(jp.every(function(x){ return x.ok; })) vus.push("les variables décalées d’un cran sont toutes acceptées : "+permute.join(" ; "));
+        /* le diagnostic ne donne pas la réponse — sauf là où le TEXTE la nomme
+           déjà : « ans, taille : » annonce la variable taille, et c'est
+           l'énoncé qui le veut */
+        jp.forEach(function(x,i){
+          if(x.ok||!x.diag) return;
+          if(a[i].texte.indexOf(a[i].variable)<0 && x.diag.indexOf(a[i].variable)>=0)
+            vus.push("le diagnostic donne la variable attendue : "+x.diag);
+        });
+        if(a.length) premiers[a[0].variable]=1;
+      }
+    }
+    if(Object.keys(premiers).length<3) vus.push("la variable du PREMIER trou ne varie pas : "+Object.keys(premiers).join(" ; "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. l'écran, les portes, et la copie juste ---- */
+  verifierEval(w, 'l’écran porte la consigne, les affectations et la ligne de print à trous ; « Vérifier » est fermé tant que le programme n’est pas exécuté et se referme sur une case modifiée ; la copie juste vaut ses cases, verrouille et propose la suite', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYV();
+    const vus=[], NL=String.fromCharCode(10), q=test.questions[0], a=pyvAns(q);
+    if(test.maxScore!==test.questions.reduce(function(s,x){ return s+pyvCases(x).length; },0)) vus.push("barème "+test.maxScore);
+    if(pyvCases(q).length!==a.length) vus.push("pyvCases rend "+pyvCases(q).length+" case(s) pour "+a.length+" trou(s)");
+    const cons=document.querySelector("#pyvHost .py-label");
+    if(!cons||pyvNoms(q).some(function(n){ return cons.textContent.indexOf(n)<0; })) vus.push("la consigne ne nomme pas les variables : "+(cons&&cons.textContent));
+    const l=[...document.querySelectorAll("#pyvHost .pyx-l1")].map(function(e){ return e.textContent; });
+    if(l.join(NL)!==pyvAffects(q)) vus.push("les affectations écrites : "+l.join(" | "));
+    if(!document.querySelector("#pyvHost .pyv-l")) vus.push("pas de ligne de print à trous");
+    const in0=document.getElementById("pyv-in0"), in1=document.getElementById("pyv-in1");
+    if(!in0||!in1||in0.tagName!=="INPUT"||in1.tagName!=="INPUT") vus.push("il n’y a pas deux cases de saisie");
+    /* le pavé numérique ne s’y attache pas : une case porte un NOM */
+    if(in0&&in0.getAttribute("inputmode")==="numeric") vus.push("la case est déclarée numérique : le pavé des tablettes y volerait les lettres");
+    const run=document.getElementById("pyvRun"), sortie=document.getElementById("pyvConsole");
+    const v=function(){ return document.getElementById("pyvValidate"); };
+    if(!v()||!v().disabled) vus.push("« Vérifier » est ouvert avant toute exécution");
+    if(!run||run.disabled) vus.push("« Exécuter » n’est pas cliquable d’emblée");
+    in0.value=a[0].variable; in1.value=a[1].variable; in0.dispatchEvent(new Event("input",{bubbles:true}));
+    if(!v().disabled) vus.push("« Vérifier » s’ouvre sur un programme écrit mais pas exécuté");
+    pyvExecuter();
+    if(sortie.textContent!==pyvSortie(q).replace(new RegExp(NL+"$"),"")) vus.push("la console montre "+JSON.stringify(sortie.textContent));
+    if(!sortie.classList.contains("py-exec")) vus.push("la console n’est pas marquée exécutée");
+    if(v().disabled) vus.push("« Vérifier » reste fermé après l’exécution");
+    in1.value=a[1].variable+" "; in1.dispatchEvent(new Event("input",{bubbles:true}));
+    if(v().disabled) vus.push("un espace de fin referme « Vérifier » : le programme exécuté n’a pas changé");
+    in1.value=a[0].variable; in1.dispatchEvent(new Event("input",{bubbles:true}));
+    if(!v().disabled) vus.push("« Vérifier » reste ouvert sur un programme MODIFIÉ depuis l’exécution");
+    if(sortie.textContent!=="") vus.push("la console garde la sortie d’un programme qui n’est plus celui écrit");
+    in1.value=a[1].variable; in1.dispatchEvent(new Event("input",{bubbles:true}));
+    pyvExecuter(); checkPYV();
+    if(!in0.classList.contains("ok")||!in1.classList.contains("ok")) vus.push("les cases justes ne sont pas peintes ok : "+in0.className+" / "+in1.className);
+    if(test.score!==a.length) vus.push("note "+test.score+" au lieu de "+a.length);
+    if(!test.locked) vus.push("la question n’est pas verrouillée après la vérification");
+    if(!in0.disabled||!in1.disabled) vus.push("les cases restent modifiables après le verrou");
+    if(!document.getElementById("pyvNext")) vus.push("« Question suivante » n’apparaît pas");
+    const fb=document.getElementById("pyvFeedback").textContent;
+    if(fb.indexOf(pyvSortie(q).trim())<0) vus.push("le message ne montre pas la phrase obtenue : "+fb);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==a.length||ans.justes!==a.length||!ans.correct) vus.push("la note de la question ne compte pas ses cases : "+JSON.stringify(ans));
+    if(!afficherEcranDe("pyv")) vus.push("afficherEcranDe ne connaît pas pyv (reprise et rejeu)");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. chaque case se juge SEULE, en entraînement ---- */
+  verifierEval(w, 'la copie à moitié fausse (entraînement) : la case fausse rougit et la juste reste bleue, la bonne variable s’écrit en vert À CÔTÉ de la case fausse SEULEMENT, la note compte les cases justes et la question est verrouillée — et « Vérifier » exécute lui-même un programme qui ne l’a pas été', `(function(){
+    currentMode="train"; startPYV();
+    const vus=[], q=test.questions[0], a=pyvAns(q);
+    const in0=document.getElementById("pyv-in0"), in1=document.getElementById("pyv-in1"), cons=document.getElementById("pyvConsole");
+    in0.value=a[0].variable; in1.value=a[1].valeur; in0.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYV();
+    if(!in1.classList.contains("bad")) vus.push("la case fausse n’est pas rouge : "+in1.className);
+    if(!in0.classList.contains("ok")) vus.push("la case juste d’à côté ne reste pas bleue : "+in0.className);
+    if(!cons.textContent) vus.push("la console ne montre pas ce que le juge a lu");
+    const b1=in1.nextElementSibling, b0=in0.nextElementSibling;
+    if(!b1||!b1.classList.contains("mf-cor")||b1.textContent!==a[1].variable) vus.push("pas de bonne variable en vert à côté de la case fausse : "+(b1&&b1.textContent));
+    if(b0&&b0.classList&&b0.classList.contains("mf-cor")) vus.push("la case juste reçoit elle aussi une correction");
+    const fb=document.getElementById("pyvFeedback").textContent;
+    if(fb.indexOf("erreur")<0||fb.indexOf("recopiée")<0) vus.push("le message ne nomme pas l’erreur : "+fb);
+    if(test.score!==a.length-1) vus.push("note "+test.score+" au lieu de "+(a.length-1));
+    if(!test.locked||!in1.disabled) vus.push("la copie fausse n’est pas verrouillée en entraînement");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==a.length||ans.justes!==a.length-1||ans.correct) vus.push("la note enregistrée ne dit pas "+(a.length-1)+" sur "+a.length+" : "+JSON.stringify(ans));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
+  verifierEval(w, 'en soutien : la case fausse rougit sans bonne variable en vert, le message dit « Où est l’erreur ? » et renvoie au texte qui précède la case sans nommer la variable attendue, rien n’est verrouillé, Revérifier est proposé ; la corriger retire le rouge et referme le bouton ; la correction exécutée puis revérifiée vaut ses cases', `(function(){
+    currentMode="soutien"; startPYV();
+    const vus=[], q=test.questions[0], a=pyvAns(q);
+    const in0=document.getElementById("pyv-in0"), in1=document.getElementById("pyv-in1");
+    const v=function(){ return document.getElementById("pyvValidate"); };
+    in0.value=a[1].variable; in1.value=a[1].variable;
+    in0.dispatchEvent(new Event("input",{bubbles:true}));
+    pyvExecuter(); checkPYV();
+    if(!in0.classList.contains("bad")) vus.push("la case fausse n’est pas rouge en soutien");
+    if(in0.nextElementSibling&&in0.nextElementSibling.classList&&in0.nextElementSibling.classList.contains("mf-cor")) vus.push("la bonne variable fuit en soutien");
+    const fb=document.getElementById("pyvFeedback").textContent;
+    if(fb.indexOf("Où est l’erreur")<0) vus.push("le soutien ne dit pas où est l’erreur : "+fb);
+    if(fb.indexOf(a[0].texte.trim())<0) vus.push("le soutien ne renvoie pas au texte qui précède la case : "+fb);
+    if(fb.indexOf(a[0].variable)>=0) vus.push("le soutien écrit la variable attendue dans le message : "+fb);
+    if(test.locked||in0.disabled) vus.push("le soutien verrouille une copie fausse");
+    if(!v()||v().textContent.indexOf("Rev")<0) vus.push("pas de bouton Revérifier");
+    else if(v().disabled) vus.push("Revérifier est fermé alors que le programme a été exécuté");
+    if(test.score!==0) vus.push("le soutien compte une copie fausse : "+test.score);
+    in0.value=a[0].variable; in0.dispatchEvent(new Event("input",{bubbles:true}));
+    if(in0.classList.contains("bad")) vus.push("le rouge reste sur une case modifiée");
+    if(v()&&!v().disabled) vus.push("Revérifier reste ouvert sur un programme modifié non exécuté");
+    pyvExecuter(); checkPYV();
+    if(!in0.classList.contains("ok")||test.score!==a.length) vus.push("la copie corrigée ne vaut pas ses cases : "+in0.className+" / "+test.score);
+    if(!test.locked) vus.push("la copie juste ne verrouille pas en soutien");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. une case VIDE n'est jamais peinte ---- */
+  verifierEval(w, 'une case laissée vide n’est jamais peinte : la vérification la redemande, sans colorer ni verrouiller — dans les deux modes', `(function(){
+    const vus=[];
+    ["train","soutien"].forEach(function(m){
+      currentMode=m; startPYV();
+      const q=test.questions[0], a=pyvAns(q);
+      const in0=document.getElementById("pyv-in0"), in1=document.getElementById("pyv-in1");
+      pyvExecuter(); checkPYV();
+      if(in0.className.indexOf("ok")>=0||in0.className.indexOf("bad")>=0||in1.className.indexOf("ok")>=0||in1.className.indexOf("bad")>=0) vus.push(m+" : la copie vide reçoit une couleur : "+in0.className+" / "+in1.className);
+      if(test.locked) vus.push(m+" : la copie vide verrouille la question");
+      let fb=document.getElementById("pyvFeedback").textContent;
+      if(fb.indexOf("2 cases")<0) vus.push(m+" : la copie vide n’est pas redemandée : "+fb);
+      /* une seule case écrite : l'autre reste vide, et rien n'est peint */
+      in0.value=a[0].variable; in0.dispatchEvent(new Event("input",{bubbles:true}));
+      pyvExecuter(); checkPYV();
+      if(in0.className.indexOf("ok")>=0||in0.className.indexOf("bad")>=0||in1.className.indexOf("bad")>=0) vus.push(m+" : la case restée vide fait peindre : "+in0.className+" / "+in1.className);
+      if(test.locked||test.score!==0) vus.push(m+" : une copie à moitié écrite verrouille ou compte : "+test.locked+" / "+test.score);
+      fb=document.getElementById("pyvFeedback").textContent;
+      if(fb.indexOf("1 case")<0) vus.push(m+" : la case qui manque n’est pas redemandée : "+fb);
+    });
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. les branchements ---- */
+  verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX qui dit les guillemets et l’interversion sans erreur, les questions à l’IA, le contexte porte le programme, ce que l’élève a écrit, le diagnostic, et déclare les réponses secrètes ; aucune correction au fil de la frappe', `(function(){
+    const vus=[];
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
+    const rap=RAPPELS.pyv||""; if(!rap) vus.push("pas de rappel RAPPELS.pyv");
+    if(rap.indexOf(String.fromCharCode(92)+"(")>=0) vus.push("le rappel porte du LaTeX — rien n’y empile");
+    ["virgule","guillemets","print("].forEach(function(m){ if(rap.indexOf(m)<0) vus.push("le rappel ne dit pas « "+m+" »"); });
+    if(rap.indexOf("aucune erreur")<0) vus.push("le rappel ne dit pas ce que cet exercice ajoute : deux variables échangées ne lèvent AUCUNE erreur");
+    if(!QIA_SUGG.pyv||QIA_SUGG.pyv.length<3) vus.push("pas de questions à l’IA pour pyv");
+    currentMode="soutien"; startPYV();
+    const q=test.questions[0], a=pyvAns(q);
+    const in0=document.getElementById("pyv-in0");
+    in0.value="14"; in0.dispatchEvent(new Event("input",{bubbles:true}));
+    const c=ctxPyv(q).contexte;
+    if(c.indexOf(q.aff[0].nom+" = "+q.aff[0].lit)<0) vus.push("le contexte ne porte pas les lignes données");
+    if(c.indexOf("SECR")<0||c.indexOf(a[0].variable)<0||c.indexOf(a[1].variable)<0) vus.push("le contexte ne déclare pas les réponses attendues secrètes");
+    if(c.indexOf("recopiée")<0) vus.push("le contexte ne porte pas le diagnostic");
+    if(c.indexOf("SANS erreur")<0) vus.push("le contexte ne dit pas que l’interversion s’exécute sans erreur");
+    if(String(liveCheckCurrent).indexOf("checkPYV")>=0) vus.push("le soutien juge au fil de la frappe : un nom se juge écrit, pas lettre par lettre");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 10. la seconde méthode : CPython, sur ce que l'exercice ferait tourner ----
+     Les programmes de la fiche sont ÉPINGLÉS avec la sortie de CPython 3.11 :
+     ils tiennent même sans python sur la machine. L'INTERVERSION en fait
+     partie — un programme que CPython accepte doit être accepté par la page,
+     et c'est là tout le piège de l'exercice. */
+  const FICHE = F.aff.join('\n'), LIGNE = F.ligne, MARQUE = '@@@';
+  const inverse = LIGNE.replace(', ' + F.noms[0] + ',', ', ' + MARQUE + ',')
+                       .replace(', ' + F.noms[1] + ',', ', ' + F.noms[0] + ',')
+                       .replace(', ' + MARQUE + ',', ', ' + F.noms[1] + ',');
+  const BORDS = [
+    [FICHE + '\n' + LIGNE, F.sortie + '\n'],
+    [FICHE + '\n' + inverse, F.interversion + '\n'],
+    [FICHE + '\n' + LIGNE.replace(', ' + F.noms[1] + ',', ', 14,'), F.sortie + '\n'],
+    [FICHE + '\n' + LIGNE.replace(', ' + F.noms[0] + ',', ', "' + F.noms[0] + '",'), 'la note de  ' + F.noms[0] + '  est de  14 sur 20\n'],
+    [FICHE + '\n' + LIGNE.replace(', ' + F.noms[1] + ',', ', Note,'), 'ERREUR:'],
+    [FICHE + '\n' + LIGNE.replace(', ' + F.noms[1] + ',', ', moyenne,'), 'ERREUR:'],
+    [FICHE + '\n' + LIGNE.replace(', ' + F.noms[0] + ',', ', ,'), 'ERREUR:']
+  ];
+  const lirePage = progs => {
+    const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(progs) + '.map(function(p){ try{ return pyRun(p).out; }catch(e){ return "ERREUR:"+e.message; } }))');
+    return r.ok ? JSON.parse(r.valeur) : null;
+  };
+  const meme = (a, b) => (a === b) || (String(a).indexOf('ERREUR:') === 0 && String(b).indexOf('ERREUR:') === 0);
+  const mienBords = lirePage(BORDS.map(b => b[0])) || [];
+  const ecartsBords = [];
+  BORDS.forEach((b, i) => { if(!meme(mienBords[i], b[1])) ecartsBords.push(JSON.stringify(b[0].split('\n').pop()) + ' : page ' + JSON.stringify(mienBords[i]) + ' / CPython ' + JSON.stringify(b[1])); });
+  verifier('sur les programmes épinglés de la fiche — l\'interversion comprise —, la page répond comme CPython, sortie pour sortie et refus pour refus (' + BORDS.length + ')', ecartsBords.length === 0, ecartsBords.slice(0, 3).join(' | '));
+
+  const nomPy = 'les programmes de {python-placer-variables} — témoins et copies d\'élève — donnent la sortie d\'un vrai CPython';
+  const progs = evaluer(w, `(function(){ const o=[], G=String.fromCharCode(34);
+    for(let i=0;i<40;i++) pyvBuildQuestions().forEach(function(q){
+      const bons=pyvAns(q).map(function(x){ return x.variable; });
+      o.push(pyvProg(q,bons));
+      o.push(pyvProg(q,bons.slice(1).concat(bons.slice(0,1))));
+      o.push(pyvProg(q,bons.map(function(n,k){ return k===0?G+n+G:n; })));
+      o.push(pyvProg(q,bons.map(function(n,k){ return k===0?(n.charAt(0).toUpperCase()+n.slice(1)):n; })));
+      o.push(pyvProg(q,bons.map(function(n,k){ return k===0?"pasUneVariable":n; })));
+    });
+    return JSON.stringify(o); })()`);
+  const tires = progs.ok ? JSON.parse(progs.valeur) : [];
+  verifier('le tirage de {python-placer-variables} fournit des programmes à comparer', tires.length >= 500, tires.length + ' programme(s)');
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    const tous = tires.concat(BORDS.map(b => b[0]));
+    let ref = null; try{ ref = pythonExecuter(py, tous); }catch(e){ ref = null; }
+    if(!ref || ref.length !== tous.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); }
+    else {
+      const mien = lirePage(tous) || [];
+      const ecarts = [];
+      tous.forEach((p, i) => { if(!meme(mien[i], ref[i])) ecarts.push(JSON.stringify(p.split('\n').pop()) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
+      BORDS.forEach((b, i) => { if(!meme(ref[tires.length + i], b[1])) ecarts.push('la sortie épinglée de ' + JSON.stringify(b[0].split('\n').pop()) + ' n\'est pas celle de CPython : ' + JSON.stringify(ref[tires.length + i])); });
+      verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+  }
+}
+
 /* {python-changer-valeurs} (Seconde) : l'exercice 12 du carnet — un programme
    qui range deux CALCULS, qu'on exécute, puis dont on CHANGE les valeurs pour
    l'exécuter à nouveau. Le contrôle tient la fiche épinglée (si elle ne passe
@@ -19225,13 +19633,13 @@ function pythonChangerValeurs(w, P){
   })()`, v => v === '');
 
   /* ---- 8. la place au menu ---- */
-  verifierEval(w, 'il FERME le thème 5, numéroté 5.9 après {python-deux-lignes} — et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il FERME le thème 5, numéroté 5.10 après {python-placer-variables} — et rien d’autre ne bouge', `(function(){
     const th=THEMES[THEMES.length-1], vus=[];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("l’exercice ne ferme pas le thème : "+(th&&th.ids.join(",")));
-    if(!th||th.ids[th.ids.length-2]!=="python-deux-lignes") vus.push("il ne suit pas {python-deux-lignes} : "+(th&&th.ids.join(",")));
-    if(TEST_NUM["${ID}"]!=="5.9") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-deux-lignes"]!=="5.8"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!th||th.ids[th.ids.length-2]!=="python-placer-variables") vus.push("il ne suit pas {python-placer-variables} : "+(th&&th.ids.join(",")));
+    if(TEST_NUM["${ID}"]!=="5.10") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-deux-lignes"]!=="5.8"||TEST_NUM["python-placer-variables"]!=="5.9"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');

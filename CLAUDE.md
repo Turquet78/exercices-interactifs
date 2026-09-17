@@ -3187,6 +3187,70 @@ et s'arrête ; et le sabotage de la variable ne changeait que la PREMIÈRE ligne
 de l'exemple, si bien que le programme tombait en erreur et que le contrôle
 parlait d'autre chose. Rejoué sur un programme valide, il nomme la variable.
 
+**Puis l'ÉNONCÉ a suivi l'écran, et un coup de pouce est venu.** Demande de
+Turquet (septembre 2026) : « je veux que le 1er énoncé soit par exemple : lis
+le cours et exécute le programme pour comprendre ; et les énoncés suivants
+sont : complète le programme pour qu'il affiche "la note de simon est :" suivi
+du contenu de la variable note. Rajouter aussi un coup de pouce comme dans
+5.8. » L'écran portait UN énoncé écrit dans le HTML, le même sur les deux
+écrans : il annonçait la ligne à compléter devant un cours qu'on n'avait pas
+encore lu, et il redisait la demande sous une étiquette du programme qui la
+disait déjà.
+**L'ÉNONCÉ EST ÉCRIT PAR LE RENDU, ET PAR LUI SEUL** : le `<p class="mp-instr">`
+de l'écran est VIDE, `pyxRenderCours()` y pose la phrase du cours et
+`renderPYX()` celle de la question. Un texte laissé dans le HTML « au cas
+où » aurait été une SECONDE source — celle qui dérive sans que rien ne le
+dise : le sabotage « le rendu ne pose plus l'énoncé du cours » serait resté
+VERT, couvert par le texte statique, et c'est ce premier jet qui l'a montré.
+**L'ÉNONCÉ DE LA QUESTION NOMME LES NOMBRES DE SA QUESTION** — son texte et sa
+variable, lus dans `q` —, et **le bord qui compte est l'énoncé FIGÉ**, le plus
+sournois : « la note est : » écrit en dur nommerait un texte que la question
+ne porte pas, sans qu'aucune correction ne bronche — la leçon du numéro
+d'exercice de `show()`, transposée. Le contrôle rend donc DEUX questions
+ÉPINGLÉES (« la note de Simon est : » / note, puis « le prix est : » / total,
+la seconde ayant sa variable ABSENTE de son texte, sans quoi le texte seul
+satisferait les deux mesures) et relit les deux pastilles `<code>`.
+**ET LA DEMANDE N'EST DITE QU'UNE FOIS** : l'étiquette au-dessus du programme
+ne garde que ce qu'il doit afficher (« Ton programme doit afficher : … »), et
+le contrôle COMPTE les occurrences de « complèt » sur l'écran — exactement
+une. Deux phrases qui disent la même chose finissent par n'en dire plus
+qu'une à moitié.
+**UN SEUL COUP DE POUCE, et c'est un arbitrage nommé** : le 5.8 en a DEUX
+parce que son programme porte une ligne MODÈLE à imiter — le premier dit de la
+regarder ; le 5.7 n'en a pas, et un second coup de pouce n'aurait plus eu que
+la réponse à donner. Il dit la FORME (`print("texte", variable)`, les
+guillemets, la virgule, le nom sans guillemets) et jamais la ligne attendue :
+le contrôle exige que `pyxAns(q).ligne` ne s'y trouve pas.
+**LE CADRE DES COUPS DE POUCE EST PARTAGÉ, PAS RECOPIÉ** (`pyPoucesHTML`) :
+un seul endroit écrit le repli et ses classes, chaque exercice n'écrit que ses
+mots — deux fabriques auraient fini par diverger, et deux exercices voisins se
+seraient dessinés différemment sous les yeux de l'élève. Les classes gardent le
+préfixe `pyd-` de l'exercice où le cadre est né, comme le 5.8 garde les classes
+`pyx-` du programme : la convention de `pyx-prog`, prise dans l'autre sens.
+Douze sabotages au banc jsdom, chacun rougissant en nommant son défaut —
+l'énoncé du cours retiré, l'énoncé du cours qui parle déjà de compléter,
+l'énoncé de la question retiré, l'énoncé FIGÉ, la variable qui n'est plus
+nommée, l'étiquette qui redit la demande, l'écran qui ne montre plus la sortie
+attendue, le coup de pouce disparu, déplié d'emblée, muet sur la forme, qui
+écrit la ligne, et le 5.8 sorti de la fabrique partagée.
+**Et le banc NAVIGATEUR tient ce que jsdom ne voit pas** : l'énoncé rendu dans
+sa BOÎTE sous UNE seule étiquette « Énoncé » — le contrôle universel « 6 » ne
+visite pas cet exercice, et un énoncé vidé garderait son élément dans le DOM —,
+les deux écrans qui ne disent pas la même chose, et le coup de pouce qui
+S'OUVRE au clic : jsdom lit un attribut, pas un geste. Deux sabotages de plus,
+chacun rougissant en nommant son défaut et laissant jsdom VERT à bon droit —
+l'énoncé caché par une règle CSS (« boite: false », le texte toujours dans le
+DOM) et le clic du coup de pouce avalé par un `preventDefault`. Ce dernier
+rougit AUSSI chez {python-deux-lignes} : c'est la preuve que le cadre est
+partagé et non recopié.
+**ET LE BANC S'EST PRIS EN DÉFAUT AVANT LA PAGE** : son clic FORCÉ sur
+« J'ai compris » fermé tombait sur les commandes du bas, en position FIXE —
+il ouvrait la modale de signalement, qui interceptait ensuite tout, et le banc
+accusait la page. L'élève, lui, fait défiler : la réserve du bas (84 px) lui
+rend le bouton, mesuré. Le banc CENTRE donc le bouton avant de cliquer — le
+piège déjà payé sur la grille de {construire-fonction}, et la règle « une
+mesure qui accuse la page se mesure elle-même d'abord ».
+
 **Un texte presque bon est un texte bon.** Décision de Turquet (septembre
 2026) : « en seconde pour les algorithmes qui affichent un texte, accepter les
 textes qui sont presque bons. Dans le texte des espaces en trop ou en moins ne
@@ -3354,8 +3418,141 @@ sur un bouton disparu (« Cannot read properties of null ») au lieu de nommer
 quoi que ce soit — un contrôle qui plante ne dit rien du défaut visé, et il
 garde son bouton désormais.
 
+**Le print est écrit en entier, et seuls les NOMS des variables manquent.**
+{python-placer-variables} (Seconde, 5.9, demande de Turquet, septembre 2026 :
+« créer un exercice comme le pdf ») est l'exercice 10 du carnet, et il FERME
+le thème 5 — ajouté en dernier, il ne renumérote rien. « On considère la
+variable prenom="Mathéo" et la variable note=14. Compléter LOGIQUEMENT avec
+les noms des variables note et prenom le programme ci-dessous et l'exécuter. »
+Le programme est donné entier, print compris ; l'élève ne tape que les noms,
+dans les trous de `print("la note de ", …, " est de ", …, "sur 20")`.
+**CE QU'IL AJOUTE AUX AUTRES EST LA LECTURE** : le 5.1 fait PRÉDIRE ce qu'un
+print affiche, le 5.7 et le 5.8 font ÉCRIRE la ligne entière ; ici la ligne est
+écrite, et ce qui se travaille n'est plus la forme de print — les guillemets,
+la virgule, les parenthèses — mais le TEXTE juste avant une case, qui dit
+laquelle des variables on attend là.
+**LE RISQUE PROPRE EST L'INTERVERSION, ET ELLE EST SILENCIEUSE** : deux
+variables échangées donnent un programme qui s'exécute SANS la moindre erreur
+et qui affiche « la note de  14  est de  Mathéo sur 20 ». Rien ne rougit côté
+Python — c'est la PHRASE qui n'a plus de sens, et c'est exactement pourquoi la
+fiche demande de l'exécuter. La chaîne des portes est donc celle de la fiche
+(compléter, EXÉCUTER, puis vérifier — le motif du 5.7), et exécuter ne révèle
+rien que l'élève n'ait posé : il LIT la phrase que ses variables produisent.
+**LE DIAGNOSTIC NE DONNE JAMAIS LA RÉPONSE, et c'est ce qui le sépare de celui
+du 5.8** : là-bas la consigne nomme déjà la variable de chaque ligne, ici elle
+EST la réponse. L'interversion se nomme donc par son fait prouvable — « à cet
+endroit il affiche « 14 », juste après « la note de » » — et jamais par la
+variable attendue ; les autres refus, qui portent sur l'ÉCRITURE et non sur le
+choix, disent tout : la valeur recopiée à la main, le nom entre guillemets, la
+majuscule, la variable inconnue, le calcul, la virgule dans la case. Le contrôle
+exige ce bord sur chaque tirage, SAUF là où le texte de l'énoncé nomme
+lui-même la variable (« ans, taille : » annonce taille) — c'est l'énoncé qui le
+veut, et le taire aurait fait rougir une page juste.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ** : les variables et leurs valeurs
+viennent de PY_JEUX — le jeu partagé avec le 5.1, le 5.7 et le 5.8 —,
+l'interpréteur est pyRun, la coloration pyColorie, l'écriture des valeurs
+pyRep, le cadre et les numéros du programme ceux du 5.7 (pyx-prog, pyx-ligne,
+pyx-num). Les PHRASES, elles, sont propres à l'exercice : les libellés de
+PY_JEUX nomment une variable isolée, quand il faut ici une phrase dont chaque
+morceau annonce le trou qui le suit. Deux par jeu au moins, et elles ne
+commencent pas par la même variable — sans quoi l'élève apprendrait le rang au
+lieu de lire (sonde sur 1800 questions tirées : un texte en premier 53 fois sur
+100, un nombre 47).
+**LES TEXTES DE LA FICHE SONT REPRIS AU CARACTÈRE PRÈS, espaces comprises** :
+« la note de » et « est de » y portent leurs espaces de frappe, si bien que
+Python affiche DEUX espaces là où le carnet en a écrit une de trop. C'est ce
+que le carnet donne, c'est ce que l'élève tape chez lui, et la page doit montrer
+ce que Python fait vraiment ; les phrases du tirage, elles, sont écrites
+proprement — l'espace que print met entre deux arguments suffit. Un arbitrage
+nommé, pas un oubli.
+**LE JUGE COMPARE LA VALEUR AFFICHÉE, ET EXIGE UNE VARIABLE** : chaque case est
+exécutée SEULE — les affectations, puis print(ce que la case porte) — et sa
+valeur doit être celle qu'on attend à cet endroit ; le jeton doit être un NOM
+nu, sans quoi « 14 » recopié à la main afficherait la bonne chose sans rien
+apprendre (la leçon du 5.7). Juger sur la VALEUR et non sur le nom est ce qui
+rend le verdict honnête : deux variables de même valeur seraient toutes deux
+défendables, et la page les accepterait toutes deux.
+**ET C'EST LE CONTRÔLE QUI EXIGE QUE LE TIRAGE LES GARDE DISTINCTES** : un garde
+n'y écarterait JAMAIS rien — un entier, un décimal à décimale non nulle et un
+texte ne s'écrivent jamais pareil (0 sur 2400 questions mesurées) — et un
+garde-fou qui n'écarte rien fait croire qu'on vérifie quelque chose. Le banc
+exige de même, tirage après tirage, qu'un texte précède chaque trou et que
+chaque variable du programme paraisse exactement une fois dans la phrase : sans
+le premier, rien ne dirait quelle variable on attend ; sans le second, l'énoncé
+parlerait d'une variable qu'il n'a pas.
+Une case VIDE n'est jamais peinte : la vérification la redemande, sans rien
+colorer ni verrouiller (la règle de {placer-image}) — et le programme incomplet,
+lui, ne s'exécute pas : la console montre l'erreur de Python et l'indication dit
+combien de cases manquent. Aucune correction au fil de la frappe
+(`soutienEnDirect.sans`) : un nom se juge écrit, pas lettre par lettre — « not »
+serait déclaré faux le temps de taper « note ».
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée — si elle
+ne passe pas au juge, c'est le juge qui a tort —, le tirage (400 séances), le
+juge et son diagnostic cas par cas, les portes, la case vide, le soutien, les
+branchements, et compare l'interpréteur à un vrai python3 sur 807 programmes,
+l'INTERVERSION comprise : un programme que CPython accepte doit être accepté par
+la page, et c'est là tout le piège. Le NAVIGATEUR (« 6 tricies octies », déclaré
+par `pythonPlacerVariables` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — la ligne de print RENDUE d'un seul tenant, ses cases à la chasse et à la
+taille du code qui les entoure, un VRAI clic sur « Vérifier » fermé qui ne juge
+rien, les noms TAPÉS au clavier (Entrée exécute), la console qui montre la phrase
+intervertie sans la moindre erreur, l'encre RENDUE des deux verdicts sur la même
+question (l'une bleue, l'autre rouge : c'est la règle « chaque case se juge
+seule », et seule une couleur rendue la montre), la bonne variable en VERT à côté
+de la case fausse, et le téléphone, où la ligne DÉFILE au lieu d'être coupée. Les
+contrôles universels des deux bancs ont couvert l'exercice au premier passage
+sans rien déclarer.
+
+**ET LA CASE A LA PLACE DU NOM LE PLUS LONG — la leçon du 5.5, reprise avant
+qu'elle ne coûte quoi que ce soit** : sa largeur se pose en « ch », et la page
+étant en `box-sizing:border-box` ces ch comprendraient le rembourrage et la
+bordure. Mesuré dans un vrai Chromium : 81 px de place pour un nom de 60,4 px
+en `content-box` (20,6 px de marge), 65 px en border-box (4,6 px). La page ne
+coupait donc RIEN — le sabotage du box-sizing reste vert et dit vrai —, mais
+elle ne tenait que par ces 4,6 px : en content-box, les ch redeviennent la
+place du TEXTE. Le banc navigateur mesure le nom au CANEVAS, dans la police
+EFFECTIVE de la case (la mesure du 6.3), et AFFICHE la marge la plus serrée à
+chaque exécution : une police ou un nom plus long la verront fondre avant de
+la faire rougir.
+
+**Vingt-cinq sabotages, vingt-trois rougissant en nommant leur défaut** —
+dix-neuf au banc jsdom (le juge qui n'exige plus la bonne valeur, celui qui n'exige plus
+une VARIABLE, le diagnostic qui donne la réponse, un texte de la fiche changé,
+la case vide peinte, la bonne variable qui fuit en soutien, « Vérifier »
+cliquable d'emblée, les trois jeux tirés avec remise, la fiche qui n'ouvre plus
+la séance, deux variables de même valeur, un trou sans texte devant lui, une
+phrase qui perd une variable, le contexte sans clause de secret, l'exercice
+sorti du thème, le bouton des tables revenu, le soutien qui juge à la frappe, le
+rappel qui n'enseigne plus l'interversion, une case qui cesse d'être comptée,
+les cases jugées ENSEMBLE) et quatre que seul le NAVIGATEUR voit — la chasse
+fixe retirée des cases, la ligne de print qui se REPLIE au lieu de défiler, la
+bonne variable posée SOUS la case au lieu d'à côté, et la cellule rétrécie, où
+la ligne ne tient plus à 1400 px —, jsdom restant vert à bon droit sur ces
+quatre-là.
+**LES DEUX VERTS DISENT VRAI, et chacun apprend quelque chose.** Le box-sizing
+de la case, ci-dessus : la page ne coupait rien, elle ne tenait qu'à 4,6 px près.
+Et le profil qui cesse de déclarer l'exercice ne fait pas rougir le banc jsdom,
+il le fait s'afficher « non applicable » — c'est la convention du projet (« un
+contrôle qui ne s'applique pas se déclare, il ne se retire pas »), la ligne est
+IMPRIMÉE à chaque exécution, et les contrôles universels couvrent l'exercice
+quoi qu'il arrive.
+**Quatre leçons de campagne, toutes déjà écrites ailleurs et toutes repayées
+ici.** Quatre sabotages se sont posés sur des lignes que le 5.8 porte AU
+CARACTÈRE PRÈS — la garde des cases vides, la branche du soutien, la ligne de
+`pyvMaj`, la peinture des verdicts : un sabotage se pose sur une ancre PROPRE à
+sa cible, et le mot « case » (le 5.8 dit « ligne ») suffit à la rendre unique.
+Un cinquième était écrit avec des apostrophes TYPOGRAPHIQUES : il posait un
+texte littéral au lieu d'interpoler la variable, et ne mesurait rien. Un sixième
+était IMPOSSIBLE — il retirait de `checkPYV` un garde que rien n'atteint, quand
+le contrôle mesure le BRANCHEMENT dans `liveCheckCurrent` ; rejoué là, il
+rougit.
+**Et le dernier a frappé le VOISIN, exactement comme le 5.6 en son temps** :
+`checkPYV` contient `checkPY`, et le contrôle du 5.1 — dont l'ancre était le
+nom NU — rougissait sous SON nom pour un défaut du 5.9. Son ancre vise
+désormais l'APPEL, parenthèse comprise. Un contrôle qui s'affiche sous le nom
+d'un autre est pire qu'un contrôle sans nom.
 **Changer les valeurs, et tout ce qui se calcule SUIT.** {python-changer-valeurs}
-(Seconde, 5.9, demande de Turquet, septembre 2026 — « en seconde faire un
+(Seconde, 5.10, demande de Turquet, septembre 2026 — « en seconde faire un
 exercice comme le pdf ») est l'exercice 12 du carnet : `a = 6`, `b = 5`,
 `somme = a + b`, `produit = a * b`, deux `print`, et ses deux consignes —
 « a) Exécuter le programme ci-dessous. b) Changer les valeurs des variables
@@ -3421,7 +3618,7 @@ Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée (si ell
 ne passe pas au juge, c'est le juge qui a tort), la lecture d'une valeur, le
 tirage et ses deux visages, les trois portes, la phrase qui suit, la case vide
 jamais peinte, le soutien, les branchements, et compare l'interpréteur à un
-vrai CPython ; le NAVIGATEUR (« 6 tricies octies », déclaré par
+vrai CPython ; le NAVIGATEUR (« 6 tricies nonies », déclaré par
 `pythonChangerValeurs` dans `tests/profils.js`) mesure ce que jsdom ne voit
 pas — les six lignes du programme RENDUES à chasse fixe avec les cases de
 valeur à la MÊME taille que le code, la case de prédiction à la taille des
@@ -3430,6 +3627,42 @@ celles-ci sont des `input`), un VRAI clic sur « Exécuter » verrouillé qui ne
 fait rien, les valeurs TAPÉES au clavier et la phrase qui les suit sous les
 doigts, l'encre RENDUE des verdicts, la console, et la page qui ne déborde pas
 sur un téléphone.
+**Vingt-trois sabotages au banc jsdom et trois au navigateur**, vingt-cinq
+rougissant en nommant leur défaut. **Deux sont d'abord restés VERTS, et aucun
+des deux n'était un contrôle mort** : « la correction au fil de la frappe »
+posait sa copie avec une case VIDE, or une case vide arrête la vérification
+avant toute peinture — le sabotage ne pouvait pas atteindre ce qu'il visait,
+et la copie du contrôle est ENTIÈRE depuis ; et « la phrase ne se replie plus
+sur un téléphone » disait vrai — à 390 px la phrase la plus longue tient sans
+repli, le `flex-wrap` est une ceinture et non un garde-fou éprouvé. Le dire
+vaut mieux que de le taire.
+**DEUX DÉFAUTS ONT ÉTÉ TROUVÉS EN RELECTURE, qu'aucun banc n'aurait
+nommés** : la description de la carte passe par `esc(numeros(desc))`, donc les
+balises `<code>` que j'y avais écrites se seraient affichées EN TOUTES LETTRES
+à l'élève — le contrôle universel des gabarits ne vise que `${…}` et les
+`{identifiant}` connus ; et le signe moins TYPOGRAPHIQUE, celui qu'affiche le
+pavé des tablettes, était refusé par le juge, ce qui aurait compté fausse une
+réponse juste.
+**ET LA FUSION DE `main` A RENUMÉROTÉ L'EXERCICE, avec les trois collisions
+que le projet connaît.** {python-placer-variables} est arrivé sur `main`
+pendant la préparation de la branche et a pris le 5.9 : celui-ci ferme le
+thème en 5.10, `APP_VERSION` passe à 179 (les deux côtés avaient écrit 178 —
+deux écritures du MÊME nombre ne font aucun conflit textuel, et rien ne le
+dit), et la section du banc navigateur passe à « 6 tricies nonies », le numéro
+revenant au premier arrivé. **Et les deux pièges de la fusion « les deux côtés
+ont ajouté » sont retombés tels quels** : la ligne `RAPPELS` s'est retrouvée
+DÉCLARÉE DEUX FOIS et l'écran de {python-placer-variables} n'était plus
+REFERMÉ — ses trois lignes de fermeture étaient communes aux deux blocs, et
+« garder les deux » ne les a gardées qu'une fois. Aucun marqueur de conflit ne
+le disait ; c'est `npm test` qui a nommé les deux. **Un troisième s'y est
+ajouté, et c'est le piège d'ETQ_W** : `RAP_PCV` s'est retrouvé APRÈS le
+`RAPPELS` qui le lit — une constante ne se hisse pas, et la page entière
+mourait au chargement. **Et mon propre remplacement a frappé le VOISIN** : le
+libellé « il FERME le thème 5 » est le même, au caractère près, dans le
+contrôle de {python-placer-variables} — un remplacement se pose sur une ancre
+PROPRE à sa cible, la leçon d'{antecedents-droite}, retombée dans un fichier
+de banc. Le bord du 5.9 a été RETOURNÉ, pas retiré : il ne ferme plus le
+thème, il vit entre {python-deux-lignes} et {python-changer-valeurs}.
 
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
