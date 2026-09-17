@@ -18480,7 +18480,65 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 6. la copie juste TAPÉE et les portes ---- */
+  /* ---- 6. l'ÉNONCÉ suit l'écran ET sa question, et le coup de pouce ----
+     Demande de Turquet (septembre 2026) : le premier énoncé dit de lire le
+     cours et d'exécuter le programme, les suivants disent de compléter le
+     programme en nommant le texte et la variable — et un coup de pouce arrive,
+     comme au 5.8.
+     Le bord qui compte est l'énoncé FIGÉ : un texte ou une variable écrits en
+     dur nommeraient ceux d'une AUTRE question sans qu'aucune correction ne
+     bronche, donc le contrôle rend DEUX questions épinglées et lit les deux
+     puces de code de l'énoncé — la première est le texte, la seconde la
+     variable, et la seconde question a une variable que son texte ne contient
+     pas, sans quoi le texte seul satisferait les deux. Les deux autres bords :
+     la demande n'est dite qu'UNE fois sur l'écran (l'étiquette du programme la
+     répétait, ce qui faisait deux énoncés), et le coup de pouce donne la FORME
+     sans jamais donner la ligne attendue. */
+  verifierEval(w, 'l\u2019\u00e9nonc\u00e9 dit « lis le cours » \u00e0 l\u2019ouverture puis « compl\u00e8te le programme » en nommant le TEXTE et la VARIABLE de SA question, la demande n\u2019est dite qu\u2019une fois, et le coup de pouce donne la forme sans donner la ligne', `(function(){
+    const vus=[], NL=String.fromCharCode(10);
+    const sansAcc=function(t){ return t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); };
+    const enonce=function(){ const e=document.querySelector('#scr-pyx .mp-instr'); return e?e.textContent.trim():''; };
+    const puces=function(){ return Array.prototype.map.call(document.querySelectorAll('#scr-pyx .mp-instr code'), function(c){ return c.textContent; }); };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='${ID}';
+    startPYX();
+    const ec=enonce(), sc=sansAcc(ec);
+    if(!ec) vus.push('l\u2019\u00e9cran du cours n\u2019a pas d\u2019\u00e9nonc\u00e9');
+    if(sc.indexOf('cours')<0) vus.push('l\u2019\u00e9nonc\u00e9 du cours ne dit pas de lire le cours : '+ec);
+    if(sc.indexOf('execut')<0) vus.push('l\u2019\u00e9nonc\u00e9 du cours ne dit pas d\u2019ex\u00e9cuter le programme : '+ec);
+    if(sc.indexOf('complet')>=0) vus.push('l\u2019\u00e9nonc\u00e9 du cours parle d\u00e9j\u00e0 de compl\u00e9ter le programme : '+ec);
+    pyxExempleExecuter(); pyxCompris();
+    /* la seconde paire porte une variable que son texte ne contient PAS */
+    [['la note de Simon est :','note','12'],['le prix est :','total','7']].forEach(function(P){
+      test.questions[test.idx]={nom:P[1], lit:P[2], texte:P[0], vis:'int'};
+      renderPYX();
+      const e=enonce(), se=sansAcc(e), c=puces();
+      if(se.indexOf('complet')<0) vus.push('l\u2019\u00e9nonc\u00e9 de la question ne dit pas de compl\u00e9ter le programme : '+e);
+      if(c[0]!==P[0]) vus.push('l\u2019\u00e9nonc\u00e9 ne nomme pas le texte de SA question (« '+P[0]+' ») : '+JSON.stringify(c));
+      if(c[1]!==P[1]) vus.push('l\u2019\u00e9nonc\u00e9 ne nomme pas la variable de SA question (« '+P[1]+' ») : '+JSON.stringify(c));
+      const carte=document.querySelector('#scr-pyx .card').textContent;
+      const n=sansAcc(carte).split('complet').length-1;
+      if(n!==1) vus.push('la demande est dite '+n+' fois sur l\u2019\u00e9cran au lieu d\u2019une');
+      const att=pyxAns(test.questions[test.idx]);
+      if(carte.indexOf(att.sortie.trim())<0) vus.push('l\u2019\u00e9cran ne montre plus ce que le programme doit afficher : '+att.sortie.trim());
+      const po=document.querySelectorAll('#pyxHost .pyd-pouce');
+      if(po.length!==1){ vus.push(po.length+' coup(s) de pouce sur l\u2019\u00e9cran au lieu d\u2019un'); return; }
+      if(po[0].tagName!=='DETAILS') vus.push('le coup de pouce n\u2019est pas un bloc repliable : '+po[0].tagName);
+      if(po[0].open) vus.push('le coup de pouce est d\u00e9pli\u00e9 d\u2019embl\u00e9e');
+      const tp=po[0].textContent;
+      ['print("texte", variable)','guillemets','virgule'].forEach(function(m){
+        if(tp.indexOf(m)<0) vus.push('le coup de pouce ne dit pas la forme (« '+m+' ») : '+tp.slice(0,90));
+      });
+      if(tp.indexOf(att.ligne)>=0) vus.push('le coup de pouce écrit la ligne attendue : '+att.ligne);
+    });
+    /* une seule fabrique écrit le cadre replié, pour les deux exercices */
+    if(typeof pyPoucesHTML!=='function') vus.push('pyPoucesHTML : la fabrique partagée du cadre n\u2019existe pas');
+    else [['pyxPoucesHTML',pyxPoucesHTML],['pydPoucesHTML',pydPoucesHTML]].forEach(function(F){
+      if(String(F[1]).indexOf('pyPoucesHTML')<0) vus.push(F[0]+' ne passe plus par la fabrique partagée : deux cadres à tenir');
+    });
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '');
+
+  /* ---- 7. la copie juste TAPÉE et les portes ---- */
   verifierEval(w, '« Vérifier » est fermé tant que la ligne n’est pas exécutée, s’ouvre après, se referme sur une ligne modifiée, et la copie juste vérifiée vaut 1, verrouille et propose « Question suivante »', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPYX(); pyxExempleExecuter(); pyxCompris();
@@ -18519,7 +18577,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 7. la copie fausse, en entraînement ---- */
+  /* ---- 8. la copie fausse, en entraînement ---- */
   verifierEval(w, 'la copie fausse (entraînement) : la case rougit, le diagnostic nomme l’erreur, la ligne juste s’écrit en vert sous la case, la note vaut 0 et la question est verrouillée — et « Vérifier » exécute lui-même une ligne qui ne l’a pas été', `(function(){
     currentMode="train"; startPYX(); pyxExempleExecuter(); pyxCompris();
     const vus=[], q=test.questions[0], a=pyxAns(q), inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
@@ -18539,7 +18597,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 8. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
+  /* ---- 9. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
   verifierEval(w, 'en soutien : la ligne fausse rougit sans badge, le message dit « Où est l’erreur ? » et la nomme, rien n’est verrouillé, Revérifier est proposé ; modifier la ligne retire le rouge et referme le bouton ; la ligne vide n’est pas peinte ; la correction exécutée puis revérifiée vaut 1', `(function(){
     currentMode="soutien"; startPYX(); pyxExempleExecuter(); pyxCompris();
     const vus=[], q=test.questions[0], inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
@@ -18571,7 +18629,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 9. les branchements ---- */
+  /* ---- 10. les branchements ---- */
   verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX et avec la virgule et les guillemets, les questions à l’IA, le contexte porte la ligne 1, ce que l’élève a écrit, le diagnostic, et déclare la réponse secrète, aucune correction au fil de la frappe', `(function(){
     const vus=[];
     if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
@@ -18591,7 +18649,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 10. la seconde méthode : CPython, sur ce que l'exercice ferait tourner ----
+  /* ---- 11. la seconde méthode : CPython, sur ce que l'exercice ferait tourner ----
      Les sorties des lignes de la fiche sont ÉPINGLÉES avec celles de
      CPython 3.11 : elles tiennent même sans python sur la machine. Une
      ligne que CPython refuse doit être refusée par la page aussi. */

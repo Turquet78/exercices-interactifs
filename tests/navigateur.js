@@ -7503,7 +7503,10 @@ async function parcours(page, N){
        Le banc jsdom tient le juge (les lignes justes et fausses, chacune
        avec son diagnostic), les portes et le soutien. Ce qu'il ne voit pas :
        le COURS qui ouvre la séance rendu au rectangle, son exemple à chasse
-       fixe, un VRAI clic sur « J'ai compris » fermé qui ne franchit rien, la
+       fixe, un VRAI clic sur « J'ai compris » fermé qui ne franchit rien,
+       l'ÉNONCÉ rendu dans sa boîte sous UNE seule étiquette « Énoncé » — et
+       qui ne dit pas la même chose sur les deux écrans —, le coup de pouce
+       qui s'OUVRE au clic (jsdom lit un attribut, pas un geste), la
        ligne 1 et la case de la ligne 2 à
        chasse fixe et à la MÊME taille (une case plus petite que le code
        qu'elle prolonge se lirait comme une note), la case qui ne s'étire pas
@@ -7546,6 +7549,31 @@ async function parcours(page, N){
         && cours.lignes.length === 2 && /^annee = /.test(cours.lignes[0]) && /print\(/.test(cours.lignes[1])
         && /mono|menlo|consolas|courier/i.test(cours.police) && cours.exVisible && cours.runOk
         && cours.porteFermee && cours.console === '' && !cours.question && !cours.page, JSON.stringify(cours));
+      /* L'ÉNONCÉ SUIT L'ÉCRAN (demande de Turquet, septembre 2026), et
+         jsdom ne voit ni sa BOÎTE ni son ÉTIQUETTE : un énoncé vidé de son
+         texte garderait son élément dans le DOM, et le contrôle universel
+         « 6 » ne visite pas cet exercice. On mesure donc le rectangle rendu
+         et l'étiquette « Énoncé » réellement dessinée, sur les DEUX écrans —
+         plus le fait que les deux ne disent pas la même chose. */
+      const enonce = () => s.page.evaluate(() => {
+        const el = document.getElementById('pyxInstr'), r = el ? el.getBoundingClientRect() : null;
+        const et = [...document.querySelectorAll('.screen.on *')]
+          .filter(x => (getComputedStyle(x, '::before').content || '').indexOf('\u00c9nonc\u00e9') >= 0).length;
+        return { texte: el ? el.textContent.trim() : '', boite: !!r && r.width > 200 && r.height > 12, etiquettes: et };
+      });
+      const enonCours = await enonce();
+      verifier('l\'\u00e9nonc\u00e9 du cours est RENDU dans sa bo\u00eete, sous une seule \u00e9tiquette \u00ab \u00c9nonc\u00e9 \u00bb, et dit de lire le cours et d\'ex\u00e9cuter le programme',
+        enonCours.boite && enonCours.etiquettes === 1 && /cours/i.test(enonCours.texte)
+        && /ex[\u00e9e]cut/i.test(enonCours.texte) && !/compl[\u00e8e]t/i.test(enonCours.texte), JSON.stringify(enonCours));
+      /* ON CENTRE LE BOUTON AVANT DE CLIQUER : les commandes du bas
+         (« Signaler », « Abandonner », « Pause ») sont en position FIXE, et un
+         clic posé sur les coordonnées d'un bouton qui passe dessous atteint la
+         barre — ici il ouvrait la modale de signalement, qui interceptait
+         ensuite tout ce qui suivait, et le banc accusait la page. L'élève, lui,
+         fait défiler : la réserve du bas (84 px) lui rend le bouton. C'est le
+         piège déjà payé sur la grille de {construire-fonction}. */
+      const centrer = () => s.page.evaluate(() => { const b = document.getElementById('pyxCompris'); if(b) b.scrollIntoView({ block: 'center' }); });
+      await centrer(); await s.page.waitForTimeout(150);
       await s.page.click('#pyxCompris', { force: true }).catch(() => {});
       await s.page.waitForTimeout(200);
       verifier('un clic sur « J\'ai compris » fermé ne montre pas la question',
@@ -7558,6 +7586,7 @@ async function parcours(page, N){
         porteOuverte: !document.getElementById('pyxCompris').disabled }));
       verifier('l\'exemple exécuté affiche « ' + P.pythonCompleter.exemple + ' » à chasse fixe, et ouvre « J\'ai compris »',
         exemple.console === P.pythonCompleter.exemple && /mono|menlo|consolas|courier/i.test(exemple.police) && exemple.porteOuverte, JSON.stringify(exemple));
+      await centrer(); await s.page.waitForTimeout(150);
       await s.page.click('#pyxCompris');
       await s.page.waitForTimeout(400);
       const avant = await s.page.evaluate(() => {
@@ -7578,6 +7607,25 @@ async function parcours(page, N){
         avant.policeIn + ' — ' + avant.pxL1 + 'px / ' + avant.pxIn + 'px');
       verifier('la case tient dans l\'écran, « Exécuter » est ouvert, « Vérifier » est fermé, et la page ne déborde pas à 1400 px',
         avant.inVisible && avant.runOk && avant.valFerme && avant.consoleVisible && !avant.page, JSON.stringify(avant));
+      const enonQ = await enonce();
+      const cible = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { texte: q.texte, nom: q.nom, ligne: pyxAns(q).ligne }; });
+      verifier('l\'\u00e9nonc\u00e9 de la question est RENDU dans sa bo\u00eete, sous une seule \u00e9tiquette, dit de compl\u00e9ter, nomme le TEXTE et la VARIABLE de SA question, et ne redit pas le cours',
+        enonQ.boite && enonQ.etiquettes === 1 && /compl[\u00e8e]t/i.test(enonQ.texte)
+        && enonQ.texte.indexOf(cible.texte) >= 0 && enonQ.texte.indexOf(cible.nom) >= 0
+        && enonQ.texte !== enonCours.texte, JSON.stringify(enonQ) + ' / attendu ' + JSON.stringify(cible));
+      /* LE COUP DE POUCE S'OUVRE AU CLIC (demande de Turquet, septembre
+         2026) — un « details » dont la page aurait cach\u00e9 le r\u00e9sum\u00e9 serait un
+         bouton mort, et jsdom ne le dirait pas : il lit un attribut, pas un
+         geste. Et il dit la FORME sans jamais \u00e9crire la ligne attendue. */
+      await s.page.click('#pyxHost .pyd-pouce summary');
+      await s.page.waitForTimeout(200);
+      const pouce = await s.page.evaluate(() => {
+        const l = [...document.querySelectorAll('#pyxHost .pyd-pouce')], p = l[0], t = p && p.querySelector('p');
+        return { combien: l.length, ouvert: !!p && p.open, texte: t ? t.textContent : '', haut: t ? t.getBoundingClientRect().height : 0 };
+      });
+      verifier('un seul coup de pouce, repli\u00e9, qui s\'ouvre au clic et dit la FORME \u2014 les guillemets, la virgule \u2014 sans \u00e9crire la ligne attendue',
+        pouce.combien === 1 && pouce.ouvert && pouce.haut > 10 && /guillemets/.test(pouce.texte)
+        && /virgule/.test(pouce.texte) && pouce.texte.indexOf(cible.ligne) < 0, JSON.stringify(pouce));
       /* un VRAI clic sur « Vérifier » fermé ne fait rien */
       await s.page.click('#pyxValidate', { force: true }).catch(() => {});
       await s.page.waitForTimeout(200);
@@ -7647,6 +7695,7 @@ async function parcours(page, N){
       await s.page.waitForTimeout(900);
       await s.page.click('#pyxExRun');
       await s.page.waitForTimeout(250);
+      await centrer(); await s.page.waitForTimeout(150);
       await s.page.click('#pyxCompris');
       await s.page.waitForTimeout(400);
       await s.page.click('#pyx-in');
