@@ -3739,6 +3739,50 @@ de banc. Le bord du 5.9 a été RETOURNÉ, pas retiré : il ne ferme plus le
 thème, il vit après {python-deux-lignes} — et celui du 5.10 l'a été à son tour
 à la fusion suivante.
 
+**Un libellé qui promet un CALCUL ment sur la variable qu'il annonce.**
+Signalé par Turquet (septembre 2026) sur le 5.9 : « je ne comprends pas
+pourquoi il y a "sa moyenne" dans la phrase ». Le jeu des notes écrivait
+« la 1ère note de Maëlys est 16 et sa moyenne est 18.4 sur 20 » — or `note2`
+est la 2ème note, et 18,4 n'est la moyenne de rien : la page affirmait une
+fausseté arithmétique dans un cours de mathématiques.
+**LA SONDE A MESURÉ AVANT TOUT CORRECTIF, ET ELLE A ÉLARGI LE SIGNALEMENT** :
+le mensonge vivait dans QUATRE exercices, par le même libellé de `PY_JEUX` —
+400 questions sur 400 au 5.9 (ses DEUX phrases du jeu des notes), 92 sur 400
+séances au 5.1 (« la moyenne est : 16.8 » sous un « note1 = 13 » affiché deux
+lignes plus haut), 64 au 5.7 et 134 au 5.8. Un défaut vu dans un coin se
+corrige PARTOUT.
+**AU 5.9 IL EST PIRE QU'AILLEURS, et c'est ce que le signalement dit** : le
+texte devant la case EST la question — « et sa moyenne est » réclame une
+grandeur qu'AUCUNE variable ne porte, et l'élève qui raisonne juste ne peut pas
+répondre. Les deux phrases du jeu disent maintenant « et sa 2ème note est » et
+« 1ère note : … 2ème note : », et le libellé partagé « la deuxième note est : ».
+**LES NOMS NE BOUGENT PAS, et c'est un arbitrage nommé** : renommer `note2` en
+`moyenne` aurait rendu la phrase vraie et DÉTRUIT le piège du 5.8, dont tout le
+sujet est de transposer une ligne modèle entre trois variables qui SE
+RESSEMBLENT (note1, note2, prenom). On corrige les LIBELLÉS, jamais les
+variables — les notes déjà obtenues ne bougent pas non plus, elles portent
+l'identifiant.
+**DEUX BORDS AU CONTRÔLE, ET N'EN TENIR QU'UN NE TIENT RIEN** : aucun libellé
+des quatre exercices ne nomme une grandeur CALCULÉE (moyenne, somme, total,
+produit, différence, écart) ; et aucun programme tiré ne porte d'opérateur —
+c'est ce second bord qui DONNE SA RAISON au premier et l'empêche d'être une
+liste noire : ces programmes affectent puis affichent, donc toute valeur montrée
+est une valeur DONNÉE, jamais dérivée d'une autre. Le jour où un tirage
+calculerait vraiment, il rougirait, et la règle serait à revoir plutôt qu'à
+contourner. Le contrôle COMPTE ce qu'il relit — 44 libellés, 600 programmes —
+et le DIT s'il n'a rien à mesurer : une collecte devenue muette le rendrait vert
+sur un mensonge.
+**Aucun contrôle du NAVIGATEUR, et le dire vaut mieux que de le taire** : un
+libellé est une chaîne, et la phrase se lit dans le DOM — jsdom la voit, un vrai
+Chromium n'en dirait pas plus. Six sabotages, chacun rougissant en nommant son
+défaut : le libellé de `PY_JEUX` remis (« PY_JEUX[0] note2 promet un calcul que
+le programme ne fait pas »), chacune des DEUX phrases du 5.9 remise (il nomme
+`PYV_PHRASES[0][0]` puis `[0][1]` — n'en tenir qu'une ne tiendrait rien), un
+programme qui calcule (le bord opposé, qui nomme l'opérateur ET le programme),
+et les deux gardes « le contrôle ne mesure rien » — la collecte des phrases
+débranchée (23 libellés au lieu de 44) et une source de programmes débranchée
+(480 au lieu de 600).
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
