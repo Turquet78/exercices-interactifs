@@ -6091,6 +6091,55 @@ elle part avec la page. **Un seul endroit la décrit** (`LANGUE_SIMPLE`), partag
 par les deux aides et par le bouton du rappel : deux descriptions auraient fini
 par diverger, et l'une des aides aurait reparlé comme avant sans qu'on le voie.
 
+**Un indice posé NU dans un conteneur flex remonte sur la ligne de sa lettre.**
+Signalé par Turquet (septembre 2026) sur le 6.13, capture à l'appui : « les
+indices n sont mal placés très souvent ». L'écran montrait « U n », « 5 − U n »,
+« U n+1 ». Un `<sub>` ou un `<sup>` enfant DIRECT d'un conteneur flex en devient
+un ITEM, et la spécification y IGNORE `vertical-align` : l'indice se pose sur la
+ligne de la lettre, et le `gap` du conteneur l'en écarte par-dessus le marché.
+« Uₙ » se lit alors « U n » — et « eˣ » se lit « e x », c'est-à-dire une
+multiplication : ce n'est plus une laideur, c'est une autre opération.
+**LA MESURE A ÉTÉ FAITE AVANT DE TOUCHER À QUOI QUE CE SOIT, et elle a ÉLARGI le
+signalement** : 2,3 px AU-DESSUS de la ligne au lieu de 4,2 px en dessous, 4 à
+7 px d'écart — et surtout **59 indices sur DIX exercices**. Le 6.13 (12) et le
+6.15 (17) sont les plus visibles ; le 5.2 (8), le 4.6, le 6.3, le 6.5, le 6.6,
+le 6.10, le 6.11 et le 4.5 le portaient aussi, depuis toujours, sans que rien ne
+le dise. Un défaut vu dans un coin se corrige PARTOUT.
+**La Seconde et la Première n'en posent AUCUN** (mesuré : 0 sur les deux
+fichiers) — elles n'écrivent d'indices ni dans une grille ni dans une fraction.
+La règle n'y est donc pas écrite : une règle qui n'écarte jamais rien fait croire
+qu'on vérifie quelque chose. Le CONTRÔLE, lui, va partout.
+**LE GAP N'EST PAS RECOPIÉ, IL EST RELU** : chacun des quatre conteneurs
+(`.sa2-frac .num` et `.den`, `.svr-cel`, `.tg-line`, `.s1-line`) pose son écart
+dans une variable que son PROPRE `gap` lit, et la marge négative de l'indice lit
+la même — recopié, il aurait fini par diverger et l'écart serait revenu sans que
+rien ne le dise.
+**Deux corrections ont été mesurées, et la plus petite l'a emporté.** Envelopper
+chaque indice au rendu donne le rendu NATIF, sans aucune valeur à caler — mais
+elle touche le DOM de dix exercices après coup, là où vivent leurs badges de
+correction et les comptes de cellules de leurs grilles. La règle CSS ne change
+que la peinture, et la mesure départage : 3,8 px de descente contre 4,2 px pour
+un indice ordinaire, écart nul. Le décalage est calé PAR LA MESURE et jugé sur
+capture, jamais au jugé.
+**Le contrôle est UNIVERSEL**, greffé sur la visite qui ouvre tous les exercices
+des trois niveaux dans les deux modes : tout `<sub>`/`<sup>` posé dans un flex
+doit porter la règle EN USAGE — jamais celle de la feuille de styles, qu'une
+cascade peut battre (le piège du 2.1.2) — et sa marge doit annuler EXACTEMENT le
+gap de son conteneur. L'exercice qu'on écrira demain rougit s'il pose un indice
+dans un conteneur que la règle ne couvre pas encore, sans rien avoir à déclarer.
+Son bord OPPOSÉ est déclaré (`indicesEnFlex` dans `tests/profils.js`, deux
+sources) : le niveau qui annonce des indices en flex doit en offrir au banc, et
+les deux autres s'affichent « non applicable » plutôt que d'être tus.
+**Cinq sabotages, chacun rougissant en nommant son défaut** — la règle retirée
+(« 20 cas — 4.6 : tg-line « − » posé sur la ligne de sa lettre »), la marge qui
+annule le gap retirée (« écarté de sa lettre de 6px par le gap »), le décalage
+mis à zéro, le gap RECOPIÉ au lieu d'être relu (« 6.13 — svr-cel : écarté de sa
+lettre de 10px ») et les lignes tg sorties de la liste, qui ne rougit plus que
+sur les exposants du 5.2 et du 4.6. Aucun contrôle voisin ne bouge sous ces
+sabotages : le seul autre « ✗ » de la sortie est sa ligne de résumé — vérifié
+plutôt que supposé, parce qu'un rouge qu'on n'explique pas est un rouge qu'on
+n'a pas mesuré.
+
 **Une case où l'élève écrit a la taille des nombres qui l'entourent.** Elle est
 en mode math — un `<math-field>` —, et sa police fait la même taille que les
 chiffres posés à côté (décision de Turquet, août 2026, **valable pour tout
