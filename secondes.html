@@ -3085,7 +3085,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=176;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=177;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4866,14 +4866,30 @@ Piège classique : répondre avec les hauteurs — S se lit sur l'axe <b>horizon
    Les signes des légendes sont écrits en clair — ING_SIGNE vit plus bas et
    n'existe pas encore au chargement ; c'est du texte de cours, pas une
    seconde source de vérité : le contrôle relie chaque légende à son dessin. */
-/* La boîte du texte « Cf », marge comprise (14 px de police, le tspan à 10 px
-   sous la ligne) — lue par etqLibre, plus bas. Elle vit ICI, avant RAP_ING, et
-   non à côté du moteur de courbes comme en Terminale : RAP_ING dessine au
-   chargement avec lvGraphSVG, et une constante posée après lui serait encore
-   dans sa zone morte à cet instant — la page entière mourait au chargement
-   (« Cannot access 'ETQ_W' before initialization »), ce que le banc a nommé
-   à la première exécution. Une fonction se hisse, une constante non. */
-const ETQ_W=30, ETQ_H=17;
+/* LA BOÎTE DE « Cf » EST CELLE QUE CHROMIUM REND, JAMAIS CELLE QU'ON SUPPOSE.
+   Relevée au getBBox sur les VRAIES polices — Nunito 800 italique 15 px pour
+   « Cf », Fredoka 700 italique 15 px pour « Cg », l'indice 10 px posé 3 px
+   plus bas : 15,5 px de large, 15 px AU-DESSUS de la ligne de base et 6,2 px
+   dessous. LA BOÎTE RÉSERVÉE ÉPOUSE CETTE ENCRE et n'y ajoute rien : l'air est
+   ETQ_MARGE, et lui seul. Une largeur réservée plus grande que l'encre — 18 au
+   premier jet — desserre en silence la borne « ni loin » du balayage, qui se
+   mesure sur la boîte réservée quand le contrôle, lui, mesure l'encre : 15 px
+   garantis devenaient 17 mesurés, et le banc accusait une page juste.
+   Elle était supposée 30 × 17 avec la ligne de base 13 px sous le
+   haut, c'est-à-dire 2 px trop haut et 2,2 px trop bas : l'encre débordait des
+   deux côtés de la boîte que etqLibre écarte, et les 4 px d'air qu'elle
+   réservait se réduisaient à moins de 2. Mesuré avant tout correctif, sur les
+   quatre dessins et 1200 étiquettes : 684 à moins de 3 px de leur courbe —
+   aucune DESSUS (le placement d'étqLibre tient), mais aucune « à côté » non
+   plus. C'est la leçon du dessin de la Terminale, payée une seconde fois.
+   ETQ_MARGE porte l'air à 5 px, la marge de ce dessin-là.
+   Elles vivent ICI, avant RAP_ING, et non à côté du moteur de courbes comme en
+   Terminale : RAP_ING dessine au chargement avec lvGraphSVG, et une constante
+   posée après lui serait encore dans sa zone morte à cet instant — la page
+   entière mourait au chargement (« Cannot access 'ETQ_W' before
+   initialization »), ce que le banc a nommé à la première exécution. Une
+   fonction se hisse, une constante non. */
+const ETQ_W=16, ETQ_MONTEE=15, ETQ_DESCENTE=7, ETQ_H=ETQ_MONTEE+ETQ_DESCENTE, ETQ_MARGE=5;
 const RAP_ING_EX={pts:[-3,-2,1,3,1,-1,-3], k:1};
 function rapIngDessins(){
   const legs=[['ge','≥','la partie AU-DESSUS de la droite, croisements PRIS (points pleins)'],
@@ -7016,17 +7032,85 @@ function etqLibre(ech, cadre, xsCand, W, H, obst){
     if(bx<cadre.PL||bx+W>cadre.PR+6||by<cadre.PT||by+H>cadre.PB) return false;        /* le cadre */
     if(!(by+H<cadre.y0-1||by>cadre.y0+17)) return false;                                /* l'axe des abscisses et ses graduations */
     if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) return false;                                /* l'axe des ordonnées et ses graduations */
-    if(obst&&obst.some(function(p){ return p[0]>=bx-2&&p[0]<=bx+W+2&&p[1]>=by-2&&p[1]<=by+H+2; })) return false; /* l'autre courbe, l'autre étiquette */
+    if(obst&&obst.some(function(p){ return p[0]>=bx-ETQ_MARGE&&p[0]<=bx+W+ETQ_MARGE&&p[1]>=by-ETQ_MARGE&&p[1]<=by+H+ETQ_MARGE; })) return false; /* l'autre courbe, l'autre étiquette */
     return true;
   };
-  const cands=[];
-  xsCand.forEach(function(lx){
-    const dans=ech.filter(function(p){ return p[0]>=lx-2&&p[0]<=lx+W+2; });
-    if(!dans.length) return;
-    const haut=Math.min.apply(null,dans.map(function(p){ return p[1]; })), bas=Math.max.apply(null,dans.map(function(p){ return p[1]; }));
-    cands.push([lx, haut-4-H]); cands.push([lx, bas+4]);
-  });
-  for(let i=0;i<cands.length;i++){ if(admissible(cands[i][0],cands[i][1])) return {x:cands[i][0], y:cands[i][1]+13, place:i}; }
+  /* Les places, à une marge donnée : la boîte posée « marge » px au-dessus du
+     point le plus haut de la courbe sur sa bande, ou autant au-dessous du plus
+     bas — elle ne peut donc pas la toucher.
+     LA BANDE EST ÉLARGIE DE LA MARGE, et non de 2 px : un point JUSTE hors de
+     la bande n'est contraint par rien verticalement — il peut se poser à la
+     hauteur de l'étiquette, et la marge horizontale est alors tout ce qui l'en
+     sépare. À 2 px, 28 étiquettes sur 1200 restaient à moins de 3 px de leur
+     courbe alors que l'air vertical, lui, était bien de 5 (mesuré). */
+  const places=function(){
+    const out=[];
+    xsCand.forEach(function(lx){
+      const dans=ech.filter(function(p){ return p[0]>=lx-ETQ_MARGE&&p[0]<=lx+W+ETQ_MARGE; });
+      if(!dans.length) return;
+      const haut=Math.min.apply(null,dans.map(function(p){ return p[1]; })), bas=Math.max.apply(null,dans.map(function(p){ return p[1]; }));
+      out.push([lx, haut-ETQ_MARGE-H]); out.push([lx, bas+ETQ_MARGE]);
+    });
+    return out;
+  };
+  /* y rendu est la LIGNE DE BASE : la boîte commence ETQ_MONTEE plus haut.
+     UN RESSERREMENT DE LA MARGE A ÉTÉ ÉCRIT ICI, PUIS RETIRÉ — le premier jet
+     réessayait à 4 px puis à 3 px avant de renoncer, pour éviter le repli sur
+     un dessin encombré. Le BALAYAGE ci-dessous l'a rendu inutile : il trouve
+     une place à 5 px là où les abscisses calées n'en offrent aucune, et le
+     resserrement ne faisait plus que DÉGRADER ce qu'il croyait sauver —
+     3,4 px au plus juste au lieu de 5,0, mesuré sur 14 600 étiquettes, pour
+     zéro repli des deux côtés. Un garde-fou qui n'écarte plus rien fait croire
+     qu'on vérifie quelque chose : c'est le CONTRÔLE qui exige la marge. */
+  const cands=places();
+  for(let i=0;i<cands.length;i++){ if(admissible(cands[i][0],cands[i][1])) return {x:cands[i][0], y:cands[i][1]+ETQ_MONTEE, place:i, marge:ETQ_MARGE}; }
+  /* PUIS ON BALAIE LE DESSIN, comme le fait le dessin des dérivées de la
+     Terminale : les places ci-dessus sont calées sur les abscisses candidates —
+     les bouts du morceau, puis vers le centre — et sur un dessin encombré il
+     arrive qu'aucune ne tienne, alors qu'ailleurs la place existe. Le balayage
+     la trouve : pas de 4 px, la boîte à ETQ_MARGE au moins de toute courbe et
+     de tout obstacle, et parmi les places libres la plus proche du DÉBUT de la
+     courbe — là où l'œil cherche son nom. Il ne coûte rien d'ordinaire : on n'y
+     arrive que lorsque les places calées ont toutes échoué : 18 fois sur
+     1600 dessins du 2.6, jamais ailleurs (mesuré). Sans lui, ces dessins-là
+     repartaient sur le repli, c'est-à-dire sans aucune marge garantie.
+     LA MARGE NE SE RESSERRE PLUS NULLE PART : elle vaut ETQ_MARGE partout, et
+     un paramètre qui ne varie plus est une porte à divergence. */
+  /* L'ÉCART À SA PROPRE COURBE ET L'ÉCART AUX AUTRES NE SE MÉLANGENT PAS. Une
+     étiquette doit rester près de LA COURBE QU'ELLE NOMME — c'est tout son
+     objet — et seulement LOIN des autres. Confondus, ils laissaient poser
+     « Cg » à 32 px de sa droite au 2.6 parce qu'elle était à 6 px de la courbe
+     de f : la place satisfaisait la borne haute sans nommer quoi que ce soit
+     (mesuré sur le balayage forcé, avant qu'aucun tirage ne le montre). */
+  const ecartDe=function(pts, bx, by){
+    let d=Infinity;
+    for(let i=0;i<pts.length;i++){ const p=pts[i];
+      const dx=Math.max(bx-p[0],0,p[0]-(bx+W)), dy=Math.max(by-p[1],0,p[1]-(by+H));
+      const q=dx*dx+dy*dy; if(q<d) d=q; }
+    return Math.sqrt(d);
+  };
+  const debut=ech.length?ech[0]:[cadre.PL,cadre.PT];
+  {
+    /* À CÔTÉ VEUT DIRE NI DESSUS NI LOIN : une étiquette posée à l'autre bout du
+       cadre ne nomme plus rien. On ne retient donc que les places entre
+       ETQ_MARGE et ETQ_MARGE + 10 px de toute courbe — la fourchette du dessin
+       de la Terminale — et parmi elles la plus proche du DÉBUT de la courbe, là
+       où l'œil cherche son nom. Sans cette borne haute, le balayage posait
+       « Cg » jusqu'à 19,6 px de sa droite sur le 2.6 (mesuré) : dans le cadre,
+       hors des axes, et illisible. */
+    let vu=null, sMin=Infinity;
+    for(let bx=cadre.PL; bx<=cadre.PR+6-W; bx+=4){
+      for(let by=cadre.PT; by<=cadre.PB-H; by+=4){
+        if(!admissible(bx,by)) continue;
+        const d=ecartDe(ech,bx,by);
+        if(d<ETQ_MARGE || d>ETQ_MARGE+10) continue;
+        if(obst && obst.length && ecartDe(obst,bx,by)<ETQ_MARGE) continue;
+        const sc=Math.hypot(bx+W/2-debut[0], by+H/2-debut[1]);
+        if(sc<sMin){ sMin=sc; vu=[bx,by]; }
+      }
+    }
+    if(vu) return {x:vu[0], y:vu[1]+ETQ_MONTEE, place:-2, marge:ETQ_MARGE};
+  }
   /* dernier recours : aucune place n'est libre — on prend la MOINS MAUVAISE, ramenée
      dans le cadre : le moins de points de courbe (la sienne, les obstacles) dans la
      boîte, un axe recouvert comptant pour beaucoup. Le contrôle compte ces replis. */
@@ -7039,7 +7123,7 @@ function etqLibre(ech, cadre, xsCand, W, H, obst){
     if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) n+=200;
     if(n<pire){ pire=n; meilleur=[bx,by]; }
   });
-  return {x:meilleur[0], y:meilleur[1]+13, place:-1};
+  return {x:meilleur[0], y:meilleur[1]+ETQ_MONTEE, place:-1, marge:0};
 }
 /* « Cg » SE POSE COMME « Cf », ET CHACUNE ÉVITE L'AUTRE. Le banc navigateur a
    nommé « Cg » posée sur une courbe le jour où « Cf » a été corrigée : les
@@ -7100,7 +7184,7 @@ function lvGraphSVG(pts, extra, ia, ib, obst){
   const cands=etqCandidats(-3+a0,-3+b0,0.85);
   const etq=etqLibre(ech,{PL:PL,PR:PR,PT:PT,PB:PB,x0:x0,y0:y0},cands.map(sx),ETQ_W,ETQ_H, obst?obst(sx,sy):null);
   const cf='<text x="'+etq.x.toFixed(1)+'" y="'+etq.y.toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
-  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy,ia,ib)+'"/>'+cf+(extra?extra(sx,sy,{x:etq.x,y:etq.y-13,w:ETQ_W,h:ETQ_H}):'')+'</svg>';
+  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy,ia,ib)+'"/>'+cf+(extra?extra(sx,sy,{x:etq.x,y:etq.y-ETQ_MONTEE,w:ETQ_W,h:ETQ_H}):'')+'</svg>';
 }
 
 /* ---- Cycle de l'exercice ---- */
@@ -8059,7 +8143,7 @@ function adrSVG(q, verdict, dessus, obst){
     bouts='<circle class="ifg-bout" cx="'+sx(mia-R).toFixed(1)+'" cy="'+sy(q.pts[mia]).toFixed(1)+'" r="4.5"/>'
          +'<circle class="ifg-bout" cx="'+sx(mib-R).toFixed(1)+'" cy="'+sy(q.pts[mib]).toFixed(1)+'" r="4.5"/>';
   }
-  return '<svg viewBox="0 0 690 432" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+adrPath(q.pts,sx,sy,mia,mib)+'"/>'+bouts+cf+extra+(dessus?dessus(sx,sy,{x:_etq.x,y:_etq.y-13,w:ETQ_W,h:ETQ_H}):'')+'</svg>';
+  return '<svg viewBox="0 0 690 432" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+adrPath(q.pts,sx,sy,mia,mib)+'"/>'+bouts+cf+extra+(dessus?dessus(sx,sy,{x:_etq.x,y:_etq.y-ETQ_MONTEE,w:ETQ_W,h:ETQ_H}):'')+'</svg>';
 }
 function adrDessiner(verdict){
   const q=test.questions[test.idx]; if(!q) return;
