@@ -3625,8 +3625,10 @@ d'un autre est pire qu'un contrôle sans nom.
 exercice comme le pdf ») est l'exercice 12 du carnet : `a = 6`, `b = 5`,
 `somme = a + b`, `produit = a * b`, deux `print`, et ses deux consignes —
 « a) Exécuter le programme ci-dessous. b) Changer les valeurs des variables
-a et b et exécuter à nouveau. » Il ferme le thème 5 ; ajouté en dernier, il
-ne renumérote rien.
+a et b et exécuter à nouveau. » **Il a FERMÉ le thème 5, et ce bord a été
+RETOURNÉ plutôt que retiré** — le QUATRIÈME à l'être, après le 5.8, le 5.9 et
+le 5.10 : {python-operations} le suit depuis septembre 2026, et il vit
+désormais en 5.11, entre {python-tableau-valeurs} et lui.
 **CE QU'IL FAIT TRAVAILLER EST LA VARIABLE CALCULÉE, et aucun exercice du
 thème ne la posait** : partout ailleurs une variable reçoit un LITTÉRAL
 (`note = 12`, `prenom = "Louane"`). Ici `somme = a + b` range le RÉSULTAT du
@@ -3783,6 +3785,181 @@ et les deux gardes « le contrôle ne mesure rien » — la collecte des phrases
 débranchée (23 libellés au lieu de 44) et une source de programmes débranchée
 (480 au lieu de 600).
 
+**Les quatre opérations dans un programme : on exécute, on CHANGE a et b, puis
+on complète.** {python-operations} (Seconde, 5.12, demande de Turquet, septembre
+2026 : « faire un exercice en seconde comme les 2 images ») ferme le thème 5 —
+ajouté en dernier, il ne renumérote rien. C'est l'exercice 12 du carnet et sa
+suite, en quatre temps : a) exécuter un programme qui calcule la SOMME et le
+PRODUIT de deux variables ; b) CHANGER les valeurs de a et de b et exécuter à
+nouveau ; c) le compléter pour qu'il affiche EN PLUS la différence et le
+quotient de a par b ; d) le tester en changeant les valeurs.
+**CE QU'IL AJOUTE AUX DEUX EXERCICES D'AVANT EST TOUT LE SUJET** : le 5.7 et le
+5.8 font écrire des lignes d'AFFICHAGE sur des variables déjà affectées ; ici la
+variable naît d'un CALCUL — `difference = a - b` —, et c'est la première fois
+que l'élève écrit une opération dans un programme. D'où DEUX familles de cases :
+l'EXPRESSION à droite du signe égal (la page écrit le nom, comme le carnet, qui
+n'y laisse que des points de suspension) et la LIGNE D'AFFICHAGE entière, sur le
+modèle des deux déjà écrites.
+**LE COURS EST LE a) ET LE b) DE LA FICHE, SUR SON PROPRE ÉCRAN** (le motif du
+5.7) : le programme de la première image, dont a et b sont deux CASES.
+« J'ai compris » ne s'ouvre qu'après DEUX exécutions à valeurs DIFFÉRENTES — le
+b) est tenu par l'ÉTAT du bouton et non par une consigne qu'on peut ne pas lire
+(la leçon de {placer-image}). Exécuter une fois ne montre rien : c'est le
+CHANGEMENT qui fait voir que le programme calcule au lieu de recopier. Une
+valeur qui n'est pas un nombre reçoit l'erreur de Python, comme dans un vrai
+carnet, et ne compte pas pour un essai.
+**LE JUGE NE COMPARE JAMAIS À UNE ÉCRITURE : il EXÉCUTE.** Une expression est
+juste si la variable prend la bonne valeur — `a - b`, `a-b`, `(a-b)`,
+`0 + a - b` passent toutes. Refuser une écriture juste serait le pire défaut du
+projet, par la porte d'un exécuteur.
+**ET LA SECONDE MÉTHODE EST LE d) DE LA FICHE** : on rejoue le calcul avec un
+AUTRE couple (a, b) et on exige qu'il SUIVE. `difference = 8` donne la bonne
+valeur une fois et ne suit pas ; `print("La différence de",10,"et",2,…)` non
+plus. C'est la doctrine de {python-afficher-variable}, et c'est exactement ce
+que le d) demande à l'élève de faire — **la page le lui MONTRE d'ailleurs une
+fois sa copie juste**, son programme rejoué sous d'autres valeurs. Le second
+couple est CHERCHÉ et non supposé : il faut que les QUATRE valeurs changent,
+sans quoi le rejeu n'écarterait rien (avec a = 10 et b = 2, le couple 9 / 3
+garde la somme 12), et le contrôle l'exige tirage après tirage.
+**CHAQUE CASE SE JUGE SEULE** : une ligne d'affichage est jugée sur les calculs
+TÉMOINS, jamais sur ceux de l'élève — sans quoi une expression fausse ferait
+rougir l'affichage qui la lit, et l'élève paierait deux fois la même erreur. Les
+deux lignes d'affichage suivent la règle des paires d'{antecedent-nombre}
+(`pydApparier`, la fonction MÊME de {python-deux-lignes}) : rien à l'écran ne dit
+quelle case porte laquelle, l'ordre est donc libre. Les deux EXPRESSIONS, elles,
+sont ancrées à leur nom, que la page écrit devant la case.
+**LE PROGRAMME DU JUGE D'UNE EXPRESSION S'ARRÊTE À LA LIGNE JUGÉE**, et la sonde
+l'a montré avant le premier contrôle : `difference = somme` levait une NameError
+sur une variable qui existe pourtant trois lignes plus haut, et le diagnostic
+accusait une majuscule (« la variable s'appelle « somme », pas « somme » »). Les
+calculs qui PRÉCÈDENT sont là, ceux qui suivent non — c'est ce que Python voit à
+cet endroit — et le diagnostic nomme alors la vraie erreur : le calcul donne la
+somme. La même sonde a montré un second défaut : `"a - b"` entre guillemets
+recevait « ton calcul ne suit pas quand a et b changent » alors qu'il ne donne
+même pas la bonne valeur ; ce message-là ne se prononce plus que sur une valeur
+JUSTE, et le texte entre guillemets a sa branche.
+**LE TIRAGE GARANTIT QUE a EST UN MULTIPLE DE b**, et ce n'est pas une
+coquetterie : le quotient tombe alors juste et Python l'écrit quand même avec un
+point — `5.0` — ce qui EST la leçon du visage décimal du {python-affichage} ;
+sans cette garantie, `7 / 3` afficherait 2.3333333333333335 et la question ne
+parlerait plus que de flottants. La fiche du carnet respecte d'elle-même la
+règle (a = 10, b = 2), et elle est ÉPINGLÉE en première question. Les deux
+autres questions écrivent les deux opérations restantes, si bien que chacune des
+quatre est écrite au moins une fois dans la séance et sert de modèle au moins
+une fois ; les trois paires restent deux à deux distinctes, et les trois couples
+(a, b) aussi. Sonde : 400 séances, 58 couples distincts, aucun tirage sans
+second couple.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ** : l'interpréteur est `pyRun`, la
+tolérance des textes `pyTexteProche` et `pyEcart`, les erreurs d'une ligne
+`pyxDiagErreur` (à qui l'on passe la liste des variables du programme, le
+paramètre que le 5.8 lui avait appris), la règle des paires `pydApparier`, le
+cadre des coups de pouce `pyPoucesHTML`, et le programme se dessine avec les
+classes du 5.7 (`pyx-prog`, `pyx-ligne`, `pyx-num`, `pyx-l1`, `pyx-in`) : trois
+feuilles de styles auraient fini par diverger, et trois exercices voisins se
+seraient dessinés différemment sous les yeux de l'élève.
+**ET C'EST LÀ QUE LE BANC NAVIGATEUR A TROUVÉ UN DÉFAUT QUE jsdom NE POUVAIT PAS
+VOIR** : la règle qui pose la bonne écriture en vert SOUS la case — celle que le
+5.7 avait gagnée sur une capture — nomme ses hôtes un par un
+(`#pyxHost`, `#pydHost`), et l'écran neuf n'y était pas : le badge se rangeait à
+DROITE de la case, d'où il sort de l'écran sur un téléphone. Une liste de
+sélecteurs tenue à la main dérive, et c'est le RECTANGLE rendu qui l'a dit.
+**Deux contrôles d'à côté ont bougé, et aucun n'a été retiré.** Celui des
+fractions plates des rappels rougissait sur `a / b` : **une barre de division
+dans une balise `code` est du CODE, pas une fraction** — c'est l'opérateur que
+l'élève tape, et l'empiler serait lui montrer autre chose que ce qu'il écrira.
+Il retire donc les balises `code` avant de chercher, exactement comme le
+contrôle des numéros en dur le fait depuis {python-types} ; une vraie fraction
+posée dans la PROSE rougit toujours. Et le bord du 5.8 (« il FERME le thème 5 »)
+a été RETOURNÉ, pas retiré : il vit maintenant entre {python-completer} et
+{python-operations} — un bord retiré ne dit plus rien, un bord retourné dit la
+règle du jour.
+**Et la fusion de `main` a présenté les TROIS collisions que ce fichier nomme,
+ensemble** : {python-placer-variables} est arrivé en 5.9 pendant la préparation
+de la branche — celui-ci ferme le thème en 5.10 ; `APP_VERSION` y était déjà à
+178, le numéro que cette branche écrivait aussi (deux écritures du MÊME nombre
+ne font aucun conflit textuel, git garde la valeur et rien ne le dirait) → 179 ;
+et le numéro de section du banc navigateur « 6 tricies octies » était pris → le
+mien prend « nonies », le numéro revenant au premier arrivé. Le bord « il FERME
+le thème 5 » de {python-placer-variables} a été RETOURNÉ à son tour, comme celui
+du 5.8 l'avait été avant lui. La zone n'a PAS été recousue hunk par hunk : on
+repart du fichier de `main` et on y REPOSE ses blocs COMPLETS, à des ancres
+vérifiées une par une — c'est ce qui a montré que la ligne `const RAPPELS` est
+COMMUNE aux deux blocs et qu'un « garder les deux » l'aurait déclarée DEUX fois.
+Et mon propre remplacement a frappé le VOISIN : le libellé « il FERME le thème 5,
+numéroté 5.9 » est le même, au caractère près, dans le contrôle de
+{python-placer-variables} — une ancre se choisit PROPRE à sa cible, ici le corps
+qui lit `RAPPELS.pop`.
+**Puis une SECONDE fusion a présenté les TROIS MÊMES collisions, et la règle a
+tranché sans qu'on ait à réfléchir** : {python-tableau-valeurs} est arrivé en
+5.10 — celui-ci ferme donc le thème en **5.11** —, `APP_VERSION` était passée à
+180 → 181, et « 6 tricies nonies » était pris → « decies », le numéro revenant
+au premier arrivé. Le bord « il FERME le thème 5 » de {python-tableau-valeurs} a
+été RETOURNÉ à son tour — il est le TROISIÈME à l'être, après le 5.8 et le 5.9 :
+un bord retiré ne dit plus rien, un bord retourné dit la règle du jour. Et
+l'ancre a frappé le VOISIN une seconde fois, au même endroit : « il FERME le
+thème 5, numéroté 5.10 après {python-placer-variables} » était le même libellé,
+au caractère près, dans les DEUX contrôles — l'assertion du script l'a refusé
+(« trouvé 2 fois, attendu 1 ») au lieu de saboter le voisin, et le remplacement
+se pose désormais dans la TRANCHE de chaque contrôle, bornée par sa propre
+`function`. Deux branches qui ajoutent un exercice au même thème le même jour
+produisent cette collision à CHAQUE fois : ce n'est pas un accident, c'est ce
+qu'il faut relire au moment de refusionner `main`.
+**Puis une TROISIÈME fusion, et la règle n'a plus rien coûté** :
+{python-changer-valeurs} est arrivé en 5.11 — celui-ci ferme donc le thème en
+**5.12** —, `APP_VERSION` était passée à 181 → 182, et « 6 tricies decies »
+était pris → « undecies ». Le bord « il FERME le thème 5 » de
+{python-changer-valeurs} a été RETOURNÉ à son tour, le QUATRIÈME. **Et la
+CINQUIÈME collision du même jour n'est pas une collision de plus, c'est la
+même** : deux exercices écrits sur le même carnet, le 12, arrivés par deux
+branches — le nôtre le prolonge (c) et d)), l'autre s'arrête à son b). Les deux
+gardent leur place, et les deux lignes du carnet se lisent à la suite dans le
+menu. La leçon qui reste est celle des blocs COMPLETS : à la troisième fusion,
+les huit conflits de `secondes.html` se sont résolus sans une seule recouture
+hunk par hunk — le `const RAPPELS` commun aux deux blocs, la ligne
+`return {nombre:'', contexte:c};` commune aux deux contextes et la liste des
+rendus enveloppés étaient exactement là où les deux fusions précédentes les
+avaient laissées.
+**Deux bancs, la répartition habituelle.** jsdom tient les deux programmes des
+images épinglés (s'ils ne passent pas au juge, c'est le juge qui a tort), le
+juge cas par cas — quinze calculs faux et quatorze lignes d'affichage fausses,
+chacun avec le mot que son diagnostic doit porter —, la seconde méthode, le
+tirage sur 400 séances, les portes, la case vide, le soutien, le contexte du
+modèle, et il compare l'interpréteur à un vrai CPython sur 671 programmes. Le
+NAVIGATEUR (« 6 tricies undecies », déclaré par `pythonOperations` dans
+`tests/profils.js`) mesure ce que jsdom ne voit pas : les deux cases de valeur
+du cours sur la ligne de leur nom, une VRAIE frappe dans a et b puis un vrai
+clic qui ouvre la porte, les coups de pouce qui S'OUVRENT au clic, les six
+lignes écrites et les quatre cases à chasse fixe et à la MÊME taille, la case
+COURTE du calcul posée sur la ligne de son nom, un VRAI clic sur « Vérifier »
+fermé qui ne juge rien, l'encre RENDUE des verdicts sur la même question — une
+rouge et trois bleues, ce que seule une couleur rendue montre —, le rejeu mesuré
+au RECTANGLE, et la page qui ne déborde pas sur un téléphone.
+**Vingt et un sabotages, chacun rougissant en nommant son défaut** — dix-huit au
+banc jsdom (le second couple qui reprend une valeur, chacune des deux secondes
+méthodes débranchée, la variable employée qui n'est plus exigée, la règle des
+paires débranchée, a qui n'est plus multiple de b, les quatre opérations perdues,
+la fiche qui n'ouvre plus la séance, la porte ouverte après une exécution, une
+exécution en erreur comptée pour un essai, « Vérifier » cliquable d'emblée, la
+case vide peinte, le soutien qui révèle, le rejeu retiré, un affichage jugé sur
+les calculs de l'élève, l'exercice sorti du thème 5, la clause de secret perdue,
+le diagnostic de la division entière retiré) et trois que seul le NAVIGATEUR
+voit. **Deux d'entre eux ont d'abord échoué à se poser** : la ligne de la règle
+des paires et celle de la case vide sont écrites au caractère près dans
+{python-deux-lignes} — un sabotage se pose sur une ancre PROPRE à sa cible (la
+leçon d'{antecedents-droite}), et reposé sur une ancre unique chacun rougit.
+**Et le premier essai du contrôle navigateur a rougi sur du code juste** : il
+comparait les bords GAUCHES de la case et du badge, alors que la case d'un
+calcul est décalée par le nom que la page écrit devant elle. Corrigé pour
+mesurer le vrai bord — SOUS la case, jamais à DROITE —, il a alors nommé le
+défaut RÉEL de la page.
+**Et un troisième est d'abord resté VERT parce qu'il ne pouvait pas ATTEINDRE
+sa cible** : donner à la case du calcul une base flex de 100 % ne la fait pas
+passer à la ligne — la taille hypothétique d'un élément flex est CLAMPÉE par son
+`max-width` avant que le repli ne se décide, et la case en a un. Posé sur
+l'étiquette, qui n'en a pas, il rougit en nommant les deux écrans (le cours et
+la question). Avant de conclure qu'un contrôle ne mesure rien, il faut vérifier
+que le sabotage pouvait seulement l'atteindre.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
@@ -3855,8 +4032,10 @@ reprise, l'exercice sorti du thème 5.
 valeurs, avec x en 1ère ligne et des nombres décimaux avec 1 chiffre après la
 virgule et un chiffre devant la virgule ; le calcul du programme en 2e ligne,
 ici 2x+3 ; dire à l'élève de compléter le tableau en modifiant x dans le
-programme du dessus et en l'exécutant ») ferme le thème 5 — ajouté en dernier,
-il ne renumérote rien. **Et la fusion de `main` l'a renuméroté** :
+programme du dessus et en l'exécutant ») vit en fin de thème 5 — ajouté en
+dernier, il n'a rien renuméroté ; {python-operations} l'a suivi le jour même, et
+son bord « il FERME le thème 5 » a été RETOURNÉ plutôt que retiré, comme celui du
+5.8 et celui du 5.9 avant lui. **Et la fusion de `main` l'a renuméroté** :
 {python-placer-variables} est arrivé en 5.9 pendant la préparation de la
 branche, `APP_VERSION` y était déjà à 178, et le numéro de section du banc
 « 6 tricies octies » était pris — les trois collisions que ce fichier nomme,
@@ -4982,6 +5161,65 @@ entrées : sans y ajouter `bonus`, le drapeau était effacé entre l'éditeur et
 l'écran, sans que rien ne le dise. Le défaut ne s'écrit jamais dans le JSON (un
 devoir sans bonus garde exactement la forme qu'il avait avant que le réglage
 n'existe). Onze sabotages, chacun rougissant en nommant son défaut.
+
+**Puis le mot « BONUS » s'est ÉCRIT, et partout où l'exercice se montre.**
+Demande de Turquet (septembre 2026, Terminale) : « je veux que l'on écrive
+bonus pour les exercices qui sont en bonus quand on annonce le dm avec la
+liste de tous les exercices et quand on fait cet exercice aussi ». L'annonce
+du devoir — la liste des devoirs, qui montre chaque devoir avec TOUS ses
+exercices — ne portait qu'une ÉTOILE, et un pictogramme ne dit rien à qui ne
+connaît pas la convention ; surtout, **l'écran où l'élève travaille se
+taisait** : la page du devoir disait « Bonus », puis l'exercice s'ouvrait et
+plus rien ne rappelait qu'il était facultatif. C'est la leçon du numéro
+d'exercice de `show()`, revenue au même endroit — le renseignement était
+partout SAUF là où l'élève passe son temps.
+**UN SEUL ENDROIT L'ÉCRIT** (`dmBonusBadge`), et quatre écrans le lisent :
+l'annonce du devoir, l'énoncé du circuit papier, l'écran des modes et la
+pastille de l'écran d'exercice — celle-ci par `show()`, l'unique porte vers un
+écran d'exercice, donc celui qu'on ajoutera demain est couvert sans rien
+déclarer. Deux libellés écrits séparément auraient fini par diverger, et le
+même exercice se serait dit « bonus » d'un écran à l'autre dans deux mots
+différents. Le contrôle l'exige en REMPLAÇANT la fabrique par un jeton : un
+écran qui écrirait son propre mot ne le porte pas.
+**La page du devoir garde son badge de BILAN** (« Bonus : 0,8 / 1 », « Bonus ·
+à faire ») : il porte la NOTE, qui est sur 1 et non sur 10 — ce n'est pas le
+même badge, et c'est nommé plutôt que tu. Le mot y est donc exigé par un bord
+à lui, dans ses DEUX branches : le sabotage de la branche « faite » est
+d'abord resté VERT, le contrôle ne rendant qu'un devoir vierge.
+**L'encre est OR** — ni bleue, ni rouge, ni verte : ce n'est pas un verdict, et
+la leçon du liseré de {croiser-denominateurs} vaut ici aussi.
+**Le bord OPPOSÉ compte autant, et il en a deux** : l'exercice NORMAL du même
+devoir ne porte jamais le mot, et un exercice fait HORS devoir non plus — un
+badge posé sans condition passerait sinon pour un contrôle. Le bonus de
+l'exercice en cours se lit par `dmReglageExo()`, l'entonnoir qui sert déjà la
+coupe du nombre de questions : hors devoir il rend null.
+**Deux bancs, la répartition habituelle.** jsdom tient le DOM — le mot sur le
+bon exercice et sur lui seul, les deux bords opposés, le jeton de la fabrique,
+et la pastille qui garde son numéro et son nom — en appelant `renderDevoirsList`,
+`renderDevoirDetail`, `show()` et `openTestDevoirModes`, cette dernière lue
+JUSQU'À SA PREMIÈRE ATTENTE (elle écrit son titre avant, le motif du bilan du
+professeur). Le NAVIGATEUR (« 6 sexies bis », déclaré par `bonusEcrit` dans
+`tests/profils.js`) tient ce que jsdom ne peut pas : le badge mesuré au
+RECTANGLE — un CSS perdu le rendrait invisible sans qu'une erreur ne se lève —
+et le TRAJET entier, l'énoncé du circuit papier compris, dont le titre ne
+s'écrit qu'APRÈS le tirage.
+**Onze sabotages, chacun rougissant en nommant son défaut** — neuf au banc
+jsdom (l'annonce muette, l'annonce qui l'écrit sur tous, l'écran des modes,
+l'écran de l'exercice, l'écran de l'exercice hors devoir, la page du devoir
+dans ses deux branches, l'annonce qui écrit son propre mot, le badge qui chasse
+le numéro et le nom) et deux que seul le NAVIGATEUR voit : le badge caché par
+une règle CSS et l'énoncé du circuit papier redevenu muet.
+**Le panneau de l'accueil (`renderDM`) n'a PAS été touché, et le dire vaut
+mieux que de le taire** : il est MORT — aucun appelant, et son hôte `dmPanel`
+n'existe dans aucune des trois pages. Y écrire le mot ferait croire que la
+règle est tenue là où rien ne la montre.
+**La Seconde et la Première ne changent pas, et c'est nommé** : elles ont les
+mêmes exercices bonus et la même étoile nue, mais la demande porte sur la
+Terminale. Les deux contrôles s'y affichent « non applicable » en DISANT
+pourquoi — « ce niveau a bien les exercices bonus, mais n'écrit pas encore le
+mot » — plutôt que de laisser croire qu'il n'y a rien à tenir : c'est une
+décision à prendre, pas un oubli. Le `renderDM` de la Seconde est mort lui
+aussi.
 
 **Le carnet de notes du professeur : une moyenne par élève, un devoir par
 colonne.** Le bilan d'un devoir ne montrait qu'UN devoir à la fois ; le
@@ -8334,6 +8572,16 @@ contrôle visé, et rejoué sur la vraie ancre il rougit en nommant le bouton.
 confirmation comme l'élève la voit : la page du devoir, les trois cartes, la
 version papier (deux questions — la coupe du devoir —, 61 pointillés, aucune
 case), le dialogue REFUSÉ qui n'envoie rien, puis accepté.
+**ET LE BADGE « BONUS » EST ARRIVÉ SUR LES MÊMES LIGNES, par une autre branche,
+le jour même** : son contrôle du banc NAVIGATEUR suivait le trajet d'avant —
+`openTestDevoir` menait à l'énoncé, puis `#dmeOrdiBtn` menait aux modes —, et
+ce bouton n'existe plus. Il a été RETOURNÉ, pas retiré : les modes d'abord, la
+carte « sur papier » ensuite, le retour au devoir puis l'entraînement par sa
+carte — les trois écrans portent toujours le mot, et c'est la propriété que le
+contrôle tient, jamais le chemin. Le titre de l'énoncé garde donc son badge, et
+le passe en `innerHTML` avec `esc()` : le libellé d'un exercice est du texte, le
+badge est du balisage, et poser l'un sans échapper l'autre est le piège que ce
+fichier nomme ailleurs.
 
 **La même démonstration, mais l'élève ne pose que des nombres.**
 {suite-auxiliaire-2} (Terminale, 6.3, demande de Turquet, août 2026) est repris
