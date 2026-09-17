@@ -2811,7 +2811,8 @@ tiret bas seulement — pas d'espace (la remarque de la fiche), pas de tiret,
 pas d'apostrophe —, ne commence pas par un chiffre, n'est ni un mot réservé de
 Python ni le nom d'une fonction du cours (print, type, int…), au moins 2
 caractères — un nom d'une lettre ne dit pas ce qu'il stocke —, au plus 20
-(« pas trop long »). Deux grandeurs d'une même question ne portent pas le
+(« pas trop long »). **La longueur minimale a été RETIRÉE** (paragraphe
+ci-dessous) : ce paragraphe raconte le juge de son époque. Deux grandeurs d'une même question ne portent pas le
 MÊME nom — ce serait une seule variable —, et c'est la règle des paires : la
 seconde occurrence est fausse, la première reste défendable ; « Note » et
 « note » sont deux noms, comme en Python. La PERTINENCE du nom n'est pas
@@ -2871,6 +2872,47 @@ débranché, le badge qui fuit en soutien, « Question suivante » avant
 l'exécution, l'exercice sorti de sa place au menu. La campagne a joué dans
 une copie séparée du dépôt pendant que le banc navigateur mesurait la page
 propre.
+
+**Puis la longueur minimale est tombée : une lettre est un nom.** Signalé par
+Turquet sur une capture (septembre 2026) : ses quatre réponses — `v` pour la
+vitesse, `l` pour la longueur, `r` pour le rayon, `abs` pour une valeur
+absolue — rougissaient toutes les quatre, « il faut accepter les variables que
+j'ai placées dans les cases aussi ». Deux règles distinctes les refusaient, et
+**une seule est tombée** : la longueur minimale (`PNV_MIN`, retirée). La liste
+des fonctions de Python reste, `abs` avec elle — le rappel ④ la couvre
+(« Pas un mot de Python : for, if, print, type… »), et c'est une décision à
+prendre à part.
+**LE GARDE TENAIT SA PROPRIÉTÉ À L'ENVERS, et c'est ce qui l'a fait tomber.** Il
+prétendait tenir le ① du rappel (« un nom dit ce qu'il stocke — pas x, qui ne
+dit rien ») en COMPTANT des caractères : il refusait donc `v` et `r`, les
+notations MÊMES du cours de maths, et acceptait `xy`, qui ne dit rien. Un garde
+qui refuse du juste et accepte du faux ne tient pas ce qu'il annonce — et la
+doctrine de l'exercice le disait déjà en toutes lettres, une ligne plus bas :
+« la PERTINENCE du nom n'est pas prouvable : elle est expliquée, jamais notée ».
+La longueur minimale était la seule chose qui la notait, à moitié.
+**CE QU'ON PERD EST NOMMÉ, parce que c'est réel** : `a`, `b`, `c`, `d` valent
+désormais 12/12 sur la séance entière. C'est le prix du refus de noter ce qu'on
+ne prouve pas, et l'explication prend le relais — le rappel ① dit la
+préférence (« en informatique on préfère un nom qui se lit ») et le contexte du
+modèle l'autorise à la conseiller. Rien d'autre ne bouge : `v = 90` puis son
+print s'exécutent dans l'interpréteur de la page comme dans un vrai CPython, le
+doublon interdit toujours deux `v` dans la même question, et les notes déjà
+enregistrées ne bougent pas — elles portent l'identifiant.
+**QUATRE ENDROITS BOUGENT ENSEMBLE, sinon l'écran ment** : le juge, le rappel ①,
+le commentaire de doctrine et le contexte envoyé au modèle. Et le rappel ① DIT
+maintenant qu'une lettre est ACCEPTÉE — sans cette moitié, l'écran promettrait
+un refus que le juge ne prononce plus, et le modèle, lui, répondrait à l'élève
+que son `v` est faux. Les deux ont leur contrôle.
+**Le banc est RETOURNÉ, pas retiré** : les refus épinglés `x` et `n` passent dans
+la liste des ACCEPTÉS (avec `v`, `l`, `r`), le nom du contrôle le dit, et la
+partition CPython perd le code `court` — sa seconde famille (fonction, long)
+garde quatre candidats, donc son garde « le contrôle ne mesure rien » a encore
+quelque chose à compter. Un piège d'outillage s'y est montré à l'écriture, le
+piège documenté de l'antislash : le premier jet du bord « le contexte n'annonce
+plus de longueur minimale » s'écrivait en expression régulière, et son `\d`
+traverse le gabarit de `verifier.js` PUIS l'évaluation dans la page — il y
+serait devenu un `d`, et le contrôle aurait mesuré zéro en restant vert. C'est
+une recherche de chaîne, sans un seul antislash.
 
 **Puis l'élève a ÉCRIT son premier print — et c'est la SORTIE qui le juge.**
 {python-print} (Seconde, 5.6, demande de Turquet, septembre 2026 : « un
@@ -3139,6 +3181,116 @@ fuite complète, elle, rougit.
 tolérance est une affaire de chaînes, et le message qui nomme l'écart se lit
 dans le DOM — jsdom le voit, un vrai Chromium n'en dirait pas plus. Treize
 sabotages, douze rougissant en nommant leur défaut.
+
+**La suite du 5.7 : un modèle DÉJÀ écrit, et deux lignes à compléter.**
+{python-deux-lignes} (Seconde, 5.8, demande de Turquet, septembre 2026 : « en
+seconde créer un exercice comme le pdf ») est l'exercice 9 (suite et fin) du
+carnet, et il ferme le thème 5 — ajouté en dernier, il ne renumérote rien.
+Trois variables sont affectées, UNE ligne d'affichage est déjà écrite, et
+l'élève complète le programme pour qu'il affiche deux autres textes suivis de
+deux autres variables. « Vérifier en l'exécutant », dit la fiche, et la chaîne
+des portes du 5.7 le tient : écrire, EXÉCUTER, puis vérifier — « Vérifier » ne
+s'ouvre qu'une fois le programme exécuté tel qu'il est écrit, et se referme
+dès qu'une ligne change.
+**CE QU'IL AJOUTE AU 5.7 EST LE MODÈLE, et c'est tout le sujet** : là-bas il
+n'y a qu'UNE variable et aucun modèle — la page explique, l'élève applique.
+Ici le programme porte TROIS variables qui se ressemblent (note1, note2,
+prenom) et une ligne d'affichage déjà écrite : l'élève TRANSPOSE, et le seul
+vrai risque est de recopier cette ligne sans changer la variable. C'est la
+première chose que le diagnostic NOMME (« tu as recopié la ligne déjà écrite :
+elle affiche la valeur de note1 »), la seconde étant la variable voisine prise
+à la place (« ta ligne affiche la valeur de note1, alors qu'on demande celle
+de note2 »). Sans ces deux branches, le juge du 5.7 aurait répondu à côté : le
+texte étant juste, il aurait comparé « la 2ème note vaut » à lui-même.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ** : le jeu de variables est `PY_JEUX` —
+partagé avec {python-affichage} et {python-completer}, et dont la première
+entrée EST celle du carnet (note1, note2, prenom) —, l'interpréteur est
+`pyRun`, la tolérance des textes `pyTexteProche` et `pyEcart`, et les
+diagnostics sont `pyxDiagErreur` et `pyxDiagSortie`, les fonctions MÊMES du
+5.7, à qui l'on passe la ligne à juger et sa cible. Le programme se dessine
+avec les classes du 5.7 (`pyx-prog`, `pyx-ligne`, `pyx-in`) : deux feuilles de
+styles auraient fini par diverger, et deux exercices voisins se seraient
+dessinés différemment sous les yeux de l'élève. `pyxDiagErreur` a seulement
+appris la LISTE des variables du programme (`q.noms`) — « les variables sont
+note1, note2 et prenom » au lieu de « la seule variable est celle de la ligne
+1 » — et appelée sans elle, le cas du 5.7, elle ne change pas d'un mot.
+**L'ORDRE DES DEUX LIGNES EST LIBRE**, et il le faut : rien à l'écran ne dit
+quelle case porte laquelle, et un programme qui affiche les deux choses
+demandées est juste — refuser une écriture juste serait le pire défaut du
+projet. C'est la règle des paires d'{antecedent-nombre} : chaque ligne se juge
+sur ce qu'elle PROMET — afficher l'un des deux affichages attendus — et la
+liste les prend une fois chacune ; la même ligne écrite deux fois est
+défendable une fois, fausse la seconde, et le message le dit.
+**CHAQUE LIGNE SE JUGE SEULE** : deux cases dans la note, six pour la séance.
+Une ligne fausse ne fait pas rougir sa voisine, et la ligne juste s'écrit en
+VERT sous la fausse SEULEMENT — en entraînement, jamais en soutien, où l'élève
+corrige et revérifie. **Une ligne VIDE n'est jamais peinte** : la vérification
+la redemande, sans rien colorer ni verrouiller — rouge veut dire FAUX, jamais
+« pas fini » (la règle de {placer-image}).
+**LA SÉANCE** : la fiche du carnet en tête, ÉPINGLÉE (note1 = 15,
+note2 = 15.5, prenom = "Louane", le modèle sur note1), puis les DEUX autres
+visages en modèle, chacun une fois, sur deux jeux distincts. Chaque visage
+sert donc de modèle une fois et s'écrit deux fois — un entier, un décimal
+(Python l'écrit avec un point) et un texte (il s'affiche sans ses guillemets).
+Le compte n'est pas un réglage : c'est la structure de la séance, et
+`tests/profils.js` en est la seconde source.
+**LES DEUX COUPS DE POUCE sont ceux du carnet**, repliés : ils disent la
+MÉTHODE — la forme de la ligne, le nom de la variable sans guillemets — et
+jamais la réponse, que l'énoncé porte déjà. Le contrôle l'exige : aucune des
+deux lignes attendues ne s'y écrit.
+**LE RISQUE SILENCIEUX EST LA CONFUSION DES DEUX LIGNES** : si deux affichages
+attendus se ressemblaient à un caractère près, la tolérance des textes ferait
+passer l'un pour l'autre et la règle des paires perdrait son sens. Le tirage
+ne porte AUCUN garde là-dessus — sondé, la propriété tient d'elle-même sur
+1 200 questions, et un garde qui n'écarte jamais rien ferait croire qu'on
+vérifie quelque chose —, et c'est le CONTRÔLE qui l'exige, tirage après
+tirage, sur les deux lignes entre elles ET sur la ligne du modèle.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée (si elle
+ne passe pas au juge, c'est le juge qui a tort), la place au menu, le tirage
+(400 séances), le juge sur des écritures JUSTES variées et sur vingt-quatre
+lignes FAUSSES — chacune avec le mot que son diagnostic doit porter —, les
+portes, la ligne vide, le soutien, les branchements, et compare l'interpréteur
+à un vrai CPython sur 822 programmes ; le NAVIGATEUR (« 6 tricies sexies »,
+déclaré par `pythonDeuxLignes` dans `tests/profils.js`) mesure ce que jsdom ne
+voit pas — la consigne à puces et les coups de pouce RENDUS, repliés puis
+OUVERTS au clic, les quatre lignes écrites du programme et les deux cases à
+chasse fixe et à la MÊME taille, un VRAI clic sur « Vérifier » fermé qui ne
+juge rien, les deux lignes TAPÉES au clavier dans l'ordre inverse des puces,
+l'encre RENDUE des deux verdicts sur la même question — l'une bleue, l'autre
+rouge, ce que seule une couleur rendue montre —, la ligne verte SOUS la case
+fausse, et la page qui ne déborde pas sur un téléphone.
+**ET UN DÉFAUT NE S'EST VU QUE SUR LA CAPTURE, à la largeur d'un téléphone** :
+la ligne du MODÈLE fait 300 px à chasse fixe quand le cadre du programme en
+offre 285, et sa fin — « note1) » — était simplement COUPÉE, sans rien qui le
+dise (mesuré : 312 px de contenu dans 285, la page ne débordant pas). Le 5.7 ne
+pouvait pas le montrer : sa ligne 1, « note = 12 », tient partout. Une ligne de
+code ne se replie JAMAIS — un calcul coupé en deux se lit de travers — donc
+elle DÉFILE, chacune dans sa propre bande (`.pyx-l1{overflow-x:auto}`). **Et sa
+base de flex vaut ZÉRO, pas « auto »** : à `auto`, la ligne trop longue passe
+SOUS son numéro avant même de rétrécir — dans une rangée flex le repli arrive
+avant le rétrécissement —, et c'est la capture refaite qui l'a montré. Le banc
+NAVIGATEUR tient les deux bords (aucune ligne ne déborde du cadre, celle qui
+n'y tient pas peut défiler) et il les mesure sur la QUESTION 1, la fiche
+épinglée, dont la ligne modèle est longue par construction : mesuré sur un
+tirage au hasard, « la ligne qui ne tient pas » n'existerait pas toujours et le
+contrôle serait INTERMITTENT.
+**Vingt-trois sabotages, chacun rougissant en nommant son défaut** — dix-neuf
+au banc jsdom (l'ordre imposé, le doublon accepté, la variable employée qui
+n'est plus exigée, chacune des trois branches du diagnostic débranchée, la
+liste des variables perdue, la fiche qui n'ouvre plus la séance, les visages
+modèles au hasard, la ligne vide peinte, la ligne juste qui fuit en soutien,
+« Vérifier » cliquable d'emblée, les deux cases jugées ENSEMBLE, l'exercice
+sorti du thème 5, le rappel qui n'enseigne plus la variable à choisir, le
+bouton des tables revenu, le soutien qui juge à la frappe, le contexte sans
+clause de secret, un coup de pouce qui écrit la réponse) et quatre que seul le
+NAVIGATEUR voit — la chasse fixe retirée des cases (il nomme l'encre :
+« Arial »), la ligne verte rangée À DROITE au lieu de dessous, les coups de
+pouce dépliés d'emblée, et la ligne écrite qui ne défile plus —, jsdom restant
+vert à bon droit sur ces quatre-là. Un sabotage a montré un trou du CONTRÔLE
+avant la page : « la ligne juste fuit en soutien » faisait LEVER le contrôle
+sur un bouton disparu (« Cannot read properties of null ») au lieu de nommer
+quoi que ce soit — un contrôle qui plante ne dit rien du défaut visé, et il
+garde son bouton désormais.
 
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
@@ -8283,8 +8435,95 @@ phrase plus loin, et retirer les deux rougit. Un contrôle qui passe au vert
 sous le sabotage n'est pas forcément un contrôle mort : il faut d'abord
 vérifier que le sabotage pouvait l'atteindre.
 
+**La même suite, par la DIFFÉRENCE : l'encadrement opération par opération,
+puis le signe de Uₙ₊₁ − Uₙ.** {suite-variation-difference} (Terminale, 6.13,
+demande de Turquet, septembre 2026, repris de la fiche « VARIATION
+DIFFÉRENCE ») suit {suite-tcm-limite} au menu : la MÊME suite que le 6.11 —
+U₀ = 0, Uₙ₊₁ = 3/(4 − Uₙ) — et l'AUTRE méthode. Là-bas la récurrence
+démontre d'un coup le sens et la borne en appliquant f croissante ; ici elle
+ne démontre que l'ENCADREMENT 0 ≤ Uₙ ≤ 1, en transformant les deux bornes
+opération par opération — l'opposé ÉCHANGE, ajouter 4 conserve, l'inverse
+ÉCHANGE, multiplier par 3 conserve, la discipline de {suites-encadrement} —,
+puis le sens vient du SIGNE de Uₙ₊₁ − Uₙ, mis au même dénominateur
+(Uₙ² − 4Uₙ + 3 sur 4 − Uₙ) et lu dans un tableau de signes. Six questions,
+celles de la fiche dans son ordre : a) l'escalier, b) la conjecture, c) la
+récurrence, d) la fraction, e) le signe, f) les variations.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ, et le REPÈRE est PARTAGÉ pour de bon** :
+le tirage est `svrVivier` — le vivier même du 6.11, points fixes ℓ < L —,
+l'arithmétique `svrAns`, et le repère, ses deux rails cliquables, la pose,
+le juge des points et la méthode dessinée sont `svrSVG`, `svrPoser`,
+`svrPtJuste`, appelés tels quels : `svrHote()` choisit l'hôte par le kind
+(`svdGraph` ou `svrGraph`), et `svrClic` accepte les deux kinds — un second
+repère aurait fini par diverger, et deux exercices voisins auraient dessiné
+la même courbe autrement. Les grilles à colonnes du 6.11 (`.svr-grille`, les
+« ≤ » les uns sous les autres — la demande de Turquet, tenue ici dès le
+premier jour), les cases qui grandissent (`sa2In`), les fractions
+(`sa2Frac`), les lecteurs du 6.10 (`rfrNb` : entier, décimal ou fraction,
+comparé EXACTEMENT — « 1/3 » se tape en fraction ; `rfrLin` pour les rangs),
+la correction commune (`corrCase`, `msgCorrCouleurs`) : rien de neuf.
+**LES DEUX VISAGES sortent dans chaque séance**, en ordre mélangé : U₀ < ℓ
+donne une suite CROISSANTE (le cas de la fiche, différence positive), ℓ < U₀
+une suite DÉCROISSANTE (ℓ ≤ Uₙ ≤ U₀, différence négative) — sans eux l'élève
+apprendrait que le signe est toujours « + ». L'encadrement est
+[min(U₀, ℓ) ; max(U₀, ℓ)], et la DERNIÈRE ligne ÉLARGIT : quand la suite
+croît, 0 ≤ 3/4 ≤ Uₙ₊₁ ≤ 1 (la fiche — le terme qui élargit est f(m) = U₁, à
+GAUCHE) ; quand elle décroît, m ≤ Uₙ₊₁ ≤ U₁ ≤ M (à DROITE). Le contrôle
+REFAIT la chaîne par sa propre arithmétique, vérifie que f envoie [m ; M]
+dans lui-même (sans quoi l'hérédité mentirait), que (x − ℓ)(x − L)/(s − x) a
+le signe annoncé sur tout l'intervalle, que ℓ et L sont bien les racines du
+trinôme, et SIMULE la suite — la leçon du 6.11.
+**LES FRACTIONS DE d) SE LISENT COMME DES FONCTIONS DE Uₙ** : les cases sont
+des champs mathématiques, « Uₙ » tapé U_n, Un ou U devient la variable de
+`checkExprFn` (le juge du 2.1), et toute écriture ÉGALE est acceptée —
+3 − Uₙ(4 − Uₙ) comme 3 − 4Uₙ + Uₙ². La DERNIÈRE ligne exige en plus la forme
+DÉVELOPPÉE (aucune parenthèse — l'exposant « ^(2) » que l'aplatissement
+écrit n'en est pas une) : c'est elle que l'énoncé fait démontrer, et
+recopier la ligne d'avant n'y suffit pas, la leçon de {recurrence-formule}.
+Le clavier à l'écran offre Uₓ et n (`kbVarsFor`), et le contrôle l'ÉVALUE
+depuis la source — le clavier vit dans la greffe module, que jsdom ne
+charge pas, et une recherche dans l'`outerHTML` restait vide : le premier
+jet du contrôle a rougi sur une page juste.
+**LES PAIRES, ET LE SIGNE QUI SUIT SON ÉTIQUETTE** : les racines de e) et les
+deux étiquettes du tableau (le numérateur, le dénominateur, parmi cinq
+propositions à l'ordre tiré par question) suivent la règle des paires
+d'{antecedent-nombre} — l'ordre est libre, le doublon défendable une fois et
+faux la seconde —, et la case restée vide reçoit la valeur RESTANTE, jamais
+la première. Le signe d'une ligne se juge sur l'étiquette CHOISIE dans cette
+ligne, et sur sa promesse (être l'un des deux signes attendus) si
+l'étiquette est fausse : c'est le visage décroissant qui rend ce bord
+mesurable — le numérateur y est négatif et le dénominateur positif —, sur
+la fiche les deux signes sont « + » et un juge qui ignorerait l'étiquette
+resterait vert. Une case vide ne rougit jamais, chaque case se juge seule
+(un refus ne rougit QUE sa case, le contrôle le compte), les trois points
+du tracé sont des réponses (`pts-case` : 48 réponses par question), rien
+n'est révélé en soutien, la méthode se dessine à la vérification, et les
+champs mathématiques se jugent à la SORTIE, jamais à la frappe.
+Le banc NAVIGATEUR (« 6 tricies quinquies », déclaré par
+`suiteVariationDifference` dans `tests/profils.js`) tient ce que jsdom ne
+voit pas : les trois clics qui posent dans le repère de CET écran et non
+dans celui du 6.11, le trinôme TAPÉ pour de vrai (U, indice, exposant — la
+sérialisation réelle relue comme une fonction ET comme une forme
+développée), les deux grilles RENDUES au même centre par colonne sans rien
+qui défile, le tableau de signes avec une boîte, et la copie juste cliquée
+qui vaut le point, sur les deux visages.
+**Vingt et un sabotages au banc jsdom, chacun rougissant en nommant son
+défaut** — l'opposé qui ne renverse plus les bornes, f(M) à la place de f(m),
+les deux visages perdus, la réponse rangée dans la question, la forme non
+développée acceptée, le signe qui ne suit plus son étiquette, le doublon
+compté deux fois, la case vide rougie (à la vérification, puis sous la
+frappe), la méthode révélée en soutien, le champ mathématique jugé à la
+frappe, le clic refusé sur le kind svd, le repère dessiné dans l'hôte du
+6.11, Uₙ₊₁ hors de la colonne des termes, la valeur de U₀ posée à côté, le
+badge en LaTeX nu, la racine restante confondue avec la première, le clavier
+sans Uₓ, la clause anti-recopie retirée, les étiquettes à ordre figé, et le
+`pts-case` retiré des points du tracé — ce dernier rougit AUSSI chez le 6.11
+(« 35/35 au lieu de 38/38 »), la preuve que le repère est bien partagé et non
+recopié. Les deux bancs ont couvert l'exercice au premier passage sans rien
+déclarer — les contrôles universels, exactement ce pour quoi ils existent —
+et le premier échec du banc était celui du contrôle, pas de la page.
+
 **Le vocabulaire des suites se COCHE sur un dessin — et une borne plus large
-est une phrase vraie.** {suite-vocabulaire} (Terminale, 6.13, demande de
+est une phrase vraie.** {suite-vocabulaire} (Terminale, 6.14, demande de
 Turquet, septembre 2026 : « créer un exercice en terminale comme le pdf sur
 les suites », la fiche « Vocabulaire sur les suites ») ferme le thème
 Suites : les termes U₀ à U₁₂ d'une suite en croix sur un quadrillage, et
@@ -8336,12 +8575,12 @@ d'abord resté VERT en montrant un trou du contrôle — la copie de soutien ne
 laissait aucune case oubliée, donc « rien n'est révélé » n'avait rien à
 mesurer. Le premier jet du contrôle a rougi sur du code JUSTE (7 réponses
 attendues là où l'écran en compte 8) : un essai faux se reconnaît à ce qu'il
-rougit sur une page juste. L'exercice est placé en FIN de thème, en 6.13 :
+rougit sur une page juste. L'exercice est placé en FIN de thème, en 6.14 :
 ajouté en tête — où le vocabulaire aurait sa place — il aurait renuméroté les
 onze autres, et les numéros écrits du banc avec.
 
 **La fiche entière sur une suite dont f est un QUOTIENT : la synthèse.**
-{suite-synthese-variations} (Terminale, 6.14, demande de Turquet, septembre
+{suite-synthese-variations} (Terminale, 6.15, demande de Turquet, septembre
 2026, repris de la fiche « FICHE 3 — Synthèse sur variations de suites ») ferme
 le thème Suites — ajouté en DERNIER, il ne renumérote rien. C'est son
 Exercice 2, en entier et dans son ordre, sur un seul écran : a) les premiers
@@ -8422,7 +8661,7 @@ la question même de l'Exercice 2, et c'est elle qui fait cet exercice.
 Deux bancs, la répartition habituelle : jsdom tient le tirage honnête, la fiche
 épinglée, la règle des paires, le centième de la calculatrice, la case qui se
 juge SEULE, la case vide qui ne rougit jamais, le soutien qui ne révèle rien et
-le PARTAGE des deux moteurs ; le NAVIGATEUR (« 6 tricies quinquies », déclaré
+le PARTAGE des deux moteurs ; le NAVIGATEUR (« 6 tricies septies », déclaré
 par `suiteSynthese` dans `tests/profils.js`) CLIQUE l'escalier pour de vrai —
 c'est lui qui départage les deux rails —, TAPE la dérivée dans un vrai
 MathLive, mesure les « ≤ » de la récurrence alignés en colonnes (un
@@ -8471,6 +8710,21 @@ replier (« 78 px pour un contenu de 36 »), et la coupe au cadre retirée, qui
 ramène le pôle et son chemin invalide (« trois clics posent 1 point »). jsdom
 reste vert à bon droit sur les trois : il n'a ni mise en page, ni test de
 survol, ni police.
+**ET LA FUSION DE `main` L'A RENUMÉROTÉ, avec une collision TRIPLE au banc.**
+Deux exercices sont arrivés sur `main` pendant que celui-ci se faisait —
+{suite-variation-difference} en 6.13 et la Seconde {python-deux-lignes} — et
+le premier s'insère AVANT {suite-vocabulaire} : le vocabulaire passe en 6.14
+et la synthèse en 6.15. Les notes déjà obtenues ne bougent pas (elles portent
+l'IDENTIFIANT), les renvois écrits `{identifiant}` suivent d'eux-mêmes ; les
+numéros ÉCRITS — les trois assertions du banc, les noms de contrôle, les
+commentaires de la page — ont été repris à la main le jour même.
+**Et les TROIS sections du banc navigateur portaient « 6 tricies
+quinquies »** : la mienne, et les DEUX de `main`, qui se l'étaient prise l'une
+à l'autre à quelques heures d'écart — `main` était donc déjà rouge sur le
+contrôle des numéros de section, qui existe précisément pour cela. La règle
+tranche sans rien peser : le numéro revient au premier arrivé
+({suite-variation-difference}), la Seconde prend « sexies » et la synthèse,
+dernière arrivée, « septies ».
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
@@ -9618,23 +9872,21 @@ qu'un contrôle ne s'affiche sous le nom d'un autre. Le numéro revient à qui l
 pris EN PREMIER, le second prend le suivant (« 6 tricies quater »), et la
 citation de ce fichier suit le jour même — sans quoi la doctrine désignerait une
 section qui n'existe plus.
+**C'est la collision qu'aucune branche ne peut voir seule**, et c'est ce qui la
+distingue de toutes les autres : le contrôle lit la source du banc, chaque
+branche n'avait qu'UN de ces numéros, et les deux bancs étaient donc verts à
+bon droit. Le défaut n'existe que sur `main`, et il s'y voit à la première
+fusion. La règle qui en découle : au moment de refusionner `main`, on relit les
+numéros de section comme on relit les numéros d'exercice et `APP_VERSION` —
+c'est la même famille de collisions, et elle se règle de la même façon.
+**Et la réparation s'est heurtée à la même chose** : deux sessions ont corrigé
+ce numéro le même quart d'heure, chacune sur sa branche, et la seconde fusion
+n'a plus rien apporté que son paragraphe — écrit à côté du premier, il racontait
+deux fois le même épisode, ce que ce paragraphe-ci répare. Sur un `main` rouge,
+on regarde d'abord si quelqu'un est déjà en train de le réparer.
 Un dernier bord le garde honnête — il compte ce qu'il a trouvé et le DIT s'il
 n'a rien à mesurer : une expression régulière qui cesserait de reconnaître les
-titres le rendrait vert sur un banc entièrement dupliqué.
-**Et la collision qu'aucune branche ne peut voir seule est celle de la FUSION**
-(septembre 2026) : deux branches ouvertes le même jour ont pris « 6 tricies
-ter » chacune de son côté — {python-completer} en Seconde et {suite-vocabulaire}
-en Terminale. Les deux bancs étaient verts sur leur branche, à bon droit : le
-contrôle lit la source du banc, et chaque branche n'avait qu'un seul de ces
-numéros. C'est `main` qui a rougi, sur les TROIS niveaux d'un coup — le banc
-étant partagé —, une fois la seconde fusion faite. **Le contrôle a donc fait
-exactement son travail**, au seul endroit où le défaut existe ; ce qu'il ne
-peut pas faire est prévenir avant. La règle qui en découle : au moment de
-refusionner `main`, on relit les numéros de section comme on relit les numéros
-d'exercice et `APP_VERSION` — c'est la même famille de collisions, et elle se
-règle de la même façon, le dernier arrivé cède. Ici {suite-vocabulaire} est
-passé à « 6 tricies quater » : {python-completer} avait fusionné le premier et
-était déjà en ligne. Cinq sabotages,
+titres le rendrait vert sur un banc entièrement dupliqué. Cinq sabotages,
 chacun rougissant en nommant son défaut (un numéro imprimé deux fois, un
 en-tête privé de son titre, une moitié renommée seule, la lecture des titres
 débranchée, un sous-bloc déclaré qui n'existe plus).

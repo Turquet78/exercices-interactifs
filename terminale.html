@@ -761,7 +761,7 @@
   #svrSheet .dexp2-line.ok{background-color:#EAF0FF;border-left-color:var(--blue)}
   #svrSheet .dexp2-line.bad{background-color:var(--red-soft);border-left-color:var(--red)}
   #svrSheet .dexp2-line.sol{background-color:#E9F7F0;border-left-color:var(--green)}
-  /* 6.14 — LA GRILLE DE LA RÉCURRENCE : les termes aux colonnes PAIRES, les
+  /* 6.15 — LA GRILLE DE LA RÉCURRENCE : les termes aux colonnes PAIRES, les
      « ≤ » aux colonnes IMPAIRES, si bien qu'un « ≤ » tombe sous le « ≤ » de la
      ligne du dessus (la leçon du 6.11, où les chaînes se lisaient de travers).
      La septième colonne est SOUPLE : elle prend ce qui reste de la ligne —
@@ -790,7 +790,24 @@
   .svr-dcor{display:inline-block;margin:2px 0 8px}
   .svr-ccl{margin-top:12px}
   .svr-nowrap{white-space:nowrap}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-svq{padding-bottom:84px}
+/* ---- 6.12 Suites : sens de variation par la différence — le repère, les
+   grilles à colonnes et les cases sont ceux du 6.11 ; seul ce qui est propre
+   à cet écran vit ici. ---- */
+  #svdGraph .svr-svg{max-width:580px}
+  .svd-drow{gap:10px}
+  /* une case a la taille des nombres qui l'entourent : les champs de d)
+     écrivent à la taille de leur rangée (1,25 rem), et l'id l'emporte sur
+     « body math-field.dexp-mf » */
+  #svdPartD math-field.dexp-mf{font-size:1.25rem;min-width:3.4em;min-height:1.9em}
+  #svdPartD math-field.svd-large{min-width:8.5em}
+  #svdPartD .sa2-frac .bar{min-width:3.4em}
+  .svd-cor{font-size:1rem}
+  .svd-tbl{max-width:640px;margin:8px 0 4px}
+  .svd-tbl td.lab select{font-size:1rem;max-width:100%}
+  .svd-tbl td.svd-sgc{text-align:center}
+  .svd-tbl .tvi-sel.svd-sg{min-width:64px}
+  .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-svq{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2479,7 +2496,41 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="mp-actions" id="svrActions"></div>
     </div>
   </section>
-  <!-- 6.14 SUITES — SYNTHÈSE SUR LES VARIATIONS (fiche 3) -->
+  <!-- 6.12 SUITES — SENS DE VARIATION PAR LA DIFFÉRENCE U(n+1) − U(n) -->
+  <section class="screen" id="scr-svd">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="svdModeTag"></span><span class="q-idx" id="svdQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="svdLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="svdPrompt"></p>
+      <div class="svr-haut">
+        <div class="svr-colg">
+          <div class="sv-graph svr-graph" id="svdGraph"></div>
+          <div class="svr-outils">
+            <button type="button" class="btn btn-ghost" onclick="svrEffacer()">↺ Effacer le tracé</button>
+            <span class="svr-trace" id="svdTrace"></span>
+          </div>
+        </div>
+        <div class="svr-cold">
+          <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">a)</span> <span id="svdTitreA"></span></p></div>
+          <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">b)</span> Que peut-on conjecturer pour le sens de variation de la suite&nbsp;?</p>
+            <div class="sa2-ladder" id="svdPartB"></div></div>
+        </div>
+      </div>
+      <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">c)</span> <span id="svdTitreC"></span></p>
+        <div class="sa2-ladder" id="svdPartC"></div></div>
+      <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">d)</span> <span id="svdTitreD"></span></p>
+        <div class="sa2-ladder" id="svdPartD"></div></div>
+      <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">e)</span> <span id="svdTitreE"></span></p>
+        <div class="sa2-ladder" id="svdPartE"></div></div>
+      <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">f)</span> <span id="svdTitreF"></span></p>
+        <div class="sa2-ladder" id="svdPartF"></div></div>
+      <div class="mp-feedback" id="svdFeedback"></div>
+      <div class="mp-actions" id="svdActions"></div>
+    </div>
+  </section>
+  <!-- 6.15 SUITES — SYNTHÈSE SUR LES VARIATIONS (fiche 3) -->
   <section class="screen" id="scr-ssv">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="ssvModeTag"></span><span class="q-idx" id="ssvQIdx">Question 1 / 2</span></span>
@@ -3050,6 +3101,7 @@ const TESTS={
   'suite-tcm-limite': { name:'Suites \u2014 convergence monotone et limite', icon:'\ud83c\udfaf', desc:'On te donne un encadrement de (U\u2099)\u00a0: lis-y le sens de variation, conclus avec le th\u00e9or\u00e8me de convergence monotone que la suite admet une limite finie, puis d\u00e9termine \u2113 par passage \u00e0 la limite dans U\u2099\u208a\u2081 = f\u2009(U\u2099) \u2014 la fiche, case par case.', start:()=>startTCL() },
   'suite-synthese-variations': { name:'Suites \u2014 synth\u00e8se sur les variations', icon:'\ud83e\udde9', desc:'La fiche \u00ab Synth\u00e8se sur variations de suites \u00bb en entier, sur une suite U\u2099\u208a\u2081 = f\u2009(U\u2099) dont f est un QUOTIENT\u00a0: a) les premiers termes \u00e0 la calculatrice, b) le trac\u00e9 en escalier, c) la conjecture, d) les variations de f, e) la r\u00e9currence qui d\u00e9montre l\u2019encadrement, f) U\u2099\u208a\u2081 \u2212 U\u2099 mis sur un d\u00e9nominateur commun et le signe du quotient, g) les variations de la suite, h) le th\u00e9or\u00e8me de convergence monotone, i) la limite par produit en croix \u2014 une \u00e9quation du second degr\u00e9, deux solutions, et il faut choisir. Le trac\u00e9 et la r\u00e9currence viennent de {suite-variation-recurrence}, le th\u00e9or\u00e8me et le passage \u00e0 la limite de {suite-tcm-limite}.', start:()=>startSSV() },
   'suite-vocabulaire': { name:'Suites \u2014 vocabulaire (croissante, born\u00e9e, convergente\u2026)', icon:'\ud83d\udccb', desc:'La fiche \u00ab\u00a0Vocabulaire sur les suites\u00a0\u00bb\u00a0: on te montre les termes U\u2080 \u00e0 U\u2081\u2082 d\u2019une suite sur un quadrillage, et tu coches ce qu\u2019elle semble \u00eatre \u2014 croissante, d\u00e9croissante ou non monotone\u00a0; major\u00e9e par\u2026, minor\u00e9e par\u2026, born\u00e9e\u00a0; a comme limite\u2026 ou n\u2019a pas de limite\u00a0; convergente ou divergente. Quatre suites par s\u00e9ance, jamais du m\u00eame genre.', start:()=>startSVQ() },
+  'suite-variation-difference': { name:'Suites \u2014 sens de variation par la diff\u00e9rence U\u2099\u208a\u2081 \u2212 U\u2099', icon:'\u00b1', desc:'La m\u00eame suite que {suite-variation-recurrence}, par l\u2019AUTRE m\u00e9thode\u00a0: a) trace les 3 premiers termes en escalier, b) conjecture le sens de variation, c) d\u00e9montre par r\u00e9currence l\u2019encadrement m \u2264 U\u2099 \u2264 M en transformant les deux bornes op\u00e9ration par op\u00e9ration (l\u2019oppos\u00e9 et l\u2019inverse \u00c9CHANGENT les bornes), d) mets U\u2099\u208a\u2081 \u2212 U\u2099 au m\u00eame d\u00e9nominateur, e) \u00e9tudie son signe dans un tableau, f) conclus sur les variations de la suite.', start:()=>startSVD() },
   'suites-encadrement': { name:'Suites \u2014 encadrements (pr\u00e9parer la r\u00e9currence)', icon:'\u2264', desc:'\u00c0 partir de m \u2264 x \u2264 M, encadre pas \u00e0 pas 0,5x + b, \u221a(x + c), k/(x + 1) ou a \u2212 b/(x + c), justifie chaque \u00e9tape, puis conclus que f(x) \u2208 [m ; M] \u2014 la cl\u00e9 de l\u2019h\u00e9r\u00e9dit\u00e9 dans une r\u00e9currence.', start:()=>startENC() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
@@ -3063,7 +3115,7 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique','tvi-alpha-signe'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-formule','recurrence-complete','recurrence-redaction','suite-auxiliaire-redaction','recurrence-fractions','suite-variation-recurrence','suite-tcm-limite','suite-vocabulaire','suite-synthese-variations'] }
+  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-formule','recurrence-complete','recurrence-redaction','suite-auxiliaire-redaction','recurrence-fractions','suite-variation-recurrence','suite-tcm-limite','suite-variation-difference','suite-vocabulaire','suite-synthese-variations'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -3636,6 +3688,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
   else if(test && test.kind==='ssv' && test.questions && test.questions[test.idx]){ c=ssvConseilCtx(); }
   else if(test && test.kind==='svq' && test.questions && test.questions[test.idx]){ c=svqConseilCtx(); }
+  else if(test && test.kind==='svd' && test.questions && test.questions[test.idx]){ c=svdConseilCtx(); }
   else if(test && test.kind==='enc' && test.questions && test.questions[test.idx]){ c=encConseilCtx(); }
   else if(test && test.kind==='rec' && test.questions && test.questions[test.idx]){ c=recConseilCtx(); }
   else if(test && test.kind==='sp' && test.questions && test.questions[test.idx]){ c=spConseilCtx(); }
@@ -4433,7 +4486,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], rfr:['rfr',renderRFR], svr:['svr',renderSVR], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4555,7 +4608,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','enc','rec','ef','eq','rc','rf','rfr','svr','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','enc','rec','ef','eq','rc','rf','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -15096,6 +15149,12 @@ const RAP_SVR=`<b>Sens de variation d’une suite U<sub>n+1</sub> = f (U<sub>n</
 • <b>Pourquoi f croissante est la clé</b> : une fonction croissante CONSERVE l’ordre. Si <i>a</i> ≤ <i>b</i> alors f (<i>a</i>) ≤ f (<i>b</i>). On applique donc f aux quatre membres de l’hypothèse : chaque f (U<sub>k</sub>) devient U<sub>k+1</sub>, et l’encadrement se décale d’un rang.<br>
 • <b>La dérivée de </b>\(f(x)=\frac{3}{4-x}\)<b> </b> : on dérive \(\frac{1}{v}\) en \(\frac{-v'}{v^2}\). Ici <i>v</i> = 4 − <i>x</i> et <i>v</i>′ = −1, donc \(f'(x)=\frac{3}{(4-x)^2}\), strictement positive : f est croissante.<br>
 • <b>Le dernier pas</b> : après avoir appliqué f, on n’a pas encore tout à fait la propriété au rang suivant — il reste à ÉLARGIR l’encadrement avec la valeur f (U<sub>0</sub>), c’est-à-dire U<sub>1</sub>.`;
+const RAP_SVD=`<b>Sens de variation d’une suite par le signe de U<sub>n+1</sub> − U<sub>n</sub></b><br>
+• <b>Le tracé en escalier</b> : on part de U<sub>0</sub> sur l’axe des abscisses, on MONTE jusqu’à la courbe — la hauteur lue est U<sub>1</sub> —, on rejoint la droite d’équation <i>y</i> = <i>x</i> pour ramener U<sub>1</sub> sur l’axe, et on recommence.<br>
+• <b>Encadrer par récurrence, opération par opération</b> : on part de l’hypothèse <i>m</i> ≤ U<sub>n</sub> ≤ <i>M</i> et on transforme les DEUX bornes en même temps que U<sub>n</sub>. Prendre l’<b>opposé</b> ÉCHANGE les bornes ; <b>ajouter</b> un nombre les conserve ; passer à l’<b>inverse</b> (de nombres strictement positifs) les ÉCHANGE ; <b>multiplier</b> par un nombre positif les conserve. Par exemple, à partir de 0 ≤ U<sub>n</sub> ≤ 1 : −1 ≤ −U<sub>n</sub> ≤ 0, puis 3 ≤ 4 − U<sub>n</sub> ≤ 4, puis \(\frac{1}{4}\le\frac{1}{4-U_n}\le\frac{1}{3}\), puis \(\frac{3}{4}\le\frac{3}{4-U_n}\le 1\), donc \(0\le\frac{3}{4}\le U_{n+1}\le 1\).<br>
+• <b>La différence au même dénominateur</b> : \(U_{n+1}-U_n=\frac{3}{4-U_n}-U_n=\frac{3}{4-U_n}-\frac{U_n\left(4-U_n\right)}{4-U_n}=\frac{U_n^2-4U_n+3}{4-U_n}\).<br>
+• <b>Le signe d’un trinôme</b> se lit avec ses racines : \(U_n^2-4U_n+3=\left(U_n-1\right)\left(U_n-3\right)\), positif à l’extérieur des racines et négatif entre elles. Pour U<sub>n</sub> entre 0 et 1 il est positif, et le dénominateur 4 − U<sub>n</sub> aussi : le quotient est positif.<br>
+• <b>Conclure</b> : si U<sub>n+1</sub> − U<sub>n</sub> ≥ 0 pour tout <i>n</i>, la suite est croissante ; si U<sub>n+1</sub> − U<sub>n</sub> ≤ 0, elle est décroissante. C’est l’autre chemin que celui de {suite-variation-recurrence}, qui applique f croissante à l’encadrement.`;
 const RAP_TCL=`<b>Théorème de convergence monotone, et limite d’une suite U<sub>n+1</sub> = f (U<sub>n</sub>)</b><br>
 • <b>Lire le sens de variation dans l’hypothèse</b> : U<sub>n</sub> ≤ U<sub>n+1</sub> (ou U<sub>n+1</sub> − U<sub>n</sub> ≥ 0) pour tout <i>n</i>, c’est « chaque terme est plus grand que le précédent » : la suite est <b>croissante</b>. U<sub>n+1</sub> ≤ U<sub>n</sub> (ou U<sub>n+1</sub> − U<sub>n</sub> ≤ 0) : elle est <b>décroissante</b>. Les deux écritures disent la même chose.<br>
 • <b>Majorée, minorée</b> : U<sub>n</sub> ≤ M pour tout <i>n</i>, la suite est <b>majorée</b> par M ; m ≤ U<sub>n</sub> pour tout <i>n</i>, elle est <b>minorée</b> par m.<br>
@@ -15114,7 +15173,7 @@ const RAP_SSV=`<b>Synthèse : variations d’une suite U<sub>n+1</sub> = f (U<su
 • <b>Le signe de U<sub>n+1</sub> − U<sub>n</sub></b> : on met tout sur le même dénominateur — on multiplie U<sub>n</sub> en haut ET en bas par ce dénominateur. Il reste un quotient dont le numérateur est un trinôme du second degré : son signe se lit sur la position de U<sub>n</sub> par rapport à ses deux racines, et le dénominateur, lui, est positif.<br>
 • <b>Le théorème de convergence monotone</b> : une suite <b>croissante et majorée</b> converge ; une suite <b>décroissante et minorée</b> converge aussi. C’est la borne du BON côté qui compte.<br>
 • <b>La limite, par produit en croix</b> : U<sub>n</sub> et U<sub>n+1</sub> ont la MÊME limite ℓ. On remplace les deux par ℓ dans la relation, puis on chasse le dénominateur : \(\ell=\frac{a\ell-p}{\ell+c}\) devient ℓ(ℓ + <i>c</i>) = <i>a</i>ℓ − <i>p</i>, c’est-à-dire une équation du second degré, avec en général <b>deux</b> solutions. C’est l’ENCADREMENT démontré à la récurrence qui dit laquelle garder : la limite est du même côté que tous les termes de la suite.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, svr:RAP_SVR, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -18346,9 +18405,9 @@ function svrDerTex(a){ return '\\frac{'+numFmt(a.p)+'}{\\left('+numFmt(a.s)+'-x\
    structure avait béni une chaîne fausse. La feuille ENTIÈRE porte le verdict
    de la réponse — c'est elle qui compte dans la note (pts-case), une fois et
    une seule, quel que soit le nombre de lignes écrites. */
-/* ---- LA FEUILLE DE LA DÉRIVÉE, PARTAGÉE (6.11 et 6.14) ------------------
+/* ---- LA FEUILLE DE LA DÉRIVÉE, PARTAGÉE (6.11 et 6.15) ------------------
    Deux écrans font écrire la dérivée ligne par ligne, avec la présentation du
-   2.5 (demande de Turquet, septembre 2026) : le 6.11 et la synthèse du 6.14.
+   2.5 (demande de Turquet, septembre 2026) : le 6.11 et la synthèse du 6.15.
    Les cinq gestes — lire les lignes, les juger, les peindre, révéler la bonne
    réponse, verrouiller — vivent donc à UN SEUL endroit, paramétré par la
    feuille et par les identifiants de l'écran : deux copies auraient fini par
@@ -18483,9 +18542,9 @@ function svrCorrVal(a,x){
 function svrPtsAttendus(a){ return [{r:'c',x:a.U0},{r:'d',x:a.U1},{r:'c',x:a.U1}]; }
 function svrPtJuste(a,i,pt){ return escPtJuste(svrCadre(a), i, pt); }
 
-/* ---- LE REPÈRE ET L'ESCALIER, PARTAGÉS (6.11 et 6.14) -------------------
+/* ---- LE REPÈRE ET L'ESCALIER, PARTAGÉS (6.11 et 6.15) -------------------
    Deux exercices font tracer la construction en escalier d'une suite
-   Uₙ₊₁ = f (Uₙ) : le 6.11 et la synthèse du 6.14. Le dessin vit donc à UN
+   Uₙ₊₁ = f (Uₙ) : le 6.11 et la synthèse du 6.15. Le dessin vit donc à UN
    SEUL endroit — deux repères auraient fini par diverger, et la même
    construction se serait dessinée autrement d'un écran à l'autre sous les
    yeux de l'élève. Ce qui change d'un exercice à l'autre voyage dans un
@@ -18600,11 +18659,15 @@ function svrCadre(a,q,etat){
            pts:(q&&Array.isArray(q.pts))?q.pts:[], actif:!!(q&&!etat&&!test.locked) };
 }
 function svrSVG(q,etat){ return escSVG(svrCadre(svrAns(q),q,etat), etat||''); }
+
+/* Le repère, la pose et l'effacement sont PARTAGÉS avec {suite-variation-difference}
+   (même vivier, même escalier) : les hôtes se choisissent par le kind. */
+function svrHote(){ return (test&&test.kind==='svd') ? {g:'svdGraph',t:'svdTrace'} : {g:'svrGraph',t:'svrTrace'}; }
 function svrDessiner(etat){
   const q=test.questions[test.idx]; if(!q) return;
-  const h=$('svrGraph'); if(!h) return;
+  const h=$(svrHote().g); if(!h) return;
   h.innerHTML=svrSVG(q,etat||'');
-  const n=$('svrTrace');
+  const n=$(svrHote().t);
   if(n) n.textContent=(q.pts&&q.pts.length)?('Points placés : '+q.pts.length+' / 3'):'Aucun point placé.';
 }
 /* La pose, sans le clic : jsdom n'a pas de mise en page (un SVG y a un
@@ -18622,7 +18685,7 @@ function svrPoser(rail,x){
 }
 function svrClic(evt){
   if(test.locked) return;
-  const q=test.questions[test.idx]; if(!q||test.kind!=='svr') return;
+  const q=test.questions[test.idx]; if(!q||(test.kind!=='svr'&&test.kind!=='svd')) return;
   const cible=evt.target;
   const rail=(cible&&cible.getAttribute)?cible.getAttribute('data-rail'):null;
   if(!rail) return;
@@ -18912,7 +18975,7 @@ function svrConseilCtx(){
    +'Tu peux lui rappeler qu’il trouve le cours complet avec le bouton « Voir le rappel de cours » de cette fenêtre. '
    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
 }
-/* ================= 6.14 SUITES — SYNTHÈSE SUR LES VARIATIONS ==================
+/* ================= 6.15 SUITES — SYNTHÈSE SUR LES VARIATIONS ==================
    Repris de la fiche « FICHE 3 — Synthèse sur variations de suites » (demande
    de Turquet, septembre 2026), son Exercice 2 : U₀ = 1, Uₙ₊₁ = (2,5 Uₙ − 1)/Uₙ,
    donc Uₙ₊₁ = f (Uₙ) avec f (x) = (2,5 x − 1)/x — et les neuf questions du
@@ -19879,6 +19942,392 @@ function svqConseilCtx(){
    +'CONTRAINTE ANTI-RECOPIE : ne donne aucune de ces réponses, aucune valeur de borne ni de limite. '
    +'Rappelle les DÉFINITIONS si besoin : convergente = a une limite FINIE ; divergente = a une limite infinie OU n’a pas de limite ; bornée = majorée ET minorée ; monotone = toujours dans le même sens ; « majorée par M » = tous les termes restent au-dessous de M. '
    +'Méthode : faire LIRE le dessin — les croix montent-elles toujours ? descendent-elles toujours ? se rapprochent-elles d’une hauteur ? restent-elles entre deux hauteurs ? '
+   +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
+/* ====================== 6.12 SUITES — SENS DE VARIATION PAR LA DIFFÉRENCE Uₙ₊₁ − Uₙ ======================
+   La fiche « VARIATION DIFFÉRENCE » (demande de Turquet, septembre 2026) :
+   la MÊME suite que {suite-variation-recurrence} — U₀ = 0, Uₙ₊₁ = 3/(4 − Uₙ) —
+   mais l'AUTRE méthode. Là-bas la récurrence démontre d'un coup le sens et la
+   borne, en appliquant f croissante ; ici la récurrence ne démontre que
+   l'ENCADREMENT m ≤ Uₙ ≤ M, opération par opération — l'opposé échange les
+   bornes, ajouter les conserve, l'inverse les échange, multiplier par un
+   positif les conserve (la discipline de {suites-encadrement}) —, puis le
+   sens de variation vient du SIGNE de Uₙ₊₁ − Uₙ, mis au même dénominateur et
+   étudié dans un tableau de signes. Six questions, celles de la fiche dans
+   son ordre : a) tracer les 3 premiers termes en escalier, b) conjecturer
+   le sens, c) démontrer l'encadrement par récurrence, d) démontrer
+   Uₙ₊₁ − Uₙ = (Uₙ² − sUₙ + p)/(s − Uₙ), e) étudier son signe, f) conclure.
+
+   TOUT EST REPRIS, RIEN N'EST RECOPIÉ : le tirage est svrVivier — le vivier
+   MÊME du 6.11, points fixes ℓ < L, f(x) = ℓL/(ℓ + L − x) — et l'arithmétique
+   svrAns ; le repère, les deux rails cliquables, la pose, le juge des points
+   et la méthode dessinée sont svrSVG, svrPoser, svrPtJuste (les hôtes sont
+   choisis par svrHote selon le kind) ; les cases qui grandissent (sa2In,
+   sa2Ajuster), les fractions (sa2Frac), les grilles à colonnes (.svr-grille,
+   les « ≤ » les uns sous les autres — la demande de Turquet sur le 6.11,
+   tenue ici dès le premier jour), les lecteurs du 6.10 (rfrNb : entier,
+   décimal ou fraction, comparé EXACTEMENT ; rfrLin pour les rangs), la
+   lecture d'une expression comme une FONCTION (checkExprFn, du 2.1) pour les
+   fractions de d), la correction commune (corrCase, msgCorrCouleurs).
+
+   LES DEUX VISAGES sortent dans chaque séance, en ordre mélangé : U₀ < ℓ
+   donne une suite CROISSANTE (le cas de la fiche, 0 ≤ Uₙ ≤ 1, différence
+   positive), ℓ < U₀ < L une suite DÉCROISSANTE (ℓ ≤ Uₙ ≤ U₀, différence
+   négative). Sans eux, l'élève apprendrait que le signe est toujours « + ».
+   L'encadrement est [m ; M] = [min(U₀, ℓ) ; max(U₀, ℓ)] : f croissante y
+   envoie [m ; M] dans lui-même (f(ℓ) = ℓ, et f(U₀) = U₁ est du bon côté), et
+   c'est ce que la chaîne de c) démontre. La DERNIÈRE ligne élargit : quand
+   la suite croît, f(m) = U₁ ≥ m et l'on écrit m ≤ U₁ ≤ Uₙ₊₁ ≤ M (la fiche) ;
+   quand elle décroît, f(M) = U₁ ≤ M et l'on écrit m ≤ Uₙ₊₁ ≤ U₁ ≤ M.
+   Uₙ₊₁ − Uₙ = (Uₙ − ℓ)(Uₙ − L)/(s − Uₙ) : sur [m ; M] le dénominateur est
+   strictement positif et le numérateur du signe annoncé — c'est ℓ et L, les
+   racines du trinôme, que e) fait retrouver avant de remplir le tableau.
+
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : celle-ci ne
+   porte que ℓ, L, U₀, le sens, l'ordre des étiquettes du tableau et le tracé ;
+   svdAns recalcule tout, et le contrôle refuse tout autre champ.
+
+   LES FRACTIONS DE d) SE LISENT COMME DES FONCTIONS de Uₙ : « Uₙ » (tapé
+   U_n, Un, U…) devient la variable, et toute écriture ÉGALE est acceptée —
+   3 − Uₙ(4 − Uₙ) comme 3 − 4Uₙ + Uₙ². La DERNIÈRE ligne exige en plus la
+   forme DÉVELOPPÉE (aucune parenthèse) : c'est elle que l'énoncé fait
+   démontrer, et le recopiage de la ligne précédente n'y suffit pas — la
+   leçon de {recurrence-formule}. Les racines de e) et les deux étiquettes du
+   tableau suivent la règle des PAIRES : l'ordre est libre, le doublon est
+   défendable une fois et faux la seconde ; le signe d'une ligne se juge sur
+   l'étiquette CHOISIE dans cette ligne (et sur sa promesse si l'étiquette
+   est fausse : être l'un des deux signes attendus).
+
+   Une case vide ne reçoit jamais de couleur, chaque case se juge seule, les
+   trois points du tracé sont des réponses (pts-case), rien n'est révélé en
+   soutien, et la méthode (l'escalier juste, les lectures d'axe) n'est
+   dessinée qu'à la vérification. Les champs mathématiques de d) se jugent à
+   la SORTIE et jamais à la frappe — la convention des cases math de la
+   Terminale — et le clavier à l'écran leur offre Uₓ et n (kbVarsFor). */
+const SVD_LABS=['num','den','un','cst','un1'];   /* les étiquettes proposées pour les deux lignes du tableau de signes */
+const SVD_IDS=['svd-b1',
+  'svd-n0','svd-i1','svd-i2','svd-i3','svd-init','svd-v0',
+  'svd-h1','svd-h2','svd-h3','svd-m1','svd-m2','svd-m3',
+  'svd-d1a','svd-d1b','svd-d2a','svd-d2b','svd-d3a','svd-d3b','svd-d4a','svd-d4b','svd-d5a','svd-d5b','svd-d6a','svd-d6b','svd-d6c',
+  'svd-e1n','svd-e1d','svd-e2n','svd-e2d','svd-e2k1','svd-e2k2','svd-e3n','svd-e3d','svd-e4n','svd-e4d',
+  'svd-r1','svd-r2','svd-t1','svd-t2','svd-s1','svd-s2','svd-s3',
+  'svd-f1','svd-f2'];
+const SVD_MF=['svd-e1n','svd-e1d','svd-e2n','svd-e2d','svd-e2k1','svd-e2k2','svd-e3n','svd-e3d','svd-e4n','svd-e4d'];
+/* Une séance : les DEUX visages, chacun une fois, en ordre mélangé — le tirage est celui du 6.11. */
+function svdSession(){
+  const ordre=(rand(0,1)===0)?['dec','cro']:['cro','dec'];
+  return ordre.map(function(sens){
+    const c=pick(svrVivier(sens));
+    return { l:c.l, L:c.L, U0:c.U0, sens:sens, ordreLab:svrMelange(SVD_LABS), pts:[] };
+  });
+}
+/* Une fraction réduite : sa valeur, et son écriture (« 3/4 », « −1 », « 4 »). */
+function svdFr(n,d){
+  const g=rfrPgcd(n,d)||1; n=n/g; d=d/g; if(d<0){ n=-n; d=-d; }
+  return { n:n, d:d, v:n/d, s:(d===1?numFmt(n):numFmt(n)+'/'+numFmt(d)) };
+}
+/* Toutes les réponses, calculées depuis la question et elle seule. */
+function svdAns(q){
+  const a=svrAns(q), p=a.p, s=a.s, m=a.Dmin, M=a.Dmax, dec=a.dec, F=svdFr;
+  a.m=m; a.M=M;
+  /* la chaîne de la démonstration : chaque ligne, ses deux bornes dans l'ordre */
+  a.chaine=[ [F(m,1),F(M,1)], [F(-M,1),F(-m,1)], [F(s-M,1),F(s-m,1)], [F(1,s-m),F(1,s-M)], [F(p,s-m),F(p,s-M)] ];
+  a.fm=F(p,s-m); a.fM=F(p,s-M);
+  a.fin6=dec ? [F(m,1),a.fM,F(M,1)] : [F(m,1),a.fm,F(M,1)];   /* m ≤ Uₙ₊₁ ≤ f(M) ≤ M, ou m ≤ f(m) ≤ Uₙ₊₁ ≤ M */
+  a.ordreLab=(q.ordreLab&&q.ordreLab.length===SVD_LABS.length)?q.ordreLab:SVD_LABS.slice();
+  a.sgnNum=dec?'−':'+'; a.sgnDen='+'; a.sgnDiff=dec?'−':'+';
+  a.rac=[a.l,a.L];
+  return a;
+}
+function svdTrin(a){ return function(x){ return x*x-a.s*x+a.p; }; }
+function svdDen(a){ return function(x){ return a.s-x; }; }
+function svdLabTexte(a,k){
+  if(k==='num') return 'Uₙ² − '+numFmt(a.s)+'Uₙ + '+numFmt(a.p);
+  if(k==='den') return numFmt(a.s)+' − Uₙ';
+  if(k==='un')  return 'Uₙ';
+  if(k==='cst') return numFmt(a.p);
+  return 'Uₙ₊₁';
+}
+/* ---- la lecture des champs mathématiques de d) : Uₙ devient la variable ---- */
+function svdEnX(plain){
+  return String(plain==null?'':plain).replace(/U_\(n\)|U_\{n\}|U_n|Un|U/gi,'x').replace(/[×·]/g,'*');
+}
+function svdMfPlain(id){ return String(dexpCellValue(id)||'').trim(); }
+function svdFnOk(plain, fn){ return checkExprFn(svdEnX(plain), fn); }
+/* la forme DÉVELOPPÉE : égale, et sans parenthèse (l'exposant « ^(2) » que l'aplatissement écrit n'en est pas une) */
+function svdDevOk(plain, fn){
+  const t=svdEnX(plain).replace(/\^\((\d+)\)/g,'^$1');
+  return svdFnOk(plain, fn) && !/[()]/.test(t);
+}
+/* la règle des PAIRES : chaque valeur est prise une fois, le doublon est défendable une fois et faux la seconde */
+function svdPaires(vals, attendus, egal){
+  const reste=attendus.slice();
+  const ok=vals.map(function(v){
+    const i=reste.findIndex(function(t){ return egal(v,t); });
+    if(i<0) return false;
+    reste.splice(i,1); return true;
+  });
+  return { ok:ok, reste:reste };
+}
+/* Les cases à verdict SIMPLE : {id, t, v} — les paires et les signes couplés sont jugés à part. */
+function svdSpecs(a){
+  const S=[], add=function(id,t,v,x){ S.push({id:id,t:t,v:v,x:x}); };
+  add('svd-b1','sel',a.dec?'dec':'cro');
+  add('svd-n0','nb',svdFr(0,1)); add('svd-i1','nb',svdFr(a.m,1)); add('svd-i2','rang',[0,0]); add('svd-i3','nb',svdFr(a.M,1));
+  add('svd-init','sel','vrai'); add('svd-v0','nb',svdFr(a.U0,1));
+  add('svd-h1','nb',svdFr(a.m,1)); add('svd-h2','rang',[1,0]); add('svd-h3','nb',svdFr(a.M,1));
+  add('svd-m1','nb',svdFr(a.m,1)); add('svd-m2','rang',[1,1]); add('svd-m3','nb',svdFr(a.M,1));
+  a.chaine.forEach(function(l,i){ add('svd-d'+(i+1)+'a','nb',l[0]); add('svd-d'+(i+1)+'b','nb',l[1]); });
+  add('svd-d6a','nb',a.fin6[0]); add('svd-d6b','nb',a.fin6[1]); add('svd-d6c','nb',a.fin6[2]);
+  const P=numFmt(a.p), Sx=numFmt(a.s);
+  const cst=function(x){ return a.p; };
+  const texDen=Sx+'-U_{n}', htmlDen=Sx+' − <i>U</i><sub><i>n</i></sub>';
+  add('svd-e1n','fn',cst,{tex:P,html:P}); add('svd-e1d','fn',svdDen(a),{tex:texDen,html:htmlDen});
+  add('svd-e2n','fn',cst,{tex:P,html:P}); add('svd-e2d','fn',svdDen(a),{tex:texDen,html:htmlDen});
+  add('svd-e2k1','fn',svdDen(a),{tex:texDen,html:htmlDen}); add('svd-e2k2','fn',svdDen(a),{tex:texDen,html:htmlDen});
+  add('svd-e3n','fn',svdTrin(a),{tex:P+'-U_{n}\\left('+Sx+'-U_{n}\\right)',html:P+' − <i>U</i><sub><i>n</i></sub>('+Sx+' − <i>U</i><sub><i>n</i></sub>)'});
+  add('svd-e3d','fn',svdDen(a),{tex:texDen,html:htmlDen});
+  add('svd-e4n','dev',svdTrin(a),{tex:'U_{n}^{2}-'+Sx+'U_{n}+'+P,html:'<i>U</i><sub><i>n</i></sub><sup>2</sup> − '+Sx+'<i>U</i><sub><i>n</i></sub> + '+P});
+  add('svd-e4d','fn',svdDen(a),{tex:texDen,html:htmlDen});
+  add('svd-s3','sel',a.sgnDiff);
+  add('svd-f1','sel',a.dec?'neg':'pos'); add('svd-f2','sel',a.dec?'dec':'cro');
+  return S;
+}
+function svdLire(id){
+  const el=$(id); if(!el) return '';
+  return el.tagName==='MATH-FIELD' ? svdMfPlain(id) : String(el.value==null?'':el.value);
+}
+/* Tous les verdicts d'un coup : ok[id], vide[id], et ce que la correction
+   REPOSE dans la case (cor[id] — la valeur d'une liste, le texte d'une case,
+   {tex, html} d'un champ mathématique). Les paires et les signes couplés se
+   décident ici, parce qu'ils se regardent l'un l'autre. */
+function svdVerdicts(q){
+  const a=svdAns(q), ok={}, vide={}, cor={};
+  svdSpecs(a).forEach(function(x){
+    const raw=svdLire(x.id); vide[x.id]=(raw.trim()==='');
+    if(x.t==='sel'){ ok[x.id]=(raw===x.v); cor[x.id]=x.v; }
+    else if(x.t==='nb'){ const v=rfrNb(raw); ok[x.id]=isFinite(v)&&Math.abs(v-x.v.v)<1e-9; cor[x.id]=x.v.s; }
+    else if(x.t==='rang'){ const r=rfrLin(raw); ok[x.id]=!!r&&Math.abs(r.p-x.v[0])<1e-9&&Math.abs(r.c-x.v[1])<1e-9; cor[x.id]=svrRangStr(x.v); }
+    else if(x.t==='fn'){ ok[x.id]=!vide[x.id]&&svdFnOk(raw,x.v); cor[x.id]=x.x; }
+    else if(x.t==='dev'){ ok[x.id]=!vide[x.id]&&svdDevOk(raw,x.v); cor[x.id]=x.x; }
+  });
+  /* les racines du trinôme : ℓ et L, dans l'ordre qu'on veut */
+  { const ids=['svd-r1','svd-r2'], raws=ids.map(svdLire);
+    const P=svdPaires(raws, a.rac.slice(), function(v,t){ const x=rfrNb(v); return isFinite(x)&&Math.abs(x-t)<1e-9; });
+    ids.forEach(function(id,i){ vide[id]=(raws[i].trim()===''); ok[id]=P.ok[i]; cor[id]=P.ok[i]?raws[i]:numFmt(P.reste.shift()); }); }
+  /* les deux étiquettes du tableau : le numérateur et le dénominateur, dans l'ordre qu'on veut —
+     et le signe d'une ligne suit l'étiquette qu'elle porte */
+  { const ids=['svd-t1','svd-t2'], raws=ids.map(svdLire);
+    const P=svdPaires(raws, ['num','den'], function(v,t){ return v===t; });
+    const finals=ids.map(function(id,i){ vide[id]=(raws[i].trim()===''); ok[id]=P.ok[i]; cor[id]=P.ok[i]?raws[i]:P.reste.shift(); return cor[id]; });
+    const sgn=function(lab){ return lab==='num'?a.sgnNum:a.sgnDen; };
+    ['svd-s1','svd-s2'].forEach(function(id,i){
+      const raw=svdLire(id); vide[id]=(raw.trim()==='');
+      ok[id]=!vide[id] && (P.ok[i] ? raw===sgn(raws[i]) : (raw===a.sgnNum||raw===a.sgnDen));
+      cor[id]=sgn(finals[i]);
+    }); }
+  return { a:a, ok:ok, vide:vide, cor:cor };
+}
+/* La correction d'un champ mathématique : la convention commune — le rouge
+   GARDE la copie et la bonne réponse s'écrit en vert à côté, la case vide est
+   remplie en sol (l'exposant RENDU, jamais du LaTeX nu — la leçon du 6.6). */
+function svdCorrMF(id, c, ok){
+  const el=$(id); if(!el) return;
+  const vide=svdMfPlain(id)==='';
+  el.classList.remove('ok','bad','sol');
+  if(ok) el.classList.add('ok');
+  else if(vide){ try{ el.setValue(c.tex); }catch(e){} el.classList.add('sol'); }
+  else {
+    el.classList.add('bad');
+    if(!(el.nextElementSibling&&el.nextElementSibling.classList&&el.nextElementSibling.classList.contains('mf-cor')))
+      el.insertAdjacentHTML('afterend','<span class="mf-cor svd-cor">'+c.html+'</span>');
+  }
+  try{ el.readOnly=true; }catch(e){}
+}
+function svdAjusterTout(){ SVD_IDS.forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
+function svdAjusterTout2(){ svdAjusterTout(); setTimeout(svdAjusterTout,0); }
+async function startSVD(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='suite-variation-difference'; test.kind='svd';
+  test.questions=svdSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('svd'); renderSVD();
+}
+function renderSVD(){
+  const q=test.questions[test.idx], a=svdAns(q); test.locked=false;
+  if(!Array.isArray(q.pts)) q.pts=[];
+  $('svdQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('svdModeTag').innerHTML=modeTagHTML();
+  $('svdLiveScore').textContent=test.score;
+  $('svdFeedback').textContent=''; $('svdFeedback').className='mp-feedback';
+  $('svdActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSVD()">Vérifier</button>';
+  const U='<i>U</i>', n='<i>n</i>', T=function(s){ return '<span class="sa2-t">'+s+'</span>'; };
+  const Un=U+'<sub>'+n+'</sub>', Un1=U+'<sub>'+n+'+1</sub>';
+  const P=numFmt(a.p), S=numFmt(a.s), m=numFmt(a.m), M=numFmt(a.M);
+  const frec=sa2Frac(P, S+' − '+Un);
+  $('svdPrompt').innerHTML='Soit ('+Un+') la suite définie par <b>'+U+'<sub>0</sub> = '+numFmt(a.U0)+'</b> et <b>'+Un1+' = '+frec+'</b>.';
+  $('svdTitreA').innerHTML='Trace graphiquement les <b>3 premiers termes</b> de la suite : clique successivement les <b>trois points</b> de la construction en escalier, sur la courbe ou sur la droite d’équation <i>y</i> = <i>x</i>.';
+  /* b) */
+  const selSens=[['cro','croissante'],['dec','décroissante'],['const','constante']];
+  $('svdPartB').innerHTML='<div class="sa2-row">'+T('La suite ('+Un+') semble être')+svrSel('svd-b1',a,selSens)+'</div>';
+  /* c) la récurrence : deux GRILLES à colonnes (les « ≤ » les uns sous les autres) */
+  $('svdTitreC').innerHTML='Démontre par récurrence que&nbsp;: <b>'+m+' ≤ '+Un+' ≤ '+M+'</b> pour tout entier '+n+' ≥ 0.';
+  const cel=function(r,c,html,cls,aBout){ return '<span class="svr-cel'+(cls?' '+cls:'')+'" data-r="'+r+'" data-c="'+c+'" style="grid-area:'+r+' / '+c+(aBout?' / auto / -1':'')+'">'+html+'</span>'; };
+  const leC=function(r,c){ return cel(r,c,'≤','svr-le'); };
+  const eg=function(idv){ return '<span class="sa2-t svr-eg">=</span>'+svrIn(idv,false); };
+  /* colonnes : 1 étiquette, 2 borne, 3 ≤, 4 terme, 5 ≤, 6 borne, 7 suite */
+  const chaineRec=function(r,idA,idU,idB,plus){ return cel(r,2,svrIn(idA,false))+leC(r,3)+cel(r,4,svrU(idU,plus))+leC(r,5)+cel(r,6,svrIn(idB,false)); };
+  const recHTML='<div class="svr-scroll"><div class="svr-grille svd-grec">'
+    +cel(1,1,'<b>Initialisation</b>'+T('— vrai pour '+n+' =')+svrIn('svd-n0',false)+T(' :'),'svr-lib')
+    +chaineRec(1,'svd-i1','svd-i2','svd-i3',false)
+    +cel(1,7,T('c’est')+svrSel('svd-init',a,[['vrai','vrai'],['faux','faux']]),'svr-suite',true)
+    +cel(2,4,eg('svd-v0'),'svr-val')
+    +cel(3,1,'<b>Hérédité</b>'+T('— on <b>suppose</b> que c’est vrai pour '+n+' :'),'svr-lib svr-bloc')
+    +chaineRec(3,'svd-h1','svd-h2','svd-h3',false).replace(/class="svr-cel/g,'class="svr-cel svr-bloc')
+    +cel(4,1,T('On <b>montre</b> que c’est vrai pour '+n+' + 1 :'),'svr-lib')
+    +chaineRec(4,'svd-m1','svd-m2','svd-m3',true)
+    +'</div></div>';
+  /* la démonstration : colonnes 3 à 7 pour une ligne ordinaire — borne, ≤, TERME, ≤, borne —,
+     et la dernière ligne déborde d'une colonne de terme : à GAUCHE quand la suite croît
+     (m ≤ f(m) ≤ Uₙ₊₁ ≤ M), à DROITE quand elle décroît (m ≤ Uₙ₊₁ ≤ f(M) ≤ M) */
+  const termes=[ Un, '−'+Un, S+' − '+Un, sa2Frac('1', S+' − '+Un), sa2Frac(P, S+' − '+Un) ];
+  const ligne=function(r,html){ return cel(r,3,svrIn('svd-d'+r+'a',false))+leC(r,4)+cel(r,5,html,'svr-terme')+leC(r,6)+cel(r,7,svrIn('svd-d'+r+'b',false)); };
+  const derniere = a.dec
+    ? cel(6,3,svrIn('svd-d6a',false))+leC(6,4)+cel(6,5,Un1,'svr-terme')+leC(6,6)+cel(6,7,svrIn('svd-d6b',false))+leC(6,8)+cel(6,9,svrIn('svd-d6c',false))
+    : cel(6,1,svrIn('svd-d6a',false))+leC(6,2)+cel(6,3,svrIn('svd-d6b',false))+leC(6,4)+cel(6,5,Un1,'svr-terme')+leC(6,6)+cel(6,7,svrIn('svd-d6c',false));
+  const demoHTML='<div class="svr-scroll"><div class="svr-grille svd-gdemo">'
+    +termes.map(function(t,i){ return ligne(i+1,t); }).join('')
+    +derniere+cel(6,10,T('<b>CQFD</b>'),'svr-suite',true)
+    +'</div></div>';
+  $('svdPartC').innerHTML=recHTML
+    +'<div class="svr-demo"><div class="sa2-row svr-etape"><b>Démonstration</b></div>'+demoHTML+'</div>'
+    +'<p class="dexp-hint">Dans les petites cases d’indice, écris le rang : 0, <i>n</i>, <i>n</i>+1… Une borne peut s’écrire en fraction (3/4) ou en décimal (0,75).</p>';
+  /* d) la différence, mise au même dénominateur — les cases sont des champs mathématiques,
+     lus comme des FONCTIONS de Uₙ */
+  const mf=function(id,large){ return '<math-field class="dexp-mf svd-mf'+(large?' svd-large':'')+'" id="'+id+'"></math-field>'; };
+  $('svdTitreD').innerHTML='Démontre que&nbsp;: <b>'+Un1+' − '+Un+' = '+sa2Frac(Un+'<sup>2</sup> − '+S+Un+' + '+P, S+' − '+Un)+'</b>.';
+  $('svdPartD').innerHTML=
+     '<div class="sa2-row svd-drow">'+T(Un1+' − '+Un+' =')+sa2Frac(mf('svd-e1n'),mf('svd-e1d'))+T('− '+Un)+'</div>'
+    +'<div class="sa2-row svd-drow">'+T('=')+sa2Frac(mf('svd-e2n'),mf('svd-e2d'))+T('−')
+      +sa2Frac(Un+' × ('+mf('svd-e2k1')+')', '1 × ('+mf('svd-e2k2')+')')+'</div>'
+    +'<div class="sa2-row svd-drow">'+T('=')+sa2Frac(mf('svd-e3n',true),mf('svd-e3d'))+'</div>'
+    +'<div class="sa2-row svd-drow">'+T('=')+sa2Frac(mf('svd-e4n',true),mf('svd-e4d'))+'</div>'
+    +'<p class="dexp-hint">Écris '+Un+' avec la touche <b>U</b> et son indice (ou <b>U_n</b>) ; <b>^</b> pour l’exposant. La dernière ligne s’écrit <b>développée</b>, sans parenthèse.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis.</span></p>';
+  if(window.mlDexp) window.mlDexp.upgrade($('svdPartD'));
+  /* e) le signe : les racines du trinôme, puis le tableau — deux lignes dont l'étiquette se CHOISIT */
+  $('svdTitreE').innerHTML='Étudie le signe de '+Un1+' − '+Un+' pour '+Un+' dans [ '+m+' ; '+M+' ].';
+  const labs=a.ordreLab.map(function(k){ return [k,svdLabTexte(a,k)]; });
+  const sg=function(id){ return '<select class="tvi-sel svd-sg" id="'+id+'"><option value="">…</option><option value="+">+</option><option value="−">−</option></select>'; };
+  $('svdPartE').innerHTML=
+     '<div class="sa2-row">'+T('Le trinôme '+Un+'<sup>2</sup> − '+S+Un+' + '+P+' a pour racines')+svrIn('svd-r1',false)+T('et')+svrIn('svd-r2',false)+T('(son signe se lit avec ses racines).')+'</div>'
+    +'<p class="dexp-hint">Complète le tableau : les deux lignes vides sont le numérateur et le dénominateur de '+Un1+' − '+Un+'.</p>'
+    +'<table class="sv-tbl s1-tbl svd-tbl"><tbody>'
+    +'<tr><td class="lab">'+Un+'</td><td class="bnd s1-bl">'+m+'</td><td class="bnd s1-br">'+M+'</td></tr>'
+    +'<tr><td class="lab">'+svrSel('svd-t1',a,labs)+'</td><td colspan="2" class="svd-sgc">'+sg('svd-s1')+'</td></tr>'
+    +'<tr><td class="lab">'+svrSel('svd-t2',a,labs)+'</td><td colspan="2" class="svd-sgc">'+sg('svd-s2')+'</td></tr>'
+    +'<tr><td class="lab">Signe de '+Un1+' − '+Un+'</td><td colspan="2" class="svd-sgc">'+sg('svd-s3')+'</td></tr>'
+    +'</tbody></table>';
+  /* f) */
+  $('svdTitreF').innerHTML='Déduis-en les variations de la suite ('+Un+').';
+  $('svdPartF').innerHTML='<div class="sa2-row">'+T('Pour tout '+n+', '+Un1+' − '+Un+' est')
+    +svrSel('svd-f1',a,[['pos','positif ou nul'],['neg','négatif ou nul'],['nul','nul']])
+    +T(', donc la suite ('+Un+') est')+svrSel('svd-f2',a,selSens)+T('.')+'</div>';
+  svrDessiner();
+  const h=$('svdGraph'); if(h) h.onclick=svrClic;
+  svdAjusterTout2();
+  if(isSoutien()){
+    SVD_IDS.forEach(function(id){
+      const el=$(id); if(!el) return;
+      /* un champ mathématique se juge à la SORTIE, jamais à la frappe : « U_n^ » n'est pas fini */
+      const ev=el.tagName==='SELECT'?'change':(el.tagName==='MATH-FIELD'?'focusout':'input');
+      el.addEventListener(ev, function(){ checkSVD(true); });
+    });
+  }
+}
+function checkSVD(live){
+  if(test.locked&&!live) return;
+  const q=test.questions[test.idx], V=svdVerdicts(q), a=V.a;
+  let allOk=true, anyFilled=false;
+  SVD_IDS.forEach(function(id){
+    const el=$(id); if(!el) return;
+    const ok=!!V.ok[id], vide=!!V.vide[id], mfld=(el.tagName==='MATH-FIELD');
+    if(!vide) anyFilled=true;
+    el.classList.remove('ok','bad','sol');
+    if(!ok) allOk=false;
+    /* une case VIDE ne reçoit aucune couleur : rouge veut dire FAUX, jamais « pas fini » */
+    if(!vide) el.classList.add(ok?'ok':'bad');
+    if(live) return;
+    if(mfld){ try{ el.readOnly=ok||!isSoutien(); }catch(e){} } else el.disabled=ok||!isSoutien();
+  });
+  const pOk=[0,1,2].map(function(i){ return svrPtJuste(a,i,(q.pts||[])[i]); });
+  if(q.pts&&q.pts.length) anyFilled=true;
+  pOk.forEach(function(o){ if(!o) allOk=false; });
+  if(live) return;
+  if(!anyFilled){
+    $('svdFeedback').textContent='Complète au moins une case, ou place un point sur le graphique, avant de vérifier.';
+    $('svdFeedback').className='mp-feedback';
+    SVD_IDS.forEach(function(id){ const el=$(id); if(!el) return; el.classList.remove('ok','bad','sol');
+      if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=false; }catch(e){} } else el.disabled=false; });
+    return;
+  }
+  if(!allOk&&isSoutien()){
+    svrDessiner('soutien');
+    $('svdFeedback').textContent='Presque ! Corrige ce qui est en rouge, puis revérifie.';
+    $('svdFeedback').className='mp-feedback bad';
+    $('svdActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSVD()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  svrDessiner('final');
+  if(allOk){
+    test.score++; $('svdLiveScore').textContent=test.score;
+    $('svdFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, la démonstration est complète !']);
+    $('svdFeedback').className='mp-feedback good';
+  } else {
+    $('svdFeedback').innerHTML=msgCorrCouleurs(false)
+      +'<br>La clé : '+'<i>U</i><sub><i>n</i>+1</sub> − <i>U</i><sub><i>n</i></sub> = ('+'<i>U</i><sub><i>n</i></sub> − '+numFmt(a.l)+')('+'<i>U</i><sub><i>n</i></sub> − '+numFmt(a.L)+') / ('+numFmt(a.s)+' − <i>U</i><sub><i>n</i></sub>). '
+      +'Sur [ '+numFmt(a.m)+' ; '+numFmt(a.M)+' ], le dénominateur est strictement positif et le numérateur est <b>'+(a.dec?'négatif ou nul':'positif ou nul')+'</b> : la suite est <b>'+(a.dec?'décroissante':'croissante')+'</b>. '
+      +'Sur le graphique, l’escalier juste est tracé en vert.';
+    $('svdFeedback').className='mp-feedback bad';
+    SVD_IDS.forEach(function(id){
+      const el=$(id); if(!el) return;
+      if(el.tagName==='MATH-FIELD') svdCorrMF(id, V.cor[id], !!V.ok[id]);
+      else corrCase(id, V.cor[id], !!V.ok[id]);
+    });
+    svdAjusterTout();
+  }
+  test.answers.push({...(ptsExo()||{}),
+    q:'Suite U(n+1) = '+numFmt(a.p)+'/('+numFmt(a.s)+' − U(n)), U0 = '+numFmt(a.U0)+' : '+numFmt(a.m)+' ≤ U(n) ≤ '+numFmt(a.M)+', puis le signe de U(n+1) − U(n) ('+(a.dec?'décroissante':'croissante')+')',
+    answer:'tracé, encadrement par récurrence, différence et signe', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('svdActions').innerHTML='<button class="btn btn-primary" onclick="nextSVD()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextSVD(){ if(test.idx<test.questions.length-1){ test.idx++; renderSVD(); } else finishTest(); }
+/* Le contexte envoyé au modèle : l'écran de l'élève, et la clause de secret
+   posée par le tronc commun. Les réponses attendues y sont déclarées
+   STRICTEMENT SECRÈTES — la fenêtre d'aide est offerte dès l'entraînement. */
+function svdConseilCtx(){
+  const q=test.questions[test.idx], a=svdAns(q);
+  const etat=SVD_IDS.map(function(id){ const v=svdLire(id); return id.replace('svd-','')+'='+(v.trim()===''?'(vide)':v); }).join(', ');
+  const trace=(q.pts&&q.pts.length)
+    ? q.pts.map(function(p){ return (p.r==='c'?'sur la courbe':'sur la droite y = x')+' à l’abscisse '+numFmt(Math.round(p.x*100)/100); }).join(' ; ')
+    : 'aucun point placé';
+  const ch=a.chaine.map(function(l,i){ return 'ligne '+(i+1)+' : '+l[0].s+' ≤ … ≤ '+l[1].s; }).join(' ; ');
+  return 'Exercice de Terminale : SUITES — sens de variation par la DIFFÉRENCE U(n+1) − U(n), fiche À COMPLÉTER. '
+   +'La suite est définie par U0 = '+numFmt(a.U0)+' et U(n+1) = '+numFmt(a.p)+'/('+numFmt(a.s)+' − U(n)). '
+   +'a) Tracer les 3 premiers termes en cliquant les trois points de la construction en escalier (courbe, droite y = x, courbe). '
+   +'b) Conjecturer le sens de variation. c) Démontrer par récurrence que '+numFmt(a.m)+' ≤ U(n) ≤ '+numFmt(a.M)+' : initialisation au rang 0, hypothèse au rang n, but au rang n+1, puis la chaîne opération par opération — l’opposé ÉCHANGE les bornes, ajouter '+numFmt(a.s)+' les conserve, l’inverse les ÉCHANGE, multiplier par '+numFmt(a.p)+' les conserve, et on élargit pour retrouver la propriété. '
+   +'d) Démontrer que U(n+1) − U(n) = (U(n)² − '+numFmt(a.s)+'U(n) + '+numFmt(a.p)+')/('+numFmt(a.s)+' − U(n)) en mettant au même dénominateur (les cases sont des champs mathématiques où U(n) s’écrit U_n). '
+   +'e) Étudier le signe de cette différence dans un tableau (racines du trinôme, numérateur, dénominateur, quotient) sur [ '+numFmt(a.m)+' ; '+numFmt(a.M)+' ]. f) En déduire les variations. '
+   +'Réponses attendues, à ne JAMAIS révéler : la suite est '+(a.dec?'décroissante':'croissante')+' ; '+ch+' ; dernière ligne : '+a.fin6.map(function(f){ return f.s; }).join(' ≤ … ≤ ')+' ; les racines sont '+numFmt(a.l)+' et '+numFmt(a.L)+' ; le numérateur est '+(a.dec?'négatif':'positif')+', le dénominateur positif, la différence '+(a.dec?'négative':'positive')+'. '
+   +'Tracé actuel de l’élève : '+trace+'. Saisies actuelles : '+etat+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs, ni le mot des menus, ni les bornes de la chaîne. '
+   +'Méthode à faire appliquer : pour a), partir de U0 sur l’axe, monter jusqu’à la courbe, rejoindre la droite y = x, remonter à la courbe ; pour c), transformer les DEUX bornes en même temps que U(n), étape par étape ; pour d), écrire U(n) comme une fraction de dénominateur '+numFmt(a.s)+' − U(n) ; pour e), un trinôme est du signe contraire de son coefficient dominant entre ses racines. '
+   +'Tu peux lui rappeler qu’il trouve le cours complet avec le bouton « Voir le rappel de cours » de cette fenêtre. '
    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
 }
 function saLu(id){
@@ -21709,6 +22158,7 @@ const QIA_SUGG={
   ssv:["Faire un rappel de cours pour cet exercice.","Comment construit-on le tracé en escalier ?","Comment dérive-t-on un quotient ?","Pourquoi f croissante conserve-t-elle les inégalités ?","Comment mettre U\u2099 sur le même dénominateur ?","Comment lire le signe d\u2019un trinôme du second degré ?","Pourquoi le passage à la limite donne-t-il deux solutions ?","Comment choisir entre les deux valeurs possibles de \u2113 ?"],
   tcl:["Faire un rappel de cours pour cet exercice.","Comment lire le sens de variation dans l’encadrement ?","Pourquoi faut-il « croissante ET majorée » pour conclure ?","Pourquoi Uₙ₊₁ a-t-elle la même limite que Uₙ ?","Comment résoudre l’équation obtenue par passage à la limite ?"],
   svq:["Faire un rappel de cours pour cet exercice.","Quelle différence entre convergente et divergente ?","Une suite qui tend vers +∞ a-t-elle une limite ?","Que veut dire « bornée » ?","Comment voir sur le graphique qu’une suite n’est pas monotone ?","Une suite non monotone peut-elle converger ?"],
+  svd:["Faire un rappel de cours pour cet exercice.","Comment construit-on le tracé en escalier ?","Pourquoi l’opposé et l’inverse échangent-ils les bornes d’un encadrement ?","Comment met-on Uₙ₊₁ − Uₙ au même dénominateur ?","Comment trouve-t-on le signe d’un trinôme ?","Que dit le signe de Uₙ₊₁ − Uₙ sur la suite ?"],
   sa2:["Faire un rappel de cours pour cet exercice.","Pourquoi factorise-t-on par la raison ?","Comment retrouver le nombre qui va dans la case ?","À quoi sert la suite auxiliaire (Vₙ) ?","Comment revenir à Uₙ une fois Vₙ connue ?"],
   sa:["Faire un rappel de cours pour cet exercice.","À quoi sert une suite auxiliaire ?","Comment montrer qu’une suite est géométrique ?","Comment trouver la raison et le premier terme de (Vₙ) ?","Comment revenir à Uₙ une fois Vₙ connue ?"],
   rec:["Faire un rappel de cours pour cet exercice.","Comment conjecturer la limite avec les termes affich\u00e9s ?","Que veut dire \u00ab majorant \u00bb et \u00ab minorant \u00bb ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb dans l\u2019h\u00e9r\u00e9dit\u00e9 ?"],
@@ -22410,7 +22860,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderSVR','renderSSV'];
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderSVR','renderSVD','renderSSV'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -22760,7 +23210,7 @@ function kbVarsFor(id){
   if(id === 'recurrence-redaction') return [KB_USQ, KB_N,
     {latex:"\\le",tooltip:"inférieur ou égal"},{latex:"\\ge",tooltip:"supérieur ou égal"},
     {latex:"<",tooltip:"strictement inférieur"},{latex:">",tooltip:"strictement supérieur"}];
-  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-formule' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
+  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-formule' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction' || id === 'suite-variation-difference') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
