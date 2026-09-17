@@ -744,6 +744,7 @@
      pointillés — sinon l'élève chercherait pourquoi il ne peut pas y écrire.
      La bonne valeur s'écrit en vert SOUS la case fausse et non à côté : dans
      une colonne de tableau, un badge en ligne sortirait de sa cellule. */
+  .ptv-lx{flex:0 0 auto;overflow:visible}
   .ptv-x{width:6ch;min-width:6ch;text-align:center;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.4;padding:3px 6px;border:2px solid #BBD0F7;border-radius:8px;background:#fff;color:var(--ink);outline:none}
   .ptv-x:focus{border-color:var(--blue);background:#FBFDFF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .ptv-x:disabled{opacity:1}
@@ -18855,7 +18856,7 @@ function ptvEnonceHTML(q){
 }
 function ptvProgHTML(q){
   return '<div class="pyx-prog">'
-    +'<div class="pyx-ligne"><span class="pyx-num">1</span><span class="pyx-l1">'+pyColorie('x = ')+'</span>'
+    +'<div class="pyx-ligne"><span class="pyx-num">1</span><span class="pyx-l1 ptv-lx">'+pyColorie('x = ')+'</span>'
       +'<input class="ptv-x" id="ptv-x" type="text" inputmode="decimal" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="valeur de x dans le programme"></div>'
     +'<div class="pyx-ligne"><span class="pyx-num">2</span><span class="pyx-l1">'+pyColorie('fonction = '+ptvExpr(q))+'</span></div>'
     +'<div class="pyx-ligne"><span class="pyx-num">3</span><span class="pyx-l1">'+pyColorie('print(fonction)')+'</span></div>'
@@ -18930,8 +18931,8 @@ function ptvMaj(){
   });
   e.innerHTML='<b>Colonnes ouvertes&nbsp;: '+ouvertes+'&nbsp;/&nbsp;'+q.ns.length+'.</b> '
     +(reste.length
-      ? 'Pour ouvrir '+(ouvertes?'les autres':'une colonne')+', écris à la ligne 1 du programme <code>x = '
-        +reste.map(ptvX).join('</code>, puis <code>x = ')+'</code>, et exécute-le à chaque fois.'
+      ? 'Pour ouvrir '+(reste.length>1?'une colonne':'la dernière')+', écris sa valeur à la ligne 1 du programme et exécute-le — il reste <code>x = '
+        +reste.map(ptvX).join('</code>, <code>x = ')+'</code>.'
       : 'Le tableau est ouvert en entier : complète-le, puis vérifie.');
 }
 function ptvModifiee(){
