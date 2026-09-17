@@ -831,6 +831,16 @@ module.exports = {
        « … ≤ f (x) ≤ … » tenir d'un seul tenant — un repli entre les deux
        cases se lirait comme deux morceaux de phrase. Seul un navigateur
        mesure une largeur rendue et un repli. */
+    /* L'ÉTIQUETTE DE COURBE SE POSE À CÔTÉ DE SA COURBE, jamais dessus
+       (« même chose en seconde », Turquet, septembre 2026 — après le dessin des
+       dérivées de la Terminale). Le banc navigateur mesure la boîte RENDUE
+       (getBBox, Nunito 800 italique 15 px pour « Cf », Fredoka 700 pour
+       « Cg ») contre les chemins RENDUS (getPointAtLength) : jsdom n'a ni
+       police ni mise en page, et la boîte supposée était justement le défaut.
+       Les trois exercices couvrent les trois dessins — le petit (lvGraphSVG),
+       le grand (adrSVG), et celui à DEUX courbes, le plus encombré, où « Cg »
+       doit éviter la courbe de f et « Cf » à la fois. */
+    etiquetteCourbe: { moteur: 'lv', exercices: ['lecture-variations', 'lecture-deux-courbes', 'signes-variations-grand'] },
     maxMin: { exercice: 'maximum-minimum' },
     /* {maximum-minimum-tableau} : le tableau se lit — il doit tenir dans sa
        carte, et ses valeurs RENDUES monter avec leurs flèches. jsdom lit un
@@ -1198,7 +1208,21 @@ module.exports = {
        RENDUE (getBBox) contre le chemin RENDU (getPointAtLength) sur chacun
        des trois exercices, puis sur quarante courbes de plus dessinées par la
        fonction même de la page — jsdom n'a ni police ni mise en page. */
-    etiquetteCourbe: { exercices: ['associer-derivee', 'variations-depuis-derivee', 'signe-derivee-qcm'] },
+    etiquetteCourbe: { moteur: 'af', exercices: ['associer-derivee', 'variations-depuis-derivee', 'signe-derivee-qcm'] },
+    /* LA TERMINALE EST LE SEUL NIVEAU qui pose des indices — Uₙ, eˣ — DANS des
+       conteneurs flex : les cellules des grilles de récurrence, les
+       numérateurs et les dénominateurs des fractions, les lignes tg et s1. Un
+       <sub> ou un <sup> enfant direct d'un flex en devient un ITEM, où la
+       spécification ignore vertical-align : il remonte sur la ligne de sa
+       lettre, et le gap l'en écarte — « Uₙ » se lit « U n » (signalé par
+       Turquet, septembre 2026, sur le 6.13). La page lui rend sa place ; le
+       banc navigateur l'exige sur tous les exercices visités, et ce drapeau
+       est son BORD OPPOSÉ : il dit que ce niveau a bien des indices à
+       mesurer. La Seconde et la Première n'en posent aucun (mesuré : 0), donc
+       elles ne le déclarent pas et le contrôle s'y affiche « non
+       applicable » — un contrôle qui ne s'applique pas se déclare, il ne se
+       retire pas. */
+    indicesEnFlex: true,
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même

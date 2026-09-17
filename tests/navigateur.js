@@ -4782,18 +4782,25 @@ async function parcours(page, N){
        page choisit la place en échantillonnant sa propre courbe ; le banc
        jsdom relit le SVG écrit et refait l'arithmétique. Ce que jsdom ne
        peut PAS voir, c'est la boîte que la POLICE donne à l'étiquette —
-       Fredoka 14 px, italique, l'indice 10 px posé 3 px plus bas — et le
-       chemin tel que Chromium le trace : la boîte est mesurée ici par
-       getBBox, la courbe par getPointAtLength, sur chacun des trois
-       exercices ouverts pour de vrai, puis sur quarante courbes de plus
-       dessinées dans le même hôte par la fonction même de la page. Trois
-       bords : jamais SUR la courbe (≥ 3 px), jamais LOIN (≤ 22 px), et une
-       boîte non nulle — un CSS perdu rendrait l'étiquette invisible sans
-       qu'une erreur ne se lève. */
-    titre('6 tricies. L\'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE (BOÎTE RENDUE)');
+       Fredoka 14 px en Terminale, Nunito 800 italique 15 px en Seconde,
+       l'indice 10 px posé 3 px plus bas — et le chemin tel que Chromium le
+       trace : la boîte est mesurée ici par getBBox, la courbe par
+       getPointAtLength, sur chacun des exercices ouverts pour de vrai, puis
+       sur quarante dessins de plus faits dans le même hôte par la fonction
+       même de la page. Trois bords : jamais SUR la courbe (≥ 3 px), jamais
+       LOIN (≤ 22 px), et une boîte non nulle — un CSS perdu rendrait
+       l'étiquette invisible sans qu'une erreur ne se lève.
+       LA MESURE NE CONNAÎT PLUS AUCUN MOTEUR : elle prend toutes les
+       étiquettes du dessin (« Cf », et « Cg » en Seconde) contre toutes ses
+       courbes, et l'hôte est le parent du premier SVG de courbe affiché. Seul
+       le redessin des quarante dessins diffère, et le profil le nomme
+       (« moteur ») — c'est le même contrôle pour les deux niveaux, ce que la
+       demande « même chose en seconde » voulait dire (Turquet, septembre
+       2026). */
+    titre('6 tricies. L\'ÉTIQUETTE DE COURBE SE POSE À CÔTÉ DE LA COURBE (BOÎTE RENDUE)');
     if(!P.etiquetteCourbe){
-      ignorer('l\'étiquette Cf′ rendue reste à côté de la courbe, jamais dessus',
-        'ce niveau n\'a pas le dessin partagé des dérivées (afGraphSVG)');
+      ignorer('l\'étiquette rendue reste à côté de sa courbe, jamais dessus',
+        'ce niveau n\'a aucun dessin de courbe à étiquette');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
       await connecter(s.page);
@@ -4802,38 +4809,64 @@ async function parcours(page, N){
         await s.page.waitForTimeout(400);
         await s.page.click('#modeChoices [onclick*="train"]');
         await s.page.waitForTimeout(700);
-        const r = await s.page.evaluate(() => {
+        const r = await s.page.evaluate(moteur => {
+          /* LA MESURE EST LA MÊME POUR LES DEUX MOTEURS : toutes les étiquettes
+             du dessin (« Cf » et, en Seconde, « Cg ») contre toutes ses courbes
+             (la spline, et la droite ou la seconde spline). Une étiquette libre
+             de SA courbe peut tomber sur l'autre. */
           const mesure = function(svg){
-            const t = svg.querySelector('.lv-cf'), path = svg.querySelector('.lv-curve');
-            if(!t || !path) return { err: 'pas d\'étiquette ou pas de courbe' };
-            const bb = t.getBBox();
-            if(!(bb.width > 8 && bb.height > 8)) return { err: 'boîte de l\'étiquette nulle (' + bb.width.toFixed(0) + '×' + bb.height.toFixed(0) + ')' };
-            const B = { l: bb.x, r: bb.x + bb.width, t: bb.y, b: bb.y + bb.height };
-            const L = path.getTotalLength(); let dm = Infinity;
-            for(let u = 0; u <= L; u += 1){ const q = path.getPointAtLength(u);
-              const dx = Math.max(B.l - q.x, 0, q.x - B.r), dy = Math.max(B.t - q.y, 0, q.y - B.b); dm = Math.min(dm, Math.hypot(dx, dy)); }
+            const ts = svg.querySelectorAll('.lv-cf, .eqg-cg');
+            const cs = svg.querySelectorAll('.lv-curve, .eqg-g');
+            if(!ts.length || !cs.length) return [{ err: 'pas d\'étiquette ou pas de courbe' }];
             const vb = svg.viewBox.baseVal;
-            const dedans = B.l >= vb.x && B.r <= vb.x + vb.width && B.t >= vb.y && B.b <= vb.y + vb.height;
-            if(dm < 3) return { err: 'SUR la courbe (' + dm.toFixed(1) + ' px)' };
-            if(dm > 22) return { err: 'loin de la courbe (' + dm.toFixed(1) + ' px)' };
-            if(!dedans) return { err: 'hors du dessin' };
-            return { d: dm };
+            const out = [];
+            ts.forEach(function(t){
+              const bb = t.getBBox();
+              if(!(bb.width > 8 && bb.height > 8)){ out.push({ err: 'boîte de l\'étiquette nulle (' + bb.width.toFixed(0) + '×' + bb.height.toFixed(0) + ')' }); return; }
+              const B = { l: bb.x, r: bb.x + bb.width, t: bb.y, b: bb.y + bb.height };
+              let dm = Infinity;
+              cs.forEach(function(path){
+                const L = path.getTotalLength();
+                for(let u = 0; u <= L; u += 1){ const q = path.getPointAtLength(u);
+                  const dx = Math.max(B.l - q.x, 0, q.x - B.r), dy = Math.max(B.t - q.y, 0, q.y - B.b); dm = Math.min(dm, Math.hypot(dx, dy)); }
+              });
+              const dedans = B.l >= vb.x && B.r <= vb.x + vb.width && B.t >= vb.y && B.b <= vb.y + vb.height;
+              const nom = t.textContent.replace(/\s+/g, '');
+              if(dm < 3) out.push({ err: nom + ' : SUR la courbe (' + dm.toFixed(1) + ' px)' });
+              else if(dm > 22) out.push({ err: nom + ' : loin de la courbe (' + dm.toFixed(1) + ' px)' });
+              else if(!dedans) out.push({ err: nom + ' : hors du dessin' });
+              else out.push({ d: dm });
+            });
+            return out;
           };
-          const num = document.querySelector('.screen.on .q-idx') ? document.querySelector('.screen.on h2, .screen.on .titre-exo, .screen.on .exo-num') : null;
-          const ecran = []; document.querySelectorAll('.screen.on .af-graph svg').forEach(function(svg){ ecran.push(mesure(svg)); });
-          const host = document.querySelector('.screen.on .af-graph'); const tirage = [];
-          for(let i = 0; i < 40; i++){ const roots = (i % 2) ? [[-2, -1, 0, 1, 2][i % 5]] : [-2, [0, 1, 2][i % 3]];
-            host.innerHTML = afGraphSVG(afpCourbeDer(roots, (i % 4 < 2) ? 1 : -1), i % 3 !== 0);
-            tirage.push(mesure(host.querySelector('svg'))); }
+          const ecran = [];
+          document.querySelectorAll('.screen.on svg.lv-svg').forEach(function(svg){ ecran.push.apply(ecran, mesure(svg)); });
+          /* puis quarante courbes de plus, dessinées dans le MÊME hôte par la
+             fonction même de la page : l'exercice ouvert n'en montre qu'une ou
+             deux, et c'est le TIRAGE qui doit tenir, pas ce tirage-là */
+          const hote = document.querySelector('.screen.on svg.lv-svg');
+          const host = hote ? hote.parentElement : null;
+          const tirage = [];
+          if(host){
+            for(let i = 0; i < 40; i++){
+              if(moteur === 'lv'){
+                host.innerHTML = (i % 2) ? lvGraphSVG(lvGenPts(i % 3 ? 2 : 3).pts) : adrSVG({ pts: adrGenPts() });
+              } else {
+                const roots = (i % 2) ? [[-2, -1, 0, 1, 2][i % 5]] : [-2, [0, 1, 2][i % 3]];
+                host.innerHTML = afGraphSVG(afpCourbeDer(roots, (i % 4 < 2) ? 1 : -1), i % 3 !== 0);
+              }
+              tirage.push.apply(tirage, mesure(host.querySelector('svg')));
+            }
+          }
           return { ecran: ecran, tirage: tirage };
-        });
+        }, P.etiquetteCourbe.moteur || 'af');
         const fautesE = r.ecran.filter(m => m.err).map(m => m.err), fautesT = r.tirage.filter(m => m.err).map(m => m.err);
-        verifier(id + ' : l\'étiquette rendue de l\'exercice ouvert est à côté de sa courbe (' + r.ecran.length + ' dessin(s))',
+        verifier(id + ' : l\'étiquette rendue de l\'exercice ouvert est à côté de sa courbe (' + r.ecran.length + ' étiquette(s))',
           r.ecran.length >= 1 && fautesE.length === 0, fautesE.slice(0, 2).join(' ; '));
-        verifier(id + ' : sur 40 courbes de plus, l\'étiquette rendue reste à côté (≥ 3 px, ≤ 22 px), boîte non nulle',
-          r.tirage.length === 40 && fautesT.length === 0, fautesT.length + ' défaut(s) : ' + fautesT.slice(0, 2).join(' ; '));
+        verifier(id + ' : sur 40 dessins de plus, l\'étiquette rendue reste à côté (≥ 3 px, ≤ 22 px), boîte non nulle',
+          r.tirage.length >= 40 && fautesT.length === 0, fautesT.length + ' défaut(s) : ' + fautesT.slice(0, 2).join(' ; '));
       }
-      verifier('l\'étiquette Cf′ : aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      verifier('l\'étiquette de courbe : aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
 
@@ -7470,7 +7503,10 @@ async function parcours(page, N){
        Le banc jsdom tient le juge (les lignes justes et fausses, chacune
        avec son diagnostic), les portes et le soutien. Ce qu'il ne voit pas :
        le COURS qui ouvre la séance rendu au rectangle, son exemple à chasse
-       fixe, un VRAI clic sur « J'ai compris » fermé qui ne franchit rien, la
+       fixe, un VRAI clic sur « J'ai compris » fermé qui ne franchit rien,
+       l'ÉNONCÉ rendu dans sa boîte sous UNE seule étiquette « Énoncé » — et
+       qui ne dit pas la même chose sur les deux écrans —, le coup de pouce
+       qui s'OUVRE au clic (jsdom lit un attribut, pas un geste), la
        ligne 1 et la case de la ligne 2 à
        chasse fixe et à la MÊME taille (une case plus petite que le code
        qu'elle prolonge se lirait comme une note), la case qui ne s'étire pas
@@ -7513,6 +7549,31 @@ async function parcours(page, N){
         && cours.lignes.length === 2 && /^annee = /.test(cours.lignes[0]) && /print\(/.test(cours.lignes[1])
         && /mono|menlo|consolas|courier/i.test(cours.police) && cours.exVisible && cours.runOk
         && cours.porteFermee && cours.console === '' && !cours.question && !cours.page, JSON.stringify(cours));
+      /* L'ÉNONCÉ SUIT L'ÉCRAN (demande de Turquet, septembre 2026), et
+         jsdom ne voit ni sa BOÎTE ni son ÉTIQUETTE : un énoncé vidé de son
+         texte garderait son élément dans le DOM, et le contrôle universel
+         « 6 » ne visite pas cet exercice. On mesure donc le rectangle rendu
+         et l'étiquette « Énoncé » réellement dessinée, sur les DEUX écrans —
+         plus le fait que les deux ne disent pas la même chose. */
+      const enonce = () => s.page.evaluate(() => {
+        const el = document.getElementById('pyxInstr'), r = el ? el.getBoundingClientRect() : null;
+        const et = [...document.querySelectorAll('.screen.on *')]
+          .filter(x => (getComputedStyle(x, '::before').content || '').indexOf('\u00c9nonc\u00e9') >= 0).length;
+        return { texte: el ? el.textContent.trim() : '', boite: !!r && r.width > 200 && r.height > 12, etiquettes: et };
+      });
+      const enonCours = await enonce();
+      verifier('l\'\u00e9nonc\u00e9 du cours est RENDU dans sa bo\u00eete, sous une seule \u00e9tiquette \u00ab \u00c9nonc\u00e9 \u00bb, et dit de lire le cours et d\'ex\u00e9cuter le programme',
+        enonCours.boite && enonCours.etiquettes === 1 && /cours/i.test(enonCours.texte)
+        && /ex[\u00e9e]cut/i.test(enonCours.texte) && !/compl[\u00e8e]t/i.test(enonCours.texte), JSON.stringify(enonCours));
+      /* ON CENTRE LE BOUTON AVANT DE CLIQUER : les commandes du bas
+         (« Signaler », « Abandonner », « Pause ») sont en position FIXE, et un
+         clic posé sur les coordonnées d'un bouton qui passe dessous atteint la
+         barre — ici il ouvrait la modale de signalement, qui interceptait
+         ensuite tout ce qui suivait, et le banc accusait la page. L'élève, lui,
+         fait défiler : la réserve du bas (84 px) lui rend le bouton. C'est le
+         piège déjà payé sur la grille de {construire-fonction}. */
+      const centrer = () => s.page.evaluate(() => { const b = document.getElementById('pyxCompris'); if(b) b.scrollIntoView({ block: 'center' }); });
+      await centrer(); await s.page.waitForTimeout(150);
       await s.page.click('#pyxCompris', { force: true }).catch(() => {});
       await s.page.waitForTimeout(200);
       verifier('un clic sur « J\'ai compris » fermé ne montre pas la question',
@@ -7525,6 +7586,7 @@ async function parcours(page, N){
         porteOuverte: !document.getElementById('pyxCompris').disabled }));
       verifier('l\'exemple exécuté affiche « ' + P.pythonCompleter.exemple + ' » à chasse fixe, et ouvre « J\'ai compris »',
         exemple.console === P.pythonCompleter.exemple && /mono|menlo|consolas|courier/i.test(exemple.police) && exemple.porteOuverte, JSON.stringify(exemple));
+      await centrer(); await s.page.waitForTimeout(150);
       await s.page.click('#pyxCompris');
       await s.page.waitForTimeout(400);
       const avant = await s.page.evaluate(() => {
@@ -7545,6 +7607,25 @@ async function parcours(page, N){
         avant.policeIn + ' — ' + avant.pxL1 + 'px / ' + avant.pxIn + 'px');
       verifier('la case tient dans l\'écran, « Exécuter » est ouvert, « Vérifier » est fermé, et la page ne déborde pas à 1400 px',
         avant.inVisible && avant.runOk && avant.valFerme && avant.consoleVisible && !avant.page, JSON.stringify(avant));
+      const enonQ = await enonce();
+      const cible = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { texte: q.texte, nom: q.nom, ligne: pyxAns(q).ligne }; });
+      verifier('l\'\u00e9nonc\u00e9 de la question est RENDU dans sa bo\u00eete, sous une seule \u00e9tiquette, dit de compl\u00e9ter, nomme le TEXTE et la VARIABLE de SA question, et ne redit pas le cours',
+        enonQ.boite && enonQ.etiquettes === 1 && /compl[\u00e8e]t/i.test(enonQ.texte)
+        && enonQ.texte.indexOf(cible.texte) >= 0 && enonQ.texte.indexOf(cible.nom) >= 0
+        && enonQ.texte !== enonCours.texte, JSON.stringify(enonQ) + ' / attendu ' + JSON.stringify(cible));
+      /* LE COUP DE POUCE S'OUVRE AU CLIC (demande de Turquet, septembre
+         2026) — un « details » dont la page aurait cach\u00e9 le r\u00e9sum\u00e9 serait un
+         bouton mort, et jsdom ne le dirait pas : il lit un attribut, pas un
+         geste. Et il dit la FORME sans jamais \u00e9crire la ligne attendue. */
+      await s.page.click('#pyxHost .pyd-pouce summary');
+      await s.page.waitForTimeout(200);
+      const pouce = await s.page.evaluate(() => {
+        const l = [...document.querySelectorAll('#pyxHost .pyd-pouce')], p = l[0], t = p && p.querySelector('p');
+        return { combien: l.length, ouvert: !!p && p.open, texte: t ? t.textContent : '', haut: t ? t.getBoundingClientRect().height : 0 };
+      });
+      verifier('un seul coup de pouce, repli\u00e9, qui s\'ouvre au clic et dit la FORME \u2014 les guillemets, la virgule \u2014 sans \u00e9crire la ligne attendue',
+        pouce.combien === 1 && pouce.ouvert && pouce.haut > 10 && /guillemets/.test(pouce.texte)
+        && /virgule/.test(pouce.texte) && pouce.texte.indexOf(cible.ligne) < 0, JSON.stringify(pouce));
       /* un VRAI clic sur « Vérifier » fermé ne fait rien */
       await s.page.click('#pyxValidate', { force: true }).catch(() => {});
       await s.page.waitForTimeout(200);
@@ -7614,6 +7695,7 @@ async function parcours(page, N){
       await s.page.waitForTimeout(900);
       await s.page.click('#pyxExRun');
       await s.page.waitForTimeout(250);
+      await centrer(); await s.page.waitForTimeout(150);
       await s.page.click('#pyxCompris');
       await s.page.waitForTimeout(400);
       await s.page.click('#pyx-in');
@@ -8269,6 +8351,7 @@ async function parcours(page, N){
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
+      const indicesPlats = []; let nIndicesFlex = 0;
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -8479,6 +8562,38 @@ async function parcours(page, N){
               }
             }
             const champsMaths = [...on.querySelectorAll('math-field')].filter(visible).length > 0;
+            /* UN INDICE POSÉ NU DANS UN CONTENEUR FLEX REMONTE SUR SA LIGNE.
+               Un <sub> ou un <sup> enfant DIRECT d'un conteneur flex en devient
+               un ITEM : la spécification y IGNORE vertical-align — l'indice se
+               pose sur la ligne de la lettre — et le gap du conteneur l'en
+               écarte par-dessus le marché, si bien que « Uₙ » se lit « U n » et
+               « eˣ » « e x », c'est-à-dire autre chose (signalé par Turquet,
+               septembre 2026, sur le 6.13 ; mesuré : 59 indices sur DIX
+               exercices, le 6.13 n'en étant que le plus visible). La page rend
+               sa place à ces indices-là ; on EXIGE ici qu'elle le fasse, sur
+               tous les exercices visités et sur les trois niveaux — celui qu'on
+               écrira demain rougit s'il pose un indice dans un conteneur que la
+               règle ne couvre pas encore. On mesure la RÈGLE EN USAGE, jamais
+               la feuille de styles : une règle écrite mais perdue dans la
+               cascade laisserait le contrôle vert, le piège du 2.1.2. */
+            const indices = []; let nIndices = 0;
+            for(const sb of [...on.querySelectorAll('sub,sup')]){
+              const pa = sb.parentElement;
+              if(!pa || !visible(sb)) continue;
+              const cp = getComputedStyle(pa);
+              if(!/flex/.test(cp.display)) continue;
+              nIndices++;
+              const cs = getComputedStyle(sb);
+              const dec = parseFloat(sb.tagName === 'SUB' ? cs.top : cs.bottom);
+              const gap = parseFloat(cp.columnGap) || 0;
+              const mg = parseFloat(cs.marginInlineStart || cs.marginLeft) || 0;
+              const quoi = (pa.className || pa.tagName).toString().split(' ')[0]
+                + ' : « ' + (sb.textContent || '').trim().slice(0, 8) + ' »';
+              if(cs.position !== 'relative' || !(dec > 0))
+                indices.push(quoi + ' — posé sur la ligne de sa lettre');
+              else if(gap > 0 && Math.abs(mg + gap) > 0.5)
+                indices.push(quoi + ' — écarté de sa lettre de ' + gap + 'px par le gap');
+            }
             const boutonClavier = [...on.querySelectorAll('button')].filter(visible)
               .some(b => /clavier math/i.test(b.getAttribute('title') || ''));
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
@@ -8505,7 +8620,8 @@ async function parcours(page, N){
                       return { c:Math.round(c.getBoundingClientRect().width),
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
                     accolades: [...new Set(connus)], gabarits: gabarits, cases: cases, signes: [...new Set(signes)],
-                    debuts: [...new Set(debuts)], etiquettes: etiquettes};
+                    debuts: [...new Set(debuts)], etiquettes: etiquettes,
+                    indices: [...new Set(indices)], nIndices: nIndices};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
@@ -8525,6 +8641,9 @@ async function parcours(page, N){
             sansClavier.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + vu.ecran + ')');
           if(vu.etiquettes && vu.etiquettes.length)
             surCourbe.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.etiquettes[0]);
+          nIndicesFlex += (vu.nIndices || 0);
+          if(vu.indices && vu.indices.length)
+            indicesPlats.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.indices[0]);
           /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
              C'est la règle que la Seconde a réapprise trois fois en une seule
              journée d'août 2026, chaque fois sur un exercice différent, et
@@ -8573,6 +8692,21 @@ async function parcours(page, N){
          dessin visité, contre les courbes RENDUES. */
       /* le COMPTE et la liste ENTIÈRE des exercices touchés (numéro et étiquette), pas
          trois cas : un quatrième resterait caché derrière les trois premiers */
+      /* le COMPTE et la liste : un onzième exercice resterait caché derrière
+         les dix premiers, et « un contrôle qui dit moins que ce qu'il sait
+         fait croire qu'on a fini ». */
+      verifier('aucun indice ne remonte sur la ligne de sa lettre',
+        indicesPlats.length === 0, indicesPlats.length + ' cas — ' + indicesPlats.slice(0, 3).join(' | '));
+      /* LE BORD OPPOSÉ : un contrôle qui n'a rien à mesurer ne mesure rien, et
+         doit le dire. Le niveau qui DÉCLARE poser des indices dans un flex doit
+         en offrir au banc ; celui qui n'en déclare pas s'affiche « non
+         applicable » plutôt que d'être tu. */
+      if(P.indicesEnFlex)
+        verifier('des indices sont bien posés dans un conteneur flex (le contrôle mesure quelque chose)',
+          nIndicesFlex > 0, nIndicesFlex + ' indice(s) relevé(s) sur toute la visite');
+      else
+        ignorer('aucun indice ne remonte sur la ligne de sa lettre',
+          'ce niveau ne déclare aucun indice posé dans un conteneur flex (mesuré : ' + nIndicesFlex + ')');
       verifier('aucune étiquette de courbe ne tombe sur sa courbe',
         surCourbe.length === 0, surCourbe.length + ' cas — ' + surCourbe.slice(0, 2).join(' | ')
           + ' — exercices : ' + [...new Set(surCourbe.map(c => c.replace(/ \((train|soutien)\).*« (.+?) ».*/, ' $2')))].join(', '));

@@ -3187,6 +3187,70 @@ et s'arrête ; et le sabotage de la variable ne changeait que la PREMIÈRE ligne
 de l'exemple, si bien que le programme tombait en erreur et que le contrôle
 parlait d'autre chose. Rejoué sur un programme valide, il nomme la variable.
 
+**Puis l'ÉNONCÉ a suivi l'écran, et un coup de pouce est venu.** Demande de
+Turquet (septembre 2026) : « je veux que le 1er énoncé soit par exemple : lis
+le cours et exécute le programme pour comprendre ; et les énoncés suivants
+sont : complète le programme pour qu'il affiche "la note de simon est :" suivi
+du contenu de la variable note. Rajouter aussi un coup de pouce comme dans
+5.8. » L'écran portait UN énoncé écrit dans le HTML, le même sur les deux
+écrans : il annonçait la ligne à compléter devant un cours qu'on n'avait pas
+encore lu, et il redisait la demande sous une étiquette du programme qui la
+disait déjà.
+**L'ÉNONCÉ EST ÉCRIT PAR LE RENDU, ET PAR LUI SEUL** : le `<p class="mp-instr">`
+de l'écran est VIDE, `pyxRenderCours()` y pose la phrase du cours et
+`renderPYX()` celle de la question. Un texte laissé dans le HTML « au cas
+où » aurait été une SECONDE source — celle qui dérive sans que rien ne le
+dise : le sabotage « le rendu ne pose plus l'énoncé du cours » serait resté
+VERT, couvert par le texte statique, et c'est ce premier jet qui l'a montré.
+**L'ÉNONCÉ DE LA QUESTION NOMME LES NOMBRES DE SA QUESTION** — son texte et sa
+variable, lus dans `q` —, et **le bord qui compte est l'énoncé FIGÉ**, le plus
+sournois : « la note est : » écrit en dur nommerait un texte que la question
+ne porte pas, sans qu'aucune correction ne bronche — la leçon du numéro
+d'exercice de `show()`, transposée. Le contrôle rend donc DEUX questions
+ÉPINGLÉES (« la note de Simon est : » / note, puis « le prix est : » / total,
+la seconde ayant sa variable ABSENTE de son texte, sans quoi le texte seul
+satisferait les deux mesures) et relit les deux pastilles `<code>`.
+**ET LA DEMANDE N'EST DITE QU'UNE FOIS** : l'étiquette au-dessus du programme
+ne garde que ce qu'il doit afficher (« Ton programme doit afficher : … »), et
+le contrôle COMPTE les occurrences de « complèt » sur l'écran — exactement
+une. Deux phrases qui disent la même chose finissent par n'en dire plus
+qu'une à moitié.
+**UN SEUL COUP DE POUCE, et c'est un arbitrage nommé** : le 5.8 en a DEUX
+parce que son programme porte une ligne MODÈLE à imiter — le premier dit de la
+regarder ; le 5.7 n'en a pas, et un second coup de pouce n'aurait plus eu que
+la réponse à donner. Il dit la FORME (`print("texte", variable)`, les
+guillemets, la virgule, le nom sans guillemets) et jamais la ligne attendue :
+le contrôle exige que `pyxAns(q).ligne` ne s'y trouve pas.
+**LE CADRE DES COUPS DE POUCE EST PARTAGÉ, PAS RECOPIÉ** (`pyPoucesHTML`) :
+un seul endroit écrit le repli et ses classes, chaque exercice n'écrit que ses
+mots — deux fabriques auraient fini par diverger, et deux exercices voisins se
+seraient dessinés différemment sous les yeux de l'élève. Les classes gardent le
+préfixe `pyd-` de l'exercice où le cadre est né, comme le 5.8 garde les classes
+`pyx-` du programme : la convention de `pyx-prog`, prise dans l'autre sens.
+Douze sabotages au banc jsdom, chacun rougissant en nommant son défaut —
+l'énoncé du cours retiré, l'énoncé du cours qui parle déjà de compléter,
+l'énoncé de la question retiré, l'énoncé FIGÉ, la variable qui n'est plus
+nommée, l'étiquette qui redit la demande, l'écran qui ne montre plus la sortie
+attendue, le coup de pouce disparu, déplié d'emblée, muet sur la forme, qui
+écrit la ligne, et le 5.8 sorti de la fabrique partagée.
+**Et le banc NAVIGATEUR tient ce que jsdom ne voit pas** : l'énoncé rendu dans
+sa BOÎTE sous UNE seule étiquette « Énoncé » — le contrôle universel « 6 » ne
+visite pas cet exercice, et un énoncé vidé garderait son élément dans le DOM —,
+les deux écrans qui ne disent pas la même chose, et le coup de pouce qui
+S'OUVRE au clic : jsdom lit un attribut, pas un geste. Deux sabotages de plus,
+chacun rougissant en nommant son défaut et laissant jsdom VERT à bon droit —
+l'énoncé caché par une règle CSS (« boite: false », le texte toujours dans le
+DOM) et le clic du coup de pouce avalé par un `preventDefault`. Ce dernier
+rougit AUSSI chez {python-deux-lignes} : c'est la preuve que le cadre est
+partagé et non recopié.
+**ET LE BANC S'EST PRIS EN DÉFAUT AVANT LA PAGE** : son clic FORCÉ sur
+« J'ai compris » fermé tombait sur les commandes du bas, en position FIXE —
+il ouvrait la modale de signalement, qui interceptait ensuite tout, et le banc
+accusait la page. L'élève, lui, fait défiler : la réserve du bas (84 px) lui
+rend le bouton, mesuré. Le banc CENTRE donc le bouton avant de cliquer — le
+piège déjà payé sur la grille de {construire-fonction}, et la règle « une
+mesure qui accuse la page se mesure elle-même d'abord ».
+
 **Un texte presque bon est un texte bon.** Décision de Turquet (septembre
 2026) : « en seconde pour les algorithmes qui affichent un texte, accepter les
 textes qui sont presque bons. Dans le texte des espaces en trop ou en moins ne
@@ -6225,6 +6289,55 @@ elle part avec la page. **Un seul endroit la décrit** (`LANGUE_SIMPLE`), partag
 par les deux aides et par le bouton du rappel : deux descriptions auraient fini
 par diverger, et l'une des aides aurait reparlé comme avant sans qu'on le voie.
 
+**Un indice posé NU dans un conteneur flex remonte sur la ligne de sa lettre.**
+Signalé par Turquet (septembre 2026) sur le 6.13, capture à l'appui : « les
+indices n sont mal placés très souvent ». L'écran montrait « U n », « 5 − U n »,
+« U n+1 ». Un `<sub>` ou un `<sup>` enfant DIRECT d'un conteneur flex en devient
+un ITEM, et la spécification y IGNORE `vertical-align` : l'indice se pose sur la
+ligne de la lettre, et le `gap` du conteneur l'en écarte par-dessus le marché.
+« Uₙ » se lit alors « U n » — et « eˣ » se lit « e x », c'est-à-dire une
+multiplication : ce n'est plus une laideur, c'est une autre opération.
+**LA MESURE A ÉTÉ FAITE AVANT DE TOUCHER À QUOI QUE CE SOIT, et elle a ÉLARGI le
+signalement** : 2,3 px AU-DESSUS de la ligne au lieu de 4,2 px en dessous, 4 à
+7 px d'écart — et surtout **59 indices sur DIX exercices**. Le 6.13 (12) et le
+6.15 (17) sont les plus visibles ; le 5.2 (8), le 4.6, le 6.3, le 6.5, le 6.6,
+le 6.10, le 6.11 et le 4.5 le portaient aussi, depuis toujours, sans que rien ne
+le dise. Un défaut vu dans un coin se corrige PARTOUT.
+**La Seconde et la Première n'en posent AUCUN** (mesuré : 0 sur les deux
+fichiers) — elles n'écrivent d'indices ni dans une grille ni dans une fraction.
+La règle n'y est donc pas écrite : une règle qui n'écarte jamais rien fait croire
+qu'on vérifie quelque chose. Le CONTRÔLE, lui, va partout.
+**LE GAP N'EST PAS RECOPIÉ, IL EST RELU** : chacun des quatre conteneurs
+(`.sa2-frac .num` et `.den`, `.svr-cel`, `.tg-line`, `.s1-line`) pose son écart
+dans une variable que son PROPRE `gap` lit, et la marge négative de l'indice lit
+la même — recopié, il aurait fini par diverger et l'écart serait revenu sans que
+rien ne le dise.
+**Deux corrections ont été mesurées, et la plus petite l'a emporté.** Envelopper
+chaque indice au rendu donne le rendu NATIF, sans aucune valeur à caler — mais
+elle touche le DOM de dix exercices après coup, là où vivent leurs badges de
+correction et les comptes de cellules de leurs grilles. La règle CSS ne change
+que la peinture, et la mesure départage : 3,8 px de descente contre 4,2 px pour
+un indice ordinaire, écart nul. Le décalage est calé PAR LA MESURE et jugé sur
+capture, jamais au jugé.
+**Le contrôle est UNIVERSEL**, greffé sur la visite qui ouvre tous les exercices
+des trois niveaux dans les deux modes : tout `<sub>`/`<sup>` posé dans un flex
+doit porter la règle EN USAGE — jamais celle de la feuille de styles, qu'une
+cascade peut battre (le piège du 2.1.2) — et sa marge doit annuler EXACTEMENT le
+gap de son conteneur. L'exercice qu'on écrira demain rougit s'il pose un indice
+dans un conteneur que la règle ne couvre pas encore, sans rien avoir à déclarer.
+Son bord OPPOSÉ est déclaré (`indicesEnFlex` dans `tests/profils.js`, deux
+sources) : le niveau qui annonce des indices en flex doit en offrir au banc, et
+les deux autres s'affichent « non applicable » plutôt que d'être tus.
+**Cinq sabotages, chacun rougissant en nommant son défaut** — la règle retirée
+(« 20 cas — 4.6 : tg-line « − » posé sur la ligne de sa lettre »), la marge qui
+annule le gap retirée (« écarté de sa lettre de 6px par le gap »), le décalage
+mis à zéro, le gap RECOPIÉ au lieu d'être relu (« 6.13 — svr-cel : écarté de sa
+lettre de 10px ») et les lignes tg sorties de la liste, qui ne rougit plus que
+sur les exposants du 5.2 et du 4.6. Aucun contrôle voisin ne bouge sous ces
+sabotages : le seul autre « ✗ » de la sortie est sa ligne de résumé — vérifié
+plutôt que supposé, parce qu'un rouge qu'on n'explique pas est un rouge qu'on
+n'a pas mesuré.
+
 **Une case où l'élève écrit a la taille des nombres qui l'entourent.** Elle est
 en mode math — un `<math-field>` —, et sa police fait la même taille que les
 chiffres posés à côté (décision de Turquet, août 2026, **valable pour tout
@@ -7209,10 +7322,11 @@ l'axe des y est le garde mort ci-dessus. Un huitième ne rougit QU'AU
 NAVIGATEUR : la police de l'étiquette doublée — jsdom, qui ne lit pas une
 police, reste vert sur sa boîte supposée, et Chromium nomme la courbe sous
 l'étiquette rendue.
-**La Seconde porte le même défaut, et n'est pas touchée** : `lvGraphSVG` et
-`adrSVG` posent leur « Cf » à une place fixe — sondé : 160 courbes sur 300
-le portent sur la courbe. La demande nomme le 2.8 de la Terminale ; le dire
-vaut mieux que le taire, et c'est une décision à prendre.
+**La Seconde portait le même défaut, et il a été corrigé depuis** (deux fois :
+voir les deux paragraphes ci-dessous) : `lvGraphSVG` et `adrSVG` posaient leur
+« Cf » à une place fixe — sondé : 160 courbes sur 300 le portaient sur la
+courbe. La demande d'alors ne nommait que le 2.8 de la Terminale ; ce
+paragraphe raconte l'histoire avec ce qu'on en savait ce jour-là.
 
 **Puis la Seconde a suivi — par une AUTRE branche, le même jour, et avec un
 contrôle qui va PARTOUT.** Une seconde capture de Turquet — le 5.4, « L'écriture
@@ -7313,6 +7427,114 @@ la droite de g retirée des obstacles de « Cf » remet 63 « Cf » sur 150 sur
 une courbe au 2.5 ; les obstacles retirés de la pose de « Cg » en remettent
 36 au 2.5, 30 au 2.6 et 18 à la synthèse, et une fois « Cg » sur « Cf ».
 Compté sur 150 tirages, un sabotage dit exactement ce qu'il retire.
+
+**Puis « à côté » a voulu dire À CÔTÉ, avec de l'air — et la boîte supposée
+était le défaut.** Demande de Turquet (septembre 2026) : « même chose en
+seconde », après le dessin des dérivées de la Terminale. **La sonde a mesuré
+avant qu'on ne touche à quoi que ce soit, et elle a redressé la demande** :
+les étiquettes de la Seconde ne se posaient DÉJÀ plus sur leur courbe — le
+paragraphe ci-dessus tient, zéro sur 4 800 étiquettes — mais elles la
+FRÔLAIENT : 684 sur 1200 à moins de 3 px, médiane 2,8 px sur le petit dessin,
+minimum 1,1 px. Ce n'est pas la règle de la Terminale, qui garantit 5 px
+d'air ; et le contrôle universel, qui demande « aucun point de courbe DANS la
+boîte », restait vert à bon droit sur un dessin où le nom touche la courbe.
+**LA CAUSE EST LA BOÎTE SUPPOSÉE, la leçon de la Terminale payée une seconde
+fois.** `ETQ_W`/`ETQ_H` valaient 30 × 17 avec la ligne de base 13 px sous le
+haut ; relevée au `getBBox` sur les VRAIES polices — Nunito 800 italique 15 px
+pour « Cf », Fredoka 700 pour « Cg » —, l'encre fait 15,5 px de large, 15 px
+AU-DESSUS de la ligne de base et 6,2 px dessous. La boîte qu'`etqLibre`
+écartait était donc 2 px trop haute et 2,2 px trop basse : l'encre débordait
+des deux côtés, et les 4 px d'air se réduisaient à moins de 2. Elle épouse
+l'encre désormais (`ETQ_MONTEE`, `ETQ_DESCENTE`, et `ETQ_W` à 16), et l'air
+est `ETQ_MARGE` — 5 px, la marge du dessin de la Terminale — et lui seul.
+**Une largeur réservée plus LARGE que l'encre n'est pas une précaution** :
+elle desserre en silence la borne « ni loin » du balayage, qui se mesure sur
+la boîte réservée quand le contrôle mesure l'encre — 15 px garantis devenaient
+17 mesurés, et le banc accusait une page juste. Le sabotage la remet, et il
+rougit.
+**LA BANDE HORIZONTALE COMPTAIT POUR 2 px, ET C'ÉTAIT LE SECOND TIERS DU
+DÉFAUT.** Une place est construite `ETQ_MARGE` au-dessus du point le plus haut
+de la courbe sur la LARGEUR de la boîte — mais cette largeur était élargie de
+2 px seulement : un point JUSTE hors de la bande n'est contraint par rien
+verticalement, il peut se poser à la hauteur de l'étiquette, et ces 2 px sont
+alors tout ce qui l'en sépare. La bande s'élargit de `ETQ_MARGE`, et 28
+étiquettes de plus quittent la courbe.
+**UN ÉCHANTILLON DOUBLÉ Y A ÉTÉ ÉCRIT, PUIS RETIRÉ** — 60 points par segment
+au lieu de 30. Il servait vraiment tant que le resserrement ci-dessous
+existait : à marge 3, une étiquette sur 800 tombait à 2,8 px d'une courbe que
+la page croyait à 3, l'écart entre le point échantillonné et le vrai extremum.
+La marge revenue à 5 partout, ces 0,2 px ne coûtent plus rien : mesuré à
+l'identique des deux côtés sur 14 600 étiquettes (minimum 5,0 px, zéro sous
+3 px). Un garde-fou qui n'écarte plus rien fait croire qu'on vérifie quelque
+chose ; son sabotage reste vert, et son vert dit vrai.
+**ET LE BALAYAGE EST VENU DU CÔTÉ DE LA TERMINALE — c'est la part de la
+demande qui se voit le mieux.** Les places d'`etqLibre` sont calées sur des
+abscisses candidates (les bouts du morceau, puis vers le centre) ; sur le
+dessin encombré du 2.6 — deux courbes et deux étiquettes dans 258 px —
+aucune ne tenait à 5 px, et le REPLI prenait alors la place la moins
+mauvaise, c'est-à-dire sans aucune marge garantie : elle tombait à côté par
+chance, et une propriété heureuse n'est pas une propriété tenue. `etqLibre`
+BALAIE donc le dessin avant de renoncer, comme le fait `afEtiquettePos` en
+Terminale : pas de 4 px, la boîte à `ETQ_MARGE` au moins de toute courbe et
+de tout obstacle, et parmi les places libres la plus proche du DÉBUT de la
+courbe — là où l'œil cherche son nom. Il ne coûte rien d'ordinaire : sur
+6 200 poses, il ne sert que 15 à 21 fois, toutes au 2.6, et le repli n'est
+plus jamais atteint.
+**Un RESSERREMENT de la marge y a été écrit, puis retiré — le garde-fou mort
+de cette page.** Le premier jet réessayait à 4 px puis à 3 px avant de
+renoncer, et il servait vraiment tant que le balayage n'existait pas (4
+replis sur 300 dessins du 2.6, ramenés à zéro). Le balayage l'a rendu inutile
+et même NUISIBLE : il trouve une place à 5 px là où les abscisses calées n'en
+offrent aucune, si bien que le resserrement ne faisait plus que dégrader ce
+qu'il croyait sauver — 3,4 px au plus juste au lieu de 5,0, mesuré sur 14 600
+étiquettes, pour zéro repli des deux côtés. Son sabotage restait vert, et son
+vert disait vrai.
+**ET LA SONDE A ATTRAPÉ UN DÉFAUT DU BALAYAGE AVANT QUE LE MOINDRE TIRAGE NE
+LE MONTRE** : il bornait la distance à TOUTES les courbes confondues, la
+sienne et les obstacles. Une place à 6 px de la courbe de f et à 32 px de la
+droite qu'elle nomme satisfaisait donc « ni loin » sans nommer quoi que ce
+soit. **L'écart à SA courbe et l'écart aux AUTRES ne se mélangent pas** : le
+premier est borné des deux côtés (entre `ETQ_MARGE` et `ETQ_MARGE` + 10), le
+second seulement par le bas. Cela ne s'est vu qu'en FORÇANT le balayage — en
+ne lui donnant aucune abscisse candidate —, jamais au tirage.
+**Deux bancs, la répartition habituelle.** jsdom lit le SVG que la page ÉCRIT
+— la position de CHAQUE étiquette, le chemin de CHAQUE courbe, les lignes des
+axes —, rééchantillonne lui-même les Bézier et mesure la boîte RENDUE contre
+toutes les courbes du dessin : ≥ 3 px, ≤ 17 px, dans le dessin, hors des deux
+axes, sur les SIX dessins qui portent une étiquette (le petit, le grand, les
+deux à deux courbes, la synthèse, les petites cartes du QCM), 800 étiquettes.
+Il COMPTE les replis et les refuse — une pose sans marge garantie n'est pas
+une pose —, et il ÉPROUVE LE BALAYAGE DIRECTEMENT, en le forçant : il ne sort
+qu'un dessin sur 800 au tirage, et un contrôle qui l'attendrait ne mesurerait
+à peu près jamais rien. La moitié des cas forcés le sont sur « Cg » du 2.6,
+avec « Cf » déjà posée en obstacle : c'est là que la borne haute se joue.
+Le NAVIGATEUR (« 6 tricies », déclaré par `etiquetteCourbe` dans
+`tests/profils.js`) mesure ce que jsdom n'a pas — la POLICE : `getBBox` contre
+`getPointAtLength`, sur trois exercices ouverts pour de vrai puis sur quarante
+dessins de plus. **Sa mesure ne connaît plus aucun moteur** : toutes les
+étiquettes du dessin contre toutes ses courbes, l'hôte étant le parent du
+premier SVG affiché ; seul le redessin diffère, et le profil le NOMME
+(`moteur`) — le même contrôle sert les deux niveaux, ce que « même chose en
+seconde » voulait dire.
+Après correction, sur 14 600 étiquettes des six dessins : minimum 5,0 px,
+maximum 7,7 px pour une place calée et 15,4 px pour une place de BALAYAGE —
+la fourchette que la page s'impose —, zéro à moins de 3 px, zéro repli.
+**La borne du banc est à 17 px et non à 15** : la page mesure sa boîte
+RÉSERVÉE, le contrôle mesure l'ENCRE, et les deux diffèrent de 0,8 px en bas —
+15,4 px ont été mesurés sur une page juste, et une borne à 16 n'aurait laissé
+que 0,6 px de marge à un banc, c'est-à-dire un contrôle intermittent en germe.
+**Treize sabotages, dix rougissant en nommant leur défaut.** **Et la bande de l'axe des y, morte en
+Terminale, est VIVANTE ici** : la retirer pose 12 étiquettes sur les nombres
+de l'axe, parce que les morceaux du 2.6 amènent la courbe tout près de lui.
+**Les TROIS verts disent chacun quelque chose, et aucun n'est un contrôle
+faible.** Deux sont les garde-fous morts nommés ci-dessus — le resserrement de
+la marge et l'échantillon doublé. Le troisième, la borne haute du balayage
+retirée, ne rougit qu'une exécution sur trois : le balayage ne sort qu'un
+dessin sur quelques centaines, le banc ne l'atteint donc pas à tous les coups,
+et un sabotage intermittent ne dit rien du contrôle visé. **Il se compte à la
+SONDE**, qui le chiffre sans ambiguïté : sans cette borne, le maximum du 2.6
+passe de 15,4 à 21,0 px sur 2 400 étiquettes. C'est le motif déjà employé sur
+les obstacles de « Cg » au paragraphe précédent.
 
 
 **Le 1.3 (Signes & variations) suit la convention commune de correction.**

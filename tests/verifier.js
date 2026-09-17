@@ -3607,6 +3607,7 @@ function exercices(suite){
     signeDeriveeQcm(w, P);
     suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
+    etiquetteCourbeSeconde(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -18483,7 +18484,65 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 6. la copie juste TAPÉE et les portes ---- */
+  /* ---- 6. l'ÉNONCÉ suit l'écran ET sa question, et le coup de pouce ----
+     Demande de Turquet (septembre 2026) : le premier énoncé dit de lire le
+     cours et d'exécuter le programme, les suivants disent de compléter le
+     programme en nommant le texte et la variable — et un coup de pouce arrive,
+     comme au 5.8.
+     Le bord qui compte est l'énoncé FIGÉ : un texte ou une variable écrits en
+     dur nommeraient ceux d'une AUTRE question sans qu'aucune correction ne
+     bronche, donc le contrôle rend DEUX questions épinglées et lit les deux
+     puces de code de l'énoncé — la première est le texte, la seconde la
+     variable, et la seconde question a une variable que son texte ne contient
+     pas, sans quoi le texte seul satisferait les deux. Les deux autres bords :
+     la demande n'est dite qu'UNE fois sur l'écran (l'étiquette du programme la
+     répétait, ce qui faisait deux énoncés), et le coup de pouce donne la FORME
+     sans jamais donner la ligne attendue. */
+  verifierEval(w, 'l\u2019\u00e9nonc\u00e9 dit « lis le cours » \u00e0 l\u2019ouverture puis « compl\u00e8te le programme » en nommant le TEXTE et la VARIABLE de SA question, la demande n\u2019est dite qu\u2019une fois, et le coup de pouce donne la forme sans donner la ligne', `(function(){
+    const vus=[], NL=String.fromCharCode(10);
+    const sansAcc=function(t){ return t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); };
+    const enonce=function(){ const e=document.querySelector('#scr-pyx .mp-instr'); return e?e.textContent.trim():''; };
+    const puces=function(){ return Array.prototype.map.call(document.querySelectorAll('#scr-pyx .mp-instr code'), function(c){ return c.textContent; }); };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='${ID}';
+    startPYX();
+    const ec=enonce(), sc=sansAcc(ec);
+    if(!ec) vus.push('l\u2019\u00e9cran du cours n\u2019a pas d\u2019\u00e9nonc\u00e9');
+    if(sc.indexOf('cours')<0) vus.push('l\u2019\u00e9nonc\u00e9 du cours ne dit pas de lire le cours : '+ec);
+    if(sc.indexOf('execut')<0) vus.push('l\u2019\u00e9nonc\u00e9 du cours ne dit pas d\u2019ex\u00e9cuter le programme : '+ec);
+    if(sc.indexOf('complet')>=0) vus.push('l\u2019\u00e9nonc\u00e9 du cours parle d\u00e9j\u00e0 de compl\u00e9ter le programme : '+ec);
+    pyxExempleExecuter(); pyxCompris();
+    /* la seconde paire porte une variable que son texte ne contient PAS */
+    [['la note de Simon est :','note','12'],['le prix est :','total','7']].forEach(function(P){
+      test.questions[test.idx]={nom:P[1], lit:P[2], texte:P[0], vis:'int'};
+      renderPYX();
+      const e=enonce(), se=sansAcc(e), c=puces();
+      if(se.indexOf('complet')<0) vus.push('l\u2019\u00e9nonc\u00e9 de la question ne dit pas de compl\u00e9ter le programme : '+e);
+      if(c[0]!==P[0]) vus.push('l\u2019\u00e9nonc\u00e9 ne nomme pas le texte de SA question (« '+P[0]+' ») : '+JSON.stringify(c));
+      if(c[1]!==P[1]) vus.push('l\u2019\u00e9nonc\u00e9 ne nomme pas la variable de SA question (« '+P[1]+' ») : '+JSON.stringify(c));
+      const carte=document.querySelector('#scr-pyx .card').textContent;
+      const n=sansAcc(carte).split('complet').length-1;
+      if(n!==1) vus.push('la demande est dite '+n+' fois sur l\u2019\u00e9cran au lieu d\u2019une');
+      const att=pyxAns(test.questions[test.idx]);
+      if(carte.indexOf(att.sortie.trim())<0) vus.push('l\u2019\u00e9cran ne montre plus ce que le programme doit afficher : '+att.sortie.trim());
+      const po=document.querySelectorAll('#pyxHost .pyd-pouce');
+      if(po.length!==1){ vus.push(po.length+' coup(s) de pouce sur l\u2019\u00e9cran au lieu d\u2019un'); return; }
+      if(po[0].tagName!=='DETAILS') vus.push('le coup de pouce n\u2019est pas un bloc repliable : '+po[0].tagName);
+      if(po[0].open) vus.push('le coup de pouce est d\u00e9pli\u00e9 d\u2019embl\u00e9e');
+      const tp=po[0].textContent;
+      ['print("texte", variable)','guillemets','virgule'].forEach(function(m){
+        if(tp.indexOf(m)<0) vus.push('le coup de pouce ne dit pas la forme (« '+m+' ») : '+tp.slice(0,90));
+      });
+      if(tp.indexOf(att.ligne)>=0) vus.push('le coup de pouce écrit la ligne attendue : '+att.ligne);
+    });
+    /* une seule fabrique écrit le cadre replié, pour les deux exercices */
+    if(typeof pyPoucesHTML!=='function') vus.push('pyPoucesHTML : la fabrique partagée du cadre n\u2019existe pas');
+    else [['pyxPoucesHTML',pyxPoucesHTML],['pydPoucesHTML',pydPoucesHTML]].forEach(function(F){
+      if(String(F[1]).indexOf('pyPoucesHTML')<0) vus.push(F[0]+' ne passe plus par la fabrique partagée : deux cadres à tenir');
+    });
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '');
+
+  /* ---- 7. la copie juste TAPÉE et les portes ---- */
   verifierEval(w, '« Vérifier » est fermé tant que la ligne n’est pas exécutée, s’ouvre après, se referme sur une ligne modifiée, et la copie juste vérifiée vaut 1, verrouille et propose « Question suivante »', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPYX(); pyxExempleExecuter(); pyxCompris();
@@ -18522,7 +18581,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 7. la copie fausse, en entraînement ---- */
+  /* ---- 8. la copie fausse, en entraînement ---- */
   verifierEval(w, 'la copie fausse (entraînement) : la case rougit, le diagnostic nomme l’erreur, la ligne juste s’écrit en vert sous la case, la note vaut 0 et la question est verrouillée — et « Vérifier » exécute lui-même une ligne qui ne l’a pas été', `(function(){
     currentMode="train"; startPYX(); pyxExempleExecuter(); pyxCompris();
     const vus=[], q=test.questions[0], a=pyxAns(q), inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
@@ -18542,7 +18601,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 8. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
+  /* ---- 9. le soutien : la page dit OÙ est l'erreur, et ne révèle rien ---- */
   verifierEval(w, 'en soutien : la ligne fausse rougit sans badge, le message dit « Où est l’erreur ? » et la nomme, rien n’est verrouillé, Revérifier est proposé ; modifier la ligne retire le rouge et referme le bouton ; la ligne vide n’est pas peinte ; la correction exécutée puis revérifiée vaut 1', `(function(){
     currentMode="soutien"; startPYX(); pyxExempleExecuter(); pyxCompris();
     const vus=[], q=test.questions[0], inp=document.getElementById("pyx-in"), cons=document.getElementById("pyxConsole");
@@ -18574,7 +18633,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 9. les branchements ---- */
+  /* ---- 10. les branchements ---- */
   verifierEval(w, 'les branchements : pas de bouton des tables, le rappel sans LaTeX et avec la virgule et les guillemets, les questions à l’IA, le contexte porte la ligne 1, ce que l’élève a écrit, le diagnostic, et déclare la réponse secrète, aucune correction au fil de la frappe', `(function(){
     const vus=[];
     if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
@@ -18594,7 +18653,7 @@ function pythonCompleter(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 10. la seconde méthode : CPython, sur ce que l'exercice ferait tourner ----
+  /* ---- 11. la seconde méthode : CPython, sur ce que l'exercice ferait tourner ----
      Les sorties des lignes de la fiche sont ÉPINGLÉES avec celles de
      CPython 3.11 : elles tiennent même sans python sur la machine. Une
      ligne que CPython refuse doit être refusée par la page aussi. */
@@ -21583,6 +21642,167 @@ function etiquetteCourbe(w, P){
     for(let i=0;i<100;i++) mesure(lvGenPts(i%2?2:3).pts, i%3===0);
     if(n<400) return 'le contrôle n\\'a mesuré que '+n+' courbes';
     return fautes.length ? fautes.length+' défaut(s) sur '+n+' courbes — '+fautes.slice(0,3).join(' ; ') : '';
+  })()`, v => v === '');
+}
+/* L'ÉTIQUETTE « Cf » DE LA SECONDE SE POSE AUSSI À CÔTÉ DE SA COURBE
+   (demande de Turquet, septembre 2026 : « même chose en seconde », après le
+   dessin des dérivées de la Terminale). Ses étiquettes ne se posaient DÉJÀ
+   plus dessus — etqLibre construit chaque place au-dessus ou au-dessous de la
+   courbe échantillonnée —, mais la boîte qu'elle écartait était SUPPOSÉE
+   30 × 17 quand l'encre en fait 15,5 × 21,2 : l'étiquette débordait de 2 px en
+   haut et de 2,2 px en bas, et les 4 px d'air se réduisaient à moins de 2.
+   Mesuré avant tout correctif : 684 étiquettes sur 1200 à moins de 3 px de
+   leur courbe.
+   Le contrôle ne fait AUCUNE confiance au placement de la page : il lit le SVG
+   qu'elle ÉCRIT — la position de CHAQUE étiquette, le chemin de CHAQUE courbe,
+   les lignes des axes —, rééchantillonne lui-même les Bézier, et mesure la
+   distance de la boîte RENDUE (relevée au getBBox sur les vraies polices) à
+   toutes les courbes du même dessin. Trois bords : jamais sur une courbe
+   (≥ 3 px, la marge de la page moins la tolérance de l'échantillonnage),
+   jamais LOIN (≤ 17 px — une étiquette posée dans un coin ne nommerait plus
+   rien ; la page borne le balayage à ETQ_MARGE + 10, soit 15, et le contrôle
+   mesure l'ENCRE là où la page mesure sa boîte réservée, 0,8 px plus haute en
+   bas : 15,4 px ont été mesurés sur une page juste, et une borne à 16 n'aurait
+   laissé que 0,6 px de marge à un banc. Les places calées, elles, mesurent au
+   plus 7,7 px), et dans le dessin, hors des deux axes. Les SIX
+   dessins qui portent une étiquette y passent, « Cg » comprise : le petit
+   dessin, le grand, les deux dessins à deux courbes, la synthèse et les
+   petites cartes du QCM — 800 étiquettes.
+   Il COMPTE aussi les REPLIS et les refuse : le repli prend la place la moins
+   mauvaise, sans marge garantie — elle peut tomber à côté par chance, et une
+   propriété heureuse n'est pas une propriété tenue. */
+function etiquetteCourbeSeconde(w, P){
+  const nom = 'l’étiquette de courbe se pose à côté de la courbe, jamais dessus (les six dessins)';
+  const present = evaluer(w, "typeof lvGraphSVG==='function' && typeof adrSVG==='function' && typeof etqLibre==='function' && typeof ETQ_MARGE!=='undefined'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n’a pas le moteur de dessin de la Seconde (lvGraphSVG / adrSVG / etqLibre)');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const fautes=[]; let n=0, etq=0;
+    /* la boîte que Chromium REND, relevée au getBBox sur les vraies polices :
+       Nunito 800 italique 15 px pour « Cf », Fredoka 700 15 px pour « Cg » —
+       15,5 px de large, 15 px au-dessus de la ligne de base, 6,2 px dessous */
+    const boite=function(x,y){ return {l:x, r:x+16, t:y-15, b:y+6.2}; };
+    const bezier=function(d, out){
+      const nums=d.match(/-?[\\d.]+/g).map(Number);
+      let prec=[nums[0],nums[1]]; out.push(prec);
+      for(let i=2;i+5<nums.length;i+=6){
+        const Q=[prec,[nums[i],nums[i+1]],[nums[i+2],nums[i+3]],[nums[i+4],nums[i+5]]];
+        for(let k=1;k<=40;k++){ const t=k/40,u=1-t;
+          out.push([u*u*u*Q[0][0]+3*u*u*t*Q[1][0]+3*u*t*t*Q[2][0]+t*t*t*Q[3][0],
+                    u*u*u*Q[0][1]+3*u*u*t*Q[1][1]+3*u*t*t*Q[2][1]+t*t*t*Q[3][1]]); }
+        prec=Q[3];
+      }
+    };
+    const mesure=function(svg, tag){
+      n++;
+      /* TOUTES les courbes du dessin : la spline de f, et la droite ou la
+         spline de g — une étiquette libre de SA courbe peut tomber sur l'autre */
+      const ech=[];
+      let m, re=/class="(?:lv-curve|eqg-g)"[^>]*\\sd="([^"]+)"/g;
+      while((m=re.exec(svg))) bezier(m[1], ech);
+      re=/<line class="eqg-g" x1="([-\\d.]+)" y1="([-\\d.]+)" x2="([-\\d.]+)" y2="([-\\d.]+)"/g;
+      while((m=re.exec(svg))){ const x1=+m[1],y1=+m[2],x2=+m[3],y2=+m[4];
+        for(let k=0;k<=80;k++){ const t=k/80; ech.push([x1+(x2-x1)*t, y1+(y2-y1)*t]); } }
+      if(!ech.length){ fautes.push(tag+' : aucune courbe dans le dessin'); return; }
+      const vb=svg.match(/viewBox="0 0 ([\\d.]+) ([\\d.]+)"/);
+      if(!vb){ fautes.push(tag+' : viewBox introuvable'); return; }
+      const VW=+vb[1], VH=+vb[2];
+      const ax=svg.match(/<line x1="[\\d.]+" y1="([\\d.]+)" x2="[\\d.]+" y2="[\\d.]+" class="lv-axis"\\/><line x1="([\\d.]+)"/);
+      if(!ax){ fautes.push(tag+' : axes introuvables'); return; }
+      const y0=+ax[1], x0=+ax[2];
+      const textes=[];
+      re=/<text x="([-\\d.]+)" y="([-\\d.]+)" class="lv-cf">/g;
+      while((m=re.exec(svg))) textes.push(['Cf', +m[1], +m[2]]);
+      re=/<text class="eqg-cg" x="([-\\d.]+)" y="([-\\d.]+)">/g;
+      while((m=re.exec(svg))) textes.push(['Cg', +m[1], +m[2]]);
+      if(!textes.length){ fautes.push(tag+' : aucune étiquette de courbe'); return; }
+      textes.forEach(function(t){
+        etq++;
+        const B=boite(t[1], t[2]);
+        let dm=Infinity;
+        for(let i=0;i<ech.length;i++){ const p=ech[i];
+          const dx=Math.max(B.l-p[0],0,p[0]-B.r), dy=Math.max(B.t-p[1],0,p[1]-B.b);
+          const d=Math.hypot(dx,dy); if(d<dm) dm=d; }
+        const ou=tag+' — '+t[0]+' en ('+t[1].toFixed(0)+', '+t[2].toFixed(0)+')';
+        if(dm<3) fautes.push(ou+' : SUR la courbe ('+dm.toFixed(1)+' px)');
+        else if(dm>17) fautes.push(ou+' : loin de la courbe ('+dm.toFixed(1)+' px)');
+        if(B.l<0||B.r>VW||B.t<0||B.b>VH) fautes.push(ou+' : hors du dessin');
+        const croise=function(l,r,t2,b){ return B.r>l && B.l<r && B.b>t2 && B.t<b; };
+        if(croise(0, VW, y0-1, y0+16)) fautes.push(ou+' : sur l\\'axe des x ou ses nombres');
+        if(croise(x0-22, x0+2, 0, VH)) fautes.push(ou+' : sur l\\'axe des y ou ses nombres');
+      });
+    };
+    /* LE REPLI EST COMPTÉ, ET IL DOIT RESTER À ZÉRO. etqLibre balaie le dessin
+       plutôt que de renoncer ; quand même le balayage ne trouve rien, elle
+       prend la place la MOINS MAUVAISE, qui n'a aucune marge garantie — elle
+       peut tomber à côté par chance, et une propriété heureuse n'est pas une
+       propriété tenue. On enveloppe donc la fonction de la page pour relever ce
+       qu'elle rend, et on la REND en sortant (le piège documenté du double volé
+       au voisin). */
+    let replis=0;
+    const vraiEtqLibre=etqLibre;
+    etqLibre=function(){ const r=vraiEtqLibre.apply(null, arguments); if(r && r.place===-1) replis++; return r; };
+    for(let i=0;i<80;i++) mesure(lvGraphSVG(lvGenPts(i%2?2:3).pts), 'lvGraphSVG');
+    for(let i=0;i<80;i++) mesure(adrSVG({pts:adrGenPts()}), 'adrSVG');
+    for(let i=0;i<80;i++){ const q=eqgGen();
+      mesure(lvGraphSVG(q.pts, eqgExtra(q,false), null, null, eqgObst(q)), '{equation-graphique}');
+      mesure(lvGraphSVG(q.pts, eqgCarteExtra(q,'bon'), null, null, eqgObst(q)), '{equation-graphique} (carte)'); }
+    for(let i=0;i<80;i++){ const q=ifgGen();
+      mesure(lvGraphSVG(q.ptsF, ifgExtra(q,false), q.domF[0]+3, q.domF[1]+3, ifgObst(q)), '{lecture-deux-courbes}'); }
+    for(let i=0;i<80;i++){ const q=synGen();
+      mesure(adrSVG({pts:q.pts, ia:q.ia, ib:q.ib, dr:null, rep:[]}, null, synDessus(q), synObst(q)), '{synthese-fonction}'); }
+    etqLibre=vraiEtqLibre;
+    /* LE BALAYAGE, ÉPROUVÉ DIRECTEMENT. Il ne sort qu'un dessin sur quelques
+       centaines au tirage — 18 fois sur 1600 dessins du 2.6, jamais ailleurs,
+       mesuré : un contrôle qui l'attendrait ne le rencontrerait qu'une fois sur
+       plusieurs exécutions, et son sabotage resterait vert en parlant d'autre
+       chose. On le force donc, sur de VRAIES courbes, en ne
+       donnant AUCUNE abscisse candidate : les places calées n'ont alors rien à
+       proposer et seul le balayage peut répondre. Il doit rendre une place
+       (jamais le repli), à côté de la courbe et pas loin. */
+    let nb=0;
+    const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
+    const sx=function(x){ return PL+(x-XA)/(XB-XA)*(PR-PL); };
+    const sy=function(y){ return PB-(y-YA)/(YB-YA)*(PB-PT); };
+    const cadre={PL:PL,PR:PR,PT:PT,PB:PB,x0:sx(0),y0:sy(0)};
+    for(let i=0;i<40;i++){
+      /* la moitié des cas sur le dessin ENCOMBRÉ du 2.6, et pour « Cg » — la
+         seconde étiquette, qui doit éviter la courbe de f ET « Cf » déjà
+         posée. C'est là que la borne HAUTE du balayage se joue : une place
+         libre peut y être à 6 px de la courbe de f et à 32 px de la droite
+         qu'elle nomme, et elle ne nomme alors plus rien. */
+      let e, o=null;
+      if(i%2){ const pts=lvGenPts(i%3?2:3).pts; e=lvEchantillon(pts,-3,lvTangents(pts),sx,sy,0,6); }
+      else { const q=ifgGen();
+        const eF=lvEchantillon(q.ptsF,-3,lvTangents(q.ptsF),sx,sy,q.domF[0]+3,q.domF[1]+3);
+        e=ifgEchG(q,sx,sy);
+        const rf=etqLibre(eF,cadre,etqCandidats(-3+q.domF[0]+3,-3+q.domF[1]+3,0.85).map(sx),ETQ_W,ETQ_H,e);
+        o=eF.concat(etqObstBoite({x:rf.x,y:rf.y-ETQ_MONTEE,w:ETQ_W,h:ETQ_H})); }
+      const r=etqLibre(e,cadre,[],ETQ_W,ETQ_H,o);
+      nb++;
+      if(r.place!==-2){ fautes.push('balayage : sans abscisse candidate, etqLibre rend '+(r.place===-1?'le repli':'une place calée')); continue; }
+      const B={l:r.x, r:r.x+16, t:r.y-15, b:r.y+6.2};
+      /* l'écart à SA courbe est borné des deux côtés, l'écart aux autres
+         seulement par le bas : une étiquette doit rester près de ce qu'elle
+         nomme, et seulement loin du reste */
+      const ecart=function(pts){ let d=Infinity;
+        for(let k=0;k<pts.length;k++){ const p=pts[k];
+          const dx=Math.max(B.l-p[0],0,p[0]-B.r), dy=Math.max(B.t-p[1],0,p[1]-B.b);
+          const q=Math.hypot(dx,dy); if(q<d) d=q; }
+        return d; };
+      const dm=ecart(e);
+      if(dm<3) fautes.push('balayage : SUR la courbe ('+dm.toFixed(1)+' px)');
+      else if(dm>17) fautes.push('balayage : loin de la courbe qu\\'elle nomme ('+dm.toFixed(1)+' px)');
+      if(o && ecart(o)<3) fautes.push('balayage : sur l\\'autre courbe ou sur l\\'autre étiquette ('+ecart(o).toFixed(1)+' px)');
+      if(B.l<PL||B.r>PR+6||B.t<PT||B.b>PB) fautes.push('balayage : hors du dessin');
+    }
+    if(nb<40) return 'le balayage n\\'a été éprouvé que '+nb+' fois';
+    if(n<400) return 'le contrôle n\\'a mesuré que '+n+' dessins';
+    if(etq<n) return 'le contrôle n\\'a mesuré que '+etq+' étiquettes sur '+n+' dessins';
+    if(replis) fautes.push(replis+' pose(s) par le repli — la place la moins mauvaise, sans marge garantie');
+    return fautes.length ? fautes.length+' défaut(s) sur '+etq+' étiquettes ('+n+' dessins) — '+fautes.slice(0,3).join(' ; ') : '';
   })()`, v => v === '');
 }
 function variationsDerivee(w, P){
