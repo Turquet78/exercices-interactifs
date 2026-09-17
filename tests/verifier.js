@@ -2276,6 +2276,34 @@ function branchements(w){
       false, 'terminale.html est introuvable');
   }
 
+
+  /* ---- LE MOTEUR DES FENÊTRES DÉTACHÉES EST LE MÊME TEXTE DANS LES TROIS ----
+     Sur ordinateur, « Soutien » et « Question à l'IA » deviennent de vraies
+     fenêtres du système, et leur carte y est DÉPLACÉE. Le mécanisme — détacher,
+     rendre la carte, la ramener — était identique par discipline seule : rien ne
+     le comparait, et il a fallu le corriger dans les trois fichiers d'un coup le
+     jour où une fenêtre fermée ne se rouvrait plus (signalé par Turquet sur le
+     6.14, septembre 2026). Une moitié corrigée d'un seul côté ferait perdre sa
+     carte à un niveau sans que rien ne rougisse.
+     garnirFenetre() DIVERGE VOLONTAIREMENT et n'est pas dans la liste : elle
+     porte les ponts onclick, propres à chaque niveau (la Seconde y ajoute ceux
+     des tables). La nommer ici est ce qui empêche la liste de se vider en
+     silence ; son propre contrôle, plus haut, la tient. */
+  const MOTEUR_FENETRES = ['detachementPossible','detacherFenetre','rapatrierFenetre',
+                           'ramenerCarte','reattacherFenetres','detacherQIA'];
+  const manquantesF = MOTEUR_FENETRES.filter(n => corpsDe(src, n) === null);
+  verifier('le moteur des fenêtres détachées est au complet',
+    manquantesF.length === 0, 'manque : ' + manquantesF.join(', '));
+  if(!manquantesF.length && origine){
+    const differentesF = MOTEUR_FENETRES.filter(n => corpsDe(src, n) !== corpsDe(origine, n));
+    verifier('les fenêtres détachées sont identiques à celles de la Terminale, au caractère près',
+      differentesF.length === 0,
+      differentesF.length ? 'diverge sur : ' + differentesF.join(', ') : undefined);
+  } else if(!origine){
+    verifier('les fenêtres détachées sont identiques à celles de la Terminale, au caractère près',
+      false, 'terminale.html est introuvable');
+  }
+
   /* ---- LE MOTEUR DES MOYENNES EST LE MÊME TEXTE DANS LES TROIS FICHIERS ---
      Le carnet de notes du professeur — élèves en lignes, un devoir par colonne,
      la moyenne au bout, le tout téléchargeable — vit dans les trois niveaux.
@@ -3607,6 +3635,7 @@ function exercices(suite){
     suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
     etiquetteCourbeSeconde(w, P);
+    fenetresDetachees(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -21975,6 +22004,92 @@ function suiteVocabulaire(w, P){
    Il vit dans la CHAÎNE séquentielle des contrôles asynchrones : il pose
    mesDevoirs et currentDM, et un contrôle lancé en parallèle les lui
    reprenait en plein vol — le piège documenté, retombé tel quel. */
+/* ---------- LA FENÊTRE D'AIDE FERMÉE SE ROUVRE ----------------------------
+   Sur ordinateur, « Soutien » et « Question à l'IA » s'ouvrent dans une VRAIE
+   fenêtre du système, et leur carte y est DÉPLACÉE : la page ne l'a plus.
+   Signalé par Turquet (septembre 2026) sur le 6.14 — fermer cette fenêtre, puis
+   recliquer sur « Soutien », n'ouvrait plus rien : la carte était partie avec la
+   fenêtre, et l'écran affichait une modale VIDE sans que rien ne le dise.
+   LA CAUSE EST UN MOMENT, mesuré avant d'être corrigé : au pagehide, la page
+   demandait « la fenêtre est-elle fermée ? » un tick plus tard — or
+   window.closed vaut ENCORE false à cet instant quand l'élève clique la croix du
+   système, et déjà true après un close() programmé. Le bouton ✕ de la carte
+   marchait donc, et la croix perdait la carte. Ce contrôle rejoue exactement ce
+   moment : pagehide avec closed encore FAUX. Un retour au setTimeout rougit.
+   LE SECOND BORD est le filet : une fenêtre qui s'en va SANS lever pagehide — un
+   autre navigateur, une fenêtre que le système emporte — ne doit pas perdre la
+   carte non plus ; la référence vit sur le CONTENEUR, qui est dans la page et ne
+   ferme jamais. Et le bord OPPOSÉ compte autant : on ne reprend JAMAIS la carte
+   d'une fenêtre VIVANTE — ce serait la lui prendre sous les yeux de l'élève. */
+function fenetresDetachees(w, P){
+  const nom = 'la fenêtre d’aide fermée se rouvre';
+  if(!(P.aide && P.aide.qiaDetachee)){
+    ignorer(nom, 'ce niveau ne détache aucune fenêtre d’aide');
+    return;
+  }
+  const fenetres = [];
+  w.__nouvelleFenetre = function(){
+    const p = new JSDOM('<!doctype html><html><head></head><body></body></html>', { pretendToBeVisual:true }).window;
+    try{ Object.defineProperty(p, 'closed', { value:false, writable:true, configurable:true }); }catch(e){}
+    p.focus = function(){};
+    p.close = function(){ p.closed = true; };
+    fenetres.push(p); return p;
+  };
+  /* La croix du système : pagehide arrive alors que closed vaut ENCORE false. */
+  w.__fermerCroix = function(i){
+    const p = fenetres[i];
+    p.dispatchEvent(new p.Event('pagehide'));
+    p.closed = true;
+  };
+  /* Une fenêtre que le système emporte : rien n'est levé du tout. */
+  w.__partirSansRienDire = function(i){ fenetres[i].closed = true; };
+  w.__carteDe = function(i){ return !!(fenetres[i] && fenetres[i].document.querySelector('.qia-card')); };
+  w.__nbFenetres = function(){ return fenetres.length; };
+
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    detachementPossible=function(){ return true; };
+    window.open=function(){ return window.__nouvelleFenetre(); };
+    const ov=document.getElementById('qiaOverlay');
+    if(!ov) return 'aucun #qiaOverlay : le contrôle ne mesure rien';
+
+    /* Un contrôle qui LÈVE ne nomme rien. Sans la carte, ouvrirQIA va chercher
+       #qiaSugg, qui vit DEDANS, et meurt sur un null : le banc s’arrêtait alors
+       sur une exception nue au lieu de dire ce qui manquait. */
+    const ouvrir=function(ou){
+      try{ ouvrirQIA(); }
+      catch(e){ vus.push(ou+' : ouvrir a levé « '+e.message+' » — la carte manque à la page'); }
+    };
+    ouvrir('première ouverture');
+    if(window.__nbFenetres()!==1) return 'la fenêtre ne s’est pas détachée : le contrôle ne mesure rien';
+    if(!window.__carteDe(0)) vus.push('la carte n’est pas allée dans la fenêtre détachée');
+    if(ov.querySelector('.qia-card')) vus.push('la carte est restée dans la page');
+
+    /* a) LE GESTE SIGNALÉ : la croix du système */
+    window.__fermerCroix(0);
+    if(!ov.querySelector('.qia-card')) vus.push('croix du système : la carte n’est pas revenue dans la page');
+    if((window.__fenetresDetachees||[]).length) vus.push('croix du système : la fenêtre fermée reste dans la liste');
+    ouvrir('après la croix');
+    if(!window.__carteDe(1)) vus.push('après la croix, rouvrir n’ouvre plus rien (le défaut signalé sur le 6.14)');
+
+    /* b) LE BORD OPPOSÉ : une fenêtre VIVANTE garde sa carte */
+    const repris=ramenerCarte(ov, '.qia-card');
+    if(repris || ov.querySelector('.qia-card') || !window.__carteDe(1))
+      vus.push('la carte a été reprise à une fenêtre encore ouverte');
+
+    /* c) LE FILET : une fenêtre qui s’en va sans rien lever */
+    window.__partirSansRienDire(1);
+    ouvrir('fenêtre partie sans rien lever');
+    if(!window.__carteDe(2)) vus.push('fenêtre partie sans pagehide : rouvrir n’ouvre plus rien');
+
+    /* d) le bouton ✕ de la carte rend la carte, lui aussi */
+    fermerQIA();
+    if(!ov.querySelector('.qia-card')) vus.push('le bouton ✕ ne rend pas la carte à la page');
+
+    return vus.join(' | ');
+  })()`, v => v === '');
+}
+
 function baremeSuitLaCoupe(w, apres){
   const nom='le barème suit la coupe du nombre de questions d\'un devoir';
   const nomFuite='aucun démarreur n\'hérite du barème de l\'exercice précédent';
