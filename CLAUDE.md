@@ -7075,10 +7075,11 @@ l'axe des y est le garde mort ci-dessus. Un huitième ne rougit QU'AU
 NAVIGATEUR : la police de l'étiquette doublée — jsdom, qui ne lit pas une
 police, reste vert sur sa boîte supposée, et Chromium nomme la courbe sous
 l'étiquette rendue.
-**La Seconde porte le même défaut, et n'est pas touchée** : `lvGraphSVG` et
-`adrSVG` posent leur « Cf » à une place fixe — sondé : 160 courbes sur 300
-le portent sur la courbe. La demande nomme le 2.8 de la Terminale ; le dire
-vaut mieux que le taire, et c'est une décision à prendre.
+**La Seconde portait le même défaut, et il a été corrigé depuis** (deux fois :
+voir les deux paragraphes ci-dessous) : `lvGraphSVG` et `adrSVG` posaient leur
+« Cf » à une place fixe — sondé : 160 courbes sur 300 le portaient sur la
+courbe. La demande d'alors ne nommait que le 2.8 de la Terminale ; ce
+paragraphe raconte l'histoire avec ce qu'on en savait ce jour-là.
 
 **Puis la Seconde a suivi — par une AUTRE branche, le même jour, et avec un
 contrôle qui va PARTOUT.** Une seconde capture de Turquet — le 5.4, « L'écriture
@@ -7179,6 +7180,114 @@ la droite de g retirée des obstacles de « Cf » remet 63 « Cf » sur 150 sur
 une courbe au 2.5 ; les obstacles retirés de la pose de « Cg » en remettent
 36 au 2.5, 30 au 2.6 et 18 à la synthèse, et une fois « Cg » sur « Cf ».
 Compté sur 150 tirages, un sabotage dit exactement ce qu'il retire.
+
+**Puis « à côté » a voulu dire À CÔTÉ, avec de l'air — et la boîte supposée
+était le défaut.** Demande de Turquet (septembre 2026) : « même chose en
+seconde », après le dessin des dérivées de la Terminale. **La sonde a mesuré
+avant qu'on ne touche à quoi que ce soit, et elle a redressé la demande** :
+les étiquettes de la Seconde ne se posaient DÉJÀ plus sur leur courbe — le
+paragraphe ci-dessus tient, zéro sur 4 800 étiquettes — mais elles la
+FRÔLAIENT : 684 sur 1200 à moins de 3 px, médiane 2,8 px sur le petit dessin,
+minimum 1,1 px. Ce n'est pas la règle de la Terminale, qui garantit 5 px
+d'air ; et le contrôle universel, qui demande « aucun point de courbe DANS la
+boîte », restait vert à bon droit sur un dessin où le nom touche la courbe.
+**LA CAUSE EST LA BOÎTE SUPPOSÉE, la leçon de la Terminale payée une seconde
+fois.** `ETQ_W`/`ETQ_H` valaient 30 × 17 avec la ligne de base 13 px sous le
+haut ; relevée au `getBBox` sur les VRAIES polices — Nunito 800 italique 15 px
+pour « Cf », Fredoka 700 pour « Cg » —, l'encre fait 15,5 px de large, 15 px
+AU-DESSUS de la ligne de base et 6,2 px dessous. La boîte qu'`etqLibre`
+écartait était donc 2 px trop haute et 2,2 px trop basse : l'encre débordait
+des deux côtés, et les 4 px d'air se réduisaient à moins de 2. Elle épouse
+l'encre désormais (`ETQ_MONTEE`, `ETQ_DESCENTE`, et `ETQ_W` à 16), et l'air
+est `ETQ_MARGE` — 5 px, la marge du dessin de la Terminale — et lui seul.
+**Une largeur réservée plus LARGE que l'encre n'est pas une précaution** :
+elle desserre en silence la borne « ni loin » du balayage, qui se mesure sur
+la boîte réservée quand le contrôle mesure l'encre — 15 px garantis devenaient
+17 mesurés, et le banc accusait une page juste. Le sabotage la remet, et il
+rougit.
+**LA BANDE HORIZONTALE COMPTAIT POUR 2 px, ET C'ÉTAIT LE SECOND TIERS DU
+DÉFAUT.** Une place est construite `ETQ_MARGE` au-dessus du point le plus haut
+de la courbe sur la LARGEUR de la boîte — mais cette largeur était élargie de
+2 px seulement : un point JUSTE hors de la bande n'est contraint par rien
+verticalement, il peut se poser à la hauteur de l'étiquette, et ces 2 px sont
+alors tout ce qui l'en sépare. La bande s'élargit de `ETQ_MARGE`, et 28
+étiquettes de plus quittent la courbe.
+**UN ÉCHANTILLON DOUBLÉ Y A ÉTÉ ÉCRIT, PUIS RETIRÉ** — 60 points par segment
+au lieu de 30. Il servait vraiment tant que le resserrement ci-dessous
+existait : à marge 3, une étiquette sur 800 tombait à 2,8 px d'une courbe que
+la page croyait à 3, l'écart entre le point échantillonné et le vrai extremum.
+La marge revenue à 5 partout, ces 0,2 px ne coûtent plus rien : mesuré à
+l'identique des deux côtés sur 14 600 étiquettes (minimum 5,0 px, zéro sous
+3 px). Un garde-fou qui n'écarte plus rien fait croire qu'on vérifie quelque
+chose ; son sabotage reste vert, et son vert dit vrai.
+**ET LE BALAYAGE EST VENU DU CÔTÉ DE LA TERMINALE — c'est la part de la
+demande qui se voit le mieux.** Les places d'`etqLibre` sont calées sur des
+abscisses candidates (les bouts du morceau, puis vers le centre) ; sur le
+dessin encombré du 2.6 — deux courbes et deux étiquettes dans 258 px —
+aucune ne tenait à 5 px, et le REPLI prenait alors la place la moins
+mauvaise, c'est-à-dire sans aucune marge garantie : elle tombait à côté par
+chance, et une propriété heureuse n'est pas une propriété tenue. `etqLibre`
+BALAIE donc le dessin avant de renoncer, comme le fait `afEtiquettePos` en
+Terminale : pas de 4 px, la boîte à `ETQ_MARGE` au moins de toute courbe et
+de tout obstacle, et parmi les places libres la plus proche du DÉBUT de la
+courbe — là où l'œil cherche son nom. Il ne coûte rien d'ordinaire : sur
+6 200 poses, il ne sert que 15 à 21 fois, toutes au 2.6, et le repli n'est
+plus jamais atteint.
+**Un RESSERREMENT de la marge y a été écrit, puis retiré — le garde-fou mort
+de cette page.** Le premier jet réessayait à 4 px puis à 3 px avant de
+renoncer, et il servait vraiment tant que le balayage n'existait pas (4
+replis sur 300 dessins du 2.6, ramenés à zéro). Le balayage l'a rendu inutile
+et même NUISIBLE : il trouve une place à 5 px là où les abscisses calées n'en
+offrent aucune, si bien que le resserrement ne faisait plus que dégrader ce
+qu'il croyait sauver — 3,4 px au plus juste au lieu de 5,0, mesuré sur 14 600
+étiquettes, pour zéro repli des deux côtés. Son sabotage restait vert, et son
+vert disait vrai.
+**ET LA SONDE A ATTRAPÉ UN DÉFAUT DU BALAYAGE AVANT QUE LE MOINDRE TIRAGE NE
+LE MONTRE** : il bornait la distance à TOUTES les courbes confondues, la
+sienne et les obstacles. Une place à 6 px de la courbe de f et à 32 px de la
+droite qu'elle nomme satisfaisait donc « ni loin » sans nommer quoi que ce
+soit. **L'écart à SA courbe et l'écart aux AUTRES ne se mélangent pas** : le
+premier est borné des deux côtés (entre `ETQ_MARGE` et `ETQ_MARGE` + 10), le
+second seulement par le bas. Cela ne s'est vu qu'en FORÇANT le balayage — en
+ne lui donnant aucune abscisse candidate —, jamais au tirage.
+**Deux bancs, la répartition habituelle.** jsdom lit le SVG que la page ÉCRIT
+— la position de CHAQUE étiquette, le chemin de CHAQUE courbe, les lignes des
+axes —, rééchantillonne lui-même les Bézier et mesure la boîte RENDUE contre
+toutes les courbes du dessin : ≥ 3 px, ≤ 17 px, dans le dessin, hors des deux
+axes, sur les SIX dessins qui portent une étiquette (le petit, le grand, les
+deux à deux courbes, la synthèse, les petites cartes du QCM), 800 étiquettes.
+Il COMPTE les replis et les refuse — une pose sans marge garantie n'est pas
+une pose —, et il ÉPROUVE LE BALAYAGE DIRECTEMENT, en le forçant : il ne sort
+qu'un dessin sur 800 au tirage, et un contrôle qui l'attendrait ne mesurerait
+à peu près jamais rien. La moitié des cas forcés le sont sur « Cg » du 2.6,
+avec « Cf » déjà posée en obstacle : c'est là que la borne haute se joue.
+Le NAVIGATEUR (« 6 tricies », déclaré par `etiquetteCourbe` dans
+`tests/profils.js`) mesure ce que jsdom n'a pas — la POLICE : `getBBox` contre
+`getPointAtLength`, sur trois exercices ouverts pour de vrai puis sur quarante
+dessins de plus. **Sa mesure ne connaît plus aucun moteur** : toutes les
+étiquettes du dessin contre toutes ses courbes, l'hôte étant le parent du
+premier SVG affiché ; seul le redessin diffère, et le profil le NOMME
+(`moteur`) — le même contrôle sert les deux niveaux, ce que « même chose en
+seconde » voulait dire.
+Après correction, sur 14 600 étiquettes des six dessins : minimum 5,0 px,
+maximum 7,7 px pour une place calée et 15,4 px pour une place de BALAYAGE —
+la fourchette que la page s'impose —, zéro à moins de 3 px, zéro repli.
+**La borne du banc est à 17 px et non à 15** : la page mesure sa boîte
+RÉSERVÉE, le contrôle mesure l'ENCRE, et les deux diffèrent de 0,8 px en bas —
+15,4 px ont été mesurés sur une page juste, et une borne à 16 n'aurait laissé
+que 0,6 px de marge à un banc, c'est-à-dire un contrôle intermittent en germe.
+**Treize sabotages, dix rougissant en nommant leur défaut.** **Et la bande de l'axe des y, morte en
+Terminale, est VIVANTE ici** : la retirer pose 12 étiquettes sur les nombres
+de l'axe, parce que les morceaux du 2.6 amènent la courbe tout près de lui.
+**Les TROIS verts disent chacun quelque chose, et aucun n'est un contrôle
+faible.** Deux sont les garde-fous morts nommés ci-dessus — le resserrement de
+la marge et l'échantillon doublé. Le troisième, la borne haute du balayage
+retirée, ne rougit qu'une exécution sur trois : le balayage ne sort qu'un
+dessin sur quelques centaines, le banc ne l'atteint donc pas à tous les coups,
+et un sabotage intermittent ne dit rien du contrôle visé. **Il se compte à la
+SONDE**, qui le chiffre sans ambiguïté : sans cette borne, le maximum du 2.6
+passe de 15,4 à 21,0 px sur 2 400 étiquettes. C'est le motif déjà employé sur
+les obstacles de « Cg » au paragraphe précédent.
 
 
 **Le 1.3 (Signes & variations) suit la convention commune de correction.**

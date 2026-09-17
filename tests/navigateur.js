@@ -4782,18 +4782,25 @@ async function parcours(page, N){
        page choisit la place en échantillonnant sa propre courbe ; le banc
        jsdom relit le SVG écrit et refait l'arithmétique. Ce que jsdom ne
        peut PAS voir, c'est la boîte que la POLICE donne à l'étiquette —
-       Fredoka 14 px, italique, l'indice 10 px posé 3 px plus bas — et le
-       chemin tel que Chromium le trace : la boîte est mesurée ici par
-       getBBox, la courbe par getPointAtLength, sur chacun des trois
-       exercices ouverts pour de vrai, puis sur quarante courbes de plus
-       dessinées dans le même hôte par la fonction même de la page. Trois
-       bords : jamais SUR la courbe (≥ 3 px), jamais LOIN (≤ 22 px), et une
-       boîte non nulle — un CSS perdu rendrait l'étiquette invisible sans
-       qu'une erreur ne se lève. */
-    titre('6 tricies. L\'ÉTIQUETTE Cf′ SE POSE À CÔTÉ DE LA COURBE (BOÎTE RENDUE)');
+       Fredoka 14 px en Terminale, Nunito 800 italique 15 px en Seconde,
+       l'indice 10 px posé 3 px plus bas — et le chemin tel que Chromium le
+       trace : la boîte est mesurée ici par getBBox, la courbe par
+       getPointAtLength, sur chacun des exercices ouverts pour de vrai, puis
+       sur quarante dessins de plus faits dans le même hôte par la fonction
+       même de la page. Trois bords : jamais SUR la courbe (≥ 3 px), jamais
+       LOIN (≤ 22 px), et une boîte non nulle — un CSS perdu rendrait
+       l'étiquette invisible sans qu'une erreur ne se lève.
+       LA MESURE NE CONNAÎT PLUS AUCUN MOTEUR : elle prend toutes les
+       étiquettes du dessin (« Cf », et « Cg » en Seconde) contre toutes ses
+       courbes, et l'hôte est le parent du premier SVG de courbe affiché. Seul
+       le redessin des quarante dessins diffère, et le profil le nomme
+       (« moteur ») — c'est le même contrôle pour les deux niveaux, ce que la
+       demande « même chose en seconde » voulait dire (Turquet, septembre
+       2026). */
+    titre('6 tricies. L\'ÉTIQUETTE DE COURBE SE POSE À CÔTÉ DE LA COURBE (BOÎTE RENDUE)');
     if(!P.etiquetteCourbe){
-      ignorer('l\'étiquette Cf′ rendue reste à côté de la courbe, jamais dessus',
-        'ce niveau n\'a pas le dessin partagé des dérivées (afGraphSVG)');
+      ignorer('l\'étiquette rendue reste à côté de sa courbe, jamais dessus',
+        'ce niveau n\'a aucun dessin de courbe à étiquette');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
       await connecter(s.page);
@@ -4802,38 +4809,64 @@ async function parcours(page, N){
         await s.page.waitForTimeout(400);
         await s.page.click('#modeChoices [onclick*="train"]');
         await s.page.waitForTimeout(700);
-        const r = await s.page.evaluate(() => {
+        const r = await s.page.evaluate(moteur => {
+          /* LA MESURE EST LA MÊME POUR LES DEUX MOTEURS : toutes les étiquettes
+             du dessin (« Cf » et, en Seconde, « Cg ») contre toutes ses courbes
+             (la spline, et la droite ou la seconde spline). Une étiquette libre
+             de SA courbe peut tomber sur l'autre. */
           const mesure = function(svg){
-            const t = svg.querySelector('.lv-cf'), path = svg.querySelector('.lv-curve');
-            if(!t || !path) return { err: 'pas d\'étiquette ou pas de courbe' };
-            const bb = t.getBBox();
-            if(!(bb.width > 8 && bb.height > 8)) return { err: 'boîte de l\'étiquette nulle (' + bb.width.toFixed(0) + '×' + bb.height.toFixed(0) + ')' };
-            const B = { l: bb.x, r: bb.x + bb.width, t: bb.y, b: bb.y + bb.height };
-            const L = path.getTotalLength(); let dm = Infinity;
-            for(let u = 0; u <= L; u += 1){ const q = path.getPointAtLength(u);
-              const dx = Math.max(B.l - q.x, 0, q.x - B.r), dy = Math.max(B.t - q.y, 0, q.y - B.b); dm = Math.min(dm, Math.hypot(dx, dy)); }
+            const ts = svg.querySelectorAll('.lv-cf, .eqg-cg');
+            const cs = svg.querySelectorAll('.lv-curve, .eqg-g');
+            if(!ts.length || !cs.length) return [{ err: 'pas d\'étiquette ou pas de courbe' }];
             const vb = svg.viewBox.baseVal;
-            const dedans = B.l >= vb.x && B.r <= vb.x + vb.width && B.t >= vb.y && B.b <= vb.y + vb.height;
-            if(dm < 3) return { err: 'SUR la courbe (' + dm.toFixed(1) + ' px)' };
-            if(dm > 22) return { err: 'loin de la courbe (' + dm.toFixed(1) + ' px)' };
-            if(!dedans) return { err: 'hors du dessin' };
-            return { d: dm };
+            const out = [];
+            ts.forEach(function(t){
+              const bb = t.getBBox();
+              if(!(bb.width > 8 && bb.height > 8)){ out.push({ err: 'boîte de l\'étiquette nulle (' + bb.width.toFixed(0) + '×' + bb.height.toFixed(0) + ')' }); return; }
+              const B = { l: bb.x, r: bb.x + bb.width, t: bb.y, b: bb.y + bb.height };
+              let dm = Infinity;
+              cs.forEach(function(path){
+                const L = path.getTotalLength();
+                for(let u = 0; u <= L; u += 1){ const q = path.getPointAtLength(u);
+                  const dx = Math.max(B.l - q.x, 0, q.x - B.r), dy = Math.max(B.t - q.y, 0, q.y - B.b); dm = Math.min(dm, Math.hypot(dx, dy)); }
+              });
+              const dedans = B.l >= vb.x && B.r <= vb.x + vb.width && B.t >= vb.y && B.b <= vb.y + vb.height;
+              const nom = t.textContent.replace(/\s+/g, '');
+              if(dm < 3) out.push({ err: nom + ' : SUR la courbe (' + dm.toFixed(1) + ' px)' });
+              else if(dm > 22) out.push({ err: nom + ' : loin de la courbe (' + dm.toFixed(1) + ' px)' });
+              else if(!dedans) out.push({ err: nom + ' : hors du dessin' });
+              else out.push({ d: dm });
+            });
+            return out;
           };
-          const num = document.querySelector('.screen.on .q-idx') ? document.querySelector('.screen.on h2, .screen.on .titre-exo, .screen.on .exo-num') : null;
-          const ecran = []; document.querySelectorAll('.screen.on .af-graph svg').forEach(function(svg){ ecran.push(mesure(svg)); });
-          const host = document.querySelector('.screen.on .af-graph'); const tirage = [];
-          for(let i = 0; i < 40; i++){ const roots = (i % 2) ? [[-2, -1, 0, 1, 2][i % 5]] : [-2, [0, 1, 2][i % 3]];
-            host.innerHTML = afGraphSVG(afpCourbeDer(roots, (i % 4 < 2) ? 1 : -1), i % 3 !== 0);
-            tirage.push(mesure(host.querySelector('svg'))); }
+          const ecran = [];
+          document.querySelectorAll('.screen.on svg.lv-svg').forEach(function(svg){ ecran.push.apply(ecran, mesure(svg)); });
+          /* puis quarante courbes de plus, dessinées dans le MÊME hôte par la
+             fonction même de la page : l'exercice ouvert n'en montre qu'une ou
+             deux, et c'est le TIRAGE qui doit tenir, pas ce tirage-là */
+          const hote = document.querySelector('.screen.on svg.lv-svg');
+          const host = hote ? hote.parentElement : null;
+          const tirage = [];
+          if(host){
+            for(let i = 0; i < 40; i++){
+              if(moteur === 'lv'){
+                host.innerHTML = (i % 2) ? lvGraphSVG(lvGenPts(i % 3 ? 2 : 3).pts) : adrSVG({ pts: adrGenPts() });
+              } else {
+                const roots = (i % 2) ? [[-2, -1, 0, 1, 2][i % 5]] : [-2, [0, 1, 2][i % 3]];
+                host.innerHTML = afGraphSVG(afpCourbeDer(roots, (i % 4 < 2) ? 1 : -1), i % 3 !== 0);
+              }
+              tirage.push.apply(tirage, mesure(host.querySelector('svg')));
+            }
+          }
           return { ecran: ecran, tirage: tirage };
-        });
+        }, P.etiquetteCourbe.moteur || 'af');
         const fautesE = r.ecran.filter(m => m.err).map(m => m.err), fautesT = r.tirage.filter(m => m.err).map(m => m.err);
-        verifier(id + ' : l\'étiquette rendue de l\'exercice ouvert est à côté de sa courbe (' + r.ecran.length + ' dessin(s))',
+        verifier(id + ' : l\'étiquette rendue de l\'exercice ouvert est à côté de sa courbe (' + r.ecran.length + ' étiquette(s))',
           r.ecran.length >= 1 && fautesE.length === 0, fautesE.slice(0, 2).join(' ; '));
-        verifier(id + ' : sur 40 courbes de plus, l\'étiquette rendue reste à côté (≥ 3 px, ≤ 22 px), boîte non nulle',
-          r.tirage.length === 40 && fautesT.length === 0, fautesT.length + ' défaut(s) : ' + fautesT.slice(0, 2).join(' ; '));
+        verifier(id + ' : sur 40 dessins de plus, l\'étiquette rendue reste à côté (≥ 3 px, ≤ 22 px), boîte non nulle',
+          r.tirage.length >= 40 && fautesT.length === 0, fautesT.length + ' défaut(s) : ' + fautesT.slice(0, 2).join(' ; '));
       }
-      verifier('l\'étiquette Cf′ : aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      verifier('l\'étiquette de courbe : aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
 
