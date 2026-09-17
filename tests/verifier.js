@@ -4102,15 +4102,22 @@ function etudeCompleteClique(w, apres){
     recurrenceRedigee(w, apres);
   });
 }
-/* ---------- Le devoir sur papier : l'énoncé d'abord, et il part avec le prénom ----------
-   En Terminale, un exercice de devoir montre D'ABORD son énoncé complet —
-   toutes les questions, cases remplacées par des pointillés — puis l'élève
-   choisit : papier ou ordinateur. Papier : l'énoncé part au professeur par le
-   canal des signalements, avec le prénom et le tirage EXACT montré — c'est ce
-   que le professeur corrigera. Le contrôle joue le parcours entier : les deux
-   portes d'entrée, l'affichage, le choix ordinateur, l'envoi papier (prénom,
-   marque dmPapier, tirage fidèle, double clic muet, échec DIT), puis la vue
-   professeur (ligne distinguée, énoncé rejoué, verrou REJEU). Il vit dans la
+/* ---------- Le devoir sur papier : un choix de la page des modes, et l'envoi se confirme ----------
+   En Terminale, choisir un exercice de devoir ouvre la PAGE DES MODES et ses
+   TROIS choix — soutien, entraînement, papier (demande de Turquet, septembre
+   2026). Avant, l'énoncé complet s'affichait D'ABORD, avant tout choix : celui
+   qui venait s'entraîner traversait la version papier de son exercice pour
+   arriver à la question 1, et son exercice était tiré deux fois.
+   « Sur papier » montre l'énoncé entier — toutes les questions, cases
+   remplacées par des pointillés — puis l'envoie au professeur APRÈS
+   confirmation : le professeur reçoit une ligne que l'élève ne peut pas
+   retirer. Le contrôle joue le parcours entier : la page des modes et sa carte
+   papier, l'affichage, la confirmation REFUSÉE qui n'envoie rien, l'envoi
+   (prénom, marque dmPapier, tirage fidèle, double clic muet, échec DIT), la
+   porte UNIQUE — le panneau de l'accueil était mort, et la règle des « deux
+   portes » mesurait un écran disparu —, la vue professeur (ligne distinguée,
+   énoncé rejoué, verrou REJEU) et le repli d'un exercice qui ne sait pas
+   s'énoncer. Il vit dans la
    chaîne séquentielle parce qu'il remplace sb — le piège documenté. */
 /* ---- 6.7 : LA RÉCURRENCE RÉDIGÉE — deux juges, et ils ne jugent pas la même chose ----
    L'élève écrit la démonstration ENTIÈRE dans une feuille libre. La PAGE juge
@@ -5024,10 +5031,10 @@ function suiteAuxRedigee(w, apres){
   });
 }
 function devoirPapierClique(w, apres){
-  const present = evaluer(w, "typeof dmEnonce==='function' && typeof dmePapier==='function'");
+  const present = evaluer(w, "typeof dmEnonce==='function' && typeof dmePapier==='function' && typeof dmePapierOuvrir==='function'");
   if(!present.ok || !present.valeur){
-    ignorer('le devoir sur papier : l\'énoncé d\'abord, et il part avec le prénom',
-      'ce niveau n\'a pas le choix papier/ordinateur des devoirs');
+    ignorer('le devoir sur papier : un choix de la page des modes, et l\'envoi se confirme',
+      'ce niveau n\'a pas le choix « sur papier » des devoirs');
     return longueurContexteIA(w, apres);
   }
   evalPromis(w, `(async function(){
@@ -5035,13 +5042,33 @@ function devoirPapierClique(w, apres){
     initSupabase();
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Léa'}; currentMode='train'; currentDM=null;
-    mesDevoirs=[{id:'dev-1', num:7, titre:'Contrôle', actif:true, exercices:[{id:'tangente-exp',modes:['train']}]}];
-    let continuerAppels=0;
+    mesDevoirs=[{id:'dev-1', num:7, titre:'Contrôle', actif:true, exercices:[{id:'tangente-exp',modes:['train','soutien']}]}];
+    const vraiConfirm=window.confirm, vraiToast=toast;
+    let demandes=0, repondOui=true, dits=[], row=null;
+    window.confirm=function(){ demandes++; return repondOui; };
+    const envois=function(){ return (window.__faux.journal||[]).filter(function(j){ return j.op==='insert'&&j.table==='signalements'; }); };
+    const ecouterToasts=function(){ dits=[]; toast=function(m,t){ dits.push((t||'ok')+':'+m); }; };
+    try{
 
-    /* ---- 1. l'énoncé complet s'affiche, sans une seule case de saisie ---- */
-    await dmEnonce('dev-1','tangente-exp', function(){ continuerAppels++; });
+    /* ---- 1. choisir un exercice ouvre la PAGE DES MODES : soutien, entraînement, papier ---- */
+    test.kind='__aucun'; test.questions=[];
+    const avantTirage=test.questions;
+    await openTestDevoir('dev-1','tangente-exp');
     const on=document.querySelector('.screen.on');
-    if(!on||on.id!=='scr-dmenonce') vus.push('l\\'écran d\\'énoncé ne s\\'affiche pas ('+(on?on.id:'aucun')+')');
+    if(!on||on.id!=='scr-mode') vus.push('choisir un exercice de devoir n\\'ouvre pas la page des modes ('+(on?on.id:'aucun')+')');
+    const cartes=Array.prototype.slice.call(document.querySelectorAll('#modeChoices button'));
+    if(cartes.length!==3) vus.push(cartes.length+' carte(s) au lieu de 3 (soutien, entraînement, papier)');
+    if(!document.querySelector('#modeChoices button[onclick*="dmePapierOuvrir"]'))
+      vus.push('la page des modes ne propose pas « Le faire sur papier »');
+    /* le tirage n'a lieu qu'au moment du choix : avant, l'aperçu tirait
+       l'exercice une première fois, pour le jeter ensuite */
+    if(test.questions!==avantTirage)
+      vus.push('l\\'exercice est tiré AVANT tout choix — un tirage pour rien');
+
+    /* ---- 2. « sur papier » : l'énoncé entier, sans une seule case, et rien qui relance l'exercice ---- */
+    await dmePapierOuvrir('dev-1','tangente-exp');
+    const on2=document.querySelector('.screen.on');
+    if(!on2||on2.id!=='scr-dmenonce') vus.push('la version papier ne s\\'affiche pas ('+(on2?on2.id:'aucun')+')');
     const nb=document.querySelectorAll('#dmeCorps .dme-q').length;
     if(nb!==3) vus.push(nb+' question(s) dans l\\'énoncé au lieu de 3');
     if(document.querySelector('#dmeCorps input,#dmeCorps select,#dmeCorps math-field,#dmeCorps button'))
@@ -5057,19 +5084,29 @@ function devoirPapierClique(w, apres){
        donc en STRUCTURE, pas par getElementById. */
     if(document.querySelector('#dmeCorps [id]'))
       vus.push('la photo de l\\'énoncé garde des id — le rendu de l\\'exercice écrirait dans le clone chez l\\'élève');
+    if(typeof dmeOrdinateur!=='undefined' || document.querySelector('#dmeActions button[onclick*="dmeOrdinateur"]'))
+      vus.push('la version papier propose encore de lancer l\\'exercice sur l\\'ordinateur — le choix vit sur la page des modes');
+    if(!document.querySelector('#dmeActions button[onclick*="dmePapier()"]'))
+      vus.push('la version papier ne propose pas l\\'envoi au professeur');
 
-    /* ---- 2. « sur l'ordinateur » : la suite d'avant, inchangée ---- */
-    dmeOrdinateur();
-    if(continuerAppels!==1) vus.push('« sur l\\'ordinateur » n\\'appelle pas la suite normale ('+continuerAppels+')');
-    if((document.getElementById('dmeCorps').innerHTML||'').trim()!=='')
-      vus.push('quitter l\\'énoncé laisse son clone dans le document — un écran fantôme de plus');
-
-    /* ---- 3. « sur papier » : la ligne part, prénom + marque + tirage exact ---- */
-    await dmEnonce('dev-1','tangente-exp', function(){ continuerAppels++; });
+    /* ---- 3. L'ENVOI SE CONFIRME — et refusée, la confirmation n'envoie RIEN ----
+       C'est le bord qui compte : le professeur reçoit une ligne que l'élève ne
+       peut pas retirer, et un clic parti tout seul lui laisserait l'énoncé d'un
+       devoir que personne ne rendra. */
     const tirage=test.questions.map(function(q){ return q.a+'/'+q.b; }).join(';');
+    repondOui=false; demandes=0;
     await dmePapier();
-    let lignes=(window.__faux.journal||[]).filter(function(j){ return j.op==='insert'&&j.table==='signalements'; });
-    let row=null;
+    if(demandes!==1) vus.push('l\\'envoi ne demande pas confirmation ('+demandes+' demande(s))');
+    if(envois().length!==0) vus.push('la confirmation refusée envoie quand même l\\'énoncé');
+    if(dmeCtx&&dmeCtx.envoye) vus.push('la confirmation refusée marque quand même « envoyé »');
+    const bp=document.getElementById('dmePapierBtn');
+    if(!bp||bp.disabled) vus.push('la confirmation refusée laisse le bouton d\\'envoi hors service');
+
+    /* ---- 4. confirmée : la ligne part, prénom + marque + tirage exact ---- */
+    repondOui=true; demandes=0;
+    await dmePapier();
+    if(demandes!==1) vus.push('l\\'envoi confirmé ne demande pas confirmation ('+demandes+')');
+    let lignes=envois();
     if(lignes.length!==1){ vus.push(lignes.length+' insertion(s) au lieu de 1'); }
     else{
       row=lignes[0].lignes[0];
@@ -5083,13 +5120,11 @@ function devoirPapierClique(w, apres){
       if(envoye!==tirage) vus.push('le tirage envoyé n\\'est pas celui montré à l\\'élève ('+envoye+' contre '+tirage+')');
     }
     await dmePapier();   /* second clic : rien ne repart */
-    lignes=(window.__faux.journal||[]).filter(function(j){ return j.op==='insert'&&j.table==='signalements'; });
-    if(lignes.length!==1) vus.push('un second clic envoie une seconde ligne ('+lignes.length+')');
+    if(envois().length!==1) vus.push('un second clic envoie une seconde ligne ('+envois().length+')');
 
-    /* ---- 4. l'échec d'envoi se DIT, et ne se fait pas passer pour un succès ---- */
-    await dmEnonce('dev-1','tangente-exp', function(){});
-    const vraiToast=toast, dits=[];
-    toast=function(m,t){ dits.push((t||'ok')+':'+m); };
+    /* ---- 5. l'échec d'envoi se DIT, et ne se fait pas passer pour un succès ---- */
+    await dmePapierOuvrir('dev-1','tangente-exp');
+    ecouterToasts();
     window.__faux.panne=true;
     await dmePapier();
     window.__faux.panne=false; toast=vraiToast;
@@ -5098,14 +5133,52 @@ function devoirPapierClique(w, apres){
     if(dmeCtx&&dmeCtx.envoye) vus.push('l\\'échec d\\'envoi marque quand même « envoyé »');
     dmeCtx=null;
 
-    /* ---- 5. les DEUX portes d'un devoir passent par l'énoncé ---- */
-    const vraiDme=dmEnonce; let passes=0;
-    dmEnonce=async function(){ passes++; };
-    try{ lancerDevoir('dev-1','tangente-exp','train'); openTestDevoir('dev-1','tangente-exp'); }
-    finally{ dmEnonce=vraiDme; }
-    if(passes!==2) vus.push('une porte de devoir contourne l\\'écran d\\'énoncé ('+passes+'/2)');
+    /* ---- 6. UNE SEULE PORTE, et rien d'autre ne lance un exercice de devoir ----
+       Le panneau des devoirs de l'accueil (renderDM, lancerDevoir) écrivait dans
+       un #dmPanel qui n'existe plus dans la page : deux fonctions MORTES, que la
+       règle des « deux portes » mesurait en croyant mesurer un écran. Elles sont
+       retirées, et le bord qui compte est qu'elles ne reviennent pas — rebranché,
+       un tel panneau lancerait un exercice sans passer par le choix des modes.
+       L'entonnoir du lancement (lancerDevoirExo) n'est donc appelé que depuis la
+       page des modes : tout appel ailleurs est une seconde porte. */
+    if(typeof renderDM!=='undefined'||typeof lancerDevoir!=='undefined')
+      vus.push('le panneau mort de l\\'accueil est revenu — une porte qui contourne le choix des modes');
+    if(document.getElementById('dmPanel'))
+      vus.push('un panneau de devoirs est revenu à l\\'accueil : il doit passer par la page des modes');
+    /* LES COMMENTAIRES SONT RETIRÉS AVANT DE COMPTER : un commentaire a le
+       droit de nommer la fonction qu'il explique — celui de la porte unique le
+       fait —, et sans ce ménage le contrôle comptait sa propre doctrine comme
+       une seconde porte. */
+    const sansCommentaires=function(txt){
+      let out='', i=0;
+      while(i<txt.length){
+        const a2=txt.indexOf('/*', i);
+        if(a2<0){ out+=txt.slice(i); break; }
+        out+=txt.slice(i,a2);
+        const b2=txt.indexOf('*'+'/', a2+2);
+        if(b2<0) break;
+        i=b2+2;
+      }
+      return out;
+    };
+    const srcPage=sansCommentaires(Array.prototype.slice.call(document.querySelectorAll('script'))
+      .map(function(sc){ return sc.textContent||''; }).join(String.fromCharCode(10)));
+    const compte=function(txt,motif){ return txt.split(motif).length-1; };
+    if(compte(srcPage,'lancerDevoirExo(')<3)
+      vus.push('le contrôle ne trouve pas les appels au lancement dans la page — il ne mesure plus rien');
+    const dehors=compte(srcPage,'lancerDevoirExo(')-compte(String(openTestDevoirModes),'lancerDevoirExo(')-1;
+    if(dehors!==0)
+      vus.push(dehors+' appel(s) au lancement d\\'un exercice de devoir hors de la page des modes');
+    /* et la page des modes applique bien les réglages du devoir (la coupe) */
+    mesDevoirs=[{id:'dev-1', num:7, titre:'Contrôle', actif:true,
+                 exercices:[{id:'tangente-exp',modes:['train'],nbQ:2}]}];
+    await lancerDevoirExo('dev-1','tangente-exp','train');
+    if((test.questions||[]).length!==2)
+      vus.push('le lancement depuis un devoir ignore le réglage « Questions » ('+(test.questions||[]).length+' question(s) au lieu de 2)');
+    if(currentDM!=='dev-1'||currentMode!=='train')
+      vus.push('le lancement depuis un devoir ne pose pas son contexte (dm '+currentDM+', mode '+currentMode+')');
 
-    /* ---- 6. côté professeur : la ligne se distingue, l'énoncé se rejoue, REJEU posé ---- */
+    /* ---- 7. côté professeur : la ligne se distingue, l'énoncé se rejoue, REJEU posé ---- */
     if(row){
       mesSignalements=[{id:'sig-1', eleve_id:'e2', exercice:'tangente-exp', numero:'5.2', mode:null,
         message:row.message, prenom:'Léa', lu:false, created_at:'2026-08-26T08:00:00Z',
@@ -5121,74 +5194,78 @@ function devoirPapierClique(w, apres){
       REJEU=false;
       voirEnonceDM('sig-1');
       if(REJEU!==true) vus.push('la vue professeur ne pose pas le verrou REJEU — terminer un écran rejoué poserait une note');
-      const on2=document.querySelector('.screen.on');
-      if(!on2||on2.id!=='scr-dmenonce') vus.push('la vue professeur n\\'affiche pas l\\'écran d\\'énoncé');
+      const on7=document.querySelector('.screen.on');
+      if(!on7||on7.id!=='scr-dmenonce') vus.push('la vue professeur n\\'affiche pas l\\'écran d\\'énoncé');
       if((document.getElementById('dmeTitre').textContent||'').indexOf('Léa')<0) vus.push('le prénom de l\\'élève manque sur l\\'énoncé du professeur');
-      const nb2=document.querySelectorAll('#dmeCorps .dme-q').length;
-      if(nb2!==3) vus.push('la vue professeur montre '+nb2+' question(s) au lieu de 3');
+      const nb7=document.querySelectorAll('#dmeCorps .dme-q').length;
+      if(nb7!==3) vus.push('la vue professeur montre '+nb7+' question(s) au lieu de 3');
       REJEU=false;
     }
 
-    /* ---- 7. un exercice à ÉCRAN DE NIVEAU s'énonce quand même (le 1.2) ----
+    /* ---- 8. un exercice à ÉCRAN DE NIVEAU s'énonce quand même (le 1.2) ----
        startS2() montrait « Choisis ton niveau » sans rien tirer, et les trois
        entonnoirs du devoir passaient dans le vide (signalé par Turquet, août
        2026, sur le DM n°2) : l'énoncé photographiait les questions RESTÉES du
-       1.1 abandonné, la première entrée retombait sur le chemin direct — pas
-       de choix papier —, et le vrai tirage arrivait APRÈS la coupe nbQ (5
-       questions quel que soit le réglage). Dans un devoir, start() tire
-       directement le niveau 1 — le seul qui existe. */
+       1.1 abandonné, et le vrai tirage arrivait APRÈS la coupe nbQ (5 questions
+       quel que soit le réglage). Dans un devoir, start() tire directement le
+       niveau 1 — le seul qui existe. */
     mesDevoirs=[{id:'dev-2', num:2, titre:'DM 2', actif:true,
                  exercices:[{id:'signe-premier-degre',modes:['train']},{id:'signe-second-degre',modes:['train'],nbQ:2}]}];
     currentDM=null;
     /* l'abandon du 1.1 : ses questions restent dans test — on les y met */
     test.kind='s1'; test.idx=0; test.locked=false;
     test.questions=[genS1L1(0),genS1L1(1)];
-    let suite7=0;
-    await dmEnonce('dev-2','signe-second-degre', function(){ suite7++; });
-    const on7=document.querySelector('.screen.on');
-    if(!on7||on7.id!=='scr-dmenonce')
-      vus.push('1.2 : le choix papier/ordinateur n\\'est pas proposé ('+(on7?on7.id:'aucun écran')+') — la première entrée retombe sur le chemin direct');
+    await dmePapierOuvrir('dev-2','signe-second-degre');
+    const on8=document.querySelector('.screen.on');
+    if(!on8||on8.id!=='scr-dmenonce')
+      vus.push('1.2 : la version papier ne s\\'affiche pas ('+(on8?on8.id:'aucun écran')+')');
     if(test.kind!=='s2'||!(test.questions||[]).length||test.questions[0].nroots===undefined)
       vus.push('1.2 : l\\'énoncé n\\'est pas tiré par l\\'exercice lui-même (kind '+test.kind+') — il photographie ce qui restait du 1.1');
-    const txt7=(document.getElementById('dmeCorps').textContent||'');
-    if(txt7.indexOf('Résous d’abord l’équation')>=0)
+    const txt8=(document.getElementById('dmeCorps').textContent||'');
+    if(txt8.indexOf('Résous d’abord l’équation')>=0)
       vus.push('1.2 : l\\'énoncé montre les questions du PREMIER degré — celles de l\\'exercice précédent');
-    const nb7=document.querySelectorAll('#dmeCorps .dme-q').length;
-    if(nb7!==2) vus.push('1.2 : l\\'énoncé montre '+nb7+' question(s) au lieu des 2 réglées par le devoir');
-    dmeOrdinateur();
-    if(suite7!==1) vus.push('1.2 : « sur l\\'ordinateur » n\\'appelle pas la suite ('+suite7+')');
-    /* « sur l'ordinateur » : le niveau se tire sans écran de menu, coupe comprise */
+    const nb8=document.querySelectorAll('#dmeCorps .dme-q').length;
+    if(nb8!==2) vus.push('1.2 : l\\'énoncé montre '+nb8+' question(s) au lieu des 2 réglées par le devoir');
+    dmeCtx=null;
+    /* lancé depuis le devoir : le niveau se tire sans écran de menu, coupe comprise */
     await lancerDevoirExo('dev-2','signe-second-degre','train');
-    const on7b=document.querySelector('.screen.on');
-    if(!on7b||on7b.id!=='scr-s2')
-      vus.push('1.2 lancé depuis le devoir : l\\'écran est '+(on7b?on7b.id:'aucun')+' au lieu de l\\'exercice — le menu du niveau s\\'interpose encore');
+    const on8b=document.querySelector('.screen.on');
+    if(!on8b||on8b.id!=='scr-s2')
+      vus.push('1.2 lancé depuis le devoir : l\\'écran est '+(on8b?on8b.id:'aucun')+' au lieu de l\\'exercice — le menu du niveau s\\'interpose encore');
     if((test.questions||[]).length!==2)
       vus.push('1.2 lancé depuis le devoir : '+(test.questions||[]).length+' question(s) au lieu des 2 réglées — la coupe passe avant le tirage');
     /* et au menu LIBRE, l'écran de choix du niveau demeure */
     currentDM=null;
     await startS2();
-    const on7c=document.querySelector('.screen.on');
-    if(!on7c||on7c.id!=='scr-s2lvl')
-      vus.push('hors devoir, le 1.2 ne montre plus son choix de niveau ('+(on7c?on7c.id:'aucun')+')');
+    const on8c=document.querySelector('.screen.on');
+    if(!on8c||on8c.id!=='scr-s2lvl')
+      vus.push('hors devoir, le 1.2 ne montre plus son choix de niveau ('+(on8c?on8c.id:'aucun')+')');
 
-    /* ---- 8. la photo n'utilise JAMAIS un tirage qui n'est pas le sien ----
-       Pour tout exercice FUTUR dont le start() ne tirerait pas : la référence
-       de test.questions n'a pas bougé, donc pas d'énoncé — le repli direct,
-       sans mensonge. */
+    /* ---- 9. un exercice qui ne sait pas s'énoncer le DIT, et rend le choix ----
+       Pour tout exercice FUTUR dont le start() ne tirerait pas : la référence de
+       test.questions n'a pas bougé, donc pas d'énoncé. Avant, on enchaînait en
+       silence sur le chemin direct ; maintenant qu'il n'y a plus de suite, le
+       silence laisserait l'élève dans l'écran que le tirage vient d'afficher —
+       un exercice qu'il n'a pas choisi. */
     TESTS['__essai-sans-tirage']={ name:'Essai', icon:'?', desc:'', start:function(){ show('s2lvl'); } };
     mesDevoirs[0].exercices.push({id:'__essai-sans-tirage',modes:['train']});
     test.kind='s1'; test.idx=0; test.locked=false; test.questions=[genS1L1(0)];
-    let suite8=0;
-    await dmEnonce('dev-2','__essai-sans-tirage', function(){ suite8++; });
+    ecouterToasts();
+    await dmePapierOuvrir('dev-2','__essai-sans-tirage');
+    toast=vraiToast;
     delete TESTS['__essai-sans-tirage'];
-    if(suite8!==1) vus.push('un start() qui ne tire pas ne retombe plus sur le chemin direct ('+suite8+')');
-    const on8=document.querySelector('.screen.on');
-    if(on8&&on8.id==='scr-dmenonce')
+    const on9=document.querySelector('.screen.on');
+    if(on9&&on9.id==='scr-dmenonce')
       vus.push('un start() qui ne tire pas AFFICHE quand même un énoncé — la photo d\\'un tirage étranger');
+    if(!dits.some(function(t){ return /^err:/.test(t); }))
+      vus.push('un exercice qui ne sait pas s\\'énoncer sur papier ne le dit pas : '+dits.join(' ¦ '));
+    if(!on9||on9.id!=='scr-mode')
+      vus.push('le repli laisse l\\'élève ailleurs qu\\'au choix des modes ('+(on9?on9.id:'aucun')+')');
 
+    } finally { window.confirm=vraiConfirm; toast=vraiToast; }
     return vus.slice(0,4).join(' | ');
   })()`, function(r){
-    const nom='le devoir sur papier : l\'énoncé d\'abord, et il part avec le prénom';
+    const nom='le devoir sur papier : un choix de la page des modes, et l\'envoi se confirme';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
     longueurContexteIA(w, apres);
