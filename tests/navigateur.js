@@ -7844,6 +7844,233 @@ async function parcours(page, N){
       verifier('la correction exécutée puis revérifiée vaut 2 en soutien et propose la suite', fin2.ok && fin2.score === 2 && fin2.suivant, JSON.stringify(fin2));
       await s.nav.close(); s = null;
     }
+    /* ===== 6 tricies octies. {python-placer-variables} : les noms se tapent dans la ligne de print =====
+       Le banc jsdom tient le tirage, le juge, le diagnostic, les portes, la
+       case vide et le soutien. Ce qu'il ne voit pas : la ligne de print
+       RENDUE — ses cases à la chasse et à la taille du code qui les entoure,
+       et la ligne d'un seul tenant, jamais repliée —, un VRAI clic sur
+       « Vérifier » fermé qui ne juge rien, les noms TAPÉS au clavier (Entrée
+       exécute), la console qui montre la phrase INTERVERTIE — celle qui ne
+       lève aucune erreur et qui est tout le sujet —, l'encre RENDUE des deux
+       verdicts sur la même question (l'une bleue, l'autre rouge : c'est la
+       règle « chaque case se juge seule », et seule une couleur rendue la
+       montre), la bonne variable en VERT à côté de la case fausse, et le
+       téléphone, où la ligne DÉFILE au lieu d'être coupée. Puis le soutien,
+       où rien ne se révèle.
+       TOUT SE MESURE SUR LA QUESTION 1, la fiche du carnet, ÉPINGLÉE : sur un
+       tirage au hasard, la longueur de la ligne et le nombre de cases
+       changeraient d'une exécution à l'autre, et le contrôle serait
+       INTERMITTENT. */
+    titre('6 tricies octies. PLACER LES VARIABLES : LES NOMS SE TAPENT DANS LA LIGNE DE PRINT');
+    if(!P.pythonPlacerVariables){
+      ignorer('les noms des variables se tapent dans la ligne de print', 'ce niveau n\'a pas l\'exercice des variables à placer dans un print');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonPlacerVariables.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const avant = await s.page.evaluate(() => {
+        const host = document.getElementById('pyvHost');
+        const l = [...host.querySelectorAll('.pyx-l1')], ligne = host.querySelector('.pyv-l');
+        const cases = [...host.querySelectorAll('.pyv-in')];
+        const run = document.getElementById('pyvRun'), val = document.getElementById('pyvValidate'), cons = document.getElementById('pyvConsole');
+        const fam = e => getComputedStyle(e).fontFamily, px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const r = e => e.getBoundingClientRect();
+        const rl = r(ligne);
+        return { affectations: l.map(e => e.textContent), texte: ligne.textContent,
+                 cases: cases.length, pxL: px(ligne), pxIn: cases.map(px),
+                 policeL: fam(ligne), policeIn: cases.map(fam),
+                 /* UNE LIGNE DE CODE NE SE REPLIE JAMAIS : sa hauteur est celle
+                    d'une seule ligne, et ses cases partagent cette ligne. */
+                 hautLigne: Math.round(rl.height), hautCase: Math.round(r(cases[0]).height),
+                 memeLigne: cases.every(c => Math.abs(r(c).top - r(cases[0]).top) < 2),
+                 dedans: cases.every(c => r(c).right <= host.querySelector('.pyx-prog').getBoundingClientRect().right + 1),
+                 defile: ligne.scrollWidth > ligne.clientWidth + 1, ovf: getComputedStyle(ligne).overflowX,
+                 runOk: !run.disabled && r(run).width > 40, valFerme: val.disabled && r(val).width > 40,
+                 consoleVisible: r(cons).height > 20, policeCons: fam(cons),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('les deux affectations et la ligne de print à trous sont rendues, avec ses deux cases',
+        avant.affectations.length === 2 && /note = 14/.test(avant.affectations[0]) && avant.cases === 2
+        && /print\(/.test(avant.texte) && /sur 20/.test(avant.texte), JSON.stringify(avant).slice(0, 300));
+      verifier('les cases écrivent à la chasse et à la taille du code qui les entoure',
+        /mono|menlo|consolas|courier/i.test(avant.policeL) && avant.policeIn.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && avant.pxIn.every(p => Math.abs(p - avant.pxL) < 0.6),
+        JSON.stringify({ pxL: avant.pxL, pxIn: avant.pxIn, policeL: avant.policeL, policeIn: avant.policeIn }));
+      /* LA CASE A LA PLACE DU NOM LE PLUS LONG DU PROGRAMME. Sa largeur se
+         pose en « ch », et la page étant en box-sizing:border-box ces ch
+         comprendraient le rembourrage et la bordure — seize pixels mangés sur
+         le texte, et « prenom » se serait affiché coupé sans qu'aucune erreur
+         ne se lève (la leçon du 5.5, et sa mesure celle du 6.3). On mesure le
+         texte au CANEVAS, dans la police EFFECTIVE de la case. */
+      const place = await s.page.evaluate(() => {
+        const ctx = document.createElement('canvas').getContext('2d'), serre = [], marges = [];
+        const noms = pyvNoms(test.questions[test.idx]);
+        [...document.querySelectorAll('#pyvHost .pyv-in')].forEach(el => {
+          const st = getComputedStyle(el);
+          ctx.font = st.fontStyle + ' ' + st.fontWeight + ' ' + st.fontSize + ' ' + st.fontFamily;
+          const dispo = el.clientWidth - (parseFloat(st.paddingLeft) || 0) - (parseFloat(st.paddingRight) || 0);
+          noms.forEach(n => { const w = ctx.measureText(n).width;
+            marges.push(dispo - w);
+            if(dispo < w + 2) serre.push(el.id + ' : ' + Math.round(dispo) + ' px pour « ' + n + ' » (' + Math.round(w) + ' px)'); });
+        });
+        return { serre: serre, marge: Math.round(Math.min.apply(null, marges) * 10) / 10 };
+      });
+      verifier('chaque case a la place d\'écrire le nom le plus long du programme, rembourrage déduit',
+        place.serre.length === 0, place.serre.join(' | '));
+      /* La marge s'AFFICHE à chaque exécution : en border-box elle tombe à
+         4,6 px (mesuré) — la page ne coupe pas le nom pour autant, mais elle
+         ne tient plus que par chance. En content-box, 20,6 px. */
+      console.log('   · la case la plus serrée : ' + place.marge + ' px de marge autour du nom le plus long');
+      verifier('la ligne de print tient sur UNE ligne — les deux cases y partagent la ligne du code, et rien n\'en déborde à 1400 px',
+        avant.memeLigne && avant.hautLigne < avant.hautCase * 2 && avant.dedans && !avant.defile && !avant.page,
+        JSON.stringify(avant).slice(0, 300));
+      verifier('« Exécuter » est ouvert, « Vérifier » est fermé, la console est rendue à chasse fixe',
+        avant.runOk && avant.valFerme && avant.consoleVisible && /mono|menlo|consolas|courier/i.test(avant.policeCons), JSON.stringify(avant).slice(0, 300));
+      /* un VRAI clic sur « Vérifier » fermé ne juge rien */
+      await s.page.click('#pyvValidate', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const rien = await s.page.evaluate(() => ({ fb: document.getElementById('pyvFeedback').textContent,
+        c0: document.getElementById('pyv-in0').className, c1: document.getElementById('pyv-in1').className }));
+      verifier('un clic sur « Vérifier » fermé ne juge rien', rien.fb === '' && !/ok|bad/.test(rien.c0) && !/ok|bad/.test(rien.c1), JSON.stringify(rien));
+      /* ON TAPE L'INTERVERSION — l'erreur que vise l'exercice : Python ne lève
+         AUCUNE erreur, et c'est la phrase qui ne dit plus rien. */
+      const q1 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = pyvAns(q);
+        return { noms: a.map(x => x.variable), phrase: pyvSortie(q).replace(/\n$/, ''),
+                 inverse: pyRun(pyvProg(q, [a[1].variable, a[0].variable])).out.replace(/\n$/, '') };
+      });
+      await s.page.click('#pyv-in0');
+      await s.page.keyboard.type(q1.noms[1]);
+      await s.page.click('#pyv-in1');
+      await s.page.keyboard.type(q1.noms[0]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const inverse = await s.page.evaluate(() => {
+        const c = document.getElementById('pyvConsole');
+        return { texte: c.textContent, erreur: c.classList.contains('pyx-err'),
+                 valOuvert: !document.getElementById('pyvValidate').disabled };
+      });
+      verifier('Entrée exécute : la console montre la phrase INTERVERTIE, sans la moindre erreur — et « Vérifier » s\'ouvre',
+        inverse.texte === q1.inverse && !inverse.erreur && inverse.valOuvert,
+        JSON.stringify(inverse) + ' / attendu ' + JSON.stringify(q1.inverse));
+      /* on corrige la PREMIÈRE case et on laisse la seconde fausse : chaque
+         case se juge seule, et seule une couleur rendue le montre */
+      await s.page.fill('#pyv-in0', q1.noms[0]);
+      await s.page.waitForTimeout(150);
+      await s.page.click('#pyvRun');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pyvValidate');
+      await s.page.waitForTimeout(400);
+      const mix = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyv-in0'), in1 = document.getElementById('pyv-in1'), b = in1.nextElementSibling;
+        const r1 = in1.getBoundingClientRect(), rb = b ? b.getBoundingClientRect() : null;
+        return { c0: in0.className, c1: in1.className, e0: getComputedStyle(in0).color, e1: getComputedStyle(in1).color,
+                 badge: !!(b && b.classList.contains('mf-cor')), texte: b && b.textContent, encreBadge: b ? getComputedStyle(b).color : '',
+                 aCote: !!rb && rb.left >= r1.right - 1 && Math.abs(rb.top - r1.top) < r1.height,
+                 dedans: !!rb && rb.width > 8 && rb.right <= document.documentElement.clientWidth,
+                 badge0: !!(in0.nextElementSibling && in0.nextElementSibling.classList.contains('mf-cor')),
+                 fb: document.getElementById('pyvFeedback').textContent, score: test.score, suivant: !!document.getElementById('pyvNext') };
+      });
+      verifier('chaque case se juge SEULE : la case intervertie rougit (encre rouge rendue) pendant que l\'autre reste BLEUE, la bonne variable s\'écrit en VERT À CÔTÉ de la case fausse — et d\'elle seule',
+        /bad/.test(mix.c1) && dom(mix.e1) === 'rouge' && /ok/.test(mix.c0) && dom(mix.e0) === 'bleu'
+        && mix.badge && mix.texte === q1.noms[1] && dom(mix.encreBadge) === 'vert' && mix.aCote && mix.dedans && !mix.badge0
+        && mix.score === 1 && mix.suivant, JSON.stringify(mix));
+      /* question 2 : on TAPE la copie juste, et la console dit la phrase */
+      await s.page.click('#pyvNext');
+      await s.page.waitForTimeout(300);
+      const q2 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = pyvAns(q);
+        return { noms: a.map(x => x.variable), phrase: pyvSortie(q).replace(/\n$/, ''), idx: test.idx, cases: pyvCases(q).length };
+      });
+      for(let i = 0; i < q2.noms.length; i++){
+        await s.page.click('#pyv-in' + i);
+        await s.page.keyboard.type(q2.noms[i]);
+      }
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pyvValidate');
+      await s.page.waitForTimeout(400);
+      const juste = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('.pyv-in')];
+        return { ok: cases.every(c => /ok/.test(c.className)), encres: cases.map(c => getComputedStyle(c).color),
+                 console: document.getElementById('pyvConsole').textContent, score: test.score,
+                 verrou: cases.every(c => c.disabled), badge: cases.some(c => c.nextElementSibling && c.nextElementSibling.classList.contains('mf-cor')),
+                 fb: document.getElementById('pyvFeedback').textContent,
+                 suivant: !!document.getElementById('pyvNext'), focus: document.activeElement && document.activeElement.id };
+      });
+      verifier('question 2 : les noms TAPÉS à la bonne place sont peints ok à l\'encre BLEUE rendue, la console montre la phrase, la copie vaut ses cases, verrouille, sans rien en vert, et « Question suivante » reçoit le focus',
+        q2.idx === 1 && juste.ok && juste.encres.every(e => dom(e) === 'bleu') && juste.console === q2.phrase
+        && juste.score === 1 + q2.cases && juste.verrou && !juste.badge && juste.suivant && juste.focus === 'pyvNext',
+        JSON.stringify(juste).slice(0, 320) + ' / phrase attendue ' + JSON.stringify(q2.phrase));
+      /* LE TÉLÉPHONE SE MESURE SUR LA FICHE — sa ligne de print est LONGUE par
+         construction. Une ligne de code ne se replie jamais : elle DÉFILE. */
+      await s.page.evaluate(id => openTest(id), P.pythonPlacerVariables.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const ligne = document.querySelector('#pyvHost .pyv-l'), boite = document.querySelector('#pyvHost .pyx-prog');
+        const rl = ligne.getBoundingClientRect(), rp = boite.getBoundingClientRect();
+        const in0 = document.getElementById('pyv-in0').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 progDedans: rp.right <= 391, ligneDedans: rl.right <= rp.right + 1,
+                 progDefile: boite.scrollWidth > boite.clientWidth + 1,
+                 longue: ligne.scrollWidth > ligne.clientWidth + 1, ovf: getComputedStyle(ligne).overflowX,
+                 caseVisible: in0.width > 40 && in0.height > 20 };
+      });
+      verifier('sur un téléphone, la page ne déborde pas et la ligne de print, trop longue pour le cadre, DÉFILE au lieu d\'être coupée',
+        !tel.page && tel.progDedans && tel.ligneDedans && !tel.progDefile && tel.longue && /auto|scroll/.test(tel.ovf) && tel.caseVisible,
+        JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      await s.page.waitForTimeout(300);
+      /* le soutien : la case fausse rougit, la page dit OÙ est l'erreur, et la
+         variable attendue ne s'écrit NULLE PART */
+      await s.page.evaluate(id => openTest(id), P.pythonPlacerVariables.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const q3 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = pyvAns(q);
+        return { noms: a.map(x => x.variable), textes: a.map(x => x.texte.trim()) };
+      });
+      await s.page.click('#pyv-in0');
+      await s.page.keyboard.type(q3.noms[1]);
+      await s.page.click('#pyv-in1');
+      await s.page.keyboard.type(q3.noms[1]);
+      await s.page.click('#pyvRun');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pyvValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const in0 = document.getElementById('pyv-in0'), fb = document.getElementById('pyvFeedback');
+        return { bad: /bad/.test(in0.className), encre: getComputedStyle(in0).color,
+                 badge: !!(in0.nextElementSibling && in0.nextElementSibling.classList.contains('mf-cor')),
+                 fb: fb.textContent, fbVisible: fb.getBoundingClientRect().height > 10, verrou: in0.disabled,
+                 rev: (document.getElementById('pyvValidate') || {}).textContent || '' };
+      });
+      verifier('en soutien, la case fausse rougit (encre rouge rendue), sans bonne variable en vert, le message renvoie au texte qui précède la case SANS nommer la variable attendue, puis propose Revérifier',
+        sout.bad && dom(sout.encre) === 'rouge' && !sout.badge && /Où est l’erreur/.test(sout.fb)
+        && sout.fb.indexOf(q3.textes[0]) >= 0 && sout.fb.indexOf(q3.noms[0]) < 0 && sout.fbVisible && !sout.verrou && /Rev/.test(sout.rev), JSON.stringify(sout));
+      await s.page.fill('#pyv-in0', q3.noms[0]);
+      await s.page.waitForTimeout(150);
+      const modif = await s.page.evaluate(() => ({ bad: /bad/.test(document.getElementById('pyv-in0').className),
+        valFerme: document.getElementById('pyvValidate').disabled, console: document.getElementById('pyvConsole').textContent }));
+      verifier('la case modifiée perd son rouge, referme Revérifier et vide la console', !modif.bad && modif.valFerme && modif.console === '', JSON.stringify(modif));
+      await s.page.press('#pyv-in0', 'Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#pyvValidate');
+      await s.page.waitForTimeout(400);
+      const fin2 = await s.page.evaluate(() => ({ ok: /ok/.test(document.getElementById('pyv-in0').className),
+        score: test.score, suivant: !!document.getElementById('pyvNext') }));
+      verifier('la correction exécutée puis revérifiée vaut ses cases en soutien et propose la suite', fin2.ok && fin2.score === 2 && fin2.suivant, JSON.stringify(fin2));
+      await s.nav.close(); s = null;
+    }
 
     /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
     /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
