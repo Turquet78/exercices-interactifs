@@ -8854,6 +8854,249 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies undecies. {python-operations} : a et b se changent, les quatre lignes se tapent =====
+       Le banc jsdom tient le juge (les deux familles de cases, la seconde
+       méthode qui rejoue sous d'autres valeurs, la règle des paires), le
+       tirage, les portes, la case vide et le soutien. Ce qu'il ne voit pas :
+       le programme du cours RENDU avec ses deux cases de valeur, une VRAIE
+       frappe dans a et b puis un vrai clic sur « Exécuter » qui ouvre la
+       porte, la consigne à puces et les coups de pouce repliés qui S'OUVRENT
+       au clic, les dix lignes du programme à chasse fixe et à la MÊME taille,
+       la case COURTE du calcul posée sur la ligne de son nom — jsdom n'a
+       aucune mise en page —, un VRAI clic sur « Vérifier » fermé qui ne juge
+       rien, les quatre lignes TAPÉES au clavier, l'encre RENDUE des verdicts
+       sur la même question (l'une bleue, l'autre rouge : c'est la règle
+       « chaque case se juge seule », et seule une couleur rendue la montre),
+       le rejeu sous d'autres valeurs mesuré au RECTANGLE, et la page qui ne
+       déborde pas sur un téléphone. Puis le soutien, où rien ne se révèle. */
+    titre('6 tricies undecies. LES QUATRE OPÉRATIONS : a ET b SE CHANGENT, LES QUATRE LIGNES SE TAPENT');
+    if(!P.pythonOperations){
+      ignorer('les quatre lignes se tapent, s\'exécutent, puis se vérifient', 'ce niveau n\'a pas l\'exercice des quatre opérations');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonOperations.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      /* ---- le cours : le a) et le b) de la fiche ---- */
+      const cours = await s.page.evaluate(() => {
+        const host = document.getElementById('popHost'), r = e => e.getBoundingClientRect();
+        const ia = document.getElementById('pop-a'), ib = document.getElementById('pop-b');
+        const cadre = host.querySelector('.pyx-cours'), b = document.getElementById('popCompris');
+        return { cadre: cadre ? Math.round(r(cadre).width) : 0, cadreHaut: cadre ? Math.round(r(cadre).height) : 0,
+                 cases: !!ia && !!ib && r(ia).width > 40 && r(ia).height > 24 && r(ib).width > 40,
+                 memeLigne: !!ia && !!ib && Math.abs(r(ia).top - r(ia.previousElementSibling).top) < 30,
+                 valeurs: [ia && ia.value, ib && ib.value],
+                 ferme: !!b && b.disabled, console: document.getElementById('popDecConsole').textContent };
+      });
+      verifier('le cours est rendu avec son cadre, ses deux cases de valeur sur la ligne de leur nom, et « J\'ai compris » fermé',
+        cours.cadre > 300 && cours.cadreHaut > 40 && cours.cases && cours.memeLigne && cours.console === '' && cours.ferme, JSON.stringify(cours));
+      /* un VRAI clic sur « J'ai compris » fermé ne mène nulle part */
+      await s.page.click('#popCompris', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const bloque = await s.page.evaluate(() => document.getElementById('popIdx').textContent);
+      verifier('un clic sur « J\'ai compris » fermé ne mène pas à la question', bloque === 'Le cours', bloque);
+      await s.page.click('#popDecRun');
+      await s.page.waitForTimeout(300);
+      const un = await s.page.evaluate(() => ({ console: document.getElementById('popDecConsole').textContent,
+        ferme: document.getElementById('popCompris').disabled,
+        hint: document.getElementById('popDecHint').textContent }));
+      verifier('une PREMIÈRE exécution affiche la somme et le produit, laisse « J\'ai compris » fermé, et demande de changer a et b',
+        un.console.split('\n').length === 2 && /somme/i.test(un.console) && un.ferme && /CHANGE/.test(un.hint), JSON.stringify(un).slice(0, 260));
+      /* on CHANGE a et b au clavier, pour de vrai — c'est le b) de la fiche */
+      await s.page.fill('#pop-a', '');
+      await s.page.type('#pop-a', '7');
+      await s.page.fill('#pop-b', '');
+      await s.page.type('#pop-b', '4');
+      await s.page.press('#pop-b', 'Enter');
+      await s.page.waitForTimeout(300);
+      const deux = await s.page.evaluate(() => ({ console: document.getElementById('popDecConsole').textContent,
+        ouvert: !document.getElementById('popCompris').disabled }));
+      verifier('une SECONDE exécution, à d\'autres valeurs, fait suivre les résultats et ouvre « J\'ai compris »',
+        /11/.test(deux.console) && /28/.test(deux.console) && deux.ouvert, JSON.stringify(deux));
+      await s.page.click('#popCompris');
+      await s.page.waitForTimeout(400);
+      /* ---- la question ---- */
+      const avant = await s.page.evaluate(() => {
+        const host = document.getElementById('popHost'), r = e => e.getBoundingClientRect();
+        const puces = [...host.querySelectorAll('.pyd-puces li')], pouces = [...host.querySelectorAll('.pyd-pouce')];
+        const l = [...host.querySelectorAll('.pyx-l1')], lbl = [...host.querySelectorAll('.pop-lbl')];
+        const ex = [document.getElementById('pop-ex0'), document.getElementById('pop-ex1')];
+        const pr = [document.getElementById('pop-pr0'), document.getElementById('pop-pr1')];
+        const fam = e => getComputedStyle(e).fontFamily, px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const tous = l.concat(lbl).concat(ex).concat(pr);
+        return { idx: document.getElementById('popIdx').textContent,
+                 enonce: document.getElementById('popInstr').textContent,
+                 puces: puces.length, pucesVisibles: puces.every(p => r(p).width > 100 && r(p).height > 8),
+                 pouces: pouces.length, pouceOuvert: pouces.some(p => p.open),
+                 lignes: l.length, lignesTexte: l.map(e => e.textContent),
+                 police: tous.map(fam), tailles: tous.map(px),
+                 exSurLigne: ex.every((e, i) => Math.abs(r(e).top - r(lbl[i]).top) < 30 && r(e).left > r(lbl[i]).left),
+                 exCourte: ex.every(e => r(e).width > 80 && r(e).width < 320),
+                 prLarge: pr.every(e => r(e).width > 300 && r(e).right <= document.documentElement.clientWidth),
+                 runOk: !document.getElementById('popRun').disabled,
+                 valFerme: document.getElementById('popValidate').disabled,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('la question porte son énoncé, trois puces de consigne et deux coups de pouce repliés',
+        /Question 1/.test(avant.idx) && /diff|quotient|somme|produit/i.test(avant.enonce)
+        && avant.puces === 3 && avant.pucesVisibles && avant.pouces === 2 && !avant.pouceOuvert, JSON.stringify(avant).slice(0, 300));
+      verifier('les six lignes écrites, les deux étiquettes et les quatre cases sont à chasse fixe et à la MÊME taille',
+        avant.lignes === 6 && avant.police.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && Math.max(...avant.tailles) - Math.min(...avant.tailles) < 0.6,
+        JSON.stringify({ l: avant.lignesTexte, t: avant.tailles }).slice(0, 300));
+      verifier('la case du calcul est COURTE et posée sur la ligne de son nom, celle de l\'affichage prend la ligne entière, et la page ne déborde pas à 1400 px',
+        avant.exSurLigne && avant.exCourte && avant.prLarge && avant.runOk && avant.valFerme && !avant.page, JSON.stringify(avant).slice(0, 300));
+      /* un coup de pouce s'OUVRE au clic */
+      await s.page.click('#popHost .pyd-pouce summary');
+      await s.page.waitForTimeout(200);
+      const pouce = await s.page.evaluate(() => {
+        const p = document.querySelector('#popHost .pyd-pouce'), t = p.querySelector('p');
+        return { ouvert: p.open, texte: t.textContent, haut: t.getBoundingClientRect().height };
+      });
+      verifier('un coup de pouce s\'ouvre au clic et dit la MÉTHODE — les quatre signes de Python',
+        pouce.ouvert && pouce.haut > 10 && /\+/.test(pouce.texte) && /\//.test(pouce.texte), JSON.stringify(pouce));
+      /* un VRAI clic sur « Vérifier » fermé ne juge rien */
+      await s.page.click('#popValidate', { force: true }).catch(() => {});
+      await s.page.waitForTimeout(200);
+      const rien = await s.page.evaluate(() => ({ fb: document.getElementById('popFeedback').textContent,
+        c: ['pop-ex0', 'pop-ex1', 'pop-pr0', 'pop-pr1'].map(i => document.getElementById(i).className) }));
+      verifier('un clic sur « Vérifier » fermé ne juge rien', rien.fb === '' && rien.c.every(c => !/ok|bad/.test(c)), JSON.stringify(rien));
+      /* ---- on TAPE les quatre lignes : trois justes, une fausse ---- */
+      const att = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = popAns(q);
+        return { ex: a.map(x => x.expr), lignes: a.map(x => x.ligne), val: a.map(x => x.valeur), val2: a.map(x => x.valeur2), cle: q.ecrire };
+      });
+      await s.page.click('#pop-ex0');
+      await s.page.keyboard.type(att.val[0]);            /* le résultat écrit à la main : faux */
+      await s.page.click('#pop-ex1');
+      await s.page.keyboard.type(att.ex[1]);
+      await s.page.click('#pop-pr0');
+      await s.page.keyboard.type(att.lignes[1]);         /* dans l'AUTRE ORDRE : la règle des paires */
+      await s.page.click('#pop-pr1');
+      await s.page.keyboard.type(att.lignes[0]);
+      await s.page.click('#popRun');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#popValidate');
+      await s.page.waitForTimeout(400);
+      const mele = await s.page.evaluate(() => {
+        const e = i => document.getElementById(i), r = x => x.getBoundingClientRect();
+        const ids = ['pop-ex0', 'pop-ex1', 'pop-pr0', 'pop-pr1'], c = ids.map(e);
+        const cor = [...document.querySelectorAll('#popHost .mf-cor')];
+        return { classes: c.map(x => x.className), encres: c.map(x => getComputedStyle(x).color),
+                 score: test.score, verrou: c.every(x => x.disabled),
+                 cor: cor.length, corTexte: cor.map(x => x.textContent), corEncre: cor.map(x => getComputedStyle(x).color),
+                 corSous: cor.length === 1 && r(cor[0]).top >= r(c[0]).bottom - 1 && r(cor[0]).left < r(c[0]).right && r(cor[0]).right <= document.documentElement.clientWidth,
+                 rejeu: !!document.querySelector('#popFeedback .pop-rejeu') };
+      });
+      verifier('le calcul faux rougit SEUL (encre rouge rendue) pendant que les trois autres cases restent bleues — chaque case se juge seule, et seule une couleur rendue le montre',
+        /bad/.test(mele.classes[0]) && dom(mele.encres[0]) === 'rouge'
+        && mele.classes.slice(1).every(c => /ok/.test(c)) && mele.encres.slice(1).every(e => dom(e) === 'bleu')
+        && mele.score === 3 && mele.verrou, JSON.stringify(mele).slice(0, 320));
+      verifier('la bonne écriture s\'affiche en VERT sous la case fausse, et sous elle SEULEMENT',
+        mele.cor === 1 && mele.corTexte[0] === att.ex[0] && dom(mele.corEncre[0]) === 'vert' && mele.corSous && !mele.rejeu,
+        JSON.stringify({ cor: mele.corTexte, encre: mele.corEncre, sous: mele.corSous, att: att.ex[0] }));
+      /* ---- la question suivante, toute juste : le d) de la fiche s'affiche ---- */
+      await s.page.click('#popNext');
+      await s.page.waitForTimeout(400);
+      const att2 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = popAns(q), A = popAutres(q);
+        return { ex: a.map(x => x.expr), lignes: a.map(x => x.ligne), val2: a.map(x => x.valeur2), A: A };
+      });
+      for(const [id, v] of [['pop-ex0', att2.ex[0]], ['pop-ex1', att2.ex[1]], ['pop-pr0', att2.lignes[0]], ['pop-pr1', att2.lignes[1]]]){
+        await s.page.click('#' + id);
+        await s.page.keyboard.type(v);
+      }
+      await s.page.press('#pop-pr1', 'Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#popValidate');
+      await s.page.waitForTimeout(400);
+      const juste = await s.page.evaluate(() => {
+        const r = e => e.getBoundingClientRect(), rej = document.querySelector('#popFeedback .pop-rejeu');
+        const pre = rej && rej.querySelector('pre');
+        return { ok: ['pop-ex0', 'pop-ex1', 'pop-pr0', 'pop-pr1'].every(i => /ok/.test(document.getElementById(i).className)),
+                 score: test.score, rejeu: !!rej, rejeuHaut: rej ? Math.round(r(rej).height) : 0,
+                 rejeuLarge: rej ? Math.round(r(rej).width) : 0,
+                 lignes: pre ? pre.textContent.split('\n').length : 0, texte: pre ? pre.textContent : '',
+                 suivant: !!document.getElementById('popNext') };
+      });
+      verifier('la copie toute juste vaut 4 de plus et MONTRE le programme rejoué sous d\'autres valeurs — le d) de la fiche, dans une boîte qui a un rectangle',
+        juste.ok && juste.score === 7 && juste.rejeu && juste.rejeuHaut > 60 && juste.rejeuLarge > 200
+        && juste.lignes === 4 && att2.val2.every(v => juste.texte.indexOf(v) >= 0) && juste.suivant, JSON.stringify(juste).slice(0, 320));
+      /* ---- le téléphone ---- */
+      await s.page.setViewportSize({ width: 390, height: 780 });
+      await s.page.waitForTimeout(400);
+      const tel = await s.page.evaluate(() => {
+        const host = document.getElementById('popHost'), r = e => e.getBoundingClientRect();
+        const cadre = host.querySelector('.pyx-prog');
+        const lignes = [...host.querySelectorAll('.pyx-l1')];
+        return { page: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                 cadre: Math.round(r(cadre).width),
+                 deborde: lignes.filter(e => r(e).right > r(cadre).right + 2).length,
+                 defile: lignes.filter(e => e.scrollWidth > e.clientWidth + 1).length,
+                 cases: ['pop-ex0', 'pop-ex1', 'pop-pr0', 'pop-pr1'].map(i => Math.round(r(document.getElementById(i)).right))
+                   .filter(x => x > document.documentElement.clientWidth).length };
+      });
+      verifier('sur un téléphone de 390 px, la page ne déborde pas, aucune ligne ne sort du cadre — celle qui n\'y tient pas DÉFILE — et les quatre cases restent dans l\'écran',
+        tel.page <= 1 && tel.deborde === 0 && tel.defile > 0 && tel.cases === 0, JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* ---- le soutien : rien ne se révèle ---- */
+      await s.page.evaluate(id => openTest(id), P.pythonOperations.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      await s.page.click('#popDecRun');
+      await s.page.waitForTimeout(250);
+      await s.page.fill('#pop-a', '8');
+      await s.page.press('#pop-a', 'Enter');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#popCompris');
+      await s.page.waitForTimeout(400);
+      const att3 = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = popAns(q);
+        return { ex: a.map(x => x.expr), lignes: a.map(x => x.ligne), cle: q.ecrire };
+      });
+      await s.page.click('#pop-ex0');
+      await s.page.keyboard.type(att3.ex[1] === att3.ex[0] ? '0' : att3.ex[1]);   /* la mauvaise opération */
+      await s.page.click('#pop-ex1');
+      await s.page.keyboard.type(att3.ex[1]);
+      await s.page.click('#pop-pr0');
+      await s.page.keyboard.type(att3.lignes[0]);
+      await s.page.click('#pop-pr1');
+      await s.page.keyboard.type(att3.lignes[1]);
+      await s.page.click('#popRun');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#popValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const e0 = document.getElementById('pop-ex0'), fb = document.getElementById('popFeedback');
+        return { bad: /bad/.test(e0.className), encre: getComputedStyle(e0).color,
+                 cor: document.querySelectorAll('#popHost .mf-cor').length,
+                 rejeu: !!fb.querySelector('.pop-rejeu'), fb: fb.textContent,
+                 fbVisible: fb.getBoundingClientRect().height > 10, verrou: e0.disabled,
+                 rev: (document.getElementById('popValidate') || {}).textContent || '' };
+      });
+      verifier('en soutien, le calcul faux rougit (encre rouge rendue), rien ne se révèle — ni bonne écriture ni rejeu —, le message dit OÙ est l\'erreur, et Revérifier est proposé',
+        sout.bad && dom(sout.encre) === 'rouge' && sout.cor === 0 && !sout.rejeu
+        && /Où est l’erreur/.test(sout.fb) && sout.fb.indexOf(att3.ex[0]) < 0 && sout.fbVisible && !sout.verrou && /Rev/.test(sout.rev), JSON.stringify(sout).slice(0, 320));
+      await s.page.fill('#pop-ex0', att3.ex[0]);
+      await s.page.waitForTimeout(150);
+      const modif = await s.page.evaluate(() => ({ bad: /bad/.test(document.getElementById('pop-ex0').className),
+        valFerme: document.getElementById('popValidate').disabled, console: document.getElementById('popConsole').textContent }));
+      verifier('le calcul corrigé perd son rouge, referme Revérifier et vide la console', !modif.bad && modif.valFerme && modif.console === '', JSON.stringify(modif));
+      await s.page.press('#pop-ex0', 'Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#popValidate');
+      await s.page.waitForTimeout(400);
+      const fin3 = await s.page.evaluate(() => ({ ok: /ok/.test(document.getElementById('pop-ex0').className),
+        score: test.score, rejeu: !!document.querySelector('#popFeedback .pop-rejeu'), suivant: !!document.getElementById('popNext') }));
+      verifier('la copie corrigée, exécutée puis revérifiée, vaut 4 en soutien, montre le rejeu et propose la suite',
+        fin3.ok && fin3.score === 4 && fin3.rejeu && fin3.suivant, JSON.stringify(fin3));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
     /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
        de mise en page — seul un navigateur voit le geste), puis la partie
