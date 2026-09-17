@@ -3616,6 +3616,7 @@ function exercices(suite){
     pythonCompleter(w, P);
     pythonDeuxLignes(w, P);
     pythonTableauValeurs(w, P);
+    pythonChangerValeurs(w, P);
     pythonPlacerVariables(w, P);
     pythonTypes(w, P);
     pythonAfficherVariable(w, P);
@@ -19996,10 +19997,12 @@ function pythonTableauValeurs(w, P){
   })()`, v => v === '');
 
   /* ---- 10. la place au menu, et les branchements ---- */
-  verifierEval(w, 'il FERME le thème 5, numéroté 5.10 après {python-placer-variables} — et rien d’autre ne bouge ; pas de bouton des tables, un rappel sans LaTeX, les questions à l’IA, un contexte qui déclare les réponses secrètes, et aucune correction au fil de la frappe', `(function(){
+  verifierEval(w, 'il vit dans le thème 5, numéroté 5.10 — entre {python-placer-variables} et {python-changer-valeurs} — et rien d’autre ne bouge ; pas de bouton des tables, un rappel sans LaTeX, les questions à l’IA, un contexte qui déclare les réponses secrètes, et aucune correction au fil de la frappe', `(function(){
     const vus=[], th=THEMES[THEMES.length-1];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
-    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("l’exercice ne ferme pas le thème : "+(th&&th.ids.join(",")));
+    const k=th?th.ids.indexOf("${ID}"):-1;
+    if(k<0) vus.push("l’exercice n’est pas dans le thème 5 : "+(th&&th.ids.join(",")));
+    else if(th.ids[k-1]!=="python-placer-variables"||th.ids[k+1]!=="python-changer-valeurs") vus.push("il n’est plus entre {python-placer-variables} et {python-changer-valeurs} : "+th.ids.join(","));
     if(TEST_NUM["${ID}"]!=="5.10") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-deux-lignes"]!=="5.8"||TEST_NUM["python-placer-variables"]!=="5.9"||TEST_NUM["python-completer"]!=="5.7"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -20067,6 +20070,308 @@ function pythonTableauValeurs(w, P){
       tous.forEach((p, i) => { if(!meme(mien[i], ref[i])) ecarts.push(JSON.stringify(p.replace(/\n/g, ' ; ')) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
       BORDS.forEach((b, i) => { if(!meme(ref[tires.length + i], b[1])) ecarts.push('la sortie épinglée de ' + JSON.stringify(b[0].replace(/\n/g, ' ; ')) + ' n\'est pas celle de CPython : ' + JSON.stringify(ref[tires.length + i])); });
       verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+  }
+}
+
+/* {python-changer-valeurs} (Seconde) : l'exercice 12 du carnet — un programme
+   qui range deux CALCULS, qu'on exécute, puis dont on CHANGE les valeurs pour
+   l'exécuter à nouveau. Le contrôle tient la fiche épinglée (si elle ne passe
+   pas au juge, c'est le juge qui a tort), le tirage et ses deux visages, le
+   juge — dont la valeur qui n'est jamais presque bonne —, les TROIS portes,
+   la phrase de prédiction qui SUIT les valeurs (le risque propre, et il est
+   silencieux), la case vide jamais peinte, le soutien, et compare
+   l'interpréteur à un vrai CPython. Aucun accent grave ni antislash dans ce
+   texte : il vit dans un template littéral, et les deux y changeraient de
+   sens. */
+function pythonChangerValeurs(w, P){
+  const nom = '{python-changer-valeurs} : changer les valeurs, et tout ce qui se calcule suit';
+  if(!P.pythonChangerValeurs){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des valeurs qu\'on change'); return; }
+  const D = P.pythonChangerValeurs, ID = D.exercice, NB = D.nb, F = D.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPCV==='function' && typeof pcvAns==='function' && typeof pcvProg==='function' && typeof pcvBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPCV / pcvAns / pcvProg introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la fiche du carnet, épinglée ---- */
+  verifierEval(w, 'la fiche du carnet, épinglée : le programme de l’exercice 12 au caractère près, ce qu’il affiche, et les deux valeurs attendues — lues dans pyRun, jamais rangées à côté', `(function(){
+    const vus=[], NL=String.fromCharCode(10), q=Object.assign({},PCV_FICHE), a=pcvAns(q,q.va,q.vb);
+    const prog=pcvProg(q,q.va,q.vb);
+    if(prog!==${J(F.prog.join('\n'))}) vus.push("le programme : "+JSON.stringify(prog));
+    if(a.somme!==${J(F.somme)}) vus.push("la somme : "+a.somme);
+    if(a.produit!==${J(F.produit)}) vus.push("le produit : "+a.produit);
+    if(a.sortie!==${J(F.sortie)}) vus.push("ce qu’il affiche : "+JSON.stringify(a.sortie));
+    /* la valeur attendue SORT de l’interpréteur : elle suit le programme */
+    const b=pcvAns(q,12,7);
+    if(b.somme!=="19"||b.produit!=="84") vus.push("avec 12 et 7 : "+b.somme+" / "+b.produit);
+    if(b.sortie.indexOf("La somme de 12 et 7")<0) vus.push("la sortie ne suit pas les valeurs : "+JSON.stringify(b.sortie));
+    /* un négatif et un zéro sont du Python valide, et l’exercice les accepte */
+    const c=pcvAns(q,-3,0);
+    if(c.somme!=="-3"||c.produit!=="0") vus.push("avec -3 et 0 : "+c.somme+" / "+c.produit);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la lecture d'une valeur : un entier, et les zéros de tête refusés ---- */
+  verifierEval(w, 'une valeur est un entier écrit en chiffres — signe compris —, et les zéros de tête sont REFUSÉS : « 007 » est une erreur de syntaxe en Python 3, que l’interpréteur de la page, lui, accepterait', `(function(){
+    const vus=[];
+    [["12",12],["0",0],["-3",-3],["9999",9999],[" 7 ",7],["-0",0],
+     [String.fromCharCode(8722)+"3",-3],[String.fromCharCode(8211)+"12",-12]].forEach(function(c){
+      if(pcvEntier(c[0])!==c[1]) vus.push("« "+c[0]+" » devrait valoir "+c[1]+" : "+pcvEntier(c[0]));
+    });
+    ["","007","1.5","1,5","abc","12a","10000","--3","+3"," "].forEach(function(s){
+      if(pcvEntier(s)!==null) vus.push("« "+s+" » est accepté : "+pcvEntier(s));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le tirage et ses deux visages ---- */
+  verifierEval(w, 'le tirage : '+NB+' questions, la fiche du carnet en tête au visage DONNÉ, les suivantes au visage À CHANGER, deux noms distincts et deux valeurs de départ distinctes, et la question ne porte QUE les noms, les valeurs et le visage (400 séances)', `(function(){
+    const vus=[], modes={};
+    for(let s=0;s<400 && vus.length<4;s++){
+      const qs=pcvBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length+" questions"); break; }
+      const f=qs[0];
+      if(f.na!=="a"||f.nb!=="b"||f.va!==6||f.vb!==5||f.mode!=="donne"){ vus.push("la première question n’est pas la fiche du carnet : "+JSON.stringify(f)); break; }
+      if(pcvProg(f,f.va,f.vb)!==${J(F.prog.join('\n'))}){ vus.push("la première question ne rend pas le programme du carnet"); break; }
+      const noms=[];
+      qs.forEach(function(q,i){
+        if(Object.keys(q).sort().join(",")!=="mode,na,nb,va,vb") vus.push("la question porte autre chose que na / nb / va / vb / mode : "+Object.keys(q).join(","));
+        if(i>0 && q.mode!=="change") vus.push("la question "+(i+1)+" n’est pas au visage à changer : "+q.mode);
+        if(q.na===q.nb) vus.push("les deux variables portent le même nom : "+q.na);
+        if(q.va===q.vb) vus.push("les deux valeurs de départ sont égales : "+q.va);
+        if(pcvEntier(String(q.va))===null||pcvEntier(String(q.vb))===null) vus.push("une valeur de départ n’est pas un entier lisible : "+q.va+" / "+q.vb);
+        noms.push(q.na+q.nb);
+      });
+      if(noms.filter(function(n,i){ return noms.indexOf(n)===i; }).length!==noms.length) vus.push("deux questions portent les mêmes variables : "+noms.join(","));
+      modes[qs.map(function(q){ return q.mode; }).join(",")]=1;
+    }
+    /* LES DEUX VISAGES SORTENT : le a) une fois, le b) pour tout le reste */
+    const m=Object.keys(modes);
+    if(m.length!==1||m[0].indexOf("donne")!==0||m[0].indexOf("change")<0) vus.push("les visages d’une séance : "+m.join(" / "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le visage DONNÉ : prédire, puis la porte d'« Exécuter » ---- */
+  verifierEval(w, 'au visage DONNÉ : le programme est écrit en six lignes, « Exécuter » est VERROUILLÉ avant la vérification, la copie juste vaut 2 et le débloque, la console montre ce que le programme affiche, et « Question suivante » n’arrive qu’APRÈS l’exécution', `(function(){
+    currentMode="train"; startPCV();
+    const vus=[], q=test.questions[0], a=pcvAns(q,q.va,q.vb), NL=String.fromCharCode(10);
+    const l=[...document.querySelectorAll("#pcvHost .pyx-l1")].map(function(e){ return e.textContent; });
+    if(l.length!==6||l.join(NL)!==pcvProg(q,q.va,q.vb)) vus.push("les lignes écrites du programme : "+l.join(" | "));
+    if(document.getElementById("pcv-a")||document.getElementById("pcv-b")) vus.push("le visage DONNÉ porte des cases de valeur");
+    const s=document.getElementById("pcv-s"), p=document.getElementById("pcv-p"), run=document.getElementById("pcvRun");
+    if(!s||!p||s.tagName!=="INPUT"||p.tagName!=="INPUT") vus.push("il n’y a pas deux cases de prédiction");
+    if(!run||!run.disabled) vus.push("« Exécuter » n’est pas verrouillé avant la vérification");
+    if(document.getElementById("pcvNext")) vus.push("« Question suivante » est là avant toute réponse");
+    s.value=a.somme; p.value=a.produit; checkPCV();
+    if(!s.classList.contains("ok")||!p.classList.contains("ok")) vus.push("la copie juste n’est pas peinte ok : "+s.className+" / "+p.className);
+    if(test.score!==2) vus.push("note "+test.score+" au lieu de 2");
+    if(!test.locked) vus.push("la question n’est pas verrouillée");
+    if(!s.disabled||!p.disabled) vus.push("les cases restent modifiables après le verrou");
+    if(run.disabled) vus.push("« Exécuter » reste verrouillé après une copie juste");
+    if(document.getElementById("pcvNext")) vus.push("« Question suivante » arrive AVANT l’exécution");
+    pcvExecuter();
+    const cons=document.getElementById("pcvConsole");
+    if(cons.textContent!==a.sortie.slice(0,a.sortie.length-1)) vus.push("la console montre "+JSON.stringify(cons.textContent));
+    if(!cons.classList.contains("py-exec")) vus.push("la console n’est pas marquée exécutée");
+    if(!document.getElementById("pcvNext")) vus.push("« Question suivante » n’apparaît pas après l’exécution");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==2||ans.justes!==2||!ans.correct) vus.push("la note de la question ne compte pas 2 cases justes : "+JSON.stringify(ans));
+    if(!afficherEcranDe("pcv")) vus.push("afficherEcranDe ne connaît pas pcv (reprise et rejeu)");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le visage À CHANGER : la porte, et la phrase qui SUIT ---- */
+  verifierEval(w, 'au visage À CHANGER : les deux premières lignes portent des cases pré-remplies avec les valeurs d’origine, « Vérifier » ne juge RIEN tant qu’aucune n’a bougé — ni sur une valeur qui n’est pas un entier —, et la phrase de prédiction SUIT les valeurs écrites au lieu de rester figée', `(function(){
+    currentMode="train"; startPCV(); test.idx=1; renderPCV();
+    const vus=[], q=test.questions[1];
+    const A=function(){ return document.getElementById("pcv-a"); }, B=function(){ return document.getElementById("pcv-b"); };
+    const S=function(){ return document.getElementById("pcv-s"); }, Pp=function(){ return document.getElementById("pcv-p"); };
+    const fb=function(){ return document.getElementById("pcvFeedback"); };
+    const pred=function(){ return document.getElementById("pcvPred").textContent; };
+    if(!A()||!B()||A().tagName!=="INPUT"||B().tagName!=="INPUT"){ vus.push("les deux valeurs ne sont pas des cases"); return vus.join(" | "); }
+    if(A().value!==String(q.va)||B().value!==String(q.vb)) vus.push("les cases ne sont pas pré-remplies avec les valeurs d’origine : "+A().value+" / "+B().value);
+    if(pred().indexOf(String(q.va))<0||pred().indexOf(String(q.vb))<0) vus.push("la phrase de prédiction ne dit pas les valeurs de départ : "+pred());
+    /* RIEN DE CHANGÉ : la porte le dit, et ne peint rien */
+    S().value="1"; Pp().value="1"; checkPCV();
+    if(/ok|bad/.test(S().className)||/ok|bad/.test(Pp().className)) vus.push("la porte a peint les cases : "+S().className);
+    if(test.locked) vus.push("la porte a verrouillé la question");
+    if(fb().textContent.indexOf("rien chang")<0) vus.push("le message ne dit pas que rien n’a changé : "+fb().textContent);
+    /* UNE VALEUR QUI N’EST PAS UN ENTIER : la porte le dit aussi */
+    A().value="1.5"; A().dispatchEvent(new Event("input",{bubbles:true})); checkPCV();
+    if(fb().textContent.indexOf("ENTIER")<0) vus.push("le message ne réclame pas un entier : "+fb().textContent);
+    if(test.locked) vus.push("une valeur illisible verrouille la question");
+    /* UNE VALEUR VIDE : la porte la redemande */
+    A().value=""; A().dispatchEvent(new Event("input",{bubbles:true})); checkPCV();
+    if(fb().textContent.indexOf("manque")<0) vus.push("le message ne redemande pas la valeur manquante : "+fb().textContent);
+    if(pred().indexOf(String(q.va))>=0) vus.push("la phrase garde l’ancienne valeur alors que la case est vide : "+pred());
+    /* LA PHRASE SUIT : c’est le risque propre, et il est silencieux */
+    const neuf=q.va+7;
+    A().value=String(neuf); A().dispatchEvent(new Event("input",{bubbles:true}));
+    if(pred().indexOf(String(neuf))<0) vus.push("la phrase de prédiction ne suit pas la valeur écrite : "+pred());
+    const a=pcvAns(q,neuf,q.vb);
+    S().value=a.somme; Pp().value=a.produit; checkPCV();
+    if(!S().classList.contains("ok")||!Pp().classList.contains("ok")) vus.push("la copie juste sur les valeurs CHANGÉES est refusée : "+S().className+" / "+Pp().className);
+    if(test.score!==2) vus.push("note "+test.score+" au lieu de 2");
+    pcvExecuter();
+    const cons=document.getElementById("pcvConsole").textContent;
+    if(cons.indexOf("La somme de "+neuf+" et "+q.vb)<0) vus.push("la console n’exécute pas le programme aux valeurs de l’élève : "+JSON.stringify(cons));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5 bis. la reprise d'une pause : la phrase suit les valeurs RESTAURÉES ---- */
+  verifierEval(w, 'après une reprise de pause, la phrase de prédiction suit les valeurs RESTAURÉES : restoreBoxes() pose « .value » sans lever d’événement, et la phrase dirait sinon les valeurs d’origine devant un programme qui en porte d’autres', `(function(){
+    currentMode="train"; startPCV(); test.idx=1; renderPCV();
+    const vus=[], q=test.questions[1], neuf=q.va+3;
+    /* le chemin EXACT de la reprise : l’écran est rendu, puis les cases sont
+       remplies sans qu’aucun événement ne parte */
+    restoreBoxes({"pcv-a":String(neuf)});
+    pcvRendrePred();
+    const pred=document.getElementById("pcvPred").textContent;
+    if(pred.indexOf("de "+neuf+" et "+q.vb)<0) vus.push("la phrase ne suit pas la valeur restaurée : "+pred);
+    if(pred.indexOf("de "+q.va+" et")>=0) vus.push("la phrase garde la valeur d’origine : "+pred);
+    /* le garde de signature : rappelée pour rien, elle ne reprend pas le focus */
+    const avant=document.getElementById("pcv-s");
+    pcvRendrePred();
+    if(document.getElementById("pcv-s")!==avant) vus.push("la phrase se reconstruit alors que rien n’a changé : elle reprendrait le focus de l’élève");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+  /* ET LE RENDU BRANCHE BIEN CES DEUX REGARDS — sans eux, la fonction est
+     juste et personne ne l'appelle après la restauration. On le lit dans la
+     SOURCE de la page : les rendus sont ENVELOPPÉS par la greffe des jetons,
+     et la chaîne d'une enveloppe parle d'autre chose (le piège du 2.14). */
+  const srcPage = lire(CIBLE);
+  const corpsPcv = (corpsFonctions(srcPage, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o => o.nom === 'renderPCV') || {}).texte || '';
+  verifier('et renderPCV BRANCHE ces deux regards : sans eux la phrase serait juste et personne ne la replacerait après la restauration',
+    corpsPcv.indexOf('setTimeout(pcvRendrePred,0)') >= 0 && corpsPcv.indexOf('setTimeout(pcvRendrePred,120)') >= 0,
+    corpsPcv ? (corpsPcv.indexOf('setTimeout(pcvRendrePred') < 0 ? 'aucun regard différé dans renderPCV' : 'un seul regard') : 'renderPCV introuvable dans la source');
+
+  /* ---- 6. la valeur n'est jamais presque bonne, la case vide jamais peinte ---- */
+  verifierEval(w, 'la valeur n’est jamais presque bonne — un chiffre de trop est FAUX, les espaces ne comptent pas —, chaque case se juge SEULE, et une case laissée vide n’est jamais peinte : la vérification la redemande sans rien colorer ni verrouiller', `(function(){
+    const vus=[];
+    const poser=function(mode,s,p){ currentMode=mode; startPCV(); const a=pcvAns(test.questions[0],6,5);
+      document.getElementById("pcv-s").value=s; document.getElementById("pcv-p").value=p; checkPCV(); return a; };
+    /* la case vide, dans les DEUX modes */
+    ["train","soutien"].forEach(function(m){
+      const a=poser(m,"11","");
+      const s=document.getElementById("pcv-s"), p=document.getElementById("pcv-p");
+      if(/ok|bad/.test(s.className)||/ok|bad/.test(p.className)) vus.push(m+" : la copie à case vide est peinte — "+s.className+" / "+p.className);
+      if(test.locked) vus.push(m+" : la copie à case vide verrouille la question");
+      if(test.score!==0) vus.push(m+" : la copie à case vide compte "+test.score);
+      if(document.getElementById("pcvFeedback").textContent.indexOf("manque")<0) vus.push(m+" : le message ne redemande pas la case vide");
+      if(p.nextElementSibling&&p.nextElementSibling.classList&&p.nextElementSibling.classList.contains("mf-cor")) vus.push(m+" : la case vide reçoit une correction avant d’être jugée");
+    });
+    /* un chiffre de trop, ou un espace : la valeur exacte et elle seule */
+    [["110","30",1],["11","300",1],[" 11 "," 30 ",2],["11.0","30",1],["11","30",2]].forEach(function(c){
+      poser("train",c[0],c[1]);
+      if(test.score!==c[2]) vus.push("« "+c[0]+" » / « "+c[1]+" » vaut "+test.score+" au lieu de "+c[2]);
+    });
+    /* CHAQUE CASE SE JUGE SEULE, et la fausse reçoit la bonne en vert */
+    poser("train","110","30");
+    const s=document.getElementById("pcv-s"), p=document.getElementById("pcv-p");
+    if(!s.classList.contains("bad")) vus.push("la case fausse n’est pas rouge : "+s.className);
+    if(!p.classList.contains("ok")) vus.push("la case juste d’à côté ne reste pas bleue : "+p.className);
+    const b=s.nextElementSibling;
+    if(!b||!b.classList.contains("mf-cor")||b.textContent!=="11") vus.push("la bonne valeur n’est pas écrite en vert à côté de la case fausse : "+(b&&b.textContent));
+    if(p.nextElementSibling&&p.nextElementSibling.classList&&p.nextElementSibling.classList.contains("mf-cor")) vus.push("la case juste reçoit elle aussi une correction");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. le soutien : il ne révèle rien, et « Exécuter » attend une copie juste ---- */
+  verifierEval(w, 'en soutien : la case fausse rougit SANS que la bonne valeur ne s’écrive, rien n’est verrouillé, « Revérifier » est proposé et « Exécuter » reste fermé ; la copie corrigée vaut 2 et le débloque', `(function(){
+    currentMode="soutien"; startPCV();
+    const vus=[], a=pcvAns(test.questions[0],6,5);
+    const s=document.getElementById("pcv-s"), p=document.getElementById("pcv-p");
+    s.value="110"; p.value=a.produit; checkPCV();
+    if(!s.classList.contains("bad")) vus.push("la case fausse n’est pas rouge : "+s.className);
+    if(s.nextElementSibling&&s.nextElementSibling.classList&&s.nextElementSibling.classList.contains("mf-cor")) vus.push("le soutien écrit la bonne valeur à côté");
+    if(document.getElementById("pcvFeedback").textContent.indexOf(a.somme)>=0) vus.push("le message du soutien donne la réponse");
+    if(test.locked) vus.push("le soutien verrouille une copie fausse");
+    if(!document.getElementById("pcvRun").disabled) vus.push("« Exécuter » se débloque sur une copie fausse : la sortie EST la réponse");
+    const v=document.getElementById("pcvValidate");
+    if(!v||v.textContent.indexOf("Revérifier")<0) vus.push("« Revérifier » n’est pas proposé : "+(v&&v.textContent));
+    s.value=a.somme; s.dispatchEvent(new Event("input",{bubbles:true}));
+    if(/ok|bad/.test(s.className)) vus.push("le rouge ne s’en va pas à la frappe : "+s.className);
+    checkPCV();
+    if(test.score!==2) vus.push("note "+test.score+" au lieu de 2 après correction");
+    if(document.getElementById("pcvRun").disabled) vus.push("« Exécuter » reste fermé après une copie juste");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. la place au menu ---- */
+  verifierEval(w, 'il FERME le thème 5, numéroté 5.11 après {python-tableau-valeurs} — et rien d’autre ne bouge', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("l’exercice ne ferme pas le thème : "+(th&&th.ids.join(",")));
+    if(!th||th.ids[th.ids.length-2]!=="python-tableau-valeurs") vus.push("il ne suit pas {python-tableau-valeurs} : "+(th&&th.ids.join(",")));
+    if(TEST_NUM["${ID}"]!=="5.11") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-deux-lignes"]!=="5.8"||TEST_NUM["python-placer-variables"]!=="5.9"||TEST_NUM["python-tableau-valeurs"]!=="5.10"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. les branchements ---- */
+  verifierEval(w, 'les branchements : le bouton des tables est LÀ — le produit est un calcul de table, et c’est le seul exercice Python qui l’ait —, le rappel dit la variable qui reçoit un calcul, les questions à l’IA sont les siennes, le contexte porte le programme et déclare les réponses secrètes, et aucune correction au fil de la frappe', `(function(){
+    const vus=[];
+    currentTestId="${ID}"; currentMode="train"; startPCV();
+    if(TABLES_SANS.indexOf("${ID}")>=0) vus.push("l’exercice est dans TABLES_SANS alors que « produit = a * b » est un calcul de table");
+    if(!tablesBtnHTML()) vus.push("le bouton des tables n’est pas proposé");
+    const rap=RAPPELS["pcv"]||"";
+    if(!rap) vus.push("pas de rappel de cours");
+    if(rap.indexOf(String.fromCharCode(92))>=0) vus.push("le rappel écrit du LaTeX alors que rien n’y empile");
+    if(rap.indexOf("somme = a + b")<0||rap.indexOf("produit = a * b")<0) vus.push("le rappel ne montre pas les deux calculs");
+    if(!/chang/i.test(rap)) vus.push("le rappel ne dit pas ce qui se passe quand on change une valeur");
+    const qia=QIA_SUGG["pcv"]||[];
+    if(qia.length<3) vus.push("les questions à l’IA : "+qia.length);
+    const q=test.questions[0], c=ctxPcv(q).contexte;
+    if(c.indexOf("somme = a + b")<0) vus.push("le contexte ne porte pas le programme");
+    if(c.indexOf("SECR")<0) vus.push("le contexte ne déclare pas les réponses secrètes");
+    if(c.indexOf("11")<0||c.indexOf("30")<0) vus.push("le contexte ne porte pas les réponses attendues");
+    /* AUCUNE CORRECTION AU FIL DE LA FRAPPE : checkPCV(true) ne juge rien.
+       La copie doit être ENTIÈRE pour que le bord soit atteignable — une case
+       vide arrête la vérification avant toute peinture, et le sabotage
+       resterait vert en parlant d'autre chose (la leçon du sabotage
+       impossible) — et en SOUTIEN, le seul mode où une correction en direct
+       existerait. */
+    currentMode="soutien"; startPCV();
+    const att=pcvAns(test.questions[0],6,5);
+    document.getElementById("pcv-s").value="999";
+    document.getElementById("pcv-p").value=att.produit;
+    checkPCV(true);
+    const cs=document.getElementById("pcv-s"), cp=document.getElementById("pcv-p");
+    if(/ok|bad/.test(cs.className)||/ok|bad/.test(cp.className)) vus.push("une correction au fil de la frappe peint les cases : "+cs.className+" / "+cp.className);
+    if(test.score!==0) vus.push("une correction au fil de la frappe compte des points : "+test.score);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 10. l'interpréteur contre un vrai CPython ---- */
+  const nomPy = 'les programmes de {python-changer-valeurs} — la fiche et les valeurs que l\'élève peut écrire — donnent la sortie d\'un vrai CPython';
+  const progs = evaluer(w, `(function(){ const o=[];
+    for(let i=0;i<40;i++) pcvBuildQuestions().forEach(function(q){
+      o.push(pcvProg(q,q.va,q.vb));
+      [[12,7],[-3,0],[0,0],[9999,9999],[-9999,-9999],[1,-1]].forEach(function(v){ o.push(pcvProg(q,v[0],v[1])); });
+    });
+    return JSON.stringify(o); })()`);
+  const tires = progs.ok ? JSON.parse(progs.valeur) : [];
+  verifier('le tirage de {python-changer-valeurs} fournit des programmes à comparer', tires.length >= 500, tires.length + ' programme(s)');
+  const lirePage = ps => {
+    const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(ps) + '.map(function(p){ try{ return pyRun(p).out; }catch(e){ return "ERREUR:"+e.message; } }))');
+    return r.ok ? JSON.parse(r.valeur) : null;
+  };
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    let ref = null; try{ ref = pythonExecuter(py, tires); }catch(e){ ref = null; }
+    if(!ref || ref.length !== tires.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); }
+    else {
+      const mien = lirePage(tires) || [], ecarts = [];
+      tires.forEach((p, i) => { if(mien[i] !== ref[i]) ecarts.push(JSON.stringify(p.split('\n')[0] + ' / ' + p.split('\n')[1]) + ' : page ' + JSON.stringify(mien[i]) + ' / CPython ' + JSON.stringify(ref[i])); });
+      /* le premier programme tiré EST celui de la fiche, et sa sortie est
+         celle que tests/profils.js épingle : une page et un CPython d'accord
+         sur un texte faux diraient faux ensemble */
+      if(ref[0] !== F.sortie) ecarts.push('CPython n\'affiche pas la sortie épinglée de la fiche : ' + JSON.stringify(ref[0]));
+      verifier(nomPy + ' (' + tires.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
     }
   }
 }
