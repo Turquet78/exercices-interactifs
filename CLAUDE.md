@@ -3487,6 +3487,140 @@ sur un bouton disparu (« Cannot read properties of null ») au lieu de nommer
 quoi que ce soit — un contrôle qui plante ne dit rien du défaut visé, et il
 garde son bouton désormais.
 
+**Le print est écrit en entier, et seuls les NOMS des variables manquent.**
+{python-placer-variables} (Seconde, 5.9, demande de Turquet, septembre 2026 :
+« créer un exercice comme le pdf ») est l'exercice 10 du carnet, et il FERME
+le thème 5 — ajouté en dernier, il ne renumérote rien. « On considère la
+variable prenom="Mathéo" et la variable note=14. Compléter LOGIQUEMENT avec
+les noms des variables note et prenom le programme ci-dessous et l'exécuter. »
+Le programme est donné entier, print compris ; l'élève ne tape que les noms,
+dans les trous de `print("la note de ", …, " est de ", …, "sur 20")`.
+**CE QU'IL AJOUTE AUX AUTRES EST LA LECTURE** : le 5.1 fait PRÉDIRE ce qu'un
+print affiche, le 5.7 et le 5.8 font ÉCRIRE la ligne entière ; ici la ligne est
+écrite, et ce qui se travaille n'est plus la forme de print — les guillemets,
+la virgule, les parenthèses — mais le TEXTE juste avant une case, qui dit
+laquelle des variables on attend là.
+**LE RISQUE PROPRE EST L'INTERVERSION, ET ELLE EST SILENCIEUSE** : deux
+variables échangées donnent un programme qui s'exécute SANS la moindre erreur
+et qui affiche « la note de  14  est de  Mathéo sur 20 ». Rien ne rougit côté
+Python — c'est la PHRASE qui n'a plus de sens, et c'est exactement pourquoi la
+fiche demande de l'exécuter. La chaîne des portes est donc celle de la fiche
+(compléter, EXÉCUTER, puis vérifier — le motif du 5.7), et exécuter ne révèle
+rien que l'élève n'ait posé : il LIT la phrase que ses variables produisent.
+**LE DIAGNOSTIC NE DONNE JAMAIS LA RÉPONSE, et c'est ce qui le sépare de celui
+du 5.8** : là-bas la consigne nomme déjà la variable de chaque ligne, ici elle
+EST la réponse. L'interversion se nomme donc par son fait prouvable — « à cet
+endroit il affiche « 14 », juste après « la note de » » — et jamais par la
+variable attendue ; les autres refus, qui portent sur l'ÉCRITURE et non sur le
+choix, disent tout : la valeur recopiée à la main, le nom entre guillemets, la
+majuscule, la variable inconnue, le calcul, la virgule dans la case. Le contrôle
+exige ce bord sur chaque tirage, SAUF là où le texte de l'énoncé nomme
+lui-même la variable (« ans, taille : » annonce taille) — c'est l'énoncé qui le
+veut, et le taire aurait fait rougir une page juste.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ** : les variables et leurs valeurs
+viennent de PY_JEUX — le jeu partagé avec le 5.1, le 5.7 et le 5.8 —,
+l'interpréteur est pyRun, la coloration pyColorie, l'écriture des valeurs
+pyRep, le cadre et les numéros du programme ceux du 5.7 (pyx-prog, pyx-ligne,
+pyx-num). Les PHRASES, elles, sont propres à l'exercice : les libellés de
+PY_JEUX nomment une variable isolée, quand il faut ici une phrase dont chaque
+morceau annonce le trou qui le suit. Deux par jeu au moins, et elles ne
+commencent pas par la même variable — sans quoi l'élève apprendrait le rang au
+lieu de lire (sonde sur 1800 questions tirées : un texte en premier 53 fois sur
+100, un nombre 47).
+**LES TEXTES DE LA FICHE SONT REPRIS AU CARACTÈRE PRÈS, espaces comprises** :
+« la note de » et « est de » y portent leurs espaces de frappe, si bien que
+Python affiche DEUX espaces là où le carnet en a écrit une de trop. C'est ce
+que le carnet donne, c'est ce que l'élève tape chez lui, et la page doit montrer
+ce que Python fait vraiment ; les phrases du tirage, elles, sont écrites
+proprement — l'espace que print met entre deux arguments suffit. Un arbitrage
+nommé, pas un oubli.
+**LE JUGE COMPARE LA VALEUR AFFICHÉE, ET EXIGE UNE VARIABLE** : chaque case est
+exécutée SEULE — les affectations, puis print(ce que la case porte) — et sa
+valeur doit être celle qu'on attend à cet endroit ; le jeton doit être un NOM
+nu, sans quoi « 14 » recopié à la main afficherait la bonne chose sans rien
+apprendre (la leçon du 5.7). Juger sur la VALEUR et non sur le nom est ce qui
+rend le verdict honnête : deux variables de même valeur seraient toutes deux
+défendables, et la page les accepterait toutes deux.
+**ET C'EST LE CONTRÔLE QUI EXIGE QUE LE TIRAGE LES GARDE DISTINCTES** : un garde
+n'y écarterait JAMAIS rien — un entier, un décimal à décimale non nulle et un
+texte ne s'écrivent jamais pareil (0 sur 2400 questions mesurées) — et un
+garde-fou qui n'écarte rien fait croire qu'on vérifie quelque chose. Le banc
+exige de même, tirage après tirage, qu'un texte précède chaque trou et que
+chaque variable du programme paraisse exactement une fois dans la phrase : sans
+le premier, rien ne dirait quelle variable on attend ; sans le second, l'énoncé
+parlerait d'une variable qu'il n'a pas.
+Une case VIDE n'est jamais peinte : la vérification la redemande, sans rien
+colorer ni verrouiller (la règle de {placer-image}) — et le programme incomplet,
+lui, ne s'exécute pas : la console montre l'erreur de Python et l'indication dit
+combien de cases manquent. Aucune correction au fil de la frappe
+(`soutienEnDirect.sans`) : un nom se juge écrit, pas lettre par lettre — « not »
+serait déclaré faux le temps de taper « note ».
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée — si elle
+ne passe pas au juge, c'est le juge qui a tort —, le tirage (400 séances), le
+juge et son diagnostic cas par cas, les portes, la case vide, le soutien, les
+branchements, et compare l'interpréteur à un vrai python3 sur 807 programmes,
+l'INTERVERSION comprise : un programme que CPython accepte doit être accepté par
+la page, et c'est là tout le piège. Le NAVIGATEUR (« 6 tricies octies », déclaré
+par `pythonPlacerVariables` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — la ligne de print RENDUE d'un seul tenant, ses cases à la chasse et à la
+taille du code qui les entoure, un VRAI clic sur « Vérifier » fermé qui ne juge
+rien, les noms TAPÉS au clavier (Entrée exécute), la console qui montre la phrase
+intervertie sans la moindre erreur, l'encre RENDUE des deux verdicts sur la même
+question (l'une bleue, l'autre rouge : c'est la règle « chaque case se juge
+seule », et seule une couleur rendue la montre), la bonne variable en VERT à côté
+de la case fausse, et le téléphone, où la ligne DÉFILE au lieu d'être coupée. Les
+contrôles universels des deux bancs ont couvert l'exercice au premier passage
+sans rien déclarer.
+
+**ET LA CASE A LA PLACE DU NOM LE PLUS LONG — la leçon du 5.5, reprise avant
+qu'elle ne coûte quoi que ce soit** : sa largeur se pose en « ch », et la page
+étant en `box-sizing:border-box` ces ch comprendraient le rembourrage et la
+bordure. Mesuré dans un vrai Chromium : 81 px de place pour un nom de 60,4 px
+en `content-box` (20,6 px de marge), 65 px en border-box (4,6 px). La page ne
+coupait donc RIEN — le sabotage du box-sizing reste vert et dit vrai —, mais
+elle ne tenait que par ces 4,6 px : en content-box, les ch redeviennent la
+place du TEXTE. Le banc navigateur mesure le nom au CANEVAS, dans la police
+EFFECTIVE de la case (la mesure du 6.3), et AFFICHE la marge la plus serrée à
+chaque exécution : une police ou un nom plus long la verront fondre avant de
+la faire rougir.
+
+**Vingt-cinq sabotages, vingt-trois rougissant en nommant leur défaut** —
+dix-neuf au banc jsdom (le juge qui n'exige plus la bonne valeur, celui qui n'exige plus
+une VARIABLE, le diagnostic qui donne la réponse, un texte de la fiche changé,
+la case vide peinte, la bonne variable qui fuit en soutien, « Vérifier »
+cliquable d'emblée, les trois jeux tirés avec remise, la fiche qui n'ouvre plus
+la séance, deux variables de même valeur, un trou sans texte devant lui, une
+phrase qui perd une variable, le contexte sans clause de secret, l'exercice
+sorti du thème, le bouton des tables revenu, le soutien qui juge à la frappe, le
+rappel qui n'enseigne plus l'interversion, une case qui cesse d'être comptée,
+les cases jugées ENSEMBLE) et quatre que seul le NAVIGATEUR voit — la chasse
+fixe retirée des cases, la ligne de print qui se REPLIE au lieu de défiler, la
+bonne variable posée SOUS la case au lieu d'à côté, et la cellule rétrécie, où
+la ligne ne tient plus à 1400 px —, jsdom restant vert à bon droit sur ces
+quatre-là.
+**LES DEUX VERTS DISENT VRAI, et chacun apprend quelque chose.** Le box-sizing
+de la case, ci-dessus : la page ne coupait rien, elle ne tenait qu'à 4,6 px près.
+Et le profil qui cesse de déclarer l'exercice ne fait pas rougir le banc jsdom,
+il le fait s'afficher « non applicable » — c'est la convention du projet (« un
+contrôle qui ne s'applique pas se déclare, il ne se retire pas »), la ligne est
+IMPRIMÉE à chaque exécution, et les contrôles universels couvrent l'exercice
+quoi qu'il arrive.
+**Quatre leçons de campagne, toutes déjà écrites ailleurs et toutes repayées
+ici.** Quatre sabotages se sont posés sur des lignes que le 5.8 porte AU
+CARACTÈRE PRÈS — la garde des cases vides, la branche du soutien, la ligne de
+`pyvMaj`, la peinture des verdicts : un sabotage se pose sur une ancre PROPRE à
+sa cible, et le mot « case » (le 5.8 dit « ligne ») suffit à la rendre unique.
+Un cinquième était écrit avec des apostrophes TYPOGRAPHIQUES : il posait un
+texte littéral au lieu d'interpoler la variable, et ne mesurait rien. Un sixième
+était IMPOSSIBLE — il retirait de `checkPYV` un garde que rien n'atteint, quand
+le contrôle mesure le BRANCHEMENT dans `liveCheckCurrent` ; rejoué là, il
+rougit.
+**Et le dernier a frappé le VOISIN, exactement comme le 5.6 en son temps** :
+`checkPYV` contient `checkPY`, et le contrôle du 5.1 — dont l'ancre était le
+nom NU — rougissait sous SON nom pour un défaut du 5.9. Son ancre vise
+désormais l'APPEL, parenthèse comprise. Un contrôle qui s'affiche sous le nom
+d'un autre est pire qu'un contrôle sans nom.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
@@ -6809,6 +6943,70 @@ quatre cents pixels. Il mesure maintenant POINTEUR ENCORE ENFONCÉ.
 « Question à l'IA » s'ouvrent dans une fenêtre indépendante et leur carte y est
 déplacée. `document.getElementById` ne les trouve plus : la fonction `$` doit
 chercher aussi dans `window.__fenetresDetachees`.
+
+**Une fenêtre d'aide FERMÉE doit se rouvrir — et « est-elle fermée ? » n'a pas
+de réponse au moment où on la pose.** Signalé par Turquet (septembre 2026) sur
+le 6.14 : « quand je clique sur soutien et que je ferme la fenêtre, impossible
+de la rouvrir, même chose pour question à l'IA. Peut-être que ce problème se
+retrouve ailleurs. » Il s'y retrouvait, et la sonde l'a MESURÉ avant qu'on ne
+touche à quoi que ce soit : les CINQ fenêtres détachables des TROIS niveaux — la
+Question à l'IA partout, le Soutien en Première et en Terminale — perdaient leur
+carte, sur n'importe quel exercice et pas seulement le 6.14.
+**LA CARTE EST DÉPLACÉE, elle n'est pas recopiée** : détacher, c'est
+`adoptNode` — la page n'a plus sa carte, la fenêtre l'a. Fermée sans la rendre,
+elle l'emporte ; `ouvrirSoutien` ne trouve alors plus rien à détacher et
+l'écran montre une fenêtre VIDE, sans la moindre erreur nulle part.
+**LA CAUSE EST UN MOMENT.** Au `pagehide`, la page demandait « la fenêtre
+est-elle fermée ? » un tick plus tard, et ne rapatriait la carte que si la
+réponse était oui. Or `window.closed` ne bascule qu'une fois le contexte
+détruit : mesuré ENCORE à false un tick après la croix du système, et déjà à
+true après un `close()` programmé — le bouton ✕ de la carte marchait donc, par
+chance, et la croix perdait la carte. **On ne suppose plus rien du MOMENT** : la
+carte revient dans la page SYNCHRONIQUEMENT, dans le `pagehide` lui-même, où
+tout est encore atteignable. Et le remplacement de document (vieux Firefox) se
+reconnaît à un document DIFFÉRENT, jamais à « closed », qui ment ici dans les
+deux sens.
+**LE SECOND BORD EST UN FILET, et il tient quelle que soit la cause** : la carte
+est PRÊTÉE à la fenêtre, donc sa référence vit AUSSI sur le conteneur, qui est
+dans la page et ne ferme jamais. `ramenerCarte()` la ramène AVANT d'ouvrir —
+ramener une carte d'un document déjà DÉTRUIT fonctionne, mesuré en Chromium — si
+bien qu'un navigateur qui ne lèverait pas `pagehide`, ou une fenêtre que le
+système emporte, ne cassent plus rien. Le bord OPPOSÉ compte autant : on ne
+reprend JAMAIS la carte d'une fenêtre VIVANTE, ce serait la lui prendre sous les
+yeux de l'élève. Et `fermerQIA`/`fermerConseil` la REPRENNENT avant de fermer,
+comme `reattacherFenetres` le faisait déjà : le rapatriement du `pagehide` est un
+filet, pas un plan.
+**Le moteur est le MÊME TEXTE dans les trois fichiers, et rien ne le
+comparait** — il a fallu le corriger dans les trois d'un coup. Six fonctions
+sont comparées au caractère près désormais ; `garnirFenetre` DIVERGE
+volontairement, elle porte les ponts onclick propres à chaque niveau, et c'est
+nommé plutôt que tu.
+**Deux bancs, la répartition habituelle.** jsdom rejoue le MOMENT — `pagehide`
+avec `closed` encore FAUX, le filet d'une fenêtre partie sans rien lever, le
+bord opposé de la fenêtre vivante, et le ✕ qui rend la carte. Le NAVIGATEUR
+rejoue le GESTE (« 6 octies bis », déclaré par `fenetresDetachees` dans
+`tests/profils.js`, deux sources) : une VRAIE fenêtre du système, une vraie
+croix, sur l'exercice SIGNALÉ en Terminale — et il faut un VRAI clic, sans
+activation utilisateur Chromium bloque la pop-up et le contrôle mesurerait le
+repli en page.
+**Et ce contrôle-là s'est pris en défaut avant la page** : son locator prenait
+le PREMIER bouton du document dont l'onclick appelle `conseilCourant` — c'est
+`#cmConseilBtn`, celui du calcul mental, CACHÉ —, le clic expirait sur un
+élément que personne ne voit, et la mesure accusait la page de n'ouvrir aucune
+fenêtre. Une ancre se prend PROPRE à sa cible, sur l'écran VISIBLE ; et le
+bouton est CENTRÉ avant le clic, les commandes du bas étant en position fixe.
+**Sept sabotages, chacun rougissant en nommant son défaut** — six au banc jsdom
+(le rapatriement remis dans un setTimeout, la référence perdue sur le conteneur,
+la carte reprise à une fenêtre vivante, le filet retiré de l'ouverture, le ✕ qui
+ne rend plus la carte, le moteur qui diverge d'un niveau à l'autre) et un au
+NAVIGATEUR, le défaut d'origine remis. **Ce dernier a montré que les deux
+moitiés se répondent** : c'est « fermée, la carte revient dans la page » qui
+rougit, et non « on la rouvre » — le FILET la ramène à l'ouverture même quand le
+rapatriement a échoué, et c'est exactement ce pour quoi il existe. Et deux
+sabotages ont d'abord fait LEVER le contrôle jsdom au lieu de nommer quoi que ce
+soit : privé de sa carte, `ouvrirQIA` va chercher `#qiaSugg`, qui vit DEDANS, et
+meurt sur un null. Un contrôle qui lève ne nomme rien : il attrape, et il dit ce
+qui manque.
 
 **Portage depuis `terminale.html`** — ne jamais extraire par script en filtrant
 sur `function`, `const` et `let` : les affectations comme
