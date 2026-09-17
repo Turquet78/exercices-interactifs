@@ -3601,6 +3601,7 @@ function exercices(suite){
     solutionsGraphique(w, P);
     ecrireSolutions(w, P);
     exercicesBonus(w, P);
+    bonusEcrit(w, P);
     resolutionsGraphiques(w, P);
     tableauSignesGraphique(w, P);
     lectureSignes(w, P);
@@ -14730,6 +14731,133 @@ function exercicesBonus(w, P){
       const l=exercicesDevoir({exercices:[{id:id0,modes:['train'],bonus:true}]});
       if(!l.length||!dmEstBonus(l[0])) vus.push('exercicesDevoir efface le drapeau bonus en normalisant');
     }
+    return vus.slice(0,4).join(' | ');
+  })()`, function(v){ return v===''; });
+}
+/* LE MOT « BONUS » EST ÉCRIT, ET PARTOUT OÙ L'EXERCICE SE MONTRE (demande de
+   Turquet, septembre 2026 : « je veux que l'on écrive bonus pour les exercices
+   qui sont en bonus quand on annonce le dm avec la liste de tous les exercices
+   et quand on fait cet exercice aussi »). L'annonce du devoir ne portait qu'une
+   ÉTOILE — un pictogramme ne dit rien à qui ne connaît pas la convention — et
+   l'écran où l'élève travaille ne disait plus RIEN : il commençait un exercice
+   facultatif sans le savoir, et la page du devoir, elle, l'avait dit.
+   Quatre écrans, et n'en tenir qu'un ne tient rien : l'annonce (la liste des
+   devoirs), la page du devoir, l'écran des modes et l'écran de l'exercice.
+   Le BORD OPPOSÉ compte autant, et il en a deux : l'exercice NORMAL du même
+   devoir ne porte jamais le mot, et un exercice fait HORS devoir non plus —
+   un badge posé sans condition passerait sinon pour un contrôle.
+   ET UN SEUL ENDROIT ÉCRIT LE BADGE DU NOM : le contrôle remplace dmBonusBadge
+   par un jeton et exige que l'annonce, l'écran des modes et l'écran de
+   l'exercice le portent. Deux libellés écrits séparément auraient fini par
+   diverger, et le même exercice se serait dit « bonus » d'un écran à l'autre
+   dans deux mots différents. La page du devoir, elle, écrit le mot dans son
+   badge de BILAN (« Bonus : 0,8 / 1 », « Bonus · à faire ») — il porte la note,
+   qui est sur 1 et non sur 10 : ce n'est pas le même badge, et c'est nommé
+   plutôt que tu. Le bord ci-dessus le tient quand même.
+   L'ÉNONCÉ du circuit papier est tenu par le banc NAVIGATEUR : son titre ne
+   s'écrit qu'APRÈS le tirage, donc après une attente, et jsdom ne mesure ici
+   que ce qui se rend sans minuteur. */
+function bonusEcrit(w, P){
+  const present = evaluer(w, "typeof dmBonusBadge==='function' && typeof dmEstBonus==='function' && typeof renderDevoirsList==='function' && typeof renderDevoirDetail==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le mot « Bonus » est écrit sur l\'annonce du devoir et sur l\'écran de l\'exercice',
+      'ce niveau a bien les exercices bonus, mais n\'écrit pas encore le mot : la demande ne porte que la Terminale');
+    return;
+  }
+  verifierEval(w, 'le mot « Bonus » est écrit sur l\'annonce du devoir et sur l\'écran de l\'exercice', `(function(){
+    const vus=[];
+    const ids=Object.keys(TESTS).filter(function(k){ return TESTS[k] && TESTS[k].start && testNum(k); });
+    if(ids.length<2) return 'moins de deux exercices numérotés : le contrôle ne mesure rien';
+    const B=ids[0], N=ids[1];
+    const sauve={dm:currentDM, id:currentTestId, dev:mesDevoirs, res:mesResultats, el:currentEleve, mode:currentMode, badge:dmBonusBadge};
+    const sauveGenre=(typeof genreEleve!=='undefined')?genreEleve:null;
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; mesResultats=[]; currentMode='train';
+    if(typeof genreEleve!=='undefined') genreEleve='dm';
+    mesDevoirs=[{id:'dev-b', genre:'dm', num:7, actif:true, titre:'Devoir du contrôle', cours:'',
+      exercices:[{id:B, modes:['train'], bonus:true}, {id:N, modes:['train']}]}];
+    const net=function(e){ return e ? (e.textContent||'').replace(/\\s+/g,' ').trim() : ''; };
+    /* Les écrans rendent les exercices DANS L'ORDRE du devoir : le premier est
+       le bonus, le second l'exercice normal. On ne cherche pas le libellé, qui
+       peut être le préfixe de l'autre. */
+    const listeDevoirs=function(){ renderDevoirsList();
+      return Array.prototype.slice.call(document.querySelectorAll('#devoirsBody .dl-ex')); };
+    const pageDevoir=function(){ renderDevoirDetail('dev-b');
+      return Array.prototype.slice.call(document.querySelectorAll('#devoirsBody .choices .choice')); };
+    const ecranExo=function(id, dm){ currentTestId=id; currentDM=dm;
+      try{ show('test'); }catch(e){ return null; }
+      return document.querySelector('#scr-test .exo-title'); };
+    const ecranModes=function(id){
+      /* openTestDevoirModes est asynchrone, mais elle écrit son titre AVANT sa
+         première attente : on l'appelle sans attendre et on lit le titre — le
+         motif du bilan du professeur. La promesse est rattrapée, sinon un rejet
+         (sb absent) ferait tomber le banc en parlant d'autre chose. */
+      try{ const p=openTestDevoirModes('dev-b', id); if(p && p.catch) p.catch(function(){}); }catch(e){}
+      return document.getElementById('modeTitle'); };
+
+    /* ---- 1. L'ANNONCE : la liste des devoirs, avec tous ses exercices ---- */
+    const lignes=listeDevoirs();
+    if(lignes.length!==2){ vus.push(lignes.length+' exercice(s) dans l\\'annonce au lieu de 2'); }
+    else{
+      if(net(lignes[0]).indexOf('Bonus')<0) vus.push('l\\'annonce du devoir n\\'écrit pas « Bonus » : « '+net(lignes[0])+' »');
+      if(net(lignes[1]).indexOf('Bonus')>=0) vus.push('l\\'annonce écrit « Bonus » sur un exercice qui n\\'en est pas un : « '+net(lignes[1])+' »');
+    }
+
+    /* ---- 2. LA PAGE DU DEVOIR ---- */
+    const cartes=pageDevoir();
+    if(cartes.length!==2){ vus.push(cartes.length+' carte(s) sur la page du devoir au lieu de 2'); }
+    else{
+      if(net(cartes[0]).indexOf('Bonus')<0) vus.push('la page du devoir n\\'écrit pas « Bonus » : « '+net(cartes[0]).slice(0,80)+' »');
+      if(net(cartes[1]).indexOf('Bonus')>=0) vus.push('la page du devoir écrit « Bonus » sur un exercice qui n\\'en est pas un');
+    }
+    /* et la MÊME page une fois l'exercice fait : le badge change de branche
+       (« Bonus : 0,8 / 1 » au lieu de « Bonus · à faire »), et le mot doit
+       survivre au changement. Sans ce bord, la moitié « faite » du badge
+       pouvait perdre le mot sans que rien ne rougisse — le sabotage l'a
+       montré en restant vert. */
+    mesResultats=[{eleve_id:'e-controle', percent:80, score:8, total:10,
+      created_at:'2026-09-01T08:00:00Z', details:{test:B, mode:'train', dm:'dev-b'}}];
+    const faites=pageDevoir();
+    if(faites[0] && net(faites[0]).indexOf('Bonus')<0)
+      vus.push('la page du devoir n\\'écrit plus « Bonus » une fois l\\'exercice fait : « '+net(faites[0]).slice(0,80)+' »');
+    const annonceFaite=listeDevoirs();
+    if(annonceFaite[0] && net(annonceFaite[0]).indexOf('Bonus')<0)
+      vus.push('l\\'annonce n\\'écrit plus « Bonus » une fois l\\'exercice fait : « '+net(annonceFaite[0])+' »');
+    mesResultats=[];
+
+    /* ---- 3. L'ÉCRAN DES MODES ---- */
+    const mt=ecranModes(B);
+    if(!mt) vus.push('aucun titre sur l\\'écran des modes');
+    else if(net(mt).indexOf('Bonus')<0) vus.push('l\\'écran des modes n\\'écrit pas « Bonus » : « '+net(mt)+' »');
+    const mt2=ecranModes(N);
+    if(mt2 && net(mt2).indexOf('Bonus')>=0) vus.push('l\\'écran des modes écrit « Bonus » sur un exercice qui n\\'en est pas un');
+
+    /* ---- 4. L'ÉCRAN DE L'EXERCICE, et ses DEUX bords opposés ---- */
+    const p1=ecranExo(B,'dev-b');
+    if(!p1) vus.push('aucune pastille en tête de l\\'écran d\\'exercice');
+    else if(net(p1).indexOf('Bonus')<0) vus.push('l\\'écran où l\\'élève fait l\\'exercice n\\'écrit pas « Bonus » : « '+net(p1)+' »');
+    const p2=ecranExo(N,'dev-b');
+    if(p2 && net(p2).indexOf('Bonus')>=0) vus.push('l\\'écran d\\'exercice écrit « Bonus » sur un exercice normal du même devoir');
+    const p3=ecranExo(B,null);
+    if(p3 && net(p3).indexOf('Bonus')>=0) vus.push('un exercice fait HORS devoir porte quand même « Bonus »');
+    /* et la pastille garde ce qu'elle disait : numéro et nom */
+    const p4=ecranExo(B,'dev-b');
+    if(p4 && (!p4.querySelector('.exo-num')||!p4.querySelector('.exo-name')))
+      vus.push('le badge a chassé le numéro ou le nom de la pastille');
+
+    /* ---- 5. UN SEUL ENDROIT L'ÉCRIT ---- */
+    dmBonusBadge=function(){ return '<span class="dm-bonus">JETON-DU-CONTROLE</span>'; };
+    const jeton=function(e){ return net(e).indexOf('JETON-DU-CONTROLE')>=0; };
+    const l2=listeDevoirs(), m2=ecranModes(B), e2=ecranExo(B,'dev-b');
+    const sans=[];
+    if(!(l2[0]&&jeton(l2[0]))) sans.push('l\\'annonce du devoir');
+    if(!(m2&&jeton(m2))) sans.push('l\\'écran des modes');
+    if(!(e2&&jeton(e2))) sans.push('l\\'écran de l\\'exercice');
+    if(sans.length) vus.push('le mot n\\'est pas écrit à UN SEUL endroit : '+sans.join(', ')+' l\\'écri(ven)t de leur côté');
+
+    dmBonusBadge=sauve.badge;
+    currentDM=sauve.dm; currentTestId=sauve.id; mesDevoirs=sauve.dev;
+    mesResultats=sauve.res; currentEleve=sauve.el; currentMode=sauve.mode;
+    if(sauveGenre!==null) genreEleve=sauveGenre;
     return vus.slice(0,4).join(' | ');
   })()`, function(v){ return v===''; });
 }

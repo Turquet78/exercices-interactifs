@@ -1841,6 +1841,110 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 sexies bis. LE MOT « BONUS » EST ÉCRIT, ET IL SE VOIT =====
+       Demande de Turquet (septembre 2026) : « je veux que l'on écrive bonus
+       pour les exercices qui sont en bonus quand on annonce le dm avec la
+       liste de tous les exercices et quand on fait cet exercice aussi ».
+       Le banc jsdom tient le DOM — le mot est là, sur le bon exercice et sur
+       lui seul, écrit à un seul endroit. Il ne peut pas tenir deux choses :
+       le badge RENDU (une règle CSS perdue le rendrait invisible sans qu'une
+       erreur ne se lève, le piège déjà payé sur les images du 2.20) et le
+       TRAJET entier — l'énoncé du circuit papier, dont le titre ne s'écrit
+       qu'APRÈS le tirage, donc après une attente que jsdom ne franchit pas.
+       Le bord OPPOSÉ est mesuré dans le même trajet : l'exercice NORMAL du
+       même devoir ne porte jamais le badge, nulle part. */
+    titre('6 sexies bis. LE MOT « BONUS » : L\'ANNONCE DU DEVOIR, ET L\'ÉCRAN OÙ ON LE FAIT');
+    if(!P.bonusEcrit){
+      ignorer('le mot « Bonus » se voit sur l\'annonce du devoir et sur l\'écran de l\'exercice',
+        'ce niveau a bien les exercices bonus, mais n\'écrit pas encore le mot : la demande ne porte que la Terminale');
+    } else {
+      const BO = P.bonusEcrit;
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      /* un devoir de DEUX exercices : le premier coché bonus, le second non */
+      await s.page.evaluate(o => {
+        window.__faux.tables[o.table] = [{ id:1, valeurs:{ devoirs:[
+          { id:'dm-bonus', num:9, actif:true, titre:'Devoir du banc', cours:'',
+            exercices:[{ id:o.bonus, modes:['train'], bonus:true },
+                       { id:o.normal, modes:['train'] }] }] } }];
+      }, { table:BO.table, bonus:BO.bonus, normal:BO.normal });
+
+      /* La mesure d'un badge : son texte, sa BOÎTE et son encre RÉSOLUE — on ne
+         se contente jamais de la balise, qu'un display:none laisserait en
+         place. */
+      const badge = sel => s.page.evaluate(q => {
+        const e = document.querySelector(q);
+        if(!e) return null;
+        const r = e.getBoundingClientRect();
+        return { mot:(e.textContent || '').replace(/\s+/g, ' ').trim(),
+                 l:Math.round(r.width), h:Math.round(r.height) };
+      }, sel);
+      const vu = b => !!b && b.l > 0 && b.h > 0;
+
+      /* L'ANNONCE : la liste des devoirs, avec tous ses exercices. */
+      const annonce = await s.page.evaluate(async () => {
+        await openDevoirsEleve();
+        await new Promise(r => setTimeout(r, 400));
+        return [...document.querySelectorAll('#devoirsBody .dl-ex')]
+          .map(e => (e.textContent || '').replace(/\s+/g, ' ').trim());
+      });
+      verifier('l\'annonce du devoir liste bien ses deux exercices', annonce.length === 2,
+        annonce.length + ' ligne(s) : ' + annonce.join(' ¦ ').slice(0, 140));
+      const bAnnonce = await badge('#devoirsBody .dl-ex .dm-bonus');
+      verifier('l\'annonce du devoir ÉCRIT « ' + BO.mot +' », et on le voit',
+        vu(bAnnonce) && bAnnonce.mot.indexOf(BO.mot) >= 0,
+        bAnnonce ? 'badge « ' + bAnnonce.mot + ' » de ' + bAnnonce.l + '×' + bAnnonce.h + ' px'
+                 : 'aucun badge .dm-bonus dans l\'annonce — l\'élève lit : ' + annonce.join(' ¦ ').slice(0, 120));
+      verifier('et l\'exercice qui n\'est pas un bonus ne le porte pas',
+        annonce.length === 2 && annonce[1].indexOf(BO.mot) < 0,
+        'la seconde ligne dit : ' + (annonce[1] || '(aucune)'));
+
+      /* LE TRAJET : énoncé du circuit papier, écran des modes, écran de travail. */
+      await s.page.evaluate(() => ouvrirDevoirDetail('dm-bonus'));
+      await s.page.waitForTimeout(600);
+      await s.page.evaluate(o => openTestDevoir('dm-bonus', o.bonus), { bonus:BO.bonus });
+      await s.page.waitForTimeout(2000);
+      const surEnonce = await s.page.evaluate(() => {
+        const e = document.querySelector('.screen.on'); return e ? e.id : '(aucun)'; });
+      verifier('l\'exercice du devoir s\'ouvre sur son énoncé complet', surEnonce === 'scr-dmenonce',
+        'écran affiché : ' + surEnonce);
+      const bEnonce = await badge('#dmeTitre .dm-bonus');
+      verifier('l\'énoncé du devoir dit que l\'exercice est un bonus',
+        vu(bEnonce) && bEnonce.mot.indexOf(BO.mot) >= 0,
+        bEnonce ? 'badge de ' + bEnonce.l + '×' + bEnonce.h + ' px' : 'aucun badge dans le titre de l\'énoncé');
+
+      await s.page.click('#dmeOrdiBtn');
+      await s.page.waitForTimeout(900);
+      const bModes = await badge('#modeTitle .dm-bonus');
+      verifier('l\'écran des modes le dit aussi',
+        vu(bModes) && bModes.mot.indexOf(BO.mot) >= 0,
+        bModes ? 'badge de ' + bModes.l + '×' + bModes.h + ' px' : 'aucun badge dans le titre des modes');
+
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1200);
+      const bExo = await badge('.screen.on .exo-title .dm-bonus');
+      const pastille = await s.page.evaluate(() => {
+        const t = document.querySelector('.screen.on .exo-title');
+        return t ? (t.textContent || '').replace(/\s+/g, ' ').trim() : '(aucune pastille)'; });
+      verifier('et l\'écran où l\'élève FAIT l\'exercice le dit encore',
+        vu(bExo) && bExo.mot.indexOf(BO.mot) >= 0,
+        'la pastille dit : « ' + pastille + ' »');
+      verifier('le badge n\'a chassé ni le numéro ni le nom de l\'exercice',
+        /\S/.test(pastille) && pastille.replace(bExo ? bExo.mot : '', '').trim().length > 2,
+        'la pastille dit : « ' + pastille + ' »');
+
+      /* LE BORD OPPOSÉ, dans le même trajet. */
+      await s.page.evaluate(o => lancerDevoirExo('dm-bonus', o.normal, 'train'), { normal:BO.normal });
+      await s.page.waitForTimeout(1200);
+      const bNormal = await badge('.screen.on .exo-title .dm-bonus');
+      const pastille2 = await s.page.evaluate(() => {
+        const t = document.querySelector('.screen.on .exo-title');
+        return t ? (t.textContent || '').replace(/\s+/g, ' ').trim() : '(aucune pastille)'; });
+      verifier('un exercice normal du même devoir ne porte jamais le badge', !bNormal,
+        'la pastille dit : « ' + pastille2 + ' »');
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quindecies. Le professeur POSE une note sur un devoir ===== */
     /* Turquet doit pouvoir corriger la note d'un exercice pour un élève. Le
        banc principal éprouve le CALCUL — la note posée remplace, elle est

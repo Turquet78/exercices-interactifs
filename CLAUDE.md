@@ -4983,6 +4983,65 @@ l'écran, sans que rien ne le dise. Le défaut ne s'écrit jamais dans le JSON (
 devoir sans bonus garde exactement la forme qu'il avait avant que le réglage
 n'existe). Onze sabotages, chacun rougissant en nommant son défaut.
 
+**Puis le mot « BONUS » s'est ÉCRIT, et partout où l'exercice se montre.**
+Demande de Turquet (septembre 2026, Terminale) : « je veux que l'on écrive
+bonus pour les exercices qui sont en bonus quand on annonce le dm avec la
+liste de tous les exercices et quand on fait cet exercice aussi ». L'annonce
+du devoir — la liste des devoirs, qui montre chaque devoir avec TOUS ses
+exercices — ne portait qu'une ÉTOILE, et un pictogramme ne dit rien à qui ne
+connaît pas la convention ; surtout, **l'écran où l'élève travaille se
+taisait** : la page du devoir disait « Bonus », puis l'exercice s'ouvrait et
+plus rien ne rappelait qu'il était facultatif. C'est la leçon du numéro
+d'exercice de `show()`, revenue au même endroit — le renseignement était
+partout SAUF là où l'élève passe son temps.
+**UN SEUL ENDROIT L'ÉCRIT** (`dmBonusBadge`), et quatre écrans le lisent :
+l'annonce du devoir, l'énoncé du circuit papier, l'écran des modes et la
+pastille de l'écran d'exercice — celle-ci par `show()`, l'unique porte vers un
+écran d'exercice, donc celui qu'on ajoutera demain est couvert sans rien
+déclarer. Deux libellés écrits séparément auraient fini par diverger, et le
+même exercice se serait dit « bonus » d'un écran à l'autre dans deux mots
+différents. Le contrôle l'exige en REMPLAÇANT la fabrique par un jeton : un
+écran qui écrirait son propre mot ne le porte pas.
+**La page du devoir garde son badge de BILAN** (« Bonus : 0,8 / 1 », « Bonus ·
+à faire ») : il porte la NOTE, qui est sur 1 et non sur 10 — ce n'est pas le
+même badge, et c'est nommé plutôt que tu. Le mot y est donc exigé par un bord
+à lui, dans ses DEUX branches : le sabotage de la branche « faite » est
+d'abord resté VERT, le contrôle ne rendant qu'un devoir vierge.
+**L'encre est OR** — ni bleue, ni rouge, ni verte : ce n'est pas un verdict, et
+la leçon du liseré de {croiser-denominateurs} vaut ici aussi.
+**Le bord OPPOSÉ compte autant, et il en a deux** : l'exercice NORMAL du même
+devoir ne porte jamais le mot, et un exercice fait HORS devoir non plus — un
+badge posé sans condition passerait sinon pour un contrôle. Le bonus de
+l'exercice en cours se lit par `dmReglageExo()`, l'entonnoir qui sert déjà la
+coupe du nombre de questions : hors devoir il rend null.
+**Deux bancs, la répartition habituelle.** jsdom tient le DOM — le mot sur le
+bon exercice et sur lui seul, les deux bords opposés, le jeton de la fabrique,
+et la pastille qui garde son numéro et son nom — en appelant `renderDevoirsList`,
+`renderDevoirDetail`, `show()` et `openTestDevoirModes`, cette dernière lue
+JUSQU'À SA PREMIÈRE ATTENTE (elle écrit son titre avant, le motif du bilan du
+professeur). Le NAVIGATEUR (« 6 sexies bis », déclaré par `bonusEcrit` dans
+`tests/profils.js`) tient ce que jsdom ne peut pas : le badge mesuré au
+RECTANGLE — un CSS perdu le rendrait invisible sans qu'une erreur ne se lève —
+et le TRAJET entier, l'énoncé du circuit papier compris, dont le titre ne
+s'écrit qu'APRÈS le tirage.
+**Onze sabotages, chacun rougissant en nommant son défaut** — neuf au banc
+jsdom (l'annonce muette, l'annonce qui l'écrit sur tous, l'écran des modes,
+l'écran de l'exercice, l'écran de l'exercice hors devoir, la page du devoir
+dans ses deux branches, l'annonce qui écrit son propre mot, le badge qui chasse
+le numéro et le nom) et deux que seul le NAVIGATEUR voit : le badge caché par
+une règle CSS et l'énoncé du circuit papier redevenu muet.
+**Le panneau de l'accueil (`renderDM`) n'a PAS été touché, et le dire vaut
+mieux que de le taire** : il est MORT — aucun appelant, et son hôte `dmPanel`
+n'existe dans aucune des trois pages. Y écrire le mot ferait croire que la
+règle est tenue là où rien ne la montre.
+**La Seconde et la Première ne changent pas, et c'est nommé** : elles ont les
+mêmes exercices bonus et la même étoile nue, mais la demande porte sur la
+Terminale. Les deux contrôles s'y affichent « non applicable » en DISANT
+pourquoi — « ce niveau a bien les exercices bonus, mais n'écrit pas encore le
+mot » — plutôt que de laisser croire qu'il n'y a rien à tenir : c'est une
+décision à prendre, pas un oubli. Le `renderDM` de la Seconde est mort lui
+aussi.
+
 **Le carnet de notes du professeur : une moyenne par élève, un devoir par
 colonne.** Le bilan d'un devoir ne montrait qu'UN devoir à la fois ; le
 professeur voulait le tableau entier, rangé par ordre alphabétique, et
