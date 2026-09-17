@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -733,6 +733,33 @@
   .pyd-pouce>summary::-webkit-details-marker{display:none}
   .pyd-pouce>summary::before{content:"🔥\00a0"}
   .pyd-pouce p{margin:7px 0 2px;line-height:1.55}
+  /* {python-placer-variables} : le programme est ÉCRIT en entier, print
+     compris, et seuls les NOMS des variables manquent. Le cadre et les
+     numéros sont ceux de {python-completer} (pyx-prog, pyx-ligne, pyx-num) —
+     deux feuilles de styles auraient fini par diverger, et deux exercices
+     voisins se seraient dessinés différemment sous les yeux de l'élève. Ce
+     qui s'ajoute est la ligne à trous : elle ne se replie JAMAIS — un print
+     coupé en deux se lit de travers — elle DÉFILE, et ses cases écrivent à la
+     chasse et à la taille du code qui les entoure. La bonne variable s'écrit
+     en VERT juste à CÔTÉ de la case fausse : la ligne en porte plusieurs, et
+     une correction posée dessous ne dirait pas laquelle elle corrige. */
+  .pyv-note{margin:0 0 12px;text-align:left;font-size:.96rem;color:var(--ink-soft)}
+  .pyv-l{white-space:pre;flex:1 1 0;min-width:0;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.55;padding:2px 0}
+  .pyv-sep{font-family:inherit}
+  /* box-sizing CONTENT-BOX : la largeur est posée en « ch », et la page
+     étant en border-box ces ch comprendraient le rembourrage et la
+     bordure — seize pixels mangés sur le texte, la leçon du 5.5. */
+  .pyv-in{box-sizing:content-box;font-family:inherit;font-size:inherit;line-height:1.3;padding:2px 6px;border:2px solid #BBD0F7;border-radius:8px;background:#fff;color:var(--ink);outline:none;text-align:center;vertical-align:baseline}
+  .pyv-in::placeholder{color:var(--ink-soft);opacity:.7}
+  .pyv-in:focus{border-color:var(--blue);background:#FBFDFF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .pyv-in.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+  .pyv-in.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  .pyv-in:disabled{opacity:1}
+  #pyvHost .mf-cor.pyv-cor{font-family:inherit;font-size:inherit;font-weight:600;padding:1px 6px;vertical-align:baseline;white-space:pre}
+  /* la ligne du print est longue par construction (la phrase, ses variables et
+     leurs cases) : la cellule de cet écran est élargie, comme celle du 5.5 */
+  #pyvHost .py-cell{max-width:1160px}
+  @media(max-width:520px){ .pyv-l{font-size:.92rem} }
   /* {python-nom-variable} : la fiche — l'énoncé en cadre SANS étiquette (le
      .mp-instr de l'écran la porte déjà), puis la cellule de réponse du carnet,
      une ligne par grandeur, à chasse fixe ; la case écrit à la taille et à la
@@ -2750,6 +2777,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : PLACER LES VARIABLES DANS UN PRINT (PYTHON) -->
+  <section class="screen" id="scr-pyv">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPYV"></span><span class="q-idx" id="pyvIdx">Question 1 / 4</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pyvLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Le programme est &eacute;crit en entier&nbsp;: seuls les <b>noms des variables</b> manquent dans le print. Place-les en lisant le texte qui pr&eacute;c&egrave;de chaque case, ex&eacute;cute le programme et <b>relis la phrase qu&rsquo;il &eacute;crit</b>, puis v&eacute;rifie.</p>
+      <div class="mp-stage"><div style="width:100%" id="pyvHost"></div></div>
+      <div class="mp-feedback" id="pyvFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pyvActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pyvValidate" onclick="checkPYV()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : SOMME ET DIFFÉRENCE DE FRACTIONS -->
   <section class="screen" id="scr-sf">
     <div class="test-top">
@@ -3682,6 +3725,10 @@ const TESTS={
   'python-afficher-variable': { name:'Affiche la variable\u00a0!', icon:'\ud83d\udda8\ufe0f', desc:'On t\u2019explique comment afficher une variable, puis un programme commence par note = 12 : \u00e0 toi d\u2019\u00e9crire la suite pour qu\u2019il affiche la valeur de la variable. Ex\u00e9cute-le, puis v\u00e9rifie \u2014 en soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYC() },
   'python-noms-variables': { name:'Noms de variables en Python', icon:'\ud83c\udff7\ufe0f', desc:'Le nom d\u2019une variable doit respecter quatre r\u00e8gles. Pour chaque nom propos\u00e9, dis s\u2019il est correct ou incorrect \u2014 et, s\u2019il est incorrect, pourquoi.', start:()=>startPVN() },
   'python-nom-variable': { name:'Nommer une variable', icon:'\ud83d\udd24', desc:'Quatre grandeurs \u00e0 stocker \u2014 le nombre de filles de Seconde, le tarif d\u2019un repas\u2026 \u2014 et pour chacune un nom de variable \u00e0 proposer : sans espace, pas trop long, qui dit ce qu\u2019il stocke. Puis ex\u00e9cute le programme \u00e9crit avec tes noms.', start:()=>startPNV() },
+  /* L'exercice 10 du carnet : le programme est écrit en entier, print
+     compris, et seuls les NOMS des variables manquent — « compléter
+     LOGIQUEMENT » (demande de Turquet, septembre 2026). */
+  'python-placer-variables': { name:'Placer les variables dans un print', icon:'\ud83d\udccd', desc:'Le programme est \u00e9crit en entier, print compris\u00a0: seuls les noms des variables manquent. Place chaque variable \u00e0 sa place en lisant le texte qui la pr\u00e9c\u00e8de, ex\u00e9cute le programme et relis la phrase qu\u2019il \u00e9crit \u2014 deux variables \u00e9chang\u00e9es ne provoquent aucune erreur, mais la phrase ne veut plus rien dire.', start:()=>startPYV() },
   'python-print': { name:'\u00c9cris ton premier print', icon:'\u2328\ufe0f', desc:'Le cours explique print et le texte entre guillemets. Puis \u00e0 toi\u00a0: \u00e9cris un programme qui affiche \u00ab\u00a0je suis en seconde\u00a0\u00bb, ex\u00e9cute-le autant de fois que tu veux, et fais-le v\u00e9rifier. En soutien, la page te dit ce qui ne va pas dans ton programme.', start:()=>startPYP() },
   'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
   'simplifier-fractions': { name:'Somme de fractions \u00e0 simplifier', icon:'\u2702\ufe0f', desc:'Comme {somme-fractions}, mais les deux d\u00e9nominateurs ont un diviseur commun et le r\u00e9sultat se simplifie : on divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le d\u00e9nominateur commun reste libre.', start:()=>startSFSimp() },
@@ -3734,7 +3781,7 @@ const THEMES=[
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
-  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes'] }
+  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -4379,6 +4426,7 @@ function conseilPaire(){
   else if(test.kind==='py' && q) b=ctxPy(q);
   else if(test.kind==='pyx' && q) b=ctxPyx(q);
   else if(test.kind==='pyd' && q) b=ctxPyd(q);
+  else if(test.kind==='pyv' && q) b=ctxPyv(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
@@ -4676,6 +4724,7 @@ const QIA_SUGG={
   pnv:["Pourquoi l’espace est-il interdit dans un nom de variable ?","Est-ce que je peux mettre un chiffre dans un nom de variable ?","Pourquoi « print » ne peut-il pas être un nom de variable ?","Comment écrire un nom qui contient deux mots ?"],
   pyp:["Pourquoi faut-il des guillemets autour du texte ?","Quelle est la différence entre print(bonjour) et print(\"bonjour\") ?","Pourquoi Print avec une majuscule ne marche pas ?","À quoi servent les parenthèses de print ?"],
   pyx:["Pourquoi faut-il des guillemets autour du texte, mais pas autour de la variable ?","À quoi sert la virgule dans print ?","Que se passe-t-il si j’écris la variable entre guillemets ?","Pourquoi Python dit-il que la variable « la » n’existe pas ?"],
+  pyv:["Comment savoir quelle variable écrire dans chaque case ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Que se passe-t-il si j’échange deux variables dans le print ?","Pourquoi Python met-il une espace entre les morceaux du print ?"],
   pyd:["Comment savoir quelle variable écrire dans chaque ligne ?","Que se passe-t-il si je recopie la ligne déjà écrite sans rien changer ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Est-ce que je peux écrire les deux lignes dans l’ordre que je veux ?"],
   py:["Pourquoi le texte s’affiche-t-il sans les guillemets ?","Quelle est la différence entre note1 et \"note1\" dans un print ?","À quoi sert la virgule dans print ?","Comment s’écrit et s’affiche un nombre à virgule en Python ?"],
   sfl:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelles \u00e9tapes dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Comment savoir si ma fraction est bien simplifi\u00e9e\u00a0?","Est-ce que je peux choisir un autre d\u00e9nominateur commun\u00a0?"],
@@ -5224,7 +5273,18 @@ La ligne d’affichage <b>déjà écrite</b> est le modèle : <code class="inlin
 <b>② Le nom de la variable s’écrit sans guillemets</b> — c’est sa VALEUR qui s’affiche, pas son nom.<br>
 <b>③ Quand le programme a plusieurs variables</b>, chaque ligne doit nommer <b>LA bonne</b> : recopier la ligne du modèle afficherait la valeur de l’autre variable. Relis les premières lignes pour prendre celle qu’on te demande.<br>
 Exemple : avec <code class="inline">ville = "Brest"</code>, la ligne <code class="inline">print("tu habites à", ville)</code> affiche <code class="inline">tu habites à Brest</code>.`;
-const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD };
+/* Placer les variables dans un print déjà écrit : ce que celui-ci ajoute au
+   5.7 et au 5.8 est la LECTURE — le texte qui précède une case dit quelle
+   variable on attend — et le fait qu'une interversion ne lève AUCUNE erreur.
+   Les nombres vivent dans des balises code (le contrôle des numéros en dur ne
+   lit que la prose). */
+const RAP_PYV=`<b>Placer les variables dans un print</b><br>
+Dans <code class="inline">print(…)</code>, les morceaux sont séparés par des <b>virgules</b> : un texte entre guillemets, une variable, un autre texte… Python les affiche dans l’ordre, en mettant une espace entre eux.<br>
+<b>① Le texte entre guillemets s’affiche tel quel</b>, sans les guillemets.<br>
+<b>② Le nom d’une variable s’écrit SANS guillemets</b> — c’est sa VALEUR qui s’affiche. Entre guillemets, c’est le mot lui-même qui s’affiche.<br>
+<b>③ Le texte juste avant une case dit quelle variable on attend</b> : c’est la phrase entière qu’il faut lire. Deux variables échangées ne provoquent <b>aucune erreur</b> — le programme s’exécute, mais la phrase ne veut plus rien dire. C’est pour cela qu’on l’exécute et qu’on la relit.<br>
+Exemple : avec <code class="inline">ville = "Brest"</code> et <code class="inline">age = 15</code>, la ligne <code class="inline">print("à", ville, "tu as", age, "ans")</code> affiche <code class="inline">à Brest tu as 15 ans</code>.`;
+const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -5333,7 +5393,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -5762,7 +5822,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5886,7 +5946,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -18657,6 +18717,361 @@ function ctxPyd(q){
   c+='Règles à rappeler sans donner la réponse : la ligne déjà écrite sert de modèle ; le texte se met entre guillemets et s’affiche sans elles ; la variable s’écrit sans guillemets, c’est sa valeur qui s’affiche ; une virgule sépare les deux dans print. Le programme a plusieurs variables qui se ressemblent : chaque ligne doit nommer LA bonne.';
   return {nombre:'', contexte:c};
 }
+/* ---------- Exercice : placer les variables dans un print (Python) --------
+   {python-placer-variables} (Seconde, 5.9, demande de Turquet, septembre
+   2026 : « créer un exercice comme le pdf ») est l'exercice 10 du carnet, et
+   il FERME le thème 5 — ajouté en dernier, il ne renumérote rien. Le
+   programme est ÉCRIT EN ENTIER, print compris, et seuls les NOMS des
+   variables manquent : « On considère la variable prenom="Mathéo" et la
+   variable note=14. Compléter LOGIQUEMENT avec les noms des variables note et
+   prenom le programme ci-dessous et l'exécuter. »
+
+   CE QU'IL AJOUTE AUX AUTRES, ET C'EST TOUT LE SUJET : le 5.1 fait PRÉDIRE ce
+   qu'un print affiche, le 5.7 et le 5.8 font ÉCRIRE la ligne entière ; ici la
+   ligne est écrite et il n'y a plus qu'à PLACER chaque variable. Ce qui se
+   travaille n'est donc plus la forme de print — les guillemets, la virgule,
+   les parenthèses — mais la LECTURE : le texte juste avant une case dit
+   laquelle des variables on attend là.
+
+   LE RISQUE PROPRE EST L'INTERVERSION, ET ELLE EST SILENCIEUSE : deux
+   variables échangées donnent un programme qui s'exécute SANS la moindre
+   erreur, et qui affiche « la note de  14  est de  Mathéo sur 20 ». Rien ne
+   rougit côté Python — c'est la PHRASE qui n'a plus de sens, et c'est
+   exactement pourquoi la fiche demande de l'exécuter. Le diagnostic nomme ce
+   fait (la valeur affichée à cet endroit, et le texte qui la précède) sans
+   jamais dire quelle variable on attend : cette variable EST la réponse, là
+   où la consigne du 5.8 la donne déjà.
+
+   TOUT EST REPRIS, RIEN N'EST RECOPIÉ : les variables et leurs valeurs
+   viennent de PY_JEUX — le jeu partagé avec {python-affichage},
+   {python-completer} et {python-deux-lignes} —, l'interpréteur est pyRun, la
+   coloration du code pyColorie, l'écriture des valeurs pyRep, la correction
+   la convention commune (corrCase n'est pas employée : la case porte son
+   badge mf-cor à côté d'elle, dans la ligne). Les PHRASES, elles, sont
+   propres à cet exercice : les libellés de PY_JEUX nomment une variable
+   isolée, quand il faut ici une phrase dont chaque morceau annonce le trou
+   qui le suit.
+
+   LES TEXTES DE LA FICHE SONT REPRIS AU CARACTÈRE PRÈS, espaces comprises :
+   « la note de », « est de » et « sur 20 » y portent leurs espaces de
+   frappe, si bien que Python affiche DEUX espaces là où la fiche en a écrit
+   une de trop. C'est ce que le carnet donne, c'est ce que l'élève tape chez
+   lui, et la page doit montrer ce que Python fait vraiment. Les phrases du
+   tirage, elles, sont écrites proprement — l'espace qui sépare deux arguments
+   de print suffit.
+
+   LA CHAÎNE DES PORTES EST CELLE DE LA FICHE : compléter, EXÉCUTER, puis
+   vérifier (le motif de {python-completer}). « Vérifier » ne s'ouvre qu'une
+   fois le programme exécuté tel qu'il est écrit, et se referme dès qu'une
+   case change — la console se vide avec lui, sans quoi elle montrerait la
+   phrase d'un programme qui n'est plus celui écrit. Exécuter ne révèle rien
+   que l'élève n'ait posé : il LIT la phrase que ses variables produisent, ce
+   qui est le geste même que la fiche demande.
+
+   LE JUGE COMPARE LA VALEUR AFFICHÉE, ET EXIGE UNE VARIABLE. Chaque case est
+   exécutée SEULE — les affectations, puis print(ce que la case porte) — et
+   sa valeur doit être celle qu'on attend à cet endroit ; le jeton doit être
+   un NOM nu, sans quoi « 14 » recopié à la main afficherait la bonne chose
+   sans rien apprendre (la leçon du 5.7). Juger sur la VALEUR et non sur le
+   nom est ce qui rend le verdict honnête : deux variables de même valeur
+   seraient toutes deux défendables, et la page les accepterait toutes deux.
+   Le tirage, lui, les garde distinctes — un garde n'y écarterait JAMAIS rien
+   (un entier, un décimal à décimale non nulle et un texte ne s'écrivent
+   jamais pareil), c'est donc le CONTRÔLE qui exige la propriété.
+
+   Une case VIDE n'est jamais peinte : la vérification la redemande, sans rien
+   colorer ni verrouiller — rouge veut dire FAUX, jamais « pas fini » (la
+   règle de {placer-image}). Aucune correction au fil de la frappe
+   (soutienEnDirect.sans) : un nom se juge écrit, pas lettre par lettre —
+   « not » serait déclaré faux le temps de taper « note ». */
+const PYV_FICHE={
+  aff:[{nom:'note',lit:'14'},{nom:'prenom',lit:'"Mathéo"'}],
+  seg:[{t:'la note de '},{v:'prenom'},{t:' est de '},{v:'note'},{t:'sur 20'}]
+};
+/* Les phrases, une liste par jeu de PY_JEUX. Chaque variable du jeu y paraît
+   EXACTEMENT une fois, et le texte qui précède un trou l'annonce. Deux
+   phrases par jeu au moins, et elles ne commencent pas par la même variable :
+   sans cela l'élève apprendrait le rang au lieu de lire — la leçon
+   d'{intervalles-inegalite}, transposée aux trous. */
+const PYV_PHRASES=[
+  [ [{t:'la 1ère note de'},{v:'prenom'},{t:'est'},{v:'note1'},{t:'et sa moyenne est'},{v:'note2'},{t:'sur 20'}],
+    [{t:'note :'},{v:'note1'},{t:'moyenne :'},{v:'note2'},{t:'pour'},{v:'prenom'}] ],
+  [ [{t:'bonjour'},{v:'prenom'},{t:'tu as'},{v:'age'},{t:'ans et tu mesures'},{v:'taille'},{t:'m'}],
+    [{t:'âge :'},{v:'age'},{t:'ans, taille :'},{v:'taille'},{t:'m, prénom :'},{v:'prenom'}] ],
+  [ [{t:'le magasin de'},{v:'ville'},{t:'te donne'},{v:'points'},{t:'points pour'},{v:'prix'},{t:'euros'}],
+    [{t:'tu as'},{v:'points'},{t:'points, tu paies'},{v:'prix'},{t:'euros à'},{v:'ville'}] ]
+];
+/* L'ordre des AFFECTATIONS est mélangé, et il ne suit pas celui de la
+   phrase : la fiche affecte note puis prenom, et sa phrase parle du prénom
+   d'abord. Recopier l'ordre des lignes donnerait la réponse sans lire. */
+function pyvTirage(jeu){
+  const J=PY_JEUX[jeu];
+  const par={ int:{nom:J.i.nom, lit:String(rand(J.i.ent[0],J.i.ent[1]))},
+              float:{nom:J.f.nom, lit:rand(J.f.ent[0],J.f.ent[1])+'.'+rand(1,9)},
+              str:{nom:J.s.nom, lit:'"'+(J.s.vals?pick(J.s.vals):pick(PY_PRENOMS))+'"'} };
+  return {aff:ensShuffle(PY_VISAGES.map(function(v){ return {nom:par[v].nom, lit:par[v].lit}; })),
+          seg:JSON.parse(JSON.stringify(pick(PYV_PHRASES[jeu])))};
+}
+/* La séance : la fiche du carnet en tête, ÉPINGLÉE, puis les trois jeux,
+   chacun une fois, en ordre mélangé. Le compte n'est pas un réglage — c'est
+   la structure de la séance, et tests/profils.js en est la seconde source. */
+function pyvBuildQuestions(){
+  const qs=[JSON.parse(JSON.stringify(PYV_FICHE))];
+  ensShuffle([0,1,2]).forEach(function(j){ qs.push(pyvTirage(j)); });
+  return qs;
+}
+function pyvAffects(q){ return q.aff.map(function(a){ return a.nom+' = '+a.lit; }).join('\n'); }
+function pyvNoms(q){ return q.aff.map(function(a){ return a.nom; }); }
+function pyvTrous(q){ return q.seg.filter(function(s){ return s.v!==undefined; }); }
+function pyvCases(q){ return pyvTrous(q).map(function(s,i){ return {id:'pyv-in'+i}; }); }
+function pyvNet(s){ return String(s==null?'':s).replace(/[\r\n]+/g,' ').trim(); }
+function pyvListe(noms){ return noms.length>1 ? ('les variables sont '+noms.slice(0,-1).join(', ')+' et '+noms[noms.length-1]) : ('la seule variable est '+noms[0]); }
+/* La ligne de print, ÉCRITE depuis les segments : les textes tels quels, les
+   trous remplis par ce qu'on lui donne — les noms attendus pour le témoin,
+   la saisie de l'élève pour son programme. Une seule fabrique, donc l'énoncé
+   affiché et le programme exécuté ne peuvent pas diverger. */
+function pyvLigne(q, vals){
+  let k=0;
+  return 'print('+q.seg.map(function(s){ return s.v!==undefined ? String(vals[k++]) : '"'+s.t+'"'; }).join(', ')+')';
+}
+function pyvProg(q, vals){ return pyvAffects(q)+'\n'+pyvLigne(q, vals); }
+/* L'attendu se RECALCULE depuis la question : le nom rangé dans le segment,
+   le texte qui le précède, et la valeur lue dans l'état final de pyRun — la
+   fonction même qui exécute le programme sous « Exécuter ». */
+function pyvAns(q){
+  const env=pyRun(pyvAffects(q)).env, out=[];
+  q.seg.forEach(function(s,i){
+    if(s.v===undefined) return;
+    const av=(i>0 && q.seg[i-1].v===undefined)?q.seg[i-1].t:'';
+    out.push({variable:s.v, texte:av, valeur:pyRep(env[s.v])});
+  });
+  return out;
+}
+function pyvTemoin(q){ return pyvProg(q, pyvAns(q).map(function(a){ return a.variable; })); }
+function pyvSortie(q){ return pyRun(pyvTemoin(q)).out; }
+/* Le diagnostic : que des faits PROUVABLES sur la case, et JAMAIS le nom de
+   la variable attendue — ce nom est la réponse. L'ordre compte : l'erreur
+   qui empêche Python d'aller au bout d'abord, puis ce que la case affiche. */
+function pyvDiag(q, a, s, r, err){
+  const noms=pyvNoms(q);
+  if(err){
+    const msg=err.message;
+    if(/guillemet non fermé/.test(msg)) return 'Un guillemet est ouvert et jamais fermé. Dans cette case on n’écrit que le NOM d’une variable, sans aucun guillemet.';
+    const mn=msg.match(/NameError : la variable « ([^»]+) » n’existe pas/);
+    if(mn){
+      const x=mn[1], j=noms.map(function(n){ return n.toLowerCase(); }).indexOf(x.toLowerCase());
+      if(j>=0) return 'Python distingue les majuscules : la variable s’appelle « '+noms[j]+' », pas « '+x+' » — elle s’écrit exactement comme plus haut dans le programme.';
+      return '« '+x+' » n’est pas une variable du programme : '+pyvListe(noms)+'. Une case ne peut porter que l’un de ces noms, écrit exactement pareil.';
+    }
+    return 'Python s’arrête sur : « '+msg+' ». Dans cette case on écrit seulement le NOM d’une variable du programme — '+pyvListe(noms)+'.';
+  }
+  const p=r?r.prints[0]:null;
+  if(!p) return 'Cette case n’affiche rien : écris-y le NOM d’une variable du programme — '+pyvListe(noms)+'.';
+  if(p.args.length!==1) return 'Une case ne porte qu’UNE variable : la tienne en affiche '+p.args.length+'. Les virgules du print sont déjà écrites, il n’en faut pas dans la case.';
+  const k=p.args[0].k, v=pyRep(p.vals[0]);
+  if(k==='str'){
+    if(noms.indexOf(p.args[0].v)>=0) return '« '+p.args[0].v+' » entre guillemets est un TEXTE : Python affiche le mot '+p.args[0].v+', et non sa valeur. Le nom d’une variable s’écrit SANS guillemets.';
+    return 'Ce que tu as écrit est entre guillemets : Python l’affiche tel quel, comme un texte. Ici on attend le NOM d’une variable, sans guillemets.';
+  }
+  if(k!=='nom'){
+    if(v===a.valeur) return 'Ta case affiche bien « '+v+' », mais la valeur est recopiée à la main : écris le NOM de la variable — si sa valeur changeait plus haut, l’affichage suivrait tout seul.';
+    return 'Ici on attend le NOM d’une variable, pas une valeur ni un calcul : ta case affiche « '+v+' ».';
+  }
+  /* L'INTERVERSION : rien ne rougit côté Python, c'est la phrase qui ne dit
+     plus rien. On nomme ce que la case affiche et le texte qui la précède —
+     jamais la variable attendue, qui serait la réponse. */
+  return 'Ton programme s’exécute sans erreur — mais à cet endroit il affiche « '+v+' », juste après « '+(a.texte.trim()||'print(')+' ». Relis ce texte et la phrase entière : ils disent quelle variable on attend dans cette case.';
+}
+/* Le juge : chaque case se juge SEULE, sur la VALEUR qu'elle fait afficher —
+   les affectations du programme, puis print(ce que la case porte). */
+function pyvJuge(q, saisies){
+  const att=pyvAns(q), base=pyvAffects(q);
+  return att.map(function(a,k){
+    const s=pyvNet((saisies||[])[k]);
+    if(!s) return {vide:true, ok:false, att:a, saisie:'', diag:''};
+    let r=null, err=null;
+    try{ r=pyRun(base+'\n'+'print('+s+')'); }catch(e){ err=e; }
+    const p=(r&&r.prints.length===1)?r.prints[0]:null;
+    const nom=(p&&p.args.length===1&&p.args[0].k==='nom')?p.args[0].v:'';
+    const val=(p&&p.args.length===1)?pyRep(p.vals[0]):'';
+    const ok=!!nom && val===a.valeur;
+    return {vide:false, ok:ok, att:a, saisie:s, nom:nom, valeur:val,
+            erreur:err?err.message:'', diag:ok?'':pyvDiag(q,a,s,r,err)};
+  });
+}
+/* La consigne du carnet : elle NOMME les variables, comme la fiche le fait —
+   elles sont écrites juste en dessous, les cacher n'apprendrait rien — et
+   dit le geste : un NOM par case, sans guillemets. */
+function pyvConsigneHTML(q){
+  const n=pyvNoms(q).map(function(x){ return '<code>'+esc(x)+'</code>'; });
+  return '<p class="py-label">Complète <b>logiquement</b> le programme avec les noms des variables '
+    +n.slice(0,-1).join(', ')+' et '+n[n.length-1]+', puis <b>exécute-le</b>.</p>'
+    +'<p class="pyv-note">Dans chaque case, écris seulement le <b>nom</b> d’une variable — sans guillemets. Le texte juste avant la case te dit laquelle.</p>';
+}
+/* La ligne du print, RENDUE : les textes colorés comme dans le carnet, les
+   trous en cases. Elle ne se replie JAMAIS — une ligne de code coupée se lit
+   de travers — elle DÉFILE (la leçon de {python-deux-lignes}). */
+function pyvLigneHTML(q){
+  let k=0;
+  const w=Math.max(7, pyvNoms(q).reduce(function(m,n){ return Math.max(m,n.length); },0)+2);
+  return '<span class="pyv-l">'+pyColorie('print(')
+    +q.seg.map(function(s){
+        if(s.v===undefined) return '<span class="py-str">'+esc('"'+s.t+'"')+'</span>';
+        const i=k++;
+        return '<input class="pyv-in" id="pyv-in'+i+'" type="text" style="width:'+w+'ch" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="nom de la variable, case '+(i+1)+'" placeholder="…">';
+      }).join('<span class="pyv-sep">, </span>')
+    +pyColorie(')')+'</span>';
+}
+
+/* ---- Cycle de vie ---- */
+async function startPYV(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pyvBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pyv', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+pyvCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false, pyvExec:null});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pyv'); renderPYV();
+}
+function pyvSaisies(){ return pyvCases(test.questions[test.idx]).map(function(c){ const e=$(c.id); return e?e.value:''; }); }
+function renderPYV(){
+  const q=test.questions[test.idx]; test.locked=false; test.pyvExec=null;
+  $('pyvIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPYV').innerHTML=modeTagHTML();
+  $('pyvLiveScore').textContent=test.score;
+  $('pyvFeedback').textContent=''; $('pyvFeedback').className='mp-feedback';
+  $('pyvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyvValidate" onclick="checkPYV()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
+  const n0=q.aff.length;
+  $('pyvHost').innerHTML=
+    '<div class="py-cell">'
+    +pyvConsigneHTML(q)
+    +'<div class="pyx-prog">'
+    +q.aff.map(function(a,i){ return '<div class="pyx-ligne"><span class="pyx-num">'+(i+1)+'</span><span class="pyx-l1">'+pyColorie(a.nom+' = '+a.lit)+'</span></div>'; }).join('')
+    +'<div class="pyx-ligne"><span class="pyx-num">'+(n0+1)+'</span>'+pyvLigneHTML(q)+'</div>'
+    +'</div>'
+    +'<div class="py-runrow"><button class="btn btn-primary" id="pyvRun" type="button" onclick="pyvExecuter()">▶ Exécuter le programme</button>'
+    +'<span class="py-hint" id="pyvRunHint">Complète les cases, puis exécute le programme pour lire la phrase qu’il écrit.</span></div>'
+    +'<p class="py-label">Ce que le programme affiche</p>'
+    +'<pre class="py-console" id="pyvConsole"></pre>'
+    +'</div>';
+  pyvCases(q).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.addEventListener('input', pyvModifiee);
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); pyvExecuter(); } });
+  });
+  pyvMaj();
+}
+/* « Vérifier » ne s'ouvre que sur un programme exécuté tel qu'il est écrit */
+function pyvMaj(){
+  const v=$('pyvValidate'); if(!v) return;
+  const pret=(typeof test.pyvExec==='string') && test.pyvExec===JSON.stringify(pyvSaisies().map(pyvNet));
+  v.disabled=!pret; v.title=pret?'':'Exécute d’abord ton programme';
+}
+function pyvModifiee(){
+  if(test.locked) return;
+  pyvCases(test.questions[test.idx]).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
+  });
+  const c=$('pyvConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','pyx-vide','pyx-err'); }
+  const h=$('pyvRunHint');
+  if(h) h.textContent=(typeof test.pyvExec==='string')?'Tu as modifié le programme : exécute-le à nouveau pour lire la phrase qu’il écrit, puis vérifie.':'Complète les cases, puis exécute le programme pour lire la phrase qu’il écrit.';
+  pyvMaj();
+}
+function pyvExecuter(depuisVerif){
+  if(test.locked) return;
+  const q=test.questions[test.idx], c=$('pyvConsole'); if(!c) return;
+  const vals=pyvSaisies().map(pyvNet), vides=vals.filter(function(x){ return x===''; }).length;
+  let out='', err=false;
+  try{ out=pyRun(pyvProg(q,vals)).out; }catch(e){ out='Erreur : '+e.message; err=true; }
+  c.textContent=out.replace(/\n$/,'');
+  c.classList.add('py-exec'); c.classList.toggle('pyx-err',err); c.classList.toggle('pyx-vide',!err&&!out);
+  test.pyvExec=JSON.stringify(vals);
+  const h=$('pyvRunHint');
+  if(h) h.textContent=vides
+    ? ('Il reste '+vides+' case'+(vides>1?'s':'')+' à compléter : Python ne sait pas quoi afficher à cet endroit, il s’arrête.')
+    : 'Programme exécuté : LIS la phrase qu’il écrit — a-t-elle un sens ? Puis clique « Vérifier ».';
+  pyvMaj();
+  if(!depuisVerif && !vides){ const v=$('pyvValidate'); if(v&&!v.disabled) v.focus(); }
+}
+function checkPYV(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], cases=pyvCases(q), fb=$('pyvFeedback');
+  const vals=pyvSaisies().map(pyvNet);
+  /* la console montre TOUJOURS ce que le juge a lu */
+  if(test.pyvExec!==JSON.stringify(vals)) pyvExecuter(true);
+  const j=pyvJuge(q, vals);
+  cases.forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
+  });
+  /* UNE CASE VIDE N'EST JAMAIS PEINTE : on la redemande, sans rien colorer ni
+     verrouiller — rouge veut dire FAUX, jamais « pas fini ». */
+  const vides=j.filter(function(x){ return x.vide; }).length;
+  if(vides){
+    fb.textContent='Il te manque '+vides+' case'+(vides>1?'s':'')+' — complète-'+(vides>1?'les':'la')+', exécute le programme, puis vérifie.';
+    fb.className='mp-feedback bad';
+    const vide=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && !pyvNet(e.value); });
+    if(vide) vide.focus();
+    return;
+  }
+  j.forEach(function(x,i){ const inp=$(cases[i].id); if(inp) inp.classList.add(x.ok?'ok':'bad'); });
+  const justes=j.filter(function(x){ return x.ok; }).length, allOk=justes===j.length;
+  if(!allOk && isSoutien()){
+    fb.innerHTML='<b>Où est l’erreur&nbsp;?</b> '+j.map(function(x,i){ return x.ok?'':('<b>Case '+(i+1)+'&nbsp;:</b> '+esc(x.diag)); }).filter(function(t){ return t; }).join('<br>')+'<br>Corrige, exécute le programme, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('pyvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyvValidate" onclick="checkPYV()">Revérifier</button>';
+    pyvMaj();
+    const bad=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && e.classList.contains('bad'); });
+    if(bad) setTimeout(function(){ bad.focus(); },40);
+    return;
+  }
+  test.locked=true;
+  cases.forEach(function(c){ const inp=$(c.id); if(inp) inp.disabled=true; });
+  const run=$('pyvRun'); if(run) run.disabled=true;
+  const h=$('pyvRunHint'); if(h) h.textContent='Programme exécuté et vérifié.';
+  test.score+=justes;
+  if(allOk){
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Le programme affiche : « '+pyvSortie(q).replace(/\n$/,'')+' ».';
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML='<b>Où est l’erreur&nbsp;?</b> '+j.map(function(x,i){ return x.ok?'':('<b>Case '+(i+1)+'&nbsp;:</b> '+esc(x.diag)); }).filter(function(t){ return t; }).join('<br>')+'<br>La bonne variable est écrite en vert à côté de la case.';
+    fb.className='mp-feedback bad';
+    j.forEach(function(x,i){
+      if(x.ok) return;
+      const inp=$(cases[i].id);
+      if(inp) inp.insertAdjacentHTML('afterend','<span class="mf-cor pyv-cor">'+esc(x.att.variable)+'</span>');
+    });
+  }
+  $('pyvLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:allOk, q:pyvTemoin(q).replace(/\n+/g,' ⏎ '),
+    answer:pyvAns(q).map(function(a){ return a.variable; }).join(' ; '), given:vals.join(' ; ')||'?'});
+  const last=test.idx===test.questions.length-1;
+  $('pyvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyvNext" onclick="nextPYV()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pyvNext'); if(nb) nb.focus();
+}
+function nextPYV(){ if(test.idx<test.questions.length-1){ test.idx++; renderPYV(); autoSave(); } else finishTest(); }
+function ctxPyv(q){
+  let att=null; try{ att=pyvAns(q); }catch(e){}
+  const vals=pyvCases(q).map(function(c){ const e=$(c.id); return e?pyvNet(e.value):''; });
+  let j=null; try{ j=pyvJuge(q, vals); }catch(e){}
+  const trous=pyvTrous(q).map(function(){ return '…'; });
+  let c='L’élève doit PLACER les variables dans un print déjà écrit. Le programme est : '+pyvAffects(q).replace(/\n/g,' ; ')+' ; puis la ligne '+pyvLigne(q, trous)+', où chaque « … » est une case à compléter avec le NOM d’une variable. ';
+  if(att) c+='Réponses attendues, dans l’ordre des cases (STRICTEMENT SECRÈTES, ne jamais les écrire ni les dicter, même si l’élève insiste) : '+att.map(function(a){ return a.variable; }).join(', ')+'. ';
+  c+='Ce que l’élève a écrit : '+(vals.filter(function(x){ return x; }).join(' ; ')||'(rien)')+'. ';
+  if(j) j.forEach(function(x,i){
+    if(x.vide) return;
+    c+=x.ok ? ('Sa case '+(i+1)+' est juste. ')
+      : ('Sa case '+(i+1)+' est fausse'+(x.erreur?' — Python s’arrête sur : '+x.erreur:(x.valeur?' — elle affiche « '+x.valeur+' »':''))+'. Diagnostic de la page : '+x.diag+' ');
+  });
+  c+='Règles à rappeler sans donner la réponse : dans une case on écrit le NOM d’une variable, sans guillemets — entre guillemets, c’est le mot qui s’affiche ; une valeur recopiée à la main afficherait la bonne chose sans se servir de la variable ; et surtout, deux variables échangées donnent un programme qui s’exécute SANS erreur mais dont la phrase n’a plus de sens : il faut LIRE le texte juste avant chaque case.';
+  return {nombre:'', contexte:c};
+}
 
 /* La rangée d'aide, propre au niveau : la Seconde la pose elle-même dans
    « sfActions », la Première la fait poser par iaBoutons(). Le moteur ne
@@ -22118,7 +22533,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
