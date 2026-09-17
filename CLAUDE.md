@@ -3484,6 +3484,86 @@ manquante, la règle 3 perdue, le bouton des tables revenu, l'ordre des
 raisons figé, le verdict vide rougi, la porte qui ne se rouvre plus après une
 reprise, l'exercice sorti du thème 5.
 
+**Python devient un OUTIL : le tableau de valeurs se remplit en EXÉCUTANT.**
+{python-tableau-valeurs} (Seconde, 5.9, demande de Turquet, septembre 2026 :
+« faire un exercice comme le pdf, puis qui demande de compléter un tableau de
+valeurs, avec x en 1ère ligne et des nombres décimaux avec 1 chiffre après la
+virgule et un chiffre devant la virgule ; le calcul du programme en 2e ligne,
+ici 2x+3 ; dire à l'élève de compléter le tableau en modifiant x dans le
+programme du dessus et en l'exécutant ») ferme le thème 5 — ajouté en dernier,
+il ne renumérote rien. C'est l'exercice 11 du carnet (« a) Exécuter le nouveau
+programme ci-dessous ») prolongé par le tableau de valeurs.
+**CE QU'IL AJOUTE AUX HUIT AUTRES** : le 5.1 fait PRÉDIRE ce qu'un programme
+affiche, le 5.6, le 5.7 et le 5.8 le font ÉCRIRE ; ici on s'en SERT. Le
+programme est donné, entier et juste ; l'élève n'en change qu'UNE chose — la
+valeur de x — et lit le résultat. C'est le premier exercice où Python est un
+OUTIL et non le sujet.
+**LA DEMANDE EST TENUE PAR L'ÉTAT DES CASES, PAS PAR UNE CONSIGNE QU'ON PEUT NE
+PAS LIRE** (le motif de {placer-image}) : une colonne du tableau ne s'ouvre que
+lorsque le programme a été EXÉCUTÉ avec SA valeur de x, et elle reste ouverte
+ensuite. « Modifier x dans le programme et l'exécuter » n'est donc pas une
+phrase à croire : c'est le seul chemin vers la case. L'état sous le tableau dit
+ce qu'il reste à faire, en écriture PYTHON — jamais les résultats.
+**LE RISQUE PROPRE EST SILENCIEUX, ET IL EST ÉNORME** : a×x+b se calcule en
+VIRGULE FLOTTANTE, et Python affiche alors « -3.5999999999999996 » là où la
+valeur exacte est −3,6. L'élève recopierait ce que la machine affiche — ce que
+la consigne lui demande — et serait compté faux, le pire défaut du projet.
+**Le garde est VIVANT, et mesuré plutôt que supposé** : sur les 12 960 triplets
+(a, b, x) possibles, **4 156 — un sur trois — s'affichent ainsi**. Le tirage
+n'admet que les valeurs dont la sortie de `pyRun` est l'écriture décimale
+EXACTE, et le contrôle refait la propriété sur chaque tirage par sa propre
+arithmétique — en DIXIÈMES entiers, là où la page passe par l'interpréteur. Les
+deux sorties sales sont ÉPINGLÉES au contrôle avec celles de CPython : le
+risque est prouvé chez Python lui-même, pas supposé.
+**ET LE PREMIER REPLI, INVENTÉ À LA MAIN, PORTAIT EXACTEMENT CE DÉFAUT** — deux
+sorties sales sur cinq (« -0.20000000000000018 » pour x = 1.2). La règle « un
+repli RÉEL, relevé sur le générateur » existe précisément pour ça, et c'est la
+sonde qui l'a nommé avant le premier banc ; celui qui est figé repasse par les
+gardes mêmes, et le contrôle l'exige.
+**LA SORTIE AFFICHÉE ET LA CORRECTION SORTENT DE LA MÊME FONCTION** : le bouton
+« Exécuter », le juge (`ptvJuste`) et la correction lisent tous
+`pyRun(ptvProg(q, x))`. La question ne porte que le calcul (a, b), la valeur de
+départ et les abscisses en DIXIÈMES — on range l'entier, jamais l'écriture — et
+le contrôle refuse tout autre champ.
+**LE JUGE EST LARGE SUR L'ÉCRITURE ET EXACT SUR LA VALEUR** : la console écrit
+« 4.0 » (un flottant garde son point, la leçon du 5.2) et le tableau est
+français, donc « 4 », « 4.0 » et « 4,0 » valent tous le point — refuser une
+écriture juste serait le pire défaut du projet ; en revanche la VALEUR est
+comparée exactement, en entiers, jamais en virgule flottante.
+**LA VIRGULE EST LE PIÈGE DE L'EXERCICE, et il s'enseigne** : le tableau écrit
+« 0,5 » et le programme veut « 0.5 ». Une virgule tapée dans la case de x ne
+reçoit pas la SyntaxError brute de l'interpréteur mais la phrase qui nomme la
+règle — c'est le « un float s'écrit avec un point » du 5.2, rencontré là où il
+coûte quelque chose. Et la comparaison qui ouvre une colonne est EXACTE :
+« 0.2+0.1 » n'ouvre rien, parce que sa sortie ne serait pas celle que le garde
+du tirage a validée.
+**LA SÉANCE** : le programme de la demande en tête, ÉPINGLÉ (x = 2,
+fonction = 2*x+3), puis un « + » et un « − » — 3*x-1 est la forme du carnet —
+en ordre mélangé, les trois coefficients distincts. Ce dernier point est une
+mesure, pas une précaution : un tirage libre donnait deux fois le même « a »
+une séance sur deux, et trois programmes qui commencent tous par « 2*x » se
+lisent comme un seul. La valeur de DÉPART est un entier et jamais une colonne
+du tableau — elle donne d'ailleurs un `int` (« 7 ») là où une abscisse décimale
+donne un `float` (« 4.0 »), ce qui est le a) de la fiche.
+Chaque case se juge SEULE, la case vide ne rougit jamais (une colonne encore
+fermée est vide elle aussi, et le message dit alors le geste qui l'ouvre), la
+valeur juste s'écrit en VERT sous la case fausse — jamais en soutien, où
+l'élève reprend et revérifie. Aucune correction au fil de la frappe
+(`soutienEnDirect.sans`) : la valeur cherchée est DÉJÀ à l'écran, dans la
+console, et « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre
+juste.
+Deux bancs, la répartition habituelle : jsdom tient le programme épinglé, le
+GARDE refait par une seconde arithmétique (400 séances), le repli, le juge cas
+par cas, les portes des colonnes, la copie juste, la copie fausse, le soutien,
+la reprise après une pause et les branchements, et compare l'interpréteur à un
+vrai python3 ; le NAVIGATEUR (« 6 tricies octies », déclaré par
+`pythonTableauValeurs` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — la case de x posée DANS la ligne 1 à la chasse et à la taille du code, le
+tableau rendu, les colonnes fermées qui SE VOIENT fermées (grisées, en
+pointillés), une VRAIE frappe au clavier puis un VRAI clic sur « Exécuter »,
+l'encre RENDUE des trois verdicts, et le tableau qui DÉFILE dans sa boîte sur
+un téléphone au lieu de faire déborder la page.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
