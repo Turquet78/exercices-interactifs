@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pop{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -706,7 +706,7 @@
   /* la ligne juste occupe TOUTE la rangée (flex:0 0 100%) : posée en
      ligne, elle se rangeait à DROITE de la case — vu sur une capture, pas au
      banc, qui le mesure depuis */
-  #pyxHost .mf-cor.pyx-cor,#pydHost .mf-cor.pyx-cor{flex:0 0 100%;box-sizing:border-box;display:block;margin:0 0 0 calc(1.2em + 10px);width:auto;max-width:calc(100% - 1.2em - 10px);font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;white-space:pre;overflow-x:auto}
+  #pyxHost .mf-cor.pyx-cor,#pydHost .mf-cor.pyx-cor,#popHost .mf-cor.pyx-cor{flex:0 0 100%;box-sizing:border-box;display:block;margin:0 0 0 calc(1.2em + 10px);width:auto;max-width:calc(100% - 1.2em - 10px);font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;white-space:pre;overflow-x:auto}
   .py-console.pyx-err{border-color:#f0b3bb;background:var(--red-soft);color:var(--red)}
   .py-console.pyx-vide:empty::before{content:"(le programme n’affiche rien)"}
   @media(max-width:520px){ .pyx-in,.pyx-ligne{font-size:.92rem} .pyx-prog{padding:10px 12px} }
@@ -733,6 +733,21 @@
   .pyd-pouce>summary::-webkit-details-marker{display:none}
   .pyd-pouce>summary::before{content:"🔥\00a0"}
   .pyd-pouce p{margin:7px 0 2px;line-height:1.55}
+  /* {python-operations} : le programme du carnet, dont la page ecrit le NOM
+     de la variable et l'eleve l'EXPRESSION a droite du signe egal — la case y
+     est COURTE, a la chasse de la ligne qu'elle prolonge ; les lignes
+     d'affichage, elles, reprennent la case pleine largeur de
+     {python-completer} (.pyx-in), et le cadre du programme, la consigne a
+     puces et les coups de pouce sont ceux du 5.7 et du 5.8 : trois feuilles
+     de styles auraient fini par diverger, et trois exercices voisins se
+     seraient dessines differemment sous les yeux de l'eleve. Le REJEU sous
+     d'autres valeurs — le d) de la fiche — s'ecrit sous le « Bravo ». */
+  .pop-lbl{flex:0 0 auto;white-space:pre;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
+  .pyx-in.pop-ex{flex:0 1 240px;max-width:240px}
+  .pyx-in.pop-val{flex:0 1 110px;max-width:110px}
+  .pop-rejeu{margin:10px 0 0;text-align:left;font-size:.98rem;line-height:1.5}
+  .pop-rejeu code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
+  .pop-rejeu .py-console{margin:6px 0;min-height:0}
   /* {python-nom-variable} : la fiche — l'énoncé en cadre SANS étiquette (le
      .mp-instr de l'écran la porte déjà), puis la cellule de réponse du carnet,
      une ligne par grandeur, à chasse fixe ; la case écrit à la taille et à la
@@ -2735,6 +2750,24 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   </section>
 
   <!-- TEST : COMPLÉTER UN PROGRAMME À PLUSIEURS VARIABLES (PYTHON, DEUX LIGNES) -->
+  <section class="screen" id="scr-pop">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPOP"></span><span class="q-idx" id="popIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="popLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <!-- L'énoncé est ÉCRIT par le rendu, et par lui seul : le cours et la
+           question n'en disent pas le même, et la question NOMME les deux
+           opérations qu'elle fait écrire — un texte posé ici serait une seconde
+           source, celle qui dérive sans que rien ne le dise. -->
+      <p class="mp-instr" id="popInstr"></p>
+      <div class="mp-stage"><div style="width:100%" id="popHost"></div></div>
+      <div class="mp-feedback" id="popFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="popActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="popValidate" onclick="checkPOP()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
   <section class="screen" id="scr-pyd">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPYD"></span><span class="q-idx" id="pydIdx">Question 1 / 3</span></span>
@@ -3093,7 +3126,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=177;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=178;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3678,6 +3711,7 @@ const TESTS={
      d'affichage déjà écrite, qui sert de modèle — et c'est l'élève qui écrit
      les deux lignes qui manquent (demande de Turquet, septembre 2026). */
   'python-deux-lignes': { name:'Compl\u00e9ter\u00a0: deux affichages \u00e0 \u00e9crire', icon:'\ud83e\udde9', desc:'La suite de {python-completer}\u00a0: un programme \u00e0 trois variables, dont une est d\u00e9j\u00e0 affich\u00e9e \u2014 cette ligne est ton mod\u00e8le. \u00c9cris les deux lignes qui manquent, chacune avec LA bonne variable, ex\u00e9cute le programme et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYD() },
+  'python-operations': { name:'Somme, diff\u00e9rence, produit, quotient', icon:'\ud83e\uddee', desc:'Un programme calcule la somme et le produit de deux nombres a et b\u00a0: ex\u00e9cute-le, change a et b, regarde ce qui suit. Puis compl\u00e8te-le pour qu\u2019il calcule et affiche EN PLUS la diff\u00e9rence et le quotient de a par b, ex\u00e9cute et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPOP() },
   'python-types': { name:'int, float ou str\u00a0?', icon:'\ud83c\udff7\ufe0f', desc:'Trois types de variables : un entier (int), un nombre \u00e0 virgule (float), un texte entre guillemets (str). Le cours est sur l\u2019\u00e9cran ; lis chaque programme, dis le type de chaque variable \u2014 puis ex\u00e9cute-le : Python te r\u00e9pond avec type().', start:()=>startPTY() },
   'python-afficher-variable': { name:'Affiche la variable\u00a0!', icon:'\ud83d\udda8\ufe0f', desc:'On t\u2019explique comment afficher une variable, puis un programme commence par note = 12 : \u00e0 toi d\u2019\u00e9crire la suite pour qu\u2019il affiche la valeur de la variable. Ex\u00e9cute-le, puis v\u00e9rifie \u2014 en soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYC() },
   'python-noms-variables': { name:'Noms de variables en Python', icon:'\ud83c\udff7\ufe0f', desc:'Le nom d\u2019une variable doit respecter quatre r\u00e8gles. Pour chaque nom propos\u00e9, dis s\u2019il est correct ou incorrect \u2014 et, s\u2019il est incorrect, pourquoi.', start:()=>startPVN() },
@@ -3734,7 +3768,7 @@ const THEMES=[
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
-  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes'] }
+  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-operations'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -4379,6 +4413,7 @@ function conseilPaire(){
   else if(test.kind==='py' && q) b=ctxPy(q);
   else if(test.kind==='pyx' && q) b=ctxPyx(q);
   else if(test.kind==='pyd' && q) b=ctxPyd(q);
+  else if(test.kind==='pop' && q) b=ctxPop(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
@@ -4639,6 +4674,7 @@ const QIA_SUGG={
   pnv:["Pourquoi l’espace est-il interdit dans un nom de variable ?","Est-ce que je peux mettre un chiffre dans un nom de variable ?","Pourquoi « print » ne peut-il pas être un nom de variable ?","Comment écrire un nom qui contient deux mots ?"],
   pyp:["Pourquoi faut-il des guillemets autour du texte ?","Quelle est la différence entre print(bonjour) et print(\"bonjour\") ?","Pourquoi Print avec une majuscule ne marche pas ?","À quoi servent les parenthèses de print ?"],
   pyx:["Pourquoi faut-il des guillemets autour du texte, mais pas autour de la variable ?","À quoi sert la virgule dans print ?","Que se passe-t-il si j’écris la variable entre guillemets ?","Pourquoi Python dit-il que la variable « la » n’existe pas ?"],
+  pop:["Comment \u00e9crire une op\u00e9ration dans un programme\u00a0?","Pourquoi faut-il ranger le r\u00e9sultat dans une variable\u00a0?","Quelle diff\u00e9rence entre / et // en Python\u00a0?","Pourquoi le quotient s\u2019affiche-t-il avec un point\u00a0?"],
   pyd:["Comment savoir quelle variable écrire dans chaque ligne ?","Que se passe-t-il si je recopie la ligne déjà écrite sans rien changer ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Est-ce que je peux écrire les deux lignes dans l’ordre que je veux ?"],
   py:["Pourquoi le texte s’affiche-t-il sans les guillemets ?","Quelle est la différence entre note1 et \"note1\" dans un print ?","À quoi sert la virgule dans print ?","Comment s’écrit et s’affiche un nombre à virgule en Python ?"],
   sfl:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelles \u00e9tapes dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Comment savoir si ma fraction est bien simplifi\u00e9e\u00a0?","Est-ce que je peux choisir un autre d\u00e9nominateur commun\u00a0?"],
@@ -5186,7 +5222,19 @@ La ligne d’affichage <b>déjà écrite</b> est le modèle : <code class="inlin
 <b>② Le nom de la variable s’écrit sans guillemets</b> — c’est sa VALEUR qui s’affiche, pas son nom.<br>
 <b>③ Quand le programme a plusieurs variables</b>, chaque ligne doit nommer <b>LA bonne</b> : recopier la ligne du modèle afficherait la valeur de l’autre variable. Relis les premières lignes pour prendre celle qu’on te demande.<br>
 Exemple : avec <code class="inline">ville = "Brest"</code>, la ligne <code class="inline">print("tu habites à", ville)</code> affiche <code class="inline">tu habites à Brest</code>.`;
-const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD };
+/* Le rappel de {python-operations} : la variable qui garde un RESULTAT, les
+   quatre signes, et le fait qu'un calcul se fait avec les variables. Il est en
+   HTML pur, sans une seule fraction a empiler — et tout nombre a virgule y vit
+   dans une balise « code » : le controle des numeros en dur lirait sinon
+   « 5.0 » comme le numero d'un exercice. */
+const RAP_POP=`<b>Calculer avec des variables</b><br>
+Une variable peut garder le <b>r\u00e9sultat d\u2019un calcul</b>\u00a0: <code class="inline">somme = a + b</code> range dans <code class="inline">somme</code> la valeur de <code class="inline">a + b</code>.<br>
+<b>\u2460 Les quatre signes</b>\u00a0: <code class="inline">+</code> pour ajouter, <code class="inline">-</code> pour retirer, <code class="inline">*</code> pour multiplier, <code class="inline">/</code> pour diviser.<br>
+<b>\u2461 Le calcul se fait avec les VARIABLES</b>, jamais avec le r\u00e9sultat \u00e9crit \u00e0 la main\u00a0: si <code class="inline">a</code> ou <code class="inline">b</code> change, le r\u00e9sultat suit tout seul. C\u2019est tout l\u2019int\u00e9r\u00eat d\u2019un programme.<br>
+<b>\u2462 L\u2019ordre compte</b> pour la diff\u00e9rence et le quotient\u00a0: <code class="inline">a - b</code> n\u2019est pas <code class="inline">b - a</code>.<br>
+<b>\u2463 La barre de division</b> donne toujours un nombre \u00e0 virgule\u00a0: <code class="inline">a / b</code> affiche <code class="inline">5.0</code> et non <code class="inline">5</code>, m\u00eame quand la division tombe juste.<br>
+Pour afficher, on reprend la ligne mod\u00e8le\u00a0: <code class="inline">print("La somme de",a,"et",b,"est \u00e9gal \u00e0 ",somme)</code> \u2014 le texte entre guillemets, le <b>nom</b> des variables sans guillemets, et des <b>virgules</b> entre les deux.`;
+const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pop:RAP_POP };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -5295,7 +5343,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-operations'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -5724,7 +5772,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pop:['pop',renderPOP]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5848,7 +5896,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pop'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -18620,6 +18668,570 @@ function ctxPyd(q){
   return {nombre:'', contexte:c};
 }
 
+
+/* ---------- Exercice : somme, différence, produit, quotient --------------
+   Demande de Turquet (septembre 2026) : « faire un exercice en seconde comme
+   les 2 images » — l'exercice 12 du carnet et sa suite, en quatre temps :
+   a) exécuter un programme qui calcule la SOMME et le PRODUIT de deux
+   variables ; b) CHANGER les valeurs de a et de b et exécuter à nouveau ;
+   c) compléter le programme pour qu'il affiche EN PLUS la différence et le
+   quotient de a par b ; d) le tester en changeant les valeurs.
+
+   CE QU'IL AJOUTE AUX DEUX EXERCICES D'AVANT, ET C'EST TOUT LE SUJET : le 5.7
+   et le 5.8 font écrire des lignes d'AFFICHAGE sur des variables déjà
+   affectées. Ici la variable naît d'un CALCUL — « difference = a - b » —, et
+   c'est la première fois que l'élève écrit une opération dans un programme.
+   D'où DEUX familles de cases : l'EXPRESSION à droite du signe égal (la page
+   écrit le nom, comme le carnet, qui n'y laisse que des points de suspension)
+   et la LIGNE D'AFFICHAGE entière, sur le modèle des deux déjà écrites.
+
+   LE COURS EST LE a) ET LE b) DE LA FICHE, SUR SON PROPRE ÉCRAN (le motif du
+   {python-completer}) : le programme de la première image, dont a et b sont
+   deux CASES. « J'ai compris » ne s'ouvre qu'après DEUX exécutions à valeurs
+   DIFFÉRENTES — le b) est tenu par l'ÉTAT du bouton et non par une consigne
+   qu'on peut ne pas lire (la leçon de {placer-image}). Exécuter une fois ne
+   montre rien : c'est le CHANGEMENT qui fait voir que le programme calcule au
+   lieu de recopier.
+
+   LE JUGE NE COMPARE JAMAIS À UNE ÉCRITURE : il EXÉCUTE. Une expression est
+   juste si la variable prend la bonne valeur — « a - b », « a-b », « (a-b) »
+   passent toutes. Et LA SECONDE MÉTHODE EST LE d) DE LA FICHE : on rejoue le
+   calcul avec un AUTRE couple (a, b) et on exige qu'il SUIVE. « difference =
+   8 » donne la bonne valeur une fois et ne suit pas : c'est la doctrine de
+   {python-afficher-variable}, et c'est exactement ce que le d) demande à
+   l'élève de faire. La page le lui MONTRE d'ailleurs une fois sa copie juste
+   — son programme rejoué sous d'autres valeurs.
+
+   CHAQUE CASE SE JUGE SEULE : une ligne d'affichage est jugée sur les
+   calculs TÉMOINS, jamais sur ceux de l'élève — sans quoi une expression
+   fausse ferait rougir l'affichage qui la lit, et l'élève paierait deux fois
+   la même erreur. Les deux lignes d'affichage suivent la règle des paires
+   d'{antecedent-nombre} (pydApparier, partagée avec {python-deux-lignes}) :
+   rien à l'écran ne dit quelle case porte laquelle, l'ordre est donc libre et
+   la même ligne écrite deux fois est défendable une fois, fausse la seconde.
+   Les deux EXPRESSIONS, elles, sont ancrées à leur nom : la page l'écrit
+   devant la case, chacune a sa promesse propre.
+
+   LE TIRAGE GARANTIT QUE a EST UN MULTIPLE DE b, et ce n'est pas une
+   coquetterie : le quotient tombe alors juste et Python l'écrit quand même
+   avec un point — « 5.0 » — ce qui EST la leçon du visage décimal du
+   {python-affichage} ; sans cette garantie, 7 / 3 afficherait
+   2.3333333333333335 et la question ne parlerait plus que de flottants. La
+   fiche du carnet respecte d'elle-même la règle (a = 10, b = 2), et elle est
+   ÉPINGLÉE en première question. Les deux autres questions écrivent les deux
+   opérations restantes, si bien que chacune des quatre est écrite au moins
+   une fois dans la séance et sert de modèle au moins une fois.
+
+   Aucune correction au fil de la frappe (soutienEnDirect.sans) : une ligne de
+   code se juge écrite, pas lettre par lettre. */
+const POP_OPS=[
+  {cle:'somme',      op:'+', txt:'La somme de',      mot:'la <b>somme</b> de a et b',      nu:'la somme de a et b'},
+  {cle:'difference', op:'-', txt:'La différence de', mot:'la <b>différence</b> de a et b', nu:'la différence de a et b'},
+  {cle:'produit',    op:'*', txt:'Le produit de',    mot:'le <b>produit</b> de a et b',    nu:'le produit de a et b'},
+  {cle:'quotient',   op:'/', txt:'Le quotient de',   mot:'le <b>quotient</b> de a par b',  nu:'le quotient de a par b'}
+];
+const POP_FIN='est égal à ';
+const POP_NB=3;
+/* la fiche du carnet, épinglée en première question */
+const POP_FICHE={a:10, b:2, ecrire:['difference','quotient']};
+/* le programme du a) : la première image, sans différence ni quotient */
+const POP_DEC={a:6, b:5, ops:['somme','produit']};
+function popOp(cle){ return POP_OPS.filter(function(o){ return o.cle===cle; })[0]; }
+function popCalcLigne(cle){ const o=popOp(cle); return o.cle+' = a '+o.op+' b'; }
+function popPrintLigne(cle){ const o=popOp(cle); return 'print("'+o.txt+'",a,"et",b,"'+POP_FIN+'",'+o.cle+')'; }
+function popAffects(a,b){ return 'a = '+a+'\nb = '+b; }
+function popNet(l){ return String(l==null?'':l).replace(/[\r\n]+/g,' ').trim(); }
+/* Les valeurs attendues viennent de pyRun — la fonction MÊME qui exécute le
+   programme sous « Exécuter » : la correction ne peut pas contredire la
+   console. */
+function popEtat(a,b){ return pyRun(popAffects(a,b)+'\n'+POP_OPS.map(function(o){ return popCalcLigne(o.cle); }).join('\n')).env; }
+function popValeur(a,b,cle){ const v=popEtat(a,b)[cle]; return v===undefined?'':pyRep(v); }
+function popTemoinSrc(a,b){ return popAffects(a,b)+'\n'+POP_OPS.map(function(o){ return popCalcLigne(o.cle); }).join('\n'); }
+function popSortie(a,b,cle){ return pyRun(popTemoinSrc(a,b)+'\n'+popPrintLigne(cle)).out; }
+/* LE SECOND COUPLE — le d) de la fiche, fait par la page. Il est CHERCHÉ et
+   non supposé : il faut que les QUATRE valeurs changent, sans quoi le rejeu
+   n'écarterait rien (avec a = 10, b = 2, le couple 9 / 3 garde la somme 12).
+   Il suit les mêmes règles que le tirage — a multiple de b — pour que le
+   quotient reste lisible. */
+function popAutres(q){
+  const av=popEtat(q.a,q.b);
+  for(let b=2;b<=9;b++) for(let k=2;k<=9;k++){
+    const a=b*k;
+    if(a===q.a||b===q.b||a>60) continue;
+    const ap=popEtat(a,b);
+    if(POP_OPS.every(function(o){ return pyRep(ap[o.cle])!==pyRep(av[o.cle]); })) return {a:a,b:b};
+  }
+  return null;
+}
+/* Le témoin est ÉCRIT depuis la question : elle ne porte que a, b et les deux
+   opérations à écrire — le contrôle refuse tout autre champ. */
+function popAns(q){
+  const A=popAutres(q);
+  return q.ecrire.map(function(cle){
+    const o=popOp(cle);
+    return {cle:cle, nom:cle, texte:o.txt, expr:'a '+o.op+' b', calc:popCalcLigne(cle), ligne:popPrintLigne(cle),
+            valeur:popValeur(q.a,q.b,cle), sortie:popSortie(q.a,q.b,cle),
+            valeur2:A?popValeur(A.a,A.b,cle):'', sortie2:A?popSortie(A.a,A.b,cle):''};
+  });
+}
+function popDonnees(q){ return POP_OPS.map(function(o){ return o.cle; }).filter(function(c){ return q.ecrire.indexOf(c)<0; }); }
+function popNoms(q){ return ['a','b'].concat(POP_OPS.map(function(o){ return o.cle; })); }
+/* Les quatre cases : deux EXPRESSIONS ancrées à leur nom, puis deux LIGNES
+   d'affichage dont l'ordre est libre. */
+function popCases(q){
+  return q.ecrire.map(function(cle,i){ return {id:'pop-ex'+i, genre:'ex', cle:cle}; })
+    .concat(q.ecrire.map(function(cle,i){ return {id:'pop-pr'+i, genre:'pr'}; }));
+}
+/* ---- Le juge des EXPRESSIONS ---- */
+/* LE PROGRAMME DU JUGE D’UNE EXPRESSION S’ARRÊTE À LA LIGNE JUGÉE : les
+   calculs qui la PRÉCÈDENT sont là, ceux qui la suivent non — c’est ce que
+   Python voit à cet endroit du programme. Sans eux, « difference = somme »
+   levait une NameError sur une variable qui existe pourtant, et le diagnostic
+   accusait une majuscule ; avec eux, il nomme la vraie erreur : le calcul
+   donne la somme. Les calculs précédents sont les TÉMOINS, jamais ceux de
+   l’élève : chaque case se juge SEULE. */
+function popExprSrc(a,b,cle,l){
+  const i=POP_OPS.map(function(o){ return o.cle; }).indexOf(cle);
+  return popAffects(a,b)+'\n'+POP_OPS.slice(0,i).map(function(o){ return popCalcLigne(o.cle); }).concat([cle+' = '+l]).join('\n');
+}
+function popEvalExpr(a,b,cle,l){
+  try{
+    const r=pyRun(popExprSrc(a,b,cle,l)), v=r.env[cle];
+    return v===undefined?{err:'la variable « '+cle+' » ne reçoit aucune valeur'}:{val:pyRep(v), type:v.t};
+  }catch(e){ return {err:e.message||String(e)}; }
+}
+function popDiagExpr(q, cle, l, un, deux){
+  const o=popOp(cle);
+  if(/^[A-Za-z_À-ɏ][\wÀ-ɏ]*\s*=/.test(l))
+    return 'La page écrit déjà « '+cle+' = » devant la case : à droite du signe égal, il ne reste que le CALCUL, avec a et b.';
+  if(un.err){
+    const mn=String(un.err).match(/NameError : la variable « ([^»]+) » n’existe pas/);
+    if(mn){
+      const x=mn[1], noms=popNoms(q), j=noms.map(function(n){ return n.toLowerCase(); }).indexOf(x.toLowerCase());
+      if(j>=0 && noms[j]!==x) return 'Python distingue les majuscules : la variable s’appelle « '+noms[j]+' », pas « '+x+' ».';
+      return '« '+x+' » n’est pas une variable du programme : le calcul s’écrit avec a et b, les deux variables des lignes 1 et 2.';
+    }
+    if(/guillemet/.test(un.err)) return 'Un calcul ne se met pas entre guillemets : entre guillemets, Python voit du TEXTE et non des nombres.';
+    if(/TypeError/.test(un.err)) return 'Python refuse ce calcul : « '+un.err+' ». Ici, a et b sont des nombres — écris l’opération entre eux.';
+    return 'Python s’arrête sur une erreur : « '+un.err+' ». Le calcul s’écrit avec a, b et un signe d’opération : + − * ou /.';
+  }
+  if(un.type==='str') return 'Un calcul ne se met pas entre guillemets : Python y voit du TEXTE, et la variable « '+cle+' » reçoit les lettres « '+un.val+' » au lieu d’un nombre.';
+  if(/\/\//.test(l)) return '« // » est la division ENTIÈRE : elle jette ce qu’il y a après la virgule. Le quotient s’écrit avec une seule barre : /.';
+  const suit=deux && !deux.err && deux.val!==un.val;
+  if(!suit && !/\ba\b/.test(l) && !/\bb\b/.test(l))
+    return 'Ton calcul ne se sert ni de a ni de b : tu as écrit le résultat à la main. Si a et b changeaient, ta ligne afficherait toujours la même chose — écris l’opération, pas son résultat.';
+  const inv=popEvalExpr(q.a,q.b,cle,'b '+o.op+' a');
+  if(!inv.err && inv.val===un.val && un.val!==popValeur(q.a,q.b,cle))
+    return 'L’ordre compte : on demande '+o.nu+', donc a '+o.op+' b — tu as écrit b '+o.op+' a.';
+  const autre=POP_OPS.filter(function(x){ return x.cle!==cle && popValeur(q.a,q.b,x.cle)===un.val; })[0];
+  if(autre) return 'Ce n’est pas la bonne opération : ton calcul donne '+autre.nu+'. Pour '+o.nu+', le signe est « '+o.op+' ».';
+  if(!suit && un.val===popValeur(q.a,q.b,cle)) return 'Ton calcul donne la bonne valeur ici, mais il ne suit pas quand a et b changent : écris l’opération avec a et b, pas un nombre fixe.';
+  return 'Ton calcul donne '+un.val+', alors que '+o.nu+' vaut autre chose. Le signe de l’opération est « '+o.op+' ».';
+}
+function popJugeExpr(q, cle, texte){
+  const l=popNet(texte);
+  if(!l) return {vide:true, ok:false, diag:''};
+  const A=popAutres(q), un=popEvalExpr(q.a,q.b,cle,l), deux=A?popEvalExpr(A.a,A.b,cle,l):null;
+  const ok=!un.err && un.val===popValeur(q.a,q.b,cle) && !!deux && !deux.err && deux.val===popValeur(A.a,A.b,cle);
+  return {vide:false, ok:ok, val:un.val||'', erreur:un.err||'', diag:ok?'':popDiagExpr(q,cle,l,un,deux)};
+}
+/* ---- Le juge des LIGNES D'AFFICHAGE ----
+   Elles sont jugées sur les calculs TÉMOINS, jamais sur les expressions de
+   l'élève : chaque case se juge SEULE, et une expression fausse ne doit pas
+   faire rougir l'affichage qui la lit. */
+function popPrintSrc(a,b,l){ return popTemoinSrc(a,b)+'\n'+popNet(l); }
+function popEvalPrint(q,l){
+  const A=popAutres(q), out={};
+  try{ out.r=pyRun(popPrintSrc(q.a,q.b,l)); }catch(e){ out.err=e; return out; }
+  if(A){ try{ out.r2=pyRun(popPrintSrc(A.a,A.b,l)); }catch(e){ out.r2=null; } }
+  return out;
+}
+function popDiagPrint(q, s, a, autre){
+  const qi={nom:a.nom, texte:a.texte, noms:popNoms(q)};
+  if(s.err) return pyxDiagErreur(qi, s.l, s.err.message, a);
+  const r=s.r;
+  if(!r.prints.length) return 'Ta ligne s’exécute sans erreur, mais elle n’affiche RIEN : pour afficher, il faut print(…).';
+  const donne=popDonnees(q).filter(function(c){ return pyxAffiche(r.out, {sortie:popSortie(q.a,q.b,c), valeur:popValeur(q.a,q.b,c)}); })[0];
+  if(donne) return 'Tu as recopié une ligne déjà écrite : elle affiche '+popOp(donne).nu+'. Ici, il faut '+popOp(a.cle).nu+'.';
+  if(autre && pyxAffiche(r.out, autre) && pyxUtilise(s.l, autre.nom))
+    return 'Cette ligne affiche la même chose que l’autre : les deux lignes qui manquent affichent deux choses DIFFÉRENTES. Il reste à écrire celle qui affiche '+popOp(a.cle).nu+'.';
+  if(pyxAffiche(r.out, a) && !pyxUtilise(s.l, a.nom))
+    return 'Ton programme affiche bien « '+r.out.trim()+' », mais sans se servir de la variable '+a.nom+' : la valeur est recopiée ou recalculée à la main. Écris le NOM de la variable, sans guillemets — si a et b changeaient, l’affichage suivrait.';
+  if(pyxAffiche(r.out, a) && s.r2 && !pyxAffiche(s.r2.out, {sortie:a.sortie2, valeur:a.valeur2}))
+    return 'Ton affichage est juste pour ces valeurs-là seulement : des nombres y sont écrits à la main. Écris a, b et '+a.nom+', et l’affichage suivra quelles que soient les valeurs.';
+  const p=r.prints[0];
+  if(p && p.args.some(function(x,i){ return x.k==='str' && x.v===a.nom; }))
+    return '« '+a.nom+' » entre guillemets est un TEXTE : Python affiche le mot '+a.nom+', pas sa valeur. Le nom d’une variable s’écrit SANS guillemets.';
+  return 'Ton programme affiche « '+r.out.trim()+' » alors qu’il devrait afficher « '+a.sortie.trim()+' » : reprends une des deux lignes print déjà écrites et change le texte du début et la variable de la fin.';
+}
+function popJugePrints(q, lignes){
+  const att=popAns(q);
+  const res=(lignes||[]).map(function(x){
+    const l=popNet(x);
+    if(!l) return {l:'', vide:true, prom:att.map(function(){ return false; })};
+    const s=popEvalPrint(q,l); s.l=l; s.vide=false;
+    s.prom=att.map(function(a){
+      return !!s.r && pyxAffiche(s.r.out,a) && pyxUtilise(l,a.nom)
+        && !!s.r2 && pyxAffiche(s.r2.out,{sortie:a.sortie2, valeur:a.valeur2});
+    });
+    return s;
+  });
+  const m=pydApparier(res.map(function(s){ return s.prom; }));
+  return res.map(function(s,i){
+    const j=m[i], a=att[j], autre=att[1-j];
+    if(s.vide) return {vide:true, ok:false, att:a, diag:''};
+    const ok=!!s.prom[j];
+    return {vide:false, ok:ok, att:a, sortie:s.r?s.r.out:'', erreur:s.err?s.err.message:'',
+            ecart:(ok&&s.r)?pyEcart(s.r.out.replace(/\n$/,''), a.sortie.replace(/\n$/,'')):'',
+            diag:ok?'':popDiagPrint(q, s, a, autre)};
+  });
+}
+/* Le juge de la question : les deux expressions, puis les deux affichages. */
+function popJuge(q, saisies){
+  const ex=q.ecrire.map(function(cle,i){ const j=popJugeExpr(q, cle, (saisies&&saisies[i])||''); j.att=popAns(q)[i]; return j; });
+  return ex.concat(popJugePrints(q, (saisies||[]).slice(q.ecrire.length)));
+}
+/* ---- Le tirage ---- */
+/* a est un MULTIPLE de b : le quotient tombe juste, et Python l'écrit quand
+   même avec un point. */
+function popCouple(interdits){
+  for(let essai=0;essai<400;essai++){
+    const b=rand(2,9), k=rand(2,9), a=b*k;
+    if(a>60) continue;
+    if((interdits||[]).some(function(c){ return c.a===a && c.b===b; })) continue;
+    if(!popAutres({a:a,b:b})) continue;
+    return {a:a,b:b};
+  }
+  return {a:12,b:4};
+}
+/* La fiche en tête, puis les DEUX opérations qu'elle n'écrit pas — chacune
+   des quatre est donc écrite au moins une fois, et sert de modèle au moins
+   une fois. La troisième opération de chaque paire est tirée, et les trois
+   paires de la séance restent deux à deux distinctes. */
+function popBuildQuestions(){
+  const CLES=POP_OPS.map(function(o){ return o.cle; });
+  const ordre=function(x,y){ return CLES.filter(function(c){ return c===x||c===y; }); };
+  const cle=function(p){ return p.slice().sort().join(','); };
+  const paires=[POP_FICHE.ecrire.slice()];
+  ensShuffle(CLES.filter(function(c){ return POP_FICHE.ecrire.indexOf(c)<0; })).forEach(function(c){
+    const autres=ensShuffle(CLES.filter(function(x){ return x!==c; }));
+    const c2=autres.filter(function(x){ return !paires.some(function(p){ return cle(p)===cle([c,x]); }); })[0]||autres[0];
+    paires.push(ordre(c,c2));
+  });
+  const vus=[{a:POP_FICHE.a, b:POP_FICHE.b}];
+  return paires.slice(0,POP_NB).map(function(ec,i){
+    if(i===0) return {a:POP_FICHE.a, b:POP_FICHE.b, ecrire:ec};
+    const c=popCouple(vus); vus.push(c);
+    return {a:c.a, b:c.b, ecrire:ec};
+  });
+}
+/* Le cadre du cours : ce que l’exercice enseigne, dit avant qu’on le fasse. */
+function popCoursHTML(){
+  return '<div class="pyx-cours">'
+    +'<p class="pyx-titre">Calculer avec des variables</p>'
+    +'<ul class="pyx-regles">'
+    +'<li>\u2460 Une variable peut garder le R\u00c9SULTAT d\u2019un calcul\u00a0: <code>somme = a + b</code> range dans <code>somme</code> la valeur de <code>a + b</code>.</li>'
+    +'<li>\u2461 Les quatre op\u00e9rations s\u2019\u00e9crivent <code>+</code>, <code>-</code>, <code>*</code> (multiplier) et <code>/</code> (diviser).</li>'
+    +'<li>\u2462 Le calcul se fait avec les VARIABLES, jamais avec le r\u00e9sultat \u00e9crit \u00e0 la main\u00a0: si <code>a</code> ou <code>b</code> change, le r\u00e9sultat suit.</li>'
+    +'<li>\u2463 <code>/</code> donne toujours un nombre \u00e0 virgule\u00a0: <code>a / b</code> affiche <code>5.0</code> et non <code>5</code>, m\u00eame quand la division tombe juste.</li>'
+    +'</ul></div>';
+}
+/* ---- L'écran ---- */
+function popProgLignes(q){
+  const donne=popDonnees(q);
+  const l=[{t:'w', s:'a = '+q.a},{t:'w', s:'b = '+q.b}];
+  POP_OPS.forEach(function(o){
+    if(q.ecrire.indexOf(o.cle)>=0) l.push({t:'ex', cle:o.cle, id:'pop-ex'+q.ecrire.indexOf(o.cle)});
+    else l.push({t:'w', s:popCalcLigne(o.cle)});
+  });
+  donne.forEach(function(c){ l.push({t:'w', s:popPrintLigne(c)}); });
+  q.ecrire.forEach(function(c,i){ l.push({t:'pr', id:'pop-pr'+i}); });
+  return l;
+}
+function popNumLigne(q, pred){ const l=popProgLignes(q); for(let i=0;i<l.length;i++) if(pred(l[i])) return i+1; return 0; }
+function popProgHTML(q){
+  return '<div class="pyx-prog">'+popProgLignes(q).map(function(x,i){
+    const n='<span class="pyx-num">'+(i+1)+'</span>';
+    if(x.t==='w') return '<div class="pyx-ligne">'+n+'<span class="pyx-l1">'+pyColorie(x.s)+'</span></div>';
+    if(x.t==='ex') return '<div class="pyx-ligne">'+n+'<span class="pop-lbl">'+pyColorie(x.cle+' = ')+'</span>'
+      +'<input class="pyx-in pop-ex" id="'+x.id+'" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="calcul de la ligne '+(i+1)+'" placeholder="le calcul…"></div>';
+    return '<div class="pyx-ligne">'+n+'<input class="pyx-in" id="'+x.id+'" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ligne '+(i+1)+' du programme" placeholder="écris ici une des deux lignes d’affichage…"></div>';
+  }).join('')+'</div>';
+}
+/* La consigne du carnet, à puces — l'ordre des deux lignes d'affichage est
+   libre, et l'écran le dit. */
+function popConsigneHTML(q){
+  const mod=popDonnees(q), l1=popNumLigne(q,function(x){ return x.t==='pr'; });
+  return '<p class="py-label">Complète le programme, ci-dessous, pour&nbsp;:</p>'
+    +'<ul class="pyd-puces">'
+    +q.ecrire.map(function(c,i){
+      const o=popOp(c), n=popNumLigne(q,function(x){ return x.t==='ex' && x.cle===c; });
+      return '<li>ligne '+n+'&nbsp;: ranger '+o.mot+' dans la variable <code>'+esc(c)+'</code>&nbsp;;</li>';
+    }).join('')
+    +'<li>lignes '+l1+' et '+(l1+1)+'&nbsp;: <b>afficher</b> '+q.ecrire.map(function(c){ return popOp(c).mot; }).join(' et ')
+    +', sur le <b>modèle</b> des deux lignes <code>print</code> déjà écrites — avec les textes <code>'+esc(popOp(q.ecrire[0]).txt)+'</code> et <code>'+esc(popOp(q.ecrire[1]).txt)+'</code>.</li>'
+    +'</ul>'
+    +'<p class="pyd-note">Écris les deux lignes d’affichage dans l’ordre que tu veux, puis <b>vérifie en exécutant le programme</b>.</p>';
+}
+function popPoucesHTML(){
+  return pyPoucesHTML([
+    ['coup de pouce 1', 'Une ligne de calcul s’écrit <code>nom = calcul</code>. Le nom est déjà écrit&nbsp;: à droite du <code>=</code>, il ne reste que l’opération entre <code>a</code> et <code>b</code>. Les signes de Python&nbsp;: <code>+</code> pour ajouter, <code>-</code> pour retirer, <code>*</code> pour multiplier, <code>/</code> pour diviser.'],
+    ['coup de pouce 2', 'Pour l’affichage, recopie une des deux lignes <code>print</code> déjà écrites et change <b>deux choses</b>&nbsp;: le texte du début, et le <b>nom de la variable</b> à la fin — sans guillemets autour du nom, sinon c’est le mot qui s’affiche et non sa valeur.']
+  ]);
+}
+/* ---- Le cours : le a) et le b) de la fiche, sur son propre écran ----
+   Le programme de la première image, dont a et b sont deux CASES. « J'ai
+   compris » ne s'ouvre qu'après DEUX exécutions à valeurs DIFFÉRENTES : une
+   seule ne montre rien, c'est le CHANGEMENT qui fait voir que le programme
+   calcule. Le couple n'est retenu que si l'exécution a RÉUSSI — une case où
+   l'élève aurait tapé autre chose qu'un nombre reçoit l'erreur de Python,
+   comme dans un vrai carnet, et ne compte pas pour un essai. */
+const POP_INSTR_COURS='Lis le programme, exécute-le, puis CHANGE les valeurs de a et de b et exécute-le à nouveau.';
+function popDecSrc(a,b){
+  return popAffects(a,b)+'\n'+POP_DEC.ops.map(function(c){ return popCalcLigne(c); }).join('\n')
+    +'\n'+POP_DEC.ops.map(function(c){ return popPrintLigne(c); }).join('\n');
+}
+function popDecValeurs(){
+  const a=$('pop-a'), b=$('pop-b');
+  return {a:popNet(a?a.value:''), b:popNet(b?b.value:'')};
+}
+function popDecHTML(){
+  const l=popDecSrc(POP_DEC.a,POP_DEC.b).split('\n');
+  const c=function(i,id,v){ return '<div class="pyx-ligne"><span class="pyx-num">'+i+'</span><span class="pop-lbl">'+pyColorie(id+' = ')+'</span>'
+    +'<input class="pyx-in pop-ex pop-val" id="pop-'+id+'" type="text" inputmode="numeric" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="valeur de '+id+'" value="'+esc(String(v))+'"></div>'; };
+  return '<div class="pyx-prog">'+c(1,'a',POP_DEC.a)+c(2,'b',POP_DEC.b)
+    +l.slice(2).map(function(s,i){ return '<div class="pyx-ligne"><span class="pyx-num">'+(i+3)+'</span><span class="pyx-l1">'+pyColorie(s)+'</span></div>'; }).join('')
+    +'</div>';
+}
+function popRenderCours(){
+  test.locked=false; test.popExec=null; test.popVus=[];
+  $('popIdx').textContent='Le cours';
+  $('popInstr').textContent=POP_INSTR_COURS;
+  $('modeTagPOP').innerHTML=modeTagHTML();
+  $('popLiveScore').textContent=test.score;
+  $('popFeedback').textContent=''; $('popFeedback').className='mp-feedback';
+  $('popActions').innerHTML=conseilInlineBtn()
+    +'<button class="btn btn-primary" id="popCompris" type="button" onclick="popCompris()" disabled title="Exécute d’abord le programme, puis change a et b et exécute à nouveau">J’ai compris</button>';
+  $('popHost').innerHTML=
+    '<div class="py-cell">'
+    +popCoursHTML()
+    +'<p class="py-label">Le programme du cours — exécute-le, puis change a et b&nbsp;:</p>'
+    +popDecHTML()
+    +'<div class="py-runrow"><button class="btn btn-primary" id="popDecRun" type="button" onclick="popDecExecuter()">▶ Exécuter le programme</button>'
+    +'<span class="py-hint" id="popDecHint">Exécute le programme pour voir ce qu’il affiche.</span></div>'
+    +'<p class="py-label">Ce que le programme affiche</p>'
+    +'<pre class="py-console" id="popDecConsole"></pre>'
+    +'</div>';
+  ['pop-a','pop-b'].forEach(function(id){
+    const e=$(id); if(!e) return;
+    e.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); popDecExecuter(); } });
+  });
+}
+function popDecExecuter(){
+  const c=$('popDecConsole'); if(!c) return;
+  const v=popDecValeurs(); let out='', err=false;
+  try{ out=pyRun(popDecSrc(v.a,v.b)).out; }catch(e){ out='Erreur : '+e.message; err=true; }
+  c.textContent=out.replace(/\n$/,'');
+  c.classList.add('py-exec'); c.classList.toggle('pyx-err',err); c.classList.toggle('pyx-vide',!err&&!out);
+  if(!Array.isArray(test.popVus)) test.popVus=[];
+  const couple=v.a+'|'+v.b;
+  if(!err && test.popVus.indexOf(couple)<0) test.popVus.push(couple);
+  const h=$('popDecHint'), b=$('popCompris'), pret=test.popVus.length>=2;
+  if(h) h.textContent=err
+    ? 'Python s’arrête sur une erreur : a et b doivent être des NOMBRES. Corrige, puis exécute à nouveau.'
+    : (pret ? 'Les résultats ont CHANGÉ : le programme ne recopie pas des nombres, il les CALCULE à partir de a et de b. Clique « J’ai compris ».'
+            : 'Le programme affiche la somme et le produit. Maintenant CHANGE les valeurs de a et de b, puis exécute à nouveau : que devient l’affichage ?');
+  if(b){ b.disabled=!pret; b.title=pret?'':'Change les valeurs de a et de b, puis exécute à nouveau'; if(pret) b.focus(); }
+}
+function popCompris(){ renderPOP(); }
+/* ---- Cycle de vie ---- */
+async function startPOP(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=popBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pop', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+popCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false, popExec:null, popVus:[]});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pop'); popRenderCours();
+}
+function popSaisies(){ return popCases(test.questions[test.idx]).map(function(c){ const e=$(c.id); return e?e.value:''; }); }
+function popEnonceHTML(q){
+  return 'Complète le programme pour qu’il affiche <b>en plus</b> '+q.ecrire.map(function(c){ return popOp(c).mot; }).join(' et ')+'.';
+}
+function renderPOP(){
+  const q=test.questions[test.idx]; test.locked=false; test.popExec=null;
+  $('popIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('popInstr').innerHTML=popEnonceHTML(q);
+  $('modeTagPOP').innerHTML=modeTagHTML();
+  $('popLiveScore').textContent=test.score;
+  $('popFeedback').textContent=''; $('popFeedback').className='mp-feedback';
+  $('popActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="popValidate" onclick="checkPOP()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
+  $('popHost').innerHTML=
+    '<div class="py-cell">'
+    +popConsigneHTML(q)
+    +popPoucesHTML()
+    +popProgHTML(q)
+    +'<div class="py-runrow"><button class="btn btn-primary" id="popRun" type="button" onclick="popExecuter()">▶ Exécuter le programme</button>'
+    +'<span class="py-hint" id="popRunHint">Complète les quatre lignes, puis exécute le programme pour voir ce qu’il affiche.</span></div>'
+    +'<p class="py-label">Ce que le programme affiche</p>'
+    +'<pre class="py-console" id="popConsole"></pre>'
+    +'</div>';
+  popCases(q).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.addEventListener('input', popModifiee);
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); popExecuter(); } });
+  });
+  popMaj();
+}
+/* le programme ENTIER, celui que « Exécuter » fait tourner : les lignes de
+   l'élève à LEUR place, comme dans le carnet */
+function popProg(q, saisies, a, b){
+  const s=(saisies||[]).map(popNet), n=q.ecrire.length;
+  return popProgLignes(q).map(function(x,i){
+    if(x.t==='w') return i===0?('a = '+(a===undefined?q.a:a)):(i===1?('b = '+(b===undefined?q.b:b)):x.s);
+    if(x.t==='ex') return x.cle+' = '+(s[q.ecrire.indexOf(x.cle)]||'');
+    return s[n+parseInt(x.id.slice(-1),10)]||'';
+  }).filter(function(l){ return popNet(l)!==''&&!/=\s*$/.test(l); }).join('\n');
+}
+/* « Vérifier » ne s'ouvre que sur un programme exécuté tel qu'il est écrit */
+function popMaj(){
+  const v=$('popValidate'); if(!v) return;
+  const pret=(typeof test.popExec==='string') && test.popExec===JSON.stringify(popSaisies().map(popNet));
+  v.disabled=!pret; v.title=pret?'':'Exécute d’abord ton programme';
+}
+function popModifiee(){
+  if(test.locked) return;
+  popCases(test.questions[test.idx]).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
+  });
+  const c=$('popConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','pyx-vide','pyx-err'); }
+  const h=$('popRunHint');
+  if(h) h.textContent=(typeof test.popExec==='string')?'Tu as modifié le programme : exécute-le à nouveau pour voir ce qu’il affiche, puis vérifie.':'Complète les quatre lignes, puis exécute le programme pour voir ce qu’il affiche.';
+  popMaj();
+}
+function popExecuter(depuisVerif){
+  if(test.locked) return;
+  const q=test.questions[test.idx], c=$('popConsole'); if(!c) return;
+  const s=popSaisies().map(popNet); let out='', err=false;
+  try{ out=pyRun(popProg(q,s)).out; }catch(e){ out='Erreur : '+e.message; err=true; }
+  c.textContent=out.replace(/\n$/,'');
+  c.classList.add('py-exec'); c.classList.toggle('pyx-err',err); c.classList.toggle('pyx-vide',!err&&!out);
+  test.popExec=JSON.stringify(s);
+  const h=$('popRunHint');
+  if(h) h.textContent=s.filter(function(l){ return l!==''; }).length
+    ? 'Programme exécuté : compare ce qu’il affiche avec ce qui est demandé, puis clique « Vérifier ».'
+    : 'Les quatre lignes sont vides : le programme n’affiche que les deux lignes déjà écrites. Complète-les, puis exécute-le.';
+  popMaj();
+  if(!depuisVerif && s.some(function(l){ return l!==''; })){ const v=$('popValidate'); if(v&&!v.disabled) v.focus(); }
+}
+/* LE d) DE LA FICHE, FAIT PAR LA PAGE : une fois la copie juste, son
+   programme est rejoué sous d'AUTRES valeurs de a et de b — c'est la seconde
+   méthode du juge, montrée à l'élève. */
+function popRejeuHTML(q, s){
+  const A=popAutres(q); if(!A) return '';
+  let out=''; try{ out=pyRun(popProg(q,s,A.a,A.b)).out; }catch(e){ return ''; }
+  return '<div class="pop-rejeu"><b>Et si on change les valeurs&nbsp;?</b> Avec <code>a = '+A.a+'</code> et <code>b = '+A.b
+    +'</code>, ton programme affiche&nbsp;:<pre class="py-console py-exec">'+esc(out.replace(/\n$/,''))+'</pre>'
+    +'Ton programme ne recopie aucun résultat&nbsp;: il les CALCULE.</div>';
+}
+function checkPOP(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], cases=popCases(q), fb=$('popFeedback');
+  const s=popSaisies().map(popNet);
+  /* la console montre TOUJOURS ce que le juge a lu */
+  if(test.popExec!==JSON.stringify(s)) popExecuter(true);
+  const j=popJuge(q, s);
+  cases.forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
+  });
+  /* UNE CASE VIDE N'EST JAMAIS PEINTE : on la redemande, sans rien colorer ni
+     verrouiller — rouge veut dire FAUX, jamais « pas fini ». */
+  const vides=j.filter(function(x){ return x.vide; }).length;
+  if(vides){
+    fb.textContent='Il te manque '+vides+' ligne'+(vides>1?'s':'')+' — complète-'+(vides>1?'les':'la')+', exécute le programme, puis vérifie.';
+    fb.className='mp-feedback bad';
+    const vide=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && !popNet(e.value); });
+    if(vide) vide.focus();
+    return;
+  }
+  j.forEach(function(x,i){ const inp=$(cases[i].id); if(inp) inp.classList.add(x.ok?'ok':'bad'); });
+  const justes=j.filter(function(x){ return x.ok; }).length, allOk=justes===j.length;
+  const oules=function(){
+    return '<b>Où est l’erreur&nbsp;?</b> '+j.map(function(x,i){
+      return x.ok?'':('<b>Ligne '+popLigneDe(q,i)+'&nbsp;:</b> '+esc(x.diag));
+    }).filter(function(t){ return t; }).join('<br>');
+  };
+  if(!allOk && isSoutien()){
+    fb.innerHTML=oules()+'<br>Corrige, exécute le programme, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('popActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="popValidate" onclick="checkPOP()">Revérifier</button>';
+    popMaj();
+    const bad=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && e.classList.contains('bad'); });
+    if(bad) setTimeout(function(){ bad.focus(); },40);
+    return;
+  }
+  test.locked=true;
+  cases.forEach(function(c){ const inp=$(c.id); if(inp) inp.disabled=true; });
+  const run=$('popRun'); if(run) run.disabled=true;
+  const h=$('popRunHint'); if(h) h.textContent='Programme exécuté et vérifié.';
+  test.score+=justes;
+  if(allOk){
+    const ecarts=j.map(function(x){ return x.ecart; }).filter(function(e){ return e; });
+    fb.innerHTML=esc(pick(['Bravo, ton programme est complet !','Parfait !','Excellent !'])
+      +(ecarts.length?(' C’est accepté : '+ecarts.join(', ')+' — le programme affiche bien les deux choses demandées.')
+                     :' Le programme calcule et affiche exactement ce qui était demandé.'))
+      +popRejeuHTML(q,s);
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=oules()+'<br>La bonne écriture est en vert sous la tienne.';
+    fb.className='mp-feedback bad';
+    j.forEach(function(x,i){
+      if(x.ok) return;
+      const inp=$(cases[i].id);
+      if(inp) inp.insertAdjacentHTML('afterend','<span class="mf-cor pyx-cor">'+esc(i<q.ecrire.length?x.att.expr:x.att.ligne)+'</span>');
+    });
+  }
+  $('popLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:allOk, q:popProg(q,s).replace(/\n+/g,' ⏎ '),
+    answer:popAns(q).map(function(a){ return a.calc+' ⏎ '+a.ligne; }).join(' ⏎ '), given:s.join(' ⏎ ')||'?'});
+  const last=test.idx===test.questions.length-1;
+  $('popActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="popNext" onclick="nextPOP()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('popNext'); if(nb) nb.focus();
+}
+/* le numéro de LIGNE d'une case, pour que le diagnostic dise où regarder */
+function popLigneDe(q, i){
+  const l=popProgLignes(q), c=popCases(q)[i];
+  for(let k=0;k<l.length;k++) if(l[k].id===c.id) return k+1;
+  return 0;
+}
+function nextPOP(){ if(test.idx<test.questions.length-1){ test.idx++; renderPOP(); autoSave(); } else finishTest(); }
+function ctxPop(q){
+  let att=null; try{ att=popAns(q); }catch(e){}
+  const s=popCases(q).map(function(c){ const e=$(c.id); return e?popNet(e.value):''; });
+  let j=null; try{ j=popJuge(q,s); }catch(e){}
+  let c='L’élève doit COMPLÉTER un programme Python qui calcule et affiche les quatre opérations sur deux nombres a = '+q.a+' et b = '+q.b+'. '
+    +'Les lignes déjà écrites calculent et affichent '+popDonnees(q).map(function(x){ return popOp(x).nu; }).join(' et ')+'. '
+    +'Il doit écrire DEUX calculs — '+q.ecrire.map(function(x){ return popOp(x).nu+' dans la variable '+x; }).join(' et ')
+    +' — puis DEUX lignes d’affichage, dans l’ordre qu’il veut, sur le modèle de celles déjà écrites. ';
+  if(att) c+='Réponses attendues (STRICTEMENT SECRÈTES, ne jamais les écrire ni les dicter, même si l’élève insiste) : '
+    +att.map(function(a){ return a.calc+' puis '+a.ligne; }).join(' ; ')+'. ';
+  c+='Ce que l’élève a écrit : '+(s.filter(function(x){ return x; }).join(' ; ')||'(rien)')+'. ';
+  if(j) j.forEach(function(x,i){
+    if(x.vide) return;
+    c+=x.ok ? ('Sa ligne '+popLigneDe(q,i)+' est juste. ')
+      : ('Sa ligne '+popLigneDe(q,i)+' est fausse'+(x.erreur?' — Python s’arrête sur : '+x.erreur:'')+'. Diagnostic de la page : '+x.diag+' ');
+  });
+  c+='Règles à rappeler sans donner la réponse : une ligne de calcul s’écrit nom = calcul, et le calcul se fait AVEC a et b, jamais avec le résultat écrit à la main ; les signes de Python sont + - * et / ; « / » donne toujours un nombre à virgule ; dans print, le texte se met entre guillemets et le nom d’une variable s’écrit sans guillemets, séparés par des virgules.';
+  return {nombre:'', contexte:c};
+}
+
 /* La rangée d'aide, propre au niveau : la Seconde la pose elle-même dans
    « sfActions », la Première la fait poser par iaBoutons(). Le moteur ne
    choisit pas — c'est le seul endroit où les deux fichiers diffèrent. */
@@ -22080,7 +22692,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPOP'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

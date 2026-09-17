@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-operations':'pop' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -670,7 +670,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pop'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -813,7 +813,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-operations'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -937,6 +937,32 @@ module.exports = {
                         fiche: { aff: ['note1 = 15', 'note2 = 15.5', 'prenom = "Louane"'],
                                  modele: 'print("la 1ère note vaut:", note1)',
                                  lignes: ['print("la 2ème note vaut", note2)', 'print("le prénom est", prenom)'] } },
+    /* {python-operations} : l'exercice 12 du carnet et sa suite — a) exécuter
+       un programme qui calcule la SOMME et le PRODUIT de a et b, b) CHANGER
+       les valeurs de a et de b et exécuter à nouveau, c) le compléter pour
+       qu'il calcule et affiche EN PLUS la différence et le quotient, d) le
+       tester en changeant les valeurs (demande de Turquet, septembre 2026).
+       « nb » est la SECONDE source du nombre de questions (la page a POP_NB),
+       « cases » celle du nombre de réponses par question — deux EXPRESSIONS
+       et deux LIGNES d'affichage —, « fiche » et « cours » les deux
+       programmes épinglés des deux images. Le banc jsdom tient le tirage (a
+       multiple de b, les quatre opérations écrites au moins une fois), le
+       juge — dont la SECONDE MÉTHODE, qui rejoue le calcul sous d'autres
+       valeurs et qui EST le d) de la fiche —, la règle des paires sur les
+       deux affichages, les portes et le soutien ; le navigateur TAPE les
+       quatre lignes, change a et b dans le cours, exécute, vérifie, et relit
+       la console et l'encre RENDUES. */
+    pythonOperations: { exercice: 'python-operations', nb: 3, cases: 4,
+                        fiche: { a: 10, b: 2, ecrire: ['difference', 'quotient'],
+                                 donnees: ['somme = a + b', 'produit = a * b'],
+                                 calculs: ['difference = a - b', 'quotient = a / b'],
+                                 lignes: ['print("La différence de",a,"et",b,"est égal à ",difference)',
+                                          'print("Le quotient de",a,"et",b,"est égal à ",quotient)'],
+                                 sorties: ['La différence de 10 et 2 est égal à  8', 'Le quotient de 10 et 2 est égal à  5.0'],
+                                 programme: ['a = 10', 'b = 2', 'somme = a + b', '…', 'produit = a * b', '…',
+                                             'print("La somme de",a,"et",b,"est égal à ",somme)',
+                                             'print("Le produit de",a,"et",b,"est égal à ",produit)', '…', '…'] },
+                        cours: { a: 6, b: 5, sortie: 'La somme de 6 et 5 est égal à  11\nLe produit de 6 et 5 est égal à  30' } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
