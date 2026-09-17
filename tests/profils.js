@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-changer-valeurs':'pcv' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -223,6 +223,11 @@ module.exports = {
        listes — colorer une ligne au moment où il la choisit lui dirait si elle
        est juste avant même qu'il vérifie, et il n'aurait plus qu'à essayer les
        six. C'est la règle de {solutions-graphique} en Seconde. */
+    /* « ptv » — {python-tableau-valeurs} — recopie dans ses cases ce que la
+       console affiche : la valeur cherchée est DÉJÀ à l'écran, et une couleur
+       posée pendant la frappe ne dirait que si l'élève a bien recopié. Pire,
+       « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre juste.
+       Le soutien y colore à la vérification, sans jamais révéler la valeur. */
     soutienEnDirect: { sans: ['psl', 'sal', 'ac'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
@@ -693,7 +698,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'pcv'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -836,7 +841,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-tableau-valeurs'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -981,6 +986,25 @@ module.exports = {
                                       noms: ['prenom', 'note'],
                                       sortie: 'la note de  Mathéo  est de  14 sur 20',
                                       interversion: 'la note de  14  est de  Mathéo sur 20' } },
+    /* {python-tableau-valeurs} : l'exercice 11 du carnet — a) exécuter le
+       programme — prolongé par le TABLEAU DE VALEURS qu'on remplit en
+       modifiant x dans ce programme et en l'exécutant (demande de Turquet,
+       septembre 2026). « nb » et « cols » sont la SECONDE source du nombre de
+       questions et de colonnes (la page a PTV_NB et PTV_COLS) ; « ecart » celle
+       de l'écart minimal entre deux abscisses, en dixièmes — le contrôle lisait
+       d'abord PTV_ECART dans la page et le comparait à lui-même : le sabotage
+       qui collait les colonnes restait vert, à bon droit ; « fiche » est
+       le programme de la demande, épinglé en première question, avec ce que
+       CPython en affiche — un ENTIER, là où une abscisse décimale donne un
+       flottant. Le banc jsdom refait le GARDE du tirage par sa propre
+       arithmétique en dixièmes entiers — un affichage sur trois serait sale
+       sans lui —, tient les portes des colonnes, le juge et le soutien, et
+       compare l'interpréteur à un vrai python3 ; le navigateur TAPE la valeur
+       de x dans la vraie case, clique Exécuter, remplit le tableau rendu et
+       relit l'encre RENDUE des verdicts. */
+    pythonTableauValeurs: { exercice: 'python-tableau-valeurs', nb: 3, cols: 5, ecart: 5,
+                            fiche: { lignes: ['x = 2', 'fonction = 2*x+3', 'print(fonction)'],
+                                     sortie: '7', calcul: '2x + 3' } },
     /* {python-changer-valeurs} : l'exercice 12 du carnet — un programme qui
        range deux CALCULS (somme = a + b, produit = a * b), qu'on exécute,
        puis dont on CHANGE les valeurs pour l'exécuter à nouveau (demande de

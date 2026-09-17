@@ -8236,7 +8236,204 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies nonies. {python-changer-valeurs} : les valeurs se changent, le programme suit =====
+    /* ===== 6 tricies nonies. le tableau de valeurs se remplit en exécutant ===== */
+    /* {python-tableau-valeurs} : ce que jsdom ne peut pas voir — le programme
+       et le tableau RENDUS, la case de x posée DANS la ligne 1 à la chasse et
+       à la taille du code, une VRAIE frappe au clavier puis un VRAI clic sur
+       « Exécuter », les colonnes fermées qui se VOIENT (grisées, en
+       pointillés), l'encre RENDUE des verdicts et de la valeur juste en vert,
+       et la page qui ne déborde pas sur un téléphone. */
+    titre('6 tricies nonies. LE TABLEAU DE VALEURS SE REMPLIT EN EXÉCUTANT LE PROGRAMME');
+    if(!P.pythonTableauValeurs){
+      ignorer('le tableau de valeurs se remplit en exécutant le programme', 'ce niveau n\'a pas l\'exercice du tableau de valeurs');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonTableauValeurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      /* LES TROIS ENCRES DE LA CONVENTION, résolues par le navigateur : l'encre
+         de REPOS d'une case est déjà un bleu nuit, si bien qu'une règle « .ok »
+         qui ne peindrait plus rien passerait pour du bleu à la dominante — le
+         piège payé sur {python-print}. On compare à la VARIABLE. */
+      const encres = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        const lire = v => { t.style.color = 'var(' + v + ')'; return getComputedStyle(t).color; };
+        const o = { blue: lire('--blue'), red: lire('--red'), green: lire('--green'), ink: lire('--ink') };
+        t.remove(); return o;
+      });
+      const q = await s.page.evaluate(() => {
+        const q = test.questions[test.idx];
+        return { dep: String(q.dep), xs: q.ns.map(n => ptvX(n)), fr: q.ns.map(n => ptvXfr(n)),
+                 sorties: q.ns.map(n => ptvSortie(q, ptvX(n))), depSortie: ptvSortie(q, String(q.dep)), calcul: ptvMaths(q) };
+      });
+      const avant = await s.page.evaluate(() => {
+        const host = document.getElementById('ptvHost'), r = e => e.getBoundingClientRect();
+        const fam = e => getComputedStyle(e).fontFamily, px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const l = [...host.querySelectorAll('.pyx-l1')], x = document.getElementById('ptv-x');
+        const cases = [...host.querySelectorAll('.ptv-in')], tab = host.querySelector('.ptv-tab');
+        const boite = host.querySelector('.ptv-wrap');
+        return { lignes: l.length, policeL: l.map(fam), pxL: l.map(px),
+                 xVisible: r(x).width > 30 && r(x).height > 20, policeX: fam(x), pxX: px(x),
+                 /* la case de x vit DANS la ligne 1, à sa hauteur : posée
+                    ailleurs, le programme ne se lirait plus d'un trait */
+                 xDansLigne: Math.min(r(x).bottom, r(l[0]).bottom) - Math.max(r(x).top, r(l[0]).top) > 5,
+                 cases: cases.length, fermees: cases.filter(e => e.disabled).length,
+                 /* une colonne fermée SE VOIT : elle n'a pas l'encre d'une case
+                    ouverte, et son cadre est en pointillés */
+                 fondFerme: getComputedStyle(cases[0]).backgroundColor, traitFerme: getComputedStyle(cases[0]).borderTopStyle,
+                 policeC: cases.map(fam), pxC: cases.map(px),
+                 rangees: tab.querySelectorAll('tr').length, colonnes: tab.querySelectorAll('tr')[0].querySelectorAll('td').length,
+                 tabVisible: r(tab).width > 300 && r(tab).height > 60,
+                 tabDefile: boite.scrollWidth > boite.clientWidth + 1,
+                 run: !document.getElementById('ptvRun').disabled && r(document.getElementById('ptvRun')).width > 40,
+                 etat: document.getElementById('ptvEtat').textContent,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('le programme est rendu en trois lignes à chasse fixe, et la case de x vit DANS la ligne 1, à sa taille',
+        avant.lignes === 3 && avant.policeL.every(f => /mono|menlo|consolas|courier/i.test(f))
+        && /mono|menlo|consolas|courier/i.test(avant.policeX) && avant.xVisible && avant.xDansLigne
+        && Math.abs(avant.pxX - Math.max(...avant.pxL)) < 0.6, JSON.stringify(avant).slice(0, 300));
+      verifier('le tableau est rendu : deux rangées, ' + P.pythonTableauValeurs.cols + ' colonnes, sans défilement à 1400 px — et ses ' + P.pythonTableauValeurs.cols + ' cases sont FERMÉES et se VOIENT fermées',
+        avant.rangees === 2 && avant.colonnes === P.pythonTableauValeurs.cols && avant.tabVisible && !avant.tabDefile
+        && avant.cases === P.pythonTableauValeurs.cols && avant.fermees === P.pythonTableauValeurs.cols
+        && avant.traitFerme === 'dashed' && dom(avant.fondFerme) === 'autre'
+        && avant.run && !avant.page, JSON.stringify(avant).slice(0, 360));
+      /* a) UN VRAI CLIC SUR « EXÉCUTER » : la console répond, rien ne s'ouvre */
+      await s.page.click('#ptvRun');
+      await s.page.waitForTimeout(300);
+      const aa = await s.page.evaluate(() => {
+        const c = document.getElementById('ptvConsole'), r = c.getBoundingClientRect();
+        return { texte: c.textContent, visible: r.height > 20 && r.width > 100, police: getComputedStyle(c).fontFamily,
+                 fermees: [...document.querySelectorAll('#ptvHost .ptv-in')].filter(e => e.disabled).length };
+      });
+      verifier('a) le programme s\'exécute au clic : la console affiche « ' + q.depSortie + ' » à chasse fixe, et aucune colonne ne s\'ouvre sur une valeur qui n\'est pas la sienne',
+        aa.texte === q.depSortie && aa.visible && /mono|menlo|consolas|courier/i.test(aa.police)
+        && aa.fermees === P.pythonTableauValeurs.cols, JSON.stringify(aa));
+      /* LA VIRGULE, TAPÉE POUR DE VRAI : le tableau écrit 0,5 et Python veut 0.5 */
+      await s.page.click('#ptv-x');
+      await s.page.keyboard.press('Control+a');
+      await s.page.keyboard.type(q.fr[0]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const virg = await s.page.evaluate(() => {
+        const c = document.getElementById('ptvConsole');
+        return { texte: c.textContent, encre: getComputedStyle(c).color,
+                 fermees: [...document.querySelectorAll('#ptvHost .ptv-in')].filter(e => e.disabled).length };
+      });
+      verifier('la virgule tapée dans la case de x reçoit la RÈGLE, en rouge rendu, et n\'ouvre aucune colonne',
+        /POINT/.test(virg.texte) && virg.texte.indexOf(q.xs[0]) >= 0 && virg.encre === encres.red
+        && virg.fermees === P.pythonTableauValeurs.cols, JSON.stringify(virg));
+      /* LA PORTE : on TAPE la valeur d'une colonne, Entrée exécute, elle s'ouvre */
+      await s.page.click('#ptv-x');
+      await s.page.keyboard.press('Control+a');
+      await s.page.keyboard.type(q.xs[2]);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const porte = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#ptvHost .ptv-in')];
+        return { texte: document.getElementById('ptvConsole').textContent,
+                 ouvertes: cases.filter(e => !e.disabled).map((e, i) => e.id), ouverte2: !cases[2].disabled,
+                 fond: getComputedStyle(cases[2]).backgroundColor, trait: getComputedStyle(cases[2]).borderTopStyle,
+                 focus: document.activeElement && document.activeElement.id,
+                 etat: document.getElementById('ptvEtat').textContent };
+      });
+      verifier('la colonne dont on a exécuté la valeur s\'OUVRE — elle seule —, se voit ouverte, et reçoit le focus',
+        porte.texte === q.sorties[2] && porte.ouverte2 && porte.ouvertes.length === 1
+        && porte.trait === 'solid' && porte.focus === 'ptv-c2' && /1/.test(porte.etat), JSON.stringify(porte));
+      /* on remplit le tableau en entier — une case FAUSSE, pour lire les trois encres */
+      for(let i = 0; i < q.xs.length; i++){
+        await s.page.click('#ptv-x');
+        await s.page.keyboard.press('Control+a');
+        await s.page.keyboard.type(q.xs[i]);
+        await s.page.keyboard.press('Enter');
+        await s.page.waitForTimeout(150);
+        await s.page.click('#ptv-c' + i);
+        await s.page.keyboard.type(i === 1 ? '99' : q.sorties[i]);
+      }
+      await s.page.waitForTimeout(200);
+      const pret = await s.page.evaluate(() => ({
+        ouvertes: [...document.querySelectorAll('#ptvHost .ptv-in')].filter(e => !e.disabled).length,
+        etat: document.getElementById('ptvEtat').textContent }));
+      verifier('les ' + P.pythonTableauValeurs.cols + ' colonnes s\'ouvrent une à une et le restent — l\'état le dit',
+        pret.ouvertes === P.pythonTableauValeurs.cols && /complète/.test(pret.etat), JSON.stringify(pret));
+      await s.page.click('#ptvValidate');
+      await s.page.waitForTimeout(400);
+      const verd = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#ptvHost .ptv-in')];
+        const b = cases[1].parentNode.querySelector('.mf-cor'), rb = b ? b.getBoundingClientRect() : null;
+        const r1 = cases[1].getBoundingClientRect();
+        return { classes: cases.map(e => e.className.replace('ptv-in', '').trim()),
+                 encres: cases.map(e => getComputedStyle(e).color),
+                 badge: !!b, texte: b && b.textContent, encreBadge: b ? getComputedStyle(b).color : '',
+                 dessous: !!rb && rb.top >= r1.bottom - 1 && rb.width > 10,
+                 dedans: !!rb && rb.right <= document.documentElement.clientWidth,
+                 autresBadges: cases.filter((e, i) => i !== 1 && e.parentNode.querySelector('.mf-cor')).length,
+                 score: test.score, verrou: cases.every(e => e.disabled), suivant: !!document.getElementById('ptvNext'),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('chaque case se juge SEULE, à l\'encre RENDUE : la fausse porte l\'encre --red, les autres --blue, et la valeur juste s\'écrit en --green sous la case fausse — elle seule',
+        verd.encres[1] === encres.red && /bad/.test(verd.classes[1])
+        && [0, 2, 3, 4].every(i => verd.encres[i] === encres.blue && /ok/.test(verd.classes[i]))
+        && verd.badge && verd.texte === q.sorties[1] && verd.encreBadge === encres.green
+        && verd.dessous && verd.dedans && verd.autresBadges === 0
+        && verd.score === P.pythonTableauValeurs.cols - 1 && verd.verrou && verd.suivant && !verd.page,
+        JSON.stringify(verd).slice(0, 400));
+      /* SUR UN TÉLÉPHONE : le tableau ne tient pas en largeur — il DÉFILE dans
+         sa boîte, jamais la page, qui emmènerait tout l'écran de travers. */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const tel = await s.page.evaluate(() => {
+        const host = document.getElementById('ptvHost'), boite = host.querySelector('.ptv-wrap');
+        const prog = host.querySelector('.pyx-prog').getBoundingClientRect();
+        const x = document.getElementById('ptv-x').getBoundingClientRect();
+        return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 progDedans: prog.right <= 391, xDedans: x.right <= 391,
+                 boiteDedans: boite.getBoundingClientRect().right <= 391,
+                 boiteDefile: boite.scrollWidth > boite.clientWidth + 1,
+                 ovf: getComputedStyle(boite).overflowX };
+      });
+      verifier('sur un téléphone, le programme et sa case restent dans l\'écran, et le tableau DÉFILE dans sa boîte au lieu de faire déborder la page',
+        !tel.page && tel.progDedans && tel.xDedans && tel.boiteDedans && /auto|scroll/.test(tel.ovf), JSON.stringify(tel));
+      await s.page.setViewportSize({ width: 1400, height: 900 });
+      /* LE SOUTIEN : la case fausse rougit, et RIEN ne se révèle */
+      await s.page.evaluate(id => openTest(id), P.pythonTableauValeurs.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const qs = await s.page.evaluate(() => {
+        const q = test.questions[test.idx];
+        return { xs: q.ns.map(n => ptvX(n)), sorties: q.ns.map(n => ptvSortie(q, ptvX(n))) };
+      });
+      for(let i = 0; i < qs.xs.length; i++){
+        await s.page.click('#ptv-x');
+        await s.page.keyboard.press('Control+a');
+        await s.page.keyboard.type(qs.xs[i]);
+        await s.page.keyboard.press('Enter');
+        await s.page.waitForTimeout(150);
+        await s.page.click('#ptv-c' + i);
+        await s.page.keyboard.type(i === 0 ? '0' : qs.sorties[i]);
+      }
+      await s.page.click('#ptvValidate');
+      await s.page.waitForTimeout(400);
+      const sout = await s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#ptvHost .ptv-in')];
+        return { classe: cases[0].className, encre: getComputedStyle(cases[0]).color,
+                 badges: cases.filter(e => e.parentNode.querySelector('.mf-cor')).length,
+                 fb: document.getElementById('ptvFeedback').textContent,
+                 verrou: cases[0].disabled, score: test.score,
+                 bouton: (document.getElementById('ptvValidate') || {}).textContent || '' };
+      });
+      verifier('en soutien : la case fausse rougit à l\'encre rendue, AUCUNE valeur verte, rien n\'est verrouillé, et « Revérifier » est proposé',
+        /bad/.test(sout.classe) && sout.encre === encres.red && sout.badges === 0
+        && sout.fb.indexOf(qs.sorties[0]) < 0 && !sout.verrou && sout.score === 0
+        && /Rev/.test(sout.bouton), JSON.stringify(sout));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies decies. {python-changer-valeurs} : les valeurs se changent, le programme suit =====
        Le banc jsdom tient la fiche du carnet, le tirage, le juge, les trois
        portes et la phrase de prédiction qui suit les valeurs. Ce qu'il ne voit
        pas : les six lignes du programme RENDUES à chasse fixe avec les deux
@@ -8246,7 +8443,7 @@ async function parcours(page, N){
        sur « Exécuter » verrouillé qui ne fait rien, les valeurs TAPÉES au
        clavier et la phrase qui les suit sous les doigts, l'encre RENDUE des
        verdicts, la console, et la page qui ne déborde pas sur un téléphone. */
-    titre('6 tricies nonies. CHANGER LES VALEURS : LE PROGRAMME SUIT, ET LA PHRASE AUSSI');
+    titre('6 tricies decies. CHANGER LES VALEURS : LE PROGRAMME SUIT, ET LA PHRASE AUSSI');
     if(!P.pythonChangerValeurs){
       ignorer('les valeurs se changent et tout ce qui se calcule suit', 'ce niveau n\'a pas l\'exercice des valeurs qu\'on change');
     } else {
