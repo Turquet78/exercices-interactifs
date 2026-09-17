@@ -1096,6 +1096,17 @@ module.exports = {
        septembre 2026). Le banc navigateur tape alors dans les DEUX champs. */
     notesDevoir: { exercice: 'derivee-exp', tableParametres: 'parametres', tableResultats: 'resultats',
                    devoirEntier: true },
+    /* LE MOT « BONUS » EST ÉCRIT, ET IL SE VOIT (demande de Turquet, septembre
+       2026 : « je veux que l'on écrive bonus pour les exercices qui sont en
+       bonus quand on annonce le dm avec la liste de tous les exercices et
+       quand on fait cet exercice aussi »). Le banc jsdom lit le DOM ; celui-ci
+       mesure le badge RENDU — un CSS perdu le rendrait invisible sans qu'une
+       erreur ne se lève — et fait le trajet entier, l'énoncé du circuit papier
+       compris, dont le titre ne s'écrit qu'APRÈS le tirage.
+       « bonus » et « normal » sont deux exercices du niveau : le premier est
+       coché bonus dans le devoir du banc, le second sert le bord OPPOSÉ. */
+    bonusEcrit: { table: 'parametres', bonus: 'tangente-exp',
+                  normal: 'equation-tangente', mot: 'Bonus' },
     /* La Terminale a la touche « / » de plus : ses tangentes acceptent p/q. */
     /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
        tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une

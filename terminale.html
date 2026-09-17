@@ -159,6 +159,14 @@
   .dm-go:hover{background:var(--blue);color:#fff}
   .dm-go.ok{border-color:var(--green);color:#fff;background:var(--green)}
   .dm-go.ok:hover{background:var(--green)}
+  /* LE MOT « BONUS » EST ÉCRIT, jamais un simple pictogramme (demande de
+     Turquet, septembre 2026) : une étoile ne dit pas « bonus » à qui ne
+     connaît pas la convention. Encre OR — ni bleue, ni rouge, ni verte : ce
+     n'est pas un verdict, et la leçon du liseré de {croiser-denominateurs}
+     vaut ici aussi. Le même badge sert l'annonce du devoir et l'écran où on
+     fait l'exercice. */
+  .dm-bonus{display:inline-flex;align-items:center;gap:4px;font-family:"Fredoka";font-weight:600;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#8A5A00;background:#FFF3DC;border:1px solid #F0D79A;border-radius:999px;padding:2px 9px;white-space:nowrap;vertical-align:middle}
+  .exo-title .dm-bonus{font-size:.78rem;padding:3px 10px}
   /* Badge bilan sur les cartes d'exercice + liste des devoirs (élève) */
   .ex-bilan{align-self:flex-start;margin-top:4px;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px}
   .ex-bilan.done{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2}
@@ -2919,7 +2927,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=326;
+const APP_VERSION=327;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -4084,7 +4092,7 @@ async function dmEnonce(devoirId, testId, continuer){
      sans quoi il avancerait tout seul derrière l'écran d'énoncé */
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   dmeCtx={devoirId:devoirId, testId:testId, continuer:continuer, envoye:false};
-  $('dmeTitre').textContent=testLabel(testId);
+  $('dmeTitre').innerHTML=esc(testLabel(testId))+(dmBonusCourant()?' '+dmBonusBadge():'');
   $('dmeIntro').textContent='Voici l’énoncé complet, avec toutes les questions. Tu peux le faire sur ta feuille — ton professeur recevra alors CET énoncé, avec ton prénom — ou sur l’ordinateur, comme d’habitude.';
   $('dmeCorps').innerHTML=corps;
   $('dmeActions').innerHTML=
@@ -4634,7 +4642,13 @@ function show(name){
     let t=sec.querySelector('.exo-title');
     if(!t){ t=document.createElement('div'); t.className='exo-title'; sec.insertBefore(t, sec.firstChild); }
     const num=testNum(currentTestId);
-    t.innerHTML=(num?'<span class="exo-num">'+esc(num)+'</span>':'')+'<span class="exo-name">'+esc(testName(currentTestId))+'</span>';
+    /* ET LE MOT « BONUS » SUIT JUSQUE DANS L'ÉCRAN OÙ ON LE FAIT (demande de
+       Turquet, septembre 2026) : la pastille est l'unique porte vers un écran
+       d'exercice, donc l'y poser une fois les couvre tous — y compris celui
+       qu'on ajoutera demain. Hors devoir, dmBonusCourant() rend faux et rien
+       ne s'affiche. */
+    t.innerHTML=(num?'<span class="exo-num">'+esc(num)+'</span>':'')+'<span class="exo-name">'+esc(testName(currentTestId))+'</span>'
+               +(dmBonusCourant()?dmBonusBadge():'');
     /* REGLE PEDAGOGIQUE (garde-fou developpeur) : chaque exercice DOIT avoir son rappel de cours.
        Invisible pour l'eleve ; impossible a oublier en silence pour nous. */
     if(typeof rappelDispo==='function' && !rappelDispo() && window.console && console.warn)
@@ -5451,6 +5465,22 @@ function noteDevoirExo(bestSoutien, bestEntrain, forcee, smax){
    dans le calcul comme les autres : elle vaut déjà /10, et un bonus posé à 8
    ajoute donc 0,8. */
 function dmEstBonus(ex){ return !!(ex && ex.bonus); }
+/* LE MOT « BONUS » S'ÉCRIT, ET PARTOUT OÙ L'EXERCICE SE MONTRE (demande de
+   Turquet, septembre 2026 : « je veux que l'on écrive bonus pour les exercices
+   qui sont en bonus quand on annonce le dm avec la liste de tous les exercices
+   et quand on fait cet exercice aussi »). L'étoile seule ne dit rien à qui ne
+   connaît pas la convention, et l'élève qui commence un exercice ne voyait
+   plus NULLE PART qu'il était facultatif — la page du devoir le disait, puis
+   l'écran de travail se taisait.
+   UN SEUL ENDROIT L'ÉCRIT : l'annonce du devoir, sa page, l'énoncé du circuit
+   papier, l'écran des modes et l'écran de l'exercice le lisent tous ici. Deux
+   libellés auraient fini par diverger, et le même exercice se serait dit
+   « bonus » d'un écran à l'autre dans deux mots différents. */
+function dmBonusBadge(){ return '<span class="dm-bonus">\u2b50 Bonus</span>'; }
+/* Le bonus de l'exercice EN COURS : currentDM + currentTestId, par l'entonnoir
+   qui sert déjà la coupe du nombre de questions. Hors devoir, dmReglageExo()
+   rend null — donc faux, et rien ne s'affiche : le bord opposé. */
+function dmBonusCourant(){ return dmEstBonus(dmReglageExo()); }
 function dmTotal(parts){
   const tousBonus = parts.length>0 && parts.every(function(p){ return p.bonus; });
   const normaux = tousBonus ? parts : parts.filter(function(p){ return !p.bonus; });
@@ -5600,7 +5630,10 @@ function renderDevoirsList(){
       parts.push({note:nd.note, fait:nd.fait, bonus:bonus});
       const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
       const nb=nd.fait?`<span class="dm-note">${bonus?fmtNote(nd.note/10)+' / 1':fmtNote(nd.note)+' / 10'}</span>`:`<span class="dm-note none">— / ${bonus?'1':'10'}</span>`;
-      return `<div class="dl-ex"><span class="dl-ex-name">${bonus?'\u2b50 ':''}${esc(testLabel(ex.id))}</span><span class="dl-ex-cells">${cells}</span>${nb}</div>`;
+      /* L'ANNONCE DU DEVOIR : le mot est écrit à côté du nom, pas seulement
+         l'étoile — c'est ici que l'élève découvre la liste de tous les
+         exercices, et c'est ici qu'il doit lire lequel est facultatif. */
+      return `<div class="dl-ex"><span class="dl-ex-name">${esc(testLabel(ex.id))}${bonus?' '+dmBonusBadge():''}</span><span class="dl-ex-cells">${cells}</span>${nb}</div>`;
     }).join('');
     const tot=dmTotalEleve(dev, currentEleve&&currentEleve.id, parts), somme=tot.somme, totMax=tot.totMax, faitQqch=tot.fait;
     /* Une note posée sur le devoir entier le DIT sur la carte : sans ce mot,
@@ -5670,7 +5703,7 @@ async function openTestDevoirModes(devoirId, testId){
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   const ex=dev?dev.exercices.find(e=>e.id===testId):null;
   const allowed=(ex&&ex.modes&&ex.modes.length)?ex.modes:['soutien','train'];
-  $('modeTitle').textContent=testLabel(testId);
+  $('modeTitle').innerHTML=esc(testLabel(testId))+(dmEstBonus(ex)?' '+dmBonusBadge():'');
   $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
   show('mode');
   pausedRows={};
