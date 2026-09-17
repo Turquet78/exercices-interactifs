@@ -12473,7 +12473,16 @@ function gardeSaisie(w, apres){
    — le clic envoie l'action « conseil » avec la SAISIE de l'élève et l'ordre
      de ne JAMAIS donner la réponse — le contexte seul serait pire que pas de
      contexte du tout —, et la réponse du modèle s'affiche dans la bulle ;
-   — reprendre sa case efface la bulle (l'élève corrige) ;
+   — la MODIFIER efface la bulle (l'élève corrige) ; y ENTRER, non — après une
+     vérification, la page pose elle-même le curseur dans la première case
+     rouge, et la bulle s'éteindrait 40 ms après être née ;
+   — la VÉRIFICATION la lève elle aussi, sur la PREMIÈRE case fausse que la
+     correction vient de TOUCHER : c'est le seul moment où peignent les
+     exercices sans correction en direct, qui n'en voyaient donc JAMAIS — toute
+     la partie Algorithmique et Python de la Seconde. Une zone de texte y est
+     une case comme une autre ; une bulle déjà ouverte sur une case ENCORE
+     fausse ne saute pas ailleurs ; et tant qu'une case porte le curseur on ne
+     lève rien, c'est le domaine du garde de la saisie ;
    — une case JUSTE quittée, l'entraînement et l'écran verrouillé ne montrent
      rien : la bulle est une aide du soutien, pas un badge de plus.
    jsdom lit ici la propriété hidden — il n'a pas de mise en page ; le
@@ -12657,6 +12666,22 @@ function bulleErreur(w, apres){
     const avaitOn=ecran.classList.contains('on'); ecran.classList.add('on');
     const hote=document.createElement('div'); ecran.appendChild(hote);
     const boite=document.createElement('input'); boite.type='text'; hote.appendChild(boite);
+    /* les trois cases de la VÉRIFICATION, posées APRÈS la case d'essai : une
+       liste, une zone de texte et un champ, dans cet ordre de document. La
+       case d'essai reste rouge de l'essai précédent sans que personne ne la
+       repeigne — c'est le bord « seules les cases TOUCHÉES comptent ». */
+    const juste=document.createElement('input'); juste.type='text'; juste.value='7'; hote.appendChild(juste);
+    const liste=document.createElement('select');
+    ['a','b'].forEach(function(v){ const o=document.createElement('option');
+      o.value=v; o.textContent='le '+v.toUpperCase(); liste.appendChild(o); });
+    liste.value='b'; hote.appendChild(liste);
+    const zone=document.createElement('textarea'); zone.value='print(note)'; hote.appendChild(zone);
+    const peindre=function(v1,v2,v3){
+      [[juste,v1],[liste,v2],[zone,v3]].forEach(function(p){
+        p[0].classList.remove('ok','bad','sol');
+        if(p[1]) p[0].classList.add(p[1]);
+      });
+    };
     let verdict='bad';
     const corriger=function(){
       boite.classList.remove('ok','bad');
@@ -12703,9 +12728,14 @@ function bulleErreur(w, apres){
       const fb=bulle() && bulle().querySelector('[data-bexp-r]');
       bilan.reponse=!!fb && !fb.hidden && fb.textContent.indexOf('essai de bulle')>=0;
 
-      /* 3. il reprend sa case : la bulle s'efface */
+      /* 3. ENTRER dans sa case ne l'efface plus — après une vérification, la
+         page pose elle-même le curseur dans la première case rouge, et la
+         bulle s'éteindrait 40 ms après être née. La MODIFIER l'efface :
+         reprendre sa case, c'est la CORRIGER. */
       boite.focus(); boite.dispatchEvent(new window.Event('focusin',{bubbles:true}));
       await attendre();
+      bilan.entre=visible();
+      await frapper('1');
       bilan.reprise=visible();
 
       /* 4. une case JUSTE quittée ne montre rien */
@@ -12723,6 +12753,55 @@ function bulleErreur(w, apres){
       currentMode='soutien'; test.locked=true;
       boite.blur(); boite.focus(); await frapper('4'); await sortir();
       bilan.verrou=visible();
+
+      /* 7. LA VÉRIFICATION lève la bulle. Les exercices sans correction en
+         direct — toute la partie Algorithmique et Python de la Seconde — ne
+         peignent qu'alors, et l'élève n'y quitte aucune case : la bulle n'y
+         paraissait JAMAIS. Elle se pose sur la PREMIÈRE case fausse que la
+         correction vient de TOUCHER, jamais sur la case d'essai, rouge mais
+         que personne n'a repeinte. */
+      bexpMasquer(); currentMode='soutien'; test.locked=false;
+      boite.blur();
+      if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      await attendre();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.verif=visible();
+      bilan.verifCase=(bexpCase===liste);
+      bilan.verifAilleurs=boite.classList.contains('bad');
+      bilan.verifVal=bexpVal;
+
+      /* 8. une bulle DÉJÀ ouverte sur une case ENCORE fausse ne saute pas
+         ailleurs : elle emporterait l'explication en cours de lecture. */
+      peindre('bad','bad','bad'); await attendre();
+      bilan.pasDeSaut=(bexpCase===liste);
+
+      /* 9. une ZONE DE TEXTE est une case comme une autre : les programmes
+         Python s'y écrivent, et rien ne les couvrait. */
+      bexpMasquer(); peindre('','',''); await attendre();
+      peindre('ok','ok','bad'); await attendre();
+      bilan.zone=(bexpCase===zone);
+      bilan.zoneVal=bexpVal;
+
+      /* 10. l'élève ÉCRIT : rien ne se lève — c'est le domaine du garde de la
+         saisie, et sans ce bord une bulle surgirait sur la case d'à côté à
+         chaque frappe. */
+      bexpMasquer(); peindre('','',''); await attendre();
+      zone.focus();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.ecrit=visible();
+      zone.blur();
+
+      /* 11. copie juste, entraînement, écran verrouillé : rien non plus. */
+      bexpMasquer(); peindre('','',''); await attendre();
+      peindre('ok','ok','ok'); await attendre();
+      bilan.verifJuste=visible();
+      peindre('','',''); currentMode='train'; await attendre();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.verifTrain=visible();
+      currentMode='soutien'; test.locked=true;
+      peindre('','',''); await attendre();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.verifVerrou=visible();
     } finally {
       sb.functions.invoke=invokeAvant;
       currentEleve=eleveAvant;
@@ -12747,12 +12826,40 @@ function bulleErreur(w, apres){
     verifier('la réponse du modèle s’affiche dans la bulle',
       r.ok && b.reponse === true,
       souci || 'la réponse du double n’est pas arrivée dans la bulle');
-    verifier('reprendre sa case efface la bulle',
-      r.ok && b.reprise === false,
-      souci || 'la bulle reste affichée pendant que l’élève corrige sa case');
+    verifier('entrer dans sa case n’efface plus la bulle ; la MODIFIER l’efface',
+      r.ok && b.entre === true && b.reprise === false,
+      souci || 'à l’entrée dans la case : ' + b.entre + ', après la frappe : ' + b.reprise);
     verifier('case juste, entraînement, écran verrouillé : la bulle ne se montre pas',
       r.ok && b.juste === false && b.train === false && b.verrou === false,
       souci || 'case juste : ' + b.juste + ', entraînement : ' + b.train + ', verrouillé : ' + b.verrou);
+    /* ----- la VÉRIFICATION lève la bulle (demande de Turquet, septembre
+       2026) : sans ce moment-là, les exercices SANS correction en direct —
+       toute la partie Algorithmique et Python de la Seconde — n'en voyaient
+       jamais une seule. ----- */
+    verifier('la VÉRIFICATION lève la bulle, sur la PREMIÈRE case fausse',
+      r.ok && b.verif === true && b.verifCase === true,
+      souci || 'bulle visible : ' + b.verif + ', posée sur la première case fausse : ' + b.verifCase);
+    verifier('elle ne se pose que sur une case que la correction vient de TOUCHER',
+      r.ok && b.verifAilleurs === true && b.verifCase === true,
+      souci || (r.ok && b.verifAilleurs !== true
+        ? 'aucune case rouge laissée de côté : le contrôle ne mesure rien'
+        : 'la bulle a sauté sur une case rouge que la correction n’a pas touchée'));
+    verifier('la saisie lue est le LIBELLÉ de la liste, jamais sa valeur interne',
+      r.ok && b.verifVal === 'le B',
+      souci || 'saisie retenue : « ' + b.verifVal +' »');
+    verifier('une bulle déjà ouverte sur une case ENCORE fausse ne saute pas ailleurs',
+      r.ok && b.pasDeSaut === true,
+      souci || 'la bulle a changé de case, emportant l’explication en cours de lecture');
+    verifier('une ZONE DE TEXTE est une case comme une autre — les programmes Python s’y écrivent',
+      r.ok && b.zone === true && b.zoneVal === 'print(note)',
+      souci || 'bulle posée sur la zone : ' + b.zone + ', saisie lue : « ' + b.zoneVal + ' »');
+    verifier('pendant que l’élève écrit, rien ne se lève — c’est le domaine du garde',
+      r.ok && b.ecrit === false,
+      souci || 'une bulle a surgi sur la case d’à côté pendant la frappe');
+    verifier('copie juste, entraînement, écran verrouillé : la vérification ne lève rien',
+      r.ok && b.verifJuste === false && b.verifTrain === false && b.verifVerrou === false,
+      souci || 'copie juste : ' + b.verifJuste + ', entraînement : ' + b.verifTrain
+             + ', verrouillé : ' + b.verifVerrou);
     moyennesDevoirs(w, apres);
   });
 }
