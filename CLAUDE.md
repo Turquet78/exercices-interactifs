@@ -3782,6 +3782,24 @@ programme qui calcule (le bord opposé, qui nomme l'opérateur ET le programme),
 et les deux gardes « le contrôle ne mesure rien » — la collecte des phrases
 débranchée (23 libellés au lieu de 44) et une source de programmes débranchée
 (480 au lieu de 600).
+**ET LA FUSION A LAISSÉ DEUX PAGES SOUS LE MÊME NUMÉRO — la collision qu'un
+`git merge` ne signale pas.** Pendant que cette branche se faisait,
+{python-changer-valeurs} est arrivé sur `main` en **v181** ; la branche, partie
+d'un `main` à 180, avait bumpé vers 181 elle aussi. Les deux côtés écrivant la
+MÊME valeur sur la MÊME ligne, git n'a vu aucun conflit : la fusion est passée
+sans un mot, et 181 a désigné deux pages de Seconde différentes — exactement ce
+que la règle 4 interdit (« ce numéro permet de savoir d'un coup d'œil quelle
+version est ouverte »). La règle des collisions du projet tranche sans rien
+peser : le premier arrivé garde, le second prend le suivant — cette page passe
+en **182**.
+**ET C'EST LA VÉRIFICATION DE LA PUBLICATION QUI L'A NOMMÉE, pas un banc** :
+`APP_VERSION` lu sur la page en ligne disait déjà 181 AVANT que GitHub Pages
+n'ait reconstruit, si bien qu'il ne prouvait RIEN — c'est en cherchant le
+LIBELLÉ corrigé que la publication s'est constatée, et la contradiction (181
+avec les anciens libellés) qui a mis la collision au jour. **On ne vérifie pas
+une mise en ligne sur un numéro qu'on vient de poser** : on la vérifie sur ce
+que la modification a CHANGÉ. Un numéro qui n'a pas bougé passe pour une page
+qui n'a pas bougé, et l'inverse est tout aussi vrai.
 
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
