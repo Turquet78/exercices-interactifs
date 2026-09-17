@@ -6245,6 +6245,264 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+
+    /* ===== 6 tricies septies. {suite-synthese-variations} : la fiche 3 entière =====
+       Le banc jsdom tient le tirage HONNÊTE (la suite simulée par sa propre
+       arithmétique), la fiche épinglée, la règle des paires et les deux juges.
+       Ce qu'il ne voit pas : l'escalier CLIQUÉ pour de vrai — c'est le
+       NAVIGATEUR qui décide sur quel rail l'élève a cliqué, jamais une
+       arithmétique de distance —, le repère à une taille lisible, la dérivée
+       TAPÉE dans un vrai MathLive (jsdom n'a pas la sérialisation réelle que le
+       juge doit lire), les « ≤ » de la récurrence alignés en colonnes (un
+       display:grid perdu laisse toutes les classes en place et met tout à la
+       file), les chaînes de f) et de i) d'un seul tenant — une chaîne coupée en
+       deux se lit comme deux calculs —, et l'encre RENDUE des verdicts. */
+    titre('6 tricies septies. LA SYNTHÈSE SUR LES VARIATIONS : L\'ESCALIER, LA GRILLE ET LES CHAÎNES');
+    if(!P.suiteSynthese){
+      ignorer('la synthèse : l\'escalier se clique, la grille s\'aligne, les chaînes tiennent sur une ligne',
+        'ce niveau n\'a pas l\'exercice de synthèse sur les variations de suites');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 950 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.suiteSynthese.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* on ÉPINGLE la fiche : la mesure ne doit pas dépendre du tirage */
+      await s.page.evaluate(() => {
+        test.questions[test.idx] = { l1: 0.5, l2: 2, c: 0, U0: 1, sens: 'cro',
+          ordre: ['M', 'un', 'm', 'un1', 'u1'], pts: [] };
+        renderSSV();
+      });
+      await s.page.waitForTimeout(700);
+      /* L'ÉCRAN S'OUVRE SUR LE TRACÉ, PAS SUR LA FEUILLE : mlFeuille donne le
+         focus à sa première ligne, et la page descendrait jusqu'à d) — l'élève
+         arriverait sur la dérivée sans avoir vu le graphique. jsdom n'a ni mise
+         en page ni défilement : seul ce banc peut le voir (la leçon du 6.11). */
+      { const arrivee = await s.page.evaluate(() => {
+          const g = document.getElementById('ssvGraph').getBoundingClientRect();
+          const sh = document.getElementById('ssvSheet'), a = document.activeElement;
+          return { y: Math.round(window.scrollY), top: Math.round(g.top),
+                   dansFeuille: !!(sh && a && sh.contains(a)) }; });
+        if(arrivee.y > 8) dits.push('l\'écran s\'ouvre en ayant défilé de ' + arrivee.y + ' px : la feuille de d) a pris le focus');
+        if(arrivee.top < 0) dits.push('le graphique de b) est déjà sorti par le haut (' + arrivee.top + ' px)');
+        if(arrivee.dansFeuille) dits.push('la feuille de d) garde le focus à l\'arrivée : la première touche frappée écrirait dedans'); }
+      /* le repère est RENDU à une taille lisible, et ses deux rails reçoivent les clics */
+      { const geo = await s.page.evaluate(() => {
+          const svg = document.querySelector('#ssvGraph svg');
+          if(!svg) return { manque: true };
+          const r = svg.getBoundingClientRect();
+          return { manque: false, w: Math.round(r.width), h: Math.round(r.height),
+                   hits: [...document.querySelectorAll('#ssvGraph .svr-hit')].map(h => ({
+                     rail: h.getAttribute('data-rail'), ep: parseFloat(getComputedStyle(h).strokeWidth),
+                     pe: getComputedStyle(h).pointerEvents })) }; });
+        if(geo.manque) dits.push('aucun repère rendu');
+        else {
+          if(geo.w < 420 || geo.h < 420) dits.push('le repère est rendu à ' + geo.w + ' × ' + geo.h + ' px : les graduations ne se lisent plus');
+          if(geo.hits.length !== 2) dits.push(geo.hits.length + ' rail(s) cliquable(s) au lieu de 2');
+          geo.hits.forEach(hh => {
+            if(hh.pe !== 'stroke') dits.push('le rail ' + hh.rail + ' ne reçoit pas les clics (pointer-events : ' + hh.pe + ')');
+            if(!(hh.ep >= 10)) dits.push('la zone de clic du rail ' + hh.rail + ' ne fait que ' + hh.ep + ' px'); });
+        } }
+      /* le point d'un rail, lu sur le SVG RENDU : on repasse par la
+         transformation du dessin, jamais par une constante recopiée */
+      const posRail = async (rail, x) => await s.page.evaluate(([rail, x]) => {
+        const svg = document.querySelector('#ssvGraph svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const k = r.width / vb.width;
+        const a = ssvAns(test.questions[test.idx]);
+        const y = (rail === 'c') ? ssvF(a)(x) : x;
+        return { px: r.left + (SVR_PADL + x * SVR_PLOT / a.W) * k,
+                 py: r.top + (SVR_PADT + SVR_PLOT - y * SVR_PLOT / a.W) * k };
+      }, [rail, x]);
+      const clicRail = async (rail, x) => { const p = await posRail(rail, x); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(140); };
+      const A = await s.page.evaluate(() => { const a = ssvAns(test.questions[test.idx]); return { U0: a.U0, U1: a.U1, W: a.W }; });
+      /* LE RAIL EST CELUI QU'ON A CLIQUÉ : à l'abscisse U1, la droite et la
+         courbe portent chacune un point attendu — c'est le navigateur qui les
+         départage, et c'est tout ce que ce contrôle mesure ici */
+      await clicRail('c', A.U0);
+      await clicRail('d', A.U1);
+      await clicRail('c', A.U1);
+      { const poses = await s.page.evaluate(() => {
+          const q = test.questions[test.idx], a = ssvAns(q);
+          return { pts: q.pts.slice(), verd: [0, 1, 2].map(i => ssvPtJuste(a, i, q.pts[i])),
+                   dessines: document.querySelectorAll('#ssvGraph .svr-pt').length }; });
+        if(poses.pts.length !== 3) dits.push('trois clics posent ' + poses.pts.length + ' point(s)');
+        else {
+          const rails = poses.pts.map(p => p.r).join('');
+          if(rails !== 'cdc') dits.push('les clics tombent sur les rails « ' + rails + ' » au lieu de « cdc » : le navigateur ne départage pas les deux courbes');
+          if(!poses.verd.every(Boolean)) dits.push('les trois points cliqués sont jugés ' + JSON.stringify(poses.verd));
+        }
+        if(poses.dessines !== 3) dits.push(poses.dessines + ' point(s) dessiné(s) après trois clics'); }
+      /* UN CLIC LOIN DES DEUX RAILS NE POSE RIEN — et le point « loin » se
+         CHERCHE plutôt que de se supposer : « 90 px au-dessus de la droite »,
+         le repère du 6.11, tombe ICI presque exactement sur la courbe (elle
+         passe au-dessus de la diagonale quand la suite croît), et le contrôle
+         accusait la page d'un défaut qui était le sien. On balaie le cadre et
+         on retient le point le plus éloigné des DEUX rails RENDUS, puis on
+         exige que cette distance soit franche — un contrôle qui n'a rien à
+         mesurer le dit. */
+      await s.page.evaluate(() => { test.questions[test.idx].pts = []; ssvDessiner(); });
+      { const loin = await s.page.evaluate(() => {
+          const svg = document.querySelector('#ssvGraph svg');
+          svg.scrollIntoView({ block: 'center' });
+          const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal, k = r.width / vb.width;
+          const a = ssvAns(test.questions[test.idx]), f = ssvF(a), u = SVR_PLOT / a.W;
+          const X = x => r.left + (SVR_PADL + x * u) * k, Y = y => r.top + (SVR_PADT + SVR_PLOT - y * u) * k;
+          const rails = [];
+          for(let m = 0; m <= 240; m++){ const x = a.W * m / 240, y = f(x);
+            rails.push([X(x), Y(x)]);                       /* la droite y = x */
+            if(isFinite(y) && y >= -0.3 && y <= a.W + 0.3) rails.push([X(x), Y(y)]); }
+          let best = null;
+          for(let i = 1; i < 20; i++) for(let j = 1; j < 20; j++){
+            const px = X(a.W * i / 20), py = Y(a.W * j / 20);
+            let d = Infinity;
+            rails.forEach(q => { const dd = Math.hypot(px - q[0], py - q[1]); if(dd < d) d = dd; });
+            if(!best || d > best.d) best = { px, py, d: d };
+          }
+          return best; });
+        if(!loin || loin.d < 40) dits.push('aucun point du cadre n\'est à 40 px des deux rails : le contrôle du clic hors rail ne mesure rien');
+        else {
+          await s.page.mouse.click(loin.px, loin.py);
+          await s.page.waitForTimeout(140);
+          const n = await s.page.evaluate(() => test.questions[test.idx].pts.length);
+          if(n) dits.push('un clic posé à ' + Math.round(loin.d) + ' px des deux rails pose quand même un point');
+        } }
+      /* d) EST PRÉSENTÉE COMME LE 2.5 : jsdom lit des classes, seul un
+         navigateur voit qu'elles ont une BOÎTE — un CSS perdu les rendrait
+         invisibles sans qu'une erreur ne se lève. */
+      let feuilleVue = true;
+      { const d = await s.page.evaluate(() => {
+          const b = sel => { const e = document.querySelector(sel); if(!e) return null;
+            const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; };
+          return { fac: b('#ssvPartD .dexp-facblock'), sheet: b('#ssvSheet'),
+                   mf: [...document.querySelectorAll('#ssvPartD .dexp-facblock math-field')].length,
+                   pfx: String((document.querySelector('#ssvSheet .dexp2-prefix') || {}).textContent || '').replace(/\s/g, ''),
+                   clavier: [...document.querySelectorAll('#scr-ssv .rc-jetons button')]
+                     .some(b2 => /clavier/i.test(b2.getAttribute('title') || '')) }; });
+        if(!d.fac || d.fac.w < 100 || d.fac.h < 20) dits.push('le bloc facultatif u/v/u′/v′ de d) n\'a pas de boîte');
+        if(d.mf !== 4) dits.push(d.mf + ' champ(s) facultatif(s) au lieu de 4');
+        if(!d.sheet || d.sheet.w < 100 || d.sheet.h < 20){ dits.push('la feuille de d) n\'a pas de boîte'); feuilleVue = false; }
+        if(d.pfx.indexOf('′(x)=') < 0) dits.push('la feuille de d) ne porte pas le préfixe « f ′(x) = » (« ' + d.pfx + ' »)');
+        if(!d.clavier) dits.push('l\'écran porte des champs mathématiques sans bouton « Clavier mathématique »'); }
+      /* LA DÉRIVÉE EST TAPÉE POUR DE VRAI : jsdom n'a pas la sérialisation
+         réelle que le juge doit lire. */
+      if(feuilleVue){
+        await s.page.click('#ssvSheet math-field');
+        await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide */
+        await s.page.keyboard.type('1/x^2', { delay: 50 });
+        await s.page.waitForTimeout(300);
+        const t = await s.page.evaluate(() => {
+          const lg = derLignes(ssvFeuille), a = ssvAns(test.questions[test.idx]);
+          return { plain: lg.length ? lg[0].plain : '', ok: lg.length ? checkExprFn(lg[0].plain, ssvDer(a)) : false }; });
+        if(!t.ok) dits.push('la dérivée TAPÉE dans la feuille n\'est pas relue comme juste (lu : « ' + t.plain + ' »)');
+      }
+      /* LES « ≤ » DE LA RÉCURRENCE TOMBENT LES UNS SOUS LES AUTRES : e) est une
+         GRILLE à colonnes, et jsdom n'a pas de mise en page. On lit les cellules
+         RENDUES (data-r / data-c), jamais la feuille de styles. On mesure le
+         CONTENU de la cellule et non sa boîte : une cellule de grille s'étire sur
+         toute sa colonne, donc son centre est celui de la colonne quoi qu'elle
+         fasse de son contenu (la leçon du 6.11). */
+      const mesurerGrille = async () => await s.page.evaluate(() => {
+        const g = document.querySelector('#ssvPartE .ssv-grille'); if(!g) return null;
+        const cels = [...g.querySelectorAll('.ssv-cel')].map(c => {
+          const rg = document.createRange(); rg.selectNodeContents(c);
+          const r = rg.getBoundingClientRect();
+          return { r: +c.dataset.r, c: +c.dataset.c, x: (r.left + r.right) / 2, top: r.top, bot: r.bottom,
+                   le: c.classList.contains('svr-le'),
+                   libre: c.classList.contains('ssv-lib') || c.classList.contains('ssv-suite') || c.classList.contains('ssv-just') }; });
+        const sc = g.parentElement;
+        return { cels, debord: Math.round(sc.scrollWidth - sc.clientWidth),
+                 coupe: Math.round(sc.scrollHeight - sc.clientHeight) };
+      });
+      { const m = await mesurerGrille();
+        if(!m) dits.push('la récurrence de e) n\'est pas une grille à colonnes (.ssv-grille)');
+        else {
+          const rangs = {}; m.cels.forEach(c => { (rangs[c.r] = rangs[c.r] || []).push(c); });
+          Object.keys(rangs).forEach(r => {
+            const cs = rangs[r], haut = Math.max(...cs.map(c => c.top)), bas = Math.min(...cs.map(c => c.bot));
+            if(haut >= bas - 4) dits.push('la rangée ' + r + ' de la récurrence n\'est pas d\'un seul tenant : ses cellules ne partagent aucune bande verticale'); });
+          const cols = {}; m.cels.filter(c => !c.libre).forEach(c => { (cols[c.c] = cols[c.c] || []).push(c); });
+          Object.keys(cols).forEach(c => {
+            const xs = cols[c].map(k => k.x), ecart = Math.max(...xs) - Math.min(...xs);
+            if(ecart > 3) dits.push('la colonne ' + c + ' de la récurrence n\'est pas alignée : ' + Math.round(ecart) + ' px d\'écart'); });
+          /* les quatre lignes d'encadrement portent deux « ≤ » chacune, la
+             chaîne des f(…) et celle des images aussi */
+          [1, 2, 3, 4, 5, 6].forEach(r => { const n = m.cels.filter(c => c.le && c.r === r).length;
+            if(n !== 2) dits.push('la rangée ' + r + ' de la récurrence porte ' + n + ' « ≤ » au lieu de 2'); });
+          /* chaque f(…) a son image juste en dessous — même colonne, rangée suivante */
+          { const f = m.cels.filter(c => c.r === 5 && !c.le && !c.libre), im = m.cels.filter(c => c.r === 6 && !c.le && !c.libre);
+            if(f.length !== 3) dits.push(f.length + ' f(…) au lieu de 3 dans la démonstration');
+            f.forEach(k => { const im2 = im.find(c => c.c === k.c);
+              if(!im2) dits.push('le f(…) de la colonne ' + k.c + ' n\'a aucune image sous lui');
+              else if(Math.abs(im2.x - k.x) > 3 || im2.top < k.bot - 2) dits.push('l\'image n\'est pas juste sous son f(…) (' + Math.round(im2.x - k.x) + ' px de côté)'); }); }
+          if(m.debord > 2) dits.push('la récurrence défile de ' + m.debord + ' px à 1400 px de large');
+          if(m.coupe > 0) dits.push('le bas de la récurrence est coupé par sa boîte : ' + m.coupe + ' px (les indices de la dernière rangée)');
+        } }
+      /* LES CHAÎNES DE f) ET DE i) TIENNENT SUR UNE LIGNE : coupée en deux, une
+         chaîne d'égalités se lit comme deux calculs sans rapport. On compare la
+         HAUTEUR de la rangée à celle de son plus haut enfant — jamais les
+         « top », qu'une fraction et un signe centrés l'un sur l'autre rendent
+         toujours différents (le piège documenté du contrôle de pleine largeur). */
+      { const replis = await s.page.evaluate(() => {
+          const out = [];
+          ['#ssvPartF', '#ssvPartI'].forEach(sel => {
+            [...document.querySelectorAll(sel + ' .sa2-row')].forEach((row, i) => {
+              const r = row.getBoundingClientRect();
+              let h = 0; [...row.children].forEach(k => { const b = k.getBoundingClientRect(); if(b.height > h) h = b.height; });
+              if(h && r.height > h + 10) out.push(sel + ' rangée ' + (i + 1) + ' : ' + Math.round(r.height) + ' px pour un contenu de ' + Math.round(h));
+            });
+          });
+          return out; });
+        replis.forEach(r => dits.push('une chaîne se replie — ' + r)); }
+      /* LA COPIE JUSTE, CLIQUÉE : la méthode se DESSINE, et l'encre des verdicts
+         se MESURE — une classe posée pendant qu'une règle la peint autrement est
+         un défaut de PEINTURE, et seul un navigateur le voit. */
+      await s.page.evaluate(() => {
+        const q = test.questions[test.idx], a = ssvAns(q);
+        q.pts = []; ssvDessiner();
+        ssvCases(q).forEach(x => {
+          const e = document.getElementById(x.id); if(!e) return;
+          if(x.t === 'sel') e.value = x.v;
+          else if(x.t === 'nb') e.value = ssvN(x.v);
+          else if(x.t === 'cent') e.value = String(Math.round(x.v * 100) / 100).replace('.', ',');
+          else if(x.t === 'rang') e.value = svrRangStr(x.v);
+          else if(x.t === 'paire') e.value = ssvN(/1$/.test(x.id) ? x.v[0] : x.v[1]);
+        });
+        ssvPtsAttendus(a).forEach(e => ssvPoser(e.r, e.x));
+      });
+      await s.page.click('#ssvActions button.btn-primary');
+      await s.page.waitForTimeout(500);
+      { const fin = await s.page.evaluate(() => {
+          const boite = sel => { const e = document.querySelector(sel); if(!e) return null;
+            const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; };
+          const pt = document.querySelector('#ssvGraph .svr-pt.ok circle');
+          const sel1 = document.getElementById('ssv-c1');
+          return { score: test.score, note: ptsEcran(),
+                   esc: boite('#ssvGraph .svr-esc-sol'), lect: document.querySelectorAll('#ssvGraph .svr-lect').length,
+                   bleus: document.querySelectorAll('#ssvGraph .svr-pt.ok').length,
+                   encrePt: pt ? getComputedStyle(pt).fill : '',
+                   encreSel: sel1 ? getComputedStyle(sel1).borderColor : '',
+                   feuille: (document.getElementById('ssvSheet') || {}).className || '' }; });
+        if(fin.score !== 1) dits.push('la copie juste cliquée ne vaut pas le point (score ' + fin.score + ')');
+        if(!fin.note || fin.note.justes !== fin.note.cases) dits.push('la note affichée compte ' + (fin.note ? fin.note.justes + '/' + fin.note.cases : 'rien'));
+        if(!fin.esc || fin.esc.w < 20 || fin.esc.h < 20) dits.push('l\'escalier vert de la méthode est dessiné mais d\'étendue presque nulle');
+        if(fin.lect !== 2) dits.push(fin.lect + ' trait(s) de lecture au lieu de 2 (U1 sur l\'axe, U2 en hauteur)');
+        if(fin.bleus !== 3) dits.push(fin.bleus + ' point(s) peint(s) en bleu au lieu de 3');
+        if(fin.feuille.indexOf('ok') < 0) dits.push('copie juste : la feuille de d) n\'est pas marquée juste (« ' + fin.feuille + ' »)');
+        [['le point juste du tracé', fin.encrePt], ['la liste juste', fin.encreSel]].forEach(([quoi, enc]) => {
+          const m2 = /(\d+)\D+(\d+)\D+(\d+)/.exec(enc || '');
+          if(!m2){ dits.push(quoi + ' n\'a pas d\'encre lisible'); return; }
+          const c = [+m2[1], +m2[2], +m2[3]];
+          if(!(c[2] >= Math.max(c[0], c[1]) && c[2] - Math.min(c[0], c[1]) >= 30)) dits.push(quoi + ' n\'est pas peint en BLEU : ' + enc); }); }
+      verifier('la synthèse : l\'escalier se clique, la grille s\'aligne, les chaînes tiennent sur une ligne', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de la synthèse ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies quindecies. {suite-tcm-limite} : la fiche choisie et tapée pour de vrai =====
        Le banc jsdom tient le tirage HONNÊTE (la suite simulée par sa propre
        arithmétique), la fiche épinglée et les deux juges. Ce qu'il ne voit pas :

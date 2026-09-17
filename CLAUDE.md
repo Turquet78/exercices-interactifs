@@ -8641,6 +8641,153 @@ rougit sur une page juste. L'exercice est placé en FIN de thème, en 6.14 :
 ajouté en tête — où le vocabulaire aurait sa place — il aurait renuméroté les
 onze autres, et les numéros écrits du banc avec.
 
+**La fiche entière sur une suite dont f est un QUOTIENT : la synthèse.**
+{suite-synthese-variations} (Terminale, 6.15, demande de Turquet, septembre
+2026, repris de la fiche « FICHE 3 — Synthèse sur variations de suites ») ferme
+le thème Suites — ajouté en DERNIER, il ne renumérote rien. C'est son
+Exercice 2, en entier et dans son ordre, sur un seul écran : a) les premiers
+termes à la calculatrice au centième près, b) le tracé en escalier, c) la
+conjecture du sens, d) l'étude des variations de f, e) la récurrence qui
+démontre l'encadrement, f) Uₙ₊₁ − Uₙ mis sur un dénominateur commun et le
+signe de ce quotient, g) les variations de la suite, h) le théorème de
+convergence monotone, i) la limite par PRODUIT EN CROIX. Chaque partie a son
+exercice au menu — le tracé et la récurrence au {suite-variation-recurrence},
+le théorème et le passage à la limite au {suite-tcm-limite} — ; celui-ci les
+rassemble sur une seule suite, et c'est ce que « synthèse » veut dire.
+**LA FAMILLE, ET POURQUOI ELLE EST HONNÊTE** : on prend l'homographique
+f (x) = (a x − p)/(x + c) avec a = ℓ₁ + ℓ₂ + c et p = ℓ₁ℓ₂, si bien que les
+points fixes sont EXACTEMENT ℓ₁ et ℓ₂ — x(x + c) = a x − p s'écrit
+(x − ℓ₁)(x − ℓ₂) = 0. La fiche est le cas c = 0, ℓ₁ = 0,5, ℓ₂ = 2, U₀ = 1, et
+le contrôle l'ÉPINGLE telle quelle. Trois conséquences, et ce sont les trois
+questions que les exercices voisins n'ont pas : f ′(x) = (ac + p)/(x + c)² est
+strictement positive, donc f croissante (d)) ; Uₙ₊₁ − Uₙ vaut
+(− Uₙ² + s Uₙ − p)/(Uₙ + c), dont le numérateur est − (Uₙ − ℓ₁)(Uₙ − ℓ₂), donc
+le signe se lit sur la position de Uₙ par rapport aux deux points fixes (f)) ;
+et le passage à la limite redonne LE MÊME trinôme, donc DEUX solutions — c'est
+l'encadrement démontré en e) qui dit laquelle garder (i)).
+**LE RISQUE PROPRE EST L'ÉNONCÉ QUI CONTREDIT SA CORRECTION**, et il court sur
+toute la fiche : si la suite tirée ne se comporte pas comme on l'annonce,
+l'élève est compté faux sur une lecture juste. Le contrôle ne le suppose pas —
+il refait l'identité des points fixes en arithmétique exacte, SIMULE la suite
+sur quatre cents rangs et vérifie l'encadrement ET la monotonie rang par rang,
+recompte le signe du trinôme sur l'intervalle, et redérive la mise au même
+dénominateur (la leçon du 6.3, b = k(a−1)). Sonde : 0 défaut sur les 65
+tirages du vivier.
+**LES DEUX VISAGES SORTENT DANS CHAQUE SÉANCE**, en ordre mélangé : ℓ₁ < U₀ < ℓ₂
+donne une suite CROISSANTE encadrée par U₀ ≤ Uₙ ≤ ℓ₂, U₀ > ℓ₂ une suite
+DÉCROISSANTE encadrée par ℓ₂ ≤ Uₙ ≤ U₀. Sans eux, la réponse de c) serait
+toujours « croissante » et l'élève répondrait sans lire le dessin. La limite
+est ℓ₂ dans les deux cas, et c'est ℓ₁ qu'il faut écarter : la borne INFÉRIEURE
+de l'encadrement est strictement au-dessus de lui, et le contrôle l'exige sur
+chaque tirage — sans cette propriété, rien ne départagerait les deux solutions.
+**LE DÉCALAGE c EST CE QUI OUVRE LE SECOND VISAGE, et c'est un arbitrage qui se
+nomme** : à c = 0 — la forme exacte de la fiche — une suite décroissante
+converge à la vitesse ℓ₁/ℓ₂, trop vite pour que le TROISIÈME point de
+l'escalier se distingue de la droite ; la sonde n'a trouvé AUCUN tirage
+décroissant à c = 0, et le meilleur écart de rails y valait 41 px pour 44
+exigés. Le facteur de convergence vaut (a − ℓ₂)/(a − ℓ₁), donc il se rapproche
+de 1 quand a grandit : c > 0 donne des marches visibles. Vivier mesuré : 13
+tirages croissants (dont la fiche) et 52 décroissants, écart minimal des rails
+45 px, fenêtre au plus 5,5 unités.
+**TOUT EST REPRIS, ET DEUX MOTEURS ONT ÉTÉ EXTRAITS POUR CELA.** Le repère et
+l'escalier du 6.11 deviennent `escSVG` / `escPtJuste` / `escAbscisse`, la
+feuille de la dérivée du 2.5 devient `derLignes` / `derVerdict` / `derPeindre`
+/ `derReveler` / `derVerrouiller` / `derPoseVerdicts` : deux copies auraient
+fini par diverger, et la même construction se serait dessinée autrement d'un
+écran à l'autre sous les yeux de l'élève. Le contrôle tient le bord du
+refactor — les mêmes fonctions doivent encore servir le 6.11, sans quoi un
+refactor qui cesse de servir son premier appelant est une copie qui recommence.
+Le reste vient des voisins sans une ligne neuve : les listes du théorème et de
+la limite sont celles du 6.12 (TCL_OPT_BORNE, TCL_OPT_THM, TCL_OPT_LIM,
+TCL_OPT_L), les cases qui grandissent sous la frappe et les fractions empilées
+du 6.3, les lecteurs de nombres et de rangs du 6.10, la correction la
+convention commune (corrCase, msgCorrCouleurs).
+**CE QUE L'ÉLÈVE TAPE, ET CE QU'IL CHOISIT** : les NOMBRES se tapent, les
+TERMES se choisissent — « Un+1 » tapé dans un champ de texte est Uₙ₊₁ pour
+l'œil et Uₙ + 1 pour la machine, le piège documenté du 6.7 et du 6.8, et une
+saisie libre y recalerait une lecture juste. Les DEUX RACINES suivent la règle
+des paires de {somme-fractions} : l'ordre est libre — rien ne dit laquelle est
+ℓ₁ — et la même racine posée deux fois est défendable une fois, fausse la
+seconde. **U₀ n'est PAS redemandé en a)** : il est écrit dans l'énoncé, et une
+case pour le recopier n'apprendrait rien (la leçon des retenues de la
+soustraction) — la fiche, elle, le demande. Une question vaut 47 cases, plus
+les trois points du tracé et la feuille de la dérivée : 51 réponses, et la note
+affichée les compte toutes.
+**LE TRACÉ S'ARRÊTE À TROIS POINTS, comme au 6.11 et pour la même raison** : un
+quatrième demanderait de cliquer là où les deux rails sont déjà trop proches
+pour qu'on les distingue du doigt. La fiche en demande quatre ; le dire vaut
+mieux que de le taire.
+**L'EXERCICE 1 DE LA FICHE RESTE DEHORS, et c'est nommé** : f (x) = x/(x+1) a
+un point fixe DOUBLE (0), donc pas de « deux solutions » à départager — c'est
+la question même de l'Exercice 2, et c'est elle qui fait cet exercice.
+Deux bancs, la répartition habituelle : jsdom tient le tirage honnête, la fiche
+épinglée, la règle des paires, le centième de la calculatrice, la case qui se
+juge SEULE, la case vide qui ne rougit jamais, le soutien qui ne révèle rien et
+le PARTAGE des deux moteurs ; le NAVIGATEUR (« 6 tricies septies », déclaré
+par `suiteSynthese` dans `tests/profils.js`) CLIQUE l'escalier pour de vrai —
+c'est lui qui départage les deux rails —, TAPE la dérivée dans un vrai
+MathLive, mesure les « ≤ » de la récurrence alignés en colonnes (un
+`display:grid` perdu laisse toutes les classes en place et met tout à la file),
+exige que les chaînes de f) et de i) tiennent sur UNE ligne — coupée en deux,
+une chaîne d'égalités se lit comme deux calculs — et relit l'encre RENDUE des
+verdicts.
+**Dix-neuf sabotages au banc jsdom, tous rougissant en nommant leur défaut** —
+mais DEUX ont dû être rejoués, et chacun a appris quelque chose. « Chaque case
+ne se juge plus seule » est d'abord resté VERT en montrant un TROU DU
+CONTRÔLE : en ENTRAÎNEMENT, `corrCase` repose la couleur de CHAQUE case depuis
+son verdict, si bien qu'une peinture qui aurait débordé sur les voisines est
+EFFACÉE avant qu'on la mesure — le bord se mesure en SOUTIEN, où rien ne
+repeint derrière, et rejoué là il rougit en listant les quarante-six cases
+teintes à tort. Et « le quatrième point se pose » n'a pas pu se poser : ses
+deux lignes sont les mêmes, au caractère près, dans `svrPoser` — un sabotage se
+pose sur une ancre PROPRE à sa cible (la leçon d'{antecedents-droite}), et
+rejoué sur une ancre à trois lignes il rougit.
+**ET LE BANC NAVIGATEUR A TROUVÉ DEUX DÉFAUTS RÉELS À SA PREMIÈRE
+EXÉCUTION**, qu'aucun contrôle jsdom ne pouvait voir :
+· **la courbe n'était pas coupée au cadre, et son PÔLE rendait le chemin
+  invalide.** Une homographique a un pôle — f (x) = (a x − p)/x plonge vers
+  −∞ en 0, c'est-à-dire au bord GAUCHE de la fenêtre —, et `Y(−∞)` écrit
+  « Infinity » dans le chemin. Le navigateur cesse alors de le dessiner ET de
+  le rendre cliquable À PARTIR DE LÀ : le premier point de l'escalier ne se
+  posait plus (« trois clics posent 1 point »), et le dessin était faux. On
+  saute les points hors du cadre en rouvrant un sous-chemin de l'autre côté ;
+  le 6.11, dont la courbe reste dans la fenêtre, ne change pas d'un pixel.
+  jsdom n'a pas de test de survol : il restait vert à bon droit.
+· **la grille de e) DÉFILAIT de 46 px à 1400 px**, et une démonstration qui
+  défile se lit en deux morceaux. Les étiquettes prennent maintenant les mots
+  de la FICHE — « on suppose pour n », « on montre pour n + 1 » —, plus courts
+  de cent dix pixels : le correctif rend l'écran plus fidèle au papier, pas
+  seulement plus étroit.
+**Et un troisième défaut était celui du CONTRÔLE, pas de la page** : « un clic
+posé entre les deux rails » reprenait le repère du 6.11 — 90 px au-dessus de
+la droite —, or la courbe passe ICI presque exactement là quand la suite
+croît, et le banc accusait la page d'un défaut qui était le sien. Le point
+« loin » se CHERCHE désormais : on balaie le cadre, on retient le plus éloigné
+des deux rails RENDUS, et on exige que la distance soit franche — un contrôle
+qui n'a rien à mesurer le dit.
+**Trois sabotages au banc NAVIGATEUR, chacun rougissant en nommant son
+défaut** — la grille de e) rendue en `display:block` (« la colonne 2 de la
+récurrence n'est pas alignée : 2645 px d'écart »), une chaîne de i) forcée à se
+replier (« 78 px pour un contenu de 36 »), et la coupe au cadre retirée, qui
+ramène le pôle et son chemin invalide (« trois clics posent 1 point »). jsdom
+reste vert à bon droit sur les trois : il n'a ni mise en page, ni test de
+survol, ni police.
+**ET LA FUSION DE `main` L'A RENUMÉROTÉ, avec une collision TRIPLE au banc.**
+Deux exercices sont arrivés sur `main` pendant que celui-ci se faisait —
+{suite-variation-difference} en 6.13 et la Seconde {python-deux-lignes} — et
+le premier s'insère AVANT {suite-vocabulaire} : le vocabulaire passe en 6.14
+et la synthèse en 6.15. Les notes déjà obtenues ne bougent pas (elles portent
+l'IDENTIFIANT), les renvois écrits `{identifiant}` suivent d'eux-mêmes ; les
+numéros ÉCRITS — les trois assertions du banc, les noms de contrôle, les
+commentaires de la page — ont été repris à la main le jour même.
+**Et les TROIS sections du banc navigateur portaient « 6 tricies
+quinquies »** : la mienne, et les DEUX de `main`, qui se l'étaient prise l'une
+à l'autre à quelques heures d'écart — `main` était donc déjà rouge sur le
+contrôle des numéros de section, qui existe précisément pour cela. La règle
+tranche sans rien peser : le numéro revient au premier arrivé
+({suite-variation-difference}), la Seconde prend « sexies » et la synthèse,
+dernière arrivée, « septies ».
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
