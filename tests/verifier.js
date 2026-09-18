@@ -3650,6 +3650,7 @@ function exercices(suite){
     jetonsSignePremier(w, P);
     variationsDerivee(w, P);
     signeDeriveeQcm(w, P);
+    correctionEnDirect(w, P);
     suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
     etiquetteCourbeSeconde(w, P);
@@ -23773,6 +23774,100 @@ function variationsDerivee(w, P){
    jamais (en entraînement comme en soutien), le QCM faux nomme son piège, la
    liste du QCM ne se colore pas en direct, et les hôtes FANTÔMES sont vidés
    — le tableau porte les ids ef-* de quatre autres écrans. */
+/* ---- LA CORRECTION EN DIRECT DES CINQ ÉCRANS QUI SE TAISAIENT -------------
+   Signalé par Turquet sur le 3.2 (septembre 2026) : « en mode soutien les
+   cases ne deviennent pas rouges dès qu'elles sont fausses ». La cause ne
+   vivait pas dans cet exercice : la Terminale câblait sa correction en direct
+   exercice par exercice, dans chaque démarreur, et la liste avait dérivé —
+   mesuré avant tout correctif, 30 exercices sur 44 coloraient.
+   Ces cinq-là ont un verdict entièrement LOCAL et ne s'en servaient pas. Le
+   contrôle universel du banc principal exige seulement que chaque écran soit
+   NOMMÉ dans liveCheckCurrent ; celui du navigateur remplit TOUTES les cases.
+   Ni l'un ni l'autre ne voit les deux bords qui comptent ici, et qui sont
+   ceux de la règle commune : une case laissée VIDE ne reçoit aucune couleur,
+   et RIEN ne se verrouille pendant la saisie — l'élève corrige sans quitter
+   l'écran, c'est tout l'intérêt du mode soutien.
+   On remplit donc UNE case, on laisse les autres vides, et on regarde. */
+function correctionEnDirect(w, P){
+  const nom = 'le soutien colore la case fausse dès la saisie, sans toucher aux autres';
+  const present = evaluer(w, "typeof liveCheckCurrent==='function' && typeof genLG==='function' && typeof lg3Question==='function' && typeof genDHVQ==='function' && typeof genTVINS==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas les écrans de limites, de repère et du nombre de solutions');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='soutien'; currentDM=null;
+    const ECRANS=[
+      { kind:'lg',  id:'limites-graphiques',   ecran:'lg',
+        poser:function(){ test.questions=[genLG('homo')]; }, rendu:function(){ renderLG(); },
+        cible:'lg-typ0',
+        bon:function(q){ return q.subs[0].typ; },
+        faux:function(q){ return q.subs[0].typ==='rien'?'ah':'rien'; } },
+      { kind:'lg2', id:'limites-graphiques-2', ecran:'lg2',
+        poser:function(){ const q=genLG('homo'); q.tv=lg2Table(q); test.questions=[q]; }, rendu:function(){ renderLG2(); },
+        cible:'lg2-typ0',
+        bon:function(q){ return q.subs[0].typ; },
+        faux:function(q){ return q.subs[0].typ==='rien'?'ah':'rien'; } },
+      { kind:'lg3', id:'limites-graphiques-3', ecran:'lg3',
+        poser:function(){ test.questions=[lg3Question('homo')]; }, rendu:function(){ renderLG3(); },
+        cible:'lg3-typ0',
+        bon:function(q){ return q.subs[0].typ; },
+        faux:function(q){ return q.subs[0].typ==='rien'?'ah':'rien'; } },
+      { kind:'dhv', id:'equation-droite-h-v',  ecran:'dhv',
+        poser:function(){ test.questions=[genDHVQ(true,true)]; }, rendu:function(){ renderDHV(); },
+        cible:'dhv-v1', bon:function(){ return 'y'; }, faux:function(){ return 'z'; } },
+      { kind:'tvins', id:'tvi-nombre-solutions', ecran:'tvins',
+        poser:function(){ test.questions=[genTVINS('mono')]; }, rendu:function(){ renderTVINS(); },
+        cible:'tvins-eq0',
+        bon:function(q){ return String(q.eqs[0].n); },
+        faux:function(q){ return String(q.eqs[0].n)==='0'?'1':'0'; } }
+    ];
+    ECRANS.forEach(function(E){
+      try{
+        Object.keys(test).forEach(function(k){ delete test[k]; });
+        test.kind=E.kind; currentTestId=E.id;
+        E.poser();
+        test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+        show(E.ecran); E.rendu();
+      }catch(err){ vus.push(E.id+' : le rendu lève « '+err.message+' »'); return; }
+      const q=test.questions[0];
+      const scr=document.getElementById('scr-'+E.ecran);
+      if(!scr){ vus.push(E.id+' : écran introuvable'); return; }
+      const cases=function(){ return Array.prototype.slice.call(scr.querySelectorAll('input, select, textarea, math-field')); };
+      const cible=document.getElementById(E.cible);
+      if(!cible){ vus.push(E.id+' : la case témoin '+E.cible+' est absente'); return; }
+      /* 1 — une valeur FAUSSE, les autres cases laissées vides */
+      cible.value=E.faux(q);
+      cible.dispatchEvent(new Event('input',{bubbles:true}));
+      cible.dispatchEvent(new Event('change',{bubbles:true}));
+      if(!cible.classList.contains('bad')) vus.push(E.id+' : la case fausse ne rougit pas pendant la saisie');
+      const teintes=cases().filter(function(e){
+        return e!==cible && (e.classList.contains('ok')||e.classList.contains('bad')||e.classList.contains('sol'));
+      }).map(function(e){ return e.id||'(sans id)'; });
+      if(teintes.length) vus.push(E.id+' : '+teintes.length+' case(s) VIDE(S) colorée(s) — '+teintes.slice(0,3).join(', '));
+      const bloquees=cases().filter(function(e){ return e.disabled||e.readOnly; }).map(function(e){ return e.id||'(sans id)'; });
+      if(bloquees.length) vus.push(E.id+' : '+bloquees.length+' case(s) verrouillée(s) pendant la saisie — '+bloquees.slice(0,3).join(', '));
+      if(test.locked) vus.push(E.id+' : l\\'écran se verrouille pendant la saisie');
+      /* 2 — la BONNE valeur : la case bleuit, et rien ne se verrouille non plus */
+      cible.value=E.bon(q);
+      cible.dispatchEvent(new Event('input',{bubbles:true}));
+      cible.dispatchEvent(new Event('change',{bubbles:true}));
+      if(!cible.classList.contains('ok')) vus.push(E.id+' : la case juste ne bleuit pas pendant la saisie');
+      const bloquees2=cases().filter(function(e){ return e.disabled||e.readOnly; }).map(function(e){ return e.id||'(sans id)'; });
+      if(bloquees2.length) vus.push(E.id+' : la case juste se verrouille pendant la saisie — '+bloquees2.slice(0,3).join(', '));
+      /* 3 — HORS SOUTIEN, rien ne se peint : la couleur en direct est le mode soutien */
+      currentMode='train';
+      cible.classList.remove('ok','bad');
+      cible.value=E.faux(q);
+      cible.dispatchEvent(new Event('input',{bubbles:true}));
+      cible.dispatchEvent(new Event('change',{bubbles:true}));
+      if(cible.classList.contains('bad')) vus.push(E.id+' : la couleur en direct fuit en entraînement');
+      currentMode='soutien';
+    });
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 function signeDeriveeQcm(w, P){
   const nom='signe de f\', variations de f et QCM : une seule affirmation vraie';
   const present = evaluer(w, "typeof startSdq==='function' && typeof sdqBuildQuestions==='function'");
