@@ -5231,6 +5231,32 @@ une règle CSS et l'énoncé du circuit papier redevenu muet.
 mieux que de le taire** : il est MORT — aucun appelant, et son hôte `dmPanel`
 n'existe dans aucune des trois pages. Y écrire le mot ferait croire que la
 règle est tenue là où rien ne la montre.
+**ET LA FUSION A REPAYÉ LA COLLISION D'`APP_VERSION` — sans qu'on puisse la
+réparer, et c'est la leçon.** « Le clavier tient sur 3 lignes en paysage » est
+arrivé sur `main` pendant la préparation de cette branche, **avec le même
+v327**. Les deux changements coexistent sans rien casser : pas de conflit
+`git`, pas de collision de numéro de section, les bancs et l'action verts —
+ni la fusion, ni les bancs, ni l'action n'avaient rien à dire. C'est la
+collision qu'aucune branche ne peut voir seule, celle des numéros d'exercice
+et des sections du banc, transposée à la version.
+**La règle habituelle — le premier arrivé garde, le second prend le suivant —
+n'a PAS pu s'appliquer** : le temps qu'une branche de correction soit prête et
+contrôlée, un TROISIÈME devoir (« trois choix sur la page des modes ») avait
+pris 328. Renuméroter en 329 aurait changé le numéro de la page sans changer
+une ligne de ce qu'elle affiche, et fabriqué une seconde ambiguïté pour en
+réparer une première — la course était perdue par construction.
+**On garde donc l'état de fait, et on l'écrit** : **v327 porte DEUX livraisons**
+(le clavier en paysage et le mot « Bonus »). Ce que la règle 4 promet reste
+vrai de ce qui est SERVI — `main` avance, la version en ligne désigne toujours
+exactement la page en ligne —, et c'est l'historique seul qui est ambigu, sur
+ce numéro-là. Le dire vaut mieux que de le taire.
+**Ce qui manque est un CONTRÔLE, et il n'existe pas** : rien ne compare
+`APP_VERSION` à celle de `main` au moment de la fusion. Tant qu'il n'existe
+pas, la parade est de relire `APP_VERSION` juste avant de fusionner, comme on
+relit les numéros d'exercice et les numéros de section — et de renuméroter
+AVANT la fusion, pas après, seul moment où la règle du premier arrivé
+s'applique encore.
+
 **La Seconde et la Première ne changent pas, et c'est nommé** : elles ont les
 mêmes exercices bonus et la même étoile nue, mais la demande porte sur la
 Terminale. Les deux contrôles s'y affichent « non applicable » en DISANT
