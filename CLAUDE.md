@@ -3988,7 +3988,7 @@ sur le modèle `print("Le double de", a, "est égal à ", double)`, exécute, et
 vérifie. Puis le b) du carnet : « Tester votre programme plusieurs fois en
 changeant la valeur de la variable a. »
 
-**CE QU'IL AJOUTE AUX HUIT AUTRES EST LA VARIABLE QUI SERT DEUX FOIS** : au
+**CE QU'IL AJOUTE AUX DOUZE AUTRES EST LA VARIABLE QUI SERT DEUX FOIS** : au
 5.11 une variable calculée dépend de deux autres et les SUIT ; ici c'est la
 MÊME variable a qui nourrit trois calculs, et le b) le fait voir — un élève
 qui écrit `double = 16` obtient la bonne sortie une fois et rien de juste
