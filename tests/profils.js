@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-pas-a-pas':'pap' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -698,7 +698,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pap'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -862,7 +862,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-pas-a-pas'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1076,6 +1076,27 @@ module.exports = {
                                              'print("La somme de",a,"et",b,"est égal à ",somme)',
                                              'print("Le produit de",a,"et",b,"est égal à ",produit)', '…', '…'] },
                         cours: { a: 6, b: 5, sortie: 'La somme de 6 et 5 est égal à  11\nLe produit de 6 et 5 est égal à  30' } },
+    /* {python-pas-a-pas} : la fiche « variable pas à pas » — « Exécuter le
+       programme ci-dessous en mode pas à pas », le programme « a = 10 ; b = 2 ;
+       c = b », et à chaque ligne le tableau des cases MÉMOIRE de l'ordinateur
+       (demande de Turquet, septembre 2026). Sur le papier les trois tableaux
+       sont DONNÉS ; ici c'est l'élève qui les produit, ligne par ligne.
+       « nb » est la SECONDE source du nombre de questions (la page a PAP_NB),
+       « fiche » le programme épinglé, les trois rangées de sa mémoire, son
+       état final, son barème et son numéro au menu. Le banc jsdom tient la
+       fiche, le tirage et ses TROIS visages, l'état de la mémoire refait par
+       une SECONDE arithmétique, le juge cas par cas, la vérification PAR LIGNE
+       et sa porte, la rangée à moitié remplie jamais peinte, le soutien qui ne
+       révèle rien, la reprise après une pause et les branchements ; le
+       navigateur mesure les deux colonnes RENDUES, le repère de la ligne
+       courante, et CHOISIT puis TAPE les rangées pour de vrai.
+       IL EST DANS « tablesAide.sans » : on ne multiplie rien, on lit une
+       valeur et on la recopie. */
+    pythonPasAPas: { exercice: 'python-pas-a-pas', nb: 3,
+                     fiche: { prog: ['a = 10', 'b = 2', 'c = b'],
+                              memoire: [['a', '10'], ['b', '2'], ['c', '2']],
+                              fin: { a: '10', b: '2', c: '2' },
+                              bareme: 22, numero: '5.13' } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont

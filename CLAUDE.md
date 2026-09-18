@@ -3978,6 +3978,136 @@ l'étiquette, qui n'en a pas, il rougit en nommant les deux écrans (le cours et
 la question). Avant de conclure qu'un contrôle ne mesure rien, il faut vérifier
 que le sabotage pouvait seulement l'atteindre.
 
+**Une variable est une CASE de la mémoire, et ça ne se voit qu'en exécutant pas
+à pas.** {python-pas-a-pas} (Seconde, 5.13, demande de Turquet, septembre
+2026 : « en seconde faire un exercice comme le pdf joint ») est la fiche
+« variable pas à pas » — « Exécuter le programme ci-dessous en mode pas à
+pas », le programme `a = 10 ; b = 2 ; c = b`, puis l'exécution ligne par ligne,
+chaque ligne suivie du tableau des cases MÉMOIRE de l'ordinateur et d'un
+« appuyez pour passer à l'étape suivante », et enfin les phrases à compléter
+(« a = 10 signifie que le nombre 10 va dans la case mémoire appelée … »). Il
+ferme le thème 5 — ajouté en dernier, il ne renumérote rien.
+**CE QU'IL AJOUTE AU THÈME est la marche qui manquait** : le 5.1 fait PRÉDIRE
+ce qu'un programme affiche, le 5.2 fait RECONNAÎTRE un type, et les dix autres
+font ÉCRIRE du code. Aucun ne montre ce qu'une variable EST — une case qui
+porte un nom et garde une valeur —, et c'est précisément ce qu'on ne voit
+jamais en exécutant un programme d'un bloc.
+**LA FICHE MONTRE L'EXÉCUTION, ICI C'EST L'ÉLÈVE QUI LA PRODUIT.** Sur le
+papier les trois tableaux de mémoire sont DONNÉS et seules les phrases finales
+sont à compléter ; une page qui se contenterait de les afficher ne demanderait
+rien. L'élève avance donc ligne par ligne et REMPLIT la rangée que la ligne
+ajoute : la case qui reçoit la valeur, et ce qu'elle contient. Ce sont
+exactement les deux blancs des phrases de la fiche — « va dans la case mémoire
+appelée … » et « le nombre dans la case b qui est … » —, posés là où ils se
+lisent : dans le tableau de la mémoire. **Les phrases finales ne sont pas
+reposées à part**, et c'est un arbitrage : elles disent en mots ce que les deux
+cases de chaque rangée disent déjà, et les redemander ferait taper trois fois
+la même réponse. Leur VOCABULAIRE, lui, est celui de l'écran — « case
+mémoire », « ce qu'elle contient » — parce que c'est le mot de la fiche que
+l'élève doit retenir.
+**LA VÉRIFICATION EST PAR LIGNE, et c'est ce qui rend chaque case honnête.**
+Une fois la ligne jugée, la page pose la rangée VRAIE : la copie de la ligne
+suivante lit donc la mémoire telle qu'elle EST, jamais celle que l'élève
+croyait. Sans cela, un élève qui s'est trompé sur b paierait DEUX fois la même
+erreur — sur b, puis sur le c qui le recopie —, ce que le 5.12 nomme déjà
+(« une ligne d'affichage est jugée sur les calculs TÉMOINS, jamais sur ceux de
+l'élève »). La porte de la ligne suivante est tenue par l'ÉTAT du bouton (le
+motif de {placer-image}) : « Passer à la ligne suivante » n'existe qu'une fois
+la ligne jugée. En SOUTIEN elle attend une rangée TOUTE juste — on n'exécute
+pas la ligne d'après quand on s'est trompé sur celle-ci —, et rien n'est
+révélé : l'élève reprend et revérifie.
+**TROIS VISAGES, CHACUN UNE FOIS PAR SÉANCE, et le premier est la fiche** : la
+copie prend la case JUSTE au-dessus (`c = b`, les valeurs 10 et 2 du papier) ;
+elle va chercher la PREMIÈRE case, deux lignes plus haut — l'erreur visée est
+de recopier la case la plus proche ; ou c'est une copie de COPIE, où il faut
+suivre deux sauts et où la valeur d'origine se retrouve dans trois cases. Les
+deux derniers sont en ordre mélangé ; sans eux, la copie serait toujours le
+même geste.
+**AUCUNE RÉAFFECTATION, et ce n'est pas un oubli** : « une variable ne
+s'affecte qu'UNE fois par programme » est la règle du 5.1 (demande de Turquet,
+septembre 2026), que le diagnostic du 5.3 retourne déjà vers l'élève, et la
+fiche n'en porte pas non plus. **Aucun calcul non plus** : {python-operations}
+enseigne la variable qui reçoit le RÉSULTAT d'un calcul, et deux leçons dans un
+même exercice rendent la faute illisible (la leçon de {multiplier-fractions}).
+Une case reçoit un NOMBRE ou le CONTENU d'une autre case — rien d'autre, comme
+sur la fiche — et le contrôle exige les deux propriétés sur chaque tirage.
+**LA VALEUR N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION** : elle est lue dans
+`pyRun(papProg(q, k)).env` — l'interpréteur MÊME du 5.1, arrêté après la ligne
+k —, si bien que la correction ne peut pas contredire le programme affiché. La
+question ne porte que les LIGNES, le visage et l'ORDRE des propositions (on
+range l'ordre, jamais la réponse) ; le contrôle refuse tout autre champ.
+**LE NOM DE LA CASE SE CHOISIT, SA VALEUR SE TAPE.** Une saisie libre du nom
+recalerait sur la casse — « A » nomme une AUTRE case en Python, et ce sont le
+5.2 et le 5.4 qui évaluent cela, pas celui-ci —, donc c'est une liste. Elle
+offre TOUTES les variables du programme, dans un ordre TIRÉ par question et
+conservé : rangées dans l'ordre des lignes, la bonne tomberait au rang de
+l'étape et l'élève apprendrait le rang (la leçon d'{intervalles-inegalite}). La
+valeur, elle, n'est jamais presque bonne : on compare exactement, les espaces
+retirées, et « − » comme « – » valent le tiret du clavier.
+**ET UN DÉFAUT NE S'EST VU QUE SUR LA CAPTURE, comme toujours** : la rangée
+d'une ligne QUITTÉE gardait la saisie fausse de l'élève en rouge, avec la
+correction en vert à côté — la convention commune de `corrCase`. Dans un
+tableau qui s'appelle « la mémoire de l'ordinateur », cela faisait DEUX nombres
+pour une même case : `b` y contenait 77 et 2 à la fois, et la copie « c = b »
+de la ligne suivante n'avait plus de source sûre. C'est la famille du défaut
+que ce fichier nomme « l'écran dit autre chose que la note », par la porte du
+tableau. **La rangée qu'on vient de juger garde la convention** — c'est le
+moment où l'élève regarde son verdict — **et celles qu'on a QUITTÉES portent la
+valeur VRAIE** : la case juste garde son bleu, la fausse reçoit la valeur et le
+VERT de la correction, la convention des révélations de la Terminale. En
+soutien la question ne se pose pas : on ne quitte pas une rangée fausse. Le
+banc était VERT sur ce défaut — c'est un bord de plus, pas un contrôle
+resserré —, et le jsdom comme le navigateur le tiennent désormais des deux
+côtés.
+**UNE RANGÉE À MOITIÉ REMPLIE EST REDEMANDÉE, jamais peinte** : rouge veut dire
+FAUX, jamais « pas fini » (la règle de {placer-image}). Les deux cases d'une
+rangée disent UNE seule chose — « cette ligne met telle valeur dans telle
+case » —, et une moitié n'en dit rien. **La règle `.sol` est née avec la
+famille** — la leçon de `.itv-sel.sol`, de `.lv-in.sol` et de `.s1-in.sol`,
+tenue avant le signalement cette fois — et elle est VIVANTE : c'est l'encre
+d'une rangée quittée que l'élève avait fausse. Chaque case se juge SEULE, la note
+affichée compte les 2 × lignes réponses de la question (`ptsEcran` voit les
+listes et les champs des rangées déjà posées, qui restent à l'écran plutôt que
+d'être remplacées par du texte), et le poids exact de la question se lit par la
+convention `papCases` — la coupe d'un devoir tombe donc sur la voie EXACTE.
+**Aucune correction au fil des clics, et c'est déclaré**
+(`soutienEnDirect.sans`) : la case du nom est une liste de trois ou quatre
+propositions, et la colorer au choix la ferait essayer jusqu'au bleu. **Le
+bouton des tables n'y est pas** : on ne multiplie rien, on lit une valeur et on
+la recopie.
+**Deux bancs, la répartition habituelle.** jsdom tient la fiche épinglée (si
+elle ne passe pas au juge, c'est le juge qui a tort), le tirage et ses trois
+visages sur 400 séances, le juge cas par cas, la vérification par ligne et sa
+porte, la rangée à moitié remplie, le soutien, la reprise après une pause et
+les branchements — et il REFAIT l'état de la mémoire par une SECONDE
+arithmétique qui n'a rien en commun avec l'interpréteur (un dictionnaire tenu à
+la main, sans lexer ni évaluateur), puis compare l'interpréteur à un vrai
+CPython en faisant suivre chaque tranche d'un `print` de la case remplie — sans
+ce print, deux sorties VIDES se compareraient et le contrôle ne mesurerait
+rien. Le NAVIGATEUR (« 6 tricies terdecies », déclaré par `pythonPasAPas` dans
+`tests/profils.js`) mesure ce que jsdom ne voit pas : les DEUX colonnes rendues
+côte à côte — la disposition de la fiche —, le repère ▶ sur la ligne qu'on
+exécute et le ✓ sur celles qui sont passées, le tableau qui GRANDIT d'une
+rangée à chaque étape pendant que la rangée d'avant reste posée et peinte, les
+deux cases à la chasse et à la taille du code qu'elles lisent, un VRAI choix
+dans la liste suivi d'une VRAIE frappe, l'encre RENDUE des deux verdicts sur la
+MÊME rangée — l'une bleue, l'autre rouge, ce que seule une couleur rendue
+montre —, la bonne case en VERT SOUS la case fausse (dans une cellule de
+tableau, un badge en ligne sortirait de sa cellule — la leçon de
+{python-tableau-valeurs}), et le téléphone, où les deux colonnes S'EMPILENT.
+**UN GARDE-FOU MORT y a été écrit, puis retiré** : `papNet` normalisait le
+signe moins typographique, celui du pavé des tablettes — or les valeurs tirées
+sont des entiers POSITIFS, et la touche « − » du pavé insère le TIRET du
+clavier. Rien dans l'application ne pouvait donc en poser un ici. C'est le
+CONTRÔLE qui exige désormais la propriété (toute valeur écrite est un entier
+positif de deux chiffres au plus), et le sabotage qui glisse un négatif dans le
+tirage rougit en le nommant : le jour où un négatif entrerait vraiment, refuser
+le signe du pavé compterait fausse une réponse juste, et ce bord le dit AVANT.
+**Et le bord « il FERME le thème 5 » de {python-operations} a été RETOURNÉ, pas
+retiré** — le CINQUIÈME à l'être, après le 5.8, le 5.9, le 5.10 et le 5.11 : il
+vit maintenant entre {python-changer-valeurs} et {python-pas-a-pas}. Un bord
+retiré ne dit plus rien ; un bord retourné dit la règle du jour.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable

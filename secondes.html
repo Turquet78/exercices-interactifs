@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pap{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -832,6 +832,46 @@
   .pop-rejeu{margin:10px 0 0;text-align:left;font-size:.98rem;line-height:1.5}
   .pop-rejeu code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
   .pop-rejeu .py-console{margin:6px 0;min-height:0}
+  /* {python-pas-a-pas} : le programme À GAUCHE, la mémoire À DROITE — la
+     disposition de la fiche, où le tableau des cases est redessiné à côté du
+     programme à chaque ligne. Le cadre du programme est celui de
+     {python-completer} (pyx-prog, pyx-ligne, pyx-num, pyx-l1) : une quatrième
+     feuille de styles aurait fini par diverger, et deux exercices voisins se
+     seraient dessinés différemment sous les yeux de l'élève. Ne vivent ici
+     que la LIGNE COURANTE (surlignée, avec son repère ▶ — l'élève doit voir
+     d'un coup d'œil où en est l'exécution) et le tableau de la mémoire, dont
+     les deux cases écrivent à la chasse et à la taille du code qui les
+     entoure. La bonne réponse s'écrit en vert SOUS la case et non à côté :
+     dans une cellule de tableau, un badge en ligne sortirait de sa cellule —
+     la leçon de {python-tableau-valeurs}. */
+  .pap-cols{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+  .pap-col{flex:1 1 300px;min-width:0}
+  .pap-repere{flex:0 0 auto;width:1.1em;text-align:center;font-size:.85rem;color:var(--blue)}
+  .pyx-ligne.pap-ici{background:#eaf0ff;border-radius:8px;margin:0 -6px;padding:1px 6px}
+  .pap-ligne{margin:14px 0 6px;text-align:left;font-size:1.02rem;line-height:1.5;color:var(--ink)}
+  .pap-ligne b{font-family:"Fredoka";font-weight:600}
+  .pap-ligne code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px;white-space:nowrap}
+  .pap-wrap{overflow-x:auto;padding:2px}
+  .pap-mem{border-collapse:collapse;margin:0;background:var(--surface)}
+  .pap-mem th,.pap-mem td{border:1.5px solid var(--line);padding:7px 10px;text-align:center;vertical-align:top}
+  .pap-mem th{background:#f4f8ff;font-family:"Fredoka";font-weight:600;font-size:.95rem;white-space:nowrap}
+  /* les deux cases ont la taille et la chasse du programme qu'elles lisent */
+  .pap-nom,.pap-val{text-align:center;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.4;padding:5px 6px;border:2px solid #BBD0F7;border-radius:8px;background:#fff;color:var(--ink);outline:none}
+  .pap-nom{width:8.5ch}
+  .pap-val{box-sizing:content-box;width:5ch}
+  .pap-nom:focus,.pap-val:focus{border-color:var(--blue);background:#FBFDFF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .pap-nom:disabled,.pap-val:disabled{opacity:1}
+  .pap-nom.ok,.pap-val.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+  .pap-nom.bad,.pap-val.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  /* LA RÈGLE .sol NAÎT AVEC LA FAMILLE, et c'est la leçon de .itv-sel.sol,
+     de .lv-in.sol et de .s1-in.sol : une famille de sélecteurs qui ne la
+     reçoit pas le jour où elle naît écrit sa correction à l'encre du vide.
+     Elle est VIVANTE : c'est l'encre d'une rangée QUITTÉE que l'élève avait
+     fausse — le tableau y porte la valeur vraie, sans quoi la ligne suivante
+     lirait deux nombres pour une même case (papReposer). */
+  .pap-nom.sol,.pap-val.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
+  #papHost .mf-cor{display:block;margin:5px auto 0;width:-moz-fit-content;width:fit-content;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;font-weight:600;white-space:nowrap}
+  @media(max-width:520px){ .pap-mem th,.pap-mem td{padding:6px 6px} .pap-nom{width:7.5ch} .pap-val{width:4ch} }
   /* {python-nom-variable} : la fiche — l'énoncé en cadre SANS étiquette (le
      .mp-instr de l'écran la porte déjà), puis la cellule de réponse du carnet,
      une ligne par grandeur, à chasse fixe ; la case écrit à la taille et à la
@@ -2918,6 +2958,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : LE PROGRAMME PAS À PAS, ET LES CASES MÉMOIRE -->
+  <section class="screen" id="scr-pap">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPAP"></span><span class="q-idx" id="papIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="papLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, dis dans quelle <b>case m&eacute;moire</b> la valeur va, et ce que cette case contient ensuite.</p>
+      <div class="mp-stage"><div style="width:100%" id="papHost"></div></div>
+      <div class="mp-feedback" id="papFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="papActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="papValidate" onclick="checkPAP()">V&eacute;rifier cette ligne</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : SOMME ET DIFFÉRENCE DE FRACTIONS -->
   <section class="screen" id="scr-sf">
     <div class="test-top">
@@ -3261,7 +3317,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=182;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=183;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3849,6 +3905,7 @@ const TESTS={
   'python-deux-lignes': { name:'Compl\u00e9ter\u00a0: deux affichages \u00e0 \u00e9crire', icon:'\ud83e\udde9', desc:'La suite de {python-completer}\u00a0: un programme \u00e0 trois variables, dont une est d\u00e9j\u00e0 affich\u00e9e \u2014 cette ligne est ton mod\u00e8le. \u00c9cris les deux lignes qui manquent, chacune avec LA bonne variable, ex\u00e9cute le programme et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYD() },
   'python-tableau-valeurs': { name:'Un tableau de valeurs avec Python', icon:'\ud83d\udcca', desc:'Le programme calcule 2x+3 pour la valeur de x que tu lui donnes. Ex\u00e9cute-le, puis compl\u00e8te le tableau de valeurs\u00a0: pour chaque colonne, \u00e9cris sa valeur de x \u00e0 la ligne 1 \u2014 avec un point, comme Python l\u2019\u00e9crit \u2014, ex\u00e9cute, et recopie ce qui s\u2019affiche.', start:()=>startPTV() },
   'python-operations': { name:'Somme, diff\u00e9rence, produit, quotient', icon:'\ud83e\uddee', desc:'Un programme calcule la somme et le produit de deux nombres a et b\u00a0: ex\u00e9cute-le, change a et b, regarde ce qui suit. Puis compl\u00e8te-le pour qu\u2019il calcule et affiche EN PLUS la diff\u00e9rence et le quotient de a par b, ex\u00e9cute et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPOP() },
+  'python-pas-a-pas': { name:'Le programme pas \u00e0 pas : les cases m\u00e9moire', icon:'\ud83e\udde0', desc:'Un programme range des nombres dans des cases m\u00e9moire. Ex\u00e9cute-le LIGNE PAR LIGNE\u00a0: \u00e0 chaque ligne, dis quelle case re\u00e7oit la valeur et ce qu\u2019elle contient ensuite. Les cases d\u00e9j\u00e0 remplies gardent leur valeur \u2014 et quand une ligne dit «\u00a0c = b\u00a0», c\u2019est le CONTENU de b qui est recopi\u00e9.', start:()=>startPAP() },
   'python-types': { name:'int, float ou str\u00a0?', icon:'\ud83c\udff7\ufe0f', desc:'Trois types de variables : un entier (int), un nombre \u00e0 virgule (float), un texte entre guillemets (str). Le cours est sur l\u2019\u00e9cran ; lis chaque programme, dis le type de chaque variable \u2014 puis ex\u00e9cute-le : Python te r\u00e9pond avec type().', start:()=>startPTY() },
   'python-afficher-variable': { name:'Affiche la variable\u00a0!', icon:'\ud83d\udda8\ufe0f', desc:'On t\u2019explique comment afficher une variable, puis un programme commence par note = 12 : \u00e0 toi d\u2019\u00e9crire la suite pour qu\u2019il affiche la valeur de la variable. Ex\u00e9cute-le, puis v\u00e9rifie \u2014 en soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYC() },
   'python-noms-variables': { name:'Noms de variables en Python', icon:'\ud83c\udff7\ufe0f', desc:'Le nom d\u2019une variable doit respecter quatre r\u00e8gles. Pour chaque nom propos\u00e9, dis s\u2019il est correct ou incorrect \u2014 et, s\u2019il est incorrect, pourquoi.', start:()=>startPVN() },
@@ -3909,7 +3966,7 @@ const THEMES=[
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
-  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations'] }
+  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-pas-a-pas'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -4558,6 +4615,7 @@ function conseilPaire(){
   else if(test.kind==='ptv' && q) b=ctxPtv(q);
   else if(test.kind==='pyv' && q) b=ctxPyv(q);
   else if(test.kind==='pop' && q) b=ctxPop(q);
+  else if(test.kind==='pap' && q) b=ctxPap(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
@@ -4858,6 +4916,7 @@ const QIA_SUGG={
   pop:["Comment écrire une opération dans un programme ?","Pourquoi faut-il ranger le résultat dans une variable ?","Quelle différence entre / et // en Python ?","Pourquoi le quotient s’affiche-t-il avec un point ?"],
   pyv:["Comment savoir quelle variable écrire dans chaque case ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Que se passe-t-il si j’échange deux variables dans le print ?","Pourquoi Python met-il une espace entre les morceaux du print ?"],
   ptv:["Pourquoi faut-il écrire 0.5 et non 0,5 dans le programme ?","Pourquoi le programme affiche-t-il 4.0 et pas 4 ?","À quoi sert un tableau de valeurs ?","Pourquoi la case du tableau reste-t-elle grise ?"],
+  pap:["Que veut dire la ligne c = b ?","Pourquoi la case b garde-t-elle sa valeur après avoir été recopiée ?","Comment savoir quelle case une ligne remplit ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
   pcv:["Que veut dire la ligne somme = a + b ?","Pourquoi le résultat change quand je change la valeur de a ?","Comment Python calcule-t-il a * b ?","Dans quel ordre Python lit-il les lignes du programme ?"],
   pyd:["Comment savoir quelle variable écrire dans chaque ligne ?","Que se passe-t-il si je recopie la ligne déjà écrite sans rien changer ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Est-ce que je peux écrire les deux lignes dans l’ordre que je veux ?"],
   py:["Pourquoi le texte s’affiche-t-il sans les guillemets ?","Quelle est la différence entre note1 et \"note1\" dans un print ?","À quoi sert la virgule dans print ?","Comment s’écrit et s’affiche un nombre à virgule en Python ?"],
@@ -5446,7 +5505,14 @@ Une variable peut garder le <b>résultat d’un calcul</b> : <code class="inlin
 <b>③ L’ordre compte</b> pour la différence et le quotient : <code class="inline">a - b</code> n’est pas <code class="inline">b - a</code>.<br>
 <b>④ La barre de division</b> donne toujours un nombre à virgule : <code class="inline">a / b</code> affiche <code class="inline">5.0</code> et non <code class="inline">5</code>, même quand la division tombe juste.<br>
 Pour afficher, on reprend la ligne modèle : <code class="inline">print("La somme de",a,"et",b,"est égal à ",somme)</code> — le texte entre guillemets, le <b>nom</b> des variables sans guillemets, et des <b>virgules</b> entre les deux.`;
-const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP };
+const RAP_PAP=`<b>Une variable est une case de la mémoire</b><br>
+Quand Python lit <code class="inline">a = 10</code>, il réserve une case de la mémoire, l’appelle <code class="inline">a</code>, et y range le nombre 10.<br>
+<b>① Le nom de la case est À GAUCHE du signe égal</b>, la valeur qui y va est à droite. <code class="inline">a = 10</code> se lit « le nombre 10 va dans la case appelée a », et jamais l’inverse.<br>
+<b>② À droite, un NOM de case veut dire « recopie ce qu’elle contient »</b> : si la case <code class="inline">b</code> contient 2, alors <code class="inline">c = b</code> range 2 dans la case <code class="inline">c</code> — pas la lettre b. Il faut donc aller LIRE la valeur de <code class="inline">b</code> dans la mémoire.<br>
+<b>③ Une case garde sa valeur</b> tant qu’aucune ligne ne la change : après <code class="inline">c = b</code>, la case <code class="inline">b</code> contient toujours 2, et la case <code class="inline">a</code> toujours 10.<br>
+<b>④ Python lit les lignes UNE PAR UNE</b>, de haut en bas. Une case ne peut être recopiée que si une ligne d’avant l’a déjà remplie.<br>
+Exécuter « pas à pas », c’est justement s’arrêter après chaque ligne pour regarder ce que contiennent les cases.`;
+const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pap:RAP_PAP };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -5555,7 +5621,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-pas-a-pas'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -5984,7 +6050,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pap:['pap',renderPAP]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -6108,7 +6174,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pap'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -20474,6 +20540,403 @@ function ctxPop(q){
   return {nombre:'', contexte:c};
 }
 
+/* ---------- Exercice : le programme PAS À PAS, et les cases mémoire -------
+   Demande de Turquet (septembre 2026) : « en seconde faire un exercice comme
+   le pdf joint » — la fiche « variable pas à pas » : « Exécuter le programme
+   ci-dessous en mode pas à pas », le programme « a = 10 ; b = 2 ; c = b »,
+   puis l'exécution ligne par ligne, chaque ligne suivie du tableau des cases
+   MÉMOIRE de l'ordinateur et d'un « appuyez pour passer à l'étape suivante »,
+   et enfin les phrases à compléter : « a = 10 signifie que le nombre 10 va
+   dans la case mémoire appelée … ».
+
+   CE QU'IL AJOUTE AU THÈME, et c'est la première marche qui manquait : le 5.1
+   fait PRÉDIRE ce qu'un programme affiche, le 5.2 fait RECONNAÎTRE un type, et
+   tous les autres font ÉCRIRE du code. Aucun ne montre ce qu'une variable EST —
+   une case de la mémoire, qui porte un nom et garde une valeur. C'est ce que
+   la fiche appelle le mode pas à pas, et c'est ce qu'on ne voit jamais en
+   exécutant un programme d'un bloc.
+
+   LA FICHE MONTRE L'EXÉCUTION, ICI C'EST L'ÉLÈVE QUI LA PRODUIT. Sur le
+   papier, les trois tableaux de mémoire sont DONNÉS et seules les phrases
+   finales sont à compléter ; une page qui se contenterait de les afficher ne
+   demanderait rien. L'élève avance donc ligne par ligne et REMPLIT la rangée
+   que la ligne ajoute : la case qui reçoit la valeur, et ce qu'elle contient.
+   Ce sont exactement les deux blancs des phrases de la fiche — « va dans la
+   case mémoire appelée … » et « le nombre dans la case b qui est … » —, posés
+   là où ils se lisent : dans le tableau de la mémoire.
+
+   LES PHRASES FINALES NE SONT PAS REPOSÉES À PART, et c'est un arbitrage :
+   elles disent en mots ce que les deux cases de chaque rangée disent déjà, et
+   les redemander ferait taper trois fois la même réponse. Leur VOCABULAIRE,
+   lui, est celui de l'écran — « case mémoire », « ce qu'elle contient » —
+   parce que c'est le mot de la fiche que l'élève doit retenir.
+
+   TROIS VISAGES, CHACUN UNE FOIS PAR SÉANCE, et le premier est la fiche :
+   · « voisine » — la fiche elle-même : la copie prend la case JUSTE au-dessus
+     (c = b), les valeurs 10 et 2 du papier, trois lignes ;
+   · « lointaine » — la copie va chercher la PREMIÈRE case, deux lignes plus
+     haut : l'erreur visée est de recopier la case la plus proche ;
+   · « chaîne » — une copie de COPIE : il faut suivre deux sauts, et la valeur
+     d'origine se retrouve dans trois cases.
+   Les deux derniers sont en ordre mélangé ; sans eux, la copie serait toujours
+   le même geste. PAP_NB en est la structure, pas un réglage — tests/profils.js
+   en est la seconde source.
+
+   AUCUNE RÉAFFECTATION, et ce n'est pas un oubli : « une variable ne
+   s'affecte qu'UNE fois par programme » est la règle du 5.1 (demande de
+   Turquet, septembre 2026), que le diagnostic du 5.3 retourne déjà vers
+   l'élève. La fiche n'en porte pas non plus. Le tirage l'exige donc, et le
+   contrôle le vérifie sur chaque programme.
+
+   AUCUN CALCUL NON PLUS : {python-operations} enseigne la variable qui reçoit
+   le RÉSULTAT d'un calcul, et deux leçons dans un même exercice rendent la
+   faute illisible (la leçon de {multiplier-fractions}). Ici une case reçoit un
+   NOMBRE ou le CONTENU d'une autre case — rien d'autre, comme sur la fiche.
+
+   LA VALEUR N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : elle est lue dans
+   pyRun(papProg(q, k)).env — l'interpréteur MÊME du 5.1, arrêté après la
+   ligne k —, si bien que la correction ne peut pas contredire le programme.
+   La question ne porte que les LIGNES du programme, le visage et l'ORDRE des
+   propositions (on range l'ordre, jamais la réponse) ; le contrôle refuse tout
+   autre champ.
+
+   LE NOM DE LA CASE SE CHOISIT, SA VALEUR SE TAPE. Une saisie libre du nom
+   recalerait sur la casse — « A » nomme une AUTRE case en Python, et c'est le
+   5.2 et le 5.4 qui évaluent cela, pas celui-ci —, donc c'est une liste. Elle
+   offre TOUTES les variables du programme, dans un ordre TIRÉ par question et
+   conservé : rangées dans l'ordre des lignes, la bonne tomberait au rang de
+   l'étape et l'élève apprendrait le rang (la leçon d'{intervalles-inegalite}).
+   La valeur, elle, se tape comme partout, et n'est jamais presque bonne : on
+   compare exactement, les espaces retirées — « − » et « – » valent le tiret du
+   clavier, refuser « −3 » compterait fausse une réponse juste.
+
+   LA VÉRIFICATION EST PAR LIGNE, et c'est ce qui rend chaque case honnête.
+   Une fois la ligne jugée, la page pose la rangée VRAIE : la copie de la ligne
+   suivante lit donc la mémoire telle qu'elle est, jamais celle que l'élève
+   croyait. Sans cela, un élève qui s'est trompé sur b paierait DEUX fois la
+   même erreur — sur b, puis sur le c qui le recopie —, ce que le 5.12 nomme
+   déjà (« une ligne d'affichage est jugée sur les calculs TÉMOINS »).
+   La porte de la ligne suivante est tenue par l'ÉTAT du bouton (le motif de
+   {placer-image}) : « Passer à la ligne suivante » n'existe qu'une fois la
+   ligne jugée. En SOUTIEN elle attend une rangée TOUTE juste — on n'exécute
+   pas la ligne d'après quand on s'est trompé sur celle-ci, et rien n'est
+   révélé : l'élève reprend et revérifie.
+
+   UNE RANGÉE À MOITIÉ REMPLIE EST REDEMANDÉE, jamais peinte : rouge veut dire
+   FAUX, jamais « pas fini » (la règle de {placer-image}). Les deux cases d'une
+   rangée disent UNE seule chose — « cette ligne met telle valeur dans telle
+   case » —, et une moitié n'en dit rien.
+
+   Aucune correction au fil des clics, et c'est déclaré
+   (soutienEnDirect.sans) : la case du nom est une liste de trois ou quatre
+   propositions, et la colorer au choix la ferait essayer jusqu'au bleu.
+
+   LE BOUTON DES TABLES N'Y EST PAS : on ne multiplie rien, on lit une valeur
+   et on la recopie. Il est dans TABLES_SANS, et tests/profils.js le dit. */
+const PAP_NB=3;
+/* La fiche, épinglée en première question : le programme du papier, au
+   caractère près — et c'est le visage « voisine », la copie prenant la case
+   juste au-dessus. */
+const PAP_FICHE={vis:'voisine', lignes:[{nom:'a',expr:'10'},{nom:'b',expr:'2'},{nom:'c',expr:'b'}]};
+/* Les jeux de noms des deux autres questions. Des LETTRES, comme sur la
+   fiche : ici la question n'est pas de bien nommer une variable — c'est le
+   5.5 — mais de savoir quelle case une ligne remplit, et un nom court garde
+   la liste des propositions lisible. La fiche garde a, b, c ; les deux jeux
+   tirés sont distincts d'elle et l'un de l'autre. */
+const PAP_JEUX=[['x','y','z','t'],['p','q','r','s'],['m','n','u','v']];
+/* Les espaces ne comptent pas ; tout le reste est comparé au caractère près —
+   une valeur n'est jamais presque bonne.
+   ET LE SIGNE MOINS N'Y EST PAS, contrairement aux autres exercices Python :
+   les valeurs tirées sont des entiers POSITIFS (le contrôle l'exige), et la
+   touche « − » du pavé des tablettes insère le TIRET du clavier, jamais le
+   signe typographique. Rien dans l'application ne peut donc en poser un ici :
+   le normaliser serait un garde-fou qui n'écarte jamais rien. */
+function papNet(s){ return String(s==null?'':s).replace(/\s+/g,''); }
+/* Le programme, ou sa tranche jusqu'à la ligne k comprise. */
+function papProg(q, k){
+  const n=(k===undefined||k===null)?q.lignes.length:(k+1);
+  return q.lignes.slice(0,n).map(function(l){ return l.nom+' = '+l.expr; }).join('\n');
+}
+/* L'ÉTAT DE LA MÉMOIRE après la ligne k, lu dans l'interpréteur du 5.1 : la
+   fonction MÊME qui exécuterait le programme. La correction ne peut donc pas
+   contredire le programme affiché. */
+function papEtat(q, k){ return pyRun(papProg(q, k)).env; }
+/* La rangée que la ligne k ajoute : le nom de la case, et ce qu'elle
+   contient une fois la ligne exécutée. */
+function papAns(q, k){
+  const nom=q.lignes[k].nom, v=papEtat(q, k)[nom];
+  return {nom:nom, val:(v===undefined?'':pyRep(v))};
+}
+/* Deux réponses par ligne — la case, et son contenu. C'est aussi le POIDS de
+   la question pour la coupe d'un devoir (la convention xxxCases). */
+function papCases(q){
+  const c=[];
+  q.lignes.forEach(function(l, k){ c.push({id:'pap-nom-'+k, cle:'nom'}); c.push({id:'pap-val-'+k, cle:'val'}); });
+  return c;
+}
+/* Les lignes d'un visage. Les littéraux sont deux à deux DISTINCTS : sans
+   cela, une valeur écrite dans la mauvaise case pourrait tomber juste par
+   accident, et le verdict ne voudrait plus rien dire. Les copies, elles,
+   répètent la valeur de leur source — c'est la leçon même de l'exercice. */
+function papGen(vis, noms, vals){
+  if(vis==='lointaine')
+    return [{nom:noms[0],expr:String(vals[0])},{nom:noms[1],expr:String(vals[1])},
+            {nom:noms[2],expr:String(vals[2])},{nom:noms[3],expr:noms[0]}];
+  /* « chaîne » : une copie de la case juste au-dessus, puis une copie de cette
+     copie — la valeur d'origine se retrouve dans trois cases. */
+  return [{nom:noms[0],expr:String(vals[0])},{nom:noms[1],expr:String(vals[1])},
+          {nom:noms[2],expr:noms[1]},{nom:noms[3],expr:noms[2]}];
+}
+function papValeurs(n){
+  const v=[];
+  while(v.length<n){ const x=rand(2,99); if(v.indexOf(x)<0) v.push(x); }
+  return v;
+}
+/* L'ordre des propositions est TIRÉ par question et conservé : à étape égale,
+   le rang de la bonne varie. */
+function papQuestion(vis, lignes){
+  return {vis:vis, lignes:lignes, ordre:ensShuffle(lignes.map(function(l){ return l.nom; }))};
+}
+function papBuildQuestions(){
+  const qs=[papQuestion(PAP_FICHE.vis, PAP_FICHE.lignes.map(function(l){ return {nom:l.nom, expr:l.expr}; }))];
+  const jeux=ensShuffle(PAP_JEUX.slice()).slice(0, PAP_NB-1);
+  ensShuffle(['lointaine','chaine']).slice(0, PAP_NB-1).forEach(function(vis, i){
+    qs.push(papQuestion(vis, papGen(vis, jeux[i], papValeurs(vis==='lointaine'?3:2))));
+  });
+  return qs;
+}
+
+/* ---- Cycle de vie ---- */
+async function startPAP(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=papBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pap', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(n,q){ return n+papCases(q).length; },0),
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false,
+    papEtape:0, papRep:[], papVerdicts:[]});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pap'); renderPAP();
+}
+/* Le programme, avec un repère sur la ligne qu'on exécute : l'élève doit voir
+   d'un coup d'œil où en est l'exécution. Les lignes déjà passées portent un
+   ✓ ; celles qui restent ne sont pas cachées — le programme entier est sous
+   les yeux sur le papier aussi. */
+function papProgHTML(q, k){
+  return '<div class="pyx-prog">'+q.lignes.map(function(l, i){
+    return '<div class="pyx-ligne'+(i===k?' pap-ici':'')+'">'
+      +'<span class="pap-repere">'+(i===k?'▶':(i<k?'✓':''))+'</span>'
+      +'<span class="pyx-num">'+(i+1)+'</span>'
+      +'<span class="pyx-l1">'+pyColorie(l.nom+' = '+l.expr)+'</span></div>';
+  }).join('')+'</div>';
+}
+/* Le tableau de la mémoire : une rangée par ligne DÉJÀ exécutée, plus celle
+   qu'on est en train d'exécuter. Les rangées passées gardent leurs cases —
+   désactivées et peintes — plutôt qu'un texte : ptsEcran() compte les
+   « input » et les « select » peints, et la note affichée doit compter toute
+   la question. */
+function papMemHTML(q, k){
+  let h='<div class="pap-wrap"><table class="pap-mem"><tr><th>Case mémoire</th><th>Ce qu’elle contient</th></tr>';
+  for(let i=0;i<=k;i++){
+    h+='<tr><td><select class="pap-nom" id="pap-nom-'+i+'" aria-label="la case mémoire que remplit la ligne '+(i+1)+'">'
+      +'<option value=""></option>'
+      +q.ordre.map(function(n){ return '<option value="'+esc(n)+'">'+esc(n)+'</option>'; }).join('')
+      +'</select></td>'
+      +'<td><input class="pap-val" id="pap-val-'+i+'" type="text" inputmode="numeric" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ce que contient cette case après la ligne '+(i+1)+'"></td></tr>';
+  }
+  return h+'</table></div>';
+}
+/* Une rangée jugée se repose, et PAS de la même façon selon qu'on l'a quittée
+   ou non — c'est un défaut qui ne s'est vu que sur la CAPTURE.
+   LA RANGÉE QU'ON VIENT DE JUGER garde la convention commune : la saisie de
+   l'élève en rouge, la bonne réponse en vert à côté (corrCase, l'entonnoir
+   partagé). C'est le moment où il regarde son verdict.
+   LES RANGÉES DÉJÀ QUITTÉES, elles, sont LA MÉMOIRE — le tableau s'appelle
+   « la mémoire de l'ordinateur », et la ligne suivante va y LIRE ce qu'une
+   case contient. Une valeur fausse laissée là donnait DEUX nombres pour une
+   même case, le sien en rouge et celui de la correction en vert : « b » y
+   contenait 77 et 2 à la fois, et la copie « c = b » n'avait plus de source
+   sûre. Elles portent donc la valeur VRAIE — la case juste garde son bleu, la
+   fausse reçoit la valeur et le VERT de la correction, la convention des
+   révélations de la Terminale. En soutien la question ne se pose pas : on ne
+   quitte pas une rangée fausse.
+   C'est aussi ce qui rend le rendu idempotent : la reprise après une pause et
+   le rejeu d'un signalement passent par là. */
+function papReposer(q){
+  const k=test.papEtape;
+  (test.papVerdicts||[]).forEach(function(v, i){
+    if(!v) return;
+    const a=papAns(q, i), r=test.papRep[i]||{nom:'',val:''};
+    const ne=$('pap-nom-'+i), ve=$('pap-val-'+i);
+    if(i<k){
+      [[ne, a.nom, v.nom],[ve, a.val, v.val]].forEach(function(x){
+        if(!x[0]) return;
+        x[0].value=x[1];
+        x[0].classList.remove('ok','bad','sol');
+        x[0].classList.add(x[2]?'ok':'sol');
+        x[0].disabled=true;
+      });
+      return;
+    }
+    if(ne) ne.value=r.nom; if(ve) ve.value=r.val;
+    corrCase('pap-nom-'+i, a.nom, !!v.nom);
+    corrCase('pap-val-'+i, a.val, !!v.val);
+  });
+}
+function papFini(q){
+  const v=test.papVerdicts||[];
+  return v.length>=q.lignes.length && q.lignes.every(function(l, i){ return !!v[i]; });
+}
+function papToutJuste(q){
+  const v=test.papVerdicts||[];
+  return papFini(q) && q.lignes.every(function(l, i){ return v[i].nom && v[i].val; });
+}
+function renderPAP(){
+  const q=test.questions[test.idx];
+  if(!Array.isArray(test.papRep)) test.papRep=[];
+  if(!Array.isArray(test.papVerdicts)) test.papVerdicts=[];
+  if(typeof test.papEtape!=='number') test.papEtape=0;
+  const k=Math.max(0, Math.min(test.papEtape, q.lignes.length-1));
+  test.papEtape=k;
+  const fini=papFini(q);
+  test.locked=fini;
+  $('papIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPAP').innerHTML=modeTagHTML();
+  $('papLiveScore').textContent=test.score;
+  $('papFeedback').textContent=''; $('papFeedback').className='mp-feedback';
+  const l=q.lignes[k];
+  $('papHost').innerHTML=
+    '<div class="py-cell">'
+    +'<div class="pap-cols">'
+    +'<div class="pap-col"><p class="py-label">Le programme</p>'+papProgHTML(q, k)+'</div>'
+    +'<div class="pap-col"><p class="py-label">La mémoire de l’ordinateur</p>'+papMemHTML(q, k)+'</div>'
+    +'</div>'
+    +'<p class="pap-ligne"><b>ligne '+(k+1)+'</b>&nbsp;: <code>'+esc(l.nom+' = '+l.expr)+'</code> — remplis la dernière rangée du tableau&nbsp;: la case mémoire que cette ligne remplit, et ce qu’elle contient ensuite. Les cases déjà remplies gardent leur valeur.</p>'
+    +'</div>';
+  papReposer(q);
+  const ne=$('pap-nom-'+k), ve=$('pap-val-'+k);
+  if(!fini && ne && ve){
+    [ne, ve].forEach(function(e){ e.addEventListener(e.tagName==='SELECT'?'change':'input', papModifiee); });
+    ve.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); checkPAP(); } });
+  }
+  papBoutons(q, fini);
+}
+/* La rangée jugée FAUSSE en soutien se reprend : la première touche efface le
+   rouge, sans quoi l'élève corrigerait devant une couleur qui ne parle plus de
+   ce qu'il vient d'écrire. */
+function papModifiee(){
+  if(test.locked) return;
+  const k=test.papEtape;
+  ['pap-nom-'+k, 'pap-val-'+k].forEach(function(id){
+    const e=$(id); if(!e) return;
+    e.classList.remove('ok','bad','sol');
+    const anc=e.nextElementSibling;
+    if(anc && anc.classList && anc.classList.contains('mf-cor')) anc.remove();
+  });
+  const f=$('papFeedback'); if(f && f.classList.contains('bad')){ f.textContent=''; f.className='mp-feedback'; }
+}
+function papBoutons(q, fini){
+  const k=test.papEtape, der=(test.idx===test.questions.length-1);
+  if(fini){
+    $('papActions').innerHTML='<button class="btn btn-primary" id="papNext" onclick="nextPAP()">'+(der?'Voir mes résultats':'Question suivante')+'</button>';
+    return;
+  }
+  if(test.papVerdicts[k]){
+    $('papActions').innerHTML=conseilInlineBtn()
+      +'<button class="btn btn-primary" id="papStep" onclick="papSuivante()">▶ Passer à la ligne '+(k+2)+'</button>';
+    return;
+  }
+  $('papActions').innerHTML=conseilInlineBtn()
+    +'<button class="btn btn-primary" id="papValidate" onclick="checkPAP()">Vérifier cette ligne</button>';
+}
+function papSuivante(){
+  if(test.papEtape>=test.questions[test.idx].lignes.length-1) return;
+  if(!test.papVerdicts[test.papEtape]) return;   /* la porte : la ligne doit être jugée */
+  test.papEtape++; renderPAP(); autoSave();
+}
+function checkPAP(live){
+  if(live) return;            /* aucune correction au fil des clics — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], k=test.papEtape, fb=$('papFeedback');
+  if(test.papVerdicts[k]) return;              /* cette ligne est déjà jugée */
+  const ne=$('pap-nom-'+k), ve=$('pap-val-'+k); if(!ne||!ve) return;
+  const a=papAns(q, k), gn=String(ne.value||'').trim(), gv=papNet(ve.value);
+  /* UNE RANGÉE À MOITIÉ REMPLIE EST REDEMANDÉE, jamais peinte : les deux cases
+     disent UNE seule chose, et une moitié n'en dit rien. */
+  if(gn===''||gv===''){
+    fb.textContent=(gn===''&&gv==='')
+      ? 'Cette ligne n’est pas remplie : choisis la case mémoire, puis écris ce qu’elle contient.'
+      : (gn==='' ? 'Il manque la case mémoire : choisis-la dans la liste.'
+                 : 'Il manque ce que la case contient : écris-le en chiffres.');
+    fb.className='mp-feedback bad';
+    const c=(gn===''?ne:ve); if(c) c.focus();
+    return;
+  }
+  const subs=[{e:ne, id:'pap-nom-'+k, ok:gn===a.nom, bon:a.nom},
+              {e:ve, id:'pap-val-'+k, ok:gv===a.val, bon:a.val}];
+  const justes=subs.filter(function(s){ return s.ok; }).length, allOk=justes===2;
+  /* EN SOUTIEN, la ligne d'après attend une rangée TOUTE juste : on n'exécute
+     pas la suivante quand on s'est trompé sur celle-ci. Rien n'est révélé —
+     l'élève reprend et revérifie —, et rien n'est compté avant. */
+  if(!allOk && isSoutien()){
+    subs.forEach(function(s){ s.e.classList.add(s.ok?'ok':'bad'); });
+    fb.textContent='Reprends la rangée en rouge. La case que la ligne remplit est écrite à GAUCHE du signe égal'
+      +(papCopie(q, k)?' ; à droite, ce n’est pas un nombre mais le NOM d’une case — va lire ce qu’elle contient dans le tableau.':' ; à droite, la valeur qui y va.');
+    fb.className='mp-feedback bad';
+    $('papActions').innerHTML=conseilInlineBtn()
+      +'<button class="btn btn-primary" id="papValidate" onclick="checkPAP()">Revérifier</button>';
+    const bad=subs.find(function(s){ return !s.ok; });
+    if(bad) setTimeout(function(){ bad.e.focus(); }, 40);
+    return;
+  }
+  test.papRep[k]={nom:gn, val:gv};
+  test.papVerdicts[k]={nom:subs[0].ok, val:subs[1].ok};
+  corrCase('pap-nom-'+k, a.nom, subs[0].ok);
+  corrCase('pap-val-'+k, a.val, subs[1].ok);
+  test.score+=justes; $('papLiveScore').textContent=test.score;
+  const der=(k===q.lignes.length-1);
+  if(allOk) fb.textContent=der ? (pick(['Bravo, tout est juste !','Parfait !','Excellent !'])+' Le programme est arrivé au bout.')
+                               : 'Juste ! La case garde cette valeur pour la suite.';
+  else fb.textContent='La bonne réponse est écrite en vert : cette ligne met '+a.val+' dans la case '+a.nom+'.'
+    +(papCopie(q, k)?' À droite du signe égal, « '+q.lignes[k].expr+' » est le NOM d’une case : c’est ce qu’elle CONTIENT qui est recopié.':'');
+  fb.className='mp-feedback '+(allOk?'good':'bad');
+  if(der){
+    test.locked=true;
+    const tout=papToutJuste(q);
+    test.answers.push({...(ptsExo()||{}), correct:tout,
+      q:papProg(q).replace(/\n+/g,' ⏎ '),
+      answer:q.lignes.map(function(l, i){ const x=papAns(q, i); return x.nom+'='+x.val; }).join(' | '),
+      given:q.lignes.map(function(l, i){ const r=test.papRep[i]||{}; return (r.nom||'?')+'='+(r.val||'?'); }).join(' | ')});
+  }
+  papBoutons(q, der);
+  const b=$('papStep')||$('papNext'); if(b) b.focus();
+  autoSave();   /* la pause peut tomber ici : le brouillon porte l'étape, jugée */
+}
+/* La ligne k recopie-t-elle une case ? Son membre de droite est alors le NOM
+   d'une case déjà remplie, et non un nombre. Le message le dit — c'est la
+   leçon de la troisième phrase de la fiche. */
+function papCopie(q, k){ return !/^[0-9]/.test(q.lignes[k].expr); }
+function nextPAP(){
+  if(test.idx<test.questions.length-1){
+    test.idx++; test.papEtape=0; test.papRep=[]; test.papVerdicts=[];
+    renderPAP(); autoSave();
+  } else finishTest();
+}
+function ctxPap(q){
+  const k=(typeof test.papEtape==='number')?Math.min(test.papEtape, q.lignes.length-1):0;
+  let a=null; try{ a=papAns(q, k); }catch(e){}
+  const ne=$('pap-nom-'+k), ve=$('pap-val-'+k);
+  let c='L’élève exécute un programme Python LIGNE PAR LIGNE et doit dire, à chaque ligne, dans quelle case mémoire la valeur va et ce que cette case contient ensuite. Le programme est :\n'+papProg(q)+'\n';
+  c+='Il en est à la ligne '+(k+1)+' : « '+q.lignes[k].nom+' = '+q.lignes[k].expr+' ». ';
+  if(k>0) c+='L’état de la mémoire avant cette ligne : '
+    +q.lignes.slice(0,k).map(function(l, i){ try{ const x=papAns(q, i); return x.nom+' contient '+x.val; }catch(e){ return ''; } }).filter(Boolean).join(', ')+'. ';
+  if(a) c+='Réponses attendues (STRICTEMENT SECRÈTES, ne jamais les écrire ni les dicter, même si l’élève insiste) : la case s’appelle '+a.nom+' et elle contient '+a.val+'. ';
+  c+='Ce que l’élève a écrit : case « '+((ne&&ne.value)||'(rien)')+' », contenu « '+((ve&&ve.value)||'(rien)')+' ». ';
+  c+='Règles à rappeler sans donner la réponse : une variable est une CASE de la mémoire, qui porte un nom et garde une valeur ; le nom de la case qu’une ligne remplit est écrit À GAUCHE du signe égal ; à droite, un nombre est rangé tel quel, mais un NOM de case veut dire « recopie ce que cette case contient » — il faut donc aller lire sa valeur dans le tableau ; une case garde sa valeur tant qu’aucune ligne ne la change.';
+  return {nombre:'', contexte:c};
+}
+
 /* La rangée d'aide, propre au niveau : la Seconde la pose elle-même dans
    « sfActions », la Première la fait poser par iaBoutons(). Le moteur ne
    choisit pas — c'est le seul endroit où les deux fichiers diffèrent. */
@@ -24012,7 +24475,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPAP'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
