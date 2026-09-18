@@ -10585,6 +10585,126 @@ CONTRÔLE plutôt qu'un défaut de la page.**
   qui reste vert à la largeur où rien ne peut le voir parle d'autre chose —
   la leçon du sabotage impossible, à une orientation près.
 
+**Une case où l'élève écrit une LIMITE est un champ mathématique — le clavier
+du 3.5.** Demande de Turquet (septembre 2026) : « en terminale, pour les cases
+où on doit déterminer des limites, je veux le même clavier que dans l'exercice
+3.5 ». Le 3.5 rédige dans la feuille MathLive, donc le clavier à l'écran — ∞ et
+⟶ sur son clavier A — s'y ouvre ; les cases de limite, elles, étaient des
+`<input>` de TEXTE, où aucun clavier mathématique ne sait écrire : sur tablette
+c'est le clavier du SYSTÈME qui s'ouvrait, une demi-page pour écrire « +∞ », et
+le symbole ne s'atteignait que par le petit bouton d'à côté.
+**UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE** : une case de limite est
+une case jugée par `lgLimOK` — le juge des limites, partagé depuis le 3.2 —, et
+toutes passent par `limHTML` / `limLire`. Le contrôle tient ce bord sur la
+SOURCE : **aucun appel à `lgLimOK` ne lit un « .value »**, la signature d'un
+champ de texte, si bien qu'un exercice ajouté demain qui lirait une limite dans
+un `<input>` rougit sans rien avoir à déclarer.
+**LE PÉRIMÈTRE EST CELUI DU JUGE, et il traverse trois thèmes** : le 3.2, le 3.3
+(ses sous-questions ET les valeurs de son tableau de variation), le 3.4, puis le
+4.6 et le 6.14, qui posent une limite HORS du thème des limites. Les limites
+FINIES que d'autres exercices font taper en nombre (le ℓ du 6.12, par exemple)
+restent dehors : elles ne passent pas par `lgLimOK`, aucun ∞ ne s'y écrit, et
+étendre le périmètre à « tout ce qui s'appelle une limite » aurait demandé une
+liste. C'est un arbitrage nommé, pas un oubli.
+**LE CLAVIER SUIT LES CASES, PLUS SEULEMENT LE NOM.** `kbLimites` lisait
+l'identifiant et le THÈME ; le 4.6 et le 6.14 n'ont ni l'un ni l'autre, et ∞
+serait reparti sur le clavier B. Elle lit donc aussi l'ÉCRAN — une case de
+limite affichée suffit — avec un garde qui compte : `id === currentTestId`,
+sans quoi un écran de limites resté sur la page rendrait « vrai » pour
+n'importe quel exercice, et le sabotage l'a montré en nommant les cinq.
+**ET LE 3.2 N'AVAIT JAMAIS EU CE CLAVIER — mesuré, pas supposé** : la variante
+des limites existe depuis septembre 2026, mais `applyKbLayout` ne tourne que
+sur `mlDexp.upgrade()`, et aucun écran du 3.2, du 3.3 ni du 3.4 ne portait de
+champ mathématique — la page connaissait la règle et ne la servait jamais là.
+La sonde a relevé le clavier d'avant sur le 3.2 : ni ∞ ni ⟶ sur le clavier A.
+**LE JUGE N'A PAS BOUGÉ D'UNE LIGNE, et c'est ce qui rend la bascule sûre** :
+`limLire` passe par `dexpCellValue` — `saClean` retire les résidus MathLive de
+fin de saisie (le piège documenté de l'exposant vide), puis `toPlain` rend le
+clair que `lgLimOK` sait lire depuis toujours (« +∞ », « -∞ », « 3,5 »). Un
+élève qui tape « inf » écrit ∞ par le raccourci du champ, celui que l'indication
+de l'écran lui promettait déjà.
+**LE BOUTON ∞ RESTE, et il lève « input » UNE seule fois** : sur ordinateur le
+clavier est une fenêtre qu'il faut ouvrir, et le raccourci ne se devine pas.
+`executeCommand` lève l'événement lui-même, `setValue` non — le relais n'est
+posé que sur la seconde voie, et le banc navigateur COMPTE les événements :
+doublé, la correction en direct du soutien verrait deux frappes pour une touche.
+**Et `corrCase` sait écrire dans un champ mathématique.** Sa moitié « vide » est
+celle qui compte — elle relit la case par le même chemin que le juge ; sa moitié
+« écriture » est une CEINTURE, et c'est mesuré : dans un vrai Chromium,
+`mf.value = '−∞'` rend exactement le même dessin que `setValue('-\infty')`.
+Elle est gardée parce qu'elle écrit comme `rfReveal`, l'entonnoir voisin, et le
+dire vaut mieux que de le taire. Ce qui est VIVANT est que la correction écrive
+quelque chose que le juge relise, et le sabotage qui la débranche rougit en
+nommant les vingt cases.
+**Deux pièges du BANC s'y sont montrés, et aucun n'était un défaut de la
+page.** Le double du harnais rendait `toPlain` en passe-plat : une case écrite
+par la page (le bouton ±∞, la correction) se relisait alors en LaTeX et le juge
+la refusait — le double convertit désormais `\infty` et `{,}`, les deux seules
+commandes que la PAGE ÉCRIT dans une case avant qu'un juge ne la relise, et le
+contrôle qui mesure `toPlain` lit la SOURCE, pas ce double. Et sa première
+écriture est tombée dans le piège documenté de l'antislash : le substitut du
+harnais vit dans un GABARIT, où `\\infty` devient `\infty` — la regex ne
+cherchait plus qu'« infty » et mangeait le mot sans sa barre.
+**Deux bancs, la répartition habituelle.** jsdom tient la SOURCE (le bord sans
+liste), puis MONTE chaque témoin déclaré dans `tests/profils.js` — deux sources,
+et elles doivent se répondre : une page qui pose des limites sans témoin rougit,
+un témoin sans page aussi. Les démarreurs étant asynchrones (ils attendent
+`loadConfig`), le témoin déclare une `pose` qui passe par le vrai générateur :
+un contrôle synchrone aurait mesuré l'écran d'avant. Le NAVIGATEUR mesure ce que
+jsdom n'a pas — la disposition du clavier RÉELLEMENT installée, ∞ et ⟶ sur le
+clavier A, sur TOUT écran visité qui pose une limite (greffé sur la visite
+universelle : l'exercice qu'on posera demain est couvert sans rien déclarer),
+puis « 6 tricies duodecies » TAPE « inf » au clavier, CLIQUE le bouton ∞ et
+mesure la boîte rendue.
+**Quatorze sabotages, chacun rougissant en nommant son défaut** — neuf au banc
+jsdom (la case redevenue un `<input>`, un `lgLimOK` relisant un `.value`, le
+6.14 revenu à sa case numérique, `limLire` relisant le LaTeX brut, la correction
+qui n'écrit plus rien dans les vingt cases, la case privée de `dexp-mf` donc de
+la greffe, les deux moitiés de `kbLimites`, le profil vidé de ses témoins) et
+cinq au navigateur (le raccourci « inf » retiré du champ, le bouton ∞ muet, le
+bouton qui lève deux événements, `kbLimites` sourde à l'écran — il nomme le 4.6
+et le 6.14, les deux exercices qui n'ont que l'écran pour se faire
+reconnaître —, la case réduite à rien par une règle CSS). **Et un quinzième n'a
+rien pu dire** : la même case mise en `display:none` fait mourir le banc sur son
+PARCOURS, trente secondes avant d'atteindre le contrôle visé — un sabotage qui
+casse le banc ne dit rien du contrôle qu'il vise, et rejoué en réduisant la case
+au lieu de l'effacer, il la nomme (« 16x44 px »).
+**Ce qui NE bouge pas se dit aussi** : le juge, la note, les messages, la
+correction en badges verts et la mise en page — comparée avant/après dans un
+vrai navigateur, à la question près du tirage. Un seul geste change de main : la
+chaîne d'Entrée entre les cases (`navCasesListe`) ne connaît que les `input` et
+les `select`, donc elle saute désormais les cases de limite — c'est déjà le
+sort de TOUS les champs mathématiques de la Terminale, Tab et le clic restent,
+et le corriger toucherait les dix-huit autres écrans pour un besoin qui n'a pas
+été demandé.
+**ET LA COLLISION QUI A SUIVI N'ÉTAIT PAS CELLE D'UN NUMÉRO : Turquet avait
+répondu LUI-MÊME à la demande, sur `main`, pendant que la branche attendait.**
+Quarante-deux minutes après l'annonce « prêt à mettre en ligne », une v330
+poussée directement sur `main` déclarait ces mêmes cases `inputmode="numeric"`
+avec `data-pave-plus="+ ∞"` : elles restaient des `<input>` de texte, servies
+par le PAVÉ numérique compact au lieu du clavier du système. Deux réponses à
+une seule question, dans les mêmes lignes — le conflit que `git` signale et
+qu'aucun banc ne pouvait voir, chaque côté étant juste de son côté.
+**LA RÈGLE QUI TRANCHE EST LA CHRONOLOGIE DES INSTRUCTIONS, pas la date des
+commits** : « mets en ligne » est postérieur à la v330, et il désigne la
+branche — donc la résolution va vers la branche, et la v330 est SUPERSÉDÉE là
+où elle portait sur une case de limite. Ce n'est pas un aller simple : un
+pavé rendu à ces cases tient en un commit, la mécanique existant déjà
+(`PAVE_MF` et `pave.champsMaths`, vides en Terminale parce que « ses cases
+attendent des expressions » — une case de limite, elle, attend `+∞`, `−∞` ou
+un nombre).
+**CE QUI SURVIT DE LA v330 SE DIT, parce que ce n'est pas rien** : son
+`inputmode="numeric"` reste sur les cases d'ÉQUATION d'asymptote (`lg-eq`,
+`<pfx>-eq`), qui ne sont pas des cases de limite et que la branche ne touche
+pas — la fusion automatique les a gardées, et le contrôle qui compte les
+appels à `lgLimOK` ne les regarde pas non plus. Une fusion se relit sur ce
+qu'elle GARDE autant que sur ce qu'elle remplace.
+**Et le banc des versions a fait exactement ce pour quoi il existe** : parti
+d'un `main` à 328, la branche écrivait 329 ; `main` étant passé à 330, la
+page va en **331** — la collision silencieuse d'`APP_VERSION` (deux écritures
+du MÊME nombre ne font aucun conflit textuel) ne pouvait plus se produire,
+puisque le banc compare à `main` au moment où il tourne.
+
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la
 barre d'adresse et les onglets de Chrome prennent sur l'écran d'une tablette,

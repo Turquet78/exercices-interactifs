@@ -697,6 +697,7 @@
   .svq-coche.on.bad .svq-box{background:var(--red)}
   .svq-coche.sol .svq-box{border-color:var(--green);border-style:dashed;color:var(--green);box-shadow:0 0 0 3px rgba(31,169,113,.18)}
   .svq-coche.sol .svq-box::after{content:'\2713'}
+  .svq-ligne math-field.dexp-mf.lim-mf{font-size:1.15rem;min-width:78px;}
   .svq-in{width:74px;font:inherit;font-size:1.15rem;text-align:center;padding:4px 8px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
   .svq-in:disabled{background:#f3f5fa;color:var(--ink-soft);border-style:dashed}
   .svq-in.ok{border-color:var(--blue);background:#eaf1ff}
@@ -1025,7 +1026,6 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .lg-sel{padding:7px 9px;border:2px solid #c9d3e8;border-radius:9px;font:inherit;font-weight:700;color:var(--ink);background:var(--surface);max-width:100%;}
 .lg-sel.ok{border-color:var(--blue);background:#EAF0FF;}
 .lg-sel.bad{border-color:var(--red);background:#fdecee;}
-.lg-lim{width:66px;}
 .lg-play{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:34px;height:34px;font-size:.9rem;font-weight:800;color:var(--blue);cursor:pointer;vertical-align:middle;margin-left:4px;}
 .lg-play:hover{border-color:var(--blue);color:var(--blue-dark);}
 .lg-inf{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:34px;height:34px;font-size:1.05rem;font-weight:800;color:var(--ink);cursor:pointer;vertical-align:middle;margin-left:6px;line-height:1;}
@@ -1108,6 +1108,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 
 /* --- Niveau 2 : tableau de variation (cases de valeurs, double barre, badges) --- */
 .vfcell .lg2-vin{position:absolute;transform:translate(-50%,-50%);width:54px;padding:5px 4px;font-size:.95rem;transition:top .2s ease;}
+.vfcell math-field.dexp-mf.lg2-vin{width:auto;min-width:62px;font-size:.95rem;padding:0 5px;min-height:1.6em;}
 .vt-dbar{stroke:var(--ink);stroke-width:2;}
 .vfcell .vt-sel2.ok{border-color:var(--blue);background:#EAF0FF;}
 .vfcell .vt-sel2.bad{border-color:var(--red);background:#fdecee;}
@@ -1209,6 +1210,11 @@ body math-field.dexp-mf:focus-within{outline:none;border-color:var(--blue);backg
 math-field.dexp-mf.ok{border-color:var(--blue);background:#EAF0FF;}
 math-field.dexp-mf.bad{border-color:var(--red);background:var(--red-soft);}
 math-field.dexp-mf.sol{border-color:var(--green);background:var(--green-soft);}
+/* ===== Une case où l'élève ÉCRIT UNE LIMITE =====
+   Elle garde la taille et la graisse du texte qui l'entoure — la règle de
+   toute case de saisie — et le clavier à l'écran s'y ouvre, comme au 3.5. */
+math-field.dexp-mf.lim-mf{font-size:inherit;font-weight:700;min-width:72px;min-height:1.7em;padding:1px 6px;vertical-align:middle;}
+math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
 .ML__sqrt-line.ML__sqrt-line::before{margin-left:-0.08em;min-height:max(1.5px,0.05em);}
 
 /* ===== Clavier mathématique : ancré (tactile) / fenêtre flottante (ordinateur) ===== */
@@ -2933,7 +2939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=330;
+const APP_VERSION=331;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -7884,6 +7890,45 @@ function lgAnime(i){
   };
   lgAnimRaf=requestAnimationFrame(step);
 }
+/* ===== UNE CASE OÙ L'ÉLÈVE ÉCRIT UNE LIMITE — UN SEUL ENDROIT =====
+   Demande de Turquet (septembre 2026) : « pour les cases où on doit déterminer
+   des limites, je veux le même clavier que dans l'exercice 3.5 ». Le 3.5 rédige
+   dans des champs MathLive, donc le clavier à l'écran — celui qui porte ∞ et ⟶
+   sur son clavier A — s'y ouvre ; les cases de limite, elles, étaient des
+   <input> de TEXTE, où aucun clavier mathématique ne sait écrire : sur tablette
+   c'est le clavier du SYSTÈME qui s'ouvrait, et ∞ ne s'atteignait que par le
+   petit bouton d'à côté.
+   LA DÉFINITION NE TIENT AUCUNE LISTE D'EXERCICES : une case de limite est une
+   case jugée par lgLimOK — le juge des limites —, et toutes passent par cette
+   fabrique ; un contrôle lit la SOURCE et exige que chaque appel à lgLimOK()
+   lise limLire(). Un exercice ajouté demain qui pose une limite est couvert
+   sans rien déclarer, et kbLimites reconnaît son écran à ses cases.
+   LE BOUTON ∞ RESTE : sur ordinateur le clavier est une fenêtre qu'il faut
+   ouvrir, et le raccourci « inf » ne se devine pas. */
+function limHTML(id,extra,style){
+  return '<math-field class="dexp-mf lim-mf'+(extra?' '+extra:'')+'" id="'+id+'"'+(style?' style="'+style+'"':'')+'></math-field>';
+}
+/* La lecture passe par dexpCellValue — saClean retire les résidus MathLive de
+   fin de saisie (le piège documenté de l'exposant vide), puis toPlain rend le
+   clair que lgLimOK sait déjà lire (« +∞ », « -∞ », « 3,5 »). */
+function limLire(id){ return dexpCellValue(id); }
+function limVerrou(id,on){ const el=$(id); if(!el) return; try{ el.readOnly=!!on; }catch(e){} }
+function limInsInf(id,signe){
+  const el=$(id); if(!el||el.readOnly||el.disabled) return;
+  try{
+    if(signe){
+      el.setValue(mlTexN(signe));
+      /* setValue ne lève PAS « input » : sans ce relais, la correction en
+         direct du soutien ne verrait jamais la frappe. executeCommand, lui,
+         le lève déjà — le doubler ferait DEUX événements pour une seule
+         touche, et le banc navigateur les compte. */
+      el.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+    else if(limLire(id).indexOf('\u221e')>=0){ el.focus(); return; }   /* un seul ∞ par case */
+    else el.executeCommand(['insert','\\infty']);
+    el.focus();
+  }catch(e){}
+}
 /* Comparaisons locales (le verdict IA reste autoritaire pour le score). */
 function lgLimOK(sub, raw){
   const brut=String(raw==null?'':raw).trim();
@@ -7916,7 +7961,7 @@ function lgAttenduIA(c){
 function lgReponseTxt(c){
   const TL={ah:'une asymptote horizontale',av:'une asymptote verticale',rien:'pas d’asymptote'};
   return c.subs.map((s,i)=>{
-    const lv=String(($('lg-lim'+i)||{}).value||'').trim();
+    const lv=limLire('lg-lim'+i).trim();
     const tv=String(($('lg-typ'+i)||{}).value||'');
     const z=$('lg-eqz'+i), zvis=z&&z.style.display!=='none';
     const ev=zvis?String(($('lg-eq'+i)||{}).value||'').trim():'';
@@ -7949,25 +7994,17 @@ function renderLG(){
   const aide=(currentMode!=='eval');
   $('lgHint').innerHTML=(aide?'<span class="tvg-hint">▶ fait apparaître un point qui se déplace sur la courbe&nbsp;·&nbsp;</span>':'')+'<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
   $('lgSubs').innerHTML=c.subs.map((s,i)=>
-    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → <input class="dhv-in lg-lim" id="lg-lim'+i+'" type="text" inputmode="numeric" data-pave-plus="+ ∞" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false"> <button type="button" class="lg-inf" id="lg-inf'+i+'" onclick="lgInsInf('+i+')" title="Insérer le symbole ∞">∞</button></span>'
+    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → '+limHTML('lg-lim'+i,'lg-lim')+' <button type="button" class="lg-inf" id="lg-inf'+i+'" onclick="lgInsInf('+i+')" title="Insérer le symbole ∞">∞</button></span>'
     +(aide?' <button type="button" class="lg-play" onclick="lgAnime('+i+')" title="Voir un point se déplacer sur la courbe vers cette cible">▶</button>':'')
     +'<br>il y a donc <select class="lg-sel" id="lg-typ'+i+'" onchange="lgSync('+i+')"><option value="">—</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'
     +' <span class="dhv-eqgrp" id="lg-eqz'+i+'" style="display:none">, d’équation <span id="lg-pre'+i+'"></span> = <input class="dhv-in" id="lg-eq'+i+'" type="text" inputmode="numeric" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
   ).join('');
-  c.subs.forEach((s,i)=>{ const el=$('lg-lim'+i); if(!el) return;
-    el.oninput=function(){ const av=this.value; if(/inf/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/inf/gi,'∞'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } }; });
+  if(window.mlDexp) window.mlDexp.upgrade($('lgSubs'));   /* les cases de limite sont des champs MathLive : même clavier qu'au 3.5 */
   setTimeout(lgSyncAll,0);   /* après restoreBoxes en cas de reprise */
 }
 /* Bouton ∞ : insère le symbole à la position du curseur (l’élève tape « − » puis ∞ pour −∞).
    Un seul ∞ par champ ; inerte quand la case est verrouillée. */
-function lgInsInf(i){
-  const el=$('lg-lim'+i); if(!el||el.disabled) return;
-  if(el.value.indexOf('∞')>=0){ el.focus(); return; }
-  const p=(typeof el.selectionStart==='number')?el.selectionStart:el.value.length;
-  el.value=el.value.slice(0,p)+'∞'+el.value.slice(p);
-  try{ el.setSelectionRange(p+1,p+1); }catch(err){}
-  el.focus();
-}
+function lgInsInf(i){ limInsInf('lg-lim'+i); }
 function lgSync(i){
   const ty=$('lg-typ'+i), z=$('lg-eqz'+i), pre=$('lg-pre'+i);
   if(!ty||!z||!pre) return;
@@ -7984,7 +8021,7 @@ function lgSyncAll(){
 function lgMarqueSoutien(c){
   c.subs.forEach((s,i)=>{
     const li=$('lg-lim'+i), ty=$('lg-typ'+i), eq=$('lg-eq'+i);
-    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,li.value)){ li.classList.add('ok'); li.disabled=true; const bi=$('lg-inf'+i); if(bi) bi.disabled=true; } else li.classList.add('bad'); }
+    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,limLire('lg-lim'+i))){ li.classList.add('ok'); limVerrou('lg-lim'+i,true); const bi=$('lg-inf'+i); if(bi) bi.disabled=true; } else li.classList.add('bad'); }
     if(ty){ ty.classList.remove('ok','bad'); if(ty.value===s.typ){ ty.classList.add('ok'); ty.disabled=true; } else ty.classList.add('bad'); }
     if(eq && ty && ty.value===s.typ && s.typ!=='rien'){ eq.classList.remove('ok','bad'); if(lgEqOK(s,eq.value)){ eq.classList.add('ok'); eq.disabled=true; } else eq.classList.add('bad'); }
   });
@@ -7997,8 +8034,8 @@ function lgFinal(c){
     const li=$('lg-lim'+i), ty=$('lg-typ'+i), eq=$('lg-eq'+i);
     const bi=$('lg-inf'+i); if(bi) bi.disabled=true;
     const limTxt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
-    if(li){ li.disabled=true; li.classList.remove('ok','bad');
-      if(lgLimOK(s,li.value)) li.classList.add('ok');
+    if(li){ limVerrou('lg-lim'+i,true); li.classList.remove('ok','bad');
+      if(lgLimOK(s,limLire('lg-lim'+i))) li.classList.add('ok');
       else { li.classList.add('bad'); const fx=document.createElement('span'); fx.className='dhv-fix'; fx.textContent='→ '+limTxt; li.insertAdjacentElement('afterend',fx); } }
     if(ty){ ty.disabled=true; ty.classList.remove('ok','bad');
       if(ty.value===s.typ) ty.classList.add('ok');
@@ -8021,7 +8058,7 @@ async function checkLG(){
   const c=test.questions[test.idx];
   let manque=false;
   c.subs.forEach((s,i)=>{
-    const lv=String(($('lg-lim'+i)||{}).value||'').trim();
+    const lv=limLire('lg-lim'+i).trim();
     const tv=String(($('lg-typ'+i)||{}).value||'');
     const ev=String(($('lg-eq'+i)||{}).value||'').trim();
     if(!lv||!tv) manque=true;
@@ -8033,7 +8070,7 @@ async function checkLG(){
      s’il est d’accord avec ce verdict. */
   const fautes=[];
   c.subs.forEach((s,i)=>{
-    if(!lgLimOK(s, ($('lg-lim'+i)||{}).value)) fautes.push('limite du cas '+s.lab);
+    if(!lgLimOK(s, limLire('lg-lim'+i))) fautes.push('limite du cas '+s.lab);
     if(String(($('lg-typ'+i)||{}).value||'')!==s.typ) fautes.push('choix d’asymptote du cas '+s.lab);
     else if(s.typ!=='rien' && !lgEqOK(s, ($('lg-eq'+i)||{}).value)) fautes.push('équation d’asymptote du cas '+s.lab);
   });
@@ -8076,7 +8113,7 @@ async function checkLG(){
     q:'Limites et asymptotes ('+c.familleTxt+')',
     answer:c.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
       return s.lab+') '+lt+', '+TL[s.typ]+(s.eq!=null?(' ('+(s.typ==='ah'?'y':'x')+' = '+numFmt(s.eq)+')'):''); }).join(' | '),
-    given:c.subs.map((s,i)=>{ const lv=String(($('lg-lim'+i)||{}).value||'').trim();
+    given:c.subs.map((s,i)=>{ const lv=limLire('lg-lim'+i).trim();
       const tv=String(($('lg-typ'+i)||{}).value||'');
       const z=$('lg-eqz'+i), zvis=z&&z.style.display!=='none';
       const ev=zvis?String(($('lg-eq'+i)||{}).value||'').trim():'';
@@ -8160,7 +8197,7 @@ function lg2TableHTML(c){
     inner+='<select id="lg2-f'+i+'" class="vt-sel2" onchange="lg2ArrowChange()" style="left:'+x+'px;top:'+(LG2H/2)+'px"><option value="">—</option><option value="up">↗</option><option value="down">↘</option></select>'; });
   tv.vals.forEach((v,k)=>{
     const x=lg2ncx(v.j)+(v.k==='g'?-26:(v.k==='d'?26:0));
-    inner+='<input class="dhv-in lg2-vin" id="lg2-v'+k+'" type="text" inputmode="numeric" data-pave-plus="+ ∞" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false" style="left:'+x+'px;top:'+(LG2H/2)+'px">';
+    inner+=limHTML('lg2-v'+k,'lg2-vin','left:'+x+'px;top:'+(LG2H/2)+'px');
   });
   const frow='<td class="vlab">Variation de <i>f</i></td><td class="vfcell" colspan="'+(2*n-1)+'" style="height:'+LG2H+'px">'+inner+'</td>';
   return '<div class="lv-tblwrap"><table class="lv-vartbl2" style="width:'+(LG2WL+innerW)+'px"><tbody>'
@@ -8214,14 +8251,13 @@ function lg2DBarres(tv){
 /* --- Sous-questions de limites (partagées niveaux 2 et 3) : préfixe d'ids paramétré --- */
 function lgSubsHTML(c,pfx){
   return c.subs.map((s,i)=>
-    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → <input class="dhv-in lg-lim" id="'+pfx+'-lim'+i+'" type="text" inputmode="numeric" data-pave-plus="+ ∞" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false"> <button type="button" class="lg-inf" id="'+pfx+'-inf'+i+'" onclick="lgSubsInsInf(\''+pfx+'\','+i+')" title="Insérer le symbole ∞">∞</button></span>'
+    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → '+limHTML(pfx+'-lim'+i,'lg-lim')+' <button type="button" class="lg-inf" id="'+pfx+'-inf'+i+'" onclick="lgSubsInsInf(\''+pfx+'\','+i+')" title="Insérer le symbole ∞">∞</button></span>'
     +'<br>il y a donc <select class="lg-sel" id="'+pfx+'-typ'+i+'" onchange="lgSubsSync(\''+pfx+'\','+i+')"><option value="">—</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'
     +' <span class="dhv-eqgrp" id="'+pfx+'-eqz'+i+'" style="display:none">, d’équation <span id="'+pfx+'-pre'+i+'"></span> = <input class="dhv-in" id="'+pfx+'-eq'+i+'" type="text" inputmode="numeric" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
   ).join('');
 }
 function lgSubsBind(c,pfx){
-  c.subs.forEach((s,i)=>{ const el=$(pfx+'-lim'+i); if(!el) return;
-    el.oninput=function(){ const av=this.value; if(/inf/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/inf/gi,'∞'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } }; });
+  if(window.mlDexp) window.mlDexp.upgrade($(pfx+'Subs'));   /* les cases de limite sont des champs MathLive : même clavier qu'au 3.5 */
 }
 function lgSubsSync(pfx,i){
   const ty=$(pfx+'-typ'+i), z=$(pfx+'-eqz'+i), pre=$(pfx+'-pre'+i);
@@ -8230,14 +8266,7 @@ function lgSubsSync(pfx,i){
   else if(ty.value==='av'){ z.style.display=''; pre.innerHTML='<i>x</i>'; }
   else z.style.display='none';
 }
-function lgSubsInsInf(pfx,i){
-  const el=$(pfx+'-lim'+i); if(!el||el.disabled) return;
-  if(el.value.indexOf('∞')>=0){ el.focus(); return; }
-  const p=(typeof el.selectionStart==='number')?el.selectionStart:el.value.length;
-  el.value=el.value.slice(0,p)+'∞'+el.value.slice(p);
-  try{ el.setSelectionRange(p+1,p+1); }catch(err){}
-  el.focus();
-}
+function lgSubsInsInf(pfx,i){ limInsInf(pfx+'-lim'+i); }
 function lg2Sync(i){ lgSubsSync('lg2',i); }
 function lg2SyncAll(){
   const c=test.questions&&test.questions[test.idx];
@@ -8275,15 +8304,14 @@ function renderLG2(){
      pas l'énoncé de l'exercice. Depuis que .tvi-prompt porte l'étiquette
      « Énoncé », le confondre affichait un deuxième énoncé sur cet écran. */
   $('lg2TVzone').innerHTML='<p class="tvi-legende">Tableau de variation de <i>f</i> :</p>'+lg2TableHTML(c);
-  c.tv.vals.forEach((v,k)=>{ const el=$('lg2-v'+k); if(!el) return;
-    el.oninput=function(){ const av=this.value; if(/inf/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/inf/gi,'∞'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } }; });
+  if(window.mlDexp) window.mlDexp.upgrade($('lg2TVzone'));   /* les valeurs du tableau sont des limites : mêmes cases, même clavier */
   setTimeout(function(){ lg2SyncAll(); lg2ArrowChange(); }, 0);   /* après restoreBoxes en reprise */
 }
 /* ---- validation locale ---- */
 function lgSubsFautes(c,pfx){
   const fautes=[];
   c.subs.forEach((s,i)=>{
-    if(!lgLimOK(s, ($(pfx+'-lim'+i)||{}).value)) fautes.push('limite du cas '+s.lab);
+    if(!lgLimOK(s, limLire(pfx+'-lim'+i))) fautes.push('limite du cas '+s.lab);
     if(String(($(pfx+'-typ'+i)||{}).value||'')!==s.typ) fautes.push('choix d’asymptote du cas '+s.lab);
     else if(s.typ!=='rien' && !lgEqOK(s, ($(pfx+'-eq'+i)||{}).value)) fautes.push('équation d’asymptote du cas '+s.lab);
   });
@@ -8299,7 +8327,7 @@ function lg2ValLabel(c,k){
 function lg2FautesTV(c){
   const fautes=[];
   c.tv.fleches.forEach((f2,i)=>{ if(String(($('lg2-f'+i)||{}).value||'')!==f2) fautes.push('flèche n°'+(i+1)+' du tableau'); });
-  c.tv.vals.forEach((v,k)=>{ if(!lgLimOK({lim:v.att}, ($('lg2-v'+k)||{}).value)) fautes.push(lg2ValLabel(c,k)); });
+  c.tv.vals.forEach((v,k)=>{ if(!lgLimOK({lim:v.att}, limLire('lg2-v'+k))) fautes.push(lg2ValLabel(c,k)); });
   return fautes;
 }
 function lg2QuestionIA(c){
@@ -8319,7 +8347,7 @@ function lg2AttenduIA(c){
 function lgSubsReponseTxt(c,pfx){
   const TL={ah:'une asymptote horizontale',av:'une asymptote verticale',rien:'pas d’asymptote'};
   return c.subs.map((s,i)=>{
-    const lv=String(($(pfx+'-lim'+i)||{}).value||'').trim();
+    const lv=limLire(pfx+'-lim'+i).trim();
     const tv=String(($(pfx+'-typ'+i)||{}).value||'');
     const z=$(pfx+'-eqz'+i), zvis=z&&z.style.display!=='none';
     const ev=zvis?String(($(pfx+'-eq'+i)||{}).value||'').trim():'';
@@ -8329,14 +8357,14 @@ function lgSubsReponseTxt(c,pfx){
 function lg2ReponseTxt(c){
   const subs=lgSubsReponseTxt(c,'lg2');
   const fl=c.tv.fleches.map((f2,i)=>{ const d2=String(($('lg2-f'+i)||{}).value||''); return d2==='up'?'↗':(d2==='down'?'↘':'(non choisie)'); }).join(' puis ');
-  const vals=c.tv.vals.map((v,k)=>lg2ValLabel(c,k)+' = « '+String(($('lg2-v'+k)||{}).value||'').trim()+' »').join(' ; ');
+  const vals=c.tv.vals.map((v,k)=>lg2ValLabel(c,k)+' = « '+limLire('lg2-v'+k).trim()+' »').join(' ; ');
   return subs+'. Tableau — flèches : '+fl+' ; '+vals+'.';
 }
 /* Soutien : justes verrouillés en vert, faux rouges modifiables (cases ET tableau). */
 function lgSubsMarqueSoutien(c,pfx){
   c.subs.forEach((s,i)=>{
     const li=$(pfx+'-lim'+i), ty=$(pfx+'-typ'+i), eq=$(pfx+'-eq'+i);
-    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,li.value)){ li.classList.add('ok'); li.disabled=true; const bi=$(pfx+'-inf'+i); if(bi) bi.disabled=true; } else li.classList.add('bad'); }
+    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,limLire(pfx+'-lim'+i))){ li.classList.add('ok'); limVerrou(pfx+'-lim'+i,true); const bi=$(pfx+'-inf'+i); if(bi) bi.disabled=true; } else li.classList.add('bad'); }
     if(ty){ ty.classList.remove('ok','bad'); if(ty.value===s.typ){ ty.classList.add('ok'); ty.disabled=true; } else ty.classList.add('bad'); }
     if(eq && ty && ty.value===s.typ && s.typ!=='rien'){ eq.classList.remove('ok','bad'); if(lgEqOK(s,eq.value)){ eq.classList.add('ok'); eq.disabled=true; } else eq.classList.add('bad'); }
   });
@@ -8348,7 +8376,7 @@ function lg2MarqueSoutien(c){
     if(el.value===f2){ el.classList.add('ok'); el.disabled=true; } else el.classList.add('bad'); });
   c.tv.vals.forEach((v,k)=>{ const el=$('lg2-v'+k); if(!el) return;
     el.classList.remove('ok','bad');
-    if(lgLimOK({lim:v.att}, el.value)){ el.classList.add('ok'); el.disabled=true; } else el.classList.add('bad'); });
+    if(lgLimOK({lim:v.att}, limLire('lg2-v'+k))){ el.classList.add('ok'); limVerrou('lg2-v'+k,true); } else el.classList.add('bad'); });
 }
 /* Correction finale : tout verrouillé, erreurs en rouge + badges verts (sous les éléments
    du tableau), asymptotes (pointillés + équations) révélées sur le graphique. */
@@ -8357,8 +8385,8 @@ function lgSubsFinal(c,pfx){
     const li=$(pfx+'-lim'+i), ty=$(pfx+'-typ'+i), eq=$(pfx+'-eq'+i);
     const bi=$(pfx+'-inf'+i); if(bi) bi.disabled=true;
     const limTxt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
-    if(li){ li.disabled=true; li.classList.remove('ok','bad');
-      if(lgLimOK(s,li.value)) li.classList.add('ok');
+    if(li){ limVerrou(pfx+'-lim'+i,true); li.classList.remove('ok','bad');
+      if(lgLimOK(s,limLire(pfx+'-lim'+i))) li.classList.add('ok');
       else { li.classList.add('bad'); const fx=document.createElement('span'); fx.className='dhv-fix'; fx.textContent='→ '+limTxt; li.insertAdjacentElement('afterend',fx); } }
     if(ty){ ty.disabled=true; ty.classList.remove('ok','bad');
       if(ty.value===s.typ) ty.classList.add('ok');
@@ -8387,8 +8415,8 @@ function lg2Final(c){
     if(el.value===f2) el.classList.add('ok');
     else { el.classList.add('bad'); fixAbs(i*(LG2WN+LG2WS)+LG2WN+LG2WS/2, LG2H/2+27, '→ '+(f2==='up'?'↗':'↘')); } });
   c.tv.vals.forEach((v,k)=>{ const el=$('lg2-v'+k); if(!el) return;
-    el.disabled=true; el.classList.remove('ok','bad');
-    if(lgLimOK({lim:v.att}, el.value)) el.classList.add('ok');
+    limVerrou('lg2-v'+k,true); el.classList.remove('ok','bad');
+    if(lgLimOK({lim:v.att}, limLire('lg2-v'+k))) el.classList.add('ok');
     else { el.classList.add('bad');
       const attTxt=(v.att==='+∞'||v.att==='−∞')?v.att:numFmt(v.att);
       const x=lg2ncx(v.j)+(v.k==='g'?-26:(v.k==='d'?26:0));
@@ -8402,14 +8430,14 @@ async function checkLG2(){
   const c=test.questions[test.idx];
   let manque=false;
   c.subs.forEach((s,i)=>{
-    const lv=String(($('lg2-lim'+i)||{}).value||'').trim();
+    const lv=limLire('lg2-lim'+i).trim();
     const tv=String(($('lg2-typ'+i)||{}).value||'');
     const ev=String(($('lg2-eq'+i)||{}).value||'').trim();
     if(!lv||!tv) manque=true;
     if((tv==='ah'||tv==='av')&&!ev) manque=true;
   });
   c.tv.fleches.forEach((f2,i)=>{ if(!String(($('lg2-f'+i)||{}).value||'')) manque=true; });
-  c.tv.vals.forEach((v,k)=>{ if(!String(($('lg2-v'+k)||{}).value||'').trim()) manque=true; });
+  c.tv.vals.forEach((v,k)=>{ if(!limLire('lg2-v'+k).trim()) manque=true; });
   if(manque){ toast('Complète chaque cas (limite, choix, équation si asymptote) et tout le tableau (flèches et valeurs)'); return; }
   const fautes=lg2FautesSubs(c).concat(lg2FautesTV(c));
   const correct=fautes.length===0;
@@ -8549,7 +8577,7 @@ async function checkLG3(){
   const c=test.questions[test.idx];
   let manque=false;
   c.subs.forEach((s,i)=>{
-    const lv=String(($('lg3-lim'+i)||{}).value||'').trim();
+    const lv=limLire('lg3-lim'+i).trim();
     const tv=String(($('lg3-typ'+i)||{}).value||'');
     const ev=String(($('lg3-eq'+i)||{}).value||'').trim();
     if(!lv||!tv) manque=true;
@@ -8882,7 +8910,7 @@ function checkExprFn(raw, refFn){
 
 function dexpNb(x){ return Number.isInteger(x)? String(x) : String(x).replace('.',','); }
 function mlTex(lx, fb){ try{ const h = window.mlDexp && window.mlDexp.tex ? window.mlDexp.tex(lx) : null; if(h) return h; }catch(e){} return fb; }
-function mlTexN(t){ return String(t).replace(/\u2212/g,'-').replace(/,/g,'{,}'); }
+function mlTexN(t){ return String(t).replace(/\u2212/g,'-').replace(/\u221e/g,'\\infty').replace(/,/g,'{,}'); }
 function dexpPoly1(cx,c0){
   const t=[];
   if(cx!==0){ if(cx===1)t.push('x'); else if(cx===-1)t.push('-x'); else t.push(dexpNb(cx)+'x'); }
@@ -14324,15 +14352,9 @@ function asgDerVerdicts(q){
 function asgSelTyp(id){ return '<select class="tvi-sel" id="'+id+'" style="width:auto"><option value="">…</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'; }
 function asgSelMot(id){ return '<select class="tvi-sel" id="'+id+'" style="width:auto"><option value="">—</option>'+['continue','croissante','décroissante','TVI','unique'].map(w=>'<option value="'+w+'">'+w+'</option>').join('')+'</select>'; }
 function asgSelPM(id){ return '<select class="tvi-sel" id="'+id+'"><option value="">…</option><option value="+">+</option><option value="−">−</option></select>'; }
-function asgLim(id){ return '<input type="text" inputmode="numeric" data-pave-plus="+ ∞" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false" class="dhv-in" id="'+id+'"> <button type="button" class="lg-inf" onclick="asgInf(\''+id+'\')" title="Insérer le symbole ∞">∞</button>'; }
+function asgLim(id){ return limHTML(id,'lg-lim')+' <button type="button" class="lg-inf" onclick="asgInf(\''+id+'\')" title="Insérer le symbole ∞">∞</button>'; }
 function asgInf(id){
-  const el=$(id); if(!el||el.disabled) return;
-  if(el.value.indexOf('∞')>=0){ el.focus(); return; }
-  const p=(typeof el.selectionStart==='number')?el.selectionStart:el.value.length;
-  el.value=el.value.slice(0,p)+'∞'+el.value.slice(p);
-  try{ el.setSelectionRange(p+1,p+1); }catch(e){}
-  el.focus();
-  el.dispatchEvent(new Event('input',{bubbles:true}));   /* la correction en direct du soutien doit voir la frappe */
+  limInsInf(id);   /* le bouton écrit dans le champ MathLive et lève « input » : la correction en direct du soutien doit voir la frappe */
 }
 function asgFormHTML(q){
   const A=ecAns(q), f='<i>f</i>(<i>x</i>)';
@@ -14713,12 +14735,13 @@ function renderS1(){
    C'est aussi ce qui rend la note fiable : une case fausse garde la classe « bad ». */
 function corrCase(id, val, ok){
   const el=$(id); if(!el) return;
+  const mf=(el.tagName==='MATH-FIELD');   /* une case de limite est un champ MathLive : on l'écrit en LaTeX, jamais en texte brut */
   const libelle=(el.tagName==='SELECT' && el.options)
     ? ((Array.prototype.find.call(el.options, o=>o.value===val)||{}).textContent||val) : val;
-  const vide=String(el.value==null?'':el.value).trim()==='';
+  const vide=mf ? (limLire(id).trim()==='') : String(el.value==null?'':el.value).trim()==='';
   el.classList.remove('ok','bad','sol');
   if(ok){ el.classList.add('ok'); }
-  else if(vide){ el.value=val; el.classList.add('sol'); }
+  else if(vide){ if(mf){ try{ el.setValue(mlTexN(val)); }catch(e){} } else el.value=val; el.classList.add('sol'); }
   else {
     el.classList.add('bad');
     if(!(el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('mf-cor')))
@@ -19775,7 +19798,7 @@ function svqFormHTML(){
       +'<span class="svq-item">'+svqCoche('min',null,'Minorée par','svq-c-min')+svqIn('svq-min')+'</span>'
       +svqCoche('bor',null,'Bornée','svq-c-bor')+'</div>'
     +'<div class="svq-ligne svq-grp pts-case" id="svq-g-lim">'
-      +'<span class="svq-item">'+svqCoche('lim','a','A comme limite')+svqIn('svq-lim')
+      +'<span class="svq-item">'+svqCoche('lim','a','A comme limite')+limHTML('svq-lim')
         +'<button type="button" class="svq-inf" onclick="svqInf(\'+∞\')" title="Écrire +∞">+∞</button>'
         +'<button type="button" class="svq-inf" onclick="svqInf(\'−∞\')" title="Écrire −∞">−∞</button></span>'
       +svqCoche('lim','non','N’a pas de limite')+'</div>'
@@ -19856,6 +19879,7 @@ function renderSVQ(){
     +'En lisant le graphique, coche ce que la suite <b>semble</b> être, et complète les valeurs demandées.';
   $('svqGraph').innerHTML=svqSVG(q);
   const form=$('svqForm'); form.innerHTML=svqFormHTML();
+  if(window.mlDexp) window.mlDexp.upgrade(form);   /* la valeur de la limite est un champ MathLive : même clavier qu'au 3.5 */
   form.onclick=function(e){
     const c=e.target.closest ? e.target.closest('.svq-coche') : null;
     if(!c||!form.contains(c)) return;
@@ -19896,10 +19920,7 @@ function svqPeindreEtat(){
   ouvrir('svq-maj', !!rep.maj); ouvrir('svq-min', !!rep.min); ouvrir('svq-lim', rep.lim==='a');
   document.querySelectorAll('#svqForm .svq-inf').forEach(function(b){ b.disabled=!(rep.lim==='a')||!!test.locked; });
 }
-function svqInf(ch){
-  const el=$('svq-lim'); if(!el||el.disabled) return;
-  el.value=ch; el.dispatchEvent(new Event('input',{bubbles:true})); try{ el.focus(); }catch(e){}
-}
+function svqInf(ch){ limInsInf('svq-lim',ch); }
 function svqFiger(){
   document.querySelectorAll('#svqForm .svq-coche').forEach(function(c){ c.classList.add('fige'); c.setAttribute('aria-disabled','true'); });
   ['svq-maj','svq-min','svq-lim'].forEach(function(id){ const el=$(id); if(el) el.disabled=true; });
@@ -19943,7 +19964,8 @@ function svqPeindre(etats, final){
 function checkSVQ(){
   if(test.locked) return;
   const q=test.questions[test.idx], a=svqAns(q), cases=svqCases(q), rep=q.rep||{};
-  const lire=function(id){ const el=$(id); return el?String(el.value==null?'':el.value):''; };
+  const lire=function(id){ const el=$(id); if(!el) return '';
+    return (el.tagName==='MATH-FIELD')?limLire(id):String(el.value==null?'':el.value); };
   let allOk=true, anyFilled=false;
   const etats=cases.map(function(x){
     const ok=svqJuste(q,x,lire);
@@ -23039,7 +23061,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderSVR','renderSVD','renderSSV'];
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -23467,7 +23489,14 @@ function kbTablette(){
 function kbLimites(id){
   if(!id) return false;
   if(/limite/i.test(id)) return true;
-  try{ return THEMES.some(t => /limite/i.test(t.nom) && t.ids.indexOf(id) >= 0); }catch(e){ return false; }
+  try{ if(THEMES.some(t => /limite/i.test(t.nom) && t.ids.indexOf(id) >= 0)) return true; }catch(e){}
+  /* … OU l'ecran de CET exercice porte une case de limite (limHTML). Le clavier
+     suit alors les CASES et non le nom : le 4.6 et le 6.14 posent une limite
+     hors du theme des limites, et un exercice ajoute demain est couvert sans
+     rien declarer. On exige l'exercice COURANT : sans cela, un ecran de limites
+     reste sur la page et rendrait « vrai » pour n'importe quel identifiant. */
+  try{ if(id === currentTestId && document.querySelector('.screen.on math-field.lim-mf')) return true; }catch(e){}
+  return false;
 }
 function applyKbLayout(){
   const vk = window.mathVirtualKeyboard; if(!vk) return;

@@ -3595,6 +3595,7 @@ function exercices(suite){
     couchesClavierNommees(w, P);
     clavierCouches(w, P);
     clavierLimites(w, P);
+    casesDeLimite(w, P);
     clavierUnites(w, P);
     clavierTablette(w, P);
     policeTablette(w, P);
@@ -11436,6 +11437,116 @@ function clavierCouches(w, P){
       if(flottant !== C.rangeesA) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s) au lieu de ' + C.rangeesA + ' — la forme courte fuit sur l\'ordinateur');
     }
   }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Les cases où l'élève écrit une LIMITE sont des champs mathématiques ---------- */
+/* Demande de Turquet (septembre 2026) : « pour les cases où on doit déterminer
+   des limites, je veux le même clavier que dans l'exercice 3.5 ». Le 3.5 rédige
+   dans des champs MathLive, donc le clavier à l'écran — celui qui porte ∞ et ⟶
+   sur son clavier A — s'y ouvre ; les cases de limite, elles, étaient des
+   <input> de TEXTE, où aucun clavier mathématique ne sait écrire.
+   LA DÉFINITION NE TIENT AUCUNE LISTE : une case de limite est une case jugée
+   par lgLimOK, et le premier bord se mesure sur la SOURCE — aucun appel à
+   lgLimOK ne lit un « .value », la signature d'un <input> —, si bien qu'un
+   exercice ajouté demain qui lirait une limite dans un champ de texte rougit
+   sans rien avoir à déclarer. Les témoins de tests/profils.js sont la SECONDE
+   source : ils disent où aller REGARDER, et le banc monte chaque écran pour de
+   vrai. Le RENDU — la case dessinée, le clavier qui s'ouvre avec ∞ — se mesure
+   au banc navigateur, qui seul a une mise en page et un vrai MathLive. */
+function casesDeLimite(w, P){
+  const nom = 'les cases où l\'élève écrit une limite sont des champs mathématiques (le clavier du 3.5)';
+  const C = P.casesLimite;
+  const src = lire(CIBLE);
+  /* DEUX SOURCES, et elles doivent se répondre : la page POSE des cases de
+     limite (la fabrique limHTML est écrite) ou elle n'en pose pas, et le
+     profil DÉCLARE des témoins ou n'en déclare pas. Vider la liste ne suffit
+     donc pas à faire taire le contrôle — un niveau qui pose des limites sans
+     les déclarer rougit, et l'inverse aussi. */
+  const posees = src.indexOf('<math-field class="dexp-mf lim-mf') >= 0;
+  const temoins = (C && C.exercices) || [];
+  if(!posees && !temoins.length){ ignorer(nom, 'ce fichier ne pose aucune case de limite'); return; }
+  if(posees && !temoins.length){
+    verifier(nom, false, 'la page pose des cases de limite et tests/profils.js n\'en déclare aucune : le contrôle ne mesurerait rien');
+    return;
+  }
+  if(!posees && temoins.length){
+    verifier(nom, false, 'tests/profils.js déclare des cases de limite que la page ne pose plus');
+    return;
+  }
+  const pbs = [];
+
+  /* 1. LA SOURCE — le bord SANS liste */
+  let nAppels = 0;
+  src.split('\n').forEach(function(ligne, i){
+    let d = ligne.indexOf('lgLimOK(');
+    while(d >= 0){
+      nAppels++;
+      if(/\.value/.test(ligne.slice(d)))
+        pbs.push('ligne ' + (i + 1) + ' : lgLimOK lit un « .value » — une case de limite n\'est plus un <input>');
+      d = ligne.indexOf('lgLimOK(', d + 1);
+    }
+  });
+  if(nAppels < 5) pbs.push('seulement ' + nAppels + ' appel(s) à lgLimOK relus : le contrôle ne mesure presque rien');
+  if(/<input[^>]*class="[^"]*(?:lg-lim|lg2-vin)/.test(src))
+    pbs.push('une case de limite est rendue en <input> de texte : le clavier mathématique ne sait pas y écrire');
+  const nFab = (src.match(/<math-field class="dexp-mf lim-mf/g) || []).length;
+  if(nFab !== 1) pbs.push('la fabrique limHTML n\'est plus le seul endroit qui écrit une case de limite (' + nFab + ' écritures)');
+
+  /* 2. LE CLAVIER SUIT LES CASES, PAS LE NOM. kbLimites reconnaissait un
+     exercice à son identifiant ou à son thème ; le 4.6 et le 6.14 posent une
+     limite HORS du thème des limites, et ∞ serait reparti sur le clavier B.
+     Elle lit donc aussi l'ÉCRAN — un exercice ajouté demain qui pose une
+     limite est couvert sans rien déclarer. On l'évalue depuis la SOURCE (elle
+     vit dans la greffe module, que jsdom ne charge pas) avec l'écran du témoin
+     MONTÉ, et le garde « id === currentTestId » a son bord : un écran de
+     limites resté sur la page ne doit pas rendre « vrai » pour un autre
+     exercice. */
+  const fL = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(function(o){ return o.nom === 'kbLimites'; });
+  if(!fL) pbs.push('kbLimites est introuvable dans la source : rien ne dit quel clavier s\'ouvre');
+  const etranger = (C && C.clavierEtranger) || 'derivee-exp';
+
+  /* 3. CHAQUE TÉMOIN, monté pour de vrai */
+  temoins.forEach(function(x){
+    const r = evaluer(w, "(function(){"
+      + " currentEleve={id:'t',prenom:'T'}; currentMode='train'; currentTestId=" + JSON.stringify(x.exercice) + ";"
+      + " if(!TESTS[currentTestId]) return {err:'exercice inconnu de TESTS'};"
+      + " test.kind=" + JSON.stringify(x.kind) + "; test.locked=false; test.score=0; test.answers=[];"
+      + " show(" + JSON.stringify(x.ecran) + "); " + x.pose
+      + " var on=document.querySelector('.screen.on');"
+      + " if(!on || on.id!=='scr-" + x.ecran + "') return {err:'l\\'écran ne s\\'ouvre pas ('+(on&&on.id)+')'};"
+      + " var mfs=[].slice.call(on.querySelectorAll('math-field.lim-mf'));"
+      + " var txt=[].slice.call(on.querySelectorAll('input.lg-lim, input.lg2-vin'));"
+      + " var mauvaises=mfs.filter(function(e){ return !e.classList.contains('dexp-mf') || !e.id; })"
+      + "   .map(function(e){ return e.id||'(sans id)'; });"
+      + " var sourdes=[];"
+      + " mfs.forEach(function(e){ e.setValue('+\\\\infty');"
+      + "   if(limLire(e.id)!=='+\\u221e' || !lgLimOK({lim:'+\\u221e'}, limLire(e.id))) sourdes.push(e.id); });"
+      + " var muettes=[];"
+      + " mfs.forEach(function(e){ e.setValue(''); corrCase(e.id,'\\u2212\\u221e',false);"
+      + "   if(!lgLimOK({lim:'\\u2212\\u221e'}, limLire(e.id))) muettes.push(e.id); });"
+      + (fL ? (" var kb = " + fL.texte + ";"
+      + " var kbOui = !!kb(currentTestId), kbAutre = !!kb(" + JSON.stringify(etranger) + ");")
+            : " var kbOui = true, kbAutre = false;")
+      + " return {n:mfs.length, txt:txt.length, mauvaises:mauvaises, sourdes:sourdes, muettes:muettes,"
+      + "         kbOui:kbOui, kbAutre:kbAutre};"
+      + " })()");
+    if(!r.ok){ pbs.push(x.exercice + ' : le montage échoue (' + r.erreur + ')'); return; }
+    const v = r.valeur;
+    if(v.err){ pbs.push(x.exercice + ' : ' + v.err); return; }
+    if(v.n < (x.cases || 1)) pbs.push(x.exercice + ' : ' + v.n + ' case(s) de limite au lieu de ' + (x.cases || 1));
+    if(v.txt) pbs.push(x.exercice + ' : ' + v.txt + ' case(s) de limite encore en <input> de texte');
+    if(v.mauvaises.length) pbs.push(x.exercice + ' : case(s) sans dexp-mf ni id (' + v.mauvaises.join(', ')
+      + ') — mlDexp.upgrade ne les configure pas, le clavier ne s\'y ouvrirait pas');
+    if(v.sourdes.length) pbs.push(x.exercice + ' : le juge ne relit pas la case ' + v.sourdes.join(', '));
+    /* la correction ÉCRIT dans la case : posée en texte brut dans un champ
+       MathLive, la bonne réponse s'afficherait de travers et ne se relirait
+       plus — corrCase doit l'écrire en LaTeX */
+    if(v.muettes && v.muettes.length) pbs.push(x.exercice + ' : la correction écrite dans ' + v.muettes.join(', ') + ' ne se relit pas');
+    if(!v.kbOui) pbs.push(x.exercice + ' : kbLimites dit non sur un écran qui pose une limite — ∞ et ⟶ repartiraient sur le clavier B');
+    if(v.kbAutre) pbs.push(x.exercice + ' : son écran rend « limites » vrai pour ' + etranger + ' aussi — le garde de l\'exercice courant a sauté');
+  });
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 
@@ -24549,9 +24660,11 @@ function suiteVocabulaire(w, P){
     if(document.getElementById('svq-maj').disabled) vus.push('cocher « majorée » n\\'ouvre pas sa valeur');
     if(document.querySelector('#svq-c-maj').getAttribute('aria-checked')!=='true') vus.push('la case cochée ne le dit pas (aria-checked)');
     svqInf('+∞');
-    if(document.getElementById('svq-lim').value!=='') vus.push('le bouton +∞ écrit dans une limite fermée');
+    if(limLire('svq-lim')!=='') vus.push('le bouton +∞ écrit dans une limite fermée');
     coche('lim','a'); svqInf('−∞');
-    if(document.getElementById('svq-lim').value!=='−∞') vus.push('le bouton −∞ n\\'écrit pas dans la limite ouverte');
+    /* le bouton écrit du LaTeX dans un champ MathLive : on mesure ce que le
+       JUGE relit, pas la chaîne exacte — « -∞ » et « −∞ » sont la même limite */
+    if(!lgLimOK({lim:'−∞'}, limLire('svq-lim'))) vus.push('le bouton −∞ n\\'écrit pas dans la limite ouverte');
     /* l'état coché voyage dans la QUESTION : un aller-retour JSON puis un rendu le remet */
     { const copie=JSON.parse(JSON.stringify(test.questions[0])); test.questions[0]=copie; renderSVQ();
       if(!/\\bon\\b/.test(cls('#svq-c-maj')) || !/\\bon\\b/.test(cls('#svq-g-lim .svq-coche[data-val="a"]'))) vus.push('après un aller-retour JSON, les cases cochées ne reviennent pas'); }
