@@ -1307,6 +1307,40 @@ module.exports = {
       { nom: 'Question à l’IA', bouton: 'ouvrirQIA', carte: '.qia-card' },
     ] },
 
+    /* LES CASES OÙ L'ÉLÈVE ÉCRIT UNE LIMITE sont des champs MathLive, et le
+       clavier à l'écran s'y ouvre — celui du 3.5, ∞ et ⟶ sur son clavier A
+       (demande de Turquet, septembre 2026 : « pour les cases où on doit
+       déterminer des limites, je veux le même clavier que dans l'exercice
+       3.5 »). Avant, c'étaient des <input> de TEXTE, où aucun clavier
+       mathématique ne sait écrire : sur tablette s'ouvrait le clavier du
+       SYSTÈME, et ∞ ne s'atteignait que par le petit bouton d'à côté.
+       La page ne tient AUCUNE liste : une case de limite est une case jugée
+       par lgLimOK, et toutes passent par limHTML — le contrôle tient ce bord
+       sur la SOURCE. Ces témoins-ci sont la SECONDE source : ils disent où
+       aller REGARDER, et le banc démarre chaque écran pour de vrai. « pose »
+       monte une question par le vrai générateur : les démarreurs sont
+       asynchrones (ils attendent loadConfig), et un contrôle synchrone
+       mesurerait l'écran d'avant. */
+    casesLimite: {
+      exercices: [
+        { exercice: 'limites-graphiques',   ecran: 'lg',  kind: 'lg',
+          pose: "test.questions=[genLG('homo')]; test.idx=0; renderLG();", cases: 2 },
+        { exercice: 'limites-graphiques-2', ecran: 'lg2', kind: 'lg2',
+          pose: "var q=genLG('homo'); q.tv=lg2Table(q); test.questions=[q]; test.idx=0; renderLG2();", cases: 3 },
+        { exercice: 'limites-graphiques-3', ecran: 'lg3', kind: 'lg3',
+          pose: "var q=genLG('homo'); q.tv=lg2Table(q); test.questions=[q]; test.idx=0; renderLG3();", cases: 2 },
+        { exercice: 'tvi-alpha-signe',      ecran: 'asg', kind: 'asg',
+          pose: "test.questions=[{a:1,b:2}]; test.idx=0; renderASG();", cases: 3 },
+        { exercice: 'suite-vocabulaire',    ecran: 'svq', kind: 'svq',
+          pose: "test.questions=[{fam:'decconv',L:1,A:3,q:0.8,rep:{}}]; test.idx=0; renderSVQ();", cases: 1 },
+      ],
+      /* et le banc NAVIGATEUR tape « inf » dans la case de cet exercice-là,
+         puis clique le bouton ∞ : jsdom pose une chaîne, seul un vrai MathLive
+         montre qu'un raccourci et une touche écrivent. */
+      navigateur: { exercice: 'limites-graphiques', mode: 'train', case: 'lg-lim0',
+                    bouton: '#lg-lim0 + button.lg-inf' },
+    },
+
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
        réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case
        contient « 2^{} » : elle affiche toujours « 2 », mais l'évaluateur la refuse.

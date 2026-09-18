@@ -21,9 +21,18 @@ class __MathFieldFactice extends HTMLElement {
   get value(){ return this.__v || ''; }   set value(v){ this.__v = String(v); }
   getValue(){ return this.__v || ''; }    setValue(v){ this.__v = String(v); }
   get disabled(){ return !!this.__d; }    set disabled(v){ this.__d = !!v; }
+  get readOnly(){ return !!this.__r; }    set readOnly(v){ this.__r = !!v; }
+  executeCommand(){ return false; }
 }
 customElements.define('math-field', __MathFieldFactice);
-window.mlDexp = { toPlain:x=>x, plainToML:x=>x, tex:()=>null, upgrade(){}, showShortcuts(){ return false; } };
+/* toPlain reste un PASSE-PLAT — le contrôle qui le mesure lit la SOURCE, pas
+   ce double. Deux conversions font exception, et ce sont les seules que la
+   PAGE ÉCRIT elle-même dans une case avant qu'un juge ne la relise : le
+   bouton ±∞ et la correction d'une case de limite y posent du LaTeX. Sans
+   elles, le double rendait « -\\infty » et le juge refusait une case que la
+   page venait de remplir juste. */
+window.mlDexp = { toPlain:x=>String(x).replace(/\\\\infty/g,'\u221e').replace(/\\{,\\}/g,'.'),
+  plainToML:x=>x, tex:()=>null, upgrade(){}, showShortcuts(){ return false; } };
 </script>`;
 
 function racine(){ return path.resolve(__dirname, '..'); }

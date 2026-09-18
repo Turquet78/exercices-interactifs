@@ -5230,9 +5230,11 @@ async function parcours(page, N){
       await s.page.evaluate(() => { window.__asgInput = 0; document.getElementById('asg-lb').addEventListener('input', () => { window.__asgInput++; }); });
       await s.page.click('#asg-lb + button.lg-inf');
       await s.page.waitForTimeout(150);
-      const inf = await s.page.evaluate(() => ({ v: document.getElementById('asg-lb').value, ev: window.__asgInput }));
+      /* la case est un champ MathLive depuis que le clavier du 3.5 la sert :
+         on lit par la porte du JUGE (limLire), jamais le LaTeX brut */
+      const inf = await s.page.evaluate(() => ({ v: limLire('asg-lb'), ev: window.__asgInput }));
       verifier('le 4.6 : le bouton ∞ écrit dans la case et lève input',
-        inf.v.indexOf('∞') >= 0 && inf.ev > 0,
+        inf.v.indexOf('∞') >= 0 && inf.ev === 1,
         'valeur ' + JSON.stringify(inf.v) + ', ' + inf.ev + ' événement(s) input');
       /* le b) est présenté comme au 2.1 : des cases MathLive. La première
          (u =) est TAPÉE pour de vrai — jsdom n'a pas la sérialisation réelle
@@ -9208,6 +9210,57 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies duodecies. UNE CASE DE LIMITE : LE RACCOURCI, LE BOUTON ∞, LE VERDICT ===== */
+    /* La case est un champ MathLive depuis que le clavier du 3.5 la sert
+       (demande de Turquet, septembre 2026). jsdom pose une CHAÎNE et la relit ;
+       seul un vrai MathLive montre qu'un élève qui TAPE « inf » écrit ∞, qu'une
+       touche ∞ écrit vraiment — la doctrine du bouton mort — et que le juge
+       accepte ce que la sérialisation réelle lui rend. */
+    titre('6 tricies duodecies. UNE CASE DE LIMITE : LE RACCOURCI, LE BOUTON ∞, LE VERDICT');
+    if(!P.casesLimite || !P.casesLimite.navigateur){
+      ignorer('la case de limite : « inf » écrit ∞, le bouton ∞ écrit, et le juge relit',
+        'ce niveau ne déclare aucune case de limite');
+    } else {
+      const L = P.casesLimite.navigateur;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), L.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="' + (L.mode || 'train') + '"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* le RACCOURCI : l'élève tape « inf », MathLive écrit ∞ — c'est ce que
+         l'indication de l'écran lui promet */
+      await s.page.click('#' + L.case);
+      await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide si la case n'a pas fini de prendre le focus */
+      await s.page.keyboard.type('-inf', { delay: 70 });
+      await s.page.waitForTimeout(300);
+      const tape = await s.page.evaluate(id => ({ lu: limLire(id), juge: lgLimOK({ lim: '−∞' }, limLire(id)) }), L.case);
+      if(tape.lu.indexOf('∞') < 0) dits.push('« inf » tapé au clavier n\'écrit pas ∞ dans la case (' + JSON.stringify(tape.lu) + ')');
+      if(!tape.juge) dits.push('le juge ne reconnaît pas la limite tapée au clavier (' + JSON.stringify(tape.lu) + ')');
+      /* la case se VIDE, puis le BOUTON ∞ écrit — et lève « input » une seule
+         fois : executeCommand le lève déjà, le doubler ferait deux événements
+         pour une touche */
+      await s.page.evaluate(id => { document.getElementById(id).setValue(''); window.__limIn = 0;
+        document.getElementById(id).addEventListener('input', () => { window.__limIn++; }); }, L.case);
+      await s.page.click(L.bouton);
+      await s.page.waitForTimeout(250);
+      const bouton = await s.page.evaluate(id => ({ lu: limLire(id), ev: window.__limIn }), L.case);
+      if(bouton.lu.indexOf('∞') < 0) dits.push('le bouton ∞ n\'écrit pas dans la case (' + JSON.stringify(bouton.lu) + ')');
+      if(bouton.ev !== 1) dits.push('le bouton ∞ lève ' + bouton.ev + ' événement(s) input au lieu d\'un seul');
+      /* et la case rendue : une boîte non nulle, à la taille du texte qui
+         l'entoure — un CSS perdu la rendrait invisible sans qu'une erreur ne
+         se lève */
+      const boite = await s.page.evaluate(id => { const e = document.getElementById(id);
+        const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; }, L.case);
+      if(boite.w < 40 || boite.h < 20) dits.push('la case rendue fait ' + boite.w + 'x' + boite.h + ' px');
+      verifier('la case de limite : « inf » écrit ∞, le bouton ∞ écrit, et le juge relit',
+        !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran d\'une case de limite ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent
@@ -9308,6 +9361,7 @@ async function parcours(page, N){
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
       const indicesPlats = []; let nIndicesFlex = 0;
+      const sansClavierLim = []; let nLimCases = 0;
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -9552,6 +9606,24 @@ async function parcours(page, N){
             }
             const boutonClavier = [...on.querySelectorAll('button')].filter(visible)
               .some(b => /clavier math/i.test(b.getAttribute('title') || ''));
+            /* UN ÉCRAN QUI POSE UNE LIMITE OFFRE LE CLAVIER DU 3.5 — ∞ et ⟶
+               sur son CLAVIER A (demande de Turquet, septembre 2026 : « pour
+               les cases où on doit déterminer des limites, je veux le même
+               clavier que dans l'exercice 3.5 »). La disposition vit dans la
+               greffe module, que jsdom ne charge pas : seul un navigateur la
+               lit. On mesure ICI, sur tous les exercices visités — celui qu'on
+               posera demain est couvert sans rien déclarer. */
+            const limCases = [...on.querySelectorAll('math-field.lim-mf')].filter(visible).length;
+            let limKb = null;
+            if(limCases){
+              try{
+                const vk = window.mathVirtualKeyboard;
+                const l0 = vk && vk.layouts && vk.layouts[0] && vk.layouts[0].layers && vk.layouts[0].layers[0];
+                const touches = l0 ? [].concat.apply([], l0.rows || []).map(k => String((k && (k.latex || k.insert || k.label)) || '')) : [];
+                limKb = { infini: touches.indexOf('\\infty') >= 0,
+                          vers: touches.indexOf('\\longrightarrow') >= 0, n: touches.length };
+              }catch(e){ limKb = { infini: false, vers: false, n: 0 }; }
+            }
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
                     clavier: !champsMaths || boutonClavier,
                     /* LE BOUTON DES TABLES N'EST PROPOSÉ QUE LÀ OÙ IL SERT.
@@ -9577,7 +9649,8 @@ async function parcours(page, N){
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
                     accolades: [...new Set(connus)], gabarits: gabarits, cases: cases, signes: [...new Set(signes)],
                     debuts: [...new Set(debuts)], etiquettes: etiquettes,
-                    indices: [...new Set(indices)], nIndices: nIndices};
+                    indices: [...new Set(indices)], nIndices: nIndices,
+                    limCases: limCases, limKb: limKb};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
@@ -9597,6 +9670,10 @@ async function parcours(page, N){
             sansClavier.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + vu.ecran + ')');
           if(vu.etiquettes && vu.etiquettes.length)
             surCourbe.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.etiquettes[0]);
+          nLimCases += (vu.limCases || 0);
+          if(vu.limKb && !(vu.limKb.infini && vu.limKb.vers))
+            sansClavierLim.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — '
+              + (vu.limKb.n ? ('clavier A de ' + vu.limKb.n + ' touches, sans ' + (vu.limKb.infini ? '⟶' : '∞')) : 'aucune disposition installée'));
           nIndicesFlex += (vu.nIndices || 0);
           if(vu.indices && vu.indices.length)
             indicesPlats.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.indices[0]);
@@ -9643,6 +9720,19 @@ async function parcours(page, N){
         tetes.length === 0, tetes.slice(0, 3).join(' | '));
       verifier('le clavier mathématique est atteignable sur tout écran à champ mathématique',
         sansClavier.length === 0, sansClavier.join(', ') + ' — aucun bouton « Clavier mathématique »');
+      /* ET UN ÉCRAN QUI POSE UNE LIMITE OFFRE LE CLAVIER DU 3.5 : ∞ et ⟶ sur
+         son clavier A. Son bord OPPOSÉ est le garde « ce contrôle ne mesure
+         rien » — le niveau qui déclare des cases de limite doit en offrir au
+         banc ; celui qui n'en déclare pas s'affiche « non applicable » plutôt
+         que d'être tu. */
+      verifier('le clavier du 3.5 s\'ouvre sur tout écran qui pose une limite (∞ et ⟶ sur le clavier A)',
+        sansClavierLim.length === 0, sansClavierLim.slice(0, 3).join(' | '));
+      if(P.casesLimite)
+        verifier('des cases de limite sont bien posées (le contrôle du clavier mesure quelque chose)',
+          nLimCases > 0, nLimCases + ' case(s) de limite relevée(s) sur toute la visite');
+      else
+        ignorer('des cases de limite sont bien posées (le contrôle du clavier mesure quelque chose)',
+          'ce niveau ne pose aucune case de limite');
       /* Une étiquette de courbe posée SUR sa courbe se lit barrée (capture de
          Turquet, 5.4, septembre 2026) : mesurée ici sur toute étiquette de tout
          dessin visité, contre les courbes RENDUES. */
