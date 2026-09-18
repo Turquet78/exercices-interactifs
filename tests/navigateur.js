@@ -9112,7 +9112,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies duodecies. {python-double-triple-carre} : trois calculs, trois affichages, et a qui change =====
+    /* ===== 6 tricies terdecies. {python-double-triple-carre} : trois calculs, trois affichages, et a qui change =====
        Le banc jsdom tient la fiche épinglée, le GARDE du tirage, la seconde
        méthode, le juge cas par cas, la règle des paires portée à trois, les
        portes, la case vide et le soutien. Ce qu'il ne voit pas : le programme
@@ -9126,7 +9126,7 @@ async function parcours(page, N){
        le 5.12 a payé sur une capture, une liste de sélecteurs tenue à la main
        dérivant toujours —, le b) mesuré au RECTANGLE avec un vrai changement
        de a au clavier, et la page qui ne déborde pas sur un téléphone. */
-    titre('6 tricies duodecies. LE DOUBLE, LE TRIPLE ET LE CARRÉ : TROIS CALCULS, TROIS AFFICHAGES, ET a QUI CHANGE');
+    titre('6 tricies terdecies. LE DOUBLE, LE TRIPLE ET LE CARRÉ : TROIS CALCULS, TROIS AFFICHAGES, ET a QUI CHANGE');
     if(!P.pythonDoubleTripleCarre){
       ignorer('les trois calculs et les trois affichages se tapent, s\'exécutent, puis se vérifient', 'ce niveau n\'a pas l\'exercice du double, du triple et du carré');
     } else {
