@@ -2939,7 +2939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=331;
+const APP_VERSION=332;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -21821,12 +21821,22 @@ function bexpLancer(contexte, fb){ return lancerConseil(contexte, fb); }
    page a remplie elle-même (sol). */
 let bexpCase=null, bexpVal='';
 /* la cible : toute case qui se colore (le prédicat du garde), plus les listes
-   déroulantes et les zones de texte — corrChoix peint les unes, les
-   programmes Python s'écrivent dans les autres, et les deux se comptent
+   déroulantes, les zones de texte et les cases À COCHER — corrChoix peint les
+   premières, les programmes Python s'écrivent dans les deuxièmes, le
+   vocabulaire des suites se coche dans les troisièmes, et toutes se comptent
    fausses comme une case */
 function bexpCible(el){
   return !!el && !!el.closest && !!el.closest('.screen.on')
-      && (el.tagName==='SELECT' || el.tagName==='TEXTAREA' || caseQuiSeColore(el));
+      && (el.tagName==='SELECT' || el.tagName==='TEXTAREA' || bexpCoche(el) || caseQuiSeColore(el));
+}
+/* Une case à COCHER n'est ni un champ ni une liste : c'est un élément à
+   role="checkbox", et c'est ce RÔLE qui la désigne — jamais une classe propre
+   à un exercice, la bulle ne connaît aucun exercice. Le CONTENEUR d'un groupe
+   de cases n'en est pas une, et c'est le bord qui compte : il porte lui aussi
+   le verdict du groupe, et une bulle ancrée sur la rangée entière ne
+   désignerait plus la case que l'élève a cochée. */
+function bexpCoche(el){
+  return !!el && !!el.getAttribute && el.getAttribute('role')==='checkbox';
 }
 function bexpElt(){
   let b=document.getElementById('bexpBulle');
@@ -21860,12 +21870,31 @@ function bexpMasquer(){
   }
   bexpCase=null; bexpVal='';
 }
+/* Le texte d'une case à cocher, la coche elle-même RETIRÉE : elle est un
+   ornement (aria-hidden) dont le contenu ne dit rien — ✓ ou rien du tout,
+   posé par la feuille de styles. Ce qui reste est le libellé que l'élève a
+   lu. */
+function bexpTexteVisible(el){
+  let t='';
+  const k=(el && el.childNodes) || [];
+  for(let i=0;i<k.length;i++){
+    const n=k[i];
+    if(n.nodeType===3){ t+=n.nodeValue; continue; }
+    if(n.nodeType!==1) continue;
+    if(n.getAttribute && n.getAttribute('aria-hidden')==='true') continue;
+    t+=bexpTexteVisible(n);
+  }
+  return t;
+}
 /* La saisie se lit au moment où la bulle se montre : elle s'efface dès que
    l'élève reprend sa case, donc la valeur retenue est toujours celle qui a
    été comptée fausse. Une liste déroulante donne son LIBELLÉ, jamais sa
-   valeur interne — la règle du badge de corrChoix. */
+   valeur interne — la règle du badge de corrChoix —, et une case à cocher le
+   sien : un <span> n'a pas de .value, et sans cela la bulle enverrait au
+   modèle une saisie VIDE en lui demandant d'expliquer l'erreur. */
 function bexpValeur(el){
   try{
+    if(bexpCoche(el)) return String(el.getAttribute('aria-label') || bexpTexteVisible(el) || '');
     if(el.tagName==='SELECT'){
       const o=el.selectedOptions && el.selectedOptions[0];
       return String((o && o.textContent) || el.value || '');
@@ -21918,7 +21947,7 @@ function bexpObstacles(anc){
      d'actions dit « Revérifier », et une bulle posée dessus rendrait
      incliquable le bouton dont l'élève a besoin — la leçon du pavé numérique,
      au même endroit. */
-  if(ecr) vus.push.apply(vus, ecr.querySelectorAll('input,select,textarea,math-field,.pts-case,button'));
+  if(ecr) vus.push.apply(vus, ecr.querySelectorAll('input,select,textarea,math-field,[role="checkbox"],.pts-case,button'));
   const cmd=document.getElementById('testCtrls');
   if(cmd && !cmd.hidden) vus.push(cmd);
   for(let i=0;i<vus.length;i++){
@@ -22034,11 +22063,19 @@ function bexpMontrer(el){
   b.hidden=false;
   bexpPlacer();
 }
+/* « écrire » et « cocher » ne sont pas le même geste, et le dire juste compte :
+   devant une case à cocher, « l'élève vient d'écrire "Croissante." » ferait
+   parler le modèle d'une saisie qui n'a jamais eu lieu, et il répondrait à
+   côté. La clause de secret, elle, ne bouge pas — elle nomme seulement l'autre
+   façon de livrer la réponse. */
 function bexpContexte(){
   let c=''; try{ c=String(conseilCtxCourant()||''); }catch(e){ c=''; }
-  return c+" L'élève vient d'écrire « "+bexpVal+" » dans une case que la correction vient de compter FAUSSE."
-    +" Explique-lui pourquoi ce qu'il a écrit ne convient pas — l'erreur probable, le point de méthode à revoir —"
-    +" sans JAMAIS donner la réponse attendue, ni le bon résultat, ni la valeur à écrire dans cette case, même s'il la demande.";
+  const coche=bexpCoche(bexpCase);
+  return c+" L'élève vient "+(coche?"de COCHER":"d'écrire")+" « "+bexpVal+" »"
+    +(coche?", une case que":" dans une case que")+" la correction vient de compter FAUSSE."
+    +" Explique-lui pourquoi "+(coche?"ce choix":"ce qu'il a écrit")+" ne convient pas — l'erreur probable, le point de méthode à revoir —"
+    +" sans JAMAIS donner la réponse attendue, ni le bon résultat, ni "
+    +(coche?"la case à cocher":"la valeur à écrire dans cette case")+", même s'il la demande.";
 }
 function bexpExpliquer(){
   const b=document.getElementById('bexpBulle'); if(!b||b.hidden) return;
