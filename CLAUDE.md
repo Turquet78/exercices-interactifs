@@ -10677,6 +10677,33 @@ les `select`, donc elle saute désormais les cases de limite — c'est déjà le
 sort de TOUS les champs mathématiques de la Terminale, Tab et le clic restent,
 et le corriger toucherait les dix-huit autres écrans pour un besoin qui n'a pas
 été demandé.
+**ET LA COLLISION QUI A SUIVI N'ÉTAIT PAS CELLE D'UN NUMÉRO : Turquet avait
+répondu LUI-MÊME à la demande, sur `main`, pendant que la branche attendait.**
+Quarante-deux minutes après l'annonce « prêt à mettre en ligne », une v330
+poussée directement sur `main` déclarait ces mêmes cases `inputmode="numeric"`
+avec `data-pave-plus="+ ∞"` : elles restaient des `<input>` de texte, servies
+par le PAVÉ numérique compact au lieu du clavier du système. Deux réponses à
+une seule question, dans les mêmes lignes — le conflit que `git` signale et
+qu'aucun banc ne pouvait voir, chaque côté étant juste de son côté.
+**LA RÈGLE QUI TRANCHE EST LA CHRONOLOGIE DES INSTRUCTIONS, pas la date des
+commits** : « mets en ligne » est postérieur à la v330, et il désigne la
+branche — donc la résolution va vers la branche, et la v330 est SUPERSÉDÉE là
+où elle portait sur une case de limite. Ce n'est pas un aller simple : un
+pavé rendu à ces cases tient en un commit, la mécanique existant déjà
+(`PAVE_MF` et `pave.champsMaths`, vides en Terminale parce que « ses cases
+attendent des expressions » — une case de limite, elle, attend `+∞`, `−∞` ou
+un nombre).
+**CE QUI SURVIT DE LA v330 SE DIT, parce que ce n'est pas rien** : son
+`inputmode="numeric"` reste sur les cases d'ÉQUATION d'asymptote (`lg-eq`,
+`<pfx>-eq`), qui ne sont pas des cases de limite et que la branche ne touche
+pas — la fusion automatique les a gardées, et le contrôle qui compte les
+appels à `lgLimOK` ne les regarde pas non plus. Une fusion se relit sur ce
+qu'elle GARDE autant que sur ce qu'elle remplace.
+**Et le banc des versions a fait exactement ce pour quoi il existe** : parti
+d'un `main` à 328, la branche écrivait 329 ; `main` étant passé à 330, la
+page va en **331** — la collision silencieuse d'`APP_VERSION` (deux écritures
+du MÊME nombre ne font aucun conflit textuel) ne pouvait plus se produire,
+puisque le banc compare à `main` au moment où il tourne.
 
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la

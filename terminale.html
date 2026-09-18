@@ -2939,7 +2939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=329;
+const APP_VERSION=331;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -7997,7 +7997,7 @@ function renderLG(){
     '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → '+limHTML('lg-lim'+i,'lg-lim')+' <button type="button" class="lg-inf" id="lg-inf'+i+'" onclick="lgInsInf('+i+')" title="Insérer le symbole ∞">∞</button></span>'
     +(aide?' <button type="button" class="lg-play" onclick="lgAnime('+i+')" title="Voir un point se déplacer sur la courbe vers cette cible">▶</button>':'')
     +'<br>il y a donc <select class="lg-sel" id="lg-typ'+i+'" onchange="lgSync('+i+')"><option value="">—</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'
-    +' <span class="dhv-eqgrp" id="lg-eqz'+i+'" style="display:none">, d’équation <span id="lg-pre'+i+'"></span> = <input class="dhv-in" id="lg-eq'+i+'" type="text" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
+    +' <span class="dhv-eqgrp" id="lg-eqz'+i+'" style="display:none">, d’équation <span id="lg-pre'+i+'"></span> = <input class="dhv-in" id="lg-eq'+i+'" type="text" inputmode="numeric" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
   ).join('');
   if(window.mlDexp) window.mlDexp.upgrade($('lgSubs'));   /* les cases de limite sont des champs MathLive : même clavier qu'au 3.5 */
   setTimeout(lgSyncAll,0);   /* après restoreBoxes en cas de reprise */
@@ -8253,7 +8253,7 @@ function lgSubsHTML(c,pfx){
   return c.subs.map((s,i)=>
     '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → '+limHTML(pfx+'-lim'+i,'lg-lim')+' <button type="button" class="lg-inf" id="'+pfx+'-inf'+i+'" onclick="lgSubsInsInf(\''+pfx+'\','+i+')" title="Insérer le symbole ∞">∞</button></span>'
     +'<br>il y a donc <select class="lg-sel" id="'+pfx+'-typ'+i+'" onchange="lgSubsSync(\''+pfx+'\','+i+')"><option value="">—</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'
-    +' <span class="dhv-eqgrp" id="'+pfx+'-eqz'+i+'" style="display:none">, d’équation <span id="'+pfx+'-pre'+i+'"></span> = <input class="dhv-in" id="'+pfx+'-eq'+i+'" type="text" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
+    +' <span class="dhv-eqgrp" id="'+pfx+'-eqz'+i+'" style="display:none">, d’équation <span id="'+pfx+'-pre'+i+'"></span> = <input class="dhv-in" id="'+pfx+'-eq'+i+'" type="text" inputmode="numeric" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
   ).join('');
 }
 function lgSubsBind(c,pfx){
