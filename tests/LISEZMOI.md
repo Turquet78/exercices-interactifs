@@ -22,6 +22,12 @@ npm run test:navigateur              # les trois niveaux
 npm run test:navigateur:secondes     # un seul
 ```
 
+Et un banc qui ne charge aucune page — il ne lit que le dépôt et `git` :
+
+```bash
+npm run test:version  # les numéros de version, comparés à ceux de `main`
+```
+
 La commande affiche une ligne par contrôle et se termine par un verdict. Elle
 renvoie le code 0 si tout passe, 1 sinon — ce qui permet de la brancher sur une
 action GitHub pour bloquer une fusion qui casserait quelque chose.
@@ -129,6 +135,34 @@ MathLive est servi depuis une copie locale (`tests/.cache/`, ignorée par git),
 téléchargée à la première exécution. Si le téléchargement échoue, les contrôles
 de rendu se déclarent « non applicable » au lieu de passer au vert sans rien
 vérifier.
+
+## Le banc des numéros de version
+
+`npm run test:version` (`tests/version.js`) ne charge aucune page : il compare
+chaque fichier HTML à celui de `main` et exige que son `APP_VERSION` dépasse
+le sien **dès que les octets diffèrent**. Une page inchangée n'a rien à
+incrémenter : une branche qui ne touche qu'un banc passe sans rien bouger.
+
+Il existe pour une collision qu'**aucune branche ne peut voir seule**. Deux
+branches parties du même `main` incrémentent du même cran ; la première
+fusionnée pose le numéro, la seconde porte alors la MÊME valeur sur la MÊME
+ligne — `git` ne voit aucun conflit, les bancs sont verts des deux côtés, et
+`main` se retrouve avec deux livraisons sous un seul numéro. C'est arrivé en
+septembre 2026 sur la Terminale (v327).
+
+Il **récupère `main` avant de lire** : une référence en retard manquerait
+justement la collision qu'on cherche. Hors ligne il se rabat sur le
+`origin/main` déjà présent, en le disant ; jamais sur la branche locale `main`,
+en retard par nature. Il n'impose aucune profondeur — un `--depth=1` tronquerait
+l'historique du dépôt qui le lance. **Sans référence, il refuse de mesurer** et
+sort en échec,
+comme le banc de la base quand PostgreSQL manque : un banc vert faute de
+référence serait pire que pas de banc du tout. Pour passer outre en
+connaissance de cause : `SANS_VERSION=1`.
+
+Il compare à `main` **au moment où il tourne**. Si `main` avance ensuite, son
+verdict devient périmé : rejouer l'action, ou reprendre `main` dans la branche,
+le remet à jour.
 
 ## Ce que les bancs ne savent pas faire
 

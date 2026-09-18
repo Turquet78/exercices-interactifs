@@ -5250,12 +5250,49 @@ réparer une première — la course était perdue par construction.
 vrai de ce qui est SERVI — `main` avance, la version en ligne désigne toujours
 exactement la page en ligne —, et c'est l'historique seul qui est ambigu, sur
 ce numéro-là. Le dire vaut mieux que de le taire.
-**Ce qui manque est un CONTRÔLE, et il n'existe pas** : rien ne compare
-`APP_VERSION` à celle de `main` au moment de la fusion. Tant qu'il n'existe
-pas, la parade est de relire `APP_VERSION` juste avant de fusionner, comme on
-relit les numéros d'exercice et les numéros de section — et de renuméroter
-AVANT la fusion, pas après, seul moment où la règle du premier arrivé
-s'applique encore.
+**Ce qui manquait était un CONTRÔLE, et il existe depuis** (`npm run
+test:version`, septembre 2026) : pour chaque page, il compare le fichier de
+l'arbre de travail — dans l'action, le résultat de la fusion, donc exactement
+ce qui serait publié — à celui de `main`, et exige que le numéro DÉPASSE le
+sien dès que les octets diffèrent. Le paragraphe ci-dessus raconte l'époque où
+la parade était de relire `APP_VERSION` à la main ; la règle qu'il enseigne
+reste vraie, c'est le garde qui a changé.
+**Le bord OPPOSÉ compte autant** : une page INCHANGÉE n'a aucun numéro à
+incrémenter — une branche qui ne touche qu'un banc ou ce fichier passe sans
+rien bouger. Un contrôle qui réclamerait un incrément à chaque poussée ferait
+monter la version sans que rien ne change à l'écran, c'est-à-dire fabriquerait
+l'ambiguïté qu'il corrige. Et la règle 4 est tenue par la même mesure, sans
+qu'on ait à l'écrire deux fois : une page modifiée dont le numéro n'a pas
+bougé porte celui de `main`, donc rouge.
+**Il vit dans l'ACTION, et il ne pouvait pas vivre ailleurs** : le défaut
+n'existe que dans la FUSION — chaque branche est juste de son côté —, et
+l'action est le seul endroit qui tienne les deux à la fois. **Il RÉCUPÈRE `main`
+avant de lire**, et c'est le point qui compte : une référence en retard
+manquerait justement la collision qu'on cherche — hors ligne il se rabat sur le
+`origin/main` déjà présent, en le DISANT, et jamais sur la branche locale
+`main`, en retard par nature. Aucune profondeur n'est imposée, et c'est MESURÉ
+plutôt que supposé : un `--depth=1` tronque l'historique du dépôt qui lance le
+banc — 127 commits ramenés à 1 — quand une récupération ordinaire laisse la
+borne où elle était ; un banc ne touche pas au dépôt de celui qui le lance.
+Sans référence du tout, il REFUSE de mesurer bruyamment plutôt que de passer au
+vert — le motif de `base.js` quand PostgreSQL manque. Il n'entre PAS dans `npm test`,
+qui reste ce que la règle 2 décrit — les trois niveaux, chacun selon son
+profil : un banc qui exigerait `git` et le réseau pour rendre son verdict
+sur une page ne dirait plus la même chose.
+**CE QU'IL NE VOIT PAS, et le dire vaut mieux que de le taire** : il compare à
+`main` AU MOMENT OÙ IL TOURNE. Si `main` avance ensuite, son verdict devient
+périmé sans qu'il le sache — rejouer l'action, ou reprendre `main` dans la
+branche, le remet à jour, et c'est ce qu'on fait de toute façon avant de
+fusionner. La renumérotation, elle, se fait toujours AVANT la fusion, pas
+après : c'est le seul moment où la règle du premier arrivé s'applique encore.
+**Éprouvé en rejouant la collision elle-même** : `main` remis à l'instant où le
+clavier en paysage y posait v327, la page de la branche « Bonus » dans l'arbre
+de travail — il rougit en la nommant (« v327 est DÉJÀ PRIS sur main »). Huit
+bords éprouvés en tout, chacun rougissant en nommant son défaut : le numéro
+déjà pris, le numéro qui RECULE, la page neuve, le dépôt absent, `main`
+inatteignable, l'expression qui ne reconnaît plus la déclaration — et le garde
+« ce banc ne mesure rien », montré vivant en le retirant : sans lui, une liste
+de pages vide rend le banc VERT sur zéro comparaison.
 
 **La Seconde et la Première ne changent pas, et c'est nommé** : elles ont les
 mêmes exercices bonus et la même étoile nue, mais la demande porte sur la
@@ -11042,6 +11079,7 @@ npm run test:secondes # un seul, quand on travaille dessus
 npm run test:navigateur # les trois pages ouvertes dans un vrai Chromium
 npm run test:base    # les règles d'accès de la base, sur un PostgreSQL jetable
 npm run test:fonction # la fonction Edge admin-eleve, réellement exécutée
+npm run test:version # les numéros de version, comparés à ceux de `main`
 ```
 
 `npm test` et `npm run test:navigateur` remplacent Supabase par un double en
