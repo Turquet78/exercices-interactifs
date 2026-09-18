@@ -5266,10 +5266,16 @@ qu'on ait à l'écrire deux fois : une page modifiée dont le numéro n'a pas
 bougé porte celui de `main`, donc rouge.
 **Il vit dans l'ACTION, et il ne pouvait pas vivre ailleurs** : le défaut
 n'existe que dans la FUSION — chaque branche est juste de son côté —, et
-l'action est le seul endroit qui tienne les deux à la fois. Il va chercher
-`main` lui-même (`origin/main`, sinon une récupération superficielle), et sans
-référence il REFUSE de mesurer bruyamment plutôt que de passer au vert — le
-motif de `base.js` quand PostgreSQL manque. Il n'entre PAS dans `npm test`,
+l'action est le seul endroit qui tienne les deux à la fois. **Il RÉCUPÈRE `main`
+avant de lire**, et c'est le point qui compte : une référence en retard
+manquerait justement la collision qu'on cherche — hors ligne il se rabat sur le
+`origin/main` déjà présent, en le DISANT, et jamais sur la branche locale
+`main`, en retard par nature. Aucune profondeur n'est imposée, et c'est MESURÉ
+plutôt que supposé : un `--depth=1` tronque l'historique du dépôt qui lance le
+banc — 127 commits ramenés à 1 — quand une récupération ordinaire laisse la
+borne où elle était ; un banc ne touche pas au dépôt de celui qui le lance.
+Sans référence du tout, il REFUSE de mesurer bruyamment plutôt que de passer au
+vert — le motif de `base.js` quand PostgreSQL manque. Il n'entre PAS dans `npm test`,
 qui reste ce que la règle 2 décrit — les trois niveaux, chacun selon son
 profil : un banc qui exigerait `git` et le réseau pour rendre son verdict
 sur une page ne dirait plus la même chose.

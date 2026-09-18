@@ -150,8 +150,12 @@ ligne — `git` ne voit aucun conflit, les bancs sont verts des deux côtés, et
 `main` se retrouve avec deux livraisons sous un seul numéro. C'est arrivé en
 septembre 2026 sur la Terminale (v327).
 
-Il va chercher `main` lui-même — `origin/main`, sinon une récupération
-superficielle. **Sans référence, il refuse de mesurer** et sort en échec,
+Il **récupère `main` avant de lire** : une référence en retard manquerait
+justement la collision qu'on cherche. Hors ligne il se rabat sur le
+`origin/main` déjà présent, en le disant ; jamais sur la branche locale `main`,
+en retard par nature. Il n'impose aucune profondeur — un `--depth=1` tronquerait
+l'historique du dépôt qui le lance. **Sans référence, il refuse de mesurer** et
+sort en échec,
 comme le banc de la base quand PostgreSQL manque : un banc vert faute de
 référence serait pire que pas de banc du tout. Pour passer outre en
 connaissance de cause : `SANS_VERSION=1`.
