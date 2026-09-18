@@ -57,6 +57,33 @@ jobs:
       - name: Règles d'accès de la base
         run: npm run test:base
 
+  # LA COLLISION QU'AUCUNE BRANCHE NE PEUT VOIR SEULE. Deux branches parties du
+  # même `main` incrémentent `APP_VERSION` du même cran ; la première fusionnée
+  # pose le numéro, la seconde porte alors EXACTEMENT la même valeur sur la même
+  # ligne — `git` ne voit aucun conflit, les bancs sont verts de chaque côté, et
+  # `main` se retrouve avec deux livraisons sous un seul numéro. Le défaut
+  # n'existe que dans la fusion : il ne peut se voir qu'ICI, où l'on dispose à la
+  # fois de la branche et de `main`. Le banc va chercher `main` lui-même — il
+  # tourne donc aussi bien à la main, sur une machine de développement.
+  #
+  # Pas de « npm install » : ce banc ne lit que le dépôt et `git`, il ne charge
+  # aucune page. C'est ce qui le rend rapide, et c'est voulu — il garde la porte
+  # de la fusion.
+  #
+  # CE QU'IL NE VOIT PAS, et le dire vaut mieux que de le taire : il compare à
+  # `main` AU MOMENT OÙ IL TOURNE. Si `main` avance ensuite, son verdict devient
+  # périmé sans qu'il le sache. Rejouer l'action — ou reprendre `main` dans la
+  # branche, ce qu'on fait de toute façon avant de fusionner — le remet à jour.
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Numéros de version contre main
+        run: npm run test:version
+
   # La fonction Edge tourne chez Deno, hors de portée des trois autres bancs :
   # le double du banc navigateur ne l'appelle jamais, et le banc de base ne
   # connaît que PostgreSQL. Elle n'était donc vérifiée que par la relecture, et
