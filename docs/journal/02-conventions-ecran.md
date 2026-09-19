@@ -447,6 +447,70 @@ n'efface plus) et deux au navigateur, dont celui qui nomme le défaut d'origine
 en toutes lettres : « la bulle s'est éteinte au moment où la page a posé le
 curseur ».
 
+**Et une CASE À COCHER est une case comme une autre.** Demande de Turquet
+(septembre 2026) : « faire aussi la bulle pour le 6.14 ».
+{suite-vocabulaire} répond par des `<span role="checkbox">` — ni un champ, ni
+une liste, ni une zone de texte —, et `bexpCible` ne connaissait que ces
+trois-là : la bulle n'y paraissait JAMAIS, à aucun moment. C'est le manque de
+la zone de texte des Python, une FAMILLE DE RÉPONSES plus loin.
+**TROIS ENDROITS BOUGENT ENSEMBLE, ET N'EN TENIR QU'UN NE TIENT RIEN.**
+· La CIBLE : c'est le RÔLE qui désigne une case à cocher (`role="checkbox"`),
+  jamais une classe propre à un exercice — la bulle ne connaît aucun exercice,
+  et {suite-vocabulaire} n'est nommé nulle part dans son bloc.
+· La SAISIE : un `<span>` n'a pas de `.value`, et sans cette moitié la bulle
+  enverrait au modèle une saisie VIDE en lui demandant d'expliquer l'erreur.
+  Elle lit donc le LIBELLÉ — « Croissante. », la règle du badge de
+  `corrChoix` —, la COCHE retirée : celle-ci est un ornement (`aria-hidden`)
+  dont le texte ne dit rien, ✓ ou rien du tout selon la feuille de styles.
+· Les OBSTACLES : les trois choix d'un groupe vivent sur UNE rangée, et une
+  bulle posée sur la case d'à côté rendrait incliquable celle que l'élève doit
+  corriger — la leçon du pavé numérique, au même endroit. Le garde de l'ancre
+  (`contains`) écarte en effet la RANGÉE entière, donc sans ce bord la place
+  de ses voisines redevient libre.
+**LA RANGÉE N'EST PAS UNE CIBLE, et c'est le bord silencieux** : elle porte
+elle aussi le verdict du groupe — `svqPeindre` peint le `<div>` ET la case — et
+elle PRÉCÈDE la case dans le document, donc c'est elle que la bulle
+choisirait, flèche pointée sur trois choix à la fois. Le RÔLE la départage :
+un conteneur n'en a pas.
+**Et le contexte dit COCHER, non « écrire »** : « l'élève vient d'écrire
+"Croissante." » ferait parler le modèle d'une saisie qui n'a jamais eu lieu, et
+il répondrait à côté. La clause de secret ne bouge pas — elle nomme seulement
+l'autre façon de livrer la réponse (« la case à cocher » au lieu de « la valeur
+à écrire dans cette case »).
+**Le bloc est le MÊME TEXTE dans les trois fichiers**, comparé au caractère
+près : la Seconde et la Première ne posent aujourd'hui aucun `role="checkbox"`
+(mesuré : 0 dans les deux fichiers), le changement y est donc inerte — et
+c'est le signe qu'il ne connaît aucun exercice, pas une raison de ne l'écrire
+qu'en Terminale.
+Deux bancs, la répartition habituelle : jsdom mesure le MÉCANISME sur une case
+posée à la main DANS sa rangée — la cible, le libellé la coche retirée, le
+contexte, et l'obstacle par la GÉOMÉTRIE seule (sans la case à cocher la bulle
+est à droite, avec elle à gauche) ; le NAVIGATEUR mesure le GESTE sur le 6.14
+même — le mode soutien, la case cochée à tort, un vrai clic sur « Vérifier »,
+la bulle au RECTANGLE (jamais à la propriété `hidden`) et sa pointe LUE sur le
+décalage EN USAGE du pseudo-élément, à moins de 8 px de la case et sur son
+CENTRE.
+**ET CE QUE LA MESURE A MONTRÉ VAUT D'ÊTRE DIT** : sur cet écran la bulle se
+pose à GAUCHE du groupe, c'est-à-dire SUR le quadrillage — un dessin n'est pas
+une case, donc pas un obstacle. Les trois choix d'un groupe prennent toute la
+largeur de la fiche, et il n'y a nulle part ailleurs les 288 px qu'il faut.
+Faire du dessin un obstacle renverrait la bulle au COIN, où sa flèche ne
+désigne plus rien, et toucherait les quinze exercices à dessin des trois
+niveaux : c'est une décision à prendre, pas une correction technique.
+**Sept sabotages, chacun rougissant en nommant son défaut** — le rôle retiré de
+`bexpCible` (quatre rouges d'un coup : la bulle ne se pose plus, la saisie part
+vide, le contexte reparle d'écrire), le libellé perdu parce qu'on relit
+`.value` sur un `<span>`, la coche laissée dans le libellé
+(« ☑Croissante. »), la RANGÉE rendue cible elle aussi (« ancrée sur la rangée
+entière : true »), les cases à cocher retirées de la requête des obstacles (la
+bulle repasse à droite, sur la case d'à côté), le contexte qui dit « écrire »
+devant une case qu'on coche, et la clause de secret retirée.
+**Et le premier sabotage a montré un DÉTAIL DE MESSAGE qui ne nommait rien** :
+« ancrée sur la rangée entière : false » est vrai des deux défauts opposés — la
+bulle posée sur la rangée, et la bulle qui ne se pose nulle part. Le détail dit
+les DEUX états désormais (« sur la rangée : false, sur la case : false »), et le
+sabotage qui débranche la cible se distingue de celui qui déplace l'ancre.
+
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
 `conseilCtxCourant` — pas ailleurs. Un libellé posé dans un `innerHTML` par une
