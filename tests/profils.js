@@ -1543,11 +1543,28 @@ module.exports = {
 
     ordreDevoirs: true,
 
+    /* LE MODE SOUTIEN CORRIGE EN DIRECT SUR CHAQUE ÉCRAN — et le routeur unique
+       (liveCheckCurrent) doit NOMMER chacun d'eux. Les écrans listés ici
+       corrigent AUTREMENT, et chacun pour une raison qui lui est propre :
+       · « gen » — le calcul mental et les tables : une réponse à la fois,
+         validée à l'Entrée, sans une seule case à colorer ;
+       · lr, tvi2, tvi3, rr, sar — la RÉDACTION libre : c'est le modèle qui
+         juge, et un juge qui part sur le réseau à chaque frappe n'est pas une
+         correction en direct ;
+       · tvg — les cibles qu'on CLIQUE : colorer une cible au moment où on la
+         pose dirait laquelle est juste avant même de vérifier (la règle de
+         {solutions-graphique} en Seconde) ;
+       · svq — le QCM à cocher : à trois options par ligne, il suffirait
+         d'essayer.
+       Le 2.2 et le 4.2 (leurs feuilles libres) ne sont PAS dispensés : leur
+       kind est celui du 2.1 et du 4.1, nommé dans le routeur, et c'est la
+       feuille qui n'a rien de local à peindre. */
+    soutienEnDirect: { sans: ['gen', 'lr', 'tvi2', 'tvi3', 'tvg', 'rr', 'sar', 'svq'] },
+
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
       "six exercices rougissent encore une case laissée VIDE (2.1, 2.3, 2.4, 5.2, 5.3, 6.4) : ce niveau ne remplace jamais les réponses de l'élève, et la règle de la Seconde y changerait le calcul de la note — décision à prendre, pas correction technique",
-      "liveCheckCurrent() a un corps vide : la correction du mode soutien passe par submitAnswer et par un check… propre à chaque exercice, donc aucun contrôle de coloration en direct n'est transposable — c'est pourquoi « soutienEnDirect » n'est pas déclaré ici, et que le contrôle correspondant s'affiche « non applicable »",
       "le contexte envoyé au modèle n'est vérifié que pour l'exercice témoin (dexp) : la table kind -> générateur des 23 autres exercices reste à écrire",
       "aucun audit de générateur : les 45 générateurs de Terminale n'ont pas d'invariants déclarés (les 15 de la Première en ont)",
       "33 fonctions nommées vivent dans des modules enveloppés en IIFE (le bloc SA-CORE, ligne 10268, et le module de copier-coller ligne 2101) : le banc ne descend pas dedans, donc aucun contrôle de structure ne les voit. Aucune n'enregistre de note aujourd'hui — le contrôle « chaque enregistrement de note est dans une fonction que le banc voit » le vérifie à chaque exécution et virerait au rouge si un exercice y était porté",

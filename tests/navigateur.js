@@ -9583,6 +9583,7 @@ async function parcours(page, N){
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
+      const sansDirect = []; let nDirect = 0; const dispensesDirect = new Set();
       const indicesPlats = []; let nIndicesFlex = 0;
       const sansClavierLim = []; let nLimCases = 0;
       const avecTables = new Set(), sansTables = new Set();
@@ -9933,7 +9934,102 @@ async function parcours(page, N){
                   + ' — ' + rouges.slice(0, 3).join(', '));
             }
           }
+
+          /* EN SOUTIEN, LA COULEUR ARRIVE PENDANT LA SAISIE — sur TOUS les
+             exercices. Signalé par Turquet sur le 3.2 (septembre 2026) : « les
+             cases ne deviennent pas rouges dès qu'elles sont fausses ». La
+             cause n'était pas dans cet exercice-là : la Terminale câblait sa
+             correction en direct exercice par exercice, dans chaque démarreur,
+             et CINQ écrans étaient tombés de la liste — mesuré avant tout
+             correctif, 30 exercices sur 44 coloraient.
+             Le contrôle du banc principal exige que chaque écran soit NOMMÉ
+             dans liveCheckCurrent ; il ne dit rien de ce que la page FAIT — un
+             lgLive() qui ne peindrait rien y passerait. Celui-ci remplit les
+             vraies cases, quitte la dernière et regarde l'écran : c'est le
+             geste de l'élève, et il est greffé sur la visite de TOUS les
+             exercices, donc celui qu'on ajoutera demain est couvert sans rien
+             déclarer.
+             Deux familles de cases, deux gestes — la page les distingue et le
+             banc doit les distinguer aussi : une case ORDINAIRE se juge à la
+             frappe (« input »), un CHAMP MATHÉMATIQUE à la sortie
+             (« focusout »), sans quoi « 3/ » serait déclaré faux avant la fin
+             de la saisie. */
+          if(mode === 'soutien' && P.soutienEnDirect){
+            const dispenses = P.soutienEnDirect.sans || [];
+            /* UN QCM À CHAÎNE DE VÉRIFICATION NE JUGE RIEN AVANT LE CHOIX, et
+               c'est exact : ses étapes se jugent CONTRE la proposition choisie
+               (« un calcul correct sur une mauvaise proposition reste un calcul
+               correct »). Le premier jet du contrôle remplissait sans choisir,
+               et accusait onze écrans de la Première parfaitement corrects —
+               une mesure qui accuse la page se mesure elle-même d'abord. On
+               choisit donc la première proposition quand l'écran en offre. */
+            await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on'); if(!on) return;
+              const b = on.querySelector('.pt-choix-btn');
+              if(b && !b.disabled) b.click();
+            });
+            await s.page.waitForTimeout(250);
+            const rempli = await s.page.evaluate(sans => {
+              const on = document.querySelector('section.screen.on');
+              /* « test » est une variable de portée globale du script, pas une
+                 propriété de window : window.test vaut undefined, et le premier
+                 jet du contrôle mesurait alors ZÉRO exercice en passant au
+                 vert. C'est son bord opposé qui l'a dit. */
+              if(!on || typeof test === 'undefined' || !test || !test.kind) return null;
+              if(sans.indexOf(test.kind) >= 0) return { dispense: test.kind };
+              const vis = e => { if(!e || e.hidden) return false;
+                const q = e.getBoundingClientRect();
+                return q.width > 0 && q.height > 0 && getComputedStyle(e).display !== 'none'; };
+              let n = 0;
+              [...on.querySelectorAll('input, select, textarea, math-field')].filter(vis).forEach(el => {
+                if(el.disabled || el.readOnly || el.classList.contains('sol')) return;
+                if(el.tagName === 'INPUT' && /button|submit|checkbox|radio|file/.test(el.type)) return;
+                if(el.tagName === 'SELECT'){
+                  const opts = [...el.options].filter(o => o.value !== '');
+                  if(!opts.length) return;
+                  el.value = opts[opts.length - 1].value;
+                } else if(el.tagName === 'MATH-FIELD'){
+                  try{ el.setValue('999'); }catch(e){ return; }
+                } else { el.value = '999'; }
+                n++;
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                /* un champ mathématique se juge à la SORTIE : c'est la greffe
+                   qui appelle, sur « focusout » */
+                if(el.tagName === 'MATH-FIELD') el.dispatchEvent(new Event('focusout', { bubbles: true }));
+              });
+              return { n: n };
+            }, dispenses);
+            if(rempli && rempli.dispense) dispensesDirect.add(rempli.dispense);
+            else if(rempli && rempli.n){
+              await s.page.waitForTimeout(350);
+              const peint = await s.page.evaluate(() => {
+                const on = document.querySelector('section.screen.on'); if(!on) return 0;
+                return [...on.querySelectorAll('.ok, .bad')]
+                  .filter(e => /^(MATH-FIELD|INPUT|SELECT|TEXTAREA)$/.test(e.tagName)).length;
+              });
+              if(peint > 0) nDirect++;
+              else sansDirect.push((await s.page.evaluate(i => TEST_NUM[i] + ' · ' + test.kind, id))
+                + ' — ' + rempli.n + ' case(s) remplies, aucune couleur');
+            }
+          }
         }
+      }
+      if(!P.soutienEnDirect){
+        ignorer('en soutien, la couleur arrive pendant la saisie sur chaque exercice',
+          'ce niveau ne déclare pas « soutienEnDirect » (voir tests/profils.js)');
+      } else {
+        verifier('en soutien, la couleur arrive pendant la saisie sur chaque exercice',
+          sansDirect.length === 0,
+          sansDirect.length + ' exercice(s) : ' + sansDirect.slice(0, 5).join(' | '));
+        /* LE BORD OPPOSÉ : un contrôle qui n'a rien à mesurer ne mesure rien.
+           Si la visite cessait de remplir quoi que ce soit, le contrôle
+           ci-dessus passerait au vert sur zéro exercice. */
+        verifier('des exercices ont bien été remplis en soutien (le contrôle mesure quelque chose)',
+          nDirect > 0, nDirect + ' exercice(s) coloré(s) pendant la saisie');
+        if(dispensesDirect.size)
+          console.log('   · écran(s) qui corrigent autrement, déclarés dans tests/profils.js : '
+            + [...dispensesDirect].join(', '));
       }
       verifier('les cases de saisie ont la taille des nombres qui les entourent',
         petites.length === 0, petites.slice(0, 3).join(' | '));

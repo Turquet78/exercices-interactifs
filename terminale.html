@@ -2939,7 +2939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=331;
+const APP_VERSION=332;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3945,7 +3945,104 @@ function msgCorrCouleurs(oubliees){
     + (oubliees ? ' ; <span class="msg-sol">les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>vert</b></span>.' : '.')
     + '</span>';
 }
-function liveCheckCurrent(){ /* le moteur générique gère le soutien dans submitAnswer */ }
+/* ---------- LA CORRECTION EN DIRECT DU MODE SOUTIEN : UN SEUL ROUTEUR ----------
+   En SOUTIEN, une case fausse rougit dès que l'élève l'a écrite — il n'a pas à
+   cliquer « Vérifier » pour savoir. La Seconde et la Première le font depuis
+   toujours par cette fonction ; ici elle avait un corps VIDE et pas un seul
+   appelant : chaque exercice câblait sa propre correction en direct dans son
+   démarreur, exercice par exercice. Une liste tenue à la main dérive, et
+   celle-ci avait dérivé — signalé par Turquet sur le 3.2 (septembre 2026),
+   mesuré ensuite sur les 44 exercices du niveau : CINQ écrans ne coloraient
+   rien pendant la saisie (3.1, 3.2, 3.3, 3.4 et le nombre de solutions), tous
+   avec un verdict pourtant entièrement LOCAL.
+   UN SEUL ENDROIT décide désormais, et un contrôle du banc exige que CHAQUE
+   écran d'afficherEcranDe() y soit NOMMÉ : celui qu'on ajoutera demain se
+   signale au lieu de se taire. Les écouteurs posés par les démarreurs restent
+   en place — ce sont des déclencheurs de plus vers le MÊME juge, pas une
+   seconde vérité.
+   Deux familles, et elles n'ont pas le même déclencheur :
+   · les écrans à CHAMPS MATHÉMATIQUES sont jugés à la SORTIE de la case, par
+     la greffe MathLive, qui appelle avec l'identifiant de la case quittée.
+     Appelés sans identifiant — la frappe dans un <input> ou un choix de menu,
+     qui passe par l'écouteur global — ils n'ont rien à juger ;
+   · les écrans à cases ORDINAIRES se jugent sur l'écran entier, à chaque
+     frappe et à chaque choix.
+   Un écran qui corrige AUTREMENT se déclare dans tests/profils.js plutôt que
+   d'affaiblir le contrôle pour tout le monde : la rédaction libre (l'IA seule
+   juge), les cibles qu'on clique et les QCM à cocher — colorer au fil des
+   clics dirait la bonne réponse avant même de vérifier. */
+window.dexpLiveCheck=function(id){ liveCheckCurrent(id); };
+/* LE DÉCLENCHEUR VIT ICI, À CÔTÉ DU ROUTEUR — et pas à côté du garde de la
+   saisie, où il serait pourtant à sa place : le bloc du garde est comparé au
+   CARACTÈRE PRÈS entre les trois fichiers, et une ligne posée dedans l'aurait
+   fait diverger. Le banc l'a dit à la première exécution.
+   Les champs mathématiques sont déjà jugés à la SORTIE de la case par la
+   greffe MathLive ; les <input> et les menus n'avaient, eux, que l'écouteur
+   que chaque démarreur posait lui-même — et cinq écrans n'en avaient pas. Un
+   seul écouteur, posé une fois, et l'écran qu'on ajoutera demain est déclenché
+   sans rien avoir à câbler. « change » vient en plus de « input » : un menu
+   lève les deux, et le routeur est idempotent — il ne fait que POSER une
+   couleur. */
+document.addEventListener('input', e=>{ liveDepuis(e.target); });
+document.addEventListener('change', e=>{ liveDepuis(e.target); });
+function liveDepuis(t){
+  if(!t || !t.tagName || !t.closest) return;
+  /* UN CHAMP MATHÉMATIQUE SE JUGE À LA SORTIE DE LA CASE, JAMAIS À LA FRAPPE :
+     coloré au fil des touches, « 3/ » déclarerait fausse une dérivée qu'on n'a
+     pas fini d'écrire. La greffe s'en charge sur « focusout », et c'est
+     pourquoi le garde de la saisie est inerte pour eux. On ne déclenche donc
+     ici que sur une case ORDINAIRE ; sans ce bord, le banc rougit sur la
+     feuille du 6.11 et sur les champs du 6.13, et il l'a fait. */
+  const tag=t.tagName;
+  if(tag!=='INPUT' && tag!=='SELECT' && tag!=='TEXTAREA') return;
+  const scr=t.closest('section.screen');
+  if(!scr || !scr.classList.contains('on')) return;
+  if(!test || !test.questions || !test.questions[test.idx]) return;
+  liveCheckCurrent();
+}
+function liveCheckCurrent(id){
+  if(!test || !test.kind) return;
+  const k=test.kind;
+  /* --- écrans à champs mathématiques : la case QUITTÉE porte l'identifiant --- */
+  if(k==='sa'){ const f=ficheLive['sa']; if(f && id!=null) f(id); return; }   /* fiches à cases (creerFicheCases) */
+  if(k==='eq'){ const f=ficheLive['eq']; if(f && id!=null) f(id); return; }
+  if(k==='rc'){ const f=ficheLive['rc']; if(f && id!=null) f(id); return; }
+  if(k==='rf'){ const f=ficheLive['rf']; if(f && id!=null) f(id); return; }
+  if(k==='su'){ if(id!=null) suLiveCheck(id); return; }
+  if(k==='enc'){ if(id!=null) encLiveCheck(id); return; }
+  if(k==='rec'){ if(id!=null) recLiveCheck(id); return; }
+  if(k==='sp'){ if(id!=null) spLiveCheck(id); return; }
+  if(k==='dexpq'){ if(id!=null) dqLiveCheck(id); return; }
+  if(k==='dexp'){ if(id==null) return; return (test.dexpLevel===3) ? d3LiveCheck(id) : dexpFicheLive(id); }
+  if(k==='asg'){   /* le b) du 4.6 : la couleur se pose à la SORTIE de la case */
+    if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkASG(true); },0);
+    return;
+  }
+  /* --- écrans à cases ordinaires : le verdict est local, la couleur suit la frappe --- */
+  if(!isSoutien() || test.locked) return;
+  if(k==='tvi') checkTVI(true);
+  else if(k==='tvins') tvinsLive();
+  else if(k==='dhv') dhvLive();
+  else if(k==='lg') lgLive();
+  else if(k==='lg2') lg2Live();
+  else if(k==='lg3') lg3Live();
+  else if(k==='sv') checkSV(true);
+  else if(k==='tg') checkTG(true);
+  else if(k==='tx') checkTX(true);
+  else if(k==='s1') checkS1(true);
+  else if(k==='s2') checkS2(true);
+  else if(k==='sa2') checkSA2(true);
+  else if(k==='tcl') checkTCL(true);
+  else if(k==='rfr') checkRFR(true);
+  else if(k==='svr') checkSVR(true);
+  else if(k==='svd') checkSVD(true);
+  else if(k==='ssv') checkSSV(true);
+  else if(k==='ef') checkEF(true);
+  else if(k==='ec') checkEC(true);
+  else if(k==='afp') checkAfp(true);
+  else if(k==='afq') checkAfq(true);
+  else if(k==='sdq') checkSdq(true);
+}
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
   if(currentMode==='soutien') return '<span class="mode-tag soutien">🛟 Soutien</span>';
@@ -7036,6 +7133,25 @@ function iaNettoie(res){
   }
   return out;
 }
+/* UN SEUL PEINTRE POUR LA FRAPPE ET POUR LA VÉRIFICATION — le verdict est
+   LOCAL (le nombre de solutions se compte dans le tableau), l'IA ne rédige que
+   le commentaire. En mode DIRECT rien ne se verrouille, et un menu laissé vide
+   ne reçoit aucune couleur. */
+function tvinsMarque(c,vals,live){
+  c.eqs.forEach((e,i)=>{
+    const el=$('tvins-eq'+i); if(!el) return;
+    el.classList.remove('ok','bad');
+    if(live && String(vals[i]||'')==='') return;
+    const ok=(vals[i]===String(e.n));
+    el.classList.add(ok?'ok':'bad');
+    if(!live) el.disabled = ok || !isSoutien();
+  });
+}
+/* Correction en direct (mode soutien) : la couleur suit le choix. */
+function tvinsLive(){
+  const c=test.questions&&test.questions[test.idx]; if(!c) return;
+  tvinsMarque(c, c.eqs.map((e,i)=>String((($('tvins-eq'+i)||{}).value)||'')), true);
+}
 let tvinsBusy=false;
 async function checkTVINS(){
   if(test.locked||tvinsBusy) return;
@@ -7063,12 +7179,7 @@ async function checkTVINS(){
   const correct=res.correct===true;
   const fbHTML=conseilHTML(res.feedback||'');
   /* coloration locale d’après les nombres calculés (les mêmes que ceux envoyés à l’IA) */
-  c.eqs.forEach((e,i)=>{
-    const el=$('tvins-eq'+i); if(!el) return;
-    const ok=(vals[i]===String(e.n));
-    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad');
-    el.disabled = ok || !isSoutien();
-  });
+  tvinsMarque(c,vals,false);
   if(!correct && isSoutien()){
     $('tvinsFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Suis chaque flèche du tableau : la valeur est-elle atteinte, ou seulement une limite ? Corrige les cases en rouge, puis revérifie.');
     $('tvinsFeedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
@@ -7611,13 +7722,17 @@ function renderDHV(){
     +'<div class="dhv-q"><b>c)</b> L’équation de la droite <b>horizontale</b> <i>d</i><sub>1</sub> est : <span class="dhv-eqgrp">'+inpV('dhv-v1')+' = '+inp('dhv-n1')+'</span></div>'
     +'<div class="dhv-q"><b>d)</b> L’équation de la droite <b>verticale</b> <i>d</i><sub>2</sub> est : <span class="dhv-eqgrp">'+inpV('dhv-v2')+' = '+inp('dhv-n2')+'</span></div>';
 }
-/* Soutien : cases justes en vert et verrouillées, cases fausses en rouge et modifiables. */
-function dhvMarqueSoutien(c){
+/* Soutien : cases justes en vert et verrouillées, cases fausses en rouge et modifiables.
+   En mode DIRECT (live) rien ne se verrouille, et une case vide ne reçoit rien. */
+function dhvMarqueSoutien(c,live){
   dhvAttentes(c).forEach(a=>{ const el=$(a[0]); if(!el) return;
     el.classList.remove('ok','bad');
-    if(dhvChampOK(a, el.value)){ el.classList.add('ok'); el.disabled=true; }
+    if(live && String(el.value||'').trim()==='') return;
+    if(dhvChampOK(a, el.value)){ el.classList.add('ok'); if(!live) el.disabled=true; }
     else el.classList.add('bad'); });
 }
+/* Correction en direct (mode soutien) : la couleur suit la frappe. */
+function dhvLive(){ const c=test.questions&&test.questions[test.idx]; if(c) dhvMarqueSoutien(c,true); }
 /* Correction finale : tout verrouiller, GARDER l’erreur en rouge, bonne réponse en badge vert. */
 function dhvFinal(c){
   dhvAttentes(c).forEach(a=>{ const el=$(a[0]); if(!el) return;
@@ -8017,15 +8132,14 @@ function lgSyncAll(){
   if(!c||c.type!=='lg') return;
   c.subs.forEach((s,i)=>lgSync(i));
 }
-/* Soutien : champs justes verrouillés en vert, faux en rouge modifiables. */
-function lgMarqueSoutien(c){
-  c.subs.forEach((s,i)=>{
-    const li=$('lg-lim'+i), ty=$('lg-typ'+i), eq=$('lg-eq'+i);
-    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,limLire('lg-lim'+i))){ li.classList.add('ok'); limVerrou('lg-lim'+i,true); const bi=$('lg-inf'+i); if(bi) bi.disabled=true; } else li.classList.add('bad'); }
-    if(ty){ ty.classList.remove('ok','bad'); if(ty.value===s.typ){ ty.classList.add('ok'); ty.disabled=true; } else ty.classList.add('bad'); }
-    if(eq && ty && ty.value===s.typ && s.typ!=='rien'){ eq.classList.remove('ok','bad'); if(lgEqOK(s,eq.value)){ eq.classList.add('ok'); eq.disabled=true; } else eq.classList.add('bad'); }
-  });
-}
+/* Soutien : champs justes verrouillés en vert, faux en rouge modifiables.
+   Ce peintre était le MÊME TEXTE que lgSubsMarqueSoutien(c,'lg') — deux copies
+   qui auraient fini par diverger le jour où l'une des deux aurait gagné une
+   règle. Il n'en reste qu'un, et le 3.2, le 3.3 et le 3.4 se peignent pareil. */
+function lgMarqueSoutien(c,live){ lgSubsMarqueSoutien(c,'lg',live); }
+/* Correction en direct (mode soutien) : la couleur suit la frappe et le choix. */
+function lgLive(){ const c=test.questions&&test.questions[test.idx]; if(c) lgSubsMarqueSoutien(c,'lg',true); }
+function lg3Live(){ const c=test.questions&&test.questions[test.idx]; if(c) lgSubsMarqueSoutien(c,'lg3',true); }
 /* Correction finale : erreurs conservées en rouge, bonnes réponses en badges verts,
    étiquettes des asymptotes (y = …, x = …) révélées sur le graphique. */
 function lgFinal(c){
@@ -8360,24 +8474,38 @@ function lg2ReponseTxt(c){
   const vals=c.tv.vals.map((v,k)=>lg2ValLabel(c,k)+' = « '+limLire('lg2-v'+k).trim()+' »').join(' ; ');
   return subs+'. Tableau — flèches : '+fl+' ; '+vals+'.';
 }
-/* Soutien : justes verrouillés en vert, faux rouges modifiables (cases ET tableau). */
-function lgSubsMarqueSoutien(c,pfx){
+/* Soutien : justes verrouillés en vert, faux rouges modifiables (cases ET tableau).
+   UN SEUL PEINTRE POUR LA FRAPPE ET POUR LA VÉRIFICATION. En mode DIRECT (live)
+   il ne fait que POSER la couleur : rien ne se verrouille — l'élève corrige sans
+   quitter l'écran — et une case VIDE ne reçoit rien, jamais du rouge. Deux
+   peintres auraient fini par se contredire sous les yeux de l'élève. */
+function lgSubsMarqueSoutien(c,pfx,live){
   c.subs.forEach((s,i)=>{
     const li=$(pfx+'-lim'+i), ty=$(pfx+'-typ'+i), eq=$(pfx+'-eq'+i);
-    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,limLire(pfx+'-lim'+i))){ li.classList.add('ok'); limVerrou(pfx+'-lim'+i,true); const bi=$(pfx+'-inf'+i); if(bi) bi.disabled=true; } else li.classList.add('bad'); }
-    if(ty){ ty.classList.remove('ok','bad'); if(ty.value===s.typ){ ty.classList.add('ok'); ty.disabled=true; } else ty.classList.add('bad'); }
-    if(eq && ty && ty.value===s.typ && s.typ!=='rien'){ eq.classList.remove('ok','bad'); if(lgEqOK(s,eq.value)){ eq.classList.add('ok'); eq.disabled=true; } else eq.classList.add('bad'); }
+    if(li){ li.classList.remove('ok','bad');
+      if(!live || limLire(pfx+'-lim'+i).trim()!==''){
+        if(lgLimOK(s,limLire(pfx+'-lim'+i))){ li.classList.add('ok'); if(!live){ limVerrou(pfx+'-lim'+i,true); const bi=$(pfx+'-inf'+i); if(bi) bi.disabled=true; } } else li.classList.add('bad'); } }
+    if(ty){ ty.classList.remove('ok','bad');
+      if(!live || String(ty.value||'')!==''){
+        if(ty.value===s.typ){ ty.classList.add('ok'); if(!live) ty.disabled=true; } else ty.classList.add('bad'); } }
+    if(eq && ty && ty.value===s.typ && s.typ!=='rien'){ eq.classList.remove('ok','bad');
+      if(!live || String(eq.value||'').trim()!==''){
+        if(lgEqOK(s,eq.value)){ eq.classList.add('ok'); if(!live) eq.disabled=true; } else eq.classList.add('bad'); } }
   });
 }
-function lg2MarqueSoutien(c){
-  lgSubsMarqueSoutien(c,'lg2');
+function lg2MarqueSoutien(c,live){
+  lgSubsMarqueSoutien(c,'lg2',live);
   c.tv.fleches.forEach((f2,i)=>{ const el=$('lg2-f'+i); if(!el) return;
     el.classList.remove('ok','bad');
-    if(el.value===f2){ el.classList.add('ok'); el.disabled=true; } else el.classList.add('bad'); });
+    if(live && String(el.value||'')==='') return;
+    if(el.value===f2){ el.classList.add('ok'); if(!live) el.disabled=true; } else el.classList.add('bad'); });
   c.tv.vals.forEach((v,k)=>{ const el=$('lg2-v'+k); if(!el) return;
     el.classList.remove('ok','bad');
-    if(lgLimOK({lim:v.att}, limLire('lg2-v'+k))){ el.classList.add('ok'); limVerrou('lg2-v'+k,true); } else el.classList.add('bad'); });
+    if(live && limLire('lg2-v'+k).trim()==='') return;
+    if(lgLimOK({lim:v.att}, limLire('lg2-v'+k))){ el.classList.add('ok'); if(!live) limVerrou('lg2-v'+k,true); } else el.classList.add('bad'); });
 }
+/* Correction en direct (mode soutien) : la couleur suit la frappe et le choix. */
+function lg2Live(){ const c=test.questions&&test.questions[test.idx]; if(c) lg2MarqueSoutien(c,true); }
 /* Correction finale : tout verrouillé, erreurs en rouge + badges verts (sous les éléments
    du tableau), asymptotes (pointillés + équations) révélées sur le graphique. */
 function lgSubsFinal(c,pfx){
@@ -9343,19 +9471,11 @@ function dexpGroupOf(id){ if(DEXP_S2.includes(id))return DEXP_S2; if(DEXP_S3.inc
    colore vert/rouge. Pour les étapes 2 et 3, on colore tout le groupe une fois toutes ses cases remplies.
    On ignore une case vide, et un blur "interne" dû au ré-affichage de l'exposant.
    Après 2 essais faux successifs (valeurs distinctes) sur une même case, on donne la solution. */
-function dexpLiveCheck(id){
-  const fReg=(test && ficheLive[test.kind]); if(fReg) return fReg(id);   /* fiches a cases enregistrees par creerFicheCases : le 6.2 et tous les exercices futurs du meme style */
-  if(test && test.kind==='su') return suLiveCheck(id);
-  if(test && test.kind==='enc') return encLiveCheck(id);
-  if(test && test.kind==='rec') return recLiveCheck(id);
-  if(test && test.kind==='sp') return spLiveCheck(id);
-  if(test && test.kind==='dexpq') return dqLiveCheck(id);
-  if(test && test.kind==='asg'){   /* le b) du 4.6 : la couleur se pose à la SORTIE de la case, par la correction en direct de l'écran */
-    if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkASG(true); },0);
-    return;
-  }
-  if(test && test.kind==='dexp' && test.dexpLevel===3) return d3LiveCheck(id);
-  if(!(test && test.kind==='dexp')) return;   /* garde-fou : seule la fiche derivees utilise la logique ci-dessous ; sans elle, tout exercice a champs math non liste ci-dessus serait juge avec les verdicts des derivees (case rouge a tort) */
+/* Le ROUTAGE a quitté cette fonction pour liveCheckCurrent(), l'unique routeur :
+   il était la moitié « champs mathématiques » d'un aiguillage dont l'autre
+   moitié n'existait pas, et c'est ce qui laissait cinq écrans sans couleur.
+   Ne reste ici que le juge PROPRE à la fiche des dérivées. */
+function dexpFicheLive(id){
   if(!isSoutien() || test.locked) return;
   setTimeout(()=>{
     if(test.locked) return;

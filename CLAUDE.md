@@ -10843,6 +10843,96 @@ page va en **331** — la collision silencieuse d'`APP_VERSION` (deux écritures
 du MÊME nombre ne font aucun conflit textuel) ne pouvait plus se produire,
 puisque le banc compare à `main` au moment où il tourne.
 
+**Et le 3.2 ne rougissait pas sous les doigts — parce que la Terminale n'avait
+pas de routeur, mais quarante-cinq câblages.** Signalé par Turquet (septembre
+2026) : « pourquoi dans l'exercice 3.2 en terminale en mode soutien les cases
+ne deviennent pas rouges dès qu'elles sont fausses ? », puis « toute la
+terminale ».
+**LA MESURE A ÉTÉ FAITE AVANT DE TOUCHER À QUOI QUE CE SOIT, et elle a
+redressé le diagnostic.** Ma première réponse disait « aucun exercice de
+Terminale ne corrige à la frappe » : c'était faux. Une sonde a ouvert les 44
+exercices en soutien, rempli leurs cases et regardé l'écran — **30 coloraient
+déjà**. Le 3.2 n'était pas un cas isolé : il était l'un des CINQ écrans muets
+dont le verdict est pourtant entièrement LOCAL (le 3.1, le 3.2, le 3.3, le 3.4
+et le nombre de solutions du TVI), et les neuf autres corrigent autrement, pour
+des raisons qui leur appartiennent.
+**LA CAUSE EST UNE LISTE TENUE À LA MAIN.** `liveCheckCurrent()` — le point 6
+des quinze branchements — avait un corps VIDE et pas un seul appelant, et
+chaque démarreur posait son propre écouteur dans son coin
+(`el.addEventListener('input', …checkS1(true)…)`, vingt fois). Une liste tenue
+à la main dérive, et celle-ci avait dérivé : cinq exercices en étaient tombés,
+sans qu'aucune erreur ne se lève — l'élève remplit tout, ne voit aucune
+couleur, et croit l'exercice cassé.
+**UN SEUL ROUTEUR, ET IL NOMME CHAQUE ÉCRAN** : `liveCheckCurrent(id)` cite
+chacun des écrans d'`afficherEcranDe()`, et le contrôle UNIVERSEL du banc
+principal — écrit pour la Seconde, qui s'affichait « non applicable » ici
+depuis toujours — exige que le nom y soit. L'écran qu'on ajoutera demain se
+signale au lieu de se taire. `dexpLiveCheck` n'est plus qu'un renvoi vers lui ;
+son corps propre à la fiche des dérivées est devenu `dexpFicheLive`.
+**UN SEUL DÉCLENCHEUR** : un écouteur `input` et un écouteur `change` sur le
+document, posés une fois. Les écouteurs des démarreurs RESTENT — ce sont des
+déclencheurs de plus vers le MÊME juge, pas une seconde vérité, et les retirer
+un par un aurait été un diff bien plus large pour rien.
+**DEUX FAMILLES DE CASES, DEUX GESTES — et n'en tenir qu'un ne tient rien** :
+une case ORDINAIRE se juge à la FRAPPE, un CHAMP MATHÉMATIQUE à la SORTIE de la
+case (la greffe MathLive appelle `window.dexpLiveCheck` sur `focusout`, et
+c'est pourquoi le garde de la saisie est inerte pour eux). Sans ce bord, « 3/ »
+déclarerait fausse une dérivée qu'on n'a pas fini d'écrire : le banc a rougi
+sur la feuille du 6.11 et sur les champs du 6.13 à la première exécution.
+**UN SEUL PEINTRE POUR LA FRAPPE ET POUR LA VÉRIFICATION** : les cinq peintres
+locaux qui existaient déjà (`lgSubsMarqueSoutien`, `lg2MarqueSoutien`,
+`dhvMarqueSoutien`, et celui de `tvins`, extrait de son `check…`) ont gagné un
+mode DIRECT plutôt qu'un jumeau — deux verdicts auraient fini par se
+contredire sous les yeux de l'élève. Le mode direct ne fait que POSER la
+couleur : **rien ne se verrouille** (l'élève corrige sans quitter l'écran) et
+**une case VIDE ne reçoit rien**, jamais du rouge. Au passage, `lgMarqueSoutien`
+était le MÊME TEXTE que `lgSubsMarqueSoutien(c,'lg')` : une copie de moins.
+**LE DÉCLENCHEUR VIT À CÔTÉ DU ROUTEUR, et pas à côté du garde de la saisie**,
+où il serait pourtant à sa place : le bloc du garde est comparé au CARACTÈRE
+PRÈS entre les trois fichiers, et une ligne posée dedans l'a fait diverger —
+le banc l'a dit à la première exécution.
+**Les dispenses sont déclarées, et chacune pour une raison qui lui est
+propre** (`soutienEnDirect` dans `tests/profils.js`) : le calcul mental et les
+tables (une réponse à la fois, sans une case à colorer) ; les cinq écrans de
+RÉDACTION libre (c'est le modèle qui juge, et un juge qui part sur le réseau à
+chaque frappe n'est pas une correction en direct) ; les cibles qu'on CLIQUE du
+4.5 et le QCM à cocher du 6.14 — colorer au fil des clics dirait la bonne
+réponse avant même de vérifier.
+**Deux bancs, la répartition habituelle.** jsdom tient le ROUTEUR (chaque
+écran nommé, aucune dispense périmée) et les trois bords des cinq écrans
+neufs, sur une copie où UNE SEULE case est remplie : la case fausse rougit, les
+autres — vides — ne reçoivent rien, rien ne se verrouille, et la couleur ne
+fuit pas en entraînement. Le NAVIGATEUR mesure le GESTE, greffé sur la visite
+qui ouvre TOUS les exercices dans les deux modes : on remplit les vraies cases,
+on quitte la dernière, et une couleur doit être là — l'exercice qu'on ajoutera
+demain est couvert sans rien déclarer.
+**ET LE BORD OPPOSÉ A ATTRAPÉ MON PROPRE CONTRÔLE.** `test` est une variable
+de portée globale du script, pas une propriété de `window` : `window.test`
+valait `undefined`, le contrôle du navigateur mesurait ZÉRO exercice — et
+passait au vert. C'est son garde « le contrôle mesure quelque chose » qui l'a
+dit, à la première exécution.
+**ET LE MÊME CONTRÔLE A ACCUSÉ ONZE ÉCRANS DE LA PREMIÈRE, À TORT.** Un QCM à
+chaîne de vérification ne juge RIEN avant que la proposition ne soit choisie,
+et c'est exact — ses étapes se jugent CONTRE la proposition choisie, « un
+calcul correct sur une mauvaise proposition reste un calcul correct ». Le
+contrôle choisit donc la première proposition avant de remplir, et la Première
+redevient verte sans qu'une ligne de la page n'ait bougé. **Une mesure qui
+accuse la page se mesure elle-même d'abord.**
+**Onze sabotages, chacun rougissant en nommant son défaut** — neuf au banc
+jsdom (un écran retiré du routeur, un peintre vidé, le verrou qui fuit en
+direct, une case vide peinte au 3.1 puis au 4.4, le garde du mode retiré — la
+couleur fuit en entraînement —, le filtre des champs mathématiques retiré, une
+dispense périmée, `tvinsLive` vidé) et deux que seul le NAVIGATEUR voit : le
+déclencheur global retiré (il nomme le 3.1 et le 4.4, les deux qui n'ont que
+lui) et la fiche des dérivées débranchée (il nomme le 2.1, le 2.2 et le 2.3).
+**Deux d'entre eux ont d'abord raté leur cible**, et chacun a appris quelque
+chose : le verrou posé sur la branche de la LIMITE était inatteignable — le
+scénario laisse cette case vide, donc la branche ne s'exécute pas ; reposé sur
+le menu, il rougit. Et `dexp` débranché reste VERT au banc jsdom, à bon droit :
+**aucun contrôle jsdom n'exerce la correction en direct de la famille des
+dérivées** — c'est le navigateur qui la mesure, et le dire vaut mieux que de le
+taire.
+
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la
 barre d'adresse et les onglets de Chrome prennent sur l'écran d'une tablette,
