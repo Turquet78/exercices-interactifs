@@ -2897,7 +2897,7 @@ async function parcours(page, N){
           if(b) b.click();
         });
         await s.page.waitForTimeout(800);
-        let posees = 0, m = null, apres = null, souci = '';
+        let posees = 0, m = null, apres = null, suit = null, souci = '';
         try{
           await s.page.waitForSelector(BV.cases, { timeout: 8000 });
           posees = await s.page.evaluate(code => eval(code), BV.faux);
@@ -2937,18 +2937,56 @@ async function parcours(page, N){
               surCommandes: (r && rc) ? chev(r, rc) : false,
             };
           });
-          /* et la MODIFIER l'efface : c'est ça, reprendre sa case */
-          const prem = s.page.locator(BV.cases).first();
-          const choix = await prem.evaluate(e => {
-            const l = [].slice.call(e.options);
-            for(let i = 0; i < l.length; i++){
-              if(!l[i].disabled && l[i].value !== '' && i !== e.selectedIndex) return i;
-            }
-            return -1;
+          /* LA BULLE SUIT LA CASE QUE L'ÉLÈVE REGARDE (demande de Turquet,
+             septembre 2026). Une vérification n'en lève qu'UNE, sur la
+             première case rouge : toutes les autres restaient sans rien à
+             côté d'elles — une question du 3.2 de la Terminale en porte
+             jusqu'à douze, et l'élève qui regardait sa limite fausse n'avait
+             rien à cliquer. On CLIQUE la DEUXIÈME case rouge, comme il le
+             ferait, et la bulle doit l'y suivre. */
+          const rouges2 = await s.page.evaluate(() => {
+            const r = [...document.querySelectorAll('.screen.on .bad')]
+              .filter(e => ['INPUT','SELECT','TEXTAREA','MATH-FIELD'].indexOf(e.tagName) >= 0);
+            if(r.length < 2) return 0;
+            r[1].setAttribute('data-banc-cible', '1');
+            return r.length;
           });
-          if(choix >= 0){
-            await prem.selectOption({ index: choix });
-            await s.page.waitForTimeout(300);
+          if(rouges2 >= 2){
+            await s.page.click('[data-banc-cible]');
+            await s.page.waitForTimeout(400);
+            suit = await s.page.evaluate(() => {
+              const b = document.getElementById('bexpBulle');
+              const c = document.querySelector('[data-banc-cible]');
+              const r = b ? b.getBoundingClientRect() : null;
+              return { visible: !!r && r.width > 0 && r.height > 0, surElle: bexpCase === c };
+            });
+          }
+          /* et la MODIFIER l'efface : c'est ça, reprendre sa case. On agit sur
+             la case de la BULLE, quelle qu'elle soit — une liste en Seconde, un
+             champ MATHÉMATIQUE en Terminale : modifier la première case du
+             profil changerait une case dont la bulle ne parle pas, et le
+             contrôle passerait au vert en parlant d'autre chose. */
+          const genre = await s.page.evaluate(() => {
+            if(!bexpCase) return '';
+            bexpCase.setAttribute('data-banc-bulle', '1');
+            return bexpCase.tagName;
+          });
+          if(genre === 'SELECT'){
+            const cible = s.page.locator('[data-banc-bulle]');
+            const choix = await cible.evaluate(e => {
+              const l = [].slice.call(e.options);
+              for(let i = 0; i < l.length; i++){
+                if(!l[i].disabled && l[i].value !== '' && i !== e.selectedIndex) return i;
+              }
+              return -1;
+            });
+            if(choix >= 0) await cible.selectOption({ index: choix });
+          } else if(genre){
+            await s.page.click('[data-banc-bulle]');
+            await s.page.keyboard.type('9');
+          }
+          if(genre){
+            await s.page.waitForTimeout(400);
             apres = await s.page.evaluate(() => {
               const b = document.getElementById('bexpBulle');
               return !b || b.getBoundingClientRect().height === 0;
@@ -2964,11 +3002,21 @@ async function parcours(page, N){
         verifier('la bulle paraît à la VÉRIFICATION, sur la première case rouge, bouton offert',
           !!m && m.visible === true && m.l > 0 && m.h > 0 && m.bouton === true && m.surLaPremiere === true,
           souci || 'bulle mesurée : ' + JSON.stringify(m || {}));
-        verifier('la page pose le curseur dans la case rouge, et la bulle y SURVIT',
-          !!m && m.curseur === true && m.visible === true,
-          souci || (m && m.curseur === false
-            ? 'la page n\'a pas posé le curseur dans la case rouge : le bord n\'est pas mesuré'
-            : 'la bulle s\'est éteinte au moment où la page a posé le curseur'));
+        if(!BV.curseurPose){
+          ignorer('la page pose le curseur dans la case rouge, et la bulle y SURVIT',
+            'ce niveau ne pose pas le curseur dans la première case rouge après la vérification');
+        } else {
+          verifier('la page pose le curseur dans la case rouge, et la bulle y SURVIT',
+            !!m && m.curseur === true && m.visible === true,
+            souci || (m && m.curseur === false
+              ? 'la page n\'a pas posé le curseur dans la case rouge : le bord n\'est pas mesuré'
+              : 'la bulle s\'est éteinte au moment où la page a posé le curseur'));
+        }
+        verifier('la bulle SUIT la case que l\'élève regarde — sinon les autres cases rouges restent muettes',
+          !!suit && suit.visible === true && suit.surElle === true,
+          souci || (suit === null
+            ? 'moins de deux cases rouges après la vérification : le contrôle ne mesure rien'
+            : 'bulle visible : ' + suit.visible + ', posée sur la case cliquée : ' + suit.surElle));
         verifier('elle ne recouvre ni les commandes du bas, ni une autre case, ni un BOUTON',
           !!m && m.surCommandes === false && m.couvertes === 0 && m.boutons === 0,
           souci || ((m && m.couvertes === -1)

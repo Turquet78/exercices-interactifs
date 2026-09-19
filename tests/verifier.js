@@ -12798,6 +12798,19 @@ function gardeSaisie(w, apres){
       test.locked=true; corriger(); await attendre();
       bilan.verifVerrou=classes(); test.locked=false;
 
+      /* 5 bis. LE TROISIÈME CHEMIN, et il manquait : l'élève a posé le
+         CURSEUR dans la case sans rien y taper — il ATTEND la correction, qui
+         met plusieurs secondes quand elle passe par le modèle — et elle
+         arrive. Rien n'est en cours d'écriture, donc rien à protéger : la
+         couleur reste. Sans ce bord, la case restait grise ET sans bulle, et
+         il fallait en sortir pour voir le rouge (signalé par Turquet sur le
+         3.2 de la Terminale, septembre 2026). On SORT d'abord, sans quoi la
+         frappe du bord précédent compterait encore. */
+      await sortir(); neuve();
+      boite.value='1'; corriger(); await attendre();
+      bilan.sansFrappe=classes();
+      bilan.sansFrappeRetenue=boite.dataset.couleurDifferee||'';
+
       /* 6. hors soutien, le garde ne touche à rien. Le mode se pose AVANT
          d'entrer dans la case : le garde s'arme à l'entrée, et le changer
          ensuite mesurerait un garde déjà armé — le contrôle parlerait
@@ -12833,6 +12846,10 @@ function gardeSaisie(w, apres){
       r.ok && b.entree === 'bad' && b.verifVerrou === 'bad',
       souci || 'après Entrée : « ' + b.entree + ' », après le verrou : « ' + b.verifVerrou +
                ' » — attendu « bad » des deux côtés');
+    verifier('le curseur posé sans rien taper ne retient plus la couleur — l’élève ATTEND, il n’écrit pas',
+      r.ok && b.sansFrappe === 'bad' && b.sansFrappeRetenue === '',
+      souci || 'classes après la correction : « ' + b.sansFrappe + ' » — attendu « bad » — et couleur retenue : « '
+             + b.sansFrappeRetenue + ' » (une retenue ici, c’est le garde qui n’a pas rendu la main)');
     verifier('hors soutien et sur un écran verrouillé, le garde ne touche à rien',
       r.ok && b.train === 'bad' && b.verrou === 'bad',
       souci || 'en entraînement : « ' + b.train + ' », verrouillé : « ' + b.verrou + ' »');
@@ -13170,12 +13187,24 @@ function bulleErreur(w, apres){
 
       /* 10. l'élève ÉCRIT : rien ne se lève — c'est le domaine du garde de la
          saisie, et sans ce bord une bulle surgirait sur la case d'à côté à
-         chaque frappe. */
+         chaque frappe. ÉCRIRE, c'est avoir TAPÉ : le contrôle frappe, il ne se
+         contente plus d'un focus (bord retourné, septembre 2026). */
       bexpMasquer(); peindre('','',''); await attendre();
       zone.focus();
+      zone.dispatchEvent(new window.Event('input',{bubbles:true}));
       peindre('ok','bad','bad'); await attendre();
       bilan.ecrit=visible();
-      zone.blur();
+      zone.blur(); zone.dispatchEvent(new window.Event('focusout',{bubbles:true}));
+
+      /* 10 bis. ET LE CURSEUR POSÉ SANS FRAPPE NE BLOQUE PLUS RIEN : c'est ce
+         que fait l'élève qui attend sa correction, le curseur dans la case
+         qu'il soupçonne — la vérification doit y lever la bulle comme
+         partout. Sans ce bord, la case restait grise et muette. */
+      bexpMasquer(); peindre('','',''); await attendre();
+      zone.focus(); await attendre();
+      peindre('ok','ok','bad'); await attendre();
+      bilan.attend=(visible() && bexpCase===zone);
+      zone.blur(); zone.dispatchEvent(new window.Event('focusout',{bubbles:true}));
 
       /* 11. copie juste, entraînement, écran verrouillé : rien non plus. */
       bexpMasquer(); peindre('','',''); await attendre();
@@ -13188,6 +13217,22 @@ function bulleErreur(w, apres){
       peindre('','',''); await attendre();
       peindre('ok','bad','bad'); await attendre();
       bilan.verifVerrou=visible();
+
+      /* 12. LA BULLE SUIT LA CASE QUE L'ÉLÈVE REGARDE. Une vérification n'en
+         lève qu'UNE, sur la première case fausse ; toutes les autres cases
+         rouges de l'écran restaient sans rien à côté d'elles — douze cases sur
+         une question du 3.2 de la Terminale, onze sans explication (signalé
+         par Turquet, septembre 2026). Poser le curseur sur l'une d'elles y
+         amène la bulle ; le poser sur une case JUSTE ne la déplace pas. */
+      test.locked=false; bexpMasquer(); peindre('','',''); await attendre();
+      if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.suitAvant=(bexpCase===liste);
+      zone.focus(); await attendre();
+      bilan.suit=(visible() && bexpCase===zone);
+      juste.focus(); await attendre();
+      bilan.suitJuste=(bexpCase===zone);
+      juste.blur(); juste.dispatchEvent(new window.Event('focusout',{bubbles:true}));
     } finally {
       sb.functions.invoke=invokeAvant;
       currentEleve=eleveAvant;
@@ -13242,6 +13287,17 @@ function bulleErreur(w, apres){
     verifier('pendant que l’élève écrit, rien ne se lève — c’est le domaine du garde',
       r.ok && b.ecrit === false,
       souci || 'une bulle a surgi sur la case d’à côté pendant la frappe');
+    verifier('mais le CURSEUR posé sans frappe ne bloque rien — l’élève attend sa correction',
+      r.ok && b.attend === true,
+      souci || 'aucune bulle sur la case qui porte le curseur : l’élève doit en sortir pour voir son rouge');
+    verifier('la bulle SUIT la case que l’élève regarde — une seule bulle, mais sur la case qu’il vise',
+      r.ok && b.suitAvant === true && b.suit === true,
+      souci || (r.ok && b.suitAvant !== true
+        ? 'la bulle n’était pas sur la première case fausse : le contrôle ne mesure rien'
+        : 'entrer dans une autre case rouge n’y amène pas la bulle'));
+    verifier('entrer dans une case JUSTE ne déplace pas la bulle',
+      r.ok && b.suitJuste === true,
+      souci || 'la bulle a quitté la case rouge pour une case juste');
     verifier('copie juste, entraînement, écran verrouillé : la vérification ne lève rien',
       r.ok && b.verifJuste === false && b.verifTrain === false && b.verifVerrou === false,
       souci || 'copie juste : ' + b.verifJuste + ', entraînement : ' + b.verifTrain

@@ -2939,7 +2939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=331;
+const APP_VERSION=332;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -22075,7 +22075,7 @@ function bexpPremiereFausse(elts){
   for(let i=0;i<elts.length;i++){
     const el=elts[i];
     if(!el.classList || !el.classList.contains('bad') || el.classList.contains('sol')) continue;
-    if(el===document.activeElement || !bexpCible(el)) continue;
+    if(!bexpCible(el) || eleveEcritDans(el)) continue;
     if(!v || (v.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING)) v=el;
   }
   return v;
@@ -22085,8 +22085,10 @@ if(typeof MutationObserver==='function'){
     if(!isSoutien() || test.locked) return;
     /* l'élève ÉCRIT : la couleur qui se pose est celle d'une correction en
        direct, et c'est le garde de la saisie qui en décide — la sortie de
-       case lèvera la bulle le moment venu */
-    if(bexpCible(document.activeElement)) return;
+       case lèvera la bulle le moment venu. Poser le CURSEUR dans une case
+       sans rien y taper n'est PAS écrire : c'est ce qu'on fait en attendant
+       une vérification, et la bulle doit alors paraître comme partout. */
+    if(eleveEcritDans(document.activeElement)) return;
     /* une bulle ouverte sur une case ENCORE fausse reste où elle est */
     const b=document.getElementById('bexpBulle');
     if(b && !b.hidden && bexpCase && bexpCase.isConnected
@@ -22101,6 +22103,26 @@ if(typeof MutationObserver==='function'){
   }).observe(document.documentElement,
              {subtree:true, attributes:true, attributeFilter:['class']});
 }
+/* LA BULLE SUIT LA CASE QUE L'ÉLÈVE REGARDE. Une vérification n'en lève
+   qu'UNE, sur la PREMIÈRE case fausse — et un écran qui en porte douze (les
+   quatre cas du 3.2 de la Terminale : la limite, le choix d'asymptote,
+   l'équation) laisse alors onze cases rouges sans rien à côté d'elles :
+   l'élève regarde sa case fausse et n'a rien à cliquer. Poser le curseur
+   dessus y amène la bulle. ENTRER ne l'efface plus depuis que la page pose
+   elle-même le curseur après une vérification — c'est MODIFIER qui l'éteint —,
+   et la promesse ne change pas : elle revient s'il ressort en faux, ou à la
+   vérification suivante. La bulle déjà ouverte SUR CETTE CASE est laissée
+   telle quelle : la recréer jetterait l'explication que le modèle vient d'y
+   écrire. */
+document.addEventListener('focusin', function(e){
+  const el=e.target;
+  if(!el || !el.classList) return;
+  const b=document.getElementById('bexpBulle');
+  if(b && b.contains(el)) return;
+  if(el===bexpCase && b && !b.hidden) return;
+  if(!isSoutien() || test.locked || !bexpCible(el) || el.classList.contains('sol')) return;
+  if(el.classList.contains('bad')) bexpMontrer(el);
+});
 /* il CORRIGE sa case : la bulle s'efface — elle reviendra s'il ressort en
    faux, ou à la vérification suivante. Entrer dans la case ne l'efface PAS :
    après une vérification, la page y pose elle-même le curseur, et la bulle
@@ -22175,6 +22197,30 @@ function caseQuiSeColore(el){
 function verdictDe(el){
   return el.classList.contains('ok') ? 'ok' : el.classList.contains('bad') ? 'bad' : '';
 }
+/* « L'ÉLÈVE ÉCRIT » — LE SIGNAL QUE LE GARDE ET LA BULLE PARTAGENT, et il ne
+   connaît aucun exercice : une case qui porte le CURSEUR, et dans laquelle une
+   frappe a eu lieu depuis qu'il y est entré. ENTRER dans une case n'est pas y
+   écrire — c'est ce qu'on fait en ATTENDANT une correction, le curseur posé
+   sur la case qu'on soupçonne —, et la couleur qui arrive alors n'a aucune
+   réponse en cours d'écriture à protéger. Sans cette distinction, la case
+   restait grise et sans bulle, et il fallait en sortir pour voir le rouge
+   (signalé par Turquet sur le 3.2 de la Terminale, septembre 2026).
+   TROIS VOIES, et n'en tenir qu'une ne tient rien : « input » (les champs
+   ordinaires, les champs mathématiques, et les boutons d'insertion qui le
+   lèvent — le pavé, le ±∞ : ce sont des écritures de l'élève), « change »
+   (les listes), et la TOUCHE elle-même, parce qu'une correction branchée sur
+   « keydown » peindrait avant qu'« input » ne soit levé. Le focus COMPTE
+   autant que la frappe : la page écrit elle aussi dans les cases, et son
+   « input » ne doit jamais passer pour une saisie. */
+let saisieCase=null;
+document.addEventListener('input', function(e){ saisieCase=e.target; }, true);
+document.addEventListener('change', function(e){ saisieCase=e.target; }, true);
+document.addEventListener('keydown', function(e){
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.key && (e.key.length===1 || e.key==='Backspace' || e.key==='Delete')) saisieCase=e.target;
+}, true);
+document.addEventListener('focusout', function(e){ if(e.target===saisieCase) saisieCase=null; }, true);
+function eleveEcritDans(el){ return !!el && el===saisieCase && el===document.activeElement; }
 let gardeCase=null, gardeObs=null, gardeMoi=0;
 function gardeArret(){
   if(gardeObs){ gardeObs.disconnect(); gardeObs=null; }
@@ -22189,6 +22235,13 @@ function gardeSurveiller(el){
        couleur reste. */
     if(!isSoutien() || test.locked || el.classList.contains('sol')){ gardeArret(); return; }
     const v=verdictDe(el);
+    /* RIEN N'A ÉTÉ TAPÉ DANS CETTE CASE : la couleur ne vient pas d'une saisie
+       en cours — d'une VÉRIFICATION, le plus souvent, que l'élève attend le
+       curseur posé dedans. Il n'y a alors aucune réponse à moitié écrite à
+       protéger, et la retenir revenait à cacher le verdict qu'il vient de
+       demander. Le garde rend la main : la case est jugée, exactement comme
+       si l'élève y était entré APRÈS la correction. */
+    if(v && !eleveEcritDans(el)){ gardeArret(); return; }
     if(v){ el.dataset.couleurDifferee=v; gardeMoi++; el.classList.remove('ok','bad'); }
     else if(gardeMoi>0){ gardeMoi--; }              /* c'est nous qui venons d'effacer */
     else { delete el.dataset.couleurDifferee; }     /* la correction a effacé : la retenue se périme */
