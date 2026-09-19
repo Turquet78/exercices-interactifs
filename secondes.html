@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -706,7 +706,7 @@
   /* la ligne juste occupe TOUTE la rangée (flex:0 0 100%) : posée en
      ligne, elle se rangeait à DROITE de la case — vu sur une capture, pas au
      banc, qui le mesure depuis */
-  #pyxHost .mf-cor.pyx-cor,#pydHost .mf-cor.pyx-cor,#popHost .mf-cor.pyx-cor{flex:0 0 100%;box-sizing:border-box;display:block;margin:0 0 0 calc(1.2em + 10px);width:auto;max-width:calc(100% - 1.2em - 10px);font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;white-space:pre;overflow-x:auto}
+  #pyxHost .mf-cor.pyx-cor,#pydHost .mf-cor.pyx-cor,#popHost .mf-cor.pyx-cor,#pdcHost .mf-cor.pyx-cor{flex:0 0 100%;box-sizing:border-box;display:block;margin:0 0 0 calc(1.2em + 10px);width:auto;max-width:calc(100% - 1.2em - 10px);font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;white-space:pre;overflow-x:auto}
   .py-console.pyx-err{border-color:#f0b3bb;background:var(--red-soft);color:var(--red)}
   .py-console.pyx-vide:empty::before{content:"(le programme n’affiche rien)"}
   @media(max-width:520px){ .pyx-in,.pyx-ligne{font-size:.92rem} .pyx-prog{padding:10px 12px} }
@@ -832,6 +832,18 @@
   .pop-rejeu{margin:10px 0 0;text-align:left;font-size:.98rem;line-height:1.5}
   .pop-rejeu code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
   .pop-rejeu .py-console{margin:6px 0;min-height:0}
+  /* {python-double-triple-carre} : le programme, la consigne a puces et les
+     coups de pouce sont ceux du 5.7, du 5.8 et du 5.12 (pyx-prog, pyd-puces,
+     pyd-pouces), et la case COURTE du calcul reprend .pop-lbl et .pop-ex du
+     5.12 : quatre feuilles de styles auraient fini par diverger, et quatre
+     exercices voisins se seraient dessines differemment sous les yeux de
+     l'eleve. Ne vit ici que le b) de la fiche -- « teste ton programme en
+     changeant la valeur de a » -- un encadre sous le programme verifie. */
+  .pdc-b{margin:14px 0 0;padding:12px 14px;border:1.5px solid var(--line);border-left:5px solid var(--blue);border-radius:10px;background:#f6f9ff;text-align:left}
+  .pdc-b .py-label{margin:0 0 8px}
+  .pdc-b .pyx-prog{margin:0 0 8px}
+  .pdc-b .py-runrow{margin:0}
+  .pdc-b .py-console{margin:8px 0 0;min-height:0}
   /* {python-nom-variable} : la fiche — l'énoncé en cadre SANS étiquette (le
      .mp-instr de l'écran la porte déjà), puis la cellule de réponse du carnet,
      une ligne par grandeur, à chasse fixe ; la case écrit à la taille et à la
@@ -2852,6 +2864,25 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
     </div>
   </section>
+  <section class="screen" id="scr-pdc">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPDC"></span><span class="q-idx" id="pdcIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pdcLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <!-- L'énoncé est ÉCRIT par le rendu, et par lui seul : il NOMME les
+           quantités que SA question fait écrire, et la première les demande
+           toutes les trois quand les suivantes en donnent une en modèle. Un
+           texte posé ici serait une seconde source, celle qui dérive sans que
+           rien ne le dise. -->
+      <p class="mp-instr" id="pdcInstr"></p>
+      <div class="mp-stage"><div style="width:100%" id="pdcHost"></div></div>
+      <div class="mp-feedback" id="pdcFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pdcActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pdcValidate" onclick="checkPDC()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
   <section class="screen" id="scr-pyd">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPYD"></span><span class="q-idx" id="pydIdx">Question 1 / 3</span></span>
@@ -3261,7 +3292,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=182;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=183;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3849,6 +3880,7 @@ const TESTS={
   'python-deux-lignes': { name:'Compl\u00e9ter\u00a0: deux affichages \u00e0 \u00e9crire', icon:'\ud83e\udde9', desc:'La suite de {python-completer}\u00a0: un programme \u00e0 trois variables, dont une est d\u00e9j\u00e0 affich\u00e9e \u2014 cette ligne est ton mod\u00e8le. \u00c9cris les deux lignes qui manquent, chacune avec LA bonne variable, ex\u00e9cute le programme et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYD() },
   'python-tableau-valeurs': { name:'Un tableau de valeurs avec Python', icon:'\ud83d\udcca', desc:'Le programme calcule 2x+3 pour la valeur de x que tu lui donnes. Ex\u00e9cute-le, puis compl\u00e8te le tableau de valeurs\u00a0: pour chaque colonne, \u00e9cris sa valeur de x \u00e0 la ligne 1 \u2014 avec un point, comme Python l\u2019\u00e9crit \u2014, ex\u00e9cute, et recopie ce qui s\u2019affiche.', start:()=>startPTV() },
   'python-operations': { name:'Somme, diff\u00e9rence, produit, quotient', icon:'\ud83e\uddee', desc:'Un programme calcule la somme et le produit de deux nombres a et b\u00a0: ex\u00e9cute-le, change a et b, regarde ce qui suit. Puis compl\u00e8te-le pour qu\u2019il calcule et affiche EN PLUS la diff\u00e9rence et le quotient de a par b, ex\u00e9cute et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPOP() },
+  'python-double-triple-carre': { name:'Le double, le triple et le carr\u00e9', icon:'\ud83d\udd22', desc:'Un programme range trois calculs\u00a0: le double, le triple et le carr\u00e9 d\u2019un nombre a. Compl\u00e8te-le, ex\u00e9cute-le \u2014 puis teste-le plusieurs fois en CHANGEANT la valeur de a\u00a0: tout ce qui se calcule ensuite suit. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPDC() },
   'python-types': { name:'int, float ou str\u00a0?', icon:'\ud83c\udff7\ufe0f', desc:'Trois types de variables : un entier (int), un nombre \u00e0 virgule (float), un texte entre guillemets (str). Le cours est sur l\u2019\u00e9cran ; lis chaque programme, dis le type de chaque variable \u2014 puis ex\u00e9cute-le : Python te r\u00e9pond avec type().', start:()=>startPTY() },
   'python-afficher-variable': { name:'Affiche la variable\u00a0!', icon:'\ud83d\udda8\ufe0f', desc:'On t\u2019explique comment afficher une variable, puis un programme commence par note = 12 : \u00e0 toi d\u2019\u00e9crire la suite pour qu\u2019il affiche la valeur de la variable. Ex\u00e9cute-le, puis v\u00e9rifie \u2014 en soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYC() },
   'python-noms-variables': { name:'Noms de variables en Python', icon:'\ud83c\udff7\ufe0f', desc:'Le nom d\u2019une variable doit respecter quatre r\u00e8gles. Pour chaque nom propos\u00e9, dis s\u2019il est correct ou incorrect \u2014 et, s\u2019il est incorrect, pourquoi.', start:()=>startPVN() },
@@ -3909,7 +3941,7 @@ const THEMES=[
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
-  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations'] }
+  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -4558,6 +4590,7 @@ function conseilPaire(){
   else if(test.kind==='ptv' && q) b=ctxPtv(q);
   else if(test.kind==='pyv' && q) b=ctxPyv(q);
   else if(test.kind==='pop' && q) b=ctxPop(q);
+  else if(test.kind==='pdc' && q) b=ctxPdc(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
@@ -4856,6 +4889,7 @@ const QIA_SUGG={
   pyp:["Pourquoi faut-il des guillemets autour du texte ?","Quelle est la différence entre print(bonjour) et print(\"bonjour\") ?","Pourquoi Print avec une majuscule ne marche pas ?","À quoi servent les parenthèses de print ?"],
   pyx:["Pourquoi faut-il des guillemets autour du texte, mais pas autour de la variable ?","À quoi sert la virgule dans print ?","Que se passe-t-il si j’écris la variable entre guillemets ?","Pourquoi Python dit-il que la variable « la » n’existe pas ?"],
   pop:["Comment écrire une opération dans un programme ?","Pourquoi faut-il ranger le résultat dans une variable ?","Quelle différence entre / et // en Python ?","Pourquoi le quotient s’affiche-t-il avec un point ?"],
+  pdc:["À quoi sert de ranger un résultat dans une variable ?","Pourquoi le calcul doit-il se servir de la variable a ?","Que se passe-t-il si je change la valeur de a ?","Comment afficher un texte suivi d’une valeur ?"],
   pyv:["Comment savoir quelle variable écrire dans chaque case ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Que se passe-t-il si j’échange deux variables dans le print ?","Pourquoi Python met-il une espace entre les morceaux du print ?"],
   ptv:["Pourquoi faut-il écrire 0.5 et non 0,5 dans le programme ?","Pourquoi le programme affiche-t-il 4.0 et pas 4 ?","À quoi sert un tableau de valeurs ?","Pourquoi la case du tableau reste-t-elle grise ?"],
   pcv:["Que veut dire la ligne somme = a + b ?","Pourquoi le résultat change quand je change la valeur de a ?","Comment Python calcule-t-il a * b ?","Dans quel ordre Python lit-il les lignes du programme ?"],
@@ -5446,7 +5480,19 @@ Une variable peut garder le <b>résultat d’un calcul</b> : <code class="inlin
 <b>③ L’ordre compte</b> pour la différence et le quotient : <code class="inline">a - b</code> n’est pas <code class="inline">b - a</code>.<br>
 <b>④ La barre de division</b> donne toujours un nombre à virgule : <code class="inline">a / b</code> affiche <code class="inline">5.0</code> et non <code class="inline">5</code>, même quand la division tombe juste.<br>
 Pour afficher, on reprend la ligne modèle : <code class="inline">print("La somme de",a,"et",b,"est égal à ",somme)</code> — le texte entre guillemets, le <b>nom</b> des variables sans guillemets, et des <b>virgules</b> entre les deux.`;
-const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP };
+/* Le rappel de {python-double-triple-carre}. SON EXEMPLE N'EST AUCUNE DES
+   TROIS QUANTITES demandees — le quadruple et le cube d'un nombre n, jamais le
+   double, le triple ni le carre de a : la leçon du cours du 5.7, dont l'exemple
+   n'est aucune des questions. L'eleve TRANSPOSE, il ne recopie pas. Il est en
+   HTML pur, sans une seule fraction a empiler, et n'ecrit aucun nombre a
+   virgule — le controle des numeros en dur y lirait le numero d'un exercice. */
+const RAP_PDC=`<b>Le double, le triple, le carré… d’un nombre</b><br>
+Une variable peut garder le <b>résultat d’un calcul</b>. Avec <code class="inline">n = 5</code>, la ligne <code class="inline">quadruple = 4 * n</code> range dans <code class="inline">quadruple</code> la valeur de <code class="inline">4 * n</code>, c’est-à-dire <code class="inline">20</code>.<br>
+<b>① Le calcul se fait avec la VARIABLE</b>, jamais avec le résultat écrit à la main : si <code class="inline">n</code> change, <code class="inline">quadruple</code> suit tout seul. Écrire <code class="inline">quadruple = 20</code> ne suivrait pas — c’est tout l’intérêt d’un programme.<br>
+<b>② Multiplier un nombre par lui-même</b> s’écrit avec le signe <code class="inline">*</code>, comme toute multiplication : <code class="inline">cube = n * n * n</code>. Deux étoiles, <code class="inline">**</code>, élèvent à une puissance : <code class="inline">n ** 3</code> donne la même chose.<br>
+<b>③ Attention</b> : en Python, <code class="inline">^</code> ne veut <b>pas</b> dire « puissance » — c’est un tout autre calcul, et la page refuse de le faire passer pour un carré.<br>
+<b>④ Pour afficher</b>, on sépare par des <b>virgules</b> : <code class="inline">print("Le quadruple de",n,"est égal à ",quadruple)</code> affiche <code class="inline">Le quadruple de 5 est égal à  20</code>. Le texte va entre guillemets ; le <b>nom</b> de la variable, lui, s’écrit sans guillemets.`;
+const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -5555,7 +5601,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -5984,7 +6030,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -6108,7 +6154,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -18657,14 +18703,26 @@ function pydCible(q, nom, texte){
 function pydAns(q){ return q.att.map(function(a){ return pydCible(q, a.nom, a.texte); }); }
 function pydModAns(q){ return pydCible(q, q.mod.nom, q.mod.texte); }
 function pydCases(q){ return q.att.map(function(a,i){ return {id:'pyd-in'+i}; }); }
-/* La règle des paires : les deux lignes se prennent une fois chacune. Avec
-   deux cases et deux cibles, les deux appariements s'énumèrent — on garde
-   celui qui compte le plus de lignes justes. */
+/* La règle des paires : les lignes se prennent une fois chacune. Les
+   appariements s'énumèrent — on garde celui qui compte le plus de lignes
+   justes.
+   ELLE EST GÉNÉRIQUE EN LONGUEUR, et non recopiée : {python-deux-lignes} et
+   {python-operations} en ont DEUX, {python-double-triple-carre} en a TROIS.
+   L'énumération est lexicographique, donc sur deux lignes elle rend [0,1]
+   avant [1,0] — exactement ce qu'elle rendait, l'identité gagnant les ex æquo
+   comme avant : appelée sur deux lignes, elle ne change pas d'un verdict, et
+   le contrôle tient ce bord du refactor. */
 function pydApparier(prom){
-  let best=[0,1], n=-1;
-  [[0,1],[1,0]].forEach(function(m){
+  const n=(prom||[]).length; if(!n) return [];
+  const perms=[];
+  (function gen(reste, acc){
+    if(!reste.length){ perms.push(acc); return; }
+    reste.forEach(function(x,i){ gen(reste.slice(0,i).concat(reste.slice(i+1)), acc.concat([x])); });
+  })(prom.map(function(_,i){ return i; }), []);
+  let best=perms[0], mieux=-1;
+  perms.forEach(function(m){
     const k=m.reduce(function(s,j,i){ return s+((prom[i]&&prom[i][j])?1:0); },0);
-    if(k>n){ n=k; best=m; }
+    if(k>mieux){ mieux=k; best=m; }
   });
   return best;
 }
@@ -20471,6 +20529,539 @@ function ctxPop(q){
       : ('Sa ligne '+popLigneDe(q,i)+' est fausse'+(x.erreur?' — Python s’arrête sur : '+x.erreur:'')+'. Diagnostic de la page : '+x.diag+' ');
   });
   c+='Règles à rappeler sans donner la réponse : une ligne de calcul s’écrit nom = calcul, et le calcul se fait AVEC a et b, jamais avec le résultat écrit à la main ; les signes de Python sont + - * et / ; « / » donne toujours un nombre à virgule ; dans print, le texte se met entre guillemets et le nom d’une variable s’écrit sans guillemets, séparés par des virgules.';
+  return {nombre:'', contexte:c};
+}
+
+/* ---------- Exercice : le double, le triple et le carré d'un nombre --------
+   {python-double-triple-carre} (Seconde, 5.13, demande de Turquet, septembre
+   2026 : « créer un exercice comme l'image ») est l'exercice 13 du carnet, et
+   il FERME le thème 5 — ajouté en dernier, il ne renumérote rien.
+   « a = 8 », trois variables à calculer — double, triple, carré — et trois
+   lignes d'affichage sur le squelette du carnet, print("………",a,"est égal à ",…).
+   Puis le b) de la fiche : « Tester votre programme plusieurs fois en changeant
+   la valeur de a. »
+
+   CE QU'IL AJOUTE À {python-operations}, SON VOISIN : là-bas les quatre
+   opérations sont BINAIRES et se lisent dans le signe — a + b, a * b ; ici il
+   n'y a QU'UNE variable, et le calcul se construit AUTOUR d'elle : 2 * a,
+   3 * a, a * a. Le coefficient est à trouver, et le carré est le seul des
+   trois qui ne s'écrive pas « un nombre fois a ».
+
+   LE RISQUE PROPRE EST SILENCIEUX, et c'est le garde du tirage : à a = 2 le
+   double et le carré valent tous deux 4, à a = 3 le triple et le carré valent
+   9. Un élève qui écrit « carre = 2 * a » serait alors compté JUSTE, et sa
+   faute ne se verrait qu'un autre jour — c'est le pire défaut du projet. Le
+   tirage exige donc que les TROIS valeurs soient deux à deux distinctes, et ce
+   garde est VIVANT : sondé, il écarte 2 valeurs sur 11.
+
+   ET LA SECONDE MÉTHODE EST LE b) DE LA FICHE, faite par le juge : chaque
+   calcul est rejoué sous une AUTRE valeur de a, et doit SUIVRE. C'est la
+   doctrine de {python-afficher-variable} et du 5.12 — et elle est nécessaire
+   ici, pas décorative : à a = 4, « carre = 2 ** a » donne 16, c'est-à-dire la
+   bonne valeur ; à a = 5 il donne 32 au lieu de 25, et le juge le nomme.
+   Un garde « les trois valeurs changent » serait MORT dans le tirage (deux
+   valeurs distinctes de a donnent toujours trois valeurs distinctes) : c'est
+   le CONTRÔLE qui exige la propriété.
+
+   « ^ » EST LA DIVERGENCE ASSUMÉE AVEC CPYTHON — comme le point-virgule du
+   {python-print}. En Python « a ^ 2 » vaut 10 pour a = 8 : c'est le OU
+   exclusif, pas une puissance. L'interpréteur de la page le REFUSE, et le
+   diagnostic le dit en toutes lettres plutôt que d'imiter : un élève qui écrit
+   « ^ » veut dire « puissance », et CPython lui rendrait un nombre faux sans
+   la moindre erreur.
+
+   LA SÉANCE : la fiche du carnet en tête, ÉPINGLÉE (a = 8, les trois calculs
+   et les trois affichages), puis DEUX reprises sur d'autres valeurs de a, où
+   la page écrit UNE des trois en MODÈLE — calcul et ligne d'affichage — et
+   l'élève écrit les deux autres. C'est le motif du 5.12, et c'est un arbitrage
+   nommé : dix-huit lignes de code tapées d'affilée feraient de la
+   dactylographie l'exercice, et la forme du print — que le carnet ne montre
+   qu'en squelette — se lit alors écrite par la page deux fois. Les deux
+   modèles sont DIFFÉRENTS, sans quoi l'une des trois quantités ne serait
+   jamais donnée en exemple.
+
+   L'ORDRE DES LIGNES D'AFFICHAGE EST LIBRE : rien à l'écran ne dit quelle case
+   porte laquelle. C'est la règle des paires d'{antecedent-nombre}, portée à
+   TROIS par pydApparier — la fonction MÊME du 5.8 et du 5.12, généralisée
+   plutôt que recopiée ; appelée sur deux lignes, elle ne change pas d'un
+   verdict.
+
+   AUCUNE CORRECTION AU FIL DE LA FRAPPE (soutienEnDirect.sans) : une ligne de
+   code se juge écrite, pas lettre par lettre. */
+const PDC_Q=[
+  {cle:'double', expr:'2 * a', txt:'Le double de', mot:'le <b>double</b> de a', nu:'le double de a'},
+  {cle:'triple', expr:'3 * a', txt:'Le triple de', mot:'le <b>triple</b> de a', nu:'le triple de a'},
+  {cle:'carre',  expr:'a * a', txt:'Le carré de',  mot:'le <b>carré</b> de a',  nu:'le carré de a'}
+];
+const PDC_FIN='est égal à ';
+const PDC_NB=3;          /* trois questions — tests/profils.js en est la seconde source */
+const PDC_ESSAIS=2;      /* le b) : deux AUTRES valeurs de a, « plusieurs fois » */
+const PDC_MIN=2, PDC_MAX=12;
+const PDC_FICHE=8;       /* la fiche du carnet, épinglée en première question */
+function pdcOp(cle){ return PDC_Q.filter(function(o){ return o.cle===cle; })[0]; }
+function pdcCalcLigne(cle){ const o=pdcOp(cle); return o.cle+' = '+o.expr; }
+function pdcPrintLigne(cle){ const o=pdcOp(cle); return 'print("'+o.txt+'",a,"'+PDC_FIN+'",'+o.cle+')'; }
+function pdcAffect(a){ return 'a = '+a; }
+function pdcNet(l){ return String(l==null?'':l).replace(/[\r\n]+/g,' ').trim(); }
+/* Les valeurs attendues viennent de pyRun — la fonction MÊME qui exécute le
+   programme sous « Exécuter » : la correction ne peut pas contredire la
+   console. */
+function pdcTemoinSrc(a){ return pdcAffect(a)+'\n'+PDC_Q.map(function(o){ return pdcCalcLigne(o.cle); }).join('\n'); }
+function pdcEtat(a){ return pyRun(pdcTemoinSrc(a)).env; }
+function pdcValeur(a,cle){ const v=pdcEtat(a)[cle]; return v===undefined?'':pyRep(v); }
+function pdcSortie(a,cle){ return pyRun(pdcTemoinSrc(a)+'\n'+pdcPrintLigne(cle)).out; }
+/* LE GARDE VIVANT DU TIRAGE : les trois valeurs deux à deux distinctes.
+   CE QU'IL PROTÈGE EST LE DIAGNOSTIC, ET NON LE VERDICT — mesuré plutôt que
+   supposé. À a = 2 le double et le carré valent tous deux 4, à a = 3 le triple
+   et le carré valent 9 ; un « carre = 2 * a » y serait pourtant REFUSÉ, la
+   seconde méthode le rejouant sous un autre a. Ce qui casse, c'est la phrase :
+   à a = 3, « double = a * a » se voit répondre « ton calcul donne le TRIPLE »
+   — l'élève a écrit le carré, et la page lui apprend une fausseté sur sa
+   propre ligne. Un diagnostic qui dit autre chose que l'erreur est pire que
+   « faux » (la leçon du 5.7). Relevé sur les bornes : 70 diagnostics nomment
+   ce que l'élève a écrit, et les 2 seuls qui se trompent sont exactement
+   a = 2 et a = 3. */
+function pdcTroisDistinctes(a){
+  const e=pdcEtat(a), v=PDC_Q.map(function(o){ return e[o.cle]===undefined?'':pyRep(e[o.cle]); });
+  return v[0]!==v[1] && v[0]!==v[2] && v[1]!==v[2];
+}
+/* LE SECOND a — le b) de la fiche, fait par le juge. On prend le suivant qui
+   passe le même garde, en tournant dans l'intervalle : le rejeu montré à
+   l'élève change alors d'une question à l'autre. */
+function pdcAutre(a){
+  const n=PDC_MAX-PDC_MIN+1;
+  for(let k=1;k<n;k++){
+    const x=PDC_MIN+((a-PDC_MIN+k)%n);
+    if(x!==a && pdcTroisDistinctes(x)) return x;
+  }
+  return null;
+}
+/* Le témoin est ÉCRIT depuis la question : elle ne porte que a et les
+   quantités à écrire — le contrôle refuse tout autre champ. */
+function pdcAns(q){
+  const A=pdcAutre(q.a);
+  return q.ecrire.map(function(cle){
+    const o=pdcOp(cle);
+    return {cle:cle, nom:cle, texte:o.txt, expr:o.expr, calc:pdcCalcLigne(cle), ligne:pdcPrintLigne(cle),
+            valeur:pdcValeur(q.a,cle), sortie:pdcSortie(q.a,cle),
+            valeur2:A?pdcValeur(A,cle):'', sortie2:A?pdcSortie(A,cle):''};
+  });
+}
+function pdcDonnees(q){ return PDC_Q.map(function(o){ return o.cle; }).filter(function(c){ return q.ecrire.indexOf(c)<0; }); }
+function pdcNoms(q){ return ['a'].concat(PDC_Q.map(function(o){ return o.cle; })); }
+/* Les cases : les EXPRESSIONS ancrées à leur nom, que la page écrit devant
+   elles, puis les LIGNES d'affichage, dont l'ordre est libre. */
+function pdcCases(q){
+  return q.ecrire.map(function(cle,i){ return {id:'pdc-ex'+i, genre:'ex', cle:cle}; })
+    .concat(q.ecrire.map(function(cle,i){ return {id:'pdc-pr'+i, genre:'pr'}; }));
+}
+/* ---- Le juge des EXPRESSIONS ---- */
+/* Le programme du juge s'arrête à la ligne jugée : les calculs qui la
+   PRÉCÈDENT sont là, ceux qui la suivent non — c'est ce que Python voit à cet
+   endroit. Les calculs précédents sont les TÉMOINS, jamais ceux de l'élève :
+   chaque case se juge SEULE. */
+function pdcExprSrc(a,cle,l){
+  const i=PDC_Q.map(function(o){ return o.cle; }).indexOf(cle);
+  return pdcAffect(a)+'\n'+PDC_Q.slice(0,i).map(function(o){ return pdcCalcLigne(o.cle); }).concat([cle+' = '+l]).join('\n');
+}
+function pdcEvalExpr(a,cle,l){
+  try{
+    const r=pyRun(pdcExprSrc(a,cle,l)), v=r.env[cle];
+    return v===undefined?{err:'la variable « '+cle+' » ne reçoit aucune valeur'}:{val:pyRep(v), type:v.t};
+  }catch(e){ return {err:e.message||String(e)}; }
+}
+/* LE DIAGNOSTIC NE DONNE JAMAIS LA RÉPONSE : il n'y a qu'UNE chose à écrire
+   dans la case, donc nommer l'opération serait la dicter. Il nomme le FAIT
+   prouvable — ton calcul donne le triple, ton calcul ne suit pas quand a
+   change — et c'est ce que le soutien affiche. */
+function pdcDiagExpr(q, cle, l, un, deux){
+  const o=pdcOp(cle), A=pdcAutre(q.a);
+  if(/^[A-Za-z_À-ɏ][\wÀ-ɏ]*\s*=/.test(l))
+    return 'La page écrit déjà « '+cle+' = » devant la case : à droite du signe égal, il ne reste que le CALCUL, écrit avec a.';
+  if(/\^/.test(l))
+    return 'En Python, « ^ » ne veut PAS dire « puissance » : c’est un autre calcul, et la page refuse de le faire passer pour un carré. Une multiplication, ou deux étoiles, s’écrivent autrement.';
+  if(un.err){
+    const mn=String(un.err).match(/NameError : la variable « ([^»]+) » n’existe pas/);
+    if(mn){
+      const x=mn[1], noms=pdcNoms(q), j=noms.map(function(n){ return n.toLowerCase(); }).indexOf(x.toLowerCase());
+      if(j>=0 && noms[j]!==x) return 'Python distingue les majuscules : la variable s’appelle « '+noms[j]+' », pas « '+x+' ».';
+      return '« '+x+' » n’est pas une variable du programme : le calcul s’écrit avec a, la variable de la ligne 1, et des nombres.';
+    }
+    if(/guillemet/.test(un.err)) return 'Un calcul ne se met pas entre guillemets : entre guillemets, Python voit du TEXTE et non un nombre.';
+    if(/TypeError/.test(un.err)) return 'Python refuse ce calcul : « '+un.err+' ». Ici, a est un nombre — écris une opération entre des nombres.';
+    return 'Python s’arrête sur une erreur : « '+un.err+' ». Le calcul s’écrit avec a, des nombres et un signe d’opération.';
+  }
+  if(un.type==='str') return 'Un calcul ne se met pas entre guillemets : Python y voit du TEXTE, et la variable « '+cle+' » reçoit les lettres « '+un.val+' » au lieu d’un nombre.';
+  if(!/\ba\b/.test(l))
+    return 'Ton calcul ne se sert pas de a : tu as écrit le résultat à la main. Si a changeait, ta ligne afficherait toujours la même chose — écris l’opération, pas son résultat.';
+  const autre=PDC_Q.filter(function(x){ return x.cle!==cle && pdcValeur(q.a,x.cle)===un.val; })[0];
+  if(autre) return 'Ce n’est pas le bon calcul : le tien donne '+autre.nu+', alors qu’on demande '+o.nu+'.';
+  if(un.val===pdcValeur(q.a,cle) && A)
+    return 'Ton calcul tombe juste pour a = '+q.a+', mais plus quand a change : avec a = '+A+' il donne '+((deux&&!deux.err)?deux.val:'autre chose')
+      +', alors que '+o.nu+' vaut '+pdcValeur(A,cle)+'. C’est tout le b) de l’exercice.';
+  return 'Ton calcul donne '+un.val+', alors que '+o.nu+' vaut autre chose. Relis ce que « '+cle+' » doit contenir.';
+}
+function pdcJugeExpr(q, cle, texte){
+  const l=pdcNet(texte);
+  if(!l) return {vide:true, ok:false, diag:''};
+  const A=pdcAutre(q.a), un=pdcEvalExpr(q.a,cle,l), deux=A?pdcEvalExpr(A,cle,l):null;
+  const ok=!un.err && un.val===pdcValeur(q.a,cle) && !!deux && !deux.err && deux.val===pdcValeur(A,cle);
+  return {vide:false, ok:ok, val:un.val||'', erreur:un.err||'', diag:ok?'':pdcDiagExpr(q,cle,l,un,deux)};
+}
+/* ---- Le juge des LIGNES D'AFFICHAGE ----
+   Elles sont jugées sur les calculs TÉMOINS, jamais sur les expressions de
+   l'élève : chaque case se juge SEULE, et un calcul faux ne doit pas faire
+   rougir l'affichage qui le lit. */
+function pdcPrintSrc(a,l){ return pdcTemoinSrc(a)+'\n'+pdcNet(l); }
+function pdcEvalPrint(q,l){
+  const A=pdcAutre(q.a), out={};
+  try{ out.r=pyRun(pdcPrintSrc(q.a,l)); }catch(e){ out.err=e; return out; }
+  if(A){ try{ out.r2=pyRun(pdcPrintSrc(A,l)); }catch(e){ out.r2=null; } }
+  return out;
+}
+function pdcDiagPrint(q, s, a, autres){
+  const qi={nom:a.nom, texte:a.texte, noms:pdcNoms(q)};
+  if(s.err) return pyxDiagErreur(qi, s.l, s.err.message, a);
+  const r=s.r;
+  if(!r.prints.length) return 'Ta ligne s’exécute sans erreur, mais elle n’affiche RIEN : pour afficher, il faut print(…).';
+  const donne=pdcDonnees(q).filter(function(c){ return pyxAffiche(r.out, {sortie:pdcSortie(q.a,c), valeur:pdcValeur(q.a,c)}); })[0];
+  if(donne) return 'Tu as recopié une ligne déjà écrite : elle affiche '+pdcOp(donne).nu+'. Ici, il faut '+pdcOp(a.cle).nu+'.';
+  const jum=(autres||[]).filter(function(x){ return pyxAffiche(r.out, x) && pyxUtilise(s.l, x.nom); })[0];
+  if(jum) return 'Cette ligne affiche la même chose qu’une autre : les lignes qui manquent affichent des choses DIFFÉRENTES. Il reste à écrire celle qui affiche '+pdcOp(a.cle).nu+'.';
+  if(pyxAffiche(r.out, a) && !pyxUtilise(s.l, a.nom))
+    return 'Ton programme affiche bien « '+r.out.trim()+' », mais sans se servir de la variable '+a.nom+' : la valeur est recopiée ou recalculée à la main. Écris le NOM de la variable, sans guillemets — si a changeait, l’affichage suivrait.';
+  if(pyxAffiche(r.out, a) && s.r2 && !pyxAffiche(s.r2.out, {sortie:a.sortie2, valeur:a.valeur2}))
+    return 'Ton affichage est juste pour cette valeur de a seulement : un nombre y est écrit à la main. Écris a et '+a.nom+', et l’affichage suivra quelle que soit la valeur.';
+  const p=r.prints[0];
+  if(p && p.args.some(function(x){ return x.k==='str' && x.v===a.nom; }))
+    return '« '+a.nom+' » entre guillemets est un TEXTE : Python affiche le mot '+a.nom+', pas sa valeur. Le nom d’une variable s’écrit SANS guillemets.';
+  return 'Ton programme affiche « '+r.out.trim()+' » alors qu’il devrait afficher « '+a.sortie.trim()+' » : reprends le modèle — le texte, une virgule, a, une virgule, "'+PDC_FIN+'", une virgule, la variable.';
+}
+function pdcJugePrints(q, lignes){
+  const att=pdcAns(q);
+  const res=(lignes||[]).map(function(x){
+    const l=pdcNet(x);
+    if(!l) return {l:'', vide:true, prom:att.map(function(){ return false; })};
+    const s=pdcEvalPrint(q,l); s.l=l; s.vide=false;
+    s.prom=att.map(function(a){
+      return !!s.r && pyxAffiche(s.r.out,a) && pyxUtilise(l,a.nom)
+        && !!s.r2 && pyxAffiche(s.r2.out,{sortie:a.sortie2, valeur:a.valeur2});
+    });
+    return s;
+  });
+  const m=pydApparier(res.map(function(s){ return s.prom; }));
+  return res.map(function(s,i){
+    const j=m[i], a=att[j], autres=att.filter(function(x,k){ return k!==j; });
+    if(s.vide) return {vide:true, ok:false, att:a, diag:''};
+    const ok=!!s.prom[j];
+    return {vide:false, ok:ok, att:a, sortie:s.r?s.r.out:'', erreur:s.err?s.err.message:'',
+            ecart:(ok&&s.r)?pyEcart(s.r.out.replace(/\n$/,''), a.sortie.replace(/\n$/,'')):'',
+            diag:ok?'':pdcDiagPrint(q, s, a, autres)};
+  });
+}
+/* Le juge de la question : les expressions, puis les affichages. */
+function pdcJuge(q, saisies){
+  const ex=q.ecrire.map(function(cle,i){ const j=pdcJugeExpr(q, cle, (saisies&&saisies[i])||''); j.att=pdcAns(q)[i]; return j; });
+  return ex.concat(pdcJugePrints(q, (saisies||[]).slice(q.ecrire.length)));
+}
+/* ---- Le tirage ---- */
+function pdcValeurA(interdits){
+  for(let essai=0;essai<400;essai++){
+    const a=rand(PDC_MIN,PDC_MAX);
+    if((interdits||[]).indexOf(a)>=0) continue;
+    if(!pdcTroisDistinctes(a)||!pdcAutre(a)) continue;
+    return a;
+  }
+  /* le repli est RÉEL — relevé sur le générateur — et repasse par les gardes
+     MÊMES du tirage, plutôt que d'être inventé à la main */
+  for(let a=PDC_MIN;a<=PDC_MAX;a++)
+    if((interdits||[]).indexOf(a)<0 && pdcTroisDistinctes(a) && pdcAutre(a)) return a;
+  return PDC_FICHE;
+}
+function pdcBuildQuestions(){
+  const CLES=PDC_Q.map(function(o){ return o.cle; });
+  const mods=ensShuffle(CLES.slice()).slice(0,PDC_NB-1);
+  const vus=[PDC_FICHE], qs=[{a:PDC_FICHE, ecrire:CLES.slice()}];
+  mods.forEach(function(m){
+    const a=pdcValeurA(vus); vus.push(a);
+    qs.push({a:a, ecrire:CLES.filter(function(c){ return c!==m; })});
+  });
+  return qs;
+}
+/* ---- L'écran ---- */
+function pdcProgLignes(q){
+  const l=[{t:'w', s:pdcAffect(q.a)}];
+  PDC_Q.forEach(function(o){
+    if(q.ecrire.indexOf(o.cle)>=0) l.push({t:'ex', cle:o.cle, id:'pdc-ex'+q.ecrire.indexOf(o.cle)});
+    else l.push({t:'w', s:pdcCalcLigne(o.cle)});
+  });
+  pdcDonnees(q).forEach(function(c){ l.push({t:'w', s:pdcPrintLigne(c)}); });
+  q.ecrire.forEach(function(c,i){ l.push({t:'pr', id:'pdc-pr'+i}); });
+  return l;
+}
+function pdcNumLigne(q, pred){ const l=pdcProgLignes(q); for(let i=0;i<l.length;i++) if(pred(l[i])) return i+1; return 0; }
+function pdcProgHTML(q){
+  return '<div class="pyx-prog">'+pdcProgLignes(q).map(function(x,i){
+    const n='<span class="pyx-num">'+(i+1)+'</span>';
+    if(x.t==='w') return '<div class="pyx-ligne">'+n+'<span class="pyx-l1">'+pyColorie(x.s)+'</span></div>';
+    if(x.t==='ex') return '<div class="pyx-ligne">'+n+'<span class="pop-lbl">'+pyColorie(x.cle+' = ')+'</span>'
+      +'<input class="pyx-in pop-ex" id="'+x.id+'" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="calcul de la ligne '+(i+1)+'" placeholder="le calcul…"></div>';
+    return '<div class="pyx-ligne">'+n+'<input class="pyx-in" id="'+x.id+'" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ligne '+(i+1)+' du programme" placeholder="écris ici une ligne d’affichage…"></div>';
+  }).join('')+'</div>';
+}
+/* La consigne du carnet, à puces — et le SQUELETTE du print, tel que la fiche
+   le montre : la forme est donnée, le calcul ne l'est pas. */
+function pdcConsigneHTML(q){
+  const p1=pdcNumLigne(q,function(x){ return x.t==='pr'; }), n=q.ecrire.length;
+  const nums=n>1?('lignes '+p1+' à '+(p1+n-1)):('ligne '+p1);
+  return '<p class="py-label">a) Complète le programme, ci-dessous, pour&nbsp;:</p>'
+    +'<ul class="pyd-puces">'
+    +q.ecrire.map(function(c){
+      const o=pdcOp(c), l=pdcNumLigne(q,function(x){ return x.t==='ex' && x.cle===c; });
+      return '<li>ligne '+l+'&nbsp;: ranger '+o.mot+' dans la variable <code>'+esc(c)+'</code>&nbsp;;</li>';
+    }).join('')
+    +'<li>'+nums+'&nbsp;: <b>afficher</b> '+q.ecrire.map(function(c){ return pdcOp(c).mot; }).join(', ')
+    +', sur le modèle <code>print("………",a,"'+esc(PDC_FIN)+'",…)</code> — avec '
+    +(n>1?'les textes ':'le texte ')+q.ecrire.map(function(c){ return '<code>'+esc(pdcOp(c).txt)+'</code>'; }).join(' et ')+'.</li>'
+    +'</ul>'
+    +'<p class="pyd-note">Écris les lignes d’affichage dans l’ordre que tu veux, puis <b>vérifie en exécutant le programme</b>.</p>';
+}
+function pdcPoucesHTML(){
+  return pyPoucesHTML([
+    ['coup de pouce 1', 'Une ligne de calcul s’écrit <code>nom = calcul</code>. Le nom est déjà écrit&nbsp;: à droite du <code>=</code>, il ne reste que l’opération. Elle se fait avec <code>a</code> — jamais avec le résultat écrit à la main, sinon rien ne suivrait quand <code>a</code> change. Les signes de Python&nbsp;: <code>+</code> pour ajouter, <code>*</code> pour multiplier, <code>**</code> pour élever à une puissance. <b>Attention&nbsp;:</b> <code>^</code> n’est pas la puissance en Python.'],
+    ['coup de pouce 2', 'Pour l’affichage, la forme est toujours la même&nbsp;: <code>print("le texte",a,"'+esc(PDC_FIN)+'",la_variable)</code> — le texte <b>entre guillemets</b>, des <b>virgules</b> entre les morceaux, et le <b>nom</b> de la variable <b>sans guillemets</b>, sinon c’est le mot qui s’affiche et non sa valeur.']
+  ]);
+}
+/* ---- Le b) de la fiche : « Tester votre programme plusieurs fois en
+   changeant la valeur de a » ----
+   Il ne s'ouvre que sur une copie JUSTE : on ne teste pas un programme qui ne
+   marche pas. C'est l'ÉLÈVE qui change a et exécute — la page, elle, ne fait
+   que compter : « Question suivante » attend PDC_ESSAIS valeurs différentes de
+   celle de l'énoncé, exécutées sans erreur. Une case où l'élève aurait tapé
+   autre chose qu'un nombre reçoit l'erreur de Python, comme dans un vrai
+   carnet, et ne compte pas pour un essai. */
+function pdcBHTML(q){
+  return '<div class="pdc-b" id="pdcB">'
+    +'<p class="py-label">b) Teste ton programme plusieurs fois en changeant la valeur de a</p>'
+    +'<div class="pyx-prog"><div class="pyx-ligne"><span class="pyx-num">1</span><span class="pop-lbl">'+pyColorie('a = ')+'</span>'
+    +'<input class="pyx-in pop-ex pop-val" id="pdc-a" type="text" inputmode="numeric" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="nouvelle valeur de a" value="'+esc(String(q.a))+'"></div></div>'
+    +'<div class="py-runrow"><button class="btn btn-primary" id="pdcBRun" type="button" onclick="pdcBExecuter()">▶ Exécuter le programme</button>'
+    +'<span class="py-hint" id="pdcBHint"></span></div>'
+    +'<pre class="py-console" id="pdcBConsole"></pre>'
+    +'</div>';
+}
+function pdcBExecuter(){
+  const q=test.questions[test.idx], c=$('pdcBConsole'); if(!c) return;
+  const e=$('pdc-a'), v=pdcNet(e?e.value:'');
+  let out='', err=false;
+  try{ out=pyRun(pdcProg(q, test.pdcCopie||[], v)).out; }catch(ex){ out='Erreur : '+ex.message; err=true; }
+  c.textContent=out.replace(/\n$/,'');
+  c.classList.add('py-exec'); c.classList.toggle('pyx-err',err); c.classList.toggle('pyx-vide',!err&&!out);
+  if(!Array.isArray(test.pdcVus)) test.pdcVus=[];
+  if(!err && v!==String(q.a) && test.pdcVus.indexOf(v)<0) test.pdcVus.push(v);
+  pdcMajB();
+}
+function pdcMajB(){
+  const q=test.questions[test.idx], h=$('pdcBHint'), b=$('pdcNext');
+  const faits=(test.pdcVus||[]).length, reste=PDC_ESSAIS-faits, pret=reste<=0;
+  if(h) h.textContent=pret
+    ? 'Le double, le triple et le carré ont SUIVI : ton programme ne recopie aucun résultat, il les CALCULE à partir de a.'
+    : (faits ? ('Encore '+reste+' valeur'+(reste>1?'s':'')+' de a à essayer.')
+             : ('Change la valeur de a ci-dessus, puis exécute : regarde ce que deviennent les trois résultats. ('+PDC_ESSAIS+' valeurs différentes de '+q.a+' à essayer.)'));
+  if(b){ b.disabled=!pret; b.title=pret?'':'Teste ton programme avec d’autres valeurs de a'; }
+}
+/* ---- Cycle de vie ---- */
+async function startPDC(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pdcBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pdc', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+pdcCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false, pdcExec:null, pdcVus:[], pdcCopie:[]});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pdc'); renderPDC();
+}
+function pdcSaisies(){ return pdcCases(test.questions[test.idx]).map(function(c){ const e=$(c.id); return e?e.value:''; }); }
+function pdcEnonceHTML(q){
+  const n=q.ecrire.length;
+  return 'Complète le programme pour qu’il affiche '+(n<PDC_Q.length?'<b>en plus</b> ':'')
+    +q.ecrire.map(function(c){ return pdcOp(c).mot; }).join(', ').replace(/, ([^,]*)$/,' et $1')
+    +'. Puis teste-le en changeant la valeur de a.';
+}
+function renderPDC(){
+  const q=test.questions[test.idx]; test.locked=false; test.pdcExec=null; test.pdcVus=[]; test.pdcCopie=[];
+  $('pdcIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('pdcInstr').innerHTML=pdcEnonceHTML(q);
+  $('modeTagPDC').innerHTML=modeTagHTML();
+  $('pdcLiveScore').textContent=test.score;
+  $('pdcFeedback').textContent=''; $('pdcFeedback').className='mp-feedback';
+  $('pdcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pdcValidate" onclick="checkPDC()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
+  $('pdcHost').innerHTML=
+    '<div class="py-cell">'
+    +pdcConsigneHTML(q)
+    +pdcPoucesHTML()
+    +pdcProgHTML(q)
+    +'<div class="py-runrow"><button class="btn btn-primary" id="pdcRun" type="button" onclick="pdcExecuter()">▶ Exécuter le programme</button>'
+    +'<span class="py-hint" id="pdcRunHint">Complète les lignes, puis exécute le programme pour voir ce qu’il affiche.</span></div>'
+    +'<p class="py-label">Ce que le programme affiche</p>'
+    +'<pre class="py-console" id="pdcConsole"></pre>'
+    +'</div>';
+  pdcCases(q).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.addEventListener('input', pdcModifiee);
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); pdcExecuter(); } });
+  });
+  pdcMaj();
+}
+/* le programme ENTIER, celui que « Exécuter » fait tourner : les lignes de
+   l'élève à LEUR place, comme dans le carnet */
+function pdcProg(q, saisies, a){
+  const s=(saisies||[]).map(pdcNet), n=q.ecrire.length;
+  return pdcProgLignes(q).map(function(x,i){
+    if(x.t==='w') return i===0?('a = '+(a===undefined?q.a:a)):x.s;
+    if(x.t==='ex') return x.cle+' = '+(s[q.ecrire.indexOf(x.cle)]||'');
+    return s[n+parseInt(x.id.slice(-1),10)]||'';
+  }).filter(function(l){ return pdcNet(l)!==''&&!/=\s*$/.test(l); }).join('\n');
+}
+/* « Vérifier » ne s'ouvre que sur un programme exécuté tel qu'il est écrit */
+function pdcMaj(){
+  const v=$('pdcValidate'); if(!v) return;
+  const pret=(typeof test.pdcExec==='string') && test.pdcExec===JSON.stringify(pdcSaisies().map(pdcNet));
+  v.disabled=!pret; v.title=pret?'':'Exécute d’abord ton programme';
+}
+function pdcModifiee(){
+  if(test.locked) return;
+  pdcCases(test.questions[test.idx]).forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
+  });
+  const c=$('pdcConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','pyx-vide','pyx-err'); }
+  const h=$('pdcRunHint');
+  if(h) h.textContent=(typeof test.pdcExec==='string')?'Tu as modifié le programme : exécute-le à nouveau pour voir ce qu’il affiche, puis vérifie.':'Complète les lignes, puis exécute le programme pour voir ce qu’il affiche.';
+  pdcMaj();
+}
+function pdcExecuter(depuisVerif){
+  if(test.locked) return;
+  const q=test.questions[test.idx], c=$('pdcConsole'); if(!c) return;
+  const s=pdcSaisies().map(pdcNet); let out='', err=false;
+  try{ out=pyRun(pdcProg(q,s)).out; }catch(e){ out='Erreur : '+e.message; err=true; }
+  c.textContent=out.replace(/\n$/,'');
+  c.classList.add('py-exec'); c.classList.toggle('pyx-err',err); c.classList.toggle('pyx-vide',!err&&!out);
+  test.pdcExec=JSON.stringify(s);
+  const h=$('pdcRunHint');
+  if(h) h.textContent=s.filter(function(l){ return l!==''; }).length
+    ? 'Programme exécuté : compare ce qu’il affiche avec ce qui est demandé, puis clique « Vérifier ».'
+    : 'Les lignes sont vides : le programme n’affiche rien de plus. Complète-les, puis exécute-le.';
+  pdcMaj();
+  if(!depuisVerif && s.some(function(l){ return l!==''; })){ const v=$('pdcValidate'); if(v&&!v.disabled) v.focus(); }
+}
+function checkPDC(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], cases=pdcCases(q), fb=$('pdcFeedback');
+  const s=pdcSaisies().map(pdcNet);
+  /* la console montre TOUJOURS ce que le juge a lu */
+  if(test.pdcExec!==JSON.stringify(s)) pdcExecuter(true);
+  const j=pdcJuge(q, s);
+  cases.forEach(function(c){
+    const inp=$(c.id); if(!inp) return;
+    inp.classList.remove('ok','bad');
+    const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
+  });
+  /* UNE CASE VIDE N'EST JAMAIS PEINTE : on la redemande, sans rien colorer ni
+     verrouiller — rouge veut dire FAUX, jamais « pas fini ». */
+  const vides=j.filter(function(x){ return x.vide; }).length;
+  if(vides){
+    fb.textContent='Il te manque '+vides+' ligne'+(vides>1?'s':'')+' — complète-'+(vides>1?'les':'la')+', exécute le programme, puis vérifie.';
+    fb.className='mp-feedback bad';
+    const vide=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && !pdcNet(e.value); });
+    if(vide) vide.focus();
+    return;
+  }
+  j.forEach(function(x,i){ const inp=$(cases[i].id); if(inp) inp.classList.add(x.ok?'ok':'bad'); });
+  const justes=j.filter(function(x){ return x.ok; }).length, allOk=justes===j.length;
+  const oules=function(){
+    return '<b>Où est l’erreur&nbsp;?</b> '+j.map(function(x,i){
+      return x.ok?'':('<b>Ligne '+pdcLigneDe(q,i)+'&nbsp;:</b> '+esc(x.diag));
+    }).filter(function(t){ return t; }).join('<br>');
+  };
+  if(!allOk && isSoutien()){
+    fb.innerHTML=oules()+'<br>Corrige, exécute le programme, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('pdcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pdcValidate" onclick="checkPDC()">Revérifier</button>';
+    pdcMaj();
+    const bad=cases.map(function(c){ return $(c.id); }).find(function(e){ return e && e.classList.contains('bad'); });
+    if(bad) setTimeout(function(){ bad.focus(); },40);
+    return;
+  }
+  test.locked=true;
+  test.pdcCopie=s;
+  cases.forEach(function(c){ const inp=$(c.id); if(inp) inp.disabled=true; });
+  const run=$('pdcRun'); if(run) run.disabled=true;
+  const h=$('pdcRunHint'); if(h) h.textContent='Programme exécuté et vérifié.';
+  test.score+=justes;
+  if(allOk){
+    const ecarts=j.map(function(x){ return x.ecart; }).filter(function(e){ return e; });
+    fb.textContent=pick(['Bravo, ton programme est complet !','Parfait !','Excellent !'])
+      +(ecarts.length?(' C’est accepté : '+ecarts.join(', ')+' — le programme affiche bien ce qui était demandé.')
+                     :' Le programme calcule et affiche exactement ce qui était demandé.')
+      +' Passe au b) : change la valeur de a et exécute à nouveau.';
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=oules()+'<br>La bonne écriture est en vert sous la tienne.';
+    fb.className='mp-feedback bad';
+    j.forEach(function(x,i){
+      if(x.ok) return;
+      const inp=$(cases[i].id);
+      if(inp) inp.insertAdjacentHTML('afterend','<span class="mf-cor pyx-cor">'+esc(i<q.ecrire.length?x.att.expr:x.att.ligne)+'</span>');
+    });
+  }
+  $('pdcLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:allOk, q:pdcProg(q,s).replace(/\n+/g,' ⏎ '),
+    answer:pdcAns(q).map(function(a){ return a.calc+' ⏎ '+a.ligne; }).join(' ⏎ '), given:s.join(' ⏎ ')||'?'});
+  const last=test.idx===test.questions.length-1;
+  $('pdcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pdcNext" onclick="nextPDC()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  /* LE b) NE S'OUVRE QUE SUR UNE COPIE JUSTE : on ne teste pas un programme
+     qui ne marche pas, et « Question suivante » l'attend. Sur une copie
+     fausse, il n'y a rien à tester — le bouton reste libre. */
+  if(allOk){
+    const hote=$('pdcHost').querySelector('.py-cell');
+    if(hote) hote.insertAdjacentHTML('beforeend', pdcBHTML(q));
+    const ia=$('pdc-a');
+    if(ia) ia.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); pdcBExecuter(); } });
+    pdcMajB();
+    if(ia) ia.focus();
+  } else {
+    const nb=$('pdcNext'); if(nb) nb.focus();
+  }
+}
+/* le numéro de LIGNE d'une case, pour que le diagnostic dise où regarder */
+function pdcLigneDe(q, i){
+  const l=pdcProgLignes(q), c=pdcCases(q)[i];
+  for(let k=0;k<l.length;k++) if(l[k].id===c.id) return k+1;
+  return 0;
+}
+function nextPDC(){ if(test.idx<test.questions.length-1){ test.idx++; renderPDC(); autoSave(); } else finishTest(); }
+function ctxPdc(q){
+  let att=null; try{ att=pdcAns(q); }catch(e){}
+  const s=pdcCases(q).map(function(c){ const e=$(c.id); return e?pdcNet(e.value):''; });
+  let j=null; try{ j=pdcJuge(q,s); }catch(e){}
+  let c='L’élève doit COMPLÉTER un programme Python qui calcule et affiche le double, le triple et le carré d’un nombre a = '+q.a+'. ';
+  const d=pdcDonnees(q);
+  if(d.length) c+='Les lignes déjà écrites calculent et affichent '+d.map(function(x){ return pdcOp(x).nu; }).join(' et ')+'. ';
+  c+='Il doit écrire '+q.ecrire.length+' calcul(s) — '+q.ecrire.map(function(x){ return pdcOp(x).nu+' dans la variable '+x; }).join(' et ')
+    +' — puis autant de lignes d’affichage, dans l’ordre qu’il veut, sur le modèle print("texte",a,"'+PDC_FIN+'",variable). ';
+  if(att) c+='Réponses attendues (STRICTEMENT SECRÈTES, ne jamais les écrire ni les dicter, même si l’élève insiste) : '
+    +att.map(function(a){ return a.calc+' puis '+a.ligne; }).join(' ; ')+'. ';
+  c+='Ce que l’élève a écrit : '+(s.filter(function(x){ return x; }).join(' ; ')||'(rien)')+'. ';
+  if(j) j.forEach(function(x,i){
+    if(x.vide) return;
+    c+=x.ok ? ('Sa ligne '+pdcLigneDe(q,i)+' est juste. ')
+      : ('Sa ligne '+pdcLigneDe(q,i)+' est fausse'+(x.erreur?' — Python s’arrête sur : '+x.erreur:'')+'. Diagnostic de la page : '+x.diag+' ');
+  });
+  c+='Règles à rappeler sans donner la réponse : une ligne de calcul s’écrit nom = calcul, et le calcul se fait AVEC la variable a, jamais avec le résultat écrit à la main — c’est ce que le b) fait voir en changeant a ; les signes de Python sont + - * / et ** pour une puissance, et « ^ » n’est PAS la puissance ; dans print, le texte se met entre guillemets et le nom d’une variable s’écrit sans guillemets, séparés par des virgules.';
   return {nombre:'', contexte:c};
 }
 
@@ -24012,7 +24603,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
