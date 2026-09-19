@@ -3512,8 +3512,14 @@ function exercices(suite){
       /* La preuve qui compte : le numéro doit SUIVRE une renumérotation. Sans
          elle, un numeros() qui aurait figé le numéro au chargement passerait au
          vert — et c'est exactement le défaut qu'on cherche à rendre impossible. */
-      var sauve=TEST_NUM[id]; TEST_NUM[id]='9.9.9';
-      var apres=numeros('voir {'+id+'}'); TEST_NUM[id]=sauve;
+      /* id est le PREMIER de TESTS, qui peut vivre hors de THEMES (la Terminale
+         en garde deux pour leurs vieilles notes) : il n'a alors PAS de numéro,
+         et « TEST_NUM[id]=sauve » avec sauve undefined CRÉE la clé au lieu de
+         la rendre. Object.keys(TEST_NUM) portait ensuite un exercice qui n'est
+         pas au menu, et le contrôle d'à côté accusait une page juste. */
+      var sauve=TEST_NUM[id], avait=(id in TEST_NUM); TEST_NUM[id]='9.9.9';
+      var apres=numeros('voir {'+id+'}');
+      if(avait) TEST_NUM[id]=sauve; else delete TEST_NUM[id];
       if(apres.indexOf('9.9.9')<0) return 'le numéro ne suit pas une renumérotation : '+apres;
       /* Et la carte de l'élève doit être branchée dessus : numeros() juste mais
          cardHTML non câblée afficherait « {pourcentage} » tel quel sur l'écran. */
@@ -5053,7 +5059,7 @@ function devoirPapierClique(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('le devoir sur papier : un choix de la page des modes, et l\'envoi se confirme',
       'ce niveau n\'a pas le choix « sur papier » des devoirs');
-    return longueurContexteIA(w, apres);
+    return longueurContexteIA(w, () => contexteChaqueExercice(w, apres));
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -5286,7 +5292,7 @@ function devoirPapierClique(w, apres){
     const nom='le devoir sur papier : un choix de la page des modes, et l\'envoi se confirme';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    longueurContexteIA(w, apres);
+    longueurContexteIA(w, () => contexteChaqueExercice(w, apres));
   });
 }
 function longueurContexteIA(w, apres){
@@ -5358,6 +5364,98 @@ function longueurContexteIA(w, apres){
       console.log('   · le plus long contexte : ' + pire[0] + ' (' + pire[1] +
         ' caractères, ' + (maxCtx - pire[1]) + ' de marge sur ' + maxCtx + ')');
     }
+    apres();
+  });
+}
+
+/* ---- Aucun exercice ne retombe sur ctxVisible() ---------------------------
+   conseilCtxCourant() sert TROIS aides : le Conseil du soutien, la fenêtre
+   « Question à l'IA » et la bulle « Comprendre mon erreur ». Un exercice qui
+   n'a pas SA branche y retombe sur ctxVisible(), et tout dépend alors de ce que
+   ctxVisible() sait lire — ce qui n'est pas la même chose d'un niveau à l'autre,
+   et c'est pourquoi ce contrôle se DÉCLARE :
+
+     · en Seconde et en Première, ctxVisible() lit l'énoncé, la scène ET LES
+       SAISIES de l'élève. Y retomber donne un contexte maigre mais vrai, et le
+       contrôle de la Seconde (« chaque exercice a un contexte à envoyer au
+       modèle ») suffit à tenir le bord ;
+     · en Terminale, ctxVisible() ne lit que .tvi-prompt, .tvi-instr et
+       #equation — ni les cases, ni les menus, ni les réponses attendues. Y
+       retomber, c'est envoyer au modèle l'énoncé et RIEN D'AUTRE.
+
+   Signalé par Turquet (septembre 2026) sur le 4.1. La sonde a élargi le
+   signalement avant tout correctif : QUATRE exercices du menu étaient dans ce
+   cas — le 1.1, le 4.1, le 5.1 et le 5.2 — à 166, 134, 177 et 232 caractères
+   quand les quarante autres en envoient 591 à 3195.
+
+   On ne mesure donc PAS une longueur, qui serait un seuil à régler et une liste
+   d'exceptions à tenir : on compare le contexte à ce que ctxVisible() rend TOUT
+   SEUL. Égaux, l'exercice n'a pas de branche, et c'est exact — sans seuil, sans
+   liste, et un exercice ajouté demain est couvert sans rien déclarer.
+
+   IL VIT DANS LA CHAÎNE ASYNCHRONE, et il le faut : les démarreurs de la
+   Terminale font « cfg=await loadConfig() » AVANT de poser test.kind, quand
+   ceux de la Seconde posent tout avant leur premier await. Une boucle
+   synchrone y lirait donc l'exercice PRÉCÉDENT — mesuré : les 44 exercices
+   rendaient le MÊME contexte de 72 caractères, et le contrôle serait resté vert
+   en parlant d'autre chose. D'où le garde du bas : les contextes doivent
+   VARIER, sans quoi le contrôle dit qu'il ne mesure rien.
+
+   La liste parcourue est celle du MENU (TEST_NUM), jamais TESTS : les deux
+   exercices gardés hors de THEMES pour leurs vieilles notes ne s'ouvrent pour
+   personne, et ils ont leur propre contrôle (horsThemes). */
+function contexteChaqueExercice(w, apres){
+  const nom = 'chaque exercice décrit son écran au modèle (jamais le repli ctxVisible)';
+  if(!P.aide || !P.aide.ctxChaqueExercice){
+    ignorer(nom, 'ctxVisible() lit ici les saisies de l’élève : y retomber reste un contexte vrai');
+    return apres();
+  }
+  evalPromis(w, `(async function(){
+    if(typeof conseilCtxCourant!=='function' || typeof ctxVisible!=='function')
+      return { pasDeMesure:'conseilCtxCourant() ou ctxVisible() introuvable' };
+    const SECOURS='en difficulté sur un exercice';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='soutien'; currentDM=null;
+    const creux=[], menus=[], vus=new Set(); let n=0;
+    for(const id of Object.keys(TEST_NUM)){
+      if(!TEST_NUM[id]) continue;          /* une clé sans numéro n'est pas au menu */
+      const t=TESTS[id];
+      if(!t || typeof t.start!=='function'){ creux.push(id+' (absent de TESTS)'); continue; }
+      currentTestId=id;
+      const avant=test.questions;
+      try{ await t.start(); }catch(e){ creux.push(id+' (ne démarre pas : '+e.message+')'); continue; }
+      await new Promise(function(r){ setTimeout(r,0); });
+      /* Un démarreur qui n'ouvre qu'un ÉCRAN DE MENU ne tire rien : on le
+         reconnaît à l'IDENTITÉ du tableau des questions — le signal de
+         dmEnonce, repris tel quel — et on le NOMME au lieu de le mesurer. Le
+         mesurer serait pire que de le sauter : test étant global, il garde le
+         tirage de l'exercice PRÉCÉDENT, si bien que le contrôle passait au vert
+         en lisant le contexte d'un AUTRE exercice. Le vrai écran, lui, est
+         mesuré par les exercices qui partagent son kind. */
+      if(test.questions===avant){ menus.push(id); continue; }
+      let c='', v='';
+      try{ c=String(conseilCtxCourant()||''); v=String(ctxVisible()||''); }
+      catch(e){ creux.push(id+' (contexte illisible : '+e.message+')'); continue; }
+      n++; vus.add(c);
+      if(c.indexOf(SECOURS)>=0){ creux.push(id+' (retombe sur la phrase de secours)'); continue; }
+      /* numeros() est appliqué APRÈS l'assemblage : on compare ce qui part
+         vraiment à ce que le repli aurait donné, passé par le même entonnoir. */
+      if(c===(typeof numeros==='function'?numeros(v):v)){
+        creux.push(id+' (pas de branche : le modèle ne reçoit que l\\'énoncé, '+c.length+' caractères)');
+        continue;
+      }
+      const acc=(c.match(/\{[a-z0-9-]+\}/g)||[]).filter(function(m){ return TESTS[m.slice(1,-1)]; });
+      if(acc.length) creux.push(id+' (accolade non résolue : '+acc.join(' ')+')');
+    }
+    if(!n) return { pasDeMesure:'aucun exercice n\\'a produit de contexte' };
+    if(vus.size<2) return { pasDeMesure:'les '+n+' exercices rendent le MÊME contexte — le tirage n\\'a pas eu lieu' };
+    return { creux:creux, n:n, menus:menus };
+  })()`, r => {
+    if(!r.ok){ verifier(nom, false, 'erreur JavaScript : ' + r.erreur); return apres(); }
+    const v = r.valeur || {};
+    if(v.pasDeMesure){ verifier(nom, false, v.pasDeMesure + ' : le contrôle ne mesure rien'); return apres(); }
+    verifier(nom, v.creux.length === 0, v.creux.slice(0, 5).join(' | '));
+    if(!v.creux.length) console.log('   · ' + v.n + ' exercices du menu, chacun avec sa propre description'
+      + ((v.menus || []).length ? ' ; ' + v.menus.join(', ') + ' n’ouvre qu’un écran de menu et ne tire rien' : ''));
     apres();
   });
 }
@@ -26155,6 +26253,14 @@ function seconde(w){
       mesures.push([id,c.length]);
     });
     if(!mesures.length) return 'aucun exercice n\\'a produit de contexte : le contrôle ne mesure rien';
+    /* Cette boucle n'ATTEND pas start() : elle ne tient que parce que les
+       démarreurs de la Seconde posent test.kind AVANT leur premier await. Le
+       jour où l'un d'eux attendrait quoi que ce soit avant, la boucle lirait
+       l'exercice PRÉCÉDENT et rendrait 46 fois le même contexte — verte, en
+       parlant d'autre chose. C'est ce qui arrive en Terminale, mesuré ; le
+       garde le rend BRUYANT plutôt que latent. */
+    if(new Set(mesures.map(function(m){ return m[1]; })).size<2)
+      return 'les '+mesures.length+' exercices rendent un contexte de même longueur — le tirage n\\'a pas eu lieu, le contrôle ne mesure rien';
     return creux.join(' | ');
   })()`, v => v === '', undefined);
 
