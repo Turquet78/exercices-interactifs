@@ -4042,6 +4042,144 @@ l'étiquette, qui n'en a pas, il rougit en nommant les deux écrans (le cours et
 la question). Avant de conclure qu'un contrôle ne mesure rien, il faut vérifier
 que le sabotage pouvait seulement l'atteindre.
 
+**Le double, le triple et le carré : trois calculs, trois affichages, et a qui
+CHANGE.** {python-double-triple-carre} (Seconde, 5.13, demande de Turquet,
+septembre 2026 : « créer un exercice comme l'image ») est l'exercice 13 du
+carnet, et il FERME le thème 5 — ajouté en dernier, il ne renumérote rien.
+Le programme commence par `a = 8` ; l'élève écrit les trois calculs
+(`double = …`, `triple = …`, `carre = …`) puis les trois lignes d'affichage
+sur le modèle `print("Le double de", a, "est égal à ", double)`, exécute, et
+vérifie. Puis le b) du carnet : « Tester votre programme plusieurs fois en
+changeant la valeur de la variable a. »
+
+**CE QU'IL AJOUTE AUX DOUZE AUTRES EST LA VARIABLE QUI SERT DEUX FOIS** : au
+5.11 une variable calculée dépend de deux autres et les SUIT ; ici c'est la
+MÊME variable a qui nourrit trois calculs, et le b) le fait voir — un élève
+qui écrit `double = 16` obtient la bonne sortie une fois et rien de juste
+ensuite. C'est aussi la première fois qu'il écrit TROIS lignes d'affichage à
+la suite.
+
+**LE JUGE NE COMPARE JAMAIS À UNE ÉCRITURE : IL EXÉCUTE** — et sa SECONDE
+MÉTHODE est le b) DE LA FICHE, fait par la page. Un calcul est juste si la
+variable prend la bonne valeur pour le a de l'énoncé ET pour un AUTRE a
+(`pdcAutre`) : `a + a`, `2 * a`, `a * 2`, `0 + 2 * a` passent tous ; `16`
+recopié à la main tombe juste une fois et se voit refusé à la seconde, avec
+la phrase qui le dit (« ton calcul tombe juste pour a = 8, mais plus quand a
+change »). C'est la doctrine de {python-afficher-variable} et du 5.12,
+reprise : ce qu'on demande est un CALCUL, pas un résultat.
+
+**L'ORDRE DES TROIS LIGNES D'AFFICHAGE EST LIBRE** — rien à l'écran ne dit
+quelle case porte laquelle — et c'est la règle des paires
+d'{antecedent-nombre}, portée à TROIS par `pydApparier`, la fonction MÊME du
+5.8 : chaque ligne se juge sur ce qu'elle PROMET (afficher l'un des trois
+affichages attendus) et la liste les prend une fois chacune ; la même ligne
+écrite deux fois est défendable une fois, fausse la seconde. Les
+EXPRESSIONS, elles, sont ancrées à leur nom, que la page écrit devant la
+case.
+
+**LE GARDE DU TIRAGE PROTÈGE LE DIAGNOSTIC, ET NON LE VERDICT — mesuré
+plutôt que supposé.** Les trois valeurs sont deux à deux distinctes, donc
+a = 2 (double et carré valent 4) et a = 3 (triple et carré valent 9) sont
+écartés. Le premier jet du contrôle justifiait ce garde par le VERDICT, et
+la sonde l'a renvoyé : sur ces valeurs, un `carre = 2 * a` est quand même
+REFUSÉ — la seconde méthode le rejoue sous un autre a. Ce qui casse est la
+PHRASE : à a = 3, « double = a * a » se voit répondre « ton calcul donne le
+TRIPLE » alors que l'élève a écrit le carré, et la page lui apprend une
+fausseté sur sa propre ligne. **Un diagnostic qui dit autre chose que
+l'erreur est pire que « faux »** (la leçon du 5.7). Relevé sur les bornes :
+70 diagnostics nomment ce que l'élève a écrit, et les 2 seuls qui se
+trompent sont exactement a = 2 et a = 3. Le contrôle EXIGE les deux bords —
+le garde vivant, et le mensonge sur les valeurs écartées.
+
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ** : l'interpréteur est `pyRun`, les
+diagnostics d'une ligne `pyxDiagErreur` et `pyxDiagSortie`, la tolérance des
+textes `pyTexteProche` et `pyEcart`, la règle des paires `pydApparier`, le
+cadre des coups de pouce `pyPoucesHTML`, les variables `PY_JEUX` ; le
+programme se dessine avec les classes du 5.7 (`pyx-prog`, `pyx-ligne`,
+`pyx-num`, `pyx-in`) et la case COURTE du calcul reprend `.pop-lbl` et
+`.pop-ex` du 5.12 — quatre feuilles de styles auraient fini par diverger.
+Ne vit ici que le b) (`.pdc-b`).
+
+**LA CHAÎNE DES PORTES EST CELLE DU CARNET : écrire, EXÉCUTER, vérifier,
+puis TESTER.** « Vérifier » ne s'ouvre qu'une fois le programme exécuté tel
+qu'il est écrit et se referme sur une ligne modifiée (le motif du 5.7) ; et
+« Question suivante » attend le b) — deux valeurs de a AUTRES que celle de
+l'énoncé, exécutées sans erreur. **Le b) ne s'ouvre que sur une copie
+JUSTE** : on ne teste pas un programme qui ne marche pas, et sur une copie
+fausse « Question suivante » reste libre. Une valeur qui n'est pas un nombre
+reçoit l'erreur de Python, comme dans un vrai carnet, et ne compte pas pour
+un essai.
+
+Une case VIDE n'est jamais peinte — la vérification la redemande, sans rien
+colorer ni verrouiller ; chaque case se juge SEULE (six cases sur la fiche,
+quatre sur les autres questions, une des trois quantités étant alors DONNÉE
+par la page) ; la bonne écriture s'affiche en VERT SOUS la case fausse, en
+entraînement seulement ; en soutien le message dit « Où est l'erreur ? » et
+l'élève revérifie. Aucune correction au fil de la frappe
+(`soutienEnDirect.sans`) : une ligne de code se juge écrite, pas lettre par
+lettre.
+
+**Deux bancs, la répartition habituelle.** jsdom tient la fiche du carnet
+ÉPINGLÉE (si elle ne passe pas au juge, c'est le juge qui a tort), le garde
+du tirage et le mensonge du diagnostic sur les valeurs qu'il écarte, la
+seconde méthode, les deux juges cas par cas, la règle des paires sur les
+trois lignes, la place au menu, le tirage sur 400 séances, la copie juste,
+la copie fausse, la case vide, le soutien, les branchements, et il compare
+l'interpréteur à un vrai CPython — la divergence ASSUMÉE du « ^ » comprise.
+Le NAVIGATEUR (« 6 tricies terdecies », déclaré par
+`pythonDoubleTripleCarre` dans `tests/profils.js`) mesure ce que jsdom ne
+voit pas : les six lignes TAPÉES au clavier, la case COURTE du calcul sur la
+ligne de son nom, un VRAI clic sur « Vérifier » fermé qui ne juge rien,
+l'encre RENDUE des verdicts — une rouge et cinq bleues sur la même question,
+ce que seule une couleur rendue montre —, la ligne verte SOUS la case fausse
+et jamais à droite, le panneau du b) mesuré au RECTANGLE, une VRAIE frappe
+dans a suivie d'Entrée, et la page qui ne déborde pas sur un téléphone.
+
+**ET LE PREMIER JET DU CONTRÔLE NAVIGATEUR A ACCUSÉ LA PAGE À TORT** : il
+exigeait que la console rende autant de lignes que l'élève en a écrites — or
+sur les questions autres que la fiche l'élève n'en écrit que DEUX, la page
+écrivant la troisième, et le programme en affiche trois quoi qu'il arrive.
+La mesure instrumentée l'a nommé en une exécution (`sorties2` à deux entrées
+devant une console à trois lignes) : c'est « une mesure qui accuse la page
+se mesure elle-même d'abord », retombée telle quelle. Le contrôle en est
+sorti PLUS fort — il exige désormais que les TROIS sorties suivent a, celle
+que la page a écrite comprise, et que le b) ne soit inséré qu'une fois.
+
+**Et le bord « il FERME le thème 5 » de {python-operations} a été RETOURNÉ
+plutôt que retiré** — le CINQUIÈME à l'être, après le 5.8, le 5.9, le 5.10 et
+le 5.11 : il ne ferme plus le thème, il vit entre {python-changer-valeurs} et
+{python-double-triple-carre}. Un bord retiré ne dit plus rien, un bord
+retourné dit la règle du jour.
+
+**Dix-sept sabotages, chacun rougissant en nommant son défaut** — quinze au
+banc jsdom (la seconde méthode débranchée, la règle des paires, le garde du
+tirage, la case vide peinte, le soutien qui révèle, « Vérifier » cliquable
+d'emblée, « Question suivante » ouverte sans le b), le b) ouvert sur une copie
+fausse, le « ^ » imité, l'exercice sorti du thème 5, le bouton des tables
+revenu, la clause de secret perdue, la séance raccourcie, la fiche qui n'ouvre
+plus la séance, la variable EMPLOYÉE) et deux que seul le NAVIGATEUR voit.
+**ET LE QUINZIÈME EST D'ABORD RESTÉ VERT, en nommant un trou du CONTRÔLE** :
+retirer `pyxUtilise` — l'exigence que la ligne d'affichage emploie la
+VARIABLE — ne faisait rougir personne, parce que le banc n'éprouvait que la
+valeur RECOPIÉE à la main (`…, 16`), que la seconde méthode écarte déjà en la
+rejouant sous un autre a. C'est la valeur RECALCULÉE (`…, 2 * a`) qui départage :
+elle SUIT quand a change, et seul `pyxUtilise` la refuse. Le cas ajouté, le
+sabotage rougit en nommant sa ligne — et le garde n'était donc pas mort. **Avant
+de conclure qu'un contrôle ne mesure rien, il faut vérifier que le sabotage
+pouvait seulement l'atteindre.**
+
+**ET LA FUSION DE `main` A REPRÉSENTÉ LA COLLISION DES NUMÉROS DE SECTION,
+celle qu'aucune branche ne peut voir seule** : « 6 tricies duodecies » avait
+été pris par la case de limite de la Terminale pendant que celle-ci se
+faisait, et les deux bancs étaient verts à bon droit — chaque branche n'avait
+qu'UN de ces numéros. C'est le contrôle de la section « 0 », qui lit la source
+du banc, qui l'a nommée à la première exécution d'après la fusion. La règle
+tranche sans rien peser : le numéro revient au premier arrivé, et cette
+section prend « 6 tricies terdecies ». Les deux autres collisions de la
+famille n'avaient rien à dire cette fois — `main` ne touchait ni au thème 5 ni
+à `APP_VERSION` de la Seconde — mais elles se relisent à chaque fusion, comme
+celle-ci.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
