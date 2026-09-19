@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -698,7 +698,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -869,7 +869,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1083,6 +1083,42 @@ module.exports = {
                                              'print("La somme de",a,"et",b,"est égal à ",somme)',
                                              'print("Le produit de",a,"et",b,"est égal à ",produit)', '…', '…'] },
                         cours: { a: 6, b: 5, sortie: 'La somme de 6 et 5 est égal à  11\nLe produit de 6 et 5 est égal à  30' } },
+    /* {python-double-triple-carre} — Seconde 5.13, demande de Turquet
+       (septembre 2026), l'exercice 13 du carnet : « Compléter le programme
+       ci-dessous pour qu'il affiche le double, le triple et le carré de a.
+       Tester votre programme plusieurs fois en changeant la valeur de la
+       variable a. » `nb` questions par séance, `essais` valeurs AUTRES que
+       celle de l'énoncé à exécuter dans le b) avant que « Question suivante »
+       ne s'ouvre, `min`/`max` les bornes du tirage de a — dont le garde
+           VIVANT exige les trois valeurs deux à deux distinctes. CE QU'IL
+           PROTEGE EST LE DIAGNOSTIC, ET NON LE VERDICT, et c'est mesuré : à
+           a = 2 le double et le carré valent tous deux 4, à a = 3 le triple et
+           le carré valent 9, mais un « carre = 2 * a » y est quand même REFUSÉ
+           — la seconde méthode le rejoue sous un autre a. Ce qui casse est la
+           PHRASE : à a = 3, « double = a * a » se voit répondre « ton calcul
+           donne le TRIPLE » alors que l'élève a écrit le carré, et un
+           diagnostic qui dit autre chose que l'erreur est pire que « faux ». `fiche` est la première
+       question, ÉPINGLÉE : le a = 8 du carnet, ses trois calculs, ses trois
+       lignes d'affichage et les sorties que Python en donne ; `autre` est la
+       valeur que la SECONDE MÉTHODE du juge rejoue — le b) de la fiche, fait
+       par la page. Le banc jsdom tient le tirage et son garde, le juge cas par
+       cas, la règle des paires sur les trois lignes d'affichage, les portes et
+       le soutien ; le navigateur TAPE les six lignes, exécute, vérifie, change
+       a dans le b) et relit la console et l'encre RENDUES. */
+    pythonDoubleTripleCarre: { exercice: 'python-double-triple-carre', nb: 3, essais: 2,
+                               min: 2, max: 12, casesFiche: 6, casesAutres: 4,
+                               fiche: { a: 8,
+                                        ecrire: ['double', 'triple', 'carre'],
+                                        calculs: ['double = 2 * a', 'triple = 3 * a', 'carre = a * a'],
+                                        lignes: ['print("Le double de",a,"est égal à ",double)',
+                                                 'print("Le triple de",a,"est égal à ",triple)',
+                                                 'print("Le carré de",a,"est égal à ",carre)'],
+                                        valeurs: ['16', '24', '64'],
+                                        sorties: ['Le double de 8 est égal à  16',
+                                                  'Le triple de 8 est égal à  24',
+                                                  'Le carré de 8 est égal à  64'],
+                                        programme: ['a = 8', '…', '…', '…', '…', '…', '…'] },
+                               autre: { a: 9, valeurs: ['18', '27', '81'] } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
@@ -1524,6 +1560,15 @@ module.exports = {
       qiaDetachee: true,
       conseil: true,
       ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: [['dexp','genDexp()']], prepare: {} },
+      /* ctxVisible() ne lit ici que .tvi-prompt, .tvi-instr et #equation — ni
+         les cases, ni les menus, ni les réponses attendues. Un exercice qui y
+         retombe faute d'avoir sa branche dans conseilCtxCourant() envoie donc
+         au modèle l'énoncé et RIEN D'AUTRE, et les trois aides qui passent par
+         là (le Conseil, la fenêtre « Question à l'IA », la bulle « Comprendre
+         mon erreur ») répondent dans le vide. La Seconde et la Première ne le
+         déclarent pas : leur ctxVisible() lit les SAISIES de l'élève, donc y
+         retomber reste un contexte maigre mais vrai. */
+      ctxChaqueExercice: true,
       mlStatic: true,
     },
     liveCheck: null,

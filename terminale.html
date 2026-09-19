@@ -2939,7 +2939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=332;
+const APP_VERSION=333;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3706,15 +3706,22 @@ function dexpCellCtx(id){
   else if(el.classList && el.classList.contains('bad')) s+=' [signalée FAUSSE]';
   return s;
 }
-function dexpFeuilleCtx(blocs){
+/* Appelée SANS second argument — le cas des cinq exercices de dérivée — elle ne
+   change pas d'un mot. Les exercices qui ne dérivent rien (le 1.1, le 4.1, le
+   5.1, le 5.2) lui passent leurs deux phrases : une liste de cases est la même
+   partout, la prose qui la referme ne l'est pas, et une seconde fabrique aurait
+   fini par diverger. */
+function dexpFeuilleCtx(blocs, fin){
   const out=[];
   blocs.forEach(b=>{
     const cells=b[1].map(p=>{ const s=dexpCellCtx(p[1]); return s===null?null:(p[0]+' : '+s); }).filter(Boolean);
     if(cells.length) out.push(b[0]+' — '+cells.join(' ; '));
   });
-  if(!out.length) return " L'élève n'a encore rien écrit : aide-le à démarrer par la première ligne (poser u, v, u' et v').";
+  const f=fin||{};
+  if(!out.length) return f.vide || " L'élève n'a encore rien écrit : aide-le à démarrer par la première ligne (poser u, v, u' et v').";
   return " État actuel de sa feuille (« (vide) » = case non remplie) : "+out.join(' | ')
-    +". Analyse SES écritures : trouve la PREMIÈRE ligne où quelque chose cloche, dis-lui précisément ce qui ne va pas (signe, coefficient, exposant, formule, développement non effectué, carré du dénominateur oublié…) et oriente-le pour corriger CETTE étape, sans lui donner la réponse. Ne lui reproche pas les cases « (vide) » situées après : il n'y est pas encore.";
+    +(f.analyse || ". Analyse SES écritures : trouve la PREMIÈRE ligne où quelque chose cloche, dis-lui précisément ce qui ne va pas (signe, coefficient, exposant, formule, développement non effectué, carré du dénominateur oublié…) et oriente-le pour corriger CETTE étape, sans lui donner la réponse.")
+    +" Ne lui reproche pas les cases « (vide) » situées après : il n'y est pas encore.";
 }
 /* Constructeur PUR du contexte de l'exercice en cours (aucun effet de bord).
    Utilise par le bouton « Un conseil » ET par la fenetre « Question a l'IA ». */
@@ -3896,6 +3903,99 @@ function conseilCtxCourant(){
       +' ; quand x tend vers '+q.b2.x+(q.b2.cote?' (côté '+q.b2.cote+')':'')+', f(x) tend vers '+q.b2.lim+' ; asymptotes attendues : '+lrAsymTexte(q)
       +'. Ce que l’élève a écrit pour l’instant dans son champ multi-lignes : « '+(typeof lrsRead==='function'?lrsRead():'')+' »'
       +'. IMPORTANT : l’élève ne voit QUE la courbe (jamais de formule — n’en mentionne aucune). Guide-le pour LIRE le graphique : suivre la courbe vers chaque borne du domaine et regarder vers quelle hauteur elle se stabilise (les pointillés rouges sont les asymptotes : leur équation se lit sur les axes, x = … pour une verticale, y = … pour une horizontale) ou si elle monte/descend sans limite ; puis l’aider à rédiger sa réponse, SANS donner les valeurs finales ni les équations à sa place.';
+  } else if(test && test.kind==='tvi' && test.questions && test.questions[test.idx]){
+    /* ---- 4.1 TVI : le tableau est une IMAGE, la justification un jeu de menus ----
+       Signalé par Turquet (septembre 2026) : « dans l'exercice 4.1, quand l'IA
+       essaye de comprendre une erreur, elle n'arrive pas à avoir le contexte ».
+       Sans cette branche, on retombait sur ctxVisible(), qui ne trouve ici que
+       l'énoncé et la consigne — 134 caractères MESURÉS, contre 600 à 3200 pour
+       les autres exercices du niveau : ni le TABLEAU, que le modèle ne voit
+       pas, ni les MENUS de l'élève, ni les réponses attendues. Le modèle
+       répondait donc dans le vide, pour le Conseil, pour la fenêtre « Question
+       à l'IA » et pour la bulle « Comprendre mon erreur », qui passent toutes
+       trois par ici. */
+    const q=test.questions[test.idx], a=q.ans;
+    const iv=q.leftBrk+' '+q.aLabel+' ; '+q.bLabel+' '+q.rightBrk;
+    c='Exercice 4.1 : compléter la justification du TVI à partir d’un tableau de variation. '
+     +'Énoncé : démontrer que l’équation '+q.fname+'('+q.v+') = '+q.kL+' admet une unique solution, notée α, sur ℝ. '
+     +'Description exacte du tableau de variation (tu ne vois pas l’image) : la ligne des '+q.v+' va de '+q.aLabel+' à '+q.bLabel+', avec α entre les deux ; '
+     +q.fname+' est continue et strictement '+q.sens+' sur '+iv+', et varie de '+q.vGL+' (en '+q.aLabel+') à '+q.vDL+' (en '+q.bLabel+') ; '
+     +'la valeur '+q.kL+' est écrite sur la flèche, en face de α. '
+     +'Phrase à compléter, un menu déroulant par « … » : « Sur [ … ; … ], '+q.fname+'('+q.v+') est … et elle est strictement …, elle varie de … à …. De plus, … est compris entre … et …. D’après le …, '+q.fname+'('+q.v+') = … admet une … solution. » '
+     +'Réponses attendues (à ne JAMAIS révéler) : borne gauche '+a.bg+' ; borne droite '+a.bd+' ; « '+a.cont+' » ; « '+a.sens+' » ; varie de '+a.vg+' à '+a.vd+' ; nombre encadré '+a.enck+' ; bornes de l’encadrement '+a.enclo+' et '+a.enchi+' (les deux ordres sont acceptés) ; théorème « '+a.tvi+' » ; valeur dans l’équation '+a.k+' ; « '+a.uniq+' ».';
+    c+=dexpFeuilleCtx([
+      ['Intervalle et hypothèses', [['borne gauche','tvi-bg'],['borne droite','tvi-bd'],['mot après « est »','tvi-cont'],['mot après « strictement »','tvi-sens'],['valeur de départ','tvi-vg'],['valeur d’arrivée','tvi-vd']]],
+      ['Encadrement', [['nombre encadré','tvi-enc-k'],['borne de gauche','tvi-enc-lo'],['borne de droite','tvi-enc-hi']]],
+      ['Conclusion', [['nom du théorème','tvi-tvi'],['valeur dans l’équation','tvi-k'],['mot avant « solution »','tvi-uniq']]]
+    ], { vide:' L’élève n’a encore ouvert aucun menu : aide-le à démarrer par les deux bornes de l’intervalle, qui se lisent sur la première ligne du tableau.',
+         analyse:'. Prends la PREMIÈRE case fausse ou vide et dis-lui OÙ la lire dans le tableau — première ligne pour les bornes, extrémités de la flèche pour les valeurs — sans jamais écrire le mot ni le nombre qu’il doit choisir.' });
+    c+=' CONTRAINTE ANTI-RECOPIE : ta réponse ne doit contenir AUCUNE des valeurs attendues ni aucun des mots à choisir — l’élève n’aurait plus qu’à les recopier dans les menus. '
+     +'Méthode à faire appliquer : les bornes et les deux valeurs se LISENT sur le tableau ; le théorème s’applique parce que la fonction est continue ET strictement monotone ; l’encadrement dit que la valeur cherchée tombe entre les deux valeurs extrêmes de la flèche — c’est lui qui donne l’EXISTENCE, la stricte monotonie donnant l’UNICITÉ.';
+  } else if(test && test.kind==='s1' && test.questions && test.questions[test.idx]){
+    /* ---- 1.1 signe du premier degré : l’équation, la phrase, puis le tableau ---- */
+    const q=test.questions[test.idx], aPos=q.a>0;
+    c='Exercice 1.1 : SIGNE D’UNE FONCTION AFFINE. f (x) = '+q.exprText+', définie sur ]−∞ ; +∞[. '
+     +'L’élève résout d’abord f (x) = 0 '
+     +(q.level===1 ? '(une seule case : x = …)' : '(il écrit la fraction −b/a — une case au numérateur, une au dénominateur — puis sa valeur)')
+     +', puis complète la phrase « le signe du coefficient de x, qui est '+numFmt(q.a)+', est placé … du tableau » (menu : « debut », « fin », « debutfin »), '
+     +'puis le tableau de signes : la racine dans la case du haut, et le signe de f (x) à gauche et à droite du zéro. '
+     +'Réponses attendues (à ne JAMAIS révéler) : racine x = '+q.rootStr
+     +(q.level===1 ? '' : ' (fraction '+numFmt(q.negb)+' / '+numFmt(q.a)+')')
+     +' ; le menu de la place vaut « fin » ; signe de f (x) : '+q.sl+' avant la racine, '+q.sr+' après.';
+    c+=dexpFeuilleCtx([
+      ['Résolution de f (x) = 0', (q.level===1?[]:[['numérateur','s1-num'],['dénominateur','s1-den']]).concat([['valeur de x','s1-val']])],
+      ['Phrase sur la place du signe de a', [['menu','s1-place']]],
+      ['Tableau de signes', [['racine','s1-root'],['signe avant','s1-sl'],['signe après','s1-sr']]]
+    ], { vide:' L’élève n’a encore rien écrit : aide-le à démarrer par l’équation f (x) = 0, qui donne la racine et donc la colonne du milieu du tableau.',
+         analyse:'. Prends la PREMIÈRE case fausse ou vide et dis-lui ce qui cloche — signe de la fraction, sens de la règle sur le coefficient de x — sans jamais écrire la valeur ni le signe attendus.' });
+    c+=' CONTRAINTE ANTI-RECOPIE : ta réponse ne doit contenir NI la racine, NI les deux signes du tableau. '
+     +'Méthode à faire appliquer : résoudre ax + b = 0 donne x = −b/a, la valeur où f s’annule ; le signe du coefficient de x (ici '+numFmt(q.a)+') est celui que f prend APRÈS la racine, donc il se place à la FIN du tableau, et le signe contraire avant. '
+     +'Fais-lui retrouver ce sens en imaginant une valeur très grande de x : '+(aPos?'avec un coefficient positif, f finit par être positive':'avec un coefficient négatif, f finit par être négative')+' — mais ne le lui dis pas, fais-le lui trouver.';
+  } else if(test && test.kind==='tg' && test.questions && test.questions[test.idx]){
+    /* ---- 5.1 équation de tangente LUE sur un graphique ---- */
+    const q=test.questions[test.idx], a=q.ans, f=q.fname;
+    const bTxt=(a.b===0?'':(a.b>0?' + '+numFmt(a.b):' − '+numFmt(Math.abs(a.b))));
+    c='Exercice 5.1 : ÉQUATION DE TANGENTE lue sur un graphique (tu ne vois pas l’image ; description exacte). '
+     +'On trace la courbe d’une fonction '+f+' et, en pointillés, sa tangente au point A, marqué d’une croix. '
+     +'A a pour abscisse '+numFmt(q.a)+' et pour ordonnée '+numFmt(q.fa)+' ; la tangente y a pour coefficient directeur '+numFmt(q.m)+'. '
+     +'L’élève LIT d’abord '+f+'('+numFmt(q.a)+') et '+f+'′('+numFmt(q.a)+') sur le dessin, puis complète la chaîne, une case par « … » : '
+     +'y = '+f+'′( … )( x − … ) + '+f+'( … ) ⟺ y = … ( x − … ) + … ⟺ y = … x + … + … ⟺ y = … x + …. '
+     +'Réponses attendues (à ne JAMAIS révéler) : '+f+'('+numFmt(q.a)+') = '+numFmt(a.fa)+' ; '+f+'′('+numFmt(q.a)+') = '+numFmt(a.m)+' ; les quatre cases d’abscisse valent toutes '+numFmt(q.a)+' ; les trois coefficients directeurs valent tous '+numFmt(a.m)+' ; les deux constantes de la ligne développée sont '+numFmt(a.t1)+' et '+numFmt(a.t2)+' (les deux ordres sont acceptés) ; tangente réduite : y = '+numFmt(a.m)+' x'+bTxt+'.';
+    c+=dexpFeuilleCtx([
+      ['Lecture sur le graphique', [[f+'('+numFmt(q.a)+')','tg-fa'],[f+'′('+numFmt(q.a)+')','tg-m']]],
+      ['Formule y = '+f+'′(a)(x − a) + '+f+'(a)', [['a dans '+f+'′( )','tg-a1'],['a dans (x − )','tg-a2'],['a dans '+f+'( )','tg-a3']]],
+      ['Ligne des valeurs', [['coefficient directeur','tg-m1'],['a dans (x − )','tg-a4'],[f+'(a)','tg-fa2']]],
+      ['Ligne développée', [['coefficient de x','tg-m2'],['1re constante','tg-t1'],['2e constante','tg-t2']]],
+      ['Ligne réduite', [['coefficient de x','tg-m3'],['constante','tg-b']]]
+    ], { vide:' L’élève n’a encore rien écrit : aide-le à démarrer par la lecture des coordonnées du point A sur le graphique.',
+         analyse:'. Prends la PREMIÈRE case fausse ou vide et dis-lui ce qui cloche — coordonnée lue de travers, signe perdu en développant, réduction non faite — sans jamais écrire le nombre attendu.' });
+    c+=' CONTRAINTE ANTI-RECOPIE : ta réponse ne doit contenir AUCUN des nombres attendus, ni l’équation finale de la tangente. '
+     +'Méthode à faire appliquer : '+f+'(a) est l’ORDONNÉE du point A, qui se lit sur l’axe vertical ; '+f+'′(a) est le coefficient directeur de la TANGENTE, qui se lit en avançant de 1 vers la droite le long de la droite en pointillés et en comptant de combien on monte ou on descend ; puis on remplace dans y = '+f+'′(a)(x − a) + '+f+'(a) et on développe.';
+  } else if(test && test.kind==='tx' && test.questions && test.questions[test.idx]){
+    /* ---- 5.2 tangentes à (ax+b)e^x en 0 et en 1 ---- */
+    const q=test.questions[test.idx], A=txAns(q);
+    const aff=(m,p)=>(m===1?'x':m===-1?'−x':numFmt(m)+'x')+(p>0?' + '+numFmt(p):(p<0?' − '+numFmt(Math.abs(p)):''));
+    const pol=(m,p)=>'('+(m===1?'x':m===-1?'−x':numFmt(m)+'x')+(p>0?' + '+numFmt(p):(p<0?' − '+numFmt(Math.abs(p)):''))+')e^x';
+    const ecoef=k=>(k===1?'':k===-1?'−':numFmt(k))+'e';
+    c='Exercice 5.2 : TANGENTES à une fonction (ax + b)e^x, en x = 0 puis en x = 1. '
+     +'La fonction ET sa dérivée sont DONNÉES par l’énoncé : f (x) = '+pol(q.a,q.b)+' et f ′(x) = '+pol(q.a,q.a+q.b)+'. '
+     +'Six parties, chacune « Démontre que … » — la cible est écrite dans l’énoncé, c’est la ROUTE qui est notée : '
+     +'a) f (0) ; b) f ′(0) ; c) la tangente en 0 (y = '+aff(A.d0,A.f0)+') ; d) f (1) ; e) f ′(1) ; f) la tangente en 1 (y = '+ecoef(A.d1)+' x '+(A.b1>0?'+':'−')+' '+ecoef(Math.abs(A.b1))+'). '
+     +'Dans les parties a, b, d et e, l’élève remplace x par sa valeur dans la parenthèse, puis dans l’exposant de e, puis écrit le résultat. '
+     +'Réponses attendues (à ne JAMAIS révéler) : f (0) = '+numFmt(A.f0)+' ; f ′(0) = '+numFmt(A.d0)+' ; f (1) = '+numFmt(A.f1)+'e ; f ′(1) = '+numFmt(A.d1)+'e ; '
+     +'toutes les cases « x remplacé » et « exposant » valent 0 dans les parties a, b, c et 1 dans les parties d, e, f ; '
+     +'les deux constantes de la ligne développée de la partie f sont '+numFmt(A.t1a)+' et '+numFmt(A.t1b)+' (les deux ordres sont acceptés) ; constante finale '+numFmt(A.b1)+'.';
+    c+=dexpFeuilleCtx([
+      ['a) f (0)', [['x remplacé','tx-a-x'],['exposant de e','tx-a-e'],['résultat','tx-a-r']]],
+      ['b) f ′(0)', [['x remplacé','tx-b-x'],['exposant de e','tx-b-e'],['résultat','tx-b-r']]],
+      ['c) tangente en 0', [['a dans f ′( )','tx-c-a1'],['a dans (x − )','tx-c-a2'],['a dans f ( )','tx-c-a3'],['coefficient directeur','tx-c-m1'],['a dans (x − )','tx-c-a4'],['f (a)','tx-c-f1'],['coefficient de x','tx-c-m2'],['constante','tx-c-b2']]],
+      ['d) f (1)', [['x remplacé','tx-d-x'],['exposant de e','tx-d-e'],['résultat (coefficient de e)','tx-d-r']]],
+      ['e) f ′(1)', [['x remplacé','tx-e-x'],['exposant de e','tx-e-e'],['résultat (coefficient de e)','tx-e-r']]],
+      ['f) tangente en 1', [['a dans f ′( )','tx-f-a1'],['a dans (x − )','tx-f-a2'],['a dans f ( )','tx-f-a3'],['coefficient directeur','tx-f-m1'],['a dans (x − )','tx-f-a4'],['f (a)','tx-f-f1'],['coefficient de x','tx-f-m2'],['1re constante','tx-f-t1'],['2e constante','tx-f-t2'],['coefficient de x réduit','tx-f-m3'],['constante réduite','tx-f-b3']]]
+    ], { vide:' L’élève n’a encore rien écrit : aide-le à démarrer par la partie a, en remplaçant x par 0 dans l’expression que l’énoncé rappelle juste au-dessus.',
+         analyse:'. Prends la PREMIÈRE case fausse ou vide et dis-lui ce qui cloche — x remplacé au mauvais endroit, e^0 oublié, signe perdu en développant — sans jamais écrire le nombre attendu.' });
+    c+=' CONTRAINTE ANTI-RECOPIE : ta réponse ne doit contenir AUCUN des nombres attendus, ni les équations des deux tangentes. '
+     +'Méthode à faire appliquer : e^0 = 1, donc en 0 le résultat est simplement la valeur de la parenthèse ; en 1 le résultat s’écrit « un nombre fois e », et c’est ce nombre que porte la case ; ensuite la tangente en a s’écrit y = f ′(a)(x − a) + f (a), qu’on remplace puis qu’on développe.';
   } else {
     c=ctxVisible();
   }
