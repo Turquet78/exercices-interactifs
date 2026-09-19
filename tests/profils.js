@@ -1524,6 +1524,15 @@ module.exports = {
       qiaDetachee: true,
       conseil: true,
       ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: [['dexp','genDexp()']], prepare: {} },
+      /* ctxVisible() ne lit ici que .tvi-prompt, .tvi-instr et #equation — ni
+         les cases, ni les menus, ni les réponses attendues. Un exercice qui y
+         retombe faute d'avoir sa branche dans conseilCtxCourant() envoie donc
+         au modèle l'énoncé et RIEN D'AUTRE, et les trois aides qui passent par
+         là (le Conseil, la fenêtre « Question à l'IA », la bulle « Comprendre
+         mon erreur ») répondent dans le vide. La Seconde et la Première ne le
+         déclarent pas : leur ctxVisible() lit les SAISIES de l'élève, donc y
+         retomber reste un contexte maigre mais vrai. */
+      ctxChaqueExercice: true,
       mlStatic: true,
     },
     liveCheck: null,
