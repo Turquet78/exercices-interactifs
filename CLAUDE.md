@@ -7202,6 +7202,72 @@ modèle répond dans le vide : rien ne casse, rien ne rougit, l'aide est simplem
 devenue creuse. Un contrôle OUVRE donc chaque exercice et refuse cette phrase
 nommément — sa présence EST le signe que rien n'a été trouvé.
 
+**Et en TERMINALE, quatre exercices n'envoyaient que leur énoncé.** Signalé par
+Turquet (septembre 2026) : « dans l'exercice 4.1, quand l'IA essaye de
+comprendre une erreur, elle n'arrive pas à avoir le contexte ».
+`conseilCtxCourant()` aiguille sur le `kind`, et le 4.1 n'avait pas de branche :
+il retombait sur `ctxVisible()`, qui **en Terminale ne lit que l'énoncé, la
+consigne et `#equation`** — ni le TABLEAU de variation, que le modèle ne voit
+pas, ni les menus de l'élève, ni les réponses attendues. Les TROIS aides qui
+passent par là — le Conseil du soutien, la fenêtre « Question à l'IA » et la
+bulle « Comprendre mon erreur » — répondaient donc dans le vide.
+**LA SONDE A MESURÉ AVANT TOUT CORRECTIF, ET ELLE A ÉLARGI LE SIGNALEMENT** :
+QUATRE exercices étaient dans ce cas — le 1.1, le 4.1, le 5.1 et le 5.2, à 166,
+134, 177 et 232 caractères, quand les quarante autres en envoient 591 à 3195. Un
+défaut vu dans un coin se corrige PARTOUT.
+**La Seconde et la Première ne sont pas concernées, et c'est MESURÉ, pas
+supposé** : leur `ctxVisible()` lit les SAISIES de l'élève (input, textarea,
+math-field, contenteditable), donc y retomber donne un contexte maigre mais
+VRAI — aucun exercice de Première ne descend sous 421 caractères, et le contrôle
+de la Seconde ci-dessus tient déjà ce bord. La Terminale est le seul niveau dont
+le repli ne dit rien.
+**Chaque contexte neuf dit les QUATRE mêmes choses**, celles que les branches
+voisines disaient déjà : la DESCRIPTION exacte de ce que le modèle ne voit pas
+(le tableau de variation du 4.1, le graphique et le point A du 5.1), les
+RÉPONSES attendues déclarées strictement secrètes, l'ÉTAT des cases de l'élève
+avec la marque de celles que la correction vient de compter fausses, et la
+MÉTHODE à faire appliquer sans jamais donner le résultat.
+**`dexpFeuilleCtx` a gagné un paramètre FACULTATIF plutôt qu'une jumelle** — sa
+phrase de clôture, qui parle de dériver : appelée sans lui, le cas des cinq
+exercices de dérivée, elle ne change pas d'un mot. Une liste de cases est la
+même partout, la prose qui la referme ne l'est pas, et une seconde fabrique
+aurait fini par diverger.
+**ET LE CONTRÔLE NE MESURE PAS UNE LONGUEUR** : un seuil serait à régler et une
+liste d'exceptions à tenir — les quatre défauts faisaient 134 à 232 caractères,
+là où le contrôle de la Seconde se contente de 60. Il compare le contexte à ce
+que `ctxVisible()` rend TOUT SEUL : égaux, l'exercice n'a pas de branche, et
+c'est exact. Sans seuil, sans liste, et un exercice ajouté demain est couvert
+sans rien déclarer. Il se DÉCLARE (`ctxChaqueExercice` dans `tests/profils.js`),
+et les deux autres niveaux s'affichent « non applicable » en DISANT pourquoi.
+**IL VIT DANS LA CHAÎNE ASYNCHRONE, et il le faut** : les démarreurs de la
+Terminale font `cfg=await loadConfig()` AVANT de poser `test.kind`, quand ceux
+de la Seconde posent tout avant leur premier `await`. Une boucle synchrone —
+celle que porte le contrôle jumeau de la Seconde — y lit donc l'exercice
+PRÉCÉDENT : mesuré, les 44 exercices rendaient le MÊME contexte de 72
+caractères, et le contrôle serait resté VERT en parlant d'autre chose. D'où le
+garde qui exige que les contextes VARIENT ; celui de la Seconde l'a reçu aussi,
+où il rend bruyant ce qui n'y est aujourd'hui que latent.
+**Et la campagne a montré deux défauts du BANC avant ceux de la page.** Un
+contrôle voisin restaure `TEST_NUM[id]` après l'avoir forcé — mais le premier de
+`TESTS` est en Terminale l'un des deux exercices gardés HORS de `THEMES`, donc
+sans numéro : `TEST_NUM[id]=undefined` CRÉE alors la clé au lieu de la rendre, et
+`Object.keys(TEST_NUM)` portait ensuite un exercice qui n'est pas au menu. Et
+`signe-second-degre` n'ouvre qu'un ÉCRAN DE MENU : `test` étant global, il garde
+le tirage de l'exercice précédent, si bien qu'il était mesuré sur le contexte
+d'un AUTRE exercice. On le reconnaît à l'IDENTITÉ du tableau des questions — le
+signal de `dmEnonce`, repris tel quel — et on le NOMME au lieu de le mesurer.
+**Sept sabotages, et chacun dit quelque chose** : les quatre branches retirées
+une par une rougissent en nommant leur exercice et sa longueur ; l'attente du
+tirage débranchée rougit en disant « le contrôle ne mesure rien » ; le profil
+qui ne déclare plus rien s'affiche « non applicable », le bord OPPOSÉ. Le
+septième — le garde du démarreur de menu débranché — reste VERT, et son vert dit
+vrai : ce qu'il écarte n'est pas un faux vert mais une FAUSSE ACCUSATION, et
+cela se démontre autrement — la branche du 1.1 coupée accuse UN exercice avec
+le garde, DEUX sans lui, dont un qui n'est pas en faute.
+**Aucun contrôle du NAVIGATEUR, et le dire vaut mieux que de le taire** : un
+contexte est une chaîne, assemblée et lue dans le DOM — jsdom la voit, un vrai
+Chromium n'en dirait pas plus.
+
 **Le modèle parle simplement, sans qu'on le lui demande.** Le conseil du soutien
 et la réponse de la fenêtre « Question à l'IA » s'écrivent TOUJOURS en français
 simple (décision de Turquet, août 2026) : ce n'est pas une faveur qu'un élève
