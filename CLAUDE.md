@@ -844,6 +844,19 @@ largeur de la fiche, et il n'y a nulle part ailleurs les 288 px qu'il faut.
 Faire du dessin un obstacle renverrait la bulle au COIN, où sa flèche ne
 désigne plus rien, et toucherait les quinze exercices à dessin des trois
 niveaux : c'est une décision à prendre, pas une correction technique.
+**Sept sabotages, chacun rougissant en nommant son défaut** — le rôle retiré de
+`bexpCible` (quatre rouges d'un coup : la bulle ne se pose plus, la saisie part
+vide, le contexte reparle d'écrire), le libellé perdu parce qu'on relit
+`.value` sur un `<span>`, la coche laissée dans le libellé
+(« ☑Croissante. »), la RANGÉE rendue cible elle aussi (« ancrée sur la rangée
+entière : true »), les cases à cocher retirées de la requête des obstacles (la
+bulle repasse à droite, sur la case d'à côté), le contexte qui dit « écrire »
+devant une case qu'on coche, et la clause de secret retirée.
+**Et le premier sabotage a montré un DÉTAIL DE MESSAGE qui ne nommait rien** :
+« ancrée sur la rangée entière : false » est vrai des deux défauts opposés — la
+bulle posée sur la rangée, et la bulle qui ne se pose nulle part. Le détail dit
+les DEUX états désormais (« sur la rangée : false, sur la case : false »), et le
+sabotage qui débranche la cible se distingue de celui qui déplace l'ancre.
 
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les

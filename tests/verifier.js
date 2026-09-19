@@ -13291,7 +13291,7 @@ function bulleErreur(w, apres){
       souci || 'bulle posée sur la case à cocher : ' + b.coche);
     verifier('elle reste sur la CASE, jamais sur la rangée qui porte le même verdict',
       r.ok && b.cocheRangee === false && b.coche === true,
-      souci || 'ancrée sur la rangée entière : ' + b.cocheRangee);
+      souci || 'ancrée sur la rangée entière : ' + b.cocheRangee + ', sur la case : ' + b.coche);
     verifier('la saisie lue est le LIBELLÉ de la case cochée, la coche RETIRÉE',
       r.ok && b.cocheVal === 'Croissante.',
       souci || 'saisie retenue : « ' + b.cocheVal + ' » (la coche est un ornement aria-hidden)');
