@@ -184,6 +184,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis la bulle est venue À CÔTÉ de la case, une flèche pointée sur elle.**
 - **Puis la bulle GLISSE, et se RESSERRE plutôt que de retourner au coin.**
 - **Puis la VÉRIFICATION a levé la bulle — et c'est la partie Algorithmique qui l'a montré.**
+- **Puis la bulle a SUIVI la case que l'élève regarde — et le garde a rendu la main à la VÉRIFICATION.**
 - **`numeros()` ne passe que par trois entonnoirs.**
 
 ### Verdicts, juges locaux et relecture par l'IA
