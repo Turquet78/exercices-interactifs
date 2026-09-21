@@ -511,6 +511,84 @@ bulle posée sur la rangée, et la bulle qui ne se pose nulle part. Le détail d
 les DEUX états désormais (« sur la rangée : false, sur la case : false »), et le
 sabotage qui débranche la cible se distingue de celui qui déplace l'ancre.
 
+**Puis la bulle a SUIVI la case que l'élève regarde — et le garde a rendu la
+main à la VÉRIFICATION.** Signalé par Turquet (septembre 2026) : « pourquoi en
+terminale dans l'exercice 3.2 n'y a-t-il pas de bulle quand la case donnant la
+limite est fausse ? » Deux causes, et n'en tenir qu'une ne tient rien.
+· **Une vérification ne levait qu'UNE bulle, sur la PREMIÈRE case fausse dans
+  l'ordre du document.** C'est la règle qui protège l'explication qu'on est en
+  train de lire — une bulle ouverte sur une case encore fausse ne saute pas
+  ailleurs — mais une question du 3.2 porte jusqu'à DOUZE cases sur quatre cas
+  (la limite, le type, l'équation), et la première fausse est presque toujours
+  une autre que celle qu'on regarde : l'élève qui voyait SA limite rouge n'avait
+  rien à cliquer à côté d'elle. La bulle SUIT désormais la case qu'il entre —
+  un écouteur `focusin`, en phase de bulle comme le reste du bloc, qui ne
+  déplace rien pour une case JUSTE ni pour un clic DANS la bulle : elle
+  emporterait l'explication en cours de lecture.
+· **Le garde de la saisie ravalait la couleur de la VÉRIFICATION.** `checkLG`
+  peint APRÈS un `await sb.functions.invoke` — la relecture du modèle —, si bien
+  que l'élève a tout le temps de poser son curseur dans la case en attendant son
+  verdict ; le garde voyait alors une couleur se poser sur la case qui porte le
+  curseur et la retenait, comme il le fait pour une correction en direct. Or il
+  ne doit se taire que pendant que l'élève ÉCRIT : poser le curseur et ATTENDRE
+  n'est pas écrire, et une couleur retenue là ne revient qu'à la sortie de la
+  case — l'élève, lui, ne voit rien.
+**UN SEUL SIGNAL, ET LES DEUX BLOCS LE PARTAGENT** : `saisieCase` retient la
+dernière case où quelque chose a été TAPÉ (`input`, `change`, une touche qui
+écrit ou efface), et `eleveEcritDans(el)` n'est vrai que si cette case est aussi
+celle qui porte le curseur. Le garde y rend la main, la bulle y renonce — deux
+définitions écrites séparément auraient fini par diverger, et l'une des deux
+aurait repris le défaut de l'autre. Il vit DANS le bloc du garde, donc le
+contrôle d'identité qui compare les trois fichiers au caractère près le couvre
+sans rien avoir à déclarer.
+**ET LA TERMINALE NE DÉCLARAIT AUCUN TÉMOIN — c'est dans cet angle mort que le
+défaut a vécu.** `bulleVerification` n'existait que pour la Seconde : la section
+du banc navigateur s'affichait « non applicable », et la bulle n'était mesurée
+dans un vrai navigateur sur aucun écran de la Terminale. Elle déclare le 3.2,
+l'exercice du signalement, et il est le bon témoin pour une seconde raison : ses
+cases de limite sont des champs MATHÉMATIQUES, la famille que la Seconde ne pose
+pas. Le bord du CURSEUR, lui, se déclare (`curseurPose`) : la Seconde pose
+elle-même le curseur dans la première case rouge, la Terminale non — un bord qui
+ne s'applique pas se déclare, il ne se retire pas.
+**Deux bancs, la répartition habituelle.** jsdom mesure le MÉCANISME sur des
+cases posées à la main : le curseur posé SANS frappe ne retient plus la couleur
+(le bord neuf du garde), il ne bloque plus la bulle, la bulle SUIT la case
+entrée, et une case JUSTE ne la déplace pas. Son bord « pendant que l'élève
+écrit, rien ne se lève » a été RETOURNÉ plutôt que retiré : il TAPE désormais
+dans la case avant de peindre, sans quoi il mesurait « le curseur est posé » en
+croyant mesurer « l'élève écrit ». Le NAVIGATEUR mesure le GESTE sur le 3.2 —
+une copie fausse posée dans les vraies cases, un vrai clic sur « Vérifier », la
+bulle au RECTANGLE, puis un vrai clic sur la DEUXIÈME case rouge, où la bulle
+doit le suivre.
+**Six sabotages, cinq rougissant en nommant leur défaut** — le `focusin`
+débranché (aux deux bancs : « entrer dans une autre case rouge n'y amène pas la
+bulle », puis « posée sur la case cliquée : false » sur la Terminale), la ligne
+qui rend la main à la vérification retirée (« une retenue ici, c'est le garde
+qui n'a pas rendu la main »), et les DEUX moitiés du signal partagé remises à
+`document.activeElement` — chacune casse seule la même propriété, et le dire
+vaut mieux que de le taire. **Le sixième est d'abord resté VERT parce qu'il ne
+pouvait pas ATTEINDRE sa cible** : la bulle réduite par `max-width:0;height:0`
+garde la boîte de son REMBOURRAGE : en `box-sizing:border-box`, une hauteur
+nulle ne descend pas sous le rembourrage et le cadre — 23 px de haut, 49 px de
+large, l'arithmétique de la feuille de styles —, donc une largeur et une hauteur
+NON nulles, et le banc disait vrai. Reposé en `display:none`, il nomme le
+vide. Avant de conclure qu'un contrôle ne mesure rien, il faut vérifier que le
+sabotage pouvait seulement l'atteindre.
+**Et la fusion de `main` a présenté DEUX collisions de la famille, plus une
+troisième d'un genre neuf.** `main` avait posé v183 sur la Seconde et v332 sur
+la Terminale pendant la préparation de la branche, qui écrivait les mêmes
+nombres : deux écritures du MÊME nombre sur la MÊME ligne ne font aucun conflit
+textuel, et la fusion serait passée sans un mot. C'est `npm run test:version`
+qui les nomme, et la règle tranche sans rien peser — le premier arrivé garde, le
+second prend le suivant : v184 et v333, la Première restant à v229 puisque
+`main` est à 228. **La troisième est que CLAUDE.md avait été DÉCOUPÉ entre
+temps** : la règle y reste, la chronique part dans `docs/journal/`. Le
+paragraphe ci-dessus, écrit dans CLAUDE.md avant la fusion, a donc SUIVI — dans
+ce fichier, à la suite de la chronique de la bulle qu'il prolonge — et seul son
+libellé gagne une ligne dans l'index, la règle valant PARTOUT. Un paragraphe
+laissé dans un CLAUDE.md qui ne porte plus la chronique aurait fait regrossir le
+fichier au premier exercice ajouté.
+
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
 `conseilCtxCourant` — pas ailleurs. Un libellé posé dans un `innerHTML` par une
