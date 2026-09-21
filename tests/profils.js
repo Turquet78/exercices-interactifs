@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -698,7 +698,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -869,7 +869,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1140,6 +1140,31 @@ module.exports = {
                               memoire: [['a', '10'], ['b', '2'], ['c', '2']],
                               fin: { a: '10', b: '2', c: '2' },
                               bareme: 22, numero: '5.14' } },
+    /* {python-valeur-case} : le MÊME pas à pas que le 5.14, moins une question
+       (demande de Turquet, septembre 2026 : « il doit exécuter le programme pas
+       à pas, dans le tableau à côté le nom de la case mémoire apparaît et
+       l'élève doit donner la valeur de cette case mémoire. Quand c'est fait, on
+       passe à la ligne suivante. ainsi de suite. à la fin il faut vérifier que
+       les cases mémoire ont les bonnes valeurs. »). La case est DONNÉE, l'élève
+       n'écrit que la VALEUR, et la fin vérifie la mémoire entière.
+       Il FERME le thème 5, en 5.15 — ajouté en dernier, il ne renumérote rien.
+       Le MOTEUR est celui du 5.14 (PAP_FICHE, PAP_JEUX, papGen, papValeurs,
+       papProg, papEtat, papAns, papNet, papCopie, papProgHTML) ; l'IDENTITÉ ne
+       l'est pas. « nb » est la SECONDE source du nombre de questions (la page a
+       PVM_NB), « fiche » le programme épinglé, les trois rangées de sa mémoire,
+       son état final, son barème — UNE réponse par ligne, donc la moitié de
+       celui du 5.14 — et son numéro au menu. Le banc jsdom tient le tirage, le
+       barème, la vérification PAR LIGNE et sa porte, le bilan de la fin, la case
+       vide jamais peinte, le soutien qui ne révèle rien, la rangée quittée qui
+       porte la mémoire vraie, la reprise après une pause et les branchements ;
+       le navigateur mesure les deux colonnes RENDUES, le nom ÉCRIT au lieu
+       d'une liste, la valeur TAPÉE pour de vrai et l'encre rendue.
+       IL EST DANS « tablesAide.sans » : on ne multiplie rien. */
+    pythonValeurCase: { exercice: 'python-valeur-case', nb: 3,
+                        fiche: { prog: ['a = 10', 'b = 2', 'c = b'],
+                                 memoire: [['a', '10'], ['b', '2'], ['c', '2']],
+                                 fin: { a: '10', b: '2', c: '2' },
+                                 bareme: 11, numero: '5.15' } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont

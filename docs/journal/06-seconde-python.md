@@ -1771,6 +1771,84 @@ et **cette branche prend 186**, la règle ne changeant pas d'un mot pour
 autant se répéter : le premier arrivé garde, le second prend le suivant. Rien
 d'autre du fichier n'entrait en collision.
 
+**Puis la MÊME marche, une question en moins : la valeur seule.**
+{python-valeur-case} (Seconde, 5.15, demande de Turquet, septembre 2026 :
+« il doit exécuter le programme pas à pas, dans le tableau à côté le nom de la
+case mémoire apparaît et l'élève doit donner la valeur de cette case mémoire.
+Quand c'est fait, on passe à la ligne suivante. ainsi de suite. à la fin il
+faut vérifier que les cases mémoire ont les bonnes valeurs. ») ferme le
+thème 5 — ajouté en dernier, il ne renumérote rien.
+**CE QU'IL AJOUTE N'EST PAS UN DOUBLON, C'EST UNE MARCHE.** Le 5.14 demande
+DEUX choses à chaque ligne — quelle case, et quelle valeur —, et un élève qui
+se trompe de case ne sait plus si c'est la copie qu'il n'a pas comprise ou la
+lecture du signe égal : deux leçons dans une même faute la rendent illisible,
+la leçon de {multiplier-fractions}. Ici la case est DONNÉE, écrite par la page
+dans la rangée que la ligne ajoute ; il ne reste que la valeur, c'est-à-dire
+la seule chose que « pas à pas » enseigne — une case garde ce qu'on y a rangé,
+et un NOM à droite du signe égal veut dire « ce que cette case contient ». On
+le fait AVANT le 5.14, ou à sa place quand les deux questions à la fois sont
+trop.
+**LA FIN VÉRIFIE LA MÉMOIRE ENTIÈRE, parce que c'est la demande** : une fois
+la dernière ligne jugée, la page écrit ce que chaque case contient à
+l'arrivée, lu dans l'état FINAL de l'interpréteur et jamais dans ce que
+l'élève a tapé. **Aucune phrase à compléter** — la fiche papier en pose, le
+5.14 a déjà tranché cela (elles disent en mots ce que les cases disent en
+chiffres), et la redemander ici ferait écrire trois fois la même réponse.
+**LE MOTEUR EST CELUI DU 5.14, L'IDENTITÉ NE L'EST PAS** — la règle du projet,
+« deux exercices peuvent partager un moteur, mais pas leur identité ». Sont
+PARTAGÉS le tirage des programmes et ses trois visages (`PAP_FICHE`,
+`PAP_JEUX`, `papGen`, `papValeurs`), la lecture de la mémoire (`papProg`,
+`papEtat`, `papAns` — donc `pyRun`, l'interpréteur MÊME du 5.1), la
+comparaison des valeurs (`papNet`), la question « cette ligne recopie-t-elle
+une case ? » (`papCopie`) et le cadre du programme avec son repère ▶
+(`papProgHTML`) ; la feuille de styles aussi (`pap-cols`, `pap-mem`,
+`pap-val` et ses trois encres) — une cinquième aurait fini par diverger, et
+deux exercices voisins se seraient dessinés différemment sous les yeux de
+l'élève. Sont PROPRES son identifiant, son kind (`pvm`), son écran, son
+rappel de cours, ses questions à l'IA, son contexte, son tirage, son tableau,
+son juge, sa reprise et son poids (`pvmCases`) : tout ce par quoi une note,
+une pause ou un signalement DÉSIGNE un exercice. **Le rappel, en particulier,
+n'est PAS celui du 5.14** — celui-là enseigne à trouver la case à gauche du
+signe égal, ce qu'on ne demande plus ici : un rappel partagé aurait fait lire
+à l'élève la consigne d'un exercice qu'il n'a pas sous les yeux, et un
+contrôle l'interdit.
+**UNE SEULE CASE PAR LIGNE, et c'est ce qui change tout le reste.** La rangée
+à moitié remplie du 5.14 n'existe pas : une case vide est simplement
+redemandée, jamais peinte — rouge veut dire FAUX, jamais « pas fini » (la
+règle de {placer-image}), et trois espaces valent une case vide. La porte de
+la ligne suivante reste tenue par l'ÉTAT du bouton : « Passer à la ligne
+suivante » n'existe qu'une fois la ligne jugée, et en SOUTIEN qu'une fois la
+ligne JUSTE, sans que rien ne soit révélé. La rangée QUITTÉE porte la mémoire
+VRAIE — bleue si l'élève l'avait juste, verte (`sol`) s'il l'avait fausse —,
+la leçon que la capture du 5.14 avait coûtée : dans un tableau qui s'appelle
+« la mémoire de l'ordinateur », deux nombres pour une même case privent la
+copie de la ligne suivante de toute source sûre.
+**Deux bancs, la répartition habituelle.** jsdom tient le tirage et ses trois
+visages sur 300 séances (et le fait que la question ne porte QUE le visage et
+les lignes — pas d'ordre de propositions, puisqu'il n'y a plus de liste), le
+barème d'UNE réponse par ligne, la vérification par ligne et sa porte, le
+bilan de la fin, la case vide, le soutien, la rangée quittée, la reprise après
+une pause et les branchements. Le NAVIGATEUR (« 6 tricies quindecies »,
+déclaré par `pythonValeurCase` dans `tests/profils.js`) mesure ce que jsdom ne
+voit pas : les deux colonnes rendues côte à côte, **le nom de la case ÉCRIT et
+AUCUNE liste dans l'écran — c'est la différence même entre les deux exercices,
+et seule une page rendue montre qu'il n'en traîne pas une**, la case unique à
+la chasse et à la taille du code qu'elle lit, une VRAIE frappe au clavier,
+l'encre RENDUE du verdict, le tableau qui grandit d'une rangée à chaque étape,
+le bilan écrit à la fin du programme, et le téléphone où les deux colonnes
+s'empilent.
+**Et le bord « il FERME le thème 5 » du 5.14 a été RETOURNÉ, pas retiré** — le
+septième à l'être, après le 5.8, le 5.9, le 5.10, le 5.11, le 5.12 et le
+5.13 : le 5.14 vit désormais entre {python-double-triple-carre} et celui-ci.
+Un bord retiré ne dit plus rien ; un bord retourné dit la règle du jour.
+**Ce qu'un sabotage éprouve**, et les deux qui ont servi : retirer le bilan de
+la fin (le banc rougit en disant « aucun bilan de la memoire a la fin du
+programme ») et peindre en rouge une case laissée vide (il rougit dans les
+DEUX modes, « 1 case(s) peinte(s) sur une rangee vide »). Restent à portée du
+même geste : rendre le nom de la case choisissable — le navigateur compte les
+`select` de l'écran —, partager le rappel du 5.14, et laisser la rangée
+quittée garder la saisie fausse de l'élève.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
