@@ -3640,6 +3640,7 @@ function exercices(suite){
     pythonOperations(w, P);
     pythonDoubleTripleCarre(w, P);
     pythonPasAPas(w, P);
+    pythonValeurCase(w, P);
     pythonTypes(w, P);
     pythonAfficherVariable(w, P);
     pythonNoms(w, P);
@@ -27545,11 +27546,12 @@ function pythonPasAPas(w, P){
   })()`, v => v === '');
 
   /* ---- 10. la place au menu et les branchements ---- */
-  verifierEval(w, 'il FERME le thème 5, numéroté 5.14 après {python-double-triple-carre} — et rien d autre ne bouge : entrée TESTS, rappel de cours, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
+  verifierEval(w, 'il vit dans le thème 5, numéroté 5.14 entre {python-double-triple-carre} et {python-valeur-case} — et rien d autre ne bouge : entrée TESTS, rappel de cours, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[], i=th?th.ids.indexOf("${ID}"):-1;
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
-    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("l exercice ne ferme pas le theme : "+(th&&th.ids.join(",")));
-    if(!th||th.ids[th.ids.length-2]!=="python-double-triple-carre") vus.push("il ne suit pas {python-double-triple-carre} : "+(th&&th.ids.join(",")));
+    if(i<0) vus.push("l exercice n est pas dans le theme 5 : "+(th&&th.ids.join(",")));
+    else if(th.ids[i+1]!=="python-valeur-case") vus.push("il n est pas suivi de {python-valeur-case} : "+th.ids.join(","));
+    if(i>0&&th.ids[i-1]!=="python-double-triple-carre") vus.push("il ne suit pas {python-double-triple-carre} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-operations"]!=="5.12"||TEST_NUM["python-double-triple-carre"]!=="5.13"||TEST_NUM["pourcentage"]!=="3.1")
       vus.push("l exercice ajoute a renumerote les autres");
@@ -27623,6 +27625,298 @@ function pythonPasAPas(w, P){
       verifier(nomPy + ' (' + progs.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
     }
   }
+}
+
+/* {python-valeur-case} (Seconde) : le MÊME pas à pas que le 5.14, moins une
+   question — la case mémoire est DONNÉE, l'élève n'écrit que la VALEUR, et la
+   fin vérifie la mémoire entière. Le moteur est partagé avec le 5.14 (papProg,
+   papEtat, papAns, papGen, papValeurs, papNet, papCopie, PAP_FICHE, PAP_JEUX) ;
+   ce contrôle-ci tient ce qui lui est PROPRE : son tirage, son tableau où le
+   nom s'ÉCRIT au lieu de se choisir, son juge à UNE case par ligne, la porte
+   de la ligne suivante, la case vide jamais peinte, le soutien qui ne révèle
+   rien, la rangée quittée qui porte la mémoire vraie, le BILAN de la fin, la
+   reprise après une pause et les branchements. Aucun accent grave ni antislash
+   dans ce texte : il vit dans un template littéral, et les deux y changeraient
+   de sens. */
+function pythonValeurCase(w, P){
+  const nom = '{python-valeur-case} : la valeur de la case mémoire, ligne par ligne';
+  if(!P.pythonValeurCase){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la valeur de la case mémoire'); return; }
+  const D = P.pythonValeurCase, ID = D.exercice, NB = D.nb, F = D.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPVM==='function' && typeof pvmBuildQuestions==='function'"
+    + " && typeof pvmCases==='function' && typeof checkPVM==='function' && typeof papAns==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPVM / pvmBuildQuestions / pvmCases introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. le tirage : la fiche épinglée, les trois visages, et RIEN d autre
+     dans la question — pas d ordre de propositions, puisqu il n y a pas de
+     liste : c est la différence même avec le 5.14. ---- */
+  verifierEval(w, 'le tirage : ' + NB + ' questions, la fiche du papier EN TÊTE au caractère près, les deux autres visages chacun UNE fois, et la question ne porte QUE le visage et les lignes — aucun ordre de propositions, la case n étant pas choisie (300 séances)', `(function(){
+    const vus=[], visages={};
+    for(let s=0;s<300 && vus.length<4;s++){
+      const qs=pvmBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("seance de "+qs.length+" questions"); break; }
+      if(papProg(qs[0])!==${J(F.prog.join('\n'))}){ vus.push("la premiere question n est pas la fiche : "+papProg(qs[0])); break; }
+      qs.forEach(function(q, i){
+        if(Object.keys(q).sort().join(",")!=="lignes,vis")
+          vus.push("la question porte autre chose que vis / lignes : "+Object.keys(q).join(","));
+        const noms=q.lignes.map(function(l){ return l.nom; });
+        noms.forEach(function(n, k){ if(noms.indexOf(n)!==k) vus.push("la variable "+n+" est affectee deux fois"); });
+        const lit=q.lignes.filter(function(l){ return !/^[a-z]/.test(l.expr); }).map(function(l){ return l.expr; });
+        lit.forEach(function(v, k){ if(lit.indexOf(v)!==k) vus.push("deux litteraux egaux : "+v); });
+        lit.forEach(function(v){ if(!/^[1-9][0-9]?$/.test(v)) vus.push("une valeur ecrite n est pas un entier positif de deux chiffres au plus : "+v); });
+        q.lignes.forEach(function(l, k){
+          if(/^-?[0-9]+$/.test(l.expr)) return;
+          if(noms.indexOf(l.expr)<0||noms.indexOf(l.expr)>=k)
+            vus.push("la ligne "+(k+1)+" recopie "+l.expr+", qui n est pas une case deja remplie");
+        });
+        if(!q.lignes.some(function(l){ return !/^-?[0-9]+$/.test(l.expr); })) vus.push("le programme ne recopie aucune case");
+        if(i>0) visages[q.vis]=(visages[q.vis]||0)+1;
+      });
+      const v=qs.slice(1).map(function(q){ return q.vis; });
+      if(v.length!==2||v[0]===v[1]||v.indexOf("lointaine")<0||v.indexOf("chaine")<0)
+        vus.push("les visages d une seance : "+qs.map(function(q){ return q.vis; }).join(","));
+    }
+    /* la mémoire de la fiche est bien celle du papier */
+    const f=pvmBuildQuestions()[0], att=${J(F.memoire)};
+    att.forEach(function(r, k){
+      const a=papAns(f, k);
+      if(a.nom!==r[0]||a.val!==r[1]) vus.push("apres la ligne "+(k+1)+" : "+a.nom+" = "+a.val+" au lieu de "+r[0]+" = "+r[1]);
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. le barème : UNE réponse par ligne, et le tableau ÉCRIT le nom ---- */
+  verifierEval(w, 'chaque ligne vaut UNE réponse — la valeur, et elle seule —, le nom de la case est ÉCRIT par la page et non offert dans une liste, et le barème de la séance les compte toutes (la convention xxxCases que lira la coupe d un devoir)', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPVM();
+    const vus=[];
+    let t=0; test.questions.forEach(function(q){
+      const c=pvmCases(q);
+      if(c.length!==q.lignes.length) vus.push("pvmCases rend "+c.length+" cases pour "+q.lignes.length+" lignes");
+      c.forEach(function(x, i){ if(x.id!=="pvm-val-"+i) vus.push("identifiant de case inattendu : "+x.id); });
+      t+=c.length;
+    });
+    if(test.maxScore!==t) vus.push("bareme "+test.maxScore+" au lieu de "+t);
+    if(t!==${F.bareme}) vus.push("la seance vaut "+t+" reponses");
+    /* LE NOM EST DONNÉ : aucune liste dans l écran, et le nom de la ligne courante est écrit */
+    const q0=test.questions[0];
+    if(document.querySelectorAll("#pvmHost select").length) vus.push("une liste de propositions traine dans l ecran : le nom se choisit encore");
+    const ecrits=[...document.querySelectorAll("#pvmHost .pvm-nom")].map(function(e){ return e.textContent.trim(); });
+    if(ecrits.join(",")!==q0.lignes[0].nom) vus.push("le nom de la case ecrit par la page : "+JSON.stringify(ecrits));
+    if(!document.getElementById("pvm-val-0")) vus.push("aucune case ou ecrire la valeur");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. la copie juste, ligne par ligne, la PORTE, et le BILAN de la fin ---- */
+  verifierEval(w, 'la copie juste ligne par ligne : chaque case vaut 1, « Passer à la ligne suivante » n existe qu une fois la ligne JUGÉE, la rangée jugée se verrouille et reste peinte, et à la dernière ligne la page VÉRIFIE la mémoire entière', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPVM();
+    const vus=[], q=test.questions[0], n=q.lignes.length;
+    if(document.getElementById("pvmStep")) vus.push("« Passer a la ligne suivante » est la avant toute reponse");
+    if(document.querySelector("#pvmHost .pvm-bilan")) vus.push("le bilan de la memoire est affiche avant la fin");
+    for(let k=0;k<n;k++){
+      const a=papAns(q, k), ve=document.getElementById("pvm-val-"+k);
+      if(!ve||ve.tagName!=="INPUT"){ vus.push("la rangee "+(k+1)+" n a pas sa case"); break; }
+      if(document.getElementById("pvm-val-"+(k+1))) vus.push("la rangee "+(k+2)+" est deja la");
+      const av=test.pvmEtape; pvmSuivante();
+      if(test.pvmEtape!==av) vus.push("pvmSuivante passe la ligne "+(k+1)+" sans l avoir jugee");
+      ve.value=a.val; checkPVM();
+      if(!ve.classList.contains("ok")) vus.push("la case juste "+(k+1)+" n est pas peinte ok : "+ve.className);
+      if(!ve.disabled) vus.push("la rangee "+(k+1)+" reste modifiable apres le verdict");
+      if(test.score!==k+1) vus.push("note "+test.score+" au lieu de "+(k+1)+" apres la ligne "+(k+1));
+      if(k<n-1){
+        if(!document.getElementById("pvmStep")) vus.push("pas de bouton pour passer a la ligne "+(k+2));
+        if(document.getElementById("pvmNext")) vus.push("« Question suivante » arrive des la ligne "+(k+1));
+        if(test.locked) vus.push("la question est verrouillee des la ligne "+(k+1));
+        pvmSuivante();
+        if(test.pvmEtape!==k+1) vus.push("pvmSuivante n avance pas : etape "+test.pvmEtape);
+        for(let i=0;i<=k;i++){
+          const y=document.getElementById("pvm-val-"+i);
+          if(!y||y.value!==papAns(q,i).val||!y.classList.contains("ok"))
+            vus.push("la rangee "+(i+1)+" n est plus posee apres etre passe a la ligne "+(k+2));
+        }
+      }
+    }
+    if(!test.locked) vus.push("la question n est pas verrouillee a la derniere ligne");
+    if(!document.getElementById("pvmNext")) vus.push("pas de « Question suivante » a la derniere ligne");
+    if(document.getElementById("pvmStep")) vus.push("« Passer a la ligne suivante » est encore la a la derniere ligne");
+    /* LE BILAN DE LA FIN : chaque case du programme y est nommee avec sa valeur d arrivee */
+    const bil=document.querySelector("#pvmHost .pvm-bilan");
+    if(!bil) vus.push("aucun bilan de la memoire a la fin du programme");
+    else {
+      const txt=bil.textContent.replace(/[ ]+/g," ");
+      if(bil.parentElement.querySelectorAll(".pvm-bilan").length!==1) vus.push("le bilan de la memoire est ecrit deux fois");
+      q.lignes.forEach(function(l, i){
+        const val=papAns(q, i).val;
+        if(txt.indexOf(l.nom)<0||txt.indexOf(val)<0) vus.push("le bilan ne dit pas que "+l.nom+" contient "+val+" : "+txt.slice(0,140));
+      });
+    }
+    const m=ptsEcran();
+    if(!m||m.cases!==n||m.justes!==n) vus.push("la note affichee : "+JSON.stringify(m));
+    const a0=test.answers[0];
+    if(!a0||a0.correct!==true||a0.cases!==n) vus.push("la reponse enregistree : "+JSON.stringify(a0));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. la case vide est redemandée, jamais peinte ---- */
+  verifierEval(w, 'une case laissée VIDE est redemandée, jamais peinte et jamais verrouillée : rouge veut dire FAUX, jamais « pas fini »', `(function(){
+    const vus=[];
+    ["train","soutien"].forEach(function(mode){
+      currentMode=mode; currentTestId="${ID}"; startPVM();
+      checkPVM();
+      const n=document.querySelectorAll("#pvmHost .ok,#pvmHost .bad,#pvmHost .sol").length;
+      if(n) vus.push(mode+" : "+n+" case(s) peinte(s) sur une rangee vide");
+      if(test.locked||test.pvmVerdicts[0]||test.score) vus.push(mode+" : la rangee vide a ete jugee");
+      if(document.getElementById("pvm-val-0").disabled) vus.push(mode+" : la case vide a ete verrouillee");
+      if(!/^mp-feedback bad$/.test(document.getElementById("pvmFeedback").className)) vus.push(mode+" : aucun message sur une case vide");
+      /* et des espaces seules valent une case vide */
+      document.getElementById("pvm-val-0").value="   "; checkPVM();
+      if(test.pvmVerdicts[0]) vus.push(mode+" : trois espaces ont ete jugees");
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le juge : la valeur n est jamais presque bonne, et le soutien ne
+     révèle rien ---- */
+  verifierEval(w, 'la valeur n est jamais presque bonne (les espaces retirées, tout le reste au caractère près) ; et en SOUTIEN une case fausse ne révèle RIEN, ne compte rien, reste modifiable et n ouvre PAS la ligne suivante — puis corrigée, elle passe', `(function(){
+    const vus=[];
+    /* les espaces autour ne comptent pas */
+    currentMode="train"; currentTestId="${ID}"; startPVM();
+    const q=test.questions[0], a=papAns(q, 0);
+    document.getElementById("pvm-val-0").value="  "+a.val+" "; checkPVM();
+    if(test.score!==1) vus.push("les espaces autour de la valeur la font rougir : "+test.score);
+    /* un chiffre de plus est FAUX, et la bonne valeur s ecrit en vert a cote */
+    startPVM();
+    const q2=test.questions[0], b=papAns(q2, 0);
+    document.getElementById("pvm-val-0").value=String(Number(b.val)+7); checkPVM();
+    const ve2=document.getElementById("pvm-val-0");
+    if(!ve2.classList.contains("bad")) vus.push("la valeur fausse n est pas rouge : "+ve2.className);
+    const cor=[...document.querySelectorAll("#pvmHost .mf-cor")].map(function(e){ return e.textContent; });
+    if(cor.length!==1||cor[0]!==b.val) vus.push("la bonne valeur en vert : "+cor.join(","));
+    if(test.score) vus.push("une valeur fausse compte des points : "+test.score);
+    /* LE SOUTIEN NE REVELE RIEN */
+    currentMode="soutien"; currentTestId="${ID}"; startPVM();
+    const q3=test.questions[0], c=papAns(q3, 0), ve3=document.getElementById("pvm-val-0");
+    ve3.value=String(Number(c.val)+7); checkPVM();
+    if(!ve3.classList.contains("bad")) vus.push("la case fausse n est pas rouge en soutien");
+    if(document.querySelectorAll("#pvmHost .mf-cor").length) vus.push("le soutien revele la bonne valeur");
+    if(document.querySelectorAll("#pvmHost .sol").length) vus.push("le soutien remplit une case en vert");
+    if(ve3.disabled) vus.push("la case est verrouillee en soutien");
+    if(test.score) vus.push("le soutien compte des points avant la correction : "+test.score);
+    if(test.pvmVerdicts[0]) vus.push("la case fausse est comptee jugee en soutien");
+    if(document.getElementById("pvmStep")) vus.push("la ligne suivante s ouvre sur une case fausse");
+    const bt=document.getElementById("pvmValidate");
+    if(!bt||!/Rev/.test(bt.textContent)) vus.push("pas de « Reverifier » : "+(bt?bt.textContent:"aucun bouton"));
+    /* la frappe efface le rouge d avant */
+    ve3.dispatchEvent(new Event("input",{bubbles:true}));
+    if(/ok|bad/.test(ve3.className)) vus.push("la reprise ne rend pas la case neutre : "+ve3.className);
+    ve3.value=c.val; checkPVM();
+    if(test.score!==1) vus.push("la case corrigee ne vaut pas 1 : "+test.score);
+    if(!document.getElementById("pvmStep")) vus.push("la ligne suivante ne s ouvre pas apres correction");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la rangée QUITTÉE porte la mémoire VRAIE ---- */
+  /* La leçon du 5.14, reprise telle quelle : le tableau s appelle « la mémoire
+     de l ordinateur » et la ligne suivante va y LIRE une case. Une valeur
+     fausse laissée là donnerait DEUX nombres pour une même case. */
+  verifierEval(w, 'la rangée d une ligne QUITTÉE porte la mémoire VRAIE — bleue si l élève l avait juste, VERTE s il l avait fausse —, jamais sa saisie fausse ; et la rangée qu on vient de juger garde, elle, la convention commune', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPVM();
+    const vus=[], q=test.questions[0], a0=papAns(q, 0);
+    const v0=document.getElementById("pvm-val-0");
+    v0.value=String(Number(a0.val)+65); checkPVM();
+    if(!v0.classList.contains("bad")) vus.push("la rangee qu on vient de juger ne garde pas la convention : "+v0.className);
+    if(v0.value===a0.val) vus.push("la rangee qu on vient de juger porte deja la valeur vraie : l eleve ne voit plus son erreur");
+    pvmSuivante();
+    const p0=document.getElementById("pvm-val-0");
+    if(!p0||p0.value!==a0.val) vus.push("la rangee quittee ne porte pas la valeur vraie : "+(p0?JSON.stringify(p0.value):"absente")+" au lieu de "+a0.val);
+    if(!p0||!p0.classList.contains("sol")) vus.push("la valeur corrigee n est pas peinte en vert : "+(p0?p0.className:"absente"));
+    if(p0&&p0.classList.contains("bad")) vus.push("la rangee quittee reste rouge : la memoire montre une valeur que l ordinateur n a jamais eue");
+    if([...document.querySelectorAll("#pvmHost .mf-cor")].length) vus.push("un badge de correction traine sur une rangee quittee");
+    if(!p0||!p0.disabled) vus.push("la rangee quittee reste modifiable");
+    if(test.score!==0) vus.push("note "+test.score+" au lieu de 0 apres avoir quitte la rangee");
+    const m=ptsEcran();
+    if(!m||m.justes!==0) vus.push("la note affichee compte "+(m?m.justes:"?")+" case(s) juste(s) au lieu d aucune");
+    /* et le miroir : une case JUSTE quittee garde son bleu */
+    startPVM();
+    const q2=test.questions[0], b0=papAns(q2, 0);
+    document.getElementById("pvm-val-0").value=b0.val; checkPVM(); pvmSuivante();
+    const j0=document.getElementById("pvm-val-0");
+    if(!j0||j0.value!==b0.val||!j0.classList.contains("ok")) vus.push("la case juste quittee : "+(j0?j0.value+" "+j0.className:"absente"));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. la reprise après une pause ---- */
+  verifierEval(w, 'la reprise après une pause : l étape, les rangées déjà jugées, leurs couleurs et la note reviennent — le rendu se rebâtit depuis « test », que snapshotTest photographie', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPVM();
+    const vus=[], q=test.questions[0], a0=papAns(q,0), a1=papAns(q,1);
+    document.getElementById("pvm-val-0").value=a0.val; checkPVM(); pvmSuivante();
+    document.getElementById("pvm-val-1").value=String(Number(a1.val)+3); checkPVM();
+    const snap=JSON.parse(JSON.stringify(snapshotTest())), note=test.score;
+    if(snap.pvmEtape!==1||!snap.pvmVerdicts||snap.pvmVerdicts.length!==2) vus.push("l instantane ne porte pas l etape : "+JSON.stringify(snap.pvmEtape)+" / "+JSON.stringify(snap.pvmVerdicts));
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test, snap, {locked:false, startTime:Date.now()});
+    afficherEcranDe(test.kind);
+    if(test.pvmEtape!==1) vus.push("l etape apres la reprise : "+test.pvmEtape);
+    const r0=document.getElementById("pvm-val-0"), r1=document.getElementById("pvm-val-1");
+    if(!r0||r0.value!==a0.val||!r0.classList.contains("ok")||!r0.disabled) vus.push("la rangee 1 n est pas reposee : "+(r0?r0.value+" "+r0.className:"absente"));
+    if(!r1||!r1.classList.contains("bad")) vus.push("la rangee 2 fausse n est pas reposee : "+(r1?r1.value+" "+r1.className:"absente"));
+    const cor=[...document.querySelectorAll("#pvmHost .mf-cor")].map(function(e){ return e.textContent; });
+    if(cor.length!==1||cor[0]!==a1.val) vus.push("la bonne valeur en vert ne revient pas : "+cor.join(","));
+    if(document.getElementById("pvm-val-2")) vus.push("la rangee 3 est la alors qu on n y est pas encore");
+    if(!document.getElementById("pvmStep")) vus.push("le bouton de la ligne suivante ne revient pas");
+    if(test.score!==note) vus.push("la note a bouge a la reprise : "+test.score+" au lieu de "+note);
+    pvmSuivante();
+    if(!document.getElementById("pvm-val-2")) vus.push("on ne peut pas continuer apres la reprise");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. la place au menu et les branchements ---- */
+  verifierEval(w, 'il FERME le thème 5, numéroté ' + F.numero + ' après {python-pas-a-pas} — et rien d autre ne bouge : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
+    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("l exercice ne ferme pas le theme : "+(th&&th.ids.join(",")));
+    if(!th||th.ids[th.ids.length-2]!=="python-pas-a-pas") vus.push("il ne suit pas {python-pas-a-pas} : "+(th&&th.ids.join(",")));
+    if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-operations"]!=="5.12"||TEST_NUM["python-double-triple-carre"]!=="5.13"||TEST_NUM["python-pas-a-pas"]!=="5.14"||TEST_NUM["pourcentage"]!=="3.1")
+      vus.push("l exercice ajoute a renumerote les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d entree TESTS");
+    if(/[{}<>]/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte du balisage ou une accolade : elle passe par esc(numeros(desc))");
+    if(!RAPPELS.pvm) vus.push("aucun rappel de cours");
+    /* UN RAPPEL PROPRE : deux exercices peuvent partager un moteur, jamais un
+       rappel — l eleve lirait la consigne d un exercice qu il n a pas sous les
+       yeux (le 5.14 lui demande AUSSI de choisir la case). */
+    if(RAPPELS.pvm===RAPPELS.pap) vus.push("le rappel est celui du 5.14 : il parle de choisir la case");
+    const r=String(RAPPELS.pvm||"");
+    if(!/recopie/i.test(r)) vus.push("le rappel n enseigne pas la copie du contenu");
+    if(!/garde sa valeur/i.test(r)) vus.push("le rappel ne dit pas qu une case garde sa valeur");
+    if(!QIA_SUGG.pvm||QIA_SUGG.pvm.length<2) vus.push("aucune question proposee a l IA");
+    if(QIA_SUGG.pvm===QIA_SUGG.pap) vus.push("les questions a l IA sont celles du 5.14");
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est propose alors qu on ne multiplie rien");
+    /* la table du rejeu et de la reprise */
+    if(!afficherEcranDe("pvm")) vus.push("afficherEcranDe ne connait pas le kind : la reprise et le rejeu retombent sur un redemarrage");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. le contexte du modèle, et aucune correction au fil des clics ---- */
+  verifierEval(w, 'le contexte envoyé au modèle porte le programme, la case DONNÉE, l état de la mémoire et la clause de secret ; et checkPVM(true) ne juge RIEN — la colorer à la frappe déclarerait fausse une valeur qu on n a pas fini d écrire', `(function(){
+    currentMode="soutien"; currentTestId="${ID}"; startPVM();
+    const vus=[], q=test.questions[0], a=papAns(q,0);
+    document.getElementById("pvm-val-0").value=String(Number(a.val)+9);
+    checkPVM(true);
+    const ve=document.getElementById("pvm-val-0");
+    if(/ok|bad/.test(ve.className)) vus.push("une correction au fil des clics peint : "+ve.className);
+    if(test.score) vus.push("une correction au fil des clics compte des points : "+test.score);
+    const c=ctxPvm(q).contexte;
+    if(c.indexOf(papProg(q))<0) vus.push("le contexte ne porte pas le programme");
+    if(c.indexOf("SECR")<0) vus.push("le contexte ne declare pas la reponse secrete");
+    if(c.indexOf("la case "+a.nom+" contient "+a.val)<0) vus.push("le contexte ne porte pas la reponse attendue");
+    if(c.indexOf("DONN")<0) vus.push("le contexte ne dit pas que la case est donnee a l eleve");
+    /* à la ligne 2, le contexte dit l état de la mémoire d AVANT */
+    ve.value=a.val; checkPVM(); pvmSuivante();
+    const c2=ctxPvm(q).contexte;
+    if(c2.indexOf(a.nom+" contient "+a.val)<0) vus.push("le contexte ne dit pas l etat de la memoire avant la ligne : "+c2.slice(0,140));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
 }
 
 /* ---------- enchaînement ---------- */

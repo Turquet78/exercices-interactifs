@@ -9807,6 +9807,190 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies quindecies. {python-valeur-case} : le nom ÉCRIT, la valeur TAPÉE =====
+       Le banc jsdom tient le tirage, le barème, le juge, la porte de la ligne
+       suivante, la case vide, le soutien, la rangée quittée, le bilan de la
+       fin, la reprise et les branchements. Ce qu'il ne voit pas : les DEUX
+       colonnes RENDUES côte à côte — la disposition du 5.14, partagée —, le
+       nom de la case ÉCRIT par la page à la place de la liste du 5.14 (c'est
+       la différence même entre les deux exercices, et seule une page rendue
+       montre qu'aucune liste n'y traîne), la case unique à la chasse et à la
+       taille du code qu'elle lit, une VRAIE frappe au clavier, l'encre RENDUE
+       du verdict — bleue quand c'est juste —, le tableau qui GRANDIT d'une
+       rangée à chaque étape pendant que la rangée d'avant reste posée et
+       peinte, le BILAN de la mémoire écrit à la fin du programme, et le
+       téléphone, où les deux colonnes S'EMPILENT au lieu de faire déborder la
+       page.
+       TOUT SE MESURE SUR LA QUESTION 1, la fiche ÉPINGLÉE : sur un tirage au
+       hasard, le nombre de lignes et les valeurs changeraient d'une exécution
+       à l'autre, et le contrôle serait INTERMITTENT. */
+    titre('6 tricies quindecies. LA VALEUR DE LA CASE MÉMOIRE : LE NOM ÉCRIT, LA VALEUR TAPÉE');
+    if(!P.pythonValeurCase){
+      ignorer('la valeur de la case mémoire : les deux colonnes rendues, le nom écrit et la valeur tapée',
+        'ce niveau n\'a pas l\'exercice de la valeur de la case mémoire');
+    } else {
+      const A = P.pythonValeurCase, nL = A.fiche.prog.length;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const dits = [];
+      /* 1. LES DEUX COLONNES, LE NOM ÉCRIT, LA CASE UNIQUE */
+      const vu = await s.page.evaluate(() => {
+        const host = document.getElementById('pvmHost');
+        const cols = [...host.querySelectorAll('.pap-col')], prog = host.querySelector('.pyx-prog');
+        const lignes = [...host.querySelectorAll('.pyx-ligne')], mem = host.querySelector('.pap-mem');
+        const ve = document.getElementById('pvm-val-0'), nm = host.querySelector('.pvm-nom');
+        const r = e => e.getBoundingClientRect(), px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const fam = e => getComputedStyle(e).fontFamily;
+        return { cols: cols.length,
+                 aCote: cols.length === 2 && r(cols[1]).left >= r(cols[0]).right - 1 && Math.abs(r(cols[1]).top - r(cols[0]).top) < 40,
+                 lignes: lignes.map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+                 reperes: lignes.map(e => (e.querySelector('.pap-repere') || {}).textContent || ''),
+                 ici: lignes.map(e => e.classList.contains('pap-ici')),
+                 rangees: mem ? mem.querySelectorAll('tr').length : 0,
+                 /* LE NOM EST ÉCRIT, PAS CHOISI : aucune liste dans l'écran */
+                 listes: host.querySelectorAll('select').length,
+                 nom: nm ? { txt: nm.textContent.trim(), px: px(nm), fam: fam(nm) } : null,
+                 cases: host.querySelectorAll('input').length,
+                 val: ve ? { tag: ve.tagName, px: px(ve), fam: fam(ve), w: Math.round(r(ve).width) } : null,
+                 pxProg: px(prog.querySelector('.pyx-l1')), famProg: fam(prog.querySelector('.pyx-l1')),
+                 memeLigne: ve && nm && Math.abs(r(ve).top - r(nm).top) < r(ve).height,
+                 bilan: !!host.querySelector('.pvm-bilan'),
+                 bouton: (document.getElementById('pvmValidate') || {}).textContent,
+                 step: !!document.getElementById('pvmStep'),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      if(vu.cols !== 2 || !vu.aCote) dits.push('les deux colonnes ne sont pas côte à côte (' + vu.cols + ' colonne(s))');
+      if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
+      if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
+        dits.push('le programme rendu : ' + JSON.stringify(vu.lignes));
+      if(vu.reperes[0].indexOf('▶') < 0 || vu.reperes.slice(1).some(t => t.indexOf('▶') >= 0))
+        dits.push('le repère de la ligne courante : ' + JSON.stringify(vu.reperes));
+      if(!vu.ici[0] || vu.ici.slice(1).some(Boolean)) dits.push('la ligne surlignée : ' + JSON.stringify(vu.ici));
+      if(vu.rangees !== 2) dits.push(vu.rangees + ' rangée(s) de mémoire au lieu de 2 (en-tête + la ligne en cours)');
+      /* CE QUI DISTINGUE CET EXERCICE DU 5.14 : le nom est ÉCRIT */
+      if(vu.listes) dits.push(vu.listes + ' liste(s) de propositions dans l\'écran : le nom se choisit encore');
+      if(!vu.nom || vu.nom.txt !== A.fiche.memoire[0][0]) dits.push('le nom de la case écrit par la page : ' + JSON.stringify(vu.nom));
+      if(vu.cases !== 1) dits.push(vu.cases + ' case(s) de saisie au lieu d\'une seule');
+      if(!vu.val || vu.val.tag !== 'INPUT') dits.push('la case de la valeur : ' + JSON.stringify(vu.val));
+      if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
+      /* le nom et la case écrivent à la chasse et à la taille du code qu'ils lisent */
+      if(!/mono|menlo|consolas|courier/i.test(vu.famProg)) dits.push('le programme n\'est pas à chasse fixe : ' + vu.famProg);
+      if(!vu.nom || !/mono|menlo|consolas|courier/i.test(vu.nom.fam) || Math.abs(vu.nom.px - vu.pxProg) > 0.6)
+        dits.push('le nom de la case n\'écrit pas comme le code : ' + JSON.stringify(vu.nom) + ' contre ' + vu.pxProg + 'px');
+      if(!vu.val || !/mono|menlo|consolas|courier/i.test(vu.val.fam) || Math.abs(vu.val.px - vu.pxProg) > 0.6)
+        dits.push('la case de la valeur n\'écrit pas comme le code : ' + JSON.stringify(vu.val));
+      if(!vu.memeLigne) dits.push('le nom et la case ne partagent pas la ligne de leur rangée');
+      if(!/^V/.test(vu.bouton || '')) dits.push('le bouton de la rangée : ' + JSON.stringify(vu.bouton));
+      if(vu.step) dits.push('« Passer à la ligne suivante » est là avant toute réponse');
+      if(vu.page) dits.push('la page déborde en largeur à 1400 px');
+      verifier('les deux colonnes rendues côte à côte, le NOM de la case ÉCRIT (aucune liste) et une seule case à la chasse du code',
+        !dits.length, dits.slice(0, 3).join(' | '));
+      /* 2. LA VALEUR SE TAPE POUR DE VRAI, et le verdict s'encre en BLEU */
+      const bons = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return q.lignes.map((l, k) => papAns(q, k)); });
+      const gestes = [];
+      await s.page.click('#pvm-val-0');
+      await s.page.keyboard.type(bons[0].val, { delay: 60 });
+      await s.page.waitForTimeout(150);
+      await s.page.click('#pvmValidate');
+      await s.page.waitForTimeout(400);
+      const juge = await s.page.evaluate(() => {
+        const ve = document.getElementById('pvm-val-0');
+        return { lu: ve.value, cv: ve.className, ev: getComputedStyle(ve).color, fige: ve.disabled,
+                 badges: document.querySelectorAll('#pvmHost .mf-cor').length,
+                 score: test.score, step: (document.getElementById('pvmStep') || {}).textContent,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      if(juge.lu !== bons[0].val) gestes.push('la valeur tapée au clavier n\'est pas arrivée : ' + JSON.stringify(juge.lu));
+      if(!/ok/.test(juge.cv) || dom(juge.ev) !== 'bleu') gestes.push('la valeur juste n\'est pas bleue : ' + juge.cv + ' / ' + juge.ev);
+      if(!juge.fige) gestes.push('la case jugée reste modifiable');
+      if(juge.badges) gestes.push(juge.badges + ' badge(s) de correction sur une case juste');
+      if(juge.score !== 1) gestes.push('note ' + juge.score + ' au lieu de 1');
+      if(!/ligne 2/.test(juge.step || '')) gestes.push('le bouton de la ligne suivante : ' + JSON.stringify(juge.step));
+      if(juge.page) gestes.push('la page déborde après la correction');
+      verifier('la valeur se TAPE pour de vrai et le verdict s\'encre en BLEU sur la case, sans badge de correction',
+        !gestes.length, gestes.slice(0, 3).join(' | '));
+      /* 3. LE TABLEAU GRANDIT, ET LA MÉMOIRE PERSISTE À L'ÉCRAN */
+      await s.page.click('#pvmStep');
+      await s.page.waitForTimeout(400);
+      const grandi = [];
+      const g = await s.page.evaluate(() => {
+        const host = document.getElementById('pvmHost'), mem = host.querySelector('.pap-mem');
+        const lignes = [...host.querySelectorAll('.pyx-ligne')];
+        const v0 = document.getElementById('pvm-val-0'), v1 = document.getElementById('pvm-val-1');
+        return { rangees: mem.querySelectorAll('tr').length,
+                 noms: [...host.querySelectorAll('.pvm-nom')].map(e => e.textContent.trim()),
+                 val0: (v0 || {}).value, classe0: (v0 || {}).className, fige0: !!(v0 && v0.disabled),
+                 encre0: v0 ? getComputedStyle(v0).color : '',
+                 rang1: !!v1, vide1: v1 ? v1.value : 'ABSENTE',
+                 reperes: lignes.map(e => (e.querySelector('.pap-repere') || {}).textContent || ''),
+                 defile: mem.parentElement.scrollWidth > mem.parentElement.clientWidth + 1,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      if(g.rangees !== 3) grandi.push(g.rangees + ' rangée(s) au lieu de 3 après être passé à la ligne 2');
+      if(!g.rang1 || g.vide1 !== '') grandi.push('la nouvelle rangée n\'est pas vide : ' + JSON.stringify(g.vide1));
+      if(g.noms.join(',') !== A.fiche.memoire.slice(0, 2).map(r => r[0]).join(','))
+        grandi.push('les noms de cases écrits : ' + JSON.stringify(g.noms));
+      if(g.val0 !== bons[0].val || !/ok/.test(g.classe0 || '') || dom(g.encre0) !== 'bleu' || !g.fige0)
+        grandi.push('la rangée quittée ne garde pas sa valeur juste en bleu : ' + JSON.stringify({ v: g.val0, c: g.classe0, e: g.encre0, d: g.fige0 }));
+      if(g.reperes[0].indexOf('✓') < 0 || g.reperes[1].indexOf('▶') < 0)
+        grandi.push('les repères après une étape : ' + JSON.stringify(g.reperes));
+      if(g.defile || g.page) grandi.push('le tableau ou la page déborde à 1400 px');
+      verifier('le tableau GRANDIT d\'une rangée à chaque étape, la rangée d\'avant reste posée et peinte, et le ✓ passe sur la ligne exécutée',
+        !grandi.length, grandi.slice(0, 3).join(' | '));
+      /* 4. LA FIN VÉRIFIE LA MÉMOIRE ENTIÈRE */
+      const fin = [];
+      for(let k = 1; k < nL; k++){
+        await s.page.click('#pvm-val-' + k);
+        await s.page.keyboard.type(bons[k].val, { delay: 40 });
+        await s.page.click('#pvmValidate');
+        await s.page.waitForTimeout(350);
+        if(k < nL - 1){ await s.page.click('#pvmStep'); await s.page.waitForTimeout(350); }
+      }
+      const bilan = await s.page.evaluate(() => {
+        const host = document.getElementById('pvmHost'), b = host.querySelector('.pvm-bilan');
+        return { n: host.querySelectorAll('.pvm-bilan').length,
+                 txt: b ? b.textContent.replace(/\s+/g, ' ').trim() : '',
+                 suivant: (document.getElementById('pvmNext') || {}).textContent,
+                 score: test.score,
+                 note: ((document.getElementById('pvmFeedback') || {}).textContent || ''),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      if(bilan.n !== 1) fin.push(bilan.n + ' bilan(s) de mémoire à la fin au lieu d\'un');
+      A.fiche.memoire.forEach(r => {
+        if(bilan.txt.indexOf(r[0]) < 0 || bilan.txt.indexOf(r[1]) < 0)
+          fin.push('le bilan ne dit pas que ' + r[0] + ' contient ' + r[1] + ' : ' + bilan.txt.slice(0, 140));
+      });
+      if(bilan.score !== nL) fin.push('note ' + bilan.score + ' au lieu de ' + nL);
+      if(!bilan.suivant) fin.push('pas de bouton « Question suivante » à la fin du programme');
+      if(!new RegExp(nL + ' cases justes sur ' + nL).test(bilan.note)) fin.push('la note affichée : ' + bilan.note.trim());
+      if(bilan.page) fin.push('la page déborde après le bilan');
+      verifier('à la dernière ligne, la page VÉRIFIE la mémoire entière — chaque case nommée avec sa valeur d\'arrivée',
+        !fin.length, fin.slice(0, 3).join(' | '));
+      /* 5. SUR UN TÉLÉPHONE, LES DEUX COLONNES S'EMPILENT */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(400);
+      const tel = await s.page.evaluate(() => {
+        const cols = [...document.querySelectorAll('#pvmHost .pap-col')];
+        const mem = document.getElementById('pvmHost').querySelector('.pap-mem');
+        const r = e => e.getBoundingClientRect();
+        return { empilees: cols.length === 2 && r(cols[1]).top >= r(cols[0]).bottom - 2,
+                 memDedans: r(mem).right <= document.documentElement.clientWidth + 1
+                            || mem.parentElement.scrollWidth > mem.parentElement.clientWidth,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      verifier('sur un téléphone, les deux colonnes S\'EMPILENT et la page ne déborde pas en largeur',
+        tel.empilees && tel.memDedans && !tel.page, JSON.stringify(tel));
+      verifier('l\'écran de la valeur de la case mémoire ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent
