@@ -9628,31 +9628,29 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies quaterdecies. {python-pas-a-pas} : les deux colonnes, la rangée choisie et tapée =====
+    /* ===== 6 tricies quaterdecies. {python-pas-a-pas} : le tableau auto-rempli, aligné, et la vérification globale =====
        Le banc jsdom tient la fiche, le tirage et ses trois visages, l'état de
-       la mémoire refait par une seconde arithmétique, le juge, la porte de la
-       ligne suivante, la rangée à moitié remplie et le soutien. Ce qu'il ne
-       voit pas : les DEUX colonnes RENDUES côte à côte — le programme et le
-       tableau des cases, la disposition de la fiche —, le REPÈRE ▶ sur la
-       ligne qu'on exécute, le tableau qui GRANDIT d'une rangée à chaque
-       étape — et dont la rangée QUITTÉE porte la mémoire VRAIE, à l'encre
-       RENDUE : le défaut que la capture a montré, où elle gardait la saisie
-       fausse en rouge et donnait DEUX nombres pour une même case —, les deux
-       cases à la chasse et à la taille du code qu'elles
-       lisent, un VRAI choix dans la liste (Playwright refuse de choisir dans
-       une liste fermée, et c'est le bord qu'on tient) suivi d'une VRAIE
-       frappe, l'encre RENDUE des deux verdicts sur la même rangée — l'une
-       bleue, l'autre rouge : c'est la règle « chaque case se juge seule », et
-       seule une couleur rendue la montre —, la bonne réponse en VERT SOUS la
-       case et non à côté (dans une cellule de tableau, un badge en ligne
-       sortirait de sa cellule), et le téléphone, où les deux colonnes
-       S'EMPILENT au lieu de faire déborder la page.
+       la mémoire refait par une seconde arithmétique, le tableau qui reflète
+       EXACTEMENT papAns à chaque étape, la vérification globale et sa copie
+       vide qui bloque tout, le soutien qui ne révèle rien, la reprise après
+       une pause et les branchements. Ce qu'il ne voit pas : le tableau RENDU
+       — une seule table à trois colonnes, la case mémoire et son contenu dans
+       la MÊME <tr> que la ligne du programme qui les remplit (l'alignement
+       horizontal demandé par Turquet) —, TOUTES les rangées déjà en place dès
+       l'ouverture, le repère ▶/✓ qui avance tout seul au clic sur « Ligne
+       suivante » sans qu'aucune saisie ne soit possible avant la fin, les
+       phrases qui apparaissent TOUTES ENSEMBLE une fois le tableau complet,
+       une VRAIE frappe dans de VRAIS champs texte (il n'y a plus de liste à
+       choisir), l'encre RENDUE de la vérification globale — un blanc vide ne
+       peint RIEN, un blanc faux ne fait pas rougir son voisin juste —, la
+       bonne réponse en VERT juste après le blanc faux, et le téléphone, où le
+       tableau ne fait pas déborder la page.
        TOUT SE MESURE SUR LA QUESTION 1, la fiche ÉPINGLÉE : sur un tirage au
        hasard, le nombre de lignes et les valeurs changeraient d'une exécution
        à l'autre, et le contrôle serait INTERMITTENT. */
-    titre('6 tricies quaterdecies. LE PROGRAMME PAS À PAS : LES DEUX COLONNES, LA RANGÉE CHOISIE ET TAPÉE');
+    titre('6 tricies quaterdecies. LE PROGRAMME PAS À PAS : LE TABLEAU AUTO-REMPLI, ALIGNÉ, ET LA VÉRIFICATION GLOBALE');
     if(!P.pythonPasAPas){
-      ignorer('le programme pas à pas : les deux colonnes rendues, la rangée choisie et tapée',
+      ignorer('le programme pas à pas : le tableau auto-rempli, aligné, et la vérification globale',
         'ce niveau n\'a pas l\'exercice du programme pas à pas');
     } else {
       const A = P.pythonPasAPas, nL = A.fiche.prog.length;
@@ -9663,145 +9661,221 @@ async function parcours(page, N){
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const bons = await s.page.evaluate(() => { const q = test.questions[0];
+        return q.lignes.map((l, k) => papAns(q, k)); });
+      const lignesProg = await s.page.evaluate(() => test.questions[0].lignes.map(l => !/^[0-9]/.test(l.expr)));
       const dits = [];
-      /* 1. LES DEUX COLONNES, LE REPÈRE, ET LA PREMIÈRE RANGÉE */
-      const vu = await s.page.evaluate(() => {
+      /* 1. UN SEUL TABLEAU, TOUTES LES RANGÉES EN PLACE DÈS LE DÉPART */
+      const depart = await s.page.evaluate(() => {
         const host = document.getElementById('papHost');
-        const cols = [...host.querySelectorAll('.pap-col')], prog = host.querySelector('.pyx-prog');
-        const lignes = [...host.querySelectorAll('.pyx-ligne')], mem = host.querySelector('.pap-mem');
-        const ne = document.getElementById('pap-nom-0'), ve = document.getElementById('pap-val-0');
+        const tables = host.querySelectorAll('table.pap-mem');
+        const rows = tables.length ? [...tables[0].querySelectorAll('tr')].slice(1) : [];
         const r = e => e.getBoundingClientRect(), px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
         const fam = e => getComputedStyle(e).fontFamily;
-        return { cols: cols.length,
-                 /* côte à côte : la seconde colonne commence à DROITE de la première, sur sa ligne */
-                 aCote: cols.length === 2 && r(cols[1]).left >= r(cols[0]).right - 1 && Math.abs(r(cols[1]).top - r(cols[0]).top) < 40,
-                 lignes: lignes.map(e => e.textContent.replace(/\s+/g, ' ').trim()),
-                 reperes: lignes.map(e => (e.querySelector('.pap-repere') || {}).textContent || ''),
-                 ici: lignes.map(e => e.classList.contains('pap-ici')),
-                 rangees: mem ? mem.querySelectorAll('tr').length : 0,
-                 memBoite: mem ? { w: Math.round(r(mem).width), h: Math.round(r(mem).height) } : null,
-                 nom: ne ? { tag: ne.tagName, opts: [...ne.options].length, px: px(ne), fam: fam(ne), w: Math.round(r(ne).width) } : null,
-                 val: ve ? { tag: ve.tagName, px: px(ve), fam: fam(ve), w: Math.round(r(ve).width) } : null,
-                 pxProg: px(prog.querySelector('.pyx-l1')), famProg: fam(prog.querySelector('.pyx-l1')),
-                 /* les deux cases de la rangée partagent sa ligne */
-                 memeLigne: ne && ve && Math.abs(r(ne).top - r(ve).top) < r(ne).height,
-                 bouton: (document.getElementById('papValidate') || {}).textContent,
+        const rangee = tr => {
+          const prog = tr.querySelector('.pap-prog-cell'), nom = tr.querySelector('.pap-c-nom'), val = tr.querySelector('.pap-c-val');
+          return { repere: (tr.querySelector('.pap-repere') || {}).textContent || '',
+                   nom: nom ? nom.textContent : null, val: val ? val.textContent : null,
+                   /* la case mémoire et son contenu partagent la RANGÉE du programme */
+                   aligne: prog && nom && Math.abs(r(prog).top - r(nom).top) < 3 && Math.abs(r(prog).top - r(val).top) < 3 };
+        };
+        const l1 = rows[0] ? rows[0].querySelector('.pyx-l1') : null;
+        const c0 = rows[0] ? rows[0].querySelector('.pap-c-nom') : null;
+        return { tables: tables.length, rangees: rows.length,
+                 vues: rows.map(rangee),
+                 pxProg: l1 ? px(l1) : 0, famProg: l1 ? fam(l1) : '',
+                 pxMem: c0 ? px(c0) : 0, famMem: c0 ? fam(c0) : '',
                  step: !!document.getElementById('papStep'),
+                 valider: !!document.getElementById('papValidate'),
+                 blanc: !!document.getElementById('pap-nom-0'),
                  page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
       });
-      if(vu.cols !== 2 || !vu.aCote) dits.push('les deux colonnes ne sont pas côte à côte (' + vu.cols + ' colonne(s))');
-      if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
-      if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
-        dits.push('le programme rendu : ' + JSON.stringify(vu.lignes));
-      /* LE REPÈRE : ▶ sur la ligne qu'on exécute, et sur elle seule */
-      if(vu.reperes[0].indexOf('▶') < 0 || vu.reperes.slice(1).some(t => t.indexOf('▶') >= 0))
-        dits.push('le repère de la ligne courante : ' + JSON.stringify(vu.reperes));
-      if(!vu.ici[0] || vu.ici.slice(1).some(Boolean)) dits.push('la ligne surlignée : ' + JSON.stringify(vu.ici));
-      /* LE TABLEAU : l'en-tête et UNE rangée — il grandira d'une rangée par étape */
-      if(vu.rangees !== 2) dits.push(vu.rangees + ' rangée(s) de mémoire au lieu de 2 (en-tête + la ligne en cours)');
-      if(!vu.memBoite || vu.memBoite.w < 120 || vu.memBoite.h < 40) dits.push('le tableau de la mémoire rendu : ' + JSON.stringify(vu.memBoite));
-      if(!vu.nom || vu.nom.tag !== 'SELECT' || vu.nom.opts !== nL + 1) dits.push('la liste des cases : ' + JSON.stringify(vu.nom));
-      if(!vu.val || vu.val.tag !== 'INPUT') dits.push('la case du contenu : ' + JSON.stringify(vu.val));
-      /* les deux cases écrivent à la chasse et à la taille du code qu'elles lisent */
-      if(!/mono|menlo|consolas|courier/i.test(vu.famProg)) dits.push('le programme n\'est pas à chasse fixe : ' + vu.famProg);
-      if(!vu.nom || !/mono|menlo|consolas|courier/i.test(vu.nom.fam) || Math.abs(vu.nom.px - vu.pxProg) > 0.6)
-        dits.push('la liste des cases n\'écrit pas comme le code : ' + JSON.stringify(vu.nom) + ' contre ' + vu.pxProg + 'px ' + vu.famProg);
-      if(!vu.val || !/mono|menlo|consolas|courier/i.test(vu.val.fam) || Math.abs(vu.val.px - vu.pxProg) > 0.6)
-        dits.push('la case du contenu n\'écrit pas comme le code : ' + JSON.stringify(vu.val));
-      if(!vu.memeLigne) dits.push('les deux cases de la rangée ne partagent pas sa ligne');
-      if(!/^V/.test(vu.bouton || '')) dits.push('le bouton de la rangée : ' + JSON.stringify(vu.bouton));
-      if(vu.step) dits.push('« Passer à la ligne suivante » est là avant toute réponse');
-      if(vu.page) dits.push('la page déborde en largeur à 1400 px');
-      verifier('les deux colonnes rendues côte à côte, le repère ▶ sur la ligne qu\'on exécute, et la rangée à la chasse du code',
+      if(depart.tables !== 1) dits.push('il n\'y a pas UN SEUL tableau (' + depart.tables + ')');
+      if(depart.rangees !== nL) dits.push(depart.rangees + ' rangée(s) au lieu de ' + nL + ' — elles doivent TOUTES être là dès le départ');
+      if(depart.vues[0]) {
+        if(depart.vues[0].repere.indexOf('▶') < 0) dits.push('pas de repère ▶ sur la première ligne : ' + JSON.stringify(depart.vues[0].repere));
+        if(depart.vues[0].nom !== bons[0].nom || depart.vues[0].val !== bons[0].val)
+          dits.push('la première rangée : ' + JSON.stringify(depart.vues[0]) + ' au lieu de ' + bons[0].nom + '/' + bons[0].val);
+        if(!depart.vues[0].aligne) dits.push('la case mémoire n\'est pas alignée sur la ligne du programme');
+      }
+      depart.vues.slice(1).forEach((v, i) => {
+        if(v.nom !== '' || v.val !== '') dits.push('la rangée ' + (i + 2) + ' est déjà remplie avant son tour : ' + JSON.stringify(v));
+        if(v.repere !== '') dits.push('un repère apparaît sur une ligne pas encore exécutée : ' + JSON.stringify(v.repere));
+        if (!depart.vues[i + 1]) return;
+      });
+      /* les cases mémoire écrivent à la chasse et à la taille du programme */
+      if(!/mono|menlo|consolas|courier/i.test(depart.famProg)) dits.push('le programme n\'est pas à chasse fixe : ' + depart.famProg);
+      if(!/mono|menlo|consolas|courier/i.test(depart.famMem) || Math.abs(depart.pxMem - depart.pxProg) > 0.6)
+        dits.push('la case mémoire n\'écrit pas comme le code : ' + depart.pxMem + 'px ' + depart.famMem + ' contre ' + depart.pxProg + 'px ' + depart.famProg);
+      if(!depart.step) dits.push('pas de bouton « Ligne suivante » au départ');
+      if(depart.valider) dits.push('« Vérifier » existe avant que le tableau ne soit complet');
+      if(depart.blanc) dits.push('une phrase existe avant que le tableau ne soit complet');
+      if(depart.page) dits.push('la page déborde en largeur à 1400 px');
+      verifier('un SEUL tableau, TOUTES les rangées en place dès l\'ouverture, la case mémoire ALIGNÉE sur sa ligne de programme, à sa chasse et sa taille',
         !dits.length, dits.slice(0, 3).join(' | '));
-      /* 2. LA RANGÉE SE CHOISIT ET SE TAPE POUR DE VRAI, et chaque case se juge SEULE */
-      const bons = await s.page.evaluate(() => { const q = test.questions[test.idx];
-        return q.lignes.map((l, k) => papAns(q, k)); });
-      const faux = await s.page.evaluate(() => { const q = test.questions[test.idx], a = papAns(q, 0);
-        return q.ordre.filter(n => n !== a.nom)[0]; });
-      const gestes = [];
-      /* on choisit la MAUVAISE case et on tape la BONNE valeur : les deux
-         verdicts tombent sur la même rangée, l'un bleu et l'autre rouge */
-      await s.page.selectOption('#pap-nom-0', faux);
-      await s.page.click('#pap-val-0');
-      await s.page.keyboard.type(bons[0].val, { delay: 60 });
-      await s.page.waitForTimeout(150);
+      /* 2. « LIGNE SUIVANTE » AVANCE TOUT SEUL, SANS RIEN DEMANDER, ET LE TABLEAU RESTE HONNÊTE */
+      const avance = [];
+      for(let k = 1; k < nL; k++){
+        await s.page.click('#papStep');
+        await s.page.waitForTimeout(250);
+        const v = await s.page.evaluate((k) => {
+          const rows = [...document.querySelectorAll('#papHost table.pap-mem tr')].slice(1);
+          return { etape: test.papEtape,
+                   vues: rows.map(tr => ({ repere: (tr.querySelector('.pap-repere') || {}).textContent || '',
+                                            nom: (tr.querySelector('.pap-c-nom') || {}).textContent || '',
+                                            val: (tr.querySelector('.pap-c-val') || {}).textContent || '' })) };
+        }, k);
+        if(v.etape !== k) avance.push('étape ' + v.etape + ' au lieu de ' + k + ' après ' + k + ' clic(s)');
+        v.vues.forEach((row, i) => {
+          if(i <= k){
+            if(row.nom !== bons[i].nom || row.val !== bons[i].val)
+              avance.push('rangée ' + (i + 1) + ' à l\'étape ' + k + ' : ' + JSON.stringify(row) + ' au lieu de ' + bons[i].nom + '/' + bons[i].val);
+          } else if(row.nom !== '' || row.val !== '') avance.push('rangée ' + (i + 1) + ' déjà remplie à l\'étape ' + k + ' : ' + JSON.stringify(row));
+          if(i === k && row.repere.indexOf('▶') < 0) avance.push('pas de ▶ sur la ligne en cours à l\'étape ' + k);
+          if(i < k && row.repere.indexOf('✓') < 0) avance.push('pas de ✓ sur une ligne passée à l\'étape ' + k);
+        });
+      }
+      verifier('« Ligne suivante » avance SANS RIEN DEMANDER, et le tableau affiche à CHAQUE étape EXACTEMENT ce que papAns calcule',
+        !avance.length, avance.slice(0, 3).join(' | '));
+      /* 3. LE TABLEAU COMPLET FAIT APPARAÎTRE LES PHRASES, TOUTES ENSEMBLE */
+      const complet = await s.page.evaluate((nL) => {
+        const phrases = [...document.querySelectorAll('#papHost .pap-phrase')];
+        return { phrases: phrases.length,
+                 champs: phrases.map((p, i) => ({ nom: !!document.getElementById('pap-nom-' + i),
+                                                    val: !!document.getElementById('pap-val-' + i),
+                                                    tagNom: (document.getElementById('pap-nom-' + i) || {}).tagName,
+                                                    texte: p.textContent }))
+                              .concat(Array(Math.max(0, nL - phrases.length)).fill(null)),
+                 step: !!document.getElementById('papStep'),
+                 valider: (document.getElementById('papValidate') || {}).textContent || '',
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      }, nL);
+      const phrasesDits = [];
+      if(complet.phrases !== nL) phrasesDits.push(complet.phrases + ' phrase(s) au lieu de ' + nL);
+      complet.champs.forEach((c, i) => {
+        if(!c){ phrasesDits.push('phrase ' + (i + 1) + ' absente'); return; }
+        if(!c.nom || c.tagNom !== 'INPUT') phrasesDits.push('phrase ' + (i + 1) + ' : pas de blanc du nom, en <input> texte libre');
+        const attend = lignesProg[i];
+        if(attend && !c.val) phrasesDits.push('phrase ' + (i + 1) + ' (copie) : pas de blanc de la valeur');
+        if(!attend && c.val) phrasesDits.push('phrase ' + (i + 1) + ' (directe) : un blanc de valeur traîne alors qu\'il n\'en faut qu\'un');
+      });
+      if(complet.step) phrasesDits.push('« Ligne suivante » reste alors que le tableau est complet');
+      if(!/^V/.test(complet.valider)) phrasesDits.push('pas de bouton « Vérifier » : ' + JSON.stringify(complet.valider));
+      if(complet.page) phrasesDits.push('la page déborde en largeur une fois le tableau complet');
+      verifier('une fois le tableau COMPLET, les phrases apparaissent TOUTES ENSEMBLE, dans l\'ordre du programme, chacune avec le bon nombre de blancs texte',
+        !phrasesDits.length, phrasesDits.slice(0, 3).join(' | '));
+      /* 4. LA VÉRIFICATION EST GLOBALE : un blanc vide bloque TOUT */
+      await s.page.click('#papValidate');
+      await s.page.waitForTimeout(300);
+      const vide = await s.page.evaluate(() => {
+        const peintes = document.querySelectorAll('#papHost .pap-phrase input.ok,#papHost .pap-phrase input.bad,#papHost .pap-phrase input.sol').length;
+        return { peintes, fb: (document.getElementById('papFeedback') || {}).className || '' };
+      });
+      const videDits = [];
+      if(vide.peintes) videDits.push(vide.peintes + ' blanc(s) peint(s) sur une copie vide');
+      if(!/mp-feedback bad/.test(vide.fb)) videDits.push('aucun message sur une copie vide : ' + vide.fb);
+      verifier('la vérification GLOBALE : une copie ENTIÈREMENT vide ne peint RIEN, et affiche un message',
+        !videDits.length, videDits.slice(0, 3).join(' | '));
+      /* 5. LA COPIE SE TAPE POUR DE VRAI — au clavier, dans les vrais champs — et
+         chaque blanc se juge SEUL : on trompe le blanc du NOM de la ligne de
+         copie (la dernière), tout le reste est juste */
+      const derniere = nL - 1;
+      for(let k = 0; k < nL; k++){
+        const ligne = lignesProg[k];
+        if(ligne){
+          await s.page.click('#pap-val-' + k);
+          await s.page.keyboard.type(bons[k].val, { delay: 40 });
+        }
+        await s.page.click('#pap-nom-' + k);
+        if(k === derniere) await s.page.keyboard.type('zzz', { delay: 40 });
+        else await s.page.keyboard.type(bons[k].nom, { delay: 40 });
+      }
       await s.page.click('#papValidate');
       await s.page.waitForTimeout(400);
-      const mix = await s.page.evaluate(() => {
-        const ne = document.getElementById('pap-nom-0'), ve = document.getElementById('pap-val-0');
-        const b = ne.nextElementSibling, r = e => e.getBoundingClientRect();
-        const rb = b ? r(b) : null, rn = r(ne);
-        return { cn: ne.className, cv: ve.className, en: getComputedStyle(ne).color, ev: getComputedStyle(ve).color,
-                 badge: !!(b && b.classList && b.classList.contains('mf-cor')), texte: b ? b.textContent : '',
-                 encre: b ? getComputedStyle(b).color : '',
-                 /* SOUS la case, jamais à côté : dans une cellule de tableau un
-                    badge en ligne sortirait de sa cellule */
-                 dessous: !!rb && rb.top >= rn.bottom - 2 && rb.width > 4,
-                 dedans: !!rb && rb.right <= document.documentElement.clientWidth,
-                 badgeVal: !!(ve.nextElementSibling && ve.nextElementSibling.classList && ve.nextElementSibling.classList.contains('mf-cor')),
-                 score: test.score, step: (document.getElementById('papStep') || {}).textContent,
-                 lu: ve.value, page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
-      });
-      if(mix.lu !== bons[0].val) gestes.push('la valeur tapée au clavier n\'est pas arrivée : ' + JSON.stringify(mix.lu));
-      if(!/bad/.test(mix.cn) || dom(mix.en) !== 'rouge') gestes.push('la case choisie fausse n\'est pas rouge : ' + mix.cn + ' / ' + mix.en);
-      if(!/ok/.test(mix.cv) || dom(mix.ev) !== 'bleu') gestes.push('la valeur juste n\'est pas bleue : ' + mix.cv + ' / ' + mix.ev);
-      if(!mix.badge || mix.texte !== bons[0].nom || dom(mix.encre) !== 'vert')
-        gestes.push('la bonne case en vert : ' + JSON.stringify({ badge: mix.badge, texte: mix.texte, encre: mix.encre }));
-      if(!mix.dessous || !mix.dedans) gestes.push('le badge n\'est pas SOUS la case, dans sa cellule');
-      if(mix.badgeVal) gestes.push('un badge s\'affiche aussi à côté de la case juste');
-      if(mix.score !== 1) gestes.push('note ' + mix.score + ' au lieu de 1');
-      if(!/ligne 2/.test(mix.step || '')) gestes.push('le bouton de la ligne suivante : ' + JSON.stringify(mix.step));
-      if(mix.page) gestes.push('la page déborde après la correction');
-      verifier('la rangée se CHOISIT et se TAPE pour de vrai : les deux verdicts tombent sur la même rangée, l\'un bleu et l\'autre rouge, et la bonne case s\'écrit en VERT SOUS la case fausse',
-        !gestes.length, gestes.slice(0, 3).join(' | '));
-      /* 3. LE TABLEAU GRANDIT, ET LA MÉMOIRE PERSISTE À L'ÉCRAN */
-      await s.page.click('#papStep');
+      const mix = await s.page.evaluate((derniere) => {
+        const badE = document.getElementById('pap-nom-' + derniere);
+        const badge = badE.nextElementSibling;
+        const r = e => e.getBoundingClientRect();
+        return { valBad: badE.value, classeBad: badE.className, encreBad: getComputedStyle(badE).color,
+                 classeVal: (document.getElementById('pap-val-' + derniere) || {}).className,
+                 encreVal: getComputedStyle(document.getElementById('pap-val-' + derniere)).color,
+                 classePremiere: document.getElementById('pap-nom-0').className,
+                 encrePremiere: getComputedStyle(document.getElementById('pap-nom-0')).color,
+                 badge: !!(badge && badge.classList && badge.classList.contains('mf-cor')),
+                 texteBadge: badge ? badge.textContent : '', encreBadge: badge ? getComputedStyle(badge).color : '',
+                 disabled: [...document.querySelectorAll('#papHost .pap-phrase input')].every(e => e.disabled),
+                 score: test.score, page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      }, derniere);
+      const mixDits = [];
+      if(mix.valBad !== 'zzz') mixDits.push('la frappe au clavier n\'est pas arrivée dans le blanc : ' + JSON.stringify(mix.valBad));
+      if(!/bad/.test(mix.classeBad) || dom(mix.encreBad) !== 'rouge') mixDits.push('le blanc faux n\'est pas rouge : ' + mix.classeBad + ' / ' + mix.encreBad);
+      if(!/ok/.test(mix.classeVal) || dom(mix.encreVal) !== 'bleu') mixDits.push('le blanc juste voisin n\'est pas bleu, il a rougi avec le faux : ' + mix.classeVal + ' / ' + mix.encreVal);
+      if(!/ok/.test(mix.classePremiere) || dom(mix.encrePremiere) !== 'bleu') mixDits.push('un blanc juste ailleurs dans la copie a rougi : ' + mix.classePremiere + ' / ' + mix.encrePremiere);
+      if(!mix.badge || mix.texteBadge !== bons[derniere].nom || dom(mix.encreBadge) !== 'vert')
+        mixDits.push('la bonne réponse en VERT à côté du blanc faux : ' + JSON.stringify({ badge: mix.badge, texte: mix.texteBadge, encre: mix.encreBadge }));
+      if(!mix.disabled) mixDits.push('les blancs restent modifiables après le verdict, en entraînement');
+      if(mix.score !== 3) mixDits.push('note ' + mix.score + ' au lieu de 3');
+      if(mix.page) mixDits.push('la page déborde après la correction');
+      verifier('la copie se TAPE au clavier pour de vrai : chaque blanc se juge SEUL — le faux rouge ne fait pas rougir ses voisins justes bleus —, et la bonne réponse s\'écrit en VERT à côté du blanc faux',
+        !mixDits.length, mixDits.slice(0, 3).join(' | '));
+      const suivant = await s.page.evaluate(() => (document.getElementById('papNext') || {}).textContent || '');
+      if(!/uestion suivante|es résultats/.test(suivant)) dits.push('pas de bouton pour continuer après la correction : ' + JSON.stringify(suivant));
+      await s.nav.close(); s = null;
+      /* 6. LE SOUTIEN : rien ne se révèle tant que tout n'est pas juste */
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      const grandi = [];
-      const g = await s.page.evaluate(() => {
-        const mem = document.getElementById('papHost').querySelector('.pap-mem');
-        const lignes = [...document.querySelectorAll('#papHost .pyx-ligne')];
-        const n0 = document.getElementById('pap-nom-0'), n1 = document.getElementById('pap-nom-1');
-        return { rangees: mem.querySelectorAll('tr').length,
-                 ligne0: (n0 || {}).value, classe0: (n0 || {}).className, fige0: !!(n0 && n0.disabled),
-                 encre0: n0 ? getComputedStyle(n0).color : '',
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      for(let k = 1; k < nL; k++){ await s.page.click('#papStep'); await s.page.waitForTimeout(120); }
+      const bonsS = await s.page.evaluate(() => { const q = test.questions[0]; return q.lignes.map((l, k) => papAns(q, k)); });
+      for(let k = 0; k < nL; k++){
+        const ligne = lignesProg[k];
+        if(ligne){ await s.page.click('#pap-val-' + k); await s.page.keyboard.type(bonsS[k].val, { delay: 30 }); }
+        await s.page.click('#pap-nom-' + k);
+        if(k === derniere) await s.page.keyboard.type('zzz', { delay: 30 });
+        else await s.page.keyboard.type(bonsS[k].nom, { delay: 30 });
+      }
+      await s.page.click('#papValidate');
+      await s.page.waitForTimeout(350);
+      const sout = await s.page.evaluate((derniere) => {
+        const badE = document.getElementById('pap-nom-' + derniere);
+        return { classeBad: badE.className, disabled: badE.disabled,
                  badges: document.querySelectorAll('#papHost .mf-cor').length,
-                 rang1: !!n1, vide1: n1 ? n1.value : 'ABSENTE',
-                 reperes: lignes.map(e => (e.querySelector('.pap-repere') || {}).textContent || ''),
-                 defile: mem.parentElement.scrollWidth > mem.parentElement.clientWidth + 1,
-                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
-      });
-      if(g.rangees !== 3) grandi.push(g.rangees + ' rangée(s) au lieu de 3 après être passé à la ligne 2');
-      if(!g.rang1 || g.vide1 !== '') grandi.push('la nouvelle rangée n\'est pas vide : ' + JSON.stringify(g.vide1));
-      /* LA RANGÉE QUITTÉE PORTE LA MÉMOIRE VRAIE — le défaut que la capture a
-         montré : elle gardait la saisie FAUSSE en rouge avec la correction en
-         vert à côté, donc DEUX nombres pour une même case dans un tableau qui
-         s'appelle « la mémoire de l'ordinateur ». Ici la case du nom était
-         fausse : elle porte le nom VRAI, en vert (sol), et plus aucun badge ne
-         traîne. Seule une encre RENDUE le montre. */
-      if(g.ligne0 !== bons[0].nom || !/sol/.test(g.classe0 || '') || dom(g.encre0) !== 'vert' || !g.fige0)
-        grandi.push('la rangée quittée ne porte pas la mémoire vraie : ' + JSON.stringify({ v: g.ligne0, c: g.classe0, e: g.encre0, d: g.fige0 }) + ' au lieu de ' + bons[0].nom + ' en vert');
-      if(g.badges) grandi.push(g.badges + ' badge(s) de correction traînent sur une rangée quittée');
-      if(g.reperes[0].indexOf('✓') < 0 || g.reperes[1].indexOf('▶') < 0)
-        grandi.push('les repères après une étape : ' + JSON.stringify(g.reperes));
-      if(g.defile || g.page) grandi.push('le tableau ou la page déborde à 1400 px');
-      verifier('le tableau GRANDIT d\'une rangée à chaque étape, la rangée d\'avant reste posée et peinte, et le ✓ passe sur la ligne exécutée',
-        !grandi.length, grandi.slice(0, 3).join(' | '));
-      /* 4. SUR UN TÉLÉPHONE, LES DEUX COLONNES S'EMPILENT */
+                 sol: document.querySelectorAll('#papHost .pap-phrase input.sol').length,
+                 score: test.score, bouton: (document.getElementById('papValidate') || {}).textContent || '' };
+      }, derniere);
+      const soutDits = [];
+      if(!/bad/.test(sout.classeBad)) soutDits.push('le blanc faux n\'est pas rouge en soutien');
+      if(sout.disabled) soutDits.push('le blanc reste verrouillé en soutien');
+      if(sout.badges) soutDits.push('le soutien révèle la bonne réponse (' + sout.badges + ' badge(s))');
+      if(sout.sol) soutDits.push('le soutien remplit un blanc en vert');
+      if(sout.score) soutDits.push('le soutien compte des points avant la correction : ' + sout.score);
+      if(!/Rev/.test(sout.bouton)) soutDits.push('pas de « Revérifier » : ' + JSON.stringify(sout.bouton));
+      /* on corrige, ça passe */
+      await s.page.click('#pap-nom-' + derniere);
+      await s.page.keyboard.press('Control+A');
+      await s.page.keyboard.type(bonsS[derniere].nom, { delay: 30 });
+      await s.page.click('#papValidate');
+      await s.page.waitForTimeout(350);
+      const corrige = await s.page.evaluate(() => ({ verrouille: [...document.querySelectorAll('#papHost .pap-phrase input')].every(e => e.disabled),
+                                                        next: !!document.getElementById('papNext') }));
+      if(!corrige.verrouille || !corrige.next) soutDits.push('la copie ENTIÈREMENT corrigée ne verrouille pas la question');
+      verifier('en SOUTIEN, un blanc faux ne révèle rien, reste modifiable et ne compte aucun point — et la copie corrigée ENTIÈREMENT verrouille',
+        !soutDits.length, soutDits.slice(0, 3).join(' | '));
+      /* 7. SUR UN TÉLÉPHONE, LE TABLEAU NE FAIT PAS DÉBORDER LA PAGE */
       await s.page.setViewportSize({ width: 390, height: 844 });
       await s.page.waitForTimeout(400);
       const tel = await s.page.evaluate(() => {
-        const cols = [...document.querySelectorAll('#papHost .pap-col')];
-        const mem = document.getElementById('papHost').querySelector('.pap-mem');
+        const wrap = document.querySelector('#papHost .pap-wrap');
         const r = e => e.getBoundingClientRect();
-        return { empilees: cols.length === 2 && r(cols[1]).top >= r(cols[0]).bottom - 2,
-                 memDedans: r(mem).right <= document.documentElement.clientWidth + 1
-                            || mem.parentElement.scrollWidth > mem.parentElement.clientWidth,
+        return { dedans: !wrap || r(wrap).right <= document.documentElement.clientWidth + 1
+                          || wrap.scrollWidth > wrap.clientWidth,
                  page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
       });
-      verifier('sur un téléphone, les deux colonnes S\'EMPILENT et la page ne déborde pas en largeur',
-        tel.empilees && tel.memDedans && !tel.page, JSON.stringify(tel));
+      verifier('sur un téléphone, le tableau tient dans l\'écran (ou défile DANS son cadre), et la page ne déborde pas en largeur',
+        tel.dedans && !tel.page, JSON.stringify(tel));
       verifier('l\'écran du programme pas à pas ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;

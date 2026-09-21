@@ -27324,14 +27324,24 @@ function pythonPasAPas(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 4. le barème : deux réponses par ligne ---- */
-  verifierEval(w, 'chaque ligne vaut DEUX réponses — la case et son contenu —, et le barème de la séance les compte toutes : c est aussi le POIDS que la coupe d un devoir lira (la convention xxxCases)', `(function(){
+  /* ---- 4. le barème : un blanc par ligne DIRECTE, deux par ligne de COPIE ---- */
+  verifierEval(w, 'chaque ligne DIRECTE vaut UN blanc, chaque ligne de COPIE en vaut DEUX — la valeur puis le nom —, et le barème de la séance les compte tous : c est aussi le POIDS que la coupe d un devoir lira (la convention xxxCases)', `(function(){
     currentMode="train"; currentTestId="${ID}"; startPAP();
     const vus=[];
     let t=0; test.questions.forEach(function(q){
       const c=papCases(q);
-      if(c.length!==2*q.lignes.length) vus.push("papCases rend "+c.length+" cases pour "+q.lignes.length+" lignes");
-      c.forEach(function(x, i){ if(x.id!=="pap-"+(i%2?"val":"nom")+"-"+Math.floor(i/2)) vus.push("identifiant de case inattendu : "+x.id); });
+      let i=0, attendu=0;
+      q.lignes.forEach(function(l, k){
+        const copie=!/^[0-9]/.test(l.expr);
+        attendu+=copie?2:1;
+        if(copie){
+          if(!c[i]||c[i].id!=="pap-val-"+k) vus.push("case "+i+" attendue pap-val-"+k+" : "+(c[i]&&c[i].id));
+          i++;
+        }
+        if(!c[i]||c[i].id!=="pap-nom-"+k) vus.push("case "+i+" attendue pap-nom-"+k+" : "+(c[i]&&c[i].id));
+        i++;
+      });
+      if(c.length!==attendu) vus.push("papCases rend "+c.length+" case(s) pour "+q.lignes.length+" ligne(s) ("+attendu+" attendues)");
       t+=c.length;
     });
     if(test.maxScore!==t) vus.push("bareme "+test.maxScore+" au lieu de "+t);
@@ -27339,208 +27349,176 @@ function pythonPasAPas(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 5. la copie juste, ligne par ligne, et la PORTE de la ligne suivante ---- */
-  verifierEval(w, 'la copie juste CLIQUÉE ligne par ligne : chaque rangée vaut 2, « Passer à la ligne suivante » n existe qu une fois la ligne JUGÉE, la rangée jugée se verrouille et reste peinte, et « Question suivante » n arrive qu à la dernière ligne', `(function(){
+  /* ---- 5. l exécution AUTOMATIQUE : le tableau, honnête à CHAQUE étape ---- */
+  /* Il n'y a plus de porte à tenir — l'élève ne remplit plus rien avant la
+     fin — mais il y a une promesse à tenir à sa place : le tableau doit
+     afficher, à CHAQUE étape, EXACTEMENT ce que papAns calcule, jamais une
+     valeur inventée ni une rangée remplie avant son tour. C'est le bord qui a
+     remplacé « la rangée quittée porte la mémoire vraie » : il n'y a plus de
+     saisie fausse à corriger, mais il y a toujours une case à ne jamais
+     tromper. */
+  verifierEval(w, 'aucune saisie avant la fin : « Ligne suivante » avance SANS RIEN VÉRIFIER, et à chaque étape le tableau affiche EXACTEMENT ce que papAns calcule — jamais une valeur inventée, jamais une rangée remplie avant son tour', `(function(){
     currentMode="train"; currentTestId="${ID}"; startPAP();
     const vus=[], q=test.questions[0], n=q.lignes.length;
-    if(document.getElementById("papStep")) vus.push("« Passer a la ligne suivante » est la avant toute reponse");
+    if(document.getElementById("pap-nom-0")) vus.push("une phrase existe avant que le tableau ne soit complet");
+    const lignes=function(){ return [...document.querySelectorAll("#papHost .pap-mem tr")].slice(1); };
+    if(lignes().length!==n) vus.push("le tableau porte "+lignes().length+" rangee(s) au lieu de "+n+" DES LE DEPART");
     for(let k=0;k<n;k++){
-      const a=papAns(q, k), ne=document.getElementById("pap-nom-"+k), ve=document.getElementById("pap-val-"+k);
-      if(!ne||!ve||ne.tagName!=="SELECT"||ve.tagName!=="INPUT"){ vus.push("la rangee "+(k+1)+" n a pas sa liste et sa case"); break; }
-      if(document.getElementById("pap-nom-"+(k+1))) vus.push("la rangee "+(k+2)+" est deja la");
-      /* LA PORTE : on ne passe pas à la ligne suivante sans avoir jugé */
-      const av=test.papEtape; papSuivante();
-      if(test.papEtape!==av) vus.push("papSuivante passe la ligne "+(k+1)+" sans l avoir jugee");
-      ne.value=a.nom; ve.value=a.val; checkPAP();
-      if(!ne.classList.contains("ok")||!ve.classList.contains("ok")) vus.push("la rangee juste "+(k+1)+" n est pas peinte ok : "+ne.className+" / "+ve.className);
-      if(!ne.disabled||!ve.disabled) vus.push("la rangee "+(k+1)+" reste modifiable apres le verdict");
-      if(test.score!==2*(k+1)) vus.push("note "+test.score+" au lieu de "+(2*(k+1))+" apres la ligne "+(k+1));
+      if(test.papEtape!==k) vus.push("etape "+test.papEtape+" au lieu de "+k);
+      const rows=lignes();
+      rows.forEach(function(tr, i){
+        const nomTxt=(tr.querySelector(".pap-c-nom")||{}).textContent||"";
+        const valTxt=(tr.querySelector(".pap-c-val")||{}).textContent||"";
+        const repere=(tr.querySelector(".pap-repere")||{}).textContent||"";
+        if(i<=k){
+          const a=papAns(q, i);
+          if(nomTxt!==a.nom||valTxt!==a.val) vus.push("rangee "+(i+1)+" a l etape "+k+" : "+nomTxt+"/"+valTxt+" au lieu de "+a.nom+"/"+a.val);
+        } else if(nomTxt!==""||valTxt!=="") vus.push("rangee "+(i+1)+" deja remplie avant son tour, a l etape "+k+" : "+nomTxt+"/"+valTxt);
+        if(i===k && repere.indexOf("▶")<0) vus.push("pas de repere sur la ligne en cours, etape "+k);
+        if(i<k && repere.indexOf("✓")<0) vus.push("pas de coche sur une ligne passee, etape "+k);
+        if(i>k && repere!=="") vus.push("un repere apparait sur une ligne future, etape "+k+" : "+JSON.stringify(repere));
+      });
       if(k<n-1){
-        if(!document.getElementById("papStep")) vus.push("pas de bouton pour passer a la ligne "+(k+2));
-        if(document.getElementById("papNext")) vus.push("« Question suivante » arrive des la ligne "+(k+1));
-        if(test.locked) vus.push("la question est verrouillee des la ligne "+(k+1));
-        papSuivante();
-        if(test.papEtape!==k+1) vus.push("papSuivante n avance pas : etape "+test.papEtape);
-        /* les rangées d avant restent peintes et remplies */
-        for(let i=0;i<=k;i++){
-          const x=document.getElementById("pap-nom-"+i), y=document.getElementById("pap-val-"+i);
-          if(!x||!y||x.value!==papAns(q,i).nom||y.value!==papAns(q,i).val||!x.classList.contains("ok")||!y.classList.contains("ok"))
-            vus.push("la rangee "+(i+1)+" n est plus posee apres etre passe a la ligne "+(k+2));
-        }
+        if(!document.getElementById("papStep")) vus.push("pas de bouton pour avancer, etape "+k);
+        if(document.getElementById("papValidate")) vus.push("« Vérifier » existe avant que le tableau ne soit complet, etape "+k);
+        const av=test.papEtape; papSuivante();
+        if(test.papEtape!==av+1) vus.push("« Ligne suivante » n avance pas, etape "+k);
       }
     }
-    if(!test.locked) vus.push("la question n est pas verrouillee a la derniere ligne");
-    if(!document.getElementById("papNext")) vus.push("pas de « Question suivante » a la derniere ligne");
-    if(document.getElementById("papStep")) vus.push("« Passer a la ligne suivante » est encore la a la derniere ligne");
-    /* LA NOTE AFFICHÉE compte toute la question */
-    const m=ptsEcran();
-    if(!m||m.cases!==2*n||m.justes!==2*n) vus.push("la note affichee : "+JSON.stringify(m));
-    const a0=test.answers[0];
-    if(!a0||a0.correct!==true||a0.cases!==2*n) vus.push("la reponse enregistree : "+JSON.stringify(a0));
+    if(!document.getElementById("pap-nom-0")) vus.push("aucune phrase une fois le tableau complet");
+    if(!document.getElementById("papValidate")) vus.push("pas de bouton « Vérifier » une fois le tableau complet");
+    if(document.getElementById("papStep")) vus.push("« Ligne suivante » reste alors que le tableau est complet");
+    /* UNE phrase par ligne, dans l ORDRE du programme, avec le bon nombre de blancs */
+    q.lignes.forEach(function(l, k){
+      const copie=!/^[0-9]/.test(l.expr);
+      if(!document.getElementById("pap-nom-"+k)) vus.push("pas de blanc du nom sur la ligne "+(k+1));
+      if(copie && !document.getElementById("pap-val-"+k)) vus.push("pas de blanc de la valeur sur la ligne de copie "+(k+1));
+      if(!copie && document.getElementById("pap-val-"+k)) vus.push("un blanc de valeur traine sur la ligne directe "+(k+1));
+    });
+    const page=document.documentElement.scrollWidth>document.documentElement.clientWidth;
+    if(page) vus.push("la page deborde en largeur");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 5 bis. la rangée QUITTÉE porte la mémoire VRAIE ---- */
-  /* LE DÉFAUT QUE LA CAPTURE A MONTRÉ : la rangée d'une ligne quittée gardait
-     la saisie FAUSSE de l'élève en rouge, avec la correction en vert à côté —
-     deux nombres pour une même case dans un tableau qui s'appelle « la mémoire
-     de l'ordinateur », et la copie de la ligne suivante n'avait plus de source
-     sûre. Elle porte la valeur VRAIE désormais : bleu s'il l'avait juste, VERT
-     (la classe sol, la convention des révélations) s'il l'avait fausse. Le
-     bord OPPOSÉ compte autant : la rangée qu'on vient de juger, elle, GARDE la
-     convention commune — c'est le moment où l'élève regarde son verdict. */
-  verifierEval(w, 'la rangée d une ligne QUITTÉE porte la mémoire VRAIE — bleu si l élève l avait juste, VERT s il l avait fausse —, jamais sa saisie fausse : sans cela la copie de la ligne suivante lirait DEUX nombres pour une même case', `(function(){
-    currentMode="train"; currentTestId="${ID}"; startPAP();
-    const vus=[], q=test.questions[0], a0=papAns(q, 0), a1=papAns(q, 1);
-    /* la VALEUR de la ligne 1 fausse — c est la rangee que la copie lira */
-    document.getElementById("pap-nom-0").value=a0.nom;
-    document.getElementById("pap-val-0").value=String(Number(a0.val)+65);
-    checkPAP();
-    const v0=document.getElementById("pap-val-0");
-    /* AVANT de quitter la rangee : la convention commune, la saisie en rouge */
-    if(!v0.classList.contains("bad")) vus.push("la rangee qu on vient de juger ne garde pas la convention : "+v0.className);
-    if(v0.value===a0.val) vus.push("la rangee qu on vient de juger porte deja la valeur vraie : l eleve ne voit plus son erreur");
-    const cor=[...document.querySelectorAll("#papHost .mf-cor")].map(function(e){ return e.textContent; });
-    if(cor.indexOf(a0.val)<0) vus.push("la bonne valeur n est pas ecrite en vert a cote : "+cor.join(","));
-    /* APRES : la rangee quittee est LA MEMOIRE */
-    papSuivante();
-    const p0=document.getElementById("pap-val-0"), n0=document.getElementById("pap-nom-0");
-    if(!p0||p0.value!==a0.val) vus.push("la rangee quittee ne porte pas la valeur vraie : "+(p0?JSON.stringify(p0.value):"absente")+" au lieu de "+a0.val);
-    if(!p0||!p0.classList.contains("sol")) vus.push("la valeur corrigee n est pas peinte en vert : "+(p0?p0.className:"absente"));
-    if(p0&&p0.classList.contains("bad")) vus.push("la rangee quittee reste rouge : la memoire montre une valeur que l ordinateur n a jamais eue");
-    if(!n0||n0.value!==a0.nom||!n0.classList.contains("ok")) vus.push("la case juste de la rangee quittee a change : "+(n0?n0.value+" "+n0.className:"absente"));
-    if([...document.querySelectorAll("#papHost .mf-cor")].length) vus.push("un badge de correction traine sur une rangee quittee");
-    if(!p0||!p0.disabled||!n0.disabled) vus.push("la rangee quittee reste modifiable");
-    /* et la NOTE ne bouge pas : la valeur vraie posee ne se compte pas juste */
-    if(test.score!==1) vus.push("note "+test.score+" au lieu de 1 apres avoir quitte la rangee");
-    const m=ptsEcran();
-    if(!m||m.justes!==1) vus.push("la note affichee compte "+(m?m.justes:"?")+" case(s) juste(s) au lieu d une");
-    /* le NOM fausse, le miroir : la case recoit le nom vrai en vert */
-    startPAP();
-    const q2=test.questions[0], b0=papAns(q2, 0);
-    document.getElementById("pap-nom-0").value=q2.ordre.filter(function(x){ return x!==b0.nom; })[0];
-    document.getElementById("pap-val-0").value=b0.val;
-    checkPAP(); papSuivante();
-    const m0=document.getElementById("pap-nom-0");
-    if(!m0||m0.value!==b0.nom||!m0.classList.contains("sol")) vus.push("au miroir, la case du nom quittee : "+(m0?m0.value+" "+m0.className:"absente"));
-    return vus.slice(0,4).join(" | ");
-  })()`, v => v === '');
-
-  /* ---- 6. la copie fausse : chaque case se juge SEULE ---- */
-  verifierEval(w, 'chaque case se juge SEULE : une case fausse ne fait pas rougir sa voisine juste, et la bonne réponse s écrit en vert à côté de la fausse — en entraînement seulement', `(function(){
-    currentMode="train"; currentTestId="${ID}"; startPAP();
-    const vus=[], q=test.questions[0], a=papAns(q, 0);
-    /* la case du NOM fausse, la valeur juste */
-    const autre=q.ordre.filter(function(n){ return n!==a.nom; })[0];
-    document.getElementById("pap-nom-0").value=autre;
-    document.getElementById("pap-val-0").value=a.val;
-    checkPAP();
-    const ne=document.getElementById("pap-nom-0"), ve=document.getElementById("pap-val-0");
-    if(!ne.classList.contains("bad")) vus.push("la case du nom fausse n est pas rouge : "+ne.className);
-    if(!ve.classList.contains("ok")) vus.push("la valeur juste a rougi avec sa voisine : "+ve.className);
-    if(test.score!==1) vus.push("note "+test.score+" au lieu de 1");
-    const cor=[...document.querySelectorAll("#papHost .mf-cor")].map(function(e){ return e.textContent; });
-    if(cor.length!==1||cor[0]!==a.nom) vus.push("la bonne reponse en vert : "+cor.join(","));
-    /* la VALEUR fausse, le nom juste — le miroir */
-    startPAP();
-    const q2=test.questions[0], b=papAns(q2, 0);
-    document.getElementById("pap-nom-0").value=b.nom;
-    document.getElementById("pap-val-0").value=String(Number(b.val)+1);
-    checkPAP();
-    if(!document.getElementById("pap-nom-0").classList.contains("ok")) vus.push("le nom juste a rougi avec la valeur fausse");
-    if(!document.getElementById("pap-val-0").classList.contains("bad")) vus.push("la valeur fausse n est pas rouge");
-    if(test.score!==1) vus.push("note "+test.score+" au lieu de 1 au miroir");
-    /* LA VALEUR N EST JAMAIS PRESQUE BONNE, et les espaces ne comptent pas */
-    startPAP();
-    const q3=test.questions[0], c=papAns(q3, 0);
-    document.getElementById("pap-nom-0").value=c.nom;
-    document.getElementById("pap-val-0").value="  "+c.val+" ";
-    checkPAP();
-    if(test.score!==2) vus.push("les espaces autour de la valeur la font rougir : "+test.score);
-    return vus.slice(0,4).join(" | ");
-  })()`, v => v === '');
-
-  /* ---- 7. la rangée vide ou à moitié remplie n est jamais peinte ---- */
-  verifierEval(w, 'une rangée VIDE ou à MOITIÉ remplie est redemandée, jamais peinte et jamais verrouillée : rouge veut dire FAUX, jamais « pas fini »', `(function(){
+  /* ---- 6. la vérification GLOBALE : un seul blanc vide bloque TOUT ---- */
+  /* Le prolongement de « une rangée à moitié remplie est redemandée, jamais
+     peinte », généralisé à la question entière : il n'y a plus de rangée,
+     donc plus de porte par ligne, mais la même règle porte sur les N blancs
+     de la question — aucun blanc peint tant qu il en manque UN SEUL. */
+  verifierEval(w, 'une copie VIDE ou INCOMPLÈTE est redemandée, jamais peinte et jamais jugée : rouge veut dire FAUX, jamais « pas fini », généralisé aux N blancs de la question entière', `(function(){
     const vus=[];
     ["train","soutien"].forEach(function(mode){
       currentMode=mode; currentTestId="${ID}"; startPAP();
-      const q=test.questions[0], a=papAns(q, 0);
+      const q=test.questions[0], n=q.lignes.length;
+      for(let k=0;k<n-1;k++) papSuivante();
+      const cases=papCases(q);
       checkPAP();
-      let n=document.querySelectorAll("#papHost .ok,#papHost .bad,#papHost .sol").length;
-      if(n) vus.push(mode+" : "+n+" case(s) peinte(s) sur une rangee vide");
-      if(test.locked||test.papVerdicts[0]||test.score) vus.push(mode+" : la rangee vide a ete jugee");
-      if(!/^mp-feedback bad$/.test(document.getElementById("papFeedback").className)) vus.push(mode+" : aucun message sur une rangee vide");
-      /* la moitié : le nom sans la valeur, puis la valeur sans le nom */
-      document.getElementById("pap-nom-0").value=a.nom; checkPAP();
-      n=document.querySelectorAll("#papHost .ok,#papHost .bad,#papHost .sol").length;
-      if(n) vus.push(mode+" : "+n+" case(s) peinte(s) sur une rangee a moitie remplie");
-      if(test.papVerdicts[0]) vus.push(mode+" : la rangee a moitie remplie a ete jugee");
-      document.getElementById("pap-nom-0").value=""; document.getElementById("pap-val-0").value=a.val; checkPAP();
-      n=document.querySelectorAll("#papHost .ok,#papHost .bad,#papHost .sol").length;
-      if(n) vus.push(mode+" : "+n+" case(s) peinte(s) sans le nom");
-      if(test.papVerdicts[0]) vus.push(mode+" : la rangee sans nom a ete jugee");
+      let peintes=document.querySelectorAll("#papHost .pap-phrase input.ok,#papHost .pap-phrase input.bad,#papHost .pap-phrase input.sol").length;
+      if(peintes) vus.push(mode+" : "+peintes+" blanc(s) peint(s) sur une copie vide");
+      if(test.papVerdicts||test.locked||test.score) vus.push(mode+" : une copie vide a ete jugee");
+      if(!/^mp-feedback bad$/.test(document.getElementById("papFeedback").className)) vus.push(mode+" : aucun message sur une copie vide");
+      /* tout, sauf le tout dernier blanc */
+      cases.slice(0,-1).forEach(function(c){ const e=document.getElementById(c.id), a=papAns(q,c.k); e.value=(c.cle==="nom"?a.nom:a.val); });
+      checkPAP();
+      peintes=document.querySelectorAll("#papHost .pap-phrase input.ok,#papHost .pap-phrase input.bad,#papHost .pap-phrase input.sol").length;
+      if(peintes) vus.push(mode+" : "+peintes+" blanc(s) peint(s) alors qu il en manque un");
+      if(test.papVerdicts) vus.push(mode+" : une copie incomplete a ete jugee");
+      const fb=document.getElementById("papFeedback");
+      if(!/^mp-feedback bad$/.test(fb.className)) vus.push(mode+" : aucun message sur une copie incomplete");
     });
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 8. le soutien : rien n est révélé, et la ligne d après attend ---- */
-  verifierEval(w, 'en SOUTIEN, une rangée fausse ne révèle RIEN, ne compte rien, reste modifiable et n ouvre PAS la ligne suivante — puis la même rangée corrigée passe', `(function(){
+  /* ---- 7. le soutien : rien n est révélé tant que tout n est pas juste ---- */
+  verifierEval(w, 'en SOUTIEN, un SEUL blanc faux dans toute la copie ne révèle RIEN, ne compte rien, reste modifiable — et la copie corrigée ENTIÈREMENT passe', `(function(){
     currentMode="soutien"; currentTestId="${ID}"; startPAP();
-    const vus=[], q=test.questions[0], a=papAns(q, 0);
-    const autre=q.ordre.filter(function(n){ return n!==a.nom; })[0];
-    document.getElementById("pap-nom-0").value=autre;
-    document.getElementById("pap-val-0").value=a.val;
+    const vus=[], q=test.questions[0], n=q.lignes.length;
+    for(let k=0;k<n-1;k++) papSuivante();
+    const cases=papCases(q);
+    cases.forEach(function(c){ const e=document.getElementById(c.id), a=papAns(q,c.k); e.value=(c.cle==="nom"?a.nom:a.val); });
+    const premierNom=cases.find(function(c){ return c.cle==="nom"; });
+    document.getElementById(premierNom.id).value="zzz";
     checkPAP();
-    const ne=document.getElementById("pap-nom-0"), ve=document.getElementById("pap-val-0");
-    if(!ne.classList.contains("bad")) vus.push("la case fausse n est pas rouge en soutien");
-    if(!ve.classList.contains("ok")) vus.push("la case juste n est pas bleue en soutien");
+    const bad=document.getElementById(premierNom.id);
+    if(!bad.classList.contains("bad")) vus.push("le blanc faux n est pas rouge en soutien");
+    const autres=cases.filter(function(c){ return c.id!==premierNom.id; });
+    if(!autres.every(function(c){ return document.getElementById(c.id).classList.contains("ok"); }))
+      vus.push("un blanc juste n est pas bleu en soutien alors qu un AUTRE est faux");
     if(document.querySelectorAll("#papHost .mf-cor").length) vus.push("le soutien revele la bonne reponse");
-    if(document.querySelectorAll("#papHost .sol").length) vus.push("le soutien remplit une case en vert");
-    if(ne.disabled||ve.disabled) vus.push("la rangee est verrouillee en soutien");
+    if(document.querySelectorAll("#papHost .pap-phrase input.sol").length) vus.push("le soutien remplit un blanc en vert");
+    if(cases.some(function(c){ return document.getElementById(c.id).disabled; })) vus.push("un blanc est verrouille en soutien");
     if(test.score) vus.push("le soutien compte des points avant la correction : "+test.score);
-    if(test.papVerdicts[0]) vus.push("la rangee fausse est comptee jugee en soutien");
-    if(document.getElementById("papStep")) vus.push("la ligne suivante s ouvre sur une rangee fausse");
-    const b=document.getElementById("papValidate");
-    if(!b||!/Rev/.test(b.textContent)) vus.push("pas de « Reverifier » : "+(b?b.textContent:"aucun bouton"));
+    if(test.locked) vus.push("la question est verrouillee en soutien sans etre toute juste");
+    const btn=document.getElementById("papValidate");
+    if(!btn||!/Rev/.test(btn.textContent)) vus.push("pas de « Revérifier » : "+(btn?btn.textContent:"aucun bouton"));
     /* la frappe efface le rouge d avant */
-    ne.dispatchEvent(new Event("change",{bubbles:true}));
-    if(/ok|bad/.test(ne.className)||/ok|bad/.test(ve.className)) vus.push("la reprise ne rend pas la rangee neutre : "+ne.className+" / "+ve.className);
-    /* corrigée, elle passe */
-    ne.value=a.nom; ve.value=a.val; checkPAP();
-    if(test.score!==2) vus.push("la rangee corrigee ne vaut pas 2 : "+test.score);
-    if(!document.getElementById("papStep")) vus.push("la ligne suivante ne s ouvre pas apres correction");
+    bad.dispatchEvent(new Event("input",{bubbles:true}));
+    if(/ok|bad/.test(bad.className)) vus.push("la reprise ne rend pas le blanc neutre : "+bad.className);
+    /* corrigee ENTIEREMENT, elle passe */
+    bad.value=papAns(q,premierNom.k).nom;
+    checkPAP();
+    if(!test.locked) vus.push("la copie corrigee entierement ne verrouille pas la question");
+    if(test.score!==cases.length) vus.push("la note "+test.score+" au lieu de "+cases.length+" une fois la copie corrigee");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. en entraînement, chaque blanc se juge SEUL ---- */
+  verifierEval(w, 'chaque blanc se juge SEUL : un blanc faux ne fait pas rougir son voisin juste, la bonne réponse s écrit en VERT à côté du blanc faux — en entraînement — et les espaces autour d une valeur ne comptent pas', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPAP();
+    const vus=[], q=test.questions[0], n=q.lignes.length;
+    for(let k=0;k<n-1;k++) papSuivante();
+    const cases=papCases(q);
+    cases.forEach(function(c){ const e=document.getElementById(c.id), a=papAns(q,c.k); e.value=(c.cle==="nom"?a.nom:a.val); });
+    const premierNom=cases.find(function(c){ return c.cle==="nom"; });
+    document.getElementById(premierNom.id).value="zzz";
+    checkPAP();
+    const autres=cases.filter(function(c){ return c.id!==premierNom.id; });
+    if(!document.getElementById(premierNom.id).classList.contains("bad")) vus.push("le blanc faux n est pas rouge");
+    if(!autres.every(function(c){ return document.getElementById(c.id).classList.contains("ok"); }))
+      vus.push("un blanc juste a rougi avec un voisin faux");
+    if(test.score!==cases.length-1) vus.push("note "+test.score+" au lieu de "+(cases.length-1));
+    const cor=[...document.querySelectorAll("#papHost .mf-cor")].map(function(e){ return e.textContent; });
+    if(cor.length!==1||cor[0]!==papAns(q,premierNom.k).nom) vus.push("la bonne reponse en vert : "+cor.join(","));
+    /* les espaces ne comptent pas, le miroir */
+    startPAP();
+    const q2=test.questions[0], n2=q2.lignes.length;
+    for(let k=0;k<n2-1;k++) papSuivante();
+    const cases2=papCases(q2);
+    cases2.forEach(function(c){ const e=document.getElementById(c.id), a=papAns(q2,c.k); e.value=(c.cle==="val")?("  "+a.val+" "):a.nom; });
+    checkPAP();
+    if(test.score!==cases2.length) vus.push("les espaces autour d une valeur la font rougir : "+test.score);
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
   /* ---- 9. la reprise après une pause ---- */
-  verifierEval(w, 'la reprise après une pause : l étape, les rangées déjà jugées et leurs couleurs reviennent — le rendu se rebâtit depuis « test », que snapshotTest photographie', `(function(){
-    currentMode="train"; currentTestId="${ID}"; startPAP();
-    const vus=[], q=test.questions[0], a0=papAns(q,0), a1=papAns(q,1);
-    document.getElementById("pap-nom-0").value=a0.nom;
-    document.getElementById("pap-val-0").value=a0.val; checkPAP(); papSuivante();
-    /* une rangée FAUSSE, pour que la couleur et le badge aient à revenir */
-    const autre=q.ordre.filter(function(n){ return n!==a1.nom; })[0];
-    document.getElementById("pap-nom-1").value=autre;
-    document.getElementById("pap-val-1").value=a1.val; checkPAP();
+  verifierEval(w, 'la reprise après une pause : l étape, les blancs déjà jugés (justes bleus, faux rouges, jamais verrouillés en soutien) reviennent — le rendu se rebâtit depuis « test », que snapshotTest photographie', `(function(){
+    currentMode="soutien"; currentTestId="${ID}"; startPAP();
+    const vus=[], q=test.questions[0], n=q.lignes.length;
+    for(let k=0;k<n-1;k++) papSuivante();
+    const cases=papCases(q);
+    cases.forEach(function(c){ const e=document.getElementById(c.id), a=papAns(q,c.k); e.value=(c.cle==="nom"?a.nom:a.val); });
+    const premierNom=cases.find(function(c){ return c.cle==="nom"; });
+    document.getElementById(premierNom.id).value="zzz";
+    checkPAP();
     const snap=JSON.parse(JSON.stringify(snapshotTest())), note=test.score;
-    if(snap.papEtape!==1||!snap.papVerdicts||snap.papVerdicts.length!==2) vus.push("l instantane ne porte pas l etape : "+JSON.stringify(snap.papEtape)+" / "+JSON.stringify(snap.papVerdicts));
+    if(snap.papEtape!==n-1||!snap.papVerdicts||snap.papVerdicts.length!==n)
+      vus.push("l instantane ne porte pas l etape / les verdicts : "+JSON.stringify(snap.papEtape)+" / "+JSON.stringify(snap.papVerdicts));
     Object.keys(test).forEach(function(k){ delete test[k]; });
     Object.assign(test, snap, {locked:false, startTime:Date.now()});
     afficherEcranDe(test.kind);
-    if(test.papEtape!==1) vus.push("l etape apres la reprise : "+test.papEtape);
-    const n0=document.getElementById("pap-nom-0"), n1=document.getElementById("pap-nom-1"), v1=document.getElementById("pap-val-1");
-    if(!n0||n0.value!==a0.nom||!n0.classList.contains("ok")||!n0.disabled) vus.push("la rangee 1 n est pas reposee : "+(n0?n0.value+" "+n0.className:"absente"));
-    if(!n1||n1.value!==autre||!n1.classList.contains("bad")) vus.push("la rangee 2 fausse n est pas reposee : "+(n1?n1.value+" "+n1.className:"absente"));
-    if(!v1||!v1.classList.contains("ok")) vus.push("la case juste de la rangee 2 n est pas reposee");
-    const cor=[...document.querySelectorAll("#papHost .mf-cor")].map(function(e){ return e.textContent; });
-    if(cor.length!==1||cor[0]!==a1.nom) vus.push("la bonne reponse en vert ne revient pas : "+cor.join(","));
-    if(document.getElementById("pap-nom-2")) vus.push("la rangee 3 est la alors qu on n y est pas encore");
-    if(!document.getElementById("papStep")) vus.push("le bouton de la ligne suivante ne revient pas");
+    if(test.papEtape!==n-1) vus.push("l etape apres la reprise : "+test.papEtape);
+    const badE=document.getElementById(premierNom.id);
+    if(!badE||badE.value!=="zzz"||!badE.classList.contains("bad")) vus.push("le blanc faux n est pas repose : "+(badE?badE.value+" "+badE.className:"absent"));
+    const autres=cases.filter(function(c){ return c.id!==premierNom.id; });
+    if(!autres.every(function(c){ const e=document.getElementById(c.id); return e&&e.classList.contains("ok"); }))
+      vus.push("les blancs justes ne sont pas reposes");
+    if(cases.some(function(c){ return document.getElementById(c.id).disabled; })) vus.push("un blanc reste verrouille apres la reprise, en soutien");
+    if(document.querySelectorAll("#papHost .mf-cor").length) vus.push("la reprise revele la bonne reponse en soutien");
     if(test.score!==note) vus.push("la note a bouge a la reprise : "+test.score+" au lieu de "+note);
-    /* et on peut continuer : la ligne 3 se joue */
-    papSuivante();
-    if(!document.getElementById("pap-nom-2")) vus.push("on ne peut pas continuer apres la reprise");
+    /* et on peut continuer : la copie se corrige et se revérifie */
+    document.getElementById(premierNom.id).value=papAns(q,premierNom.k).nom;
+    checkPAP();
+    if(!test.locked) vus.push("la copie corrigee apres la reprise ne verrouille pas");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -27569,27 +27547,31 @@ function pythonPasAPas(w, P){
   })()`, v => v === '');
 
   /* ---- 11. le contexte du modèle, et aucune correction au fil des clics ---- */
-  verifierEval(w, 'le contexte envoyé au modèle porte le programme, l état de la mémoire et la clause de secret ; et checkPAP(true) ne juge RIEN — la case du nom est une liste, la colorer au choix la ferait essayer jusqu au bleu', `(function(){
+  verifierEval(w, 'le contexte envoyé au modèle dit que l exécution est AUTOMATIQUE, porte le programme et ce que l élève a déjà écrit dans les phrases, et la clause de secret ; checkPAP(true) ne juge RIEN', `(function(){
     currentMode="soutien"; currentTestId="${ID}"; startPAP();
-    const vus=[], q=test.questions[0], a=papAns(q,0);
+    const vus=[], q=test.questions[0], n=q.lignes.length;
+    /* AVANT que le tableau ne soit complet : rien à taper, le contexte le dit */
+    const c0=ctxPap(q).contexte;
+    if(!/rien à taper/.test(c0)) vus.push("avant la fin de l execution, le contexte ne dit pas qu il n y a rien a taper : "+c0.slice(0,160));
+    for(let k=0;k<n-1;k++) papSuivante();
+    const cases=papCases(q);
     /* la copie doit être ENTIÈRE pour que le bord soit atteignable : une
-       rangée vide arrête la verification avant toute peinture, et le sabotage
-       resterait vert en parlant d autre chose. */
-    document.getElementById("pap-nom-0").value=q.ordre.filter(function(n){ return n!==a.nom; })[0];
-    document.getElementById("pap-val-0").value=a.val;
+       copie incomplète arrête la vérification avant toute peinture, et le
+       sabotage resterait vert en parlant d autre chose. */
+    cases.forEach(function(c){ const e=document.getElementById(c.id), a=papAns(q,c.k); e.value=(c.cle==="nom"?a.nom:a.val); });
+    const premierNom=cases.find(function(c){ return c.cle==="nom"; });
+    document.getElementById(premierNom.id).value="zzz";
     checkPAP(true);
-    const ne=document.getElementById("pap-nom-0"), ve=document.getElementById("pap-val-0");
-    if(/ok|bad/.test(ne.className)||/ok|bad/.test(ve.className)) vus.push("une correction au fil des clics peint : "+ne.className+" / "+ve.className);
+    if(cases.some(function(c){ return /ok|bad/.test(document.getElementById(c.id).className); }))
+      vus.push("une correction au fil des clics peint des blancs");
     if(test.score) vus.push("une correction au fil des clics compte des points : "+test.score);
     const c=ctxPap(q).contexte;
     if(c.indexOf(papProg(q))<0) vus.push("le contexte ne porte pas le programme");
     if(c.indexOf("SECR")<0) vus.push("le contexte ne declare pas les reponses secretes");
-    if(c.indexOf(a.nom+" et elle contient "+a.val)<0) vus.push("le contexte ne porte pas la reponse attendue");
+    const a0=papAns(q,0);
+    if(c.indexOf("case "+a0.nom)<0) vus.push("le contexte ne porte pas la reponse attendue de la ligne 1");
     if(!/GAUCHE/.test(c)) vus.push("le contexte ne rappelle pas ou se lit le nom de la case");
-    /* à la ligne 2, le contexte dit l état de la mémoire d AVANT */
-    ne.value=a.nom; checkPAP(); papSuivante();
-    const c2=ctxPap(q).contexte;
-    if(c2.indexOf(a.nom+" contient "+a.val)<0) vus.push("le contexte ne dit pas l etat de la memoire avant la ligne : "+c2.slice(0,120));
+    if(c.indexOf("zzz")<0) vus.push("le contexte ne porte pas ce que l eleve a ecrit");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
