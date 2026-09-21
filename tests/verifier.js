@@ -12898,6 +12898,19 @@ function gardeSaisie(w, apres){
       test.locked=true; corriger(); await attendre();
       bilan.verifVerrou=classes(); test.locked=false;
 
+      /* 5 bis. LE TROISIÈME CHEMIN, et il manquait : l'élève a posé le
+         CURSEUR dans la case sans rien y taper — il ATTEND la correction, qui
+         met plusieurs secondes quand elle passe par le modèle — et elle
+         arrive. Rien n'est en cours d'écriture, donc rien à protéger : la
+         couleur reste. Sans ce bord, la case restait grise ET sans bulle, et
+         il fallait en sortir pour voir le rouge (signalé par Turquet sur le
+         3.2 de la Terminale, septembre 2026). On SORT d'abord, sans quoi la
+         frappe du bord précédent compterait encore. */
+      await sortir(); neuve();
+      boite.value='1'; corriger(); await attendre();
+      bilan.sansFrappe=classes();
+      bilan.sansFrappeRetenue=boite.dataset.couleurDifferee||'';
+
       /* 6. hors soutien, le garde ne touche à rien. Le mode se pose AVANT
          d'entrer dans la case : le garde s'arme à l'entrée, et le changer
          ensuite mesurerait un garde déjà armé — le contrôle parlerait
@@ -12933,6 +12946,10 @@ function gardeSaisie(w, apres){
       r.ok && b.entree === 'bad' && b.verifVerrou === 'bad',
       souci || 'après Entrée : « ' + b.entree + ' », après le verrou : « ' + b.verifVerrou +
                ' » — attendu « bad » des deux côtés');
+    verifier('le curseur posé sans rien taper ne retient plus la couleur — l’élève ATTEND, il n’écrit pas',
+      r.ok && b.sansFrappe === 'bad' && b.sansFrappeRetenue === '',
+      souci || 'classes après la correction : « ' + b.sansFrappe + ' » — attendu « bad » — et couleur retenue : « '
+             + b.sansFrappeRetenue + ' » (une retenue ici, c’est le garde qui n’a pas rendu la main)');
     verifier('hors soutien et sur un écran verrouillé, le garde ne touche à rien',
       r.ok && b.train === 'bad' && b.verrou === 'bad',
       souci || 'en entraînement : « ' + b.train + ' », verrouillé : « ' + b.verrou + ' »');
@@ -13077,6 +13094,19 @@ function bulleErreur(w, apres){
     "  poser(130,560,580,20); out.resserree=jouer();",
     "  /* et quand même la bulle resserrée ne tient nulle part, alors le coin */",
     "  poser(300,460,20,120); out.leCoin=jouer();",
+    /* UNE CASE À COCHER EST UN OBSTACLE. Le vocabulaire des suites répond par
+       des cases à cocher, et ses trois choix vivent sur la MÊME rangée : la
+       bulle posée sur la case d'à côté rendrait incliquable celle que l'élève
+       doit corriger — la leçon du pavé numérique, au même endroit. On repart
+       d'un écran nu pour que le côté droit soit libre, puis on y pose la seule
+       case à cocher : sans elle la bulle est à droite, avec elle à gauche. */
+    "  obs.forEach(function(e){ e.remove(); }); obs.length=0;",
+    "  out.sansCoche=jouer();",
+    "  const co=document.createElement('span'); co.setAttribute('role','checkbox');",
+    "  co.getBoundingClientRect=function(){ return rect(454,470,200,60); };",
+    "  ecr.appendChild(co); obs.push(co);",
+    "  out.avecCoche=jouer();",
+    "  obs.forEach(function(e){ e.remove(); }); obs.length=0;",
     "  /* le chevauchement lui-même, aux deux bords : deux rectangles qui se",
     "     TOUCHENT ne se chevauchent pas, un pixel commun suffit à chevaucher */",
     "  out.colle=bexpChevauche(0,0,10,10,[rect(10,0,10,10)]);",
@@ -13140,6 +13170,10 @@ function bulleErreur(w, apres){
     verifier('la case ancre n’est pas son propre obstacle',
       g.avecAncre === g.sansAncre + 1,
       'obstacles comptés : ' + g.sansAncre + ' sans l’ancre, ' + g.avecAncre + ' avec');
+    verifier('une case À COCHER est un obstacle : la bulle ne se pose pas sur la case d’à côté',
+      g.sansCoche.cote === 'droite' && g.avecCoche.cote === 'gauche',
+      'sans la case à cocher : ' + dit('sansCoche') + ', avec : ' + dit('avecCoche')
+        + ' (le vocabulaire des suites pose ses trois choix sur une seule rangée)');
     verifier('deux cases qui se touchent ne se chevauchent pas, un pixel commun oui',
       g.colle === false && g.dedans === true,
       'collées : ' + g.colle + ', d’un pixel dedans : ' + g.dedans);
@@ -13162,8 +13196,19 @@ function bulleErreur(w, apres){
       o.value=v; o.textContent='le '+v.toUpperCase(); liste.appendChild(o); });
     liste.value='b'; hote.appendChild(liste);
     const zone=document.createElement('textarea'); zone.value='print(note)'; hote.appendChild(zone);
-    const peindre=function(v1,v2,v3){
-      [[juste,v1],[liste,v2],[zone,v3]].forEach(function(p){
+    /* et une case À COCHER, dans sa RANGÉE — le vocabulaire des suites répond
+       ainsi. La rangée porte le verdict du groupe elle aussi, et elle précède
+       la case dans le document : si elle était une cible, la bulle s'ancrerait
+       sur la rangée entière au lieu de la case que l'élève a cochée. La coche
+       est un ornement (aria-hidden) : son texte ne doit pas partir au modèle. */
+    const rangee=document.createElement('div'); hote.appendChild(rangee);
+    const coche=document.createElement('span');
+    coche.setAttribute('role','checkbox'); coche.tabIndex=0;
+    const orne=document.createElement('span'); orne.setAttribute('aria-hidden','true'); orne.textContent='\u2611';
+    const lib=document.createElement('span'); lib.textContent='Croissante.';
+    coche.appendChild(orne); coche.appendChild(lib); rangee.appendChild(coche);
+    const peindre=function(v1,v2,v3,v4){
+      [[juste,v1],[liste,v2],[zone,v3],[rangee,v4],[coche,v4]].forEach(function(p){
         p[0].classList.remove('ok','bad','sol');
         if(p[1]) p[0].classList.add(p[1]);
       });
@@ -13268,14 +13313,41 @@ function bulleErreur(w, apres){
       bilan.zone=(bexpCase===zone);
       bilan.zoneVal=bexpVal;
 
+      /* 9 bis. une CASE À COCHER est une case comme une autre : le vocabulaire
+         des suites répond ainsi, et la bulle n'y paraissait jamais — un
+         <span> n'est ni un champ ni une liste. Sa RANGÉE porte le même
+         verdict et la précède dans le document : la bulle doit rester sur la
+         CASE. Et la saisie lue est son LIBELLÉ, la coche RETIRÉE. */
+      bexpMasquer(); peindre('','','',''); await attendre();
+      peindre('ok','ok','ok','bad'); await attendre();
+      bilan.coche=(bexpCase===coche);
+      bilan.cocheRangee=(bexpCase===rangee);
+      bilan.cocheVal=bexpVal;
+      /* et le contexte dit COCHER, non « écrire » : devant une case à cocher,
+         « il vient d'écrire "Croissante." » ferait parler le modèle d'une
+         saisie qui n'a jamais eu lieu. */
+      bilan.cocheCtx=bexpContexte();
+
       /* 10. l'élève ÉCRIT : rien ne se lève — c'est le domaine du garde de la
          saisie, et sans ce bord une bulle surgirait sur la case d'à côté à
-         chaque frappe. */
+         chaque frappe. ÉCRIRE, c'est avoir TAPÉ : le contrôle frappe, il ne se
+         contente plus d'un focus (bord retourné, septembre 2026). */
       bexpMasquer(); peindre('','',''); await attendre();
       zone.focus();
+      zone.dispatchEvent(new window.Event('input',{bubbles:true}));
       peindre('ok','bad','bad'); await attendre();
       bilan.ecrit=visible();
-      zone.blur();
+      zone.blur(); zone.dispatchEvent(new window.Event('focusout',{bubbles:true}));
+
+      /* 10 bis. ET LE CURSEUR POSÉ SANS FRAPPE NE BLOQUE PLUS RIEN : c'est ce
+         que fait l'élève qui attend sa correction, le curseur dans la case
+         qu'il soupçonne — la vérification doit y lever la bulle comme
+         partout. Sans ce bord, la case restait grise et muette. */
+      bexpMasquer(); peindre('','',''); await attendre();
+      zone.focus(); await attendre();
+      peindre('ok','ok','bad'); await attendre();
+      bilan.attend=(visible() && bexpCase===zone);
+      zone.blur(); zone.dispatchEvent(new window.Event('focusout',{bubbles:true}));
 
       /* 11. copie juste, entraînement, écran verrouillé : rien non plus. */
       bexpMasquer(); peindre('','',''); await attendre();
@@ -13288,6 +13360,22 @@ function bulleErreur(w, apres){
       peindre('','',''); await attendre();
       peindre('ok','bad','bad'); await attendre();
       bilan.verifVerrou=visible();
+
+      /* 12. LA BULLE SUIT LA CASE QUE L'ÉLÈVE REGARDE. Une vérification n'en
+         lève qu'UNE, sur la première case fausse ; toutes les autres cases
+         rouges de l'écran restaient sans rien à côté d'elles — douze cases sur
+         une question du 3.2 de la Terminale, onze sans explication (signalé
+         par Turquet, septembre 2026). Poser le curseur sur l'une d'elles y
+         amène la bulle ; le poser sur une case JUSTE ne la déplace pas. */
+      test.locked=false; bexpMasquer(); peindre('','',''); await attendre();
+      if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      peindre('ok','bad','bad'); await attendre();
+      bilan.suitAvant=(bexpCase===liste);
+      zone.focus(); await attendre();
+      bilan.suit=(visible() && bexpCase===zone);
+      juste.focus(); await attendre();
+      bilan.suitJuste=(bexpCase===zone);
+      juste.blur(); juste.dispatchEvent(new window.Event('focusout',{bubbles:true}));
     } finally {
       sb.functions.invoke=invokeAvant;
       currentEleve=eleveAvant;
@@ -13339,9 +13427,37 @@ function bulleErreur(w, apres){
     verifier('une ZONE DE TEXTE est une case comme une autre — les programmes Python s’y écrivent',
       r.ok && b.zone === true && b.zoneVal === 'print(note)',
       souci || 'bulle posée sur la zone : ' + b.zone + ', saisie lue : « ' + b.zoneVal + ' »');
+    /* ----- une CASE À COCHER est une case comme une autre (demande de
+       Turquet, septembre 2026 : « faire aussi la bulle pour le 6.14 »). Ses
+       réponses sont des <span role="checkbox"> : ni un champ, ni une liste,
+       ni une zone de texte — la bulle n'y paraissait JAMAIS. ----- */
+    verifier('une CASE À COCHER est une case comme une autre — le vocabulaire des suites y répond',
+      r.ok && b.coche === true,
+      souci || 'bulle posée sur la case à cocher : ' + b.coche);
+    verifier('elle reste sur la CASE, jamais sur la rangée qui porte le même verdict',
+      r.ok && b.cocheRangee === false && b.coche === true,
+      souci || 'ancrée sur la rangée entière : ' + b.cocheRangee + ', sur la case : ' + b.coche);
+    verifier('la saisie lue est le LIBELLÉ de la case cochée, la coche RETIRÉE',
+      r.ok && b.cocheVal === 'Croissante.',
+      souci || 'saisie retenue : « ' + b.cocheVal + ' » (la coche est un ornement aria-hidden)');
+    verifier('le contexte dit COCHER et non « écrire » — une case à cocher ne se remplit pas',
+      r.ok && /vient de COCHER/.test(String(b.cocheCtx || ''))
+           && /sans JAMAIS donner la réponse attendue/.test(String(b.cocheCtx || '')),
+      souci || 'contexte : « ' + String(b.cocheCtx || '').slice(-260) + ' »');
     verifier('pendant que l’élève écrit, rien ne se lève — c’est le domaine du garde',
       r.ok && b.ecrit === false,
       souci || 'une bulle a surgi sur la case d’à côté pendant la frappe');
+    verifier('mais le CURSEUR posé sans frappe ne bloque rien — l’élève attend sa correction',
+      r.ok && b.attend === true,
+      souci || 'aucune bulle sur la case qui porte le curseur : l’élève doit en sortir pour voir son rouge');
+    verifier('la bulle SUIT la case que l’élève regarde — une seule bulle, mais sur la case qu’il vise',
+      r.ok && b.suitAvant === true && b.suit === true,
+      souci || (r.ok && b.suitAvant !== true
+        ? 'la bulle n’était pas sur la première case fausse : le contrôle ne mesure rien'
+        : 'entrer dans une autre case rouge n’y amène pas la bulle'));
+    verifier('entrer dans une case JUSTE ne déplace pas la bulle',
+      r.ok && b.suitJuste === true,
+      souci || 'la bulle a quitté la case rouge pour une case juste');
     verifier('copie juste, entraînement, écran verrouillé : la vérification ne lève rien',
       r.ok && b.verifJuste === false && b.verifTrain === false && b.verifVerrou === false,
       souci || 'copie juste : ' + b.verifJuste + ', entraînement : ' + b.verifTrain

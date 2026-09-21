@@ -1758,6 +1758,18 @@ désignait le monolithe, où la phrase citée vivait quelques milliers de lignes
 plus haut ; elle vit maintenant dans `09-devoirs-et-notes.md`, et le renvoi
 dit « le projet » — un renvoi qui désigne le mauvais fichier est pire qu'un
 renvoi absent, et aucun banc ne le voit.
+**ET UNE CINQUIÈME FUSION A REPRIS LA COLLISION D'`APP_VERSION`, ENCORE** :
+pendant que cette branche attendait toujours son « mets en ligne », une
+troisième branche (la bulle « Comprendre mon erreur » étendue aux cases à
+cocher) a fusionné — et elle portait elle-même la trace d'une collision sur ce
+même numéro, réglée avant elle. `main` est ainsi passé de 184 à **185** sans
+que cette branche-ci n'en sache rien : deux écritures du même nombre ne font
+toujours aucun conflit textuel, et seul `npm run test:version`, comparé à
+`main` au moment où il tourne, aurait pu le dire. Le vrai conflit, lui, est
+resté sur la seule ligne qui écrit le nombre en dur — `const APP_VERSION` —
+et **cette branche prend 186**, la règle ne changeant pas d'un mot pour
+autant se répéter : le premier arrivé garde, le second prend le suivant. Rien
+d'autre du fichier n'entrait en collision.
 
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —

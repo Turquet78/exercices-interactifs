@@ -726,6 +726,13 @@ module.exports = {
       exercice: 'python-affichage',
       valider: '#pyActions button.btn-primary',
       cases: '#pyHost select',
+      /* La page pose ELLE-MÊME le curseur dans la première case rouge 40 ms
+         après la vérification (soutienAgain) : la bulle doit y SURVIVRE, et
+         c'est pour cela que « reprendre sa case » est devenu « la CORRIGER ».
+         La Terminale ne le fait pas — elle ne déclare donc pas ce bord, et le
+         contrôle s'y affiche « non applicable » plutôt que de rougir sur un
+         geste que la page ne fait pas. */
+      curseurPose: true,
       faux: "(function(){ var q=test.questions[test.idx], a=pyAns(q), n=0;"
           + " pyCases(q).forEach(function(c){ var e=document.getElementById(c.id); if(!e) return;"
           + "   var att=String(a[c.cle]);"
@@ -1222,6 +1229,35 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'equation-tangente', champ: '#tg-fa', valeur: '9' },
+    /* Le témoin de la BULLE LEVÉE PAR LA VÉRIFICATION. Ce niveau n'avait AUCUN
+       contrôle de la bulle au banc navigateur — le profil ne la déclarait pas,
+       et la section s'affichait « non applicable » : c'est dans cet angle mort
+       qu'a vécu le signalement de Turquet (septembre 2026, « pourquoi dans
+       l'exercice 3.2 n'y a-t-il pas de bulle quand la case donnant la limite
+       est fausse ? »). Le 3.2 est l'exercice du signalement, et il est le bon
+       témoin pour une autre raison : ses cases de limite sont des champs
+       MATHÉMATIQUES, la famille que la Seconde ne pose pas — une question y
+       porte jusqu'à douze cases sur quatre cas, et c'est ce qui rendait la
+       bulle unique si rare à côté de la limite qu'on regarde.
+       « faux » ne fausse QUE les limites : la première case rouge est alors la
+       case de la limite, exactement le cas signalé. Il rend le nombre de cases
+       faussées, sans quoi un renommage de champ laisserait le banc vert devant
+       un écran que personne n'a rempli. */
+    bulleVerification: {
+      exercice: 'limites-graphiques',
+      valider: '#lgActions button.btn-primary',
+      cases: '#lgSubs math-field.lim-mf',
+      faux: "(function(){ var c=test.questions[test.idx], n=0;"
+          + " c.subs.forEach(function(s,i){"
+          + "   var li=document.getElementById('lg-lim'+i), ty=document.getElementById('lg-typ'+i),"
+          + "       eq=document.getElementById('lg-eq'+i);"
+          + "   if(li){ li.setValue(String(s.lim)==='0'?'7':'0');"
+          + "     li.dispatchEvent(new Event('input',{bubbles:true})); n++; }"
+          + "   if(ty){ ty.value=s.typ; ty.dispatchEvent(new Event('change',{bubbles:true})); }"
+          + "   if(eq && s.typ!=='rien' && s.eq!=null){ eq.value=String(s.eq).replace('.',',');"
+          + "     eq.dispatchEvent(new Event('input',{bubbles:true})); } });"
+          + " return n; })()",
+    },
     /* Sur TABLETTE (écran tactile d'au moins 600 px), la police de toute la
        page est réduite à ce pourcentage (décision de Turquet, septembre 2026).
        La page doit porter exactement cette règle, et le banc navigateur mesure

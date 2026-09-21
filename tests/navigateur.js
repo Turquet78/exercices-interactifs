@@ -2897,7 +2897,7 @@ async function parcours(page, N){
           if(b) b.click();
         });
         await s.page.waitForTimeout(800);
-        let posees = 0, m = null, apres = null, souci = '';
+        let posees = 0, m = null, apres = null, suit = null, souci = '';
         try{
           await s.page.waitForSelector(BV.cases, { timeout: 8000 });
           posees = await s.page.evaluate(code => eval(code), BV.faux);
@@ -2937,18 +2937,56 @@ async function parcours(page, N){
               surCommandes: (r && rc) ? chev(r, rc) : false,
             };
           });
-          /* et la MODIFIER l'efface : c'est ça, reprendre sa case */
-          const prem = s.page.locator(BV.cases).first();
-          const choix = await prem.evaluate(e => {
-            const l = [].slice.call(e.options);
-            for(let i = 0; i < l.length; i++){
-              if(!l[i].disabled && l[i].value !== '' && i !== e.selectedIndex) return i;
-            }
-            return -1;
+          /* LA BULLE SUIT LA CASE QUE L'ÉLÈVE REGARDE (demande de Turquet,
+             septembre 2026). Une vérification n'en lève qu'UNE, sur la
+             première case rouge : toutes les autres restaient sans rien à
+             côté d'elles — une question du 3.2 de la Terminale en porte
+             jusqu'à douze, et l'élève qui regardait sa limite fausse n'avait
+             rien à cliquer. On CLIQUE la DEUXIÈME case rouge, comme il le
+             ferait, et la bulle doit l'y suivre. */
+          const rouges2 = await s.page.evaluate(() => {
+            const r = [...document.querySelectorAll('.screen.on .bad')]
+              .filter(e => ['INPUT','SELECT','TEXTAREA','MATH-FIELD'].indexOf(e.tagName) >= 0);
+            if(r.length < 2) return 0;
+            r[1].setAttribute('data-banc-cible', '1');
+            return r.length;
           });
-          if(choix >= 0){
-            await prem.selectOption({ index: choix });
-            await s.page.waitForTimeout(300);
+          if(rouges2 >= 2){
+            await s.page.click('[data-banc-cible]');
+            await s.page.waitForTimeout(400);
+            suit = await s.page.evaluate(() => {
+              const b = document.getElementById('bexpBulle');
+              const c = document.querySelector('[data-banc-cible]');
+              const r = b ? b.getBoundingClientRect() : null;
+              return { visible: !!r && r.width > 0 && r.height > 0, surElle: bexpCase === c };
+            });
+          }
+          /* et la MODIFIER l'efface : c'est ça, reprendre sa case. On agit sur
+             la case de la BULLE, quelle qu'elle soit — une liste en Seconde, un
+             champ MATHÉMATIQUE en Terminale : modifier la première case du
+             profil changerait une case dont la bulle ne parle pas, et le
+             contrôle passerait au vert en parlant d'autre chose. */
+          const genre = await s.page.evaluate(() => {
+            if(!bexpCase) return '';
+            bexpCase.setAttribute('data-banc-bulle', '1');
+            return bexpCase.tagName;
+          });
+          if(genre === 'SELECT'){
+            const cible = s.page.locator('[data-banc-bulle]');
+            const choix = await cible.evaluate(e => {
+              const l = [].slice.call(e.options);
+              for(let i = 0; i < l.length; i++){
+                if(!l[i].disabled && l[i].value !== '' && i !== e.selectedIndex) return i;
+              }
+              return -1;
+            });
+            if(choix >= 0) await cible.selectOption({ index: choix });
+          } else if(genre){
+            await s.page.click('[data-banc-bulle]');
+            await s.page.keyboard.type('9');
+          }
+          if(genre){
+            await s.page.waitForTimeout(400);
             apres = await s.page.evaluate(() => {
               const b = document.getElementById('bexpBulle');
               return !b || b.getBoundingClientRect().height === 0;
@@ -2964,11 +3002,21 @@ async function parcours(page, N){
         verifier('la bulle paraît à la VÉRIFICATION, sur la première case rouge, bouton offert',
           !!m && m.visible === true && m.l > 0 && m.h > 0 && m.bouton === true && m.surLaPremiere === true,
           souci || 'bulle mesurée : ' + JSON.stringify(m || {}));
-        verifier('la page pose le curseur dans la case rouge, et la bulle y SURVIT',
-          !!m && m.curseur === true && m.visible === true,
-          souci || (m && m.curseur === false
-            ? 'la page n\'a pas posé le curseur dans la case rouge : le bord n\'est pas mesuré'
-            : 'la bulle s\'est éteinte au moment où la page a posé le curseur'));
+        if(!BV.curseurPose){
+          ignorer('la page pose le curseur dans la case rouge, et la bulle y SURVIT',
+            'ce niveau ne pose pas le curseur dans la première case rouge après la vérification');
+        } else {
+          verifier('la page pose le curseur dans la case rouge, et la bulle y SURVIT',
+            !!m && m.curseur === true && m.visible === true,
+            souci || (m && m.curseur === false
+              ? 'la page n\'a pas posé le curseur dans la case rouge : le bord n\'est pas mesuré'
+              : 'la bulle s\'est éteinte au moment où la page a posé le curseur'));
+        }
+        verifier('la bulle SUIT la case que l\'élève regarde — sinon les autres cases rouges restent muettes',
+          !!suit && suit.visible === true && suit.surElle === true,
+          souci || (suit === null
+            ? 'moins de deux cases rouges après la vérification : le contrôle ne mesure rien'
+            : 'bulle visible : ' + suit.visible + ', posée sur la case cliquée : ' + suit.surElle));
         verifier('elle ne recouvre ni les commandes du bas, ni une autre case, ni un BOUTON',
           !!m && m.surCommandes === false && m.couvertes === 0 && m.boutons === 0,
           souci || ((m && m.couvertes === -1)
@@ -7056,6 +7104,102 @@ async function parcours(page, N){
       if(tab.svgW > 820 || tab.svgW < 300) dits.push('sur tablette le quadrillage fait ' + tab.svgW + ' px');
       if(!tab.dessous) dits.push('sur tablette la fiche ne passe pas sous le dessin');
       verifier('la fiche du vocabulaire se coche, et ses couleurs disent le verdict', !dits.length, dits.slice(0, 3).join(' | '));
+
+      /* ----- ET LA BULLE « COMPRENDRE MON ERREUR » SE POSE À CÔTÉ DE LA CASE
+         COCHÉE (demande de Turquet, septembre 2026 : « faire aussi la bulle
+         pour le 6.14 »). jsdom tient le MÉCANISME sur une case posée à la
+         main ; ici c'est le GESTE — le mode soutien, les vraies cases
+         cliquées, un vrai clic sur « Vérifier » — et le RECTANGLE, jamais la
+         propriété hidden ([hidden] pose display:none depuis la feuille du
+         NAVIGATEUR, le piège documenté). Le bord qui compte est celui du pavé
+         numérique : les trois choix d'un groupe vivent sur UNE rangée, et une
+         bulle posée sur la case d'à côté rendrait incliquable celle que
+         l'élève doit corriger. ----- */
+      await s.page.setViewportSize({ width: 1400, height: 950 });
+      await s.page.waitForTimeout(200);
+      const dits2 = [];
+      await s.page.evaluate(() => { bexpMasquer(); currentMode = 'soutien'; test.locked = false; });
+      await s.page.evaluate(id => openTest(id), P.suiteVocabulaire.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(700);
+      /* on ÉPINGLE le même exemple : la mesure ne dépend pas du tirage */
+      await s.page.evaluate(q => { test.questions[test.idx] = q; test.locked = false; renderSVQ(); },
+        { fam: 'decconv', L: 1, A: 3, q: 0.8, rep: {} });
+      await s.page.waitForTimeout(300);
+      /* une seule réponse, FAUSSE : « croissante » sur une suite décroissante */
+      await s.page.click('#svqForm .svq-coche[data-grp="sens"][data-val="cro"]');
+      await s.page.click('#svqActions button.btn-primary');
+      await s.page.waitForTimeout(600);
+      const bul = await s.page.evaluate(() => {
+        const b = document.getElementById('bexpBulle');
+        const r = b ? b.getBoundingClientRect() : null;
+        const anc = (typeof bexpCase !== 'undefined') ? bexpCase : null;
+        const ra = anc ? anc.getBoundingClientRect() : null;
+        const chev = (a, o) => !(a.right <= o.left || a.left >= o.right ||
+                                 a.bottom <= o.top || a.top >= o.bottom);
+        /* aucune AUTRE case à cocher, aucune case, aucun bouton sous la bulle */
+        const couvertes = (!r || !anc) ? -1 : [...document.querySelectorAll(
+          '.screen.on input,.screen.on select,.screen.on math-field,' +
+          '.screen.on [role="checkbox"],.screen.on .pts-case,.screen.on button')]
+          .filter(e => e !== anc && !e.contains(anc) && !b.contains(e))
+          .map(e => e.getBoundingClientRect())
+          .filter(o => o.width > 0 && o.height > 0 && chev(r, o)).length;
+        const cmd = document.getElementById('testCtrls');
+        const rc = cmd ? cmd.getBoundingClientRect() : null;
+        /* LA POINTE EST LUE SUR LE PSEUDO-ÉLÉMENT, jamais recalculée depuis
+           --bexp-fx : la recalculer, c'est mesurer sa propre arithmétique et
+           rester vert sur une feuille de styles qui dessine la flèche
+           ailleurs — le piège documenté du « - 10px ». Le triangle est une
+           boîte de 20 px dont la pointe tombe 10 px dedans ; getComputedStyle
+           rend les décalages EN USAGE, donc top et left valent l'offset réel
+           même là où la règle pose bottom ou right. */
+        const cote = (b && b.dataset.bexpCote) || '';
+        const ps = (b && cote) ? getComputedStyle(b, '::before') : null;
+        let pointe = null;
+        if(r && cote && ps){
+          const nb = v => { const n = parseFloat(v); return isFinite(n) ? n : null; };
+          let bx = nb(ps.left), by = nb(ps.top);
+          if(bx === null){ const rr = nb(ps.right); if(rr !== null) bx = r.width - rr - 20; }
+          if(by === null){ const bb = nb(ps.bottom); if(bb !== null) by = r.height - bb - 20; }
+          if(bx !== null && by !== null) pointe = { x: r.left + bx + 10, y: r.top + by + 10 };
+        }
+        const btn = b && b.querySelector('[data-bexp-btn]');
+        return {
+          role: anc ? (anc.getAttribute('role') || '') : '',
+          grp: anc ? (anc.getAttribute('data-grp') || '') + '=' + (anc.getAttribute('data-val') || '') : '',
+          rouge: !!anc && anc.classList.contains('bad'),
+          visible: !!r && r.width > 0 && r.height > 0,
+          l: r ? Math.round(r.width) : 0, h: r ? Math.round(r.height) : 0,
+          bouton: !!btn && !btn.hidden, val: (typeof bexpVal !== 'undefined') ? bexpVal : '',
+          cote: cote, couvertes: couvertes,
+          surCommandes: (r && rc) ? chev(r, rc) : false,
+          ecart: (pointe && ra) ? Math.round(Math.max(0,
+            Math.max(ra.left - pointe.x, pointe.x - ra.right, ra.top - pointe.y, pointe.y - ra.bottom))) : -1,
+          centre: (pointe && ra) ? Math.round(Math.abs(
+            ((cote === 'droite' || cote === 'gauche') ? pointe.y - (ra.top + ra.bottom) / 2
+                                                     : pointe.x - (ra.left + ra.right) / 2))) : -1,
+          /* et la flèche DESSINÉE : un CSS perdu la ferait disparaître sans
+             qu'une erreur ne se lève, et la bulle serait « à côté » sans rien
+             désigner. */
+          fleche: ps ? Math.round(parseFloat(
+            ps['border' + ({ droite:'Right', gauche:'Left', haut:'Top', bas:'Bottom' }[cote] || 'Top') + 'Width']) || 0) : 0,
+        };
+      });
+      if(bul.role !== 'checkbox') dits2.push('la bulle n\'est pas ancrée sur une case à cocher (role « ' + bul.role + ' »)');
+      if(!bul.rouge) dits2.push('la case ancre n\'est pas rouge : le contrôle ne mesure rien');
+      if(!bul.visible) dits2.push('la bulle n\'a aucun rectangle : elle ne s\'affiche pas');
+      if(!bul.bouton) dits2.push('le bouton « Comprendre mon erreur » n\'est pas offert');
+      if(bul.val !== 'Croissante.') dits2.push('la saisie lue est « ' + bul.val + ' » et non le libellé de la case cochée');
+      if(!bul.cote) dits2.push('la bulle est retombée au COIN : sa flèche ne désigne plus la case');
+      if(bul.couvertes !== 0) dits2.push(bul.couvertes + ' case(s) ou bouton(s) sous la bulle');
+      if(bul.surCommandes) dits2.push('la bulle recouvre les commandes du bas');
+      if(bul.cote && (bul.ecart < 0 || bul.ecart > 8)) dits2.push('la pointe tombe à ' + bul.ecart + ' px de la case cochée');
+      if(bul.cote && (bul.centre < 0 || bul.centre > 3)) dits2.push('la pointe est à ' + bul.centre + ' px du centre de la case');
+      if(bul.cote && bul.fleche < 8) dits2.push('la flèche n\'est pas dessinée (' + bul.fleche + ' px)');
+      verifier('en soutien, la bulle « Comprendre mon erreur » se pose à côté de la case COCHÉE, flèche sur elle',
+        !dits2.length, dits2.slice(0, 3).join(' | ') + ' — mesuré ' + JSON.stringify(bul));
+
       verifier('l\'écran du vocabulaire sur les suites ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
