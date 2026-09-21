@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-echange-variables':'pev' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -698,7 +698,11 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc'] },
+    /* « pev » corrige comme « pap »/« pvm »/« ppc » : les cases par ligne ne
+       se colorent qu'à la vérification, et la question OUVERTE finale part au
+       modèle — un appel au modèle à chaque touche serait absurde, la raison
+       même de « sfl »/« mll » juste au-dessus. */
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'pev'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -869,7 +873,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-echange-variables'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1190,6 +1194,30 @@ module.exports = {
     pythonPasAPasCalcul: { exercice: 'python-pas-a-pas-calcul',
                            fiche: { prog: ['a = 10', 'b = 2', 'c = a+b'],
                                     memoire: [['a', '10'], ['b', '2'], ['c', '12']] } },
+    /* {python-echange-variables} : la fiche du PDF « variable pas à pas 5 »,
+       calquée sur {python-valeur-case} — a = 10, b = 2, c = a, a = b, b = c,
+       l'échange classique de deux variables par une case tierce. Comme
+       {python-pas-a-pas-calcul}, CETTE DÉCLARATION EST RÉDUITE : ni « nb » ni
+       « bareme », qui ne serviraient qu'à une fonction jsdom dédiée rejouant
+       le tirage par une SECONDE méthode indépendante — un champ que personne
+       ne lit est une liste morte qu'on croit vivante. Cette seconde méthode
+       n'existe pas ici pour une raison DIFFÉRENTE de celle du 5.16 : les
+       cinq lignes elles-mêmes (littéraux et recopies) sont déjà la marche du
+       5.15, dont le double jsdom existe ; ce qui est NEUF ici — la question
+       OUVERTE finale — n'est PAS un verdict arithmétique qu'une seconde
+       méthode pourrait rejouer (voir docs/journal/08-verdicts-et-juges.md,
+       « un verdict arithmétique ne se confie pas à un modèle ») : c'est une
+       idée en langage naturel, et le modèle EST le bon juge. Seuls
+       « exercice » et « fiche.prog »/« fiche.memoire » sont lus, par le banc
+       NAVIGATEUR (« 6 tricies septendecies ») : il ouvre la fiche ÉPINGLÉE,
+       tape les cinq valeurs au clavier, PUIS stubbe l'appel réseau de la
+       question ouverte — une fois avec un verdict correct, une fois avec un
+       verdict faux — pour éprouver la couleur du verdict, le score et la
+       porte vers « Question suivante », sans jamais approcher le vrai
+       modèle. */
+    pythonEchangeVariables: { exercice: 'python-echange-variables',
+                              fiche: { prog: ['a = 10', 'b = 2', 'c = a', 'a = b', 'b = c'],
+                                       memoire: [['a', '10'], ['b', '2'], ['c', '10'], ['a', '2'], ['b', '10']] } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
@@ -1221,6 +1249,7 @@ module.exports = {
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
       "{python-pas-a-pas-calcul} (5.16) n'a pas de fonction jsdom dédiée (contrairement à {python-pas-a-pas} et {python-valeur-case}) : elle rejouerait la ligne de CALCUL par une SECONDE arithmétique indépendante, un chantier remis à plus tard (« c'est un autre sujet »). Le banc navigateur (« 6 tricies sedecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 12) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
+      "{python-echange-variables} (5.17) n'a pas de fonction jsdom dédiée non plus, pour une raison différente du 5.16 : sa question OUVERTE finale (l'explication de l'échange) n'est PAS un verdict arithmétique qu'une seconde méthode locale pourrait rejouer, c'est une idée en langage naturel jugée par le modèle (docs/journal/08-verdicts-et-juges.md). Le banc navigateur (« 6 tricies septendecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2), PUIS stubbe l'appel réseau de la question ouverte pour éprouver le verdict correct et le verdict faux, sans jamais approcher le vrai modèle ; les contrôles universels des deux bancs couvrent le reste sans rien déclarer.",
     ],
   },
 
