@@ -2232,3 +2232,151 @@ quatorze hunks « les deux côtés ont ajouté », dont les lignes communes
 n'appartiennent qu'à un des deux blocs. La zone n'a pas été recousue hunk par
 hunk : on repart du fichier de `main` et on y REPOSE ses blocs COMPLETS, à des
 ancres vérifiées une par une — la méthode que le 5.8 avait déjà éprouvée.
+
+**Puis la marche s'est arrêtée sur une RAISON, pas sur une quatrième valeur :
+pourquoi échanger deux variables demande une troisième.**
+{python-echange-variables} (Seconde, 5.18 — 5.17 à l'origine, demande de
+Turquet, septembre 2026, PDF « variable pas à pas 5 » : « Exécuter le
+programme ci-dessous en mode pas à pas. Et compléter les cases mémoire
+correspondantes », le programme `a = 10 ; b = 2 ; c = a ; a = b ; b = c`,
+puis « Expliquer ce qui s'est passé pour les cases a et b entre le début et
+la fin du programme » — « l'IA acceptera toute explication à peu près
+correcte comme "ça inverse", "ça permute", "ça échange", "l'ordre change"…
+même avec des fautes d'orthographe ») ferme le thème 5 à son tour.
+**UNE COLLISION DE NUMÉRO L'A FAIT PASSER DE 5.17 À 5.18** : ouvert en pull
+request pendant que {python-pas-a-pas-chaine} — développé indépendamment,
+sur une autre session — fusionnait dans `main` sous le MÊME numéro 5.17,
+chacun croyant fermer le thème 5 en dernier. `APP_VERSION` est entré en
+collision de la même façon (188→189 des deux côtés), tout comme le numéro de
+section du banc navigateur (« 6 tricies septendecies » ici, « 6 tricies
+septdecies » côté `main` — deux orthographes du 17e, la preuve que la
+collision ne se limite pas au numéro d'exercice). La règle du projet a
+tranché sans ambiguïté (voir CLAUDE.md, « premier arrivé, premier servi ») :
+{python-pas-a-pas-chaine}, fusionné en premier dans `main`, garde 5.17 ; cet
+exercice prend 5.18, `APP_VERSION` prend 189→190, et le banc navigateur
+prend « 6 tricies duodevicies » (18e). **CALQUÉ EXPLICITEMENT SUR
+{python-valeur-case} (5.15)**, la
+demande le dit : la MÊME disposition — la case DONNÉE, l'élève n'écrit que la
+VALEUR, la fin vérifie la mémoire ENTIÈRE — pour un programme différent.
+**CE QU'IL AJOUTE N'EST NI UNE QUATRIÈME VALEUR TIRÉE NI UN QUATRIÈME
+VISAGE : c'est la première fois que ce programme RÉAFFECTE une case déjà
+remplie.** Les trois marches précédentes (5.14, 5.15, 5.16) n'emploient
+chacune un nom qu'UNE fois par programme — une règle assumée, éprouvée en
+5.1 (« une variable ne s'affecte qu'une fois par programme »). Ici `a` et `b`
+sont réécrits (`a = b`, `b = c`), et c'est PRÉCISÉMENT la leçon : sans case
+tierce, `a = b` PUIS `b = a` perdrait la valeur d'origine de `a` dès la
+première ligne — la fiche « Noms de variables » n'avait jamais eu l'occasion
+de le montrer, et c'est ce que l'algorithme classique de permutation par
+variable auxiliaire enseigne. Le moteur du pas à pas PORTE cette
+réaffectation sans qu'une ligne bouge : `papMemHTML` pose une RANGÉE PAR
+LIGNE, jamais par nom de case, si bien qu'une case réécrite y occupe deux
+rangées successives avec sa valeur de l'instant — exactement ce qu'un tableau
+« mémoire de l'ordinateur » doit montrer.
+**LE MOTEUR EST CELUI DU 5.14/5.15/5.16, L'IDENTITÉ NE L'EST PAS** — la
+règle du projet, répétée une cinquième fois dans ce thème. Sont PARTAGÉS la
+lecture de la mémoire (`papProg`, `papEtat`, `papAns` — donc `pyRun`,
+l'interpréteur du 5.1), la comparaison des valeurs (`papNet`), la question
+« cette ligne recopie-t-elle une case ? » (`papCopie`, qui n'a besoin
+d'AUCUNE modification : une réaffectation qui recopie reste une recopie) et
+le cadre du programme avec son repère ▶ (`papProgHTML`) ; la feuille de
+styles aussi (`pap-cols`, `pap-mem`, `pap-val` et ses trois encres). Sont
+PROPRES son identifiant, son kind (`pev`), son écran, son rappel, ses
+questions à l'IA, son contexte, sa FICHE (`PEV_FICHE` : le programme du PDF,
+au caractère près), son tirage (`pevGen`, `pevBuildQuestions` — deux visages
+tirés, les jeux de lettres de `PAP_JEUX` et deux valeurs distinctes de
+`papValeurs`), son juge par ligne (`checkPEV`) et son poids (`pevCases`).
+
+**PUIS UNE QUESTION OUVERTE, une fois le pas à pas terminé — nouveau dans
+cette famille.** « Explique ce qui s'est passé pour les cases a et b entre le
+début et la fin du programme » n'a pas UNE bonne réponse à comparer : c'est
+une IDÉE à reconnaître dans une phrase en langage naturel, tolérante à la
+formulation ET à l'orthographe — la demande le dit en toutes lettres.
+**CE N'EST PAS UN VERDICT ARITHMÉTIQUE, et c'est le bord qui décide de tout**
+(la doctrine de `docs/journal/08-verdicts-et-juges.md`, « un verdict
+arithmétique ne se confie pas à un modèle » — le modèle a un jour compté
+fausse une soustraction de fractions pourtant juste). Cette interdiction
+protège un CALCUL qu'un juge local peut trancher en entiers exacts ; ici il
+n'y a rien à calculer, seulement une idée à reconnaître dans une prose libre
+— et c'est très exactement le terrain sur lequel un modèle de langage est
+meilleur juge qu'une expression régulière. Aucun juge local n'est donc écrit
+: le modèle EST le juge, la position que la doctrine réserve à ce qu'un
+calcul ne sait pas trancher, jamais rétractée. L'appel passe par l'action
+`verif`, DÉJÀ générique dans la fonction Edge (question / attendu / réponse
+— la même que {somme-fractions-libre} et {multiplier-fractions-libre}
+emploient) : aucune fonction Edge n'est modifiée, et `pevAttenduIA` écrit la
+RÈGLE DE DÉCISION avec les vraies valeurs de la question tirée, jamais une
+phrase générique — le modèle applique, il ne devine pas.
+**LA CHAÎNE DES PORTES A UN MAILLON DE PLUS.** Les cinq lignes se vérifient
+UNE À UNE comme au 5.15 : case vide jamais peinte, porte de la ligne suivante
+tenue par l'ÉTAT du bouton, en soutien une ligne fausse ne laisse pas passer
+à la suivante. Le BILAN de la mémoire entière ne paraît qu'à la dernière
+ligne jugée — ALORS SEULEMENT la question ouverte apparaît, jamais avant :
+un élève ne peut pas expliquer un échange qu'il n'a pas encore tracé. Le
+verrou de la question ENTIÈRE (`test.locked`) n'arrive donc plus après la
+dernière ligne, comme au 5.15/5.16, mais après ce SECOND jugement — et
+« Question suivante » suit la même règle qu'un exercice rédigé
+({definitions-ensembles}) : verrouillée quand l'explication est juste, ou
+après UN SEUL essai en entraînement ; en soutien, une explication fausse ne
+conclut rien, l'élève reprend et revérifie, sans jamais recevoir la phrase
+attendue.
+**LES PHRASES DU VERDICT SUIVENT LA RÈGLE DU PROJET** : vertes quand
+l'explication est acceptée, rouges quand elle ne l'est pas (`docs/journal/
+08-verdicts-et-juges.md`) — la même classe `mp-feedback good/bad` que partout
+ailleurs, sans encre neutre à retenir.
+Deux bancs, la répartition habituelle : jsdom tient la fiche épinglée, ses
+cinq rangées, la vérification par ligne et sa porte, le bilan de la fin, la
+case vide jamais peinte, la rangée quittée qui porte la mémoire vraie même
+quand `a` ou `b` est réécrit, la porte de la question ouverte (elle
+n'apparaît pas avant la fin du pas à pas, ne se verrouille pas sur un
+verdict faux en soutien, se verrouille après un seul essai en entraînement),
+le contenu envoyé au modèle (`pevEnonceIA`, `pevAttenduIA` — le programme,
+la règle de décision AVEC les vraies valeurs, jamais une phrase générique),
+la reprise après une pause et les branchements ; le NAVIGATEUR
+(« 6 tricies duodevicies », déclaré par `pythonEchangeVariables` dans
+`tests/profils.js`) mesure ce que jsdom ne peut pas mesurer honnêtement — un
+VRAI appel réseau STUBBÉ plutôt qu'un double local, puisqu'AUCUNE seconde
+méthode ne pourrait rejouer un jugement de langage naturel : il ouvre la
+fiche épinglée, tape les cinq valeurs au clavier, vérifie que la question
+ouverte ne paraît qu'à la fin et nomme les deux bonnes cases, puis stubbe
+l'action `verif` deux fois — un verdict FAUX d'abord (la case ne se
+verrouille pas, « Question suivante » n'apparaît pas, le retour est rouge),
+un verdict JUSTE ensuite (la note grimpe, la question se verrouille, « 
+Question suivante » paraît, le retour est vert) — et relit à chaque fois ce
+qui est VRAIMENT parti au modèle (le programme, la règle nommant
+l'échange, la réponse tapée).
+**Ni « nb » ni « bareme » dans sa déclaration de `tests/profils.js`, et c'est
+volontaire, comme au 5.16** — mais pour une raison DIFFÉRENTE, et le dire
+vaut mieux que de le taire. Le 5.16 manque d'une seconde arithmétique parce
+que réimplémenter un calcul hors de `pyRun` est un chantier remis à plus
+tard ; ici, une seconde méthode locale ne SERAIT PAS le même genre de
+garantie qu'ailleurs — juger une phrase en langage naturel n'est pas une
+opération qu'un contrôle indépendant peut rejouer en entiers exacts, la
+doctrine même qui justifie de confier le verdict au modèle. Le banc
+NAVIGATEUR comble ce trou par la seule méthode honnête : stubber la réponse
+du modèle et éprouver ce que la PAGE fait de chaque verdict possible, jamais
+ce que le modèle AURAIT dû répondre.
+**Il ferme le thème 5, en 5.18 — et le bord « il ferme le thème 5, en 5.17 »
+de {python-pas-a-pas-chaine} a été RETOURNÉ, pas retiré** : le dixième à
+l'être, après le 5.8, le 5.9, le 5.10, le 5.11, le 5.12, le 5.13, le 5.14, le
+5.15 et le 5.16 (ce dernier retourné par {python-pas-a-pas-chaine} lui-même,
+dans SA propre chronique — le bord « il ferme le thème 5, en 5.16 » de
+{python-pas-a-pas-calcul} n'est donc PAS retourné une seconde fois ici, il
+l'était déjà). {python-pas-a-pas-chaine} vit désormais entre
+{python-pas-a-pas-calcul} et celui-ci. Le contrôle jsdom qui portait ce bord
+(dans la section 8 de `pythonPasAPasChaine`, « la place au menu et les
+branchements ») a été réécrit pour tenir une POSITION RELATIVE (`indexOf`)
+plutôt qu'une distance à la fin du thème : un contrôle qui compte depuis la
+fin doit être réécrit à CHAQUE nouveau fermeur, un contrôle qui compare des
+voisins survit au suivant — la leçon même que cette marche du thème répète
+depuis le 5.8, et que la collision de numéro vient de rappeler une fois de
+plus : ce contrôle-ci n'a pas eu à bouger quand le fermeur a changé de main
+en pleine fusion.
+Trois sabotages ont servi à éprouver le banc navigateur, chacun rougissant en
+nommant son défaut : la question ouverte affichée AVANT la fin du pas à
+pas — repérée par « la question ouverte est affichée avant la fin du
+programme » —, un verdict FAUX qui verrouille quand même la question
+(entraînement, premier essai) — repérée par « la question se verrouille
+alors que le verdict est faux » —, et l'encre du verdict juste laissée en
+noir plutôt qu'en vert — repérée à la dominante RENDUE, jamais à la classe
+seule, la leçon de `docs/journal/08-verdicts-et-juges.md` retombée telle
+quelle sur un neuvième exercice.
