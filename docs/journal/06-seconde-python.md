@@ -1959,15 +1959,115 @@ repli de rangée, clavier atteignable, couleurs juste-bleu/correction-verte —
 sans qu'il ait fallu les déclarer : c'est précisément ce pour quoi elles
 existent.
 
+**Puis la marche encore suivante : quand un CALCUL en lit un AUTRE.**
+{python-pas-a-pas-chaine} (Seconde, 5.17, demande de Turquet, septembre
+2026 : « en essayant d'utiliser le moins de tokens possible sans toucher à la
+qualité du résultat, fait un exercice de seconde en t'appuyant sur le modèle
+du 5.15 comme le pdf joint ») porte le 4e PDF de la série : « a = 10 ; b = 2 ;
+c = a+b ; d = c+a ». Le 5.16 apprend qu'une ligne peut CALCULER au lieu de
+recopier ; ici, la ligne 4 calcule AVEC une case (c) qui est elle-même le
+résultat d'un calcul, et non un littéral ni une simple recopie. Le carnet
+passe de « une case peut contenir le résultat d'un calcul » à « une case
+CALCULÉE peut à son tour nourrir un calcul » — la mémoire se relit, jamais
+l'expression qui l'a produite.
+
+**LE MOTEUR EST CELUI DU 5.14/5.15/5.16, L'IDENTITÉ NE L'EST PAS** — la règle
+du projet, répétée une quatrième fois dans ce thème. Sont PARTAGÉS papProg,
+papEtat, papAns (donc pyRun), papNet, papProgHTML, PAP_JEUX, la feuille de
+styles du moteur (pap-cols, pap-mem, pap-val) — et surtout **ppcNature et
+ppcExplique, réutilisées SANS Y TOUCHER**. Le brief demandait de le vérifier
+plutôt que de le supposer : `ppcNature('c+a')` ne commence pas par un chiffre
+et porte un `+`, elle rend donc déjà `'calcul'`, que la case citée (c) soit
+elle-même un littéral ou le fruit d'un calcul — la fonction ne regarde que
+la FORME de l'expression, jamais la provenance de la valeur qu'elle lira. Le
+message de `ppcExplique` (« prends ce que CONTIENT chaque case citée ») dit
+déjà la bonne chose sans un mot de plus. Zéro ligne du moteur n'a donc bougé.
+Sont PROPRES son identifiant, son kind (`ppd`), son écran, son rappel
+(RAP_PPD), ses questions à l'IA, son contexte, sa FICHE (PPD_FICHE, les
+quatre lignes du PDF au caractère près), son tirage (`ppdGen`,
+`ppdBuildQuestions`), son juge (`checkPPD`), sa reprise (`ppdReposer`) et son
+poids (`ppdCases`).
+
+**TROIS VISAGES** : la FICHE (a=10, b=2, c=a+b, d=c+a) ; « chaine-addition »
+(deux littéraux tirés, c = a+b, puis d = c+a — la même forme que la fiche,
+des lettres et des valeurs différentes) ; « chaine-soustraction » (le plus
+grand littéral tiré en premier, c = a−b, puis d = c+a — jamais de résultat
+négatif, la réserve déjà posée par le 5.14/5.15/5.16 sur la touche « − » du
+pavé tactile). Les deux tirées sont en ordre mélangé. **MÊME DISPOSITION,
+MÊMES BORDS QUE LE 5.15/5.16** : la case est DONNÉE, l'élève ne tape que la
+VALEUR ; vérification PAR LIGNE, porte tenue par l'ÉTAT du bouton ; case vide
+redemandée, jamais peinte ; la rangée qu'on VIENT de juger garde `corrCase`,
+celle qu'on QUITTE porte la mémoire VRAIE (`ok` bleu si juste, `sol` vert
+sinon) ; la fin vérifie la mémoire ENTIÈRE. Aucune correction au fil des
+clics, aucun bouton des tables (`TABLES_SANS` **et** `tests/profils.js` —
+deux sources, et la seconde a d'abord été oubliée : voir plus bas).
+
+**DEUX BANCS, et CETTE FOIS une fonction jsdom dédiée.** Contrairement au
+5.16, {python-pas-a-pas-chaine} a sa fonction propre dans `verifier.js`
+(`pythonPasAPasChaine`) : elle ne reconstruit PAS l'arithmétique par une
+seconde méthode indépendante — le chantier resté ouvert par le 5.16 — mais
+tient les INVARIANTS du tirage sur 300 séances (aucune valeur négative,
+chaque littéral distinct, les lignes 3 et 4 classées `calcul` par `ppcNature`,
+et la ligne 4 qui cite bien le NOM posé par la ligne 3 — la chaîne même que
+l'exercice enseigne), plus la copie juste ligne par ligne, la porte, le
+bilan, la case vide, le soutien, la rangée quittée, la reprise et les
+branchements. Ce qui distingue cette fonction de celles du 5.14/5.15 : elle
+ne rejoue pas la valeur des visages TIRÉS par un second calcul indépendant —
+seule la fiche, à valeurs connues, est comparée à `tests/profils.js` au
+caractère près. Le banc NAVIGATEUR (« 6 tricies septdecies ») couvre le
+reste en exécution RÉELLE sur la fiche épinglée (10, 2, 12, 22) : les deux
+colonnes rendues, le repère ▶ qui avance et le tableau qui GRANDIT à chaque
+étape, puis une réponse FAUSSE sur la ligne 4 — celle qui lit la case
+CALCULÉE — dont le message doit nommer un CALCUL, jamais une recopie, et dont
+le bilan final doit garder les quatre valeurs VRAIES malgré l'erreur.
+
+**LE BOUTON DES TABLES A DEUX SOURCES, et une a été oubliée au premier
+passage.** La page décide d'après `TABLES_SANS` (son propre tableau) ; le
+banc navigateur juge d'après `tests/profils.js` (`tablesAide.sans`), une
+liste ÉCRITE À LA MAIN, indépendante de la page — lire la liste de la page et
+la comparer à elle-même n'aurait rien prouvé. Le premier passage n'a ajouté
+l'exercice qu'à `TABLES_SANS` : le banc a rougi en le nommant exactement
+(« sans bouton alors qu'il devrait l'avoir : python-pas-a-pas-chaine »), la
+preuve que les deux sources sont réellement indépendantes plutôt qu'une
+façade. L'ajouter à `tablesAide.sans` a suffi.
+
+**Et le bord « il FERME le thème 5, en 5.16 » de {python-pas-a-pas-calcul} a
+été RETOURNÉ, pas retiré** — le NEUVIÈME à l'être, après le 5.8, le 5.9, le
+5.10, le 5.11, le 5.12, le 5.13, le 5.14 et le 5.15 : {python-pas-a-pas-calcul}
+vit désormais entre {python-valeur-case} et celui-ci. Le contrôle jsdom qui
+portait ce bord (dans la section 8 de {python-valeur-case}, retouchée déjà une
+fois pour le 5.16) a été retouché EN PLACE une seconde fois : {python-valeur-
+case} n'est plus « juste avant le fermeur » — {python-pas-a-pas-calcul} s'est
+glissé entre les deux — mais sa place reste STABLE, entre {python-pas-a-pas}
+et {python-pas-a-pas-calcul}, et c'est ce que le contrôle vérifie désormais
+par l'INDEX plutôt que par la fin du thème. Le nouveau fermeur porte son
+PROPRE contrôle de position (section 8 de sa fonction dédiée), qui vérifie
+qu'il ferme bien le thème 5, juste après {python-pas-a-pas-calcul}.
+
+**Ce qu'un sabotage éprouve** : une case QUITTÉE qui garderait la saisie
+fausse de l'élève au lieu de la mémoire vraie (le bloc 6 rougit en le
+nommant) ; un test qui appellerait `document.getElementById("ppd-val-2")`
+sans avoir d'abord rempli les lignes 0 et 1 se serait heurté lui-même à une
+case absente — la même leçon que « une rangée à moitié remplie n'existe pas
+tant que les précédentes ne sont pas jugées » vue à l'envers, côté banc
+cette fois.
+
 **Puis la marche suivante : quand une ligne MULTIPLIE — et le PDF lui-même a dû
-être corrigé.** {python-pas-a-pas-multiplication} (Seconde, 5.17, inspiré du
+être corrigé.** {python-pas-a-pas-multiplication} (Seconde, 5.18, inspiré du
 PDF « variable_pas_a_pas_7 » fourni par Turquet, septembre 2026 : le programme
 « k = 10 ; l = 2 ; m = 2l ; l = m-k », exécuté pas à pas « comme la version
 n° 1 », avec la consigne de recommencer avec d'autres valeurs de k et l si la
-réponse ne correspond pas) est la troisième marche du calcul, après la
-recopie (5.15) et l'addition/soustraction (5.16) : {python-pas-a-pas-calcul}
-avait déjà réservé ce terrain — « éventuellement * du brief reste ouvert pour
-un jeu futur aux valeurs bornées plus bas » — et c'est ce jeu-là.
+réponse ne correspond pas) est la quatrième marche du calcul, après la
+recopie (5.15), l'addition/soustraction (5.16) et la chaîne de calculs
+(5.17, {python-pas-a-pas-chaine}) : {python-pas-a-pas-calcul} avait déjà
+réservé ce terrain — « éventuellement * du brief reste ouvert pour un jeu
+futur aux valeurs bornées plus bas » — et c'est ce jeu-là. Elle arrive sur
+`main` par une fusion séparée : {python-pas-a-pas-chaine} (5.17) a pris le
+numéro 5.17, le numéro de section « 6 tricies septdecies » et `APP_VERSION`
+189 pendant que cette branche attendait son « mets en ligne » — la même
+famille de collisions que CLAUDE.md documente pour les sections du banc,
+réglée de la même façon : le premier arrivé garde, le second prend le suivant
+(5.18, « 6 tricies duodevicies », v190).
 
 **LE PDF, PRIS AU PIED DE LA LETTRE, ENFREINT DEUX RÈGLES DÉJÀ ÉTABLIES DANS
 CE THÈME, et il a fallu choisir entre suivre le papier et suivre la
@@ -1995,14 +2095,17 @@ CALCULE). Écrire la case EN PREMIER lève l'ambiguïté sans toucher à
 `ppcNature`, et c'est cohérent avec le carnet : une variable qu'on multiplie
 s'écrit `variable * facteur`, comme le 5.13 écrit déjà `n * n * n`.
 
-**LE MOTEUR EST CELUI DU 5.14, DU 5.15 ET DU 5.16, L'IDENTITÉ NE L'EST PAS** —
-la règle du projet, répétée une quatrième fois dans ce thème, et pour la
-première fois avec un partage plus large que d'habitude : `ppcNature` et
-`ppcExplique`, nées avec le 5.16, sont réutilisées TELLES QUELLES. Elles
+**LE MOTEUR EST CELUI DU 5.14, DU 5.15, DU 5.16 ET DU 5.17, L'IDENTITÉ NE
+L'EST PAS** — la règle du projet, répétée encore dans ce thème. `ppcNature`
+et `ppcExplique`, nées avec le 5.16, sont réutilisées TELLES QUELLES — déjà
+réutilisées SANS Y TOUCHER par {python-pas-a-pas-chaine} (5.17), la même
+décision prise indépendamment des deux côtés de la même fusion. Elles
 étaient déjà entièrement génériques — aucune des deux ne nomme une opération
-précise —, et un TROISIÈME exercice qui les réutilise est exactement ce que
-« partager un moteur » veut dire, comme `papProg` l'est déjà par trois
-exercices avant celui-ci. Sont PROPRES son identifiant, son kind (`ppm`), son
+précise —, et ce TROISIÈME exercice qui les réutilise à son tour est
+exactement ce que « partager un moteur » veut dire, comme `papProg` l'est
+déjà par QUATRE exercices avant celui-ci ({python-pas-a-pas},
+{python-valeur-case}, {python-pas-a-pas-calcul}, {python-pas-a-pas-chaine}).
+Sont PROPRES son identifiant, son kind (`ppm`), son
 écran, son rappel, ses questions à l'IA, son contexte, sa FICHE (adaptée
 ci-dessus), son tirage (`ppmGen`, `ppmBuildQuestions`), son juge (`checkPPM`),
 sa reprise (`ppmReposer`) et son poids (`ppmCases`).
@@ -2031,21 +2134,28 @@ mémoire ENTIÈRE, avec le total VRAI même quand une ligne a été manquée.
 Aucune correction au fil des clics (`soutienEnDirect.sans`).
 
 **LE BOUTON DES TABLES N'EST PAS DANS `TABLES_SANS` CETTE FOIS, contrairement
-au 5.14, au 5.15 et au 5.16** : cet exercice MULTIPLIE pour de vrai (le
-double, le triple d'une case), et le bouton peut SERVIR — c'est le bord
+au 5.14, au 5.15, au 5.16 et au 5.17** : cet exercice MULTIPLIE pour de vrai
+(le double, le triple d'une case), et le bouton peut SERVIR — c'est le bord
 OPPOSÉ de « le bouton des tables n'est proposé que là où il sert » (voir
 `docs/journal/11-aides-et-interface.md`).
 
-**Il FERME le thème 5, en 5.17 — ajouté en dernier, il ne renumérote rien —
+**Il FERME le thème 5, en 5.18 — ajouté en dernier, il ne renumérote rien —
 et le bord « il ferme le thème 5, en 5.16 » de {python-pas-a-pas-calcul} a
-été RETOURNÉ, pas retiré** : le neuvième à l'être dans ce thème, après le
-5.8, le 5.9, le 5.10, le 5.11, le 5.12, le 5.13, le 5.14 et le 5.15. Le 5.16
-vit désormais entre {python-valeur-case} et celui-ci — et {python-valeur-case}
-lui-même n'est donc plus « juste avant le fermeur » : le contrôle jsdom qui
-portait ce bord (section 8 de {python-valeur-case}) a été retouché pour lire
-la position RELATIVEMENT à l'exercice (`th.ids[i+1]==='python-pas-a-pas-calcul'`),
-comme {python-pas-a-pas} le fait déjà pour {python-valeur-case}, plutôt que
-relativement à la fin du tableau — qui bouge à chaque ajout.
+été RETOURNÉ une SECONDE fois, pas retiré** : le dixième retournement dans ce
+thème, après le 5.8, le 5.9, le 5.10, le 5.11, le 5.12, le 5.13, le 5.14, le
+5.15 et {python-pas-a-pas-chaine} (5.17, qui l'avait déjà retourné une
+première fois, voir plus haut). {python-pas-a-pas-calcul} (5.16) et
+{python-pas-a-pas-chaine} (5.17) vivent désormais entre {python-valeur-case}
+et celui-ci — et {python-valeur-case} lui-même n'est donc plus « juste avant
+le fermeur » : le contrôle jsdom qui portait ce bord (section 8 de
+{python-valeur-case}) a été retouché une seconde fois pour lire la position
+RELATIVEMENT à l'exercice (`th.ids[i+1]==='python-pas-a-pas-calcul'`), comme
+{python-pas-a-pas} le fait déjà pour {python-valeur-case}, plutôt que
+relativement à la fin du tableau — qui bouge à chaque ajout. Cette même
+correction avait déjà été écrite, le même jour, par la branche de
+{python-pas-a-pas-chaine} : la collision qu'aucune des deux ne pouvait voir
+seule, et la seconde fusion n'a rien apporté que le choix du même contrôle,
+écrit deux fois indépendamment.
 
 **Un piège de banc, propre à ce moteur : une rangée jugée FAUSSE en
 ENTRAÎNEMENT se VERROUILLE, elle ne se corrige pas.** Le premier jet du banc
@@ -2063,17 +2173,23 @@ juste quoi qu'il arrive, puisqu'il sort de `pyRun` sur le PROGRAMME, jamais de
 la saisie de l'élève.
 
 **Deux bancs, une répartition VOLONTAIREMENT ASYMÉTRIQUE, comme au 5.16, et
-pour la même raison.** {python-pas-a-pas-multiplication} n'a PAS de fonction
-jsdom dédiée qui rejoue le tirage par une SECONDE arithmétique indépendante :
-pour les lignes littérales et les recopies cette seconde méthode est
-triviale, mais pour les lignes de MULTIPLICATION et de soustraction elle
-demanderait de réimplémenter ces deux opérations hors de `pyRun`, le même
-chantier que le 5.16 avait remis à plus tard. `tests/profils.js` le DÉCLARE
-dans « lacunes » plutôt que de le taire, et sa déclaration
+pour la même raison — contrairement au 5.17, qui a repris ce chantier pour sa
+propre marche.** {python-pas-a-pas-multiplication} n'a PAS de fonction jsdom
+dédiée qui rejoue le tirage par une SECONDE arithmétique indépendante : pour
+les lignes littérales et les recopies cette seconde méthode est triviale,
+mais pour les lignes de MULTIPLICATION et de soustraction elle demanderait de
+réimplémenter ces deux opérations hors de `pyRun`, le même chantier que le
+5.16 avait remis à plus tard et que le 5.17 a refermé pour SON invariant à
+lui (aucune valeur négative, littéraux distincts, la nature des lignes),
+mais pas pour la multiplication. `tests/profils.js` le DÉCLARE dans
+« lacunes » plutôt que de le taire, et sa déclaration
 `pythonPasAPasMultiplication` est volontairement RÉDUITE, comme celle du
 5.16 : ni « nb » ni « bareme », qui ne serviraient qu'à cette fonction
 absente.
-Le banc NAVIGATEUR (« 6 tricies septendecies ») couvre l'exercice en
+Le banc NAVIGATEUR (« 6 tricies duodevicies » — « 6 tricies septdecies »
+ayant été pris par {python-pas-a-pas-chaine} sur `main` pendant que cette
+branche était en cours, la même collision réglée de la même façon) couvre
+l'exercice en
 EXÉCUTION RÉELLE, sur la fiche ÉPINGLÉE à valeurs CONNUES (10, 2, 4, 6) : il
 ouvre l'exercice, vérifie que le nom de la case est ÉCRIT (aucune liste) et
 qu'aucun bilan ne paraît avant la fin, tape les deux lignes littérales et

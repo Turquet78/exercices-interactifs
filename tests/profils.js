@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-multiplication':'ppm' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-pas-a-pas-multiplication':'ppm' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -698,7 +698,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppm'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppd', 'ppm'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -869,7 +869,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1190,6 +1190,30 @@ module.exports = {
     pythonPasAPasCalcul: { exercice: 'python-pas-a-pas-calcul',
                            fiche: { prog: ['a = 10', 'b = 2', 'c = a+b'],
                                     memoire: [['a', '10'], ['b', '2'], ['c', '12']] } },
+    /* {python-pas-a-pas-chaine} : la marche encore suivante — le 4e PDF fourni
+       par Turquet, septembre 2026 (« a = 10 ; b = 2 ; c = a+b ; d = c+a »).
+       Une case déjà CALCULÉE (c) nourrit à son tour un calcul (d) : la
+       nouveauté n'est plus la NATURE d'une ligne (déjà les trois du 5.16),
+       mais la PROVENANCE de la valeur lue — une case citée peut être elle-même
+       le résultat d'un calcul, pas seulement un littéral ou une recopie.
+       Contrairement au 5.16, il a une fonction jsdom dédiée
+       (`pythonPasAPasChaine` dans verifier.js) : elle ne reconstruit PAS
+       l'arithmétique par une seconde méthode indépendante (le chantier resté
+       ouvert par le 5.16), mais tient les invariants du tirage — aucune
+       valeur négative, chaque littéral distinct, les lignes 3 et 4 classées
+       « calcul » par ppcNature (réutilisée sans y toucher), et la ligne 4
+       qui cite bien le NOM de la case posée par la ligne 3 — sur 300 séances,
+       plus la copie juste ligne par ligne, la porte, le bilan, la case vide,
+       le soutien, la rangée quittée, la reprise et les branchements sur la
+       fiche ÉPINGLÉE, à valeurs connues. « nb » est la SECONDE source du
+       nombre de questions (la page a PPD_NB), « fiche » le programme épinglé,
+       les quatre rangées de sa mémoire, son barème — UNE réponse par ligne,
+       quatre lignes — et son numéro au menu. */
+    pythonPasAPasChaine: { exercice: 'python-pas-a-pas-chaine', nb: 3,
+                          fiche: { prog: ['a = 10', 'b = 2', 'c = a+b', 'd = c+a'],
+                                   memoire: [['a', '10'], ['b', '2'], ['c', '12'], ['d', '22']],
+                                   fin: { a: '10', b: '2', c: '12', d: '22' },
+                                   bareme: 12, numero: '5.17' } },
     /* {python-pas-a-pas-multiplication} : la marche suivante — inspirée du PDF
        « variable_pas_a_pas_7 » (k = 10, l = 2, m = 2l, l = m-k). Le PDF, pris au
        pied de la lettre, viole DEUX règles déjà établies dans ce thème :
@@ -1203,22 +1227,28 @@ module.exports = {
        la soustraction se fait k-m (10-4 = 6) plutôt que m-k, pour rester
        positive. C'est le « jeu futur aux valeurs bornées plus bas » que le
        5.16 annonçait déjà pour la multiplication.
-       Il FERME le thème 5, en 5.17 ; le bord « il ferme le thème 5, en 5.16 »
-       de {python-pas-a-pas-calcul} a été RETOURNÉ dans le journal, comme la
-       convention établie à chaque ajout dans ce thème.
+       Il FERME le thème 5, en 5.18 ; {python-pas-a-pas-chaine} (5.17), arrivé
+       sur `main` pendant que cette branche était en cours, vit désormais
+       entre {python-pas-a-pas-calcul} et celui-ci — le bord « il ferme le
+       thème 5, en 5.16 » de {python-pas-a-pas-calcul} a été RETOURNÉ dans le
+       journal, comme la convention établie à chaque ajout dans ce thème.
        CETTE DÉCLARATION EST RÉDUITE, comme celle de {python-pas-a-pas-calcul}
        — même raison : ni « nb » ni « bareme » n'y sont, ces deux champs ne
        servant qu'à une fonction jsdom dédiée qui rejouerait le tirage par une
        SECONDE arithmétique indépendante, un chantier remis à plus tard (voir
        « lacunes »). Seuls « exercice » et « fiche.prog »/« fiche.memoire »
-       sont lus, par le banc NAVIGATEUR (« 6 tricies septendecies ») : il ouvre
-       la fiche ÉPINGLÉE pour de vrai, tape les quatre valeurs au clavier —
-       dont la multiplication 4 = 2*2 et la soustraction 6 = 10-4 —, et relit
-       le message qui NOMME un calcul sur une réponse fausse, puis le bilan de
+       sont lus, par le banc NAVIGATEUR (« 6 tricies duodevicies » — le numéral
+       « 6 tricies septdecies » a été pris sur `main` par
+       {python-pas-a-pas-chaine} pendant que cette branche était en cours,
+       la même collision que CLAUDE.md documente pour la famille des « 6 … » :
+       le premier arrivé garde, le second prend le suivant) : il ouvre la
+       fiche ÉPINGLÉE pour de vrai, tape les quatre valeurs au clavier — dont
+       la multiplication 4 = 2*2 et la soustraction 6 = 10-4 —, et relit le
+       message qui NOMME un calcul sur une réponse fausse, puis le bilan de
        fin qui porte la valeur VRAIE même quand l'élève s'est trompé.
        LE BOUTON DES TABLES N'EST PAS DANS « tablesAide.sans » CETTE FOIS,
-       contrairement au 5.14/5.15/5.16 : cet exercice MULTIPLIE pour de vrai
-       (le double, le triple d'une case), et le bouton des tables sert —
+       contrairement au 5.14/5.15/5.16/5.17 : cet exercice MULTIPLIE pour de
+       vrai (le double, le triple d'une case), et le bouton des tables sert —
        c'est le bord OPPOSÉ de « le bouton des tables n'est proposé que là où
        il sert ». */
     pythonPasAPasMultiplication: { exercice: 'python-pas-a-pas-multiplication',
@@ -1255,7 +1285,7 @@ module.exports = {
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
       "{python-pas-a-pas-calcul} (5.16) n'a pas de fonction jsdom dédiée (contrairement à {python-pas-a-pas} et {python-valeur-case}) : elle rejouerait la ligne de CALCUL par une SECONDE arithmétique indépendante, un chantier remis à plus tard (« c'est un autre sujet »). Le banc navigateur (« 6 tricies sedecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 12) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
-      "{python-pas-a-pas-multiplication} (5.17) n'a pas non plus de fonction jsdom dédiée, pour la même raison que le 5.16 : la ligne de MULTIPLICATION se rejouerait par une seconde arithmétique indépendante, le même chantier remis à plus tard. Le banc navigateur (« 6 tricies septendecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 4, 6) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
+      "{python-pas-a-pas-multiplication} (5.18) n'a pas non plus de fonction jsdom dédiée, pour la même raison que le 5.16 : la ligne de MULTIPLICATION se rejouerait par une seconde arithmétique indépendante, le même chantier remis à plus tard. Le banc navigateur (« 6 tricies duodevicies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 4, 6) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
     ],
   },
 

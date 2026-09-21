@@ -10078,18 +10078,124 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies septendecies. {python-pas-a-pas-multiplication} : quand une ligne MULTIPLIE =====
+    /* ===== 6 tricies septdecies. {python-pas-a-pas-chaine} : un calcul qui en lit un autre =====
+       Le moteur (papProg, papEtat, papAns, papProgHTML) et la disposition
+       (deux colonnes, le nom ÉCRIT) sont ceux du 5.15/5.16 — déjà mesurés
+       ci-dessus — et ne sont pas remesurés en détail ici, sinon dans leur
+       présence sur CETTE fiche à quatre lignes. Ce que ce banc mesure est ce
+       qui est PROPRE au 5.17 : la ligne « d = c+a » lit une case (c) qui est
+       elle-même le résultat d'un calcul, et non un littéral — le message
+       d'une réponse fausse doit encore nommer un CALCUL, jamais une recopie,
+       et le bilan final doit porter la valeur VRAIE de d (22) même après une
+       erreur. Aucune seconde arithmétique n'est rejouée : la fiche ÉPINGLÉE
+       porte des valeurs CONNUES (10, 2, 12, 22), lues dans tests/profils.js. */
+    titre('6 tricies septdecies. LE PROGRAMME PAS À PAS, QUAND UN CALCUL EN LIT UN AUTRE');
+    if(!P.pythonPasAPasChaine){
+      ignorer('le programme pas à pas : un calcul qui lit une case déjà calculée se juge, se corrige et se bilan-te comme un calcul',
+        'ce niveau n\'a pas l\'exercice du calcul qui en lit un autre');
+    } else {
+      const A = P.pythonPasAPasChaine, nL = A.fiche.prog.length;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* 1. LA FICHE ÉPINGLÉE, SES QUATRE LIGNES, LES DEUX COLONNES ET LE ▶ */
+      const vu = await s.page.evaluate(() => {
+        const host = document.getElementById('ppdHost');
+        const cols = [...host.querySelectorAll('.pap-col')];
+        const lignes = [...host.querySelectorAll('.pyx-ligne')];
+        const nm = host.querySelector('.ppd-nom'), ve = document.getElementById('ppd-val-0');
+        const r = e => e.getBoundingClientRect();
+        return { cols: cols.length,
+                 aCote: cols.length === 2 && r(cols[1]).left >= r(cols[0]).right - 1,
+                 lignes: lignes.map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+                 reperes: lignes.map(e => (e.querySelector('.pap-repere') || {}).textContent || ''),
+                 listes: host.querySelectorAll('select').length,
+                 nom: nm ? nm.textContent.trim() : null,
+                 case: ve ? ve.tagName : null,
+                 bilan: !!host.querySelector('.ppd-bilan') };
+      });
+      if(vu.cols !== 2 || !vu.aCote) dits.push('les deux colonnes ne sont pas côte à côte (' + vu.cols + ' colonne(s))');
+      if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
+      if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
+        dits.push('le programme rendu : ' + JSON.stringify(vu.lignes));
+      if(vu.reperes[0].indexOf('▶') < 0 || vu.reperes.slice(1).some(t => t.indexOf('▶') >= 0))
+        dits.push('le repère de la ligne courante : ' + JSON.stringify(vu.reperes));
+      if(vu.listes) dits.push(vu.listes + ' liste(s) de propositions dans l\'écran : le nom se choisit encore');
+      if(vu.nom !== A.fiche.memoire[0][0]) dits.push('le nom de la case écrit par la page : ' + JSON.stringify(vu.nom));
+      if(vu.case !== 'INPUT') dits.push('la case de la valeur : ' + JSON.stringify(vu.case));
+      if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
+      verifier('la fiche épinglée (a = 10, b = 2, c = a+b, d = c+a) est rendue en DEUX colonnes, le repère ▶ sur la première ligne, et le nom de la case ÉCRIT',
+        !dits.length, dits.slice(0, 3).join(' | '));
+      /* 2. LES TROIS PREMIÈRES LIGNES SE TAPENT ET SE JUGENT, LE ▶ AVANCE, LE TABLEAU GRANDIT */
+      const marche = [];
+      for(let k = 0; k < nL - 1; k++){
+        await s.page.click('#ppd-val-' + k);
+        await s.page.keyboard.type(A.fiche.memoire[k][1], { delay: 50 });
+        await s.page.waitForTimeout(120);
+        await s.page.click('#ppdValidate');
+        await s.page.waitForTimeout(300);
+        await s.page.click('#ppdStep');
+        await s.page.waitForTimeout(300);
+        const g = await s.page.evaluate(() => {
+          const host = document.getElementById('ppdHost');
+          const lignes = [...host.querySelectorAll('.pyx-ligne')];
+          return { rangees: host.querySelectorAll('.pap-mem tr').length - 1,
+                   reperes: lignes.map(e => (e.querySelector('.pap-repere') || {}).textContent || '') };
+        });
+        if(g.rangees !== k + 2) marche.push('après la ligne ' + (k + 1) + ' : ' + g.rangees + ' rangée(s) au lieu de ' + (k + 2));
+        if(g.reperes[k].indexOf('✓') < 0 || g.reperes[k + 1].indexOf('▶') < 0)
+          marche.push('les repères après la ligne ' + (k + 1) + ' : ' + JSON.stringify(g.reperes));
+      }
+      const avant = await s.page.evaluate(() => ({ score: test.score }));
+      if(avant.score !== nL - 1) marche.push('note ' + avant.score + ' après les trois premières lignes, au lieu de ' + (nL - 1));
+      verifier('les trois premières lignes se jugent, le repère ▶ avance d\'une ligne à chaque étape, et le tableau de la mémoire GRANDIT d\'une rangée',
+        !marche.length, marche.slice(0, 3).join(' | '));
+      /* 3. LA LIGNE 4 LIT UNE CASE ELLE-MÊME CALCULÉE : RÉPONDUE FAUX, LE MESSAGE NOMME UN CALCUL */
+      const gestes = [];
+      await s.page.click('#ppd-val-' + (nL - 1));
+      await s.page.keyboard.type('20', { delay: 50 });   /* l'erreur d'un élève qui recalcule a+a au lieu de lire c (=12) puis d'ajouter a */
+      await s.page.waitForTimeout(120);
+      await s.page.click('#ppdValidate');
+      await s.page.waitForTimeout(400);
+      const faux = await s.page.evaluate((idx) => {
+        const ve = document.getElementById('ppd-val-' + idx);
+        const b = ve ? ve.nextElementSibling : null;
+        return { classe: ve ? ve.className : '',
+                 badgeTxt: b ? b.textContent : '',
+                 feedback: (document.getElementById('ppdFeedback') || {}).textContent || '',
+                 bilan: (document.getElementById('ppdHost').querySelector('.ppd-bilan') || {}).textContent || '' };
+      }, nL - 1);
+      if(!/bad/.test(faux.classe)) gestes.push('la case fausse n\'est pas rouge : ' + faux.classe);
+      if(faux.badgeTxt.trim() !== A.fiche.memoire[nL - 1][1]) gestes.push('la correction en vert : ' + JSON.stringify(faux.badgeTxt));
+      if(!/CALCUL/.test(faux.feedback)) gestes.push('le message ne nomme pas un CALCUL, il dit : ' + faux.feedback.slice(0, 160));
+      /* LE BILAN PORTE LA VALEUR VRAIE DE TOUTES LES CASES, MÊME APRÈS L'ERREUR */
+      A.fiche.memoire.forEach(r => {
+        if(faux.bilan.indexOf(r[0]) < 0 || faux.bilan.indexOf(r[1]) < 0)
+          gestes.push('le bilan ne dit pas que ' + r[0] + ' contient ' + r[1] + ' : ' + faux.bilan.slice(0, 160));
+      });
+      verifier('la ligne « d = c+a », qui lit une case ELLE-MÊME calculée, se corrige en vert avec la vraie valeur, le message NOMME un calcul, et le bilan garde les quatre valeurs vraies malgré l\'erreur',
+        !gestes.length, gestes.slice(0, 3).join(' | '));
+      verifier('l\'écran du calcul qui en lit un autre ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies duodevicies. {python-pas-a-pas-multiplication} : quand une ligne MULTIPLIE =====
        Le moteur (papProg, papEtat, papAns, papProgHTML, ppcNature, ppcExplique)
-       et la disposition (deux colonnes, le nom ÉCRIT) sont ceux du 5.15 et du
-       5.16 — déjà mesurés ci-dessus — et ne sont pas remesurés ici. Ce que ce
-       banc mesure est ce qui est PROPRE au 5.17 : une ligne comme « m = l*2 »
-       se juge, se corrige et se bilan-te comme une ligne de CALCUL — la même
-       fonction que l'addition et la soustraction du 5.16, réutilisée sans
-       modification. Aucune seconde arithmétique n'est rejouée : la fiche
-       ÉPINGLÉE porte des valeurs CONNUES (10, 2, 4, 6), lues dans
-       tests/profils.js — la même garantie qu'un tirage aléatoire donnerait,
-       sans avoir à recalculer. */
-    titre('6 tricies septendecies. LE PROGRAMME PAS À PAS, QUAND UNE LIGNE MULTIPLIE');
+       et la disposition (deux colonnes, le nom ÉCRIT) sont ceux du 5.15, du
+       5.16 et du 5.17 — déjà mesurés ci-dessus — et ne sont pas remesurés ici.
+       Ce que ce banc mesure est ce qui est PROPRE au 5.18 : une ligne comme
+       « m = l*2 » se juge, se corrige et se bilan-te comme une ligne de
+       CALCUL — la même fonction que l'addition et la soustraction du 5.16,
+       réutilisée sans modification. Aucune seconde arithmétique n'est
+       rejouée : la fiche ÉPINGLÉE porte des valeurs CONNUES (10, 2, 4, 6),
+       lues dans tests/profils.js — la même garantie qu'un tirage aléatoire
+       donnerait, sans avoir à recalculer. */
+    titre('6 tricies duodevicies. LE PROGRAMME PAS À PAS, QUAND UNE LIGNE MULTIPLIE');
     if(!P.pythonPasAPasMultiplication){
       ignorer('le programme pas à pas : une ligne de multiplication se juge, se corrige et se bilan-te comme un calcul',
         'ce niveau n\'a pas l\'exercice du programme pas à pas avec multiplication');
@@ -10133,9 +10239,9 @@ async function parcours(page, N){
         await s.page.click('#ppmStep');
         await s.page.waitForTimeout(300);
       }
-      const avant = await s.page.evaluate(() => ({ score: test.score }));
+      const avant2 = await s.page.evaluate(() => ({ score: test.score }));
       verifier('les deux premières lignes (littérales) se jugent comme au 5.15',
-        avant.score === nL - 2, 'note ' + avant.score + ' après les deux lignes littérales, au lieu de ' + (nL - 2));
+        avant2.score === nL - 2, 'note ' + avant2.score + ' après les deux lignes littérales, au lieu de ' + (nL - 2));
       /* 3. LA LIGNE DE MULTIPLICATION, RÉPONDUE FAUX D'ABORD : LE MESSAGE NOMME UN CALCUL */
       const gestes = [];
       await s.page.click('#ppm-val-2');

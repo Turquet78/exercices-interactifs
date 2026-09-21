@@ -3641,6 +3641,7 @@ function exercices(suite){
     pythonDoubleTripleCarre(w, P);
     pythonPasAPas(w, P);
     pythonValeurCase(w, P);
+    pythonPasAPasChaine(w, P);
     pythonTypes(w, P);
     pythonAfficherVariable(w, P);
     pythonNoms(w, P);
@@ -27871,23 +27872,26 @@ function pythonValeurCase(w, P){
   })()`, v => v === '');
 
   /* ---- 8. la place au menu et les branchements ---- */
-  /* IL NE FERME PLUS LE THÈME 5 — {python-pas-a-pas-calcul} (5.16) l'a repris,
-     puis {python-pas-a-pas-multiplication} (5.17) a repris CELUI-LÀ : le bord
-     « il FERME le thème 5 » est RETOURNÉ à chaque fois plutôt que retiré, la
-     convention du projet (voir CLAUDE.md, « un bord retiré ne dit plus rien »).
-     Ce qui reste VRAI de {python-valeur-case} : il vit juste APRÈS
-     {python-pas-a-pas}, et juste AVANT {python-pas-a-pas-calcul} — mais plus
-     forcément juste avant le FERMEUR du thème, un troisième exercice pouvant
-     désormais s'intercaler après lui. Le contrôle lit donc la position de
-     {python-pas-a-pas-calcul} RELATIVEMENT à l'exercice (th.ids[i+1]), comme
-     {python-pas-a-pas} le fait déjà pour {python-valeur-case} (section 10) —
-     et non plus relativement à la FIN du tableau, qui bouge à chaque ajout. */
-  verifierEval(w, 'il ne ferme plus le thème 5 — {python-pas-a-pas-calcul} puis {python-pas-a-pas-multiplication} l ont repris — mais reste juste après {python-pas-a-pas} et juste avant {python-pas-a-pas-calcul}, numéroté ' + F.numero + ' : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+  /* IL NE FERME PLUS LE THÈME 5 — {python-pas-a-pas-calcul} (5.16) l'avait
+     repris, puis {python-pas-a-pas-chaine} (5.17) et {python-pas-a-pas-
+     multiplication} (5.18) l'ont repris à leur tour : le bord « il FERME le
+     thème 5 » est RETOURNÉ à chaque fois plutôt que retiré, la convention du
+     projet (voir CLAUDE.md, « un bord retiré ne dit plus rien »). Ce qui
+     reste VRAI de {python-valeur-case} n'est PLUS « juste avant le fermeur »
+     — deux exercices se sont glissés entre les deux — mais sa place STABLE :
+     entre {python-pas-a-pas} et {python-pas-a-pas-calcul}, la vérification
+     passant donc par l'INDEX (th.ids[i±1]) plutôt que par la fin du thème,
+     qui bouge à chaque ajout — comme {python-pas-a-pas} le fait déjà pour
+     {python-valeur-case} (section 10). CETTE MÊME correction a été trouvée,
+     le même jour, par deux branches indépendantes ({python-pas-a-pas-chaine}
+     et {python-pas-a-pas-multiplication}) : la collision qu'aucune des deux
+     ne pouvait voir seule (CLAUDE.md, « la même erreur, huit fois… »). */
+  verifierEval(w, 'il ne ferme plus le thème 5 — {python-pas-a-pas-chaine} puis {python-pas-a-pas-multiplication} l ont repris — mais reste À SA PLACE, entre {python-pas-a-pas} et {python-pas-a-pas-calcul} : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
     const th=THEMES[THEMES.length-1], vus=[], i=th?th.ids.indexOf("${ID}"):-1;
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids[th.ids.length-1]!=="python-pas-a-pas-multiplication") vus.push("le theme ne se ferme plus sur python-pas-a-pas-multiplication : "+(th&&th.ids.join(",")));
-    if(i<0||th.ids[i+1]!=="python-pas-a-pas-calcul") vus.push("python-pas-a-pas-calcul ne suit plus immediatement l exercice : "+(th&&th.ids.join(",")));
-    if(i<0||th.ids[i-1]!=="python-pas-a-pas") vus.push("il ne suit pas {python-pas-a-pas} : "+(th&&th.ids.join(",")));
+    if(i<0||th.ids[i+1]!=="python-pas-a-pas-calcul") vus.push("il n est plus suivi de {python-pas-a-pas-calcul} : "+(th&&th.ids.join(",")));
+    if(i>0&&th.ids[i-1]!=="python-pas-a-pas") vus.push("il ne suit pas {python-pas-a-pas} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-operations"]!=="5.12"||TEST_NUM["python-double-triple-carre"]!=="5.13"||TEST_NUM["python-pas-a-pas"]!=="5.14"||TEST_NUM["pourcentage"]!=="3.1")
       vus.push("l exercice ajoute a renumerote les autres");
@@ -27927,6 +27931,217 @@ function pythonValeurCase(w, P){
     ve.value=a.val; checkPVM(); pvmSuivante();
     const c2=ctxPvm(q).contexte;
     if(c2.indexOf(a.nom+" contient "+a.val)<0) vus.push("le contexte ne dit pas l etat de la memoire avant la ligne : "+c2.slice(0,140));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
+/* {python-pas-a-pas-chaine} (Seconde, 5.17) : la marche encore suivante — une
+   case déjà CALCULÉE (c) nourrit à son tour un calcul (d = c+a), le 4e PDF
+   fourni par Turquet. Le moteur est celui du 5.14/5.15/5.16 (papProg,
+   papEtat, papAns, papNet, papProgHTML, PAP_JEUX) et ppcNature/ppcExplique
+   sont RÉUTILISÉES SANS Y TOUCHER — le bloc 1 le vérifie en s'assurant que la
+   ligne d = c+a est classée « calcul » par la fonction MÊME du 5.16.
+   CONTRAIREMENT AU 5.16, cet exercice a une fonction jsdom dédiée : elle ne
+   reconstruit PAS l'arithmétique par une seconde méthode indépendante (le
+   chantier resté ouvert par le 5.16), mais tient les invariants du tirage —
+   aucune valeur négative, chaque littéral distinct, les lignes 3 et 4
+   classées CALCUL, et la ligne 4 qui cite le NOM posé par la ligne 3 — ainsi
+   que la copie juste ligne par ligne, la porte, le bilan, la case vide, le
+   soutien, la rangée quittée, la reprise et les branchements. Aucun accent
+   grave ni antislash dans ce texte : il vit dans un template littéral. */
+function pythonPasAPasChaine(w, P){
+  const nom = '{python-pas-a-pas-chaine} : un calcul qui en lit un autre';
+  if(!P.pythonPasAPasChaine){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du calcul qui en lit un autre'); return; }
+  const D = P.pythonPasAPasChaine, ID = D.exercice, NB = D.nb, F = D.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPPD==='function' && typeof ppdBuildQuestions==='function'"
+    + " && typeof ppdCases==='function' && typeof checkPPD==='function' && typeof ppcNature==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPPD / ppdBuildQuestions / ppdCases introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. le tirage : la fiche épinglée au caractère près, deux visages
+     tirés dont les lignes 3 et 4 sont toutes deux des CALCULS (ppcNature),
+     la ligne 4 citant le nom posé par la ligne 3, et aucune valeur négative
+     (300 séances) ---- */
+  verifierEval(w, 'le tirage : ' + NB + ' questions, la fiche du papier EN TÊTE au caractère près, deux visages tirés dont les lignes 3 et 4 sont toutes deux des CALCULS (ppcNature, réutilisée sans y toucher), la ligne 4 citant le NOM posé par la ligne 3, et aucune valeur jamais négative (300 séances)', `(function(){
+    const vus=[];
+    for(let s=0;s<300 && vus.length<4;s++){
+      const qs=ppdBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("seance de "+qs.length+" questions"); break; }
+      if(papProg(qs[0])!==${J(F.prog.join('\n'))}){ vus.push("la premiere question n est pas la fiche : "+papProg(qs[0])); break; }
+      qs.forEach(function(q, i){
+        if(q.lignes.length!==4) vus.push("la question "+i+" porte "+q.lignes.length+" ligne(s) au lieu de 4");
+        const noms=q.lignes.map(function(l){ return l.nom; });
+        noms.forEach(function(n, k){ if(noms.indexOf(n)!==k) vus.push("la variable "+n+" est affectee deux fois"); });
+        if(q.lignes[0].expr===q.lignes[1].expr) vus.push("les deux litteraux sont egaux : "+q.lignes[0].expr);
+        [q.lignes[0].expr, q.lignes[1].expr].forEach(function(v){ if(!/^[1-9][0-9]?$/.test(v)) vus.push("un litteral n est pas un entier positif de deux chiffres au plus : "+v); });
+        if(ppcNature(q.lignes[2].expr)!=="calcul") vus.push("la ligne 3 n est pas classee calcul : "+q.lignes[2].expr);
+        if(ppcNature(q.lignes[3].expr)!=="calcul") vus.push("la ligne 4 n est pas classee calcul : "+q.lignes[3].expr);
+        if(q.lignes[3].expr.indexOf(q.lignes[2].nom)<0) vus.push("la ligne 4 ne cite pas la case calculee par la ligne 3 : "+q.lignes[3].expr);
+        for(let k=0;k<4;k++){ if(Number(papAns(q, k).val)<0) vus.push("une case negative : "+q.lignes[k].nom+" = "+papAns(q,k).val); }
+      });
+      const v=qs.slice(1).map(function(q){ return q.vis; });
+      if(v.length!==2||v[0]===v[1]||v.indexOf("chaine-addition")<0||v.indexOf("chaine-soustraction")<0)
+        vus.push("les visages d une seance : "+qs.map(function(q){ return q.vis; }).join(","));
+    }
+    const f=ppdBuildQuestions()[0], att=${J(F.memoire)};
+    att.forEach(function(r, k){
+      const a=papAns(f, k);
+      if(a.nom!==r[0]||a.val!==r[1]) vus.push("apres la ligne "+(k+1)+" : "+a.nom+" = "+a.val+" au lieu de "+r[0]+" = "+r[1]);
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. le barème : UNE réponse par ligne, le tableau ÉCRIT le nom ---- */
+  verifierEval(w, 'chaque ligne vaut UNE réponse — la valeur, et elle seule —, le nom de la case est ÉCRIT par la page et non offert dans une liste, et le barème de la séance les compte toutes (la convention xxxCases que lira la coupe d un devoir)', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPPD();
+    const vus=[];
+    let t=0; test.questions.forEach(function(q){
+      const c=ppdCases(q);
+      if(c.length!==q.lignes.length) vus.push("ppdCases rend "+c.length+" cases pour "+q.lignes.length+" lignes");
+      c.forEach(function(x, i){ if(x.id!=="ppd-val-"+i) vus.push("identifiant de case inattendu : "+x.id); });
+      t+=c.length;
+    });
+    if(test.maxScore!==t) vus.push("bareme "+test.maxScore+" au lieu de "+t);
+    if(t!==${F.bareme}) vus.push("la seance vaut "+t+" reponses");
+    if(document.querySelectorAll("#ppdHost select").length) vus.push("une liste de propositions traine dans l ecran : le nom se choisit encore");
+    const q0=test.questions[0];
+    const ecrits=[...document.querySelectorAll("#ppdHost .ppd-nom")].map(function(e){ return e.textContent.trim(); });
+    if(ecrits.join(",")!==q0.lignes[0].nom) vus.push("le nom de la case ecrit par la page : "+JSON.stringify(ecrits));
+    if(!document.getElementById("ppd-val-0")) vus.push("aucune case ou ecrire la valeur");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. la copie juste ligne par ligne, la PORTE, et le BILAN de la fin —
+     sur la fiche, où la ligne 4 lit la case CALCULÉE par la ligne 3 ---- */
+  verifierEval(w, 'la copie juste ligne par ligne : chaque case vaut 1, « Passer à la ligne suivante » n existe qu une fois la ligne JUGÉE, et à la dernière ligne — celle qui lit une case déjà calculée — la page VÉRIFIE la mémoire entière', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPPD();
+    const vus=[], q=test.questions[0], n=q.lignes.length;
+    for(let k=0;k<n;k++){
+      const a=papAns(q, k), ve=document.getElementById("ppd-val-"+k);
+      if(!ve||ve.tagName!=="INPUT"){ vus.push("la rangee "+(k+1)+" n a pas sa case"); break; }
+      ve.value=a.val; checkPPD();
+      if(!ve.classList.contains("ok")) vus.push("la case juste "+(k+1)+" n est pas peinte ok : "+ve.className);
+      if(test.score!==k+1) vus.push("note "+test.score+" au lieu de "+(k+1)+" apres la ligne "+(k+1));
+      if(k<n-1){
+        if(!document.getElementById("ppdStep")) vus.push("pas de bouton pour passer a la ligne "+(k+2));
+        if(test.locked) vus.push("la question est verrouillee des la ligne "+(k+1));
+        ppdSuivante();
+      }
+    }
+    if(!test.locked) vus.push("la question n est pas verrouillee a la derniere ligne");
+    if(!document.getElementById("ppdNext")) vus.push("pas de « Question suivante » a la derniere ligne");
+    const bil=document.querySelector("#ppdHost .ppd-bilan");
+    if(!bil) vus.push("aucun bilan de la memoire a la fin du programme");
+    else q.lignes.forEach(function(l, i){
+      const val=papAns(q, i).val;
+      if(bil.textContent.indexOf(l.nom)<0||bil.textContent.indexOf(val)<0) vus.push("le bilan ne dit pas que "+l.nom+" contient "+val);
+    });
+    const a0=test.answers[0];
+    if(!a0||a0.correct!==true) vus.push("la reponse enregistree : "+JSON.stringify(a0));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. la case vide est redemandée, jamais peinte ---- */
+  verifierEval(w, 'une case laissée VIDE est redemandée, jamais peinte et jamais verrouillée : rouge veut dire FAUX, jamais « pas fini »', `(function(){
+    const vus=[];
+    ["train","soutien"].forEach(function(mode){
+      currentMode=mode; currentTestId="${ID}"; startPPD();
+      checkPPD();
+      const n=document.querySelectorAll("#ppdHost .ok,#ppdHost .bad,#ppdHost .sol").length;
+      if(n) vus.push(mode+" : "+n+" case(s) peinte(s) sur une rangee vide");
+      if(test.locked||test.ppdVerdicts[0]||test.score) vus.push(mode+" : la rangee vide a ete jugee");
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le juge : la ligne qui lit une case CALCULÉE se corrige comme les
+     autres, et le soutien ne révèle rien ---- */
+  verifierEval(w, 'la ligne qui lit une case déjà CALCULÉE (d = c+a) se juge comme les autres : une valeur fausse rougit et la bonne s écrit en vert à côté ; en soutien elle ne révèle rien et n ouvre PAS la fin', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPPD();
+    const vus=[], q=test.questions[0];
+    for(let k=0;k<3;k++){ document.getElementById("ppd-val-"+k).value=papAns(q,k).val; checkPPD(); ppdSuivante(); }
+    const d=papAns(q, 3), ve=document.getElementById("ppd-val-3");
+    ve.value=String(Number(d.val)+7); checkPPD();
+    if(!ve.classList.contains("bad")) vus.push("la ligne 4 fausse n est pas rouge : "+ve.className);
+    const cor=[...document.querySelectorAll("#ppdHost .mf-cor")].map(function(e){ return e.textContent; });
+    if(cor.length!==1||cor[0]!==d.val) vus.push("la bonne valeur de la ligne 4 en vert : "+cor.join(","));
+    currentMode="soutien"; currentTestId="${ID}"; startPPD();
+    const q2=test.questions[0];
+    for(let k=0;k<3;k++){ document.getElementById("ppd-val-"+k).value=papAns(q2,k).val; checkPPD(); ppdSuivante(); }
+    const d2=papAns(q2, 3), ve2=document.getElementById("ppd-val-3");
+    ve2.value=String(Number(d2.val)+7); checkPPD();
+    if(document.querySelectorAll("#ppdHost .mf-cor").length) vus.push("le soutien revele la bonne valeur de la ligne 4");
+    if(document.getElementById("ppdStep")) vus.push("la fin s ouvre alors que la derniere ligne est fausse en soutien");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la rangée QUITTÉE porte la mémoire VRAIE ---- */
+  verifierEval(w, 'la rangée d une ligne QUITTÉE porte la mémoire VRAIE — bleue si l élève l avait juste, VERTE s il l avait fausse —, même pour une case qui nourrit un calcul suivant', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPPD();
+    const vus=[], q=test.questions[0], a2=papAns(q, 2);
+    document.getElementById("ppd-val-0").value=papAns(q,0).val; checkPPD(); ppdSuivante();
+    document.getElementById("ppd-val-1").value=papAns(q,1).val; checkPPD(); ppdSuivante();
+    const v2=document.getElementById("ppd-val-2");
+    v2.value=String(Number(a2.val)+65); checkPPD(); ppdSuivante();
+    const p2=document.getElementById("ppd-val-2");
+    if(!p2||p2.value!==a2.val) vus.push("la rangee 3 quittee ne porte pas la valeur vraie : "+(p2?p2.value:"absente"));
+    if(!p2||!p2.classList.contains("sol")) vus.push("la valeur corrigee de la rangee 3 n est pas peinte en vert : "+(p2?p2.className:"absente"));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. la reprise après une pause ---- */
+  verifierEval(w, 'la reprise après une pause : l étape, les rangées déjà jugées, leurs couleurs et la note reviennent — le rendu se rebâtit depuis « test »', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPPD();
+    const vus=[], q=test.questions[0], a0=papAns(q,0), a1=papAns(q,1);
+    document.getElementById("ppd-val-0").value=a0.val; checkPPD(); ppdSuivante();
+    document.getElementById("ppd-val-1").value=a1.val; checkPPD();
+    const snap=JSON.parse(JSON.stringify(snapshotTest())), note=test.score;
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test, snap, {locked:false, startTime:Date.now()});
+    afficherEcranDe(test.kind);
+    if(test.ppdEtape!==1) vus.push("l etape apres la reprise : "+test.ppdEtape);
+    const r0=document.getElementById("ppd-val-0"), r1=document.getElementById("ppd-val-1");
+    if(!r0||r0.value!==a0.val||!r0.classList.contains("ok")) vus.push("la rangee 1 n est pas reposee : "+(r0?r0.value+" "+r0.className:"absente"));
+    if(!r1||r1.value!==a1.val) vus.push("la rangee 2 n est pas reposee : "+(r1?r1.value:"absente"));
+    if(test.score!==note) vus.push("la note a bouge a la reprise : "+test.score+" au lieu de "+note);
+    ppdSuivante();
+    if(!document.getElementById("ppd-val-2")) vus.push("on ne peut pas continuer apres la reprise");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. la place au menu et les branchements ---- */
+  verifierEval(w, 'il FERME le thème 5, numéroté ' + F.numero + ', juste après {python-pas-a-pas-calcul} : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
+    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("le theme ne ferme pas sur ${ID} : "+(th&&th.ids.join(",")));
+    if(!th||th.ids[th.ids.length-2]!=="python-pas-a-pas-calcul") vus.push("il ne suit pas {python-pas-a-pas-calcul} : "+(th&&th.ids.join(",")));
+    if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d entree TESTS");
+    if(/[{}<>]/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte du balisage ou une accolade : elle passe par esc(numeros(desc))");
+    if(!RAPPELS.ppd) vus.push("aucun rappel de cours");
+    if(RAPPELS.ppd===RAPPELS.ppc) vus.push("le rappel est celui du 5.16");
+    const r=String(RAPPELS.ppd||"");
+    if(!/CALCUL/.test(r)) vus.push("le rappel n enseigne pas le calcul");
+    if(!QIA_SUGG.ppd||QIA_SUGG.ppd.length<2) vus.push("aucune question proposee a l IA");
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est propose alors qu on ne multiplie rien");
+    if(!afficherEcranDe("ppd")) vus.push("afficherEcranDe ne connait pas le kind : la reprise et le rejeu retombent sur un redemarrage");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. le contexte du modèle, et aucune correction au fil des clics ---- */
+  verifierEval(w, 'le contexte envoyé au modèle porte le programme, la case DONNÉE, l état de la mémoire et la clause de secret ; et checkPPD(true) ne juge RIEN', `(function(){
+    currentMode="soutien"; currentTestId="${ID}"; startPPD();
+    const vus=[], q=test.questions[0], a=papAns(q,0);
+    document.getElementById("ppd-val-0").value=String(Number(a.val)+9);
+    checkPPD(true);
+    const ve=document.getElementById("ppd-val-0");
+    if(/ok|bad/.test(ve.className)) vus.push("une correction au fil des clics peint : "+ve.className);
+    if(test.score) vus.push("une correction au fil des clics compte des points : "+test.score);
+    const c=ctxPpd(q).contexte;
+    if(c.indexOf(papProg(q))<0) vus.push("le contexte ne porte pas le programme");
+    if(c.indexOf("SECR")<0) vus.push("le contexte ne declare pas la reponse secrete");
+    if(c.indexOf("la case "+a.nom+" contient "+a.val)<0) vus.push("le contexte ne porte pas la reponse attendue");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 }
