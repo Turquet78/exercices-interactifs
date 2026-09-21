@@ -1849,6 +1849,116 @@ même geste : rendre le nom de la case choisissable — le navigateur compte les
 `select` de l'écran —, partager le rappel du 5.14, et laisser la rangée
 quittée garder la saisie fausse de l'élève.
 
+**Puis la marche suivante : quand une ligne CALCULE.**
+{python-pas-a-pas-calcul} (Seconde, 5.16, inspiré du PDF fourni par Turquet,
+septembre 2026 : le programme « a = 10 ; b = 2 ; c = a+b », exécuté ligne par
+ligne avec le tableau des cases mémoire à droite) est la troisième marche du
+pas à pas. Le 5.14 apprend à repérer LA CASE, le 5.15 à retenir LA VALEUR
+d'une recopie — jamais de calcul dans l'un ni l'autre, par décision assumée
+(la leçon de {multiplier-fractions} : deux leçons dans une même faute la
+rendent illisible). Ici l'élève lit une ligne qui CALCULE, et non plus
+seulement une qui recopie : le carnet passe de « une case garde ce qu'on y a
+rangé » à « une case peut CONTENIR le résultat d'un calcul sur d'autres
+cases ».
+**CE QU'IL AJOUTE N'EST PAS UN TROISIÈME DOUBLON, C'EST LA MARCHE QUE LES
+DEUX AUTRES PRÉPARENT.** Le 5.15 a déjà réduit la question à UNE seule
+réponse par ligne (la case est DONNÉE). Le 5.16 REPREND cette disposition
+telle quelle et change seulement ce qu'une ligne PEUT être : un littéral
+(`a = 10`), une recopie (comme au 5.15), ou désormais un CALCUL (`c = a+b`,
+`z = x-y`) qui lit ce que d'AUTRES cases contiennent. Un élève qui sait déjà
+lire une recopie n'a qu'UNE chose de plus à apprendre : que la mémoire, pas
+l'énoncé, nourrit le calcul.
+**LE MOTEUR EST CELUI DU 5.14 ET DU 5.15, L'IDENTITÉ NE L'EST PAS** — la
+règle du projet, répétée une troisième fois dans ce thème. Sont PARTAGÉS la
+lecture de la mémoire (`papProg`, `papEtat`, `papAns` — donc `pyRun`,
+l'interpréteur MÊME du 5.1, qui sait déjà calculer : {python-operations} s'en
+sert pour ça, et rien n'est réécrit ici), la comparaison des valeurs
+(`papNet`), le cadre du programme avec son repère ▶ (`papProgHTML`) et le jeu
+de lettres des questions tirées (`PAP_JEUX`) ; la feuille de styles aussi
+(`pap-cols`, `pap-mem`, `pap-val` et ses trois encres). Sont PROPRES son
+identifiant, son kind (`ppc`), son écran, son rappel de cours, ses questions
+à l'IA, son contexte, sa FICHE (`PPC_FICHE` : a = 10, b = 2, c = a+b — PAS
+celle du 5.14/5.15, qui recopie plutôt que calculer), son tirage (`ppcGen`,
+`ppcBuildQuestions`), son juge (`checkPPC`), sa reprise (`ppcReposer`) et son
+poids (`ppcCases`).
+**`papCopie` NE POUVAIT PAS SERVIR TEL QUEL, et c'est le piège du moteur
+partagé pris à revers.** Elle ne distingue qu'un littéral (« commence par un
+chiffre ») d'autre chose, et pour le 5.14/5.15 « autre chose » ne pouvait être
+qu'une recopie — une seule alternative, jamais fausse. Une ligne de calcul
+(`a+b`) ne commence pas non plus par un chiffre : `papCopie` l'aurait donc
+prise pour une recopie, avec le message qui va avec (« va LIRE ce qu'elle
+contient ») — un message qui MENT sur une ligne qui doit CALCULER.
+`ppcNature(expr)` distingue les TROIS natures — littéral, recopie, calcul —
+et `ppcExplique(q, k)` porte le bon message pour chacune. C'est le bord que
+partager un moteur sans relire ce qu'il suppose aurait fait manquer : le
+5.14/5.15 n'avait jamais eu qu'une alternative à trancher, le 5.16 en a trois.
+**TROIS VISAGES, épinglés dans l'ordre où la marche se lit** : la FICHE
+elle-même (a = 10, b = 2, c = a+b — une addition de deux littéraux) ;
+« soustraction » (deux littéraux, puis leur différence — le PLUS GRAND tiré
+en premier, pour ne JAMAIS produire de résultat négatif : le clavier tactile
+de ce niveau n'entre que le tiret du clavier sur la touche « − », et la
+Seconde n'affiche jamais de signe moins dans cette famille, la même réserve
+que le 5.14/5.15 avait posée sur ses valeurs) ; « copie-addition » (deux
+littéraux, une RECOPIE du second, puis une ADDITION qui LIT la case recopiée
+— et non le littéral d'origine : la valeur additionnée doit être retrouvée
+dans la mémoire, pas relue sur la ligne d'avant). C'est cette dernière rangée
+qui tient, dans une SEULE question, le bord « certaines lignes recopient,
+d'autres calculent ». Aucune multiplication ni division : les valeurs tirent
+entre 2 et 99, et un produit de deux tels nombres sortirait du calcul de tête
+que la Seconde manipule — ce serait la leçon du 5.9, pas celle-ci.
+**LA MÊME DISPOSITION QUE LE 5.15, ET LES MÊMES BORDS TENUS** : la case est
+DONNÉE, l'élève ne tape que la VALEUR ; la vérification est PAR LIGNE, la
+porte de la suivante tenue par l'ÉTAT du bouton ; une case vide est
+redemandée, jamais peinte ; la rangée qu'on vient de juger garde la
+convention commune (`corrCase`), celle qu'on QUITTE porte la mémoire VRAIE —
+bleue si l'élève l'avait juste, verte (`sol`) s'il l'avait fausse ou vide —
+même pour une case de CALCUL, où la valeur vraie sort de `pyRun` et jamais
+d'une réévaluation de ce que l'élève a tapé ; la fin vérifie la mémoire
+ENTIÈRE, avec le total VRAI même quand une ligne a été manquée. Aucune
+correction au fil des clics (`soutienEnDirect.sans`), aucun bouton des tables
+(`TABLES_SANS`, `tests/profils.js`) : les calculs restent des additions et
+soustractions à un chiffre, rien à consulter.
+**Il FERME le thème 5, en 5.16 — ajouté en dernier, il ne renumérote rien —
+et le bord « il ferme le thème 5, en 5.15 » de {python-valeur-case} a été
+RETOURNÉ, pas retiré** : le huitième à l'être, après le 5.8, le 5.9, le 5.10,
+le 5.11, le 5.12, le 5.13 et le 5.14. Le 5.15 vit désormais entre
+{python-pas-a-pas} et celui-ci. Le contrôle jsdom qui portait ce bord (dans
+la section 8 de {python-valeur-case}, « la place au menu et les branchements
+») a été retouché EN PLACE plutôt que dupliqué : il vérifie maintenant que le
+thème se ferme sur `python-pas-a-pas-calcul`, que {python-valeur-case} reste
+juste AVANT le fermeur, et que {python-pas-a-pas} reste juste avant lui — un
+bord retiré ne dit plus rien, un bord retourné dit la règle du jour.
+**Deux bancs, une répartition VOLONTAIREMENT ASYMÉTRIQUE, et le dire vaut
+mieux que de le taire.** Contrairement au 5.14 et au 5.15, {python-pas-a-
+pas-calcul} n'a PAS de fonction jsdom dédiée qui rejoue le tirage par une
+SECONDE arithmétique indépendante — pour les lignes littérales et les
+recopies cette seconde méthode est triviale (recopier la même valeur), mais
+pour la ligne de CALCUL elle demanderait de réimplémenter l'addition et la
+soustraction hors de `pyRun`, un chantier à part, remis à plus tard (demande
+de Turquet : « c'est un autre sujet »). `tests/profils.js` le DÉCLARE dans
+« lacunes » plutôt que de le taire, et sa déclaration `pythonPasAPasCalcul`
+est volontairement RÉDUITE : ni `nb` ni `bareme`, qui ne serviraient qu'à
+cette fonction absente — un champ que personne ne lit est une liste morte
+qu'on croit vivante.
+Le banc NAVIGATEUR (« 6 tricies sedecies »), lui, couvre l'exercice en
+EXÉCUTION RÉELLE, sur la fiche ÉPINGLÉE à valeurs CONNUES (10, 2, 12) — nul
+besoin d'arithmétique indépendante quand la fiche est fixe. Il ouvre
+l'exercice, vérifie que le nom de la case est ÉCRIT (aucune liste, comme au
+5.15) et qu'aucun bilan ne paraît avant la fin, tape au clavier les deux
+lignes littérales et vérifie la note, puis tape une réponse FAUSSE sur la
+ligne de calcul (« 102 », l'erreur d'un élève qui concatène 10 et 2 au lieu
+d'additionner) et vérifie que la case rougit, que la correction s'écrit en
+VERT avec la vraie valeur (12), que le MESSAGE nomme un CALCUL — et non une
+recopie, la distinction que `ppcNature`/`ppcExplique` existent pour tenir —,
+et que le BILAN de fin porte la valeur VRAIE de chaque case même quand
+l'élève s'est trompé sur l'une d'elles. Les contrôles UNIVERSELS des deux
+bancs (section 9 du banc principal, section 9 bis des couleurs de
+vérification) couvrent le reste — taille des cases, case vide jamais rouge,
+`.ok` jamais `.good`, bouton d'aide IA, pas d'accolades affichées, pas de
+repli de rangée, clavier atteignable, couleurs juste-bleu/correction-verte —
+sans qu'il ait fallu les déclarer : c'est précisément ce pour quoi elles
+existent.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable

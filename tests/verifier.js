@@ -27871,11 +27871,18 @@ function pythonValeurCase(w, P){
   })()`, v => v === '');
 
   /* ---- 8. la place au menu et les branchements ---- */
-  verifierEval(w, 'il FERME le thème 5, numéroté ' + F.numero + ' après {python-pas-a-pas} — et rien d autre ne bouge : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+  /* IL NE FERME PLUS LE THÈME 5 — {python-pas-a-pas-calcul} (5.16) l'a repris,
+     comme {python-valeur-case} avait repris {python-pas-a-pas} avant lui : le
+     bord « il FERME le thème 5 » est RETOURNÉ ici plutôt que retiré, la
+     convention du projet (voir CLAUDE.md, « un bord retiré ne dit plus rien »).
+     Ce qui reste VRAI de {python-valeur-case} : il vit juste AVANT le
+     fermeur, et {python-pas-a-pas} juste avant lui. */
+  verifierEval(w, 'il ne ferme plus le thème 5 — {python-pas-a-pas-calcul} l a repris — mais reste juste avant lui, numéroté ' + F.numero + ', après {python-pas-a-pas} : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
     const th=THEMES[THEMES.length-1], vus=[];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
-    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("l exercice ne ferme pas le theme : "+(th&&th.ids.join(",")));
-    if(!th||th.ids[th.ids.length-2]!=="python-pas-a-pas") vus.push("il ne suit pas {python-pas-a-pas} : "+(th&&th.ids.join(",")));
+    if(!th||th.ids[th.ids.length-1]!=="python-pas-a-pas-calcul") vus.push("le theme ne se ferme plus sur python-pas-a-pas-calcul : "+(th&&th.ids.join(",")));
+    if(!th||th.ids[th.ids.length-2]!=="${ID}") vus.push("l exercice n est plus juste avant le fermeur : "+(th&&th.ids.join(",")));
+    if(!th||th.ids[th.ids.length-3]!=="python-pas-a-pas") vus.push("il ne suit pas {python-pas-a-pas} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-operations"]!=="5.12"||TEST_NUM["python-double-triple-carre"]!=="5.13"||TEST_NUM["python-pas-a-pas"]!=="5.14"||TEST_NUM["pourcentage"]!=="3.1")
       vus.push("l exercice ajoute a renumerote les autres");

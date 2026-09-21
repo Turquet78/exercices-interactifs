@@ -9991,6 +9991,93 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies sedecies. {python-pas-a-pas-calcul} : quand une ligne CALCULE =====
+       Le moteur (papProg, papEtat, papAns, papProgHTML) et la disposition
+       (deux colonnes, le nom ÉCRIT) sont ceux du 5.15 — déjà mesurés ci-
+       dessus — et ne sont pas remesurés ici. Ce que ce banc mesure est ce qui
+       est PROPRE au 5.16 : une ligne comme « c = a+b » se juge, se corrige et
+       se bilan-te comme une ligne de CALCUL, pas comme une recopie. Aucune
+       seconde arithmétique n'est rejouée : la fiche ÉPINGLÉE porte des
+       valeurs CONNUES (10, 2, 12), lues dans tests/profils.js — la même
+       garantie qu'un tirage aléatoire donnerait, sans avoir à recalculer. */
+    titre('6 tricies sedecies. LE PROGRAMME PAS À PAS, QUAND UNE LIGNE CALCULE');
+    if(!P.pythonPasAPasCalcul){
+      ignorer('le programme pas à pas : une ligne de calcul se juge, se corrige et se bilan-te comme un calcul',
+        'ce niveau n\'a pas l\'exercice du programme pas à pas avec calcul');
+    } else {
+      const A = P.pythonPasAPasCalcul, nL = A.fiche.prog.length;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const dits = [];
+      /* 1. LA FICHE ÉPINGLÉE, AVEC SA LIGNE DE CALCUL VISIBLE */
+      const vu = await s.page.evaluate(() => {
+        const host = document.getElementById('ppcHost');
+        const lignes = [...host.querySelectorAll('.pyx-ligne')];
+        const nm = host.querySelector('.ppc-nom'), ve = document.getElementById('ppc-val-0');
+        return { lignes: lignes.map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+                 listes: host.querySelectorAll('select').length,
+                 nom: nm ? nm.textContent.trim() : null,
+                 case: ve ? ve.tagName : null,
+                 bilan: !!host.querySelector('.ppc-bilan') };
+      });
+      if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
+      if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
+        dits.push('le programme rendu : ' + JSON.stringify(vu.lignes));
+      if(vu.listes) dits.push(vu.listes + ' liste(s) de propositions dans l\'écran : le nom se choisit encore');
+      if(vu.nom !== A.fiche.memoire[0][0]) dits.push('le nom de la case écrit par la page : ' + JSON.stringify(vu.nom));
+      if(vu.case !== 'INPUT') dits.push('la case de la valeur : ' + JSON.stringify(vu.case));
+      if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
+      verifier('la fiche épinglée (a = 10, b = 2, c = a+b) est rendue, avec le nom de la case ÉCRIT',
+        !dits.length, dits.slice(0, 3).join(' | '));
+      /* 2. LES DEUX LIGNES LITTÉRALES SE TAPENT ET SE JUGENT COMME AVANT */
+      for(let k = 0; k < nL - 1; k++){
+        await s.page.click('#ppc-val-' + k);
+        await s.page.keyboard.type(A.fiche.memoire[k][1], { delay: 50 });
+        await s.page.waitForTimeout(120);
+        await s.page.click('#ppcValidate');
+        await s.page.waitForTimeout(300);
+        await s.page.click('#ppcStep');
+        await s.page.waitForTimeout(300);
+      }
+      const avant = await s.page.evaluate(() => ({ score: test.score }));
+      verifier('les deux premières lignes (littérales) se jugent comme au 5.15',
+        avant.score === nL - 1, 'note ' + avant.score + ' après les deux lignes littérales, au lieu de ' + (nL - 1));
+      /* 3. LA LIGNE DE CALCUL, RÉPONDUE FAUX D'ABORD : LE MESSAGE NOMME UN CALCUL */
+      const gestes = [];
+      await s.page.click('#ppc-val-' + (nL - 1));
+      await s.page.keyboard.type('102', { delay: 50 });   /* l'erreur d'un élève qui concatène au lieu d'additionner */
+      await s.page.waitForTimeout(120);
+      await s.page.click('#ppcValidate');
+      await s.page.waitForTimeout(400);
+      const faux = await s.page.evaluate((idx) => {
+        const ve = document.getElementById('ppc-val-' + idx);
+        const b = ve ? ve.nextElementSibling : null;
+        return { classe: ve ? ve.className : '', encre: ve ? getComputedStyle(ve).color : '',
+                 badgeTxt: b ? b.textContent : '', badgeEncre: b ? getComputedStyle(b).color : '',
+                 feedback: (document.getElementById('ppcFeedback') || {}).textContent || '',
+                 bilan: (document.getElementById('ppcHost').querySelector('.ppc-bilan') || {}).textContent || '' };
+      }, nL - 1);
+      if(!/bad/.test(faux.classe) || dom(faux.encre) !== 'rouge') gestes.push('la case fausse n\'est pas rouge : ' + faux.classe + ' / ' + faux.encre);
+      if(faux.badgeTxt.trim() !== A.fiche.memoire[nL - 1][1] || dom(faux.badgeEncre) !== 'vert')
+        gestes.push('la correction en vert : ' + JSON.stringify({ t: faux.badgeTxt, e: faux.badgeEncre }));
+      if(!/CALCUL/.test(faux.feedback)) gestes.push('le message ne nomme pas un CALCUL, il dit : ' + faux.feedback.slice(0, 160));
+      /* LE BILAN PORTE LA VALEUR VRAIE, MÊME QUAND L'ÉLÈVE S'EST TROMPÉ */
+      A.fiche.memoire.forEach(r => {
+        if(faux.bilan.indexOf(r[0]) < 0 || faux.bilan.indexOf(r[1]) < 0)
+          gestes.push('le bilan ne dit pas que ' + r[0] + ' contient ' + r[1] + ' : ' + faux.bilan.slice(0, 160));
+      });
+      verifier('une ligne de CALCUL fausse se corrige en vert avec la vraie valeur, le message NOMME un calcul (pas une recopie), et le bilan garde la valeur vraie',
+        !gestes.length, gestes.slice(0, 3).join(' | '));
+      verifier('l\'écran du programme pas à pas avec calcul ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent
