@@ -1959,6 +1959,99 @@ repli de rangée, clavier atteignable, couleurs juste-bleu/correction-verte —
 sans qu'il ait fallu les déclarer : c'est précisément ce pour quoi elles
 existent.
 
+**Puis la marche encore suivante : quand un CALCUL en lit un AUTRE.**
+{python-pas-a-pas-chaine} (Seconde, 5.17, demande de Turquet, septembre
+2026 : « en essayant d'utiliser le moins de tokens possible sans toucher à la
+qualité du résultat, fait un exercice de seconde en t'appuyant sur le modèle
+du 5.15 comme le pdf joint ») porte le 4e PDF de la série : « a = 10 ; b = 2 ;
+c = a+b ; d = c+a ». Le 5.16 apprend qu'une ligne peut CALCULER au lieu de
+recopier ; ici, la ligne 4 calcule AVEC une case (c) qui est elle-même le
+résultat d'un calcul, et non un littéral ni une simple recopie. Le carnet
+passe de « une case peut contenir le résultat d'un calcul » à « une case
+CALCULÉE peut à son tour nourrir un calcul » — la mémoire se relit, jamais
+l'expression qui l'a produite.
+
+**LE MOTEUR EST CELUI DU 5.14/5.15/5.16, L'IDENTITÉ NE L'EST PAS** — la règle
+du projet, répétée une quatrième fois dans ce thème. Sont PARTAGÉS papProg,
+papEtat, papAns (donc pyRun), papNet, papProgHTML, PAP_JEUX, la feuille de
+styles du moteur (pap-cols, pap-mem, pap-val) — et surtout **ppcNature et
+ppcExplique, réutilisées SANS Y TOUCHER**. Le brief demandait de le vérifier
+plutôt que de le supposer : `ppcNature('c+a')` ne commence pas par un chiffre
+et porte un `+`, elle rend donc déjà `'calcul'`, que la case citée (c) soit
+elle-même un littéral ou le fruit d'un calcul — la fonction ne regarde que
+la FORME de l'expression, jamais la provenance de la valeur qu'elle lira. Le
+message de `ppcExplique` (« prends ce que CONTIENT chaque case citée ») dit
+déjà la bonne chose sans un mot de plus. Zéro ligne du moteur n'a donc bougé.
+Sont PROPRES son identifiant, son kind (`ppd`), son écran, son rappel
+(RAP_PPD), ses questions à l'IA, son contexte, sa FICHE (PPD_FICHE, les
+quatre lignes du PDF au caractère près), son tirage (`ppdGen`,
+`ppdBuildQuestions`), son juge (`checkPPD`), sa reprise (`ppdReposer`) et son
+poids (`ppdCases`).
+
+**TROIS VISAGES** : la FICHE (a=10, b=2, c=a+b, d=c+a) ; « chaine-addition »
+(deux littéraux tirés, c = a+b, puis d = c+a — la même forme que la fiche,
+des lettres et des valeurs différentes) ; « chaine-soustraction » (le plus
+grand littéral tiré en premier, c = a−b, puis d = c+a — jamais de résultat
+négatif, la réserve déjà posée par le 5.14/5.15/5.16 sur la touche « − » du
+pavé tactile). Les deux tirées sont en ordre mélangé. **MÊME DISPOSITION,
+MÊMES BORDS QUE LE 5.15/5.16** : la case est DONNÉE, l'élève ne tape que la
+VALEUR ; vérification PAR LIGNE, porte tenue par l'ÉTAT du bouton ; case vide
+redemandée, jamais peinte ; la rangée qu'on VIENT de juger garde `corrCase`,
+celle qu'on QUITTE porte la mémoire VRAIE (`ok` bleu si juste, `sol` vert
+sinon) ; la fin vérifie la mémoire ENTIÈRE. Aucune correction au fil des
+clics, aucun bouton des tables (`TABLES_SANS` **et** `tests/profils.js` —
+deux sources, et la seconde a d'abord été oubliée : voir plus bas).
+
+**DEUX BANCS, et CETTE FOIS une fonction jsdom dédiée.** Contrairement au
+5.16, {python-pas-a-pas-chaine} a sa fonction propre dans `verifier.js`
+(`pythonPasAPasChaine`) : elle ne reconstruit PAS l'arithmétique par une
+seconde méthode indépendante — le chantier resté ouvert par le 5.16 — mais
+tient les INVARIANTS du tirage sur 300 séances (aucune valeur négative,
+chaque littéral distinct, les lignes 3 et 4 classées `calcul` par `ppcNature`,
+et la ligne 4 qui cite bien le NOM posé par la ligne 3 — la chaîne même que
+l'exercice enseigne), plus la copie juste ligne par ligne, la porte, le
+bilan, la case vide, le soutien, la rangée quittée, la reprise et les
+branchements. Ce qui distingue cette fonction de celles du 5.14/5.15 : elle
+ne rejoue pas la valeur des visages TIRÉS par un second calcul indépendant —
+seule la fiche, à valeurs connues, est comparée à `tests/profils.js` au
+caractère près. Le banc NAVIGATEUR (« 6 tricies septdecies ») couvre le
+reste en exécution RÉELLE sur la fiche épinglée (10, 2, 12, 22) : les deux
+colonnes rendues, le repère ▶ qui avance et le tableau qui GRANDIT à chaque
+étape, puis une réponse FAUSSE sur la ligne 4 — celle qui lit la case
+CALCULÉE — dont le message doit nommer un CALCUL, jamais une recopie, et dont
+le bilan final doit garder les quatre valeurs VRAIES malgré l'erreur.
+
+**LE BOUTON DES TABLES A DEUX SOURCES, et une a été oubliée au premier
+passage.** La page décide d'après `TABLES_SANS` (son propre tableau) ; le
+banc navigateur juge d'après `tests/profils.js` (`tablesAide.sans`), une
+liste ÉCRITE À LA MAIN, indépendante de la page — lire la liste de la page et
+la comparer à elle-même n'aurait rien prouvé. Le premier passage n'a ajouté
+l'exercice qu'à `TABLES_SANS` : le banc a rougi en le nommant exactement
+(« sans bouton alors qu'il devrait l'avoir : python-pas-a-pas-chaine »), la
+preuve que les deux sources sont réellement indépendantes plutôt qu'une
+façade. L'ajouter à `tablesAide.sans` a suffi.
+
+**Et le bord « il FERME le thème 5, en 5.16 » de {python-pas-a-pas-calcul} a
+été RETOURNÉ, pas retiré** — le NEUVIÈME à l'être, après le 5.8, le 5.9, le
+5.10, le 5.11, le 5.12, le 5.13, le 5.14 et le 5.15 : {python-pas-a-pas-calcul}
+vit désormais entre {python-valeur-case} et celui-ci. Le contrôle jsdom qui
+portait ce bord (dans la section 8 de {python-valeur-case}, retouchée déjà une
+fois pour le 5.16) a été retouché EN PLACE une seconde fois : {python-valeur-
+case} n'est plus « juste avant le fermeur » — {python-pas-a-pas-calcul} s'est
+glissé entre les deux — mais sa place reste STABLE, entre {python-pas-a-pas}
+et {python-pas-a-pas-calcul}, et c'est ce que le contrôle vérifie désormais
+par l'INDEX plutôt que par la fin du thème. Le nouveau fermeur porte son
+PROPRE contrôle de position (section 8 de sa fonction dédiée), qui vérifie
+qu'il ferme bien le thème 5, juste après {python-pas-a-pas-calcul}.
+
+**Ce qu'un sabotage éprouve** : une case QUITTÉE qui garderait la saisie
+fausse de l'élève au lieu de la mémoire vraie (le bloc 6 rougit en le
+nommant) ; un test qui appellerait `document.getElementById("ppd-val-2")`
+sans avoir d'abord rempli les lignes 0 et 1 se serait heurté lui-même à une
+case absente — la même leçon que « une rangée à moitié remplie n'existe pas
+tant que les précédentes ne sont pas jugées » vue à l'envers, côté banc
+cette fois.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
