@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-echange-variables':'pev' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -698,11 +698,12 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    /* « pev » corrige comme « pap »/« pvm »/« ppc » : les cases par ligne ne
-       se colorent qu'à la vérification, et la question OUVERTE finale part au
+    /* « ppd » corrige comme « pap »/« pvm »/« ppc », et « pev » corrige de la
+       même famille : les cases par ligne ne se colorent qu'à la
+       vérification, et pour « pev » la question OUVERTE finale part au
        modèle — un appel au modèle à chaque touche serait absurde, la raison
        même de « sfl »/« mll » juste au-dessus. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'pev'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppd', 'pev'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -873,7 +874,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-echange-variables'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1171,10 +1172,12 @@ module.exports = {
                                  bareme: 11, numero: '5.15' } },
     /* {python-pas-a-pas-calcul} : la marche suivante — certaines lignes
        recopient (comme au 5.15), et au moins une CALCULE (addition ou
-       soustraction) à partir de ce que d'autres cases contiennent. Il FERME
-       le thème 5, en 5.16 ; le bord « il ferme le thème 5, en 5.15 » de
-       {python-valeur-case} a été RETOURNÉ dans le journal, comme la
-       convention établie à chaque ajout dans ce thème.
+       soustraction) à partir de ce que d'autres cases contiennent. Il ne
+       ferme PLUS le thème 5 — {python-pas-a-pas-chaine} (5.17) puis
+       {python-echange-variables} (5.18) l'ont repris ; le bord « il ferme le
+       thème 5, en 5.15 » de {python-valeur-case} avait déjà été RETOURNÉ
+       dans le journal, comme la convention établie à chaque ajout dans ce
+       thème.
        CETTE DÉCLARATION EST RÉDUITE, et volontairement — ni « nb » ni
        « bareme » n'y sont : ces deux champs ne servent qu'aux fonctions
        jsdom dédiées de {python-pas-a-pas} et {python-valeur-case}
@@ -1194,6 +1197,30 @@ module.exports = {
     pythonPasAPasCalcul: { exercice: 'python-pas-a-pas-calcul',
                            fiche: { prog: ['a = 10', 'b = 2', 'c = a+b'],
                                     memoire: [['a', '10'], ['b', '2'], ['c', '12']] } },
+    /* {python-pas-a-pas-chaine} : la marche encore suivante — le 4e PDF fourni
+       par Turquet, septembre 2026 (« a = 10 ; b = 2 ; c = a+b ; d = c+a »).
+       Une case déjà CALCULÉE (c) nourrit à son tour un calcul (d) : la
+       nouveauté n'est plus la NATURE d'une ligne (déjà les trois du 5.16),
+       mais la PROVENANCE de la valeur lue — une case citée peut être elle-même
+       le résultat d'un calcul, pas seulement un littéral ou une recopie.
+       Contrairement au 5.16, il a une fonction jsdom dédiée
+       (`pythonPasAPasChaine` dans verifier.js) : elle ne reconstruit PAS
+       l'arithmétique par une seconde méthode indépendante (le chantier resté
+       ouvert par le 5.16), mais tient les invariants du tirage — aucune
+       valeur négative, chaque littéral distinct, les lignes 3 et 4 classées
+       « calcul » par ppcNature (réutilisée sans y toucher), et la ligne 4
+       qui cite bien le NOM de la case posée par la ligne 3 — sur 300 séances,
+       plus la copie juste ligne par ligne, la porte, le bilan, la case vide,
+       le soutien, la rangée quittée, la reprise et les branchements sur la
+       fiche ÉPINGLÉE, à valeurs connues. « nb » est la SECONDE source du
+       nombre de questions (la page a PPD_NB), « fiche » le programme épinglé,
+       les quatre rangées de sa mémoire, son barème — UNE réponse par ligne,
+       quatre lignes — et son numéro au menu. */
+    pythonPasAPasChaine: { exercice: 'python-pas-a-pas-chaine', nb: 3,
+                          fiche: { prog: ['a = 10', 'b = 2', 'c = a+b', 'd = c+a'],
+                                   memoire: [['a', '10'], ['b', '2'], ['c', '12'], ['d', '22']],
+                                   fin: { a: '10', b: '2', c: '12', d: '22' },
+                                   bareme: 12, numero: '5.17' } },
     /* {python-echange-variables} : la fiche du PDF « variable pas à pas 5 »,
        calquée sur {python-valeur-case} — a = 10, b = 2, c = a, a = b, b = c,
        l'échange classique de deux variables par une case tierce. Comme
@@ -1209,12 +1236,13 @@ module.exports = {
        « un verdict arithmétique ne se confie pas à un modèle ») : c'est une
        idée en langage naturel, et le modèle EST le bon juge. Seuls
        « exercice » et « fiche.prog »/« fiche.memoire » sont lus, par le banc
-       NAVIGATEUR (« 6 tricies septendecies ») : il ouvre la fiche ÉPINGLÉE,
+       NAVIGATEUR (« 6 tricies duodevicies ») : il ouvre la fiche ÉPINGLÉE,
        tape les cinq valeurs au clavier, PUIS stubbe l'appel réseau de la
        question ouverte — une fois avec un verdict correct, une fois avec un
        verdict faux — pour éprouver la couleur du verdict, le score et la
        porte vers « Question suivante », sans jamais approcher le vrai
-       modèle. */
+       modèle. Une collision de numéro avec {python-pas-a-pas-chaine} (fusion
+       de main, septembre 2026) a fait passer cet exercice de 5.17 à 5.18. */
     pythonEchangeVariables: { exercice: 'python-echange-variables',
                               fiche: { prog: ['a = 10', 'b = 2', 'c = a', 'a = b', 'b = c'],
                                        memoire: [['a', '10'], ['b', '2'], ['c', '10'], ['a', '2'], ['b', '10']] } },
@@ -1249,7 +1277,7 @@ module.exports = {
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
       "{python-pas-a-pas-calcul} (5.16) n'a pas de fonction jsdom dédiée (contrairement à {python-pas-a-pas} et {python-valeur-case}) : elle rejouerait la ligne de CALCUL par une SECONDE arithmétique indépendante, un chantier remis à plus tard (« c'est un autre sujet »). Le banc navigateur (« 6 tricies sedecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 12) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
-      "{python-echange-variables} (5.17) n'a pas de fonction jsdom dédiée non plus, pour une raison différente du 5.16 : sa question OUVERTE finale (l'explication de l'échange) n'est PAS un verdict arithmétique qu'une seconde méthode locale pourrait rejouer, c'est une idée en langage naturel jugée par le modèle (docs/journal/08-verdicts-et-juges.md). Le banc navigateur (« 6 tricies septendecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2), PUIS stubbe l'appel réseau de la question ouverte pour éprouver le verdict correct et le verdict faux, sans jamais approcher le vrai modèle ; les contrôles universels des deux bancs couvrent le reste sans rien déclarer.",
+      "{python-echange-variables} (5.18, 5.17 à l'origine — une collision de numéro avec {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée non plus, pour une raison différente du 5.16 : sa question OUVERTE finale (l'explication de l'échange) n'est PAS un verdict arithmétique qu'une seconde méthode locale pourrait rejouer, c'est une idée en langage naturel jugée par le modèle (docs/journal/08-verdicts-et-juges.md). Le banc navigateur (« 6 tricies duodevicies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2), PUIS stubbe l'appel réseau de la question ouverte pour éprouver le verdict correct et le verdict faux, sans jamais approcher le vrai modèle ; les contrôles universels des deux bancs couvrent le reste sans rien déclarer.",
     ],
   },
 
