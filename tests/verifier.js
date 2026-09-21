@@ -28111,11 +28111,18 @@ function pythonPasAPasChaine(w, P){
   })()`, v => v === '');
 
   /* ---- 8. la place au menu et les branchements ---- */
-  verifierEval(w, 'il FERME le thème 5, numéroté ' + F.numero + ', juste après {python-pas-a-pas-calcul} : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
+  /* IL NE FERME PLUS LE THÈME 5 — {python-pas-a-pas-multiplication} (5.18)
+     l'a repris, arrivé sur `main` par une fusion séparée le même jour : le
+     bord « il FERME le thème 5 » est RETOURNÉ ici plutôt que retiré, comme
+     pour {python-pas-a-pas-calcul} avant lui (section 8 de
+     {python-valeur-case}). Ce qui reste VRAI : il vit juste APRÈS
+     {python-pas-a-pas-calcul}, vérifié par l'INDEX plutôt que par la fin du
+     tableau, qui bouge à chaque ajout. */
+  verifierEval(w, 'il ne ferme plus le thème 5 — {python-pas-a-pas-multiplication} l a repris — mais reste juste après {python-pas-a-pas-calcul}, numéroté ' + F.numero + ' : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[], i=th?th.ids.indexOf("${ID}"):-1;
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
-    if(!th||th.ids[th.ids.length-1]!=="${ID}") vus.push("le theme ne ferme pas sur ${ID} : "+(th&&th.ids.join(",")));
-    if(!th||th.ids[th.ids.length-2]!=="python-pas-a-pas-calcul") vus.push("il ne suit pas {python-pas-a-pas-calcul} : "+(th&&th.ids.join(",")));
+    if(!th||th.ids[th.ids.length-1]!=="python-pas-a-pas-multiplication") vus.push("le theme ne se ferme plus sur python-pas-a-pas-multiplication : "+(th&&th.ids.join(",")));
+    if(i<0||th.ids[i-1]!=="python-pas-a-pas-calcul") vus.push("il ne suit pas {python-pas-a-pas-calcul} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d entree TESTS");
     if(/[{}<>]/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte du balisage ou une accolade : elle passe par esc(numeros(desc))");
