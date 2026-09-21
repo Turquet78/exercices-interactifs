@@ -1771,6 +1771,95 @@ et **cette branche prend 186**, la règle ne changeant pas d'un mot pour
 autant se répéter : le premier arrivé garde, le second prend le suivant. Rien
 d'autre du fichier n'entrait en collision.
 
+**L'EXÉCUTION DEVIENT AUTOMATIQUE, ET LA FICHE A FINI PAR SE FAIRE ENTENDRE.**
+Le 5.14 ({python-pas-a-pas}) demandait à l'élève de CHOISIR la case mémoire
+dans une liste et de TAPER sa valeur, ligne par ligne, jugé une rangée à la
+fois. Or la fiche papier de Turquet ne demande jamais cela : ses trois
+tableaux de mémoire sont DONNÉS — l'exécution y est déjà faite —, et les
+seules cases à remplir sont les phrases finales (« a = 10 signifie que le
+nombre 10 va dans la case mémoire appelée ....... »). L'exercice enseignait
+donc une leçon que la fiche ne demandait pas : REMPLIR la mémoire soi-même,
+plutôt que la LIRE et la METTRE EN MOTS. Turquet (septembre 2026) a demandé
+que la page fasse ce que la fiche fait — l'exécution défile SEULE, et
+l'élève ne complète que les phrases — et que « les cases mémoire et valeur
+soient alignées horizontalement avec la ligne du programme correspondant ».
+**UN SEUL TABLEAU REMPLACE LES DEUX COLONNES, et c'est l'alignement qui l'a
+imposé.** L'ancien rendu posait le programme à GAUCHE (`.pyx-prog`, une pile
+de `<div>`) et la mémoire à DROITE (un `<table>` indépendant qui GRANDISSAIT
+d'une rangée à chaque étape) : deux blocs qui ne partageaient qu'un flex
+parent, et qu'un CSS changé aurait pu faire dériver l'un de l'autre sans
+qu'aucun contrôle statique ne le voie. Le nouveau rendu pose UN `<table
+class="pap-mem">` à trois colonnes — Programme, Case mémoire, Ce qu'elle
+contient — et UNE `<tr>` par ligne du programme : la case mémoire d'une
+ligne et son contenu vivent dans la MÊME rangée que le code qui les
+remplit. L'alignement horizontal n'est plus une PROMESSE tenue par deux
+mises en page séparées, c'est une CONSÉQUENCE de la structure : il ne peut
+plus se perdre sans casser le tableau lui-même.
+**TOUTES LES RANGÉES EXISTENT DÈS LE DÉPART**, pas seulement celles déjà
+exécutées : la ligne pas encore atteinte est déjà à sa place, cellules
+vides, plutôt que de faire SAUTER les rangées suivantes quand une nouvelle
+rangée s'ajoute — c'est ce qui rend le tableau stable pendant que
+l'exécution avance, et ce qui garantit qu'aucune rangée ne dérive de sa
+ligne de programme au fil des étapes.
+**IL N'Y A PLUS DE PORTE, PARCE QU'IL N'Y A PLUS RIEN À JUGER AVANT LA FIN**
+: l'ancien `papSuivante()` exigeait `test.papVerdicts[k]` — la ligne devait
+être jugée avant de passer à la suivante, le motif de {placer-image}. Ce
+motif n'a plus d'objet : l'élève ne remplit rien pendant l'exécution, donc
+il n'y a rien à juger. Le bouton « Ligne suivante » avance simplement d'une
+étape et redessine ; la seule chose que la page doit tenir est que le
+tableau reste HONNÊTE à chaque étape — il affiche EXACTEMENT ce que `papAns`
+calcule, jamais une valeur inventée ni une rangée remplie avant son tour.
+**LES PHRASES ARRIVENT TOUTES ENSEMBLE, UNE FOIS LE TABLEAU COMPLET, ET SE
+VÉRIFIENT EN UNE FOIS** — le prolongement direct de « une rangée à moitié
+remplie est redemandée, jamais peinte », généralisé à N blancs plutôt qu'à
+deux : un SEUL blanc vide dans toute la copie bloque la vérification
+entière, sans rien peindre, avec le focus posé sur le premier blanc vide.
+C'est le même motif que {python-completer} et {python-operations}
+partagent déjà (leur cadre `pyx-prog` était déjà cité par ce fichier comme
+partagé avec ce même exercice) : plusieurs blancs d'une même question jugés
+ensemble, soutien qui bloque tant que tout n'est pas juste, entraînement qui
+verrouille dans tous les cas.
+**UNE LIGNE DIRECTE VAUT UN BLANC, UNE LIGNE DE COPIE EN VAUT DEUX** — la
+valeur recopiée, PUIS le nom, l'ordre même de la troisième phrase de la
+fiche (« le nombre dans la case b qui est ....... va dans la case appelée
+....... ») : le NOM de la case n'a plus besoin d'être choisi dans une
+liste — la phrase le désigne déjà en clair (« … va dans la case mémoire
+appelée … ») —, donc les deux blancs sont désormais des champs texte
+libres, à la taille des mots et des nombres qui les entourent (le motif de
+`.pcv-in` / `.pcv-val`, déjà posé plus haut dans la feuille de styles pour
+{python-changer-valeurs}). **LE BARÈME EN DÉCOULE** : `papCases` compte 1
+réponse par ligne directe, 2 par ligne de copie. La fiche (deux lignes
+directes, une copie) vaut 4 ; le visage « lointaine » (trois lignes
+directes, une copie) vaut 5 ; le visage « chaîne » (deux lignes directes,
+deux copies) vaut 6 — une séance de trois questions vaut donc **15**,
+contre 22 avant (2 réponses × 11 lignes, sans distinguer directe et copie).
+**LA RANGÉE QUITTÉE N'EXISTE PLUS EN TANT QUE DÉFAUT** — c'est le bord
+inverse qui compte désormais : puisque l'élève ne remplit plus jamais la
+mémoire, il ne peut plus y laisser une valeur fausse que la ligne suivante
+lirait par erreur. Le bord qui le remplace est plus strict : le tableau doit
+rester EXACTEMENT ce que `papAns` calcule à CHAQUE étape, sans exception, et
+le banc le mesure ligne par ligne à chaque clic sur « Ligne suivante » —
+jamais seulement au moment où une rangée est quittée.
+**Deux bancs, la répartition habituelle, tous deux réécrits.** jsdom garde
+inchangés la fiche épinglée, le tirage et ses trois visages, l'état de la
+mémoire refait par une seconde arithmétique et la comparaison à un vrai
+CPython — rien de tout cela n'a changé de sens — et remplace « la copie
+juste ligne par ligne et sa porte » par « le tableau honnête à chaque
+étape », remplace « la rangée quittée porte la mémoire vraie » par le même
+bord généralisé (aucune valeur inventée, à aucune étape), et généralise le
+soutien et la vérification à N blancs plutôt qu'à une rangée de deux. Le
+NAVIGATEUR (toujours « 6 tricies quaterdecies », le numéro ne change pas —
+seul son contenu change) mesure ce que jsdom ne voit pas : UN SEUL tableau
+rendu, les rangées TOUTES en place dès l'ouverture, l'alignement horizontal
+RENDU entre la case mémoire et sa ligne de programme (leurs rectangles
+partagent le même haut), le repère ▶/✓ qui avance tout seul au clic, les
+phrases qui apparaissent TOUTES ENSEMBLE avec de VRAIS champs texte (plus
+aucun `<select>`), une VRAIE frappe au clavier, l'encre RENDUE de la
+vérification globale — un blanc faux ne fait pas rougir ses voisins justes,
+la bonne réponse s'écrit en VERT à côté du seul blanc faux —, le soutien qui
+ne verrouille qu'une copie ENTIÈREMENT juste, et le téléphone, où le tableau
+tient dans son cadre au lieu de faire déborder la page.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable

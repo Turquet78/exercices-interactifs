@@ -1121,25 +1121,30 @@ module.exports = {
                                autre: { a: 9, valeurs: ['18', '27', '81'] } },
     /* {python-pas-a-pas} : la fiche « variable pas à pas » — « Exécuter le
        programme ci-dessous en mode pas à pas », le programme « a = 10 ; b = 2 ;
-       c = b », et à chaque ligne le tableau des cases MÉMOIRE de l'ordinateur
-       (demande de Turquet, septembre 2026). Sur le papier les trois tableaux
-       sont DONNÉS ; ici c'est l'élève qui les produit, ligne par ligne.
+       c = b » (demande de Turquet, septembre 2026). Depuis septembre 2026 la
+       page fait ce que la fiche montre : l'exécution est AUTOMATIQUE — la page
+       remplit elle-même le tableau des cases MÉMOIRE, ligne après ligne — et
+       l'élève ne complète que des phrases, une fois le tableau entier rempli,
+       vérifiées TOUTES ENSEMBLE.
        « nb » est la SECONDE source du nombre de questions (la page a PAP_NB),
        « fiche » le programme épinglé, les trois rangées de sa mémoire, son
-       état final, son barème et son numéro au menu. Le banc jsdom tient la
-       fiche, le tirage et ses TROIS visages, l'état de la mémoire refait par
-       une SECONDE arithmétique, le juge cas par cas, la vérification PAR LIGNE
-       et sa porte, la rangée à moitié remplie jamais peinte, le soutien qui ne
-       révèle rien, la reprise après une pause et les branchements ; le
-       navigateur mesure les deux colonnes RENDUES, le repère de la ligne
-       courante, et CHOISIT puis TAPE les rangées pour de vrai.
+       état final, son barème et son numéro au menu. Le barème compte 1 blanc
+       par ligne DIRECTE, 2 par ligne de COPIE (papCases) : la fiche (2 lignes
+       directes, 1 copie) vaut 4. Le banc jsdom tient la fiche, le tirage et ses
+       TROIS visages, l'état de la mémoire refait par une SECONDE arithmétique,
+       le tableau qui reflète EXACTEMENT ce que papAns calcule à chaque étape,
+       la vérification GLOBALE et sa case vide qui bloque tout, le soutien qui
+       ne révèle rien, la reprise après une pause et les branchements ; le
+       navigateur mesure le tableau RENDU (une seule table, alignée sur le
+       programme), le repère de la ligne courante, et TAPE les phrases pour de
+       vrai.
        IL EST DANS « tablesAide.sans » : on ne multiplie rien, on lit une
        valeur et on la recopie. */
     pythonPasAPas: { exercice: 'python-pas-a-pas', nb: 3,
                      fiche: { prog: ['a = 10', 'b = 2', 'c = b'],
                               memoire: [['a', '10'], ['b', '2'], ['c', '2']],
                               fin: { a: '10', b: '2', c: '2' },
-                              bareme: 22, numero: '5.14' } },
+                              bareme: 15, numero: '5.14' } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
