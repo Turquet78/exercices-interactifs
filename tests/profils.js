@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -698,7 +698,7 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppd'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -869,7 +869,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1190,6 +1190,30 @@ module.exports = {
     pythonPasAPasCalcul: { exercice: 'python-pas-a-pas-calcul',
                            fiche: { prog: ['a = 10', 'b = 2', 'c = a+b'],
                                     memoire: [['a', '10'], ['b', '2'], ['c', '12']] } },
+    /* {python-pas-a-pas-chaine} : la marche encore suivante — le 4e PDF fourni
+       par Turquet, septembre 2026 (« a = 10 ; b = 2 ; c = a+b ; d = c+a »).
+       Une case déjà CALCULÉE (c) nourrit à son tour un calcul (d) : la
+       nouveauté n'est plus la NATURE d'une ligne (déjà les trois du 5.16),
+       mais la PROVENANCE de la valeur lue — une case citée peut être elle-même
+       le résultat d'un calcul, pas seulement un littéral ou une recopie.
+       Contrairement au 5.16, il a une fonction jsdom dédiée
+       (`pythonPasAPasChaine` dans verifier.js) : elle ne reconstruit PAS
+       l'arithmétique par une seconde méthode indépendante (le chantier resté
+       ouvert par le 5.16), mais tient les invariants du tirage — aucune
+       valeur négative, chaque littéral distinct, les lignes 3 et 4 classées
+       « calcul » par ppcNature (réutilisée sans y toucher), et la ligne 4
+       qui cite bien le NOM de la case posée par la ligne 3 — sur 300 séances,
+       plus la copie juste ligne par ligne, la porte, le bilan, la case vide,
+       le soutien, la rangée quittée, la reprise et les branchements sur la
+       fiche ÉPINGLÉE, à valeurs connues. « nb » est la SECONDE source du
+       nombre de questions (la page a PPD_NB), « fiche » le programme épinglé,
+       les quatre rangées de sa mémoire, son barème — UNE réponse par ligne,
+       quatre lignes — et son numéro au menu. */
+    pythonPasAPasChaine: { exercice: 'python-pas-a-pas-chaine', nb: 3,
+                          fiche: { prog: ['a = 10', 'b = 2', 'c = a+b', 'd = c+a'],
+                                   memoire: [['a', '10'], ['b', '2'], ['c', '12'], ['d', '22']],
+                                   fin: { a: '10', b: '2', c: '12', d: '22' },
+                                   bareme: 12, numero: '5.17' } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
