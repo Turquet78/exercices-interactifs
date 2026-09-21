@@ -1959,6 +1959,137 @@ repli de rangée, clavier atteignable, couleurs juste-bleu/correction-verte —
 sans qu'il ait fallu les déclarer : c'est précisément ce pour quoi elles
 existent.
 
+**Puis la marche suivante : quand une ligne MULTIPLIE — et le PDF lui-même a dû
+être corrigé.** {python-pas-a-pas-multiplication} (Seconde, 5.17, inspiré du
+PDF « variable_pas_a_pas_7 » fourni par Turquet, septembre 2026 : le programme
+« k = 10 ; l = 2 ; m = 2l ; l = m-k », exécuté pas à pas « comme la version
+n° 1 », avec la consigne de recommencer avec d'autres valeurs de k et l si la
+réponse ne correspond pas) est la troisième marche du calcul, après la
+recopie (5.15) et l'addition/soustraction (5.16) : {python-pas-a-pas-calcul}
+avait déjà réservé ce terrain — « éventuellement * du brief reste ouvert pour
+un jeu futur aux valeurs bornées plus bas » — et c'est ce jeu-là.
+
+**LE PDF, PRIS AU PIED DE LA LETTRE, ENFREINT DEUX RÈGLES DÉJÀ ÉTABLIES DANS
+CE THÈME, et il a fallu choisir entre suivre le papier et suivre la
+doctrine.** « l » y est réaffectée (l = 2 PUIS l = m-k), alors qu'une
+variable ne s'affecte qu'une fois par programme depuis le 5.1 — une règle que
+{python-pas-a-pas} (5.14) avait déjà retournée vers le pas à pas lui-même. Et
+m-k = 4-10 = -6 est négatif, alors que cette famille n'affiche jamais de signe
+moins : le clavier tactile de ce niveau n'entre que le tiret du clavier sur la
+touche « − », la même réserve posée par le 5.14 sur ses valeurs et par le 5.16
+sur sa soustraction. La FICHE épinglée garde donc le programme du papier au
+plus près — même k = 10, même l = 2, même doublement — mais range la
+différence dans une QUATRIÈME case (n) plutôt que de réaffecter l, et calcule
+k-m (10-4 = 6) plutôt que m-k, pour rester positive : k = 10, l = 2, m = l*2,
+n = k-m. Le PDF disait déjà, en substance, ce que la fiche fait : « recommencer
+avec d'autres valeurs de k et l » est exactement ce qu'une case vide ou fausse
+provoque déjà dans cette famille — rien à ajouter de ce côté-là.
+
+**LA MULTIPLICATION S'ÉCRIT « l*2 », JAMAIS « 2*l » — un piège de moteur
+partagé, pas de mathématiques.** `ppcNature(expr)`, la fonction du 5.16 qui
+distingue littéral / recopie / calcul, ne regarde que le PREMIER caractère
+pour repérer un littéral (`/^[0-9]/`) : une expression commençant par un
+chiffre suivi d'une case, comme « 2*l », serait prise pour un littéral, et le
+message qui l'accompagnerait mentirait (« range tel quel » pour une ligne qui
+CALCULE). Écrire la case EN PREMIER lève l'ambiguïté sans toucher à
+`ppcNature`, et c'est cohérent avec le carnet : une variable qu'on multiplie
+s'écrit `variable * facteur`, comme le 5.13 écrit déjà `n * n * n`.
+
+**LE MOTEUR EST CELUI DU 5.14, DU 5.15 ET DU 5.16, L'IDENTITÉ NE L'EST PAS** —
+la règle du projet, répétée une quatrième fois dans ce thème, et pour la
+première fois avec un partage plus large que d'habitude : `ppcNature` et
+`ppcExplique`, nées avec le 5.16, sont réutilisées TELLES QUELLES. Elles
+étaient déjà entièrement génériques — aucune des deux ne nomme une opération
+précise —, et un TROISIÈME exercice qui les réutilise est exactement ce que
+« partager un moteur » veut dire, comme `papProg` l'est déjà par trois
+exercices avant celui-ci. Sont PROPRES son identifiant, son kind (`ppm`), son
+écran, son rappel, ses questions à l'IA, son contexte, sa FICHE (adaptée
+ci-dessus), son tirage (`ppmGen`, `ppmBuildQuestions`), son juge (`checkPPM`),
+sa reprise (`ppmReposer`) et son poids (`ppmCases`).
+
+**TROIS VISAGES, épinglés dans l'ordre où la marche se lit** : la FICHE
+elle-même (k = 10, l = 2, m = l*2, n = k-m — un doublement puis une
+soustraction) ; « triple » (deux littéraux, une ligne qui MULTIPLIE PAR 3 —
+contraste assumé avec le doublement de la fiche, le vocabulaire même de
+{python-double-triple-carre} —, puis une soustraction du plus grand littéral
+tiré POUR NE JAMAIS produire de résultat négatif, la même réserve que le 5.16
+sur sa soustraction) ; « copie-double » (une recopie, puis une ligne qui
+MULTIPLIE PAR 2 la case RECOPIÉE, jamais le littéral d'origine — la valeur
+doublée doit être retrouvée dans la mémoire, la leçon de la « copie-addition »
+du 5.16 prise à l'endroit multiplicatif). Les deux derniers sont en ordre
+mélangé ; sans cela, le calcul serait toujours la même opération au même rang.
+
+**LA MÊME DISPOSITION QUE LE 5.15 ET LE 5.16, ET LES MÊMES BORDS TENUS** : la
+case est DONNÉE, l'élève ne tape que la VALEUR ; la vérification est PAR
+LIGNE, la porte de la suivante tenue par l'ÉTAT du bouton ; une case vide est
+redemandée, jamais peinte ; la rangée qu'on vient de juger garde la
+convention commune (`corrCase`), celle qu'on QUITTE porte la mémoire VRAIE —
+bleue si l'élève l'avait juste, verte (`sol`) s'il l'avait fausse ou vide —
+même pour une case de MULTIPLICATION, où la valeur vraie sort de `pyRun` et
+jamais d'une réévaluation de ce que l'élève a tapé ; la fin vérifie la
+mémoire ENTIÈRE, avec le total VRAI même quand une ligne a été manquée.
+Aucune correction au fil des clics (`soutienEnDirect.sans`).
+
+**LE BOUTON DES TABLES N'EST PAS DANS `TABLES_SANS` CETTE FOIS, contrairement
+au 5.14, au 5.15 et au 5.16** : cet exercice MULTIPLIE pour de vrai (le
+double, le triple d'une case), et le bouton peut SERVIR — c'est le bord
+OPPOSÉ de « le bouton des tables n'est proposé que là où il sert » (voir
+`docs/journal/11-aides-et-interface.md`).
+
+**Il FERME le thème 5, en 5.17 — ajouté en dernier, il ne renumérote rien —
+et le bord « il ferme le thème 5, en 5.16 » de {python-pas-a-pas-calcul} a
+été RETOURNÉ, pas retiré** : le neuvième à l'être dans ce thème, après le
+5.8, le 5.9, le 5.10, le 5.11, le 5.12, le 5.13, le 5.14 et le 5.15. Le 5.16
+vit désormais entre {python-valeur-case} et celui-ci — et {python-valeur-case}
+lui-même n'est donc plus « juste avant le fermeur » : le contrôle jsdom qui
+portait ce bord (section 8 de {python-valeur-case}) a été retouché pour lire
+la position RELATIVEMENT à l'exercice (`th.ids[i+1]==='python-pas-a-pas-calcul'`),
+comme {python-pas-a-pas} le fait déjà pour {python-valeur-case}, plutôt que
+relativement à la fin du tableau — qui bouge à chaque ajout.
+
+**Un piège de banc, propre à ce moteur : une rangée jugée FAUSSE en
+ENTRAÎNEMENT se VERROUILLE, elle ne se corrige pas.** Le premier jet du banc
+navigateur tapait une réponse fausse sur la ligne de multiplication, vérifiait
+le message et la correction en vert — puis essayait de RETAPER la bonne
+valeur dans la même case, en entraînement. `corrCase` désactive toujours la
+case une fois jugée (`el.disabled=true`), juste ou fausse ; seule la branche
+SOUTIEN de `checkPPM` (`if(!ok && isSoutien())`) laisse une case fausse
+modifiable, avec un bouton « Revérifier ». Le banc s'est arrêté sur
+« page.click: Timeout … element is not enabled » — un défaut de BANC, pas de
+page : la page fait exactement ce que le 5.15 et le 5.16 font déjà en
+entraînement. Corrigé en passant directement à la ligne suivante après la
+réponse fausse, sans retenter la case verrouillée ; le bilan de fin reste
+juste quoi qu'il arrive, puisqu'il sort de `pyRun` sur le PROGRAMME, jamais de
+la saisie de l'élève.
+
+**Deux bancs, une répartition VOLONTAIREMENT ASYMÉTRIQUE, comme au 5.16, et
+pour la même raison.** {python-pas-a-pas-multiplication} n'a PAS de fonction
+jsdom dédiée qui rejoue le tirage par une SECONDE arithmétique indépendante :
+pour les lignes littérales et les recopies cette seconde méthode est
+triviale, mais pour les lignes de MULTIPLICATION et de soustraction elle
+demanderait de réimplémenter ces deux opérations hors de `pyRun`, le même
+chantier que le 5.16 avait remis à plus tard. `tests/profils.js` le DÉCLARE
+dans « lacunes » plutôt que de le taire, et sa déclaration
+`pythonPasAPasMultiplication` est volontairement RÉDUITE, comme celle du
+5.16 : ni « nb » ni « bareme », qui ne serviraient qu'à cette fonction
+absente.
+Le banc NAVIGATEUR (« 6 tricies septendecies ») couvre l'exercice en
+EXÉCUTION RÉELLE, sur la fiche ÉPINGLÉE à valeurs CONNUES (10, 2, 4, 6) : il
+ouvre l'exercice, vérifie que le nom de la case est ÉCRIT (aucune liste) et
+qu'aucun bilan ne paraît avant la fin, tape les deux lignes littérales et
+vérifie la note, tape une réponse FAUSSE sur la ligne de multiplication
+(« 22 », l'erreur d'un élève qui concatène 2 et 2 au lieu de les multiplier)
+et vérifie que la case rougit, que la correction s'écrit en VERT avec la
+vraie valeur (4), que le MESSAGE nomme un CALCUL, passe à la ligne suivante
+sans retenter la case verrouillée, tape la dernière ligne (la soustraction),
+et vérifie que le BILAN de fin porte la valeur VRAIE de chaque case — y
+compris celle qui a été multipliée — même quand l'élève s'est trompé dessus.
+Les contrôles UNIVERSELS des deux bancs (section 9 du banc principal, section
+9 bis des couleurs de vérification) couvrent le reste — taille des cases,
+case vide jamais rouge, `.ok` jamais `.good`, bouton d'aide IA, pas
+d'accolades affichées, pas de repli de rangée, clavier atteignable, couleurs
+juste-bleu/correction-verte — sans qu'il ait fallu les déclarer.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
