@@ -925,13 +925,14 @@
   .pev-exp{margin:16px 0 0;text-align:left}
   .pev-exp-q{font-size:1.02rem;line-height:1.5;color:var(--ink);margin:0 0 8px}
   .pev-exp-q code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
-  /* {python-pas-a-pas-multiplication} (5.19) : LA MÊME disposition que {python-pas-a-pas-calcul},
-     {python-valeur-case} et {python-pas-a-pas-chaine} — le nom de la case DONNÉ, la valeur
-     TAPÉE — et la MÊME feuille de styles du moteur (pap-cols, pap-col, pap-wrap, pap-mem,
-     pap-ligne, pap-ici, pap-repere, .pap-val et ses trois encres) : la marche de plus (une
-     ligne qui MULTIPLIE) ne change rien à ce que l'œil reconnaît déjà. Propres à
-     cet exercice, comme .ppc-nom et .ppc-bilan le sont au 5.16 : le nom de la
-     case, et le bilan de fin de programme. */
+  /* {python-pas-a-pas-multiplication} (5.19) : la phase « verifier » reprend LA MÊME
+     disposition que {python-pas-a-pas-calcul}, {python-valeur-case} et
+     {python-pas-a-pas-chaine} — le nom de la case DONNÉ, la valeur TAPÉE — et la MÊME
+     feuille de styles du moteur (pap-cols, pap-col, pap-wrap, pap-mem, pap-ligne,
+     pap-ici, pap-repere, .pap-val et ses trois encres). La phase « deviner », qui la
+     précède, n'a besoin d'AUCUNE classe propre : une seule case .pap-val, sans
+     tableau. Propres à cet exercice, comme .ppc-nom et .ppc-bilan le sont au 5.16 :
+     le nom de la case, et le bilan de fin de programme. */
   .ppm-nom{display:inline-block;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.4;padding:5px 6px;font-weight:600;color:var(--blue)}
   .ppm-bilan{margin:12px 0 0;text-align:left;font-size:1.02rem;line-height:1.55;color:var(--ink)}
   .ppm-bilan b{font-family:"Fredoka";font-weight:600}
@@ -3141,11 +3142,11 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ppmLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: certaines lignes RECOPIENT une case, d&rsquo;autres CALCULENT une valeur avec ce que des cases contiennent &mdash; y compris en la MULTIPLIANT &mdash; &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. &Agrave; la fin, on v&eacute;rifie que toutes les cases ont la bonne valeur.</p>
+      <p class="mp-instr"><b>Devine</b> d&rsquo;abord ce que contiendra une case &agrave; la fin du programme, PUIS ex&eacute;cute-le <b>ligne par ligne</b> pour v&eacute;rifier ta pr&eacute;diction. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: certaines lignes CALCULENT une valeur avec ce que des cases contiennent, d&rsquo;autres R&Eacute;&Eacute;CRIVENT une case d&eacute;j&agrave; remplie &mdash; &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. Si ta pr&eacute;diction &eacute;tait fausse, tu recommences avec d&rsquo;autres nombres.</p>
       <div class="mp-stage"><div style="width:100%" id="ppmHost"></div></div>
       <div class="mp-feedback" id="ppmFeedback"></div>
       <div class="row" style="justify-content:center">
-        <span id="ppmActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ppmValidate" onclick="checkPPM()">V&eacute;rifier cette ligne</button></span>
+        <span id="ppmActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ppmGuessValidate" onclick="checkPPMGuess()">V&eacute;rifier ma pr&eacute;diction</button></span>
       </div>
     </div>
   </section>
@@ -3493,7 +3494,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=191;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=192;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4087,7 +4088,7 @@ const TESTS={
   'python-pas-a-pas-calcul': { name:'Le programme pas \u00e0 pas\u00a0: quand une ligne CALCULE', icon:'\ud83e\uddee', desc:'La suite du pas \u00e0 pas\u00a0: certaines lignes rangent un nombre, d\u2019autres recopient une case \u2014 et maintenant, une ligne comme { c = a+b } CALCULE sa valeur avec ce que les cases contiennent. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPC() },
   'python-pas-a-pas-chaine': { name:'Le programme pas \u00e0 pas\u00a0: un calcul qui en lit un autre', icon:'\ud83d\udd17', desc:'La marche encore suivante\u00a0: une case d\u00e9j\u00e0 CALCUL\u00e9e peut \u00e0 son tour nourrir un autre calcul, comme dans \u00ab d = c+a \u00bb quand c vient elle-m\u00eame d\u2019un calcul. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPD() },
   'python-echange-variables': { name:'\u00c9changer deux variables', icon:'\ud83d\udd01', desc:'Ex\u00e9cute pas \u00e0 pas un programme qui \u00e9change les valeurs de deux cases \u00e0 l\u2019aide d\u2019une troisi\u00e8me. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite \u2014 puis, \u00e0 la fin, explique avec tes mots ce qui s\u2019est pass\u00e9 pour les deux cases \u00e9chang\u00e9es.', start:()=>startPEV() },
-  'python-pas-a-pas-multiplication': { name:'Le programme pas \u00e0 pas\u00a0: quand une ligne MULTIPLIE', icon:'\u2716\ufe0f', desc:'La suite du pas \u00e0 pas\u00a0: une ligne peut maintenant MULTIPLIER une case par un nombre, comme { m = l*2 }. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPM() },
+  'python-pas-a-pas-multiplication': { name:'Devine, puis v\u00e9rifie pas \u00e0 pas', icon:'\ud83e\udd14', desc:'Devine d\u2019abord ce que contiendra la case l une fois le programme termin\u00e9 \u2014 elle est R\u00c9\u00c9CRITE par la derni\u00e8re ligne, et le r\u00e9sultat peut \u00eatre n\u00e9gatif. Puis ex\u00e9cute le programme ligne par ligne pour v\u00e9rifier ta pr\u00e9diction\u00a0: si elle \u00e9tait fausse, tu recommences avec d\u2019autres nombres.', start:()=>startPPM() },
   'python-types': { name:'int, float ou str\u00a0?', icon:'\ud83c\udff7\ufe0f', desc:'Trois types de variables : un entier (int), un nombre \u00e0 virgule (float), un texte entre guillemets (str). Le cours est sur l\u2019\u00e9cran ; lis chaque programme, dis le type de chaque variable \u2014 puis ex\u00e9cute-le : Python te r\u00e9pond avec type().', start:()=>startPTY() },
   'python-afficher-variable': { name:'Affiche la variable\u00a0!', icon:'\ud83d\udda8\ufe0f', desc:'On t\u2019explique comment afficher une variable, puis un programme commence par note = 12 : \u00e0 toi d\u2019\u00e9crire la suite pour qu\u2019il affiche la valeur de la variable. Ex\u00e9cute-le, puis v\u00e9rifie \u2014 en soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYC() },
   'python-noms-variables': { name:'Noms de variables en Python', icon:'\ud83c\udff7\ufe0f', desc:'Le nom d\u2019une variable doit respecter quatre r\u00e8gles. Pour chaque nom propos\u00e9, dis s\u2019il est correct ou incorrect \u2014 et, s\u2019il est incorrect, pourquoi.', start:()=>startPVN() },
@@ -5107,7 +5108,7 @@ const QIA_SUGG={
   ppd:["Que veut dire la ligne d = c+a ?","Pourquoi calcule-t-on avec ce que contient la case c, et non avec a+b écrit sur la ligne d’avant ?","Comment savoir si une ligne recopie, calcule, ou calcule à partir d’un calcul déjà fait ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
   ppc:["Que veut dire la ligne c = a+b ?","Comment calculer la valeur d’une case quand la ligne fait un calcul avec deux autres cases ?","Pourquoi le calcul utilise-t-il ce que les cases CONTIENNENT, et pas les chiffres de l’énoncé ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
   pev:["Pourquoi a-t-on besoin d’une troisième case c pour échanger a et b ?","Que se passerait-il si on écrivait a = b puis b = a, sans passer par c ?","Comment expliquer avec mes mots ce qui arrive aux cases a et b à la fin du programme ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
-  ppm:["Que veut dire la ligne m = l*2 ?","Comment calculer le double ou le triple de ce que contient une case ?","Pourquoi le calcul utilise-t-il ce que la case CONTIENT, et pas le chiffre de l’énoncé ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
+  ppm:["Pourquoi la case l peut-elle changer de valeur deux fois dans le même programme ?","Comment deviner la valeur finale d’une case sans exécuter le programme à la main ?","Le résultat peut être négatif : comment le savoir avant de calculer ?","À quoi sert d’exécuter un programme ligne par ligne après avoir deviné ?"],
   pdc:["À quoi sert de ranger un résultat dans une variable ?","Pourquoi le calcul doit-il se servir de la variable a ?","Que se passe-t-il si je change la valeur de a ?","Comment afficher un texte suivi d’une valeur ?"],
   pyv:["Comment savoir quelle variable écrire dans chaque case ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Que se passe-t-il si j’échange deux variables dans le print ?","Pourquoi Python met-il une espace entre les morceaux du print ?"],
   ptv:["Pourquoi faut-il écrire 0.5 et non 0,5 dans le programme ?","Pourquoi le programme affiche-t-il 4.0 et pas 4 ?","À quoi sert un tableau de valeurs ?","Pourquoi la case du tableau reste-t-elle grise ?"],
@@ -5751,18 +5752,20 @@ Quand Python lit <code class="inline">a = 10</code>, il réserve une case de la 
 <b>③ Une case déjà CALCULÉE peut à son tour nourrir un calcul</b> : la case <code class="inline">c</code> contient maintenant 12, et non plus « a + b » — donc <code class="inline">d = c + a</code> calcule avec 12 et 10, jamais avec les chiffres 2 et 10 de l’énoncé.<br>
 <b>④ Python lit les lignes UNE PAR UNE</b>, de haut en bas : une case ne peut nourrir un calcul que si une ligne d’avant l’a déjà remplie.<br>
 Exécuter « pas à pas », c’est s’arrêter après chaque ligne pour regarder ce que les cases contiennent VRAIMENT à cet instant — même quand ce contenu vient lui-même d’un calcul.`;
-/* Le rappel du 5.19 : la même famille — une case donnée, l'élève écrit sa
-   valeur, un calcul se fait avec ce que les cases CONTIENNENT —, avec la
-   marche de plus : un calcul peut aussi MULTIPLIER. Un rappel par kind : le
-   partager aurait fait lire à l'élève la consigne d'un exercice qu'il n'a
-   pas sous les yeux. */
-const RAP_PPM=`<b>Une ligne peut aussi MULTIPLIER une valeur</b><br>
+/* Le rappel du 5.19 : la case peut être RÉÉCRITE — la leçon propre à cet
+   exercice de prédiction, jamais vue avant lui dans les rappels de ce
+   thème (seul {python-echange-variables}, 5.18, réaffecte déjà des cases,
+   mais aucun rappel commun ne les partage : un rappel par kind, le partager
+   aurait fait lire à l'élève la consigne d'un exercice qu'il n'a pas sous
+   les yeux). */
+const RAP_PPM=`<b>Une case peut être RÉÉCRITE par une ligne plus loin</b><br>
 Quand Python lit <code class="inline">a = 10</code>, il réserve une case de la mémoire, l’appelle <code class="inline">a</code>, et y range le nombre 10. Le nom de la case est donné par la ligne ; ce qu’on te demande, c’est <b>ce qu’elle contient</b>.<br>
 <b>① Un NOMBRE écrit à droite du signe égal se range tel quel</b> : après <code class="inline">l = 2</code>, la case <code class="inline">l</code> contient 2.<br>
-<b>② Un NOM de case écrit à droite veut dire « recopie ce qu’elle contient »</b> : si <code class="inline">l</code> contient 2, alors <code class="inline">c = l</code> range 2 dans <code class="inline">c</code>.<br>
-<b>③ Un CALCUL écrit à droite se fait avec ce que les cases CONTIENNENT</b>, jamais avec ce qui est écrit dans l’énoncé — et il peut ADDITIONNER, SOUSTRAIRE ou <b>MULTIPLIER</b> : si <code class="inline">l</code> contient 2, alors <code class="inline">m = l*2</code> range 4 dans <code class="inline">m</code>, le DOUBLE de ce que contient <code class="inline">l</code>.<br>
-<b>④ Python lit les lignes UNE PAR UNE</b>, de haut en bas : une case ne peut être recopiée ou calculée que si une ligne d’avant l’a déjà remplie.<br>
-Exécuter « pas à pas », c’est s’arrêter après chaque ligne pour recopier ou calculer avec ce que les cases contiennent à cet instant.`;
+<b>② Un CALCUL écrit à droite se fait avec ce que les cases CONTIENNENT</b>, jamais avec ce qui est écrit dans l’énoncé — et il peut ADDITIONNER, SOUSTRAIRE ou <b>MULTIPLIER</b> : si <code class="inline">l</code> contient 2, alors <code class="inline">m = l*2</code> range 4 dans <code class="inline">m</code>.<br>
+<b>③ Une case DÉJÀ REMPLIE peut être RÉÉCRITE</b> : si une ligne plus loin écrit à nouveau <code class="inline">l = ...</code>, c’est SA nouvelle valeur qui compte désormais — la première est perdue, comme si tu effaçais un tableau pour y écrire autre chose.<br>
+<b>④ Le résultat d’un calcul peut être négatif</b> : rien n’empêche <code class="inline">m-k</code> de descendre sous 0 si <code class="inline">m</code> contient moins que <code class="inline">k</code>.<br>
+<b>⑤ Python lit les lignes UNE PAR UNE</b>, de haut en bas : la valeur FINALE d’une case est toujours celle de la DERNIÈRE ligne qui l’a remplie, jamais la première.<br>
+Deviner la valeur finale d’une case, c’est donc suivre le programme jusqu’au bout AVANT de répondre — et vérifier ensuite pas à pas, ligne après ligne.`;
 /* Le rappel du 5.18 : la même leçon que celle du 5.15 (une case DONNÉE,
    l'élève écrit sa valeur), plus la raison d'être de la case intermédiaire —
    pourquoi il faut c pour échanger a et b. Un rappel par kind : le partager
@@ -23009,87 +23012,78 @@ function ctxPev(q){
 }
 
 
-/* ---------- Exercice : le programme pas à pas, quand une ligne MULTIPLIE ---
-   {python-pas-a-pas-multiplication} (5.19). La marche suivante du pas à pas,
-   inspirée du PDF « variable_pas_a_pas_7 » : « k = 10 ; l = 2 ; m = 2l ;
-   l = m-k », exécuté pas à pas comme la version n° 1 ({python-pas-a-pas}),
-   avec la consigne de recommencer avec d'autres valeurs de k et l si la
-   réponse ne correspond pas — c'est exactement ce que fait déjà cette
-   famille (une case vide ou fausse se reprend, jamais peinte). Après avoir
-   appris à repérer LA CASE (5.14), à retenir LA VALEUR d'une recopie (5.15),
-   d'un CALCUL additif (5.16) puis d'une CHAÎNE de calculs (5.17), l'élève
-   lit maintenant une ligne qui MULTIPLIE.
+/* ---------- Exercice : deviner puis vérifier, quand une case est RÉÉCRITE --
+   {python-pas-a-pas-multiplication} (5.19), corrigé pour correspondre au PDF
+   « variable_pas_a_pas_7 » au mot près (demande de Turquet, septembre 2026) :
+   la première version de cet exercice avait gardé le PROGRAMME du PDF mais
+   pas sa CONSIGNE — elle demandait de rejouer chaque ligne comme au 5.14,
+   jamais de DEVINER d'abord. Le PDF, lui, est un exercice en DEUX TEMPS :
+   « Deviner la valeur de la variable l à la fin de l'exécution », PUIS
+   « on exécute le programme pas à pas comme dans la version pas à pas n°1 »
+   pour vérifier cette prédiction, et si elle ne correspond pas, « recommencer
+   avec des valeurs de k et l différentes au début mais avec le même
+   programme pour le reste ». Ce n'est pas une marche de plus dans le calcul
+   (recopie, calcul, chaîne, multiplication) — c'est un exercice de PRÉDICTION,
+   la première de cette famille.
 
-   LE PDF, PRIS AU PIED DE LA LETTRE, ENFREINT DEUX RÈGLES DÉJÀ ÉTABLIES DANS
-   CE THÈME, et les adapter est un choix ASSUMÉ, pas un oubli : « l » y est
-   réaffectée (l = 2 PUIS l = m-k), alors qu'une variable ne s'affecte qu'une
-   fois par programme depuis le 5.1 (et que le 5.14 en fait déjà une règle du
-   pas à pas) ; et m-k = 4-10 = -6 est négatif, alors que cette famille
-   n'affiche jamais de signe moins — le clavier tactile de ce niveau n'entre
-   que le tiret du clavier sur la touche « − ». La FICHE épinglée garde donc
-   le programme du papier au plus près — même k = 10, même l = 2, même
-   doublement — mais range la différence dans une QUATRIÈME case (n) plutôt
-   que de réaffecter l, et calcule k-m (10-4 = 6) plutôt que m-k, pour rester
-   positive : k = 10, l = 2, m = l*2, n = k-m.
+   LE PROGRAMME DU PDF EST GARDÉ TEL QUEL, RÉAFFECTATION ET SIGNE MOINS
+   COMPRIS — la version précédente les évitait tous les deux, precisément ce
+   que la consigne du PDF ne permet PAS de faire : deviner la valeur de « l »
+   n'a de sens que parce que « l » est RÉÉCRITE (l = 2 PUIS l = m-k), et que
+   le piège (m-k peut être négatif) est CE QUI REND la prédiction non
+   triviale. {python-echange-variables} (5.18) réaffecte déjà des cases dans
+   ce thème — retenir qu'« une variable ne s'affecte qu'une fois » n'était donc
+   déjà plus une règle de la FAMILLE, seulement de ses trois premiers membres.
+   Programme : k = <tiré>, l = <tiré>, m = l*2 (case en premier, jamais
+   « 2*l » : ppcNature(expr) ne regarde que le premier caractère pour
+   distinguer un littéral d'un calcul, et une expression commençant par un
+   chiffre suivi d'une case serait prise pour un littéral), l = m-k — cette
+   dernière ligne RÉÉCRIT l, et son résultat peut être négatif ou positif
+   selon le tirage.
 
-   LA MULTIPLICATION S'ÉCRIT « l*2 », JAMAIS « 2*l » : ppcNature(expr), qui
-   sert déjà le 5.16, ne regarde que le PREMIER caractère pour distinguer un
-   littéral d'un calcul (/^[0-9]/) — une expression commençant par un
-   chiffre suivi d'une case, comme « 2*l », serait prise pour un littéral, et
-   le message qui l'accompagnerait mentirait. Écrire la case EN PREMIER lève
-   l'ambiguïté sans toucher à ppcNature, et c'est cohérent avec le carnet :
-   une variable qu'on multiplie s'écrit « variable * facteur », comme le 5.13
-   écrit déjà « n * n * n ».
+   UN SIGNE MOINS PEUT DONC S'ÉCRIRE ICI, contrairement au reste de cette
+   famille (papNet ne le normalise toujours pas : il suffit qu'il traverse le
+   clavier intact). La ligne qui réaffecte l et la case de prédiction
+   n'imposent donc PAS inputmode="numeric" — ce mode masque la touche « - »
+   sur certains claviers tactiles, la réserve même qui avait fait éviter le
+   signe moins jusqu'ici ; les autres lignes (toujours positives) le gardent.
 
-   LE MOTEUR EST CELUI DU 5.14, DU 5.15, DU 5.16 ET DU 5.17, L'IDENTITÉ NE
-   L'EST PAS — la règle du projet, répétée encore dans ce thème. Sont
-   PARTAGÉS la lecture de la mémoire (papProg, papEtat, papAns — donc pyRun,
-   l'interpréteur MÊME du 5.1, qui sait déjà multiplier : {python-operations}
-   et {python-double-triple-carre} s'en servent pour ça), la comparaison des
-   valeurs (papNet), le cadre du programme avec son repère ▶ (papProgHTML),
-   le jeu de lettres des questions tirées (PAP_JEUX), et la NATURE d'une
-   ligne et son message (ppcNature, ppcExplique) : les deux fonctions du 5.16
-   sont déjà entièrement génériques (elles ne nomment aucune opération), déjà
-   réutilisées SANS Y TOUCHER par {python-pas-a-pas-chaine} (5.17) — et ce
-   troisième exercice qui les réutilise à son tour est exactement ce que
-   « partager un moteur » veut dire — comme papProg est déjà partagé par
-   QUATRE exercices avant celui-ci ({python-pas-a-pas}, {python-valeur-case},
-   {python-pas-a-pas-calcul}, {python-pas-a-pas-chaine}). Sont PROPRES son
-   identifiant, son kind (ppm), son écran, son rappel, ses questions à l'IA,
-   son contexte, sa FICHE (adaptée ci-dessus), son tirage (ppmGen,
-   ppmBuildQuestions), son juge (checkPPM), sa reprise (ppmReposer) et son
-   poids (ppmCases).
+   DEUX PHASES PAR QUESTION (test.ppmPhase) :
+   1. « deviner » : le programme s'affiche EN ENTIER, sans repère ▶ ni ✓
+      (papProgHTML(q,-1)) — rien n'est encore exécuté — et une seule case
+      demande la valeur finale de l. Une prédiction vide est redemandée,
+      jamais jugée (la même règle que toute case de cette famille).
+   2. « verifier » : exactement la disposition du 5.14 — la case est DONNÉE,
+      l'élève tape la VALEUR, ligne après ligne, la porte de la suivante
+      tenue par l'état du bouton, une case vide redemandée. Un bandeau
+      permanent rappelle la prédiction et si elle était juste ou fausse (avec
+      la vraie valeur en vert) : contrairement à la ligne en cours, il ne
+      disparaît jamais d'un rendu à l'autre, puisqu'il est reconstruit depuis
+      test.ppmGuessVal/test.ppmGuessOk à CHAQUE appel de renderPPMVerifier,
+      jamais posé une fois pour toutes par un effet de bord (la même leçon
+      que ppmReposer applique déjà aux lignes QUITTÉES).
 
-   TROIS VISAGES, épinglés dans l'ordre où la marche se lit :
-   · la FICHE elle-même : k = 10, l = 2, m = l*2, n = k-m — un doublement
-     puis une soustraction ;
-   · « triple » : deux littéraux, une ligne qui MULTIPLIE PAR 3 (contraste
-     assumé avec le doublement de la fiche — le vocabulaire même de
-     {python-double-triple-carre}), puis une soustraction du plus grand
-     littéral tiré POUR NE JAMAIS produire de résultat négatif — la même
-     réserve que le 5.16 sur sa soustraction ;
-   · « copie-double » : une recopie, puis une ligne qui MULTIPLIE PAR 2 la
-     case RECOPIÉE, jamais le littéral d'origine — la valeur doublée doit
-     être retrouvée dans la mémoire, la leçon de la « copie-addition » du
-     5.16 prise à l'endroit multiplicatif.
-   Les deux derniers sont en ordre mélangé ; sans cela, le calcul serait
-   toujours la même opération au même rang. PPM_NB en est la structure.
+   SI LA PRÉDICTION ÉTAIT FAUSSE, ppmRecommencer() TIRE DE NOUVELLES VALEURS
+   DE k ET l — le même programme, au mot près du PDF — et relance la phase
+   « deviner » SANS avancer test.idx : ce n'est pas une question suivante,
+   c'est la MÊME question rejouée. Elle retire d'abord les points gagnés aux
+   LIGNES de cette tentative et l'entrée qu'elle venait de pousser dans
+   test.answers, pour qu'une tentative JETÉE ne laisse aucune trace dans la
+   note — seule la tentative qui gagne (prédiction juste ET les quatre lignes
+   justes) est comptée, exactement une fois par question, comme partout
+   ailleurs dans l'application.
 
-   LA MÊME DISPOSITION QUE LE 5.15 ET LE 5.16 : la case est DONNÉE, l'élève
-   ne tape que la VALEUR ; la vérification est PAR LIGNE, la porte de la
-   suivante tenue par l'ÉTAT du bouton ; une case vide est redemandée,
-   jamais peinte ; la rangée qu'on vient de juger garde la convention
-   commune (corrCase), celle qu'on QUITTE porte la mémoire VRAIE — bleue si
-   l'élève l'avait juste, verte (sol) s'il l'avait fausse ou vide — même pour
-   une case de MULTIPLICATION, où la valeur vraie sort de pyRun et jamais
-   d'une réévaluation de ce que l'élève a tapé ; la fin vérifie la mémoire
-   ENTIÈRE, avec le total VRAI même quand une ligne a été manquée. Aucune
-   correction au fil des clics (soutienEnDirect.sans).
-
-   LE BOUTON DES TABLES N'EST PAS DANS TABLES_SANS CETTE FOIS, contrairement
-   au 5.14, au 5.15, au 5.16 et au 5.17 : cet exercice MULTIPLIE pour de vrai
-   (le double, le triple d'une case), et le bouton peut SERVIR — c'est le
-   bord OPPOSÉ de « le bouton des tables n'est proposé que là où il sert ».
+   LE MOTEUR EST CELUI DU 5.14 ET DU 5.16, L'IDENTITÉ NE L'EST PAS. Sont
+   PARTAGÉS la lecture de la mémoire (papProg, papEtat, papAns — donc pyRun),
+   la comparaison des valeurs (papNet), le cadre du programme avec son repère
+   ▶ (papProgHTML), et la NATURE d'une ligne et son message (ppcNature,
+   ppcExplique), déjà génériques et réutilisés sans y toucher. Sont PROPRES
+   son identifiant, son kind (ppm), son écran, son rappel, ses questions à
+   l'IA, son contexte, son tirage à DEUX CASES (ppmGen, ppmProg,
+   ppmBuildQuestions), sa phase de prédiction (checkPPMGuess, ppmGuessHTML),
+   son juge pas à pas (checkPPM), sa reprise (ppmReposer), son poids
+   (ppmCases, qui compte la prédiction ET les quatre lignes) et son rejeu sur
+   prédiction fausse (ppmRecommencer).
 
    Il FERME le thème 5, en 5.19 — une collision de numéro avec
    {python-echange-variables}, qui a réclamé 5.18 EN PREMIER (fusionné plus
@@ -23100,39 +23094,31 @@ function ctxPev(q){
    bord est retourné à son tour, comme celui de {python-pas-a-pas-calcul}
    avant lui. Le fermeur d'aujourd'hui est celui-ci. */
 const PPM_NB=3;
-/* La fiche, adaptée du PDF pour respecter « une variable ne s'affecte
-   qu'une fois » et « jamais de résultat négatif » (voir ci-dessus). */
-const PPM_FICHE={vis:'fiche', lignes:[{nom:'k',expr:'10'},{nom:'l',expr:'2'},{nom:'m',expr:'l*2'},{nom:'n',expr:'k-m'}]};
-/* Une réponse par ligne — la valeur, et elle seule. C'est aussi le POIDS de
-   la question pour la coupe d'un devoir (la convention xxxCases). */
-function ppmCases(q){
-  return q.lignes.map(function(l, k){ return {id:'ppm-val-'+k, cle:'val'}; });
+/* Les quatre lignes du PDF, au caractère près — k et l sont les deux seules
+   valeurs tirées, le reste du programme ne bouge jamais. */
+function ppmProg(k, l){
+  return [{nom:'k',expr:String(k)},{nom:'l',expr:String(l)},{nom:'m',expr:'l*2'},{nom:'l',expr:'m-k'}];
 }
-/* La question ne porte que les LIGNES et le visage : rien à mélanger, la
-   case étant écrite et non choisie (comme le 5.15 et le 5.16). */
-function ppmQuestion(vis, lignes){ return {vis:vis, lignes:lignes}; }
-/* Les lignes d'un visage. « triple » tire d'abord la case qu'on MULTIPLIE
-   (l), puis un littéral (k) strictement plus grand que le produit, pour que
-   la soustraction reste positive — la même réserve que ppcGen sur sa
-   soustraction. « copie-double » recopie un littéral avant de le multiplier
-   : la valeur doublée doit être LUE dans la case recopiée, jamais relue sur
-   le littéral d'origine. */
-function ppmGen(vis, noms){
-  if(vis==='triple'){
-    const l=rand(2,30), m=3*l, k=rand(m+1,99), n=k-m;
-    return [{nom:noms[0],expr:String(k)},{nom:noms[1],expr:String(l)},
-            {nom:noms[2],expr:noms[1]+'*3'},{nom:noms[3],expr:noms[0]+'-'+noms[2]}];
-  }
-  const l=rand(2,40); let a=rand(2,99); while(a===l) a=rand(2,99);
-  return [{nom:noms[0],expr:String(a)},{nom:noms[1],expr:String(l)},
-          {nom:noms[2],expr:noms[1]},{nom:noms[3],expr:noms[2]+'*2'}];
+/* La prédiction, PLUS une réponse par ligne — la valeur, et elle seule.
+   C'est aussi le POIDS de la question pour la coupe d'un devoir (xxxCases). */
+function ppmCases(q){
+  const c=[{id:'ppm-guess', cle:'guess'}];
+  q.lignes.forEach(function(l, k){ c.push({id:'ppm-val-'+k, cle:'val'}); });
+  return c;
+}
+function ppmQuestion(k, l){ return {vis:(k===10&&l===2)?'fiche':'tire', k:k, l:l, lignes:ppmProg(k, l)}; }
+/* k et l tirés entre 2 et 20 : assez petits pour un calcul de tête, assez
+   variés pour que m-k change de signe d'un tirage à l'autre — la prédiction
+   resterait triviale si le résultat était toujours du même signe. La fiche
+   du PDF (10, 2) n'est jamais retirée par hasard. */
+function ppmGen(){
+  let k, l;
+  do{ k=rand(2,20); l=rand(2,20); } while(k===10 && l===2);
+  return {k:k, l:l};
 }
 function ppmBuildQuestions(){
-  const qs=[ppmQuestion(PPM_FICHE.vis, PPM_FICHE.lignes.map(function(l){ return {nom:l.nom, expr:l.expr}; }))];
-  const jeux=ensShuffle(PAP_JEUX.slice()).slice(0, PPM_NB-1);
-  ensShuffle(['triple','copie-double']).slice(0, PPM_NB-1).forEach(function(vis, i){
-    qs.push(ppmQuestion(vis, ppmGen(vis, jeux[i])));
-  });
+  const qs=[ppmQuestion(10, 2)];
+  for(let i=1;i<PPM_NB;i++){ const kl=ppmGen(); qs.push(ppmQuestion(kl.k, kl.l)); }
   return qs;
 }
 
@@ -23145,19 +23131,23 @@ async function startPPM(){
   Object.assign(test,{kind:'ppm', questions:qs, idx:0, score:0,
     maxScore:qs.reduce(function(n,q){ return n+ppmCases(q).length; },0),
     answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false,
+    ppmPhase:'deviner', ppmGuessVal:'', ppmGuessOk:null,
     ppmEtape:0, ppmRep:[], ppmVerdicts:[]});
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('ppm'); renderPPM();
 }
 /* Le tableau de la mémoire : une rangée par ligne DÉJÀ exécutée, plus celle
    qu'on est en train d'exécuter. Le NOM de la case est écrit par la page —
-   comme au 5.15 et au 5.16 —, la valeur est la seule case où l'élève écrit. */
+   comme au 5.15 et au 5.16 —, la valeur est la seule case où l'élève écrit.
+   LA DERNIÈRE LIGNE RÉÉCRIT l ET PEUT ÊTRE NÉGATIVE : elle seule n'impose
+   pas inputmode="numeric", qui masquerait la touche « - » sur certains
+   claviers tactiles (voir le commentaire d'ouverture). */
 function ppmMemHTML(q, k){
   let h='<div class="pap-wrap"><table class="pap-mem"><tr><th>Case mémoire</th><th>Ce qu’elle contient</th></tr>';
   for(let i=0;i<=k;i++){
-    const nom=q.lignes[i].nom;
+    const nom=q.lignes[i].nom, neg=(i===q.lignes.length-1);
     h+='<tr><td><span class="ppm-nom">'+esc(nom)+'</span></td>'
-      +'<td><input class="pap-val" id="ppm-val-'+i+'" type="text" inputmode="numeric" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ce que contient la case '+esc(nom)+' après la ligne '+(i+1)+'"></td></tr>';
+      +'<td><input class="pap-val" id="ppm-val-'+i+'" type="text"'+(neg?'':' inputmode="numeric"')+' autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ce que contient la case '+esc(nom)+' après la ligne '+(i+1)+'"></td></tr>';
   }
   return h+'</table></div>';
 }
@@ -23171,6 +23161,17 @@ function ppmBilanHTML(q, fini){
     +q.lignes.map(function(l){
         return 'la case <code>'+esc(l.nom)+'</code> contient <code>'+esc(pyRep(fin[l.nom]))+'</code>';
       }).join(', ')+'.</p>';
+}
+/* Le bandeau de la prédiction, reconstruit à CHAQUE rendu depuis l'état
+   (test.ppmGuessVal/test.ppmGuessOk) plutôt que peint une fois par un effet
+   de bord : sans quoi il disparaîtrait au premier ppmSuivante(), qui
+   réécrit tout #ppmHost. Toujours DISABLED — la prédiction est jugée une
+   fois pour toutes dès qu'on entre en phase « verifier ». */
+function ppmGuessHTML(q){
+  const vraie=papAns(q, q.lignes.length-1).val, ok=test.ppmGuessOk;
+  const cor=ok?'':'<span class="mf-cor">'+esc(vraie)+'</span>';
+  return '<p class="pap-ligne"><b>Ta prédiction pour la case l</b>&nbsp;: '
+    +'<input class="pap-val '+(ok?'ok':'bad')+'" id="ppm-guess" type="text" value="'+esc(test.ppmGuessVal)+'" disabled aria-label="ta prédiction pour la case l">'+cor+'</p>';
 }
 /* Une rangée jugée se repose, et PAS de la même façon selon qu'on l'a quittée
    ou non — la leçon du 5.14/5.15/5.16, reprise telle quelle : celle qu'on
@@ -23202,29 +23203,55 @@ function ppmFini(q){
 }
 function ppmToutJuste(q){
   const v=test.ppmVerdicts||[];
-  return ppmFini(q) && q.lignes.every(function(l, i){ return v[i].val; });
+  return ppmFini(q) && q.lignes.every(function(l, i){ return v[i].val; }) && test.ppmGuessOk===true;
 }
 function renderPPM(){
   const q=test.questions[test.idx];
+  if(typeof test.ppmPhase!=='string') test.ppmPhase='deviner';
+  if(typeof test.ppmGuessVal!=='string') test.ppmGuessVal='';
+  if(typeof test.ppmGuessOk==='undefined') test.ppmGuessOk=null;
   if(!Array.isArray(test.ppmRep)) test.ppmRep=[];
   if(!Array.isArray(test.ppmVerdicts)) test.ppmVerdicts=[];
   if(typeof test.ppmEtape!=='number') test.ppmEtape=0;
-  const k=Math.max(0, Math.min(test.ppmEtape, q.lignes.length-1));
-  test.ppmEtape=k;
-  const fini=ppmFini(q);
-  test.locked=fini;
   $('ppmIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPPM').innerHTML=modeTagHTML();
   $('ppmLiveScore').textContent=test.score;
   $('ppmFeedback').textContent=''; $('ppmFeedback').className='mp-feedback';
+  if(test.ppmPhase==='verifier') renderPPMVerifier(q); else renderPPMDeviner(q);
+}
+/* Phase 1 : le programme entier, SANS repère (papProgHTML(q,-1) : aucune
+   ligne n'est encore exécutée), et une seule case à remplir. */
+function renderPPMDeviner(q){
+  test.locked=false;
+  $('ppmHost').innerHTML=
+    '<div class="py-cell">'
+    +'<p class="py-label">Le programme</p>'+papProgHTML(q, -1)
+    +'<p class="pap-ligne"><b>Devine</b>&nbsp;: une fois ce programme terminé, que contiendra la case <b>l</b>&nbsp;?</p>'
+    +'<div class="pap-wrap"><input class="pap-val" id="ppm-guess" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ta prédiction pour la case l" value="'+esc(test.ppmGuessVal)+'"></div>'
+    +'</div>';
+  const ve=$('ppm-guess');
+  ve.addEventListener('input', ppmGuessModifiee);
+  ve.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); checkPPMGuess(); } });
+  $('ppmActions').innerHTML=conseilInlineBtn()
+    +'<button class="btn btn-primary" id="ppmGuessValidate" onclick="checkPPMGuess()">Vérifier ma prédiction</button>';
+}
+/* Phase 2 : exactement la disposition du 5.14, avec le bandeau de la
+   prédiction ajouté en tête — reconstruit à chaque appel, jamais un résidu
+   du rendu précédent. */
+function renderPPMVerifier(q){
+  const k=Math.max(0, Math.min(test.ppmEtape, q.lignes.length-1));
+  test.ppmEtape=k;
+  const fini=ppmFini(q);
+  test.locked=fini;
   const l=q.lignes[k];
   $('ppmHost').innerHTML=
     '<div class="py-cell">'
+    +ppmGuessHTML(q)
     +'<div class="pap-cols">'
     +'<div class="pap-col"><p class="py-label">Le programme</p>'+papProgHTML(q, k)+'</div>'
     +'<div class="pap-col"><p class="py-label">La mémoire de l’ordinateur</p>'+ppmMemHTML(q, k)+'</div>'
     +'</div>'
-    +'<p class="pap-ligne"><b>ligne '+(k+1)+'</b>&nbsp;: <code>'+esc(l.nom+' = '+l.expr)+'</code> — la case <b>'+esc(l.nom)+'</b> est déjà écrite dans la dernière rangée du tableau&nbsp;: écris ce qu’elle contient une fois cette ligne exécutée. Les cases déjà remplies gardent leur valeur.</p>'
+    +'<p class="pap-ligne"><b>ligne '+(k+1)+'</b>&nbsp;: <code>'+esc(l.nom+' = '+l.expr)+'</code> — la case <b>'+esc(l.nom)+'</b> est déjà écrite dans la dernière rangée du tableau&nbsp;: écris ce qu’elle contient une fois cette ligne exécutée. Une case déjà remplie peut être RÉÉCRITE par une ligne plus loin.</p>'
     +ppmBilanHTML(q, fini)
     +'</div>';
   ppmReposer(q);
@@ -23234,6 +23261,11 @@ function renderPPM(){
     ve.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); checkPPM(); } });
   }
   ppmBoutons(q, fini);
+}
+/* La prédiction retapée efface le message d'erreur (case vide) — la
+   prédiction elle-même ne se peint qu'une fois jugée, en phase « verifier ». */
+function ppmGuessModifiee(){
+  const f=$('ppmFeedback'); if(f && f.classList.contains('bad')){ f.textContent=''; f.className='mp-feedback'; }
 }
 /* La case jugée FAUSSE en soutien se reprend : la première touche efface le
    rouge, sans quoi l'élève corrigerait devant une couleur qui ne parle plus
@@ -23249,7 +23281,9 @@ function ppmModifiee(){
 function ppmBoutons(q, fini){
   const k=test.ppmEtape, der=(test.idx===test.questions.length-1);
   if(fini){
-    $('ppmActions').innerHTML='<button class="btn btn-primary" id="ppmNext" onclick="nextPPM()">'+(der?'Voir mes résultats':'Question suivante')+'</button>';
+    $('ppmActions').innerHTML=(test.ppmGuessOk===false)
+      ? '<button class="btn btn-primary" id="ppmRetry" onclick="ppmRecommencer()">Recommencer avec d’autres valeurs</button>'
+      : '<button class="btn btn-primary" id="ppmNext" onclick="nextPPM()">'+(der?'Voir mes résultats':'Question suivante')+'</button>';
     return;
   }
   if(test.ppmVerdicts[k]){
@@ -23264,6 +23298,26 @@ function ppmSuivante(){
   if(test.ppmEtape>=test.questions[test.idx].lignes.length-1) return;
   if(!test.ppmVerdicts[test.ppmEtape]) return;   /* la porte : la ligne doit être jugée */
   test.ppmEtape++; renderPPM(); autoSave();
+}
+/* La prédiction se juge une fois, à l'entrée en phase « verifier » — jamais
+   au fil des clics : une case vide est redemandée, jamais jugée. */
+function checkPPMGuess(){
+  if(test.locked || test.ppmPhase!=='deviner') return;
+  const q=test.questions[test.idx], ve=$('ppm-guess'), fb=$('ppmFeedback');
+  if(!ve) return;
+  const gv=papNet(ve.value);
+  if(gv===''){
+    fb.textContent='Écris ta prédiction en chiffres avant de vérifier.';
+    fb.className='mp-feedback bad';
+    ve.focus();
+    return;
+  }
+  const vraie=papAns(q, q.lignes.length-1).val;
+  const ok=(gv===vraie);
+  test.ppmGuessVal=gv; test.ppmGuessOk=ok;
+  if(ok){ test.score++; }
+  test.ppmPhase='verifier'; test.ppmEtape=0; test.ppmRep=[]; test.ppmVerdicts=[];
+  renderPPM(); autoSave();
 }
 function checkPPM(live){
   if(live) return;            /* aucune correction au fil des clics — déclaré dans tests/profils.js */
@@ -23299,41 +23353,70 @@ function checkPPM(live){
   if(ok){ test.score++; $('ppmLiveScore').textContent=test.score; }
   const der=(k===q.lignes.length-1);
   if(ok) fb.textContent=der ? (pick(['Bravo, tout est juste !','Parfait !','Excellent !'])+' Le programme est arrivé au bout.')
-                            : 'Juste ! La case garde cette valeur pour la suite.';
+                            : 'Juste ! La case garde cette valeur pour la suite — même si une ligne plus loin la réécrit.';
   else fb.textContent='La bonne réponse est écrite en vert : après cette ligne, la case '+a.nom+' contient '+a.val+'. '+ppcExplique(q, k);
   fb.className='mp-feedback '+(ok?'good':'bad');
   if(der){
     test.locked=true;
     const tout=ppmToutJuste(q);
     test.answers.push({...(ptsExo()||{}), correct:tout,
-      q:papProg(q).replace(/\n+/g,' ⏎ '),
-      answer:q.lignes.map(function(l, i){ const x=papAns(q, i); return x.nom+'='+x.val; }).join(' | '),
+      q:papProg(q).replace(/\n+/g,' ⏎ ')+' — deviner la case l',
+      answer:'prédiction : l='+test.ppmGuessVal+' | vraie valeur finale : l='+a.val+' | '+q.lignes.map(function(l, i){ const x=papAns(q, i); return x.nom+'='+x.val; }).join(', '),
       given:q.lignes.map(function(l, i){ const r=test.ppmRep[i]||{}; return l.nom+'='+(r.val||'?'); }).join(' | ')});
     /* et la mémoire ENTIÈRE se vérifie, comme au 5.15 et au 5.16 */
     const cell=$('ppmHost')&&$('ppmHost').querySelector('.py-cell');
     if(cell && !cell.querySelector('.ppm-bilan')) cell.insertAdjacentHTML('beforeend', ppmBilanHTML(q, true));
   }
   ppmBoutons(q, der);
-  const b=$('ppmStep')||$('ppmNext'); if(b) b.focus();
+  const b=$('ppmStep')||$('ppmNext')||$('ppmRetry'); if(b) b.focus();
   autoSave();   /* la pause peut tomber ici : le brouillon porte l'étape, jugée */
+}
+/* Une prédiction fausse relance l'exercice à neuf, avec d'autres valeurs de
+   k et l mais le MÊME programme — la consigne du PDF au mot près. Elle
+   retire d'abord le point de score gagné aux LIGNES de cette tentative (la
+   prédiction, elle, n'en avait pas gagné) et l'entrée qu'elle venait de
+   pousser dans test.answers : la tentative est JETÉE, elle ne doit laisser
+   aucune trace dans la note — sans quoi une prédiction fausse suivie d'une
+   bonne compterait deux fois les points des lignes pour une seule question. */
+function ppmRecommencer(){
+  if(test.ppmGuessOk!==false) return;
+  let regain=0;
+  (test.ppmVerdicts||[]).forEach(function(v){ if(v && v.val) regain++; });
+  test.score=Math.max(0, test.score-regain);
+  test.answers.pop();
+  const kl=ppmGen();
+  test.questions[test.idx]=ppmQuestion(kl.k, kl.l);
+  test.ppmPhase='deviner'; test.ppmGuessVal=''; test.ppmGuessOk=null;
+  test.ppmEtape=0; test.ppmRep=[]; test.ppmVerdicts=[]; test.locked=false;
+  renderPPM(); autoSave();
 }
 function nextPPM(){
   if(test.idx<test.questions.length-1){
-    test.idx++; test.ppmEtape=0; test.ppmRep=[]; test.ppmVerdicts=[];
+    test.idx++; test.ppmPhase='deviner'; test.ppmGuessVal=''; test.ppmGuessOk=null;
+    test.ppmEtape=0; test.ppmRep=[]; test.ppmVerdicts=[];
     renderPPM(); autoSave();
   } else finishTest();
 }
 function ctxPpm(q){
+  if(test.ppmPhase==='deviner'){
+    const ve=$('ppm-guess');
+    let c='L’élève doit DEVINER ce que contiendra la case l une fois le programme suivant terminé, AVANT de l’exécuter ligne par ligne :\n'+papProg(q)+'\n';
+    c+='La case l est RÉÉCRITE par la dernière ligne : sa valeur finale n’est PAS celle qu’elle reçoit en ligne 2. ';
+    c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même si l’élève insiste) : l vaut '+papAns(q, q.lignes.length-1).val+' à la fin. ';
+    c+='Ce que l’élève a écrit : « '+((ve&&ve.value)||'(rien)')+' ». ';
+    c+='Règles à rappeler sans donner la réponse : une variable est une CASE de la mémoire ; une case déjà écrite peut être RÉÉCRITE par une ligne plus loin, et c’est alors sa DERNIÈRE valeur qui compte ; un calcul (comme l*2 ou m-k) se fait avec ce que les cases CONTIENNENT, jamais les chiffres de l’énoncé — et le résultat peut être négatif.';
+    return {nombre:'', contexte:c};
+  }
   const k=(typeof test.ppmEtape==='number')?Math.min(test.ppmEtape, q.lignes.length-1):0;
   let a=null; try{ a=papAns(q, k); }catch(e){}
   const ve=$('ppm-val-'+k);
-  let c='L’élève exécute un programme Python LIGNE PAR LIGNE. La case mémoire que chaque ligne remplit lui est DONNÉE ; il doit dire la VALEUR que cette case contient après la ligne — certaines lignes rangent un NOMBRE, d’autres RECOPIENT une case, d’autres CALCULENT (soustraction ou MULTIPLICATION) à partir de ce que d’autres cases contiennent. Le programme est :\n'+papProg(q)+'\n';
+  let c='L’élève a d’abord DEVINÉ la valeur finale de la case l (sa prédiction : '+(test.ppmGuessVal||'(aucune)')+'), et exécute maintenant le même programme LIGNE PAR LIGNE pour la vérifier. La case mémoire que chaque ligne remplit lui est DONNÉE ; il doit dire la VALEUR que cette case contient après la ligne — certaines lignes rangent un NOMBRE, d’autres CALCULENT (soustraction ou MULTIPLICATION) à partir de ce que d’autres cases contiennent, et la dernière ligne RÉÉCRIT une case déjà remplie. Le programme est :\n'+papProg(q)+'\n';
   c+='Il en est à la ligne '+(k+1)+' : « '+q.lignes[k].nom+' = '+q.lignes[k].expr+' », donc la case '+q.lignes[k].nom+'. ';
   if(k>0) c+='L’état de la mémoire avant cette ligne : '
     +q.lignes.slice(0,k).map(function(l, i){ try{ const x=papAns(q, i); return x.nom+' contient '+x.val; }catch(e){ return ''; } }).filter(Boolean).join(', ')+'. ';
   if(a) c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même si l’élève insiste) : la case '+a.nom+' contient '+a.val+'. ';
   c+='Ce que l’élève a écrit : « '+((ve&&ve.value)||'(rien)')+' ». ';
-  c+='Règles à rappeler sans donner la réponse : une variable est une CASE de la mémoire, qui porte un nom et garde une valeur ; à droite du signe égal, un nombre est rangé tel quel, un NOM de case veut dire « recopie ce qu’elle contient », et un CALCUL (comme l*2 ou k-m) veut dire « prends la valeur de chaque case citée, et calcule » — jamais les chiffres de l’énoncé ; une case garde sa valeur tant qu’aucune ligne ne la change.';
+  c+='Règles à rappeler sans donner la réponse : une variable est une CASE de la mémoire, qui porte un nom et garde une valeur ; à droite du signe égal, un nombre est rangé tel quel, et un CALCUL (comme l*2 ou m-k) veut dire « prends la valeur de chaque case citée, et calcule » — jamais les chiffres de l’énoncé ; une case déjà remplie peut être RÉÉCRITE par une ligne plus loin, et c’est alors sa DERNIÈRE valeur qui compte.';
   return {nombre:'', contexte:c};
 }
 

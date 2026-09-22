@@ -10391,25 +10391,29 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies undevicies. {python-pas-a-pas-multiplication} : quand une ligne MULTIPLIE =====
-       Le moteur (papProg, papEtat, papAns, papProgHTML, ppcNature, ppcExplique)
-       et la disposition (deux colonnes, le nom ÉCRIT) sont ceux du 5.15, du
-       5.16 et du 5.17 — déjà mesurés ci-dessus — et ne sont pas remesurés ici.
-       Ce que ce banc mesure est ce qui est PROPRE au 5.19 : une ligne comme
-       « m = l*2 » se juge, se corrige et se bilan-te comme une ligne de
-       CALCUL — la même fonction que l'addition et la soustraction du 5.16,
-       réutilisée sans modification. Aucune seconde arithmétique n'est
-       rejouée : la fiche ÉPINGLÉE porte des valeurs CONNUES (10, 2, 4, 6),
-       lues dans tests/profils.js — la même garantie qu'un tirage aléatoire
-       donnerait, sans avoir à recalculer. Ce numéro était « 6 tricies
-       duodevicies » (18e) ; {python-echange-variables}, arrivé sur `main`
-       pendant que cette branche était en cours, a pris CE numéral en premier
-       (même collision, même règle que {python-pas-a-pas-chaine} avant lui :
-       premier arrivé, premier servi), et ce bloc a donc pris le suivant,
-       19e — comme l'exercice lui-même est passé de 5.18 à 5.19. */
-    titre('6 tricies undevicies. LE PROGRAMME PAS À PAS, QUAND UNE LIGNE MULTIPLIE');
+    /* ===== 6 tricies undevicies. {python-pas-a-pas-multiplication} : deviner, puis vérifier pas à pas =====
+       REFONDU (septembre 2026, correction de Turquet) : la version précédente
+       de ce banc rejouait chaque ligne comme au 5.14, sans jamais DEVINER
+       d'abord — exactement ce que la première version de l'exercice avait
+       oublié du PDF « variable_pas_a_pas_7 ». Ce banc mesure maintenant les
+       DEUX phases : une prédiction FAUSSE se peint en rouge avec la vraie
+       valeur en vert, mène au pas à pas complet (moteur du 5.14/5.16, déjà
+       mesuré ailleurs, pas remesuré ici), puis à « Recommencer avec d'autres
+       valeurs » plutôt qu'à « Question suivante » ; une prédiction JUSTE,
+       elle, mène directement à la question suivante une fois le pas à pas
+       terminé. La fiche ÉPINGLÉE (10, 2, 4, -6, lue dans tests/profils.js)
+       sert la première prédiction ; le second tirage est ALÉATOIRE — le banc
+       lit k et l rendus par la page pour calculer sa propre prédiction juste,
+       plutôt que de supposer des valeurs qu'il ne connaît pas d'avance.
+       Ce numéro était « 6 tricies duodevicies » (18e) ; {python-echange-
+       variables}, arrivé sur `main` pendant que cette branche était en cours,
+       a pris CE numéral en premier (même collision, même règle que
+       {python-pas-a-pas-chaine} avant lui : premier arrivé, premier servi),
+       et ce bloc a donc pris le suivant, 19e — comme l'exercice lui-même est
+       passé de 5.18 à 5.19. */
+    titre('6 tricies undevicies. DEVINER, PUIS VÉRIFIER PAS À PAS, QUAND UNE CASE EST RÉÉCRITE');
     if(!P.pythonPasAPasMultiplication){
-      ignorer('le programme pas à pas : une ligne de multiplication se juge, se corrige et se bilan-te comme un calcul',
+      ignorer('deviner puis vérifier pas à pas : une prédiction fausse mène à un nouveau tirage, une prédiction juste à la question suivante',
         'ce niveau n\'a pas l\'exercice du programme pas à pas avec multiplication');
     } else {
       const A = P.pythonPasAPasMultiplication, nL = A.fiche.prog.length;
@@ -10421,79 +10425,119 @@ async function parcours(page, N){
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
-      /* 1. LA FICHE ÉPINGLÉE, AVEC SA LIGNE DE MULTIPLICATION VISIBLE */
-      const vu = await s.page.evaluate(() => {
+      /* 1. LA PHASE « DEVINER » : LE PROGRAMME ENTIER, SANS REPÈRE, UNE SEULE CASE */
+      const dev = await s.page.evaluate(() => {
         const host = document.getElementById('ppmHost');
         const lignes = [...host.querySelectorAll('.pyx-ligne')];
-        const nm = host.querySelector('.ppm-nom'), ve = document.getElementById('ppm-val-0');
+        const ve = document.getElementById('ppm-guess');
         return { lignes: lignes.map(e => e.textContent.replace(/\s+/g, ' ').trim()),
-                 listes: host.querySelectorAll('select').length,
-                 nom: nm ? nm.textContent.trim() : null,
-                 case: ve ? ve.tagName : null,
-                 bilan: !!host.querySelector('.ppm-bilan') };
+                 reperes: lignes.map(e => (e.querySelector('.pap-repere') || {}).textContent || ''),
+                 table: !!host.querySelector('.pap-mem'),
+                 case: ve ? ve.tagName : null };
       });
-      if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
-      if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
-        dits.push('le programme rendu : ' + JSON.stringify(vu.lignes));
-      if(vu.listes) dits.push(vu.listes + ' liste(s) de propositions dans l\'écran : le nom se choisit encore');
-      if(vu.nom !== A.fiche.memoire[0][0]) dits.push('le nom de la case écrit par la page : ' + JSON.stringify(vu.nom));
-      if(vu.case !== 'INPUT') dits.push('la case de la valeur : ' + JSON.stringify(vu.case));
-      if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
-      verifier('la fiche épinglée (k = 10, l = 2, m = l*2, n = k-m) est rendue, avec le nom de la case ÉCRIT',
+      if(dev.lignes.length !== nL) dits.push(dev.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
+      if(!A.fiche.prog.every((c, i) => (dev.lignes[i] || '').indexOf(c) >= 0))
+        dits.push('le programme rendu : ' + JSON.stringify(dev.lignes));
+      if(dev.reperes.some(r => r)) dits.push('un repère ▶ ou ✓ apparaît alors que rien n\'est encore exécuté : ' + JSON.stringify(dev.reperes));
+      if(dev.table) dits.push('le tableau de la mémoire est déjà affiché en phase « deviner »');
+      if(dev.case !== 'INPUT') dits.push('la case de prédiction : ' + JSON.stringify(dev.case));
+      verifier('la phase « deviner » montre le programme entier sans repère, et une seule case de prédiction',
         !dits.length, dits.slice(0, 3).join(' | '));
-      /* 2. LES DEUX LIGNES LITTÉRALES SE TAPENT ET SE JUGENT COMME AVANT */
-      for(let k = 0; k < nL - 2; k++){
+      /* 2. UNE PRÉDICTION VIDE EST REDEMANDÉE, JAMAIS JUGÉE */
+      await s.page.click('#ppmGuessValidate');
+      await s.page.waitForTimeout(200);
+      const videEtat = await s.page.evaluate(() => ({ phase: test.ppmPhase, fb: (document.getElementById('ppmFeedback') || {}).textContent || '' }));
+      verifier('une prédiction vide est redemandée, jamais jugée',
+        videEtat.phase === 'deviner' && /prédiction/.test(videEtat.fb), 'phase ' + videEtat.phase + ', message : ' + videEtat.fb.slice(0, 120));
+      /* 3. UNE PRÉDICTION FAUSSE : ROUGE, LA VRAIE VALEUR EN VERT, PUIS LE PAS À PAS */
+      await s.page.click('#ppm-guess');
+      await s.page.keyboard.type('999', { delay: 50 });
+      await s.page.waitForTimeout(120);
+      await s.page.click('#ppmGuessValidate');
+      await s.page.waitForTimeout(400);
+      const guessFaux = await s.page.evaluate(() => {
+        const ve = document.getElementById('ppm-guess');
+        const b = ve ? ve.nextElementSibling : null;
+        return { phase: test.ppmPhase, classe: ve ? ve.className : '', encre: ve ? getComputedStyle(ve).color : '',
+                 badgeTxt: b ? b.textContent : '', badgeEncre: b ? getComputedStyle(b).color : '', disabled: ve ? ve.disabled : false };
+      });
+      const gd = [];
+      if(guessFaux.phase !== 'verifier') gd.push('la phase après une prédiction jugée : ' + guessFaux.phase);
+      if(!/bad/.test(guessFaux.classe) || dom(guessFaux.encre) !== 'rouge') gd.push('la prédiction fausse n\'est pas rouge : ' + guessFaux.classe + ' / ' + guessFaux.encre);
+      if(guessFaux.badgeTxt.trim() !== A.fiche.memoire[3][1] || dom(guessFaux.badgeEncre) !== 'vert')
+        gd.push('la vraie valeur en vert : ' + JSON.stringify({ t: guessFaux.badgeTxt, e: guessFaux.badgeEncre }));
+      if(!guessFaux.disabled) gd.push('la prédiction jugée reste modifiable');
+      verifier('une prédiction fausse (l = 999) se peint en rouge, révèle la vraie valeur (-6) en vert, et fait passer en phase « verifier »',
+        !gd.length, gd.slice(0, 3).join(' | '));
+      /* 4. LE PAS À PAS, LES QUATRE LIGNES — DONT UN SIGNE MOINS AU CLAVIER */
+      for(let k = 0; k < nL; k++){
         await s.page.click('#ppm-val-' + k);
         await s.page.keyboard.type(A.fiche.memoire[k][1], { delay: 50 });
         await s.page.waitForTimeout(120);
         await s.page.click('#ppmValidate');
         await s.page.waitForTimeout(300);
-        await s.page.click('#ppmStep');
-        await s.page.waitForTimeout(300);
+        if(k < nL - 1){ await s.page.click('#ppmStep'); await s.page.waitForTimeout(300); }
       }
-      const avant2 = await s.page.evaluate(() => ({ score: test.score }));
-      verifier('les deux premières lignes (littérales) se jugent comme au 5.15',
-        avant2.score === nL - 2, 'note ' + avant2.score + ' après les deux lignes littérales, au lieu de ' + (nL - 2));
-      /* 3. LA LIGNE DE MULTIPLICATION, RÉPONDUE FAUX D'ABORD : LE MESSAGE NOMME UN CALCUL */
-      const gestes = [];
-      await s.page.click('#ppm-val-2');
-      await s.page.keyboard.type('22', { delay: 50 });   /* l'erreur d'un élève qui concatène 2 et 2 au lieu de multiplier */
-      await s.page.waitForTimeout(120);
-      await s.page.click('#ppmValidate');
-      await s.page.waitForTimeout(400);
-      const faux = await s.page.evaluate((idx) => {
-        const ve = document.getElementById('ppm-val-' + idx);
-        const b = ve ? ve.nextElementSibling : null;
-        return { classe: ve ? ve.className : '', encre: ve ? getComputedStyle(ve).color : '',
-                 badgeTxt: b ? b.textContent : '', badgeEncre: b ? getComputedStyle(b).color : '',
-                 feedback: (document.getElementById('ppmFeedback') || {}).textContent || '' };
-      }, 2);
-      if(!/bad/.test(faux.classe) || dom(faux.encre) !== 'rouge') gestes.push('la case fausse n\'est pas rouge : ' + faux.classe + ' / ' + faux.encre);
-      if(faux.badgeTxt.trim() !== A.fiche.memoire[2][1] || dom(faux.badgeEncre) !== 'vert')
-        gestes.push('la correction en vert : ' + JSON.stringify({ t: faux.badgeTxt, e: faux.badgeEncre }));
-      if(!/CALCUL/.test(faux.feedback)) gestes.push('le message ne nomme pas un CALCUL, il dit : ' + faux.feedback.slice(0, 160));
-      verifier('une ligne de MULTIPLICATION fausse se corrige en vert avec la vraie valeur, et le message NOMME un calcul',
-        !gestes.length, gestes.slice(0, 3).join(' | '));
-      /* 4. LA DERNIÈRE LIGNE (SOUSTRACTION), ET LE BILAN FINAL */
-      /* EN ENTRAÎNEMENT une rangée jugée se VERROUILLE, juste ou fausse — la
-         retry-et-correction n'existe qu'en SOUTIEN (checkPPM). La ligne 2
-         (fausse depuis la partie 3) est donc déjà verrouillée : on passe
-         directement à la suivante plutôt que de retenter une case désactivée.
-         Le bilan, lui, reste VRAI quoi que l'élève ait tapé — il sort de
-         pyRun sur le PROGRAMME, jamais de la saisie de l'élève. */
-      await s.page.click('#ppmStep');
-      await s.page.waitForTimeout(300);
-      await s.page.click('#ppm-val-3');
-      await s.page.keyboard.type(A.fiche.memoire[3][1], { delay: 50 });
-      await s.page.waitForTimeout(120);
-      await s.page.click('#ppmValidate');
-      await s.page.waitForTimeout(400);
-      const bilan = await s.page.evaluate(() => (document.querySelector('#ppmHost .ppm-bilan') || {}).textContent || '');
+      const finFaux = await s.page.evaluate(() => ({
+        score: test.score,
+        bilan: (document.querySelector('#ppmHost .ppm-bilan') || {}).textContent || '',
+        bouton: (document.getElementById('ppmRetry') || {}).textContent || '',
+        suivant: !!document.getElementById('ppmNext') }));
       const bd = [];
-      A.fiche.memoire.forEach(r => { if(bilan.indexOf(r[0]) < 0 || bilan.indexOf(r[1]) < 0) bd.push('le bilan ne dit pas que ' + r[0] + ' contient ' + r[1]); });
-      verifier('le bilan de fin porte la valeur VRAIE de chaque case, y compris celle qui a été multipliée',
-        !bd.length, bd.slice(0, 3).join(' | ') + ' : ' + bilan.slice(0, 200));
-      verifier('l\'écran du programme pas à pas avec multiplication ne lève aucune erreur JavaScript',
+      A.fiche.memoire.forEach(r => { if(finFaux.bilan.indexOf(r[0]) < 0 || finFaux.bilan.indexOf(r[1]) < 0) bd.push('le bilan ne dit pas que ' + r[0] + ' contient ' + r[1]); });
+      if(finFaux.suivant) bd.push('« Question suivante » apparaît alors que la prédiction était fausse');
+      if(!/Recommencer/.test(finFaux.bouton)) bd.push('le bouton après une prédiction fausse : ' + JSON.stringify(finFaux.bouton));
+      verifier('le bilan porte la valeur VRAIE de chaque case (dont -6, réécrite), et le bouton propose de RECOMMENCER',
+        !bd.length, bd.slice(0, 3).join(' | ') + ' : ' + finFaux.bilan.slice(0, 200));
+      /* 5. RECOMMENCER : LE SCORE DES LIGNES JETÉES REVIENT À ZÉRO */
+      verifier('les points des quatre lignes de la tentative jetée ont été ajoutés puis retirés : le score revient à 0 avant le nouveau tirage',
+        finFaux.score === nL, 'score avant « Recommencer » : ' + finFaux.score + ' au lieu de ' + nL);
+      await s.page.click('#ppmRetry');
+      await s.page.waitForTimeout(300);
+      const apresRetry = await s.page.evaluate(() => ({ score: test.score, phase: test.ppmPhase }));
+      verifier('« Recommencer » retire les points de la tentative jetée et relance la phase « deviner »',
+        apresRetry.score === 0 && apresRetry.phase === 'deviner', 'score ' + apresRetry.score + ', phase ' + apresRetry.phase);
+      /* 6. LE NOUVEAU TIRAGE : k ET l SONT LUS SUR LA PAGE, LA PRÉDICTION JUSTE EST CALCULÉE */
+      const tirage = await s.page.evaluate(() => {
+        const q = test.questions[test.idx];
+        return { k: q.k, l: q.l, lignes: q.lignes.map(x => x.nom + ' = ' + x.expr) };
+      });
+      const finale = 2 * tirage.l - tirage.k;   /* m = l*2, puis l = m-k */
+      const memo2 = [['k', String(tirage.k)], ['l', String(tirage.l)], ['m', String(tirage.l * 2)], ['l', String(finale)]];
+      await s.page.click('#ppm-guess');
+      await s.page.keyboard.type(String(finale), { delay: 50 });
+      await s.page.waitForTimeout(120);
+      await s.page.click('#ppmGuessValidate');
+      await s.page.waitForTimeout(400);
+      const guessJuste = await s.page.evaluate(() => {
+        const ve = document.getElementById('ppm-guess');
+        return { phase: test.ppmPhase, classe: ve ? ve.className : '', encre: ve ? getComputedStyle(ve).color : '',
+                 cor: !!(ve && ve.nextElementSibling && ve.nextElementSibling.classList.contains('mf-cor')) };
+      });
+      const gj = [];
+      if(guessJuste.phase !== 'verifier') gj.push('la phase après une prédiction juste : ' + guessJuste.phase);
+      if(!/ok/.test(guessJuste.classe) || dom(guessJuste.encre) !== 'bleu') gj.push('la prédiction juste n\'est pas bleue : ' + guessJuste.classe + ' / ' + guessJuste.encre);
+      if(guessJuste.cor) gj.push('une correction en vert apparaît alors que la prédiction était juste');
+      verifier('une prédiction JUSTE (l = ' + finale + ', calculée depuis le nouveau tirage k=' + tirage.k + ', l=' + tirage.l + ') se peint en bleu, sans correction',
+        !gj.length, gj.slice(0, 3).join(' | '));
+      for(let k = 0; k < nL; k++){
+        await s.page.click('#ppm-val-' + k);
+        await s.page.keyboard.type(memo2[k][1], { delay: 50 });
+        await s.page.waitForTimeout(120);
+        await s.page.click('#ppmValidate');
+        await s.page.waitForTimeout(300);
+        if(k < nL - 1){ await s.page.click('#ppmStep'); await s.page.waitForTimeout(300); }
+      }
+      const finJuste = await s.page.evaluate(() => ({
+        score: test.score, suivant: (document.getElementById('ppmNext') || {}).textContent || '',
+        retry: !!document.getElementById('ppmRetry') }));
+      const gj2 = [];
+      if(finJuste.retry) gj2.push('« Recommencer » apparaît alors que la prédiction était juste');
+      if(!/Question suivante/.test(finJuste.suivant)) gj2.push('le bouton après une tentative entièrement juste : ' + JSON.stringify(finJuste.suivant));
+      if(finJuste.score !== nL + 1) gj2.push('score final : ' + finJuste.score + ' au lieu de ' + (nL + 1) + ' (la prédiction, plus les ' + nL + ' lignes)');
+      verifier('une tentative où la prédiction ET les quatre lignes sont justes mène à « Question suivante », avec le score complet',
+        !gj2.length, gj2.slice(0, 3).join(' | '));
+      verifier('l\'écran de prédiction / pas à pas ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
