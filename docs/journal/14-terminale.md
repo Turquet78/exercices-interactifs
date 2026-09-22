@@ -2099,3 +2099,34 @@ contrôle des numéros de section, qui existe précisément pour cela. La règle
 tranche sans rien peser : le numéro revient au premier arrivé
 ({suite-variation-difference}), la Seconde prend « sexies » et la synthèse,
 dernière arrivée, « septies ».
+
+**LE THÈME DES SUITES EST DÉCOUPÉ EN QUATRE PARTIES.** Demande de Turquet
+(septembre 2026) : « en terminale, dans le thème des suites, créer les
+sous-thèmes suite auxiliaire, démonstration par récurrence, étude de variation
+d'une suite, déterminer la limite d'une suite ». Le thème avait quinze
+exercices sur une seule page à faire défiler.
+**RIEN N'EST INVENTÉ : c'est l'étage des parties de la Seconde et de la
+Première, porté** (voir « Puis l'étage des PARTIES est venu » dans
+`11-aides-et-interface.md`) — `sous` dans `THEMES`, la liste plate `t.ids`
+reconstruite juste après, la numérotation à trois niveaux (6.2.1),
+`scr-soustheme`, `openSousTheme()`, `retourTheme()`, `sousThemeOfTest()`,
+`carteExo()`, et `retourChoix()` qui rouvre la partie. Le reste du fichier ne
+connaît que `t.ids` et n'a pas bougé.
+**Le rangement suit le SUJET**, dans l'ordre qu'avaient les exercices :
+6.1 Suite auxiliaire — {suite-explicite}, {suite-auxiliaire},
+{suite-auxiliaire-2}, {suite-auxiliaire-redaction} ; 6.2 Démonstration par
+récurrence — {suites-encadrement} (il prépare l'hérédité), les cinq
+« Récurrence — … » ; 6.3 Étude de variation — {suite-variation-recurrence},
+{suite-variation-difference}, {suite-vocabulaire}, {suite-synthese-variations} ;
+6.4 Déterminer la limite — {suite-tcm-limite}. Deux cas limites tranchés :
+{suite-explicite} (type, raison, formule explicite) n'a pas de partie à son nom
+et ouvre celle des suites auxiliaires, dont elle est le prérequis ;
+{suite-vocabulaire} coche monotonie, bornes ET limite, et va aux variations,
+qui en sont la première moitié.
+**Ce que le découpage coûte se nomme** : trois contrôles ÉPINGLAIENT un numéro
+(6.12, 6.14, 6.15) pour tenir « un exercice inséré avant renumérote ses
+voisins ». Ils sont retournés vers les numéros neufs (6.4.1, 6.3.3, 6.3.4),
+pas retirés : la propriété reste la même. Le contrôle universel de la
+navigation (verifier.js) et le banc navigateur « 8. LE MENU EN DEUX ÉTAGES »
+couvrent la Terminale dès qu'elle déclare `menu` dans son profil — c'est fait,
+et `soustheme` a rejoint ses `ecransHorsExercice`.
