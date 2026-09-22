@@ -28166,9 +28166,10 @@ function pythonEchangerParLettres(w, P){
   if(!P.echangerParLettres){ ignorer(nom, 'ce niveau n\'a pas l\'exercice pour échanger deux variables par les lettres'); return; }
   const D = P.echangerParLettres, ID = D.exercice, NB = D.nb, F = D.fiche, SOL = D.solutions, FC = D.fauxClassique, J = JSON.stringify;
   const present = evaluer(w, "typeof startPEL==='function' && typeof pelBuildQuestions==='function'"
-    + " && typeof pelCases==='function' && typeof checkPEL==='function' && typeof pelJuge==='function'");
+    + " && typeof pelCases==='function' && typeof checkPEL==='function' && typeof pelJuge==='function'"
+    + " && typeof pelTrace==='function' && typeof pelTraceHTML==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPEL / pelBuildQuestions / pelCases / checkPEL / pelJuge introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPEL / pelBuildQuestions / pelCases / checkPEL / pelJuge / pelTrace / pelTraceHTML introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   /* ---- 1. le tirage : la fiche du PDF EN TÊTE au caractère près, deux jeux
@@ -28355,6 +28356,45 @@ function pythonEchangerParLettres(w, P){
     if(c.indexOf("SECR")<0) vus.push("le contexte ne declare pas la reponse secrete");
     if(c.indexOf(q.t+" = "+q.v1)<0 || c.indexOf(q.t+" = "+q.v2)<0) vus.push("le contexte ne porte pas les DEUX facons de permuter");
     if(c.indexOf(q.v1)<0 || c.indexOf(q.v2)<0) vus.push("le contexte ne nomme pas les deux variables a echanger");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. l'exécution pas à pas avant le verdict, demande de Turquet
+     (septembre 2026) : le programme de l'élève s'exécute LIGNE PAR LIGNE,
+     la mémoire de k/l/m se remplissant, avant le message bon/faux — sans
+     jamais toucher aux classes de verdict, qui restent l'affaire du CADRE
+     seul ---- */
+  verifierEval(w, 'checkPEL affiche la trace ligne par ligne (pelTrace/pelTraceHTML) avant le verdict, sur une copie juste comme sur une copie fausse, sans jamais peindre de classe de verdict depuis la trace ; une case lue avant d’être remplie y arrête la trace à la bonne ligne ; et pelSaisie l’efface dès qu’une case change', `(function(){
+    const vus=[], sol=${J(SOL[0])}, fc=${J(FC)}, ids=["pel-l3d","pel-l4g","pel-l4d","pel-l5g","pel-l5d"];
+    currentMode="soutien"; currentTestId="${ID}"; startPEL();
+    const q=test.questions[0];
+    ids.forEach(function(id,i){ document.getElementById(id).value=sol[i]; });
+    checkPEL();
+    let tr=document.getElementById("pelTrace");
+    if(!tr) vus.push("aucun conteneur #pelTrace dans l ecran");
+    else {
+      const lignes=[...tr.querySelectorAll(".pyx-ligne")], rangees=[...tr.querySelectorAll("table.pap-mem tr")];
+      if(lignes.length!==5) vus.push("copie juste : "+lignes.length+" ligne(s) de trace au lieu de 5");
+      if(rangees.length!==6) vus.push("copie juste : "+rangees.length+" rangee(s) de memoire au lieu de 6 (en-tete + 5)");
+      const enTete=rangees[0]?rangees[0].textContent:"";
+      if(enTete.indexOf(q.v1)<0||enTete.indexOf(q.v2)<0||enTete.indexOf(q.t)<0) vus.push("l en-tete du tableau ne nomme pas les trois cases : "+enTete);
+      const derniere=rangees[rangees.length-1]?rangees[rangees.length-1].textContent:"";
+      if(derniere.indexOf(String(q.b))<0||derniere.indexOf(String(q.a))<0) vus.push("la derniere rangee de la trace ne montre pas l echange reussi : "+derniere);
+      if(tr.querySelectorAll(".ok,.bad,.sol,.pel-ok,.pel-bad").length) vus.push("la trace peint une classe de verdict qui ne lui appartient pas");
+    }
+    /* une copie fausse, en soutien : la trace s affiche aussi, et disparait des qu on change une case */
+    startPEL();
+    ids.forEach(function(id,i){ document.getElementById(id).value=fc[i]; });
+    checkPEL();
+    tr=document.getElementById("pelTrace");
+    if(!tr || !tr.querySelector(".pyx-ligne")) vus.push("copie fausse, en soutien : aucune trace affichee");
+    document.getElementById(ids[0]).value=fc[0]==="${F.v1}"?"${F.v2}":"${F.v1}";
+    document.getElementById(ids[0]).dispatchEvent(new Event("change",{bubbles:true}));
+    if(tr && tr.innerHTML.trim()!=="") vus.push("changer une case ne vide pas la trace : "+tr.innerHTML.slice(0,60));
+    /* une case lue avant d etre remplie (m = m) arrete la trace a la ligne fautive, comme pelJuge */
+    const etapes=pelTrace(q, {l3d:q.t, l4g:q.v1, l4d:q.v2, l5g:q.v2, l5d:q.t});
+    if(etapes.length>=5) vus.push("une case lue avant d etre remplie ne raccourcit pas la trace : "+etapes.length+" etape(s)");
+    if(!etapes.length || !etapes[etapes.length-1].erreur) vus.push("la derniere etape de la trace ne porte pas d erreur");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 }

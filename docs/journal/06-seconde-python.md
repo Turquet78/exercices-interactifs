@@ -2752,3 +2752,29 @@ suivie par `.py-sel` ailleurs dans ce thème), `.pel-sel` gagne une largeur
 fixe (`2.2em`, texte centré) au lieu de suivre son contenu, et `.pel-l` passe
 en `white-space:nowrap`/`flex-wrap:nowrap` : la ligne ne se replie plus,
 quelle que soit la case choisie.
+
+**« Exécuter » ne se contentait que du verdict final — Turquet a demandé de
+voir le programme s'exécuter LIGNE PAR LIGNE avant lui** (septembre 2026).
+Ce n'est PAS un retour sur l'arbitrage qui a fondé l'exercice (« CE N'EST
+PAS UNE MARCHE DE PLUS DU PAS À PAS », plus haut) : celui-ci porte sur la
+SAISIE — une question unique, cinq cases, un seul clic — et reste entier ;
+la demande de septembre porte sur ce qui se passe APRÈS ce clic, une fois
+les cinq cases remplies. `pelTrace(q, v)` relit `pyRun` sur des tronçons de
+plus en plus longs du MÊME texte que construit `pelJuge` (`pelProgTexte`),
+et `pelTraceHTML` l'affiche : le programme avec un repère par ligne (✓
+exécutée, ✗ celle qui arrête tout), puis un tableau donnant k, l et m après
+chaque ligne — la feuille de styles du moteur du pas à pas (`pyx-prog`,
+`pyx-ligne`, `pap-wrap`, `pap-mem`), jamais ses classes de verdict : la
+trace n'ajoute ni `.ok` ni `.bad` ni `.sol` nulle part, et le CADRE reste la
+seule chose qui porte la note, la leçon même de « CINQ CASES, UN SEUL
+VERDICT » plus haut. `pelJuge` reste l'unique source du verdict — la trace
+ne fait que relire ce qu'il a déjà décidé, avec le même interprète sur le
+même texte, elle ne peut donc pas le contredire. Elle s'affiche dans les
+DEUX modes, sur une copie juste comme sur une copie fausse (soutien compris,
+avant même que l'élève ait corrigé) : c'est un COMPLÉMENT du message qui
+nomme déjà les faits prouvables (`pelMessage`), pas un remplacement. Une
+case lue avant d'être remplie arrête la trace à la ligne fautive, en rouge,
+comme `pelJuge` l'accepte déjà comme une vraie erreur Python. `pelTrace` se
+recalcule à chaque « Exécuter »/« Réexécuter » et `pelSaisie` vide la trace
+dès qu'une case change, pour ne jamais laisser affichée l'exécution d'un
+programme que l'élève vient de modifier.
