@@ -27872,26 +27872,30 @@ function pythonValeurCase(w, P){
   })()`, v => v === '');
 
   /* ---- 8. la place au menu et les branchements ---- */
-  /* IL NE FERME PLUS LE THÈME 5 — {python-pas-a-pas-calcul} (5.16) l'avait
-     repris, puis {python-pas-a-pas-chaine} (5.17) et {python-pas-a-pas-
-     multiplication} (5.18) l'ont repris à leur tour : le bord « il FERME le
-     thème 5 » est RETOURNÉ à chaque fois plutôt que retiré, la convention du
-     projet (voir CLAUDE.md, « un bord retiré ne dit plus rien »). Ce qui
-     reste VRAI de {python-valeur-case} n'est PLUS « juste avant le fermeur »
-     — deux exercices se sont glissés entre les deux — mais sa place STABLE :
-     entre {python-pas-a-pas} et {python-pas-a-pas-calcul}, la vérification
-     passant donc par l'INDEX (th.ids[i±1]) plutôt que par la fin du thème,
-     qui bouge à chaque ajout — comme {python-pas-a-pas} le fait déjà pour
-     {python-valeur-case} (section 10). CETTE MÊME correction a été trouvée,
-     le même jour, par deux branches indépendantes ({python-pas-a-pas-chaine}
-     et {python-pas-a-pas-multiplication}) : la collision qu'aucune des deux
-     ne pouvait voir seule (CLAUDE.md, « la même erreur, huit fois… »). */
-  verifierEval(w, 'il ne ferme plus le thème 5 — {python-pas-a-pas-chaine} puis {python-pas-a-pas-multiplication} l ont repris — mais reste À SA PLACE, entre {python-pas-a-pas} et {python-pas-a-pas-calcul} : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[], i=th?th.ids.indexOf("${ID}"):-1;
+  /* IL NE FERME PLUS LE THÈME 5 — {python-pas-a-pas-calcul} (5.16) l'a repris,
+     comme {python-valeur-case} avait repris {python-pas-a-pas} avant lui —
+     puis {python-pas-a-pas-chaine} (5.17) a repris {python-pas-a-pas-calcul},
+     puis {python-echange-variables} (5.18, une collision de numéro avec
+     {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026),
+     puis {python-pas-a-pas-multiplication} (5.19, une SECONDE collision sur
+     le même numéro 5.18, cette fois avec {python-echange-variables} lui-même
+     — la même règle a tranché : le premier arrivé sur `main` garde le
+     numéro, le second prend le suivant) ont repris à leur tour : le bord
+     « il FERME le thème 5 » est RETOURNÉ à chaque fois plutôt que retiré, la
+     convention du projet (voir CLAUDE.md, « un bord retiré ne dit plus
+     rien »). Ce qui reste VRAI de {python-valeur-case} : il vit juste AVANT
+     {python-pas-a-pas-calcul}, et {python-pas-a-pas} juste avant lui — PEU
+     IMPORTE ce qui suit {python-pas-a-pas-calcul} ensuite, d'où un contrôle
+     par POSITION RELATIVE (indexOf) plutôt que par distance à la fin du
+     thème, qui aurait dû être réécrit à chaque nouveau fermeur — et qui n'a,
+     de fait, pas eu à bouger d'une ligne pour {python-pas-a-pas-chaine} PUIS
+     {python-echange-variables} PUIS {python-pas-a-pas-multiplication}. */
+  verifierEval(w, 'il ne ferme plus le thème 5 — {python-pas-a-pas-calcul} l a repris, puis {python-pas-a-pas-chaine}, puis {python-echange-variables}, puis {python-pas-a-pas-multiplication} — mais reste juste avant {python-pas-a-pas-calcul}, numéroté ' + F.numero + ', après {python-pas-a-pas} : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
-    if(!th||th.ids[th.ids.length-1]!=="python-pas-a-pas-multiplication") vus.push("le theme ne se ferme plus sur python-pas-a-pas-multiplication : "+(th&&th.ids.join(",")));
-    if(i<0||th.ids[i+1]!=="python-pas-a-pas-calcul") vus.push("il n est plus suivi de {python-pas-a-pas-calcul} : "+(th&&th.ids.join(",")));
-    if(i>0&&th.ids[i-1]!=="python-pas-a-pas") vus.push("il ne suit pas {python-pas-a-pas} : "+(th&&th.ids.join(",")));
+    const iPap=th?th.ids.indexOf("python-pas-a-pas"):-1, iId=th?th.ids.indexOf("${ID}"):-1, iPpc=th?th.ids.indexOf("python-pas-a-pas-calcul"):-1;
+    if(iPpc!==iId+1) vus.push("{python-pas-a-pas-calcul} ne suit plus directement : "+(th&&th.ids.join(",")));
+    if(iId!==iPap+1) vus.push("il ne suit pas {python-pas-a-pas} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="5.1"||TEST_NUM["python-operations"]!=="5.12"||TEST_NUM["python-double-triple-carre"]!=="5.13"||TEST_NUM["python-pas-a-pas"]!=="5.14"||TEST_NUM["pourcentage"]!=="3.1")
       vus.push("l exercice ajoute a renumerote les autres");
@@ -28111,18 +28115,21 @@ function pythonPasAPasChaine(w, P){
   })()`, v => v === '');
 
   /* ---- 8. la place au menu et les branchements ---- */
-  /* IL NE FERME PLUS LE THÈME 5 — {python-pas-a-pas-multiplication} (5.18)
-     l'a repris, arrivé sur `main` par une fusion séparée le même jour : le
-     bord « il FERME le thème 5 » est RETOURNÉ ici plutôt que retiré, comme
-     pour {python-pas-a-pas-calcul} avant lui (section 8 de
-     {python-valeur-case}). Ce qui reste VRAI : il vit juste APRÈS
-     {python-pas-a-pas-calcul}, vérifié par l'INDEX plutôt que par la fin du
-     tableau, qui bouge à chaque ajout. */
-  verifierEval(w, 'il ne ferme plus le thème 5 — {python-pas-a-pas-multiplication} l a repris — mais reste juste après {python-pas-a-pas-calcul}, numéroté ' + F.numero + ' : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[], i=th?th.ids.indexOf("${ID}"):-1;
+  /* IL NE FERME PLUS LE THÈME 5 — {python-echange-variables} (5.18, une
+     collision de numéro avec CET exercice résolue à la fusion de main,
+     septembre 2026) l'a repris, puis {python-pas-a-pas-multiplication}
+     (5.19, une SECONDE collision sur 5.18, cette fois avec
+     {python-echange-variables}) l'a repris à son tour : le bord « il FERME
+     le thème 5, en 5.17 » est RETOURNÉ ici plutôt que retiré, la même
+     convention appliquée à chaque retournement de ce thème. Ce qui reste
+     VRAI : {python-pas-a-pas-chaine} vit juste APRÈS
+     {python-pas-a-pas-calcul}, PEU IMPORTE ce qui le suit ensuite — vérifié
+     par POSITION RELATIVE (indexOf), pas par la fin du thème. */
+  verifierEval(w, 'il ne ferme plus le thème 5 — {python-echange-variables} puis {python-pas-a-pas-multiplication} l ont repris — mais reste juste après {python-pas-a-pas-calcul}, numéroté ' + F.numero + ' : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
-    if(!th||th.ids[th.ids.length-1]!=="python-pas-a-pas-multiplication") vus.push("le theme ne se ferme plus sur python-pas-a-pas-multiplication : "+(th&&th.ids.join(",")));
-    if(i<0||th.ids[i-1]!=="python-pas-a-pas-calcul") vus.push("il ne suit pas {python-pas-a-pas-calcul} : "+(th&&th.ids.join(",")));
+    const iId=th?th.ids.indexOf("${ID}"):-1, iPpc=th?th.ids.indexOf("python-pas-a-pas-calcul"):-1;
+    if(iId!==iPpc+1) vus.push("il ne suit plus directement {python-pas-a-pas-calcul} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d entree TESTS");
     if(/[{}<>]/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte du balisage ou une accolade : elle passe par esc(numeros(desc))");

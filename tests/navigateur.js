@@ -10184,18 +10184,230 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 tricies duodevicies. {python-pas-a-pas-multiplication} : quand une ligne MULTIPLIE =====
+    /* ===== 6 tricies duodevicies. {python-echange-variables} : échanger deux
+       variables, puis EXPLIQUER =====
+       Le moteur (papProg, papEtat, papAns, papProgHTML) et la disposition
+       (deux colonnes, le nom ÉCRIT, une seule case) sont ceux du 5.15 — déjà
+       mesurés ci-dessus — et ne sont pas remesurés ici. Ce que ce banc mesure
+       est ce qui est PROPRE au 5.18 : les CINQ lignes du PDF (dont a et b sont
+       RÉAFFECTÉS), et la question OUVERTE qui suit le pas à pas, jugée par un
+       modèle STUBBÉ — une fois avec un verdict correct, une fois avec un
+       verdict faux — puisque aucun juge local ne pourrait remplacer le
+       modèle sur une idée en langage naturel (docs/journal/08). Ce numéro
+       était « 6 tricies septendecies » (17e), le même 5.17 qu'affichait
+       alors cet exercice ; la fusion de main (septembre 2026) a fait
+       arriver {python-pas-a-pas-chaine} en premier sur CE numéro — « 6
+       tricies septdecies » — et ce bloc a donc pris le suivant, 18e, comme
+       l'exercice lui-même est passé de 5.17 à 5.18 (même collision, même
+       règle : premier arrivé, premier servi). */
+    titre('6 tricies duodevicies. ÉCHANGER DEUX VARIABLES, PUIS EXPLIQUER');
+    if(!P.pythonEchangeVariables){
+      ignorer('la fiche épinglée se trace ligne par ligne, puis une question OUVERTE se juge par le modèle',
+        'ce niveau n\'a pas l\'exercice de l\'échange de deux variables');
+    } else {
+      const A = P.pythonEchangeVariables, nL = A.fiche.prog.length;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const dits = [];
+      /* 1. LA FICHE ÉPINGLÉE DU PDF, CINQ LIGNES, LE NOM ÉCRIT */
+      const vu = await s.page.evaluate(() => {
+        const host = document.getElementById('pevHost');
+        const lignes = [...host.querySelectorAll('.pyx-ligne')];
+        const nm = host.querySelector('.pev-nom'), ve = document.getElementById('pev-val-0');
+        return { lignes: lignes.map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+                 listes: host.querySelectorAll('select').length,
+                 nom: nm ? nm.textContent.trim() : null,
+                 case: ve ? ve.tagName : null,
+                 cases: host.querySelectorAll('input').length,
+                 bilan: !!host.querySelector('.pev-bilan'),
+                 exp: !!document.getElementById('pev-exp') };
+      });
+      if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
+      if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
+        dits.push('le programme rendu : ' + JSON.stringify(vu.lignes));
+      if(vu.listes) dits.push(vu.listes + ' liste(s) de propositions dans l\'écran : le nom se choisit encore');
+      if(vu.nom !== A.fiche.memoire[0][0]) dits.push('le nom de la case écrit par la page : ' + JSON.stringify(vu.nom));
+      if(vu.case !== 'INPUT') dits.push('la case de la valeur : ' + JSON.stringify(vu.case));
+      if(vu.cases !== 1) dits.push(vu.cases + ' case(s) de saisie au lieu d\'une seule');
+      if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
+      if(vu.exp) dits.push('la question ouverte est affichée avant la fin du pas à pas');
+      verifier('la fiche épinglée (a = 10, b = 2, c = a, a = b, b = c) est rendue, avec le nom de la case ÉCRIT et aucune question ouverte avant la fin',
+        !dits.length, dits.slice(0, 3).join(' | '));
+      /* 2. LES CINQ LIGNES SE TAPENT ET SE JUGENT, a ET b RÉAFFECTÉS COMPRIS */
+      for(let k = 0; k < nL; k++){
+        await s.page.click('#pev-val-' + k);
+        await s.page.keyboard.type(A.fiche.memoire[k][1], { delay: 40 });
+        await s.page.waitForTimeout(120);
+        await s.page.click('#pevValidate');
+        await s.page.waitForTimeout(300);
+        if(k < nL - 1){ await s.page.click('#pevStep'); await s.page.waitForTimeout(300); }
+      }
+      const apres = await s.page.evaluate(() => {
+        const host = document.getElementById('pevHost'), b = host.querySelector('.pev-bilan');
+        return { score: test.score,
+                 bilan: b ? b.textContent.replace(/\s+/g, ' ').trim() : '',
+                 exp: !!document.getElementById('pev-exp'),
+                 suivant: !!document.getElementById('pevNext'),
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      const lignes = [];
+      if(apres.score !== nL) lignes.push('note ' + apres.score + ' après les cinq lignes, au lieu de ' + nL);
+      A.fiche.memoire.forEach(r => {
+        if(apres.bilan.indexOf(r[0]) < 0 || apres.bilan.indexOf(r[1]) < 0)
+          lignes.push('le bilan ne dit pas que ' + r[0] + ' contient ' + r[1] + ' : ' + apres.bilan.slice(0, 160));
+      });
+      if(!apres.exp) lignes.push('la question ouverte n\'apparaît pas une fois le pas à pas terminé');
+      if(apres.suivant) lignes.push('« Question suivante » apparaît avant l\'explication');
+      if(apres.page) lignes.push('la page déborde après le bilan');
+      verifier('les cinq lignes se jugent (a et b réaffectés compris), le bilan porte la mémoire VRAIE, et la question ouverte succède au pas à pas sans « Question suivante »',
+        !lignes.length, lignes.slice(0, 3).join(' | '));
+      /* 3. LA QUESTION OUVERTE NOMME LES DEUX CASES ÉCHANGÉES */
+      const enonce = await s.page.evaluate(() => (document.querySelector('.pev-exp-q') || {}).textContent || '');
+      if(enonce.indexOf(A.fiche.memoire[0][0]) < 0 || enonce.indexOf(A.fiche.memoire[1][0]) < 0)
+        verifier('la question ouverte nomme les deux cases échangées', false, 'question : ' + JSON.stringify(enonce));
+      else verifier('la question ouverte nomme les deux cases échangées', true, '');
+      /* 4. LE MODÈLE STUBBÉ JUGE FAUX, EN ENTRAÎNEMENT : rouge, aucun point,
+         mais la question se VERROUILLE quand même — un seul essai suffit en
+         entraînement, la règle de {definitions-ensembles} (checkDef), jamais
+         de retour en arrière possible une fois le verdict rendu. Le SOUTIEN,
+         qui rouvre la question sur un verdict faux, est éprouvé séparément
+         plus bas — les deux modes ne se mesurent pas dans la même passe. */
+      await s.page.click('#pev-exp');
+      await s.page.keyboard.type('je ne sais pas', { delay: 30 });
+      const faux = await s.page.evaluate(async () => {
+        window.__envoye = null; window.__verdict = false;
+        const vrai = sb.functions.invoke.bind(sb.functions);
+        sb.functions.invoke = function(nom, opts){
+          if(opts && opts.body && opts.body.action === 'verif'){
+            window.__envoye = opts.body;
+            return Promise.resolve({ data:{ correct: window.__verdict, feedback:'Retour de contrôle faux.' }, error:null });
+          }
+          return vrai(nom, opts);
+        };
+        checkPEVExp();
+        const attendre = ms => new Promise(r => setTimeout(r, ms));
+        for(let i = 0; i < 20 && !window.__envoye; i++) await attendre(50);
+        await attendre(150);
+        const fb = document.getElementById('pevFeedback'), ta = document.getElementById('pev-exp');
+        return { envoye: window.__envoye, fbTxt: (fb || {}).textContent || '', fbClasse: (fb || {}).className || '',
+                 fbEncre: fb ? getComputedStyle(fb).color : '', taFige: !!(ta && ta.disabled),
+                 suivant: !!document.getElementById('pevNext'), score: test.score, locked: test.locked };
+      });
+      const gestes = [];
+      if(!faux.envoye || faux.envoye.action !== 'verif') gestes.push('rien n\'est parti par l\'action verif : ' + JSON.stringify(faux.envoye));
+      else {
+        if((faux.envoye.question || '').indexOf(A.fiche.prog.join('\n')) < 0) gestes.push('la question envoyée ne porte pas le programme');
+        if(!/ÉCHANG/i.test(faux.envoye.attendu || '')) gestes.push('la règle envoyée ne parle pas d\'échange : ' + (faux.envoye.attendu || '').slice(0, 160));
+        if((faux.envoye.reponse || '') !== 'je ne sais pas') gestes.push('la réponse envoyée : ' + JSON.stringify(faux.envoye.reponse));
+      }
+      if(!/bad/.test(faux.fbClasse) || dom(faux.fbEncre) !== 'rouge') gestes.push('le verdict faux n\'est pas rouge : ' + faux.fbClasse + ' / ' + faux.fbEncre);
+      if(!faux.taFige) gestes.push('la case d\'explication reste modifiable alors que la question s\'est verrouillée');
+      if(!faux.suivant) gestes.push('« Question suivante » n\'apparaît pas après l\'unique essai d\'entraînement');
+      if(faux.score !== nL) gestes.push('note ' + faux.score + ' au lieu de ' + nL + ' après un verdict faux : un essai faux ne doit jamais compter de point');
+      if(!faux.locked) gestes.push('la question ne se verrouille pas après l\'unique essai d\'entraînement');
+      verifier('un verdict FAUX (modèle stubbé), en ENTRAÎNEMENT, peint le retour en ROUGE, ne compte aucun point, mais verrouille la question dès ce premier essai — la règle de {definitions-ensembles}',
+        !gestes.length, gestes.slice(0, 4).join(' | '));
+      verifier('l\'écran de l\'échange de deux variables ne lève aucune erreur JavaScript (entraînement)',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+      /* 5. LE SOUTIEN, LUI, ROUVRE LA QUESTION SUR UN VERDICT FAUX — et ne la
+         verrouille que sur un verdict JUSTE. Une session neuve, en soutien :
+         les cinq lignes doivent être justes pour avancer (la porte du pas à
+         pas), donc on y tape directement les valeurs de la fiche. */
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      for(let k = 0; k < nL; k++){
+        await s.page.click('#pev-val-' + k);
+        await s.page.keyboard.type(A.fiche.memoire[k][1], { delay: 40 });
+        await s.page.waitForTimeout(120);
+        await s.page.click('#pevValidate');
+        await s.page.waitForTimeout(300);
+        if(k < nL - 1){ await s.page.click('#pevStep'); await s.page.waitForTimeout(300); }
+      }
+      await s.page.click('#pev-exp');
+      await s.page.keyboard.type('je ne sais pas', { delay: 30 });
+      const rouvre = await s.page.evaluate(async () => {
+        window.__envoye = null; window.__verdict = false;
+        const vrai = sb.functions.invoke.bind(sb.functions);
+        sb.functions.invoke = function(nom, opts){
+          if(opts && opts.body && opts.body.action === 'verif'){
+            window.__envoye = opts.body;
+            return Promise.resolve({ data:{ correct: window.__verdict, feedback:'Retour de contrôle faux.' }, error:null });
+          }
+          return vrai(nom, opts);
+        };
+        checkPEVExp();
+        const attendre = ms => new Promise(r => setTimeout(r, ms));
+        for(let i = 0; i < 20 && !window.__envoye; i++) await attendre(50);
+        await attendre(150);
+        const fb = document.getElementById('pevFeedback'), ta = document.getElementById('pev-exp');
+        return { fbClasse: (fb || {}).className || '', fbEncre: fb ? getComputedStyle(fb).color : '',
+                 taFige: !!(ta && ta.disabled), suivant: !!document.getElementById('pevNext'),
+                 score: test.score, locked: test.locked };
+      });
+      const rGestes = [];
+      if(!/bad/.test(rouvre.fbClasse) || dom(rouvre.fbEncre) !== 'rouge') rGestes.push('le verdict faux n\'est pas rouge : ' + rouvre.fbClasse + ' / ' + rouvre.fbEncre);
+      if(rouvre.taFige) rGestes.push('la case d\'explication se verrouille en SOUTIEN sur un verdict faux');
+      if(rouvre.suivant) rGestes.push('« Question suivante » apparaît en SOUTIEN alors que le verdict est faux');
+      if(rouvre.score !== nL) rGestes.push('note ' + rouvre.score + ' au lieu de ' + nL + ' après un verdict faux');
+      if(rouvre.locked) rGestes.push('la question se verrouille en SOUTIEN alors que le verdict est faux');
+      verifier('en SOUTIEN, un verdict FAUX (modèle stubbé) rougit le retour SANS verrouiller la question ni montrer « Question suivante » — l\'élève reprend',
+        !rGestes.length, rGestes.slice(0, 4).join(' | '));
+      /* puis un verdict JUSTE referme la porte : vert, un point, la suite */
+      const juste = await s.page.evaluate(async () => {
+        window.__envoye = null; window.__verdict = true;
+        const ta = document.getElementById('pev-exp');
+        if(ta) ta.value = 'les cases a et b ont échangé leurs valeurs';
+        checkPEVExp();
+        const attendre = ms => new Promise(r => setTimeout(r, ms));
+        for(let i = 0; i < 20 && !window.__envoye; i++) await attendre(50);
+        await attendre(150);
+        const fb = document.getElementById('pevFeedback');
+        return { fbClasse: (fb || {}).className || '', fbEncre: fb ? getComputedStyle(fb).color : '',
+                 taFige: !!(ta && ta.disabled), suivant: !!document.getElementById('pevNext'),
+                 score: test.score, locked: test.locked,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      });
+      const bons = [];
+      if(!/good/.test(juste.fbClasse) || dom(juste.fbEncre) !== 'vert') bons.push('le verdict juste n\'est pas vert : ' + juste.fbClasse + ' / ' + juste.fbEncre);
+      if(!juste.taFige) bons.push('la case d\'explication ne se verrouille pas alors que le verdict est juste');
+      if(!juste.suivant) bons.push('« Question suivante » n\'apparaît pas alors que le verdict est juste');
+      if(juste.score !== nL + 1) bons.push('note ' + juste.score + ' au lieu de ' + (nL + 1) + ' après un verdict juste');
+      if(!juste.locked) bons.push('la question ne se verrouille pas alors que le verdict est juste');
+      if(juste.page) bons.push('la page déborde après le verdict');
+      verifier('en SOUTIEN, un verdict JUSTE (modèle stubbé) peint le retour en VERT, ajoute un point, verrouille la question et affiche « Question suivante »',
+        !bons.length, bons.slice(0, 4).join(' | '));
+      verifier('l\'écran de l\'échange de deux variables ne lève aucune erreur JavaScript (soutien)',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies undevicies. {python-pas-a-pas-multiplication} : quand une ligne MULTIPLIE =====
        Le moteur (papProg, papEtat, papAns, papProgHTML, ppcNature, ppcExplique)
        et la disposition (deux colonnes, le nom ÉCRIT) sont ceux du 5.15, du
        5.16 et du 5.17 — déjà mesurés ci-dessus — et ne sont pas remesurés ici.
-       Ce que ce banc mesure est ce qui est PROPRE au 5.18 : une ligne comme
+       Ce que ce banc mesure est ce qui est PROPRE au 5.19 : une ligne comme
        « m = l*2 » se juge, se corrige et se bilan-te comme une ligne de
        CALCUL — la même fonction que l'addition et la soustraction du 5.16,
        réutilisée sans modification. Aucune seconde arithmétique n'est
        rejouée : la fiche ÉPINGLÉE porte des valeurs CONNUES (10, 2, 4, 6),
        lues dans tests/profils.js — la même garantie qu'un tirage aléatoire
-       donnerait, sans avoir à recalculer. */
-    titre('6 tricies duodevicies. LE PROGRAMME PAS À PAS, QUAND UNE LIGNE MULTIPLIE');
+       donnerait, sans avoir à recalculer. Ce numéro était « 6 tricies
+       duodevicies » (18e) ; {python-echange-variables}, arrivé sur `main`
+       pendant que cette branche était en cours, a pris CE numéral en premier
+       (même collision, même règle que {python-pas-a-pas-chaine} avant lui :
+       premier arrivé, premier servi), et ce bloc a donc pris le suivant,
+       19e — comme l'exercice lui-même est passé de 5.18 à 5.19. */
+    titre('6 tricies undevicies. LE PROGRAMME PAS À PAS, QUAND UNE LIGNE MULTIPLIE');
     if(!P.pythonPasAPasMultiplication){
       ignorer('le programme pas à pas : une ligne de multiplication se juge, se corrige et se bilan-te comme un calcul',
         'ce niveau n\'a pas l\'exercice du programme pas à pas avec multiplication');
