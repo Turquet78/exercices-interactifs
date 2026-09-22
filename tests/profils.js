@@ -1249,19 +1249,21 @@ module.exports = {
     pythonEchangeVariables: { exercice: 'python-echange-variables',
                               fiche: { prog: ['a = 10', 'b = 2', 'c = a', 'a = b', 'b = c'],
                                        memoire: [['a', '10'], ['b', '2'], ['c', '10'], ['a', '2'], ['b', '10']] } },
-    /* {python-pas-a-pas-multiplication} : la marche suivante — inspirée du PDF
-       « variable_pas_a_pas_7 » (k = 10, l = 2, m = 2l, l = m-k). Le PDF, pris au
-       pied de la lettre, viole DEUX règles déjà établies dans ce thème :
-       « l » y est réaffectée (l = 2 PUIS l = m-k), alors qu'une variable ne
-       s'affecte qu'une fois par programme depuis le 5.1 ; et m-k = 4-10 = -6
-       est négatif, alors que cette famille n'affiche jamais de signe moins
-       (le clavier tactile de ce niveau n'entre que le tiret du clavier sur la
-       touche « − »). La fiche épinglée ADAPTE donc le programme du papier —
-       même k = 10, même l = 2, même doublement — sans les enfreindre : une
-       QUATRIÈME case (n) reçoit la différence plutôt que de réaffecter l, et
-       la soustraction se fait k-m (10-4 = 6) plutôt que m-k, pour rester
-       positive. C'est le « jeu futur aux valeurs bornées plus bas » que le
-       5.16 annonçait déjà pour la multiplication.
+    /* {python-pas-a-pas-multiplication} : REFONDU (septembre 2026, correction
+       de Turquet) pour correspondre au PDF « variable_pas_a_pas_7 » au mot
+       près, y compris ce que sa première version évitait : « Deviner la
+       valeur de la variable l à la fin de l'exécution », PUIS exécuter le
+       programme pas à pas COMME LA VERSION N°1 pour vérifier, et si la
+       prédiction ne correspond pas, recommencer avec d'autres k et l mais
+       le MÊME programme. Le programme du PDF est gardé au caractère près :
+       k = 10, l = 2, m = l*2 (case en premier, comme ppcNature l'exige déjà),
+       l = m-k — cette dernière ligne RÉÉCRIT l, et m-k = 4-10 = -6 est
+       négatif : le piège même qui rend la prédiction non triviale. La
+       version précédente évitait la réaffectation ET le signe négatif ; ni
+       l'un ni l'autre n'était un impératif technique — {python-echange-
+       variables} (5.18) réaffecte déjà des cases dans ce thème, et papNet ne
+       normalisait le signe moins que parce qu'aucun exercice n'en avait
+       jamais eu besoin.
        Il FERME le thème 5, en 5.19 : une collision de numéro sur 5.18 avec
        {python-echange-variables}, qui a réclamé ce numéro EN PREMIER (fusionné
        plus tôt dans `main`, pendant que cette branche était en cours), a fait
@@ -1278,19 +1280,24 @@ module.exports = {
        « 6 tricies duodevicies » a été pris sur `main` par
        {python-echange-variables} pendant que cette branche était en cours,
        la même collision que CLAUDE.md documente pour la famille des « 6 … » :
-       le premier arrivé garde, le second prend le suivant) : il ouvre la
-       fiche ÉPINGLÉE pour de vrai, tape les quatre valeurs au clavier — dont
-       la multiplication 4 = 2*2 et la soustraction 6 = 10-4 —, et relit le
-       message qui NOMME un calcul sur une réponse fausse, puis le bilan de
-       fin qui porte la valeur VRAIE même quand l'élève s'est trompé.
+       le premier arrivé garde, le second prend le suivant) : il devine
+       d'abord une prédiction FAUSSE pour la case l, vérifie qu'elle se peint
+       en rouge avec la vraie valeur (-6) révélée en vert, tape les quatre
+       valeurs au clavier — dont la multiplication 4 = 2*2 et la
+       réaffectation -6 = 4-10 —, relit le message qui NOMME un calcul sur
+       une réponse fausse et le bilan qui porte la valeur VRAIE même quand
+       l'élève s'est trompé, clique « Recommencer avec d'autres valeurs »,
+       PUIS rejoue une prédiction JUSTE sur le nouveau tirage et vérifie
+       qu'elle mène à « Question suivante » plutôt qu'à un nouveau
+       recommencement.
        LE BOUTON DES TABLES N'EST PAS DANS « tablesAide.sans » CETTE FOIS,
        contrairement au 5.14/5.15/5.16/5.17 : cet exercice MULTIPLIE pour de
-       vrai (le double, le triple d'une case), et le bouton des tables sert —
-       c'est le bord OPPOSÉ de « le bouton des tables n'est proposé que là où
-       il sert ». */
+       vrai (le double d'une case), et le bouton des tables sert — c'est le
+       bord OPPOSÉ de « le bouton des tables n'est proposé que là où il
+       sert ». */
     pythonPasAPasMultiplication: { exercice: 'python-pas-a-pas-multiplication',
-                                   fiche: { prog: ['k = 10', 'l = 2', 'm = l*2', 'n = k-m'],
-                                            memoire: [['k', '10'], ['l', '2'], ['m', '4'], ['n', '6']] } },
+                                   fiche: { prog: ['k = 10', 'l = 2', 'm = l*2', 'l = m-k'],
+                                            memoire: [['k', '10'], ['l', '2'], ['m', '4'], ['l', '-6']] } },
     /* {python-echange-par-lettres} (5.20, demande de Turquet, septembre 2026,
        sur un PDF transcrit : « Compléter le programme uniquement avec les
        lettres k, l ou m pour que la valeur de k=10 et l=2 soient échangées »
@@ -1355,7 +1362,7 @@ module.exports = {
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
       "{python-pas-a-pas-calcul} (5.16) n'a pas de fonction jsdom dédiée (contrairement à {python-pas-a-pas} et {python-valeur-case}) : elle rejouerait la ligne de CALCUL par une SECONDE arithmétique indépendante, un chantier remis à plus tard (« c'est un autre sujet »). Le banc navigateur (« 6 tricies sedecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 12) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
       "{python-echange-variables} (5.18, 5.17 à l'origine — une collision de numéro avec {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée non plus, pour une raison différente du 5.16 : sa question OUVERTE finale (l'explication de l'échange) n'est PAS un verdict arithmétique qu'une seconde méthode locale pourrait rejouer, c'est une idée en langage naturel jugée par le modèle (docs/journal/08-verdicts-et-juges.md). Le banc navigateur (« 6 tricies duodevicies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2), PUIS stubbe l'appel réseau de la question ouverte pour éprouver le verdict correct et le verdict faux, sans jamais approcher le vrai modèle ; les contrôles universels des deux bancs couvrent le reste sans rien déclarer.",
-      "{python-pas-a-pas-multiplication} (5.19, 5.18 à l'origine — une SECONDE collision sur ce même numéro, cette fois avec {python-echange-variables}, résolue à la fusion de main, septembre 2026) n'a pas non plus de fonction jsdom dédiée, pour la même raison que le 5.16 : la ligne de MULTIPLICATION se rejouerait par une seconde arithmétique indépendante, le même chantier remis à plus tard. Le banc navigateur (« 6 tricies undevicies », le numéral « 6 tricies duodevicies » ayant été pris entre-temps sur `main` par {python-echange-variables}) couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 4, 6) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
+      "{python-pas-a-pas-multiplication} (5.19, 5.18 à l'origine — une SECONDE collision sur ce même numéro, cette fois avec {python-echange-variables}, résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée, pour la même raison que le 5.16 : la ligne de MULTIPLICATION et la RÉAFFECTATION finale se rejoueraient par une seconde arithmétique indépendante, le même chantier remis à plus tard. Le banc navigateur (« 6 tricies undevicies », le numéral « 6 tricies duodevicies » ayant été pris entre-temps sur `main` par {python-echange-variables}) couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2, 4, -6) : une prédiction FAUSSE, révélée en rouge avec la vraie valeur en vert, suivie du pas à pas complet et d'un « Recommencer avec d'autres valeurs », PUIS une prédiction JUSTE sur le nouveau tirage menant à « Question suivante » ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
     ],
   },
 

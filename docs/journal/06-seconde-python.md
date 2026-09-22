@@ -2208,6 +2208,63 @@ case vide jamais rouge, `.ok` jamais `.good`, bouton d'aide IA, pas
 d'accolades affichées, pas de repli de rangée, clavier atteignable, couleurs
 juste-bleu/correction-verte — sans qu'il ait fallu les déclarer.
 
+**PUIS TURQUET A OUVERT LE FICHIER : « je ne vois pas cet exercice », « celui
+que je veux correspond au PDF du début ».** Tout ce qui précède décrit la
+PREMIÈRE version de {python-pas-a-pas-multiplication}, mise en ligne puis
+corrigée le jour même (septembre 2026) : elle avait gardé le PROGRAMME du
+PDF « variable_pas_a_pas_7 » mais pas sa CONSIGNE. Le PDF, relu au mot près,
+demande « Deviner la valeur de la variable l à la fin de l'exécution », PUIS
+« exécuter le programme pas à pas comme dans la version pas à pas n°1 » pour
+vérifier, et si la prédiction ne correspond pas, « recommencer avec des
+valeurs de k et l différentes ». La première version sautait la prédiction
+entièrement — elle demandait de rejouer chaque ligne comme au 5.14, jamais de
+deviner d'abord — ce qui explique le malentendu : l'exercice EXISTAIT bien
+sur le site, mais ne ressemblait pas à ce que le PDF décrit.
+**LA MÊME LECTURE AVAIT AUSSI FAIT ÉVITER DEUX CHOSES QUI N'ÉTAIENT PAS DES
+IMPÉRATIFS TECHNIQUES.** La fiche adaptée range la différence dans une
+QUATRIÈME case plutôt que de réaffecter `l`, « pour respecter qu'une variable
+ne s'affecte qu'une fois » — mais {python-echange-variables} (5.18) réaffecte
+déjà des cases dans ce même thème : ce n'était plus une règle de la FAMILLE,
+seulement de ses trois premiers membres. Et elle calculait `k-m` plutôt que
+`m-k` « pour rester positive » — mais `papNet` ne normalise le signe moins
+que parce qu'aucun exercice n'en avait jamais eu besoin, pas parce qu'il en
+serait incapable : il suffit que le signe traverse le clavier intact. Deviner
+la valeur de `l` n'a de sens QUE PARCE QUE `l` est réécrite et que le
+résultat (m-k = 4-10 = -6 sur la fiche) peut être négatif — retirer ces deux
+traits avait retiré la prédiction elle-même.
+**LA CORRECTION AJOUTE DEUX PHASES (`test.ppmPhase`), PAS UNE MARCHE DE
+PLUS.** Phase « deviner » : le programme entier s'affiche SANS repère ▶ ni ✓
+(`papProgHTML(q,-1)`, rien n'est encore exécuté), une seule case demande la
+valeur finale de `l`. Phase « verifier » : exactement la disposition du 5.14,
+avec un bandeau permanent rappelant la prédiction et si elle était juste —
+reconstruit à CHAQUE rendu depuis `test.ppmGuessVal`/`ppmGuessOk`
+(`ppmGuessHTML`), jamais peint une fois par un effet de bord qui disparaîtrait
+au premier changement de ligne. Une prédiction FAUSSE mène quand même au pas
+à pas complet (la vérification a lieu dans tous les cas), puis à
+`ppmRecommencer()` plutôt qu'à la question suivante : un NOUVEAU tirage de
+k et l, le MÊME programme, et retour à la phase « deviner ». Cette fonction
+retire d'abord les points gagnés aux LIGNES de la tentative jetée et l'entrée
+qu'elle venait de pousser dans `test.answers` — sans quoi une prédiction
+fausse suivie d'une bonne compterait deux fois les points des lignes pour une
+seule question. Seule la tentative qui gagne (prédiction juste ET les quatre
+lignes justes) est donc comptée, exactement une fois par question, comme
+partout ailleurs dans l'application.
+**UN SIGNE MOINS PEUT DÉSORMAIS S'ÉCRIRE ICI** : la case de prédiction et la
+dernière ligne (celle qui réécrit `l`) n'imposent plus `inputmode="numeric"`,
+qui masquerait la touche « - » sur certains claviers tactiles — la réserve
+même qui avait fait éviter le signe moins dans la première version. Les
+autres lignes, toujours positives, le gardent.
+**Le banc navigateur a dû être réécrit entièrement** pour mesurer les deux
+phases plutôt qu'une seule marche de calcul : une prédiction vide redemandée,
+une prédiction fausse peinte en rouge avec la vraie valeur en vert, le pas à
+pas complet, le bouton « Recommencer », le score qui revient à 0 une fois la
+tentative jetée, un second tirage ALÉATOIRE dont le banc lit k et l sur la
+page pour calculer sa propre prédiction juste (il ne peut pas la deviner à
+l'avance), et la question suivante atteinte avec le score complet. `TESTS`,
+le rappel de cours et les questions à l'IA ont été réécrits dans le même
+mouvement — l'identifiant, lui, n'a pas bougé (« les identifiants ne se
+renomment jamais »).
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
