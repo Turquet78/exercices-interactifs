@@ -951,8 +951,8 @@
      des copies justes. Les sélecteurs portent leur propre encre
      (pel-ok/pel-bad), JAMAIS .ok/.bad — ptsEcran() les compterait en plus du
      cadre, et une séance vaudrait 6 cases au lieu de 3. */
-  .pel-l{white-space:normal;flex:1 1 0;min-width:0;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.4;display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px}
-  .pel-sel{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;padding:5px 8px;border:2px solid #BBD0F7;border-radius:8px;background:#fff;color:var(--ink);outline:none}
+  .pel-l{white-space:nowrap;flex:0 0 auto;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.4;display:inline-flex;align-items:center;flex-wrap:nowrap;gap:4px}
+  .pel-sel{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;width:2.2em;text-align:center;text-align-last:center;padding:5px 2px;border:2px solid #BBD0F7;border-radius:8px;background:#fff;color:var(--ink);outline:none}
   .pel-sel:focus{border-color:var(--blue);background:#FBFDFF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .pel-sel:disabled{opacity:1}
   .pel-sel.pel-ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
@@ -3535,7 +3535,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=192;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=193;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -23534,7 +23534,7 @@ async function startPEL(){
    bonne varie. */
 function pelSelectHTML(id, q, aria){
   return '<select class="pel-sel" id="'+id+'" aria-label="'+esc(aria)+'">'
-    +'<option value="">— choisis —</option>'
+    +'<option value="" selected disabled>?</option>'
     +q.ordre.map(function(l){ return '<option value="'+esc(l)+'">'+esc(l)+'</option>'; }).join('')
     +'</select>';
 }
