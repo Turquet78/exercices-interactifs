@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -702,8 +702,11 @@ module.exports = {
        corrigent de la même famille : les cases par ligne ne se colorent
        qu'à la vérification, et pour « pev » la question OUVERTE finale part
        au modèle — un appel au modèle à chaque touche serait absurde, la
-       raison même de « sfl »/« mll » juste au-dessus. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm'] },
+       raison même de « sfl »/« mll » juste au-dessus. « pel » — le cadre
+       entier n'est qu'UNE pts-case, jamais cinq — reprend la même règle que
+       « pyx »/« pyd » : un choix posé dans une case n'est pas un programme
+       fini, et le juger à chaque changement de lettre serait absurde. */
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -874,7 +877,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1288,6 +1291,38 @@ module.exports = {
     pythonPasAPasMultiplication: { exercice: 'python-pas-a-pas-multiplication',
                                    fiche: { prog: ['k = 10', 'l = 2', 'm = l*2', 'n = k-m'],
                                             memoire: [['k', '10'], ['l', '2'], ['m', '4'], ['n', '6']] } },
+    /* {python-echange-par-lettres} (5.20, demande de Turquet, septembre 2026,
+       sur un PDF transcrit : « Compléter le programme uniquement avec les
+       lettres k, l ou m pour que la valeur de k=10 et l=2 soient échangées »
+       — k = 10, l = 2, m = ....., ..... = ....., ..... = ...... ). Il suit
+       {python-pas-a-pas-multiplication} et ferme le thème 5 — ajouté en
+       dernier, il ne renumérote rien. CE N'EST PAS {python-echange-variables}
+       (5.18) redit : là-bas l'élève ÉCRIT la valeur d'une case déjà nommée,
+       ligne par ligne (le moteur du pas à pas) ; ici il CHOISIT la LETTRE
+       elle-même parmi un petit alphabet imposé (k, l, m), dans l'esprit du
+       5.14 (une liste, jamais une saisie libre), et jugé par SIMULATION du
+       programme entier plutôt que ligne par ligne : il existe deux façons
+       justes de permuter (via m = k, ou via m = l), et un juge ligne par
+       ligne aurait dû choisir laquelle il attend. « fiche » est la question
+       ÉPINGLÉE, au caractère près du PDF ; « solutions » les DEUX programmes
+       acceptés (chacun un tableau des 5 lettres choisies, dans l'ordre des
+       cases) ; « fauxClassique » l'erreur visée par l'énoncé — échanger SANS
+       intermédiaire, qui écrase la première valeur. Le banc jsdom tient le
+       tirage (d'autres lettres et d'autres valeurs, jamais k/l/m hors de la
+       fiche), le juge par une SECONDE simulation indépendante de pyRun (un
+       dictionnaire tenu à la main), la case vide jamais peinte, le soutien
+       qui corrige jusqu'à réussite sans rien révéler, l'entraînement qui
+       verrouille et montre un programme qui convient en vert, la reprise
+       après une pause et les branchements ; le NAVIGATEUR (« 6 tricies
+       vicies ») mesure les cases à choix RENDUES côte à côte avec les deux
+       lignes écrites, un VRAI choix dans chaque liste, l'encre RENDUE du
+       cadre entier (une seule pts-case pour tout le programme, jamais case
+       par case), et le trajet complet d'un élève qui échoue une fois avant
+       de réussir. */
+    echangerParLettres: { exercice: 'python-echange-par-lettres', nb: 3,
+                          fiche: { v1: 'k', v2: 'l', t: 'm', a: 10, b: 2, numero: '5.20' },
+                          solutions: [['k', 'k', 'l', 'l', 'm'], ['l', 'l', 'k', 'k', 'm']],
+                          fauxClassique: ['k', 'k', 'l', 'l', 'k'] },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
