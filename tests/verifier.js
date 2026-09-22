@@ -27876,17 +27876,21 @@ function pythonValeurCase(w, P){
      comme {python-valeur-case} avait repris {python-pas-a-pas} avant lui —
      puis {python-pas-a-pas-chaine} (5.17) a repris {python-pas-a-pas-calcul},
      puis {python-echange-variables} (5.18, une collision de numéro avec
-     {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026) a
-     repris à son tour : le bord « il FERME le thème 5 » est RETOURNÉ ici
-     plutôt que retiré, la convention du projet (voir CLAUDE.md, « un bord
-     retiré ne dit plus rien »). Ce qui reste VRAI de {python-valeur-case} :
-     il vit juste AVANT {python-pas-a-pas-calcul}, et {python-pas-a-pas} juste
-     avant lui — PEU IMPORTE ce qui suit {python-pas-a-pas-calcul} ensuite,
-     d'où un contrôle par POSITION RELATIVE (indexOf) plutôt que par distance
-     à la fin du thème, qui aurait dû être réécrit à chaque nouveau fermeur —
-     et qui n'a, de fait, pas eu à bouger d'une ligne pour {python-pas-a-pas-
-     chaine} PUIS {python-echange-variables}. */
-  verifierEval(w, 'il ne ferme plus le thème 5 — {python-pas-a-pas-calcul} l a repris, puis {python-pas-a-pas-chaine}, puis {python-echange-variables} — mais reste juste avant {python-pas-a-pas-calcul}, numéroté ' + F.numero + ', après {python-pas-a-pas} : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+     {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026),
+     puis {python-pas-a-pas-multiplication} (5.19, une SECONDE collision sur
+     le même numéro 5.18, cette fois avec {python-echange-variables} lui-même
+     — la même règle a tranché : le premier arrivé sur `main` garde le
+     numéro, le second prend le suivant) ont repris à leur tour : le bord
+     « il FERME le thème 5 » est RETOURNÉ à chaque fois plutôt que retiré, la
+     convention du projet (voir CLAUDE.md, « un bord retiré ne dit plus
+     rien »). Ce qui reste VRAI de {python-valeur-case} : il vit juste AVANT
+     {python-pas-a-pas-calcul}, et {python-pas-a-pas} juste avant lui — PEU
+     IMPORTE ce qui suit {python-pas-a-pas-calcul} ensuite, d'où un contrôle
+     par POSITION RELATIVE (indexOf) plutôt que par distance à la fin du
+     thème, qui aurait dû être réécrit à chaque nouveau fermeur — et qui n'a,
+     de fait, pas eu à bouger d'une ligne pour {python-pas-a-pas-chaine} PUIS
+     {python-echange-variables} PUIS {python-pas-a-pas-multiplication}. */
+  verifierEval(w, 'il ne ferme plus le thème 5 — {python-pas-a-pas-calcul} l a repris, puis {python-pas-a-pas-chaine}, puis {python-echange-variables}, puis {python-pas-a-pas-multiplication} — mais reste juste avant {python-pas-a-pas-calcul}, numéroté ' + F.numero + ', après {python-pas-a-pas} : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
     const th=THEMES[THEMES.length-1], vus=[];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
     const iPap=th?th.ids.indexOf("python-pas-a-pas"):-1, iId=th?th.ids.indexOf("${ID}"):-1, iPpc=th?th.ids.indexOf("python-pas-a-pas-calcul"):-1;
@@ -28113,13 +28117,15 @@ function pythonPasAPasChaine(w, P){
   /* ---- 8. la place au menu et les branchements ---- */
   /* IL NE FERME PLUS LE THÈME 5 — {python-echange-variables} (5.18, une
      collision de numéro avec CET exercice résolue à la fusion de main,
-     septembre 2026) l'a repris : le bord « il FERME le thème 5, en 5.17 »
-     est RETOURNÉ ici plutôt que retiré, la même convention appliquée au
-     10e retournement de ce thème. Ce qui reste VRAI : {python-pas-a-pas-
-     chaine} vit juste APRÈS {python-pas-a-pas-calcul}, PEU IMPORTE ce qui le
-     suit ensuite — vérifié par POSITION RELATIVE (indexOf), pas par la fin
-     du thème. */
-  verifierEval(w, 'il ne ferme plus le thème 5 — {python-echange-variables} l a repris — mais reste juste après {python-pas-a-pas-calcul}, numéroté ' + F.numero + ' : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+     septembre 2026) l'a repris, puis {python-pas-a-pas-multiplication}
+     (5.19, une SECONDE collision sur 5.18, cette fois avec
+     {python-echange-variables}) l'a repris à son tour : le bord « il FERME
+     le thème 5, en 5.17 » est RETOURNÉ ici plutôt que retiré, la même
+     convention appliquée à chaque retournement de ce thème. Ce qui reste
+     VRAI : {python-pas-a-pas-chaine} vit juste APRÈS
+     {python-pas-a-pas-calcul}, PEU IMPORTE ce qui le suit ensuite — vérifié
+     par POSITION RELATIVE (indexOf), pas par la fin du thème. */
+  verifierEval(w, 'il ne ferme plus le thème 5 — {python-echange-variables} puis {python-pas-a-pas-multiplication} l ont repris — mais reste juste après {python-pas-a-pas-calcul}, numéroté ' + F.numero + ' : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
     const th=THEMES[THEMES.length-1], vus=[];
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
     const iId=th?th.ids.indexOf("${ID}"):-1, iPpc=th?th.ids.indexOf("python-pas-a-pas-calcul"):-1;

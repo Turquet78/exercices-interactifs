@@ -89,7 +89,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev' };
+               'synthese-fonction':'syn', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -698,12 +698,12 @@ module.exports = {
        où est l'erreur, sans révéler la ligne attendue. */
     /* « pyd » — {python-deux-lignes} — pour la même raison, deux cases plus
        loin : ses deux cases portent chacune une LIGNE DE CODE. */
-    /* « ppd » corrige comme « pap »/« pvm »/« ppc », et « pev » corrige de la
-       même famille : les cases par ligne ne se colorent qu'à la
-       vérification, et pour « pev » la question OUVERTE finale part au
-       modèle — un appel au modèle à chaque touche serait absurde, la raison
-       même de « sfl »/« mll » juste au-dessus. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppd', 'pev'] },
+    /* « ppd » corrige comme « pap »/« pvm »/« ppc », et « pev »/« ppm »
+       corrigent de la même famille : les cases par ligne ne se colorent
+       qu'à la vérification, et pour « pev » la question OUVERTE finale part
+       au modèle — un appel au modèle à chaque touche serait absurde, la
+       raison même de « sfl »/« mll » juste au-dessus. */
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1246,6 +1246,48 @@ module.exports = {
     pythonEchangeVariables: { exercice: 'python-echange-variables',
                               fiche: { prog: ['a = 10', 'b = 2', 'c = a', 'a = b', 'b = c'],
                                        memoire: [['a', '10'], ['b', '2'], ['c', '10'], ['a', '2'], ['b', '10']] } },
+    /* {python-pas-a-pas-multiplication} : la marche suivante — inspirée du PDF
+       « variable_pas_a_pas_7 » (k = 10, l = 2, m = 2l, l = m-k). Le PDF, pris au
+       pied de la lettre, viole DEUX règles déjà établies dans ce thème :
+       « l » y est réaffectée (l = 2 PUIS l = m-k), alors qu'une variable ne
+       s'affecte qu'une fois par programme depuis le 5.1 ; et m-k = 4-10 = -6
+       est négatif, alors que cette famille n'affiche jamais de signe moins
+       (le clavier tactile de ce niveau n'entre que le tiret du clavier sur la
+       touche « − »). La fiche épinglée ADAPTE donc le programme du papier —
+       même k = 10, même l = 2, même doublement — sans les enfreindre : une
+       QUATRIÈME case (n) reçoit la différence plutôt que de réaffecter l, et
+       la soustraction se fait k-m (10-4 = 6) plutôt que m-k, pour rester
+       positive. C'est le « jeu futur aux valeurs bornées plus bas » que le
+       5.16 annonçait déjà pour la multiplication.
+       Il FERME le thème 5, en 5.19 : une collision de numéro sur 5.18 avec
+       {python-echange-variables}, qui a réclamé ce numéro EN PREMIER (fusionné
+       plus tôt dans `main`, pendant que cette branche était en cours), a fait
+       passer cet exercice de 5.18 à 5.19 — la même règle qui avait déjà
+       décalé {python-pas-a-pas-chaine} vers 5.17. Le bord « il ferme le
+       thème 5 » de {python-echange-variables} est retourné à son tour, comme
+       celui de {python-pas-a-pas-calcul} avant lui.
+       CETTE DÉCLARATION EST RÉDUITE, comme celle de {python-pas-a-pas-calcul}
+       — même raison : ni « nb » ni « bareme » n'y sont, ces deux champs ne
+       servant qu'à une fonction jsdom dédiée qui rejouerait le tirage par une
+       SECONDE arithmétique indépendante, un chantier remis à plus tard (voir
+       « lacunes »). Seuls « exercice » et « fiche.prog »/« fiche.memoire »
+       sont lus, par le banc NAVIGATEUR (« 6 tricies undevicies » — le numéral
+       « 6 tricies duodevicies » a été pris sur `main` par
+       {python-echange-variables} pendant que cette branche était en cours,
+       la même collision que CLAUDE.md documente pour la famille des « 6 … » :
+       le premier arrivé garde, le second prend le suivant) : il ouvre la
+       fiche ÉPINGLÉE pour de vrai, tape les quatre valeurs au clavier — dont
+       la multiplication 4 = 2*2 et la soustraction 6 = 10-4 —, et relit le
+       message qui NOMME un calcul sur une réponse fausse, puis le bilan de
+       fin qui porte la valeur VRAIE même quand l'élève s'est trompé.
+       LE BOUTON DES TABLES N'EST PAS DANS « tablesAide.sans » CETTE FOIS,
+       contrairement au 5.14/5.15/5.16/5.17 : cet exercice MULTIPLIE pour de
+       vrai (le double, le triple d'une case), et le bouton des tables sert —
+       c'est le bord OPPOSÉ de « le bouton des tables n'est proposé que là où
+       il sert ». */
+    pythonPasAPasMultiplication: { exercice: 'python-pas-a-pas-multiplication',
+                                   fiche: { prog: ['k = 10', 'l = 2', 'm = l*2', 'n = k-m'],
+                                            memoire: [['k', '10'], ['l', '2'], ['m', '4'], ['n', '6']] } },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
        2026) : « pour les algorithmes qui affichent un texte, accepter les
        textes qui sont presque bons : des espaces en trop ou en moins ne sont
@@ -1278,6 +1320,7 @@ module.exports = {
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
       "{python-pas-a-pas-calcul} (5.16) n'a pas de fonction jsdom dédiée (contrairement à {python-pas-a-pas} et {python-valeur-case}) : elle rejouerait la ligne de CALCUL par une SECONDE arithmétique indépendante, un chantier remis à plus tard (« c'est un autre sujet »). Le banc navigateur (« 6 tricies sedecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 12) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
       "{python-echange-variables} (5.18, 5.17 à l'origine — une collision de numéro avec {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée non plus, pour une raison différente du 5.16 : sa question OUVERTE finale (l'explication de l'échange) n'est PAS un verdict arithmétique qu'une seconde méthode locale pourrait rejouer, c'est une idée en langage naturel jugée par le modèle (docs/journal/08-verdicts-et-juges.md). Le banc navigateur (« 6 tricies duodevicies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2), PUIS stubbe l'appel réseau de la question ouverte pour éprouver le verdict correct et le verdict faux, sans jamais approcher le vrai modèle ; les contrôles universels des deux bancs couvrent le reste sans rien déclarer.",
+      "{python-pas-a-pas-multiplication} (5.19, 5.18 à l'origine — une SECONDE collision sur ce même numéro, cette fois avec {python-echange-variables}, résolue à la fusion de main, septembre 2026) n'a pas non plus de fonction jsdom dédiée, pour la même raison que le 5.16 : la ligne de MULTIPLICATION se rejouerait par une seconde arithmétique indépendante, le même chantier remis à plus tard. Le banc navigateur (« 6 tricies undevicies », le numéral « 6 tricies duodevicies » ayant été pris entre-temps sur `main` par {python-echange-variables}) couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 4, 6) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
     ],
   },
 

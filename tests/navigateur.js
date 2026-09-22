@@ -10391,6 +10391,113 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies undevicies. {python-pas-a-pas-multiplication} : quand une ligne MULTIPLIE =====
+       Le moteur (papProg, papEtat, papAns, papProgHTML, ppcNature, ppcExplique)
+       et la disposition (deux colonnes, le nom ÉCRIT) sont ceux du 5.15, du
+       5.16 et du 5.17 — déjà mesurés ci-dessus — et ne sont pas remesurés ici.
+       Ce que ce banc mesure est ce qui est PROPRE au 5.19 : une ligne comme
+       « m = l*2 » se juge, se corrige et se bilan-te comme une ligne de
+       CALCUL — la même fonction que l'addition et la soustraction du 5.16,
+       réutilisée sans modification. Aucune seconde arithmétique n'est
+       rejouée : la fiche ÉPINGLÉE porte des valeurs CONNUES (10, 2, 4, 6),
+       lues dans tests/profils.js — la même garantie qu'un tirage aléatoire
+       donnerait, sans avoir à recalculer. Ce numéro était « 6 tricies
+       duodevicies » (18e) ; {python-echange-variables}, arrivé sur `main`
+       pendant que cette branche était en cours, a pris CE numéral en premier
+       (même collision, même règle que {python-pas-a-pas-chaine} avant lui :
+       premier arrivé, premier servi), et ce bloc a donc pris le suivant,
+       19e — comme l'exercice lui-même est passé de 5.18 à 5.19. */
+    titre('6 tricies undevicies. LE PROGRAMME PAS À PAS, QUAND UNE LIGNE MULTIPLIE');
+    if(!P.pythonPasAPasMultiplication){
+      ignorer('le programme pas à pas : une ligne de multiplication se juge, se corrige et se bilan-te comme un calcul',
+        'ce niveau n\'a pas l\'exercice du programme pas à pas avec multiplication');
+    } else {
+      const A = P.pythonPasAPasMultiplication, nL = A.fiche.prog.length;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const dits = [];
+      /* 1. LA FICHE ÉPINGLÉE, AVEC SA LIGNE DE MULTIPLICATION VISIBLE */
+      const vu = await s.page.evaluate(() => {
+        const host = document.getElementById('ppmHost');
+        const lignes = [...host.querySelectorAll('.pyx-ligne')];
+        const nm = host.querySelector('.ppm-nom'), ve = document.getElementById('ppm-val-0');
+        return { lignes: lignes.map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+                 listes: host.querySelectorAll('select').length,
+                 nom: nm ? nm.textContent.trim() : null,
+                 case: ve ? ve.tagName : null,
+                 bilan: !!host.querySelector('.ppm-bilan') };
+      });
+      if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
+      if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
+        dits.push('le programme rendu : ' + JSON.stringify(vu.lignes));
+      if(vu.listes) dits.push(vu.listes + ' liste(s) de propositions dans l\'écran : le nom se choisit encore');
+      if(vu.nom !== A.fiche.memoire[0][0]) dits.push('le nom de la case écrit par la page : ' + JSON.stringify(vu.nom));
+      if(vu.case !== 'INPUT') dits.push('la case de la valeur : ' + JSON.stringify(vu.case));
+      if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
+      verifier('la fiche épinglée (k = 10, l = 2, m = l*2, n = k-m) est rendue, avec le nom de la case ÉCRIT',
+        !dits.length, dits.slice(0, 3).join(' | '));
+      /* 2. LES DEUX LIGNES LITTÉRALES SE TAPENT ET SE JUGENT COMME AVANT */
+      for(let k = 0; k < nL - 2; k++){
+        await s.page.click('#ppm-val-' + k);
+        await s.page.keyboard.type(A.fiche.memoire[k][1], { delay: 50 });
+        await s.page.waitForTimeout(120);
+        await s.page.click('#ppmValidate');
+        await s.page.waitForTimeout(300);
+        await s.page.click('#ppmStep');
+        await s.page.waitForTimeout(300);
+      }
+      const avant2 = await s.page.evaluate(() => ({ score: test.score }));
+      verifier('les deux premières lignes (littérales) se jugent comme au 5.15',
+        avant2.score === nL - 2, 'note ' + avant2.score + ' après les deux lignes littérales, au lieu de ' + (nL - 2));
+      /* 3. LA LIGNE DE MULTIPLICATION, RÉPONDUE FAUX D'ABORD : LE MESSAGE NOMME UN CALCUL */
+      const gestes = [];
+      await s.page.click('#ppm-val-2');
+      await s.page.keyboard.type('22', { delay: 50 });   /* l'erreur d'un élève qui concatène 2 et 2 au lieu de multiplier */
+      await s.page.waitForTimeout(120);
+      await s.page.click('#ppmValidate');
+      await s.page.waitForTimeout(400);
+      const faux = await s.page.evaluate((idx) => {
+        const ve = document.getElementById('ppm-val-' + idx);
+        const b = ve ? ve.nextElementSibling : null;
+        return { classe: ve ? ve.className : '', encre: ve ? getComputedStyle(ve).color : '',
+                 badgeTxt: b ? b.textContent : '', badgeEncre: b ? getComputedStyle(b).color : '',
+                 feedback: (document.getElementById('ppmFeedback') || {}).textContent || '' };
+      }, 2);
+      if(!/bad/.test(faux.classe) || dom(faux.encre) !== 'rouge') gestes.push('la case fausse n\'est pas rouge : ' + faux.classe + ' / ' + faux.encre);
+      if(faux.badgeTxt.trim() !== A.fiche.memoire[2][1] || dom(faux.badgeEncre) !== 'vert')
+        gestes.push('la correction en vert : ' + JSON.stringify({ t: faux.badgeTxt, e: faux.badgeEncre }));
+      if(!/CALCUL/.test(faux.feedback)) gestes.push('le message ne nomme pas un CALCUL, il dit : ' + faux.feedback.slice(0, 160));
+      verifier('une ligne de MULTIPLICATION fausse se corrige en vert avec la vraie valeur, et le message NOMME un calcul',
+        !gestes.length, gestes.slice(0, 3).join(' | '));
+      /* 4. LA DERNIÈRE LIGNE (SOUSTRACTION), ET LE BILAN FINAL */
+      /* EN ENTRAÎNEMENT une rangée jugée se VERROUILLE, juste ou fausse — la
+         retry-et-correction n'existe qu'en SOUTIEN (checkPPM). La ligne 2
+         (fausse depuis la partie 3) est donc déjà verrouillée : on passe
+         directement à la suivante plutôt que de retenter une case désactivée.
+         Le bilan, lui, reste VRAI quoi que l'élève ait tapé — il sort de
+         pyRun sur le PROGRAMME, jamais de la saisie de l'élève. */
+      await s.page.click('#ppmStep');
+      await s.page.waitForTimeout(300);
+      await s.page.click('#ppm-val-3');
+      await s.page.keyboard.type(A.fiche.memoire[3][1], { delay: 50 });
+      await s.page.waitForTimeout(120);
+      await s.page.click('#ppmValidate');
+      await s.page.waitForTimeout(400);
+      const bilan = await s.page.evaluate(() => (document.querySelector('#ppmHost .ppm-bilan') || {}).textContent || '');
+      const bd = [];
+      A.fiche.memoire.forEach(r => { if(bilan.indexOf(r[0]) < 0 || bilan.indexOf(r[1]) < 0) bd.push('le bilan ne dit pas que ' + r[0] + ' contient ' + r[1]); });
+      verifier('le bilan de fin porte la valeur VRAIE de chaque case, y compris celle qui a été multipliée',
+        !bd.length, bd.slice(0, 3).join(' | ') + ' : ' + bilan.slice(0, 200));
+      verifier('l\'écran du programme pas à pas avec multiplication ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent
