@@ -2681,3 +2681,17 @@ de `ptsEcran()` double aussitôt, « la note affichée : 6 cases sur 6 » au lie
 de 1 sur 1), révéler le modèle en soutien, verrouiller une case dès la
 première exécution fausse en soutien, laisser `m = m` s'exécuter sans erreur,
 et retirer la clause de secret du contexte envoyé au modèle.
+
+**Les cases débordaient de la lettre qu'elles contiennent, et les égalités à
+deux cases (ligne 4, ligne 5) pouvaient se replier sur deux lignes**
+(signalé par Turquet, septembre 2026) : `.pel-sel` n'avait ni largeur ni
+alignement propres, si bien qu'un `<select>` se dimensionnait sur son option
+la plus large — le texte d'accueil « — choisis — », bien plus large qu'un
+« k » — et `.pel-l` portait `flex-wrap:wrap` avec `white-space:normal`,
+hérités du gabarit générique `.pyx-ligne` : dès que la ligne ne tenait plus,
+elle repliait le signe « = » sur une ligne à part. Corrigé sans toucher au
+juge ni au tirage : l'option d'accueil devient `?` (la convention déjà
+suivie par `.py-sel` ailleurs dans ce thème), `.pel-sel` gagne une largeur
+fixe (`2.2em`, texte centré) au lieu de suivre son contenu, et `.pel-l` passe
+en `white-space:nowrap`/`flex-wrap:nowrap` : la ligne ne se replie plus,
+quelle que soit la case choisie.

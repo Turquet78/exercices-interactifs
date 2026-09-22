@@ -10542,9 +10542,16 @@ async function parcours(page, N){
         const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10, fam = e => getComputedStyle(e).fontFamily;
         const pxProg = px(prog.querySelector('.pyx-l1')), famProg = fam(prog.querySelector('.pyx-l1'));
         const sels = ids.map(id => document.getElementById(id));
+        /* Les cases à choix doivent tenir dans la largeur d'une lettre — pas
+           dans celle de leur option d'accueil — et une égalité à deux cases
+           (ligne 4, ligne 5) ne doit jamais se replier sur deux lignes
+           (signalé par Turquet, septembre 2026). */
+        const selWidths = sels.map(e => e ? Math.round(e.getBoundingClientRect().width) : 0);
+        const ligneHauteur = id => document.getElementById(id).closest('.pel-l').getBoundingClientRect().height;
         return { lignes: lignes.length,
                  selects: sels.map(e => e && { tag: e.tagName, opts: [...e.options].length, disabled: e.disabled, px: px(e), fam: fam(e) }),
-                 pxProg, famProg,
+                 pxProg, famProg, selWidths,
+                 ligne4h: ligneHauteur('pel-l4g'), ligne5h: ligneHauteur('pel-l5g'),
                  page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
       }, ids);
       if(vu.lignes !== 5) dits.push(vu.lignes + ' ligne(s) de programme rendues au lieu de 5');
@@ -10553,6 +10560,12 @@ async function parcours(page, N){
       if(!/mono|menlo|consolas|courier/i.test(vu.famProg)) dits.push('le programme n\'est pas à chasse fixe : ' + vu.famProg);
       if(vu.selects.some(x => x && (!/mono|menlo|consolas|courier/i.test(x.fam) || Math.abs(x.px - vu.pxProg) > 0.6)))
         dits.push('une case à choix n\'écrit pas comme le code : ' + JSON.stringify(vu.selects) + ' contre ' + vu.pxProg + 'px ' + vu.famProg);
+      const seuilLargeur = Math.round(vu.pxProg * 3.2);
+      if(vu.selWidths.some(w => w > seuilLargeur))
+        dits.push('une case dépasse la largeur d\'une lettre : ' + JSON.stringify(vu.selWidths) + ' (seuil ' + seuilLargeur + 'px)');
+      const seuilLigne = Math.round(vu.pxProg * 1.4 * 1.6);
+      if(vu.ligne4h > seuilLigne || vu.ligne5h > seuilLigne)
+        dits.push('une égalité à deux cases se replie sur plus d\'une ligne : ' + vu.ligne4h + '/' + vu.ligne5h + 'px (seuil ' + seuilLigne + 'px)');
       if(vu.page) dits.push('la page déborde en largeur à 1400 px');
       verifier('le programme est rendu avec ses cinq cases à choix, à la chasse et à la taille du code des deux lignes écrites',
         !dits.length, dits.slice(0, 3).join(' | '));
