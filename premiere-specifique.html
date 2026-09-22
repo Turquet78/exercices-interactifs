@@ -2060,7 +2060,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=230;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=231;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9011,7 +9011,12 @@ function renderHSTest(){
        <div class="pt-row"><span class="f-whole">hausse globale :</span>${dec('hsP','la hausse globale en pourcentage')}<span class="f-whole">%</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="hsStep4"><div class="pt-lab">④ Facultatif — vérifie ta réponse en calculant SON coefficient : tu dois retomber sur celui de l'étape ②</div>
        <div class="pt-row"><span class="f-whole">1 +</span>${frac('hsVn','hsVd')}${fEqTete(`1 + 0,`, dec('hsVp','ta hausse en écriture décimale'))}${fEqTete(`1,`, dec('hsVc','le coefficient retrouvé'))}</div></div>`);
-  const posedIns=[...$('hsMul').querySelectorAll('input')];
+  /* La pose se remplit de la DROITE vers la GAUCHE sur chaque ligne, comme au
+     calcul : les cases naissent gauche→droite dans buildPoseU, on inverse
+     donc chaque ligne. En bout de ligne à gauche, la ligne suivante reprend
+     par sa case la plus à droite — la même inversion le fait sans rien de
+     plus, une ligne après l'autre dans l'ordre où elles s'affichent. */
+  const posedIns=[...$('hsMul').querySelectorAll('.mp-row')].flatMap(row=>[...row.querySelectorAll('input')].reverse());
   const order=[$('hs1n'),$('hs1d'),$('hs1p'),$('hs1dec'),$('hs2n'),$('hs2d'),$('hs2p'),$('hs2dec'),
                $('hsAn'),$('hsAd'),$('hsBn'),$('hsBd'),...posedIns,$('hsPn'),$('hsPd'),$('hsDec'),
                $('hsP'),$('hsVn'),$('hsVd'),$('hsVp'),$('hsVc')].filter(Boolean);
