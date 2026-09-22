@@ -10484,7 +10484,13 @@ async function parcours(page, N){
         bouton: (document.getElementById('ppmRetry') || {}).textContent || '',
         suivant: !!document.getElementById('ppmNext') }));
       const bd = [];
-      A.fiche.memoire.forEach(r => { if(finFaux.bilan.indexOf(r[0]) < 0 || finFaux.bilan.indexOf(r[1]) < 0) bd.push('le bilan ne dit pas que ' + r[0] + ' contient ' + r[1]); });
+      /* le bilan lit l'état FINAL de la mémoire (papEtat) : une case RÉÉCRITE
+         (l, ici) n'y apparaît donc qu'avec sa DERNIÈRE valeur, même à la
+         rangée où elle avait reçu la précédente — la vérité de ce banc doit
+         donc lire elle aussi la dernière valeur de chaque nom, pas la
+         mémoire ligne par ligne. */
+      const etatFinal = {}; A.fiche.memoire.forEach(r => { etatFinal[r[0]] = r[1]; });
+      Object.keys(etatFinal).forEach(nom => { if(finFaux.bilan.indexOf(nom) < 0 || finFaux.bilan.indexOf(etatFinal[nom]) < 0) bd.push('le bilan ne dit pas que ' + nom + ' contient ' + etatFinal[nom]); });
       if(finFaux.suivant) bd.push('« Question suivante » apparaît alors que la prédiction était fausse');
       if(!/Recommencer/.test(finFaux.bouton)) bd.push('le bouton après une prédiction fausse : ' + JSON.stringify(finFaux.bouton));
       verifier('le bilan porte la valeur VRAIE de chaque case (dont -6, réécrite), et le bouton propose de RECOMMENCER',
