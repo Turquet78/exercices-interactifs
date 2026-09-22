@@ -3642,6 +3642,7 @@ function exercices(suite){
     pythonPasAPas(w, P);
     pythonValeurCase(w, P);
     pythonPasAPasChaine(w, P);
+    pythonEchangerParLettres(w, P);
     pythonTypes(w, P);
     pythonAfficherVariable(w, P);
     pythonNoms(w, P);
@@ -28156,6 +28157,204 @@ function pythonPasAPasChaine(w, P){
     if(c.indexOf(papProg(q))<0) vus.push("le contexte ne porte pas le programme");
     if(c.indexOf("SECR")<0) vus.push("le contexte ne declare pas la reponse secrete");
     if(c.indexOf("la case "+a.nom+" contient "+a.val)<0) vus.push("le contexte ne porte pas la reponse attendue");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
+function pythonEchangerParLettres(w, P){
+  const nom = '{python-echange-par-lettres} : échanger deux variables, un programme à trous, par les lettres';
+  if(!P.echangerParLettres){ ignorer(nom, 'ce niveau n\'a pas l\'exercice pour échanger deux variables par les lettres'); return; }
+  const D = P.echangerParLettres, ID = D.exercice, NB = D.nb, F = D.fiche, SOL = D.solutions, FC = D.fauxClassique, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPEL==='function' && typeof pelBuildQuestions==='function'"
+    + " && typeof pelCases==='function' && typeof checkPEL==='function' && typeof pelJuge==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPEL / pelBuildQuestions / pelCases / checkPEL / pelJuge introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. le tirage : la fiche du PDF EN TÊTE au caractère près, deux jeux
+     de lettres DISTINCTS de k/l/m, deux valeurs distinctes, et la question ne
+     porte que v1/v2/t/a/b/ordre ---- */
+  verifierEval(w, 'le tirage : ' + NB + ' questions, la fiche du PDF (k = 10, l = 2, m) EN TÊTE au caractère près, deux jeux de lettres DISTINCTS de k, l, m, deux valeurs entières distinctes, et la question ne porte que v1/v2/t/a/b/ordre (300 séances)', `(function(){
+    const vus=[];
+    for(let s=0;s<300 && vus.length<4;s++){
+      const qs=pelBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("seance de "+qs.length+" questions"); break; }
+      const q0=qs[0];
+      if(q0.v1!==${J(F.v1)}||q0.v2!==${J(F.v2)}||q0.t!==${J(F.t)}||q0.a!==${F.a}||q0.b!==${F.b})
+        vus.push("la premiere question n est pas la fiche du PDF : "+JSON.stringify(q0));
+      qs.forEach(function(q, i){
+        if(Object.keys(q).sort().join(",")!=="a,b,ordre,t,v1,v2")
+          vus.push("la question porte autre chose que v1/v2/t/a/b/ordre : "+Object.keys(q).sort().join(","));
+        const noms=[q.v1,q.v2,q.t];
+        if(new Set(noms).size!==3) vus.push("les trois lettres du jeu ne sont pas distinctes : "+noms.join(","));
+        if(i>0 && ["k","l","m"].some(function(x){ return noms.indexOf(x)>=0; }))
+          vus.push("un jeu tire reutilise une lettre de la fiche (k, l ou m)");
+        if(!/^[1-9][0-9]?$/.test(String(q.a))||!/^[1-9][0-9]?$/.test(String(q.b))||q.a===q.b)
+          vus.push("les valeurs ne sont pas deux entiers distincts de 1 a 99 : "+q.a+","+q.b);
+        if(q.ordre.slice().sort().join(",")!==noms.slice().sort().join(","))
+          vus.push("l ordre des propositions ne porte pas exactement les trois lettres du jeu");
+      });
+    }
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. le juge : il SIMULE, il ne compare jamais à une ligne attendue —
+     les DEUX façons justes de permuter sont acceptées, l échange direct sans
+     intermédiaire est refusé, une case lue avant d être remplie lève une
+     vraie erreur Python, et une SECONDE méthode (un dictionnaire tenu à la
+     main, sans pyRun) confirme le verdict sur 500 essais au hasard ---- */
+  verifierEval(w, 'le juge accepte les DEUX façons justes de permuter (via m = k ou via m = l), rejette l échange direct sans intermédiaire (k = l puis l = k), refuse une case lue avant d être remplie comme un vrai programme Python, et une SECONDE simulation indépendante de pyRun confirme le verdict sur 500 tirages', `(function(){
+    const vus=[], q=pelBuildQuestions()[0], noms=["l3d","l4g","l4d","l5g","l5d"];
+    function juge(letters){ const v={}; noms.forEach(function(n,i){ v[n]=letters[i]; }); return pelJuge(q, v); }
+    ${J(SOL)}.forEach(function(sol){
+      const j=juge(sol);
+      if(!j.ok) vus.push("une facon juste de permuter est refusee : "+sol.join(",")+" -> "+JSON.stringify(j));
+    });
+    const jf=juge(${J(FC)});
+    if(jf.ok) vus.push("l echange direct sans intermediaire (k = l puis l = k) est accepte a tort");
+    /* la SECONDE méthode, indépendante de pyRun */
+    function simule(letters){
+      const v={}; v[q.v1]=q.a; v[q.v2]=q.b;
+      const lignes=[[q.t, letters[0]], [letters[1], letters[2]], [letters[3], letters[4]]];
+      for(let k=0;k<lignes.length;k++){ const lhs=lignes[k][0], rhs=lignes[k][1]; if(!(rhs in v)) return null; v[lhs]=v[rhs]; }
+      return (v[q.v1]===q.b && v[q.v2]===q.a);
+    }
+    for(let s=0;s<500 && vus.length<4;s++){
+      const letters=noms.map(function(){ return pick([q.v1,q.v2,q.t]); });
+      const attendu=simule(letters), j=juge(letters);
+      if(attendu===null){ if(!j.erreur) vus.push("une case lue avant d etre remplie n est pas refusee : "+letters.join(",")); }
+      else if(j.ok!==attendu) vus.push("le juge diverge de la simulation independante sur "+letters.join(",")+" : "+j.ok+" au lieu de "+attendu);
+    }
+    const err=juge([q.t, q.v1, q.v2, q.v2, q.t]);
+    if(!err.erreur) vus.push("choisir "+q.t+" pour sa propre case (avant d etre rempli) ne leve aucune erreur");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. la case vide, dans les DEUX modes ---- */
+  verifierEval(w, 'un programme entièrement ou partiellement VIDE ne rougit jamais et n est jamais jugé — « Exécuter » attend les CINQ cases', `(function(){
+    const vus=[];
+    ["train","soutien"].forEach(function(mode){
+      currentMode=mode; currentTestId="${ID}"; startPEL();
+      checkPEL();
+      let n=document.querySelectorAll("#pelHost .ok,#pelHost .bad,#pelHost .sol,#pelHost .pel-ok,#pelHost .pel-bad").length;
+      if(n) vus.push(mode+" : "+n+" case(s) peinte(s) sur un programme entierement vide");
+      if(test.locked||test.score) vus.push(mode+" : un programme vide a ete juge");
+      document.getElementById("pel-l3d").value=${J(SOL[0][0])};
+      document.getElementById("pel-l4g").value=${J(SOL[0][1])};
+      checkPEL();
+      n=document.querySelectorAll("#pelHost .ok,#pelHost .bad,#pelHost .sol,#pelHost .pel-ok,#pelHost .pel-bad").length;
+      if(n) vus.push(mode+" : "+n+" case(s) peinte(s) sur un programme partiellement rempli");
+      if(test.locked||test.score) vus.push(mode+" : un programme partiel a ete juge");
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. en ENTRAÎNEMENT : verrou, encre, et le modèle en vert ---- */
+  verifierEval(w, 'en ENTRAÎNEMENT : une copie juste verrouille le cadre en BLEU et compte 1 point, une copie fausse le verrouille en ROUGE et compte 0, aucune case ne reste modifiable, et un programme qui convient s écrit en VERT en dessous', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPEL();
+    const vus=[], q=test.questions[0], sol=${J(SOL[0])}, ids=["pel-l3d","pel-l4g","pel-l4d","pel-l5g","pel-l5d"];
+    ids.forEach(function(id,i){ document.getElementById(id).value=sol[i]; });
+    checkPEL();
+    const prog=document.getElementById("pel-prog");
+    if(!prog.classList.contains("ok")||!prog.classList.contains("pts-case")) vus.push("le cadre juste n est pas peint ok (pts-case) : "+prog.className);
+    if(test.score!==1) vus.push("note "+test.score+" au lieu de 1 apres une copie juste");
+    if(!test.locked) vus.push("la question n est pas verrouillee apres une copie juste");
+    if(ids.some(function(id){ return !document.getElementById(id).disabled; })) vus.push("une case reste modifiable apres une copie juste");
+    const m=ptsEcran();
+    if(!m||m.cases!==1||m.justes!==1) vus.push("la note affichee : "+JSON.stringify(m));
+    /* une copie fausse, sur une nouvelle question (la fiche revient en tête) */
+    startPEL();
+    ids.forEach(function(id,i){ document.getElementById(id).value=${J(FC)}[i]; });
+    checkPEL();
+    const prog2=document.getElementById("pel-prog");
+    if(!prog2.classList.contains("bad")) vus.push("le cadre faux n est pas peint bad : "+prog2.className);
+    if(test.score!==0) vus.push("note "+test.score+" au lieu de 0 apres une copie fausse");
+    const modele=document.querySelector("#pelHost .pel-modele");
+    if(!modele) vus.push("aucun programme modele affiche en entrainement sur une copie fausse");
+    else if(modele.textContent.indexOf(q.t+" = "+q.v1)<0 && modele.textContent.indexOf(q.t+" = "+q.v2)<0)
+      vus.push("le modele ne montre pas une facon juste de permuter : "+modele.textContent);
+    if(!document.getElementById("pelNext")) vus.push("pas de bouton pour passer a la question suivante apres une copie fausse");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. en SOUTIEN : rouge sans rien révéler, puis correction jusqu à
+     réussite — exactement la chaîne du PDF ---- */
+  verifierEval(w, 'en SOUTIEN : une copie fausse rougit SANS RIEN RÉVÉLER, reste modifiable, ne compte aucun point et n avance pas — puis, corrigée, elle passe, verrouille en BLEU et compte 1 point (« si faux, modifie les cases, réexécute, jusqu à ce que ça fonctionne »)', `(function(){
+    currentMode="soutien"; currentTestId="${ID}"; startPEL();
+    const vus=[], fc=${J(FC)}, sol=${J(SOL[0])}, ids=["pel-l3d","pel-l4g","pel-l4d","pel-l5g","pel-l5d"];
+    ids.forEach(function(id,i){ document.getElementById(id).value=fc[i]; });
+    checkPEL();
+    const prog=document.getElementById("pel-prog");
+    if(!prog.classList.contains("bad")) vus.push("la copie fausse n est pas rouge en soutien : "+prog.className);
+    if(document.querySelectorAll("#pelHost .pel-modele").length) vus.push("le soutien revele un programme modele");
+    if(document.querySelectorAll("#pelHost .sol").length) vus.push("le soutien peint une correction en vert");
+    if(ids.some(function(id){ return document.getElementById(id).disabled; })) vus.push("une case est verrouillee en soutien avant reussite");
+    if(test.score) vus.push("le soutien compte des points avant la correction : "+test.score);
+    if(test.locked) vus.push("la question est verrouillee en soutien sur une copie fausse");
+    if(document.getElementById("pelNext")) vus.push("« Question suivante » apparait alors que le programme est faux, en soutien");
+    const bt=document.getElementById("pelValidate");
+    if(!bt||!/[Rr].{0,2}ex.cuter/.test(bt.textContent)) vus.push("pas de bouton « Réexécuter » : "+(bt?bt.textContent:"aucun bouton"));
+    const fb=(document.getElementById("pelFeedback")||{}).textContent||"";
+    if(fb.indexOf(sol.join(""))>=0) vus.push("le message du soutien ecrit la solution attendue");
+    /* changer une case efface le rouge du cadre, sans rien juger (le fil des choix) */
+    document.getElementById(ids[0]).value=fc[0]==="${F.v1}"?"${F.v2}":"${F.v1}";
+    document.getElementById(ids[0]).dispatchEvent(new Event("change",{bubbles:true}));
+    if(/ok|bad/.test(prog.className)) vus.push("changer une case ne retire pas le rouge du cadre : "+prog.className);
+    if(test.score) vus.push("changer une case a compte un point");
+    /* puis la copie corrigee passe */
+    ids.forEach(function(id,i){ document.getElementById(id).value=sol[i]; });
+    checkPEL();
+    if(!prog.classList.contains("ok")) vus.push("la copie corrigee n est pas peinte bleue : "+prog.className);
+    if(test.score!==1) vus.push("la copie corrigee ne vaut pas 1 point : "+test.score);
+    if(!document.getElementById("pelNext")) vus.push("« Question suivante » n apparait pas apres la copie corrigee");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la reprise après une pause ---- */
+  verifierEval(w, 'la reprise après une pause : les cinq cases choisies reviennent — générique à tout select, via captureBoxes/restoreBoxes, sans rien écrire de propre à cet exercice', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPEL();
+    const vus=[], sol=${J(SOL[0])}, ids=["pel-l3d","pel-l4g","pel-l4d","pel-l5g","pel-l5d"];
+    ids.forEach(function(id,i){ document.getElementById(id).value=sol[i]; });
+    const boxes=captureBoxes();
+    ids.forEach(function(id){ if(!(id in boxes)) vus.push("captureBoxes ne lit pas "+id); });
+    const snap=JSON.parse(JSON.stringify(snapshotTest()));
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test, snap, {locked:false, startTime:Date.now()});
+    if(!afficherEcranDe(test.kind)) vus.push("afficherEcranDe ne connait pas le kind pel : la reprise retombe sur un redemarrage");
+    restoreBoxes(boxes);
+    ids.forEach(function(id,i){ if(document.getElementById(id).value!==sol[i]) vus.push("la case "+id+" n est pas reposee : "+document.getElementById(id).value); });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. la place au menu et les branchements ---- */
+  verifierEval(w, 'il suit {python-pas-a-pas-multiplication}, numéroté ' + F.numero + ' : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+    const th=THEMES[THEMES.length-1], vus=[];
+    if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
+    const iId=th?th.ids.indexOf("${ID}"):-1, iPpm=th?th.ids.indexOf("python-pas-a-pas-multiplication"):-1;
+    if(iId!==iPpm+1) vus.push("il ne suit pas directement {python-pas-a-pas-multiplication} : "+(th&&th.ids.join(",")));
+    if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d entree TESTS");
+    if(/[{}<>]/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte du balisage ou une accolade : elle passe par esc(numeros(desc))");
+    if(!RAPPELS.pel) vus.push("aucun rappel de cours");
+    if(!QIA_SUGG.pel||QIA_SUGG.pel.length<2) vus.push("aucune question proposee a l IA");
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est propose alors qu on ne multiplie rien");
+    if(!afficherEcranDe("pel")) vus.push("afficherEcranDe ne connait pas le kind : la reprise et le rejeu retombent sur un redemarrage");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. le contexte du modèle, et aucune correction au fil des choix ---- */
+  verifierEval(w, 'le contexte envoyé au modèle porte les DEUX bonnes réponses possibles et la clause de secret ; et checkPEL(true) ne juge RIEN — un choix n est pas une réponse finie', `(function(){
+    currentMode="soutien"; currentTestId="${ID}"; startPEL();
+    const vus=[], q=test.questions[0];
+    document.getElementById("pel-l3d").value=q.v1;
+    checkPEL(true);
+    const prog=document.getElementById("pel-prog");
+    if(/ok|bad/.test(prog.className)) vus.push("une correction au fil des choix peint le cadre : "+prog.className);
+    if(test.score) vus.push("une correction au fil des choix compte des points : "+test.score);
+    const c=ctxPel(q).contexte;
+    if(c.indexOf("SECR")<0) vus.push("le contexte ne declare pas la reponse secrete");
+    if(c.indexOf(q.t+" = "+q.v1)<0 || c.indexOf(q.t+" = "+q.v2)<0) vus.push("le contexte ne porte pas les DEUX facons de permuter");
+    if(c.indexOf(q.v1)<0 || c.indexOf(q.v2)<0) vus.push("le contexte ne nomme pas les deux variables a echanger");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 }

@@ -10498,6 +10498,135 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies vicies. {python-echange-par-lettres} : les cases à choix, le
+       cadre entier jugé comme UN, et la boucle « faux, corrige, réexécute »
+       ===== Le banc jsdom tient le tirage, le juge par simulation (accepté
+       sur les DEUX façons justes de permuter, refusé sur l'échange direct
+       sans intermédiaire, la SECONDE méthode indépendante), la case vide, le
+       soutien et l'entraînement, la reprise et les branchements. Ce qu'il ne
+       voit pas : les CINQ <select> RENDUS, à la CHASSE et à la TAILLE du
+       code des deux lignes écrites au-dessus — un vrai choix dans chacun
+       (Playwright refuse un select désactivé, et c'est le bord qu'on tient),
+       le CADRE ENTIER qui se peint en rouge ou en bleu à l'encre RENDUE —
+       jamais case par case, puisqu'il existe deux bonnes réponses —, la
+       boucle même du PDF : une copie fausse rougit en SOUTIEN sans rien
+       révéler, les cases restent choisissables, une nouvelle exécution après
+       correction repasse au bleu ; puis, en ENTRAÎNEMENT, une copie fausse
+       VERROUILLE les cinq listes et écrit un programme qui convient en VERT
+       en dessous ; et la page qui ne déborde pas, sur ordinateur et sur
+       téléphone. TOUT SE MESURE SUR LA FICHE ÉPINGLÉE (k = 10, l = 2, m).
+       Ferme le thème 5, en 5.20 — ajouté en dernier, il ne renumérote rien ;
+       ce n'est PAS {python-echange-variables} (5.18, qui fait ÉCRIRE la
+       valeur d'une case déjà nommée, le pas à pas), mais l'exercice du PDF
+       « compléter le programme uniquement avec les lettres k, l ou m » —
+       l'élève CHOISIT la lettre, jamais la valeur. */
+    titre('6 tricies vicies. {python-echange-par-lettres} : LES CASES À CHOIX, LE CADRE ENTIER JUGÉ COMME UN');
+    if(!P.echangerParLettres){
+      ignorer('échanger deux variables par les lettres : les cases à choix rendues, le cadre entier jugé comme un, et la boucle « faux, corrige, réexécute »',
+        'ce niveau n\'a pas l\'exercice pour échanger deux variables par les lettres');
+    } else {
+      const A = P.echangerParLettres, SOL = A.solutions[0], FC = A.fauxClassique;
+      const ids = ['pel-l3d', 'pel-l4g', 'pel-l4d', 'pel-l5g', 'pel-l5d'];
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const dits = [];
+      /* 1. LE PROGRAMME RENDU : deux lignes écrites, trois lignes à cinq CASES */
+      const vu = await s.page.evaluate((ids) => {
+        const host = document.getElementById('pelHost'), prog = document.getElementById('pel-prog');
+        const lignes = [...prog.querySelectorAll('.pyx-ligne')];
+        const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10, fam = e => getComputedStyle(e).fontFamily;
+        const pxProg = px(prog.querySelector('.pyx-l1')), famProg = fam(prog.querySelector('.pyx-l1'));
+        const sels = ids.map(id => document.getElementById(id));
+        return { lignes: lignes.length,
+                 selects: sels.map(e => e && { tag: e.tagName, opts: [...e.options].length, disabled: e.disabled, px: px(e), fam: fam(e) }),
+                 pxProg, famProg,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+      }, ids);
+      if(vu.lignes !== 5) dits.push(vu.lignes + ' ligne(s) de programme rendues au lieu de 5');
+      if(vu.selects.some(x => !x || x.tag !== 'SELECT' || x.opts !== 4)) dits.push('les cinq cases à choix : ' + JSON.stringify(vu.selects));
+      if(vu.selects.some(x => x && x.disabled)) dits.push('une case est déjà verrouillée avant toute exécution');
+      if(!/mono|menlo|consolas|courier/i.test(vu.famProg)) dits.push('le programme n\'est pas à chasse fixe : ' + vu.famProg);
+      if(vu.selects.some(x => x && (!/mono|menlo|consolas|courier/i.test(x.fam) || Math.abs(x.px - vu.pxProg) > 0.6)))
+        dits.push('une case à choix n\'écrit pas comme le code : ' + JSON.stringify(vu.selects) + ' contre ' + vu.pxProg + 'px ' + vu.famProg);
+      if(vu.page) dits.push('la page déborde en largeur à 1400 px');
+      verifier('le programme est rendu avec ses cinq cases à choix, à la chasse et à la taille du code des deux lignes écrites',
+        !dits.length, dits.slice(0, 3).join(' | '));
+      /* 2. EN SOUTIEN : un VRAI choix (l'échange direct, sans intermédiaire),
+         « Exécuter », le cadre ENTIER rougit sans rien révéler, les cases
+         restent choisissables ; puis un VRAI choix corrigé fait passer au bleu */
+      for(let i = 0; i < ids.length; i++) await s.page.selectOption('#' + ids[i], FC[i]);
+      await s.page.click('#pelValidate');
+      await s.page.waitForTimeout(300);
+      const faux = await s.page.evaluate((ids) => {
+        const prog = document.getElementById('pel-prog');
+        return { classe: prog.className, encre: getComputedStyle(prog).backgroundColor,
+                 modele: !!document.querySelector('#pelHost .pel-modele'),
+                 disabled: ids.map(id => document.getElementById(id).disabled),
+                 feedback: (document.getElementById('pelFeedback') || {}).textContent || '',
+                 next: !!document.getElementById('pelNext') };
+      }, ids);
+      const gestes = [];
+      if(!/bad/.test(faux.classe)) gestes.push('le cadre faux n\'est pas peint bad : ' + faux.classe);
+      if(faux.modele) gestes.push('un programme modèle est révélé en soutien');
+      if(faux.disabled.some(Boolean)) gestes.push('une case est verrouillée en soutien avant réussite');
+      if(faux.next) gestes.push('« Question suivante » apparaît alors que le programme est faux, en soutien');
+      if(!faux.feedback) gestes.push('aucun message sur la copie fausse');
+      verifier('en SOUTIEN, un VRAI choix faux (l\'échange direct sans intermédiaire) rougit le cadre entier SANS RIEN RÉVÉLER, et les cinq cases restent choisissables',
+        !gestes.length, gestes.slice(0, 3).join(' | '));
+      for(let i = 0; i < ids.length; i++) await s.page.selectOption('#' + ids[i], SOL[i]);
+      await s.page.click('#pelValidate');
+      await s.page.waitForTimeout(300);
+      const bon = await s.page.evaluate(() => {
+        const prog = document.getElementById('pel-prog');
+        return { classe: prog.className, encre: getComputedStyle(prog).backgroundColor, score: test.score, next: !!document.getElementById('pelNext') };
+      });
+      if(!/ok/.test(bon.classe) || dom(bon.encre) !== 'bleu') dits.push('la copie corrigée n\'est pas bleue : ' + bon.classe + ' / ' + bon.encre);
+      if(bon.score !== 1) dits.push('note ' + bon.score + ' au lieu de 1 après la copie corrigée');
+      if(!bon.next) dits.push('« Question suivante » n\'apparaît pas après la copie corrigée');
+      verifier('un VRAI choix corrigé, réexécuté, fait passer le cadre au BLEU, compte 1 point et ouvre la question suivante — la boucle même du PDF',
+        dits.length === 0, dits.slice(0, 3).join(' | '));
+      /* 3. EN ENTRAÎNEMENT : une copie fausse VERROUILLE les cinq listes et
+         écrit un programme qui convient en VERT en dessous — une session
+         FRAÎCHE, comme partout ailleurs dans ce banc quand un second mode se
+         mesure : openTest() ramène à l'écran des modes depuis N'IMPORTE OÙ,
+         mais repartir d'une page neuve évite tout état résiduel du soutien. */
+      await s.nav.close();
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      for(let i = 0; i < ids.length; i++) await s.page.selectOption('#' + ids[i], FC[i]);
+      await s.page.click('#pelValidate');
+      await s.page.waitForTimeout(300);
+      const ent = await s.page.evaluate((ids) => {
+        const prog = document.getElementById('pel-prog'), modele = document.querySelector('#pelHost .pel-modele');
+        return { classe: prog.className, disabled: ids.every(id => document.getElementById(id).disabled),
+                 modele: modele ? modele.textContent : null, encreModele: modele ? getComputedStyle(modele).color : '' };
+      }, ids);
+      const gestes2 = [];
+      if(!/bad/.test(ent.classe)) gestes2.push('le cadre faux n\'est pas peint bad en entraînement : ' + ent.classe);
+      if(!ent.disabled) gestes2.push('les cinq cases restent modifiables en entraînement après une copie fausse');
+      if(!ent.modele) gestes2.push('aucun programme modèle affiché en entraînement');
+      else if(dom(ent.encreModele) !== 'vert') gestes2.push('le programme modèle n\'est pas vert : ' + ent.encreModele);
+      verifier('en ENTRAÎNEMENT, une copie fausse verrouille les cinq listes et écrit un programme qui convient en VERT en dessous',
+        !gestes2.length, gestes2.slice(0, 3).join(' | '));
+      /* 4. LE TÉLÉPHONE : la page ne déborde pas */
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const phone = await s.page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2);
+      verifier('sur un téléphone (390 px), la page ne déborde pas en largeur', !phone, 'scrollWidth > clientWidth');
+      verifier('l\'écran d\'échanger deux variables par les lettres ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent
