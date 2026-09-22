@@ -168,6 +168,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Une sauvegarde remise en place casse la Première le lendemain.**
 - **Un élève dé-relié se connecte parfaitement — et tout ce qui est à lui est refusé.**
 - **Le plan gratuit de Supabase ne sauvegarde rien.**
+- **Supabase ne rend jamais plus de 1000 lignes par requête — et il coupe EN SILENCE.** Toute lecture d'une table de résultats passe par `lireToutes()`.
 
 ### Conventions d'écran : énoncé, numéro, saisie, signalement
 

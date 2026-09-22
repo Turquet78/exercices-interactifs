@@ -220,3 +220,48 @@ obligatoire : le dépôt est public et les artefacts y sont téléchargeables pa
 n'importe qui, alors que le fichier contient des prénoms d'élèves mineurs
 associés à leurs résultats. Les codes ne sont pas sauvegardés — ils sont
 hachés — et se redonnent après restauration.
+
+**Supabase ne rend jamais plus de 1000 lignes par requête — et il coupe EN
+SILENCE.** Signalé par Turquet (septembre 2026) : « en Seconde, quand un élève
+travaille sur la fiche 5, je n'ai pas la même note dans la page du prof que
+dans la page élève ». Les deux écrans passaient pourtant par le MÊME calcul
+(`noteDevoirExo`, `dmTotal`, `dmNoteAff`) : c'étaient les DONNÉES qui
+différaient. L'élève lit ses propres lignes (`eq('eleve_id', …)`), quelques
+centaines au plus ; le professeur lisait la table ENTIÈRE d'un seul
+`select('*')`, et PostgREST plafonne toute réponse à 1000 lignes (`max_rows`,
+réglage du projet) sans erreur ni avertissement. Passé mille résultats pour la
+classe, les plus RÉCENTS n'arrivaient plus au bilan — précisément la fiche du
+jour, d'où « la fiche 5 » et pas les fiches 1 à 4. La sauvegarde du dimanche,
+elle, paginait déjà (`sauvegarde.mjs`) ; les pages non.
+**Ce n'était pas qu'en Seconde, ni qu'au bilan.** Les trois niveaux lisaient
+leur table de résultats de la même façon, à six portes du tableau de bord : le
+bilan d'un devoir, le carnet des moyennes, le tableau général, la fiche d'un
+élève, l'export CSV — et la DÉCISION D'ARCHIVER, la plus grave : un devoir dont
+les notes tombaient hors de la page passait pour vierge, et « Supprimer » le
+supprimait avec elles au lieu de l'archiver. Côté élève, la liste lue par
+ordre de date aurait perdu, le jour où un élève assidu dépasse mille lignes,
+ses résultats les plus récents.
+**UN SEUL ENTONNOIR, `lireToutes()`**, même texte dans les trois fichiers : il
+lit page par page dans un ordre STABLE (date puis identifiant — sans ordre,
+deux pages peuvent se recouvrir), et ne s'arrête qu'à la page VIDE — pas à la
+première page incomplète, car le plafond est un réglage du serveur : s'il
+descendait sous la taille de page, on couperait de nouveau sans le dire. Il
+prend une FONCTION qui rend une requête neuve, parce qu'une requête Supabase ne
+se rejoue pas. Les 34 lectures des trois fichiers y passent.
+**Le banc ne pouvait pas le voir** : son double de Supabase rendait tout, et
+une classe de test n'a jamais mille lignes. Le double plafonne désormais comme
+le vrai (`maxLignes`, 1000), connaît `.range()` et enchaîne ses tris. Deux
+contrôles : un contrôle de SOURCE exige que toute lecture d'une table de
+résultats passe par `lireToutes()` (une lecture écrite demain sans l'entonnoir
+rougit en nommant sa ligne), et un contrôle d'EXÉCUTION baisse le plafond à 4,
+sème une classe qui le dépasse — les lignes de l'élève les plus récentes en
+dernier —, puis exige la même note chez l'élève, au bilan du professeur, au
+carnet des moyennes, et que la décision de suppression voie les notes. Un bord
+le garde honnête : la classe semée doit dépasser le plafond, sinon il le dit.
+Deux sabotages, chacun rougissant en nommant son défaut : l'entonnoir réduit à
+sa première page (l'élève perd ses lignes récentes), le bilan du professeur
+rendu à son `select('*')` d'origine (la ligne nommée, et « 18 / 30 » absent du
+bilan).
+**Les notes enregistrées n'ont rien à réparer** : rien n'était faux en base,
+seule la LECTURE du professeur était tronquée. Recharger le tableau de bord
+suffit.

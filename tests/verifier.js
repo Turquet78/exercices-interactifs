@@ -2330,6 +2330,35 @@ function branchements(w){
     ignorer('le moteur des moyennes de la classe est au complet',
       'ce niveau n’a pas le tableau des moyennes');
   }
+  /* ---- TOUTE LECTURE D'UNE TABLE DE RÉSULTATS PASSE PAR lireToutes() ----
+     PostgREST ne rend jamais plus de 1000 lignes par select, et il coupe EN
+     SILENCE. Le bilan du professeur lisait toute la table d'un coup : passé
+     mille lignes pour la classe, la fiche du jour ne lui arrivait plus, et il
+     lisait une autre note que l'élève (signalé par Turquet sur la fiche 5 de
+     la Seconde, septembre 2026). Un select de résultats écrit demain SANS
+     l'entonnoir remettrait la panne en place sans que rien ne rougisse au
+     banc — une classe de test n'a jamais mille lignes. On le lit donc dans
+     la SOURCE : chaque « from(<table de résultats>).select( » doit être
+     précédé de « lireToutes(()=> ». Une écriture (insert/update/delete) n'est
+     pas une lecture, et n'est pas visée. */
+  const lecturesRes = [];
+  const reSelRes = /from\((?:'resultats[_a-z0-9]*'|dmTableResultats\(\))\)\.select\(/g;
+  let mSel;
+  while((mSel = reSelRes.exec(src))){
+    const avant = src.slice(Math.max(0, mSel.index - 20), mSel.index);
+    if(!/lireToutes\(\(\)=>sb\.$/.test(avant))
+      lecturesRes.push('ligne ' + (src.slice(0, mSel.index).split('\n').length));
+    else lecturesRes.push(null);
+  }
+  verifier('toute lecture d’une table de résultats passe par lireToutes() — le plafond de 1000 lignes coupe en silence',
+    lecturesRes.length > 0 && lecturesRes.every(x => x === null),
+    !lecturesRes.length ? 'aucune lecture de résultats trouvée : le contrôle ne mesure rien'
+      : 'lecture directe, ' + lecturesRes.filter(Boolean).join(', '));
+  if(corpsDe(src, 'lireToutes') === null)
+    verifier('lireToutes() est identique à celle de la Terminale, au caractère près', false, 'lireToutes() est absente');
+  else if(origine && CIBLE !== 'terminale.html')
+    verifier('lireToutes() est identique à celle de la Terminale, au caractère près',
+      corpsDe(src, 'lireToutes') === corpsDe(origine, 'lireToutes'));
   /* ---- LE MOTEUR DES FRACTIONS EST LE MÊME TEXTE DANS LES DEUX NIVEAUX ----
      {somme-fractions} vit en Seconde ET en Première, et {croiser-denominateurs}
      comme {simplifier-fractions} tournent dessus. Une moitié recopiée aurait
@@ -14470,9 +14499,9 @@ function noteFicheSur20(w, apres){
     else ignorer(nom, F
       ? 'les « '+F.titre+' » de ce niveau se notent comme les devoirs, en points bruts (décision de Turquet, septembre 2026)'
       : 'ce niveau n\'a pas de seconde famille de devoirs');
-    return ecranQuiNeBougePas(w, apres);
+    return memeNoteChezLeProf(w, apres);
   }
-  if(F && !F.sur20){ verifier(nom, false, 'la page ramène les « '+F.titre+' » sur 20 (dmNoteAff) alors que le profil les déclare en points bruts'); return ecranQuiNeBougePas(w, apres); }
+  if(F && !F.sur20){ verifier(nom, false, 'la page ramène les « '+F.titre+' » sur 20 (dmNoteAff) alors que le profil les déclare en points bruts'); return memeNoteChezLeProf(w, apres); }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -14538,6 +14567,93 @@ function noteFicheSur20(w, apres){
       if(bil.indexOf('18 / 30')<0) vus.push('le bilan du devoir ne garde pas ses points bruts : '+bil.slice(0,140));
     }
     dmGenre='dm';
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    memeNoteChezLeProf(w, apres);
+  });
+}
+/* LA NOTE QUE LIT LE PROFESSEUR EST CELLE QUE VOIT L'ÉLÈVE — même quand la
+   table des résultats dépasse le plafond de Supabase. Signalé par Turquet
+   (septembre 2026) : « sur la fiche 5, je n'ai pas la même note dans la page
+   du prof que dans la page élève ». PostgREST ne rend jamais plus de 1000
+   lignes par select, et il coupe EN SILENCE : le bilan du professeur lisait
+   toute la table d'un coup, les lignes les plus récentes — la fiche du jour —
+   ne lui arrivaient plus, et l'élève, qui ne lit que les siennes, voyait la
+   vraie note. Le double reproduit le plafond ; on le BAISSE ici à 4 pour
+   l'éprouver sans semer mille lignes. Quatre bords, sur UNE classe :
+     · l'ÉLÈVE lui-même a plus de lignes que le plafond — sa note compte ses
+       plus récentes (la liste, qui les lit par ordre de date, les perdait) ;
+     · le BILAN du professeur dit la même note que l'élève ;
+     · le CARNET des moyennes aussi (même entonnoir, autre porte) ;
+     · et la décision d'ARCHIVER voit les notes : sans elles, un devoir noté
+       passait pour vierge et se supprimait avec ses notes.
+   Et un bord qui garde le contrôle honnête : sans plafond, la classe semée
+   doit bien le DÉPASSER — sinon le contrôle ne mesure rien. */
+function memeNoteChezLeProf(w, apres){
+  const nom='la note lue par le professeur est celle de l\'élève, même au-delà du plafond de lignes de Supabase';
+  const present = evaluer(w, "typeof lireToutes==='function' && typeof openDevoirsEleve==='function' && typeof dmDecisionSuppression==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'la page n\'a pas lireToutes(), openDevoirsEleve() ou dmDecisionSuppression()');
+    return ecranQuiNeBougePas(w, apres);
+  }
+  const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
+  const RES=P.tableResultats||'resultats';
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    const ids=Object.keys(TESTS).slice(0,3);
+    const trois=ids.map(function(id){ return {id:id,modes:['train']}; });
+    const devoir={id:'dm_plafond',num:5,actif:true,titre:'Devoir au plafond',cours:'',exercices:JSON.parse(JSON.stringify(trois))};
+    window.__faux.semer('${TABLE}',[{id:1,valeurs:{devoirs:[JSON.parse(JSON.stringify(devoir))],fiches:[]}}]);
+    /* d'abord le passé de la classe — six lignes d'un camarade et trois
+       vieilles de l'élève, sur un autre devoir — puis, LES PLUS RÉCENTES,
+       ses 18 points sur le devoir du jour (100 % + 80 % + rien) */
+    const lignes=[];
+    for(let k=0;k<6;k++) lignes.push({id:'v'+k,eleve_id:'e-autre',score:5,total:10,percent:50,created_at:'2026-09-0'+(k+1)+'T08:00:00Z',details:{test:ids[0],mode:'train',dm:'dm_vieux'}});
+    for(let k=0;k<3;k++) lignes.push({id:'w'+k,eleve_id:'e-controle',score:5,total:10,percent:50,created_at:'2026-09-1'+k+'T08:00:00Z',details:{test:ids[0],mode:'train',dm:'dm_vieux'}});
+    lignes.push({id:'x1',eleve_id:'e-controle',score:10,total:10,percent:100,created_at:'2026-09-21T08:00:00Z',details:{test:ids[0],mode:'train',dm:'dm_plafond'}});
+    lignes.push({id:'x2',eleve_id:'e-controle',score:8,total:10,percent:80,created_at:'2026-09-21T09:00:00Z',details:{test:ids[1],mode:'train',dm:'dm_plafond'}});
+    window.__faux.semer('${RES}', lignes);
+    window.__faux.semer('${P.tableEleves||'eleves'}',[{id:'e-controle',prenom:'Contrôle'},{id:'e-autre',prenom:'Autre'}]);
+    const PLAFOND=4;
+    if(lignes.length<=PLAFOND || lignes.filter(function(l){ return l.eleve_id==='e-controle'; }).length<=PLAFOND)
+      vus.push('la classe semée ne dépasse pas le plafond : le contrôle ne mesure rien');
+    window.__faux.maxLignes=PLAFOND;
+    try{
+      /* 1. l'élève */
+      await openDevoirsEleve();
+      const corps=document.getElementById('devoirsBody').textContent;
+      if(corps.indexOf('18 / 30')<0) vus.push('l\\'élève ne lit pas « 18 / 30 » — ses lignes les plus récentes sont coupées : '+corps.slice(0,120));
+      /* 2. le bilan du professeur — la fonction diverge d'un niveau à l'autre */
+      if(typeof dmGenre!=='undefined') dmGenre='dm';
+      dmSelId='dm_plafond';
+      let bil=null;
+      if(typeof renderDevoirResultats==='function' && typeof selectedDevoir==='function'){
+        dmList=[JSON.parse(JSON.stringify(devoir))]; await renderDevoirResultats();
+        bil=(document.getElementById('dmResults')||{textContent:''}).textContent;
+      } else if(typeof renderDmResults==='function'){
+        dmAdminList=[JSON.parse(JSON.stringify(devoir))]; await renderDmResults();
+        bil=(document.getElementById('dmResults')||{textContent:''}).textContent;
+      }
+      if(bil===null) vus.push('aucun bilan professeur à exercer');
+      else if(bil.indexOf('18 / 30')<0) vus.push('le bilan du professeur ne lit pas « 18 / 30 » comme l\\'élève : '+bil.slice(0,160));
+      /* 3. le carnet des moyennes : 18/30 ramené sur 20, c'est 12 */
+      if(typeof renderDmMoyennes==='function' && document.getElementById('dmMoyennes')){
+        await renderDmMoyennes();
+        await new Promise(function(r){ setTimeout(r,0); });
+        const b=(typeof dmMoyDernier!=='undefined')?dmMoyDernier:null;
+        const l=b&&b.lignes.find(function(x){ return x.eleve.id==='e-controle'; });
+        if(!l) vus.push('le carnet des moyennes n\\'a pas de ligne pour l\\'élève');
+        else if(Math.abs(l.cases[0].sur20-12)>1e-9) vus.push('le carnet des moyennes compte '+l.cases[0].sur20+' / 20 au lieu de 12');
+      } else vus.push('aucun carnet des moyennes à exercer');
+      /* 4. archiver ou supprimer : le devoir A des notes */
+      const dec=await dmDecisionSuppression(devoir);
+      if(!dec||!dec.archiver) vus.push('la décision de suppression ne voit pas les notes du devoir : '+JSON.stringify(dec));
+    } finally { window.__faux.maxLignes=1000; }
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
