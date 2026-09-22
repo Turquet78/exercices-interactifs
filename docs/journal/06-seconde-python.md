@@ -2601,3 +2601,140 @@ alors que le verdict est faux » —, et l'encre du verdict juste laissée en
 noir plutôt qu'en vert — repérée à la dominante RENDUE, jamais à la classe
 seule, la leçon de `docs/journal/08-verdicts-et-juges.md` retombée telle
 quelle sur un neuvième exercice.
+
+**Puis échanger deux valeurs PAR LES LETTRES — un exercice différent de
+{python-echange-variables}, et le nom le dit.** {python-echange-par-lettres}
+(Seconde, 5.20, demande de Turquet, septembre 2026, sur un PDF transcrit :
+« Compléter le programme uniquement avec les lettres k, l ou m pour que la
+valeur de k = 10 et l = 2 soient échangées » — `k = 10`, `l = 2`, `m = .....`,
+`..... = .....`, `..... = ......`, un bouton exécuter, « si faux, demander de
+modifier les cases du programme, avant de réexécuter, jusqu'à ce que cela
+fonctionne ») ferme le thème 5, en 5.20 — ajouté en dernier, il ne renumérote
+rien.
+
+**Il a été implémenté une première fois sous le nom `{echanger-variables}`,
+abandonné par erreur AVANT d'être fusionné, pendant qu'une session parallèle
+donnait ENTRE-TEMPS ce même nom de famille à un exercice DIFFÉRENT.**
+{python-echange-variables} (5.18), arrivé sur `main` pendant l'absence du
+premier, fait ÉCRIRE la VALEUR d'une case déjà nommée, ligne après ligne — le
+moteur même du pas à pas (5.14 à 5.17), la marche de plus que
+`docs/journal/06-seconde-python.md` décrit juste au-dessus. Le PDF de Turquet
+ne demande PAS cela : il demande de CHOISIR la LETTRE qui va à chaque
+emplacement d'un programme à trous, parmi un petit alphabet imposé (k, l, m)
+— jamais une valeur numérique. Reconstruire le premier exercice sous son nom
+d'origine aurait recréé une confusion permanente entre deux identifiants
+presque jumeaux (`echanger-variables` / `python-echange-variables`) portant
+deux mécaniques opposées ; il a donc été reconstruit sous un troisième nom,
+sans ambiguïté avec aucun des deux : `python-echange-par-lettres` — la
+famille `python-…` comme tous ses voisins du thème, et « par-lettres » qui
+nomme la mécanique (choisir la lettre) plutôt que l'action (échanger), déjà
+prise.
+
+**CE N'EST PAS UNE MARCHE DE PLUS DU PAS À PAS (5.14 à 5.19), et c'est un
+arbitrage nommé avant même d'écrire une ligne.** Les exercices précédents
+font LIRE une mémoire déjà écrite, ligne après ligne, avec une porte qui
+n'ouvre la ligne suivante qu'une fois celle-ci jugée — le motif même de
+`papProg`/`papEtat`/`papAns`, repris tel quel jusque dans
+{python-echange-variables} (5.18) et {python-pas-a-pas-multiplication}
+(5.19). Le PDF ne décrit rien de tel : une question UNIQUE, un programme à
+trois lignes À TROUS, un bouton « Exécuter » qui juge tout à la fois, et une
+boucle de correction qui n'avance QUE quand le programme entier fonctionne.
+Réutiliser le moteur du pas à pas aurait fait lire à l'élève un tableau de
+mémoire qui grandit ligne par ligne — une fiction que le PDF ne demande pas —
+pour une leçon qui n'a rien à voir : le pas à pas enseigne CE QU'EST une
+variable, celui-ci enseigne qu'échanger deux valeurs prend une case DE PLUS.
+
+**CINQ CASES, UN SEUL VERDICT — et c'est le cœur de la conception.** La ligne
+3 (`m = .....`) ne porte qu'UNE case à choix : `m` est FIXÉ à gauche par
+l'énoncé, seule sa valeur se choisit. Les lignes 4 et 5 (`..... = .....`) en
+portent chacune DEUX : rien à l'écran ne dit plus quelle case reçoit quoi.
+**LE PROGRAMME ENTIER EST JUGÉ COMME UNE SEULE `pts-case`** (`pel-prog`, sur
+le CADRE lui-même — la leçon de {python-print} et {python-completer}, un
+programme entier qui ne se compare jamais à une écriture attendue), et
+c'est un choix FORCÉ par les mathématiques du problème : il existe DEUX
+façons justes de permuter — `m = k` puis `k = l` puis `l = m`, OU `m = l`
+puis `l = k` puis `k = m` — et un juge qui noterait chaque case séparément
+aurait dû DEVINER laquelle des deux l'élève vise, donnant tort à la moitié
+des copies justes (l'énumération exhaustive des 3 × 9 × 9 combinaisons
+possibles, faite avant d'écrire le juge, ne montre QUE ces deux solutions).
+Peindre les cinq cases séparément (`pel-ok`/`pel-bad`, jamais `.ok`/`.bad` —
+sans quoi `ptsEcran()` les compterait EN PLUS du cadre, et une séance de
+trois questions vaudrait 18 cases au lieu de 3) reste un confort visuel, pas
+une note : la note se lit sur le cadre, et lui seul.
+
+**LE JUGE SIMULE, IL NE COMPARE JAMAIS À UNE LIGNE ATTENDUE** — la doctrine
+de {python-print} reprise sur un programme entier plutôt qu'une ligne :
+`pelJuge` construit le texte du programme avec les CINQ lettres choisies et
+l'exécute avec `pyRun`, l'interpréteur MÊME du bouton « Exécuter » du 5.1,
+puis regarde si la case de la première variable contient la valeur de départ
+de la seconde et réciproquement. Toute suite d'affectations qui y parvient
+est acceptée, y compris une variante que personne n'a prévue — c'est la
+seule méthode robuste dès qu'un énoncé accepte plusieurs bonnes réponses, et
+comparer à UNE ligne canonique aurait compté fausse une copie qui permute
+correctement par l'autre chemin, le pire défaut du projet.
+
+**LE PETIT ALPHABET SE CHOISIT, IL NE SE TAPE JAMAIS** — dans l'esprit du nom
+de case du 5.14 (une liste, jamais une saisie libre), mais pour une raison
+différente : là-bas une saisie libre recalerait sur la casse, ici l'énoncé
+lui-même IMPOSE les trois seules lettres possibles (« uniquement avec les
+lettres k, l ou m »), et une case texte libre aurait accepté n'importe quel
+autre caractère sans qu'aucune règle ne le dise à l'écran.
+
+**UNE CASE LUE AVANT D'ÊTRE REMPLIE LÈVE UNE VRAIE ERREUR PYTHON, ET C'EST
+L'INTERPRÉTEUR QUI RÉPOND** — la doctrine des trois positions : choisir `m`
+comme valeur de la ligne 3 (`m = m`) lit une case qui n'existe pas encore, et
+`pyRun` lève la même `NameError` que pour toute variable inconnue. Le message
+qui en sort ne dit jamais la réponse : il NOMME le fait (« ta ligne essaie de
+lire ce que contient la case « m » avant qu'elle n'ait reçu de valeur »),
+comme {python-pas-a-pas-calcul} le fait déjà pour ses calculs.
+
+**« BOUTON EXÉCUTER. SI FAUX, MODIFIER LES CASES, RÉEXÉCUTER, JUSQU'À CE QUE
+ÇA FONCTIONNE » est la chaîne même du mode SOUTIEN, déjà universelle dans ce
+projet** — rien à inventer : une copie fausse rougit le CADRE entier sans
+rien révéler, les cinq cases restent choisissables, changer l'une d'elles
+efface le rouge (`pelSaisie`, le motif de `pvmModifiee`), et l'élève
+réexécute jusqu'à réussir. En ENTRAÎNEMENT le premier essai verrouille les
+cinq listes, et un programme qui convient s'écrit en VERT en dessous —
+jamais celui que l'élève a tenté, la leçon d'{ecrire-solutions} (refuser une
+écriture juste serait le pire défaut du projet, et ici une écriture JUSTE
+mais DIFFÉRENTE du modèle affiché aurait pu faire douter l'élève à tort :
+le modèle porte la mention qu'il n'est qu'un exemple, comme {python-nom-variable}).
+
+**TROIS QUESTIONS, LA FICHE DU PDF TOUJOURS EN TÊTE** (`PEL_FICHE` :
+k = 10, l = 2, m), puis deux jeux de lettres TIRÉS et distincts de k, l, m
+(`PEL_JEUX` : p/q/r, x/y/z, e/f/g, u/v/w — la fiche resterait sinon
+reconnaissable au hasard) avec deux valeurs entières distinctes tirées entre
+2 et 99 (`papValeurs`, la fonction MÊME du pas à pas — « tout est repris, rien
+n'est recopié »). L'ORDRE des trois lettres dans chaque liste déroulante est
+tiré par question et conservé (le motif du 5.14) : à case égale, le rang de
+la bonne varie.
+
+**Deux bancs, la répartition habituelle.** jsdom tient le tirage (la fiche
+au caractère près, les jeux distincts, 300 séances), le juge par une SECONDE
+simulation INDÉPENDANTE de `pyRun` (un dictionnaire tenu à la main, 500
+tirages au hasard parmi les 3⁵ combinaisons possibles, comparé case par cas
+au verdict de la page), les deux solutions ÉPINGLÉES acceptées, l'échange
+direct sans intermédiaire REFUSÉ, la case lue avant d'être remplie qui lève
+une erreur, la case vide dans les deux modes, le verrou et l'encre en
+entraînement, la boucle de correction en soutien, la reprise après une pause
+(générique, via `captureBoxes`/`restoreBoxes` — cinq `<select>` comme les
+autres, rien à écrire de propre), les branchements — par POSITION RELATIVE
+(`indexOf`), la convention désormais établie dans ce thème depuis
+{python-pas-a-pas-chaine} — et le contexte envoyé au modèle. Le NAVIGATEUR
+(« 6 tricies vicies ») mesure ce que jsdom ne voit pas : les CINQ `<select>`
+RENDUS à la chasse et à la taille du code des deux lignes écrites au-dessus,
+un VRAI choix dans chacun (Playwright refuse un select désactivé, et c'est
+le bord qu'on tient), le CADRE ENTIER peint en rouge ou en bleu à l'encre
+RENDUE — jamais case par case —, la boucle même du PDF rejouée pour de vrai
+(un choix faux, « Exécuter », le rouge, un choix corrigé, « Exécuter », le
+bleu), puis, dans une session neuve, le verrou de l'entraînement et le
+modèle VERT rendu, et le téléphone (390 px) qui ne déborde pas.
+
+**Ce qu'un sabotage éprouve** : comparer à UNE ligne canonique plutôt que
+simuler (il rougit sur la moitié des copies justes — `m = l`, `l = k`,
+`k = m` — en disant « une façon juste de permuter est refusée »), peindre
+les cinq cases avec `.ok`/`.bad` au lieu de `.pel-ok`/`.pel-bad` (le compte
+de `ptsEcran()` double aussitôt, « la note affichée : 6 cases sur 6 » au lieu
+de 1 sur 1), révéler le modèle en soutien, verrouiller une case dès la
+première exécution fausse en soutien, laisser `m = m` s'exécuter sans erreur,
+et retirer la clause de secret du contexte envoyé au modèle.
