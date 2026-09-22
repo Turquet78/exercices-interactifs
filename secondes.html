@@ -3536,7 +3536,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=193;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=194;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4192,7 +4192,17 @@ const THEMES=[
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
-  { num:5, nom:'Algorithmique et Python', ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-pas-a-pas-multiplication','python-echange-par-lettres'] }
+  /* Découpé en deux sous-thèmes (demande de Turquet, septembre 2026) : les
+     treize premiers exercices — afficher, typer, nommer, compléter — puis les
+     sept pas à pas, où la mémoire change sous les yeux de l'élève. L'ordre ne
+     bouge pas ; 5.14 devient 5.2.1, et les notes, qui portent l'IDENTIFIANT,
+     ne bougent pas. Les commentaires plus anciens de ce fichier citent les
+     numéros à deux niveaux de leur époque (« le 5.7 » = 5.1.7, « le 5.15 » =
+     5.2.2). */
+  { num:5, nom:'Algorithmique et Python', sous:[
+      { num:1, nom:'Print et variable',   ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre'] },
+      { num:2, nom:'Variable et calcul',  ids:['python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-pas-a-pas-multiplication','python-echange-par-lettres'] }
+  ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
