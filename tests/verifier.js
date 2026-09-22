@@ -23413,6 +23413,8 @@ function coefficientGlobalCourt(w, P){
       'ce niveau n\'a pas l\'exercice des hausses successives');
     ignorer('2.2.7 : 1,50 × 1,02 donne 1,53 et 53 %, et la copie juste vaut le point',
       'ce niveau n\'a pas l\'exercice des hausses successives');
+    ignorer('2.2.7 : la multiplication des deux coefficients s\'accepte dans les deux sens',
+      'ce niveau n\'a pas l\'exercice des hausses successives');
     return;
   }
   verifierEval(w, '2.2.7 : le coefficient global s\'écrit avec au plus deux décimales', `(function(){
@@ -23496,6 +23498,35 @@ function coefficientGlobalCourt(w, P){
     Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
       if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
     if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  /* Signalé par Turquet sur capture, septembre 2026 : 150/100 × 102/100
+     rougissait ses deux cases, alors que 102/100 × 150/100 seul était
+     accepté. Rien dans l'énoncé de l'étape ② ne fixe lequel des deux
+     coefficients s'écrit en premier — la multiplication commute — et la
+     même copie, réécrite dans l'ordre inverse, doit valoir le même point. */
+  verifierEval(w, '2.2.7 : la multiplication des deux coefficients s\'accepte dans les deux sens', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genHausses([]); if(q.paire==="2-50") Q=q; }
+    if(!Q) return "le tirage ne produit jamais 2 % puis 50 %, l exemple de la demande";
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:"hs", qId:"hausses-successives", questions:[Q], idx:0, score:0,
+                        answers:[], startTime:Date.now(), locked:false, maxScore:1});
+    show("hstest"); renderHSTest();
+    const deux=function(P){ return P<10 ? "0"+P : ""+P; };
+    const copie={hs1n:""+Q.P1, hs1d:"100", hs1p:deux(Q.P1), hs1dec:deux(Q.P1),
+                 hs2n:""+Q.P2, hs2d:"100", hs2p:deux(Q.P2), hs2dec:deux(Q.P2),
+                 hsAn:""+Q.fB.num, hsAd:""+Q.fB.den, hsBn:""+Q.fA.num, hsBd:""+Q.fA.den,
+                 hsPn:""+Q.prodNum, hsPd:""+Q.prodDen, hsDec:Q.coefStr, hsP:Q.hausseStr};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkHSAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie inversée : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie inversée ne vaut pas le point : "+test.score);
     return vus.join(" | ");
   })()`, v => v === '', undefined);
 }
@@ -23597,6 +23628,8 @@ function coefficientGlobalCourtBaisses(w, P){
       'ce niveau n\'a pas l\'exercice des baisses successives');
     ignorer('2.3.7 : 0,8 × 0,6 donne 0,48 et 52 %, et la copie juste vaut le point',
       'ce niveau n\'a pas l\'exercice des baisses successives');
+    ignorer('2.3.7 : la multiplication des deux coefficients s\'accepte dans les deux sens',
+      'ce niveau n\'a pas l\'exercice des baisses successives');
     return;
   }
   verifierEval(w, '2.3.7 : le coefficient global des deux baisses s\'écrit avec au plus deux décimales', `(function(){
@@ -23659,6 +23692,30 @@ function coefficientGlobalCourtBaisses(w, P){
     Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
       if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
     if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  /* Le miroir du 2.2.7 : la même règle, la même capture. */
+  verifierEval(w, '2.3.7 : la multiplication des deux coefficients s\'accepte dans les deux sens', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genBaisses(); if(q.P1===20 && q.P2===40) Q=q; }
+    if(!Q) return "le tirage ne produit jamais 20 % puis 40 %, l exemple du rappel de cours";
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:"bs", qId:"baisses-successives", questions:[Q], idx:0, score:0,
+                        answers:[], startTime:Date.now(), locked:false, maxScore:1});
+    show("bstest"); renderBSTest();
+    const copie={bs1n:""+Q.P1, bs1d:"100", bs1p:""+Q.P1, bs1dec:""+Q.c1,
+                 bs2n:""+Q.P2, bs2d:"100", bs2p:""+Q.P2, bs2dec:""+Q.c2,
+                 bsAn:""+Q.fB.num, bsAd:""+Q.fB.den, bsBn:""+Q.fA.num, bsBd:""+Q.fA.den,
+                 bsPn:""+Q.prodNum, bsPd:""+Q.prodDen, bsDec:Q.coefStr, bsP:Q.baisseStr};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkBSAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie inversée : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie inversée ne vaut pas le point : "+test.score);
     return vus.join(" | ");
   })()`, v => v === '', undefined);
 
