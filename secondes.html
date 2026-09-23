@@ -23640,6 +23640,50 @@ function pelMessage(q, j){
   return 'Après exécution, la case '+q.v1+' contient '+pyRep(j.env[q.v1])+' et la case '+q.v2+' contient '+pyRep(j.env[q.v2])
     +' — on voulait '+q.v1+' = '+q.b+' et '+q.v2+' = '+q.a+'.';
 }
+/* L'EXÉCUTION PAS À PAS, demande de Turquet (septembre 2026) : avant le
+   verdict, l'élève voit son PROPRE programme s'exécuter ligne après ligne,
+   la mémoire se remplissant au fur et à mesure. Une SECONDE lecture de
+   pyRun, sur des tronçons de plus en plus longs du MÊME texte que pelJuge
+   construit — jamais le verdict lui-même, qui reste seul chez pelJuge : la
+   trace ne fait qu'expliquer ce que l'interprète a déjà décidé, elle ne
+   pourrait pas le contredire. Une erreur (case lue avant d'être remplie)
+   arrête la trace à la ligne fautive, comme un vrai programme Python. */
+function pelTrace(q, v){
+  const lignes=pelProgTexte(q, v).split('\n'), etapes=[];
+  for(let k=0;k<lignes.length;k++){
+    let env=null, erreur=null;
+    try{ env=pyRun(lignes.slice(0,k+1).join('\n')).env; }catch(e){ erreur=e.message||String(e); }
+    etapes.push({ligne:lignes[k], num:k+1, env:env, erreur:erreur});
+    if(erreur) break;
+  }
+  return etapes;
+}
+/* Le programme avec un repère par ligne (✓ exécutée, ✗ celle qui arrête
+   tout), puis la mémoire de k, l et m après chaque ligne — la même feuille
+   de styles que le moteur du pas à pas (pyx-prog, pyx-ligne, pap-wrap,
+   pap-mem), jamais ses classes de verdict (.ok/.bad/.sol/.pel-ok/.pel-bad
+   restent l'affaire du CADRE seul, la leçon même de cet exercice). */
+function pelTraceHTML(q, etapes){
+  const noms=[q.v1, q.v2, q.t];
+  let prog='<div class="pyx-prog">';
+  etapes.forEach(function(e){
+    prog+='<div class="pyx-ligne"'+(e.erreur?' style="color:var(--red)"':'')+'>'
+      +'<span class="pap-repere">'+(e.erreur?'✗':'✓')+'</span>'
+      +'<span class="pyx-num">'+e.num+'</span>'
+      +'<span class="pyx-l1">'+pyColorie(e.ligne)+'</span></div>';
+  });
+  prog+='</div>';
+  let tbl='<div class="pap-wrap"><table class="pap-mem"><tr><th>Ligne</th>'
+    +noms.map(function(n){ return '<th>'+esc(n)+'</th>'; }).join('')+'</tr>';
+  etapes.forEach(function(e){
+    if(e.erreur){ tbl+='<tr><td>'+e.num+'</td><td colspan="'+noms.length+'" style="color:var(--red)">Python s’arrête ici</td></tr>'; return; }
+    tbl+='<tr><td>'+e.num+'</td>'+noms.map(function(n){
+      const val=e.env[n]; return '<td>'+(val===undefined?'—':esc(pyRep(val)))+'</td>';
+    }).join('')+'</tr>';
+  });
+  tbl+='</table></div>';
+  return '<p class="py-label">Exécution, ligne par ligne</p>'+prog+tbl;
+}
 
 /* ---- Cycle de vie ---- */
 async function startPEL(){
@@ -23682,6 +23726,7 @@ function renderPEL(){
     '<div class="py-cell">'
     +'<p class="py-label">Complète le programme pour échanger '+q.v1+' et '+q.v2+'</p>'
     +pelProgHTML(q)
+    +'<div id="pelTrace"></div>'
     +'<div id="pelModele"></div>'
     +'</div>';
   ['pel-l3d','pel-l4g','pel-l4d','pel-l5g','pel-l5d'].forEach(function(id){
@@ -23698,6 +23743,7 @@ function pelSaisie(){
   ['pel-l3d','pel-l4g','pel-l4d','pel-l5g','pel-l5d'].forEach(function(id){
     const e=$(id); if(e) e.classList.remove('pel-bad');
   });
+  const tr=$('pelTrace'); if(tr) tr.innerHTML='';
   const fb=$('pelFeedback'); if(fb && fb.classList.contains('bad')){ fb.textContent=''; fb.className='mp-feedback'; }
   clearTimeout(_pelSaveTimer); _pelSaveTimer=setTimeout(autoSave,1000);
 }
@@ -23713,6 +23759,7 @@ function checkPEL(live){
     fb.textContent='Complète les cinq cases avant d’exécuter.'; fb.className='mp-feedback';
     return;
   }
+  const tr=$('pelTrace'); if(tr) tr.innerHTML=pelTraceHTML(q, pelTrace(q, v));
   const j=pelJuge(q, v);
   if(!j.ok && isSoutien()){
     prog.classList.add('bad');
