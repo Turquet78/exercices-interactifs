@@ -8709,7 +8709,7 @@ function suiteTcmLimite(w, P){
     if(!TESTS['suite-tcm-limite']) vus.push('l’exercice n’est pas dans TESTS');
     const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-tcm-limite')>=0; })[0];
     if(!th || th.nom!=='Suites') vus.push('l’exercice n’est pas dans le thème Suites');
-    else if(TEST_NUM['suite-tcm-limite']!=='6.4.1') vus.push('l’exercice a changé de numéro (' + TEST_NUM['suite-tcm-limite'] + ' au lieu de 6.4.1, partie « Déterminer la limite d’une suite ») : un exercice inséré AVANT lui renumérote ses voisins');
+    else if(TEST_NUM['suite-tcm-limite']!=='6.4.2') vus.push('l’exercice a changé de numéro (' + TEST_NUM['suite-tcm-limite'] + ' au lieu de 6.4.2, partie « Théorème de convergence monotone ») : un exercice inséré AVANT lui renumérote ses voisins');
     if(typeof RAPPELS==='undefined' || !RAPPELS.tcl) vus.push('aucun rappel de cours pour tcl');
     else if(!/convergence monotone/.test(RAPPELS.tcl) || !/passage à la limite/i.test(RAPPELS.tcl)) vus.push('le rappel ne nomme pas le théorème ou le passage à la limite');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.tcl) vus.push('aucune question proposée pour tcl');
@@ -9992,8 +9992,8 @@ function suiteSyntheseVariations(w, P){
     if(!TESTS['suite-synthese-variations']) dit('l’exercice n’est pas dans TESTS');
     { const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-synthese-variations')>=0; })[0];
       if(!th || th.nom!=='Suites') dit('l’exercice n’est pas dans le thème Suites');
-      else if(TEST_NUM['suite-synthese-variations']!=='6.3.4') dit('l’exercice porte le numéro '+TEST_NUM['suite-synthese-variations']+' au lieu de 6.3.4');
-      if(TEST_NUM['suite-vocabulaire']!=='6.3.3') dit('l’exercice a renuméroté son voisin : {suite-vocabulaire} est passé en '+TEST_NUM['suite-vocabulaire']); }
+      else if(TEST_NUM['suite-synthese-variations']!=='6.4.3') dit('l’exercice porte le numéro '+TEST_NUM['suite-synthese-variations']+' au lieu de 6.4.3');
+      if(TEST_NUM['suite-vocabulaire']!=='6.4.1') dit('l’exercice a renuméroté son voisin : {suite-vocabulaire} est passé en '+TEST_NUM['suite-vocabulaire']); }
     if(typeof RAPPELS==='undefined' || !RAPPELS.ssv) dit('aucun rappel de cours pour ssv');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.ssv) dit('aucune question proposée pour ssv');
     if(!afficherEcranDe('ssv')) dit('la reprise après pause ne connaît pas l’écran ssv');
@@ -10144,12 +10144,14 @@ function recurrenceFormule(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='recurrence-formule';
 
-    /* ---- 0. la place au menu : juste APRÈS {recurrence-encadrement} — la
-       même fiche guidée, la formule au lieu de l'encadrement ---- */
+    /* ---- 0. la place au menu : il OUVRE la partie « Récurrence et égalité »
+       (découpage de Turquet, septembre 2026) — la formule, là où
+       {recurrence-encadrement} ouvre l'inégalité ---- */
     { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('recurrence-formule')>=0; })[0];
-      const i=th?th.ids.indexOf('recurrence-formule'):-1;
-      if(!th || th.ids[i-1]!=='recurrence-encadrement')
-        vus.push('{recurrence-formule} ne suit pas {recurrence-encadrement} au menu'); }
+      const st=th&&th.sous?th.sous.filter(function(s){ return s.ids.indexOf('recurrence-formule')>=0; })[0]:null;
+      if(!st || st.nom!=='Récurrence et égalité' || st.ids[0]!=='recurrence-formule')
+        vus.push('{recurrence-formule} n’ouvre pas la partie « Récurrence et égalité » au menu');
+      else if(TEST_NUM['recurrence-formule']!=='6.3.1') vus.push('{recurrence-formule} porte le numéro '+TEST_NUM['recurrence-formule']+' au lieu de 6.3.1'); }
 
     /* ---- 1. le tirage, refait par sa propre arithmétique : b = k(1−a)
        ENTIER, u0 = k ± 1, n0 = 0, RIEN d'autre dans la question — l'énoncé ne
@@ -25077,7 +25079,7 @@ function suiteVocabulaire(w, P){
        la même que celle du {suite-tcm-limite} : le numéro, épinglé. */
     { const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-vocabulaire')>=0; })[0];
       if(!th || th.nom!=='Suites') vus.push('l\\'exercice n\\'est pas dans le th\u00e8me Suites');
-      else if(TEST_NUM['suite-vocabulaire']!=='6.3.3') vus.push('l\\'exercice a chang\u00e9 de num\u00e9ro (' + TEST_NUM['suite-vocabulaire'] + ' au lieu de 6.3.3) : un exercice ins\u00e9r\u00e9 AVANT lui renum\u00e9rote ses voisins'); }
+      else if(TEST_NUM['suite-vocabulaire']!=='6.4.1') vus.push('l\\'exercice a chang\u00e9 de num\u00e9ro (' + TEST_NUM['suite-vocabulaire'] + ' au lieu de 6.4.1) : un exercice ins\u00e9r\u00e9 AVANT lui renum\u00e9rote ses voisins'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
