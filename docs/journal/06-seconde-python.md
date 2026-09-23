@@ -1139,6 +1139,16 @@ Figée, elle ferait prédire sur des valeurs que le programme ne porte plus —
 une lecture juste comptée fausse, le pire défaut du projet : la leçon du
 numéro d'exercice de `show()`, transposée. Le banc jsdom l'exige, et le banc
 navigateur la mesure sous un VRAI clavier.
+**Et le contrôle de la phrase cherchait un NOMBRE comme on cherche un
+MORCEAU DE TEXTE** : vider la case de a devait faire disparaître a de la
+phrase, et l'on vérifiait que « 1 » n'y était plus — or « … et 12 » le
+contient. Un tirage sur quelques-uns (a d'un chiffre, b qui l'écrit) rougissait
+une page juste, et l'action GitHub l'a montré sur une pull request qui ne
+touchait pas à cet exercice (septembre 2026). Le contrôle exige désormais le
+nombre ENTIER, non collé à un autre chiffre ; le tirage forcé a = 1, b = 12
+rougit avec l'ancienne lecture et passe avec la nouvelle. **Un contrôle
+intermittent est un contrôle qui parle d'autre chose** — la leçon du barème,
+retombée ici.
 **LA VALEUR ATTENDUE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION** : elle est
 lue dans `pyRun(pcvProg(…)).env` — la fonction MÊME qui exécute le programme
 sous le bouton —, si bien que la correction ne peut pas contredire la console.

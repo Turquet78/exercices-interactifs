@@ -131,6 +131,8 @@
   .choice:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
   .choice .ic{font-size:30px;line-height:1}
   .choice.themecard .ic.theme-ic{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--blue);background:#EAF0FF;border-radius:12px;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;line-height:1;}
+  /* « 6.2 » tient trois caractères là où un numéro de thème n'en tient qu'un */
+  .choice.themecard .ic.theme-ic.sous-ic{font-size:1rem;letter-spacing:.01em}
   .choice .ttl{font-family:"Fredoka";font-weight:600;font-size:1.18rem}
   .choice .ds{color:var(--ink-soft);font-size:.88rem;font-weight:600}
   .choice.eleve{border-color:#c9d4f3}.choice.eleve:hover{border-color:var(--blue)}
@@ -1841,8 +1843,20 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <h2 class="title" style="margin:0" id="themeTitle">Thème</h2>
         <button class="btn-link" onclick="show('choose')">← Thèmes</button>
       </div>
+      <p class="lead" id="themeLead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <div id="themeChoices"></div>
+    </div>
+  </section>
+
+  <!-- EXERCICES D'UNE PARTIE DE THÈME (sous-thème) -->
+  <section class="screen" id="scr-soustheme">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0" id="sousThemeTitle">Partie</h2>
+        <button class="btn-link" id="sousThemeRetour" onclick="retourTheme()">← Thème</button>
+      </div>
       <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
-      <div class="choices" id="themeChoices"></div>
+      <div id="sousThemeChoices"></div>
     </div>
   </section>
 
@@ -2939,7 +2953,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=334;
+const APP_VERSION=335;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3155,11 +3169,31 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique','tvi-alpha-signe'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-formule','recurrence-complete','recurrence-redaction','suite-auxiliaire-redaction','recurrence-fractions','suite-variation-recurrence','suite-tcm-limite','suite-variation-difference','suite-vocabulaire','suite-synthese-variations'] }
+  /* Le thème des Suites est découpé en PARTIES (demande de Turquet, septembre
+     2026) — le motif de la Seconde et de la Première, porté. Le découpage suit
+     le SUJET de l'exercice, jamais son moteur ; l'ordre à l'intérieur de
+     chaque partie est celui qu'ils avaient. {suite-explicite} (type, raison,
+     formule explicite) ouvre la partie des suites auxiliaires : c'est la
+     formule qu'on y écrit à la fin. Les notes portent l'IDENTIFIANT, pas le
+     numéro : rien de ce qui est enregistré ne bouge. */
+  { num:6, nom:'Suites', sous:[
+      { num:1, nom:'Suite auxiliaire',                  ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suite-auxiliaire-redaction'] },
+      { num:2, nom:'Démonstration par récurrence',      ids:['suites-encadrement','recurrence-encadrement','recurrence-formule','recurrence-complete','recurrence-redaction','recurrence-fractions'] },
+      { num:3, nom:'Étude de variation d’une suite',    ids:['suite-variation-recurrence','suite-variation-difference','suite-vocabulaire','suite-synthese-variations'] },
+      { num:4, nom:'Déterminer la limite d’une suite',  ids:['suite-tcm-limite'] }
+    ] }
 ];
-/* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
+/* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
+   reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
+   ne connaît que celle-là et n'a pas à savoir qu'il existe des sous-thèmes. */
+THEMES.forEach(t=>{ if(t.sous) t.ids=t.sous.reduce((a,st)=>a.concat(st.ids),[]); });
+/* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '2.1'), ou
+   « thème.partie.exercice » dans un thème découpé (ex. '6.2.1') */
 const TEST_NUM={};
-THEMES.forEach(t=>{ t.ids.forEach((id,i)=>{ TEST_NUM[id]=t.num+'.'+(i+1); }); });
+THEMES.forEach(t=>{
+  if(t.sous) t.sous.forEach(st=>st.ids.forEach((id,i)=>{ TEST_NUM[id]=t.num+'.'+st.num+'.'+(i+1); }));
+  else t.ids.forEach((id,i)=>{ TEST_NUM[id]=t.num+'.'+(i+1); });
+});
 /* Ordre global des tests (suit l'ordre des thèmes) — utilisé côté prof */
 const TEST_ORDER=THEMES.reduce((a,t)=>a.concat(t.ids),[]);
 let teacherFilter='all';
@@ -4132,22 +4166,64 @@ function renderChooser(results){
   }).join('');
   $('testChoices').innerHTML='<div class="choices">'+cards+'</div>';
 }
-let currentThemeNum=null;
+let currentThemeNum=null, currentSousNum=null;
 function themeOfTest(id){ const th=THEMES.find(t=>t.ids.includes(id)); return th?th.num:null; }
-/* Ouvre la page des exercices interactifs du thème choisi. */
+/* La partie (sous-thème) qui contient l'exercice, ou null : sert à revenir sur
+   la bonne page après un exercice. */
+function sousThemeOfTest(id){
+  let trouve=null;
+  THEMES.forEach(t=>{ if(!t.sous) return; t.sous.forEach(st=>{ if(st.ids.indexOf(id)>=0) trouve={theme:t.num, sous:st.num}; }); });
+  return trouve;
+}
+/* Carte d'un exercice : le MÊME dessin sur la page d'un thème et sur celle d'une
+   partie. Le numéro vient de testNum(), donc de la POSITION. */
+function carteExo(id){
+  const t=TESTS[id]; if(!t) return '';
+  const nd=derniereNoteExo(id);
+  const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+  return cardHTML(t.icon, testNum(id)+' · '+t.name, t.desc, `openTest('${escJS(id)}')`, '', '', badge);
+}
+/* Ouvre la page du thème choisi : ses PARTIES s'il en a, ses exercices sinon. */
 function openTheme(num){
   const th=THEMES.find(t=>t.num===num); if(!th) return;
-  currentThemeNum=num;
+  currentThemeNum=num; currentSousNum=null;
   $('themeTitle').textContent='Thème '+th.num+' · '+th.nom;
-  $('themeChoices').innerHTML=th.ids.map((id,i)=>{
-    const t=TESTS[id]; if(!t) return '';
-    const num2=th.num+'.'+(i+1);
-    const nd=derniereNoteExo(id);
-    const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
-    return cardHTML(t.icon, num2+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
-  }).join('');
+  $('themeLead').textContent = th.sous
+    ? 'Choisis la partie que tu veux travailler : ses exercices s’ouvrent ensuite sur leur propre page.'
+    : 'Choisis un exercice. Ta dernière note /10 s’affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l’entraînement pour 10.';
+  const cards = th.sous
+    ? th.sous.map(st=>{
+        const ids=st.ids.filter(id=>TESTS[id]);
+        const faits=ids.filter(id=>derniereNoteExo(id).fait).length;
+        const badge=!ids.length
+          ? '<span class="ex-bilan todo">À venir</span>'
+          : (faits>0?`<span class="ex-bilan done">${faits} / ${ids.length} travaillé${faits>1?'s':''}</span>`:'<span class="ex-bilan todo">À découvrir</span>');
+        const numero=th.num+'.'+st.num;
+        const desc=ids.length?(ids.length+' exercice'+(ids.length>1?'s':'')+' interactif'+(ids.length>1?'s':'')):'Exercices à venir.';
+        return `<button class="choice eleve themecard" onclick="openSousTheme(${th.num},${st.num})">
+          <span class="ic theme-ic sous-ic">${esc(numero)}</span><span class="ttl">${esc(numero+' : '+st.nom)}</span><span class="ds">${esc(desc)}</span>${badge}</button>`;
+      }).join('')
+    : th.ids.map(carteExo).join('');
+  $('themeChoices').innerHTML = cards
+    ? '<div class="choices">'+cards+'</div>'
+    : '<p class="muted">Exercices à venir.</p>';
   show('theme');
 }
+/* Ouvre la page des exercices d'une partie : 6.1, 6.2, … */
+function openSousTheme(num, snum){
+  const th=THEMES.find(t=>t.num===num); if(!th||!th.sous) return;
+  const st=th.sous.find(s=>s.num===snum); if(!st) return;
+  currentThemeNum=num; currentSousNum=snum;
+  $('sousThemeTitle').textContent=th.num+'.'+st.num+' : '+st.nom;
+  $('sousThemeRetour').textContent='← Thème '+th.num;
+  const ids=st.ids.filter(id=>TESTS[id]);
+  $('sousThemeChoices').innerHTML = ids.length
+    ? `<div class="choices">${ids.map(carteExo).join('')}</div>`
+    : '<p class="muted">Exercices à venir.</p>';
+  show('soustheme');
+}
+/* Retour depuis une partie : la page de son THÈME, pas la liste des thèmes. */
+function retourTheme(){ if(currentThemeNum!=null) openTheme(currentThemeNum); else show('choose'); }
 /* ---------- Devoir à la maison (élève) ---------- */
 /* LES TROIS CHOIX D'UN EXERCICE DE DEVOIR — soutien, entraînement, papier —
    vivent sur la PAGE DES MODES (demande de Turquet, septembre 2026 : « afficher
@@ -4431,7 +4507,7 @@ async function clearRecovery(){
   try{
     if(id){ const {error}=await sb.from('resultats').delete().eq('id',id);
       if(error){ ok=false; console.warn('brouillon non supprime :', error.message||error); } }
-    if(eid){ const {data,error}=await sb.from('resultats').select('id,details').eq('eleve_id',eid);
+    if(eid){ const {data,error}=await lireToutes(()=>sb.from('resultats').select('id,details').eq('eleve_id',eid));
       if(error){ ok=false; console.warn('recherche des brouillons impossible :', error.message||error); }
       const old=(data||[]).filter(r=>memeBrouillon(r.details, cible));
       for(const r of old){ const {error:errSup}=await sb.from('resultats').delete().eq('id',r.id);
@@ -4445,7 +4521,7 @@ async function clearRecovery(){
        corrige ; cette relecture fait que le PROCHAIN refus muet, quel qu'il
        soit, se voie tout de suite au lieu de vivre des mois. */
     if(eid && ok){
-      const {data:reste,error:errRelu}=await sb.from('resultats').select('id,details').eq('eleve_id',eid);
+      const {data:reste,error:errRelu}=await lireToutes(()=>sb.from('resultats').select('id,details').eq('eleve_id',eid));
       if(errRelu) ok=false;
       else if((reste||[]).some(r=>memeBrouillon(r.details, cible))) ok=false;
     }
@@ -4454,7 +4530,8 @@ async function clearRecovery(){
 }
 async function openTest(testId){
   currentTestId=testId;
-  currentThemeNum=themeOfTest(testId)||currentThemeNum;
+  { const thExo=themeOfTest(testId), stExo=sousThemeOfTest(testId);
+    if(thExo!=null){ currentThemeNum=thExo; currentSousNum=stExo?stExo.sous:null; } }
   currentDM=null;            // lancement normal (hors devoir)
   const t=TESTS[testId];
   $('modeTitle').textContent=testLabel(testId);
@@ -4465,7 +4542,7 @@ async function openTest(testId){
   // chercher une session mise en pause pour ce test (entraînement / soutien)
   pausedRows={};
   try{
-    const {data,error}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await lireToutes(()=>sb.from('resultats').select('*').eq('eleve_id',currentEleve.id));
     if(error) toast('Connexion instable : reprise indisponible','err');
     /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). Ce menu-ci est le menu
        LIBRE : il ne propose que les pauses prises hors devoir. Il montrait aussi
@@ -5461,9 +5538,40 @@ function rejouerSignalement(id){
   toast('Écran rejoué — aucune note ne sera enregistrée','ok');
 }
 
+/* SUPABASE NE REND JAMAIS PLUS DE 1000 LIGNES PAR REQUÊTE, et il le fait EN
+   SILENCE : ni erreur, ni avertissement — la réponse est simplement coupée.
+   Signalé par Turquet (septembre 2026) : « sur la fiche 5, je n'ai pas la même
+   note dans la page du prof que dans la page élève ». Le bilan du professeur
+   lisait TOUTE la table des résultats d'un seul select('*') : passé mille
+   lignes pour la classe, les plus récentes — la fiche du jour — n'arrivaient
+   plus, et le professeur lisait une note plus basse que celle que l'élève
+   voyait, lui qui ne lit que ses propres lignes. Le même plafond guettait la
+   décision d'archiver un devoir (« aucune note » alors qu'il y en avait) et,
+   un jour, l'élève le plus assidu de l'année.
+   UN SEUL ENTONNOIR, donc, pour toute lecture d'une table de résultats : on lit
+   page par page, dans un ordre STABLE (date puis identifiant — sans ordre, deux
+   pages peuvent se recouvrir), jusqu'à la page VIDE. On ne s'arrête pas à la
+   première page incomplète : le plafond est un réglage du serveur, et s'il
+   descendait sous la taille de page, on couperait de nouveau sans le dire.
+   `faire` rend une requête NEUVE à chaque appel — une requête Supabase ne se
+   rejoue pas. Même texte dans les trois fichiers, et un contrôle les compare. */
+async function lireToutes(faire){
+  const PAGE=1000; let tout=[];
+  for(;;){
+    const {data,error}=await faire()
+      .order('created_at',{ascending:true}).order('id',{ascending:true})
+      .range(tout.length, tout.length+PAGE-1);
+    if(error) return { data:null, error:error };
+    const lot=data||[];
+    tout=tout.concat(lot);
+    /* une page vide dit la fin ; une page PLUS longue que demandée dit un
+       serveur qui ignore la plage — la relire tournerait sans fin */
+    if(!lot.length || lot.length>PAGE) return { data:tout, error:null };
+  }
+}
 async function chargerMesResultats(){
   try{
-    const {data,error}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    const {data,error}=await lireToutes(()=>sb.from('resultats').select('*').eq('eleve_id',currentEleve.id));
     if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; return mesResultats; }
     mesResultats=(data||[]).filter(r=>!isPaused(r));
   }catch(e){ mesResultats=[]; }
@@ -5518,7 +5626,14 @@ function renderBilan(results){
       <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
     :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
 }
-function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes().then(()=>{ if(currentThemeNum) openTheme(currentThemeNum); }); } }
+/* Retour après un exercice : la page de sa PARTIE s'il en a une, celle de son
+   thème sinon. Les deux numéros sont relevés AVANT openTheme(), qui remet
+   currentSousNum à zéro. */
+function retourChoix(){
+  if(currentDM){ ouvrirDevoirDetail(currentDM); return; }
+  const th=currentThemeNum, sous=currentSousNum;
+  openThemes().then(()=>{ if(th){ openTheme(th); if(sous!=null) openSousTheme(th,sous); } });
+}
 
 /* ---------- Devoirs à la maison (élève) ---------- */
 async function openDevoirsEleve(genre){
@@ -5817,7 +5932,7 @@ async function openTestDevoirModes(devoirId, testId){
   show('mode');
   pausedRows={};
   try{
-    const {data,error}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await lireToutes(()=>sb.from('resultats').select('*').eq('eleve_id',currentEleve.id));
     if(error) toast('Connexion instable : reprise indisponible','err');
     /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). L'écran d'un devoir ne
        propose que les pauses de CE devoir. */
@@ -20758,7 +20873,7 @@ async function renderClassTable(){
   try{
     const [{data:eleves,error:e1},{data:resAll,error:e2}]=await Promise.all([
       sb.from('eleves').select('id,prenom').order('prenom'),
-      sb.from('resultats').select('*')
+      lireToutes(()=>sb.from('resultats').select('*'))
     ]);
     if(e1)throw e1; if(e2)throw e2;
     const res=resAll.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
@@ -20866,7 +20981,7 @@ async function showStudentDetail(id,prenom){
   const isTrain=teacherMode==='train', isSout=teacherMode==='soutien';
   const label=isSout?'soutien':(isTrain?'entraînements':'évaluations');
   try{
-    const {data:all,error}=await sb.from('resultats').select('*').eq('eleve_id',id).order('created_at',{ascending:true});
+    const {data:all,error}=await lireToutes(()=>sb.from('resultats').select('*').eq('eleve_id',id));
     if(error)throw error;
     const data=all.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
     let inner=`<div class="panel"><div class="topbar"><h3 style="margin:0">${esc(prenom)} · ${label}</h3>
@@ -21290,7 +21405,7 @@ function dmNotesPosees(dev){
    répare. */
 async function dmDecisionSuppression(dev){
   try{
-    const {data,error}=await sb.from(dmTableResultats()).select('*');
+    const {data,error}=await lireToutes(()=>sb.from(dmTableResultats()).select('*'));
     if(error) throw error;
     const n=dmNotesDe(dev.id, data||[])+dmNotesPosees(dev);
     return { archiver:n>0, n:n, lecture:true };
@@ -21607,7 +21722,7 @@ async function renderDmMoyennes(){
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
       sb.from('eleves').select('id,prenom'),
-      sb.from('resultats').select('*')
+      lireToutes(()=>sb.from('resultats').select('*'))
     ]);
     if(e1)throw e1; if(e2)throw e2;
     dmMoyDernier=dmMoyennes(dmList, eleves||[], rows||[]);
@@ -21630,7 +21745,7 @@ async function renderDevoirResultats(){
   try{
     const [{data:eleves,error:e1},{data:res,error:e2}]=await Promise.all([
       sb.from('eleves').select('id,prenom').order('prenom'),
-      sb.from('resultats').select('*')
+      lireToutes(()=>sb.from('resultats').select('*'))
     ]);
     if(e1)throw e1; if(e2)throw e2;
     if(!eleves||!eleves.length){ box.innerHTML='<div class="empty">Aucun compte élève.</div>'; return; }
@@ -21808,7 +21923,7 @@ async function poserNoteDevoirEleve(eleveId, brut){
 /* export CSV */
 async function exportCSV(){
   try{
-    const {data:rawCsv,error}=await sb.from('resultats').select('*, eleves(prenom)').order('created_at',{ascending:true});
+    const {data:rawCsv,error}=await lireToutes(()=>sb.from('resultats').select('*, eleves(prenom)'));
     if(error)throw error;
     const data=(rawCsv||[]).filter(r=>!isPaused(r));
     if(!data.length){ toast('Aucun résultat à exporter'); return; }

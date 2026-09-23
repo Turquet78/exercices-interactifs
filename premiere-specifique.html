@@ -2060,7 +2060,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=231;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=233;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3447,9 +3447,40 @@ async function enregistrerResultat(payload){
     return true;
   }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); return false; }
 }
+/* SUPABASE NE REND JAMAIS PLUS DE 1000 LIGNES PAR REQUÊTE, et il le fait EN
+   SILENCE : ni erreur, ni avertissement — la réponse est simplement coupée.
+   Signalé par Turquet (septembre 2026) : « sur la fiche 5, je n'ai pas la même
+   note dans la page du prof que dans la page élève ». Le bilan du professeur
+   lisait TOUTE la table des résultats d'un seul select('*') : passé mille
+   lignes pour la classe, les plus récentes — la fiche du jour — n'arrivaient
+   plus, et le professeur lisait une note plus basse que celle que l'élève
+   voyait, lui qui ne lit que ses propres lignes. Le même plafond guettait la
+   décision d'archiver un devoir (« aucune note » alors qu'il y en avait) et,
+   un jour, l'élève le plus assidu de l'année.
+   UN SEUL ENTONNOIR, donc, pour toute lecture d'une table de résultats : on lit
+   page par page, dans un ordre STABLE (date puis identifiant — sans ordre, deux
+   pages peuvent se recouvrir), jusqu'à la page VIDE. On ne s'arrête pas à la
+   première page incomplète : le plafond est un réglage du serveur, et s'il
+   descendait sous la taille de page, on couperait de nouveau sans le dire.
+   `faire` rend une requête NEUVE à chaque appel — une requête Supabase ne se
+   rejoue pas. Même texte dans les trois fichiers, et un contrôle les compare. */
+async function lireToutes(faire){
+  const PAGE=1000; let tout=[];
+  for(;;){
+    const {data,error}=await faire()
+      .order('created_at',{ascending:true}).order('id',{ascending:true})
+      .range(tout.length, tout.length+PAGE-1);
+    if(error) return { data:null, error:error };
+    const lot=data||[];
+    tout=tout.concat(lot);
+    /* une page vide dit la fin ; une page PLUS longue que demandée dit un
+       serveur qui ignore la plage — la relire tournerait sans fin */
+    if(!lot.length || lot.length>PAGE) return { data:tout, error:null };
+  }
+}
 async function chargerMesResultats(){
   try{
-    const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    const {data,error}=await lireToutes(()=>sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id));
     if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; return mesResultats; }
     mesResultats=(data||[]).filter(r=>!isPaused(r));
   }catch(e){ mesResultats=[]; }
@@ -3524,7 +3555,7 @@ async function openTest(testId){
   const unlocked=!!(cfg.locks && cfg.locks[testId]);
   pausedRows={};
   try{
-    const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await lireToutes(()=>sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id));
     if(error) toast('Connexion instable : reprise indisponible','err');
     /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). Ce menu-ci est le menu
        LIBRE : il ne propose que les pauses prises hors devoir. Il montrait aussi
@@ -3913,7 +3944,7 @@ async function openTestDevoir(devoirId, testId){
   show('mode');
   pausedRows={};
   try{
-    const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await lireToutes(()=>sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id));
     if(error) toast('Connexion instable : reprise indisponible','err');
     /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). L'écran d'un devoir ne
        propose que les pauses de CE devoir et de CE passage. */
@@ -4029,7 +4060,7 @@ async function clearRecovery(){
   try{
     if(id){ const {error}=await sb.from('resultats_1ere').delete().eq('id',id);
       if(error){ ok=false; console.warn('Brouillon non supprimé :', error.message); } }
-    if(eid){ const {data,error}=await sb.from('resultats_1ere').select('id,details').eq('eleve_id',eid);
+    if(eid){ const {data,error}=await lireToutes(()=>sb.from('resultats_1ere').select('id,details').eq('eleve_id',eid));
       if(error){ ok=false; console.warn('Recherche des brouillons impossible :', error.message); }
       const old=(data||[]).filter(r=>memeBrouillon(r.details, cible));
       for(const r of old){ const {error:errSup}=await sb.from('resultats_1ere').delete().eq('id',r.id);
@@ -4043,7 +4074,7 @@ async function clearRecovery(){
        corrige ; cette relecture fait que le PROCHAIN refus muet, quel qu'il
        soit, se voie tout de suite au lieu de vivre des mois. */
     if(eid && ok){
-      const {data:reste,error:errRelu}=await sb.from('resultats_1ere').select('id,details').eq('eleve_id',eid);
+      const {data:reste,error:errRelu}=await lireToutes(()=>sb.from('resultats_1ere').select('id,details').eq('eleve_id',eid));
       if(errRelu) ok=false;
       else if((reste||[]).some(r=>memeBrouillon(r.details, cible))) ok=false;
     }
@@ -4723,10 +4754,10 @@ async function startTM2(){
   let rows=[];
   try{
     /* supabase-js ne LANCE pas d'exception : on teste « error » explicitement. */
-    const {data,error}=await sb.from('resultats_1ere').select('details,created_at')
-      .eq('eleve_id',currentEleve.id).order('created_at',{ascending:false});
+    const {data,error}=await lireToutes(()=>sb.from('resultats_1ere').select('details,created_at')
+      .eq('eleve_id',currentEleve.id));
     if(error) throw error;
-    rows=data||[];
+    rows=(data||[]).slice().reverse();          /* les plus récentes d'abord, comme avant */
   }catch(e){ toast('Historique illisible \u2014 on prend les tables difficiles','err'); }
   const an=tm2Analyser(rows), ch=tm2Choisir(an.stats);
   test.kind='tm'; test.tmId='tables-multiplication-2';
@@ -9049,14 +9080,29 @@ function checkHSAnswer(live){
   const fracDec=(idN,idD,n,d)=>{ const tn=v(idN); if(tn==='') return false;
     const a=parseDecToFrac(tn), b=parseDecToFrac(v(idD)||'1');
     return !!a && !!b && b.n!==0 && a.n*b.d*d===n*a.d*b.n; };
+  /* La multiplication des deux coefficients se lit dans les deux sens — rien
+     n'impose lequel des deux vient en premier (contrairement à l'ordre P1/P2
+     de l'énoncé, qui LUI est fixé). hsA/hsB acceptent donc q.fA puis q.fB, ou
+     l'inverse : l'ordre choisi est celui qui rend les DEUX cases justes,
+     sinon on reste sur l'ordre canonique (q.fA, q.fB) pour juger chaque case
+     séparément, comme les autres paires du fichier. Signalé par Turquet sur
+     capture, septembre 2026 : 150/100 × 102/100 rougissait alors que 102/100
+     × 150/100 seul était accepté. */
+  const fracEqualStr=(nStr,dStr,N,D)=>{ if(nStr==='') return false;
+    const n=parseInt(nStr,10), d=(dStr===''||dStr==null)?1:parseInt(dStr,10);
+    return !isNaN(n)&&!isNaN(d)&&d!==0&&n*D===N*d; };
+  const hsStraightFull=fracEqualStr(v('hsAn'),v('hsAd'),q.fA.num,q.fA.den)&&fracEqualStr(v('hsBn'),v('hsBd'),q.fB.num,q.fB.den);
+  const hsSwapFull=fracEqualStr(v('hsAn'),v('hsAd'),q.fB.num,q.fB.den)&&fracEqualStr(v('hsBn'),v('hsBd'),q.fA.num,q.fA.den);
+  const hsSwap=hsSwapFull&&!hsStraightFull;
+  const hsTgA=hsSwap?q.fB:q.fA, hsTgB=hsSwap?q.fA:q.fB;
   if(live){
     liveColorFrac('hs1n','hs1d',q.P1,100); liveColorDecCoef0('hs1p',q.P1);
     liveColorFrac('hs2n','hs2d',q.P2,100); liveColorDecCoef0('hs2p',q.P2);
     [['hs1dec',q.c1],['hs2dec',q.c2]].forEach(p=>{ const el=$(p[0]); if(!el||el.disabled) return;
       el.classList.remove('ok','bad'); if(v(p[0])==='') return;
       el.classList.add(decOk(p[0],'1,',p[1],100)?'ok':'bad'); });
-    liveColorFrac('hsAn','hsAd',q.fA.num,q.fA.den,true);
-    liveColorFrac('hsBn','hsBd',q.fB.num,q.fB.den,true);
+    liveColorFrac('hsAn','hsAd',hsTgA.num,hsTgA.den,true);
+    liveColorFrac('hsBn','hsBd',hsTgB.num,hsTgB.den,true);
     [...$('hsMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     liveColorFrac('hsPn','hsPd',q.prodNum,q.prodDen,true);
     liveColorDec('hsDec',q.prodNum,q.prodDen);
@@ -9078,8 +9124,8 @@ function checkHSAnswer(live){
   const ok2  = v('hs2n')!=='' && fracEqual(iv('hs2n'),den('hs2d'),q.P2,100);
   const ok2p = decOk('hs2p','0,',q.P2,100);
   const ok2d = decOk('hs2dec','1,',q.c2,100);
-  const okA  = v('hsAn')!=='' && fracEqual(iv('hsAn'),den('hsAd'),q.fA.num,q.fA.den);
-  const okB  = v('hsBn')!=='' && fracEqual(iv('hsBn'),den('hsBd'),q.fB.num,q.fB.den);
+  const okA  = v('hsAn')!=='' && fracEqual(iv('hsAn'),den('hsAd'),hsTgA.num,hsTgA.den);
+  const okB  = v('hsBn')!=='' && fracEqual(iv('hsBn'),den('hsBd'),hsTgB.num,hsTgB.den);
   const okPr = v('hsPn')!=='' && fracEqual(iv('hsPn'),den('hsPd'),q.prodNum,q.prodDen);
   const okC  = decOk('hsDec','',q.prodNum,q.prodDen);
   const okP  = decOk('hsP','',q.hausseNum,10);
@@ -9118,7 +9164,7 @@ function checkHSAnswer(live){
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
   marqueFracSaufVide('hs1n','hs1d',q.P1,100,soutien); marqueSaufVide('hs1p',ok1p,soutien); marqueSaufVide('hs1dec',ok1d,soutien);
   marqueFracSaufVide('hs2n','hs2d',q.P2,100,soutien); marqueSaufVide('hs2p',ok2p,soutien); marqueSaufVide('hs2dec',ok2d,soutien);
-  marqueFracSaufVide('hsAn','hsAd',q.fA.num,q.fA.den,soutien); marqueFracSaufVide('hsBn','hsBd',q.fB.num,q.fB.den,soutien);
+  marqueFracSaufVide('hsAn','hsAd',hsTgA.num,hsTgA.den,soutien); marqueFracSaufVide('hsBn','hsBd',hsTgB.num,hsTgB.den,soutien);
   marqueFracSaufVide('hsPn','hsPd',q.prodNum,q.prodDen,soutien); marqueSaufVide('hsDec',okC,soutien); marqueSaufVide('hsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
   if(!allOk && soutien){ soutienAgain('hsFeedback','hsActions','checkHSAnswer','hsHost'); return; }
@@ -9130,7 +9176,7 @@ function checkHSAnswer(live){
     $('hsFeedback').className='mp-feedback bad';
     corTrainFrac('hs1n','hs1d',q.P1,100); corTrainDec('hs1p',String(q.P1).padStart(2,'0')); corTrainDec('hs1dec',String(q.c1-100).padStart(2,'0'));
     corTrainFrac('hs2n','hs2d',q.P2,100); corTrainDec('hs2p',String(q.P2).padStart(2,'0')); corTrainDec('hs2dec',String(q.c2-100).padStart(2,'0'));
-    corTrainFrac('hsAn','hsAd',q.fA.num,q.fA.den); corTrainFrac('hsBn','hsBd',q.fB.num,q.fB.den);
+    corTrainFrac('hsAn','hsAd',hsTgA.num,hsTgA.den); corTrainFrac('hsBn','hsBd',hsTgB.num,hsTgB.den);
     corTrainFrac('hsPn','hsPd',q.prodNum,q.prodDen); corTrainDec('hsDec',q.coefStr); corTrainDec('hsP',q.hausseStr);
   }
   const given=v('hsP')===''?null:(v('hsP').replace('.', ',')+' %');
@@ -10137,11 +10183,20 @@ function checkBSAnswer(live){
   const fracDec=(idN,idD,n,d)=>{ const tn=$(idN).value.trim(); if(tn==='') return false;
     const a=parseDecToFrac(tn), b=parseDecToFrac($(idD).value.trim()||'1');
     return !!a && !!b && b.n!==0 && a.n*b.d*d===n*a.d*b.n; };
+  /* La multiplication des deux coefficients se lit dans les deux sens, comme
+     en {hausses-successives} — voir son commentaire, mot pour mot. */
+  const fracEqualStr=(nStr,dStr,N,D)=>{ if(nStr==='') return false;
+    const n=parseInt(nStr,10), d=(dStr===''||dStr==null)?1:parseInt(dStr,10);
+    return !isNaN(n)&&!isNaN(d)&&d!==0&&n*D===N*d; };
+  const bsStraightFull=fracEqualStr(v('bsAn'),v('bsAd'),q.fA.num,q.fA.den)&&fracEqualStr(v('bsBn'),v('bsBd'),q.fB.num,q.fB.den);
+  const bsSwapFull=fracEqualStr(v('bsAn'),v('bsAd'),q.fB.num,q.fB.den)&&fracEqualStr(v('bsBn'),v('bsBd'),q.fA.num,q.fA.den);
+  const bsSwap=bsSwapFull&&!bsStraightFull;
+  const bsTgA=bsSwap?q.fB:q.fA, bsTgB=bsSwap?q.fA:q.fB;
   if(live){
     liveColorFrac('bs1n','bs1d',q.P1,100); liveColorDecCoef0('bs1p',q.P1); liveColorDecCoef0('bs1dec',q.c1);
     liveColorFrac('bs2n','bs2d',q.P2,100); liveColorDecCoef0('bs2p',q.P2); liveColorDecCoef0('bs2dec',q.c2);
-    liveColorFrac('bsAn','bsAd',q.fA.num,q.fA.den,true);
-    liveColorFrac('bsBn','bsBd',q.fB.num,q.fB.den,true);
+    liveColorFrac('bsAn','bsAd',bsTgA.num,bsTgA.den,true);
+    liveColorFrac('bsBn','bsBd',bsTgB.num,bsTgB.den,true);
     liveColorFrac('bsPn','bsPd',q.prodNum,q.prodDen,true);
     liveColorDec('bsDec',q.prodNum,q.prodDen);
     liveColorDec('bsP',q.baisseNum,1);
@@ -10164,8 +10219,8 @@ function checkBSAnswer(live){
   const ok2  = v('bs2n')!=='' && fracEqual(iv('bs2n'),den('bs2d'),q.P2,100);
   const ok2p = decOk('bs2p','0,',q.P2,100);
   const ok2d = decOk('bs2dec','0,',q.c2,100);
-  const okA  = v('bsAn')!=='' && fracEqual(iv('bsAn'),den('bsAd'),q.fA.num,q.fA.den);
-  const okB  = v('bsBn')!=='' && fracEqual(iv('bsBn'),den('bsBd'),q.fB.num,q.fB.den);
+  const okA  = v('bsAn')!=='' && fracEqual(iv('bsAn'),den('bsAd'),bsTgA.num,bsTgA.den);
+  const okB  = v('bsBn')!=='' && fracEqual(iv('bsBn'),den('bsBd'),bsTgB.num,bsTgB.den);
   const okPr = v('bsPn')!=='' && fracEqual(iv('bsPn'),den('bsPd'),q.prodNum,q.prodDen);
   const okC  = decOk('bsDec','',q.prodNum,q.prodDen);
   const okP  = decOk('bsP','',q.baisseNum,1);
@@ -10181,7 +10236,7 @@ function checkBSAnswer(live){
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
   marqueFracSaufVide('bs1n','bs1d',q.P1,100,soutien); marqueSaufVide('bs1p',ok1p,soutien); marqueSaufVide('bs1dec',ok1d,soutien);
   marqueFracSaufVide('bs2n','bs2d',q.P2,100,soutien); marqueSaufVide('bs2p',ok2p,soutien); marqueSaufVide('bs2dec',ok2d,soutien);
-  marqueFracSaufVide('bsAn','bsAd',q.fA.num,q.fA.den,soutien); marqueFracSaufVide('bsBn','bsBd',q.fB.num,q.fB.den,soutien);
+  marqueFracSaufVide('bsAn','bsAd',bsTgA.num,bsTgA.den,soutien); marqueFracSaufVide('bsBn','bsBd',bsTgB.num,bsTgB.den,soutien);
   marqueFracSaufVide('bsPn','bsPd',q.prodNum,q.prodDen,soutien); marqueSaufVide('bsDec',okC,soutien); marqueSaufVide('bsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
   if(!allOk && soutien){ soutienAgain('bsFeedback','bsActions','checkBSAnswer','bsHost'); return; }
@@ -10193,7 +10248,7 @@ function checkBSAnswer(live){
     $('bsFeedback').className='mp-feedback bad';
     corTrainFrac('bs1n','bs1d',q.P1,100); corTrainDec('bs1p',String(q.P1).padStart(2,'0')); corTrainDec('bs1dec',String(q.c1).padStart(2,'0'));
     corTrainFrac('bs2n','bs2d',q.P2,100); corTrainDec('bs2p',String(q.P2).padStart(2,'0')); corTrainDec('bs2dec',String(q.c2).padStart(2,'0'));
-    corTrainFrac('bsAn','bsAd',q.fA.num,q.fA.den); corTrainFrac('bsBn','bsBd',q.fB.num,q.fB.den);
+    corTrainFrac('bsAn','bsAd',bsTgA.num,bsTgA.den); corTrainFrac('bsBn','bsBd',bsTgB.num,bsTgB.den);
     corTrainFrac('bsPn','bsPd',q.prodNum,q.prodDen); corTrainDec('bsDec',q.coefStr); corTrainDec('bsP',q.baisseStr);
   }
   const given=v('bsP')===''?null:(v('bsP').replace('.', ',')+' %');
@@ -11247,7 +11302,7 @@ async function renderClassTable(){
   try{
     const [{data:eleves,error:e1},{data:resAll,error:e2}]=await Promise.all([
       sb.from('eleves_1ere').select('id,prenom').order('prenom'),
-      sb.from('resultats_1ere').select('*')
+      lireToutes(()=>sb.from('resultats_1ere').select('*'))
     ]);
     if(e1)throw e1; if(e2)throw e2;
     const res=resAll.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
@@ -11642,7 +11697,7 @@ function dmNotesDe(devId, rows){
    répare. */
 async function dmDecisionSuppression(dev){
   try{
-    const {data,error}=await sb.from(dmTableResultats()).select('*');
+    const {data,error}=await lireToutes(()=>sb.from(dmTableResultats()).select('*'));
     if(error) throw error;
     const n=dmNotesDe(dev.id, data||[]);
     return { archiver:n>0, n:n, lecture:true };
@@ -11935,7 +11990,7 @@ async function renderDmMoyennes(){
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
       sb.from('eleves_1ere').select('id,prenom'),
-      sb.from('resultats_1ere').select('*')
+      lireToutes(()=>sb.from('resultats_1ere').select('*'))
     ]);
     if(e1)throw e1; if(e2)throw e2;
     dmMoyDernier=dmMoyennes(dmAdminList, eleves||[], rows||[]);
@@ -11957,7 +12012,7 @@ async function renderDmResults(){
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
       sb.from('eleves_1ere').select('id,prenom').order('prenom'),
-      sb.from('resultats_1ere').select('*')
+      lireToutes(()=>sb.from('resultats_1ere').select('*'))
     ]);
     if(e1)throw e1; if(e2)throw e2;
     dmResRows=rows||[];
@@ -12042,7 +12097,7 @@ async function showStudentDetail(id,prenom){
   const isTrain=teacherMode==='train', isSout=teacherMode==='soutien';
   const label=isSout?'soutien':(isTrain?'entraînements':'évaluations');
   try{
-    const {data:all,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',id).order('created_at',{ascending:true});
+    const {data:all,error}=await lireToutes(()=>sb.from('resultats_1ere').select('*').eq('eleve_id',id));
     if(error)throw error;
     const data=all.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
     let inner=`<div class="panel"><div class="topbar"><h3 style="margin:0">${esc(prenom)} · ${label}</h3>
@@ -12216,7 +12271,7 @@ async function saveSettings(){
 /* export CSV */
 async function exportCSV(){
   try{
-    const {data:rawCsv,error}=await sb.from('resultats_1ere').select('*, eleves_1ere(prenom)').order('created_at',{ascending:true});
+    const {data:rawCsv,error}=await lireToutes(()=>sb.from('resultats_1ere').select('*, eleves_1ere(prenom)'));
     if(error)throw error;
     const data=(rawCsv||[]).filter(r=>!isPaused(r));
     if(!data.length){ toast('Aucun résultat à exporter'); return; }

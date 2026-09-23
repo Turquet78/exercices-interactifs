@@ -57,6 +57,14 @@ window.__faux = {
      gardé — les contrôles ne lisent jamais le contenu d'un PDF, seulement
      ce que la page a déposé, retiré et demandé. */
   fichiers: {},
+  /* LE PLAFOND DE POSTGREST : jamais plus de `maxLignes` lignes par select,
+     et SANS le dire — ni erreur, ni avertissement. Le double le reproduit
+     (1000, le réglage de Supabase), sans quoi une page qui lit toute une
+     table d'un seul select passerait au banc et couperait en production :
+     c'est ce qui faisait lire au professeur une note de la fiche 5 plus
+     basse que celle de l'élève (septembre 2026). Un contrôle le baisse pour
+     l'éprouver sans semer mille lignes. */
+  maxLignes: 1000,
   lignes(nom){ return this.tables[nom] || (this.tables[nom] = []); },
   semer(nom, lignes){ this.tables[nom] = lignes.map(l => Object.assign({}, l)); },
   semerCompte(courriel, motDePasse, userId, meta){
@@ -81,7 +89,7 @@ window.supabase = {
     }
 
     function requete(nom, op, charge, colonnes){
-      const etat = { filtres: [], unique: false, tolereVide: false, tri: null,
+      const etat = { filtres: [], unique: false, tolereVide: false, tri: [], plage: null,
                      colonnes: colonnesDe(colonnes) };
 
       function correspond(ligne){
@@ -142,9 +150,18 @@ window.supabase = {
           etat.colonnes.forEach(c => { projetee[c] = l[c]; });
           return projetee;
         });
-        if(etat.tri){                                  /* supabase-js trie vraiment : le double aussi */
-          const [col, croissant] = etat.tri;
-          trouvees.sort((a, b) => (a[col] > b[col] ? 1 : a[col] < b[col] ? -1 : 0) * (croissant ? 1 : -1));
+        if(etat.tri.length){                           /* supabase-js trie vraiment : le double aussi — */
+          trouvees.sort((a, b) => {                    /* et les tris s'ENCHAÎNENT, le premier départage d'abord */
+            for(const [col, croissant] of etat.tri){
+              const c = (a[col] > b[col] ? 1 : a[col] < b[col] ? -1 : 0) * (croissant ? 1 : -1);
+              if(c) return c;
+            }
+            return 0;
+          });
+        }
+        if(!etat.unique){                              /* .range(de, a), bornes incluses, puis le plafond muet */
+          if(etat.plage) trouvees = trouvees.slice(etat.plage[0], etat.plage[1] + 1);
+          if(F.maxLignes > 0) trouvees = trouvees.slice(0, F.maxLignes);
         }
         if(etat.unique && !etat.tolereVide && trouvees.length === 0){   /* .single() sans ligne EST une erreur côté Supabase ; .maybeSingle() non */
           return { data: null, error: { message: 'aucune ligne', code: 'PGRST116' } };
@@ -159,7 +176,8 @@ window.supabase = {
         eq(c, v){ etat.filtres.push(['eq', c, v]); return b; },
         neq(c, v){ etat.filtres.push(['neq', c, v]); return b; },
         ilike(c, v){ etat.filtres.push(['ilike', c, v]); return b; },
-        order(col, opts){ etat.tri = [col, !opts || opts.ascending !== false]; return b; },
+        order(col, opts){ etat.tri.push([col, !opts || opts.ascending !== false]); return b; },
+        range(de, a){ etat.plage = [de, a]; return b; },
         limit(){ return b; },
         single(){ etat.unique = true; return b; },
         maybeSingle(){ etat.unique = true; etat.tolereVide = true; return b; },

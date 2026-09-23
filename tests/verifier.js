@@ -2330,6 +2330,35 @@ function branchements(w){
     ignorer('le moteur des moyennes de la classe est au complet',
       'ce niveau n’a pas le tableau des moyennes');
   }
+  /* ---- TOUTE LECTURE D'UNE TABLE DE RÉSULTATS PASSE PAR lireToutes() ----
+     PostgREST ne rend jamais plus de 1000 lignes par select, et il coupe EN
+     SILENCE. Le bilan du professeur lisait toute la table d'un coup : passé
+     mille lignes pour la classe, la fiche du jour ne lui arrivait plus, et il
+     lisait une autre note que l'élève (signalé par Turquet sur la fiche 5 de
+     la Seconde, septembre 2026). Un select de résultats écrit demain SANS
+     l'entonnoir remettrait la panne en place sans que rien ne rougisse au
+     banc — une classe de test n'a jamais mille lignes. On le lit donc dans
+     la SOURCE : chaque « from(<table de résultats>).select( » doit être
+     précédé de « lireToutes(()=> ». Une écriture (insert/update/delete) n'est
+     pas une lecture, et n'est pas visée. */
+  const lecturesRes = [];
+  const reSelRes = /from\((?:'resultats[_a-z0-9]*'|dmTableResultats\(\))\)\.select\(/g;
+  let mSel;
+  while((mSel = reSelRes.exec(src))){
+    const avant = src.slice(Math.max(0, mSel.index - 20), mSel.index);
+    if(!/lireToutes\(\(\)=>sb\.$/.test(avant))
+      lecturesRes.push('ligne ' + (src.slice(0, mSel.index).split('\n').length));
+    else lecturesRes.push(null);
+  }
+  verifier('toute lecture d’une table de résultats passe par lireToutes() — le plafond de 1000 lignes coupe en silence',
+    lecturesRes.length > 0 && lecturesRes.every(x => x === null),
+    !lecturesRes.length ? 'aucune lecture de résultats trouvée : le contrôle ne mesure rien'
+      : 'lecture directe, ' + lecturesRes.filter(Boolean).join(', '));
+  if(corpsDe(src, 'lireToutes') === null)
+    verifier('lireToutes() est identique à celle de la Terminale, au caractère près', false, 'lireToutes() est absente');
+  else if(origine && CIBLE !== 'terminale.html')
+    verifier('lireToutes() est identique à celle de la Terminale, au caractère près',
+      corpsDe(src, 'lireToutes') === corpsDe(origine, 'lireToutes'));
   /* ---- LE MOTEUR DES FRACTIONS EST LE MÊME TEXTE DANS LES DEUX NIVEAUX ----
      {somme-fractions} vit en Seconde ET en Première, et {croiser-denominateurs}
      comme {simplifier-fractions} tournent dessus. Une moitié recopiée aurait
@@ -4209,11 +4238,11 @@ function recurrenceRedigee(w, apres){
         const touches = id => (kv(id) || []).map(k => k && (k.latex || k.key)).filter(Boolean);
         const rr = touches('recurrence-redaction');
         ['\\le', '\\ge', '<', '>'].forEach(l => {
-          if(rr.indexOf(l) === -1) pbs.push('la touche « ' + l + ' » manque au clavier du 6.7 (rangée : ' + rr.join(' ') + ')');
+          if(rr.indexOf(l) === -1) pbs.push('la touche « ' + l + ' » manque au clavier du {recurrence-redaction} (rangée : ' + rr.join(' ') + ')');
         });
         const sa = touches('suite-auxiliaire');
         if(sa.some(l => l === '\\le' || l === '\\ge' || l === '<' || l === '>'))
-          pbs.push('les touches d\'inégalité fuient hors du 6.7 (suite-auxiliaire : ' + sa.join(' ') + ')');
+          pbs.push('les touches d\'inégalité fuient hors du {recurrence-redaction} (suite-auxiliaire : ' + sa.join(' ') + ')');
       }
     }
     const garder = (srcKb.match(/const garder = \[([^\]]*)\]/) || [])[1] || '';
@@ -4224,7 +4253,7 @@ function recurrenceRedigee(w, apres){
        « <= » à l'écran. */
     if(!/&lt;=<\/kbd>/.test(srcKb)) pbs.push('la fenêtre des raccourcis (☰) ne dit plus « <= »');
     if(!/&gt;=<\/kbd>/.test(srcKb)) pbs.push('la fenêtre des raccourcis (☰) ne dit plus « >= »');
-    verifier('le 6.7 : le clavier à l\'écran porte ≤ ≥ < > et garde les raccourcis <= et >=',
+    verifier('le {recurrence-redaction} : le clavier à l\'écran porte ≤ ≥ < > et garde les raccourcis <= et >=',
       pbs.length === 0, pbs.join(' | '));
   }
 
@@ -5053,7 +5082,7 @@ function suiteAuxRedigee(w, apres){
       r.valeur === '', r.valeur);
     const marge = evaluer(w, 'window.__sarMarge'), pire = evaluer(w, 'window.__sarPire');
     if(r.valeur === '' && marge.ok && typeof marge.valeur === 'number')
-      console.log('   · la règle la plus longue envoyée au modèle (6.8) : ' + pire.valeur
+      console.log('   · la règle la plus longue envoyée au modèle ({suite-auxiliaire-redaction}) : ' + pire.valeur
         + ' caractères, ' + marge.valeur + ' de marge sur ' + borne);
     devoirPapierClique(w, apres);
   });
@@ -8680,7 +8709,7 @@ function suiteTcmLimite(w, P){
     if(!TESTS['suite-tcm-limite']) vus.push('l’exercice n’est pas dans TESTS');
     const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-tcm-limite')>=0; })[0];
     if(!th || th.nom!=='Suites') vus.push('l’exercice n’est pas dans le thème Suites');
-    else if(TEST_NUM['suite-tcm-limite']!=='6.12') vus.push('l’exercice a changé de numéro (' + TEST_NUM['suite-tcm-limite'] + ' au lieu de 6.12) : un exercice inséré AVANT lui renumérote ses voisins');
+    else if(TEST_NUM['suite-tcm-limite']!=='6.4.1') vus.push('l’exercice a changé de numéro (' + TEST_NUM['suite-tcm-limite'] + ' au lieu de 6.4.1, partie « Déterminer la limite d’une suite ») : un exercice inséré AVANT lui renumérote ses voisins');
     if(typeof RAPPELS==='undefined' || !RAPPELS.tcl) vus.push('aucun rappel de cours pour tcl');
     else if(!/convergence monotone/.test(RAPPELS.tcl) || !/passage à la limite/i.test(RAPPELS.tcl)) vus.push('le rappel ne nomme pas le théorème ou le passage à la limite');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.tcl) vus.push('aucune question proposée pour tcl');
@@ -9953,18 +9982,18 @@ function suiteSyntheseVariations(w, P){
 
     /* ---- 12. LE PARTAGE avec le 6.11 : un refactor qui cesse de servir son
              premier appelant est une copie qui recommence ------------------ */
-    if(String(svrSVG).indexOf('escSVG')<0) dit('le 6.11 ne passe plus par le repère partagé (escSVG)');
+    if(String(svrSVG).indexOf('escSVG')<0) dit('le {suite-variation-recurrence} ne passe plus par le repère partagé (escSVG)');
     if(String(ssvDessiner).indexOf('escSVG')<0) dit('la synthèse ne passe pas par le repère partagé (escSVG)');
-    if(String(svrDerVerdict).indexOf('derVerdict')<0) dit('le 6.11 ne passe plus par le juge partagé de la feuille (derVerdict)');
+    if(String(svrDerVerdict).indexOf('derVerdict')<0) dit('le {suite-variation-recurrence} ne passe plus par le juge partagé de la feuille (derVerdict)');
     if(String(ssvDerVerdict).indexOf('derVerdict')<0) dit('la synthèse ne passe pas par le juge partagé de la feuille (derVerdict)');
-    if(String(svrPeindreD).indexOf('derPeindre')<0) dit('le 6.11 ne passe plus par la peinture partagée de la feuille');
+    if(String(svrPeindreD).indexOf('derPeindre')<0) dit('le {suite-variation-recurrence} ne passe plus par la peinture partagée de la feuille');
 
     /* ---- 13. L’identité de l’exercice, et ses branchements --------------- */
     if(!TESTS['suite-synthese-variations']) dit('l’exercice n’est pas dans TESTS');
     { const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-synthese-variations')>=0; })[0];
       if(!th || th.nom!=='Suites') dit('l’exercice n’est pas dans le thème Suites');
-      else if(TEST_NUM['suite-synthese-variations']!=='6.15') dit('l’exercice porte le numéro '+TEST_NUM['suite-synthese-variations']+' au lieu de 6.15');
-      if(TEST_NUM['suite-vocabulaire']!=='6.14') dit('l’exercice a renuméroté son voisin : {suite-vocabulaire} est passé en '+TEST_NUM['suite-vocabulaire']); }
+      else if(TEST_NUM['suite-synthese-variations']!=='6.3.4') dit('l’exercice porte le numéro '+TEST_NUM['suite-synthese-variations']+' au lieu de 6.3.4');
+      if(TEST_NUM['suite-vocabulaire']!=='6.3.3') dit('l’exercice a renuméroté son voisin : {suite-vocabulaire} est passé en '+TEST_NUM['suite-vocabulaire']); }
     if(typeof RAPPELS==='undefined' || !RAPPELS.ssv) dit('aucun rappel de cours pour ssv');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.ssv) dit('aucune question proposée pour ssv');
     if(!afficherEcranDe('ssv')) dit('la reprise après pause ne connaît pas l’écran ssv');
@@ -14470,9 +14499,9 @@ function noteFicheSur20(w, apres){
     else ignorer(nom, F
       ? 'les « '+F.titre+' » de ce niveau se notent comme les devoirs, en points bruts (décision de Turquet, septembre 2026)'
       : 'ce niveau n\'a pas de seconde famille de devoirs');
-    return ecranQuiNeBougePas(w, apres);
+    return memeNoteChezLeProf(w, apres);
   }
-  if(F && !F.sur20){ verifier(nom, false, 'la page ramène les « '+F.titre+' » sur 20 (dmNoteAff) alors que le profil les déclare en points bruts'); return ecranQuiNeBougePas(w, apres); }
+  if(F && !F.sur20){ verifier(nom, false, 'la page ramène les « '+F.titre+' » sur 20 (dmNoteAff) alors que le profil les déclare en points bruts'); return memeNoteChezLeProf(w, apres); }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -14538,6 +14567,93 @@ function noteFicheSur20(w, apres){
       if(bil.indexOf('18 / 30')<0) vus.push('le bilan du devoir ne garde pas ses points bruts : '+bil.slice(0,140));
     }
     dmGenre='dm';
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    memeNoteChezLeProf(w, apres);
+  });
+}
+/* LA NOTE QUE LIT LE PROFESSEUR EST CELLE QUE VOIT L'ÉLÈVE — même quand la
+   table des résultats dépasse le plafond de Supabase. Signalé par Turquet
+   (septembre 2026) : « sur la fiche 5, je n'ai pas la même note dans la page
+   du prof que dans la page élève ». PostgREST ne rend jamais plus de 1000
+   lignes par select, et il coupe EN SILENCE : le bilan du professeur lisait
+   toute la table d'un coup, les lignes les plus récentes — la fiche du jour —
+   ne lui arrivaient plus, et l'élève, qui ne lit que les siennes, voyait la
+   vraie note. Le double reproduit le plafond ; on le BAISSE ici à 4 pour
+   l'éprouver sans semer mille lignes. Quatre bords, sur UNE classe :
+     · l'ÉLÈVE lui-même a plus de lignes que le plafond — sa note compte ses
+       plus récentes (la liste, qui les lit par ordre de date, les perdait) ;
+     · le BILAN du professeur dit la même note que l'élève ;
+     · le CARNET des moyennes aussi (même entonnoir, autre porte) ;
+     · et la décision d'ARCHIVER voit les notes : sans elles, un devoir noté
+       passait pour vierge et se supprimait avec ses notes.
+   Et un bord qui garde le contrôle honnête : sans plafond, la classe semée
+   doit bien le DÉPASSER — sinon le contrôle ne mesure rien. */
+function memeNoteChezLeProf(w, apres){
+  const nom='la note lue par le professeur est celle de l\'élève, même au-delà du plafond de lignes de Supabase';
+  const present = evaluer(w, "typeof lireToutes==='function' && typeof openDevoirsEleve==='function' && typeof dmDecisionSuppression==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'la page n\'a pas lireToutes(), openDevoirsEleve() ou dmDecisionSuppression()');
+    return ecranQuiNeBougePas(w, apres);
+  }
+  const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
+  const RES=P.tableResultats||'resultats';
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    const ids=Object.keys(TESTS).slice(0,3);
+    const trois=ids.map(function(id){ return {id:id,modes:['train']}; });
+    const devoir={id:'dm_plafond',num:5,actif:true,titre:'Devoir au plafond',cours:'',exercices:JSON.parse(JSON.stringify(trois))};
+    window.__faux.semer('${TABLE}',[{id:1,valeurs:{devoirs:[JSON.parse(JSON.stringify(devoir))],fiches:[]}}]);
+    /* d'abord le passé de la classe — six lignes d'un camarade et trois
+       vieilles de l'élève, sur un autre devoir — puis, LES PLUS RÉCENTES,
+       ses 18 points sur le devoir du jour (100 % + 80 % + rien) */
+    const lignes=[];
+    for(let k=0;k<6;k++) lignes.push({id:'v'+k,eleve_id:'e-autre',score:5,total:10,percent:50,created_at:'2026-09-0'+(k+1)+'T08:00:00Z',details:{test:ids[0],mode:'train',dm:'dm_vieux'}});
+    for(let k=0;k<3;k++) lignes.push({id:'w'+k,eleve_id:'e-controle',score:5,total:10,percent:50,created_at:'2026-09-1'+k+'T08:00:00Z',details:{test:ids[0],mode:'train',dm:'dm_vieux'}});
+    lignes.push({id:'x1',eleve_id:'e-controle',score:10,total:10,percent:100,created_at:'2026-09-21T08:00:00Z',details:{test:ids[0],mode:'train',dm:'dm_plafond'}});
+    lignes.push({id:'x2',eleve_id:'e-controle',score:8,total:10,percent:80,created_at:'2026-09-21T09:00:00Z',details:{test:ids[1],mode:'train',dm:'dm_plafond'}});
+    window.__faux.semer('${RES}', lignes);
+    window.__faux.semer('${P.tableEleves||'eleves'}',[{id:'e-controle',prenom:'Contrôle'},{id:'e-autre',prenom:'Autre'}]);
+    const PLAFOND=4;
+    if(lignes.length<=PLAFOND || lignes.filter(function(l){ return l.eleve_id==='e-controle'; }).length<=PLAFOND)
+      vus.push('la classe semée ne dépasse pas le plafond : le contrôle ne mesure rien');
+    window.__faux.maxLignes=PLAFOND;
+    try{
+      /* 1. l'élève */
+      await openDevoirsEleve();
+      const corps=document.getElementById('devoirsBody').textContent;
+      if(corps.indexOf('18 / 30')<0) vus.push('l\\'élève ne lit pas « 18 / 30 » — ses lignes les plus récentes sont coupées : '+corps.slice(0,120));
+      /* 2. le bilan du professeur — la fonction diverge d'un niveau à l'autre */
+      if(typeof dmGenre!=='undefined') dmGenre='dm';
+      dmSelId='dm_plafond';
+      let bil=null;
+      if(typeof renderDevoirResultats==='function' && typeof selectedDevoir==='function'){
+        dmList=[JSON.parse(JSON.stringify(devoir))]; await renderDevoirResultats();
+        bil=(document.getElementById('dmResults')||{textContent:''}).textContent;
+      } else if(typeof renderDmResults==='function'){
+        dmAdminList=[JSON.parse(JSON.stringify(devoir))]; await renderDmResults();
+        bil=(document.getElementById('dmResults')||{textContent:''}).textContent;
+      }
+      if(bil===null) vus.push('aucun bilan professeur à exercer');
+      else if(bil.indexOf('18 / 30')<0) vus.push('le bilan du professeur ne lit pas « 18 / 30 » comme l\\'élève : '+bil.slice(0,160));
+      /* 3. le carnet des moyennes : 18/30 ramené sur 20, c'est 12 */
+      if(typeof renderDmMoyennes==='function' && document.getElementById('dmMoyennes')){
+        await renderDmMoyennes();
+        await new Promise(function(r){ setTimeout(r,0); });
+        const b=(typeof dmMoyDernier!=='undefined')?dmMoyDernier:null;
+        const l=b&&b.lignes.find(function(x){ return x.eleve.id==='e-controle'; });
+        if(!l) vus.push('le carnet des moyennes n\\'a pas de ligne pour l\\'élève');
+        else if(Math.abs(l.cases[0].sur20-12)>1e-9) vus.push('le carnet des moyennes compte '+l.cases[0].sur20+' / 20 au lieu de 12');
+      } else vus.push('aucun carnet des moyennes à exercer');
+      /* 4. archiver ou supprimer : le devoir A des notes */
+      const dec=await dmDecisionSuppression(devoir);
+      if(!dec||!dec.archiver) vus.push('la décision de suppression ne voit pas les notes du devoir : '+JSON.stringify(dec));
+    } finally { window.__faux.maxLignes=1000; }
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
@@ -21846,7 +21962,10 @@ function pythonChangerValeurs(w, P){
     /* UNE VALEUR VIDE : la porte la redemande */
     A().value=""; A().dispatchEvent(new Event("input",{bubbles:true})); checkPCV();
     if(fb().textContent.indexOf("manque")<0) vus.push("le message ne redemande pas la valeur manquante : "+fb().textContent);
-    if(pred().indexOf(String(q.va))>=0) vus.push("la phrase garde l’ancienne valeur alors que la case est vide : "+pred());
+    /* un NOMBRE, pas un morceau de nombre : avec va = 1 et vb = 12, « … et 12 »
+       contient « 1 », et le contrôle rougissait à tort un tirage sur quelques-uns */
+    const dit=function(n){ return new RegExp("(^|[^0-9])"+String(n)+"(?![0-9])").test(pred()); };
+    if(dit(q.va)) vus.push("la phrase garde l’ancienne valeur alors que la case est vide : "+pred());
     /* LA PHRASE SUIT : c’est le risque propre, et il est silencieux */
     const neuf=q.va+7;
     A().value=String(neuf); A().dispatchEvent(new Event("input",{bubbles:true}));
@@ -23297,6 +23416,8 @@ function coefficientGlobalCourt(w, P){
       'ce niveau n\'a pas l\'exercice des hausses successives');
     ignorer('2.2.7 : 1,50 × 1,02 donne 1,53 et 53 %, et la copie juste vaut le point',
       'ce niveau n\'a pas l\'exercice des hausses successives');
+    ignorer('2.2.7 : la multiplication des deux coefficients s\'accepte dans les deux sens',
+      'ce niveau n\'a pas l\'exercice des hausses successives');
     return;
   }
   verifierEval(w, '2.2.7 : le coefficient global s\'écrit avec au plus deux décimales', `(function(){
@@ -23380,6 +23501,35 @@ function coefficientGlobalCourt(w, P){
     Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
       if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
     if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  /* Signalé par Turquet sur capture, septembre 2026 : 150/100 × 102/100
+     rougissait ses deux cases, alors que 102/100 × 150/100 seul était
+     accepté. Rien dans l'énoncé de l'étape ② ne fixe lequel des deux
+     coefficients s'écrit en premier — la multiplication commute — et la
+     même copie, réécrite dans l'ordre inverse, doit valoir le même point. */
+  verifierEval(w, '2.2.7 : la multiplication des deux coefficients s\'accepte dans les deux sens', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genHausses([]); if(q.paire==="2-50") Q=q; }
+    if(!Q) return "le tirage ne produit jamais 2 % puis 50 %, l exemple de la demande";
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:"hs", qId:"hausses-successives", questions:[Q], idx:0, score:0,
+                        answers:[], startTime:Date.now(), locked:false, maxScore:1});
+    show("hstest"); renderHSTest();
+    const deux=function(P){ return P<10 ? "0"+P : ""+P; };
+    const copie={hs1n:""+Q.P1, hs1d:"100", hs1p:deux(Q.P1), hs1dec:deux(Q.P1),
+                 hs2n:""+Q.P2, hs2d:"100", hs2p:deux(Q.P2), hs2dec:deux(Q.P2),
+                 hsAn:""+Q.fB.num, hsAd:""+Q.fB.den, hsBn:""+Q.fA.num, hsBd:""+Q.fA.den,
+                 hsPn:""+Q.prodNum, hsPd:""+Q.prodDen, hsDec:Q.coefStr, hsP:Q.hausseStr};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkHSAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie inversée : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie inversée ne vaut pas le point : "+test.score);
     return vus.join(" | ");
   })()`, v => v === '', undefined);
 }
@@ -23481,6 +23631,8 @@ function coefficientGlobalCourtBaisses(w, P){
       'ce niveau n\'a pas l\'exercice des baisses successives');
     ignorer('2.3.7 : 0,8 × 0,6 donne 0,48 et 52 %, et la copie juste vaut le point',
       'ce niveau n\'a pas l\'exercice des baisses successives');
+    ignorer('2.3.7 : la multiplication des deux coefficients s\'accepte dans les deux sens',
+      'ce niveau n\'a pas l\'exercice des baisses successives');
     return;
   }
   verifierEval(w, '2.3.7 : le coefficient global des deux baisses s\'écrit avec au plus deux décimales', `(function(){
@@ -23543,6 +23695,30 @@ function coefficientGlobalCourtBaisses(w, P){
     Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
       if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
     if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  /* Le miroir du 2.2.7 : la même règle, la même capture. */
+  verifierEval(w, '2.3.7 : la multiplication des deux coefficients s\'accepte dans les deux sens', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genBaisses(); if(q.P1===20 && q.P2===40) Q=q; }
+    if(!Q) return "le tirage ne produit jamais 20 % puis 40 %, l exemple du rappel de cours";
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:"bs", qId:"baisses-successives", questions:[Q], idx:0, score:0,
+                        answers:[], startTime:Date.now(), locked:false, maxScore:1});
+    show("bstest"); renderBSTest();
+    const copie={bs1n:""+Q.P1, bs1d:"100", bs1p:""+Q.P1, bs1dec:""+Q.c1,
+                 bs2n:""+Q.P2, bs2d:"100", bs2p:""+Q.P2, bs2dec:""+Q.c2,
+                 bsAn:""+Q.fB.num, bsAd:""+Q.fB.den, bsBn:""+Q.fA.num, bsBd:""+Q.fA.den,
+                 bsPn:""+Q.prodNum, bsPd:""+Q.prodDen, bsDec:Q.coefStr, bsP:Q.baisseStr};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkBSAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie inversée : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie inversée ne vaut pas le point : "+test.score);
     return vus.join(" | ");
   })()`, v => v === '', undefined);
 
@@ -24901,7 +25077,7 @@ function suiteVocabulaire(w, P){
        la même que celle du {suite-tcm-limite} : le numéro, épinglé. */
     { const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-vocabulaire')>=0; })[0];
       if(!th || th.nom!=='Suites') vus.push('l\\'exercice n\\'est pas dans le th\u00e8me Suites');
-      else if(TEST_NUM['suite-vocabulaire']!=='6.14') vus.push('l\\'exercice a chang\u00e9 de num\u00e9ro (' + TEST_NUM['suite-vocabulaire'] + ' au lieu de 6.14) : un exercice ins\u00e9r\u00e9 AVANT lui renum\u00e9rote ses voisins'); }
+      else if(TEST_NUM['suite-vocabulaire']!=='6.3.3') vus.push('l\\'exercice a chang\u00e9 de num\u00e9ro (' + TEST_NUM['suite-vocabulaire'] + ' au lieu de 6.3.3) : un exercice ins\u00e9r\u00e9 AVANT lui renum\u00e9rote ses voisins'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

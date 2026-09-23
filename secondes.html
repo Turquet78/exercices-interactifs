@@ -6254,7 +6254,7 @@ async function clearRecovery(){
   try{
     if(id){ const {error}=await sb.from('resultats_2nde').delete().eq('id',id);
       if(error){ ok=false; console.warn('brouillon non supprime :', error.message||error); } }
-    if(eid){ const {data,error}=await sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid);
+    if(eid){ const {data,error}=await lireToutes(()=>sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid));
       if(error){ ok=false; console.warn('recherche des brouillons impossible :', error.message||error); }
       const old=(data||[]).filter(r=>memeBrouillon(r.details, cible));
       for(const r of old){ const {error:errSup}=await sb.from('resultats_2nde').delete().eq('id',r.id);
@@ -6268,7 +6268,7 @@ async function clearRecovery(){
        corrige ; cette relecture fait que le PROCHAIN refus muet, quel qu'il
        soit, se voie tout de suite au lieu de vivre des mois. */
     if(eid && ok){
-      const {data:reste,error:errRelu}=await sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid);
+      const {data:reste,error:errRelu}=await lireToutes(()=>sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid));
       if(errRelu) ok=false;
       else if((reste||[]).some(r=>memeBrouillon(r.details, cible))) ok=false;
     }
@@ -6289,7 +6289,7 @@ async function openTest(testId){
   // chercher une session mise en pause pour ce test (entraînement / soutien)
   pausedRows={};
   try{
-    const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await lireToutes(()=>sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id));
     if(error) toast('Connexion instable : reprise indisponible','err');
     /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). Ce menu-ci est le menu
        LIBRE : il ne propose que les pauses prises hors devoir. Il montrait aussi
@@ -7221,9 +7221,40 @@ function rejouerSignalement(id){
   toast('Écran rejoué — aucune note ne sera enregistrée','ok');
 }
 
+/* SUPABASE NE REND JAMAIS PLUS DE 1000 LIGNES PAR REQUÊTE, et il le fait EN
+   SILENCE : ni erreur, ni avertissement — la réponse est simplement coupée.
+   Signalé par Turquet (septembre 2026) : « sur la fiche 5, je n'ai pas la même
+   note dans la page du prof que dans la page élève ». Le bilan du professeur
+   lisait TOUTE la table des résultats d'un seul select('*') : passé mille
+   lignes pour la classe, les plus récentes — la fiche du jour — n'arrivaient
+   plus, et le professeur lisait une note plus basse que celle que l'élève
+   voyait, lui qui ne lit que ses propres lignes. Le même plafond guettait la
+   décision d'archiver un devoir (« aucune note » alors qu'il y en avait) et,
+   un jour, l'élève le plus assidu de l'année.
+   UN SEUL ENTONNOIR, donc, pour toute lecture d'une table de résultats : on lit
+   page par page, dans un ordre STABLE (date puis identifiant — sans ordre, deux
+   pages peuvent se recouvrir), jusqu'à la page VIDE. On ne s'arrête pas à la
+   première page incomplète : le plafond est un réglage du serveur, et s'il
+   descendait sous la taille de page, on couperait de nouveau sans le dire.
+   `faire` rend une requête NEUVE à chaque appel — une requête Supabase ne se
+   rejoue pas. Même texte dans les trois fichiers, et un contrôle les compare. */
+async function lireToutes(faire){
+  const PAGE=1000; let tout=[];
+  for(;;){
+    const {data,error}=await faire()
+      .order('created_at',{ascending:true}).order('id',{ascending:true})
+      .range(tout.length, tout.length+PAGE-1);
+    if(error) return { data:null, error:error };
+    const lot=data||[];
+    tout=tout.concat(lot);
+    /* une page vide dit la fin ; une page PLUS longue que demandée dit un
+       serveur qui ignore la plage — la relire tournerait sans fin */
+    if(!lot.length || lot.length>PAGE) return { data:tout, error:null };
+  }
+}
 async function chargerMesResultats(){
   try{
-    const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    const {data,error}=await lireToutes(()=>sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id));
     if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; return mesResultats; }
     mesResultats=(data||[]).filter(r=>!isPaused(r));
   }catch(e){ mesResultats=[]; }
@@ -7529,7 +7560,7 @@ async function openTestDevoir(devoirId, testId){
   show('mode');
   pausedRows={};
   try{
-    const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await lireToutes(()=>sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id));
     if(error) toast('Connexion instable : reprise indisponible','err');
     /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). L'écran d'un devoir ne
        propose que les pauses de CE devoir. */
@@ -15040,7 +15071,7 @@ async function renderClassTable(){
   try{
     const [{data:eleves,error:e1},{data:resAll,error:e2}]=await Promise.all([
       sb.from('eleves_2nde').select('id,prenom').order('prenom'),
-      sb.from('resultats_2nde').select('*')
+      lireToutes(()=>sb.from('resultats_2nde').select('*'))
     ]);
     if(e1)throw e1; if(e2)throw e2;
     const res=resAll.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
@@ -15150,7 +15181,7 @@ async function showStudentDetail(id,prenom){
   const isTrain=teacherMode==='train', isSout=teacherMode==='soutien';
   const label=isSout?'soutien':(isTrain?'entraînements':'évaluations');
   try{
-    const {data:all,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',id).order('created_at',{ascending:true});
+    const {data:all,error}=await lireToutes(()=>sb.from('resultats_2nde').select('*').eq('eleve_id',id));
     if(error)throw error;
     const data=all.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
     let inner=`<div class="panel"><div class="topbar"><h3 style="margin:0">${esc(prenom)} · ${label}</h3>
@@ -15527,7 +15558,7 @@ function dmNotesDe(devId, rows){
    répare. */
 async function dmDecisionSuppression(dev){
   try{
-    const {data,error}=await sb.from(dmTableResultats()).select('*');
+    const {data,error}=await lireToutes(()=>sb.from(dmTableResultats()).select('*'));
     if(error) throw error;
     const n=dmNotesDe(dev.id, data||[]);
     return { archiver:n>0, n:n, lecture:true };
@@ -15815,7 +15846,7 @@ async function renderDmMoyennes(){
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
       sb.from('eleves_2nde').select('id,prenom'),
-      sb.from('resultats_2nde').select('*')
+      lireToutes(()=>sb.from('resultats_2nde').select('*'))
     ]);
     if(e1)throw e1; if(e2)throw e2;
     dmMoyDernier=dmMoyennes(dmList, eleves||[], rows||[]);
@@ -15836,7 +15867,7 @@ async function renderDevoirResultats(){
   try{
     const [{data:eleves,error:e1},{data:res,error:e2}]=await Promise.all([
       sb.from('eleves_2nde').select('id,prenom').order('prenom'),
-      sb.from('resultats_2nde').select('*')
+      lireToutes(()=>sb.from('resultats_2nde').select('*'))
     ]);
     if(e1)throw e1; if(e2)throw e2;
     if(!eleves||!eleves.length){ box.innerHTML='<div class="empty">Aucun compte élève.</div>'; return; }
@@ -15885,7 +15916,7 @@ async function renderDevoirResultats(){
 /* export CSV */
 async function exportCSV(){
   try{
-    const {data:rawCsv,error}=await sb.from('resultats_2nde').select('*, eleves_2nde(prenom)').order('created_at',{ascending:true});
+    const {data:rawCsv,error}=await lireToutes(()=>sb.from('resultats_2nde').select('*, eleves_2nde(prenom)'));
     if(error)throw error;
     const data=(rawCsv||[]).filter(r=>!isPaused(r));
     if(!data.length){ toast('Aucun résultat à exporter'); return; }
