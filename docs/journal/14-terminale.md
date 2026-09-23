@@ -2130,3 +2130,28 @@ pas retirés : la propriété reste la même. Le contrôle universel de la
 navigation (verifier.js) et le banc navigateur « 8. LE MENU EN DEUX ÉTAGES »
 couvrent la Terminale dès qu'elle déclare `menu` dans son profil — c'est fait,
 et `soustheme` a rejoint ses `ecransHorsExercice`.
+
+**PUIS LES QUATRE PARTIES ONT ÉTÉ REDÉCOUPÉES.** Demande de Turquet
+(septembre 2026) : « suite auxiliaire, récurrence et inégalité, récurrence et
+égalité, théorème de convergence monotone. Dans le sous-thème du théorème de
+convergence monotone on mettra tous les exercices ayant au moins une question
+dessus ; l'exercice sur les expressions de suites arithmétiques et
+géométriques sera dans le sous-thème suite auxiliaire ».
+6.1 Suite auxiliaire — inchangée, {suite-explicite} en tête ;
+6.2 Récurrence et inégalité — {suites-encadrement}, {recurrence-encadrement},
+{recurrence-complete}, {recurrence-redaction}, {suite-variation-recurrence},
+{suite-variation-difference} (tous démontrent un ENCADREMENT) ;
+6.3 Récurrence et égalité — {recurrence-formule}, {recurrence-fractions} (une
+FORMULE explicite) ; 6.4 Théorème de convergence monotone —
+{suite-vocabulaire}, {suite-tcm-limite}, {suite-synthese-variations}.
+**Un exercice ne vit que dans UNE partie** : la liste plate `t.ids` est la
+concaténation des parties, un doublon y donnerait deux numéros au même
+identifiant. La règle « au moins une question » l'emporte donc : la synthèse
+démontre aussi un encadrement, elle va au théorème (sa question h).
+{suite-vocabulaire} n'a pas de question qui NOMME le théorème, mais elle fait
+lire ses trois mots (monotone, bornée, convergente) et son rappel l'énonce ;
+aucune des trois autres parties ne lui convenait — elle ouvre la partie.
+Les épingles suivent : {suite-vocabulaire} 6.4.1, {suite-tcm-limite} 6.4.2,
+{suite-synthese-variations} 6.4.3 ; et le contrôle du {recurrence-formule}
+exigeait « juste après {recurrence-encadrement} » — il exige désormais qu'il
+OUVRE la partie « Récurrence et égalité » (6.3.1).
