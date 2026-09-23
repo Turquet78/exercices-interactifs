@@ -4209,11 +4209,11 @@ function recurrenceRedigee(w, apres){
         const touches = id => (kv(id) || []).map(k => k && (k.latex || k.key)).filter(Boolean);
         const rr = touches('recurrence-redaction');
         ['\\le', '\\ge', '<', '>'].forEach(l => {
-          if(rr.indexOf(l) === -1) pbs.push('la touche « ' + l + ' » manque au clavier du 6.7 (rangée : ' + rr.join(' ') + ')');
+          if(rr.indexOf(l) === -1) pbs.push('la touche « ' + l + ' » manque au clavier du {recurrence-redaction} (rangée : ' + rr.join(' ') + ')');
         });
         const sa = touches('suite-auxiliaire');
         if(sa.some(l => l === '\\le' || l === '\\ge' || l === '<' || l === '>'))
-          pbs.push('les touches d\'inégalité fuient hors du 6.7 (suite-auxiliaire : ' + sa.join(' ') + ')');
+          pbs.push('les touches d\'inégalité fuient hors du {recurrence-redaction} (suite-auxiliaire : ' + sa.join(' ') + ')');
       }
     }
     const garder = (srcKb.match(/const garder = \[([^\]]*)\]/) || [])[1] || '';
@@ -4224,7 +4224,7 @@ function recurrenceRedigee(w, apres){
        « <= » à l'écran. */
     if(!/&lt;=<\/kbd>/.test(srcKb)) pbs.push('la fenêtre des raccourcis (☰) ne dit plus « <= »');
     if(!/&gt;=<\/kbd>/.test(srcKb)) pbs.push('la fenêtre des raccourcis (☰) ne dit plus « >= »');
-    verifier('le 6.7 : le clavier à l\'écran porte ≤ ≥ < > et garde les raccourcis <= et >=',
+    verifier('le {recurrence-redaction} : le clavier à l\'écran porte ≤ ≥ < > et garde les raccourcis <= et >=',
       pbs.length === 0, pbs.join(' | '));
   }
 
@@ -5053,7 +5053,7 @@ function suiteAuxRedigee(w, apres){
       r.valeur === '', r.valeur);
     const marge = evaluer(w, 'window.__sarMarge'), pire = evaluer(w, 'window.__sarPire');
     if(r.valeur === '' && marge.ok && typeof marge.valeur === 'number')
-      console.log('   · la règle la plus longue envoyée au modèle (6.8) : ' + pire.valeur
+      console.log('   · la règle la plus longue envoyée au modèle ({suite-auxiliaire-redaction}) : ' + pire.valeur
         + ' caractères, ' + marge.valeur + ' de marge sur ' + borne);
     devoirPapierClique(w, apres);
   });
@@ -8680,7 +8680,7 @@ function suiteTcmLimite(w, P){
     if(!TESTS['suite-tcm-limite']) vus.push('l’exercice n’est pas dans TESTS');
     const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-tcm-limite')>=0; })[0];
     if(!th || th.nom!=='Suites') vus.push('l’exercice n’est pas dans le thème Suites');
-    else if(TEST_NUM['suite-tcm-limite']!=='6.12') vus.push('l’exercice a changé de numéro (' + TEST_NUM['suite-tcm-limite'] + ' au lieu de 6.12) : un exercice inséré AVANT lui renumérote ses voisins');
+    else if(TEST_NUM['suite-tcm-limite']!=='6.4.1') vus.push('l’exercice a changé de numéro (' + TEST_NUM['suite-tcm-limite'] + ' au lieu de 6.4.1, partie « Déterminer la limite d’une suite ») : un exercice inséré AVANT lui renumérote ses voisins');
     if(typeof RAPPELS==='undefined' || !RAPPELS.tcl) vus.push('aucun rappel de cours pour tcl');
     else if(!/convergence monotone/.test(RAPPELS.tcl) || !/passage à la limite/i.test(RAPPELS.tcl)) vus.push('le rappel ne nomme pas le théorème ou le passage à la limite');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.tcl) vus.push('aucune question proposée pour tcl');
@@ -9953,18 +9953,18 @@ function suiteSyntheseVariations(w, P){
 
     /* ---- 12. LE PARTAGE avec le 6.11 : un refactor qui cesse de servir son
              premier appelant est une copie qui recommence ------------------ */
-    if(String(svrSVG).indexOf('escSVG')<0) dit('le 6.11 ne passe plus par le repère partagé (escSVG)');
+    if(String(svrSVG).indexOf('escSVG')<0) dit('le {suite-variation-recurrence} ne passe plus par le repère partagé (escSVG)');
     if(String(ssvDessiner).indexOf('escSVG')<0) dit('la synthèse ne passe pas par le repère partagé (escSVG)');
-    if(String(svrDerVerdict).indexOf('derVerdict')<0) dit('le 6.11 ne passe plus par le juge partagé de la feuille (derVerdict)');
+    if(String(svrDerVerdict).indexOf('derVerdict')<0) dit('le {suite-variation-recurrence} ne passe plus par le juge partagé de la feuille (derVerdict)');
     if(String(ssvDerVerdict).indexOf('derVerdict')<0) dit('la synthèse ne passe pas par le juge partagé de la feuille (derVerdict)');
-    if(String(svrPeindreD).indexOf('derPeindre')<0) dit('le 6.11 ne passe plus par la peinture partagée de la feuille');
+    if(String(svrPeindreD).indexOf('derPeindre')<0) dit('le {suite-variation-recurrence} ne passe plus par la peinture partagée de la feuille');
 
     /* ---- 13. L’identité de l’exercice, et ses branchements --------------- */
     if(!TESTS['suite-synthese-variations']) dit('l’exercice n’est pas dans TESTS');
     { const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-synthese-variations')>=0; })[0];
       if(!th || th.nom!=='Suites') dit('l’exercice n’est pas dans le thème Suites');
-      else if(TEST_NUM['suite-synthese-variations']!=='6.15') dit('l’exercice porte le numéro '+TEST_NUM['suite-synthese-variations']+' au lieu de 6.15');
-      if(TEST_NUM['suite-vocabulaire']!=='6.14') dit('l’exercice a renuméroté son voisin : {suite-vocabulaire} est passé en '+TEST_NUM['suite-vocabulaire']); }
+      else if(TEST_NUM['suite-synthese-variations']!=='6.3.4') dit('l’exercice porte le numéro '+TEST_NUM['suite-synthese-variations']+' au lieu de 6.3.4');
+      if(TEST_NUM['suite-vocabulaire']!=='6.3.3') dit('l’exercice a renuméroté son voisin : {suite-vocabulaire} est passé en '+TEST_NUM['suite-vocabulaire']); }
     if(typeof RAPPELS==='undefined' || !RAPPELS.ssv) dit('aucun rappel de cours pour ssv');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.ssv) dit('aucune question proposée pour ssv');
     if(!afficherEcranDe('ssv')) dit('la reprise après pause ne connaît pas l’écran ssv');
@@ -24958,7 +24958,7 @@ function suiteVocabulaire(w, P){
        la même que celle du {suite-tcm-limite} : le numéro, épinglé. */
     { const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-vocabulaire')>=0; })[0];
       if(!th || th.nom!=='Suites') vus.push('l\\'exercice n\\'est pas dans le th\u00e8me Suites');
-      else if(TEST_NUM['suite-vocabulaire']!=='6.14') vus.push('l\\'exercice a chang\u00e9 de num\u00e9ro (' + TEST_NUM['suite-vocabulaire'] + ' au lieu de 6.14) : un exercice ins\u00e9r\u00e9 AVANT lui renum\u00e9rote ses voisins'); }
+      else if(TEST_NUM['suite-vocabulaire']!=='6.3.3') vus.push('l\\'exercice a chang\u00e9 de num\u00e9ro (' + TEST_NUM['suite-vocabulaire'] + ' au lieu de 6.3.3) : un exercice ins\u00e9r\u00e9 AVANT lui renum\u00e9rote ses voisins'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

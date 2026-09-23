@@ -2473,7 +2473,7 @@ async function parcours(page, N){
        Le bord OPPOSÉ compte autant : elle doit continuer de GRANDIR sous la
        frappe, comme les autres. Une case rapetissie qui aurait perdu son
        élasticité couperait « n+1 » — le défaut qu'on venait de corriger. */
-    titre('6 septies quater. LES CASES D\'INDICE DU 6.3');
+    titre('6 septies quater. LES CASES D\'INDICE DU {suite-auxiliaire-2}');
     if(!/function sa2Ajuster\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
       ignorer('les cases d\'indice sont plus petites que les autres, et grandissent quand même',
         'ce niveau n\'a pas la suite auxiliaire à compléter');
@@ -2515,7 +2515,7 @@ async function parcours(page, N){
         !!t.idxPlein && t.idxPlein.l > t.idx.l,
         !t.idxPlein ? 'mesure impossible'
                     : 'au repos ' + t.idx.l + 'px, avec « n+1 » ' + t.idxPlein.l + 'px');
-      verifier('le 6.3 n\'a levé aucune erreur JavaScript',
+      verifier('le {suite-auxiliaire-2} n\'a levé aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
@@ -3051,13 +3051,13 @@ async function parcours(page, N){
        case (un canevas, jamais une estimation) et on exige que le contenu tienne
        avec une marge. Mesurer « scrollWidth > clientWidth » n'aurait rien dit :
        un input rend 1 px de plus même VIDE, et ce bruit noierait le défaut. */
-    titre('6 septies septies. LE 6.3 : L\'ENCRE, LA PLACE ET LA PHRASE');
+    titre('6 septies septies. LE {suite-auxiliaire-2} : L\'ENCRE, LA PLACE ET LA PHRASE');
     if(!/function sa2Ajuster\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
-      ignorer('les cases du 6.3 prennent la police de leur rangée', 'ce niveau n\'a pas le 6.3');
+      ignorer('les cases du {suite-auxiliaire-2} prennent la police de leur rangée', 'ce niveau n\'a pas le {suite-auxiliaire-2}');
     } else {
       s = await ouvrir(chromium, ml, {});
       if(await connecter(s.page) !== 'scr-space'){
-        ignorer('les cases du 6.3 prennent la police de leur rangée', 'connexion impossible — rien à mesurer');
+        ignorer('les cases du {suite-auxiliaire-2} prennent la police de leur rangée', 'connexion impossible — rien à mesurer');
       } else {
         await s.page.evaluate(() => openTest('suite-auxiliaire-2'));
         await s.page.waitForTimeout(400);
@@ -3106,12 +3106,12 @@ async function parcours(page, N){
           return res;
         });
 
-        verifier('les cases du 6.3 sont bien là pour être mesurées',
+        verifier('les cases du {suite-auxiliaire-2} sont bien là pour être mesurées',
           m.cases >= 10, 'seulement ' + m.cases + ' case(s) trouvée(s) : le contrôle ne mesure rien');
-        verifier('les cases du 6.3 écrivent comme la rangée qui les entoure, sans gras',
+        verifier('les cases du {suite-auxiliaire-2} écrivent comme la rangée qui les entoure, sans gras',
           m.cases >= 10 && m.encre.length === 0,
           'rangée : ' + m.rangee + ' — cases qui s\'en écartent : ' + m.encre.slice(0, 4).join(' | '));
-        verifier('aucune case du 6.3 ne rogne ce qu\'on y écrit',
+        verifier('aucune case du {suite-auxiliaire-2} ne rogne ce qu\'on y écrit',
           m.cases >= 10 && m.serre.length === 0,
           'trop serrées : ' + m.serre.slice(0, 4).join(' | '));
         /* UNE ÉTAPE PAR LIGNE, LES « = » ALIGNÉS (demande de Turquet, août
@@ -3131,14 +3131,14 @@ async function parcours(page, N){
             ecart: droits.length ? Math.max(...droits) - Math.min(...droits) : 999,
           };
         });
-        verifier('la chaîne du a) du 6.3 : un « = » par ligne, tous dans la colonne',
+        verifier('la chaîne du a) du {suite-auxiliaire-2} : un « = » par ligne, tous dans la colonne',
           al.n === 6 && al.finissentPar,
           al.n + ' rangée(s) à « = » — chacune doit finir par « = »');
         verifier('les « = » de la chaîne du a) sont alignés, celui du haut compris',
           al.ecart <= 1.5,
           'bords droits : ' + al.droits.join(' / ') + ' (écart ' + Math.round(al.ecart) + ' px)');
 
-                verifier('les cases du 6.3 n\'ont levé aucune erreur JavaScript',
+                verifier('les cases du {suite-auxiliaire-2} n\'ont levé aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
 
         /* LA PHRASE DE LA CORRECTION PORTE LES COULEURS QU'ELLE NOMME.
@@ -4773,7 +4773,7 @@ async function parcours(page, N){
         L.mf.setValue(window.__rrAvantKb || '');
         return !(vk && vk.visible) && !(w && w.classList.contains('open'));
       });
-      verifier('les touches ≤ ≥ < > = du clavier à l\'écran écrivent dans la ligne du 6.7',
+      verifier('les touches ≤ ≥ < > = du clavier à l\'écran écrivent dans la ligne du {recurrence-redaction}',
         kbRects.ouvert && kbRects.le && kbRects.ge && kbRects.lt && kbRects.gt && kbRects.eq
           && kbTape.indexOf('≤') >= 0 && kbTape.indexOf('≥') >= 0
           && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0
@@ -4783,7 +4783,7 @@ async function parcours(page, N){
           + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt', 'eq'].filter(t => kbRects[t]).join(' ')
           + ', ligne lue : ' + JSON.stringify(kbTape.slice(0, 60))
           + (kbFerme ? '' : ' — ET LE CLAVIER RESTE OUVERT'));
-      verifier('le raccourci « >= » écrit ≥ dans la feuille du 6.7',
+      verifier('le raccourci « >= » écrit ≥ dans la feuille du {recurrence-redaction}',
         /n≥1/.test(kbRacc),
         'lu : ' + JSON.stringify(kbRacc.slice(0, 60)));
       /* LE BILAN PEINT, à l'encre RÉSOLUE : une classe posée ne prouve rien —
@@ -4856,13 +4856,13 @@ async function parcours(page, N){
        modèle stubbé — le refus de la page prime. */
     titre('6 novodecies. LA SUITE AUXILIAIRE RÉDIGÉE : QUATRE FEUILLES, UN JUGE');
     if(!P.suiteAuxRedigee){
-      ignorer('le 6.8 : le geste tapé et la copie de la fiche passent sur du vrai MathLive',
+      ignorer('le {suite-auxiliaire-redaction} : le geste tapé et la copie de la fiche passent sur du vrai MathLive',
         'ce niveau n\'a pas l\'exercice de suite auxiliaire rédigée');
-      ignorer('le 6.8 : la partie c) vidée rougit en se nommant, sans le point',
+      ignorer('le {suite-auxiliaire-redaction} : la partie c) vidée rougit en se nommant, sans le point',
         'ce niveau n\'a pas l\'exercice de suite auxiliaire rédigée');
     } else if(!ml){
-      ignorer('le 6.8 : le geste tapé et la copie de la fiche passent sur du vrai MathLive', 'MathLive absent');
-      ignorer('le 6.8 : la partie c) vidée rougit en se nommant, sans le point', 'MathLive absent');
+      ignorer('le {suite-auxiliaire-redaction} : le geste tapé et la copie de la fiche passent sur du vrai MathLive', 'MathLive absent');
+      ignorer('le {suite-auxiliaire-redaction} : la partie c) vidée rougit en se nommant, sans le point', 'MathLive absent');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
       await connecter(s.page);
@@ -4923,7 +4923,7 @@ async function parcours(page, N){
         score: test.score, locked: test.locked,
         regle: !!(window.__envoye && String(window.__envoye.attendu || '').indexOf('RÈGLE DE DÉCISION') >= 0)
       }));
-      verifier('le 6.8 : le geste tapé et la copie de la fiche passent sur du vrai MathLive',
+      verifier('le {suite-auxiliaire-redaction} : le geste tapé et la copie de la fiche passent sur du vrai MathLive',
         geste.def && plein.ok === 8 && plein.ko === 0 && plein.score === 1 && plein.locked && plein.regle,
         'geste lu : ' + JSON.stringify(geste.ligne.slice(0, 60)) + (geste.def ? '' : ' — la définition tapée n\'est pas reconnue')
           + ' ; copie pleine : ' + plein.ok + ' verte(s), ' + plein.ko + ' rouge(s), score ' + plein.score
@@ -4940,7 +4940,7 @@ async function parcours(page, N){
         const kos = [...document.querySelectorAll('#sarFeedback .fb-ko')].map(e => e.textContent);
         return { ko: kos.length, nomme: kos.every(t => t.trim().indexOf('✗ c)') === 0), score: test.score };
       });
-      verifier('le 6.8 : la partie c) vidée rougit en se nommant, sans le point',
+      verifier('le {suite-auxiliaire-redaction} : la partie c) vidée rougit en se nommant, sans le point',
         sansC.ko === 2 && sansC.nomme && sansC.score === 0,
         sansC.ko + ' rouge(s)' + (sansC.nomme ? ' (les deux disent « c) »)' : ' — les croix ne nomment pas c)')
           + ', score ' + sansC.score);
@@ -4967,7 +4967,7 @@ async function parcours(page, N){
           score: test.score, correct: test.answers.length ? test.answers[0].correct : null,
           modele: window.__envoye !== null };
       });
-      verifier('le 6.8 : la chaîne fausse de la capture rougit en se nommant, sans appeler le modèle',
+      verifier('le {suite-auxiliaire-redaction} : la chaîne fausse de la capture rougit en se nommant, sans appeler le modèle',
         fausse.ko === 1 && fausse.ok === 8 && fausse.nomme && fausse.score === 0 && fausse.correct === false && !fausse.modele,
         fausse.ok + ' verte(s), ' + fausse.ko + ' rouge(s)'
           + (fausse.nomme ? ' (l’égalité fausse est nommée)' : ' — l’égalité fausse n’est pas nommée : « ' + fausse.texte + ' »')
@@ -4990,7 +4990,7 @@ async function parcours(page, N){
           texte: kos.length ? kos[kos.length - 1].slice(0, 140) : '(aucune croix rouge)',
           score: test.score, modele: window.__envoye !== null };
       });
-      verifier('le 6.8 : la puissance s’évalue sur la sérialisation réelle — le + 4000 avalé rougit en se nommant',
+      verifier('le {suite-auxiliaire-redaction} : la puissance s’évalue sur la sérialisation réelle — le + 4000 avalé rougit en se nommant',
         puiss.nomme && puiss.score === 0 && !puiss.modele,
         puiss.ko + ' rouge(s)' + (puiss.nomme ? ' (l’égalité de la puissance est nommée)' : ' — l’égalité de la puissance n’est pas nommée : « ' + puiss.texte + ' »')
           + ', score ' + puiss.score + (puiss.modele ? ', et le modèle a été appelé' : ''));
@@ -5084,9 +5084,9 @@ async function parcours(page, N){
        lit sur ce que le bouton enregistre. */
     titre('6 vicies bis. LA RÉCURRENCE EN FRACTIONS : LES BARRES IMBRIQUÉES ET LA COPIE TAPÉE');
     if(!P.recurrenceFractions){
-      ignorer('le 6.10 : la barre extérieure enveloppe les barres intérieures, rien ne défile',
+      ignorer('le {recurrence-fractions} : la barre extérieure enveloppe les barres intérieures, rien ne défile',
         'ce niveau n\'a pas l\'exercice de récurrence en fractions');
-      ignorer('le 6.10 : la copie de la fiche tapée pour de vrai vaut le point',
+      ignorer('le {recurrence-fractions} : la copie de la fiche tapée pour de vrai vaut le point',
         'ce niveau n\'a pas l\'exercice de récurrence en fractions');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
@@ -5116,9 +5116,9 @@ async function parcours(page, N){
                  page: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 };
       });
       const vu = await mesurer();
-      verifier('le 6.10 : les trente-sept cases sont rendues et visibles, la chaîne a ses six rangées',
+      verifier('le {recurrence-fractions} : les trente-sept cases sont rendues et visibles, la chaîne a ses six rangées',
         vu.n === 37 && vu.visibles === 37 && vu.rows >= 8, vu.n + ' case(s), ' + vu.visibles + ' visible(s), ' + vu.rows + ' rangée(s)');
-      verifier('le 6.10 : la barre extérieure enveloppe les barres intérieures, rien ne défile',
+      verifier('le {recurrence-fractions} : la barre extérieure enveloppe les barres intérieures, rien ne défile',
         vu.imbriquees >= 2 && vu.barreCourte === 0 && vu.defile === 0 && !vu.page,
         vu.imbriquees + ' fraction(s) imbriquée(s), ' + vu.barreCourte + ' barre(s) trop courte(s)' + (vu.pire !== null && vu.pire > 1 ? ' (de ' + vu.pire + ' px)' : '') + ', ' + vu.defile + ' rangée(s) qui défile(nt)' + (vu.page ? ', la page déborde' : ''));
       /* la case GRANDIT : « 3n+9 » tapé pour de vrai dans la case du
@@ -5128,7 +5128,7 @@ async function parcours(page, N){
       await s.page.keyboard.type('3n+9', { delay: 20 });
       await s.page.waitForTimeout(200);
       const apres = await s.page.$eval('#rfr-c13', e => ({ l: e.getBoundingClientRect().width, coupe: e.scrollWidth > e.clientWidth + 1 }));
-      verifier('le 6.10 : la case grandit sous « 3n+9 » et rien n\'est coupé',
+      verifier('le {recurrence-fractions} : la case grandit sous « 3n+9 » et rien n\'est coupé',
         apres.l > avant + 8 && !apres.coupe, Math.round(avant) + ' px → ' + Math.round(apres.l) + ' px' + (apres.coupe ? ', texte coupé' : ''));
       /* LA COPIE DE LA FICHE, tapée case par case, puis le CLIC */
       const copie = await s.page.evaluate(() => {
@@ -5149,10 +5149,10 @@ async function parcours(page, N){
         score: test.score, locked: test.locked,
         suivant: (document.querySelector('#rfrActions .btn-primary') || {}).textContent || '' }));
       const vuC = await mesurer();
-      verifier('le 6.10 : la copie de la fiche tapée pour de vrai vaut le point',
+      verifier('le {recurrence-fractions} : la copie de la fiche tapée pour de vrai vaut le point',
         bilan.ok === 37 && bilan.bad === 0 && bilan.score === 1 && bilan.locked,
         bilan.ok + ' ok, ' + bilan.bad + ' bad, note ' + bilan.score + (bilan.locked ? '' : ', écran non verrouillé'));
-      verifier('le 6.10 : une fois vérifiée, la chaîne ne défile toujours pas',
+      verifier('le {recurrence-fractions} : une fois vérifiée, la chaîne ne défile toujours pas',
         vuC.defile === 0 && !vuC.page && vuC.barreCourte === 0, vuC.defile + ' rangée(s) qui défile(nt), ' + vuC.barreCourte + ' barre(s) trop courte(s)');
       verifier('la récurrence en fractions ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
@@ -6932,9 +6932,9 @@ async function parcours(page, N){
        liste juste — bleue, jamais lue à la classe. */
     titre('6 vicies quindecies. LA CONVERGENCE MONOTONE : LA FICHE CHOISIE ET TAPÉE POUR DE VRAI');
     if(!P.suiteTcmLimite){
-      ignorer('le 6.12 : le « lim » est empilé, rien ne défile',
+      ignorer('le {suite-tcm-limite} : le « lim » est empilé, rien ne défile',
         'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
-      ignorer('le 6.12 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
+      ignorer('le {suite-tcm-limite} : la copie de la fiche choisie et tapée pour de vrai vaut le point',
         'ce niveau n\'a pas l\'exercice du théorème de convergence monotone');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
@@ -6971,10 +6971,10 @@ async function parcours(page, N){
                  page: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 };
       });
       const vu = await mesurer();
-      verifier('le 6.12 : les dix-huit cases sont rendues et visibles, les trois « lim » sont empilés',
+      verifier('le {suite-tcm-limite} : les dix-huit cases sont rendues et visibles, les trois « lim » sont empilés',
         vu.n === 18 && vu.cases === 18 && vu.visibles === 18 && vu.lims === 3 && vu.limsPlats === 0,
         vu.cases + ' case(s) sur ' + vu.n + ', ' + vu.visibles + ' visible(s), ' + vu.lims + ' « lim » dont ' + vu.limsPlats + ' à plat');
-      verifier('le 6.12 : le « lim » est empilé, rien ne défile',
+      verifier('le {suite-tcm-limite} : le « lim » est empilé, rien ne défile',
         vu.defile === 0 && !vu.page && vu.rows >= 10, vu.defile + ' rangée(s) qui défile(nt) sur ' + vu.rows + (vu.page ? ', la page déborde' : ''));
       /* LA COPIE DE LA FICHE, choisie et tapée pour de vrai, puis le CLIC */
       const jouerCopie = async () => {
@@ -6999,19 +6999,19 @@ async function parcours(page, N){
         });
       };
       const b1 = await jouerCopie();
-      verifier('le 6.12 : la copie de la fiche choisie et tapée pour de vrai vaut le point',
+      verifier('le {suite-tcm-limite} : la copie de la fiche choisie et tapée pour de vrai vaut le point',
         b1.ok === 18 && b1.bad === 0 && b1.sol === 0 && b1.score === 1 && b1.locked && /18 cases justes sur 18/.test(b1.note),
         b1.ok + ' ok, ' + b1.bad + ' bad, ' + b1.sol + ' sol, note ' + b1.score + ', « ' + b1.note + ' »' + (b1.locked ? '' : ', écran non verrouillé'));
-      verifier('le 6.12 : la liste juste et la case juste sont peintes en BLEU, à l\'encre rendue',
+      verifier('le {suite-tcm-limite} : la liste juste et la case juste sont peintes en BLEU, à l\'encre rendue',
         dominante(b1.encreSel) === 'bleu' && dominante(b1.encreInp) === 'bleu',
         'liste : ' + b1.encreSel + ' (' + dominante(b1.encreSel) + '), case : ' + b1.encreInp + ' (' + dominante(b1.encreInp) + ')');
       /* le second visage — quadratique, décroissante — par le vrai bouton « Question suivante » */
-      verifier('le 6.12 : le bouton propose la question suivante', /suivante/.test(b1.suivant), '« ' + b1.suivant + ' »');
+      verifier('le {suite-tcm-limite} : le bouton propose la question suivante', /suivante/.test(b1.suivant), '« ' + b1.suivant + ' »');
       await s.page.click('#tclActions .btn-primary');
       await s.page.waitForTimeout(500);
       const vu2 = await mesurer();
       const b2 = await jouerCopie();
-      verifier('le 6.12 : la quadratique décroissante se rend et se joue de même — rien ne défile, le point est accordé',
+      verifier('le {suite-tcm-limite} : la quadratique décroissante se rend et se joue de même — rien ne défile, le point est accordé',
         vu2.n === 18 && vu2.visibles === 18 && vu2.defile === 0 && !vu2.page && vu2.limsPlats === 0 && b2.ok === 18 && b2.bad === 0 && b2.score === 2 && /résultats/.test(b2.suivant),
         vu2.visibles + ' case(s) visibles, ' + vu2.defile + ' rangée(s) qui défile(nt), ' + b2.ok + ' ok, ' + b2.bad + ' bad, note ' + b2.score + ', « ' + b2.suivant + ' »');
       verifier('la convergence monotone ne lève aucune erreur JavaScript',
@@ -7240,7 +7240,7 @@ async function parcours(page, N){
                    autre: !!autre, deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth + 2 }; });
         if(g.w < 420 || g.h < 420) dits.push('le repère est rendu à ' + g.w + ' × ' + g.h + ' px dans l\'hôte svd');
         if(g.rails !== 2) dits.push(g.rails + ' rail(s) cliquable(s) dans l\'hôte svd au lieu de 2');
-        if(g.autre) dits.push('le repère s\'est dessiné dans l\'hôte du 6.11 (svrGraph) au lieu du sien');
+        if(g.autre) dits.push('le repère s\'est dessiné dans l\'hôte du {suite-variation-recurrence} (svrGraph) au lieu du sien');
         if(g.deborde) dits.push('la page déborde horizontalement à 1400 px'); }
       const posRail = async (rail, x) => await s.page.evaluate(([rail, x]) => {
         const svg = document.querySelector('#svdGraph svg');
