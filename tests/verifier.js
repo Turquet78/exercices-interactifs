@@ -21962,7 +21962,10 @@ function pythonChangerValeurs(w, P){
     /* UNE VALEUR VIDE : la porte la redemande */
     A().value=""; A().dispatchEvent(new Event("input",{bubbles:true})); checkPCV();
     if(fb().textContent.indexOf("manque")<0) vus.push("le message ne redemande pas la valeur manquante : "+fb().textContent);
-    if(pred().indexOf(String(q.va))>=0) vus.push("la phrase garde l’ancienne valeur alors que la case est vide : "+pred());
+    /* un NOMBRE, pas un morceau de nombre : avec va = 1 et vb = 12, « … et 12 »
+       contient « 1 », et le contrôle rougissait à tort un tirage sur quelques-uns */
+    const dit=function(n){ return new RegExp("(^|[^0-9])"+String(n)+"(?![0-9])").test(pred()); };
+    if(dit(q.va)) vus.push("la phrase garde l’ancienne valeur alors que la case est vide : "+pred());
     /* LA PHRASE SUIT : c’est le risque propre, et il est silencieux */
     const neuf=q.va+7;
     A().value=String(neuf); A().dispatchEvent(new Event("input",{bubbles:true}));
