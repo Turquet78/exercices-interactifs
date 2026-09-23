@@ -1147,7 +1147,7 @@ module.exports = {
                      fiche: { prog: ['a = 10', 'b = 2', 'c = b'],
                               memoire: [['a', '10'], ['b', '2'], ['c', '2']],
                               fin: { a: '10', b: '2', c: '2' },
-                              bareme: 22, numero: '5.14' } },
+                              bareme: 22, numero: '5.2.1' } },
     /* {python-valeur-case} : le MÊME pas à pas que le 5.14, moins une question
        (demande de Turquet, septembre 2026 : « il doit exécuter le programme pas
        à pas, dans le tableau à côté le nom de la case mémoire apparaît et
@@ -1172,7 +1172,7 @@ module.exports = {
                         fiche: { prog: ['a = 10', 'b = 2', 'c = b'],
                                  memoire: [['a', '10'], ['b', '2'], ['c', '2']],
                                  fin: { a: '10', b: '2', c: '2' },
-                                 bareme: 11, numero: '5.15' } },
+                                 bareme: 11, numero: '5.2.2' } },
     /* {python-pas-a-pas-calcul} : la marche suivante — certaines lignes
        recopient (comme au 5.15), et au moins une CALCULE (addition ou
        soustraction) à partir de ce que d'autres cases contiennent. Il ne
@@ -1223,7 +1223,7 @@ module.exports = {
                           fiche: { prog: ['a = 10', 'b = 2', 'c = a+b', 'd = c+a'],
                                    memoire: [['a', '10'], ['b', '2'], ['c', '12'], ['d', '22']],
                                    fin: { a: '10', b: '2', c: '12', d: '22' },
-                                   bareme: 12, numero: '5.17' } },
+                                   bareme: 12, numero: '5.2.4' } },
     /* {python-echange-variables} : la fiche du PDF « variable pas à pas 5 »,
        calquée sur {python-valeur-case} — a = 10, b = 2, c = a, a = b, b = c,
        l'échange classique de deux variables par une case tierce. Comme
@@ -1327,7 +1327,7 @@ module.exports = {
        par case), et le trajet complet d'un élève qui échoue une fois avant
        de réussir. */
     echangerParLettres: { exercice: 'python-echange-par-lettres', nb: 3,
-                          fiche: { v1: 'k', v2: 'l', t: 'm', a: 10, b: 2, numero: '5.20' },
+                          fiche: { v1: 'k', v2: 'l', t: 'm', a: 10, b: 2, numero: '5.2.7' },
                           solutions: [['k', 'k', 'l', 'l', 'm'], ['l', 'l', 'k', 'k', 'm']],
                           fauxClassique: ['k', 'k', 'l', 'l', 'k'] },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre

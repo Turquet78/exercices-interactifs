@@ -2788,3 +2788,17 @@ comme `pelJuge` l'accepte déjà comme une vraie erreur Python. `pelTrace` se
 recalcule à chaque « Exécuter »/« Réexécuter » et `pelSaisie` vide la trace
 dès qu'une case change, pour ne jamais laisser affichée l'exécution d'un
 programme que l'élève vient de modifier.
+
+---
+
+**Le thème 5 se découpe en deux sous-thèmes** (demande de Turquet,
+septembre 2026 : « mettre les exercices 5.1 à 5.13 dans un sous-thème print
+et variable, les exercices 5.14 à 5.20 dans variable et calcul »). Le motif
+est celui des Fonctions (thème 2) : `sous:[…]` dans `THEMES`, numérotation à
+trois niveaux, `ids` reconstruit à plat pour tout le reste du fichier.
+L'ordre ne bouge pas : 5.1 à 5.13 deviennent 5.1.1 à 5.1.13 (« Print et
+variable »), 5.14 à 5.20 deviennent 5.2.1 à 5.2.7 (« Variable et calcul »).
+Les notes portent l'IDENTIFIANT et ne bougent pas. Les contrôles qui
+épinglaient chaque numéro (`TEST_NUM[…]` dans `tests/verifier.js`, les
+`numero` des fiches de `tests/profils.js`) ont suivi ; les commentaires plus
+anciens de la page et de ce journal citent les numéros de leur époque.
