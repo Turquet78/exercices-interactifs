@@ -1237,3 +1237,19 @@ chemin du juge (`toPlain`), puis « clavier A » ramène les chiffres. Six
 sabotages au banc jsdom, chacun rougissant en nommant son défaut (la classe
 retirée, le drapeau non passé, une lettre retirée, `kbLettres` qui dit oui
 partout, la couche C qui fuit partout, « clavier C » qui mène au B).
+**Puis é, è et l'apostrophe, le jour même** (« ajoute aussi é, è et
+l'apostrophe au clavier C ») : « l'asymptote », « équation » s'écrivent enfin.
+Trente-six unités à loger : la couche passe à TROIS rangées de DOUZE — é au
+bout de la première, è au bout de la deuxième, l'apostrophe avant « : » —
+plutôt qu'à quatre rangées de onze, pour que la plaque garde sa hauteur quand
+on change de couche. Le coût est nommé : sur un téléphone, la rangée la plus
+large passe de onze à douze unités, et toutes les touches y maigrissent d'un
+douzième ; sur la tablette du 3.5, rien ne bouge (le clavier A y fait déjà
+treize unités). Le navigateur tape désormais « quand l'éè : » et le relit.
+**ET L'APOSTROPHE S'EST MONTRÉE AU PREMIER ESSAI — au navigateur seulement.**
+Frappée comme les lettres (`key`), elle devient dans MathLive un PRIME : la
+ligne se relisait « quand l^(\prime)éè : », et c'est ce texte qui serait
+parti au juge. jsdom, qui ne voit que la disposition, était vert. La touche
+INSÈRE donc `\text{'}`, que `toPlain` rend en apostrophe nue ; é et è, eux,
+s'écrivent tels quels par la frappe. Le rouge de ce premier essai tient lieu
+de sabotage : c'est exactement le défaut que le contrôle doit nommer.

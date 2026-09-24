@@ -1581,11 +1581,12 @@ module.exports = {
                        Turquet, septembre 2026, sur le 3.5 : « l'élève a besoin
                        d'écrire des mots »). La page ne tient aucune liste : il
                        suit la feuille de RÉDACTION (mlFeuille, mode 'redaction'),
-                       et ces témoins disent au banc où regarder. Onze unités par
-                       rangée au plus : dix lettres et une touche d'action — plus,
-                       et toutes les touches du téléphone rétréciraient. */
+                       et ces témoins disent au banc où regarder. Puis é, è et
+                       l'apostrophe (« ajoute aussi é, è et l'apostrophe »). Douze
+                       unités par rangée au plus — plus, et toutes les touches du
+                       téléphone rétréciraient encore. */
                     lettres: { versC: 'clavier C', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b',
-                               touches: [':', ' '], rangees: 3, unitesMax: 11,
+                               touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 12,
                                exercices: ['limites-redaction'] },
                     /* Et sur une TABLETTE, les touches sont légèrement réduites :
                        le banc navigateur ouvre l'exercice déclaré à la taille

@@ -12439,7 +12439,7 @@ async function parcours(page, N){
        se REND sur l'écran de rédaction, et si les touches cliquées ÉCRIVENT.
        Tablette tactile debout : on ouvre l'exercice témoin, on touche sa
        feuille, on clique « clavier C » — les chiffres disparaissent, les
-       lettres sont là —, on TAPE « quand : » touche par touche et on relit la
+       lettres sont là —, on TAPE « quand l'éè : » touche par touche et on relit la
        ligne par le chemin du juge (toPlain) ; puis « clavier A » ramène les
        chiffres. */
     titre('11 decies. LE CLAVIER C : LES LETTRES, L\'ESPACE ET « : »');
@@ -12492,10 +12492,11 @@ async function parcours(page, N){
             : versC.coupe ? 'le libellé « ' + KL.versC + ' » est coupé dans sa touche'
             : surC.cinq ? 'les chiffres sont toujours là : la couche n\'a pas changé'
             : 'manque sur le clavier C : ' + [surC.a ? '' : 'a', surC.q ? '' : 'q', surC.deux ? '' : ':'].filter(Boolean).join(' '));
-        /* on TAPE « quand : » touche par touche, et on relit par le chemin du juge */
+        /* on TAPE « quand l'éè : » touche par touche — é, è et l'apostrophe compris —,
+           et on relit par le chemin du juge */
         let lu = null;
         if(surC && surC.a){
-          for(const t of ['q', 'u', 'a', 'n', 'd', 'espace', ':']){
+          for(const t of ['q', 'u', 'a', 'n', 'd', 'espace', 'l', "'", 'é', 'è', 'espace', ':']){
             const k = await touche(t); if(!k){ lu = 'touche « ' + t + ' » introuvable'; break; }
             await s.page.mouse.click(k.x, k.y); await s.page.waitForTimeout(120);
           }
@@ -12503,8 +12504,8 @@ async function parcours(page, N){
             try{ return window.mlDexp.toPlain(mf.getValue()); }catch(e){ return 'illisible : ' + e.message; } }, champ);
         }
         const net = String(lu || '').replace(/\s+/g, ' ').trim();
-        verifier('les touches du clavier C écrivent : « quand : » se relit tel quel',
-          /^quand ?:$/.test(net), lu === null ? 'rien n\'a pu être tapé' : 'la ligne se relit « ' + lu + ' »');
+        verifier('les touches du clavier C écrivent : « quand l\'éè : » se relit tel quel',
+          /^quand l'éè ?:$/.test(net), lu === null ? 'rien n\'a pu être tapé' : 'la ligne se relit « ' + lu + ' »');
         let retour = null;
         const versA = surC ? await touche(KL.versA) : null;
         if(versA){ await s.page.mouse.click(versA.x, versA.y); await s.page.waitForTimeout(400);

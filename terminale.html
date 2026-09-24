@@ -2953,7 +2953,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=337;
+const APP_VERSION=338;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -23625,9 +23625,11 @@ function buildKbTerm(vars, court, limites, lettres){
      horizontale » y etaient intapables. La couche est AJOUTEE a la disposition
      de la forme, qui ne change pas : une touche « clavier C » sur A (juste
      au-dessus de « clavier B ») et sur B (a cote de « clavier A ») ; la couche
-     C revient au clavier A, efface et valide. Onze unites par rangee : les dix
-     lettres d'une rangee AZERTY, et une touche d'action — « clavier B » n'y
-     tient pas sans retrecir toutes les touches du telephone.
+     C revient au clavier A, efface et valide. Puis é, è et l'apostrophe
+     (Turquet, le meme jour : « ajoute aussi é, è et l'apostrophe ») : douze
+     unites par rangee, trois rangees — la hauteur ne saute pas quand on
+     change de couche. « clavier B » n'y tient pas sans retrecir encore toutes
+     les touches du telephone.
      Les lettres sont des FRAPPES (key) et non des symboles : elles s'ecrivent
      comme au clavier physique, liste blanche des raccourcis comprise. */
   const dispo = formeAB();
@@ -23647,9 +23649,11 @@ function buildKbTerm(vars, court, limites, lettres){
   const eff = {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]};
   const entree = {label:"⏎",class:"action",command:["performWithFeedback","commit"]};
   dispo.layers.push({ id: "term-lettres", rows: [
-    "azertyuiop".split("").map(L).concat([ eff ]),
-    "qsdfghjklm".split("").map(L).concat([ entree ]),
-    "wxcvbn".split("").map(L).concat([ L(":"), {label:"espace",width:2,key:" "},
+    "azertyuiopé".split("").map(L).concat([ eff ]),
+    "qsdfghjklmè".split("").map(L).concat([ entree ]),
+    /* l'apostrophe s'INSERE en texte : frappee, MathLive en fait un PRIME
+       (« l^(\\prime) » partait au juge — le banc navigateur l'a vu) */
+    "wxcvbn".split("").map(L).concat([ {label:"'",insert:"\\text{'}"}, L(":"), {label:"espace",width:2,key:" "},
       {label:"clavier A",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-base"]} ])
   ]});
   return dispo;

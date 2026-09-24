@@ -11616,7 +11616,7 @@ function clavierLettres(w, P){
       if(ca.length !== 3){ pbs.push('avec rédaction, la forme ' + quelle + ' a ' + ca.length + ' couche(s) au lieu de 3'); return; }
       const L = ca[2], t = dedans(L), touchesC = [].concat.apply([], (L.rows || []));
       'abcdefghijklmnopqrstuvwxyz'.split('').concat(C.touches || []).forEach(c => {
-        if(t.indexOf(c) < 0) pbs.push('la touche « ' + c + ' » manque au clavier C (' + quelle + ')');
+        if(t.indexOf(c) < 0 && !touchesC.some(k => String(k.label || '') === c)) pbs.push('la touche « ' + c + ' » manque au clavier C (' + quelle + ')');
       });
       if(C.effacer && t.indexOf(C.effacer) < 0) pbs.push('le clavier C (' + quelle + ') n\'a pas de touche « ' + C.effacer + ' »');
       if(!touchesC.some(k => String(k.label || '') === C.entree && JSON.stringify(k.command || '').indexOf('commit') >= 0))
