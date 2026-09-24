@@ -666,6 +666,20 @@ ancre citait une apostrophe typographique là où le commentaire de la page en
 porte une droite — un sabotage se pose sur une ancre PROPRE à sa cible, au
 caractère près.
 
+**Puis une élève a eu DEUX FOIS LE MÊME ÉNONCÉ** (Seconde, 4.4.2, signalé par
+Turquet, septembre 2026). Les trois questions d'une séance étaient tirées
+chacune de son côté, `Array.from({length:AC_NB},genAC)`, sur un vivier de
+seize pourcentages : deux questions sur le même P sortaient dans près d'une
+séance sur cinq. Et le doublon exact n'est pas le seul : P et sa virgule
+décalée (30 et 3) proposent les MÊMES six coefficients, seules les phrases
+changent — c'est le même énoncé, à peine déguisé, et avec lui une séance sur
+trois environ était touchée. `genAC(deja)` reçoit désormais les questions déjà
+tirées et écarte P ET sa virgule décalée ; huit paires pour trois questions,
+le vivier ne s'épuise pas. Les deux niveaux ont le même moteur, les deux sont
+corrigés. Le contrôle du tirage l'exige sur ses trente séances, et le
+sabotage (l'ancien tirage remis) a rougi à la première en nommant « 2, 20,
+20 » — exactement le cas signalé.
+
 **Deux hausses non plus — mais l'écart part dans l'autre sens.** L'exercice
 2.2.7 est le miroir de 2.3.7 : +40 % puis +4 % fait +45,6 %, soit PLUS que 44,
 parce que la seconde hausse porte sur la valeur déjà augmentée ; à la baisse on

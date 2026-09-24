@@ -10656,11 +10656,20 @@ function acStr(c){ return ckStr(c); }
    donc pas se contredire. */
 function acCoef(q,fam){ return ckCoef({fam:fam,P:q.P}); }
 function acBon(q,fam){ return q.ordre.indexOf(acCoef(q,fam)); }
-function genAC(){
+/* LES QUESTIONS D'UNE SÉANCE PORTENT DES POURCENTAGES DISTINCTS (signalé par
+   Turquet, septembre 2026 : une élève a eu deux fois le même énoncé). Chaque
+   question était tirée seule, sur un vivier de seize pourcentages : deux
+   questions pareilles sortaient dans près d'une séance sur cinq. Et P et sa
+   virgule décalée (30 et 3) sont écartés ENSEMBLE : ils proposent les mêmes
+   six coefficients, seules les phrases changent — le même énoncé, à peine
+   déguisé. Huit paires pour trois questions : le vivier ne s'épuise pas. */
+function genAC(deja){
+  const pris=(deja||[]).map(q=>q.P);
   let P, six;
   do{
     P=Math.random()<0.5?pick([10,20,30,40,60,70,80,90]):rand(1,9);
     const Ps=acDecale(P);
+    if(pris.indexOf(P)>=0 || pris.indexOf(Ps)>=0){ six=[]; continue; }
     six=AC_FAMS.map(f=>ckCoef({fam:f,P:P})).concat(AC_FAMS.map(f=>ckCoef({fam:f,P:Ps})));
   /* P = 5 est le seul cas où les six ne sont pas distincts : sa virgule décalée
      vaut 50, et « prendre 50 % » comme « diminuer de 50 % » donnent 0,50 — deux
@@ -10676,7 +10685,7 @@ async function startAssocierCoef(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='ac'; test.qId='associer-coefficient';
-  test.questions=Array.from({length:AC_NB},genAC);
+  test.questions=[]; for(let i=0;i<AC_NB;i++) test.questions.push(genAC(test.questions));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
