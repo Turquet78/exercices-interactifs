@@ -37,7 +37,6 @@ const KINDS_PREMIERE = [
 /* Les mêmes moteurs en Seconde, où la synthèse des pourcentages s'appelle
    « psyn » : « syn » y est déjà la synthèse des fonctions. */
 const KINDS_SECONDE_PCT = KINDS_PREMIERE
-  .filter(k => ['mp','md','u'].indexOf(k[0]) < 0)
   .map(k => k[0] === 'syn' ? ['psyn', k[1]] : k);
 
 /* Identifiant d'exercice -> clé de la table RAPPELS, pour la Première. */
@@ -96,6 +95,8 @@ const RAPPELS_SECONDE = `(function(){
                'synthese-pourcentages-libre':'sal','synthese-augmentations-libre':'sal','synthese-diminutions-libre':'sal',
                'baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
                'reconnaitre-coefficient':'ck','associer-coefficient':'ac',
+               'calcul-mental':'cm','addition-soustraction':'asp','tables-multiplication':'tm','tables-multiplication-2':'tm',
+               'multiplication-posee':'mp','fractions-decimales':'fracp','mult-decimaux':'md','mult-dec-un':'u',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
@@ -674,9 +675,21 @@ module.exports = {
     ecransHorsExercice: ['setup','login','space','rattrapage','choose','theme','soustheme','devoirs','mode',
                         'results','teacher-login','teacher'],
     niveau: 'Seconde',
+    /* Les exercices de rapidité portés de la Première : pas d'aide IA, comme là-bas. */
+    aideIA: { sans: ['tables-multiplication', 'tables-multiplication-2', 'calcul-mental'] },
+    /* Les poses du calcul mental, portées de la Première avec leurs contrôles
+       — voir le profil de la Première pour la doctrine. */
+    operationPosee: { exercice: 'addition-soustraction', hote: 'aspHost' },
+    cadrePose: { exercices: [['mult-decimaux','mdHost'], ['mult-dec-un','uHost']], largeurMax: 520 },
+    caseQuiGrandit: [
+      { exercice: 'mult-decimaux', hote: 'mdHost', num: 'md3n', den: 'md3d', grand: '100000' },
+      { exercice: 'fractions-decimales', hote: 'fHost', num: 'fNum', den: 'fDen', grand: '230230', niveauFracp: 'frac-n2' },
+    ],
     /* .lv-instr est l'énoncé de la lecture graphique : une classe à part, née
        avant les autres. Elle prend le même encadré. Aucun écran d'ardoise ici. */
-    enonce: { classes: ['enonce', 'mp-instr', 'lv-instr'], ardoise: [],
+    /* « test » et « tm » : le calcul mental et les tables, portés de la
+       Première — leur énoncé EST l'ardoise, comme là-bas. */
+    enonce: { classes: ['enonce', 'mp-instr', 'lv-instr'], ardoise: ['test', 'tm'],
               navigateur: ['pourcentage', 'lecture-variations'] },
     /* Trois écrans ne passent pas par liveCheckCurrent(), et c'est voulu :
          lv  — la lecture graphique a sa propre correction en direct, lvLive(),
@@ -884,10 +897,9 @@ module.exports = {
     missionAvecContexte: { fonction: 'qiaEnvoyer', appel: 'qiaCtxExercice' },
     specifique: 'seconde',
     /* La fenêtre des tables de multiplication, portée depuis la Première.
-       Pas de « referme » : la Seconde n'a aucun exercice de rapidité, donc
-       aucun écran où la fenêtre deviendrait une antisèche. Ce manque est
-       déclaré plutôt que tu — le banc affiche « non applicable » sur ce
-       seul bord, et continue d'exiger l'autre. */
+       Depuis que le calcul mental y est porté (septembre 2026), la Seconde a
+       ses exercices de rapidité : la fenêtre s'y referme sur l'exercice DES
+       tables, comme en Première. */
     /* OÙ LES TABLES SERVENT, ET OÙ ELLES NE SERVENT PAS (demande de Turquet,
        août 2026). « sans » nomme les exercices qui ne demandent AUCUN calcul
        mental : écrire une définition, choisir un crochet, lire une courbe,
@@ -898,7 +910,7 @@ module.exports = {
        Cette liste est la SECONDE source : la page a la sienne, le banc compare
        ce qui est réellement affiché à celle-ci. Les lire toutes deux au même
        endroit n'aurait rien prouvé. */
-    tablesAide: { reste: 'pourcentage',
+    tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
@@ -1173,7 +1185,7 @@ module.exports = {
                      fiche: { prog: ['a = 10', 'b = 2', 'c = b'],
                               memoire: [['a', '10'], ['b', '2'], ['c', '2']],
                               fin: { a: '10', b: '2', c: '2' },
-                              bareme: 22, numero: '5.2.1' } },
+                              bareme: 22, numero: '6.2.1' } },
     /* {python-valeur-case} : le MÊME pas à pas que le 5.14, moins une question
        (demande de Turquet, septembre 2026 : « il doit exécuter le programme pas
        à pas, dans le tableau à côté le nom de la case mémoire apparaît et
@@ -1198,7 +1210,7 @@ module.exports = {
                         fiche: { prog: ['a = 10', 'b = 2', 'c = b'],
                                  memoire: [['a', '10'], ['b', '2'], ['c', '2']],
                                  fin: { a: '10', b: '2', c: '2' },
-                                 bareme: 11, numero: '5.2.2' } },
+                                 bareme: 11, numero: '6.2.2' } },
     /* {python-pas-a-pas-calcul} : la marche suivante — certaines lignes
        recopient (comme au 5.15), et au moins une CALCULE (addition ou
        soustraction) à partir de ce que d'autres cases contiennent. Il ne
@@ -1249,7 +1261,7 @@ module.exports = {
                           fiche: { prog: ['a = 10', 'b = 2', 'c = a+b', 'd = c+a'],
                                    memoire: [['a', '10'], ['b', '2'], ['c', '12'], ['d', '22']],
                                    fin: { a: '10', b: '2', c: '12', d: '22' },
-                                   bareme: 12, numero: '5.2.4' } },
+                                   bareme: 12, numero: '6.2.4' } },
     /* {python-echange-variables} : la fiche du PDF « variable pas à pas 5 »,
        calquée sur {python-valeur-case} — a = 10, b = 2, c = a, a = b, b = c,
        l'échange classique de deux variables par une case tierce. Comme
@@ -1353,7 +1365,7 @@ module.exports = {
        par case), et le trajet complet d'un élève qui échoue une fois avant
        de réussir. */
     echangerParLettres: { exercice: 'python-echange-par-lettres', nb: 3,
-                          fiche: { v1: 'k', v2: 'l', t: 'm', a: 10, b: 2, numero: '5.2.7' },
+                          fiche: { v1: 'k', v2: 'l', t: 'm', a: 10, b: 2, numero: '6.2.7' },
                           solutions: [['k', 'k', 'l', 'l', 'm'], ['l', 'l', 'k', 'k', 'm']],
                           fauxClassique: ['k', 'k', 'l', 'l', 'k'] },
     /* LA TOLÉRANCE DES TEXTES AFFICHÉS — décision de Turquet (septembre
@@ -1383,8 +1395,6 @@ module.exports = {
     ordreDevoirs: true,
 
     lacunes: [
-      "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
-      "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
       "{python-pas-a-pas-calcul} (5.16) n'a pas de fonction jsdom dédiée (contrairement à {python-pas-a-pas} et {python-valeur-case}) : elle rejouerait la ligne de CALCUL par une SECONDE arithmétique indépendante, un chantier remis à plus tard (« c'est un autre sujet »). Le banc navigateur (« 6 tricies sedecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 12) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
       "{python-echange-variables} (5.18, 5.17 à l'origine — une collision de numéro avec {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée non plus, pour une raison différente du 5.16 : sa question OUVERTE finale (l'explication de l'échange) n'est PAS un verdict arithmétique qu'une seconde méthode locale pourrait rejouer, c'est une idée en langage naturel jugée par le modèle (docs/journal/08-verdicts-et-juges.md). Le banc navigateur (« 6 tricies duodevicies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2), PUIS stubbe l'appel réseau de la question ouverte pour éprouver le verdict correct et le verdict faux, sans jamais approcher le vrai modèle ; les contrôles universels des deux bancs couvrent le reste sans rien déclarer.",
@@ -1832,7 +1842,6 @@ module.exports = {
     ordreDevoirs: true,
 
     lacunes: [
-      "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
       "six exercices rougissent encore une case laissée VIDE (2.1, 2.3, 2.4, 5.2, 5.3, 6.4) : ce niveau ne remplace jamais les réponses de l'élève, et la règle de la Seconde y changerait le calcul de la note — décision à prendre, pas correction technique",
       "liveCheckCurrent() a un corps vide : la correction du mode soutien passe par submitAnswer et par un check… propre à chaque exercice, donc aucun contrôle de coloration en direct n'est transposable — c'est pourquoi « soutienEnDirect » n'est pas déclaré ici, et que le contrôle correspondant s'affiche « non applicable »",
