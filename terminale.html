@@ -2953,7 +2953,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=336;
+const APP_VERSION=337;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -6875,7 +6875,7 @@ function mlFeuille(opts){
     F.lignes.splice(i,0,L);
     const ref=sheet.children[i]||null;
     sheet.insertBefore(L.line, ref);
-    if(mode==='redaction') L.mf._motsFR=true;   /* redaction en francais : liste blanche des raccourcis */
+    if(mode==='redaction'){ L.mf._motsFR=true; L.mf.classList.add('mf-mots'); }   /* redaction en francais : liste blanche des raccourcis ; mf-mots marque la redaction (le clavier C de la Terminale la cherche) */
     if(window.mlDexp) window.mlDexp.upgrade(L.line);   /* clavier Terminale + correctifs communs */
     if(mode==='redaction'){ try{ L.mf.mathModeSpace='\\;'; }catch(e){} }   /* barre d'espace = vraie espace */
     L.mf.addEventListener('input', ()=>tenirCurseur(L.mf));
@@ -23616,72 +23616,151 @@ try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0
    d'une fraction / racine / exposant / indice. ∫ en \smallint pour ne pas être rogné. */
 const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="12" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="2" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSuperscript"]};
 const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
-function buildKbTerm(vars, court, limites){
-  const V = (vars && vars.length) ? vars : [];
-  /* Les touches sont decrites UNE fois : les formes — QUATRE rangees, et TROIS
-     sur une TABLETTE — composent le meme jeu. Une touche ajoutee ici se pose
-     dans toutes, et un controle compare les jeux. Les deux couches gardent
-     leurs identifiants d'une forme a l'autre : une seule disposition est
-     installee a la fois, et « clavier A » / « clavier B » basculent donc sans
-     rien savoir de la forme. */
-  const K = {
-    n: d => ({latex: d}),
-    frac: {label:"/",insert:"\\frac{#@}{#?}"},
-    e: {latex:"e"},
-    rac: {latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},
-    eff: {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]},
-    fois: {label:"×",latex:"\\times"},
-    ln: {label:"ln",insert:"\\ln\\left(#0\\right)"},
-    po: {label:"(",key:"("}, pf: {label:")",key:")"},
-    moins: {label:"−",latex:"-"}, plus: {latex:"+"},
-    egal: {latex:"="}, virg: {latex:","},
-    gauche: {label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
-    droite: {label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},
-    espace: {label:"espace",width:2,key:" "},
-    entree: {label:"⏎",class:"action",command:["performWithFeedback","commit"]},
-    versB: {label:"clavier B",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-fn"]},
-    versA: {label:"clavier A",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-base"]},
-    integ: {latex:"\\smallint",insert:"\\int_{#?}^{#?}#?\\,dx"},
-    pi: {latex:"\\pi"}, dans: {latex:"\\in"},
-    inf: {latex:"\\infty"}, vers: {latex:"\\longrightarrow"},
-    sin: {label:"sin",insert:"\\sin\\left(#0\\right)"},
-    cos: {label:"cos",insert:"\\cos\\left(#0\\right)"},
-    tan: {label:"tan",insert:"\\tan\\left(#0\\right)"},
-    arcsin: {label:"arcsin",width:1.5,insert:"\\arcsin\\left(#0\\right)"},
-    arccos: {label:"arccos",width:1.5,insert:"\\arccos\\left(#0\\right)"},
-    arctan: {label:"arctan",width:1.5,insert:"\\arctan\\left(#0\\right)"}
+function buildKbTerm(vars, court, limites, lettres){
+  /* LE CLAVIER C — les LETTRES (demande de Turquet, septembre 2026 : « en
+     terminale pour l'exercice 3.5, l'eleve a besoin d'ecrire des mots, il
+     faudrait rajouter un clavier C avec les lettres de l'alphabet et l'espace
+     et ":" »). Sur tablette, la greffe coupe le clavier du SYSTEME sur chaque
+     champ mathematique (inputmode="none") : « quand x tend vers », « asymptote
+     horizontale » y etaient intapables. La couche est AJOUTEE a la disposition
+     de la forme, qui ne change pas : une touche « clavier C » sur A (juste
+     au-dessus de « clavier B ») et sur B (a cote de « clavier A ») ; la couche
+     C revient au clavier A, efface et valide. Onze unites par rangee : les dix
+     lettres d'une rangee AZERTY, et une touche d'action — « clavier B » n'y
+     tient pas sans retrecir toutes les touches du telephone.
+     Les lettres sont des FRAPPES (key) et non des symboles : elles s'ecrivent
+     comme au clavier physique, liste blanche des raccourcis comprise. */
+  const dispo = formeAB();
+  if(!lettres || !dispo || !dispo.layers || dispo.layers.length < 2) return dispo;
+  const versC = {label:"clavier C",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-lettres"]};
+  const estVers = (k, couche) => k && Array.isArray(k.command) && k.command[0] === "switchKeyboardLayer" && k.command[1] === couche;
+  const ajouter = (l, couche, auDessus) => {
+    const rows = l.rows || [];
+    let i = rows.findIndex(r => (r || []).some(k => estVers(k, couche)));
+    if(i < 0) i = rows.length - 1;
+    if(auDessus && i > 0) i--;
+    rows[i] = (rows[i] || []).concat([ versC ]);
   };
-  /* LA RANGEE DES VARIABLES — f et x (ou Uₙ et n), puis ∞ et ⟶. Elle vit en tete
-     du clavier B depuis septembre 2026… SAUF sur un exercice SUR LES LIMITES, ou
-     elle revient sur le clavier A (demande de Turquet, septembre 2026 : « quand
-     c'est un exercice sur les limites, mettre les touches inf, -->, x, f sur le
-     clavier A ») : c'est la qu'on ecrit « x ⟶ +∞ », et deux touches d'ecart se
-     paient a chaque ligne. Le clavier B perd alors sa premiere rangee, et le ⌫
-     qu'elle portait passe sur la suivante : le JEU de touches ne change pas
-     d'une variante a l'autre, seul son PARTAGE change — un controle compare les
-     jeux, et la largeur des touches suit la rangee la plus large (kbUnites). */
-  if(court){
-    /* TABLETTE — les memes touches sur TROIS rangees. Debout (demande de
-       Turquet, septembre 2026 : « en mode portrait, que le clavier tienne sur
-       3 lignes au lieu de 4 ») COMME COUCHEE (« en mode paysage, les touches
-       doivent etre plus petites de facon a tenir sur 3 lignes ») : en paysage
-       l'ecran est COURT, et la rangee de moins y vaut plus qu'ailleurs — la
-       plaque passe de 208 a 132 px sur une tablette de 768, un quart de
-       l'ecran rendu a l'exercice. Les chiffres gardent leurs colonnes — 7 8 9 /
-       4 5 6 / 1 2 3 —, la rangee du haut prend ce qui construit une ecriture
-       (fraction, e, racine, parentheses, exposant), celle du milieu les
-       operations et les fleches, celle du bas le 0, la virgule et les
-       commandes. */
+  ajouter(dispo.layers[0], "term-fn", true);
+  ajouter(dispo.layers[1], "term-base", false);
+  const L = c => ({label:c, key:c});
+  const eff = {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]};
+  const entree = {label:"⏎",class:"action",command:["performWithFeedback","commit"]};
+  dispo.layers.push({ id: "term-lettres", rows: [
+    "azertyuiop".split("").map(L).concat([ eff ]),
+    "qsdfghjklm".split("").map(L).concat([ entree ]),
+    "wxcvbn".split("").map(L).concat([ L(":"), {label:"espace",width:2,key:" "},
+      {label:"clavier A",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-base"]} ])
+  ]});
+  return dispo;
+  /* Les couches A et B, dans la forme demandee — le clavier C s'y ajoute
+     ci-dessus quand l'eleve redige. */
+  function formeAB(){
+    const V = (vars && vars.length) ? vars : [];
+    /* Les touches sont decrites UNE fois : les formes — QUATRE rangees, et TROIS
+       sur une TABLETTE — composent le meme jeu. Une touche ajoutee ici se pose
+       dans toutes, et un controle compare les jeux. Les deux couches gardent
+       leurs identifiants d'une forme a l'autre : une seule disposition est
+       installee a la fois, et « clavier A » / « clavier B » basculent donc sans
+       rien savoir de la forme. */
+    const K = {
+      n: d => ({latex: d}),
+      frac: {label:"/",insert:"\\frac{#@}{#?}"},
+      e: {latex:"e"},
+      rac: {latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},
+      eff: {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]},
+      fois: {label:"×",latex:"\\times"},
+      ln: {label:"ln",insert:"\\ln\\left(#0\\right)"},
+      po: {label:"(",key:"("}, pf: {label:")",key:")"},
+      moins: {label:"−",latex:"-"}, plus: {latex:"+"},
+      egal: {latex:"="}, virg: {latex:","},
+      gauche: {label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
+      droite: {label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},
+      espace: {label:"espace",width:2,key:" "},
+      entree: {label:"⏎",class:"action",command:["performWithFeedback","commit"]},
+      versB: {label:"clavier B",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-fn"]},
+      versA: {label:"clavier A",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-base"]},
+      integ: {latex:"\\smallint",insert:"\\int_{#?}^{#?}#?\\,dx"},
+      pi: {latex:"\\pi"}, dans: {latex:"\\in"},
+      inf: {latex:"\\infty"}, vers: {latex:"\\longrightarrow"},
+      sin: {label:"sin",insert:"\\sin\\left(#0\\right)"},
+      cos: {label:"cos",insert:"\\cos\\left(#0\\right)"},
+      tan: {label:"tan",insert:"\\tan\\left(#0\\right)"},
+      arcsin: {label:"arcsin",width:1.5,insert:"\\arcsin\\left(#0\\right)"},
+      arccos: {label:"arccos",width:1.5,insert:"\\arccos\\left(#0\\right)"},
+      arctan: {label:"arctan",width:1.5,insert:"\\arctan\\left(#0\\right)"}
+    };
+    /* LA RANGEE DES VARIABLES — f et x (ou Uₙ et n), puis ∞ et ⟶. Elle vit en tete
+       du clavier B depuis septembre 2026… SAUF sur un exercice SUR LES LIMITES, ou
+       elle revient sur le clavier A (demande de Turquet, septembre 2026 : « quand
+       c'est un exercice sur les limites, mettre les touches inf, -->, x, f sur le
+       clavier A ») : c'est la qu'on ecrit « x ⟶ +∞ », et deux touches d'ecart se
+       paient a chaque ligne. Le clavier B perd alors sa premiere rangee, et le ⌫
+       qu'elle portait passe sur la suivante : le JEU de touches ne change pas
+       d'une variante a l'autre, seul son PARTAGE change — un controle compare les
+       jeux, et la largeur des touches suit la rangee la plus large (kbUnites). */
+    if(court){
+      /* TABLETTE — les memes touches sur TROIS rangees. Debout (demande de
+         Turquet, septembre 2026 : « en mode portrait, que le clavier tienne sur
+         3 lignes au lieu de 4 ») COMME COUCHEE (« en mode paysage, les touches
+         doivent etre plus petites de facon a tenir sur 3 lignes ») : en paysage
+         l'ecran est COURT, et la rangee de moins y vaut plus qu'ailleurs — la
+         plaque passe de 208 a 132 px sur une tablette de 768, un quart de
+         l'ecran rendu a l'exercice. Les chiffres gardent leurs colonnes — 7 8 9 /
+         4 5 6 / 1 2 3 —, la rangee du haut prend ce qui construit une ecriture
+         (fraction, e, racine, parentheses, exposant), celle du milieu les
+         operations et les fleches, celle du bas le 0, la virgule et les
+         commandes. */
+      if(limites) return {
+        label: "Terminale",
+        layers: [
+          { id: "term-base", rows: [
+            [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac,K.po,K.pf,KB_EXP,K.inf,K.eff ],
+            [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.moins,K.plus,K.egal,K.vers,K.gauche,K.droite ],
+            [ K.n("1"),K.n("2"),K.n("3"),K.n("0"),K.virg ].concat(V, [ K.espace,K.entree,K.versB ]) ]},
+          { id: "term-fn", rows: [
+            [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan,K.espace,K.eff ],
+            [ K.arcsin,K.arccos,K.arctan,K.versA,K.gauche,K.droite,K.entree ]
+          ]}
+        ]
+      };
+      return {
+        label: "Terminale",
+        layers: [
+          { id: "term-base", rows: [
+            [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac,K.po,K.pf,KB_EXP,K.eff ],
+            [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.moins,K.plus,K.egal,K.gauche,K.droite ],
+            [ K.n("1"),K.n("2"),K.n("3"),K.n("0"),K.virg,K.espace,K.entree,K.versB ]
+          ]},
+          { id: "term-fn", rows: [
+            V.concat([ K.inf,K.vers,K.eff ]),
+            [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan,K.espace ],
+            [ K.arcsin,K.arccos,K.arctan,K.versA,K.gauche,K.droite,K.entree ]
+          ]}
+        ]
+      };
+    }
+    /* CLAVIER A — les nombres et les operations, QUATRE rangees (demande de
+       Turquet, septembre 2026 : « faire passer les touches U.., n, inf, --> et
+       l'integrale sur le clavier B ; une ligne en moins dans le clavier A »). La
+       rangee des variables a donc quitte cette couche : elle vit en tete du
+       clavier B, avec ∞, ⟶ et l'integrale — et revient ici sur un exercice sur
+       les limites. Cette forme sert le TELEPHONE et la fenetre flottante de
+       l'ordinateur ; la tablette, elle, prend la forme courte ci-dessus.
+       CLAVIER B — les lettres, les fonctions et les symboles. */
     if(limites) return {
       label: "Terminale",
       layers: [
         { id: "term-base", rows: [
-          [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac,K.po,K.pf,KB_EXP,K.inf,K.eff ],
-          [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.moins,K.plus,K.egal,K.vers,K.gauche,K.droite ],
-          [ K.n("1"),K.n("2"),K.n("3"),K.n("0"),K.virg ].concat(V, [ K.espace,K.entree,K.versB ]) ]},
+          [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac ].concat(V, [ K.eff ]),
+          [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.inf,K.vers,K.po,K.pf ],
+          [ K.n("1"),K.n("2"),K.n("3"),K.moins,K.egal,KB_EXP,K.gauche,K.droite ],
+          [ K.n("0"),K.virg,K.plus,K.espace,K.entree,K.versB ]
+        ]},
         { id: "term-fn", rows: [
-          [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan,K.espace,K.eff ],
-          [ K.arcsin,K.arccos,K.arctan,K.versA,K.gauche,K.droite,K.entree ]
+          [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan ],
+          [ K.arcsin,K.arccos,K.arctan,K.eff ],
+          [ K.versA,K.espace,K.gauche,K.droite,K.entree ]
         ]}
       ]
     };
@@ -23689,62 +23768,23 @@ function buildKbTerm(vars, court, limites){
       label: "Terminale",
       layers: [
         { id: "term-base", rows: [
-          [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac,K.po,K.pf,KB_EXP,K.eff ],
-          [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.moins,K.plus,K.egal,K.gauche,K.droite ],
-          [ K.n("1"),K.n("2"),K.n("3"),K.n("0"),K.virg,K.espace,K.entree,K.versB ]
+          [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac,K.eff ],
+          [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.po,K.pf ],
+          /* « = » (demande de Turquet, septembre 2026) : la greffe coupe le clavier du
+             SYSTEME sur chaque champ mathematique (inputmode="none") — sur tablette,
+             sans cette touche, une egalite etait intapable dans les redactions. */
+          [ K.n("1"),K.n("2"),K.n("3"),K.moins,K.egal,KB_EXP,K.gauche,K.droite ],
+          [ K.n("0"),K.virg,K.plus,K.espace,K.entree,K.versB ]
         ]},
         { id: "term-fn", rows: [
-          V.concat([ K.inf,K.vers,K.eff ]),
-          [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan,K.espace ],
-          [ K.arcsin,K.arccos,K.arctan,K.versA,K.gauche,K.droite,K.entree ]
+          V.concat([ K.inf,K.vers ]),
+          [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan ],
+          [ K.arcsin,K.arccos,K.arctan,K.eff ],
+          [ K.versA,K.espace,K.gauche,K.droite,K.entree ]
         ]}
       ]
     };
   }
-  /* CLAVIER A — les nombres et les operations, QUATRE rangees (demande de
-     Turquet, septembre 2026 : « faire passer les touches U.., n, inf, --> et
-     l'integrale sur le clavier B ; une ligne en moins dans le clavier A »). La
-     rangee des variables a donc quitte cette couche : elle vit en tete du
-     clavier B, avec ∞, ⟶ et l'integrale — et revient ici sur un exercice sur
-     les limites. Cette forme sert le TELEPHONE et la fenetre flottante de
-     l'ordinateur ; la tablette, elle, prend la forme courte ci-dessus.
-     CLAVIER B — les lettres, les fonctions et les symboles. */
-  if(limites) return {
-    label: "Terminale",
-    layers: [
-      { id: "term-base", rows: [
-        [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac ].concat(V, [ K.eff ]),
-        [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.inf,K.vers,K.po,K.pf ],
-        [ K.n("1"),K.n("2"),K.n("3"),K.moins,K.egal,KB_EXP,K.gauche,K.droite ],
-        [ K.n("0"),K.virg,K.plus,K.espace,K.entree,K.versB ]
-      ]},
-      { id: "term-fn", rows: [
-        [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan ],
-        [ K.arcsin,K.arccos,K.arctan,K.eff ],
-        [ K.versA,K.espace,K.gauche,K.droite,K.entree ]
-      ]}
-    ]
-  };
-  return {
-    label: "Terminale",
-    layers: [
-      { id: "term-base", rows: [
-        [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.e,K.rac,K.eff ],
-        [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.ln,K.po,K.pf ],
-        /* « = » (demande de Turquet, septembre 2026) : la greffe coupe le clavier du
-           SYSTEME sur chaque champ mathematique (inputmode="none") — sur tablette,
-           sans cette touche, une egalite etait intapable dans les redactions. */
-        [ K.n("1"),K.n("2"),K.n("3"),K.moins,K.egal,KB_EXP,K.gauche,K.droite ],
-        [ K.n("0"),K.virg,K.plus,K.espace,K.entree,K.versB ]
-      ]},
-      { id: "term-fn", rows: [
-        V.concat([ K.inf,K.vers ]),
-        [ K.integ,K.pi,K.dans,KB_IDX,K.sin,K.cos,K.tan ],
-        [ K.arcsin,K.arccos,K.arctan,K.eff ],
-        [ K.versA,K.espace,K.gauche,K.droite,K.entree ]
-      ]}
-    ]
-  };
 }
 /* La rangee la plus large de la disposition REELLEMENT installee : c'est elle
    que la largeur des touches suit (--kb-unites, lue par la feuille de styles).
@@ -23808,16 +23848,24 @@ function kbLimites(id){
   try{ if(id === currentTestId && document.querySelector('.screen.on math-field.lim-mf')) return true; }catch(e){}
   return false;
 }
+/* UN ECRAN OU L'ELEVE REDIGE EN MOTS ajoute le clavier C (les lettres). Comme
+   kbLimites, on ne tient aucune liste : le clavier suit les CASES — une ligne
+   de la feuille de redaction (mlFeuille, mode 'redaction', classe mf-mots) sur
+   l'ecran de l'exercice COURANT. */
+function kbLettres(id){
+  if(!id) return false;
+  try{ return id === currentTestId && !!document.querySelector('.screen.on math-field.mf-mots'); }catch(e){ return false; }
+}
 function applyKbLayout(){
   const vk = window.mathVirtualKeyboard; if(!vk) return;
   let id = null; try { id = currentTestId; } catch(e) {}   /* variable globale du script principal */
   const vars = kbVarsFor(id);
-  const court = kbTablette(), limites = kbLimites(id);
-  const key = JSON.stringify([court, limites, vars.map(v => v.insert || v.latex || v.label)]);
+  const court = kbTablette(), limites = kbLimites(id), lettres = kbLettres(id);
+  const key = JSON.stringify([court, limites, lettres, vars.map(v => v.insert || v.latex || v.label)]);
   if(key === __kbVarsKey) return;   /* déjà appliqué pour ce contexte */
   __kbVarsKey = key;
   let dispo = null;
-  try { dispo = buildKbTerm(vars, court, limites); vk.layouts = [ dispo ]; } catch(e) {}
+  try { dispo = buildKbTerm(vars, court, limites, lettres); vk.layouts = [ dispo ]; } catch(e) {}
   /* la largeur des touches suit la rangee la plus large de la disposition qu'on
      vient d'installer — une source, jamais un compte recopie dans le CSS */
   try { if(dispo) document.documentElement.style.setProperty('--kb-unites', String(kbUnites(dispo))); } catch(e) {}

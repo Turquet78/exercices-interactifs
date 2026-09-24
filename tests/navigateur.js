@@ -12431,6 +12431,93 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11 decies. Là où l'élève rédige en MOTS, le clavier C porte les lettres ----
+       Demande de Turquet (septembre 2026) : « en terminale pour l'exercice 3.5,
+       l'élève a besoin d'écrire des mots, il faudrait rajouter un clavier C avec
+       les lettres de l'alphabet et l'espace et ":" ». jsdom évalue la
+       disposition et la table de routage ; seul un navigateur sait si la couche
+       se REND sur l'écran de rédaction, et si les touches cliquées ÉCRIVENT.
+       Tablette tactile debout : on ouvre l'exercice témoin, on touche sa
+       feuille, on clique « clavier C » — les chiffres disparaissent, les
+       lettres sont là —, on TAPE « quand : » touche par touche et on relit la
+       ligne par le chemin du juge (toPlain) ; puis « clavier A » ramène les
+       chiffres. */
+    titre('11 decies. LE CLAVIER C : LES LETTRES, L\'ESPACE ET « : »');
+    if(!(P.clavierEcran && P.clavierEcran.lettres)){
+      ignorer('là où l\'élève rédige, le clavier C écrit des mots', 'ce fichier ne déclare pas de clavier des lettres');
+    } else {
+      const KL = P.clavierEcran.lettres;
+      const exo = KL.exercices[0];
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('là où l\'élève rédige, le clavier C écrit des mots', 'connexion impossible');
+      } else {
+        await s.page.evaluate(i => openTest(i), exo);
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(900);
+        const champ = '.screen.on math-field.mf-mots';
+        const aChamp = await s.page.evaluate(q => !!document.querySelector(q), champ);
+        if(aChamp){
+          await s.page.click(champ);
+          await s.page.waitForTimeout(700);
+          await s.page.evaluate(() => { const vk = window.mathVirtualKeyboard; if(vk && !vk.visible) vk.show(); });
+        }
+        /* un clavier STABLE, jamais à délai fixe (la leçon du 11 sexies) */
+        await s.page.evaluate(async () => {
+          const sig = () => { const kb = document.querySelector('body > .ML__keyboard'); if(!kb) return '';
+            return [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')].map(el => el.textContent.trim()).join('|'); };
+          const t0 = Date.now(); let a = sig();
+          while(Date.now() - t0 < 6000){ await new Promise(r => setTimeout(r, 250)); const b = sig(); if(b && b === a) return; a = b; }
+        });
+        const touche = async t => s.page.evaluate(t => {
+          const kb = document.querySelector('body > .ML__keyboard'); if(!kb) return null;
+          const c = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
+            .find(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2 && el.textContent.trim() === t; });
+          if(!c) return null; const q = c.getBoundingClientRect();
+          return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2), coupe: c.scrollWidth > c.clientWidth + 1 };
+        }, t);
+        const versC = aChamp ? await touche(KL.versC) : null;
+        let surC = null;
+        if(versC){ await s.page.mouse.click(versC.x, versC.y); await s.page.waitForTimeout(400);
+          surC = { a: !!(await touche('a')), q: !!(await touche('q')), deux: !!(await touche(':')), cinq: !!(await touche('5')) }; }
+        verifier('sur l\'écran de rédaction, « ' + KL.versC + ' » mène aux lettres',
+          !!surC && surC.a && surC.q && surC.deux && !surC.cinq && !versC.coupe,
+          !aChamp ? 'aucune feuille de rédaction (math-field.mf-mots) sur l\'écran de ' + exo
+            : !versC ? 'aucune touche « ' + KL.versC + ' » sur le clavier rendu'
+            : versC.coupe ? 'le libellé « ' + KL.versC + ' » est coupé dans sa touche'
+            : surC.cinq ? 'les chiffres sont toujours là : la couche n\'a pas changé'
+            : 'manque sur le clavier C : ' + [surC.a ? '' : 'a', surC.q ? '' : 'q', surC.deux ? '' : ':'].filter(Boolean).join(' '));
+        /* on TAPE « quand : » touche par touche, et on relit par le chemin du juge */
+        let lu = null;
+        if(surC && surC.a){
+          for(const t of ['q', 'u', 'a', 'n', 'd', 'espace', ':']){
+            const k = await touche(t); if(!k){ lu = 'touche « ' + t + ' » introuvable'; break; }
+            await s.page.mouse.click(k.x, k.y); await s.page.waitForTimeout(120);
+          }
+          if(lu === null) lu = await s.page.evaluate(q => { const mf = document.querySelector(q);
+            try{ return window.mlDexp.toPlain(mf.getValue()); }catch(e){ return 'illisible : ' + e.message; } }, champ);
+        }
+        const net = String(lu || '').replace(/\s+/g, ' ').trim();
+        verifier('les touches du clavier C écrivent : « quand : » se relit tel quel',
+          /^quand ?:$/.test(net), lu === null ? 'rien n\'a pu être tapé' : 'la ligne se relit « ' + lu + ' »');
+        let retour = null;
+        const versA = surC ? await touche(KL.versA) : null;
+        if(versA){ await s.page.mouse.click(versA.x, versA.y); await s.page.waitForTimeout(400);
+          retour = { cinq: !!(await touche('5')), a: !!(await touche('a')) }; }
+        verifier('« ' + KL.versA + ' » ramène les chiffres depuis le clavier C',
+          !!retour && retour.cinq && !retour.a,
+          !versA ? 'aucune touche « ' + KL.versA + ' » sur le clavier C' : 'la couche rendue n\'est pas le clavier A');
+        verifier('le clavier C ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ---- 11 quinquies. Sur une tablette en PAYSAGE, le clavier mathématique tient sur deux rangées, et ⏎ valide ----
        Signalé et demandé par Turquet (septembre 2026) sur le 2.2.10 : « la touche
        valider ne fonctionne pas et ne permet pas de passer à la ligne », et

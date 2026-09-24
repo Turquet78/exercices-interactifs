@@ -1577,6 +1577,16 @@ module.exports = {
                                           courte: { rangeesA: 3, rangeesB: 2, unitesMax: 12 },
                                           surA: ['\\infty', '\\longrightarrow'],
                                           surB: ['\\smallint'] } },
+                    /* LE CLAVIER C — les lettres, l'espace et « : » (demande de
+                       Turquet, septembre 2026, sur le 3.5 : « l'élève a besoin
+                       d'écrire des mots »). La page ne tient aucune liste : il
+                       suit la feuille de RÉDACTION (mlFeuille, mode 'redaction'),
+                       et ces témoins disent au banc où regarder. Onze unités par
+                       rangée au plus : dix lettres et une touche d'action — plus,
+                       et toutes les touches du téléphone rétréciraient. */
+                    lettres: { versC: 'clavier C', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b',
+                               touches: [':', ' '], rangees: 3, unitesMax: 11,
+                               exercices: ['limites-redaction'] },
                     /* Et sur une TABLETTE, les touches sont légèrement réduites :
                        le banc navigateur ouvre l'exercice déclaré à la taille
                        d'une tablette et mesure la touche RENDUE contre ces
