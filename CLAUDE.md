@@ -17,28 +17,21 @@ Les trois partagent un seul projet Supabase et la même fonction Edge
 
 ## Règles absolues
 
-**1. `main` publie immédiatement — et seul Turquet décide du moment.** GitHub
-Pages sert `main` : toute fusion met le site sous les yeux des élèves dans la
-minute. Le travail se fait toujours sur une branche, puis passe par une pull
-request que Claude prépare et teste (action « Contrôles » verte, modification
-réellement exécutée — règle 3). Claude annonce alors « prêt à mettre en
-ligne » et **attend que Turquet dise explicitement « mets en ligne »** (ou un
-équivalent clair) dans la conversation ; Claude fusionne à ce moment-là,
-vérifie la publication, et jamais avant (décision de Turquet, août 2026).
-Jamais de poussée directe sur `main`.
+**1. `main` publie immédiatement — et Claude met en ligne dès que c'est
+possible.** GitHub Pages sert `main` : toute fusion met le site sous les yeux
+des élèves dans la minute. Le travail se fait toujours sur une branche, puis
+passe par une pull request que Claude prépare et teste (action « Contrôles »
+verte, modification réellement exécutée — règle 3). Dès que tout est vert,
+Claude **fusionne lui-même, sans attendre de feu vert**, puis vérifie la
+publication (décision de Turquet, septembre 2026 : « à partir de maintenant,
+toujours mettre en ligne automatiquement dès que c'est possible »). Elle
+remplace la règle d'août 2026, qui faisait attendre un « mets en ligne »
+explicite. Jamais de poussée directe sur `main`, et jamais de fusion sur des
+contrôles rouges : « dès que c'est possible » veut dire « dès que c'est vert ».
 
-**Et Claude joint le fichier HTML de la branche à cette annonce, toujours**
-(décision de Turquet, août 2026). Pas une capture d'écran : le fichier, que
-Turquet ouvre dans son navigateur pour cliquer lui-même. Les pages sont
-monolithiques et sans étape de compilation — le fichier de la branche EST la
-page, il suffit de l'ouvrir. Une capture ne montre qu'un écran choisi par
-Claude ; le fichier laisse regarder ce que Claude n'a pas pensé à montrer, et
-c'est précisément là que se logent les défauts qu'un banc ne voit pas.
-Deux avertissements l'accompagnent, parce qu'ils ne se devinent pas : le
-fichier porte l'adresse du VRAI projet Supabase, donc naviguer est sans danger
-mais **terminer un exercice écrit une vraie note sur un vrai élève** ; et un
-aperçu hébergé ne remplacerait pas le fichier — les appels sortants y sont
-bloqués, ni Supabase ni MathLive ne répondraient.
+**Et Claude ne joint plus le fichier HTML de la branche** (même décision) : la
+page se regarde en ligne, une fois publiée. Le compte rendu dit ce qui a
+changé, ce qui a été exécuté, et ce qu'aucun banc ne voit.
 
 **2. `npm test` avant toute proposition.** Aucune modification n'est poussée si
 les contrôles échouent. `npm test` contrôle **les trois niveaux**, chacun selon
@@ -315,7 +308,7 @@ tenus, les sabotages qui les ont éprouvés.
 - Seconde — fonctions, courbes et tableaux — `docs/journal/05-seconde-fonctions.md`
 - Seconde — algorithmique et Python — `docs/journal/06-seconde-python.md`
 - Fractions (Seconde et Première) — `docs/journal/07-fractions.md`
-- Première — pourcentages, évolutions et coefficients — `docs/journal/10-premiere-pourcentages.md`
+- Pourcentages, évolutions et coefficients (Première, et Seconde depuis septembre 2026) — `docs/journal/10-premiere-pourcentages.md`
 - Terminale — dérivées, suites, récurrences et TVI — `docs/journal/14-terminale.md`
 
 ## Ajouter un exercice

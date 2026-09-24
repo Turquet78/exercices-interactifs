@@ -1109,3 +1109,80 @@ sur « au moins quatre pourcentages admissibles » — et un sabotage qui fige l
 ne dit rien du contrôle visé, comme celui qui en casse la syntaxe. Rejoué à quatre
 taux, sous le seuil du garde, il rougit (« le vivier des pourcentages est vide, le
 contrôle ne mesure rien »).
+
+---
+
+## Le thème entier porté en Seconde (septembre 2026)
+
+**« Je veux que tous les thèmes des pourcentages en Première soient copiés en
+Seconde »** (demande de Turquet, septembre 2026). Les trente et un exercices du
+thème 2 de la Première — ses cinq sous-thèmes, dans le même ordre — sont
+devenus le thème 3 de la Seconde, qui n'en avait que trois (prendre, augmenter,
+diminuer), trois copies anciennes de ceux de la Première. Ces trois-là ont été
+REMPLACÉS par le moteur de la Première, pas doublés : mêmes identifiants, donc
+les notes et les devoirs déjà posés en Seconde les retrouvent ; seuls leurs
+numéros changent (3.1 → 3.1.3, 3.2 → 3.2.1, 3.3 → 3.3.1), et c'est la règle —
+une note porte l'IDENTIFIANT, jamais le numéro. Une pause prise avant le
+portage se reprend : ses questions n'ont ni variante ni contexte, et
+`variante()` retombe déjà sur la première tournure (« q.v absent : anciennes
+pauses »).
+
+**Le portage est fait par un script, par PLAGES de lignes, jamais par un filtre
+sur `function`/`const`** (la leçon du portage depuis la Terminale, dans
+`12-seances-et-branchements.md`) : le moteur de la Première, d'un bloc, puis
+les branchements un par un — `TESTS`, `THEMES`, les écrans, la réserve du bas,
+`show()`, `liveCheckCurrent()`, `afficherEcranDe()`, la reprise, les rappels,
+les questions à l'IA, le contexte du modèle et la liste des rendus enveloppés.
+Chaque ancre doit exister exactement une fois, sans quoi le script s'arrête :
+un remplacement qui ne trouve rien ne casse rien, et c'est ce qui le rend
+dangereux.
+
+**Deux collisions de noms, qu'aucune erreur n'aurait signalées.** La Seconde
+avait déjà un moteur « syn » — la synthèse des FONCTIONS — et une
+`nextSynQuestion()`. Le moteur des synthèses de pourcentages s'appelle donc
+« psyn » en Seconde (et `nextPsynQuestion`, `RAP_PSYN`) : garder « syn » aurait
+envoyé la reprise d'une synthèse de fonctions sur l'écran des pourcentages, et
+la seconde `function nextSynQuestion` aurait silencieusement remplacé la
+première — la synthèse des fonctions aurait avancé en appelant le rendu des
+pourcentages. Le contexte des synthèses envoyé au modèle, leurs rappels et
+leurs questions suivent le nouveau nom.
+
+**Ce qui diffère volontairement de la Première, et pourquoi.**
+* *La rangée d'aide.* La Seconde met ses boutons d'aide dans la rangée
+  « …Actions » (`conseilInlineBtn()`), la Première les pose APRÈS le rendu dans
+  une `.ia-row` (`iaBoutons()`). Les écrans portés gardent la manière de la
+  Première — leurs vérifications réécrivent la rangée « …Actions » —, et
+  l'`iaBoutons()` de la Seconde remplit la `.ia-row` avec les boutons de la
+  Seconde. `soutienAgain()` ne rajoute pas ses boutons quand l'écran a déjà sa
+  rangée : sinon l'aide s'affichait deux fois au premier « Presque ! ».
+* *« Recommencer ».* La Seconde relance l'exercice du menu (`currentTestId`) ;
+  les moteurs de pourcentages sont PARTAGÉS (un moteur, plusieurs identifiants)
+  et se relancent comme en Première, par `test.kind` et `test.qId`
+  (`restartPct()`). Les contrôles de la Première l'ont exigé au premier
+  passage : ils posent une sentinelle dans `currentTestId`, précisément pour
+  qu'une identité qui ne tiendrait que par inertie se voie.
+* *Les références à des exercices absents.* Trois textes citaient
+  {mult-dec-un} et {mult-decimaux}, que la Seconde n'a pas : `numeros()` laisse
+  un identifiant inconnu tel quel, l'élève aurait LU les accolades. Les
+  libellés disent la chose au lieu de la citer (« en posant la
+  multiplication », « en fractions décimales ») ; le script refuse d'écrire la
+  page s'il en reste une.
+* *La police des tablettes.* Les règles de la Première écrivent
+  `calc(1.9rem * var(--tab-nb,1))` ; la Seconde n'a pas `--tab-nb`, les tailles
+  sont portées nues.
+* *`liveColorFrac()`* a pris la version de la Première : un numérateur seul s'y
+  juge sur sa PROMESSE (le « 4 » qui rougissait sous le doigt de l'élève). Elle
+  sert aussi les fractions de la Seconde, qui en bénéficient.
+* *`enregistrerResultat()`* : l'entonnoir des notes de la Première, écrit dans
+  `resultats_2nde` ; le verrou du rejeu y est doublé par celui que la Seconde
+  pose déjà sur le client.
+
+**Les contrôles de la Première se sont allumés d'eux-mêmes sur la Seconde** :
+ils détectent le moteur (`typeof startPctSynthese==='function'`…), pas le
+niveau. Le profil de la Seconde déclare ce que la Première déclare — les
+dispenses du soutien en direct (« psl », « sal », « ac »), le nombre de
+questions (4, 3, 3), les moteurs dont le contexte envoyé au modèle est mesuré —,
+et quinze contrôles du thème Python, qui prenaient « pourcentage » = 3.1 pour
+témoin d'une numérotation inchangée, attendent désormais 3.1.3 : le numéro a
+changé parce que le thème a changé, pas parce qu'un exercice ajouté l'aurait
+bousculé.
