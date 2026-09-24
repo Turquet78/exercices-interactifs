@@ -1587,7 +1587,15 @@ module.exports = {
                        téléphone rétréciraient encore. */
                     lettres: { versC: 'clavier C', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b',
                                touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 12,
-                               exercices: ['limites-redaction'] },
+                               exercices: ['limites-redaction', 'tvi-redaction', 'tvi-contre-exemples'],
+                               /* Les zones de rédaction du TVI (3.3, 3.4) sont devenues des
+                                  feuilles de rédaction pour recevoir le clavier C (« mets aussi
+                                  le clavier C dans les zones de texte du TVI »). Leurs boutons
+                                  ∞ α ∈ écrivent dans la ligne en cours : le banc les CLIQUE et
+                                  relit la ligne par le chemin du juge. */
+                               symboles: { 'tvi-redaction': ['#tvi2InfBtn', '#tvi2AlphaBtn', '#tvi2AppBtn'],
+                                           'tvi-contre-exemples': ['#tvi3InfBtn', '#tvi3AlphaBtn', '#tvi3AppBtn'],
+                                           relu: '\u221e\u03b1\u2208' } },
                     /* Et sur une TABLETTE, les touches sont légèrement réduites :
                        le banc navigateur ouvre l'exercice déclaré à la taille
                        d'une tablette et mesure la touche RENDUE contre ces

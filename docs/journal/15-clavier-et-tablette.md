@@ -1253,3 +1253,42 @@ parti au juge. jsdom, qui ne voit que la disposition, était vert. La touche
 INSÈRE donc `\text{'}`, que `toPlain` rend en apostrophe nue ; é et è, eux,
 s'écrivent tels quels par la frappe. Le rouge de ce premier essai tient lieu
 de sabotage : c'est exactement le défaut que le contrôle doit nommer.
+
+**Puis les zones de texte du TVI sont devenues des feuilles de rédaction.**
+Demande de Turquet (septembre 2026) : « mets aussi le clavier C dans les zones
+de texte du TVI ». Le 3.3 (TVI rédigé) et le 3.4 (contre-exemples) se
+rédigeaient dans un `<textarea>` : sur tablette, c'est le clavier du SYSTÈME
+qui s'y ouvrait — des lettres, mais ni ∞, ni ∈, ni α, sauf par les petits
+boutons d'à côté. Or le clavier C est une COUCHE du clavier MathLive : il ne
+peut pas s'ouvrir sur un `<textarea>`. Les deux zones sont donc devenues la
+feuille du 3.5 (`mlFeuille`, mode « redaction »), et le clavier C y vient
+par la règle déjà en place (`kbLettres` suit la feuille) — rien à déclarer
+côté clavier.
+**Ce qui a disparu avec le `<textarea>`** : l'expansion à la frappe
+« inf / alp / app » + espace, et les raccourcis Ctrl + I / Ctrl + B. La
+feuille garde « inf » → ∞ (sa liste blanche) et « va » → flèche ; α et ∈
+passent par leurs boutons (et ∈ par le clavier B). « app » n'a PAS été
+ajouté à la liste blanche : c'est le début d'« appliquer », le mot même du
+3.4. **Les boutons ∞ α ∈ restent**, et écrivent dans la ligne en cours — la
+feuille retient la dernière ligne touchée (`F.derniere`, une ligne ajoutée à
+`mlFeuille`, recopiée en Seconde et en Première pour que l'éditeur reste
+identique) ; `onmousedown` empêche le bouton de voler le focus.
+**Les juges n'ont pas changé** : le 3.3 envoie toujours son texte à l'action
+« redaction » et garde son relevé local (`evalJustif`, pour le TVI cité et
+l'intervalle) ; le 3.4 à « verif ». Ils reçoivent maintenant le texte clair
+de la feuille (`F.lire`, via `toPlain`), une ligne par idée. Le banc
+navigateur (« 11 decies ») ouvre les deux, y trouve le clavier C, tape
+« sur » avec, CLIQUE ∞ α ∈ et relit la ligne — exactement ce que l'IA recevra.
+**Le premier passage au navigateur a rougi deux fois, et les deux fois sur la
+page.** (1) Le bouton α écrivait `\alpha`, que `toPlain` ne convertissait
+pas : la ligne se relisait « sur∞\alpha∈ », et c'est ce texte que l'IA aurait
+reçu. `toPlain` rend désormais α — dans les TROIS fichiers, l'aplatisseur
+devant rester identique au caractère près. (2) Le contrôle universel « le
+clavier mathématique est atteignable sur tout écran à champ mathématique »
+a nommé les deux écrans : un `<textarea>` n'avait pas besoin du bouton ⌨️,
+une feuille si. `renderTVI2` et `renderTVI3` ont rejoint la liste des rendus
+qui reçoivent la rangée générique (`pmJetons`). Un troisième rouge était du
+BANC : le clavier garde sa couche d'un exercice à l'autre, et le 3.4, ouvert
+juste après le 3.3 quitté sur le clavier C, n'avait pas de touche
+« clavier C » à cliquer — il montrait déjà les lettres. Le banc le reconnaît
+et tape.
