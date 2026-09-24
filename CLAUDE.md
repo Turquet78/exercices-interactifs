@@ -303,7 +303,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 Un exercice ajouté demain se lit d'abord ici : le tirage, le juge, les bords
 tenus, les sabotages qui les ont éprouvés.
 
-- Opérations posées — `docs/journal/03-calcul-pose.md`
+- Opérations posées et calcul mental (Première, et Seconde depuis septembre 2026) — `docs/journal/03-calcul-pose.md`
 - Seconde — intervalles et ordre des nombres — `docs/journal/04-seconde-intervalles.md`
 - Seconde — fonctions, courbes et tableaux — `docs/journal/05-seconde-fonctions.md`
 - Seconde — algorithmique et Python — `docs/journal/06-seconde-python.md`

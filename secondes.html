@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -1585,6 +1585,7 @@
 .qia-overlay.on{display:flex}
 .qia-card{background:var(--surface);border-radius:16px;max-width:600px;width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(15,23,42,.25);overflow:hidden}
 /* ---- Tables de multiplication : styles repris à l'identique de la Première ---- */
+#tablesOverlay{align-items:flex-start;justify-content:flex-end}
 .tables-card{max-width:520px;max-height:min(78vh,620px);margin:8px}
 @media (max-width:720px){ #tablesOverlay{justify-content:center} .tables-card{max-width:100%} }
 .tables-corps{padding:12px 14px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:10px}
@@ -2273,6 +2274,60 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .fpm-ligne{display:flex;align-items:center;justify-content:center;gap:8px;}
 .fpm-const{font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--ink);white-space:nowrap;}
 .ia-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+/* ---- Calcul mental : les écrans de la Première, portés avec leurs règles ---- */
+/* Retenue de la SOUSTRACTION, méthode par compensation. Elle s'écrit à deux
+   endroits, comme dans un cahier : le petit 1 devant le chiffre du HAUT —
+   2 devient 12 —, et la même retenue descend en « +1 » devant le chiffre du
+   BAS de la colonne suivante. Deux marques, une seule retenue.
+   Elles se posent dans le coin haut-gauche de la cellule, au-dessus de la
+   hauteur du chiffre : la colonne n'est pas décalée d'un pixel. */
+/* Les colonnes de CET exercice sont plus larges que celles de la
+   multiplication : il faut la place d'écrire une marque DEVANT le chiffre,
+   sans la poser dessus ni la faire dépasser du cadre. La largeur vit à un
+   seul endroit — le trait la relit — pour que les deux ne divergent pas. */
+#aspHost{--asp-col:78px}
+#aspHost .mp-cl{width:var(--asp-col)}
+.asp-ret{position:absolute;left:10px;top:6px;width:21px;height:21px;text-align:center;
+  font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--red);
+  background:var(--red-soft);border:1.5px dashed #f0b3bb;border-radius:7px;outline:none;padding:0}
+.asp-ret:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(226,61,82,.16)}
+.asp-ret.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee;border-style:solid}
+.asp-ret.bad{color:var(--red);background:var(--red-soft);border-color:var(--red);border-style:solid}
+.asp-plus{position:absolute;left:1px;top:6px;font-family:"Fredoka";font-weight:700;font-size:.82rem;color:var(--red);line-height:21px}
+/* --- Tables de multiplication : bandeau du tour en cours --- */
+.depart-titre{font-weight:800;color:var(--blue);}
+.depart-note{font-weight:700;color:var(--ink-soft);font-size:1rem;line-height:1.5;}
+.tm-corr{display:inline-block;margin:8px auto 4px;padding:12px 26px;border-radius:16px;
+  background:var(--red-soft);border:2.5px solid var(--red);color:var(--red);
+  font-weight:800;font-size:2.1rem;line-height:1.2;letter-spacing:.5px;}
+.tm-corr b{font-size:2.6rem;}
+.tm-corr-note{font-weight:800;color:var(--red);font-size:.95rem;margin:2px 0;}
+@media(max-width:520px){ .tm-corr{font-size:1.6rem;padding:10px 18px;} .tm-corr b{font-size:2rem;} }
+.tm-tour{text-align:center;font-weight:800;color:var(--ink-soft);margin:2px 0 10px;font-size:.95rem;}
+.tm-tour b{color:var(--blue);}
+.tm-tour.reprise{color:var(--red);}
+.tm-tour.reprise b{color:var(--red);}
+/* Sur écran large, la pose-outil se range à DROITE des étapes, alignée en haut ;
+   sur écran étroit elle repasse naturellement dessous. */
+@media(min-width:1100px){
+  #mdHost,#uHost{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:30px;align-items:start;}
+  #mdHost .pt-step:not(.pt-outil),#uHost .pt-step:not(.pt-outil){grid-column:1;}
+  #mdHost .pt-outil,#uHost .pt-outil{grid-column:2;grid-row:1;margin-top:0;}
+}
+/* Même règle sur l'écran des fractions décimales : la fraction de l'énoncé est à
+   1,7rem (.fr .fn, .fr .fd) et le « = » à 2rem — une case à 1,05rem se lisait
+   comme une note en bas de page au milieu du calcul. */
+#fHost math-field.pm-mf{font-size:1.7rem;line-height:1.15;}
+@media(max-width:900px){ #fHost math-field.pm-mf{font-size:1.4rem;} }
+/* LE 1.6 REJOINT LE GROUPE (demande de Turquet, août 2026) : ses cases
+   gardaient une largeur FIXE (76 px) pendant que tous les autres écrans à
+   fractions suivaient la saisie — « 230 » s'y écrivait à l'étroit. Ce sont des
+   math-field : le plafond générique de pm-mf (150 px) doit être relevé AUSSI,
+   sans quoi width:auto s'arrête à mi-course sans que rien ne le dise. */
+#fHost .f-num,#fHost .f-den{width:auto;min-width:76px;max-width:320px;align-self:stretch;}
+#fHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#fHost math-field.pm-mf{max-width:320px;}
+#fHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 .score-tag .score-lbl{font-size:.86rem;color:var(--ink-soft);font-weight:700;}
 @media(max-width:520px){ .score-tag{padding:5px 10px;} .score-tag .score-lbl{font-size:.78rem;} }
 .btn.pm-pret{outline:3px solid #b9c6f5;outline-offset:2px;box-shadow:0 0 0 5px rgba(58,90,214,.18);}
@@ -2820,6 +2875,115 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <button class="btn btn-ghost" onclick="ouvrirEspace()">Mon espace</button>
       </div>
       <p class="note" style="text-align:center">Ce test a été ajouté à ton historique.</p>
+    </div>
+  </section>
+
+  <!-- CALCUL MENTAL : les écrans de la Première, portés tels quels -->
+  <section class="screen" id="scr-test">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCm"></span><span class="q-idx" id="qIdx">Question 1 / 10</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="liveScore">0</b></span>
+    </div>
+    <div class="ardoise"><div class="equation" id="equation">— — —</div></div>
+    <div class="answer-zone">
+      <input class="answer-input" id="answerInput" inputmode="numeric" pattern="[0-9]*" placeholder="?" autocomplete="off">
+      <span class="mark" id="mark"></span>
+      <div class="timerbar" id="timerBar" hidden><i id="timerFill"></i></div>
+      <div class="correction" id="correction"></div>
+      <button class="btn btn-primary" id="validateBtn" onclick="submitAnswer()">Valider</button>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-tm">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagTm"></span><span class="q-idx" id="tmIdx">Calcul 1 / 10</span></span>
+      <span class="score-tag"><span class="score-lbl">Tables sues</span>&nbsp;<b id="tmLiveScore">0</b></span>
+    </div>
+    <p class="tm-tour" id="tmTour"></p>
+    <div class="ardoise"><div class="equation" id="tmEq">— — —</div></div>
+    <div class="answer-zone">
+      <input class="answer-input" id="tmInput" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="?"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next">
+      <span class="mark" id="tmMark"></span>
+      <div class="timerbar" id="tmTimerBar" hidden><i id="tmTimerFill"></i></div>
+      <div class="correction" id="tmCorrection"></div>
+      <div class="mp-feedback" id="tmFeedback"></div>
+      <div class="mp-actions" id="tmActions"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-asptest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagAsp"></span><span class="q-idx" id="aspIdx">Opération 1 / 10</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="aspLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="aspInstr">Pose l’opération et complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues).</p>
+      <div class="mp-stage"><div class="mp-op" id="aspHost"></div></div>
+      <div class="mp-feedback" id="aspFeedback"></div>
+      <div class="row" style="justify-content:center" id="aspActions">
+        <button class="btn btn-primary" onclick="checkASPAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-mtest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagMp"></span><span class="q-idx" id="mqIdx">Multiplication 1 / 10</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="mLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues). La <b>retenue</b> (case rouge) est facultative, mais si tu l'écris, elle doit être juste.</p>
+      <div class="mp-stage"><div class="mp-op" id="mpHost"></div></div>
+      <div class="mp-feedback" id="mpFeedback"></div>
+      <div class="row" style="justify-content:center" id="mpActions">
+        <button class="btn btn-primary" onclick="checkMAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-ftest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagF"></span><span class="q-idx" id="fqIdx">Niveau 1 · Question 1 / 5</span></span>
+      <span class="score-tag">Niveau&nbsp;<b id="fLiveScore">0/5</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="fInstr">Donne la réponse.</p>
+      <div class="mp-stage"><div class="f-wrap" id="fHost"></div></div>
+      <div class="mp-feedback" id="fFeedback"></div>
+      <div class="row" style="justify-content:center" id="fActions">
+        <button class="btn btn-primary" onclick="checkFAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-mdtest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagMd"></span><span class="q-idx" id="mdqIdx">Calcul 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="mdLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="mdPrompt">Multiplier des décimaux.</p>
+      <div class="mp-stage"><div style="width:100%" id="mdHost"></div></div>
+      <div class="mp-feedback" id="mdFeedback"></div>
+      <div class="row" style="justify-content:center" id="mdActions">
+        <button class="btn btn-primary" onclick="checkMDAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-utest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagU"></span><span class="q-idx" id="uqIdx">Calcul 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="uLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="uPrompt">Multiplier des décimaux.</p>
+      <div class="mp-stage"><div style="width:100%" id="uHost"></div></div>
+      <div class="mp-feedback" id="uFeedback"></div>
+      <div class="row" style="justify-content:center" id="uActions">
+        <button class="btn btn-primary" onclick="checkUAnswer()">Vérifier</button>
+      </div>
     </div>
   </section>
 
@@ -3872,7 +4036,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=196;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=197;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4301,7 +4465,9 @@ Fais chaque exercice en mode Soutien, puis en mode Entraînement.`,
     {id:'signe-premier-degre', modes:['soutien','train']}
   ]
 };
-const DEFAULT_CFG={count:10,secondsPerQuestion:0,locks:{}};
+/* ops, addSubMax, mulMax, mpCount, fracCount : les réglages du calcul mental,
+   portés de la Première avec leurs valeurs par défaut */
+const DEFAULT_CFG={ops:{add:true,sub:true,mul:true,div:false},addSubMax:20,mulMax:10,count:10,secondsPerQuestion:0,mpCount:10,fracCount:10,locks:{}};
 /* Identifiant stable d'un devoir : les résultats s'y rattachent, donc renuméroter ne casse rien. */
 /* Le préfixe dit la FAMILLE : une note enregistrée porte l'identifiant dans
    details.dm, et « fc_ » suffit à savoir qu'elle vient d'une fiche de travail
@@ -4389,6 +4555,26 @@ let finVerrouillee=0;
 function debutFin(){ if(test.startTime && finVerrouillee===test.startTime) return false; finVerrouillee=test.startTime; return true; }
 
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
+/* Le minuteur des tables de multiplication, déclaré ICI et non près de
+   l'exercice : les descriptions du registre le citent, et une description est
+   lue avant tout le reste. Le nombre ne vit donc qu'à un seul endroit — il
+   était écrit en toutes lettres à quatre autres, dont deux sous les yeux de
+   l'élève et un dans le contexte envoyé au modèle. Le porter de 3 à 4 en
+   laissait donc trois qui annonçaient encore l'ancienne durée. Un contrôle
+   l'interdit désormais. */
+const TM_SECONDES = 4;        /* temps de réponse accordé, par calcul */
+const TM_NB       = 10;       /* nombre de calculs du premier tour, par défaut */
+/* Un devoir peut en demander DAVANTAGE sur les tables de niveau 1 : le réglage
+   vit sur l'entrée de l'exercice dans le devoir, à côté des modes. Hors devoir,
+   c'est toujours TM_NB — le format normal, celui que l'élève trouve au menu.
+   Les valeurs sont énumérées ici plutôt que libres : elles bornent l'éditeur ET
+   ce que la page accepte de relire d'un devoir, si bien qu'un réglage bricolé à
+   la main dans la base ne peut pas produire une séance de 400 calculs. */
+const TM_NB_CHOIX = [10, 20];
+/* Le seul exercice dont la longueur de séance se règle : le niveau 2 tire les
+   produits les plus ratés, sa liste a sa propre logique. */
+const TM_ID_NB = 'tables-multiplication';
+
 const TESTS={
   'ensembles-nombres': { name:'Ensembles de nombres — niveau 1', icon:'🔢', desc:'ℕ, ℤ, 𝔻, ℚ, ℝ : complète avec ∈ ou ∉. Le résultat de la division ou de la racine est affiché (bloc qui se répète souligné).', start:()=>startEns1() },
   'ensembles-nombres-2': { name:'Ensembles de nombres — niveau 2', icon:'🔢', desc:'ℕ, ℤ, 𝔻, ℚ, ℝ : complète avec ∈ ou ∉. Le résultat n’est pas affiché : à toi de le trouver.', start:()=>startEns2() },
@@ -4419,6 +4605,15 @@ const TESTS={
   'tableau-equations': { name:'Équations et inéquations dans un tableau', icon:'🔢', desc:'Un tableau de variation, et rien d’autre : combien de solutions a l’équation f (x) = k ? Puis résoudre f (x) ≥ k ou f (x) < k en écrivant S avec les bonnes bornes et les bons crochets. Les flèches disent tout — il faut raisonner, comme dans {maximum-minimum-tableau}.', start:()=>startTVE() },
   'tableau-vrai-faux': { name:'Vrai ou faux sur un tableau', icon:'⚖️', desc:'Un tableau de variation et sept affirmations — « f (−5) est positif », « f (3) ≤ 6 », « f (1) ≤ f (2) »… Vrai ou faux ? Puis justifie : sur quel intervalle du tableau, et entre quelles valeurs la fonction y est comprise — ou si elle y est croissante ou décroissante. Le raisonnement de {tableau-equations}, poussé jusqu’à la preuve.', start:()=>startTVF() },
   'inequation-graphique': { name:'Inéquation graphique', icon:'\ud83c\udfaf', desc:'La courbe de f et une droite horizontale : choisis, parmi quatre dessins coloriés, celui qui montre f\u2009(x)\u2009\u2265\u20092, dis où la partie rouge commence et s\u2019arrête, puis écris la solution en intervalle.', start:()=>startIng() },
+  /* ---- Calcul mental : les exercices de la Première, portés tels quels ---- */
+  'addition-soustraction':{ name:'Additions et soustractions', icon:'\u00b1', desc:'Additions et soustractions POS\u00c9ES : un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres. Une addition sur deux, une soustraction sur deux, et toujours une retenue.', start:()=>startAddSub() },
+  'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:TM_NB+' produits des tables de 2 à 9 (résultats à deux chiffres), '+TM_SECONDES+' secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() },
+  'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
+  'calcul-mental':       { name:'Calcul mental',           icon:'🧮', desc:'Additions, soustractions, multiplications… à calculer de tête.', start:()=>startTest() },
+  'multiplication-posee':{ name:'Multiplication posée',     icon:'✖️', desc:'Pose la multiplication, complète la retenue et le résultat.',     start:()=>startMultPosee() },
+  'fractions-decimales': { name:'Fractions décimales',      icon:'🔢', desc:'Parcours en 5 niveaux : 4 bonnes réponses sur 5 pour passer au niveau suivant.', start:()=>startFracParcours() },
+  'mult-decimaux':       { name:'Multiplier des décimaux', icon:'🟰', desc:'Multiplie deux nombres décimaux en suivant les 4 étapes.', start:()=>startMultDec() },
+  'mult-dec-un':         { name:'Multiplier des décimaux (1,…)', icon:'1️⃣', desc:'Multiplie deux nombres qui commencent par 1, avec la multiplication posée.', start:()=>startU() },
   /* ---- Pourcentages : les exercices de la Première, portés tels quels ---- */
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
   'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
@@ -4511,18 +4706,32 @@ const TESTS={
   'somme-fractions-libre': { name:'Somme de fractions \u2014 tu \u00e9cris ton calcul', icon:'\u270d\ufe0f', desc:'Les m\u00eames nombres que {simplifier-fractions}, mais plus aucune case : tu \u00e9cris ton calcul toi-m\u00eame, une \u00e9tape par ligne. Il faut l\u2019\u00e9tape du m\u00eame d\u00e9nominateur, et un r\u00e9sultat simplifi\u00e9 \u2014 l\u2019IA v\u00e9rifie que tout y est.', start:()=>startSFL() },
   'placer-intervalle': { name:'Placer des nombres sur une droite graduée', icon:'\ud83d\udccd', desc:'On donne une droite avec deux graduations et trois nombres : place chacun avant la première graduation, entre les deux, ou après la seconde. Un bouton ajoute les zéros pour que tous les nombres aient autant de décimales.', start:()=>startPlc() }
 };
+/* Détail des 5 niveaux du parcours « Fractions décimales » */
+const FRAC_INFO={
+  'frac-n1':{name:'Fraction → décimal'},
+  'frac-n2':{name:'Décimal → fraction'},
+  'frac-n3':{name:'Multiplier des fractions'},
+  'frac-n4':{name:'Multiplier → décimal'},
+  'frac-n5':{name:'Multiplier des décimaux'}
+};
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
    Un thème = { num, nom, ids:[...] }. Le numéro affiché (1.1, 1.2, …) vient
    simplement de la position dans la liste « ids ». Pour reclasser un exercice,
    il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
+  /* Le calcul mental ouvre le menu, comme en Première (demande de Turquet,
+     septembre 2026) : les autres thèmes prennent un numéro de plus, les notes
+     ne bougent pas — elles portent l’IDENTIFIANT, pas le numéro.
+     {somme-fractions}, qui l’accompagne en Première, reste dans le thème des
+     fractions : un exercice ne vit que dans un thème. */
+  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un'] },
   /* {placer-intervalle} et {ordre-croissant} viennent APRÈS les intervalles et
      AVANT « appartient ou pas ? » (décision de Turquet, août 2026) : on place
      et on range des décimaux avant de les confronter aux bornes. Les numéros
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
-  { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
+  { num:2, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
   /* UN THÈME PEUT ÊTRE DÉCOUPÉ EN SOUS-THÈMES (demande de Turquet, septembre
      2026, pour les Fonctions : « images et antécédents », « équations et
      inéquations », « tableaux de signes et de variations », « maximum, minimum
@@ -4536,7 +4745,7 @@ const THEMES=[
      neuf. Les notes déjà obtenues ne bougent pas non plus — elles portent
      l'IDENTIFIANT, jamais le numéro — et les renvois écrits {identifiant}
      suivent d'eux-mêmes. */
-  { num:2, nom:'Fonctions', sous:[
+  { num:3, nom:'Fonctions', sous:[
       { num:1, nom:'Images et antécédents',              ids:['image-nombre','placer-image','antecedent-nombre','antecedents-droite','lecture-deux-courbes'] },
       { num:2, nom:'Équations et inéquations',            ids:['inequation-droite','inequation-graphique','equation-graphique','resolutions-graphiques','solutions-graphique','ecrire-solutions'] },
       { num:3, nom:'Tableaux de signes et de variations', ids:['lecture-variations','tableau-variation','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','tableau-equations','tableau-vrai-faux','choisir-tableau-variation'] },
@@ -4545,7 +4754,7 @@ const THEMES=[
   ] },
   /* Le thème des pourcentages est celui de la Première, porté tel quel avec
      ses cinq sous-thèmes (demande de Turquet, septembre 2026). */
-  { num:3, nom:'Pourcentages', sous:[
+  { num:4, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre'] },
@@ -4563,7 +4772,7 @@ const THEMES=[
      additionner deux. Les numéros suivent la position — il est 4.1, tout se
      renumérote derrière — et les notes déjà obtenues ne bougent pas : elles
      portent l'IDENTIFIANT, pas le numéro. */
-  { num:4, nom:'Fractions', ids:['simplifier-barres','croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre'] },
+  { num:5, nom:'Fractions', ids:['simplifier-barres','croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre'] },
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
@@ -4574,7 +4783,7 @@ const THEMES=[
      ne bougent pas. Les commentaires plus anciens de ce fichier citent les
      numéros à deux niveaux de leur époque (« le 5.7 » = 5.1.7, « le 5.15 » =
      5.2.2). */
-  { num:5, nom:'Algorithmique et Python', sous:[
+  { num:6, nom:'Algorithmique et Python', sous:[
       { num:1, nom:'Print et variable',   ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre'] },
       { num:2, nom:'Variable et calcul',  ids:['python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-pas-a-pas-multiplication','python-echange-par-lettres'] }
   ] }
@@ -4631,6 +4840,11 @@ function liveCheckCurrent(){
   if(k==='pct') checkPAnswer(true);
   else if(k==='aug') checkAAnswer(true);
   else if(k==='dim') checkDAnswer(true);
+  else if(k==='mp') checkMAnswer(true);
+  else if(k==='asp') checkASPAnswer(true);
+  else if(k==='fracp') checkFAnswer(true);
+  else if(k==='md') checkMDAnswer(true);
+  else if(k==='u') checkUAnswer(true);
   else if(k==='pctq') checkQAnswer(true);
   else if(k==='augq') checkVAnswer(true);
   else if(k==='fp') checkFPAnswer(true);
@@ -5512,6 +5726,12 @@ function fermerFenetresIA(vider){
    formulation (QIA_EXEMPLE là-bas aussi) ; la Seconde n'en avait aucune. */
 const QIA_EXEMPLE='Montre-moi un exemple de rédaction de cet exercice.';
 const QIA_SUGG={
+  asp:["Comment aligner les chiffres quand je pose l'opération ?","C'est quoi, une retenue, et où l'écrit-on ?","Pourquoi ajoute-t-on 1 en bas quand on ne peut pas soustraire ?","Comment vérifier mon résultat sans refaire l'opération ?"],
+  mp:["Comment fonctionne une retenue ?","Pourquoi commence-t-on par les unités ?","Comment vérifier un résultat de multiplication ?"],
+  md:["Où place-t-on la virgule dans un produit de décimaux ?","Pourquoi 0,3 s’écrit 3/10 ?","Comment multiplier deux fractions décimales ?"],
+  u:["Pourquoi décale-t-on le deuxième produit partiel ?","Multiplier par 1, qu’est-ce que ça change ?","Comment placer la virgule à la fin ?"],
+  fracp:["C’est quoi, une fraction décimale ?","Comment passer d’une fraction décimale à un nombre à virgule ?","Pourquoi les zéros finaux disparaissent-ils ?"],
+  tm:["Comment retenir la table de 7 ?","Y a-t-il une astuce pour la table de 9 ?","Pourquoi 7 × 8 et 8 × 7 donnent-ils le même résultat ?"],
   pct:["C’est quoi, un pourcentage ?","Pourquoi divise-t-on par 100 ?","Comment place-t-on la virgule quand on divise par 100 ?","Comment calculer 10 % de tête ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
   psl:["Comment savoir ce que la question me demande de retrouver ?","Comment justifier ma réponse ?","Par quoi commencer mon calcul ?","C’est quoi, un pourcentage ?"],
@@ -5883,6 +6103,51 @@ Trois phrases, trois coefficients, et le même pourcentage P dans les trois :<br
 Un coefficient <b>plus grand que 1</b> fait monter, <b>plus petit que 1</b> fait descendre, et le pourcentage se lit sur l’<b>écart à 1</b> — c’est le chemin inverse, celui de {lire-coefficient}.<br>
 <b>Premier piège : confondre les trois.</b> Prendre 30 %, c’est n’en garder que 30 % (× 0,30) ; diminuer de 30 %, c’est en garder 70 % (× 0,70). Les deux font descendre, mais pas de la même chose.<br>
 <b>Second piège : la place de la virgule.</b> 30 % s’écrit 0,<b>30</b> et 3 % s’écrit 0,<b>03</b> : un pourcentage à un seul chiffre garde un zéro après la virgule. Multiplier par 1,03, c’est donc augmenter de 3 % et non de 30 %.`;
+/* ---- Calcul mental : les rappels de la Première, portés avec leurs exercices ---- */
+const RAP_MP=`<b>La multiplication posée</b><br>
+On multiplie le nombre du haut par le chiffre du bas, <b>en commençant par les unités</b>.<br>
+Si le produit des unités dépasse 9, on écrit le chiffre des unités du résultat et on <b>retient</b> les dizaines : la retenue s’écrit au-dessus du chiffre suivant.<br>
+On multiplie ensuite le chiffre des dizaines, <b>puis on ajoute la retenue</b>.<br>
+Exemple : 27 × 4. 7 × 4 = 28, j’écris 8 et je retiens 2. 2 × 4 = 8, plus la retenue 2, cela fait 10. Résultat : 108.`;
+const RAP_MD=`<b>Multiplier des décimaux</b><br>
+Un nombre décimal est une fraction décimale : \\(0{,}3=\\frac{3}{10}\\) et \\(0{,}07=\\frac{7}{100}\\).<br>
+Pour multiplier deux décimaux, on multiplie les <b>numérateurs</b> entre eux et les <b>dénominateurs</b> entre eux :<br>
+\\(0{,}3\\times 0{,}07=\\frac{3}{10}\\times \\frac{7}{100}=\\frac{21}{1000}=0{,}021\\).<br>
+Autrement dit : on multiplie comme si c’étaient des entiers, puis on place la virgule en comptant <b>autant de décimales que dans les deux facteurs réunis</b>.`;
+const RAP_U=`<b>Multiplier deux nombres commençant par 1</b><br>
+Le principe est celui de la multiplication posée, mais le chiffre de tête vaut 1, ce qui simplifie le deuxième produit partiel : multiplier par 1, c’est recopier le nombre.<br>
+On écrit d’abord le produit par le chiffre des unités, puis le produit par le 1 de tête, <b>décalé d’un rang vers la gauche</b>, et on additionne.<br>
+Pour les décimaux, on multiplie les numérateurs, puis on divise par le produit des dénominateurs — la virgule se replace à la fin.`;
+const RAP_FRAC=`<b>Fractions décimales et nombres décimaux</b><br>
+Une <b>fraction décimale</b> a pour dénominateur 10, 100, 1000…<br>
+Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>vers la gauche</b> : \\(\\frac{47}{100}=0{,}47\\).<br>
+Inversement, \\(0{,}058=\\frac{58}{1000}\\), car il y a trois chiffres après la virgule.<br>
+À retenir : les zéros finaux d’un numérateur « tombent » contre les zéros du dénominateur — \\(\\frac{300}{100}=3\\).`;
+const RAP_CM=`<b>Le calcul mental</b><br>
+Quatre opérations, et pour chacune un réflexe qui simplifie le calcul de tête :<br>
+<b>addition</b> — compléter d’abord à la dizaine : 47 + 28 = 47 + 3 + 25 = 50 + 25 = 75 ;<br>
+<b>soustraction</b> — c’est un écart : pour 62 − 47, avancer de 47 à 50 (3) puis de 50 à 62 (12), soit 15 ;<br>
+<b>multiplication</b> — découper : 7 × 16 = 7 × 10 + 7 × 6 = 70 + 42 = 112 ;<br>
+<b>division</b> — chercher « combien de fois » : 72 ÷ 8, c’est trouver le nombre qui, multiplié par 8, donne 72.<br>
+Et toujours : un ordre de grandeur d’abord — si 47 + 28 doit faire environ 75, une réponse à 615 saute aux yeux.`;
+const RAP_TM=`<b>Les tables de multiplication</b><br>
+Une table connue par cœur libère la tête pour raisonner. Quelques appuis utiles :<br>
+la multiplication est <b>commutative</b> (7 × 8 = 8 × 7 : une seule chose à retenir pour deux calculs) ;<br>
+× 9 : le chiffre des dizaines vaut un de moins que le multiplicateur, et les deux chiffres du résultat font toujours 9 (7 × 9 = 63, et 6 + 3 = 9) ;<br>
+× 5 : c’est la moitié de × 10 ;<br>
+un produit oublié se retrouve en partant du voisin : 7 × 8 = 7 × 7 + 7 = 49 + 7 = 56.`;
+const RAP_ADDSUB=`<b>Poser une addition ou une soustraction</b><br>
+Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres, et <b>toujours une retenue</b> : une colonne d\u00e9borde \u00e0 l\u2019addition, une colonne oblige \u00e0 emprunter \u00e0 la soustraction.<br>On aligne les chiffres par la DROITE — unit\u00e9s sous unit\u00e9s, dizaines sous dizaines — puis on calcule colonne par colonne, en commen\u00e7ant par les unit\u00e9s.<br>
+<b>Addition</b> — 347 + 58 : aux unit\u00e9s 7 + 8 = 15, on \u00e9crit 5 et on retient 1 ; aux dizaines
+4 + 5 + 1 = 10, on \u00e9crit 0 et on retient 1 ; aux centaines 3 + 1 = 4. R\u00e9sultat 405.
+La retenue s\u2019\u00e9crit au-dessus de la colonne o\u00f9 elle s\u2019ajoute.<br>
+<b>Soustraction</b> — 432 \u2212 87 : aux unit\u00e9s 2 est plus petit que 7, on ajoute 10 en haut
+(12 \u2212 7 = 5) et on compense en ajoutant 1 aux dizaines du BAS ; aux dizaines 3 \u2212 (8+1),
+m\u00eame chose : 13 \u2212 9 = 4, et 1 de plus aux centaines du bas ; aux centaines 4 \u2212 1 = 3.
+R\u00e9sultat 345. Les cases de retenue sont facultatives : si tu as appris la m\u00e9thode
+par emprunt, laisse-les vides.<br>
+V\u00e9rifie l\u2019ordre de grandeur \u00e0 la fin : 347 + 58, c\u2019est \u00ab un peu plus de 400 \u00bb.
+Une r\u00e9ponse \u00e0 3\u00a0000 ou \u00e0 40 saute alors aux yeux.`;
 const RAP_ENS=`<b>Les ensembles de nombres</b><br>
 Ils sont <b>emboites</b> : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>.<br>
 <b>ℕ</b> : les entiers positifs — 0, 1, 2, 3…<br>
@@ -6407,8 +6672,9 @@ Si <code class="inline">k</code> contient 10 et <code class="inline">l</code> co
 <b>③ Les lignes s’exécutent UNE PAR UNE, de haut en bas</b> : une case ne contient plus, après une ligne, que ce que cette ligne vient d’y ranger.<br>
 Une seule règle est imposée ici : chaque case ne se remplit qu’avec l’une des trois lettres proposées — jamais un nombre écrit à la main.`;
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
+  cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
-const RAPPELS_ID={ 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
+const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -6728,12 +6994,20 @@ function captureBoxes(){
   /* les math-field manquaient : toutes les cases de calcul en sont, et la pause
      perdait donc la saisie en cours de l'eleve */
   const m={}; scr.querySelectorAll('input[id],select[id],math-field[id]').forEach(el=>{
-    const v=el.value; if(v!==''&&v!==undefined&&v!==null) m[el.id]=String(v); }); return m;
+    const v=el.value; if(v!==''&&v!==undefined&&v!==null) m[el.id]=String(v); });
+  /* cases sans id (poses en colonnes, retenues) : clé = position dans l'écran,
+     le rendu d'une question étant déterministe — comme en Première */
+  [...scr.querySelectorAll('input:not([id])')].forEach((el,i)=>{ const v=el.value; if(v!=='') m['#'+i]=v; });
+  return m;
 }
 // remet les saisies dans les cases après réaffichage de la question
 function restoreBoxes(boxes){
   if(!boxes) return;
-  Object.keys(boxes).forEach(id=>{ const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='MATH-FIELD')){ el.value=boxes[id]; } });
+  const scr=document.querySelector('.screen.on');
+  const sansId=scr?[...scr.querySelectorAll('input:not([id])')]:[];
+  Object.keys(boxes).forEach(id=>{
+    if(id.charAt(0)==='#'){ const el=sansId[parseInt(id.slice(1),10)]; if(el) el.value=boxes[id]; return; }
+    const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='MATH-FIELD')){ el.value=boxes[id]; } });
 }
 // reconstruit la fonction d'une question « signes & variations » (perdue par la sérialisation JSON)
 function svFnFrom(r,e,extrType){
@@ -6946,7 +7220,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -6967,7 +7241,10 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  if(!afficherEcranDe(test.kind)){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
+  if(test.kind==='tm'){ tmReprise(); show('tm'); tmRender();
+    setTimeout(()=>{ const ai=$('tmInput'); if(ai){ ai.value=''; try{ ai.focus(); }catch(e){} } },0); }
+  else if(test.kind==='cm'){ show('test'); renderQuestion(); }
+  else if(!afficherEcranDe(test.kind)){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
   try{ updateAStep3(); updateDStep3(); updateVStep3(); }catch(e){}   // réaffiche l'étape facultative si l'étape précédente est déjà écrite
 }
@@ -7071,8 +7348,10 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
+  /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
+  if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
   document.body.classList.toggle('menu-large', ['choose','theme','soustheme'].indexOf(name)>=0);
@@ -16580,6 +16859,1525 @@ function parseDecToFrac(str){
   const d=Math.pow(10,frac.length), n=parseInt((intp+frac)||'0',10);
   return isNaN(n)?null:{n,d};
 }
+/* ================= Calcul mental : le thème 1 de la Première, porté tel quel ================= */
+/* ---- La fraction décimale du 1.6, case par case (demande de Turquet, août
+   2026). Attendu tn/td (ex. 23/10 pour 2,3), toute écriture ÉGALE acceptée —
+   230/100 vaut le point, même si ce n'est pas la plus simple. Quand la paire
+   ne colle pas, chaque case se juge SEULE contre la valeur canonique : sur
+   23/100, le 23 reste bleu et seul le 100 rougit ; sur 230/10, c'est le 230
+   qui rougit et le 10 qui reste bleu — la règle du 616/100000, appliquée ici.
+   Et une case SEULE ne dépend pas de l'autre : 23 en haut, ou 10 en bas, est
+   bleu sans que sa voisine soit remplie — la valeur canonique est juste par
+   elle-même ; une case qui peut encore mener à une fraction égale (230 seul,
+   qui attend son 100) ne reçoit RIEN — le silence est honnête — et rougit
+   seulement quand elle ne mène nulle part (24 seul : aucun dénominateur ne
+   rendra 24/d égal à 2,3). « pow10 » restreint promesse et paire aux
+   dénominateurs en puissance de 10 (les étapes des niveaux 4 et 5).
+   UN SEUL juge pour le direct et la vérification : deux verdicts auraient
+   fini par se contredire sous les yeux de l'élève. */
+function fracDecVerdict(vn,vd,tn,td,pow10){
+  const okD=d=>d>0&&(!pow10||isPow10(d));
+  const n=parseInt(vn,10), d=parseInt(vd,10);
+  if(vn!==''&&vd!==''){
+    const ok=!isNaN(n)&&!isNaN(d)&&okD(d)&&n*td===tn*d;
+    return { ok, cn: (ok||n===tn)?'ok':'bad', cd: (ok||(okD(d)&&d===td))?'ok':'bad' };
+  }
+  const seul=(v,estNum)=>{
+    if(v==='') return null;
+    const x=parseInt(v,10); if(isNaN(x)) return 'bad';
+    if(estNum){
+      if(x===tn) return 'ok';
+      const mene = tn>0 && x>0 && (x*td)%tn===0 && okD(x*td/tn);
+      return mene?null:'bad';
+    }
+    if(x===td) return 'ok';
+    if(!okD(x)) return 'bad';
+    return (td>0 && (tn*x)%td===0) ? null : 'bad';
+  };
+  return { ok:false, cn:seul(vn,true), cd:seul(vd,false) };
+}
+function fracDecLive(idn,idd,tn,td,pow10){
+  const en=$(idn), ed=$(idd); if(!en||!ed) return;
+  const v=fracDecVerdict(en.value.trim(), ed.value.trim(), tn, td, pow10);
+  const peint=(el,c)=>{ if(el.disabled) return; el.classList.remove('ok','bad'); if(c) el.classList.add(c); };
+  peint(en,v.cn); peint(ed,v.cd);
+}
+/* La vérification : mêmes verdicts, plus le sort des cases vides. En
+   ENTRAÎNEMENT la case vide reçoit la complétion en vert — celle de la ROUTE
+   de l'élève quand sa case écrite y mène (230 seul appelle 100, pas 10), la
+   canonique sinon : écrire 10 en vert sous son 230 lui donnerait tort sur une
+   idée juste. En SOUTIEN la case écrite qui peut encore mener quelque part ne
+   reçoit rien et reste modifiable. */
+function marqueFracDec(idn,idd,tn,td,soutien,pow10){
+  const en=$(idn), ed=$(idd); if(!en||!ed) return false;
+  const vn=String(en.value==null?'':en.value).trim(), vd=String(ed.value==null?'':ed.value).trim();
+  const v=fracDecVerdict(vn,vd,tn,td,pow10);
+  const pose=(el,c,val)=>{
+    el.classList.remove('ok','bad','sol');
+    const vide=String(el.value==null?'':el.value).trim()==='';
+    if(vide){ if(!soutien && val!=null){ el.value=String(val); el.classList.add('sol'); } }
+    else if(c) el.classList.add(c);
+    el.disabled=(c==='ok')||!soutien;
+  };
+  let solN=tn, solD=td;
+  const n=parseInt(vn,10), d=parseInt(vd,10);
+  if(vn!==''&&vd===''&&!isNaN(n)&&v.cn!=='bad') solD=n*td/tn;      /* la route de l'élève */
+  if(vd!==''&&vn===''&&!isNaN(d)&&v.cd!=='bad') solN=tn*d/td;
+  pose(en, v.cn, solN); pose(ed, v.cd, solD);
+  return v.ok;
+}
+function liveColorN1(id,cn,cd){                        // niveau 1 : décimal OU fraction irréductible
+  const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
+  el.classList.remove('ok','bad'); if(v==='') return;
+  let fr=null;
+  if(v.includes('/')){ const p=v.replace(/\s/g,'').split('/'); if(p.length===2){ const fn=parseInt(p[0],10),fd=parseInt(p[1],10); if(!isNaN(fn)&&!isNaN(fd)&&fd>0&&gcd(fn,fd)===1) fr={n:fn,d:fd}; } }
+  else fr=parseDecToFrac(v);
+  el.classList.add(!!fr && fr.n*cd===cn*fr.d ? 'ok':'bad');
+}
+/* ---------- Génération des questions ---------- */
+function genQuestion(c){
+  const ops=[];if(c.ops.add)ops.push('add');if(c.ops.sub)ops.push('sub');if(c.ops.mul)ops.push('mul');if(c.ops.div)ops.push('div');
+  if(!ops.length)ops.push('add');
+  const op=ops[rand(0,ops.length-1)]; let a,b,ans,sym;
+  if(op==='add'){a=rand(0,c.addSubMax);b=rand(0,c.addSubMax);ans=a+b;sym='+';}
+  else if(op==='sub'){a=rand(0,c.addSubMax);b=rand(0,a);ans=a-b;sym='−';}
+  else if(op==='mul'){a=rand(1,c.mulMax);b=rand(1,c.mulMax);ans=a*b;sym='×';}
+  else{b=rand(1,c.mulMax);ans=rand(1,c.mulMax);a=b*ans;sym='÷';}
+  return {text:`${a} ${sym} ${b}`,answer:ans};
+}
+
+/* ---------- Additions et soustractions : 3 chiffres ± 2 chiffres ----------
+   Le tirage est ÉQUILIBRÉ, et non tiré à pile ou face à chaque question : sur
+   dix calculs, cinq additions et cinq soustractions, mélangés. Un tirage
+   indépendant aurait donné, de temps en temps, huit additions d'affilée — et
+   l'élève n'aurait pas travaillé ce qu'on visait.
+   La soustraction tombe toujours juste : un nombre à trois chiffres vaut au
+   moins 100, un nombre à deux chiffres au plus 99, le résultat est donc
+   toujours positif. */
+/* Y a-t-il une retenue ? On regarde les unités ET les dizaines : 380 + 70 ne
+   déborde pas aux unités mais déborde aux dizaines — c'est bien une retenue, et
+   l'exclure retirerait un calcul sur trois sans raison.
+   Aux dizaines, la question ne se pose que si les unités n'ont rien reporté :
+   sinon on a déjà répondu oui. */
+function retenueAddSub(a,b,plus){
+  const ua=a%10, ub=b%10, da=Math.floor(a/10)%10, db=Math.floor(b/10)%10;
+  return plus ? (ua+ub>=10) || (da+db>=10)
+              : (ua<ub)     || (da<db);
+}
+/* Il faut TOUJOURS une retenue : sans elle, 342 + 15 se fait chiffre par
+   chiffre et n'exerce rien. Le tirage recommence tant qu'il n'en a pas — même
+   procédé que la multiplication posée. Une retenue tombe naturellement dans
+   72 % des cas : la boucle passe au premier coup trois fois sur quatre.
+
+   L'opération est POSÉE, comme la multiplication : l'élève remplit les cases du
+   résultat, colonne par colonne, et peut écrire les retenues.
+   · À l'addition, la retenue se pose AU-DESSUS de la colonne où elle s'ajoute —
+     convention universelle.
+   · À la soustraction, on retient la compensation : +10 aux unités du haut, +1
+     aux dizaines du bas. La case porte donc ce « 1 » ajouté au nombre du bas.
+     Comme à la multiplication, les cases de retenue sont FACULTATIVES : un
+     élève qui apprend la méthode par emprunt les laisse vides et n'est pas
+     pénalisé — seule une retenue écrite doit être juste. */
+function genAddSub(plus){
+  let a,b;
+  do{ a=rand(100,999); b=rand(10,99); }while(!retenueAddSub(a,b,plus));
+  const r = plus ? a+b : a-b;
+  const ch = function(n){ return String(n).split('').map(Number); };
+  const ua=a%10, da=Math.floor(a/10)%10, ha=Math.floor(a/100);
+  const ub=b%10, db=Math.floor(b/10);
+  let ret;                                   /* retenues attendues, par colonne */
+  if(plus){
+    const c1 = (ua+ub>=10) ? 1 : 0;                       /* vers les dizaines */
+    const c2 = (da+db+c1>=10) ? 1 : 0;                    /* vers les centaines */
+    const c3 = (ha+c2>=10) ? 1 : 0;                       /* vers les milliers  */
+    ret = { d:c1, h:c2, m:c3 };
+  } else {
+    const e1 = (ua<ub) ? 1 : 0;                           /* +1 aux dizaines du bas */
+    const e2 = (da < db+e1) ? 1 : 0;                      /* +1 aux centaines du bas */
+    ret = { d:e1, h:e2, m:0 };
+  }
+  return { plus, a, b, ua, da, ha, ub, db, ret,
+           res: ch(r),                        /* les chiffres du résultat, sans zéro inutile */
+           text:a+(plus?' + ':' \u2212 ')+b, answer:r };
+}
+/* On ALTERNE : addition, soustraction, addition… en commençant par une
+   addition. Le tirage était auparavant mélangé — équilibré sur la séance, mais
+   l'ordre restait imprévisible. Alterner rend la séance lisible : l'élève sait
+   ce qui vient, et passe d'une technique à l'autre à chaque calcul. */
+function tirageAddSub(n){
+  const nb=Math.max(1, parseInt(n,10)||10);
+  return Array.from({length:nb},(_,i)=>genAddSub(i%2===0));
+}
+async function startAddSub(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  /* Opération POSÉE : son propre écran et son propre kind. Il n'y a plus de
+     minuteur — on pose, on aligne, on vérifie. */
+  test.kind='asp';
+  test.questions=tirageAddSub(cfg.mpCount||10);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('asptest'); renderASPTest();
+}
+
+/* ---------- Déroulé du test ---------- */
+async function startTest(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  test.kind='cm'; test.qId='calcul-mental';
+  test.questions=Array.from({length:cfg.count},()=>genQuestion(cfg));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  test.demarre=false;                                  /* l'eleve lance lui-meme le test */
+  show('test'); renderQuestion();
+}
+/* ===== Ecran de depart =====
+   Le chronometre ne demarre qu'au signal de l'eleve : il a le temps de s'installer,
+   d'activer le micro s'il le souhaite, puis lance lui-meme le test (Entree ou bouton). */
+function cmDemarrer(){
+  if(test.demarre) return;
+  test.demarre=true;
+  renderQuestion();
+}
+function renderQuestion(){
+  clearTimeout(test.fbTimer);clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  if(!test.demarre){                                   /* on n'affiche pas encore le calcul */
+    $('qIdx').textContent='Question 1 / '+test.questions.length;
+    $('modeTagCm').innerHTML=modeTagHTML();
+    $('liveScore').textContent=test.score;
+    $('equation').innerHTML='<span class="depart-titre">Pr\u00eat\u00a0?</span>';
+    const ai0=$('answerInput'); ai0.value=''; ai0.className='answer-input'; ai0.disabled=true;
+    $('mark').className='mark'; $('mark').textContent='';
+    $('timerBar').hidden=true;
+    $('correction').innerHTML='<div class="depart-note">Appuie sur <b>Entr\u00e9e</b> ou clique sur <b>Commencer</b> pour lancer le test.</div>';
+    const vb0=$('validateBtn'); vb0.disabled=false; vb0.textContent='Commencer'; vb0.onclick=cmDemarrer;
+    setTimeout(()=>{ try{ vb0.focus(); }catch(e){} },60);
+    return;
+  }
+  const vbq=$('validateBtn'); vbq.textContent='Valider'; vbq.onclick=()=>submitAnswer();
+  $('qIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagCm').innerHTML=modeTagHTML();
+  $('liveScore').textContent=test.score;
+  $('equation').innerHTML=esc(q.text)+' = <span class="blank">?</span>';
+  const ai=$('answerInput'); ai.value='';ai.className='answer-input';ai.disabled=false;
+  $('mark').className='mark';$('mark').textContent='';$('correction').textContent='';$('validateBtn').disabled=false;
+  setTimeout(()=>ai.focus(),60);
+  /* dictee vocale : bouton propose seulement si le navigateur sait faire */
+  if(cfg.secondsPerQuestion>0 && !isSoutien()) startQTimer(cfg.secondsPerQuestion); else $('timerBar').hidden=true;
+}
+function startQTimer(sec){
+  const bar=$('timerBar'),fill=$('timerFill');
+  bar.hidden=false;bar.classList.remove('low');fill.style.transition='none';fill.style.width='100%';
+  test.qTotal=sec*1000;test.qDeadline=Date.now()+test.qTotal;
+  requestAnimationFrame(()=>{fill.style.transition='width .25s linear';tickTimer();});
+}
+function tickTimer(){
+  const left=test.qDeadline-Date.now(),fill=$('timerFill'),bar=$('timerBar');
+  const pct=Math.max(0,left/test.qTotal*100); fill.style.width=pct+'%';
+  if(pct<30)bar.classList.add('low');
+  if(left<=0){submitAnswer(true);return;}
+  test.qTimer=setTimeout(tickTimer,200);
+}
+function submitAnswer(timedOut){
+  if(test.locked)return;
+  const q=test.questions[test.idx],ai=$('answerInput'),raw=ai.value.trim();
+  const given=raw===''?null:parseInt(raw,10), correct=(given===q.answer);
+  // mode soutien : si c'est faux, on dit que c'est faux et on laisse reprendre
+  if(isSoutien() && !correct){
+    const mark=$('mark');mark.textContent='✗';mark.className='mark bad show';
+    ai.classList.remove('good');ai.classList.add('bad');
+    $('correction').textContent='Pas tout à fait — corrige et revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  ai.disabled=true;$('validateBtn').disabled=true;ai.classList.remove('bad');ai.classList.add(correct?'good':'bad');
+  const mark=$('mark');mark.textContent=correct?'✓':'✗';mark.className='mark '+(correct?'good':'bad')+' show';
+  if(correct){test.score++;$('liveScore').textContent=test.score;}
+  else{$('correction').textContent=(timedOut&&given===null?'Temps écoulé — ':'')+`Réponse : ${q.answer}`;}
+  test.answers.push({...(ptsExo()||{}),q:q.text,answer:q.answer,given,correct});
+  test.fbTimer=setTimeout(()=>{ if(test.idx<test.questions.length-1){test.idx++;renderQuestion();autoSave();} else finishTest(); },correct?850:1500);
+}
+/* ================= Tables de multiplication (rapidité) =================
+   TM_NB produits des tables de 2 à 9 dont le résultat a DEUX chiffres, et
+   TM_SECONDES secondes par calcul : au-delà, c'est faux. La réponse est jugée immédiatement (juste, ou
+   faux avec la correction) ; Entrée efface et affiche le calcul suivant.
+   À la fin du tour, les calculs ratés reviennent dans un nouveau tour, et ainsi de
+   suite jusqu'à ce que les 10 soient sus.
+   NOTE : un point par calcul finalement su, sur 10. Aller au bout donne donc 10/10 ;
+   abandonner en cours de route donne le nombre de calculs déjà acquis. */
+
+/* toutes les paires 2..9 dont le produit a deux chiffres (10 à 81) */
+function tmPairesPossibles(){
+  const out=[];
+  for(let a=2;a<=9;a++) for(let b=a;b<=9;b++) if(a*b>=10) out.push([a,b]);
+  return out;
+}
+function tmTirage(n){
+  const pool=tmPairesPossibles();
+  for(let i=pool.length-1;i>0;i--){ const j=rand(0,i); const t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
+  return pool.slice(0,n).map(([a,b])=>{
+    const inv=rand(0,1)===1;                    /* 6×7 ou 7×6, au hasard */
+    const x=inv?b:a, y=inv?a:b;
+    return { a:x, b:y, text:x+' × '+y, answer:x*y, acquis:false, essais:0, premiere:null };
+  });
+}
+/* ---------- Niveau 2 : on rejoue les produits les plus rates ----------
+   Le tirage est construit a partir des seances precedentes de l'eleve (niveau 1
+   ET niveau 2) : pour chaque produit on compte les echecs, ponderes pour donner
+   plus de poids aux seances recentes. Faute d'historique exploitable, on retombe
+   sur une liste de produits reputes difficiles. */
+const TM_IDS=['tables-multiplication','tables-multiplication-2'];
+/* Les tables de multiplication sont un exercice de RAPIDITÉ : le calcul suivant
+   arrive au bout de TM_SECONDES secondes. Le mode soutien, qui laisse corriger sans limite de temps jusqu'à
+   réussir, n'y a aucun sens — l'écran des modes l'a toujours refusé.
+   La règle vit désormais ici, et non recopiée à chaque écran : l'éditeur de
+   devoirs l'ignorait, et proposait au professeur un mode que l'élève n'aurait
+   jamais pu ouvrir. Un contrôle du banc l'exige des deux côtés. */
+function sansSoutien(id){ return TM_IDS.indexOf(id)>=0; }
+const TM2_DECROISSANCE=0.85;   /* poids des seances : 1 ; 0,85 ; 0,72... de la plus recente a la plus ancienne */
+/* Produits reputes difficiles, du plus dur au moins dur (filet de securite). */
+const TM2_DURES=[[7,8],[6,7],[7,9],[6,8],[8,9],[6,9],[7,7],[8,8],[4,7],[3,8],
+                 [6,6],[4,8],[9,9],[4,9],[3,7],[3,9],[4,6],[2,7],[3,6],[2,8]];
+function tm2Cle(a,b){ return Math.min(a,b)+'x'+Math.max(a,b); }
+/* Les anciennes seances n'ont garde que le texte du calcul (\u00ab 6 \u00d7 7 \u00bb) : on en ressort la paire. */
+function tm2PaireDeTexte(q){
+  if(typeof q!=='string') return null;
+  const m=q.match(/(\d+)\s*[\u00d7x*]\s*(\d+)/);
+  return m ? [parseInt(m[1],10), parseInt(m[2],10)] : null;
+}
+function tm2Analyser(rows){
+  const stats={}; let poids=1, seances=0;
+  (rows||[]).forEach(r=>{                       /* rows : du plus recent au plus ancien */
+    const d=r&&r.details;
+    if(!d || Array.isArray(d) || d.state==='paused') return;
+    if(TM_IDS.indexOf(d.test)<0) return;
+    let vu=false;
+    const ajoute=(a,b,ech)=>{
+      a=parseInt(a,10); b=parseInt(b,10);
+      if(!(a>=2&&a<=9&&b>=2&&b<=9)) return;
+      const k=tm2Cle(a,b);
+      const e=stats[k] || (stats[k]={a:Math.min(a,b), b:Math.max(a,b), ech:0, vues:0});
+      e.ech+=ech*poids; e.vues+=poids; vu=true;
+    };
+    if(Array.isArray(d.stats)){                 /* seances recentes : tout est connu */
+      d.stats.forEach(t=>ajoute(t.a, t.b, Math.max(0,(t.e||0)-(t.ok?1:0))));
+    } else if(Array.isArray(d.misses)){         /* seances anciennes : seulement les non acquis */
+      d.misses.forEach(m=>{ const pr=tm2PaireDeTexte(m&&m.q); if(pr) ajoute(pr[0],pr[1],1); });
+    }
+    if(vu){ seances++; poids*=TM2_DECROISSANCE; }
+  });
+  return {stats, seances};
+}
+function tm2Melanger(t){ for(let i=t.length-1;i>0;i--){ const j=rand(0,i); const x=t[i]; t[i]=t[j]; t[j]=x; } return t; }
+/* Choisit les TM_NB paires a travailler et dit d'ou elles viennent. */
+function tm2Choisir(stats){
+  const rates=tm2Melanger(Object.keys(stats).map(k=>stats[k]).filter(e=>e.ech>0));
+  rates.sort((x,y)=>(y.ech-x.ech) || (y.ech/y.vues - x.ech/x.vues));   /* le plus rate d'abord */
+  const choix=rates.slice(0,TM_NB).map(e=>[e.a,e.b]);
+  const nbRates=choix.length;
+  const pris={}; choix.forEach(pr=>pris[tm2Cle(pr[0],pr[1])]=1);
+  const completer=liste=>{
+    liste.forEach(pr=>{
+      if(choix.length>=TM_NB) return;
+      const k=tm2Cle(pr[0],pr[1]); if(pris[k]) return;
+      pris[k]=1; choix.push([pr[0],pr[1]]);
+    });
+  };
+  completer(TM2_DURES);                                   /* d'abord les produits reputes durs */
+  completer(tm2Melanger(tmPairesPossibles()));             /* puis n'importe quel autre produit */
+  const source = nbRates>=TM_NB ? 'rates' : (nbRates>0 ? 'mixte' : 'dures');
+  const items=tm2Melanger(choix.slice(0,TM_NB)).map(pr=>{
+    const inv=rand(0,1)===1;                               /* 6 x 7 ou 7 x 6, au hasard */
+    const x=inv?pr[1]:pr[0], y=inv?pr[0]:pr[1];
+    return { a:x, b:y, text:x+' \u00d7 '+y, answer:x*y, acquis:false, essais:0, premiere:null };
+  });
+  return {items, source, nbRates};
+}
+/* Message affiche sur l'ecran \u00ab Pr\u00eat ? \u00bb : l'eleve doit savoir pourquoi CES calculs. */
+function tm2NoteHTML(){
+  if(test.tmId!=='tables-multiplication-2') return '';
+  const n=test.tm2Seances||0;
+  const seance=n+' s\u00e9ance'+(n>1?'s':'');
+  let txt;
+  if(test.tm2Source==='rates')
+    txt='Voici les <b>10 produits que tu rates le plus</b>, d\u2019apr\u00e8s tes '+seance+'.';
+  else if(test.tm2Source==='mixte')
+    txt='Tes produits les plus rat\u00e9s ('+seance+'), compl\u00e9t\u00e9s par des tables r\u00e9put\u00e9es difficiles.';
+  else
+    txt='Pas encore de r\u00e9sultats \u00e0 exploiter\u00a0: on travaille les <b>tables r\u00e9put\u00e9es difficiles</b>. Fais le niveau 1 pour personnaliser cet exercice.';
+  return '<div class="depart-note">\ud83c\udfaf '+txt+'</div>';
+}
+async function startTM2(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  let rows=[];
+  try{
+    /* supabase-js ne LANCE pas d'exception : on teste « error » explicitement. */
+    const {data,error}=await lireToutes(()=>sb.from('resultats_2nde').select('details,created_at')
+      .eq('eleve_id',currentEleve.id));
+    if(error) throw error;
+    rows=(data||[]).slice().reverse();          /* les plus récentes d'abord, comme avant */
+  }catch(e){ toast('Historique illisible \u2014 on prend les tables difficiles','err'); }
+  const an=tm2Analyser(rows), ch=tm2Choisir(an.stats);
+  test.kind='tm'; test.tmId='tables-multiplication-2';
+  test.items=ch.items;
+  test.questions=test.items;                    /* meme tableau : la sauvegarde de reprise l'exige */
+  test.tm2Source=ch.source; test.tm2Seances=an.seances;
+  /* le barème, remis : un point par calcul, comme tmNb() — test est global (voir dmAppliquerNbQ) */
+  test.maxScore=test.items.length;
+  test.tour=1;
+  test.file=test.items.slice();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.demarre=false;
+  show('tm'); tmRender();
+}
+
+async function startTM(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  test.kind='tm'; test.tmId='tables-multiplication';
+  test.items=tmTirage(tmNbDevoir());            /* les calculs de reference : 10, ou ce que le devoir demande */
+  test.questions=test.items;                    /* meme tableau : la sauvegarde de reprise l'exige */
+  /* le barème, remis : un point par calcul, comme tmNb() — test est global (voir dmAppliquerNbQ) */
+  test.maxScore=test.items.length;
+  test.tour=1;
+  test.file=test.items.slice();                 /* ce qu'il reste a faire dans ce tour */
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.demarre=false;                                  /* l'eleve lance lui-meme le test */
+  show('tm'); tmRender();
+}
+/* Combien de calculs ce devoir demande-t-il pour CET exercice ? Lu sur la
+   définition du devoir — la même que celle que l'éditeur écrit — plutôt que
+   rangé dans une variable de plus : currentPasse avait montré ce que coûte un
+   état parallèle qu'il faut penser à remettre à zéro partout. */
+function tmNbDevoir(){
+  if(!currentDM) return TM_NB;
+  const dev=(mesDevoirs||[]).find(d=>d.id===currentDM);
+  const ex=dev&&(dev.exercices||[]).find(e=>e.id===currentTestId);
+  const n=parseInt(ex&&ex.nb,10);
+  return TM_NB_CHOIX.indexOf(n)>=0 ? n : TM_NB;
+}
+/* Le nombre de calculs de la séance EN COURS. On le lit sur le tirage lui-même
+   et non sur le devoir : après une reprise de pause, c'est le tirage qui fait
+   foi — le devoir a pu changer entre-temps, et l'élève doit retrouver sa
+   séance telle qu'il l'a laissée. */
+function tmNb(){ return (test.items && test.items.length) || TM_NB; }
+function tmAcquis(){ return test.items.filter(it=>it.acquis).length; }
+/* Sur iPad et t\u00e9l\u00e9phone, le clavier ne s'ouvre QUE si le focus est demand\u00e9 pendant le
+   geste de l'\u00e9l\u00e8ve (clic ou touche). On focalise donc de mani\u00e8re SYNCHRONE, sans passer
+   par un setTimeout qui romprait la cha\u00eene du geste, et on garde le champ actif pendant
+   la correction pour que le clavier ne se referme pas entre deux calculs. */
+function tmFocus(){
+  const ai=$('tmInput'); if(!ai) return;
+  ai.disabled=false; ai.readOnly=false;
+  try{ ai.focus({preventScroll:true}); }catch(e){ try{ ai.focus(); }catch(e2){} }
+  try{ const n=(ai.value||'').length; ai.setSelectionRange(n,n); }catch(e){}
+}
+function tmDemarrer(){
+  if(test.demarre) return;
+  test.demarre=true;
+  tmRender();
+}
+function tmRender(){
+  clearTimeout(test.qTimer);
+  const it=test.file[test.idx];
+  if(!test.demarre){                                   /* depart au signal de l'eleve */
+    test.phase='depart'; test.locked=false;
+    $('modeTagTm').innerHTML=modeTagHTML();
+    $('tmIdx').textContent='Calcul 1 / '+test.file.length;
+    $('tmLiveScore').textContent=tmAcquis()+' / '+tmNb();
+    $('tmTour').className='tm-tour';
+    $('tmTour').innerHTML='<b>'+tmNb()+' calculs</b>, <b>'+TM_SECONDES+' secondes</b> chacun.';    $('tmEq').innerHTML='<span class="depart-titre">Pr\u00eat\u00a0?</span>';
+    const ai0=$('tmInput'); ai0.value=''; ai0.className='answer-input'; ai0.disabled=true;
+    $('tmMark').className='mark'; $('tmMark').textContent='';
+    $('tmTimerBar').hidden=true; $('tmCorrection').innerHTML='';
+    $('tmFeedback').innerHTML=tm2NoteHTML()+'<div class="depart-note">Appuie sur <b>Entr\u00e9e</b> ou clique sur <b>Commencer</b> pour lancer le test.</div>';
+    $('tmFeedback').className='mp-feedback';
+    $('tmActions').innerHTML='<button class="btn btn-primary" onclick="tmDemarrer()">Commencer</button>';
+    setTimeout(()=>{ const b=document.querySelector('#scr-tm .btn-primary'); if(b){ try{ b.focus(); }catch(e){} } },60);
+    return;
+  }
+  test.phase='saisie'; test.locked=false;
+  $('modeTagTm').innerHTML=modeTagHTML();
+  $('tmIdx').textContent='Calcul '+(test.idx+1)+' / '+test.file.length;
+  $('tmLiveScore').textContent=tmAcquis()+' / '+tmNb();
+  $('tmTour').className='tm-tour'+(test.tour>1?' reprise':'');
+  $('tmTour').innerHTML = test.tour===1
+    ? 'Tour 1 — <b>'+tmNb()+' calculs</b>, '+TM_SECONDES+' secondes chacun.'
+    : 'Reprise n\u00b0'+(test.tour-1)+' — on refait les <b>'+test.file.length+'</b> calcul'+(test.file.length>1?'s':'')+' rat\u00e9'+(test.file.length>1?'s':'')+'.';
+  $('tmEq').innerHTML=esc(it.text)+' = <span class="blank">?</span>';
+  const ai=$('tmInput'); ai.value=''; ai.className='answer-input'; ai.disabled=false; ai.readOnly=false;
+  $('tmMark').className='mark'; $('tmMark').textContent='';
+  $('tmCorrection').textContent='';
+  $('tmFeedback').textContent=''; $('tmFeedback').className='mp-feedback';
+  $('tmActions').innerHTML='';
+  tmFocus();                       /* immediat : indispensable pour le clavier mobile */
+  setTimeout(tmFocus,60);          /* filet de securite sur ordinateur */
+  tmTimer();
+}
+/* La correction s'affiche EN GRAND : c'est elle que l'eleve doit retenir. */
+function tmCorrHTML(it, tempsEcoule){
+  return (tempsEcoule?'<div class="tm-corr-note">Temps \u00e9coul\u00e9</div>':'')
+    +'<div class="tm-corr">'+esc(it.text)+' = <b>'+it.answer+'</b></div>'
+    +'<div class="tm-corr-note">\u00c0 retenir\u00a0: '+esc(it.text)+' = '+it.answer+'</div>';
+}
+function tmTimer(){
+  const bar=$('tmTimerBar'), fill=$('tmTimerFill');
+  bar.hidden=false; bar.classList.remove('low');
+  fill.style.transition='none'; fill.style.width='100%';
+  test.qTotal=TM_SECONDES*1000; test.qDeadline=Date.now()+test.qTotal;
+  requestAnimationFrame(()=>{ fill.style.transition='width .1s linear'; tmTick(); });
+}
+function tmTick(){
+  if(test.phase!=='saisie') return;
+  const left=test.qDeadline-Date.now(), fill=$('tmTimerFill'), bar=$('tmTimerBar');
+  const pct=Math.max(0,left/test.qTotal*100); fill.style.width=pct+'%';
+  if(pct<30) bar.classList.add('low');
+  if(left<=0){ tmValider(true); return; }
+  test.qTimer=setTimeout(tmTick,80);
+}
+function tmValider(tempsEcoule){
+  if(test.phase!=='saisie') return;
+  const it=test.file[test.idx], ai=$('tmInput');
+  const brut=ai.value.trim(), donne=(brut===''?null:parseInt(brut,10));
+  test.phase='correction'; clearTimeout(test.qTimer);
+  /* A la fin du temps, on juge ce qui est ECRIT dans la case : une reponse deja saisie
+     compte, meme si l'eleve n'a pas eu le temps d'appuyer sur Entree. */
+  const juste=(donne===it.answer);
+  it.essais++; if(it.premiere===null) it.premiere=donne;
+  ai.readOnly=true;                /* on empeche la saisie sans fermer le clavier mobile */
+  ai.classList.remove('good','bad'); ai.classList.add(juste?'good':'bad');
+  $('tmMark').textContent=juste?'\u2713':'\u2717';
+  $('tmMark').className='mark '+(juste?'good':'bad')+' show';
+  $('tmTimerBar').hidden=true;
+  if(juste){
+    it.acquis=true;
+    $('tmCorrection').textContent='';
+    $('tmFeedback').textContent=pick(['Juste !','Bravo !','Parfait !','Tr\u00e8s bien !'])
+      +(tempsEcoule?' (valid\u00e9 \u00e0 la fin du temps)':'');
+    $('tmFeedback').className='mp-feedback good';
+  } else {
+    $('tmCorrection').innerHTML=tmCorrHTML(it, tempsEcoule && donne===null);
+    $('tmFeedback').textContent=(tempsEcoule && donne===null)
+      ? 'Rien d\u2019\u00e9crit dans les temps : ce calcul reviendra.'
+      : 'Pas encore \u2014 ce calcul reviendra.';
+    $('tmFeedback').className='mp-feedback bad';
+  }
+  $('tmLiveScore').textContent=tmAcquis()+' / '+tmNb();
+  $('tmActions').innerHTML='<button class="btn btn-primary" onclick="tmSuivant()">'
+    +(test.idx<test.file.length-1?'Calcul suivant':'Continuer')+'</button>';
+}
+function tmSuivant(){
+  if(test.phase!=='correction') return;
+  if(test.idx < test.file.length-1){ test.idx++; tmRender(); autoSave(); return; }
+  /* fin du tour : on repart avec les calculs rates */
+  const restants=test.file.filter(it=>!it.acquis);
+  if(!restants.length){ tmFinir(); return; }
+  test.tour++; test.file=restants; test.idx=0;
+  tmRender(); autoSave();
+}
+/* Apres une reprise, « file » et « items » ont ete recrees separement par la sauvegarde :
+   on rebranche chaque calcul restant sur SON objet de reference, sinon les reussites ne
+   seraient plus comptees. */
+function tmReprise(){
+  test.demarre=false;                                  /* apres une pause, on redemarre au signal */
+  if(!Array.isArray(test.items)) return;
+  test.questions=test.items;
+  test.file=(Array.isArray(test.file)?test.file:test.items.slice())
+    .map(f=>test.items.find(it=>it.a===f.a && it.b===f.b) || f);
+  if(!test.file.length) test.file=test.items.filter(it=>!it.acquis);
+  if(test.idx>=test.file.length) test.idx=0;
+  if(!test.tour) test.tour=1;
+}
+/* Les tables avaient leur propre arrêt, tmAbandon(), qui enregistrait la note
+   des calculs déjà sus. Il a disparu avec la règle « abandonner ne pose aucune
+   note » : « ✕ Abandonner » y passe désormais par abandonTest(), comme partout
+   ailleurs. tmFinir() ne sert donc plus qu'à la VRAIE fin — tous les calculs
+   sus — et n'a plus besoin de savoir distinguer les deux. */
+/* Entrée : valide pendant la saisie, passe au calcul suivant pendant la correction */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return;
+  const scr=$('scr-tm'); if(!scr || !scr.classList.contains('on')) return;
+  e.preventDefault();
+  if(test.phase==='depart') tmDemarrer();
+  else if(test.phase==='saisie') tmValider(false);
+  else if(test.phase==='correction') tmSuivant();
+});
+async function tmFinir(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  test.phase='fini';                          /* ferme aussi la voie clavier de tmSuivant */
+  clearTimeout(test.qTimer);
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
+  const score=tmAcquis(), total=tmNb(), pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  test.answers=test.items.map(it=>({ q:it.text, answer:it.answer,
+    given:(it.acquis?it.answer:it.premiere), correct:it.acquis, essais:it.essais }));
+  const misses=test.items.filter(it=>!it.acquis).map(it=>({q:it.text,donne:it.premiere,bon:it.answer}));
+  /* Trace fine de CHAQUE produit : c'est elle qui alimente le niveau 2.
+     a,b = la paire ; e = nombre d'essais ; ok = finalement su. Un produit su du
+     premier coup vaut donc e=1, ok=true, soit zero echec. */
+  const stats=test.items.map(it=>({a:it.a,b:it.b,e:it.essais,ok:!!it.acquis}));
+  try{
+    if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,
+      duration_sec:durationSec,
+      details:{test:(test.tmId||'tables-multiplication'),mode:currentMode,tours:test.tour,misses,stats,
+        ...(test.tmId==='tables-multiplication-2'?{tm2Source:test.tm2Source,tm2Seances:test.tm2Seances}:{}),
+        ...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
+  }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); }
+  /* Plus de branche « abandon » ici : « ✕ Abandonner » passe par abandonTest()
+     et ne pose aucune note. On n'entre donc dans tmFinir() qu'une fois tous les
+     calculs sus. */
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Additions et soustractions POSÉES : rendu et correction ----------
+   Même grille que la multiplication posée, mêmes classes CSS, donc même aspect :
+   une rangée de retenues facultatives, les deux nombres alignés par la droite,
+   un trait, puis les cases du résultat.
+   Le nombre de cases du résultat suit le RÉSULTAT, pas une largeur fixe :
+   999+99 en demande quatre, 101\u221299 une seule. Des cases en trop se liraient
+   comme des zéros à écrire. */
+function renderASPTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('aspIdx').textContent='Opération '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagAsp').innerHTML=modeTagHTML();
+  $('aspLiveScore').textContent=test.score;
+  $('aspFeedback').textContent=''; $('aspFeedback').className='mp-feedback';
+  /* L'énoncé dit où s'écrit la retenue, et ce n'est PAS au même endroit selon
+     l'opération : au-dessus à l'addition, deux fois à la soustraction. Sans
+     cette phrase, les cases rouges de la soustraction sont indéchiffrables —
+     c'est le retour qu'en a fait Turquet. */
+  $('aspInstr').innerHTML='Pose l\u2019opération et complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues). '
+    +(q.plus
+      ? 'La <b style="color:var(--red)">retenue</b> s\u2019écrit au-dessus de la colonne où elle s\u2019ajoute.'
+      : 'Quand on ne peut pas soustraire, on ajoute <b>10</b> en haut — écris le petit <b style="color:var(--red)">1</b> devant le chiffre : le <b style="color:var(--red)">+1</b> de compensation s\u2019écrit tout seul devant le chiffre du bas de la colonne suivante.')
+    +' Les cases rouges sont <b>facultatives</b>, mais si tu les écris, elles doivent être justes.';
+  $('aspActions').innerHTML='<button class="btn btn-primary" id="aspCheck" onclick="checkASPAnswer()">Vérifier</button>';
+  const cell=(inner)=>'<div class="mp-cl">'+(inner||'')+'</div>';
+  const inp=(cls,exp,tab)=>'<input class="'+cls+'" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="'+exp+'" tabindex="'+tab+'" aria-label="case à compléter">';
+  /* TOUTES les rangées ont le même nombre de cellules : la grille est en
+     flexbox à cellules de largeur fixe, et une rangée plus courte décalerait
+     le signe et les colonnes. Trois colonnes d'ordinaire, quatre quand
+     l'addition déborde (999 + 99 = 1098). */
+  const nRes=q.res.length, nCols=Math.max(3,nRes);
+  /* Une rangée : un contenu par colonne, aligné à DROITE comme on pose. */
+  const rangee=(tete,contenus)=>{
+    const c=[]; for(let i=0;i<nCols-contenus.length;i++) c.push(cell());
+    contenus.forEach(x=>c.push(cell(x)));
+    return '<div class="mp-row"><div class="mp-cl op">'+(tete||'')+'</div>'+c.join('')+'</div>';
+  };
+  const dig=n=>'<span class="mp-digit">'+n+'</span>';
+  /* Les retenues, au-dessus de la colonne où elles s'ajoutent. Rien au-dessus
+     des unités : aucune retenue n'y entre. Elles valent 0 ou 1 et sont
+     FACULTATIVES — on les propose sur toutes les colonnes plutôt que sur les
+     seules qui en portent une, sinon leur simple présence dirait à l'élève où
+     la retenue tombe. */
+  /* Petite case de retenue posée DANS une cellule, devant le chiffre.
+     « nom » désigne LA retenue (d : celle des unités, h : celle des dizaines)
+     et « bas » sa seconde inscription — le « +1 » de la colonne suivante :
+     c'est ce qui permet au miroir ci-dessous d'apparier les deux cases. */
+  const pet=(exp,tab,nom,bas)=>(bas?'<span class="asp-plus">+</span>':'')
+    +'<input class="asp-ret" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="'+exp+'" data-ret="'+nom+'"'+(bas?' data-bas="1"':'')+' tabindex="'+tab+'" aria-label="retenue'+(bas?' reportée':'')+'">';
+  let rowRet='', rowA, rowB;
+  if(q.plus){
+    /* ADDITION : la retenue entre dans la colonne, on l'écrit AU-DESSUS. */
+    /* Une case seulement là où il Y A une retenue : une case vide à remplir de
+       rien n'apprend rien, et l'élève finissait par se demander ce qu'on lui
+       demandait (décision de Turquet, août 2026). Le tirage garantit qu'il en
+       reste toujours au moins une. */
+    const ret=[];
+    if(nCols===4) ret.push(q.ret.m?inp('mp-carry',q.ret.m,nRes+3):'');
+    ret.push(q.ret.h?inp('mp-carry',q.ret.h,nRes+2):'');
+    ret.push(q.ret.d?inp('mp-carry',q.ret.d,nRes+1):'');
+    ret.push('');                                /* colonne des unités : rien */
+    rowRet='<div class="mp-row"><div class="mp-cl op"></div>'+ret.map(x=>cell(x)).join('')+'</div>';
+    rowA=rangee('', [dig(q.ha),dig(q.da),dig(q.ua)]);
+    rowB=rangee('<span class="mp-sign">+</span>', [dig(q.db),dig(q.ub)]);
+  } else {
+    /* SOUSTRACTION, par compensation. La retenue des unités s'écrit devant le
+       2 du haut — qui se lit alors 12 — et redescend en « +1 » devant le 8 du
+       bas ; celle des dizaines devant le 3 du haut, et en « +1 » devant la
+       colonne des centaines du bas. Chaque retenue est donc écrite DEUX fois :
+       c'est exactement le geste du cahier.
+       Les cases sont proposées sur les deux colonnes possibles, et non sur les
+       seules qui portent une retenue : leur présence dirait sinon à l'élève où
+       elle tombe. Elles restent facultatives. */
+    /* Là encore : rien à écrire, donc pas de case. Chaque retenue reste posée
+       à SES deux places — devant le chiffre du haut, et en « +1 » devant le
+       chiffre du bas de la colonne suivante. */
+    const m=(v,tab,nom,bas)=>v?pet(v,tab,nom,bas):'';
+    rowA=rangee('', [dig(q.ha), dig(q.da)+m(q.ret.h,nRes+2,'h'), dig(q.ua)+m(q.ret.d,nRes+1,'d')]);
+    rowB=rangee('<span class="mp-sign">\u2212</span>',
+                [m(q.ret.h,nRes+4,'h',true), dig(q.db)+m(q.ret.d,nRes+3,'d',true), dig(q.ub)]);
+  }
+  const rowLine='<div class="mp-lrow"><div class="mp-cl op"></div><div class="mp-line" style="width:calc(var(--asp-col) * '+nCols+')"></div></div>';
+  /* Les cases du résultat : autant que de chiffres, pas plus. Une case en trop
+     se lirait comme un zéro à écrire. On commence par les unités (tabindex 1). */
+  const rowRes =rangee('', q.res.map((d,i)=>inp('mp-box',d,nRes-i)));
+  $('aspHost').innerHTML=rowRet+rowA+rowB+rowLine+rowRes;
+  const ins=[...$('aspHost').querySelectorAll('input')].sort((x,y)=>(+x.tabIndex)-(+y.tabIndex));
+  /* LA RETENUE DU HAUT REDESCEND TOUTE SEULE (demande de Turquet, août 2026) :
+     sur le cahier, le petit 1 du haut et le « +1 » du bas de la colonne
+     suivante sont UNE seule retenue, écrite deux fois. L'élève ne l'écrit
+     donc plus qu'une fois, en haut — la page pose la seconde inscription, et
+     l'efface s'il efface. Le miroir copie la VALEUR écrite, juste ou non :
+     deux inscriptions d'un même nombre, jamais une correction — un miroir qui
+     écrirait « 1 » sous un 7 ferait le travail à la place de l'élève.
+     Et il ne lève AUCUN événement sur la case du bas : son écouteur générique
+     y volerait le focus (l'avance automatique). En soutien, la couleur arrive
+     par la relecture de l'écran à la sortie de la case, comme pour toute case
+     que l'élève n'a pas touchée. */
+  const miroirRetenue=(el)=>{
+    if(!el.classList.contains('asp-ret') || el.hasAttribute('data-bas')) return;
+    const bas=$('aspHost').querySelector('.asp-ret[data-bas][data-ret="'+el.dataset.ret+'"]');
+    if(bas && !bas.disabled) bas.value=el.value;
+  };
+  /* Et l'avance automatique SAUTE les cases du bas : la page les remplit,
+     l'élève n'a plus rien à y taper — le curseur qui s'y parquerait le
+     laisserait devant une case déjà pleine. Elles restent atteignables au
+     clic et à la touche Tab pour qui veut les reprendre. */
+  const suivant=(i)=>{ for(let j=i+1;j<ins.length;j++){ if(!ins[j].hasAttribute('data-bas')) return ins[j]; } return null; };
+  ins.forEach((el,i)=>{
+    el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); miroirRetenue(el); const n=el.value?suivant(i):null; if(n)n.focus(); });
+    el.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ev.preventDefault();checkASPAnswer();} if(ev.key==='Backspace'&&!el.value&&i>0)ins[i-1].focus(); });
+  });
+  setTimeout(()=>ins[0]&&ins[0].focus(),70);
+}
+/* La correction est celle de la multiplication posée, au mot près : le résultat
+   est obligatoire, la retenue facultative mais juste si elle est écrite. */
+function checkASPAnswer(live){
+  if(test.locked)return;
+  const soutien=isSoutien();
+  if(live){ [...$('aspHost').querySelectorAll('.mp-box, .mp-carry, .asp-ret')].forEach(liveColorExp); return; }
+  const host=$('aspHost');
+  const boxes=[...host.querySelectorAll('.mp-box')];
+  const carries=[...host.querySelectorAll('.mp-carry, .asp-ret')];
+  const typedResult=boxes.map(b=>b.value.trim()).join('');
+  let resultOk=true, carryOk=true;
+  boxes.forEach(el=>{
+    const exp=el.dataset.exp, v=el.value.trim(), ok=(v!==''&&v===exp);
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ resultOk=false;
+      if(currentMode==='train'){ if(v===''){ el.value=exp; el.classList.remove('bad'); el.classList.add('sol'); } else { const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
+    }
+  });
+  carries.forEach(el=>{
+    const exp=el.dataset.exp, v=el.value.trim();
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.disabled=!soutien;
+    if(v===''){ return; }                       /* non utilisée : on ne l'évalue pas */
+    const ok=(v===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ carryOk=false; if(currentMode==='train'){ const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
+  });
+  const allOk = resultOk && carryOk;
+  if(!allOk && soutien){ soutienAgain('aspFeedback','aspActions','checkASPAnswer','aspHost'); return; }
+  test.locked=true;
+  const q=test.questions[test.idx];
+  if(allOk){ test.score++; $('aspLiveScore').textContent=test.score;
+    $('aspFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('aspFeedback').className='mp-feedback good';
+  }else{
+    $('aspFeedback').textContent = resultOk ? 'Le résultat est bon, mais une retenue écrite est fausse.' : 'Presque ! Regarde les cases rouges.';
+    $('aspFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({...(ptsExo()||{}), q:q.text, answer:q.answer, given:resultOk?q.answer:(typedResult===''?null:parseInt(typedResult,10)), correct:allOk });
+  const last=test.idx===test.questions.length-1;
+  $('aspActions').innerHTML='<button class="btn btn-primary" id="aspNext" onclick="nextASPQuestion()">'+(last?'Voir mes résultats':'Opération suivante')+'</button>';
+  $('aspNext').focus();
+}
+function nextASPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderASPTest(); autoSave(); } else finishASPTest(); }
+async function finishASPTest(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'addition-soustraction',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Test 2 : multiplication posée ---------- */
+function genMultPosee(){
+  let a,m,b,c1;
+  do{ a=rand(10,99); m=rand(2,9); b=a%10; c1=Math.floor((b*m)/10); }while(c1<1); // garantit une retenue
+  const result=a*m;
+  return { a,m,result, tens:Math.floor(a/10), units:b, carry1:c1,
+    u:result%10, t:Math.floor(result/10)%10, h:Math.floor(result/100)%10, three:result>=100,
+    text:`${a} × ${m}`, answer:result };
+}
+async function startMultPosee(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  const n=cfg.mpCount||10;
+  test.kind='mp';
+  test.questions=Array.from({length:n},genMultPosee);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('mtest'); renderMTest();
+}
+function renderMTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('mqIdx').textContent=`Multiplication ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagMp').innerHTML=modeTagHTML();
+  $('mLiveScore').textContent=test.score;
+  $('mpFeedback').textContent=''; $('mpFeedback').className='mp-feedback';
+  $('mpActions').innerHTML='<button class="btn btn-primary" id="mpCheck" onclick="checkMAnswer()">Vérifier</button>';
+  const cell=(cls,inner)=>`<div class="mp-cl ${cls||''}">${inner||''}</div>`;
+  const inp=(cls,exp,tab)=>`<input class="${cls}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="${exp}" tabindex="${tab}" aria-label="case à compléter">`;
+  const rowCarry=`<div class="mp-row">${cell('op')}${cell('')}${cell('',inp('mp-carry',q.carry1,2))}${cell('')}</div>`;
+  const rowTop  =`<div class="mp-row">${cell('op')}${cell('')}${cell('',`<span class="mp-digit">${q.tens}</span>`)}${cell('',`<span class="mp-digit">${q.units}</span>`)}</div>`;
+  const rowMul  =`<div class="mp-row">${cell('op',`<span class="mp-sign">×</span>`)}${cell('')}${cell('')}${cell('',`<span class="mp-digit">${q.m}</span>`)}</div>`;
+  const rowLine =`<div class="mp-lrow">${cell('op')}<div class="mp-line"></div></div>`;
+  const hCell   = q.three ? cell('',inp('mp-box',q.h,4)) : cell('');
+  const rowRes  =`<div class="mp-row">${cell('op')}${hCell}${cell('',inp('mp-box',q.t,3))}${cell('',inp('mp-box',q.u,1))}</div>`;
+  $('mpHost').innerHTML=rowCarry+rowTop+rowMul+rowLine+rowRes;
+  const ins=[...$('mpHost').querySelectorAll('input')].sort((x,y)=>(+x.tabIndex)-(+y.tabIndex));
+  ins.forEach((el,i)=>{
+    el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value&&i<ins.length-1)ins[i+1].focus(); });
+    el.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ev.preventDefault();checkMAnswer();} if(ev.key==='Backspace'&&!el.value&&i>0)ins[i-1].focus(); });
+  });
+  setTimeout(()=>ins[0]&&ins[0].focus(),70);
+}
+function checkMAnswer(live){
+  if(test.locked)return;
+  const soutien=isSoutien();
+  if(live){ [...$('mpHost').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp); return; }
+  const host=$('mpHost');
+  const boxes=[...host.querySelectorAll('.mp-box')];      // cases résultat (obligatoires)
+  const carries=[...host.querySelectorAll('.mp-carry')];  // retenue (facultative)
+  const typedResult=boxes.map(b=>b.value.trim()).join(''); // ce que l'élève a écrit comme résultat
+  let resultOk=true, carryOk=true;
+  // 1) Résultat : toutes les cases bleues doivent être justes
+  boxes.forEach(el=>{
+    const exp=el.dataset.exp, v=el.value.trim(), ok=(v!==''&&v===exp);
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ resultOk=false;
+      if(currentMode==='train'){ if(v===''){ el.value=exp; el.classList.remove('bad'); el.classList.add('sol'); } else { const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
+    }
+  });
+  // 2) Retenue : facultative — ignorée si vide, mais doit être juste si elle est écrite
+  carries.forEach(el=>{
+    const exp=el.dataset.exp, v=el.value.trim();
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.disabled=!soutien;
+    if(v===''){ return; }                       // non utilisée : on ne l'évalue pas
+    const ok=(v===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ carryOk=false; if(currentMode==='train'){ const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
+  });
+  const allOk = resultOk && carryOk;
+  if(!allOk && soutien){ soutienAgain('mpFeedback','mpActions','checkMAnswer','mpHost'); return; }
+  test.locked=true;
+  const q=test.questions[test.idx];
+  if(allOk){ test.score++; $('mLiveScore').textContent=test.score;
+    $('mpFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('mpFeedback').className='mp-feedback good';
+  }else{
+    $('mpFeedback').textContent = resultOk ? 'Le résultat est bon, mais la retenue écrite est fausse.' : 'Presque ! Regarde les cases rouges.';
+    $('mpFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({...(ptsExo()||{}), q:q.text, answer:q.answer, given:resultOk?q.answer:(typedResult===''?null:parseInt(typedResult,10)), correct:allOk });
+  const last=test.idx===test.questions.length-1;
+  $('mpActions').innerHTML=`<button class="btn btn-primary" id="mpNext" onclick="nextMQuestion()">${last?'Voir mes résultats':'Multiplication suivante'}</button>`;
+  $('mpNext').focus();
+}
+function nextMQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderMTest(); autoSave(); } else finishMTest(); }
+async function finishMTest(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'multiplication-posee',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Test 3 : fractions décimales ---------- */
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a||1; }
+function fracToDec(num,d){
+  const k=String(d).length-1, intPart=Math.floor(num/d);
+  let dec=String(num%d).padStart(k,'0').replace(/0+$/,'');
+  return dec ? `${intPart},${dec}` : `${intPart}`;
+}
+function fracBox(n,d){ return `<span class="fr"><span class="fn">${n}</span><span class="fb"></span><span class="fd">${d}</span></span>`; }
+function genFrac(level){
+  if(level==='frac-n1'){
+    const d=pick([10,10,10,100,100,1000]);   // 1000 plus rare -> moins de grands nombres
+    let num; const r=rand(0,99);
+    if(r<72){
+      // numérateur AVEC zéro(s) — encore plus fréquent
+      if(rand(0,1)===0){
+        // zéros finaux qui « tombent » : 30, 200, 350, 50, 400...
+        if(rand(0,1)===0) num=rand(1,9)*pick([10,100]);    // 10..900
+        else              num=rand(11,99)*10;              // 110..990
+      } else {
+        // zéro à l'intérieur (ou au bout) : 105, 305, 250, 470...
+        const len=pick([2,2,3,3,3]);
+        const dg=[rand(1,9)];
+        for(let i=1;i<len;i++) dg.push(rand(0,9));
+        dg[rand(1,len-1)]=0;                               // force au moins un zéro (pas en tête)
+        num=parseInt(dg.join(''),10);
+      }
+    } else if(r<92){
+      // petit numérateur, 1 ou 2 chiffres (variété : 0,7 ; 0,23 ; 0,07)
+      num=(rand(0,1)===0)?rand(1,9):rand(10,99);
+    } else {
+      // plus rare : nombre à 3 ou 4 chiffres quelconque
+      num=(d===1000)?rand(101,9999):rand(101,999);
+    }
+    num=Math.min(9999,Math.max(1,num));
+    return {level,num,d,qtext:`${num}/${d}`,atext:fracToDec(num,d)};
+  }
+  if(level==='frac-n2'){
+    // numérateur : au plus 2 chiffres NON NULS, longueur 1 à 4 chiffres, dernier chiffre non nul (pas de zéro final)
+    // ~45% des nombres ont une partie entière non nulle (ne commencent pas toujours par "0,")
+    const nz = (rand(0,99)<25) ? 1 : 2;       // 25% : un seul chiffre non nul (forcément "0,...")
+    let numStr, L;
+    if(nz===1){ numStr=String(rand(1,9)); L=1; }                       // un seul chiffre : 3, 7...
+    else { L=pick([2,2,3,3,4]); numStr=String(rand(1,9))+'0'.repeat(L-2)+String(rand(1,9)); } // ex : 23, 105, 2003
+    const numer=parseInt(numStr,10);
+    let k=pick(nz===1 ? [1,1,2] : [L-1, L-1, L-1, L, L+1]);            // virgule souvent après le 1er chiffre -> partie entière non nulle
+    k=Math.max(1,Math.min(4,k));
+    const denom=Math.pow(10,k);
+    const intPart=Math.floor(numer/denom);
+    const fracPart=String(numer%denom).padStart(k,'0');
+    const decString=`${intPart},${fracPart}`;
+    return {level,decString,numer,denom,qtext:decString,atext:`${numer}/${denom}`};
+  }
+  if(level==='frac-n3'){
+    // produit de deux facteurs ; numérateurs à UN seul chiffre non nul, longueur 1 à 3 (3, 30, 300...) ;
+    // fraction propre (num<den) ou entier ; au moins une fraction ; résultat = la fraction produit.
+    const mk=()=>{
+      const den=pick([1,10,10,100,100,1000]);
+      let num;
+      if(den===1){ do{ num=rand(1,9)*Math.pow(10,pick([0,1,2])); }while(num===1); } // entier : 2..900 (jamais 1)
+      else { do{ num=rand(1,9)*Math.pow(10,pick([0,0,1,2])); }while(num>=den); } // fraction propre : num<den
+      return {num,den};
+    };
+    const okN3=(A,B,pn,pd)=> pd<=1000 && !(A.den===1&&B.den===1) && pn/pd<=200;
+    let A,B,pn,pd,t=0;
+    do{ A=mk(); B=mk(); pn=A.num*B.num; pd=A.den*B.den; t++; }while(t<80 && !okN3(A,B,pn,pd));
+    if(!okN3(A,B,pn,pd)){ A={num:3,den:10}; B={num:5,den:10}; pn=15; pd=100; }
+    const facA=A.den===1?{whole:A.num}:{n:A.num,d:A.den};
+    const facB=B.den===1?{whole:B.num}:{n:B.num,d:B.den};
+    const ft=f=>f.whole!==undefined?String(f.whole):`${f.n}/${f.d}`;
+    return {level,facA,facB,pn,pd,qtext:`${ft(facA)} × ${ft(facB)}`,atext:`${pn}/${pd}`};
+  }
+  if(level==='frac-n4'){
+    // produit de deux facteurs ; numérateurs à UN seul chiffre non nul (3, 30, 300, 50, 70...),
+    // soit une fraction PROPRE (num<den, dén. 10/100/1000), soit un entier à zéros (>=10) ;
+    // au moins une fraction ; résultat donné sous forme DÉCIMALE.
+    const okN4=(pn,pd,ds,da,db)=> pd>1 && da*db<=1000 && pn/pd<=200 && (ds.split(',')[1]||'').length<=2;
+    const mkN4=()=>{
+      const den=pick([1,10,10,100,100,1000]);
+      let num;
+      if(den===1){ num=rand(1,9)*Math.pow(10,pick([1,1,2])); }              // entier : 30,70,300... (jamais 1)
+      else { do{ num=rand(1,9)*Math.pow(10,pick([0,0,1,2])); }while(num>=den); } // fraction propre : num<den
+      return {num,den};
+    };
+    let A,B,pn,pd,ds,t=0;
+    do{ A=mkN4(); B=mkN4(); pn=A.num*B.num; pd=A.den*B.den; ds=fracToDec(pn,pd); t++; }
+    while(t<80 && !okN4(pn,pd,ds,A.den,B.den));
+    if(!okN4(pn,pd,ds,A.den,B.den)){ A={num:3,den:10}; B={num:5,den:10}; pn=15; pd=100; ds='0,15'; }
+    const facA=A.den===1?{whole:A.num}:{n:A.num,d:A.den};
+    const facB=B.den===1?{whole:B.num}:{n:B.num,d:B.den};
+    const ftN4=f=>f.whole!==undefined?String(f.whole):`${f.n}/${f.d}`;
+    return {level,facA,facB,pn,pd,qtext:`${ftN4(facA)} × ${ftN4(facB)}`,atext:ds};
+  }
+  // frac-n5 : multiplier deux NOMBRES DÉCIMAUX (affichés en décimal), 1 seul chiffre non nul chacun,
+  //           au moins un nombre décimal ; méthode : passer par les fractions décimales puis revenir au décimal.
+  const mkN5=()=>{
+    const s=rand(1,9), ty=pick(['d1','d1','d1','d2','d2','d1t','w0','w1','w1','w2','w3']);
+    if(ty==='d1')  return {n:s,      d:10,  disp:`0,${s}`};    // 0,3
+    if(ty==='d2')  return {n:s,      d:100, disp:`0,0${s}`};   // 0,05
+    if(ty==='d1t') return {n:s,      d:10,  disp:`0,${s}0`};   // 0,30 (zéro final affiché)
+    if(ty==='w0')  return {n:s,      d:1,   disp:`${s}`};      // 3
+    if(ty==='w1')  return {n:s*10,   d:1,   disp:`${s}0`};     // 30
+    if(ty==='w2')  return {n:s*100,  d:1,   disp:`${s}00`};    // 300
+    return {n:s*1000, d:1, disp:`${s}000`};                    // 2000
+  };
+  const okN5=(pn,pd,ds,dA,dB)=> (dA>1||dB>1) && pn/pd<=200 && (ds.split(',')[1]||'').length<=2;
+  let A,B,pn,pd,ds,t=0;
+  do{ A=mkN5(); B=mkN5(); pn=A.n*B.n; pd=A.d*B.d; ds=fracToDec(pn,pd); t++; }
+  while(t<80 && !okN5(pn,pd,ds,A.d,B.d));
+  if(!okN5(pn,pd,ds,A.d,B.d)){ A={n:3,d:10,disp:'0,3'}; B={n:5,d:10,disp:'0,5'}; pn=15; pd=100; ds='0,15'; }
+  return {level, dispA:A.disp, dispB:B.disp, fnA:A.n, fdA:A.d, fnB:B.n, fdB:B.d, pn, pd,
+          qtext:`${A.disp} × ${B.disp}`, atext:ds};
+}
+/* LE RÉGLAGE « QUESTIONS » D'UN DEVOIR RÈGLE CE PARCOURS PAR NIVEAU (demande de
+   Turquet, août 2026) : l'exercice a cinq niveaux qui RETIRENT chacun leurs
+   questions (goNextLevel), et la coupe générique de dmAppliquerNbQ, qui ne
+   connaît qu'UN tableau, ne raccourcissait que le niveau 1 en laissant
+   perLevel à 5 — l'écran annonçait « Question 1 / 5 », la fin de niveau
+   (idx===perLevel-1) n'arrivait jamais, et la 3e question lisait un tirage qui
+   n'existe pas : écran figé. Le démarreur lit donc le réglage LUI-MÊME (le
+   motif de tmNbDevoir), tous les niveaux tirent à cette taille, et la coupe
+   générique n'a plus rien à couper (length <= n). Le seuil de passage SUIT :
+   « 4 sur 5 » n'a jamais été 80 %, c'est UNE erreur permise — max(1, n−1).
+   Une valeur hors du format normal (1..5) retombe sur 5 : on ne sait que
+   réduire, et un réglage bricolé dans le JSON ne fabrique pas de séance
+   infaisable. Hors devoir, dmReglageExo() rend null : rien ne change. */
+function fracpNbDevoir(){
+  const ex=dmReglageExo(); const n=ex?parseInt(ex.nbQ,10):NaN;
+  return (Number.isFinite(n)&&n>=1&&n<=5)?n:5;
+}
+async function startFracParcours(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='fracp';
+  test.levels=['frac-n1','frac-n2','frac-n3','frac-n4','frac-n5'];
+  test.perLevel=fracpNbDevoir(); test.passNeeded=Math.max(1,test.perLevel-1);
+  test.levelIdx=0; test.level=test.levels[0]; test.levelScore=0;
+  test.idx=0; test.score=0; test.answers=[]; test.results=[];
+  test.startTime=Date.now(); test.locked=false;
+  test.questions=Array.from({length:test.perLevel},()=>genFrac(test.level));
+  /* PAS de barème fixe ici, et c'est la vérité de ce parcours : finishParcours
+     note sur ce qui a été RÉPONDU (les niveaux non atteints ne comptent pas).
+     On remet donc la valeur à zéro plutôt que de laisser celle de l'exercice
+     précédent : test est global, et la coupe d'un devoir lit ce champ. */
+  test.maxScore=0;
+  show('ftest'); renderFTest();
+}
+function renderFTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('fqIdx').textContent=`Niveau ${test.levelIdx+1} · Question ${test.idx+1} / ${test.perLevel}`;
+  $('modeTagF').innerHTML=modeTagHTML();
+  $('fLiveScore').textContent=`${test.levelScore}/${test.perLevel}`;
+  $('fFeedback').textContent=''; $('fFeedback').className='mp-feedback';
+  $('fActions').innerHTML='<button class="btn btn-primary" onclick="checkFAnswer()">Vérifier</button>';
+  const fracIn='<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="fNum" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="fDen" aria-label="dénominateur"></math-field></span>';
+  let instr='', html='';
+  if(q.level==='frac-n1'){
+    instr='Écris cette fraction sous forme <b>décimale</b>.';
+    html=fracBox(q.num,q.d)+fEq('<math-field class="dexp-mf pm-mf f-dec" id="fDec" aria-label="réponse décimale"></math-field>');
+  } else if(q.level==='frac-n2'){
+    instr='Écris ce nombre sous forme de <b>fraction décimale</b>.';
+    html=`<span class="f-dec-q">${esc(q.decString)}</span>`+fEq(fracIn);
+  } else if(q.level==='frac-n3'){
+    instr='Calcule ce <b>produit</b> (pas besoin de simplifier).';
+    const fa=q.facA.whole!==undefined?`<span class="f-whole">${q.facA.whole}</span>`:fracBox(q.facA.n,q.facA.d);
+    const fb=q.facB.whole!==undefined?`<span class="f-whole">${q.facB.whole}</span>`:fracBox(q.facB.n,q.facB.d);
+    html=fa+'<span class="f-times">×</span>'+fb+fEq(fracIn);
+  } else if(q.level==='frac-n4'){
+    // frac-n4 : produit de fractions en 2 étapes (produit en fraction, puis décimal)
+    instr='Multiplie ces fractions décimales en 2 étapes.';
+    const fa=q.facA.whole!==undefined?`<span class="f-whole">${q.facA.whole}</span>`:fracBox(q.facA.n,q.facA.d);
+    const fb=q.facB.whole!==undefined?`<span class="f-whole">${q.facB.whole}</span>`:fracBox(q.facB.n,q.facB.d);
+    const fracIn5='<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="f5n" aria-label="numérateur du produit"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="f5d" aria-label="dénominateur du produit"></math-field></span>';
+    html=`<div class="f5">`
+      +`<div class="f5-prod">${fa}<span class="f-times">×</span>${fb}</div>`
+      +`<div class="f5-step"><span class="f5-lab">1. En multipliant les fractions</span><div class="f5-row">${fracIn5}</div></div>`
+      +`<div class="f5-step"><span class="f5-lab">2. Le résultat en nombre décimal</span><div class="f5-row"><math-field class="dexp-mf pm-mf f-dec" id="fDec" aria-label="résultat décimal"></math-field></div></div>`
+      +`</div>`;
+  } else {
+    // frac-n5 : multiplier deux décimaux en 3 étapes (chaque décimal en fraction, produit en fraction, décimal)
+    instr='Multiplie ces nombres décimaux en détaillant les 3 étapes.';
+    const mkIn=(idn,idd)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${idn}"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${idd}"></math-field></span>`;
+    const slotA = q.fdA===1 ? `<span class="f-whole">${q.fnA}</span>` : mkIn('f5an','f5ad');
+    const slotB = q.fdB===1 ? `<span class="f-whole">${q.fnB}</span>` : mkIn('f5bn','f5bd');
+    html=`<div class="f5">`
+      +`<div class="f5-prod">${esc(q.dispA)}<span class="f-times">×</span>${esc(q.dispB)}</div>`
+      +`<div class="f5-step"><span class="f5-lab">1. Chaque nombre décimal en fraction</span><div class="f5-row">${slotA}<span class="f-times">×</span>${slotB}</div></div>`
+      +`<div class="f5-step"><span class="f5-lab">2. En multipliant les fractions</span><div class="f5-row">${mkIn('f5pn','f5pd')}</div></div>`
+      +`<div class="f5-step"><span class="f5-lab">3. Le résultat en nombre décimal</span><div class="f5-row"><math-field class="dexp-mf pm-mf f-dec" id="fDec"></math-field></div></div>`
+      +`</div>`;
+  }
+  $('fInstr').innerHTML=instr; $('fHost').innerHTML=html;
+  if($('f5pn')){
+    const chain=['f5an','f5ad','f5bn','f5bd','f5pn','f5pd','fDec'].filter(id=>$(id));
+    chain.forEach((id,i)=>$(id).addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i+1<chain.length)$(chain[i+1]).focus(); else checkFAnswer();} }));
+    setTimeout(()=>$(chain[0]).focus(),70);
+  } else if($('f5n')&&$('f5d')){
+    $('f5n').addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();$('f5d').focus();} });
+    $('f5d').addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();$('fDec').focus();} });
+    $('fDec').addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();checkFAnswer();} });
+    setTimeout(()=>$('f5n').focus(),70);
+  } else if($('fNum')&&$('fDen')){
+    $('fNum').addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();$('fDen').focus();} });
+    $('fDen').addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();checkFAnswer();} });
+    setTimeout(()=>$('fNum').focus(),70);
+  } else { const el=$('fDec'); el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();checkFAnswer();} }); setTimeout(()=>el.focus(),70); }
+}
+function checkFAnswer(live){
+  if(test.locked)return;
+  const soutien=isSoutien();
+  const q=test.questions[test.idx];
+  if(live){
+    if(q.level==='frac-n5'){ fracDecLive('f5an','f5ad',q.fnA,q.fdA,true); fracDecLive('f5bn','f5bd',q.fnB,q.fdB,true); fracDecLive('f5pn','f5pd',q.pn,q.pd,true); liveColorDec('fDec',q.pn,q.pd); }
+    else if(q.level==='frac-n4'){ fracDecLive('f5n','f5d',q.pn,q.pd,true); liveColorDec('fDec',q.pn,q.pd); }
+    else if(q.level==='frac-n1'){ liveColorN1('fDec',q.num,q.d); }
+    else if(q.level==='frac-n2'){ fracDecLive('fNum','fDen',q.numer,q.denom,false); }
+    else { fracDecLive('fNum','fDen',q.pn,q.pd,false); }
+    return;
+  }
+  /* UNE CASE LAISSÉE VIDE NE ROUGIT PAS. Rouge veut dire FAUX, et l'élève n'a
+     rien écrit : en entraînement elle reçoit la réponse en vert, en soutien
+     elle reste vide et modifiable, l'exercice n'étant pas fini.
+     Les cinq niveaux de cet exercice écrivaient leur marquage chacun de son
+     côté, et le défaut s'y était logé partout. Trouvé en août 2026 par le
+     contrôle universel « aucune case laissée vide ne rougit à la vérification »,
+     sur la Première — que je n'avais pas fait tourner avant de pousser. */
+  const marque=(el, ok, val)=>{ if(!el) return;
+    el.classList.remove('ok','bad','sol');
+    const vide=String(el.value==null?'':el.value).trim()==='';
+    if(ok) el.classList.add('ok');
+    else if(vide){ if(!soutien && val!=null && val!==''){ el.value=String(val); el.classList.add('sol'); } }
+    else el.classList.add('bad');
+    el.disabled=ok||!soutien;
+  };
+  let correct=false, given=null;
+  if(q.level==='frac-n5'){
+    // 3 étapes — É1 : chaque décimal en fraction (puissance de 10) ; É2 : produit en fraction ; É3 : décimal
+    const okFac=(idn,idd,fn,fd)=>{
+      const en=$(idn), ed=$(idd);
+      if(!en||!ed) return {ok:true, els:[]};   // facteur entier affiché tel quel : rien à valider
+      const n=parseInt(en.value.trim(),10), d=parseInt(ed.value.trim(),10);
+      const filled=en.value.trim()!==''&&ed.value.trim()!=='';
+      return {ok: filled && !isNaN(n) && !isNaN(d) && d>0 && isPow10(d) && n*fd===fn*d, els:[en,ed]};
+    };
+    const a=okFac('f5an','f5ad',q.fnA,q.fdA), b=okFac('f5bn','f5bd',q.fnB,q.fdB);
+    const pN=$('f5pn'), pD=$('f5pd');
+    const Np=parseInt(pN.value.trim(),10), Dp=parseInt(pD.value.trim(),10);
+    const pFilled=pN.value.trim()!==''&&pD.value.trim()!=='';
+    const okProd = pFilled && !isNaN(Np) && !isNaN(Dp) && Dp>0 && isPow10(Dp) && Np*q.pd===q.pn*Dp;
+    const eDec=$('fDec'), vDec=eDec.value.trim(), frDec=parseDecToFrac(vDec);
+    const okDec = !!frDec && frDec.n*q.pd===q.pn*frDec.d;
+    correct = a.ok && b.ok && okProd && okDec;
+    /* la peinture passe au juge PAR CASE (l'ancre canonique) ; le compte,
+       lui, ne bouge pas : correct reste le verdict des paires complètes */
+    marqueFracDec('f5an','f5ad',q.fnA,q.fdA,soutien,true);
+    marqueFracDec('f5bn','f5bd',q.fnB,q.fdB,soutien,true);
+    marqueFracDec('f5pn','f5pd',q.pn,q.pd,soutien,true);
+    marque(eDec, okDec, q.atext);
+    given = `${pFilled?Np+'/'+Dp:'?'} = ${vDec||'?'}`;
+  } else if(q.level==='frac-n4'){
+    // 2 étapes — Étape 1 : produit en fraction décimale (dénominateur puissance de 10) ; Étape 2 : résultat décimal
+    const eN=$('f5n'), eD=$('f5d'), eDec=$('fDec');
+    const Nf=parseInt(eN.value.trim(),10), Df=parseInt(eD.value.trim(),10);
+    const frFilled=eN.value.trim()!==''&&eD.value.trim()!=='';
+    const step1 = frFilled && !isNaN(Nf) && !isNaN(Df) && Df>0 && isPow10(Df) && Nf*q.pd===q.pn*Df;
+    const vDec=eDec.value.trim(), frDec=parseDecToFrac(vDec);
+    const step2 = !!frDec && frDec.n*q.pd===q.pn*frDec.d;
+    correct = step1 && step2;
+    marqueFracDec('f5n','f5d',q.pn,q.pd,soutien,true);
+    marque(eDec, step2, q.atext);
+    given = `${frFilled?Nf+'/'+Df:'?'} = ${vDec||'?'}`;
+  } else if(q.level==='frac-n1'){
+    const el=$('fDec'), v=el.value.trim();
+    given=v===''?null:v.replace('.', ',');
+    const cn=q.num, cd=q.d;   // valeur correcte
+    let fr=null;
+    if(v.includes('/')){
+      // forme fractionnaire : acceptée si la valeur est juste ET la fraction est irréductible
+      const p=v.replace(/\s/g,'').split('/');
+      if(p.length===2){ const fn=parseInt(p[0],10), fd=parseInt(p[1],10);
+        if(!isNaN(fn)&&!isNaN(fd)&&fd>0&&gcd(fn,fd)===1) fr={n:fn,d:fd}; }
+    } else {
+      fr=parseDecToFrac(v);   // formes décimales : 20, 20,0, 0,15 ...
+    }
+    correct=!!fr && fr.n*cd===cn*fr.d;
+    marque(el, correct, q.atext);
+  } else {
+    const eN=$('fNum'), eD=$('fDen');
+    const filled=eN.value.trim()!==''&&eD.value.trim()!=='';
+    const N=parseInt(eN.value.trim(),10), D=parseInt(eD.value.trim(),10);
+    given=filled?`${N}/${D}`:null;
+    if(q.level==='frac-n2') correct=filled&&!isNaN(N)&&!isNaN(D)&&D>0&&N*q.denom===q.numer*D;  // toute fraction égale acceptée (même non décimale)
+    else correct=filled&&!isNaN(N)&&!isNaN(D)&&D!==0&&N*q.pd===q.pn*D;
+    marqueFracDec('fNum','fDen',
+      (q.level==='frac-n2')?q.numer:q.pn, (q.level==='frac-n2')?q.denom:q.pd, soutien, false);
+  }
+  if(!correct && soutien){
+    /* une case qui peut encore mener quelque part reste SANS couleur : quand
+       rien n'est rouge, « corrige les cases en rouge » parlerait d'autre chose */
+    $('fFeedback').textContent=$('fHost').querySelector('.bad')
+      ? 'Presque ! Corrige les cases en rouge, puis revérifie.'
+      : 'Complète ta réponse, puis revérifie.';
+    $('fFeedback').className='mp-feedback bad';
+    $('fActions').innerHTML='<button class="btn btn-primary" onclick="checkFAnswer()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(correct){ test.score++; test.levelScore++; $('fLiveScore').textContent=`${test.levelScore}/${test.perLevel}`;
+    $('fFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('fFeedback').className='mp-feedback good';
+  } else if(q.level==='frac-n4'){
+    $('fFeedback').textContent=`Méthode : ${q.qtext} = ${q.pn}/${q.pd} = ${q.atext}`;
+    $('fFeedback').className='mp-feedback bad';
+  } else if(q.level==='frac-n5'){
+    const ff=(n,d)=> d===1?String(n):`${n}/${d}`;
+    $('fFeedback').textContent=`Méthode : ${ff(q.fnA,q.fdA)} × ${ff(q.fnB,q.fdB)} = ${q.pn}/${q.pd} = ${q.atext}`;
+    $('fFeedback').className='mp-feedback bad';
+  } else {
+    const extra=q.level==='frac-n3'?' (ou une fraction égale)':'';
+    $('fFeedback').textContent=`Réponse : ${q.atext}${extra}`; $('fFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({...(ptsExo()||{}),q:q.qtext,answer:q.atext,given,correct});
+  const lastInLevel=test.idx===test.perLevel-1;
+  const next = lastInLevel ? 'endLevel()' : 'nextFQuestionParcours()';
+  const label = lastInLevel ? 'Résultat du niveau →' : 'Question suivante';
+  $('fActions').innerHTML=`<button class="btn btn-primary" id="fNext" onclick="${next}">${label}</button>`;
+  $('fNext').focus();
+}
+function nextFQuestionParcours(){ test.idx++; renderFTest(); autoSave(); }
+function endLevel(){
+  const passed=test.levelScore>=test.passNeeded, isLast=test.levelIdx===test.levels.length-1;
+  test.results.push({level:test.level,score:test.levelScore,total:test.perLevel,passed});
+  $('fqIdx').textContent=`Niveau ${test.levelIdx+1} terminé`;
+  $('fInstr').innerHTML=`Niveau ${test.levelIdx+1} · ${esc(FRAC_INFO[test.level].name)}`;
+  $('fHost').innerHTML=`<div style="text-align:center;width:100%"><div style="font-family:Fredoka;font-weight:600;font-size:2.6rem;color:${passed?'var(--green)':'var(--red)'}">${test.levelScore} / ${test.perLevel}</div></div>`;
+  if(passed && !isLast){
+    $('fFeedback').textContent=`Niveau réussi ! Tu débloques le niveau ${test.levelIdx+2}.`; $('fFeedback').className='mp-feedback good';
+    $('fActions').innerHTML=`<button class="btn btn-primary" id="fGo" onclick="goNextLevel()">Niveau ${test.levelIdx+2} →</button>`;
+    $('fGo').focus();
+  } else if(passed && isLast){
+    $('fFeedback').textContent='Bravo, tu as réussi tout le parcours !'; $('fFeedback').className='mp-feedback good';
+    $('fActions').innerHTML=`<button class="btn btn-primary" onclick="finishParcours()">Voir mes résultats</button>`;
+  } else {
+    const s=test.passNeeded>1?'s':'';   /* « 1 bonnes réponses » n'existe pas : le seuil peut valoir 1 depuis le réglage par niveau */
+    $('fFeedback').textContent=`Il faut au moins ${test.passNeeded} bonne${s} réponse${s} sur ${test.perLevel} pour débloquer le niveau suivant.`; $('fFeedback').className='mp-feedback bad';
+    $('fActions').innerHTML=`<button class="btn btn-primary" onclick="finishParcours()">Voir mes résultats</button>`;
+  }
+}
+function goNextLevel(){
+  test.levelIdx++; test.level=test.levels[test.levelIdx]; test.levelScore=0; test.idx=0;
+  test.questions=Array.from({length:test.perLevel},()=>genFrac(test.level));
+  renderFTest(); autoSave();
+}
+async function finishParcours(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
+  const total=test.answers.length, score=test.score, pct=total?Math.round(score/total*100):0;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  let reached=0; for(const r of test.results){ if(r.passed) reached++; else break; }
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  const perLevel=test.results.map(r=>({lvl:r.level,score:r.score,total:r.total,passed:r.passed}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'fractions-decimales',mode:currentMode,reached,perLevel,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  const allPassed=test.results.length===test.levels.length && test.results.every(r=>r.passed);
+  $('resultMsg').textContent= allPassed?'Parcours réussi ! 🎉':(reached>0?`Tu as validé le niveau ${reached}`:'Continue à t\u2019entraîner !');
+  $('resultSub').textContent=`${esc(currentEleve.prenom)} • ${modeName(currentMode)} • ${fmtDur(durationSec)}`;
+  $('resultScore').textContent=`${score} / ${total}`; $('resultPct').textContent=`${pct} %`;
+  const ul=$('review'); ul.innerHTML='';
+  test.results.forEach((r,i)=>{
+    const li=document.createElement('li'); li.className=r.passed?'ok':'ko';
+    const tail=r.passed?'réussi':`non validé (${test.passNeeded} requis)`;
+    li.innerHTML=`<span class="rmark">${r.passed?'✓':'✗'}</span><span class="exp">Niveau ${i+1} · ${esc(FRAC_INFO[r.level].name)} : ${r.score} / ${r.total}</span><span class="fix">${tail}</span>`;
+    ul.appendChild(li);
+  });
+  for(let i=test.results.length;i<test.levels.length;i++){
+    const li=document.createElement('li'); li.style.opacity='.55';
+    li.innerHTML=`<span class="rmark" style="color:var(--ink-soft)">•</span><span class="exp">Niveau ${i+1} · ${esc(FRAC_INFO[test.levels[i]].name)} : non atteint</span>`;
+    ul.appendChild(li);
+  }
+  const ring=document.querySelector('.score-circle .ring');
+  if(ring){ ring.style.animation='none'; void ring.offsetWidth; ring.style.animation=''; }
+  show('results');
+}
+
+/* ---------- Test 5 : multiplier des décimaux (méthode en 4 étapes) ---------- */
+function genMultDec(){
+  let numS,numD,unitsD;
+  do{ numS=rand(1,9); numD=twoNZ(); unitsD=numD%10; }while(unitsD*numS<10);  // garantit une retenue (comme « Multiplication posée »)
+  const denS=pick([10,100]);                           // facteur à 1 chiffre non nul (décimal < 1)
+  const denD=pick([1,100]);                            // facteur à 2 chiffres non nuls (entier ou décimal < 1)
+  const first2=pick([true,false]);                     // ordre d'affichage aléatoire
+  const fA = first2?{num:numD,den:denD}:{num:numS,den:denS};
+  const fB = first2?{num:numS,den:denS}:{num:numD,den:denD};
+  const prodNum=numS*numD, prodDen=denS*denD;
+  // étape 2 posée : numD (2 chiffres, en haut) × numS (1 chiffre, en bas)
+  const tensD=Math.floor(numD/10), carry1=Math.floor((unitsD*numS)/10);
+  return {fA,fB,numD,numS,prodNum,prodDen,
+    tensD,unitsD,carry1, u:prodNum%10, t:Math.floor(prodNum/10)%10, h:Math.floor(prodNum/100)%10, three:prodNum>=100,
+    aStr:fracToDec(fA.num,fA.den), bStr:fracToDec(fB.num,fB.den), decStr:fracToDec(prodNum,prodDen)};
+}
+async function startMultDec(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='md';
+  test.questions=Array.from({length:6},genMultDec);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('mdtest'); renderMDTest();
+}
+function renderMDTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('mdqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagMd').innerHTML=modeTagHTML();
+  $('mdLiveScore').textContent=test.score;
+  $('mdFeedback').textContent=''; $('mdFeedback').className='mp-feedback';
+  $('mdActions').innerHTML='<button class="btn btn-primary" onclick="checkMDAnswer()">Vérifier</button>';
+  $('mdPrompt').innerHTML=`Calcule <b>${esc(q.aStr)} × ${esc(q.bStr)}</b> en suivant les étapes :`;
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  // étape 2 : multiplication posée numD (2 chiffres) × numS (1 chiffre)
+  const cell=(cls,inner)=>`<div class="mp-cl ${cls||''}">${inner||''}</div>`;
+  const mInp=(cls,exp,tab)=>`<input class="${cls}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="${exp}" data-mtab="${tab}" aria-label="case à compléter">`;
+  const rowCarry=`<div class="mp-row">${cell('op')}${cell('')}${cell('',mInp('mp-carry',q.carry1,2))}${cell('')}</div>`;
+  const rowTop  =`<div class="mp-row">${cell('op')}${cell('')}${cell('',`<span class="mp-digit">${q.tensD}</span>`)}${cell('',`<span class="mp-digit">${q.unitsD}</span>`)}</div>`;
+  const rowMul  =`<div class="mp-row">${cell('op',`<span class="mp-sign">×</span>`)}${cell('')}${cell('')}${cell('',`<span class="mp-digit">${q.numS}</span>`)}</div>`;
+  const rowLine =`<div class="mp-lrow">${cell('op')}<div class="mp-line"></div></div>`;
+  const hCell   = q.three ? cell('',mInp('mp-box',q.h,4)) : cell('');
+  const rowRes  =`<div class="mp-row">${cell('op')}${hCell}${cell('',mInp('mp-box',q.t,3))}${cell('',mInp('mp-box',q.u,1))}</div>`;
+  const posed   =`<div class="mp-op" id="mdMul">${rowCarry+rowTop+rowMul+rowLine+rowRes}</div>`;
+  $('mdHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('md1n','md1d')}<span class="f-times">×</span>${frac('md2n','md2d')}${fEq(frac('md3n','md3d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="mdDec" aria-label="résultat décimal"></math-field>`)}</div></div>`+
+    `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
+       <div class="pt-row" style="padding:8px 0 6px">${posed}</div>
+       <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`;
+  const posedIns=[...$('mdMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=[$('md1n'),$('md1d'),$('md2n'),$('md2d'),...posedIns,$('md3n'),$('md3d'),$('mdDec')];
+  /* la pose reste dans l'ordre de saisie : fractions, pose, produit, décimal */
+  order.forEach((el,i)=>{
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value&&i<order.length-1)order[i+1].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value&&i>0)order[i-1].focus(); });
+    }
+    el.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ev.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkMDAnswer();} });
+  });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkMDAnswer(live){
+  if(test.locked)return;
+  const soutien=isSoutien();
+  const q=test.questions[test.idx];
+  if(live){
+    liveColorFrac('md1n','md1d',q.fA.num,q.fA.den,true);
+    liveColorFrac('md2n','md2d',q.fB.num,q.fB.den,true);
+    [...$('mdMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    liveColorFrac('md3n','md3d',q.prodNum,q.prodDen,true);
+    liveColorDec('mdDec',q.prodNum,q.prodDen); return;
+  }
+  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const den=id=>{const t=v(id);return t===''?1:parseInt(t,10);};   // dénominateur vide = 1 (entier)
+  // étape 1 : deux fractions décimales (toute fraction égale acceptée)
+  const okA = v('md1n')!=='' && fracEqual(iv('md1n'),den('md1d'),q.fA.num,q.fA.den);
+  const okB = v('md2n')!=='' && fracEqual(iv('md2n'),den('md2d'),q.fB.num,q.fB.den);
+  // étape 2 : multiplication posée — résultat obligatoire, retenue facultative
+  const mulHost=$('mdMul');
+  const boxes=[...mulHost.querySelectorAll('.mp-box')];
+  const carries=[...mulHost.querySelectorAll('.mp-carry')];
+  let resultOk=true, carryOk=true;
+  boxes.forEach(el=>{
+    const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ resultOk=false; if(currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} } }
+  });
+  carries.forEach(el=>{
+    const exp=el.dataset.exp, vv=el.value.trim();
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.disabled=!soutien;
+    if(vv===''){return;}                       // retenue non écrite : ignorée
+    const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ carryOk=false; if(currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); } }
+  });
+  const okP = resultOk && carryOk;
+  // étape 3 : fraction produit (toute fraction égale au résultat)
+  const ok3 = v('md3n')!=='' && fracEqual(iv('md3n'),den('md3d'),q.prodNum,q.prodDen);
+  // étape 4 : forme décimale
+  const fr=parseDecToFrac(v('mdDec'));
+  const ok4 = !!fr && fr.n*q.prodDen===q.prodNum*fr.d;
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  marqueFracSaufVide('md1n','md1d',q.fA.num,q.fA.den,soutien); marqueFracSaufVide('md2n','md2d',q.fB.num,q.fB.den,soutien);
+  marqueFracSaufVide('md3n','md3d',q.prodNum,q.prodDen,soutien); marqueSaufVide('mdDec',ok4,soutien);
+  const allOk=okA&&okB&&okP&&ok3&&ok4;
+  if(!allOk && soutien){ soutienAgain('mdFeedback','mdActions','checkMDAnswer','mdHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('mdLiveScore').textContent=test.score;
+    $('mdFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('mdFeedback').className='mp-feedback good';
+  } else {
+    $('mdFeedback').textContent=`Réponse : ${q.fA.num}/${q.fA.den} × ${q.fB.num}/${q.fB.den} = ${q.prodNum}/${q.prodDen} = ${q.decStr} (toute fraction égale acceptée)`; $('mdFeedback').className='mp-feedback bad';
+    corTrainFrac('md1n','md1d',q.fA.num,q.fA.den); corTrainFrac('md2n','md2d',q.fB.num,q.fB.den);
+    corTrainFrac('md3n','md3d',q.prodNum,q.prodDen); corTrainDec('mdDec',q.decStr);
+  }
+  const given=v('mdDec')===''?null:v('mdDec').replace('.', ',');
+  test.answers.push({...(ptsExo()||{}),q:`${q.aStr} × ${q.bStr}`, answer:q.decStr, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('mdActions').innerHTML=`<button class="btn btn-primary" id="mdNext" onclick="nextMDQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('mdNext').focus();
+}
+function nextMDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderMDTest(); autoSave(); } else finishMultDec(); }
+async function finishMultDec(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-decimaux',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Test 6 : multiplier des décimaux qui commencent par 1 (pose en colonnes) ---------- */
+function uFactor(twoDigits){
+  const c=rand(1,9);
+  return twoDigits ? {num:10+c,den:10,str:'1,'+c} : {num:100+c,den:100,str:'1,0'+c};
+}
+function genU(){
+  // formes : deux nombres à 2 chiffres le plus souvent, mais 3 chiffres (et 3×3) toujours possibles
+  const r=Math.random();
+  let twoA,twoB;
+  if(r<0.62){ twoA=true; twoB=true; }                       // 2 chiffres × 2 chiffres (majoritaire)
+  else if(r<0.90){ twoA=pick([true,false]); twoB=!twoA; }   // un 2 chiffres, un 3 chiffres
+  else { twoA=false; twoB=false; }                          // 3 chiffres × 3 chiffres
+  const fA=uFactor(twoA), fB=uFactor(twoB);
+  const nA=fA.num, nB=fB.num;
+  let top,bot;                                          // le plus long (ou le plus grand) en haut, le plus court en bas
+  const dA=String(nA).length, dB=String(nB).length;
+  if(dA>dB || (dA===dB && nA>=nB)){ top=nA; bot=nB; } else { top=nB; bot=nA; }
+  const d=poseUDonnees(top,bot,nA*nB);
+  const prodDen=fA.den*fB.den;
+  return {fA,fB,nA,nB,top,bot,...d,prodDen, aStr:fA.str, bStr:fB.str, decStr:fracToDec(nA*nB,prodDen)};
+}
+async function startU(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='u';
+  test.questions=Array.from({length:6},genU);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('utest'); renderUTest();
+}
+function renderUTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('uqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagU').innerHTML=modeTagHTML();
+  $('uLiveScore').textContent=test.score;
+  $('uFeedback').textContent=''; $('uFeedback').className='mp-feedback';
+  $('uActions').innerHTML='<button class="btn btn-primary" onclick="checkUAnswer()">Vérifier</button>';
+  $('uPrompt').innerHTML=`Calcule <b>${esc(q.aStr)} × ${esc(q.bStr)}</b> en suivant les étapes :`;
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  // étape 2 : multiplication posée en colonnes (top × bot)
+  const posed=buildPoseU(q,'uMul','u');
+  $('uHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('u1n','u1d')}<span class="f-times">×</span>${frac('u2n','u2d')}${fEq(frac('u3n','u3d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="uDec" aria-label="résultat décimal"></math-field>`)}</div></div>`+
+    `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs, le plus court en bas <span style="font-weight:600;color:var(--red)">(retenues facultatives)</span></div>
+       <div class="pt-row" style="padding:6px 0 6px">${posed}</div>
+       <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`;
+  const collect=(pref,V)=>{ const a=[],L=String(V).length; for(let j=0;j<L;j++)a.push($(pref+j)); return a; };
+  const order=[$('u1n'),$('u1d'),$('u2n'),$('u2d'),...collect('ua',q.v1),...collect('ub',q.v2),...collect('us',q.prodNum),$('u3n'),$('u3d'),$('uDec')];
+  order.forEach((el,i)=>{
+    if(el.classList.contains('mp-box')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value&&i<order.length-1)order[i+1].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value&&i>0)order[i-1].focus(); });
+    }
+    el.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ev.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkUAnswer();} });
+  });
+  [...$('uMul').querySelectorAll('.mp-carry')].forEach(el=>{ el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); }); });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkUAnswer(live){
+  if(test.locked)return;
+  const soutien=isSoutien();
+  const q=test.questions[test.idx];
+  if(live){
+    liveColorFrac('u1n','u1d',q.fA.num,q.fA.den,true);
+    liveColorFrac('u2n','u2d',q.fB.num,q.fB.den,true);
+    [...$('uMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    liveColorFrac('u3n','u3d',q.prodNum,q.prodDen,true);
+    liveColorDec('uDec',q.prodNum,q.prodDen); return;
+  }
+  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const den=id=>{const t=v(id);return t===''?1:parseInt(t,10);};
+  // étape 1 : deux fractions décimales (toute fraction égale acceptée)
+  const okA = v('u1n')!=='' && fracEqual(iv('u1n'),den('u1d'),q.fA.num,q.fA.den);
+  const okB = v('u2n')!=='' && fracEqual(iv('u2n'),den('u2d'),q.fB.num,q.fB.den);
+  // étape 2 : multiplication posée — toutes les cases chiffres doivent être justes
+  const mulHost=$('uMul');
+  const boxes=[...mulHost.querySelectorAll('.mp-box')];
+  let resultOk=true;
+  boxes.forEach(el=>{
+    const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ resultOk=false; if(currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} } }
+  });
+  // retenues : facultatives — ignorées si vides, mais justes si écrites
+  const carries=[...mulHost.querySelectorAll('.mp-carry')];
+  let carryOk=true;
+  carries.forEach(el=>{
+    const exp=el.dataset.exp, vv=el.value.trim();
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.disabled=!soutien;
+    if(vv===''){return;}
+    const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ carryOk=false; if(currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); } }
+  });
+  const okP=resultOk&&carryOk;
+  // étape 3 : fraction produit (toute fraction égale)
+  const ok3 = v('u3n')!=='' && fracEqual(iv('u3n'),den('u3d'),q.prodNum,q.prodDen);
+  // étape 4 : forme décimale
+  const fr=parseDecToFrac(v('uDec'));
+  const ok4 = !!fr && fr.n*q.prodDen===q.prodNum*fr.d;
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  marqueFracSaufVide('u1n','u1d',q.fA.num,q.fA.den,soutien); marqueFracSaufVide('u2n','u2d',q.fB.num,q.fB.den,soutien);
+  marqueFracSaufVide('u3n','u3d',q.prodNum,q.prodDen,soutien); marqueSaufVide('uDec',ok4,soutien);
+  const allOk=okA&&okB&&okP&&ok3&&ok4;
+  if(!allOk && soutien){ soutienAgain('uFeedback','uActions','checkUAnswer','uHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('uLiveScore').textContent=test.score;
+    $('uFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('uFeedback').className='mp-feedback good';
+  } else {
+    $('uFeedback').textContent=`Réponse : ${q.fA.num}/${q.fA.den} × ${q.fB.num}/${q.fB.den} = ${q.prodNum}/${q.prodDen} = ${q.decStr}`; $('uFeedback').className='mp-feedback bad';
+    corTrainFrac('u1n','u1d',q.fA.num,q.fA.den); corTrainFrac('u2n','u2d',q.fB.num,q.fB.den);
+    corTrainFrac('u3n','u3d',q.prodNum,q.prodDen); corTrainDec('uDec',q.decStr);
+  }
+  const given=v('uDec')===''?null:v('uDec').replace('.', ',');
+  test.answers.push({...(ptsExo()||{}),q:`${q.aStr} × ${q.bStr}`, answer:q.decStr, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('uActions').innerHTML=`<button class="btn btn-primary" id="uNext" onclick="nextUQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('uNext').focus();
+}
+function nextUQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderUTest(); autoSave(); } else finishU(); }
+async function finishU(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-dec-un',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* Sur l'exercice DES TABLES, la fenêtre des tables devient une antisèche : elle
+   s'y referme dès que l'élève revient à son calcul (comme en Première). */
+const TABLES_REFERME=['scr-tm'];
+function tablesRetourExercice(e){
+  if(!tablesOuvertes()) return;
+  const ec=document.querySelector('.screen.on');
+  if(!ec || TABLES_REFERME.indexOf(ec.id)<0) return;
+  const ov=$('tablesOverlay');
+  if(ov && ov.contains(e.target)) return;
+  if(e.target && e.target.closest && e.target.closest('.tables-btn')) return;
+  fermerTables();
+}
+document.addEventListener('pointerdown', tablesRetourExercice, true);
+document.addEventListener('focusin',     tablesRetourExercice, true);
+/* Les exercices de rapidité (calcul mental, tables) n'ont PAS d'aide : une fenêtre
+   y fausserait la mesure. Seul le bouton des tables reste. */
+const IA_ECRANS_SANS=['scr-test','scr-tm'];
 /* ---------- Test 4 : pourcentage d'un nombre (méthode en 3 étapes) ---------- */
 /* ============ Énoncés : plusieurs façons de dire la même chose ============
    Une même question peut se formuler de plusieurs manières ; un élève qui n'entend
@@ -21282,10 +23080,10 @@ async function enregistrerResultat(payload){
    réécrit. */
 function iaBoutons(scr){
   const s=scr||document.querySelector('.screen.on'); if(!s) return;
-  const act=s.querySelector('[id$="Actions"]'); if(!act) return;
+  const act=s.querySelector('[id$="Actions"]') || s.querySelector('.answer-zone'); if(!act) return;
   let row=s.querySelector('.ia-row');
   if(!row){ act.insertAdjacentHTML('afterend','<div class="ia-row"></div>'); row=s.querySelector('.ia-row'); }
-  row.innerHTML=conseilInlineBtn();
+  row.innerHTML=(IA_ECRANS_SANS.indexOf(s.id)>=0) ? tablesBtnHTML() : conseilInlineBtn();
 }
 /* Ce que le modèle sait d'un exercice de pourcentages : la même description
    qu'en Première — les réponses attendues, déclarées secrètes, la méthode, et
@@ -21327,7 +23125,7 @@ function ctxEcranPct(){
   if(fb) out.push('Dernier retour affiché : « '+fb+' »');
   return out.join(' | ');
 }
-const PCT_KINDS={pct:1,pctq:1,psl:1,sal:1,aug:1,augq:1,dim:1,fp:1,pcol:1,ag2:1,ag2q:1,psyn:1,bs:1,lc:1,ck:1,ac:1,hs:1,hsc:1};
+const PCT_KINDS={mp:1,md:1,u:1,fracp:1,asp:1,tm:1,pct:1,pctq:1,psl:1,sal:1,aug:1,augq:1,dim:1,fp:1,pcol:1,ag2:1,ag2q:1,psyn:1,bs:1,lc:1,ck:1,ac:1,hs:1,hsc:1};
 function ctxPourcentages(){
   const q=(test && test.questions && test.questions[test.idx]) || null;
   const k=(test && test.kind) || '';
@@ -21496,6 +23294,30 @@ function ctxPourcentages(){
       +'L\u2019\u00e9l\u00e8ve a colori\u00e9 '+(q.selL||0)+' part(s) \u00e0 gauche et '+(q.selR||0)+' \u00e0 droite. '
       +'M\u00e9thode enseign\u00e9e : compter les parts, trouver ce que vaut UNE part (le total divis\u00e9 par '+PCOL_PARTS+'), puis multiplier. '
       +'Ne donne jamais le r\u00e9sultat : fais compter les parts, ou demander ce que vaut une part.';
+
+  } else if(k==='mp' && q){
+    att='Multiplication posée : '+q.a+' × '+q.m+'. Réponses attendues, STRICTEMENT SECRÈTES : retenue '+q.carry1+', résultat '+q.result+'. '
+      +'Méthode : multiplier d’abord les unités, écrire le chiffre des unités du produit et retenir les dizaines, puis multiplier les dizaines et AJOUTER la retenue. La case de retenue est facultative, mais si elle est écrite elle doit être juste.';
+  } else if(k==='md' && q){
+    att='Produit de décimaux : '+q.aStr+' × '+q.bStr+'. Réponses attendues, STRICTEMENT SECRÈTES : multiplication posée des numérateurs '
+      +q.numD+' × '+q.numS+' = '+q.prodNum+' (retenue '+q.carry1+') ; dénominateur '+q.prodDen+' ; résultat décimal '+q.decStr+'. '
+      +'Méthode : écrire chaque décimal en fraction décimale, multiplier les numérateurs entre eux et les dénominateurs entre eux, puis replacer la virgule.';
+  } else if(k==='u' && q){
+    att='Produit : '+q.aStr+' × '+q.bStr+'. Réponses attendues, STRICTEMENT SECRÈTES : produits partiels '+q.v1+' et '+q.v2
+      +' (le second décalé de '+q.s+' rang'+(q.s>1?'s':'')+'), produit des numérateurs '+q.prodNum+', dénominateur '+q.prodDen+', résultat '+q.decStr+'. '
+      +'Méthode : multiplier par le chiffre des unités, puis par le 1 de tête (ce qui revient à recopier le nombre) en décalant, additionner, puis replacer la virgule.';
+  } else if(k==='fracp' && q){
+    att='Question : '+(q.qtext||'')+'. Réponse attendue, STRICTEMENT SECRÈTE : '+(q.atext||'')+'. '
+      +'Méthode : diviser par 10, 100 ou 1000 décale la virgule de 1, 2 ou 3 rangs vers la gauche ; inversement, le nombre de chiffres après la virgule donne le dénominateur.';
+  } else if(currentTestId==='addition-soustraction' && q){
+    att='Op\u00e9ration POS\u00c9E en colonnes : '+q.text+'. R\u00e9ponse attendue, STRICTEMENT SECR\u00c8TE : '+q.answer+'. '
+      +'L\u2019\u00e9l\u00e8ve remplit les cases du r\u00e9sultat, colonne par colonne en partant des unit\u00e9s ; '
+      +'les cases de retenue sont facultatives. Il y a TOUJOURS une retenue dans cet exercice. '
+      +'M\u00e9thode : \u00e0 l\u2019addition, la retenue s\u2019\u00e9crit au-dessus de la colonne o\u00f9 elle s\u2019ajoute ; '
+      +'\u00e0 la soustraction, on ajoute 10 en haut et on compense par +1 \u00e0 la colonne suivante du BAS. '
+      +'Ne donne jamais le r\u00e9sultat : oriente sur la colonne o\u00f9 \u00e7a bloque.';
+  } else if(k==='tm' && q){
+    att='Exercice de rapidité sur les tables de multiplication : '+TM_SECONDES+' secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';
   }
   const ec=ctxEcranPct();
   return 'Exercice '+(num?num+' — ':'')+nom+'. '+att+(ec?(' État actuel de l’écran : '+ec+'.'):'')
@@ -32467,7 +34289,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -32480,7 +34302,7 @@ function pmJetons(scr){
 /* Les écrans de pourcentages portés de la Première : leur rangée d'aide se pose
    après chaque rendu, comme là-bas (iaBoutons). */
 (function(){
-  ['renderPTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest'].forEach(function(n){
+  ['renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest'].forEach(function(n){
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments); try{ iaBoutons(); }catch(e){} return r; };
   });

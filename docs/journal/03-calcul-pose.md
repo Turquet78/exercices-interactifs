@@ -56,3 +56,44 @@ sabotages, chacun rougissant en nommant son défaut.
 Les colonnes de cet exercice sont plus larges (`--asp-col`, 78 px mesurés) :
 il faut la place d'écrire une marque DEVANT le chiffre sans la poser dessus. La
 largeur vit à un seul endroit, le trait la relit.
+
+---
+
+## Le thème « Calcul mental » porté en Seconde (septembre 2026)
+
+**« Transfère aussi de la Première à la Seconde le thème 1, calcul mental »**
+(demande de Turquet, septembre 2026, le jour même du portage des
+pourcentages). Huit exercices : additions et soustractions posées, les deux
+séances de tables, le calcul mental chronométré, la multiplication posée, le
+parcours des fractions décimales et les deux multiplications de décimaux.
+**Il ouvre le menu, comme en Première** — c'était le choix de Turquet — : les
+cinq thèmes de la Seconde prennent un numéro de plus (Pourcentages 4, Python
+6…). Les notes n'en souffrent pas, elles portent l'IDENTIFIANT. Les quinze
+contrôles du thème Python, qui prenaient la numérotation des autres thèmes
+pour témoin, suivent (6.1.1, 4.1.3, 5.1).
+**{somme-fractions} n'a pas suivi** : la Seconde l'a déjà, dans son thème des
+fractions, et un identifiant ne vit que dans un thème — le menu, le tableau du
+professeur et le total d'un devoir se construisent tous depuis `THEMES`.
+
+Même méthode que les pourcentages (`10-premiere-pourcentages.md`) : un script,
+par plages de lignes, chaque ancre vérifiée. Ce qui était déjà en Seconde à
+l'identique n'est pas recopié (`isPow10`, `parseDecToFrac`, `fracEqual`, les
+couleurs en direct, la pose des hausses successives) ; ce qui y existait
+AUTREMENT garde la version de la Seconde — `finishTest()`, qui enregistre sous
+`currentTestId`, et `showResults()`.
+
+**Quatre choses que la Seconde n'avait pas, et qui sont venues avec.**
+* *Les réglages du calcul mental* (opérations, bornes, nombre de questions) :
+  la Seconde n'a pas d'écran pour les changer, `DEFAULT_CFG` porte donc les
+  valeurs par défaut de la Première.
+* *Les écrans de rapidité sans aide.* Le calcul mental et les tables n'ont que
+  le bouton des tables (`IA_ECRANS_SANS`), et la fenêtre des tables se referme
+  dès que l'élève revient à son calcul sur l'exercice DES tables
+  (`TABLES_REFERME`) — le bord que le profil de la Seconde déclarait jusque-là
+  « non applicable », faute d'exercice de rapidité, et qu'il exige désormais.
+* *Les tables de niveau 2* relisent l'historique des séances de l'élève :
+  dans `resultats_2nde`, évidemment.
+* *La pause garde les cases SANS identifiant* — les chiffres d'une opération
+  posée, ses retenues — par leur rang dans l'écran, comme en Première. En
+  Seconde elles se perdaient, et les poses des pourcentages portés le matin
+  même en souffraient déjà.
