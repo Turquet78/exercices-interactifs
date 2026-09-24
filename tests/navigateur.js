@@ -12513,6 +12513,47 @@ async function parcours(page, N){
         verifier('« ' + KL.versA + ' » ramène les chiffres depuis le clavier C',
           !!retour && retour.cinq && !retour.a,
           !versA ? 'aucune touche « ' + KL.versA + ' » sur le clavier C' : 'la couche rendue n\'est pas le clavier A');
+        /* LES AUTRES TÉMOINS — les zones de rédaction du TVI (3.3, 3.4), devenues
+           des feuilles de rédaction pour recevoir le clavier C. Sur chacun : la
+           feuille est là, « clavier C » aussi, un mot se tape avec, et les boutons
+           ∞ α ∈ de l'écran écrivent dans la ligne — relue par le chemin du juge,
+           exactement ce que l'IA recevra. */
+        for(const autre of KL.exercices.slice(1)){
+          await s.page.evaluate(() => { try{ const vk = window.mathVirtualKeyboard; if(vk) vk.hide(); }catch(e){} });
+          await s.page.evaluate(i => openTest(i), autre);
+          await s.page.waitForTimeout(300);
+          await s.page.evaluate(() => {
+            const b = [...document.querySelectorAll('#modeChoices button')]
+              .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+            if(b) b.click();
+          });
+          await s.page.waitForTimeout(900);
+          const ici = await s.page.evaluate(q => !!document.querySelector(q), champ);
+          let bilan = null;
+          if(ici){
+            await s.page.click(champ); await s.page.waitForTimeout(700);
+            await s.page.evaluate(() => { const vk = window.mathVirtualKeyboard; if(vk && !vk.visible) vk.show(); });
+            await s.page.waitForTimeout(600);
+            /* le clavier garde sa couche d'un exercice à l'autre : s'il montre
+               déjà les lettres (on quitte le précédent sur le clavier C), on tape */
+            const dejaC = !!(await touche('a')) && !(await touche('5'));
+            const vc = dejaC ? true : await touche(KL.versC);
+            if(vc){
+              if(!dejaC){ await s.page.mouse.click(vc.x, vc.y); await s.page.waitForTimeout(400); }
+              for(const t of ['s', 'u', 'r']){ const k = await touche(t); if(k){ await s.page.mouse.click(k.x, k.y); await s.page.waitForTimeout(120); } }
+            }
+            const boutons = (KL.symboles && KL.symboles[autre]) || [];
+            for(const b of boutons){ await s.page.click(b); await s.page.waitForTimeout(150); }
+            bilan = { vc: !!vc, lu: await s.page.evaluate(q => { const mf = document.querySelector(q);
+              try{ return window.mlDexp.toPlain(mf.getValue()); }catch(e){ return 'illisible : ' + e.message; } }, champ) };
+          }
+          const attendu = 'sur' + ((KL.symboles && KL.symboles[autre]) ? KL.symboles.relu : '');
+          verifier('« ' + autre + ' » : clavier C, et la ligne se relit « ' + attendu + ' »',
+            !!bilan && bilan.vc && String(bilan.lu).replace(/\s+/g, '') === attendu,
+            !ici ? 'aucune feuille de rédaction (math-field.mf-mots) sur l\'écran'
+              : !bilan.vc ? 'aucune touche « ' + KL.versC + ' » sur le clavier rendu'
+              : 'la ligne se relit « ' + bilan.lu + ' »');
+        }
         verifier('le clavier C ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }

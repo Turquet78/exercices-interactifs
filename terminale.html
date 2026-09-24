@@ -970,8 +970,6 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .tvi-sel:disabled{opacity:1;}
 
 /* --- Test TVI rédigé : zone de saisie + analyse de la justification --- */
-.tvi-textarea{width:100%;box-sizing:border-box;font-family:'Nunito',sans-serif;font-size:1rem;line-height:1.55;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:12px;padding:12px 14px;resize:vertical;min-height:118px;}
-.tvi-textarea:focus{outline:none;border-color:var(--blue);background:var(--surface);}
 .tvi-check{margin:14px 0 4px;display:flex;flex-direction:column;gap:6px;}
 .just-item{font-size:.93rem;line-height:1.35;display:flex;gap:9px;align-items:flex-start;}
 .just-item span{font-weight:800;flex:none;}
@@ -1956,8 +1954,9 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="tvi2Prompt"></p>
       <div class="tvi-table" id="tvi2Table"></div>
       <p class="tvi-instr">Rédige la justification :</p>
-      <div class="tvi-tools"><button type="button" class="btn btn-ghost tvi-inf" id="tvi2InfBtn" onclick="tvi2Insert('∞')" title="Insérer ∞ — tapez « inf » puis un espace ou une ponctuation, ou Ctrl + I (⌘ + I sur Mac)">∞</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi2AlphaBtn" onclick="tvi2Insert('α')" title="Insérer α — tapez « alp » puis un espace ou une ponctuation, ou Ctrl + B (⌘ + B sur Mac)">α</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi2AppBtn" onclick="tvi2Insert('∈')" title="Insérer ∈ (appartient) — tapez « app » puis un espace ou une ponctuation">∈</button><span class="muted">tapez inf / alp / app puis espace → ∞ / α / ∈</span></div>
-      <textarea class="tvi-textarea" id="tvi2Input" rows="5" placeholder="Explique pourquoi l'équation admet une unique solution (f varie de … à …, continuité, strictement croissante ou décroissante, unique solution…)" autocomplete="off"></textarea>
+      <div class="tvi-tools"><button type="button" class="btn btn-ghost tvi-inf" id="tvi2InfBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi2','\\infty')" title="Insérer ∞ — ou tape « inf » au clavier">∞</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi2AlphaBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi2','\\alpha')" title="Insérer α">α</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi2AppBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi2','\\in')" title="Insérer ∈ (appartient)">∈</button><span class="muted">au clavier : <b>inf</b> → ∞, <b>va</b> → flèche</span></div>
+      <div class="dexp2-sheet" id="tvi2Sheet"></div>
+      <p class="dexp-hint">Une ligne par idée : <b>Entrée</b> passe à la ligne suivante.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
       <div class="tvi-check" id="tvi2Check"></div>
       <div class="mp-feedback" id="tvi2Feedback"></div>
       <div class="mp-actions" id="tvi2Actions"></div>
@@ -1974,8 +1973,9 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="tvi3Prompt"></p>
       <div class="tvi-table" id="tvi3Table"></div>
       <p class="tvi-instr">Rédige ton explication :</p>
-      <div class="tvi-tools"><button type="button" class="btn btn-ghost tvi-inf" id="tvi3InfBtn" onclick="tvi3Insert('∞')" title="Insérer ∞ — tapez « inf » puis un espace ou une ponctuation, ou Ctrl + I (⌘ + I sur Mac)">∞</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AlphaBtn" onclick="tvi3Insert('α')" title="Insérer α — tapez « alp » puis un espace ou une ponctuation, ou Ctrl + B (⌘ + B sur Mac)">α</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AppBtn" onclick="tvi3Insert('∈')" title="Insérer ∈ (appartient) — tapez « app » puis un espace ou une ponctuation">∈</button><span class="muted">tapez inf / alp / app puis espace → ∞ / α / ∈</span></div>
-      <textarea class="tvi-textarea" id="tvi3Input" rows="4" placeholder="Explique pourquoi on ne peut pas appliquer le TVI ici (encadrement de la valeur cherchée, stricte monotonie, continuité / valeur interdite…)" autocomplete="off"></textarea>
+      <div class="tvi-tools"><button type="button" class="btn btn-ghost tvi-inf" id="tvi3InfBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi3','\\infty')" title="Insérer ∞ — ou tape « inf » au clavier">∞</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AlphaBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi3','\\alpha')" title="Insérer α">α</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AppBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi3','\\in')" title="Insérer ∈ (appartient)">∈</button><span class="muted">au clavier : <b>inf</b> → ∞, <b>va</b> → flèche</span></div>
+      <div class="dexp2-sheet" id="tvi3Sheet"></div>
+      <p class="dexp-hint">Une ligne par idée : <b>Entrée</b> passe à la ligne suivante.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
       <div class="mp-feedback" id="tvi3Feedback"></div>
       <div class="mp-actions" id="tvi3Actions"></div>
     </div>
@@ -2953,7 +2953,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=338;
+const APP_VERSION=339;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3806,7 +3806,7 @@ function conseilCtxCourant(){
   } else if(test && test.kind==='tvi2' && test.questions && test.questions[test.idx]){
     /* ---- 3.3 rédaction TVI : criteres du bareme + texte en cours ---- */
     const q=test.questions[test.idx];
-    const txt=($('tvi2Input')&&$('tvi2Input').value||'').trim().slice(0,900);
+    const txt=tviLire('tvi2').trim().slice(0,900);
     const iv=tvi2Intervalle(q);
     c="Exercice de RÉDACTION : démontrer que l'équation "+q.fname+"("+q.v+") = "+q.kL+" admet une unique solution sur "+iv+". "
      +"Données vraies : "+q.fname+" est continue sur "+iv+", strictement "+q.sens+", et varie de "+q.vGL+" à "+q.vDL+". "
@@ -3818,7 +3818,7 @@ function conseilCtxCourant(){
   } else if(test && test.kind==='tvi3' && test.questions && test.questions[test.idx]){
     /* ---- 3.4 contre-exemples TVI : rédaction courte ; l'IA guide sans donner la phrase ---- */
     const q=test.questions[test.idx];
-    const txt=($('tvi3Input')&&$('tvi3Input').value||'').trim().slice(0,600);
+    const txt=tviLire('tvi3').trim().slice(0,600);
     const dsc=tvi3TableTexte(q);
     const attendu=(q.raison==='horsbornes')?(q.kL+' n’est pas compris entre '+q.vGL+' et '+q.vDL)
       :(q.raison==='nonmonotone')?(q.fname+' n’est pas strictement monotone : l’équation '+q.fname+'('+q.v+') = '+q.kL+' admet DEUX solutions')
@@ -6680,14 +6680,13 @@ function renderTVI3(){
   const vi=(c.shape==='saut')?` (${c.v} = ${c.cLabel} est une valeur interdite)`:'';
   $('tvi3Prompt').innerHTML=`Soit <i>${c.fname}</i> définie sur ${esc(tvi3Intervalle(c))}${vi}, dont le tableau de variation est donné ci-dessous. Explique pourquoi le TVI ne permet <b>pas</b> d’affirmer que l’équation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution.`;
   $('tvi3Table').innerHTML=tvi3SVG(c);
-  const ta=$('tvi3Input'); ta.value=''; ta.disabled=false;
+  tviFeuilles.tvi3=mlFeuille({ conteneur:'tvi3Sheet', mode:'redaction' });   /* le clavier C (les lettres) s'y ouvre, comme au 3.5 */
   ['tvi3InfBtn','tvi3AlphaBtn','tvi3AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=false; });
-  setTimeout(()=>ta.focus(),60);
 }
 let tvi3Busy=false;
 async function checkTVI3(){
   if(test.locked||tvi3Busy) return;
-  const c=test.questions[test.idx], raw=$('tvi3Input').value;
+  const c=test.questions[test.idx], raw=tviLire('tvi3');
   if(raw.trim().length<5){ toast('Écris ton explication d’abord'); return; }
   if(tvi2CopieConseil(raw)){
     $('tvi3Feedback').textContent='On dirait le texte du conseil recopié tel quel. Le conseil te dit QUOI regarder — à toi de rédiger l’explication avec tes propres mots, en lisant le tableau. Cette tentative n’est pas comptée.';
@@ -6727,7 +6726,7 @@ async function checkTVI3(){
   } else {
     $('tvi3Feedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas la bonne explication. ')+'Une réponse correcte :<div class="tvi-model">'+esc(tvi3Model(c))+'</div>';
     $('tvi3Feedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
-    $('tvi3Input').disabled=true;
+    if(tviFeuilles.tvi3) tviFeuilles.tvi3.verrouiller();
     ['tvi3InfBtn','tvi3AlphaBtn','tvi3AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=true; });
   }
   test.answers.push({...(ptsExo()||{}),q:'Explication : '+c.fname+'('+c.v+') = '+c.kL+' sur '+tvi3Intervalle(c)+' — attendu : '+tvi3RaisonTexte(c), answer:'explication', given:correct?'✓':'incomplet', correct:correct, type:'tvi'});
@@ -6879,6 +6878,7 @@ function mlFeuille(opts){
     if(window.mlDexp) window.mlDexp.upgrade(L.line);   /* clavier Terminale + correctifs communs */
     if(mode==='redaction'){ try{ L.mf.mathModeSpace='\\;'; }catch(e){} }   /* barre d'espace = vraie espace */
     L.mf.addEventListener('input', ()=>tenirCurseur(L.mf));
+    L.mf.addEventListener('focusin', ()=>{ F.derniere=L.mf; });   /* la ligne où un bouton de symbole écrit */
     function ajouterApres(){ const now=Date.now(); if(L.lastAdd && now-L.lastAdd<350) return; L.lastAdd=now; F.ajouterLigne(F.lignes.indexOf(L)); }
     L.mf.addEventListener('change', ()=>{ if(L.mf.hasFocus && L.mf.hasFocus()) ajouterApres(); });
     L.mf.addEventListener('keydown', (e)=>{
@@ -8928,9 +8928,8 @@ function renderTVI2(){
   $('tvi2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI2()">V\u00e9rifier ma justification</button>';
   $('tvi2Prompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur ${esc(tvi2Intervalle(c))}.`;
   $('tvi2Table').innerHTML=tviSVG(c);
-  const ta=$('tvi2Input'); ta.value=''; ta.disabled=false;
+  tviFeuilles.tvi2=mlFeuille({ conteneur:'tvi2Sheet', mode:'redaction' });   /* le clavier C (les lettres) s'y ouvre, comme au 3.5 */
   ['tvi2InfBtn','tvi2AlphaBtn','tvi2AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=false; });
-  setTimeout(()=>ta.focus(),60);
 }
 /* Intervalle d'énoncé du 3.3 : celui de la question ; « \u211d » quand les deux bornes sont infinies. */
 function tvi2Intervalle(c){
@@ -8957,7 +8956,7 @@ function tvi2CopieConseil(raw){
 let tvi2Busy=false;
 async function checkTVI2(){
   if(test.locked||tvi2Busy) return;
-  const c=test.questions[test.idx], raw=$('tvi2Input').value;
+  const c=test.questions[test.idx], raw=tviLire('tvi2');
   if(raw.trim().length<10){ toast('\u00c9cris ta justification d\u2019abord'); return; }
   if(tvi2CopieConseil(raw)){
     $('tvi2Feedback').textContent='On dirait le texte du conseil recopi\u00e9 tel quel. Le conseil te dit QUOI \u00e9crire \u2014 \u00e0 toi de le r\u00e9diger avec tes propres mots, en lisant les valeurs dans le tableau. Cette tentative n\u2019est pas compt\u00e9e.';
@@ -9008,7 +9007,7 @@ async function checkTVI2(){
   } else {
     $('tvi2Feedback').innerHTML=(fbHTML?fbHTML+'<br>':'Il manque des arguments requis. ')+'Une justification correcte :<div class="tvi-model">'+esc(modelJustif(c))+'</div>';
     $('tvi2Feedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
-    $('tvi2Input').disabled=true;
+    if(tviFeuilles.tvi2) tviFeuilles.tvi2.verrouiller();
     ['tvi2InfBtn','tvi2AlphaBtn','tvi2AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=true; });
   }
   test.answers.push({...(ptsExo()||{}),q:`R\u00e9daction : ${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:allOk?'\u2713':'incompl\u00e8te', correct:allOk, type:'tvi'});
@@ -9016,57 +9015,20 @@ async function checkTVI2(){
   $('tvi2Actions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI2()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
 }
 function nextTVI2(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI2(); } else finishTest(); }
-/* Boutons de symboles du 3.3 : insertion à la position du curseur, en préservant
-   l'annulation (Ctrl+Z) quand le navigateur le permet, sinon repli setRangeText + input. */
-function tviInsertIn(taId, ch){
-  const ta=$(taId); if(!ta||ta.disabled) return;
-  ta.focus();
-  let done=false;
-  try{ done=document.execCommand && document.execCommand('insertText', false, ch); }catch(e){ done=false; }
-  if(done) return;
-  const st=(ta.selectionStart!=null?ta.selectionStart:ta.value.length), en=(ta.selectionEnd!=null?ta.selectionEnd:st);
-  ta.setRangeText(ch, st, en, 'end');
-  ta.dispatchEvent(new Event('input',{bubbles:true}));
+/* Les zones de rédaction du 3.3 et du 3.4 sont des FEUILLES de rédaction (mlFeuille,
+   comme au 3.5) — demande de Turquet (septembre 2026) : « mets aussi le clavier C dans
+   les zones de texte du TVI ». Un <textarea> ne peut pas porter le clavier C, qui est une
+   couche du clavier MathLive : sur tablette, le clavier du SYSTÈME s'ouvrait là, sans ∞
+   ni ∈. Les boutons ∞ α ∈ écrivent dans la ligne en cours (la dernière touchée) ;
+   « inf » au clavier donne ∞ par la liste blanche de la feuille. La réponse relue est
+   le texte clair de toutes les lignes (F.lire, via toPlain), une ligne par idée. */
+const tviFeuilles={ tvi2:null, tvi3:null };
+function tviLire(k){ const F=tviFeuilles[k]; try{ return F ? String(F.lire()||'') : ''; }catch(e){ return ''; } }
+function tviSymbole(k, latex){
+  const F=tviFeuilles[k]; if(!F || !F.lignes.length || test.locked) return;
+  const L=F.lignes.find(x=>x.mf===F.derniere) || F.lignes[F.lignes.length-1];
+  try{ L.mf.focus(); L.mf.executeCommand(['insert', latex]); }catch(e){}
 }
-function tvi2Insert(ch){ tviInsertIn('tvi2Input', ch); }
-function tvi3Insert(ch){ tviInsertIn('tvi3Input', ch); }
-/* Raccourcis quand la zone de rédaction a le focus : Ctrl+I → ∞, Ctrl+B → α (⌘ sur Mac).
-   Ni Ctrl+I ni Ctrl+B n'ont d'action par défaut dans un textarea — interception sans rien casser.
-   (Ctrl+A reste la sélection de tout le texte, on n'y touche pas.) */
-const TVI2_KEYS={ i:'\u221e', b:'\u03b1' };
-/* Expansion à la frappe : « inf » / « alp » / « app » tapés comme MOT ENTIER puis suivis d'un espace,
-   d'une ponctuation ou d'un retour à la ligne deviennent ∞ / α (la frontière tapée est conservée).
-   Le déclenchement n'a lieu QUE sur la frontière : « infini », « inférieur »… restent intacts,
-   et un token collé à un mot (« binf ») n'est pas transformé. Le collage est ignoré. */
-const TVI2_TOKENS={ inf:'\u221e', alp:'\u03b1', app:'\u2208' };
-function tvi2AutoSymbol(e){
-  const ta=e.target; if(!ta||ta.disabled) return;
-  let bc=null;
-  if(e.inputType==='insertLineBreak') bc='\n';
-  else if(e.inputType==='insertText' && typeof e.data==='string' && /^[ \u00a0.,;:!?)\]]$/.test(e.data)) bc=e.data;
-  if(bc===null) return;
-  const pos=ta.selectionStart; if(pos==null) return;
-  const before=ta.value.slice(0,pos);
-  const m=/(^|[^A-Za-z\u00c0-\u00ff])(inf|alp|app)([ \u00a0.,;:!?)\]\n])$/i.exec(before);
-  if(!m) return;
-  const sym=TVI2_TOKENS[m[2].toLowerCase()];
-  const start=pos-m[2].length-1;
-  ta.setSelectionRange(start,pos);
-  let done=false;
-  try{ done=document.execCommand && document.execCommand('insertText', false, sym+m[3]); }catch(err){ done=false; }
-  if(!done){
-    ta.setRangeText(sym+m[3], start, pos, 'end');
-    ta.dispatchEvent(new Event('input',{bubbles:true}));
-  }
-}
-document.addEventListener('input', e=>{ if(e.target && (e.target.id==='tvi2Input'||e.target.id==='tvi3Input')) tvi2AutoSymbol(e); });
-document.addEventListener('keydown', e=>{
-  const ch=TVI2_KEYS[String(e.key).toLowerCase()];
-  if(ch && (e.ctrlKey||e.metaKey) && !e.altKey && !e.shiftKey
-     && document.activeElement && (document.activeElement.id==='tvi2Input'||document.activeElement.id==='tvi3Input')){
-    e.preventDefault(); tviInsertIn(document.activeElement.id, ch);
-  }
-});
 
 /* ====================== TEST : Dérivée d'un produit (polynôme × exponentielle) ====================== */
 function expCore(k){ return k===1 ? 'x' : (k===-1 ? '\u2212x' : numFmt(k)+'x'); }
@@ -23371,7 +23333,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ'];
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -24053,7 +24015,7 @@ function toPlain(latex){
      argument reste : les accolades tombent plus bas. */
   s = s.replace(/\\(?:leqslant|leq|le)(?![a-zA-Z])/g, "≤").replace(/\\(?:geqslant|geq|ge)(?![a-zA-Z])/g, "≥");
   s = s.replace(/\\(?:boldsymbol|mathbf|mathrm|mathbb|mathit|mathsf|mathcal|mathfrak|mathscr|textbf|textit|text)(?![a-zA-Z])/g, "");
-  s = s.replace(/\\longrightarrow|\\rightarrow|\\to(?![a-zA-Z])/g, "\u2192").replace(/\\infty/g, "\u221e").replace(/\\int(?![a-zA-Z])/g, "\u222b").replace(/\\lim(?![a-zA-Z])/g, "lim").replace(/\\in(?![a-zA-Z])/g, "\u2208");
+  s = s.replace(/\\longrightarrow|\\rightarrow|\\to(?![a-zA-Z])/g, "\u2192").replace(/\\infty/g, "\u221e").replace(/\\alpha(?![a-zA-Z])/g, "\u03b1").replace(/\\int(?![a-zA-Z])/g, "\u222b").replace(/\\lim(?![a-zA-Z])/g, "lim").replace(/\\in(?![a-zA-Z])/g, "\u2208");
   s = s.replace(/\\[,;:]|\\ |~/g, "\u0001").replace(/\\!/g, "");   /* espaces LaTeX -> marqueur, restaure en une espace apres le nettoyage */
   s = struct(s);
   s = s.replace(/[{}]/g, "");
