@@ -2050,6 +2050,11 @@ function branchements(w){
       for(let t=0;t<30 && !vus.length;t++){
         startAssocierCoef();
         if(test.questions.length!==AC_NB) vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+AC_NB);
+        /* deux questions d'une même séance ne portent ni le même P, ni P et sa
+           virgule décalée — les mêmes six coefficients, le même énoncé
+           (une élève a eu deux fois le même, septembre 2026) */
+        const cls=test.questions.map(function(q){ return Math.max(q.P,(q.P%10===0)?q.P/10:q.P*10); });
+        if(new Set(cls).size!==cls.length) vus.push('tirage '+t+' : deux questions sur le même pourcentage (ou sa virgule décalée) — '+test.questions.map(function(q){ return q.P; }).join(', '));
         test.questions.forEach(function(q){
           const cles=Object.keys(q).filter(function(k){ return ['P','ordre','rep'].indexOf(k)<0; });
           if(cles.length) vus.push('la question porte d’autres champs que P, l’ordre et les choix : '+cles.join(','));
