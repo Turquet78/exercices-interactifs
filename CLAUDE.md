@@ -297,6 +297,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis la barre du bas a disparu — en PREMIÈRE seulement, et le prix est nommé.**
 - **Et la bande du bas appartient au SYSTÈME : la Première y descendait.**
 - **LE CLAVIER ANCRÉ PREND LE BAS, LES COMMANDES MONTENT EN HAUT.**
+- **Là où l'élève rédige en MOTS, le clavier C porte les lettres.**
 
 ### La chronique des exercices, thème par thème
 

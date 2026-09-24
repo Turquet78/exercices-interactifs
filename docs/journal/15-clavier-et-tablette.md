@@ -1195,3 +1195,61 @@ déplace les commandes sur tous les écrans, et les contrôles du pavé rougisse
 les premiers : rejoué en lisant TOUTES les lignes rouges, le contrôle visé
 rougit bien lui aussi (« la plus haute est à 730 px du bas : elles ne sont pas
 redescendues »).
+
+**Là où l'élève rédige en MOTS, le clavier C porte les lettres.** Demande de
+Turquet (septembre 2026) : « en terminale pour l'exercice 3.5, l'élève a
+besoin d'écrire des mots, il faudrait rajouter un clavier C avec les lettres
+de l'alphabet et l'espace et ":" ». La greffe coupe le clavier du SYSTÈME sur
+chaque champ mathématique (`inputmode="none"`) : sur tablette, « quand x tend
+vers », « asymptote horizontale » étaient intapables dans la feuille de
+rédaction — le 3.5 demande pourtant les asymptotes EN MOTS.
+**Une couche AJOUTÉE, jamais une forme de plus.** `buildKbTerm` prend un
+quatrième drapeau, `lettres` : la disposition de la forme (normale, courte,
+limites) est construite comme avant, puis reçoit une troisième couche
+`term-lettres` et une touche « clavier C » sur A (juste au-dessus de
+« clavier B ») et sur B (à côté de « clavier A »). Le jeu des couches A et B
+ne change donc pas d'une touche — le contrôle le compare. La couche C est en
+AZERTY, l'ordre que les élèves ont sous les doigts : `a z e r t y u i o p ⌫`,
+`q s d f g h j k l m ⏎`, `w x c v b n : espace clavierA`. Onze unités par
+rangée : « clavier B » n'y tient pas sans faire passer la rangée à treize, et
+toutes les touches d'un téléphone rétréciraient (`kbUnites` suit la rangée la
+plus large, TOUTES couches comprises). De C, on revient par A.
+**Les lettres sont des FRAPPES (`key`), pas des symboles** : elles s'écrivent
+comme au clavier physique, avec la liste blanche des raccourcis de la feuille
+(`_motsFR`) — « inf » tapé lettre par lettre donne ∞, comme sur un ordinateur.
+**LA PAGE NE TIENT AUCUNE LISTE** : `kbLettres` lit l'écran — une ligne de la
+feuille de rédaction (`mlFeuille`, mode « redaction », qui pose désormais la
+classe `mf-mots`) sur l'écran de l'exercice COURANT, avec le garde de
+`kbLimites`. **Le périmètre est donc celui de la feuille, et il dépasse la
+demande — c'est nommé** : le 6.7 (récurrence rédigée) et la suite auxiliaire
+rédigée écrivent dans la même feuille, et reçoivent le même clavier C. Le
+témoin déclaré (`clavierEcran.lettres.exercices`) reste le 3.5.
+**Deux bancs, la répartition habituelle.** jsdom ÉVALUE `buildKbTerm` dans
+ses quatre formes : les 26 lettres, « : » et l'espace sur C, ⌫ et ⏎ qui
+valide, « clavier A » qui y mène, trois rangées de onze unités au plus,
+« clavier C » sur A et B qui MÈNE à C, aucune touche perdue ni ajoutée
+d'autre sur A et B — et le bord opposé : sans rédaction, AUCUNE couche C.
+Puis `applyKbLayout` qui passe le drapeau, `kbLettres` qui ne répond que pour
+l'exercice courant, et `mlFeuille` qui pose la classe. Le NAVIGATEUR
+(« 11 decies ») ouvre le 3.5 sur une tablette, touche la feuille, CLIQUE
+« clavier C », TAPE « quand : » touche par touche et relit la ligne par le
+chemin du juge (`toPlain`), puis « clavier A » ramène les chiffres. Six
+sabotages au banc jsdom, chacun rougissant en nommant son défaut (la classe
+retirée, le drapeau non passé, une lettre retirée, `kbLettres` qui dit oui
+partout, la couche C qui fuit partout, « clavier C » qui mène au B).
+**Puis é, è et l'apostrophe, le jour même** (« ajoute aussi é, è et
+l'apostrophe au clavier C ») : « l'asymptote », « équation » s'écrivent enfin.
+Trente-six unités à loger : la couche passe à TROIS rangées de DOUZE — é au
+bout de la première, è au bout de la deuxième, l'apostrophe avant « : » —
+plutôt qu'à quatre rangées de onze, pour que la plaque garde sa hauteur quand
+on change de couche. Le coût est nommé : sur un téléphone, la rangée la plus
+large passe de onze à douze unités, et toutes les touches y maigrissent d'un
+douzième ; sur la tablette du 3.5, rien ne bouge (le clavier A y fait déjà
+treize unités). Le navigateur tape désormais « quand l'éè : » et le relit.
+**ET L'APOSTROPHE S'EST MONTRÉE AU PREMIER ESSAI — au navigateur seulement.**
+Frappée comme les lettres (`key`), elle devient dans MathLive un PRIME : la
+ligne se relisait « quand l^(\prime)éè : », et c'est ce texte qui serait
+parti au juge. jsdom, qui ne voit que la disposition, était vert. La touche
+INSÈRE donc `\text{'}`, que `toPlain` rend en apostrophe nue ; é et è, eux,
+s'écrivent tels quels par la frappe. Le rouge de ce premier essai tient lieu
+de sabotage : c'est exactement le défaut que le contrôle doit nommer.

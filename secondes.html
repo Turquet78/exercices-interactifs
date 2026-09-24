@@ -4036,7 +4036,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=197;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=198;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4253,7 +4253,7 @@ function mlFeuille(opts){
     F.lignes.splice(i,0,L);
     const ref=sheet.children[i]||null;
     sheet.insertBefore(L.line, ref);
-    if(mode==='redaction') L.mf._motsFR=true;   /* redaction en francais : liste blanche des raccourcis */
+    if(mode==='redaction'){ L.mf._motsFR=true; L.mf.classList.add('mf-mots'); }   /* redaction en francais : liste blanche des raccourcis ; mf-mots marque la redaction (le clavier C de la Terminale la cherche) */
     if(window.mlDexp) window.mlDexp.upgrade(L.line);   /* clavier Terminale + correctifs communs */
     if(mode==='redaction'){ try{ L.mf.mathModeSpace='\\;'; }catch(e){} }   /* barre d'espace = vraie espace */
     L.mf.addEventListener('input', ()=>tenirCurseur(L.mf));
