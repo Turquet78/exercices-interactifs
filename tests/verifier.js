@@ -17698,7 +17698,7 @@ function pythonAffichage(w, P){
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
     if(TEST_NUM["${ID}"]!=="5.1.1") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["pourcentage"]!=="3.1"||TEST_NUM["simplifier-barres"]!=="4.1") vus.push("le thème ajouté a renuméroté les autres");
+    if(TEST_NUM["pourcentage"]!=="3.1.3"||TEST_NUM["simplifier-barres"]!=="4.1") vus.push("le thème ajouté a renuméroté les autres");
     return vus.join(" | ");
   })()`, v => v === '');
 
@@ -17933,7 +17933,7 @@ function pythonTypes(w, P){
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
     if(TEST_NUM["${ID}"]!=="5.1.2") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -18188,7 +18188,7 @@ function pythonAfficherVariable(w, P){
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
     if(TEST_NUM["${ID}"]!=="5.1.3") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(!/note = 12/.test(TESTS["${ID}"].desc)) vus.push("la description ne dit pas le programme de la demande");
     return vus.join(" | ");
@@ -18417,7 +18417,7 @@ function pythonNoms(w, P){
     if(i<0) vus.push("l’exercice n’est pas dans le thème 5");
     else if(th.ids[i-1]!=="python-afficher-variable") vus.push("il ne suit pas {python-afficher-variable} : "+th.ids.join(","));
     if(TEST_NUM["${ID}"]!=="5.1.4") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’ajout a renuméroté un voisin");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’ajout a renuméroté un voisin");
     if(!TESTS["${ID}"]||!/variable/i.test(TESTS["${ID}"].name)) vus.push("TESTS ne le nomme pas");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -18663,7 +18663,7 @@ function pythonNomVariable(w, P){
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
     if(TEST_NUM["${ID}"]!=="5.1.5") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -18931,7 +18931,7 @@ function pythonPrint(w, P){
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="5.1.6") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["python-nom-variable"]!=="5.1.5"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["python-nom-variable"]!=="5.1.5"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -19389,7 +19389,7 @@ function pythonCompleter(w, P){
     if(i<0) vus.push("l’exercice a quitté le thème 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[i-1]!=="python-print"||th.ids[i+1]!=="python-deux-lignes") vus.push("il n’est plus entre {python-print} et {python-deux-lignes} : "+th.ids.join(","));
     if(TEST_NUM["${ID}"]!=="5.1.7") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["python-nom-variable"]!=="5.1.5"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["python-nom-variable"]!=="5.1.5"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -19846,7 +19846,7 @@ function pythonOperations(w, P){
     if(i<0) vus.push("l\\u2019exercice n\\u2019est pas dans le theme 5 : "+(th&&th.ids.join(",")));
     if(i>0&&th.ids[i-1]!=="python-changer-valeurs") vus.push("il ne suit pas {python-changer-valeurs} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="5.1.12") vus.push("numero "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["python-placer-variables"]!=="5.1.9"||TEST_NUM["python-tableau-valeurs"]!=="5.1.10"||TEST_NUM["python-changer-valeurs"]!=="5.1.11"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l\\u2019exercice ajoute a renumerote les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["python-placer-variables"]!=="5.1.9"||TEST_NUM["python-tableau-valeurs"]!=="5.1.10"||TEST_NUM["python-changer-valeurs"]!=="5.1.11"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l\\u2019exercice ajoute a renumerote les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d\\u2019entree TESTS");
     if(!RAPPELS.pop) vus.push("aucun rappel de cours");
     if(!QIA_SUGG.pop||QIA_SUGG.pop.length<2) vus.push("aucune question proposee a l\\u2019IA");
@@ -20359,7 +20359,7 @@ function pythonDoubleTripleCarre(w, P){
     else if(th.ids[i+1]!=="python-pas-a-pas") vus.push("il n\\u2019est pas suivi de {python-pas-a-pas} : "+th.ids.join(","));
     if(i>0&&th.ids[i-1]!=="python-operations") vus.push("il ne suit pas {python-operations} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="5.1.13") vus.push("numero "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["python-placer-variables"]!=="5.1.9"||TEST_NUM["python-tableau-valeurs"]!=="5.1.10"||TEST_NUM["python-changer-valeurs"]!=="5.1.11"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l\\u2019exercice ajoute a renumerote les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["python-placer-variables"]!=="5.1.9"||TEST_NUM["python-tableau-valeurs"]!=="5.1.10"||TEST_NUM["python-changer-valeurs"]!=="5.1.11"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l\\u2019exercice ajoute a renumerote les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d\\u2019entree TESTS");
     if(/<code>|<b>/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte des balises : elle passe par esc() et s\\u2019afficherait en toutes lettres");
     if(!RAPPELS.pdc) vus.push("aucun rappel de cours");
@@ -20771,7 +20771,7 @@ function pythonDeuxLignes(w, P){
     if(i<0) vus.push("l’exercice a quitté le thème 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[i-1]!=="python-completer"||th.ids[i+1]!=="python-placer-variables") vus.push("il n’est plus entre {python-completer} et {python-placer-variables} : "+th.ids.join(","));
     if(TEST_NUM["${ID}"]!=="5.1.8") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["python-nom-variable"]!=="5.1.5"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["python-nom-variable"]!=="5.1.5"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -21113,7 +21113,7 @@ function pythonPlacerVariables(w, P){
     if(!th||th.num!==5||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans le thème : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="5.1.9") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["python-nom-variable"]!=="5.1.5"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-types"]!=="5.1.2"||TEST_NUM["python-afficher-variable"]!=="5.1.3"||TEST_NUM["python-noms-variables"]!=="5.1.4"||TEST_NUM["python-nom-variable"]!=="5.1.5"||TEST_NUM["python-print"]!=="5.1.6"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -21765,7 +21765,7 @@ function pythonTableauValeurs(w, P){
     if(k<0) vus.push("l’exercice n’est pas dans le thème 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[k-1]!=="python-placer-variables"||th.ids[k+1]!=="python-changer-valeurs") vus.push("il n’est plus entre {python-placer-variables} et {python-changer-valeurs} : "+th.ids.join(","));
     if(TEST_NUM["${ID}"]!=="5.1.10") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["python-placer-variables"]!=="5.1.9"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["python-placer-variables"]!=="5.1.9"||TEST_NUM["python-completer"]!=="5.1.7"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est proposé alors qu’on ne multiplie rien");
     const rap=RAPPELS.ptv||""; if(!rap) vus.push("pas de rappel RAPPELS.ptv");
@@ -22072,7 +22072,7 @@ function pythonChangerValeurs(w, P){
     if(k<0) vus.push("l’exercice n’est pas dans le thème 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[k-1]!=="python-tableau-valeurs"||th.ids[k+1]!=="python-operations") vus.push("il n’est plus entre {python-tableau-valeurs} et {python-operations} : "+th.ids.join(","));
     if(TEST_NUM["${ID}"]!=="5.1.11") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["python-placer-variables"]!=="5.1.9"||TEST_NUM["python-tableau-valeurs"]!=="5.1.10"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["pourcentage"]!=="3.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-deux-lignes"]!=="5.1.8"||TEST_NUM["python-placer-variables"]!=="5.1.9"||TEST_NUM["python-tableau-valeurs"]!=="5.1.10"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["pourcentage"]!=="3.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -27733,7 +27733,7 @@ function pythonPasAPas(w, P){
     else if(th.ids[i+1]!=="python-valeur-case") vus.push("il n est pas suivi de {python-valeur-case} : "+th.ids.join(","));
     if(i>0&&th.ids[i-1]!=="python-double-triple-carre") vus.push("il ne suit pas {python-double-triple-carre} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["python-double-triple-carre"]!=="5.1.13"||TEST_NUM["pourcentage"]!=="3.1")
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["python-double-triple-carre"]!=="5.1.13"||TEST_NUM["pourcentage"]!=="3.1.3")
       vus.push("l exercice ajoute a renumerote les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d entree TESTS");
     if(/[{}<>]/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte du balisage ou une accolade : elle passe par esc(numeros(desc))");
@@ -28076,7 +28076,7 @@ function pythonValeurCase(w, P){
     if(iPpc!==iId+1) vus.push("{python-pas-a-pas-calcul} ne suit plus directement : "+(th&&th.ids.join(",")));
     if(iId!==iPap+1) vus.push("il ne suit pas {python-pas-a-pas} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["python-double-triple-carre"]!=="5.1.13"||TEST_NUM["python-pas-a-pas"]!=="5.2.1"||TEST_NUM["pourcentage"]!=="3.1")
+    if(TEST_NUM["python-affichage"]!=="5.1.1"||TEST_NUM["python-operations"]!=="5.1.12"||TEST_NUM["python-double-triple-carre"]!=="5.1.13"||TEST_NUM["python-pas-a-pas"]!=="5.2.1"||TEST_NUM["pourcentage"]!=="3.1.3")
       vus.push("l exercice ajoute a renumerote les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d entree TESTS");
     if(/[{}<>]/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte du balisage ou une accolade : elle passe par esc(numeros(desc))");

@@ -34,6 +34,12 @@ const KINDS_PREMIERE = [
   ['psl','genPctRes()'], ['ac','genAC()'],
 ];
 
+/* Les mêmes moteurs en Seconde, où la synthèse des pourcentages s'appelle
+   « psyn » : « syn » y est déjà la synthèse des fonctions. */
+const KINDS_SECONDE_PCT = KINDS_PREMIERE
+  .filter(k => ['mp','md','u'].indexOf(k[0]) < 0)
+  .map(k => k[0] === 'syn' ? ['psyn', k[1]] : k);
+
 /* Identifiant d'exercice -> clé de la table RAPPELS, pour la Première. */
 const RAPPELS_PREMIERE = `(function(){
   const cles={ 'calcul-mental':'cm','pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
@@ -82,6 +88,14 @@ const RAPPELS_SECONDE = `(function(){
                'plus-petit-ensemble':'pge','lecture-variations':'lv','tableau-variation':'tvd','lecture-signes':'ls','signes-variations':'lsv','signes-variations-grand':'gsv','choisir-tableau-variation':'vtq','maximum-minimum':'mmx','maximum-minimum-tableau':'mmt','tableau-equations':'tve','tableau-vrai-faux':'tvf','image-nombre':'img','placer-image':'pim','antecedent-nombre':'ant','antecedents-droite':'adr','inequation-droite':'iqd','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','tableau-signes-graphique':'tsg','solutions-graphique':'tvg','construire-fonction':'cfx','construire-max-min':'cfx','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
+               'pourcentage-depart':'pctq','pourcentage-taux':'pctq','pourcentage-synthese':'pctq','pourcentage-synthese-libre':'psl',
+               'augmenter-depart':'augq','augmenter-taux':'augq','diminuer-depart':'augq','diminuer-taux':'augq',
+               'fraction-pourcentage':'fp','pourcentage-colonnes':'pcol','augmenter-addition':'ag2','diminuer-soustraction':'ag2',
+               'augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q',
+               'synthese-pourcentages':'psyn','synthese-augmentations':'psyn','synthese-diminutions':'psyn',
+               'synthese-pourcentages-libre':'sal','synthese-augmentations-libre':'sal','synthese-diminutions-libre':'sal',
+               'baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
+               'reconnaitre-coefficient':'ck','associer-coefficient':'ac',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
@@ -706,12 +720,19 @@ module.exports = {
        entier n'est qu'UNE pts-case, jamais cinq — reprend la même règle que
        « pyx »/« pyd » : un choix posé dans une case n'est pas un programme
        fini, et le juger à chaque changement de lettre serait absurde. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel'] },
+    /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
+       avec leurs exercices — voir le profil de la Première. */
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
        celles-ci. */
     nbQuestionsFractions: { sf: 4, mlt: 4 },
+    /* Le thème des pourcentages est celui de la Première, porté tel quel
+       (septembre 2026) : mêmes nombres de questions, mêmes deux sources. */
+    nbQuestionsPourcentages: 4,
+    nbQuestionsEvolutions: 3,
+    nbQuestionsAssocier: 3,
     /* Le pavé numérique compact : la SECONDE source de sa liste de touches,
        et la case réelle que le banc navigateur pilote en mode tactile. */
     /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
@@ -822,15 +843,20 @@ module.exports = {
     temoin: {
       testId: 'pourcentage', kind: 'pct', ecran: 'ptest', rendu: 'renderPTest',
       generateur: 'genPercent()',
-      /* genPercent() de Seconde ne pose ni ci ni v : la question s'arrête à result */
-      question: "{P:30,N:40,unit:'€',prod:1200,result:12}",
+      /* le moteur est celui de la Première (thème des pourcentages porté en
+         septembre 2026) : la question range son contexte et sa variante */
+      question: "{P:30,N:40,unit:'€',prod:1200,result:12,ci:0,v:0}",
     },
     aide: {
-      amorce: null,
-      rangee: { selecteur: '#scr-ptest .mp-actions button, #pActions button', attendus: 3 },
+      /* les écrans de pourcentages portés de la Première posent leur rangée
+         d'aide APRÈS le rendu (iaBoutons), à côté de « Vérifier » */
+      amorce: 'iaBoutons();',
+      rangee: { selecteur: '#scr-ptest .ia-row button, #pActions button', attendus: 3 },
       qiaDetachee: true,
       conseil: true,
-      ctx: null,
+      /* le contexte des pourcentages est celui de la Première, porté avec eux */
+      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_SECONDE_PCT,
+             prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;', psl: 'test.questions[0].choisi=0;' } },
       mlStatic: true,
     },
     liveCheck: {
