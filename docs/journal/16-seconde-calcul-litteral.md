@@ -198,47 +198,53 @@ l'occasion s'est d'abord pris au filet `=====` d'un en-tête de commentaire,
 qu'il a lu comme le séparateur de conflit : un séparateur se reconnaît à ce
 qu'il est SEUL sur sa ligne.
 
-## {associer-expressions} — associer chaque expression à son résultat (7.5, v206)
+## {reduire-somme} — réduire une somme de termes (7.5, v206)
 
-Demandé par Turquet en septembre 2026, d'après deux fiches papier : la
-première avec le nombre 3 (3², 2 × 3, 3/3, 3 − 3 à associer à 0 ; 3 + 3 ; 1 ;
-3 × 3), la seconde avec la lettre x, « un nombre différent de 0 ». La consigne :
-**trois pages comme la première fiche, puis la seconde, une seule fois**. La
-séance a donc quatre pages de quatre listes — barème 16.
+**La demande** (Turquet, septembre 2026) : reprendre une fiche papier
+« Réduire si possible » dans le thème « écriture littérale ». La fiche
+prend UNE paire de nombres (2 et 3) et la décline sur dix expressions de deux
+termes : 2x + 3x, 2x + 3, 2x − 3x, 2x − 3, −2x − 3x, −2x + 3x, −2x² + 3x²,
+−2x² + 3x, −2x² + 3, −2x² − 3x². En tête, une phrase à compléter : « On ne
+peut additionner que des termes … » — de même nature.
 
-Écrit d'abord comme un thème 8 neuf — le thème 7 s'appelait encore « Rappels »
-sur la branche —, il a rejoint le thème 7 à la fusion de `main`, qui venait de
-le renommer « Calcul littéral » : c'est là que Turquet l'avait demandé. Il
-devait y être le 7.3 ; le produit de relatifs (7.3) puis le calcul itéré (7.4)
-sont arrivés sur `main` pendant que ses bancs tournaient, et l'association est
-passée 7.5 à la troisième fusion — chaque fois avec un `APP_VERSION` de plus. Préfixe
-`asx`, distinct de `rel` et de `rgp` (la leçon du paragraphe d'ouverture).
+**La demande parlait du thème « écriture littérale »** : c'est le thème 7,
+renommé « Calcul littéral » le même jour ({additionner-relatifs} et
+{nombres-relatifs}). L'exercice s'y range en 7.5, après {multiplier-relatifs} (7.3) et {calcul-itere} (7.4), arrivés sur `main` le même après-midi — un thème 8 « Écriture
+littérale » à côté aurait fait deux thèmes pour une même idée. Il arrive en
+dernier dans le thème : rien n'est renuméroté.
 
-**Le tirage.** Un nombre de 3 à 9 par page, trois nombres différents
-(`distinctes()` — l'ordre des résultats, rangé dans `ordre`, n'en fait pas une
-autre question). Ni 1 ni 2 : avec 2, 2² = 2 × 2 = 2 + 2 = 4, et le carré aurait
-deux bonnes réponses ; avec 1, 1² = 1 × 1 = 1/1 = 1. La première page suit la
-fiche (résultats dans l'ordre 0 ; n + n ; 1 ; n × n), les suivantes les
-mélangent, pour qu'on les cherche au lieu de les lire au même rang. La page de
-x vient toujours en dernier, et une seule fois ; son énoncé ajoute « x
-représente un nombre différent de 0 » — sans quoi x/x n'existe pas.
+**Une page = une question = onze cases** : la liste de la règle (« de même
+signe » / « de même nature » / « qui ont le même coefficient »), puis une case
+par expression. Trois pages, barème 33. Les deux nombres d'une page vont de 2
+à 9 et sont DIFFÉRENTS : avec a = b, −ax + ax vaut 0 ; avec 1, l'énoncé
+écrirait « 1x ». La première page suit l'ordre de la fiche ; les suivantes
+mélangent les lignes (`q.ordre`, hors de la clé de `distinctes()`), sans quoi
+les quatre lignes qui ne se réduisent pas se reconnaîtraient à leur rang.
 
-**Le juge.** On range le nombre et l'ordre, jamais les réponses : ce que
-chaque liste attend se déduit de la clé de l'expression (`asxLignes`). Chaque
-liste a son verdict (`corrChoix`) : une case juste ne rougit pas pour sa
-voisine, une case vide reçoit la correction en vert. Le pourquoi parle de la
-PREMIÈRE expression fausse avec le nombre de la page (« 3² = 3 × 3 = 9 : le
-carré, c'est le nombre multiplié par LUI-MÊME — pas par 2 ») ; sur la page de x,
-il ajoute que c'est la même règle qu'avec les nombres des pages précédentes.
+**Une expression qui ne se réduit pas se RECOPIE**, et c'est tout le piège de
+la fiche : 2x + 3 = 5x, −2x² + 3x = x². La consigne le dit.
 
-**L'affichage.** La ligne est une rangée flex centrée : le « = » posé à côté
-de n/n (fraction empilée, `fracBox`) tombe sur le trait. Le rappel de cours
-écrit ses fractions en `\frac` — le contrôle des rappels a rougi au premier
-jet sur « 3/3 » écrit en ligne.
+**La case lit une somme de termes, pas une chaîne** (`redLit`) : l'ordre des
+termes est libre (3 + 2x), x² s'écrit « x² », « x^2 » ou « x2 », le moins
+« - » ou « − », « x » vaut 1x et « 1x » est accepté. Une réponse de même
+VALEUR mais non réduite (« 2x+3x », « 2x + 0 ») est fausse, et le message le
+dit. Un bouton « x² » à côté de chaque case écrit x² au curseur : sur
+tablette, ni « ² » ni « ^ » ne se trouvent sans chercher.
 
-**Le contrôle jsdom** (`associerExpressions`) juge par une seconde méthode :
-la VALEUR de chaque expression et de chaque résultat, calculée par le banc, et
-exige qu'une seule valeur corresponde — c'est ce qui tient l'exclusion de 1
-et de 2. Il rejoue ensuite la correction par le bouton : copie juste sur les
-quatre pages, le carré pris pour le double (rouge, les deux autres restent
-justes, le message dit « 3 × 3 »), une case vide qui reçoit la correction.
+**On range les deux nombres et l'ordre, jamais les réponses** : `redLignes()`
+recalcule les expressions et leur forme réduite dans la fonction qui corrige.
+
+**Le juge** (`tests/verifier.js`, « réduire une somme de termes ») : la place
+(7.5, le 7.1 à 7.4 inchangés, sept thèmes, un badge de mode qui est le sien, pas de bouton des tables), 500 séances
+tirées (2 à 9, différents, pages distinctes, la fiche en tête, les lignes
+mélangées ensuite), les 56 paires jugées par une SECONDE méthode — la valeur de
+l'expression et celle de la réponse attendue, en trois valeurs de x ; une
+réponse d'une ligne réductible a un seul terme, celle d'une ligne qui ne se
+réduit pas est l'expression elle-même. Puis le bouton : la copie juste (11/11,
+avec des ordres et des écritures variés), les pièges (règle « de même signe »,
+2x + 3 = 5x, −2x² + 3x = x², 2x − 3x = x : rouges, leurs voisines justes
+restent justes, le message dit « de même nature »), une réduction inachevée
+rouge, « 1x » juste, deux cases vides (vertes, la correction écrit −x), une
+écriture illisible rouge. Éprouvé par sabotage : une case qui accepte une
+somme non réduite rougit le juge (« « 2x+3x » pour 2x + 3x est peint en
+vert »).
