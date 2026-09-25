@@ -85,3 +85,41 @@ exercice est atteignable par construction). Huit identifiants de la Première ne
 sont atteignables que par le paramètre d'un démarreur partagé —
 `startA2Q('augmenter-taux-addition', …)` — : les chercher comme littéraux en
 aurait manqué le tiers.
+
+**Aucune séance ne pose deux fois la même question.** Signalé par Turquet
+(septembre 2026) : une élève a eu deux fois le même énoncé au 4.4.2 de la
+Seconde. Le correctif de cet exercice (`genAC(deja)`, voir
+`10-premiere-pourcentages.md`) a été suivi d'un TOUR DES TROIS NIVEAUX, fait
+par une sonde avant tout correctif : chaque exercice du menu démarré cent fois,
+et deux questions d'une même séance comparées sur leurs données. TRENTE
+exercices tiraient leurs questions une à une, `Array.from({length:n}, gen)`,
+sans regarder les précédentes — de une séance sur cinquante (les
+pourcentages à contexte) à une sur trois ({lire-coefficient}, qui n'a que
+seize coefficients à lire). Trois autres sont sortis à la seconde sonde,
+plus rares, et un cinquième ({antecedent-nombre}) au contrôle lui-même : un
+tirage rare échappe à tout échantillon, et c'est pourquoi le contrôle a deux
+bords.
+**UN SEUL ENTONNOIR** : `distincte(qs, fabrique)` retire une question tant
+qu'elle reprend les DONNÉES d'une question déjà tirée, et `distinctes(n,
+fabrique)` remplace `Array.from` — même appel, `fabrique(undefined, i)`,
+pour que les fabriques qui lisent l'index ne changent pas. La clé
+(`cleQuestion`) retire la tournure (`v`), le contexte (`ci`, `intro`,
+`unit`, `g`), l'ordre des propositions (`ordre`, `opts`, `bon`) et les choix
+de l'élève : les mêmes nombres sous un autre habit restent le même calcul.
+Deux cents essais au plus : un vivier plus petit que la séance rend un
+doublon plutôt que de figer la page.
+**UN PIÈGE S'EST MONTRÉ EN BRANCHANT** : la synthèse des pourcentages passait
+`()=>plan[i++]()` — une fabrique qui AVANCE un compteur à chaque appel. Un
+nouvel essai y aurait consommé la question suivante du plan, puis lu au-delà
+de sa fin. Elle lit désormais le plan par l'index de la question,
+`(_,i)=>plan[i]()`. Une fabrique passée à `distinctes()` doit pouvoir être
+rappelée sans effet de bord.
+**LE CONTRÔLE A DEUX BORDS** (« aucune séance ne pose deux fois la même
+question », banc principal) : le PRATIQUE démarre chaque exercice du menu
+quarante fois et compare les questions sur une clé écrite dans le banc, pas
+lue dans la page ; le STRUCTUREL lit la source et refuse tout
+`test.questions=Array.from({length:`, le motif même des trente doublons.
+Il ne voit pas une boucle `push` écrite à la main : c'est le bord pratique
+qui l'a vue sur les quatre constructeurs de ce genre, et il ne verra pas
+un doublon d'une séance sur mille. Le dire vaut mieux que le taire.
+

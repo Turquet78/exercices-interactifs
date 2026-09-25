@@ -77,6 +77,7 @@ couvert sans rien avoir à déclarer.
 | Le **clavier mathématique** est atteignable sur tout écran à champ mathématique | sur tablette, l'élève ne peut plus rien écrire | « le clavier mathématique est atteignable sur tout écran à champ mathématique » |
 | Le **calcul écrit en tête de rangée** a la taille de sa rangée | l'énoncé de la chaîne se lit comme une note de bas de page devant les cases | « le calcul en tête de rangée s'écrit à la taille de sa rangée » |
 | La vérification peint le **juste en BLEU**, le faux en rouge, la **correction en VERT** | l'élève ne distingue plus sa réponse juste de la correction écrite par la page | « les règles .ok sont bleues, .sol et .mf-cor vertes, .bad rouges » |
+| Les questions d'une séance se tirent par **`distinctes()`** — jamais deux fois les mêmes données | l'élève refait le même calcul dans la même séance | « aucune séance ne pose deux fois la même question » (banc principal, `tests/verifier.js`) |
 
 **Les couleurs de la vérification ont changé en août 2026** (décision de
 Turquet) : ce qui est JUSTE se peint en **bleu**, ce qui est faux reste en

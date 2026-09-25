@@ -5099,7 +5099,7 @@ function devoirPapierClique(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('le devoir sur papier : un choix de la page des modes, et l\'envoi se confirme',
       'ce niveau n\'a pas le choix « sur papier » des devoirs');
-    return longueurContexteIA(w, () => contexteChaqueExercice(w, apres));
+    return longueurContexteIA(w, () => contexteChaqueExercice(w, () => questionsDistinctes(w, apres)));
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -5332,7 +5332,7 @@ function devoirPapierClique(w, apres){
     const nom='le devoir sur papier : un choix de la page des modes, et l\'envoi se confirme';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    longueurContexteIA(w, () => contexteChaqueExercice(w, apres));
+    longueurContexteIA(w, () => contexteChaqueExercice(w, () => questionsDistinctes(w, apres)));
   });
 }
 function longueurContexteIA(w, apres){
@@ -5496,6 +5496,60 @@ function contexteChaqueExercice(w, apres){
     verifier(nom, v.creux.length === 0, v.creux.slice(0, 5).join(' | '));
     if(!v.creux.length) console.log('   · ' + v.n + ' exercices du menu, chacun avec sa propre description'
       + ((v.menus || []).length ? ' ; ' + v.menus.join(', ') + ' n’ouvre qu’un écran de menu et ne tire rien' : ''));
+    apres();
+  });
+}
+
+/* ---------- Aucune séance ne pose deux fois la même question ---------------
+   Signalé par Turquet (septembre 2026) : une élève a eu deux fois le même
+   énoncé au 4.4.2 de la Seconde. La sonde a élargi le signalement avant tout
+   correctif : TRENTE exercices des trois niveaux tiraient leurs questions une
+   à une sans regarder les précédentes — un doublon dans une séance sur
+   cinquante à une sur trois selon la taille du vivier.
+
+   Une règle valable partout se tient partout : chaque exercice du MENU est
+   démarré SEANCES fois, et deux questions d'une même séance ne doivent pas
+   porter les mêmes DONNÉES. La clé est écrite ICI, pas lue dans la page —
+   lire cleQuestion() de la page et la comparer à elle-même ne prouverait
+   rien : on retire la tournure (v), le contexte (ci, intro, unit, g),
+   l'ordre des propositions (ordre, opts, bon) et les choix de l'élève.
+
+   Deux bords, parce qu'un tirage rare échappe à tout échantillon : le
+   PRATIQUE (les séances) attrape ce qui sort souvent ; le STRUCTUREL lit la
+   source et refuse tout « test.questions=Array.from({length: », le motif
+   même qui a produit les trente doublons — un exercice ajouté demain passe
+   par distinctes() ou rougit ici. Et le contrôle dit ce qu'il a mesuré : un
+   parcours sans aucune séance à plusieurs questions ne mesure rien. */
+function questionsDistinctes(w, apres){
+  const nom = 'aucune séance ne pose deux fois la même question';
+  const src = lire(CIBLE);
+  const bruts = (src.match(/test\.questions\s*=\s*Array\.from\(\{length:/g) || []).length;
+  verifier(nom + ' (source : chaque tirage passe par distinctes())', bruts === 0 && /function distinctes\(/.test(src),
+    bruts ? bruts + ' tirage(s) « test.questions=Array.from({length: » — sans regard sur les questions déjà tirées'
+          : 'la page n’a pas de distinctes()');
+  evalPromis(w, `(async function(){
+    const SEANCES=40, HORS=['v','ci','intro','unit','g','ordre','opts','bon','rep','choisi','selL','selR'];
+    const cle=function(q){ return JSON.stringify(q,function(k,v){ return HORS.indexOf(k)>=0?undefined:v; }); };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const doubles=[]; let mesures=0;
+    for(const id of Object.keys(TEST_NUM)){
+      if(!TEST_NUM[id] || !TESTS[id] || typeof TESTS[id].start!=='function') continue;
+      let vu=0;
+      for(let t=0;t<SEANCES;t++){
+        currentTestId=id; const avant=test.questions;
+        try{ await TESTS[id].start(); }catch(e){ break; }
+        if(test.questions===avant || !Array.isArray(test.questions) || test.questions.length<2) break;
+        mesures++;
+        const cs=test.questions.map(cle), i=cs.findIndex(function(c,j){ return cs.indexOf(c)!==j; });
+        if(i>=0){ vu++; if(vu===1) doubles.push(TEST_NUM[id]+' '+id+' ('+cs[i].slice(0,90)+')'); }
+      }
+    }
+    return { doubles:doubles, mesures:mesures };
+  })()`, r => {
+    if(!r.ok){ verifier(nom, false, 'erreur JavaScript : ' + r.erreur); return apres(); }
+    const v = r.valeur || {};
+    if(!v.mesures){ verifier(nom, false, 'aucune séance à plusieurs questions : le contrôle ne mesure rien'); return apres(); }
+    verifier(nom + ' (' + v.mesures + ' séances tirées)', v.doubles.length === 0, v.doubles.slice(0, 5).join(' | '));
     apres();
   });
 }
