@@ -3606,6 +3606,7 @@ function exercices(suite){
     sommeFractionsLibre(w, P);
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
+    nombresRelatifs(w, P);
     additionnerRelatifs(w, P);
     multiplierRelatifs(w, P);
     imageNombre(w, P);
@@ -12496,6 +12497,99 @@ function paveNumerique(w, P){
   })()`, r => r === '', undefined);
 }
 
+/* {nombres-relatifs} — gagner et perdre, la fiche « relatifs_1 ».
+   Le tirage est jugé par une SECONDE méthode : l'écriture mathématique
+   affichée (« +3 − 2 ») est ÉVALUÉE comme un calcul, sans passer par les
+   signes rangés dans rgpLignes. Puis la correction est exercée par le
+   bouton : copie juste, case fausse isolée, case vide, soutien. */
+function nombresRelatifs(w, P){
+  const present = evaluer(w, "typeof startRgp==='function' && typeof rgpBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('gagner et perdre : des nombres à un chiffre, jamais nuls, et chaque case jugée seule',
+      'ce niveau n\'a pas l\'exercice des nombres relatifs');
+    return;
+  }
+  verifierEval(w, 'gagner et perdre : des nombres à un chiffre, jamais nuls, et chaque case jugée seule', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='nombres-relatifs';
+
+    /* ---- 0. la place : 7.2, juste après {additionner-relatifs} ---- */
+    if(TEST_NUM['nombres-relatifs']!=='7.2') vus.push('numéro '+TEST_NUM['nombres-relatifs']+' au lieu de 7.2');
+    if(TABLES_SANS.indexOf('nombres-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+    /* ---- 1. le tirage (400 séances) ---- */
+    const calcule=function(t){ return Function('return ('+t.replace(/\\u2212/g,'-')+');')(); };
+    for(let s=0;s<400 && !vus.length;s++){
+      const qs=rgpBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' questions au lieu de 3'); break; }
+      if(!(qs[0].a>qs[0].b)) vus.push('la première question n\\'a pas le gain plus grand ('+qs[0].a+', '+qs[0].b+')');
+      if(!(qs[1].a<qs[1].b)) vus.push('la deuxième question n\\'a pas la perte plus grande ('+qs[1].a+', '+qs[1].b+')');
+      if(new Set(qs.map(function(q){ return q.a+','+q.b; })).size!==3) vus.push('deux questions ont la même paire');
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(',')!=='a,b') vus.push('la question porte autre chose que a et b : '+Object.keys(q).join(','));
+        const L=rgpLignes(q);
+        if(L.length!==4) vus.push('pas quatre lignes');
+        L.forEach(function(l){
+          const e=rgpEcrit(l,q), r=calcule(e);
+          [q.a,q.b,Math.abs(r)].forEach(function(n){ if(!(n>=1 && n<=9)) vus.push(e+' : le nombre '+n+' n\\'a pas un seul chiffre non nul'); });
+          if(r===0) vus.push(e+' = 0');
+          if(l.n!==String(Math.abs(r))) vus.push(e+' : la page attend '+l.n+', le calcul donne '+r);
+          if(l.sg!==(r>0?'+':'-')) vus.push(e+' : signe attendu '+l.sg+' pour '+r);
+          if(l.mot!==(r>0?'gagne':'perd')) vus.push(e+' : mot attendu '+l.mot+' pour '+r);
+        });
+      });
+    }
+    /* les quatre situations de la fiche, dans son ordre */
+    const L0=rgpLignes({a:3,b:2}).map(function(l){ return rgpEcrit(l,{a:3,b:2}); }).join(' | ');
+    if(L0!=='+3 + 2 | +3 \\u2212 2 | \\u22123 + 2 | \\u22123 \\u2212 2') vus.push('les quatre lignes de la fiche : '+L0);
+
+    /* ---- 2. la correction, exercée par le bouton ---- */
+    startRgp();
+    /* le badge du mode est le SIEN : le 7.1 a nommé le sien « modeTagRel », et un
+       id partagé remplissait celui de l'autre écran, laissant le 7.2 sans badge */
+    if(!(document.getElementById('modeTagRgp')||{}).innerHTML) vus.push('le badge du mode (modeTagRgp) est vide au démarrage');
+    if(document.querySelectorAll('#scr-rgp [id]').length!==[...document.querySelectorAll('#scr-rgp [id]')].filter(function(e){ return document.querySelectorAll('#'+e.id).length===1; }).length)
+      vus.push('un id de l\\'écran 7.2 existe aussi ailleurs dans la page');
+    test.questions[test.idx]={a:3,b:2};
+    const BONS=[['gagne','5','+','5'],['gagne','1','+','1'],['perd','1','-','1'],['perd','5','-','5']];
+    const ids=function(i){ return ['rgp-m-'+i,'rgp-n-'+i,'rgp-s-'+i,'rgp-v-'+i]; };
+    const poser=function(f){
+      test.locked=false; renderRgpTest();
+      for(let i=0;i<4;i++) ids(i).forEach(function(id,k){ const el=document.getElementById(id);
+        const v=f(i,k); if(el) el.value=(v==null?'':v); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const tous=[].concat(ids(0),ids(1),ids(2),ids(3));
+    /* copie juste — un « + » tapé devant le nombre ne compte pas contre l'élève */
+    poser(function(i,k){ return (k===3 && i===0)?'+5':BONS[i][k]; }); checkRgpAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    if(tous.some(function(id){ return peint(id)!=='vert'; })) vus.push('la copie juste n\\'est pas entièrement marquée ok');
+    if(!der || der.cases!==16) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 16');
+    /* une seule faute : « −3 + 2 = +1 » */
+    poser(function(i,k){ return (i===2 && k===2)?'+':BONS[i][k]; }); checkRgpAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('−3 + 2 = +1 est accepté');
+    if(peint('rgp-s-2')!=='rouge') vus.push('le signe faux ne rougit pas');
+    if(tous.filter(function(id){ return id!=='rgp-s-2' && peint(id)!=='vert'; }).length) vus.push('une case juste rougit parce qu\\'une autre est fausse');
+    const fb=(document.getElementById('rgpFeedback')||{}).textContent||'';
+    if(!/perte est plus grande/.test(fb) || !/\\u22123 \\+ 2 = \\u22121/.test(fb)) vus.push('le message n\\'explique pas la ligne fausse : « '+fb+' »');
+    if(/\\+3 \\+ 2 = \\+5/.test(fb)) vus.push('le message explique aussi une ligne juste');
+    /* une case vide ne rougit pas, et reçoit la correction */
+    poser(function(i,k){ return (i===1 && k===1)?'':BONS[i][k]; }); checkRgpAnswer();
+    if(peint('rgp-n-1')!=='bleu') vus.push('une case vide est peinte en '+peint('rgp-n-1'));
+    if((document.getElementById('rgp-n-1')||{}).value!=='1') vus.push('la case vide ne reçoit pas la bonne valeur');
+    /* soutien : au fil de la saisie, seules les cases remplies sont jugées */
+    currentMode='soutien';
+    poser(function(i,k){ return (i===0 && k===0)?'perd':((i===0 && k===1)?'5':''); });
+    checkRgpAnswer(true);
+    if(peint('rgp-m-0')!=='rouge' || peint('rgp-n-0')!=='vert' || peint('rgp-s-0')!=='rien')
+      vus.push('soutien en direct : '+peint('rgp-m-0')+' / '+peint('rgp-n-0')+' / '+peint('rgp-s-0'));
+    currentMode='train';
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
 function ordreCroissant(w, P){
   const present = evaluer(w, "typeof startOrd==='function' && typeof ordGen==='function'");
   if(!present.ok || !present.valeur){
@@ -12616,19 +12710,19 @@ function ordreCroissant(w, P){
 function additionnerRelatifs(w, P){
   const present = evaluer(w, "typeof startRel==='function' && typeof relGen==='function'");
   if(!present.ok || !present.valeur){
-    ignorer('additionner deux relatifs : le tirage, la correction et la place dans le thème Rappels',
+    ignorer('additionner deux relatifs : le tirage, la correction et la place dans le thème Calcul littéral',
       'ce niveau n\'a pas l\'exercice des relatifs');
     return;
   }
-  verifierEval(w, 'additionner deux relatifs : le tirage, la correction et la place dans le thème Rappels', `(function(){
+  verifierEval(w, 'additionner deux relatifs : le tirage, la correction et la place dans le thème Calcul littéral', `(function(){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='additionner-relatifs';
 
-    /* ---- 0. la place : thème 7 « Rappels », et les six autres ne bougent pas */
+    /* ---- 0. la place : thème 7 « Calcul littéral » (d'abord nommé « Rappels », renommé à la demande de Turquet), et les six autres ne bougent pas */
     const th=THEMES.find(function(t){ return t.num===7; });
-    if(!th || !/Rappel/i.test(th.nom) || th.ids.indexOf('additionner-relatifs')<0)
-      vus.push('l\\'exercice n\\'est pas dans un thème 7 « Rappels »');
+    if(!th || !/Calcul littéral/i.test(th.nom) || th.ids.indexOf('additionner-relatifs')<0)
+      vus.push('l\\'exercice n\\'est pas dans un thème 7 « Calcul littéral »');
     if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('numéro '+TEST_NUM['additionner-relatifs']+' au lieu de 7.1');
     if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
     if(TABLES_SANS.indexOf('additionner-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
@@ -12703,7 +12797,7 @@ function additionnerRelatifs(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
-/* {multiplier-relatifs} — thème 7 « Rappels », juste après le 7.1 : la règle
+/* {multiplier-relatifs} — thème 7 « Calcul littéral », 7.3 : la règle
    des signes, complétée puis appliquée. Le tirage (un chiffre, jamais zéro) et
    les réponses sont jugés par une SECONDE méthode : l'arithmétique de
    JavaScript sur le produit lui-même, jamais les fonctions de la page qui
@@ -12711,21 +12805,21 @@ function additionnerRelatifs(w, P){
 function multiplierRelatifs(w, P){
   const present = evaluer(w, "typeof startMrl==='function' && typeof mrlGen==='function'");
   if(!present.ok || !present.valeur){
-    ignorer('multiplier deux relatifs : le tirage, la correction et la place dans le thème Rappels',
+    ignorer('multiplier deux relatifs : le tirage, la correction et la place dans le thème Calcul littéral',
       'ce niveau n\'a pas l\'exercice des produits de relatifs');
     return;
   }
-  verifierEval(w, 'multiplier deux relatifs : le tirage, la correction et la place dans le thème Rappels', `(function(){
+  verifierEval(w, 'multiplier deux relatifs : le tirage, la correction et la place dans le thème Calcul littéral', `(function(){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='multiplier-relatifs';
 
-    /* ---- 0. la place : 7.2, juste après le 7.1 ; le bouton des tables est LÀ */
+    /* ---- 0. la place : 7.3, après le 7.1 et le 7.2 ; le bouton des tables est LÀ */
     const th=THEMES.find(function(t){ return t.num===7; });
-    if(!th || !/Rappel/i.test(th.nom) || th.ids.indexOf('multiplier-relatifs')<0)
-      vus.push('l\\'exercice n\\'est pas dans le thème 7 « Rappels »');
-    if(TEST_NUM['multiplier-relatifs']!=='7.2') vus.push('numéro '+TEST_NUM['multiplier-relatifs']+' au lieu de 7.2');
-    if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('le 7.1 a bougé : '+TEST_NUM['additionner-relatifs']);
+    if(!th || !/Calcul litt/i.test(th.nom) || th.ids.indexOf('multiplier-relatifs')<0)
+      vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
+    if(TEST_NUM['multiplier-relatifs']!=='7.3') vus.push('numéro '+TEST_NUM['multiplier-relatifs']+' au lieu de 7.3');
+    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2') vus.push('le 7.1 ou le 7.2 a bougé');
     if(TABLES_SANS.indexOf('multiplier-relatifs')>=0) vus.push('le bouton des tables est retiré : le résultat est un produit de table');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
