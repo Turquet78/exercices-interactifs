@@ -433,6 +433,26 @@ solidarités rendent cet écart sans conséquence.
 
 ---
 
+## Quand passer à Fable
+
+Turquet crée les exercices avec Opus et garde Fable, dont la limite
+hebdomadaire est courte, pour ce qui résiste (décision de septembre 2026).
+**Si un problème résiste après deux tentatives de correction** (contrôles
+toujours rouges, ou bug introuvable), Claude cesse d'essayer et le dit, en
+proposant deux options :
+
+1. **passer toute la conversation sur Fable** : c'est Turquet qui change de
+   modèle dans le sélecteur ;
+2. **confier seulement le point bloquant à un sous-agent Fable** (outil
+   `Agent`, `model: "fable"`), avec une tâche précise, puis reprendre la suite
+   sous Opus.
+
+L'option 2 consomme la limite Fable : elle se **propose**, elle ne se lance
+jamais sans accord. Cette règle ne s'applique pas quand la session tourne déjà
+sous Fable.
+
+---
+
 ## Vérifier
 
 ```bash
