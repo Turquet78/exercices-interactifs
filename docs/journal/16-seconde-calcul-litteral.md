@@ -197,3 +197,54 @@ seule la page ouverte dans Chromium l'a montré. Et le résolveur écrit pour
 l'occasion s'est d'abord pris au filet `=====` d'un en-tête de commentaire,
 qu'il a lu comme le séparateur de conflit : un séparateur se reconnaît à ce
 qu'il est SEUL sur sa ligne.
+
+## {reduire-somme} — réduire une somme de termes (7.5, v206)
+
+**La demande** (Turquet, septembre 2026) : reprendre une fiche papier
+« Réduire si possible » dans le thème « écriture littérale ». La fiche
+prend UNE paire de nombres (2 et 3) et la décline sur dix expressions de deux
+termes : 2x + 3x, 2x + 3, 2x − 3x, 2x − 3, −2x − 3x, −2x + 3x, −2x² + 3x²,
+−2x² + 3x, −2x² + 3, −2x² − 3x². En tête, une phrase à compléter : « On ne
+peut additionner que des termes … » — de même nature.
+
+**La demande parlait du thème « écriture littérale »** : c'est le thème 7,
+renommé « Calcul littéral » le même jour ({additionner-relatifs} et
+{nombres-relatifs}). L'exercice s'y range en 7.5, après {multiplier-relatifs} (7.3) et {calcul-itere} (7.4), arrivés sur `main` le même après-midi — un thème 8 « Écriture
+littérale » à côté aurait fait deux thèmes pour une même idée. Il arrive en
+dernier dans le thème : rien n'est renuméroté.
+
+**Une page = une question = onze cases** : la liste de la règle (« de même
+signe » / « de même nature » / « qui ont le même coefficient »), puis une case
+par expression. Trois pages, barème 33. Les deux nombres d'une page vont de 2
+à 9 et sont DIFFÉRENTS : avec a = b, −ax + ax vaut 0 ; avec 1, l'énoncé
+écrirait « 1x ». La première page suit l'ordre de la fiche ; les suivantes
+mélangent les lignes (`q.ordre`, hors de la clé de `distinctes()`), sans quoi
+les quatre lignes qui ne se réduisent pas se reconnaîtraient à leur rang.
+
+**Une expression qui ne se réduit pas se RECOPIE**, et c'est tout le piège de
+la fiche : 2x + 3 = 5x, −2x² + 3x = x². La consigne le dit.
+
+**La case lit une somme de termes, pas une chaîne** (`redLit`) : l'ordre des
+termes est libre (3 + 2x), x² s'écrit « x² », « x^2 » ou « x2 », le moins
+« - » ou « − », « x » vaut 1x et « 1x » est accepté. Une réponse de même
+VALEUR mais non réduite (« 2x+3x », « 2x + 0 ») est fausse, et le message le
+dit. Un bouton « x² » à côté de chaque case écrit x² au curseur : sur
+tablette, ni « ² » ni « ^ » ne se trouvent sans chercher.
+
+**On range les deux nombres et l'ordre, jamais les réponses** : `redLignes()`
+recalcule les expressions et leur forme réduite dans la fonction qui corrige.
+
+**Le juge** (`tests/verifier.js`, « réduire une somme de termes ») : la place
+(7.5, le 7.1 à 7.4 inchangés, sept thèmes, un badge de mode qui est le sien, pas de bouton des tables), 500 séances
+tirées (2 à 9, différents, pages distinctes, la fiche en tête, les lignes
+mélangées ensuite), les 56 paires jugées par une SECONDE méthode — la valeur de
+l'expression et celle de la réponse attendue, en trois valeurs de x ; une
+réponse d'une ligne réductible a un seul terme, celle d'une ligne qui ne se
+réduit pas est l'expression elle-même. Puis le bouton : la copie juste (11/11,
+avec des ordres et des écritures variés), les pièges (règle « de même signe »,
+2x + 3 = 5x, −2x² + 3x = x², 2x − 3x = x : rouges, leurs voisines justes
+restent justes, le message dit « de même nature »), une réduction inachevée
+rouge, « 1x » juste, deux cases vides (vertes, la correction écrit −x), une
+écriture illisible rouge. Éprouvé par sabotage : une case qui accepte une
+somme non réduite rougit le juge (« « 2x+3x » pour 2x + 3x est peint en
+vert »).

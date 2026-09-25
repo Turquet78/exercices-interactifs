@@ -3610,6 +3610,7 @@ function exercices(suite){
     additionnerRelatifs(w, P);
     multiplierRelatifs(w, P);
     calculItere(w, P);
+    reduireSomme(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -12981,6 +12982,118 @@ function calculItere(w, P){
     poser(['7,','35','37','222']); checkCitAnswer();
     if(peint('cit-r-0')!=='faux') vus.push('« 7, » est peint en '+peint('cit-r-0'));
     if(test.maxScore!==20) vus.push('barème de '+test.maxScore+' au lieu de 20');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {reduire-somme} — thème 7 « Calcul littéral » : réduire si possible une
+   somme de deux termes. Les réponses attendues sont jugées par une SECONDE
+   méthode : la valeur de l'expression et celle de la réponse, calculées en
+   plusieurs x — jamais les fonctions de la page qui corrigent. */
+function reduireSomme(w, P){
+  const present = evaluer(w, "typeof startRed==='function' && typeof redLignes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('réduire une somme de termes : le tirage, la correction et la place dans le thème Calcul littéral',
+      'ce niveau n\'a pas l\'exercice de réduction');
+    return;
+  }
+  verifierEval(w, 'réduire une somme de termes : le tirage, la correction et la place dans le thème Calcul littéral', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='reduire-somme';
+
+    /* ---- 0. la place : 7.5 dans le thème 7 « Calcul littéral », et rien d'autre ne bouge */
+    const th=THEMES.find(function(t){ return t.num===7; });
+    if(!th || !/Calcul littéral/i.test(th.nom) || th.ids.indexOf('reduire-somme')<0)
+      vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
+    if(TEST_NUM['reduire-somme']!=='7.5') vus.push('numéro '+TEST_NUM['reduire-somme']+' au lieu de 7.5');
+    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3' || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['simplifier-barres']!=='5.1') vus.push('l\\'exercice ajouté a renuméroté les autres');
+    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(TABLES_SANS.indexOf('reduire-somme')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+    if(document.querySelectorAll('#modeTagRed').length!==1) vus.push('le badge du mode du 7.5 n\\'est pas le sien');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    const rangs={};
+    for(let i=0;i<500 && !vus.length;i++){
+      const qs=redBuildQuestions();
+      const cles=qs.map(function(q){ return q.a+'-'+q.b; });
+      if(new Set(cles).size!==qs.length){ vus.push('deux pages tirent les mêmes nombres : '+cles.join(' ')); break; }
+      if(qs[0].ordre.join(',')!=='0,1,2,3,4,5,6,7,8,9') vus.push('la première page ne suit pas l\\'ordre de la fiche');
+      qs.forEach(function(q,ix){
+        [q.a,q.b].forEach(function(n){ if(!(Number.isInteger(n) && n>=2 && n<=9)) vus.push('nombre tiré hors de 2…9 : '+n); });
+        if(q.a===q.b) vus.push('deux nombres égaux : '+q.a);
+        if(q.ordre.slice().sort().join(',')!=='0,1,2,3,4,5,6,7,8,9') vus.push('les dix lignes ne sont pas toutes là : '+q.ordre.join(','));
+        if(ix>0) rangs[q.ordre.indexOf(1)]=1;
+      });
+    }
+    if(!vus.length && Object.keys(rangs).length<3) vus.push('au-delà de la première page, 2x + 3 revient toujours au même rang');
+
+    /* ---- 2. les réponses attendues, par la VALEUR en plusieurs x --------- */
+    const val=function(txt, x){   /* évalue « −2x² + 3x » en x, sans les fonctions de la page */
+      const js=txt.replace(/−/g,'-').replace(/\\s+/g,'').replace(/(\\d)x/g,'$1*x').replace(/x²/g,'(x*x)').replace(/x/g,'('+x+')');
+      return Function('return '+js)();
+    };
+    const nbTermes=function(txt){ return txt.replace(/^−/,'').split(/ [+−] /).length; };
+    for(let a=2;a<=9;a++) for(let b=2;b<=9;b++){ if(a===b) continue;
+      redLignes({a:a,b:b,ordre:[0,1,2,3,4,5,6,7,8,9]}).forEach(function(l){
+        [-3,2,5].forEach(function(x){ if(Math.abs(val(l.expr,x)-val(l.bon,x))>1e-9) vus.push(l.expr+' ≠ '+l.bon+' en x = '+x); });
+        const memes=(l.expr.match(/x²/g)||[]).length===2 || ((l.expr.match(/x(?!²)/g)||[]).length===2);
+        if(memes && nbTermes(l.bon)!==1) vus.push(l.expr+' : '+l.bon+' n\\'est pas réduit');
+        if(!memes && l.bon!==l.expr) vus.push(l.expr+' ne se réduit pas, et la page attend '+l.bon);
+        if(/(^|[^0-9])1x/.test(l.bon)) vus.push(l.expr+' : la page attend « '+l.bon+' » (1x)');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 3. la correction, par le BOUTON --------------------------------- */
+    startRed();
+    test.questions[test.idx]={a:2,b:3,ordre:[0,1,2,3,4,5,6,7,8,9]};   /* la fiche */
+    const JUSTE={'red-regle':'nature','red-r-0':'5x','red-r-1':'2x+3','red-r-2':'-x','red-r-3':'2x − 3','red-r-4':'−5x',
+                 'red-r-5':'x','red-r-6':'x^2','red-r-7':'3x-2x²','red-r-8':'-2x2+3','red-r-9':'-5x²'};
+    const IDS=Object.keys(JUSTE);
+    const poser=function(vals){
+      test.locked=false; renderRedTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    poser(JUSTE);
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
+    /* copie juste — l'ordre des termes est libre, x² s'écrit x², x^2 ou x2, le moins des deux façons */
+    checkRedAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    const nonVerts=IDS.filter(function(id){ return peint(id)!=='vert'; });
+    if(nonVerts.length) vus.push('la copie juste n\\'est pas entièrement juste : '+nonVerts.join(', '));
+    if(!der || der.cases!==11) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 11');
+    /* LES PIÈGES : 2x + 3 = 5x, −2x² + 3x = x², 2x − 3x = x, la règle « de même signe » */
+    poser(Object.assign({},JUSTE,{'red-regle':'signe','red-r-1':'5x','red-r-7':'x²','red-r-2':'x'}));
+    checkRedAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('les pièges sont acceptés');
+    ['red-regle','red-r-1','red-r-7','red-r-2'].forEach(function(id){ if(peint(id)!=='rouge') vus.push(id+' faux, peint en '+peint(id)); });
+    if(peint('red-r-0')!=='vert') vus.push('une case juste rougit à côté des fausses');
+    if(!/même nature/.test((document.getElementById('redFeedback')||{}).textContent||'')) vus.push('le message ne dit pas « de même nature »');
+    /* 2x + 3 = 5x seul : le message nomme les deux natures */
+    poser(Object.assign({},JUSTE,{'red-r-1':'5x'}));
+    checkRedAnswer();
+    const fb=(document.getElementById('redFeedback')||{}).textContent||'';
+    if(!/ne se réduit pas/.test(fb) || !/un nombre/.test(fb)) vus.push('le message sur 2x + 3 = 5x : '+fb);
+    /* une réduction inachevée (2x + 3x recopié) est fausse ; « 1x » est lu */
+    poser(Object.assign({},JUSTE,{'red-r-0':'2x+3x','red-r-5':'1x'}));
+    checkRedAnswer();
+    if(peint('red-r-0')!=='rouge') vus.push('« 2x+3x » pour 2x + 3x est peint en '+peint('red-r-0'));
+    if(peint('red-r-5')!=='vert') vus.push('« 1x » pour −2x + 3x est peint en '+peint('red-r-5'));
+    /* une case vide ne rougit pas, et reçoit la correction */
+    poser(Object.assign({},JUSTE,{'red-r-2':'','red-regle':''}));
+    checkRedAnswer();
+    ['red-r-2','red-regle'].forEach(function(id){ if(peint(id)!=='bleu') vus.push('case vide '+id+' peinte en '+peint(id)); });
+    if((document.getElementById('red-r-2')||{}).value!=='−x') vus.push('la correction de la case vide n\\'écrit pas −x');
+    /* une réponse illisible est fausse, pas vide */
+    poser(Object.assign({},JUSTE,{'red-r-0':'5x+'}));
+    checkRedAnswer();
+    if(peint('red-r-0')!=='rouge') vus.push('« 5x+ » est peint en '+peint('red-r-0'));
+    /* le barème : 3 pages de 11 cases */
+    if(test.maxScore!==33) vus.push('barème de '+test.maxScore+' au lieu de 33');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
