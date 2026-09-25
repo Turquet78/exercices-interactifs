@@ -137,3 +137,16 @@ message le dit), une case vide (correction verte « 35 », voisines justes
 bleues), une réponse illisible (rouge).
 Éprouvé par sabotage : une alternance rompue (`citEstProduit` qui ne regarde
 plus le rang) rougit le juge en nommant l'étape et la chaîne fausse.
+
+**La fusion qui recoud deux ajouts au même endroit laisse la fin commune au
+second seul.** Le 7.2 et le 7.3 ajoutaient chacun un écran après celui du 7.1
+et un moteur après celui du 7.1 : git les a vus comme UN conflit, dont la fin —
+`</div></div></section>` pour l'écran, `return …; }` pour le contexte envoyé
+au modèle — était commune. Mettre les deux blocs bout à bout a donc fermé le
+second et laissé le premier ouvert : l'écran 7.3 vivait DANS l'écran 7.2
+(invisible, des cases de 0 × 0 px), et `ctxCit` DANS `ctxRgp`. Le banc jsdom
+a vu le second (« chaque corps de fonction est découpé entier ») ; le premier,
+seule la page ouverte dans Chromium l'a montré. Et le résolveur écrit pour
+l'occasion s'est d'abord pris au filet `=====` d'un en-tête de commentaire,
+qu'il a lu comme le séparateur de conflit : un séparateur se reconnaît à ce
+qu'il est SEUL sur sa ligne.
