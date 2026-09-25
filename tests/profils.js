@@ -104,7 +104,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'nombres-relatifs':'rgp', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -912,7 +912,7 @@ module.exports = {
        endroit n'aurait rien prouvé. */
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
-                         'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'lecture-variations',
+                         'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
                          'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres'] },
