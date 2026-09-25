@@ -1283,7 +1283,7 @@
   .rel-in.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
   .rel-in.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
   @media(max-width:520px){ .rel-regle .plc-sel{min-width:0;width:100%} .rel-bloc{padding:10px} }
-  /* ---- Calcul itéré : alterner somme et produit (thème Calcul itéré) ----
+  /* ---- Calcul itéré : alterner somme et produit (7.3, thème Calcul littéral) ----
      Une ligne par étape, « 7 × 5 = [  ] » : le nombre de gauche est le
      résultat de la ligne d'avant, recopié dès que l'élève l'écrit. La case a
      la taille des nombres qui l'entourent (1,45 rem, la police du calcul). */
@@ -3890,6 +3890,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="mp-feedback" id="rgpFeedback"></div>
       <div class="row" style="justify-content:center">
         <span id="rgpActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkRgpAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- CALCUL ITÉRÉ : ALTERNER SOMME ET PRODUIT -->
   <section class="screen" id="scr-cit">
     <div class="test-top">
