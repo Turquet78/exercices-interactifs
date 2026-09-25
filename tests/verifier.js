@@ -12705,13 +12705,13 @@ function ordreCroissant(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
-/* {associer-expressions} — 7.5, thème « Calcul littéral » : quatre expressions
+/* {associer-expressions} — 7.6, thème « Calcul littéral » : quatre expressions
    (n², 2 × n, n/n, n − n) à associer à 0, n + n, 1, n × n ; trois pages à
    nombres, puis UNE page avec x. Les réponses sont jugées par une SECONDE
    méthode : la VALEUR de chaque expression et de chaque résultat, calculée
    ici — jamais la table de la page. */
 function associerExpressions(w, P){
-  const nom = 'associer les expressions : trois nombres puis x, la correction et la place dans le thème Calcul littéral (7.5)';
+  const nom = 'associer les expressions : trois nombres puis x, la correction et la place dans le thème Calcul littéral (7.6)';
   const present = evaluer(w, "typeof startAsx==='function' && typeof asxLignes==='function'");
   if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice d\'association'); return; }
   verifierEval(w, nom, `(function(){
@@ -12721,7 +12721,7 @@ function associerExpressions(w, P){
     /* ---- 0. la place ------------------------------------------------------ */
     const th=THEMES.find(function(t){ return t.num===7; });
     if(!th || !/Calcul littéral/i.test(th.nom) || th.ids.indexOf('associer-expressions')<0) vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
-    if(TEST_NUM['associer-expressions']!=='7.5') vus.push('numéro '+TEST_NUM['associer-expressions']+' au lieu de 7.5');
+    if(TEST_NUM['associer-expressions']!=='7.6') vus.push('numéro '+TEST_NUM['associer-expressions']+' au lieu de 7.6');
     if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('le 7.1 a bougé');
     /* ---- 1. le tirage : trois nombres distincts de 3 à 9, puis x une fois -- */
     const ordres={};
