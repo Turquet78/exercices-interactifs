@@ -3612,6 +3612,7 @@ function exercices(suite){
     multiplierRelatifs(w, P);
     calculItere(w, P);
     reduireSomme(w, P);
+    soustraireRelatifs(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -13169,6 +13170,111 @@ function reduireSomme(w, P){
     if(peint('red-r-0')!=='rouge') vus.push('« 5x+ » est peint en '+peint('red-r-0'));
     /* le barème : 3 pages de 11 cases */
     if(test.maxScore!==33) vus.push('barème de '+test.maxScore+' au lieu de 33');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {soustraire-relatifs} — thème 7 « Calcul littéral » : soustraire un
+   relatif, c'est additionner son opposé. Le tirage (un chiffre, jamais zéro,
+   deux chiffres différents) et les réponses sont jugés par une SECONDE
+   méthode : l'arithmétique de JavaScript sur la soustraction elle-même, jamais
+   les fonctions de la page qui corrigent. */
+function soustraireRelatifs(w, P){
+  const present = evaluer(w, "typeof startSrl==='function' && typeof srlGen==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('soustraire un relatif : le tirage, la correction et la place dans le thème Calcul littéral',
+      'ce niveau n\'a pas l\'exercice de soustraction des relatifs');
+    return;
+  }
+  verifierEval(w, 'soustraire un relatif : le tirage, la correction et la place dans le thème Calcul littéral', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='soustraire-relatifs';
+
+    /* ---- 0. la place : 7.7, après les six premiers exercices du thème */
+    const th=THEMES.find(function(t){ return t.num===7; });
+    if(!th || !/Calcul litt/i.test(th.nom) || th.ids.indexOf('soustraire-relatifs')<0)
+      vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
+    if(TEST_NUM['soustraire-relatifs']!=='7.7') vus.push('numéro '+TEST_NUM['soustraire-relatifs']+' au lieu de 7.7');
+    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3' || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['reduire-somme']!=='7.5' || TEST_NUM['associer-expressions']!=='7.6') vus.push('un exercice de 7.1 à 7.6 a bougé');
+    if(TABLES_SANS.indexOf('soustraire-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    const ordres={};
+    for(let i=0;i<1500 && !vus.length;i++){
+      const qs=srlBuildQuestions();
+      const cles=qs.map(function(q){ return Math.min(q.a,q.b)+'-'+Math.max(q.a,q.b); });
+      if(new Set(cles).size!==qs.length){ vus.push('deux pages tirent la même paire : '+cles.join(' ')); break; }
+      if(!(qs[0].a>qs[0].b)) vus.push('la première page ne suit pas la fiche (le premier nombre le plus fort) : '+qs[0].a+', '+qs[0].b);
+      qs.forEach(function(q,ix){
+        [q.a,q.b].forEach(function(n){ if(!(Number.isInteger(n) && n>=1 && n<=9)) vus.push('nombre tiré hors de 1…9 : '+n); });
+        if(q.a===q.b) vus.push('deux chiffres égaux : '+q.a);
+        if(ix>0) ordres[q.a>q.b?'fort-devant':'fort-derriere']=1;
+      });
+    }
+    if(!vus.length && Object.keys(ordres).length<2) vus.push('au-delà de la première page, le plus fort est toujours au même rang');
+
+    /* ---- 2. les réponses attendues, contre la soustraction elle-même ----- */
+    for(let a=1;a<=9;a++) for(let b=1;b<=9;b++){ if(a===b) continue;
+      const vues={};
+      srlLignes({a:a,b:b}).forEach(function(l){
+        const x=l.sa*a, y=l.sb*b, r=x-y;
+        vues[l.sa+'/'+l.sb]=1;
+        if(l.r!==r) vus.push(l.gauche+' : résultat '+l.r+' au lieu de '+r);
+        /* l'opposé de y, c'est -y : son signe est celui de -y */
+        if(l.oppose!==((-y)>0?'+':'-')) vus.push(l.gauche+' : signe de l\\'opposé '+l.oppose);
+        if(x+(-y)!==r) vus.push(l.gauche+' : l\\'addition de l\\'opposé ne redonne pas la soustraction');
+      });
+      if(Object.keys(vues).length!==4) vus.push(a+' et '+b+' : les quatre combinaisons de signes n\\'y sont pas');
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 3. la correction, par le BOUTON --------------------------------- */
+    startSrl();
+    test.questions[test.idx]={a:3,b:2};   /* la fiche */
+    const JUSTE={'srl-regle':'oppose','srl-op-0':'-','srl-r-0':'1','srl-op-1':'+','srl-r-1':'+5',
+                 'srl-op-2':'-','srl-r-2':'−5','srl-op-3':'+','srl-r-3':'-1'};
+    const IDS=Object.keys(JUSTE);
+    const poser=function(vals){
+      test.locked=false; renderSrlTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    poser({});
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
+    /* la page écrit la ligne de la fiche : « +3 − (−2) = +3 + ( ? 2 ) = » */
+    const txt=(document.getElementById('srlHost')||{}).textContent||'';
+    if(txt.indexOf('+3 − (−2)')<0 || txt.indexOf('= +3 + (')<0) vus.push('la ligne de la fiche ne s\\'écrit pas : '+txt.slice(0,120));
+    poser(JUSTE); checkSrlAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    const nonVerts=IDS.filter(function(id){ return peint(id)!=='vert'; });
+    if(nonVerts.length) vus.push('la copie juste n\\'est pas entièrement juste : '+nonVerts.join(', '));
+    if(!der || der.cases!==9) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 9');
+    /* LE PIÈGE : garder le signe du nombre soustrait — +3 − (−2) = +3 + (−2) = 1 ;
+       et l'inverse à la place de l'opposé */
+    const piege=Object.assign({},JUSTE,{'srl-regle':'inverse','srl-op-1':'-','srl-r-1':'1'});
+    poser(piege); checkSrlAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('garder le signe du nombre soustrait est accepté');
+    ['srl-regle','srl-op-1','srl-r-1'].forEach(function(id){ if(peint(id)!=='rouge') vus.push(id+' faux, peint en '+peint(id)); });
+    if(peint('srl-op-0')!=='vert' || peint('srl-r-3')!=='vert') vus.push('une case juste rougit à côté d\\'une ligne fausse');
+    if(!/opposé/i.test((document.getElementById('srlFeedback')||{}).textContent||'')) vus.push('le message ne parle pas de l\\'opposé');
+    poser(Object.assign({},JUSTE,{'srl-op-1':'-','srl-r-1':'1'})); checkSrlAnswer();
+    if(!/\\+3 − \\(−2\\) = \\+3 \\+ \\(\\+2\\) = 5/.test((document.getElementById('srlFeedback')||{}).textContent||''))
+      vus.push('le message ne réécrit pas la ligne fausse : « '+((document.getElementById('srlFeedback')||{}).textContent||'')+' »');
+    /* une case vide ne rougit pas, et ne fait pas rougir ses voisines */
+    const trou=Object.assign({},JUSTE,{'srl-r-2':'','srl-op-3':''});
+    poser(trou); checkSrlAnswer();
+    ['srl-r-2','srl-op-3'].forEach(function(id){ if(peint(id)!=='bleu') vus.push('case vide '+id+' peinte en '+peint(id)); });
+    if(peint('srl-op-2')!=='vert' || peint('srl-r-3')!=='vert') vus.push('une case juste rougit parce qu\\'une voisine est vide');
+    if((document.getElementById('srl-r-2')||{}).value!=='−5') vus.push('la correction de la case vide n\\'écrit pas −5');
+    /* une réponse illisible est fausse, pas vide */
+    poser(Object.assign({},JUSTE,{'srl-r-0':'1,'})); checkSrlAnswer();
+    if(peint('srl-r-0')!=='rouge') vus.push('« 1, » est peint en '+peint('srl-r-0'));
+    /* le barème : 3 pages de 9 cases */
+    if(test.maxScore!==27) vus.push('barème de '+test.maxScore+' au lieu de 27');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

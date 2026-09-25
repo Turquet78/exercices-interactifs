@@ -293,3 +293,49 @@ exige qu'une seule valeur corresponde — c'est ce qui tient l'exclusion de 1
 et de 2. Il rejoue ensuite la correction par le bouton : copie juste sur les
 quatre pages, le carré pris pour le double (rouge, les deux autres restent
 justes, le message dit « 3 × 3 »), une case vide qui reçoit la correction.
+
+## {soustraire-relatifs} — soustraire un relatif, c'est additionner son opposé (7.7, v208)
+
+**La demande** (Turquet, septembre 2026) : reprendre une fiche papier
+(« relatifs_4 ») dans le thème du calcul littéral, avec des nombres à un
+chiffre, jamais zéro. Il vient en 7.7, à la suite des six premiers.
+Écrit d'abord comme un thème 8 « Calcul littéral » — le 7 s'appelait encore
+« Rappels » —, il a rejoint le 7 quand {nombres-relatifs} l'a renommé. Puis
+cinq autres sessions ont ajouté un exercice au même thème le même
+après-midi, et chacune de leurs fusions l'a repoussé d'un rang : 7.3, 7.4,
+7.5, 7.6, 7.7. Le premier à fusionner garde le numéro, et la branche a été
+refaite sur `main` à chaque fois plutôt que fusionnée à la main : les
+conflits tombaient tous dans les mêmes listes, où chaque côté ajoutait son
+entrée au même endroit.
+
+**La fiche** prend UNE paire (3 et 2) et la décline sur les quatre signes, en
+une chaîne d'égalités : +3 − (+2) = +3 + ( … 2) = …… ; en tête, la règle à
+compléter : « il suffit d'additionner son …… ». La page reprend la chaîne à
+l'identique : le signe dans la parenthèse est une liste (+ / −), le résultat
+une case `inputmode="numeric"` ; la règle est une liste « opposé / inverse /
+double » — l'inverse est la confusion de vocabulaire que la fiche vise.
+**Neuf cases par page, trois pages, barème 27.**
+
+**La chaîne est une égalité poursuivie** : trois groupes insécables
+(`.srl-grp`), si bien qu'un écran étroit la replie ENTRE deux « = », jamais
+entre un « = » et la case qu'il annonce.
+
+**Le tirage** : deux chiffres DIFFÉRENTS de 1 à 9 (avec 3 et 3, deux lignes
+vaudraient 0) ; la première page suit la fiche (le premier nombre est le plus
+fort), les suivantes tirent l'ordre. Deux pages ne portent jamais la même
+paire, DANS UN ORDRE OU DANS L'AUTRE — plus strict que `distinctes()`, qui
+compare les paires dans l'ordre : 3 et 2 puis 2 et 3 poseraient les mêmes
+calculs. On range les deux chiffres, jamais les réponses (`srlLignes()`). Les
+aides (vérification, résultat, lecteur de nombres) sont celles du 7.1 :
+`relMoins()`, `relLit()`, `corrChoix()`.
+
+**Le juge** (`tests/verifier.js`, « soustraire un relatif ») : la place (7.7,
+thèmes 1 à 7, les 7.1 à 7.6 immobiles, pas de bouton des tables), 1 500 tirages, les
+72 paires jugées par l'arithmétique de JavaScript (le signe de l'opposé est
+celui de −y, et x + (−y) redonne x − y), la ligne de la fiche écrite à
+l'écran, puis le bouton : la copie juste (9/9), le piège « garder le signe »
+(+3 − (−2) = +3 + (−2) = 1) avec « inverse » pour la règle — rouge sur les
+trois cases, les voisines justes restent justes, le message parle de
+l'opposé et réécrit la ligne fausse —, deux cases vides (correction, pas de
+rouge), « 1, » faux et non vide. Éprouvé par sabotage : un signe d'opposé
+inversé dans `srlLignes()` rougit le juge en nommant les quatre lignes.
