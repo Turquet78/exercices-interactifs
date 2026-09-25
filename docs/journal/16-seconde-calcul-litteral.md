@@ -135,7 +135,70 @@ passe par le bouton :
 Éprouvé par sabotage : une règle des signes qui attend « + » partout rougit
 le juge sur `mrl-rs-1` et `mrl-rs-2`.
 
-## {reduire-somme} — réduire une somme de termes (7.4, v205)
+## {calcul-itere} — alterner somme et produit (7.4, v205)
+
+**La demande** (Turquet, septembre 2026) : un nouvel exercice « dans le thème
+calcul itéré », avec des nombres à un chiffre, jamais zéro, en alternant somme
+et produit. Aucun thème ne portait ce nom : le premier jet a créé un thème 8
+« Calcul itéré ». Puis `main` a renommé le thème 7 « Calcul littéral » le même
+jour — c'était lui que la demande désignait (une dictée qui entend « itéré »
+pour « littéral »). L'exercice y a pris la place 7.3, après les deux exercices
+des relatifs, puis 7.4 quand {multiplier-relatifs} a été publié avant lui ; aucun thème 8 n'a été publié. Quand un nom de thème demandé
+n'existe pas, on relit d'abord `main` : il a pu changer depuis que la branche
+est partie.
+
+**Une page = une chaîne** : un nombre de départ (1 à 9), puis quatre étapes
+qui alternent « + chiffre » et « × chiffre ». Chaque ligne s'écrit comme une
+égalité, « 7 × 5 = [  ] », où le 7 est le résultat de la ligne d'avant,
+RECOPIÉ en tête de ligne dès que l'élève l'écrit (`citEcho`). Cinq pages,
+quatre cases chacune, barème 20. La première page commence par une somme, la
+deuxième par un produit, les suivantes tirent au sort. Pas de « × 1 » : il ne
+demande aucun calcul (les sommes, elles, gardent le 1). Les pages passent par
+`distinctes()`.
+
+**Une erreur ne se paie qu'une fois.** Chaque ligne est jugée à partir du
+nombre que l'élève a écrit à la ligne d'avant — celui qu'il voit recopié en
+tête. Si cette case est vide ou illisible, on repart de ce que la correction y
+écrit (`att`, pas la valeur juste : sans quoi la ligne suivante afficherait un
+nombre et serait jugée sur un autre dès qu'une case plus haute est fausse).
+Sans cette règle, 3 + 4 = 8 rougirait les quatre cases.
+
+**On range les chiffres, jamais les réponses** : `citAttendus()` recalcule la
+chaîne dans la fonction qui corrige. Les réponses s'écrivent en chiffres, les
+espaces ne comptent pas (« 1 539 ») ; « 7, » est faux, pas vide. Les cases sont
+`inputmode="numeric"`. Le bouton des tables reste proposé : on y multiplie.
+
+**Le message** nomme la première ligne fausse, avec son calcul, et reconnaît
+le piège de l'alternance : « Tu as ADDITIONNÉ : cette ligne est un PRODUIT »
+(ou l'inverse).
+
+**Le juge** (`tests/verifier.js`, « calcul itéré ») : la place (7.4, les
+relatifs restent 7.1, 7.2 et 7.3, bouton des tables présent), 500 séances tirées (cinq
+pages, départ et chiffres dans 1…9, jamais × 1, alternance tenue, les deux
+premières pages dans l'ordre somme puis produit, les deux départs au-delà),
+la chaîne recalculée par une boucle écrite à part, puis le bouton : la copie
+juste (4/4, « 2 22 » accepté), l'écho de la ligne 1 en tête de la ligne 2,
+l'erreur qui ne se paie qu'une fois (3 + 4 = 8, puis 40, 42, 252 : une seule
+case rouge), le piège de l'alternance (7 + 5 au lieu de 7 × 5 : rouge, et le
+message le dit), une case vide (correction verte « 35 », voisines justes
+bleues), une réponse illisible (rouge).
+Éprouvé par sabotage : une alternance rompue (`citEstProduit` qui ne regarde
+plus le rang) rougit le juge en nommant l'étape et la chaîne fausse.
+
+**La fusion qui recoud deux ajouts au même endroit laisse la fin commune au
+second seul.** Le 7.2 et le 7.3 ajoutaient chacun un écran après celui du 7.1
+et un moteur après celui du 7.1 : git les a vus comme UN conflit, dont la fin —
+`</div></div></section>` pour l'écran, `return …; }` pour le contexte envoyé
+au modèle — était commune. Mettre les deux blocs bout à bout a donc fermé le
+second et laissé le premier ouvert : l'écran 7.3 vivait DANS l'écran 7.2
+(invisible, des cases de 0 × 0 px), et `ctxCit` DANS `ctxRgp`. Le banc jsdom
+a vu le second (« chaque corps de fonction est découpé entier ») ; le premier,
+seule la page ouverte dans Chromium l'a montré. Et le résolveur écrit pour
+l'occasion s'est d'abord pris au filet `=====` d'un en-tête de commentaire,
+qu'il a lu comme le séparateur de conflit : un séparateur se reconnaît à ce
+qu'il est SEUL sur sa ligne.
+
+## {reduire-somme} — réduire une somme de termes (7.5, v206)
 
 **La demande** (Turquet, septembre 2026) : reprendre une fiche papier
 « Réduire si possible » dans le thème « écriture littérale ». La fiche
@@ -146,7 +209,7 @@ peut additionner que des termes … » — de même nature.
 
 **La demande parlait du thème « écriture littérale »** : c'est le thème 7,
 renommé « Calcul littéral » le même jour ({additionner-relatifs} et
-{nombres-relatifs}). L'exercice s'y range en 7.4, après {multiplier-relatifs} (7.3, arrivé sur `main` le même après-midi) — un thème 8 « Écriture
+{nombres-relatifs}). L'exercice s'y range en 7.5, après {multiplier-relatifs} (7.3) et {calcul-itere} (7.4), arrivés sur `main` le même après-midi — un thème 8 « Écriture
 littérale » à côté aurait fait deux thèmes pour une même idée. Il arrive en
 dernier dans le thème : rien n'est renuméroté.
 
@@ -172,7 +235,7 @@ tablette, ni « ² » ni « ^ » ne se trouvent sans chercher.
 recalcule les expressions et leur forme réduite dans la fonction qui corrige.
 
 **Le juge** (`tests/verifier.js`, « réduire une somme de termes ») : la place
-(7.4, le 7.1 à 7.3 inchangés, sept thèmes, un badge de mode qui est le sien, pas de bouton des tables), 500 séances
+(7.5, le 7.1 à 7.4 inchangés, sept thèmes, un badge de mode qui est le sien, pas de bouton des tables), 500 séances
 tirées (2 à 9, différents, pages distinctes, la fiche en tête, les lignes
 mélangées ensuite), les 56 paires jugées par une SECONDE méthode — la valeur de
 l'expression et celle de la réponse attendue, en trois valeurs de x ; une
