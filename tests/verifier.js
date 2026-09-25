@@ -3607,6 +3607,7 @@ function exercices(suite){
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
     additionnerRelatifs(w, P);
+    multiplierRelatifs(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -12697,6 +12698,106 @@ function additionnerRelatifs(w, P){
     poser(Object.assign({},JUSTE,{'rel-r-0':'5,'}));
     checkRelAnswer();
     if(peint('rel-r-0')!=='rouge') vus.push('« 5, » est peint en '+peint('rel-r-0'));
+    /* le barème : 3 pages de 13 cases */
+    if(test.maxScore!==39) vus.push('barème de '+test.maxScore+' au lieu de 39');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {multiplier-relatifs} — thème 7 « Rappels », juste après le 7.1 : la règle
+   des signes, complétée puis appliquée. Le tirage (un chiffre, jamais zéro) et
+   les réponses sont jugés par une SECONDE méthode : l'arithmétique de
+   JavaScript sur le produit lui-même, jamais les fonctions de la page qui
+   corrigent. */
+function multiplierRelatifs(w, P){
+  const present = evaluer(w, "typeof startMrl==='function' && typeof mrlGen==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('multiplier deux relatifs : le tirage, la correction et la place dans le thème Rappels',
+      'ce niveau n\'a pas l\'exercice des produits de relatifs');
+    return;
+  }
+  verifierEval(w, 'multiplier deux relatifs : le tirage, la correction et la place dans le thème Rappels', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='multiplier-relatifs';
+
+    /* ---- 0. la place : 7.2, juste après le 7.1 ; le bouton des tables est LÀ */
+    const th=THEMES.find(function(t){ return t.num===7; });
+    if(!th || !/Rappel/i.test(th.nom) || th.ids.indexOf('multiplier-relatifs')<0)
+      vus.push('l\\'exercice n\\'est pas dans le thème 7 « Rappels »');
+    if(TEST_NUM['multiplier-relatifs']!=='7.2') vus.push('numéro '+TEST_NUM['multiplier-relatifs']+' au lieu de 7.2');
+    if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('le 7.1 a bougé : '+TEST_NUM['additionner-relatifs']);
+    if(TABLES_SANS.indexOf('multiplier-relatifs')>=0) vus.push('le bouton des tables est retiré : le résultat est un produit de table');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    const vusA={}, vusB={};
+    for(let i=0;i<500 && !vus.length;i++){
+      const qs=mrlBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' pages au lieu de 3'); break; }
+      const cles=qs.map(function(q){ return q.a+'-'+q.b; });
+      if(new Set(cles).size!==qs.length){ vus.push('deux pages tirent la même paire : '+cles.join(' ')); break; }
+      qs.forEach(function(q){
+        [q.a,q.b].forEach(function(n){ if(!(Number.isInteger(n) && n>=1 && n<=9)) vus.push('nombre tiré hors de 1…9 : '+n); });
+        vusA[q.a]=1; vusB[q.b]=1;
+      });
+    }
+    if(!vus.length && (Object.keys(vusA).length<9 || Object.keys(vusB).length<9)) vus.push('le tirage ne couvre pas les neuf chiffres');
+
+    /* ---- 2. les réponses attendues, contre le produit lui-même ----------- */
+    for(let a=1;a<=9;a++) for(let b=1;b<=9;b++){
+      const L=mrlLignes({a:a,b:b});
+      if(L.length!==4) vus.push(a+','+b+' : '+L.length+' produits');
+      L.forEach(function(l){
+        const r=(l.sa*a)*(l.sb*b);
+        if(l.r!==r) vus.push(l.expr+' : résultat '+l.r+' au lieu de '+r);
+        if(l.signe!==(r>0?'+':'-')) vus.push(l.expr+' : signe '+l.signe);
+        if(l.expr.indexOf(String(a))<0 || l.expr.indexOf(String(b))<0) vus.push(l.expr+' : les chiffres manquent');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 3. la correction, par le BOUTON --------------------------------- */
+    startMrl();
+    test.questions[test.idx]={a:3,b:2};   /* la fiche */
+    const JUSTE={'mrl-regle':'signes','mrl-rs-0':'+','mrl-rs-1':'-','mrl-rs-2':'-','mrl-rs-3':'+',
+                 'mrl-sg-0':'+','mrl-r-0':'6','mrl-sg-1':'-','mrl-r-1':'−6','mrl-sg-2':'-','mrl-r-2':'(-6)','mrl-sg-3':'+','mrl-r-3':'+6'};
+    const IDS=Object.keys(JUSTE);
+    const poser=function(vals){
+      test.locked=false; renderMrlTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
+    /* copie juste — « 6 », « −6 », « (-6) », « +6 » : le + et les parenthèses sont facultatifs */
+    poser(JUSTE); checkMrlAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    const nonVerts=IDS.filter(function(id){ return peint(id)!=='vert'; });
+    if(nonVerts.length) vus.push('la copie juste n\\'est pas entièrement juste : '+nonVerts.join(', '));
+    if(!der || der.cases!==13) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 13');
+    /* LE PIÈGE : le signe du plus fort — (−3) × (+2) = −6 juste par hasard, (−3) × (−2) = −6 faux */
+    const piege=Object.assign({},JUSTE,{'mrl-regle':'fort','mrl-sg-3':'-','mrl-r-3':'-6'});
+    poser(piege); checkMrlAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('le signe du plus fort est accepté');
+    ['mrl-regle','mrl-sg-3','mrl-r-3'].forEach(function(id){ if(peint(id)!=='rouge') vus.push(id+' faux, peint en '+peint(id)); });
+    if(peint('mrl-r-2')!=='vert' || peint('mrl-rs-3')!=='vert') vus.push('une case juste rougit à côté du piège');
+    if(!/règle des signes/.test((document.getElementById('mrlFeedback')||{}).textContent||'')) vus.push('le message ne rappelle pas la règle des signes');
+    /* la règle des signes elle-même, mal complétée : (−) × (−) = (−) */
+    poser(Object.assign({},JUSTE,{'mrl-rs-3':'-'})); checkMrlAnswer();
+    if(peint('mrl-rs-3')!=='rouge') vus.push('(−) × (−) = (−) est peint en '+peint('mrl-rs-3'));
+    if(!/PAREILS/.test((document.getElementById('mrlFeedback')||{}).textContent||'')) vus.push('le message ne dit pas que deux signes pareils donnent +');
+    /* une case vide ne rougit pas, et ne fait pas rougir ses voisines */
+    const trou=Object.assign({},JUSTE,{'mrl-r-2':'','mrl-rs-1':''});
+    poser(trou); checkMrlAnswer();
+    ['mrl-r-2','mrl-rs-1'].forEach(function(id){ if(peint(id)!=='bleu') vus.push('case vide '+id+' peinte en '+peint(id)); });
+    if(peint('mrl-sg-2')!=='vert' || peint('mrl-rs-2')!=='vert') vus.push('une case juste rougit parce qu\\'une voisine est vide');
+    if((document.getElementById('mrl-r-2')||{}).value!=='−6') vus.push('la correction de la case vide n\\'écrit pas −6');
+    /* une réponse illisible est fausse, pas vide ; la valeur absolue seule est fausse */
+    poser(Object.assign({},JUSTE,{'mrl-r-0':'6,','mrl-r-1':'6'}));
+    checkMrlAnswer();
+    if(peint('mrl-r-0')!=='rouge') vus.push('« 6, » est peint en '+peint('mrl-r-0'));
+    if(peint('mrl-r-1')!=='rouge') vus.push('« 6 » pour (+3) × (−2) est peint en '+peint('mrl-r-1'));
     /* le barème : 3 pages de 13 cases */
     if(test.maxScore!==39) vus.push('barème de '+test.maxScore+' au lieu de 39');
     return vus.join(' | ');
