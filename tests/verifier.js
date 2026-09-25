@@ -3607,6 +3607,7 @@ function exercices(suite){
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
     additionnerRelatifs(w, P);
+    calculItere(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -12629,7 +12630,7 @@ function additionnerRelatifs(w, P){
     if(!th || !/Rappel/i.test(th.nom) || th.ids.indexOf('additionner-relatifs')<0)
       vus.push('l\\'exercice n\\'est pas dans un thème 7 « Rappels »');
     if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('numéro '+TEST_NUM['additionner-relatifs']+' au lieu de 7.1');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).slice(0,7).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
     if(TABLES_SANS.indexOf('additionner-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
@@ -12699,6 +12700,92 @@ function additionnerRelatifs(w, P){
     if(peint('rel-r-0')!=='rouge') vus.push('« 5, » est peint en '+peint('rel-r-0'));
     /* le barème : 3 pages de 13 cases */
     if(test.maxScore!==39) vus.push('barème de '+test.maxScore+' au lieu de 39');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {calcul-itere} — thème 8 « Calcul itéré » : un nombre de départ, puis
+   quatre étapes qui alternent somme et produit, chiffres de 1 à 9. La chaîne
+   juste est recalculée ICI, par une boucle écrite à part, jamais par les
+   fonctions de la page qui corrigent. Et une erreur ne se paie qu'une fois :
+   la ligne suivante est jugée à partir du nombre que l'élève a écrit. */
+function calculItere(w, P){
+  const present = evaluer(w, "typeof startCit==='function' && typeof citGen==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('calcul itéré : le tirage, la correction et la place dans le thème 8',
+      'ce niveau n\'a pas l\'exercice du calcul itéré');
+    return;
+  }
+  verifierEval(w, 'calcul itéré : le tirage, la correction et la place dans le thème 8', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='calcul-itere';
+
+    /* ---- 0. la place : thème 8, les sept premiers ne bougent pas -------- */
+    const th=THEMES.find(function(t){ return t.num===8; });
+    if(!th || !/it[ée]r[ée]/i.test(th.nom) || th.ids.indexOf('calcul-itere')<0) vus.push('l\\'exercice n\\'est pas dans un thème 8 « Calcul itéré »');
+    if(TEST_NUM['calcul-itere']!=='8.1') vus.push('numéro '+TEST_NUM['calcul-itere']+' au lieu de 8.1');
+    if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('les relatifs ont bougé : '+TEST_NUM['additionner-relatifs']);
+    if(TABLES_SANS.indexOf('calcul-itere')>=0) vus.push('le bouton des tables est retiré : on y multiplie');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    const vraie=function(q){ const v=[]; let x=q.dep; q.d.forEach(function(d,k){ const prod=(k%2===0)?q.prod0:!q.prod0; x=prod?x*d:x+d; v.push(x); }); return v; };
+    const departs={};
+    for(let i=0;i<500 && !vus.length;i++){
+      const qs=citBuildQuestions();
+      if(qs.length!==5) { vus.push(qs.length+' pages au lieu de 5'); break; }
+      if(qs[0].prod0!==false || qs[1].prod0!==true) vus.push('les deux premières pages ne commencent pas par une somme puis un produit');
+      qs.forEach(function(q,ix){
+        if(!(Number.isInteger(q.dep) && q.dep>=1 && q.dep<=9)) vus.push('départ hors de 1…9 : '+q.dep);
+        if(q.d.length!==4) vus.push(q.d.length+' étapes au lieu de 4');
+        q.d.forEach(function(d,k){ const prod=(k%2===0)?q.prod0:!q.prod0;
+          if(!(Number.isInteger(d) && d>=1 && d<=9)) vus.push('chiffre hors de 1…9 : '+d);
+          if(prod && d===1) vus.push('un produit par 1');
+          if(citSigne(q,k)!==(prod?'×':'+')) vus.push('étape '+(k+1)+' : signe '+citSigne(q,k)+' — l\\'alternance est rompue');
+        });
+        if(ix>1) departs[q.prod0?'x':'+']=1;
+        if(citValeurs(q).join(',')!==vraie(q).join(',')) vus.push('chaîne '+citValeurs(q).join(',')+' au lieu de '+vraie(q).join(','));
+      });
+    }
+    if(!vus.length && Object.keys(departs).length<2) vus.push('au-delà de la deuxième page, le départ est toujours le même');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. la correction, par le BOUTON --------------------------------- */
+    startCit();
+    const q={dep:3, prod0:false, d:[4,5,2,6]};   /* 3 +4 → 7 ×5 → 35 +2 → 37 ×6 → 222 */
+    test.questions[test.idx]=q;
+    const IDS=['cit-r-0','cit-r-1','cit-r-2','cit-r-3'];
+    const poser=function(vals){
+      test.locked=false; renderCitTest();
+      IDS.forEach(function(id,k){ const el=document.getElementById(id); if(el){ el.value=(vals[k]==null?'':vals[k]); el.dispatchEvent(new Event('input')); } });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
+    /* copie juste — « 222 » écrit aussi avec une espace ailleurs */
+    poser(['7','35','37','2 22']); checkCitAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    IDS.forEach(function(id){ if(peint(id)!=='juste') vus.push('copie juste : '+id+' en '+peint(id)); });
+    if(!der || der.cases!==4) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 4');
+    /* l'écho : la ligne 2 commence par ce que l'élève a écrit en ligne 1 */
+    if((document.getElementById('cit-p-1')||{}).textContent!=='7') vus.push('la ligne 2 ne recopie pas le résultat de la ligne 1');
+    /* UNE ERREUR NE SE PAIE QU'UNE FOIS : 3 + 4 = 8 (faux), puis 8 × 5 = 40 … */
+    poser(['8','40','42','252']); checkCitAnswer();
+    if(peint('cit-r-0')!=='faux') vus.push('3 + 4 = 8 peint en '+peint('cit-r-0'));
+    ['cit-r-1','cit-r-2','cit-r-3'].forEach(function(id){ if(peint(id)!=='juste') vus.push('la suite juste d\\'une erreur : '+id+' en '+peint(id)); });
+    /* LE PIÈGE : additionner là où il faut multiplier — 7 + 5 = 12 */
+    poser(['7','12','14','84']); checkCitAnswer();
+    if(peint('cit-r-1')!=='faux') vus.push('7 + 5 à la place de 7 × 5 peint en '+peint('cit-r-1'));
+    if(!/ADDITIONN/.test((document.getElementById('citFeedback')||{}).textContent||'')) vus.push('le message ne dit pas qu\\'on a additionné au lieu de multiplier');
+    /* une case vide ne rougit pas, et la correction y écrit la bonne valeur */
+    poser(['7','','37','222']); checkCitAnswer();
+    if(peint('cit-r-1')!=='correction') vus.push('case vide peinte en '+peint('cit-r-1'));
+    if((document.getElementById('cit-r-1')||{}).value!=='35') vus.push('la correction de la case vide n\\'écrit pas 35');
+    if(peint('cit-r-2')!=='juste' || peint('cit-r-3')!=='juste') vus.push('une case juste rougit parce qu\\'une voisine est vide');
+    /* une réponse illisible est fausse, pas vide */
+    poser(['7,','35','37','222']); checkCitAnswer();
+    if(peint('cit-r-0')!=='faux') vus.push('« 7, » est peint en '+peint('cit-r-0'));
+    if(test.maxScore!==20) vus.push('barème de '+test.maxScore+' au lieu de 20');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
