@@ -3606,6 +3606,7 @@ function exercices(suite){
     sommeFractionsLibre(w, P);
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
+    additionnerRelatifs(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -12552,6 +12553,101 @@ function ordreCroissant(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* {additionner-relatifs} — thème 7 « Rappels » : le signe d'abord, puis le
+   calcul sans les signes, puis le résultat. Le tirage (un chiffre, jamais
+   zéro, deux chiffres différents) et les réponses sont jugés par une SECONDE
+   méthode : l'arithmétique de JavaScript sur la somme elle-même, jamais les
+   fonctions de la page qui corrigent. */
+function additionnerRelatifs(w, P){
+  const present = evaluer(w, "typeof startRel==='function' && typeof relGen==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('additionner deux relatifs : le tirage, la correction et la place dans le thème Rappels',
+      'ce niveau n\'a pas l\'exercice des relatifs');
+    return;
+  }
+  verifierEval(w, 'additionner deux relatifs : le tirage, la correction et la place dans le thème Rappels', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='additionner-relatifs';
+
+    /* ---- 0. la place : thème 7 « Rappels », et les six autres ne bougent pas */
+    const th=THEMES.find(function(t){ return t.num===7; });
+    if(!th || !/Rappel/i.test(th.nom) || th.ids.indexOf('additionner-relatifs')<0)
+      vus.push('l\\'exercice n\\'est pas dans un thème 7 « Rappels »');
+    if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('numéro '+TEST_NUM['additionner-relatifs']+' au lieu de 7.1');
+    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(TABLES_SANS.indexOf('additionner-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    const ordres={};
+    for(let i=0;i<500 && !vus.length;i++){
+      const qs=relBuildQuestions();
+      const cles=qs.map(function(q){ return Math.min(q.a,q.b)+'-'+Math.max(q.a,q.b); });
+      if(new Set(cles).size!==qs.length){ vus.push('deux pages tirent la même paire : '+cles.join(' ')); break; }
+      if(!(qs[0].a>qs[0].b)) vus.push('la première page ne suit pas la fiche (le premier nombre le plus fort) : '+qs[0].a+', '+qs[0].b);
+      qs.forEach(function(q,ix){
+        [q.a,q.b].forEach(function(n){ if(!(Number.isInteger(n) && n>=1 && n<=9)) vus.push('nombre tiré hors de 1…9 : '+n); });
+        if(q.a===q.b) vus.push('deux chiffres égaux : '+q.a+' — −a + a vaut 0, sans signe');
+        if(ix>0) ordres[q.a>q.b?'fort-devant':'fort-derriere']=1;
+      });
+    }
+    if(!vus.length && Object.keys(ordres).length<2) vus.push('au-delà de la première page, le plus fort est toujours au même rang');
+
+    /* ---- 2. les réponses attendues, contre la somme elle-même ------------ */
+    for(let a=1;a<=9;a++) for(let b=1;b<=9;b++){ if(a===b) continue;
+      relLignes({a:a,b:b}).forEach(function(l){
+        const r=l.sa*a+l.sb*b;
+        if(l.r!==r) vus.push(l.expr+' : résultat '+l.r+' au lieu de '+r);
+        if(l.signe!==(r>0?'+':'-')) vus.push(l.expr+' : signe '+l.signe);
+        if(l.calc!==(l.sa===l.sb?'add':'sub')) vus.push(l.expr+' : calcul '+l.calc);
+        if(Math.abs(r)!==(l.calc==='add'?a+b:Math.abs(a-b))) vus.push(l.expr+' : le calcul ne donne pas la valeur absolue');
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 3. la correction, par le BOUTON --------------------------------- */
+    startRel();
+    test.questions[test.idx]={a:3,b:2};   /* la fiche */
+    const JUSTE={'rel-regle':'fort','rel-sg-0':'+','rel-ca-0':'add','rel-r-0':'5','rel-sg-1':'+','rel-ca-1':'sub','rel-r-1':'+1',
+                 'rel-sg-2':'-','rel-ca-2':'sub','rel-r-2':'−1','rel-sg-3':'-','rel-ca-3':'add','rel-r-3':'-5'};
+    const IDS=Object.keys(JUSTE);
+    const poser=function(vals){
+      test.locked=false; renderRelTest();
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
+    /* copie juste — « +1 », « −1 » et « -5 » : le signe + est facultatif, le moins s'écrit des deux façons */
+    poser(JUSTE); checkRelAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
+    const nonVerts=IDS.filter(function(id){ return peint(id)!=='vert'; });
+    if(nonVerts.length) vus.push('la copie juste n\\'est pas entièrement juste : '+nonVerts.join(', '));
+    if(!der || der.cases!==13) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 13');
+    /* LE PIÈGE : la règle des signes — −3 − 2 = +5 */
+    const piege=Object.assign({},JUSTE,{'rel-regle':'signes','rel-sg-3':'+','rel-r-3':'5'});
+    poser(piege); checkRelAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('la règle des signes est acceptée');
+    ['rel-regle','rel-sg-3','rel-r-3'].forEach(function(id){ if(peint(id)!=='rouge') vus.push(id+' faux, peint en '+peint(id)); });
+    if(peint('rel-ca-3')!=='vert') vus.push('le calcul juste de la ligne fausse est peint en '+peint('rel-ca-3'));
+    if(!/plus fort/.test((document.getElementById('relFeedback')||{}).textContent||'')) vus.push('le message ne rappelle pas le signe du plus fort');
+    /* une case vide ne rougit pas, et ne fait pas rougir ses voisines */
+    const trou=Object.assign({},JUSTE,{'rel-r-2':'','rel-sg-1':''});
+    poser(trou); checkRelAnswer();
+    ['rel-r-2','rel-sg-1'].forEach(function(id){ if(peint(id)!=='bleu') vus.push('case vide '+id+' peinte en '+peint(id)); });
+    if(peint('rel-ca-2')!=='vert' || peint('rel-r-1')!=='vert') vus.push('une case juste rougit parce qu\\'une voisine est vide');
+    if((document.getElementById('rel-r-2')||{}).value!=='−1') vus.push('la correction de la case vide n\\'écrit pas −1');
+    /* une réponse illisible est fausse, pas vide */
+    poser(Object.assign({},JUSTE,{'rel-r-0':'5,'}));
+    checkRelAnswer();
+    if(peint('rel-r-0')!=='rouge') vus.push('« 5, » est peint en '+peint('rel-r-0'));
+    /* le barème : 3 pages de 13 cases */
+    if(test.maxScore!==39) vus.push('barème de '+test.maxScore+' au lieu de 39');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---------- Le professeur change le prénom d'un élève ---------------------
    Un prénom se tape à la rentrée, et il se tape parfois de travers : « Theo »
    pour « Théo », un nom de famille à la place du prénom, deux « Léa » qu'il
@@ -17807,8 +17903,8 @@ function pythonAffichage(w, P){
 
   /* ---- 2. la place au menu : un thème 5, à la FIN — rien d'autre ne bouge ---- */
   verifierEval(w, 'il vit dans un thème 6 « Algorithmique et Python », dernier du menu, numéroté 6.1.1 — et les autres thèmes gardent leurs numéros', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
     if(TEST_NUM["${ID}"]!=="6.1.1") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["pourcentage"]!=="4.1.3"||TEST_NUM["simplifier-barres"]!=="5.1") vus.push("le thème ajouté a renuméroté les autres");
@@ -18042,8 +18138,8 @@ function pythonTypes(w, P){
 
   /* ---- 2. la place au menu ---- */
   verifierEval(w, 'il suit {python-affichage} dans le thème 6, numéroté 6.1.2 — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
     if(TEST_NUM["${ID}"]!=="6.1.2") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -18297,8 +18393,8 @@ function pythonAfficherVariable(w, P){
 
   /* ---- 2. la place au menu ---- */
   verifierEval(w, 'il suit {python-types} dans le thème 6, numéroté 6.1.3 — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
     if(TEST_NUM["${ID}"]!=="6.1.3") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-types"]!=="6.1.2"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -18524,8 +18620,8 @@ function pythonNoms(w, P){
 
   /* ---- 2. la place au menu : dans le thème 5, juste après {python-affichage} ---- */
   verifierEval(w, 'il vit dans le thème 6, juste après {python-afficher-variable}, numéroté 6.1.4 — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     const i=th?th.ids.indexOf("${ID}"):-1;
     if(i<0) vus.push("l’exercice n’est pas dans le thème 5");
     else if(th.ids[i-1]!=="python-afficher-variable") vus.push("il ne suit pas {python-afficher-variable} : "+th.ids.join(","));
@@ -18772,8 +18868,8 @@ function pythonNomVariable(w, P){
 
   /* ---- 2. la place au menu ---- */
   verifierEval(w, 'il suit {python-noms-variables} dans le thème 6, numéroté 6.1.5 — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème");
     if(TEST_NUM["${ID}"]!=="6.1.5") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-types"]!=="6.1.2"||TEST_NUM["python-afficher-variable"]!=="6.1.3"||TEST_NUM["python-noms-variables"]!=="6.1.4"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -19040,8 +19136,8 @@ function pythonPrint(w, P){
 
   /* ---- 2. la place au menu ---- */
   verifierEval(w, 'il suit {python-nom-variable} dans le thème 6, numéroté 6.1.6 — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans ce thème : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="6.1.6") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-types"]!=="6.1.2"||TEST_NUM["python-afficher-variable"]!=="6.1.3"||TEST_NUM["python-noms-variables"]!=="6.1.4"||TEST_NUM["python-nom-variable"]!=="6.1.5"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -19496,8 +19592,8 @@ function pythonCompleter(w, P){
 
   /* ---- 3. la place au menu ---- */
   verifierEval(w, 'il vit dans le thème 6, numéroté 6.1.7 — entre {python-print} et {python-deux-lignes} — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     const i=th?th.ids.indexOf("${ID}"):-1;
     if(i<0) vus.push("l’exercice a quitté le thème 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[i-1]!=="python-print"||th.ids[i+1]!=="python-deux-lignes") vus.push("il n’est plus entre {python-print} et {python-deux-lignes} : "+th.ids.join(","));
@@ -19954,8 +20050,8 @@ function pythonOperations(w, P){
 
   /* ---- 5. la place au menu ---- */
   verifierEval(w, 'il vit dans le thème 6, numéroté 6.1.12 entre {python-changer-valeurs} et {python-double-triple-carre} — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[], i=th?th.ids.indexOf("${ID}"):-1;
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[], i=th?th.ids.indexOf("${ID}"):-1;
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(i<0) vus.push("l\\u2019exercice n\\u2019est pas dans le theme 5 : "+(th&&th.ids.join(",")));
     if(i>0&&th.ids[i-1]!=="python-changer-valeurs") vus.push("il ne suit pas {python-changer-valeurs} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="6.1.12") vus.push("numero "+TEST_NUM["${ID}"]);
@@ -20466,8 +20562,8 @@ function pythonDoubleTripleCarre(w, P){
 
   /* ---- 7. la place au menu ---- */
   verifierEval(w, 'il vit dans le thème 6, numéroté 6.1.13 entre {python-operations} et {python-pas-a-pas} — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[], i=th?th.ids.indexOf("${ID}"):-1;
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[], i=th?th.ids.indexOf("${ID}"):-1;
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(i<0) vus.push("l\\u2019exercice n\\u2019est pas dans le theme 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[i+1]!=="python-pas-a-pas") vus.push("il n\\u2019est pas suivi de {python-pas-a-pas} : "+th.ids.join(","));
     if(i>0&&th.ids[i-1]!=="python-operations") vus.push("il ne suit pas {python-operations} : "+(th&&th.ids.join(",")));
@@ -20878,8 +20974,8 @@ function pythonDeuxLignes(w, P){
 
   /* ---- 3. la place au menu ---- */
   verifierEval(w, 'il vit dans le thème 6, numéroté 6.1.8 — entre {python-completer} et {python-placer-variables} — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     const i=th?th.ids.indexOf("${ID}"):-1;
     if(i<0) vus.push("l’exercice a quitté le thème 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[i-1]!=="python-completer"||th.ids[i+1]!=="python-placer-variables") vus.push("il n’est plus entre {python-completer} et {python-placer-variables} : "+th.ids.join(","));
@@ -21222,8 +21318,8 @@ function pythonPlacerVariables(w, P){
      2026, et le bord a été RETOURNÉ plutôt que retiré : il vit dans le thème,
      numéroté 5.1.9, et rien d'autre n'a bougé. */
   verifierEval(w, 'il vit dans le thème 6, numéroté 6.1.9 après {python-deux-lignes} — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(!th||th.ids.indexOf("${ID}")<0) vus.push("l’exercice n’est pas dans le thème : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="6.1.9") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-types"]!=="6.1.2"||TEST_NUM["python-afficher-variable"]!=="6.1.3"||TEST_NUM["python-noms-variables"]!=="6.1.4"||TEST_NUM["python-nom-variable"]!=="6.1.5"||TEST_NUM["python-print"]!=="6.1.6"||TEST_NUM["python-completer"]!=="6.1.7"||TEST_NUM["python-deux-lignes"]!=="6.1.8"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -21872,8 +21968,8 @@ function pythonTableauValeurs(w, P){
 
   /* ---- 10. la place au menu, et les branchements ---- */
   verifierEval(w, 'il vit dans le thème 6, numéroté 6.1.10 — entre {python-placer-variables} et {python-changer-valeurs} — et rien d’autre ne bouge ; pas de bouton des tables, un rappel sans LaTeX, les questions à l’IA, un contexte qui déclare les réponses secrètes, et aucune correction au fil de la frappe', `(function(){
-    const vus=[], th=THEMES[THEMES.length-1];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const vus=[], th=THEMES.find(function(t){ return t.num===6; });
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     const k=th?th.ids.indexOf("${ID}"):-1;
     if(k<0) vus.push("l’exercice n’est pas dans le thème 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[k-1]!=="python-placer-variables"||th.ids[k+1]!=="python-changer-valeurs") vus.push("il n’est plus entre {python-placer-variables} et {python-changer-valeurs} : "+th.ids.join(","));
@@ -22179,8 +22275,8 @@ function pythonChangerValeurs(w, P){
      2026, et le bord a été RETOURNÉ plutôt que retiré : il vit dans le thème,
      numéroté 5.1.11, entre {python-tableau-valeurs} et {python-operations}. */
   verifierEval(w, 'il vit dans le thème 6, numéroté 6.1.11 — entre {python-tableau-valeurs} et {python-operations} — et rien d’autre ne bouge', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier thème : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("thème 6 : "+(th?th.num+" "+th.nom:"aucun"));
     const k=th?th.ids.indexOf("${ID}"):-1;
     if(k<0) vus.push("l’exercice n’est pas dans le thème 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[k-1]!=="python-tableau-valeurs"||th.ids[k+1]!=="python-operations") vus.push("il n’est plus entre {python-tableau-valeurs} et {python-operations} : "+th.ids.join(","));
@@ -27840,8 +27936,8 @@ function pythonPasAPas(w, P){
 
   /* ---- 10. la place au menu et les branchements ---- */
   verifierEval(w, 'il vit dans le thème 6, numéroté 6.2.1 entre {python-double-triple-carre} et {python-valeur-case} — et rien d autre ne bouge : entrée TESTS, rappel de cours, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[], i=th?th.ids.indexOf("${ID}"):-1;
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[], i=th?th.ids.indexOf("${ID}"):-1;
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(i<0) vus.push("l exercice n est pas dans le theme 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[i+1]!=="python-valeur-case") vus.push("il n est pas suivi de {python-valeur-case} : "+th.ids.join(","));
     if(i>0&&th.ids[i-1]!=="python-double-triple-carre") vus.push("il ne suit pas {python-double-triple-carre} : "+(th&&th.ids.join(",")));
@@ -28183,8 +28279,8 @@ function pythonValeurCase(w, P){
      de fait, pas eu à bouger d'une ligne pour {python-pas-a-pas-chaine} PUIS
      {python-echange-variables} PUIS {python-pas-a-pas-multiplication}. */
   verifierEval(w, 'il ne ferme plus le thème 6 — {python-pas-a-pas-calcul} l a repris, puis {python-pas-a-pas-chaine}, puis {python-echange-variables}, puis {python-pas-a-pas-multiplication} — mais reste juste avant {python-pas-a-pas-calcul}, numéroté ' + F.numero + ', après {python-pas-a-pas} : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     const iPap=th?th.ids.indexOf("python-pas-a-pas"):-1, iId=th?th.ids.indexOf("${ID}"):-1, iPpc=th?th.ids.indexOf("python-pas-a-pas-calcul"):-1;
     if(iPpc!==iId+1) vus.push("{python-pas-a-pas-calcul} ne suit plus directement : "+(th&&th.ids.join(",")));
     if(iId!==iPap+1) vus.push("il ne suit pas {python-pas-a-pas} : "+(th&&th.ids.join(",")));
@@ -28418,8 +28514,8 @@ function pythonPasAPasChaine(w, P){
      {python-pas-a-pas-calcul}, PEU IMPORTE ce qui le suit ensuite — vérifié
      par POSITION RELATIVE (indexOf), pas par la fin du thème. */
   verifierEval(w, 'il ne ferme plus le thème 6 — {python-echange-variables} puis {python-pas-a-pas-multiplication} l ont repris — mais reste juste après {python-pas-a-pas-calcul}, numéroté ' + F.numero + ' : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     const iId=th?th.ids.indexOf("${ID}"):-1, iPpc=th?th.ids.indexOf("python-pas-a-pas-calcul"):-1;
     if(iId!==iPpc+1) vus.push("il ne suit plus directement {python-pas-a-pas-calcul} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
@@ -28620,8 +28716,8 @@ function pythonEchangerParLettres(w, P){
 
   /* ---- 7. la place au menu et les branchements ---- */
   verifierEval(w, 'il suit {python-pas-a-pas-multiplication}, numéroté ' + F.numero + ' : entrée TESTS, rappel de cours PROPRE, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
-    const th=THEMES[THEMES.length-1], vus=[];
-    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("dernier theme : "+(th?th.num+" "+th.nom:"aucun"));
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     const iId=th?th.ids.indexOf("${ID}"):-1, iPpm=th?th.ids.indexOf("python-pas-a-pas-multiplication"):-1;
     if(iId!==iPpm+1) vus.push("il ne suit pas directement {python-pas-a-pas-multiplication} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
