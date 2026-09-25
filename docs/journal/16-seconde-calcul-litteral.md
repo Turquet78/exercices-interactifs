@@ -88,7 +88,54 @@ explique cette ligne-là et aucune autre), une case vide (verte, remplie), et
 le soutien en direct. Sabotage : un tirage qui laisse passer 5 + 8 rougit en
 nommant « le nombre 13 n'a pas un seul chiffre ».
 
-## {reduire-somme} — réduire une somme de termes (7.3, v204)
+## {multiplier-relatifs} — multiplier deux relatifs, la règle des signes (7.3, v204)
+
+**La demande** (Turquet, septembre 2026) : la fiche papier suivante, dans le
+même thème (demandée « dans le nouveau thème Rappels », renommé entre-temps
+« Calcul littéral » — elle y prend la place 7.3, après {nombres-relatifs}), avec des nombres à un chiffre, jamais zéro, et un bouton pour les
+tables de multiplication. La fiche est la sœur de celle du 7.1, prise dans
+l'autre sens. En tête, on choisit la règle, et cette fois la bonne est la
+**règle des signes**, jamais « le signe du plus fort ». Ensuite, la règle des
+signes à compléter : (+)×(+), (+)×(−), (−)×(+), (−)×(−). Enfin, pour une même
+paire (3 et 2 sur la fiche), les quatre produits (+3)×(+2) … (−3)×(−2), avec
+pour chacun le signe du résultat et le résultat final.
+
+**Une page = 13 cases** : la règle, les quatre signes de la règle, puis le
+signe et le résultat de chacun des quatre produits. Trois pages, barème 39.
+**À la différence du 7.1, deux chiffres égaux sont permis** : un produit n'est
+jamais nul, et (−3)×(+3) = −9 a bien un signe. Les trois paires d'une séance
+sont distinctes.
+
+**Le bouton des tables est proposé** (l'identifiant n'est PAS dans
+`TABLES_SANS`) : le résultat final est un produit de table. Le juge exige que
+le bouton reste.
+
+**On range les deux chiffres, jamais les réponses** : `mrlLignes()` recalcule
+les produits dans la fonction qui corrige. Le résultat s'écrit « 6 », « +6 »
+ou « (+6) », et « −6 », « -6 » ou « (−6) » : le + et les parenthèses sont
+facultatifs, puisque le produit lui-même s'écrit entre parenthèses. « 6 »
+pour (+3)×(−2) est faux : la valeur absolue seule ne suffit pas.
+L'écran reprend les classes de mise en page du 7.1 (`rel-regle`, `rel-bloc`,
+`rel-in`…) : ces deux exercices se lisent côte à côte, ils ont la même forme.
+
+**Le juge** (`tests/verifier.js`, « multiplier deux relatifs ») vérifie
+d'abord la place de l'exercice : 7.3 après le 7.1 et le 7.2, avec le bouton des
+tables. Il fait ensuite 500 séances tirées : un chiffre de 1 à 9, les neuf
+chiffres atteints des deux côtés, trois paires distinctes. Il contrôle les
+81 paires par l'arithmétique de JavaScript, sur le produit lui-même. Puis il
+passe par le bouton :
+- la copie juste compte 13/13, avec « 6 », « −6 », « (-6) » et « +6 » ;
+- le piège du plus fort, (−3)×(−2) = −6, est rouge, et les cases justes
+  voisines ne rougissent pas ;
+- (−)×(−) = (−) est rouge, et le message dit « PAREILS » ;
+- deux cases vides sont remplies par la correction sans faire rougir leurs
+  voisines ;
+- « 6, » et « 6 » sont faux.
+
+Éprouvé par sabotage : une règle des signes qui attend « + » partout rougit
+le juge sur `mrl-rs-1` et `mrl-rs-2`.
+
+## {reduire-somme} — réduire une somme de termes (7.4, v205)
 
 **La demande** (Turquet, septembre 2026) : reprendre une fiche papier
 « Réduire si possible » dans le thème « écriture littérale ». La fiche
@@ -99,7 +146,7 @@ peut additionner que des termes … » — de même nature.
 
 **La demande parlait du thème « écriture littérale »** : c'est le thème 7,
 renommé « Calcul littéral » le même jour ({additionner-relatifs} et
-{nombres-relatifs}). L'exercice s'y range en 7.3 — un thème 8 « Écriture
+{nombres-relatifs}). L'exercice s'y range en 7.4, après {multiplier-relatifs} (7.3, arrivé sur `main` le même après-midi) — un thème 8 « Écriture
 littérale » à côté aurait fait deux thèmes pour une même idée. Il arrive en
 dernier dans le thème : rien n'est renuméroté.
 
@@ -125,7 +172,7 @@ tablette, ni « ² » ni « ^ » ne se trouvent sans chercher.
 recalcule les expressions et leur forme réduite dans la fonction qui corrige.
 
 **Le juge** (`tests/verifier.js`, « réduire une somme de termes ») : la place
-(7.3, le 7.1 et le 7.2 inchangés, sept thèmes, un badge de mode qui est le sien, pas de bouton des tables), 500 séances
+(7.4, le 7.1 à 7.3 inchangés, sept thèmes, un badge de mode qui est le sien, pas de bouton des tables), 500 séances
 tirées (2 à 9, différents, pages distinctes, la fiche en tête, les lignes
 mélangées ensuite), les 56 paires jugées par une SECONDE méthode — la valeur de
 l'expression et celle de la réponse attendue, en trois valeurs de x ; une
