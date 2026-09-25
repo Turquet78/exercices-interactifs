@@ -1,6 +1,6 @@
 # Seconde — le thème du Calcul itéré
 
-## {calcul-itere} — alterner somme et produit (8.1, v202)
+## {calcul-itere} — alterner somme et produit (8.1, v203)
 
 **La demande** (Turquet, septembre 2026) : un nouvel exercice « dans le thème
 calcul itéré », avec des nombres à un chiffre, jamais zéro, en alternant somme
