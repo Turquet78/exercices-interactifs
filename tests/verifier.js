@@ -3607,6 +3607,7 @@ function exercices(suite){
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
     additionnerRelatifs(w, P);
+    associerExpressions(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -12607,6 +12608,80 @@ function ordreCroissant(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* {associer-expressions} — thème 8 « Calcul littéral » : quatre expressions
+   (n², 2 × n, n/n, n − n) à associer à 0, n + n, 1, n × n ; trois pages à
+   nombres, puis UNE page avec x. Les réponses sont jugées par une SECONDE
+   méthode : la VALEUR de chaque expression et de chaque résultat, calculée
+   ici — jamais la table de la page. */
+function associerExpressions(w, P){
+  const nom = 'associer les expressions : trois nombres puis x, la correction et la place dans le thème Calcul littéral';
+  const present = evaluer(w, "typeof startAsx==='function' && typeof asxLignes==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice d\'association'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='associer-expressions';
+    /* ---- 0. la place ------------------------------------------------------ */
+    const th=THEMES.find(function(t){ return t.num===8; });
+    if(!th || !/litt/i.test(th.nom) || th.ids.indexOf('associer-expressions')<0) vus.push('l\\'exercice n\\'est pas dans un thème 8 « Calcul littéral »');
+    if(TEST_NUM['associer-expressions']!=='8.1') vus.push('numéro '+TEST_NUM['associer-expressions']+' au lieu de 8.1');
+    if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('le 7.1 a bougé');
+    /* ---- 1. le tirage : trois nombres distincts de 3 à 9, puis x une fois -- */
+    const ordres={};
+    for(let i=0;i<300 && !vus.length;i++){
+      const qs=asxBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' pages au lieu de 4'); break; }
+      const ns=qs.slice(0,3).map(function(q){ return q.n; });
+      ns.forEach(function(n){ if(!(Number.isInteger(n) && n>=3 && n<=9)) vus.push('nombre tiré hors de 3…9 : '+n); });
+      if(new Set(ns).size!==3) vus.push('deux pages tirent le même nombre : '+ns.join(' '));
+      if(qs[3].n!=='x') vus.push('la dernière page n\\'est pas celle de x');
+      if(qs.filter(function(q){ return q.n==='x'; }).length!==1) vus.push('la page de x n\\'est pas unique');
+      if(qs[0].ordre.join()!=='zero,add,un,mul') vus.push('la première page ne suit pas la fiche : '+qs[0].ordre.join());
+      qs.forEach(function(q){ if(q.ordre.slice().sort().join()!=='add,mul,un,zero') vus.push('résultats incomplets : '+q.ordre.join()); });
+      ordres[qs[1].ordre.join()]=1;
+    }
+    if(!vus.length && Object.keys(ordres).length<2) vus.push('les résultats des pages suivantes ne sont jamais mélangés');
+    /* ---- 2. les réponses attendues, par la valeur ------------------------- */
+    const valExpr={carre:function(n){ return n*n; }, double:function(n){ return 2*n; }, quot:function(n){ return n/n; }, diff:function(n){ return n-n; }};
+    const valRes={zero:function(){ return 0; }, add:function(n){ return n+n; }, un:function(){ return 1; }, mul:function(n){ return n*n; }};
+    for(let n=3;n<=9;n++){
+      asxLignes({n:n, ordre:['zero','add','un','mul']}).forEach(function(l){
+        const bons=Object.keys(valRes).filter(function(k){ return valRes[k](n)===valExpr[l.cle](n); });
+        if(bons.length!==1 || bons[0]!==l.bon) vus.push(l.txt+' : attendu '+l.bon+', la valeur donne '+bons.join('/'));
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* ---- 3. la correction, par le BOUTON ---------------------------------- */
+    startAsx();
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const IDS=['asx-0','asx-1','asx-2','asx-3'], JUSTE=['mul','add','un','zero'];
+    const poser=function(vals){ test.locked=false; renderAsxTest();
+      IDS.forEach(function(id,i){ const el=document.getElementById(id); if(el) el.value=vals[i]; }); };
+    for(let p=0;p<4;p++){
+      test.idx=p;
+      poser(JUSTE); checkAsxAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push('page '+(p+1)+' : la copie juste est comptée fausse');
+      if(IDS.some(function(id){ return peint(id)!=='vert'; })) vus.push('page '+(p+1)+' : une case juste n\\'est pas marquée ok');
+    }
+    test.idx=3; poser(JUSTE);
+    if(!/différent de 0/.test((document.getElementById('asxInstr')||{}).textContent||'')) vus.push('la page de x ne dit pas que x est différent de 0');
+    /* LE PIÈGE : le carré pris pour le double */
+    test.idx=0; test.questions[0]={n:3, ordre:['zero','add','un','mul']};
+    poser(['add','mul','un','zero']); checkAsxAnswer();
+    if(peint('asx-0')!=='rouge' || peint('asx-1')!=='rouge') vus.push('le carré confondu avec le double n\\'est pas rouge');
+    if(peint('asx-2')!=='vert' || peint('asx-3')!=='vert') vus.push('une case juste rougit à côté d\\'une fausse');
+    if(!/3 × 3/.test((document.getElementById('asxFeedback')||{}).textContent||'')) vus.push('le message ne dit pas 3² = 3 × 3');
+    /* une case vide ne rougit pas : elle reçoit la correction */
+    poser(['mul','','un','zero']); checkAsxAnswer();
+    if(peint('asx-1')!=='bleu') vus.push('case vide peinte en '+peint('asx-1'));
+    if((document.getElementById('asx-1')||{}).value!=='add') vus.push('la correction de la case vide n\\'écrit pas 3 + 3');
+    if(test.maxScore!==16) vus.push('barème de '+test.maxScore+' au lieu de 16');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 /* {additionner-relatifs} — thème 7 « Rappels » : le signe d'abord, puis le
    calcul sans les signes, puis le résultat. Le tirage (un chiffre, jamais
    zéro, deux chiffres différents) et les réponses sont jugés par une SECONDE
@@ -12629,7 +12704,7 @@ function additionnerRelatifs(w, P){
     if(!th || !/Rappel/i.test(th.nom) || th.ids.indexOf('additionner-relatifs')<0)
       vus.push('l\\'exercice n\\'est pas dans un thème 7 « Rappels »');
     if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('numéro '+TEST_NUM['additionner-relatifs']+' au lieu de 7.1');
-    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7,8') vus.push('les thèmes ont changé de numéros');
     if(TABLES_SANS.indexOf('additionner-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
