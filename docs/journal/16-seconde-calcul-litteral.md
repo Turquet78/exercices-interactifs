@@ -1,7 +1,7 @@
 # Seconde — le thème 7, Calcul littéral
 
 **Le thème s'est d'abord appelé « Rappels »** (v201) ; Turquet l'a renommé
-« Calcul littéral » le jour même (v202). Le nom ne vit que dans `THEMES` : les
+« Calcul littéral » le jour même (v203). Le nom ne vit que dans `THEMES` : les
 notes portent l'IDENTIFIANT des exercices, rien d'autre n'a bougé. Et c'est
 le jour où deux sessions ont fait, à partir de la MÊME fiche papier, deux
 exercices différents — chacune voyant un thème 7 neuf sur sa branche, et
@@ -51,7 +51,7 @@ de −3 − 2, le calcul juste de la même ligne reste juste, le message nomme l
 plus fort), deux cases vides (vertes, sans faire rougir leurs voisines).
 Éprouvé par sabotage : un signe du résultat figé à « + » rougit le juge en nommant les sommes fausses (« +1 − 2 : signe + »).
 
-## {nombres-relatifs} — gagner et perdre (7.2, v202)
+## {nombres-relatifs} — gagner et perdre (7.2, v203)
 
 **La demande** (Turquet, septembre 2026) : la même fiche « relatifs_1 », prise
 par son autre bout — ce que le 7.1 CALCULE, celui-ci le fait LIRE. Quatre
