@@ -13164,6 +13164,27 @@ function reduireSomme(w, P){
     checkRedAnswer();
     ['red-r-2','red-regle'].forEach(function(id){ if(peint(id)!=='bleu') vus.push('case vide '+id+' peinte en '+peint(id)); });
     if((document.getElementById('red-r-2')||{}).value!=='−x') vus.push('la correction de la case vide n\\'écrit pas −x');
+    /* une case vide sur une ligne qui NE SE RÉDUIT PAS est la bonne réponse
+       (décision de Turquet, septembre 2026) : elle se peint en OK, pas en
+       correction — et une case qui reste vide ne pousse plus le devis vers
+       « il te manquait des cases ». Les quatre lignes non réductibles de la
+       fiche sont red-r-1, red-r-3, red-r-7, red-r-8. */
+    poser(Object.assign({},JUSTE,{'red-r-1':'','red-r-3':'','red-r-7':'','red-r-8':''}));
+    checkRedAnswer();
+    ['red-r-1','red-r-3','red-r-7','red-r-8'].forEach(function(id){ if(peint(id)!=='vert') vus.push('case vide '+id+' sur une ligne non réductible peinte en '+peint(id)+' au lieu de ok'); });
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('laisser vide les quatre lignes non réductibles est compté faux');
+    if(der && der.cases!==11) vus.push('les cases vides sur des lignes non réductibles ne comptent pas toutes les 11 : '+(der&&der.cases));
+    /* une vraie case manquante À CÔTÉ d'une case vide correcte : le message
+       compte la SEULE vraie manquante (red-regle), pas les deux */
+    poser(Object.assign({},JUSTE,{'red-r-1':'','red-regle':''}));
+    checkRedAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('red-regle vide est compté juste');
+    if(peint('red-r-1')!=='vert') vus.push('red-r-1 vide (non réductible) peinte en '+peint('red-r-1')+' à côté d\\'une vraie case manquante');
+    if(peint('red-regle')!=='bleu') vus.push('red-regle, vraiment manquante, peinte en '+peint('red-regle'));
+    const fbVide=(document.getElementById('redFeedback')||{}).textContent||'';
+    if(!/manquait 1 case\\b/.test(fbVide)) vus.push('le message compte mal les cases manquantes à côté d\\'une case vide correcte : '+fbVide);
     /* une réponse illisible est fausse, pas vide */
     poser(Object.assign({},JUSTE,{'red-r-0':'5x+'}));
     checkRedAnswer();
