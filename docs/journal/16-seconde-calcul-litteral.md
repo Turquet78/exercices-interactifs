@@ -225,8 +225,18 @@ par expression. Trois pages, barème 33. Les deux nombres d'une page vont de 2
 mélangent les lignes (`q.ordre`, hors de la clé de `distinctes()`), sans quoi
 les quatre lignes qui ne se réduisent pas se reconnaîtraient à leur rang.
 
-**Une expression qui ne se réduit pas se RECOPIE**, et c'est tout le piège de
-la fiche : 2x + 3 = 5x, −2x² + 3x = x². La consigne le dit.
+**Une expression qui ne se réduit pas laisse la case VIDE** (décision de
+Turquet, septembre 2026) : la consigne à l'écran le dit désormais — « ne
+complète une case que si tu peux réduire l'écriture » — et une case vide sur
+une de ces lignes est la bonne réponse, peinte `ok` comme n'importe quelle
+autre case juste, pas `sol` comme une case oubliée. Avant cette décision,
+l'élève devait RECOPIER l'expression ; la recopie reste acceptée, `redJuste`
+la traite comme n'importe quelle autre écriture de même valeur, mais elle
+n'est plus exigée. C'est tout le piège de la fiche qui reste : 2x + 3 = 5x,
+−2x² + 3x = x². `msgAvecVides` ne doit compter, dans « il te manquait X
+cases », que les cases VRAIMENT manquantes (une ligne réductible laissée
+vide) — pas celles qui sont vides à bon droit ; `checkRedAnswer` calcule donc
+`vide` comme `(case vide) ET (pas déjà juste)`, jamais la seule emptiness.
 
 **La case lit une somme de termes, pas une chaîne** (`redLit`) : l'ordre des
 termes est libre (3 + 2x), x² s'écrit « x² », « x^2 » ou « x2 », le moins
@@ -248,8 +258,11 @@ réduit pas est l'expression elle-même. Puis le bouton : la copie juste (11/11,
 avec des ordres et des écritures variés), les pièges (règle « de même signe »,
 2x + 3 = 5x, −2x² + 3x = x², 2x − 3x = x : rouges, leurs voisines justes
 restent justes, le message dit « de même nature »), une réduction inachevée
-rouge, « 1x » juste, deux cases vides (vertes, la correction écrit −x), une
-écriture illisible rouge. Éprouvé par sabotage : une case qui accepte une
+rouge, « 1x » juste, deux cases vides SUR DES LIGNES RÉDUCTIBLES (correction
+verte, pas comptées justes), les quatre lignes NON réductibles laissées vides
+(11/11, peintes `ok` — pas la correction), une vraie case manquante à côté
+d'une case vide correcte (le message ne compte que celle qui manque vraiment),
+une écriture illisible rouge. Éprouvé par sabotage : une case qui accepte une
 somme non réduite rougit le juge (« « 2x+3x » pour 2x + 3x est peint en
 vert »).
 
