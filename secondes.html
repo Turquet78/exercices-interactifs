@@ -1248,6 +1248,27 @@
   #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ #smpHost math-field.pm-mf{font-size:1.25rem}
   #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:62px} }
+/* {somme-produit-fractions}, {produit-difference-fractions}/{quotient-difference-fractions}
+   (moteur partagé pqd), {quotient-double-fractions}, {triple-somme-fractions} : les mêmes
+   moteurs partagés (pfCroix*/pfProduit*) que {somme-fractions}/{multiplier-fractions}, donc
+   les MÊMES réglages, RECOPIÉS plutôt qu'ajoutés à leurs sélecteurs — ces quatre écrans
+   n'existent pas ailleurs. Sans eux, le badge de correction s'insère DANS le flux et élargit
+   le trait de fraction (le défaut d'août 2026 sur {somme-fractions}), et la case s'écrit à
+   1,05rem — la règle par défaut de body math-field.dexp-mf — au lieu des 2rem des chiffres
+   qui l'entourent (retrouvé au banc navigateur : spf-h1 à 16,8px contre 21,3px, pqd-x-a1 à
+   16,8px contre 32px, septembre 2026). */
+#spfHost .f-fbar,#pqdHost .f-fbar,#qdbHost .f-fbar,#tsfHost .f-fbar{width:auto;align-self:stretch;height:4px}
+#spfHost .sf-case,#pqdHost .sf-case,#qdbHost .sf-case,#tsfHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
+#spfHost .sf-case .mf-cor,#pqdHost .sf-case .mf-cor,#qdbHost .sf-case .mf-cor,#tsfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:1.1rem;white-space:nowrap}
+#spfHost .sf-prod:has(.mf-cor),#spfHost .f-frac-input:has(.mf-cor),#pqdHost .sf-prod:has(.mf-cor),#pqdHost .f-frac-input:has(.mf-cor),#qdbHost .sf-prod:has(.mf-cor),#qdbHost .f-frac-input:has(.mf-cor),#tsfHost .sf-prod:has(.mf-cor),#tsfHost .f-frac-input:has(.mf-cor){margin-right:52px}
+#spfHost math-field.pm-mf,#pqdHost math-field.pm-mf,#qdbHost math-field.pm-mf,#tsfHost math-field.pm-mf{font-size:1.9rem;line-height:1.15}
+#spfHost .sf-l .f-num,#spfHost .sf-l .f-den,#pqdHost .sf-l .f-num,#pqdHost .sf-l .f-den,#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den,#tsfHost .sf-l .f-num,#tsfHost .sf-l .f-den{width:92px}
+#spfHost .pt-row,#pqdHost .pt-row,#qdbHost .pt-row,#tsfHost .pt-row{flex-wrap:wrap}
+#spfHost .pt-row>.f-frac,#spfHost .pt-row>.f-grp>.f-frac,#pqdHost .pt-row>.f-frac,#pqdHost .pt-row>.f-grp>.f-frac,#qdbHost .pt-row>.f-frac,#qdbHost .pt-row>.f-grp>.f-frac,#tsfHost .pt-row>.f-frac,#tsfHost .pt-row>.f-grp>.f-frac{font-size:2rem}
+@media(max-width:900px){ #spfHost math-field.pm-mf,#pqdHost math-field.pm-mf,#qdbHost math-field.pm-mf,#tsfHost math-field.pm-mf{font-size:1.5rem}
+  #spfHost .sf-l .f-num,#spfHost .sf-l .f-den,#pqdHost .sf-l .f-num,#pqdHost .sf-l .f-den,#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den,#tsfHost .sf-l .f-num,#tsfHost .sf-l .f-den{width:76px} }
+@media(max-width:520px){ #spfHost math-field.pm-mf,#pqdHost math-field.pm-mf,#qdbHost math-field.pm-mf,#tsfHost math-field.pm-mf{font-size:1.25rem}
+  #spfHost .sf-l .f-num,#spfHost .sf-l .f-den,#pqdHost .sf-l .f-num,#pqdHost .sf-l .f-den,#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den,#tsfHost .sf-l .f-num,#tsfHost .sf-l .f-den{width:62px} }
 /* #rvfHost — {revision-fractions} (5.11) : une seule case-fraction par
    écran, pas de chaîne de calcul comme sf/mlt/smp — mais le badge de
    correction se pose hors du flux de la même façon, sans quoi il
