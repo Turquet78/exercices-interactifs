@@ -1269,6 +1269,44 @@
   #spfHost .sf-l .f-num,#spfHost .sf-l .f-den,#pqdHost .sf-l .f-num,#pqdHost .sf-l .f-den,#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den,#tsfHost .sf-l .f-num,#tsfHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ #spfHost math-field.pm-mf,#pqdHost math-field.pm-mf,#qdbHost math-field.pm-mf,#tsfHost math-field.pm-mf{font-size:1.25rem}
   #spfHost .sf-l .f-num,#spfHost .sf-l .f-den,#pqdHost .sf-l .f-num,#pqdHost .sf-l .f-den,#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den,#tsfHost .sf-l .f-num,#tsfHost .sf-l .f-den{width:62px} }
+/* {produit-difference-fractions}/{quotient-difference-fractions} (pqd) et
+   {quotient-double-fractions} (qdb) tiennent maintenant sur UNE seule
+   rangée depuis leur fusion (demande de Turquet, septembre 2026) — bien plus
+   de cases que {somme-produit-fractions}/{triple-somme-fractions}, qui
+   restent à la taille ci-dessus. Sans ce rétrécissement propre aux deux,
+   la rangée dépasse 1288 px (mesuré au banc navigateur à 1400 px de
+   fenêtre : 1368 px pour pqd, 1735 px pour qdb — ses DEUX parenthèses
+   avant même de diviser) et se replie sur deux lignes, exactement le
+   défaut que la fusion en un bloc devait effacer. Rétrécir les seules
+   cases n'a rendu qu'une fraction de la place cherchée — l'écart tient
+   pour l'essentiel dans les « = », les signes et l'espacement ENTRE les
+   maillons, pas dans les cases elles-mêmes — d'où « gap », « .f-eq » et
+   « .f-times » resserrés ici aussi, mesuré au même banc jusqu'à repasser
+   sous 1288 px. */
+#pqdHost .pt-row{gap:5px}
+#pqdHost .f-eq{font-size:1.4rem}
+#pqdHost .f-times{font-size:1.1rem}
+#pqdHost math-field.pm-mf{font-size:1.35rem}
+#pqdHost .sf-l .f-num,#pqdHost .sf-l .f-den{width:66px}
+#pqdHost .pt-row>.f-frac,#pqdHost .pt-row>.f-grp>.f-frac{font-size:1.5rem}
+/* « une case a la taille des nombres qui l'entourent » (contrôle universel) :
+   le voisin du croisement n'est pas la fraction échoée (.f-frac, déjà
+   réduite ci-dessus) mais le MULTIPLICATEUR LITTÉRAL du croisement lui-même
+   (.f-whole, dans pfCroixHTML) — resté à 2rem tant qu'il n'est pas nommé
+   ici, la case tombait à 68 % de sa taille. */
+#pqdHost .f-whole{font-size:1.35rem}
+/* Un plancher GLOBAL (`math-field.pm-mf.f-num,.f-den{min-width:56px}`, plus
+   loin dans cette feuille) tenait toutes les cases de {quotient-double-
+   fractions} à 56 px quel que soit le rétrécissement ci-dessus — vingt-six
+   cases à 56 px, c'est 1456 px à elles seules, avant même les « = » et les
+   signes. `min-width`/`max-width` doivent donc être repris ici aussi. */
+#qdbHost .pt-row{gap:1px}
+#qdbHost .f-eq{font-size:.95rem}
+#qdbHost .f-times{font-size:.8rem}
+#qdbHost math-field.pm-mf{font-size:.85rem;min-width:30px;max-width:60px}
+#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den{width:38px}
+#qdbHost .pt-row>.f-frac,#qdbHost .pt-row>.f-grp>.f-frac{font-size:1rem}
+#qdbHost .f-whole{font-size:.85rem}
 /* #rvfHost — {revision-fractions} (5.11) : le badge de correction se pose
    hors du flux, comme partout ailleurs, sans quoi il élargirait le trait
    de fraction (la leçon de {somme-fractions}).
