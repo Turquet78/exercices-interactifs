@@ -352,3 +352,54 @@ trois cases, les voisines justes restent justes, le message parle de
 l'opposé et réécrit la ligne fausse —, deux cases vides (correction, pas de
 rouge), « 1, » faux et non vide. Éprouvé par sabotage : un signe d'opposé
 inversé dans `srlLignes()` rougit le juge en nommant les quatre lignes.
+
+## {reduire-produit} — réduire chaque produit avec x (7.8, v210)
+
+**La demande** (Turquet, septembre 2026, d'après une fiche papier « Réduire
+chaque produit ») : quinze produits de deux facteurs (a à o), chacun un
+nombre ou la lettre x — jamais x², jamais deux nombres seuls, puisque le
+thème est l'écriture littérale. **En deux temps** : d'abord chaque produit se
+décompose en trois cases — le signe du résultat, son coefficient entier, puis
+si l'écriture se termine par x ou par x² — ; ensuite, une seconde page
+demande directement le résultat réduit, comme {reduire-somme}. Deux pages,
+deux écritures de la même chose, plutôt que trois pages identiques.
+
+**« On mettra autant de x sans coefficient que dans le pdf »** : neuf des
+trente facteurs de la fiche s'écrivent NUS — « x », « -x » — sans aucun
+chiffre devant, et le tirage garde ce compte exactement, facteur par facteur.
+`RPD_MODELES` fixe la FORME de chaque lettre (X0 un facteur nu, Xc un
+coefficient de 2 à 9, N un nombre, X1 un coefficient figé à 1) ; seuls les
+nombres et les signes sont retirés à chaque page, jamais la forme. Un seul
+facteur de la fiche écrit un coefficient de 1 en toutes lettres — le second
+de « m », -5x × 1x — exprès, pour distinguer « 1x » de « x » : c'est la
+seule lettre qui porte X1, et lui seul le porte.
+
+**Le résultat est toujours en x ou en x²**, jamais un nombre seul : chaque
+produit porte au moins un facteur en x. Le degré du résultat se déduit du
+nombre de facteurs en x (1 ou 2), jamais tiré à part.
+
+**Un produit réduit EST un terme, comme une somme réduite** : `rpdLignes()`
+réutilise telles quelles les fonctions de {reduire-somme} — `redEcrit` pour
+écrire le résultat, `redLit` et `redMeme` pour lire et juger la page directe
+— au lieu de réécrire un lecteur d'expression à part. La case du coefficient
+entier (phase détaillée) se lit par `citLit()` : un entier positif, sans
+signe, sans espace.
+
+**Le bouton des tables est proposé** (l'identifiant n'est PAS dans
+`TABLES_SANS`) : comme {multiplier-relatifs}, le résultat est un vrai
+produit à calculer.
+
+**On range les deux facteurs de chaque produit, jamais les réponses** :
+`rpdLignes()` recalcule signe, coefficient, degré et écriture réduite dans
+la fonction même qui corrige.
+
+**Le juge** (`tests/verifier.js`, « réduire chaque produit avec x ») : la
+place (7.8, les 7.1 à 7.7 immobiles, bouton des tables présent), le compte
+des facteurs nus (neuf, comme la fiche), 300 tirages (chaque facteur dans la
+forme que dicte `RPD_MODELES`, les magnitudes de 2 à 9 pour Xc et N, figées à
+1 pour X0 et X1), les réponses jugées par une SECONDE méthode — une écriture
+du résultat reconstruite dans le contrôle, indépendante de `redEcrit` —, puis
+le bouton sur la fiche elle-même (x × 3, x × x, …, -x × -x) : la copie juste
+des deux phases (45/45 puis 15/15), un piège de degré (15x² écrit 15x, faute
+de carré) rouge sans toucher ses voisines, une case vide (correction, jamais
+rouge), une écriture illisible rouge, le barème de 60 (45 + 15).
