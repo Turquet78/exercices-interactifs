@@ -1350,6 +1350,30 @@
   .red-sq{padding:6px 10px;min-width:0;font-size:1rem}
   .red-l{flex-wrap:wrap} .red-l .mf-cor{white-space:nowrap}
   @media(max-width:520px){ .red-regle .plc-sel{min-width:0;width:100%} .red-lignes{grid-template-columns:1fr} .red-l{padding:8px 10px;flex-wrap:wrap} .red-in{width:120px} }
+  /* ---- Réduire chaque produit avec x (7.8, thème Calcul littéral) ----
+     La phase directe reprend {reduire-somme} au caractère près (red-expr,
+     red-in) : son x italique retombe donc déjà sur .red-expr i. La phase
+     détail, elle, réutilise .rel-expr (venue de {additionner-relatifs}, qui
+     n'a jamais porté de x) : la règle italique s'y ajoute, SCOPÉE à cet écran
+     pour ne pas repeindre les trois autres exercices qui partagent la classe.
+     Les trois cases de cette phase — signe, coefficient, fin d'écriture — sont
+     toutes des CHOIX, jamais une saisie libre (demande de Turquet, septembre
+     2026 : le coefficient propose la bonne valeur et ses deux voisines, +1 et
+     -1, comme un QCM) : la règle « case à la taille des nombres » ne vise que
+     la saisie, donc plus elles ; elles peuvent rester petites — assez pour
+     que l'égalité entière tienne sur une seule ligne, comme le fait déjà le
+     signe de {soustraire-relatifs} (.srl-chaine .plc-sel). */
+  #scr-rpd .rel-expr i{font-family:"Times New Roman",serif;font-size:1.12em}
+  #scr-rpd .rel-bloc{padding:8px 12px}
+  #scr-rpd .rpd-sg{width:44px;font-size:1.05rem;padding:0}
+  #scr-rpd .rpd-coef{width:54px;font-size:1.05rem;padding:0}
+  #scr-rpd .rpd-deg{width:58px;font-size:1.05rem;padding:0;font-family:"Times New Roman",serif;font-style:italic}
+  /* Le badge vert de correction (mf-cor, posé par corrChoix — commun à tous
+     les exercices à listes) montre le libellé en texte brut : sur la case
+     « x ou x² », il porte .rpd-x pour rester assorti, sans hériter la largeur
+     de .rpd-deg (demande de Turquet, septembre 2026, comme pour {associer-
+     expressions} en 7.6). */
+  #scr-rpd .mf-cor.rpd-x{font-family:"Times New Roman",serif;font-style:italic}
   /* ---- Somme et produit de deux relatifs (7.4, thème Calcul littéral) ----
      Une paire de relatifs par bloc, et deux lignes : leur SOMME, puis leur
      PRODUIT. Les deux calculs sont indépendants — on alterne les règles, pas
@@ -4162,7 +4186,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="rpdLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">R&eacute;duis chaque produit. D&rsquo;abord case par case &mdash; le <b>signe</b>, le <b>coefficient</b>, puis si &ccedil;a se termine par <b>x</b> ou par <b>x&sup2;</b> &mdash;, puis directement le r&eacute;sultat r&eacute;duit. Pour &eacute;crire x&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
+      <p class="mp-instr">R&eacute;duis chaque produit. D&rsquo;abord case par case &mdash; le <b>signe</b>, le <b>coefficient</b>, puis si &ccedil;a se termine par <b><i>x</i></b> ou par <b><i>x</i>&sup2;</b> &mdash;, puis directement le r&eacute;sultat r&eacute;duit. Pour &eacute;crire <i>x</i>&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="rpdHost"></div></div>
       <div class="mp-feedback" id="rpdFeedback"></div>
       <div class="row" style="justify-content:center">
@@ -4422,7 +4446,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=216;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=217;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -33766,7 +33790,17 @@ function ctxSrl(q){
    rpdLignes() recalcule signe, coefficient, degré et écriture réduite dans la
    fonction même qui corrige — jusqu'au résultat, réutilisé de {reduire-somme}
    (redEcrit, redLit, redMeme) : un produit réduit EST un terme a·xᵈ, comme une
-   somme réduite l'est. */
+   somme réduite l'est.
+
+   L'INCONNUE X EST TOUJOURS EN ITALIQUE (demande de Turquet, septembre
+   2026) : dans l'énoncé de chaque produit (rpdEcritFacteur(f,true), posé en
+   innerHTML sous exprH — jamais esc(expr), qui afficherait les balises) comme
+   dans les cases où elle apparaît. LES TROIS CASES DE LA PHASE DÉTAIL SONT
+   DES CHOIX, PAS UNE SAISIE (même demande) : le coefficient propose la bonne
+   valeur et ses deux voisines (+1, -1), comme un QCM à trois options —
+   voir rpdCoefOpts(). Devenues trois listes, les cases peuvent rester
+   petites : l'égalité entière (lettre, produit, signe, coefficient, fin
+   d'écriture) tient sur une seule ligne au lieu de deux rangées empilées. */
 const RPD_LETTRES=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o'];
 /* Le type de chaque facteur, dans l'ordre de la fiche : N (un nombre), X0 (x
    ou -x, SANS coefficient écrit), Xc (un coefficient de 2 à 9 écrit en
@@ -33787,11 +33821,15 @@ function rpdGenItems(){
   return RPD_MODELES.map(function(km,i){ return {i:i, lettre:RPD_LETTRES[i], f1:rpdFacteur(km[0]), f2:rpdFacteur(km[1])}; });
 }
 /* « x », « -x » (X0, ou X1 à 1 : un coefficient nu) ; « 8x », « -3x » (Xc, ou
-   X1, qui écrit toujours son coefficient) ; « 3 », « -2 » (N). */
-function rpdEcritFacteur(f){
+   X1, qui écrit toujours son coefficient) ; « 3 », « -2 » (N). L'inconnue x
+   s'écrit en italique dans l'énoncé (demande de Turquet, septembre 2026),
+   comme dans {reduire-somme} : html=true la sort en <i>x</i>, à activer
+   uniquement là où le texte est posé en innerHTML, jamais en textContent. */
+function rpdEcritFacteur(f, html){
+  const x=html?'<i>x</i>':'x';
   if(f.kind==='N') return (f.s<0?'−':'')+f.m;
-  if(f.kind==='X0') return (f.s<0?'−':'')+'x';
-  return (f.s<0?'−':'')+f.m+'x';
+  if(f.kind==='X0') return (f.s<0?'−':'')+x;
+  return (f.s<0?'−':'')+f.m+x;
 }
 function rpdBuildQuestions(){
   return [{phase:'detail', items:rpdGenItems()}, {phase:'direct', items:rpdGenItems()}];
@@ -33805,6 +33843,7 @@ function rpdLignes(q){
     const val=signe*mag;
     return { i:it.i, lettre:it.lettre,
       expr: rpdEcritFacteur(it.f1)+' × '+rpdEcritFacteur(it.f2),
+      exprH: rpdEcritFacteur(it.f1,true)+' × '+rpdEcritFacteur(it.f2,true),
       signe: signe>0?'+':'-', coef:mag, degNum:deg, degSel: deg===2?'x2':'x',
       val: val, bon: redEcrit([{c:val,d:deg}],false), bonH: redEcrit([{c:val,d:deg}],true) };
   });
@@ -33814,7 +33853,7 @@ function rpdCases(q){
   rpdLignes(q).forEach(function(l){
     if(q.phase==='detail'){
       cs.push({id:'rpd-sg-'+l.i, bon:l.signe, kind:'sel', l:l});
-      cs.push({id:'rpd-c-'+l.i, bon:String(l.coef), kind:'nb', l:l});
+      cs.push({id:'rpd-c-'+l.i, bon:String(l.coef), kind:'sel', l:l});
       cs.push({id:'rpd-d-'+l.i, bon:l.degSel, kind:'sel', l:l});
     } else {
       cs.push({id:'rpd-r-'+l.i, bon:l.bon, kind:'expr', l:l});
@@ -33822,17 +33861,15 @@ function rpdCases(q){
   });
   return cs;
 }
-/* Le coefficient, lu comme un entier relatif : espaces retirées, moins
-   typographique normalisé — même lecture que relLit(), sous le nom de ce
-   moteur-ci. */
-function rpdLit(v){
-  const t=String(v==null?'':v).replace(/\s+/g,'').replace(/[−–—]/g,'-');
-  if(!/^[+-]?\d+$/.test(t)) return null;
-  return parseInt(t,10);
+/* Le coefficient se propose en TROIS valeurs — la bonne, et ses deux
+   voisines +1 et -1 — plutôt qu'en saisie libre (demande de Turquet,
+   septembre 2026) : comme le signe et la fin de l'écriture, c'est un choix,
+   pas un texte à taper. */
+function rpdCoefOpts(coef){
+  return ensShuffle([coef, coef+1, coef-1]).map(function(v){ return '<option value="'+v+'">'+v+'</option>'; }).join('');
 }
 function rpdJuste(c, el){
   if(!el) return false;
-  if(c.kind==='nb'){ const n=rpdLit(el.value); return n!==null && n===parseInt(c.bon,10); }
   if(c.kind==='expr'){ const lu=redLit(el.value); if(!lu || !lu.reduite) return false;
     const att={}; att[c.l.degNum]=c.l.val; return redMeme(lu.termes, att); }
   return el.value===c.bon;
@@ -33850,14 +33887,18 @@ function renderRpdTest(){
   let h='<div class="red-lignes">';
   rpdLignes(q).forEach(function(l){
     if(q.phase==='detail'){
-      h+='<div class="rel-bloc"><div class="rel-l"><span class="rel-lib">'+l.lettre+'.</span><span class="rel-expr">'+esc(l.expr)+' =</span></div>'
-        +'<div class="rel-l">'
-        +'<select class="plc-sel" id="rpd-sg-'+l.i+'" aria-label="le signe du résultat">'+vide+signes+'</select>'
-        +'<input class="rel-in" id="rpd-c-'+l.i+'" type="text" inputmode="numeric" autocomplete="off" aria-label="le coefficient entier">'
-        +'<select class="plc-sel" id="rpd-d-'+l.i+'" aria-label="la fin de l’écriture, x ou x au carré">'+vide+degres+'</select>'
+      /* une seule ligne — l'égalité, puis ses trois choix — pour que les
+         cases, plus petites, tiennent toutes à côté d'elle (demande de
+         Turquet, septembre 2026) : les deux rangées empilées d'avant
+         séparaient l'énoncé de sa réponse. */
+      h+='<div class="rel-bloc"><div class="rel-l">'
+        +'<span class="rel-lib">'+l.lettre+'.</span><span class="rel-expr">'+l.exprH+' =</span>'
+        +'<select class="plc-sel rpd-sg" id="rpd-sg-'+l.i+'" aria-label="le signe du résultat">'+vide+signes+'</select>'
+        +'<select class="plc-sel rpd-coef" id="rpd-c-'+l.i+'" aria-label="le coefficient entier">'+vide+rpdCoefOpts(l.coef)+'</select>'
+        +'<select class="plc-sel rpd-deg" id="rpd-d-'+l.i+'" aria-label="la fin de l’écriture, x ou x au carré">'+vide+degres+'</select>'
         +'</div></div>';
     } else {
-      h+='<div class="red-l"><span class="red-expr">'+l.lettre+'. '+esc(l.expr)+' =</span>'
+      h+='<div class="red-l"><span class="red-expr">'+l.lettre+'. '+l.exprH+' =</span>'
         +'<input class="red-in" id="rpd-r-'+l.i+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="le résultat réduit de '+esc(l.expr)+'">'
         +'<button class="btn btn-ghost red-sq" type="button" tabindex="-1" onclick="redCarre(\'rpd-r-'+l.i+'\')" aria-label="écrire x au carré"><i>x</i>²</button>'
         +'</div>';
@@ -33899,7 +33940,15 @@ function checkRpdAnswer(live){
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
   const pourquoi=rpdPourquoi(q, subs);
-  subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
+  subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok);
+    /* corrChoix pose le badge vert (mf-cor) dans une police droite, commune à
+       tous les exercices à listes : sur la case « x ou x² », comme sur les
+       pages de lettre (7.6), il doit rester assorti à l'italique de la case
+       elle-même — même police, sous une classe à elle (.rpd-x) pour ne pas
+       hériter la largeur de la case sur un badge de texte. */
+    if(s.el && s.c.id.indexOf('rpd-d-')===0){ const badge=s.el.nextElementSibling;
+      if(badge && badge.classList && badge.classList.contains('mf-cor')) badge.classList.add('rpd-x'); }
+  });
   if(!allOk && isSoutien()){ soutienAgain('rpdFeedback','rpdActions','checkRpdAnswer','rpdHost'); return; }
   test.locked=true;
   /* la page est corrigée : le bouton « x² » n'a plus rien à écrire */

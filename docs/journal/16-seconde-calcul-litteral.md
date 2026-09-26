@@ -428,9 +428,7 @@ nombre de facteurs en x (1 ou 2), jamais tiré à part.
 **Un produit réduit EST un terme, comme une somme réduite** : `rpdLignes()`
 réutilise telles quelles les fonctions de {reduire-somme} — `redEcrit` pour
 écrire le résultat, `redLit` et `redMeme` pour lire et juger la page directe
-— au lieu de réécrire un lecteur d'expression à part. La case du coefficient
-entier (phase détaillée) se lit par `citLit()` : un entier positif, sans
-signe, sans espace.
+— au lieu de réécrire un lecteur d'expression à part.
 
 **Le bouton des tables est proposé** (l'identifiant n'est PAS dans
 `TABLES_SANS`) : comme {multiplier-relatifs}, le résultat est un vrai
@@ -449,4 +447,30 @@ du résultat reconstruite dans le contrôle, indépendante de `redEcrit` —, pu
 le bouton sur la fiche elle-même (x × 3, x × x, …, -x × -x) : la copie juste
 des deux phases (45/45 puis 15/15), un piège de degré (15x² écrit 15x, faute
 de carré) rouge sans toucher ses voisines, une case vide (correction, jamais
-rouge), une écriture illisible rouge, le barème de 60 (45 + 15).
+rouge), une écriture illisible rouge sur la page directe, le barème de 60
+(45 + 15).
+
+**L'inconnue x en italique, et le coefficient en trois choix (v216,
+septembre 2026)** : deux défauts remontés par Turquet sur cet exercice
+précisément. D'abord, l'énoncé de chaque produit affichait un x DROIT — la
+seule case de tout le thème Calcul littéral à ne pas suivre la convention de
+{reduire-somme} (`.red-expr i` en Times New Roman, x et x² du reste du
+thème). `rpdEcritFacteur(f, html)` gagne donc un second paramètre : `false`
+garde le x nu pour tout ce qui reste du texte brut (aria-label, messages,
+réponses enregistrées), `true` le sort en `<i>x</i>` sous un nouveau champ
+`exprH`, posé en innerHTML — jamais dans `esc(l.expr)`, qui aurait affiché
+les balises en toutes lettres. Ensuite, la case du coefficient entier
+(phase détaillée) était une saisie libre : Turquet a demandé qu'elle
+propose trois valeurs, la bonne et ses deux voisines (+1 et -1), comme un
+QCM — `rpdCoefOpts()` les mélange avec `ensShuffle()`. Les trois cases de
+cette phase (signe, coefficient, fin d'écriture) sont donc maintenant TOUTES
+des listes, plus aucune n'est une saisie : la règle « case à la taille des
+nombres » (`docs/journal/11-aides-et-interface.md`) ne les vise plus, comme
+elle ne visait déjà pas le signe de {soustraire-relatifs} — elles peuvent
+donc rester petites, et l'égalité (lettre, produit, signe, coefficient, fin
+d'écriture) tient sur une seule ligne au lieu des deux rangées empilées
+d'avant. Le juge en jsdom ne peut plus taper « 3, » dans une liste : le test
+d'une réponse fausse-mais-proposée bascule sur la voisine +1 (`rpd-c-0` à
+4 au lieu de 3), et un nouveau test lit les trois `<option>` du premier
+coefficient pour vérifier qu'elles sont bien la bonne valeur et ses deux
+voisines.
