@@ -1313,24 +1313,22 @@
   .red-sq{padding:6px 10px;min-width:0;font-size:1rem}
   .red-l{flex-wrap:wrap} .red-l .mf-cor{white-space:nowrap}
   @media(max-width:520px){ .red-regle .plc-sel{min-width:0;width:100%} .red-lignes{grid-template-columns:1fr} .red-l{padding:8px 10px;flex-wrap:wrap} .red-in{width:120px} }
-  /* ---- Calcul itéré : alterner somme et produit (7.4, thème Calcul littéral) ----
-     Une ligne par étape, « 7 × 5 = [  ] » : le nombre de gauche est le
-     résultat de la ligne d'avant, recopié dès que l'élève l'écrit. La case a
-     la taille des nombres qui l'entourent (1,45 rem, la police du calcul). */
-  .cit-lignes{display:flex;flex-direction:column;gap:12px;width:100%;max-width:560px;margin:0 auto}
-  .cit-l{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;border:1.5px solid #D6E2F8;border-radius:14px;padding:10px 16px;background:#FBFCFF}
-  .cit-l.cit-dep{background:#F3F7FF}
-  .cit-lib{font-weight:600;color:var(--ink-soft)}
-  .cit-num{font-weight:700;color:var(--ink-soft);min-width:1.6em}
+  /* ---- Somme et produit de deux relatifs (7.4, thème Calcul littéral) ----
+     Une paire de relatifs par bloc, et deux lignes : leur SOMME, puis leur
+     PRODUIT. Les deux calculs sont indépendants — on alterne les règles, pas
+     les résultats. La case a la taille des nombres qui l'entourent. */
+  .cit-lignes{display:flex;flex-direction:column;gap:14px;width:100%;max-width:560px;margin:0 auto}
+  .cit-bloc{border:1.5px solid #D6E2F8;border-radius:14px;padding:10px 16px;background:#FBFCFF;display:flex;flex-direction:column;gap:8px}
+  .cit-l{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+  .cit-lib{font-weight:600;color:var(--ink-soft);min-width:5.2em;flex-shrink:0}
   .cit-expr{font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);white-space:nowrap;font-variant-numeric:tabular-nums}
-  .cit-prev{display:inline-block;min-width:1.2em;text-align:right}
-  .cit-prev.cit-vide{color:#9AAAC8}
-  .cit-in{width:110px;height:48px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none}
+  .cit-in{width:96px;height:48px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none}
   .cit-in:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .cit-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue)}
   .cit-in.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
   .cit-in.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
-  @media(max-width:520px){ .cit-l{padding:8px 10px;gap:8px} .cit-in{width:96px} }
+  /* sur téléphone, l'étiquette se tait : le signe + ou × dit déjà l'opération, et la ligne tient */
+  @media(max-width:520px){ .cit-bloc{padding:8px 10px} .cit-l{gap:8px} .cit-lib{display:none} .cit-in{width:84px} }
   /* ---- Associer chaque expression à son résultat (thème Calcul littéral) ----
      La ligne est une rangée flex CENTRÉE : le « = » posé à côté de n/n tombe
      sur le trait de la fraction ; la liste a l'encre et la taille des nombres. */
@@ -3978,14 +3976,14 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
-  <!-- CALCUL ITÉRÉ : ALTERNER SOMME ET PRODUIT -->
+  <!-- CALCUL LITTÉRAL : SOMME ET PRODUIT DE DEUX RELATIFS -->
   <section class="screen" id="scr-cit">
     <div class="test-top">
-      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCit"></span><span class="q-idx" id="citIdx">Question 1 / 5</span></span>
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCit"></span><span class="q-idx" id="citIdx">Question 1 / 3</span></span>
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="citLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">Pars du nombre de d&eacute;part et fais les calculs <b>l&rsquo;un apr&egrave;s l&rsquo;autre</b> : chaque r&eacute;sultat devient le nombre de d&eacute;part de la ligne suivante. On alterne une <b>somme</b> et un <b>produit</b>.</p>
+      <p class="mp-instr">Pour chaque paire de nombres relatifs, calcule leur <b>somme</b>, puis leur <b>produit</b>. Attention, la r&egrave;gle du signe n&rsquo;est pas la m&ecirc;me : pour la somme, c&rsquo;est le signe du <b>plus fort</b> ; pour le produit, c&rsquo;est la <b>r&egrave;gle des signes</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="citHost"></div></div>
       <div class="mp-feedback" id="citFeedback"></div>
       <div class="row" style="justify-content:center">
@@ -4927,7 +4925,7 @@ const TESTS={
   'soustraire-relatifs': { name:'Soustraire un relatif\u00a0: additionner son oppos\u00e9', icon:'\u2796', desc:'Soustraire un nombre relatif, c\u2019est additionner son oppos\u00e9. Transforme chaque soustraction en addition \u2014 +3 \u2212 (\u22122) = +3 + (+2) \u2014, puis calcule le r\u00e9sultat.', start:()=>startSrl() },
   'nombres-relatifs': { name:'Gagner et perdre : les nombres relatifs', icon:'\u00b1', desc:'On gagne ou on perd de l\u2019argent, deux fois de suite\u00a0: dis en mots ce qui reste au final, puis \u00e9cris-le avec les nombres relatifs \u2014 +3 \u2212 2 = +1.', start:()=>startRgp() },
   'multiplier-relatifs': { name:'Multiplier deux relatifs : la r\u00e8gle des signes', icon:'\u2716\ufe0f', desc:'Deux nombres relatifs \u00e0 multiplier. D\u2019abord la r\u00e8gle \u2014 pour multiplier, c\u2019est la r\u00e8gle des signes \u2014, que tu compl\u00e8tes, puis pour chaque produit le SIGNE du r\u00e9sultat, et enfin le r\u00e9sultat. Le bouton des tables est l\u00e0 si tu en as besoin.', start:()=>startMrl() },
-  'calcul-itere': { name:'Alterner somme et produit', icon:'\u{1F501}', desc:'Un nombre de d\u00e9part, puis des calculs \u00e0 faire l\u2019un apr\u00e8s l\u2019autre\u00a0: on ajoute un chiffre, on multiplie par le suivant, on ajoute encore\u2026 Chaque r\u00e9sultat devient le point de d\u00e9part de la ligne suivante.', start:()=>startCit() },
+  'calcul-itere': { name:'Somme et produit de deux relatifs', icon:'\u{1F501}', desc:'Pour une m\u00eame paire de relatifs, la somme puis le produit, en alternance\u00a0: le signe du plus fort pour additionner, la r\u00e8gle des signes pour multiplier.', start:()=>startCit() },
   'reduire-somme': { name:'R\u00e9duire une somme de termes', icon:'\ud83d\udd24', desc:'R\u00e9duis si possible : 2x + 3x, 2x + 3, \u22122x\u00b2 + 3x\u00b2, \u22122x\u00b2 + 3x\u2026 On n\u2019additionne que des termes de m\u00eame nature \u2014 des x avec des x, des x\u00b2 avec des x\u00b2, des nombres avec des nombres.', start:()=>startRed() },
   'associer-expressions': { name:'Associer chaque expression \u00e0 son r\u00e9sultat', icon:'\ud83d\udd17', desc:'Quatre expressions \u2014 un carr\u00e9, un double, un nombre divis\u00e9 par lui-m\u00eame, un nombre moins lui-m\u00eame \u2014 \u00e0 associer \u00e0 leur r\u00e9sultat. Trois fois avec un nombre, puis une fois avec la lettre x.', start:()=>startAsx() },
   'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
@@ -6106,7 +6104,7 @@ const QIA_SUGG={
   rgp:["Pourquoi +3 \u2212 2 fait-il +1 ?","Comment savoir si le r\u00e9sultat est positif ou n\u00e9gatif ?","Pourquoi \u22123 \u2212 2 fait-il \u22125 et pas \u22121 ?","Que veut dire le signe devant un nombre ?"],
   red:["Quand peut-on additionner deux termes\u00a0?","Pourquoi 2x + 3 ne fait-il pas 5x\u00a0?","Que vaut \u22122x + 3x\u00a0?","Pourquoi \u22122x\u00b2 + 3x ne se r\u00e9duit-il pas\u00a0?"],
   mrl:["Comment trouver le signe d\u2019un produit\u00a0?","Pourquoi moins par moins donne-t-il plus\u00a0?","Quelle est la diff\u00e9rence avec l\u2019addition des relatifs\u00a0?","Comment retrouver le r\u00e9sultat de 7 \u00d7 8\u00a0?"],
-  cit:["Comment calculer 37 \u00d7 6 de t\u00eate\u00a0?","Pourquoi le r\u00e9sultat d\u2019une ligne sert-il \u00e0 la suivante\u00a0?","Et si je me suis tromp\u00e9 \u00e0 une ligne\u00a0?","Comment v\u00e9rifier un produit\u00a0?"],
+  cit:["Pourquoi (\u22123) + (\u22125) est-il n\u00e9gatif alors que (\u22123) \u00d7 (\u22125) est positif\u00a0?","Quand utilise-t-on le signe du plus fort\u00a0?","Quand utilise-t-on la r\u00e8gle des signes\u00a0?","Comment ne pas m\u00e9langer les deux r\u00e8gles\u00a0?"],
   ord:["Pourquoi 1,1 est-il plus grand que 1,08 ?","Pourquoi peut-on ajouter des z\u00e9ros \u00e0 droite ?","Comment comparer deux nombres n\u00e9gatifs ?","Par quel nombre je commence quand je range ?"],
   plc:["Pourquoi 1,1 est-il plus grand que 1,08 ?","Pourquoi peut-on ajouter des zéros à droite ?","Comment comparer deux nombres négatifs ?","Comment lire une droite graduée ?"],
   tvg:["Comment résoudre f (x) = k avec un graphique ?","Pourquoi parfois il n’y a aucune solution ?","Que représente la droite y = k ?","Où se lisent les solutions : sur l’axe des abscisses ou des ordonnées ?"],
@@ -6643,11 +6641,10 @@ const RAP_SRL=`<b>Soustraire un nombre relatif</b><br>
 <b>① On transforme la soustraction en addition</b> : le « − » devient « + », et le nombre entre parenthèses change de signe.<br>
 +3 − (+2) = +3 + (−2) ; +3 − (−2) = +3 + (+2) ; −3 − (+2) = −3 + (−2) ; −3 − (−2) = −3 + (+2).<br>
 <b>② On calcule l'addition</b>, avec la règle du signe du plus fort : +3 + (−2) = 1 ; +3 + (+2) = 5 ; −3 + (−2) = −5 ; −3 + (+2) = −1.`;
-const RAP_CIT=`<b>Un calcul itéré : chaque résultat devient le nombre de départ</b><br>
-<b>① On calcule une ligne à la fois.</b> Départ 3, puis + 4 : 3 + 4 = 7. La ligne suivante part de <b>7</b>, pas de 3 : 7 × 5 = 35. Puis 35 + 2 = 37, puis 37 × 6 = 222.<br>
-<b>② On alterne : une somme, un produit, une somme…</b> Regarde bien le signe de chaque ligne — l'erreur la plus fréquente est d'ajouter là où il faut multiplier.<br>
-<b>③ Un produit à deux chiffres se découpe.</b> 37 × 6, c'est 30 × 6 + 7 × 6 = 180 + 42 = 222.<br>
-Si une ligne est fausse, la suivante est jugée à partir de TON résultat : une erreur ne se paie qu'une fois.`;
+const RAP_CIT=`<b>Somme ou produit : deux règles différentes pour le signe</b><br>
+<b>① Pour ADDITIONNER, le signe est celui du plus fort</b> (le plus loin de zéro). Même signe : on additionne les distances, (−3) + (−5) = −8. Signes contraires : on soustrait, (−3) + (+5) = +2.<br>
+<b>② Pour MULTIPLIER, c'est la règle des signes.</b> Deux signes identiques donnent +, deux signes contraires donnent − : (−3) × (−5) = +15, (−3) × (+5) = −15.<br>
+<b>③ Avant chaque calcul, regarde l'opération.</b> (−3) + (−5) est négatif, mais (−3) × (−5) est positif : « moins par moins donne plus » ne vaut QUE pour le produit.`;
 
 const RAP_ASX=`<b>Des nombres aux lettres</b><br>
 <b>Le carré</b> d'un nombre, c'est ce nombre multiplié par <b>lui-même</b> : 3² = 3 × 3 = 9. Ce n'est PAS 3 × 2.<br>
@@ -33882,71 +33879,50 @@ function ctxMrl(q){
   return {nombre:'', contexte:c};
 }
 
-/* ===== EXERCICE : CALCUL ITÉRÉ, ALTERNER SOMME ET PRODUIT ===================
+/* ===== EXERCICE : SOMME ET PRODUIT DE DEUX RELATIFS =========================
    (identifiant « calcul-itere », kind « cit », 7.4, thème Calcul littéral)
    Demandé par Turquet en septembre 2026 : des nombres à UN chiffre, jamais
-   zéro, et l'on alterne somme et produit. Un nombre de départ, puis quatre
-   étapes — « + 4 », « × 5 », « + 2 », « × 6 » — dont chacune part du résultat
-   de la précédente. Chaque ligne s'écrit comme une égalité : « 7 × 5 = [  ] »,
-   où 7 est le résultat de la ligne d'avant, RECOPIÉ dès que l'élève l'écrit.
+   zéro, et l'on ALTERNE somme et produit. Le premier jet enchaînait les
+   calculs (chaque résultat devenait le départ du suivant) : « quand je disais
+   alterné, c'était en ayant des calculs disjoints ». Les calculs sont donc
+   INDÉPENDANTS, et ce sont des RELATIFS (réponse de Turquet) : pour une même
+   paire, la somme puis le produit, côte à côte — l'élève change de règle à
+   chaque ligne, le signe du plus fort puis la règle des signes. L'identifiant
+   reste « calcul-itere » : un identifiant ne se renomme jamais.
 
-   UNE ERREUR NE SE PAIE QU'UNE FOIS : chaque ligne est jugée à partir du
-   nombre que l'élève a écrit à la ligne d'avant (celui qu'il voit recopié en
-   tête de ligne). Si cette case est vide ou illisible, on repart de la valeur
-   que la correction y écrit. Sans cela, une faute à la première ligne rougirait les quatre — et
-   une case juste rougirait pour sa voisine.
+   Quatre paires par page, une pour chaque combinaison de signes (+,+), (+,−),
+   (−,+), (−,−), dans un ordre tiré. Les deux chiffres d'une paire sont
+   DIFFÉRENTS : avec −3 et +3, la somme vaut 0, et « le plus fort » n'existe
+   pas. Trois pages, huit cases chacune, barème 24.
 
-   On ne multiplie jamais par 1 : « × 1 » ne demande aucun calcul. La première
-   page commence par une somme, la deuxième par un produit, les suivantes
-   tirent au sort — les deux départs sortent dans chaque séance.
-
-   ON RANGE LES CHIFFRES, JAMAIS LES RÉPONSES : la chaîne se recalcule dans la
-   fonction même qui corrige (citAttendus). */
-const CIT_NB=5, CIT_ETAPES=4;
-function citGen(i){
-  const prod0 = i===0 ? false : (i===1 ? true : Math.random()<0.5);
-  const d=[];
-  for(let k=0;k<CIT_ETAPES;k++){
-    const prod=(k%2===0)===prod0;
-    d.push(prod ? rand(2,9) : rand(1,9));
+   ON RANGE LES PAIRES, JAMAIS LES RÉPONSES : citLignes recalcule sommes et
+   produits dans la fonction même qui corrige. Les réponses se lisent comme au
+   7.1 (relLit) : « 2 », « +2 », « -2 », « −2 ». */
+const CIT_NB=3, CIT_PAIRES=4;
+const CIT_SIGNES=[[1,1],[1,-1],[-1,1],[-1,-1]];
+function citGen(){
+  const ordre=CIT_SIGNES.slice().sort(function(){ return Math.random()-0.5; });
+  const pris=[], p=[];
+  for(let k=0;k<CIT_PAIRES;k++){
+    let x, y, essai=0;
+    do{ x=rand(1,9); y=rand(1,9); essai++; }
+    while((x===y || pris.indexOf(Math.min(x,y)+'-'+Math.max(x,y))>=0) && essai<200);
+    pris.push(Math.min(x,y)+'-'+Math.max(x,y));
+    p.push([ordre[k][0]*x, ordre[k][1]*y]);
   }
-  return {dep:rand(1,9), prod0:prod0, d:d};
+  return {p:p};
 }
-function citBuildQuestions(){ return distinctes(CIT_NB, function(u,i){ return citGen(i); }); }
-function citEstProduit(q,k){ return (k%2===0)===!!q.prod0; }
-function citOp(q,k,base){ return citEstProduit(q,k) ? base*q.d[k] : base+q.d[k]; }
-function citSigne(q,k){ return citEstProduit(q,k) ? '×' : '+'; }
-/* La chaîne juste, étape par étape. */
-function citValeurs(q){ const v=[]; let x=q.dep; for(let k=0;k<CIT_ETAPES;k++){ x=citOp(q,k,x); v.push(x); } return v; }
-/* « 1 539 », « 1539 » : des chiffres, les espaces ne comptent pas. */
-function citLit(v){
-  const t=String(v==null?'':v).replace(/[\s  ]+/g,'');
-  if(!/^\d+$/.test(t)) return null;
-  return parseInt(t,10);
-}
-/* Ce que chaque case attend, à partir de ce que l'élève a écrit au-dessus. */
-function citAttendus(q, lus){
-  const vrai=citValeurs(q), att=[], bases=[];
-  for(let k=0;k<CIT_ETAPES;k++){
-    /* case d'avant vide ou illisible : on repart de ce que la correction y
-       écrira (att), c'est-à-dire le nombre que l'élève verra recopié */
-    const base = k===0 ? q.dep : (lus && lus[k-1]!=null ? lus[k-1] : att[k-1]);
-    bases.push(base); att.push(citOp(q,k,base));
-  }
-  return {att:att, bases:bases, vrai:vrai};
-}
-function citLus(){ const l=[]; for(let k=0;k<CIT_ETAPES;k++){ const el=$('cit-r-'+k); l.push(el?citLit(el.value):null); } return l; }
-function citFmt(n){ return String(n); }
-/* Le nombre en tête de chaque ligne : celui de la ligne d'avant, tel que l'élève l'a écrit. */
-function citEcho(){
-  const q=test.questions && test.questions[test.idx]; if(!q) return;
-  const lus=citLus();
-  for(let k=1;k<CIT_ETAPES;k++){
-    const e=$('cit-p-'+k); if(!e) continue;
-    const v=lus[k-1];
-    e.textContent = v==null ? '…' : citFmt(v);
-    e.classList.toggle('cit-vide', v==null);
-  }
+function citBuildQuestions(){ return distinctes(CIT_NB, function(){ return citGen(); }); }
+function citNb(n){ return '('+(n>0?'+':'−')+Math.abs(n)+')'; }
+/* Les deux calculs de chaque paire, et ce que chaque case attend. */
+function citLignes(q){
+  const L=[];
+  q.p.forEach(function(ab,k){
+    const a=ab[0], b=ab[1];
+    L.push({id:'cit-s-'+k, k:k, op:'+', a:a, b:b, r:a+b, expr:citNb(a)+' + '+citNb(b)});
+    L.push({id:'cit-p-'+k, k:k, op:'×', a:a, b:b, r:a*b, expr:citNb(a)+' × '+citNb(b)});
+  });
+  return L;
 }
 function renderCitTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -33955,66 +33931,77 @@ function renderCitTest(){
   $('citLiveScore').textContent=test.score;
   $('citFeedback').textContent=''; $('citFeedback').className='mp-feedback';
   $('citActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkCitAnswer()">Vérifier</button>';
-  let h='<div class="cit-lignes"><div class="cit-l cit-dep"><span class="cit-lib">Nombre de départ :</span><span class="cit-expr">'+q.dep+'</span></div>';
-  for(let k=0;k<CIT_ETAPES;k++){
-    h+='<div class="cit-l"><span class="cit-num">'+(k+1)+'.</span><span class="cit-expr">'
-      +(k===0 ? '<span class="cit-prev">'+q.dep+'</span>' : '<span class="cit-prev cit-vide" id="cit-p-'+k+'">…</span>')
-      +' '+citSigne(q,k)+' '+q.d[k]+' =</span>'
-      +'<input class="cit-in" id="cit-r-'+k+'" type="text" inputmode="numeric" autocomplete="off" aria-label="le résultat de l’étape '+(k+1)+'"></div>';
+  const L=citLignes(q);
+  let h='<div class="cit-lignes">';
+  for(let k=0;k<q.p.length;k++){
+    h+='<div class="cit-bloc">';
+    L.filter(function(l){ return l.k===k; }).forEach(function(l){
+      h+='<div class="cit-l"><span class="cit-lib">'+(l.op==='+'?'Somme':'Produit')+'</span>'
+        +'<span class="cit-expr">'+esc(l.expr)+' =</span>'
+        +'<input class="cit-in" id="'+l.id+'" type="text" inputmode="numeric" autocomplete="off" aria-label="'+(l.op==='+'?'la somme':'le produit')+'"></div>';
+    });
+    h+='</div>';
   }
   h+='</div>';
   $('citHost').innerHTML=h;
-  for(let k=0;k<CIT_ETAPES;k++){
-    const el=$('cit-r-'+k); if(!el) continue;
-    el.addEventListener('input', function(){ citEcho(); if(isSoutien()) checkCitAnswer(true);
+  L.forEach(function(l,ix){
+    const el=$(l.id); if(!el) return;
+    el.addEventListener('input', function(){ if(isSoutien()) checkCitAnswer(true);
       clearTimeout(test.citSave); test.citSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key!=='Enter') return; e.preventDefault();
-      const n=$('cit-r-'+(k+1)); if(n && !n.disabled) n.focus(); else checkCitAnswer(); });
-  }
+      const n=L[ix+1] && $(L[ix+1].id); if(n && !n.disabled) n.focus(); else checkCitAnswer(); });
+  });
 }
-/* Le pourquoi, dit sur la PREMIÈRE ligne fausse. */
-function citPourquoi(q, subs, a){
+function citJuste(l, el){ const n=el?relLit(el.value):null; return n!==null && n===l.r; }
+/* Le pourquoi, dit sur la PREMIÈRE case fausse — et le piège qu'on attend :
+   la règle de l'AUTRE opération appliquée à celle-ci. */
+function citPourquoi(subs){
   const f=subs.find(function(s){ return !s.ok && !s.vide; });
   if(!f) return '';
-  const k=f.k, base=a.bases[k], prod=citEstProduit(q,k), n=citLit(f.el.value);
-  let m='Ligne '+(k+1)+' : '+base+' '+citSigne(q,k)+' '+q.d[k]+' = '+a.att[k]+'.';
-  if(n!==null && prod && n===base+q.d[k]) m+=' Tu as ADDITIONNÉ : cette ligne est un PRODUIT.';
-  else if(n!==null && !prod && n===base*q.d[k]) m+=' Tu as MULTIPLIÉ : cette ligne est une SOMME.';
-  else if(k>0) m+=' Pense à partir du résultat de la ligne d’avant, '+base+'.';
-  return m;
+  const l=f.l, n=relLit(f.el.value), a=l.a, b=l.b;
+  const A=Math.abs(a), B=Math.abs(b), fort=A>B?a:b;
+  if(l.op==='+'){
+    let m='Dans '+l.expr+', on ADDITIONNE : le signe est celui du plus fort, '+citNb(fort)+'. ';
+    m+=(a>0)===(b>0) ? 'Même signe : on additionne, '+A+' + '+B+' = '+(A+B)+'. '
+                     : 'Signes contraires : on soustrait, '+Math.max(A,B)+' − '+Math.min(A,B)+' = '+Math.abs(A-B)+'. ';
+    m+='Donc '+l.expr+' = '+relMoins(l.r)+'.';
+    if(n!==null && Math.abs(n)===Math.abs(l.r) && n!==l.r && ((a>0)===(b>0)) === (n>0))
+      m+=' La règle des signes, c’est pour MULTIPLIER.';
+    return m;
+  }
+  return 'Dans '+l.expr+', on MULTIPLIE : c’est la règle des signes — '
+    +((a>0)===(b>0)?'deux signes identiques donnent +':'deux signes contraires donnent −')
+    +', et '+A+' × '+B+' = '+(A*B)+'. Donc '+l.expr+' = '+relMoins(l.r)+'.'
+    +(n!==null && Math.abs(n)===A*B && n!==l.r ? ' Le signe du plus fort, c’est pour ADDITIONNER.' : '');
 }
 function checkCitAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
-  const a=citAttendus(q, citLus());
-  const juste=function(k,el){ const n=el?citLit(el.value):null; return n!==null && n===a.att[k]; };
+  const L=citLignes(q);
   if(live){   /* soutien : on ne juge que les cases déjà remplies */
     if(!isSoutien()) return;
-    for(let k=0;k<CIT_ETAPES;k++){ const el=$('cit-r-'+k); if(!el || el.disabled) continue;
+    L.forEach(function(l){ const el=$(l.id); if(!el || el.disabled) return;
       el.classList.remove('ok','bad');
-      if(String(el.value).trim()==='') continue;
-      el.classList.add(juste(k,el)?'ok':'bad');
-    }
+      if(String(el.value).trim()==='') return;
+      el.classList.add(citJuste(l,el)?'ok':'bad');
+    });
     return;
   }
-  const subs=[];
-  for(let k=0;k<CIT_ETAPES;k++){ const el=$('cit-r-'+k);
-    subs.push({k:k, el:el, ok:juste(k,el), vide:!el || String(el.value).trim()===''}); }
+  const subs=L.map(function(l){ const el=$(l.id);
+    return {l:l, el:el, ok:citJuste(l,el), vide:!el || String(el.value).trim()===''}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* chaque case a son verdict : juste en bleu, fausse en rouge avec la bonne
      valeur à côté, vide remplie par la correction en vert */
-  subs.forEach(function(s){ corrChoix(s.el, citFmt(a.att[s.k]), s.ok); });
-  citEcho();
+  subs.forEach(function(s){ corrChoix(s.el, relMoins(s.l.r), s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('citFeedback','citActions','checkCitAnswer','citHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('citLiveScore').textContent=test.score;
   if(allOk){ $('citFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('citFeedback').className='mp-feedback good'; }
-  else { $('citFeedback').textContent=msgAvecVides(subs, citPourquoi(q, subs, a)); $('citFeedback').className='mp-feedback bad'; }
-  const chaine=q.dep+' '+q.d.map(function(d,k){ return citSigne(q,k)+' '+d; }).join(' ');
+  else { $('citFeedback').textContent=msgAvecVides(subs, citPourquoi(subs)); $('citFeedback').className='mp-feedback bad'; }
   test.answers.push({...(ptsExo()||{}),correct:allOk,
-    q:'Départ '+chaine,
-    answer:a.vrai.join(' ; '),
-    given:subs.map(function(s){ const v=s.el?String(s.el.value).trim():''; return v||'?'; }).join(' ; ')});
+    q:L.map(function(l){ return l.expr; }).join(' ; '),
+    answer:L.map(function(l){ return l.expr+' = '+relMoins(l.r); }).join(' ; '),
+    given:subs.map(function(s){ const v=s.el?String(s.el.value).trim():''; return s.l.expr+' = '+(v||'?'); }).join(' ; ')});
   const last=test.idx===test.questions.length-1;
   $('citActions').innerHTML='<button class="btn btn-primary" id="citNext" onclick="nextCitQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('citNext'); if(nb) nb.focus();
@@ -34026,24 +34013,23 @@ function startCit(){
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'cit', questions:qs, idx:0, score:0,
-    maxScore:qs.length*CIT_ETAPES, answers:[], startTime:Date.now(),
+    maxScore:qs.length*CIT_PAIRES*2, answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false});
   test.qId='calcul-itere';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('cit'); renderCitTest();
 }
 function ctxCit(q){
-  const a=citAttendus(q, citLus());
-  const faux=[];
-  for(let k=0;k<CIT_ETAPES;k++){ const el=$('cit-r-'+k); if(el && String(el.value).trim()!=='' && citLit(el.value)!==a.att[k]) faux.push(k+1); }
-  let c='L’élève fait un calcul itéré : il part de '+q.dep+', puis enchaîne quatre étapes en alternant somme et produit ('
-   +q.d.map(function(d,k){ return citSigne(q,k)+' '+d; }).join(', ')+'). Chaque résultat devient le nombre de départ de la ligne suivante ; '
-   +'chaque ligne s’écrit « résultat précédent '+citSigne(q,0)+' chiffre = … ». '
-   +'Résultats attendus, STRICTEMENT SECRETS : '+a.vrai.join(' ; ')+'. '
-   +'Une ligne est jugée à partir du nombre que l’élève a écrit à la ligne précédente : une erreur ne se paie qu’une fois. '
-   +'Méthode enseignée : une ligne à la fois, en regardant bien le signe ; un produit comme 37 × 6 se découpe en 30 × 6 + 7 × 6. '
-   +'L’erreur classique est d’additionner là où il faut multiplier (ou l’inverse), ou de repartir du nombre de départ au lieu du dernier résultat.';
-  if(faux.length) c+=' Il s’est trompé à la (aux) ligne(s) '+faux.join(', ')+'.';
+  const L=citLignes(q);
+  const faux=L.filter(function(l){ const el=$(l.id); return el && String(el.value).trim()!=='' && !citJuste(l,el); })
+    .map(function(l){ return l.expr; });
+  let c='L’élève calcule, pour quatre paires de nombres relatifs à un chiffre, leur SOMME puis leur PRODUIT, en alternance : '
+   +L.map(function(l){ return l.expr; }).join(' ; ')+'. Les calculs sont indépendants les uns des autres. '
+   +'Résultats attendus, STRICTEMENT SECRETS : '+L.map(function(l){ return l.expr+' = '+relMoins(l.r); }).join(' ; ')+'. '
+   +'Méthode enseignée : pour ADDITIONNER, le signe du résultat est celui du plus fort (le plus loin de zéro) ; même signe on additionne les distances, signes contraires on les soustrait. '
+   +'Pour MULTIPLIER, c’est la règle des signes : deux signes identiques donnent +, deux signes contraires donnent −. '
+   +'L’erreur attendue est de mélanger les deux règles : dire que (−3) + (−5) est positif parce que « moins par moins donne plus », ou donner au produit le signe du plus fort.';
+  if(faux.length) c+=' Il s’est trompé sur : '+faux.join(', ')+'.';
   return {nombre:'', contexte:c};
 }
 
