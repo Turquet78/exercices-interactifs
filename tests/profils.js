@@ -101,6 +101,7 @@ const RAPPELS_SECONDE = `(function(){
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
                'diviser-fractions':'mlt','diviser-fractions-libre':'mll','priorite-fractions':'pf',
+               'somme-produit-fractions':'spf','produit-difference-fractions':'pqd','quotient-difference-fractions':'pqd','quotient-double-fractions':'qdb','triple-somme-fractions':'tsf',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
@@ -739,8 +740,12 @@ module.exports = {
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
-       celles-ci. */
-    nbQuestionsFractions: { sf: 4, mlt: 4, pf: 4 },
+       celles-ci. spf/pqd/qdb/tsf : les quatre exercices entièrement cassés
+       ajoutés en septembre 2026 (G à K de la fiche « fraction_r_vision »,
+       demande de Turquet : « je veux tous les types »), 4 questions chacun,
+       mêmes deux sources — pqd sert les DEUX exercices H et I, qui partagent
+       le même moteur. */
+    nbQuestionsFractions: { sf: 4, mlt: 4, pf: 4, spf: 4, pqd: 4, qdb: 4, tsf: 4 },
     /* Le thème des pourcentages est celui de la Première, porté tel quel
        (septembre 2026) : mêmes nombres de questions, mêmes deux sources. */
     nbQuestionsPourcentages: 4,
