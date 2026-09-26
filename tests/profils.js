@@ -87,7 +87,7 @@ const RAPPELS_SECONDE = `(function(){
                'plus-petit-ensemble':'pge','lecture-variations':'lv','tableau-variation':'tvd','lecture-signes':'ls','signes-variations':'lsv','signes-variations-grand':'gsv','choisir-tableau-variation':'vtq','maximum-minimum':'mmx','maximum-minimum-tableau':'mmt','tableau-equations':'tve','tableau-vrai-faux':'tvf','image-nombre':'img','placer-image':'pim','antecedent-nombre':'ant','antecedents-droite':'adr','inequation-droite':'iqd','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','tableau-signes-graphique':'tsg','solutions-graphique':'tvg','construire-fonction':'cfx','construire-max-min':'cfx','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
-               'pourcentage-depart':'pctq','pourcentage-taux':'pctq','pourcentage-synthese':'pctq','pourcentage-synthese-libre':'psl',
+               'pourcentage-depart':'pctq','pourcentage-taux':'pctq','pourcentage-synthese':'pctq','pourcentage-synthese-libre':'psl','pourcentage-boite':'pctb',
                'augmenter-depart':'augq','augmenter-taux':'augq','diminuer-depart':'augq','diminuer-taux':'augq',
                'fraction-pourcentage':'fp','pourcentage-colonnes':'pcol','augmenter-addition':'ag2','diminuer-soustraction':'ag2',
                'augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q',
