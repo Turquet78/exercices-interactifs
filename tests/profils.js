@@ -585,6 +585,18 @@ module.exports = {
        multiplication, puis le produit, puis le résultat. C'est la chaîne la
        plus chargée après {simplifier-fractions}, et c'est là qu'un repli se
        produirait. */
+    /* {produit-difference-fractions}, {quotient-difference-fractions} et
+       {quotient-double-fractions} (demande de Turquet, septembre 2026 :
+       « je veux que les calculs tiennent dans une même ligne d'égalité »)
+       tenaient sur DEUX blocs empilés (la parenthèse, puis l'opération
+       extérieure) — voire TROIS pour {quotient-double-fractions}, ses deux
+       parenthèses puis la division. Fusionnés en un seul, et la division
+       de {quotient-difference-fractions}/{quotient-double-fractions} reprend
+       le « diviser, c'est multiplier par l'inverse » de {diviser-fractions} :
+       le terme extérieur réapparaît devant l'inverse plutôt que de laisser un
+       « = » sans rien devant. {quotient-double-fractions} est la chaîne la
+       plus longue de l'application depuis cette fusion — deux croisements
+       complets avant même de diviser. */
     cadrePleineLargeur: true,
     /* UN « = » NE SE SÉPARE JAMAIS DE LA CASE QU'IL ANNONCE (demande de
        Turquet, septembre 2026 : « fais la même chose en seconde »). Même
@@ -598,10 +610,13 @@ module.exports = {
                   exercices: ['augmenter-pourcentage', 'diminuer-pourcentage',
                               'diviser-fractions', 'simplifier-barres', 'somme-fractions'],
                   largeurs: [[820, 1180], [600, 900], [390, 844]] },
-    pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions', 'simplifier-fractions', 'diviser-fractions'],
+    pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions', 'simplifier-fractions', 'diviser-fractions',
+                                  'produit-difference-fractions', 'quotient-difference-fractions', 'quotient-double-fractions'],
                      chaine: [['pourcentage', 1], ['augmenter-pourcentage', 2],
                               ['diminuer-pourcentage', 2], ['somme-fractions', 1],
-                              ['simplifier-fractions', 1], ['diviser-fractions', 1]] },
+                              ['simplifier-fractions', 1], ['diviser-fractions', 1],
+                              ['produit-difference-fractions', 1], ['quotient-difference-fractions', 1],
+                              ['quotient-double-fractions', 1]] },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
        réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case
