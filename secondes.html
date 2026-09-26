@@ -4264,7 +4264,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=210;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=211;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -33352,9 +33352,19 @@ function rpdCases(q){
   });
   return cs;
 }
+/* Le coefficient entier de la phase détaillée : des chiffres, sans signe (il
+   a sa propre case) ; les espaces ne comptent pas. Écrit ici plutôt que
+   d'emprunter le lecteur d'un autre exercice — {calcul-itere} a changé de
+   moteur le jour même, et emprunter aurait fait dépendre ce lecteur d'un
+   exercice qui n'a plus de raison d'y ressembler. */
+function rpdEntierLit(v){
+  const t=String(v==null?'':v).replace(/[\s ]+/g,'');
+  if(!/^\d+$/.test(t)) return null;
+  return parseInt(t,10);
+}
 function rpdJuste(c, el){
   if(!el) return false;
-  if(c.kind==='nb'){ const n=citLit(el.value); return n!==null && n===parseInt(c.bon,10); }
+  if(c.kind==='nb'){ const n=rpdEntierLit(el.value); return n!==null && n===parseInt(c.bon,10); }
   if(c.kind==='expr'){ const lu=redLit(el.value); if(!lu || !lu.reduite) return false;
     const att={}; att[c.l.degNum]=c.l.val; return redMeme(lu.termes, att); }
   return el.value===c.bon;

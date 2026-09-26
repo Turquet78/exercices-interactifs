@@ -357,7 +357,7 @@ l'opposé et réécrit la ligne fausse —, deux cases vides (correction, pas de
 rouge), « 1, » faux et non vide. Éprouvé par sabotage : un signe d'opposé
 inversé dans `srlLignes()` rougit le juge en nommant les quatre lignes.
 
-## {reduire-produit} — réduire chaque produit avec x (7.8, v210)
+## {reduire-produit} — réduire chaque produit avec x (7.8, v211)
 
 **La demande** (Turquet, septembre 2026, d'après une fiche papier « Réduire
 chaque produit ») : quinze produits de deux facteurs (a à o), chacun un
@@ -386,8 +386,28 @@ nombre de facteurs en x (1 ou 2), jamais tiré à part.
 réutilise telles quelles les fonctions de {reduire-somme} — `redEcrit` pour
 écrire le résultat, `redLit` et `redMeme` pour lire et juger la page directe
 — au lieu de réécrire un lecteur d'expression à part. La case du coefficient
-entier (phase détaillée) se lit par `citLit()` : un entier positif, sans
+entier (phase détaillée) se lit par `rpdEntierLit()` : un entier positif, sans
 signe, sans espace.
+
+**Emprunter le lecteur d'un autre exercice a coûté une collision de fusion.**
+Écrit d'abord contre `citLit()`, le lecteur d'entier de {calcul-itere} —
+les deux exercices avaient la même case, pourquoi pas le même lecteur. Mais
+{calcul-itere} a changé de moteur le jour même, sur une autre branche
+(« somme et produit de deux relatifs, des calculs disjoints », toujours 7.4,
+l'identifiant ne bouge pas) : sa réécriture a retiré `citLit()`, que plus
+rien n'utilisait — de son point de vue, à bon droit. Les deux branches
+étaient vertes SÉPARÉMENT ; `main` s'est retrouvé avec un `ReferenceError`
+à la fusion, une collision qu'aucune des deux ne pouvait voir seule (la
+même famille que les numéros de section dupliqués, `docs/journal/17-verification-et-bancs.md`).
+La leçon : une case qui ressemble à celle d'un autre exercice n'emprunte
+PAS son lecteur — `rpdEntierLit()` est écrit ici, sans rien devoir à un
+exercice qui n'a aucune raison de lui rester pareil.
+
+**Et la même fusion a repris le numéro de version** : {calcul-itere} avait
+déjà pris v210 pour sa réécriture, fusionné quelques minutes avant ce
+patch — la même collision que `docs/journal/17-verification-et-bancs.md`
+décrit pour les numéros de section, transposée à `APP_VERSION`. Le premier
+arrivé garde son numéro ; celui-ci prend le suivant, v211.
 
 **Le bouton des tables est proposé** (l'identifiant n'est PAS dans
 `TABLES_SANS`) : comme {multiplier-relatifs}, le résultat est un vrai
