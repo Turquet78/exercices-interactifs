@@ -3609,6 +3609,7 @@ function exercices(suite){
     sommeFractions(w, P);
     simplifierFractions(w, P);
     sommeFractionsLibre(w, P);
+    revisionFractions(w, P);
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
     nombresRelatifs(w, P);
@@ -27195,6 +27196,131 @@ function sommeFractionsLibre(w, P){
   })()`, v => /^MARGE /.test(v), undefined);
   const m = (typeof mesure === 'string') ? /^MARGE (\d+) (\d+)$/.exec(mesure) : null;
   if(m) console.log('   · règle la plus longue : ' + m[1] + ' caractères, ' + (+m[2] - +m[1]) + ' de marge sur ' + m[2]);
+}
+
+/* {revision-fractions} (5.11) — huit questions à ordre fixe, dont cinq ont
+   gagné une étape intermédiaire en septembre 2026 (rvfExtra) : voir
+   docs/journal/07-fractions.md. Les valeurs attendues sont recalculées ICI
+   par une arithmétique indépendante — jamais en rappelant rvfReponse ou
+   rvfExtra pour se juger elles-mêmes. */
+function revisionFractions(w, P){
+  const present = evaluer(w, "typeof startRvf==='function' && typeof rvfCases==='function' && typeof rvfExtra==='function' && typeof rvfEtapes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('réviser les quatre règles des fractions : les étapes intermédiaires et le barème',
+      'ce niveau n\'a pas l\'exercice de révision des fractions');
+    return;
+  }
+  verifierEval(w, 'réviser les quatre règles des fractions : les étapes intermédiaires et le barème', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='revision-fractions';
+
+    /* ---- 0. la place, et le bouton des tables (on multiplie, ici) --------- */
+    if(TEST_NUM['revision-fractions']!=='5.11') vus.push('numéro '+TEST_NUM['revision-fractions']+' au lieu de 5.11');
+    if(TABLES_SANS.indexOf('revision-fractions')>=0) vus.push("le bouton des tables est retiré, alors qu'on multiplie dans cet exercice");
+
+    /* ---- 1. la phrase de mult-entier porte le dénominateur 1 -------------- */
+    const rMult=RVF_REGLES['mult-entier'];
+    if(!/d.nominateur/i.test(rMult.texte) || !/n.y a pas/i.test(rMult.texte))
+      vus.push("la phrase de mult-entier ne parle plus de \\"quand il n'y a pas de dénominateur\\" : "+rMult.texte);
+    if(rMult.opts[0][0]!=='un' || rMult.opts[0][1]!=='1')
+      vus.push("la bonne réponse de mult-entier n'est plus « 1 » : "+JSON.stringify(rMult.opts[0]));
+
+    /* ---- 2. les cases par type, et les valeurs de l'étape intermédiaire ---
+       Des nombres fixes, choisis pour qu'aucune case n'ait la même valeur
+       qu'une voisine (un 1===1 masquerait une case interchangée). */
+    const FIXES={
+      'meme-add':       {type:'meme-add', d:5, n1:2, n2:1},
+      'meme-sub':       {type:'meme-sub', d:5, n1:4, n2:1},
+      'mult-frac':      {type:'mult-frac', d1:3, d2:5, n1:2, n2:1},
+      'mult-entier':    {type:'mult-entier', d:5, n:2, k:3},
+      'diff-add':       {type:'diff-add', d1:3, d2:5, n1:1, n2:2},
+      'diff-sub-entier':{type:'diff-sub-entier', d1:4, n1:1, k:1},
+      'div-1':          {type:'div-1', d1:3, d2:5, n1:2, n2:1},
+      'div-2':          {type:'div-2', d1:2, d2:7, n1:3, n2:4}
+    };
+    const ATTENDU={
+      'meme-add':       {num:3,  den:5,  extra:[]},
+      'meme-sub':       {num:3,  den:5,  extra:[]},
+      'mult-frac':      {num:2,  den:15, extra:[]},
+      'mult-entier':    {num:6,  den:5,  extra:[['rvf-kden',1]]},
+      'diff-add':       {num:11, den:15, extra:[['rvf-a1',5],['rvf-b1',5],['rvf-a2',3],['rvf-b2',3]]},
+      'diff-sub-entier':{num:-3, den:4,  extra:[['rvf-kden',1]]},
+      'div-1':          {num:10, den:3,  extra:[['rvf-inv-n',5],['rvf-inv-d',1]]},
+      'div-2':          {num:21, den:8,  extra:[['rvf-inv-n',7],['rvf-inv-d',4]]}
+    };
+    if(RVF_ORDRE.join(',')!==Object.keys(FIXES).join(',')) vus.push('RVF_ORDRE a changé : '+RVF_ORDRE.join(','));
+    RVF_ORDRE.forEach(function(type){
+      const q=FIXES[type], att=ATTENDU[type], cases=rvfCases(q);
+      const attIds=['rvf-regle'].concat(att.extra.map(function(e){ return e[0]; })).concat(['rvf-num','rvf-den']);
+      if(cases.map(function(c){ return c.id; }).join(',')!==attIds.join(','))
+        vus.push(type+' : cases '+cases.map(function(c){ return c.id; }).join(',')+' au lieu de '+attIds.join(','));
+      const parCase={}; cases.forEach(function(c){ parCase[c.id]=c.bon; });
+      att.extra.forEach(function(e){ if(parCase[e[0]]!==e[1]) vus.push(type+' : '+e[0]+' vaut '+parCase[e[0]]+' au lieu de '+e[1]); });
+      if(parCase['rvf-num']!==att.num) vus.push(type+' : numérateur '+parCase['rvf-num']+' au lieu de '+att.num);
+      if(parCase['rvf-den']!==att.den) vus.push(type+' : dénominateur '+parCase['rvf-den']+' au lieu de '+att.den);
+    });
+    if(vus.length) return vus.slice(0,6).join(' | ');
+
+    /* ---- 3. le rendu, le libellé d'étape, et la copie juste, par le BOUTON */
+    startRvf();
+    if(test.maxScore!==34) vus.push('barème de '+test.maxScore+' au lieu de 34 (3+3+3+4+7+4+5+5)');
+    test.questions=RVF_ORDRE.map(function(type){ return FIXES[type]; });
+    for(let i=0;i<RVF_ORDRE.length && !vus.length;i++){
+      const type=RVF_ORDRE[i], att=ATTENDU[type];
+      test.idx=i; renderRvfTest();
+      const attIds=['rvf-regle'].concat(att.extra.map(function(e){ return e[0]; })).concat(['rvf-num','rvf-den']);
+      if(attIds.some(function(id){ return !document.getElementById(id); })){
+        vus.push(type+" : une case manque à l'écran ("+attIds.join(',')+')'); break;
+      }
+      const lab=document.querySelector('#rvfHost .pt-lab'), uneEtape=(att.extra.length>0);
+      if(uneEtape && !lab) vus.push(type+" : aucun libellé d'étape, alors que ce type en a une");
+      if(!uneEtape && lab) vus.push(type+" : un libellé d'étape apparaît, alors qu'il n'y a qu'une case");
+      document.getElementById('rvf-regle').value=RVF_REGLES[type].opts[0][0];
+      att.extra.forEach(function(e){ document.getElementById(e[0]).value=String(e[1]); });
+      document.getElementById('rvf-num').value=String(att.num);
+      document.getElementById('rvf-den').value=String(att.den);
+      checkRvfAnswer();
+      const der=test.answers[test.answers.length-1];
+      if(!der || !der.correct) vus.push(type+' : la copie juste est comptée fausse');
+    }
+    if(vus.length) return vus.slice(0,6).join(' | ');
+    if(test.score!==34) vus.push('score '+test.score+' au lieu de 34, sur une copie entièrement juste des huit questions');
+
+    /* ---- 4. mult-entier : la case du dénominateur est bien DEMANDÉE (vide
+       au départ), et une mauvaise valeur la peint en rouge — la correction
+       s'affiche à côté, elle n'écrase pas ce que l'élève a écrit ---------- */
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    test.idx=RVF_ORDRE.indexOf('mult-entier'); renderRvfTest();
+    const kden=document.getElementById('rvf-kden');
+    if(!kden) vus.push("mult-entier : pas de case rvf-kden à l'écran");
+    else if(String(kden.value||'').trim()!=='') vus.push('mult-entier : rvf-kden est déjà écrit (« '+kden.value+' ») au lieu d\\'être vide');
+    document.getElementById('rvf-regle').value='un';
+    document.getElementById('rvf-kden').value='2';
+    document.getElementById('rvf-num').value='6';
+    document.getElementById('rvf-den').value='5';
+    checkRvfAnswer();
+    if(peint('rvf-kden')!=='rouge') vus.push('mult-entier : rvf-kden=2 (faux) peint en '+peint('rvf-kden'));
+    const corKden=document.getElementById('rvf-kden').nextElementSibling;
+    if(!corKden || !corKden.classList.contains('mf-cor') || corKden.textContent!=='1')
+      vus.push('mult-entier : la correction à côté de rvf-kden ne montre pas 1 ('+(corKden?corKden.textContent:'absente')+')');
+    const derMauvais=test.answers[test.answers.length-1];
+    if(derMauvais && derMauvais.correct) vus.push('mult-entier : rvf-kden faux est quand même compté juste');
+
+    /* ---- 5. une case laissée VIDE ne rougit pas — même une étape --------- */
+    test.idx=RVF_ORDRE.indexOf('diff-add'); renderRvfTest();
+    document.getElementById('rvf-regle').value='commun';
+    document.getElementById('rvf-a1').value='5'; document.getElementById('rvf-b1').value='5';
+    document.getElementById('rvf-a2').value='3';  /* rvf-b2 reste vide */
+    document.getElementById('rvf-num').value='11'; document.getElementById('rvf-den').value='15';
+    checkRvfAnswer();
+    if(peint('rvf-b2')!=='bleu') vus.push('diff-add : rvf-b2 laissée vide est peinte en '+peint('rvf-b2'));
+    if(document.getElementById('rvf-b2').value!=='3') vus.push('diff-add : la correction de rvf-b2 n\\'écrit pas 3');
+    if(peint('rvf-a1')!=='vert' || peint('rvf-num')!=='vert') vus.push("diff-add : une case juste rougit à côté d'une case vide");
+
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
 }
 
 /* ---------- 4 quinquies. Placer trois nombres sur une droite graduée -------
