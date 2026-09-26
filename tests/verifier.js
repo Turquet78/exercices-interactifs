@@ -2209,6 +2209,11 @@ function branchements(w){
         else{ const n=mltBuildQuestions().length;
           if(n!==attendus.mlt) vus.push('moteur mlt : '+n+' questions au lieu de '+attendus.mlt); }
       }
+      if(attendus.pf!==undefined){
+        if(typeof pfBuildQuestions!=='function') vus.push('pfBuildQuestions absente');
+        else{ const n=pfBuildQuestions().length;
+          if(n!==attendus.pf) vus.push('moteur pf : '+n+' questions au lieu de '+attendus.pf); }
+      }
       return vus.join(' | ');
     })()`, v => v === '', undefined);
   }
