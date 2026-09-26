@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -4013,6 +4013,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- CALCUL LITTÉRAL : RÉDUIRE CHAQUE PRODUIT AVEC x -->
+  <section class="screen" id="scr-rpd">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagRpd"></span><span class="q-idx" id="rpdIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="rpdLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">R&eacute;duis chaque produit. D&rsquo;abord case par case &mdash; le <b>signe</b>, le <b>coefficient</b>, puis si &ccedil;a se termine par <b>x</b> ou par <b>x&sup2;</b> &mdash;, puis directement le r&eacute;sultat r&eacute;duit. Pour &eacute;crire x&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
+      <div class="mp-stage"><div style="width:100%" id="rpdHost"></div></div>
+      <div class="mp-feedback" id="rpdFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="rpdActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkRpdAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-teacher-login">
     <div class="card">
       <h2 class="title">Espace professeur</h2>
@@ -4895,6 +4911,7 @@ const TESTS={
   'calcul-itere': { name:'Somme et produit de deux relatifs', icon:'\u{1F501}', desc:'Pour une m\u00eame paire de relatifs, la somme puis le produit, en alternance\u00a0: le signe du plus fort pour additionner, la r\u00e8gle des signes pour multiplier.', start:()=>startCit() },
   'reduire-somme': { name:'R\u00e9duire une somme de termes', icon:'\ud83d\udd24', desc:'R\u00e9duis si possible : 2x + 3x, 2x + 3, \u22122x\u00b2 + 3x\u00b2, \u22122x\u00b2 + 3x\u2026 On n\u2019additionne que des termes de m\u00eame nature \u2014 des x avec des x, des x\u00b2 avec des x\u00b2, des nombres avec des nombres.', start:()=>startRed() },
   'associer-expressions': { name:'Associer chaque expression \u00e0 son r\u00e9sultat', icon:'\ud83d\udd17', desc:'Quatre expressions \u2014 un carr\u00e9, un double, un nombre divis\u00e9 par lui-m\u00eame, un nombre moins lui-m\u00eame \u2014 \u00e0 associer \u00e0 leur r\u00e9sultat. Trois fois avec un nombre, puis trois fois avec une lettre \u2014 x, puis a, puis b.', start:()=>startAsx() },
+  'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
   'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
   'python-completer': { name:'Afficher un texte suivi d\u2019une variable', icon:'\ud83d\udda8\ufe0f', desc:'Le cours explique comment afficher un texte suivi de la valeur d\u2019une variable : print("texte", variable). Puis \u00e0 toi d\u2019\u00e9crire : le programme commence par note = 12, compl\u00e8te-le pour qu\u2019il affiche \u00ab la note est : 12 \u00bb, ex\u00e9cute-le et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYX() },
   /* La suite du 5.7 : le programme porte TROIS variables et une ligne
@@ -5010,7 +5027,7 @@ const THEMES=[
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
      renumérote rien. */
-  { num:7, nom:'Calcul littéral', ids:['additionner-relatifs','nombres-relatifs','multiplier-relatifs','calcul-itere','reduire-somme','associer-expressions','soustraire-relatifs'] }
+  { num:7, nom:'Calcul littéral', ids:['additionner-relatifs','nombres-relatifs','multiplier-relatifs','calcul-itere','reduire-somme','associer-expressions','soustraire-relatifs','reduire-produit'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -5138,6 +5155,7 @@ function liveCheckCurrent(){
   else if(k==='red') checkRedAnswer(true);
   else if(k==='mrl') checkMrlAnswer(true);
   else if(k==='cit') checkCitAnswer(true);
+  else if(k==='rpd') checkRpdAnswer(true);
   else if(k==='pnv') checkPNV(true);
 }
 function modeTagHTML(){
@@ -5730,6 +5748,7 @@ function conseilPaire(){
   else if(test.kind==='ord' && q) b=ctxOrd(q);
   else if(test.kind==='rel' && q) b=ctxRel(q);
   else if(test.kind==='srl' && q) b=ctxSrl(q);
+  else if(test.kind==='rpd' && q) b=ctxRpd(q);
   else if(test.kind==='asx' && q) b=ctxAsx(q);
   else if(test.kind==='rgp' && q) b=ctxRgp(q);
   else if(test.kind==='red' && q) b=ctxRed(q);
@@ -6065,6 +6084,7 @@ const QIA_SUGG={
   smp:["Comment trouver le nombre par lequel je peux diviser\u00a0?","Pourquoi faut-il diviser en haut ET en bas\u00a0?","Pourquoi les deux colonnes montent-elles \u00e0 la m\u00eame hauteur\u00a0?","Comment savoir qu\u2019une fraction ne se simplifie plus\u00a0?"],
   rel:["Comment trouver le signe du r\u00e9sultat\u00a0?","Qu\u2019est-ce que \u00ab\u00a0le plus fort\u00a0\u00bb\u00a0?","Quand faut-il additionner, et quand soustraire\u00a0?","Pourquoi \u22123 + 2 ne fait-il pas 5\u00a0?"],
   srl:["Qu\u2019est-ce que l\u2019oppos\u00e9 d\u2019un nombre\u00a0?","Pourquoi \u2212 (\u22122) devient-il + (+2)\u00a0?","Quelle diff\u00e9rence entre l\u2019oppos\u00e9 et l\u2019inverse\u00a0?","Comment calculer ensuite l\u2019addition\u00a0?"],
+  rpd:["Comment trouver le signe d\u2019un produit\u00a0?","Pourquoi x \u00d7 x fait-il x\u00b2\u00a0?","Comment calculer le coefficient sans les signes\u00a0?","Pourquoi n\u2019\u00e9crit-on jamais 1x\u00a0?"],
   asx:["Pourquoi 3\u00b2 ne fait-il pas 3 \u00d7 2\u00a0?","Pourquoi 2 \u00d7 3 est-il \u00e9gal \u00e0 3 + 3\u00a0?","Pourquoi un nombre divis\u00e9 par lui-m\u00eame donne-t-il 1\u00a0?","Pourquoi faut-il que x soit diff\u00e9rent de 0\u00a0?"],
   rgp:["Pourquoi +3 \u2212 2 fait-il +1 ?","Comment savoir si le r\u00e9sultat est positif ou n\u00e9gatif ?","Pourquoi \u22123 \u2212 2 fait-il \u22125 et pas \u22121 ?","Que veut dire le signe devant un nombre ?"],
   red:["Quand peut-on additionner deux termes\u00a0?","Pourquoi 2x + 3 ne fait-il pas 5x\u00a0?","Que vaut \u22122x + 3x\u00a0?","Pourquoi \u22122x\u00b2 + 3x ne se r\u00e9duit-il pas\u00a0?"],
@@ -6970,6 +6990,13 @@ Si <code class="inline">k</code> contient 10 et <code class="inline">l</code> co
 Une seule règle est imposée ici : chaque case ne se remplit qu’avec l’une des trois lettres proposées — jamais un nombre écrit à la main.`;
 /* Le rappel de {nombres-relatifs} : le signe dit gagner ou perdre, et les
    trois cas de la fiche. */
+const RAP_RPD=`<b>Réduire un produit avec x</b><br>
+<b>① Le signe d'abord : la règle des signes.</b> Deux signes <b>pareils</b> donnent <b>+</b> ; deux signes <b>contraires</b> donnent <b>−</b>. Comme pour multiplier deux nombres relatifs.<br>
+<b>② Puis les coefficients se multiplient</b>, sans leurs signes : dans (−3<i>x</i>) × (−5<i>x</i>), on calcule 3 × 5 = 15.<br>
+<b>③ Et les lettres se multiplient entre elles.</b> <i>x</i> × <i>x</i> = <i>x</i>² ; un nombre fois <i>x</i> reste en <i>x</i> : (−2) × <i>x</i> = −2<i>x</i>.<br>
+<b>④ On assemble.</b> (−3<i>x</i>) × (−5<i>x</i>) = +15<i>x</i>² ; <i>x</i> × 3 = 3<i>x</i> ; 4 × (−2<i>x</i>) = −8<i>x</i>.<br>
+On n'écrit jamais 1<i>x</i> ou −1<i>x</i> dans le résultat final : juste <i>x</i> ou −<i>x</i>.`;
+
 const RAP_RED=`<b>Réduire une somme de termes</b><br>
 <b>① On n'additionne que des termes de même nature.</b> Des <i>x</i> avec des <i>x</i>, des <i>x</i>² avec des <i>x</i>², des nombres avec des nombres. Comme des pommes avec des pommes : 2 pommes + 3 pommes = 5 pommes, mais 2 pommes + 3 poires ne font pas 5 de quelque chose.<br>
 <b>② Termes de même nature : on additionne les coefficients.</b> 2<i>x</i> + 3<i>x</i> = (2 + 3)<i>x</i> = 5<i>x</i> ; 2<i>x</i> − 3<i>x</i> = (2 − 3)<i>x</i> = −<i>x</i> ; −2<i>x</i>² + 3<i>x</i>² = (−2 + 3)<i>x</i>² = <i>x</i>². Le calcul des coefficients est une addition de relatifs : le signe du plus fort.<br>
@@ -6983,7 +7010,7 @@ Un <b>gain</b> s’écrit avec le signe <b>+</b>, une <b>perte</b> avec le signe
 <b>③ Un gain et une perte</b> se compensent : on garde la <b>différence</b>, avec le signe du plus grand. On gagne 3 € et on perd 2 € : on gagne 1 € — <b>+3 − 2 = +1</b>. On perd 3 € et on gagne 2 € : on perd 1 € — <b>−3 + 2 = −1</b>.`;
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
 const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -7530,7 +7557,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -7658,7 +7685,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','rel','asx','cit','rgp','mrl','red','srl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -33244,6 +33271,205 @@ function ctxSrl(q){
   return {nombre:'', contexte:c};
 }
 
+/* ===== EXERCICE : RÉDUIRE CHAQUE PRODUIT AVEC x ==============================
+   (identifiant « reduire-produit », kind « rpd », thème 7.8 — Calcul littéral)
+   Demandé par Turquet en septembre 2026, d'après une fiche papier « Réduire
+   chaque produit » : quinze produits de deux facteurs (a à o), chacun un
+   nombre ou une lettre x — jamais x², jamais deux facteurs numériques seuls.
+
+   CERTAINS FACTEURS S'ÉCRIVENT SANS COEFFICIENT — « x », « -x » — EXACTEMENT
+   COMME LA FICHE : neuf des trente facteurs de la fiche sont ainsi « nus », et
+   le tirage garde le même compte, facteur par facteur (RPD_MODELES fixe la
+   FORME de chaque lettre — X0 nu, Xc avec un coefficient de 2 à 9, N un
+   nombre). Un seul facteur (le second de « m », -5x × 1x) écrit un coefficient
+   de 1 en toutes lettres (X1) : la fiche le fait exprès, pour distinguer
+   « 1x » de « x ».
+
+   DEUX PAGES, DEUX ÉCRITURES DE LA MÊME CHOSE (demande de Turquet) : la
+   première décompose chaque produit en trois cases — le signe, le
+   coefficient entier, puis si le résultat se termine par x ou par x² — ;
+   la seconde demande directement le résultat réduit, comme {reduire-somme}.
+   Chaque page tire ses quinze produits indépendamment : les nombres et les
+   signes sont neufs à chaque page, la FORME (RPD_MODELES) ne change pas.
+
+   ON RANGE LES DEUX FACTEURS DE CHAQUE PRODUIT, JAMAIS LES RÉPONSES :
+   rpdLignes() recalcule signe, coefficient, degré et écriture réduite dans la
+   fonction même qui corrige — jusqu'au résultat, réutilisé de {reduire-somme}
+   (redEcrit, redLit, redMeme) : un produit réduit EST un terme a·xᵈ, comme une
+   somme réduite l'est. */
+const RPD_LETTRES=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o'];
+/* Le type de chaque facteur, dans l'ordre de la fiche : N (un nombre), X0 (x
+   ou -x, SANS coefficient écrit), Xc (un coefficient de 2 à 9 écrit en
+   toutes lettres), X1 (comme Xc, mais coefficient FIGÉ à 1 — seul « m »
+   l'utilise, pour écrire « 1x »). */
+const RPD_MODELES=[
+  ['X0','N'], ['X0','X0'], ['X0','N'], ['Xc','X0'], ['N','X0'],
+  ['Xc','N'], ['Xc','Xc'], ['Xc','N'], ['X0','Xc'], ['Xc','Xc'],
+  ['N','Xc'], ['Xc','N'], ['Xc','X1'], ['Xc','Xc'], ['X0','X0']
+];
+function rpdFacteur(kind){
+  if(kind==='X1') return {kind:kind, s:1, m:1};
+  const s=Math.random()<0.5?1:-1;
+  const m=(kind==='N'||kind==='Xc') ? rand(2,9) : 1;
+  return {kind:kind, s:s, m:m};
+}
+function rpdGenItems(){
+  return RPD_MODELES.map(function(km,i){ return {i:i, lettre:RPD_LETTRES[i], f1:rpdFacteur(km[0]), f2:rpdFacteur(km[1])}; });
+}
+/* « x », « -x » (X0, ou X1 à 1 : un coefficient nu) ; « 8x », « -3x » (Xc, ou
+   X1, qui écrit toujours son coefficient) ; « 3 », « -2 » (N). */
+function rpdEcritFacteur(f){
+  if(f.kind==='N') return (f.s<0?'−':'')+f.m;
+  if(f.kind==='X0') return (f.s<0?'−':'')+'x';
+  return (f.s<0?'−':'')+f.m+'x';
+}
+function rpdBuildQuestions(){
+  return [{phase:'detail', items:rpdGenItems()}, {phase:'direct', items:rpdGenItems()}];
+}
+/* Les quinze produits d'une page, et ce que chaque case attend. Un produit
+   porte toujours au moins un facteur en x : son degré est 1 ou 2, jamais 0. */
+function rpdLignes(q){
+  return q.items.map(function(it){
+    const signe=it.f1.s*it.f2.s, mag=it.f1.m*it.f2.m;
+    const deg=(it.f1.kind==='N'?0:1)+(it.f2.kind==='N'?0:1);
+    const val=signe*mag;
+    return { i:it.i, lettre:it.lettre,
+      expr: rpdEcritFacteur(it.f1)+' × '+rpdEcritFacteur(it.f2),
+      signe: signe>0?'+':'-', coef:mag, degNum:deg, degSel: deg===2?'x2':'x',
+      val: val, bon: redEcrit([{c:val,d:deg}],false), bonH: redEcrit([{c:val,d:deg}],true) };
+  });
+}
+function rpdCases(q){
+  const cs=[];
+  rpdLignes(q).forEach(function(l){
+    if(q.phase==='detail'){
+      cs.push({id:'rpd-sg-'+l.i, bon:l.signe, kind:'sel', l:l});
+      cs.push({id:'rpd-c-'+l.i, bon:String(l.coef), kind:'nb', l:l});
+      cs.push({id:'rpd-d-'+l.i, bon:l.degSel, kind:'sel', l:l});
+    } else {
+      cs.push({id:'rpd-r-'+l.i, bon:l.bon, kind:'expr', l:l});
+    }
+  });
+  return cs;
+}
+function rpdJuste(c, el){
+  if(!el) return false;
+  if(c.kind==='nb'){ const n=citLit(el.value); return n!==null && n===parseInt(c.bon,10); }
+  if(c.kind==='expr'){ const lu=redLit(el.value); if(!lu || !lu.reduite) return false;
+    const att={}; att[c.l.degNum]=c.l.val; return redMeme(lu.termes, att); }
+  return el.value===c.bon;
+}
+function renderRpdTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('rpdIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagRpd').innerHTML=modeTagHTML();
+  $('rpdLiveScore').textContent=test.score;
+  $('rpdFeedback').textContent=''; $('rpdFeedback').className='mp-feedback';
+  $('rpdActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkRpdAnswer()">Vérifier</button>';
+  const vide='<option value="" selected disabled>?</option>';
+  const signes='<option value="+">+</option><option value="-">−</option>';
+  const degres='<option value="x">x</option><option value="x2">x²</option>';
+  let h='<div class="red-lignes">';
+  rpdLignes(q).forEach(function(l){
+    if(q.phase==='detail'){
+      h+='<div class="rel-bloc"><div class="rel-l"><span class="rel-lib">'+l.lettre+'.</span><span class="rel-expr">'+esc(l.expr)+' =</span></div>'
+        +'<div class="rel-l">'
+        +'<select class="plc-sel" id="rpd-sg-'+l.i+'" aria-label="le signe du résultat">'+vide+signes+'</select>'
+        +'<input class="rel-in" id="rpd-c-'+l.i+'" type="text" inputmode="numeric" autocomplete="off" aria-label="le coefficient entier">'
+        +'<select class="plc-sel" id="rpd-d-'+l.i+'" aria-label="la fin de l’écriture, x ou x au carré">'+vide+degres+'</select>'
+        +'</div></div>';
+    } else {
+      h+='<div class="red-l"><span class="red-expr">'+l.lettre+'. '+esc(l.expr)+' =</span>'
+        +'<input class="red-in" id="rpd-r-'+l.i+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="le résultat réduit de '+esc(l.expr)+'">'
+        +'<button class="btn btn-ghost red-sq" type="button" tabindex="-1" onclick="redCarre(\'rpd-r-'+l.i+'\')" aria-label="écrire x au carré"><i>x</i>²</button>'
+        +'</div>';
+    }
+  });
+  h+='</div>';
+  $('rpdHost').innerHTML=h;
+  rpdCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
+    el.addEventListener(c.kind==='sel'?'change':'input', function(){ if(isSoutien()) checkRpdAnswer(true);
+      clearTimeout(test.rpdSave); test.rpdSave=setTimeout(autoSave,1000); });
+    if(c.kind!=='sel') el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkRpdAnswer(); } });
+  });
+}
+/* Le pourquoi, dit sur la PREMIÈRE case fausse : la méthode appliquée à ce
+   produit-là, plutôt que la règle récitée. */
+function rpdPourquoi(q, subs){
+  const f=subs.find(function(s){ return s.c.l && !s.ok && !s.vide; });
+  if(!f) return '';
+  const l=f.c.l;
+  return 'Dans '+l.lettre+'. '+l.expr+', les signes donnent '+(l.signe==='+'?'un résultat positif':'un résultat négatif')
+    +', le coefficient vaut '+l.coef+', et le résultat se termine par '+(l.degNum===2?'x² (deux facteurs en x)':'x (un seul facteur en x)')
+    +' : '+l.expr+' = '+l.bon+'.';
+}
+function checkRpdAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const cases=rpdCases(q);
+  if(live){   /* soutien : on ne juge que les cases déjà remplies */
+    if(!isSoutien()) return;
+    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
+      el.classList.remove('ok','bad');
+      if(String(el.value).trim()==='') return;
+      el.classList.add(rpdJuste(c,el)?'ok':'bad');
+    });
+    return;
+  }
+  const subs=cases.map(function(c){ const el=$(c.id);
+    return {c:c, el:el, ok:rpdJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
+  const pourquoi=rpdPourquoi(q, subs);
+  subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
+  if(!allOk && isSoutien()){ soutienAgain('rpdFeedback','rpdActions','checkRpdAnswer','rpdHost'); return; }
+  test.locked=true;
+  /* la page est corrigée : le bouton « x² » n'a plus rien à écrire */
+  if(q.phase==='direct') $('rpdHost').querySelectorAll('.red-sq').forEach(function(b){ b.hidden=true; });
+  test.score+=nCorrect; $('rpdLiveScore').textContent=test.score;
+  if(allOk){ $('rpdFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('rpdFeedback').className='mp-feedback good'; }
+  else { $('rpdFeedback').textContent=msgAvecVides(subs, pourquoi); $('rpdFeedback').className='mp-feedback bad'; }
+  const lignes=rpdLignes(q);
+  test.answers.push({...(ptsExo()||{}),correct:allOk,
+    q:lignes.map(function(l){ return l.lettre+'. '+l.expr; }).join(' ; '),
+    answer:lignes.map(function(l){ return l.expr+' = '+l.bon; }).join(' ; '),
+    given: q.phase==='direct'
+      ? lignes.map(function(l){ const el=$('rpd-r-'+l.i), v=el?String(el.value).trim():''; return l.expr+' = '+(v||'?'); }).join(' ; ')
+      : lignes.map(function(l){ const sg=$('rpd-sg-'+l.i), c=$('rpd-c-'+l.i), d=$('rpd-d-'+l.i);
+          return l.expr+' = '+(sg?sg.value:'?')+' '+(c?c.value:'?')+' '+(d?d.value:'?'); }).join(' ; ')});
+  const last=test.idx===test.questions.length-1;
+  $('rpdActions').innerHTML='<button class="btn btn-primary" id="rpdNext" onclick="nextRpdQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('rpdNext'); if(nb) nb.focus();
+}
+function nextRpdQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderRpdTest(); autoSave(); } else finishTest(); }
+function startRpd(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=rpdBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'rpd', questions:qs, idx:0, score:0,
+    maxScore:RPD_MODELES.length*3+RPD_MODELES.length, answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  test.qId='reduire-produit';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('rpd'); renderRpdTest();
+}
+function ctxRpd(q){
+  const lignes=rpdLignes(q);
+  const faux=rpdCases(q).filter(function(c){ const el=$(c.id); return el && String(el.value).trim()!=='' && !rpdJuste(c,el); }).length;
+  let c=(q.phase==='detail'
+    ? 'L’élève décompose chaque produit en trois cases : le signe du résultat, son coefficient entier, puis si le résultat se termine par x ou par x². '
+    : 'L’élève écrit directement le résultat réduit de chaque produit. ')
+   +'Quinze produits de deux facteurs (un nombre ou une lettre x, jamais x²) : '
+   +lignes.map(function(l){ return l.lettre+'. '+l.expr; }).join(' ; ')+'. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES : '
+   +lignes.map(function(l){ return l.expr+' = '+l.bon+(q.phase==='detail'?' (signe '+l.signe+', coefficient '+l.coef+', '+(l.degNum===2?'x²':'x')+')':''); }).join(' ; ')+'. '
+   +'Méthode enseignée : le signe du produit suit la règle des signes (deux signes pareils donnent +, deux signes contraires donnent −), le coefficient est le produit des deux nombres sans leur signe, et x fois x donne x². '
+   +'On n’écrit jamais 1x ou −1x dans le résultat final : juste x ou −x.';
+  if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
+  return {nombre:'', contexte:c};
+}
+
 /* ===== EXERCICE : GAGNER ET PERDRE — LES NOMBRES RELATIFS ==================
    (identifiant « nombres-relatifs », kind « rgp », thème 7.2 — Calcul littéral)
    Demandé par Turquet en septembre 2026, sur la fiche « relatifs_1 » (la même que
@@ -35852,7 +36078,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
