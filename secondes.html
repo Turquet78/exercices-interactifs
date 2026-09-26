@@ -1222,6 +1222,10 @@
 #mltHost .pt-row>.f-frac,#mltHost .pt-row>.f-grp>.f-frac{font-size:2rem}
 #mltPrompt,#mllPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 #mllPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
+/* {priorite-fractions} a TROIS fractions et deux signes sur la même ligne —
+   le même défaut, la même règle : voir #sfPrompt,#sflPrompt plus haut. */
+#pfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+#pfPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
 @media(max-width:900px){ #mltHost math-field.pm-mf{font-size:1.5rem}
   #mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:76px} }
 @media(max-width:560px){ #mltHost math-field.pm-mf{font-size:1.25rem}
