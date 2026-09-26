@@ -4943,7 +4943,7 @@ const TESTS={
   'multiplier-relatifs': { name:'Multiplier deux relatifs : la r\u00e8gle des signes', icon:'\u2716\ufe0f', desc:'Deux nombres relatifs \u00e0 multiplier. D\u2019abord la r\u00e8gle \u2014 pour multiplier, c\u2019est la r\u00e8gle des signes \u2014, que tu compl\u00e8tes, puis pour chaque produit le SIGNE du r\u00e9sultat, et enfin le r\u00e9sultat. Le bouton des tables est l\u00e0 si tu en as besoin.', start:()=>startMrl() },
   'calcul-itere': { name:'Somme et produit de deux relatifs', icon:'\u{1F501}', desc:'Pour une m\u00eame paire de relatifs, la somme puis le produit, en alternance\u00a0: le signe du plus fort pour additionner, la r\u00e8gle des signes pour multiplier.', start:()=>startCit() },
   'reduire-somme': { name:'R\u00e9duire une somme de termes', icon:'\ud83d\udd24', desc:'R\u00e9duis si possible : 2x + 3x, 2x + 3, \u22122x\u00b2 + 3x\u00b2, \u22122x\u00b2 + 3x\u2026 On n\u2019additionne que des termes de m\u00eame nature \u2014 des x avec des x, des x\u00b2 avec des x\u00b2, des nombres avec des nombres.', start:()=>startRed() },
-  'associer-expressions': { name:'Associer chaque expression \u00e0 son r\u00e9sultat', icon:'\ud83d\udd17', desc:'Quatre expressions \u2014 un carr\u00e9, un double, un nombre divis\u00e9 par lui-m\u00eame, un nombre moins lui-m\u00eame \u2014 \u00e0 associer \u00e0 leur r\u00e9sultat. Trois fois avec un nombre, puis une fois avec la lettre x.', start:()=>startAsx() },
+  'associer-expressions': { name:'Associer chaque expression \u00e0 son r\u00e9sultat', icon:'\ud83d\udd17', desc:'Quatre expressions \u2014 un carr\u00e9, un double, un nombre divis\u00e9 par lui-m\u00eame, un nombre moins lui-m\u00eame \u2014 \u00e0 associer \u00e0 leur r\u00e9sultat. Trois fois avec un nombre, puis trois fois avec une lettre \u2014 x, puis a, puis b.', start:()=>startAsx() },
   'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
   'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
   'python-completer': { name:'Afficher un texte suivi d\u2019une variable', icon:'\ud83d\udda8\ufe0f', desc:'Le cours explique comment afficher un texte suivi de la valeur d\u2019une variable : print("texte", variable). Puis \u00e0 toi d\u2019\u00e9crire : le programme commence par note = 12, compl\u00e8te-le pour qu\u2019il affiche \u00ab la note est : 12 \u00bb, ex\u00e9cute-le et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYX() },
@@ -5090,7 +5090,7 @@ function pick(a){return a[rand(0,a.length-1)];}
    mêmes nombres sous un autre habit restent le même calcul. Deux cents essais
    au plus : un vivier plus petit que la séance rend un doublon plutôt que de
    figer la page. Le contrôle universel du banc relit chaque exercice. */
-const CLE_HORS=['v','ci','intro','unit','g','ordre','opts','bon','rep','choisi','selL','selR'];
+const CLE_HORS=['v','ci','intro','unit','g','ordre','ordreExpr','opts','bon','rep','choisi','selL','selR'];
 function cleQuestion(q){ return JSON.stringify(q,function(k,v){ return CLE_HORS.indexOf(k)>=0?undefined:v; }); }
 function distincte(qs, fabrique){
   const vues=qs.map(cleQuestion); let q, essais=0;
@@ -34514,43 +34514,51 @@ function ctxRed(q){
    Demandé par Turquet en septembre 2026, d'après deux fiches papier : quatre
    expressions — n², 2 × n, n/n, n − n — à associer à quatre résultats —
    0, n + n, 1, n × n. TROIS pages avec un nombre (la première fiche), puis
-   UNE SEULE page avec la lettre x (la seconde fiche) : l'élève a vu la règle
-   marcher trois fois sur des nombres avant de l'écrire pour « un nombre
-   quelconque ».
+   TROIS pages avec une lettre — x, puis a, puis b, toujours dans cet ordre
+   (la seconde fiche, rejouée sur trois lettres différentes) : l'élève a vu
+   la règle marcher trois fois sur des nombres avant de l'écrire pour « un
+   nombre quelconque », puis la revoit sous deux autres noms de lettre.
 
    LE NOMBRE VA DE 3 À 9 : avec 2, on aurait 2² = 2 × 2 = 2 + 2 = 4 — deux
    résultats justes pour la même expression ; avec 1, 1² = 1 × 1 = 1/1 = 1.
-   La page de x le dit, comme la fiche : x est un nombre DIFFÉRENT DE 0, sans
-   quoi x/x n'existe pas.
-   La première page suit la fiche (résultats dans l'ordre 0 ; n + n ; 1 ;
-   n × n) ; les suivantes les mélangent, pour qu'ils se cherchent au lieu de
-   se lire toujours au même rang.
+   Chaque page de lettre le dit, comme la fiche : la lettre est un nombre
+   DIFFÉRENT DE 0, sans quoi x/x (ou a/a, ou b/b) n'existe pas.
+   La première page suit la fiche — résultats dans l'ordre 0 ; n + n ; 1 ;
+   n × n, ET expressions dans l'ordre n² ; 2n ; n/n ; n − n. TOUTES LES
+   AUTRES PAGES mélangent l'ordre des résultats ET l'ordre des expressions,
+   chacun séparément, pour qu'on les cherche au lieu de les lire toujours au
+   même rang.
 
-   ON RANGE LE NOMBRE ET L'ORDRE DES RÉSULTATS, JAMAIS LES RÉPONSES : ce que
-   chaque liste attend se déduit de la clé de l'expression (asxLignes). */
-const ASX_NB=3;   /* pages à nombres ; la page de x vient en plus, une seule fois */
+   ON RANGE LE NOMBRE, L'ORDRE DES RÉSULTATS ET L'ORDRE DES EXPRESSIONS,
+   JAMAIS LES RÉPONSES : ce que chaque liste attend se déduit de la clé de
+   l'expression (asxLignes). */
+const ASX_NB=3;   /* pages à nombres */
+const ASX_LETTRES=['x','a','b'];   /* pages à lettres, toujours dans cet ordre */
 const ASX_RES=['zero','add','un','mul'];
-function asxN(q){ return q.n==='x' ? '<i>x</i>' : String(q.n); }
-function asxT(q){ return q.n==='x' ? 'x' : String(q.n); }
+const ASX_EXPR=['carre','double','quot','diff'];
+function asxLettre(q){ return typeof q.n==='string'; }
+function asxN(q){ return asxLettre(q) ? '<i>'+q.n+'</i>' : String(q.n); }
+function asxT(q){ return asxLettre(q) ? q.n : String(q.n); }
 function asxResLib(q, k){ const n=asxT(q);
   return {zero:'0', add:n+' + '+n, un:'1', mul:n+' × '+n}[k]; }
 function asxResHTML(q, k){ const n=asxN(q);
   return {zero:'0', add:n+' + '+n, un:'1', mul:n+' × '+n}[k]; }
-/* Les quatre expressions de la fiche, dans son ordre, et le résultat attendu. */
+/* Les quatre expressions de la fiche, dans l'ordre de la page (q.ordreExpr), et le résultat attendu. */
 function asxLignes(q){
-  const n=asxN(q), t=asxT(q), lit=q.n==='x';
-  return [
-    {i:0, cle:'carre',  bon:'mul',  html:n+'<sup>2</sup>',                     txt:t+'²'},
-    {i:1, cle:'double', bon:'add',  html:lit?'2<i>x</i>':'2 × '+n,             txt:lit?'2x':'2 × '+t},
-    {i:2, cle:'quot',   bon:'un',   html:fracBox(n,n),                         txt:t+'/'+t},
-    {i:3, cle:'diff',   bon:'zero', html:n+' − '+n,                             txt:t+' − '+t}
-  ];
+  const n=asxN(q), t=asxT(q), lit=asxLettre(q);
+  const base={
+    carre:  {bon:'mul',  html:n+'<sup>2</sup>',                    txt:t+'²'},
+    double: {bon:'add',  html:lit?'2<i>'+t+'</i>':'2 × '+n,        txt:lit?'2'+t:'2 × '+t},
+    quot:   {bon:'un',   html:fracBox(n,n),                        txt:t+'/'+t},
+    diff:   {bon:'zero', html:n+' − '+n,                            txt:t+' − '+t}
+  };
+  return (q.ordreExpr||ASX_EXPR).map(function(cle,i){ return Object.assign({i:i, cle:cle}, base[cle]); });
 }
-function asxMelange(){ const o=ASX_RES.slice(); for(let i=o.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=o[i]; o[i]=o[j]; o[j]=t; } return o; }
-function asxGen(_, i){ return {n:3+Math.floor(Math.random()*7), ordre:i===0?ASX_RES.slice():asxMelange()}; }
+function asxMelange(o){ o=o.slice(); for(let i=o.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=o[i]; o[i]=o[j]; o[j]=t; } return o; }
+function asxGen(_, i){ return {n:3+Math.floor(Math.random()*7), ordre:i===0?ASX_RES.slice():asxMelange(ASX_RES), ordreExpr:i===0?ASX_EXPR.slice():asxMelange(ASX_EXPR)}; }
 function asxBuildQuestions(){
   const qs=distinctes(ASX_NB, asxGen);
-  qs.push({n:'x', ordre:asxMelange()});
+  ASX_LETTRES.forEach(function(l){ qs.push({n:l, ordre:asxMelange(ASX_RES), ordreExpr:asxMelange(ASX_EXPR)}); });
   return qs;
 }
 function renderAsxTest(){
@@ -34561,7 +34569,7 @@ function renderAsxTest(){
   $('asxFeedback').textContent=''; $('asxFeedback').className='mp-feedback';
   $('asxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkAsxAnswer()">Vérifier</button>';
   $('asxInstr').innerHTML='Associe chaque expression au bon résultat.'
-    +(q.n==='x' ? ' Ici, <i>x</i> représente un nombre <b>différent de 0</b>.' : '');
+    +(asxLettre(q) ? ' Ici, <i>'+q.n+'</i> représente un nombre <b>différent de 0</b>.' : '');
   const opts='<option value="" selected disabled>?</option>'
     +q.ordre.map(function(k){ return '<option value="'+k+'">'+esc(asxResLib(q,k))+'</option>'; }).join('');
   let h='<div class="asx-res"><span class="asx-lib">Résultats :</span>'
@@ -34583,13 +34591,13 @@ function renderAsxTest(){
 function asxPourquoi(q, subs){
   const f=subs.find(function(s){ return !s.ok && !s.vide; });
   if(!f) return '';
-  const t=asxT(q), lit=q.n==='x', v=function(x){ return lit?'':' = '+x; };
+  const t=asxT(q), lit=asxLettre(q), v=function(x){ return lit?'':' = '+x; };
   return {
     carre: t+'² = '+t+' × '+t+v(q.n*q.n)+' : le carré, c’est le nombre multiplié par LUI-MÊME — pas par 2.',
-    double: (lit?'2x':'2 × '+t)+' = '+t+' + '+t+v(2*q.n)+' : multiplier par 2, c’est ajouter le nombre à lui-même.',
+    double: (lit?'2'+t:'2 × '+t)+' = '+t+' + '+t+v(2*q.n)+' : multiplier par 2, c’est ajouter le nombre à lui-même.',
     quot: t+'/'+t+' = 1 : un nombre différent de 0, divisé par lui-même, donne 1.',
     diff: t+' − '+t+' = 0 : un nombre moins lui-même donne 0.'
-  }[f.l.cle]+(lit?' C’est la même règle qu’avec les nombres des pages précédentes : elle vaut pour tout nombre x.':'');
+  }[f.l.cle]+(lit?' C’est la même règle qu’avec les nombres des pages précédentes : elle vaut pour tout nombre.':'');
 }
 function checkAsxAnswer(live){
   if(test.locked) return;
@@ -34636,11 +34644,11 @@ function startAsx(){
   show('asx'); renderAsxTest();
 }
 function ctxAsx(q){
-  const lignes=asxLignes(q), lit=q.n==='x';
+  const lignes=asxLignes(q), lit=asxLettre(q);
   const faux=lignes.filter(function(l){ const el=$('asx-'+l.i); return el && String(el.value||'')!=='' && el.value!==l.bon; }).length;
   let c='L’élève associe quatre expressions à quatre résultats proposés dans une liste. '
-   +(lit ? 'C’est la dernière page : la lettre x représente un nombre différent de 0, après trois pages faites avec des nombres. '
-         : 'Cette page utilise le nombre '+q.n+' ; la dernière page de l’exercice refait la même chose avec la lettre x. ')
+   +(lit ? 'Cette page utilise la lettre '+q.n+' : elle représente un nombre différent de 0, comme les autres pages à lettre de cet exercice (x, puis a, puis b), après trois pages faites avec des nombres. '
+         : 'Cette page utilise le nombre '+q.n+' ; les dernières pages de l’exercice refont la même chose avec les lettres x, a puis b. ')
    +'Expressions : '+lignes.map(function(l){ return l.txt; }).join(' ; ')+'. '
    +'Résultats proposés : '+q.ordre.map(function(k){ return asxResLib(q,k); }).join(' ; ')+'. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : '+lignes.map(function(l){ return l.txt+' = '+asxResLib(q,l.bon); }).join(' ; ')+'. '
