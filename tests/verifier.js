@@ -28579,6 +28579,27 @@ function premiere(w){
     return pb;
   })()`);
   verifier('finale décimale ⇒ jamais d’unité dénombrable (20000 tirages)', ctxPb === 0, ctxPb + ' anomalies');
+
+  /* {pourcentage-dix} (2.1.8) : une moitié des tirages retombe sur un N à un ou
+     deux chiffres, non multiple de dix — le résultat N/10 est alors décimal, et
+     ne doit jamais tomber sur un thème « humain » (élèves, salariés…) ni sur les
+     articles, où une quantité décimale n'a pas de sens. Même garde-fou que les
+     quatre générateurs augq ci-dessus, sur le vivier propre à cet exercice. */
+  const pct10Pb = w.eval(`(function(){
+    let pb=0, dec=0;
+    for(let k=0;k<20000;k++){
+      const q=genPct10();
+      if(q.result!==Math.round(q.result)){
+        dec++;
+        const c=CTX_PART[q.ci];
+        if(!c || c.humain || c.u==='articles') pb++;
+      }
+    }
+    return pb+'|'+dec;
+  })()`);
+  const [pct10Pb2, pct10Dec] = pct10Pb.split('|').map(Number);
+  verifier('{pourcentage-dix} : un résultat décimal ne tombe jamais sur un thème humain ou dénombrable (20000 tirages)', pct10Pb2 === 0, pct10Pb2 + ' anomalies');
+  verifier('{pourcentage-dix} : les deux branches (résultat entier, résultat décimal) sortent bien toutes les deux', pct10Dec > 4000 && pct10Dec < 16000, pct10Dec + ' tirages décimaux sur 20000');
 }
 
 /* {python-pas-a-pas} (Seconde) : la fiche « variable pas à pas » — un programme

@@ -2099,7 +2099,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=241;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=242;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5733,9 +5733,9 @@ function siEuros(f,prixMax,prixMin){ f.si=q=>q.unit==='€' && (!prixMax || q.N<
 function poids(f,n){ f.poids=n; return f; }
 /* Un contexte n'accepte pas n'importe quel nombre : une classe de 9000 élèves ou une
    ville de 30 habitants ruinent la crédibilité de l'énoncé. */
-function tirerContexte(tab,N,champ){
+function tirerContexte(tab,N,champ,filtre){
   const ok=[];
-  tab.forEach((c,i)=>{ if(!c.nOk || c.nOk(N)){ for(let k=((champ&&c[champ])||c.poids||1);k>0;k--) ok.push(i); } });
+  tab.forEach((c,i)=>{ if((!c.nOk || c.nOk(N)) && (!filtre || filtre(c))){ for(let k=((champ&&c[champ])||c.poids||1);k>0;k--) ok.push(i); } });
   return pick(ok.length?ok:[0]);
 }
 
@@ -6010,10 +6010,27 @@ async function finishPercent(){
    grosses cases comme dans le reste du sous-thème).
    N vient de PCT_VALEURS (multiples de dix) : N/10 est donc toujours entier,
    même sur les thèmes à unité dénombrable (élèves, salariés…) où un
-   résultat décimal n'aurait pas de sens. */
+   résultat décimal n'aurait pas de sens.
+   Une MOITIÉ des questions, depuis septembre 2026, retrouve les 32 € et 4 €
+   de la fiche d'origine (relevés ci-dessus) : N à un ou deux chiffres, jamais
+   multiple de dix, si bien que N/10 s'écrit à virgule (3,2 ; 0,4…) — demande
+   de Turquet, pour ne pas réduire la méthode aux seuls nombres ronds.
+   PCT10_VALEURS_DEC est un vivier À PART, jamais mélangé à PCT_VALEURS : ce
+   dernier est partagé par {pourcentage} et ses twins, et l'ouvrir à des
+   non-multiples de dix changerait leurs tirages à eux. Le TROISIÈME argument
+   de tirerContexte filtre alors les thèmes : un élève ou un salarié ne se
+   compte jamais à virgule (contexte « humain »), ni un article — le reste
+   (€, hectares, km, min) accepte une quantité décimale sans absurdité. */
+const PCT10_VALEURS_DEC=(()=>{ const t=[]; for(let n=1;n<=99;n++) if(n%10!==0) t.push(n); return t; })();
+function pct10CtxDecOk(c){ return !c.humain && c.u!=='articles'; }
 function genPct10(){
-  const N=pick(PCT_VALEURS);
-  const ci=tirerContexte(CTX_PART,N);
+  if(rand(0,1)===0){
+    const N=pick(PCT_VALEURS);
+    const ci=tirerContexte(CTX_PART,N);
+    return {P:10,N,unit:CTX_PART[ci].u,ci,result:N/10};
+  }
+  const N=pick(PCT10_VALEURS_DEC);
+  const ci=tirerContexte(CTX_PART,N,null,pct10CtxDecOk);
   return {P:10,N,unit:CTX_PART[ci].u,ci,result:N/10};
 }
 async function startPct10(){
@@ -6048,14 +6065,15 @@ function checkPct10Answer(live){
   const el=$('px1'); el.classList.remove('ok','bad'); if(v('px1')!=='') el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
   if(!ok && isSoutien()){ soutienAgain('pxFeedback','pxActions','checkPct10Answer','pxHost'); return; }
   test.locked=true;
+  const resStr=String(q.result).replace('.',',');
   if(ok){ test.score++; $('pxLiveScore').textContent=test.score;
     $('pxFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('pxFeedback').className='mp-feedback good';
   } else {
-    $('pxFeedback').textContent=`Réponse : ${q.N} / 10 = ${q.result} ${q.unit} (toute écriture égale est acceptée)`; $('pxFeedback').className='mp-feedback bad';
-    corTrainDec('px1',String(q.result).replace('.',','));
+    $('pxFeedback').textContent=`Réponse : ${q.N} / 10 = ${resStr} ${q.unit} (toute écriture égale est acceptée)`; $('pxFeedback').className='mp-feedback bad';
+    corTrainDec('px1',resStr);
   }
   const given=v('px1')===''?null:(v('px1').replace('.', ',')+' '+q.unit);
-  test.answers.push({...(ptsExo()||{}),q:`10 % de ${q.N} ${q.unit}`, answer:`${q.result} ${q.unit}`, given, correct:ok});
+  test.answers.push({...(ptsExo()||{}),q:`10 % de ${q.N} ${q.unit}`, answer:`${resStr} ${q.unit}`, given, correct:ok});
   const last=test.idx===test.questions.length-1;
   $('pxActions').innerHTML=`<button class="btn btn-primary" id="pxNext" onclick="nextPct10Question()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   $('pxNext').focus();
@@ -14213,6 +14231,7 @@ const RAP_PCT10=`<b>Prendre 10 % d’un nombre</b><br>
 Prendre <b>10 %</b> d’un nombre, c’est le diviser par <b>10</b> — la méthode la plus simple, parce que 10 % c’est un dixième.<br>
 Exemple : 10 % de 40, c’est calculer \\(\\frac{40}{10}=4\\).<br>
 Autre exemple : 10 % de 300 €, c’est calculer \\(\\frac{300}{10}=30\\) €.<br>
+Le résultat n’est pas toujours entier : 10 % de 32 €, c’est calculer \\(\\frac{32}{10}=3{,}2\\) €.<br>
 À retenir : diviser par 10 revient à décaler la virgule d’un rang vers la gauche.`;
 const RAP_PDC=`<b>Retrouver plusieurs pourcentages à partir de 10 %</b><br>
 Comme dans {pourcentage-dix}, on part de <b>10 %</b> du nombre, obtenu en divisant par 10 — mais ici aucun pourcentage n’est donné à l’avance : on s’en sert pour en retrouver PLUSIEURS.<br>
