@@ -2076,7 +2076,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=238;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=239;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6010,9 +6010,10 @@ function renderPct10(){
   $('pxActions').innerHTML='<button class="btn btn-primary" onclick="checkPct10Answer()">Vérifier</button>';
   $('pxPrompt').innerHTML=variante(PCT_ENONCES,q);
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const fracFixe=(n,d)=>`<span class="f-whole">${mlTex('\\frac{'+n+'}{'+d+'}', n+'/'+d)}</span>`;
   $('pxHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① 10 % de ${q.N}, en divisant par 10&nbsp;· ② le nombre de dizaines dans ${q.P} %</div>
-       <div class="pt-row"><span class="f-whole">${q.N} ÷ 10</span>${fEq(dec('px1','dix pour cent du nombre'))}<span class="f-whole">&nbsp;·&nbsp;${q.P} ÷ 10</span>${fEq(dec('px2','nombre de dizaines du pourcentage'))}</div></div>
+       <div class="pt-row">${fracFixe(q.N,10)}${fEq(dec('px1','dix pour cent du nombre'))}<span class="f-whole">&nbsp;·&nbsp;</span>${fracFixe(q.P,10)}${fEq(dec('px2','nombre de dizaines du pourcentage'))}</div></div>
      <div class="pt-step"><div class="pt-lab">③ multiplier ① par ② pour retrouver le résultat</div>
        <div class="pt-row"><span class="f-whole">① × ②</span>${fEq(dec('px3','résultat'))}<span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const order=['px1','px2','px3'].map(id=>$(id));
