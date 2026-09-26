@@ -732,3 +732,43 @@ dernière — la même convention que `sfCases()`/`mltCases()`.
 **Le bouton des tables était déjà là.** `revision-fractions` n'a jamais été
 dans `TABLES_SANS`, et `conseilInlineBtn()` y ajoute `tablesBtnHTML()` sans
 condition de mode : aucun changement n'était nécessaire de ce côté.
+
+**{produit-difference-fractions} (5.13), {quotient-difference-fractions}
+(5.14) et {quotient-double-fractions} (5.15) tenaient sur deux blocs
+empilés — trois pour le dernier —, demande de Turquet (septembre 2026) :
+« je veux que les calculs tiennent dans une même ligne d'égalité ».** La
+parenthèse (le croisement, puis la différence ou la somme) vivait dans son
+propre `.pt-step`, l'opération extérieure (le produit, ou la division) dans
+un second ; {quotient-double-fractions} en ajoutait un troisième pour sa
+seconde parenthèse. Trois cases séparées se lisent comme trois calculs
+distincts — le défaut que « aucune rangée ne se replie » nomme déjà pour un
+repli DANS une rangée, ici recopié entre deux rangées empilées. Les trois
+sont désormais UNE seule chaîne, sur UNE seule rangée : la parenthèse
+s'écrit, se résout par le croisement, puis l'opération extérieure continue
+la MÊME ligne — `renderPqdTest()` et `renderQdbTest()` n'ouvrent plus qu'un
+`.pt-step`.
+
+**La division reprend le maillon de {diviser-fractions} (5.8) : le terme
+extérieur réapparaît devant l'inverse.** `pfProduitHTML()` posait son
+premier « = » nu — `... = [case de l'inverse]` — un signe sans rien
+derrière lui pour dire ce qu'il annonce, parce que la case qui suit ne
+vaut que le maillon (l'inverse, ou le produit) et jamais l'expression
+extérieure entière. {diviser-fractions} évite ce défaut en réécrivant
+`n1/d1 ×` devant la case : c'est la même réécriture qu'un nouveau
+paramètre `tete` ajoute à `pfProduitHTML()`, collée au premier « = »
+seulement — les suivants continuent de simplifier la même égalité, sans
+rien répéter, exactement comme dans {diviser-fractions}.
+{produit-difference-fractions}/{quotient-difference-fractions} passent
+`a/b` en `tete` : c'est un terme LITTÉRAL, connu dès le tirage, sûr à
+réécrire. {quotient-double-fractions} n'en a pas : ses deux opérandes sont
+CHACUN une parenthèse — une case que l'élève vient de remplir, jamais un
+nombre fixe — et réécrire sa VALEUR en texte aurait donné la réponse de la
+case juste au-dessus. Son inverse reste donc introduit par un « = » nu,
+comme avant la fusion ; seule la mise en une ligne a changé pour lui.
+
+**`pleineLargeur` gagne les trois identifiants**, `exercices` et `chaine`
+(à 1 bloc chacun) : sans cette déclaration, le banc navigateur ne les
+visite pas du tout côté largeur et repli — c'est lui qui aurait dû voir la
+coupure en plusieurs blocs, et ne la voyait pas. {quotient-double-fractions}
+devient la chaîne la plus longue de l'application depuis cette fusion : deux
+croisements complets avant même de diviser, sur une seule rangée.
