@@ -1269,12 +1269,23 @@
   #spfHost .sf-l .f-num,#spfHost .sf-l .f-den,#pqdHost .sf-l .f-num,#pqdHost .sf-l .f-den,#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den,#tsfHost .sf-l .f-num,#tsfHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ #spfHost math-field.pm-mf,#pqdHost math-field.pm-mf,#qdbHost math-field.pm-mf,#tsfHost math-field.pm-mf{font-size:1.25rem}
   #spfHost .sf-l .f-num,#spfHost .sf-l .f-den,#pqdHost .sf-l .f-num,#pqdHost .sf-l .f-den,#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den,#tsfHost .sf-l .f-num,#tsfHost .sf-l .f-den{width:62px} }
-/* #rvfHost — {revision-fractions} (5.11) : une seule case-fraction par
-   écran, pas de chaîne de calcul comme sf/mlt/smp — mais le badge de
-   correction se pose hors du flux de la même façon, sans quoi il
-   élargirait le trait de fraction (la leçon de {somme-fractions}). */
+/* #rvfHost — {revision-fractions} (5.11) : le badge de correction se pose
+   hors du flux, comme partout ailleurs, sans quoi il élargirait le trait
+   de fraction (la leçon de {somme-fractions}).
+   Depuis septembre 2026, cinq des huit questions (mult-entier,
+   diff-sub-entier, diff-add, div-1, div-2) ajoutent UNE étape intermédiaire
+   avant le résultat — l'entier écrit comme une fraction de dénominateur 1,
+   la mise au même dénominateur, ou l'inverse — et empruntent pour cela les
+   mêmes classes que {somme-fractions}/{multiplier-fractions} (sf-prod,
+   sf-l, f-frac-input) : les réglages qui suivent sont RECOPIÉS de
+   #sfHost/#mltHost, jamais ajoutés à leurs sélecteurs, puisque ce sont deux
+   fichiers séparés. */
 #rvfHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
 #rvfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:1.1rem;white-space:nowrap}
+#rvfHost .f-fbar{width:auto;align-self:stretch;height:4px}
+#rvfHost .sf-prod:has(.mf-cor),#rvfHost .f-frac-input:has(.mf-cor){margin-right:52px}
+#rvfHost .sf-l .sf-case:has(.mf-cor){margin-right:46px}
+#rvfHost .pt-row{flex-wrap:wrap}
   /* ---- Placer trois nombres sur une droite graduée ---- */
   .plc-scene{width:100%;max-width:520px;margin:0 auto 6px}
   .plc-scene svg{width:100%;height:auto;display:block}
@@ -4446,7 +4457,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=218;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=219;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -34005,8 +34016,16 @@ function ctxRpd(q){
    (③), inverse pour diviser (⑤). Ce n'est PAS une redite du détail pas à pas
    que {somme-fractions}, {multiplier-fractions} et {diviser-fractions}
    enseignent déjà : celui-ci teste le RÉSULTAT final et le VOCABULAIRE de la
-   règle — une liste à choisir, une fraction à compléter, rien de plus. Voir
-   docs/journal/07-fractions.md pour le détail des choix.
+   règle — une liste à choisir, une fraction à compléter.
+   CINQ QUESTIONS SUR HUIT AJOUTENT UNE ÉTAPE, DEPUIS SEPTEMBRE 2026 (demande
+   de Turquet) : {mult-entier} et {diff-sub-entier} font écrire l'entier
+   comme une fraction de dénominateur 1 (la case de rvfExtra) avant le
+   résultat, {diff-add} fait écrire les deux produits croisés, {div-1} et
+   {div-2} font écrire l'inverse — chacune emprunte la FORME de l'étape que sa
+   cousine détaillée ({somme-fractions}, {diviser-fractions}) enseigne déjà,
+   sans reprendre l'exercice entier : {meme-add}, {meme-sub} et {mult-frac}
+   n'ont rien à mettre au même dénominateur ni à inverser, et gardent leur
+   unique case. Voir docs/journal/07-fractions.md pour le détail des choix.
 
    HUIT QUESTIONS, DANS UN ORDRE FIXE — jamais mélangé, seuls les nombres sont
    tirés : une par sous-règle de la fiche, la multiplication comptant deux fois
@@ -34035,8 +34054,8 @@ const RVF_REGLES={
     opts:[['denominateur','dénominateur'],['numerateur','numérateur'],['signe','signe']] },
   'mult-frac':{ texte:'Pour multiplier deux fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux ;…',
     opts:[['non','on NE met PAS au même dénominateur (ce n’est pas nécessaire)'],['oui','il faut d’abord les mettre au même dénominateur'],['add','on additionne les numérateurs']] },
-  'mult-entier':{ texte:'Pour multiplier une fraction par un nombre ENTIER, le numérateur est multiplié par cet entier, et le dénominateur…',
-    opts:[['change','ne change pas'],['aussi','est multiplié par l’entier aussi'],['un','devient 1']] },
+  'mult-entier':{ texte:'Un nombre ENTIER n’a pas de dénominateur écrit. Pour le multiplier par une fraction, on le voit d’abord comme une fraction : quand il n’y a pas de dénominateur, le dénominateur est…',
+    opts:[['un','1'],['zero','0'],['meme','lui-même']] },
   'diff-add':{ texte:'Pour additionner deux fractions de dénominateurs différents, il faut d’abord…',
     opts:[['commun','les mettre au même dénominateur (produit des deux dénominateurs)'],['hasard','multiplier les deux dénominateurs par un nombre au hasard'],['simpl','les simplifier']] },
   'diff-sub-entier':{ texte:'Un nombre ENTIER s’écrit comme une fraction de dénominateur…',
@@ -34118,6 +34137,77 @@ function rvfGauche(q){
     case 'div-1': case 'div-2': return t(q.n1,q.d1)+op('÷')+t(q.n2,q.d2);
   }
 }
+/* Le libellé des étapes — seulement pour les cinq types qui en ont deux : les
+   trois autres gardent leur unique case, sans rien au-dessus pour l'annoncer. */
+function rvfLabel(q){
+  switch(q.type){
+    case 'mult-entier': case 'diff-sub-entier':
+      return '① l’entier écrit comme une fraction de dénominateur 1&nbsp;· ② le résultat';
+    case 'diff-add':
+      return '① mettre au même dénominateur (produit des deux)&nbsp;· ② le résultat';
+    case 'div-1': case 'div-2':
+      return '① diviser, c’est multiplier par l’inverse&nbsp;· ② le résultat';
+    default: return '';
+  }
+}
+/* Une case-input isolée, enveloppée comme rvf-num/rvf-den : c'est cette
+   enveloppe (.sf-case) qui reçoit le badge de correction hors du flux. */
+function rvfCaseHTML(id, cls, lab){
+  return '<span class="sf-case"><input class="'+cls+'" id="'+id+'" type="text" inputmode="text" autocomplete="off" aria-label="'+lab+'"></span>';
+}
+function rvfFracHTML(idn, idd){
+  return '<span class="f-frac-input">'+rvfCaseHTML(idn,'f-num','numérateur')+'<span class="f-fbar"></span>'+rvfCaseHTML(idd,'f-den','dénominateur')+'</span>';
+}
+/* L'entier k, déjà écrit en numérateur — seule sa case de dénominateur (id)
+   reste à remplir : c'est LE geste que {mult-entier} et {diff-sub-entier}
+   demandent, écrire 1 là où il n'y avait rien. */
+function rvfEntierCaseHTML(k, id){
+  return '<span class="f-frac-input"><span class="f-whole">'+k+'</span><span class="f-fbar"></span>'+rvfCaseHTML(id,'f-den','dénominateur')+'</span>';
+}
+/* Le terme de départ, puis la même fraction dont le numérateur et le
+   dénominateur sont chacun multipliés par une case — la FORME du « produit »
+   de {somme-fractions} (sfTermeHTML/produit), avec des cases input plutôt que
+   des champs mathématiques : la réponse reste ici un entier simple. */
+function rvfProduitCaseHTML(n, d, idA, idB){
+  return '<span class="f-frac-input sf-prod">'
+    +'<span class="sf-l"><span class="f-whole">'+n+'</span><span class="f-times">×</span>'+rvfCaseHTML(idA,'f-num','multiplicateur du numérateur')+'</span>'
+    +'<span class="f-fbar"></span>'
+    +'<span class="sf-l"><span class="f-whole">'+d+'</span><span class="f-times">×</span>'+rvfCaseHTML(idB,'f-den','multiplicateur du dénominateur')+'</span>'
+  +'</span>';
+}
+function rvfInverseCaseHTML(){
+  return '<span class="f-frac-input">'+rvfCaseHTML('rvf-inv-n','f-num','numérateur de l’inverse')
+    +'<span class="f-fbar"></span>'+rvfCaseHTML('rvf-inv-d','f-den','dénominateur de l’inverse')+'</span>';
+}
+/* La rangée entière : le calcul donné (rvfGauche, inchangé), puis — pour les
+   cinq types qui en ont une — le maillon qui montre l'étape, puis le
+   résultat final. Les trois autres gardent exactement l'ancien rendu : le
+   calcul, puis la fraction à compléter. */
+function rvfEtapes(q){
+  const t=function(n,d){ return sfTermeHTML(n,d); };
+  const op=function(s){ return '<span class="f-times">'+s+'</span>'; };
+  const finale=fEq(rvfFracHTML('rvf-num','rvf-den'));
+  switch(q.type){
+    case 'mult-entier':
+      return t(q.n,q.d)+op('×')+t(q.k,1)
+        +fEq(t(q.n,q.d)+op('×')+rvfEntierCaseHTML(q.k,'rvf-kden'))
+        +finale;
+    case 'diff-sub-entier':
+      return t(q.n1,q.d1)+op('−')+t(q.k,1)
+        +fEq(t(q.n1,q.d1)+op('−')+rvfEntierCaseHTML(q.k,'rvf-kden'))
+        +finale;
+    case 'diff-add':
+      return t(q.n1,q.d1)+op('+')+t(q.n2,q.d2)
+        +fEq(rvfProduitCaseHTML(q.n1,q.d1,'rvf-a1','rvf-b1')+op('+')+rvfProduitCaseHTML(q.n2,q.d2,'rvf-a2','rvf-b2'))
+        +finale;
+    case 'div-1': case 'div-2':
+      return t(q.n1,q.d1)+op('÷')+t(q.n2,q.d2)
+        +fEq(t(q.n1,q.d1)+op('×')+rvfInverseCaseHTML())
+        +finale;
+    default:
+      return rvfGauche(q)+finale;
+  }
+}
 /* Le même calcul, en TEXTE — pour le contexte envoyé au modèle. */
 function rvfTexte(q){
   switch(q.type){
@@ -34130,15 +34220,34 @@ function rvfTexte(q){
     case 'div-1': case 'div-2': return q.n1+'/'+q.d1+' ÷ '+q.n2+'/'+q.d2;
   }
 }
-/* Les trois cases d'une question : la règle (liste), le numérateur, le
-   dénominateur. Score par question = 3, comme relCases/srlCases. */
+/* L'ÉTAPE INTERMÉDIAIRE, propre à certains types — vide pour les trois qui
+   n'en ont pas ({meme-add}, {meme-sub}, {mult-frac} : rien à mettre au même
+   dénominateur, rien à inverser). {mult-entier} et {diff-sub-entier}
+   partagent la MÊME case (rvf-kden) pour la MÊME raison : un entier n'a pas
+   de dénominateur écrit, et devient une fraction de dénominateur 1.
+   {diff-add} fixe le dénominateur commun au PRODUIT des deux — la méthode
+   que dit la règle elle-même (« produit des deux dénominateurs ») — plutôt
+   que de laisser le choix comme {somme-fractions} : la case a une réponse
+   unique, comme tout le reste de cette révision. */
+function rvfExtra(q){
+  switch(q.type){
+    case 'mult-entier': case 'diff-sub-entier':
+      return [{id:'rvf-kden', bon:1}];
+    case 'diff-add':
+      return [{id:'rvf-a1', bon:q.d2}, {id:'rvf-b1', bon:q.d2}, {id:'rvf-a2', bon:q.d1}, {id:'rvf-b2', bon:q.d1}];
+    case 'div-1': case 'div-2':
+      return [{id:'rvf-inv-n', bon:q.d2}, {id:'rvf-inv-d', bon:q.n2}];
+    default: return [];
+  }
+}
+/* Les cases d'une question : la règle (liste), l'étape intermédiaire s'il y
+   en a une, le numérateur, le dénominateur. Score par question = 3 à 7 selon
+   le type — voir startRvf(), qui ne peut plus fixer un barème unique. */
 function rvfCases(q){
   const r=rvfReponse(q);
-  return [
-    {id:'rvf-regle', kind:'sel', bon:RVF_REGLES[q.type].opts[0][0]},
-    {id:'rvf-num', kind:'nb', bon:r.num},
-    {id:'rvf-den', kind:'nb', bon:r.den}
-  ];
+  return [{id:'rvf-regle', kind:'sel', bon:RVF_REGLES[q.type].opts[0][0]}]
+    .concat(rvfExtra(q).map(function(c){ return {id:c.id, kind:'nb', bon:c.bon}; }))
+    .concat([{id:'rvf-num', kind:'nb', bon:r.num}, {id:'rvf-den', kind:'nb', bon:r.den}]);
 }
 /* « 5 », « +5 », « -1 », « −1 » : comme relLit, le signe + est facultatif
    devant un positif. */
@@ -34161,17 +34270,25 @@ function renderRvfTest(){
   $('rvfActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkRvfAnswer()">Vérifier</button>';
   const vide='<option value="" selected disabled>?</option>';
   const regle=RVF_REGLES[q.type];
-  const frac='<span class="f-frac-input"><span class="sf-case"><input class="f-num" id="rvf-num" type="text" inputmode="text" autocomplete="off" aria-label="numérateur"></span><span class="f-fbar"></span><span class="sf-case"><input class="f-den" id="rvf-den" type="text" inputmode="text" autocomplete="off" aria-label="dénominateur"></span></span>';
+  const label=rvfLabel(q);
   $('rvfHost').innerHTML=
     '<div class="rel-regle"><span>'+esc(regle.texte)+'</span>'
     +'<select class="plc-sel" id="rvf-regle" aria-label="la règle">'+vide
     +regle.opts.map(function(o){ return '<option value="'+o[0]+'">'+esc(o[1])+'</option>'; }).join('')
     +'</select></div>'
-    +'<div class="pt-row">'+rvfGauche(q)+fEq(frac)+'</div>';
-  rvfCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
+    +'<div class="pt-step">'
+      +(label ? '<div class="pt-lab">'+label+'</div>' : '')
+      +'<div class="pt-row">'+rvfEtapes(q)+'</div>'
+    +'</div>';
+  /* ENTRÉE avance à la case suivante, comme sf/mlt — nécessaire depuis que
+     certaines questions posent plus de deux cases : valider dès la première
+     case remplie aurait empêché d'écrire les suivantes. */
+  const ordre=rvfCases(q).map(function(c){ return $(c.id); });
+  rvfCases(q).forEach(function(c,i){ const el=$(c.id); if(!el) return;
     el.addEventListener(c.kind==='nb'?'input':'change', function(){ if(isSoutien()) checkRvfAnswer(true);
       clearTimeout(test.rvfSave); test.rvfSave=setTimeout(autoSave,1000); });
-    if(c.kind==='nb') el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkRvfAnswer(); } });
+    el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault();
+      if(i<ordre.length-1 && ordre[i+1]) ordre[i+1].focus(); else checkRvfAnswer(); } });
   });
 }
 /* Le pourquoi, dit avec les nombres de la question — jamais la règle
@@ -34182,7 +34299,7 @@ function rvfPourquoi(q){
     case 'meme-add': return 'Le dénominateur ne bouge pas quand les deux fractions l’ont déjà en commun : on additionne seulement les numérateurs. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'meme-sub': return 'Le dénominateur ne bouge pas quand les deux fractions l’ont déjà en commun : on soustrait seulement les numérateurs. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'mult-frac': return 'Pour multiplier deux fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux, sans jamais chercher un dénominateur commun. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
-    case 'mult-entier': return 'Un entier se multiplie comme les autres : le numérateur est multiplié par lui, le dénominateur ne change pas. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
+    case 'mult-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. Ensuite, on multiplie comme deux fractions : les numérateurs entre eux, les dénominateurs entre eux. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'diff-add': return 'Avec des dénominateurs différents, on multiplie chaque fraction, en haut ET en bas, par le dénominateur de l’autre. '+rvfTexte(q)+' = ('+q.n1+'×'+q.d2+' + '+q.n2+'×'+q.d1+')/('+q.d1+'×'+q.d2+') = '+r.num+'/'+r.den+'.';
     case 'diff-sub-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'div-1': case 'div-2': return 'Diviser par une fraction, c’est multiplier par son inverse : on échange son numérateur et son dénominateur. '+rvfTexte(q)+' = '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' = '+r.num+'/'+r.den+'.';
@@ -34229,8 +34346,10 @@ function startRvf(){
   const qs=rvfBuildQuestions();
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
+  /* Le barème n'est plus qs.length*3 depuis que cinq types sur huit ajoutent
+     une étape (rvfExtra) : chaque question compte ses PROPRES cases. */
   Object.assign(test,{kind:'rvf', questions:qs, idx:0, score:0,
-    maxScore:qs.length*3, answers:[], startTime:Date.now(),
+    maxScore:qs.reduce(function(a,q){ return a+rvfCases(q).length; },0), answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false});
   test.qId='revision-fractions';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
