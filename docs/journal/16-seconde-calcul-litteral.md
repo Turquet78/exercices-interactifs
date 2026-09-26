@@ -238,6 +238,18 @@ cases », que les cases VRAIMENT manquantes (une ligne réductible laissée
 vide) — pas celles qui sont vides à bon droit ; `checkRedAnswer` calcule donc
 `vide` comme `(case vide) ET (pas déjà juste)`, jamais la seule emptiness.
 
+**Le x que l'élève tape est le x de l'expression affichée devant sa case**
+(demande de Turquet, septembre 2026) : `.red-in` passait par « Fredoka »,
+la police du reste de la page, qui n'a pas d'italique réelle (seules les
+graisses 400 à 700 sont chargées) — un italique simulé penche le x mais ne
+lui donne pas la même forme que celui de l'énoncé. `.red-expr i` bascule déjà
+en Times New Roman pour cette raison ; la case suit désormais la même
+police et le même style, plutôt que d'italiciser Fredoka. Ça italicise aussi
+les chiffres que l'élève tape (2x + 3 s'écrit tout en italique dans la case,
+quand seul le x l'est devant elle) : un compromis accepté plutôt qu'une
+case en deux polices, impossible à obtenir dans un `<input>` simple sans
+passer par MathLive.
+
 **La case lit une somme de termes, pas une chaîne** (`redLit`) : l'ordre des
 termes est libre (3 + 2x), x² s'écrit « x² », « x^2 » ou « x2 », le moins
 « - » ou « − », « x » vaut 1x et « 1x » est accepté. Une réponse de même
