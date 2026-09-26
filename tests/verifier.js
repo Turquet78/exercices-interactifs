@@ -13448,9 +13448,13 @@ function reduireProduit(w, P){
     poser(trouD, IDS_D); checkRpdAnswer();
     if(peint('rpd-c-0')!=='bleu') vus.push('case vide rpd-c-0 peinte en '+peint('rpd-c-0'));
     if((document.getElementById('rpd-c-0')||{}).value!=='3') vus.push('la correction de la case vide n\\'écrit pas 3');
-    /* une réponse illisible est fausse, pas vide */
-    poser(Object.assign({}, JUSTE_D, {'rpd-c-0':'3,'}), IDS_D); checkRpdAnswer();
-    if(peint('rpd-c-0')!=='rouge') vus.push('« 3, » est peint en '+peint('rpd-c-0'));
+    /* le coefficient est une liste de trois valeurs — la bonne, +1, -1 — et
+       une voisine fausse est fausse, pas vide */
+    const optsC0=[...(document.getElementById('rpd-c-0')||{options:[]}).options].map(function(o){ return o.value; }).filter(Boolean);
+    if(optsC0.slice().sort().join(',')!==[String(COEF[0]-1),String(COEF[0]),String(COEF[0]+1)].sort().join(','))
+      vus.push('rpd-c-0 ne propose pas '+(COEF[0]-1)+', '+COEF[0]+' et '+(COEF[0]+1)+' : '+optsC0.join(', '));
+    poser(Object.assign({}, JUSTE_D, {'rpd-c-0':String(COEF[0]+1)}), IDS_D); checkRpdAnswer();
+    if(peint('rpd-c-0')!=='rouge') vus.push('le coefficient '+(COEF[0]+1)+' au lieu de '+COEF[0]+' est peint en '+peint('rpd-c-0'));
 
     /* ---- phase directe : la seconde page ---- */
     test.idx=1; poser({}, []);
