@@ -135,55 +135,59 @@ passe par le bouton :
 Éprouvé par sabotage : une règle des signes qui attend « + » partout rougit
 le juge sur `mrl-rs-1` et `mrl-rs-2`.
 
-## {calcul-itere} — alterner somme et produit (7.4, v205)
+## {calcul-itere} — somme et produit de deux relatifs (7.4, v209)
 
-**La demande** (Turquet, septembre 2026) : un nouvel exercice « dans le thème
-calcul itéré », avec des nombres à un chiffre, jamais zéro, en alternant somme
-et produit. Aucun thème ne portait ce nom : le premier jet a créé un thème 8
-« Calcul itéré ». Puis `main` a renommé le thème 7 « Calcul littéral » le même
-jour — c'était lui que la demande désignait (une dictée qui entend « itéré »
-pour « littéral »). L'exercice y a pris la place 7.3, après les deux exercices
-des relatifs, puis 7.4 quand {multiplier-relatifs} a été publié avant lui ; aucun thème 8 n'a été publié. Quand un nom de thème demandé
-n'existe pas, on relit d'abord `main` : il a pu changer depuis que la branche
-est partie.
+**La demande** (Turquet, septembre 2026) : un exercice « dans le thème calcul
+itéré » — une dictée qui entendait « itéré » pour « littéral » —, avec des
+nombres à un chiffre, jamais zéro, en ALTERNANT somme et produit.
 
-**Une page = une chaîne** : un nombre de départ (1 à 9), puis quatre étapes
-qui alternent « + chiffre » et « × chiffre ». Chaque ligne s'écrit comme une
-égalité, « 7 × 5 = [  ] », où le 7 est le résultat de la ligne d'avant,
-RECOPIÉ en tête de ligne dès que l'élève l'écrit (`citEcho`). Cinq pages,
-quatre cases chacune, barème 20. La première page commence par une somme, la
-deuxième par un produit, les suivantes tirent au sort. Pas de « × 1 » : il ne
-demande aucun calcul (les sommes, elles, gardent le 1). Les pages passent par
-`distinctes()`.
+**Le premier jet (v205) avait mal lu « alterner »** : il ENCHAÎNAIT les
+calculs, chaque résultat devenant le départ du suivant (3 + 4 = 7, 7 × 5 = 35…).
+Turquet, le lendemain : « quand je disais alterné, c'était en ayant des calculs
+disjoints et pas qui se suivent ». Deux questions ont levé le reste : les
+nombres sont des RELATIFS, et la somme et le produit portent sur la MÊME paire.
+L'exercice a été réécrit en place (v209). **L'identifiant reste
+`calcul-itere`** alors que le calcul n'a plus rien d'itéré : un identifiant ne
+se renomme jamais, les notes et les devoirs le portent. Les notes posées entre
+v205 et v209 sous cet identifiant sont celles de la chaîne, sur 20 ; les
+suivantes sont sur 24. Seuls le nom affiché et le moteur ont changé.
+Leçon : un mot de la demande qui admet deux lectures (« alterner » : d'une
+ligne à l'autre, ou d'un résultat au suivant ?) se demande AVANT d'écrire un
+moteur, pas après l'avoir publié.
 
-**Une erreur ne se paie qu'une fois.** Chaque ligne est jugée à partir du
-nombre que l'élève a écrit à la ligne d'avant — celui qu'il voit recopié en
-tête. Si cette case est vide ou illisible, on repart de ce que la correction y
-écrit (`att`, pas la valeur juste : sans quoi la ligne suivante afficherait un
-nombre et serait jugée sur un autre dès qu'une case plus haute est fausse).
-Sans cette règle, 3 + 4 = 8 rougirait les quatre cases.
+**Une page = quatre paires = huit cases.** Chaque paire tient dans un bloc de
+deux lignes, « (−3) + (−5) = [  ] » puis « (−3) × (−5) = [  ] » : l'élève
+change de règle à chaque ligne — le signe du plus fort pour la somme, la règle
+des signes pour le produit —, et la paire commune met les deux règles face à
+face. Les quatre paires d'une page couvrent les quatre combinaisons de signes
+(+,+), (+,−), (−,+), (−,−), dans un ordre tiré. Les deux chiffres d'une paire
+sont DIFFÉRENTS (avec −3 et +3, la somme vaut 0 et « le plus fort » n'existe
+pas), et deux paires d'une page n'ont pas les mêmes chiffres. Trois pages par
+`distinctes()`, barème 24. Le bouton des tables reste : on y multiplie.
+Sur téléphone, l'étiquette « Somme / Produit » se tait sous 520 px : elle se
+tassait sous le calcul, et le signe + ou × dit déjà l'opération.
 
-**On range les chiffres, jamais les réponses** : `citAttendus()` recalcule la
-chaîne dans la fonction qui corrige. Les réponses s'écrivent en chiffres, les
-espaces ne comptent pas (« 1 539 ») ; « 7, » est faux, pas vide. Les cases sont
-`inputmode="numeric"`. Le bouton des tables reste proposé : on y multiplie.
+**On range les paires signées, jamais les réponses** : `citLignes()`
+recalcule sommes et produits dans la fonction qui corrige. Les réponses se
+lisent comme au 7.1 (`relLit`) : « 2 », « +2 », « −2 », « -2 » ; « 8, » est
+faux, pas vide.
 
-**Le message** nomme la première ligne fausse, avec son calcul, et reconnaît
-le piège de l'alternance : « Tu as ADDITIONNÉ : cette ligne est un PRODUIT »
-(ou l'inverse).
+**Le message** part de la première case fausse et reconnaît le piège croisé :
+« (−3) + (−5) = +8 » reçoit « … le signe est celui du plus fort … La règle des
+signes, c'est pour MULTIPLIER » ; « (−3) × (+5) = +15 » reçoit « … c'est la
+règle des signes … Le signe du plus fort, c'est pour ADDITIONNER ».
 
-**Le juge** (`tests/verifier.js`, « calcul itéré ») : la place (7.4, les
-relatifs restent 7.1, 7.2 et 7.3, bouton des tables présent), 500 séances tirées (cinq
-pages, départ et chiffres dans 1…9, jamais × 1, alternance tenue, les deux
-premières pages dans l'ordre somme puis produit, les deux départs au-delà),
-la chaîne recalculée par une boucle écrite à part, puis le bouton : la copie
-juste (4/4, « 2 22 » accepté), l'écho de la ligne 1 en tête de la ligne 2,
-l'erreur qui ne se paie qu'une fois (3 + 4 = 8, puis 40, 42, 252 : une seule
-case rouge), le piège de l'alternance (7 + 5 au lieu de 7 × 5 : rouge, et le
-message le dit), une case vide (correction verte « 35 », voisines justes
-bleues), une réponse illisible (rouge).
-Éprouvé par sabotage : une alternance rompue (`citEstProduit` qui ne regarde
-plus le rang) rougit le juge en nommant l'étape et la chaîne fausse.
+**Le juge** (`tests/verifier.js`, « somme et produit de deux relatifs ») : la
+place (7.4, bouton des tables présent), 500 séances tirées (trois pages, quatre
+paires, les quatre combinaisons de signes, chiffres dans 1…9 et différents,
+paires distinctes, l'alternance « + × + × … »), les attendus contre
+l'arithmétique de JavaScript, puis le bouton : la copie juste (8/8, « +15 »,
+« −15 » et « 2 » acceptés), les deux pièges croisés (rouges, le produit juste de
+la même paire reste bleu, le message nomme la bonne règle), deux cases vides
+(correction verte « −3 », voisines justes bleues), une réponse illisible.
+Éprouvé par sabotage, deux fois : un produit qui prend le signe du plus fort
+rougit le juge en nommant les produits faux, des lignes qui cessent d'alterner
+le rougissent en montrant « ×××××××× ».
 
 **La fusion qui recoud deux ajouts au même endroit laisse la fin commune au
 second seul.** Le 7.2 et le 7.3 ajoutaient chacun un écran après celui du 7.1
