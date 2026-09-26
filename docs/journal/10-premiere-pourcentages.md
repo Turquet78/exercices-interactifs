@@ -1281,3 +1281,103 @@ générique, comme sur les écrans d'ardoise.
 `conseilCtxCourant()` et `RAP_PCT10` ont suivi le même chemin, ramenés à
 l'unique division — un rappel qui enseignerait encore une case ② disparue
 mentirait à l'élève qui clique dessus.
+
+---
+
+## {pourcentage-boite} — le schéma en boîte de la fiche papier (Seconde,
+## septembre 2026)
+
+**D'où il vient.** Turquet a fourni une fiche PDF de trois exercices, chacun
+avec le même dessin : deux rectangles reliés par une flèche, et sur la flèche
+deux pointillés — l'un pour le pourcentage (« × …… % »), l'autre pour son
+écriture décimale (« × …………… »). Les trois exercices de la fiche posent
+chacun une seule inconnue (le résultat, puis la valeur initiale, puis le
+pourcentage) sur un contexte unique (« le lycée »). La demande explicite était
+de les MÉLANGER dans un seul exercice, avec plusieurs mises en situation et
+des valeurs entières partout — y compris le pourcentage, qui n'est PAS
+restreint aux multiples de dix comme le reste du thème.
+
+**Pourquoi une table de contextes à part, et pas `CTX_PART`.** `CTX_PART`
+porte déjà trois exercices (`pourcentage`, `pourcentage-depart`,
+`pourcentage-taux`, plus les synthèses) et sert de vivier à `PCT_ENONCES`,
+`QD_ENONCES_VAL` et `QD_ENONCES_PCT`. Y ajouter les deux libellés de boîte
+(`tout`, `partie`) qu'aucun autre exercice ne lit aurait été un ajout sans
+risque en apparence, mais un contexte mal choisi pour un exercice existant
+— une nouvelle entrée y change le tirage pondéré de TROIS exercices en
+production, et le seul moyen de le vérifier est de rejouer leurs contrôles un
+par un. `CTX_BOITE` est une table neuve, sur le même modèle (`direct`,
+`total`, `taux`, `nOk`) : sept mises en situation (lycée/demi-pensionnaires —
+l'énoncé de la fiche, au mot près —, village, entreprise, bibliothèque,
+concert, exploitation agricole, salle de sport), quatre d'entre elles sans
+aucune condition sur `N` (village, entreprise, bibliothèque, concert : un
+« village » ou une « entreprise » restent crédibles de 100 à 9000), ce qui
+garantit qu'un contexte convient toujours, quel que soit le tirage —
+`tirerContexte()` ne retombe donc jamais sur son repli d'index 0 par défaut
+de correspondance.
+
+**Le tirage.** `N=rand(1,9)*Math.pow(10,pick([2,3]))` (100…900 ou
+1000…9000, motif déjà employé ailleurs dans ce fichier) et `P=rand(1,99)` —
+un entier QUELCONQUE, pas tiré dans `PCT_PCTS`. Comme `N` est multiple de
+100, `N×P/100` est toujours entier sans qu'aucune condition de divisibilité
+supplémentaire (l'équivalent de `pctCoupleOk`) ne soit nécessaire — la
+raison même pour laquelle la demande de Turquet (« un pourcentage
+quelconque ») ne casse rien : la contrainte que multiples de dix desservait
+ailleurs (couvrir P×N/100 entier avec des N eux-mêmes quelconques) est ici
+déjà résolue par la forme de N.
+
+**Les trois inconnues, mélangées.** `qdMelanger(['res','ini','pct'])` puis
+`distinctes(3,(_,i)=>genPctBoite(incs[i%incs.length]))` — le même motif que
+`startSyn`/`genSyn` pour la synthèse de Première, mais avec des clés
+différentes (`res`/`ini`/`pct` plutôt que `fin`/`ini`/`pct`) puisque
+`genPctBoite` est un générateur neuf, sans lien avec `genSyn`. Chaque
+inconnue sort exactement une fois sur les trois questions, dans un ordre
+mélangé. `distinctes()` n'a besoin d'aucun soin particulier ici : `inc` fait
+partie de la clé de comparaison (il n'est pas dans `CLE_HORS`), et puisque les
+trois tirages ont chacun un `inc` différent, ils sont automatiquement
+distincts — contrairement à {pourcentage}, qui doit vraiment éviter de tirer
+deux fois le même couple (P, N).
+
+**Toutes les cases sont vides, même les nombres que l'énoncé donne déjà**
+(la même convention que {pourcentage-synthese}, ci-dessus) : les 4 cases du
+schéma — le tout, le pourcentage, son écriture décimale, la partie — se
+jugent chacune SEULE contre sa valeur canonique, exactement comme les cases
+①/②/③ de {pourcentage}. La case décimale accepte toute écriture égale à
+P/100 (`parseDecToFrac`, la même fonction que `liveColorDec`/`corTrainDec`
+ailleurs dans ce fichier) : « 0,45 » vaut le point, et rien n'exige la forme
+la plus simple.
+
+**Bords tenus par les contrôles universels, sans rien déclarer de plus.**
+`pctb` a été ajouté à `testScreens` (sans quoi le banc de l'encadré Énoncé en
+serait resté aveugle — le piège documenté dans `CLAUDE.md`) : à partir de là,
+la taille des cases, le clavier mathématique atteignable, la case vide qui
+ne rougit jamais, les couleurs de la vérification (§9 bis) et le cadre pleine
+largeur (`cadrePleineLargeur`, déjà vrai pour toute la Seconde) se sont tous
+vérifiés SANS qu'aucune liste ne cite `pourcentage-boite` par son nom. Trois
+sources à deux endroits qui n'auraient pas suivi silencieusement : `THEMES`
+(placé en fin du sous-thème 4.1 « Prendre un pourcentage » — il mélange les
+trois inconnues de CE sous-thème, pas les trois familles prendre/augmenter/
+diminuer du sous-thème 4.5), `QIA_SUGG['pctb']` (sans quoi la fenêtre d'aide
+serait retombée sur les questions génériques), et surtout la table `cles` de
+`RAPPELS_SECONDE` dans `tests/profils.js` — une SECONDE liste, à côté de
+`RAPPELS`/`RAPPELS_ID` de la page elle-même, que `Object.keys(TESTS)` compare
+un par un ; l'oublier aurait fait rougir « chaque exercice a son rappel de
+cours » avec un message qui nomme exactement l'exercice fautif (« le
+contrôle ne connaît pas son kind »).
+
+**Pas de branche dédiée dans `conseilPaire()`.** Contrairement aux exercices
+dont l'écran ne porte pas assez de texte lisible pour le modèle, `pctb` se
+lit très bien par le repli générique `ctxVisible()` — l'énoncé complet (une
+phrase de mise en situation, 90 à 130 caractères) plus les libellés des deux
+boîtes suffisent largement au seuil de 60 caractères qu'exige « chaque
+exercice a un contexte à envoyer au modèle ». Ce bord n'est vrai QU'EN
+SECONDE et en Première (`ctxVisible()` y lit l'énoncé, la scène ET les
+saisies) : la Terminale, qui a dû nommer une branche par exercice
+(`ctxChaqueExercice`), n'aurait pas pu se permettre ce raccourci.
+
+**Ce que le contrôle du contexte a fait remonter au premier essai** : avant
+d'ajouter `pctb` à `QIA_SUGG`, la fenêtre d'aide restait fonctionnelle (le
+repli `QIA_SUGG.gen` existe toujours) — rien ne cassait, l'aide devenait
+simplement générique. C'est exactement le défaut que `CLAUDE.md` décrit au
+point 11 : « rien ne s'affiche en rouge, l'aide est simplement devenue
+inutile ». Le contrôle `chaque écran d'exercice a ses questions à l'IA` l'a
+donc attrapé nommément, avant toute mise en ligne.
