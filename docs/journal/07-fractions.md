@@ -594,3 +594,81 @@ la faute illisible.
 **Le bouton des tables de multiplication s'affiche sans rien déclarer** :
 l'exercice n'est PAS ajouté à `TABLES_SANS`, la liste en négatif de
 `tablesBtnHTML()` — et il en a besoin, pour le produit `d×f` du dénominateur.
+
+**Une RÉVISION n'est pas un neuvième pas-à-pas.** {revision-fractions} (5.11,
+Seconde, septembre 2026) vient d'une fiche papier de Turquet, « Révision sur les
+fractions », à cinq remarques : même dénominateur pour additionner ou
+soustraire (①), produit terme à terme SANS jamais chercher un dénominateur
+commun — qu'un facteur soit un entier ou non (② et ④, la MÊME règle), mise au
+même dénominateur par le produit des deux quand ils diffèrent (③), et division
+par l'inverse (⑤). {somme-fractions}, {multiplier-fractions} et
+{diviser-fractions} enseignent déjà le détail pas à pas de ces gestes ; en
+ouvrir un neuvième qui les répète aurait usé la même leçon deux fois sans
+rien ajouter. Celui-ci teste autre chose : le RÉSULTAT final, en une seule
+fraction à compléter, et le VOCABULAIRE de la règle qu'on vient d'appliquer,
+dans une liste à trois choix — le motif de {additionner-relatifs} et
+{soustraire-relatifs} (une liste, puis une case), pas celui des exercices de
+fractions détaillés qui l'entourent dans le même thème.
+
+**Huit questions, un ordre FIXE.** Une par sous-règle de la fiche — la
+multiplication comptant deux fois puisque la fiche elle-même la répète, une
+fois entre deux fractions, une fois avec un facteur entier — jamais mélangées :
+c'est la règle qui doit se reconnaître à sa PLACE dans la révision, pas au
+hasard d'un tirage. Seuls les nombres changent, à chaque lancement.
+`distinctes()` n'a rien à faire ici : chacune des huit questions porte un champ
+`type` qui lui est propre (`meme-add`, `meme-sub`, `mult-frac`, `mult-entier`,
+`diff-add`, `diff-sub-entier`, `div-1`, `div-2`) et qui, à lui seul, empêche
+toute confusion avec sa voisine dans le contrôle « aucune séance ne pose deux
+fois la même question » — y compris entre {div-1} et {div-2}, qui posent
+pourtant EXACTEMENT le même calcul avec des nombres tirés indépendamment.
+
+**Les nombres sont à UN CHIFFRE, JAMAIS ZÉRO** (consigne de Turquet, comme
+{additionner-relatifs}) : dénominateurs de 2 à 9, numérateurs et entiers de 1 à
+9. Aucune simplification n'est demandée ni recherchée — ce n'est pas le sujet
+ici, à la différence de {multiplier-fractions} — et le tirage n'écarte qu'un
+résultat NUL là où il rendrait la case ambiguë : deux numérateurs distincts
+pour `meme-sub` (sans quoi le résultat vaudrait 0, qui n'est l'erreur visée
+d'aucune des trois options de la liste), et un numérateur final non nul pour
+`diff-sub-entier` (`n1 − k×d1`, qui peut légitimement être négatif — un entier
+soustrait à une fraction plus petite que lui est le cas normal, pas un cas à
+éviter).
+
+**On range les nombres tirés, jamais la réponse.** `rvfReponse(q)` la
+recalcule à chaque correction à partir de `q.type` et des nombres — comme
+`relLignes()` le fait pour {additionner-relatifs} — pour la même raison :
+une réponse rangée à côté de la question finirait par la contredire si le
+calcul changeait un jour.
+
+**Le calcul de gauche réutilise `sfFracInner`/`sfTermeHTML` telles quelles**,
+sans y toucher : ce sont des fonctions globales, pas spécifiques à
+{somme-fractions}, et c'est exactement le motif qu'il fallait pour qu'un
+facteur entier (`mult-entier`, `diff-sub-entier`) prenne la FORME d'une
+fraction sans barre, à la hauteur de sa voisine, et que le signe qui le suit
+tombe sur le bon trait — le contrôle universel « un signe posé à côté d'une
+fraction tombe sur son trait » les mesure comme n'importe quel autre exercice,
+sans rien déclarer.
+
+**La case de réponse est un `<input>` de texte, pas un `math-field`** — la
+réponse est un entier signé simple (numérateur, dénominateur), pas une
+expression, et un champ mathématique n'aurait rien ajouté. Ce choix a une
+conséquence sur les contrôles universels qu'il faut savoir lire : « les cases
+de saisie ont la taille des nombres qui les entourent » et « le clavier
+mathématique est atteignable » ne regardent QUE les `math-field` du DOM
+(`querySelectorAll('math-field')`) — sur un écran qui n'en a aucun, comme
+celui-ci, les deux contrôles n'ont rien à mesurer et passent trivialement, ce
+qui n'est pas un trou : aucun clavier détaché n'est nécessaire puisqu'aucun
+champ mathématique n'existe, et la taille de la case suit la même feuille de
+styles (`.f-num,.f-den`) que partout ailleurs où elle est déjà correcte. Le
+contrôle « aucune case laissée vide ne rougit » regarde en revanche les
+`INPUT` au même titre que les `MATH-FIELD` et les `SELECT` : il s'applique
+donc bien ici, et `corrChoix()` — la même fonction que {additionner-relatifs}
+et {soustraire-relatifs} — le tient.
+
+**Le badge de correction se pose hors du flux, comme chez {somme-fractions}.**
+La case de réponse réutilise ses classes (`f-frac-input`, `sf-case`, `f-num`,
+`f-den`) — mais `.sf-case{position:relative}` et son `.mf-cor` en
+`position:absolute` sont des règles CSS scopées par hôte (`#sfHost .sf-case`,
+`#mltHost .sf-case`, `#smpHost .sf-case`), jamais génériques : les copier
+SANS les recopier pour `#rvfHost` aurait laissé le badge se poser dans le
+flux et élargir le trait de la fraction, le défaut d'août 2026 revenu par une
+porte neuve. Deux lignes suffisent, recopiées à l'identique.
