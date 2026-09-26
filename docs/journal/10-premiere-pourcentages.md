@@ -1244,6 +1244,44 @@ mesuré par les contrôles génériques qui parcourent TOUT `TESTS` — la
 distinction ne prive l'exercice d'aucune vérification, elle évite seulement
 de le nommer là où il ferait rougir un fichier qui ne le connaît pas.
 
+**Puis {pourcentage-dix} a été repris entièrement, le jour même** (demande de
+Turquet) : « je ne veux pas les mêmes énoncés que dans le 2.1.3, je veux les
+mêmes thèmes de sujet mais uniquement pour 10 % » — le paragraphe précédent
+décrit la PREMIÈRE version (tirage de {pourcentage} recopié tel quel, deux
+divisions ① et ②, la multiplication ③) : elle a vécu quelques minutes en
+production avant cette reprise, et le paragraphe reste pour l'histoire, à la
+manière des couleurs de la vérification.
+**Ce qui change :** {pourcentage-dix} ne reprend plus le TIRAGE de
+{pourcentage} — `genPct10()` ne l'appelle plus — mais seulement ses THÈMES
+(`CTX_PART`, pour la variété des unités : élèves, salariés, réservoir…), avec
+un pourcentage FIGÉ à 10 % (`q.P=10`, jamais tiré dans `PCT_PCTS`). Une seule
+case, une seule phrase, calquée au mot près sur la fiche de cours qui a fait
+naître l'exercice (« Prendre 10 % de 300 € c'est calculer 300/10 = ..... € ») :
+`q.dix` et `q.k` ont disparu avec le deuxième calcul qu'ils portaient — 10 %
+ne contenant par construction qu'UNE seule fois 10 %, la case ② (« le nombre
+de dizaines ») n'avait plus de raison d'exister.
+**Toute la phrase à la MÊME taille de police** (demande explicite) : le
+sous-thème entier oppose d'habitude un petit libellé (`.pt-lab`, ~1,35 rem) à
+de grosses cases (`.pt-row`, 1,9 rem) — exactement l'inverse de ce qu'on
+demandait ici. `.pct10-ligne` est une classe NEUVE, sans rapport avec
+`.pt-step`/`.pt-lab` : mots, fraction (rendue par `mlTex`) et case y partagent
+un seul `font-size` (1,6 rem, la taille de BASE de `.f-dec` — l'écran ne
+rejoint donc PAS le groupe `#pHost, #qHost, #aHost…` qui l'aurait fait
+remonter à 1,9 rem pour tous les autres). Le contrôle universel de la taille
+des cases (section 9) ne compare qu'aux nombres BRUTS voisins (un texte qui
+mélange lettres et chiffres n'en est pas un) : `<b>${q.N}</b>` reste une
+feuille nue à côté de la case, ce qui suffit à le satisfaire, même si la
+phrase entière autour est, elle, à la même taille pour l'œil.
+**L'énoncé encadré (`pxPrompt`) redevient un simple TITRE**, jamais mis à jour
+par tirage (« Prendre 10 % d'un nombre en divisant par 10. », toujours le
+même) : la question — les nombres, le thème — vit désormais entièrement dans
+la ligne de calcul en dessous. Le contrôle qui compte « un encadré Énoncé par
+écran » ne regarde que la CLASSE, jamais le contenu : rien ne l'empêche d'être
+générique, comme sur les écrans d'ardoise.
+`conseilCtxCourant()` et `RAP_PCT10` ont suivi le même chemin, ramenés à
+l'unique division — un rappel qui enseignerait encore une case ② disparue
+mentirait à l'élève qui clique dessus.
+
 **Une quatrième méthode, twin de {pourcentage-dix} : retrouver PLUSIEURS
 pourcentages, sans qu'aucun ne soit donné à l'avance.**
 {pourcentage-dix-cascade} (2.1.9, demande de Turquet, septembre 2026, à
