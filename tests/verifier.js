@@ -12712,7 +12712,7 @@ function ordreCroissant(w, P){
    méthode : la VALEUR de chaque expression et de chaque résultat, calculée
    ici — jamais la table de la page. */
 function associerExpressions(w, P){
-  const nom = 'associer les expressions : trois nombres puis x, la correction et la place dans le thème Calcul littéral (7.6)';
+  const nom = 'associer les expressions : trois nombres puis x, a et b, la correction et la place dans le thème Calcul littéral (7.6)';
   const present = evaluer(w, "typeof startAsx==='function' && typeof asxLignes==='function'");
   if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice d\'association'); return; }
   verifierEval(w, nom, `(function(){
@@ -12724,26 +12724,31 @@ function associerExpressions(w, P){
     if(!th || !/Calcul littéral/i.test(th.nom) || th.ids.indexOf('associer-expressions')<0) vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
     if(TEST_NUM['associer-expressions']!=='7.6') vus.push('numéro '+TEST_NUM['associer-expressions']+' au lieu de 7.6');
     if(TEST_NUM['additionner-relatifs']!=='7.1') vus.push('le 7.1 a bougé');
-    /* ---- 1. le tirage : trois nombres distincts de 3 à 9, puis x une fois -- */
-    const ordres={};
+    /* ---- 1. le tirage : trois nombres distincts de 3 à 9, puis x, a et b -- */
+    const ordres={}, ordresExpr={};
     for(let i=0;i<300 && !vus.length;i++){
       const qs=asxBuildQuestions();
-      if(qs.length!==4){ vus.push(qs.length+' pages au lieu de 4'); break; }
+      if(qs.length!==6){ vus.push(qs.length+' pages au lieu de 6'); break; }
       const ns=qs.slice(0,3).map(function(q){ return q.n; });
       ns.forEach(function(n){ if(!(Number.isInteger(n) && n>=3 && n<=9)) vus.push('nombre tiré hors de 3…9 : '+n); });
       if(new Set(ns).size!==3) vus.push('deux pages tirent le même nombre : '+ns.join(' '));
-      if(qs[3].n!=='x') vus.push('la dernière page n\\'est pas celle de x');
-      if(qs.filter(function(q){ return q.n==='x'; }).length!==1) vus.push('la page de x n\\'est pas unique');
-      if(qs[0].ordre.join()!=='zero,add,un,mul') vus.push('la première page ne suit pas la fiche : '+qs[0].ordre.join());
-      qs.forEach(function(q){ if(q.ordre.slice().sort().join()!=='add,mul,un,zero') vus.push('résultats incomplets : '+q.ordre.join()); });
+      if(qs[3].n!=='x' || qs[4].n!=='a' || qs[5].n!=='b') vus.push('les pages à lettre ne sont pas x, a puis b : '+qs.slice(3).map(function(q){ return q.n; }).join(','));
+      if(qs[0].ordre.join()!=='zero,add,un,mul') vus.push('la première page ne suit pas la fiche pour les résultats : '+qs[0].ordre.join());
+      if(qs[0].ordreExpr.join()!=='carre,double,quot,diff') vus.push('la première page ne suit pas la fiche pour les expressions : '+qs[0].ordreExpr.join());
+      qs.forEach(function(q){
+        if(q.ordre.slice().sort().join()!=='add,mul,un,zero') vus.push('résultats incomplets : '+q.ordre.join());
+        if(q.ordreExpr.slice().sort().join()!=='carre,diff,double,quot') vus.push('expressions incomplètes : '+q.ordreExpr.join());
+      });
       ordres[qs[1].ordre.join()]=1;
+      ordresExpr[qs[1].ordreExpr.join()]=1;
     }
     if(!vus.length && Object.keys(ordres).length<2) vus.push('les résultats des pages suivantes ne sont jamais mélangés');
+    if(!vus.length && Object.keys(ordresExpr).length<2) vus.push('l\\'ordre des expressions n\\'est jamais mélangé');
     /* ---- 2. les réponses attendues, par la valeur ------------------------- */
     const valExpr={carre:function(n){ return n*n; }, double:function(n){ return 2*n; }, quot:function(n){ return n/n; }, diff:function(n){ return n-n; }};
     const valRes={zero:function(){ return 0; }, add:function(n){ return n+n; }, un:function(){ return 1; }, mul:function(n){ return n*n; }};
     for(let n=3;n<=9;n++){
-      asxLignes({n:n, ordre:['zero','add','un','mul']}).forEach(function(l){
+      asxLignes({n:n, ordre:['zero','add','un','mul'], ordreExpr:['carre','double','quot','diff']}).forEach(function(l){
         const bons=Object.keys(valRes).filter(function(k){ return valRes[k](n)===valExpr[l.cle](n); });
         if(bons.length!==1 || bons[0]!==l.bon) vus.push(l.txt+' : attendu '+l.bon+', la valeur donne '+bons.join('/'));
       });
@@ -12753,20 +12758,26 @@ function associerExpressions(w, P){
     startAsx();
     const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
       return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
-    const IDS=['asx-0','asx-1','asx-2','asx-3'], JUSTE=['mul','add','un','zero'];
+    const IDS=['asx-0','asx-1','asx-2','asx-3'];
     const poser=function(vals){ test.locked=false; renderAsxTest();
       IDS.forEach(function(id,i){ const el=document.getElementById(id); if(el) el.value=vals[i]; }); };
-    for(let p=0;p<4;p++){
+    for(let p=0;p<6;p++){
       test.idx=p;
-      poser(JUSTE); checkAsxAnswer();
+      const bons=asxLignes(test.questions[p]).map(function(l){ return l.bon; });
+      poser(bons); checkAsxAnswer();
       const der=test.answers[test.answers.length-1];
       if(!der || !der.correct) vus.push('page '+(p+1)+' : la copie juste est comptée fausse');
       if(IDS.some(function(id){ return peint(id)!=='vert'; })) vus.push('page '+(p+1)+' : une case juste n\\'est pas marquée ok');
     }
-    test.idx=3; poser(JUSTE);
-    if(!/différent de 0/.test((document.getElementById('asxInstr')||{}).textContent||'')) vus.push('la page de x ne dit pas que x est différent de 0');
+    [3,4,5].forEach(function(p){
+      test.idx=p; renderAsxTest();
+      const lettre=test.questions[p].n;
+      const instr=document.getElementById('asxInstr')||{};
+      if(!/différent de 0/.test(instr.textContent||'')) vus.push('la page '+(p+1)+' (lettre '+lettre+') ne dit pas qu\\'elle est différente de 0');
+      if((instr.innerHTML||'').indexOf('<i>'+lettre+'</i>')<0) vus.push('la page '+(p+1)+' ne nomme pas la lettre '+lettre);
+    });
     /* LE PIÈGE : le carré pris pour le double */
-    test.idx=0; test.questions[0]={n:3, ordre:['zero','add','un','mul']};
+    test.idx=0; test.questions[0]={n:3, ordre:['zero','add','un','mul'], ordreExpr:['carre','double','quot','diff']};
     poser(['add','mul','un','zero']); checkAsxAnswer();
     if(peint('asx-0')!=='rouge' || peint('asx-1')!=='rouge') vus.push('le carré confondu avec le double n\\'est pas rouge');
     if(peint('asx-2')!=='vert' || peint('asx-3')!=='vert') vus.push('une case juste rougit à côté d\\'une fausse');
@@ -12775,7 +12786,7 @@ function associerExpressions(w, P){
     poser(['mul','','un','zero']); checkAsxAnswer();
     if(peint('asx-1')!=='bleu') vus.push('case vide peinte en '+peint('asx-1'));
     if((document.getElementById('asx-1')||{}).value!=='add') vus.push('la correction de la case vide n\\'écrit pas 3 + 3');
-    if(test.maxScore!==16) vus.push('barème de '+test.maxScore+' au lieu de 16');
+    if(test.maxScore!==24) vus.push('barème de '+test.maxScore+' au lieu de 24');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

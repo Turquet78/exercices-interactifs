@@ -294,6 +294,37 @@ et de 2. Il rejoue ensuite la correction par le bouton : copie juste sur les
 quatre pages, le carré pris pour le double (rouge, les deux autres restent
 justes, le message dit « 3 × 3 »), une case vide qui reçoit la correction.
 
+**Puis l'ordre des EXPRESSIONS s'est mélangé, et la page de x s'est dédoublée
+en trois lettres** (demande de Turquet, septembre 2026, v209). Deux
+changements distincts. D'abord, les quatre expressions (n², 2n, n/n, n − n)
+se lisaient toujours dans le même ordre, sur les quatre pages : seul l'ordre
+des RÉSULTATS proposés bougeait. `asxLignes` range désormais ses quatre
+lignes selon `q.ordreExpr`, une seconde liste mélangée exactement comme
+`ordre` — sur la première page, elle suit la fiche (n² ; 2n ; n/n ; n − n),
+sur les autres elle est tirée par `asxMelange`, désormais générique
+(`asxMelange(tableau)` au lieu de mélanger `ASX_RES` en dur, pour servir les
+deux listes). Ensuite, la seule page de x est devenue TROIS pages, une par
+lettre — x, puis a, puis b, toujours dans cet ordre-là (pas mélangé : c'est
+la lettre qui distingue chaque page, pas une position tirée au sort) — après
+les trois pages à nombre. La séance compte donc SIX pages, barème 24.
+`asxN`/`asxT` ne testent plus `q.n==='x'` mais `typeof q.n==='string'`
+(`asxLettre`), pour que « différent de 0 » et l'italique s'appliquent aux
+trois lettres, pas à x seule.
+
+**Le piège du dédoublonnage.** `distinctes()` écarte deux pages à nombre qui
+tireraient le même `n`, mais compare les questions par `cleQuestion`, qui
+ignore la clé `ordre` — CETTE clé est déjà dans `CLE_HORS`, posée là parce
+que l'ordre des résultats est aléatoire et ne doit pas rendre deux pages
+« différentes » aux yeux du dédoublonnage. `ordreExpr` est arrivée à côté
+sans y être ajoutée : deux pages tirant le même nombre mais un ordre
+d'expressions différent passaient alors pour deux questions distinctes, et
+`distinctes()` laissait passer un nombre répété — le contrôle jsdom l'a
+rougi tout de suite (« deux pages tirent le même nombre : 4 4 3 »). Toute
+clé qui varie sans changer l'identité d'une question doit rejoindre
+`CLE_HORS`, comme `ordre` l'a fait avant elle ; l'oublier ne casse rien à la
+lecture du code, seul un tirage répété — ou le contrôle qui le cherche — le
+montre.
+
 ## {soustraire-relatifs} — soustraire un relatif, c'est additionner son opposé (7.7, v208)
 
 **La demande** (Turquet, septembre 2026) : reprendre une fiche papier
