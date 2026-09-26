@@ -256,8 +256,10 @@ module.exports = {
        page a sa constante SF_NB, le banc compare à celle-ci. 6 en Première,
        4 en Seconde (demande de Turquet, août 2026). */
     nbQuestionsFractions: { sf: 6 },
-    /* 4 questions du 2.1.3 au 2.1.7 (demande de Turquet, août 2026) —
-       DEUX sources : la page a PCT_NB et QD_NB, le banc compare à ceci. */
+    /* 4 questions du 2.1.3 au 2.1.7 (demande de Turquet, août 2026), et
+       {pourcentage-dix} (2.1.8, même tirage, troisième méthode par 10 %,
+       septembre 2026) — DEUX sources : la page a PCT_NB et QD_NB, le banc
+       compare à ceci. */
     nbQuestionsPourcentages: 4,
     /* 3 questions pour tous les exercices sur les ÉVOLUTIONS — hausses 2.2.1
        à 2.2.9, baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de

@@ -1408,7 +1408,12 @@ function branchements(w){
   /* ---- Le NOMBRE de questions des exercices de pourcentages (Première) ---
      4 du 2.1.3 au 2.1.7 (demande de Turquet, août 2026). On appelle les VRAIS
      démarreurs — chacun a sa fabrique, et un nombre changé dans l'une ne dit
-     rien des autres. */
+     rien des autres.
+     {pourcentage-dix} (2.1.8, Première seulement, même tirage que {pourcentage})
+     N'EST PAS ICI : cette liste est PARTAGÉE par la Seconde, qui porte le même
+     thème sans cet exercice — l'y ajouter ferait rougir la Seconde sur une
+     fonction qu'elle n'a pas. Il est vérifié par ailleurs (démarreur trouvé,
+     nombre de questions) au paragraphe de la note par exercice. */
   if(P.nbQuestionsPourcentages){
     verifierEval(w, 'les exercices de pourcentages posent le bon nombre de questions', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsPourcentages)}, vus=[];

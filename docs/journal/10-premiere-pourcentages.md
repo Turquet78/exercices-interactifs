@@ -1200,3 +1200,46 @@ et quinze contrôles du thème Python, qui prenaient « pourcentage » = 3.1 pou
 témoin d'une numérotation inchangée, attendent désormais 3.1.3 : le numéro a
 changé parce que le thème a changé, pas parce qu'un exercice ajouté l'aurait
 bousculé.
+
+**Une troisième méthode, Première seulement : passer par 10 %.**
+{pourcentage-dix} (2.1.8, demande de Turquet, septembre 2026, à partir d'une
+fiche de cours qui calcule 10 % de 300 €, 32 € et 4 € en divisant par 10) est
+un TWIN de {pourcentage}, comme {pourcentage-colonnes} l'est déjà par les
+colonnes : `genPct10()` appelle `genPercent()` sans rien recopier — même
+tirage P/N (PCT_PCTS, PCT_VALEURS, `pctCoupleOk`), mêmes tournures
+(`PCT_ENONCES`), même mise en situation (`CTX_PART`) — et n'ajoute que
+`q.dix` (10 % de N, `N/10`) et `q.k` (le nombre de dizaines dans P, `P/10`).
+La méthode enseignée diffère : à la place de la fraction P/100, on divise
+DEUX FOIS par 10 — une fois sur le nombre, une fois sur le pourcentage — puis
+on multiplie les deux résultats. Elle ne fonctionne que parce que
+`PCT_PCTS` ne contient QUE des multiples de dix (10 à 90) : le journal des
+verdicts l'avait déjà noté pour `associer-coefficient` et `synthese-*`, elle
+vaut ici pour la même raison, à la source.
+**La case ③ ne montre JAMAIS les valeurs de ① et ②** : son libellé cite « ①
+× ② » et non les nombres eux-mêmes — les écrire aurait donné la réponse des
+deux premières cases par simple lecture de la troisième, un piège que la
+chaîne de {pourcentage} n'a pas puisque son étape ② réutilise le NOMBRE DE
+L'ÉNONCÉ (toujours connu), jamais le résultat d'une case précédente.
+**Même moteur de tirage, pas la même identité** : la note part sous
+`'pourcentage-dix'` (littéral, dans `finishPct10`), le rappel dédié
+(`RAP_PCT10`) reprend l'exemple même de {pourcentage} (30 % de 40 = 12) pour
+montrer que les deux méthodes s'accordent, et `test.kind='pct10'` est un
+identifiant NEUF — le confondre avec `'pct'` aurait fait relire par
+{pourcentage} un écran qui n'est pas le sien.
+**Ajouté en FIN de sous-thème plutôt qu'à la suite de {pourcentage}** :
+l'insérer juste après aurait décalé la numérotation de {pourcentage-depart},
+{pourcentage-taux} et des deux synthèses — renumérotation que la convention
+autorise, mais qui aurait exigé de reprendre à la main une douzaine de
+références écrites en toutes lettres (`tests/verifier.js`, `tests/profils.js`,
+les commentaires de la page) sans qu'aucun contrôle ne les tienne toutes à la
+fois. L'ajouter en 2.1.8 ne déplace aucun exercice déjà noté.
+**La Seconde ne le porte PAS** : contrairement au reste du thème, cette
+troisième méthode est restée un ajout de la Première seulement — la liste
+figée des cinq démarreurs que compare `nbQuestionsPourcentages` (« 2.1.3 » à
+« 2.1.7 ») ne cite donc pas `startPct10`, sans quoi le même contrôle,
+partagé par la Seconde, aurait cherché sur son fichier une fonction qui n'y
+existe pas et aurait rougi à sa place. Le nombre de questions de
+{pourcentage-dix} (`PCT_NB`, la même constante que {pourcentage}) reste
+mesuré par les contrôles génériques qui parcourent TOUT `TESTS` — la
+distinction ne prive l'exercice d'aucune vérification, elle évite seulement
+de le nommer là où il ferait rougir un fichier qui ne le connaît pas.
