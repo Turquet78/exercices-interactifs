@@ -1290,10 +1290,12 @@
   /* ---- Soustraire un relatif : additionner son opposé (thème Calcul littéral) ----
      La chaîne « +3 − (−2) = +3 + ( ? 2 ) = ? » est une égalité poursuivie : ses
      trois morceaux sont des groupes insécables, et un « = » part toujours avec
-     la case qu'il annonce. La liste du signe a la taille des nombres de sa ligne. */
+     la case qu'il annonce. La liste du signe ne porte qu'un caractère (+ ou −) :
+     elle reste la plus petite possible (demande de Turquet, septembre 2026),
+     quand celle du résultat garde la taille des nombres de sa ligne. */
   .srl-chaine{display:flex;align-items:center;column-gap:10px;row-gap:8px;flex-wrap:wrap}
   .srl-grp{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
-  .srl-chaine .plc-sel{width:84px;font-size:1.45rem}
+  .srl-chaine .plc-sel{width:48px;font-size:1.45rem;padding:0}
   /* ---- Réduire une somme de termes (thème Calcul littéral) ----
      Les mêmes cases que {additionner-relatifs} : la liste de la règle en tête,
      puis une ligne par expression, la case à la taille de l'expression. */
@@ -3999,7 +4001,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="redLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr enonce">R&eacute;duis chaque expression <b>si c&rsquo;est possible</b>. Si elle ne se r&eacute;duit pas, recopie-la telle quelle. Pour &eacute;crire <i>x</i>&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
+      <p class="mp-instr enonce">R&eacute;duis chaque expression <b>si c&rsquo;est possible</b>. <b>Ne compl&egrave;te une case que si tu peux r&eacute;duire l&rsquo;&eacute;criture</b> : si l&rsquo;expression ne se r&eacute;duit pas, laisse la case vide. Pour &eacute;crire <i>x</i>&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="redHost"></div></div>
       <div class="mp-feedback" id="redFeedback"></div>
       <div class="row" style="justify-content:center">
@@ -34055,9 +34057,12 @@ function ctxCit(q){
    La fiche garde la même paire d'un bout à l'autre, exprès : seuls la nature
    des termes et les signes changent, et c'est eux qu'il faut regarder.
 
-   QUATRE EXPRESSIONS SUR DIX NE SE RÉDUISENT PAS : l'élève les recopie. Le
-   piège de la fiche est là — 2x + 3 = 5x, −2x² + 3x = x². Une recopie juste
-   est juste dans n'importe quel ordre (3 + 2x), comme une réduction.
+   QUATRE EXPRESSIONS SUR DIX NE SE RÉDUISENT PAS : la case reste VIDE — une
+   case vide EST la bonne réponse sur ces lignes-là (décision de Turquet,
+   septembre 2026 : la consigne le dit désormais, « ne complète une case que
+   si tu peux réduire l'écriture »). Une recopie de l'expression reste
+   acceptée aussi, dans n'importe quel ordre (3 + 2x), comme une réduction.
+   Le piège de la fiche reste le même — 2x + 3 = 5x, −2x² + 3x = x².
 
    LES DEUX NOMBRES SONT DIFFÉRENTS, de 2 à 9 : avec a = b, −ax + ax vaut 0 et
    la case attendrait « 0 », qui n'est pas ce que la fiche enseigne ; et 1
@@ -34149,7 +34154,14 @@ function redMeme(lu, attendu){
 }
 function redJuste(c, el){
   if(!el) return false;
-  if(c.kind==='expr'){ const lu=redLit(el.value); return !!lu && lu.reduite && redMeme(lu.termes, c.l.attendu); }
+  if(c.kind==='expr'){
+    /* Une ligne qui ne se réduit pas n'attend RIEN dans sa case : la case
+       vide EST la bonne réponse (décision de Turquet, septembre 2026). Une
+       recopie de l'expression reste acceptée aussi — redMeme la juge comme
+       n'importe quelle autre écriture de même valeur. */
+    if(c.l && !c.l.reductible && String(el.value==null?'':el.value).trim()==='') return true;
+    const lu=redLit(el.value); return !!lu && lu.reduite && redMeme(lu.termes, c.l.attendu);
+  }
   return el.value===c.bon;
 }
 /* Le bouton « x² » écrit x² là où est le curseur : sur tablette, ni « ² » ni
@@ -34206,7 +34218,7 @@ function redPourquoi(q, subs){
       +(Math.abs(r)===1?' On écrit '+l.bon+' et non '+relMoins(r)+(l.t1.d===2?'x²':'x')+'.':'');
   }
   return 'Dans '+l.expr+', il y a '+RED_NATURE[l.t1.d]+' et '+RED_NATURE[l.t2.d]+' : ils ne sont pas de même nature, on ne peut pas les additionner. '
-    +'L’expression ne se réduit pas : on la recopie, '+l.expr+' = '+l.bon+'.';
+    +'L’expression ne se réduit pas : la case reste vide (une recopie, '+l.expr+', est acceptée aussi).';
 }
 function checkRedAnswer(live){
   if(test.locked) return;
@@ -34221,8 +34233,11 @@ function checkRedAnswer(live){
     });
     return;
   }
-  const subs=cases.map(function(c){ const el=$(c.id);
-    return {c:c, el:el, ok:redJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const subs=cases.map(function(c){ const el=$(c.id), ok=redJuste(c,el);
+    /* une case vide qui EST la bonne réponse (ligne non réductible) n'est pas
+       une case « manquante » : elle ne doit pas gonfler le « il te manquait
+       X cases » de msgAvecVides, qui suppose vide ⇒ pas ok partout ailleurs. */
+    return {c:c, el:el, ok:ok, vide:(!el || String(el.value).trim()==='') && !ok}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
   const pourquoi=redPourquoi(q, subs);
@@ -34264,7 +34279,7 @@ function ctxRed(q){
   let c='L’élève doit réduire, si possible, dix expressions de deux termes bâties sur les nombres '+q.a+' et '+q.b+' : '
    +lignes.map(function(l){ return l.expr; }).join(' ; ')+'. '
    +'En tête de page, il complète la phrase « On ne peut additionner que des termes … » (de même signe / de même nature / qui ont le même coefficient). '
-   +'Quand l’expression ne se réduit pas, il doit la recopier telle quelle. '
+   +'Quand l’expression ne se réduit pas, il laisse la case vide — la consigne le demande depuis septembre 2026 ; une recopie telle quelle reste acceptée aussi. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : des termes de même nature ; '
    +lignes.map(function(l){ return l.expr+' = '+l.bon+(l.reductible?'':' (ne se réduit pas)'); }).join(' ; ')+'. '
    +'Méthode enseignée : on n’additionne que des termes de même nature (x avec x, x² avec x², nombres avec nombres) en additionnant leurs coefficients, comme des relatifs ; '
