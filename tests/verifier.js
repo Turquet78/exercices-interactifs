@@ -3613,6 +3613,7 @@ function exercices(suite){
     calculItere(w, P);
     reduireSomme(w, P);
     soustraireRelatifs(w, P);
+    reduireProduit(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -12975,19 +12976,20 @@ function multiplierRelatifs(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
-/* {calcul-itere} — 7.4, thème « Calcul littéral » : un nombre de départ, puis
-   quatre étapes qui alternent somme et produit, chiffres de 1 à 9. La chaîne
-   juste est recalculée ICI, par une boucle écrite à part, jamais par les
-   fonctions de la page qui corrigent. Et une erreur ne se paie qu'une fois :
-   la ligne suivante est jugée à partir du nombre que l'élève a écrit. */
+/* {calcul-itere} — 7.4, thème « Calcul littéral » : pour une même paire de
+   relatifs à un chiffre, la SOMME puis le PRODUIT, en alternance — des calculs
+   indépendants (le premier jet les enchaînait, ce n'était pas la demande).
+   Les attendus sont recalculés ICI par l'arithmétique de JavaScript, jamais par
+   les fonctions de la page qui corrigent. Les deux pièges se croisent : la
+   règle des signes appliquée à une somme, le signe du plus fort à un produit. */
 function calculItere(w, P){
   const present = evaluer(w, "typeof startCit==='function' && typeof citGen==='function'");
   if(!present.ok || !present.valeur){
-    ignorer('calcul itéré : le tirage, la correction et la place en 7.4',
-      'ce niveau n\'a pas l\'exercice du calcul itéré');
+    ignorer('somme et produit de deux relatifs : le tirage, la correction et la place en 7.4',
+      'ce niveau n\'a pas l\'exercice somme et produit');
     return;
   }
-  verifierEval(w, 'calcul itéré : le tirage, la correction et la place en 7.4', `(function(){
+  verifierEval(w, 'somme et produit de deux relatifs : le tirage, la correction et la place en 7.4', `(function(){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='calcul-itere';
@@ -12996,68 +12998,70 @@ function calculItere(w, P){
     const th=THEMES.find(function(t){ return t.num===7; });
     if(!th || !/litt[ée]ral/i.test(th.nom) || th.ids.indexOf('calcul-itere')<0) vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
     if(TEST_NUM['calcul-itere']!=='7.4') vus.push('numéro '+TEST_NUM['calcul-itere']+' au lieu de 7.4');
-    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2') vus.push('les relatifs ont bougé : '+TEST_NUM['additionner-relatifs']+', '+TEST_NUM['nombres-relatifs']);
     if(TABLES_SANS.indexOf('calcul-itere')>=0) vus.push('le bouton des tables est retiré : on y multiplie');
 
     /* ---- 1. le tirage ---------------------------------------------------- */
-    const vraie=function(q){ const v=[]; let x=q.dep; q.d.forEach(function(d,k){ const prod=(k%2===0)?q.prod0:!q.prod0; x=prod?x*d:x+d; v.push(x); }); return v; };
-    const departs={};
     for(let i=0;i<500 && !vus.length;i++){
       const qs=citBuildQuestions();
-      if(qs.length!==5) { vus.push(qs.length+' pages au lieu de 5'); break; }
-      if(qs[0].prod0!==false || qs[1].prod0!==true) vus.push('les deux premières pages ne commencent pas par une somme puis un produit');
-      qs.forEach(function(q,ix){
-        if(!(Number.isInteger(q.dep) && q.dep>=1 && q.dep<=9)) vus.push('départ hors de 1…9 : '+q.dep);
-        if(q.d.length!==4) vus.push(q.d.length+' étapes au lieu de 4');
-        q.d.forEach(function(d,k){ const prod=(k%2===0)?q.prod0:!q.prod0;
-          if(!(Number.isInteger(d) && d>=1 && d<=9)) vus.push('chiffre hors de 1…9 : '+d);
-          if(prod && d===1) vus.push('un produit par 1');
-          if(citSigne(q,k)!==(prod?'×':'+')) vus.push('étape '+(k+1)+' : signe '+citSigne(q,k)+' — l\\'alternance est rompue');
+      if(qs.length!==3){ vus.push(qs.length+' pages au lieu de 3'); break; }
+      qs.forEach(function(q){
+        if(q.p.length!==4){ vus.push(q.p.length+' paires au lieu de 4'); return; }
+        const combis=q.p.map(function(ab){ return (ab[0]>0?'+':'-')+(ab[1]>0?'+':'-'); }).sort().join(',');
+        if(combis!=='++,+-,-+,--') vus.push('les quatre combinaisons de signes ne sortent pas toutes : '+combis);
+        const cles=[];
+        q.p.forEach(function(ab){ const x=Math.abs(ab[0]), y=Math.abs(ab[1]);
+          [x,y].forEach(function(n){ if(!(Number.isInteger(n) && n>=1 && n<=9)) vus.push('nombre hors de 1…9 : '+n); });
+          if(x===y) vus.push('deux chiffres égaux ('+ab.join(', ')+') : la somme peut valoir 0, sans plus fort');
+          cles.push(Math.min(x,y)+'-'+Math.max(x,y));
         });
-        if(ix>1) departs[q.prod0?'x':'+']=1;
-        if(citValeurs(q).join(',')!==vraie(q).join(',')) vus.push('chaîne '+citValeurs(q).join(',')+' au lieu de '+vraie(q).join(','));
+        if(new Set(cles).size!==cles.length) vus.push('deux paires d\\'une page ont les mêmes chiffres : '+cles.join(' '));
+        /* l'alternance, et les attendus contre l'arithmétique */
+        const L=citLignes(q);
+        if(L.map(function(l){ return l.op; }).join('')!=='+×+×+×+×') vus.push('somme et produit n\\'alternent pas : '+L.map(function(l){ return l.op; }).join(''));
+        L.forEach(function(l){ const r=l.op==='+'?l.a+l.b:l.a*l.b; if(l.r!==r) vus.push(l.expr+' : '+l.r+' au lieu de '+r); });
       });
     }
-    if(!vus.length && Object.keys(departs).length<2) vus.push('au-delà de la deuxième page, le départ est toujours le même');
     if(vus.length) return vus.slice(0,4).join(' | ');
 
     /* ---- 2. la correction, par le BOUTON --------------------------------- */
     startCit();
-    const q={dep:3, prod0:false, d:[4,5,2,6]};   /* 3 +4 → 7 ×5 → 35 +2 → 37 ×6 → 222 */
-    test.questions[test.idx]=q;
-    const IDS=['cit-r-0','cit-r-1','cit-r-2','cit-r-3'];
+    test.questions[test.idx]={p:[[-3,-5],[-3,5],[4,-7],[2,6]]};
+    const JUSTE={'cit-s-0':'-8','cit-p-0':'+15','cit-s-1':'2','cit-p-1':'−15',
+                 'cit-s-2':'-3','cit-p-2':'-28','cit-s-3':'8','cit-p-3':'12'};
+    const IDS=Object.keys(JUSTE);
     const poser=function(vals){
       test.locked=false; renderCitTest();
-      IDS.forEach(function(id,k){ const el=document.getElementById(id); if(el){ el.value=(vals[k]==null?'':vals[k]); el.dispatchEvent(new Event('input')); } });
+      IDS.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
     };
     const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
       return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
     if(IDS.some(function(id){ return !document.getElementById(id); })) return 'une case de la page manque à l\\'écran';
-    /* copie juste — « 222 » écrit aussi avec une espace ailleurs */
-    poser(['7','35','37','2 22']); checkCitAnswer();
+    const ordre=[...document.querySelectorAll('#citHost .cit-in')].map(function(e){ return e.id; }).join(',');
+    if(ordre!=='cit-s-0,cit-p-0,cit-s-1,cit-p-1,cit-s-2,cit-p-2,cit-s-3,cit-p-3') vus.push('les cases ne se suivent pas somme puis produit : '+ordre);
+    /* copie juste — « +15 », « −15 », « 2 » : le + est facultatif, le moins s'écrit des deux façons */
+    poser(JUSTE); checkCitAnswer();
     let der=test.answers[test.answers.length-1];
     if(!der || !der.correct) vus.push('la copie juste est comptée fausse');
     IDS.forEach(function(id){ if(peint(id)!=='juste') vus.push('copie juste : '+id+' en '+peint(id)); });
-    if(!der || der.cases!==4) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 4');
-    /* l'écho : la ligne 2 commence par ce que l'élève a écrit en ligne 1 */
-    if((document.getElementById('cit-p-1')||{}).textContent!=='7') vus.push('la ligne 2 ne recopie pas le résultat de la ligne 1');
-    /* UNE ERREUR NE SE PAIE QU'UNE FOIS : 3 + 4 = 8 (faux), puis 8 × 5 = 40 … */
-    poser(['8','40','42','252']); checkCitAnswer();
-    if(peint('cit-r-0')!=='faux') vus.push('3 + 4 = 8 peint en '+peint('cit-r-0'));
-    ['cit-r-1','cit-r-2','cit-r-3'].forEach(function(id){ if(peint(id)!=='juste') vus.push('la suite juste d\\'une erreur : '+id+' en '+peint(id)); });
-    /* LE PIÈGE : additionner là où il faut multiplier — 7 + 5 = 12 */
-    poser(['7','12','14','84']); checkCitAnswer();
-    if(peint('cit-r-1')!=='faux') vus.push('7 + 5 à la place de 7 × 5 peint en '+peint('cit-r-1'));
-    if(!/ADDITIONN/.test((document.getElementById('citFeedback')||{}).textContent||'')) vus.push('le message ne dit pas qu\\'on a additionné au lieu de multiplier');
-    /* une case vide ne rougit pas, et la correction y écrit la bonne valeur */
-    poser(['7','','37','222']); checkCitAnswer();
-    if(peint('cit-r-1')!=='correction') vus.push('case vide peinte en '+peint('cit-r-1'));
-    if((document.getElementById('cit-r-1')||{}).value!=='35') vus.push('la correction de la case vide n\\'écrit pas 35');
-    if(peint('cit-r-2')!=='juste' || peint('cit-r-3')!=='juste') vus.push('une case juste rougit parce qu\\'une voisine est vide');
+    if(!der || der.cases!==8) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 8');
+    /* PIÈGE 1 : la règle des signes appliquée à la somme — (−3) + (−5) = +8 */
+    poser(Object.assign({},JUSTE,{'cit-s-0':'8'})); checkCitAnswer();
+    if(peint('cit-s-0')!=='faux') vus.push('(−3) + (−5) = +8 peint en '+peint('cit-s-0'));
+    if(peint('cit-p-0')!=='juste') vus.push('le produit juste de la même paire est peint en '+peint('cit-p-0'));
+    if(!/plus fort/.test((document.getElementById('citFeedback')||{}).textContent||'')) vus.push('le message de la somme ne nomme pas le plus fort');
+    /* PIÈGE 2 : le signe du plus fort appliqué au produit — (−3) × (+5) = +15 */
+    poser(Object.assign({},JUSTE,{'cit-p-1':'15'})); checkCitAnswer();
+    if(peint('cit-p-1')!=='faux') vus.push('(−3) × (+5) = +15 peint en '+peint('cit-p-1'));
+    if(!/règle des signes/.test((document.getElementById('citFeedback')||{}).textContent||'')) vus.push('le message du produit ne nomme pas la règle des signes');
+    /* une case vide ne rougit pas, et ne fait pas rougir ses voisines */
+    poser(Object.assign({},JUSTE,{'cit-s-2':'','cit-p-3':''})); checkCitAnswer();
+    ['cit-s-2','cit-p-3'].forEach(function(id){ if(peint(id)!=='correction') vus.push('case vide '+id+' peinte en '+peint(id)); });
+    if((document.getElementById('cit-s-2')||{}).value!=='−3') vus.push('la correction de la case vide n\\'écrit pas −3');
+    if(peint('cit-p-2')!=='juste' || peint('cit-s-3')!=='juste') vus.push('une case juste rougit parce qu\\'une voisine est vide');
     /* une réponse illisible est fausse, pas vide */
-    poser(['7,','35','37','222']); checkCitAnswer();
-    if(peint('cit-r-0')!=='faux') vus.push('« 7, » est peint en '+peint('cit-r-0'));
-    if(test.maxScore!==20) vus.push('barème de '+test.maxScore+' au lieu de 20');
+    poser(Object.assign({},JUSTE,{'cit-s-3':'8,'})); checkCitAnswer();
+    if(peint('cit-s-3')!=='faux') vus.push('« 8, » est peint en '+peint('cit-s-3'));
+    if(test.maxScore!==24) vus.push('barème de '+test.maxScore+' au lieu de 24');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -13296,6 +13300,166 @@ function soustraireRelatifs(w, P){
     if(peint('srl-r-0')!=='rouge') vus.push('« 1, » est peint en '+peint('srl-r-0'));
     /* le barème : 3 pages de 9 cases */
     if(test.maxScore!==27) vus.push('barème de '+test.maxScore+' au lieu de 27');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {reduire-produit} — thème 7 « Calcul littéral », 7.8 : quinze produits de
+   deux facteurs (un nombre ou une lettre x, jamais x²), d'abord décomposés en
+   trois cases (signe, coefficient, x ou x²), puis écrits directement en une
+   seule page. Les réponses attendues sont reconstruites ICI, par une écriture
+   indépendante de redEcrit — jamais les fonctions de la page qui corrigent. */
+function reduireProduit(w, P){
+  const present = evaluer(w, "typeof startRpd==='function' && typeof rpdLignes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('réduire chaque produit avec x : le tirage, la correction et la place dans le thème Calcul littéral',
+      'ce niveau n\'a pas l\'exercice des produits littéraux');
+    return;
+  }
+  verifierEval(w, 'réduire chaque produit avec x : le tirage, la correction et la place dans le thème Calcul littéral', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='reduire-produit';
+
+    /* ---- 0. la place : 7.8, après les sept premiers ; le bouton des tables est LÀ */
+    const th=THEMES.find(function(t){ return t.num===7; });
+    if(!th || !/Calcul litt/i.test(th.nom) || th.ids.indexOf('reduire-produit')<0)
+      vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
+    if(TEST_NUM['reduire-produit']!=='7.8') vus.push('numéro '+TEST_NUM['reduire-produit']+' au lieu de 7.8');
+    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3'
+       || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['reduire-somme']!=='7.5' || TEST_NUM['associer-expressions']!=='7.6'
+       || TEST_NUM['soustraire-relatifs']!=='7.7') vus.push('un exercice de 7.1 à 7.7 a bougé');
+    if(TABLES_SANS.indexOf('reduire-produit')>=0) vus.push('le bouton des tables est retiré : le résultat est un vrai produit');
+    if(RPD_MODELES.filter(function(km){ return km[0]==='X0'; }).length + RPD_MODELES.filter(function(km){ return km[1]==='X0'; }).length !== 9)
+      vus.push('le compte des facteurs SANS coefficient a changé : la fiche en porte neuf');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    const attenduFacteur=function(f){
+      if(f.kind==='N') return Number.isInteger(f.m) && f.m>=2 && f.m<=9;
+      if(f.kind==='X0') return f.m===1;
+      if(f.kind==='X1') return f.m===1 && f.s===1;
+      return Number.isInteger(f.m) && f.m>=2 && f.m<=9;   /* Xc */
+    };
+    for(let i=0;i<300 && !vus.length;i++){
+      const qs=rpdBuildQuestions();
+      if(qs.length!==2){ vus.push(qs.length+' pages au lieu de 2'); break; }
+      if(qs[0].phase!=='detail' || qs[1].phase!=='direct') vus.push('les deux phases ne sont pas dans l\\'ordre détail puis direct');
+      qs.forEach(function(q){
+        if(q.items.length!==15) vus.push(q.items.length+' produits au lieu de 15');
+        q.items.forEach(function(it,idx){
+          const km=RPD_MODELES[idx];
+          if(it.f1.kind!==km[0] || it.f2.kind!==km[1]) vus.push('lettre '+RPD_LETTRES[idx]+' : forme '+it.f1.kind+'/'+it.f2.kind+' au lieu de '+km[0]+'/'+km[1]);
+          if(!attenduFacteur(it.f1) || !attenduFacteur(it.f2)) vus.push('lettre '+RPD_LETTRES[idx]+' : facteur hors de sa forme');
+          if((it.f1.s!==1 && it.f1.s!==-1) || (it.f2.s!==1 && it.f2.s!==-1)) vus.push('lettre '+RPD_LETTRES[idx]+' : signe hors de +1/-1');
+        });
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 2. les réponses attendues, par une ÉCRITURE reconstruite ici ---- */
+    const ecrit=function(val, deg){
+      const ab=Math.abs(val), lettre=deg===2?'x²':'x', corps=ab===1?lettre:(ab+lettre);
+      return (val<0?'−':'')+corps;
+    };
+    for(let essai=0;essai<200;essai++){
+      const q={phase:'detail', items:rpdGenItems()};
+      rpdLignes(q).forEach(function(l, idx){
+        const it=q.items[idx];
+        const signe=it.f1.s*it.f2.s, coef=it.f1.m*it.f2.m;
+        const deg=(it.f1.kind==='N'?0:1)+(it.f2.kind==='N'?0:1);
+        if(deg===0) vus.push(l.lettre+' : aucun facteur en x');
+        if(l.signe!==(signe>0?'+':'-')) vus.push(l.lettre+' : signe '+l.signe);
+        if(l.coef!==coef) vus.push(l.lettre+' : coefficient '+l.coef+' au lieu de '+coef);
+        if(l.degSel!==(deg===2?'x2':'x')) vus.push(l.lettre+' : fin d\\'écriture '+l.degSel);
+        if(l.bon!==ecrit(signe*coef, deg)) vus.push(l.lettre+' : '+l.expr+' = '+l.bon+' au lieu de '+ecrit(signe*coef,deg));
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 3. la correction, par le BOUTON, sur la fiche elle-même --------- */
+    const FICHE=[
+      {f1:{kind:'X0',s:1,m:1}, f2:{kind:'N',s:1,m:3}},     /* a. x × 3 = 3x */
+      {f1:{kind:'X0',s:1,m:1}, f2:{kind:'X0',s:1,m:1}},    /* b. x × x = x² */
+      {f1:{kind:'X0',s:1,m:1}, f2:{kind:'N',s:1,m:7}},     /* c. x × 7 = 7x */
+      {f1:{kind:'Xc',s:1,m:8}, f2:{kind:'X0',s:1,m:1}},    /* d. 8x × x = 8x² */
+      {f1:{kind:'N',s:-1,m:2}, f2:{kind:'X0',s:1,m:1}},    /* e. -2 × x = -2x */
+      {f1:{kind:'Xc',s:1,m:3}, f2:{kind:'N',s:-1,m:2}},    /* f. 3x × -2 = -6x */
+      {f1:{kind:'Xc',s:-1,m:3}, f2:{kind:'Xc',s:-1,m:5}},  /* g. -3x × -5x = 15x² */
+      {f1:{kind:'Xc',s:-1,m:2}, f2:{kind:'N',s:1,m:3}},    /* h. -2x × 3 = -6x */
+      {f1:{kind:'X0',s:1,m:1}, f2:{kind:'Xc',s:-1,m:2}},   /* i. x × -2x = -2x² */
+      {f1:{kind:'Xc',s:-1,m:3}, f2:{kind:'Xc',s:1,m:7}},   /* j. -3x × 7x = -21x² */
+      {f1:{kind:'N',s:1,m:4}, f2:{kind:'Xc',s:-1,m:2}},    /* k. 4 × -2x = -8x */
+      {f1:{kind:'Xc',s:-1,m:7}, f2:{kind:'N',s:-1,m:3}},   /* l. -7x × -3 = 21x */
+      {f1:{kind:'Xc',s:-1,m:5}, f2:{kind:'X1',s:1,m:1}},   /* m. -5x × 1x = -5x² */
+      {f1:{kind:'Xc',s:1,m:6}, f2:{kind:'Xc',s:1,m:5}},    /* n. 6x × 5x = 30x² */
+      {f1:{kind:'X0',s:-1,m:1}, f2:{kind:'X0',s:-1,m:1}},  /* o. -x × -x = x² */
+    ].map(function(f,i){ return {i:i, lettre:RPD_LETTRES[i], f1:f.f1, f2:f.f2}; });
+    startRpd();
+    test.questions[0]={phase:'detail', items:FICHE};
+    test.questions[1]={phase:'direct', items:FICHE};
+    const BON=['+3x','+x²','+7x','+8x²','-2x','-6x','+15x²','-6x','-2x²','-21x²','-8x','+21x','-5x²','+30x²','+x²'];
+    const SGN=['+','+','+','+','-','-','+','-','-','-','-','+','-','+','+'];
+    const COEF=[3,1,7,8,2,6,15,6,2,21,8,21,5,30,1];
+    const DEG=['x','x2','x','x2','x','x','x2','x','x2','x2','x','x','x2','x2','x2'];
+    const JUSTE_D={};
+    BON.forEach(function(s,i){ JUSTE_D['rpd-sg-'+i]=SGN[i]; JUSTE_D['rpd-c-'+i]=String(COEF[i]); JUSTE_D['rpd-d-'+i]=DEG[i]; });
+    const IDS_D=Object.keys(JUSTE_D);
+    const JUSTE_R={}; BON.forEach(function(s,i){ JUSTE_R['rpd-r-'+i]=s[0]==='+'?s.slice(1):s; });
+    const IDS_R=Object.keys(JUSTE_R);
+    const poser=function(vals, ids){
+      test.locked=false; renderRpdTest();
+      ids.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=(vals[id]==null?'':vals[id]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    /* ---- phase détail : la première page ---- */
+    test.idx=0; poser({}, []);
+    if(IDS_D.some(function(id){ return !document.getElementById(id); })) return 'une case de la page détaillée manque à l\\'écran';
+    poser(JUSTE_D, IDS_D); checkRpdAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste (phase détaillée) est comptée fausse');
+    const nonVertsD=IDS_D.filter(function(id){ return peint(id)!=='vert'; });
+    if(nonVertsD.length) vus.push('la copie juste (détail) n\\'est pas entièrement juste : '+nonVertsD.join(', '));
+    if(!der || der.cases!==45) vus.push('la note de la phase détaillée compte '+(der?der.cases:'?')+' cases au lieu de 45');
+    /* LE PIÈGE : g. -3x × -5x = 15x² écrit 15x, faute de carré */
+    const piege=Object.assign({}, JUSTE_D, {'rpd-d-6':'x'});
+    poser(piege, IDS_D); checkRpdAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('15x pour g. -3x × -5x est accepté');
+    if(peint('rpd-d-6')!=='rouge') vus.push('rpd-d-6 faux, peint en '+peint('rpd-d-6'));
+    ['rpd-sg-6','rpd-c-6'].forEach(function(id){ if(peint(id)!=='vert') vus.push('une case juste rougit à côté du piège : '+id); });
+    /* une case vide ne rougit pas, et reçoit la correction */
+    const trouD=Object.assign({}, JUSTE_D, {'rpd-c-0':''});
+    poser(trouD, IDS_D); checkRpdAnswer();
+    if(peint('rpd-c-0')!=='bleu') vus.push('case vide rpd-c-0 peinte en '+peint('rpd-c-0'));
+    if((document.getElementById('rpd-c-0')||{}).value!=='3') vus.push('la correction de la case vide n\\'écrit pas 3');
+    /* une réponse illisible est fausse, pas vide */
+    poser(Object.assign({}, JUSTE_D, {'rpd-c-0':'3,'}), IDS_D); checkRpdAnswer();
+    if(peint('rpd-c-0')!=='rouge') vus.push('« 3, » est peint en '+peint('rpd-c-0'));
+
+    /* ---- phase directe : la seconde page ---- */
+    test.idx=1; poser({}, []);
+    if(IDS_R.some(function(id){ return !document.getElementById(id); })) return 'une case de la page directe manque à l\\'écran';
+    poser(JUSTE_R, IDS_R); checkRpdAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste (phase directe) est comptée fausse');
+    const nonVertsR=IDS_R.filter(function(id){ return peint(id)!=='vert'; });
+    if(nonVertsR.length) vus.push('la copie juste (directe) n\\'est pas entièrement juste : '+nonVertsR.join(', '));
+    if(!der || der.cases!==15) vus.push('la note de la phase directe compte '+(der?der.cases:'?')+' cases au lieu de 15');
+    /* le même piège, écrit directement : 15x au lieu de 15x² */
+    poser(Object.assign({}, JUSTE_R, {'rpd-r-6':'15x'}), IDS_R); checkRpdAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('15x pour g. -3x × -5x (phase directe) est accepté');
+    if(peint('rpd-r-6')!=='rouge') vus.push('rpd-r-6 (15x) est peint en '+peint('rpd-r-6'));
+    if(peint('rpd-r-0')!=='vert') vus.push('une case juste rougit à côté du piège (phase directe)');
+    /* une case vide, puis une réponse illisible */
+    poser(Object.assign({}, JUSTE_R, {'rpd-r-1':''}), IDS_R); checkRpdAnswer();
+    if(peint('rpd-r-1')!=='bleu') vus.push('case vide rpd-r-1 peinte en '+peint('rpd-r-1'));
+    if((document.getElementById('rpd-r-1')||{}).value!=='x²') vus.push('la correction de la case vide n\\'écrit pas x²');
+    poser(Object.assign({}, JUSTE_R, {'rpd-r-0':'3x+'}), IDS_R); checkRpdAnswer();
+    if(peint('rpd-r-0')!=='rouge') vus.push('« 3x+ » est peint en '+peint('rpd-r-0'));
+
+    /* le barème : 45 cases (phase détaillée) + 15 (phase directe) */
+    if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
