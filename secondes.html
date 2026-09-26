@@ -1286,10 +1286,12 @@
   /* ---- Soustraire un relatif : additionner son opposé (thème Calcul littéral) ----
      La chaîne « +3 − (−2) = +3 + ( ? 2 ) = ? » est une égalité poursuivie : ses
      trois morceaux sont des groupes insécables, et un « = » part toujours avec
-     la case qu'il annonce. La liste du signe a la taille des nombres de sa ligne. */
+     la case qu'il annonce. La liste du signe ne porte qu'un caractère (+ ou −) :
+     elle reste la plus petite possible (demande de Turquet, septembre 2026),
+     quand celle du résultat garde la taille des nombres de sa ligne. */
   .srl-chaine{display:flex;align-items:center;column-gap:10px;row-gap:8px;flex-wrap:wrap}
   .srl-grp{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
-  .srl-chaine .plc-sel{width:84px;font-size:1.45rem}
+  .srl-chaine .plc-sel{width:48px;font-size:1.45rem;padding:0}
   /* ---- Réduire une somme de termes (thème Calcul littéral) ----
      Les mêmes cases que {additionner-relatifs} : la liste de la règle en tête,
      puis une ligne par expression, la case à la taille de l'expression. */
@@ -4248,7 +4250,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=208;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=209;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
