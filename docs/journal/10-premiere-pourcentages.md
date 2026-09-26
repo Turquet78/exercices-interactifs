@@ -1243,3 +1243,39 @@ existe pas et aurait rougi à sa place. Le nombre de questions de
 mesuré par les contrôles génériques qui parcourent TOUT `TESTS` — la
 distinction ne prive l'exercice d'aucune vérification, elle évite seulement
 de le nommer là où il ferait rougir un fichier qui ne le connaît pas.
+
+**Une quatrième méthode, twin de {pourcentage-dix} : retrouver PLUSIEURS
+pourcentages, sans qu'aucun ne soit donné à l'avance.**
+{pourcentage-dix-cascade} (2.1.9, demande de Turquet, septembre 2026, à
+partir d'une fiche de cours qui calcule 10 % de 400 € en divisant par 10,
+puis en déduit 20 %, 30 %, 40 %, 5 %, 15 % et 25 % sans repasser par une
+fraction sur 100) reprend le MÊME tirage et la MÊME mise en situation que
+{pourcentage} (`CTX_PART`, `tirerContexte`) — mais l'énoncé (`PDC_ENONCES`)
+ne cite AUCUN pourcentage : c'est justement ce que la fiche demande, chaque
+ligne du tableau porte le sien. `genPdc()` tire N dans un sous-ensemble de
+`PCT_VALEURS`, filtré aux multiples de 20 (`N%20===0`) — condition qui
+suffit à rendre entiers les SEPT dérivés (10 %, 20 %, 30 %, 40 %, 5 %, 15 %,
+25 %) : 5 % de N vaut N/20, 15 % vaut 3N/20, 25 % vaut N/4, et les trois
+exigent tous que N soit multiple de 20 ; `PCT_VALEURS` elle-même n'étant que
+des multiples de dix (10 à 90, 100 à 900), la moitié de ses valeurs à un
+chiffre (10, 30, 50, 70, 90) en sont exclues.
+**Le filtre ne se lit qu'à l'APPEL de `genPdc()`, jamais à la déclaration du
+script.** `PCT_VALEURS` n'est définie que plus bas dans le fichier (§ pour
+{pourcentage}) : un `const PDC_VALEURS = PCT_VALEURS.filter(...)` posé au
+niveau du script, comme {pourcentage-dix-cascade} vit AVANT cette
+déclaration, aurait levé « Cannot access 'PCT_VALEURS' before
+initialization » et cassé la page entière au chargement — une leçon que
+{pourcentage-dix} avait déjà apprise en ne lisant `PCT_PCTS`/`PCT_VALEURS`
+qu'en appelant `genPercent()`, jamais au niveau du script.
+**La note est TOUT ou RIEN, comme {pourcentage} et {pourcentage-dix}** : les
+sept cases (`pdc0` pour 10 %, `pdcP20`…`pdcP25` pour les six dérivés)
+doivent être toutes justes pour que la question compte un point — aucune
+case vide ne rougit, chacune se corrige en vert à l'écran (`corTrainDec`)
+indépendamment des autres.
+**Les lignes reprennent le gabarit `.pt-row`/`.f-whole` de {pourcentage-dix}**
+(le même que mesure le contrôle universel « les cases de saisie ont la
+taille des nombres qui les entourent ») : `#pdcHost` a donc rejoint la même
+liste de sélecteurs CSS que `#pxHost` (taille des `math-field.pm-mf`, largeur
+des `.f-dec`, aux deux tailles d'écran) — l'omettre aurait laissé les cases
+à la taille par défaut (1,05 rem) contre des nombres à 2 rem, et le contrôle
+générique l'aurait vu.
