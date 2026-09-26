@@ -135,7 +135,7 @@ passe par le bouton :
 Éprouvé par sabotage : une règle des signes qui attend « + » partout rougit
 le juge sur `mrl-rs-1` et `mrl-rs-2`.
 
-## {calcul-itere} — somme et produit de deux relatifs (7.4, v209)
+## {calcul-itere} — somme et produit de deux relatifs (7.4, v210)
 
 **La demande** (Turquet, septembre 2026) : un exercice « dans le thème calcul
 itéré » — une dictée qui entendait « itéré » pour « littéral » —, avec des
@@ -146,10 +146,10 @@ calculs, chaque résultat devenant le départ du suivant (3 + 4 = 7, 7 × 5 = 35
 Turquet, le lendemain : « quand je disais alterné, c'était en ayant des calculs
 disjoints et pas qui se suivent ». Deux questions ont levé le reste : les
 nombres sont des RELATIFS, et la somme et le produit portent sur la MÊME paire.
-L'exercice a été réécrit en place (v209). **L'identifiant reste
+L'exercice a été réécrit en place (v210). **L'identifiant reste
 `calcul-itere`** alors que le calcul n'a plus rien d'itéré : un identifiant ne
 se renomme jamais, les notes et les devoirs le portent. Les notes posées entre
-v205 et v209 sous cet identifiant sont celles de la chaîne, sur 20 ; les
+v205 et v210 sous cet identifiant sont celles de la chaîne, sur 20 ; les
 suivantes sont sur 24. Seuls le nom affiché et le moteur ont changé.
 Leçon : un mot de la demande qui admet deux lectures (« alterner » : d'une
 ligne à l'autre, ou d'un résultat au suivant ?) se demande AVANT d'écrire un
