@@ -2214,6 +2214,27 @@ function branchements(w){
         else{ const n=pfBuildQuestions().length;
           if(n!==attendus.pf) vus.push('moteur pf : '+n+' questions au lieu de '+attendus.pf); }
       }
+      if(attendus.spf!==undefined){
+        if(typeof spfBuildQuestions!=='function') vus.push('spfBuildQuestions absente');
+        else{ const n=spfBuildQuestions().length;
+          if(n!==attendus.spf) vus.push('moteur spf : '+n+' questions au lieu de '+attendus.spf); }
+      }
+      if(attendus.pqd!==undefined){
+        if(typeof pqdBuildQuestions!=='function') vus.push('pqdBuildQuestions absente');
+        else{ const n=pqdBuildQuestions(false).length, n2=pqdBuildQuestions(true).length;
+          if(n!==attendus.pqd) vus.push('moteur pqd (H) : '+n+' questions au lieu de '+attendus.pqd);
+          if(n2!==attendus.pqd) vus.push('moteur pqd (I) : '+n2+' questions au lieu de '+attendus.pqd); }
+      }
+      if(attendus.qdb!==undefined){
+        if(typeof qdbBuildQuestions!=='function') vus.push('qdbBuildQuestions absente');
+        else{ const n=qdbBuildQuestions().length;
+          if(n!==attendus.qdb) vus.push('moteur qdb : '+n+' questions au lieu de '+attendus.qdb); }
+      }
+      if(attendus.tsf!==undefined){
+        if(typeof tsfBuildQuestions!=='function') vus.push('tsfBuildQuestions absente');
+        else{ const n=tsfBuildQuestions().length;
+          if(n!==attendus.tsf) vus.push('moteur tsf : '+n+' questions au lieu de '+attendus.tsf); }
+      }
       return vus.join(' | ');
     })()`, v => v === '', undefined);
   }
