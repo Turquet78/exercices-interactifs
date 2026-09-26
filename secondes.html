@@ -33354,7 +33354,7 @@ function rpdCases(q){
 }
 function rpdJuste(c, el){
   if(!el) return false;
-  if(c.kind==='nb'){ const n=citLit(el.value); return n!==null && n===parseInt(c.bon,10); }
+  if(c.kind==='nb'){ const n=relLit(el.value); return n!==null && n===parseInt(c.bon,10); }
   if(c.kind==='expr'){ const lu=redLit(el.value); if(!lu || !lu.reduite) return false;
     const att={}; att[c.l.degNum]=c.l.val; return redMeme(lu.termes, att); }
   return el.value===c.bon;
