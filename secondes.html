@@ -4457,7 +4457,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=219;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=220;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -34490,20 +34490,30 @@ function pfCroixCorrection(pref, p,q_,r,s, op, estFinal){
    Place les numérateurs ensemble, les dénominateurs ensemble — comme
    {multiplier-fractions} —, précédé de l'inverse quand l'opération est une
    division — comme {diviser-fractions}. a1/a2 sont les DEUX facteurs
-   effectifs du numérateur (ordre libre), b1/b2 ceux du dénominateur. */
-function pfProduitHTML(pref, withInverse){
+   effectifs du numérateur (ordre libre), b1/b2 ceux du dénominateur.
+   « tete », si fourni, se colle au PREMIER « = » du bloc — celui qui suit une
+   parenthèse tout juste résolue par pfCroixHTML — exactement comme
+   {diviser-fractions} recolle « n1/d1 × » devant l'inverse : sans lui, ce
+   premier « = » resterait un signe posé devant une case, sans dire ce qui
+   la vaut. Les « = » suivants restent nus : ils ne font que simplifier
+   l'égalité que ce premier « = » vient d'écrire. */
+function pfProduitHTML(pref, withInverse, tete){
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   const fois='<span class="f-times">×</span>';
-  let h='';
-  if(withInverse) h+=fEq('<span class="f-frac-input">'+mf(pref+'-i1','f-num','numérateur de l’inverse')
-       +'<span class="f-fbar"></span>'+mf(pref+'-i2','f-den','dénominateur de l’inverse')+'</span>');
-  h+=fEq('<span class="f-frac-input sf-prod">'
+  const inverseBox='<span class="f-frac-input">'+mf(pref+'-i1','f-num','numérateur de l’inverse')
+       +'<span class="f-fbar"></span>'+mf(pref+'-i2','f-den','dénominateur de l’inverse')+'</span>';
+  const prodBox='<span class="f-frac-input sf-prod">'
      +'<span class="sf-l">'+mf(pref+'-h1','f-num','premier numérateur')+fois+mf(pref+'-h2','f-num','second numérateur')+'</span>'
      +'<span class="f-fbar"></span>'
      +'<span class="sf-l">'+mf(pref+'-b1','f-den','premier dénominateur')+fois+mf(pref+'-b2','f-den','second dénominateur')+'</span>'
-   +'</span>')
-   +fEq('<span class="f-frac-input">'+mf(pref+'-fn','f-num','numérateur du résultat')
-   +'<span class="f-fbar"></span>'+mf(pref+'-fd','f-den','dénominateur du résultat')+'</span>');
+   +'</span>';
+  const finalBox='<span class="f-frac-input">'+mf(pref+'-fn','f-num','numérateur du résultat')
+   +'<span class="f-fbar"></span>'+mf(pref+'-fd','f-den','dénominateur du résultat')+'</span>';
+  let h='', premiere=true;
+  const put=(boite)=>{ if(premiere && tete){ h+=fEq(tete)+fois+boite; } else { h+=fEq(boite); } premiere=false; };
+  if(withInverse) put(inverseBox);
+  put(prodBox);
+  put(finalBox);
   return h;
 }
 function pfProduitCases(pref, withInverse){
@@ -34750,12 +34760,14 @@ function renderPqdTest(){
   $('pqdActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkPqdAnswer()">Vérifier</button>';
   $('pqdPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>'+(inv?'÷':'×')+'</b> ( '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f)+' ).';
   $('pqdHost').innerHTML=
-     '<div class="pt-step"><div class="pt-lab">① la parenthèse d’abord&nbsp;: mettre au même dénominateur (le croisement)&nbsp;· ② la différence sur ce dénominateur</div>'
-     +'<div class="pt-row">'+sfTermeHTML(q.c,q.d)+'<b>−</b>'+sfTermeHTML(q.e,q.f)+pfCroixHTML('pqd-x', q.c,q.d,q.e,q.f,'-','numérateur de la parenthèse')+'</div></div>'
-    +'<div class="pt-step"><div class="pt-lab">'
+     '<div class="pt-step"><div class="pt-lab">① la parenthèse d’abord&nbsp;: mettre au même dénominateur (le croisement)&nbsp;· ② la différence sur ce dénominateur&nbsp;· '
      +(inv ? '③ diviser, c’est multiplier par l’INVERSE&nbsp;· ④ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ⑤ la fraction finale'
            : '③ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ④ la fraction finale')+'</div>'
-     +'<div class="pt-row">'+sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>'+pfProduitHTML('pqd', inv)+'</div></div>';
+     +'<div class="pt-row">'
+       +sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>(' +sfTermeHTML(q.c,q.d)+'<b>−</b>'+sfTermeHTML(q.e,q.f)+')'
+       +pfCroixHTML('pqd-x', q.c,q.d,q.e,q.f,'-','numérateur de la parenthèse')
+       +pfProduitHTML('pqd', inv, sfTermeHTML(q.a,q.b))
+     +'</div></div>';
   const order=pqdCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault();
@@ -34891,12 +34903,16 @@ function renderQdbTest(){
   $('qdbActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkQdbAnswer()">Vérifier</button>';
   $('qdbPrompt').innerHTML='Calcule ( '+sfTermeHTML(q.a,q.b)+' <b>−</b> '+sfTermeHTML(q.c,q.d)+' ) <b>÷</b> ( '+sfTermeHTML(q.e,q.f)+' <b>+</b> '+sfTermeHTML(q.g,q.h)+' ).';
   $('qdbHost').innerHTML=
-     '<div class="pt-step"><div class="pt-lab">① la parenthèse de GAUCHE&nbsp;: le croisement, puis la différence</div>'
-     +'<div class="pt-row">'+sfTermeHTML(q.a,q.b)+'<b>−</b>'+sfTermeHTML(q.c,q.d)+pfCroixHTML('qdb-a', q.a,q.b,q.c,q.d,'-','numérateur de la parenthèse de gauche')+'</div></div>'
-    +'<div class="pt-step"><div class="pt-lab">② la parenthèse de DROITE&nbsp;: le croisement, puis la somme</div>'
-     +'<div class="pt-row">'+sfTermeHTML(q.e,q.f)+'<b>+</b>'+sfTermeHTML(q.g,q.h)+pfCroixHTML('qdb-b', q.e,q.f,q.g,q.h,'+','numérateur de la parenthèse de droite')+'</div></div>'
-    +'<div class="pt-step"><div class="pt-lab">③ diviser, c’est multiplier par l’INVERSE de la parenthèse de droite&nbsp;· ④ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ⑤ la fraction finale</div>'
-     +'<div class="pt-row">'+pfProduitHTML('qdb', true)+'</div></div>';
+     '<div class="pt-step"><div class="pt-lab">① la parenthèse de GAUCHE&nbsp;: le croisement, puis la différence&nbsp;· '
+     +'② la parenthèse de DROITE&nbsp;: le croisement, puis la somme&nbsp;· '
+     +'③ diviser, c’est multiplier par l’INVERSE de la parenthèse de droite&nbsp;· ④ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ⑤ la fraction finale</div>'
+     +'<div class="pt-row">'
+       +'(' +sfTermeHTML(q.a,q.b)+'<b>−</b>'+sfTermeHTML(q.c,q.d)+')'
+       +pfCroixHTML('qdb-a', q.a,q.b,q.c,q.d,'-','numérateur de la parenthèse de gauche')
+       +'<b>÷</b>(' +sfTermeHTML(q.e,q.f)+'<b>+</b>'+sfTermeHTML(q.g,q.h)+')'
+       +pfCroixHTML('qdb-b', q.e,q.f,q.g,q.h,'+','numérateur de la parenthèse de droite')
+       +pfProduitHTML('qdb', true)
+     +'</div></div>';
   const order=qdbCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault();
