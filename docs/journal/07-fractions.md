@@ -672,3 +672,63 @@ La case de réponse réutilise ses classes (`f-frac-input`, `sf-case`, `f-num`,
 SANS les recopier pour `#rvfHost` aurait laissé le badge se poser dans le
 flux et élargir le trait de la fraction, le défaut d'août 2026 revenu par une
 porte neuve. Deux lignes suffisent, recopiées à l'identique.
+
+**Cinq questions sur huit ont gagné une étape, en septembre 2026** (demande
+de Turquet : « pour {mult-entier}, la phrase à compléter doit être "quand il
+n'y a pas de dénominateur, le dénominateur est…", et l'élève complète
+ensuite l'écriture de la multiplication en mettant 1 dans la case du
+dénominateur » — puis, étendue : « pour toutes les opérations, je veux voir
+les étapes intermédiaires comme dans {somme-fractions} ou {diviser-fractions}
+quand il y en a »). Ce n'est PAS un retour sur « une révision n'est pas un
+neuvième pas-à-pas » — le principe tient toujours, et {meme-add}, {meme-sub}
+et {mult-frac} n'ont rien reçu, faute d'avoir quoi que ce soit à mettre au
+même dénominateur ou à inverser. Mais cinq questions ont une VRAIE étape
+avant leur résultat, et la cacher les réduisait à un vocabulaire réciter :
+
+* {mult-entier} et {diff-sub-entier} partagent la MÊME case (`rvf-kden`),
+  pour la MÊME raison : un entier n'a pas de dénominateur écrit, la phrase de
+  la règle le dit maintenant explicitement (« quand il n'y a pas de
+  dénominateur, le dénominateur est… », 1/0/lui-même — les trois mêmes
+  options que {diff-sub-entier} portait déjà), et l'élève écrit lui-même le 1
+  dans la case, plutôt que de le trouver déjà posé par `sfTermeHTML` comme
+  avant. Le maillon `n/d × k` (donné) `= n/d × k/[case]` `= [num]/[den]` est
+  la forme du passage « 3 = 3/1 » de {somme-fractions}, sauf que la case y
+  est éditable : ce n'est plus donné, c'est demandé.
+  **`mult-entier` a changé de phrase, pas de sujet.** L'ancienne demandait
+  si le dénominateur change après la multiplication (« ne change pas ») ;
+  la fiche de Turquet teste maintenant le passage PAR le dénominateur 1, une
+  marche plus tôt dans le même raisonnement — `rvfPourquoi('mult-entier')` le
+  dit dans l'ordre : « 2 = 2/1 » d'abord, la multiplication ensuite.
+* {diff-add} ajoute les DEUX produits croisés (`rvf-a1`/`rvf-b1` valant d2,
+  `rvf-a2`/`rvf-b2` valant d1) — la forme du `produit()` de
+  {somme-fractions}, avec des cases `<input>` plutôt que des champs
+  mathématiques. Contrairement à {somme-fractions}, le dénominateur commun
+  n'est PAS au choix de l'élève : il est fixé au PRODUIT des deux, parce que
+  c'est la méthode que la phrase de la règle enseigne elle-même
+  (« produit des deux dénominateurs ») — une case à réponse libre aurait
+  exigé de recalculer le résultat final sur le choix de l'élève, ce que cette
+  révision, à la différence de {somme-fractions}, ne fait nulle part ailleurs.
+* {div-1} et {div-2} ajoutent l'inverse écrit (`rvf-inv-n`=d2,
+  `rvf-inv-d`=n2) — la forme du maillon `mlt-i1`/`mlt-i2` de
+  {diviser-fractions}.
+
+**Le barème n'est plus `qs.length*3`.** `rvfExtra(q)` rend les cases propres
+à chaque type (vide pour les trois qui n'en ont pas), `rvfCases()` les
+insère entre la règle et le résultat, et `startRvf()` somme
+`rvfCases(q).length` sur les huit questions plutôt que de multiplier par un
+nombre fixe — un type à 4 cases et un type à 7 auraient sinon compté le même
+poids. `rvfJuste()` et `checkRvfAnswer()` n'ont pas changé : ils lisent déjà
+`rvfCases(q)` sans connaître le nombre de cases à l'avance, exactement comme
+`relCases`/`srlCases` ailleurs dans le fichier.
+
+**ENTRÉE avance à la case suivante, depuis ce jour.** Avant, elle vérifiait
+la réponse dès qu'on l'appuyait dans une case numérique — sans conséquence
+tant qu'il n'y avait que `rvf-num`/`rvf-den`. Avec jusqu'à cinq cases
+supplémentaires, valider à la première case remplie aurait empêché d'écrire
+les suivantes : `renderRvfTest()` construit maintenant l'ordre des cases de
+la question (`rvfCases(q)`) et avance le focus dessus, ne vérifiant qu'à la
+dernière — la même convention que `sfCases()`/`mltCases()`.
+
+**Le bouton des tables était déjà là.** `revision-fractions` n'a jamais été
+dans `TABLES_SANS`, et `conseilInlineBtn()` y ajoute `tablesBtnHTML()` sans
+condition de mode : aucun changement n'était nécessaire de ce côté.
