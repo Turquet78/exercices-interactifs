@@ -532,3 +532,65 @@ il cliquait « l'énoncé, sinon l'écran entier » — en Seconde il n'y a pas 
 fenêtre, qui interceptait. Trente secondes d'attente, puis un échec qui accusait
 la page alors que le banc n'avait jamais cliqué l'exercice. Il calcule maintenant
 un point de l'écran HORS du rectangle de la fenêtre.
+
+**La priorité des opérations devient le sujet, et non plus un mot appris à
+part.** {priorite-fractions} (4.10, demandé par Turquet en septembre 2026,
+d'après une fiche papier) pose une somme où un terme est un PRODUIT de deux
+fractions — `a/b + c/d × e/f` — et où la difficulté n'est plus la fraction
+elle-même mais l'ORDRE du calcul : la multiplication d'abord, comme avec des
+nombres seuls (2+3×4 fait 14, pas 20).
+
+**Le moteur est une COUTURE de deux moteurs existants, jamais une
+réécriture.** Le produit `c/d × e/f` est tiré comme dans {multiplier-fractions}
+(irréductible — `pgcd(P1,Q1)=1`, la même condition que `mltGen`), la somme
+finale comme dans {somme-fractions} (résultat irréductible — la même condition
+que le tirage principal). Deux leçons déjà enseignées ailleurs, combinées dans
+un seul calcul plutôt que réenseignées à part.
+
+**Un modèle FIXE reste affiché à côté**, comme sur la fiche papier
+(« Modèles » / « Calculer comme les modèles ») : les mêmes six nombres à chaque
+question — le « G » de la fiche, entièrement résolu en cinq lignes —, quand le
+tirage, lui, change à chaque question. Il ne se colore jamais et ne se
+verrouille jamais : ce n'est pas une réponse, et un contrôle universel
+(`enonce`) ne le confond pas avec l'énoncé parce qu'il vit hors de la classe
+`mp-instr`.
+
+**La saisie est libre**, comme {somme-fractions-libre} et
+{multiplier-fractions-libre} : aucune case, l'élève écrit son calcul dans une
+feuille ligne par ligne, et c'est l'IA qui le lit. Rien à redéployer chez
+Supabase — la leçon de `MAX_CTX`, apprise sur {somme-fractions-libre}.
+
+**Un JUGE LOCAL DÉDIÉ, pas `libreJuge()` — et c'est la vraie difficulté de cet
+exercice.** Les trois exercices rédigés existants exigent que CHAQUE morceau de
+la copie vaille la réponse FINALE, parce que tout leur calcul EST cette
+réponse. Ici ce n'est plus vrai : un élève peut isoler le produit sur sa propre
+ligne — « 2/3 × 4/5 = 8/15 » —, exactement comme le modèle le montre en trois
+temps, avant de reprendre la somme. Ce morceau-là ne vaut PAS la réponse finale
+(91/30 dans l'exemple), et `libreJuge()` l'aurait déclaré faux À TORT — un
+verdict qui PRIME sur celui, pourtant juste, que l'IA aurait rendu. `pfJuge()`
+accepte donc chaque morceau qui vaut soit le produit intermédiaire (`P1/Q1`)
+soit la réponse finale (`P/Q`), et n'exige la réponse finale que sur le DERNIER
+morceau — ce qui laisse justement voir la faute de priorité : un élève qui
+additionne AVANT de multiplier écrit un morceau qui ne vaut NI l'un NI l'autre,
+et le juge le nomme au modèle plutôt que de le laisser deviner.
+
+**L'étape du même dénominateur reste exigée**, comme en
+{somme-fractions-libre} : c'est elle qui prouve que la somme a bien été
+reprise après le produit, et pas seulement que le résultat final tombe juste
+par hasard. `libreEtapeMemeDeno()` est réutilisée telle quelle — elle compare
+les dénominateurs par VALEUR, pas par écriture, donc
+`(a×Q1)/(b×Q1) + (P1×b)/(Q1×b)` s'y reconnaît sans rien ajouter au juge.
+
+**Le tirage porte quatre garde-fous, chacun écartant un piège silencieux** :
+le produit doit être irréductible (comme {multiplier-fractions}), il ne doit
+pas valoir exactement 1 (écriture ambiguë), les deux numérateurs du produit ne
+sont pas tous les deux 1 (rien à travailler en haut), et le premier
+dénominateur ne doit pas déjà égaler celui du produit (rien à croiser). Le
+résultat final, lui, doit être irréductible — comme {somme-fractions} —, sans
+quoi l'exercice poserait la question « faut-il simplifier ? » que
+{simplifier-fractions} traite déjà : deux leçons dans un même calcul rendraient
+la faute illisible.
+
+**Le bouton des tables de multiplication s'affiche sans rien déclarer** :
+l'exercice n'est PAS ajouté à `TABLES_SANS`, la liste en négatif de
+`tablesBtnHTML()` — et il en a besoin, pour le produit `d×f` du dénominateur.
