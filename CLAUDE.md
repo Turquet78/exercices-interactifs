@@ -323,7 +323,7 @@ tenus, les sabotages qui les ont éprouvés.
 - Fractions (Seconde et Première) — `docs/journal/07-fractions.md`
 - Pourcentages, évolutions et coefficients (Première, et Seconde depuis septembre 2026) — `docs/journal/10-premiere-pourcentages.md`
 - Terminale — dérivées, suites, récurrences et TVI — `docs/journal/14-terminale.md`
-- Seconde — calcul littéral (thème 7 : les nombres relatifs, le calcul itéré, réduire une somme) — `docs/journal/16-seconde-calcul-litteral.md`
+- Seconde — calcul littéral (thème 7 : les nombres relatifs, somme et produit, réduire une somme) — `docs/journal/16-seconde-calcul-litteral.md`
 
 ## Ajouter un exercice
 
