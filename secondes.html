@@ -557,7 +557,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -1222,6 +1222,10 @@
 #mltHost .pt-row>.f-frac,#mltHost .pt-row>.f-grp>.f-frac{font-size:2rem}
 #mltPrompt,#mllPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 #mllPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
+/* {priorite-fractions} a TROIS fractions et deux signes sur la même ligne —
+   le même défaut, la même règle : voir #sfPrompt,#sflPrompt plus haut. */
+#pfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+#pfPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
 @media(max-width:900px){ #mltHost math-field.pm-mf{font-size:1.5rem}
   #mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:76px} }
 @media(max-width:560px){ #mltHost math-field.pm-mf{font-size:1.25rem}
@@ -1240,6 +1244,12 @@
   #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ #smpHost math-field.pm-mf{font-size:1.25rem}
   #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:62px} }
+/* #rvfHost — {revision-fractions} (5.11) : une seule case-fraction par
+   écran, pas de chaîne de calcul comme sf/mlt/smp — mais le badge de
+   correction se pose hors du flux de la même façon, sans quoi il
+   élargirait le trait de fraction (la leçon de {somme-fractions}). */
+#rvfHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
+#rvfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:1.1rem;white-space:nowrap}
   /* ---- Placer trois nombres sur une droite graduée ---- */
   .plc-scene{width:100%;max-width:520px;margin:0 auto 6px}
   .plc-scene svg{width:100%;height:auto;display:block}
@@ -1286,10 +1296,12 @@
   /* ---- Soustraire un relatif : additionner son opposé (thème Calcul littéral) ----
      La chaîne « +3 − (−2) = +3 + ( ? 2 ) = ? » est une égalité poursuivie : ses
      trois morceaux sont des groupes insécables, et un « = » part toujours avec
-     la case qu'il annonce. La liste du signe a la taille des nombres de sa ligne. */
+     la case qu'il annonce. La liste du signe ne porte qu'un caractère (+ ou −) :
+     elle reste la plus petite possible (demande de Turquet, septembre 2026),
+     quand celle du résultat garde la taille des nombres de sa ligne. */
   .srl-chaine{display:flex;align-items:center;column-gap:10px;row-gap:8px;flex-wrap:wrap}
   .srl-grp{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
-  .srl-chaine .plc-sel{width:84px;font-size:1.45rem}
+  .srl-chaine .plc-sel{width:48px;font-size:1.45rem;padding:0}
   /* ---- Réduire une somme de termes (thème Calcul littéral) ----
      Les mêmes cases que {additionner-relatifs} : la liste de la règle en tête,
      puis une ligne par expression, la case à la taille de l'expression. */
@@ -1299,7 +1311,13 @@
   .red-l{display:flex;align-items:center;gap:10px;border:1.5px solid #D6E2F8;border-radius:14px;padding:8px 14px;background:#FBFCFF}
   .red-expr{font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);white-space:nowrap;font-variant-numeric:tabular-nums}
   .red-expr i{font-family:"Times New Roman",serif;font-size:1.12em}
-  .red-in{width:150px;min-width:0;height:48px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none}
+  /* Le x tapé par l'élève est le même x que celui de l'expression affichée
+     devant la case (demande de Turquet, septembre 2026) : « Fredoka » n'a pas
+     de véritable italique (seuls les graisses 400 à 700 sont chargées), et un
+     italique simulé par le navigateur rendrait un x penché mais pas le même —
+     .red-expr i bascule déjà en Times New Roman pour cette raison ; la case
+     suit la même police, exactement comme l'énoncé qui la précède. */
+  .red-in{width:150px;min-width:0;height:48px;text-align:center;font-family:"Times New Roman",serif;font-style:italic;font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none}
   .red-in:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .red-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue)}
   .red-in.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
@@ -1307,24 +1325,22 @@
   .red-sq{padding:6px 10px;min-width:0;font-size:1rem}
   .red-l{flex-wrap:wrap} .red-l .mf-cor{white-space:nowrap}
   @media(max-width:520px){ .red-regle .plc-sel{min-width:0;width:100%} .red-lignes{grid-template-columns:1fr} .red-l{padding:8px 10px;flex-wrap:wrap} .red-in{width:120px} }
-  /* ---- Calcul itéré : alterner somme et produit (7.4, thème Calcul littéral) ----
-     Une ligne par étape, « 7 × 5 = [  ] » : le nombre de gauche est le
-     résultat de la ligne d'avant, recopié dès que l'élève l'écrit. La case a
-     la taille des nombres qui l'entourent (1,45 rem, la police du calcul). */
-  .cit-lignes{display:flex;flex-direction:column;gap:12px;width:100%;max-width:560px;margin:0 auto}
-  .cit-l{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;border:1.5px solid #D6E2F8;border-radius:14px;padding:10px 16px;background:#FBFCFF}
-  .cit-l.cit-dep{background:#F3F7FF}
-  .cit-lib{font-weight:600;color:var(--ink-soft)}
-  .cit-num{font-weight:700;color:var(--ink-soft);min-width:1.6em}
+  /* ---- Somme et produit de deux relatifs (7.4, thème Calcul littéral) ----
+     Une paire de relatifs par bloc, et deux lignes : leur SOMME, puis leur
+     PRODUIT. Les deux calculs sont indépendants — on alterne les règles, pas
+     les résultats. La case a la taille des nombres qui l'entourent. */
+  .cit-lignes{display:flex;flex-direction:column;gap:14px;width:100%;max-width:560px;margin:0 auto}
+  .cit-bloc{border:1.5px solid #D6E2F8;border-radius:14px;padding:10px 16px;background:#FBFCFF;display:flex;flex-direction:column;gap:8px}
+  .cit-l{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+  .cit-lib{font-weight:600;color:var(--ink-soft);min-width:5.2em;flex-shrink:0}
   .cit-expr{font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);white-space:nowrap;font-variant-numeric:tabular-nums}
-  .cit-prev{display:inline-block;min-width:1.2em;text-align:right}
-  .cit-prev.cit-vide{color:#9AAAC8}
-  .cit-in{width:110px;height:48px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none}
+  .cit-in{width:96px;height:48px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none}
   .cit-in:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .cit-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue)}
   .cit-in.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
   .cit-in.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
-  @media(max-width:520px){ .cit-l{padding:8px 10px;gap:8px} .cit-in{width:96px} }
+  /* sur téléphone, l'étiquette se tait : le signe + ou × dit déjà l'opération, et la ligne tient */
+  @media(max-width:520px){ .cit-bloc{padding:8px 10px} .cit-l{gap:8px} .cit-lib{display:none} .cit-in{width:84px} }
   /* ---- Associer chaque expression à son résultat (thème Calcul littéral) ----
      La ligne est une rangée flex CENTRÉE : le « = » posé à côté de n/n tombe
      sur le trait de la fraction ; la liste a l'encre et la taille des nombres. */
@@ -1843,6 +1859,13 @@
 .dexp-pwrap.show-paren .par{display:inline-block;}
 .dexp-fac sup,.tvi-prompt sup{font-size:.7em;}
 .dexp-hint{font-size:.86rem;color:var(--ink-soft);margin:8px 0 0;}
+/* ---- Le modèle fixe de {priorite-fractions} -------------------------------
+   Reproduit la fiche papier : un calcul ENTIÈREMENT résolu, toujours le même,
+   affiché à côté de celui — à d'autres nombres — que l'élève rédige. Il ne se
+   colore jamais et ne se verrouille jamais : ce n'est pas une réponse. */
+.pf-modele{background:var(--paper);border:2px dashed var(--grid);border-radius:12px;padding:10px 16px;margin:0 0 12px;}
+.pf-modele-titre{font-weight:700;color:var(--ink);margin:0 0 6px;}
+.pf-modele p{margin:2px 0;}
 /* ---- Feuille de calcul ligne par ligne (portée de la Terminale) ----------
    L'élève écrit son calcul LUI-MÊME, une étape par ligne. Le préfixe de la
    première ligne porte la somme de l'énoncé, les suivantes un « = » : les
@@ -3856,6 +3879,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : PRIORITÉ DES OPÉRATIONS AVEC DES FRACTIONS (correction par l'IA) -->
+  <section class="screen" id="scr-pf">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPf"></span><span class="q-idx" id="pfIdx">Question 1 / 4</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices justes</span>&nbsp;<b id="pfLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="pfPrompt">Calcule l&rsquo;expression.</p>
+      <div class="mp-stage"><div style="width:100%" id="pfHost"></div></div>
+      <div class="mp-feedback" id="pfFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkPF()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : PLACER TROIS NOMBRES SUR UNE DROITE GRADUÉE -->
   <section class="screen" id="scr-plc">
     <div class="test-top">
@@ -3949,14 +3988,14 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
-  <!-- CALCUL ITÉRÉ : ALTERNER SOMME ET PRODUIT -->
+  <!-- CALCUL LITTÉRAL : SOMME ET PRODUIT DE DEUX RELATIFS -->
   <section class="screen" id="scr-cit">
     <div class="test-top">
-      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCit"></span><span class="q-idx" id="citIdx">Question 1 / 5</span></span>
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCit"></span><span class="q-idx" id="citIdx">Question 1 / 3</span></span>
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="citLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">Pars du nombre de d&eacute;part et fais les calculs <b>l&rsquo;un apr&egrave;s l&rsquo;autre</b> : chaque r&eacute;sultat devient le nombre de d&eacute;part de la ligne suivante. On alterne une <b>somme</b> et un <b>produit</b>.</p>
+      <p class="mp-instr">Pour chaque paire de nombres relatifs, calcule leur <b>somme</b>, puis leur <b>produit</b>. Attention, la r&egrave;gle du signe n&rsquo;est pas la m&ecirc;me : pour la somme, c&rsquo;est le signe du <b>plus fort</b> ; pour le produit, c&rsquo;est la <b>r&egrave;gle des signes</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="citHost"></div></div>
       <div class="mp-feedback" id="citFeedback"></div>
       <div class="row" style="justify-content:center">
@@ -3972,7 +4011,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="redLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr enonce">R&eacute;duis chaque expression <b>si c&rsquo;est possible</b>. Si elle ne se r&eacute;duit pas, recopie-la telle quelle. Pour &eacute;crire <i>x</i>&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
+      <p class="mp-instr enonce">R&eacute;duis chaque expression <b>si c&rsquo;est possible</b>. <b>Ne compl&egrave;te une case que si tu peux r&eacute;duire l&rsquo;&eacute;criture</b> : si l&rsquo;expression ne se r&eacute;duit pas, laisse la case vide. Pour &eacute;crire <i>x</i>&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="redHost"></div></div>
       <div class="mp-feedback" id="redFeedback"></div>
       <div class="row" style="justify-content:center">
@@ -4009,6 +4048,38 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="mp-feedback" id="srlFeedback"></div>
       <div class="row" style="justify-content:center">
         <span id="srlActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSrlAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCUL LITTÉRAL : RÉDUIRE CHAQUE PRODUIT AVEC x -->
+  <section class="screen" id="scr-rpd">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagRpd"></span><span class="q-idx" id="rpdIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="rpdLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">R&eacute;duis chaque produit. D&rsquo;abord case par case &mdash; le <b>signe</b>, le <b>coefficient</b>, puis si &ccedil;a se termine par <b>x</b> ou par <b>x&sup2;</b> &mdash;, puis directement le r&eacute;sultat r&eacute;duit. Pour &eacute;crire x&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
+      <div class="mp-stage"><div style="width:100%" id="rpdHost"></div></div>
+      <div class="mp-feedback" id="rpdFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="rpdActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkRpdAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FRACTIONS : RÉVISER LES QUATRE RÈGLES (5.11) -->
+  <section class="screen" id="scr-rvf">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagRvf"></span><span class="q-idx" id="rvfIdx">Question 1 / 8</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="rvfLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Pour chaque question, choisis d&rsquo;abord la <b>r&egrave;gle</b>, puis compl&egrave;te le r&eacute;sultat en <b>fraction</b>. Une seule fraction &agrave; chaque fois, jamais r&eacute;duite plus qu&rsquo;il ne faut.</p>
+      <div class="mp-stage"><div style="width:100%" id="rvfHost"></div></div>
+      <div class="mp-feedback" id="rvfFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="rvfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkRvfAnswer()">V&eacute;rifier</button></span>
       </div>
     </div>
   </section>
@@ -4248,7 +4319,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=208;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=214;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4882,6 +4953,13 @@ const TESTS={
      QIA_SUGG_ID. */
   'diviser-fractions': { name:'Diviser deux fractions', icon:'\u2797', desc:'Comme {multiplier-fractions}, avec un maillon de plus\u00a0: on transforme d\u2019abord la division en multiplication par l\u2019inverse, puis on multiplie.', start:()=>startDiv() },
   'diviser-fractions-libre': { name:'Diviser deux fractions, en r\u00e9digeant', icon:'\u270d\ufe0f', desc:'Les m\u00eames nombres que {diviser-fractions}, mais plus une seule case\u00a0: tu \u00e9cris ton calcul toi-m\u00eame, et l\u2019IA le lit.', start:()=>startDLL() },
+  /* La multiplication ET l'addition dans le M\u00caME calcul : la priorit\u00e9
+     op\u00e9ratoire (\u00ab la multiplication d'abord \u00bb) devient le sujet, plut\u00f4t qu'un
+     mot appris \u00e0 part. Un mod\u00e8le FIXE (\u00ab G \u00bb du mod\u00e8le papier) reste affich\u00e9 \u00e0
+     c\u00f4t\u00e9, comme sur une fiche imprim\u00e9e ; l'\u00e9l\u00e8ve r\u00e9dige le SIEN, avec d'autres
+     nombres, dans la m\u00eame feuille libre que {somme-fractions-libre}. */
+  'priorite-fractions': { name:'Priorit\u00e9s des op\u00e9rations avec des fractions', icon:'\u2795', desc:'Une somme o\u00f9 un terme est un PRODUIT de deux fractions\u00a0: la multiplication se calcule D\u2019ABORD, puis on met au m\u00eame d\u00e9nominateur comme en {somme-fractions-libre}. Un mod\u00e8le enti\u00e8rement r\u00e9solu reste affich\u00e9 \u00e0 c\u00f4t\u00e9.', start:()=>startPF() },
+  'revision-fractions': { name:'R\u00e9viser les quatre r\u00e8gles des fractions', icon:'\ud83d\udcda', desc:'Quatre r\u00e8gles des fractions \u00e0 r\u00e9viser vite\u00a0: m\u00eame d\u00e9nominateur, produit, d\u00e9nominateurs diff\u00e9rents, division. Pour chaque question, une petite r\u00e8gle \u00e0 choisir puis le r\u00e9sultat en fraction. Le bouton des tables est l\u00e0 si tu en as besoin.', start:()=>startRvf() },
   /* Les nombres et le bouton des zéros de {placer-intervalle}, la question en
      moins : ranger, du plus petit au plus grand (demande de Turquet, août
      2026). Le tirage APPELLE plcGen() — un second tirage aurait fini par
@@ -4892,9 +4970,10 @@ const TESTS={
   'soustraire-relatifs': { name:'Soustraire un relatif\u00a0: additionner son oppos\u00e9', icon:'\u2796', desc:'Soustraire un nombre relatif, c\u2019est additionner son oppos\u00e9. Transforme chaque soustraction en addition \u2014 +3 \u2212 (\u22122) = +3 + (+2) \u2014, puis calcule le r\u00e9sultat.', start:()=>startSrl() },
   'nombres-relatifs': { name:'Gagner et perdre : les nombres relatifs', icon:'\u00b1', desc:'On gagne ou on perd de l\u2019argent, deux fois de suite\u00a0: dis en mots ce qui reste au final, puis \u00e9cris-le avec les nombres relatifs \u2014 +3 \u2212 2 = +1.', start:()=>startRgp() },
   'multiplier-relatifs': { name:'Multiplier deux relatifs : la r\u00e8gle des signes', icon:'\u2716\ufe0f', desc:'Deux nombres relatifs \u00e0 multiplier. D\u2019abord la r\u00e8gle \u2014 pour multiplier, c\u2019est la r\u00e8gle des signes \u2014, que tu compl\u00e8tes, puis pour chaque produit le SIGNE du r\u00e9sultat, et enfin le r\u00e9sultat. Le bouton des tables est l\u00e0 si tu en as besoin.', start:()=>startMrl() },
-  'calcul-itere': { name:'Alterner somme et produit', icon:'\u{1F501}', desc:'Un nombre de d\u00e9part, puis des calculs \u00e0 faire l\u2019un apr\u00e8s l\u2019autre\u00a0: on ajoute un chiffre, on multiplie par le suivant, on ajoute encore\u2026 Chaque r\u00e9sultat devient le point de d\u00e9part de la ligne suivante.', start:()=>startCit() },
+  'calcul-itere': { name:'Somme et produit de deux relatifs', icon:'\u{1F501}', desc:'Pour une m\u00eame paire de relatifs, la somme puis le produit, en alternance\u00a0: le signe du plus fort pour additionner, la r\u00e8gle des signes pour multiplier.', start:()=>startCit() },
   'reduire-somme': { name:'R\u00e9duire une somme de termes', icon:'\ud83d\udd24', desc:'R\u00e9duis si possible : 2x + 3x, 2x + 3, \u22122x\u00b2 + 3x\u00b2, \u22122x\u00b2 + 3x\u2026 On n\u2019additionne que des termes de m\u00eame nature \u2014 des x avec des x, des x\u00b2 avec des x\u00b2, des nombres avec des nombres.', start:()=>startRed() },
-  'associer-expressions': { name:'Associer chaque expression \u00e0 son r\u00e9sultat', icon:'\ud83d\udd17', desc:'Quatre expressions \u2014 un carr\u00e9, un double, un nombre divis\u00e9 par lui-m\u00eame, un nombre moins lui-m\u00eame \u2014 \u00e0 associer \u00e0 leur r\u00e9sultat. Trois fois avec un nombre, puis une fois avec la lettre x.', start:()=>startAsx() },
+  'associer-expressions': { name:'Associer chaque expression \u00e0 son r\u00e9sultat', icon:'\ud83d\udd17', desc:'Quatre expressions \u2014 un carr\u00e9, un double, un nombre divis\u00e9 par lui-m\u00eame, un nombre moins lui-m\u00eame \u2014 \u00e0 associer \u00e0 leur r\u00e9sultat. Trois fois avec un nombre, puis trois fois avec une lettre \u2014 x, puis a, puis b.', start:()=>startAsx() },
+  'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
   'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
   'python-completer': { name:'Afficher un texte suivi d\u2019une variable', icon:'\ud83d\udda8\ufe0f', desc:'Le cours explique comment afficher un texte suivi de la valeur d\u2019une variable : print("texte", variable). Puis \u00e0 toi d\u2019\u00e9crire : le programme commence par note = 12, compl\u00e8te-le pour qu\u2019il affiche \u00ab la note est : 12 \u00bb, ex\u00e9cute-le et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYX() },
   /* La suite du 5.7 : le programme porte TROIS variables et une ligne
@@ -4992,7 +5071,7 @@ const THEMES=[
      additionner deux. Les numéros suivent la position — il est 4.1, tout se
      renumérote derrière — et les notes déjà obtenues ne bougent pas : elles
      portent l'IDENTIFIANT, pas le numéro. */
-  { num:5, nom:'Fractions', ids:['simplifier-barres','croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre'] },
+  { num:5, nom:'Fractions', ids:['simplifier-barres','croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre','priorite-fractions','revision-fractions'] },
   /* Le thème 5 vient EN DERNIER (demande de Turquet, septembre 2026) : un
      thème ajouté à la fin ne renumérote rien — les quatre premiers gardent
      leurs numéros, et aucun renvoi {identifiant} ne bouge. */
@@ -5010,7 +5089,7 @@ const THEMES=[
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
      renumérote rien. */
-  { num:7, nom:'Calcul littéral', ids:['additionner-relatifs','nombres-relatifs','multiplier-relatifs','calcul-itere','reduire-somme','associer-expressions','soustraire-relatifs'] }
+  { num:7, nom:'Calcul littéral', ids:['additionner-relatifs','nombres-relatifs','multiplier-relatifs','calcul-itere','reduire-somme','associer-expressions','soustraire-relatifs','reduire-produit'] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
    reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
@@ -5040,7 +5119,7 @@ function pick(a){return a[rand(0,a.length-1)];}
    mêmes nombres sous un autre habit restent le même calcul. Deux cents essais
    au plus : un vivier plus petit que la séance rend un doublon plutôt que de
    figer la page. Le contrôle universel du banc relit chaque exercice. */
-const CLE_HORS=['v','ci','intro','unit','g','ordre','opts','bon','rep','choisi','selL','selR'];
+const CLE_HORS=['v','ci','intro','unit','g','ordre','ordreExpr','opts','bon','rep','choisi','selL','selR'];
 function cleQuestion(q){ return JSON.stringify(q,function(k,v){ return CLE_HORS.indexOf(k)>=0?undefined:v; }); }
 function distincte(qs, fabrique){
   const vues=qs.map(cleQuestion); let q, essais=0;
@@ -5133,11 +5212,13 @@ function liveCheckCurrent(){
   else if(k==='ord') checkOrdAnswer(true);
   else if(k==='rel') checkRelAnswer(true);
   else if(k==='srl') checkSrlAnswer(true);
+  else if(k==='rvf') checkRvfAnswer(true);
   else if(k==='asx') checkAsxAnswer(true);
   else if(k==='rgp') checkRgpAnswer(true);
   else if(k==='red') checkRedAnswer(true);
   else if(k==='mrl') checkMrlAnswer(true);
   else if(k==='cit') checkCitAnswer(true);
+  else if(k==='rpd') checkRpdAnswer(true);
   else if(k==='pnv') checkPNV(true);
 }
 function modeTagHTML(){
@@ -5730,6 +5811,8 @@ function conseilPaire(){
   else if(test.kind==='ord' && q) b=ctxOrd(q);
   else if(test.kind==='rel' && q) b=ctxRel(q);
   else if(test.kind==='srl' && q) b=ctxSrl(q);
+  else if(test.kind==='rpd' && q) b=ctxRpd(q);
+  else if(test.kind==='rvf' && q) b=ctxRvf(q);
   else if(test.kind==='asx' && q) b=ctxAsx(q);
   else if(test.kind==='rgp' && q) b=ctxRgp(q);
   else if(test.kind==='red' && q) b=ctxRed(q);
@@ -5738,6 +5821,7 @@ function conseilPaire(){
   else if(test.kind==='smp' && q) b=ctxSmp(q);
   else if(test.kind==='mlt' && q) b={nombre:'', contexte:mltCtxTexte(q)};
   else if(test.kind==='mll' && q) b={nombre:'', contexte:mllCtxTexte(q)};
+  else if(test.kind==='pf' && q) b={nombre:'', contexte:pfCtxTexte(q)};
   else b={nombre:'', contexte:ctxVisible()};
   if(!b.contexte) b.contexte='L’élève est en difficulté sur un exercice de mathématiques de Seconde.';
   b.contexte=numeros(b.contexte); b.nombre=numeros(b.nombre);
@@ -6063,13 +6147,16 @@ const QIA_SUGG={
   mlt:["Faut-il mettre au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Pourquoi multiplie-t-on les num\u00e9rateurs entre eux\u00a0?","Que devient le d\u00e9nominateur\u00a0?","Est-ce que l\u2019ordre des deux fractions change le r\u00e9sultat\u00a0?"],
   mll:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelle \u00e9tape dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Faut-il mettre au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Puis-je tout \u00e9crire sur une seule ligne\u00a0?"],
   smp:["Comment trouver le nombre par lequel je peux diviser\u00a0?","Pourquoi faut-il diviser en haut ET en bas\u00a0?","Pourquoi les deux colonnes montent-elles \u00e0 la m\u00eame hauteur\u00a0?","Comment savoir qu\u2019une fraction ne se simplifie plus\u00a0?"],
+  pf:["Pourquoi calculer le produit avant la somme\u00a0?","Comment savoir par quoi commencer dans un calcul\u00a0?","Comment mettre au m\u00eame d\u00e9nominateur une fois le produit calcul\u00e9\u00a0?","Est-ce que l\u2019ordre d\u2019\u00e9criture change le r\u00e9sultat\u00a0?"],
   rel:["Comment trouver le signe du r\u00e9sultat\u00a0?","Qu\u2019est-ce que \u00ab\u00a0le plus fort\u00a0\u00bb\u00a0?","Quand faut-il additionner, et quand soustraire\u00a0?","Pourquoi \u22123 + 2 ne fait-il pas 5\u00a0?"],
   srl:["Qu\u2019est-ce que l\u2019oppos\u00e9 d\u2019un nombre\u00a0?","Pourquoi \u2212 (\u22122) devient-il + (+2)\u00a0?","Quelle diff\u00e9rence entre l\u2019oppos\u00e9 et l\u2019inverse\u00a0?","Comment calculer ensuite l\u2019addition\u00a0?"],
+  rpd:["Comment trouver le signe d\u2019un produit\u00a0?","Pourquoi x \u00d7 x fait-il x\u00b2\u00a0?","Comment calculer le coefficient sans les signes\u00a0?","Pourquoi n\u2019\u00e9crit-on jamais 1x\u00a0?"],
+  rvf:["Pourquoi on ne met pas au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Comment trouver le d\u00e9nominateur commun quand ils sont diff\u00e9rents\u00a0?","Pourquoi diviser par une fraction, c\u2019est multiplier par son inverse\u00a0?","Comment \u00e9crire un entier en fraction\u00a0?"],
   asx:["Pourquoi 3\u00b2 ne fait-il pas 3 \u00d7 2\u00a0?","Pourquoi 2 \u00d7 3 est-il \u00e9gal \u00e0 3 + 3\u00a0?","Pourquoi un nombre divis\u00e9 par lui-m\u00eame donne-t-il 1\u00a0?","Pourquoi faut-il que x soit diff\u00e9rent de 0\u00a0?"],
   rgp:["Pourquoi +3 \u2212 2 fait-il +1 ?","Comment savoir si le r\u00e9sultat est positif ou n\u00e9gatif ?","Pourquoi \u22123 \u2212 2 fait-il \u22125 et pas \u22121 ?","Que veut dire le signe devant un nombre ?"],
   red:["Quand peut-on additionner deux termes\u00a0?","Pourquoi 2x + 3 ne fait-il pas 5x\u00a0?","Que vaut \u22122x + 3x\u00a0?","Pourquoi \u22122x\u00b2 + 3x ne se r\u00e9duit-il pas\u00a0?"],
   mrl:["Comment trouver le signe d\u2019un produit\u00a0?","Pourquoi moins par moins donne-t-il plus\u00a0?","Quelle est la diff\u00e9rence avec l\u2019addition des relatifs\u00a0?","Comment retrouver le r\u00e9sultat de 7 \u00d7 8\u00a0?"],
-  cit:["Comment calculer 37 \u00d7 6 de t\u00eate\u00a0?","Pourquoi le r\u00e9sultat d\u2019une ligne sert-il \u00e0 la suivante\u00a0?","Et si je me suis tromp\u00e9 \u00e0 une ligne\u00a0?","Comment v\u00e9rifier un produit\u00a0?"],
+  cit:["Pourquoi (\u22123) + (\u22125) est-il n\u00e9gatif alors que (\u22123) \u00d7 (\u22125) est positif\u00a0?","Quand utilise-t-on le signe du plus fort\u00a0?","Quand utilise-t-on la r\u00e8gle des signes\u00a0?","Comment ne pas m\u00e9langer les deux r\u00e8gles\u00a0?"],
   ord:["Pourquoi 1,1 est-il plus grand que 1,08 ?","Pourquoi peut-on ajouter des z\u00e9ros \u00e0 droite ?","Comment comparer deux nombres n\u00e9gatifs ?","Par quel nombre je commence quand je range ?"],
   plc:["Pourquoi 1,1 est-il plus grand que 1,08 ?","Pourquoi peut-on ajouter des zéros à droite ?","Comment comparer deux nombres négatifs ?","Comment lire une droite graduée ?"],
   tvg:["Comment résoudre f (x) = k avec un graphique ?","Pourquoi parfois il n’y a aucune solution ?","Que représente la droite y = k ?","Où se lisent les solutions : sur l’axe des abscisses ou des ordonnées ?"],
@@ -6606,11 +6693,10 @@ const RAP_SRL=`<b>Soustraire un nombre relatif</b><br>
 <b>① On transforme la soustraction en addition</b> : le « − » devient « + », et le nombre entre parenthèses change de signe.<br>
 +3 − (+2) = +3 + (−2) ; +3 − (−2) = +3 + (+2) ; −3 − (+2) = −3 + (−2) ; −3 − (−2) = −3 + (+2).<br>
 <b>② On calcule l'addition</b>, avec la règle du signe du plus fort : +3 + (−2) = 1 ; +3 + (+2) = 5 ; −3 + (−2) = −5 ; −3 + (+2) = −1.`;
-const RAP_CIT=`<b>Un calcul itéré : chaque résultat devient le nombre de départ</b><br>
-<b>① On calcule une ligne à la fois.</b> Départ 3, puis + 4 : 3 + 4 = 7. La ligne suivante part de <b>7</b>, pas de 3 : 7 × 5 = 35. Puis 35 + 2 = 37, puis 37 × 6 = 222.<br>
-<b>② On alterne : une somme, un produit, une somme…</b> Regarde bien le signe de chaque ligne — l'erreur la plus fréquente est d'ajouter là où il faut multiplier.<br>
-<b>③ Un produit à deux chiffres se découpe.</b> 37 × 6, c'est 30 × 6 + 7 × 6 = 180 + 42 = 222.<br>
-Si une ligne est fausse, la suivante est jugée à partir de TON résultat : une erreur ne se paie qu'une fois.`;
+const RAP_CIT=`<b>Somme ou produit : deux règles différentes pour le signe</b><br>
+<b>① Pour ADDITIONNER, le signe est celui du plus fort</b> (le plus loin de zéro). Même signe : on additionne les distances, (−3) + (−5) = −8. Signes contraires : on soustrait, (−3) + (+5) = +2.<br>
+<b>② Pour MULTIPLIER, c'est la règle des signes.</b> Deux signes identiques donnent +, deux signes contraires donnent − : (−3) × (−5) = +15, (−3) × (+5) = −15.<br>
+<b>③ Avant chaque calcul, regarde l'opération.</b> (−3) + (−5) est négatif, mais (−3) × (−5) est positif : « moins par moins donne plus » ne vaut QUE pour le produit.`;
 
 const RAP_ASX=`<b>Des nombres aux lettres</b><br>
 <b>Le carré</b> d'un nombre, c'est ce nombre multiplié par <b>lui-même</b> : 3² = 3 × 3 = 9. Ce n'est PAS 3 × 2.<br>
@@ -6665,6 +6751,14 @@ const RAP_MLT=`<b>Multiplier deux fractions</b><br>
 <b>② On calcule</b> : \\(\\frac{2\\times 5}{3\\times 7}=\\frac{10}{21}\\)<br>
 <b>L’ordre ne change rien</b> : \\(\\frac{2}{3}\\times\\frac{5}{7}\\) et \\(\\frac{5}{7}\\times\\frac{2}{3}\\) donnent la même chose.<br>
 Un ENTIER se met sur 1 quand ça aide : \\(3=\\frac{3}{1}\\), donc \\(3\\times\\frac{2}{5}=\\frac{3\\times 2}{1\\times 5}=\\frac{6}{5}\\).`;
+/* Le rappel de {priorite-fractions} : il ne redit ni la somme ni le produit en
+   entier, il dit dans quel ORDRE les faire. */
+const RAP_PF=`<b>Priorités des opérations, avec des fractions</b><br>
+<b>Dans une somme, la multiplication se calcule TOUJOURS avant l’addition</b> — même sans parenthèses autour d’elle. C’est la même règle qu’avec des nombres seuls : \\(2+3\\times 4\\) fait 14, pas 20.<br>
+<b>① On calcule d’abord le produit</b>, comme dans {multiplier-fractions} : \\(\\frac{2}{3}\\times\\frac{4}{5}=\\frac{2\\times 4}{3\\times 5}=\\frac{8}{15}\\)<br>
+<b>② Il ne reste plus qu’une somme</b>, celle de {somme-fractions} : on met les deux fractions au même dénominateur, en multipliant haut ET bas — \\(\\frac{5}{2}=\\frac{5\\times 15}{2\\times 15}\\) et \\(\\frac{8}{15}=\\frac{8\\times 2}{15\\times 2}\\).<br>
+<b>③ On additionne les numérateurs</b> sur ce dénominateur commun : \\(\\frac{75}{30}+\\frac{16}{30}=\\frac{91}{30}\\)<br>
+Piège classique : additionner \\(\\frac{5}{2}\\) et \\(\\frac{2}{3}\\) AVANT de multiplier par \\(\\frac{4}{5}\\) — la priorité s’en trouve inversée, et le résultat change.`;
 /* {ordre-croissant} partage le rappel de {placer-intervalle} : c'est la même
    méthode — écrire avec le même nombre de décimales, puis comparer. */
 const RAP_IFG=`<b>Lire avec deux courbes, chacune sur son domaine</b><br>
@@ -6971,6 +7065,13 @@ Si <code class="inline">k</code> contient 10 et <code class="inline">l</code> co
 Une seule règle est imposée ici : chaque case ne se remplit qu’avec l’une des trois lettres proposées — jamais un nombre écrit à la main.`;
 /* Le rappel de {nombres-relatifs} : le signe dit gagner ou perdre, et les
    trois cas de la fiche. */
+const RAP_RPD=`<b>Réduire un produit avec x</b><br>
+<b>① Le signe d'abord : la règle des signes.</b> Deux signes <b>pareils</b> donnent <b>+</b> ; deux signes <b>contraires</b> donnent <b>−</b>. Comme pour multiplier deux nombres relatifs.<br>
+<b>② Puis les coefficients se multiplient</b>, sans leurs signes : dans (−3<i>x</i>) × (−5<i>x</i>), on calcule 3 × 5 = 15.<br>
+<b>③ Et les lettres se multiplient entre elles.</b> <i>x</i> × <i>x</i> = <i>x</i>² ; un nombre fois <i>x</i> reste en <i>x</i> : (−2) × <i>x</i> = −2<i>x</i>.<br>
+<b>④ On assemble.</b> (−3<i>x</i>) × (−5<i>x</i>) = +15<i>x</i>² ; <i>x</i> × 3 = 3<i>x</i> ; 4 × (−2<i>x</i>) = −8<i>x</i>.<br>
+On n'écrit jamais 1<i>x</i> ou −1<i>x</i> dans le résultat final : juste <i>x</i> ou −<i>x</i>.`;
+
 const RAP_RED=`<b>Réduire une somme de termes</b><br>
 <b>① On n'additionne que des termes de même nature.</b> Des <i>x</i> avec des <i>x</i>, des <i>x</i>² avec des <i>x</i>², des nombres avec des nombres. Comme des pommes avec des pommes : 2 pommes + 3 pommes = 5 pommes, mais 2 pommes + 3 poires ne font pas 5 de quelque chose.<br>
 <b>② Termes de même nature : on additionne les coefficients.</b> 2<i>x</i> + 3<i>x</i> = (2 + 3)<i>x</i> = 5<i>x</i> ; 2<i>x</i> − 3<i>x</i> = (2 − 3)<i>x</i> = −<i>x</i> ; −2<i>x</i>² + 3<i>x</i>² = (−2 + 3)<i>x</i>² = <i>x</i>². Le calcul des coefficients est une addition de relatifs : le signe du plus fort.<br>
@@ -6982,11 +7083,16 @@ Un <b>gain</b> s’écrit avec le signe <b>+</b>, une <b>perte</b> avec le signe
 <b>① Deux gains</b> s’ajoutent : on gagne 3 € et on gagne 2 €, au final on gagne 5 € — <b>+3 + 2 = +5</b>.<br>
 <b>② Deux pertes</b> s’ajoutent aussi : on perd 3 € et on perd 2 €, au final on perd 5 € — <b>−3 − 2 = −5</b>.<br>
 <b>③ Un gain et une perte</b> se compensent : on garde la <b>différence</b>, avec le signe du plus grand. On gagne 3 € et on perd 2 € : on gagne 1 € — <b>+3 − 2 = +1</b>. On perd 3 € et on gagne 2 € : on perd 1 € — <b>−3 + 2 = −1</b>.`;
+const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
+<b>① Même dénominateur :</b> on garde ce dénominateur, et on additionne ou on soustrait seulement les numérateurs. \\(\\frac{2}{5}+\\frac{1}{5}=\\frac{3}{5}\\)<br>
+<b>② Multiplier deux fractions :</b> numérateur fois numérateur, dénominateur fois dénominateur — et on NE met JAMAIS au même dénominateur, même si l'un des deux facteurs est un nombre entier. \\(\\frac{2}{3}\\times\\frac{4}{5}=\\frac{8}{15}\\) ; \\(\\frac{2}{3}\\times 4=\\frac{8}{3}\\) (le dénominateur ne change pas).<br>
+<b>③ Dénominateurs différents :</b> il faut d'abord les mettre au même dénominateur — le produit des deux — en multipliant chaque fraction en haut ET en bas. Un entier s'écrit d'abord comme une fraction de dénominateur 1 : \\(5=\\frac{5}{1}\\)<br>
+<b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}\\)`;
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
 const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
-  'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
+  'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -7531,7 +7637,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -7659,7 +7765,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','rel','asx','cit','rgp','mrl','red','srl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -32479,6 +32585,248 @@ function mllCtxTexte(q){
    +'n’en a pas besoin.';
 }
 
+/* ===== EXERCICE : PRIORITÉ DES OPÉRATIONS AVEC DES FRACTIONS =================
+   (identifiant « priorite-fractions », kind « pf »)
+   =============================================================================
+   Demandé par Turquet en septembre 2026, d'après une fiche papier : une somme
+   où l'un des deux termes est un PRODUIT de deux fractions —
+       a/b + c/d × e/f
+   — et où la difficulté n'est plus la fraction elle-même, mais l'ORDRE dans
+   lequel on la calcule. La multiplication se fait D'ABORD (comme avec des
+   nombres seuls, 2+3×4=14 et non 20), puis ce qui reste est une somme au sens
+   de {somme-fractions}.
+
+   LE MOTEUR EST UNE COUTURE des deux moteurs existants, jamais une réécriture :
+   le produit c/d × e/f est tiré comme dans {multiplier-fractions} (irréductible,
+   voir mltGen) et la somme finale comme dans {somme-fractions} (résultat
+   irréductible, voir sfGen) — deux leçons déjà enseignées ailleurs, combinées
+   dans un seul calcul plutôt que réenseignées à part.
+
+   UN MODÈLE FIXE RESTE AFFICHÉ À CÔTÉ (décision de Turquet, septembre 2026,
+   d'après la fiche papier « Modèles / Calculer comme les modèles ») : les
+   mêmes six nombres à chaque question, entièrement résolus — ce n'est pas une
+   réponse et il ne se colore ni ne se verrouille jamais. Le tirage, lui,
+   change à chaque question.
+
+   LA SAISIE EST LIBRE, comme {somme-fractions-libre} et {multiplier-fractions-libre} :
+   aucune case, l'élève écrit son calcul dans une feuille ligne par ligne, et
+   c'est l'IA qui le lit. Rien à redéployer chez Supabase : le correcteur
+   générique de la fonction Edge décrit lui-même son énoncé et sa règle (la
+   même leçon que MAX_CTX, apprise sur {somme-fractions-libre}).
+
+   UN JUGE LOCAL DÉDIÉ, PAS libreJuge(). Les autres exercices rédigés exigent
+   que CHAQUE morceau de la copie vaille la réponse FINALE — juste, puisque
+   tout leur calcul EST cette réponse. Ici ce n'est plus vrai : un élève peut
+   très bien isoler le produit sur sa propre ligne — « 2/3 × 4/5 = 8/15 » —
+   avant de reprendre la somme, exactement comme le modèle le montre en trois
+   temps. Ce morceau-là ne vaut PAS la réponse finale (91/30), et libreJuge()
+   l'aurait déclaré faux à tort — un verdict qui PRIME sur celui, pourtant
+   juste, que l'IA aurait rendu. pfJuge() accepte donc CHAQUE morceau qui vaut
+   soit le produit (P1/Q1) soit la réponse finale (P/Q), et n'exige la finale
+   que sur le DERNIER morceau — ce qui laisse justement la faute de priorité
+   se voir : un élève qui additionne AVANT de multiplier écrit un morceau qui
+   ne vaut NI l'un NI l'autre, et le juge le nomme.
+
+   L'ÉTAPE DU MÊME DÉNOMINATEUR RESTE EXIGÉE, comme en {somme-fractions-libre} :
+   c'est elle qui prouve que la somme a bien été reprise après le produit, pas
+   seulement que le résultat final tombe juste par hasard. libreEtapeMemeDeno()
+   est réutilisée telle quelle — elle compare les dénominateurs par VALEUR, pas
+   par écriture, donc (a×Q1)/(b×Q1) + (P1×b)/(Q1×b) s'y reconnaît sans rien
+   ajouter. */
+const PF_NB=4;
+function pfGen(){
+  for(let essai=0; essai<500; essai++){
+    const a=rand(1,9), b=rand(2,9), c=rand(1,9), d=rand(2,9), e=rand(1,9), f=rand(2,9);
+    if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;   /* les trois fractions de l'énoncé sont irréductibles */
+    const P1=c*e, Q1=d*f;
+    if(gcd(P1,Q1)!==1) continue;         /* le produit doit être irréductible, comme {multiplier-fractions} */
+    if(P1===Q1) continue;                /* 1 tout rond : l'écriture finale devient ambiguë */
+    if(c===1 && e===1) continue;         /* « 1/d × 1/f » ne fait rien travailler en haut */
+    if(b===Q1) continue;                 /* déjà le même dénominateur : rien à croiser */
+    const N=a*Q1+P1*b, D=b*Q1, g=gcd(N,D);
+    if(g!==1) continue;                  /* le résultat final doit être irréductible, comme {somme-fractions} */
+    return {a:a,b:b,c:c,d:d,e:e,f:f,P1:P1,Q1:Q1,P:N,Q:D};
+  }
+  return {a:5,b:2,c:2,d:3,e:4,f:5,P1:8,Q1:15,P:91,Q:30};   /* le « G » du modèle papier */
+}
+function pfBuildQuestions(){
+  const vus=new Set(), qs=[]; let garde=400;
+  while(qs.length<PF_NB && garde-->0){
+    const q=pfGen(), cle=q.a+'/'+q.b+'+'+q.c+'/'+q.d+'×'+q.e+'/'+q.f;
+    if(vus.has(cle)) continue;
+    vus.add(cle); qs.push(q);
+  }
+  while(qs.length<PF_NB) qs.push(pfGen());
+  return qs;
+}
+/* Le modèle FIXE, toujours le même — le « G » de la fiche papier, entièrement
+   résolu en cinq lignes. rapMaths() le rend, comme les rappels de cours. */
+const PF_MODELE_HTML=`<div class="pf-modele">
+<p class="pf-modele-titre">Modèle</p>
+<p>\\(G=\\frac{5}{2}+\\frac{2}{3}\\times\\frac{4}{5}\\)</p>
+<p>\\(G=\\frac{5}{2}+\\frac{2\\times 4}{3\\times 5}\\)</p>
+<p>\\(G=\\frac{5}{2}+\\frac{8}{15}\\)</p>
+<p>\\(G=\\frac{5\\times 15}{2\\times 15}+\\frac{8\\times 2}{15\\times 2}\\)</p>
+<p>\\(G=\\frac{75}{30}+\\frac{16}{30}=\\frac{91}{30}\\)</p>
+</div>`;
+function pfLatexExpr(q){
+  const t=(n,d)=>'\\frac{'+n+'}{'+d+'}';
+  return t(q.a,q.b)+'+'+t(q.c,q.d)+'\\times '+t(q.e,q.f);
+}
+function pfEnonceIA(q){
+  const fr=(n,d)=>n+'/'+d;
+  return 'Exercice de mathématiques de Seconde (France). L’élève doit calculer '
+   +fr(q.a,q.b)+' + '+fr(q.c,q.d)+' × '+fr(q.e,q.f)+', en respectant les PRIORITÉS OPÉRATOIRES — la multiplication '
+   +'avant l’addition —, et donner le résultat sous forme de fraction. Il écrit son calcul LUI-MÊME dans une '
+   +'feuille de calcul. La première ligne contient déjà l’expression « '+fr(q.a,q.b)+' + '+fr(q.c,q.d)+' × '+fr(q.e,q.f)+' », qu’il complète.'
+   +'\n\nDEUX FAÇONS D’ÉCRIRE, ÉGALEMENT CORRECTES, et il peut aussi les MÉLANGER :'
+   +'\n· une étape par ligne — les lignes suivantes sont alors précédées de « = » ;'
+   +'\n· ou tout à la suite sur une seule ligne, en enchaînant les « = ».'
+   +'\nCe qui compte est la CHAÎNE D’ÉGALITÉS, pas la mise en page : ne refuse JAMAIS une copie au motif qu’elle tient sur une seule ligne, ni parce qu’elle est répartie sur plusieurs.'
+   +' Les fractions sont écrites en texte, sous la forme « a/b ».';
+}
+function pfAttenduIA(q){
+  return 'RÉSULTAT ATTENDU : '+q.P+'/'+q.Q+'. Cette fraction est déjà irréductible, il n’y a rien à simplifier.'
+   +'\n\nLE PRODUIT INTERMÉDIAIRE, s’il est isolé sur sa propre ligne, vaut '+q.c+'/'+q.d+' × '+q.e+'/'+q.f+' = '+q.P1+'/'+q.Q1+' (déjà irréductible) : une ligne qui vaut CE nombre n’est ni juste ni fausse en elle-même, c’est une étape de calcul, pas encore la réponse.'
+   +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
+   +'\n1. LA PRIORITÉ EST RESPECTÉE : LE PRODUIT EST CALCULÉ AVANT LA SOMME. Si l’élève additionne '+q.a+'/'+q.b+' et '+q.c+'/'+q.d+' AVANT de multiplier par '+q.e+'/'+q.f+' — une ligne qui ne vaut ni '+q.P1+'/'+q.Q1+' ni '+q.P+'/'+q.Q+' —, la priorité n’est PAS respectée : refuse, et dis que la multiplication se fait D’ABORD.'
+   +'\n2. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE, APRÈS le produit. Au moins une ligne montre '+q.a+'/'+q.b+' et le produit (calculé ou en train de l’être) portant le MÊME dénominateur — par exemple ('+q.a+'×'+q.Q1+')/('+q.b+'×'+q.Q1+') + ('+q.P1+'×'+q.b+')/('+q.Q1+'×'+q.b+'). LE DÉNOMINATEUR COMMUN N’EST PAS IMPOSÉ : tout multiple commun de '+q.b+' et '+q.Q1+' convient, pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ même si son résultat est juste.'
+   +'\n3. LE RÉSULTAT FINAL EST JUSTE ET AUCUNE AUTRE ÉGALITÉ N’EST FAUSSE. La DERNIÈRE expression du calcul vaut '+q.P+'/'+q.Q+'. Découpe tout le calcul aux « = » : en dehors du produit intermédiaire ('+q.P1+'/'+q.Q1+', voir point 1), chaque morceau doit valoir '+q.P+'/'+q.Q+'. Une égalité fausse suffit à refuser, même si le dernier morceau est juste — dis alors LAQUELLE.'
+   +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Répéter l’expression de départ ne compte pas comme une étape, mais ne rend rien faux non plus.'
+   +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
+   +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
+   +' Si la priorité n’est pas respectée : dis que la multiplication se calcule TOUJOURS avant l’addition, même sans parenthèses — sans écrire le calcul à sa place.'
+   +' S’il manque l’étape du même dénominateur : dis-le, et rappelle qu’on n’additionne deux fractions que lorsqu’elles ont le même dénominateur.'
+   +' Si une autre ligne est fausse : dis LAQUELLE et ce qui cloche.'
+   +' NE DONNE JAMAIS la fraction '+q.P+'/'+q.Q+' quand la réponse est refusée : l’élève doit pouvoir réessayer.'
+   + LANGUE_SIMPLE;
+}
+function pfCtxTexte(q){
+  return 'L’élève calcule '+q.a+'/'+q.b+' + '+q.c+'/'+q.d+' × '+q.e+'/'+q.f+' en écrivant LUI-MÊME son calcul, '
+   +'sans aucune case à compléter : la première ligne porte déjà l’expression, les suivantes commencent par « = ». '
+   +'Il doit RESPECTER LES PRIORITÉS — calculer d’abord le produit '+q.c+'/'+q.d+' × '+q.e+'/'+q.f+' = '+q.P1+'/'+q.Q1+', '
+   +'PUIS mettre au même dénominateur avec '+q.a+'/'+q.b+' avant d’additionner. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que '
+   +'son professeur l’autorise : '+q.a+'/'+q.b+' + '+q.P1+'/'+q.Q1+' = '+q.P+'/'+q.Q+'. Ce résultat est déjà irréductible. '
+   +'L’ERREUR VISÉE est celle de l’élève qui additionne avant de multiplier, en oubliant la priorité des opérations.';
+}
+/* Le juge local. Voir la doctrine en tête de section : chaque morceau doit
+   valoir le produit intermédiaire OU la réponse finale — jamais l'un OU
+   l'autre indifféremment sur le DERNIER morceau, qui doit être la réponse. */
+function pfJuge(q, rep){
+  const ms=librePieces(rep);
+  if(ms.length<2) return {sait:false};
+  const vals=[];
+  for(let i=0;i<ms.length;i++){ const v=libreEval(ms[i]); if(!v) return {sait:false}; vals.push(v); }
+  for(let i=0;i<ms.length;i++){
+    const okFinal=vals[i].p*q.Q===q.P*vals[i].q;
+    const okProduit=vals[i].p*q.Q1===q.P1*vals[i].q;
+    if(!okFinal && !okProduit) return {sait:true, correct:false, motif:'egalite', morceau:ms[i]};
+  }
+  const fin=libreFracSimple(ms[ms.length-1]);
+  if(!fin || fin.d<=0 || fin.n<0) return {sait:false};
+  if(fin.n*q.Q!==q.P*fin.d) return {sait:true, correct:false, motif:'resultat'};
+  let etape=false;
+  for(let i=0;i<ms.length && !etape;i++) etape=libreEtapeMemeDeno(ms[i]);
+  if(!etape) return {sait:false};
+  return {sait:true, correct:true};
+}
+function pfVerdictIA(j,q){
+  if(!j || !j.sait) return '';
+  let v='\n\nVERDICT DÉJÀ CALCULÉ PAR LA PAGE. Elle a vérifié chaque égalité EN ENTIERS, sans virgule flottante : ce verdict est sûr et s’impose. « correct » vaut '+(j.correct?'true':'false')+'.';
+  if(!j.correct) v+= (j.motif==='resultat')
+    ? ' Ce qui cloche : le résultat final n’est pas '+q.P+'/'+q.Q+'.'
+    : ' Ce qui cloche : l’égalité « '+String(j.morceau||'').slice(0,80)+' » ne vaut ni le produit '+q.P1+'/'+q.Q1+' ni le résultat final '+q.P+'/'+q.Q+' — c’est probablement une addition faite avant la multiplication.';
+  v+=' Ton rôle est de RÉDIGER le feedback conforme à ce verdict et aux consignes de la règle. Si ton propre calcul te dit autre chose, c’est ton calcul qui se trompe : ne conteste jamais ce verdict.';
+  return v;
+}
+function pfSecours(j,q){
+  if(j.correct) return 'Bravo, ton calcul est juste d’un bout à l’autre !';
+  return (j.motif==='resultat')
+    ? 'Ton calcul contient une erreur : le résultat final n’est pas correct. Revérifie tes calculs.'
+    : 'Il y a une égalité fausse dans ton calcul : « '+String(j.morceau||'').slice(0,80)+' » ne correspond ni au produit ni au résultat final. As-tu bien calculé la multiplication AVANT d’additionner ?';
+}
+let pfFeuille=null;
+function renderPF(){
+  const q=test.questions[test.idx]; test.locked=false; test.pfBusy=false;
+  $('pfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPf').innerHTML=modeTagHTML();
+  $('pfLiveScore').textContent=test.score;
+  $('pfFeedback').textContent=''; $('pfFeedback').className='mp-feedback';
+  $('pfPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>+</b> '+sfTermeHTML(q.c,q.d)+' <b>×</b> '+sfTermeHTML(q.e,q.f)
+    +'.<span class="sfl-suite">Respecte les priorités : calcule d’abord le produit.</span>';
+  $('pfHost').innerHTML=rapMaths(PF_MODELE_HTML)
+    +'<p class="tvi-instr">Écris ton calcul. Une étape par ligne, ou tout à la suite&nbsp;: comme tu veux.</p>'
+    +'<div class="dexp2-sheet" id="pfSheet"></div>'
+    +'<p class="dexp-hint"><b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. '
+    +'Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort. '
+    +'Calcule le produit avant l’addition, écris l’étape où les deux fractions ont le même dénominateur, puis donne le résultat.</p>';
+  pfFeuille=mlFeuille({ conteneur:'pfSheet', mode:'calcul',
+    prefixes:{ premiere:'', suite:'=' },
+    prefixesTexte:{ premiere:'', suite:'=' } });
+  test.pfDepart=pfLatexExpr(q);
+  try{ pfFeuille.lignes[0].mf.setValue(test.pfDepart); }catch(e){}
+  setTimeout(function(){ try{ const m=pfFeuille.lignes[0].mf; m.focus(); m.executeCommand('moveToMathfieldEnd'); }catch(e){} },40);
+  $('pfActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" onclick="checkPF()">Vérifier</button>';
+}
+async function checkPF(){
+  if(test.locked || test.pfBusy) return;
+  const q=test.questions[test.idx], fb=$('pfFeedback');
+  const rep=(pfFeuille?pfFeuille.lire():'').trim();
+  let intact=false;
+  try{
+    const l=pfFeuille.lignes;
+    intact = l.length===1 && l[0].mf.getValue().replace(/\s/g,'')===String(test.pfDepart||'').replace(/\s/g,'');
+  }catch(e){}
+  if(!rep || intact){ fb.textContent='Écris d’abord ton calcul, à la suite de l’expression.'; fb.className='mp-feedback bad';
+    if(pfFeuille && pfFeuille.lignes[0]) pfFeuille.lignes[0].mf.focus(); return; }
+  test.pfBusy=true;
+  $('pfActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  fb.textContent='Je lis ton calcul…'; fb.className='mp-feedback muted';
+  const juge=pfJuge(q, rep);
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
+      action:'verif', question:pfEnonceIA(q)+pfVerdictIA(juge,q), attendu:pfAttenduIA(q), reponse:rep, balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  test.pfBusy=false;
+  if((!res || res.error) && juge.sait) res={ correct:juge.correct, feedback:pfSecours(juge,q) };
+  if(!res || res.error){
+    fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
+    fb.className='mp-feedback bad';
+    $('pfActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" onclick="checkPF()">Vérifier</button>';
+    return;
+  }
+  if(juge.sait && (res.correct===true)!==juge.correct) res={ correct:juge.correct, feedback:pfSecours(juge,q) };
+  const correct=juge.sait ? juge.correct : (res.correct===true);
+  fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
+  if(isSoutien() && !correct){
+    $('pfActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" onclick="checkPF()">Revérifier</button>';
+    if(pfFeuille && pfFeuille.lignes.length) pfFeuille.lignes[pfFeuille.lignes.length-1].mf.focus();
+    return;
+  }
+  test.locked=true; if(pfFeuille) pfFeuille.verrouiller();
+  if(correct){ test.score++; $('pfLiveScore').textContent=test.score; }
+  test.answers.push({...(ptsExo()||{}), correct:correct,
+    q:q.a+'/'+q.b+' + '+q.c+'/'+q.d+'×'+q.e+'/'+q.f, answer:q.P+'/'+q.Q, given:rep});
+  const last=test.idx===test.questions.length-1;
+  $('pfActions').innerHTML='<button class="btn btn-primary" id="pfNext" onclick="nextPF()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pfNext'); if(nb) nb.focus();
+}
+function nextPF(){ if(test.idx<test.questions.length-1){ test.idx++; renderPF(); autoSave(); } else finishTest(); }
+async function startPF(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pfBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pf', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.qId='priorite-fractions';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pf'); renderPF();
+}
+
 /* ===== EXERCICE : SIMPLIFIER UNE FRACTION EN COLORIANT DEUX BARRES ===========
    (identifiant « simplifier-barres », kind « smp »)
    =============================================================================
@@ -33245,6 +33593,465 @@ function ctxSrl(q){
   return {nombre:'', contexte:c};
 }
 
+/* ===== EXERCICE : RÉDUIRE CHAQUE PRODUIT AVEC x ==============================
+   (identifiant « reduire-produit », kind « rpd », thème 7.8 — Calcul littéral)
+   Demandé par Turquet en septembre 2026, d'après une fiche papier « Réduire
+   chaque produit » : quinze produits de deux facteurs (a à o), chacun un
+   nombre ou une lettre x — jamais x², jamais deux facteurs numériques seuls.
+
+   CERTAINS FACTEURS S'ÉCRIVENT SANS COEFFICIENT — « x », « -x » — EXACTEMENT
+   COMME LA FICHE : neuf des trente facteurs de la fiche sont ainsi « nus », et
+   le tirage garde le même compte, facteur par facteur (RPD_MODELES fixe la
+   FORME de chaque lettre — X0 nu, Xc avec un coefficient de 2 à 9, N un
+   nombre). Un seul facteur (le second de « m », -5x × 1x) écrit un coefficient
+   de 1 en toutes lettres (X1) : la fiche le fait exprès, pour distinguer
+   « 1x » de « x ».
+
+   DEUX PAGES, DEUX ÉCRITURES DE LA MÊME CHOSE (demande de Turquet) : la
+   première décompose chaque produit en trois cases — le signe, le
+   coefficient entier, puis si le résultat se termine par x ou par x² — ;
+   la seconde demande directement le résultat réduit, comme {reduire-somme}.
+   Chaque page tire ses quinze produits indépendamment : les nombres et les
+   signes sont neufs à chaque page, la FORME (RPD_MODELES) ne change pas.
+
+   ON RANGE LES DEUX FACTEURS DE CHAQUE PRODUIT, JAMAIS LES RÉPONSES :
+   rpdLignes() recalcule signe, coefficient, degré et écriture réduite dans la
+   fonction même qui corrige — jusqu'au résultat, réutilisé de {reduire-somme}
+   (redEcrit, redLit, redMeme) : un produit réduit EST un terme a·xᵈ, comme une
+   somme réduite l'est. */
+const RPD_LETTRES=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o'];
+/* Le type de chaque facteur, dans l'ordre de la fiche : N (un nombre), X0 (x
+   ou -x, SANS coefficient écrit), Xc (un coefficient de 2 à 9 écrit en
+   toutes lettres), X1 (comme Xc, mais coefficient FIGÉ à 1 — seul « m »
+   l'utilise, pour écrire « 1x »). */
+const RPD_MODELES=[
+  ['X0','N'], ['X0','X0'], ['X0','N'], ['Xc','X0'], ['N','X0'],
+  ['Xc','N'], ['Xc','Xc'], ['Xc','N'], ['X0','Xc'], ['Xc','Xc'],
+  ['N','Xc'], ['Xc','N'], ['Xc','X1'], ['Xc','Xc'], ['X0','X0']
+];
+function rpdFacteur(kind){
+  if(kind==='X1') return {kind:kind, s:1, m:1};
+  const s=Math.random()<0.5?1:-1;
+  const m=(kind==='N'||kind==='Xc') ? rand(2,9) : 1;
+  return {kind:kind, s:s, m:m};
+}
+function rpdGenItems(){
+  return RPD_MODELES.map(function(km,i){ return {i:i, lettre:RPD_LETTRES[i], f1:rpdFacteur(km[0]), f2:rpdFacteur(km[1])}; });
+}
+/* « x », « -x » (X0, ou X1 à 1 : un coefficient nu) ; « 8x », « -3x » (Xc, ou
+   X1, qui écrit toujours son coefficient) ; « 3 », « -2 » (N). */
+function rpdEcritFacteur(f){
+  if(f.kind==='N') return (f.s<0?'−':'')+f.m;
+  if(f.kind==='X0') return (f.s<0?'−':'')+'x';
+  return (f.s<0?'−':'')+f.m+'x';
+}
+function rpdBuildQuestions(){
+  return [{phase:'detail', items:rpdGenItems()}, {phase:'direct', items:rpdGenItems()}];
+}
+/* Les quinze produits d'une page, et ce que chaque case attend. Un produit
+   porte toujours au moins un facteur en x : son degré est 1 ou 2, jamais 0. */
+function rpdLignes(q){
+  return q.items.map(function(it){
+    const signe=it.f1.s*it.f2.s, mag=it.f1.m*it.f2.m;
+    const deg=(it.f1.kind==='N'?0:1)+(it.f2.kind==='N'?0:1);
+    const val=signe*mag;
+    return { i:it.i, lettre:it.lettre,
+      expr: rpdEcritFacteur(it.f1)+' × '+rpdEcritFacteur(it.f2),
+      signe: signe>0?'+':'-', coef:mag, degNum:deg, degSel: deg===2?'x2':'x',
+      val: val, bon: redEcrit([{c:val,d:deg}],false), bonH: redEcrit([{c:val,d:deg}],true) };
+  });
+}
+function rpdCases(q){
+  const cs=[];
+  rpdLignes(q).forEach(function(l){
+    if(q.phase==='detail'){
+      cs.push({id:'rpd-sg-'+l.i, bon:l.signe, kind:'sel', l:l});
+      cs.push({id:'rpd-c-'+l.i, bon:String(l.coef), kind:'nb', l:l});
+      cs.push({id:'rpd-d-'+l.i, bon:l.degSel, kind:'sel', l:l});
+    } else {
+      cs.push({id:'rpd-r-'+l.i, bon:l.bon, kind:'expr', l:l});
+    }
+  });
+  return cs;
+}
+/* Le coefficient, lu comme un entier relatif : espaces retirées, moins
+   typographique normalisé — même lecture que relLit(), sous le nom de ce
+   moteur-ci. */
+function rpdLit(v){
+  const t=String(v==null?'':v).replace(/\s+/g,'').replace(/[−–—]/g,'-');
+  if(!/^[+-]?\d+$/.test(t)) return null;
+  return parseInt(t,10);
+}
+function rpdJuste(c, el){
+  if(!el) return false;
+  if(c.kind==='nb'){ const n=rpdLit(el.value); return n!==null && n===parseInt(c.bon,10); }
+  if(c.kind==='expr'){ const lu=redLit(el.value); if(!lu || !lu.reduite) return false;
+    const att={}; att[c.l.degNum]=c.l.val; return redMeme(lu.termes, att); }
+  return el.value===c.bon;
+}
+function renderRpdTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('rpdIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagRpd').innerHTML=modeTagHTML();
+  $('rpdLiveScore').textContent=test.score;
+  $('rpdFeedback').textContent=''; $('rpdFeedback').className='mp-feedback';
+  $('rpdActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkRpdAnswer()">Vérifier</button>';
+  const vide='<option value="" selected disabled>?</option>';
+  const signes='<option value="+">+</option><option value="-">−</option>';
+  const degres='<option value="x">x</option><option value="x2">x²</option>';
+  let h='<div class="red-lignes">';
+  rpdLignes(q).forEach(function(l){
+    if(q.phase==='detail'){
+      h+='<div class="rel-bloc"><div class="rel-l"><span class="rel-lib">'+l.lettre+'.</span><span class="rel-expr">'+esc(l.expr)+' =</span></div>'
+        +'<div class="rel-l">'
+        +'<select class="plc-sel" id="rpd-sg-'+l.i+'" aria-label="le signe du résultat">'+vide+signes+'</select>'
+        +'<input class="rel-in" id="rpd-c-'+l.i+'" type="text" inputmode="numeric" autocomplete="off" aria-label="le coefficient entier">'
+        +'<select class="plc-sel" id="rpd-d-'+l.i+'" aria-label="la fin de l’écriture, x ou x au carré">'+vide+degres+'</select>'
+        +'</div></div>';
+    } else {
+      h+='<div class="red-l"><span class="red-expr">'+l.lettre+'. '+esc(l.expr)+' =</span>'
+        +'<input class="red-in" id="rpd-r-'+l.i+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="le résultat réduit de '+esc(l.expr)+'">'
+        +'<button class="btn btn-ghost red-sq" type="button" tabindex="-1" onclick="redCarre(\'rpd-r-'+l.i+'\')" aria-label="écrire x au carré"><i>x</i>²</button>'
+        +'</div>';
+    }
+  });
+  h+='</div>';
+  $('rpdHost').innerHTML=h;
+  rpdCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
+    el.addEventListener(c.kind==='sel'?'change':'input', function(){ if(isSoutien()) checkRpdAnswer(true);
+      clearTimeout(test.rpdSave); test.rpdSave=setTimeout(autoSave,1000); });
+    if(c.kind!=='sel') el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkRpdAnswer(); } });
+  });
+}
+/* Le pourquoi, dit sur la PREMIÈRE case fausse : la méthode appliquée à ce
+   produit-là, plutôt que la règle récitée. */
+function rpdPourquoi(q, subs){
+  const f=subs.find(function(s){ return s.c.l && !s.ok && !s.vide; });
+  if(!f) return '';
+  const l=f.c.l;
+  return 'Dans '+l.lettre+'. '+l.expr+', les signes donnent '+(l.signe==='+'?'un résultat positif':'un résultat négatif')
+    +', le coefficient vaut '+l.coef+', et le résultat se termine par '+(l.degNum===2?'x² (deux facteurs en x)':'x (un seul facteur en x)')
+    +' : '+l.expr+' = '+l.bon+'.';
+}
+function checkRpdAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const cases=rpdCases(q);
+  if(live){   /* soutien : on ne juge que les cases déjà remplies */
+    if(!isSoutien()) return;
+    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
+      el.classList.remove('ok','bad');
+      if(String(el.value).trim()==='') return;
+      el.classList.add(rpdJuste(c,el)?'ok':'bad');
+    });
+    return;
+  }
+  const subs=cases.map(function(c){ const el=$(c.id);
+    return {c:c, el:el, ok:rpdJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
+  const pourquoi=rpdPourquoi(q, subs);
+  subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
+  if(!allOk && isSoutien()){ soutienAgain('rpdFeedback','rpdActions','checkRpdAnswer','rpdHost'); return; }
+  test.locked=true;
+  /* la page est corrigée : le bouton « x² » n'a plus rien à écrire */
+  if(q.phase==='direct') $('rpdHost').querySelectorAll('.red-sq').forEach(function(b){ b.hidden=true; });
+  test.score+=nCorrect; $('rpdLiveScore').textContent=test.score;
+  if(allOk){ $('rpdFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('rpdFeedback').className='mp-feedback good'; }
+  else { $('rpdFeedback').textContent=msgAvecVides(subs, pourquoi); $('rpdFeedback').className='mp-feedback bad'; }
+  const lignes=rpdLignes(q);
+  test.answers.push({...(ptsExo()||{}),correct:allOk,
+    q:lignes.map(function(l){ return l.lettre+'. '+l.expr; }).join(' ; '),
+    answer:lignes.map(function(l){ return l.expr+' = '+l.bon; }).join(' ; '),
+    given: q.phase==='direct'
+      ? lignes.map(function(l){ const el=$('rpd-r-'+l.i), v=el?String(el.value).trim():''; return l.expr+' = '+(v||'?'); }).join(' ; ')
+      : lignes.map(function(l){ const sg=$('rpd-sg-'+l.i), c=$('rpd-c-'+l.i), d=$('rpd-d-'+l.i);
+          return l.expr+' = '+(sg?sg.value:'?')+' '+(c?c.value:'?')+' '+(d?d.value:'?'); }).join(' ; ')});
+  const last=test.idx===test.questions.length-1;
+  $('rpdActions').innerHTML='<button class="btn btn-primary" id="rpdNext" onclick="nextRpdQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('rpdNext'); if(nb) nb.focus();
+}
+function nextRpdQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderRpdTest(); autoSave(); } else finishTest(); }
+function startRpd(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=rpdBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'rpd', questions:qs, idx:0, score:0,
+    maxScore:RPD_MODELES.length*3+RPD_MODELES.length, answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  test.qId='reduire-produit';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('rpd'); renderRpdTest();
+}
+function ctxRpd(q){
+  const lignes=rpdLignes(q);
+  const faux=rpdCases(q).filter(function(c){ const el=$(c.id); return el && String(el.value).trim()!=='' && !rpdJuste(c,el); }).length;
+  let c=(q.phase==='detail'
+    ? 'L’élève décompose chaque produit en trois cases : le signe du résultat, son coefficient entier, puis si le résultat se termine par x ou par x². '
+    : 'L’élève écrit directement le résultat réduit de chaque produit. ')
+   +'Quinze produits de deux facteurs (un nombre ou une lettre x, jamais x²) : '
+   +lignes.map(function(l){ return l.lettre+'. '+l.expr; }).join(' ; ')+'. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES : '
+   +lignes.map(function(l){ return l.expr+' = '+l.bon+(q.phase==='detail'?' (signe '+l.signe+', coefficient '+l.coef+', '+(l.degNum===2?'x²':'x')+')':''); }).join(' ; ')+'. '
+   +'Méthode enseignée : le signe du produit suit la règle des signes (deux signes pareils donnent +, deux signes contraires donnent −), le coefficient est le produit des deux nombres sans leur signe, et x fois x donne x². '
+   +'On n’écrit jamais 1x ou −1x dans le résultat final : juste x ou −x.';
+  if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
+  return {nombre:'', contexte:c};
+}
+
+/* ===== EXERCICE : RÉVISER LES QUATRE RÈGLES DES FRACTIONS ===================
+   (identifiant « revision-fractions », kind « rvf », thème Fractions, 5.11)
+   Demandé par Turquet en septembre 2026, d'après une fiche papier « Révision
+   sur les fractions » à cinq remarques : même dénominateur (①), produit (②
+   et ④ — la MÊME règle, un facteur entier ou non), dénominateurs différents
+   (③), inverse pour diviser (⑤). Ce n'est PAS une redite du détail pas à pas
+   que {somme-fractions}, {multiplier-fractions} et {diviser-fractions}
+   enseignent déjà : celui-ci teste le RÉSULTAT final et le VOCABULAIRE de la
+   règle — une liste à choisir, une fraction à compléter, rien de plus. Voir
+   docs/journal/07-fractions.md pour le détail des choix.
+
+   HUIT QUESTIONS, DANS UN ORDRE FIXE — jamais mélangé, seuls les nombres sont
+   tirés : une par sous-règle de la fiche, la multiplication comptant deux fois
+   (une fois avec deux fractions, une fois avec un facteur entier) puisque
+   c'est mécaniquement la même règle et que la fiche la répète elle-même.
+
+   LES NOMBRES ONT UN SEUL CHIFFRE, JAMAIS ZÉRO (consigne de Turquet, comme
+   {additionner-relatifs}) : dénominateurs de 2 à 9, numérateurs et entiers de
+   1 à 9. AUCUNE simplification n'est demandée ni recherchée — ce n'est pas le
+   sujet ici, à la différence de {multiplier-fractions} — et le tirage écarte
+   seulement un résultat NUL là où la case deviendrait ambiguë (meme-sub :
+   deux numérateurs distincts ; diff-sub-entier : le numérateur final n'est
+   jamais zéro).
+
+   ON RANGE LES NOMBRES TIRÉS, JAMAIS LA RÉPONSE : rvfReponse() la recalcule à
+   chaque correction, comme relLignes() le fait pour {additionner-relatifs} —
+   une réponse rangée à côté de la question finirait par la contredire. */
+const RVF_ORDRE=['meme-add','meme-sub','mult-frac','mult-entier','diff-add','diff-sub-entier','div-1','div-2'];
+/* Le vocabulaire de chaque question : la consigne affichée devant la liste,
+   puis ses trois options — la PREMIÈRE est toujours la bonne, comme
+   rel-regle et srl-regle. */
+const RVF_REGLES={
+  'meme-add':{ texte:'Pour additionner deux fractions qui ont déjà le même dénominateur, il faut garder ce même…',
+    opts:[['denominateur','dénominateur'],['numerateur','numérateur'],['signe','signe']] },
+  'meme-sub':{ texte:'Pour soustraire deux fractions qui ont déjà le même dénominateur, il faut garder ce même…',
+    opts:[['denominateur','dénominateur'],['numerateur','numérateur'],['signe','signe']] },
+  'mult-frac':{ texte:'Pour multiplier deux fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux ;…',
+    opts:[['non','on NE met PAS au même dénominateur (ce n’est pas nécessaire)'],['oui','il faut d’abord les mettre au même dénominateur'],['add','on additionne les numérateurs']] },
+  'mult-entier':{ texte:'Pour multiplier une fraction par un nombre ENTIER, le numérateur est multiplié par cet entier, et le dénominateur…',
+    opts:[['change','ne change pas'],['aussi','est multiplié par l’entier aussi'],['un','devient 1']] },
+  'diff-add':{ texte:'Pour additionner deux fractions de dénominateurs différents, il faut d’abord…',
+    opts:[['commun','les mettre au même dénominateur (produit des deux dénominateurs)'],['hasard','multiplier les deux dénominateurs par un nombre au hasard'],['simpl','les simplifier']] },
+  'diff-sub-entier':{ texte:'Un nombre ENTIER s’écrit comme une fraction de dénominateur…',
+    opts:[['un','1'],['zero','0'],['meme','lui-même']] },
+  'div-1':{ texte:'Pour diviser par une fraction, on multiplie par…',
+    opts:[['inv','l’inverse de la 2e fraction (on échange son numérateur et son dénominateur)'],['carre','le carré de la 2e fraction'],['opp','l’opposé de la 2e fraction']] },
+  'div-2':{ texte:'Pour diviser par une fraction, on multiplie par…',
+    opts:[['inv','l’inverse de la 2e fraction (on échange son numérateur et son dénominateur)'],['carre','le carré de la 2e fraction'],['opp','l’opposé de la 2e fraction']] }
+};
+function rvfFallback(type){
+  switch(type){
+    case 'meme-add': return {type:type, d:5, n1:2, n2:1};
+    case 'meme-sub': return {type:type, d:5, n1:4, n2:1};
+    case 'mult-frac': return {type:type, d1:3, d2:5, n1:2, n2:1};
+    case 'mult-entier': return {type:type, d:5, n:2, k:3};
+    case 'diff-add': return {type:type, d1:3, d2:5, n1:1, n2:2};
+    case 'diff-sub-entier': return {type:type, d1:4, n1:1, k:1};
+    default: return {type:type, d1:3, d2:5, n1:2, n2:1};
+  }
+}
+function rvfTirage(type){
+  for(let essai=0; essai<200; essai++){
+    if(type==='meme-add'){
+      return {type:type, d:rand(2,9), n1:rand(1,9), n2:rand(1,9)};
+    }
+    if(type==='meme-sub'){
+      const d=rand(2,9), n1=rand(1,9), n2=rand(1,9);
+      if(n1===n2) continue;
+      return {type:type, d:d, n1:n1, n2:n2};
+    }
+    if(type==='mult-frac'){
+      return {type:type, d1:rand(2,9), d2:rand(2,9), n1:rand(1,9), n2:rand(1,9)};
+    }
+    if(type==='mult-entier'){
+      return {type:type, d:rand(2,9), n:rand(1,9), k:rand(1,9)};
+    }
+    if(type==='diff-add'){
+      const d1=rand(2,9), d2=rand(2,9);
+      if(d1===d2) continue;
+      return {type:type, d1:d1, d2:d2, n1:rand(1,9), n2:rand(1,9)};
+    }
+    if(type==='diff-sub-entier'){
+      const d1=rand(2,9), n1=rand(1,9), k=rand(1,9);
+      if(n1-k*d1===0) continue;
+      return {type:type, d1:d1, n1:n1, k:k};
+    }
+    if(type==='div-1' || type==='div-2'){
+      return {type:type, d1:rand(2,9), d2:rand(2,9), n1:rand(1,9), n2:rand(1,9)};
+    }
+  }
+  return rvfFallback(type);
+}
+function rvfBuildQuestions(){ return RVF_ORDRE.map(function(t){ return rvfTirage(t); }); }
+/* La réponse attendue, recalculée sur les nombres tirés — jamais rangée. */
+function rvfReponse(q){
+  switch(q.type){
+    case 'meme-add': return {num:q.n1+q.n2, den:q.d};
+    case 'meme-sub': return {num:q.n1-q.n2, den:q.d};
+    case 'mult-frac': return {num:q.n1*q.n2, den:q.d1*q.d2};
+    case 'mult-entier': return {num:q.n*q.k, den:q.d};
+    case 'diff-add': return {num:q.n1*q.d2+q.n2*q.d1, den:q.d1*q.d2};
+    case 'diff-sub-entier': return {num:q.n1-q.k*q.d1, den:q.d1};
+    case 'div-1': case 'div-2': return {num:q.n1*q.d2, den:q.d1*q.n2};
+  }
+}
+/* Le calcul de gauche, en HTML — les mêmes fonctions que {somme-fractions}
+   (sfTermeHTML, sfFracInner) : un entier y prend la FORME d'une fraction sans
+   barre, à la même hauteur, et le signe qui le suit tombe sur le bon trait. */
+function rvfGauche(q){
+  const t=function(n,d){ return sfTermeHTML(n,d); };
+  const op=function(s){ return '<span class="f-times">'+s+'</span>'; };
+  switch(q.type){
+    case 'meme-add': return t(q.n1,q.d)+op('+')+t(q.n2,q.d);
+    case 'meme-sub': return t(q.n1,q.d)+op('−')+t(q.n2,q.d);
+    case 'mult-frac': return t(q.n1,q.d1)+op('×')+t(q.n2,q.d2);
+    case 'mult-entier': return t(q.n,q.d)+op('×')+t(q.k,1);
+    case 'diff-add': return t(q.n1,q.d1)+op('+')+t(q.n2,q.d2);
+    case 'diff-sub-entier': return t(q.n1,q.d1)+op('−')+t(q.k,1);
+    case 'div-1': case 'div-2': return t(q.n1,q.d1)+op('÷')+t(q.n2,q.d2);
+  }
+}
+/* Le même calcul, en TEXTE — pour le contexte envoyé au modèle. */
+function rvfTexte(q){
+  switch(q.type){
+    case 'meme-add': return q.n1+'/'+q.d+' + '+q.n2+'/'+q.d;
+    case 'meme-sub': return q.n1+'/'+q.d+' − '+q.n2+'/'+q.d;
+    case 'mult-frac': return q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2;
+    case 'mult-entier': return q.n+'/'+q.d+' × '+q.k;
+    case 'diff-add': return q.n1+'/'+q.d1+' + '+q.n2+'/'+q.d2;
+    case 'diff-sub-entier': return q.n1+'/'+q.d1+' − '+q.k;
+    case 'div-1': case 'div-2': return q.n1+'/'+q.d1+' ÷ '+q.n2+'/'+q.d2;
+  }
+}
+/* Les trois cases d'une question : la règle (liste), le numérateur, le
+   dénominateur. Score par question = 3, comme relCases/srlCases. */
+function rvfCases(q){
+  const r=rvfReponse(q);
+  return [
+    {id:'rvf-regle', kind:'sel', bon:RVF_REGLES[q.type].opts[0][0]},
+    {id:'rvf-num', kind:'nb', bon:r.num},
+    {id:'rvf-den', kind:'nb', bon:r.den}
+  ];
+}
+/* « 5 », « +5 », « -1 », « −1 » : comme relLit, le signe + est facultatif
+   devant un positif. */
+function rvfLit(v){
+  const t=String(v==null?'':v).replace(/\s+/g,'').replace(/[−–—]/g,'-');
+  if(!/^[+-]?\d+$/.test(t)) return null;
+  return parseInt(t,10);
+}
+function rvfJuste(c, el){
+  if(!el) return false;
+  if(c.kind==='nb'){ const n=rvfLit(el.value); return n!==null && n===c.bon; }
+  return el.value===c.bon;
+}
+function renderRvfTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('rvfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagRvf').innerHTML=modeTagHTML();
+  $('rvfLiveScore').textContent=test.score;
+  $('rvfFeedback').textContent=''; $('rvfFeedback').className='mp-feedback';
+  $('rvfActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkRvfAnswer()">Vérifier</button>';
+  const vide='<option value="" selected disabled>?</option>';
+  const regle=RVF_REGLES[q.type];
+  const frac='<span class="f-frac-input"><span class="sf-case"><input class="f-num" id="rvf-num" type="text" inputmode="text" autocomplete="off" aria-label="numérateur"></span><span class="f-fbar"></span><span class="sf-case"><input class="f-den" id="rvf-den" type="text" inputmode="text" autocomplete="off" aria-label="dénominateur"></span></span>';
+  $('rvfHost').innerHTML=
+    '<div class="rel-regle"><span>'+esc(regle.texte)+'</span>'
+    +'<select class="plc-sel" id="rvf-regle" aria-label="la règle">'+vide
+    +regle.opts.map(function(o){ return '<option value="'+o[0]+'">'+esc(o[1])+'</option>'; }).join('')
+    +'</select></div>'
+    +'<div class="pt-row">'+rvfGauche(q)+fEq(frac)+'</div>';
+  rvfCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
+    el.addEventListener(c.kind==='nb'?'input':'change', function(){ if(isSoutien()) checkRvfAnswer(true);
+      clearTimeout(test.rvfSave); test.rvfSave=setTimeout(autoSave,1000); });
+    if(c.kind==='nb') el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkRvfAnswer(); } });
+  });
+}
+/* Le pourquoi, dit avec les nombres de la question — jamais la règle
+   récitée seule. */
+function rvfPourquoi(q){
+  const r=rvfReponse(q);
+  switch(q.type){
+    case 'meme-add': return 'Le dénominateur ne bouge pas quand les deux fractions l’ont déjà en commun : on additionne seulement les numérateurs. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
+    case 'meme-sub': return 'Le dénominateur ne bouge pas quand les deux fractions l’ont déjà en commun : on soustrait seulement les numérateurs. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
+    case 'mult-frac': return 'Pour multiplier deux fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux, sans jamais chercher un dénominateur commun. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
+    case 'mult-entier': return 'Un entier se multiplie comme les autres : le numérateur est multiplié par lui, le dénominateur ne change pas. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
+    case 'diff-add': return 'Avec des dénominateurs différents, on multiplie chaque fraction, en haut ET en bas, par le dénominateur de l’autre. '+rvfTexte(q)+' = ('+q.n1+'×'+q.d2+' + '+q.n2+'×'+q.d1+')/('+q.d1+'×'+q.d2+') = '+r.num+'/'+r.den+'.';
+    case 'diff-sub-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
+    case 'div-1': case 'div-2': return 'Diviser par une fraction, c’est multiplier par son inverse : on échange son numérateur et son dénominateur. '+rvfTexte(q)+' = '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' = '+r.num+'/'+r.den+'.';
+  }
+}
+function checkRvfAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const cases=rvfCases(q);
+  if(live){   /* soutien : on ne juge que les cases déjà remplies */
+    if(!isSoutien()) return;
+    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
+      el.classList.remove('ok','bad');
+      if(String(el.value).trim()==='') return;
+      el.classList.add(rvfJuste(c,el)?'ok':'bad');
+    });
+    return;
+  }
+  const subs=cases.map(function(c){ const el=$(c.id);
+    return {c:c, el:el, ok:rvfJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  /* chaque case a son verdict : une case juste ne rougit pas pour sa
+     voisine, et une case vide reçoit la correction en vert (corrChoix) */
+  subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
+  if(!allOk && isSoutien()){ soutienAgain('rvfFeedback','rvfActions','checkRvfAnswer','rvfHost'); return; }
+  test.locked=true;
+  test.score+=nCorrect; $('rvfLiveScore').textContent=test.score;
+  const r=rvfReponse(q);
+  if(allOk){ $('rvfFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('rvfFeedback').className='mp-feedback good'; }
+  else { $('rvfFeedback').textContent=msgAvecVides(subs, rvfPourquoi(q)); $('rvfFeedback').className='mp-feedback bad'; }
+  test.answers.push({...(ptsExo()||{}),correct:allOk,
+    q:rvfTexte(q)+' = ?',
+    answer:rvfTexte(q)+' = '+r.num+'/'+r.den,
+    given:(function(){ const n=$('rvf-num'), d=$('rvf-den');
+      const nv=(n&&String(n.value).trim()!=='')?n.value:'?', dv=(d&&String(d.value).trim()!=='')?d.value:'?';
+      return rvfTexte(q)+' = '+nv+'/'+dv; })()});
+  const last=test.idx===test.questions.length-1;
+  $('rvfActions').innerHTML='<button class="btn btn-primary" id="rvfNext" onclick="nextRvfQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('rvfNext'); if(nb) nb.focus();
+}
+function nextRvfQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderRvfTest(); autoSave(); } else finishTest(); }
+function startRvf(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=rvfBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'rvf', questions:qs, idx:0, score:0,
+    maxScore:qs.length*3, answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  test.qId='revision-fractions';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('rvf'); renderRvfTest();
+}
+function ctxRvf(q){
+  const regle=RVF_REGLES[q.type];
+  const r=rvfReponse(q);
+  const faux=rvfCases(q).filter(function(c){ const el=$(c.id); return el && String(el.value).trim()!=='' && !rvfJuste(c,el); }).length;
+  let c='L’élève révise une règle des fractions parmi quatre (même dénominateur, produit, dénominateurs différents, division), question '+(RVF_ORDRE.indexOf(q.type)+1)+' sur 8. '
+   +'Consigne affichée : « '+regle.texte+' », avec trois choix possibles. '
+   +'Calcul affiché : '+rvfTexte(q)+' = ? '
+   +'Réponses attendues, STRICTEMENT SECRÈTES : la règle est « '+regle.opts[0][1]+' » ; le résultat est '+r.num+'/'+r.den+'. '
+   +'Méthode enseignée : '+rvfPourquoi(q);
+  if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
+  return {nombre:'', contexte:c};
+}
+
 /* ===== EXERCICE : GAGNER ET PERDRE — LES NOMBRES RELATIFS ==================
    (identifiant « nombres-relatifs », kind « rgp », thème 7.2 — Calcul littéral)
    Demandé par Turquet en septembre 2026, sur la fiche « relatifs_1 » (la même que
@@ -33595,71 +34402,50 @@ function ctxMrl(q){
   return {nombre:'', contexte:c};
 }
 
-/* ===== EXERCICE : CALCUL ITÉRÉ, ALTERNER SOMME ET PRODUIT ===================
+/* ===== EXERCICE : SOMME ET PRODUIT DE DEUX RELATIFS =========================
    (identifiant « calcul-itere », kind « cit », 7.4, thème Calcul littéral)
    Demandé par Turquet en septembre 2026 : des nombres à UN chiffre, jamais
-   zéro, et l'on alterne somme et produit. Un nombre de départ, puis quatre
-   étapes — « + 4 », « × 5 », « + 2 », « × 6 » — dont chacune part du résultat
-   de la précédente. Chaque ligne s'écrit comme une égalité : « 7 × 5 = [  ] »,
-   où 7 est le résultat de la ligne d'avant, RECOPIÉ dès que l'élève l'écrit.
+   zéro, et l'on ALTERNE somme et produit. Le premier jet enchaînait les
+   calculs (chaque résultat devenait le départ du suivant) : « quand je disais
+   alterné, c'était en ayant des calculs disjoints ». Les calculs sont donc
+   INDÉPENDANTS, et ce sont des RELATIFS (réponse de Turquet) : pour une même
+   paire, la somme puis le produit, côte à côte — l'élève change de règle à
+   chaque ligne, le signe du plus fort puis la règle des signes. L'identifiant
+   reste « calcul-itere » : un identifiant ne se renomme jamais.
 
-   UNE ERREUR NE SE PAIE QU'UNE FOIS : chaque ligne est jugée à partir du
-   nombre que l'élève a écrit à la ligne d'avant (celui qu'il voit recopié en
-   tête de ligne). Si cette case est vide ou illisible, on repart de la valeur
-   que la correction y écrit. Sans cela, une faute à la première ligne rougirait les quatre — et
-   une case juste rougirait pour sa voisine.
+   Quatre paires par page, une pour chaque combinaison de signes (+,+), (+,−),
+   (−,+), (−,−), dans un ordre tiré. Les deux chiffres d'une paire sont
+   DIFFÉRENTS : avec −3 et +3, la somme vaut 0, et « le plus fort » n'existe
+   pas. Trois pages, huit cases chacune, barème 24.
 
-   On ne multiplie jamais par 1 : « × 1 » ne demande aucun calcul. La première
-   page commence par une somme, la deuxième par un produit, les suivantes
-   tirent au sort — les deux départs sortent dans chaque séance.
-
-   ON RANGE LES CHIFFRES, JAMAIS LES RÉPONSES : la chaîne se recalcule dans la
-   fonction même qui corrige (citAttendus). */
-const CIT_NB=5, CIT_ETAPES=4;
-function citGen(i){
-  const prod0 = i===0 ? false : (i===1 ? true : Math.random()<0.5);
-  const d=[];
-  for(let k=0;k<CIT_ETAPES;k++){
-    const prod=(k%2===0)===prod0;
-    d.push(prod ? rand(2,9) : rand(1,9));
+   ON RANGE LES PAIRES, JAMAIS LES RÉPONSES : citLignes recalcule sommes et
+   produits dans la fonction même qui corrige. Les réponses se lisent comme au
+   7.1 (relLit) : « 2 », « +2 », « -2 », « −2 ». */
+const CIT_NB=3, CIT_PAIRES=4;
+const CIT_SIGNES=[[1,1],[1,-1],[-1,1],[-1,-1]];
+function citGen(){
+  const ordre=CIT_SIGNES.slice().sort(function(){ return Math.random()-0.5; });
+  const pris=[], p=[];
+  for(let k=0;k<CIT_PAIRES;k++){
+    let x, y, essai=0;
+    do{ x=rand(1,9); y=rand(1,9); essai++; }
+    while((x===y || pris.indexOf(Math.min(x,y)+'-'+Math.max(x,y))>=0) && essai<200);
+    pris.push(Math.min(x,y)+'-'+Math.max(x,y));
+    p.push([ordre[k][0]*x, ordre[k][1]*y]);
   }
-  return {dep:rand(1,9), prod0:prod0, d:d};
+  return {p:p};
 }
-function citBuildQuestions(){ return distinctes(CIT_NB, function(u,i){ return citGen(i); }); }
-function citEstProduit(q,k){ return (k%2===0)===!!q.prod0; }
-function citOp(q,k,base){ return citEstProduit(q,k) ? base*q.d[k] : base+q.d[k]; }
-function citSigne(q,k){ return citEstProduit(q,k) ? '×' : '+'; }
-/* La chaîne juste, étape par étape. */
-function citValeurs(q){ const v=[]; let x=q.dep; for(let k=0;k<CIT_ETAPES;k++){ x=citOp(q,k,x); v.push(x); } return v; }
-/* « 1 539 », « 1539 » : des chiffres, les espaces ne comptent pas. */
-function citLit(v){
-  const t=String(v==null?'':v).replace(/[\s  ]+/g,'');
-  if(!/^\d+$/.test(t)) return null;
-  return parseInt(t,10);
-}
-/* Ce que chaque case attend, à partir de ce que l'élève a écrit au-dessus. */
-function citAttendus(q, lus){
-  const vrai=citValeurs(q), att=[], bases=[];
-  for(let k=0;k<CIT_ETAPES;k++){
-    /* case d'avant vide ou illisible : on repart de ce que la correction y
-       écrira (att), c'est-à-dire le nombre que l'élève verra recopié */
-    const base = k===0 ? q.dep : (lus && lus[k-1]!=null ? lus[k-1] : att[k-1]);
-    bases.push(base); att.push(citOp(q,k,base));
-  }
-  return {att:att, bases:bases, vrai:vrai};
-}
-function citLus(){ const l=[]; for(let k=0;k<CIT_ETAPES;k++){ const el=$('cit-r-'+k); l.push(el?citLit(el.value):null); } return l; }
-function citFmt(n){ return String(n); }
-/* Le nombre en tête de chaque ligne : celui de la ligne d'avant, tel que l'élève l'a écrit. */
-function citEcho(){
-  const q=test.questions && test.questions[test.idx]; if(!q) return;
-  const lus=citLus();
-  for(let k=1;k<CIT_ETAPES;k++){
-    const e=$('cit-p-'+k); if(!e) continue;
-    const v=lus[k-1];
-    e.textContent = v==null ? '…' : citFmt(v);
-    e.classList.toggle('cit-vide', v==null);
-  }
+function citBuildQuestions(){ return distinctes(CIT_NB, function(){ return citGen(); }); }
+function citNb(n){ return '('+(n>0?'+':'−')+Math.abs(n)+')'; }
+/* Les deux calculs de chaque paire, et ce que chaque case attend. */
+function citLignes(q){
+  const L=[];
+  q.p.forEach(function(ab,k){
+    const a=ab[0], b=ab[1];
+    L.push({id:'cit-s-'+k, k:k, op:'+', a:a, b:b, r:a+b, expr:citNb(a)+' + '+citNb(b)});
+    L.push({id:'cit-p-'+k, k:k, op:'×', a:a, b:b, r:a*b, expr:citNb(a)+' × '+citNb(b)});
+  });
+  return L;
 }
 function renderCitTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -33668,66 +34454,77 @@ function renderCitTest(){
   $('citLiveScore').textContent=test.score;
   $('citFeedback').textContent=''; $('citFeedback').className='mp-feedback';
   $('citActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkCitAnswer()">Vérifier</button>';
-  let h='<div class="cit-lignes"><div class="cit-l cit-dep"><span class="cit-lib">Nombre de départ :</span><span class="cit-expr">'+q.dep+'</span></div>';
-  for(let k=0;k<CIT_ETAPES;k++){
-    h+='<div class="cit-l"><span class="cit-num">'+(k+1)+'.</span><span class="cit-expr">'
-      +(k===0 ? '<span class="cit-prev">'+q.dep+'</span>' : '<span class="cit-prev cit-vide" id="cit-p-'+k+'">…</span>')
-      +' '+citSigne(q,k)+' '+q.d[k]+' =</span>'
-      +'<input class="cit-in" id="cit-r-'+k+'" type="text" inputmode="numeric" autocomplete="off" aria-label="le résultat de l’étape '+(k+1)+'"></div>';
+  const L=citLignes(q);
+  let h='<div class="cit-lignes">';
+  for(let k=0;k<q.p.length;k++){
+    h+='<div class="cit-bloc">';
+    L.filter(function(l){ return l.k===k; }).forEach(function(l){
+      h+='<div class="cit-l"><span class="cit-lib">'+(l.op==='+'?'Somme':'Produit')+'</span>'
+        +'<span class="cit-expr">'+esc(l.expr)+' =</span>'
+        +'<input class="cit-in" id="'+l.id+'" type="text" inputmode="numeric" autocomplete="off" aria-label="'+(l.op==='+'?'la somme':'le produit')+'"></div>';
+    });
+    h+='</div>';
   }
   h+='</div>';
   $('citHost').innerHTML=h;
-  for(let k=0;k<CIT_ETAPES;k++){
-    const el=$('cit-r-'+k); if(!el) continue;
-    el.addEventListener('input', function(){ citEcho(); if(isSoutien()) checkCitAnswer(true);
+  L.forEach(function(l,ix){
+    const el=$(l.id); if(!el) return;
+    el.addEventListener('input', function(){ if(isSoutien()) checkCitAnswer(true);
       clearTimeout(test.citSave); test.citSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key!=='Enter') return; e.preventDefault();
-      const n=$('cit-r-'+(k+1)); if(n && !n.disabled) n.focus(); else checkCitAnswer(); });
-  }
+      const n=L[ix+1] && $(L[ix+1].id); if(n && !n.disabled) n.focus(); else checkCitAnswer(); });
+  });
 }
-/* Le pourquoi, dit sur la PREMIÈRE ligne fausse. */
-function citPourquoi(q, subs, a){
+function citJuste(l, el){ const n=el?relLit(el.value):null; return n!==null && n===l.r; }
+/* Le pourquoi, dit sur la PREMIÈRE case fausse — et le piège qu'on attend :
+   la règle de l'AUTRE opération appliquée à celle-ci. */
+function citPourquoi(subs){
   const f=subs.find(function(s){ return !s.ok && !s.vide; });
   if(!f) return '';
-  const k=f.k, base=a.bases[k], prod=citEstProduit(q,k), n=citLit(f.el.value);
-  let m='Ligne '+(k+1)+' : '+base+' '+citSigne(q,k)+' '+q.d[k]+' = '+a.att[k]+'.';
-  if(n!==null && prod && n===base+q.d[k]) m+=' Tu as ADDITIONNÉ : cette ligne est un PRODUIT.';
-  else if(n!==null && !prod && n===base*q.d[k]) m+=' Tu as MULTIPLIÉ : cette ligne est une SOMME.';
-  else if(k>0) m+=' Pense à partir du résultat de la ligne d’avant, '+base+'.';
-  return m;
+  const l=f.l, n=relLit(f.el.value), a=l.a, b=l.b;
+  const A=Math.abs(a), B=Math.abs(b), fort=A>B?a:b;
+  if(l.op==='+'){
+    let m='Dans '+l.expr+', on ADDITIONNE : le signe est celui du plus fort, '+citNb(fort)+'. ';
+    m+=(a>0)===(b>0) ? 'Même signe : on additionne, '+A+' + '+B+' = '+(A+B)+'. '
+                     : 'Signes contraires : on soustrait, '+Math.max(A,B)+' − '+Math.min(A,B)+' = '+Math.abs(A-B)+'. ';
+    m+='Donc '+l.expr+' = '+relMoins(l.r)+'.';
+    if(n!==null && Math.abs(n)===Math.abs(l.r) && n!==l.r && ((a>0)===(b>0)) === (n>0))
+      m+=' La règle des signes, c’est pour MULTIPLIER.';
+    return m;
+  }
+  return 'Dans '+l.expr+', on MULTIPLIE : c’est la règle des signes — '
+    +((a>0)===(b>0)?'deux signes identiques donnent +':'deux signes contraires donnent −')
+    +', et '+A+' × '+B+' = '+(A*B)+'. Donc '+l.expr+' = '+relMoins(l.r)+'.'
+    +(n!==null && Math.abs(n)===A*B && n!==l.r ? ' Le signe du plus fort, c’est pour ADDITIONNER.' : '');
 }
 function checkCitAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
-  const a=citAttendus(q, citLus());
-  const juste=function(k,el){ const n=el?citLit(el.value):null; return n!==null && n===a.att[k]; };
+  const L=citLignes(q);
   if(live){   /* soutien : on ne juge que les cases déjà remplies */
     if(!isSoutien()) return;
-    for(let k=0;k<CIT_ETAPES;k++){ const el=$('cit-r-'+k); if(!el || el.disabled) continue;
+    L.forEach(function(l){ const el=$(l.id); if(!el || el.disabled) return;
       el.classList.remove('ok','bad');
-      if(String(el.value).trim()==='') continue;
-      el.classList.add(juste(k,el)?'ok':'bad');
-    }
+      if(String(el.value).trim()==='') return;
+      el.classList.add(citJuste(l,el)?'ok':'bad');
+    });
     return;
   }
-  const subs=[];
-  for(let k=0;k<CIT_ETAPES;k++){ const el=$('cit-r-'+k);
-    subs.push({k:k, el:el, ok:juste(k,el), vide:!el || String(el.value).trim()===''}); }
+  const subs=L.map(function(l){ const el=$(l.id);
+    return {l:l, el:el, ok:citJuste(l,el), vide:!el || String(el.value).trim()===''}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* chaque case a son verdict : juste en bleu, fausse en rouge avec la bonne
      valeur à côté, vide remplie par la correction en vert */
-  subs.forEach(function(s){ corrChoix(s.el, citFmt(a.att[s.k]), s.ok); });
-  citEcho();
+  subs.forEach(function(s){ corrChoix(s.el, relMoins(s.l.r), s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('citFeedback','citActions','checkCitAnswer','citHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('citLiveScore').textContent=test.score;
   if(allOk){ $('citFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('citFeedback').className='mp-feedback good'; }
-  else { $('citFeedback').textContent=msgAvecVides(subs, citPourquoi(q, subs, a)); $('citFeedback').className='mp-feedback bad'; }
-  const chaine=q.dep+' '+q.d.map(function(d,k){ return citSigne(q,k)+' '+d; }).join(' ');
+  else { $('citFeedback').textContent=msgAvecVides(subs, citPourquoi(subs)); $('citFeedback').className='mp-feedback bad'; }
   test.answers.push({...(ptsExo()||{}),correct:allOk,
-    q:'Départ '+chaine,
-    answer:a.vrai.join(' ; '),
-    given:subs.map(function(s){ const v=s.el?String(s.el.value).trim():''; return v||'?'; }).join(' ; ')});
+    q:L.map(function(l){ return l.expr; }).join(' ; '),
+    answer:L.map(function(l){ return l.expr+' = '+relMoins(l.r); }).join(' ; '),
+    given:subs.map(function(s){ const v=s.el?String(s.el.value).trim():''; return s.l.expr+' = '+(v||'?'); }).join(' ; ')});
   const last=test.idx===test.questions.length-1;
   $('citActions').innerHTML='<button class="btn btn-primary" id="citNext" onclick="nextCitQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('citNext'); if(nb) nb.focus();
@@ -33739,24 +34536,23 @@ function startCit(){
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'cit', questions:qs, idx:0, score:0,
-    maxScore:qs.length*CIT_ETAPES, answers:[], startTime:Date.now(),
+    maxScore:qs.length*CIT_PAIRES*2, answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false});
   test.qId='calcul-itere';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('cit'); renderCitTest();
 }
 function ctxCit(q){
-  const a=citAttendus(q, citLus());
-  const faux=[];
-  for(let k=0;k<CIT_ETAPES;k++){ const el=$('cit-r-'+k); if(el && String(el.value).trim()!=='' && citLit(el.value)!==a.att[k]) faux.push(k+1); }
-  let c='L’élève fait un calcul itéré : il part de '+q.dep+', puis enchaîne quatre étapes en alternant somme et produit ('
-   +q.d.map(function(d,k){ return citSigne(q,k)+' '+d; }).join(', ')+'). Chaque résultat devient le nombre de départ de la ligne suivante ; '
-   +'chaque ligne s’écrit « résultat précédent '+citSigne(q,0)+' chiffre = … ». '
-   +'Résultats attendus, STRICTEMENT SECRETS : '+a.vrai.join(' ; ')+'. '
-   +'Une ligne est jugée à partir du nombre que l’élève a écrit à la ligne précédente : une erreur ne se paie qu’une fois. '
-   +'Méthode enseignée : une ligne à la fois, en regardant bien le signe ; un produit comme 37 × 6 se découpe en 30 × 6 + 7 × 6. '
-   +'L’erreur classique est d’additionner là où il faut multiplier (ou l’inverse), ou de repartir du nombre de départ au lieu du dernier résultat.';
-  if(faux.length) c+=' Il s’est trompé à la (aux) ligne(s) '+faux.join(', ')+'.';
+  const L=citLignes(q);
+  const faux=L.filter(function(l){ const el=$(l.id); return el && String(el.value).trim()!=='' && !citJuste(l,el); })
+    .map(function(l){ return l.expr; });
+  let c='L’élève calcule, pour quatre paires de nombres relatifs à un chiffre, leur SOMME puis leur PRODUIT, en alternance : '
+   +L.map(function(l){ return l.expr; }).join(' ; ')+'. Les calculs sont indépendants les uns des autres. '
+   +'Résultats attendus, STRICTEMENT SECRETS : '+L.map(function(l){ return l.expr+' = '+relMoins(l.r); }).join(' ; ')+'. '
+   +'Méthode enseignée : pour ADDITIONNER, le signe du résultat est celui du plus fort (le plus loin de zéro) ; même signe on additionne les distances, signes contraires on les soustrait. '
+   +'Pour MULTIPLIER, c’est la règle des signes : deux signes identiques donnent +, deux signes contraires donnent −. '
+   +'L’erreur attendue est de mélanger les deux règles : dire que (−3) + (−5) est positif parce que « moins par moins donne plus », ou donner au produit le signe du plus fort.';
+  if(faux.length) c+=' Il s’est trompé sur : '+faux.join(', ')+'.';
   return {nombre:'', contexte:c};
 }
 
@@ -33770,9 +34566,12 @@ function ctxCit(q){
    La fiche garde la même paire d'un bout à l'autre, exprès : seuls la nature
    des termes et les signes changent, et c'est eux qu'il faut regarder.
 
-   QUATRE EXPRESSIONS SUR DIX NE SE RÉDUISENT PAS : l'élève les recopie. Le
-   piège de la fiche est là — 2x + 3 = 5x, −2x² + 3x = x². Une recopie juste
-   est juste dans n'importe quel ordre (3 + 2x), comme une réduction.
+   QUATRE EXPRESSIONS SUR DIX NE SE RÉDUISENT PAS : la case reste VIDE — une
+   case vide EST la bonne réponse sur ces lignes-là (décision de Turquet,
+   septembre 2026 : la consigne le dit désormais, « ne complète une case que
+   si tu peux réduire l'écriture »). Une recopie de l'expression reste
+   acceptée aussi, dans n'importe quel ordre (3 + 2x), comme une réduction.
+   Le piège de la fiche reste le même — 2x + 3 = 5x, −2x² + 3x = x².
 
    LES DEUX NOMBRES SONT DIFFÉRENTS, de 2 à 9 : avec a = b, −ax + ax vaut 0 et
    la case attendrait « 0 », qui n'est pas ce que la fiche enseigne ; et 1
@@ -33864,7 +34663,14 @@ function redMeme(lu, attendu){
 }
 function redJuste(c, el){
   if(!el) return false;
-  if(c.kind==='expr'){ const lu=redLit(el.value); return !!lu && lu.reduite && redMeme(lu.termes, c.l.attendu); }
+  if(c.kind==='expr'){
+    /* Une ligne qui ne se réduit pas n'attend RIEN dans sa case : la case
+       vide EST la bonne réponse (décision de Turquet, septembre 2026). Une
+       recopie de l'expression reste acceptée aussi — redMeme la juge comme
+       n'importe quelle autre écriture de même valeur. */
+    if(c.l && !c.l.reductible && String(el.value==null?'':el.value).trim()==='') return true;
+    const lu=redLit(el.value); return !!lu && lu.reduite && redMeme(lu.termes, c.l.attendu);
+  }
   return el.value===c.bon;
 }
 /* Le bouton « x² » écrit x² là où est le curseur : sur tablette, ni « ² » ni
@@ -33921,7 +34727,7 @@ function redPourquoi(q, subs){
       +(Math.abs(r)===1?' On écrit '+l.bon+' et non '+relMoins(r)+(l.t1.d===2?'x²':'x')+'.':'');
   }
   return 'Dans '+l.expr+', il y a '+RED_NATURE[l.t1.d]+' et '+RED_NATURE[l.t2.d]+' : ils ne sont pas de même nature, on ne peut pas les additionner. '
-    +'L’expression ne se réduit pas : on la recopie, '+l.expr+' = '+l.bon+'.';
+    +'L’expression ne se réduit pas : la case reste vide (une recopie, '+l.expr+', est acceptée aussi).';
 }
 function checkRedAnswer(live){
   if(test.locked) return;
@@ -33936,8 +34742,11 @@ function checkRedAnswer(live){
     });
     return;
   }
-  const subs=cases.map(function(c){ const el=$(c.id);
-    return {c:c, el:el, ok:redJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const subs=cases.map(function(c){ const el=$(c.id), ok=redJuste(c,el);
+    /* une case vide qui EST la bonne réponse (ligne non réductible) n'est pas
+       une case « manquante » : elle ne doit pas gonfler le « il te manquait
+       X cases » de msgAvecVides, qui suppose vide ⇒ pas ok partout ailleurs. */
+    return {c:c, el:el, ok:ok, vide:(!el || String(el.value).trim()==='') && !ok}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* le pourquoi se lit AVANT la correction, qui écrit dans les cases */
   const pourquoi=redPourquoi(q, subs);
@@ -33979,7 +34788,7 @@ function ctxRed(q){
   let c='L’élève doit réduire, si possible, dix expressions de deux termes bâties sur les nombres '+q.a+' et '+q.b+' : '
    +lignes.map(function(l){ return l.expr; }).join(' ; ')+'. '
    +'En tête de page, il complète la phrase « On ne peut additionner que des termes … » (de même signe / de même nature / qui ont le même coefficient). '
-   +'Quand l’expression ne se réduit pas, il doit la recopier telle quelle. '
+   +'Quand l’expression ne se réduit pas, il laisse la case vide — la consigne le demande depuis septembre 2026 ; une recopie telle quelle reste acceptée aussi. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : des termes de même nature ; '
    +lignes.map(function(l){ return l.expr+' = '+l.bon+(l.reductible?'':' (ne se réduit pas)'); }).join(' ; ')+'. '
    +'Méthode enseignée : on n’additionne que des termes de même nature (x avec x, x² avec x², nombres avec nombres) en additionnant leurs coefficients, comme des relatifs ; '
@@ -33994,43 +34803,51 @@ function ctxRed(q){
    Demandé par Turquet en septembre 2026, d'après deux fiches papier : quatre
    expressions — n², 2 × n, n/n, n − n — à associer à quatre résultats —
    0, n + n, 1, n × n. TROIS pages avec un nombre (la première fiche), puis
-   UNE SEULE page avec la lettre x (la seconde fiche) : l'élève a vu la règle
-   marcher trois fois sur des nombres avant de l'écrire pour « un nombre
-   quelconque ».
+   TROIS pages avec une lettre — x, puis a, puis b, toujours dans cet ordre
+   (la seconde fiche, rejouée sur trois lettres différentes) : l'élève a vu
+   la règle marcher trois fois sur des nombres avant de l'écrire pour « un
+   nombre quelconque », puis la revoit sous deux autres noms de lettre.
 
    LE NOMBRE VA DE 3 À 9 : avec 2, on aurait 2² = 2 × 2 = 2 + 2 = 4 — deux
    résultats justes pour la même expression ; avec 1, 1² = 1 × 1 = 1/1 = 1.
-   La page de x le dit, comme la fiche : x est un nombre DIFFÉRENT DE 0, sans
-   quoi x/x n'existe pas.
-   La première page suit la fiche (résultats dans l'ordre 0 ; n + n ; 1 ;
-   n × n) ; les suivantes les mélangent, pour qu'ils se cherchent au lieu de
-   se lire toujours au même rang.
+   Chaque page de lettre le dit, comme la fiche : la lettre est un nombre
+   DIFFÉRENT DE 0, sans quoi x/x (ou a/a, ou b/b) n'existe pas.
+   La première page suit la fiche — résultats dans l'ordre 0 ; n + n ; 1 ;
+   n × n, ET expressions dans l'ordre n² ; 2n ; n/n ; n − n. TOUTES LES
+   AUTRES PAGES mélangent l'ordre des résultats ET l'ordre des expressions,
+   chacun séparément, pour qu'on les cherche au lieu de les lire toujours au
+   même rang.
 
-   ON RANGE LE NOMBRE ET L'ORDRE DES RÉSULTATS, JAMAIS LES RÉPONSES : ce que
-   chaque liste attend se déduit de la clé de l'expression (asxLignes). */
-const ASX_NB=3;   /* pages à nombres ; la page de x vient en plus, une seule fois */
+   ON RANGE LE NOMBRE, L'ORDRE DES RÉSULTATS ET L'ORDRE DES EXPRESSIONS,
+   JAMAIS LES RÉPONSES : ce que chaque liste attend se déduit de la clé de
+   l'expression (asxLignes). */
+const ASX_NB=3;   /* pages à nombres */
+const ASX_LETTRES=['x','a','b'];   /* pages à lettres, toujours dans cet ordre */
 const ASX_RES=['zero','add','un','mul'];
-function asxN(q){ return q.n==='x' ? '<i>x</i>' : String(q.n); }
-function asxT(q){ return q.n==='x' ? 'x' : String(q.n); }
+const ASX_EXPR=['carre','double','quot','diff'];
+function asxLettre(q){ return typeof q.n==='string'; }
+function asxN(q){ return asxLettre(q) ? '<i>'+q.n+'</i>' : String(q.n); }
+function asxT(q){ return asxLettre(q) ? q.n : String(q.n); }
 function asxResLib(q, k){ const n=asxT(q);
   return {zero:'0', add:n+' + '+n, un:'1', mul:n+' × '+n}[k]; }
 function asxResHTML(q, k){ const n=asxN(q);
   return {zero:'0', add:n+' + '+n, un:'1', mul:n+' × '+n}[k]; }
-/* Les quatre expressions de la fiche, dans son ordre, et le résultat attendu. */
+/* Les quatre expressions de la fiche, dans l'ordre de la page (q.ordreExpr), et le résultat attendu. */
 function asxLignes(q){
-  const n=asxN(q), t=asxT(q), lit=q.n==='x';
-  return [
-    {i:0, cle:'carre',  bon:'mul',  html:n+'<sup>2</sup>',                     txt:t+'²'},
-    {i:1, cle:'double', bon:'add',  html:lit?'2<i>x</i>':'2 × '+n,             txt:lit?'2x':'2 × '+t},
-    {i:2, cle:'quot',   bon:'un',   html:fracBox(n,n),                         txt:t+'/'+t},
-    {i:3, cle:'diff',   bon:'zero', html:n+' − '+n,                             txt:t+' − '+t}
-  ];
+  const n=asxN(q), t=asxT(q), lit=asxLettre(q);
+  const base={
+    carre:  {bon:'mul',  html:n+'<sup>2</sup>',                    txt:t+'²'},
+    double: {bon:'add',  html:lit?'2<i>'+t+'</i>':'2 × '+n,        txt:lit?'2'+t:'2 × '+t},
+    quot:   {bon:'un',   html:fracBox(n,n),                        txt:t+'/'+t},
+    diff:   {bon:'zero', html:n+' − '+n,                            txt:t+' − '+t}
+  };
+  return (q.ordreExpr||ASX_EXPR).map(function(cle,i){ return Object.assign({i:i, cle:cle}, base[cle]); });
 }
-function asxMelange(){ const o=ASX_RES.slice(); for(let i=o.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=o[i]; o[i]=o[j]; o[j]=t; } return o; }
-function asxGen(_, i){ return {n:3+Math.floor(Math.random()*7), ordre:i===0?ASX_RES.slice():asxMelange()}; }
+function asxMelange(o){ o=o.slice(); for(let i=o.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=o[i]; o[i]=o[j]; o[j]=t; } return o; }
+function asxGen(_, i){ return {n:3+Math.floor(Math.random()*7), ordre:i===0?ASX_RES.slice():asxMelange(ASX_RES), ordreExpr:i===0?ASX_EXPR.slice():asxMelange(ASX_EXPR)}; }
 function asxBuildQuestions(){
   const qs=distinctes(ASX_NB, asxGen);
-  qs.push({n:'x', ordre:asxMelange()});
+  ASX_LETTRES.forEach(function(l){ qs.push({n:l, ordre:asxMelange(ASX_RES), ordreExpr:asxMelange(ASX_EXPR)}); });
   return qs;
 }
 function renderAsxTest(){
@@ -34041,7 +34858,7 @@ function renderAsxTest(){
   $('asxFeedback').textContent=''; $('asxFeedback').className='mp-feedback';
   $('asxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkAsxAnswer()">Vérifier</button>';
   $('asxInstr').innerHTML='Associe chaque expression au bon résultat.'
-    +(q.n==='x' ? ' Ici, <i>x</i> représente un nombre <b>différent de 0</b>.' : '');
+    +(asxLettre(q) ? ' Ici, <i>'+q.n+'</i> représente un nombre <b>différent de 0</b>.' : '');
   const opts='<option value="" selected disabled>?</option>'
     +q.ordre.map(function(k){ return '<option value="'+k+'">'+esc(asxResLib(q,k))+'</option>'; }).join('');
   let h='<div class="asx-res"><span class="asx-lib">Résultats :</span>'
@@ -34063,13 +34880,13 @@ function renderAsxTest(){
 function asxPourquoi(q, subs){
   const f=subs.find(function(s){ return !s.ok && !s.vide; });
   if(!f) return '';
-  const t=asxT(q), lit=q.n==='x', v=function(x){ return lit?'':' = '+x; };
+  const t=asxT(q), lit=asxLettre(q), v=function(x){ return lit?'':' = '+x; };
   return {
     carre: t+'² = '+t+' × '+t+v(q.n*q.n)+' : le carré, c’est le nombre multiplié par LUI-MÊME — pas par 2.',
-    double: (lit?'2x':'2 × '+t)+' = '+t+' + '+t+v(2*q.n)+' : multiplier par 2, c’est ajouter le nombre à lui-même.',
+    double: (lit?'2'+t:'2 × '+t)+' = '+t+' + '+t+v(2*q.n)+' : multiplier par 2, c’est ajouter le nombre à lui-même.',
     quot: t+'/'+t+' = 1 : un nombre différent de 0, divisé par lui-même, donne 1.',
     diff: t+' − '+t+' = 0 : un nombre moins lui-même donne 0.'
-  }[f.l.cle]+(lit?' C’est la même règle qu’avec les nombres des pages précédentes : elle vaut pour tout nombre x.':'');
+  }[f.l.cle]+(lit?' C’est la même règle qu’avec les nombres des pages précédentes : elle vaut pour tout nombre.':'');
 }
 function checkAsxAnswer(live){
   if(test.locked) return;
@@ -34116,11 +34933,11 @@ function startAsx(){
   show('asx'); renderAsxTest();
 }
 function ctxAsx(q){
-  const lignes=asxLignes(q), lit=q.n==='x';
+  const lignes=asxLignes(q), lit=asxLettre(q);
   const faux=lignes.filter(function(l){ const el=$('asx-'+l.i); return el && String(el.value||'')!=='' && el.value!==l.bon; }).length;
   let c='L’élève associe quatre expressions à quatre résultats proposés dans une liste. '
-   +(lit ? 'C’est la dernière page : la lettre x représente un nombre différent de 0, après trois pages faites avec des nombres. '
-         : 'Cette page utilise le nombre '+q.n+' ; la dernière page de l’exercice refait la même chose avec la lettre x. ')
+   +(lit ? 'Cette page utilise la lettre '+q.n+' : elle représente un nombre différent de 0, comme les autres pages à lettre de cet exercice (x, puis a, puis b), après trois pages faites avec des nombres. '
+         : 'Cette page utilise le nombre '+q.n+' ; les dernières pages de l’exercice refont la même chose avec les lettres x, a puis b. ')
    +'Expressions : '+lignes.map(function(l){ return l.txt; }).join(' ; ')+'. '
    +'Résultats proposés : '+q.ordre.map(function(k){ return asxResLib(q,k); }).join(' ; ')+'. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : '+lignes.map(function(l){ return l.txt+' = '+asxResLib(q,l.bon); }).join(' ; ')+'. '
@@ -35843,7 +36660,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

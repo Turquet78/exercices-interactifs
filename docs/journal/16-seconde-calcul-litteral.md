@@ -135,55 +135,59 @@ passe par le bouton :
 Éprouvé par sabotage : une règle des signes qui attend « + » partout rougit
 le juge sur `mrl-rs-1` et `mrl-rs-2`.
 
-## {calcul-itere} — alterner somme et produit (7.4, v205)
+## {calcul-itere} — somme et produit de deux relatifs (7.4, v210)
 
-**La demande** (Turquet, septembre 2026) : un nouvel exercice « dans le thème
-calcul itéré », avec des nombres à un chiffre, jamais zéro, en alternant somme
-et produit. Aucun thème ne portait ce nom : le premier jet a créé un thème 8
-« Calcul itéré ». Puis `main` a renommé le thème 7 « Calcul littéral » le même
-jour — c'était lui que la demande désignait (une dictée qui entend « itéré »
-pour « littéral »). L'exercice y a pris la place 7.3, après les deux exercices
-des relatifs, puis 7.4 quand {multiplier-relatifs} a été publié avant lui ; aucun thème 8 n'a été publié. Quand un nom de thème demandé
-n'existe pas, on relit d'abord `main` : il a pu changer depuis que la branche
-est partie.
+**La demande** (Turquet, septembre 2026) : un exercice « dans le thème calcul
+itéré » — une dictée qui entendait « itéré » pour « littéral » —, avec des
+nombres à un chiffre, jamais zéro, en ALTERNANT somme et produit.
 
-**Une page = une chaîne** : un nombre de départ (1 à 9), puis quatre étapes
-qui alternent « + chiffre » et « × chiffre ». Chaque ligne s'écrit comme une
-égalité, « 7 × 5 = [  ] », où le 7 est le résultat de la ligne d'avant,
-RECOPIÉ en tête de ligne dès que l'élève l'écrit (`citEcho`). Cinq pages,
-quatre cases chacune, barème 20. La première page commence par une somme, la
-deuxième par un produit, les suivantes tirent au sort. Pas de « × 1 » : il ne
-demande aucun calcul (les sommes, elles, gardent le 1). Les pages passent par
-`distinctes()`.
+**Le premier jet (v205) avait mal lu « alterner »** : il ENCHAÎNAIT les
+calculs, chaque résultat devenant le départ du suivant (3 + 4 = 7, 7 × 5 = 35…).
+Turquet, le lendemain : « quand je disais alterné, c'était en ayant des calculs
+disjoints et pas qui se suivent ». Deux questions ont levé le reste : les
+nombres sont des RELATIFS, et la somme et le produit portent sur la MÊME paire.
+L'exercice a été réécrit en place (v210). **L'identifiant reste
+`calcul-itere`** alors que le calcul n'a plus rien d'itéré : un identifiant ne
+se renomme jamais, les notes et les devoirs le portent. Les notes posées entre
+v205 et v210 sous cet identifiant sont celles de la chaîne, sur 20 ; les
+suivantes sont sur 24. Seuls le nom affiché et le moteur ont changé.
+Leçon : un mot de la demande qui admet deux lectures (« alterner » : d'une
+ligne à l'autre, ou d'un résultat au suivant ?) se demande AVANT d'écrire un
+moteur, pas après l'avoir publié.
 
-**Une erreur ne se paie qu'une fois.** Chaque ligne est jugée à partir du
-nombre que l'élève a écrit à la ligne d'avant — celui qu'il voit recopié en
-tête. Si cette case est vide ou illisible, on repart de ce que la correction y
-écrit (`att`, pas la valeur juste : sans quoi la ligne suivante afficherait un
-nombre et serait jugée sur un autre dès qu'une case plus haute est fausse).
-Sans cette règle, 3 + 4 = 8 rougirait les quatre cases.
+**Une page = quatre paires = huit cases.** Chaque paire tient dans un bloc de
+deux lignes, « (−3) + (−5) = [  ] » puis « (−3) × (−5) = [  ] » : l'élève
+change de règle à chaque ligne — le signe du plus fort pour la somme, la règle
+des signes pour le produit —, et la paire commune met les deux règles face à
+face. Les quatre paires d'une page couvrent les quatre combinaisons de signes
+(+,+), (+,−), (−,+), (−,−), dans un ordre tiré. Les deux chiffres d'une paire
+sont DIFFÉRENTS (avec −3 et +3, la somme vaut 0 et « le plus fort » n'existe
+pas), et deux paires d'une page n'ont pas les mêmes chiffres. Trois pages par
+`distinctes()`, barème 24. Le bouton des tables reste : on y multiplie.
+Sur téléphone, l'étiquette « Somme / Produit » se tait sous 520 px : elle se
+tassait sous le calcul, et le signe + ou × dit déjà l'opération.
 
-**On range les chiffres, jamais les réponses** : `citAttendus()` recalcule la
-chaîne dans la fonction qui corrige. Les réponses s'écrivent en chiffres, les
-espaces ne comptent pas (« 1 539 ») ; « 7, » est faux, pas vide. Les cases sont
-`inputmode="numeric"`. Le bouton des tables reste proposé : on y multiplie.
+**On range les paires signées, jamais les réponses** : `citLignes()`
+recalcule sommes et produits dans la fonction qui corrige. Les réponses se
+lisent comme au 7.1 (`relLit`) : « 2 », « +2 », « −2 », « -2 » ; « 8, » est
+faux, pas vide.
 
-**Le message** nomme la première ligne fausse, avec son calcul, et reconnaît
-le piège de l'alternance : « Tu as ADDITIONNÉ : cette ligne est un PRODUIT »
-(ou l'inverse).
+**Le message** part de la première case fausse et reconnaît le piège croisé :
+« (−3) + (−5) = +8 » reçoit « … le signe est celui du plus fort … La règle des
+signes, c'est pour MULTIPLIER » ; « (−3) × (+5) = +15 » reçoit « … c'est la
+règle des signes … Le signe du plus fort, c'est pour ADDITIONNER ».
 
-**Le juge** (`tests/verifier.js`, « calcul itéré ») : la place (7.4, les
-relatifs restent 7.1, 7.2 et 7.3, bouton des tables présent), 500 séances tirées (cinq
-pages, départ et chiffres dans 1…9, jamais × 1, alternance tenue, les deux
-premières pages dans l'ordre somme puis produit, les deux départs au-delà),
-la chaîne recalculée par une boucle écrite à part, puis le bouton : la copie
-juste (4/4, « 2 22 » accepté), l'écho de la ligne 1 en tête de la ligne 2,
-l'erreur qui ne se paie qu'une fois (3 + 4 = 8, puis 40, 42, 252 : une seule
-case rouge), le piège de l'alternance (7 + 5 au lieu de 7 × 5 : rouge, et le
-message le dit), une case vide (correction verte « 35 », voisines justes
-bleues), une réponse illisible (rouge).
-Éprouvé par sabotage : une alternance rompue (`citEstProduit` qui ne regarde
-plus le rang) rougit le juge en nommant l'étape et la chaîne fausse.
+**Le juge** (`tests/verifier.js`, « somme et produit de deux relatifs ») : la
+place (7.4, bouton des tables présent), 500 séances tirées (trois pages, quatre
+paires, les quatre combinaisons de signes, chiffres dans 1…9 et différents,
+paires distinctes, l'alternance « + × + × … »), les attendus contre
+l'arithmétique de JavaScript, puis le bouton : la copie juste (8/8, « +15 »,
+« −15 » et « 2 » acceptés), les deux pièges croisés (rouges, le produit juste de
+la même paire reste bleu, le message nomme la bonne règle), deux cases vides
+(correction verte « −3 », voisines justes bleues), une réponse illisible.
+Éprouvé par sabotage, deux fois : un produit qui prend le signe du plus fort
+rougit le juge en nommant les produits faux, des lignes qui cessent d'alterner
+le rougissent en montrant « ×××××××× ».
 
 **La fusion qui recoud deux ajouts au même endroit laisse la fin commune au
 second seul.** Le 7.2 et le 7.3 ajoutaient chacun un écran après celui du 7.1
@@ -221,8 +225,30 @@ par expression. Trois pages, barème 33. Les deux nombres d'une page vont de 2
 mélangent les lignes (`q.ordre`, hors de la clé de `distinctes()`), sans quoi
 les quatre lignes qui ne se réduisent pas se reconnaîtraient à leur rang.
 
-**Une expression qui ne se réduit pas se RECOPIE**, et c'est tout le piège de
-la fiche : 2x + 3 = 5x, −2x² + 3x = x². La consigne le dit.
+**Une expression qui ne se réduit pas laisse la case VIDE** (décision de
+Turquet, septembre 2026) : la consigne à l'écran le dit désormais — « ne
+complète une case que si tu peux réduire l'écriture » — et une case vide sur
+une de ces lignes est la bonne réponse, peinte `ok` comme n'importe quelle
+autre case juste, pas `sol` comme une case oubliée. Avant cette décision,
+l'élève devait RECOPIER l'expression ; la recopie reste acceptée, `redJuste`
+la traite comme n'importe quelle autre écriture de même valeur, mais elle
+n'est plus exigée. C'est tout le piège de la fiche qui reste : 2x + 3 = 5x,
+−2x² + 3x = x². `msgAvecVides` ne doit compter, dans « il te manquait X
+cases », que les cases VRAIMENT manquantes (une ligne réductible laissée
+vide) — pas celles qui sont vides à bon droit ; `checkRedAnswer` calcule donc
+`vide` comme `(case vide) ET (pas déjà juste)`, jamais la seule emptiness.
+
+**Le x que l'élève tape est le x de l'expression affichée devant sa case**
+(demande de Turquet, septembre 2026) : `.red-in` passait par « Fredoka »,
+la police du reste de la page, qui n'a pas d'italique réelle (seules les
+graisses 400 à 700 sont chargées) — un italique simulé penche le x mais ne
+lui donne pas la même forme que celui de l'énoncé. `.red-expr i` bascule déjà
+en Times New Roman pour cette raison ; la case suit désormais la même
+police et le même style, plutôt que d'italiciser Fredoka. Ça italicise aussi
+les chiffres que l'élève tape (2x + 3 s'écrit tout en italique dans la case,
+quand seul le x l'est devant elle) : un compromis accepté plutôt qu'une
+case en deux polices, impossible à obtenir dans un `<input>` simple sans
+passer par MathLive.
 
 **La case lit une somme de termes, pas une chaîne** (`redLit`) : l'ordre des
 termes est libre (3 + 2x), x² s'écrit « x² », « x^2 » ou « x2 », le moins
@@ -244,8 +270,11 @@ réduit pas est l'expression elle-même. Puis le bouton : la copie juste (11/11,
 avec des ordres et des écritures variés), les pièges (règle « de même signe »,
 2x + 3 = 5x, −2x² + 3x = x², 2x − 3x = x : rouges, leurs voisines justes
 restent justes, le message dit « de même nature »), une réduction inachevée
-rouge, « 1x » juste, deux cases vides (vertes, la correction écrit −x), une
-écriture illisible rouge. Éprouvé par sabotage : une case qui accepte une
+rouge, « 1x » juste, deux cases vides SUR DES LIGNES RÉDUCTIBLES (correction
+verte, pas comptées justes), les quatre lignes NON réductibles laissées vides
+(11/11, peintes `ok` — pas la correction), une vraie case manquante à côté
+d'une case vide correcte (le message ne compte que celle qui manque vraiment),
+une écriture illisible rouge. Éprouvé par sabotage : une case qui accepte une
 somme non réduite rougit le juge (« « 2x+3x » pour 2x + 3x est peint en
 vert »).
 
@@ -294,6 +323,37 @@ et de 2. Il rejoue ensuite la correction par le bouton : copie juste sur les
 quatre pages, le carré pris pour le double (rouge, les deux autres restent
 justes, le message dit « 3 × 3 »), une case vide qui reçoit la correction.
 
+**Puis l'ordre des EXPRESSIONS s'est mélangé, et la page de x s'est dédoublée
+en trois lettres** (demande de Turquet, septembre 2026, v209). Deux
+changements distincts. D'abord, les quatre expressions (n², 2n, n/n, n − n)
+se lisaient toujours dans le même ordre, sur les quatre pages : seul l'ordre
+des RÉSULTATS proposés bougeait. `asxLignes` range désormais ses quatre
+lignes selon `q.ordreExpr`, une seconde liste mélangée exactement comme
+`ordre` — sur la première page, elle suit la fiche (n² ; 2n ; n/n ; n − n),
+sur les autres elle est tirée par `asxMelange`, désormais générique
+(`asxMelange(tableau)` au lieu de mélanger `ASX_RES` en dur, pour servir les
+deux listes). Ensuite, la seule page de x est devenue TROIS pages, une par
+lettre — x, puis a, puis b, toujours dans cet ordre-là (pas mélangé : c'est
+la lettre qui distingue chaque page, pas une position tirée au sort) — après
+les trois pages à nombre. La séance compte donc SIX pages, barème 24.
+`asxN`/`asxT` ne testent plus `q.n==='x'` mais `typeof q.n==='string'`
+(`asxLettre`), pour que « différent de 0 » et l'italique s'appliquent aux
+trois lettres, pas à x seule.
+
+**Le piège du dédoublonnage.** `distinctes()` écarte deux pages à nombre qui
+tireraient le même `n`, mais compare les questions par `cleQuestion`, qui
+ignore la clé `ordre` — CETTE clé est déjà dans `CLE_HORS`, posée là parce
+que l'ordre des résultats est aléatoire et ne doit pas rendre deux pages
+« différentes » aux yeux du dédoublonnage. `ordreExpr` est arrivée à côté
+sans y être ajoutée : deux pages tirant le même nombre mais un ordre
+d'expressions différent passaient alors pour deux questions distinctes, et
+`distinctes()` laissait passer un nombre répété — le contrôle jsdom l'a
+rougi tout de suite (« deux pages tirent le même nombre : 4 4 3 »). Toute
+clé qui varie sans changer l'identité d'une question doit rejoindre
+`CLE_HORS`, comme `ordre` l'a fait avant elle ; l'oublier ne casse rien à la
+lecture du code, seul un tirage répété — ou le contrôle qui le cherche — le
+montre.
+
 ## {soustraire-relatifs} — soustraire un relatif, c'est additionner son opposé (7.7, v208)
 
 **La demande** (Turquet, septembre 2026) : reprendre une fiche papier
@@ -339,3 +399,54 @@ trois cases, les voisines justes restent justes, le message parle de
 l'opposé et réécrit la ligne fausse —, deux cases vides (correction, pas de
 rouge), « 1, » faux et non vide. Éprouvé par sabotage : un signe d'opposé
 inversé dans `srlLignes()` rougit le juge en nommant les quatre lignes.
+
+## {reduire-produit} — réduire chaque produit avec x (7.8, v210)
+
+**La demande** (Turquet, septembre 2026, d'après une fiche papier « Réduire
+chaque produit ») : quinze produits de deux facteurs (a à o), chacun un
+nombre ou la lettre x — jamais x², jamais deux nombres seuls, puisque le
+thème est l'écriture littérale. **En deux temps** : d'abord chaque produit se
+décompose en trois cases — le signe du résultat, son coefficient entier, puis
+si l'écriture se termine par x ou par x² — ; ensuite, une seconde page
+demande directement le résultat réduit, comme {reduire-somme}. Deux pages,
+deux écritures de la même chose, plutôt que trois pages identiques.
+
+**« On mettra autant de x sans coefficient que dans le pdf »** : neuf des
+trente facteurs de la fiche s'écrivent NUS — « x », « -x » — sans aucun
+chiffre devant, et le tirage garde ce compte exactement, facteur par facteur.
+`RPD_MODELES` fixe la FORME de chaque lettre (X0 un facteur nu, Xc un
+coefficient de 2 à 9, N un nombre, X1 un coefficient figé à 1) ; seuls les
+nombres et les signes sont retirés à chaque page, jamais la forme. Un seul
+facteur de la fiche écrit un coefficient de 1 en toutes lettres — le second
+de « m », -5x × 1x — exprès, pour distinguer « 1x » de « x » : c'est la
+seule lettre qui porte X1, et lui seul le porte.
+
+**Le résultat est toujours en x ou en x²**, jamais un nombre seul : chaque
+produit porte au moins un facteur en x. Le degré du résultat se déduit du
+nombre de facteurs en x (1 ou 2), jamais tiré à part.
+
+**Un produit réduit EST un terme, comme une somme réduite** : `rpdLignes()`
+réutilise telles quelles les fonctions de {reduire-somme} — `redEcrit` pour
+écrire le résultat, `redLit` et `redMeme` pour lire et juger la page directe
+— au lieu de réécrire un lecteur d'expression à part. La case du coefficient
+entier (phase détaillée) se lit par `citLit()` : un entier positif, sans
+signe, sans espace.
+
+**Le bouton des tables est proposé** (l'identifiant n'est PAS dans
+`TABLES_SANS`) : comme {multiplier-relatifs}, le résultat est un vrai
+produit à calculer.
+
+**On range les deux facteurs de chaque produit, jamais les réponses** :
+`rpdLignes()` recalcule signe, coefficient, degré et écriture réduite dans
+la fonction même qui corrige.
+
+**Le juge** (`tests/verifier.js`, « réduire chaque produit avec x ») : la
+place (7.8, les 7.1 à 7.7 immobiles, bouton des tables présent), le compte
+des facteurs nus (neuf, comme la fiche), 300 tirages (chaque facteur dans la
+forme que dicte `RPD_MODELES`, les magnitudes de 2 à 9 pour Xc et N, figées à
+1 pour X0 et X1), les réponses jugées par une SECONDE méthode — une écriture
+du résultat reconstruite dans le contrôle, indépendante de `redEcrit` —, puis
+le bouton sur la fiche elle-même (x × 3, x × x, …, -x × -x) : la copie juste
+des deux phases (45/45 puis 15/15), un piège de degré (15x² écrit 15x, faute
+de carré) rouge sans toucher ses voisines, une case vide (correction, jamais
+rouge), une écriture illisible rouge, le barème de 60 (45 + 15).
