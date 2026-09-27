@@ -35,9 +35,12 @@ const KINDS_PREMIERE = [
 ];
 
 /* Les mêmes moteurs en Seconde, où la synthèse des pourcentages s'appelle
-   « psyn » : « syn » y est déjà la synthèse des fonctions. */
+   « psyn » : « syn » y est déjà la synthèse des fonctions. Et {tableau-coefficients}
+   (« tc »), qui n'existe qu'en Seconde — le tableau de la fiche papier, dans
+   les deux sens à la fois. */
 const KINDS_SECONDE_PCT = KINDS_PREMIERE
-  .map(k => k[0] === 'syn' ? ['psyn', k[1]] : k);
+  .map(k => k[0] === 'syn' ? ['psyn', k[1]] : k)
+  .concat([['tc', "genTCQuestion('avant',1,40)"]]);
 
 /* Identifiant d'exercice -> clé de la table RAPPELS, pour la Première. */
 const RAPPELS_PREMIERE = `(function(){
@@ -93,7 +96,7 @@ const RAPPELS_SECONDE = `(function(){
                'augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q',
                'synthese-pourcentages':'psyn','synthese-augmentations':'psyn','synthese-diminutions':'psyn',
                'synthese-pourcentages-libre':'sal','synthese-augmentations-libre':'sal','synthese-diminutions-libre':'sal',
-               'baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
+               'baisses-successives':'bs','lire-coefficient':'lc','tableau-coefficients':'tc','hausses-successives':'hs','hausses-successives-cent':'hsc',
                'reconnaitre-coefficient':'ck','associer-coefficient':'ac',
                'calcul-mental':'cm','addition-soustraction':'asp','tables-multiplication':'tm','tables-multiplication-2':'tm',
                'multiplication-posee':'mp','fractions-decimales':'fracp','mult-decimaux':'md','mult-dec-un':'u',
