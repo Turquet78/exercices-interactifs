@@ -772,3 +772,58 @@ visite pas du tout côté largeur et repli — c'est lui qui aurait dû voir la
 coupure en plusieurs blocs, et ne la voyait pas. {quotient-double-fractions}
 devient la chaîne la plus longue de l'application depuis cette fusion : deux
 croisements complets avant même de diviser, sur une seule rangée.
+
+**{produit-difference-fractions} (5.13) a reçu un second document de
+Turquet (septembre 2026), le modèle « H » de la MÊME fiche papier — cette
+fois en image, pas en texte — et une consigne : « présenter les calculs
+comme le pdf joint ». Le modèle montrait une étape que le moteur sautait.**
+Sur le papier, la parenthèse `2/3 − 4/5` se résout en QUATRE lignes : le
+croisement (des cases à côté de chaque numérateur ET chaque dénominateur),
+PUIS les deux fractions croisées VALENT chacune un nombre — deux fractions
+SÉPARÉES, chacune sa propre barre, le même dénominateur commun ÉCRIT DEUX
+FOIS —, PUIS seulement la soustraction sur une seule barre (`-2/15`), PUIS
+le produit final. `pfCroixHTML()` sautait la troisième ligne : après le
+croisement, elle posait directement `(n1 − n2)/d` sur UNE seule barre
+partagée — juste avant de redemander, une case plus loin, ce même résultat
+sous la forme `rn/rd`. Une étape du papier n'avait donc pas de case, et la
+suivante en avait une de trop par rapport à lui.
+
+**Un paramètre, jamais une deuxième fonction.** `pfCroixHTML()` sert aussi
+{somme-produit-fractions} (G) et {quotient-double-fractions} (J), qui n'ont
+reçu AUCUN modèle papier pour cette étape — leur présenter la nouveauté
+aurait changé une leçon que personne n'a demandé de changer. Un dernier
+paramètre `deux` (faux par défaut, donc silencieux pour G et J) fait basculer
+CETTE seule étape entre les deux présentations : IDs `-n1`/`-n2`/`-d` groupés
+sur une barre (l'ancienne, toujours celle de G et J), ou IDs `-n1`/`-d1`
+et `-n2`/`-d2` sur deux barres séparées (la neuve, celle du papier).
+{produit-difference-fractions} ET {quotient-difference-fractions} passent
+`deux:true` — ils partagent le même moteur `pqd`, et la fiche montre la
+même méthode pour H et pour I, seul le signe de l'opération extérieure
+change. Le calcul JUGÉ ne bouge pas d'un chiffre : `pfCroixJuge()` teste
+toujours que le dénominateur écrit vaut le produit croisé — une fois
+(`-d`) ou deux fois séparément (`-d1` ET `-d2`, chacun sa propre case) —,
+et la case `rn/rd` qui suit continue d'exiger la valeur EXACTE de la
+parenthèse, comme avant. L'étape du produit extérieur (`pfProduitHTML()`,
+la décomposition `a×Rn / b×Din`) ne bouge pas non plus : le papier
+l'omet, mais le rappel de l'exercice (`RAP_PQD`) l'enseigne déjà comme une
+écriture intermédiaire légitime — la retirer de l'écran l'aurait rendue
+incohérente avec sa propre aide.
+
+**Les six nombres tirés sont resserrés à 1–5** (au lieu de 1–9 pour les
+numérateurs, 2–9 pour les dénominateurs) : la fiche papier ne montre que des
+chiffres de cette taille (`5/2`, `2/3`, `4/5`), et un tirage à un chiffre
+plus large aurait déjà cessé de ressembler au modèle affiché à côté. **Le
+résultat final n'est plus forcé irréductible** : la case finale acceptait
+déjà — et accepte toujours — n'importe quelle fraction ÉGALE à la réponse,
+simplifiée ou non (`pfFracJuge`, `estFinal`) ; exiger en plus que le tirage
+LUI-MÊME tombe toujours sur une fraction déjà réduite n'ajoutait rien à ce
+que l'élève peut écrire, et écartait des tirages par ailleurs valides —
+resserré à 1–5, le vivier en avait déjà moins besoin. Le résultat continue
+de ne jamais valoir 0, comme avant.
+
+Éprouvé en ouvrant réellement l'exercice dans un Chromium (capture d'écran,
+pas seulement le banc jsdom) : la parenthèse s'affiche bien sur deux
+fractions séparées, chacune sa case de dénominateur, avant la barre unique
+du résultat — et {somme-produit-fractions} et {quotient-double-fractions},
+capturés à côté, gardent l'ancienne présentation groupée sans qu'aucune case
+n'ait bougé.
