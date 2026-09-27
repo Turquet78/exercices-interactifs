@@ -5141,6 +5141,7 @@ const TESTS={
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
   'synthese-pourcentages-libre':{ name:'Synthèse sur les pourcentages — rédigée', icon:'✍️', desc:'Les mêmes questions que {synthese-pourcentages} — prendre, augmenter ou diminuer —, mais plus une seule case : tu JUSTIFIES en écrivant ta vérification toi-même, et la page la lit. La multiplication par le bon coefficient qui donne le résultat suffit ; le quotient simplifié pour retrouver un pourcentage aussi ; ou bien calcule la hausse ou la baisse, puis fais l’addition ou la soustraction.', start:()=>startSynLibre() },
   'reconnaitre-coefficient':{ name:'Reconnaître le coefficient', icon:'🎯', desc:'Augmenter de 30 %, diminuer de 3 %, prendre 30 % : quel coefficient multiplicateur ? Choisis parmi quatre — les pièges classiques y sont — puis VÉRIFIE ta réponse en calculant le coefficient, comme dans {augmenter-pourcentage}.', start:()=>startReconnaitreCoef() },
+  'synthese-evolutions':{ name:'Synthèse sur les évolutions', icon:'🔄', desc:'Comme {synthese-pourcentages}, mais sans jamais « prendre » un pourcentage : chaque question est une augmentation ou une diminution, mélangées — retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix. Le résultat est toujours un nombre entier.', start:()=>startSynEvol() },
   'intervalles': { name:'Intervalles', icon:'\ud83d\udccf', desc:'Le chemin inverse de {intervalles-inegalite} : on te donne le schéma, et tu écris les crochets, l’inégalité et la phrase « ouvert / fermé en … ».', start:()=>startItv() },
   'intervalles-inegalite': { name:'De l’inégalité à l’intervalle', icon:'\ud83d\udd01', desc:'On ne te donne que l’inégalité : retrouve le schéma qui lui correspond, l’écriture de l’intervalle et la phrase « ouvert / fermé en … ».', start:()=>startItq() },
   'appartient-intervalle': { name:'Appartient ou pas ? — niveau 1', icon:'\ud83c\udfaf', desc:'Un nombre, un intervalle : dis s’il appartient (∈) ou non (∉). Attention aux bornes — c’est le crochet qui décide.', start:()=>startApp1() },
@@ -5279,7 +5280,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 3.2 ni de 3.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient'] }
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions'] }
   ] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -20497,6 +20498,36 @@ async function startSynDim(){
   test.maxScore=test.questions.length;
   show('syntest'); renderSynTest();
 }
+/* {synthese-evolutions} (Seconde seulement, demande de Turquet, septembre
+   2026 : « faire un exercice comme la fiche sur les évolutions en %, avec des
+   énoncés variés et un résultat entier ») : la synthèse du 2.5.1 restreinte
+   aux ÉVOLUTIONS — jamais « prendre P % », mais HAUSSES ET BAISSES MÉLANGÉES,
+   là où 2.2.9/2.3.8 n'en gardent chacune qu'une. Même moteur genSyn, pas même
+   identité — test.qId, « Recommencer » route par l'identité.
+   Les trois inconnues sortent chacune UNE fois, en ordre mélangé, comme les
+   trois autres synthèses. Le SENS tire aussi les deux : sur 3 questions, une
+   hausse et une baisse sont posées d'office (fams commence par ['aug','dim']),
+   la troisième tirée librement — sans quoi une séance pourrait ne poser que
+   des hausses, perdant tout le sujet de la fiche (elle mélange les deux dans
+   ses treize exercices).
+   AUCUNE ARITHMÉTIQUE NOUVELLE : le résultat toujours ENTIER (la demande de
+   Turquet) est déjà la propriété du générateur partagé — N multiple de 100,
+   un seul chiffre non nul au taux — tenue par le contrôle « le coefficient de
+   chaque transformation s'écrit avec au plus deux décimales » sur genSyn('aug')
+   et genSyn('dim') : la réécrire ici aurait fini par diverger de ce que la
+   page calcule réellement. */
+async function startSynEvol(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='psyn'; test.qId='synthese-evolutions';
+  const incs=qdMelanger(['fin','ini','pct']);
+  const fams=qdMelanger(['aug','dim',pick(['aug','dim'])]);
+  test.questions=distinctes(EVOL_NB,(_,i)=>genSyn(fams[i%fams.length], incs[i%incs.length]));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('syntest'); renderSynTest();
+}
 function choisirSy(i){
   if(test.locked) return;
   const q=test.questions[test.idx];
@@ -24162,7 +24193,7 @@ function ctxPourcentages(){
     +' Analyse la présentation de CET exercice (intitulés des étapes, ordre d’écriture, cases attendues) avant de répondre : ton aide doit suivre exactement ce mode de rédaction, et non une autre méthode. '
     +'Trouve la PREMIÈRE case où quelque chose cloche et oriente l’élève sur CETTE étape, sans jamais donner la réponse. Ne lui reproche pas les cases « (vide) » qui suivent : il n’y est pas encore.';
 }
-function restartPct(){ if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='psyn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); }
+function restartPct(){ if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='psyn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-evolutions':startSynEvol})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); }
 
 /* ================= Test : Ensembles de nombres (∈ / ∉ dans ℕ, ℤ, 𝔻, ℚ, ℝ) =================
    Chaque question présente un nombre ; l'élève indique pour chacun des 5 ensembles s'il
