@@ -6508,6 +6508,33 @@ async function parcours(page, N){
           const lg = svrDerLignes(), a = svrAns(test.questions[test.idx]);
           return { plain: lg.length ? lg[0].plain : '', ok: lg.length ? checkExprFn(lg[0].plain, svrDer(a)) : false }; });
         if(!t.ok) dits.push('la dérivée TAPÉE dans la feuille n\'est pas relue comme juste (lu : « ' + t.plain + ' »)');
+        /* Second signalement sur le MÊME exercice (6.2.5, septembre 2026) : un
+           exposant OUVERT (touche « ^ ») puis quitté SANS RIEN TAPER, au milieu
+           d'une ligne — invisible à l'écran, MathLive n'y montre rien — rendait
+           fausse la ligne développée du quotient (u'v − v'u). saClean ne le
+           voyait pas : il ne nettoie QUE la fin de ligne, et ce résidu-ci est au
+           milieu. Rejoué dans une seconde ligne, la formule NON simplifiée du
+           quotient — celle que l'énoncé lui-même demande d'écrire d'abord. */
+        await s.page.keyboard.press('Enter');
+        await s.page.waitForTimeout(200);
+        await s.page.keyboard.press('/');
+        await s.page.waitForTimeout(80);
+        await s.page.keyboard.type('0*(4-x)', { delay: 40 });
+        await s.page.keyboard.press('^');
+        await s.page.waitForTimeout(60);
+        await s.page.keyboard.press('ArrowRight');   /* exposant quitté sans rien taper : ^{} orphelin */
+        await s.page.waitForTimeout(60);
+        await s.page.keyboard.type('-(-1)*3', { delay: 40 });
+        await s.page.keyboard.press('ArrowDown');
+        await s.page.waitForTimeout(80);
+        await s.page.keyboard.type('(4-x)^2', { delay: 40 });
+        await s.page.keyboard.press(' ');
+        await s.page.waitForTimeout(300);
+        const t2 = await s.page.evaluate(() => {
+          const lg = svrDerLignes(), a = svrAns(test.questions[test.idx]);
+          const L = lg[lg.length - 1];
+          return { plain: L ? L.plain : '', ok: L ? checkExprFn(L.plain, svrDer(a)) : false }; });
+        if(!t2.ok) dits.push('un exposant ouvert puis quitté sans rien taper AU MILIEU d\'une ligne rend fausse une dérivée par ailleurs juste (lu : « ' + t2.plain + ' »)');
       }
       /* la copie juste, puis la vérification : la méthode se DESSINE, avec une
          étendue non nulle — un CSS perdu la rendrait invisible sans erreur */
