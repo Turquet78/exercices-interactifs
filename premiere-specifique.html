@@ -2099,7 +2099,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=242;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=243;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6098,14 +6098,21 @@ async function finishPct10(){
    MÊME mise en situation que {pourcentage} (CTX_PART, tirerContexte) — mais
    l'énoncé ne cite AUCUN pourcentage à l'avance (PDC_ENONCES, sans q.P) : c'est
    justement ce que la fiche demande, chaque ligne du tableau porte le sien.
-   N est tiré dans un sous-ensemble de PCT_VALEURS, multiple de 20 : 5 % de N
-   (N/20) doit rester un nombre entier comme les trois autres dérivés (15 %, 25 %),
-   sans quoi une case attendrait un résultat à virgule que rien dans la méthode
-   enseignée ne justifie. PDC_PCTS fixe l'ORDRE des lignes, identique à la fiche. */
-/* PCT_VALEURS n'est déclarée que plus bas dans ce fichier (§ 3.1.1 bis) : la
-   filtrer ICI, à l'exécution du script, lèverait « Cannot access PCT_VALEURS
-   before initialization ». On la lit donc à l'APPEL de genPdc(), jamais avant —
-   comme genPct10() ne lit PCT_PCTS/PCT_VALEURS qu'en appelant genPercent(). */
+   N suit TROIS familles (demande de Turquet, septembre 2026), chacune choisie
+   pour que 5 % de N (N/20, la seule division qui ne tombe pas déjà juste sur
+   un multiple de 10 ou de 100) reste une écriture PROPRE — jamais deux
+   décimales, jamais une division qui ne s'arrête pas :
+   · un multiple de CENT : aucune contrainte de parité, N/20 = 5 × (N/100) est
+     toujours entier ;
+   · un multiple de DIX (pas de cent) dont le chiffre des dizaines est PAIR :
+     N/20 reste entier (c'est le seul cas que l'ancien tirage connaissait) ;
+   · un chiffre des UNITÉS non nul mais PAIR : N n'est plus un multiple de dix,
+     10 % de N s'écrit alors avec UNE décimale (34,2 pour 342), et il faut que
+     5 % (la moitié de ce nombre) en garde UNE SEULE aussi : diviser par 2 un
+     nombre pair ne change jamais le nombre de décimales, une unité impaire
+     aurait donné un centième (34,15) que rien dans la méthode enseignée
+     (doubler, tripler, sommer) ne produit ailleurs.
+   PDC_PCTS fixe l'ORDRE des lignes, identique à la fiche. */
 const PDC_PCTS=[20,30,40,5,15,25];
 const PDC_ENONCES=[
   q=>`Retrouve plusieurs pourcentages de <b>${q.N} ${esc(q.unit)}</b>, en passant d'abord par 10 %.`,
@@ -6114,9 +6121,26 @@ const PDC_ENONCES=[
   q=>`Détermine chacun des pourcentages de <b>${q.N} ${esc(q.unit)}</b>, à partir de son 10 %.`,
   q=>`Sur <b>${q.N} ${esc(q.unit)}</b>, retrouve les pourcentages suivants en passant par 10 %.`
 ];
+/* Les trois familles décrites plus haut, à poids égal : un pick sur la famille
+   d'abord, puis un pick DANS la famille — un pick unique sur la concaténation
+   aurait donné 36 valeurs à chiffre des unités pour 9 multiples de cent et 4
+   multiples de dix, soit une famille qui écrase les deux autres neuf fois sur
+   dix. */
+function genPdcN(){
+  const fam=pick(['cent','dix','unites']);
+  if(fam==='cent')   return pick([1,2,3,4,5,6,7,8,9])*100;
+  if(fam==='dix')    return pick([2,4,6,8])*10;
+  return rand(1,9)*10+pick([2,4,6,8]);           /* dizaines quelconques, unités paires non nulles */
+}
 function genPdc(){
-  const N=pick(PCT_VALEURS.filter(n=>n%20===0));
-  const ci=tirerContexte(CTX_PART,N);
+  const N=genPdcN();
+  /* Famille « unités » : N n'est pas multiple de dix, 10 % s'écrit à virgule —
+     le même piège que {pourcentage-dix} sur ses N décimaux (PCT10_VALEURS_DEC),
+     et le même remède : pct10CtxDecOk écarte les contextes humains ou les
+     articles, où « 3,2 élèves » ou « 3,2 articles » n'a pas de sens. Les deux
+     autres familles (multiples de dix ou de cent) gardent tous les contextes,
+     comme avant. */
+  const ci=tirerContexte(CTX_PART,N,null,N%10!==0?pct10CtxDecOk:null);
   const q={N,unit:CTX_PART[ci].u,ci,dix:N/10};
   q.lignes=PDC_PCTS.map(P=>({P,val:N*P/100}));
   q.v=tirerVariante(PDC_ENONCES,q);
@@ -14238,6 +14262,7 @@ Comme dans {pourcentage-dix}, on part de <b>10 %</b> du nombre, obtenu en divisa
 <b>10 % de 400 €</b> : on divise par 10 — \\(\\frac{400}{10}=40\\) €.<br>
 <b>20 %, c’est le double de 10 %</b> : 40 × 2 = 80 €. <b>30 %, le triple</b> : 40 × 3 = 120 €. <b>40 %, quatre fois 10 %</b> : 40 × 4 = 160 €.<br>
 <b>5 %, c’est la moitié de 10 %</b> : 40 ÷ 2 = 20 €. <b>15 % = 10 % + 5 %</b> : 40 + 20 = 60 €. <b>25 % = 20 % + 5 %</b> : 80 + 20 = 100 €.<br>
+Le nombre de départ n’est pas toujours un multiple de dix : sur 34 €, 10 % = 3,4 €, et 5 % en garde la même décimale — 3,4 ÷ 2 = 1,7 €.<br>
 À retenir : une fois 10 % trouvé, chaque autre pourcentage s’obtient en le multipliant, le divisant ou en l’additionnant à un autre déjà connu.`;
 const RAP_PCTQ=`<b>Retrouver la valeur initiale ou le pourcentage</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
