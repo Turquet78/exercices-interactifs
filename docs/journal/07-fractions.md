@@ -792,3 +792,26 @@ toute fraction ÉGALE, simplifiée ou non, depuis sa construction pour
 `c/d`, `e/f`, `g/h`) restent, elles, tirées déjà irréductibles
 (`gcd(a,b)!==1` etc.) : la demande portait sur le résultat que l'élève
 calcule, pas sur l'énoncé qu'on lui donne.
+
+**{quotient-difference-fractions} (5.14, « I ») tire des entiers de 1 à 5,
+et lui seul** (demande de Turquet, septembre 2026, sur le modèle de la fiche
+papier `fraction révision` — I = 5/2 ÷ (8/3 − 1/3), présenté exactement dans
+la forme que `pfCroixHTML()`/`pfProduitHTML()` posent déjà : le croisement
+d'abord, la parenthèse résolue, puis « diviser, c'est multiplier par
+l'inverse »). `pqdGen(inv)` distingue désormais H et I par leur borne haute
+(9 pour H, 5 pour I) plutôt que par une seule constante partagée : les deux
+exercices restent le MÊME moteur, mais chacun son tirage, comme leur note
+reste chacune la sienne. Deux relâchements accompagnent l'intervalle plus
+court, POUR I SEULEMENT : les fractions tirées n'ont plus à être déjà
+irréductibles — a/b, c/d et e/f peuvent se présenter simplifiables, l'élève
+n'est pas tenu de les réduire avant de calculer — et le résultat final n'a
+plus, non plus, à l'être. Rien à changer côté vérification : `pfFracJuge()`
+acceptait déjà toute fraction ÉGALE à la case finale, réduite ou non, bien
+avant cette demande — seul le TIRAGE exigeait un résultat irréductible, pas
+le JUGE. Sans ce relâchement, un intervalle de 1 à 5 (quatre dénominateurs
+possibles, cinq numérateurs) aurait fait chuter en escadrille le taux de
+tirages valides et buté beaucoup plus souvent sur le repli codé en dur.
+Le résultat NUL reste écarté comme avant (Rn puis P), et le repli codé en
+dur de I change de nombres pour rester dans le nouvel intervalle : H garde
+le sien tel quel (5/2 × (2/3 − 4/5), le « H » de la fiche), I devient
+5/2 ÷ (4/5 − 1/3).
