@@ -2173,7 +2173,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=250;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=251;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6362,11 +6362,11 @@ function renderPdt(){
   $('pdtActions').innerHTML='<button class="btn btn-primary" onclick="checkPdtAnswer()">Vérifier</button>';
   $('pdtPrompt').innerHTML=variante(QD_ENONCES_PCT,q);
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
-  let html=`<div class="pct10-ligne">On commence par déterminer <b id="pdtFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} : ${q.N} ÷ 10 = ${dec('pdt0','dix pour cent de '+q.N)} ${esc(q.unit)}</div>`;
+  let html=`<div class="pct10-ligne">On commence par déterminer <b id="pdtFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} : ${dec('pdt0','dix pour cent de '+q.N)} ${esc(q.unit)}</div>`;
   const order=['pdt0'];
   const donc=`donc : ${dec('pdtP','le pourcentage cherché')}&nbsp;% de ${q.N} ${esc(q.unit)} = <span id="pdtFlValDst">${q.result}</span> ${esc(q.unit)}`;
   if(q.cinq){
-    html+=`<div class="pct10-ligne">On continue en déterminant <b id="pdtFlPct5">5</b>&nbsp;% de ${q.N} ${esc(q.unit)} : ${q.d10} ÷ 2 = ${dec('pdt5','cinq pour cent de '+q.N)} ${esc(q.unit)}</div>`;
+    html+=`<div class="pct10-ligne">On continue en déterminant <b id="pdtFlPct5">5</b>&nbsp;% de ${q.N} ${esc(q.unit)} : ${dec('pdt5','cinq pour cent de '+q.N)} ${esc(q.unit)}</div>`;
     order.push('pdt5');
     if(q.P===5){
       html+=`<div class="pct10-ligne">${donc}</div>`;
