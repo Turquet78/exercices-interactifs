@@ -16823,17 +16823,23 @@ function saParen(close){   /* parenth\u00e8se \u00e9tirable : suit la hauteur de
 function saMF(id, wide){   /* case entierement equipee par le kit */
   return FICHE_SA.mf(id, 'dexp-mf sa-mf'+(wide==='w'?' sa-mf-w':wide==='sm'?' sa-mf-sm':''));
 }
-/* saClean : retire les residus MathLive incomplets en fin de saisie (exposant/indice vide, \placeholder{}, operateur isole) qui s'affichent comme le nombre mais ne se lisent pas — sans quoi une bonne reponse comme « 3 » est comptee fausse. Hors moteur SA-CORE. */
+/* saClean : retire les residus MathLive incomplets en fin de saisie (exposant/indice vide, \placeholder{}, operateur isole) qui s'affichent comme le nombre mais ne se lisent pas — sans quoi une bonne reponse comme « 3 » est comptee fausse. Hors moteur SA-CORE.
+   Les commandes d'espace (\, \; \: \  ~) se retirent AVANT l'espace generique :
+   sinon le \s+$ qui suit ne mange que l'espace de « \ » et laisse un « \ » orphelin,
+   que rien derriere ne sait plus lire (trouve en balayant les residus du 6.2.5,
+   septembre 2026 — la meme signature qu'un exposant vide, mais sur une commande
+   d'espace). Un « - » ou un « * » isoles en fin de ligne sont le meme defaut que
+   le « + » deja tenu : un residu invisible qui suit une ecriture complete. */
 function saClean(s){
   s=String(s==null?'':s);
   s=s.replace(/\\placeholder\{\}/g,'');
   var prev;
   do{ prev=s;
+    s=s.replace(/(\\times|\\cdot|\\div|\\,|\\;|\\:|\\ |~)$/,'');
     s=s.replace(/\s+$/,'');
     s=s.replace(/\{\s*\}$/,'');
     s=s.replace(/[\^_]$/,'');
-    s=s.replace(/(\\times|\\cdot|\\div|\\,)$/,'');
-    s=s.replace(/[+\/]$/,'');
+    s=s.replace(/[+\/*−-]$/,'');
   }while(s!==prev);
   return s.trim();
 }
