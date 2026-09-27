@@ -4529,7 +4529,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=221;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=222;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -34951,11 +34951,23 @@ function ctxSpf(q){
    montre : H = −2/15), et le moteur l'accepte tel quel dans la case du
    numérateur. POUR I EN REVANCHE, le tirage EXIGE une parenthèse POSITIVE :
    l'inverser donnerait sinon un dénominateur négatif — un cas que la fiche
-   papier ne montre jamais, et qu'il vaudrait mieux ne pas inventer ici. */
+   papier ne montre jamais, et qu'il vaudrait mieux ne pas inventer ici.
+
+   POUR I SEUL (demande de Turquet, septembre 2026) : que des entiers de 1 à
+   5 — a, c, e (numérateurs) comme b, d, f (dénominateurs), qui restent ≥ 2
+   pour rester des dénominateurs. Les fractions tirées n'ont plus à être déjà
+   irréductibles — « on n'est pas obligé de simplifier les fractions, mais on
+   accepte si elles le sont » — et le résultat final n'a plus, non plus, à
+   l'être : `pfFracJuge()` accepte de toute façon toute fraction ÉGALE à la
+   case finale, simplifiée ou non. Seul le résultat NUL reste écarté (Rn puis
+   P, comme avant) : un intervalle aussi court laisserait sinon buter le
+   tirage sur le même « rien à calculer ». H (5.13) n'a pas bougé : ni son
+   intervalle de 1 à 9, ni ses exigences d'irréductibilité. */
 function pqdGen(inv){
   for(let essai=0; essai<2000; essai++){
-    const a=rand(1,9), b=rand(2,9), c=rand(1,9), d=rand(2,9), e=rand(1,9), f=rand(2,9);
-    if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;
+    const hi=inv?5:9;
+    const a=rand(1,hi), b=rand(2,hi), c=rand(1,hi), d=rand(2,hi), e=rand(1,hi), f=rand(2,hi);
+    if(!inv && (gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1)) continue;
     if(d===f) continue;                  /* déjà le même dénominateur : rien à croiser */
     const N1=c*f, N2=e*d, Din=d*f, Rn=N1-N2;
     if(Rn===0) continue;                 /* une parenthèse nulle n'est pas le sujet ici */
@@ -34964,16 +34976,18 @@ function pqdGen(inv){
     let P,Q;
     if(!inv){ P=a*Rn; Q=b*Din; } else { P=a*Din; Q=b*Rn; }
     if(Q<0){ P=-P; Q=-Q; }               /* le dénominateur final reste positif, le signe est au numérateur */
-    if(P===0) continue;
-    const g=gcd(Math.abs(P),Q);
-    if(g!==1) continue;                  /* le résultat final doit être irréductible */
+    if(P===0) continue;                  /* le résultat ne peut pas être 0 */
+    if(!inv){
+      const g=gcd(Math.abs(P),Q);
+      if(g!==1) continue;                /* H : le résultat final doit être irréductible */
+    }
     if(Math.abs(P)===Q) continue;
     if(Q>200 || Math.abs(P)>200) continue;   /* garde les nombres lisibles */
     return {a:a,b:b,c:c,d:d,e:e,f:f,N1:N1,N2:N2,Din:Din,Rn:Rn,P:P,Q:Q};
   }
   return !inv
     ? {a:5,b:2,c:2,d:3,e:4,f:5,N1:10,N2:12,Din:15,Rn:-2,P:-10,Q:30}    /* le « H » de la fiche papier */
-    : {a:5,b:2,c:8,d:3,e:1,f:3,N1:8,N2:1,Din:3,Rn:7,P:15,Q:14};        /* le « I » de la fiche papier */
+    : {a:5,b:2,c:4,d:5,e:1,f:3,N1:12,N2:5,Din:15,Rn:7,P:75,Q:14};      /* I, entiers 1 à 5 */
 }
 const PQD_NB=4;
 function pqdBuildQuestions(inv){ const qs=[]; for(let i=0;i<PQD_NB;i++) qs.push(distincte(qs, function(){ return pqdGen(inv); })); return qs; }
