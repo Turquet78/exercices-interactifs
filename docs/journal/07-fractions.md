@@ -835,3 +835,18 @@ fractions séparées, chacune sa case de dénominateur, avant la barre unique
 du résultat — et {somme-produit-fractions} et {quotient-double-fractions},
 capturés à côté, gardent l'ancienne présentation groupée sans qu'aucune case
 n'ait bougé.
+
+**{quotient-double-fractions} (5.15) a reçu le même resserrement, par une
+troisième session le même jour, sur SA fiche (« J » de « fraction révision
+5 »).** Les huit nombres de l'énoncé (`a` à `h`) venaient de
+`rand(1,9)`/`rand(2,9)` ; ils tirent maintenant de `rand(1,5)`/`rand(2,5)` —
+le repère de la fiche papier, où « J » se calcule avec 5/2, 1/3, 2/3 et 1/4,
+et qui se trouve être EXACTEMENT le repli de secours de `qdbGen()` (preuve
+que le moteur avait déjà été construit sur cette fiche). Le résultat final
+ne peut toujours pas valoir 0, et n'a plus à être irréductible — même
+relâchement que G/H/I, par le même juge `pfFracJuge()` déjà accueillant.
+Contrairement à pqd, `qdbGen()` GARDE ses quatre `gcd(...)!==1` sur les
+fractions de DÉPART (`a/b`, `c/d`, `e/f`, `g/h`) : la demande de Turquet
+portait ici sur le résultat que l'élève calcule, pas sur l'énoncé qu'on lui
+donne — {quotient-double-fractions} ne partage pas le moteur `pqd` de H/I,
+rien n'obligeait à leur faire dire la même chose au même mot près.
