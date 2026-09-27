@@ -2188,7 +2188,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=254;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=255;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6561,9 +6561,15 @@ async function finishPdt(){
      ou 3 (100 à 380 — demande de Turquet, septembre 2026) ;
    · un nombre à 2 chiffres, multiple de dix, dizaines paires (20,40,60,80) ;
    · un nombre entre 1 et 8, pair (2,4,6,8) : 10 % s'écrit alors à une
-     décimale (0,2 à 0,8), comme le second vivier de {pourcentage-dix}. */
-function genAdxN(){
-  const fam=pick(['trois','deux','unite']);
+     décimale (0,2 à 0,8), comme le second vivier de {pourcentage-dix}.
+   Les TROIS familles passent, une fois chacune (demande de Turquet,
+   septembre 2026) : {startAdx} mélange ['trois','deux','unite'] et le
+   parcourt par `i%3`, comme {synthese-pourcentages} alterne ses inconnues
+   (`incs[i%incs.length]`) — la séance entière (EVOL_NB=3) montre alors un
+   nombre à 3 chiffres, un à 2 et un à 1, dans un ordre tiré au sort à
+   chaque séance plutôt que trois tirages indépendants qui pouvaient répéter
+   la même famille. */
+function genAdxN(fam){
   if(fam==='trois') return 100*pick([1,2,3]) + 10*pick([0,2,4,6,8]);
   if(fam==='deux')  return 10*pick([2,4,6,8]);
   return pick([2,4,6,8]);
@@ -6575,8 +6581,8 @@ const ADX_ENONCES=[
   q=>`Calcule l’augmentation de <b>${q.P} %</b> sur un prix de <b>${q.N} €</b>, en commençant par 10 %.`,
   q=>`Sur un prix de <b>${q.N} €</b>, applique une hausse de <b>${q.P} %</b> en passant par 10 %.`
 ];
-function genAdx(){
-  const N=genAdxN(), D=N/10;
+function genAdx(fam){
+  const N=genAdxN(fam), D=N/10;
   const type=pick(['mult10','cinq','quinze']);
   let P, lignes;
   if(type==='mult10'){
@@ -6598,7 +6604,8 @@ async function startAdx(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='adx';
-  test.questions=distinctes(EVOL_NB,genAdx);
+  const adxFams=qdMelanger(['trois','deux','unite']);
+  test.questions=distinctes(EVOL_NB,(_,i)=>genAdx(adxFams[i%adxFams.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.maxScore=test.questions.length;
   show('adx'); renderAdx();
