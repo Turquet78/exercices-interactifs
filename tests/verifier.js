@@ -1435,7 +1435,20 @@ function branchements(w){
      2026, en trois temps), plus les synthèses rédigées 2.2.10, 2.3.9 et 2.5.2
      et le QCM des coefficients 2.5.3. On appelle les VINGT-DEUX vrais
      démarreurs :
-     un nombre changé dans un démarreur partagé ne dit rien des autres. */
+     un nombre changé dans un démarreur partagé ne dit rien des autres.
+     {augmenter-taux-dix} (2.2.11, Première seulement, septembre 2026) N'Y
+     FIGURE PAS : cette liste et le contrôle qui la parcourt sont PARTAGÉS par
+     la Seconde (mêmes fichiers `tests/verifier.js` et `tests/profils.js`), et
+     `startAtd` n'existe que sur `premiere-specifique.html` — l'y ajouter
+     ferait rougir la Seconde sur un démarreur absent EXPRÈS, le même piège
+     que {pourcentage-dix} avait déjà évité au paragraphe ci-dessus. Ce que
+     ceci laisse SANS contrôle dédié : que `EVOL_NB` (et non un autre nombre)
+     règle bien ses séances — la valeur de la constante n'est vérifiée ici
+     que pour les VINGT-DEUX démarreurs nommés. Le contrôle générique
+     « aucune séance ne pose deux fois la même question », plus bas, et le
+     banc navigateur (section 9) font tourner `startAtd` sans le nommer et
+     couvrent le reste : pas d'erreur au tirage, pas de doublon sur 40
+     séances, les règles universelles de l'écran. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
