@@ -4570,7 +4570,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=226;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=227;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7062,7 +7062,7 @@ const RAP_PQD=`<b>La parenthèse d’abord, toujours</b><br>
 Une parenthèse se calcule TOUJOURS avant ce qui est autour d’elle — c’est même à ça qu’elle sert.<br>
 <b>① On met la parenthèse au même dénominateur</b>, par le CROISEMENT : chaque fraction multipliée par le dénominateur de l’AUTRE — \\(\\frac{2}{3}-\\frac{4}{5}=\\frac{2\\times 5}{3\\times 5}-\\frac{4\\times 3}{5\\times 3}=\\frac{10}{15}-\\frac{12}{15}\\)<br>
 <b>② On calcule la parenthèse</b> : \\(\\frac{10-12}{15}=\\frac{-2}{15}\\)<br>
-<b>③ Il ne reste qu’un produit</b> (ou une division, qui devient un produit par l’INVERSE) : \\(\\frac{5}{2}\\times\\frac{-2}{15}=\\frac{5\\times(-2)}{2\\times 15}=\\frac{-10}{30}=\\frac{-1}{3}\\)<br>
+<b>③ Il ne reste qu’un produit</b> (ou une division, qui devient un produit par l’INVERSE) : \\(\\frac{5}{2}\\times\\frac{-2}{15}=\\frac{-1}{3}\\)<br>
 Le résultat d’une parenthèse peut être négatif — ce n’est pas une erreur, la soustraction peut très bien donner un nombre négatif.`;
 /* {quotient-double-fractions} : les DEUX parenthèses de {produit-difference-
    fractions}/{quotient-difference-fractions}, mais aucune n'est un terme nu —
@@ -34982,7 +34982,7 @@ function pfFracJuge(fn,fd,P,Q){
    aucun modèle papier à suivre, gardent l'ancienne présentation groupée (une
    seule barre, un seul dénominateur) : « deux » ne change que l'HTML et les
    deux cases de dénominateur qu'il faut remplir, jamais le calcul jugé. */
-function pfCroixHTML(pref, p,q_,r,s, op, labRn, deux){
+function pfCroixHTML(pref, p,q_,r,s, op, labRn, deux, teteRn){
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   const produit=(n,d,idA,idB)=>
     '<span class="f-frac-input sf-prod">'
@@ -35000,7 +35000,7 @@ function pfCroixHTML(pref, p,q_,r,s, op, labRn, deux){
         +mf(pref+'-d','f-den','dénominateur commun')+'</span>');
   return fEq(produit(p,q_,pref+'-a1',pref+'-b1'))+opHtml+produit(r,s,pref+'-a2',pref+'-b2')
     +etapeValeurs
-    +fEq(fracSeule(pref+'-rn',pref+'-rd',labRn||'résultat','dénominateur du résultat'));
+    +fEqTete(teteRn||'', fracSeule(pref+'-rn',pref+'-rd',labRn||'résultat','dénominateur du résultat'));
 }
 function pfCroixCases(pref, deux){ return [pref+'-a1',pref+'-b1',pref+'-a2',pref+'-b2',pref+'-n1',pref+'-n2']
   .concat(deux ? [pref+'-d1',pref+'-d2'] : [pref+'-d']).concat([pref+'-rn',pref+'-rd']); }
@@ -35061,8 +35061,15 @@ function pfCroixCorrection(pref, p,q_,r,s, op, estFinal, deux){
    {diviser-fractions} recolle « n1/d1 × » devant l'inverse : sans lui, ce
    premier « = » resterait un signe posé devant une case, sans dire ce qui
    la vaut. Les « = » suivants restent nus : ils ne font que simplifier
-   l'égalité que ce premier « = » vient d'écrire. */
-function pfProduitHTML(pref, withInverse, tete){
+   l'égalité que ce premier « = » vient d'écrire.
+
+   « direct » : {produit-difference-fractions}/{quotient-difference-fractions}
+   sautent la décomposition « numérateurs ensemble, dénominateurs ensemble »
+   (modèle papier — demande de Turquet, septembre 2026, la même qui a amené
+   « deux » sur pfCroixHTML) : le papier ne montre QUE le produit final, sans
+   redemander en cases les deux facteurs qui le composent. {quotient-double-
+   fractions}, sans modèle papier pour cette étape, la garde par défaut. */
+function pfProduitHTML(pref, withInverse, tete, direct){
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   const fois='<span class="f-times">×</span>';
   const inverseBox='<span class="f-frac-input">'+mf(pref+'-i1','f-num','numérateur de l’inverse')
@@ -35077,19 +35084,25 @@ function pfProduitHTML(pref, withInverse, tete){
   let h='', premiere=true;
   const put=(boite)=>{ if(premiere && tete){ h+=fEq(tete)+fois+boite; } else { h+=fEq(boite); } premiere=false; };
   if(withInverse) put(inverseBox);
-  put(prodBox);
+  if(!direct) put(prodBox);
   put(finalBox);
   return h;
 }
-function pfProduitCases(pref, withInverse){
-  const base=[pref+'-h1',pref+'-h2',pref+'-b1',pref+'-b2',pref+'-fn',pref+'-fd'];
+function pfProduitCases(pref, withInverse, direct){
+  const base=direct ? [pref+'-fn',pref+'-fd'] : [pref+'-h1',pref+'-h2',pref+'-b1',pref+'-b2',pref+'-fn',pref+'-fd'];
   return withInverse ? [pref+'-i1',pref+'-i2'].concat(base) : base;
 }
 /* a1,a2 : la paire attendue en haut ; b1,b2 : la paire attendue en bas —
-   déjà les facteurs EFFECTIFS (après inversion, s'il y en a une). */
-function pfProduitJuge(pref, withInverse, invAttendu1, invAttendu2, a1,a2,b1,b2, P,Q){
-  const h1=pfLu(pref+'-h1'), h2=pfLu(pref+'-h2'), bb1=pfLu(pref+'-b1'), bb2=pfLu(pref+'-b2');
-  const hh=pfPaire(h1,h2,a1,a2), bb=pfPaire(bb1,bb2,b1,b2);
+   déjà les facteurs EFFECTIFS (après inversion, s'il y en a une). « direct »
+   (voir pfProduitHTML) : h1/h2/b1/b2 n'existent pas dans le DOM, haut/bas ne
+   sont donc pas exigés — ni lus, ni jugés. */
+function pfProduitJuge(pref, withInverse, invAttendu1, invAttendu2, a1,a2,b1,b2, P,Q, direct){
+  let okH1=true, okH2=true, okB1=true, okB2=true, haut=true, bas=true;
+  if(!direct){
+    const h1=pfLu(pref+'-h1'), h2=pfLu(pref+'-h2'), bb1=pfLu(pref+'-b1'), bb2=pfLu(pref+'-b2');
+    const hh=pfPaire(h1,h2,a1,a2), bb=pfPaire(bb1,bb2,b1,b2);
+    okH1=hh[0]; okH2=hh[1]; okB1=bb[0]; okB2=bb[1]; haut=hh[0]&&hh[1]; bas=bb[0]&&bb[1];
+  }
   let okI1=true, okI2=true;
   if(withInverse){
     const i1=pfLu(pref+'-i1'), i2=pfLu(pref+'-i2');
@@ -35098,8 +35111,8 @@ function pfProduitJuge(pref, withInverse, invAttendu1, invAttendu2, a1,a2,b1,b2,
   }
   const fn=pfLu(pref+'-fn'), fd=pfLu(pref+'-fd');
   const fracJ=pfFracJuge(fn,fd,P,Q);
-  return {okH1:hh[0],okH2:hh[1],okB1:bb[0],okB2:bb[1],okI1:okI1,okI2:okI2,okFn:fracJ[0],okFd:fracJ[1],
-    haut:hh[0]&&hh[1], bas:bb[0]&&bb[1], inverse:(!withInverse || (okI1&&okI2)), fin:fracJ[0]&&fracJ[1]};
+  return {okH1:okH1,okH2:okH2,okB1:okB1,okB2:okB2,okI1:okI1,okI2:okI2,okFn:fracJ[0],okFd:fracJ[1],
+    haut:haut, bas:bas, inverse:(!withInverse || (okI1&&okI2)), fin:fracJ[0]&&fracJ[1]};
 }
 function pfProduitPeindre(pref, withInverse, r, mode){
   const col=(ids,ok)=>{
@@ -35322,7 +35335,7 @@ function pqdGen(inv){
 }
 const PQD_NB=4;
 function pqdBuildQuestions(inv){ const qs=[]; for(let i=0;i<PQD_NB;i++) qs.push(distincte(qs, function(){ return pqdGen(inv); })); return qs; }
-function pqdCases(){ return pfCroixCases('pqd-x', true).concat(pfProduitCases('pqd', !!(test&&test.inv))); }
+function pqdCases(){ return pfCroixCases('pqd-x', true).concat(pfProduitCases('pqd', !!(test&&test.inv), true)); }
 function renderPqdTest(){
   const q=test.questions[test.idx]; test.locked=false;
   const inv=!!(test && test.inv);
@@ -35333,13 +35346,14 @@ function renderPqdTest(){
   $('pqdActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkPqdAnswer()">Vérifier</button>';
   $('pqdPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>'+(inv?'÷':'×')+'</b> ( '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f)+' ).';
   $('pqdHost').innerHTML=
-     '<div class="pt-step"><div class="pt-lab">① la parenthèse d’abord&nbsp;: mettre au même dénominateur (le croisement)&nbsp;· ② la différence sur ce dénominateur&nbsp;· '
-     +(inv ? '③ diviser, c’est multiplier par l’INVERSE&nbsp;· ④ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ⑤ la fraction finale'
-           : '③ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ④ la fraction finale')+'</div>'
+     '<div class="pt-step"><div class="pt-lab">① mettre au même dénominateur (le croisement)&nbsp;· ② la valeur de chaque fraction croisée&nbsp;· ③ la différence sur ce dénominateur&nbsp;· '
+     +(inv ? '④ diviser, c’est multiplier par l’INVERSE&nbsp;· ⑤ la fraction finale'
+           : '④ la fraction finale')+'</div>'
      +'<div class="pt-row">'
        +sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>(' +sfTermeHTML(q.c,q.d)+'<b>−</b>'+sfTermeHTML(q.e,q.f)+')'
-       +pfCroixHTML('pqd-x', q.c,q.d,q.e,q.f,'-','numérateur de la parenthèse', true)
-       +pfProduitHTML('pqd', inv, sfTermeHTML(q.a,q.b))
+       +pfCroixHTML('pqd-x', q.c,q.d,q.e,q.f,'-','numérateur de la parenthèse', true,
+          sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>')
+       +pfProduitHTML('pqd', inv, undefined, true)
      +'</div></div>';
   const order=pqdCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
@@ -35351,7 +35365,7 @@ function pqdJuge(q){
   const inv=!!(test && test.inv);
   const cx=pfCroixJuge('pqd-x', q.c,q.d,q.e,q.f,'-',false,true);
   const a1=inv?q.Din:q.Rn, b1=inv?q.Rn:q.Din;
-  const pr=pfProduitJuge('pqd', inv, q.Din,q.Rn, q.a,a1, q.b,b1, q.P,q.Q);
+  const pr=pfProduitJuge('pqd', inv, q.Din,q.Rn, q.a,a1, q.b,b1, q.P,q.Q, true);
   const vide=pfVide(pqdCases());
   return {cx:cx, pr:pr, vide:vide};
 }
@@ -35363,8 +35377,6 @@ function pqdPourquoi(q,r){
   if(!(r.cx.okN1&&r.cx.okN2&&r.cx.okD)) return 'Sur le dénominateur '+r.cx.D+', les numérateurs de la parenthèse deviennent '+r.cx.N1+' et '+r.cx.N2+'.';
   if(!(r.cx.okRn&&r.cx.okRd)) return 'Il reste à calculer la parenthèse : '+r.cx.N1+' − '+r.cx.N2+' = '+q.Rn+', sur '+q.Din+'.';
   if(inv && !r.pr.inverse) return 'Diviser par '+q.Rn+'/'+q.Din+', c’est multiplier par son inverse : '+q.Din+' sur '+q.Rn+'.';
-  if(!r.pr.haut) return 'En haut, les deux facteurs de la multiplication : '+q.a+' et '+(inv?q.Din:q.Rn)+'.';
-  if(!r.pr.bas) return 'En bas, les deux facteurs de la multiplication : '+q.b+' et '+(inv?q.Rn:q.Din)+'.';
   return 'Il reste à écrire la fraction finale : '+q.P+' sur '+q.Q+'.';
 }
 function checkPqdAnswer(live){
