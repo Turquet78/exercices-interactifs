@@ -3743,6 +3743,7 @@ function exercices(suite){
     coefficientGlobalCourt(w, P);
     coefficientGlobalCourtBaisses(w, P);
     coefficientDeuxDecimalesSynthese(w, P);
+    syntheseEvolutions(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -25032,6 +25033,61 @@ function coefficientDeuxDecimalesSynthese(w, P){
     if(trop) vus.push("la correction ecrit "+trop[0]+", un nombre a plus de deux decimales");
     return vus.join(" | ");
     function decVirgule(s){ const i=String(s).indexOf(","); return i<0?0:String(s).length-i-1; }
+  })()`, v => v === '', undefined);
+}
+/* ---- {synthese-evolutions} : Seconde SEULE, jamais « prendre P % » ---------
+   « fais un exercice comme la fiche sur les évolutions en %, avec des énoncés
+   variés et un résultat entier » (Turquet, septembre 2026). L'exercice n'est
+   ajouté qu'en Seconde : le contrôle se déclare ABSENT plutôt que de rougir en
+   Première, qui n'a pas startSynEvol — la leçon du 2.1.8 (« pourcentage-dix »)
+   à l'envers, un exercice qui n'existe que d'un côté ne rejoint jamais la
+   liste PARTAGÉE des démarreurs d'évolutions.
+   Trois bords, comme pour {synthese-augmentations}/{synthese-diminutions} :
+   les trois inconnues chacune une fois, l'identité épinglée par « Recommencer »
+   — et le bord qui lui est PROPRE : JAMAIS la famille « pct » (prendre), et les
+   DEUX sens (hausse et baisse) sortent chacun au moins une fois sur les trois
+   questions d'une même séance, sans quoi l'exercice pourrait ne poser que des
+   hausses trois fois de suite et perdre tout son sujet. L'entier du résultat
+   n'est PAS remesuré ici : c'est la propriété de genSyn('aug')/genSyn('dim'),
+   déjà exigée par le contrôle voisin sur les 2.2.9/2.3.8, à qui ce démarreur
+   emprunte l'arithmétique sans rien y changer. */
+function syntheseEvolutions(w, P){
+  const present = evaluer(w, "typeof startSynEvol==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{synthese-evolutions} : hausses et baisses mélangées, jamais « prendre », et identité tenue',
+      'ce niveau n\'a pas la synthèse sur les évolutions');
+    return;
+  }
+  verifierEval(w, '{synthese-evolutions} : hausses et baisses mélangées, jamais « prendre », et identité tenue', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, ordres={};
+    for(let t=0;t<30 && !vus.length;t++){
+      startSynEvol();
+      if(test.qId!=='synthese-evolutions') vus.push('tirage '+t+' : identité « '+test.qId+' » au lieu de « synthese-evolutions »');
+      if(test.kind!=='psyn') vus.push('tirage '+t+' : kind « '+test.kind+' » au lieu de « psyn »');
+      const qs=test.questions||[];
+      if(qs.length!==attendu) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de '+attendu);
+      const fams={};
+      qs.forEach(function(q,i){
+        if(q.fam==='pct') vus.push('tirage '+t+' q'+i+' : famille « pct » (prendre) — cet exercice ne pose que des évolutions');
+        else if(q.fam!=='aug' && q.fam!=='dim') vus.push('tirage '+t+' q'+i+' : famille inconnue « '+q.fam+' »');
+        fams[q.fam]=1;
+      });
+      if(!vus.length && (!fams.aug || !fams.dim)) vus.push('tirage '+t+' : une seule des deux évolutions sort ('+Object.keys(fams).join(',')+') — la synthèse ne mélange plus hausses et baisses');
+      const incs=qs.map(function(q){ return q.inc; });
+      ['fin','ini','pct'].forEach(function(inc){ if(incs.indexOf(inc)<0) vus.push('tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+      ordres[incs.join(',')]=1;
+      const vu={};
+      qs.forEach(function(q){ const c=JSON.stringify(q.opts)+'|'+q.fam+'|'+q.inc+'|'+q.P+'|'+q.N;
+        if(vu[c]) vus.push('tirage '+t+' : deux questions identiques dans la même séance'); vu[c]=1; });
+    }
+    if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des trois inconnues ne change jamais d\\'un tirage à l\\'autre');
+    if(!vus.length){
+      test.kind='psyn'; test.qId='synthese-evolutions'; restartCurrentTest();
+      if(test.qId!=='synthese-evolutions') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse des évolutions');
+    }
+    return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
 /* ---- 2.1.3 : le coefficient s'écrit court, et la chaîne tombe sur des entiers
