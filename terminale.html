@@ -2953,7 +2953,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=340;
+const APP_VERSION=341;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -18708,7 +18708,12 @@ function svrDerTex(a){ return '\\frac{'+numFmt(a.p)+'}{\\left('+numFmt(a.s)+'-x\
 function derLignes(feuille){
   if(!feuille) return [];
   return feuille.lignes.map(function(L){
-    let plain=''; try{ plain=(window.mlDexp?window.mlDexp.toPlain(L.mf.getValue()):'').trim(); }catch(e){}
+    let plain='';
+    try{
+      let lx=String(L.mf.getValue?L.mf.getValue():'');
+      const net=saClean(lx);
+      plain=(window.mlDexp?window.mlDexp.toPlain(net===''?lx:net):'').trim();
+    }catch(e){}
     return {L:L, plain:plain};
   }).filter(function(x){ return x.plain!==''; });
 }
