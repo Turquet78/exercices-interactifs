@@ -126,6 +126,31 @@ bout en bout — d'ABORD sans résidu (si elle ne passe pas au vert ainsi, c'est
 contrôle qui a tort, pas la page), puis avec. Le sabotage rend le signalement au
 mot près : « 10/12 cases vertes, rouges : dexp-s3a, dexp-s3b ».
 
+**Le même résidu revient AU MILIEU d'une ligne, pas seulement en fin.** Deux
+signalements sur le {suite-variation-recurrence} (6.2.5, septembre 2026) avaient
+déjà fait ajouter `saClean()` avant `toPlain()` dans `derLignes()`, puis élargi
+`saClean()` à d'autres résidus de FIN de ligne (`-`, `*` isolés, une commande
+d'espace coupée par le nettoyage générique qui la suit). Un troisième
+signalement, même exercice : une copie du quotient développé —
+`f′(x) = [0×(10−x) − (−1)×9] / (10−x)²` — juste au caractère près, comptée
+fausse, les deux lignes rouges. Cette fois le résidu n'était PAS en fin de
+ligne : un exposant ouvert (touche « ^ ») puis quitté sans rien taper, AU
+MILIEU du numérateur — `(10-x)^{}` — laissé par une touche effleurée en pleine
+frappe. `saClean()` ne pouvait rien y faire : il ne nettoie QUE la fin de la
+chaîne, par construction (ses six règles sont toutes ancrées `$`). Le défaut
+vivait plus bas, dans `struct()` — l'aplatisseur commun aux trois fichiers,
+partagé par TOUT lecteur de champ mathématique, pas seulement par la feuille du
+6.2.5 — qui traduisait un exposant ou un indice vide en `^()` / `_()` : une
+paire de parenthèses vide que `new Function` refuse de compiler, où qu'elle
+tombe dans la ligne. Le correctif est dans `struct()` lui-même : un exposant ou
+un indice dont l'argument s'aplatit en chaîne vide ne s'écrit plus du tout — ni
+`^()`, ni rien — exactement ce que l'élève voit à l'écran. Comme pour le
+résidu de fin de ligne, un vrai `x^2` ou `U_n` continue de compiler sans
+changement : seul un exposant VIDE disparaît. Éprouvé sur un vrai `<math-field>`
+(banc navigateur, section 6.11) : la même copie, retapée touche par touche avec
+l'exposant effleuré planté au milieu du numérateur, virait au bleu après le
+correctif — rouge avant.
+
 **Le terme entier recopié dans une case de coefficient se NOMME.** Signalé
 par Julien, transmis par Turquet (août 2026) sur le 2.1 : « on me signale une
 erreur alors que la correction est conforme à ce que j'ai écrit ». Dans la

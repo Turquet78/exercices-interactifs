@@ -3000,7 +3000,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=342;
+const APP_VERSION=343;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -24462,10 +24462,18 @@ function struct(s){
       out += "((" + struct(a) + ")^(1/2))"; i = j;
     } else if(s[i] === "^" && s[i+1] === "{"){
       let a, j; [a, j] = readArg(s, i+1);
-      out += "^(" + struct(a) + ")"; i = j;
+      const sa = struct(a).trim();
+      /* un exposant vide (touche effleurée, invisible à l'écran) compilerait en
+         "^()" et ferait échouer une copie par ailleurs juste — le même défaut
+         que le résidu de fin de ligne du 6.2.5, mais AU MILIEU : saClean, qui
+         ne nettoie que la fin, ne le voit pas. */
+      if(sa !== "") out += "^(" + sa + ")";
+      i = j;
     } else if(s[i] === "_" && s[i+1] === "{"){
       let a, j; [a, j] = readArg(s, i+1);
-      out += "_(" + struct(a) + ")"; i = j;   /* indices : u_{n+1} -> u_(n+1), leve l'ambiguite u_n+1 (recurrence, suites) */
+      const sa = struct(a).trim();
+      if(sa !== "") out += "_(" + sa + ")";   /* indices : u_{n+1} -> u_(n+1), leve l'ambiguite u_n+1 (recurrence, suites) ; un indice vide est le même résidu que l'exposant vide */
+      i = j;
     } else { out += s[i]; i++; }
   }
   return out;
