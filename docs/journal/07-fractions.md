@@ -773,45 +773,80 @@ coupure en plusieurs blocs, et ne la voyait pas. {quotient-double-fractions}
 devient la chaîne la plus longue de l'application depuis cette fusion : deux
 croisements complets avant même de diviser, sur une seule rangée.
 
-**{quotient-double-fractions} (5.15) resserre son tirage à des entiers de 1
-à 5 (demande de Turquet, septembre 2026, sur la fiche PDF « fraction
-révision 5 »).** Les huit nombres de l'énoncé (`a` à `h`) venaient de
+**{produit-difference-fractions} (5.13) a reçu un second document de
+Turquet (septembre 2026), le modèle « H » de la MÊME fiche papier — cette
+fois en image, pas en texte — et une consigne : « présenter les calculs
+comme le pdf joint ». Le modèle montrait une étape que le moteur sautait.**
+Sur le papier, la parenthèse `2/3 − 4/5` se résout en QUATRE lignes : le
+croisement (des cases à côté de chaque numérateur ET chaque dénominateur),
+PUIS les deux fractions croisées VALENT chacune un nombre — deux fractions
+SÉPARÉES, chacune sa propre barre, le même dénominateur commun ÉCRIT DEUX
+FOIS —, PUIS seulement la soustraction sur une seule barre (`-2/15`), PUIS
+le produit final. `pfCroixHTML()` sautait la troisième ligne : après le
+croisement, elle posait directement `(n1 − n2)/d` sur UNE seule barre
+partagée — juste avant de redemander, une case plus loin, ce même résultat
+sous la forme `rn/rd`. Une étape du papier n'avait donc pas de case, et la
+suivante en avait une de trop par rapport à lui.
+
+**Un paramètre, jamais une deuxième fonction.** `pfCroixHTML()` sert aussi
+{somme-produit-fractions} (G) et {quotient-double-fractions} (J), qui n'ont
+reçu AUCUN modèle papier pour cette étape — leur présenter la nouveauté
+aurait changé une leçon que personne n'a demandé de changer. Un dernier
+paramètre `deux` (faux par défaut, donc silencieux pour G et J) fait basculer
+CETTE seule étape entre les deux présentations : IDs `-n1`/`-n2`/`-d` groupés
+sur une barre (l'ancienne, toujours celle de G et J), ou IDs `-n1`/`-d1`
+et `-n2`/`-d2` sur deux barres séparées (la neuve, celle du papier).
+{produit-difference-fractions} ET {quotient-difference-fractions} passent
+`deux:true` — ils partagent le même moteur `pqd`, et la fiche montre la
+même méthode pour H et pour I, seul le signe de l'opération extérieure
+change. Le calcul JUGÉ ne bouge pas d'un chiffre : `pfCroixJuge()` teste
+toujours que le dénominateur écrit vaut le produit croisé — une fois
+(`-d`) ou deux fois séparément (`-d1` ET `-d2`, chacun sa propre case) —,
+et la case `rn/rd` qui suit continue d'exiger la valeur EXACTE de la
+parenthèse, comme avant. L'étape du produit extérieur (`pfProduitHTML()`,
+la décomposition `a×Rn / b×Din`) ne bouge pas non plus : le papier
+l'omet, mais le rappel de l'exercice (`RAP_PQD`) l'enseigne déjà comme une
+écriture intermédiaire légitime — la retirer de l'écran l'aurait rendue
+incohérente avec sa propre aide.
+
+**{quotient-difference-fractions} (5.14, « I ») avait reçu ce même
+resserrement d'abord, et H l'a rejoint le jour même par une demande
+séparée** — deux sessions, chacune sa propre fiche papier (I = 5/2 ÷
+(8/3 − 1/3), H = 5/2 × (2/3 − 4/5)), toutes deux à des chiffres de 1 à 5.
+`pqdGen(inv)` a distingué un temps H et I par une borne haute différente
+(9 pour H, 5 pour I, seul I relâché) ; la fusion des deux demandes a
+remplacé cette distinction par UNE SEULE borne commune (1–5) et UN SEUL
+relâchement, valable pour les deux : les six nombres tirés — a/b, c/d, e/f —
+n'ont plus à être déjà irréductibles, et **le résultat final n'est plus
+forcé irréductible** non plus. La case finale acceptait déjà — et accepte
+toujours — n'importe quelle fraction ÉGALE à la réponse, simplifiée ou non
+(`pfFracJuge`, `estFinal`) ; exiger en plus que le tirage LUI-MÊME tombe
+toujours sur une fraction déjà réduite n'ajoutait rien à ce que l'élève peut
+écrire, et écartait des tirages par ailleurs valides — resserré à 1–5, le
+vivier en avait d'autant moins besoin. Le résultat continue de ne jamais
+valoir 0, pour H comme pour I, comme avant. Le repli codé en dur de I
+change de nombres pour rester dans le nouvel intervalle (5/2 ÷ (4/5 − 1/3)) ;
+celui de H garde le sien, déjà dans l'intervalle (5/2 × (2/3 − 4/5), le
+« H » de la fiche).
+
+Éprouvé en ouvrant réellement l'exercice dans un Chromium (capture d'écran,
+pas seulement le banc jsdom) : la parenthèse s'affiche bien sur deux
+fractions séparées, chacune sa case de dénominateur, avant la barre unique
+du résultat — et {somme-produit-fractions} et {quotient-double-fractions},
+capturés à côté, gardent l'ancienne présentation groupée sans qu'aucune case
+n'ait bougé.
+
+**{quotient-double-fractions} (5.15) a reçu le même resserrement, par une
+troisième session le même jour, sur SA fiche (« J » de « fraction révision
+5 »).** Les huit nombres de l'énoncé (`a` à `h`) venaient de
 `rand(1,9)`/`rand(2,9)` ; ils tirent maintenant de `rand(1,5)`/`rand(2,5)` —
 le repère de la fiche papier, où « J » se calcule avec 5/2, 1/3, 2/3 et 1/4,
 et qui se trouve être EXACTEMENT le repli de secours de `qdbGen()` (preuve
 que le moteur avait déjà été construit sur cette fiche). Le résultat final
-ne peut toujours pas valoir 0 — `if(P===0) continue;`, déjà présent avant ce
-tour, gardé et commenté. **Ce qui a bougé : le résultat final n'a plus à
-être IRRÉDUCTIBLE.** `if(gcd(...)!==1) continue;` écartait tout tirage dont
-`P/Q` se simplifiait — l'élève ne voyait donc jamais de fraction finale
-réductible. Turquet ne veut pas l'obliger à simplifier, mais accepter les
-deux écritures : retirer cette garde suffit, sans toucher au juge —
-`pfFracJuge()` compare déjà par produit en croix (`fn*Q===P*fd`) et accepte
-toute fraction ÉGALE, simplifiée ou non, depuis sa construction pour
-{somme-fractions}/{multiplier-fractions}. Les fractions de DÉPART (`a/b`,
-`c/d`, `e/f`, `g/h`) restent, elles, tirées déjà irréductibles
-(`gcd(a,b)!==1` etc.) : la demande portait sur le résultat que l'élève
-calcule, pas sur l'énoncé qu'on lui donne.
-
-**{quotient-difference-fractions} (5.14, « I ») tire des entiers de 1 à 5,
-et lui seul** (demande de Turquet, septembre 2026, sur le modèle de la fiche
-papier `fraction révision` — I = 5/2 ÷ (8/3 − 1/3), présenté exactement dans
-la forme que `pfCroixHTML()`/`pfProduitHTML()` posent déjà : le croisement
-d'abord, la parenthèse résolue, puis « diviser, c'est multiplier par
-l'inverse »). `pqdGen(inv)` distingue désormais H et I par leur borne haute
-(9 pour H, 5 pour I) plutôt que par une seule constante partagée : les deux
-exercices restent le MÊME moteur, mais chacun son tirage, comme leur note
-reste chacune la sienne. Deux relâchements accompagnent l'intervalle plus
-court, POUR I SEULEMENT : les fractions tirées n'ont plus à être déjà
-irréductibles — a/b, c/d et e/f peuvent se présenter simplifiables, l'élève
-n'est pas tenu de les réduire avant de calculer — et le résultat final n'a
-plus, non plus, à l'être. Rien à changer côté vérification : `pfFracJuge()`
-acceptait déjà toute fraction ÉGALE à la case finale, réduite ou non, bien
-avant cette demande — seul le TIRAGE exigeait un résultat irréductible, pas
-le JUGE. Sans ce relâchement, un intervalle de 1 à 5 (quatre dénominateurs
-possibles, cinq numérateurs) aurait fait chuter en escadrille le taux de
-tirages valides et buté beaucoup plus souvent sur le repli codé en dur.
-Le résultat NUL reste écarté comme avant (Rn puis P), et le repli codé en
-dur de I change de nombres pour rester dans le nouvel intervalle : H garde
-le sien tel quel (5/2 × (2/3 − 4/5), le « H » de la fiche), I devient
-5/2 ÷ (4/5 − 1/3).
+ne peut toujours pas valoir 0, et n'a plus à être irréductible — même
+relâchement que G/H/I, par le même juge `pfFracJuge()` déjà accueillant.
+Contrairement à pqd, `qdbGen()` GARDE ses quatre `gcd(...)!==1` sur les
+fractions de DÉPART (`a/b`, `c/d`, `e/f`, `g/h`) : la demande de Turquet
+portait ici sur le résultat que l'élève calcule, pas sur l'énoncé qu'on lui
+donne — {quotient-double-fractions} ne partage pas le moteur `pqd` de H/I,
+rien n'obligeait à leur faire dire la même chose au même mot près.

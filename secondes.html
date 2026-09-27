@@ -4529,7 +4529,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=224;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=225;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -34686,8 +34686,17 @@ function pfFracJuge(fn,fd,P,Q){
    {produit-difference-fractions}/{quotient-difference-fractions} (H, I) —
    et DEUX FOIS pour {quotient-double-fractions} (J). Rend la chaîne de cases
    ET le résultat (numérateur, dénominateur), pour que l'appelant enchaîne
-   l'étape suivante sans le redemander à l'élève. */
-function pfCroixHTML(pref, p,q_,r,s, op, labRn){
+   l'étape suivante sans le redemander à l'élève.
+
+   « deux » : {produit-difference-fractions}/{quotient-difference-fractions}
+   présentent cette étape comme sur la fiche papier (modèle « H » — demande de
+   Turquet, septembre 2026) : les deux fractions déjà croisées restent SÉPARÉES,
+   chacune sa propre barre, le dénominateur commun ÉCRIT DEUX FOIS — avant de se
+   combiner sur UNE seule barre à l'étape suivante (rn/rd). G et J, qui n'ont
+   aucun modèle papier à suivre, gardent l'ancienne présentation groupée (une
+   seule barre, un seul dénominateur) : « deux » ne change que l'HTML et les
+   deux cases de dénominateur qu'il faut remplir, jamais le calcul jugé. */
+function pfCroixHTML(pref, p,q_,r,s, op, labRn, deux){
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   const produit=(n,d,idA,idB)=>
     '<span class="f-frac-input sf-prod">'
@@ -34696,33 +34705,42 @@ function pfCroixHTML(pref, p,q_,r,s, op, labRn){
       +'<span class="sf-l"><span class="f-whole">'+d+'</span><span class="f-times">×</span>'+mf(idB,'f-den','multiplicateur du dénominateur')+'</span>'
     +'</span>';
   const opHtml='<span class="f-times">'+(op==='+'?'+':'−')+'</span>';
+  const fracSeule=(idN,idD,labN,labD)=>'<span class="f-frac-input">'+mf(idN,'f-num',labN)+'<span class="f-fbar"></span>'+mf(idD,'f-den',labD)+'</span>';
+  const etapeValeurs = deux
+    ? fEq(fracSeule(pref+'-n1',pref+'-d1','premier numérateur','premier dénominateur'))+opHtml+fracSeule(pref+'-n2',pref+'-d2','second numérateur','second dénominateur')
+    : fEq('<span class="f-frac-input sf-somme">'
+        +'<span class="sf-haut">'+mf(pref+'-n1','f-num','premier numérateur')+opHtml+mf(pref+'-n2','f-num','second numérateur')+'</span>'
+        +'<span class="f-fbar"></span>'
+        +mf(pref+'-d','f-den','dénominateur commun')+'</span>');
   return fEq(produit(p,q_,pref+'-a1',pref+'-b1'))+opHtml+produit(r,s,pref+'-a2',pref+'-b2')
-    +fEq('<span class="f-frac-input sf-somme">'
-      +'<span class="sf-haut">'+mf(pref+'-n1','f-num','premier numérateur')+opHtml+mf(pref+'-n2','f-num','second numérateur')+'</span>'
-      +'<span class="f-fbar"></span>'
-      +mf(pref+'-d','f-den','dénominateur commun')+'</span>')
-    +fEq('<span class="f-frac-input">'+mf(pref+'-rn','f-num',labRn||'résultat')+'<span class="f-fbar"></span>'+mf(pref+'-rd','f-den','dénominateur du résultat')+'</span>');
+    +etapeValeurs
+    +fEq(fracSeule(pref+'-rn',pref+'-rd',labRn||'résultat','dénominateur du résultat'));
 }
-function pfCroixCases(pref){ return [pref+'-a1',pref+'-b1',pref+'-a2',pref+'-b2',pref+'-n1',pref+'-n2',pref+'-d',pref+'-rn',pref+'-rd']; }
+function pfCroixCases(pref, deux){ return [pref+'-a1',pref+'-b1',pref+'-a2',pref+'-b2',pref+'-n1',pref+'-n2']
+  .concat(deux ? [pref+'-d1',pref+'-d2'] : [pref+'-d']).concat([pref+'-rn',pref+'-rd']); }
 /* estFinal : quand ce bloc EST la réponse finale de l'exercice (pas une
    parenthèse qui nourrit une étape suivante), rn/rd acceptent toute fraction
    ÉGALE, comme partout ailleurs — sinon ils exigent la valeur EXACTE issue
    du croisement, qui ne laisse justement aucune route au choix. */
-function pfCroixJuge(pref, p,q_,r,s, op, estFinal){
+function pfCroixJuge(pref, p,q_,r,s, op, estFinal, deux){
   const a1=pfLu(pref+'-a1'), b1=pfLu(pref+'-b1'), a2=pfLu(pref+'-a2'), b2=pfLu(pref+'-b2');
   const ok1=pfMult(a1,b1,s), ok2=pfMult(a2,b2,q_);
   const N1=p*s, N2=r*q_, D=q_*s;
-  const n1=pfLu(pref+'-n1'), n2=pfLu(pref+'-n2'), d=pfLu(pref+'-d');
-  const okN1=!isNaN(n1)&&n1===N1, okN2=!isNaN(n2)&&n2===N2, okD=!isNaN(d)&&d===D;
+  const n1=pfLu(pref+'-n1'), n2=pfLu(pref+'-n2');
+  const okN1=!isNaN(n1)&&n1===N1, okN2=!isNaN(n2)&&n2===N2;
+  let okD1,okD2;
+  if(deux){ const d1=pfLu(pref+'-d1'), d2=pfLu(pref+'-d2'); okD1=!isNaN(d1)&&d1===D; okD2=!isNaN(d2)&&d2===D; }
+  else { const d=pfLu(pref+'-d'); okD1=!isNaN(d)&&d===D; okD2=okD1; }
+  const okD=okD1&&okD2;
   const R=(op==='+')?N1+N2:N1-N2;
   const rn=pfLu(pref+'-rn'), rd=pfLu(pref+'-rd');
   let okRn,okRd;
   if(estFinal){ const j=pfFracJuge(rn,rd,R,D); okRn=j[0]; okRd=j[1]; }
   else { okRn=!isNaN(rn)&&rn===R; okRd=!isNaN(rd)&&rd===D; }
-  return {ok1:ok1,ok2:ok2,okN1:okN1,okN2:okN2,okD:okD,okRn:okRn,okRd:okRd,N1:N1,N2:N2,D:D,R:R,
+  return {ok1:ok1,ok2:ok2,okN1:okN1,okN2:okN2,okD:okD,okD1:okD1,okD2:okD2,okRn:okRn,okRd:okRd,N1:N1,N2:N2,D:D,R:R,
     tousOk: ok1&&ok2&&okN1&&okN2&&okD&&okRn&&okRd};
 }
-function pfCroixPeindre(pref, r, mode){
+function pfCroixPeindre(pref, r, mode, deux){
   const col=(ids,ok)=>{
     ids.forEach(id=>{ const el=$(id); if(!el) return; el.classList.remove('ok','bad');
       const ecrit=String(el.value||'').trim()!=='';
@@ -34734,14 +34752,16 @@ function pfCroixPeindre(pref, r, mode){
     if(pfVide(g1)); else col(g1,r.ok1);
     if(pfVide(g2)); else col(g2,r.ok2);
   } else { col(g1,r.ok1); col(g2,r.ok2); }
-  col([pref+'-n1'],r.okN1); col([pref+'-n2'],r.okN2); col([pref+'-d'],r.okD);
+  col([pref+'-n1'],r.okN1); col([pref+'-n2'],r.okN2);
+  if(deux){ col([pref+'-d1'],r.okD1); col([pref+'-d2'],r.okD2); } else { col([pref+'-d'],r.okD); }
   col([pref+'-rn'],r.okRn); col([pref+'-rd'],r.okRd);
 }
-function pfCroixCorrection(pref, p,q_,r,s, op, estFinal){
+function pfCroixCorrection(pref, p,q_,r,s, op, estFinal, deux){
   const N1=p*s, N2=r*q_, D=q_*s, R=(op==='+')?N1+N2:N1-N2;
   corTrainDec(pref+'-a1',s); corTrainDec(pref+'-b1',s);
   corTrainDec(pref+'-a2',q_); corTrainDec(pref+'-b2',q_);
-  corTrainDec(pref+'-n1',N1); corTrainDec(pref+'-n2',N2); corTrainDec(pref+'-d',D);
+  corTrainDec(pref+'-n1',N1); corTrainDec(pref+'-n2',N2);
+  if(deux){ corTrainDec(pref+'-d1',D); corTrainDec(pref+'-d2',D); } else { corTrainDec(pref+'-d',D); }
   if(estFinal) corTrainFrac(pref+'-rn',pref+'-rd',R,D);
   else { corTrainDec(pref+'-rn',R); corTrainDec(pref+'-rd',D); }
 }
@@ -34984,21 +35004,19 @@ function ctxSpf(q){
    l'inverser donnerait sinon un dénominateur négatif — un cas que la fiche
    papier ne montre jamais, et qu'il vaudrait mieux ne pas inventer ici.
 
-   POUR I SEUL (demande de Turquet, septembre 2026) : que des entiers de 1 à
-   5 — a, c, e (numérateurs) comme b, d, f (dénominateurs), qui restent ≥ 2
-   pour rester des dénominateurs. Les fractions tirées n'ont plus à être déjà
-   irréductibles — « on n'est pas obligé de simplifier les fractions, mais on
-   accepte si elles le sont » — et le résultat final n'a plus, non plus, à
-   l'être : `pfFracJuge()` accepte de toute façon toute fraction ÉGALE à la
-   case finale, simplifiée ou non. Seul le résultat NUL reste écarté (Rn puis
-   P, comme avant) : un intervalle aussi court laisserait sinon buter le
-   tirage sur le même « rien à calculer ». H (5.13) n'a pas bougé : ni son
-   intervalle de 1 à 9, ni ses exigences d'irréductibilité. */
+   LES SIX NOMBRES TIRÉS SONT DÉSORMAIS DES ENTIERS DE 1 À 5 POUR H COMME
+   POUR I (I l'a reçu d'abord, demande de Turquet, septembre 2026, sur le
+   modèle de sa propre fiche — I = 5/2 ÷ (8/3 − 1/3) ; H l'a rejoint pour la
+   MÊME raison, sur SA fiche — H = 5/2 × (2/3 − 4/5), toutes deux à des
+   chiffres de 1 à 5). Les fractions tirées n'ont plus à être déjà
+   irréductibles, et LE RÉSULTAT FINAL NON PLUS : la case finale accepte de
+   toute façon toute fraction ÉGALE (pfFracJuge) — simplifiée ou non —, et
+   forcer l'irréductibilité au tirage n'aurait fait qu'écarter des tirages
+   valides sans rien ajouter à ce que l'élève peut écrire. Seul le résultat
+   NUL reste écarté, pour H comme pour I. */
 function pqdGen(inv){
   for(let essai=0; essai<2000; essai++){
-    const hi=inv?5:9;
-    const a=rand(1,hi), b=rand(2,hi), c=rand(1,hi), d=rand(2,hi), e=rand(1,hi), f=rand(2,hi);
-    if(!inv && (gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1)) continue;
+    const a=rand(1,5), b=rand(2,5), c=rand(1,5), d=rand(2,5), e=rand(1,5), f=rand(2,5);
     if(d===f) continue;                  /* déjà le même dénominateur : rien à croiser */
     const N1=c*f, N2=e*d, Din=d*f, Rn=N1-N2;
     if(Rn===0) continue;                 /* une parenthèse nulle n'est pas le sujet ici */
@@ -35007,11 +35025,7 @@ function pqdGen(inv){
     let P,Q;
     if(!inv){ P=a*Rn; Q=b*Din; } else { P=a*Din; Q=b*Rn; }
     if(Q<0){ P=-P; Q=-Q; }               /* le dénominateur final reste positif, le signe est au numérateur */
-    if(P===0) continue;                  /* le résultat ne peut pas être 0 */
-    if(!inv){
-      const g=gcd(Math.abs(P),Q);
-      if(g!==1) continue;                /* H : le résultat final doit être irréductible */
-    }
+    if(P===0) continue;                  /* le résultat ne peut jamais être 0 */
     if(Math.abs(P)===Q) continue;
     if(Q>200 || Math.abs(P)>200) continue;   /* garde les nombres lisibles */
     return {a:a,b:b,c:c,d:d,e:e,f:f,N1:N1,N2:N2,Din:Din,Rn:Rn,P:P,Q:Q};
@@ -35022,7 +35036,7 @@ function pqdGen(inv){
 }
 const PQD_NB=4;
 function pqdBuildQuestions(inv){ const qs=[]; for(let i=0;i<PQD_NB;i++) qs.push(distincte(qs, function(){ return pqdGen(inv); })); return qs; }
-function pqdCases(){ return pfCroixCases('pqd-x').concat(pfProduitCases('pqd', !!(test&&test.inv))); }
+function pqdCases(){ return pfCroixCases('pqd-x', true).concat(pfProduitCases('pqd', !!(test&&test.inv))); }
 function renderPqdTest(){
   const q=test.questions[test.idx]; test.locked=false;
   const inv=!!(test && test.inv);
@@ -35038,7 +35052,7 @@ function renderPqdTest(){
            : '③ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ④ la fraction finale')+'</div>'
      +'<div class="pt-row">'
        +sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>(' +sfTermeHTML(q.c,q.d)+'<b>−</b>'+sfTermeHTML(q.e,q.f)+')'
-       +pfCroixHTML('pqd-x', q.c,q.d,q.e,q.f,'-','numérateur de la parenthèse')
+       +pfCroixHTML('pqd-x', q.c,q.d,q.e,q.f,'-','numérateur de la parenthèse', true)
        +pfProduitHTML('pqd', inv, sfTermeHTML(q.a,q.b))
      +'</div></div>';
   const order=pqdCases().map(id=>$(id));
@@ -35049,7 +35063,7 @@ function renderPqdTest(){
 }
 function pqdJuge(q){
   const inv=!!(test && test.inv);
-  const cx=pfCroixJuge('pqd-x', q.c,q.d,q.e,q.f,'-',false);
+  const cx=pfCroixJuge('pqd-x', q.c,q.d,q.e,q.f,'-',false,true);
   const a1=inv?q.Din:q.Rn, b1=inv?q.Rn:q.Din;
   const pr=pfProduitJuge('pqd', inv, q.Din,q.Rn, q.a,a1, q.b,b1, q.P,q.Q);
   const vide=pfVide(pqdCases());
@@ -35072,7 +35086,7 @@ function checkPqdAnswer(live){
   const q=test.questions[test.idx];
   const r=pqdJuge(q);
   const mode=live?'live':'check';
-  pfCroixPeindre('pqd-x', r.cx, mode);
+  pfCroixPeindre('pqd-x', r.cx, mode, true);
   pfProduitPeindre('pqd', !!(test&&test.inv), r.pr, mode);
   if(live) return;
   const allOk = r.cx.tousOk && r.pr.inverse && r.pr.haut && r.pr.bas && r.pr.fin && !r.vide;
@@ -35084,7 +35098,7 @@ function checkPqdAnswer(live){
   } else {
     $('pqdFeedback').textContent=pqdPourquoi(q,r); $('pqdFeedback').className='mp-feedback bad';
     const inv=!!(test&&test.inv);
-    pfCroixCorrection('pqd-x', q.c,q.d,q.e,q.f,'-',false);
+    pfCroixCorrection('pqd-x', q.c,q.d,q.e,q.f,'-',false,true);
     const a1=inv?q.Din:q.Rn, b1=inv?q.Rn:q.Din;
     pfProduitCorrection('pqd', inv, q.Din,q.Rn, q.a,a1, q.b,b1, q.P,q.Q);
   }
