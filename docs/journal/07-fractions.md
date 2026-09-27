@@ -913,3 +913,63 @@ l'écriture par `el.setValue()`, qui n'existe que si MathLive a fini de
 charger) — la même leçon que « deux bancs jsdom ne se lancent pas en même
 temps », version MathLive : un contrôle qui semble s'exécuter sans rien
 mesurer est pire qu'un contrôle qui échoue.
+
+**« Les égalités sont fausses, il manque des opérations » — Turquet,
+septembre 2026, sur H, I et J relus en ligne après la fusion précédente.**
+Le resserrement en UNE rangée (plus haut dans ce journal) avait déplacé le
+« 5/2 × » de {pfProduitHTML} vers {pfCroixHTML}, mais seulement pour la
+DERNIÈRE case de la parenthèse (`rn/rd`). Les étapes qui précèdent —
+le croisement, puis la valeur de chaque fraction croisée — restaient
+chaînées par un « = » nu juste après le « ) » que l'appelant refermait
+tout de suite après l'énoncé. Lue au premier degré, la rangée affirmait
+« 5/2 × (4/3 − 2/5) = 20/15 − 6/15 » : une égalité fausse d'un facteur
+5/2, puisque le membre de droite ne vaut que la PARENTHÈSE, jamais
+l'expression entière. {quotient-difference-fractions} (I) portait le même
+défaut, en pire : après « 1/2 ÷ [parenthèse] », la case de l'inverse
+arrivait nue elle aussi — « = [inverse] » sans jamais redire « 1/2 × » —,
+un « = » qui n'annonçait plus RIEN. {quotient-double-fractions} (J)
+cumulait les deux avec ses DEUX parenthèses : la case de l'inverse de la
+parenthèse de droite ne redisait ni elle, ni celle de gauche.
+
+**Le facteur extérieur ne doit reparaître qu'UNE fois — ni plus tôt, ni
+nulle part.** La rustine la plus simple — réécrire « 5/2 × » devant
+CHAQUE case — aurait réglé la vérité de chaque « = », mais au prix d'une
+fraction à deux étages redessinée trois fois sur la même rangée : la carte
+est déjà déclarée à UN seul bloc (`pleineLargeur.chaine`), et {somme-
+produit-fractions} (G), qui fait déjà ça avec `a/b` (voir plus haut,
+« ② la valeur du produit »), n'a jamais eu à tenir la contrainte des
+brackets — H/I/J si. La correction déplace la PARENTHÈSE de l'appelant :
+elle ne se referme plus tout de suite après l'énoncé, mais seulement après
+que le croisement ET la valeur des fractions croisées ont été écrits — ce
+qu'il y a entre les deux parenthèses reste alors STRICTEMENT la
+résolution de ce qu'il y avait dedans, sans jamais prétendre valoir
+l'expression entière. Le facteur extérieur ne revient qu'une fois la
+parenthèse refermée, exactement là où il était déjà juste (la case
+`rn/rd` pour H/I, la case de l'inverse pour I/J) — `pfCroixHTML()` gagne
+un dixième paramètre `envolver` qui ne fait QUE déplacer ce « ) », sans
+toucher une seule case ni le jugement d'aucune d'elles.
+
+**{quotient-double-fractions} (J) ne pouvait pas réécrire la VALEUR de sa
+parenthèse de gauche en tête de l'inverse — le même obstacle que la
+décomposition, plus haut : ce serait donner la réponse de la case juste
+au-dessus.** Elle réécrit l'ÉNONCÉ de la parenthèse (`a/b − c/d`, connu
+dès le tirage, jamais calculé par l'élève) plutôt que sa valeur — sûr à
+répéter, exactement comme `a/b` pour H et I, et mathématiquement
+équivalent une fois sa PROPRE parenthèse refermée par le même `envolver`.
+
+**Le paramètre `tete` de `pfProduitHTML()` existait déjà pour ça — sa
+propre documentation le disait — et n'était simplement plus appelé
+depuis la migration.** Rien n'a changé dans cette fonction : H continue
+de ne rien lui passer (son unique case, la finale, suit directement la
+case `rn/rd` déjà tête-collée par `pfCroixHTML()` — lui redonner une tête
+aurait redit « 5/2 × » une seconde fois, en trop) ; I et J lui passent de
+nouveau un `tete` — `a/b` pour I, l'énoncé de la parenthèse de gauche pour
+J — qui se colle à la case de l'INVERSE, la seule qui en manquait.
+
+**Éprouvé en ouvrant réellement les trois exercices dans un Chromium et en
+lisant la rangée entière, pas seulement les cases : la fermeture tardive
+de la parenthèse et le facteur réécrit devant l'inverse font maintenant de
+chaque « = » une égalité vraie**, puis en remplissant les quatre copies
+juste (H, I, J) pour vérifier qu'aucune case ni aucun jugement n'avait
+bougé — la note reste pleine sans passer par une case qui n'existe plus,
+exactement comme avant ce correctif.
