@@ -1948,6 +1948,19 @@ absence sur les deux autres), et le verdict case par case sur deux copies
 ÉPINGLÉES — une hausse, une baisse — juste puis fautive d'une seule case,
 plus une case laissée vide qui ne rougit jamais.
 
+**Et la flèche « −1 » a changé de bord une seconde fois (Turquet, septembre
+2026, deuxième pose).** La première pose l'accrochait à la case du
+coefficient (dans la même rangée `.pctb-af`, à sa droite) : lue au premier
+degré, elle se lisait comme une annotation DE cette case-là, alors qu'elle
+relie DEUX cases — celle du pourcentage au-dessus, celle du coefficient en
+dessous. Le correctif la déplace dans `.pctb-shaft`, le trait de la grande
+flèche qui sépare déjà les deux rangées, et la pose en absolu à sa droite
+(`left:100%`, centrée verticalement sur le trait) : elle se lit maintenant
+ENTRE les deux cases, exactement là où l'aller-retour qu'elle décrit a lieu.
+Aucune case ni aucun jugement n'a bougé — seul le contrôle qui vérifiait sa
+présence (`#evbHost .evb-rev-arrow`) continue de la trouver, où qu'elle soit
+posée dans le DOM.
+
 ---
 
 ## {augmenter-taux-dix} — la ligne de l'écart, EN LIGNE, restaurée en tête (Première, septembre 2026)
