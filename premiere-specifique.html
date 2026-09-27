@@ -605,7 +605,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-adx,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   #bsHost .f-num,#bsHost .f-den{width:94px} #bsHost .f-dec{width:130px}
@@ -960,7 +960,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
       large (flex column + align-items:stretch), sinon numerateur et denominateur
       ne seraient plus alignes des que l'un des deux s'allonge. --- */
-#pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#hscHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
+#pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#adxHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#hscHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
 #pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#hscHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input,#ckHost .f-frac-input{align-items:stretch;}
 #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den,#ckHost .f-num,#ckHost .f-den{
   width:auto;min-width:96px;max-width:320px;}
@@ -1164,7 +1164,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 @media(max-width:520px){
   #pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));}
   #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#ckHost .f-num,#ckHost .f-den{min-width:78px;max-width:200px;}
-  #pHost .f-dec,#pdcHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#ckHost .f-dec{min-width:96px;max-width:200px;}
+  #pHost .f-dec,#pdcHost .f-dec,#adxHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#ckHost .f-dec{min-width:96px;max-width:200px;}
   #pxHost .pct10-ligne{font-size:1.3rem;}
   .pt-choix-btn .valeur{font-size:1.2rem}
   #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:66px;}
@@ -1618,6 +1618,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="mp-feedback" id="pdcFeedback"></div>
       <div class="row" style="justify-content:center" id="pdcActions">
         <button class="btn btn-primary" onclick="checkPdcAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEST : AUGMENTER EN PASSANT PAR 10 % -->
+  <section class="screen" id="scr-adx">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagADX"></span><span class="q-idx" id="adxIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="adxLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="adxPrompt">Augmenter un prix en passant par 10 %.</p>
+      <div class="mp-stage"><div style="width:100%" id="adxHost"></div></div>
+      <div class="mp-feedback" id="adxFeedback"></div>
+      <div class="row" style="justify-content:center" id="adxActions">
+        <button class="btn btn-primary" onclick="checkAdxAnswer()">Vérifier</button>
       </div>
     </div>
   </section>
@@ -2494,6 +2510,7 @@ const TESTS={
   'pourcentage-synthese-libre':{ name:'Synth\u00e8se : prendre un pourcentage, en r\u00e9digeant', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {pourcentage-synthese}, mais plus une seule case : tu JUSTIFIES en \u00e9crivant ton calcul toi-m\u00eame \u2014 avant ou apr\u00e8s avoir choisi ta r\u00e9ponse parmi quatre \u2014 et l\u2019IA le lit.', start:()=>startPctSyntheseLibre() },
   'pourcentage-dix':     { name:'Prendre 10 % en divisant par 10', icon:'\ud83d\udd1f', desc:'Les m\u00eames th\u00e8mes qu\u2019en {pourcentage}, mais toujours pour 10 % : prendre 10 % d\u2019un nombre, c\u2019est le diviser par 10 \u2014 comme sur la fiche de cours.', start:()=>startPct10() },
   'pourcentage-dix-cascade': { name:'Retrouver plusieurs pourcentages en passant par 10 %', icon:'\u2797', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans donner le pourcentage \u00e0 l\u2019avance : pars de 10 % du nombre, comme dans {pourcentage-dix}, puis retrouve 20 %, 30 %, 40 %, 5 %, 15 % et 25 % en t\u2019appuyant dessus, comme sur une fiche de m\u00e9thode.', start:()=>startPdc() },
+  'augmenter-dix': { name:'Augmenter en passant par 10 %', icon:'\u2795', desc:'La m\u00eame m\u00e9thode qu\u2019en {pourcentage-dix} et {pourcentage-dix-cascade}, appliqu\u00e9e \u00e0 une augmentation : pars de 10 % du prix, retrouve le pourcentage demand\u00e9 en t\u2019appuyant dessus, puis calcule le nouveau prix \u2014 sans coefficient multiplicateur.', start:()=>startAdx() },
   'augmenter-taux-addition':{ name:'Retrouver le pourcentage d\u2019une hausse en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage d\u2019augmentation parmi quatre, puis vérifie-le en calculant l\u2019augmentation et en l\u2019ajoutant à la valeur de départ.', start:()=>startAugTauxAdd() },
   'diminuer-soustraction':{ name:'Diminuer d\u2019un pourcentage en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'➖', desc:'Calcule d\u2019abord la baisse (le pourcentage de la valeur, comme en {pourcentage}), puis retire-la de la valeur de départ — sans coefficient multiplicateur.', start:()=>startDimSub() },
   'diminuer-depart-soustraction':{ name:'Retrouver la valeur initiale apr\u00e8s une baisse en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'🔁', desc:'On donne le pourcentage de baisse et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis vérifie-la en calculant la baisse et en la retirant de la valeur de départ.', start:()=>startDimDepSub() },
@@ -2544,7 +2561,7 @@ const THEMES=[
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
   { num:2, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre','pourcentage-dix','pourcentage-dix-cascade'] },
-      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre'] },
+      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre','augmenter-dix'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
@@ -2656,7 +2673,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='adx') startAdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -2846,6 +2863,7 @@ function liveCheckCurrent(){
   else if(k==='pct') checkPAnswer(true);
   else if(k==='pct10') checkPct10Answer(true);
   else if(k==='pdc') checkPdcAnswer(true);
+  else if(k==='adx') checkAdxAnswer(true);
   else if(k==='pctq') checkQAnswer(true);
   else if(k==='md') checkMDAnswer(true);
   else if(k==='u') checkUAnswer(true);
@@ -3486,7 +3504,7 @@ function rejouerSignalement(id){
 function afficherEcranDe(k){
   const table={
     asp:['asptest',renderASPTest],
-    mp:['mtest',renderMTest], fracp:['ftest',renderFTest], pct:['ptest',renderPTest], pct10:['pct10',renderPct10], pdc:['pdc',renderPdc],
+    mp:['mtest',renderMTest], fracp:['ftest',renderFTest], pct:['ptest',renderPTest], pct10:['pct10',renderPct10], pdc:['pdc',renderPdc], adx:['adx',renderAdx],
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
@@ -3694,7 +3712,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','sf','psl','sal'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','adx','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','sf','psl','sal'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -6216,6 +6234,142 @@ async function finishPdc(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage-dix-cascade',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ============ 2.2.11 Augmenter en passant par 10 % ============
+   Demande de Turquet (septembre 2026), à partir d'une fiche « 3ème méthode » :
+   augmenter un prix en passant par 10 %, comme dans {pourcentage-dix} et
+   {pourcentage-dix-cascade}, mais jusqu'au bout — la fiche ne s'arrête pas au
+   pourcentage, elle demande le NOUVEAU PRIX (valeur de départ + augmentation).
+   Chaque ligne garde une seule phrase, mots et case à la même taille (même
+   convention que {pourcentage-dix} : .pt-row, jamais un petit label à côté
+   d'une grosse case).
+   Trois formes, EXACTEMENT celles de la fiche (60 %, 5 %, 15 %) — on ne
+   généralise pas au-delà, une décomposition à deux étages (25 % = 20 % + 5 %)
+   est déjà couverte par {pourcentage-dix-cascade} :
+   · un pourcentage multiple de dix (20 à 90) : on multiplie 10 % ;
+   · 5 % : la MOITIÉ de 10 % ;
+   · 15 % : 10 % + 5 %, seule décomposition montrée sur la fiche — deux
+     lignes d'augmentation au lieu d'une.
+   N suit TROIS familles (demande de Turquet), pour que D = N/10 (10 % du
+   prix, première ligne) soit TOUJOURS pair — ou, pour les petits N, une
+   décimale qui le reste — afin que la moitié de D (le cas des 5 %, dans les
+   deux formes qui en ont besoin) ne tombe jamais sur plus d'une décimale :
+   · un nombre à 3 chiffres, multiple de dix, dizaines paires (100 à 980) ;
+   · un nombre à 2 chiffres, multiple de dix, dizaines paires (20,40,60,80) ;
+   · un nombre entre 1 et 8, pair (2,4,6,8) : 10 % s'écrit alors à une
+     décimale (0,2 à 0,8), comme le second vivier de {pourcentage-dix}. */
+function genAdxN(){
+  const fam=pick(['trois','deux','unite']);
+  if(fam==='trois') return 100*rand(1,9) + 10*pick([0,2,4,6,8]);
+  if(fam==='deux')  return 10*pick([2,4,6,8]);
+  return pick([2,4,6,8]);
+}
+const ADX_ENONCES=[
+  q=>`On augmente un prix de <b>${q.N} €</b> de <b>${q.P} %</b>, en passant d’abord par 10 %.`,
+  q=>`Le prix de <b>${q.N} €</b> augmente de <b>${q.P} %</b>. Retrouve la hausse, puis le nouveau prix, en passant par 10 %.`,
+  q=>`Augmente <b>${q.N} €</b> de <b>${q.P} %</b>, comme sur la fiche de méthode, en passant par 10 %.`,
+  q=>`Calcule l’augmentation de <b>${q.P} %</b> sur un prix de <b>${q.N} €</b>, en commençant par 10 %.`,
+  q=>`Sur un prix de <b>${q.N} €</b>, applique une hausse de <b>${q.P} %</b> en passant par 10 %.`
+];
+function genAdx(){
+  const N=genAdxN(), D=N/10;
+  const type=pick(['mult10','cinq','quinze']);
+  let P, lignes;
+  if(type==='mult10'){
+    P=pick([20,30,40,50,60,70,80,90]);
+    lignes=[{P,val:D*(P/10)}];
+  } else if(type==='cinq'){
+    P=5; lignes=[{P,val:D/2}];
+  } else {
+    const val5=D/2;
+    P=15; lignes=[{P:5,val:val5},{P:15,val:D+val5}];
+  }
+  const aug=lignes[lignes.length-1].val;
+  const total=N+aug;
+  const q={N,P,D,lignes,aug,total};
+  q.v=tirerVariante(ADX_ENONCES,q);
+  return q;
+}
+async function startAdx(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='adx';
+  test.questions=distinctes(EVOL_NB,genAdx);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=test.questions.length;
+  show('adx'); renderAdx();
+}
+function renderAdx(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('adxIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagADX').innerHTML=modeTagHTML();
+  $('adxLiveScore').textContent=test.score;
+  $('adxFeedback').textContent=''; $('adxFeedback').className='mp-feedback';
+  $('adxActions').innerHTML='<button class="btn btn-primary" onclick="checkAdxAnswer()">Vérifier</button>';
+  $('adxPrompt').innerHTML=variante(ADX_ENONCES,q);
+  const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const fracFixe=(n,d)=>`<span class="f-whole">${mlTex('\\frac{'+n+'}{'+d+'}', n+'/'+d)}</span>`;
+  const ligneBase=`<div class="pt-row"><span class="f-whole">On commence par 10 % de ${q.N} €</span>${fEq(fracFixe(q.N,10))}${fEq(dec('adx0','dix pour cent de '+q.N))}<span class="f-whole">€</span></div>`;
+  const lignesAug=q.lignes.map(l=>
+    `<div class="pt-row"><span class="f-whole">donc : l’augmentation est ${l.P} % de ${q.N} € est</span>${dec('adxP'+l.P,l.P+' % de '+q.N)}<span class="f-whole">€</span></div>`
+  ).join('');
+  const ligneTot=`<div class="pt-row"><span class="f-whole">donc : le prix augmenté est</span>${dec('adxA','prix de départ')}<span class="f-whole">+</span>${dec('adxB','augmentation')}${fEq(dec('adxC','prix augmenté'))}<span class="f-whole">€</span></div>`;
+  $('adxHost').innerHTML=`<div class="pt-step">${ligneBase}${lignesAug}${ligneTot}</div>`;
+  const order=['adx0'].concat(q.lignes.map(l=>'adxP'+l.P)).concat(['adxA','adxB','adxC']).map(id=>$(id));
+  order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkAdxAnswer();} }); });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkAdxAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  if(live){
+    liveColorDec('adx0',q.D,1);
+    q.lignes.forEach(l=>liveColorDec('adxP'+l.P,l.val,1));
+    liveColorDec('adxA',q.N,1); liveColorDec('adxB',q.aug,1); liveColorDec('adxC',q.total,1);
+    return;
+  }
+  const v=id=>$(id).value.trim();
+  const egal=(id,val)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n===val*fr.d; };
+  const ok0=egal('adx0',q.D);
+  const oksLignes=q.lignes.map(l=>egal('adxP'+l.P,l.val));
+  const okA=egal('adxA',q.N), okB=egal('adxB',q.aug), okC=egal('adxC',q.total);
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');if(v(id)!=='')el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
+  mark('adx0',ok0);
+  q.lignes.forEach((l,i)=>mark('adxP'+l.P, oksLignes[i]));
+  mark('adxA',okA); mark('adxB',okB); mark('adxC',okC);
+  const allOk = ok0 && oksLignes.every(Boolean) && okA && okB && okC;
+  if(!allOk && isSoutien()){ soutienAgain('adxFeedback','adxActions','checkAdxAnswer','adxHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('adxLiveScore').textContent=test.score;
+    $('adxFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('adxFeedback').className='mp-feedback good';
+  } else {
+    const detail=q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ');
+    $('adxFeedback').textContent=`Réponse : 10 % = ${q.D} ; ${detail} € ; prix augmenté = ${q.N} + ${q.aug} = ${q.total} € (toute écriture égale est acceptée)`; $('adxFeedback').className='mp-feedback bad';
+    corTrainDec('adx0',String(q.D).replace('.',','));
+    q.lignes.forEach(l=>corTrainDec('adxP'+l.P,String(l.val).replace('.',',')));
+    corTrainDec('adxA',String(q.N).replace('.',','));
+    corTrainDec('adxB',String(q.aug).replace('.',','));
+    corTrainDec('adxC',String(q.total).replace('.',','));
+  }
+  const enonce=`augmentation de ${q.P} % sur ${q.N} € en passant par 10 %`;
+  const answer=`10 % = ${q.D} ; `+q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ')+` ; ${q.N} + ${q.aug} = ${q.total} €`;
+  const given=`10 % = ${v('adx0')||'∅'} ; `+q.lignes.map(l=>`${l.P} % = ${v('adxP'+l.P)||'∅'}`).join(' ; ')+` ; ${v('adxA')||'∅'} + ${v('adxB')||'∅'} = ${v('adxC')||'∅'}`;
+  test.answers.push({...(ptsExo()||{}),q:enonce, answer, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('adxActions').innerHTML=`<button class="btn btn-primary" id="adxNext" onclick="nextAdxQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('adxNext').focus();
+}
+function nextAdxQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderAdx(); autoSave(); } else finishAdx(); }
+async function finishAdx(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -14269,6 +14423,12 @@ Comme dans {pourcentage-dix}, on part de <b>10 %</b> du nombre, obtenu en divisa
 <b>5 %, c’est la moitié de 10 %</b> : 40 ÷ 2 = 20 €. <b>15 % = 10 % + 5 %</b> : 40 + 20 = 60 €. <b>25 % = 20 % + 5 %</b> : 80 + 20 = 100 €.<br>
 Le nombre de départ n’est pas toujours un multiple de dix : sur 4 €, 10 % = 0,4 €, et 5 % en garde la même décimale — 0,4 ÷ 2 = 0,2 €.<br>
 À retenir : une fois 10 % trouvé, chaque autre pourcentage s’obtient en le multipliant, le divisant ou en l’additionnant à un autre déjà connu.`;
+const RAP_ADX=`<b>Augmenter un prix en passant par 10 %</b><br>
+Comme dans {pourcentage-dix} et {pourcentage-dix-cascade}, on part de <b>10 %</b> du prix, obtenu en le divisant par 10.<br>
+<b>Si le pourcentage est un multiple de dix</b>, on multiplie 10 % autant de fois : augmenter <b>50 €</b> de <b>60 %</b>, c’est calculer \\(\\frac{50}{10}=5\\) €, puis 5 × 6 = 30 € d’augmentation.<br>
+<b>5 %, c’est la moitié de 10 %</b> : sur 50 €, 10 % = 5 €, donc 5 % = 2,5 €.<br>
+<b>15 % = 10 % + 5 %</b> : sur 50 €, 5 + 2,5 = 7,5 € d’augmentation.<br>
+On termine toujours en ajoutant l’augmentation trouvée au prix de départ : <b>prix augmenté = prix de départ + augmentation</b> — sur 50 € augmenté de 15 %, 50 + 7,5 = 57,5 €.`;
 const RAP_PCTQ=`<b>Retrouver la valeur initiale ou le pourcentage</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
 <b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
@@ -14482,7 +14642,7 @@ Trois phrases, trois coefficients, et le même pourcentage P dans les trois :<br
 Un coefficient <b>plus grand que 1</b> fait monter, <b>plus petit que 1</b> fait descendre, et le pourcentage se lit sur l’<b>écart à 1</b> — c’est le chemin inverse, celui de {lire-coefficient}.<br>
 <b>Premier piège : confondre les trois.</b> Prendre 30 %, c’est n’en garder que 30 % (× 0,30) ; diminuer de 30 %, c’est en garder 70 % (× 0,70). Les deux font descendre, mais pas de la même chose.<br>
 <b>Second piège : la place de la virgule.</b> 30 % s’écrit 0,<b>30</b> et 3 % s’écrit 0,<b>03</b> : un pourcentage à un seul chiffre garde un zéro après la virgule. Multiplier par 1,03, c’est donc augmenter de 3 % et non de 30 %.`;
-const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC };
+const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'augmenter-dix':RAP_ADX };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -14515,6 +14675,7 @@ const QIA_SUGG={
   pct:["C’est quoi, un pourcentage ?","Pourquoi divise-t-on par 100 ?","Comment place-t-on la virgule quand on divise par 100 ?","Comment calculer 10 % de tête ?"],
   pct10:["Pourquoi diviser par 10 donne-t-il 10 % ?","C’est quoi, un pourcentage ?","Comment vérifier que mon résultat est juste ?","Pourquoi diviser par 10 décale-t-il la virgule ?"],
   pdc:["Comment retrouver 20 %, 30 % ou 40 % à partir de 10 % ?","Pourquoi 5 % est-il la moitié de 10 % ?","Comment obtenir 15 % ou 25 % sans repartir de zéro ?","C’est quoi, un pourcentage ?"],
+  adx:["Pourquoi 5 % est-il la moitié de 10 % ?","Comment retrouver 15 % à partir de 10 % et 5 % ?","Pourquoi ajoute-t-on l’augmentation au prix de départ à la fin ?","Comment vérifier que mon résultat est juste ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
   'pourcentage-synthese':["Comment savoir ce que la question me demande de retrouver ?","Comment tester une proposition ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","C’est quoi, un pourcentage ?"],
   psl:["Comment savoir ce que la question me demande de retrouver ?","Comment justifier ma réponse ?","Par quoi commencer mon calcul ?","C’est quoi, un pourcentage ?"],
@@ -14639,6 +14800,11 @@ function conseilCtxCourant(){
     att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.dix+' (toute écriture égale convient) ; puis '+detail+' '+q.unit+'. '
       +'Méthode enseignée, comme dans {pourcentage-dix} : diviser le nombre par 10 pour trouver 10 %, puis retrouver chaque autre pourcentage en multipliant, divisant ou additionnant ce 10 % — 20 %, 30 % et 40 % sont le double, le triple et le quadruple de 10 % ; 5 % en est la moitié ; 15 % = 10 % + 5 % ; 25 % = 20 % + 5 %. '
       +'Aucun pourcentage n’est donné à l’avance dans l’énoncé : chaque ligne du tableau porte le sien, et c’est justement ce que la question demande de retrouver.';
+  } else if(k==='adx' && q){
+    const detail=q.lignes.map(function(l){ return l.P+' % = '+l.val; }).join(' ; ');
+    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.D+' (toute écriture égale convient) ; '+detail+' ; prix augmenté = '+q.N+' + '+q.aug+' = '+q.total+' €. '
+      +'Méthode enseignée, comme dans {pourcentage-dix} et {pourcentage-dix-cascade} : diviser le prix par 10 pour trouver 10 %, puis retrouver le pourcentage demandé en multipliant, divisant ou additionnant ce 10 % — un multiple de dix se trouve en multipliant 10 % ; 5 % en est la moitié ; 15 % = 10 % + 5 %. '
+      +'On termine en AJOUTANT l’augmentation trouvée au prix de départ : c’est cette dernière étape qui distingue cet exercice de {pourcentage-dix-cascade}, où l’on s’arrête au pourcentage.';
   } else if(k==='pctq' && q){
     const lettres=['a','b','c','d'];
     const lbl=function(v){ return (q.type==='pct')?(v+' %'):(v+' '+q.unit); };
@@ -14995,7 +15161,7 @@ function pmJetons(scr){
   if(cible) cible.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderQTest','renderATest',
+  const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAdx','renderQTest','renderATest',
               'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
