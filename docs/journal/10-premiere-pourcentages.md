@@ -1550,3 +1550,57 @@ pouvait le voir : rien n'y est faux, juste mal daté. Le garde tient sur la
 classe `pdt-fl`, posée UNE FOIS par `renderPdt()` pour LA question qu'il
 vient d'afficher — le seul repère qui date correctement, là où l'existence de
 `pdtP` ou de la case du résultat ne le fait pas.
+
+**Et {synthese-evolutions} est arrivée en Seconde SEULE, à partir d'une fiche
+papier.** Turquet a fourni une fiche d'exercices (« évolutions en % ») posant
+treize calculs de hausse et de baisse, mélangés, avec le schéma en boîte —
+ancien prix, coefficient \(1\pm P/100\), nouveau prix — et une demande en deux
+mots : « diversifie les énoncés » et « le résultat doit être un entier ». Les
+deux étaient déjà LA propriété du moteur partagé avant qu'on écrive une seule
+ligne : `AUG_THEMES`/`DIM_ENONCES` tirent une mise en situation et une
+tournure parmi des dizaines à chaque question (le vélo, le loyer, la
+population, l'action cotée…), et `genSyn('aug'|'dim', …)` — le générateur
+même de {synthese-augmentations} et {synthese-diminutions} — pose une valeur
+de départ MULTIPLE DE 100 et un taux à un seul chiffre non nul : tout y tombe
+sur un entier, propriété déjà tenue par le contrôle « le coefficient de
+chaque transformation s'écrit avec au plus deux décimales » sur les deux
+familles. **N'écrire aucune arithmétique neuve était donc le bon geste** :
+réécrire la génération ici l'aurait fait diverger de ce que la page calcule
+réellement, la leçon de {synthese-diminutions} reprise telle quelle.
+**CE QUI MANQUAIT VRAIMENT, C'ÉTAIT LE MÉLANGE DES DEUX SENS DANS LA MÊME
+SÉANCE.** {synthese-pourcentages} (2.5.1) mélange déjà « prendre »,
+augmenter et diminuer ; {synthese-augmentations} et {synthese-diminutions}
+gardent chacune un seul sens. Aucune des trois ne correspond à la fiche, où
+CHAQUE calcul peut être une hausse ou une baisse, jamais un « prendre ». Le
+nouveau démarreur `startSynEvol` appelle donc `genSyn` avec une famille
+tirée question par question — jamais `'pct'` — et **garantit les deux sens
+sur trois questions** : `fams=qdMelanger(['aug','dim',pick(['aug','dim'])])`
+pose d'office une hausse et une baisse, la troisième étant tirée librement ;
+sans cette garantie, une séance aurait pu poser trois hausses de suite et
+perdre tout le sujet de la fiche. Les trois inconnues — résultat, valeur
+initiale, pourcentage — sortent chacune une fois, en ordre mélangé, comme
+dans les trois autres synthèses.
+**TOUT LE RESTE EST REPRIS, RIEN N'EST RECOPIÉ** : l'écran (`scr-syntest`),
+`renderSynTest`, `checkSynAnswer`, `synCouple`, `synQuoi`, `synTab`, le
+rappel de cours (`RAPPELS.psyn`, partagé sans override — comme
+{synthese-augmentations} et {synthese-diminutions} avant elle), le contexte
+envoyé au modèle (`ctxPourcentages`, la branche `k==='psyn'`, déjà générique
+sur `q.fam`) sont ceux du 2.5.1 : rien n'a eu à y changer, parce que rien
+dans ce moteur ne dépend de l'identité de l'exercice, seulement de la
+question tirée. Même moteur, pas même identité : `test.qId` porte
+« synthese-evolutions », et « Recommencer » route dessus dans `restartPct()`.
+**L'exercice n'existe qu'en Seconde**, contrairement au reste du thème
+« porté tel quel » depuis septembre 2026 : la fiche qui l'a demandé ne
+concernait que ce niveau, et rien n'oblige à porter en Première un exercice
+que personne n'y a demandé. Le contrôle dédié (`syntheseEvolutions`, dans
+`tests/verifier.js`) le sait : il se déclare « non applicable » sur le
+fichier qui n'a pas `startSynEvol`, plutôt que de rougir sur une fonction
+absente — la leçon de {pourcentage-dix}, à l'envers : un exercice qui
+n'existe que d'un côté ne rejoint JAMAIS la liste partagée et non gardée des
+vingt-deux démarreurs d'évolutions, sous peine de faire rougir l'autre
+niveau sur une fonction qu'il n'a pas. Il tient trois bords propres à cet
+exercice (jamais la famille « prendre », les deux sens garantis sur trois
+questions, l'identité tenue par « Recommencer ») sur trente tirages, sans
+remesurer l'entier du résultat — déjà exigé par ailleurs sur `genSyn('aug')`
+et `genSyn('dim')`, remesurer ici aurait dupliqué un contrôle sans rien
+prouver de plus.
