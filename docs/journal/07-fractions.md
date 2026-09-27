@@ -773,6 +773,26 @@ coupure en plusieurs blocs, et ne la voyait pas. {quotient-double-fractions}
 devient la chaîne la plus longue de l'application depuis cette fusion : deux
 croisements complets avant même de diviser, sur une seule rangée.
 
+**{quotient-double-fractions} (5.15) resserre son tirage à des entiers de 1
+à 5 (demande de Turquet, septembre 2026, sur la fiche PDF « fraction
+révision 5 »).** Les huit nombres de l'énoncé (`a` à `h`) venaient de
+`rand(1,9)`/`rand(2,9)` ; ils tirent maintenant de `rand(1,5)`/`rand(2,5)` —
+le repère de la fiche papier, où « J » se calcule avec 5/2, 1/3, 2/3 et 1/4,
+et qui se trouve être EXACTEMENT le repli de secours de `qdbGen()` (preuve
+que le moteur avait déjà été construit sur cette fiche). Le résultat final
+ne peut toujours pas valoir 0 — `if(P===0) continue;`, déjà présent avant ce
+tour, gardé et commenté. **Ce qui a bougé : le résultat final n'a plus à
+être IRRÉDUCTIBLE.** `if(gcd(...)!==1) continue;` écartait tout tirage dont
+`P/Q` se simplifiait — l'élève ne voyait donc jamais de fraction finale
+réductible. Turquet ne veut pas l'obliger à simplifier, mais accepter les
+deux écritures : retirer cette garde suffit, sans toucher au juge —
+`pfFracJuge()` compare déjà par produit en croix (`fn*Q===P*fd`) et accepte
+toute fraction ÉGALE, simplifiée ou non, depuis sa construction pour
+{somme-fractions}/{multiplier-fractions}. Les fractions de DÉPART (`a/b`,
+`c/d`, `e/f`, `g/h`) restent, elles, tirées déjà irréductibles
+(`gcd(a,b)!==1` etc.) : la demande portait sur le résultat que l'élève
+calcule, pas sur l'énoncé qu'on lui donne.
+
 **{quotient-difference-fractions} (5.14, « I ») tire des entiers de 1 à 5,
 et lui seul** (demande de Turquet, septembre 2026, sur le modèle de la fiche
 papier `fraction révision` — I = 5/2 ÷ (8/3 − 1/3), présenté exactement dans

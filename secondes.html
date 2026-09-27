@@ -4529,7 +4529,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=222;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=223;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -35110,9 +35110,15 @@ function ctxPqd(q){
    jamais le problème d'un dénominateur négatif que {quotient-difference-
    fractions} doit éviter au tirage pour sa propre parenthèse. */
 function qdbGen(){
+  /* Bornes resserrées à 1..5 (demande de Turquet, septembre 2026, sur le
+     modèle « J » de la fiche PDF « fraction révision 5 ») : les huit nombres
+     de l'énoncé restent petits, comme sur la fiche papier (5/2, 1/3, 2/3,
+     1/4). Le résultat final n'a plus à être irréductible — l'élève n'est
+     PAS obligé de simplifier sa fraction finale, seulement de donner une
+     fraction ÉGALE (pfFracJuge accepte déjà une réponse simplifiée ou non). */
   for(let essai=0; essai<3000; essai++){
-    const a=rand(1,9), b=rand(2,9), c=rand(1,9), d=rand(2,9);
-    const e=rand(1,9), f=rand(2,9), g=rand(1,9), h=rand(2,9);
+    const a=rand(1,5), b=rand(2,5), c=rand(1,5), d=rand(2,5);
+    const e=rand(1,5), f=rand(2,5), g=rand(1,5), h=rand(2,5);
     if(gcd(a,b)!==1||gcd(c,d)!==1||gcd(e,f)!==1||gcd(g,h)!==1) continue;
     if(b===d) continue;                  /* parenthèse de gauche : rien à croiser */
     if(f===h) continue;                  /* parenthèse de droite : rien à croiser */
@@ -35124,9 +35130,7 @@ function qdbGen(){
     if(Math.abs(BRn)===BD) continue;
     let P=ARn*BD, Q=AD*BRn;
     if(Q<0){ P=-P; Q=-Q; }
-    if(P===0) continue;
-    const g2=gcd(Math.abs(P),Q);
-    if(g2!==1) continue;                  /* le résultat final doit être irréductible */
+    if(P===0) continue;                   /* le résultat final ne peut jamais être 0 */
     if(Math.abs(P)===Q) continue;
     if(Q>500 || Math.abs(P)>500) continue;    /* garde les nombres lisibles */
     return {a:a,b:b,c:c,d:d,e:e,f:f,g:g,h:h,AN1:AN1,AN2:AN2,AD:AD,ARn:ARn,BN1:BN1,BN2:BN2,BD:BD,BRn:BRn,P:P,Q:Q};
