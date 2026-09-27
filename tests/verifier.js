@@ -6784,11 +6784,14 @@ function poseSuitLEleve(w, P){
    Dans les trois écrans de la méthode directe (2.2.2/2.3.2, les QCM
    « retrouver » en addition/soustraction, la synthèse en méthode directe),
    la pose de l'addition ou de la soustraction est bâtie sur les termes que
-   l'élève a ÉCRITS — c'est une aide pour SON calcul. Les colonnes ne posent
-   que des entiers (une soustraction qui ne descend pas sous zéro) ; pas de
-   zéros finaux retirés, contrairement à la multiplication : dans une
-   addition posée, chaque zéro tient sa colonne. Reconstruite quand les
-   termes changent, jamais sinon. */
+   l'élève a ÉCRITS — c'est une aide pour SON calcul. La soustraction ne pose
+   que des entiers (elle ne descend pas sous zéro) ; l'addition, elle, pose
+   aussi un terme à VIRGULE (demande de Turquet, septembre 2026 : « quand on
+   doit poser une addition avec une virgule, elle doit aussi apparaître à
+   l'écran ») — la virgule elle-même doit se voir dans la pose. Pas de zéros
+   finaux retirés, contrairement à la multiplication : dans une addition
+   posée, chaque zéro tient sa colonne. Reconstruite quand les termes
+   changent, jamais sinon. */
 function poseOperationSuitLEleve(w, P){
   const present = evaluer(w, "typeof poseOpEleveMAJ==='function' && typeof startAugAdd==='function'");
   if(!present.ok || !present.valeur){
@@ -6820,8 +6823,15 @@ function poseOperationSuitLEleve(w, P){
       if($(host).dataset.pose!=='+6000;63') vus.push(nom+' : la pose ne suit pas un terme changé ('+$(host).dataset.pose+')');
       const in1=$(host).querySelector('input'); if(in1){ in1.value='3'; maj();
         if($(host).querySelector('input').value!=='3') vus.push(nom+' : la pose se reconstruit sans changement de termes — l\\'élève perd ce qu\\'il y écrit'); }
+      /* 70,5 + 63 = 133,5 : la pose accepte le terme à VIRGULE, l'aligne sur
+         l'autre terme (633 dixièmes) et affiche la virgule elle-même — pas
+         seulement les chiffres de part et d'autre. */
       $(aId).value='70,5'; maj();
-      if(!cache()) vus.push(nom+' : un terme DÉCIMAL est posé en colonnes');
+      if(cache()){ vus.push(nom+' : la pose se cache alors que 70,5 est un terme décimal valide'); return; }
+      if($(host).dataset.pose!=='+705/10;63/1') vus.push(nom+' : pose '+$(host).dataset.pose+' au lieu de +705/10;63/1 avec 70,5 + 63');
+      const expsDec=[...$(host).querySelectorAll('.mp-box')].map(e=>e.dataset.exp).join('');
+      if(expsDec!=='1335') vus.push(nom+' : la pose n\\'attend pas 70,5 + 63 = 133,5 mais « '+expsDec+' »');
+      if($(host).querySelectorAll('.mp-comma').length<3) vus.push(nom+' : la virgule n\\'apparaît pas dans la pose');
     }
     essai('2.2.2', startAugAdd, 'ag2Step5', 'ag2Mul', 'g4a', 'g4b', updateAG2Step5, false);
     essai('2.3.2', startDimSub, 'ag2Step5', 'ag2Mul', 'g4a', 'g4b', updateAG2Step5, true);
@@ -6843,7 +6853,11 @@ function poseOperationSuitLEleve(w, P){
    reste de ce groupe), donc un `startAdx` absent ne veut rien dire d'autre
    que « ce niveau n'a pas cet exercice » — n'existant qu'en Première, il
    sortirait « non applicable » en Seconde comme en Terminale, un contrôle
-   séparé plutôt qu'un essai de plus dans la liste ci-dessus. */
+   séparé plutôt qu'un essai de plus dans la liste ci-dessus.
+   C'est justement {augmenter-dix} qui amène le plus souvent un terme à
+   VIRGULE dans cette addition (la famille « unité » de genAdxN, N pair de 2
+   à 8) : demande de Turquet, septembre 2026, « quand on doit poser une
+   addition avec une virgule, elle doit aussi apparaître à l'écran ». */
 function poseAdditionAugmenterDix(w, P){
   const present = evaluer(w, "typeof poseOpEleveMAJ==='function' && typeof startAdx==='function'");
   if(!present.ok || !present.valeur){
@@ -6862,8 +6876,14 @@ function poseAdditionAugmenterDix(w, P){
     if($('adxMul').dataset.pose!=='+6000;300') vus.push('pose '+$('adxMul').dataset.pose+' au lieu de +6000;300 — elle montre la correction, pas l\\'élève');
     $('adxB').value='63'; updateAdxStep6();
     if($('adxMul').dataset.pose!=='+6000;63') vus.push('la pose ne suit pas un terme changé ('+$('adxMul').dataset.pose+')');
+    /* 70,5 + 63 = 133,5 : la pose accepte le terme à VIRGULE, l'aligne sur
+       l'autre terme (633 dixièmes) et affiche la virgule elle-même. */
     $('adxA').value='70,5'; updateAdxStep6();
-    if(!cache()) vus.push('un terme DÉCIMAL est posé en colonnes');
+    if(cache()){ vus.push('la pose se cache alors que 70,5 est un terme décimal valide'); return vus.join(' | '); }
+    if($('adxMul').dataset.pose!=='+705/10;63/1') vus.push('pose '+$('adxMul').dataset.pose+' au lieu de +705/10;63/1 avec 70,5 + 63');
+    const expsDec=[...$('adxMul').querySelectorAll('.mp-box')].map(e=>e.dataset.exp).join('');
+    if(expsDec!=='1335') vus.push('la pose n\\'attend pas 70,5 + 63 = 133,5 mais « '+expsDec+' »');
+    if($('adxMul').querySelectorAll('.mp-comma').length<3) vus.push('la virgule n\\'apparaît pas dans la pose');
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }

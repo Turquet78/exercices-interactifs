@@ -401,6 +401,7 @@
   .mp-row,.mp-lrow{display:flex;align-items:center}
   .mp-cl{width:52px;height:52px;display:flex;align-items:center;justify-content:center;position:relative}
   .mp-cl.op{width:34px}
+  .mp-cl.mp-comma{width:20px}
   .mp-digit{font-family:"Fredoka";font-weight:500;font-size:2rem;color:var(--ink)}
   .mp-sign{font-family:"Fredoka";font-weight:500;font-size:1.8rem;color:var(--ink)}
   .mp-line{height:4px;width:156px;background:var(--ink);border-radius:3px;margin:5px 0}
@@ -20107,13 +20108,27 @@ function genDimSub(){ return genEvolAdd(-1); }
    facultatives jugées seulement si écrites. Une case de retenue n'apparaît
    QUE là où une retenue existe vraiment, au-dessus de la colonne où on
    l'AJOUTE : sa position enseigne la convention, et il n'y a aucune case
-   « à zéro » qui sème le doute. */
-function buildPoseAdd(hTop, hBot, hostId){
-  const somme=hTop+hBot, nCol=String(somme).length;
+   « à zéro » qui sème le doute.
+   Accepte aussi des termes à VIRGULE (demande de Turquet, septembre 2026 :
+   « quand on doit poser une addition avec une virgule, elle doit aussi
+   apparaître à l'écran ») — frTop et frBot sont des fractions EXACTES
+   {n,d} (d une puissance de dix, comme le rend parseDecToFrac), jamais des
+   flottants : un flottant arrondirait la colonne des dixièmes. Les deux
+   termes sont ramenés au même nombre de décimales (celui du terme qui en a
+   le plus) avant de poser, comme on le ferait à la main en complétant par
+   un zéro. La colonne des UNITÉS et toutes celles après la virgule
+   s'affichent TOUJOURS, même à zéro — 0,1 s'écrit 0,1, jamais « ,1 » — seules
+   les colonnes plus grandes que les unités suivent l'effacement usuel des
+   zéros de tête (comme 7 à côté de 123). */
+function buildPoseAdd(frTop, frBot, hostId){
+  const maxD=Math.max(frTop.d, frBot.d), dec=Math.round(Math.log10(maxD));
+  const hTop=frTop.n*(maxD/frTop.d), hBot=frBot.n*(maxD/frBot.d);
+  const somme=hTop+hBot, nCol=Math.max(String(somme).length, dec+1);
   const dg10=(x,i)=>Math.floor(x/Math.pow(10,i))%10;
-  const has=(x,i)=>i<String(x).length;
+  const has=(x,i)=>(dec>0 && i<=dec) || i<String(x).length;
   const cell=(cls,inner)=>`<div class="mp-cl ${cls||''}">${inner||''}</div>`;
   const dg=x=>`<span class="mp-digit">${x}</span>`;
+  const virgule=()=>cell('mp-comma',dg(','));
   const box=(exp,tab,cls)=>`<input class="${cls||'mp-box'}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="${exp}" data-mtab="${tab}" aria-label="case à compléter">`;
   const carry=[]; let c=0;
   for(let i=0;i<nCol;i++){ carry[i]=c; const s2=dg10(hTop,i)+dg10(hBot,i)+c; c=s2>=10?1:0; }
@@ -20124,12 +20139,14 @@ function buildPoseAdd(hTop, hBot, hostId){
     rowTop   += has(hTop,i)?cell('',dg(dg10(hTop,i))):cell('');
     rowBot   += has(hBot,i)?cell('',dg(dg10(hBot,i))):cell('');
     rowRes   += cell('',box(dg10(somme,i),2*i+1));
+    if(dec>0 && i===dec){ rowCarry+=cell(''); rowTop+=virgule(); rowBot+=virgule(); rowRes+=virgule(); }
   }
+  const largeur=nCol*52+(dec>0?20:0);
   return `<div class="mp-op" id="${hostId}">`
     +(desRetenues?`<div class="mp-row">${cell('op')}${rowCarry}</div>`:'')
     +`<div class="mp-row">${cell('op')}${rowTop}</div>`
     +`<div class="mp-row">${cell('op',`<span class="mp-sign">+</span>`)}${rowBot}</div>`
-    +`<div class="mp-lrow">${cell('op')}<div class="mp-line" style="width:${nCol*52}px"></div></div>`
+    +`<div class="mp-lrow">${cell('op')}<div class="mp-line" style="width:${largeur}px"></div></div>`
     +`<div class="mp-row">${cell('op')}${rowRes}</div>`
     +`</div>`;
 }
@@ -22337,24 +22354,41 @@ function poseEleveMAJ(cfg){
    posées correspondent à ce qu'a mis l'élève ») : elle est bâtie sur ce
    qu'il a écrit dans la ligne « départ ± variation », même si ses nombres ne
    sont pas ceux de la correction — c'est une aide pour SON calcul, pas une
-   révélation. Les colonnes ne savent poser que des ENTIERS positifs (et une
-   soustraction qui ne descend pas sous zéro) : sinon la pose se cache. Pas
-   de zéros finaux retirés ici, contrairement à la multiplication : dans une
-   addition posée, chaque zéro tient sa colonne. Reconstruite quand les
-   termes CHANGENT, jamais sinon — reconstruire à chaque frappe effacerait
-   ce que l'élève y écrit. */
+   révélation. La soustraction ne sait poser que des ENTIERS positifs (et qui
+   ne descend pas sous zéro) : sinon la pose se cache — l'emprunt par
+   compensation n'a jamais été étendu aux décimales. L'addition, elle, accepte
+   aussi des termes à VIRGULE (demande de Turquet, septembre 2026 : « quand on
+   doit poser une addition avec une virgule, elle doit aussi apparaître à
+   l'écran ») — parseDecToFrac lit le terme exact en fraction (n/d), jamais un
+   flottant, pour ne rien arrondir sur la colonne des dixièmes ; buildPoseAdd
+   aligne alors les deux termes sur le même nombre de décimales. Pas de zéros
+   finaux retirés ici, contrairement à la multiplication : dans une addition
+   posée, chaque zéro tient sa colonne. Reconstruite quand les termes
+   CHANGENT, jamais sinon — reconstruire à chaque frappe effacerait ce que
+   l'élève y écrit. */
 function poseOpEleveMAJ(cfg){
   const st=$(cfg.step), host=$(cfg.host); if(!st||!host) return;
-  const lire=id=>{ const e=$(id); const t=String((e&&e.value)==null?'':e.value).trim();
-    return /^\d{1,6}$/.test(t)?parseInt(t,10):null; };
-  const a=lire(cfg.aId), b=lire(cfg.bId);
-  const posable = a!=null && b!=null && (!cfg.neg || a>=b);
-  if(!posable){ st.classList.add('step-hidden'); host.dataset.pose=''; host.innerHTML=''; return; }
-  const cle=(cfg.neg?'-':'+')+a+';'+b;
+  const brut=id=>{ const e=$(id); return (e&&e.value)==null?'':e.value; };
+  let cle,build;
+  if(cfg.neg){
+    const lireEntier=id=>{ const t=brut(id).trim(); return /^\d{1,6}$/.test(t)?parseInt(t,10):null; };
+    const a=lireEntier(cfg.aId), b=lireEntier(cfg.bId);
+    if(a==null || b==null || a<b){ st.classList.add('step-hidden'); host.dataset.pose=''; host.innerHTML=''; return; }
+    cle='-'+a+';'+b; build=()=>buildPoseSub(a,b,'__pose_tmp');
+  } else {
+    const frA=parseDecToFrac(brut(cfg.aId)), frB=parseDecToFrac(brut(cfg.bId));
+    if(!frA || !frB){ st.classList.add('step-hidden'); host.dataset.pose=''; host.innerHTML=''; return; }
+    /* clé inchangée quand les deux termes sont des entiers (immense majorité
+       des cas) : seul un terme à virgule gagne le dénominateur dans la clé,
+       pour que la pose se reconstruise si les décimales changent sans rien
+       changer au format de clé de l'addition d'entiers. */
+    cle = (frA.d===1 && frB.d===1) ? '+'+frA.n+';'+frB.n : '+'+frA.n+'/'+frA.d+';'+frB.n+'/'+frB.d;
+    build=()=>buildPoseAdd(frA,frB,'__pose_tmp');
+  }
   if(host.dataset.pose!==cle){
     host.dataset.pose=cle;
     const tmp=document.createElement('div');
-    tmp.innerHTML=cfg.neg?buildPoseSub(a,b,'__pose_tmp'):buildPoseAdd(a,b,'__pose_tmp');
+    tmp.innerHTML=build();
     host.innerHTML=tmp.firstElementChild.innerHTML;
     const ins=[...host.querySelectorAll('input')].sort((x,y)=>(+x.dataset.mtab)-(+y.dataset.mtab));
     ins.forEach((el,i)=>{
