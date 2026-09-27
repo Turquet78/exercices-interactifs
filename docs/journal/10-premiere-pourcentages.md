@@ -1469,3 +1469,44 @@ changerait pour l'un suivrait pour l'autre sans rien à répéter.
 sur le modèle de la ligne ajoutée à `RAP_PCT10` par {pourcentage-dix} — un
 rappel qui ne montrerait que des multiples de dix mentirait sur la moitié des
 tirages désormais possibles.
+
+**Et la troisième famille a été resserrée le jour même : pas un chiffre des
+unités, un petit nombre.** Turquet, en relisant : « je veux que le nombre
+[...] soit un multiple de cent, ou un multiple de dix avec le chiffre des
+dizaines pair, ou bien un nombre entre 1 et 8 pair » — plus étroit que le
+paragraphe précédent, qui avait compris « un chiffre des unités pair » comme
+ANY nombre à deux chiffres dont l'unité est paire (12, 34, 342…). Le
+paragraphe précédent reste pour l'histoire ; `genPdcN()`, lui, ne tire plus
+dans cette famille-là. La troisième famille est maintenant `pick([2,4,6,8])`
+tout court — un nombre ENTRE 1 ET 8, jamais un dizaine-plus-unité — et la
+famille a changé de nom dans le code (`'unites'` → `'petit'`) pour ne pas
+laisser un nom qui ne correspond plus à rien. La raison mathématique ne
+bouge pas d'un pouce : 4/20 = 0,2 (une décimale, comme 4/10 = 0,4) quand
+3/20 = 0,15 (deux décimales) — c'est la parité de N, pas son nombre de
+chiffres, qui tient la propreté du calcul. `pct10CtxDecOk` reste le bon
+filtre de contexte : un jeu à 4 € ou un trajet de 4 km passent, une classe
+de 4 élèves ou 4 articles restent écartés, exactement comme avant.
+
+**Et la première famille s'est ÉLARGIE, le même jour encore : « multiple de
+cent » devient « trois chiffres, multiple de dix, dizaines paires ».**
+Nouvelle relecture de Turquet : « je veux que le nombre [...] soit un nombre
+de 3 chiffres multiple de 10 avec le chiffre des dizaines paire, ou bien un
+nombre à deux chiffres multiple de 10 avec le chiffre des dizaines paire, ou
+bien un nombre entre 1 et 8 pair ». Les DEUX paragraphes précédents restent
+pour l'histoire ; seule la première famille change, une troisième fois dans
+la même journée. Elle ne tire plus dans les neuf multiples de cent (100,
+200… 900) mais dans les 45 nombres à trois chiffres dont le chiffre des
+DIZAINES est pair (120, 340, 780…) — ce qui inclut les multiples de cent
+comme cas particulier, puisque 0 est un chiffre pair : un multiple de cent
+n'est jamais qu'un nombre à trois chiffres dont les dizaines valent 0.
+`genPdcN()` tire donc `rand(1,9)*100+pick([0,2,4,6,8])*10` (un chiffre des
+centaines quelconque, un chiffre des dizaines pair PARMI CINQ valeurs, dont
+zéro) au lieu de `pick([1..9])*100` — et la famille change encore de nom
+(`'cent'` → `'trois'`) pour dire ce qu'elle tire vraiment : un nombre à trois
+chiffres, pas nécessairement un multiple de cent. La DEUXIÈME famille (deux
+chiffres, dizaines paires — 20, 40, 60, 80) ne bouge pas : elle est le cas
+`k=1` du même principe, avec un seul chiffre de dizaine possible avant la
+virgule des centaines. La raison arithmétique ne change pas non plus : pour
+N = 100a + 10b avec b pair, N/20 = 5a + b/2 reste entier quel que soit a — la
+propriété qui fait tout l'exercice ne demandait jamais que b soit nul, elle
+demandait seulement qu'il soit pair.
