@@ -2188,7 +2188,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=254;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=255;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -16155,10 +16155,18 @@ function struct(s){
       out += "((" + struct(a) + ")^(1/2))"; i = j;
     } else if(s[i] === "^" && s[i+1] === "{"){
       let a, j; [a, j] = readArg(s, i+1);
-      out += "^(" + struct(a) + ")"; i = j;
+      const sa = struct(a).trim();
+      /* un exposant vide (touche effleurée, invisible à l'écran) compilerait en
+         "^()" et ferait échouer une copie par ailleurs juste — le même défaut
+         que le résidu de fin de ligne du 6.2.5, mais AU MILIEU : saClean, qui
+         ne nettoie que la fin, ne le voit pas. */
+      if(sa !== "") out += "^(" + sa + ")";
+      i = j;
     } else if(s[i] === "_" && s[i+1] === "{"){
       let a, j; [a, j] = readArg(s, i+1);
-      out += "_(" + struct(a) + ")"; i = j;   /* indices : u_{n+1} -> u_(n+1), leve l'ambiguite u_n+1 (recurrence, suites) */
+      const sa = struct(a).trim();
+      if(sa !== "") out += "_(" + sa + ")";   /* indices : u_{n+1} -> u_(n+1), leve l'ambiguite u_n+1 (recurrence, suites) ; un indice vide est le même résidu que l'exposant vide */
+      i = j;
     } else { out += s[i]; i++; }
   }
   return out;
