@@ -1436,7 +1436,7 @@ function branchements(w){
      et le QCM des coefficients 2.5.3. On appelle les VINGT-DEUX vrais
      démarreurs :
      un nombre changé dans un démarreur partagé ne dit rien des autres.
-     {augmenter-taux-dix} (2.2.11, Première seulement, septembre 2026) N'Y
+     {augmenter-taux-dix} (2.2.12, Première seulement, septembre 2026) N'Y
      FIGURE PAS : cette liste et le contrôle qui la parcourt sont PARTAGÉS par
      la Seconde (mêmes fichiers `tests/verifier.js` et `tests/profils.js`), et
      `startAtd` n'existe que sur `premiere-specifique.html` — l'y ajouter

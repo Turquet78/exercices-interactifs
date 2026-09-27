@@ -1547,9 +1547,13 @@ famille « prendre un pourcentage » (2.1.x, `PCT_NB=4`) mais à la famille
 deux n'a besoin d'être touchée, la constante existait déjà et vaut toujours 3.
 
 **Ajouté en FIN du sous-thème « Augmenter d'un pourcentage »**, comme
-{pourcentage-dix} et {pourcentage-dix-cascade} l'avaient été en fin du leur :
-2.2.11, après {synthese-augmentations-libre} (2.2.10). Aucun exercice déjà
-noté n'est renuméroté.
+{pourcentage-dix} et {pourcentage-dix-cascade} l'avaient été en fin du leur.
+Visé au départ comme 2.2.11, juste après {synthese-augmentations-libre}
+(2.2.10) — mais {augmenter-dix} a fusionné sur `main` entre-temps (PR #353,
+même sous-thème, même position visée), prenant 2.2.11 le premier :
+{augmenter-taux-dix} devient donc 2.2.12, après {augmenter-dix}. Aucun
+exercice déjà noté n'est renuméroté — ni le sien, ni celui de personne
+d'autre.
 
 **`genAtd()` est déclaré AVANT `AUGQ_CTX`/`AUGQ_EN_PCT` dans le fichier**,
 exactement comme {pourcentage-dix-cascade} avait appris à ne lire
@@ -1559,12 +1563,18 @@ leur CORPS, jamais au niveau du script — la fonction n'est appelée qu'au
 clic, longtemps après que le script entier (et donc `AUGQ_CTX`, plus bas dans
 le fichier) a fini de s'exécuter.
 
-**Le contrôle des vingt-deux démarreurs des évolutions (`tests/verifier.js`,
-« les exercices sur les évolutions posent 3 questions ») en compte
-maintenant VINGT-TROIS** : `['2.2.11','startAtd']` a rejoint la liste, à sa
-place — un démarreur qui existe sans y figurer aurait laissé ce contrôle
-muet sur SON tirage, silencieusement, exactement le défaut que ce fichier
-met en garde partout ailleurs.
+**`startAtd` ne rejoint PAS le contrôle des vingt-deux démarreurs des
+évolutions** (`tests/verifier.js`, « les exercices sur les évolutions posent
+3 questions »), pour la même raison que {pourcentage-dix} n'est pas dans le
+contrôle jumeau des pourcentages (paragraphe plus haut) : cette liste et le
+contrôle qui la parcourt sont PARTAGÉS avec `secondes.html`, et `startAtd`
+n'existe que sur `premiere-specifique.html` — l'y ajouter ferait rougir la
+Seconde sur un démarreur absent EXPRÈS. `tests/verifier.js` porte un
+commentaire qui le dit explicitement, à l'endroit même où l'ajout aurait dû
+se faire, pour qu'il ne soit pas tenté en silence une seconde fois. Le
+tirage de {augmenter-taux-dix} reste couvert par le contrôle générique
+« aucune séance ne pose deux fois la même question » (qui appelle
+`startAtd` sans le nommer) et par le banc navigateur.
 
 **Bords tenus par les contrôles universels, sans rien déclarer de plus** :
 `atd` a rejoint `testScreens` (show), `afficherEcranDe` (reprise et rejeu),
@@ -1575,3 +1585,46 @@ CLAUDE.md nomme explicitement risqués à l'oubli. `RAPPELS_ID` porte
 par kind) et `QIA_SUGG.atd` ses quatre questions proposées — sans quoi
 `rappelDispo()` aurait averti en console, et la fenêtre d'aide serait
 retombée sur les questions génériques.
+
+---
+
+**Et la troisième famille a été resserrée le jour même : pas un chiffre des
+unités, un petit nombre.** Turquet, en relisant : « je veux que le nombre
+[...] soit un multiple de cent, ou un multiple de dix avec le chiffre des
+dizaines pair, ou bien un nombre entre 1 et 8 pair » — plus étroit que le
+paragraphe précédent, qui avait compris « un chiffre des unités pair » comme
+ANY nombre à deux chiffres dont l'unité est paire (12, 34, 342…). Le
+paragraphe précédent reste pour l'histoire ; `genPdcN()`, lui, ne tire plus
+dans cette famille-là. La troisième famille est maintenant `pick([2,4,6,8])`
+tout court — un nombre ENTRE 1 ET 8, jamais un dizaine-plus-unité — et la
+famille a changé de nom dans le code (`'unites'` → `'petit'`) pour ne pas
+laisser un nom qui ne correspond plus à rien. La raison mathématique ne
+bouge pas d'un pouce : 4/20 = 0,2 (une décimale, comme 4/10 = 0,4) quand
+3/20 = 0,15 (deux décimales) — c'est la parité de N, pas son nombre de
+chiffres, qui tient la propreté du calcul. `pct10CtxDecOk` reste le bon
+filtre de contexte : un jeu à 4 € ou un trajet de 4 km passent, une classe
+de 4 élèves ou 4 articles restent écartés, exactement comme avant.
+
+**Et la première famille s'est ÉLARGIE, le même jour encore : « multiple de
+cent » devient « trois chiffres, multiple de dix, dizaines paires ».**
+Nouvelle relecture de Turquet : « je veux que le nombre [...] soit un nombre
+de 3 chiffres multiple de 10 avec le chiffre des dizaines paire, ou bien un
+nombre à deux chiffres multiple de 10 avec le chiffre des dizaines paire, ou
+bien un nombre entre 1 et 8 pair ». Les DEUX paragraphes précédents restent
+pour l'histoire ; seule la première famille change, une troisième fois dans
+la même journée. Elle ne tire plus dans les neuf multiples de cent (100,
+200… 900) mais dans les 45 nombres à trois chiffres dont le chiffre des
+DIZAINES est pair (120, 340, 780…) — ce qui inclut les multiples de cent
+comme cas particulier, puisque 0 est un chiffre pair : un multiple de cent
+n'est jamais qu'un nombre à trois chiffres dont les dizaines valent 0.
+`genPdcN()` tire donc `rand(1,9)*100+pick([0,2,4,6,8])*10` (un chiffre des
+centaines quelconque, un chiffre des dizaines pair PARMI CINQ valeurs, dont
+zéro) au lieu de `pick([1..9])*100` — et la famille change encore de nom
+(`'cent'` → `'trois'`) pour dire ce qu'elle tire vraiment : un nombre à trois
+chiffres, pas nécessairement un multiple de cent. La DEUXIÈME famille (deux
+chiffres, dizaines paires — 20, 40, 60, 80) ne bouge pas : elle est le cas
+`k=1` du même principe, avec un seul chiffre de dizaine possible avant la
+virgule des centaines. La raison arithmétique ne change pas non plus : pour
+N = 100a + 10b avec b pair, N/20 = 5a + b/2 reste entier quel que soit a — la
+propriété qui fait tout l'exercice ne demandait jamais que b soit nul, elle
+demandait seulement qu'il soit pair.
