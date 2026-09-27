@@ -3000,7 +3000,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=342;
+const APP_VERSION=343;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -18397,7 +18397,14 @@ function sagEssai(zone){
     const cond=decreasing?(x=>x>seuil):(x=>x<seuil);
     while(cond(u) && guard<1000){ n++; u=a*u+b; guard++; }
     if(guard>=1000) continue;
-    if(n>=zone[0] && n<=zone[1]) return {A:A, a:a, b:b, l:l, u0:u0, decreasing:decreasing, seuil:seuil, n:n};
+    if(n<zone[0] || n>zone[1]) continue;
+    /* En fin de tableau (rang SAG_NMAX), l'élève doit lire une valeur à
+       moins d'un centième de la limite (demande de Turquet, septembre
+       2026) — sinon la dernière ligne visible en faisant défiler ne
+       ressemble toujours pas à la limite conjecturée. u_N - l = a^N·(u0-l),
+       calculé en fermé plutôt qu'en itérant SAG_NMAX pas de plus. */
+    if(Math.abs(Math.pow(a,SAG_NMAX)*(u0-l))>=0.01) continue;
+    return {A:A, a:a, b:b, l:l, u0:u0, decreasing:decreasing, seuil:seuil, n:n};
   }
   return null;
 }
