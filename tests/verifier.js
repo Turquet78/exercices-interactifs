@@ -25035,37 +25035,47 @@ function coefficientDeuxDecimalesSynthese(w, P){
     function decVirgule(s){ const i=String(s).indexOf(","); return i<0?0:String(s).length-i-1; }
   })()`, v => v === '', undefined);
 }
-/* ---- {synthese-evolutions} : Seconde SEULE, jamais « prendre P % » ---------
+/* ---- {synthese-evolutions} : Seconde SEULE, LE SCHÉMA EN BOÎTE -------------
    « fais un exercice comme la fiche sur les évolutions en %, avec des énoncés
-   variés et un résultat entier » (Turquet, septembre 2026). L'exercice n'est
-   ajouté qu'en Seconde : le contrôle se déclare ABSENT plutôt que de rougir en
-   Première, qui n'a pas startSynEvol — la leçon du 2.1.8 (« pourcentage-dix »)
-   à l'envers, un exercice qui n'existe que d'un côté ne rejoint jamais la
-   liste PARTAGÉE des démarreurs d'évolutions.
-   Trois bords, comme pour {synthese-augmentations}/{synthese-diminutions} :
-   les trois inconnues chacune une fois, l'identité épinglée par « Recommencer »
-   — et le bord qui lui est PROPRE : JAMAIS la famille « pct » (prendre), et les
-   DEUX sens (hausse et baisse) sortent chacun au moins une fois sur les trois
-   questions d'une même séance, sans quoi l'exercice pourrait ne poser que des
-   hausses trois fois de suite et perdre tout son sujet. L'entier du résultat
-   n'est PAS remesuré ici : c'est la propriété de genSyn('aug')/genSyn('dim'),
-   déjà exigée par le contrôle voisin sur les 2.2.9/2.3.8, à qui ce démarreur
-   emprunte l'arithmétique sans rien y changer. */
+   variés et un résultat entier », puis « je voulais qu'il soit présenté avec
+   un schéma exactement comme sur le pdf » (Turquet, septembre 2026). Kind
+   « evb », propre à cet exercice (plus « psyn » : la présentation en boîte
+   n'a plus rien de commun avec les trois synthèses à propositions, et suit
+   plutôt {pourcentage-boite} — non gardé, hors de PCT_KINDS, comme lui).
+   L'exercice n'est ajouté qu'en Seconde : le contrôle se déclare ABSENT
+   plutôt que de rougir en Première, qui n'a pas startSynEvol — la leçon du
+   2.1.8 (« pourcentage-dix ») à l'envers.
+   Quatre bords : les trois inconnues chacune une fois ; JAMAIS la famille
+   « pct » (prendre) et les DEUX sens (hausse et baisse) sortent chacun au
+   moins une fois sur les trois questions, sans quoi l'exercice pourrait ne
+   poser que des hausses et perdre tout le sujet de la fiche ; le SCHÉMA lui-
+   même — les quatre cases (cinq pour l'inconnue « pct », avec la case du
+   pourcentage retrouvé), le signe affiché dans la parenthèse (+ à la hausse,
+   − à la baisse), et le verdict case par case sur une copie ÉPINGLÉE des deux
+   sens ; et « Recommencer » qui relance la bonne identité — par le chemin
+   GÉNÉRIQUE de restartCurrentTest() puisque « evb » n'est plus dans
+   PCT_KINDS, exactement comme {pourcentage-boite}.
+   L'entier du résultat n'est PAS remesuré ici : c'est la propriété de
+   genSyn('aug')/genSyn('dim'), déjà exigée par le contrôle voisin sur les
+   2.2.9/2.3.8, à qui ce démarreur emprunte l'arithmétique sans rien y
+   changer — seul le RENDU (schéma plutôt que QCM) est neuf. */
 function syntheseEvolutions(w, P){
   const present = evaluer(w, "typeof startSynEvol==='function'");
   if(!present.ok || !present.valeur){
-    ignorer('{synthese-evolutions} : hausses et baisses mélangées, jamais « prendre », et identité tenue',
+    ignorer('{synthese-evolutions} : le schéma en boîte, hausses et baisses mélangées, jamais « prendre »',
+      'ce niveau n\'a pas la synthèse sur les évolutions');
+    ignorer('{synthese-evolutions} : une copie juste peint les cases en bleu, une copie fausse les cases en rouge, sur les deux sens',
       'ce niveau n\'a pas la synthèse sur les évolutions');
     return;
   }
-  verifierEval(w, '{synthese-evolutions} : hausses et baisses mélangées, jamais « prendre », et identité tenue', `(function(){
+  verifierEval(w, '{synthese-evolutions} : le schéma en boîte, hausses et baisses mélangées, jamais « prendre »', `(function(){
     const vus=[];
-    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='synthese-evolutions';
     const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, ordres={};
     for(let t=0;t<30 && !vus.length;t++){
       startSynEvol();
       if(test.qId!=='synthese-evolutions') vus.push('tirage '+t+' : identité « '+test.qId+' » au lieu de « synthese-evolutions »');
-      if(test.kind!=='psyn') vus.push('tirage '+t+' : kind « '+test.kind+' » au lieu de « psyn »');
+      if(test.kind!=='evb') vus.push('tirage '+t+' : kind « '+test.kind+' » au lieu de « evb »');
       const qs=test.questions||[];
       if(qs.length!==attendu) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de '+attendu);
       const fams={};
@@ -25079,14 +25089,62 @@ function syntheseEvolutions(w, P){
       ['fin','ini','pct'].forEach(function(inc){ if(incs.indexOf(inc)<0) vus.push('tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
       ordres[incs.join(',')]=1;
       const vu={};
-      qs.forEach(function(q){ const c=JSON.stringify(q.opts)+'|'+q.fam+'|'+q.inc+'|'+q.P+'|'+q.N;
+      qs.forEach(function(q){ const c=q.fam+'|'+q.inc+'|'+q.P+'|'+q.N;
         if(vu[c]) vus.push('tirage '+t+' : deux questions identiques dans la même séance'); vu[c]=1; });
     }
     if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des trois inconnues ne change jamais d\\'un tirage à l\\'autre');
     if(!vus.length){
-      test.kind='psyn'; test.qId='synthese-evolutions'; restartCurrentTest();
+      restartCurrentTest();
       if(test.qId!=='synthese-evolutions') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse des évolutions');
     }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- Le schéma lui-même : les cases, le signe, et le verdict --------- */
+  verifierEval(w, '{synthese-evolutions} : une copie juste peint les cases en bleu, une copie fausse les cases en rouge, sur les deux sens', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='synthese-evolutions';
+    const poser=function(q){ startSynEvol(); test.questions[0]=q; test.idx=0; test.locked=false; renderEvbTest(); };
+    const v=function(id){ return document.getElementById(id).value; };
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    /* deux copies ÉPINGLÉES, une hausse et une baisse — les deux signes de la parenthèse */
+    const HAUSSE={fam:'aug',inc:'fin',sens:1,P:5,N:200,aug:10,fin:210,decStr:'210',opts:[210],bon:0,choisi:null,meth:null,ci:0,v:0,intro:'Une chose de',unit:'€',g:'m'};
+    const BAISSE={fam:'dim',inc:'fin',sens:-1,P:5,N:200,aug:10,fin:190,decStr:'190',opts:[190],bon:0,choisi:null,meth:null,ci:0,v:0,intro:'Une chose de',unit:'€',g:'m'};
+    [HAUSSE,BAISSE].forEach(function(Q,ix){
+      const nom=ix===0?'hausse':'baisse';
+      poser(Q);
+      if(document.getElementById('evbT')) vus.push(nom+' : la case du pourcentage retrouvé existe alors que l\\'inconnue est « fin »');
+      /* le signe affiché dans la parenthèse */
+      const af=document.querySelector('#evbHost .pctb-af-x');
+      const texte=af?af.textContent:'';
+      const attenduSigne=ix===0?'+':'\\u2212';
+      if(texte.indexOf(attenduSigne)<0) vus.push(nom+' : la parenthèse n\\'affiche pas le signe « '+attenduSigne+' » ('+texte+')');
+      /* 1. la copie JUSTE */
+      setv('evbN',Q.N); setv('evbP','0,05'); setv('evbC', Q.sens>0?'1,05':'0,95'); setv('evbF',Q.fin);
+      checkEvbAnswer();
+      ['evbN','evbP','evbC','evbF'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push(nom+' : la case '+id+' juste n\\'est pas bleue ('+cls(id)+')'); });
+      if(test.score!==1) vus.push(nom+' : la copie juste ne vaut pas le point');
+      /* 2. la copie FAUSSE — une seule case fautive */
+      poser(Q);
+      setv('evbN',Q.N); setv('evbP','0,05'); setv('evbC', Q.sens>0?'1,05':'0,95'); setv('evbF', Q.fin+1);
+      checkEvbAnswer();
+      if(!/\\bbad\\b/.test(cls('evbF'))) vus.push(nom+' : la case fausse evbF ne rougit pas');
+      if(/\\bbad\\b/.test(cls('evbN'))) vus.push(nom+' : la case juste evbN rougit alors qu\\'evbF seule est fautive');
+    });
+    /* 3. l'inconnue « pct » ouvre la 5e case, et la flèche « −1 » se voit */
+    poser({fam:'aug',inc:'pct',sens:1,P:22,N:50,aug:11,fin:61,decStr:'61',opts:[22],bon:0,choisi:null,meth:null,ci:0,v:0,unit:'€'});
+    if(!document.getElementById('evbT')) vus.push('inconnue « pct » : la case du pourcentage retrouvé manque');
+    if(!document.querySelector('#evbHost .evb-rev-arrow')) vus.push('inconnue « pct » : la flèche « −1 » manque');
+    setv('evbN',50); setv('evbP','0,22'); setv('evbC','1,22'); setv('evbF',61); setv('evbT',22);
+    checkEvbAnswer();
+    if(test.score!==1) vus.push('inconnue « pct », copie juste : ne vaut pas le point');
+    if(!/\\bok\\b/.test(cls('evbT'))) vus.push('inconnue « pct » : la case du pourcentage retrouvé, juste, n\\'est pas bleue');
+    /* 4. une case laissée VIDE ne rougit jamais */
+    poser({fam:'dim',inc:'fin',sens:-1,P:10,N:200,aug:20,fin:180,decStr:'180',opts:[180],bon:0,choisi:null,meth:null,ci:0,v:0,unit:'€'});
+    setv('evbN',200); setv('evbP',''); setv('evbC','0,90'); setv('evbF',180);
+    checkEvbAnswer();
+    if(/\\bbad\\b/.test(cls('evbP'))) vus.push('une case laissée vide rougit à la vérification');
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }

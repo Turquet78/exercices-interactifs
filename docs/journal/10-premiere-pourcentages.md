@@ -1815,3 +1815,42 @@ les cases à l'écran : il reste juste tel quel), `QIA_SUGG` n'ont donc rien à
 changer ; seule la branche `k==='atd'` de `conseilCtxCourant()` a suivi le
 nouveau jeu de cases, pour ne jamais donner au modèle un identifiant qui
 n'existe plus à l'écran.
+
+---
+
+**Puis Turquet a précisé : « je voulais qu'il soit présenté avec un schéma
+exactement comme sur le pdf ».** Le paragraphe ci-dessus décrit le premier
+jet — le moteur QCM+chaîne du 2.5.1, réutilisé tel quel — et il répondait à
+la MAUVAISE lecture de la fiche : celle-ci ne fait choisir aucune
+proposition, elle fait remplir un SCHÉMA EN BOÎTE, exactement comme
+{pourcentage-boite} (ce paragraphe garde la trace du premier jet ; l'énoncé
+diversifié et l'entier garanti, eux, n'ont pas changé — seul le RENDU était
+faux). Le schéma refait : **[Avant]** → un oval « × (1 + …) » ou « × (1 − …) »
+selon le sens, puis « × … » pour le coefficient → **[Après]** — et, pour
+l'inconnue « pourcentage », une flèche « −1 » vers une case de plus, le
+pourcentage retrouvé.
+**KIND « evb », PROPRE À CET EXERCICE — plus « psyn » : la présentation
+n'a plus rien de commun avec les trois synthèses à propositions.** Écran
+neuf (`scr-evbtest`), rendu neuf (`renderEvbTest`/`checkEvbAnswer`), mais
+**AUCUNE ARITHMÉTIQUE RÉÉCRITE** : `startSynEvol` continue d'appeler
+`genSyn('aug'|'dim', …)` à l'identique — mêmes énoncés diversifiés
+(`synTab`/`variante`, déjà partagés), même garantie d'entier — seul ce que la
+page en FAIT change. Les cases sont TOUJOURS VIDES, même les nombres que
+l'énoncé donne déjà — la convention de {pourcentage-boite}, portée ici : une
+case qui pourrait deviner sa réponse dans l'énoncé n'aurait rien à montrer.
+**« evb » suit {pourcentage-boite} jusque dans ce qu'il NE FAIT PAS** :
+ni dans `PCT_KINDS` (le contexte envoyé au modèle retombe sur `ctxVisible()`,
+la lecture générique de l'écran — {pourcentage-boite} n'y est pas non plus),
+ni dans la table `RAPPELS` par kind (le rappel de cours passe par un
+override `RAPPELS_ID['synthese-evolutions']`, comme
+`RAPPELS_ID['pourcentage-boite']`) — et « Recommencer » route par le chemin
+GÉNÉRIQUE de `restartCurrentTest()` (`TESTS[currentTestId].start()`), pas par
+`restartPct()`, puisque « evb » n'y figure plus. Trois précédents suivis à la
+lettre, pas trois oublis.
+Le contrôle dédié a dû être REFAIT en entier — il vérifiait un QCM qui n'existe
+plus — et tient désormais les CASES elles-mêmes : le signe affiché dans la
+parenthèse (+ à la hausse, − à la baisse, lu dans le DOM, pas supposé), la
+cinquième case qui n'apparaît que pour l'inconnue « pourcentage » (et son
+absence sur les deux autres), et le verdict case par case sur deux copies
+ÉPINGLÉES — une hausse, une baisse — juste puis fautive d'une seule case,
+plus une case laissée vide qui ne rougit jamais.
