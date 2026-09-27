@@ -6195,8 +6195,11 @@ async function finishPct10(){
    un multiple de 10 ou de 100) reste une écriture PROPRE — jamais deux
    décimales, jamais une division qui ne s'arrête pas :
    · un nombre à TROIS chiffres, multiple de DIX, dont le chiffre des dizaines
-     est PAIR (120, 340, 780… le chiffre des dizaines peut être 0, ce qui
-     couvre aussi les multiples de cent) : N/20 reste entier ;
+     est PAIR (120, 340, 180… le chiffre des dizaines peut être 0, ce qui
+     couvre aussi les multiples de cent) et dont le chiffre des CENTAINES est
+     ENTRE 1 ET 3 (demande de Turquet, septembre 2026 : au-delà, le nombre
+     paraissait trop grand pour un exercice qui reste un calcul mental) :
+     N/20 reste entier ;
    · un nombre à DEUX chiffres, multiple de DIX, dont le chiffre des dizaines
      est PAIR (20, 40, 60, 80 — c'est le seul cas que le tout premier tirage
      connaissait) : N/20 reste entier ;
@@ -6222,7 +6225,7 @@ const PDC_ENONCES=[
    rares si l'on ne séparait pas le tirage en deux temps. */
 function genPdcN(){
   const fam=pick(['trois','deux','petit']);
-  if(fam==='trois') return rand(1,9)*100+pick([0,2,4,6,8])*10;  /* 3 chiffres, dizaines paires (0 compris) */
+  if(fam==='trois') return rand(1,3)*100+pick([0,2,4,6,8])*10;  /* 3 chiffres, centaines 1 à 3, dizaines paires (0 compris) */
   if(fam==='deux')  return pick([2,4,6,8])*10;                    /* 2 chiffres, dizaines paires */
   return pick([2,4,6,8]);                                          /* un nombre entre 1 et 8, pair */
 }
