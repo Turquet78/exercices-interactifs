@@ -1822,9 +1822,10 @@ module.exports = {
                         'results','teacher-login','teacher',
                         /* choix du niveau de « Signe du second degré » : un menu, pas un exercice */
                         's2lvl'],
-    /* Le thème des Suites est découpé en quatre parties (septembre 2026) : le
-       banc navigateur clique les deux étages comme le ferait un élève. */
-    menu: { theme: 6, parties: 4, exercice: 'suite-explicite' },
+    /* Le thème des Suites est découpé en cinq parties (septembre 2026, la
+       cinquième — Algorithme — ajoutée le même mois) : le banc navigateur
+       clique les deux étages comme le ferait un élève. */
+    menu: { theme: 6, parties: 5, exercice: 'suite-explicite' },
     niveau: 'Terminale',
     /* .tvi-instr n'est PAS un énoncé : c'est la consigne de travail qui suit
        (« Rédige la justification : »). L'application elle-même les distingue,
