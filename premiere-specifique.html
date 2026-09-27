@@ -6068,29 +6068,32 @@ async function finishPercent(){
    10 % de N unit c'est calculer N/10 = … », à la lettre près de la fiche,
    toute la ligne à la MÊME taille de police (aucun mélange petit label /
    grosses cases comme dans le reste du sous-thème).
-   N vient de PCT_VALEURS (multiples de dix) : N/10 est donc toujours entier,
-   même sur les thèmes à unité dénombrable (élèves, salariés…) où un
-   résultat décimal n'aurait pas de sens.
-   Une MOITIÉ des questions, depuis septembre 2026, retrouve les 32 € et 4 €
-   de la fiche d'origine (relevés ci-dessus) : N à un ou deux chiffres, jamais
-   multiple de dix, si bien que N/10 s'écrit à virgule (3,2 ; 0,4…) — demande
-   de Turquet, pour ne pas réduire la méthode aux seuls nombres ronds.
-   PCT10_VALEURS_DEC est un vivier À PART, jamais mélangé à PCT_VALEURS : ce
-   dernier est partagé par {pourcentage} et ses twins, et l'ouvrir à des
-   non-multiples de dix changerait leurs tirages à eux. Le TROISIÈME argument
-   de tirerContexte filtre alors les thèmes : un élève ou un salarié ne se
+   N suit TROIS familles, à poids égal (demande de Turquet, septembre 2026) —
+   même schéma « un pick sur la famille, puis un pick dans la famille » que
+   {pourcentage-par-10} (2.1.9, genPdcN) :
+   · un nombre à TROIS chiffres, multiple de dix, dont le chiffre des dizaines
+     est PAIR (120, 340, 980…) ;
+   · un nombre à DEUX chiffres, multiple de dix, dont le chiffre des dizaines
+     est PAIR (20, 40, 60, 80) ;
+   · un nombre PAIR entre 1 et 8 (2, 4, 6, 8).
+   Les deux premières familles sont multiples de dix : N/10 y est donc
+   toujours entier, même sur les thèmes à unité dénombrable (élèves,
+   salariés…) où un résultat décimal n'aurait pas de sens. La troisième ne
+   l'est jamais : N/10 s'y écrit à virgule (0,2 ; 0,4…), comme les 32 € et
+   4 € de la fiche d'origine. Le TROISIÈME argument de tirerContexte filtre
+   alors les thèmes sur cette seule famille : un élève ou un salarié ne se
    compte jamais à virgule (contexte « humain »), ni un article — le reste
    (€, hectares, km, min) accepte une quantité décimale sans absurdité. */
-const PCT10_VALEURS_DEC=(()=>{ const t=[]; for(let n=1;n<=99;n++) if(n%10!==0) t.push(n); return t; })();
 function pct10CtxDecOk(c){ return !c.humain && c.u!=='articles'; }
+function genPct10N(){
+  const fam=pick(['centaines','dizaines','unites']);
+  if(fam==='centaines') return rand(1,9)*100+pick([0,2,4,6,8])*10;
+  if(fam==='dizaines')  return pick([2,4,6,8])*10;
+  return pick([2,4,6,8]);
+}
 function genPct10(){
-  if(rand(0,1)===0){
-    const N=pick(PCT_VALEURS);
-    const ci=tirerContexte(CTX_PART,N);
-    return {P:10,N,unit:CTX_PART[ci].u,ci,result:N/10};
-  }
-  const N=pick(PCT10_VALEURS_DEC);
-  const ci=tirerContexte(CTX_PART,N,null,pct10CtxDecOk);
+  const N=genPct10N();
+  const ci=tirerContexte(CTX_PART,N,null,N%10!==0?pct10CtxDecOk:null);
   return {P:10,N,unit:CTX_PART[ci].u,ci,result:N/10};
 }
 async function startPct10(){
@@ -6197,9 +6200,9 @@ function genPdcN(){
 function genPdc(){
   const N=genPdcN();
   /* Famille « petit » (2, 4, 6 ou 8) : N n'est pas multiple de dix, 10 %
-     s'écrit à virgule — le même piège que {pourcentage-dix} sur ses N
-     décimaux (PCT10_VALEURS_DEC), et le même remède : pct10CtxDecOk écarte
-     les contextes humains ou les articles, où « 0,4 élève » ou « 0,4 article »
+     s'écrit à virgule — le même piège que {pourcentage-dix} sur sa troisième
+     famille (genPct10N), et le même remède : pct10CtxDecOk écarte les
+     contextes humains ou les articles, où « 0,4 élève » ou « 0,4 article »
      n'a pas de sens. Les deux autres familles (toutes deux multiples de dix)
      gardent tous les contextes, comme avant. */
   const ci=tirerContexte(CTX_PART,N,null,N%10!==0?pct10CtxDecOk:null);
