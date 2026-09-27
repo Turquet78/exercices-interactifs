@@ -809,17 +809,25 @@ l'omet, mais le rappel de l'exercice (`RAP_PQD`) l'enseigne déjà comme une
 écriture intermédiaire légitime — la retirer de l'écran l'aurait rendue
 incohérente avec sa propre aide.
 
-**Les six nombres tirés sont resserrés à 1–5** (au lieu de 1–9 pour les
-numérateurs, 2–9 pour les dénominateurs) : la fiche papier ne montre que des
-chiffres de cette taille (`5/2`, `2/3`, `4/5`), et un tirage à un chiffre
-plus large aurait déjà cessé de ressembler au modèle affiché à côté. **Le
-résultat final n'est plus forcé irréductible** : la case finale acceptait
-déjà — et accepte toujours — n'importe quelle fraction ÉGALE à la réponse,
-simplifiée ou non (`pfFracJuge`, `estFinal`) ; exiger en plus que le tirage
-LUI-MÊME tombe toujours sur une fraction déjà réduite n'ajoutait rien à ce
-que l'élève peut écrire, et écartait des tirages par ailleurs valides —
-resserré à 1–5, le vivier en avait déjà moins besoin. Le résultat continue
-de ne jamais valoir 0, comme avant.
+**{quotient-difference-fractions} (5.14, « I ») avait reçu ce même
+resserrement d'abord, et H l'a rejoint le jour même par une demande
+séparée** — deux sessions, chacune sa propre fiche papier (I = 5/2 ÷
+(8/3 − 1/3), H = 5/2 × (2/3 − 4/5)), toutes deux à des chiffres de 1 à 5.
+`pqdGen(inv)` a distingué un temps H et I par une borne haute différente
+(9 pour H, 5 pour I, seul I relâché) ; la fusion des deux demandes a
+remplacé cette distinction par UNE SEULE borne commune (1–5) et UN SEUL
+relâchement, valable pour les deux : les six nombres tirés — a/b, c/d, e/f —
+n'ont plus à être déjà irréductibles, et **le résultat final n'est plus
+forcé irréductible** non plus. La case finale acceptait déjà — et accepte
+toujours — n'importe quelle fraction ÉGALE à la réponse, simplifiée ou non
+(`pfFracJuge`, `estFinal`) ; exiger en plus que le tirage LUI-MÊME tombe
+toujours sur une fraction déjà réduite n'ajoutait rien à ce que l'élève peut
+écrire, et écartait des tirages par ailleurs valides — resserré à 1–5, le
+vivier en avait d'autant moins besoin. Le résultat continue de ne jamais
+valoir 0, pour H comme pour I, comme avant. Le repli codé en dur de I
+change de nombres pour rester dans le nouvel intervalle (5/2 ÷ (4/5 − 1/3)) ;
+celui de H garde le sien, déjà dans l'intervalle (5/2 × (2/3 − 4/5), le
+« H » de la fiche).
 
 Éprouvé en ouvrant réellement l'exercice dans un Chromium (capture d'écran,
 pas seulement le banc jsdom) : la parenthèse s'affiche bien sur deux
