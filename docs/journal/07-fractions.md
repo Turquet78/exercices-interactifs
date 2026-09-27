@@ -850,3 +850,66 @@ fractions de DÉPART (`a/b`, `c/d`, `e/f`, `g/h`) : la demande de Turquet
 portait ici sur le résultat que l'élève calcule, pas sur l'énoncé qu'on lui
 donne — {quotient-double-fractions} ne partage pas le moteur `pqd` de H/I,
 rien n'obligeait à leur faire dire la même chose au même mot près.
+
+**« deux » sur pfCroixHTML avait résolu la moitié de l'écart avec le PDF —
+l'autre moitié restait après la fusion, et Turquet l'a repointée sur une
+capture d'écran du site en ligne.** Le modèle papier de H (5/2 × (2/3 −
+4/5)) tient en QUATRE lignes après l'énoncé : le croisement, les deux
+fractions croisées séparément, PUIS la parenthèse résolue en une seule
+fraction — ENCORE précédée de « 5/2 × » sur cette même ligne —, et enfin le
+résultat seul. Le moteur, lui, en comptait CINQ : après la parenthèse
+résolue (`rn/rd`, sans le « 5/2 × » qui se serait pourtant lu juste à côté
+sur le papier), une case de décomposition (`pfProduitHTML`, « les
+numérateurs ensemble, les dénominateurs ensemble ») s'intercalait avant le
+résultat — une étape que ni H ni son propre rappel (`RAP_PQD`) n'imposaient
+d'écrire séparément une fois qu'on demande déjà le résultat.
+
+**Le « 5/2 × » migre d'une ligne à l'autre, et la décomposition disparaît —
+deux changements liés, un seul et même geste.** `pfCroixHTML()` gagne un
+neuvième paramètre `teteRn` : collé (par `fEqTete`, déjà utilisé par
+`pfProduitHTML`) au « = » qui précède `rn/rd`, il écrit « 5/2 × » ou
+« 5/2 ÷ » — l'opérateur RÉEL, avant toute inversion — sur la ligne où la
+parenthèse vient tout juste de se résoudre, exactement comme le papier.
+`pfProduitHTML()` gagne un `direct` : il saute alors le `prodBox` (les
+cases `h1/h2/b1/b2`) et enchaîne l'inverse (I seulement) puis `finalBox`
+sans jamais redemander tete — déjà écrit sur la ligne d'avant. H et I
+passent tous deux `direct:true` ; G et J, sans modèle papier pour cette
+étape, gardent la décomposition par défaut (`direct` faux si omis).
+
+**Un paramètre qui retire des cases du DOM en supprime aussi le JUGEMENT —
+sans quoi l'exercice devient IMPOSSIBLE à réussir.** `pfProduitJuge()`
+lisait avant `h1/h2/b1/b2` sans condition : sur un DOM qui ne les pose plus,
+`pfLu()` y renvoie `NaN`, et `haut`/`bas` seraient retombés à FAUX pour
+toujours — un exercice qu'aucune réponse ne peut plus valider. `direct`
+saute cette lecture et pose `haut`/`bas` à VRAI d'office ; `pfProduitCases()`
+retire ces mêmes IDs de la liste que lit `pfVide()`, sans quoi une case qui
+n'existe plus aurait compté comme une case VIDE et bloqué la note à zéro
+pour la même raison. `pfProduitPeindre()`/`pfProduitCorrection()`, eux,
+n'ont pas eu besoin de ce garde : leurs `col()`/`corTrainDec()` ignorent
+déjà silencieusement un ID absent du DOM (`if(!el) return;`) — un bloc
+retiré du HTML n'a donc jamais besoin d'être retiré une seconde fois de
+CES fonctions-là.
+
+**`RAP_PQD` a perdu la même case que l'écran : sa ligne ③ montrait encore
+la décomposition** (`\frac{5\times(-2)}{2\times 15}`) entre la parenthèse
+résolue et le résultat — un rappel qui aurait alors enseigné un pas que
+l'exercice ne demande plus. Réduite à `\frac{5}{2}\times\frac{-2}{15}=
+\frac{-1}{3}`, la ligne dit exactement ce que l'écran demande, ni plus ni
+moins.
+
+**Éprouvé en remplissant RÉELLEMENT les cases dans un Chromium, MathLive
+chargé depuis le cache local (`tests/.cache/`, jamais le CDN)** — une
+capture d'écran seule ne suffisait plus, puisque c'est précisément une
+capture d'écran qui avait révélé l'écart la première fois. Quatre copies
+jouées sur H et I : une entièrement juste (note pleine, sans passer par
+aucune case de décomposition — elle n'existe plus), une avec la fraction
+finale fausse de 1 (correctement rejetée, message pointé sur la bonne
+case), une avec la fraction finale ÉGALE mais NON simplifiée (×2 au
+numérateur et au dénominateur — acceptée, `pfFracJuge()` continue de juger
+par produit en croix). Un script de secours avait d'abord échoué en silence
+sur les quatre copies : `el.value=…` sur un `<math-field>` non upgradé ne
+lève aucune erreur mais n'écrit rien non plus (`pmAdapter()` route
+l'écriture par `el.setValue()`, qui n'existe que si MathLive a fini de
+charger) — la même leçon que « deux bancs jsdom ne se lancent pas en même
+temps », version MathLive : un contrôle qui semble s'exécuter sans rien
+mesurer est pire qu'un contrôle qui échoue.
