@@ -1933,9 +1933,12 @@
   /* ===== {synthese-evolutions} : le MÊME schéma en boîte, avec un signe
      (1 + / 1 −) et, pour l'inconnue « pourcentage », la flèche de retour
      « −1 » de la fiche — un texte, pas un dessin mesuré : la doctrine du
-     bloc ci-dessus vaut ici aussi. ===== */
-  .evb-rev{margin-top:8px}
-  .evb-rev-arrow{font-family:"Fredoka";font-weight:700;font-size:1.15rem;color:var(--ink-soft)}
+     bloc ci-dessus vaut ici aussi. Turquet (septembre 2026) : cette flèche
+     part de la case du coefficient (sous la grande flèche) et remonte vers
+     celle du « ×(1 ± …) » (au-dessus) — elle est donc accrochée à la case du
+     coefficient, pas dans une rangée à part en dessous. */
+  .evb-rev-row{margin-top:8px}
+  .evb-rev-arrow{font-family:"Fredoka";font-weight:700;font-size:1.15rem;color:var(--ink-soft);white-space:nowrap}
   #evbHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
   #evbHost math-field.pm-mf.evb-pct{min-width:58px;max-width:110px}
   @media(max-width:900px){ #evbHost math-field.pm-mf{font-size:1.4rem} }
@@ -4570,7 +4573,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=227;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=228;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -20591,7 +20594,7 @@ async function startSynEvol(){
    TOUJOURS vides, même les nombres que l'énoncé donne déjà en toutes
    lettres. Seule la question posée diffère (synTab, déjà partagée avec les
    trois autres synthèses — aucune table d'énoncés neuve). */
-function evbEnonce(q){ return (variante(synTab(q),q))+' Complète le schéma.'; }
+function evbEnonce(q){ return (variante(synTab(q),q))+' Retrouve '+synQuoi(q)+', puis complète le schéma.'; }
 function renderEvbTest(){
   const q=test.questions[test.idx]; test.locked=false;
   const neg=q.sens<0, coef=100+q.sens*q.P, pct=q.inc==='pct';
@@ -20601,18 +20604,21 @@ function renderEvbTest(){
   $('evbFeedback').textContent=''; $('evbFeedback').className='mp-feedback';
   $('evbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEvbAnswer()">Vérifier</button>';
   $('evbPrompt').innerHTML=evbEnonce(q);
+  /* La flèche « −1 » part de la case du coefficient (sous la grande flèche)
+     et remonte vers celle du « ×(1 ± …) » (au-dessus) : elle est accrochée à
+     la case du coefficient, pas dans une rangée à part (Turquet, septembre
+     2026). */
   $('evbHost').innerHTML=
     `<div class="pctb-row">
        <div class="pctb-box"><div class="pctb-lab">Avant</div><math-field class="dexp-mf pm-mf" id="evbN" aria-label="valeur avant"></math-field></div>
        <div class="pctb-arrow">
          <div class="pctb-af"><span class="pctb-af-x">× (1 ${neg?'−':'+'}</span><math-field class="dexp-mf pm-mf evb-pct" id="evbP" aria-label="le pourcentage en écriture décimale"></math-field><span class="pctb-af-x">)</span></div>
          <div class="pctb-shaft" aria-hidden="true"></div>
-         <div class="pctb-af"><span class="pctb-af-x">×</span><math-field class="dexp-mf pm-mf" id="evbC" aria-label="coefficient"></math-field></div>
+         <div class="pctb-af"><span class="pctb-af-x">×</span><math-field class="dexp-mf pm-mf" id="evbC" aria-label="coefficient"></math-field>${pct?'<span class="evb-rev-arrow" aria-hidden="true">↑ −1</span>':''}</div>
        </div>
        <div class="pctb-box"><div class="pctb-lab">Après</div><math-field class="dexp-mf pm-mf" id="evbF" aria-label="valeur après"></math-field></div>
      </div>`+
-    (pct ? `<div class="pctb-row evb-rev">
-       <span class="evb-rev-arrow" aria-hidden="true">↘ −1</span>
+    (pct ? `<div class="pctb-row evb-rev-row">
        <div class="pctb-box"><div class="pctb-lab">Pourcentage d’évolution</div>
          <span style="display:flex;align-items:center;gap:6px"><math-field class="dexp-mf pm-mf evb-pct" id="evbT" aria-label="pourcentage d’évolution"></math-field><span class="pctb-af-x">%</span></span></div>
      </div>` : '');
