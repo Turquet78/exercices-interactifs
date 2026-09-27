@@ -3763,6 +3763,7 @@ function exercices(suite){
     teteCollee(w, P);
     poseSuitLEleve(w, P);
     poseOperationSuitLEleve(w, P);
+    poseAdditionAugmenterDix(w, P);
     correctionSignesVariations(w, P);
     termeEntierDansCaseCoefficient(w, P);
 
@@ -6820,6 +6821,36 @@ function poseOperationSuitLEleve(w, P){
       while((q.fam==='pct'||q.sens<0) && garde++<300){ test.questions[0]=q=genSyn(); }
       renderSynTest(); choisirSyMeth('dir');
     }, 'syPose', 'syMul', 'y4a', 'y4b', updateSynPose, false);
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- 2.2.11 : la même pose facultative que le 2.2.2 --------------
+   {augmenter-dix} n'est PAS partagé avec {augmenter-addition}/
+   {diminuer-soustraction} (pas de `startEvolAdd` commun, contrairement au
+   reste de ce groupe), donc un `startAdx` absent ne veut rien dire d'autre
+   que « ce niveau n'a pas cet exercice » — n'existant qu'en Première, il
+   sortirait « non applicable » en Seconde comme en Terminale, un contrôle
+   séparé plutôt qu'un essai de plus dans la liste ci-dessus. */
+function poseAdditionAugmenterDix(w, P){
+  const present = evaluer(w, "typeof poseOpEleveMAJ==='function' && typeof startAdx==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.2.11 : la pose de l\'addition finale suit les nombres de l\'élève',
+      'ce niveau n\'a pas l\'exercice {augmenter-dix}');
+    return;
+  }
+  verifierEval(w, '2.2.11 : la pose de l\'addition finale suit les nombres de l\'élève', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    startAdx();
+    const cache=()=>$('adxStep6').classList.contains('step-hidden');
+    if(!cache()){ vus.push('pose visible sans termes écrits'); return vus.join(' | '); }
+    $('adxA').value='6000'; $('adxB').value='300'; updateAdxStep6();
+    if(cache()){ vus.push('pose cachée avec 6000 + 300'); return vus.join(' | '); }
+    if($('adxMul').dataset.pose!=='+6000;300') vus.push('pose '+$('adxMul').dataset.pose+' au lieu de +6000;300 — elle montre la correction, pas l\\'élève');
+    $('adxB').value='63'; updateAdxStep6();
+    if($('adxMul').dataset.pose!=='+6000;63') vus.push('la pose ne suit pas un terme changé ('+$('adxMul').dataset.pose+')');
+    $('adxA').value='70,5'; updateAdxStep6();
+    if(!cache()) vus.push('un terme DÉCIMAL est posé en colonnes');
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
