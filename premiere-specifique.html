@@ -51,6 +51,7 @@
     --green:#1FA971; --green-soft:#E4F5EE;
     --red:#E23D52; --red-soft:#FCE7EA;
     --gold:#F2A93B;
+    --pdt-fl:#7C3AED;
     --slate:#2E4039; --slate-2:#26352D; --chalk:#F4F3EC; --chalk-soft:#AFC0B5;
     --line:#E6E3D8; --surface:#FFFFFF;
     --radius:20px;
@@ -976,6 +977,14 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #pxHost .pct10-ligne,#pdtHost .pct10-ligne{font-size:1.6rem;font-family:"Fredoka";font-weight:500;color:var(--ink);line-height:1.6;text-align:center;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:8px;row-gap:4px;}
 #pxHost .pct10-ligne math-field.pm-mf,#pdtHost .pct10-ligne math-field.pm-mf{font-size:calc(1.6rem * var(--tab-nb,1));vertical-align:baseline;}
 #pdtHost .pct10-ligne{margin:6px 0;}
+/* Les flèches de la fiche papier (2.1.10, demande de Turquet, PDF « 3e méthode
+   retrouver un pourcentage ») : la ligne CIBLE (« On multiplie par ... : donc ... »)
+   gagne de la place au-dessus d'elle pour que les deux traits courbes aient où
+   plonger — seulement quand ils existent (classe posée par renderPdt), sinon le
+   pourcentage cherché EST 5 % et il n'y a rien à montrer. */
+#pdtHost.pdt-fl .pct10-fl-cible{margin-top:30px}
+#pdtHost.pdt-fl{position:relative}
+#pdtHost .pdt-fleches{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
 /* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
    (apres « 1, », « 0, ») : plus courtes. */
 #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:82px;}
@@ -2135,7 +2144,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=245;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=246;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6312,6 +6321,7 @@ async function startPdt(){
   test.maxScore=test.questions.length;
   show('pdt'); renderPdt();
 }
+let pdtRedessine=null;
 function renderPdt(){
   const q=test.questions[test.idx]; test.locked=false;
   $('pdtIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
@@ -6322,28 +6332,108 @@ function renderPdt(){
   $('pdtPrompt').innerHTML=variante(QD_ENONCES_PCT,q);
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
   const frac10=mlTex('\\frac{'+q.N+'}{10}', q.N+'/10');
-  let html=`<div class="pct10-ligne">On commence par déterminer <b>10</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} : ${frac10} = ${dec('pdt0','dix pour cent de '+q.N)} ${esc(q.unit)}</div>`;
+  let html=`<div class="pct10-ligne">On commence par déterminer <b id="pdtFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} : ${frac10} = ${dec('pdt0','dix pour cent de '+q.N)} ${esc(q.unit)}</div>`;
   const order=['pdt0'];
-  const donc=`donc : ${dec('pdtP','le pourcentage cherché')}&nbsp;% de ${q.N} ${esc(q.unit)} = ${q.result} ${esc(q.unit)}`;
+  const donc=`donc : ${dec('pdtP','le pourcentage cherché')}&nbsp;% de ${q.N} ${esc(q.unit)} = <span id="pdtFlValDst">${q.result}</span> ${esc(q.unit)}`;
   if(q.cinq){
     const frac5=mlTex('\\frac{'+q.d10+'}{2}', q.d10+'/2');
-    html+=`<div class="pct10-ligne">On continue en déterminant <b>5</b>&nbsp;% de ${q.N} ${esc(q.unit)} : ${frac5} = ${dec('pdt5','cinq pour cent de '+q.N)} ${esc(q.unit)}</div>`;
+    html+=`<div class="pct10-ligne">On continue en déterminant <b id="pdtFlPct5">5</b>&nbsp;% de ${q.N} ${esc(q.unit)} : ${frac5} = ${dec('pdt5','cinq pour cent de '+q.N)} ${esc(q.unit)}</div>`;
     order.push('pdt5');
     if(q.P===5){
       html+=`<div class="pct10-ligne">${donc}</div>`;
       order.push('pdtP');
     } else {
-      html+=`<div class="pct10-ligne">On multiplie par ${dec('pdtK','facteur qui donne le pourcentage cherché')} : ${donc}</div>`;
+      html+=`<div class="pct10-ligne pct10-fl-cible">On multiplie par ${dec('pdtK','facteur qui donne le pourcentage cherché')} : ${donc}</div>`;
       order.push('pdtK','pdtP');
     }
   } else {
-    html+=`<div class="pct10-ligne">On multiplie par ${dec('pdtK','facteur qui donne le pourcentage cherché')} : ${donc}</div>`;
+    html+=`<div class="pct10-ligne pct10-fl-cible">On multiplie par ${dec('pdtK','facteur qui donne le pourcentage cherché')} : ${donc}</div>`;
     order.push('pdtK','pdtP');
   }
   $('pdtHost').innerHTML=html;
+  /* Les flèches de la fiche papier (demande de Turquet, PDF « 3e méthode
+     retrouver un pourcentage ») : deux traits courbes, MESURÉS dans la page —
+     jamais des coordonnées supposées, le piège déjà noté pour
+     {croiser-denominateurs} — relient le « 10 % » (ou « 5 % ») de départ à la
+     case du pourcentage cherché, et sa valeur (en unités de l'énoncé) au
+     nombre final donné dans l'énoncé. Elles ne remplacent rien : la phrase « On multiplie
+     par ... » garde la seule case qui compte pour la note, les flèches ne sont
+     qu'un appui visuel, comme sur la fiche. Aucune flèche quand le pourcentage
+     cherché EST 5 % (branche ci-dessus) : il n'y a alors aucune opération à
+     montrer. */
+  const hasK=order.includes('pdtK');
+  $('pdtHost').classList.toggle('pdt-fl',hasK);
+  if(pdtRedessine){ window.removeEventListener('resize', pdtRedessine); pdtRedessine=null; }
+  if(hasK){
+    pdtRedessine=function(){ if(test.kind==='pdt' && $('pdtHost')) pdtDessinerFleches(); };
+    window.addEventListener('resize', pdtRedessine);
+    setTimeout(pdtDessinerFleches, 60);
+    setTimeout(pdtDessinerFleches, 240);   /* MathLive finit de poser ses cases */
+  }
   const els=order.map(id=>$(id));
   els.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<els.length-1)els[i+1].focus(); else checkPdtAnswer();} }); });
   setTimeout(()=>els[0]&&els[0].focus(),70);
+}
+/* Où vont les flèches de 2.1.10 : la SOURCE est le pourcentage de départ (le
+   « 10 » ou, si on est passé par 5 %, le « 5 ») et sa valeur déjà trouvée ; la
+   CIBLE est la case du pourcentage cherché et le nombre final de l'énoncé. Les
+   positions sont MESURÉES dans la page, comme pour {croiser-denominateurs} :
+   un trait posé sur des coordonnées devinées se décale au premier changement
+   de police ou de largeur. */
+function pdtPoints(){
+  const hote=$('pdtHost'); if(!hote) return null;
+  /* Un redessin RETARDÉ (les deux setTimeout de renderPdt, posés pour laisser
+     MathLive finir) peut se déclencher après que la question suivante a déjà
+     remplacé le DOM. « pdtFlValDst » et « pdtP » existent alors toujours (ils
+     sont posés sur TOUTE question), et sans ce garde des flèches de la
+     question précédente se seraient dessinées sur celle qui n'a rien à
+     montrer (le pourcentage cherché EST 5 %) — trouvé en ouvrant vraiment la
+     page, aucun banc statique ne pouvait le voir. La classe « pdt-fl » est
+     posée UNE FOIS par renderPdt, pour LA question qu'il vient d'afficher :
+     elle est le seul repère fiable. */
+  if(!hote.classList.contains('pdt-fl')) return null;
+  const q=test.questions[test.idx]; if(!q) return null;
+  const srcPct=$(q.cinq?'pdtFlPct5':'pdtFlPct10'), srcVal=$(q.cinq?'pdt5':'pdt0');
+  const dstPct=$('pdtP'), dstVal=$('pdtFlValDst');
+  if(!srcPct || !srcVal || !dstPct || !dstVal) return null;
+  const R=hote.getBoundingClientRect();
+  const bordBas=el=>{ const r=el.getBoundingClientRect(); return {x:(r.left+r.right)/2-R.left, y:r.bottom-R.top}; };
+  const bordHaut=el=>{ const r=el.getBoundingClientRect(); return {x:(r.left+r.right)/2-R.left, y:r.top-R.top}; };
+  return {larg:R.width, haut:R.height,
+          a1:bordBas(srcPct), b1:bordHaut(dstPct), a2:bordBas(srcVal), b2:bordHaut(dstVal),
+          op:q.k>=1?'×':'÷'};
+}
+/* Un trait courbe qui descend de la ligne de départ vers la ligne d'arrivée,
+   en « S » : la tangente part et arrive à la verticale, si bien que la courbe
+   reste lisible quel que soit l'écart horizontal entre les deux mots (les
+   unités de l'énoncé n'ont pas toutes la même longueur). */
+function pdtArc(a,b,couleur,id){
+  const dy=Math.max(16,(b.y-a.y)*0.55);
+  return '<path d="M '+a.x.toFixed(1)+' '+(a.y+2).toFixed(1)
+       +' C '+a.x.toFixed(1)+' '+(a.y+dy).toFixed(1)+' '+b.x.toFixed(1)+' '+(b.y-dy).toFixed(1)+' '+b.x.toFixed(1)+' '+(b.y-3).toFixed(1)+'"'
+       +' fill="none" stroke="'+couleur+'" stroke-width="2.25" stroke-linecap="round" stroke-dasharray="1 6"'
+       +' marker-end="url(#'+id+')"></path>';
+}
+function pdtDessinerFleches(){
+  const hote=$('pdtHost'); if(!hote) return;
+  const vieux=hote.querySelector('.pdt-fleches'); if(vieux) vieux.remove();
+  const p=pdtPoints(); if(!p || !p.larg) return;
+  const C=getComputedStyle(document.documentElement).getPropertyValue('--pdt-fl').trim()||'#7C3AED';
+  const fond=getComputedStyle(document.documentElement).getPropertyValue('--surface').trim()||'#fff';
+  const pointe='<marker id="pdt-p1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"'
+    +' orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="'+C+'"></path></marker>';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('class','pdt-fleches');
+  svg.setAttribute('viewBox','0 0 '+p.larg+' '+p.haut);
+  svg.setAttribute('width',p.larg); svg.setAttribute('height',p.haut);
+  svg.setAttribute('aria-hidden','true');
+  const milieu=(a,b)=>({x:(a.x+b.x)/2, y:(a.y+b.y)/2});
+  const etiquette=m=>'<text x="'+m.x.toFixed(1)+'" y="'+m.y.toFixed(1)+'" text-anchor="middle" dominant-baseline="middle"'
+    +' font-family="Fredoka" font-weight="600" font-size="15" fill="'+C+'" stroke="'+fond+'" stroke-width="4" paint-order="stroke">'+p.op+'</text>';
+  svg.innerHTML='<defs>'+pointe+'</defs>'
+    +pdtArc(p.a1,p.b1,C,'pdt-p1')+pdtArc(p.a2,p.b2,C,'pdt-p1')
+    +etiquette(milieu(p.a1,p.b1))+etiquette(milieu(p.a2,p.b2));
+  hote.appendChild(svg);
 }
 function checkPdtAnswer(live){
   if(test.locked)return;
