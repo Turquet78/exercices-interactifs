@@ -608,6 +608,10 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
   #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
+  /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
+     ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
+     la famille pt- (dim, hs, hsc, bs, lc, ck…) et n'a pas à bouger pour elles. */
+  #aHost .pt-step{margin-bottom:32px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   #bsHost .f-num,#bsHost .f-den{width:94px} #bsHost .f-dec{width:130px}
   #lcHost .f-num,#lcHost .f-den{width:94px} #lcHost .f-dec{width:130px}
@@ -2173,7 +2177,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=250;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=251;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
