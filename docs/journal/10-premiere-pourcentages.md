@@ -1510,3 +1510,23 @@ virgule des centaines. La raison arithmétique ne change pas non plus : pour
 N = 100a + 10b avec b pair, N/20 = 5a + b/2 reste entier quel que soit a — la
 propriété qui fait tout l'exercice ne demandait jamais que b soit nul, elle
 demandait seulement qu'il soit pair.
+
+---
+
+**{augmenter-dix} (2.2.11) reçoit la pose facultative de l'addition finale,
+comme au 2.2.2** (demande de Turquet, septembre 2026). La dernière ligne de
+l'exercice — `adxA` (le prix de départ) + `adxB` (l'augmentation trouvée)
+= `adxC` (le nouveau prix) — est exactement la même forme que la ligne
+« départ + augmentation » du 2.2.2 (`g4a`/`g4b`/`g4r`) : même case
+`poseOpEleveMAJ` sait déjà tenir, sans rien y ajouter. `updateAdxStep6()`
+l'appelle avec `aId:'adxA', bId:'adxB', neg:false` (l'exercice ne diminue
+jamais, contrairement à {augmenter-addition}/{diminuer-soustraction} qui
+partagent `startEvolAdd`) ; la pose vit dans un `pt-step pt-opt step-hidden`
+neuf (`adxStep6`/`adxMul`), après la ligne du total, et reste — comme
+partout ailleurs — bâtie sur ce que l'ÉLÈVE a écrit dans `adxA`/`adxB`, pas
+sur la correction, cachée tant que les deux cases ne portent pas un entier
+positif, et non comptée dans `allOk`. `checkAdxAnswer()` gagne le même bloc
+de notation que `checkAG2Answer()` (cases jugées seulement si engagées,
+retenues facultatives, correction affichée en entraînement) : les deux
+exercices tiennent désormais le même bord par le même code, pas par deux
+copies qui auraient fini par diverger.

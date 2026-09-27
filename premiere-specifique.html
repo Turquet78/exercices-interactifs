@@ -2135,7 +2135,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=245;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=246;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6465,6 +6465,10 @@ async function startAdx(){
   test.maxScore=test.questions.length;
   show('adx'); renderAdx();
 }
+function updateAdxStep6(){
+  const q=test.questions&&test.questions[test.idx]; if(!q) return;
+  poseOpEleveMAJ({step:'adxStep6',host:'adxMul',aId:'adxA',bId:'adxB',neg:false});
+}
 function renderAdx(){
   const q=test.questions[test.idx]; test.locked=false;
   $('adxIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
@@ -6480,9 +6484,25 @@ function renderAdx(){
     `<div class="pt-row"><span class="f-whole">donc : l’augmentation est ${l.P} % de ${q.N} € est</span>${dec('adxP'+l.P,l.P+' % de '+q.N)}<span class="f-whole">€</span></div>`
   ).join('');
   const ligneTot=`<div class="pt-row"><span class="f-whole">donc : le prix augmenté est</span>${dec('adxA','prix de départ')}<span class="f-whole">+</span>${dec('adxB','augmentation')}${fEq(dec('adxC','prix augmenté'))}<span class="f-whole">€</span></div>`;
-  $('adxHost').innerHTML=`<div class="pt-step">${ligneBase}${lignesAug}${ligneTot}</div>`;
-  const order=['adx0'].concat(q.lignes.map(l=>'adxP'+l.P)).concat(['adxA','adxB','adxC']).map(id=>$(id));
-  order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkAdxAnswer();} }); });
+  const pose='<div class="mp-op" id="adxMul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseOpEleveMAJ) */
+  $('adxHost').innerHTML=`<div class="pt-step">${ligneBase}${lignesAug}${ligneTot}</div>`+
+    `<div class="pt-step pt-opt step-hidden" id="adxStep6"><div class="pt-lab">Pose l’addition en colonnes</div>
+       <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
+  const posedIns=[...$('adxMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=['adx0'].concat(q.lignes.map(l=>'adxP'+l.P)).concat(['adxA','adxB','adxC']).map(id=>$(id)).concat(posedIns);
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(!el) return;
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(['adxA','adxB'].includes(el.id)){ el.addEventListener('input',updateAdxStep6); el.addEventListener('focusout',updateAdxStep6); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkAdxAnswer();} });
+  });
+  updateAdxStep6();
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
 function checkAdxAnswer(live){
@@ -6492,6 +6512,7 @@ function checkAdxAnswer(live){
     liveColorDec('adx0',q.D,1);
     q.lignes.forEach(l=>liveColorDec('adxP'+l.P,l.val,1));
     liveColorDec('adxA',q.N,1); liveColorDec('adxB',q.aug,1); liveColorDec('adxC',q.total,1);
+    [...$('adxMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     return;
   }
   const v=id=>$(id).value.trim();
@@ -6499,12 +6520,37 @@ function checkAdxAnswer(live){
   const ok0=egal('adx0',q.D);
   const oksLignes=q.lignes.map(l=>egal('adxP'+l.P,l.val));
   const okA=egal('adxA',q.N), okB=egal('adxB',q.aug), okC=egal('adxC',q.total);
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');if(v(id)!=='')el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
+  const soutien=isSoutien();
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');if(v(id)!=='')el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
   mark('adx0',ok0);
   q.lignes.forEach((l,i)=>mark('adxP'+l.P, oksLignes[i]));
   mark('adxA',okA); mark('adxB',okB); mark('adxC',okC);
-  const allOk = ok0 && oksLignes.every(Boolean) && okA && okB && okC;
-  if(!allOk && isSoutien()){ soutienAgain('adxFeedback','adxActions','checkAdxAnswer','adxHost'); return; }
+  /* pose facultative : mêmes règles que la pose de l'addition du 2.2.2 */
+  const host=$('adxMul');
+  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
+  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
+  if(engaged){
+    boxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+    });
+    carries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv==='') return;
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+    });
+  } else {
+    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+  }
+  const allOk = ok0 && oksLignes.every(Boolean) && okA && okB && okC;   /* pose facultative non comptée */
+  if(!allOk && soutien){ soutienAgain('adxFeedback','adxActions','checkAdxAnswer','adxHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('adxLiveScore').textContent=test.score;
     $('adxFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('adxFeedback').className='mp-feedback good';
@@ -14981,9 +15027,9 @@ function conseilCtxCourant(){
       +'Aucun pourcentage n’est donné à l’avance dans l’énoncé, contrairement à {pourcentage} : c’est justement ce que la question demande de retrouver, sans les quatre propositions de {pourcentage-taux}.';
   } else if(k==='adx' && q){
     const detail=q.lignes.map(function(l){ return l.P+' % = '+l.val; }).join(' ; ');
-    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.D+' (toute écriture égale convient) ; '+detail+' ; prix augmenté = '+q.N+' + '+q.aug+' = '+q.total+' €. '
+    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.D+' (toute écriture égale convient) ; '+detail+' ; prix augmenté = '+q.N+' + '+q.aug+' = '+q.total+' € (pose en colonnes facultative). '
       +'Méthode enseignée, comme dans {pourcentage-dix} et {pourcentage-dix-cascade} : diviser le prix par 10 pour trouver 10 %, puis retrouver le pourcentage demandé en multipliant, divisant ou additionnant ce 10 % — un multiple de dix se trouve en multipliant 10 % ; 5 % en est la moitié ; 15 % = 10 % + 5 %. '
-      +'On termine en AJOUTANT l’augmentation trouvée au prix de départ : c’est cette dernière étape qui distingue cet exercice de {pourcentage-dix-cascade}, où l’on s’arrête au pourcentage.';
+      +'On termine en AJOUTANT l’augmentation trouvée au prix de départ, comme en {augmenter-addition} : c’est cette dernière étape qui distingue cet exercice de {pourcentage-dix-cascade}, où l’on s’arrête au pourcentage.';
   } else if(k==='pctq' && q){
     const lettres=['a','b','c','d'];
     const lbl=function(v){ return (q.type==='pct')?(v+' %'):(v+' '+q.unit); };
