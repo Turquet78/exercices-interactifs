@@ -1384,6 +1384,74 @@ donc attrapé nommément, avant toute mise en ligne.
 
 ---
 
+## {pourcentage-chaine} — composer deux pourcentages (Seconde, septembre 2026)
+
+**D'où il vient.** Une deuxième fiche PDF de Turquet, un seul exercice cette
+fois : « Dans un club de sport il y a 40 % de filles. Parmi les filles, 30 %
+font du basket. Elles représentent quel % du club ? », avec le même schéma en
+boîte que {pourcentage-boite} — mais à TROIS boîtes et DEUX flèches (le club,
+les filles, les basketteuses), plus une case à part qui reprend « … × … = … »
+en dessous, reliée par un trait au total et à la dernière boîte : le calcul en
+un seul coup, celui qui va directement du total au dernier sous-groupe. C'est
+le motif du chapitre « évolutions successives » — composer deux coefficients
+par une multiplication, jamais une addition — appliqué à une population
+plutôt qu'à une évolution dans le temps.
+
+**Aucun nombre de population, contrairement à {pourcentage-boite}.** L'énoncé
+du PDF n'en donne aucun : tout se lit en pourcentage DU TOTAL, qui vaut
+toujours 100 %. Ce choix évite toute condition de divisibilité sur un effectif
+N — le tirage de deux pourcentages dans `PCT_PCTS` (multiples de dix) suffit :
+`P1=10a`, `P2=10b` ⇒ `P1×P2=100ab`, donc `P1×P2/100=ab` est toujours entier,
+sans l'équivalent de `pctCoupleOk` que `PCT_VALEURS` réclame ailleurs.
+
+**Six cases, jamais quatre.** Le tout (toujours 100, mais une case comme les
+autres — la même convention que {pourcentage-boite} : « toutes les cases sont
+vides, même les nombres que l'énoncé donne déjà », étendue ici à une valeur
+qu'aucun énoncé ne donne, mais que le schéma suppose toujours vraie), les deux
+écritures décimales des flèches, le premier sous-groupe, le second, et le
+coefficient global de la deuxième rangée. `genPctChaine()` ne tire que P1 et
+P2 ; toutes les autres valeurs (le total, le combiné, le coefficient global)
+s'en déduisent au moment de vérifier, jamais au tirage — le motif déjà suivi
+par `genPctBoite()`.
+
+**Trois sens, comme {pourcentage-boite}, mais sans rien à résoudre à
+l'exécution.** `inc='comb'` (le cas de la fiche : P1 et P2 sont donnés dans
+l'énoncé, on cherche le combiné), `inc='p1'` et `inc='p2'` (le combiné et
+l'un des deux taux sont donnés, on cherche l'autre). Comme P1, P2 et leur
+produit sont tirés une seule fois par `genPctChaine()`, ces trois sens ne
+changent JAMAIS les nombres du schéma — seule la PHRASE de `pctcEnonce()`
+change ce qu'elle affirme et ce qu'elle demande, exactement la distinction que
+{pourcentage-boite} pose déjà entre le tirage et l'énoncé. `qdMelanger(['comb',
+'p1','p2'])` fait sortir chaque sens une fois sur les trois questions.
+
+**Une table de contextes neuve, `CTX_CHAINE`, pas `CTX_BOITE`.** Six mises en
+situation (club de sport — l'énoncé de la fiche, au mot près —, lycée,
+village, entreprise, bibliothèque, festival), chacune avec trois libellés de
+boîte (`total`, `niv1`, `niv2`) et trois phrases (`comb`, `p1`, `p2`). Aucune
+condition `nOk` : sans nombre de population à couvrir, un contexte convient
+toujours à n'importe quel tirage de P1, P2 — `tirerContexte()` n'a donc besoin
+d'aucun filtre ici, à la différence de `CTX_BOITE` et `CTX_PART`.
+
+**Bords tenus par les contrôles universels — un seul à ajouter à la main.**
+`pctc` a rejoint `testScreens` (sans quoi le banc de l'encadré Énoncé en
+serait resté aveugle, comme pour {pourcentage-boite}) ; `THEMES` (fin du
+sous-thème 4.1, juste après {pourcentage-boite}) ; `QIA_SUGG['pctc']` ;
+`RAPPELS_ID['pourcentage-chaine']` (`RAP_PCTC`) ; et la table `cles` de
+`RAPPELS_SECONDE` dans `tests/profils.js`. **Le premier essai du banc
+navigateur a rougi sur un bord que {pourcentage-boite} et
+{synthese-evolutions} ne lèvent pas** : « chaque écran d'exercice réserve la
+place des commandes flottantes » — `#scr-pctc`, le bas de la carte passait
+sous `#testCtrls`. Les deux exercices voisins s'en tirent SANS la réserve
+`padding-bottom:84px` parce que leur schéma tient sur une seule rangée ; le
+mien en tient DEUX (la chaîne à trois boîtes, puis la rangée du coefficient
+global), ce qui suffit à faire déborder la carte sur les écrans bas. La règle
+de `CLAUDE.md` (point 5 de la liste des quinze branchements) le dit déjà :
+elle n'a pas de condition sur le nombre de rangées, et ce premier essai est
+la preuve qu'il ne fallait pas la supposer inutile parce que deux voisins
+directs s'en passent.
+
+---
+
 **Une quatrième méthode, twin de {pourcentage-dix} : retrouver PLUSIEURS
 pourcentages, sans qu'aucun ne soit donné à l'avance.**
 {pourcentage-dix-cascade} (2.1.9, demande de Turquet, septembre 2026, à
