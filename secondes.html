@@ -34988,7 +34988,21 @@ function pfFracJuge(fn,fd,P,Q){
    aucun modèle papier à suivre, gardent l'ancienne présentation groupée (une
    seule barre, un seul dénominateur) : « deux » ne change que l'HTML et les
    deux cases de dénominateur qu'il faut remplir, jamais le calcul jugé. */
-function pfCroixHTML(pref, p,q_,r,s, op, labRn, deux, teteRn){
+/* « envolver » : le parenthésage que l'APPELANT ouvre (« 5/2 × ( » ou juste
+   « ( ») doit se refermer APRÈS le croisement et la valeur des fractions
+   croisées, jamais avant — sinon ces deux étapes s'écrivent comme si elles
+   valaient l'expression ENTIÈRE qui précède, alors qu'elles ne valent que ce
+   qu'il y avait dans la parenthèse (signalé par Turquet, septembre 2026, sur
+   {produit-difference-fractions}/{quotient-difference-fractions}/
+   {quotient-double-fractions} : « il manque des opérations » pour que les
+   égalités soient vraies). Quand `teteRn` réattache un facteur extérieur
+   (« 5/2 × ») à la valeur finale de la parenthèse, la fermeture vient AVANT
+   cette dernière étape — le facteur ne doit apparaître qu'UNE fois, pas
+   revenir À L'INTÉRIEUR de ce qu'il multiplie. Sans `teteRn`, rien ne
+   multiplie la parenthèse à ce stade : la fermeture vient donc APRÈS, une
+   fois la valeur connue. `envolver` ne change aucune case ni aucun jugement,
+   seulement où se pose le « ) » de l'appelant. */
+function pfCroixHTML(pref, p,q_,r,s, op, labRn, deux, teteRn, envolver){
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   const produit=(n,d,idA,idB)=>
     '<span class="f-frac-input sf-prod">'
@@ -35004,9 +35018,11 @@ function pfCroixHTML(pref, p,q_,r,s, op, labRn, deux, teteRn){
         +'<span class="sf-haut">'+mf(pref+'-n1','f-num','premier numérateur')+opHtml+mf(pref+'-n2','f-num','second numérateur')+'</span>'
         +'<span class="f-fbar"></span>'
         +mf(pref+'-d','f-den','dénominateur commun')+'</span>');
-  return fEq(produit(p,q_,pref+'-a1',pref+'-b1'))+opHtml+produit(r,s,pref+'-a2',pref+'-b2')
-    +etapeValeurs
-    +fEqTete(teteRn||'', fracSeule(pref+'-rn',pref+'-rd',labRn||'résultat','dénominateur du résultat'));
+  const cabeza = fEq(produit(p,q_,pref+'-a1',pref+'-b1'))+opHtml+produit(r,s,pref+'-a2',pref+'-b2')
+    +etapeValeurs;
+  const cola = fEqTete(teteRn||'', fracSeule(pref+'-rn',pref+'-rd',labRn||'résultat','dénominateur du résultat'));
+  if(!envolver) return cabeza+cola;
+  return teteRn ? (cabeza+')'+cola) : (cabeza+cola+')');
 }
 function pfCroixCases(pref, deux){ return [pref+'-a1',pref+'-b1',pref+'-a2',pref+'-b2',pref+'-n1',pref+'-n2']
   .concat(deux ? [pref+'-d1',pref+'-d2'] : [pref+'-d']).concat([pref+'-rn',pref+'-rd']); }
@@ -35356,10 +35372,10 @@ function renderPqdTest(){
      +(inv ? '④ diviser, c’est multiplier par l’INVERSE&nbsp;· ⑤ la fraction finale'
            : '④ la fraction finale')+'</div>'
      +'<div class="pt-row">'
-       +sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>(' +sfTermeHTML(q.c,q.d)+'<b>−</b>'+sfTermeHTML(q.e,q.f)+')'
+       +sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>(' +sfTermeHTML(q.c,q.d)+'<b>−</b>'+sfTermeHTML(q.e,q.f)
        +pfCroixHTML('pqd-x', q.c,q.d,q.e,q.f,'-','numérateur de la parenthèse', true,
-          sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>')
-       +pfProduitHTML('pqd', inv, undefined, true)
+          sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>', true)
+       +pfProduitHTML('pqd', inv, inv ? sfTermeHTML(q.a,q.b) : undefined, true)
      +'</div></div>';
   const order=pqdCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
@@ -35502,11 +35518,11 @@ function renderQdbTest(){
      +'② la parenthèse de DROITE&nbsp;: le croisement, puis la somme&nbsp;· '
      +'③ diviser, c’est multiplier par l’INVERSE de la parenthèse de droite&nbsp;· ④ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ⑤ la fraction finale</div>'
      +'<div class="pt-row">'
-       +'(' +sfTermeHTML(q.a,q.b)+'<b>−</b>'+sfTermeHTML(q.c,q.d)+')'
-       +pfCroixHTML('qdb-a', q.a,q.b,q.c,q.d,'-','numérateur de la parenthèse de gauche')
-       +'<b>÷</b>(' +sfTermeHTML(q.e,q.f)+'<b>+</b>'+sfTermeHTML(q.g,q.h)+')'
-       +pfCroixHTML('qdb-b', q.e,q.f,q.g,q.h,'+','numérateur de la parenthèse de droite')
-       +pfProduitHTML('qdb', true)
+       +'(' +sfTermeHTML(q.a,q.b)+'<b>−</b>'+sfTermeHTML(q.c,q.d)
+       +pfCroixHTML('qdb-a', q.a,q.b,q.c,q.d,'-','numérateur de la parenthèse de gauche', undefined, undefined, true)
+       +'<b>÷</b>(' +sfTermeHTML(q.e,q.f)+'<b>+</b>'+sfTermeHTML(q.g,q.h)
+       +pfCroixHTML('qdb-b', q.e,q.f,q.g,q.h,'+','numérateur de la parenthèse de droite', undefined, undefined, true)
+       +pfProduitHTML('qdb', true, '(' +sfTermeHTML(q.a,q.b)+'<b>−</b>'+sfTermeHTML(q.c,q.d)+')')
      +'</div></div>';
   const order=qdbCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
