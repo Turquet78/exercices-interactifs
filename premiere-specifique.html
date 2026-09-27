@@ -2162,7 +2162,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=248;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=249;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6553,12 +6553,12 @@ function genAdx(){
   let P, lignes;
   if(type==='mult10'){
     P=pick([20,30,40,50,60,70,80,90]);
-    lignes=[{P,val:D*(P/10)}];
+    lignes=[{P,val:N*P/100}];   /* N*P/100, jamais D*(P/10) : 0.4*3 dérape en 1.2000000000000002, N*P/100 reste exact */
   } else if(type==='cinq'){
-    P=5; lignes=[{P,val:D/2}];
+    P=5; lignes=[{P,val:N*5/100}];
   } else {
-    const val5=D/2;
-    P=15; lignes=[{P:5,val:val5},{P:15,val:D+val5}];
+    const val5=N*5/100;
+    P=15; lignes=[{P:5,val:val5},{P:15,val:N*15/100}];
   }
   const aug=lignes[lignes.length-1].val;
   const total=N+aug;
