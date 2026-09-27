@@ -1419,3 +1419,53 @@ liste de sélecteurs CSS que `#pxHost` (taille des `math-field.pm-mf`, largeur
 des `.f-dec`, aux deux tailles d'écran) — l'omettre aurait laissé les cases
 à la taille par défaut (1,05 rem) contre des nombres à 2 rem, et le contrôle
 générique l'aurait vu.
+
+---
+
+**Et {pourcentage-dix-cascade} a suivi {pourcentage-dix} sur le nombre de
+départ : trois familles, pas seulement les multiples de 20.** Demande de
+Turquet, septembre 2026 : « je veux que le nombre de départ soit un multiple
+de cent, ou un multiple de dix et pair, ou un chiffre des unités mais pair ».
+Le paragraphe précédent décrit le PREMIER tirage (`N%20===0` sur
+`PCT_VALEURS`) : il reste vrai pour l'histoire, mais `genPdc()` ne s'y limite
+plus. La question, à chaque famille, est la même : que doit valoir N pour que
+**5 % de N (N/20)** — la seule des sept lignes qui ne tombe pas déjà juste sur
+un multiple de dix ou de cent — s'écrive PROPREMENT, sans jamais gagner une
+décimale que la méthode enseignée (doubler, tripler, additionner) ne
+produirait pas ailleurs :
+- **multiple de CENT** : aucune contrainte de parité, N/20 = 5 × (N/100) est
+  toujours entier — c'est la famille qui n'existait pas avant, parce que
+  `PCT_VALEURS` ne montait qu'à 900 par pas de cent et que le filtre
+  `N%20===0` les acceptait déjà TOUTES (100 à 900 sont tous multiples de 20) ;
+  la nommer à part n'a rien changé au résultat, seulement à la LISIBILITÉ du
+  tirage.
+- **multiple de DIX (pas de cent), chiffre des dizaines PAIR** : exactement le
+  seul cas que l'ancien filtre retenait (20, 40, 60, 80) — N/20 reste entier.
+- **chiffre des UNITÉS non nul mais PAIR** (la famille NEUVE) : N n'est plus
+  un multiple de dix du tout — 34,2 par exemple. 10 % de N s'écrit alors avec
+  UNE décimale, et il faut que 5 % (sa moitié) en garde UNE SEULE : diviser
+  par 2 un nombre pair ne change jamais le nombre de décimales, quand une
+  unité impaire aurait donné un centième (34,15 pour 34,3) qu'aucune des
+  opérations enseignées (×2, ×3, ×4, ÷2, additions) ne produit sur les six
+  autres lignes — une case attendrait alors une précision que rien n'annonce.
+**`genPdcN()` tire la famille avant la valeur** (`pick(['cent','dix','unites'])`
+puis un `pick` dans la famille choisie), plutôt qu'un `pick` unique sur la
+concaténation des trois viviers : à plat, les 36 valeurs de la famille
+« unités » (9 dizaines × 4 unités paires) auraient écrasé les 9 multiples de
+cent et les 4 multiples de dix neuf fois sur dix, et l'exercice aurait cessé
+de ressembler à la fiche d'origine (qui ne connaît que des multiples de dix
+ou de cent) la plupart du temps.
+**Le même piège que {pourcentage-dix-cascade} n'avait pas encore payé, réglé
+par la même fonction que {pourcentage-dix}.** Une valeur décimale de N pose la
+même question que sur {pourcentage-dix} : « 3,2 élèves » ou « 3,2 articles »
+n'a pas de sens. `pct10CtxDecOk` — déjà écrite pour `genPct10()`, qui écarte
+les contextes `humain` et les articles dès que son N n'est pas multiple de
+dix — est réutilisée TELLE QUELLE comme quatrième argument de
+`tirerContexte(CTX_PART,N,null,…)`, appliqué seulement quand `N%10!==0` (les
+deux autres familles gardent tous les contextes, comme avant) : rien n'est
+recopié, la même fonction sert les deux exercices, et un contexte qui
+changerait pour l'un suivrait pour l'autre sans rien à répéter.
+`RAP_PDC` gagne une ligne d'exemple sur un nombre non multiple de dix (34 €),
+sur le modèle de la ligne ajoutée à `RAP_PCT10` par {pourcentage-dix} — un
+rappel qui ne montrerait que des multiples de dix mentirait sur la moitié des
+tirages désormais possibles.
