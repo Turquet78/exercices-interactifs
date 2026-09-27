@@ -1470,6 +1470,124 @@ sur le modèle de la ligne ajoutée à `RAP_PCT10` par {pourcentage-dix} — un
 rappel qui ne montrerait que des multiples de dix mentirait sur la moitié des
 tirages désormais possibles.
 
+---
+
+## {augmenter-taux-dix} — la 3ème méthode, appliquée à une augmentation
+## (Première seulement, septembre 2026)
+
+**D'où il vient.** Turquet a fourni deux pages d'une même fiche PDF, « 3ème
+méthode retrouver un pourcentage » : la première pose la question sur une
+proportion (12 élèves sur 30 ont la moyenne, quel pourcentage ?), la seconde
+sur une augmentation de prix (60 € devient 84 €, quel pourcentage
+d'augmentation ?). Demande explicite : « je veux uniquement le 10.5 [la
+seconde page], tu peux oublier le 10.4 ». L'exercice ne porte donc QUE le
+contexte de l'augmentation — la proportion d'un groupe n'a pas d'exercice
+dédié à cette méthode, {pourcentage-dix-cascade} (2.1.9) la couvre déjà par
+un autre biais (six pourcentages à la fois, un nombre donné, pas de valeur
+finale).
+
+**Le tirage du pourcentage cherché.** Règle donnée par Turquet, en toutes
+lettres : « le résultat doit être un multiple de 10 strictement au-dessus de
+10 et strictement inférieur à 100, ou bien un pourcentage multiple de 5 %
+impair et inférieur ou égal à 25 % ». Deux familles à poids ÉGAL (`pick`
+d'abord sur la famille, comme `genPdcN` le fait déjà pour le nombre de départ
+de {pourcentage-dix-cascade}, sans quoi les huit valeurs de la famille « dix »
+auraient écrasé les trois de la famille « cinq ») :
+- **`ATD_PCTS_DIX = [20,30,40,50,60,70,80,90]`** : le pourcentage s'obtient en
+  multipliant 10 % par un entier de 2 à 9.
+- **`ATD_PCTS_CINQ = [5,15,25]`** : « dans le cas où le pourcentage se termine
+  par un 5, demander à l'élève de trouver 5 % après le 10 %, pour ensuite
+  multiplier par le bon nombre » (Turquet). 5 % est la moitié de 10 %, et le
+  pourcentage cherché s'obtient en multipliant 5 % par 1, 3 ou 5.
+
+**Le nombre de départ.** `genAtdN(besoinCinq)` : sans la case des 5 %, N suit
+le même tirage que {augmenter-taux} (`rand(1,9)*10^k`, k de 1 à 3) — 10 % est
+alors TOUJOURS entier, aucune autre condition n'est nécessaire. Avec la case
+des 5 %, N doit rendre N/20 entier lui aussi : même condition, et le même
+remède, que la famille « cinq % » de `genPdcN` (2.1.9) — un multiple de CENT
+(aucune contrainte de parité) ou un multiple de DIX à dizaine PAIRE (20, 40,
+60, 80). La famille « chiffre des unités pair » de `genPdcN`, qui rend 10 %
+décimal, n'a pas de raison d'être reprise ici : rien dans la règle de Turquet
+ne demande un pourcentage décimal, et une phrase à trois cases (l'écart, 10 %,
+5 %) reste plus lisible avec des nombres entiers partout.
+
+**Le contexte et l'énoncé sont RECOPIÉS, pas redéfinis.** `AUGQ_CTX`,
+`AUGQ_EN_PCT`, `augqTirerCtx`, `augqCtx` — la table de sujets et la table de
+tournures de {augmenter-taux-addition} (« Un prix passe de 60 € à 84 € »,
+etc.) — sont réutilisées TELLES QUELLES : `q.N`, `q.fin`, `q.unit`, `q.ci`
+suivent exactement la même forme, et un contexte ajouté à `AUGQ_CTX` pour
+l'un des quatre exercices qui la lisent (`augmenter-depart`,
+`augmenter-taux`, leurs jumeaux « addition », et maintenant `augmenter-taux-dix`)
+vaut pour tous sans rien à répéter.
+
+**Une seule phrase, une seule taille de police par ligne — la classe
+`.pct10-ligne` de {pourcentage-dix} (2.1.8), reprise TELLE QUELLE sous un
+nouveau sélecteur (`#atdHost .pct10-ligne`), pas redéfinie.** Chaque étape est
+sa PROPRE ligne, jamais un mélange petit-label / grosse-case : l'écart
+(« {sujet} a augmenté de {fin} − {N} = ▢ {unité} »), 10 % (« 10 % de {N}
+{unité} = {N}/10 = ▢ {unité} »), 5 % quand il le faut, puis la ligne finale
+(« Il y a donc eu une augmentation de ▢ % »). Aucune ligne ne recopie une
+valeur déjà trouvée dans une AUTRE case : contrairement à la fiche papier
+(qui redemande l'écart ET le pourcentage sur la même ligne « donc : ... % de
+60€ = ... »), la version interactive ne pose CHAQUE nombre qu'UNE fois — deux
+cases qui attendraient la même valeur n'auraient rien vérifié de plus,
+seulement fait cliquer deux fois pour rien.
+
+**La note est TOUT ou RIEN**, comme {pourcentage-dix-cascade} : les 3 ou 4
+cases (`atd1` l'écart, `atd2` les 10 %, `atd3` les 5 % si besoin, `atd4` le
+pourcentage) doivent être toutes justes pour que la question compte un point,
+aucune case vide ne rougit, chacune se corrige en vert indépendamment des
+autres (`corTrainDec`).
+
+**`EVOL_NB` (3 questions), pas `PCT_NB`.** L'exercice n'appartient pas à la
+famille « prendre un pourcentage » (2.1.x, `PCT_NB=4`) mais à la famille
+« augmenter » (2.2.x) : il partage donc la même constante que
+{augmenter-taux-addition} et ses dix-neuf voisins, DEUX sources (la page a
+`EVOL_NB`, `tests/profils.js` compare à `nbQuestionsEvolutions`) — aucune des
+deux n'a besoin d'être touchée, la constante existait déjà et vaut toujours 3.
+
+**Ajouté en FIN du sous-thème « Augmenter d'un pourcentage »**, comme
+{pourcentage-dix} et {pourcentage-dix-cascade} l'avaient été en fin du leur.
+Visé au départ comme 2.2.11, juste après {synthese-augmentations-libre}
+(2.2.10) — mais {augmenter-dix} a fusionné sur `main` entre-temps (PR #353,
+même sous-thème, même position visée), prenant 2.2.11 le premier :
+{augmenter-taux-dix} devient donc 2.2.12, après {augmenter-dix}. Aucun
+exercice déjà noté n'est renuméroté — ni le sien, ni celui de personne
+d'autre.
+
+**`genAtd()` est déclaré AVANT `AUGQ_CTX`/`AUGQ_EN_PCT` dans le fichier**,
+exactement comme {pourcentage-dix-cascade} avait appris à ne lire
+`PCT_VALEURS` qu'à l'APPEL de `genPdc()`, jamais à la déclaration du script :
+`genAtd()`, `renderAtd()` et `checkAtdAnswer()` ne LISENT ces tables que dans
+leur CORPS, jamais au niveau du script — la fonction n'est appelée qu'au
+clic, longtemps après que le script entier (et donc `AUGQ_CTX`, plus bas dans
+le fichier) a fini de s'exécuter.
+
+**`startAtd` ne rejoint PAS le contrôle des vingt-deux démarreurs des
+évolutions** (`tests/verifier.js`, « les exercices sur les évolutions posent
+3 questions »), pour la même raison que {pourcentage-dix} n'est pas dans le
+contrôle jumeau des pourcentages (paragraphe plus haut) : cette liste et le
+contrôle qui la parcourt sont PARTAGÉS avec `secondes.html`, et `startAtd`
+n'existe que sur `premiere-specifique.html` — l'y ajouter ferait rougir la
+Seconde sur un démarreur absent EXPRÈS. `tests/verifier.js` porte un
+commentaire qui le dit explicitement, à l'endroit même où l'ajout aurait dû
+se faire, pour qu'il ne soit pas tenté en silence une seconde fois. Le
+tirage de {augmenter-taux-dix} reste couvert par le contrôle générique
+« aucune séance ne pose deux fois la même question » (qui appelle
+`startAtd` sans le nommer) et par le banc navigateur.
+
+**Bords tenus par les contrôles universels, sans rien déclarer de plus** :
+`atd` a rejoint `testScreens` (show), `afficherEcranDe` (reprise et rejeu),
+`restartCurrentTest`, `liveCheckCurrent`, et la liste des fonctions de rendu
+enveloppées en fin de script (jetons + boutons IA) — les cinq points que
+CLAUDE.md nomme explicitement risqués à l'oubli. `RAPPELS_ID` porte
+`'augmenter-taux-dix':RAP_ATD` (un rappel PROPRE à l'exercice, pas partagé
+par kind) et `QIA_SUGG.atd` ses quatre questions proposées — sans quoi
+`rappelDispo()` aurait averti en console, et la fenêtre d'aide serait
+retombée sur les questions génériques.
+
+---
+
 **Et la troisième famille a été resserrée le jour même : pas un chiffre des
 unités, un petit nombre.** Turquet, en relisant : « je veux que le nombre
 [...] soit un multiple de cent, ou un multiple de dix avec le chiffre des
@@ -1511,6 +1629,8 @@ N = 100a + 10b avec b pair, N/20 = 5a + b/2 reste entier quel que soit a — la
 propriété qui fait tout l'exercice ne demandait jamais que b soit nul, elle
 demandait seulement qu'il soit pair.
 
+---
+
 **{pourcentage-dix-taux} a gagné les flèches de sa fiche papier.** Turquet a
 fourni la fiche source du 2.1.10 (« 3ème méthode retrouver un pourcentage ») :
 deux traits courbes en pointillés relient le « 10 % » de départ au
@@ -1550,3 +1670,23 @@ pouvait le voir : rien n'y est faux, juste mal daté. Le garde tient sur la
 classe `pdt-fl`, posée UNE FOIS par `renderPdt()` pour LA question qu'il
 vient d'afficher — le seul repère qui date correctement, là où l'existence de
 `pdtP` ou de la case du résultat ne le fait pas.
+
+---
+
+**{augmenter-dix} (2.2.11) reçoit la pose facultative de l'addition finale,
+comme au 2.2.2** (demande de Turquet, septembre 2026). La dernière ligne de
+l'exercice — `adxA` (le prix de départ) + `adxB` (l'augmentation trouvée)
+= `adxC` (le nouveau prix) — est exactement la même forme que la ligne
+« départ + augmentation » du 2.2.2 (`g4a`/`g4b`/`g4r`) : même case
+`poseOpEleveMAJ` sait déjà tenir, sans rien y ajouter. `updateAdxStep6()`
+l'appelle avec `aId:'adxA', bId:'adxB', neg:false` (l'exercice ne diminue
+jamais, contrairement à {augmenter-addition}/{diminuer-soustraction} qui
+partagent `startEvolAdd`) ; la pose vit dans un `pt-step pt-opt step-hidden`
+neuf (`adxStep6`/`adxMul`), après la ligne du total, et reste — comme
+partout ailleurs — bâtie sur ce que l'ÉLÈVE a écrit dans `adxA`/`adxB`, pas
+sur la correction, cachée tant que les deux cases ne portent pas un entier
+positif, et non comptée dans `allOk`. `checkAdxAnswer()` gagne le même bloc
+de notation que `checkAG2Answer()` (cases jugées seulement si engagées,
+retenues facultatives, correction affichée en entraînement) : les deux
+exercices tiennent désormais le même bord par le même code, pas par deux
+copies qui auraient fini par diverger.

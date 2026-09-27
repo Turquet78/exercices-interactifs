@@ -1435,7 +1435,20 @@ function branchements(w){
      2026, en trois temps), plus les synthèses rédigées 2.2.10, 2.3.9 et 2.5.2
      et le QCM des coefficients 2.5.3. On appelle les VINGT-DEUX vrais
      démarreurs :
-     un nombre changé dans un démarreur partagé ne dit rien des autres. */
+     un nombre changé dans un démarreur partagé ne dit rien des autres.
+     {augmenter-taux-dix} (2.2.12, Première seulement, septembre 2026) N'Y
+     FIGURE PAS : cette liste et le contrôle qui la parcourt sont PARTAGÉS par
+     la Seconde (mêmes fichiers `tests/verifier.js` et `tests/profils.js`), et
+     `startAtd` n'existe que sur `premiere-specifique.html` — l'y ajouter
+     ferait rougir la Seconde sur un démarreur absent EXPRÈS, le même piège
+     que {pourcentage-dix} avait déjà évité au paragraphe ci-dessus. Ce que
+     ceci laisse SANS contrôle dédié : que `EVOL_NB` (et non un autre nombre)
+     règle bien ses séances — la valeur de la constante n'est vérifiée ici
+     que pour les VINGT-DEUX démarreurs nommés. Le contrôle générique
+     « aucune séance ne pose deux fois la même question », plus bas, et le
+     banc navigateur (section 9) font tourner `startAtd` sans le nommer et
+     couvrent le reste : pas d'erreur au tirage, pas de doublon sur 40
+     séances, les règles universelles de l'écran. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
@@ -3762,6 +3775,7 @@ function exercices(suite){
     teteCollee(w, P);
     poseSuitLEleve(w, P);
     poseOperationSuitLEleve(w, P);
+    poseAdditionAugmenterDix(w, P);
     correctionSignesVariations(w, P);
     termeEntierDansCaseCoefficient(w, P);
 
@@ -6819,6 +6833,36 @@ function poseOperationSuitLEleve(w, P){
       while((q.fam==='pct'||q.sens<0) && garde++<300){ test.questions[0]=q=genSyn(); }
       renderSynTest(); choisirSyMeth('dir');
     }, 'syPose', 'syMul', 'y4a', 'y4b', updateSynPose, false);
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- 2.2.11 : la même pose facultative que le 2.2.2 --------------
+   {augmenter-dix} n'est PAS partagé avec {augmenter-addition}/
+   {diminuer-soustraction} (pas de `startEvolAdd` commun, contrairement au
+   reste de ce groupe), donc un `startAdx` absent ne veut rien dire d'autre
+   que « ce niveau n'a pas cet exercice » — n'existant qu'en Première, il
+   sortirait « non applicable » en Seconde comme en Terminale, un contrôle
+   séparé plutôt qu'un essai de plus dans la liste ci-dessus. */
+function poseAdditionAugmenterDix(w, P){
+  const present = evaluer(w, "typeof poseOpEleveMAJ==='function' && typeof startAdx==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.2.11 : la pose de l\'addition finale suit les nombres de l\'élève',
+      'ce niveau n\'a pas l\'exercice {augmenter-dix}');
+    return;
+  }
+  verifierEval(w, '2.2.11 : la pose de l\'addition finale suit les nombres de l\'élève', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    startAdx();
+    const cache=()=>$('adxStep6').classList.contains('step-hidden');
+    if(!cache()){ vus.push('pose visible sans termes écrits'); return vus.join(' | '); }
+    $('adxA').value='6000'; $('adxB').value='300'; updateAdxStep6();
+    if(cache()){ vus.push('pose cachée avec 6000 + 300'); return vus.join(' | '); }
+    if($('adxMul').dataset.pose!=='+6000;300') vus.push('pose '+$('adxMul').dataset.pose+' au lieu de +6000;300 — elle montre la correction, pas l\\'élève');
+    $('adxB').value='63'; updateAdxStep6();
+    if($('adxMul').dataset.pose!=='+6000;63') vus.push('la pose ne suit pas un terme changé ('+$('adxMul').dataset.pose+')');
+    $('adxA').value='70,5'; updateAdxStep6();
+    if(!cache()) vus.push('un terme DÉCIMAL est posé en colonnes');
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
