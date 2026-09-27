@@ -1628,3 +1628,43 @@ virgule des centaines. La raison arithmétique ne change pas non plus : pour
 N = 100a + 10b avec b pair, N/20 = 5a + b/2 reste entier quel que soit a — la
 propriété qui fait tout l'exercice ne demandait jamais que b soit nul, elle
 demandait seulement qu'il soit pair.
+
+**{pourcentage-dix-taux} a gagné les flèches de sa fiche papier.** Turquet a
+fourni la fiche source du 2.1.10 (« 3ème méthode retrouver un pourcentage ») :
+deux traits courbes en pointillés relient le « 10 % » de départ au
+pourcentage cherché, et sa valeur en unités de l'énoncé au nombre final déjà
+donné dans l'énoncé — la même case de départ sert deux fois, une fois pour le
+pourcentage, une fois pour la quantité, et c'est ce doublage qui montre que
+c'est LE MÊME facteur des deux côtés. La demande : « je souhaite avoir des
+flèches comme dans le pdf pour trouver la multiplication ou la division ».
+
+Rien n'a changé dans le tirage ni dans la correction : la phrase « On
+multiplie par ... » garde la seule case qui compte pour la note (`pdtK`), les
+flèches ne sont qu'un appui visuel superposé, comme sur la fiche. Aucune
+flèche quand le pourcentage cherché EST 5 % : il n'y a alors aucune opération
+à montrer (la branche existante restait déjà telle quelle).
+
+La technique est celle de {croiser-denominateurs} (Seconde) : des POSITIONS
+MESURÉES dans la page — jamais des coordonnées supposées, qui se décaleraient
+au premier changement de police, de largeur d'énoncé ou d'unité — via un SVG
+superposé, redessiné à chaque question et au redimensionnement. Une seule
+différence de géométrie : {croiser-denominateurs} croise deux flèches sur la
+MÊME ligne (les deux fractions de départ) ; ici les deux flèches DESCENDENT
+d'une ligne à l'autre (le « 10 % » ou le « 5 % » vers la ligne « donc »), donc
+la courbe part de la verticale au lieu de l'aplatir au milieu. Nouvelle
+couleur, `--pdt-fl` (le même violet que `--crd-a`, choisi pour ne pas se
+confondre avec le bleu du juste, le vert de la correction ni le rouge du
+faux) : un fichier différent, la même intention.
+
+**Le piège qui ne s'est vu qu'en ouvrant vraiment la page.** Les deux
+`setTimeout` qui laissent MathLive finir de poser ses cases (60 ms, 240 ms,
+le même délai que {croiser-denominateurs}) peuvent se déclencher APRÈS que la
+question suivante a déjà remplacé le DOM — si l'élève répond vite. Le
+redessin retardé retrouvait alors `pdtP` et le nombre final de la NOUVELLE
+question (ces deux-là existent sur TOUTE question, flèches ou pas) et
+dessinait quand même, cette fois sur une case dont le pourcentage cherché EST
+5 % — l'écran qui n'a justement rien à montrer. Aucun banc statique ne
+pouvait le voir : rien n'y est faux, juste mal daté. Le garde tient sur la
+classe `pdt-fl`, posée UNE FOIS par `renderPdt()` pour LA question qu'il
+vient d'afficher — le seul repère qui date correctement, là où l'existence de
+`pdtP` ou de la case du résultat ne le fait pas.
