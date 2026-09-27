@@ -1854,3 +1854,51 @@ cinquième case qui n'apparaît que pour l'inconnue « pourcentage » (et son
 absence sur les deux autres), et le verdict case par case sur deux copies
 ÉPINGLÉES — une hausse, une baisse — juste puis fautive d'une seule case,
 plus une case laissée vide qui ne rougit jamais.
+
+---
+
+## {augmenter-taux-dix} — la ligne de l'écart, EN LIGNE, restaurée en tête (Première, septembre 2026)
+
+**D'où ça vient.** Après la refonte en deux lignes fléchées (section
+ci-dessus), Turquet a rouvert la fiche PDF et pointé sa toute première ligne,
+absente du nouvel écran : « je veux qu'il y ait toujours la ligne au début de
+la résolution du calcul de l'écart en ligne comme dans le pdf joint ». La
+fiche s'ouvre en effet sur « Le prix à augmenter de ..... − ...... = ....... € »
+AVANT même la ligne des 10 % — une phrase EN LIGNE (horizontale, comme le
+reste de l'écran), pas la soustraction posée en colonnes.
+
+**Une confusion à ne pas faire : « en ligne » ne veut pas dire « posée ».**
+La refonte précédente avait retiré l'écart comme case à trouver, remplacé par
+l'augmentation affichée EN CLAIR dans la ligne fléchée du bas, et avait ajouté
+une soustraction FACULTATIVE mais POSÉE EN COLONNES (`atdSub`,
+`buildPoseSub`). Cette dernière n'a rien à voir avec la demande : elle reste
+en place, elle est POSÉE, jamais EN LIGNE, et jamais obligatoire. Ce qui
+manquait, c'est la phrase que la fiche écrit AVANT toute case posée — une
+ligne comme les autres de `.pct10-ligne`, dans la continuité du texte, avec
+UNE seule case à compléter (le résultat ; N et fin restent en gras, jamais
+retapés — la convention constante de tout le thème 2, jamais celle de la
+fiche papier qui, elle, fait réécrire les deux opérandes).
+
+**`atd1` revient, à la place exacte qu'il occupait avant la refonte, EN
+PREMIÈRE ligne de l'écran** : « {sujet} a augmenté de **fin** − **N** = ▢
+{unité} », de nouveau une case NOTÉE (elle rejoint `allOk`, avec sa
+correction `corTrainDec` et sa coloration `liveColorDec`, comme avant la
+refonte). Elle est numériquement REDONDANTE avec l'augmentation montrée en
+clair dans la ligne fléchée du bas — et c'est voulu, pas un oubli : la fiche
+fait exactement cela, calculer le même écart par deux chemins (une
+soustraction directe, puis 10 % multiplié par le bon facteur) pour que
+l'élève VÉRIFIE que les deux méthodes retombent sur le même nombre. Le même
+motif existe déjà ailleurs dans le thème — {augmenter-dix} (2.2.11) fait
+ÉCRIRE l'addition `N + augmentation = total` en ligne ET propose, EN PLUS,
+la même addition posée en colonnes comme appui facultatif — seule la nature
+de la redondance change : ici c'est le MÊME calcul refait par une AUTRE
+méthode, pas le même calcul reposé sous une autre forme.
+
+**Rien d'autre n'a bougé.** `orderIds` gagne `'atd1'` en tête (avant `'atd0'`),
+la navigation au clavier et l'ordre de tabulation le suivent automatiquement,
+puisqu'ils se construisent depuis ce tableau. `checkAtdAnswer` note `ok1`
+comme les quatre autres cases, sans toucher au calcul de `allOk` au-delà d'y
+ajouter ce cinquième terme. Le commentaire de tête de l'exercice et la
+branche `k==='atd'` de `conseilCtxCourant()` ont suivi, pour que le contexte
+envoyé au modèle décrive le même écran que celui que l'élève voit — la même
+discipline que la refonte précédente.
