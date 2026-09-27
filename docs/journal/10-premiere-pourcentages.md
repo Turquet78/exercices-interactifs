@@ -1450,7 +1450,32 @@ elle n'a pas de condition sur le nombre de rangées, et ce premier essai est
 la preuve qu'il ne fallait pas la supposer inutile parce que deux voisins
 directs s'en passent.
 
----
+**Les trois boîtes perdent leur case (Turquet, septembre 2026) : elles ne
+portent plus que le nom de l'effectif.** Le schéma d'origine calquait
+{pourcentage-boite} au pied de la lettre — « toutes les cases sont vides,
+même les nombres que l'énoncé donne déjà » — et faisait donc remplir le
+total (toujours 100), le premier sous-groupe et le second EN PLUS des deux
+écritures décimales des flèches. Turquet a demandé l'inverse : aux
+extrémités des flèches, plus aucune case, seulement le nom de la boîte
+(`${ctx.total}`, `${ctx.niv1}`, `${ctx.niv2}`) — `boiteLab()` remplace
+`boitePct()`, qui posait un `math-field` et un « % » à côté du libellé.
+L'exercice ne juge donc plus `pctcT`/`pctcA`/`pctcB` ; il reste `pctcD1` et
+`pctcD2` sur les deux petites flèches, tenus par le même critère qu'avant
+(`parseDecToFrac` contre `P1/100` et `P2/100`).
+
+**La rangée du coefficient global devient une vraie flèche, et une vraie
+multiplication à trois cases.** L'ancienne rangée n'avait qu'un « × [case] »
+sans premier facteur écrit — le libellé disait « en un seul calcul » sans
+qu'aucun calcul ne soit visible. `.pctc-global` porte maintenant
+`.pctc-global-shaft`, une grande flèche qui relie visuellement la première
+boîte à la dernière (le même triangle CSS que `.pctb-shaft::after`, à
+l'échelle de la rangée entière plutôt que d'un seul segment), puis
+`.pctc-calc` : « `[pctcG1]` × `[pctcG2]` = `[pctcG]` » — les deux écritures
+décimales REPRISES (même critère que `pctcD1`/`pctcD2`, une case à part qui
+« reprend » le calcul déjà posé plus haut, jamais une lecture croisée des
+deux premières cases) et leur produit, jugé comme `pctcG` l'était déjà. Le
+barème ne change pas : une question reste juste ou fausse en bloc, et
+`test.maxScore` ne compte que les questions, jamais les cases.
 
 **Une quatrième méthode, twin de {pourcentage-dix} : retrouver PLUSIEURS
 pourcentages, sans qu'aucun ne soit donné à l'avance.**
