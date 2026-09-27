@@ -1298,10 +1298,12 @@
 #pqdHost .f-whole{font-size:1.35rem}
 /* La parenthèse qui enveloppe la différence tient dans le même budget de
    largeur que le reste de la rangée (voir le paragraphe ci-dessus, 1368 px
-   mesurés à 1400 px de fenêtre) : un trait de 9 px partout ailleurs y aurait
+   mesurés à 1400 px de fenêtre) : un trait de 14 px partout ailleurs y aurait
    ajouté quatre fois deux traits — la rangée répète désormais « a/b OP ( … ) »
-   à CHAQUE « = » (Turquet, septembre 2026, demande relayée par le journal). */
-#pqdHost .f-par{width:5px;border-width:2px}
+   à CHAQUE « = » (Turquet, septembre 2026, demande relayée par le journal).
+   9 px/3 px — plus rond que le premier essai (5 px/2 px, jugé trop plat,
+   Turquet, septembre 2026) — reste mesuré sous ce même budget. */
+#pqdHost .f-par{width:9px;border-width:3px}
 /* Un plancher GLOBAL (`math-field.pm-mf.f-num,.f-den{min-width:56px}`, plus
    loin dans cette feuille) tenait toutes les cases de {quotient-double-
    fractions} à 56 px quel que soit le rétrécissement ci-dessus — vingt-six
@@ -1912,9 +1914,16 @@
      empruntent leur courbe à un border-radius elliptique (un seul bord
      coloré, les trois autres transparents — pas de dessin, pas de mesure JS).
      Chaque hôte à cases (#pqdHost, etc.) règle sa PROPRE largeur de trait,
-     comme il règle déjà sa propre taille de fraction juste en dessous. */
-  .f-pgrp{display:inline-flex;align-items:stretch;gap:1px}
-  .f-par{align-self:stretch;width:9px;border:3px solid transparent;border-radius:50%;box-sizing:border-box}
+     comme il règle déjà sa propre taille de fraction juste en dessous — plus
+     ce trait est large, plus la courbe se voit (c'est elle qui rend la
+     parenthèse « ronde », le rayon elliptique est déjà à son maximum).
+     SEULS LES DEUX BORDS s'étirent (align-self:stretch, posé sur .f-par) —
+     le groupe lui-même reste centré (align-items:center), sinon le contenu
+     qu'il enveloppe (une fraction, un signe) s'étire à son tour et son
+     signe ne tombe plus sur son trait (Turquet, septembre 2026 : ce que la
+     parenthèse enveloppait avait perdu la règle universelle). */
+  .f-pgrp{display:inline-flex;align-items:center;gap:1px}
+  .f-par{align-self:stretch;width:14px;border:4px solid transparent;border-radius:50%;box-sizing:border-box}
   .f-par-l{border-left-color:var(--ink)}
   .f-par-r{border-right-color:var(--ink)}
   .pt-opt{position:relative;border:2px dashed #c2cdf2;background:#fafbff;border-radius:16px;padding:30px 14px 14px;margin:6px 0 18px}
@@ -4620,7 +4629,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=231;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=232;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
