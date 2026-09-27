@@ -973,3 +973,51 @@ chaque « = » une égalité vraie**, puis en remplissant les quatre copies
 juste (H, I, J) pour vérifier qu'aucune case ni aucun jugement n'avait
 bougé — la note reste pleine sans passer par une case qui n'existe plus,
 exactement comme avant ce correctif.
+
+**Et Turquet est revenu sur « le facteur extérieur ne doit reparaître
+qu'UNE fois » (septembre 2026, troisième session sur H/I) — la solution qui
+tenait la LARGEUR a fini par perdre la LECTURE.** Fermer la parenthèse
+tard (paragraphe ci-dessus) rend chaque « = » vrai, mais seulement pour qui
+sait lire une égalité qui vit ENTRE deux parenthèses encore ouvertes : au
+premier degré, la rangée s'ouvre sur « a/b OP ( c/d − e/f » et n'affiche
+« a/b OP » nulle part avant le troisième « = » — Turquet a demandé que
+CHAQUE « = » remontre la multiplication, `a/b OP ( … )`, complète, et
+qu'elle ne disparaisse qu'au DERNIER « = », celui où elle est enfin
+EFFECTUÉE. C'est très exactement la « rustine la plus simple » que la
+session précédente avait écartée pour la largeur — Turquet l'a redemandée
+en connaissance de cause, budget de largeur compris (« quitte à rétrécir
+encore »).
+
+**`pfCroixHTML()`/`pfProduitHTML()` restent intacts : {somme-produit-
+fractions} (G) et {quotient-double-fractions} (J) les utilisent encore
+tels quels.** Une troisième fonction, `pqdRowHTML(q, inv)`, construit
+désormais la rangée de H/I seule, en clair plutôt qu'en `envolver`/`teteRn`
+empilés : cinq blocs `a/b OP ( … )` de suite — l'énoncé, le croisement, la
+valeur des deux fractions croisées, la parenthèse réduite à une fraction
+seule, puis (I seulement) son inverse —, et un dernier bloc nu, le
+résultat, là où la multiplication est ENFIN effectuée. Les identifiants de
+case (`pqd-x-a1`…`pqd-fn`/`pqd-fd`) sont EXACTEMENT ceux que lisent déjà
+`pqdJuge`/`pqdCases`/`pqdPeindre`/`pqdCorrection` : rien n'a bougé côté
+jugement, seule la mise en page change.
+
+**Une parenthèse aussi haute que ce qu'elle contient, sans mesure JS.**
+Écrire `a/b OP (` en texte brut, à côté d'une fraction empilée sur deux
+étages, redonnait le même défaut que celui visé par la règle universelle
+« les parenthèses sont aussi grandes que ce qu'elles contiennent » : un
+« ( » de la hauteur d'un chiffre à côté d'un trait de fraction. `fParen()`
+(fonction partagée, à côté de `fEq`/`fEqTete`) enveloppe son contenu dans un
+groupe flex (`.f-pgrp`) qui s'étire à la hauteur de son plus grand enfant ;
+ses deux bords (`.f-par`) s'étirent avec lui et empruntent leur courbe à un
+`border-radius:50%` sur une boîte étroite et haute — un seul bord coloré
+(gauche ou droit), les trois autres transparents. Aucune mesure : la
+hauteur vient du flex, group par groupe, jamais d'un calcul après coup — et
+un groupe voisin plus haut ou plus bas ne change rien à celui-ci.
+
+**La largeur, elle, s'est bien reposée — et résolue par le même geste que la
+première fois : rétrécir CE budget-là, pas ailleurs.** `#pqdHost .f-par`
+règle sa PROPRE largeur de trait (5 px, 2 px de bord), plus étroite que le
+défaut (9 px, 3 px) qui vaut pour tout le reste de la page — la même
+doctrine que `#pqdHost .f-whole`/`.f-eq`/`.f-times` juste au-dessus, chacun
+son budget. {quotient-difference-fractions} (I), qui ajoute le maillon de
+l'inverse, redessine `a/b` CINQ fois sur sa rangée au lieu des quatre de H ;
+c'est ce cas, le plus large des deux, qui a fixé le budget.

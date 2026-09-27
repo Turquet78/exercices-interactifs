@@ -1296,6 +1296,12 @@
    (.f-whole, dans pfCroixHTML) — resté à 2rem tant qu'il n'est pas nommé
    ici, la case tombait à 68 % de sa taille. */
 #pqdHost .f-whole{font-size:1.35rem}
+/* La parenthèse qui enveloppe la différence tient dans le même budget de
+   largeur que le reste de la rangée (voir le paragraphe ci-dessus, 1368 px
+   mesurés à 1400 px de fenêtre) : un trait de 9 px partout ailleurs y aurait
+   ajouté quatre fois deux traits — la rangée répète désormais « a/b OP ( … ) »
+   à CHAQUE « = » (Turquet, septembre 2026, demande relayée par le journal). */
+#pqdHost .f-par{width:5px;border-width:2px}
 /* Un plancher GLOBAL (`math-field.pm-mf.f-num,.f-den{min-width:56px}`, plus
    loin dans cette feuille) tenait toutes les cases de {quotient-double-
    fractions} à 56 px quel que soit le rétrécissement ci-dessus — vingt-six
@@ -1901,6 +1907,16 @@
      10 pour la conclusion du 4.4), et un 12 figé aurait écarté le groupe
      autrement que ce qui l'entoure — visible à l'œil, et invisible au code. */
   .f-grp{display:flex;align-items:center;gap:inherit}
+  /* Parenthèse aussi haute que ce qu'elle contient (voir fParen) : un groupe
+     flex qui s'étire à la hauteur de son plus grand enfant, et deux bords qui
+     empruntent leur courbe à un border-radius elliptique (un seul bord
+     coloré, les trois autres transparents — pas de dessin, pas de mesure JS).
+     Chaque hôte à cases (#pqdHost, etc.) règle sa PROPRE largeur de trait,
+     comme il règle déjà sa propre taille de fraction juste en dessous. */
+  .f-pgrp{display:inline-flex;align-items:stretch;gap:1px}
+  .f-par{align-self:stretch;width:9px;border:3px solid transparent;border-radius:50%;box-sizing:border-box}
+  .f-par-l{border-left-color:var(--ink)}
+  .f-par-r{border-right-color:var(--ink)}
   .pt-opt{position:relative;border:2px dashed #c2cdf2;background:#fafbff;border-radius:16px;padding:30px 14px 14px;margin:6px 0 18px}
   .pt-opt .pt-lab{margin-top:2px}
   .pt-opt::before{content:"✦ Facultatif";position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:"Fredoka";font-weight:600;font-size:.74rem;color:var(--blue-dark);background:#fff;border:1.5px solid #c2cdf2;border-radius:999px;padding:3px 13px;white-space:nowrap}
@@ -1935,12 +1951,14 @@
   /* ===== {synthese-evolutions} : le MÊME schéma en boîte, avec un signe
      (1 + / 1 −) et, pour l'inconnue « pourcentage », la flèche de retour
      « −1 » de la fiche — un texte, pas un dessin mesuré : la doctrine du
-     bloc ci-dessus vaut ici aussi. Turquet (septembre 2026) : cette flèche
-     part de la case du coefficient (sous la grande flèche) et remonte vers
-     celle du « ×(1 ± …) » (au-dessus) — elle est donc accrochée à la case du
-     coefficient, pas dans une rangée à part en dessous. */
+     bloc ci-dessus vaut ici aussi. Turquet (septembre 2026, deuxième pose) :
+     cette flèche se lit comme un aller-retour ENTRE la case du pourcentage
+     (au-dessus) et celle du coefficient (en dessous) — elle se pose donc au
+     niveau du TRAIT de la grande flèche, entre les deux, et non plus accrochée
+     à la case du coefficient comme la première pose le faisait. */
   .evb-rev-row{margin-top:8px}
-  .evb-rev-arrow{font-family:"Fredoka";font-weight:700;font-size:1.15rem;color:var(--ink-soft);white-space:nowrap}
+  .evb-rev-arrow{font-family:"Fredoka";font-weight:700;font-size:1.15rem;color:var(--ink-soft);white-space:nowrap;
+    position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:8px}
   #evbHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
   #evbHost math-field.pm-mf.evb-pct{min-width:58px;max-width:110px}
   @media(max-width:900px){ #evbHost math-field.pm-mf{font-size:1.4rem} }
@@ -4720,6 +4738,20 @@ function fEqTete(tete, boite){
 }
 /* Le « = » nu devant une case : même groupe, sans tête. */
 function fEq(boite){ return fEqTete('', boite); }
+/* UNE PARENTHÈSE AUSSI HAUTE QUE CE QU'ELLE CONTIENT (Turquet, septembre
+   2026) : un « ( » de la hauteur d'un chiffre à côté d'une fraction empilée
+   se lit de travers — il ne referme rien qu'on puisse voir. .f-pgrp est un
+   groupe flex qui s'étire à la hauteur de son plus grand enfant ; ses deux
+   bords (.f-par) s'étirent avec lui (align-self:stretch) et EMPRUNTENT LEUR
+   COURBE au rayon elliptique d'un border-radius à 50 % sur une boîte étroite
+   et haute — un seul bord coloré, les trois autres transparents. Aucune
+   mesure JS : la hauteur vient du flex, pas d'un calcul apres coup, et un
+   groupe voisin plus haut ou plus bas ne change rien à CELUI-ci, qui ne
+   s'étire qu'à la hauteur de SON contenu. */
+function fParen(inner){
+  return '<span class="f-pgrp"><span class="f-par f-par-l" aria-hidden="true"></span>'
+       + inner + '<span class="f-par f-par-r" aria-hidden="true"></span></span>';
+}
 /* ---- rangee de jetons + clavier a l'ecran (convention terminale) ---- */
 let pmLastMF=null;
 document.addEventListener('focusin',e=>{
@@ -20819,17 +20851,18 @@ function renderEvbTest(){
   $('evbFeedback').textContent=''; $('evbFeedback').className='mp-feedback';
   $('evbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEvbAnswer()">Vérifier</button>';
   $('evbPrompt').innerHTML=evbEnonce(q);
-  /* La flèche « −1 » part de la case du coefficient (sous la grande flèche)
-     et remonte vers celle du « ×(1 ± …) » (au-dessus) : elle est accrochée à
-     la case du coefficient, pas dans une rangée à part (Turquet, septembre
-     2026). */
+  /* La flèche « −1 » se pose ENTRE les deux cases, au niveau du trait de la
+     grande flèche — pas dans la rangée du bas, en face de la case du
+     coefficient, comme avant (Turquet, septembre 2026 : posée là, elle se
+     lisait comme une annotation DE la case du coefficient, alors qu'elle relie
+     les deux cases entre elles). */
   $('evbHost').innerHTML=
     `<div class="pctb-row">
        <div class="pctb-box"><div class="pctb-lab">Avant</div><math-field class="dexp-mf pm-mf" id="evbN" aria-label="valeur avant"></math-field></div>
        <div class="pctb-arrow">
          <div class="pctb-af"><span class="pctb-af-x">× (1 ${neg?'−':'+'}</span><math-field class="dexp-mf pm-mf evb-pct" id="evbP" aria-label="le pourcentage en écriture décimale"></math-field><span class="pctb-af-x">)</span></div>
-         <div class="pctb-shaft" aria-hidden="true"></div>
-         <div class="pctb-af"><span class="pctb-af-x">×</span><math-field class="dexp-mf pm-mf" id="evbC" aria-label="coefficient"></math-field>${pct?'<span class="evb-rev-arrow" aria-hidden="true">↑ −1</span>':''}</div>
+         <div class="pctb-shaft" aria-hidden="true">${pct?'<span class="evb-rev-arrow">↑ −1</span>':''}</div>
+         <div class="pctb-af"><span class="pctb-af-x">×</span><math-field class="dexp-mf pm-mf" id="evbC" aria-label="coefficient"></math-field></div>
        </div>
        <div class="pctb-box"><div class="pctb-lab">Après</div><math-field class="dexp-mf pm-mf" id="evbF" aria-label="valeur après"></math-field></div>
      </div>`+
@@ -35590,6 +35623,48 @@ function pqdGen(inv){
 const PQD_NB=4;
 function pqdBuildQuestions(inv){ const qs=[]; for(let i=0;i<PQD_NB;i++) qs.push(distincte(qs, function(){ return pqdGen(inv); })); return qs; }
 function pqdCases(){ return pfCroixCases('pqd-x', true).concat(pfProduitCases('pqd', !!(test&&test.inv), true)); }
+/* La rangée de {produit-difference-fractions}/{quotient-difference-fractions} :
+   APRÈS CHAQUE « = », on retrouve la multiplication a/b OP ( … ) — jamais un
+   « = » nu qui rouvre une parenthèse sans redire ce qu'elle multiplie — et on
+   la GARDE tant qu'elle n'est pas EFFECTUÉE : seul le DERNIER « = » la
+   remplace par le résultat (Turquet, septembre 2026 — la pose d'avant fermait
+   la parenthèse APRÈS le croisement entier, sans jamais répéter a/b avant ce
+   point : les deux premiers « = » se lisaient nus, à l'intérieur d'une
+   parenthèse encore ouverte). Les identifiants de cases sont ceux
+   qu'attendent pqdJuge/pqdCases/pqdPeindre/pqdCorrection, inchangés : seule
+   la MISE EN PAGE change ici — voir aussi fParen pour la hauteur des
+   parenthèses. */
+function pqdRowHTML(q, inv){
+  const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
+  const fracSeule=(idN,idD,labN,labD)=>'<span class="f-frac-input">'+mf(idN,'f-num',labN)+'<span class="f-fbar"></span>'+mf(idD,'f-den',labD)+'</span>';
+  const produit=(n,d,idA,idB)=>
+    '<span class="f-frac-input sf-prod">'
+      +'<span class="sf-l"><span class="f-whole">'+n+'</span><span class="f-times">×</span>'+mf(idA,'f-num','multiplicateur du numérateur')+'</span>'
+      +'<span class="f-fbar"></span>'
+      +'<span class="sf-l"><span class="f-whole">'+d+'</span><span class="f-times">×</span>'+mf(idB,'f-den','multiplicateur du dénominateur')+'</span>'
+    +'</span>';
+  const moins='<span class="f-times">−</span>';
+  const tete=sfTermeHTML(q.a,q.b);
+  const teteAvec=signe=>tete+'<b>'+signe+'</b>';
+  const opInitial=inv?'÷':'×';
+  const finalBox='<span class="f-frac-input">'+mf('pqd-fn','f-num','numérateur du résultat')
+     +'<span class="f-fbar"></span>'+mf('pqd-fd','f-den','dénominateur du résultat')+'</span>';
+  let h = teteAvec(opInitial)+fParen(sfTermeHTML(q.c,q.d)+moins+sfTermeHTML(q.e,q.f));
+  h += fEq(teteAvec(opInitial)+fParen(
+        produit(q.c,q.d,'pqd-x-a1','pqd-x-b1')+moins+produit(q.e,q.f,'pqd-x-a2','pqd-x-b2')));
+  h += fEq(teteAvec(opInitial)+fParen(
+        fracSeule('pqd-x-n1','pqd-x-d1','premier numérateur','premier dénominateur')+moins
+       +fracSeule('pqd-x-n2','pqd-x-d2','second numérateur','second dénominateur')));
+  h += fEq(teteAvec(opInitial)+fParen(
+        fracSeule('pqd-x-rn','pqd-x-rd','numérateur de la parenthèse','dénominateur du résultat')));
+  if(inv){
+    const inverseBox='<span class="f-frac-input">'+mf('pqd-i1','f-num','numérateur de l’inverse')
+       +'<span class="f-fbar"></span>'+mf('pqd-i2','f-den','dénominateur de l’inverse')+'</span>';
+    h += fEq(teteAvec('×')+fParen(inverseBox));
+  }
+  h += fEq(finalBox);
+  return h;
+}
 function renderPqdTest(){
   const q=test.questions[test.idx]; test.locked=false;
   const inv=!!(test && test.inv);
@@ -35598,17 +35673,13 @@ function renderPqdTest(){
   $('pqdLiveScore').textContent=test.score;
   $('pqdFeedback').textContent=''; $('pqdFeedback').className='mp-feedback';
   $('pqdActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkPqdAnswer()">Vérifier</button>';
-  $('pqdPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>'+(inv?'÷':'×')+'</b> ( '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f)+' ).';
+  $('pqdPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>'+(inv?'÷':'×')+'</b> '
+    +fParen(sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f))+'.';
   $('pqdHost').innerHTML=
      '<div class="pt-step"><div class="pt-lab">① mettre au même dénominateur (le croisement)&nbsp;· ② la valeur de chaque fraction croisée&nbsp;· ③ la différence sur ce dénominateur&nbsp;· '
      +(inv ? '④ diviser, c’est multiplier par l’INVERSE&nbsp;· ⑤ la fraction finale'
            : '④ la fraction finale')+'</div>'
-     +'<div class="pt-row">'
-       +sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>(' +sfTermeHTML(q.c,q.d)+'<b>−</b>'+sfTermeHTML(q.e,q.f)
-       +pfCroixHTML('pqd-x', q.c,q.d,q.e,q.f,'-','numérateur de la parenthèse', true,
-          sfTermeHTML(q.a,q.b)+'<b>'+(inv?'÷':'×')+'</b>', true)
-       +pfProduitHTML('pqd', inv, inv ? sfTermeHTML(q.a,q.b) : undefined, true)
-     +'</div></div>';
+     +'<div class="pt-row">'+pqdRowHTML(q, inv)+'</div></div>';
   const order=pqdCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault();
