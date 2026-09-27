@@ -1747,6 +1747,77 @@ remesurer l'entier du résultat — déjà exigé par ailleurs sur `genSyn('aug'
 et `genSyn('dim')`, remesurer ici aurait dupliqué un contrôle sans rien
 prouver de plus.
 
+---
+
+## {augmenter-taux-dix} — refonte de la présentation (Première, septembre 2026)
+
+**D'où ça vient.** Une fois {augmenter-taux-dix} en ligne (section ci-dessus),
+Turquet a demandé que sa présentation suive plus fidèlement la fiche PDF, sur
+le modèle de ce qui existait déjà pour {pourcentage-dix-taux} (2.1.10) : « je
+veux que ce soit présenté comme le pdf deux lignes l'une en dessous de l'autre
+avec des flèches et une multiplication à trouver et le % à compléter [...] la
+ligne au-dessus des flèches serait "10 % de 9000 habitants est : ......." la
+ligne en dessous serait "....% de 9000 habitant est 1800." ». Deux exigences
+de plus, dans le même message : espacer un peu plus les lignes, et proposer la
+soustraction posée en facultatif, « comme dans l'exercice 2.2.6 avec une
+addition ».
+
+**La bascule décisive : l'augmentation n'est plus une case à trouver.** Dans
+la première version (ci-dessus), la toute première ligne demandait l'écart
+`fin − N` dans une case. Sur l'exemple donné par Turquet, ce nombre (1800)
+est écrit EN CLAIR dans la seconde ligne, pas dans une case — logique : la
+fiche part de DEUX valeurs déjà connues (60 € et 84 €), et la méthode des 10 %
+sert à retrouver le POURCENTAGE, jamais l'écart, qu'une simple soustraction
+donne déjà à partir de ce que l'énoncé affiche. Retirer cette case a un
+second effet, cherché lui aussi : elle libère la place pour la vraie demande
+de la fiche, une case pour le FACTEUR par lequel on multiplie (`atdK`), que la
+version précédente n'avait jamais proposée séparément.
+
+**{augmenter-taux-dix} et {pourcentage-dix-taux} deviennent le MÊME écran,
+sur un contexte différent.** `q.aug` (l'augmentation) joue ici exactement le
+rôle de `q.result` en 2.1.10 (le P % cherché de N) : une fois ce
+rapprochement vu, `atdPoints`/`atdDessinerFleches` sont des copies conformes
+de `pdtPoints`/`pdtDessinerFleches` — jusqu'aux noms de variables — et
+`atdArc` n'existe même pas : `pdtArc` ne dépend d'aucun nom propre au 2.1.10
+(deux points, une couleur, un identifiant de marqueur), il se réutilise TEL
+QUEL. Seuls les identifiants DOM changent de préfixe (`pdt*` → `atd*`), la
+classe qui déclenche le dessin (`pdt-fl` → `atd-fl`) et l'espacement des
+lignes, VOLONTAIREMENT plus grand ici (`margin:16px 0` contre `6px 0` en
+2.1.10, demande explicite « espacer les lignes un peu plus ») : une phrase
+plus longue (l'unité de l'énoncé, nommée en toutes lettres) et deux flèches
+au lieu d'une paire courte ont besoin de plus de respiration. La case
+`atdK` (le facteur) n'existe QUE quand une multiplication reste à faire —
+jamais quand le pourcentage cherché EST 5 %, où trouver 5 % suffit déjà,
+exactement comme `pdtK` en 2.1.10.
+
+**La soustraction facultative ne suit personne : elle est déjà connue.** En
+{augmenter-dix} (2.2.11) et {augmenter-taux-addition} (2.2.6), la pose
+facultative suit des cases que l'ÉLÈVE remplit lui-même (`poseOpEleveMAJ`
+relit `adxA`/`adxB` ou `g4a`/`g4b` à chaque frappe, parce que ces nombres
+n'existent nulle part avant que l'élève les tape). Ici, les deux opérandes de
+la soustraction (`q.fin` et `q.N`) sont connus dès le tirage de la question —
+ils sont écrits dans l'énoncé lui-même. Passer par `poseOpEleveMAJ` aurait
+donc fait suivre par la pose une saisie qui n'existe pas : `buildPoseSub`
+est appelé UNE FOIS, à l'affichage de la question, avec les deux valeurs
+connues, et la pose ne bouge plus ensuite — jamais cachée par un
+`step-hidden`, contrairement aux trois exercices qui l'ont précédée. Elle
+suit la même règle de notation que les trois : ses cases (`.mp-box`,
+`.mp-carry`) ne comptent JAMAIS dans `allOk`, seulement si l'élève y touche
+(`engaged`), avec les mêmes pastilles ✓/✗ et corrections `.mp-fix`/`.sol`.
+
+**Les autres branchements n'ont pas bougé.** `test.kind` reste `'atd'`,
+`genAtd`/`startAtd`/`checkAtdAnswer`/`nextAtdQuestion`/`finishAtd` gardent
+leurs noms — seul `renderAtd` change de forme, et `checkAtdAnswer` note
+désormais `atd0`/`atd5`/`atdK`/`atdP` au lieu de `atd1`/`atd2`/`atd3`/`atd4`.
+`TESTS`, `THEMES`, `testScreens`, `afficherEcranDe`, `restartCurrentTest`,
+`liveCheckCurrent`, `RAPPELS_ID` (le rappel de cours décrit la MÉTHODE, pas
+les cases à l'écran : il reste juste tel quel), `QIA_SUGG` n'ont donc rien à
+changer ; seule la branche `k==='atd'` de `conseilCtxCourant()` a suivi le
+nouveau jeu de cases, pour ne jamais donner au modèle un identifiant qui
+n'existe plus à l'écran.
+
+---
+
 **Puis Turquet a précisé : « je voulais qu'il soit présenté avec un schéma
 exactement comme sur le pdf ».** Le paragraphe ci-dessus décrit le premier
 jet — le moteur QCM+chaîne du 2.5.1, réutilisé tel quel — et il répondait à
