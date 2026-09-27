@@ -6557,13 +6557,14 @@ async function finishPdt(){
    prix, première ligne) soit TOUJOURS pair — ou, pour les petits N, une
    décimale qui le reste — afin que la moitié de D (le cas des 5 %, dans les
    deux formes qui en ont besoin) ne tombe jamais sur plus d'une décimale :
-   · un nombre à 3 chiffres, multiple de dix, dizaines paires (100 à 980) ;
+   · un nombre à 3 chiffres, multiple de dix, dizaines paires, centaines 1, 2
+     ou 3 (100 à 380 — demande de Turquet, septembre 2026) ;
    · un nombre à 2 chiffres, multiple de dix, dizaines paires (20,40,60,80) ;
    · un nombre entre 1 et 8, pair (2,4,6,8) : 10 % s'écrit alors à une
      décimale (0,2 à 0,8), comme le second vivier de {pourcentage-dix}. */
 function genAdxN(){
   const fam=pick(['trois','deux','unite']);
-  if(fam==='trois') return 100*rand(1,9) + 10*pick([0,2,4,6,8]);
+  if(fam==='trois') return 100*pick([1,2,3]) + 10*pick([0,2,4,6,8]);
   if(fam==='deux')  return 10*pick([2,4,6,8]);
   return pick([2,4,6,8]);
 }
