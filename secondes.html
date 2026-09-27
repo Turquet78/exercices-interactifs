@@ -1946,17 +1946,24 @@
   @media(max-width:900px){ #evbHost math-field.pm-mf{font-size:1.4rem} }
   @media(max-width:560px){ #evbHost math-field.pm-mf{font-size:1.2rem;min-width:60px} }
   /* ===== {pourcentage-chaine} : le MÊME schéma en boîte, mais à trois boîtes
-     et deux flèches (le total, puis un sous-groupe, puis un sous-sous-groupe)
-     — .pctb-row accueille les cinq éléments sans rien changer à ses règles,
-     flex-wrap tenant déjà la coupure sur petit écran. La deuxième rangée
-     donne le coefficient global, en un seul calcul du total au dernier
-     sous-groupe : le motif de la « flèche de retour » de {synthese-evolutions},
-     réemployé pour une flèche qui saute une étape au lieu d'en défaire une. */
-  .pctc-row2{margin-top:8px}
-  .pctc-row2-lab{font-family:"Fredoka";font-weight:700;font-size:1.05rem;color:var(--ink-soft);text-align:center}
+     et deux flèches (le total, puis un sous-groupe, puis un sous-sous-groupe).
+     Les boîtes ne portent PLUS de case depuis septembre 2026 (demande de
+     Turquet) : à leurs extrémités, les flèches ne montrent plus que le NOM de
+     l'effectif — .pctb-box/.pctb-lab suffisent, sans le math-field ni le « % »
+     que {pourcentage-boite} garde, lui, à ses deux boîtes. En dessous des deux
+     petites flèches, une grande flèche relie directement la première boîte à
+     la dernière ; sous elle, une multiplication à compléter — les deux
+     écritures décimales, reprises, puis leur produit — donne le coefficient
+     global en un seul calcul, sans repasser par le sous-groupe intermédiaire. */
+  .pctc-global{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;margin-top:14px}
+  .pctc-global-shaft{width:min(94%,640px);height:3px;background:var(--ink);border-radius:2px;position:relative;margin:4px 0}
+  .pctc-global-shaft::after{content:'';position:absolute;top:50%;right:-1px;transform:translate(50%,-50%);
+    width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:13px solid var(--ink)}
+  .pctc-global-lab{font-family:"Fredoka";font-weight:700;font-size:1.05rem;color:var(--ink-soft);text-align:center}
+  .pctc-calc{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
   #pctcHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
   @media(max-width:900px){ #pctcHost math-field.pm-mf{font-size:1.4rem} }
-  @media(max-width:560px){ #pctcHost math-field.pm-mf{font-size:1.2rem;min-width:60px} .pctb-row{gap:14px} .pctc-row2-lab{font-size:.92rem} }
+  @media(max-width:560px){ #pctcHost math-field.pm-mf{font-size:1.2rem;min-width:60px} .pctb-row{gap:14px} .pctc-global-lab{font-size:.92rem} }
 
 /* --- Aide à la saisie (dérivées) + invite f'(x) --- */
 .equation .ask{display:block;margin-top:10px;font-size:.5em;color:var(--chalk-soft);font-weight:600;letter-spacing:.02em;}
@@ -4602,7 +4609,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=229;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=230;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -19687,27 +19694,33 @@ function renderPctChaineTest(){
   $('pctcFeedback').textContent=''; $('pctcFeedback').className='mp-feedback';
   $('pctcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkPctChaineAnswer()">Vérifier</button>';
   $('pctcPrompt').innerHTML=pctcEnonce(q);
-  const boitePct=(lab,id)=>`<div class="pctb-box"><div class="pctb-lab">${esc(lab)}</div><span style="display:flex;align-items:center;gap:4px"><math-field class="dexp-mf pm-mf" id="${id}" aria-label="${esc(lab)}"></math-field><span class="pctb-af-x">%</span></span></div>`;
+  const boiteLab=lab=>`<div class="pctb-box"><div class="pctb-lab">${esc(lab)}</div></div>`;
   $('pctcHost').innerHTML=
     `<div class="pctb-row">
-       ${boitePct(ctx.total,'pctcT')}
+       ${boiteLab(ctx.total)}
        <div class="pctb-arrow">
          <div class="pctb-af"><span class="pctb-af-x">×</span><math-field class="dexp-mf pm-mf" id="pctcD1" aria-label="écriture décimale du premier pourcentage"></math-field></div>
          <div class="pctb-shaft" aria-hidden="true"></div>
        </div>
-       ${boitePct(ctx.niv1,'pctcA')}
+       ${boiteLab(ctx.niv1)}
        <div class="pctb-arrow">
          <div class="pctb-af"><span class="pctb-af-x">×</span><math-field class="dexp-mf pm-mf" id="pctcD2" aria-label="écriture décimale du second pourcentage"></math-field></div>
          <div class="pctb-shaft" aria-hidden="true"></div>
        </div>
-       ${boitePct(ctx.niv2,'pctcB')}
+       ${boiteLab(ctx.niv2)}
      </div>
-     <div class="pctb-row pctc-row2">
-       <div class="pctc-row2-lab">${esc(ctx.total)} → ${esc(ctx.niv2)} en un seul calcul&nbsp;: coefficient global</div>
-       <span class="pctb-af-x" aria-hidden="true">×</span>
-       <math-field class="dexp-mf pm-mf" id="pctcG" aria-label="coefficient multiplicateur global"></math-field>
+     <div class="pctc-global">
+       <div class="pctc-global-shaft" aria-hidden="true"></div>
+       <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.niv2)} en un seul calcul&nbsp;: coefficient global</div>
+       <div class="pctc-calc">
+         <math-field class="dexp-mf pm-mf" id="pctcG1" aria-label="écriture décimale du premier pourcentage, reprise dans le calcul global"></math-field>
+         <span class="pctb-af-x">×</span>
+         <math-field class="dexp-mf pm-mf" id="pctcG2" aria-label="écriture décimale du second pourcentage, reprise dans le calcul global"></math-field>
+         <span class="pctb-af-x">=</span>
+         <math-field class="dexp-mf pm-mf" id="pctcG" aria-label="coefficient multiplicateur global"></math-field>
+       </div>
      </div>`;
-  const order=['pctcT','pctcD1','pctcA','pctcD2','pctcB','pctcG'].map(id=>$(id));
+  const order=['pctcD1','pctcD2','pctcG1','pctcG2','pctcG'].map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPctChaineAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
@@ -19716,24 +19729,20 @@ function checkPctChaineAnswer(live){
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
   if(live){
-    const col=(id,target)=>{ const el=$(id); if(!el||el.disabled) return; const val=v(id);
-      el.classList.remove('ok','bad'); if(val==='') return;
-      const n=parseInt(val,10); el.classList.add((!isNaN(n)&&n===target)?'ok':'bad'); };
-    col('pctcT',100); col('pctcA',q.P1); col('pctcB',q.comb);
-    liveColorDec('pctcD1',q.P1,100); liveColorDec('pctcD2',q.P2,100); liveColorDec('pctcG',q.comb,100);
+    liveColorDec('pctcD1',q.P1,100); liveColorDec('pctcD2',q.P2,100);
+    liveColorDec('pctcG1',q.P1,100); liveColorDec('pctcG2',q.P2,100); liveColorDec('pctcG',q.comb,100);
     return;
   }
-  const okT=v('pctcT')!=='' && parseInt(v('pctcT'),10)===100;
-  const okA=v('pctcA')!=='' && parseInt(v('pctcA'),10)===q.P1;
-  const okB=v('pctcB')!=='' && parseInt(v('pctcB'),10)===q.comb;
   const fr1=parseDecToFrac(v('pctcD1')), okD1=!!fr1 && fr1.n*100===q.P1*fr1.d;
   const fr2=parseDecToFrac(v('pctcD2')), okD2=!!fr2 && fr2.n*100===q.P2*fr2.d;
+  const frG1=parseDecToFrac(v('pctcG1')), okG1=!!frG1 && frG1.n*100===q.P1*frG1.d;
+  const frG2=parseDecToFrac(v('pctcG2')), okG2=!!frG2 && frG2.n*100===q.P2*frG2.d;
   const frG=parseDecToFrac(v('pctcG')), okG=!!frG && frG.n*100===q.comb*frG.d;
   // une case vide ne rougit jamais (règle universelle) : mark() ne colore que
   // les cases écrites, et chacune se juge SEULE contre sa valeur canonique
   const mark=(id,ok)=>{ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien(); };
-  mark('pctcT',okT); mark('pctcD1',okD1); mark('pctcA',okA); mark('pctcD2',okD2); mark('pctcB',okB); mark('pctcG',okG);
-  const allOk=okT&&okA&&okB&&okD1&&okD2&&okG;
+  mark('pctcD1',okD1); mark('pctcD2',okD2); mark('pctcG1',okG1); mark('pctcG2',okG2); mark('pctcG',okG);
+  const allOk=okD1&&okD2&&okG1&&okG2&&okG;
   if(!allOk && isSoutien()){ soutienAgain('pctcFeedback','pctcActions','checkPctChaineAnswer','pctcHost'); return; }
   test.locked=true;
   const d1Str=pDecStr(q.P1), d2Str=pDecStr(q.P2), gStr=pDecStr(q.comb);
@@ -19742,12 +19751,12 @@ function checkPctChaineAnswer(live){
   } else {
     $('pctcFeedback').textContent=`Réponse : 100 % × ${d1Str} = ${q.P1} %, puis ${q.P1} % × ${d2Str} = ${q.comb} % — en un seul calcul : ${d1Str} × ${d2Str} = ${gStr}`;
     $('pctcFeedback').className='mp-feedback bad';
-    corTrainDec('pctcT','100'); corTrainDec('pctcD1',d1Str); corTrainDec('pctcA',String(q.P1));
-    corTrainDec('pctcD2',d2Str); corTrainDec('pctcB',String(q.comb)); corTrainDec('pctcG',gStr);
+    corTrainDec('pctcD1',d1Str); corTrainDec('pctcD2',d2Str);
+    corTrainDec('pctcG1',d1Str); corTrainDec('pctcG2',d2Str); corTrainDec('pctcG',gStr);
   }
   const enonce=pctcEnonce(q).replace(/<[^>]+>/g,'');
-  const given=`${v('pctcT')||'—'} % / ${v('pctcD1')||'—'} / ${v('pctcA')||'—'} % / ${v('pctcD2')||'—'} / ${v('pctcB')||'—'} % / ${v('pctcG')||'—'}`;
-  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`100 % ; ${d1Str} ; ${q.P1} % ; ${d2Str} ; ${q.comb} % ; ${gStr}`, given, correct:allOk});
+  const given=`${v('pctcD1')||'—'} / ${v('pctcD2')||'—'} / ${v('pctcG1')||'—'} × ${v('pctcG2')||'—'} = ${v('pctcG')||'—'}`;
+  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${d1Str} ; ${d2Str} ; ${d1Str} × ${d2Str} = ${gStr}`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('pctcActions').innerHTML=`<button class="btn btn-primary" id="pctcNext" onclick="nextPctChaineQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   $('pctcNext').focus();
