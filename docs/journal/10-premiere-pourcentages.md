@@ -1983,3 +1983,44 @@ ajouter ce cinquième terme. Le commentaire de tête de l'exercice et la
 branche `k==='atd'` de `conseilCtxCourant()` ont suivi, pour que le contexte
 envoyé au modèle décrive le même écran que celui que l'élève voit — la même
 discipline que la refonte précédente.
+
+## {augmenter-taux-dix} — plus de division devant les cases, conclusion recentrée sur le pourcentage (Première, septembre 2026)
+
+**D'où ça vient.** Demande de Turquet : « je ne veux voir aucune division ou
+fraction devant les cases à remplir quand on calcule 10 % ou 5 % d'un
+nombre », et « remplacer la phrase de conclusion par "donc le pourcentage
+d'augmentation est de ..... %" ». Les deux lignes fléchées écrivaient jusque
+là `N/10 = ▢` et `N/20 = ▢` avant les cases (`frac10`, `frac20`, posées via
+`mlTex`) — exactement ce que {pourcentage-dix-taux} (2.1.10), dont l'écran est
+pourtant le jumeau par la PRÉSENTATION (section ci-dessus), ne fait déjà pas :
+`renderPdt` n'a jamais affiché cette division. L'écart entre les deux jumeaux
+n'était donc pas voulu, seulement hérité du tout premier jet de l'exercice.
+
+**Les deux fractions retirées, sans toucher au calcul.** `frac10` et `frac20`
+disparaissent ; les lignes deviennent « 10 % de N {unité} est : ▢ {unité} » et
+« 5 % de N {unité} est : ▢ {unité} ». `mlTex` reste utilisé ailleurs dans le
+fichier (2.1.8, 3.1.4) : rien à toucher là-bas, la fonction ne perd qu'un
+appelant.
+
+**La phrase de conclusion ne réaffiche plus l'augmentation.** Avant : « donc
+▢ % de N {unité} est **aug** {unité}. » — la valeur de l'augmentation y était
+VOLONTAIREMENT reprise en clair (section ci-dessus, « une ligne restaurée en
+tête ») pour que l'élève vérifie que la soustraction directe (`atd1`, en tête
+d'écran) et la méthode par les 10 % retombent sur le même nombre. Turquet a
+tranché : cette redite disparaît, la ligne se limite à « donc le pourcentage
+d'augmentation est de ▢ %. » (précédée de « On multiplie par ▢ : » quand une
+multiplication reste à faire, comme avant). Le double calcul de l'écart
+(`atd1` en tête, puis 10 % × le bon facteur) reste noté et vérifié exactement
+comme avant — seul ce qui s'AFFICHE en fin de ligne change, `checkAtdAnswer`
+et son message d'erreur ne bougent pas.
+
+**Un piège en cascade : la disparition du `<span id="atdFlValDst">`.** La
+seconde flèche de `atdPoints`/`atdDessinerFleches` reliait la case des 10 %
+(ou 5 %) à ce span, pour montrer visuellement que sa valeur et l'augmentation
+réaffichée coïncident. Le span n'existant plus, laisser `atdPoints` le
+chercher aurait fait échouer CHAQUE lecture (`if(!srcVal || !dstVal) return
+null`) et supprimé les DEUX flèches, y compris la première qui reste, elle,
+pleinement valide. `atdPoints` et `atdDessinerFleches` sont donc réduits à une
+seule flèche — du « 10 % »/« 5 % » de départ vers le pourcentage trouvé
+(`atdP`) — plutôt que d'être copiés-collés avec une branche morte : la
+présentation garde EXACTEMENT ce qu'il reste de sens à montrer.
