@@ -978,7 +978,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    plusieurs lignes empilées. */
 #pxHost .pct10-ligne,#atdHost .pct10-ligne,#pdtHost .pct10-ligne{font-size:1.6rem;font-family:"Fredoka";font-weight:500;color:var(--ink);line-height:1.6;text-align:center;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:8px;row-gap:4px;}
 #pxHost .pct10-ligne math-field.pm-mf,#atdHost .pct10-ligne math-field.pm-mf,#pdtHost .pct10-ligne math-field.pm-mf{font-size:calc(1.6rem * var(--tab-nb,1));vertical-align:baseline;}
-#pdtHost .pct10-ligne{margin:6px 0;}
+#pdtHost .pct10-ligne{margin:14px 0;}
 /* {augmenter-taux-dix} (2.2.12, refonte de septembre 2026) : les lignes
    s'espacent PLUS que chez {pourcentage-dix-taux} (demande de Turquet,
    « espacer les lignes un peu plus ») — deux flèches ET une phrase plus
@@ -2173,7 +2173,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=249;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=250;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6362,13 +6362,11 @@ function renderPdt(){
   $('pdtActions').innerHTML='<button class="btn btn-primary" onclick="checkPdtAnswer()">Vérifier</button>';
   $('pdtPrompt').innerHTML=variante(QD_ENONCES_PCT,q);
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
-  const frac10=mlTex('\\frac{'+q.N+'}{10}', q.N+'/10');
-  let html=`<div class="pct10-ligne">On commence par déterminer <b id="pdtFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} : ${frac10} = ${dec('pdt0','dix pour cent de '+q.N)} ${esc(q.unit)}</div>`;
+  let html=`<div class="pct10-ligne">On commence par déterminer <b id="pdtFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} : ${q.N} ÷ 10 = ${dec('pdt0','dix pour cent de '+q.N)} ${esc(q.unit)}</div>`;
   const order=['pdt0'];
   const donc=`donc : ${dec('pdtP','le pourcentage cherché')}&nbsp;% de ${q.N} ${esc(q.unit)} = <span id="pdtFlValDst">${q.result}</span> ${esc(q.unit)}`;
   if(q.cinq){
-    const frac5=mlTex('\\frac{'+q.d10+'}{2}', q.d10+'/2');
-    html+=`<div class="pct10-ligne">On continue en déterminant <b id="pdtFlPct5">5</b>&nbsp;% de ${q.N} ${esc(q.unit)} : ${frac5} = ${dec('pdt5','cinq pour cent de '+q.N)} ${esc(q.unit)}</div>`;
+    html+=`<div class="pct10-ligne">On continue en déterminant <b id="pdtFlPct5">5</b>&nbsp;% de ${q.N} ${esc(q.unit)} : ${q.d10} ÷ 2 = ${dec('pdt5','cinq pour cent de '+q.N)} ${esc(q.unit)}</div>`;
     order.push('pdt5');
     if(q.P===5){
       html+=`<div class="pct10-ligne">${donc}</div>`;
