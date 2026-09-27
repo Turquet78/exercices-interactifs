@@ -6720,20 +6720,27 @@ async function finishAdx(){
    flèches courbes MESURÉES (atdPoints/atdDessinerFleches, copies conformes de
    pdtPoints/pdtDessinerFleches — `pdtArc` est générique et se réutilise TEL
    QUEL) — le second bord du piège déjà noté pour {croiser-denominateurs} :
-   des coordonnées devinées se décalent au premier changement de police. La ligne
-   du dessus donne 10 % (ou 5 %, la moitié de 10 %, quand le pourcentage
+   des coordonnées devinées se décalent au premier changement de police.
+   TOUJOURS EN TÊTE de la résolution, une ligne EN LIGNE (horizontale, jamais
+   posée) reprend le tout premier calcul de la fiche PDF : l'écart lui-même,
+   « {sujet} a augmenté de fin − N = ▢ {unité} » (`atd1`) — retirée puis
+   RESTAURÉE (demande de Turquet, « je veux qu'il y ait toujours la ligne au
+   début de la résolution du calcul de l'écart en ligne comme dans le pdf »),
+   elle compte de nouveau dans la note. Suivent les DEUX lignes fléchées : la
+   ligne du dessus donne 10 % (ou 5 %, la moitié de 10 %, quand le pourcentage
    cherché se termine par un 5) ; la ligne du dessous donne le pourcentage
    cherché ET, s'il en faut une, la multiplication qui y mène — l'AUGMENTATION
-   (fin − N) y est donnée EN CLAIR, comme un fait déjà connu de l'énoncé (qui
-   donne déjà N et fin) : passer par 10 % sert à retrouver le POURCENTAGE, pas
-   l'écart, qu'une simple soustraction donne. Cette soustraction reste
-   proposée EN PLUS, posée en colonnes et FACULTATIVE (demande de Turquet,
-   comme l'addition de {augmenter-dix} 2.2.11 et de {augmenter-taux-addition}
-   2.2.6) — mais ses deux opérandes (fin et N) sont déjà connus de l'énoncé,
-   jamais tapés par l'élève : elle se construit donc une fois pour toutes à
-   l'affichage de la question, avec `buildPoseSub`, sans passer par
-   `poseOpEleveMAJ` (fait pour suivre une saisie qui n'existe pas ici). Elle
-   ne compte jamais dans la note.
+   (fin − N) y est réaffichée EN CLAIR, cette fois comme le résultat que
+   l'élève vient de trouver en tête d'écran, pour vérifier que les deux
+   méthodes (soustraction directe, puis 10 % × le bon facteur) retombent sur
+   le même nombre — exactement ce que fait la fiche en reprenant les mêmes
+   ..... deux fois. La soustraction posée en COLONNES, elle, reste EN PLUS et
+   FACULTATIVE (demande de Turquet, comme l'addition de {augmenter-dix} 2.2.11
+   et de {augmenter-taux-addition} 2.2.6) — un appui pour qui veut la voir
+   posée, jamais la case qui compte : ses deux opérandes (fin et N) sont déjà
+   connus de l'énoncé, jamais tapés par l'élève, donc construite une fois pour
+   toutes à l'affichage de la question, avec `buildPoseSub`, sans passer par
+   `poseOpEleveMAJ` (fait pour suivre une saisie qui n'existe pas ici).
    Le pourcentage cherché suit deux familles, à poids égal :
    · un multiple de DIX strictement entre 10 et 100 (20 à 90) : il s'obtient
      en multipliant 10 % par 2 à 9, sans jamais passer par 5 %.
@@ -6788,8 +6795,14 @@ function renderAtd(){
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
   const frac10=mlTex('\\frac{'+q.N+'}{10}', q.N+'/10');
   const hasK=!q.besoinCinq || q.P!==5;
-  let html=`<div class="pct10-ligne"><b id="atdFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} est : ${frac10} = ${dec('atd0','dix pour cent en '+q.unit)} ${esc(q.unit)}</div>`;
-  const orderIds=['atd0'];
+  /* La ligne de l'écart, EN LIGNE (horizontale), TOUJOURS en tête de la
+     résolution — c'est la toute première ligne de la fiche PDF (« Le prix à
+     augmenter de ..... − ...... = ....... € »), demande de Turquet : elle ne
+     se confond pas avec la soustraction FACULTATIVE posée en colonnes plus
+     bas (atdSub), qui reste un appui, jamais la case qui compte. */
+  let html=`<div class="pct10-ligne">${augqCtx(q).s} a augmenté de <b>${q.fin}</b> − <b>${q.N}</b> = ${dec('atd1','l’augmentation en '+q.unit)} ${esc(q.unit)}</div>`;
+  html+=`<div class="pct10-ligne"><b id="atdFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} est : ${frac10} = ${dec('atd0','dix pour cent en '+q.unit)} ${esc(q.unit)}</div>`;
+  const orderIds=['atd1','atd0'];
   const donc=`donc ${dec('atdP','le pourcentage cherché')}&nbsp;% de ${q.N} ${esc(q.unit)} est <span id="atdFlValDst">${q.aug}</span> ${esc(q.unit)}.`;
   if(q.besoinCinq){
     const frac20=mlTex('\\frac{'+q.N+'}{20}', q.N+'/20');
@@ -6886,6 +6899,7 @@ function checkAtdAnswer(live){
   const v=id=>$(id).value.trim();
   const hasK=!!$('atdK');
   if(live){
+    liveColorDec('atd1',q.aug,1);
     liveColorDec('atd0',q.dix,1);
     if(q.besoinCinq) liveColorDec('atd5',q.cinq,1);
     if(hasK) liveColorDec('atdK',q.k,1);
@@ -6893,6 +6907,7 @@ function checkAtdAnswer(live){
     [...$('atdSub').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     return;
   }
+  const fr1=parseDecToFrac(v('atd1')); const ok1=!!fr1 && fr1.n===q.aug*fr1.d;
   const fr0=parseDecToFrac(v('atd0')); const ok0=!!fr0 && fr0.n===q.dix*fr0.d;
   let ok5=true;
   if(q.besoinCinq){ const fr5=parseDecToFrac(v('atd5')); ok5=!!fr5 && fr5.n===q.cinq*fr5.d; }
@@ -6901,6 +6916,7 @@ function checkAtdAnswer(live){
   const frP=parseDecToFrac(v('atdP')); const okP=!!frP && frP.n===q.P*frP.d;
   const soutien=isSoutien();
   const mark=(id,ok)=>{ const el=$(id); if(!el) return; el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien; };
+  mark('atd1',ok1);
   mark('atd0',ok0);
   if(q.besoinCinq) mark('atd5',ok5);
   if(hasK) mark('atdK',okK);
@@ -6930,23 +6946,24 @@ function checkAtdAnswer(live){
   } else {
     [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
   }
-  const allOk = ok0 && ok5 && okK && okP;   /* pose facultative non comptée */
+  const allOk = ok1 && ok0 && ok5 && okK && okP;   /* pose facultative non comptée */
   if(!allOk && soutien){ soutienAgain('atdFeedback','atdActions','checkAtdAnswer','atdHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('atdLiveScore').textContent=test.score;
     $('atdFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('atdFeedback').className='mp-feedback good';
   } else {
     const detailCinq=q.besoinCinq?` ; 5 % de ${q.N} = ${q.cinq}`:'';
-    $('atdFeedback').textContent=`Réponse : 10 % de ${q.N} = ${q.dix}${detailCinq} ${q.unit} ; ${q.P} % de ${q.N} = ${q.aug} ${q.unit} (toute écriture égale est acceptée)`;
+    $('atdFeedback').textContent=`Réponse : augmentation = ${q.aug} ${q.unit} ; 10 % de ${q.N} = ${q.dix}${detailCinq} ${q.unit} ; ${q.P} % de ${q.N} = ${q.aug} ${q.unit} (toute écriture égale est acceptée)`;
     $('atdFeedback').className='mp-feedback bad';
+    corTrainDec('atd1',String(q.aug).replace('.',','));
     corTrainDec('atd0',String(q.dix).replace('.',','));
     if(q.besoinCinq) corTrainDec('atd5',String(q.cinq).replace('.',','));
     if(hasK) corTrainDec('atdK',String(q.k).replace('.',','));
     corTrainDec('atdP',String(q.P).replace('.',','));
   }
   const enonce=`pourcentage d’augmentation de ${q.N} à ${q.fin} ${q.unit}`;
-  const answer=`10 % = ${q.dix}`+(q.besoinCinq?` ; 5 % = ${q.cinq}`:'')+` ; ${q.P} % de ${q.N} = ${q.aug} ${q.unit}`;
-  const given=`10 % = ${v('atd0')||'∅'}`+(q.besoinCinq?` ; 5 % = ${v('atd5')||'∅'}`:'')+(hasK?` ; × ${v('atdK')||'∅'}`:'')+` ; ${v('atdP')||'∅'} %`;
+  const answer=`écart ${q.aug} ; 10 % = ${q.dix}`+(q.besoinCinq?` ; 5 % = ${q.cinq}`:'')+` ; ${q.P} % de ${q.N} = ${q.aug} ${q.unit}`;
+  const given=`écart ${v('atd1')||'∅'} ; 10 % = ${v('atd0')||'∅'}`+(q.besoinCinq?` ; 5 % = ${v('atd5')||'∅'}`:'')+(hasK?` ; × ${v('atdK')||'∅'}`:'')+` ; ${v('atdP')||'∅'} %`;
   test.answers.push({...(ptsExo()||{}),q:enonce, answer, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('atdActions').innerHTML=`<button class="btn btn-primary" id="atdNext" onclick="nextAtdQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
@@ -15409,11 +15426,11 @@ function conseilCtxCourant(){
       +'Aucun pourcentage n’est donné à l’avance dans l’énoncé : chaque ligne du tableau porte le sien, et c’est justement ce que la question demande de retrouver.';
   } else if(k==='atd' && q){
     const hasK=!q.besoinCinq || q.P!==5;
-    att='Exercice : '+augqCtx(q).s.toLowerCase()+' passe de '+q.N+' à '+q.fin+' '+q.unit+' (augmentation de '+q.aug+' '+q.unit+', déjà donnée en clair sur l’écran, avec une soustraction posée facultative pour la retrouver), on cherche le pourcentage d’augmentation par la méthode des 10 %. '
-      +'Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.dix+' '+q.unit
+    att='Exercice : '+augqCtx(q).s.toLowerCase()+' passe de '+q.N+' à '+q.fin+' '+q.unit+', on cherche le pourcentage d’augmentation par la méthode des 10 %. '
+      +'Réponses attendues, STRICTEMENT SECRÈTES : l’augmentation '+q.fin+' − '+q.N+' = '+q.aug+' '+q.unit+' (ligne EN LIGNE, toujours en tête de la résolution) ; 10 % de '+q.N+' = '+q.dix+' '+q.unit
       +(q.besoinCinq?(' ; 5 % de '+q.N+' = '+q.cinq+' '+q.unit):'')
       +(hasK?(' ; on multiplie par '+q.k):'')
-      +' ; le pourcentage cherché est '+q.P+' % (toute écriture égale convient à chaque étape ; la soustraction posée ne compte jamais dans la note). '
+      +' ; le pourcentage cherché est '+q.P+' % (toute écriture égale convient à chaque étape ; la soustraction posée EN COLONNES, plus bas, reste facultative et ne compte jamais dans la note — l’écart s’y retrouve deux fois, la ligne du haut et la ligne fléchée du bas, comme sur la fiche). '
       +'Méthode enseignée, comme dans {pourcentage-dix-taux} : diviser par 10 pour trouver 10 %, et — si le pourcentage cherché se termine par un 5 — diviser encore par 2 pour trouver 5 %. On cherche ensuite par QUEL nombre multiplier ce pourcentage connu (10 % ou 5 %) pour retomber sur l’augmentation donnée dans l’énoncé, et on applique ce même nombre au pourcentage pour trouver celui qui est cherché. '
       +(q.besoinCinq
         ? ('Ici le pourcentage cherché ('+q.P+' %) se termine par un 5 : le multiplicateur direct depuis 10 % ne serait pas entier, donc on passe D’ABORD par 5 % (la moitié de 10 %, '+q.cinq+' '+q.unit+')'+(hasK?(', puis on le multiplie par '+q.k+' pour atteindre '+q.P+' %.'):' — et cela suffit, '+q.P+' % EST 5 %, aucune flèche « multiplication » ne s’affiche.'))
