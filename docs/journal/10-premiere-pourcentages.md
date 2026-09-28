@@ -1477,6 +1477,31 @@ deux premières cases) et leur produit, jugé comme `pctcG` l'était déjà. Le
 barème ne change pas : une question reste juste ou fausse en bloc, et
 `test.maxScore` ne compte que les questions, jamais les cases.
 
+**Une phrase de conclusion ferme l'exercice (Turquet, même semaine) : elle
+se termine par une case à compléter par le BON POURCENTAGE.** Le schéma en
+boîte s'arrêtait sur le calcul (`pctcG`), sans jamais reformuler la réponse
+en mots — l'élève pouvait trouver 0,12 sans jamais écrire « 12 % ». Chaque
+contexte de `CTX_CHAINE` gagne un troisième champ, `ccl` (trois fonctions,
+`comb`/`p1`/`p2`, comme `comb`/`p1`/`p2` eux-mêmes) : une phrase déclarative
+qui reprend EN MOTS ce que la question de `pctcEnonce()` posait, avec un
+trou à la place du nombre — « Donc les basketteuses représentent ▢ % des
+membres du club. » pour `comb`, « Donc le club est composé de ▢ % de
+filles. » pour `p1`, etc. Le motif « donc … est de ▢ % » est celui
+qu'{augmenter-taux-dix} (2.2.12, Première) a introduit la même semaine pour
+sa propre conclusion — même façon de clore un calcul par sa phrase, portée
+ici à un exercice à trois inconnues au lieu d'une seule.
+
+**Le trou ne recopie JAMAIS le nombre qu'une autre case demande déjà.**
+Les trois sens (`comb`, `p1`, `p2`) ne cherchent pas le même pourcentage :
+`pctcCible(q)` le calcule une fois (`q.P1`, `q.P2` ou `q.comb` selon
+`q.inc` — exactement ce que `pctcEnonce()` pose en question, jamais ce
+qu'elle donne), et une seule fonction sert la case (`pctcC`), la
+correction en direct du soutien et le corrigé affiché en entraînement. La
+case se juge comme les anciennes `pctcT`/`pctcA`/`pctcB` — un entier
+comparé par `parseInt`, jamais `parseDecToFrac` (le trou est un
+pourcentage en toutes lettres, pas une écriture décimale) — et suit le même
+garde-fou universel : vide, elle ne rougit jamais.
+
 **Une quatrième méthode, twin de {pourcentage-dix} : retrouver PLUSIEURS
 pourcentages, sans qu'aucun ne soit donné à l'avance.**
 {pourcentage-dix-cascade} (2.1.9, demande de Turquet, septembre 2026, à
