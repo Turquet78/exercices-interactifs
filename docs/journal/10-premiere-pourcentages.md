@@ -910,6 +910,112 @@ en nommant son défaut — le taux de ① figé, le ③ ramené sur 100, le ③ 
 nomme le taux de la PREMIÈRE hausse, le mot « d'abord » retiré, et le ① qui ne
 dit plus sur quoi on calcule.
 
+**Puis la SYNTHÈSE des trois : deux évolutions, hausse OU baisse chacune, par
+l'une des deux méthodes.** {synthese-evolutions-successives} (Première, 2.5.4,
+demande de Turquet, septembre 2026 : « un exercice de synthèse qui permet de
+faire deux évolutions successives, qui peuvent être chacune des deux une hausse
+ou une baisse. Les énoncés ressembleront à ceux du 2.2.7, et on laissera le
+choix à l'élève entre la méthode du 2.2.7 ou la méthode du 2.2.8. Le résultat
+final doit être un pourcentage entier. ») ferme le sous-thème de la synthèse,
+après {reconnaitre-coefficient} : rien n'a été renuméroté.
+**CE QUE LA SYNTHÈSE AJOUTE, ET QU'AUCUN DES TROIS N'AVAIT : le SENS de
+l'évolution globale n'est pas donné.** Deux hausses montent, deux baisses
+descendent — mais « +20 % puis −5 % » ? L'élève le DIT, sur deux boutons (le
+motif de {lire-coefficient}), puis écrit le pourcentage. Par les coefficients,
+le sens se LIT sur le coefficient global — 1,14 est plus grand que 1 — ; en
+partant de 100, sur la valeur finale — 114 est au-dessus de 100. Deux boutons
+pour UNE décision, rangée dans la question (`q.choisi`), qu'une pause reprend ;
+seul le bouton CHOISI se colore à la vérification, aucun choix ne colore rien
+(la règle de la case vide, appliquée à un bouton), et en entraînement le bon
+sens se montre en VERT. L'énoncé ne nomme jamais le sens du résultat : les six
+tournures suivent `HS_ENONCES` une à une, chaque évolution avec son verbe, et
+posent toutes la même question, « une hausse ou une baisse, et de quel
+pourcentage ? » — le contrôle l'exige sur les quatre formes.
+**LA MÉTHODE SE CHOISIT D'ABORD** (le motif du 2.5.1) : la chaîne apparaît dès
+la méthode, en changer la reconstruit sans restaurer — les deux méthodes
+n'écrivent pas le même calcul — et « Vérifier » sans méthode la demande, sans
+verrouiller ni rougir. La méthode 1 est l'écran du 2.2.7 avec le signe de
+chaque coefficient lu dans l'énoncé (« 1 + » ou « 1 − »), puis la LECTURE du
+coefficient global ; la méthode 2 est l'écran du 2.2.8 avec, pour une baisse,
+la SOUSTRACTION « valeur de départ − baisse », jugée DANS L'ORDRE (`essOrdre`)
+là où l'addition garde l'ordre libre de `hscPaire` — la soustraction n'est pas
+commutative, et « 50 − 100 » n'est pas défendable. L'étape ④ facultative du
+2.2.7 est là aussi, et son signe suit le sens CHOISI : ses têtes sont réécrites
+en place quand le sens change, sans redessin, pour ne rien effacer.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ, et c'est ce qui rend l'ajout court** :
+le vivier est `HS_PAIRES` — celui du 2.2.7 et du 2.2.8, lu et non recopié —,
+les mises en situation `BS_CTX`, le coefficient d'une hausse `hsCoef`, la pose
+`buildPoseU` / `buildPose`, l'addition `hscPaire`. La question ne porte que
+ses deux sens, ses deux taux, le contexte, la variante et les deux choix de
+l'élève ; `essAns()` recalcule tout le reste, et le contrôle refuse tout autre
+champ.
+**L'ÉVOLUTION GLOBALE EST UN ENTIER, ET ÇA SE DÉMONTRE** — la règle des deux
+décimales du 2.2.7, dans les quatre signes : (1 ± P1/100)(1 ± P2/100) =
+1 ± P1/100 ± P2/100 ± P1·P2/10000, donc le global vaut ±P1 ± P2 ± P1·P2/100,
+entier dès que P1·P2 est un multiple de 100 — ce que `HS_PAIRES` garantit
+déjà. En partant de 100, la seconde évolution vaut (100 ± P1)·P2/100, entière
+pour la même raison : toute la chaîne tombe sur des entiers. Le global n'est
+jamais NUL sur ce vivier (P1 − P2 − P1·P2/100 = 0 exigerait
+P1 = 100·P2/(100 − P2), qu'aucun taux à un seul chiffre non nul ne réalise) et
+reste sous 100 % en valeur absolue (au plus +98 % pour deux hausses, −82 %
+pour deux baisses, −78 % en mixte). AUCUN GARDE N'EST POSÉ dans la page : il
+n'écarterait jamais rien, et ferait croire qu'on vérifie quelque chose — c'est
+le CONTRÔLE qui exige les trois propriétés sur le vivier ENTIER, par sa propre
+arithmétique, dans les quatre combinaisons de signes et les deux ordres, et
+qui vérifie que les deux méthodes calculent le MÊME coefficient.
+**LA POSE EN COLONNES PREND LA FORME QUE LES NUMÉRATEURS LUI DONNENT**, et
+c'est le seul endroit où la synthèse a eu à décider : deux chiffres seuls
+(deux baisses de dizaines, 8 × 6) — un fait de table, pas de pose, la leçon du
+2.3.7 ; un facteur à un chiffre (105 × 8, 12 × 8) — `buildPose`, la pose du
+2.2.1 ; deux facteurs d'au moins deux chiffres (95 × 12, 105 × 12) —
+`buildPoseU`, la pose du 2.2.7, avec le coefficient de HAUSSE en bas : son
+numérateur commence par 1 (1X ou 10X), la seule forme que `poseUDonnees` sache
+écrire là — et sur ce vivier, un facteur de baisse à deux chiffres (95, 98) ne
+rencontre jamais une hausse à trois. Le contrôle l'exige forme par forme (le
+bas qui commence par 1, les produits partiels qui retombent sur le produit),
+et exige que les TROIS formes sortent du vivier. Comme au 2.2.7, la pose est
+un OUTIL : corrigée si l'élève s'en est servi, elle n'entre pas dans la
+réussite du calcul.
+**Les trois formes sortent chacune UNE fois par séance**, en ordre mélangé —
+deux hausses, deux baisses, une de chaque dans un sens ou l'autre — le motif
+de la Seconde ({evolutions-successives}, 4.5.5, la même question sur le
+schéma à trois boîtes) : sans quoi trois hausses de suite auraient perdu le
+signe, tout le sujet. Les paires sont tirées sans remise, comme au 2.2.8.
+**Deux bancs, la répartition habituelle.** jsdom tient le vivier, la
+propriété entière dans les quatre signes, les trois formes de pose, la
+séance, les énoncés, le rendu de chaque méthode (rien avant le choix, puis les
+cases EXACTES de chacune — `ESS_CASES`), la copie juste par les DEUX méthodes
+sur deux questions ÉPINGLÉES (+20 % puis −5 % : +14 % ; −50 % puis +2 % :
+−49 %), l'ordre libre du produit et de l'addition, l'ordre IMPOSÉ de la
+soustraction, le sens (le bon vaut le point, le mauvais le refuse et ne rougit
+que le bouton choisi, aucun choix ne colore rien), la leçon (la seconde
+évolution refaite sur 100 est refusée), chaque case jugée seule, la case vide
+sans rouge, le soutien qui ne révèle rien — ni la case, ni le sens —, la pose
+fausse qui ne coûte pas le point, le sens qui change sans effacer les cases,
+l'identité de « Recommencer », le rappel sur un tirage possible avec les
+nombres des deux chaînes, et le contexte envoyé au modèle qui décrit les deux
+méthodes. Un second contrôle lit la SOURCE : `genEss` et `essSeance` lisent
+`HS_PAIRES`, aucun vivier propre ne revient, `essQuestion` tire dans `BS_CTX`,
+`essCoef` lit `hsCoef`. Le NAVIGATEUR voit le reste par la visite universelle
+(section 9) : le bouton d'aide, les cases à la taille des nombres, aucune
+accolade, aucune case vide rougie. **Le contrôle s'est pris en défaut deux
+fois avant la page** : sa lecture des tournures voyait « baisse » dans la
+question commune — « une hausse ou une baisse » — et accusait deux hausses
+d'en parler ; et son inversion de la soustraction visait la SECONDE opération
+de « −50 % puis +2 % », qui est une addition. Un contrôle faux se reconnaît à
+ce qu'il rougit sur une page juste ; les deux ont été corrigés, la page n'a
+pas bougé. **Dix sabotages, huit rougissant d'emblée en nommant leur défaut**
+— le vivier des baisses à la place de `HS_PAIRES`, le global par la somme
+naïve, la soustraction à ordre libre, le sens retiré du verdict, les formes
+tirées au hasard, la baisse en bas de la pose, la seconde évolution refaite
+sur 100, la case vide rougie — **et deux restés VERTS en montrant un trou du
+contrôle** : l'énoncé qui nomme « la hausse globale » passait, parce que la
+lecture des tournures retirait la question commune AVANT de chercher le sens
+— c'est précisément là qu'il se glissait ; et le bon sens révélé en soutien
+passait, parce que le contrôle n'y choisissait que le BON sens, et rien
+n'était à révéler. Le contrôle lit désormais la phrase entière, et choisit le
+mauvais sens en soutien ; les deux sabotages rougissent.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −20 % puis −40 % fait −52 %, pas −60 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision
@@ -2670,10 +2776,19 @@ Déterminer le pourcentage d'évolution global.* », le schéma à trois boîtes
 voir {evolutions-successives} plus haut) : l'exercice est donc PORTÉ de la
 Seconde, kind « evs », même identifiant — les deux niveaux n'ont pas la même
 table de résultats, et la Seconde a déjà pris ce chemin pour tout le thème.
-Il arrive en **2.5.4**, au bout de la synthèse, comme le 4.5.5 de la
+Il arrive en **2.5.5**, au bout de la synthèse, comme le 4.5.5 de la
 Seconde : il couvre les deux sens, il ne relève ni des hausses (2.2) ni des
-baisses (2.3), et il vient après {reconnaitre-coefficient} sans déplacer
-personne.
+baisses (2.3), et il ne déplace personne. **Il a été écrit EN MÊME TEMPS que
+{synthese-evolutions-successives} (2.5.4, le paragraphe précédent), dans une
+autre session, sur une autre demande** — « les énoncés ressembleront à ceux
+du 2.2.7, choix entre la méthode du 2.2.7 ou du 2.2.8 » là-bas, « comme le
+pdf, avec le clavier du 2.3.13 » ici. Les deux se sont croisés sur `main`
+(la pull request de l'autre a fusionné la première, avec la version 265) :
+la fusion a gardé les DEUX exercices, ce qui est le bon état — l'un fait
+calculer par l'une des deux méthodes du 2.2.7 et du 2.2.8, l'autre fait
+compléter le schéma de la fiche et écrire le mot —, celui-ci passant en
+2.5.5 et la version en 266. Ce que la chronique de l'autre dit de ses
+choix vaut pour lui seul ; rien n'est partagé entre les deux, sauf `BS_CTX`.
 
 **Ce qui est REPRIS tel quel, et ce qui change — deux différences voulues.**
 Le schéma est celui de la Seconde au pixel — trois boîtes sans case, deux
@@ -2724,7 +2839,7 @@ Les mises en situation sont `BS_CTX`, celles de {hausses-successives} et
   lui, se lit toujours sur le coefficient ; un coefficient du mauvais côté
   de 1 rougit sa case, et le bon signe se montre en vert.
 
-**Les quinze branchements, et deux à nommer.** `TESTS`, `THEMES` (2.5.4),
+**Les quinze branchements, et deux à nommer.** `TESTS`, `THEMES` (2.5.5),
 l'écran `scr-evs` avec sa réserve du bas d'emblée (deux rangées de flèches
 et une conclusion : le 4.1.9 avait rougi sur ce bord avec deux rangées),
 `testScreens`, `liveCheckCurrent()`, `restartCurrentTest()`,

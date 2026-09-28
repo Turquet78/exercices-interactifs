@@ -12949,7 +12949,7 @@ async function parcours(page, N){
     }
 
     /* ---- 11 undecies. Sur le schéma des évolutions successives, le mot s'écrit au clavier B ----
-       Demande de Turquet (septembre 2026) sur le 2.5.4 de la Première : « le
+       Demande de Turquet (septembre 2026) sur le 2.5.5 de la Première : « le
        clavier doit être pour les tablettes comme celui de l'exercice 2.3.13 ».
        La page ne tient aucune liste : le clavier B des lettres vient dès
        qu'une case de rédaction (mf-mots) est sur l'écran — ici la case du MOT

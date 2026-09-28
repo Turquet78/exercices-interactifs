@@ -1644,35 +1644,46 @@ ligne, membre faux au milieu, préfixe recopié) et lit la source de
 `derVerdict` ; éprouvé par sabotage (la coupe désactivée : cinq griefs, tous
 nommés). La feuille est partagée avec la synthèse du 6.15 : elle gagne la
 même lecture sans rien déclarer.
-**PUIS LA CHAÎNE JUSTE A ENCORE ROUGI, ET C'ÉTAIT LE COMPILATEUR — `new
-Function`.** Trois captures de Turquet après la coupe sur « = », toutes
-identiques, toutes rouges, sur un PC au clavier du PC. Aucun rejeu ne
-reproduisait : clavier physique, touche morte AZERTY, « ² », clavier à
+**PUIS LA CHAÎNE JUSTE A ENCORE ROUGI — ET LE COUPABLE N'ÉTAIT PAS CELUI QUE
+LE DIAGNOSTIC DÉSIGNAIT.** Trois captures de Turquet après la coupe sur « = »,
+toutes identiques, toutes rouges, sur un PC au clavier du PC, Firefox comme
+Chrome. Aucun rejeu ne reproduisait : clavier physique, « ² », clavier à
 l'écran, fraction par « / » avant ou après, Node, Chromium, Firefox installé
-exprès — tout acceptait. Le journal de cette impasse vaut la règle qu'elle
-a fini par donner : **un refus qu'aucun banc ne reproduit se DIAGNOSTIQUE
-dans la page, jamais par une hypothèse de plus.** La feuille s'est mise à
-écrire dans la console ce qu'elle lisait (v346 : LaTeX, lecture en clair,
-membres), puis (v347) les codes des caractères, la valeur attendue et les
-valeurs lues en x = 0,37. Le premier relevé a écarté la saisie : LaTeX propre,
-membres propres. Le second a nommé le coupable : `lus_en_0_37 : ["ne
-compile pas", "ne compile pas"]` sur des codes tous ASCII — et les cases
-facultatives u = 32 et v = 12 − x, jugées par le MÊME `checkExprFn`, étaient
-bleues. Le compilateur marchait donc sur « 32 » et « 12-x », et pas sur
-« (32)/((12-x)^(2)) » : la seule pièce nouvelle était la puissance, que
-`compileExprExp` confiait à `new Function` avec l'opérateur `**`. Ce que le
-navigateur de Turquet en fait exactement, on ne le sait pas ; ce qu'on sait,
-c'est qu'un juge qui dépend du moteur, d'une politique de sécurité ou d'un
-opérateur rend un verdict qu'aucun banc ne peut promettre. **La page lit
-donc elle-même ses expressions** : `exprLire`, un analyseur à descente
-récursive (nombres, x, + − × ÷ ^, parenthèses, exp(…) ; le « − » unaire plus
-faible que la puissance, −x^2 = −(x^2) ; la puissance associative à droite),
-qui rend une fonction de x ou null AVEC SA RAISON (`compileExprExp.derniere`,
-que le diagnostic de la console recopie). Les trois compilateurs du fichier y
-passent — `compileExprExp`, `compileExpr` (les polynômes des dérivées) et
-`rfrLin` (les expressions en n du 6.6) — et il ne reste AUCUN `new Function`
-dans la Terminale : un contrôle l'interdit. Le diagnostic reste en place : il
-ne coûte rien, et c'est lui qui a parlé quand rien d'autre ne le pouvait.
+exprès — tout acceptait. La feuille s'est mise à écrire dans la console ce
+qu'elle lisait (v346 : LaTeX, lecture en clair, membres ; v347 : les codes
+des caractères, la valeur attendue, les valeurs lues en x = 0,37 ; v348 : la
+raison d'un refus). Les relevés disaient : « ne compile pas » sur
+« (7)/((8−x)^(2)) », puis « terme attendu, trouvé ^ » — et, tapée à la main
+dans la même console, la même chaîne compilait. On en a conclu, à tort, que
+`new Function` et l'opérateur `**` rendaient un verdict que le moteur
+décidait, et `compileExprExp` a été réécrit en analyseur (`exprLire`, ci-après).
+**Ce n'était pas ça** : la version 349 (une autre branche, le même jour) a
+trouvé la cause sur le 2.5 — **la touche morte « ^ » d'AZERTY était traitée
+DEUX fois**, par le `keydown` du champ et par `chapeauMorte`, qui empilait un
+second exposant dans le premier : `^{^{2}}`, que `toPlain` lit `^(^(2))`. C'est
+exactement ce que les deux juges disaient — `**(**(2))` n'est pas du
+JavaScript, et « terme attendu, trouvé ^ » est ce qu'un analyseur répond à un
+« ^ » qui suit un « ^ ». Les rejeux ne le voyaient pas parce qu'ils ne
+jouaient que le TEXTE de la touche morte, jamais le `keydown` qui le précède
+(voir « DEUX gestionnaires se sont partagé la touche morte », plus haut). La
+leçon vaut plus que le détour : **un rejeu qui n'imite pas le GESTE ENTIER
+du clavier n'éprouve rien**, et **un diagnostic qui relit la chaîne APRÈS que
+le dommage est fait dans le champ ne montre pas le geste qui l'a causé**. Ce
+qui reste de ce détour, et qui reste utile : `derMembres` (une ligne
+« A = B » se lit membre par membre), le nettoyage des caractères invisibles,
+le diagnostic de la console (il ne coûte rien, et c'est lui qui a fini par
+dire « ^ après ^ »), et l'analyseur.
+**LA PAGE LIT ELLE-MÊME SES EXPRESSIONS** : `exprLire`, un analyseur à
+descente récursive (nombres, x, + − × ÷ ^, parenthèses, exp(…) ; le « − »
+unaire plus faible que la puissance, −x^2 = −(x^2) ; la puissance associative
+à droite), rend une fonction de x ou null AVEC SA RAISON
+(`compileExprExp.derniere`). Les trois compilateurs du fichier y passent —
+`compileExprExp`, `compileExpr` (les polynômes des dérivées) et `rfrLin` (les
+expressions en n du 6.6) — et il ne reste AUCUN `new Function` dans la
+Terminale : un contrôle l'interdit, et éprouve l'analyseur sur la chaîne du
+signalement, −x^2, 2^3^2, (2x+1)e^(3x), et ses refus nommés. Ce n'est pas ce
+qui a corrigé le 6.2.5 ; c'est un juge qui ne dépend plus du moteur, et qui
+dit pourquoi il refuse.
 **LA FEUILLE EST UNE RÉPONSE, ET UNE SEULE** (`pts-case`, la classe des trois
 points du tracé) : la note ne peut pas dépendre du NOMBRE de lignes écrites,
 sans quoi l'élève qui détaille son calcul serait noté sur un autre total.

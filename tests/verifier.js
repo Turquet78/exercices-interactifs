@@ -2031,6 +2031,329 @@ function branchements(w){
     })()`, v => v === '', undefined);
   }
 
+  /* ---- {synthese-evolutions-successives} (2.5.4) : deux évolutions, hausse OU
+     baisse chacune, par l'une des deux méthodes ------------------------------
+     La synthèse du 2.2.7, du 2.2.8 et du 2.3.7 (demande de Turquet, septembre
+     2026) : les énoncés du 2.2.7 avec les deux sens, le choix de la méthode —
+     multiplier les coefficients, ou partir de 100 — et un résultat ENTIER dont
+     le SENS n'est pas donné. Les bords, et n'en tenir qu'un ne tient rien :
+       · le VIVIER est celui du 2.2.7 et du 2.2.8 (HS_PAIRES), refait par une
+         SECONDE arithmétique sur les pourcentages bruts, et mesuré sur ce que
+         la page TIRE (essSeance tirant sans remise, une séance de la taille du
+         vivier le rend en entier) ;
+       · l'ÉVOLUTION GLOBALE est un ENTIER, jamais NULLE, sous 100 % en valeur
+         absolue, dans les QUATRE combinaisons de signes et les DEUX ordres —
+         et toute la chaîne de la méthode 2 tombe sur des entiers avec elle. La
+         formule est dans le contrôle, pas seulement dans la page ;
+       · la POSE prend la forme des numérateurs : aucune quand les deux sont des
+         chiffres seuls, celle du 2.2.1 quand l'un l'est, celle du 2.2.7 sinon
+         — avec un bas qui commence par 1, la seule forme que poseUDonnees
+         sache écrire, et une arithmétique de produits partiels qui retombe
+         sur le produit. Les trois formes doivent EXISTER sur le vivier ;
+       · la SÉANCE : trois questions, les trois formes (deux hausses, deux
+         baisses, une de chaque) chacune une fois, les deux ordres du mixte
+         vus, les paires distinctes, l'ordre de la paire tiré, la question sans
+         autre champ que ses sens, ses taux, son contexte, sa variante et les
+         deux choix de l'élève ;
+       · les ÉNONCÉS disent les deux sens et ne nomment JAMAIS le sens du
+         résultat — c'est la réponse ;
+       · le RENDU : rien avant le choix de la méthode (« Vérifier » le demande
+         sans verrouiller ni rougir), les cases EXACTES de chaque méthode,
+         aucune référence {identifiant} ;
+       · la COPIE JUSTE par les DEUX méthodes, sur deux questions ÉPINGLÉES
+         (une hausse puis une baisse : +14 % ; une baisse puis une hausse :
+         −49 %), ses cases comptées, l'ordre du produit libre, l'ordre de
+         l'ADDITION libre et celui de la SOUSTRACTION imposé ;
+       · le SENS : le bon vaut le point, le mauvais le refuse et rougit le seul
+         bouton choisi (le bon en vert en entraînement), aucun choix ne colore
+         rien ;
+       · chaque case jugée SEULE, la case vide qui ne rougit jamais, le SOUTIEN
+         qui ne révèle rien, l'ENTRAÎNEMENT qui révèle ;
+       · la POSE est un outil : fausse, elle ne coûte pas le point ;
+       · l'IDENTITÉ de « Recommencer », le rappel sur un tirage possible avec
+         les nombres des deux chaînes, le contexte envoyé au modèle. */
+  if(evaluer(w,'typeof startEss').valeur==='function'){
+    verifierEval(w, 'deux évolutions successives : vivier partagé, entiers dans les quatre signes, deux méthodes, sens jugé', `(function(){
+      const vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      /* ---- 1. LE VIVIER : celui du 2.2.7, refait par une seconde arithmétique ---- */
+      const unSeulChiffre=function(x){ return x<10 || x%10===0; };
+      const attendues=[];
+      for(let a=1;a<=99;a++) for(let b=a;b<=99;b++){
+        if(!unSeulChiffre(a)||!unSeulChiffre(b)) continue;
+        if((a*b)%100!==0) continue;
+        if((100+a)*(100+b)>=20000) continue;
+        attendues.push(a+'-'+b);
+      }
+      if(attendues.length<12) vus.push('le vivier attendu ne compte que '+attendues.length+' paires : le contrôle n’a rien à mesurer');
+      const paire=function(q){ return Math.min(q.P1,q.P2)+'-'+Math.max(q.P1,q.P2); };
+      const tirees=essSeance(attendues.length+50).map(paire), dedans={};
+      tirees.forEach(function(c){ if(dedans[c]) vus.push('la paire '+c+' sort deux fois : le tirage n’est pas SANS REMISE'); dedans[c]=1; });
+      attendues.forEach(function(c){ if(!dedans[c]) vus.push('la paire '+c+' manque au vivier du 2.5.4'); });
+      Object.keys(dedans).forEach(function(c){ if(attendues.indexOf(c)<0) vus.push('la paire '+c+' est tirable alors que les règles du 2.2.7 la refusent'); });
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
+      /* ---- 2. ENTIER, JAMAIS NUL, SOUS 100 %, dans les quatre signes et les deux ordres —
+         et la pose prend la forme des numérateurs ---- */
+      const formes={};
+      attendues.forEach(function(c){
+        const t=c.split('-').map(Number);
+        [[t[0],t[1]],[t[1],t[0]]].forEach(function(o){
+          [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(function(s){
+            const q={s1:s[0],s2:s[1],P1:o[0],P2:o[1]}, a=essAns(q), nom=(s[0]>0?'+':'−')+o[0]+' puis '+(s[1]>0?'+':'−')+o[1];
+            /* la formule, refaite ici en CENTIÈMES entiers */
+            const G=s[0]*o[0]+s[1]*o[1]+s[0]*s[1]*o[0]*o[1]/100;
+            if(!Number.isInteger(G)) vus.push(nom+' : le global '+G+' n’est pas entier');
+            if(G===0) vus.push(nom+' : le global est NUL, le sens n’existe pas');
+            if(Math.abs(G)>=100) vus.push(nom+' : le global atteint '+G+' %');
+            if(a.G!==G || a.pct!==Math.abs(G) || a.sens!==(G>0?1:-1)) vus.push(nom+' : la page calcule '+a.G+' au lieu de '+G);
+            /* le coefficient global des deux méthodes est le même nombre */
+            const c1=100+s[0]*o[0], c2=100+s[1]*o[1];
+            if(a.prodNum*10000!==c1*c2*a.prodDen) vus.push(nom+' : le produit des fractions ('+a.prodNum+'/'+a.prodDen+') n’est pas '+c1+'/100 × '+c2+'/100');
+            if(a.c1!==c1 || a.c2!==c2) vus.push(nom+' : les coefficients sur 100 sont '+a.c1+' et '+a.c2);
+            /* la chaîne de la méthode 2, sur des entiers */
+            [['la première évolution pour 100',a.aug1],['la nouvelle valeur',a.v1],['la seconde évolution',a.aug2],['la valeur finale',a.v2]].forEach(function(p){
+              if(!Number.isInteger(p[1])) vus.push(nom+' : '+p[0]+' vaut '+p[1]+', qui n’est pas entier'); });
+            if(a.v1!==100+s[0]*o[0]) vus.push(nom+' : la nouvelle valeur n’est pas 100 ± P1');
+            if(a.aug2*100!==a.v1*o[1]) vus.push(nom+' : la seconde évolution ne porte pas sur le résultat précédent');
+            if(a.v2!==a.v1+s[1]*a.aug2 || a.h!==G) vus.push(nom+' : la valeur finale ('+a.v2+') ne donne pas le global ('+G+')');
+            /* la pose */
+            const dA=String(a.fA.num).length, dB=String(a.fB.num).length;
+            if(dA===1 && dB===1){ if(a.pose) vus.push(nom+' : une pose pour un fait de table ('+a.fA.num+' × '+a.fB.num+')'); formes.aucune=1; }
+            else if(dA===1 || dB===1){
+              if(!a.pose || a.pose.type!=='p') vus.push(nom+' : pas de pose du 2.2.1 pour '+a.fA.num+' × '+a.fB.num);
+              else { if(String(a.pose.bot).length!==1 || String(a.pose.top).length<2 || a.pose.top*a.pose.bot>999 || a.pose.top*a.pose.bot!==a.prodNum) vus.push(nom+' : pose '+a.pose.top+' × '+a.pose.bot+' mal formée'); formes.un=1; }
+            } else {
+              if(!a.pose || a.pose.type!=='u') vus.push(nom+' : pas de pose du 2.2.7 pour '+a.fA.num+' × '+a.fB.num);
+              else {
+                if(!/^10*\\d$/.test(String(a.pose.bot))) vus.push(nom+' : le bas de la pose ('+a.pose.bot+') ne commence pas par 1 suivi de zéros et d’un chiffre');
+                if(a.pose.v1+a.pose.v2*Math.pow(10,a.pose.s)!==a.prodNum) vus.push(nom+' : les produits partiels ne retombent pas sur '+a.prodNum);
+                if(a.pose.top*a.pose.bot!==a.prodNum) vus.push(nom+' : la pose ne multiplie pas les deux numérateurs');
+                formes.deux=1;
+              }
+            }
+          });
+        });
+      });
+      if(!formes.aucune || !formes.un || !formes.deux) vus.push('les trois formes de pose ne sortent pas toutes du vivier : '+JSON.stringify(formes));
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
+      /* ---- 3. la séance ---- */
+      const plat=[]; THEMES.forEach(function(t){ (t.sous||[{ids:t.ids}]).forEach(function(s){ (s.ids||[]).forEach(function(i){ plat.push(i); }); }); });
+      if(plat[plat.indexOf('reconnaitre-coefficient')+1]!=='synthese-evolutions-successives')
+        vus.push('l’exercice ne suit plus {reconnaitre-coefficient} au menu');
+      const sens={}, ordres={};
+      for(let t=0;t<60 && !vus.length;t++){
+        startEss();
+        if(test.kind!=='ess' || test.qId!=='synthese-evolutions-successives') vus.push('le démarreur n’épingle pas son identité');
+        if(test.questions.length!==EVOL_NB) vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+EVOL_NB);
+        const sig={}, fm={};
+        test.questions.forEach(function(q){
+          const cles=Object.keys(q).filter(function(k){ return ['s1','s2','P1','P2','ci','v','meth','choisi'].indexOf(k)<0; });
+          if(cles.length) vus.push('la question porte d’autres champs que ses sens, ses taux, le contexte, la variante et les choix : '+cles.join(','));
+          if(q.meth!==null || q.choisi!==null) vus.push('la question naît avec une méthode ou un sens déjà choisis');
+          if(!dedans[paire(q)]) vus.push('le tirage rend le couple '+q.P1+'/'+q.P2+', que les règles du 2.2.7 refusent');
+          if(q.P1<q.P2) ordres.croissant=1; if(q.P1>q.P2) ordres.decroissant=1;
+          const f=(q.s1>0?'H':'B')+(q.s2>0?'H':'B'); fm[f.charAt(0)===f.charAt(1)?f:'HB']=1; sens[f]=1;
+          if(sig[paire(q)]) vus.push('tirage '+t+' : la paire '+paire(q)+' sort deux fois dans la même séance');
+          sig[paire(q)]=1;
+        });
+        if(!fm.HH || !fm.BB || !fm.HB) vus.push('tirage '+t+' : les trois formes ne sortent pas chacune une fois ('+Object.keys(fm).join(',')+')');
+      }
+      if(!vus.length && (!sens.HB || !sens.BH)) vus.push('le mixte ne sort que dans un ordre : '+Object.keys(sens).join(','));
+      if(!vus.length && (!ordres.croissant || !ordres.decroissant)) vus.push('l’ordre de la paire n’est pas tiré');
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
+      /* ---- 4. les énoncés disent les deux sens et ne nomment jamais le sens du résultat ---- */
+      [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(function(s){
+        ESS_ENONCES.forEach(function(f,i){
+          const q={s1:s[0],s2:s[1],P1:20,P2:5,ci:0,v:i}, t=f(q).replace(/<[^>]+>/g,'').replace(ESS_QUESTION,'');
+          if(f(q).indexOf(ESS_QUESTION)<0) vus.push('tournure '+i+' ne pose pas la question commune');
+          if(t.indexOf('20 %')<0 || t.indexOf('5 %')<0) vus.push('tournure '+i+' : les deux taux n’y sont pas : « '+t+' »');
+          /* sur le texte ENTIER, question commune comprise : c'est là qu'un sens se glisserait */
+          if(/hausse globale|baisse globale|augmentation globale|diminution globale/i.test(f(q))) vus.push('tournure '+i+' nomme le sens du résultat : « '+f(q).replace(/<[^>]+>/g,'')+' »');
+          const monte=/augment|mont|hausse|gagn/i.test(t), descend=/baiss|dimin|réduit|perd/i.test(t);
+          if(s[0]!==s[1] && !(monte && descend)) vus.push('tournure '+i+' ne dit pas les deux sens : « '+t+' »');
+          if(s[0]===s[1] && s[0]>0 && descend) vus.push('tournure '+i+' parle de baisse pour deux hausses : « '+t+' »');
+          if(s[0]===s[1] && s[0]<0 && monte) vus.push('tournure '+i+' parle de hausse pour deux baisses : « '+t+' »');
+        });
+      });
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
+      /* ---- 5. le rendu : rien avant la méthode, puis les cases EXACTES de chacune ---- */
+      const hote=document.getElementById('essHost');
+      const champs=function(){ return [].slice.call(hote.querySelectorAll('math-field')).map(function(e){ return e.id; }); };
+      const cl=function(id){ const e=document.getElementById(id); return (e&&e.className)||''; };
+      const rouges=function(){ return [].slice.call(hote.querySelectorAll('.bad')).filter(function(e){ return /^(MATH-FIELD|INPUT)$/.test(e.tagName); }).map(function(e){ return e.id||'(sans id)'; }); };
+      const epingle=function(s1,P1,s2,P2){ test.questions=[essQuestion(s1,P1,s2,P2)]; test.idx=0; test.answers=[]; test.score=0; renderEssTest(); return test.questions[0]; };
+      let q=epingle(1,20,-1,5), a=essAns(q);
+      if(a.G!==14) vus.push('+20 % puis −5 % : le global vaut '+a.G+' au lieu de +14');
+      if(champs().length) vus.push('des cases s’affichent avant le choix de la méthode : '+champs().join(','));
+      checkEssAnswer();
+      if(test.locked) vus.push('« Vérifier » sans méthode verrouille l’exercice');
+      if(!/bad/.test(document.getElementById('essFeedback').className)) vus.push('« Vérifier » sans méthode ne demande pas la méthode');
+      choisirEssMeth('coef');
+      const attCoef=ESS_CASES.coef.concat(ESS_VERIF);
+      const horsC=champs().filter(function(id){ return attCoef.indexOf(id)<0; }), absC=attCoef.filter(function(id){ return !document.getElementById(id); });
+      if(horsC.length) vus.push('méthode 1 : des cases sont hors de ESS_CASES, donc hors de la navigation au clavier : '+horsC.join(','));
+      if(absC.length) vus.push('méthode 1 : cases absentes : '+absC.join(','));
+      if(!document.getElementById('essMul')) vus.push('+20 % puis −5 % : pas de pose pour 12 × 95');
+      if(!document.getElementById('essSensH') || !document.getElementById('essSensB')) vus.push('méthode 1 : les deux boutons du sens manquent');
+      let texte=hote.textContent+' '+document.getElementById('essPrompt').textContent;
+      let acc=texte.match(/\\{[a-z-]+\\}/); if(acc) vus.push('une référence {identifiant} reste affichée : '+acc[0]);
+      if(!/1 \\+/.test(hote.querySelectorAll('.pt-row')[0].textContent) || !/1 −/.test(hote.querySelectorAll('.pt-row')[1].textContent))
+        vus.push('méthode 1 : les signes de l’étape ① ne suivent pas les sens de la question');
+      choisirEssMeth('cent');
+      if(test.locked) vus.push('changer de méthode verrouille l’exercice');
+      const horsN=champs().filter(function(id){ return ESS_CASES.cent.indexOf(id)<0; }), absN=ESS_CASES.cent.filter(function(id){ return !document.getElementById(id); });
+      if(horsN.length) vus.push('méthode 2 : des cases sont hors de ESS_CASES : '+horsN.join(','));
+      if(absN.length) vus.push('méthode 2 : cases absentes : '+absN.join(','));
+      texte=hote.textContent; acc=texte.match(/\\{[a-z-]+\\}/); if(acc) vus.push('une référence {identifiant} reste affichée : '+acc[0]);
+      const labs=[].slice.call(hote.querySelectorAll('.pt-lab')).map(function(l){ return l.textContent.replace(/\\s+/g,' '); });
+      if(!/20 % de 100/.test(labs[1]||'')) vus.push('méthode 2 : l’étape ① ne dit pas « 20 % de 100 » : « '+labs[1]+' »');
+      if(!/5 % du résultat précédent/.test(labs[3]||'')) vus.push('méthode 2 : l’étape ③ ne dit pas « 5 % du résultat précédent » : « '+labs[3]+' »');
+      if(!/soustraction/.test(labs[4]||'')) vus.push('méthode 2 : l’étape ④ d’une baisse ne parle pas de soustraction : « '+labs[4]+' »');
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
+      /* ---- 6. la copie juste, par les deux méthodes, sur deux questions épinglées ---- */
+      const poser=function(o){
+        [].slice.call(hote.querySelectorAll('math-field, input')).forEach(function(e){
+          e.value=''; e.className=e.className.replace(/\\b(ok|bad|sol)\\b/g,'').trim(); e.disabled=false;
+          const s=e.nextElementSibling; if(s && /mf-cor/.test(s.className||'')) s.parentNode.removeChild(s); });
+        [].slice.call(hote.querySelectorAll('.mp-tag,.mp-fix')).forEach(function(n){ n.parentNode.removeChild(n); });
+        [].slice.call(hote.querySelectorAll('.pt-choix-btn')).forEach(function(b){ b.classList.remove('ok','bad','sol'); });
+        Object.keys(o).forEach(function(id){ const e=document.getElementById(id); if(e) e.value=String(o[id]); });
+        test.answers=[]; test.score=0; test.locked=false; };
+      const copieCoef=function(q,a){ return {ess1n:q.P1,ess1d:100,ess1p:String(q.P1).padStart(2,'0'),ess1dec:essCoefStr(q.s1,a.c1).slice(2),
+        ess2n:q.P2,ess2d:100,ess2p:String(q.P2).padStart(2,'0'),ess2dec:essCoefStr(q.s2,a.c2).slice(2),
+        essAn:a.fA.num,essAd:a.fA.den,essBn:a.fB.num,essBd:a.fB.den,essPn:a.prodNum,essPd:a.prodDen,essDec:a.coefStr,essP:a.pct}; };
+      const copieCent=function(q,a){ return {essc1n:q.P1,essc1d:100,essc1m:100,essc1pn:a.prod1,essc1pd:100,essc1a:a.aug1,
+        essc1sa:100,essc1sb:a.aug1,essc1sr:a.v1,
+        essc2n:q.P2,essc2d:100,essc2m:a.v1,essc2pn:a.prod2,essc2pd:100,essc2a:a.aug2,
+        essc2sa:a.v1,essc2sb:a.aug2,essc2sr:a.v2,esscFin:a.v2,esscPour:a.pct,esscPct:a.pct}; };
+      const juste=function(nom,copie,nb){
+        checkEssAnswer();
+        if(test.score!==1) vus.push(nom+' : la copie juste ne vaut pas le point');
+        if(rouges().length) vus.push(nom+' : la copie juste rougit : '+rouges().join(','));
+        const m=ptsEcran();
+        if(!m || m.justes!==nb || m.cases!==nb) vus.push(nom+' : la note de l’écran compte '+(m?m.justes+'/'+m.cases:'rien')+' au lieu de '+nb+'/'+nb);
+      };
+      [[1,20,-1,5,14,'+20 % puis −5 %'],[-1,50,1,2,-49,'−50 % puis +2 %']].forEach(function(e){
+        q=epingle(e[0],e[1],e[2],e[3]); a=essAns(q);
+        if(a.G!==e[4]) vus.push(e[5]+' : le global vaut '+a.G+' au lieu de '+e[4]);
+        /* méthode 1 */
+        choisirEssMeth('coef'); poser(copieCoef(q,a)); choisirEssSens(a.sens); juste(e[5]+', méthode 1', null, ESS_CASES.coef.length);
+        if(!/\\bok\\b/.test(cl(a.sens>0?'essSensH':'essSensB'))) vus.push(e[5]+' : le bon sens choisi n’est pas bleu');
+        /* l'ordre du produit est libre */
+        poser(Object.assign(copieCoef(q,a),{essAn:a.fB.num,essAd:a.fB.den,essBn:a.fA.num,essBd:a.fA.den})); choisirEssSens(a.sens); checkEssAnswer();
+        if(test.score!==1) vus.push(e[5]+' : le produit écrit dans l’autre ordre est compté faux');
+        /* le mauvais sens : refusé, le seul bouton choisi rougit, le bon se montre en vert */
+        poser(copieCoef(q,a)); choisirEssSens(-a.sens); checkEssAnswer();
+        if(test.score===1) vus.push(e[5]+' : le mauvais sens vaut quand même le point');
+        if(!/\\bbad\\b/.test(cl(a.sens>0?'essSensB':'essSensH'))) vus.push(e[5]+' : le mauvais sens choisi ne rougit pas');
+        if(!/\\bsol\\b/.test(cl(a.sens>0?'essSensH':'essSensB'))) vus.push(e[5]+' : en entraînement, le bon sens ne se montre pas en vert');
+        if(rouges().length) vus.push(e[5]+' : le mauvais sens fait rougir des cases justes : '+rouges().join(','));
+        /* aucun sens : rien ne colore les boutons, la copie ne vaut pas le point */
+        q=epingle(e[0],e[1],e[2],e[3]); a=essAns(q); choisirEssMeth('coef'); poser(copieCoef(q,a)); checkEssAnswer();
+        if(test.score===1) vus.push(e[5]+' : sans sens choisi, la copie vaut le point');
+        if(/\\b(ok|bad)\\b/.test(cl('essSensH')) || /\\b(ok|bad)\\b/.test(cl('essSensB'))) vus.push(e[5]+' : un bouton se colore alors qu’aucun sens n’est choisi');
+        /* méthode 2 */
+        q=epingle(e[0],e[1],e[2],e[3]); a=essAns(q);
+        choisirEssMeth('cent'); poser(copieCent(q,a)); choisirEssSens(a.sens); juste(e[5]+', méthode 2', null, ESS_CASES.cent.length);
+        /* l'addition dans l'autre ordre passe, la soustraction non */
+        const inv=copieCent(q,a);
+        /* la PREMIÈRE opération : une addition sur +20 %, une soustraction sur −50 % */
+        inv.essc1sa=a.aug1; inv.essc1sb=100;
+        poser(inv); choisirEssSens(a.sens); checkEssAnswer();
+        if(e[0]>0){ if(test.score!==1) vus.push(e[5]+' : l’addition écrite dans l’autre sens est comptée fausse'); }
+        else { if(test.score===1) vus.push(e[5]+' : « baisse − valeur de départ » est accepté'); if(!/\\bbad\\b/.test(cl('essc1sa'))) vus.push(e[5]+' : la soustraction à l’envers ne rougit pas'); }
+        /* la leçon : la seconde évolution recalculée sur 100 est refusée */
+        const cent=copieCent(q,a); cent.essc2m=100; cent.essc2pn=100*q.P2; cent.essc2a=q.P2;
+        poser(cent); choisirEssSens(a.sens); checkEssAnswer();
+        if(!/\\bbad\\b/.test(cl('essc2m'))) vus.push(e[5]+' : la seconde évolution recalculée sur 100 est acceptée');
+        if(test.score===1) vus.push(e[5]+' : une copie qui refait la seconde évolution sur 100 vaut le point');
+      });
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
+      /* ---- 7. chaque case se juge seule, la vide ne rougit jamais, le soutien ne révèle rien ---- */
+      q=epingle(1,20,-1,5); a=essAns(q); choisirEssMeth('coef');
+      const une=copieCoef(q,a); une.essDec='1,41';
+      poser(une); choisirEssSens(a.sens); checkEssAnswer();
+      if(rouges().join(',')!=='essDec') vus.push('une seule case fausse en fait rougir d’autres : '+rouges().join(','));
+      const troue=copieCoef(q,a); delete troue.essP; troue.ess1dec='30';
+      poser(troue); choisirEssSens(a.sens); checkEssAnswer();
+      if(document.getElementById('essP').value!==String(a.pct) || !/\\bsol\\b/.test(cl('essP'))) vus.push('en entraînement, la case laissée vide n’est pas complétée en vert');
+      const badge=document.getElementById('ess1dec').nextElementSibling;
+      if(!badge || !/mf-cor/.test(badge.className||'')) vus.push('en entraînement, la case fausse ne reçoit pas la bonne réponse à côté');
+      /* la pose est un outil : fausse, elle ne coûte pas le point ; vide, elle n'est pas corrigée */
+      poser(copieCoef(q,a)); choisirEssSens(a.sens);
+      const boite=hote.querySelector('#essMul .mp-box'); if(boite){ boite.value=String((parseInt(boite.dataset.exp,10)+1)%10); }
+      checkEssAnswer();
+      if(test.score!==1) vus.push('une pose fausse coûte le point du calcul');
+      if(boite && !/\\bbad\\b/.test(boite.className)) vus.push('la case fausse de la pose ne rougit pas');
+      currentMode='soutien';
+      poser({}); checkEssAnswer();
+      if(test.locked) vus.push('en soutien, une copie vide verrouille l’exercice');
+      if(rouges().length) vus.push('en soutien, des cases laissées vides rougissent : '+rouges().join(','));
+      const demi=copieCoef(q,a); delete demi.essP; demi.essDec='1,41';
+      poser(demi); choisirEssSens(a.sens); checkEssAnswer();
+      if(test.locked) vus.push('en soutien, une copie fausse verrouille l’exercice');
+      if(!/\\bbad\\b/.test(cl('essDec'))) vus.push('en soutien, la case fausse ne rougit pas');
+      if(document.getElementById('essP').value!=='') vus.push('en soutien, la case vide reçoit la réponse');
+      /* le MAUVAIS sens choisi en soutien : il rougit, et le bon n'est pas révélé */
+      poser(demi); choisirEssSens(-a.sens); checkEssAnswer();
+      if(!/\\bbad\\b/.test(cl('essSensB'))) vus.push('en soutien, le mauvais sens choisi ne rougit pas');
+      if(/\\bsol\\b/.test(cl('essSensB'))||/\\bsol\\b/.test(cl('essSensH'))) vus.push('en soutien, le bon sens est révélé');
+      currentMode='train';
+      /* changer de sens ne détruit pas ce que l'élève a écrit, et retourne l'étape ④ */
+      q=epingle(1,20,-1,5); a=essAns(q); choisirEssMeth('coef'); poser({ess1n:20,essP:14});
+      choisirEssSens(1);
+      if(document.getElementById('ess1n').value!=='20') vus.push('choisir le sens efface les cases déjà écrites');
+      if(!/1 \\+ 0,/.test(document.getElementById('essStep4').textContent)) vus.push('l’étape ④ ne suit pas le sens choisi (hausse)');
+      if(/step-hidden/.test(cl('essStep4'))) vus.push('l’étape ④ reste cachée une fois le sens et le pourcentage écrits');
+      choisirEssSens(-1);
+      if(!/1 − 0,/.test(document.getElementById('essStep4').textContent)) vus.push('l’étape ④ ne suit pas le sens choisi (baisse)');
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
+      /* ---- 8. l'identité, le rappel, l'aide ---- */
+      test.kind='ess'; test.qId='(sentinelle)'; restartCurrentTest();
+      if(test.qId!=='synthese-evolutions-successives') vus.push('« Recommencer » relance « '+test.qId+' »');
+      const rap=(typeof RAPPELS_ID!=='undefined' && RAPPELS_ID['synthese-evolutions-successives'])||'';
+      const m=/(\\d+) % puis (?:de )?(?:baisser de |augmenter de )?(\\d+) %/.exec(rap);
+      if(!m) vus.push('le rappel ne montre aucun exemple « X % puis Y % »');
+      else {
+        const tirable=HS_PAIRES.some(function(p){ return (p[0]===+m[1]&&p[1]===+m[2])||(p[0]===+m[2]&&p[1]===+m[1]); });
+        if(!tirable) vus.push('le rappel montre '+m[1]+' % puis '+m[2]+' %, que le tirage ne rend jamais');
+        const ex=essAns({s1:1,P1:+m[1],s2:-1,P2:+m[2]});
+        [['le coefficient global',ex.coefStr],['le produit des numérateurs',ex.prodNum],['la nouvelle valeur',ex.v1],['la valeur finale',ex.v2],['le global',ex.pct]].forEach(function(p){
+          if(rap.indexOf(String(p[1]))<0) vus.push('le rappel n’écrit pas '+p[0]+' ('+p[1]+')'); });
+      }
+      if(!(QIA_SUGG.ess && QIA_SUGG.ess.length>=3)) vus.push('QIA_SUGG.ess manque');
+      currentTestId='synthese-evolutions-successives'; test.kind='ess'; test.questions=[essQuestion(1,20,-1,5)]; test.idx=0;
+      const ctx=conseilCtxCourant();
+      ['hausse globale de 14 %','1,14','Méthode 1','Méthode 2','114','STRICTEMENT SECRÈTES'].forEach(function(t){ if(ctx.indexOf(t)<0) vus.push('le contexte envoyé au modèle ne dit pas « '+t+' »'); });
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+
+    /* LE VIVIER ET LES MISES EN SITUATION SONT PARTAGÉS, PAS RECOPIÉS. On lit la
+       SOURCE, jamais String(renderEssTest) — les rendus sont enveloppés par la
+       greffe des jetons (le piège documenté du 2.14). */
+    const corpsEss = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+    const texteEss = n => (corpsEss.find(o => o.nom === n) || { texte:'' }).texte;
+    const sansVivierEss = ['genEss', 'essSeance'].filter(n => texteEss(n).indexOf('HS_PAIRES') < 0);
+    const revenuEss = [['ESS_PAIRES', /\bconst\s+ESS_PAIRES\s*=/], ['ESS_TAUX', /\bconst\s+ESS_TAUX\s*=/]].filter(d => d[1].test(src)).map(d => d[0]);
+    verifier('le vivier du 2.5.4 est celui du 2.2.7, partagé et non recopié, et ses contextes ceux du 2.3.7',
+      sansVivierEss.length === 0 && revenuEss.length === 0 && texteEss('essQuestion').indexOf('BS_CTX') >= 0
+        && texteEss('essCoef').indexOf('hsCoef') >= 0,
+      sansVivierEss.length ? 'ne lit plus HS_PAIRES : ' + sansVivierEss.join(', ')
+        : revenuEss.length ? 'le 2.5.4 s’est donné un vivier à lui : ' + revenuEss.join(', ')
+        : texteEss('essQuestion').indexOf('BS_CTX') < 0 ? 'essQuestion ne tire plus son contexte dans BS_CTX'
+        : 'essCoef ne lit plus hsCoef pour la hausse');
+  } else {
+    ignorer('deux évolutions successives : vivier partagé, entiers dans les quatre signes, deux méthodes, sens jugé',
+      'ce niveau n\'a pas la synthèse des évolutions successives à deux méthodes');
+  }
+
   /* ---- {associer-coefficient} (2.4.2) : associer parmi SIX ---------------
      Demande de Turquet (septembre 2026) : associer à « prendre un % », à
      « augmenter d'un % » et à « diminuer d'un % » le bon coefficient parmi

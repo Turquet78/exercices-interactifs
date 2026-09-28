@@ -50,7 +50,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','synthese-evolutions-successives':'ess',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -269,7 +269,7 @@ module.exports = {
        Turquet, août 2026, en trois temps). DEUX sources : la page a EVOL_NB,
        le banc compare à ceci. */
     nbQuestionsEvolutions: 3,
-    /* {evolutions-successives} (2.5.4) — le schéma de la fiche « évolutions
+    /* {evolutions-successives} (2.5.5) — le schéma de la fiche « évolutions
        successives », porté de la Seconde (demande de Turquet, septembre 2026 :
        « en première créer un exercice comme le pdf, avec deux évolutions
        successives … chaque pourcentage peut être un multiple de 10 % … le
@@ -491,7 +491,9 @@ module.exports = {
       rangee: { selecteur: '#scr-ptest .ia-row button', attendus: 2 },
       qiaDetachee: true,
       conseil: true,
-      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE,
+      /* {synthese-evolutions-successives} (2.5.4) n'existe qu'en Première :
+         la Seconde dérive sa liste de KINDS_PREMIERE, on l'ajoute donc ICI. */
+      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()']]),
              prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;', psl: 'test.questions[0].choisi=0;' } },
       mlStatic: true,
     },
