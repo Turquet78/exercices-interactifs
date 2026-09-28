@@ -2038,25 +2038,25 @@
      {pourcentage-chaine} (.pctb-row, .pctc-global, .pctc-calc) ; le
      « × (1 ± …) » puis « × … » et la flèche de retour « ↑ −1 » viennent de
      {synthese-evolutions} (.pctb-af, .evb-rev-arrow). Ce qui est neuf : la
-     parenthèse GLOBALE, dont le signe est CHOISI par deux boutons (les
-     .pt-choix-btn de {lire-coefficient}, en plus petit pour tenir dans la
-     parenthèse), sa flèche « ↑ −1 » posée en texte entre ses deux rangées
-     (pas de trait ici — l'oval de la fiche n'en a pas), et la phrase de
-     conclusion de la fiche, dont le verbe suit le signe choisi. Trois
+     parenthèse GLOBALE, qui montre « ± » (le + et le − l'un sur l'autre)
+     tant que le coefficient global n'est pas écrit, puis « + » ou « − » LU
+     sur lui (Turquet, septembre 2026 : rien à choisir, le signe se lit), sa
+     flèche « ↑ −1 » posée en texte entre ses deux rangées (pas de trait ici
+     — l'oval de la fiche n'en a pas), et la phrase de conclusion de la
+     fiche, qui dit « augmentation » ou « diminution » du même coup. Trois
      boîtes et deux flèches à deux étages : les libellés et les flèches sont
      un peu plus étroits qu'en 4.1.9 pour que la rangée tienne d'un trait. */
   #evsHost .pctb-shaft{margin:14px 0}
   #evsHost .pctb-arrow{flex:1 1 150px;min-width:130px;max-width:230px}
   #evsHost .pctb-lab{max-width:120px}
   .evs-gpar{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
-  .evs-signes{gap:6px;margin:0 2px}
-  #evsHost .pt-choix-btn{padding:4px 10px;border-radius:10px}
-  #evsHost .pt-choix-btn .valeur{font-size:1.3rem;line-height:1}
   .evs-rev{font-family:"Fredoka";font-weight:700;font-size:1.15rem;color:var(--ink-soft);line-height:1.1}
   .evs-conclusion{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0 0;font-family:"Nunito";font-weight:800;font-size:1.15rem;color:var(--ink)}
-  .evs-verbe{color:var(--blue-dark)}
-  .evs-verbe-vide{color:var(--ink-soft);font-weight:600;font-style:italic}
-  .evs-verbe.sol{color:var(--green)}
+  .evs-pm{display:inline-block;min-width:1.1em;text-align:center}
+  .evs-pm-vide{color:var(--ink-soft)}
+  .evs-mot{color:var(--blue-dark)}
+  .evs-mot-vide{color:var(--ink-soft);font-weight:600;letter-spacing:.08em}
+  .evs-pm.sol,.evs-mot.sol{color:var(--green)}
   #evsHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
   #evsHost math-field.pm-mf.evs-pct{min-width:58px;max-width:110px}
   @media(max-width:900px){ #evsHost math-field.pm-mf{font-size:1.4rem} }
@@ -4721,7 +4721,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=236;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=237;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5350,7 +5350,7 @@ const TESTS={
   'synthese-pourcentages-libre':{ name:'Synthèse sur les pourcentages — rédigée', icon:'✍️', desc:'Les mêmes questions que {synthese-pourcentages} — prendre, augmenter ou diminuer —, mais plus une seule case : tu JUSTIFIES en écrivant ta vérification toi-même, et la page la lit. La multiplication par le bon coefficient qui donne le résultat suffit ; le quotient simplifié pour retrouver un pourcentage aussi ; ou bien calcule la hausse ou la baisse, puis fais l’addition ou la soustraction.', start:()=>startSynLibre() },
   'reconnaitre-coefficient':{ name:'Reconnaître le coefficient', icon:'🎯', desc:'Augmenter de 30 %, diminuer de 3 %, prendre 30 % : quel coefficient multiplicateur ? Choisis parmi quatre — les pièges classiques y sont — puis VÉRIFIE ta réponse en calculant le coefficient, comme dans {augmenter-pourcentage}.', start:()=>startReconnaitreCoef() },
   'synthese-evolutions':{ name:'Synthèse sur les évolutions', icon:'🔄', desc:'Le schéma en boîte de la fiche papier, pour les évolutions : [Avant] → × (1 ± …) → [Après]. Mélange de hausses et de baisses, jamais « prendre » un pourcentage — selon la question, c’est l’après, l’avant ou le pourcentage qui est à retrouver. Le résultat est toujours un nombre entier.', start:()=>startSynEvol() },
-  'evolutions-successives':{ name:'Deux évolutions successives', icon:'🔁', desc:'La synthèse de {synthese-evolutions} et de {pourcentage-chaine} : deux évolutions de suite — deux hausses, deux baisses, ou une hausse et une baisse — sur le schéma à trois boîtes de la fiche. Sur chaque flèche, × (1 ± …) puis le coefficient ; en dessous, le coefficient global en un seul calcul, et le pourcentage d’évolution global, dont c’est à toi de trouver le signe. Il tombe toujours sur un nombre entier.', start:()=>startEvolSucc() },
+  'evolutions-successives':{ name:'Deux évolutions successives', icon:'🔁', desc:'La synthèse de {synthese-evolutions} et de {pourcentage-chaine} : deux évolutions de suite — deux hausses, deux baisses, ou une hausse et une baisse — sur le schéma à trois boîtes de la fiche. Sur chaque flèche, × (1 ± …) puis le coefficient ; en dessous, le coefficient global en un seul calcul, et le pourcentage d’évolution global, dont le signe se lit sur le coefficient global. Il tombe toujours sur un nombre entier.', start:()=>startEvolSucc() },
   'intervalles': { name:'Intervalles', icon:'\ud83d\udccf', desc:'Le chemin inverse de {intervalles-inegalite} : on te donne le schéma, et tu écris les crochets, l’inégalité et la phrase « ouvert / fermé en … ».', start:()=>startItv() },
   'intervalles-inegalite': { name:'De l’inégalité à l’intervalle', icon:'\ud83d\udd01', desc:'On ne te donne que l’inégalité : retrouve le schéma qui lui correspond, l’écriture de l’intervalle et la phrase « ouvert / fermé en … ».', start:()=>startItq() },
   'appartient-intervalle': { name:'Appartient ou pas ? — niveau 1', icon:'\ud83c\udfaf', desc:'Un nombre, un intervalle : dis s’il appartient (∈) ou non (∉). Attention aux bornes — c’est le crochet qui décide.', start:()=>startApp1() },
@@ -6770,7 +6770,7 @@ Les cases sont toujours vides, même les nombres que l’énoncé donne déjà :
 const RAP_EVS=`<b>Deux évolutions successives</b><br>
 Trois boîtes reliées par deux flèches : <b>[valeur initiale]</b> → <b>[valeur intermédiaire]</b> → <b>[valeur finale]</b>. Chaque flèche porte son coefficient multiplicateur en deux temps, comme dans {synthese-evolutions} : <b>× (1 + …)</b> pour une hausse, <b>× (1 − …)</b> pour une baisse, puis son écriture décimale (<b>1,2</b> pour +20 %, <b>0,7</b> pour −30 %).<br>
 Le coefficient <b>global</b>, celui qui va directement de la valeur initiale à la valeur finale, est le <b>PRODUIT</b> des deux coefficients — jamais leur somme, et jamais la somme des deux pourcentages : c’est la deuxième rangée du schéma, comme dans {pourcentage-chaine}. Par exemple, 1,2 × 0,7 = 0,84.<br>
-Pour retrouver le pourcentage d’évolution global, on retire 1 au coefficient global — la flèche « −1 » : 0,84 − 1 = −0,16, donc <b>× (1 − 0,16)</b>, une <b>baisse</b> de 16 %. Un coefficient global plus grand que 1 dit une hausse, plus petit que 1 une baisse : c’est à toi de choisir le signe.<br>
+Pour retrouver le pourcentage d’évolution global, on retire 1 au coefficient global — la flèche « −1 » : 0,84 − 1 = −0,16, donc <b>× (1 − 0,16)</b>, une <b>baisse</b> de 16 %. Un coefficient global plus grand que 1 dit une <b>augmentation</b>, plus petit que 1 une <b>diminution</b> : le signe de la parenthèse se lit sur lui.<br>
 Toutes les cases sont vides, même les deux pourcentages que l’énoncé donne déjà : c’est en les récrivant qu’on montre qu’on a compris le schéma.`;
 const RAP_PCTQ=`<b>Retrouver la valeur initiale ou le pourcentage</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
@@ -21085,10 +21085,12 @@ async function finishEvb(){
      et la flèche de retour « ↑ −1 » entre les deux (`.evb-rev-arrow`).
    Ce que la fiche AJOUTE, et que ni l'un ni l'autre n'avait : le SIGNE de
    l'évolution globale n'est pas donné. Deux hausses montent, deux baisses
-   descendent, mais « +20 % puis −30 % » ? C'est tout le sujet — l'élève
-   CHOISIT le signe de la parenthèse globale (deux boutons « + » / « − », le
-   motif de {lire-coefficient}), et la phrase de conclusion de la fiche
-   (« Le prix augmente globalement de … % ») prend le verbe de ce choix.
+   descendent, mais « +20 % puis −30 % » ? C'est tout le sujet — la
+   parenthèse globale montre « ± » tant que le coefficient global n'est pas
+   écrit, puis « + » ou « − » LU sur lui (Turquet, septembre 2026 : d'abord
+   deux boutons à choisir, puis « écrire ± quand on ne sait pas, et + ou − à
+   la place quand l'élève a trouvé le coefficient »), et la phrase de
+   conclusion de la fiche dit « augmentation » ou « diminution » du même coup.
    L'ÉVOLUTION GLOBALE EST UN ENTIER, ET ÇA SE DÉMONTRE : (1 ± P1/100)(1 ± P2/100)
    = 1 ± P1/100 ± P2/100 ± P1·P2/10000, donc le pourcentage global vaut
    ±P1 ± P2 ± P1·P2/100 — entier dès que P1·P2 est un multiple de 100. Le
@@ -21122,7 +21124,7 @@ function genEvs(sens){
   let P1,P2,G;
   do{ const p=pick(EVS_PAIRES), o=pick([true,false]); P1=o?p[0]:p[1]; P2=o?p[1]:p[0]; G=evsGlobal(s[0],P1,s[1],P2); }
   while(G===0 || Math.abs(G)>=100);
-  const q={s1:s[0],s2:s[1],P1,P2,c1:100+s[0]*P1,c2:100+s[1]*P2,G,gs:null,ci:tirerContexte(BS_CTX,0)};
+  const q={s1:s[0],s2:s[1],P1,P2,c1:100+s[0]*P1,c2:100+s[1]*P2,G,ci:tirerContexte(BS_CTX,0)};
   q.v=tirerVariante(EVS_ENONCES,q);
   return q;
 }
@@ -21142,7 +21144,20 @@ async function startEvolSucc(){
   test.maxScore=test.questions.length;
   show('evs'); renderEvsTest();
 }
-function evsVerbe(q){ return q.gs==='+'?'augmente':(q.gs==='−'?'baisse':'augmente ou baisse'); }
+/* Le signe de l'évolution globale n'est PAS demandé : il se LIT sur le
+   coefficient global que l'élève écrit — plus grand que 1, « + » et
+   « augmentation » ; plus petit que 1, « − » et « diminution » ; tant que la
+   case est vide (ou vaut 1), la parenthèse montre « ± » et la conclusion
+   reste en pointillés. Rien n'est rangé dans la question : c'est une
+   LECTURE de la case, refaite à chaque frappe et à chaque affichage. */
+function evsSigneDe(val){ const fr=parseDecToFrac(val); if(!fr) return null; return fr.n>fr.d?'+':(fr.n<fr.d?'−':null); }
+function evsMotDe(s){ return s==='+'?'augmentation':(s==='−'?'diminution':'……'); }
+function evsSigneMAJ(){
+  const g=$('evsG'), pm=$('evsPM'), mot=$('evsMot'); if(!g||!pm||!mot) return;
+  const s=evsSigneDe(String(g.value||'').trim());
+  pm.textContent=s||'±'; pm.classList.toggle('evs-pm-vide',!s);
+  mot.textContent=evsMotDe(s); mot.classList.toggle('evs-mot-vide',!s);
+}
 function renderEvsTest(){
   const q=test.questions[test.idx]; test.locked=false;
   $('evsIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
@@ -21158,7 +21173,6 @@ function renderEvsTest(){
        <div class="pctb-shaft" aria-hidden="true"><span class="evb-rev-arrow">↑ −1</span></div>
        <div class="pctb-af"><span class="pctb-af-x">×</span><math-field class="dexp-mf pm-mf" id="${idC}" aria-label="coefficient multiplicateur"></math-field></div>
      </div>`;
-  const signe=s=>`<button type="button" class="pt-choix-btn${q.gs===s?' sel':''}" data-s="${s}" onclick="evsChoisirSigne(this.dataset.s)" aria-label="${s==='+'?'hausse':'baisse'} globale"><span class="valeur">${s}</span></button>`;
   $('evsHost').innerHTML=
     `<div class="pctb-row">
        ${boite('Valeur initiale')}
@@ -21172,7 +21186,7 @@ function renderEvsTest(){
        <div class="pctc-global-lab">Valeur initiale → Valeur finale en un seul calcul&nbsp;: coefficient global</div>
        <div class="evs-gpar">
          <span class="pctb-af-x">× (1</span>
-         <span class="pt-choix evs-signes" id="evsSignes">${signe('+')}${signe('−')}</span>
+         <span class="pctb-af-x evs-pm evs-pm-vide" id="evsPM" aria-label="signe de l’évolution globale, lu sur le coefficient global">±</span>
          <math-field class="dexp-mf pm-mf evs-pct" id="evsGP" aria-label="le pourcentage global en écriture décimale"></math-field>
          <span class="pctb-af-x">)</span>
        </div>
@@ -21185,20 +21199,15 @@ function renderEvsTest(){
          <math-field class="dexp-mf pm-mf" id="evsG" aria-label="coefficient multiplicateur global"></math-field>
        </div>
      </div>
-     <p class="evs-conclusion">${BS_CTX[q.ci].sujet} <b class="evs-verbe${q.gs?'':' evs-verbe-vide'}" id="evsVerbe">${evsVerbe(q)}</b> globalement de
+     <p class="evs-conclusion">${BS_CTX[q.ci].sujet} subit globalement une <b class="evs-mot evs-mot-vide" id="evsMot">……</b> de
        <math-field class="dexp-mf pm-mf evs-pct" id="evsT" aria-label="pourcentage d’évolution global"></math-field><span class="pctb-af-x">%</span></p>`;
-  const order=['evsP1','evsC1','evsP2','evsC2','evsGP','evsG1','evsG2','evsG','evsT'].map(id=>$(id));
+  /* l'ordre de saisie suit la résolution : le produit d'abord, le signe et
+     le pourcentage global s'en déduisent ensuite */
+  const order=['evsP1','evsC1','evsP2','evsC2','evsG1','evsG2','evsG','evsGP','evsT'].map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkEvsAnswer();} }); });
+  $('evsG').addEventListener('input', evsSigneMAJ);
+  evsSigneMAJ();
   setTimeout(()=>order[0]&&order[0].focus(),70);
-}
-/* le signe CHOISI est rangé dans la question (q.gs) : une pause le reprend,
-   et la phrase de conclusion prend son verbe */
-function evsChoisirSigne(s){
-  if(test.locked) return;
-  const q=test.questions[test.idx]; q.gs=s;
-  document.querySelectorAll('#evsSignes .pt-choix-btn').forEach(b=>{ b.classList.toggle('sel', b.dataset.s===s); b.classList.remove('ok','bad'); });
-  const v=$('evsVerbe'); if(v){ v.textContent=evsVerbe(q); v.classList.remove('evs-verbe-vide'); }
-  autoSave();
 }
 function checkEvsAnswer(live){
   if(test.locked)return;
@@ -21215,34 +21224,40 @@ function checkEvsAnswer(live){
   const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
   const ok={ evsP1:dec('evsP1',q.P1,100), evsC1:dec('evsC1',q.c1,100), evsP2:dec('evsP2',q.P2,100), evsC2:dec('evsC2',q.c2,100),
              evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',q.c1,100), evsG2:dec('evsG2',q.c2,100), evsG:dec('evsG',gc,10000), evsT:dec('evsT',gAbs,1) };
-  const bonS=q.G>0?'+':'−', okS=q.gs===bonS;
+  const bonS=q.G>0?'+':'−';
   // une case vide ne rougit jamais (règle universelle) : mark() ne colore que
   // les cases écrites, et chacune se juge SEULE contre sa valeur canonique
   const mark=(id,o)=>{ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(o?'ok':'bad'); el.disabled=o||!isSoutien(); };
   Object.keys(ok).forEach(id=>mark(id,ok[id]));
-  /* le signe : seul le bouton CHOISI se colore — aucun choix, aucune couleur */
-  document.querySelectorAll('#evsSignes .pt-choix-btn').forEach(b=>{ b.classList.remove('ok','bad'); if(q.gs && b.dataset.s===q.gs) b.classList.add(okS?'ok':'bad'); });
-  const allOk=okS && Object.keys(ok).every(id=>ok[id]);
+  evsSigneMAJ();                                            /* le signe et le mot suivent la case, même après le verdict */
+  const allOk=Object.keys(ok).every(id=>ok[id]);
   if(!allOk && isSoutien()){ soutienAgain('evsFeedback','evsActions','checkEvsAnswer','evsHost'); return; }
-  test.locked=true; $('evsSignes').classList.add('locked');
+  test.locked=true;
   const d1=evsDec(q.P1), d2=evsDec(q.P2), k1=evsDec(q.c1), k2=evsDec(q.c2), kg=evsDec(gc,10000), dg=evsDec(gAbs);
-  const verbe=q.G>0?'augmente':'baisse';
+  const mot=evsMotDe(bonS);
   if(allOk){ test.score++; $('evsLiveScore').textContent=test.score;
     $('evsFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('evsFeedback').className='mp-feedback good';
   } else {
-    $('evsFeedback').textContent=`Réponse : (1 ${q.s1<0?'−':'+'} ${d1}) × (1 ${q.s2<0?'−':'+'} ${d2}) = ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg} : ${BS_CTX[q.ci].sujet.charAt(0).toLowerCase()+BS_CTX[q.ci].sujet.slice(1)} ${verbe} globalement de ${gAbs} %.`;
+    $('evsFeedback').textContent=`Réponse : (1 ${q.s1<0?'−':'+'} ${d1}) × (1 ${q.s2<0?'−':'+'} ${d2}) = ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg} : ${BS_CTX[q.ci].sujet.charAt(0).toLowerCase()+BS_CTX[q.ci].sujet.slice(1)} subit globalement une ${mot} de ${gAbs} %.`;
     $('evsFeedback').className='mp-feedback bad';
     corTrainDec('evsP1',d1); corTrainDec('evsC1',k1); corTrainDec('evsP2',d2); corTrainDec('evsC2',k2);
     corTrainDec('evsGP',dg); corTrainDec('evsG1',k1); corTrainDec('evsG2',k2); corTrainDec('evsG',kg); corTrainDec('evsT',String(gAbs));
-    /* en entraînement, le bon signe se montre en VERT (la correction), et la
-       phrase de conclusion prend le bon verbe — comme une case complétée */
-    if(!okS && currentMode==='train'){
-      document.querySelectorAll('#evsSignes .pt-choix-btn').forEach(b=>{ if(b.dataset.s===bonS) b.classList.add('sol'); });
-      const e=$('evsVerbe'); if(e){ e.textContent=verbe; e.classList.remove('evs-verbe-vide'); e.classList.add('sol'); }
+    /* en entraînement, la case du coefficient global vient d'être corrigée
+       (complétée si vide) : le signe et le mot se relisent dessus ; si l'élève
+       y avait écrit un coefficient du mauvais côté de 1, on montre le bon
+       signe et le bon mot en VERT, comme une correction */
+    if(currentMode==='train'){
+      evsSigneMAJ();
+      if(evsSigneDe(v('evsG'))!==bonS){
+        const pm=$('evsPM'), m=$('evsMot');
+        pm.textContent=bonS; pm.classList.remove('evs-pm-vide'); pm.classList.add('sol');
+        m.textContent=mot; m.classList.remove('evs-mot-vide'); m.classList.add('sol');
+      }
     }
   }
   const enonce=evsEnonce(q).replace(/<[^>]+>/g,'');
-  const given=`${v('evsP1')||'—'} / ${v('evsC1')||'—'} ; ${v('evsP2')||'—'} / ${v('evsC2')||'—'} ; ${q.gs||'?'}${v('evsGP')||'—'} ; ${v('evsG1')||'—'} × ${v('evsG2')||'—'} = ${v('evsG')||'—'} ; ${q.gs||'?'}${v('evsT')||'—'} %`;
+  const sLu=evsSigneDe(v('evsG'))||'±';
+  const given=`${v('evsP1')||'—'} / ${v('evsC1')||'—'} ; ${v('evsP2')||'—'} / ${v('evsC2')||'—'} ; ${sLu}${v('evsGP')||'—'} ; ${v('evsG1')||'—'} × ${v('evsG2')||'—'} = ${v('evsG')||'—'} ; ${sLu}${v('evsT')||'—'} %`;
   test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${d1} / ${k1} ; ${d2} / ${k2} ; ${bonS}${dg} ; ${k1} × ${k2} = ${kg} ; ${bonS}${gAbs} %`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('evsActions').innerHTML=`<button class="btn btn-primary" id="evsNext" onclick="nextEvsQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;

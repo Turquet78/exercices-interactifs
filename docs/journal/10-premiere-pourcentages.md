@@ -2343,3 +2343,34 @@ seul, une case vide et un signe non choisi qui ne colorent rien. Les règles
 universelles (taille des cases, case vide, bouton d'aide IA, clavier,
 couleurs des verdicts) sont tenues par le banc navigateur sans rien
 déclarer.
+
+**Puis le signe a cessé d'être CHOISI : il se LIT (Turquet, septembre 2026,
+le jour même).** « Écrire le symbole ± quand on ne sait pas si c'est une
+augmentation ou une diminution sur le schéma ; quand l'élève a trouvé un
+coefficient, écrire + ou − à la place ; et dans la phrase réponse, écrire
+uniquement augmentation ou diminution. » Les deux boutons de la première
+version demandaient une décision de plus, alors que la fiche n'en demande
+aucune : le signe est DANS le coefficient global — plus grand que 1, c'est
+une augmentation ; plus petit, une diminution. La parenthèse globale montre
+donc « ± » (`#evsPM`, le + et le − l'un sur l'autre, en retrait) tant que la
+case du coefficient global est vide ou vaut 1, puis « + » ou « − » dès que
+l'élève y écrit un nombre — relu à CHAQUE frappe (`evsSigneMAJ`, sur
+l'événement `input` de la case, le même que la correction en direct), jamais
+rangé dans la question : c'est une lecture, pas un état. La phrase de
+conclusion suit le même signe et dit le mot demandé, « … subit globalement
+une **augmentation** de … % » ou « … une **diminution** de … % », en
+pointillés tant que rien n'est lu. Plus rien à juger de ce côté : les neuf
+cases suffisent, le signe faux n'existe plus qu'à travers un coefficient
+global du mauvais côté de 1 — la case rougit, et en entraînement le bon
+signe et le bon mot se montrent en VERT, comme une correction. L'ordre de
+saisie a suivi la résolution : le produit d'abord (`evsG1 × evsG2 = evsG`),
+puis la parenthèse globale et le pourcentage, qui s'en déduisent — on ne
+peut plus « choisir » un signe avant d'avoir calculé. Le contrôle a été
+refait sur ce bord : le « ± » initial et les pointillés, le signe et le mot
+qui suivent la frappe (0,84 → « − » / « diminution », 1,56 → « + » /
+« augmentation », la case effacée ou 1 → « ± »), l'absence de tout bouton,
+les copies justes sans rien à choisir, 1,16 à la place de 0,84 (rouge, bon
+signe et bon mot en vert), et la case vide en soutien qui ne rougit pas et
+garde son « ± ». Les valeurs y sont posées COMME L'ÉLÈVE les tape — la
+valeur, puis l'événement `input` —, sans quoi le contrôle appellerait la
+relecture lui-même et ne prouverait pas qu'elle est branchée.
