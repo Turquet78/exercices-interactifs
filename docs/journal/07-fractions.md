@@ -1021,3 +1021,37 @@ doctrine que `#pqdHost .f-whole`/`.f-eq`/`.f-times` juste au-dessus, chacun
 son budget. {quotient-difference-fractions} (I), qui ajoute le maillon de
 l'inverse, redessine `a/b` CINQ fois sur sa rangée au lieu des quatre de H ;
 c'est ce cas, le plus large des deux, qui a fixé le budget.
+
+**Et deux défauts sont revenus sur la première pose de `fParen` (Turquet,
+septembre 2026) : les parenthèses étaient trop plates, et le « − » de la
+parenthèse ne tombait plus sur le trait des fractions qu'il sépare.**
+
+Un rayon elliptique à 50 % est déjà le maximum que `border-radius` sache
+donner — la COURBE ne peut pas s'arrondir davantage, seule sa PROFONDEUR le
+peut, et elle dépend de la LARGEUR du trait (`.f-par`), pas de son rayon :
+un trait de 5 px ne bombe que de 2,5 px, une courbe à peine perceptible à
+côté d'une rangée de plusieurs dizaines de pixels de haut. Le remède est
+donc le même geste que celui qui avait tenu la largeur — régler LE MÊME
+budget, dans l'autre sens : `#pqdHost .f-par` passe de 5 px/2 px à 9 px/3 px
+(le défaut, lui, de 9 px/3 px à 14 px/4 px, plus généreux puisqu'aucun autre
+exercice ne partage encore son budget de largeur). Mesuré au banc navigateur,
+la rangée tient toujours sous 1400 px avec ce trait plus large.
+
+**Le second défaut venait du GROUPE, pas du trait.** `.f-pgrp` (le conteneur
+flex de `fParen`) posait `align-items:stretch` sur LUI-MÊME : ses bords
+(`.f-par`) en avaient besoin — c'est tout leur rôle, s'étirer à la hauteur du
+contenu —, mais le réglage, posé au niveau du GROUPE, s'appliquait aussi à
+tout ce que le groupe enveloppe : une case de croisement, une fraction, et le
+signe « − » entre les deux. Étiré à la hauteur du groupe entier plutôt que
+centré sur sa propre hauteur, un signe d'une seule ligne ne tombe plus au
+milieu — exactement le défaut que la règle universelle « un signe posé à
+côté d'une fraction tombe sur son trait » existe pour empêcher, sauf que son
+contrôle ne mesure que `.sf-f .bar` (le terme littéral `a/b`), jamais
+`.f-frac-input .f-fbar` (les cases de croisement) : un signe qui décroche
+LÀ ne fait rougir aucun contrôle existant. La correction déplace
+`align-self:stretch` du GROUPE vers ses seuls DEUX bords : `.f-pgrp` revient
+à `align-items:center` — son réglage AVANT `fParen` —, et seul `.f-par`
+garde `align-self:stretch`. Éprouvé en ouvrant réellement l'exercice dans un
+Chromium et en mesurant le milieu du signe contre le milieu du trait sur les
+quatre soustractions de la rangée : moins de 0,01 px d'écart, contre plusieurs
+pixels avant la correction.
