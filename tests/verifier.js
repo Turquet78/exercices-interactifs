@@ -9418,6 +9418,36 @@ function suiteVariationRecurrence(w, P){
     if(!document.getElementById('svrSheet').classList.contains('bad')) dit('la feuille ne rougit pas alors qu’une de ses lignes est fausse');
     if(test.score!==0) dit('une chaîne qui porte une égalité fausse vaut quand même le point');
 
+    /* ---- 7 bis². UNE LIGNE PEUT PORTER PLUSIEURS MEMBRES : « A = B » écrit
+            d'un trait, sans « Entrée », comme sur le papier. Chaque membre vaut
+            f ′(x) ; la ligne est juste si tous le sont. Donnée en bloc au juge,
+            la ligne entière rougissait — une dérivée JUSTE comptée fausse
+            (capture de Turquet, septembre 2026, 6.2.5). Trois bords : la chaîne
+            juste sur une ligne vaut le point ; un membre faux au milieu rougit
+            la ligne ; un « f ′(x) = » recopié du préfixe ne compte pas. ---- */
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(['(0*(4-x)-(-1)*3)/(4-x)^2=3/(4-x)^2']);
+    checkSVR();
+    if(ligneRouge(0)) dit('une chaîne « A = B » juste écrite sur UNE ligne rougit : le juge lit le « = » comme une expression');
+    if(!document.getElementById('svrSheet').classList.contains('ok')) dit('une chaîne juste sur une ligne ne bleuit pas la feuille');
+    if(test.score!==1) dit('une chaîne juste sur une ligne ne vaut pas le point');
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(['3/(4-x)=3/(4-x)^2']);
+    checkSVR();
+    if(!ligneRouge(0)) dit('un membre FAUX dans une chaîne sur une ligne ne rougit pas : seul le dernier membre est lu');
+    if(test.score!==0) dit('une chaîne sur une ligne qui porte un membre faux vaut le point');
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(["f'(x)=3/(4-x)^2"]);
+    checkSVR();
+    if(ligneRouge(0)) dit('un « f ′(x) = » recopié du préfixe fait rougir une dérivée juste');
+    if(test.score!==1) dit('un « f ′(x) = » recopié du préfixe fait perdre le point');
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(["f'(x)="]);
+    checkSVR();
+    if(ligneRouge(0)||document.getElementById('svrSheet').classList.contains('bad')) dit('une ligne qui ne porte que « f ′(x) = » rougit : une copie vide ne rougit jamais');
+    /* le bord de la source : la coupe vit dans derMembres, et derVerdict y passe */
+    if(String(derVerdict).indexOf('derMembres')<0) dit('derVerdict ne coupe plus ses lignes sur « = » (derMembres)');
+
     /* ---- 7 ter. LES CASES FACULTATIVES sont jugées, et ne comptent PAS.
             Le 2.5 les tient hors de la note ; ici la note se lit à l’écran,
             donc une case facultative colorée AVANT la mesure changerait le
