@@ -2485,7 +2485,14 @@ soutien deux cases vides qui ne rougissent pas pendant qu'une voisine
 juste reste bleue. **Le premier passage a rougi sur le contrôle
 lui-même**, pas sur la page : il cherchait « Compl » dans la consigne, et la
 deuxième tournure dit « complète » en minuscule au milieu de sa phrase — un
-contrôle qui exige un mot doit l'exiger sans casse. Les règles universelles
+contrôle qui exige un mot doit l'exiger sans casse. **Le banc navigateur a
+rougi une fois, sur le rappel de cours** : « les fractions des rappels de
+cours s'affichent empilées » ouvre CHAQUE rappel qui porte une formule et
+exige qu'au moins une fraction y soit DESSINÉE — `RAP_PCS` n'écrivait que
+des décimaux entre `\(…\)`, aucune fraction, et le contrôle ne distingue
+pas « pas de fraction » de « fraction non dessinée ». Le rappel dit
+maintenant que × 0,30 est × 30/100, en fraction empilée — ce qui est
+d'ailleurs la bonne façon de le dire à un élève. Les règles universelles
 (taille des cases, case vide, bouton d'aide IA, clavier, couleurs des
 verdicts, énoncé encadré) sont tenues par le banc navigateur sans rien
 déclarer.
