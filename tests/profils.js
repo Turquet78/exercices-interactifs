@@ -291,8 +291,12 @@ module.exports = {
                        /* {synthese-diminutions-libre-dix} (2.3.13) : la barre
                           d'espace ÉCRIT une espace (l'élève y rédige en mots),
                           et SORT toujours d'une fraction — rien de cela ne se
-                          voit hors d'un vrai MathLive */
-                       dix: 'synthese-diminutions-libre-dix',
+                          voit hors d'un vrai MathLive. Puis son jumeau sur les
+                          hausses, {synthese-augmentations-libre-dix} (2.2.14) :
+                          la même copie, tapée dans l'autre sens, « mot » étant
+                          celui de la conclusion en mots */
+                       dix: [ { exercice: 'synthese-diminutions-libre-dix',   fam: 'dim', num: '2.3.13', mot: 'diminution' },
+                              { exercice: 'synthese-augmentations-libre-dix', fam: 'aug', num: '2.2.14', mot: 'augmentation' } ],
                        /* puis le 2.3.9 et le 2.2.10 ont suivi : la même feuille
                           écrit les espaces sur les quatre exercices du moteur
                           (le 2.5.2 est `exercice`, tapé avec des espaces aussi) */
@@ -438,7 +442,7 @@ module.exports = {
                        --kb-unites et TOUTES rétrécissent. */
                     lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
                                touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
-                               exercices: ['synthese-diminutions-libre-dix'], hors: ['synthese-diminutions-libre'] } },
+                               exercices: ['synthese-diminutions-libre-dix', 'synthese-augmentations-libre-dix'], hors: ['synthese-diminutions-libre', 'synthese-augmentations-libre'] } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,

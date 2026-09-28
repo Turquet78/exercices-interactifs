@@ -2378,6 +2378,78 @@ eu son clavier B »).
 
 ---
 
+## {synthese-augmentations-libre-dix} — le jumeau du 2.3.13 sur les hausses (Première, septembre 2026)
+
+**D'où ça vient.** Demande de Turquet : « en première fais le même exercice
+que le 2.3.13 mais pour les augmentations ». L'exercice arrive en fin du
+sous-thème 2.2, {synthese-augmentations-libre-dix} (2.2.14), après le 2.2.13
+comme le 2.3.13 suit le 2.3.12 : la synthèse RÉDIGÉE des hausses (le
+2.2.10), avec la voie des 10 % en plus. Le 2.2.10 ne change pas d'un iota —
+c'est un bord du contrôle, comme le 2.3.9 l'était pour le 2.3.13.
+
+**Presque rien à écrire, et c'est la mesure de ce que le 2.3.13 avait bien
+fait.** Le moteur rédigé (`sal`) lit le SENS de la question par `salSens`
+partout où le sens compte : `salVoiesTexte` (l'étiquette de la feuille, le
+message de la feuille vide, le refus du juge, le contexte de l'aide),
+l'indication sous la feuille (« l'addition », « augmentation de … % »), le
+juge (`addOk` cherche un « + » sur une hausse, l'écart de l'énoncé est
+« arrivée − départ », la conclusion « augmentation/hausse de k % » porte
+son sens et se juge contre l'énoncé), la règle du modèle (`salAttenduIA`
+écrit la quatrième voie avec « + » et « augmentation de P % »). Le tirage
+est celui du 2.2.13 : `genSyn('aug', inc, {dix:true})` — des taux qui se
+RETROUVENT depuis 10 %, et `q.dix` rangé dans la question. Ce qui a été
+écrit : le démarreur (`startSynAugLibreDix`), l'entrée de `TESTS`, la
+place dans `THEMES`, la route de « Recommencer », le rappel (`RAP_SALD` :
+600 augmenté de 30 % = 780, dans les trois voies), les questions à l'IA —
+l'identité, et rien du moteur.
+
+**Une seule ligne du moteur ignorait le sens**, et c'est le jumeau qui l'a
+montrée : l'énoncé envoyé au modèle (`salEnonceIA`) donnait ses exemples
+de lignes aplaties en dur — « diminution de 30 % », « diminutionde30% » —
+et aurait donc appris au modèle, sur une HAUSSE, à lire une conclusion
+dans le mauvais sens. Elle suit le sens désormais, et le contrôle tient ce
+bord (l'énoncé écrit « augmentation de 30 % » sur une hausse, jamais
+« diminution de 30 % »).
+
+**Le contrôle est CELUI du 2.3.13, joué deux fois** — pas une copie.
+`syntheseDimLibreDix` est devenu `syntheseLibreDix(w, P, S)` sur une fiche
+`SYN_LIBRE_DIX` qui porte, pour chaque jumeau, le sens, les nombres des cas
+épinglés (600 diminué de 30 % = 420 ; 600 augmenté de 30 % = 780 ; 15 % :
+510 et 690 ; la valeur finale d'un coup : « 70 % = 420 » et « 130 % =
+780 » ; la mauvaise proposition à 20 % : 480 et 720 ; le quotient :
+420/600 = 70/100 et 780/600 = 130/100), le mot de la conclusion et son
+contraire, l'opération et son signe, l'identité (numéro, démarreur,
+l'exercice « sans » qui ne doit pas changer, les autres exercices du moteur
+qui écrivent les espaces). Les trente cas du juge, les refus qui ne donnent
+jamais la bonne proposition, l'écran, la peinture, la règle et sa borne,
+l'identité : tout se joue dans les deux sens. Trois bords sont venus avec
+le jumeau, pour les deux : la feuille est une feuille de RÉDACTION
+(`mf-mots`, celle que cherche le clavier B des lettres) et celle de
+l'exercice « sans » ne l'est pas ; le rappel et la description parlent
+dans le bon sens (le mot de l'exercice présent, « le contraire de … % »
+absent) ; après « Recommencer », les questions sont de la bonne famille.
+La raison de ne pas copier est celle de toujours : la même erreur, deux
+fois, n'est pas deux mesures — et un juge qui lit le sens de la question
+se contrôle dans les deux sens ou ne se contrôle pas. Éprouvé par deux
+sabotages, chacun rougissant en nommant son défaut sur le 2.2.14 seul :
+l'énoncé au modèle remis en dur sur « diminution » ; le 2.2.14 qui tire
+des baisses.
+
+**Au banc navigateur**, l'étape 3 de la synthèse rédigée (« sur le 2.3.13
+et le 2.2.14, la barre d'espace écrit une espace… ») boucle sur
+`syntheseRedigee.dix`, devenu une liste d'exercices avec leur famille et
+le mot de leur conclusion : la même copie — « 10 % = … », « écart = … »,
+« augmentation de … % », puis la fraction dont l'espace SORT — est tapée
+sur chacun, dans un vrai MathLive, et relue : la lecture, le verdict, la
+note, la peinture. Un bord de plus, né de la feuille de rédaction : le mot
+de la conclusion ressort ENTIER (« augmentation de » en tête de ligne) —
+c'est ce que la liste blanche des raccourcis promet, et rien d'autre ne le
+mesurait. Le profil nomme aussi le 2.2.14 dans `clavierEcran.lettres`
+(`exercices`, et le 2.2.10 dans `hors`) : le banc du clavier B tape sur le
+premier de la liste, la liste dit où la feuille de rédaction vit.
+
+---
+
 ## {evolutions-successives} — deux évolutions de suite, la synthèse des deux schémas (Seconde, septembre 2026)
 
 **D'où il vient.** Une troisième fiche PDF de Turquet, un seul exercice :
