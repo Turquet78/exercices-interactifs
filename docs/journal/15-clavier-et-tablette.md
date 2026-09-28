@@ -1388,6 +1388,17 @@ lecture se fait sur le LaTeX, qui dit où la fraction se referme. La page
 des lettres est le QUATRIÈME argument, et un tableau d'arguments plus
 court le posait à la place du portrait — la forme normale « n'avait qu'une
 couche » sur une page juste.
+**Sept sabotages en jsdom, un au navigateur**, chacun rougissant en nommant
+son défaut : une lettre retirée (« la touche « w » manque au clavier B »,
+dans les trois formes), `kbLettres` qui répond sans regarder l'exercice
+courant, `applyKbLayout` qui ne passe plus le drapeau (« 1 couche sur un
+écran de rédaction »), la feuille du 2.3.13 rendue au mode calcul (« aucune
+ligne ne porte mf-mots »), la touche espace retirée du clavier A, la
+feuille de styles qui ne lit plus `--keycap-auto`, la couche B qui fuit
+sans rédaction. Et, au navigateur seulement, l'écouteur `beforeinput`
+débranché : la ligne se relisait « (180)/(600 =3) », le « = » prisonnier
+du dénominateur — jsdom, qui ne joue pas MathLive, restait vert à bon
+droit.
 Ce qu'aucun banc ne voit : une vraie tablette, avec son clavier système
 que la greffe coupe et sa bande du bas — le banc mesure un Chromium de
 768 px tactile, pas un iPad.
