@@ -3690,6 +3690,7 @@ function exercices(suite){
     clavierCouches(w, P);
     clavierLimites(w, P);
     clavierLettres(w, P);
+    clavierLettresPremiere(w, P);
     casesDeLimite(w, P);
     clavierUnites(w, P);
     clavierTablette(w, P);
@@ -12063,10 +12064,14 @@ function clavierPaysageCompact(w, P){
     else{
       const rangees = (flottant, paysage, tablette) => {
         const vk = { layouts: null };
-        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: fauxEcran(paysage, tablette) };
+        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: fauxEcran(paysage, tablette),
+                      document: { documentElement: { style: { setProperty(){} } } } };
         try{
-          const apply = new Function('window', 'matchMedia', 'currentTestId', 'kbVarsFor', 'buildKbTerm', 'JSON',
-            'let __kbVarsKey = null;\n' + fC.texte + '\n' + (fT ? fT.texte + '\n' : '') + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, null, () => [], bk, JSON);
+          /* kbLettres, kbUnites et document : ce que lit applyKbLayout depuis
+             que le clavier de la Première a sa couche des lettres (le contrôle
+             de cette couche est clavierLettresPremiere) */
+          const apply = new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLettres', 'kbUnites', 'buildKbTerm', 'JSON',
+            'let __kbVarsKey = null;\n' + fC.texte + '\n' + (fT ? fT.texte + '\n' : '') + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, win.document, null, () => [], () => false, () => 7, bk, JSON);
           apply();
           return vk.layouts && vk.layouts[0] && vk.layouts[0].layers[0] ? vk.layouts[0].layers[0].rows.length : -1;
         }catch(e){ pbs.push('la table de routage ne s\'évalue pas : ' + e.message); return -1; }
@@ -12324,6 +12329,9 @@ function clavierLettres(w, P){
   const nom = 'le clavier C porte les lettres, l\'espace et « : » là où l\'élève rédige en mots';
   const C = P.clavierEcran && P.clavierEcran.lettres;
   if(!C){ ignorer(nom, 'ce fichier ne déclare pas de clavier des lettres'); return; }
+  /* la Première porte ses lettres sur un clavier B ajouté à une couche unique :
+     c'est clavierLettresPremiere qui le tient, sur la même déclaration */
+  if(!(P.clavierEcran && P.clavierEcran.couches)){ ignorer(nom, 'ce fichier n\'a pas les deux couches A et B de la Terminale — son clavier des lettres est tenu par « le clavier B porte les lettres »'); return; }
   const pbs = [];
   const src = lire(CIBLE);
   const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
@@ -12405,6 +12413,164 @@ function clavierLettres(w, P){
   else if(!/redaction[^\n]*classList\.add\(\s*'mf-mots'\s*\)/.test(fF.texte))
     pbs.push('la feuille de rédaction (mlFeuille) ne pose plus la classe mf-mots : kbLettres ne la trouverait jamais');
   if(!(C.exercices || []).length) pbs.push('aucun exercice témoin déclaré : le contrôle n\'a rien à mesurer');
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Le clavier B porte les LETTRES, là où la Première rédige en mots ---------- */
+/* Demande de Turquet (septembre 2026) : « en première pour l'exercice 2.3.13
+   sur les tablettes il faudrait un clavier B avec l'alphabet, et la touche
+   espace sur le clavier A et B ». Le 2.3.13 se rédige en MOTS (« écart = 180 »,
+   « diminution de 30 % ») et la greffe coupe le clavier du SYSTÈME sur chaque
+   champ mathématique : sur tablette, ces mots étaient intapables. Le clavier
+   de la Première n'a qu'UNE couche (le contrôle du clavier C, écrit pour les
+   deux couches de la Terminale, ne s'y applique pas) : la couche des lettres
+   s'y AJOUTE comme « clavier B », et le clavier A reçoit « espace » et
+   « clavier B ». On ÉVALUE buildKbTerm depuis la SOURCE, dans ses trois formes
+   (normale, compacte, portrait). Les bords :
+   · le clavier B porte les 26 lettres, é, è, l'apostrophe, « : », l'espace, de
+     quoi effacer, valider et revenir au clavier A — et tient dans sa largeur ;
+   · le clavier A reçoit « espace » (la touche déclarée, qui FRAPPE une espace)
+     et « clavier B », qui y MÈNE — et ne perd RIEN d'autre, n'ajoute rien
+     d'autre : le jeu d'avant est comparé touche à touche ;
+   · aucune rangée d'aucune couche ne dépasse la largeur déclarée ;
+   · le bord opposé : sans rédaction, UNE seule couche — les lettres ne fuient
+     pas sur les exercices de calcul ;
+   · applyKbLayout PASSE le drapeau (la moitié morte d'un correctif) et POSE
+     --kb-unites depuis la disposition installée (recomptée ici, jamais par
+     kbUnites elle-même) ; la feuille de styles LIT --kb-unites ;
+   · kbLettres ne répond que pour l'exercice COURANT, et seulement devant une
+     ligne de rédaction (mf-mots) ;
+   · dans la page (jsdom), la feuille du témoin POSE la classe et la liste
+     blanche des raccourcis (_motsFR) — et celle du bord opposé (le 2.3.9, même
+     moteur) ne les pose PAS.
+   Le RENDU — la couche qui change au clic, la lettre écrite, l'espace qui
+   sort d'une fraction — est au banc navigateur (« 11 decies »). */
+function clavierLettresPremiere(w, P){
+  const nom = 'le clavier B porte les lettres et l\'espace, et le clavier A la touche espace, là où l\'élève rédige en mots';
+  const K = P.clavierEcran, C = K && K.lettres;
+  if(!C){ ignorer(nom, 'ce fichier ne déclare pas de clavier des lettres'); return; }
+  if(!K.paysage || K.couches){ ignorer(nom, 'ce fichier n\'a pas le clavier à une couche de la Première — son clavier des lettres est tenu par « le clavier C porte les lettres »'); return; }
+  const pbs = [];
+  const src = lire(CIBLE);
+  const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const bk = evaluerClavier(pbs);
+  const cle = k => String((k && (k.key || k.latex || k.insert || k.label)) || '');
+  const plat = l => [].concat.apply([], (l && l.rows) || []);
+  const sig = k => JSON.stringify([k.latex || '', k.key || '', k.insert || '', k.label || '', k.width || 1, k.command || '']);
+  const mene = (k, id) => k && Array.isArray(k.command) && k.command[0] === 'switchKeyboardLayer' && k.command[1] === id;
+  const commit = k => JSON.stringify(k.command || '').indexOf('commit') >= 0;
+  const unites = r => (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0);
+  /* les trois arguments de forme sont TOUS écrits : le drapeau des lettres
+     est le quatrième, et un tableau plus court l'aurait posé à la place du
+     portrait — le premier essai de ce contrôle l'a fait, et rougissait sur une
+     page juste */
+  const formes = [['normale', [[], false, false]], ['compacte', [[], true, false]]];
+  if(K.portraitTablette) formes.push(['portrait', [[], false, true]]);
+  if(bk) formes.forEach(([quelle, args]) => {
+    let sans = null, avec = null;
+    try{ sans = bk.apply(null, args.concat([false])); avec = bk.apply(null, args.concat([true])); }
+    catch(e){ pbs.push('buildKbTerm (' + quelle + ') échoue : ' + e.message); return; }
+    const cs = (sans && sans.layers) || [], ca = (avec && avec.layers) || [];
+    if(cs.length !== 1) pbs.push('sans rédaction, la forme ' + quelle + ' a ' + cs.length + ' couche(s) au lieu de 1 — le clavier B fuit');
+    if(ca.length !== 2){ pbs.push('avec rédaction, la forme ' + quelle + ' a ' + ca.length + ' couche(s) au lieu de 2'); return; }
+    const A = ca[0], B = ca[1], tB = plat(B), cB = tB.map(cle), tA = plat(A);
+    'abcdefghijklmnopqrstuvwxyz'.split('').concat(C.touches || []).forEach(c => {
+      if(cB.indexOf(c) < 0 && !tB.some(k => String(k.label || '') === c)) pbs.push('la touche « ' + c + ' » manque au clavier B (' + quelle + ')');
+    });
+    if(C.effacer && cB.indexOf(C.effacer) < 0) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.effacer + ' »');
+    if(!tB.some(k => String(k.label || '') === C.entree && commit(k))) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.entree + ' » qui valide');
+    if(!tB.some(k => mene(k, A.id) && String(k.label || '') === C.versA)) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.versA + ' » qui ramène au clavier A');
+    if(!tB.some(k => k.key === ' ' && String(k.label || '') === C.espace)) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.espace + ' » qui frappe une espace');
+    if((B.rows || []).length !== C.rangees) pbs.push('le clavier B (' + quelle + ') a ' + (B.rows || []).length + ' rangée(s) au lieu de ' + C.rangees);
+    [A, B].forEach((l, i) => (l.rows || []).forEach((r, j) => {
+      const u = unites(r);
+      if(u > C.unitesMax) pbs.push('la rangée ' + (j + 1) + ' du clavier ' + (i ? 'B' : 'A') + ' (' + quelle + ') fait ' + u + ' unités (' + C.unitesMax + ' au plus) : toutes les touches rétréciraient');
+    }));
+    /* le clavier A : « clavier B » y mène, « espace » y frappe une espace, et rien d'autre ne bouge */
+    const versB = tA.filter(k => String(k.label || '') === C.versC);
+    if(!versB.length) pbs.push('pas de touche « ' + C.versC + ' » sur le clavier A (' + quelle + ')');
+    else if(!versB.every(k => mene(k, B.id))) pbs.push('« ' + C.versC + ' » ne mène pas au clavier B sur le clavier A (' + quelle + ')');
+    const esp = tA.filter(k => k.key === ' ');
+    if(!esp.length) pbs.push('pas de touche espace sur le clavier A (' + quelle + ')');
+    esp.forEach(k => { if(String(k.label || '') !== C.espace) pbs.push('la touche espace du clavier A (' + quelle + ') dit « ' + (k.label || '') + ' » au lieu de « ' + C.espace + ' »'); });
+    const a = plat(cs[0]).map(sig), b = tA.filter(k => String(k.label || '') !== C.versC && k.key !== ' ').map(sig);
+    const perdues = a.filter(x => b.indexOf(x) === -1), ajoutees = b.filter(x => a.indexOf(x) === -1);
+    if(perdues.length) pbs.push('touche(s) perdue(s) par le clavier A avec les lettres (' + quelle + ') : ' + perdues.join(', '));
+    if(ajoutees.length) pbs.push('touche(s) ajoutée(s) au clavier A avec les lettres (' + quelle + ') : ' + ajoutees.join(', '));
+  });
+  /* applyKbLayout PASSE le drapeau et POSE --kb-unites ; kbLettres ne répond que pour l'exercice COURANT */
+  const fA = fns.find(o => o.nom === 'applyKbLayout'), fC = fns.find(o => o.nom === 'kbCompact'),
+        fT = fns.find(o => o.nom === 'kbPortraitTablette'), fL = fns.find(o => o.nom === 'kbLettres'),
+        fU = fns.find(o => o.nom === 'kbUnites');
+  if(!fA || !fC || !fT || !fL || !fU) pbs.push('applyKbLayout, kbCompact, kbPortraitTablette, kbLettres ou kbUnites est introuvable dans la source');
+  else if(bk){
+    let ku = null;
+    try{ ku = new Function('return (' + fU.texte + ')')(); }catch(e){ pbs.push('kbUnites ne s\'évalue pas : ' + e.message); }
+    const installe = lettres => {
+      const vk = { layouts: null }, poses = [];
+      const win = { __kbFloating: false, mathVirtualKeyboard: vk, matchMedia: fauxEcran(false, true),
+                    document: { documentElement: { style: { setProperty(n, v){ poses.push([n, v]); } } } } };
+      try{
+        new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLettres', 'kbUnites', 'buildKbTerm', 'JSON',
+          'let __kbVarsKey = null;\n' + fC.texte + '\n' + fT.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(
+            win, win.matchMedia, win.document, 'x', () => [], () => lettres, ku || (() => 7), bk, JSON)();
+        return { couches: (vk.layouts && vk.layouts[0] && vk.layouts[0].layers.length) || -1, dispo: vk.layouts && vk.layouts[0], poses };
+      }catch(e){ pbs.push('applyKbLayout ne s\'évalue pas : ' + e.message); return { couches: -1, poses: [] }; }
+    };
+    const oui = installe(true), non = installe(false);
+    if(oui.couches !== 2) pbs.push('applyKbLayout ne demande pas le clavier B : ' + oui.couches + ' couche(s) sur un écran de rédaction');
+    if(non.couches !== 1) pbs.push('applyKbLayout pose ' + non.couches + ' couche(s) hors rédaction');
+    /* --kb-unites : posée, et égale à la rangée la plus large RECOMPTÉE ici */
+    [[oui, 'avec les lettres'], [non, 'sans les lettres']].forEach(([r, quand]) => {
+      const pose = r.poses.find(p => p[0] === '--kb-unites');
+      let max = 0;
+      ((r.dispo && r.dispo.layers) || []).forEach(l => (l.rows || []).forEach(row => { const u = unites(row); if(u > max) max = u; }));
+      if(!pose) pbs.push('applyKbLayout ne pose pas --kb-unites ' + quand + ' : la feuille de styles garderait son compte de repli');
+      else if(+pose[1] !== max) pbs.push('applyKbLayout pose --kb-unites à ' + pose[1] + ' ' + quand + ', la rangée la plus large en fait ' + max);
+    });
+    let kl = null;
+    const champ = { vu: true };
+    const doc = { querySelector: q => (/math-field\.mf-mots/.test(q) && champ.vu) ? {} : null };
+    try{ kl = cur => new Function('document', 'currentTestId', 'return (' + fL.texte + ')')(doc, cur); }
+    catch(e){ pbs.push('kbLettres ne s\'évalue pas : ' + e.message); }
+    if(kl){
+      (C.exercices || []).forEach(id => {
+        if(!kl(id)(id)) pbs.push('kbLettres ne reconnaît pas « ' + id + ' », dont l\'écran porte une feuille de rédaction');
+        if(kl('autre-exercice')(id)) pbs.push('kbLettres répond « oui » pour « ' + id + ' » alors que l\'exercice COURANT est un autre — une feuille restée sur la page le ferait fuir');
+      });
+      champ.vu = false;
+      if(kl('sal')('sal')) pbs.push('kbLettres répond « oui » sans feuille de rédaction à l\'écran');
+    }
+  }
+  /* et la feuille de styles LIT --kb-unites : sans cela, douze touches débordent d'une tablette debout */
+  const auto = /--keycap-auto\s*:\s*([^;}]+)/.exec(src);
+  if(!auto) pbs.push('--keycap-auto est introuvable : rien ne rétrécit une rangée trop large');
+  else if(auto[1].indexOf('--kb-unites') < 0) pbs.push('--keycap-auto ne lit pas --kb-unites : « ' + auto[1].trim() + ' »');
+  const largeur = /--keycap-width\s*:\s*([^;}]+)/.exec(src);
+  if(!largeur) pbs.push('aucune règle --keycap-width : la largeur des touches ne suit rien');
+  else if(largeur[1].indexOf('--keycap-auto') < 0) pbs.push('--keycap-width ne lit pas --keycap-auto : « ' + largeur[1].trim() + ' »');
+  /* dans la page : la feuille du témoin POSE la classe et la liste blanche, celle du bord opposé non */
+  const r = evaluer(w, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const ouvrir=function(id){ currentTestId=id; try{ TESTS[id].start(); }catch(e){ return 'le démarrage de « '+id+' » échoue : '+e.message; } return ''; };
+    ${JSON.stringify(C.exercices || [])}.forEach(function(id){
+      const e=ouvrir(id); if(e){ vus.push(e); return; }
+      const mf=document.querySelector('.screen.on math-field.mf-mots');
+      if(!mf) vus.push('sur « '+id+' », aucune ligne de la feuille ne porte la classe mf-mots : le clavier B ne viendrait jamais');
+      else if(!mf._motsFR) vus.push('sur « '+id+' », la ligne de rédaction n\\'a pas la liste blanche des raccourcis (_motsFR) : « diminution » s\\'écrirait « di\\\\minution »');
+      const tous=[].slice.call(document.querySelectorAll('.screen.on math-field.dexp-mf'));
+      if(tous.some(function(m){ return !m.classList.contains('mf-mots'); })) vus.push('sur « '+id+' », une ligne de la feuille n\\'est pas une ligne de rédaction');
+    });
+    ${JSON.stringify(C.hors || [])}.forEach(function(id){
+      const e=ouvrir(id); if(e){ vus.push(e); return; }
+      if(document.querySelector('.screen.on math-field.mf-mots')) vus.push('sur « '+id+' », la feuille est devenue une feuille de rédaction sans qu\\'on le demande : le clavier B y fuirait');
+    });
+    return vus.join(' | ');
+  })()`);
+  if(!r.ok) pbs.push('la page ne s\'évalue pas : ' + r.erreur);
+  else if(r.valeur) pbs.push(r.valeur);
+  if(!(C.exercices || []).length || !(C.hors || []).length) pbs.push('aucun témoin déclaré (exercices, hors) : le contrôle n\'a rien à mesurer');
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 

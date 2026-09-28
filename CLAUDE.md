@@ -299,7 +299,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis la barre du bas a disparu — en PREMIÈRE seulement, et le prix est nommé.**
 - **Et la bande du bas appartient au SYSTÈME : la Première y descendait.**
 - **LE CLAVIER ANCRÉ PREND LE BAS, LES COMMANDES MONTENT EN HAUT.**
-- **Là où l'élève rédige en MOTS, le clavier C porte les lettres.**
+- **Là où l'élève rédige en MOTS, le clavier C porte les lettres.** (En Première, où le clavier n'a qu'une couche, c'est le clavier B.)
 
 ### Vérification, bancs de test et numérotation des sections
 

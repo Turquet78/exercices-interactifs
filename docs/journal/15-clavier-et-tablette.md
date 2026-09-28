@@ -1292,3 +1292,102 @@ BANC : le clavier garde sa couche d'un exercice à l'autre, et le 3.4, ouvert
 juste après le 3.3 quitté sur le clavier C, n'avait pas de touche
 « clavier C » à cliquer — il montrait déjà les lettres. Le banc le reconnaît
 et tape.
+
+**Puis la Première a eu son clavier B — les lettres, et la touche espace sur
+A et B — pour le 2.3.13.** Demande de Turquet (septembre 2026) : « en
+première pour l'exercice 2.3.13 sur les tablettes il faudrait un clavier B
+avec l'alphabet, et la touche espace sur le clavier A et B ». Le 2.3.13 se
+rédige en MOTS — « écart = 180 », « diminution de 30 % » — et la greffe
+coupe le clavier du SYSTÈME sur chaque champ mathématique
+(`inputmode="none"`) : sur tablette, ces mots étaient intapables, la barre
+d'espace ajoutée la veille n'existant que sur un clavier physique. Le
+clavier de la Première n'a qu'UNE couche (« Calcul »), sans « clavier B »
+ni « clavier A » : la couche des lettres s'y ajoute donc sous le nom de
+**clavier B**, et « clavier A » en revient — les mots de la Terminale, où
+la même couche s'appelle C parce que B y est prise.
+**Une couche AJOUTÉE, jamais une forme de plus** — le patron du clavier C de
+la Terminale, repris tel quel. `buildKbTerm(vars, compact, portrait,
+lettres)` : les trois formes (quatre, deux, trois rangées) se construisent
+comme avant dans `formeA()`, puis, si l'élève rédige, le clavier A reçoit
+« espace » (deux unités, `key:" "`) sur la rangée qui porte ⏎ et
+« clavier B » sur celle qui porte ⌫ — cherchées par leur COMMANDE, pas par
+leur rang, pour que la règle vaille dans les trois formes — et une couche
+`prem-lettres` s'ajoute : `a z e r t y u i o p é ⌫`, `q s d f g h j k l m è
+⏎`, `w x c v b n ' : espace clavierA`, la disposition même du clavier C
+(l'apostrophe INSÈRE `\text{'}`, la leçon du prime). Sans rédaction, la
+disposition est celle d'avant, à la touche près — le contrôle compare les
+jeux.
+**LA PAGE NE TIENT AUCUNE LISTE, et la feuille du 2.3.13 est devenue une
+feuille de RÉDACTION.** `kbLettres` est celle de la Terminale : une ligne
+`math-field.mf-mots` sur l'écran de l'exercice COURANT. Or la feuille du
+moteur `sal` était en mode « calcul » — `mathModeSpace` posé par-dessus
+(`salEspaces`), mais ni la classe, ni la liste blanche des raccourcis.
+`renderSal` la crée désormais en mode « redaction » quand la question
+porte `q.dix` (le 2.3.13, et lui seul : le 2.3.9 garde sa feuille de calcul
+et ses espaces par `SAL_ESPACES` — c'est le bord opposé, déclaré dans
+`clavierEcran.lettres.hors`). Ce que le mode change, outre la classe : la
+LISTE BLANCHE (`_motsFR`), et « diminution » ne s'écrit plus
+« di\minution » — ni au clavier physique ni à l'écran, où chaque lettre est
+une FRAPPE (`key`) qui déclenche les mêmes raccourcis ; sans elle, « quand »
+tapé sur le clavier B aurait fini en « qu∧ ». Le juge n'a rien eu à
+apprendre (`salDixNorm` effaçait déjà les barres), et `salEspaces` reste :
+`mathModeSpace` posé deux fois ne coûte rien, et la sortie de fraction ne
+vit que là.
+**Et la touche « espace » à l'écran passe par une AUTRE porte que la barre
+d'espace.** La barre physique arrive en `keydown`, que `salEspaceSort`
+intercepte dans une fraction ; une touche à l'écran n'émet aucun keydown :
+MathLive la joue en INSÉRANT `mathModeSpace`, et prévient par
+`beforeinput` (`insertText`, la donnée est « `\;` »). `salEspaceEcranSort`,
+en capture sur la feuille, refuse l'insertion dans une fraction et sort
+(`moveAfterParent`) — la même règle, par l'autre porte ; les deux
+partagent `salEspaceDehors`. Un élève qui tape « 180 / 600 espace = 3 » à
+l'écran obtient `\frac{180}{600}=3`, la fraction refermée avant le « = »
+— et rien d'écrit en sortant, comme avec la barre physique.
+**ET C'EST LA LARGEUR DES TOUCHES QUI A DÛ CHANGER DE SOURCE, ici aussi.**
+La Première laissait MathLive décider : `min(62px, 10cqw)` par touche.
+Douze touches de 62 px et onze écarts de 8 px font 832 px — une tablette
+DEBOUT en a 768 : la couche des lettres aurait débordé de 64 px, comme le
+clavier de la Terminale avant `--kb-unites`. La règle de la Terminale est
+reprise : `kbUnites` compte la rangée la plus large de la disposition
+installée, `applyKbLayout` pose `--kb-unites`, et la feuille de styles
+calcule `--keycap-auto` — mais la Première le met en TROISIÈME terme d'un
+`min` dont les deux premiers sont ceux de MathLive, à l'identique : tant
+qu'une rangée tient, aucune touche ne change de taille ; seule une rangée
+trop large rétrécit, toutes couches ensemble. Mesuré au navigateur : à
+768 px, les douze touches font 56 px ; couchée à 1024 px, le clavier A
+compact avec « clavier B » (quatorze unités) garde ses 62 px. Le libellé
+« clavier B » tient dans deux unités au rembourrage de 4 px (`.kb-couche`,
+la règle de la Terminale).
+**Deux bancs, la répartition habituelle.** jsdom (« le clavier B porte les
+lettres et l'espace… », `clavierLettresPremiere`) ÉVALUE `buildKbTerm` dans
+ses trois formes : 26 lettres, é, è, l'apostrophe, « : », l'espace, ⌫, ⏎ qui
+valide et « clavier A » qui ramène sur B ; « espace » et « clavier B » sur
+A, qui y MÈNE, et rien d'autre de perdu ni d'ajouté ; quatorze unités au
+plus par rangée ; UNE couche sans rédaction ; `applyKbLayout` qui PASSE le
+drapeau et POSE `--kb-unites` (recomptée par le contrôle, jamais par
+`kbUnites`) ; `--keycap-width` qui lit `--keycap-auto` ; `kbLettres` qui ne
+répond que pour l'exercice courant ; et, dans la page, la feuille du 2.3.13
+qui porte `mf-mots` ET `_motsFR` sur CHAQUE ligne, celle du 2.3.9 ni l'un
+ni l'autre. Le contrôle du clavier C de la Terminale, écrit pour ses deux
+couches, se DÉCLARE non applicable sur la Première (et réciproquement),
+sur la même clé de profil `clavierEcran.lettres` — `versC` y vaut
+« clavier B ». Le NAVIGATEUR (« 11 decies », la section commune) ouvre le
+2.3.13 sur une tablette debout, clique « clavier B », TAPE « quand l'éè : »
+et le relit ; « clavier A » ramène les chiffres ; puis, parce que la
+Première déclare `espace`, ⏎ ajoute une ligne, « 10 espace % » s'y relit
+« 10 % », et « 180 / 600 espace = 3 » se referme avant le « = » ; enfin la
+page est rendue à 768 × 1024 puis 1024 × 768, et sur chaque couche la touche
+la plus étroite, la plus basse et le débord sont mesurés.
+**Le premier passage au navigateur a rougi deux fois — et les deux fois
+sur le BANC.** `toPlain` GARDE le « `\%` » de MathLive (« 10 \% ») : c'est
+`salDixNorm`, en aval, qui l'efface, et le banc devait lire comme le
+juge. Et il écrit une fraction « (180)/(600)=3 », avec des parenthèses : la
+lecture se fait sur le LaTeX, qui dit où la fraction se referme. La page
+était juste les deux fois. Le premier passage de jsdom aussi : le drapeau
+des lettres est le QUATRIÈME argument, et un tableau d'arguments plus
+court le posait à la place du portrait — la forme normale « n'avait qu'une
+couche » sur une page juste.
+Ce qu'aucun banc ne voit : une vraie tablette, avec son clavier système
+que la greffe coupe et sa bande du bas — le banc mesure un Chromium de
+768 px tactile, pas un iPad.
+

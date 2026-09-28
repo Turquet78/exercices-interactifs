@@ -2349,6 +2349,19 @@ contrôle (`startSynAugLibre`, `mathModeSpace` absent). Le banc navigateur
 autour des signes, sur un vrai MathLive, et relit la lecture, le verdict,
 la note et la peinture.
 
+**Puis, sur tablette, le clavier B des lettres et la touche espace** (« il
+faudrait un clavier B avec l'alphabet, et la touche espace sur le clavier
+A et B », Turquet, septembre 2026). La feuille du 2.3.13 est devenue une
+feuille de RÉDACTION — `renderSal` la crée en mode « redaction » quand la
+question porte `q.dix` : la classe `mf-mots` que le clavier des lettres
+cherche, et la liste blanche des raccourcis, si bien que « diminution » ne
+s'écrit plus « di\minution » (le juge, lui, lisait déjà les deux). Le 2.3.9
+garde sa feuille de calcul : c'est le bord opposé. La touche « espace » à
+l'écran sort d'une fraction par `beforeinput`, l'autre porte que le
+`keydown` de la barre physique. Le clavier lui-même, sa largeur et ses
+bancs sont racontés dans `15-clavier-et-tablette.md` (« Puis la Première a
+eu son clavier B »).
+
 ---
 
 ## {evolutions-successives} — deux évolutions de suite, la synthèse des deux schémas (Seconde, septembre 2026)

@@ -417,7 +417,26 @@ module.exports = {
                        quatre : c'est le bord opposé, et il est aussi vérifié —
                        une forme courte qui fuirait sur le téléphone rendrait ses
                        touches intouchables. */
-                    portraitTablette: { rangees: 3, telephone: 4 } },
+                    portraitTablette: { rangees: 3, telephone: 4 },
+                    /* LE CLAVIER B — les lettres (demande de Turquet, septembre
+                       2026 : « en première pour l'exercice 2.3.13 sur les
+                       tablettes il faudrait un clavier B avec l'alphabet, et la
+                       touche espace sur le clavier A et B »). Le clavier de la
+                       Première n'a qu'une couche : les lettres s'y AJOUTENT
+                       comme « clavier B », et « clavier A » en revient — versC
+                       et versA sont les noms que lit le banc navigateur, commun
+                       avec le clavier C de la Terminale. La page ne tient
+                       aucune liste : le clavier suit la feuille de RÉDACTION
+                       (mlFeuille, mode 'redaction', classe mf-mots), et ces
+                       témoins disent au banc où regarder — « hors » est le
+                       bord opposé, le 2.3.9 sur le même moteur, qui garde sa
+                       feuille de calcul. Quatorze unités au plus sur une
+                       rangée : le clavier A compact en compte douze, plus
+                       « clavier B » ; au-delà, la largeur des touches suit
+                       --kb-unites et TOUTES rétrécissent. */
+                    lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
+                               touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
+                               exercices: ['synthese-diminutions-libre-dix'], hors: ['synthese-diminutions-libre'] } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,

@@ -12756,6 +12756,34 @@ async function parcours(page, N){
         verifier('« ' + KL.versA + ' » ramène les chiffres depuis le clavier C',
           !!retour && retour.cinq && !retour.a,
           !versA ? 'aucune touche « ' + KL.versA + ' » sur le clavier C' : 'la couche rendue n\'est pas le clavier A');
+        /* LA TOUCHE « espace » DU CLAVIER A (clavierEcran.lettres.espace — la
+           Première, « la touche espace sur le clavier A et B ») : ⏎ ajoute une
+           ligne, on y tape « 10 espace % » et la ligne se relit « 10 % » ; puis
+           « 180 / 600 espace = 3 » — l'espace SORT de la fraction, comme la barre
+           d'espace physique mais par l'autre porte (MathLive n'émet aucun keydown
+           pour une touche à l'écran : c'est « beforeinput » qui prévient), et le
+           « = » s'écrit dehors. La ligne se relit par le chemin du juge (toPlain),
+           et sa forme LaTeX dit où la fraction se referme. */
+        if(KL.espace && retour && retour.cinq){
+          const ligne = () => s.page.evaluate(q => { const ls = [...document.querySelectorAll(q)]; const mf = ls[ls.length - 1]; if(!mf) return null;
+            try{ return { latex: mf.getValue(), plain: window.mlDexp.toPlain(mf.getValue()) }; }catch(e){ return { latex: '', plain: 'illisible : ' + e.message }; } }, champ);
+          const taper = async suite => { for(const t of suite){ const k = await touche(t); if(!k) return 'touche « ' + t + ' » introuvable';
+            await s.page.mouse.click(k.x, k.y); await s.page.waitForTimeout(t === KL.entree ? 500 : 120); } return null; };
+          const e1 = await taper([KL.entree, '1', '0', KL.espace, '%']);
+          const l1 = e1 ? null : await ligne();
+          /* toPlain garde le « \% » de MathLive (c'est salDixNorm, en aval, qui
+             l'efface) : on le lit comme le juge */
+          verifier('sur le clavier A, la touche « ' + KL.espace + ' » écrit une espace : « 10 % » se relit tel quel',
+            !!l1 && /^10 %$/.test(String(l1.plain).replace(/\\%/g, '%').replace(/\s+/g, ' ').trim()),
+            e1 || (l1 ? 'la ligne se relit « ' + l1.plain + ' » (LaTeX « ' + l1.latex + ' »)' : 'aucune ligne dans la feuille'));
+          const e2 = await taper([KL.entree, '1', '8', '0', '/', '6', '0', '0', KL.espace, '=', '3']);
+          const l2 = e2 ? null : await ligne();
+          /* sortir n'écrit rien : « \frac{180}{600}=3 », la fraction refermée
+             AVANT le « = » — toPlain la relit « (180)/(600)=3 » */
+          verifier('la touche « ' + KL.espace + ' » du clavier à l\'écran SORT d\'une fraction : « 180/600 = 3 » se relit avec le « = » dehors',
+            !!l2 && /^\\frac\{180\}\{600\}(\\;)?=3$/.test(String(l2.latex).trim()) && /\)\s*=\s*3$/.test(String(l2.plain).trim()),
+            e2 || (l2 ? 'la ligne se relit « ' + l2.plain + ' » (LaTeX « ' + l2.latex + ' »)' : 'aucune ligne dans la feuille'));
+        }
         /* LES AUTRES TÉMOINS — les zones de rédaction du TVI (3.3, 3.4), devenues
            des feuilles de rédaction pour recevoir le clavier C. Sur chacun : la
            feuille est là, « clavier C » aussi, un mot se tape avec, et les boutons
@@ -12796,6 +12824,41 @@ async function parcours(page, N){
             !ici ? 'aucune feuille de rédaction (math-field.mf-mots) sur l\'écran'
               : !bilan.vc ? 'aucune touche « ' + KL.versC + ' » sur le clavier rendu'
               : 'la ligne se relit « ' + bilan.lu + ' »');
+        }
+        /* LA COUCHE DES LETTRES TIENT DANS L'ÉCRAN — douze unités par rangée.
+           Sur une tablette DEBOUT de 768 px, des touches de 62 px (la largeur
+           que MathLive donne par défaut) débordaient de 64 px : la largeur suit
+           --kb-unites, et TOUTES les touches rétrécissent ensemble. On rend la
+           page à 768 × 1024 puis COUCHÉE à 1024 × 768 et, sur chaque couche
+           (les lettres, puis le clavier A que « clavier A » ramène), on mesure
+           la touche la plus étroite, la plus basse, et le débord à droite. */
+        const mesurerCouche = () => { const kb = document.querySelector('body > .ML__keyboard'); const vk = window.mathVirtualKeyboard;
+          if(!kb || !vk || !vk.visible) return null;
+          const caps = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')].map(el => el.getBoundingClientRect()).filter(q => q.width > 2 && q.height > 2);
+          if(!caps.length) return null;
+          return { n: caps.length, wMin: Math.round(Math.min(...caps.map(q => q.width))), hMin: Math.round(Math.min(...caps.map(q => q.height))),
+                   debord: Math.round(Math.max(...caps.map(q => q.right)) - window.innerWidth), gauche: Math.round(Math.min(...caps.map(q => q.left))) }; };
+        const dire = m => !m ? 'aucune touche rendue (clavier fermé ?)'
+          : m.n + ' touches, la plus étroite ' + m.wMin + ' px, la plus basse ' + m.hMin + ' px' + (m.debord > 1 ? ', DÉBORDE de ' + m.debord + ' px à droite' : '') + (m.gauche < -1 ? ', déborde de ' + (-m.gauche) + ' px à gauche' : '');
+        const tient = m => !!m && m.debord <= 1 && m.gauche >= -1 && m.wMin >= 30 && m.hMin >= 36;
+        for(const [w, h, quelle] of [[768, 1024, 'debout (768 px)'], [1024, 768, 'couchée (1024 px)']]){
+          await s.page.setViewportSize({ width: w, height: h }); await s.page.waitForTimeout(1200);
+          const ici = await s.page.evaluate(q => !!document.querySelector(q), champ);
+          if(ici){ await s.page.click(champ); await s.page.waitForTimeout(500);
+            await s.page.evaluate(() => { const vk = window.mathVirtualKeyboard; if(vk && !vk.visible) vk.show(); }); await s.page.waitForTimeout(600); }
+          const dejaC = !!(await touche('a')) && !(await touche('5'));
+          const vc = dejaC ? true : await touche(KL.versC);
+          if(vc && !dejaC){ await s.page.mouse.click(vc.x, vc.y); await s.page.waitForTimeout(400); }
+          const mC = vc ? await s.page.evaluate(mesurerCouche) : null;
+          verifier('tablette ' + quelle + ' : la couche des lettres tient dans l\'écran, touches touchables', tient(mC),
+            !ici ? 'aucune feuille de rédaction sur l\'écran' : !vc ? 'aucune touche « ' + KL.versC + ' » sur le clavier rendu' : dire(mC));
+          const va = await touche(KL.versA);
+          if(va){ await s.page.mouse.click(va.x, va.y); await s.page.waitForTimeout(400); }
+          const mA = va ? await s.page.evaluate(mesurerCouche) : null;
+          console.log('   · tablette ' + quelle + ' : lettres — ' + dire(mC) + ' ; clavier A — ' + dire(mA));
+          verifier('tablette ' + quelle + ' : le clavier A, avec « ' + KL.versC + ' »' + (KL.espace ? ' et « ' + KL.espace + ' »' : '') + ', tient dans l\'écran, touches touchables',
+            tient(mA) && !!(await touche(KL.versC)) && (!KL.espace || !!(await touche(KL.espace))),
+            !va ? 'aucune touche « ' + KL.versA + ' » sur la couche des lettres' : dire(mA) + (!(await touche(KL.versC)) ? ', et plus de touche « ' + KL.versC + ' »' : '') + ((KL.espace && !(await touche(KL.espace))) ? ', et plus de touche « ' + KL.espace + ' »' : ''));
         }
         verifier('le clavier C ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
