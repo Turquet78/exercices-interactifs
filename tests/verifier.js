@@ -3745,6 +3745,7 @@ function exercices(suite){
     coefficientGlobalCourtBaisses(w, P);
     coefficientDeuxDecimalesSynthese(w, P);
     syntheseEvolutions(w, P);
+    evolutionsSuccessives(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -25443,6 +25444,142 @@ function syntheseEvolutions(w, P){
     setv('evbN',200); setv('evbP',''); setv('evbC','0,90'); setv('evbF',180);
     checkEvbAnswer();
     if(/\\bbad\\b/.test(cls('evbP'))) vus.push('une case laissée vide rougit à la vérification');
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- {evolutions-successives} : Seconde SEULE, LA SYNTHÈSE DES DEUX SCHÉMAS --
+   « créer un exercice comme le pdf en variant les énoncés et avec des
+   augmentations ou des baisses ; l'évolution globale doit être un pourcentage
+   entier ; on présentera l'exercice en faisant une synthèse des exercices
+   4.5.4 et 4.1.9 » (Turquet, septembre 2026). Kind « evs », propre à cet
+   exercice : les trois boîtes et la rangée du coefficient global de
+   {pourcentage-chaine}, le « × (1 ± …) » puis « × … » et la flèche « ↑ −1 »
+   de {synthese-evolutions}, plus ce que la fiche ajoute — le SIGNE de
+   l'évolution globale, que l'élève choisit.
+   L'exercice n'existe qu'en Seconde : le contrôle se déclare ABSENT plutôt
+   que de rougir sur les autres niveaux, comme {synthese-evolutions}.
+   Bords du tirage : le produit P1·P2 est un multiple de 100 (c'est ce qui
+   rend le global ENTIER — la seule règle arithmétique de l'exercice, et
+   elle se remesure ici sur le global lui-même : entier, non nul, sous 100) ;
+   chaque séance pose les TROIS formes (deux hausses, deux baisses, une de
+   chaque), en ordre variable ; l'identité tenue par « Recommencer ».
+   Bords du schéma : le signe affiché dans chaque parenthèse (lu dans le DOM),
+   les trois flèches « ↑ −1 » de la fiche, le verdict case par case sur des
+   copies ÉPINGLÉES (deux hausses, puis une hausse et une baisse) — juste,
+   puis fautive d'une seule case —, le bouton de signe qui rougit quand il
+   est faux et ne se colore pas quand rien n'est choisi, la case vide qui ne
+   rougit jamais. */
+function evolutionsSuccessives(w, P){
+  const present = evaluer(w, "typeof startEvolSucc==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{evolutions-successives} : deux évolutions de suite, le global est entier, les trois formes sortent',
+      'ce niveau n\'a pas les évolutions successives en schéma');
+    ignorer('{evolutions-successives} : le schéma, le signe choisi, et le verdict case par case',
+      'ce niveau n\'a pas les évolutions successives en schéma');
+    return;
+  }
+  verifierEval(w, '{evolutions-successives} : deux évolutions de suite, le global est entier, les trois formes sortent', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='evolutions-successives';
+    const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, ordres={};
+    for(let t=0;t<30 && !vus.length;t++){
+      startEvolSucc();
+      if(test.qId!=='evolutions-successives') vus.push('tirage '+t+' : identité « '+test.qId+' » au lieu de « evolutions-successives »');
+      if(test.kind!=='evs') vus.push('tirage '+t+' : kind « '+test.kind+' » au lieu de « evs »');
+      const qs=test.questions||[];
+      if(qs.length!==attendu) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de '+attendu);
+      const formes={};
+      qs.forEach(function(q,i){
+        const ou='tirage '+t+' q'+i+' : ';
+        if(Math.abs(q.s1)!==1 || Math.abs(q.s2)!==1) vus.push(ou+'sens « '+q.s1+' / '+q.s2+' »');
+        if((q.P1*q.P2)%100!==0) vus.push(ou+q.P1+' % puis '+q.P2+' % — le produit n\\'est pas un multiple de 100, le global ne peut pas être entier');
+        const G=q.s1*q.P1+q.s2*q.P2+q.s1*q.s2*q.P1*q.P2/100;
+        if(q.G!==G) vus.push(ou+'global « '+q.G+' » au lieu de '+G);
+        if(!Number.isInteger(q.G)) vus.push(ou+'global « '+q.G+' » n\\'est pas entier');
+        if(q.G===0) vus.push(ou+'global nul — la phrase de conclusion n\\'a pas de verbe');
+        if(Math.abs(q.G)>=100) vus.push(ou+'global « '+q.G+' % » — au-delà de 100 %');
+        if(q.c1!==100+q.s1*q.P1 || q.c2!==100+q.s2*q.P2) vus.push(ou+'coefficients « '+q.c1+' / '+q.c2+' » incohérents');
+        if(q.gs!==null) vus.push(ou+'le signe est déjà choisi au tirage');
+        formes[q.s1===q.s2?(q.s1>0?'hh':'bb'):'mixte']=1;
+        const en=evsEnonce(q);
+        if(!/\\d+ %/.test(en) || /undefined|NaN/.test(en)) vus.push(ou+'énoncé « '+en.replace(/<[^>]+>/g,'')+' »');
+      });
+      ['hh','bb','mixte'].forEach(function(f){ if(!formes[f]) vus.push('tirage '+t+' : la forme « '+f+' » ne sort pas ('+Object.keys(formes).join(',')+')'); });
+      ordres[qs.map(function(q){ return q.s1+''+q.s2; }).join(',')]=1;
+      const vu={};
+      qs.forEach(function(q){ const c=q.s1+'|'+q.s2+'|'+q.P1+'|'+q.P2;
+        if(vu[c]) vus.push('tirage '+t+' : deux questions identiques dans la même séance'); vu[c]=1; });
+    }
+    if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des trois formes ne change jamais d\\'un tirage à l\\'autre');
+    if(!vus.length){
+      restartCurrentTest();
+      if(test.qId!=='evolutions-successives') vus.push('« Recommencer » relance « '+test.qId+' » au lieu des évolutions successives');
+    }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- Le schéma lui-même : les signes, les flèches, le choix et le verdict */
+  verifierEval(w, '{evolutions-successives} : le schéma, le signe choisi, et le verdict case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='evolutions-successives';
+    const poser=function(q){ startEvolSucc(); test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; test.locked=false; renderEvsTest(); };
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    const btn=function(s){ return document.querySelector('#evsSignes .pt-choix-btn[data-s="'+s+'"]'); };
+    const HH={s1:1,s2:1,P1:20,P2:30,c1:120,c2:130,G:56,gs:null,ci:0,v:1};        /* la fiche : +20 % puis +30 % → +56 % */
+    const HB={s1:1,s2:-1,P1:20,P2:30,c1:120,c2:70,G:-16,gs:null,ci:0,v:1};       /* +20 % puis −30 % → −16 % */
+    /* 1. les signes affichés, lus dans le DOM, et les trois flèches « −1 » */
+    poser(HB);
+    const pars=[].map.call(document.querySelectorAll('#evsHost .pctb-arrow .pctb-af:first-child .pctb-af-x:first-child'), function(e){ return e.textContent; });
+    if(pars.length!==2) vus.push('mixte : '+pars.length+' parenthèse(s) sur les flèches au lieu de 2');
+    if(pars[0]&&pars[0].indexOf('+')<0) vus.push('mixte : la première parenthèse n\\'affiche pas « + » ('+pars[0]+')');
+    if(pars[1]&&pars[1].indexOf('\\u2212')<0) vus.push('mixte : la seconde parenthèse n\\'affiche pas « − » ('+pars[1]+')');
+    const revs=document.querySelectorAll('#evsHost .evb-rev-arrow, #evsHost .evs-rev').length;
+    if(revs!==3) vus.push('mixte : '+revs+' flèche(s) « −1 » au lieu de 3');
+    if(!btn('+')||!btn('\\u2212')) vus.push('mixte : les deux boutons de signe manquent');
+    if(!document.getElementById('evsT')) vus.push('mixte : la case du pourcentage global manque');
+    /* 2. la copie JUSTE, deux hausses */
+    poser(HH);
+    setv('evsP1','0,2'); setv('evsC1','1,2'); setv('evsP2','0,3'); setv('evsC2','1,3');
+    evsChoisirSigne('+'); setv('evsGP','0,56'); setv('evsG1','1,2'); setv('evsG2','1,3'); setv('evsG','1,56'); setv('evsT','56');
+    const verbe=document.getElementById('evsVerbe'); if(!verbe || verbe.textContent.trim()!=='augmente') vus.push('deux hausses : la conclusion ne dit pas « augmente » après le choix de « + » ('+(verbe?verbe.textContent:'—')+')');
+    checkEvsAnswer();
+    ['evsP1','evsC1','evsP2','evsC2','evsGP','evsG1','evsG2','evsG','evsT'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('deux hausses : la case '+id+' juste n\\'est pas bleue ('+cls(id)+')'); });
+    if(!/\\bok\\b/.test(btn('+').className)) vus.push('deux hausses : le signe « + » juste n\\'est pas bleu');
+    if(test.score!==1) vus.push('deux hausses : la copie juste ne vaut pas le point');
+    /* 3. la copie JUSTE, une hausse puis une baisse — le signe « − » */
+    poser(HB);
+    setv('evsP1','0,2'); setv('evsC1','1,2'); setv('evsP2','0,3'); setv('evsC2','0,7');
+    evsChoisirSigne('\\u2212'); setv('evsGP','0,16'); setv('evsG1','1,2'); setv('evsG2','0,7'); setv('evsG','0,84'); setv('evsT','16');
+    checkEvsAnswer();
+    if(test.score!==1) vus.push('mixte : la copie juste ne vaut pas le point');
+    if(!/\\bok\\b/.test(cls('evsG'))) vus.push('mixte : le coefficient global 0,84 juste n\\'est pas bleu');
+    /* 4. le MAUVAIS signe : il rougit, et il coûte le point ; les cases justes restent bleues */
+    poser(HB);
+    setv('evsP1','0,2'); setv('evsC1','1,2'); setv('evsP2','0,3'); setv('evsC2','0,7');
+    evsChoisirSigne('+'); setv('evsGP','0,16'); setv('evsG1','1,2'); setv('evsG2','0,7'); setv('evsG','0,84'); setv('evsT','16');
+    checkEvsAnswer();
+    if(test.score!==0) vus.push('mixte, mauvais signe : la copie vaut quand même le point');
+    if(!/\\bbad\\b/.test(btn('+').className)) vus.push('mixte, mauvais signe : le bouton « + » choisi ne rougit pas');
+    if(!/\\bsol\\b/.test(btn('\\u2212').className)) vus.push('mixte, mauvais signe : le bon signe « − » ne se montre pas en vert (entraînement)');
+    if(/\\bbad\\b/.test(cls('evsG'))) vus.push('mixte, mauvais signe : la case juste evsG rougit');
+    /* 5. une seule case fautive : elle seule rougit */
+    poser(HH);
+    setv('evsP1','0,2'); setv('evsC1','1,2'); setv('evsP2','0,3'); setv('evsC2','1,3');
+    evsChoisirSigne('+'); setv('evsGP','0,5'); setv('evsG1','1,2'); setv('evsG2','1,3'); setv('evsG','1,5'); setv('evsT','50');
+    checkEvsAnswer();
+    if(!/\\bbad\\b/.test(cls('evsG'))) vus.push('1,2 × 1,3 = 1,5 : la case fausse ne rougit pas — les pourcentages ont été additionnés');
+    if(/\\bbad\\b/.test(cls('evsC1'))) vus.push('la case juste evsC1 rougit alors que seule la rangée du global est fautive');
+    /* 6. rien de choisi, une case vide : aucune couleur — en SOUTIEN : en
+       entraînement la correction verte repasse derrière la case vide et
+       masquerait le rouge (le sabotage l'a montré : le bord ne se voit qu'ici) */
+    currentMode='soutien'; poser(HB);
+    setv('evsP1','0,2'); setv('evsC1',''); setv('evsP2','0,3'); setv('evsC2','0,7');
+    checkEvsAnswer();
+    if(/\\bbad\\b/.test(cls('evsC1'))) vus.push('une case laissée vide rougit à la vérification');
+    if(/\\b(ok|bad)\\b/.test(btn('+').className) || /\\b(ok|bad)\\b/.test(btn('\\u2212').className)) vus.push('aucun signe choisi, et un bouton se colore quand même');
+    if(test.score!==0) vus.push('copie incomplète : elle vaut le point');
+    currentMode='train';
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
