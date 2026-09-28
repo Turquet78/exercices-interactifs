@@ -222,6 +222,66 @@ retirer la ligne de la voie exacte laissait un `else if` orphelin, donc une
 page qui ne se charge plus — **un sabotage qui casse la syntaxe ne dit rien du
 contrôle visé**, il fallait débrancher la voie sans la retirer.
 
+**LE RÉGLAGE « QUESTIONS » ALLONGE AUSSI LA SÉANCE — en Seconde, partout où le
+tirage le peut.** Signalé par Turquet (septembre 2026) : « en Seconde, dans la
+fiche 7, pour l'exercice 4.1.8, j'ai coché 5 questions ; quand je teste en tant
+qu'élève, il ne m'en propose que 3 ». Le 4.1.8 ({pourcentage-boite}) tire
+`PCTB_NB` = 3 questions, et la coupe de `dmAppliquerNbQ()` **ne sait que
+réduire** : elle retire des questions d'un tirage déjà fait, elle ne peut pas en
+inventer. « Une valeur au-delà du format normal y retombe » était la règle
+écrite — mais l'éditeur propose 1 à 10 à CHAQUE exercice, et la carte du devoir
+annonçait à l'élève « Pour ce devoir : 5 questions » devant une séance de 3 : le
+réglage mentait deux fois.
+**C'est le démarreur qui allonge, pas la coupe** — le motif de `tmNbDevoir()` et
+de `fracpNbDevoir()`, généralisé : `dmNbQuestions(defaut)` rend le réglage du
+devoir quand il existe et tient dans la plage de l'éditeur (1..`DM_NBQ_MAX`,
+la constante qui dessine aussi la liste de l'éditeur — deux endroits reliés,
+pas deux qu'on oublie), sinon le format normal. Chaque tirage principal par
+`distinctes()` le lit (vingt-cinq démarreurs), et les cinq fabriques à taille
+aussi ({addition-soustraction}, {fractions-decimales}, {hausses-successives},
+{hausses-successives-cent}, {baisses-successives}) ; {pourcentage-synthese-libre}
+dimensionne son plan sur lui. Le barème SUIT d'office : ces démarreurs posent
+`test.maxScore=test.questions.length` APRÈS le tirage — c'est ce qui rendait le
+geste sûr, et c'est la première chose vérifiée avant de le faire. Pour eux la
+coupe devient inerte (`length <= n`), comme pour les tables. Et le bouton
+« Recommencer », qui repasse par le démarreur SANS repasser par
+`lancerDevoirExo()`, garde désormais la longueur réglée — dans les deux sens,
+là où il rendait la séance entière après une coupe.
+**Ce qui ne s'allonge pas se NOMME.** Trente-cinq exercices s'allongent — le
+calcul mental et tout le thème des pourcentages, dont le 4.1.8 signalé.
+Quatre-vingts gardent leur format normal : les exercices à forme fixe — un
+tableau ({tableau-coefficients}), trois familles ({reconnaitre-coefficient}),
+huit paires de pourcentages ({associer-coefficient}, dont `genAC` boucle sans
+fin quand le vivier est épuisé) — et tous ceux dont le tirage ne passe pas par
+`distinctes()` et ne lit pas encore le réglage : les fonctions, les
+intervalles, les fractions, le calcul littéral, Python. Pour eux le réglage ne
+peut que raccourcir, et la carte du devoir annonce encore un nombre que la
+séance ne tient pas. Le contrôle les compte et les ÉCRIT à chaque exécution :
+la liste est le travail qui reste, pas un défaut caché. La Première et la
+Terminale ne savent que réduire, et leur profil le DÉCLARE (`ignorer`), il ne
+le cache pas.
+**Deux bords au contrôle, et n'en tenir qu'un ne tient rien** (`reglageAllonge`,
+banc principal) : le STATIQUE relit chaque `test.questions=distinctes(` de la
+page et exige `dmNbQuestions(` (ou `test.perLevel`, le parcours du 1.6 à
+logique propre) — un exercice ajouté demain qui tire par `distinctes()` sans
+lire le réglage rougit sans rien avoir à déclarer ; le DYNAMIQUE démarre CHAQUE
+exercice hors devoir, puis depuis un devoir réglé à deux questions de plus, et
+n'accepte que deux issues : exactement deux de plus, le barème ayant grandi, ou
+la forme fixe intacte. Les exercices que le profil nomme (`allonge` : le 4.1.8
+signalé, et le témoin) DOIVENT s'allonger. Le témoin des réglages ajoute trois
+bords : la longueur, le barème proportionnel, et « Recommencer » qui la garde.
+Le garde « nbQ=99 retombe sur le format » reste vrai — 99 est hors plage — et
+son message dit maintenant pourquoi.
+**Et le contrôle a attrapé un défaut à sa PREMIÈRE exécution**, avant tout
+sabotage : {pourcentage-synthese} (4.1.6) tirait par `distinctes()` — le bord
+statique le voyait vert — mais sa fabrique lisait un PLAN de `QD_NB` cases par
+l'index ; réglé à six questions, le démarreur levait « plan[i] is not a
+function », et l'élève aurait eu un écran vide sans erreur visible. Le plan a
+maintenant la taille que le devoir règle, et l'index tourne modulo sa
+longueur — comme le 4.1.7 libre, corrigé du même geste. C'est exactement ce
+que le bord dynamique existe pour voir : une constante peut se cacher
+AILLEURS que dans l'appel à `distinctes()`.
+
 **Et les notes DÉJÀ enregistrées se réparent — celles qu'on peut PROUVER.**
 Demande de Turquet (septembre 2026) : « peux-tu corriger les notes des élèves
 en Seconde sur la fiche 3 ». `supabase/corriger-notes-coupe.sql` se colle dans

@@ -90,7 +90,7 @@ const RAPPELS_SECONDE = `(function(){
                'plus-petit-ensemble':'pge','lecture-variations':'lv','tableau-variation':'tvd','lecture-signes':'ls','signes-variations':'lsv','signes-variations-grand':'gsv','choisir-tableau-variation':'vtq','maximum-minimum':'mmx','maximum-minimum-tableau':'mmt','tableau-equations':'tve','tableau-vrai-faux':'tvf','image-nombre':'img','placer-image':'pim','antecedent-nombre':'ant','antecedents-droite':'adr','inequation-droite':'iqd','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','tableau-signes-graphique':'tsg','solutions-graphique':'tvg','construire-fonction':'cfx','construire-max-min':'cfx','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
-               'pourcentage-depart':'pctq','pourcentage-taux':'pctq','pourcentage-synthese':'pctq','pourcentage-synthese-libre':'psl','pourcentage-boite':'pctb','pourcentage-chaine':'pctc',
+               'pourcentage-depart':'pctq','pourcentage-taux':'pctq','pourcentage-synthese':'pctq','pourcentage-synthese-libre':'psl','pourcentage-boite':'pctb','pourcentage-chaine':'pctc','pourcentage-schema':'pcs',
                'augmenter-depart':'augq','augmenter-taux':'augq','diminuer-depart':'augq','diminuer-taux':'augq',
                'fraction-pourcentage':'fp','pourcentage-colonnes':'pcol','augmenter-addition':'ag2','diminuer-soustraction':'ag2',
                'augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q',
@@ -287,7 +287,15 @@ module.exports = {
        qui pose des chaînes qu'il écrit lui-même, ne mesure pas cela. Il tient
        aussi le bord du VERDICT : le double répond toujours « correct:false »,
        et le juge de la page doit primer. */
-    syntheseRedigee: { exercice: 'synthese-pourcentages-libre' },
+    syntheseRedigee: { exercice: 'synthese-pourcentages-libre',
+                       /* {synthese-diminutions-libre-dix} (2.3.13) : la barre
+                          d'espace ÉCRIT une espace (l'élève y rédige en mots),
+                          et SORT toujours d'une fraction — rien de cela ne se
+                          voit hors d'un vrai MathLive */
+                       dix: 'synthese-diminutions-libre-dix',
+                       /* et le 2.3.9 a suivi le lendemain : même feuille,
+                          les espaces par l'identité de l'exercice */
+                       espacesAussi: 'synthese-diminutions-libre' },
     /* Le pavé numérique compact de la Première sert AUSSI ses cases MathLive
        (champsMaths = PAVE_MF dans la page — deux sources) : toutes ses cases
        pm-mf n'attendent qu'un nombre. Le banc navigateur en tape une pour de
@@ -873,7 +881,10 @@ module.exports = {
        RENDUES — la courbe s'arrête à son domaine — et joue la copie juste
        sur les quatre parties en relisant les couleurs. */
     syntheseFonction: { exercice: 'synthese-fonction' },
-    reglagesDevoirs: { exercice: 'pourcentage' },
+    /* « allonge » : les exercices dont la séance DOIT s'allonger quand le
+       devoir règle plus de questions que le format normal — le 4.1.8 signalé
+       par Turquet (septembre 2026), et le témoin lui-même. */
+    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'] },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {

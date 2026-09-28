@@ -3746,6 +3746,7 @@ function exercices(suite){
     coefficientDeuxDecimalesSynthese(w, P);
     syntheseEvolutions(w, P);
     evolutionsSuccessives(w, P);
+    pourcentageSchema(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -3774,6 +3775,7 @@ function exercices(suite){
     syntheseLibrePourcentage(w, P);
     syntheseAugLibreRedigee(w, P);
     syntheseToutesFamillesRedigee(w, P);
+    syntheseDimLibreDix(w, P);
     verificationAvecPropositions(w, P);
     teteCollee(w, P);
     poseSuitLEleve(w, P);
@@ -7756,6 +7758,265 @@ function syntheseToutesFamillesRedigee(w, P){
   if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
     const p=mesure.split('|');
     console.log('   · la plus longue règle du 2.5.2 : '+p[1]+' caractères pour '+bornes.attendu
+      +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
+  }
+}
+/* {synthese-diminutions-libre-dix} (2.3.13) — le 2.3.9 qui accepte EN PLUS la
+   méthode des 10 % (demande de Turquet, septembre 2026). Le juge apprend à
+   lire des lignes en POURCENTS et en MOTS (« 10 % = 60 », « écart = 180 »,
+   « diminution de 30 % »), telles que MathLive les rend — sans espaces, le
+   pourcent en « \% », « diminution » en « di\minution » — et les deux formes
+   fixées par Turquet sont les minimums : pour une valeur, « 10 % », « P % »
+   et la soustraction ; pour un pourcentage, la même, ou « 10 % », l'écart et
+   la conclusion. Sept bords, et n'en tenir qu'un ne tient rien :
+     · le TIRAGE : des baisses seules, les trois inconnues, q.dix sur chaque
+       question, et des taux qui se RETROUVENT depuis 10 % ;
+     · le JUGE, cas par cas, sur des questions épinglées — les deux formes
+       acceptées, les deux formes à qui il manque une ligne, les lignes
+       fausses nommées, la conclusion contredite, la mauvaise proposition ;
+     · le 2.3.9 NE CHANGE PAS : sans q.dix, ces lignes restent des écritures
+       inconnues, et son étiquette ne promet pas la voie ;
+     · les refus ne DONNENT jamais la bonne proposition ;
+     · l'ÉCRAN dit ce que le juge accepte, et la feuille se PEINT ;
+     · la RÈGLE envoyée au modèle nomme la voie avec les nombres, et tient
+       dans la borne de la fonction Edge ;
+     · l'IDENTITÉ : « Recommencer », le numéro, le rappel, les questions. */
+function syntheseDimLibreDix(w, P){
+  const present = evaluer(w, "typeof startSynDimLibreDix==='function' && typeof salJuge==='function' && typeof salDixLigne==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la synthèse des diminutions rédigée avec la méthode des 10 % : tirage, juge, écran, règle, identité',
+      'ce niveau n\'a pas la synthèse des diminutions rédigée avec la méthode des 10 %');
+    return;
+  }
+  let bornes;
+  try{
+    const srcF = fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8');
+    const q = srcF.match(/payload\.question\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    const a = srcF.match(/payload\.attendu\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    if(q && a) bornes = { question:+q[1], attendu:+a[1] };
+  }catch(e){ bornes = undefined; }
+  if(!bornes){
+    verifier('la synthèse des diminutions rédigée avec la méthode des 10 % : tirage, juge, écran, règle, identité',
+      false, 'les bornes de troncature sont introuvables dans supabase/functions/corriger-definition/index.ts');
+    return;
+  }
+  const mesure = verifierEval(w, 'la synthèse des diminutions rédigée avec la méthode des 10 % : tirage, juge, écran, règle, identité', `(function(){
+    const vus=[]; const B=${JSON.stringify(bornes)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='synthese-diminutions-libre-dix';
+    /* le vrai toPlain est INJECTÉ depuis la SOURCE (le double du harnais
+       remplace window.mlDexp par un passe-plat) : c'est lui qui aplatit la
+       copie espacée, et c'est lui qu'on met en ligne */
+    ${['readArg','struct','toPlain'].map(n => { const f = corpsFonctions(lire(CIBLE), /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o => o.nom === n); return f ? f.texte : ''; }).join('\n')}
+
+    /* ---- 1. le TIRAGE ---- (le nombre de questions est celui de tous les
+       exercices sur les évolutions ; ce contrôle ne tourne que là où le
+       démarreur existe, la liste commune des démarreurs ne peut pas le porter) */
+    const tauxVus={}, nbAttendu=${JSON.stringify(P.nbQuestionsEvolutions||null)};
+    for(let t=0;t<30 && !vus.length;t++){
+      startSynDimLibreDix();
+      if(test.qId!=='synthese-diminutions-libre-dix'){ vus.push('le démarreur ne pose pas son identité : « '+test.qId+' »'); break; }
+      if(nbAttendu && test.questions.length!==nbAttendu){ vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+nbAttendu); break; }
+      if(test.kind!=='sal'){ vus.push('le démarreur ne passe pas par le moteur rédigé : kind « '+test.kind+' »'); break; }
+      const incs=test.questions.map(function(q){ return q.inc; });
+      ['fin','ini','pct'].forEach(function(inc){ if(incs.indexOf(inc)<0) vus.push('tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+      test.questions.forEach(function(q,i){
+        if(q.fam!=='dim') vus.push('tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une baisse');
+        if(!q.dix) vus.push('tirage '+t+' q'+i+' : la question ne porte pas q.dix — le juge ne lirait pas la méthode des 10 %');
+        /* un taux qui se retrouve depuis 10 % : multiple de dix (jamais 10 lui-même), ou 5, 15, 25 */
+        if(q.P===10 || !(q.P%10===0 || q.P===5 || q.P===15 || q.P===25)) vus.push('tirage '+t+' q'+i+' : le taux '+q.P+' % ne se retrouve pas depuis 10 %');
+        tauxVus[q.P]=1;
+        q.opts.forEach(function(v){ if(q.inc==='pct' && !(v%5===0)) vus.push('tirage '+t+' q'+i+' : le leurre '+v+' % ne se retrouve pas depuis 10 %'); });
+      });
+    }
+    if(!vus.length && Object.keys(tauxVus).length<3) vus.push('les taux ne varient pas : '+Object.keys(tauxVus).join(', '));
+
+    /* ---- 2. le JUGE, cas par cas ---- « 600 diminué de 30 % = 420 », vu par
+       ses trois inconnues, avec q.dix ; puis 15 % ; puis SANS q.dix (le 2.3.9). */
+    const qFin={fam:'dim',inc:'fin',sens:-1,P:30,N:600,aug:180,fin:420,decStr:'420',unit:'€',opts:[400,420,450,480],bon:1,choisi:1,ci:0,v:0,dix:true};
+    const qPct={fam:'dim',inc:'pct',sens:-1,P:30,N:600,aug:180,fin:420,decStr:'420',unit:'€',opts:[20,30,40,50],bon:1,choisi:1,ci:0,v:0,dix:true};
+    const qIni={fam:'dim',inc:'ini',sens:-1,P:30,N:600,aug:180,fin:420,decStr:'420',unit:'€',opts:[500,600,700,800],bon:1,choisi:1,ci:0,v:0,dix:true};
+    const q15 ={fam:'dim',inc:'fin',sens:-1,P:15,N:600,aug:90,fin:510,decStr:'510',unit:'€',opts:[500,510,540,570],bon:1,choisi:1,ci:0,v:0,dix:true};
+    const qFinSans=Object.assign({},qFin); delete qFinSans.dix;
+    const qPctSans=Object.assign({},qPct); delete qPctSans.dix;
+    const cas=[
+      /* la forme « valeur » : 10 %, P %, la soustraction */
+      ['10 % : la valeur finale en trois lignes',        qFin, 1, '10 % = 60\\n30 % = 180\\n600 − 180 = 420',            true, true ],
+      ['10 % : tel que MathLive l\\'écrit (\\\\%, sans espaces)', qFin, 1, '10\\\\%=60\\n30\\\\%=180\\n600-180=420',        true, true ],
+      ['10 % : « 10 % de 600 = 60 », « 30 % = 3 × 60 = 180 »', qFin, 1, '10 % de 600 = 60\\n30 % = 3 × 60 = 180\\n600 − 180 = 420', true, true ],
+      ['10 % : 15 % = 10 % + 5 %',                        q15,  1, '10 % = 60\\n5 % = 30\\n15 % = 90\\n600 − 90 = 510',    true, true ],
+      ['10 % : la valeur finale d\\'un coup (70 % = 420)', qFin, 1, '10 % = 60\\n70 % = 420',                             true, true ],
+      ['10 % : la soustraction dans l\\'autre sens ne va pas', qFin, 1, '10 % = 60\\n30 % = 180\\n180 − 600 = 420',       true, false],
+      ['10 % : sans la ligne « 10 % », ce n\\'est pas la méthode', qFin, 1, '30 % = 180\\n600 − 180 = 420',              true, false],
+      ['10 % : sans la soustraction',                     qFin, 1, '10 % = 60\\n30 % = 180',                              true, false],
+      ['10 % : sans la ligne « 30 % »',                   qFin, 1, '10 % = 60\\n600 − 180 = 420',                         true, false],
+      ['10 % : une ligne de pourcentage fausse',          qFin, 1, '10 % = 50\\n30 % = 150\\n600 − 150 = 450',            true, false],
+      ['10 % : « 10 % = 60 » seul ne justifie rien',      qFin, 1, '10 % = 60',                                           true, false],
+      ['10 % : la valeur initiale, même forme',           qIni, 1, '10 % = 60\\n30 % = 180\\n600 − 180 = 420',            true, true ],
+      ['10 % : la valeur initiale choisie ne convient pas', qIni, 0, '10 % = 50\\n30 % = 150\\n500 − 150 = 350',          true, false],
+      /* la forme « pourcentage » : la même, ou 10 %, l'écart, la conclusion */
+      ['10 % : le pourcentage par la même forme',         qPct, 1, '10 % = 60\\n30 % = 180\\n600 − 180 = 420',            true, true ],
+      ['10 % : le pourcentage par l\\'écart',             qPct, 1, '10 % = 60\\nécart = 180\\ndiminution de 30 %',        true, true ],
+      ['10 % : l\\'écart en soustraction, la conclusion aplatie par MathLive', qPct, 1, '10\\\\%=60\\n600-420=180\\ndi\\\\minutionde30\\\\%', true, true ],
+      ['10 % : « écart = 600 − 420 = 180 » et « baisse de 30 % »', qPct, 1, '10 % = 60\\nécart = 600 − 420 = 180\\nbaisse de 30 %', true, true ],
+      ['10 % : l\\'écart sans la conclusion',             qPct, 1, '10 % = 60\\nécart = 180',                             true, false],
+      ['10 % : la conclusion sans l\\'écart',             qPct, 1, '10 % = 60\\ndiminution de 30 %',                      true, false],
+      ['10 % : un écart faux',                            qPct, 1, '10 % = 60\\nécart = 120\\ndiminution de 30 %',        true, false],
+      ['10 % : la conclusion contredit la proposition choisie', qPct, 1, '10 % = 60\\nécart = 180\\ndiminution de 20 %',  true, false],
+      ['10 % : la conclusion dans le mauvais sens',       qPct, 1, '10 % = 60\\nécart = 180\\naugmentation de 30 %',      true, false],
+      ['10 % : la mauvaise proposition, forme « valeur » cohérente', qPct, 0, '10 % = 60\\n20 % = 120\\n600 − 120 = 480', true, false],
+      ['10 % : la mauvaise proposition par l\\'écart',    qPct, 0, '10 % = 60\\nécart = 180\\ndiminution de 20 %',        true, false],
+      /* les trois voies d'avant vivent toujours */
+      ['le coefficient vit toujours',                     qFin, 1, '0,7 × 600 = 420',                                     true, true ],
+      ['la diminution puis la soustraction vit toujours', qFin, 1, '0,3 × 600 = 180\\n600 − 180 = 420',                   true, true ],
+      ['le quotient vit toujours',                        qPct, 1, '420/600 = 70/100',                                    true, true ],
+      ['une écriture inconnue laisse décider le modèle',  qFin, 1, 'j\\'ai trouvé 420',                                   false, null ],
+      /* le 2.3.9 ne change pas : sans q.dix, ces lignes restent inconnues */
+      ['sans q.dix, « 10 % = 60 » reste une écriture inconnue', qFinSans, 1, '10 % = 60\\n30 % = 180\\n600 − 180 = 420', false, null ],
+      ['sans q.dix, la conclusion en mots reste un commentaire', qPctSans, 1, '10 % = 60\\nécart = 180\\ndiminution de 30 %', false, null ],
+    ];
+    cas.forEach(function(c){
+      const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
+      const j=salJuge(q, c[3]);
+      if(j.sait!==c[4]) vus.push('juge « '+c[0]+' » : sait='+j.sait+' au lieu de '+c[4]+(j.phrase?' — « '+j.phrase+' »':''));
+      else if(c[4] && j.correct!==c[5]) vus.push('juge « '+c[0]+' » : correct='+j.correct+' au lieu de '+c[5]+(j.phrase?' — « '+j.phrase+' »':''));
+    });
+    /* les refus nomment ce qui manque, et ne donnent JAMAIS la bonne proposition */
+    if(!vus.length){
+      const dire=function(q, choisi, texte){ const qq=JSON.parse(JSON.stringify(q)); qq.choisi=choisi; return salJuge(qq, texte).phrase||''; };
+      let ph=dire(qFin,1,'30 % = 180\\n600 − 180 = 420');
+      if(ph.indexOf('10 %')<0) vus.push('le refus sans la ligne « 10 % » ne la nomme pas : « '+ph+' »');
+      ph=dire(qFin,1,'10 % = 60\\n30 % = 180');
+      if(ph.indexOf('soustraction')<0) vus.push('le refus sans la soustraction ne la nomme pas : « '+ph+' »');
+      ph=dire(qFin,1,'10 % = 50\\n30 % = 150\\n600 − 150 = 450');
+      if(ph.indexOf('10 % = 50')<0) vus.push('le refus d\\'une ligne de pourcentage fausse ne la nomme pas : « '+ph+' »');
+      ph=dire(qPct,1,'10 % = 60\\nécart = 180');
+      if(ph.indexOf('conclusion')<0) vus.push('le refus sans la conclusion ne la nomme pas : « '+ph+' »');
+      ph=dire(qPct,1,'10 % = 60\\ndiminution de 30 %');
+      if(ph.indexOf('écart')<0) vus.push('le refus sans l\\'écart ne le nomme pas : « '+ph+' »');
+      /* la mauvaise proposition (20 %) : aucun refus n'écrit « 30 » */
+      ['10 % = 60\\nécart = 180\\ndiminution de 20 %', '10 % = 60\\n20 % = 120\\n600 − 120 = 480', '10 % = 60\\nécart = 120\\ndiminution de 20 %', '10 % = 60\\n20 % = 120', 'écart = 180\\ndiminution de 20 %'].forEach(function(t){
+        const p2=dire(qPct,0,t);
+        if(/\\b30\\b/.test(p2)) vus.push('un refus sur la mauvaise proposition donne la bonne (30) : « '+p2+' »');
+      });
+    }
+
+    /* ---- 3. l'ÉCRAN dit ce que le juge accepte, et la feuille se PEINT ---- */
+    if(!vus.length){
+      startSynDimLibreDix();
+      const lab=[].slice.call($('salHost').querySelectorAll('.pt-lab')).map(function(e){ return String(e.textContent||''); }).filter(function(t){ return t.indexOf('justifie')>=0; }).join(' ');
+      if(lab.indexOf('10 %')<0 || lab.indexOf('écart')<0) vus.push('l\\'étiquette de la feuille ne nomme pas la voie des 10 % : « '+lab+' »');
+      if(lab.indexOf('coefficient')<0 || lab.indexOf('soustraction')<0) vus.push('l\\'étiquette a perdu les voies d\\'avant : « '+lab+' »');
+      const hint=String(($('salHost').querySelector('.dexp-hint')||{}).textContent||'');
+      if(hint.indexOf('%')<0 || hint.indexOf('écart')<0) vus.push('l\\'indication sous la feuille n\\'explique pas comment écrire la méthode des 10 % : « '+hint+' »');
+      if(!salFeuille || !salFeuille.lignes.length) vus.push('la feuille de justification n\\'existe pas avant le choix d\\'une proposition');
+      /* LA BARRE D'ESPACE ÉCRIT UNE ESPACE (demande de Turquet, septembre
+         2026) : la feuille du 2.3.13 pose mathModeSpace sur ses lignes —
+         celles qui existent, et celles qu'ajoute « Entrée » — et le 2.3.9 n'y
+         touche pas. Ce que MathLive écrit alors (« \\; ») doit ressortir en
+         espace à l'aplatissement, et le juge doit lire la copie ESPACÉE comme
+         la copie collée. jsdom n'a pas MathLive : la frappe réelle se mesure
+         au banc navigateur (« la synthèse des pourcentages rédigée »). */
+      const espLatex=function(v){ v=String(v||''); return v.length>0 && (v==='~' || (v.charCodeAt(0)===92 && v.length===2 && ',;: '.indexOf(v.charAt(1))>=0)); };
+      const l0=salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+      if(!l0 || !espLatex(l0.mathModeSpace)) vus.push('sur le 2.3.13, la barre d\\'espace n\\'écrit pas d\\'espace : mathModeSpace « '+(l0?l0.mathModeSpace:'?')+' »');
+      const lAj=salFeuille.ajouterLigne();
+      if(!lAj || !lAj.mf || !espLatex(lAj.mf.mathModeSpace)) vus.push('une ligne ajoutée par « Entrée » sur le 2.3.13 n\\'écrit pas d\\'espace : mathModeSpace « '+(lAj&&lAj.mf?lAj.mf.mathModeSpace:'?')+' »');
+      const hintEsp=String(($('salHost').querySelector('.dexp-hint')||{}).textContent||'');
+      if(hintEsp.indexOf('espace')<0) vus.push('l\\'indication sous la feuille ne dit pas que la barre d\\'espace écrit une espace');
+      const tp=(typeof toPlain==='function')?toPlain:null;
+      if(!tp) vus.push('toPlain introuvable dans la source : la lecture de la copie espacée n\\'a rien à mesurer, et doit le dire');
+      else {
+        const B=String.fromCharCode(92);
+        const t1=tp('10'+B+';'+B+'%=60'), t2=tp(B+'text{écart}'+B+';=180'), t3=tp('di'+B+'minution'+B+';de'+B+';30'+B+'%');
+        if(t1.indexOf(' ')<0 || t3.split(' ').length!==3) vus.push('l\\'espace de MathLive ne ressort pas en espace à l\\'aplatissement : « '+t1+' », « '+t3+' »');
+        const rN=salRatDe(600);
+        const L1=salDixLigne(t1.split('=').map(function(m){ return m.trim(); }), rN, null);
+        if(!L1 || L1.type!=='pct' || !L1.lisible || L1.faux) vus.push('« 10 % = 60 » tapée avec des espaces n\\'est plus lue par le juge : '+JSON.stringify(L1)+' (texte « '+t1+' »)');
+        const L2=salDixLigne(t2.split('=').map(function(m){ return m.trim(); }), rN, salRatDe(180));
+        if(!L2 || L2.type!=='ecart' || !L2.lisible || L2.faux) vus.push('« écart = 180 » tapée avec des espaces n\\'est plus lue par le juge : '+JSON.stringify(L2)+' (texte « '+t2+' »)');
+        const C3=salDixConclusion(t3);
+        if(!C3 || C3.sens!==-1 || !salEgal(C3.k,salRatDe(30))) vus.push('« diminution de 30 % » tapée avec des espaces n\\'est plus lue comme conclusion : '+JSON.stringify(C3)+' (texte « '+t3+' »)');
+      }
+      /* le bord opposé : le 2.3.9 ne promet pas la voie, et sa feuille n'a pas changé */
+      startSynDimLibre();
+      const lab9=[].slice.call($('salHost').querySelectorAll('.pt-lab')).map(function(e){ return String(e.textContent||''); }).filter(function(t){ return t.indexOf('justifie')>=0; }).join(' ');
+      if(lab9.indexOf('10 %')>=0) vus.push('le 2.3.9 promet désormais la voie des 10 % que son juge ne lit pas : « '+lab9+' »');
+      /* et sa feuille écrit les espaces, elle aussi (« fais pareil pour le
+         2.3.9 », Turquet, septembre 2026) — par l'identité de l'exercice,
+         que le brouillon de pause range et rétablit */
+      const l9=salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+      if(!l9 || !espLatex(l9.mathModeSpace)) vus.push('sur le 2.3.9, la barre d\\'espace n\\'écrit pas d\\'espace : mathModeSpace « '+(l9?l9.mathModeSpace:'?')+' »');
+      const l9b=salFeuille.ajouterLigne();
+      if(!l9b || !l9b.mf || !espLatex(l9b.mf.mathModeSpace)) vus.push('une ligne ajoutée par « Entrée » sur le 2.3.9 n\\'écrit pas d\\'espace');
+      const hint9=String(($('salHost').querySelector('.dexp-hint')||{}).textContent||'');
+      if(hint9.indexOf('espace')<0) vus.push('l\\'indication sous la feuille du 2.3.9 ne dit pas que la barre d\\'espace écrit une espace');
+      /* le bord opposé : le 2.2.10 garde la feuille d'avant */
+      startSynAugLibre();
+      const l10=salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+      if(l10 && l10.mathModeSpace) vus.push('le 2.2.10 a changé sans qu\\'on le demande : sa feuille écrit des espaces (mathModeSpace « '+l10.mathModeSpace+' »)');
+      /* la peinture : sur une feuille adossée à de vrais éléments */
+      startSynDimLibreDix();
+      test.questions[0]=JSON.parse(JSON.stringify(qPct)); test.idx=0;
+      const lignes=['10 % = 60','écart = 120','30 % = 3 × 60 = 180','diminution de 30 %','600 − 420 = 180'];
+      const ls=lignes.map(function(t){ const el=document.createElement('math-field'); el.value=t; return {mf:el, line:el}; });
+      salFeuille={ lire:function(){ return lignes.join('\\n'); }, lignes:ls, verrouiller:function(){} };
+      salPeindreLignes();
+      const cl=ls.map(function(L){ return L.mf.className; });
+      if(cl[0].indexOf('ok')<0) vus.push('« 10 % = 60 » (juste) n\\'est pas peinte en bleu : « '+cl[0]+' »');
+      if(cl[1].indexOf('bad')<0) vus.push('« écart = 120 » (faux) n\\'est pas peinte en rouge : « '+cl[1]+' »');
+      if(cl[2].indexOf('ok')<0) vus.push('« 30 % = 3 × 60 = 180 » (juste) n\\'est pas peinte en bleu : « '+cl[2]+'  »');
+      if(/ok|bad/.test(cl[3])) vus.push('la conclusion en mots reçoit une couleur : « '+cl[3]+' »');
+      if(cl[4].indexOf('ok')<0) vus.push('« 600 − 420 = 180 » (juste) n\\'est pas peinte en bleu : « '+cl[4]+' »');
+    }
+
+    /* ---- 4. la règle envoyée au modèle ---- */
+    let pireQ=0, pireA=0, pireEti='';
+    const jugeMesure={sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul : « 10 % = 50 ». Reprends cette ligne.'};
+    for(let i=0;i<120 && !vus.length;i++){
+      const q=genSyn('dim', ['fin','ini','pct'][i%3], {dix:true}); q.choisi=(i%2===0)?q.bon:((q.bon+1)%4);
+      const e=salEnonceIA(q), a=salAttenduIA(q, (i%4===0)?jugeMesure:null), c=salCouple(q);
+      if(e.length>pireQ) pireQ=e.length;
+      if(a.length>pireA){ pireA=a.length; pireEti=q.inc+' '+c.P+'% de '+c.N; }
+      const eti='('+q.inc+', choix '+(q.choisi===q.bon?'juste':'faux')+') ';
+      const regle=a.slice(Math.max(0,a.indexOf('RÈGLE DE DÉCISION')));
+      if(regle.indexOf('QUATRE')<0){ vus.push(eti+'la règle ne compte pas quatre voies'); break; }
+      if(regle.indexOf('10 % = '+c.dixStr)<0){ vus.push(eti+'la règle n\\'écrit pas « 10 % = '+c.dixStr+' »'); break; }
+      if(regle.indexOf(c.P+' % = '+c.augStr)<0){ vus.push(eti+'la règle n\\'écrit pas « '+c.P+' % = '+c.augStr+' »'); break; }
+      if(regle.indexOf('écart')<0 || regle.indexOf('diminution de '+c.P+' %')<0){ vus.push(eti+'la règle n\\'écrit pas la forme par l\\'écart et la conclusion'); break; }
+      if(regle.indexOf(c.coefStr+' × '+c.N)<0 || regle.indexOf(c.pDecStr+' × '+c.N)<0 || regle.indexOf('soustraction')<0){ vus.push(eti+'la règle a perdu une des voies d\\'avant'); break; }
+      if(e.indexOf('10 %')<0 || e.indexOf('espaces')<0){ vus.push(eti+'l\\'énoncé envoyé ne prévient pas le modèle des lignes aplaties par l\\'éditeur'); break; }
+      if(regle.indexOf('AUCUNE ÉGALITÉ FAUSSE')<0){ vus.push(eti+'la règle n\\'interdit plus les égalités fausses'); break; }
+      if(a.indexOf('STRICTEMENT SECRÈTE')<0){ vus.push(eti+'la bonne proposition n\\'est plus déclarée secrète'); break; }
+      if((i%4===0) && (a.indexOf('VERDICT DE LA PAGE')<0 || a.indexOf('PRIORITAIRE')<0)){ vus.push(eti+'le verdict du juge ne part plus avec la règle'); break; }
+      /* le 2.3.9 : sa règle ne parle pas de la voie des 10 % */
+      const q9=genSyn('dim', q.inc); q9.choisi=q9.bon;
+      const a9=salAttenduIA(q9, null);
+      if(a9.indexOf('voie des 10 %')>=0 || a9.indexOf('QUATRE')>=0){ vus.push(eti+'la règle du 2.3.9 promet la voie des 10 % que son juge ne lit pas'); break; }
+    }
+    if(!vus.length && pireA>B.attendu-300)
+      vus.push('la règle frôle ou dépasse la borne de la fonction Edge : '+pireA+' caractères pour '+B.attendu+' ('+pireEti+')');
+    if(!vus.length && pireQ>B.question-300)
+      vus.push('l\\'énoncé frôle ou dépasse sa borne : '+pireQ+' caractères pour '+B.question);
+
+    /* ---- 5. l'identité ---- */
+    if(TEST_NUM['synthese-diminutions-libre-dix']!=='2.3.13') vus.push('le numéro n\\'est pas 2.3.13 : « '+TEST_NUM['synthese-diminutions-libre-dix']+' »');
+    if(!RAPPELS_ID['synthese-diminutions-libre-dix'] || RAPPELS_ID['synthese-diminutions-libre-dix'].indexOf('10 %')<0) vus.push('le rappel de cours ne parle pas de la méthode des 10 %');
+    if(RAPPELS_ID['synthese-diminutions-libre-dix']===RAPPELS_ID['synthese-diminutions-libre']) vus.push('le rappel est celui du 2.3.9, qui ne connaît pas la méthode des 10 %');
+    if(!QIA_SUGG['synthese-diminutions-libre-dix'] || !QIA_SUGG['synthese-diminutions-libre-dix'].some(function(t){ return t.indexOf('10 %')>=0; })) vus.push('les questions proposées à l\\'IA ne parlent pas de la méthode des 10 %');
+    if(!TESTS['synthese-diminutions-libre-dix'] || TESTS['synthese-diminutions-libre-dix'].desc.indexOf('10 %')<0) vus.push('la description de l\\'exercice ne dit pas que la méthode des 10 % est acceptée');
+    test.kind='sal'; test.qId='synthese-diminutions-libre-dix'; restartCurrentTest();
+    if(test.qId!=='synthese-diminutions-libre-dix') vus.push('« Recommencer » relance « '+test.qId+' » au lieu du 2.3.13');
+    if(test.questions.some(function(q){ return !q.dix; })) vus.push('après « Recommencer », les questions ont perdu q.dix');
+    test.kind='sal'; test.qId='synthese-diminutions-libre'; restartCurrentTest();
+    if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.9 relance « '+test.qId+' »');
+    if(test.questions.some(function(q){ return q.dix; })) vus.push('le 2.3.9 tire désormais des questions q.dix');
+
+    return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
+  })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
+  if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
+    const p=mesure.split('|');
+    console.log('   · la plus longue règle du 2.3.13 : '+p[1]+' caractères pour '+bornes.attendu
       +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
   }
 }
@@ -25629,6 +25890,149 @@ function evolutionsSuccessives(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---- {pourcentage-schema} : Seconde SEULE, LE SCHÉMA DU 4.1.9 PRIS À L'ENVERS --
+   « en seconde faire un exercice comme le pdf en variant les énoncés, les %
+   seront toujours des entiers, et le schéma sera fait comme dans l'exercice
+   4.1.9 » (Turquet, septembre 2026, fiche « Exercice 2 — successives »).
+   Kind « pcs » : les trois boîtes, les deux flèches et la rangée du
+   coefficient global de {pourcentage-chaine}, mais les DONNÉES sont écrites
+   SUR le schéma (les deux flèches, ou une flèche et le produit) et l'élève
+   complète ce qui manque, puis trois phrases en pourcentages.
+   L'exercice n'existe qu'en Seconde : le contrôle se déclare ABSENT plutôt
+   que de rougir sur les autres niveaux, comme {evolutions-successives}.
+   Bords du tirage : P1 et P2 sont des multiples de 5 entre 5 et 95, leur
+   produit un multiple de 100 — c'est ce qui rend le global ENTIER, la seule
+   règle arithmétique de l'exercice, remesurée sur le global lui-même (entier,
+   de 1 à 99) ; chaque séance pose les TROIS formes de la fiche (les deux
+   flèches données ; la première et le produit ; la seconde et le produit),
+   en ordre variable ; l'ordre des phrases est une permutation ; l'identité
+   tenue par « Recommencer ».
+   Bords du schéma : ce qui est DONNÉ est écrit (un span .pcs-val), ce qui
+   est cherché est une case, et jamais les deux ; le verdict case par case
+   sur des copies ÉPINGLÉES (la fiche : 0,30 et 0,20 ; 0,30 × ? = 0,06 ;
+   ? × 0,50 = 0,15 ; puis 0,25 × ? = 0,10, le cas d'un multiple de 5 impair)
+   — juste, puis fautive d'une seule case — ; « 6,5 » n'est pas « 6 » ; la
+   case vide qui ne rougit jamais. */
+function pourcentageSchema(w, P){
+  const present = evaluer(w, "typeof startPcs==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{pourcentage-schema} : les pourcentages sont entiers, les trois formes de la fiche sortent',
+      'ce niveau n\'a pas le schéma de pourcentages à lire');
+    ignorer('{pourcentage-schema} : le donné est écrit, le cherché est une case, et le verdict case par case',
+      'ce niveau n\'a pas le schéma de pourcentages à lire');
+    return;
+  }
+  verifierEval(w, '{pourcentage-schema} : les pourcentages sont entiers, les trois formes de la fiche sortent', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-schema';
+    const attendu=PCS_NB, ordres={}, ordresPhrases={}, impairs={};
+    for(let t=0;t<40 && !vus.length;t++){
+      startPcs();
+      if(test.qId!=='pourcentage-schema') vus.push('tirage '+t+' : identité « '+test.qId+' » au lieu de « pourcentage-schema »');
+      if(test.kind!=='pcs') vus.push('tirage '+t+' : kind « '+test.kind+' » au lieu de « pcs »');
+      const qs=test.questions||[];
+      if(qs.length!==attendu) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de '+attendu);
+      const formes={};
+      qs.forEach(function(q,i){
+        const ou='tirage '+t+' q'+i+' : ';
+        [q.P1,q.P2].forEach(function(p){ if(!Number.isInteger(p) || p%5!==0 || p<5 || p>95) vus.push(ou+'pourcentage « '+p+' » hors des multiples de 5 de 5 à 95'); });
+        if((q.P1*q.P2)%100!==0) vus.push(ou+q.P1+' % puis '+q.P2+' % — le produit n\\'est pas un multiple de 100, le global ne peut pas être entier');
+        if(q.comb!==q.P1*q.P2/100) vus.push(ou+'global « '+q.comb+' » au lieu de '+(q.P1*q.P2/100));
+        if(!Number.isInteger(q.comb) || q.comb<1 || q.comb>99) vus.push(ou+'global « '+q.comb+' % » n\\'est pas un entier de 1 à 99');
+        if(['comb','p1','p2'].indexOf(q.inc)<0) vus.push(ou+'forme « '+q.inc+' » inconnue');
+        formes[q.inc]=1;
+        if(!Array.isArray(q.ordre) || q.ordre.slice().sort().join()!=='0,1,2') vus.push(ou+'ordre des phrases « '+JSON.stringify(q.ordre)+' » n\\'est pas une permutation de 0,1,2');
+        if(!CTX_PCS[q.ci]) vus.push(ou+'contexte « '+q.ci+' » inconnu');
+        if(q.P1%10!==0 || q.P2%10!==0) impairs[q.P1+'x'+q.P2]=1;
+        const en=pcsEnonce(q);
+        if(!/compl|retrouve/i.test(en) || /undefined|NaN|\\$\\{/.test(en)) vus.push(ou+'énoncé « '+en.replace(/<[^>]+>/g,'')+' »');
+      });
+      ['comb','p1','p2'].forEach(function(f){ if(!formes[f]) vus.push('tirage '+t+' : la forme « '+f+' » ne sort pas ('+Object.keys(formes).join(',')+')'); });
+      ordres[qs.map(function(q){ return q.inc; }).join(',')]=1;
+      qs.forEach(function(q){ ordresPhrases[q.ordre.join('')]=1; });
+      const vu={};
+      qs.forEach(function(q){ const c=q.inc+'|'+q.P1+'|'+q.P2;
+        if(vu[c]) vus.push('tirage '+t+' : deux questions identiques dans la même séance'); vu[c]=1; });
+    }
+    if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des trois formes ne change jamais d\\'un tirage à l\\'autre');
+    if(!vus.length && Object.keys(ordresPhrases).length<2) vus.push('l\\'ordre des trois phrases ne change jamais');
+    if(!vus.length && !Object.keys(impairs).length) vus.push('en 40 tirages, aucun pourcentage hors des multiples de dix — le vivier des multiples de 5 n\\'est pas atteint');
+    if(!vus.length){
+      restartCurrentTest();
+      if(test.qId!=='pourcentage-schema') vus.push('« Recommencer » relance « '+test.qId+' » au lieu du schéma de pourcentages');
+    }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- Le schéma lui-même : le donné écrit, le cherché en case, et le verdict */
+  verifierEval(w, '{pourcentage-schema} : le donné est écrit, le cherché est une case, et le verdict case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-schema';
+    const poser=function(q){ startPcs(); test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; test.locked=false; renderPcsTest(); };
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    const tag=function(id){ const e=document.getElementById(id); return e?e.tagName:'(absent)'; };
+    const txt=function(id){ const e=document.getElementById(id); return e?e.textContent.trim():'(absent)'; };
+    const COMB={inc:'comb',P1:30,P2:20,comb:6,ci:0,v:[0,0,0,0],ordre:[0,1,2]};   /* exercice 1 de la fiche */
+    const P2={inc:'p2',P1:30,P2:20,comb:6,ci:1,v:[1,1,1,1],ordre:[2,0,1]};       /* exercice 2 : 0,30 × ? = 0,06 */
+    const P1={inc:'p1',P1:30,P2:50,comb:15,ci:2,v:[2,0,1,0],ordre:[2,1,0]};      /* exercice 3 : ? × 0,50 = 0,15 */
+    const IMP={inc:'p2',P1:25,P2:40,comb:10,ci:3,v:[0,0,0,0],ordre:[0,1,2]};     /* 0,25 × ? = 0,10 */
+    /* 1. la forme « comb » : les deux flèches ÉCRITES, la rangée du global en cases */
+    poser(COMB);
+    if(tag('pcsD1')!=='SPAN' || txt('pcsD1')!=='0,30') vus.push('comb : la première flèche devrait être écrite « 0,30 » ('+tag('pcsD1')+' « '+txt('pcsD1')+' »)');
+    if(tag('pcsD2')!=='SPAN' || txt('pcsD2')!=='0,20') vus.push('comb : la seconde flèche devrait être écrite « 0,20 » ('+tag('pcsD2')+' « '+txt('pcsD2')+' »)');
+    ['pcsG1','pcsG2','pcsG','pcsS1','pcsS2','pcsS3'].forEach(function(id){ if(tag(id)!=='MATH-FIELD') vus.push('comb : '+id+' devrait être une case ('+tag(id)+')'); });
+    if(document.querySelectorAll('#pcsHost .pcs-phrase').length!==3) vus.push('comb : '+document.querySelectorAll('#pcsHost .pcs-phrase').length+' phrase(s) au lieu de 3');
+    if(document.querySelectorAll('#pcsHost math-field').length!==6) vus.push('comb : '+document.querySelectorAll('#pcsHost math-field').length+' case(s) au lieu de 6');
+    /* 2. la copie JUSTE de la forme « comb » */
+    setv('pcsG1','0,30'); setv('pcsG2','0,2'); setv('pcsG','0,06'); setv('pcsS1','30'); setv('pcsS2','20'); setv('pcsS3','6');
+    checkPcsAnswer();
+    ['pcsG1','pcsG2','pcsG','pcsS1','pcsS2','pcsS3'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('comb, copie juste : la case '+id+' n\\'est pas bleue ('+cls(id)+')'); });
+    if(test.score!==1) vus.push('comb : la copie juste ne vaut pas le point');
+    /* 3. la forme « p2 » : la première flèche et le produit écrits, la seconde en case — et sa reprise */
+    poser(P2);
+    if(tag('pcsD1')!=='SPAN' || tag('pcsG1')!=='SPAN' || txt('pcsG1')!=='0,30') vus.push('p2 : la première flèche et sa reprise devraient être écrites « 0,30 »');
+    if(tag('pcsG')!=='SPAN' || txt('pcsG')!=='0,06') vus.push('p2 : le produit devrait être écrit « 0,06 » ('+tag('pcsG')+' « '+txt('pcsG')+' »)');
+    if(tag('pcsD2')!=='MATH-FIELD' || tag('pcsG2')!=='MATH-FIELD') vus.push('p2 : la seconde flèche et sa reprise devraient être des cases');
+    const phr=[].map.call(document.querySelectorAll('#pcsHost .pcs-phrase'), function(e){ return e.querySelector('math-field').id; });
+    if(phr.join()!=='pcsS3,pcsS1,pcsS2') vus.push('p2 : les phrases ne suivent pas l\\'ordre tiré ('+phr.join()+' au lieu de pcsS3,pcsS1,pcsS2)');
+    setv('pcsD2','0,2'); setv('pcsG2','0,20'); setv('pcsS1','30'); setv('pcsS2','20'); setv('pcsS3','6');
+    checkPcsAnswer();
+    if(test.score!==1) vus.push('p2 : la copie juste ne vaut pas le point');
+    if(!/\\bok\\b/.test(cls('pcsG2'))) vus.push('p2 : « 0,20 » repris n\\'est pas bleu — 0,2 et 0,20 sont le même nombre');
+    /* 4. la forme « p1 », une seule case fautive : elle seule rougit, et sa correction s'écrit en vert */
+    poser(P1);
+    if(tag('pcsD1')!=='MATH-FIELD' || tag('pcsG1')!=='MATH-FIELD') vus.push('p1 : la première flèche et sa reprise devraient être des cases');
+    if(tag('pcsD2')!=='SPAN' || txt('pcsD2')!=='0,50' || tag('pcsG')!=='SPAN' || txt('pcsG')!=='0,15') vus.push('p1 : la seconde flèche « 0,50 » et le produit « 0,15 » devraient être écrits');
+    setv('pcsD1','0,3'); setv('pcsG1','0,3'); setv('pcsS1','30'); setv('pcsS2','50'); setv('pcsS3','65');
+    checkPcsAnswer();
+    if(!/\\bbad\\b/.test(cls('pcsS3'))) vus.push('p1 : « 65 % » (les pourcentages additionnés) ne rougit pas');
+    ['pcsD1','pcsG1','pcsS1','pcsS2'].forEach(function(id){ if(/\\bbad\\b/.test(cls(id))) vus.push('p1 : la case juste '+id+' rougit alors que seule la phrase du global est fautive'); });
+    if(test.score!==0) vus.push('p1, une case fausse : la copie vaut quand même le point');
+    const cor=document.getElementById('pcsS3').nextElementSibling;
+    if(!cor || !/mf-cor/.test(cor.className) || cor.textContent.trim()!=='15') vus.push('p1 : la correction « 15 » ne s\\'écrit pas en vert à côté de la case fausse (entraînement)');
+    /* 5. un multiple de 5 impair : 0,25 × ? = 0,10, la flèche cherchée vaut 0,4 */
+    poser(IMP);
+    if(txt('pcsD1')!=='0,25' || txt('pcsG')!=='0,10') vus.push('0,25 × ? = 0,10 : le schéma écrit « '+txt('pcsD1')+' » et « '+txt('pcsG')+' »');
+    setv('pcsD2','0,4'); setv('pcsG2','0,4'); setv('pcsS1','25'); setv('pcsS2','40'); setv('pcsS3','10');
+    checkPcsAnswer();
+    if(test.score!==1) vus.push('0,25 × ? = 0,10 : la copie juste (0,4 ; 25, 40, 10) ne vaut pas le point');
+    /* 6. « 6,5 » dans une phrase n'est pas « 6 » : parseInt l'aurait laissé passer */
+    poser(COMB);
+    setv('pcsG1','0,3'); setv('pcsG2','0,2'); setv('pcsG','0,06'); setv('pcsS1','30'); setv('pcsS2','20'); setv('pcsS3','6,5');
+    checkPcsAnswer();
+    if(!/\\bbad\\b/.test(cls('pcsS3')) || test.score!==0) vus.push('« 6,5 % » est compté juste pour 6 %');
+    /* 7. une case laissée VIDE ne rougit jamais — en SOUTIEN, où rien ne repasse derrière la case */
+    currentMode='soutien'; poser(COMB);
+    setv('pcsG1','0,3'); setv('pcsG2',''); setv('pcsG','0,06'); setv('pcsS1','30'); setv('pcsS2',''); setv('pcsS3','6');
+    checkPcsAnswer();
+    if(/\\bbad\\b/.test(cls('pcsG2')) || /\\bbad\\b/.test(cls('pcsS2'))) vus.push('une case laissée vide rougit à la vérification');
+    if(!/\\bok\\b/.test(cls('pcsG1'))) vus.push('soutien : la case juste pcsG1 n\\'est pas bleue quand une voisine est vide');
+    if(test.score!==0) vus.push('copie incomplète : elle vaut le point');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---- 2.1.3 : le coefficient s'écrit court, et la chaîne tombe sur des entiers
    « fais la même chose pour le 2.1.3 » (Turquet, septembre 2026), après la
    règle posée sur le 2.2.7, le 2.3.7, le 2.2.8 puis le 2.5.1 : un coefficient
@@ -27159,12 +27563,13 @@ function reglagesDevoirs(w, apres){
   if(!R || !present.ok || !present.valeur){
     ignorer('les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien',
       'ce niveau n\'a pas les réglages par exercice des devoirs');
-    return parcoursNbDevoir(w, apres);
+    return reglageAllonge(w, apres);
   }
   /* Première : l'éditeur passe par saveDM(), qu'on ne peut pas cliquer ici —
      on tient au moins la trace des réglages dans son corps, et les setters
      s'exercent dans l'éval. */
   const srcPage=lire(CIBLE);
+  const allonge = (function(){ const r=evaluer(w, "typeof dmNbQuestions==='function'"); return !!(r.ok&&r.valeur); })();
   if(/async function saveDM\(/.test(srcPage)){
     const corpsSave=(srcPage.split('async function saveDM(')[1]||'').slice(0,1600);
     verifier('saveDM emporte les réglages nbQ et smax',
@@ -27194,7 +27599,7 @@ function reglagesDevoirs(w, apres){
     /* ---- 2. la coupe du nombre de questions, au lancement depuis le devoir ---- */
     mesDevoirs=[{id:'dev-r',num:1,actif:true,titre:'Réglages',cours:'',exercices:[{id:EX,modes:['soutien','train']}]}];
     await lancerDevoirExo('dev-r',EX,'train');
-    const defaut=(test.questions||[]).length;
+    const defaut=(test.questions||[]).length, baremeDefaut=test.maxScore||0;
     if(defaut<3) vus.push('le témoin ne tire que '+defaut+' questions : la coupe n\\'a rien à éprouver');
     mesDevoirs[0].exercices[0].nbQ=2;
     await lancerDevoirExo('dev-r',EX,'train');
@@ -27202,7 +27607,21 @@ function reglagesDevoirs(w, apres){
     if(test.idx!==0) vus.push('après la coupe, la séance ne repart pas de la première question');
     mesDevoirs[0].exercices[0].nbQ=99;
     await lancerDevoirExo('dev-r',EX,'train');
-    if((test.questions||[]).length!==defaut) vus.push('nbQ=99 : une valeur au-delà du format ne retombe pas dessus ('+(test.questions||[]).length+')');
+    if((test.questions||[]).length!==defaut) vus.push('nbQ=99 : une valeur hors de la plage de l\\'éditeur ne retombe pas sur le format normal ('+(test.questions||[]).length+')');
+    /* LE RÉGLAGE ALLONGE AUSSI (signalé par Turquet, septembre 2026 : 5
+       questions cochées pour le 4.1.8 d'une fiche, 3 posées à l'élève) : le
+       démarreur lit le réglage à son tirage, le barème suit, et le bouton
+       « Recommencer » — qui repasse par le démarreur — garde la longueur. */
+    if(${JSON.stringify(!!allonge)}){
+      const plus=defaut+2;
+      mesDevoirs[0].exercices[0].nbQ=plus;
+      await lancerDevoirExo('dev-r',EX,'train');
+      const nq=(test.questions||[]).length;
+      if(nq!==plus) vus.push('nbQ='+plus+' : la séance ne s\\'allonge pas ('+nq+' questions au lieu de '+plus+')');
+      else if(baremeDefaut && (test.maxScore||0)!==Math.round(baremeDefaut*plus/defaut)) vus.push('nbQ='+plus+' : le barème ne suit pas l\\'allongement ('+test.maxScore+' pour '+plus+' questions, '+baremeDefaut+' pour '+defaut+')');
+      restartCurrentTest(); await new Promise(function(r){ setTimeout(r,0); });
+      if((test.questions||[]).length!==plus) vus.push('« Recommencer » depuis le devoir perd le réglage ('+(test.questions||[]).length+' questions au lieu de '+plus+')');
+    }
     /* le réglage ne FUIT pas hors du devoir */
     mesDevoirs[0].exercices[0].nbQ=2; currentDM=null; currentTestId=EX;
     await Promise.resolve(TESTS[EX].start());
@@ -27261,6 +27680,82 @@ function reglagesDevoirs(w, apres){
     const nom='les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
+    reglageAllonge(w, apres);
+  });
+}
+/* LE RÉGLAGE « QUESTIONS » D'UN DEVOIR ALLONGE LA SÉANCE — PARTOUT OÙ LE TIRAGE
+   LE PEUT (signalé par Turquet, septembre 2026 : « pour le 4.1.8 de la fiche
+   7, j'ai coché 5 questions, l'élève n'en a que 3 »). La coupe ne sait que
+   réduire ; c'est le démarreur qui allonge, en lisant le réglage à son tirage
+   par dmNbQuestions(). Deux bords, et n'en tenir qu'un ne tient rien :
+   · STATIQUE — chaque tirage principal « test.questions=distinctes(… » lit
+     dmNbQuestions() (ou test.perLevel, le parcours du 1.6 qui a sa propre
+     logique) : un exercice ajouté demain qui tire par distinctes() sans lire
+     le réglage rougit ici, sans rien avoir à déclarer ;
+   · DYNAMIQUE — CHAQUE exercice est démarré hors devoir, puis depuis un
+     devoir réglé à deux questions de plus : la séance s'allonge exactement de
+     deux (le barème avec elle), ou garde sa forme fixe — jamais autre chose.
+     Les exercices nommés dans le profil (« allonge ») DOIVENT s'allonger : le
+     4.1.8 signalé en est. Ceux qui gardent leur forme sont comptés et nommés :
+     pour eux, la carte du devoir annonce un nombre que la séance ne tient pas,
+     et le dire vaut mieux que de le taire. */
+function reglageAllonge(w, apres){
+  const nom='le réglage « Questions » d\'un devoir allonge la séance partout où le tirage le peut';
+  const R=P.reglagesDevoirs||{};
+  const present = evaluer(w, "typeof dmNbQuestions==='function' && typeof lancerDevoirExo==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau ne sait que raccourcir une séance depuis un devoir');
+    return parcoursNbDevoir(w, apres);
+  }
+  /* le bord statique */
+  const src=lire(CIBLE);
+  const tirages=(src.match(/test\.questions=distinctes\([^,]*,/g)||[]);
+  const sansReglage=tirages.filter(function(t){ return !/distinctes\((dmNbQuestions\(|test\.perLevel,)/.test(t); });
+  verifier('chaque tirage principal par distinctes() lit le réglage « Questions » du devoir',
+    tirages.length>=20 && sansReglage.length===0,
+    tirages.length<20 ? 'seulement '+tirages.length+' tirages trouvés : le contrôle ne lit plus la page'
+                      : sansReglage.length+' tirage(s) ignorent le réglage : '+sansReglage.join(' ; '));
+  const doivent=(R.allonge||[]);
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[], allonges=[], fixes=[], menus=[];
+    const doivent=${JSON.stringify(doivent)};
+    currentEleve={id:'e-allonge',prenom:'Contrôle'}; currentMode='train';
+    for(const id of Object.keys(TESTS)){
+      let nq0=0, ms0=0;
+      try{
+        currentDM=null; currentTestId=id; mesDevoirs=[];
+        const qDavant=test.questions;
+        await Promise.resolve(TESTS[id].start());
+        if(test.questions===qDavant){ menus.push(id); continue; }   /* n'a rien tiré : écran de menu */
+        nq0=(test.questions||[]).length; ms0=test.maxScore||0;
+      }catch(e){ continue; }
+      if(nq0<1 || nq0+2>DM_NBQ_MAX) continue;                /* rien à allonger dans la plage de l'éditeur */
+      const cible=nq0+2;
+      mesDevoirs=[{id:'d-a',num:1,actif:true,titre:'A',cours:'',exercices:[{id:id,modes:['train'],nbQ:cible}]}];
+      try{ await lancerDevoirExo('d-a',id,'train'); }
+      catch(e){ vus.push(id+' : le lancement réglé à '+cible+' lève ('+e.message+')'); continue; }
+      const nq1=(test.questions||[]).length, ms1=test.maxScore||0;
+      if(nq1===nq0){ fixes.push(id); if(doivent.indexOf(id)>=0) vus.push(id+' : réglé à '+cible+' questions, la séance en garde '+nq0); continue; }
+      if(nq1!==cible){ vus.push(id+' : '+nq1+' question(s) au lieu des '+cible+' réglées'); continue; }
+      allonges.push(id);
+      if(ms0 && ms1<=ms0) vus.push(id+' : la séance passe de '+nq0+' à '+nq1+' questions, mais le barème reste '+ms1+' — une copie parfaite dépasserait 100 %');
+    }
+    doivent.forEach(function(id){ if(allonges.indexOf(id)<0 && fixes.indexOf(id)<0 && vus.every(function(v){ return v.indexOf(id+' : ')!==0; })) vus.push(id+' : le témoin n\\'a pas été mesuré (inconnu, écran de menu, ou hors plage)'); });
+    if(allonges.length<10) vus.push('seulement '+allonges.length+' exercice(s) s\\'allongent : le contrôle ne mesure plus la page');
+    window.__allonge={allonges:allonges, fixes:fixes, menus:menus};
+    currentDM=null; mesDevoirs=[];
+    return vus.slice(0,5).join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else {
+      verifier(nom, r.valeur==='', r.valeur);
+      const bilan=evaluer(w, 'JSON.stringify(window.__allonge||null)');
+      try{ const b=JSON.parse(bilan.valeur||'null');
+        if(b) console.log('     ' + b.allonges.length + ' exercices s\'allongent ; ' + b.fixes.length + ' gardent leur format normal — leur tirage ne lit pas le réglage, la coupe seule agit : ' + b.fixes.join(', '));
+      }catch(e){}
+    }
     parcoursNbDevoir(w, apres);
   });
 }

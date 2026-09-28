@@ -5410,9 +5410,15 @@ async function parcours(page, N){
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
       ignorer('la voie du coefficient puis de l\'addition vaut aussi son point',
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+      ignorer('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
+        'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+      ignorer('sur le 2.3.9, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
+        'ce niveau n\'a pas la synthèse des pourcentages rédigée');
     } else if(!ml){
       ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle', 'MathLive absent');
       ignorer('la voie du coefficient puis de l\'addition vaut aussi son point', 'MathLive absent');
+      ignorer('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée', 'MathLive absent');
+      ignorer('sur le 2.3.9, la barre d\'espace écrit une espace, et le juge lit la copie espacée', 'MathLive absent');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
       await connecter(s.page);
@@ -5504,6 +5510,156 @@ async function parcours(page, N){
         dits2.push('la voie du coefficient puis de l\'addition n\'est pas acceptée : « ' + v2.texte.slice(0, 120) + ' »');
       verifier('la voie du coefficient puis de l\'addition vaut aussi son point',
         dits2.length === 0, dits2.slice(0, 3).join(' | '));
+
+      /* ÉTAPE 3 : le 2.3.13 — LA BARRE D'ESPACE ÉCRIT UNE ESPACE (demande de
+         Turquet, septembre 2026 : « il faut afficher les espaces quand on
+         appuie sur espace »). L'élève y rédige en MOTS (« diminution de
+         30 % »), et la feuille, en mode calcul, avalait l'espace : il voyait
+         « diminutionde30% ». Trois bords, sur un vrai MathLive — jsdom n'en a
+         pas, et c'est lui seul qui dit ce que la touche écrit :
+         — l'espace tapée se VOIT : la ligne aplatie porte ses espaces ;
+         — l'espace SORT toujours d'une fraction (la leçon de la récurrence
+           rédigée de la Terminale : mathModeSpace éteint cette convention, et
+           « 180/600 = 0,3 » tomberait tout entier dans le dénominateur) ;
+         — le juge lit la copie espacée, la note compte, les lignes se
+           peignent. */
+      if(!P.syntheseRedigee.dix){
+        ignorer('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
+          'ce niveau n\'a pas la synthèse des diminutions rédigée avec la méthode des 10 %');
+      } else {
+        let dits3 = [];
+        await s.page.evaluate(id => openTest(id), P.syntheseRedigee.dix);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1300);
+        /* une vraie question du 2.3.13 (genSyn avec dix) où l'on CHERCHE le
+           pourcentage : c'est la forme « 10 % = … ; écart = … ; diminution
+           de … % », celle qui s'écrit en mots */
+        const q3 = await s.page.evaluate(() => {
+          let q = null;
+          for(let i = 0; i < 400; i++){ const c = genSyn('dim', 'pct', { dix: true }); if(c && c.dix && Number.isInteger(c.N / 10) && Number.isInteger(c.aug)){ q = c; break; } }
+          if(!q) return { manque: 'aucun tirage « diminution, pourcentage cherché » entier en 400 essais' };
+          test.questions[test.idx] = q; test.locked = false; test.salBusy = false; renderSal();
+          const bon = (typeof q.bon === 'number') ? q.bon : q.opts.indexOf(q.bonV);
+          return { bon: bon, N: q.N, P: q.P, dix: q.N / 10, aug: q.aug, coef: String(q.P / 100).replace('.', ',') };
+        });
+        await s.page.waitForTimeout(800);
+        if(q3.manque || q3.bon < 0){ dits3.push(q3.manque || 'la bonne proposition est introuvable parmi les choix'); }
+        else {
+          await s.page.click('#salc' + q3.bon);
+          await s.page.waitForTimeout(150);
+          await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
+            try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+          await s.page.waitForTimeout(150);
+          const COPIE3 = [
+            '10 % = ' + q3.dix,
+            'écart = ' + q3.aug,
+            'diminution de ' + q3.P + ' %',
+            q3.aug + '/' + q3.N + ' = ' + q3.coef          /* la fraction, puis l'espace qui en SORT */
+          ];
+          for(let i = 0; i < COPIE3.length; i++){
+            await s.page.keyboard.type(COPIE3[i], { delay: 30 });
+            if(i < COPIE3.length - 1){ await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300); }
+          }
+          await s.page.waitForTimeout(400);
+          const lu3 = await s.page.evaluate(() => {
+            const t = salFeuille.lire(), L = String(t).split('\n');
+            const j = salJuge(test.questions[test.idx], t);
+            const tete = (L[3] || '').split('=')[0] || '', lu = salExpr(tete);
+            return { lignes: L, brut: salFeuille.lignes.map(x => x.mf.getValue()),
+                     sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '',
+                     fracLisible: !!lu, fracJuste: !!(lu && salEgal(lu.v, salRatDe(String(test.questions[test.idx].P / 100).replace('.', ',')))) };
+          });
+          const L3 = lu3.lignes;
+          if(L3.length !== 4) dits3.push('la feuille se lit en ' + L3.length + ' ligne(s) au lieu de 4 : « ' + L3.join(' ⏎ ') + ' »');
+          if(!/^10 \S* ?= /.test(L3[0] || '') || (L3[0] || '').indexOf(' ') < 0)
+            dits3.push('« 10 % = ' + q3.dix + ' » ressort sans ses espaces : « ' + L3[0] + ' »');
+          if(!/ de /.test(L3[2] || ''))
+            dits3.push('« diminution de ' + q3.P + ' % » ressort sans ses espaces : « ' + L3[2] + ' »');
+          if(!/\\[,;: ]|~/.test(lu3.brut[2] || ''))
+            dits3.push('la barre d\'espace n\'a rien écrit dans la ligne (MathLive rend « ' + lu3.brut[2] + ' »)');
+          if(!lu3.fracLisible || !lu3.fracJuste)
+            dits3.push('après la fraction, l\'espace n\'en sort pas : le « = » tombe dans le dénominateur — « ' + L3[3] + ' »');
+          if(!lu3.sait || !lu3.correct)
+            dits3.push('le juge ' + (lu3.sait ? 'refuse' : 's\'abstient sur') + ' la copie espacée : « ' + lu3.phrase.slice(0, 120) + ' » (' + L3.join(' ⏎ ') + ')');
+          await s.page.click('#salActions .btn-primary');
+          await s.page.waitForTimeout(1200);
+          const v3 = await s.page.evaluate(() => {
+            const fb = document.getElementById('salFeedback');
+            return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score,
+                     lignes: salFeuille.lignes.map(x => x.mf.className) };
+          });
+          if(v3.classe.indexOf('good') < 0)
+            dits3.push('la copie espacée n\'est pas acceptée à la vérification : « ' + v3.texte.slice(0, 120) + ' »');
+          if(v3.score !== 1) dits3.push('la note ne compte pas la question : score ' + v3.score);
+          [0, 1, 3].forEach(i => { if((v3.lignes[i] || '').indexOf('ok') < 0) dits3.push('la ligne ' + (i + 1) + ' (juste) ne se peint pas en bleu : classes « ' + v3.lignes[i] + ' »'); });
+          if(/ok|bad/.test(v3.lignes[2] || '')) dits3.push('la conclusion en mots reçoit une couleur : « ' + v3.lignes[2] + ' »');
+        }
+        verifier('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
+          dits3.length === 0, dits3.slice(0, 3).join(' | '));
+      }
+
+      /* ÉTAPE 4 : le 2.3.9 — « fais pareil pour le 2.3.9 » (Turquet, le
+         lendemain). Même feuille, les espaces par l'IDENTITÉ de l'exercice :
+         on tape la voie de la diminution avec des espaces autour des signes,
+         et on relit la lecture, le verdict, la note, la peinture. */
+      if(!P.syntheseRedigee.espacesAussi){
+        ignorer('sur le 2.3.9, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
+          'ce niveau n\'a pas la synthèse des diminutions rédigée');
+      } else {
+        let dits4 = [];
+        await s.page.evaluate(id => openTest(id), P.syntheseRedigee.espacesAussi);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1300);
+        const q4 = await s.page.evaluate(() => {
+          const q = genSyn('dim', 'fin');
+          test.questions[test.idx] = q; test.locked = false; test.salBusy = false; renderSal();
+          const bon = (typeof q.bon === 'number') ? q.bon : q.opts.indexOf(q.bonV);
+          q.choisi = bon; const c = salCouple(q); q.choisi = null;
+          return { bon: bon, N: c.N, pDec: c.pDecStr, aug: c.augStr, fin: c.finStr, dix: !!q.dix };
+        });
+        await s.page.waitForTimeout(800);
+        if(q4.dix) dits4.push('le 2.3.9 tire une question q.dix');
+        if(q4.bon < 0){ dits4.push('la bonne proposition est introuvable parmi les choix'); }
+        else {
+          await s.page.click('#salc' + q4.bon);
+          await s.page.waitForTimeout(150);
+          await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
+            try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+          await s.page.waitForTimeout(150);
+          await s.page.keyboard.type(q4.pDec + ' * ' + q4.N + ' = ' + q4.aug, { delay: 30 });
+          await s.page.keyboard.press('Enter');
+          await s.page.waitForTimeout(300);
+          await s.page.keyboard.type(q4.N + ' - ' + q4.aug + ' = ' + q4.fin, { delay: 30 });
+          await s.page.waitForTimeout(400);
+          const lu4 = await s.page.evaluate(() => {
+            const t = salFeuille.lire(), L = String(t).split('\n');
+            const j = salJuge(test.questions[test.idx], t);
+            return { lignes: L, brut: salFeuille.lignes.map(x => x.mf.getValue()), sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' };
+          });
+          if(lu4.lignes.length !== 2) dits4.push('la feuille se lit en ' + lu4.lignes.length + ' ligne(s) au lieu de 2 : « ' + lu4.lignes.join(' ⏎ ') + ' »');
+          if(!/ = /.test(lu4.lignes[0] || '') || !/ = /.test(lu4.lignes[1] || ''))
+            dits4.push('les espaces tapées ne ressortent pas : « ' + lu4.lignes.join(' ⏎ ') + ' »');
+          if(!/\\[,;: ]|~/.test(lu4.brut[0] || ''))
+            dits4.push('la barre d\'espace n\'a rien écrit dans la ligne (MathLive rend « ' + lu4.brut[0] + ' »)');
+          if(!lu4.sait || !lu4.correct)
+            dits4.push('le juge ' + (lu4.sait ? 'refuse' : 's\'abstient sur') + ' la copie espacée : « ' + lu4.phrase.slice(0, 120) + ' »');
+          await s.page.click('#salActions .btn-primary');
+          await s.page.waitForTimeout(1200);
+          const v4 = await s.page.evaluate(() => {
+            const fb = document.getElementById('salFeedback');
+            return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score,
+                     lignes: salFeuille.lignes.map(x => x.mf.className) };
+          });
+          if(v4.classe.indexOf('good') < 0)
+            dits4.push('la copie espacée n\'est pas acceptée à la vérification : « ' + v4.texte.slice(0, 120) + ' »');
+          if(v4.score !== 1) dits4.push('la note ne compte pas la question : score ' + v4.score);
+          [0, 1].forEach(i => { if((v4.lignes[i] || '').indexOf('ok') < 0) dits4.push('la ligne ' + (i + 1) + ' (juste) ne se peint pas en bleu : classes « ' + v4.lignes[i] + ' »'); });
+        }
+        verifier('sur le 2.3.9, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
+          dits4.length === 0, dits4.slice(0, 3).join(' | '));
+      }
       verifier('l\'écran de la synthèse rédigée ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;

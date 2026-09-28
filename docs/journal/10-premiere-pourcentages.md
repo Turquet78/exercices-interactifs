@@ -2216,6 +2216,141 @@ par diverger, c'est la leçon des générateurs, appliquée aux contrôles.
 
 ---
 
+## {synthese-diminutions-libre-dix} — la synthèse rédigée des baisses qui accepte la méthode des 10 % (Première, septembre 2026)
+
+**D'où ça vient.** Demande de Turquet : « en Première, faire un exercice
+exactement comme le 2.3.9, mais où l'on accepte en plus la méthode en passant
+par 10 % ». Et les MINIMUMS de rédaction, fixés par lui : quand on calcule
+la valeur finale, « 10 % = … ; 70 % = … ; … + ou − … = … » ; quand on
+cherche un pourcentage, la même méthode, ou bien « 10 % = … ; … − … ou
+écart = … ; augmentation ou diminution de … % ». L'exercice arrive en fin de
+sous-thème, {synthese-diminutions-libre-dix} (2.3.13), après le 2.3.12 comme
+le 2.3.9 suit le 2.3.8 : la synthèse RÉDIGÉE des baisses, avec une voie de
+plus. Le 2.3.9 ne change pas d'un iota — c'est un bord du contrôle.
+
+**Le tirage est celui du 2.3.12, pas celui du 2.3.9** : `genSyn('dim', inc,
+{dix:true})` — des taux qui se RETROUVENT depuis 10 % (multiples de dix,
+jamais 10 lui-même ; 5, 15, 25). « Exactement comme le 2.3.9 » aurait tiré
+3 % ou 7 %, que 10 % ne donne pas : l'exercice promettrait une voie que la
+question interdit. Et `q.dix`, que `genSyn` range déjà dans la question, est
+la porte que lit le juge — la reprise d'une pause relit la question, jamais
+le démarreur ; le 2.3.9, dont les questions n'ont pas `q.dix`, garde son
+juge d'avant.
+
+**Le juge apprend à lire des lignes en POURCENTS et en MOTS.** La grammaire
+des nombres (`salExpr`) ne lit ni « 10 % = 60 » ni « écart = 180 » ni
+« diminution de 30 % » : ces lignes étaient des écritures inconnues, qui
+livraient la copie entière au modèle — et un verdict arithmétique ne se
+confie pas à un modèle. Trois lecteurs, gardés par `q.dix` :
+`salDixPct` (« k % [de M] » en tête de ligne AFFIRME k % de M, M étant la
+valeur initiale s'il n'est pas écrit), `salDixEcart` (« écart » ou
+« différence » en tête de ligne AFFIRME l'écart), `salDixConclusion`
+(« diminution/baisse/augmentation/hausse de k % » sur une ligne sans « = »
+est la CONCLUSION, avec son sens et son pourcentage). `salDixLigne` lit les
+deux premiers et rend un verdict de ligne : illisible (le juge s'abstient),
+fausse (nommée), vraie — et c'est lui que `salPeindreLignes` appelle aussi,
+pour que ces lignes se peignent comme les autres.
+**Elles se lisent sur le texte tel que MathLive le rend**, mesuré au
+navigateur avant d'écrire une ligne du juge : l'éditeur retire les espaces,
+écrit le pourcent « \% », et « diminution » ressort « di\minution » parce
+que « min » est un raccourci de MathLive (« in » en est un autre, qui devient
+« ∈ » à l'aplatissement). `salDixNorm` retire donc barres et espaces, met en
+minuscules sans accent, et rend « ∈ » à « in » : « di\minutionde30\% » se
+lit « diminution de 30 % ». Le modèle est prévenu de la même chose dans
+l'énoncé qu'on lui envoie.
+
+**Les deux formes, et leurs minimums.** Pour une valeur (finale, ou
+initiale choisie) : `dixOk` (« 10 % » de la valeur initiale, vrai) ET
+`pctP` (« P % = … », P étant la proposition choisie) ET `addOk` (la
+soustraction qui donne la valeur finale — déjà là) ; ou `dixOk` ET
+`pctCoef` (« (100 − P) % = valeur finale » d'un coup). Pour un pourcentage :
+la même, ou `dixOk` ET `ecartOk` ET `conclOk`. L'ÉCART se juge contre
+l'ÉNONCÉ, pas contre la proposition : quand on cherche le pourcentage,
+départ et arrivée sont tous deux dans l'énoncé, et « écart = 120 » écrit par
+un élève qui a choisi 20 % est FAUX — c'est le fait prouvable qui le remet
+sur la voie, sans lui donner le nombre. La CONCLUSION se juge sur deux
+faits : son sens contre l'énoncé (« augmentation de 30 % » sur une baisse
+est refusée en nommant le sens), son pourcentage contre la proposition
+CHOISIE (« diminution de 20 % » avec 30 % coché : « mets-les d'accord »,
+sans dire lequel a raison). Quand tout est vrai mais la proposition fausse
+par l'écart, la phrase ne dit pas « ton calcul est cohérent » — il ne l'est
+pas : « ton écart et tes 10 % sont justes, mais ta conclusion ne s'accorde
+pas avec eux ». Sans la ligne « 10 % », ce n'est pas la méthode des 10 % —
+et « 30 % = 180 » sans multiplication écrite n'est pas non plus la voie de
+la diminution : le refus nomme les deux (« la ligne « 10 % = … », ou la
+multiplication qui calcule la diminution »). Un refus sur la voie des 10 %
+nomme ce qui manque À SA FORME, jamais la bonne proposition : le contrôle
+passe cinq refus sur la mauvaise proposition au peigne du nombre juste.
+
+**Tout ce qui nomme les voies a suivi**, par le troisième argument de
+`salVoiesTexte(s, c, dix)` : l'étiquette de la feuille, le message de la
+feuille vide, le refus du juge, le contexte de l'aide. La règle du modèle
+compte QUATRE voies et écrit la quatrième avec les nombres de la proposition
+choisie — et elle a frôlé la borne de la fonction Edge au premier passage
+(3713 caractères pour 4000, marge exigée 300) : resserrée à 3581. L'indication
+sous la feuille dit où est la touche « % » et que l'écart et la conclusion
+s'écrivent en mots. Le rappel (`RAP_SDLD`), les questions à l'IA, le numéro
+2.3.13 et la route de « Recommencer » font l'identité.
+
+**Le contrôle** (`syntheseDimLibreDix`, banc principal) tient sept bords —
+le tirage, le juge cas par cas sur des questions épinglées (les deux formes
+acceptées, celles à qui il manque une ligne, la ligne fausse nommée, la
+copie telle que MathLive l'aplatit, la conclusion contredite, la mauvaise
+proposition), le 2.3.9 inchangé (ses lignes restent inconnues, son étiquette
+et sa règle ne promettent rien), les refus qui ne donnent jamais la bonne
+proposition, l'écran et la peinture, la règle et sa borne, l'identité.
+Éprouvé par six sabotages, chacun rougissant en nommant son défaut : la
+ligne « 10 % » plus exigée, le 2.3.9 qui tire des questions `q.dix`, les
+barres de MathLive plus retirées, l'écart plus jugé contre l'énoncé, la
+conclusion plus comparée au choix, la peinture qui ignore les lignes des
+10 %.
+
+**Puis la barre d'espace a ÉCRIT une espace** (demande de Turquet, le jour
+même : « il faut afficher les espaces quand on appuie sur espace »). La
+feuille du moteur `sal` est en mode « calcul », où MathLive AVALE l'espace :
+sa convention veut qu'elle SORTE d'un indice ou d'une fraction, et n'écrive
+rien ailleurs — ce qui convient à des lignes de nombres, pas à un élève qui
+tape « diminution de 30 % » et voit « diminutionde30% ». `renderSal` pose
+donc `mathModeSpace` (« `\;` ») sur chaque ligne quand la question porte
+`q.dix` — les lignes qui existent, et celles que « Entrée » fera naître,
+d'où `salEspaces` qui enveloppe `F.ajouterLigne` — SANS toucher à
+`mlFeuille`, qui est le même texte dans les trois fichiers et qu'un contrôle
+compare au caractère près. Le 2.3.9 ne change pas d'un iota : c'est un bord
+du contrôle. Et l'espace SORT toujours d'une fraction : `mathModeSpace`
+éteint cette convention, et c'est la leçon de la récurrence rédigée de la
+Terminale (`rrEspace`) reprise telle quelle dans `salEspaceSort`, en capture
+sur la feuille — un élève qui tape « 180/600 » resterait sinon prisonnier
+du dénominateur, toute la suite de sa ligne tombant dedans. Le juge n'a rien
+eu à apprendre : `toPlain` rendait déjà « `\;` » en une espace, `salDixNorm`
+retire les espaces, et `salExpr` les saute — la copie ESPACÉE se lit comme
+la copie collée, ce que le banc principal mesure sur le vrai `toPlain`
+injecté depuis la source. La règle envoyée au modèle dit désormais que
+l'éditeur « peut retirer les espaces » (l'élève n'en tape pas toujours), à
+longueur égale — la borne de la fonction Edge ne laisse qu'une centaine de
+caractères. Le banc navigateur (« la synthèse des pourcentages rédigée »,
+étape 3) tape la copie sur un vrai MathLive : les espaces se voient dans la
+lecture, la fraction se referme avant le « = », le juge accepte, la note
+compte, les lignes se peignent. Deux pièges de banc en passant : le compte
+des espaces d'une ligne à deux espaces fait TROIS morceaux, pas quatre ; et
+le mot « espaces » est exigé dans la règle du modèle par un contrôle qui
+existait déjà — une reformulation qui l'oublie rougit à bon droit.
+
+**Puis le 2.3.9 a suivi, le lendemain** (« fais pareil pour le 2.3.9 »). Le
+bord « le 2.3.9 ne change pas d'un iota » ne tenait que le JUGE et le
+tirage : il les tient toujours. La feuille, elle, écrit désormais les
+espaces aussi — non par la question, que `genSyn('dim', inc)` ne marque
+pas, mais par l'IDENTITÉ de l'exercice : `SAL_ESPACES` nomme le 2.3.9, et
+`salEspacesPour(q)` lit `q.dix` OU `test.qId`. `test.qId` est fiable à la
+reprise : `resumeTest` recopie toutes les clés du brouillon dans `test`, et
+« Recommencer » s'y fie déjà pour relancer le bon démarreur. Le 2.2.10 et le
+2.5.2 gardent la feuille d'avant, et c'est le nouveau bord opposé du
+contrôle (`startSynAugLibre`, `mathModeSpace` absent). Le banc navigateur
+(étape 4) tape sur le 2.3.9 la voie de la diminution avec des espaces
+autour des signes, sur un vrai MathLive, et relit la lecture, le verdict,
+la note et la peinture.
+
+---
+
 ## {evolutions-successives} — deux évolutions de suite, la synthèse des deux schémas (Seconde, septembre 2026)
 
 **D'où il vient.** Une troisième fiche PDF de Turquet, un seul exercice :
@@ -2374,3 +2509,125 @@ signe et bon mot en vert), et la case vide en soutien qui ne rougit pas et
 garde son « ± ». Les valeurs y sont posées COMME L'ÉLÈVE les tape — la
 valeur, puis l'événement `input` —, sans quoi le contrôle appellerait la
 relecture lui-même et ne prouverait pas qu'elle est branchée.
+## {pourcentage-schema} — lire un schéma de pourcentages, le 4.1.9 pris à l'envers (Seconde, septembre 2026)
+
+**D'où il vient.** Une fiche PDF de Turquet (« Exercice 2 — successives »,
+trois exercices), et une demande en une ligne : « en seconde faire un
+exercice comme le pdf en variant les énoncés, les % seront toujours des
+entiers, et le schéma sera fait comme dans l'exercice 4.1.9 ». La fiche est
+le MIROIR de {pourcentage-chaine} : là-bas l'énoncé donne les pourcentages en
+mots et l'élève construit le schéma ; ici il n'y a PAS d'énoncé chiffré — les
+nombres sont écrits SUR le schéma, et l'élève le complète, puis complète
+trois phrases qui le lisent en pourcentages. « Club de sport → Filles →
+Basket, × 0,30 puis × 0,20, …… × …… = …… ; Dans le club de sport il y a
+…… % de filles. Parmi les filles, …… % font du basket. Dans le club de sport
+il y a …… % de filles qui pratiquent le basket. » Les trois exercices de la
+fiche sont les trois FORMES de l'exercice, une par question, en ordre
+mélangé (`q.inc`, tiré par `qdMelanger(['comb','p1','p2'])` comme en 4.1.9) :
+
+* `comb` (exercice 1) — les deux flèches sont écrites, la rangée
+  « … × … = … » est vide ;
+* `p2` (exercice 2) — la première flèche et le produit sont écrits
+  (« 0,30 × … = 0,06 »), la seconde flèche et sa reprise dans le calcul sont
+  à trouver ;
+* `p1` (exercice 3) — la seconde flèche et le produit sont écrits
+  (« … × 0,50 = 0,15 »), la première est à trouver.
+
+**Le schéma est celui du 4.1.9, au pixel.** Mêmes classes (`.pctb-row`,
+`.pctb-arrow`, `.pctc-global`, `.pctc-calc`), mêmes boîtes sans case (le
+nom de l'effectif seulement), même grande flèche du dessous avec sa
+multiplication à trois places. Ce qui change : une place DONNÉE n'est pas
+une case, c'est un nombre écrit par la page — un `span.pcs-val` qui prend
+exactement la place de la case et sa TAILLE (1,7 rem, les mêmes paliers de
+tablette et de téléphone que `math-field.pm-mf`). Ce n'est pas un choix
+d'esthétique : le contrôle universel « les cases de saisie ont la taille des
+nombres qui les entourent » voit « 0,30 » comme un nombre qui entoure la
+case voisine, et une case plus petite que lui rougirait le banc — à raison,
+l'élève lirait sa réponse comme une note à côté d'une donnée. `renderPcsTest()`
+décide place par place avec `pcsCases(q)` : ce qui est dans la liste est une
+case, tout le reste est écrit — et JAMAIS les deux, le contrôle dédié le
+mesure sur les trois formes en lisant le `tagName` de chaque place.
+
+**Les trois phrases sont toujours à compléter, et leur ordre est tiré.** La
+fiche met la phrase du global tantôt en dernier (exercice 1), tantôt en
+premier (exercice 2) : `q.ordre` est une permutation de `[0,1,2]` tirée à la
+génération, rangée dans la question (reprise après pause) et HORS de la clé
+de `distinctes()` — `ordre` est déjà dans `CLE_HORS`, un ordre d'affichage
+n'a jamais fait une autre question. Chaque phrase a deux tournures (« Dans
+le club de sport, il y a … % de filles. » / « Les filles représentent … %
+des membres du club. »), et la consigne en a trois ; ces quatre choix vont
+dans `q.v`, un TABLEAU cette fois, lui aussi hors de la clé — des habits,
+pas des données. Un pourcentage écrit dans une phrase se juge en ENTIER :
+`pcsEntier()` n'accepte que des chiffres, parce que `parseInt('6,5')` rend 6
+et aurait compté juste une réponse fausse — le contrôle dédié pose « 6,5 »
+pour le voir rougir. Les écritures décimales des flèches et du calcul se
+jugent comme en 4.1.9, par `parseDecToFrac` contre P/100 : 0,2 et 0,20 sont
+le même nombre, et le contrôle le remesure sur la reprise du calcul.
+
+**Les pourcentages sont toujours des entiers — et c'est la seule règle
+arithmétique de l'exercice.** Le 4.1.9 tire dans `PCT_PCTS` (multiples de
+dix) : le produit est alors toujours un multiple de 100. Ici, pour VARIER les
+nombres comme la demande le veut, `PCS_PCTS` est le vivier des multiples de
+5 de 5 à 95, et `genPcs()` tire P1 librement, puis P2 parmi les valeurs dont
+le produit avec P1 est un multiple de 100 : un multiple de 10 accepte tout
+multiple de 10 ; un multiple de 5 impair (15, 25, 35, …, 95) n'accepte que
+20, 40, 60 et 80 — 0,25 × 0,40 = 0,10, 0,15 × 0,20 = 0,03, 0,95 × 0,20 =
+0,19. La flèche à retrouver dans les formes `p1`/`p2` se déduit donc du
+produit par une division EXACTE (0,06 ÷ 0,30 = 0,2), jamais approchée. Le
+contrôle dédié remesure la règle sur le global lui-même (entier, de 1 à 99)
+sur quarante séances, et exige qu'un multiple de 5 impair sorte au moins une
+fois — sinon le vivier annoncé n'est pas atteint.
+
+**Huit mises en situation, `CTX_PCS`.** Les trois de la fiche (club de
+sport / filles / basket, classe / filles / moyenne, entreprise / femmes /
+cadres — au mot près, la fiche dit « filles » pour une entreprise, la page
+dit « femmes »), puis cinq qui reprennent les libellés de `CTX_CHAINE`
+(lycée, village, bibliothèque, festival) et un cinéma, pour que le schéma
+se lise avec les mêmes boîtes qu'en 4.1.9. Chaque contexte porte `intro`
+(ce que sont les trois boîtes, dit dans la consigne, puisque aucun énoncé
+chiffré ne le dit), et `s1`, `s2`, `s3` : deux tournures chacune, des
+fonctions du champ, le champ posé AVANT le « % ». Pas de `nOk` : sans
+nombre de population, tout contexte convient à tout tirage.
+
+**Les quinze branchements, et un contrôle par forme.** `TESTS`
+(`pourcentage-schema`, « Lire un schéma de pourcentages »), `THEMES` (4.1.10,
+juste après {pourcentage-chaine}), l'écran `scr-pcs`, `testScreens`, la
+réserve du bas (`#scr-pcs{padding-bottom:84px}` d'emblée : trois rangées, le
+4.1.9 avait rougi avec deux), `liveCheckCurrent()` (`pcs`), `DISPATCH`
+(reprise), la liste des rendus enveloppés (`renderPcsTest`),
+`RAPPELS_ID['pourcentage-schema']` (`RAP_PCS`, qui dit comment LIRE une
+flèche et retrouver celle qui manque par une division), `QIA_SUGG['pcs']`,
+`details.test`, l'énoncé en `.mp-instr`, et la table `cles` de
+`RAPPELS_SECONDE` dans `tests/profils.js`. « Recommencer » passe par
+`TESTS[...].start`. Le contexte envoyé au modèle est `ctxVisible()`, comme
+en 4.1.9 : il lit la consigne, le schéma (nombres écrits compris) et les
+saisies.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `pourcentageSchema`,
+absent-déclaré sur les niveaux qui n'ont pas `startPcs`), deux contrôles :
+le tirage sur quarante séances (identité, kind, trois questions, P1 et P2
+multiples de 5 de 5 à 95, produit multiple de 100, global recalculé entier
+de 1 à 99, les trois formes chacune une fois en ordre variable, l'ordre des
+phrases une permutation qui varie, au moins un multiple de 5 impair,
+l'énoncé sans « undefined » ni gabarit, aucun doublon, « Recommencer ») ;
+puis le schéma sur des copies ÉPINGLÉES, les trois exercices de la fiche
+(0,30 et 0,20 ; 0,30 × ? = 0,06 ; ? × 0,50 = 0,15) et 0,25 × ? = 0,10 : le
+donné en `SPAN` avec son texte, le cherché en `MATH-FIELD`, six cases et
+trois phrases dans l'ordre tiré, la copie juste bleue qui vaut le point sur
+les trois formes, « 65 % » (les pourcentages additionnés) qui rougit SEUL
+et reçoit sa correction « 15 » en vert, « 6,5 » refusé pour 6, et en
+soutien deux cases vides qui ne rougissent pas pendant qu'une voisine
+juste reste bleue. **Le premier passage a rougi sur le contrôle
+lui-même**, pas sur la page : il cherchait « Compl » dans la consigne, et la
+deuxième tournure dit « complète » en minuscule au milieu de sa phrase — un
+contrôle qui exige un mot doit l'exiger sans casse. **Le banc navigateur a
+rougi une fois, sur le rappel de cours** : « les fractions des rappels de
+cours s'affichent empilées » ouvre CHAQUE rappel qui porte une formule et
+exige qu'au moins une fraction y soit DESSINÉE — `RAP_PCS` n'écrivait que
+des décimaux entre `\(…\)`, aucune fraction, et le contrôle ne distingue
+pas « pas de fraction » de « fraction non dessinée ». Le rappel dit
+maintenant que × 0,30 est × 30/100, en fraction empilée — ce qui est
+d'ailleurs la bonne façon de le dire à un élève. Les règles universelles
+(taille des cases, case vide, bouton d'aide IA, clavier, couleurs des
+verdicts, énoncé encadré) sont tenues par le banc navigateur sans rien
+déclarer.
