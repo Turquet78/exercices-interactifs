@@ -2349,6 +2349,20 @@ contrôle (`startSynAugLibre`, `mathModeSpace` absent). Le banc navigateur
 autour des signes, sur un vrai MathLive, et relit la lecture, le verdict,
 la note et la peinture.
 
+**Puis « pareil pour le 2.2.10 et le 2.5.2 »** — et la porte par exercice
+est tombée : `renderSal` pose les espaces sur les QUATRE exercices du moteur
+rédigé, sans `SAL_ESPACES` ni `salEspacesPour`, qui n'ont vécu qu'une
+version. Une porte qui laisse tout passer n'est plus une porte, et une
+liste qu'on croit sélective est pire qu'aucune liste — c'est la leçon de
+`MENU`. Les juges ne changent pas : `toPlain` rend « `\;` » en espace,
+`salExpr` les saute, `salDixNorm` les retire. Le contrôle du banc
+principal vérifie `mathModeSpace` et l'indication sur les quatre démarreurs
+(`startSynAugLibre`, `startSynLibre` ont rejoint la liste, et le bord
+« le 2.2.10 n'a pas changé » est devenu son contraire). Au banc navigateur,
+le profil nomme le 2.3.9 et le 2.2.10 avec leur famille (`espacesAussi`),
+l'étape 4 les tape l'un après l'autre avec des espaces autour des signes,
+et l'étape 2 tape désormais le 2.5.2 de la même façon.
+
 ---
 
 ## {evolutions-successives} — deux évolutions de suite, la synthèse des deux schémas (Seconde, septembre 2026)
