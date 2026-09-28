@@ -2157,3 +2157,133 @@ bonne proposition vaut le point sans retaper le calcul). Les règles
 universelles (taille des cases, case vide, bouton d'aide IA, clavier) sont
 tenues par le banc navigateur sans rien déclarer : l'écran est celui du
 2.2.9.
+
+---
+
+## {evolutions-successives} — deux évolutions de suite, la synthèse des deux schémas (Seconde, septembre 2026)
+
+**D'où il vient.** Une troisième fiche PDF de Turquet, un seul exercice :
+« *Un commerçant augmente un prix de 20 % puis de 30 %. Déterminer le
+pourcentage d'évolution global.* », avec le schéma à TROIS boîtes — valeur
+initiale, valeur intermédiaire, valeur finale — reliées par deux flèches qui
+portent chacune un oval « × (1 + ……) » puis « × …… », une flèche « −1 » entre
+les deux ; en dessous, une grande accolade relie la première boîte à la
+dernière par un troisième oval « × (1 + ……) » sur « …… × …… = …… », sa flèche
+« −1 » aussi ; et la phrase de conclusion « *Le prix augmente globalement de
+…… %* ». La demande, en trois points : « en variant les énoncés et avec des
+augmentations ou des baisses », « l'évolution globale doit être un
+pourcentage entier », « on présentera l'exercice en faisant une synthèse des
+exercices 4.5.4 et 4.1.9 ».
+
+**C'est la SYNTHÈSE de deux schémas déjà en place, et rien n'est réécrit.**
+De {pourcentage-chaine} (4.1.9) : les trois boîtes sans case — seulement
+leur nom, la fiche n'écrit aucun nombre, exactement la décision prise sur le
+4.1.9 en septembre —, la grande flèche du dessous (`.pctc-global`,
+`.pctc-global-shaft`) et sa multiplication à trois cases (`.pctc-calc`) qui
+donne le coefficient global en un seul calcul. De {synthese-evolutions}
+(4.5.4) : sur chaque flèche, « × (1 + …) » à la hausse, « × (1 − …) » à la
+baisse — le signe LU dans l'énoncé, affiché par la page —, puis « × … », et
+la flèche de retour « ↑ −1 » au milieu du trait (`.evb-rev-arrow`, sa
+troisième pose). Kind « evs », propre à l'exercice ; identifiant
+`evolutions-successives`, 4.5.5, juste après la synthèse des évolutions dont
+il prolonge le schéma. La description sur la carte le dit : « la synthèse de
+{synthese-evolutions} et de {pourcentage-chaine} ».
+
+**Ce que la fiche AJOUTE, et que ni l'un ni l'autre n'avait : le SIGNE de
+l'évolution globale n'est pas donné.** Deux hausses montent, deux baisses
+descendent — mais « +20 % puis −30 % » ? C'est tout le sujet de l'exercice,
+et le donner dans la parenthèse globale l'aurait vidé. La parenthèse globale
+s'écrit donc « × (1 [+] [−] …) » : deux boutons, le motif de
+{lire-coefficient} (`.pt-choix-btn`, en plus petit pour tenir dans la
+parenthèse — `#evsHost .pt-choix-btn`), et l'élève CHOISIT. Le signe choisi
+est rangé dans la question (`q.gs`, `null` au tirage) : une pause le
+reprend, et la phrase de conclusion de la fiche prend son verbe — « Le prix
+d'un vélo **augmente** globalement de … % » dès que « + » est choisi,
+« **baisse** » pour « − », « *augmente ou baisse* » en italique tant que
+rien ne l'est. Une seule décision, montrée à deux endroits : deux boutons
+« augmente / baisse » sous la phrase auraient demandé deux fois la même
+chose. Le verdict suit {lire-coefficient} : seul le bouton CHOISI se colore
+(bleu s'il est juste, rouge sinon), aucun choix ne colore rien — la règle de
+la case vide, appliquée à un bouton — et en entraînement le bon signe se
+montre en VERT (`.sol`), le verbe de la conclusion avec lui.
+
+**L'évolution globale est un entier, et ça se DÉMONTRE — comme la règle des
+deux décimales de {hausses-successives}.** (1 ± P1/100)(1 ± P2/100) =
+1 ± P1/100 ± P2/100 ± P1·P2/10000, donc le pourcentage global vaut
+±P1 ± P2 ± P1·P2/100 : entier dès que P1·P2 est un multiple de 100. Le
+tirage ne prend que ces paires-là (`EVS_PAIRES`, construite d'un coup depuis
+`EVS_PCTS` = 5, 10, 15, 20, 25, 30, 40, 50 : 5 et 20, 25 et 40, 30 et 50…),
+dans un ordre tiré (rien ne dit lequel vient d'abord, comme `genHausses`),
+et rien d'autre — pas d'arrondi, jamais de « ≈ ». Deux exclusions, nommées :
+le global NUL (+25 % puis −20 % fait exactement 0 — « augmente de 0 % » n'a
+pas de verbe, la phrase de conclusion ne saurait pas se dire) et ce qui
+atteint 100 % (+50 % puis +50 % ferait +125 %). Les coefficients (`q.c1`,
+`q.c2`, en centièmes) et le global (`q.G`, signé) sont calculés au tirage,
+et le contrôle les RECALCULE pour les comparer — la formule est dans le
+contrôle, pas seulement dans la page.
+
+**Les mises en situation sont celles de {hausses-successives} et
+{baisses-successives}** (`BS_CTX` : un sujet et son genre) — aucune table
+neuve. Les tournures (`EVS_ENONCES`), elles, devaient dire les DEUX sens
+dans la même phrase : chacune lit `q.s1` et `q.s2` (« augmente de 20 %, puis
+baisse de 30 % » ; « subit une hausse de …, puis une baisse de … » ; « en un
+an … a augmenté de … ; l'année suivante, il a baissé de … » ; « est d'abord
+augmentée de …, puis diminuée de … » ; « gagne … puis perd … »), et la
+première est celle de la fiche, au mot près — « Un commerçant augmente le
+prix d'un article de 20 % puis de 30 %. Déterminer le pourcentage
+d'évolution global. » —, qui ne sort que sur un prix ou un tarif (`si`),
+avec un poids double. Quand les deux sens sont les mêmes, le second verbe
+s'efface (« puis de 30 % ») ; quand ils diffèrent, il s'écrit (« puis
+baisse de 30 % »). Une séance pose les TROIS formes, chacune une fois en
+ordre mélangé — deux hausses, deux baisses, une de chaque (dans un sens ou
+l'autre) — sans quoi trois hausses de suite auraient perdu le signe, tout
+le sujet.
+
+**Neuf cases et un signe, jugés un par un, une question juste ou fausse en
+bloc.** Les deux écritures décimales des pourcentages et les deux
+coefficients sur les flèches, le pourcentage global en décimal dans la
+parenthèse, les deux coefficients REPRIS dans la multiplication et leur
+produit (jugé en dix-millièmes : `fr.n*10000 === c1*c2*fr.d`), le
+pourcentage global entier dans la conclusion — tous par `parseDecToFrac`,
+donc « 0,2 » et « 0,20 » valent pareil ; le signe contre celui de `q.G`. Le
+barème ne compte que les questions (`test.maxScore = 3`), comme les deux
+exercices dont il vient. Le message d'erreur écrit toute la chaîne :
+« (1 + 0,2) × (1 − 0,3) = 1,2 × 0,7 = 0,84 = 1 − 0,16 : le prix d'un vélo
+baisse globalement de 16 % ».
+
+**Ce qui suit les précédents jusque dans ce qu'il NE FAIT PAS.** Hors de
+`PCT_KINDS` (le contexte envoyé au modèle retombe sur `ctxVisible()`, la
+lecture de l'écran — comme {pourcentage-boite} et {synthese-evolutions}),
+rappel de cours par `RAPPELS_ID['evolutions-successives']` (`RAP_EVS`),
+« Recommencer » par le chemin générique de `restartCurrentTest()`. Les
+quinze branchements sont faits ; deux méritent d'être nommés : `#scr-evs`
+a sa réserve du bas (`padding-bottom:84px`) d'emblée — le 4.1.9 avait rougi
+sur ce bord, un schéma à deux rangées déborde sur les écrans bas — et
+`evs` est dans `testScreens`, sans quoi le banc de l'encadré Énoncé en
+serait resté aveugle.
+
+**Un piège d'écriture s'est montré au premier passage du banc :** le bouton
+de signe portait `onclick="evsChoisirSigne('${s}')"`, et le contrôle « toute
+donnée mise dans un attribut d'événement passe par escJS » l'a vu — la
+valeur est un « + » ou un « − » que la page écrit elle-même, mais la règle
+ne fait pas d'exception, et elle a raison : le bouton lit maintenant son
+signe sur son propre `data-s` (`evsChoisirSigne(this.dataset.s)`), rien
+n'est interpolé dans l'attribut.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `evolutionsSuccessives`,
+absent-déclaré sur les niveaux qui n'ont pas `startEvolSucc`), deux
+contrôles : le tirage sur trente séances (identité, kind, trois questions,
+P1·P2 multiple de 100, le global recalculé — entier, non nul, sous 100 —,
+les coefficients cohérents, le signe non choisi au tirage, l'énoncé sans
+« undefined », les trois formes chacune une fois en ordre variable, aucun
+doublon, « Recommencer ») ; puis le schéma sur des copies ÉPINGLÉES — la
+fiche, +20 % puis +30 % → +56 %, et +20 % puis −30 % → −16 % : les signes
+affichés dans les deux parenthèses lus dans le DOM, les trois flèches
+« −1 », la copie juste bleue qui vaut le point sur les deux formes (la
+conclusion disant « augmente » après le choix de « + »), le MAUVAIS signe
+qui rougit, coûte le point, laisse les cases justes bleues et montre le bon
+signe en vert, 1,2 × 1,3 = 1,5 (les pourcentages additionnés) qui rougit
+seul, une case vide et un signe non choisi qui ne colorent rien. Les règles
+universelles (taille des cases, case vide, bouton d'aide IA, clavier,
+couleurs des verdicts) sont tenues par le banc navigateur sans rien
+déclarer.
