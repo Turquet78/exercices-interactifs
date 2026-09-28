@@ -1703,6 +1703,66 @@ async function parcours(page, N){
                        + ' px, encre ' + apres.badge.encre) : 'aucun badge à côté de la liste fausse');
       await s.nav.close(); s = null;
     }
+    /* ===== 6 quater decies. la flèche « −1 » au milieu du trait ===== */
+    /* {synthese-evolutions} (Seconde) : quand l'inconnue est le pourcentage,
+       une flèche « ↑ −1 » relie la case du coefficient (en bas) à celle du
+       pourcentage (en haut). Turquet (septembre 2026, troisième pose) : elle
+       se tient « exactement entre la case du bas et la case du haut, au milieu
+       de la grande flèche noire ». Deux poses l'ont précédée — collée à la
+       case du coefficient, puis au bout droit du trait, contre la boîte
+       « Après » — et jsdom, qui ne mesure rien, les avait toutes vues vertes :
+       il ne vérifie que la PRÉSENCE de la flèche. Ici on la MESURE, rendue :
+       centrée sur le trait dans les deux sens, et entre les deux cases sans
+       toucher leur cadre. */
+    titre('6 quater decies. LA FLÈCHE « −1 » AU MILIEU DU TRAIT');
+    if(!P.syntheseEvolutions){
+      ignorer('la flèche « −1 » est au milieu du trait, entre les deux cases',
+        'ce niveau n\'a pas le schéma des évolutions');
+    } else {
+      const E = P.syntheseEvolutions;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(i => openTest(i), E.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* la séance tire les trois inconnues en ordre mélangé : on se place sur
+         celle du pourcentage, la seule qui montre la flèche — et on redessine
+         par la fonction de rendu de la page, jamais en écrivant le DOM. */
+      const vu = await s.page.evaluate(() => {
+        const i = test.questions.findIndex(q => q.inc === 'pct');
+        if(i < 0) return { erreur: 'aucune question à inconnue « pct » dans la séance' };
+        test.idx = i; test.locked = false; renderEvbTest();
+        const r = e => { const b = e.getBoundingClientRect();
+          return { g: b.left, d: b.right, h: b.top, b: b.bottom, cx: (b.left + b.right) / 2, cy: (b.top + b.bottom) / 2 }; };
+        const trait = document.querySelector('#evbHost .pctb-shaft');
+        const fl = document.querySelector('#evbHost .evb-rev-arrow');
+        const P = document.getElementById('evbP'), C = document.getElementById('evbC');
+        if(!trait || !fl || !P || !C) return { erreur: 'trait ' + !!trait + ', flèche ' + !!fl + ', cases ' + !!P + '/' + !!C };
+        return { trait: r(trait), fl: r(fl), P: r(P), C: r(C), texte: fl.textContent.trim() };
+      });
+      verifier('l\'inconnue « pct » montre la flèche « −1 » sur le trait',
+        !vu.erreur && /−1/.test(vu.texte), vu.erreur || ('texte « ' + vu.texte + ' »'));
+      if(!vu.erreur){
+        const ar = v => Math.round(v * 10) / 10;
+        verifier('la flèche est centrée sur le trait, horizontalement',
+          Math.abs(vu.fl.cx - vu.trait.cx) <= 2,
+          'centre de la flèche à ' + ar(vu.fl.cx) + ' px, centre du trait à ' + ar(vu.trait.cx));
+        verifier('la flèche est centrée sur le trait, verticalement',
+          Math.abs(vu.fl.cy - vu.trait.cy) <= 2,
+          'centre de la flèche à ' + ar(vu.fl.cy) + ' px, trait à ' + ar(vu.trait.cy));
+        /* à égale distance des deux cases : la case du haut au-dessus, celle
+           du bas en dessous, et l'écart des deux côtés le même à 3 px près */
+        const dessus = vu.fl.h - vu.P.b, dessous = vu.C.h - vu.fl.b;
+        verifier('la flèche tient ENTRE la case du haut et la case du bas, sans toucher leur cadre',
+          dessus >= 2 && dessous >= 2,
+          'au-dessus ' + ar(dessus) + ' px, en dessous ' + ar(dessous) + ' px (négatif : elle chevauche une case)');
+        verifier('la flèche est à égale distance des deux cases',
+          Math.abs(dessus - dessous) <= 3,
+          'au-dessus ' + ar(dessus) + ' px, en dessous ' + ar(dessous) + ' px');
+      }
+      await s.nav.close(); s = null;
+    }
     /* ===== 6 quinquies. l'étiquette de la colonne de gauche ===== */
     /* Elle doit nommer le dénominateur de la fraction étudiée : « pour 5 »
        devant 2/5. C'est ce qui met les deux colonnes en regard — « 2 pour 5 »

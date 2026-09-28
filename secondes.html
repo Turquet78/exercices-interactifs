@@ -1964,10 +1964,19 @@
      cette flèche se lit comme un aller-retour ENTRE la case du pourcentage
      (au-dessus) et celle du coefficient (en dessous) — elle se pose donc au
      niveau du TRAIT de la grande flèche, entre les deux, et non plus accrochée
-     à la case du coefficient comme la première pose le faisait. */
+     à la case du coefficient comme la première pose le faisait. Troisième
+     pose (Turquet, septembre 2026) : « exactement entre la case du bas et la
+     case du haut, au MILIEU de la grande flèche noire » — centrée sur le trait
+     dans les deux sens (left:50%, top:50%), et non plus à son bout droit, où
+     elle se lisait collée à la boîte « Après ». Elle porte un fond blanc, comme
+     les cases, pour que le trait ne la barre pas ; et le trait s'écarte un peu
+     plus des deux rangées (#evbHost .pctb-shaft) pour qu'elle tienne entre les
+     deux cases sans en toucher le cadre. */
   .evb-rev-row{margin-top:8px}
   .evb-rev-arrow{font-family:"Fredoka";font-weight:700;font-size:1.15rem;color:var(--ink-soft);white-space:nowrap;
-    position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:8px}
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);line-height:1.1;
+    background:#fff;padding:0 6px;border-radius:6px}
+  #evbHost .pctb-shaft{margin:14px 0}
   #evbHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
   #evbHost math-field.pm-mf.evb-pct{min-width:58px;max-width:110px}
   @media(max-width:900px){ #evbHost math-field.pm-mf{font-size:1.4rem} }
@@ -4636,7 +4645,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=233;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=234;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -20869,11 +20878,13 @@ function renderEvbTest(){
   $('evbFeedback').textContent=''; $('evbFeedback').className='mp-feedback';
   $('evbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEvbAnswer()">Vérifier</button>';
   $('evbPrompt').innerHTML=evbEnonce(q);
-  /* La flèche « −1 » se pose ENTRE les deux cases, au niveau du trait de la
+  /* La flèche « −1 » se pose ENTRE les deux cases, au MILIEU du trait de la
      grande flèche — pas dans la rangée du bas, en face de la case du
-     coefficient, comme avant (Turquet, septembre 2026 : posée là, elle se
-     lisait comme une annotation DE la case du coefficient, alors qu'elle relie
-     les deux cases entre elles). */
+     coefficient, comme la première pose (Turquet, septembre 2026 : posée là,
+     elle se lisait comme une annotation DE la case du coefficient, alors
+     qu'elle relie les deux cases entre elles), ni au bout droit du trait comme
+     la deuxième (collée à la boîte « Après »). Sa place est réglée en CSS
+     (.evb-rev-arrow) ; le banc navigateur la mesure. */
   $('evbHost').innerHTML=
     `<div class="pctb-row">
        <div class="pctb-box"><div class="pctb-lab">Avant</div><math-field class="dexp-mf pm-mf" id="evbN" aria-label="valeur avant"></math-field></div>
