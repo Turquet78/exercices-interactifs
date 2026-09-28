@@ -1460,7 +1460,7 @@ function branchements(w){
        ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
        ['2.3.8','startSynDim'],
        ['2.2.10','startSynAugLibre'],['2.3.9','startSynDimLibre'],['2.5.1','startSyn'],
-       ['2.5.2','startSynLibre'],['2.5.3','startReconnaitreCoef'],['2.3.13','startSynDimLibreDix']]
+       ['2.5.2','startSynLibre'],['2.5.3','startReconnaitreCoef']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
@@ -7804,11 +7804,14 @@ function syntheseDimLibreDix(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='synthese-diminutions-libre-dix';
 
-    /* ---- 1. le TIRAGE ---- */
-    const tauxVus={};
+    /* ---- 1. le TIRAGE ---- (le nombre de questions est celui de tous les
+       exercices sur les évolutions ; ce contrôle ne tourne que là où le
+       démarreur existe, la liste commune des démarreurs ne peut pas le porter) */
+    const tauxVus={}, nbAttendu=${JSON.stringify(P.nbQuestionsEvolutions||null)};
     for(let t=0;t<30 && !vus.length;t++){
       startSynDimLibreDix();
       if(test.qId!=='synthese-diminutions-libre-dix'){ vus.push('le démarreur ne pose pas son identité : « '+test.qId+' »'); break; }
+      if(nbAttendu && test.questions.length!==nbAttendu){ vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+nbAttendu); break; }
       if(test.kind!=='sal'){ vus.push('le démarreur ne passe pas par le moteur rédigé : kind « '+test.kind+' »'); break; }
       const incs=test.questions.map(function(q){ return q.inc; });
       ['fin','ini','pct'].forEach(function(inc){ if(incs.indexOf(inc)<0) vus.push('tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
