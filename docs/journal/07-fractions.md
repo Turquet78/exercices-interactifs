@@ -1087,3 +1087,63 @@ changer** : `qdbGen()` imposait déjà `gcd(a,b)!==1||gcd(c,d)!==1||
 gcd(e,f)!==1||gcd(g,h)!==1` sur ses quatre fractions de départ depuis le
 resserrement à 1–5 (plus haut dans ce journal) — la demande y était donc
 déjà satisfaite avant même d'être reposée.
+
+**{quotient-double-fractions} (5.15, « J ») écrit à son tour des égalités
+VRAIES, comme le 5.14 — « en seconde dans le 5.15 je veux que les égalités
+soient vraies mathématiquement comme dans le 5.14 » (Turquet, septembre
+2026).** J avait gardé la pose « fermeture tardive de la parenthèse »
+(`envolver`, plus haut dans ce journal) que H/I avaient abandonnée à la
+troisième session : lue au premier degré, sa rangée s'ouvrait sur
+« ( 5/2 − 1/3 = 15/6 − 2/6 = … » — un « = » posé À L'INTÉRIEUR d'une
+parenthèse encore ouverte, qui n'affirmait rien de vrai sur l'expression
+entière, deux fois de suite, une par parenthèse. La correction est celle de
+`pqdRowHTML` pour H/I, transposée à deux parenthèses : une fonction
+`qdbRowHTML(q)` réécrit après CHAQUE « = » l'expression ENTIÈRE,
+`( … ) ÷ ( … )`, et les DEUX parenthèses avancent DE FRONT — le croisement
+des deux, puis la valeur des fractions croisées des deux, puis chacune
+réduite à une fraction —, comme on l'écrit sur une copie. La division ne
+disparaît qu'au maillon où elle est EFFECTUÉE : « ( a/b − c/d ) × inverse »,
+où la parenthèse de gauche se réécrit par son ÉNONCÉ et jamais par sa
+valeur, qui est la réponse de la case juste avant (le même obstacle, la
+même issue que dans « J ne pouvait pas réécrire la VALEUR de sa parenthèse
+de gauche », plus haut). Puis le produit, puis le résultat. Les 26 cases
+gardent EXACTEMENT les identifiants de `pfCroixHTML`/`pfProduitHTML`
+(`qdb-a-…`, `qdb-b-…`, `qdb-i1`…`qdb-fd`) : `qdbJuge`, `pfCroixPeindre`,
+`pfCroixCorrection`, `pfProduitJuge` ne bougent pas d'une ligne. Ce qui
+suit l'ordre de LECTURE a été réordonné avec elle : `qdbCases()` (la touche
+Entrée passe à la case suivante DANS LA RANGÉE, gauche puis droite, maillon
+par maillon — un contrôle du script de mesure a comparé cet ordre à celui du
+DOM) et `qdbPourquoi()` (la première case fausse se cherche dans le même
+ordre). L'étiquette des étapes passe de cinq à six numéros.
+
+**Le prix, comme chaque fois sur cette rangée, s'est payé en LARGEUR — et
+il a d'abord révélé un rognage qui préexistait.** Neuf paires de
+parenthèses au lieu de trois : 1517 px mesurés à 1400 px de fenêtre, contre
+1288 px de carte — la rangée se repliait, exactement ce que
+`pleineLargeur.chaine` (tests/profils.js) interdit. Même geste que pour
+`#pqdHost` : rétrécir le budget PROPRE de l'écran. `#qdbHost .f-par` passe
+à 7 px/2 px (proportionné à des cases à .85rem comme 9 px/3 px l'est à
+celles de pqd à 1.35rem). Puis les cases — et c'est là que la mesure a
+parlé : en sondant chaque champ MathLive avec la valeur LA PLUS LONGUE que
+`qdbGen` puisse y mettre (« −23 » dans la parenthèse de gauche et le
+numérateur du produit, « −500 » dans le numérateur final), le texte d'un
+champ commence 7 px après sa marge interne et un caractère y fait ~10 px ;
+avec les 8 px de marge de la règle générale `body math-field.dexp-mf`, la
+case de 38 px du produit rognait DÉJÀ « −14 » sur `main` — on n'y lisait
+que le « − », capture à l'appui. `#qdbHost` règle donc sa marge interne à
+2 px et la largeur de chaque case SUR SON CONTENU : 26 px pour les huit
+multiplicateurs du croisement (un chiffre, classe `qdb-mult` posée par
+`qdbRowHTML`), 46 px pour les cases à trois caractères, 56 px pour le seul
+numérateur final. Résultat : 1257 px, sous la carte, et AUCUNE case ne
+rogne sa valeur la plus longue (sonde `ML__latex` contre le bord du champ,
+sur les 26 cases).
+
+**Éprouvé dans un vrai Chromium avant le banc** : la rangée entière relue
+sur capture — chaque « = » y écrit une égalité vraie —, puis une copie
+JUSTE remplie case par case via `setValue()` de MathLive (jamais
+`el.value=`, voir « un script de secours avait d'abord échoué en silence »
+plus haut) : « Bravo, c'est juste ! », 26 cases `ok` sur 26, note 1/1 —
+le jugement n'a pas bougé. Le commentaire de tête de l'exercice, qui
+affirmait encore que l'écran n'était « PAS déclaré dans `pleineLargeur` »,
+disait le contraire de `tests/profils.js` depuis la fusion en une rangée :
+corrigé au passage.

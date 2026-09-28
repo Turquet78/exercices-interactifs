@@ -1312,10 +1312,35 @@
 #qdbHost .pt-row{gap:1px}
 #qdbHost .f-eq{font-size:.95rem}
 #qdbHost .f-times{font-size:.8rem}
-#qdbHost math-field.pm-mf{font-size:.85rem;min-width:30px;max-width:60px}
-#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den{width:38px}
-#qdbHost .pt-row>.f-frac,#qdbHost .pt-row>.f-grp>.f-frac{font-size:1rem}
+#qdbHost math-field.pm-mf{font-size:.85rem;min-width:30px;max-width:46px;padding:2px 2px}
+#qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den{width:46px}
+#qdbHost .sf-l math-field.qdb-mult{width:26px;min-width:26px}
+#qdbHost math-field#qdb-fn{min-width:56px;max-width:56px}
+/* Descendant, et non plus enfant direct : les fractions littérales de
+   l'énoncé vivent maintenant DANS la parenthèse (.f-pgrp, via fParen), où
+   « .pt-row>.f-frac » ne les atteignait plus — elles restaient à leur taille
+   par défaut, et le contrôle universel « une case a la taille des nombres
+   qui l'entourent » a rougi (qdb-a-a1 : 13,6 px contre 21,3 px). */
+#qdbHost .pt-row .f-frac{font-size:1rem}
 #qdbHost .f-whole{font-size:.85rem}
+/* Depuis que chaque « = » réécrit ( … ) ÷ ( … ) en entier (Turquet,
+   septembre 2026 : « des égalités vraies, comme le 5.14 »), la rangée porte
+   NEUF paires de parenthèses au lieu de trois : à 14 px le trait, c'est
+   252 px de parenthèses à elles seules, et la rangée mesurait 1517 px à
+   1400 px de fenêtre — 230 px de trop, repliée sur deux lignes. Le même
+   geste que pour #pqdHost : rétrécir CE budget-là (7 px/2 px, proportionné
+   à des cases à .85rem comme 9 px/3 px l'est à celles de pqd à 1.35rem).
+   ET LA LARGEUR D'UNE CASE SUIT SON CONTENU, mesuré dans un Chromium avec la
+   valeur la plus longue que le tirage puisse y mettre : le texte d'un champ
+   MathLive commence 7 px après sa marge interne, et un caractère y fait
+   ~10 px à cette taille. Avec les 8 px de marge de la règle générale, la
+   case de 38 px du produit rognait déjà « −14 » (on n'y lisait que le
+   « − ») ; à 2 px de marge, 26 px suffisent au multiplicateur du croisement
+   (un chiffre), 46 px aux cases à trois caractères (« −23 », « 500 »), et
+   56 px au seul numérateur final, qui peut aller jusqu’à « −500 ».
+   Mesuré à 1400 px : la rangée repasse sous les 1288 px de la carte, sans
+   qu'aucune case ne rogne sa valeur la plus longue. */
+#qdbHost .f-par{width:7px;border-width:2px}
 /* #rvfHost — {revision-fractions} (5.11) : le badge de correction se pose
    hors du flux, comme partout ailleurs, sans quoi il élargirait le trait
    de fraction (la leçon de {somme-fractions}).
@@ -4651,7 +4676,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=235;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=236;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -35839,11 +35864,24 @@ function ctxPqd(q){
 
    C'EST LE PLUS LONG DES CINQ EXERCICES DE LA FICHE — deux croisements
    complets avant même de diviser —, et c'est voulu : Turquet a confirmé
-   vouloir TOUTES les étapes en cases, sans en raccourcir aucune. L'écran
-   n'est donc PAS déclaré dans `pleineLargeur` (tests/profils.js) : sur une
-   fenêtre ordinaire, la rangée du bas se replie sur plusieurs lignes, et
-   c'est très bien ainsi — seuls les écrans qui promettent explicitement de
-   tenir sur une seule ligne sont mesurés pour ça.
+   vouloir TOUTES les étapes en cases, sans en raccourcir aucune. Depuis la
+   fusion en UNE rangée, l'écran est déclaré dans `pleineLargeur`
+   (tests/profils.js) : la chaîne tient sur un seul bloc, et le banc
+   navigateur mesure qu'elle ne se replie pas à 1400 px.
+
+   CHAQUE « = » ÉCRIT UNE ÉGALITÉ VRAIE, COMME LE 5.14 (demande de Turquet,
+   septembre 2026 : « je veux que les égalités soient vraies mathématiquement
+   comme dans le 5.14 ») : après chaque « = », on retrouve l'expression
+   ENTIÈRE, ( … ) ÷ ( … ), jamais un « = » posé à l'intérieur d'une
+   parenthèse encore ouverte. Les DEUX parenthèses avancent DE FRONT — le
+   croisement des deux, puis la valeur des fractions croisées des deux, puis
+   chacune réduite à une fraction —, comme on l'écrit sur une copie, et la
+   division ne disparaît qu'au maillon où elle est EFFECTUÉE : l'inverse.
+   Là, la parenthèse de gauche se réécrit par son ÉNONCÉ (a/b − c/d), jamais
+   par sa valeur, qui est la réponse de la case juste avant (voir
+   qdbRowHTML). Les identifiants de cases sont ceux qu'attendent
+   qdbJuge/qdbCases/pfCroixPeindre/pfCroixCorrection, inchangés : seule la
+   MISE EN PAGE change.
 
    LA PARENTHÈSE DE DROITE EST TOUJOURS UNE SOMME DE DEUX FRACTIONS
    POSITIVES : elle ne peut donc jamais être négative, et l'inverser ne pose
@@ -35879,7 +35917,55 @@ function qdbGen(){
 }
 const QDB_NB=4;
 function qdbBuildQuestions(){ const qs=[]; for(let i=0;i<QDB_NB;i++) qs.push(distincte(qs, qdbGen)); return qs; }
-function qdbCases(){ return pfCroixCases('qdb-a').concat(pfCroixCases('qdb-b')).concat(pfProduitCases('qdb', true)); }
+/* L'ordre de LECTURE de la rangée (qdbRowHTML) — les deux parenthèses
+   avancent de front, donc les cases de gauche et de droite alternent maillon
+   par maillon : c'est l'ordre que suit la touche Entrée d'une case à la
+   suivante. Les identifiants sont ceux de pfCroixCases/pfProduitCases. */
+function qdbCases(){
+  return ['qdb-a-a1','qdb-a-b1','qdb-a-a2','qdb-a-b2','qdb-b-a1','qdb-b-b1','qdb-b-a2','qdb-b-b2',
+          'qdb-a-n1','qdb-a-n2','qdb-a-d','qdb-b-n1','qdb-b-n2','qdb-b-d',
+          'qdb-a-rn','qdb-a-rd','qdb-b-rn','qdb-b-rd'].concat(pfProduitCases('qdb', true));
+}
+/* La rangée de {quotient-double-fractions} : APRÈS CHAQUE « = », l'expression
+   entière ( … ) ÷ ( … ) — les deux parenthèses résolues DE FRONT, maillon par
+   maillon —, puis « ( a/b − c/d ) × inverse » là où la division est enfin
+   effectuée, puis le produit, puis le résultat. Même doctrine que pqdRowHTML
+   pour le 5.13/5.14 ; les cases gardent les identifiants de
+   pfCroixHTML/pfProduitHTML, seule la mise en page change. */
+function qdbRowHTML(q){
+  const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
+  const fracSeule=(idN,idD,labN,labD)=>'<span class="f-frac-input">'+mf(idN,'f-num',labN)+'<span class="f-fbar"></span>'+mf(idD,'f-den',labD)+'</span>';
+  const produit=(n,d,idA,idB)=>
+    '<span class="f-frac-input sf-prod">'
+      +'<span class="sf-l"><span class="f-whole">'+n+'</span><span class="f-times">×</span>'+mf(idA,'f-num qdb-mult','multiplicateur du numérateur')+'</span>'
+      +'<span class="f-fbar"></span>'
+      +'<span class="sf-l"><span class="f-whole">'+d+'</span><span class="f-times">×</span>'+mf(idB,'f-den qdb-mult','multiplicateur du dénominateur')+'</span>'
+    +'</span>';
+  const somme=(pref,opHtml)=>'<span class="f-frac-input sf-somme">'
+      +'<span class="sf-haut">'+mf(pref+'-n1','f-num','premier numérateur')+opHtml+mf(pref+'-n2','f-num','second numérateur')+'</span>'
+      +'<span class="f-fbar"></span>'+mf(pref+'-d','f-den','dénominateur commun')+'</span>';
+  const moins='<span class="f-times">−</span>', plus='<span class="f-times">+</span>', fois='<span class="f-times">×</span>';
+  const div='<b>÷</b>';
+  const gauche=sfTermeHTML(q.a,q.b)+moins+sfTermeHTML(q.c,q.d);
+  const droite=sfTermeHTML(q.e,q.f)+plus+sfTermeHTML(q.g,q.h);
+  const inverseBox=fracSeule('qdb-i1','qdb-i2','numérateur de l’inverse','dénominateur de l’inverse');
+  const prodBox='<span class="f-frac-input sf-prod">'
+     +'<span class="sf-l">'+mf('qdb-h1','f-num','premier numérateur')+fois+mf('qdb-h2','f-num','second numérateur')+'</span>'
+     +'<span class="f-fbar"></span>'
+     +'<span class="sf-l">'+mf('qdb-b1','f-den','premier dénominateur')+fois+mf('qdb-b2','f-den','second dénominateur')+'</span>'
+   +'</span>';
+  const finalBox=fracSeule('qdb-fn','qdb-fd','numérateur du résultat','dénominateur du résultat');
+  let h = fParen(gauche)+div+fParen(droite);
+  h += fEq(fParen(produit(q.a,q.b,'qdb-a-a1','qdb-a-b1')+moins+produit(q.c,q.d,'qdb-a-a2','qdb-a-b2'))
+          +div+fParen(produit(q.e,q.f,'qdb-b-a1','qdb-b-b1')+plus+produit(q.g,q.h,'qdb-b-a2','qdb-b-b2')));
+  h += fEq(fParen(somme('qdb-a',moins))+div+fParen(somme('qdb-b',plus)));
+  h += fEq(fParen(fracSeule('qdb-a-rn','qdb-a-rd','numérateur de la parenthèse de gauche','dénominateur de la parenthèse de gauche'))
+          +div+fParen(fracSeule('qdb-b-rn','qdb-b-rd','numérateur de la parenthèse de droite','dénominateur de la parenthèse de droite')));
+  h += fEq(fParen(gauche)+fois+inverseBox);
+  h += fEq(prodBox);
+  h += fEq(finalBox);
+  return h;
+}
 function renderQdbTest(){
   const q=test.questions[test.idx]; test.locked=false;
   $('qdbIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
@@ -35889,16 +35975,10 @@ function renderQdbTest(){
   $('qdbActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkQdbAnswer()">Vérifier</button>';
   $('qdbPrompt').innerHTML='Calcule ( '+sfTermeHTML(q.a,q.b)+' <b>−</b> '+sfTermeHTML(q.c,q.d)+' ) <b>÷</b> ( '+sfTermeHTML(q.e,q.f)+' <b>+</b> '+sfTermeHTML(q.g,q.h)+' ).';
   $('qdbHost').innerHTML=
-     '<div class="pt-step"><div class="pt-lab">① la parenthèse de GAUCHE&nbsp;: le croisement, puis la différence&nbsp;· '
-     +'② la parenthèse de DROITE&nbsp;: le croisement, puis la somme&nbsp;· '
-     +'③ diviser, c’est multiplier par l’INVERSE de la parenthèse de droite&nbsp;· ④ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ⑤ la fraction finale</div>'
-     +'<div class="pt-row">'
-       +'(' +sfTermeHTML(q.a,q.b)+'<b>−</b>'+sfTermeHTML(q.c,q.d)
-       +pfCroixHTML('qdb-a', q.a,q.b,q.c,q.d,'-','numérateur de la parenthèse de gauche', undefined, undefined, true)
-       +'<b>÷</b>(' +sfTermeHTML(q.e,q.f)+'<b>+</b>'+sfTermeHTML(q.g,q.h)
-       +pfCroixHTML('qdb-b', q.e,q.f,q.g,q.h,'+','numérateur de la parenthèse de droite', undefined, undefined, true)
-       +pfProduitHTML('qdb', true, '(' +sfTermeHTML(q.a,q.b)+'<b>−</b>'+sfTermeHTML(q.c,q.d)+')')
-     +'</div></div>';
+     '<div class="pt-step"><div class="pt-lab">① les DEUX parenthèses au même dénominateur (le croisement)&nbsp;· '
+     +'② la valeur de chaque fraction croisée&nbsp;· ③ la différence à gauche, la somme à droite&nbsp;· '
+     +'④ diviser, c’est multiplier par l’INVERSE de la parenthèse de droite&nbsp;· ⑤ les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ⑥ la fraction finale</div>'
+     +'<div class="pt-row">'+qdbRowHTML(q)+'</div></div>';
   const order=qdbCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault();
@@ -35914,13 +35994,16 @@ function qdbJuge(q){
 }
 function qdbPourquoi(q,r){
   if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en vert : compare-les à ce que tu as écrit.';
+  /* Dans l'ordre de LECTURE de la rangée (qdbRowHTML) : les deux parenthèses
+     avancent de front, la première case fausse est donc cherchée maillon par
+     maillon, gauche puis droite. */
   if(!r.cxA.ok1) return 'Parenthèse de gauche : la première fraction se multiplie par le dénominateur de l’AUTRE, ici '+q.d+' — en haut ET en bas.';
   if(!r.cxA.ok2) return 'Parenthèse de gauche : la seconde fraction se multiplie par le dénominateur de l’AUTRE, ici '+q.b+' — en haut ET en bas.';
-  if(!(r.cxA.okN1&&r.cxA.okN2&&r.cxA.okD)) return 'Parenthèse de gauche, sur le dénominateur '+r.cxA.D+' : les numérateurs deviennent '+r.cxA.N1+' et '+r.cxA.N2+'.';
-  if(!(r.cxA.okRn&&r.cxA.okRd)) return 'Il reste à calculer la parenthèse de gauche : '+r.cxA.N1+' − '+r.cxA.N2+' = '+q.ARn+', sur '+q.AD+'.';
   if(!r.cxB.ok1) return 'Parenthèse de droite : la première fraction se multiplie par le dénominateur de l’AUTRE, ici '+q.h+' — en haut ET en bas.';
   if(!r.cxB.ok2) return 'Parenthèse de droite : la seconde fraction se multiplie par le dénominateur de l’AUTRE, ici '+q.f+' — en haut ET en bas.';
+  if(!(r.cxA.okN1&&r.cxA.okN2&&r.cxA.okD)) return 'Parenthèse de gauche, sur le dénominateur '+r.cxA.D+' : les numérateurs deviennent '+r.cxA.N1+' et '+r.cxA.N2+'.';
   if(!(r.cxB.okN1&&r.cxB.okN2&&r.cxB.okD)) return 'Parenthèse de droite, sur le dénominateur '+r.cxB.D+' : les numérateurs deviennent '+r.cxB.N1+' et '+r.cxB.N2+'.';
+  if(!(r.cxA.okRn&&r.cxA.okRd)) return 'Il reste à calculer la parenthèse de gauche : '+r.cxA.N1+' − '+r.cxA.N2+' = '+q.ARn+', sur '+q.AD+'.';
   if(!(r.cxB.okRn&&r.cxB.okRd)) return 'Il reste à calculer la parenthèse de droite : '+r.cxB.N1+' + '+r.cxB.N2+' = '+q.BRn+', sur '+q.BD+'.';
   if(!r.pr.inverse) return 'Diviser par '+q.BRn+'/'+q.BD+', c’est multiplier par son inverse : '+q.BD+' sur '+q.BRn+'.';
   if(!r.pr.haut) return 'En haut, les deux facteurs de la multiplication : '+q.ARn+' et '+q.BD+'.';
