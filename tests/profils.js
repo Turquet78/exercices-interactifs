@@ -1762,7 +1762,12 @@ module.exports = {
     /* La touche morte « ^ » d'AZERTY (signalée par Turquet sur le 6.6) : le
        gestionnaire chapeauMorte vit en Terminale — seul niveau où l'élève
        TAPE des exposants — et seul un vrai MathLive voit le texte composé. */
-    chapeauMorte: { exercice: 'recurrence-formule' },
+    chapeauMorte: { exercice: 'recurrence-formule',
+      /* … et le 2.5, où la case « u = e^x » rougissait (Turquet, septembre
+         2026) : DEUX gestionnaires se partageaient la touche morte, et le
+         second empilait un exposant dans le premier. Le banc joue le geste
+         ENTIER — keydown « Dead », puis le texte composé — sur les deux. */
+      quotient: 'derivee-exp-quotient-2' },
     /* La RÉCURRENCE EN FRACTIONS (6.10) : des fractions IMBRIQUÉES à cases,
        que seul un navigateur sait dessiner — la barre extérieure doit
        envelopper les barres intérieures, aucune rangée ne doit défiler, et

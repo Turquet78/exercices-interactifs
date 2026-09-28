@@ -3000,7 +3000,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=347;
+const APP_VERSION=348;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -12422,9 +12422,18 @@ function chapeauMorte(e){
   if(!/[\^ˆ]/.test(d) || /[#{}\\]/.test(d)) return;   /* du texte tapé nu, jamais un dispatch interne */
   e.preventDefault(); e.stopImmediatePropagation();
   const parts=d.split(/[\^ˆ]+/);
+  /* DEUX gestionnaires se partagent la touche morte, et c'est le piège : le
+     champ lui-même (module MathLive, sur keydown key="Dead") a DÉJÀ ouvert
+     l'exposant et y a posé le curseur quand le texte composé arrive ici. En
+     ouvrir un second écrivait e^{^{x}} — un x minuscule, perché, et une case
+     JUSTE rougie (2.5, signalé par Turquet, septembre 2026). Le champ le dit
+     (_chapeauOuvert, moins de deux secondes, rien d'écrit depuis) : on n'insère
+     alors que le texte, dans l'exposant déjà ouvert. */
+  const ouvert=!!(t._chapeauOuvert && Date.now()-t._chapeauOuvert<2000);
+  t._chapeauOuvert=0;
   try {
     if(parts[0]) t.insert(parts[0]);
-    t.insert('^{#?}');                                 /* le curseur tombe dans l'exposant */
+    if(!ouvert) t.insert('^{#?}');                     /* le curseur tombe dans l'exposant */
     for(let i=1;i<parts.length;i++) if(parts[i]) t.insert(parts[i]);
   } catch(err){}
 }
@@ -24356,6 +24365,9 @@ const FIELD_FIX_CSS =
   "textarea{font-size:16px !important;}";
 
 let lastMf = null;
+/* L'exposant ouvert par la touche morte est « récent » tant que rien n'y a été
+   écrit, et deux secondes au plus : passé ce délai, un « ^ » est un nouveau geste. */
+function chapeauRecent(mf){ return !!(mf && mf._chapeauOuvert && Date.now() - mf._chapeauOuvert < 2000); }
 function configureField(mf){
   if(mf._mlInit) return; mf._mlInit = true;
   mf.mathVirtualKeyboardPolicy = "auto";
@@ -24424,14 +24436,20 @@ function configureField(mf){
       (ev.key === "Dead" && ev.code === "BracketLeft" && !ev.shiftKey && !ev.altKey && !ev.ctrlKey && !ev.metaKey);
     if(!circo || ev.isComposing) return;
     ev.preventDefault(); ev.stopPropagation();
+    /* Un exposant DÉJÀ ouvert par la touche morte, et rien d'écrit dedans depuis :
+       le navigateur relivre parfois le « ^ » en résolvant la touche (key="^" sur
+       la frappe suivante) — on ne rouvre pas un second exposant DANS le premier. */
+    if(chapeauRecent(mf)) return;
     mf._mlBusy = true;
     try { mf.executeCommand(["insert", "#@^{#?}"]); } catch(e) {}
+    mf._chapeauOuvert = Date.now();   /* lu par chapeauMorte (script principal) : le texte composé n'ouvre pas un 2e exposant */
     setTimeout(()=>{ mf._mlBusy = false; }, 0);
   }, true);
   /* la touche morte laisse aussi un residu de composition ("^3", "^x", ...) :
      on retire le ^ et on tape le reste normalement, dans la case exposant */
   mf.addEventListener("beforeinput", (ev)=>{
     if(mf._mlBusy) return;              /* nos propres insertions passent sans filtre */
+    mf._chapeauOuvert = 0;              /* du texte arrive : l'exposant de la touche morte n'est plus « vide » */
     const ty = ev.inputType || "";
     if(ty !== "insertText" && ty !== "insertCompositionText") return;
     const d = ev.data;
