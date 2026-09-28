@@ -3778,6 +3778,7 @@ function exercices(suite){
     poseSuitLEleve(w, P);
     poseOperationSuitLEleve(w, P);
     poseAdditionAugmenterDix(w, P);
+    syntheseAugmentationsDix(w, P);
     correctionSignesVariations(w, P);
     termeEntierDansCaseCoefficient(w, P);
 
@@ -6888,6 +6889,201 @@ function poseAdditionAugmenterDix(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- 2.2.13 : la synthèse des hausses avec la méthode des 10 % --------
+   {synthese-augmentations-dix} (demande de Turquet, septembre 2026 : « un
+   exercice comme le 2.2.9, mais on rajoute la méthode "en passant par 10 %",
+   présentée comme le 2.2.11 quand on calcule la valeur finale et comme le
+   2.2.12 quand on cherche le % d'augmentation »). Même moteur que le 2.2.9,
+   pas même identité, et un TROISIÈME bouton de méthode que seule SA question
+   porte (q.dix). N'existant qu'en Première, un `startSynAugDix` absent veut
+   dire « ce niveau n'a pas cet exercice » — la liste des vingt-deux
+   démarreurs plus haut est partagée avec la Seconde, il n'y entre pas.
+   Quatre bords, éprouvés par sabotage :
+   · le TIRAGE — hausses seules, les trois inconnues chacune une fois, q.dix
+     posé, et des taux que l'on RETROUVE depuis 10 % : jamais 10 lui-même,
+     jamais 3 % ; un multiple de dix, ou 5, 15 (25 pour le pourcentage
+     cherché seulement) ; N multiple de 100 ; les leurres du pourcentage tirés
+     du même vivier, ceux de la valeur initiale multiples de dix (10 % en
+     reste entier) ;
+   · le 2.2.9 NE CHANGE PAS : ni troisième bouton, ni « 10 % » dans le
+     message qui réclame une méthode ;
+   · l'ÉCRAN — pour une valeur, les lignes du 2.2.11 (10 % de N avec la
+     fraction, une ligne par taux, départ + augmentation, la pose facultative
+     cachée) ; pour le pourcentage, les lignes du 2.2.12 (l'écart en tête,
+     10 %, 5 % quand il le faut, le facteur quand il y en a un, la flèche
+     alors et alors seulement, la soustraction posée dès l'affichage) ;
+   · le JUGE — la copie juste vaut le point dans les trois inconnues ; sur
+     une proposition FAUSSE, le calcul juste est dit juste (valeur initiale :
+     sur la proposition ; pourcentage : sur les données, le pourcentage trouvé
+     nommé), et en soutien l'écran reste ouvert. */
+function syntheseAugmentationsDix(w, P){
+  const present = evaluer(w, "typeof startSynAugDix==='function' && typeof genSyn==='function' && typeof synDixRegl==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.2.13 : la synthèse des hausses tire des taux que l\'on retrouve depuis 10 %, et garde son identité',
+      'ce niveau n\'a pas {synthese-augmentations-dix}');
+    ignorer('2.2.13 : la méthode des 10 % se présente comme le 2.2.11 pour une valeur, comme le 2.2.12 pour le pourcentage, et la copie juste vaut le point',
+      'ce niveau n\'a pas {synthese-augmentations-dix}');
+    return;
+  }
+  verifierEval(w, '2.2.13 : la synthèse des hausses tire des taux que l\'on retrouve depuis 10 %, et garde son identité', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const attendu=${JSON.stringify(P.nbQuestionsEvolutions||3)};
+    const DIX=[20,30,40,50,60,70,80,90], VAL=DIX.concat([5,15]), PCT=DIX.concat([5,15,25]), VIVIER=[10].concat(PCT);
+    const ordres={}, formes={fin:{},ini:{},pct:{}};
+    for(let t=0;t<40 && !vus.length;t++){
+      startSynAugDix();
+      if(test.kind!=='syn') vus.push('tirage '+t+' : kind « '+test.kind+' » au lieu de « syn »');
+      if(test.qId!=='synthese-augmentations-dix') vus.push('tirage '+t+' : identité « '+test.qId+' »');
+      const qs=test.questions||[];
+      if(qs.length!==attendu) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de '+attendu);
+      qs.forEach(function(q,i){
+        const eti='tirage '+t+' q'+i+' ('+q.inc+', P='+q.P+', N='+q.N+')';
+        if(q.fam!=='aug') vus.push(eti+' : famille « '+q.fam+' » au lieu d\\'une hausse');
+        if(q.dix!==true) vus.push(eti+' : la question ne porte pas q.dix — le troisième bouton ne sortirait pas');
+        if(q.N%100!==0) vus.push(eti+' : N n\\'est pas un multiple de 100');
+        const admis=(q.inc==='pct')?PCT:VAL;
+        if(admis.indexOf(q.P)<0) vus.push(eti+' : le taux ne se retrouve pas depuis 10 %');
+        formes[q.inc][(q.P%10===0)?'dix':'cinq']=1;
+        if(!q.opts || q.opts.length!==4 || new Set(q.opts).size!==4) vus.push(eti+' : propositions '+JSON.stringify(q.opts));
+        else if(q.opts.indexOf(q.bonV)<0) vus.push(eti+' : la bonne réponse manque aux propositions');
+        if(q.inc==='pct') q.opts.forEach(function(x){ if(VIVIER.indexOf(x)<0) vus.push(eti+' : le leurre '+x+' % ne se retrouve pas depuis 10 %'); });
+        if(q.inc==='ini') q.opts.forEach(function(x){ if(x%10!==0) vus.push(eti+' : la valeur proposée '+x+' n\\'a pas un 10 % entier'); });
+      });
+      const incs=qs.map(function(q){ return q.inc; });
+      ['fin','ini','pct'].forEach(function(inc){ if(incs.indexOf(inc)<0) vus.push('tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+      ordres[incs.join(',')]=1;
+    }
+    if(!vus.length){
+      if(Object.keys(ordres).length<2) vus.push('l\\'ordre des inconnues ne change jamais');
+      ['fin','ini','pct'].forEach(function(inc){
+        if(!formes[inc].dix || !formes[inc].cinq) vus.push('sur 40 tirages, l\\'inconnue « '+inc+' » ne voit que la forme '+Object.keys(formes[inc]).join('/'));
+      });
+      /* « Recommencer » relance la bonne identité */
+      test.kind='syn'; test.qId='synthese-augmentations-dix'; restartCurrentTest();
+      if(test.qId!=='synthese-augmentations-dix') vus.push('« Recommencer » relance « '+test.qId+' »');
+      /* et le 2.2.9 ne change pas */
+      startSynAug();
+      if(test.questions.some(function(q){ return q.dix; })) vus.push('le 2.2.9 tire des questions qui portent q.dix');
+      let garde=0; while(test.questions[0].fam==='pct' && garde++<50) test.questions[0]=genSyn('aug','fin');
+      renderSynTest();
+      if(document.getElementById('sm2')) vus.push('le 2.2.9 montre le bouton « En passant par 10 % »');
+      choisirSy(0); checkSynAnswer();
+      const fb=document.getElementById('syFeedback').textContent;
+      if(fb.indexOf('10 %')>=0) vus.push('le 2.2.9 réclame une méthode en citant les 10 % : « '+fb+' »');
+    }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.2.13 : la méthode des 10 % se présente comme le 2.2.11 pour une valeur, comme le 2.2.12 pour le pourcentage, et la copie juste vaut le point', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='synthese-augmentations-dix';
+    const sd=function(x){ return String(x).replace('.',','); };
+    const $=function(id){ return document.getElementById(id); };
+    const tirer=function(inc, cond){ for(let i=0;i<900;i++){ const q=genSyn('aug',inc,{dix:true}); if(cond(q)) return q; } return null; };
+    const pin=function(q, choix, meth){
+      const c=JSON.parse(JSON.stringify(q)); c.choisi=choix; c.meth=meth||null;
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'syn', qId:'synthese-augmentations-dix', questions:[c], idx:0, score:0,
+                          answers:[], startTime:Date.now(), locked:false, maxScore:1});
+      show('syntest'); renderSynTest();
+      return c;
+    };
+    const ecrire=function(copie){ Object.keys(copie).forEach(function(id){ const el=$(id); if(el) el.value=copie[id]; else vus.push('la case '+id+' manque à l\\'écran'); }); };
+    const couleurs=function(copie, nom){ Object.keys(copie).forEach(function(id){ const el=$(id); if(!el) return;
+      if(!el.classList.contains('ok')) vus.push(nom+' : '+id+' est '+(el.classList.contains('bad')?'rouge':'sans couleur')); }); };
+
+    /* ---- 1. la nouvelle valeur, 15 % : deux lignes d'augmentation, comme le 2.2.11 ---- */
+    let Q=tirer('fin', function(q){ return q.P===15; });
+    if(!Q) return 'le tirage ne produit jamais 15 % pour la nouvelle valeur';
+    let q=pin(Q, null, null);
+    if(!$('sm2')) vus.push('le troisième bouton « En passant par 10 % » manque');
+    if($('y0')) vus.push('les lignes des 10 % s\\'affichent avant que la méthode soit choisie');
+    choisirSyMeth('dix');
+    if(!$('sm2') || !$('sm2').classList.contains('sel')) vus.push('le bouton des 10 % ne se marque pas choisi');
+    ['y0','yP5','yP15','y4a','y4b','y4r'].forEach(function(id){ if(!$(id)) vus.push('valeur (15 %) : la case '+id+' manque'); });
+    if($('y1n')) vus.push('valeur : la chaîne P/100 des autres méthodes reste affichée');
+    if(!$('syPose') || !$('syPose').classList.contains('step-hidden')) vus.push('valeur : la pose de l\\'addition devrait être cachée tant que rien n\\'est écrit');
+    const txt=$('synHost').textContent;
+    if(txt.indexOf('On commence par 10 % de '+Q.N)<0) vus.push('valeur : la ligne « On commence par 10 % de N » manque');
+    if(txt.indexOf('15 % de '+Q.N)<0 || txt.indexOf('5 % de '+Q.N)<0) vus.push('valeur : les deux lignes d\\'augmentation (5 %, 15 %) manquent');
+    choisirSy(Q.bon); q=test.questions[0];
+    const copieFin={y0:sd(Q.N/10), yP5:sd(Q.N*5/100), yP15:sd(Q.N*15/100), y4a:''+Q.N, y4b:sd(Q.aug), y4r:sd(Q.fin)};
+    ecrire(copieFin); checkSynAnswer();
+    couleurs(copieFin,'valeur (copie juste)');
+    if(test.score!==1) vus.push('valeur : la copie juste ne vaut pas le point ('+test.score+')');
+    if($('syFeedback').className.indexOf('good')<0) vus.push('valeur : la copie juste n\\'est pas félicitée');
+
+    /* ---- 2. la valeur initiale, sur une proposition FAUSSE : le calcul juste sur ELLE est dit juste ---- */
+    Q=tirer('ini', function(q){ return q.P%10===0; });
+    if(!Q) return 'le tirage ne produit jamais de multiple de dix pour la valeur initiale';
+    q=pin(Q, null, 'dix');
+    const faux=(Q.bon+1)%4, Nf=Q.opts[faux];
+    choisirSy(faux);
+    if(!$('yP'+Q.P)) vus.push('valeur initiale : la case yP'+Q.P+' manque');
+    if($('synHost').textContent.indexOf('10 % de '+Nf)<0) vus.push('valeur initiale : la ligne des 10 % ne suit pas la proposition choisie ('+Nf+')');
+    const augF=Nf*Q.P/100;
+    const copieIni={y0:sd(Nf/10)}; copieIni['yP'+Q.P]=sd(augF); copieIni.y4a=''+Nf; copieIni.y4b=sd(augF); copieIni.y4r=sd(Nf+augF);
+    ecrire(copieIni); checkSynAnswer();
+    couleurs(copieIni,'valeur initiale (calcul juste sur une proposition fausse)');
+    if(test.score!==0) vus.push('valeur initiale : une proposition fausse vaut le point');
+    let fb=$('syFeedback').textContent;
+    if(fb.indexOf('Calcul juste, mais mauvaise proposition')<0) vus.push('valeur initiale : le message ne dit pas « calcul juste, mauvaise proposition » : « '+fb.slice(0,80)+' »');
+    if(fb.indexOf('10 % de '+Q.N)<0) vus.push('valeur initiale : la preuve ne passe pas par 10 % de '+Q.N+' : « '+fb.slice(0,120)+' »');
+
+    /* ---- 3. le pourcentage, 15 % : l'écart, 10 %, 5 %, le facteur, la flèche — comme le 2.2.12 ---- */
+    Q=tirer('pct', function(q){ return q.P===15; });
+    if(!Q) return 'le tirage ne produit jamais 15 % pour le pourcentage cherché';
+    q=pin(Q, null, 'dix');
+    ['y1e','y0','y5c','yK','yP','syFlPct5','syFlPct10'].forEach(function(id){ if(!$(id)) vus.push('pourcentage (15 %) : '+id+' manque'); });
+    if(!$('synHost').classList.contains('syn-fl')) vus.push('pourcentage (15 %) : la classe de la flèche n\\'est pas posée');
+    if(!$('syMul') || !$('syMul').querySelector('.mp-box')) vus.push('pourcentage : la soustraction posée n\\'est pas construite à l\\'affichage');
+    if($('syPose') && $('syPose').classList.contains('step-hidden')) vus.push('pourcentage : la soustraction posée est cachée');
+    const t3=$('synHost').textContent;
+    if(t3.indexOf(Q.fin+' − '+Q.N)<0) vus.push('pourcentage : la ligne de l\\'écart « '+Q.fin+' − '+Q.N+' » manque');
+    if(t3.indexOf('donc le pourcentage d’augmentation est de')<0) vus.push('pourcentage : la phrase de conclusion du 2.2.12 manque');
+    choisirSy(Q.bon);
+    const copiePct={y1e:sd(Q.aug), y0:sd(Q.N/10), y5c:sd(Q.N/20), yK:'3', yP:'15'};
+    ecrire(copiePct); checkSynAnswer();
+    couleurs(copiePct,'pourcentage (copie juste)');
+    if(test.score!==1) vus.push('pourcentage : la copie juste ne vaut pas le point ('+test.score+')');
+
+    /* ---- 4. le pourcentage EST 5 % : ni facteur, ni flèche ; proposition fausse, calcul juste ---- */
+    Q=tirer('pct', function(q){ return q.P===5; });
+    if(!Q) return 'le tirage ne produit jamais 5 % pour le pourcentage cherché';
+    q=pin(Q, null, 'dix');
+    if($('yK')) vus.push('5 % : une case de facteur s\\'affiche alors qu\\'il n\\'y a rien à multiplier');
+    if($('synHost').classList.contains('syn-fl')) vus.push('5 % : la flèche est annoncée sans multiplication à montrer');
+    if(!$('y5c')) vus.push('5 % : la ligne des 5 % manque');
+    choisirSy((Q.bon+1)%4);
+    const copie5={y1e:sd(Q.aug), y0:sd(Q.N/10), y5c:sd(Q.N/20), yP:'5'};
+    ecrire(copie5); checkSynAnswer();
+    couleurs(copie5,'5 % (calcul juste sur une proposition fausse)');
+    if(test.score!==0) vus.push('5 % : une proposition fausse vaut le point');
+    fb=$('syFeedback').textContent;
+    if(fb.indexOf('le pourcentage trouvé est 5 %')<0) vus.push('5 % : le message ne nomme pas le pourcentage trouvé : « '+fb.slice(0,80)+' »');
+
+    /* ---- 5. un multiple de dix, en SOUTIEN : calcul juste, proposition fausse — l'écran reste ouvert ---- */
+    Q=tirer('pct', function(q){ return q.P%10===0; });
+    if(!Q) return 'le tirage ne produit jamais de multiple de dix pour le pourcentage cherché';
+    currentMode='soutien';
+    q=pin(Q, null, 'dix');
+    if($('y5c')) vus.push('multiple de dix : la ligne des 5 % s\\'affiche sans raison');
+    if(!$('yK') || !$('synHost').classList.contains('syn-fl')) vus.push('multiple de dix : le facteur ou sa flèche manque');
+    choisirSy((Q.bon+1)%4);
+    const copie10={y1e:sd(Q.aug), y0:sd(Q.N/10), yK:''+(Q.P/10), yP:''+Q.P};
+    ecrire(copie10); checkSynAnswer();
+    couleurs(copie10,'soutien (calcul juste sur une proposition fausse)');
+    if(test.locked) vus.push('soutien : l\\'écran se verrouille sur une proposition fausse au calcul juste');
+    fb=$('syFeedback').textContent;
+    if(fb.indexOf('Ton calcul est juste')<0 || fb.indexOf(Q.P+' %')<0) vus.push('soutien : le message ne dit pas que le calcul est juste et quel pourcentage il trouve : « '+fb.slice(0,100)+' »');
+    /* et la bonne proposition, ensuite, vaut le point sans retaper le calcul */
+    choisirSy(Q.bon); ecrire(copie10); checkSynAnswer();
+    if(test.score!==1) vus.push('soutien : la bonne proposition après correction ne vaut pas le point ('+test.score+')');
+    currentMode='train';
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---------- 2.1 : le terme entier recopié dans une case de coefficient -----
    Signalé par Julien, transmis par Turquet (août 2026) : « on me signale une
    erreur alors que la correction est conforme à ce que j'ai écrit ». Dans la
@@ -9417,6 +9613,36 @@ function suiteVariationRecurrence(w, P){
     if(ligneRouge(1)) dit('la ligne JUSTE rougit parce que sa voisine est fausse : chaque ligne se juge seule');
     if(!document.getElementById('svrSheet').classList.contains('bad')) dit('la feuille ne rougit pas alors qu’une de ses lignes est fausse');
     if(test.score!==0) dit('une chaîne qui porte une égalité fausse vaut quand même le point');
+
+    /* ---- 7 bis². UNE LIGNE PEUT PORTER PLUSIEURS MEMBRES : « A = B » écrit
+            d'un trait, sans « Entrée », comme sur le papier. Chaque membre vaut
+            f ′(x) ; la ligne est juste si tous le sont. Donnée en bloc au juge,
+            la ligne entière rougissait — une dérivée JUSTE comptée fausse
+            (capture de Turquet, septembre 2026, 6.2.5). Trois bords : la chaîne
+            juste sur une ligne vaut le point ; un membre faux au milieu rougit
+            la ligne ; un « f ′(x) = » recopié du préfixe ne compte pas. ---- */
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(['(0*(4-x)-(-1)*3)/(4-x)^2=3/(4-x)^2']);
+    checkSVR();
+    if(ligneRouge(0)) dit('une chaîne « A = B » juste écrite sur UNE ligne rougit : le juge lit le « = » comme une expression');
+    if(!document.getElementById('svrSheet').classList.contains('ok')) dit('une chaîne juste sur une ligne ne bleuit pas la feuille');
+    if(test.score!==1) dit('une chaîne juste sur une ligne ne vaut pas le point');
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(['3/(4-x)=3/(4-x)^2']);
+    checkSVR();
+    if(!ligneRouge(0)) dit('un membre FAUX dans une chaîne sur une ligne ne rougit pas : seul le dernier membre est lu');
+    if(test.score!==0) dit('une chaîne sur une ligne qui porte un membre faux vaut le point');
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(["f'(x)=3/(4-x)^2"]);
+    checkSVR();
+    if(ligneRouge(0)) dit('un « f ′(x) = » recopié du préfixe fait rougir une dérivée juste');
+    if(test.score!==1) dit('un « f ′(x) = » recopié du préfixe fait perdre le point');
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(["f'(x)="]);
+    checkSVR();
+    if(ligneRouge(0)||document.getElementById('svrSheet').classList.contains('bad')) dit('une ligne qui ne porte que « f ′(x) = » rougit : une copie vide ne rougit jamais');
+    /* le bord de la source : la coupe vit dans derMembres, et derVerdict y passe */
+    if(String(derVerdict).indexOf('derMembres')<0) dit('derVerdict ne coupe plus ses lignes sur « = » (derMembres)');
 
     /* ---- 7 ter. LES CASES FACULTATIVES sont jugées, et ne comptent PAS.
             Le 2.5 les tient hors de la note ; ici la note se lit à l’écran,
