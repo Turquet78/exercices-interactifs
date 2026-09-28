@@ -7803,6 +7803,10 @@ function syntheseDimLibreDix(w, P){
     const vus=[]; const B=${JSON.stringify(bornes)};
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='synthese-diminutions-libre-dix';
+    /* le vrai toPlain est INJECTÉ depuis la SOURCE (le double du harnais
+       remplace window.mlDexp par un passe-plat) : c'est lui qui aplatit la
+       copie espacée, et c'est lui qu'on met en ligne */
+    ${['readArg','struct','toPlain'].map(n => { const f = corpsFonctions(lire(CIBLE), /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o => o.nom === n); return f ? f.texte : ''; }).join('\n')}
 
     /* ---- 1. le TIRAGE ---- (le nombre de questions est celui de tous les
        exercices sur les évolutions ; ce contrôle ne tourne que là où le
@@ -7905,10 +7909,40 @@ function syntheseDimLibreDix(w, P){
       const hint=String(($('salHost').querySelector('.dexp-hint')||{}).textContent||'');
       if(hint.indexOf('%')<0 || hint.indexOf('écart')<0) vus.push('l\\'indication sous la feuille n\\'explique pas comment écrire la méthode des 10 % : « '+hint+' »');
       if(!salFeuille || !salFeuille.lignes.length) vus.push('la feuille de justification n\\'existe pas avant le choix d\\'une proposition');
-      /* le bord opposé : le 2.3.9 ne promet pas la voie */
+      /* LA BARRE D'ESPACE ÉCRIT UNE ESPACE (demande de Turquet, septembre
+         2026) : la feuille du 2.3.13 pose mathModeSpace sur ses lignes —
+         celles qui existent, et celles qu'ajoute « Entrée » — et le 2.3.9 n'y
+         touche pas. Ce que MathLive écrit alors (« \\; ») doit ressortir en
+         espace à l'aplatissement, et le juge doit lire la copie ESPACÉE comme
+         la copie collée. jsdom n'a pas MathLive : la frappe réelle se mesure
+         au banc navigateur (« la synthèse des pourcentages rédigée »). */
+      const espLatex=function(v){ v=String(v||''); return v.length>0 && (v==='~' || (v.charCodeAt(0)===92 && v.length===2 && ',;: '.indexOf(v.charAt(1))>=0)); };
+      const l0=salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+      if(!l0 || !espLatex(l0.mathModeSpace)) vus.push('sur le 2.3.13, la barre d\\'espace n\\'écrit pas d\\'espace : mathModeSpace « '+(l0?l0.mathModeSpace:'?')+' »');
+      const lAj=salFeuille.ajouterLigne();
+      if(!lAj || !lAj.mf || !espLatex(lAj.mf.mathModeSpace)) vus.push('une ligne ajoutée par « Entrée » sur le 2.3.13 n\\'écrit pas d\\'espace : mathModeSpace « '+(lAj&&lAj.mf?lAj.mf.mathModeSpace:'?')+' »');
+      const hintEsp=String(($('salHost').querySelector('.dexp-hint')||{}).textContent||'');
+      if(hintEsp.indexOf('espace')<0) vus.push('l\\'indication sous la feuille ne dit pas que la barre d\\'espace écrit une espace');
+      const tp=(typeof toPlain==='function')?toPlain:null;
+      if(!tp) vus.push('toPlain introuvable dans la source : la lecture de la copie espacée n\\'a rien à mesurer, et doit le dire');
+      else {
+        const B=String.fromCharCode(92);
+        const t1=tp('10'+B+';'+B+'%=60'), t2=tp(B+'text{écart}'+B+';=180'), t3=tp('di'+B+'minution'+B+';de'+B+';30'+B+'%');
+        if(t1.indexOf(' ')<0 || t3.split(' ').length!==3) vus.push('l\\'espace de MathLive ne ressort pas en espace à l\\'aplatissement : « '+t1+' », « '+t3+' »');
+        const rN=salRatDe(600);
+        const L1=salDixLigne(t1.split('=').map(function(m){ return m.trim(); }), rN, null);
+        if(!L1 || L1.type!=='pct' || !L1.lisible || L1.faux) vus.push('« 10 % = 60 » tapée avec des espaces n\\'est plus lue par le juge : '+JSON.stringify(L1)+' (texte « '+t1+' »)');
+        const L2=salDixLigne(t2.split('=').map(function(m){ return m.trim(); }), rN, salRatDe(180));
+        if(!L2 || L2.type!=='ecart' || !L2.lisible || L2.faux) vus.push('« écart = 180 » tapée avec des espaces n\\'est plus lue par le juge : '+JSON.stringify(L2)+' (texte « '+t2+' »)');
+        const C3=salDixConclusion(t3);
+        if(!C3 || C3.sens!==-1 || !salEgal(C3.k,salRatDe(30))) vus.push('« diminution de 30 % » tapée avec des espaces n\\'est plus lue comme conclusion : '+JSON.stringify(C3)+' (texte « '+t3+' »)');
+      }
+      /* le bord opposé : le 2.3.9 ne promet pas la voie, et sa feuille n'a pas changé */
       startSynDimLibre();
       const lab9=[].slice.call($('salHost').querySelectorAll('.pt-lab')).map(function(e){ return String(e.textContent||''); }).filter(function(t){ return t.indexOf('justifie')>=0; }).join(' ');
       if(lab9.indexOf('10 %')>=0) vus.push('le 2.3.9 promet désormais la voie des 10 % que son juge ne lit pas : « '+lab9+' »');
+      const l9=salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+      if(l9 && l9.mathModeSpace) vus.push('le 2.3.9 a changé : sa feuille écrit désormais des espaces (mathModeSpace « '+l9.mathModeSpace+' »)');
       /* la peinture : sur une feuille adossée à de vrais éléments */
       startSynDimLibreDix();
       test.questions[0]=JSON.parse(JSON.stringify(qPct)); test.idx=0;

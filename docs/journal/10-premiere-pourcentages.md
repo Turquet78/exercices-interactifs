@@ -2305,6 +2305,36 @@ barres de MathLive plus retirées, l'écart plus jugé contre l'énoncé, la
 conclusion plus comparée au choix, la peinture qui ignore les lignes des
 10 %.
 
+**Puis la barre d'espace a ÉCRIT une espace** (demande de Turquet, le jour
+même : « il faut afficher les espaces quand on appuie sur espace »). La
+feuille du moteur `sal` est en mode « calcul », où MathLive AVALE l'espace :
+sa convention veut qu'elle SORTE d'un indice ou d'une fraction, et n'écrive
+rien ailleurs — ce qui convient à des lignes de nombres, pas à un élève qui
+tape « diminution de 30 % » et voit « diminutionde30% ». `renderSal` pose
+donc `mathModeSpace` (« `\;` ») sur chaque ligne quand la question porte
+`q.dix` — les lignes qui existent, et celles que « Entrée » fera naître,
+d'où `salEspaces` qui enveloppe `F.ajouterLigne` — SANS toucher à
+`mlFeuille`, qui est le même texte dans les trois fichiers et qu'un contrôle
+compare au caractère près. Le 2.3.9 ne change pas d'un iota : c'est un bord
+du contrôle. Et l'espace SORT toujours d'une fraction : `mathModeSpace`
+éteint cette convention, et c'est la leçon de la récurrence rédigée de la
+Terminale (`rrEspace`) reprise telle quelle dans `salEspaceSort`, en capture
+sur la feuille — un élève qui tape « 180/600 » resterait sinon prisonnier
+du dénominateur, toute la suite de sa ligne tombant dedans. Le juge n'a rien
+eu à apprendre : `toPlain` rendait déjà « `\;` » en une espace, `salDixNorm`
+retire les espaces, et `salExpr` les saute — la copie ESPACÉE se lit comme
+la copie collée, ce que le banc principal mesure sur le vrai `toPlain`
+injecté depuis la source. La règle envoyée au modèle dit désormais que
+l'éditeur « peut retirer les espaces » (l'élève n'en tape pas toujours), à
+longueur égale — la borne de la fonction Edge ne laisse qu'une centaine de
+caractères. Le banc navigateur (« la synthèse des pourcentages rédigée »,
+étape 3) tape la copie sur un vrai MathLive : les espaces se voient dans la
+lecture, la fraction se referme avant le « = », le juge accepte, la note
+compte, les lignes se peignent. Deux pièges de banc en passant : le compte
+des espaces d'une ligne à deux espaces fait TROIS morceaux, pas quatre ; et
+le mot « espaces » est exigé dans la règle du modèle par un contrôle qui
+existait déjà — une reformulation qui l'oublie rougit à bon droit.
+
 ---
 
 ## {evolutions-successives} — deux évolutions de suite, la synthèse des deux schémas (Seconde, septembre 2026)
