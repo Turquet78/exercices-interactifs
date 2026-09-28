@@ -607,7 +607,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -966,7 +966,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
       large (flex column + align-items:stretch), sinon numerateur et denominateur
       ne seraient plus alignes des que l'un des deux s'allonge. --- */
-#pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#adxHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#hscHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
+#pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#adxHost math-field.pm-mf,#ddxHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#hscHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
 #pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#hscHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input,#ckHost .f-frac-input{align-items:stretch;}
 #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den,#ckHost .f-num,#ckHost .f-den{
   width:auto;min-width:96px;max-width:320px;}
@@ -980,9 +980,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    lignes empilées (10 %, puis 5 % le cas échéant, puis le pourcentage
    cherché) : chacune garde la même taille mots/case qu'en 2.1.8.
    {augmenter-taux-dix} (2.2.12) reprend la même convention, elle aussi sur
-   plusieurs lignes empilées. */
-#pxHost .pct10-ligne,#atdHost .pct10-ligne,#pdtHost .pct10-ligne{font-size:1.6rem;font-family:"Fredoka";font-weight:500;color:var(--ink);line-height:1.6;text-align:center;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:8px;row-gap:4px;}
-#pxHost .pct10-ligne math-field.pm-mf,#atdHost .pct10-ligne math-field.pm-mf,#pdtHost .pct10-ligne math-field.pm-mf{font-size:calc(1.6rem * var(--tab-nb,1));vertical-align:baseline;}
+   plusieurs lignes empilées. {diminuer-taux-dix} (miroir sur les baisses,
+   septembre 2026) la reprend à son tour. */
+#pxHost .pct10-ligne,#atdHost .pct10-ligne,#pdtHost .pct10-ligne,#ddtHost .pct10-ligne{font-size:1.6rem;font-family:"Fredoka";font-weight:500;color:var(--ink);line-height:1.6;text-align:center;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:8px;row-gap:4px;}
+#pxHost .pct10-ligne math-field.pm-mf,#atdHost .pct10-ligne math-field.pm-mf,#pdtHost .pct10-ligne math-field.pm-mf,#ddtHost .pct10-ligne math-field.pm-mf{font-size:calc(1.6rem * var(--tab-nb,1));vertical-align:baseline;}
 #pdtHost .pct10-ligne{margin:14px 0;}
 /* {pourcentage-dix-cascade} (2.1.9) : sept rangées (10 % puis les six autres
    pourcentages) s'enchaînaient collées les unes aux autres (demande de
@@ -992,14 +993,19 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* {augmenter-dix} (2.2.11, demande de Turquet, septembre 2026 : « espacé les
    lignes entre elles ») : même écart que {pourcentage-dix-cascade} — l'écart
    ne vaut que pour #adxHost, .pt-row sert à d'autres exercices sans qu'il
-   faille tous les espacer. */
+   faille tous les espacer. {diminuer-dix} (miroir sur les baisses,
+   septembre 2026) reprend le même écart, scopé à #ddxHost. */
 #adxHost .pt-row{margin:10px 0;}
+#ddxHost .pt-row{margin:10px 0;}
 /* {augmenter-taux-dix} (2.2.12, refonte de septembre 2026) : les lignes
    s'espacent PLUS que chez {pourcentage-dix-taux} (demande de Turquet,
    « espacer les lignes un peu plus ») — deux flèches ET une phrase plus
    longue (l'augmentation y est nommée en toutes lettres) ont besoin de plus
    de respiration que la version courte du 2.1.10. */
 #atdHost .pct10-ligne{margin:16px 0;}
+/* {diminuer-taux-dix} (miroir de {augmenter-taux-dix} sur les baisses,
+   septembre 2026) : même écart que #atdHost. */
+#ddtHost .pct10-ligne{margin:16px 0;}
 /* Les flèches de la fiche papier (2.1.10, demande de Turquet, PDF « 3e méthode
    retrouver un pourcentage ») : la ligne CIBLE (« On multiplie par ... : donc ... »)
    gagne de la place au-dessus d'elle pour que les deux traits courbes aient où
@@ -1013,6 +1019,12 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #atdHost.atd-fl .pct10-fl-cible{margin-top:30px}
 #atdHost.atd-fl{position:relative}
 #atdHost .atd-fleches{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+/* Copie conforme pour {diminuer-taux-dix} (miroir sur les baisses,
+   septembre 2026) — même piège, même garde : voir le commentaire ci-dessus
+   pour {pourcentage-dix-taux}. */
+#ddtHost.ddt-fl .pct10-fl-cible{margin-top:30px}
+#ddtHost.ddt-fl{position:relative}
+#ddtHost .ddt-fleches{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
 /* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
    (apres « 1, », « 0, ») : plus courtes. */
 #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:82px;}
@@ -1711,6 +1723,38 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : DIMINUER EN PASSANT PAR 10 % -->
+  <section class="screen" id="scr-ddx">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagDDX"></span><span class="q-idx" id="ddxIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="ddxLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="ddxPrompt">Diminuer un prix en passant par 10 %.</p>
+      <div class="mp-stage"><div style="width:100%" id="ddxHost"></div></div>
+      <div class="mp-feedback" id="ddxFeedback"></div>
+      <div class="row" style="justify-content:center" id="ddxActions">
+        <button class="btn btn-primary" onclick="checkDdxAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEST : RETROUVER LE POURCENTAGE D'UNE BAISSE EN PASSANT PAR 10 % -->
+  <section class="screen" id="scr-ddttest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagDDT"></span><span class="q-idx" id="ddtIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="ddtLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="enonce" id="ddtPrompt">Retrouver le pourcentage d’une baisse en passant par 10 %.</p>
+      <div class="mp-stage"><div style="width:100%" id="ddtHost"></div></div>
+      <div class="mp-feedback" id="ddtFeedback"></div>
+      <div class="row" style="justify-content:center" id="ddtActions">
+        <button class="btn btn-primary" onclick="checkDdtAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-fptest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagFP"></span><span class="q-idx" id="fpqIdx">Question 1 / 6</span></span>
@@ -2188,7 +2232,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=256;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=257;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2586,6 +2630,8 @@ const TESTS={
   'pourcentage-dix-taux':{ name:'Retrouver le pourcentage en passant par 10 %', icon:'\ud83e\udded', desc:'Troisi\u00e8me m\u00e9thode pour retrouver un pourcentage, comme sur la fiche de cours : on donne la valeur initiale et le r\u00e9sultat, sans le pourcentage. Pars de 10 % du nombre, comme dans {pourcentage-dix}, puis multiplie ou divise pour retrouver le pourcentage cherch\u00e9 \u2014 sans les quatre propositions de {pourcentage-taux}.', start:()=>startPdt() },
   'augmenter-taux-dix':  { name:'Retrouver le pourcentage d\u2019une augmentation en passant par 10 %', icon:'\ud83d\udcb9', desc:'Comme {augmenter-taux-addition}, mais par la m\u00e9thode de {pourcentage-dix-cascade} : calcule l\u2019\u00e9cart, trouve 10 % de la valeur de d\u00e9part \u2014 et 5 % quand le pourcentage cherch\u00e9 se termine par un 5 \u2014 puis retrouve le pourcentage d\u2019augmentation.', start:()=>startAtd() },
   'augmenter-dix': { name:'Augmenter en passant par 10 %', icon:'\u2795', desc:'La m\u00eame m\u00e9thode qu\u2019en {pourcentage-dix} et {pourcentage-dix-cascade}, appliqu\u00e9e \u00e0 une augmentation : pars de 10 % du prix, retrouve le pourcentage demand\u00e9 en t\u2019appuyant dessus, puis calcule le nouveau prix \u2014 sans coefficient multiplicateur.', start:()=>startAdx() },
+  'diminuer-taux-dix':  { name:'Retrouver le pourcentage d\u2019une baisse en passant par 10 %', icon:'\ud83d\udcbb', desc:'Comme {diminuer-taux-soustraction}, mais par la m\u00e9thode de {pourcentage-dix-cascade} : calcule l\u2019\u00e9cart, trouve 10 % de la valeur de d\u00e9part \u2014 et 5 % quand le pourcentage cherch\u00e9 se termine par un 5 \u2014 puis retrouve le pourcentage de baisse.', start:()=>startDdt() },
+  'diminuer-dix': { name:'Diminuer en passant par 10 %', icon:'\u2796', desc:'La m\u00eame m\u00e9thode qu\u2019en {pourcentage-dix} et {pourcentage-dix-cascade}, appliqu\u00e9e \u00e0 une baisse : pars de 10 % du prix, retrouve le pourcentage demand\u00e9 en t\u2019appuyant dessus, puis calcule le nouveau prix \u2014 sans coefficient multiplicateur.', start:()=>startDdx() },
   'augmenter-taux-addition':{ name:'Retrouver le pourcentage d\u2019une hausse en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage d\u2019augmentation parmi quatre, puis vérifie-le en calculant l\u2019augmentation et en l\u2019ajoutant à la valeur de départ.', start:()=>startAugTauxAdd() },
   'diminuer-soustraction':{ name:'Diminuer d\u2019un pourcentage en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'➖', desc:'Calcule d\u2019abord la baisse (le pourcentage de la valeur, comme en {pourcentage}), puis retire-la de la valeur de départ — sans coefficient multiplicateur.', start:()=>startDimSub() },
   'diminuer-depart-soustraction':{ name:'Retrouver la valeur initiale apr\u00e8s une baisse en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'🔁', desc:'On donne le pourcentage de baisse et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis vérifie-la en calculant la baisse et en la retirant de la valeur de départ.', start:()=>startDimDepSub() },
@@ -2637,7 +2683,7 @@ const THEMES=[
   { num:2, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre','pourcentage-dix','pourcentage-dix-cascade','pourcentage-dix-taux'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre','augmenter-dix','augmenter-taux-dix'] },
-      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre'] },
+      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre','diminuer-dix','diminuer-taux-dix'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
@@ -2748,7 +2794,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -2941,6 +2987,8 @@ function liveCheckCurrent(){
   else if(k==='atd') checkAtdAnswer(true);
   else if(k==='pdt') checkPdtAnswer(true);
   else if(k==='adx') checkAdxAnswer(true);
+  else if(k==='ddt') checkDdtAnswer(true);
+  else if(k==='ddx') checkDdxAnswer(true);
   else if(k==='pctq') checkQAnswer(true);
   else if(k==='md') checkMDAnswer(true);
   else if(k==='u') checkUAnswer(true);
@@ -3581,7 +3629,7 @@ function rejouerSignalement(id){
 function afficherEcranDe(k){
   const table={
     asp:['asptest',renderASPTest],
-    mp:['mtest',renderMTest], fracp:['ftest',renderFTest], pct:['ptest',renderPTest], pct10:['pct10',renderPct10], pdc:['pdc',renderPdc], atd:['atdtest',renderAtd], pdt:['pdt',renderPdt], adx:['adx',renderAdx],
+    mp:['mtest',renderMTest], fracp:['ftest',renderFTest], pct:['ptest',renderPTest], pct10:['pct10',renderPct10], pdc:['pdc',renderPdc], atd:['atdtest',renderAtd], pdt:['pdt',renderPdt], adx:['adx',renderAdx], ddt:['ddttest',renderDdt], ddx:['ddx',renderDdx],
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
@@ -3789,7 +3837,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','sf','psl','sal'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','sf','psl','sal'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -6994,6 +7042,391 @@ async function finishAtd(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-taux-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+
+/* ============ {diminuer-dix} : diminuer en passant par 10 % ==============
+   Miroir de {augmenter-dix} (2.2.11) sur les BAISSES (demande de Turquet,
+   septembre 2026 : « en Première, les mêmes exercices que les 2.2.11 et
+   2.2.12, mais avec des diminutions »). Même tirage de N (genAdxN, TROIS
+   familles : elles ne fixent que la parité de N/10, pas le sens de
+   l'évolution), mêmes trois formes de pourcentage cherché (un multiple de
+   dix, 5 % — la moitié de 10 % —, ou 15 % = 10 % + 5 %) : seule la DERNIÈRE
+   ligne change de sens, prix diminué = prix de départ − baisse au lieu de
+   prix de départ + augmentation. La pose facultative suit donc, elle
+   aussi, {diminuer-soustraction} (2.3.2) plutôt que {augmenter-dix} :
+   `updateDdxStep6` appelle `poseOpEleveMAJ` avec `neg:true` (soustraction
+   posée), qui ne s'affiche que si les deux nombres tapés par l'élève sont
+   des entiers — comme pour toute soustraction posée de ce fichier, ce
+   n'est jamais la case qui compte. */
+const DDX_ENONCES=[
+  q=>`On diminue un prix de <b>${q.N} €</b> de <b>${q.P} %</b>, en passant d’abord par 10 %.`,
+  q=>`Le prix de <b>${q.N} €</b> diminue de <b>${q.P} %</b>. Retrouve la baisse, puis le nouveau prix, en passant par 10 %.`,
+  q=>`Diminue <b>${q.N} €</b> de <b>${q.P} %</b>, comme sur la fiche de méthode, en passant par 10 %.`,
+  q=>`Calcule la baisse de <b>${q.P} %</b> sur un prix de <b>${q.N} €</b>, en commençant par 10 %.`,
+  q=>`Sur un prix de <b>${q.N} €</b>, applique une baisse de <b>${q.P} %</b> en passant par 10 %.`
+];
+function genDdx(fam){
+  const N=genAdxN(fam), D=N/10;
+  const type=pick(['mult10','cinq','quinze']);
+  let P, lignes;
+  if(type==='mult10'){
+    P=pick([20,30,40,50,60,70,80,90]);
+    lignes=[{P,val:N*P/100}];   /* N*P/100, jamais D*(P/10) : voir le commentaire de genAdx */
+  } else if(type==='cinq'){
+    P=5; lignes=[{P,val:N*5/100}];
+  } else {
+    const val5=N*5/100;
+    P=15; lignes=[{P:5,val:val5},{P:15,val:N*15/100}];
+  }
+  const baisse=lignes[lignes.length-1].val;
+  const total=N-baisse;
+  const q={N,P,D,lignes,baisse,total};
+  q.v=tirerVariante(DDX_ENONCES,q);
+  return q;
+}
+async function startDdx(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='ddx';
+  const ddxFams=qdMelanger(['trois','deux','unite']);
+  test.questions=distinctes(EVOL_NB,(_,i)=>genDdx(ddxFams[i%ddxFams.length]));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=test.questions.length;
+  show('ddx'); renderDdx();
+}
+function updateDdxStep6(){
+  const q=test.questions&&test.questions[test.idx]; if(!q) return;
+  poseOpEleveMAJ({step:'ddxStep6',host:'ddxMul',aId:'ddxA',bId:'ddxB',neg:true});
+}
+function renderDdx(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('ddxIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagDDX').innerHTML=modeTagHTML();
+  $('ddxLiveScore').textContent=test.score;
+  $('ddxFeedback').textContent=''; $('ddxFeedback').className='mp-feedback';
+  $('ddxActions').innerHTML='<button class="btn btn-primary" onclick="checkDdxAnswer()">Vérifier</button>';
+  $('ddxPrompt').innerHTML=variante(DDX_ENONCES,q);
+  const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const fracFixe=(n,d)=>`<span class="f-whole">${mlTex('\\frac{'+n+'}{'+d+'}', n+'/'+d)}</span>`;
+  const ligneBase=`<div class="pt-row"><span class="f-whole">On commence par 10 % de ${q.N} €</span>${fEq(fracFixe(q.N,10))}${fEq(dec('ddx0','dix pour cent de '+q.N))}<span class="f-whole">€</span></div>`;
+  const lignesBaisse=q.lignes.map(l=>
+    `<div class="pt-row"><span class="f-whole">donc : la baisse de ${l.P} % de ${q.N} € est</span>${dec('ddxP'+l.P,l.P+' % de '+q.N)}<span class="f-whole">€</span></div>`
+  ).join('');
+  const ligneTot=`<div class="pt-row"><span class="f-whole">donc : le prix diminué est</span>${dec('ddxA','prix de départ')}<span class="f-whole">−</span>${dec('ddxB','baisse')}${fEq(dec('ddxC','prix diminué'))}<span class="f-whole">€</span></div>`;
+  const pose='<div class="mp-op" id="ddxMul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseOpEleveMAJ) */
+  $('ddxHost').innerHTML=`<div class="pt-step">${ligneBase}${lignesBaisse}${ligneTot}</div>`+
+    `<div class="pt-step pt-opt step-hidden" id="ddxStep6"><div class="pt-lab">Pose la soustraction en colonnes</div>
+       <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
+  const posedIns=[...$('ddxMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=['ddx0'].concat(q.lignes.map(l=>'ddxP'+l.P)).concat(['ddxA','ddxB','ddxC']).map(id=>$(id)).concat(posedIns);
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(!el) return;
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(['ddxA','ddxB'].includes(el.id)){ el.addEventListener('input',updateDdxStep6); el.addEventListener('focusout',updateDdxStep6); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkDdxAnswer();} });
+  });
+  updateDdxStep6();
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkDdxAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  if(live){
+    liveColorDec('ddx0',q.D,1);
+    q.lignes.forEach(l=>liveColorDec('ddxP'+l.P,l.val,1));
+    liveColorDec('ddxA',q.N,1); liveColorDec('ddxB',q.baisse,1); liveColorDec('ddxC',q.total,1);
+    [...$('ddxMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    return;
+  }
+  const v=id=>$(id).value.trim();
+  const egal=(id,val)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n===val*fr.d; };
+  const ok0=egal('ddx0',q.D);
+  const oksLignes=q.lignes.map(l=>egal('ddxP'+l.P,l.val));
+  const okA=egal('ddxA',q.N), okB=egal('ddxB',q.baisse), okC=egal('ddxC',q.total);
+  const soutien=isSoutien();
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');if(v(id)!=='')el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  mark('ddx0',ok0);
+  q.lignes.forEach((l,i)=>mark('ddxP'+l.P, oksLignes[i]));
+  mark('ddxA',okA); mark('ddxB',okB); mark('ddxC',okC);
+  /* pose facultative : mêmes règles que la pose de {diminuer-soustraction} (2.3.2) */
+  const host=$('ddxMul');
+  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
+  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
+  if(engaged){
+    boxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+    });
+    carries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv==='') return;
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+    });
+  } else {
+    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+  }
+  const allOk = ok0 && oksLignes.every(Boolean) && okA && okB && okC;   /* pose facultative non comptée */
+  if(!allOk && soutien){ soutienAgain('ddxFeedback','ddxActions','checkDdxAnswer','ddxHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('ddxLiveScore').textContent=test.score;
+    $('ddxFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('ddxFeedback').className='mp-feedback good';
+  } else {
+    const detail=q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ');
+    $('ddxFeedback').textContent=`Réponse : 10 % = ${q.D} ; ${detail} € ; prix diminué = ${q.N} − ${q.baisse} = ${q.total} € (toute écriture égale est acceptée)`; $('ddxFeedback').className='mp-feedback bad';
+    corTrainDec('ddx0',String(q.D).replace('.',','));
+    q.lignes.forEach(l=>corTrainDec('ddxP'+l.P,String(l.val).replace('.',',')));
+    corTrainDec('ddxA',String(q.N).replace('.',','));
+    corTrainDec('ddxB',String(q.baisse).replace('.',','));
+    corTrainDec('ddxC',String(q.total).replace('.',','));
+  }
+  const enonce=`baisse de ${q.P} % sur ${q.N} € en passant par 10 %`;
+  const answer=`10 % = ${q.D} ; `+q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ')+` ; ${q.N} − ${q.baisse} = ${q.total} €`;
+  const given=`10 % = ${v('ddx0')||'∅'} ; `+q.lignes.map(l=>`${l.P} % = ${v('ddxP'+l.P)||'∅'}`).join(' ; ')+` ; ${v('ddxA')||'∅'} − ${v('ddxB')||'∅'} = ${v('ddxC')||'∅'}`;
+  test.answers.push({...(ptsExo()||{}),q:enonce, answer, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('ddxActions').innerHTML=`<button class="btn btn-primary" id="ddxNext" onclick="nextDdxQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('ddxNext').focus();
+}
+function nextDdxQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderDdx(); autoSave(); } else finishDdx(); }
+async function finishDdx(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+
+/* ============ {diminuer-taux-dix} : retrouver le pourcentage d'une baisse
+   en passant par 10 % — miroir de {augmenter-taux-dix} (2.2.12) sur les
+   BAISSES (même demande de Turquet que {diminuer-dix} ci-dessus). Même
+   tirage de N et de P (genAtdN, ATD_PCTS_DIX, ATD_PCTS_CINQ : ils ne
+   dépendent pas du signe), même présentation à deux lignes fléchées
+   (copies conformes de atdPoints/atdDessinerFleches — voir leur
+   commentaire pour le piège du redessin retardé sur une question déjà
+   changée) et même contexte (AUGQ_CTX/augqTirerCtx, partagé avec
+   {augmenter-taux-dix}) : seule la valeur finale change de sens (N − fin
+   au lieu de fin − N) et les phrases parlent de baisse, en reprenant les
+   tournures DÉJÀ écrites pour {diminuer-taux-soustraction} et la synthèse
+   (DIMQ_EN_PCT) plutôt que d'en inventer de nouvelles. */
+function genDdt(){
+  const besoinCinq = Math.random()<0.5;
+  const P = besoinCinq ? pick(ATD_PCTS_CINQ) : pick(ATD_PCTS_DIX);
+  const N = genAtdN(besoinCinq);
+  const dix=N/10, cinq=besoinCinq?N/20:null, baisse=N*P/100, fin=N-baisse;
+  const k=besoinCinq?(P/5):(P/10);
+  const ci=augqTirerCtx(N);
+  const q={P,N,dix,cinq,baisse,fin,besoinCinq,k,unit:AUGQ_CTX[ci].u,ci,decStr:String(fin)};
+  q.v=rand(0,DIMQ_EN_PCT.length-1);
+  return q;
+}
+async function startDdt(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='ddt';
+  test.questions=distinctes(EVOL_NB,genDdt);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=test.questions.length;
+  show('ddttest'); renderDdt();
+}
+let ddtRedessine=null;
+function renderDdt(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('ddtIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagDDT').innerHTML=modeTagHTML();
+  $('ddtLiveScore').textContent=test.score;
+  $('ddtFeedback').textContent=''; $('ddtFeedback').className='mp-feedback';
+  $('ddtActions').innerHTML='<button class="btn btn-primary" onclick="checkDdtAnswer()">Vérifier</button>';
+  $('ddtPrompt').innerHTML=variante(DIMQ_EN_PCT,q)+' Retrouve le pourcentage de baisse, en passant par 10 %.';
+  const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const hasK=!q.besoinCinq || q.P!==5;
+  /* La ligne de l'écart, EN LIGNE, TOUJOURS en tête — voir le commentaire de
+     renderAtd pour la raison : elle ne se confond pas avec la soustraction
+     FACULTATIVE posée en colonnes plus bas (ddtSub). */
+  let html=`<div class="pct10-ligne">${augqCtx(q).s} a diminué de <b>${q.N}</b> − <b>${q.fin}</b> = ${dec('ddt1','la baisse en '+q.unit)} ${esc(q.unit)}</div>`;
+  html+=`<div class="pct10-ligne"><b id="ddtFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} est : ${dec('ddt0','dix pour cent en '+q.unit)} ${esc(q.unit)}</div>`;
+  const orderIds=['ddt1','ddt0'];
+  const donc=`donc le pourcentage de baisse est de ${dec('ddtP','le pourcentage cherché')}&nbsp;%.`;
+  if(q.besoinCinq){
+    html+=`<div class="pct10-ligne"><b id="ddtFlPct5">5</b>&nbsp;% de <b>${q.N}</b> ${esc(q.unit)} est : ${dec('ddt5','cinq pour cent en '+q.unit)} ${esc(q.unit)}</div>`;
+    orderIds.push('ddt5');
+    if(hasK){
+      html+=`<div class="pct10-ligne pct10-fl-cible">On multiplie par ${dec('ddtK','facteur qui donne le pourcentage cherché')} : ${donc}</div>`;
+      orderIds.push('ddtK','ddtP');
+    } else {
+      html+=`<div class="pct10-ligne">${donc}</div>`;
+      orderIds.push('ddtP');
+    }
+  } else {
+    html+=`<div class="pct10-ligne pct10-fl-cible">On multiplie par ${dec('ddtK','facteur qui donne le pourcentage cherché')} : ${donc}</div>`;
+    orderIds.push('ddtK','ddtP');
+  }
+  /* La soustraction facultative : ses deux opérandes (N, fin) sont déjà
+     connus, elle se construit donc une fois pour toutes, jamais cachée. */
+  html+=`<div class="pt-step pt-opt" id="ddtStepSub"><div class="pt-lab">Pose la soustraction en colonnes : ${q.N} − ${q.fin}</div><div class="pt-row" style="padding:8px 0 14px"><div class="mp-op" id="ddtSub"></div></div></div>`;
+  $('ddtHost').innerHTML=html;
+  const tmpSub=document.createElement('div');
+  tmpSub.innerHTML=buildPoseSub(q.N,q.fin,'__ddt_pose_tmp');
+  $('ddtSub').innerHTML=tmpSub.firstElementChild.innerHTML;
+  /* Les flèches, comme en {augmenter-taux-dix} : deux traits courbes,
+     MESURÉS dans la page, relient le « 10 % » (ou « 5 % ») de départ à la
+     case du pourcentage cherché. Aucune flèche quand le pourcentage
+     cherché EST 5 % : il n'y a alors aucune multiplication à montrer. */
+  $('ddtHost').classList.toggle('ddt-fl',hasK);
+  if(ddtRedessine){ window.removeEventListener('resize', ddtRedessine); ddtRedessine=null; }
+  if(hasK){
+    ddtRedessine=function(){ if(test.kind==='ddt' && $('ddtHost')) ddtDessinerFleches(); };
+    window.addEventListener('resize', ddtRedessine);
+    setTimeout(ddtDessinerFleches, 60);
+    setTimeout(ddtDessinerFleches, 240);   /* MathLive finit de poser ses cases */
+  }
+  const posedIns=[...$('ddtSub').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=orderIds.map(id=>$(id)).concat(posedIns);
+  order.forEach((el,i)=>{
+    if(!el) return;
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value&&i+1<order.length)order[i+1].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value&&i>0){order[i-1].focus();} });
+    }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkDdtAnswer();} });
+  });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* Copies conformes de atdPoints/atdDessinerFleches (2.2.12) — `pdtArc` est
+   entièrement générique et se réutilise TEL QUEL, sans copie. */
+function ddtPoints(){
+  const hote=$('ddtHost'); if(!hote) return null;
+  if(!hote.classList.contains('ddt-fl')) return null;
+  const q=test.questions[test.idx]; if(!q) return null;
+  const srcPct=$(q.besoinCinq?'ddtFlPct5':'ddtFlPct10'), dstPct=$('ddtP');
+  if(!srcPct || !dstPct) return null;
+  const R=hote.getBoundingClientRect();
+  const bordBas=el=>{ const r=el.getBoundingClientRect(); return {x:(r.left+r.right)/2-R.left, y:r.bottom-R.top}; };
+  const bordHaut=el=>{ const r=el.getBoundingClientRect(); return {x:(r.left+r.right)/2-R.left, y:r.top-R.top}; };
+  return {larg:R.width, haut:R.height, a1:bordBas(srcPct), b1:bordHaut(dstPct), op:q.k>=1?'×':'÷'};
+}
+function ddtDessinerFleches(){
+  const hote=$('ddtHost'); if(!hote) return;
+  const vieux=hote.querySelector('.ddt-fleches'); if(vieux) vieux.remove();
+  const p=ddtPoints(); if(!p || !p.larg) return;
+  const C=getComputedStyle(document.documentElement).getPropertyValue('--pdt-fl').trim()||'#7C3AED';
+  const fond=getComputedStyle(document.documentElement).getPropertyValue('--surface').trim()||'#fff';
+  const pointe='<marker id="ddt-p1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"'
+    +' orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="'+C+'"></path></marker>';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('class','ddt-fleches');
+  svg.setAttribute('viewBox','0 0 '+p.larg+' '+p.haut);
+  svg.setAttribute('width',p.larg); svg.setAttribute('height',p.haut);
+  svg.setAttribute('aria-hidden','true');
+  const milieu=(a,b)=>({x:(a.x+b.x)/2, y:(a.y+b.y)/2});
+  const etiquette=m=>'<text x="'+m.x.toFixed(1)+'" y="'+m.y.toFixed(1)+'" text-anchor="middle" dominant-baseline="middle"'
+    +' font-family="Fredoka" font-weight="600" font-size="15" fill="'+C+'" stroke="'+fond+'" stroke-width="4" paint-order="stroke">'+p.op+'</text>';
+  svg.innerHTML='<defs>'+pointe+'</defs>'+pdtArc(p.a1,p.b1,C,'ddt-p1')+etiquette(milieu(p.a1,p.b1));
+  hote.appendChild(svg);
+}
+function checkDdtAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  const v=id=>$(id).value.trim();
+  const hasK=!!$('ddtK');
+  if(live){
+    liveColorDec('ddt1',q.baisse,1);
+    liveColorDec('ddt0',q.dix,1);
+    if(q.besoinCinq) liveColorDec('ddt5',q.cinq,1);
+    if(hasK) liveColorDec('ddtK',q.k,1);
+    liveColorDec('ddtP',q.P,1);
+    [...$('ddtSub').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    return;
+  }
+  const fr1=parseDecToFrac(v('ddt1')); const ok1=!!fr1 && fr1.n===q.baisse*fr1.d;
+  const fr0=parseDecToFrac(v('ddt0')); const ok0=!!fr0 && fr0.n===q.dix*fr0.d;
+  let ok5=true;
+  if(q.besoinCinq){ const fr5=parseDecToFrac(v('ddt5')); ok5=!!fr5 && fr5.n===q.cinq*fr5.d; }
+  let okK=true;
+  if(hasK){ const frK=parseDecToFrac(v('ddtK')); okK=!!frK && frK.n===q.k*frK.d; }
+  const frP=parseDecToFrac(v('ddtP')); const okP=!!frP && frP.n===q.P*frP.d;
+  const soutien=isSoutien();
+  const mark=(id,ok)=>{ const el=$(id); if(!el) return; el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien; };
+  mark('ddt1',ok1);
+  mark('ddt0',ok0);
+  if(q.besoinCinq) mark('ddt5',ok5);
+  if(hasK) mark('ddtK',okK);
+  mark('ddtP',okP);
+  /* pose facultative : mêmes règles que la pose de {augmenter-taux-dix}
+     (2.2.12) et {diminuer-dix} — jamais comptée dans la note. */
+  const hostSub=$('ddtSub');
+  const boxes=[...hostSub.querySelectorAll('.mp-box')], carries=[...hostSub.querySelectorAll('.mp-carry')];
+  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
+  if(engaged){
+    boxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+    });
+    carries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv==='') return;
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+    });
+  } else {
+    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+  }
+  const allOk = ok1 && ok0 && ok5 && okK && okP;   /* pose facultative non comptée */
+  if(!allOk && soutien){ soutienAgain('ddtFeedback','ddtActions','checkDdtAnswer','ddtHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('ddtLiveScore').textContent=test.score;
+    $('ddtFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('ddtFeedback').className='mp-feedback good';
+  } else {
+    const detailCinq=q.besoinCinq?` ; 5 % de ${q.N} = ${q.cinq}`:'';
+    $('ddtFeedback').textContent=`Réponse : baisse = ${q.baisse} ${q.unit} ; 10 % de ${q.N} = ${q.dix}${detailCinq} ${q.unit} ; ${q.P} % de ${q.N} = ${q.baisse} ${q.unit} (toute écriture égale est acceptée)`;
+    $('ddtFeedback').className='mp-feedback bad';
+    corTrainDec('ddt1',String(q.baisse).replace('.',','));
+    corTrainDec('ddt0',String(q.dix).replace('.',','));
+    if(q.besoinCinq) corTrainDec('ddt5',String(q.cinq).replace('.',','));
+    if(hasK) corTrainDec('ddtK',String(q.k).replace('.',','));
+    corTrainDec('ddtP',String(q.P).replace('.',','));
+  }
+  const enonce=`pourcentage de baisse de ${q.N} à ${q.fin} ${q.unit}`;
+  const answer=`écart ${q.baisse} ; 10 % = ${q.dix}`+(q.besoinCinq?` ; 5 % = ${q.cinq}`:'')+` ; ${q.P} % de ${q.N} = ${q.baisse} ${q.unit}`;
+  const given=`écart ${v('ddt1')||'∅'} ; 10 % = ${v('ddt0')||'∅'}`+(q.besoinCinq?` ; 5 % = ${v('ddt5')||'∅'}`:'')+(hasK?` ; × ${v('ddtK')||'∅'}`:'')+` ; ${v('ddtP')||'∅'} %`;
+  test.answers.push({...(ptsExo()||{}),q:enonce, answer, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('ddtActions').innerHTML=`<button class="btn btn-primary" id="ddtNext" onclick="nextDdtQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('ddtNext').focus();
+}
+function nextDdtQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderDdt(); autoSave(); } else finishDdt(); }
+async function finishDdt(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-taux-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -15101,6 +15534,20 @@ Comme dans {pourcentage-dix} et {pourcentage-dix-cascade}, on part de <b>10 %</b
 <b>5 %, c’est la moitié de 10 %</b> : sur 50 €, 10 % = 5 €, donc 5 % = 2,5 €.<br>
 <b>15 % = 10 % + 5 %</b> : sur 50 €, 5 + 2,5 = 7,5 € d’augmentation.<br>
 On termine toujours en ajoutant l’augmentation trouvée au prix de départ : <b>prix augmenté = prix de départ + augmentation</b> — sur 50 € augmenté de 15 %, 50 + 7,5 = 57,5 €.`;
+const RAP_DDT=`<b>Retrouver le pourcentage d’une baisse, en passant par 10 %</b><br>
+On connaît la valeur de départ et la valeur d’arrivée, et on cherche le pourcentage de baisse — le chemin inverse de {diminuer-taux-soustraction}.<br>
+Exemple : un prix passe de 80 € à 60 €.<br>
+① La baisse : 80 − 60 = 20 €.<br>
+② 10 % de 80 € : \\(\\frac{80}{10}=8\\) €.<br>
+③ 20 €, c’est 8 € multiplié par 2,5 — pour éviter cela, on passe par 5 % : la moitié de 10 %, soit 4 €, et 20 € vaut 4 € multiplié par 5, donc 20 € représente 5 fois 5 %, soit <b>25 %</b>.<br>
+Quand le pourcentage cherché se termine par un 5 (5 %, 15 % ou 25 %), on ne le retrouve pas directement à partir de 10 % — le multiplicateur ne serait pas entier. On passe alors par <b>5 %, la moitié de 10 %</b>, puis on le multiplie par le bon nombre.<br>
+À retenir : une fois la baisse et 10 % trouvés, le pourcentage cherché est celui qui, multiplié par la valeur de 10 % (ou de 5 % quand il le faut), retombe sur la baisse.`;
+const RAP_DDX=`<b>Diminuer un prix en passant par 10 %</b><br>
+Comme dans {pourcentage-dix} et {pourcentage-dix-cascade}, on part de <b>10 %</b> du prix, obtenu en le divisant par 10.<br>
+<b>Si le pourcentage est un multiple de dix</b>, on multiplie 10 % autant de fois : diminuer <b>50 €</b> de <b>60 %</b>, c’est calculer \\(\\frac{50}{10}=5\\) €, puis 5 × 6 = 30 € de baisse.<br>
+<b>5 %, c’est la moitié de 10 %</b> : sur 50 €, 10 % = 5 €, donc 5 % = 2,5 €.<br>
+<b>15 % = 10 % + 5 %</b> : sur 50 €, 5 + 2,5 = 7,5 € de baisse.<br>
+On termine toujours en retirant la baisse trouvée du prix de départ : <b>prix diminué = prix de départ − baisse</b> — sur 50 € diminué de 15 %, 50 − 7,5 = 42,5 €.`;
 const RAP_PCTQ=`<b>Retrouver la valeur initiale ou le pourcentage</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
 <b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
@@ -15314,7 +15761,7 @@ Trois phrases, trois coefficients, et le même pourcentage P dans les trois :<br
 Un coefficient <b>plus grand que 1</b> fait monter, <b>plus petit que 1</b> fait descendre, et le pourcentage se lit sur l’<b>écart à 1</b> — c’est le chemin inverse, celui de {lire-coefficient}.<br>
 <b>Premier piège : confondre les trois.</b> Prendre 30 %, c’est n’en garder que 30 % (× 0,30) ; diminuer de 30 %, c’est en garder 70 % (× 0,70). Les deux font descendre, mais pas de la même chose.<br>
 <b>Second piège : la place de la virgule.</b> 30 % s’écrit 0,<b>30</b> et 3 % s’écrit 0,<b>03</b> : un pourcentage à un seul chiffre garde un zéro après la virgule. Multiplier par 1,03, c’est donc augmenter de 3 % et non de 30 %.`;
-const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX };
+const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -15350,6 +15797,8 @@ const QIA_SUGG={
   atd:["Comment retrouver un pourcentage d’augmentation à partir de 10 % ?","Pourquoi passe-t-on par 5 % quand le pourcentage se termine par un 5 ?","Comment calculer l’augmentation d’un prix ?","C’est quoi, un pourcentage ?"],
   pdt:["Comment retrouver un pourcentage sans passer par la fraction P/100 ?","Par quel nombre faut-il multiplier ou diviser 10 % ?","Pourquoi cherche-t-on d’abord 5 % quand le pourcentage se termine par un 5 ?","C’est quoi, un pourcentage ?"],
   adx:["Pourquoi 5 % est-il la moitié de 10 % ?","Comment retrouver 15 % à partir de 10 % et 5 % ?","Pourquoi ajoute-t-on l’augmentation au prix de départ à la fin ?","Comment vérifier que mon résultat est juste ?"],
+  ddt:["Comment retrouver un pourcentage de baisse à partir de 10 % ?","Pourquoi passe-t-on par 5 % quand le pourcentage se termine par un 5 ?","Comment calculer la baisse d’un prix ?","C’est quoi, un pourcentage ?"],
+  ddx:["Pourquoi 5 % est-il la moitié de 10 % ?","Comment retrouver 15 % à partir de 10 % et 5 % ?","Pourquoi retire-t-on la baisse au prix de départ à la fin ?","Comment vérifier que mon résultat est juste ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
   'pourcentage-synthese':["Comment savoir ce que la question me demande de retrouver ?","Comment tester une proposition ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","C’est quoi, un pourcentage ?"],
   psl:["Comment savoir ce que la question me demande de retrouver ?","Comment justifier ma réponse ?","Par quoi commencer mon calcul ?","C’est quoi, un pourcentage ?"],
@@ -15499,6 +15948,23 @@ function conseilCtxCourant(){
     att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.D+' (toute écriture égale convient) ; '+detail+' ; prix augmenté = '+q.N+' + '+q.aug+' = '+q.total+' € (pose en colonnes facultative). '
       +'Méthode enseignée, comme dans {pourcentage-dix} et {pourcentage-dix-cascade} : diviser le prix par 10 pour trouver 10 %, puis retrouver le pourcentage demandé en multipliant, divisant ou additionnant ce 10 % — un multiple de dix se trouve en multipliant 10 % ; 5 % en est la moitié ; 15 % = 10 % + 5 %. '
       +'On termine en AJOUTANT l’augmentation trouvée au prix de départ, comme en {augmenter-addition} : c’est cette dernière étape qui distingue cet exercice de {pourcentage-dix-cascade}, où l’on s’arrête au pourcentage.';
+  } else if(k==='ddt' && q){
+    const hasK=!q.besoinCinq || q.P!==5;
+    att='Exercice : '+augqCtx(q).s.toLowerCase()+' passe de '+q.N+' à '+q.fin+' '+q.unit+', on cherche le pourcentage de baisse par la méthode des 10 %. '
+      +'Réponses attendues, STRICTEMENT SECRÈTES : la baisse '+q.N+' − '+q.fin+' = '+q.baisse+' '+q.unit+' (ligne EN LIGNE, toujours en tête de la résolution) ; 10 % de '+q.N+' = '+q.dix+' '+q.unit
+      +(q.besoinCinq?(' ; 5 % de '+q.N+' = '+q.cinq+' '+q.unit):'')
+      +(hasK?(' ; on multiplie par '+q.k):'')
+      +' ; le pourcentage cherché est '+q.P+' % (toute écriture égale convient à chaque étape ; la soustraction posée EN COLONNES, plus bas, reste facultative et ne compte jamais dans la note). '
+      +'Méthode enseignée, comme dans {pourcentage-dix-taux} : diviser par 10 pour trouver 10 %, et — si le pourcentage cherché se termine par un 5 — diviser encore par 2 pour trouver 5 %. On cherche ensuite par QUEL nombre multiplier ce pourcentage connu (10 % ou 5 %) pour retomber sur la baisse donnée dans l’énoncé, et on applique ce même nombre au pourcentage pour trouver celui qui est cherché. '
+      +(q.besoinCinq
+        ? ('Ici le pourcentage cherché ('+q.P+' %) se termine par un 5 : le multiplicateur direct depuis 10 % ne serait pas entier, donc on passe D’ABORD par 5 % (la moitié de 10 %, '+q.cinq+' '+q.unit+')'+(hasK?(', puis on le multiplie par '+q.k+' pour atteindre '+q.P+' %.'):' — et cela suffit, '+q.P+' % EST 5 %, aucune flèche « multiplication » ne s’affiche.'))
+        : ('Ici '+q.P+' % s’obtient en multipliant 10 % par '+q.k+'.'))
+      +' Ne révèle jamais le pourcentage cherché directement : oriente vers l’étape qui bloque, dans l’ordre où elle se présente à l’écran.';
+  } else if(k==='ddx' && q){
+    const detail=q.lignes.map(function(l){ return l.P+' % = '+l.val; }).join(' ; ');
+    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.D+' (toute écriture égale convient) ; '+detail+' ; prix diminué = '+q.N+' − '+q.baisse+' = '+q.total+' € (pose en colonnes facultative). '
+      +'Méthode enseignée, comme dans {pourcentage-dix} et {pourcentage-dix-cascade} : diviser le prix par 10 pour trouver 10 %, puis retrouver le pourcentage demandé en multipliant, divisant ou additionnant ce 10 % — un multiple de dix se trouve en multipliant 10 % ; 5 % en est la moitié ; 15 % = 10 % + 5 %. '
+      +'On termine en RETIRANT la baisse trouvée du prix de départ, comme en {diminuer-soustraction} : c’est cette dernière étape qui distingue cet exercice de {pourcentage-dix-cascade}, où l’on s’arrête au pourcentage.';
   } else if(k==='pctq' && q){
     const lettres=['a','b','c','d'];
     const lbl=function(v){ return (q.type==='pct')?(v+' %'):(v+' '+q.unit); };
@@ -15855,7 +16321,7 @@ function pmJetons(scr){
   if(cible) cible.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAtd','renderPdt','renderAdx','renderQTest','renderATest',
+  const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
               'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
