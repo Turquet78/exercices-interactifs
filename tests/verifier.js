@@ -9913,6 +9913,14 @@ function suiteVariationRecurrence(w, P){
     if(ligneRouge(0)||document.getElementById('svrSheet').classList.contains('bad')) dit('une ligne qui ne porte que « f ′(x) = » rougit : une copie vide ne rougit jamais');
     /* le bord de la source : la coupe vit dans derMembres, et derVerdict y passe */
     if(String(derVerdict).indexOf('derMembres')<0) dit('derVerdict ne coupe plus ses lignes sur « = » (derMembres)');
+    /* Les caractères INVISIBLES (espace de largeur nulle, trait d'union
+       conditionnel, BOM) rendaient une dérivée juste illisible sans qu'aucune
+       trace ne le dise : la compilation les ignore. */
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    feuille(['(0*(4-x)-(-1)*3)/(4\u200b-x)^2=\u00ad3/(4-x)\ufeff^2']);
+    checkSVR();
+    if(ligneRouge(0)) dit('un caractère invisible (U+200B, U+00AD, U+FEFF) dans une dérivée juste la fait rougir');
+    if(test.score!==1) dit('un caractère invisible dans une dérivée juste fait perdre le point');
 
     /* ---- 7 ter. LES CASES FACULTATIVES sont jugées, et ne comptent PAS.
             Le 2.5 les tient hors de la note ; ici la note se lit à l’écran,
