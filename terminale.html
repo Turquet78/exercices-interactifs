@@ -3000,7 +3000,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=346;
+const APP_VERSION=347;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -9132,7 +9132,11 @@ function exprToHtml(str){
 
 /* Évaluateur d'expressions gérant l'exponentielle e^(...) — renvoie une fonction ou null. */
 function compileExprExp(raw){
-  let s=String(raw).toLowerCase().trim();
+  /* Les caractères INVISIBLES (espace de largeur nulle, trait d'union
+     conditionnel, marques de direction, BOM, caractères de contrôle) ne se
+     voient ni à l'écran ni dans une console : ils rendaient nulle la compilation
+     d'une expression par ailleurs juste, sans qu'aucune trace ne le dise. */
+  let s=String(raw).replace(/[\u0000-\u001f\u007f-\u009f\u00ad\u200b-\u200f\u2028-\u202e\u2060-\u2064\ufeff]/g,'').toLowerCase().trim();
   if(s==='') return null;
   s=s.replace(/,/g,'.');
   const sup='\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079';
@@ -19192,7 +19196,14 @@ function derVerdict(feuille, fder){
      le LaTeX brut, sa lecture en clair, ses membres — c'est la seule trace
      qui permette de comprendre un refus qu'aucun banc ne reproduit (le 6.2.5,
      septembre 2026 : trois captures, aucun rejeu rouge). Jamais à l'élève. */
-  lg.forEach(function(x){ if(!x.ok){ try{ console.warn('feuille de la dérivée — ligne refusée', { latex:String(x.L.mf.getValue?x.L.mf.getValue():''), lu:x.plain, membres:x.membres, version:APP_VERSION }); }catch(e){} } });
+  lg.forEach(function(x){ if(!x.ok){ try{
+    const X=0.37;
+    console.warn('feuille de la dérivée — ligne refusée', {
+      latex:String(x.L.mf.getValue?x.L.mf.getValue():''), lu:x.plain, membres:x.membres, version:APP_VERSION,
+      codes:x.membres.map(function(m){ return Array.from(m).map(function(c){ return c.charCodeAt(0); }).join(' '); }),
+      attendu_en_0_37:fder(X),
+      lus_en_0_37:x.membres.map(function(m){ const f=compileExprExp(m); if(!f) return 'ne compile pas'; try{ return f(X); }catch(e){ return 'erreur : '+e.message; } })
+    }); }catch(e){} } });
   return { lignes:lg, vide:lg.length===0,
            ok:lg.length>0 && lg.every(function(x){ return x.ok; }) };
 }
