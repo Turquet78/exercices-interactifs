@@ -287,7 +287,12 @@ module.exports = {
        qui pose des chaînes qu'il écrit lui-même, ne mesure pas cela. Il tient
        aussi le bord du VERDICT : le double répond toujours « correct:false »,
        et le juge de la page doit primer. */
-    syntheseRedigee: { exercice: 'synthese-pourcentages-libre' },
+    syntheseRedigee: { exercice: 'synthese-pourcentages-libre',
+                       /* {synthese-diminutions-libre-dix} (2.3.13) : la barre
+                          d'espace ÉCRIT une espace (l'élève y rédige en mots),
+                          et SORT toujours d'une fraction — rien de cela ne se
+                          voit hors d'un vrai MathLive */
+                       dix: 'synthese-diminutions-libre-dix' },
     /* Le pavé numérique compact de la Première sert AUSSI ses cases MathLive
        (champsMaths = PAVE_MF dans la page — deux sources) : toutes ses cases
        pm-mf n'attendent qu'un nombre. Le banc navigateur en tape une pour de

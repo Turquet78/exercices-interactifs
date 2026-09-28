@@ -2246,7 +2246,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=260;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=261;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9645,11 +9645,46 @@ function renderSal(){
        <div class="pt-choix" id="salChoix">${choix}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">justifie ta réponse — ${salVoiesTexte(sens,null,!!q.dix)}</div>
        <div class="dexp2-sheet" id="salSheet"></div>
-       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}.${q.dix?' En passant par 10 %, écris « 10 % = … » (la touche <b>%</b> est sur le clavier), puis « … % = … », puis '+(neg?'la soustraction':'l’addition')+' ; pour retrouver un pourcentage, « écart = … » et « '+(neg?'diminution':'augmentation')+' de … % » s’écrivent en mots.':''} Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
+       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}.${q.dix?' En passant par 10 %, écris « 10 % = … » (la touche <b>%</b> est sur le clavier), puis « … % = … », puis '+(neg?'la soustraction':'l’addition')+' ; pour retrouver un pourcentage, « écart = … » et « '+(neg?'diminution':'augmentation')+' de … % » s’écrivent en mots, la barre d’espace écrit une espace.':''} Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
   /* Les lignes sont INDÉPENDANTES : pas de préfixe « = » qui les enchaîne —
      la voie de l'augmentation demande deux égalités séparées. La feuille naît
      toujours VISIBLE (la leçon de mlFeuille), et reste intouchée. */
   salFeuille=mlFeuille({ conteneur:'salSheet', mode:'calcul', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
+  if(q.dix) salEspaces(salFeuille);   /* 2.3.13 : l'élève écrit des MOTS, la barre d'espace écrit une espace */
+}
+/* {synthese-diminutions-libre-dix} : LA BARRE D'ESPACE ÉCRIT UNE ESPACE
+   (demande de Turquet, septembre 2026 : « il faut afficher les espaces quand
+   on appuie sur espace »). La feuille est en mode « calcul », où MathLive
+   AVALE l'espace — sa convention veut qu'elle SORTE d'un indice ou d'une
+   fraction, et n'écrive rien ailleurs. Un élève qui tape « diminution de
+   30 % » voyait « diminutionde30% ». On pose donc mathModeSpace sur chaque
+   ligne — celles qui existent, et celles qui naîtront par « Entrée », d'où
+   l'enveloppe autour de F.ajouterLigne — sans toucher à mlFeuille, qui est le
+   MÊME TEXTE dans les trois fichiers. Et l'espace SORT toujours d'une
+   fraction : c'est la leçon de la récurrence rédigée de la Terminale
+   (rrEspace), reprise telle quelle — mathModeSpace éteint la convention de
+   sortie, et un élève qui tape « 180/600 » resterait prisonnier du
+   dénominateur, toute la suite de sa ligne tombant dedans. Le 2.3.9, dont
+   les questions n'ont pas q.dix, ne change pas d'un iota. */
+function salEspaces(F){
+  if(!F || !Array.isArray(F.lignes)) return;
+  const poser=function(L){ try{ if(L && L.mf) L.mf.mathModeSpace='\\;'; }catch(e){} };
+  F.lignes.forEach(poser);
+  const ajouter=F.ajouterLigne;
+  F.ajouterLigne=function(){ const L=ajouter.apply(F, arguments); poser(L); return L; };
+  const sheet=$('salSheet');
+  if(sheet) sheet.addEventListener('keydown', salEspaceSort, true);   /* en capture : les lignes naissent au fil des « Entrée » */
+}
+function salEspaceSort(e){
+  if(e.key!==' ' && e.key!=='Spacebar') return;
+  if(e.ctrlKey||e.altKey||e.metaKey) return;
+  const mf=e.target;
+  if(!mf || mf.tagName!=='MATH-FIELD' || mf.readOnly) return;
+  let prof=0;
+  try{ const i=mf.getElementInfo(mf.position); prof=(i&&typeof i.depth==='number')?i.depth:0; }catch(err){ return; }
+  if(prof<=0) return;                       /* au sommet : MathLive écrit l'espace */
+  e.preventDefault(); e.stopPropagation();
+  try{ mf.executeCommand('moveAfterParent'); }catch(err){}
 }
 /* ---- Le juge : rationnels exacts, trois positions ---- */
 function salRat(s){                              /* « 1,05 » -> {n:105,d:100} */
@@ -9929,7 +9964,7 @@ function salEnonceIA(q){
    +' L’élève doit retrouver '+synQuoi(q)+' parmi quatre propositions : '+props+'.'
    +' Il a choisi '+QLET[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+', et JUSTIFIE ce choix en écrivant sa vérification LUI-MÊME dans une feuille, ligne par ligne.'
    +'\nCHAQUE LIGNE EST UN CALCUL INDÉPENDANT (il peut aussi enchaîner des « = » dans une même ligne). Ne refuse JAMAIS une copie pour sa mise en page.'
-   +(q.dix?'\nLa méthode des 10 % est acceptée, et ses lignes s’écrivent en pourcents et en mots : « 10 % = 60 », « 30 % = 180 », « écart = 180 », « diminution de 30 % ». L’éditeur retire les espaces et écrit « \\% » : lis « 10\\%=60 » comme « 10 % = 60 » et « diminutionde30% » comme « diminution de 30 % ».':'');
+   +(q.dix?'\nLa méthode des 10 % est acceptée, et ses lignes s’écrivent en pourcents et en mots : « 10 % = 60 », « 30 % = 180 », « écart = 180 », « diminution de 30 % ». L’éditeur écrit « \\% » et peut retirer les espaces : lis « 10\\%=60 » comme « 10 % = 60 » et « diminutionde30% » comme « diminution de 30 % ».':'');
 }
 function salAttenduIA(q, juge){
   const c=salCouple(q), okChoix=(q.choisi===q.bon), part=(c.sens===0);
