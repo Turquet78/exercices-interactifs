@@ -9671,6 +9671,21 @@ function suiteVariationRecurrence(w, P){
     checkSVR();
     if(ligneRouge(0)) dit('un caractère invisible (U+200B, U+00AD, U+FEFF) dans une dérivée juste la fait rougir');
     if(test.score!==1) dit('un caractère invisible dans une dérivée juste fait perdre le point');
+    /* LA PAGE LIT ELLE-MÊME SES EXPRESSIONS (septembre 2026) : sur le Firefox
+       de Turquet, « 32 » et « 12-x » compilaient et « (32)/((12-x)^(2)) »
+       non — new Function et l'opérateur ** rendaient un verdict que le moteur
+       décidait. Aucun compilateur ne passe plus par new Function : l'analyseur
+       exprLire rend une fonction de x, ou null avec sa raison. */
+    [['compileExprExp',compileExprExp],['compileExpr',compileExpr],['rfrLin',rfrLin]].forEach(function(c){
+      if(String(c[1]).indexOf('new Function')>=0 || String(c[1]).indexOf('eval(')>=0) dit(c[0]+' passe encore par new Function : le verdict dépend du moteur du navigateur');
+      if(String(c[1]).indexOf('exprLire')<0) dit(c[0]+' ne passe pas par l’analyseur de la page (exprLire)'); });
+    { const f=compileExprExp('(32)/((12-x)^(2))');
+      if(!f || Math.abs(f(0.37)-32/((12-0.37)*(12-0.37)))>1e-9) dit('l’analyseur ne lit pas « (32)/((12-x)^(2)) » — la chaîne même du signalement');
+      const g=compileExprExp('-x^2'); if(!g || g(3)!==-9) dit('l’analyseur lit −x^2 autrement que −(x^2)');
+      const h=compileExprExp('2^3^2'); if(!h || h(0)!==512) dit('l’analyseur n’associe pas la puissance à droite (2^3^2 = 512)');
+      const k=compileExprExp('(2x+1)e^(3x)'); if(!k || Math.abs(k(0.5)-2*Math.exp(1.5))>1e-9) dit('l’analyseur ne lit plus (2x+1)e^(3x)');
+      if(compileExprExp('(3')!==null || !compileExprExp.derniere.raison) dit('une parenthèse ouverte ne rend pas null avec sa raison');
+      if(compileExprExp('x2')!==null) dit('« x2 » est lu comme une expression'); }
 
     /* ---- 7 ter. LES CASES FACULTATIVES sont jugées, et ne comptent PAS.
             Le 2.5 les tient hors de la note ; ici la note se lit à l’écran,

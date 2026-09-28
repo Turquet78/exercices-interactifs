@@ -1603,6 +1603,35 @@ ligne, membre faux au milieu, préfixe recopié) et lit la source de
 `derVerdict` ; éprouvé par sabotage (la coupe désactivée : cinq griefs, tous
 nommés). La feuille est partagée avec la synthèse du 6.15 : elle gagne la
 même lecture sans rien déclarer.
+**PUIS LA CHAÎNE JUSTE A ENCORE ROUGI, ET C'ÉTAIT LE COMPILATEUR — `new
+Function`.** Trois captures de Turquet après la coupe sur « = », toutes
+identiques, toutes rouges, sur un PC au clavier du PC. Aucun rejeu ne
+reproduisait : clavier physique, touche morte AZERTY, « ² », clavier à
+l'écran, fraction par « / » avant ou après, Node, Chromium, Firefox installé
+exprès — tout acceptait. Le journal de cette impasse vaut la règle qu'elle
+a fini par donner : **un refus qu'aucun banc ne reproduit se DIAGNOSTIQUE
+dans la page, jamais par une hypothèse de plus.** La feuille s'est mise à
+écrire dans la console ce qu'elle lisait (v346 : LaTeX, lecture en clair,
+membres), puis (v347) les codes des caractères, la valeur attendue et les
+valeurs lues en x = 0,37. Le premier relevé a écarté la saisie : LaTeX propre,
+membres propres. Le second a nommé le coupable : `lus_en_0_37 : ["ne
+compile pas", "ne compile pas"]` sur des codes tous ASCII — et les cases
+facultatives u = 32 et v = 12 − x, jugées par le MÊME `checkExprFn`, étaient
+bleues. Le compilateur marchait donc sur « 32 » et « 12-x », et pas sur
+« (32)/((12-x)^(2)) » : la seule pièce nouvelle était la puissance, que
+`compileExprExp` confiait à `new Function` avec l'opérateur `**`. Ce que le
+navigateur de Turquet en fait exactement, on ne le sait pas ; ce qu'on sait,
+c'est qu'un juge qui dépend du moteur, d'une politique de sécurité ou d'un
+opérateur rend un verdict qu'aucun banc ne peut promettre. **La page lit
+donc elle-même ses expressions** : `exprLire`, un analyseur à descente
+récursive (nombres, x, + − × ÷ ^, parenthèses, exp(…) ; le « − » unaire plus
+faible que la puissance, −x^2 = −(x^2) ; la puissance associative à droite),
+qui rend une fonction de x ou null AVEC SA RAISON (`compileExprExp.derniere`,
+que le diagnostic de la console recopie). Les trois compilateurs du fichier y
+passent — `compileExprExp`, `compileExpr` (les polynômes des dérivées) et
+`rfrLin` (les expressions en n du 6.6) — et il ne reste AUCUN `new Function`
+dans la Terminale : un contrôle l'interdit. Le diagnostic reste en place : il
+ne coûte rien, et c'est lui qui a parlé quand rien d'autre ne le pouvait.
 **LA FEUILLE EST UNE RÉPONSE, ET UNE SEULE** (`pts-case`, la classe des trois
 points du tracé) : la note ne peut pas dépendre du NOMBRE de lignes écrites,
 sans quoi l'élève qui détaille son calcul serait noté sur un autre total.
