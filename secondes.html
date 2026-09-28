@@ -4758,7 +4758,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=238;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=239;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9185,10 +9185,28 @@ function dmReglageExo(){
   const dev=(mesDevoirs||[]).find(d=>d.id===currentDM);
   return (dev&&(dev.exercices||[]).find(e=>e.id===currentTestId))||null;
 }
+/* LE RÉGLAGE « QUESTIONS » D'UN DEVOIR ALLONGE AUSSI LA SÉANCE (signalé par
+   Turquet, septembre 2026 : « pour le 4.1.8 de la fiche 7, j'ai coché 5
+   questions, et l'élève n'en a que 3 »). La coupe de dmAppliquerNbQ ne sait
+   que RÉDUIRE : elle retire des questions d'un tirage déjà fait, elle ne peut
+   pas en inventer. Un démarreur qui tire par distinctes() lit donc le réglage
+   LUI-MÊME, à son tirage — le motif de tmNbDevoir et de fracpNbDevoir — et
+   pose son barème sur ce qu'il a tiré. Hors devoir, ou sur une valeur hors de
+   la plage que l'éditeur propose (1..DM_NBQ_MAX), le format normal. Un
+   exercice dont la séance a une forme fixe (un tableau, trois familles) ne
+   passe pas par là : le réglage ne peut que le raccourcir, par la coupe. */
+const DM_NBQ_MAX=10;
+function dmNbQuestions(defaut){
+  const ex=dmReglageExo(); const n=ex?parseInt(ex.nbQ,10):NaN;
+  return (Number.isFinite(n)&&n>=1&&n<=DM_NBQ_MAX)?n:defaut;
+}
 /* LE NOMBRE DE QUESTIONS SE RÈGLE PAR EXERCICE DU DEVOIR (demande de Turquet,
    août 2026). On ne garde que les nbQ premières questions du tirage, puis on
-   redessine par afficherEcranDe(), l'entonnoir du rejeu et de la reprise. On
-   ne sait que RÉDUIRE : une valeur au-delà du format normal y retombe. Après
+   redessine par afficherEcranDe(), l'entonnoir du rejeu et de la reprise. La
+   coupe ne sait que RÉDUIRE : c'est le démarreur qui ALLONGE, en lisant le
+   réglage à son tirage (dmNbQuestions) — pour lui, elle n'a plus rien à
+   couper. Sur un exercice à forme fixe, une valeur au-delà du format normal y
+   retombe. Après
    une reprise de pause, le tirage sauvegardé fait foi — il porte déjà la
    coupe. Un kind absent de la table du rejeu garde sa séance entière. */
 /* LE POIDS D'UNE QUESTION, lu par la CONVENTION DE NOMMAGE que les exercices à
@@ -17213,13 +17231,15 @@ function renderDevoirEditor(){
     const modes=byId[id]||[]; const s=modes.includes('soutien'), t=modes.includes('train');
     const nbQ=parseInt(byNbQ[id],10)||'', smax=dmPlafondSoutien(bySmax[id]);
     /* Deux réglages par exercice du devoir (demande de Turquet, août 2026) :
-       le NOMBRE DE QUESTIONS — vide = le format normal, une valeur au-delà y
-       retombe — et la NOTE MAXIMALE EN SOUTIEN (5/10 par défaut). */
+       le NOMBRE DE QUESTIONS — vide = le format normal ; la séance en tire
+       autant, plus court OU plus long que le format normal (dmNbQuestions),
+       sauf sur un exercice à forme fixe, qui ne sait que se raccourcir — et
+       la NOTE MAXIMALE EN SOUTIEN (5/10 par défaut). */
     return `<div class="dm-exo">
       <span class="dm-exo-name">${esc(testLabel(id))}</span>
       <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="soutien" ${s?'checked':''} onchange="dmExoCoche()"> Soutien</label>
       <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="train" ${t?'checked':''} onchange="dmExoCoche()"> Entraînement</label>
-      <label class="dm-mode">Questions <select data-nbq="${id}"><option value="">normal</option>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}"${nbQ===n?' selected':''}>${n}</option>`).join('')}</select></label>
+      <label class="dm-mode">Questions <select data-nbq="${id}"><option value="">normal</option>${Array.from({length:DM_NBQ_MAX},(_,i)=>i+1).map(n=>`<option value="${n}"${nbQ===n?' selected':''}>${n}</option>`).join('')}</select></label>
       <label class="dm-mode">Soutien <select data-smax="${id}">${[5,6,7,8,9,10].map(n=>`<option value="${n}"${smax===n?' selected':''}>${n}/10</option>`).join('')}</select></label>
       <label class="dm-mode" title="Un exercice bonus vaut 1 point : il remonte la note sans la faire dépasser le maximum."><input type="checkbox" data-bonus="${id}" ${byBonus[id]?'checked':''}> Bonus (+1 pt)</label>
     </div>`;
@@ -17981,7 +18001,7 @@ async function startAddSub(){
   /* Opération POSÉE : son propre écran et son propre kind. Il n'y a plus de
      minuteur — on pose, on aligne, on vérifie. */
   test.kind='asp';
-  test.questions=tirageAddSub(cfg.mpCount||10);
+  test.questions=tirageAddSub(dmNbQuestions(cfg.mpCount||10));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -17994,7 +18014,7 @@ async function startTest(){
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   test.kind='cm'; test.qId='calcul-mental';
-  test.questions=distinctes(cfg.count,()=>genQuestion(cfg));
+  test.questions=distinctes(dmNbQuestions(cfg.count),()=>genQuestion(cfg));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -18587,7 +18607,7 @@ async function startMultPosee(){
   cfg=await loadConfig();
   const n=cfg.mpCount||10;
   test.kind='mp';
-  test.questions=distinctes(n,genMultPosee);
+  test.questions=distinctes(dmNbQuestions(n),genMultPosee);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -19074,7 +19094,7 @@ async function startMultDec(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='md';
-  test.questions=distinctes(6,genMultDec);
+  test.questions=distinctes(dmNbQuestions(6),genMultDec);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -19216,7 +19236,7 @@ async function startU(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='u';
-  test.questions=distinctes(6,genU);
+  test.questions=distinctes(dmNbQuestions(6),genU);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -19571,7 +19591,7 @@ async function startPercent(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='pct';
-  test.questions=distinctes(PCT_NB,genPercent);
+  test.questions=distinctes(dmNbQuestions(PCT_NB),genPercent);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -19710,7 +19730,7 @@ async function startPctBoite(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='pctb';
   const incs=qdMelanger(['res','ini','pct']);                /* chaque inconnue sort une fois, ordre mélangé */
-  test.questions=distinctes(PCTB_NB,(_,i)=>genPctBoite(incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(PCTB_NB),(_,i)=>genPctBoite(incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.maxScore=test.questions.length;
   show('pctb'); renderPctBoiteTest();
@@ -19881,7 +19901,7 @@ async function startPctChaine(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='pctc';
   const incs=qdMelanger(['comb','p1','p2']);                /* chaque sens sort une fois, ordre mélangé */
-  test.questions=distinctes(PCTC_NB,(_,i)=>genPctChaine(incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(PCTC_NB),(_,i)=>genPctChaine(incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.maxScore=test.questions.length;
   show('pctc'); renderPctChaineTest();
@@ -20102,7 +20122,7 @@ async function startPcs(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='pcs'; test.qId='pourcentage-schema';
   const incs=qdMelanger(['comb','p1','p2']);                /* chaque forme de la fiche sort une fois, ordre mélangé */
-  test.questions=distinctes(PCS_NB,(_,i)=>genPcs(incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(PCS_NB),(_,i)=>genPcs(incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.maxScore=test.questions.length;
   show('pcs'); renderPcsTest();
@@ -20250,7 +20270,7 @@ async function startFP(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='fp';
-  test.questions=genFPSerie(6);
+  test.questions=genFPSerie(dmNbQuestions(6));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -20412,7 +20432,7 @@ async function startPctCol(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='pcol';
-  test.questions=distinctes(6,genPctCol);
+  test.questions=distinctes(dmNbQuestions(6),genPctCol);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -20640,7 +20660,7 @@ async function startEvolAdd(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='ag2'; test.qId=id;
-  test.questions=distinctes(EVOL_NB,gen);
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -20836,7 +20856,7 @@ async function startA2Q(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='ag2q'; test.qId=id;
-  test.questions=distinctes(EVOL_NB,gen);
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -21171,7 +21191,7 @@ async function startSyn(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='psyn'; test.qId='synthese-pourcentages';
   const incs=qdMelanger(['fin','ini','pct']);
-  test.questions=distinctes(EVOL_NB,(_,i)=>genSyn(undefined, incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),(_,i)=>genSyn(undefined, incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -21190,7 +21210,7 @@ async function startSynAug(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='psyn'; test.qId='synthese-augmentations';
   const incs=qdMelanger(['fin','ini','pct']);
-  test.questions=distinctes(EVOL_NB,(_,i)=>genSyn('aug', incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),(_,i)=>genSyn('aug', incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -21215,7 +21235,7 @@ async function startSynDim(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='psyn'; test.qId='synthese-diminutions';
   const incs=qdMelanger(['fin','ini','pct']);
-  test.questions=distinctes(EVOL_NB,(_,i)=>genSyn('dim', incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),(_,i)=>genSyn('dim', incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -21246,7 +21266,7 @@ async function startSynEvol(){
   test.kind='evb'; test.qId='synthese-evolutions';
   const incs=qdMelanger(['fin','ini','pct']);
   const fams=qdMelanger(['aug','dim',pick(['aug','dim'])]);
-  test.questions=distinctes(EVOL_NB,(_,i)=>genSyn(fams[i%fams.length], incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),(_,i)=>genSyn(fams[i%fams.length], incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -21413,7 +21433,7 @@ async function startEvolSucc(){
      l'autre) — sans quoi une séance pourrait ne poser que des hausses et
      perdre tout le sujet de la fiche, le signe du global */
   const formes=qdMelanger([[1,1],[-1,-1],pick([[1,-1],[-1,1]])]);
-  test.questions=distinctes(EVS_NB,(_,i)=>genEvs(formes[i%formes.length]));
+  test.questions=distinctes(dmNbQuestions(EVS_NB),(_,i)=>genEvs(formes[i%formes.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -21983,14 +22003,17 @@ function genPctRes(){
    dans RAPPELS_ID, les questions dans QIA_SUGG — comme le calcul mental. */
 const SYN21_GENS=[genPctRes,genPctDepart,genPctTaux];
 async function startPctSynthese(){
-  const plan=qdMelanger(SYN21_GENS.concat(Array.from({length:Math.max(0,QD_NB-SYN21_GENS.length)},()=>pick(SYN21_GENS))));
-  return startQCM('pourcentage-synthese', (_,i)=>plan[i]());   /* par l'index : distinctes() peut retirer une question, le plan ne doit pas avancer pour autant */
+  /* le plan a la taille que le devoir règle (dmNbQuestions) : un plan de QD_NB
+     devant une séance plus longue lisait une case vide — « plan[i] is not a
+     function », attrapé par le contrôle de l'allongement à sa première exécution */
+  const plan=qdMelanger(SYN21_GENS.concat(Array.from({length:Math.max(0,dmNbQuestions(QD_NB)-SYN21_GENS.length)},()=>pick(SYN21_GENS))));
+  return startQCM('pourcentage-synthese', (_,i)=>plan[i%plan.length]());   /* par l'index : distinctes() peut retirer une question, le plan ne doit pas avancer pour autant */
 }
 async function startQCM(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='pctq'; test.qId=id;
-  test.questions=distinctes(QD_NB,gen);
+  test.questions=distinctes(dmNbQuestions(QD_NB),gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -22169,10 +22192,12 @@ async function finishQCM(){
 let pslFeuille=null;
 async function startPctSyntheseLibre(){
   if(!currentEleve){ accueil(); return; }
-  const plan=qdMelanger(SYN21_GENS.concat(Array.from({length:Math.max(0,QD_NB-SYN21_GENS.length)},()=>pick(SYN21_GENS))));
+  /* chaque forme sort au moins une fois, puis le reste au hasard — sur le
+     nombre que le devoir règle (dmNbQuestions), ou le format normal */
+  const plan=qdMelanger(SYN21_GENS.concat(Array.from({length:Math.max(0,dmNbQuestions(QD_NB)-SYN21_GENS.length)},()=>pick(SYN21_GENS))));
   recoveryRowId=null; recoveryClosed=false;
   test.kind='psl'; test.qId='pourcentage-synthese-libre';
-  test.questions=distinctes(plan.length,(_,i)=>plan[i]());
+  test.questions=distinctes(dmNbQuestions(QD_NB),(_,i)=>plan[i%plan.length]());
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;test.pslBusy=false;
@@ -22339,7 +22364,7 @@ async function startSynAugLibre(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='sal'; test.qId='synthese-augmentations-libre';
   const incs=qdMelanger(['fin','ini','pct']);
-  test.questions=distinctes(EVOL_NB,(_,i)=>genSyn('aug', incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),(_,i)=>genSyn('aug', incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;test.salBusy=false;
@@ -22354,7 +22379,7 @@ async function startSynDimLibre(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='sal'; test.qId='synthese-diminutions-libre';
   const incs=qdMelanger(['fin','ini','pct']);
-  test.questions=distinctes(EVOL_NB,(_,i)=>genSyn('dim', incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),(_,i)=>genSyn('dim', incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;test.salBusy=false;
@@ -22382,7 +22407,7 @@ async function startSynLibre(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='sal'; test.qId='synthese-pourcentages-libre';
   const incs=qdMelanger(['fin','ini','pct']);
-  test.questions=distinctes(EVOL_NB,(_,i)=>genSyn(undefined, incs[i%incs.length]));
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),(_,i)=>genSyn(undefined, incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;test.salBusy=false;
@@ -22823,7 +22848,7 @@ async function startAug(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='aug';
-  test.questions=distinctes(EVOL_NB,genAug);
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),genAug);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -23242,7 +23267,7 @@ async function startAUGQ(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='augq'; test.qId=id;
-  test.questions=distinctes(EVOL_NB,gen);
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -23426,7 +23451,7 @@ async function startDim(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='dim';
-  test.questions=distinctes(EVOL_NB,genDim);
+  test.questions=distinctes(dmNbQuestions(EVOL_NB),genDim);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -23655,7 +23680,7 @@ async function startHausses(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='hs'; test.qId='hausses-successives';
   test.questions=[]; const vues=[];
-  for(let i=0;i<EVOL_NB;i++){ const q=genHausses(vues); vues.push(q.paire); test.questions.push(q); }
+  for(let i=0,nb=dmNbQuestions(EVOL_NB);i<nb;i++){ const q=genHausses(vues); vues.push(q.paire); test.questions.push(q); }
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -23948,7 +23973,7 @@ async function startHaussesCent(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='hsc'; test.qId='hausses-successives-cent';
-  test.questions=hscSeance(EVOL_NB);
+  test.questions=hscSeance(dmNbQuestions(EVOL_NB));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent */
   test.maxScore=test.questions.length;
@@ -24216,7 +24241,7 @@ async function startBaisses(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='bs'; test.qId='baisses-successives';
   test.questions=[]; const vues=[];
-  for(let i=0;i<EVOL_NB;i++){ const q=genBaisses(vues); vues.push(q.paire); test.questions.push(q); }
+  for(let i=0,nb=dmNbQuestions(EVOL_NB);i<nb;i++){ const q=genBaisses(vues); vues.push(q.paire); test.questions.push(q); }
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -24441,7 +24466,7 @@ async function startLireCoef(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='lc'; test.qId='lire-coefficient';
-  test.questions=distinctes(6,genLireCoef);
+  test.questions=distinctes(dmNbQuestions(6),genLireCoef);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
