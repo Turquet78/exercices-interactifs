@@ -1324,7 +1324,8 @@ moteur `sal` était en mode « calcul » — `mathModeSpace` posé par-dessus
 (`salEspaces`), mais ni la classe, ni la liste blanche des raccourcis.
 `renderSal` la crée désormais en mode « redaction » quand la question
 porte `q.dix` (le 2.3.13, et lui seul : le 2.3.9 garde sa feuille de calcul
-et ses espaces par `SAL_ESPACES` — c'est le bord opposé, déclaré dans
+— avec ses espaces, que `salEspaces` pose sur les quatre exercices du
+moteur depuis le même jour — c'est le bord opposé, déclaré dans
 `clavierEcran.lettres.hors`). Ce que le mode change, outre la classe : la
 LISTE BLANCHE (`_motsFR`), et « diminution » ne s'écrit plus
 « di\minution » — ni au clavier physique ni à l'écran, où chaque lettre est

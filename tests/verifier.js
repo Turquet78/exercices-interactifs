@@ -7952,10 +7952,15 @@ function syntheseDimLibreDix(w, P){
       if(!l9b || !l9b.mf || !espLatex(l9b.mf.mathModeSpace)) vus.push('une ligne ajoutée par « Entrée » sur le 2.3.9 n\\'écrit pas d\\'espace');
       const hint9=String(($('salHost').querySelector('.dexp-hint')||{}).textContent||'');
       if(hint9.indexOf('espace')<0) vus.push('l\\'indication sous la feuille du 2.3.9 ne dit pas que la barre d\\'espace écrit une espace');
-      /* le bord opposé : le 2.2.10 garde la feuille d'avant */
-      startSynAugLibre();
-      const l10=salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
-      if(l10 && l10.mathModeSpace) vus.push('le 2.2.10 a changé sans qu\\'on le demande : sa feuille écrit des espaces (mathModeSpace « '+l10.mathModeSpace+' »)');
+      /* puis « pareil pour le 2.2.10 et le 2.5.2 » : les quatre exercices du
+         moteur écrivent les espaces, plus aucune porte par exercice */
+      [['2.2.10',startSynAugLibre],['2.5.2',startSynLibre]].forEach(function(x){
+        x[1]();
+        const l=salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+        if(!l || !espLatex(l.mathModeSpace)) vus.push('sur le '+x[0]+', la barre d\\'espace n\\'écrit pas d\\'espace : mathModeSpace « '+(l?l.mathModeSpace:'?')+' »');
+        const h=String(($('salHost').querySelector('.dexp-hint')||{}).textContent||'');
+        if(h.indexOf('espace')<0) vus.push('l\\'indication sous la feuille du '+x[0]+' ne dit pas que la barre d\\'espace écrit une espace');
+      });
       /* la peinture : sur une feuille adossée à de vrais éléments */
       startSynDimLibreDix();
       test.questions[0]=JSON.parse(JSON.stringify(qPct)); test.idx=0;
