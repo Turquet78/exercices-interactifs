@@ -1070,3 +1070,20 @@ n'écarte qu'environ les trois quarts des combinaisons, largement assez pour
 que la boucle de secours ne se déclenche jamais en pratique ; le repli codé en
 dur de H (5/2 × (2/3 − 4/5)) était déjà irréductible sur ses trois fractions,
 aucun changement n'y était nécessaire.
+
+**{quotient-difference-fractions} (5.14, « I ») a rejoint H le jour même :
+« faire la même chose pour le 5.14 et 5.15 » (Turquet, septembre 2026).**
+`pqdGen(inv)` perd le garde `!inv` qui réservait la contrainte à H : les
+trois fractions de départ (a/b, c/d, e/f) doivent désormais être déjà
+irréductibles pour I aussi, par le même test `gcd(...)!==1`, appliqué avant
+le reste du tirage (le croisement, la parenthèse EXIGÉE positive pour I,
+etc.). Simulé sur 2000 tirages : environ 12&nbsp;% passent toutes les
+conditions d'I (irréductibilité ET parenthèse positive cumulées, plus strict
+que H qui accepte une parenthèse négative) — assez pour que
+`pqdBuildQuestions` tire ses quatre questions distinctes sans jamais
+retomber sur le repli codé en dur, déjà irréductible lui aussi (5/2 ÷
+(8/3 − 1/3)). **{quotient-double-fractions} (5.15, « J ») n'a, lui, rien eu à
+changer** : `qdbGen()` imposait déjà `gcd(a,b)!==1||gcd(c,d)!==1||
+gcd(e,f)!==1||gcd(g,h)!==1` sur ses quatre fractions de départ depuis le
+resserrement à 1–5 (plus haut dans ce journal) — la demande y était donc
+déjà satisfaite avant même d'être reposée.

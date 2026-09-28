@@ -4636,7 +4636,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=233;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=234;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -35616,17 +35616,19 @@ function ctxSpf(q){
    case finale accepte de toute façon toute fraction ÉGALE (pfFracJuge) —
    simplifiée ou non. Seul le résultat NUL reste écarté, pour H comme pour I.
 
-   LES TROIS FRACTIONS DE DÉPART (a/b, c/d, e/f) SONT IRRÉDUCTIBLES POUR H
-   SEUL (5.13, demande de Turquet, septembre 2026, distincte de la
+   LES TROIS FRACTIONS DE DÉPART (a/b, c/d, e/f) SONT IRRÉDUCTIBLES, POUR H
+   ET POUR I (demande de Turquet, septembre 2026, distincte de la
    précédente) : l'énoncé ne doit jamais montrer une fraction qu'on
-   simplifierait déjà avant de commencer. I (5.14) garde le relâchement
-   d'origine — rien ne l'a demandé pour lui, et les deux exercices partagent
-   ce générateur sans partager cette contrainte : `!inv` la réserve à H. */
+   simplifierait déjà avant de commencer. D'abord posée pour H seul (5.13),
+   la même demande est venue pour I (5.14) le jour même — `pqdGen` ne
+   distingue donc plus H et I sur ce point, exactement comme
+   {quotient-double-fractions} (5.15, `qdbGen`) l'impose déjà sur ses quatre
+   fractions de départ. */
 function pqdGen(inv){
   for(let essai=0; essai<2000; essai++){
     const a=rand(1,5), b=rand(2,5), c=rand(1,5), d=rand(2,5), e=rand(1,5), f=rand(2,5);
     if(d===f) continue;                  /* déjà le même dénominateur : rien à croiser */
-    if(!inv && (gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1)) continue;  /* H seul (5.13, demande de Turquet, septembre 2026) : les trois fractions de départ, déjà irréductibles */
+    if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;  /* H et I (5.13/5.14, demande de Turquet, septembre 2026) : les trois fractions de départ, déjà irréductibles */
     const N1=c*f, N2=e*d, Din=d*f, Rn=N1-N2;
     if(Rn===0) continue;                 /* une parenthèse nulle n'est pas le sujet ici */
     if(inv && Rn<0) continue;            /* I : éviter un dénominateur négatif après inversion */
