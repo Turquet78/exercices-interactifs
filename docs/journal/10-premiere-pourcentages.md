@@ -2216,6 +2216,97 @@ par diverger, c'est la leçon des générateurs, appliquée aux contrôles.
 
 ---
 
+## {synthese-diminutions-libre-dix} — la synthèse rédigée des baisses qui accepte la méthode des 10 % (Première, septembre 2026)
+
+**D'où ça vient.** Demande de Turquet : « en Première, faire un exercice
+exactement comme le 2.3.9, mais où l'on accepte en plus la méthode en passant
+par 10 % ». Et les MINIMUMS de rédaction, fixés par lui : quand on calcule
+la valeur finale, « 10 % = … ; 70 % = … ; … + ou − … = … » ; quand on
+cherche un pourcentage, la même méthode, ou bien « 10 % = … ; … − … ou
+écart = … ; augmentation ou diminution de … % ». L'exercice arrive en fin de
+sous-thème, {synthese-diminutions-libre-dix} (2.3.13), après le 2.3.12 comme
+le 2.3.9 suit le 2.3.8 : la synthèse RÉDIGÉE des baisses, avec une voie de
+plus. Le 2.3.9 ne change pas d'un iota — c'est un bord du contrôle.
+
+**Le tirage est celui du 2.3.12, pas celui du 2.3.9** : `genSyn('dim', inc,
+{dix:true})` — des taux qui se RETROUVENT depuis 10 % (multiples de dix,
+jamais 10 lui-même ; 5, 15, 25). « Exactement comme le 2.3.9 » aurait tiré
+3 % ou 7 %, que 10 % ne donne pas : l'exercice promettrait une voie que la
+question interdit. Et `q.dix`, que `genSyn` range déjà dans la question, est
+la porte que lit le juge — la reprise d'une pause relit la question, jamais
+le démarreur ; le 2.3.9, dont les questions n'ont pas `q.dix`, garde son
+juge d'avant.
+
+**Le juge apprend à lire des lignes en POURCENTS et en MOTS.** La grammaire
+des nombres (`salExpr`) ne lit ni « 10 % = 60 » ni « écart = 180 » ni
+« diminution de 30 % » : ces lignes étaient des écritures inconnues, qui
+livraient la copie entière au modèle — et un verdict arithmétique ne se
+confie pas à un modèle. Trois lecteurs, gardés par `q.dix` :
+`salDixPct` (« k % [de M] » en tête de ligne AFFIRME k % de M, M étant la
+valeur initiale s'il n'est pas écrit), `salDixEcart` (« écart » ou
+« différence » en tête de ligne AFFIRME l'écart), `salDixConclusion`
+(« diminution/baisse/augmentation/hausse de k % » sur une ligne sans « = »
+est la CONCLUSION, avec son sens et son pourcentage). `salDixLigne` lit les
+deux premiers et rend un verdict de ligne : illisible (le juge s'abstient),
+fausse (nommée), vraie — et c'est lui que `salPeindreLignes` appelle aussi,
+pour que ces lignes se peignent comme les autres.
+**Elles se lisent sur le texte tel que MathLive le rend**, mesuré au
+navigateur avant d'écrire une ligne du juge : l'éditeur retire les espaces,
+écrit le pourcent « \% », et « diminution » ressort « di\minution » parce
+que « min » est un raccourci de MathLive (« in » en est un autre, qui devient
+« ∈ » à l'aplatissement). `salDixNorm` retire donc barres et espaces, met en
+minuscules sans accent, et rend « ∈ » à « in » : « di\minutionde30\% » se
+lit « diminution de 30 % ». Le modèle est prévenu de la même chose dans
+l'énoncé qu'on lui envoie.
+
+**Les deux formes, et leurs minimums.** Pour une valeur (finale, ou
+initiale choisie) : `dixOk` (« 10 % » de la valeur initiale, vrai) ET
+`pctP` (« P % = … », P étant la proposition choisie) ET `addOk` (la
+soustraction qui donne la valeur finale — déjà là) ; ou `dixOk` ET
+`pctCoef` (« (100 − P) % = valeur finale » d'un coup). Pour un pourcentage :
+la même, ou `dixOk` ET `ecartOk` ET `conclOk`. L'ÉCART se juge contre
+l'ÉNONCÉ, pas contre la proposition : quand on cherche le pourcentage,
+départ et arrivée sont tous deux dans l'énoncé, et « écart = 120 » écrit par
+un élève qui a choisi 20 % est FAUX — c'est le fait prouvable qui le remet
+sur la voie, sans lui donner le nombre. La CONCLUSION se juge sur deux
+faits : son sens contre l'énoncé (« augmentation de 30 % » sur une baisse
+est refusée en nommant le sens), son pourcentage contre la proposition
+CHOISIE (« diminution de 20 % » avec 30 % coché : « mets-les d'accord »,
+sans dire lequel a raison). Quand tout est vrai mais la proposition fausse
+par l'écart, la phrase ne dit pas « ton calcul est cohérent » — il ne l'est
+pas : « ton écart et tes 10 % sont justes, mais ta conclusion ne s'accorde
+pas avec eux ». Sans la ligne « 10 % », ce n'est pas la méthode des 10 % —
+et « 30 % = 180 » sans multiplication écrite n'est pas non plus la voie de
+la diminution : le refus nomme les deux (« la ligne « 10 % = … », ou la
+multiplication qui calcule la diminution »). Un refus sur la voie des 10 %
+nomme ce qui manque À SA FORME, jamais la bonne proposition : le contrôle
+passe cinq refus sur la mauvaise proposition au peigne du nombre juste.
+
+**Tout ce qui nomme les voies a suivi**, par le troisième argument de
+`salVoiesTexte(s, c, dix)` : l'étiquette de la feuille, le message de la
+feuille vide, le refus du juge, le contexte de l'aide. La règle du modèle
+compte QUATRE voies et écrit la quatrième avec les nombres de la proposition
+choisie — et elle a frôlé la borne de la fonction Edge au premier passage
+(3713 caractères pour 4000, marge exigée 300) : resserrée à 3581. L'indication
+sous la feuille dit où est la touche « % » et que l'écart et la conclusion
+s'écrivent en mots. Le rappel (`RAP_SDLD`), les questions à l'IA, le numéro
+2.3.13 et la route de « Recommencer » font l'identité.
+
+**Le contrôle** (`syntheseDimLibreDix`, banc principal) tient sept bords —
+le tirage, le juge cas par cas sur des questions épinglées (les deux formes
+acceptées, celles à qui il manque une ligne, la ligne fausse nommée, la
+copie telle que MathLive l'aplatit, la conclusion contredite, la mauvaise
+proposition), le 2.3.9 inchangé (ses lignes restent inconnues, son étiquette
+et sa règle ne promettent rien), les refus qui ne donnent jamais la bonne
+proposition, l'écran et la peinture, la règle et sa borne, l'identité.
+Éprouvé par six sabotages, chacun rougissant en nommant son défaut : la
+ligne « 10 % » plus exigée, le 2.3.9 qui tire des questions `q.dix`, les
+barres de MathLive plus retirées, l'écart plus jugé contre l'énoncé, la
+conclusion plus comparée au choix, la peinture qui ignore les lignes des
+10 %.
+
+---
+
 ## {evolutions-successives} — deux évolutions de suite, la synthèse des deux schémas (Seconde, septembre 2026)
 
 **D'où il vient.** Une troisième fiche PDF de Turquet, un seul exercice :
