@@ -3000,7 +3000,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=347;
+const APP_VERSION=348;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -6138,10 +6138,8 @@ function compileExpr(raw){
   s=s.replace(/(\d)\(/g,'$1*(');
   s=s.replace(/\)([\dx])/g,')*$1');
   s=s.replace(/x\(/g,'x*(');
-  s=s.replace(/\^/g,'**');
-  if(!/^[0-9x+\-*/().]*$/.test(s)) return null;
-  if(/\*\*\*/.test(s)) return null;
-  try{ return new Function('x','return ('+s+');'); }catch(e){ return null; }
+  if(!/^[0-9x+\-*/().^]*$/.test(s)) return null;
+  return exprLire(s);   /* l'analyseur de la page, jamais d'évaluation de code par le moteur (voir compileExprExp) */
 }
 
 /* ====================== SUITES ====================== */
@@ -9152,11 +9150,51 @@ function compileExprExp(raw){
   s=s.replace(/x\(/g,'x*(');
   s=s.replace(/\)\(/g,')*(');
   s=s.replace(/\)([0-9x])/g,')*$1');
-  s=s.replace(/\^/g,'**');
   s=s.replace(/\u00a7/g,'exp');
-  if(!/^(?:[0-9x+\-*/().]|exp)*$/.test(s)) return null;
-  if(/\*\*\*/.test(s)) return null;
-  try{ return new Function('x','var exp=Math.exp; return ('+s+');'); }catch(e){ return null; }
+  compileExprExp.derniere={normalise:s, raison:''};
+  if(!/^(?:[0-9x+\-*/().^]|exp)*$/.test(s)){ compileExprExp.derniere.raison='caractère hors alphabet'; return null; }
+  const f=exprLire(s);
+  if(!f) compileExprExp.derniere.raison='syntaxe : '+(exprLire.raison||'?');
+  return f;
+}
+/* L'ANALYSEUR : la page lit elle-même l'expression, sans `new Function`.
+   Le juge confiait la chaîne normalisée à `new Function` avec l'opérateur
+   `**` : sur le Firefox de Turquet (septembre 2026, 6.2.5), « 32 » et
+   « 12-x » compilaient et « (32)/((12-x)^(2)) » ne compilait pas — la seule
+   pièce nouvelle était la puissance, et rien ne disait pourquoi. Un analyseur
+   écrit ici ne dépend ni du moteur, ni d'une politique de sécurité qui
+   interdirait l'évaluation de code, ni d'un opérateur : il lit nombres, x,
+   + − × ÷ ^, parenthèses et exp(…), avec les priorités usuelles (le « − »
+   unaire est plus faible que la puissance : −x^2 = −(x^2) ; la puissance
+   s'associe à droite). Il rend une fonction de x, ou null avec la raison. */
+function exprLire(s){
+  exprLire.raison='';
+  const T=[]; let i=0;
+  while(i<s.length){
+    const c=s[i];
+    if(/[0-9.]/.test(c)){ const m=/^(?:\d+\.?\d*|\.\d+)/.exec(s.slice(i)); if(!m||m[0]==='.'){ exprLire.raison='nombre mal formé en '+i; return null; } T.push({t:'n',v:parseFloat(m[0])}); i+=m[0].length; continue; }
+    if(s.startsWith('exp',i)){ T.push({t:'exp'}); i+=3; continue; }
+    if(c==='x'){ T.push({t:'x'}); i++; continue; }
+    if('+-*/^()'.indexOf(c)>=0){ T.push({t:c}); i++; continue; }
+    exprLire.raison='caractère « '+c+' » en '+i; return null;
+  }
+  let k=0;
+  const voir=function(){ return T[k]?T[k].t:null; };
+  const prendre=function(t){ if(voir()!==t){ exprLire.raison='attendu « '+t+' », trouvé « '+(voir()||'fin')+' »'; throw 0; } return T[k++]; };
+  function expr(){ let f=terme(); while(voir()==='+'||voir()==='-'){ const op=T[k++].t, g=terme(), h=f; f=(op==='+')?function(x){ return h(x)+g(x); }:function(x){ return h(x)-g(x); }; } return f; }
+  function terme(){ let f=unaire(); while(voir()==='*'||voir()==='/'){ const op=T[k++].t, g=unaire(), h=f; f=(op==='*')?function(x){ return h(x)*g(x); }:function(x){ return h(x)/g(x); }; } return f; }
+  function unaire(){ if(voir()==='-'){ k++; const g=unaire(); return function(x){ return -g(x); }; } if(voir()==='+'){ k++; return unaire(); } return puissance(); }
+  function puissance(){ const b=atome(); if(voir()==='^'){ k++; const e=unaire(); return function(x){ return Math.pow(b(x),e(x)); }; } return b; }
+  function atome(){
+    const t=voir();
+    if(t==='n'){ const v=T[k++].v; return function(){ return v; }; }
+    if(t==='x'){ k++; return function(x){ return x; }; }
+    if(t==='exp'){ k++; prendre('('); const g=expr(); prendre(')'); return function(x){ return Math.exp(g(x)); }; }
+    if(t==='('){ k++; const g=expr(); prendre(')'); return g; }
+    exprLire.raison='terme attendu, trouvé « '+(t||'fin')+' »'; throw 0;
+  }
+  try{ const f=expr(); if(k!==T.length){ exprLire.raison='reste « '+T.slice(k).map(function(t){ return t.t==='n'?t.v:t.t; }).join('')+' »'; return null; } return f; }
+  catch(e){ if(e!==0) exprLire.raison=String(e&&e.message||e); return null; }
 }
 function checkExprFn(raw, refFn){
   const f=compileExprExp(raw); if(!f) return false;
@@ -18784,7 +18822,8 @@ function rfrLin(raw){
     .replace(/[×·⋅*]/g,'*').replace(/,/g,'.').replace(/N/g,'n');
   if(t==='' || !/^[0-9n+\-*().]+$/.test(t) || /\*\*|n\d|\)\d|\)n|n\(|nn|\.\.|\(\)/.test(t)) return null;
   t=t.replace(/(\d|\))(?=n|\()/g,'$1*');
-  let f; try{ f=new Function('n','return ('+t+');'); }catch(e){ return null; }
+  const f=exprLire(t.replace(/n/g,'x'));   /* l'analyseur de la page, jamais d'évaluation de code par le moteur (voir compileExprExp) */
+  if(!f) return null;
   const v=[0,1,2].map(function(k){ try{ return f(k); }catch(e){ return NaN; } });
   if(!v.every(function(x){ return typeof x==='number' && isFinite(x); })) return null;
   const p=v[1]-v[0]; if(Math.abs((v[2]-v[1])-p)>1e-9) return null;
@@ -19202,7 +19241,7 @@ function derVerdict(feuille, fder){
       latex:String(x.L.mf.getValue?x.L.mf.getValue():''), lu:x.plain, membres:x.membres, version:APP_VERSION,
       codes:x.membres.map(function(m){ return Array.from(m).map(function(c){ return c.charCodeAt(0); }).join(' '); }),
       attendu_en_0_37:fder(X),
-      lus_en_0_37:x.membres.map(function(m){ const f=compileExprExp(m); if(!f) return 'ne compile pas'; try{ return f(X); }catch(e){ return 'erreur : '+e.message; } })
+      lus_en_0_37:x.membres.map(function(m){ const f=compileExprExp(m); if(!f) return 'ne compile pas — '+JSON.stringify(compileExprExp.derniere||{}); try{ return f(X); }catch(e){ return 'erreur : '+e.message; } })
     }); }catch(e){} } });
   return { lignes:lg, vide:lg.length===0,
            ok:lg.length>0 && lg.every(function(x){ return x.ok; }) };
