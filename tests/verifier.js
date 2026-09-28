@@ -26307,8 +26307,13 @@ function evolutionsSuccessives(w, P){
       'ce niveau n\'a pas les évolutions successives en schéma');
     return;
   }
+  /* DEUX NIVEAUX, UN CONTRÔLE : la Seconde tire des multiples de 5 et ÉCRIT
+     le mot de la conclusion elle-même (« lu » sur le coefficient global) ;
+     la Première tire des multiples de 10 et fait ÉCRIRE le mot par l'élève,
+     dans une case de rédaction (mf-mots) — le profil dit lequel. */
+  const E = Object.assign({ multiplesDe: 5, mot: 'lu' }, P.evolutionsSuccessives || {});
   verifierEval(w, '{evolutions-successives} : deux évolutions de suite, le global est entier, les trois formes sortent', `(function(){
-    const vus=[];
+    const vus=[], E=${JSON.stringify(E)};
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='evolutions-successives';
     const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, ordres={};
     for(let t=0;t<30 && !vus.length;t++){
@@ -26321,6 +26326,7 @@ function evolutionsSuccessives(w, P){
       qs.forEach(function(q,i){
         const ou='tirage '+t+' q'+i+' : ';
         if(Math.abs(q.s1)!==1 || Math.abs(q.s2)!==1) vus.push(ou+'sens « '+q.s1+' / '+q.s2+' »');
+        [q.P1,q.P2].forEach(function(p){ if(!Number.isInteger(p) || p%E.multiplesDe!==0 || p<5 || p>95) vus.push(ou+'pourcentage « '+p+' » hors des multiples de '+E.multiplesDe+' de 5 à 95'); });
         if((q.P1*q.P2)%100!==0) vus.push(ou+q.P1+' % puis '+q.P2+' % — le produit n\\'est pas un multiple de 100, le global ne peut pas être entier');
         const G=q.s1*q.P1+q.s2*q.P2+q.s1*q.s2*q.P1*q.P2/100;
         if(q.G!==G) vus.push(ou+'global « '+q.G+' » au lieu de '+G);
@@ -26347,9 +26353,9 @@ function evolutionsSuccessives(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
-  /* ---- Le schéma lui-même : les signes, les flèches, le « ± » et le verdict */
+  /* ---- Le schéma lui-même : les signes, les flèches, le « ± », le mot et le verdict */
   verifierEval(w, '{evolutions-successives} : le schéma, le signe lu sur le coefficient global, et le verdict case par case', `(function(){
-    const vus=[];
+    const vus=[], E=${JSON.stringify(E)}, ecrit=(E.mot==='ecrit');
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='evolutions-successives';
     const poser=function(q){ startEvolSucc(); test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; test.locked=false; renderEvsTest(); };
     /* la case s'écrit COMME L'ÉLÈVE : la valeur, puis l'événement « input »
@@ -26357,11 +26363,19 @@ function evolutionsSuccessives(w, P){
     const setv=function(id,val){ const e=document.getElementById(id); e.value=String(val); e.dispatchEvent(new Event('input',{bubbles:true})); };
     const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
     const txt=function(id){ return ((document.getElementById(id)||{}).textContent||'').trim(); };
+    const tag=function(id){ const e=document.getElementById(id); return e?e.tagName:'(absent)'; };
+    /* le mot : écrit par la page (Seconde), ou par l'élève (Première) — la
+       copie juste le pose alors comme une case, et le verdict se lit dessus */
+    const motPose=function(m){ if(ecrit) setv('evsMot',m); };
+    const motDit=function(attendu,ou){
+      if(ecrit){ if(!/\\bok\\b/.test(cls('evsMot'))) vus.push(ou+' : le mot « '+attendu+' » écrit par l\\'élève n\\'est pas bleu ('+cls('evsMot')+')'); }
+      else if(txt('evsMot')!==attendu) vus.push(ou+' : la conclusion ne dit pas « '+attendu+' » ('+txt('evsMot')+')');
+    };
     const HH={s1:1,s2:1,P1:20,P2:30,c1:120,c2:130,G:56,ci:0,v:1};        /* la fiche : +20 % puis +30 % → +56 % */
     const HB={s1:1,s2:-1,P1:20,P2:30,c1:120,c2:70,G:-16,ci:0,v:1};       /* +20 % puis −30 % → −16 % */
     /* 1. les signes affichés sur les flèches, lus dans le DOM ; les trois
        flèches « −1 » ; la parenthèse globale montre « ± » et la conclusion
-       des pointillés tant que rien n'est écrit — et aucun bouton de signe */
+       n'a encore rien dit — et aucun bouton de signe */
     poser(HB);
     const pars=[].map.call(document.querySelectorAll('#evsHost .pctb-arrow .pctb-af:first-child .pctb-af-x:first-child'), function(e){ return e.textContent; });
     if(pars.length!==2) vus.push('mixte : '+pars.length+' parenthèse(s) sur les flèches au lieu de 2');
@@ -26371,16 +26385,26 @@ function evolutionsSuccessives(w, P){
     if(revs!==3) vus.push('mixte : '+revs+' flèche(s) « −1 » au lieu de 3');
     if(txt('evsPM')!=='\\u00b1') vus.push('case vide : la parenthèse globale n\\'affiche pas « ± » ('+txt('evsPM')+')');
     if(!/\\bevs-pm-vide\\b/.test(cls('evsPM'))) vus.push('case vide : le « ± » n\\'est pas en retrait');
-    if(/augmentation|diminution/.test(txt('evsMot'))) vus.push('case vide : la conclusion dit déjà « '+txt('evsMot')+' »');
+    if(ecrit){
+      const m=document.getElementById('evsMot');
+      if(tag('evsMot')!=='MATH-FIELD') vus.push('le mot de la conclusion devrait être une CASE où l\\'élève écrit ('+tag('evsMot')+')');
+      else{
+        if(!m.classList.contains('mf-mots')) vus.push('la case du mot ne porte pas la classe mf-mots : le clavier B des lettres ne viendrait jamais sur tablette');
+        if(!m._motsFR) vus.push('la case du mot n\\'a pas la liste blanche des raccourcis (_motsFR) : « diminution » s\\'écrirait « di\\\\minution »');
+        if(String(m.value||'')!=='') vus.push('la case du mot naît remplie (« '+m.value+' »)');
+      }
+      if(typeof kbLettres==='function' && !kbLettres('evolutions-successives')) vus.push('kbLettres ne reconnaît pas l\\'écran : le clavier B ne viendrait pas');
+    } else if(/augmentation|diminution/.test(txt('evsMot'))) vus.push('case vide : la conclusion dit déjà « '+txt('evsMot')+' »');
     if(document.querySelector('#evsSignes, #evsHost .pt-choix-btn')) vus.push('des boutons de signe subsistent : le signe se LIT, il ne se choisit plus');
     if(!document.getElementById('evsT')) vus.push('mixte : la case du pourcentage global manque');
-    /* 2. le signe et le mot suivent la case du coefficient global, à la frappe */
+    /* 2. le signe suit la case du coefficient global, à la frappe — et le mot
+       avec lui quand c'est la page qui l'écrit */
     setv('evsG','0,84');
     if(txt('evsPM')!=='\\u2212') vus.push('0,84 écrit : la parenthèse n\\'affiche pas « − » ('+txt('evsPM')+')');
-    if(txt('evsMot')!=='diminution') vus.push('0,84 écrit : la conclusion ne dit pas « diminution » ('+txt('evsMot')+')');
+    if(!ecrit && txt('evsMot')!=='diminution') vus.push('0,84 écrit : la conclusion ne dit pas « diminution » ('+txt('evsMot')+')');
     setv('evsG','1,56');
     if(txt('evsPM')!=='+') vus.push('1,56 écrit : la parenthèse n\\'affiche pas « + » ('+txt('evsPM')+')');
-    if(txt('evsMot')!=='augmentation') vus.push('1,56 écrit : la conclusion ne dit pas « augmentation »');
+    if(!ecrit && txt('evsMot')!=='augmentation') vus.push('1,56 écrit : la conclusion ne dit pas « augmentation »');
     setv('evsG','');
     if(txt('evsPM')!=='\\u00b1') vus.push('case effacée : la parenthèse ne revient pas à « ± »');
     setv('evsG','1');
@@ -26388,37 +26412,60 @@ function evolutionsSuccessives(w, P){
     /* 3. la copie JUSTE, deux hausses : le point, sans rien à choisir */
     poser(HH);
     setv('evsP1','0,2'); setv('evsC1','1,2'); setv('evsP2','0,3'); setv('evsC2','1,3');
-    setv('evsG1','1,2'); setv('evsG2','1,3'); setv('evsG','1,56'); setv('evsGP','0,56'); setv('evsT','56');
+    setv('evsG1','1,2'); setv('evsG2','1,3'); setv('evsG','1,56'); setv('evsGP','0,56'); motPose('augmentation'); setv('evsT','56');
     checkEvsAnswer();
     ['evsP1','evsC1','evsP2','evsC2','evsGP','evsG1','evsG2','evsG','evsT'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('deux hausses : la case '+id+' juste n\\'est pas bleue ('+cls(id)+')'); });
     if(test.score!==1) vus.push('deux hausses : la copie juste ne vaut pas le point');
-    if(txt('evsPM')!=='+' || txt('evsMot')!=='augmentation') vus.push('deux hausses, vérifiée : « '+txt('evsPM')+' » / « '+txt('evsMot')+' »');
+    if(txt('evsPM')!=='+') vus.push('deux hausses, vérifiée : « '+txt('evsPM')+' »');
+    motDit('augmentation','deux hausses, vérifiée');
     /* 4. la copie JUSTE, une hausse puis une baisse */
     poser(HB);
     setv('evsP1','0,2'); setv('evsC1','1,2'); setv('evsP2','0,3'); setv('evsC2','0,7');
-    setv('evsG1','1,2'); setv('evsG2','0,7'); setv('evsG','0,84'); setv('evsGP','0,16'); setv('evsT','16');
+    setv('evsG1','1,2'); setv('evsG2','0,7'); setv('evsG','0,84'); setv('evsGP','0,16'); motPose('diminution'); setv('evsT','16');
     checkEvsAnswer();
     if(test.score!==1) vus.push('mixte : la copie juste ne vaut pas le point');
-    if(txt('evsPM')!=='\\u2212' || txt('evsMot')!=='diminution') vus.push('mixte, vérifiée : « '+txt('evsPM')+' » / « '+txt('evsMot')+' »');
+    if(txt('evsPM')!=='\\u2212') vus.push('mixte, vérifiée : « '+txt('evsPM')+' »');
+    motDit('diminution','mixte, vérifiée');
     /* 5. un coefficient global du MAUVAIS côté de 1 : la case rougit, et en
-       entraînement le bon signe et le bon mot se montrent en VERT */
+       entraînement le bon signe se montre en VERT — le bon mot aussi : écrit
+       par la page en Seconde, en correction verte à côté du mot faux en Première */
     poser(HB);
     setv('evsP1','0,2'); setv('evsC1','1,2'); setv('evsP2','0,3'); setv('evsC2','0,7');
-    setv('evsG1','1,2'); setv('evsG2','0,7'); setv('evsG','1,16'); setv('evsGP','0,16'); setv('evsT','16');
+    setv('evsG1','1,2'); setv('evsG2','0,7'); setv('evsG','1,16'); setv('evsGP','0,16'); motPose('augmentation'); setv('evsT','16');
     if(txt('evsPM')!=='+') vus.push('1,16 écrit : la parenthèse devrait suivre l\\'élève et montrer « + »');
     checkEvsAnswer();
     if(test.score!==0) vus.push('mixte, coefficient 1,16 : la copie vaut quand même le point');
     if(!/\\bbad\\b/.test(cls('evsG'))) vus.push('mixte, coefficient 1,16 : la case ne rougit pas');
     if(txt('evsPM')!=='\\u2212' || !/\\bsol\\b/.test(cls('evsPM'))) vus.push('mixte, coefficient 1,16 : le bon signe « − » ne se montre pas en vert ('+txt('evsPM')+' / '+cls('evsPM')+')');
-    if(txt('evsMot')!=='diminution' || !/\\bsol\\b/.test(cls('evsMot'))) vus.push('mixte, coefficient 1,16 : « diminution » ne se montre pas en vert');
+    if(ecrit){
+      if(!/\\bbad\\b/.test(cls('evsMot'))) vus.push('mixte, « augmentation » écrit pour une baisse : le mot ne rougit pas ('+cls('evsMot')+')');
+      const cor=document.getElementById('evsMot').nextElementSibling;
+      if(!cor || !/mf-cor/.test(cor.className) || cor.textContent.trim()!=='diminution') vus.push('mixte, mot faux : la correction « diminution » ne s\\'écrit pas en vert à côté (entraînement)');
+    } else if(txt('evsMot')!=='diminution' || !/\\bsol\\b/.test(cls('evsMot'))) vus.push('mixte, coefficient 1,16 : « diminution » ne se montre pas en vert');
     if(/\\bbad\\b/.test(cls('evsC1'))) vus.push('la case juste evsC1 rougit alors que seul le coefficient global est fautif');
     /* 6. une seule case fautive : elle seule rougit (les pourcentages additionnés) */
     poser(HH);
     setv('evsP1','0,2'); setv('evsC1','1,2'); setv('evsP2','0,3'); setv('evsC2','1,3');
-    setv('evsG1','1,2'); setv('evsG2','1,3'); setv('evsG','1,5'); setv('evsGP','0,5'); setv('evsT','50');
+    setv('evsG1','1,2'); setv('evsG2','1,3'); setv('evsG','1,5'); setv('evsGP','0,5'); motPose('augmentation'); setv('evsT','50');
     checkEvsAnswer();
     if(!/\\bbad\\b/.test(cls('evsG'))) vus.push('1,2 × 1,3 = 1,5 : la case fausse ne rougit pas — les pourcentages ont été additionnés');
     if(/\\bbad\\b/.test(cls('evsC1'))) vus.push('la case juste evsC1 rougit alors que seule la rangée du global est fautive');
+    /* 6 bis. le mot écrit par l'élève : « Hausse » vaut « augmentation »,
+       « baisse » vaut « diminution » (majuscule, accent, espace et apostrophe
+       du clavier à l'écran pardonnés) ; « baisse » sur une hausse rougit, et
+       un mot vide en entraînement reçoit le bon mot en VERT dans la case */
+    if(ecrit){
+      const copie=function(q,mot){ poser(q); setv('evsP1','0,2'); setv('evsC1','1,2'); setv('evsP2','0,3'); setv('evsC2',q.s2>0?'1,3':'0,7');
+        setv('evsG1','1,2'); setv('evsG2',q.s2>0?'1,3':'0,7'); setv('evsG',q.s2>0?'1,56':'0,84'); setv('evsGP',q.s2>0?'0,56':'0,16'); setv('evsMot',mot); setv('evsT',q.s2>0?'56':'16'); checkEvsAnswer(); };
+      copie(HH,'Hausse'); if(test.score!==1 || !/\\bok\\b/.test(cls('evsMot'))) vus.push('« Hausse » n\\'est pas accepté pour une augmentation ('+cls('evsMot')+')');
+      copie(HB,'diminution\\\;'); if(test.score!==1) vus.push('« diminution » suivi d\\'une espace du clavier à l\\'écran (\\\;) n\\'est pas accepté');
+      copie(HB,'baisse'); if(test.score!==1) vus.push('« baisse » n\\'est pas accepté pour une diminution');
+      copie(HH,'baisse'); if(test.score!==0 || !/\\bbad\\b/.test(cls('evsMot'))) vus.push('« baisse » sur deux hausses ne rougit pas ('+cls('evsMot')+')');
+      if(/\\bbad\\b/.test(cls('evsT'))) vus.push('le pourcentage juste rougit quand seul le mot est faux');
+      copie(HB,''); if(test.score!==0) vus.push('un mot vide vaut quand même le point');
+      const m=document.getElementById('evsMot');
+      if(!/\\bsol\\b/.test(cls('evsMot')) || String(m.value)!=='diminution') vus.push('mot vide en entraînement : la case ne reçoit pas « diminution » en vert (« '+m.value+' », '+cls('evsMot')+')');
+    }
     /* 7. une case vide : aucune couleur — en SOUTIEN : en entraînement la
        correction verte repasse derrière la case vide et masquerait le rouge
        (le sabotage l'a montré : le bord ne se voit qu'ici) */
@@ -26426,6 +26473,7 @@ function evolutionsSuccessives(w, P){
     setv('evsP1','0,2'); setv('evsC1',''); setv('evsP2','0,3'); setv('evsC2','0,7');
     checkEvsAnswer();
     if(/\\bbad\\b/.test(cls('evsC1'))) vus.push('une case laissée vide rougit à la vérification');
+    if(ecrit && /\\bbad\\b/.test(cls('evsMot'))) vus.push('la case du mot laissée vide rougit à la vérification');
     if(txt('evsPM')!=='\\u00b1') vus.push('coefficient global vide, vérifié en soutien : la parenthèse ne montre plus « ± »');
     if(test.score!==0) vus.push('copie incomplète : elle vaut le point');
     currentMode='train';

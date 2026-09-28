@@ -628,7 +628,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-evs{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1288,6 +1288,51 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 @media (pointer:coarse) and (min-width:600px){
   .mp-stage:has(math-field.pm-mf){--tab-nb:.85;}
 }
+/* ===== {evolutions-successives} (2.5.5) : le schéma à trois boîtes de la fiche
+   « évolutions successives », porté de la Seconde (demande de Turquet,
+   septembre 2026 : « en première créer un exercice comme le pdf, avec deux
+   évolutions successives »). Trois boîtes sans case — leur nom seulement —
+   reliées par deux flèches ; sur chaque flèche « × (1 ± …) » puis « × … »,
+   la flèche de retour « ↑ −1 » entre les deux ; en dessous, la grande flèche
+   du coefficient global et sa multiplication à trois cases ; puis la phrase
+   de conclusion, où l'élève ÉCRIT le mot (augmentation ou diminution) dans
+   une case de rédaction (mf-mots : c'est elle qui appelle le clavier B des
+   lettres sur tablette, le clavier du 2.3.13) et le pourcentage. Une flèche
+   en CSS/HTML, mesurable au banc, plutôt qu'un dessin. Chaque taille de case
+   passe par --tab-nb (la règle de la tablette, tenue par le banc), et les
+   signes qui l'entourent (.pctb-af-x, .evs-conclusion) aussi. */
+.pctb-row{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;width:100%}
+.pctb-box{display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 1 auto}
+.pctb-lab{font-family:"Nunito";font-weight:800;font-size:.92rem;color:var(--ink-soft);text-align:center;max-width:120px}
+.pctb-arrow{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1 1 150px;min-width:130px;max-width:230px}
+.pctb-af{display:flex;align-items:center;gap:6px}
+.pctb-af-x{font-family:"Fredoka";font-weight:600;font-size:calc(1.3rem * var(--tab-nb,1));color:var(--ink)}
+.pctb-shaft{width:100%;height:3px;background:var(--ink);border-radius:2px;position:relative;margin:14px 0}
+.pctb-shaft::after{content:'';position:absolute;top:50%;right:-1px;transform:translate(50%,-50%);
+  width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:11px solid var(--ink)}
+/* la flèche de retour « ↑ −1 », au MILIEU du trait, sur fond blanc pour que le trait ne la barre pas */
+.evb-rev-arrow{font-family:"Fredoka";font-weight:700;font-size:1.15rem;color:var(--ink-soft);white-space:nowrap;
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);line-height:1.1;background:#fff;padding:0 6px;border-radius:6px}
+.pctc-global{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;margin-top:14px}
+.pctc-global-shaft{width:min(94%,640px);height:3px;background:var(--ink);border-radius:2px;position:relative;margin:4px 0}
+.pctc-global-shaft::after{content:'';position:absolute;top:50%;right:-1px;transform:translate(50%,-50%);
+  width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:13px solid var(--ink)}
+.pctc-global-lab{font-family:"Fredoka";font-weight:700;font-size:1.05rem;color:var(--ink-soft);text-align:center}
+.pctc-calc{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.evs-gpar{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.evs-rev{font-family:"Fredoka";font-weight:700;font-size:1.15rem;color:var(--ink-soft);line-height:1.1}
+.evs-conclusion{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0 0;
+  font-family:"Nunito";font-weight:800;font-size:calc(1.15rem * var(--tab-nb,1));color:var(--ink)}
+/* le signe de la parenthèse globale : « ± » en retrait tant que rien n'est lu, puis « + » ou « − » */
+.evs-pm{display:inline-block;min-width:1.1em;text-align:center}
+.evs-pm-vide{color:var(--ink-soft)}
+.evs-pm.sol{color:var(--green)}
+#evsHost math-field.pm-mf{font-size:calc(1.7rem * var(--tab-nb,1));min-width:74px;max-width:150px}
+#evsHost math-field.pm-mf.evs-pct{min-width:58px;max-width:110px}
+/* la case du MOT : assez large pour « augmentation » d'un trait */
+#evsHost math-field.pm-mf.evs-mot{min-width:170px;max-width:300px}
+@media(max-width:900px){ #evsHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1))} .pctb-af-x{font-size:calc(1.15rem * var(--tab-nb,1))} }
+@media(max-width:560px){ #evsHost math-field.pm-mf{font-size:calc(1.2rem * var(--tab-nb,1));min-width:60px} .pctb-row{gap:14px} .pctb-af-x{font-size:calc(1.05rem * var(--tab-nb,1))} }
 </style>
 
 <div class="wrap">
@@ -1973,6 +2018,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-evs">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEvs"></span><span class="q-idx" id="evsIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="evsLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="evsPrompt">Complète le schéma.</p>
+      <div class="mp-stage"><div style="width:100%" id="evsHost"></div></div>
+      <div class="mp-feedback" id="evsFeedback"></div>
+      <div class="row" style="justify-content:center" id="evsActions">
+        <button class="btn btn-primary" onclick="checkEvsAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-esstest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEss"></span><span class="q-idx" id="essqIdx">Calcul 1 / 3</span></span>
@@ -2282,7 +2342,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=266;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=267;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2692,6 +2752,7 @@ const TESTS={
   'hausses-successives-cent': { name:'Hausse suivie d\u2019une hausse, en partant de 100', icon:'\ud83d\udcaf', desc:'La m\u00eame question qu\u2019en {hausses-successives}, par l\u2019autre chemin : on part de 100, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu\u2019on a gagn\u00e9 pour 100 est le pourcentage global.', start:()=>startHaussesCent() },
   'synthese-evolutions-successives': { name:'Deux \u00e9volutions successives, hausse ou baisse', icon:'\ud83d\udd01', desc:'La synth\u00e8se de {hausses-successives}, {hausses-successives-cent} et {baisses-successives} : deux \u00e9volutions de suite, chacune une hausse ou une baisse. Tu choisis ta m\u00e9thode \u2014 multiplier les coefficients, ou partir de 100 \u2014 puis tu dis si l\u2019\u00e9volution globale est une hausse ou une baisse, et de quel pourcentage. Il tombe toujours sur un nombre entier.', start:()=>startEss() },
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
+  'evolutions-successives':{ name:'Deux \u00e9volutions successives', icon:'\ud83d\udd01', desc:'Deux \u00e9volutions de suite \u2014 deux hausses, deux baisses, ou une hausse et une baisse \u2014 sur le sch\u00e9ma \u00e0 trois bo\u00eetes de la fiche. Sur chaque fl\u00e8che, \u00d7 (1 \u00b1 \u2026) puis le coefficient, comme dans {hausses-successives} et {baisses-successives} ; en dessous, le coefficient global en un seul calcul, et le pourcentage d\u2019\u00e9volution global, dont le signe se lit sur le coefficient global comme dans {lire-coefficient}. Tu \u00e9cris toi-m\u00eame le mot de la conclusion : augmentation ou diminution. Les pourcentages sont des multiples de 10 %, et le r\u00e9sultat tombe toujours sur un nombre entier.', start:()=>startEvolSucc() },
   'lire-coefficient':    { name:'Lire un coefficient multiplicateur', icon:'🔎', desc:'On donne un coefficient : dis si c\u2019est une hausse ou une baisse, donne le pourcentage, puis vérifie-le avec les étapes de {augmenter-pourcentage} et {diminuer-pourcentage}.', start:()=>startLireCoef() },
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
   'synthese-pourcentages-libre':{ name:'Synthèse sur les pourcentages — rédigée', icon:'✍️', desc:'Les mêmes questions que {synthese-pourcentages} — prendre, augmenter ou diminuer —, mais plus une seule case : tu JUSTIFIES en écrivant ta vérification toi-même, et la page la lit. La multiplication par le bon coefficient qui donne le résultat suffit ; le quotient simplifié pour retrouver un pourcentage aussi ; ou bien calcule la hausse ou la baisse, puis fais l’addition ou la soustraction.', start:()=>startSynLibre() },
@@ -2742,7 +2803,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives'] }
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives','evolutions-successives'] }
   ] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
@@ -2849,7 +2910,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='ess') startEss(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='ess') startEss(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -3057,6 +3118,7 @@ function liveCheckCurrent(){
   else if(k==='ag2q') checkWAnswer(true);
   else if(k==='syn') checkSynAnswer(true);
   else if(k==='sf') checkSFAnswer(true);
+  else if(k==='evs') checkEvsAnswer(true);
 }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
@@ -3689,7 +3751,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ess:['esstest',renderEssTest],
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], ess:['esstest',renderEssTest],
     sf:['sf',renderSFTest]
   };
   const e=table[k];
@@ -3893,7 +3955,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','evs'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -12817,6 +12879,221 @@ async function finishBaisses(){
   showResults({score,total,percent:pct,durationSec});
 }
 
+/* ============ {evolutions-successives} (2.5.5) : deux évolutions de suite, le schéma de la fiche ============
+   Demande de Turquet (septembre 2026) : « en première créer un exercice comme
+   le pdf, avec deux évolutions successives, où chacune peut être une
+   augmentation ou une diminution ; chaque pourcentage peut être un multiple
+   de 10 % ; le résultat doit être un pourcentage entier ; le clavier doit
+   être pour les tablettes comme celui de l'exercice 2.3.13 ».
+   C'est le PORTAGE de l'exercice de la Seconde (4.5.5, la même fiche : « Un
+   commerçant augmente un prix de 20 % puis de 30 %. Déterminer le pourcentage
+   d'évolution global. »), avec deux différences voulues :
+   — les pourcentages sont des MULTIPLES DE 10 (EVS_PCTS, de 10 à 90), et non
+     les multiples de 5 de la Seconde. Le produit de deux multiples de 10 est
+     toujours un multiple de 100, donc le global est TOUJOURS entier, et ça se
+     démontre : (1 ± P1/100)(1 ± P2/100) = 1 ± P1/100 ± P2/100 ± P1·P2/10000,
+     le pourcentage global vaut ±P1 ± P2 ± P1·P2/100. On écarte quand même le
+     global nul (aucune paire de multiples de 10 ne le donne, mais la garde
+     reste, et le contrôle l'exige) et ce qui atteint 100 % (+50 % puis +50 %
+     ferait +125 % : aucune scène de BS_CTX ne porte une hausse pareille) ;
+   — le MOT de la conclusion (« augmentation » ou « diminution ») est ÉCRIT
+     par l'élève, dans une case de rédaction (classe mf-mots, liste blanche
+     _motsFR) : c'est elle qui appelle le clavier B des lettres sur tablette —
+     le clavier du 2.3.13, que kbLettres pose dès qu'un champ mf-mots est sur
+     l'écran, sans aucune liste. En Seconde, la page écrit le mot elle-même.
+     Le signe « ± » de la parenthèse globale, lui, se LIT sur le coefficient
+     global comme en Seconde : « ± » tant que la case est vide ou vaut 1, puis
+     « + » ou « − » à chaque frappe — une lecture, jamais un état rangé.
+   Le schéma est celui de la Seconde au pixel : trois boîtes sans case, deux
+   flèches à deux étages (« × (1 ± …) », « ↑ −1 », « × … »), la grande flèche
+   du coefficient global et sa multiplication à trois cases, la conclusion.
+   Les mises en situation sont celles de {hausses-successives} et
+   {baisses-successives} (BS_CTX) ; les tournures disent les DEUX sens, et la
+   première est celle de la fiche, au mot près, sur un prix ou un tarif. */
+const EVS_PCTS=[10,20,30,40,50,60,70,80,90];
+/* le pourcentage d'évolution global, signé — entier par construction */
+function evsGlobal(s1,P1,s2,P2){ return s1*P1+s2*P2+s1*s2*P1*P2/100; }
+/* écriture décimale courte d'un nombre de centièmes (20 → « 0,2 », 120 → « 1,2 ») */
+function evsDec(c,den){ return (c/(den||100)).toFixed(4).replace(/0+$/,'').replace(/\.$/,'').replace('.',','); }
+function evsMin(t){ return t.charAt(0).toLowerCase()+t.slice(1); }
+const EVS_ENONCES=[
+  Object.assign(q=>`Un commerçant ${q.s1>0?'augmente':'baisse'} ${evsMin(BS_CTX[q.ci].sujet)} de <b>${q.P1} %</b> puis ${q.s1===q.s2?'':(q.s2>0?'l’augmente ':'le baisse ')}de <b>${q.P2} %</b>. Déterminer le pourcentage d’évolution global.`,
+    { si:q=>/^Le (prix|tarif)/.test(BS_CTX[q.ci].sujet), poids:2 }),
+  q=>`${BS_CTX[q.ci].sujet} ${q.s1>0?'augmente':'baisse'} de <b>${q.P1} %</b>, puis ${q.s1===q.s2?'':(q.s2>0?'augmente ':'baisse ')}de <b>${q.P2} %</b>. Déterminer le pourcentage d’évolution global.`,
+  q=>`${BS_CTX[q.ci].sujet} subit une ${q.s1>0?'hausse':'baisse'} de <b>${q.P1} %</b>, puis une ${q.s2>0?'hausse':'baisse'} de <b>${q.P2} %</b>. Quel est le pourcentage d’évolution global ?`,
+  q=>`En un an, ${evsMin(BS_CTX[q.ci].sujet)} a ${q.s1>0?'augmenté':'baissé'} de <b>${q.P1} %</b> ; l’année suivante, ${BS_CTX[q.ci].g==='f'?'elle':'il'} a ${q.s2>0?'augmenté':'baissé'} de <b>${q.P2} %</b>. Quel est le pourcentage d’évolution global sur les deux ans ?`,
+  q=>`${BS_CTX[q.ci].sujet} est d’abord ${q.s1>0?'augmenté':'diminué'}${BS_CTX[q.ci].g==='f'?'e':''} de <b>${q.P1} %</b>, puis ${q.s2>0?'augmenté':'diminué'}${BS_CTX[q.ci].g==='f'?'e':''} de <b>${q.P2} %</b>. De quel pourcentage a-t-${BS_CTX[q.ci].g==='f'?'elle':'il'} évolué au total ?`,
+  q=>`${BS_CTX[q.ci].sujet} ${q.s1>0?'gagne':'perd'} <b>${q.P1} %</b>, puis ${q.s2>0?'gagne':'perd'} <b>${q.P2} %</b>. Quel est le pourcentage d’évolution global ?`
+];
+function genEvs(sens){
+  const s=sens||pick([[1,1],[1,-1],[-1,1],[-1,-1]]);
+  let P1,P2,G,essais=0;
+  do{ P1=pick(EVS_PCTS); P2=pick(EVS_PCTS); G=evsGlobal(s[0],P1,s[1],P2); }
+  while((G===0 || Math.abs(G)>=100) && ++essais<500);
+  const q={s1:s[0],s2:s[1],P1,P2,c1:100+s[0]*P1,c2:100+s[1]*P2,G,ci:tirerContexte(BS_CTX,0)};
+  q.v=tirerVariante(EVS_ENONCES,q);
+  return q;
+}
+function evsEnonce(q){ return variante(EVS_ENONCES,q)+' Complète le schéma, puis la phrase de conclusion : le mot (augmentation ou diminution) et le pourcentage.'; }
+async function startEvolSucc(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='evs'; test.qId='evolutions-successives';
+  /* les trois formes sortent chacune une fois, en ordre mélangé : deux
+     hausses, deux baisses, et une hausse avec une baisse (dans un sens ou
+     l'autre) — sans quoi une séance pourrait ne poser que des hausses et
+     perdre tout le sujet de la fiche, le signe du global */
+  const formes=qdMelanger([[1,1],[-1,-1],pick([[1,-1],[-1,1]])]);
+  test.questions=distinctes(EVOL_NB,(_,i)=>genEvs(formes[i%formes.length]));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('evs'); renderEvsTest();
+}
+/* Le signe de l'évolution globale se LIT sur le coefficient global que
+   l'élève écrit — plus grand que 1, « + » ; plus petit que 1, « − » ; tant
+   que la case est vide (ou vaut 1), la parenthèse montre « ± ». Rien n'est
+   rangé dans la question : c'est une lecture de la case, refaite à chaque
+   frappe et à chaque affichage. Le MOT, lui, est écrit par l'élève. */
+function evsSigneDe(val){ const fr=parseDecToFrac(val); if(!fr) return null; return fr.n>fr.d?'+':(fr.n<fr.d?'−':null); }
+function evsMotDe(s){ return s==='+'?'augmentation':'diminution'; }
+/* Le mot écrit par l'élève, normalisé : minuscules, sans accent, lettres
+   seules — MathLive écrit « \; » pour une espace tapée au clavier à l'écran,
+   « \text{'} » pour une apostrophe, et une commande ne doit pas laisser ses
+   lettres. « Hausse » vaut « augmentation », « baisse » vaut « diminution ». */
+function evsMotNorm(t){ return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\\[a-z]+|[^a-z]/g,''); }
+function evsMotOk(t,bonS){ const m=evsMotNorm(t); return bonS==='+' ? (m==='augmentation'||m==='hausse') : (m==='diminution'||m==='baisse'); }
+function evsSigneMAJ(){
+  const g=$('evsG'), pm=$('evsPM'); if(!g||!pm) return;
+  const s=evsSigneDe(String(g.value||'').trim());
+  pm.textContent=s||'±'; pm.classList.toggle('evs-pm-vide',!s);
+}
+function renderEvsTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('evsIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagEvs').innerHTML=modeTagHTML();
+  $('evsLiveScore').textContent=test.score;
+  $('evsFeedback').textContent=''; $('evsFeedback').className='mp-feedback';
+  $('evsActions').innerHTML='<button class="btn btn-primary" onclick="checkEvsAnswer()">Vérifier</button>';
+  $('evsPrompt').innerHTML=evsEnonce(q);
+  const boite=lab=>`<div class="pctb-box"><div class="pctb-lab">${lab}</div></div>`;
+  const fleche=(s,idP,idC)=>
+    `<div class="pctb-arrow">
+       <div class="pctb-af"><span class="pctb-af-x">× (1 ${s<0?'−':'+'}</span><math-field class="dexp-mf pm-mf evs-pct" id="${idP}" aria-label="le pourcentage en écriture décimale"></math-field><span class="pctb-af-x">)</span></div>
+       <div class="pctb-shaft" aria-hidden="true"><span class="evb-rev-arrow">↑ −1</span></div>
+       <div class="pctb-af"><span class="pctb-af-x">×</span><math-field class="dexp-mf pm-mf" id="${idC}" aria-label="coefficient multiplicateur"></math-field></div>
+     </div>`;
+  $('evsHost').innerHTML=
+    `<div class="pctb-row">
+       ${boite('Valeur initiale')}
+       ${fleche(q.s1,'evsP1','evsC1')}
+       ${boite('Valeur intermédiaire')}
+       ${fleche(q.s2,'evsP2','evsC2')}
+       ${boite('Valeur finale')}
+     </div>
+     <div class="pctc-global">
+       <div class="pctc-global-shaft" aria-hidden="true"></div>
+       <div class="pctc-global-lab">Valeur initiale → Valeur finale en un seul calcul&nbsp;: coefficient global</div>
+       <div class="evs-gpar">
+         <span class="pctb-af-x">× (1</span>
+         <span class="pctb-af-x evs-pm evs-pm-vide" id="evsPM" aria-label="signe de l’évolution globale, lu sur le coefficient global">±</span>
+         <math-field class="dexp-mf pm-mf evs-pct" id="evsGP" aria-label="le pourcentage global en écriture décimale"></math-field>
+         <span class="pctb-af-x">)</span>
+       </div>
+       <div class="evs-rev" aria-hidden="true">↑ −1</div>
+       <div class="pctc-calc">
+         <math-field class="dexp-mf pm-mf" id="evsG1" aria-label="premier coefficient, repris dans le calcul global"></math-field>
+         <span class="pctb-af-x">×</span>
+         <math-field class="dexp-mf pm-mf" id="evsG2" aria-label="second coefficient, repris dans le calcul global"></math-field>
+         <span class="pctb-af-x">=</span>
+         <math-field class="dexp-mf pm-mf" id="evsG" aria-label="coefficient multiplicateur global"></math-field>
+       </div>
+     </div>
+     <p class="evs-conclusion">${BS_CTX[q.ci].sujet} subit globalement une
+       <math-field class="dexp-mf pm-mf mf-mots evs-mot" id="evsMot" aria-label="le mot de la conclusion : augmentation ou diminution"></math-field> de
+       <math-field class="dexp-mf pm-mf evs-pct" id="evsT" aria-label="pourcentage d’évolution global"></math-field><span class="pctb-af-x">%</span></p>`;
+  /* la case du mot est une case de RÉDACTION : la liste blanche des
+     raccourcis (« diminution » ne devient pas « di\minution »), posée AVANT la
+     greffe qui monte la case — c'est elle qui la lit (configureField) */
+  $('evsMot')._motsFR=true;
+  /* l'ordre de saisie suit la résolution : le produit d'abord, le signe et le
+     pourcentage global s'en déduisent, puis la phrase de conclusion */
+  const order=['evsP1','evsC1','evsP2','evsC2','evsG1','evsG2','evsG','evsGP','evsMot','evsT'].map(id=>$(id));
+  order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkEvsAnswer();} }); });
+  $('evsG').addEventListener('input', evsSigneMAJ);
+  evsSigneMAJ();
+  /* une reprise après pause remet les saisies APRÈS le rendu : le signe se relit alors */
+  setTimeout(evsSigneMAJ,200);
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkEvsAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  const v=id=>String($(id).value==null?'':$(id).value).trim();
+  const gAbs=Math.abs(q.G), gc=q.c1*q.c2;                 /* le coefficient global, en dix-millièmes */
+  const bonS=q.G>0?'+':'−';
+  const motEl=$('evsMot');
+  const liveMot=()=>{ if(!motEl||motEl.disabled) return; motEl.classList.remove('ok','bad'); if(v('evsMot')==='') return; motEl.classList.add(evsMotOk(v('evsMot'),bonS)?'ok':'bad'); };
+  if(live){
+    liveColorDec('evsP1',q.P1,100); liveColorDec('evsC1',q.c1,100);
+    liveColorDec('evsP2',q.P2,100); liveColorDec('evsC2',q.c2,100);
+    liveColorDec('evsGP',gAbs,100); liveColorDec('evsG1',q.c1,100); liveColorDec('evsG2',q.c2,100); liveColorDec('evsG',gc,10000);
+    liveColorDec('evsT',gAbs,1); liveMot();
+    return;
+  }
+  const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
+  const ok={ evsP1:dec('evsP1',q.P1,100), evsC1:dec('evsC1',q.c1,100), evsP2:dec('evsP2',q.P2,100), evsC2:dec('evsC2',q.c2,100),
+             evsGP:dec('evsGP',gAbs,100), evsG1:dec('evsG1',q.c1,100), evsG2:dec('evsG2',q.c2,100), evsG:dec('evsG',gc,10000),
+             evsMot:evsMotOk(v('evsMot'),bonS), evsT:dec('evsT',gAbs,1) };
+  /* une case vide ne rougit jamais (règle universelle) : mark() ne colore que
+     les cases écrites, et chacune se juge SEULE contre sa valeur canonique */
+  const mark=(id,o)=>{ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(o?'ok':'bad'); el.disabled=o||!isSoutien(); };
+  Object.keys(ok).forEach(id=>mark(id,ok[id]));
+  evsSigneMAJ();                                            /* le signe suit la case, même après le verdict */
+  const allOk=Object.keys(ok).every(id=>ok[id]);
+  if(!allOk && isSoutien()){ soutienAgain('evsFeedback','evsActions','checkEvsAnswer','evsHost'); return; }
+  test.locked=true;
+  const d1=evsDec(q.P1), d2=evsDec(q.P2), k1=evsDec(q.c1), k2=evsDec(q.c2), kg=evsDec(gc,10000), dg=evsDec(gAbs);
+  const mot=evsMotDe(bonS);
+  if(allOk){ test.score++; $('evsLiveScore').textContent=test.score;
+    $('evsFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('evsFeedback').className='mp-feedback good';
+  } else {
+    $('evsFeedback').textContent=`Réponse : (1 ${q.s1<0?'−':'+'} ${d1}) × (1 ${q.s2<0?'−':'+'} ${d2}) = ${k1} × ${k2} = ${kg} = 1 ${bonS} ${dg} : ${evsMin(BS_CTX[q.ci].sujet)} subit globalement une ${mot} de ${gAbs} %.`;
+    $('evsFeedback').className='mp-feedback bad';
+    corTrainDec('evsP1',d1); corTrainDec('evsC1',k1); corTrainDec('evsP2',d2); corTrainDec('evsC2',k2);
+    corTrainDec('evsGP',dg); corTrainDec('evsG1',k1); corTrainDec('evsG2',k2); corTrainDec('evsG',kg); corTrainDec('evsMot',mot); corTrainDec('evsT',String(gAbs));
+    /* en entraînement, la case du coefficient global vient d'être corrigée
+       (complétée si vide) : le signe se relit dessus ; si l'élève y avait
+       écrit un coefficient du mauvais côté de 1, on montre le bon signe en
+       VERT, comme une correction — le bon mot, lui, vient de corTrainDec */
+    if(currentMode==='train'){
+      evsSigneMAJ();
+      if(evsSigneDe(v('evsG'))!==bonS){
+        const pm=$('evsPM');
+        pm.textContent=bonS; pm.classList.remove('evs-pm-vide'); pm.classList.add('sol');
+      }
+    }
+  }
+  const enonce=evsEnonce(q).replace(/<[^>]+>/g,'');
+  const sLu=evsSigneDe(v('evsG'))||'±';
+  const given=`${v('evsP1')||'—'} / ${v('evsC1')||'—'} ; ${v('evsP2')||'—'} / ${v('evsC2')||'—'} ; ${sLu}${v('evsGP')||'—'} ; ${v('evsG1')||'—'} × ${v('evsG2')||'—'} = ${v('evsG')||'—'} ; ${evsMotNorm(v('evsMot'))||'—'} de ${v('evsT')||'—'} %`;
+  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${d1} / ${k1} ; ${d2} / ${k2} ; ${bonS}${dg} ; ${k1} × ${k2} = ${kg} ; ${mot} de ${gAbs} %`, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('evsActions').innerHTML=`<button class="btn btn-primary" id="evsNext" onclick="nextEvsQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('evsNext').focus();
+}
+function nextEvsQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderEvsTest(); autoSave(); } else finishEvs(); }
+async function finishEvs(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'evolutions-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
 /* ---------- 2.4.1 : lire un coefficient multiplicateur ----------
    Le chemin inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on
    donne le coefficient, l'élève dit le sens de l'évolution puis son
@@ -16733,6 +17010,11 @@ Enchaîner les deux baisses, c’est multiplier par l’un <b>puis</b> par l’a
 Le coefficient global se relit enfin en pourcentage : multiplier par 0,48, c’est <b>garder</b> 48 % — donc <b>perdre 52 %</b>. La baisse globale est <b>52 %</b>.<br>
 Pour vérifier, refais le chemin dans l’autre sens : 1 − 0,52 = 0,48, le coefficient trouvé à l’étape ②.`;
 
+const RAP_EVS=`<b>Deux évolutions successives</b><br>
+Trois boîtes reliées par deux flèches : <b>[valeur initiale]</b> → <b>[valeur intermédiaire]</b> → <b>[valeur finale]</b>. Chaque flèche porte son coefficient multiplicateur en deux temps : <b>× (1 + …)</b> pour une hausse, comme dans {augmenter-pourcentage}, <b>× (1 − …)</b> pour une baisse, comme dans {diminuer-pourcentage}, puis son écriture décimale (<b>1,2</b> pour +20 %, <b>0,7</b> pour −30 %).<br>
+Le coefficient <b>global</b>, celui qui va directement de la valeur initiale à la valeur finale, est le <b>PRODUIT</b> des deux coefficients — jamais leur somme, et jamais la somme des deux pourcentages, comme dans {hausses-successives} et {baisses-successives} : c’est la deuxième rangée du schéma. Par exemple, 1,2 × 0,7 = 0,84.<br>
+Pour retrouver le pourcentage d’évolution global, on retire 1 au coefficient global — la flèche « −1 » : 0,84 − 1 = −0,16, donc <b>× (1 − 0,16)</b>, une <b>diminution</b> de 16 %. Un coefficient global plus grand que 1 dit une <b>augmentation</b>, plus petit que 1 une <b>diminution</b>, comme dans {lire-coefficient} : le signe de la parenthèse se lit sur lui, et c’est ce mot-là que tu écris toi-même dans la phrase de conclusion.<br>
+Toutes les cases sont vides, même les deux pourcentages que l’énoncé donne déjà : c’est en les récrivant qu’on montre qu’on a compris le schéma.`;
 const RAP_CK=`<b>Reconnaître le coefficient multiplicateur</b><br>
 Trois situations, trois coefficients :<br>
 <b>Augmenter de P %</b> : \\(1+\\frac{P}{100}\\). Exemple : +30 % → 1 + 0,30 = <b>1,30</b>.<br>
@@ -16813,7 +17095,7 @@ Exemple : augmenter de 20 % puis baisser de 5 %.<br>
 <b>Méthode 1 — multiplier les coefficients</b>, comme dans {hausses-successives} : augmenter de 20 %, c’est multiplier par 1 + 0,20 = <b>1,2</b> ; baisser de 5 %, c’est multiplier par 1 − 0,05 = <b>0,95</b>. Le coefficient global est le <b>produit</b> : \\(1{,}2\\times 0{,}95=\\frac{12}{10}\\times \\frac{95}{100}=\\frac{1140}{1000}\\) = <b>1,14</b>. On le lit comme dans {lire-coefficient} : 1,14 est <b>plus grand que 1</b>, c’est une <b>hausse</b>, et l’écart à 1 vaut 0,14 : une hausse de <b>14 %</b>.<br>
 <b>Méthode 2 — partir de 100</b>, comme dans {hausses-successives-cent} : la hausse pour 100 vaut \\(\\frac{20}{100}\\times 100=20\\), donc 100 + 20 = <b>120</b> ; la baisse pour <b>120</b> vaut \\(\\frac{5}{100}\\times 120=\\frac{600}{100}=6\\), donc 120 − 6 = <b>114</b>. On est passé de 100 à 114, <b>au-dessus de 100</b> : c’est une hausse de <b>14 pour 100</b>, c’est-à-dire <b>14 %</b>.<br>
 Piège classique : additionner les pourcentages — +20 % puis −5 %, ce n’est PAS +15 %. Et si le coefficient global est plus petit que 1 (ou la valeur finale sous 100), c’est une baisse, même si l’énoncé commence par une hausse.`;
-const RAPPELS_ID={ 'synthese-evolutions-successives':RAP_ESS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'synthese-evolutions-successives':RAP_ESS, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -16867,6 +17149,7 @@ const QIA_SUGG={
   lc:["Comment savoir si un coefficient fait monter ou descendre ?","Pourquoi 0,96 est-il une baisse de 4 % et non de 96 % ?","Comment retrouver le pourcentage à partir du coefficient ?","Que signifie multiplier par 1,4 ?"],
   ac:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment reconnaître le coefficient d’une diminution ?","Comment passer d’un pourcentage à un coefficient ?"],
   ck:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment calculer le coefficient d’une augmentation ?","Comment calculer le coefficient d’une diminution ?"],
+  evs:["Pourquoi n’additionne-t-on pas les deux pourcentages ?","Comment savoir si l’évolution globale est une augmentation ou une diminution ?","Pourquoi retire-t-on 1 au coefficient global pour trouver le pourcentage ?","Une hausse de 20 % suivie d’une baisse de 20 %, ça revient au départ ?"],
   bs:["Pourquoi deux baisses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième baisse ?","Comment relire un coefficient global en pourcentage de baisse ?"],
   dim:["Pourquoi une remise de 30 % revient à multiplier par 0,7 ?","C’est quoi, un coefficient multiplicateur ?","Après une remise de 25 %, que reste-t-il à payer ?","Quelle différence entre une remise et un rabais ?"],
   mp:["Comment fonctionne une retenue ?","Pourquoi commence-t-on par les unités ?","Comment vérifier un résultat de multiplication ?"],
@@ -16954,6 +17237,12 @@ function conseilCtxCourant(){
       +'Méthode enseignée : on CHOISIT 100 comme valeur de départ — la hausse globale n’en dépend pas —, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu’on a gagné « pour 100 » EST le pourcentage global. '
       +'La seconde hausse porte sur la valeur DÉJÀ augmentée ('+a.v1+'), jamais sur 100 : c’est pourquoi les hausses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. '
       +'C’est le même calcul qu’en {hausses-successives}, par l’autre chemin : là on multiplie deux coefficients, ici on suit une valeur.';
+  } else if(k==='evs' && q){
+    const gAbs=Math.abs(q.G), bonS=q.G>0?'+':'−', mot=evsMotDe(bonS);
+    att='Réponses attendues, STRICTEMENT SECRÈTES : sur la première flèche × (1 '+(q.s1<0?'−':'+')+' '+evsDec(q.P1)+') puis × '+evsDec(q.c1)+' ; sur la seconde × (1 '+(q.s2<0?'−':'+')+' '+evsDec(q.P2)+') puis × '+evsDec(q.c2)+' ; '
+      +'coefficient global '+evsDec(q.c1)+' × '+evsDec(q.c2)+' = '+evsDec(q.c1*q.c2,10000)+' = 1 '+bonS+' '+evsDec(gAbs)+' ; conclusion : une '+mot+' de '+gAbs+' %. '
+      +'Méthode enseignée : un coefficient par évolution — × (1 + …) pour une hausse comme dans {augmenter-pourcentage}, × (1 − …) pour une baisse comme dans {diminuer-pourcentage} —, puis le PRODUIT des deux coefficients donne le coefficient global, comme dans {hausses-successives} et {baisses-successives} ; on lui retire 1 pour lire le pourcentage global, et son signe dit le mot : plus grand que 1, augmentation ; plus petit que 1, diminution, comme dans {lire-coefficient}. '
+      +'Les pourcentages ne s’additionnent pas : l’erreur classique est de répondre '+(q.s1*q.P1+q.s2*q.P2)+' %. Le mot de la conclusion (augmentation ou diminution) est écrit par l’élève lui-même, dans la case avant « de … % ». Aucune valeur de départ n’est donnée : le résultat n’en dépend pas.';
   } else if(k==='ess' && q){
     const a=essAns(q), sg=s=>s>0?'+':'−', mot=s=>s>0?'hausse':'baisse';
     att='Réponses attendues, STRICTEMENT SECRÈTES : une '+mot(q.s1)+' de '+q.P1+' % suivie d’une '+mot(q.s2)+' de '+q.P2+' % fait une '+mot(a.sens)+' globale de '+a.pct+' %. '
@@ -17408,7 +17697,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEvsTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
