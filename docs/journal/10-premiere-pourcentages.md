@@ -1477,6 +1477,31 @@ deux premières cases) et leur produit, jugé comme `pctcG` l'était déjà. Le
 barème ne change pas : une question reste juste ou fausse en bloc, et
 `test.maxScore` ne compte que les questions, jamais les cases.
 
+**Une phrase de conclusion ferme l'exercice (Turquet, même semaine) : elle
+se termine par une case à compléter par le BON POURCENTAGE.** Le schéma en
+boîte s'arrêtait sur le calcul (`pctcG`), sans jamais reformuler la réponse
+en mots — l'élève pouvait trouver 0,12 sans jamais écrire « 12 % ». Chaque
+contexte de `CTX_CHAINE` gagne un troisième champ, `ccl` (trois fonctions,
+`comb`/`p1`/`p2`, comme `comb`/`p1`/`p2` eux-mêmes) : une phrase déclarative
+qui reprend EN MOTS ce que la question de `pctcEnonce()` posait, avec un
+trou à la place du nombre — « Donc les basketteuses représentent ▢ % des
+membres du club. » pour `comb`, « Donc le club est composé de ▢ % de
+filles. » pour `p1`, etc. Le motif « donc … est de ▢ % » est celui
+qu'{augmenter-taux-dix} (2.2.12, Première) a introduit la même semaine pour
+sa propre conclusion — même façon de clore un calcul par sa phrase, portée
+ici à un exercice à trois inconnues au lieu d'une seule.
+
+**Le trou ne recopie JAMAIS le nombre qu'une autre case demande déjà.**
+Les trois sens (`comb`, `p1`, `p2`) ne cherchent pas le même pourcentage :
+`pctcCible(q)` le calcule une fois (`q.P1`, `q.P2` ou `q.comb` selon
+`q.inc` — exactement ce que `pctcEnonce()` pose en question, jamais ce
+qu'elle donne), et une seule fonction sert la case (`pctcC`), la
+correction en direct du soutien et le corrigé affiché en entraînement. La
+case se juge comme les anciennes `pctcT`/`pctcA`/`pctcB` — un entier
+comparé par `parseInt`, jamais `parseDecToFrac` (le trou est un
+pourcentage en toutes lettres, pas une écriture décimale) — et suit le même
+garde-fou universel : vide, elle ne rougit jamais.
+
 **Une quatrième méthode, twin de {pourcentage-dix} : retrouver PLUSIEURS
 pourcentages, sans qu'aucun ne soit donné à l'avance.**
 {pourcentage-dix-cascade} (2.1.9, demande de Turquet, septembre 2026, à
@@ -2157,6 +2182,37 @@ bonne proposition vaut le point sans retaper le calcul). Les règles
 universelles (taille des cases, case vide, bouton d'aide IA, clavier) sont
 tenues par le banc navigateur sans rien déclarer : l'écran est celui du
 2.2.9.
+
+## {synthese-diminutions-dix} — le miroir sur les baisses (Première, septembre 2026)
+
+**D'où ça vient.** Le jour même du 2.2.13 : « fais pareil pour les
+diminutions (2.3.8, avec le 2.3.10 et le 2.3.11) ». L'exercice arrive en fin
+de sous-thème, {synthese-diminutions-dix} (2.3.12) : la synthèse des baisses
+du 2.3.8, avec le même troisième bouton « En passant par 10 % ».
+
+**Rien de neuf dans le moteur, seulement le SENS.** Le tirage passe par
+`genSyn('dim', inc, {dix:true})` — la porte `dix` était déjà indépendante du
+sens, seuls ses commentaires nommaient les hausses. Le rendu et le juge de la
+méthode des 10 % lisent `q.sens` là où le 2.3.10 et le 2.3.11 diffèrent de
+leurs jumeaux : « donc : la baisse de P % de N est ▢ », « la valeur diminuée
+est ▢ − ▢ = ▢ » (une soustraction s'écrit dans l'ordre, départ puis baisse —
+la règle de la méthode directe, reprise telle quelle : pas de termes
+inversés acceptés, pas de correction inversée), la soustraction posée en
+pose facultative ; pour le pourcentage, l'écart « a diminué de N − fin = ▢ »
+et « donc le pourcentage de baisse est de ▢ % », la soustraction posée
+`N − fin`. Les messages (« le pourcentage de baisse est 30 % »), la preuve, le
+contexte envoyé au modèle ({diminuer-dix}, {diminuer-taux-dix}), le corrigé
+type et le rappel (`RAP_SDD`) suivent. Le tirage des leurres de la valeur
+initiale est celui du 2.3.8 : des multiples de dix, 10 % en reste entier.
+
+**Un seul contrôle, joué deux fois.** Le contrôle du 2.2.13 est devenu
+`syntheseDix(w, P, CFG)`, appelé avec la configuration de chaque sens :
+l'identité, le démarreur, la famille, le signe, la synthèse témoin qui ne
+doit pas changer (2.2.9 / 2.3.8), et les mots à lire à l'écran (« la valeur
+diminuée est », « la baisse de 15 % de N », l'écart dans le bon ordre, « a
+diminué de », « le pourcentage de baisse est de »). Les quatre bords sont
+donc tenus des deux côtés sans avoir été recopiés : un recopiage aurait fini
+par diverger, c'est la leçon des générateurs, appliquée aux contrôles.
 
 ---
 
