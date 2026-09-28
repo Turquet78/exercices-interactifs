@@ -1990,16 +1990,22 @@
      petites flèches, une grande flèche relie directement la première boîte à
      la dernière ; sous elle, une multiplication à compléter — les deux
      écritures décimales, reprises, puis leur produit — donne le coefficient
-     global en un seul calcul, sans repasser par le sous-groupe intermédiaire. */
+     global en un seul calcul, sans repasser par le sous-groupe intermédiaire.
+     Une phrase de conclusion ferme l'exercice (même demande) : elle reprend
+     en mots ce que la question posait, et se termine par une case à
+     compléter par le BON POURCENTAGE — celui que l'énoncé cherchait (le
+     combiné, le premier ou le second selon `q.inc`), jamais recopié en clair
+     ailleurs dans le schéma. */
   .pctc-global{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;margin-top:14px}
   .pctc-global-shaft{width:min(94%,640px);height:3px;background:var(--ink);border-radius:2px;position:relative;margin:4px 0}
   .pctc-global-shaft::after{content:'';position:absolute;top:50%;right:-1px;transform:translate(50%,-50%);
     width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:13px solid var(--ink)}
   .pctc-global-lab{font-family:"Fredoka";font-weight:700;font-size:1.05rem;color:var(--ink-soft);text-align:center}
   .pctc-calc{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+  .pctc-concl{font-family:"Fredoka";font-weight:700;font-size:1.1rem;color:var(--ink);text-align:center;margin-top:16px}
   #pctcHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
   @media(max-width:900px){ #pctcHost math-field.pm-mf{font-size:1.4rem} }
-  @media(max-width:560px){ #pctcHost math-field.pm-mf{font-size:1.2rem;min-width:60px} .pctb-row{gap:14px} .pctc-global-lab{font-size:.92rem} }
+  @media(max-width:560px){ #pctcHost math-field.pm-mf{font-size:1.2rem;min-width:60px} .pctb-row{gap:14px} .pctc-global-lab{font-size:.92rem} .pctc-concl{font-size:.98rem} }
 
 /* --- Aide à la saisie (dérivées) + invite f'(x) --- */
 .equation .ask{display:block;margin-top:10px;font-size:.5em;color:var(--chalk-soft);font-weight:600;letter-spacing:.02em;}
@@ -4645,7 +4651,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=234;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=235;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -19690,27 +19696,45 @@ const CTX_CHAINE=[
   { total:'Club de sport', niv1:'Filles', niv2:'Basketteuses',
     comb:(P1,P2)=>`Dans un club de sport, il y a <b>${P1} %</b> de filles. Parmi les filles, <b>${P2} %</b> font du basket. Quel pourcentage des membres du club cela représente-t-il ?`,
     p1:(P2,C)=>`Dans un club de sport, parmi les filles, <b>${P2} %</b> font du basket ; ces basketteuses représentent <b>${C} %</b> des membres du club. Quel pourcentage du club est composé de filles ?`,
-    p2:(P1,C)=>`Dans un club de sport, il y a <b>${P1} %</b> de filles. Les filles qui font du basket représentent <b>${C} %</b> des membres du club. Quel pourcentage des filles fait du basket ?` },
+    p2:(P1,C)=>`Dans un club de sport, il y a <b>${P1} %</b> de filles. Les filles qui font du basket représentent <b>${C} %</b> des membres du club. Quel pourcentage des filles fait du basket ?`,
+    ccl:{ comb:champ=>`Donc les basketteuses représentent ${champ} % des membres du club.`,
+          p1:champ=>`Donc le club est composé de ${champ} % de filles.`,
+          p2:champ=>`Donc ${champ} % des filles font du basket.` } },
   { total:'Lycée', niv1:'Internes', niv2:'Sportifs du mercredi',
     comb:(P1,P2)=>`Dans un lycée, <b>${P1} %</b> des élèves sont internes. Parmi les internes, <b>${P2} %</b> pratiquent un sport le mercredi après-midi. Quel pourcentage des élèves du lycée cela représente-t-il ?`,
     p1:(P2,C)=>`Dans un lycée, parmi les internes, <b>${P2} %</b> pratiquent un sport le mercredi après-midi ; ils représentent <b>${C} %</b> des élèves du lycée. Quel pourcentage des élèves du lycée est interne ?`,
-    p2:(P1,C)=>`Dans un lycée, <b>${P1} %</b> des élèves sont internes. Les internes qui pratiquent un sport le mercredi après-midi représentent <b>${C} %</b> des élèves du lycée. Quel pourcentage des internes pratique un sport le mercredi après-midi ?` },
+    p2:(P1,C)=>`Dans un lycée, <b>${P1} %</b> des élèves sont internes. Les internes qui pratiquent un sport le mercredi après-midi représentent <b>${C} %</b> des élèves du lycée. Quel pourcentage des internes pratique un sport le mercredi après-midi ?`,
+    ccl:{ comb:champ=>`Donc les sportifs du mercredi représentent ${champ} % des élèves du lycée.`,
+          p1:champ=>`Donc ${champ} % des élèves du lycée sont internes.`,
+          p2:champ=>`Donc ${champ} % des internes pratiquent un sport le mercredi après-midi.` } },
   { total:'Village', niv1:'Moins de 18 ans', niv2:'Licenciés en club',
     comb:(P1,P2)=>`Dans un village, <b>${P1} %</b> des habitants ont moins de 18 ans. Parmi eux, <b>${P2} %</b> sont licenciés dans un club de sport. Quel pourcentage des habitants du village cela représente-t-il ?`,
     p1:(P2,C)=>`Dans un village, parmi les habitants de moins de 18 ans, <b>${P2} %</b> sont licenciés dans un club de sport ; ils représentent <b>${C} %</b> des habitants du village. Quel pourcentage des habitants du village a moins de 18 ans ?`,
-    p2:(P1,C)=>`Dans un village, <b>${P1} %</b> des habitants ont moins de 18 ans. Les moins de 18 ans licenciés dans un club de sport représentent <b>${C} %</b> des habitants du village. Quel pourcentage des moins de 18 ans est licencié dans un club de sport ?` },
+    p2:(P1,C)=>`Dans un village, <b>${P1} %</b> des habitants ont moins de 18 ans. Les moins de 18 ans licenciés dans un club de sport représentent <b>${C} %</b> des habitants du village. Quel pourcentage des moins de 18 ans est licencié dans un club de sport ?`,
+    ccl:{ comb:champ=>`Donc les licenciés en club représentent ${champ} % des habitants du village.`,
+          p1:champ=>`Donc ${champ} % des habitants du village ont moins de 18 ans.`,
+          p2:champ=>`Donc ${champ} % des moins de 18 ans sont licenciés dans un club de sport.` } },
   { total:'Entreprise', niv1:'Télétravail', niv2:'Habitent loin',
     comb:(P1,P2)=>`Dans une entreprise, <b>${P1} %</b> des salariés travaillent en télétravail. Parmi eux, <b>${P2} %</b> habitent à plus de 30 km du bureau. Quel pourcentage des salariés de l’entreprise cela représente-t-il ?`,
     p1:(P2,C)=>`Dans une entreprise, parmi les salariés en télétravail, <b>${P2} %</b> habitent à plus de 30 km du bureau ; ils représentent <b>${C} %</b> des salariés de l’entreprise. Quel pourcentage des salariés de l’entreprise est en télétravail ?`,
-    p2:(P1,C)=>`Dans une entreprise, <b>${P1} %</b> des salariés travaillent en télétravail. Ceux qui habitent à plus de 30 km du bureau représentent <b>${C} %</b> des salariés de l’entreprise. Quel pourcentage des salariés en télétravail habite à plus de 30 km du bureau ?` },
+    p2:(P1,C)=>`Dans une entreprise, <b>${P1} %</b> des salariés travaillent en télétravail. Ceux qui habitent à plus de 30 km du bureau représentent <b>${C} %</b> des salariés de l’entreprise. Quel pourcentage des salariés en télétravail habite à plus de 30 km du bureau ?`,
+    ccl:{ comb:champ=>`Donc les salariés en télétravail qui habitent loin représentent ${champ} % des salariés de l’entreprise.`,
+          p1:champ=>`Donc ${champ} % des salariés de l’entreprise sont en télétravail.`,
+          p2:champ=>`Donc ${champ} % des salariés en télétravail habitent à plus de 30 km du bureau.` } },
   { total:'Bibliothèque', niv1:'Romans', niv2:'Romans empruntés',
     comb:(P1,P2)=>`Dans une bibliothèque, <b>${P1} %</b> des livres sont des romans. Parmi les romans, <b>${P2} %</b> sont actuellement empruntés. Quel pourcentage du fonds total cela représente-t-il ?`,
     p1:(P2,C)=>`Dans une bibliothèque, parmi les romans, <b>${P2} %</b> sont actuellement empruntés ; ils représentent <b>${C} %</b> du fonds total. Quel pourcentage des livres de la bibliothèque est composé de romans ?`,
-    p2:(P1,C)=>`Dans une bibliothèque, <b>${P1} %</b> des livres sont des romans. Les romans actuellement empruntés représentent <b>${C} %</b> du fonds total. Quel pourcentage des romans est actuellement emprunté ?` },
+    p2:(P1,C)=>`Dans une bibliothèque, <b>${P1} %</b> des livres sont des romans. Les romans actuellement empruntés représentent <b>${C} %</b> du fonds total. Quel pourcentage des romans est actuellement emprunté ?`,
+    ccl:{ comb:champ=>`Donc les romans empruntés représentent ${champ} % du fonds total.`,
+          p1:champ=>`Donc ${champ} % des livres de la bibliothèque sont des romans.`,
+          p2:champ=>`Donc ${champ} % des romans sont actuellement empruntés.` } },
   { total:'Festival', niv1:'Pass 3 jours', niv2:'Moins de 20 ans',
     comb:(P1,P2)=>`Dans un festival, <b>${P1} %</b> des spectateurs ont un pass 3 jours. Parmi eux, <b>${P2} %</b> ont moins de 20 ans. Quel pourcentage des spectateurs du festival cela représente-t-il ?`,
     p1:(P2,C)=>`Dans un festival, parmi les spectateurs ayant un pass 3 jours, <b>${P2} %</b> ont moins de 20 ans ; ils représentent <b>${C} %</b> des spectateurs du festival. Quel pourcentage des spectateurs du festival a un pass 3 jours ?`,
-    p2:(P1,C)=>`Dans un festival, <b>${P1} %</b> des spectateurs ont un pass 3 jours. Ceux qui ont moins de 20 ans parmi eux représentent <b>${C} %</b> des spectateurs du festival. Quel pourcentage des détenteurs d’un pass 3 jours a moins de 20 ans ?` }
+    p2:(P1,C)=>`Dans un festival, <b>${P1} %</b> des spectateurs ont un pass 3 jours. Ceux qui ont moins de 20 ans parmi eux représentent <b>${C} %</b> des spectateurs du festival. Quel pourcentage des détenteurs d’un pass 3 jours a moins de 20 ans ?`,
+    ccl:{ comb:champ=>`Donc les spectateurs de moins de 20 ans ayant un pass 3 jours représentent ${champ} % des spectateurs du festival.`,
+          p1:champ=>`Donc ${champ} % des spectateurs du festival ont un pass 3 jours.`,
+          p2:champ=>`Donc ${champ} % des détenteurs d’un pass 3 jours ont moins de 20 ans.` } }
 ];
 function genPctChaine(inc){
   inc=inc||pick(['comb','p1','p2']);
@@ -19725,6 +19749,10 @@ function pctcEnonce(q){
   if(q.inc==='p2') return ctx.p2(q.P1,q.comb);
   return ctx.comb(q.P1,q.P2);
 }
+/* Le pourcentage que la phrase de conclusion demande : celui que l'énoncé
+   cherchait, jamais celui qu'il donnait — le même que `pctcEnonce()` pose en
+   question, quel que soit `q.inc`. */
+function pctcCible(q){ return q.inc==='p1' ? q.P1 : q.inc==='p2' ? q.P2 : q.comb; }
 async function startPctChaine(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
@@ -19769,8 +19797,9 @@ function renderPctChaineTest(){
          <span class="pctb-af-x">=</span>
          <math-field class="dexp-mf pm-mf" id="pctcG" aria-label="coefficient multiplicateur global"></math-field>
        </div>
-     </div>`;
-  const order=['pctcD1','pctcD2','pctcG1','pctcG2','pctcG'].map(id=>$(id));
+     </div>
+     <div class="pctc-concl">${ctx.ccl[q.inc]('<math-field class="dexp-mf pm-mf" id="pctcC" aria-label="pourcentage trouvé"></math-field>')}</div>`;
+  const order=['pctcD1','pctcD2','pctcG1','pctcG2','pctcG','pctcC'].map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPctChaineAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
@@ -19778,9 +19807,14 @@ function checkPctChaineAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const v=id=>$(id).value.trim();
+  const cible=pctcCible(q);
   if(live){
+    const col=(id,target)=>{ const el=$(id); if(!el||el.disabled) return; const val=v(id);
+      el.classList.remove('ok','bad'); if(val==='') return;
+      const n=parseInt(val,10); el.classList.add((!isNaN(n)&&n===target)?'ok':'bad'); };
     liveColorDec('pctcD1',q.P1,100); liveColorDec('pctcD2',q.P2,100);
     liveColorDec('pctcG1',q.P1,100); liveColorDec('pctcG2',q.P2,100); liveColorDec('pctcG',q.comb,100);
+    col('pctcC',cible);
     return;
   }
   const fr1=parseDecToFrac(v('pctcD1')), okD1=!!fr1 && fr1.n*100===q.P1*fr1.d;
@@ -19788,25 +19822,27 @@ function checkPctChaineAnswer(live){
   const frG1=parseDecToFrac(v('pctcG1')), okG1=!!frG1 && frG1.n*100===q.P1*frG1.d;
   const frG2=parseDecToFrac(v('pctcG2')), okG2=!!frG2 && frG2.n*100===q.P2*frG2.d;
   const frG=parseDecToFrac(v('pctcG')), okG=!!frG && frG.n*100===q.comb*frG.d;
+  const okC=v('pctcC')!=='' && parseInt(v('pctcC'),10)===cible;
   // une case vide ne rougit jamais (règle universelle) : mark() ne colore que
   // les cases écrites, et chacune se juge SEULE contre sa valeur canonique
   const mark=(id,ok)=>{ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien(); };
-  mark('pctcD1',okD1); mark('pctcD2',okD2); mark('pctcG1',okG1); mark('pctcG2',okG2); mark('pctcG',okG);
-  const allOk=okD1&&okD2&&okG1&&okG2&&okG;
+  mark('pctcD1',okD1); mark('pctcD2',okD2); mark('pctcG1',okG1); mark('pctcG2',okG2); mark('pctcG',okG); mark('pctcC',okC);
+  const allOk=okD1&&okD2&&okG1&&okG2&&okG&&okC;
   if(!allOk && isSoutien()){ soutienAgain('pctcFeedback','pctcActions','checkPctChaineAnswer','pctcHost'); return; }
   test.locked=true;
   const d1Str=pDecStr(q.P1), d2Str=pDecStr(q.P2), gStr=pDecStr(q.comb);
   if(allOk){ test.score++; $('pctcLiveScore').textContent=test.score;
     $('pctcFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('pctcFeedback').className='mp-feedback good';
   } else {
-    $('pctcFeedback').textContent=`Réponse : 100 % × ${d1Str} = ${q.P1} %, puis ${q.P1} % × ${d2Str} = ${q.comb} % — en un seul calcul : ${d1Str} × ${d2Str} = ${gStr}`;
+    $('pctcFeedback').textContent=`Réponse : 100 % × ${d1Str} = ${q.P1} %, puis ${q.P1} % × ${d2Str} = ${q.comb} % — en un seul calcul : ${d1Str} × ${d2Str} = ${gStr} — donc ${cible} %.`;
     $('pctcFeedback').className='mp-feedback bad';
     corTrainDec('pctcD1',d1Str); corTrainDec('pctcD2',d2Str);
     corTrainDec('pctcG1',d1Str); corTrainDec('pctcG2',d2Str); corTrainDec('pctcG',gStr);
+    corTrainDec('pctcC',String(cible));
   }
   const enonce=pctcEnonce(q).replace(/<[^>]+>/g,'');
-  const given=`${v('pctcD1')||'—'} / ${v('pctcD2')||'—'} / ${v('pctcG1')||'—'} × ${v('pctcG2')||'—'} = ${v('pctcG')||'—'}`;
-  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${d1Str} ; ${d2Str} ; ${d1Str} × ${d2Str} = ${gStr}`, given, correct:allOk});
+  const given=`${v('pctcD1')||'—'} / ${v('pctcD2')||'—'} / ${v('pctcG1')||'—'} × ${v('pctcG2')||'—'} = ${v('pctcG')||'—'} / ${v('pctcC')||'—'} %`;
+  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${d1Str} ; ${d2Str} ; ${d1Str} × ${d2Str} = ${gStr} ; ${cible} %`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('pctcActions').innerHTML=`<button class="btn btn-primary" id="pctcNext" onclick="nextPctChaineQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   $('pctcNext').focus();
