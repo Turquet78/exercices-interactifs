@@ -269,6 +269,18 @@ module.exports = {
        Turquet, août 2026, en trois temps). DEUX sources : la page a EVOL_NB,
        le banc compare à ceci. */
     nbQuestionsEvolutions: 3,
+    /* {evolutions-successives} (2.5.5) — le schéma de la fiche « évolutions
+       successives », porté de la Seconde (demande de Turquet, septembre 2026 :
+       « en première créer un exercice comme le pdf, avec deux évolutions
+       successives … chaque pourcentage peut être un multiple de 10 % … le
+       clavier doit être pour les tablettes comme celui de l'exercice
+       2.3.13 »). Les pourcentages sont des MULTIPLES DE 10, et le MOT de la
+       conclusion (augmentation / diminution) est ÉCRIT par l'élève dans une
+       case de rédaction (mf-mots) — c'est elle qui appelle le clavier B des
+       lettres sur tablette, comme au 2.3.13. En Seconde, la page écrit le mot
+       elle-même (« lu »). DEUX sources : la page a EVS_PCTS, le banc compare
+       à ceci. */
+    evolutionsSuccessives: { multiplesDe: 10, mot: 'ecrit' },
     /* 3 questions pour {associer-coefficient} — une par pourcentage, et
        chacune porte TROIS associations. DEUX sources : la page a AC_NB, le
        banc compare à ceci. */
@@ -808,6 +820,10 @@ module.exports = {
        (septembre 2026) : mêmes nombres de questions, mêmes deux sources. */
     nbQuestionsPourcentages: 4,
     nbQuestionsEvolutions: 3,
+    /* {evolutions-successives} (4.5.5) : des multiples de 5 dont le produit
+       est un multiple de 100, et le mot de la conclusion est LU sur le
+       coefficient global — la page l'écrit elle-même. */
+    evolutionsSuccessives: { multiplesDe: 5, mot: 'lu' },
     nbQuestionsAssocier: 3,
     /* Le pavé numérique compact : la SECONDE source de sa liste de touches,
        et la case réelle que le banc navigateur pilote en mode tactile. */
