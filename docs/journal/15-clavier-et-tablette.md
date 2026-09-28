@@ -1354,9 +1354,13 @@ installée, `applyKbLayout` pose `--kb-unites`, et la feuille de styles
 calcule `--keycap-auto` — mais la Première le met en TROISIÈME terme d'un
 `min` dont les deux premiers sont ceux de MathLive, à l'identique : tant
 qu'une rangée tient, aucune touche ne change de taille ; seule une rangée
-trop large rétrécit, toutes couches ensemble. Mesuré au navigateur : à
-768 px, les douze touches font 56 px ; couchée à 1024 px, le clavier A
-compact avec « clavier B » (quatorze unités) garde ses 62 px. Le libellé
+trop large rétrécit, toutes couches ensemble. Mesuré au navigateur : sur
+la tablette debout (768 px), la touche la plus étroite fait 48 px, sur les
+lettres comme sur le clavier A ; couchée (1024 px), 54 px — le clavier A
+compact y porte quatorze unités avec « clavier B », et le conteneur que
+`cqw` mesure est plus étroit que l'écran d'une centaine de pixels. Les
+exercices sans lettres gardent leurs 62 px : le 2.2.10 du « 11 quinquies »
+n'a pas bougé. Le libellé
 « clavier B » tient dans deux unités au rembourrage de 4 px (`.kb-couche`,
 la règle de la Terminale).
 **Deux bancs, la répartition habituelle.** jsdom (« le clavier B porte les
