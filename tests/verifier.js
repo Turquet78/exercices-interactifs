@@ -6889,15 +6889,20 @@ function poseAdditionAugmenterDix(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
-/* ---------- 2.2.13 : la synthèse des hausses avec la méthode des 10 % --------
+/* ---------- 2.2.13 et 2.3.12 : les synthèses avec la méthode des 10 % --------
    {synthese-augmentations-dix} (demande de Turquet, septembre 2026 : « un
    exercice comme le 2.2.9, mais on rajoute la méthode "en passant par 10 %",
    présentée comme le 2.2.11 quand on calcule la valeur finale et comme le
-   2.2.12 quand on cherche le % d'augmentation »). Même moteur que le 2.2.9,
-   pas même identité, et un TROISIÈME bouton de méthode que seule SA question
-   porte (q.dix). N'existant qu'en Première, un `startSynAugDix` absent veut
-   dire « ce niveau n'a pas cet exercice » — la liste des vingt-deux
-   démarreurs plus haut est partagée avec la Seconde, il n'y entre pas.
+   2.2.12 quand on cherche le % d'augmentation ») et son MIROIR sur les
+   baisses {synthese-diminutions-dix} (« fais pareil pour les diminutions »,
+   le jour même : le 2.3.8 avec le 2.3.10 et le 2.3.11). Même moteur que le
+   2.2.9 / 2.3.8, pas même identité, et un TROISIÈME bouton de méthode que
+   seule LEUR question porte (q.dix). N'existant qu'en Première, un démarreur
+   absent veut dire « ce niveau n'a pas cet exercice » — la liste des
+   vingt-deux démarreurs plus haut est partagée avec la Seconde, ils n'y
+   entrent pas. UN SEUL contrôle, joué deux fois avec la configuration de
+   chaque sens (CFG) : les mots, le sens de l'écart et de l'opération finale
+   en dépendent, rien d'autre.
    Quatre bords, éprouvés par sabotage :
    · le TIRAGE — hausses seules, les trois inconnues chacune une fois, q.dix
      posé, et des taux que l'on RETROUVE depuis 10 % : jamais 10 lui-même,
@@ -6905,8 +6910,8 @@ function poseAdditionAugmenterDix(w, P){
      cherché seulement) ; N multiple de 100 ; les leurres du pourcentage tirés
      du même vivier, ceux de la valeur initiale multiples de dix (10 % en
      reste entier) ;
-   · le 2.2.9 NE CHANGE PAS : ni troisième bouton, ni « 10 % » dans le
-     message qui réclame une méthode ;
+   · le 2.2.9 / 2.3.8 NE CHANGE PAS : ni troisième bouton, ni « 10 % » dans
+     le message qui réclame une méthode ;
    · l'ÉCRAN — pour une valeur, les lignes du 2.2.11 (10 % de N avec la
      fraction, une ligne par taux, départ + augmentation, la pose facultative
      cachée) ; pour le pourcentage, les lignes du 2.2.12 (l'écart en tête,
@@ -6917,29 +6922,35 @@ function poseAdditionAugmenterDix(w, P){
      sur la proposition ; pourcentage : sur les données, le pourcentage trouvé
      nommé), et en soutien l'écran reste ouvert. */
 function syntheseAugmentationsDix(w, P){
-  const present = evaluer(w, "typeof startSynAugDix==='function' && typeof genSyn==='function' && typeof synDixRegl==='function'");
+  syntheseDix(w, P, { num:'2.2.13', id:'synthese-augmentations-dix', start:'startSynAugDix', fam:'aug', sens:1,
+                      temoinNum:'2.2.9', temoin:'startSynAug', valeurNum:'2.2.11', pctNum:'2.2.12', mot:'hausses' });
+  syntheseDix(w, P, { num:'2.3.12', id:'synthese-diminutions-dix', start:'startSynDimDix', fam:'dim', sens:-1,
+                      temoinNum:'2.3.8', temoin:'startSynDim', valeurNum:'2.3.10', pctNum:'2.3.11', mot:'baisses' });
+}
+function syntheseDix(w, P, CFG){
+  const T1=CFG.num+' : la synthèse des '+CFG.mot+' tire des taux que l\'on retrouve depuis 10 %, et garde son identité';
+  const T2=CFG.num+' : la méthode des 10 % se présente comme le '+CFG.valeurNum+' pour une valeur, comme le '+CFG.pctNum+' pour le pourcentage, et la copie juste vaut le point';
+  const present = evaluer(w, "typeof "+CFG.start+"==='function' && typeof genSyn==='function' && typeof synDixRegl==='function'");
   if(!present.ok || !present.valeur){
-    ignorer('2.2.13 : la synthèse des hausses tire des taux que l\'on retrouve depuis 10 %, et garde son identité',
-      'ce niveau n\'a pas {synthese-augmentations-dix}');
-    ignorer('2.2.13 : la méthode des 10 % se présente comme le 2.2.11 pour une valeur, comme le 2.2.12 pour le pourcentage, et la copie juste vaut le point',
-      'ce niveau n\'a pas {synthese-augmentations-dix}');
+    ignorer(T1, 'ce niveau n\'a pas {'+CFG.id+'}');
+    ignorer(T2, 'ce niveau n\'a pas {'+CFG.id+'}');
     return;
   }
-  verifierEval(w, '2.2.13 : la synthèse des hausses tire des taux que l\'on retrouve depuis 10 %, et garde son identité', `(function(){
-    const vus=[];
+  verifierEval(w, T1, `(function(){
+    const vus=[], CFG=${JSON.stringify(CFG)};
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     const attendu=${JSON.stringify(P.nbQuestionsEvolutions||3)};
     const DIX=[20,30,40,50,60,70,80,90], VAL=DIX.concat([5,15]), PCT=DIX.concat([5,15,25]), VIVIER=[10].concat(PCT);
     const ordres={}, formes={fin:{},ini:{},pct:{}};
     for(let t=0;t<40 && !vus.length;t++){
-      startSynAugDix();
+      window[CFG.start]();
       if(test.kind!=='syn') vus.push('tirage '+t+' : kind « '+test.kind+' » au lieu de « syn »');
-      if(test.qId!=='synthese-augmentations-dix') vus.push('tirage '+t+' : identité « '+test.qId+' »');
+      if(test.qId!==CFG.id) vus.push('tirage '+t+' : identité « '+test.qId+' »');
       const qs=test.questions||[];
       if(qs.length!==attendu) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de '+attendu);
       qs.forEach(function(q,i){
         const eti='tirage '+t+' q'+i+' ('+q.inc+', P='+q.P+', N='+q.N+')';
-        if(q.fam!=='aug') vus.push(eti+' : famille « '+q.fam+' » au lieu d\\'une hausse');
+        if(q.fam!==CFG.fam) vus.push(eti+' : famille « '+q.fam+' » au lieu de « '+CFG.fam+' »');
         if(q.dix!==true) vus.push(eti+' : la question ne porte pas q.dix — le troisième bouton ne sortirait pas');
         if(q.N%100!==0) vus.push(eti+' : N n\\'est pas un multiple de 100');
         const admis=(q.inc==='pct')?PCT:VAL;
@@ -6960,31 +6971,31 @@ function syntheseAugmentationsDix(w, P){
         if(!formes[inc].dix || !formes[inc].cinq) vus.push('sur 40 tirages, l\\'inconnue « '+inc+' » ne voit que la forme '+Object.keys(formes[inc]).join('/'));
       });
       /* « Recommencer » relance la bonne identité */
-      test.kind='syn'; test.qId='synthese-augmentations-dix'; restartCurrentTest();
-      if(test.qId!=='synthese-augmentations-dix') vus.push('« Recommencer » relance « '+test.qId+' »');
-      /* et le 2.2.9 ne change pas */
-      startSynAug();
-      if(test.questions.some(function(q){ return q.dix; })) vus.push('le 2.2.9 tire des questions qui portent q.dix');
-      let garde=0; while(test.questions[0].fam==='pct' && garde++<50) test.questions[0]=genSyn('aug','fin');
+      test.kind='syn'; test.qId=CFG.id; restartCurrentTest();
+      if(test.qId!==CFG.id) vus.push('« Recommencer » relance « '+test.qId+' »');
+      /* et la synthèse témoin (2.2.9 / 2.3.8) ne change pas */
+      window[CFG.temoin]();
+      if(test.questions.some(function(q){ return q.dix; })) vus.push('le '+CFG.temoinNum+' tire des questions qui portent q.dix');
+      let garde=0; while(test.questions[0].fam==='pct' && garde++<50) test.questions[0]=genSyn(CFG.fam,'fin');
       renderSynTest();
-      if(document.getElementById('sm2')) vus.push('le 2.2.9 montre le bouton « En passant par 10 % »');
+      if(document.getElementById('sm2')) vus.push('le '+CFG.temoinNum+' montre le bouton « En passant par 10 % »');
       choisirSy(0); checkSynAnswer();
       const fb=document.getElementById('syFeedback').textContent;
-      if(fb.indexOf('10 %')>=0) vus.push('le 2.2.9 réclame une méthode en citant les 10 % : « '+fb+' »');
+      if(fb.indexOf('10 %')>=0) vus.push('le '+CFG.temoinNum+' réclame une méthode en citant les 10 % : « '+fb+' »');
     }
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
-  verifierEval(w, '2.2.13 : la méthode des 10 % se présente comme le 2.2.11 pour une valeur, comme le 2.2.12 pour le pourcentage, et la copie juste vaut le point', `(function(){
-    const vus=[];
-    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='synthese-augmentations-dix';
+  verifierEval(w, T2, `(function(){
+    const vus=[], CFG=${JSON.stringify(CFG)}, S=CFG.sens, neg=(S<0);
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId=CFG.id;
     const sd=function(x){ return String(x).replace('.',','); };
     const $=function(id){ return document.getElementById(id); };
-    const tirer=function(inc, cond){ for(let i=0;i<900;i++){ const q=genSyn('aug',inc,{dix:true}); if(cond(q)) return q; } return null; };
+    const tirer=function(inc, cond){ for(let i=0;i<900;i++){ const q=genSyn(CFG.fam,inc,{dix:true}); if(cond(q)) return q; } return null; };
     const pin=function(q, choix, meth){
       const c=JSON.parse(JSON.stringify(q)); c.choisi=choix; c.meth=meth||null;
       Object.keys(test).forEach(function(k){ delete test[k]; });
-      Object.assign(test,{kind:'syn', qId:'synthese-augmentations-dix', questions:[c], idx:0, score:0,
+      Object.assign(test,{kind:'syn', qId:CFG.id, questions:[c], idx:0, score:0,
                           answers:[], startTime:Date.now(), locked:false, maxScore:1});
       show('syntest'); renderSynTest();
       return c;
@@ -6993,7 +7004,7 @@ function syntheseAugmentationsDix(w, P){
     const couleurs=function(copie, nom){ Object.keys(copie).forEach(function(id){ const el=$(id); if(!el) return;
       if(!el.classList.contains('ok')) vus.push(nom+' : '+id+' est '+(el.classList.contains('bad')?'rouge':'sans couleur')); }); };
 
-    /* ---- 1. la nouvelle valeur, 15 % : deux lignes d'augmentation, comme le 2.2.11 ---- */
+    /* ---- 1. la nouvelle valeur, 15 % : deux lignes d'évolution, comme le 2.2.11 / 2.3.10 ---- */
     let Q=tirer('fin', function(q){ return q.P===15; });
     if(!Q) return 'le tirage ne produit jamais 15 % pour la nouvelle valeur';
     let q=pin(Q, null, null);
@@ -7006,7 +7017,9 @@ function syntheseAugmentationsDix(w, P){
     if(!$('syPose') || !$('syPose').classList.contains('step-hidden')) vus.push('valeur : la pose de l\\'addition devrait être cachée tant que rien n\\'est écrit');
     const txt=$('synHost').textContent;
     if(txt.indexOf('On commence par 10 % de '+Q.N)<0) vus.push('valeur : la ligne « On commence par 10 % de N » manque');
-    if(txt.indexOf('15 % de '+Q.N)<0 || txt.indexOf('5 % de '+Q.N)<0) vus.push('valeur : les deux lignes d\\'augmentation (5 %, 15 %) manquent');
+    if(txt.indexOf('15 % de '+Q.N)<0 || txt.indexOf('5 % de '+Q.N)<0) vus.push('valeur : les deux lignes (5 %, 15 %) manquent');
+    if(txt.indexOf(neg?'la valeur diminuée est':'la valeur augmentée est')<0) vus.push('valeur : la ligne finale ne parle pas '+(neg?'de valeur diminuée':'de valeur augmentée'));
+    if(neg && txt.indexOf('la baisse de 15 % de '+Q.N)<0) vus.push('valeur : les mots du 2.3.10 (« la baisse de 15 % de N ») manquent');
     choisirSy(Q.bon); q=test.questions[0];
     const copieFin={y0:sd(Q.N/10), yP5:sd(Q.N*5/100), yP15:sd(Q.N*15/100), y4a:''+Q.N, y4b:sd(Q.aug), y4r:sd(Q.fin)};
     ecrire(copieFin); checkSynAnswer();
@@ -7023,7 +7036,7 @@ function syntheseAugmentationsDix(w, P){
     if(!$('yP'+Q.P)) vus.push('valeur initiale : la case yP'+Q.P+' manque');
     if($('synHost').textContent.indexOf('10 % de '+Nf)<0) vus.push('valeur initiale : la ligne des 10 % ne suit pas la proposition choisie ('+Nf+')');
     const augF=Nf*Q.P/100;
-    const copieIni={y0:sd(Nf/10)}; copieIni['yP'+Q.P]=sd(augF); copieIni.y4a=''+Nf; copieIni.y4b=sd(augF); copieIni.y4r=sd(Nf+augF);
+    const copieIni={y0:sd(Nf/10)}; copieIni['yP'+Q.P]=sd(augF); copieIni.y4a=''+Nf; copieIni.y4b=sd(augF); copieIni.y4r=sd(Nf+S*augF);
     ecrire(copieIni); checkSynAnswer();
     couleurs(copieIni,'valeur initiale (calcul juste sur une proposition fausse)');
     if(test.score!==0) vus.push('valeur initiale : une proposition fausse vaut le point');
@@ -7031,7 +7044,7 @@ function syntheseAugmentationsDix(w, P){
     if(fb.indexOf('Calcul juste, mais mauvaise proposition')<0) vus.push('valeur initiale : le message ne dit pas « calcul juste, mauvaise proposition » : « '+fb.slice(0,80)+' »');
     if(fb.indexOf('10 % de '+Q.N)<0) vus.push('valeur initiale : la preuve ne passe pas par 10 % de '+Q.N+' : « '+fb.slice(0,120)+' »');
 
-    /* ---- 3. le pourcentage, 15 % : l'écart, 10 %, 5 %, le facteur, la flèche — comme le 2.2.12 ---- */
+    /* ---- 3. le pourcentage, 15 % : l'écart, 10 %, 5 %, le facteur, la flèche — comme le 2.2.12 / 2.3.11 ---- */
     Q=tirer('pct', function(q){ return q.P===15; });
     if(!Q) return 'le tirage ne produit jamais 15 % pour le pourcentage cherché';
     q=pin(Q, null, 'dix');
@@ -7040,8 +7053,14 @@ function syntheseAugmentationsDix(w, P){
     if(!$('syMul') || !$('syMul').querySelector('.mp-box')) vus.push('pourcentage : la soustraction posée n\\'est pas construite à l\\'affichage');
     if($('syPose') && $('syPose').classList.contains('step-hidden')) vus.push('pourcentage : la soustraction posée est cachée');
     const t3=$('synHost').textContent;
-    if(t3.indexOf(Q.fin+' − '+Q.N)<0) vus.push('pourcentage : la ligne de l\\'écart « '+Q.fin+' − '+Q.N+' » manque');
-    if(t3.indexOf('donc le pourcentage d’augmentation est de')<0) vus.push('pourcentage : la phrase de conclusion du 2.2.12 manque');
+    /* la ligne de l'écart est la PREMIÈRE ligne — lue seule : le libellé de la
+       soustraction posée, plus bas, écrit le même « N − fin », et un contrôle
+       qui lisait tout l'hôte est resté vert sur un écart inversé (sabotage) */
+    const ecart=neg?(Q.N+' − '+Q.fin):(Q.fin+' − '+Q.N);
+    const l1=document.querySelector('#synHost .pct10-ligne'), t1=l1?l1.textContent:'';
+    if(t1.indexOf(ecart)<0) vus.push('pourcentage : la première ligne n\\'écrit pas l\\'écart « '+ecart+' » : « '+t1.slice(0,80)+' »');
+    if(t3.indexOf(neg?'donc le pourcentage de baisse est de':'donc le pourcentage d’augmentation est de')<0) vus.push('pourcentage : la phrase de conclusion du '+CFG.pctNum+' manque');
+    if(t3.indexOf(neg?'a diminué de':'a augmenté de')<0) vus.push('pourcentage : la ligne de l\\'écart ne dit pas le sens');
     choisirSy(Q.bon);
     const copiePct={y1e:sd(Q.aug), y0:sd(Q.N/10), y5c:sd(Q.N/20), yK:'3', yP:'15'};
     ecrire(copiePct); checkSynAnswer();
