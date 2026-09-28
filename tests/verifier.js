@@ -3746,6 +3746,7 @@ function exercices(suite){
     coefficientDeuxDecimalesSynthese(w, P);
     syntheseEvolutions(w, P);
     evolutionsSuccessives(w, P);
+    pourcentageSchema(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -25578,6 +25579,149 @@ function evolutionsSuccessives(w, P){
     checkEvsAnswer();
     if(/\\bbad\\b/.test(cls('evsC1'))) vus.push('une case laissée vide rougit à la vérification');
     if(/\\b(ok|bad)\\b/.test(btn('+').className) || /\\b(ok|bad)\\b/.test(btn('\\u2212').className)) vus.push('aucun signe choisi, et un bouton se colore quand même');
+    if(test.score!==0) vus.push('copie incomplète : elle vaut le point');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- {pourcentage-schema} : Seconde SEULE, LE SCHÉMA DU 4.1.9 PRIS À L'ENVERS --
+   « en seconde faire un exercice comme le pdf en variant les énoncés, les %
+   seront toujours des entiers, et le schéma sera fait comme dans l'exercice
+   4.1.9 » (Turquet, septembre 2026, fiche « Exercice 2 — successives »).
+   Kind « pcs » : les trois boîtes, les deux flèches et la rangée du
+   coefficient global de {pourcentage-chaine}, mais les DONNÉES sont écrites
+   SUR le schéma (les deux flèches, ou une flèche et le produit) et l'élève
+   complète ce qui manque, puis trois phrases en pourcentages.
+   L'exercice n'existe qu'en Seconde : le contrôle se déclare ABSENT plutôt
+   que de rougir sur les autres niveaux, comme {evolutions-successives}.
+   Bords du tirage : P1 et P2 sont des multiples de 5 entre 5 et 95, leur
+   produit un multiple de 100 — c'est ce qui rend le global ENTIER, la seule
+   règle arithmétique de l'exercice, remesurée sur le global lui-même (entier,
+   de 1 à 99) ; chaque séance pose les TROIS formes de la fiche (les deux
+   flèches données ; la première et le produit ; la seconde et le produit),
+   en ordre variable ; l'ordre des phrases est une permutation ; l'identité
+   tenue par « Recommencer ».
+   Bords du schéma : ce qui est DONNÉ est écrit (un span .pcs-val), ce qui
+   est cherché est une case, et jamais les deux ; le verdict case par case
+   sur des copies ÉPINGLÉES (la fiche : 0,30 et 0,20 ; 0,30 × ? = 0,06 ;
+   ? × 0,50 = 0,15 ; puis 0,25 × ? = 0,10, le cas d'un multiple de 5 impair)
+   — juste, puis fautive d'une seule case — ; « 6,5 » n'est pas « 6 » ; la
+   case vide qui ne rougit jamais. */
+function pourcentageSchema(w, P){
+  const present = evaluer(w, "typeof startPcs==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{pourcentage-schema} : les pourcentages sont entiers, les trois formes de la fiche sortent',
+      'ce niveau n\'a pas le schéma de pourcentages à lire');
+    ignorer('{pourcentage-schema} : le donné est écrit, le cherché est une case, et le verdict case par case',
+      'ce niveau n\'a pas le schéma de pourcentages à lire');
+    return;
+  }
+  verifierEval(w, '{pourcentage-schema} : les pourcentages sont entiers, les trois formes de la fiche sortent', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-schema';
+    const attendu=PCS_NB, ordres={}, ordresPhrases={}, impairs={};
+    for(let t=0;t<40 && !vus.length;t++){
+      startPcs();
+      if(test.qId!=='pourcentage-schema') vus.push('tirage '+t+' : identité « '+test.qId+' » au lieu de « pourcentage-schema »');
+      if(test.kind!=='pcs') vus.push('tirage '+t+' : kind « '+test.kind+' » au lieu de « pcs »');
+      const qs=test.questions||[];
+      if(qs.length!==attendu) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de '+attendu);
+      const formes={};
+      qs.forEach(function(q,i){
+        const ou='tirage '+t+' q'+i+' : ';
+        [q.P1,q.P2].forEach(function(p){ if(!Number.isInteger(p) || p%5!==0 || p<5 || p>95) vus.push(ou+'pourcentage « '+p+' » hors des multiples de 5 de 5 à 95'); });
+        if((q.P1*q.P2)%100!==0) vus.push(ou+q.P1+' % puis '+q.P2+' % — le produit n\\'est pas un multiple de 100, le global ne peut pas être entier');
+        if(q.comb!==q.P1*q.P2/100) vus.push(ou+'global « '+q.comb+' » au lieu de '+(q.P1*q.P2/100));
+        if(!Number.isInteger(q.comb) || q.comb<1 || q.comb>99) vus.push(ou+'global « '+q.comb+' % » n\\'est pas un entier de 1 à 99');
+        if(['comb','p1','p2'].indexOf(q.inc)<0) vus.push(ou+'forme « '+q.inc+' » inconnue');
+        formes[q.inc]=1;
+        if(!Array.isArray(q.ordre) || q.ordre.slice().sort().join()!=='0,1,2') vus.push(ou+'ordre des phrases « '+JSON.stringify(q.ordre)+' » n\\'est pas une permutation de 0,1,2');
+        if(!CTX_PCS[q.ci]) vus.push(ou+'contexte « '+q.ci+' » inconnu');
+        if(q.P1%10!==0 || q.P2%10!==0) impairs[q.P1+'x'+q.P2]=1;
+        const en=pcsEnonce(q);
+        if(!/compl|retrouve/i.test(en) || /undefined|NaN|\\$\\{/.test(en)) vus.push(ou+'énoncé « '+en.replace(/<[^>]+>/g,'')+' »');
+      });
+      ['comb','p1','p2'].forEach(function(f){ if(!formes[f]) vus.push('tirage '+t+' : la forme « '+f+' » ne sort pas ('+Object.keys(formes).join(',')+')'); });
+      ordres[qs.map(function(q){ return q.inc; }).join(',')]=1;
+      qs.forEach(function(q){ ordresPhrases[q.ordre.join('')]=1; });
+      const vu={};
+      qs.forEach(function(q){ const c=q.inc+'|'+q.P1+'|'+q.P2;
+        if(vu[c]) vus.push('tirage '+t+' : deux questions identiques dans la même séance'); vu[c]=1; });
+    }
+    if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des trois formes ne change jamais d\\'un tirage à l\\'autre');
+    if(!vus.length && Object.keys(ordresPhrases).length<2) vus.push('l\\'ordre des trois phrases ne change jamais');
+    if(!vus.length && !Object.keys(impairs).length) vus.push('en 40 tirages, aucun pourcentage hors des multiples de dix — le vivier des multiples de 5 n\\'est pas atteint');
+    if(!vus.length){
+      restartCurrentTest();
+      if(test.qId!=='pourcentage-schema') vus.push('« Recommencer » relance « '+test.qId+' » au lieu du schéma de pourcentages');
+    }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- Le schéma lui-même : le donné écrit, le cherché en case, et le verdict */
+  verifierEval(w, '{pourcentage-schema} : le donné est écrit, le cherché est une case, et le verdict case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-schema';
+    const poser=function(q){ startPcs(); test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; test.locked=false; renderPcsTest(); };
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    const tag=function(id){ const e=document.getElementById(id); return e?e.tagName:'(absent)'; };
+    const txt=function(id){ const e=document.getElementById(id); return e?e.textContent.trim():'(absent)'; };
+    const COMB={inc:'comb',P1:30,P2:20,comb:6,ci:0,v:[0,0,0,0],ordre:[0,1,2]};   /* exercice 1 de la fiche */
+    const P2={inc:'p2',P1:30,P2:20,comb:6,ci:1,v:[1,1,1,1],ordre:[2,0,1]};       /* exercice 2 : 0,30 × ? = 0,06 */
+    const P1={inc:'p1',P1:30,P2:50,comb:15,ci:2,v:[2,0,1,0],ordre:[2,1,0]};      /* exercice 3 : ? × 0,50 = 0,15 */
+    const IMP={inc:'p2',P1:25,P2:40,comb:10,ci:3,v:[0,0,0,0],ordre:[0,1,2]};     /* 0,25 × ? = 0,10 */
+    /* 1. la forme « comb » : les deux flèches ÉCRITES, la rangée du global en cases */
+    poser(COMB);
+    if(tag('pcsD1')!=='SPAN' || txt('pcsD1')!=='0,30') vus.push('comb : la première flèche devrait être écrite « 0,30 » ('+tag('pcsD1')+' « '+txt('pcsD1')+' »)');
+    if(tag('pcsD2')!=='SPAN' || txt('pcsD2')!=='0,20') vus.push('comb : la seconde flèche devrait être écrite « 0,20 » ('+tag('pcsD2')+' « '+txt('pcsD2')+' »)');
+    ['pcsG1','pcsG2','pcsG','pcsS1','pcsS2','pcsS3'].forEach(function(id){ if(tag(id)!=='MATH-FIELD') vus.push('comb : '+id+' devrait être une case ('+tag(id)+')'); });
+    if(document.querySelectorAll('#pcsHost .pcs-phrase').length!==3) vus.push('comb : '+document.querySelectorAll('#pcsHost .pcs-phrase').length+' phrase(s) au lieu de 3');
+    if(document.querySelectorAll('#pcsHost math-field').length!==6) vus.push('comb : '+document.querySelectorAll('#pcsHost math-field').length+' case(s) au lieu de 6');
+    /* 2. la copie JUSTE de la forme « comb » */
+    setv('pcsG1','0,30'); setv('pcsG2','0,2'); setv('pcsG','0,06'); setv('pcsS1','30'); setv('pcsS2','20'); setv('pcsS3','6');
+    checkPcsAnswer();
+    ['pcsG1','pcsG2','pcsG','pcsS1','pcsS2','pcsS3'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('comb, copie juste : la case '+id+' n\\'est pas bleue ('+cls(id)+')'); });
+    if(test.score!==1) vus.push('comb : la copie juste ne vaut pas le point');
+    /* 3. la forme « p2 » : la première flèche et le produit écrits, la seconde en case — et sa reprise */
+    poser(P2);
+    if(tag('pcsD1')!=='SPAN' || tag('pcsG1')!=='SPAN' || txt('pcsG1')!=='0,30') vus.push('p2 : la première flèche et sa reprise devraient être écrites « 0,30 »');
+    if(tag('pcsG')!=='SPAN' || txt('pcsG')!=='0,06') vus.push('p2 : le produit devrait être écrit « 0,06 » ('+tag('pcsG')+' « '+txt('pcsG')+' »)');
+    if(tag('pcsD2')!=='MATH-FIELD' || tag('pcsG2')!=='MATH-FIELD') vus.push('p2 : la seconde flèche et sa reprise devraient être des cases');
+    const phr=[].map.call(document.querySelectorAll('#pcsHost .pcs-phrase'), function(e){ return e.querySelector('math-field').id; });
+    if(phr.join()!=='pcsS3,pcsS1,pcsS2') vus.push('p2 : les phrases ne suivent pas l\\'ordre tiré ('+phr.join()+' au lieu de pcsS3,pcsS1,pcsS2)');
+    setv('pcsD2','0,2'); setv('pcsG2','0,20'); setv('pcsS1','30'); setv('pcsS2','20'); setv('pcsS3','6');
+    checkPcsAnswer();
+    if(test.score!==1) vus.push('p2 : la copie juste ne vaut pas le point');
+    if(!/\\bok\\b/.test(cls('pcsG2'))) vus.push('p2 : « 0,20 » repris n\\'est pas bleu — 0,2 et 0,20 sont le même nombre');
+    /* 4. la forme « p1 », une seule case fautive : elle seule rougit, et sa correction s'écrit en vert */
+    poser(P1);
+    if(tag('pcsD1')!=='MATH-FIELD' || tag('pcsG1')!=='MATH-FIELD') vus.push('p1 : la première flèche et sa reprise devraient être des cases');
+    if(tag('pcsD2')!=='SPAN' || txt('pcsD2')!=='0,50' || tag('pcsG')!=='SPAN' || txt('pcsG')!=='0,15') vus.push('p1 : la seconde flèche « 0,50 » et le produit « 0,15 » devraient être écrits');
+    setv('pcsD1','0,3'); setv('pcsG1','0,3'); setv('pcsS1','30'); setv('pcsS2','50'); setv('pcsS3','65');
+    checkPcsAnswer();
+    if(!/\\bbad\\b/.test(cls('pcsS3'))) vus.push('p1 : « 65 % » (les pourcentages additionnés) ne rougit pas');
+    ['pcsD1','pcsG1','pcsS1','pcsS2'].forEach(function(id){ if(/\\bbad\\b/.test(cls(id))) vus.push('p1 : la case juste '+id+' rougit alors que seule la phrase du global est fautive'); });
+    if(test.score!==0) vus.push('p1, une case fausse : la copie vaut quand même le point');
+    const cor=document.getElementById('pcsS3').nextElementSibling;
+    if(!cor || !/mf-cor/.test(cor.className) || cor.textContent.trim()!=='15') vus.push('p1 : la correction « 15 » ne s\\'écrit pas en vert à côté de la case fausse (entraînement)');
+    /* 5. un multiple de 5 impair : 0,25 × ? = 0,10, la flèche cherchée vaut 0,4 */
+    poser(IMP);
+    if(txt('pcsD1')!=='0,25' || txt('pcsG')!=='0,10') vus.push('0,25 × ? = 0,10 : le schéma écrit « '+txt('pcsD1')+' » et « '+txt('pcsG')+' »');
+    setv('pcsD2','0,4'); setv('pcsG2','0,4'); setv('pcsS1','25'); setv('pcsS2','40'); setv('pcsS3','10');
+    checkPcsAnswer();
+    if(test.score!==1) vus.push('0,25 × ? = 0,10 : la copie juste (0,4 ; 25, 40, 10) ne vaut pas le point');
+    /* 6. « 6,5 » dans une phrase n'est pas « 6 » : parseInt l'aurait laissé passer */
+    poser(COMB);
+    setv('pcsG1','0,3'); setv('pcsG2','0,2'); setv('pcsG','0,06'); setv('pcsS1','30'); setv('pcsS2','20'); setv('pcsS3','6,5');
+    checkPcsAnswer();
+    if(!/\\bbad\\b/.test(cls('pcsS3')) || test.score!==0) vus.push('« 6,5 % » est compté juste pour 6 %');
+    /* 7. une case laissée VIDE ne rougit jamais — en SOUTIEN, où rien ne repasse derrière la case */
+    currentMode='soutien'; poser(COMB);
+    setv('pcsG1','0,3'); setv('pcsG2',''); setv('pcsG','0,06'); setv('pcsS1','30'); setv('pcsS2',''); setv('pcsS3','6');
+    checkPcsAnswer();
+    if(/\\bbad\\b/.test(cls('pcsG2')) || /\\bbad\\b/.test(cls('pcsS2'))) vus.push('une case laissée vide rougit à la vérification');
+    if(!/\\bok\\b/.test(cls('pcsG1'))) vus.push('soutien : la case juste pcsG1 n\\'est pas bleue quand une voisine est vide');
     if(test.score!==0) vus.push('copie incomplète : elle vaut le point');
     currentMode='train';
     return vus.slice(0,4).join(' | ');
