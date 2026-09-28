@@ -1055,3 +1055,18 @@ garde `align-self:stretch`. Éprouvé en ouvrant réellement l'exercice dans un
 Chromium et en mesurant le milieu du signe contre le milieu du trait sur les
 quatre soustractions de la rangée : moins de 0,01 px d'écart, contre plusieurs
 pixels avant la correction.
+
+**{produit-difference-fractions} (5.13, « H ») reprend l'irréductibilité des
+trois fractions de départ — demande de Turquet, septembre 2026, distincte de
+celle qui l'avait retirée (« Les fractions tirées n'ont plus à être déjà
+irréductibles », plus haut).** Cette demande-ci ne portait que sur H, pas sur
+I : `pqdGen(inv)` ajoute `gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1` au
+tirage, gardé par `!inv` pour ne toucher que le chemin de H — I
+({quotient-difference-fractions}, 5.14) garde le relâchement de la fusion
+précédente, personne ne l'ayant redemandé pour lui. Le résultat final,
+inchangé, n'a toujours pas à être irréductible (la case finale accepte toute
+fraction ÉGALE, `pfFracJuge`). Simulé sur 2000 tirages : la contrainte
+n'écarte qu'environ les trois quarts des combinaisons, largement assez pour
+que la boucle de secours ne se déclenche jamais en pratique ; le repli codé en
+dur de H (5/2 × (2/3 − 4/5)) était déjà irréductible sur ses trois fractions,
+aucun changement n'y était nécessaire.
