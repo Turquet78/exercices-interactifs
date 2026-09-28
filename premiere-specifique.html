@@ -2246,7 +2246,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=261;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=262;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9645,13 +9645,21 @@ function renderSal(){
        <div class="pt-choix" id="salChoix">${choix}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">justifie ta réponse — ${salVoiesTexte(sens,null,!!q.dix)}</div>
        <div class="dexp2-sheet" id="salSheet"></div>
-       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}.${q.dix?' En passant par 10 %, écris « 10 % = … » (la touche <b>%</b> est sur le clavier), puis « … % = … », puis '+(neg?'la soustraction':'l’addition')+' ; pour retrouver un pourcentage, « écart = … » et « '+(neg?'diminution':'augmentation')+' de … % » s’écrivent en mots, la barre d’espace écrit une espace.':''} Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
+       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}.${q.dix?' En passant par 10 %, écris « 10 % = … » (la touche <b>%</b> est sur le clavier), puis « … % = … », puis '+(neg?'la soustraction':'l’addition')+' ; pour retrouver un pourcentage, « écart = … » et « '+(neg?'diminution':'augmentation')+' de … % » s’écrivent en mots, la barre d’espace écrit une espace.':(salEspacesPour(q)?' La barre d’espace écrit une espace.':'')} Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
   /* Les lignes sont INDÉPENDANTES : pas de préfixe « = » qui les enchaîne —
      la voie de l'augmentation demande deux égalités séparées. La feuille naît
      toujours VISIBLE (la leçon de mlFeuille), et reste intouchée. */
   salFeuille=mlFeuille({ conteneur:'salSheet', mode:'calcul', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
-  if(q.dix) salEspaces(salFeuille);   /* 2.3.13 : l'élève écrit des MOTS, la barre d'espace écrit une espace */
+  if(salEspacesPour(q)) salEspaces(salFeuille);   /* 2.3.13 et 2.3.9 : la barre d'espace écrit une espace */
 }
+/* Les exercices du moteur rédigé dont la feuille ÉCRIT les espaces : le
+   2.3.13 (par sa question, q.dix — la reprise d'une pause relit la question)
+   et, depuis le lendemain (« fais pareil pour le 2.3.9 »), le 2.3.9 par son
+   identité — test.qId est rangé dans le brouillon de pause et rétabli par
+   resumeTest, comme « Recommencer » s'y fie. Le 2.2.10 et le 2.5.2 gardent
+   la feuille d'avant. */
+const SAL_ESPACES={ 'synthese-diminutions-libre':1 };
+function salEspacesPour(q){ return !!(q && q.dix) || !!SAL_ESPACES[test.qId]; }
 /* {synthese-diminutions-libre-dix} : LA BARRE D'ESPACE ÉCRIT UNE ESPACE
    (demande de Turquet, septembre 2026 : « il faut afficher les espaces quand
    on appuie sur espace »). La feuille est en mode « calcul », où MathLive
@@ -9664,8 +9672,8 @@ function renderSal(){
    fraction : c'est la leçon de la récurrence rédigée de la Terminale
    (rrEspace), reprise telle quelle — mathModeSpace éteint la convention de
    sortie, et un élève qui tape « 180/600 » resterait prisonnier du
-   dénominateur, toute la suite de sa ligne tombant dedans. Le 2.3.9, dont
-   les questions n'ont pas q.dix, ne change pas d'un iota. */
+   dénominateur, toute la suite de sa ligne tombant dedans. Le 2.3.9 a suivi
+   le lendemain (SAL_ESPACES) ; son juge, lui, ne change pas d'un iota. */
 function salEspaces(F){
   if(!F || !Array.isArray(F.lignes)) return;
   const poser=function(L){ try{ if(L && L.mf) L.mf.mathModeSpace='\\;'; }catch(e){} };

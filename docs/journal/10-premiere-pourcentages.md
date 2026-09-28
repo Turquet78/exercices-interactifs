@@ -2335,6 +2335,20 @@ des espaces d'une ligne à deux espaces fait TROIS morceaux, pas quatre ; et
 le mot « espaces » est exigé dans la règle du modèle par un contrôle qui
 existait déjà — une reformulation qui l'oublie rougit à bon droit.
 
+**Puis le 2.3.9 a suivi, le lendemain** (« fais pareil pour le 2.3.9 »). Le
+bord « le 2.3.9 ne change pas d'un iota » ne tenait que le JUGE et le
+tirage : il les tient toujours. La feuille, elle, écrit désormais les
+espaces aussi — non par la question, que `genSyn('dim', inc)` ne marque
+pas, mais par l'IDENTITÉ de l'exercice : `SAL_ESPACES` nomme le 2.3.9, et
+`salEspacesPour(q)` lit `q.dix` OU `test.qId`. `test.qId` est fiable à la
+reprise : `resumeTest` recopie toutes les clés du brouillon dans `test`, et
+« Recommencer » s'y fie déjà pour relancer le bon démarreur. Le 2.2.10 et le
+2.5.2 gardent la feuille d'avant, et c'est le nouveau bord opposé du
+contrôle (`startSynAugLibre`, `mathModeSpace` absent). Le banc navigateur
+(étape 4) tape sur le 2.3.9 la voie de la diminution avec des espaces
+autour des signes, sur un vrai MathLive, et relit la lecture, le verdict,
+la note et la peinture.
+
 ---
 
 ## {evolutions-successives} — deux évolutions de suite, la synthèse des deux schémas (Seconde, septembre 2026)
