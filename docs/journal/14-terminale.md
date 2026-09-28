@@ -1014,7 +1014,7 @@ le 2.5 avec la question de la capture et tape « u = e^x » à la touche morte :
 récent, le texte seul s'insère et le drapeau s'éteint ; périmé, l'exposant
 s'ouvre comme avant. Éprouvé par sabotage : `chapeauMorte` rendu aveugle au
 drapeau — le jsdom et le navigateur rougissent en nommant l'exposant empilé.
-APP_VERSION 348.
+APP_VERSION 349.
 
 **Rédiger une récurrence, c'est l'écrire EN ENTIER — et deux juges s'en
 partagent la lecture.** {recurrence-redaction} (Terminale, 6.7, demande de
