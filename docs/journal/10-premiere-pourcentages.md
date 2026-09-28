@@ -1961,6 +1961,32 @@ Aucune case ni aucun jugement n'a bougé — seul le contrôle qui vérifiait sa
 présence (`#evbHost .evb-rev-arrow`) continue de la trouver, où qu'elle soit
 posée dans le DOM.
 
+**Troisième pose, le même mois : « exactement entre la case du bas et la
+case du haut, au milieu de la grande flèche noire ».** Turquet a joint la
+capture : la deuxième pose mettait bien la flèche AU NIVEAU du trait, mais à
+son bout droit (`left:100%`), c'est-à-dire collée à la boîte « Après » — lue
+à l'écran, elle annotait la boîte d'arrivée, pas l'aller-retour entre les deux
+cases du milieu. Le correctif la centre sur le trait dans les DEUX sens
+(`left:50%; top:50%; transform:translate(-50%,-50%)`) : elle tombe à
+l'aplomb des deux cases, entre elles. Deux conséquences, tenues ensemble :
+un texte posé sur un trait est barré par lui — la flèche porte donc un fond
+blanc, comme les cases du schéma sur le quadrillage — et le trait, à 4 px
+des deux rangées, laissait la flèche mordre de 2 px sur le cadre de chaque
+case ; `#evbHost .pctb-shaft` écarte le trait à 14 px, ce qui lui donne
+11 px de jour de chaque côté (mesuré à 1280 px). L'écart vaut pour les trois
+inconnues, pas seulement celle qui montre la flèche : le schéma garde la même
+hauteur d'une question à l'autre.
+**Et cette fois la pose se MESURE.** Deux poses avaient passé le banc jsdom
+au vert, parce qu'il ne vérifie que la présence de `.evb-rev-arrow` — une
+flèche posée n'importe où l'aurait contenté. Le banc navigateur gagne une
+section (« 6 quater decies ») qui ouvre l'exercice, se place sur la question
+à inconnue « pct » par `renderEvbTest()`, et mesure le rendu : centre de la
+flèche sur celui du trait, horizontalement et verticalement, à 2 px près ;
+flèche ENTRE les deux cases sans toucher leur cadre ; et à égale distance des
+deux, à 3 px près. L'exercice se déclare dans `tests/profils.js`
+(`syntheseEvolutions`) ; les deux autres niveaux, qui n'ont pas le schéma,
+passent par `ignorer()`.
+
 ---
 
 ## {augmenter-taux-dix} — la ligne de l'écart, EN LIGNE, restaurée en tête (Première, septembre 2026)
