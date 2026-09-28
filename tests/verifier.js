@@ -7951,10 +7951,15 @@ function syntheseDimLibreDix(w, P){
       if(!l9b || !l9b.mf || !espLatex(l9b.mf.mathModeSpace)) vus.push('une ligne ajoutée par « Entrée » sur le 2.3.9 n\\'écrit pas d\\'espace');
       const hint9=String(($('salHost').querySelector('.dexp-hint')||{}).textContent||'');
       if(hint9.indexOf('espace')<0) vus.push('l\\'indication sous la feuille du 2.3.9 ne dit pas que la barre d\\'espace écrit une espace');
-      /* le bord opposé : le 2.2.10 garde la feuille d'avant */
-      startSynAugLibre();
-      const l10=salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
-      if(l10 && l10.mathModeSpace) vus.push('le 2.2.10 a changé sans qu\\'on le demande : sa feuille écrit des espaces (mathModeSpace « '+l10.mathModeSpace+' »)');
+      /* puis « pareil pour le 2.2.10 et le 2.5.2 » : les quatre exercices du
+         moteur écrivent les espaces, plus aucune porte par exercice */
+      [['2.2.10',startSynAugLibre],['2.5.2',startSynLibre]].forEach(function(x){
+        x[1]();
+        const l=salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+        if(!l || !espLatex(l.mathModeSpace)) vus.push('sur le '+x[0]+', la barre d\\'espace n\\'écrit pas d\\'espace : mathModeSpace « '+(l?l.mathModeSpace:'?')+' »');
+        const h=String(($('salHost').querySelector('.dexp-hint')||{}).textContent||'');
+        if(h.indexOf('espace')<0) vus.push('l\\'indication sous la feuille du '+x[0]+' ne dit pas que la barre d\\'espace écrit une espace');
+      });
       /* la peinture : sur une feuille adossée à de vrais éléments */
       startSynDimLibreDix();
       test.questions[0]=JSON.parse(JSON.stringify(qPct)); test.idx=0;
@@ -9932,6 +9937,21 @@ function suiteVariationRecurrence(w, P){
     checkSVR();
     if(ligneRouge(0)) dit('un caractère invisible (U+200B, U+00AD, U+FEFF) dans une dérivée juste la fait rougir');
     if(test.score!==1) dit('un caractère invisible dans une dérivée juste fait perdre le point');
+    /* LA PAGE LIT ELLE-MÊME SES EXPRESSIONS (septembre 2026) : sur le Firefox
+       de Turquet, « 32 » et « 12-x » compilaient et « (32)/((12-x)^(2)) »
+       non — new Function et l'opérateur ** rendaient un verdict que le moteur
+       décidait. Aucun compilateur ne passe plus par new Function : l'analyseur
+       exprLire rend une fonction de x, ou null avec sa raison. */
+    [['compileExprExp',compileExprExp],['compileExpr',compileExpr],['rfrLin',rfrLin]].forEach(function(c){
+      if(String(c[1]).indexOf('new Function')>=0 || String(c[1]).indexOf('eval(')>=0) dit(c[0]+' passe encore par new Function : le verdict dépend du moteur du navigateur');
+      if(String(c[1]).indexOf('exprLire')<0) dit(c[0]+' ne passe pas par l’analyseur de la page (exprLire)'); });
+    { const f=compileExprExp('(32)/((12-x)^(2))');
+      if(!f || Math.abs(f(0.37)-32/((12-0.37)*(12-0.37)))>1e-9) dit('l’analyseur ne lit pas « (32)/((12-x)^(2)) » — la chaîne même du signalement');
+      const g=compileExprExp('-x^2'); if(!g || g(3)!==-9) dit('l’analyseur lit −x^2 autrement que −(x^2)');
+      const h=compileExprExp('2^3^2'); if(!h || h(0)!==512) dit('l’analyseur n’associe pas la puissance à droite (2^3^2 = 512)');
+      const k=compileExprExp('(2x+1)e^(3x)'); if(!k || Math.abs(k(0.5)-2*Math.exp(1.5))>1e-9) dit('l’analyseur ne lit plus (2x+1)e^(3x)');
+      if(compileExprExp('(3')!==null || !compileExprExp.derniere.raison) dit('une parenthèse ouverte ne rend pas null avec sa raison');
+      if(compileExprExp('x2')!==null) dit('« x2 » est lu comme une expression'); }
 
     /* ---- 7 ter. LES CASES FACULTATIVES sont jugées, et ne comptent PAS.
             Le 2.5 les tient hors de la note ; ici la note se lit à l’écran,

@@ -293,9 +293,11 @@ module.exports = {
                           et SORT toujours d'une fraction — rien de cela ne se
                           voit hors d'un vrai MathLive */
                        dix: 'synthese-diminutions-libre-dix',
-                       /* et le 2.3.9 a suivi le lendemain : même feuille,
-                          les espaces par l'identité de l'exercice */
-                       espacesAussi: 'synthese-diminutions-libre' },
+                       /* puis le 2.3.9 et le 2.2.10 ont suivi : la même feuille
+                          écrit les espaces sur les quatre exercices du moteur
+                          (le 2.5.2 est `exercice`, tapé avec des espaces aussi) */
+                       espacesAussi: [ { exercice: 'synthese-diminutions-libre', fam: 'dim', num: '2.3.9' },
+                                       { exercice: 'synthese-augmentations-libre', fam: 'aug', num: '2.2.10' } ] },
     /* Le pavé numérique compact de la Première sert AUSSI ses cases MathLive
        (champsMaths = PAVE_MF dans la page — deux sources) : toutes ses cases
        pm-mf n'attendent qu'un nombre. Le banc navigateur en tape une pour de
