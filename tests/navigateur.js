@@ -5412,13 +5412,13 @@ async function parcours(page, N){
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
       ignorer('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
-      ignorer('sur le 2.3.9, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
+      ignorer('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
     } else if(!ml){
       ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle', 'MathLive absent');
       ignorer('la voie du coefficient puis de l\'addition vaut aussi son point', 'MathLive absent');
       ignorer('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée', 'MathLive absent');
-      ignorer('sur le 2.3.9, la barre d\'espace écrit une espace, et le juge lit la copie espacée', 'MathLive absent');
+      ignorer('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée', 'MathLive absent');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
       await connecter(s.page);
@@ -5492,14 +5492,16 @@ async function parcours(page, N){
       await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
         try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
       await s.page.waitForTimeout(150);
-      await s.page.keyboard.type(q2.pDec + '*' + q2.N + '=' + q2.aug, { delay: 30 });
+      await s.page.keyboard.type(q2.pDec + ' * ' + q2.N + ' = ' + q2.aug, { delay: 30 });   /* avec des espaces : le 2.5.2 les écrit aussi */
       await s.page.keyboard.press('Enter');
       await s.page.waitForTimeout(350);
-      await s.page.keyboard.type(q2.N + '+' + q2.aug + '=' + q2.fin, { delay: 30 });
+      await s.page.keyboard.type(q2.N + ' + ' + q2.aug + ' = ' + q2.fin, { delay: 30 });
       await s.page.waitForTimeout(300);
       const lu2 = await s.page.evaluate(() => salFeuille.lire());
       if(String(lu2).split('\n').filter(function(l){ return l.trim() !== ''; }).length < 2)
         dits2.push('Entrée n\'a pas ajouté de seconde ligne : « ' + String(lu2).replace(/\n/g, ' ⏎ ') + ' »');
+      if(!String(lu2).split('\n').every(function(l){ return / = /.test(l); }))
+        dits2.push('sur le 2.5.2, les espaces tapées ne ressortent pas : « ' + String(lu2).replace(/\n/g, ' ⏎ ') + ' »');
       await s.page.click('#salActions .btn-primary');
       await s.page.waitForTimeout(1200);
       const v2 = await s.page.evaluate(() => {
@@ -5599,30 +5601,33 @@ async function parcours(page, N){
           dits3.length === 0, dits3.slice(0, 3).join(' | '));
       }
 
-      /* ÉTAPE 4 : le 2.3.9 — « fais pareil pour le 2.3.9 » (Turquet, le
-         lendemain). Même feuille, les espaces par l'IDENTITÉ de l'exercice :
-         on tape la voie de la diminution avec des espaces autour des signes,
-         et on relit la lecture, le verdict, la note, la peinture. */
-      if(!P.syntheseRedigee.espacesAussi){
-        ignorer('sur le 2.3.9, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
+      /* ÉTAPE 4 : le 2.3.9, puis le 2.2.10 — « fais pareil pour le 2.3.9 »,
+         puis « pareil pour le 2.2.10 et le 2.5.2 » (Turquet, septembre 2026).
+         Même feuille, les espaces sur les quatre exercices du moteur : on tape
+         la voie de l'évolution (la multiplication, puis la soustraction ou
+         l'addition) avec des espaces autour des signes, et on relit la
+         lecture, le verdict, la note, la peinture. Le 2.5.2 est tapé de même
+         à l'étape 2. */
+      if(!P.syntheseRedigee.espacesAussi || !P.syntheseRedigee.espacesAussi.length){
+        ignorer('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
           'ce niveau n\'a pas la synthèse des diminutions rédigée');
       } else {
         let dits4 = [];
-        await s.page.evaluate(id => openTest(id), P.syntheseRedigee.espacesAussi);
-        await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
-        await s.page.waitForTimeout(1300);
-        const q4 = await s.page.evaluate(() => {
-          const q = genSyn('dim', 'fin');
-          test.questions[test.idx] = q; test.locked = false; test.salBusy = false; renderSal();
-          const bon = (typeof q.bon === 'number') ? q.bon : q.opts.indexOf(q.bonV);
-          q.choisi = bon; const c = salCouple(q); q.choisi = null;
-          return { bon: bon, N: c.N, pDec: c.pDecStr, aug: c.augStr, fin: c.finStr, dix: !!q.dix };
-        });
-        await s.page.waitForTimeout(800);
-        if(q4.dix) dits4.push('le 2.3.9 tire une question q.dix');
-        if(q4.bon < 0){ dits4.push('la bonne proposition est introuvable parmi les choix'); }
-        else {
+        for(const X of P.syntheseRedigee.espacesAussi){
+          await s.page.evaluate(id => openTest(id), X.exercice);
+          await s.page.waitForTimeout(400);
+          await s.page.click('#modeChoices [onclick*="train"]');
+          await s.page.waitForTimeout(1300);
+          const q4 = await s.page.evaluate((fam) => {
+            const q = genSyn(fam, 'fin');
+            test.questions[test.idx] = q; test.locked = false; test.salBusy = false; renderSal();
+            const bon = (typeof q.bon === 'number') ? q.bon : q.opts.indexOf(q.bonV);
+            q.choisi = bon; const c = salCouple(q); q.choisi = null;
+            return { bon: bon, N: c.N, pDec: c.pDecStr, aug: c.augStr, fin: c.finStr, dix: !!q.dix, signe: (c.sens < 0 ? ' - ' : ' + ') };
+          }, X.fam);
+          await s.page.waitForTimeout(800);
+          if(q4.dix){ dits4.push(X.num + ' : le tirage porte q.dix'); continue; }
+          if(q4.bon < 0){ dits4.push(X.num + ' : la bonne proposition est introuvable parmi les choix'); continue; }
           await s.page.click('#salc' + q4.bon);
           await s.page.waitForTimeout(150);
           await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
@@ -5631,20 +5636,20 @@ async function parcours(page, N){
           await s.page.keyboard.type(q4.pDec + ' * ' + q4.N + ' = ' + q4.aug, { delay: 30 });
           await s.page.keyboard.press('Enter');
           await s.page.waitForTimeout(300);
-          await s.page.keyboard.type(q4.N + ' - ' + q4.aug + ' = ' + q4.fin, { delay: 30 });
+          await s.page.keyboard.type(q4.N + q4.signe + q4.aug + ' = ' + q4.fin, { delay: 30 });
           await s.page.waitForTimeout(400);
           const lu4 = await s.page.evaluate(() => {
             const t = salFeuille.lire(), L = String(t).split('\n');
             const j = salJuge(test.questions[test.idx], t);
             return { lignes: L, brut: salFeuille.lignes.map(x => x.mf.getValue()), sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' };
           });
-          if(lu4.lignes.length !== 2) dits4.push('la feuille se lit en ' + lu4.lignes.length + ' ligne(s) au lieu de 2 : « ' + lu4.lignes.join(' ⏎ ') + ' »');
+          if(lu4.lignes.length !== 2) dits4.push(X.num + ' : la feuille se lit en ' + lu4.lignes.length + ' ligne(s) au lieu de 2 : « ' + lu4.lignes.join(' ⏎ ') + ' »');
           if(!/ = /.test(lu4.lignes[0] || '') || !/ = /.test(lu4.lignes[1] || ''))
-            dits4.push('les espaces tapées ne ressortent pas : « ' + lu4.lignes.join(' ⏎ ') + ' »');
+            dits4.push(X.num + ' : les espaces tapées ne ressortent pas : « ' + lu4.lignes.join(' ⏎ ') + ' »');
           if(!/\\[,;: ]|~/.test(lu4.brut[0] || ''))
-            dits4.push('la barre d\'espace n\'a rien écrit dans la ligne (MathLive rend « ' + lu4.brut[0] + ' »)');
+            dits4.push(X.num + ' : la barre d\'espace n\'a rien écrit dans la ligne (MathLive rend « ' + lu4.brut[0] + ' »)');
           if(!lu4.sait || !lu4.correct)
-            dits4.push('le juge ' + (lu4.sait ? 'refuse' : 's\'abstient sur') + ' la copie espacée : « ' + lu4.phrase.slice(0, 120) + ' »');
+            dits4.push(X.num + ' : le juge ' + (lu4.sait ? 'refuse' : 's\'abstient sur') + ' la copie espacée : « ' + lu4.phrase.slice(0, 120) + ' »');
           await s.page.click('#salActions .btn-primary');
           await s.page.waitForTimeout(1200);
           const v4 = await s.page.evaluate(() => {
@@ -5653,11 +5658,11 @@ async function parcours(page, N){
                      lignes: salFeuille.lignes.map(x => x.mf.className) };
           });
           if(v4.classe.indexOf('good') < 0)
-            dits4.push('la copie espacée n\'est pas acceptée à la vérification : « ' + v4.texte.slice(0, 120) + ' »');
-          if(v4.score !== 1) dits4.push('la note ne compte pas la question : score ' + v4.score);
-          [0, 1].forEach(i => { if((v4.lignes[i] || '').indexOf('ok') < 0) dits4.push('la ligne ' + (i + 1) + ' (juste) ne se peint pas en bleu : classes « ' + v4.lignes[i] + ' »'); });
+            dits4.push(X.num + ' : la copie espacée n\'est pas acceptée à la vérification : « ' + v4.texte.slice(0, 120) + ' »');
+          if(v4.score !== 1) dits4.push(X.num + ' : la note ne compte pas la question : score ' + v4.score);
+          [0, 1].forEach(i => { if((v4.lignes[i] || '').indexOf('ok') < 0) dits4.push(X.num + ' : la ligne ' + (i + 1) + ' (juste) ne se peint pas en bleu : classes « ' + v4.lignes[i] + ' »'); });
         }
-        verifier('sur le 2.3.9, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
+        verifier('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
           dits4.length === 0, dits4.slice(0, 3).join(' | '));
       }
       verifier('l\'écran de la synthèse rédigée ne lève aucune erreur JavaScript',
