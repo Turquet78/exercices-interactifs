@@ -292,7 +292,10 @@ module.exports = {
                           d'espace ÉCRIT une espace (l'élève y rédige en mots),
                           et SORT toujours d'une fraction — rien de cela ne se
                           voit hors d'un vrai MathLive */
-                       dix: 'synthese-diminutions-libre-dix' },
+                       dix: 'synthese-diminutions-libre-dix',
+                       /* et le 2.3.9 a suivi le lendemain : même feuille,
+                          les espaces par l'identité de l'exercice */
+                       espacesAussi: 'synthese-diminutions-libre' },
     /* Le pavé numérique compact de la Première sert AUSSI ses cases MathLive
        (champsMaths = PAVE_MF dans la page — deux sources) : toutes ses cases
        pm-mf n'attendent qu'un nombre. Le banc navigateur en tape une pour de
