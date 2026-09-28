@@ -2049,3 +2049,85 @@ pleinement valide. `atdPoints` et `atdDessinerFleches` sont donc réduits à une
 seule flèche — du « 10 % »/« 5 % » de départ vers le pourcentage trouvé
 (`atdP`) — plutôt que d'être copiés-collés avec une branche morte : la
 présentation garde EXACTEMENT ce qu'il reste de sens à montrer.
+
+## {synthese-augmentations-dix} — la synthèse des hausses, avec la méthode des 10 % (Première, septembre 2026)
+
+**D'où ça vient.** Demande de Turquet : « en première faire un exercice comme
+le 2.2.9, mais on rajoute la méthode "en passant par 10 %", qui sera
+présentée comme le 2.2.11 quand on calcule la valeur finale et comme le
+2.2.12 quand on cherche le % d'augmentation ». L'exercice arrive en fin de
+sous-thème, {synthese-augmentations-dix} (2.2.13) : il suppose les deux
+exercices de la méthode des 10 % déjà vus, et il ne touche pas au 2.2.9.
+
+**Même moteur, pas même identité — pour la troisième fois.** Le motif du
+2.3.8 : `startSynAugDix` épingle `test.qId`, « Recommencer » route par
+l'identité, la note part sous `test.qId`, le rappel vit dans `RAPPELS_ID`
+(le kind `syn` est partagé par quatre exercices, il ne peut porter le
+rappel de celui-ci). `genSyn` a appris un TROISIÈME paramètre facultatif
+(`{dix:true}`), après la famille et l'inconnue : un second générateur aurait
+fini par diverger. Et c'est LA QUESTION qui porte le réglage (`q.dix`), pas
+le démarreur : la reprise d'une pause relit la question, jamais le
+démarreur — un troisième bouton accroché à `test.qId` aurait disparu à la
+reprise, ou serait apparu sur un 2.2.9 repris sous une mauvaise identité.
+
+**Le tirage : des taux que l'on RETROUVE depuis 10 %.** Le 2.2.9 tire ses
+taux pour que le coefficient s'écrive court (un multiple de dix, ou un
+chiffre) ; 3 % y est un bon taux, et il ne se retrouve pas depuis 10 %. Le
+2.2.13 prend donc EXACTEMENT les formes des deux exercices qu'il cite : pour
+CALCULER une valeur (la nouvelle valeur, ou la valeur initiale proposée),
+les trois formes du 2.2.11 — un multiple de dix de 20 à 90, 5 % (la moitié
+de 10 %), 15 % (10 % + 5 %) ; pour RETROUVER le pourcentage, les deux
+familles du 2.2.12 — les mêmes multiples de dix, ou 5, 15, 25 par la moitié
+de 10 % (`ATD_PCTS_DIX`, `ATD_PCTS_CINQ`, réutilisées telles quelles). Jamais
+10 % lui-même : la ligne « 10 % de N » serait déjà la réponse. N reste un
+multiple de 100 (10 % et 5 % tombent sur des entiers), les coefficients
+restent à deux décimales (1,05 ; 1,15 ; 1,25 — la règle du 2.5.1 tient), et
+les leurres du pourcentage viennent du même vivier, 10 % compris (le « 10 % »
+de départ est le leurre naturel) — jamais 3 % ou 7 %, qu'aucune ligne de
+l'écran ne saurait produire. Les leurres de la valeur initiale
+(`leurresProches`) sont des multiples de dix : 10 % en reste entier, et 5 %
+au pire à une décimale (90 → 4,5), ce que le 2.2.11 accepte déjà.
+
+**Deux présentations, et deux JUGES — c'est là que la demande a demandé une
+décision.** Les deux méthodes du 2.2.9 jugent le calcul SUR LA PROPOSITION
+CHOISIE (`synCouple`) : un calcul juste sur une mauvaise proposition reste
+juste, et c'est la vérification qui révèle que la proposition ne convient
+pas. La méthode des 10 % pour CALCULER une valeur s'y plie sans effort — les
+lignes du 2.2.11 (10 % de N avec sa fraction, l'augmentation ligne à ligne,
+départ + augmentation) se lisent sur le couple testé : pour la valeur
+INITIALE, on fait grandir la proposition, et la dernière case doit retomber
+sur la valeur finale de l'énoncé ; les cases `y4a`/`y4b`/`y4r` sont celles
+de la méthode directe, et la pose facultative de l'addition les suit sans
+qu'on y touche. Mais la méthode des 10 % pour RETROUVER le pourcentage — les
+lignes du 2.2.12 : l'écart en tête, 10 %, 5 % s'il le faut, « On multiplie
+par ▢ : donc le pourcentage d'augmentation est de ▢ % » — est un calcul qui
+PART DES DONNÉES et n'a aucune case où une proposition entrerait : il ne
+connaît pas de proposition, il trouve LE pourcentage. Le juger « sur le
+couple » aurait demandé à l'élève de recopier sa proposition dans la
+dernière case et d'écrire un facteur qui ne mène à rien de vérifiable : ce
+n'est pas une vérification. Ce chemin-là est donc jugé sur les données, et
+le pourcentage TROUVÉ se compare ensuite au pourcentage CHOISI — en soutien,
+« Ton calcul est juste : le pourcentage d'augmentation est 30 %, et ce n'est
+pas la proposition que tu as choisie » ; en entraînement, « Calcul juste,
+mais mauvaise proposition : le pourcentage trouvé est 30 % ». La flèche
+courbe de la fiche (`synDessinerFleches`, sur `pdtArc` réutilisé tel quel),
+la classe `syn-fl` posée par `renderSynTest` pour LA question affichée, et
+la soustraction posée FACULTATIVE construite une fois (`buildPoseSub`, ses
+deux termes sont ceux de l'énoncé) sont les copies conformes de
+`renderAtd` — `updateSynPose` sait que cette pose-là ne se reconstruit pas.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, « 2.2.13 »), deux
+contrôles, quatre bords : le tirage (hausses seules, les trois inconnues,
+`q.dix`, les taux et leurres ci-dessus, les deux formes vues pour chaque
+inconnue, « Recommencer ») ; le 2.2.9 qui NE CHANGE PAS (ni troisième
+bouton, ni « 10 % » dans le message qui réclame une méthode) ; l'écran (les
+lignes du 2.2.11 pour 15 %, les lignes du 2.2.12 pour 15 %, 5 % sans
+facteur ni flèche, un multiple de dix sans ligne des 5 %, la soustraction
+posée dès l'affichage) ; le juge (la copie juste vaut le point sur les trois
+inconnues ; sur une proposition fausse, le calcul juste est dit juste — sur
+la proposition pour la valeur initiale, sur les données pour le pourcentage,
+le pourcentage trouvé nommé — et en soutien l'écran reste ouvert, puis la
+bonne proposition vaut le point sans retaper le calcul). Les règles
+universelles (taille des cases, case vide, bouton d'aide IA, clavier) sont
+tenues par le banc navigateur sans rien déclarer : l'écran est celui du
+2.2.9.

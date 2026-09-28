@@ -982,8 +982,8 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    {augmenter-taux-dix} (2.2.12) reprend la même convention, elle aussi sur
    plusieurs lignes empilées. {diminuer-taux-dix} (miroir sur les baisses,
    septembre 2026) la reprend à son tour. */
-#pxHost .pct10-ligne,#atdHost .pct10-ligne,#pdtHost .pct10-ligne,#ddtHost .pct10-ligne{font-size:1.6rem;font-family:"Fredoka";font-weight:500;color:var(--ink);line-height:1.6;text-align:center;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:8px;row-gap:4px;}
-#pxHost .pct10-ligne math-field.pm-mf,#atdHost .pct10-ligne math-field.pm-mf,#pdtHost .pct10-ligne math-field.pm-mf,#ddtHost .pct10-ligne math-field.pm-mf{font-size:calc(1.6rem * var(--tab-nb,1));vertical-align:baseline;}
+#pxHost .pct10-ligne,#atdHost .pct10-ligne,#pdtHost .pct10-ligne,#ddtHost .pct10-ligne,#synHost .pct10-ligne{font-size:1.6rem;font-family:"Fredoka";font-weight:500;color:var(--ink);line-height:1.6;text-align:center;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:8px;row-gap:4px;}
+#pxHost .pct10-ligne math-field.pm-mf,#atdHost .pct10-ligne math-field.pm-mf,#pdtHost .pct10-ligne math-field.pm-mf,#ddtHost .pct10-ligne math-field.pm-mf,#synHost .pct10-ligne math-field.pm-mf{font-size:calc(1.6rem * var(--tab-nb,1));vertical-align:baseline;}
 #pdtHost .pct10-ligne{margin:14px 0;}
 /* {pourcentage-dix-cascade} (2.1.9) : sept rangées (10 % puis les six autres
    pourcentages) s'enchaînaient collées les unes aux autres (demande de
@@ -1006,6 +1006,13 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* {diminuer-taux-dix} (miroir de {augmenter-taux-dix} sur les baisses,
    septembre 2026) : même écart que #atdHost. */
 #ddtHost .pct10-ligne{margin:16px 0;}
+/* {synthese-augmentations-dix} (2.2.13, septembre 2026) : la méthode des 10 %
+   dans la synthèse reprend, ligne à ligne, l'écran du 2.2.11 (rangées .pt-row
+   espacées comme #adxHost — scopé à la méthode, .syn-dix, pour ne pas espacer
+   les deux autres méthodes du même hôte) et celui du 2.2.12 (lignes
+   .pct10-ligne, même écart que #atdHost). */
+#synHost .pct10-ligne{margin:16px 0;}
+#synHost .syn-dix .pt-row{margin:10px 0;}
 /* Les flèches de la fiche papier (2.1.10, demande de Turquet, PDF « 3e méthode
    retrouver un pourcentage ») : la ligne CIBLE (« On multiplie par ... : donc ... »)
    gagne de la place au-dessus d'elle pour que les deux traits courbes aient où
@@ -1025,6 +1032,12 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #ddtHost.ddt-fl .pct10-fl-cible{margin-top:30px}
 #ddtHost.ddt-fl{position:relative}
 #ddtHost .ddt-fleches{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+/* Copie conforme pour {synthese-augmentations-dix} (2.2.13), quand la méthode
+   des 10 % cherche le pourcentage — même piège, même garde : voir le
+   commentaire ci-dessus pour {pourcentage-dix-taux}. */
+#synHost.syn-fl .pct10-fl-cible{margin-top:30px}
+#synHost.syn-fl{position:relative}
+#synHost .syn-fleches{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
 /* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
    (apres « 1, », « 0, ») : plus courtes. */
 #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:82px;}
@@ -2232,7 +2245,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=257;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=258;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2649,6 +2662,7 @@ const TESTS={
   'associer-coefficient':{ name:'Associer le bon coefficient', icon:'🔗', desc:'Prendre 30 %, augmenter de 30 %, diminuer de 30 % : trois phrases, six coefficients proposés, et à toi d’associer à chacune le sien. Les six ne diffèrent que par les deux erreurs classiques — la famille et la place de la virgule.', start:()=>startAssocierCoef() },
   'reconnaitre-coefficient':{ name:'Reconnaître le coefficient', icon:'🎯', desc:'Augmenter de 30 %, diminuer de 3 %, prendre 30 % : quel coefficient multiplicateur ? Choisis parmi quatre — les pièges classiques y sont — puis VÉRIFIE ta réponse en calculant le coefficient, comme dans {augmenter-pourcentage}.', start:()=>startReconnaitreCoef() },
   'synthese-augmentations':{ name:'Synthèse sur les augmentations', icon:'📈', desc:'La synth\u00e8se de {synthese-pourcentages}, mais uniquement sur les HAUSSES : le r\u00e9sultat, la valeur initiale ou le pourcentage d\u2019une augmentation \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la avec la m\u00e9thode de ton choix.', start:()=>startSynAug() },
+  'synthese-augmentations-dix':{ name:'Synth\u00e8se sur les augmentations \u2014 avec la m\u00e9thode des 10 %', icon:'\ud83d\udd1f', desc:'Comme {synthese-augmentations}, avec une TROISI\u00c8ME m\u00e9thode de v\u00e9rification : passer par 10 % \u2014 pr\u00e9sent\u00e9e comme {augmenter-dix} quand on calcule une valeur, et comme {augmenter-taux-dix} quand on cherche le pourcentage d\u2019augmentation.', start:()=>startSynAugDix() },
   'synthese-diminutions':{ name:'Synthèse sur les diminutions', icon:'📉', desc:'Le miroir de {synthese-augmentations} sur les BAISSES : le r\u00e9sultat, la valeur initiale ou le pourcentage d\u2019une diminution \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la avec la m\u00e9thode de ton choix.', start:()=>startSynDim() },
   'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
@@ -2682,7 +2696,7 @@ const THEMES=[
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
   { num:2, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre','pourcentage-dix','pourcentage-dix-cascade','pourcentage-dix-taux'] },
-      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre','augmenter-dix','augmenter-taux-dix'] },
+      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre','augmenter-dix','augmenter-taux-dix','synthese-augmentations-dix'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre','diminuer-dix','diminuer-taux-dix'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
@@ -2794,7 +2808,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -8305,9 +8319,10 @@ async function finishA2Q(){
    non nuls remis ici (12,5 %) donnerait le coefficient 1,125 sans qu'aucune
    autre mesure ne bronche, celle d'à côté n'exigeant que l'ENTIER — et 12,5 %
    de 800 font 100, un entier parfait. */
-function genSyn(famVoulu, incVoulu){
+function genSyn(famVoulu, incVoulu, regl){
   const fam=famVoulu||pick(['pct','aug','dim']);
   const inc=incVoulu||pick(['fin','ini','pct']);
+  const dix=!!(regl && regl.dix);   /* {synthese-augmentations-dix} : la méthode des 10 % est proposée */
   let q;
   if(fam==='pct'){
     if(inc==='pct'){
@@ -8330,7 +8345,21 @@ function genSyn(famVoulu, incVoulu){
   } else {
     const sens=(fam==='aug')?1:-1;
     let P,N;
-    if(inc==='ini'){ P=pick([10,20,30,40,50,60,70,80,90]); }   /* leurres fins : multiples de 10 */
+    if(dix){
+      /* {synthese-augmentations-dix} (2.2.13) : chaque taux se retrouve EN
+         PASSANT PAR 10 % — les formes EXACTES du 2.2.11 quand on calcule une
+         valeur (un multiple de dix de 20 à 90 : on multiplie 10 % ; 5 % : la
+         moitié de 10 % ; 15 % = 10 % + 5 %) et celles du 2.2.12 quand on
+         cherche le pourcentage (les mêmes multiples de dix, ou 5, 15, 25 par
+         la moitié de 10 %). Jamais 10 % lui-même : la ligne « 10 % de N »
+         serait déjà la réponse. Jamais un taux d'un chiffre autre que 5 :
+         3 % ne se retrouve pas depuis 10 %. Les coefficients restent à deux
+         décimales (1,05 ; 1,15 ; 1,25) et N, multiple de 100, fait tomber
+         10 % et 5 % sur des entiers. */
+      if(inc==='pct') P=Math.random()<0.5?pick(ATD_PCTS_CINQ):pick(ATD_PCTS_DIX);
+      else { const forme=pick(['mult10','cinq','quinze']); P=(forme==='mult10')?pick(ATD_PCTS_DIX):(forme==='cinq'?5:15); }
+    }
+    else if(inc==='ini'){ P=pick([10,20,30,40,50,60,70,80,90]); }   /* leurres fins : multiples de 10 */
     else { P=Math.random()<0.5?pick([10,20,30,40,50,60,70,80,90]):rand(1,9); }   /* un seul chiffre non nul : le coefficient garde au plus deux décimales */
     N=rand(1,9)*Math.pow(10,pick([2,3]));                      /* multiple de 100 : tout tombe juste */
     const aug=P*N/100, fin=N+sens*aug;
@@ -8347,10 +8376,15 @@ function genSyn(famVoulu, incVoulu){
       q.v=rand(0,(sens>0?AUGQ_EN_VAL:DIMQ_EN_VAL).length-1);
     } else {
       const ci=augqTirerCtx(N);
+      /* les leurres du pourcentage, en méthode des 10 % : des taux qui se
+         retrouvent eux aussi depuis 10 % (10 y compris — le « 10 % » de
+         départ est le leurre naturel), jamais 3 % ou 7 % */
+      const vivier=dix?[10].concat(ATD_PCTS_DIX,ATD_PCTS_CINQ):AUGQ_PCTS;
       Object.assign(q,{unit:AUGQ_CTX[ci].u,ci,bonV:P,
-        opts:qdMelanger(qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3).concat([P]))});
+        opts:qdMelanger(qdMelanger(vivier.filter(x=>x!==P)).slice(0,3).concat([P]))});
       q.v=rand(0,(sens>0?AUGQ_EN_PCT:DIMQ_EN_PCT).length-1);
     }
+    if(dix) q.dix=true;   /* rangé dans la question : la reprise d'une pause relit la question, jamais le démarreur */
   }
   q.bon=q.opts.indexOf(q.bonV);
   q.choisi=null;
@@ -8439,6 +8473,69 @@ async function startSynDim(){
   test.maxScore=test.questions.length;
   show('syntest'); renderSynTest();
 }
+/* {synthese-augmentations-dix} (2.2.13, demande de Turquet, septembre 2026 :
+   « un exercice comme le 2.2.9, mais on rajoute la méthode "en passant par
+   10 %" ») : la synthèse des hausses, avec une TROISIÈME méthode de
+   vérification. MÊME MOTEUR, PAS MÊME IDENTITÉ, comme {synthese-diminutions}.
+   Le tirage passe par genSyn('aug', inc, {dix:true}) : mêmes portes, mais des
+   taux que l'on retrouve depuis 10 %, et la question porte q.dix — c'est ELLE
+   qui fait apparaître le troisième bouton, pas test.qId : la reprise d'une
+   pause relit la question, jamais le démarreur. La méthode se présente comme
+   {augmenter-dix} quand on CALCULE une valeur — la nouvelle valeur, ou la
+   valeur initiale proposée qu'on fait grandir jusqu'à retomber (ou non) sur
+   la valeur finale de l'énoncé — et comme {augmenter-taux-dix} quand on
+   CHERCHE le pourcentage. Les deux autres méthodes ne bougent pas : le 2.2.9
+   ne montre jamais le troisième bouton (sa question n'a pas q.dix). */
+async function startSynAugDix(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='syn'; test.qId='synthese-augmentations-dix';
+  const incs=qdMelanger(['fin','ini','pct']);
+  test.questions=distinctes(EVOL_NB,(_,i)=>genSyn('aug', incs[i%incs.length], {dix:true}));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('syntest'); renderSynTest();
+}
+/* La méthode des 10 % dans la synthèse. Pour CALCULER une valeur (2.2.11) :
+   les lignes d'augmentation d'un taux P — une seule, ou deux quand
+   15 % = 10 % + 5 %. Pour RETROUVER le pourcentage (2.2.12) : passer par 5 %
+   quand P se termine par un 5, le facteur k qui mène de 10 % (ou 5 %) à P, et
+   aucune multiplication à montrer quand P EST 5 %. Tout se déduit de P : rien
+   à ranger dans la question. */
+function synDixLignes(P){ return (P===15)?[5,15]:[P]; }
+function synDixRegl(P){ const cinq=(P%10!==0); return {cinq, k:cinq?P/5:P/10, hasK:P!==5}; }
+let synRedessine=null;
+/* La flèche courbe de la fiche, comme en {augmenter-taux-dix} : du « 10 % »
+   (ou « 5 % ») de départ vers la case du pourcentage trouvé, MESURÉE dans la
+   page — `pdtArc` est générique et se réutilise tel quel. La classe « syn-fl »
+   est le seul repère fiable, posée par renderSynTest pour LA question qu'il
+   vient d'afficher (le piège du redessin retardé, voir pdtPoints). */
+function synDessinerFleches(){
+  const hote=$('synHost'); if(!hote) return;
+  const vieux=hote.querySelector('.syn-fleches'); if(vieux) vieux.remove();
+  if(!hote.classList.contains('syn-fl')) return;
+  const q=test.questions&&test.questions[test.idx]; if(!q || q.meth!=='dix' || q.inc!=='pct') return;
+  const r=synDixRegl(q.P);
+  const src=$(r.cinq?'syFlPct5':'syFlPct10'), dst=$('yP'); if(!src||!dst) return;
+  const R=hote.getBoundingClientRect(); if(!R.width) return;
+  const rs=src.getBoundingClientRect(), rd=dst.getBoundingClientRect();
+  const a={x:(rs.left+rs.right)/2-R.left, y:rs.bottom-R.top}, b={x:(rd.left+rd.right)/2-R.left, y:rd.top-R.top};
+  const C=getComputedStyle(document.documentElement).getPropertyValue('--pdt-fl').trim()||'#7C3AED';
+  const fond=getComputedStyle(document.documentElement).getPropertyValue('--surface').trim()||'#fff';
+  const pointe='<marker id="syn-p1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"'
+    +' orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="'+C+'"></path></marker>';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('class','syn-fleches');
+  svg.setAttribute('viewBox','0 0 '+R.width+' '+R.height);
+  svg.setAttribute('width',R.width); svg.setAttribute('height',R.height);
+  svg.setAttribute('aria-hidden','true');
+  const m={x:(a.x+b.x)/2, y:(a.y+b.y)/2};
+  svg.innerHTML='<defs>'+pointe+'</defs>'+pdtArc(a,b,C,'syn-p1')
+    +'<text x="'+m.x.toFixed(1)+'" y="'+m.y.toFixed(1)+'" text-anchor="middle" dominant-baseline="middle"'
+    +' font-family="Fredoka" font-weight="600" font-size="15" fill="'+C+'" stroke="'+fond+'" stroke-width="4" paint-order="stroke">\u00d7</text>';
+  hote.appendChild(svg);
+}
 function choisirSy(i){
   if(test.locked) return;
   const q=test.questions[test.idx];
@@ -8459,10 +8556,17 @@ function updateSynPose(){
      la soustraction les suit AUSSI (demande de Turquet, août 2026) — bâtie
      sur les termes écrits, plus jamais sur la proposition */
   if(q.meth==='coef'){ poseEleveMAJ({step:'syPose',host:'syMul',nId:'y3n',vId:'y3v'}); return; }
+  /* méthode des 10 % cherchant le pourcentage : la soustraction posée a ses
+     deux termes dans l'énoncé, elle est construite une fois par renderSynTest */
+  if(q.meth==='dix' && q.inc==='pct') return;
   poseOpEleveMAJ({step:'syPose',host:'syMul',aId:'y4a',bId:'y4b',neg:q.sens<0});
 }
 function renderSynTest(){
   const q=test.questions[test.idx]; test.locked=false;
+  /* la flèche de la méthode des 10 % (pourcentage cherché) ne survit pas à un
+     redessin : sa classe et son écouteur sont reposés plus bas, si elle revient */
+  const hoteSyn=$('synHost'); hoteSyn.classList.remove('syn-fl');
+  if(synRedessine){ window.removeEventListener('resize', synRedessine); synRedessine=null; }
   $('syqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
   $('modeTagSY').innerHTML=modeTagHTML();
   $('syLiveScore').textContent=test.score;
@@ -8485,7 +8589,8 @@ function renderSynTest(){
     methHTML=`<div class="pt-step"><div class="pt-lab">Ⓜ Choisis ta méthode de vérification</div>
        <div class="pt-choix" id="syMeth">
          <button type="button" class="pt-choix-btn${q.meth==='coef'?' sel':''}" id="sm0" onclick="choisirSyMeth('coef')"><span class="valeur">Avec le coefficient multiplicateur</span></button>
-         <button type="button" class="pt-choix-btn${q.meth==='dir'?' sel':''}" id="sm1" onclick="choisirSyMeth('dir')"><span class="valeur">En calculant ${neg?'la baisse':'l\u2019augmentation'}</span></button>
+         <button type="button" class="pt-choix-btn${q.meth==='dir'?' sel':''}" id="sm1" onclick="choisirSyMeth('dir')"><span class="valeur">En calculant ${neg?'la baisse':'l\u2019augmentation'}</span></button>${q.dix?`
+         <button type="button" class="pt-choix-btn${q.meth==='dix'?' sel':''}" id="sm2" onclick="choisirSyMeth('dix')"><span class="valeur">En passant par 10 %</span></button>`:''}
        </div></div>`;
   }
   let etapes='';
@@ -8504,6 +8609,46 @@ function renderSynTest(){
          <div class="pt-row">${frac('y3n','y3d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y3v" aria-label="valeur de départ"></math-field>${fEq(frac('y4n','y4d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="y5" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
       `<div class="pt-step pt-opt step-hidden" id="syPose"><div class="pt-lab">\u2464 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
          <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
+  } else if(q.meth==='dix' && q.inc!=='pct'){
+    /* la méthode des 10 % pour CALCULER une valeur : la présentation de
+       {augmenter-dix} (2.2.11), ligne à ligne — 10 % de la valeur de départ
+       (la fraction N/10 devant la case, comme là-bas), l'augmentation ligne
+       par ligne (deux lignes pour 15 % = 10 % + 5 %), puis départ +
+       augmentation. Quand on cherche la valeur INITIALE, la valeur de départ
+       est la proposition choisie (« … » tant qu'il n'y en a pas) : c'est elle
+       qu'on fait grandir, et la dernière case doit retomber sur la valeur
+       finale de l'énoncé. Les cases y4a/y4b/y4r sont celles de la méthode
+       directe : la pose facultative de l'addition (updateSynPose →
+       poseOpEleveMAJ) les suit sans rien changer. */
+    const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+    const fracFixe=(n,d)=>`<span class="f-whole">${mlTex('\\frac{'+n+'}{'+d+'}', n+'/'+d)}</span>`;
+    const u=esc(q.unit);
+    const ligneBase=`<div class="pt-row"><span class="f-whole">On commence par 10 % de ${nAff} ${u}</span>${fEq(fracFixe(nAff,10))}${fEq(dec('y0','dix pour cent de la valeur de départ'))}<span class="f-whole">${u}</span></div>`;
+    const lignesAug=synDixLignes(q.P).map(p=>
+      `<div class="pt-row"><span class="f-whole">donc : l\u2019augmentation est ${p} % de ${nAff} ${u} est</span>${dec('yP'+p,p+' % de la valeur de départ')}<span class="f-whole">${u}</span></div>`).join('');
+    const ligneTot=`<div class="pt-row"><span class="f-whole">donc : la valeur augmentée est</span>${dec('y4a','valeur de départ')}<span class="f-whole">+</span>${dec('y4b','augmentation')}${fEq(dec('y4r','nouvelle valeur'))}<span class="f-whole">${u}</span></div>`;
+    etapes=`<div class="pt-step syn-dix">${ligneBase}${lignesAug}${ligneTot}</div>`+
+      `<div class="pt-step pt-opt step-hidden" id="syPose"><div class="pt-lab">Pose l\u2019addition en colonnes</div>
+         <div class="pt-row" style="padding:8px 0 14px"><div class="mp-op" id="syMul"></div></div></div>`;
+  } else if(q.meth==='dix'){
+    /* la méthode des 10 % pour RETROUVER le pourcentage : la présentation de
+       {augmenter-taux-dix} (2.2.12), ligne à ligne — l'écart en tête, en
+       ligne ; 10 % de la valeur de départ ; 5 % quand le pourcentage se
+       termine par un 5 ; « On multiplie par ▢ : donc le pourcentage
+       d'augmentation est de ▢ % » — avec la flèche courbe de la fiche, et la
+       soustraction posée FACULTATIVE, construite une fois (ses deux termes
+       sont ceux de l'énoncé, comme là-bas). CE CALCUL PART DES DONNÉES, PAS
+       DE LA PROPOSITION : c'est le chemin du 2.2.12, qui ne connaît aucune
+       proposition — le pourcentage trouvé en bout de ligne se compare ensuite
+       à celui que l'élève a choisi. */
+    const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+    const u=esc(q.unit), r=synDixRegl(q.P);
+    const donc=`donc le pourcentage d\u2019augmentation est de ${dec('yP','le pourcentage cherché')}&nbsp;%.`;
+    etapes=`<div class="pct10-ligne">${augqCtx(q).s} a augmenté de <b>${q.fin}</b> \u2212 <b>${q.N}</b> = ${dec('y1e','l\u2019augmentation en '+q.unit)} ${u}</div>`
+      +`<div class="pct10-ligne"><b id="syFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${u} est : ${dec('y0','dix pour cent en '+q.unit)} ${u}</div>`
+      +(r.cinq?`<div class="pct10-ligne"><b id="syFlPct5">5</b>&nbsp;% de <b>${q.N}</b> ${u} est : ${dec('y5c','cinq pour cent en '+q.unit)} ${u}</div>`:'')
+      +(r.hasK?`<div class="pct10-ligne pct10-fl-cible">On multiplie par ${dec('yK','facteur qui donne le pourcentage cherché')} : ${donc}</div>`:`<div class="pct10-ligne">${donc}</div>`)
+      +`<div class="pt-step pt-opt" id="syPose"><div class="pt-lab">Pose la soustraction en colonnes : ${q.fin} \u2212 ${q.N}</div><div class="pt-row" style="padding:8px 0 14px"><div class="mp-op" id="syMul"></div></div></div>`;
   } else {
     /* la pose facultative de la méthode directe est l'addition ou la
        soustraction — elle suit les nombres de l'ÉLÈVE (poseOpEleveMAJ) */
@@ -8521,17 +8666,39 @@ function renderSynTest(){
        <div class="pt-choix" id="syChoix">${choix}</div></div>`+
     methHTML+etapes+
     `<p class="pt-aide">${(evol&&!q.meth)
-        ? 'Choisis ta méthode de vérification : les deux donnent le même résultat.'
+        ? (q.dix ? 'Choisis ta méthode de vérification : les trois donnent le même résultat.'
+                 : 'Choisis ta méthode de vérification : les deux donnent le même résultat.')
         : c===null ? 'Écris les étapes du calcul et choisis ta proposition \u2014 dans l\u2019ordre que tu veux.'
+        : (q.meth==='dix' && q.inc==='pct') ? 'Écris les étapes du calcul : le pourcentage trouvé doit être celui que tu as choisi.'
         : (q.inc==='fin' ? 'Écris les étapes du calcul : tu dois retrouver la proposition choisie.'
                          : 'Vérifie ta proposition\u00a0: tu dois retrouver '+((q.fam==='pct')?q.result:q.decStr)+'\u00a0'+esc(q.unit)+'.')}</p>`;
+  if(q.meth==='dix' && q.inc==='pct'){
+    /* la soustraction facultative, construite une fois (ses termes sont ceux
+       de l'énoncé), et la flèche de la fiche quand une multiplication reste à
+       montrer — comme renderAtd */
+    const tmpSub=document.createElement('div');
+    tmpSub.innerHTML=buildPoseSub(q.fin,q.N,'__syn_pose_tmp');
+    $('syMul').innerHTML=tmpSub.firstElementChild.innerHTML;
+    const r=synDixRegl(q.P);
+    hoteSyn.classList.toggle('syn-fl', r.hasK);
+    if(r.hasK){
+      synRedessine=function(){ if(test.kind==='syn' && $('synHost')) synDessinerFleches(); };
+      window.addEventListener('resize', synRedessine);
+      setTimeout(synDessinerFleches, 60);
+      setTimeout(synDessinerFleches, 240);   /* MathLive finit de poser ses cases */
+    }
+  }
   if(!pretE) return;
   const posedIns=$('syMul')?[...$('syMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab)):[];
   const order=(q.fam==='pct')
     ? [$('y1n'),$('y1d'),$('y2n'),$('y2d'),$('y3')]
     : (q.meth==='coef')
       ? [$('y1n'),$('y1d'),$('y1p'),$('y1dec'),$('y2n'),$('y2d'),$('y3n'),$('y3d'),$('y3v'),...posedIns,$('y4n'),$('y4d'),$('y5')]
-      : [$('y1n'),$('y1d'),$('y1v'),$('y2n'),$('y2d'),$('y3'),$('y4a'),$('y4b'),$('y4r'),...posedIns];
+      : (q.meth==='dix')
+        ? ((q.inc==='pct')
+            ? ['y1e','y0','y5c','yK','yP'].map(id=>$(id)).filter(Boolean).concat(posedIns)
+            : ['y0'].concat(synDixLignes(q.P).map(p=>'yP'+p),['y4a','y4b','y4r']).map(id=>$(id)).concat(posedIns))
+        : [$('y1n'),$('y1d'),$('y1v'),$('y2n'),$('y2d'),$('y3'),$('y4a'),$('y4b'),$('y4r'),...posedIns];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
@@ -8558,7 +8725,7 @@ function checkSynAnswer(live){
   const evol=(q.fam!=='pct'), neg=q.sens<0;
   if(evol && !q.meth){
     if(live) return;
-    $('syFeedback').textContent='Choisis ta méthode de vérification : coefficient multiplicateur, ou calcul '+(neg?'de la baisse':'de l\u2019augmentation')+'.';
+    $('syFeedback').textContent='Choisis ta méthode de vérification : coefficient multiplicateur, calcul '+(neg?'de la baisse':'de l\u2019augmentation')+(q.dix?', ou passage par 10 %':'')+'.';
     $('syFeedback').className='mp-feedback bad'; return;
   }
   const c=synCouple(q);
@@ -8581,6 +8748,25 @@ function checkSynAnswer(live){
       if($('syMul')) [...$('syMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
       liveColorFrac('y4n','y4d',c.prodNum,100);
       liveColorDec('y5',c.prodNum,100);
+    } else if(q.meth==='dix' && q.inc!=='pct'){
+      liveColorDec('y0',c.N,10);
+      synDixLignes(q.P).forEach(p=>liveColorDec('yP'+p,c.N*p,100));
+      if($('syMul')) [...$('syMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+      ['y4a','y4b'].forEach(id=>{
+        const el=$(id); if(!el||el.disabled) return; const vv=el.value.trim();
+        el.classList.remove('ok','bad'); if(vv==='') return;
+        const fr=parseDecToFrac(vv);
+        el.classList.add((!!fr && (fr.n===c.N*fr.d || fr.n*100===c.prod*fr.d))?'ok':'bad');
+      });
+      liveColorDec('y4r',c.N*100+c.prod,100);
+    } else if(q.meth==='dix'){
+      /* le chemin du 2.2.12 : jugé sur les DONNÉES, jamais sur la proposition */
+      const r=synDixRegl(q.P);
+      liveColorDec('y1e',q.aug,1); liveColorDec('y0',q.N,10);
+      if(r.cinq) liveColorDec('y5c',q.N,20);
+      if(r.hasK) liveColorDec('yK',r.k,1);
+      liveColorDec('yP',q.P,1);
+      if($('syMul')) [...$('syMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     } else {
       liveColorFrac('y1n','y1d',c.P,100);
       liveColorDec('y1v',c.N,1);
@@ -8643,6 +8829,31 @@ function checkSynAnswer(live){
     mark('y1n',ok1);mark('y1d',ok1);mark('y1p',okP);mark('y1dec',okC);mark('y2n',ok2);mark('y2d',ok2);
     mark('y3n',ok3);mark('y3d',ok3);mark('y3v',okV);mark('y4n',ok4);mark('y4d',ok4);mark('y5',ok5);
     calculOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;
+  } else if(q.meth==='dix' && q.inc!=='pct'){
+    /* 2.2.11 sur le couple testé : 10 % de N, l'augmentation ligne à ligne,
+       puis N + augmentation — en fractions exactes, jamais en flottants */
+    const eq=(id,n,d)=>{ if(v(id)==='') return false; const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
+    const ok0=eq('y0',c.N,10);
+    const lignes=synDixLignes(q.P), oksL=lignes.map(p=>eq('yP'+p,c.N*p,100));
+    jugePose();
+    const fa=parseDecToFrac(v('y4a')), fb=parseDecToFrac(v('y4b'));
+    const estAug=fr=>!!fr&&fr.n*100===c.prod*fr.d;
+    const okA=(est(fa,c.N)&&estAug(fb))||(estAug(fa)&&est(fb,c.N));
+    const okR=eq('y4r',c.N*100+c.prod,100);
+    mark('y0',ok0); lignes.forEach((p,i)=>mark('yP'+p,oksL[i]));
+    mark('y4a',okA); mark('y4b',okA); mark('y4r',okR);
+    calculOk=ok0&&oksL.every(Boolean)&&okA&&okR;
+  } else if(q.meth==='dix'){
+    /* 2.2.12 sur les DONNÉES : l'écart, 10 %, 5 % s'il le faut, le facteur,
+       le pourcentage — la proposition n'entre pas dans ce calcul, elle se
+       compare au pourcentage trouvé (okChoix, plus bas) */
+    const eq=(id,n,d)=>{ const el=$(id); if(!el||v(id)==='') return false; const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
+    const r=synDixRegl(q.P);
+    const ok1=eq('y1e',q.aug,1), ok0=eq('y0',q.N,10);
+    const ok5=r.cinq?eq('y5c',q.N,20):true, okK=r.hasK?eq('yK',r.k,1):true, okP=eq('yP',q.P,1);
+    jugePose();
+    mark('y1e',ok1); mark('y0',ok0); if(r.cinq) mark('y5c',ok5); if(r.hasK) mark('yK',okK); mark('yP',okP);
+    calculOk=ok1&&ok0&&ok5&&okK&&okP;
   } else {
     const ok1=v('y1n')!=='' && v('y1d')!=='' && fracEqual(iv('y1n'),iv('y1d'),c.P,100);
     const fV=parseDecToFrac(v('y1v')); const okV=est(fV,c.N);
@@ -8662,9 +8873,12 @@ function checkSynAnswer(live){
   if(btn){ btn.classList.remove('sel','ok','bad'); btn.classList.add(okChoix?'ok':'bad'); }
   const attendu=(q.fam==='pct')?String(q.result):q.decStr;
   const obtenu=(q.fam==='pct')?String(c.res).replace('.',','):(q.meth==='coef'?c.prodFinStr:c.finStr);
+  const dixPct=(q.meth==='dix' && q.inc==='pct');   /* le calcul a trouvé LE pourcentage : il se compare au choix */
   if(!allOk && soutien){
     if(calculOk){
-      $('syFeedback').innerHTML=`Ton calcul est juste\u00a0: on obtient <b>${obtenu} ${esc(q.unit)}</b>${q.inc==='fin'?', ce qui ne correspond pas à ta proposition':', et non '+attendu+' '+esc(q.unit)}. Essaie une autre proposition.`;
+      $('syFeedback').innerHTML=dixPct
+        ? `Ton calcul est juste\u00a0: le pourcentage d\u2019augmentation est <b>${q.P} %</b>, et ce n\u2019est pas la proposition que tu as choisie. Essaie une autre proposition.`
+        : `Ton calcul est juste\u00a0: on obtient <b>${obtenu} ${esc(q.unit)}</b>${q.inc==='fin'?', ce qui ne correspond pas à ta proposition':', et non '+attendu+' '+esc(q.unit)}. Essaie une autre proposition.`;
       $('syFeedback').className='mp-feedback bad';
       $('syActions').innerHTML='<button class="btn btn-primary" onclick="checkSynAnswer()">Vérifier</button>';
       setTimeout(()=>{ const z=$('syChoix'); if(z) z.scrollIntoView({block:'center',behavior:'smooth'}); },40);
@@ -8677,15 +8891,30 @@ function checkSynAnswer(live){
   const mx=$('syMeth'); if(mx) mx.classList.add('locked');
   if(!okChoix){ const bon=$('sc'+q.bon); if(bon) bon.classList.add('sol'); }
   const bonLbl=`<b>${QLET[q.bon]}) ${esc(synLabel(q,q.opts[q.bon]))}</b>`;
+  /* la preuve de la méthode des 10 %, sur les VRAIES données (comme les deux autres) */
+  const preuveDix=()=>{
+    const sd=x=>String(x).replace('.',','), D=q.N/10, C=q.N/20, u=q.unit;
+    if(q.inc!=='pct'){
+      const lig=synDixLignes(q.P).map(p=>`${p} % de ${q.N} = ${sd(q.N*p/100)} ${u}`).join(', ');
+      return `10 % de ${q.N} = ${sd(D)} ${u}, donc ${lig}, puis ${q.N} + ${sd(q.aug)} = ${q.decStr} ${u}`;
+    }
+    const r=synDixRegl(q.P);
+    return `${q.fin} \u2212 ${q.N} = ${sd(q.aug)} ${u} d\u2019augmentation ; 10 % de ${q.N} = ${sd(D)} ${u}`
+      +(r.cinq?` ; 5 % de ${q.N} = ${sd(C)} ${u}`:'')
+      +(r.hasK?` ; ${sd(q.aug)} = ${sd(r.cinq?C:D)} \u00d7 ${r.k}, donc ${q.P} %`:`, donc ${q.P} %`);
+  };
   const preuve=(q.fam==='pct')
     ? `${q.P}/100 \u00d7 ${q.N} = ${q.P*q.N}/100 = ${q.result} ${q.unit}`
     : (q.meth==='coef'
       ? `1 ${neg?'\u2212':'+'} ${q.P}/100 = ${String((100+q.sens*q.P)/100).replace('.',',')} = ${100+q.sens*q.P}/100, puis ${100+q.sens*q.P}/100 \u00d7 ${q.N} = ${q.N*(100+q.sens*q.P)}/100 = ${q.decStr} ${q.unit}`
-      : `${q.P}/100 \u00d7 ${q.N} = ${q.aug} ${q.unit} ${neg?'de baisse':'d\u2019augmentation'}, puis ${q.N} ${neg?'\u2212':'+'} ${q.aug} = ${q.decStr} ${q.unit}`);
+      : (q.meth==='dix' ? preuveDix()
+      : `${q.P}/100 \u00d7 ${q.N} = ${q.aug} ${q.unit} ${neg?'de baisse':'d\u2019augmentation'}, puis ${q.N} ${neg?'\u2212':'+'} ${q.aug} = ${q.decStr} ${q.unit}`));
   if(allOk){ test.score++; $('syLiveScore').textContent=test.score;
     $('syFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('syFeedback').className='mp-feedback good';
   } else if(calculOk){
-    $('syFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: on obtient ${obtenu} ${esc(q.unit)}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
+    $('syFeedback').innerHTML=dixPct
+      ? `Calcul juste, mais mauvaise proposition\u00a0: le pourcentage trouvé est ${q.P} %. La bonne réponse était ${bonLbl}, car ${preuve}.`
+      : `Calcul juste, mais mauvaise proposition\u00a0: on obtient ${obtenu} ${esc(q.unit)}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
     $('syFeedback').className='mp-feedback bad';
   } else {
     $('syFeedback').innerHTML=`Réponse\u00a0: ${bonLbl}, car ${preuve}.`;
@@ -8698,6 +8927,21 @@ function checkSynAnswer(live){
       corTrainDec('y1dec',neg?String(c.coef).padStart(2,'0'):String(c.coef).slice(1));
       corTrainFrac('y2n','y2d',c.coef,100); corTrainFrac('y3n','y3d',c.coef,100); corTrainDec('y3v',c.N);
       corTrainFrac('y4n','y4d',c.prodNum,100); corTrainDec('y5',c.prodFinStr);
+    } else if(q.meth==='dix' && q.inc!=='pct'){
+      const sd=x=>String(x).replace('.',',');
+      corTrainDec('y0',sd(c.N/10));
+      synDixLignes(q.P).forEach(p=>corTrainDec('yP'+p,sd(c.N*p/100)));
+      const fa2=parseDecToFrac(v('y4a')), fb2=parseDecToFrac(v('y4b'));
+      let expA=c.N, expB=c.resStr;
+      if(est(fa2,c.res)||est(fb2,c.N)){ expA=c.resStr; expB=c.N; }
+      corTrainDec('y4a',expA); corTrainDec('y4b',expB);
+      corTrainDec('y4r',c.finStr);
+    } else if(q.meth==='dix'){
+      const sd=x=>String(x).replace('.',','), r=synDixRegl(q.P);
+      corTrainDec('y1e',sd(q.aug)); corTrainDec('y0',sd(q.N/10));
+      if(r.cinq) corTrainDec('y5c',sd(q.N/20));
+      if(r.hasK) corTrainDec('yK',sd(r.k));
+      corTrainDec('yP',sd(q.P));
     } else {
       corTrainFrac('y1n','y1d',c.P,100); corTrainDec('y1v',c.N);
       corTrainFrac('y2n','y2d',c.prod,100); corTrainDec('y3',c.resStr);
@@ -8709,7 +8953,7 @@ function checkSynAnswer(live){
     }
   }
   const famTxt=(q.fam==='pct')?'prendre un pourcentage':(q.fam==='aug'?'augmentation':'baisse');
-  test.answers.push({...(ptsExo()||{}), q:`synthèse (${famTxt}, ${synQuoi(q)})`,
+  test.answers.push({...(ptsExo()||{}), q:`synthèse (${famTxt}, ${synQuoi(q)}${q.meth==='dix'?', en passant par 10 %':''})`,
     answer:synLabel(q,q.opts[q.bon]), given:synLabel(q,q.opts[q.choisi]), correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('syActions').innerHTML=`<button class="btn btn-primary" id="syNext" onclick="nextSynQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
@@ -15677,6 +15921,16 @@ const RAP_SYN=`<b>Synthèse sur les pourcentages</b><br>
 \u2014 en calculant <b>l\u2019augmentation ou la baisse</b> : \\(\\frac{P}{100}\\) × valeur, puis on l\u2019ajoute ou on la retire.<br>
 Quand on cherche la valeur initiale ou le pourcentage, on <b>teste une proposition</b> : on refait le calcul avec elle et on regarde si l\u2019on retombe sur la valeur annoncée.<br>
 Piège classique : l\u2019évolution se compare toujours à la valeur de DÉPART.`;
+/* {synthese-augmentations-dix} (2.2.13) : le rappel du 2.2.9, plus la
+   troisième voie — clé par identifiant (RAPPELS_ID), le kind 'syn' étant
+   partagé avec le 2.5.1, le 2.2.9 et le 2.3.8. */
+const RAP_SAD=`<b>Synthèse sur les augmentations \u2014 avec la méthode des 10 %</b><br>
+Le résultat, la valeur initiale ou le pourcentage d\u2019une augmentation : on <b>choisit une proposition</b>, puis on la <b>vérifie</b> \u2014 par la méthode de son choix. Trois méthodes ici, un seul résultat.<br>
+\u2014 avec le <b>coefficient multiplicateur</b> : \\(1+\\frac{P}{100}\\), puis coefficient × valeur de départ (comme {augmenter-pourcentage}) ;<br>
+\u2014 en calculant <b>l\u2019augmentation</b> : \\(\\frac{P}{100}\\) × valeur de départ, puis on l\u2019ajoute (comme {augmenter-addition}) ;<br>
+\u2014 <b>en passant par 10 %</b> : 10 % de la valeur de départ, c\u2019est la valeur divisée par 10. Pour CALCULER une valeur, on multiplie 10 % autant de fois qu\u2019il faut (5 % en est la moitié, 15 % = 10 % + 5 %), puis on ajoute l\u2019augmentation à la valeur de départ (comme {augmenter-dix}). Pour RETROUVER le pourcentage, on calcule d\u2019abord l\u2019écart (arrivée \u2212 départ), puis 10 % du départ (5 % si le pourcentage se termine par un 5), et on cherche par quel nombre le multiplier pour retomber sur l\u2019écart (comme {augmenter-taux-dix}).<br>
+Quand on cherche la valeur initiale, on fait grandir la proposition : si l\u2019on retombe sur la valeur finale de l\u2019énoncé, c\u2019est la bonne.<br>
+Piège classique : l\u2019évolution se compare toujours à la valeur de DÉPART.`;
 const RAP_BS=`<b>Une baisse suivie d’une autre baisse</b><br>
 Deux baisses <b>ne s’additionnent pas</b> : baisser de 20 % puis de 40 %, ce n’est PAS baisser de 60 %. La deuxième baisse ne porte pas sur le prix de départ, mais sur le prix <b>déjà baissé</b> — elle est donc plus petite.<br>
 On passe par les <b>coefficients multiplicateurs</b>, exactement comme dans {diminuer-pourcentage} :<br>
@@ -15761,7 +16015,7 @@ Trois phrases, trois coefficients, et le même pourcentage P dans les trois :<br
 Un coefficient <b>plus grand que 1</b> fait monter, <b>plus petit que 1</b> fait descendre, et le pourcentage se lit sur l’<b>écart à 1</b> — c’est le chemin inverse, celui de {lire-coefficient}.<br>
 <b>Premier piège : confondre les trois.</b> Prendre 30 %, c’est n’en garder que 30 % (× 0,30) ; diminuer de 30 %, c’est en garder 70 % (× 0,70). Les deux font descendre, mais pas de la même chose.<br>
 <b>Second piège : la place de la virgule.</b> 30 % s’écrit 0,<b>30</b> et 3 % s’écrit 0,<b>03</b> : un pourcentage à un seul chiffre garde un zéro après la virgule. Multiplier par 1,03, c’est donc augmenter de 3 % et non de 30 %.`;
-const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX };
+const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -15822,6 +16076,7 @@ const QIA_SUGG={
   augq:["Pourquoi compare-t-on l\u2019augmentation \u00e0 la valeur de d\u00e9part\u00a0?","C\u2019est quoi, un coefficient multiplicateur\u00a0?","Comment tester une proposition\u00a0?","Pourquoi passer de 80 \u00e0 96 fait +20 % et non +16 %\u00a0?"],
   dimq:["Pourquoi compare-t-on la baisse à la valeur de départ ?","C’est quoi, un coefficient multiplicateur ?","Comment tester une proposition ?","Pourquoi une baisse de 20 % ne s’annule-t-elle pas par une hausse de 20 % ?"],
   syn:["Quelle méthode choisir : coefficient ou calcul direct ?","Comment reconnaître s\u2019il s\u2019agit de prendre, d\u2019augmenter ou de diminuer ?","Comment tester une proposition ?","Pourquoi les deux méthodes donnent-elles le même résultat ?"],
+  'synthese-augmentations-dix':["Quelle méthode choisir : coefficient, calcul direct ou passage par 10 % ?","Comment retrouver un pourcentage d\u2019augmentation à partir de 10 % ?","Pourquoi 5 % est-il la moitié de 10 % ?","Comment tester une proposition ?"],
   ag2q:["Comment tester une proposition sans coefficient ?","Pourquoi calcule-t-on d\u2019abord l\u2019augmentation ou la baisse ?","Dans quel sens écrire la soustraction ?","Que conclure si mon calcul est juste mais ne retombe pas sur la valeur finale ?"],
   ag2:["Pourquoi calcule-t-on d\u2019abord l\u2019augmentation ?","Quelle différence avec la méthode du coefficient ?","Pourquoi faut-il ajouter la valeur de départ à la fin ?","Comment calculer 20 % de 300 ?"],
   pcol:["Que vaut une part de la colonne de droite ?","Pourquoi les deux colonnes ont-elles le même nombre de parts ?","Comment lire le résultat sur la colonne ?","Fais-moi un rappel de cours pour cet exercice."],
@@ -16041,8 +16296,22 @@ function conseilCtxCourant(){
       +'Bonne proposition, STRICTEMENT SECRÈTE : '+lettres[q.bon]+') '+synLabel(q,q.opts[q.bon])+'. '
       +(q.fam==='pct'
         ? ('Vérification comme en {pourcentage} : P/100 × valeur. ')
-        : ('L\u2019élève choisit sa méthode de vérification : coefficient multiplicateur (comme {augmenter-pourcentage}/{diminuer-pourcentage}) ou calcul direct de l\u2019augmentation/la baisse (comme {augmenter-addition}). Méthode actuellement choisie : '+(q.meth==='coef'?'coefficient':(q.meth==='dir'?'calcul direct':'aucune encore'))+'. '));
-    if(cs){
+        : ('L\u2019élève choisit sa méthode de vérification : coefficient multiplicateur (comme {augmenter-pourcentage}/{diminuer-pourcentage}) ou calcul direct de l\u2019augmentation/la baisse (comme {augmenter-addition})'
+           +(q.dix?', ou passage par 10 % (comme {augmenter-dix} pour calculer une valeur, comme {augmenter-taux-dix} pour retrouver le pourcentage)':'')
+           +'. Méthode actuellement choisie : '+(q.meth==='coef'?'coefficient':(q.meth==='dir'?'calcul direct':(q.meth==='dix'?'passage par 10 %':'aucune encore')))+'. '));
+    if(cs && q.meth==='dix'){
+      const sd=x=>String(x).replace('.',',');
+      if(q.inc!=='pct'){
+        const lig=synDixLignes(q.P).map(p=>p+' % de '+cs.N+' = '+sd(cs.N*p/100)).join(', ');
+        att+='Proposition choisie : '+lettres[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+' ; les étapes doivent donner 10 % de '+cs.N+' = '+sd(cs.N/10)+', puis '+lig+', puis '+cs.N+' + '+cs.resStr+' = '+cs.finStr+' '+q.unit+'. '
+          +'Juge son CALCUL par rapport à CE choix : un calcul correct sur une mauvaise proposition reste correct, c\u2019est la vérification qui doit lui révéler que la proposition ne convient pas.';
+      } else {
+        const r=synDixRegl(q.P);
+        att+='Proposition choisie : '+lettres[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+'. Ici le calcul part des DONNÉES de l\u2019énoncé, comme en {augmenter-taux-dix} : écart '+q.fin+' − '+q.N+' = '+sd(q.aug)+' ; 10 % de '+q.N+' = '+sd(q.N/10)
+          +(r.cinq?' ; 5 % (la moitié) = '+sd(q.N/20):'')+(r.hasK?' ; on multiplie par '+r.k:'')+' ; donc '+q.P+' %. '
+          +'Le pourcentage trouvé se compare ensuite à la proposition choisie : un calcul juste qui ne retombe pas sur elle montre qu\u2019elle ne convient pas.';
+      }
+    } else if(cs){
       let suite='';
       if(q.fam!=='pct'){
         suite=(q.meth==='coef')
@@ -16195,9 +16464,14 @@ const QIA_MODELES={
         '\\('+qdmFrac(q.P,100)+' \\times '+q.N+' = '+qdmFrac(q.P*q.N,100)+' = '+q.result+'\\) '+q.unit+'.'].join('\n');
     }
     const ngs=q.sens<0;
-    return [(ngs?'Diminuer ':'Augmenter ')+q.N+' '+q.unit+' de '+q.P+' % — deux méthodes, un seul résultat :',
+    const lignes=[(ngs?'Diminuer ':'Augmenter ')+q.N+' '+q.unit+' de '+q.P+' % — '+(q.dix?'trois':'deux')+' méthodes, un seul résultat :',
       'Avec le coefficient : \\(1 '+(ngs?'-':'+')+' '+qdmFrac(q.P,100)+' = '+qdmFrac(100+q.sens*q.P,100)+'\\), puis \\('+qdmFrac(100+q.sens*q.P,100)+' \\times '+q.N+' = '+q.decStr.replace(',','{,}')+'\\) '+q.unit+'.',
-      'En calculant '+(ngs?'la baisse':'l\u2019augmentation')+' : \\('+qdmFrac(q.P,100)+' \\times '+q.N+' = '+q.aug+'\\) '+q.unit+', puis '+q.N+' '+(ngs?'\u2212':'+')+' '+q.aug+' = '+q.decStr+' '+q.unit+'.'].join('\n');
+      'En calculant '+(ngs?'la baisse':'l\u2019augmentation')+' : \\('+qdmFrac(q.P,100)+' \\times '+q.N+' = '+q.aug+'\\) '+q.unit+', puis '+q.N+' '+(ngs?'\u2212':'+')+' '+q.aug+' = '+q.decStr+' '+q.unit+'.'];
+    if(q.dix && !ngs){
+      const sd=x=>String(x).replace('.',',');
+      lignes.push('En passant par 10 % : 10 % de '+q.N+' = '+sd(q.N/10)+' '+q.unit+', donc '+synDixLignes(q.P).map(p=>p+' % de '+q.N+' = '+sd(q.N*p/100)+' '+q.unit).join(', ')+', puis '+q.N+' + '+sd(q.aug)+' = '+q.decStr+' '+q.unit+'.');
+    }
+    return lignes.join('\n');
   },
   ag2q:function(){
     const act=(test && test.questions && test.questions[test.idx]) || null;
