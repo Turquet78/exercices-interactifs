@@ -628,7 +628,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -637,7 +637,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   #bsHost .f-num,#bsHost .f-den{width:94px} #bsHost .f-dec{width:130px}
   #lcHost .f-num,#lcHost .f-den{width:94px} #lcHost .f-dec{width:130px}
-  #hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den{width:94px} #hsHost .f-dec,#hscHost .f-dec{width:130px}
+  #hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den,#essHost .f-num,#essHost .f-den{width:94px} #hsHost .f-dec,#hscHost .f-dec,#essHost .f-dec{width:130px}
   .step-hidden{display:none}
   .resume-flag{display:block;margin-top:6px;color:#1f7a6b;font-weight:700;font-size:.82rem}
   .choice.resume{border-color:#5cc4ad;background:linear-gradient(180deg,#F0FBF8,#fff)}
@@ -987,12 +987,12 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
       large (flex column + align-items:stretch), sinon numerateur et denominateur
       ne seraient plus alignes des que l'un des deux s'allonge. --- */
-#pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#adxHost math-field.pm-mf,#ddxHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#hscHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
-#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#hscHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input,#ckHost .f-frac-input{align-items:stretch;}
-#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den,#ckHost .f-num,#ckHost .f-den{
+#pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#adxHost math-field.pm-mf,#ddxHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#hscHost math-field.pm-mf,#essHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
+#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#hscHost .f-frac-input,#essHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input,#ckHost .f-frac-input{align-items:stretch;}
+#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den,#essHost .f-num,#essHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den,#ckHost .f-num,#ckHost .f-den{
   width:auto;min-width:96px;max-width:320px;}
-#pHost .f-dec,#pdcHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#mdHost .f-dec,#uHost .f-dec,#hsHost .f-dec,#hscHost .f-dec,#bsHost .f-dec,#lcHost .f-dec,#ckHost .f-dec{width:auto;min-width:120px;max-width:320px;}
-#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar,#mdHost .f-fbar,#uHost .f-fbar,#hsHost .f-fbar,#hscHost .f-fbar,#bsHost .f-fbar,#lcHost .f-fbar,#ckHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+#pHost .f-dec,#pdcHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#mdHost .f-dec,#uHost .f-dec,#hsHost .f-dec,#hscHost .f-dec,#essHost .f-dec,#bsHost .f-dec,#lcHost .f-dec,#ckHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar,#mdHost .f-fbar,#uHost .f-fbar,#hsHost .f-fbar,#hscHost .f-fbar,#essHost .f-fbar,#bsHost .f-fbar,#lcHost .f-fbar,#ckHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 /* {pourcentage-dix} (2.1.8) : UNE seule phrase, mots et case à la MÊME
    taille — pas le mélange petit label / grosses cases du reste du
    sous-thème. .f-dec garde sa taille de BASE (1,6 rem, la même que la
@@ -1973,6 +1973,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-esstest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEss"></span><span class="q-idx" id="essqIdx">Calcul 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="essLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="essPrompt">Deux évolutions successives, chacune une hausse ou une baisse.</p>
+      <div class="mp-stage"><div style="width:100%" id="essHost"></div></div>
+      <div class="mp-feedback" id="essFeedback"></div>
+      <div class="row" style="justify-content:center" id="essActions">
+        <button class="btn btn-primary" onclick="checkEssAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-lctest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagLc"></span><span class="q-idx" id="lcqIdx">Calcul 1 / 6</span></span>
@@ -2267,7 +2282,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=265;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=266;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2675,6 +2690,7 @@ const TESTS={
   'augmenter-addition':  { name:'Augmenter d\u2019un pourcentage en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en {pourcentage}), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
   'hausses-successives': { name:'Hausse suivie d\u2019une hausse', icon:'\u2197\ufe0f', desc:'Deux hausses de suite : calcule les deux coefficients comme dans {augmenter-pourcentage}, multiplie-les comme dans {mult-dec-un}, et donne la hausse globale en pourcentage.', start:()=>startHausses() },
   'hausses-successives-cent': { name:'Hausse suivie d\u2019une hausse, en partant de 100', icon:'\ud83d\udcaf', desc:'La m\u00eame question qu\u2019en {hausses-successives}, par l\u2019autre chemin : on part de 100, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu\u2019on a gagn\u00e9 pour 100 est le pourcentage global.', start:()=>startHaussesCent() },
+  'synthese-evolutions-successives': { name:'Deux \u00e9volutions successives, hausse ou baisse', icon:'\ud83d\udd01', desc:'La synth\u00e8se de {hausses-successives}, {hausses-successives-cent} et {baisses-successives} : deux \u00e9volutions de suite, chacune une hausse ou une baisse. Tu choisis ta m\u00e9thode \u2014 multiplier les coefficients, ou partir de 100 \u2014 puis tu dis si l\u2019\u00e9volution globale est une hausse ou une baisse, et de quel pourcentage. Il tombe toujours sur un nombre entier.', start:()=>startEss() },
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
   'lire-coefficient':    { name:'Lire un coefficient multiplicateur', icon:'🔎', desc:'On donne un coefficient : dis si c\u2019est une hausse ou une baisse, donne le pourcentage, puis vérifie-le avec les étapes de {augmenter-pourcentage} et {diminuer-pourcentage}.', start:()=>startLireCoef() },
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
@@ -2726,7 +2742,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient'] }
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives'] }
   ] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
@@ -2833,7 +2849,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='ess') startEss(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -3014,6 +3030,7 @@ function liveCheckCurrent(){
   const k=test.kind;
   if(k==='hs') checkHSAnswer(true);
   else if(k==='hsc') checkHSCAnswer(true);
+  else if(k==='ess') checkEssAnswer(true);
   else if(k==='lc') checkLCAnswer(true);
   else if(k==='ck') checkCKAnswer(true);
   else if(k==='bs') checkBSAnswer(true);
@@ -3672,7 +3689,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest],
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ess:['esstest',renderEssTest],
     sf:['sf',renderSFTest]
   };
   const e=table[k];
@@ -3876,7 +3893,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','sf','psl','sal'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -11525,6 +11542,454 @@ async function finishHaussesCent(){
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
+/* ---------- 2.5.4 : deux évolutions successives, chacune une hausse OU une baisse ----------
+   La SYNTHÈSE de {hausses-successives}, {hausses-successives-cent} et
+   {baisses-successives} — demande de Turquet (septembre 2026) : « un exercice
+   de synthèse qui permet de faire deux évolutions successives, qui peuvent
+   être chacune des deux une hausse ou une baisse. Les énoncés ressembleront à
+   ceux du 2.2.7, et on laissera le choix à l'élève entre la méthode du 2.2.7
+   ou la méthode du 2.2.8. Le résultat final doit être un pourcentage entier. »
+   CE QUE LA SYNTHÈSE AJOUTE, ET QU'AUCUN DES TROIS N'AVAIT : le SENS de
+   l'évolution globale n'est pas donné. Deux hausses montent, deux baisses
+   descendent — mais « +20 % puis −5 % » ? L'élève le DIT (deux boutons, le
+   motif de {lire-coefficient}) puis écrit le pourcentage. Par la méthode des
+   coefficients, le sens se LIT sur le coefficient global — plus grand que 1,
+   plus petit que 1 — ; en partant de 100, il se lit sur la valeur finale,
+   au-dessus ou au-dessous de 100. Deux boutons pour UNE décision, rangée dans
+   la question (q.choisi) : une pause la reprend. Seul le bouton CHOISI se
+   colore à la vérification — aucun choix ne colore rien, la règle de la case
+   vide appliquée à un bouton — et en entraînement le bon sens se montre en
+   VERT (.sol).
+   LA MÉTHODE SE CHOISIT D'ABORD (le motif de {synthese-pourcentages}) : la
+   chaîne apparaît dès la méthode, et en changer la reconstruit sans
+   restaurer — les deux méthodes n'écrivent pas le même calcul. Le choix est
+   rangé dans la question (q.meth), une pause le reprend.
+   TOUT EST REPRIS, RIEN N'EST RECOPIÉ : le vivier est HS_PAIRES — celui du
+   2.2.7 et du 2.2.8, lu et non recopié, deux listes auraient fini par
+   diverger —, les mises en situation sont BS_CTX, le coefficient d'une hausse
+   est hsCoef, la pose en colonnes est buildPoseU / buildPose, l'addition à
+   ordre libre est hscPaire. Les ÉNONCÉS, eux, doivent dire les DEUX sens dans
+   la même phrase : ESS_ENONCES suit HS_ENONCES tournure par tournure, chaque
+   évolution avec son verbe, et la question ne nomme jamais le sens.
+   L'ÉVOLUTION GLOBALE EST UN ENTIER, ET ÇA SE DÉMONTRE :
+   (1 ± P1/100)(1 ± P2/100) = 1 ± P1/100 ± P2/100 ± P1·P2/10000, donc le
+   pourcentage global vaut ±P1 ± P2 ± P1·P2/100 — entier dès que P1·P2 est un
+   multiple de 100, ce que HS_PAIRES garantit déjà (c'est sa règle des deux
+   décimales). En partant de 100, la seconde évolution vaut (100 ± P1)·P2/100,
+   entière pour la même raison : TOUTE la chaîne tombe sur des entiers, dans
+   les quatre combinaisons de signes. Le global n'est jamais NUL sur ce
+   vivier (P1 − P2 − P1·P2/100 = 0 exigerait P1 = 100·P2/(100 − P2), qu'aucun
+   taux à un seul chiffre non nul ne réalise) et reste sous 100 % en valeur
+   absolue. AUCUN GARDE N'EST POSÉ : il n'écarterait jamais rien, et ferait
+   croire qu'on vérifie quelque chose — c'est le CONTRÔLE qui exige les deux
+   propriétés sur le vivier entier, par sa propre arithmétique.
+   LES TROIS FORMES SORTENT CHACUNE UNE FOIS par séance, en ordre mélangé —
+   deux hausses, deux baisses, une de chaque (dans un sens ou l'autre) — sans
+   quoi trois hausses de suite auraient perdu le signe, tout le sujet ; et les
+   PAIRES sont tirées sans remise dans le vivier, comme au 2.2.8.
+   LA POSE EN COLONNES PREND LA FORME QUE LES NUMÉRATEURS LUI DONNENT : deux
+   chiffres seuls (deux baisses de dizaines, 8 × 6) — un fait de table, pas de
+   pose, la leçon du 2.3.7 ; un facteur à un chiffre (105 × 8, 12 × 8) —
+   buildPose, la pose du 2.2.1 ; deux facteurs d'au moins deux chiffres —
+   buildPoseU, la pose du 2.2.7, avec le coefficient de HAUSSE en bas : son
+   numérateur commence par 1 (1X ou 10X), la seule forme que poseUDonnees
+   sache écrire là (deux hausses : le plus long en haut, la règle de genU).
+   Comme au 2.2.7, la pose est un OUTIL : corrigée si l'élève s'en est servi,
+   elle n'entre pas dans la réussite du calcul.
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : celle-ci ne
+   porte que les deux sens, les deux taux, le contexte, la variante et les
+   deux choix de l'élève (méthode, sens). essAns() — que le rendu, la
+   correction, le message et le contexte envoyé au modèle lisent tous —
+   recalcule tout le reste. Le contrôle refuse tout autre champ. */
+/* Le coefficient d'une évolution, zéros finaux retirés comme la pose le
+   demande : +40 % → 14/10 et +4 % → 104/100 (hsCoef, le 2.2.7) ; −40 % → 6/10
+   et −4 % → 96/100. */
+function essCoef(s,P){ return s>0 ? hsCoef(P) : (P%10===0 ? {num:10-P/10,den:10} : {num:100-P,den:100}); }
+/* Le pourcentage d'évolution global, SIGNÉ — entier par construction sur HS_PAIRES. */
+function essGlobal(s1,P1,s2,P2){ return s1*P1+s2*P2+s1*s2*P1*P2/100; }
+/* Tout se recalcule ici, à partir des quatre seuls nombres que porte la question. */
+function essAns(q){
+  const fA=essCoef(q.s1,q.P1), fB=essCoef(q.s2,q.P2);
+  const c1=100+q.s1*q.P1, c2=100+q.s2*q.P2;           /* les coefficients sur 100 : 120 et 95 */
+  const prodNum=fA.num*fB.num, prodDen=fA.den*fB.den;
+  const G=essGlobal(q.s1,q.P1,q.s2,q.P2), sens=G>0?1:-1, pct=Math.abs(G);
+  const dA=String(fA.num).length, dB=String(fB.num).length;
+  let pose=null;
+  if(dA>1 && dB>1){
+    let top,bot;
+    if(q.s1>0 && q.s2>0){ if(dA>dB||(dA===dB&&fA.num>=fB.num)){ top=fA.num; bot=fB.num; } else { top=fB.num; bot=fA.num; } }
+    else if(q.s1>0){ top=fB.num; bot=fA.num; }
+    else { top=fA.num; bot=fB.num; }
+    pose={type:'u', top, bot, prodNum, ...poseUDonnees(top,bot,prodNum)};
+  } else if(dA>1 || dB>1){
+    pose={type:'p', top:dA>1?fA.num:fB.num, bot:dA>1?fB.num:fA.num};
+  }
+  /* la méthode 2 : on part de 100 */
+  const aug1=q.P1, v1=100+q.s1*q.P1, aug2=v1*q.P2/100, v2=v1+q.s2*aug2;
+  return {fA,fB,c1,c2,prodNum,prodDen,coefStr:String(prodNum/prodDen).replace('.',','),G,sens,pct,pose,
+          aug1,prod1:100*q.P1,v1,aug2,prod2:v1*q.P2,v2,h:v2-100};
+}
+/* L'écriture décimale d'un coefficient sur 100, pour les textes : 120 → « 1,20 », 95 → « 0,95 ». */
+function essCoefStr(s,c){ return s>0 ? '1,'+String(c-100).padStart(2,'0') : '0,'+String(c).padStart(2,'0'); }
+function essSujet(q){ return BS_CTX[q.ci].sujet; }
+function essE(q){ return BS_CTX[q.ci].g==='f'?'e':''; }
+const ESS_QUESTION='Quelle est l’évolution globale : une hausse ou une baisse, et de quel pourcentage ?';
+const ESS_ENONCES=[
+  q=>`${essSujet(q)} ${q.s1>0?'augmente':'baisse'} de <b>${q.P1} %</b>, puis ${q.s1===q.s2?'':(q.s2>0?'augmente ':'baisse ')}de <b>${q.P2} %</b>. ${ESS_QUESTION}`,
+  q=>`${essSujet(q)} ${q.s1>0?'monte':'diminue'} de <b>${q.P1} %</b>, puis subit une ${q.s1===q.s2?'nouvelle ':''}${q.s2>0?'hausse':'baisse'} de <b>${q.P2} %</b>. ${ESS_QUESTION}`,
+  q=>`${essSujet(q)} subit deux évolutions successives : d’abord une ${q.s1>0?'hausse':'baisse'} de <b>${q.P1} %</b>, puis une ${q.s2>0?'hausse':'baisse'} de <b>${q.P2} %</b>. ${ESS_QUESTION}`,
+  q=>`${essSujet(q)} ${q.s1>0?'gagne':'perd'} <b>${q.P1} %</b>, puis ${q.s2>0?'gagne':'perd'} ${q.s1===q.s2?'encore ':''}<b>${q.P2} %</b>. ${ESS_QUESTION}`,
+  q=>`${essSujet(q)} est ${q.s1>0?'augmenté':'réduit'}${essE(q)} de <b>${q.P1} %</b>, puis ${q.s2>0?'augmenté':'réduit'}${essE(q)} de <b>${q.P2} %</b>. ${ESS_QUESTION}`,
+  q=>`${essSujet(q)} ${q.s1>0?'augmente':'baisse'} une première fois de <b>${q.P1} %</b>, puis ${q.s2>0?'augmente':'baisse'} une seconde fois de <b>${q.P2} %</b>. ${ESS_QUESTION}`
+];
+const ESS_FORMES=[[1,1],[1,-1],[-1,1],[-1,-1]];
+function essQuestion(s1,P1,s2,P2){
+  const q={s1,s2,P1,P2,ci:tirerContexte(BS_CTX,0),meth:null,choisi:null};
+  q.v=tirerVariante(ESS_ENONCES,q);
+  return q;
+}
+/* L'ORDRE DE LA PAIRE EST TIRÉ, comme au 2.2.7 : rien ne dit lequel des deux
+   taux vient d'abord — et ici l'ordre change le chemin ET le calcul de la
+   seconde évolution, sans changer la réponse. */
+function essCouple(p,s){ const ordre=pick([true,false]); return essQuestion(s[0],ordre?p[0]:p[1],s[1],ordre?p[1]:p[0]); }
+function genEss(sens){ return essCouple(pick(HS_PAIRES), sens||pick(ESS_FORMES)); }
+function essSeance(n){
+  const formes=qdMelanger([[1,1],[-1,-1],pick([[1,-1],[-1,1]])]);
+  const vivier=HS_PAIRES.slice(), out=[];
+  while(out.length<n && vivier.length){ const p=vivier.splice(rand(0,vivier.length-1),1)[0]; out.push(essCouple(p,formes[out.length%formes.length])); }
+  return out;
+}
+async function startEss(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='ess'; test.qId='synthese-evolutions-successives';
+  test.questions=essSeance(EVOL_NB);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent */
+  test.maxScore=test.questions.length;
+  show('esstest'); renderEssTest();
+}
+/* L'ordre de saisie de chaque méthode, et les listes que le contrôle relit :
+   une case ajoutée demain au rendu sans l'être ici sortirait de la navigation
+   au clavier. */
+const ESS_CASES={
+  coef:['ess1n','ess1d','ess1p','ess1dec','ess2n','ess2d','ess2p','ess2dec','essAn','essAd','essBn','essBd','essPn','essPd','essDec','essP'],
+  cent:['essc1n','essc1d','essc1m','essc1pn','essc1pd','essc1a','essc1sa','essc1sb','essc1sr',
+        'essc2n','essc2d','essc2m','essc2pn','essc2pd','essc2a','essc2sa','essc2sb','essc2sr','esscFin','esscPour','esscPct']
+};
+const ESS_VERIF=['essVn','essVd','essVp','essVc'];   /* l'étape ④ facultative de la méthode des coefficients */
+function choisirEssMeth(m){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(q.meth===m) return;
+  q.meth=m; renderEssTest(); autoSave();
+}
+/* Choisir le sens ne redessine JAMAIS l'écran : rien d'autre n'en dépend, et
+   un redessin effacerait les cases déjà remplies. Seule l'étape ④ change de
+   signe — ses têtes sont réécrites en place. */
+function choisirEssSens(s){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(q.choisi===s) return;
+  q.choisi=s;
+  [['essSensH',1],['essSensB',-1]].forEach(p=>{ const b=$(p[0]); if(b) b.classList.toggle('sel', p[1]===s); });
+  ESS_VERIF.forEach(id=>{ const e=$(id); if(e && !e.disabled) e.classList.remove('ok','bad'); });
+  essStep4MAJ(); autoSave();
+}
+function essSensHTML(q){
+  const btn=(v,id,txt)=>`<button type="button" class="pt-choix-btn${q.choisi===v?' sel':''}" id="${id}" onclick="choisirEssSens(${v})"><span class="valeur">${txt}</span></button>`;
+  return btn(1,'essSensH','📈 une hausse')+btn(-1,'essSensB','📉 une baisse');
+}
+/* La vérification ne s'ouvre qu'une fois la réponse ENTIÈRE écrite — le sens
+   et le pourcentage : proposée avant, elle donnerait le résultat par l'autre
+   bout. Son signe suit le sens CHOISI, pas le bon (le motif de
+   {lire-coefficient}) : c'est là que la vérification vérifie quelque chose. */
+function essStep4MAJ(){
+  const st=$('essStep4'); if(!st) return;
+  const q=test.questions[test.idx], e=$('essP');
+  const pret = q.choisi!=null && !!e && String(e.value==null?'':e.value).trim()!=='';
+  st.classList.toggle('step-hidden', !pret);
+  if(!pret) return;
+  const sg=q.choisi>0?'+':'−', t=st.querySelectorAll('.f-whole');
+  if(t[0]) t[0].textContent='1 '+sg;
+  if(t[1]) t[1].textContent='1 '+sg+' 0,';
+  if(t[2]) t[2].textContent=(q.choisi>0?'1,':'0,');
+}
+function renderEssTest(){
+  const q=test.questions[test.idx], a=essAns(q); test.locked=false;
+  $('essqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagEss').innerHTML=modeTagHTML();
+  $('essLiveScore').textContent=test.score;
+  $('essFeedback').textContent=''; $('essFeedback').className='mp-feedback';
+  $('essActions').innerHTML='<button class="btn btn-primary" onclick="checkEssAnswer()">Vérifier</button>';
+  $('essPrompt').innerHTML=variante(ESS_ENONCES,q)+' Choisis ta méthode, puis écris les étapes du calcul.';
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const sg=s=>s>0?'+':'−', tete=s=>s>0?'1,':'0,';
+  const methHTML=`<div class="pt-step"><div class="pt-lab">Ⓜ Choisis ta méthode — les deux trouvent le même résultat</div>
+       <div class="pt-choix" id="essMeth">
+         <button type="button" class="pt-choix-btn${q.meth==='coef'?' sel':''}" id="essM0" onclick="choisirEssMeth('coef')"><span class="valeur">Multiplier les coefficients, comme dans {hausses-successives}</span></button>
+         <button type="button" class="pt-choix-btn${q.meth==='cent'?' sel':''}" id="essM1" onclick="choisirEssMeth('cent')"><span class="valeur">Partir de 100, comme dans {hausses-successives-cent}</span></button>
+       </div></div>`;
+  let etapes='';
+  if(q.meth==='coef'){
+    const s4=(q.choisi==null)?1:q.choisi;
+    let poseHTML='';
+    if(a.pose){
+      const consigne = a.pose.type==='u'
+        ? 'pose la multiplication des numérateurs, zéros finaux retirés, le coefficient de la hausse en bas'
+        : 'pose la multiplication des numérateurs, zéros finaux retirés, le plus court en bas';
+      poseHTML=`<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : ${consigne} <span style="font-weight:600;color:var(--red)">(retenues facultatives)</span></div>
+       <div class="pt-row" style="padding:6px 0 6px">${a.pose.type==='u'?buildPoseU(a.pose,'essMul','ess'):buildPose(a.pose.top,a.pose.bot,'essMul')}</div>
+       <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`;
+    }
+    etapes=
+      `<div class="pt-step"><div class="pt-lab">① Le coefficient de chaque évolution, comme dans {augmenter-pourcentage} et {diminuer-pourcentage} : « 1 + » pour une hausse, « 1 − » pour une baisse</div>
+         <div class="pt-row"><span class="f-whole">1 ${sg(q.s1)}</span>${frac('ess1n','ess1d')}${fEqTete(`1 ${sg(q.s1)} 0,`, dec('ess1p','la première évolution en écriture décimale'))}${fEqTete(tete(q.s1), dec('ess1dec','premier coefficient'))}</div>
+         <div class="pt-row"><span class="f-whole">1 ${sg(q.s2)}</span>${frac('ess2n','ess2d')}${fEqTete(`1 ${sg(q.s2)} 0,`, dec('ess2p','la seconde évolution en écriture décimale'))}${fEqTete(tete(q.s2), dec('ess2dec','second coefficient'))}</div></div>`+
+      `<div class="pt-step"><div class="pt-lab">② Multiplier les deux coefficients, comme dans {hausses-successives}</div>
+         <div class="pt-row">${frac('essAn','essAd')}<span class="f-times">×</span>${frac('essBn','essBd')}${fEq(frac('essPn','essPd'))}${fEq(dec('essDec','coefficient global'))}</div></div>`+
+      poseHTML+
+      `<div class="pt-step"><div class="pt-lab">③ Lis le coefficient global, comme dans {lire-coefficient} : plus grand que 1, c’est une hausse ; plus petit que 1, c’est une baisse — et le pourcentage se lit sur l’écart à 1</div>
+         <div class="pt-row"><span class="f-whole">c’est</span>${essSensHTML(q)}<span class="f-whole">de</span>${dec('essP','le pourcentage de l’évolution globale')}<span class="f-whole">%</span></div></div>`+
+      `<div class="pt-step pt-opt step-hidden" id="essStep4"><div class="pt-lab">④ Facultatif — vérifie ta réponse en calculant SON coefficient : tu dois retomber sur celui de l’étape ②</div>
+         <div class="pt-row"><span class="f-whole">1 ${sg(s4)}</span>${frac('essVn','essVd')}${fEqTete(`1 ${sg(s4)} 0,`, dec('essVp','ton pourcentage en écriture décimale'))}${fEqTete(tete(s4), dec('essVc','le coefficient retrouvé'))}</div></div>`;
+  } else if(q.meth==='cent'){
+    const ligneOp=(s,x,y,r,lblR)=>`<div class="pt-row">${dec(x,'premier terme')}<span class="f-whole">${sg(s)}</span>${dec(y,'deuxième terme')}${fEq(dec(r,lblR))}</div>`;
+    const mot=s=>s>0?'hausse':'baisse';
+    const op=s=>s>0?'l’addition : valeur de départ + hausse':'la soustraction : valeur de départ − baisse';
+    etapes=
+      `<div class="pt-step"><div class="pt-lab">① On calcule d’abord ${q.P1} % de <b>100</b> — comme dans {${q.s1>0?'augmenter-addition':'diminuer-soustraction'}}</div>
+         <div class="pt-row">${frac('essc1n','essc1d')}<span class="f-times">×</span>${dec('essc1m','la valeur de départ')}${fEq(frac('essc1pn','essc1pd'))}${fEq(dec('essc1a','la première '+mot(q.s1)+', pour 100'))}</div></div>`+
+      `<div class="pt-step"><div class="pt-lab">② Écris ${op(q.s1)} = nouvelle valeur</div>
+         ${ligneOp(q.s1,'essc1sa','essc1sb','essc1sr','la nouvelle valeur')}</div>`+
+      `<div class="pt-step"><div class="pt-lab">③ On calcule ${q.P2} % du <b>résultat précédent</b></div>
+         <div class="pt-row">${frac('essc2n','essc2d')}<span class="f-times">×</span>${dec('essc2m','la nouvelle valeur de départ')}${fEq(frac('essc2pn','essc2pd'))}${fEq(dec('essc2a','la seconde '+mot(q.s2)))}</div></div>`+
+      `<div class="pt-step"><div class="pt-lab">④ Écris ${op(q.s2)} = valeur finale</div>
+         ${ligneOp(q.s2,'essc2sa','essc2sb','essc2sr','la valeur finale')}</div>`+
+      `<div class="pt-step"><div class="pt-lab">⑤ Bilan — on est parti de 100 : au-dessus, c’est une hausse ; au-dessous, une baisse. Ce qu’on a gagné ou perdu « pour 100 » EST le pourcentage</div>
+         <div class="pt-row"><span class="f-whole">la valeur est passée de 100 à</span>${dec('esscFin','la valeur finale')}</div>
+         <div class="pt-row"><span class="f-whole">c’est</span>${essSensHTML(q)}<span class="f-whole">de</span>${dec('esscPour','l’écart pour 100')}<span class="f-whole">pour 100</span></div>
+         <div class="pt-row"><span class="f-whole">c’est-à-dire</span>${dec('esscPct','le pourcentage de l’évolution globale')}<span class="f-whole">%</span></div></div>`;
+  }
+  const aide = q.meth ? '' : '<p class="pt-aide">Commence par choisir ta méthode : les deux trouvent le même résultat.</p>';
+  $('essHost').innerHTML=numeros(methHTML+etapes+aide);
+  essBrancher(q,a);
+}
+/* La navigation au clavier : Entrée passe à la case suivante, la pose se
+   remplit de la droite vers la gauche (la règle du 2.2.7 pour la pose en
+   colonnes, celle du 2.2.1 pour la pose à un chiffre). */
+function essBrancher(q,a){
+  const ids = q.meth==='coef' ? ESS_CASES.coef : (q.meth==='cent' ? ESS_CASES.cent : []);
+  let posedIns=[];
+  const host=$('essMul');
+  if(host && a.pose){
+    posedIns = a.pose.type==='u'
+      ? [...host.querySelectorAll('.mp-row')].flatMap(row=>[...row.querySelectorAll('input')].reverse())
+      : [...host.querySelectorAll('input')].sort((x,y)=>(+x.dataset.mtab)-(+y.dataset.mtab));
+  }
+  let order;
+  if(q.meth==='coef'){
+    const i=ids.indexOf('essPn');
+    order=[...ids.slice(0,i).map(id=>$(id)),...posedIns,...ids.slice(i).map(id=>$(id)),...ESS_VERIF.map(id=>$(id))].filter(Boolean);
+  } else order=ids.map(id=>$(id)).filter(Boolean);
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(el.id==='essP'){ el.addEventListener('input',essStep4MAJ); el.addEventListener('focusout',essStep4MAJ); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkEssAnswer();} });
+  });
+  essStep4MAJ();
+  if(order.length) setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* La soustraction n'est PAS commutative : « valeur de départ − baisse » se
+   juge dans l'ordre, chaque case contre sa valeur — là où l'addition garde
+   l'ordre libre de hscPaire. Même forme de retour, pour que la correction en
+   vert les lise de la même façon. */
+function essOrdre(ids,attendus){
+  const ok=ids.map((id,i)=>{ const e=$(id), t=e?String(e.value==null?'':e.value).trim():'';
+    const fr=t===''?null:parseDecToFrac(t); return !!fr && fr.n===attendus[i]*fr.d; });
+  return {ok, reste:attendus.filter((_,i)=>!ok[i])};
+}
+function checkEssAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx], a=essAns(q);
+  const soutien=isSoutien();
+  const v=id=>{const e=$(id);return e?String(e.value==null?'':e.value).trim():'';};
+  if(!q.meth){
+    if(live) return;
+    $('essFeedback').textContent='Choisis d’abord ta méthode : multiplier les coefficients, ou partir de 100.';
+    $('essFeedback').className='mp-feedback bad'; return;
+  }
+  const decOk=(id,pre,n,d)=>{ const t=v(id); if(t==='') return false;
+    const fr=parseDecToFrac((pre||'')+t); return !!fr && fr.n*d===n*fr.d; };
+  const iv=id=>parseInt(v(id),10);
+  const den=id=>{const t=v(id);return t===''?1:parseInt(t,10);};
+  const fracOk=(idn,idd,n,d)=>v(idn)!=='' && fracEqual(iv(idn),den(idd),n,d);
+  const decEst=(id,n)=>decOk(id,'',n,1);
+  const tete=s=>s>0?'1,':'0,', sg=s=>s>0?'+':'−';
+  const okSens = q.choisi!=null && q.choisi===a.sens;
+  /* seul le bouton CHOISI se colore ; en entraînement le bon sens se montre en vert */
+  const peindreSens=()=>{ [['essSensH',1],['essSensB',-1]].forEach(p=>{ const b=$(p[0]); if(!b) return;
+      b.classList.remove('ok','bad','sol');
+      if(q.choisi===p[1]) b.classList.add(okSens?'ok':'bad');
+      else if(!live && !okSens && currentMode==='train' && a.sens===p[1]) b.classList.add('sol'); }); };
+  const naive=q.s1*q.P1+q.s2*q.P2;
+  const etNon=`, et non ${sg(q.s1)}${q.P1} % ${sg(q.s2)} ${q.P2} % = ${naive<0?'−':(naive>0?'+':'')}${Math.abs(naive)} % : les évolutions ne s’additionnent pas`;
+  const motSens=a.sens>0?'hausse':'baisse';
+  let allOk, given, answer=`${motSens} de ${a.pct} %`, quoi;
+  if(q.meth==='coef'){
+    /* la multiplication des deux coefficients se lit dans les deux sens — voir
+       {hausses-successives}, mot pour mot */
+    const fracEqualStr=(nStr,dStr,N,D)=>{ if(nStr==='') return false;
+      const n=parseInt(nStr,10), d=(dStr===''||dStr==null)?1:parseInt(dStr,10);
+      return !isNaN(n)&&!isNaN(d)&&d!==0&&n*D===N*d; };
+    const straightFull=fracEqualStr(v('essAn'),v('essAd'),a.fA.num,a.fA.den)&&fracEqualStr(v('essBn'),v('essBd'),a.fB.num,a.fB.den);
+    const swapFull=fracEqualStr(v('essAn'),v('essAd'),a.fB.num,a.fB.den)&&fracEqualStr(v('essBn'),v('essBd'),a.fA.num,a.fA.den);
+    const swap=swapFull&&!straightFull;
+    const tgA=swap?a.fB:a.fA, tgB=swap?a.fA:a.fB;
+    const s4=(q.choisi==null)?1:q.choisi;
+    if(live){
+      liveColorFrac('ess1n','ess1d',q.P1,100); liveColorDecCoef0('ess1p',q.P1); (q.s1>0?liveColorDecCoef:liveColorDecCoef0)('ess1dec',a.c1);
+      liveColorFrac('ess2n','ess2d',q.P2,100); liveColorDecCoef0('ess2p',q.P2); (q.s2>0?liveColorDecCoef:liveColorDecCoef0)('ess2dec',a.c2);
+      liveColorFrac('essAn','essAd',tgA.num,tgA.den,true);
+      liveColorFrac('essBn','essBd',tgB.num,tgB.den,true);
+      if($('essMul')) [...$('essMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+      liveColorFrac('essPn','essPd',a.prodNum,a.prodDen,true);
+      liveColorDec('essDec',a.prodNum,a.prodDen);
+      liveColorDec('essP',a.pct,1);
+      liveColorFrac('essVn','essVd',a.pct,100); liveColorDecCoef0('essVp',a.pct);
+      const vc=$('essVc'); if(vc && !vc.disabled){ vc.classList.remove('ok','bad'); if(v('essVc')!=='') vc.classList.add(decOk('essVc',tete(s4),a.prodNum,a.prodDen)?'ok':'bad'); }
+      return;
+    }
+    const ok1=fracOk('ess1n','ess1d',q.P1,100), ok1p=decOk('ess1p','0,',q.P1,100), ok1d=decOk('ess1dec',tete(q.s1),a.c1,100);
+    const ok2=fracOk('ess2n','ess2d',q.P2,100), ok2p=decOk('ess2p','0,',q.P2,100), ok2d=decOk('ess2dec',tete(q.s2),a.c2,100);
+    const okA=fracOk('essAn','essAd',tgA.num,tgA.den), okB=fracOk('essBn','essBd',tgB.num,tgB.den);
+    const okPr=fracOk('essPn','essPd',a.prodNum,a.prodDen), okC=decOk('essDec','',a.prodNum,a.prodDen), okP=decOk('essP','',a.pct,1);
+    /* la pose est un OUTIL, comme au 2.2.7 : corrigée si l'élève s'en est servi, elle n'entre pas dans la réussite */
+    const host=$('essMul');
+    if(host){
+      const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
+      const engage=[...boxes,...carries].some(el=>el.value.trim()!=='');
+      if(engage){
+        boxes.forEach(el=>{
+          const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+          const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+          el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+          const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+          if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const fx=document.createElement('span');fx.className='mp-fix';fx.textContent=exp;cl.appendChild(fx);} }
+        });
+        carries.forEach(el=>{
+          const exp=el.dataset.exp, vv=el.value.trim();
+          const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+          el.classList.remove('ok','bad'); el.disabled=!soutien;
+          if(vv==='') return;
+          const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+          const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+          if(!ok && currentMode==='train'){ const fx=document.createElement('span');fx.className='mp-fix';fx.textContent=exp;cl.appendChild(fx); }
+        });
+      } else {
+        [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+      }
+    }
+    /* ④ est facultative : on la colore, elle ne compte pas */
+    if(v('essVn')!=='' || v('essVd')!=='') marqueFracSaufVide('essVn','essVd',a.pct,100,soutien);
+    marqueSaufVide('essVp',decOk('essVp','0,',a.pct,100),soutien);
+    marqueSaufVide('essVc',decOk('essVc',tete(s4),a.prodNum,a.prodDen),soutien);
+    marqueFracSaufVide('ess1n','ess1d',q.P1,100,soutien); marqueSaufVide('ess1p',ok1p,soutien); marqueSaufVide('ess1dec',ok1d,soutien);
+    marqueFracSaufVide('ess2n','ess2d',q.P2,100,soutien); marqueSaufVide('ess2p',ok2p,soutien); marqueSaufVide('ess2dec',ok2d,soutien);
+    marqueFracSaufVide('essAn','essAd',tgA.num,tgA.den,soutien); marqueFracSaufVide('essBn','essBd',tgB.num,tgB.den,soutien);
+    marqueFracSaufVide('essPn','essPd',a.prodNum,a.prodDen,soutien); marqueSaufVide('essDec',okC,soutien); marqueSaufVide('essP',okP,soutien);
+    peindreSens();
+    allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP&&okSens;
+    if(!allOk && soutien){ soutienAgain('essFeedback','essActions','checkEssAnswer','essHost'); return; }
+    test.locked=true;
+    if(allOk){ test.score++; $('essLiveScore').textContent=test.score;
+      $('essFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('essFeedback').className='mp-feedback good';
+    } else {
+      $('essFeedback').textContent=`Méthode : 1 ${sg(q.s1)} ${pDecStr(q.P1)} = ${essCoefStr(q.s1,a.c1)} et 1 ${sg(q.s2)} ${pDecStr(q.P2)} = ${essCoefStr(q.s2,a.c2)} ; ${a.fA.num}/${a.fA.den} × ${a.fB.num}/${a.fB.den} = ${a.prodNum}/${a.prodDen} = ${a.coefStr} ; ${a.coefStr} est plus ${a.sens>0?'grand':'petit'} que 1 : c’est une ${motSens}, et l’écart à 1 vaut ${pDecStr(a.pct)}, soit ${a.pct} %${etNon}.`;
+      $('essFeedback').className='mp-feedback bad';
+      corTrainFrac('ess1n','ess1d',q.P1,100); corTrainDec('ess1p',String(q.P1).padStart(2,'0')); corTrainDec('ess1dec',essCoefStr(q.s1,a.c1).slice(2));
+      corTrainFrac('ess2n','ess2d',q.P2,100); corTrainDec('ess2p',String(q.P2).padStart(2,'0')); corTrainDec('ess2dec',essCoefStr(q.s2,a.c2).slice(2));
+      corTrainFrac('essAn','essAd',tgA.num,tgA.den); corTrainFrac('essBn','essBd',tgB.num,tgB.den);
+      corTrainFrac('essPn','essPd',a.prodNum,a.prodDen); corTrainDec('essDec',a.coefStr); corTrainDec('essP',a.pct);
+    }
+    given=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('essP')||'?')+' %');
+    quoi=`une ${q.s1>0?'hausse':'baisse'} de ${q.P1} % suivie d'une ${q.s2>0?'hausse':'baisse'} de ${q.P2} %, par les coefficients`;
+  } else {
+    const s1=q.s1>0?hscPaire(['essc1sa','essc1sb'],[100,a.aug1]):essOrdre(['essc1sa','essc1sb'],[100,a.aug1]);
+    const s2=q.s2>0?hscPaire(['essc2sa','essc2sb'],[a.v1,a.aug2]):essOrdre(['essc2sa','essc2sb'],[a.v1,a.aug2]);
+    if(live){
+      liveColorFrac('essc1n','essc1d',q.P1,100);      liveColorDec('essc1m',100,1);
+      liveColorFrac('essc1pn','essc1pd',a.prod1,100);  liveColorDec('essc1a',a.aug1,1);
+      liveColorFrac('essc2n','essc2d',q.P2,100);      liveColorDec('essc2m',a.v1,1);
+      liveColorFrac('essc2pn','essc2pd',a.prod2,100);  liveColorDec('essc2a',a.aug2,1);
+      liveColorDec('essc1sr',a.v1,1); liveColorDec('essc2sr',a.v2,1);
+      liveColorDec('esscFin',a.v2,1); liveColorDec('esscPour',a.pct,1); liveColorDec('esscPct',a.pct,1);
+      /* les deux opérations passent par le MÊME juge que la vérification */
+      [['essc1sa','essc1sb'],['essc2sa','essc2sb']].forEach((p,k)=>{ const r=k?s2:s1;
+        p.forEach((id,i)=>{ const el=$(id); if(!el||el.disabled) return;
+          el.classList.remove('ok','bad'); if(v(id)==='') return;
+          el.classList.add(r.ok[i]?'ok':'bad'); }); });
+      return;
+    }
+    const ok1f=fracOk('essc1n','essc1d',q.P1,100),   ok1m=decEst('essc1m',100);
+    const ok1p=fracOk('essc1pn','essc1pd',a.prod1,100), ok1a=decEst('essc1a',a.aug1), ok1r=decEst('essc1sr',a.v1);
+    const ok2f=fracOk('essc2n','essc2d',q.P2,100),   ok2m=decEst('essc2m',a.v1);
+    const ok2p=fracOk('essc2pn','essc2pd',a.prod2,100), ok2a=decEst('essc2a',a.aug2), ok2r=decEst('essc2sr',a.v2);
+    const okFin=decEst('esscFin',a.v2), okPour=decEst('esscPour',a.pct), okPct=decEst('esscPct',a.pct);
+    marqueFracSaufVide('essc1n','essc1d',q.P1,100,soutien);    marqueSaufVide('essc1m',ok1m,soutien);
+    marqueFracSaufVide('essc1pn','essc1pd',a.prod1,100,soutien); marqueSaufVide('essc1a',ok1a,soutien);
+    marqueSaufVide('essc1sa',s1.ok[0],soutien); marqueSaufVide('essc1sb',s1.ok[1],soutien); marqueSaufVide('essc1sr',ok1r,soutien);
+    marqueFracSaufVide('essc2n','essc2d',q.P2,100,soutien);    marqueSaufVide('essc2m',ok2m,soutien);
+    marqueFracSaufVide('essc2pn','essc2pd',a.prod2,100,soutien); marqueSaufVide('essc2a',ok2a,soutien);
+    marqueSaufVide('essc2sa',s2.ok[0],soutien); marqueSaufVide('essc2sb',s2.ok[1],soutien); marqueSaufVide('essc2sr',ok2r,soutien);
+    marqueSaufVide('esscFin',okFin,soutien); marqueSaufVide('esscPour',okPour,soutien); marqueSaufVide('esscPct',okPct,soutien);
+    peindreSens();
+    allOk=ok1f&&ok1m&&ok1p&&ok1a&&s1.ok[0]&&s1.ok[1]&&ok1r
+        &&ok2f&&ok2m&&ok2p&&ok2a&&s2.ok[0]&&s2.ok[1]&&ok2r
+        &&okFin&&okPour&&okPct&&okSens;
+    if(!allOk && soutien){ soutienAgain('essFeedback','essActions','checkEssAnswer','essHost'); return; }
+    test.locked=true;
+    if(allOk){ test.score++; $('essLiveScore').textContent=test.score;
+      $('essFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('essFeedback').className='mp-feedback good';
+    } else {
+      $('essFeedback').textContent=`Méthode : on part de 100. ${q.P1}/100 × 100 = ${a.prod1}/100 = ${a.aug1}, donc 100 ${sg(q.s1)} ${a.aug1} = ${a.v1} ; puis ${q.P2}/100 × ${a.v1} = ${a.prod2}/100 = ${a.aug2}, donc ${a.v1} ${sg(q.s2)} ${a.aug2} = ${a.v2}. On est passé de 100 à ${a.v2}, ${a.sens>0?'au-dessus':'au-dessous'} de 100 : c’est une ${motSens} de ${a.pct} pour 100, c’est-à-dire ${a.pct} %${etNon}.`;
+      $('essFeedback').className='mp-feedback bad';
+      corTrainFrac('essc1n','essc1d',q.P1,100); corTrainDec('essc1m',100);
+      corTrainFrac('essc1pn','essc1pd',a.prod1,100); corTrainDec('essc1a',a.aug1);
+      ['essc1sa','essc1sb'].forEach((id,i)=>{ if(!s1.ok[i]) corTrainDec(id,s1.reste.shift()); });
+      corTrainDec('essc1sr',a.v1);
+      corTrainFrac('essc2n','essc2d',q.P2,100); corTrainDec('essc2m',a.v1);
+      corTrainFrac('essc2pn','essc2pd',a.prod2,100); corTrainDec('essc2a',a.aug2);
+      ['essc2sa','essc2sb'].forEach((id,i)=>{ if(!s2.ok[i]) corTrainDec(id,s2.reste.shift()); });
+      corTrainDec('essc2sr',a.v2);
+      corTrainDec('esscFin',a.v2); corTrainDec('esscPour',a.pct); corTrainDec('esscPct',a.pct);
+    }
+    given=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('esscPct')||'?')+' %');
+    quoi=`une ${q.s1>0?'hausse':'baisse'} de ${q.P1} % suivie d'une ${q.s2>0?'hausse':'baisse'} de ${q.P2} %, en partant de 100`;
+  }
+  test.answers.push({...(ptsExo()||{}),q:quoi, answer, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('essActions').innerHTML=`<button class="btn btn-primary" id="essNext" onclick="nextEssQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('essNext').focus();
+}
+function nextEssQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderEssTest(); autoSave(); } else finishEss(); }
+async function finishEss(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-evolutions-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
 /* La rangée d'aide, propre au niveau : la Première la fait poser par
    iaBoutons(), qui l'insère après l'élément « …Actions ». Le moteur ne
    choisit pas — c'est le seul endroit où les deux fichiers diffèrent. */
@@ -16342,7 +16807,13 @@ Trois phrases, trois coefficients, et le même pourcentage P dans les trois :<br
 Un coefficient <b>plus grand que 1</b> fait monter, <b>plus petit que 1</b> fait descendre, et le pourcentage se lit sur l’<b>écart à 1</b> — c’est le chemin inverse, celui de {lire-coefficient}.<br>
 <b>Premier piège : confondre les trois.</b> Prendre 30 %, c’est n’en garder que 30 % (× 0,30) ; diminuer de 30 %, c’est en garder 70 % (× 0,70). Les deux font descendre, mais pas de la même chose.<br>
 <b>Second piège : la place de la virgule.</b> 30 % s’écrit 0,<b>30</b> et 3 % s’écrit 0,<b>03</b> : un pourcentage à un seul chiffre garde un zéro après la virgule. Multiplier par 1,03, c’est donc augmenter de 3 % et non de 30 %.`;
-const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAP_ESS=`<b>Deux évolutions successives, hausse ou baisse</b><br>
+Deux évolutions de suite <b>ne s’additionnent pas</b> : la seconde porte sur la valeur <b>déjà modifiée</b>, pas sur la valeur de départ. Et quand l’une monte et l’autre descend, rien ne dit d’avance si le résultat est une hausse ou une baisse : c’est à toi de le trouver. Deux méthodes, un seul résultat.<br>
+Exemple : augmenter de 20 % puis baisser de 5 %.<br>
+<b>Méthode 1 — multiplier les coefficients</b>, comme dans {hausses-successives} : augmenter de 20 %, c’est multiplier par 1 + 0,20 = <b>1,2</b> ; baisser de 5 %, c’est multiplier par 1 − 0,05 = <b>0,95</b>. Le coefficient global est le <b>produit</b> : \\(1{,}2\\times 0{,}95=\\frac{12}{10}\\times \\frac{95}{100}=\\frac{1140}{1000}\\) = <b>1,14</b>. On le lit comme dans {lire-coefficient} : 1,14 est <b>plus grand que 1</b>, c’est une <b>hausse</b>, et l’écart à 1 vaut 0,14 : une hausse de <b>14 %</b>.<br>
+<b>Méthode 2 — partir de 100</b>, comme dans {hausses-successives-cent} : la hausse pour 100 vaut \\(\\frac{20}{100}\\times 100=20\\), donc 100 + 20 = <b>120</b> ; la baisse pour <b>120</b> vaut \\(\\frac{5}{100}\\times 120=\\frac{600}{100}=6\\), donc 120 − 6 = <b>114</b>. On est passé de 100 à 114, <b>au-dessus de 100</b> : c’est une hausse de <b>14 pour 100</b>, c’est-à-dire <b>14 %</b>.<br>
+Piège classique : additionner les pourcentages — +20 % puis −5 %, ce n’est PAS +15 %. Et si le coefficient global est plus petit que 1 (ou la valeur finale sous 100), c’est une baisse, même si l’énoncé commence par une hausse.`;
+const RAPPELS_ID={ 'synthese-evolutions-successives':RAP_ESS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -16392,6 +16863,7 @@ const QIA_SUGG={
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
   hs:["Pourquoi deux hausses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième hausse ?","Pourquoi la hausse globale dépasse-t-elle la somme des deux taux ?"],
   hsc:["Pourquoi a-t-on le droit de partir de 100 ?","Sur quelle valeur porte la deuxième hausse ?","Pourquoi « augmentation pour 100 » veut-il dire « pourcentage » ?","Pourquoi deux hausses de suite ne s’additionnent-elles pas ?"],
+  ess:["Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi une hausse suivie d’une baisse du même pourcentage ne revient-elle pas au départ ?","Quelle méthode choisir : les coefficients ou partir de 100 ?","Sur quelle valeur porte la seconde évolution ?"],
   lc:["Comment savoir si un coefficient fait monter ou descendre ?","Pourquoi 0,96 est-il une baisse de 4 % et non de 96 % ?","Comment retrouver le pourcentage à partir du coefficient ?","Que signifie multiplier par 1,4 ?"],
   ac:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment reconnaître le coefficient d’une diminution ?","Comment passer d’un pourcentage à un coefficient ?"],
   ck:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment calculer le coefficient d’une augmentation ?","Comment calculer le coefficient d’une diminution ?"],
@@ -16482,6 +16954,15 @@ function conseilCtxCourant(){
       +'Méthode enseignée : on CHOISIT 100 comme valeur de départ — la hausse globale n’en dépend pas —, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu’on a gagné « pour 100 » EST le pourcentage global. '
       +'La seconde hausse porte sur la valeur DÉJÀ augmentée ('+a.v1+'), jamais sur 100 : c’est pourquoi les hausses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. '
       +'C’est le même calcul qu’en {hausses-successives}, par l’autre chemin : là on multiplie deux coefficients, ici on suit une valeur.';
+  } else if(k==='ess' && q){
+    const a=essAns(q), sg=s=>s>0?'+':'−', mot=s=>s>0?'hausse':'baisse';
+    att='Réponses attendues, STRICTEMENT SECRÈTES : une '+mot(q.s1)+' de '+q.P1+' % suivie d’une '+mot(q.s2)+' de '+q.P2+' % fait une '+mot(a.sens)+' globale de '+a.pct+' %. '
+      +'Méthode 1 (les coefficients, comme dans {hausses-successives}) : 1 '+sg(q.s1)+' '+q.P1+'/100 = '+essCoefStr(q.s1,a.c1)+' et 1 '+sg(q.s2)+' '+q.P2+'/100 = '+essCoefStr(q.s2,a.c2)+' ; '
+      +a.fA.num+'/'+a.fA.den+' × '+a.fB.num+'/'+a.fB.den+' = '+a.prodNum+'/'+a.prodDen+' = '+a.coefStr+' (toute fraction égale convient) ; le coefficient global '+a.coefStr+' est plus '+(a.sens>0?'grand':'petit')+' que 1, donc une '+mot(a.sens)+', et l’écart à 1 donne '+a.pct+' %. '
+      +'Méthode 2 (partir de 100, comme dans {hausses-successives-cent}) : '+q.P1+'/100 × 100 = '+a.aug1+', donc 100 '+sg(q.s1)+' '+a.aug1+' = '+a.v1+' ; puis '+q.P2+'/100 × '+a.v1+' = '+a.prod2+'/100 = '+a.aug2+', donc '+a.v1+' '+sg(q.s2)+' '+a.aug2+' = '+a.v2+' ; de 100 à '+a.v2+', c’est une '+mot(a.sens)+' de '+a.pct+' pour 100, soit '+a.pct+' %. '
+      +'Méthode actuellement choisie par l’élève : '+(q.meth==='coef'?'les coefficients':(q.meth==='cent'?'partir de 100':'aucune encore'))+'. Sens actuellement choisi : '+(q.choisi==null?'aucun':mot(q.choisi))+'. '
+      +'Les évolutions ne s’additionnent pas, l’erreur classique étant de répondre '+sg(q.s1)+q.P1+' '+sg(q.s2)+' '+q.P2+' = '+(q.s1*q.P1+q.s2*q.P2)+' %. La seconde évolution porte sur la valeur DÉJÀ modifiée, jamais sur la valeur de départ. '
+      +'Aucune valeur de départ n’est donnée : le résultat n’en dépend pas.';
   } else if(k==='lc' && q){
     const mot=q.sens>0?'augmentation':'baisse';
     att='Réponses attendues, STRICTEMENT SECRÈTES : le coefficient '+q.coefStr+' correspond à une '+mot+' de '+q.P+' %. '
@@ -16927,7 +17408,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
