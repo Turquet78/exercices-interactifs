@@ -5487,14 +5487,14 @@ async function parcours(page, N){
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
       ignorer('la voie du coefficient puis de l\'addition vaut aussi son point',
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
-      ignorer('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
+      ignorer('sur le 2.3.13 et le 2.2.14, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
       ignorer('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
     } else if(!ml){
       ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle', 'MathLive absent');
       ignorer('la voie du coefficient puis de l\'addition vaut aussi son point', 'MathLive absent');
-      ignorer('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée', 'MathLive absent');
+      ignorer('sur le 2.3.13 et le 2.2.14, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée', 'MathLive absent');
       ignorer('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée', 'MathLive absent');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
@@ -5590,40 +5590,48 @@ async function parcours(page, N){
       verifier('la voie du coefficient puis de l\'addition vaut aussi son point',
         dits2.length === 0, dits2.slice(0, 3).join(' | '));
 
-      /* ÉTAPE 3 : le 2.3.13 — LA BARRE D'ESPACE ÉCRIT UNE ESPACE (demande de
-         Turquet, septembre 2026 : « il faut afficher les espaces quand on
-         appuie sur espace »). L'élève y rédige en MOTS (« diminution de
-         30 % »), et la feuille, en mode calcul, avalait l'espace : il voyait
-         « diminutionde30% ». Trois bords, sur un vrai MathLive — jsdom n'en a
-         pas, et c'est lui seul qui dit ce que la touche écrit :
+      /* ÉTAPE 3 : le 2.3.13, puis son jumeau sur les hausses, le 2.2.14 — LA
+         BARRE D'ESPACE ÉCRIT UNE ESPACE (demande de Turquet, septembre 2026 :
+         « il faut afficher les espaces quand on appuie sur espace »). L'élève
+         y rédige en MOTS (« diminution de 30 % », « augmentation de 30 % »),
+         et la feuille, en mode calcul, avalait l'espace : il voyait
+         « diminutionde30% ». Le profil nomme les deux exercices avec leur
+         famille (syntheseRedigee.dix) ; on tape la même copie sur chacun, dans
+         son sens. Trois bords, sur un vrai MathLive — jsdom n'en a pas, et
+         c'est lui seul qui dit ce que la touche écrit :
          — l'espace tapée se VOIT : la ligne aplatie porte ses espaces ;
          — l'espace SORT toujours d'une fraction (la leçon de la récurrence
            rédigée de la Terminale : mathModeSpace éteint cette convention, et
            « 180/600 = 0,3 » tomberait tout entier dans le dénominateur) ;
          — le juge lit la copie espacée, la note compte, les lignes se
            peignent. */
-      if(!P.syntheseRedigee.dix){
-        ignorer('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
+      if(!P.syntheseRedigee.dix || !P.syntheseRedigee.dix.length){
+        ignorer('sur le 2.3.13 et le 2.2.14, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
           'ce niveau n\'a pas la synthèse des diminutions rédigée avec la méthode des 10 %');
       } else {
         let dits3 = [];
-        await s.page.evaluate(id => openTest(id), P.syntheseRedigee.dix);
+        for(const X of P.syntheseRedigee.dix){
+        const dit3 = t => dits3.push(X.num + ' : ' + t);
+        await s.page.evaluate(id => openTest(id), X.exercice);
         await s.page.waitForTimeout(400);
         await s.page.click('#modeChoices [onclick*="train"]');
         await s.page.waitForTimeout(1300);
-        /* une vraie question du 2.3.13 (genSyn avec dix) où l'on CHERCHE le
-           pourcentage : c'est la forme « 10 % = … ; écart = … ; diminution
-           de … % », celle qui s'écrit en mots */
-        const q3 = await s.page.evaluate(() => {
+        /* une vraie question de l'exercice (genSyn avec dix, dans sa famille)
+           où l'on CHERCHE le pourcentage : c'est la forme « 10 % = … ;
+           écart = … ; diminution (ou augmentation) de … % », celle qui
+           s'écrit en mots */
+        const q3 = await s.page.evaluate((fam) => {
           let q = null;
-          for(let i = 0; i < 400; i++){ const c = genSyn('dim', 'pct', { dix: true }); if(c && c.dix && Number.isInteger(c.N / 10) && Number.isInteger(c.aug)){ q = c; break; } }
-          if(!q) return { manque: 'aucun tirage « diminution, pourcentage cherché » entier en 400 essais' };
+          for(let i = 0; i < 400; i++){ const c = genSyn(fam, 'pct', { dix: true }); if(c && c.dix && Number.isInteger(c.N / 10) && Number.isInteger(c.aug)){ q = c; break; } }
+          if(!q) return { manque: 'aucun tirage « ' + fam + ', pourcentage cherché » entier en 400 essais' };
+          if(test.qId !== currentTestId) return { manque: 'l\'exercice ouvert est « ' + test.qId + ' »' };
           test.questions[test.idx] = q; test.locked = false; test.salBusy = false; renderSal();
           const bon = (typeof q.bon === 'number') ? q.bon : q.opts.indexOf(q.bonV);
-          return { bon: bon, N: q.N, P: q.P, dix: q.N / 10, aug: q.aug, coef: String(q.P / 100).replace('.', ',') };
-        });
+          return { bon: bon, N: q.N, P: q.P, dix: q.N / 10, aug: q.aug, coef: String(q.P / 100).replace('.', ','), fam: q.fam };
+        }, X.fam);
         await s.page.waitForTimeout(800);
-        if(q3.manque || q3.bon < 0){ dits3.push(q3.manque || 'la bonne proposition est introuvable parmi les choix'); }
+        if(q3.manque || q3.bon < 0){ dit3(q3.manque || 'la bonne proposition est introuvable parmi les choix'); }
+        else if(q3.fam !== X.fam){ dit3('le tirage est de la famille « ' + q3.fam + ' » au lieu de « ' + X.fam + ' »'); }
         else {
           await s.page.click('#salc' + q3.bon);
           await s.page.waitForTimeout(150);
@@ -5633,7 +5641,7 @@ async function parcours(page, N){
           const COPIE3 = [
             '10 % = ' + q3.dix,
             'écart = ' + q3.aug,
-            'diminution de ' + q3.P + ' %',
+            X.mot + ' de ' + q3.P + ' %',
             q3.aug + '/' + q3.N + ' = ' + q3.coef          /* la fraction, puis l'espace qui en SORT */
           ];
           for(let i = 0; i < COPIE3.length; i++){
@@ -5650,17 +5658,19 @@ async function parcours(page, N){
                      fracLisible: !!lu, fracJuste: !!(lu && salEgal(lu.v, salRatDe(String(test.questions[test.idx].P / 100).replace('.', ',')))) };
           });
           const L3 = lu3.lignes;
-          if(L3.length !== 4) dits3.push('la feuille se lit en ' + L3.length + ' ligne(s) au lieu de 4 : « ' + L3.join(' ⏎ ') + ' »');
+          if(L3.length !== 4) dit3('la feuille se lit en ' + L3.length + ' ligne(s) au lieu de 4 : « ' + L3.join(' ⏎ ') + ' »');
           if(!/^10 \S* ?= /.test(L3[0] || '') || (L3[0] || '').indexOf(' ') < 0)
-            dits3.push('« 10 % = ' + q3.dix + ' » ressort sans ses espaces : « ' + L3[0] + ' »');
+            dit3('« 10 % = ' + q3.dix + ' » ressort sans ses espaces : « ' + L3[0] + ' »');
           if(!/ de /.test(L3[2] || ''))
-            dits3.push('« diminution de ' + q3.P + ' % » ressort sans ses espaces : « ' + L3[2] + ' »');
+            dit3('« ' + X.mot + ' de ' + q3.P + ' % » ressort sans ses espaces : « ' + L3[2] + ' »');
+          if(!new RegExp('^' + X.mot + ' de ').test(L3[2] || ''))
+            dit3('« ' + X.mot + ' » ne ressort pas entier de la feuille de rédaction (un raccourci de MathLive l\'a mangé ?) : « ' + L3[2] + ' »');
           if(!/\\[,;: ]|~/.test(lu3.brut[2] || ''))
-            dits3.push('la barre d\'espace n\'a rien écrit dans la ligne (MathLive rend « ' + lu3.brut[2] + ' »)');
+            dit3('la barre d\'espace n\'a rien écrit dans la ligne (MathLive rend « ' + lu3.brut[2] + ' »)');
           if(!lu3.fracLisible || !lu3.fracJuste)
-            dits3.push('après la fraction, l\'espace n\'en sort pas : le « = » tombe dans le dénominateur — « ' + L3[3] + ' »');
+            dit3('après la fraction, l\'espace n\'en sort pas : le « = » tombe dans le dénominateur — « ' + L3[3] + ' »');
           if(!lu3.sait || !lu3.correct)
-            dits3.push('le juge ' + (lu3.sait ? 'refuse' : 's\'abstient sur') + ' la copie espacée : « ' + lu3.phrase.slice(0, 120) + ' » (' + L3.join(' ⏎ ') + ')');
+            dit3('le juge ' + (lu3.sait ? 'refuse' : 's\'abstient sur') + ' la copie espacée : « ' + lu3.phrase.slice(0, 120) + ' » (' + L3.join(' ⏎ ') + ')');
           await s.page.click('#salActions .btn-primary');
           await s.page.waitForTimeout(1200);
           const v3 = await s.page.evaluate(() => {
@@ -5669,12 +5679,13 @@ async function parcours(page, N){
                      lignes: salFeuille.lignes.map(x => x.mf.className) };
           });
           if(v3.classe.indexOf('good') < 0)
-            dits3.push('la copie espacée n\'est pas acceptée à la vérification : « ' + v3.texte.slice(0, 120) + ' »');
-          if(v3.score !== 1) dits3.push('la note ne compte pas la question : score ' + v3.score);
-          [0, 1, 3].forEach(i => { if((v3.lignes[i] || '').indexOf('ok') < 0) dits3.push('la ligne ' + (i + 1) + ' (juste) ne se peint pas en bleu : classes « ' + v3.lignes[i] + ' »'); });
-          if(/ok|bad/.test(v3.lignes[2] || '')) dits3.push('la conclusion en mots reçoit une couleur : « ' + v3.lignes[2] + ' »');
+            dit3('la copie espacée n\'est pas acceptée à la vérification : « ' + v3.texte.slice(0, 120) + ' »');
+          if(v3.score !== 1) dit3('la note ne compte pas la question : score ' + v3.score);
+          [0, 1, 3].forEach(i => { if((v3.lignes[i] || '').indexOf('ok') < 0) dit3('la ligne ' + (i + 1) + ' (juste) ne se peint pas en bleu : classes « ' + v3.lignes[i] + ' »'); });
+          if(/ok|bad/.test(v3.lignes[2] || '')) dit3('la conclusion en mots reçoit une couleur : « ' + v3.lignes[2] + ' »');
         }
-        verifier('sur le 2.3.13, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
+        }   /* for X */
+        verifier('sur le 2.3.13 et le 2.2.14, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée',
           dits3.length === 0, dits3.slice(0, 3).join(' | '));
       }
 
