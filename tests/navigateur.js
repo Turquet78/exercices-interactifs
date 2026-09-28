@@ -12998,6 +12998,18 @@ async function parcours(page, N){
           if(!c) return null; const q = c.getBoundingClientRect();
           return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2) };
         }, t);
+        /* D'ABORD une case à NOMBRES : son clavier A porte « clavier B » — le
+           clavier suit l'écran, pas la case. Avant le mot, et avant la
+           vérification : après le verdict, le clavier se referme (le premier
+           passage l'a montré — le contrôle cherchait « clavier A » sur un
+           clavier fermé, et rouvrait l'exercice pour rien). */
+        const aNombre = await s.page.evaluate(() => !!document.querySelector('.screen.on math-field#evsP1'));
+        if(aNombre) await montrer('.screen.on math-field#evsP1');
+        const surNombre = aNombre ? { versB: !!(await touche(KL.versC)), cinq: !!(await touche('5')), espace: !KL.espace || !!(await touche(KL.espace)) } : null;
+        verifier('sur une case à nombres de l\'écran, le clavier A porte « ' + KL.versC + ' »' + (KL.espace ? ' et « ' + KL.espace + ' »' : ''),
+          !!surNombre && surNombre.versB && surNombre.cinq && surNombre.espace,
+          !aNombre ? 'la case evsP1 manque' : 'sur le clavier rendu : ' + JSON.stringify(surNombre));
+        /* puis la case du MOT : « clavier B », les lettres, « hausse » tapé */
         if(aChamp) await montrer(champ);
         const versB = aChamp ? await touche(KL.versC) : null;
         let lu = null, surB = null;
@@ -13018,7 +13030,14 @@ async function parcours(page, N){
             : surB.cinq ? 'les chiffres sont toujours là : la couche n\'a pas changé'
             : !surB.a ? 'la touche « a » manque sur le clavier B'
             : 'la case se relit « ' + lu + ' »');
-        /* le mot tapé est JUGÉ : « hausse » vaut « augmentation » sur deux hausses */
+        /* « clavier A » ramène les chiffres — tant que le clavier est ouvert */
+        const versA = versB ? await touche(KL.versA) : null;
+        if(versA){ await s.page.mouse.click(versA.x, versA.y); await s.page.waitForTimeout(400); }
+        const surA = versA ? { cinq: !!(await touche('5')), versB: !!(await touche(KL.versC)) } : null;
+        verifier('« ' + KL.versA + ' » ramène les chiffres, avec « ' + KL.versC + ' »',
+          !!surA && surA.cinq && surA.versB,
+          !versA ? 'aucune touche « ' + KL.versA + ' » sur la couche des lettres' : 'sur le clavier A : ' + JSON.stringify(surA));
+        /* ENFIN le mot tapé est JUGÉ : « hausse » vaut « augmentation » sur deux hausses */
         const juge = await s.page.evaluate(() => {
           try{
             const q = test.questions[test.idx];
@@ -13035,29 +13054,6 @@ async function parcours(page, N){
         verifier('le mot tapé au clavier B est jugé : « hausse » est bleu et la copie vaut le point',
           !!juge && !juge.erreur && /\bok\b/.test(juge.mot) && juge.score === 1,
           !juge ? 'mesure impossible' : juge.erreur ? juge.erreur : 'case du mot « ' + juge.mot + ' », score ' + juge.score);
-        /* « clavier A » ramène les chiffres ; et sur une case à NOMBRES du même
-           écran, « clavier B » est là aussi — le clavier suit l'écran */
-        const versA = await touche(KL.versA);
-        if(versA){ await s.page.mouse.click(versA.x, versA.y); await s.page.waitForTimeout(400); }
-        const surA = versA ? { cinq: !!(await touche('5')), versB: !!(await touche(KL.versC)), espace: !KL.espace || !!(await touche(KL.espace)) } : null;
-        verifier('« ' + KL.versA + ' » ramène les chiffres, avec « ' + KL.versC + ' »' + (KL.espace ? ' et « ' + KL.espace + ' »' : ''),
-          !!surA && surA.cinq && surA.versB && surA.espace,
-          !versA ? 'aucune touche « ' + KL.versA + ' » sur la couche des lettres' : 'sur le clavier A : ' + JSON.stringify(surA));
-        await s.page.evaluate(() => { try{ window.mathVirtualKeyboard.hide(); }catch(e){} });
-        await s.page.evaluate(() => { openTest('evolutions-successives'); });
-        await s.page.waitForTimeout(300);
-        await s.page.evaluate(() => {
-          const b = [...document.querySelectorAll('#modeChoices button')]
-            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
-          if(b) b.click();
-        });
-        await s.page.waitForTimeout(900);
-        const aNombre = await s.page.evaluate(() => !!document.querySelector('.screen.on math-field#evsP1'));
-        if(aNombre) await montrer('.screen.on math-field#evsP1');
-        const surNombre = aNombre ? { versB: !!(await touche(KL.versC)), cinq: !!(await touche('5')) } : null;
-        verifier('sur une case à nombres du même écran, le clavier A porte aussi « ' + KL.versC + ' »',
-          !!surNombre && surNombre.versB && surNombre.cinq,
-          !aNombre ? 'la case evsP1 manque' : 'sur le clavier rendu : ' + JSON.stringify(surNombre));
         verifier('le schéma des évolutions successives ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }

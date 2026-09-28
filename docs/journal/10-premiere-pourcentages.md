@@ -2769,13 +2769,19 @@ clavier B des lettres ne viendrait jamais sur tablette »).
 **Et le NAVIGATEUR tape le mot sur une vraie tablette** (« 11 undecies »,
 `tests/navigateur.js`, déclaré non applicable là où le profil ne dit pas
 « ecrit ») : tablette tactile debout (820 px), l'exercice ouvert en
-entraînement, la case du mot touchée, le clavier à l'écran stable, « clavier
-B » cliqué — les chiffres partis, la touche « a » là —, « hausse » tapé
-touche par touche et relu par le chemin du juge (`toPlain`) ; puis la copie
-complétée dans la page et VÉRIFIÉE : « hausse » bleu, le point donné ;
-« clavier A » ramène les chiffres avec « clavier B » et « espace » ; et une
-case à NOMBRES du même écran (`#evsP1`) porte elle aussi « clavier B » sur
-son clavier A — le clavier suit l'écran, pas la case. Les règles
+entraînement. D'ABORD une case à NOMBRES (`#evsP1`) : son clavier A porte
+« clavier B » et « espace » — le clavier suit l'écran, pas la case. PUIS la
+case du mot touchée, le clavier à l'écran stable, « clavier B » cliqué — les
+chiffres partis, la touche « a » là —, « hausse » tapé touche par touche et
+relu par le chemin du juge (`toPlain`) ; « clavier A » ramène les chiffres
+avec « clavier B » ; ENFIN la copie complétée dans la page et VÉRIFIÉE :
+« hausse » bleu, le point donné. **Le premier passage a rougi deux fois — sur
+le BANC, la page étant juste** : le contrôle cherchait « clavier A » APRÈS la
+vérification, quand le clavier s'est refermé (le verdict déplace le focus sur
+« Question suivante »), puis ROUVRAIT l'exercice pour la case à nombres et n'y
+trouvait aucun clavier rendu. L'ordre a été retourné — la vérification en
+dernier, rien à rouvrir — et c'est la leçon du 11 decies prise de l'autre
+côté : un clavier se mesure tant qu'une case le tient ouvert. Les règles
 universelles (taille des cases, case vide, bouton d'aide IA, clavier
 atteignable, couleurs des verdicts, énoncé encadré, aucune référence
 {identifiant} affichée) sont tenues par la visite qui ouvre chaque exercice,
