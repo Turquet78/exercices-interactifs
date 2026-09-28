@@ -2495,3 +2495,125 @@ signe et bon mot en vert), et la case vide en soutien qui ne rougit pas et
 garde son « ± ». Les valeurs y sont posées COMME L'ÉLÈVE les tape — la
 valeur, puis l'événement `input` —, sans quoi le contrôle appellerait la
 relecture lui-même et ne prouverait pas qu'elle est branchée.
+## {pourcentage-schema} — lire un schéma de pourcentages, le 4.1.9 pris à l'envers (Seconde, septembre 2026)
+
+**D'où il vient.** Une fiche PDF de Turquet (« Exercice 2 — successives »,
+trois exercices), et une demande en une ligne : « en seconde faire un
+exercice comme le pdf en variant les énoncés, les % seront toujours des
+entiers, et le schéma sera fait comme dans l'exercice 4.1.9 ». La fiche est
+le MIROIR de {pourcentage-chaine} : là-bas l'énoncé donne les pourcentages en
+mots et l'élève construit le schéma ; ici il n'y a PAS d'énoncé chiffré — les
+nombres sont écrits SUR le schéma, et l'élève le complète, puis complète
+trois phrases qui le lisent en pourcentages. « Club de sport → Filles →
+Basket, × 0,30 puis × 0,20, …… × …… = …… ; Dans le club de sport il y a
+…… % de filles. Parmi les filles, …… % font du basket. Dans le club de sport
+il y a …… % de filles qui pratiquent le basket. » Les trois exercices de la
+fiche sont les trois FORMES de l'exercice, une par question, en ordre
+mélangé (`q.inc`, tiré par `qdMelanger(['comb','p1','p2'])` comme en 4.1.9) :
+
+* `comb` (exercice 1) — les deux flèches sont écrites, la rangée
+  « … × … = … » est vide ;
+* `p2` (exercice 2) — la première flèche et le produit sont écrits
+  (« 0,30 × … = 0,06 »), la seconde flèche et sa reprise dans le calcul sont
+  à trouver ;
+* `p1` (exercice 3) — la seconde flèche et le produit sont écrits
+  (« … × 0,50 = 0,15 »), la première est à trouver.
+
+**Le schéma est celui du 4.1.9, au pixel.** Mêmes classes (`.pctb-row`,
+`.pctb-arrow`, `.pctc-global`, `.pctc-calc`), mêmes boîtes sans case (le
+nom de l'effectif seulement), même grande flèche du dessous avec sa
+multiplication à trois places. Ce qui change : une place DONNÉE n'est pas
+une case, c'est un nombre écrit par la page — un `span.pcs-val` qui prend
+exactement la place de la case et sa TAILLE (1,7 rem, les mêmes paliers de
+tablette et de téléphone que `math-field.pm-mf`). Ce n'est pas un choix
+d'esthétique : le contrôle universel « les cases de saisie ont la taille des
+nombres qui les entourent » voit « 0,30 » comme un nombre qui entoure la
+case voisine, et une case plus petite que lui rougirait le banc — à raison,
+l'élève lirait sa réponse comme une note à côté d'une donnée. `renderPcsTest()`
+décide place par place avec `pcsCases(q)` : ce qui est dans la liste est une
+case, tout le reste est écrit — et JAMAIS les deux, le contrôle dédié le
+mesure sur les trois formes en lisant le `tagName` de chaque place.
+
+**Les trois phrases sont toujours à compléter, et leur ordre est tiré.** La
+fiche met la phrase du global tantôt en dernier (exercice 1), tantôt en
+premier (exercice 2) : `q.ordre` est une permutation de `[0,1,2]` tirée à la
+génération, rangée dans la question (reprise après pause) et HORS de la clé
+de `distinctes()` — `ordre` est déjà dans `CLE_HORS`, un ordre d'affichage
+n'a jamais fait une autre question. Chaque phrase a deux tournures (« Dans
+le club de sport, il y a … % de filles. » / « Les filles représentent … %
+des membres du club. »), et la consigne en a trois ; ces quatre choix vont
+dans `q.v`, un TABLEAU cette fois, lui aussi hors de la clé — des habits,
+pas des données. Un pourcentage écrit dans une phrase se juge en ENTIER :
+`pcsEntier()` n'accepte que des chiffres, parce que `parseInt('6,5')` rend 6
+et aurait compté juste une réponse fausse — le contrôle dédié pose « 6,5 »
+pour le voir rougir. Les écritures décimales des flèches et du calcul se
+jugent comme en 4.1.9, par `parseDecToFrac` contre P/100 : 0,2 et 0,20 sont
+le même nombre, et le contrôle le remesure sur la reprise du calcul.
+
+**Les pourcentages sont toujours des entiers — et c'est la seule règle
+arithmétique de l'exercice.** Le 4.1.9 tire dans `PCT_PCTS` (multiples de
+dix) : le produit est alors toujours un multiple de 100. Ici, pour VARIER les
+nombres comme la demande le veut, `PCS_PCTS` est le vivier des multiples de
+5 de 5 à 95, et `genPcs()` tire P1 librement, puis P2 parmi les valeurs dont
+le produit avec P1 est un multiple de 100 : un multiple de 10 accepte tout
+multiple de 10 ; un multiple de 5 impair (15, 25, 35, …, 95) n'accepte que
+20, 40, 60 et 80 — 0,25 × 0,40 = 0,10, 0,15 × 0,20 = 0,03, 0,95 × 0,20 =
+0,19. La flèche à retrouver dans les formes `p1`/`p2` se déduit donc du
+produit par une division EXACTE (0,06 ÷ 0,30 = 0,2), jamais approchée. Le
+contrôle dédié remesure la règle sur le global lui-même (entier, de 1 à 99)
+sur quarante séances, et exige qu'un multiple de 5 impair sorte au moins une
+fois — sinon le vivier annoncé n'est pas atteint.
+
+**Huit mises en situation, `CTX_PCS`.** Les trois de la fiche (club de
+sport / filles / basket, classe / filles / moyenne, entreprise / femmes /
+cadres — au mot près, la fiche dit « filles » pour une entreprise, la page
+dit « femmes »), puis cinq qui reprennent les libellés de `CTX_CHAINE`
+(lycée, village, bibliothèque, festival) et un cinéma, pour que le schéma
+se lise avec les mêmes boîtes qu'en 4.1.9. Chaque contexte porte `intro`
+(ce que sont les trois boîtes, dit dans la consigne, puisque aucun énoncé
+chiffré ne le dit), et `s1`, `s2`, `s3` : deux tournures chacune, des
+fonctions du champ, le champ posé AVANT le « % ». Pas de `nOk` : sans
+nombre de population, tout contexte convient à tout tirage.
+
+**Les quinze branchements, et un contrôle par forme.** `TESTS`
+(`pourcentage-schema`, « Lire un schéma de pourcentages »), `THEMES` (4.1.10,
+juste après {pourcentage-chaine}), l'écran `scr-pcs`, `testScreens`, la
+réserve du bas (`#scr-pcs{padding-bottom:84px}` d'emblée : trois rangées, le
+4.1.9 avait rougi avec deux), `liveCheckCurrent()` (`pcs`), `DISPATCH`
+(reprise), la liste des rendus enveloppés (`renderPcsTest`),
+`RAPPELS_ID['pourcentage-schema']` (`RAP_PCS`, qui dit comment LIRE une
+flèche et retrouver celle qui manque par une division), `QIA_SUGG['pcs']`,
+`details.test`, l'énoncé en `.mp-instr`, et la table `cles` de
+`RAPPELS_SECONDE` dans `tests/profils.js`. « Recommencer » passe par
+`TESTS[...].start`. Le contexte envoyé au modèle est `ctxVisible()`, comme
+en 4.1.9 : il lit la consigne, le schéma (nombres écrits compris) et les
+saisies.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `pourcentageSchema`,
+absent-déclaré sur les niveaux qui n'ont pas `startPcs`), deux contrôles :
+le tirage sur quarante séances (identité, kind, trois questions, P1 et P2
+multiples de 5 de 5 à 95, produit multiple de 100, global recalculé entier
+de 1 à 99, les trois formes chacune une fois en ordre variable, l'ordre des
+phrases une permutation qui varie, au moins un multiple de 5 impair,
+l'énoncé sans « undefined » ni gabarit, aucun doublon, « Recommencer ») ;
+puis le schéma sur des copies ÉPINGLÉES, les trois exercices de la fiche
+(0,30 et 0,20 ; 0,30 × ? = 0,06 ; ? × 0,50 = 0,15) et 0,25 × ? = 0,10 : le
+donné en `SPAN` avec son texte, le cherché en `MATH-FIELD`, six cases et
+trois phrases dans l'ordre tiré, la copie juste bleue qui vaut le point sur
+les trois formes, « 65 % » (les pourcentages additionnés) qui rougit SEUL
+et reçoit sa correction « 15 » en vert, « 6,5 » refusé pour 6, et en
+soutien deux cases vides qui ne rougissent pas pendant qu'une voisine
+juste reste bleue. **Le premier passage a rougi sur le contrôle
+lui-même**, pas sur la page : il cherchait « Compl » dans la consigne, et la
+deuxième tournure dit « complète » en minuscule au milieu de sa phrase — un
+contrôle qui exige un mot doit l'exiger sans casse. **Le banc navigateur a
+rougi une fois, sur le rappel de cours** : « les fractions des rappels de
+cours s'affichent empilées » ouvre CHAQUE rappel qui porte une formule et
+exige qu'au moins une fraction y soit DESSINÉE — `RAP_PCS` n'écrivait que
+des décimaux entre `\(…\)`, aucune fraction, et le contrôle ne distingue
+pas « pas de fraction » de « fraction non dessinée ». Le rappel dit
+maintenant que × 0,30 est × 30/100, en fraction empilée — ce qui est
+d'ailleurs la bonne façon de le dire à un élève. Les règles universelles
+(taille des cases, case vide, bouton d'aide IA, clavier, couleurs des
+verdicts, énoncé encadré) sont tenues par le banc navigateur sans rien
+déclarer.
