@@ -3000,7 +3000,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=344;
+const APP_VERSION=345;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -19169,9 +19169,25 @@ function derLignes(feuille){
 /* CHAQUE ligne non vide vaut f ′(x) — c'est ce que les préfixes affirment, et
    l'écran le dit. Une ligne fausse est donc une égalité fausse, et elle rougit
    SEULE : la leçon du 6.8, où la structure avait béni une chaîne fausse. */
+/* Une ligne peut porter PLUSIEURS membres : « (0×(5−x) − (−1)×4)/(5−x)² =
+   4/(5−x)² » écrit d'un trait, sans passer par « Entrée ». C'est une chaîne
+   d'égalités comme sur le papier, et chaque membre vaut f ′(x) au même titre
+   qu'une ligne : la ligne est juste si TOUS ses membres le sont. Donnée en
+   bloc à checkExprFn, la ligne entière était refusée — un « = » n'est pas un
+   caractère d'expression — et une dérivée JUSTE rougissait (capture de
+   Turquet, septembre 2026, sur le 6.2.5). Un membre qui ne fait que NOMMER la
+   fonction (« f ′(x) », recopié du préfixe) n'est pas une valeur : il est
+   ignoré, comme un membre vide laissé après un « = ». */
+function derMembres(plain){
+  return String(plain||'').split('=').map(function(t){ return t.trim(); })
+    .filter(function(t){ return t!=='' && !/^f(?:'|\u2032|\^\(\\?prime\))?\(x\)$/.test(t); });
+}
 function derVerdict(feuille, fder){
-  const lg=derLignes(feuille);
-  lg.forEach(function(x){ x.ok=checkExprFn(x.plain, fder); });
+  /* une ligne sans aucun membre (« f ′(x) = » seul) est une ligne VIDE : elle
+     ne rougit pas, elle ne compte pas — rouge veut dire FAUX, jamais « pas fini » */
+  const lg=derLignes(feuille).map(function(x){ x.membres=derMembres(x.plain); return x; })
+    .filter(function(x){ return x.membres.length>0; });
+  lg.forEach(function(x){ x.ok=x.membres.every(function(t){ return checkExprFn(t, fder); }); });
   return { lignes:lg, vide:lg.length===0,
            ok:lg.length>0 && lg.every(function(x){ return x.ok; }) };
 }

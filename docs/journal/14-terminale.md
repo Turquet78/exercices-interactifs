@@ -1585,6 +1585,24 @@ la feuille entière porte le verdict de la RÉPONSE. Ne juger que la dernière
 ligne aurait laissé passer « f ′(x) = 3/(4 − x) = 3/(4 − x)² », c'est-à-dire
 « la structure a béni une chaîne FAUSSE », le signalement du 6.8 retombé tel
 quel.
+**PUIS UNE LIGNE A PORTÉ DEUX MEMBRES, et la dérivée JUSTE a rougi.** Capture
+de Turquet (septembre 2026, 6.2.5) : « (0 × (5 − x) − (−1) × 4)/(5 − x)² =
+4/(5 − x)² » écrit d'un trait dans la première ligne, sans passer par
+« Entrée » — comme sur le papier, où l'on n'ouvre pas une ligne par égalité.
+Le juge recevait la ligne ENTIÈRE, et `compileExprExp` ne connaît pas le
+« = » : il rendait `null`, la ligne rougissait, la feuille avec, et le point
+était perdu sur une réponse exacte. La règle n'a pas changé — chaque membre
+vaut f ′(x) au même titre qu'une ligne —, c'est sa LECTURE qui manquait :
+`derMembres` coupe la ligne sur « = », et la ligne est juste si TOUS ses
+membres le sont (« 3/(4 − x) = 3/(4 − x)² » sur une ligne rougit comme sur
+deux — la leçon du 6.8 tient dans les deux sens). Deux membres ne sont pas
+des valeurs : un « f ′(x) » recopié du préfixe, et le vide laissé après un
+« = » ; ils sont ignorés, et une ligne qui n'a QUE cela est une ligne vide,
+qui ne rougit pas. Le contrôle tient les trois bords (chaîne juste sur une
+ligne, membre faux au milieu, préfixe recopié) et lit la source de
+`derVerdict` ; éprouvé par sabotage (la coupe désactivée : cinq griefs, tous
+nommés). La feuille est partagée avec la synthèse du 6.15 : elle gagne la
+même lecture sans rien déclarer.
 **LA FEUILLE EST UNE RÉPONSE, ET UNE SEULE** (`pts-case`, la classe des trois
 points du tracé) : la note ne peut pas dépendre du NOMBRE de lignes écrites,
 sans quoi l'élève qui détaille son calcul serait noté sur un autre total.
