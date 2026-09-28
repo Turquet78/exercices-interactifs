@@ -389,6 +389,27 @@ body.mode-app{--bas-systeme:48px}
 #testCtrls{margin-bottom:var(--bas-systeme)}
 #paveNum{margin-bottom:var(--bas-systeme)}
 body > .ML__keyboard .MLK__rows{padding-bottom:var(--bas-systeme)}
+/* LA LARGEUR D'UNE TOUCHE SUIT LA RANGÉE LA PLUS LARGE — applyKbLayout pose
+   --kb-unites depuis la disposition qu'elle vient d'installer (kbUnites), et
+   la formule s'y règle : c'est la règle de la Terminale, reprise le jour où le
+   clavier de la Première a reçu une seconde couche (les lettres, douze unités
+   par rangée, pour le 2.3.13). Sans elle, MathLive donne à chaque touche
+   min(62 px, un dixième du clavier) : douze touches de 62 px débordaient d'une
+   tablette debout (768 px). Les deux premiers termes du min sont ceux de
+   MathLive, à l'identique : tant qu'une rangée tient, rien ne change de
+   taille ; seule une rangée trop large rétrécit — TOUTES ses touches, et
+   celles des autres couches avec elle. Le 8px est l'écart par défaut de
+   MathLive entre deux touches (--keycap-gap), écrit en clair pour la même
+   raison qu'en Terminale : une propriété personnalisée se résout là où elle
+   est déclarée. */
+:root{
+  --keycap-auto:calc((100cqw - 8px - (var(--kb-unites,7) - 1) * 8px) / var(--kb-unites,7));
+  --keycap-width:min(62px, 10cqw, var(--keycap-auto));
+}
+/* Les touches de bascule (« clavier A » / « clavier B ») : un libellé de neuf
+   lettres dans une touche que MathLive rembourre de 12 px de chaque côté — deux
+   unités de large, et le rembourrage ramené à 4 px (la leçon de la Terminale). */
+.ML__keyboard .MLK__rows > .MLK__row > .kb-couche{padding-left:4px;padding-right:4px;}
 body.pave-actif #testCtrls{bottom:6px;right:8px}
 body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
@@ -2246,7 +2267,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=263;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=264;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9645,11 +9666,16 @@ function renderSal(){
        <div class="pt-choix" id="salChoix">${choix}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">justifie ta réponse — ${salVoiesTexte(sens,null,!!q.dix)}</div>
        <div class="dexp2-sheet" id="salSheet"></div>
-       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}.${q.dix?' En passant par 10 %, écris « 10 % = … » (la touche <b>%</b> est sur le clavier), puis « … % = … », puis '+(neg?'la soustraction':'l’addition')+' ; pour retrouver un pourcentage, « écart = … » et « '+(neg?'diminution':'augmentation')+' de … % » s’écrivent en mots, la barre d’espace écrit une espace.':' La barre d’espace écrit une espace.'} Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
+       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}.${q.dix?' En passant par 10 %, écris « 10 % = … » (la touche <b>%</b> est sur le clavier), puis « … % = … », puis '+(neg?'la soustraction':'l’addition')+' ; pour retrouver un pourcentage, « écart = … » et « '+(neg?'diminution':'augmentation')+' de … % » s’écrivent en mots, la barre d’espace écrit une espace (sur tablette, la touche <b>espace</b> et les lettres du <b>clavier B</b> sont sur le clavier à l’écran).':' La barre d’espace écrit une espace.'} Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
   /* Les lignes sont INDÉPENDANTES : pas de préfixe « = » qui les enchaîne —
      la voie de l'augmentation demande deux égalités séparées. La feuille naît
      toujours VISIBLE (la leçon de mlFeuille), et reste intouchée. */
-  salFeuille=mlFeuille({ conteneur:'salSheet', mode:'calcul', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
+  /* Le 2.3.13 (q.dix) se rédige en MOTS : sa feuille est en mode
+     « redaction » — la liste blanche des raccourcis (« diminution » ne devient
+     plus « di\minution »), et la classe mf-mots qu'attend le clavier B des
+     lettres (kbLettres). Les trois autres exercices du moteur gardent la
+     feuille de calcul — avec les espaces, que salEspaces pose sur les quatre. */
+  salFeuille=mlFeuille({ conteneur:'salSheet', mode:(q.dix?'redaction':'calcul'), prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
   salEspaces(salFeuille);   /* la barre d'espace écrit une espace — sur les quatre exercices du moteur rédigé */
 }
 /* LA BARRE D'ESPACE ÉCRIT UNE ESPACE dans la feuille rédigée (demande de
@@ -9676,11 +9702,28 @@ function salEspaces(F){
   const ajouter=F.ajouterLigne;
   F.ajouterLigne=function(){ const L=ajouter.apply(F, arguments); poser(L); return L; };
   const sheet=$('salSheet');
-  if(sheet) sheet.addEventListener('keydown', salEspaceSort, true);   /* en capture : les lignes naissent au fil des « Entrée » */
+  if(sheet){
+    sheet.addEventListener('keydown', salEspaceSort, true);   /* en capture : les lignes naissent au fil des « Entrée » */
+    sheet.addEventListener('beforeinput', salEspaceEcranSort, true);   /* la touche « espace » du clavier à l'écran */
+  }
 }
 function salEspaceSort(e){
   if(e.key!==' ' && e.key!=='Spacebar') return;
   if(e.ctrlKey||e.altKey||e.metaKey) return;
+  salEspaceDehors(e);
+}
+/* La touche « espace » du clavier à l'ÉCRAN (clavier A et clavier B du
+   2.3.13) n'émet aucun keydown : MathLive la joue en INSÉRANT mathModeSpace,
+   et prévient par « beforeinput » (insertText, la donnée est « \; »). Dans
+   une fraction, on refuse l'insertion et on sort — la même règle que la barre
+   d'espace physique, par l'autre porte. */
+function salEspaceEcranSort(e){
+  if(e.inputType!=='insertText') return;
+  const mf=e.target;
+  if(!mf || !mf.mathModeSpace || e.data!==mf.mathModeSpace) return;
+  salEspaceDehors(e);
+}
+function salEspaceDehors(e){
   const mf=e.target;
   if(!mf || mf.tagName!=='MATH-FIELD' || mf.readOnly) return;
   let prof=0;
@@ -16880,7 +16923,48 @@ try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0
    d'une fraction / racine / exposant / indice. ∫ en \smallint pour ne pas être rogné. */
 const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="12" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="2" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSuperscript"]};
 const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
-function buildKbTerm(vars, compact, portrait){
+function buildKbTerm(vars, compact, portrait, lettres){
+  /* LE CLAVIER B — les LETTRES (demande de Turquet, septembre 2026 : « en
+     premiere pour l'exercice 2.3.13 sur les tablettes il faudrait un clavier B
+     avec l'alphabet, et la touche espace sur le clavier A et B »). Le 2.3.13
+     se redige en MOTS (« ecart = 180 », « diminution de 30 % ») et la greffe
+     coupe le clavier du SYSTEME sur chaque champ mathematique : sur tablette,
+     ces mots etaient intapables. La couche est AJOUTEE a la forme, qui ne
+     change pas : le clavier A recoit une touche « espace » (a cote de ⏎) et
+     une touche « clavier B » (a cote de ⌫) ; le clavier B porte l'alphabet en
+     AZERTY, é, è, l'apostrophe, « : », l'espace, ⌫, ⏎ et « clavier A » — la
+     disposition meme du clavier C de la Terminale, douze unites par rangee,
+     trois rangees. Les lettres sont des FRAPPES (key), pas des symboles :
+     elles s'ecrivent comme au clavier physique, liste blanche des raccourcis
+     comprise (la feuille du 2.3.13 est en mode redaction). Sans redaction,
+     AUCUNE couche B : elle ne fuit pas sur les exercices de calcul. */
+  const dispo = formeA();
+  if(!lettres || !dispo || !dispo.layers || !dispo.layers.length) return dispo;
+  const A = dispo.layers[0];
+  const estCmd = (k, c) => k && Array.isArray(k.command) && k.command.indexOf(c) >= 0;
+  const espace = {label:"espace",width:2,key:" "};
+  const versB = {label:"clavier B",class:"action kb-couche",width:2,command:["switchKeyboardLayer","prem-lettres"]};
+  const versA = {label:"clavier A",class:"action kb-couche",width:2,command:["switchKeyboardLayer",A.id]};
+  const rows = A.rows || [];
+  const ajouter = (touche, pres) => {
+    let i = rows.findIndex(r => (r || []).some(k => estCmd(k, pres)));
+    if(i < 0) i = rows.length - 1;
+    rows[i] = (rows[i] || []).concat([ touche ]);
+  };
+  ajouter(espace, "commit");          /* l'espace a cote de ⏎ */
+  ajouter(versB, "deleteBackward");   /* « clavier B » a cote de ⌫ */
+  const L = c => ({label:c, key:c});
+  dispo.layers.push({ id: "prem-lettres", rows: [
+    "azertyuiopé".split("").map(L).concat([ {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ]),
+    "qsdfghjklmè".split("").map(L).concat([ {label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]),
+    /* l'apostrophe s'INSERE en texte : frappee, MathLive en fait un PRIME
+       (la lecon du clavier C de la Terminale, vue au banc navigateur) */
+    "wxcvbn".split("").map(L).concat([ {label:"'",insert:"\\text{'}"}, L(":"), espace, versA ])
+  ]});
+  return dispo;
+  /* Le clavier A, dans la forme demandee — la couche des lettres s'y ajoute
+     ci-dessus quand l'eleve redige. */
+  function formeA(){
   /* Clavier adapte aux exercices de calcul : chiffres, virgule, fraction, operations,
      pourcentage (pas de variables f/x, inutiles ici). La touche « = » (demande de
      Turquet, septembre 2026) : sur tablette la greffe coupe le clavier du SYSTEME
@@ -16952,6 +17036,30 @@ function buildKbTerm(vars, compact, portrait){
       ] }
     ]
   };
+  }
+}
+/* La rangee la plus large de la disposition REELLEMENT installee : c'est elle
+   que la largeur des touches suit (--kb-unites, lue par la feuille de styles).
+   Une seule source — la disposition elle-meme — plutot qu'un compte recopie
+   dans le CSS : une rangee plus large que ce que la largeur prevoit se
+   retrecirait SEULE, et l'eleve aurait deux tailles de touches sur le meme
+   ecran (la lecon de la Terminale, reprise telle quelle). */
+function kbUnites(dispo){
+  let m = 0;
+  ((dispo && dispo.layers) || []).forEach(l => (l.rows || []).forEach(r => {
+    const u = (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0);
+    if(u > m) m = u;
+  }));
+  return m || 7;
+}
+/* UN ECRAN OU L'ELEVE REDIGE EN MOTS ajoute le clavier B (les lettres). La page
+   ne tient aucune liste : le clavier suit les CASES — une ligne de feuille de
+   redaction (mlFeuille, mode 'redaction', classe mf-mots) sur l'ecran de
+   l'exercice COURANT. On exige l'exercice courant : sans cela, une feuille
+   restee sur la page rendrait « vrai » pour n'importe quel identifiant. */
+function kbLettres(id){
+  if(!id) return false;
+  try{ return id === currentTestId && !!document.querySelector('.screen.on math-field.mf-mots'); }catch(e){ return false; }
 }
 
 function kbVarsFor(id){
@@ -16984,11 +17092,15 @@ function applyKbLayout(){
   const vk = window.mathVirtualKeyboard; if(!vk) return;
   let id = null; try { id = currentTestId; } catch(e) {}   /* variable globale du script principal */
   const vars = kbVarsFor(id);
-  const compact = kbCompact(), portrait = kbPortraitTablette();
-  const key = JSON.stringify([compact, portrait, vars.map(v => v.insert || v.latex || v.label)]);
+  const compact = kbCompact(), portrait = kbPortraitTablette(), lettres = kbLettres(id);
+  const key = JSON.stringify([compact, portrait, lettres, vars.map(v => v.insert || v.latex || v.label)]);
   if(key === __kbVarsKey) return;   /* déjà appliqué pour ce contexte */
   __kbVarsKey = key;
-  try { vk.layouts = [ buildKbTerm(vars, compact, portrait) ]; } catch(e) {}
+  let dispo = null;
+  try { dispo = buildKbTerm(vars, compact, portrait, lettres); vk.layouts = [ dispo ]; } catch(e) {}
+  /* la largeur des touches suit la rangee la plus large de la disposition qu'on
+     vient d'installer — une source, jamais un compte recopie dans le CSS */
+  try { if(dispo) document.documentElement.style.setProperty('--kb-unites', String(kbUnites(dispo))); } catch(e) {}
 }
 
 const FIELD_FIX_CSS =
