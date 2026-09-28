@@ -3667,6 +3667,7 @@ function exercices(suite){
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     suiteTcmLimite(w, P);
+    suiteAlgoSeuil(w, P);
     recurrenceFractions(w, P);
     suiteVariationRecurrence(w, P);
     suiteVariationDifference(w, P);
@@ -8883,6 +8884,38 @@ function suiteTcmLimite(w, P){
       const c=String(conseilCtxCourant()||'');
       if(!/convergence monotone/i.test(c)) vus.push('le contexte envoyé au modèle ne décrit pas cet exercice');
       if(!/JAMAIS révéler|STRICTEMENT/i.test(c)) vus.push('le contexte part sans clause de secret');
+    }
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {suite-algo-seuil} (6.5.1) : le tableau de valeurs défile jusqu'au rang
+   SAG_NMAX (60), et Turquet exige (septembre 2026) qu'à cette dernière ligne
+   la valeur affichée soit à moins d'un centième de la limite — sinon la
+   dernière ligne qu'on atteint en faisant défiler ne ressemble toujours pas
+   à la limite conjecturée en a). Deux méthodes indépendantes : la formule
+   fermée uₙ − ℓ = aⁿ·(u₀ − ℓ), et la valeur RÉELLEMENT écrite dans la
+   dernière ligne du tableau (q.vals). */
+function suiteAlgoSeuil(w, P){
+  const present = evaluer(w, "typeof sagGenSession==='function' && typeof sagEssai==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('l’algorithme de seuil : la fin du tableau de valeurs frôle la limite',
+      'ce niveau n\'a pas l\'exercice suite-algo-seuil');
+    return;
+  }
+  verifierEval(w, 'l’algorithme de seuil : la fin du tableau de valeurs frôle la limite', `(function(){
+    const vus=[];
+    for(let t=0;t<500 && !vus.length;t++){
+      const qs=sagGenSession();
+      if(qs.length!==2){ vus.push('tirage : '+qs.length+' question(s) au lieu de 2'); break; }
+      qs.forEach(function(q){
+        if(!Array.isArray(q.vals) || q.vals.length!==SAG_NMAX+1){
+          vus.push('le tableau ne compte pas '+(SAG_NMAX+1)+' lignes ('+((q.vals||[]).length)+')'); return; }
+        const finFermee=Math.pow(q.a, SAG_NMAX)*(q.u0-q.l);
+        if(Math.abs(finFermee)>=0.01)
+          vus.push('rang '+SAG_NMAX+' : la formule fermée donne un écart de '+Math.abs(finFermee)+' à la limite, pas moins d’un centième');
+        if(Math.abs(q.vals[SAG_NMAX]-q.l)>=0.01)
+          vus.push('rang '+SAG_NMAX+' : la valeur écrite dans le tableau ('+q.vals[SAG_NMAX]+') est à plus d’un centième de la limite '+q.l);
+      });
     }
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);

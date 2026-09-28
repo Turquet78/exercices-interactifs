@@ -2155,3 +2155,37 @@ Les épingles suivent : {suite-vocabulaire} 6.4.1, {suite-tcm-limite} 6.4.2,
 {suite-synthese-variations} 6.4.3 ; et le contrôle du {recurrence-formule}
 exigeait « juste après {recurrence-encadrement} » — il exige désormais qu'il
 OUVRE la partie « Récurrence et égalité » (6.3.1).
+
+**{suite-algo-seuil} (6.5.1) : LA DERNIÈRE LIGNE DU TABLEAU DOIT RESSEMBLER À
+LA LIMITE.** L'exercice tire une suite arithmético-géométrique Uₙ₊₁ = aUₙ + b
+(0 < a < 1, donc convergente vers ℓ = b/(1−a)), affiche un tableau qui défile
+du rang 0 au rang `SAG_NMAX` (60), et demande de conjecturer ℓ sur ce tableau
+AVANT de programmer l'algorithme de seuil qui la retrouve. Le tirage
+(`sagEssai`) ne contraignait jusque-là que le rang de franchissement du seuil
+— entre 10 et 50 selon la zone (`SAG_ZONES`), pour que la partie b) tombe sur
+un rang lisible. Rien ne contraignait la fin du tableau : demande de Turquet
+(septembre 2026), « il faut qu'à la fin du tableau de valeurs on soit à moins
+d'un centième de la limite ».
+Le défaut ne se voyait pas en lisant le tirage, seulement en le calculant :
+l'écart au rang n suit une géométrique, Uₙ − ℓ = aⁿ·(U₀ − ℓ), et certaines des
+vingt-deux raisons possibles (`SAG_AS`) sont TRÈS proches de 1 — 19/20, 24/25,
+49/50. Pour celles-là, même après 60 pas, a⁶⁰ reste loin de zéro (0,98⁶⁰ ≈
+0,30) : l'écart de départ, jamais inférieur à 2 (`SAG_ECARTS`), ne s'était pas
+résorbé du tout à la dernière ligne visible — l'élève aurait fait défiler le
+tableau jusqu'au bout pour lire une valeur qui ne ressemble toujours pas à la
+limite qu'il vient de conjecturer.
+Le correctif ajoute une SECONDE condition dans la même boucle de tirage
+(`sagEssai`, 300 essais) : une fois le rang de seuil trouvé dans sa zone, on
+calcule l'écart en fermé au rang `SAG_NMAX` — pas besoin d'itérer 60 pas de
+plus, U₀ et a le donnent directement — et on rejette le tirage s'il dépasse un
+centième. Simulé sur 20 000 générations (`sagGenerer` rejoué en Node, hors
+page) : 0 repli atteint, écart maximal mesuré 0,00994 — la borne tient, sans
+jamais tomber sur le filet de secours. Les trois raisons les plus proches de 1
+(19/20, 24/25, 49/50) ne sortent alors plus jamais : leur a⁶⁰ dépasse déjà
+0,01/2 pour le plus petit écart de départ possible ; 9/10 ne sort plus qu'avec
+un écart de départ ≤ 5. Aucune n'a été retirée de `SAG_AS` — la boucle de
+tirage les évite d'elle-même, comme elle évite déjà tout tirage hors zone.
+Le contrôle vit dans `tests/verifier.js` (`suiteAlgoSeuil`) : il rejoue
+`sagGenSession()` et vérifie, par DEUX voies indépendantes — la formule fermée
+aⁿ·(U₀−ℓ), et la valeur RÉELLEMENT écrite dans `q.vals[SAG_NMAX]`, celle que
+l'élève lit — que les deux disent la même chose et restent sous le centième.
