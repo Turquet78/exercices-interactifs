@@ -3000,7 +3000,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=345;
+const APP_VERSION=346;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -19188,6 +19188,11 @@ function derVerdict(feuille, fder){
   const lg=derLignes(feuille).map(function(x){ x.membres=derMembres(x.plain); return x; })
     .filter(function(x){ return x.membres.length>0; });
   lg.forEach(function(x){ x.ok=x.membres.every(function(t){ return checkExprFn(t, fder); }); });
+  /* Une ligne refusée se DIT dans la console (F12), avec ce que la page a lu :
+     le LaTeX brut, sa lecture en clair, ses membres — c'est la seule trace
+     qui permette de comprendre un refus qu'aucun banc ne reproduit (le 6.2.5,
+     septembre 2026 : trois captures, aucun rejeu rouge). Jamais à l'élève. */
+  lg.forEach(function(x){ if(!x.ok){ try{ console.warn('feuille de la dérivée — ligne refusée', { latex:String(x.L.mf.getValue?x.L.mf.getValue():''), lu:x.plain, membres:x.membres, version:APP_VERSION }); }catch(e){} } });
   return { lignes:lg, vide:lg.length===0,
            ok:lg.length>0 && lg.every(function(x){ return x.ok; }) };
 }
