@@ -878,7 +878,10 @@ module.exports = {
        RENDUES — la courbe s'arrête à son domaine — et joue la copie juste
        sur les quatre parties en relisant les couleurs. */
     syntheseFonction: { exercice: 'synthese-fonction' },
-    reglagesDevoirs: { exercice: 'pourcentage' },
+    /* « allonge » : les exercices dont la séance DOIT s'allonger quand le
+       devoir règle plus de questions que le format normal — le 4.1.8 signalé
+       par Turquet (septembre 2026), et le témoin lui-même. */
+    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'] },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {

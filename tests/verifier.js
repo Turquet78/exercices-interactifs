@@ -27537,12 +27537,13 @@ function reglagesDevoirs(w, apres){
   if(!R || !present.ok || !present.valeur){
     ignorer('les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien',
       'ce niveau n\'a pas les réglages par exercice des devoirs');
-    return parcoursNbDevoir(w, apres);
+    return reglageAllonge(w, apres);
   }
   /* Première : l'éditeur passe par saveDM(), qu'on ne peut pas cliquer ici —
      on tient au moins la trace des réglages dans son corps, et les setters
      s'exercent dans l'éval. */
   const srcPage=lire(CIBLE);
+  const allonge = (function(){ const r=evaluer(w, "typeof dmNbQuestions==='function'"); return !!(r.ok&&r.valeur); })();
   if(/async function saveDM\(/.test(srcPage)){
     const corpsSave=(srcPage.split('async function saveDM(')[1]||'').slice(0,1600);
     verifier('saveDM emporte les réglages nbQ et smax',
@@ -27572,7 +27573,7 @@ function reglagesDevoirs(w, apres){
     /* ---- 2. la coupe du nombre de questions, au lancement depuis le devoir ---- */
     mesDevoirs=[{id:'dev-r',num:1,actif:true,titre:'Réglages',cours:'',exercices:[{id:EX,modes:['soutien','train']}]}];
     await lancerDevoirExo('dev-r',EX,'train');
-    const defaut=(test.questions||[]).length;
+    const defaut=(test.questions||[]).length, baremeDefaut=test.maxScore||0;
     if(defaut<3) vus.push('le témoin ne tire que '+defaut+' questions : la coupe n\\'a rien à éprouver');
     mesDevoirs[0].exercices[0].nbQ=2;
     await lancerDevoirExo('dev-r',EX,'train');
@@ -27580,7 +27581,21 @@ function reglagesDevoirs(w, apres){
     if(test.idx!==0) vus.push('après la coupe, la séance ne repart pas de la première question');
     mesDevoirs[0].exercices[0].nbQ=99;
     await lancerDevoirExo('dev-r',EX,'train');
-    if((test.questions||[]).length!==defaut) vus.push('nbQ=99 : une valeur au-delà du format ne retombe pas dessus ('+(test.questions||[]).length+')');
+    if((test.questions||[]).length!==defaut) vus.push('nbQ=99 : une valeur hors de la plage de l\\'éditeur ne retombe pas sur le format normal ('+(test.questions||[]).length+')');
+    /* LE RÉGLAGE ALLONGE AUSSI (signalé par Turquet, septembre 2026 : 5
+       questions cochées pour le 4.1.8 d'une fiche, 3 posées à l'élève) : le
+       démarreur lit le réglage à son tirage, le barème suit, et le bouton
+       « Recommencer » — qui repasse par le démarreur — garde la longueur. */
+    if(${JSON.stringify(!!allonge)}){
+      const plus=defaut+2;
+      mesDevoirs[0].exercices[0].nbQ=plus;
+      await lancerDevoirExo('dev-r',EX,'train');
+      const nq=(test.questions||[]).length;
+      if(nq!==plus) vus.push('nbQ='+plus+' : la séance ne s\\'allonge pas ('+nq+' questions au lieu de '+plus+')');
+      else if(baremeDefaut && (test.maxScore||0)!==Math.round(baremeDefaut*plus/defaut)) vus.push('nbQ='+plus+' : le barème ne suit pas l\\'allongement ('+test.maxScore+' pour '+plus+' questions, '+baremeDefaut+' pour '+defaut+')');
+      restartCurrentTest(); await new Promise(function(r){ setTimeout(r,0); });
+      if((test.questions||[]).length!==plus) vus.push('« Recommencer » depuis le devoir perd le réglage ('+(test.questions||[]).length+' questions au lieu de '+plus+')');
+    }
     /* le réglage ne FUIT pas hors du devoir */
     mesDevoirs[0].exercices[0].nbQ=2; currentDM=null; currentTestId=EX;
     await Promise.resolve(TESTS[EX].start());
@@ -27639,6 +27654,82 @@ function reglagesDevoirs(w, apres){
     const nom='les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
+    reglageAllonge(w, apres);
+  });
+}
+/* LE RÉGLAGE « QUESTIONS » D'UN DEVOIR ALLONGE LA SÉANCE — PARTOUT OÙ LE TIRAGE
+   LE PEUT (signalé par Turquet, septembre 2026 : « pour le 4.1.8 de la fiche
+   7, j'ai coché 5 questions, l'élève n'en a que 3 »). La coupe ne sait que
+   réduire ; c'est le démarreur qui allonge, en lisant le réglage à son tirage
+   par dmNbQuestions(). Deux bords, et n'en tenir qu'un ne tient rien :
+   · STATIQUE — chaque tirage principal « test.questions=distinctes(… » lit
+     dmNbQuestions() (ou test.perLevel, le parcours du 1.6 qui a sa propre
+     logique) : un exercice ajouté demain qui tire par distinctes() sans lire
+     le réglage rougit ici, sans rien avoir à déclarer ;
+   · DYNAMIQUE — CHAQUE exercice est démarré hors devoir, puis depuis un
+     devoir réglé à deux questions de plus : la séance s'allonge exactement de
+     deux (le barème avec elle), ou garde sa forme fixe — jamais autre chose.
+     Les exercices nommés dans le profil (« allonge ») DOIVENT s'allonger : le
+     4.1.8 signalé en est. Ceux qui gardent leur forme sont comptés et nommés :
+     pour eux, la carte du devoir annonce un nombre que la séance ne tient pas,
+     et le dire vaut mieux que de le taire. */
+function reglageAllonge(w, apres){
+  const nom='le réglage « Questions » d\'un devoir allonge la séance partout où le tirage le peut';
+  const R=P.reglagesDevoirs||{};
+  const present = evaluer(w, "typeof dmNbQuestions==='function' && typeof lancerDevoirExo==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau ne sait que raccourcir une séance depuis un devoir');
+    return parcoursNbDevoir(w, apres);
+  }
+  /* le bord statique */
+  const src=lire(CIBLE);
+  const tirages=(src.match(/test\.questions=distinctes\([^,]*,/g)||[]);
+  const sansReglage=tirages.filter(function(t){ return !/distinctes\((dmNbQuestions\(|test\.perLevel,)/.test(t); });
+  verifier('chaque tirage principal par distinctes() lit le réglage « Questions » du devoir',
+    tirages.length>=20 && sansReglage.length===0,
+    tirages.length<20 ? 'seulement '+tirages.length+' tirages trouvés : le contrôle ne lit plus la page'
+                      : sansReglage.length+' tirage(s) ignorent le réglage : '+sansReglage.join(' ; '));
+  const doivent=(R.allonge||[]);
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[], allonges=[], fixes=[], menus=[];
+    const doivent=${JSON.stringify(doivent)};
+    currentEleve={id:'e-allonge',prenom:'Contrôle'}; currentMode='train';
+    for(const id of Object.keys(TESTS)){
+      let nq0=0, ms0=0;
+      try{
+        currentDM=null; currentTestId=id; mesDevoirs=[];
+        const qDavant=test.questions;
+        await Promise.resolve(TESTS[id].start());
+        if(test.questions===qDavant){ menus.push(id); continue; }   /* n'a rien tiré : écran de menu */
+        nq0=(test.questions||[]).length; ms0=test.maxScore||0;
+      }catch(e){ continue; }
+      if(nq0<1 || nq0+2>DM_NBQ_MAX) continue;                /* rien à allonger dans la plage de l'éditeur */
+      const cible=nq0+2;
+      mesDevoirs=[{id:'d-a',num:1,actif:true,titre:'A',cours:'',exercices:[{id:id,modes:['train'],nbQ:cible}]}];
+      try{ await lancerDevoirExo('d-a',id,'train'); }
+      catch(e){ vus.push(id+' : le lancement réglé à '+cible+' lève ('+e.message+')'); continue; }
+      const nq1=(test.questions||[]).length, ms1=test.maxScore||0;
+      if(nq1===nq0){ fixes.push(id); if(doivent.indexOf(id)>=0) vus.push(id+' : réglé à '+cible+' questions, la séance en garde '+nq0); continue; }
+      if(nq1!==cible){ vus.push(id+' : '+nq1+' question(s) au lieu des '+cible+' réglées'); continue; }
+      allonges.push(id);
+      if(ms0 && ms1<=ms0) vus.push(id+' : la séance passe de '+nq0+' à '+nq1+' questions, mais le barème reste '+ms1+' — une copie parfaite dépasserait 100 %');
+    }
+    doivent.forEach(function(id){ if(allonges.indexOf(id)<0 && fixes.indexOf(id)<0 && vus.every(function(v){ return v.indexOf(id+' : ')!==0; })) vus.push(id+' : le témoin n\\'a pas été mesuré (inconnu, écran de menu, ou hors plage)'); });
+    if(allonges.length<10) vus.push('seulement '+allonges.length+' exercice(s) s\\'allongent : le contrôle ne mesure plus la page');
+    window.__allonge={allonges:allonges, fixes:fixes, menus:menus};
+    currentDM=null; mesDevoirs=[];
+    return vus.slice(0,5).join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else {
+      verifier(nom, r.valeur==='', r.valeur);
+      const bilan=evaluer(w, 'JSON.stringify(window.__allonge||null)');
+      try{ const b=JSON.parse(bilan.valeur||'null');
+        if(b) console.log('     ' + b.allonges.length + ' exercices s\'allongent ; ' + b.fixes.length + ' gardent leur format normal — leur tirage ne lit pas le réglage, la coupe seule agit : ' + b.fixes.join(', '));
+      }catch(e){}
+    }
     parcoursNbDevoir(w, apres);
   });
 }
