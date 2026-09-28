@@ -975,6 +975,47 @@ rf-s1, puis relit le LaTeX et le juge. Sept sabotages, chacun rougissant en
 nommant son défaut — dont l'écouteur DÉBRANCHÉ, la fonction restée juste :
 jsdom vert à bon droit, seul le navigateur voit le branchement.
 
+**Puis DEUX gestionnaires se sont partagé la touche morte, et l'un a empilé
+son exposant dans l'autre** (signalé par Turquet, septembre 2026, sur le 2.5 :
+« il met la case en rouge alors qu'elle est bonne » — la case « u = e^x »,
+capture à l'appui : un x minuscule, perché, une case rouge). Un vrai clavier
+AZERTY ne livre pas QUE du texte composé : la touche morte fait D'ABORD un
+`keydown` avec `key="Dead"` (`code="BracketLeft"`), et le champ lui-même —
+`configureField`, dans le module MathLive — le transforme en exposant
+(`insert('#@^{#?}')`, le curseur tombe dedans) depuis bien avant le 6.6 ;
+puis, au caractère SUIVANT, le texte composé « ^x » (ou « ˆx » sur Mac, ou
+« ^ » seul puis la lettre) arrive au `beforeinput`, et c'est `chapeauMorte`
+qui le voit, en capture sur le document, AVANT le gestionnaire du champ qui
+savait déjà ôter ce résidu. `chapeauMorte` ouvrait alors un SECOND exposant —
+dans le premier, encore vide : `e^{^{x}}`, que `toPlain` lit `e^(^(x))` et
+que `compileExprExp` refuse. Depuis le 26 septembre, tout exposant tapé à la
+touche morte en Terminale rougissait — dérivées, suites, récurrences. Le banc
+navigateur ne l'a pas vu parce qu'il ne jouait que le TEXTE
+(`keyboard.insertText('^')`), jamais le `keydown` qui le précède : il
+n'éprouvait que `chapeauMorte` seul, qui, seul, est juste. Rejoué en
+Chromium avec le geste entier (le `keydown` dispatché comme le fait le
+navigateur, puis le texte), dans ses trois découpages : les trois donnaient
+`e^{^{x}}`, juge faux ; sans le `keydown`, `e^{x}`, juge vrai — la signature
+exacte du défaut.
+Le correctif fait PARLER le champ : quand son `keydown` ouvre l'exposant, il
+pose `_chapeauOuvert` (un instant) ; `chapeauMorte`, s'il trouve ce drapeau
+récent (moins de deux secondes), n'insère QUE le texte, dans l'exposant déjà
+ouvert, et l'éteint. Le premier texte tapé dans le champ l'éteint aussi
+(gestionnaire `beforeinput` du champ) : un « ^ » tapé APRÈS avoir écrit
+« n » est un nouveau geste, et `2^{n^{2}}` reste possible — le garde ne vaut
+que pour l'exposant VIDE. Et le `keydown` lui-même refuse d'ouvrir un second
+exposant tant que le premier est récent et vide : certains navigateurs
+relivrent le « ^ » en résolvant la touche morte (`key="^"` sur la frappe
+suivante, comme le faisait déjà la barre d'espace). Le banc navigateur joue
+désormais le geste ENTIER sur `rf-s1` — Windows, Mac, chapeau seul —, exige
+UN exposant et le juge au vert, vérifie le second étage `n^{2}`, puis ouvre
+le 2.5 avec la question de la capture et tape « u = e^x » à la touche morte :
+`e^{x}`, juge vrai. Le banc jsdom éprouve le drapeau sur le champ factice :
+récent, le texte seul s'insère et le drapeau s'éteint ; périmé, l'exposant
+s'ouvre comme avant. Éprouvé par sabotage : `chapeauMorte` rendu aveugle au
+drapeau — le jsdom et le navigateur rougissent en nommant l'exposant empilé.
+APP_VERSION 349.
+
 **Rédiger une récurrence, c'est l'écrire EN ENTIER — et deux juges s'en
 partagent la lecture.** {recurrence-redaction} (Terminale, 6.7, demande de
 Turquet, septembre 2026) : « des énoncés comme le 6.5, mais la rédaction

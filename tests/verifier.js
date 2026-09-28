@@ -11030,6 +11030,21 @@ function recurrenceFormule(w, P){
         vus.push('le gestionnaire touche un champ qui n\\'est pas un math-field');
       if(essai('n').intercepte)
         vus.push('le gestionnaire intercepte du texte sans chapeau');
+      /* l'exposant DÉJÀ ouvert par le champ (keydown « Dead », _chapeauOuvert
+         récent) : le texte seul s'insère dedans, et le drapeau s'éteint —
+         sinon e^{^{x}}, la case juste du 2.5 rougie (Turquet, septembre 2026) */
+      const essaiOuvert=function(data, age){
+        const inserts=[]; const t={ tagName:'MATH-FIELD', readOnly:false, insert:function(s){ inserts.push(s); }, _chapeauOuvert:Date.now()-age };
+        chapeauMorte({ target:t, inputType:'insertText', data:data, preventDefault:function(){}, stopImmediatePropagation:function(){} });
+        return { inserts:inserts, drapeau:t._chapeauOuvert };
+      };
+      const eO=essaiOuvert('^n', 50);
+      if(eO.inserts.join('|')!=='n') vus.push('un exposant déjà ouvert par la touche morte est ouvert une seconde fois : '+JSON.stringify(eO.inserts));
+      if(eO.drapeau) vus.push('le drapeau _chapeauOuvert ne s\\'éteint pas une fois le texte inséré');
+      const eOM=essaiOuvert('ˆn', 50);
+      if(eOM.inserts.join('|')!=='n') vus.push('le chapeau Mac dans un exposant déjà ouvert rouvre un exposant : '+JSON.stringify(eOM.inserts));
+      const eP=essaiOuvert('^n', 5000);
+      if(eP.inserts.join('|')!=='^{#?}|n') vus.push('un drapeau périmé (plus de deux secondes) empêche encore l\\'exposant : '+JSON.stringify(eP.inserts));
     }
 
     /* ---- 11. le badge de correction écrit l'exposant RENDU, jamais

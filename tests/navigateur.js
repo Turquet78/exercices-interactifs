@@ -5127,9 +5127,86 @@ async function parcours(page, N){
       verifier('la frappe directe ^ reste intacte : un seul exposant, le juge dit vrai',
         /\^\{n\}/.test(directe.latex) && directe.juge && directe.latex.indexOf('^{^') < 0,
         'lu : ' + JSON.stringify(directe.latex) + ' (juge ' + directe.juge + ')');
+      /* LE GESTE ENTIER. Un vrai clavier ne livre pas que du texte : la touche
+         morte fait D'ABORD un keydown key="Dead" (code BracketLeft), que le
+         champ lui-même (module MathLive) transforme en exposant ; le texte
+         composé (« ^n », « ˆn », ou « ^ » seul puis « n ») n'arrive QU'APRÈS,
+         et chapeauMorte le voit. Joués l'un après l'autre, les deux
+         gestionnaires empilaient un exposant dans l'autre — e^{^{x}}, un x
+         minuscule, perché, et la case JUSTE du 2.5 rougie (signalé par
+         Turquet, septembre 2026). Le banc ne tapait que le texte : il ne
+         pouvait pas le voir. On dispatche donc le keydown comme le fait le
+         navigateur, PUIS le texte, dans ses trois découpages. */
+      const morte = mf => s.page.evaluate(id => {
+        const el = document.getElementById(id);
+        el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Dead', code: 'BracketLeft', bubbles: true, cancelable: true }));
+      }, mf);
+      const entierW = await taperRF(async () => {
+        await s.page.keyboard.type('2-0,5');
+        await morte('rf-s1'); await s.page.waitForTimeout(60);
+        await s.page.keyboard.insertText('^n');          /* Windows : le texte composé d'un bloc */
+      });
+      const entierM = await taperRF(async () => {
+        await s.page.keyboard.type('2-0,5');
+        await morte('rf-s1'); await s.page.waitForTimeout(60);
+        await s.page.keyboard.insertText('ˆn');          /* Mac : le chapeau U+02C6 et la lettre */
+      });
+      const entierS = await taperRF(async () => {
+        await s.page.keyboard.type('2-0,5');
+        await morte('rf-s1'); await s.page.waitForTimeout(60);
+        await s.page.keyboard.insertText('^');           /* le chapeau seul, puis la lettre frappée */
+        await s.page.keyboard.press('n');
+      });
+      const unSeul = r => /\^\{n\}/.test(r.latex) && r.latex.indexOf('^{^') < 0 && r.latex.indexOf('^{}') < 0 && r.juge;
+      verifier('le geste entier (keydown « Dead » puis le texte composé) n’écrit qu’UN exposant, dans ses trois découpages',
+        unSeul(entierW) && unSeul(entierM) && unSeul(entierS),
+        'Windows : ' + JSON.stringify(entierW.latex) + ' (juge ' + entierW.juge + '), '
+          + 'Mac : ' + JSON.stringify(entierM.latex) + ' (juge ' + entierM.juge + '), '
+          + 'chapeau seul : ' + JSON.stringify(entierS.latex) + ' (juge ' + entierS.juge + ')');
+      /* Et un « ^ » tapé APRÈS avoir écrit dans l'exposant est un nouveau geste :
+         2^{n^{2}} reste possible — le garde ne vaut que pour l'exposant VIDE. */
+      const deuxEtages = await taperRF(async () => {
+        await s.page.keyboard.type('2-0,5');
+        await morte('rf-s1'); await s.page.waitForTimeout(60);
+        await s.page.keyboard.insertText('^n');
+        await morte('rf-s1'); await s.page.waitForTimeout(60);
+        await s.page.keyboard.insertText('^2');
+      });
+      verifier('un second « ^ » après du texte ouvre bien un second étage (n^2)',
+        /\^\{n\^\{?2\}?\}/.test(deuxEtages.latex), 'lu : ' + JSON.stringify(deuxEtages.latex));   /* MathLive écrit n^2 sans accolades quand l'exposant tient en un caractère */
       verifier('la touche morte ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
+
+      /* Le 2.5 lui-même — la case où le défaut a été VU : « u = e^x », tapé
+         avec la touche morte, doit rester juste. */
+      if(P.chapeauMorte.quotient){
+        s = await ouvrir(chromium, ml, {});
+        await connecter(s.page);
+        await s.page.evaluate(id => openTest(id), P.chapeauMorte.quotient);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        await s.page.evaluate(() => {   /* la question de la capture : f(x) = e^x / (x − 3) */
+          test.questions[test.idx] = { type: 'dexpq', a: 1, b: -3, k: 1, vStr: 'x − 3', dvTxt: '1', uTxt: 'e^x', duTxt: 'e^x', numCoef: [-4, 1], facAns: 'x − 4', expHtml: 'x' };
+          renderDexpQ2();
+        });
+        await s.page.waitForTimeout(500);
+        await s.page.evaluate(() => { const el = document.getElementById('dq-u'); el.setValue(''); el.focus(); });
+        await s.page.waitForTimeout(200);
+        await s.page.keyboard.type('e');
+        await s.page.waitForTimeout(100);
+        await morte('dq-u'); await s.page.waitForTimeout(60);
+        await s.page.keyboard.insertText('^x');
+        await s.page.waitForTimeout(250);
+        const u = await s.page.evaluate(() => ({ latex: document.getElementById('dq-u').getValue(),
+                                                 lu: dexpCellValue('dq-u'), juge: dqVerdicts().verdicts['dq-u'] }));
+        verifier('2.5 : « u = e^x » tapé avec la touche morte se lit e^(x) et le juge dit vrai',
+          u.latex === 'e^{x}' && u.juge, 'lu : ' + JSON.stringify(u));
+        verifier('2.5 : la touche morte ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+        await s.nav.close(); s = null;
+      }
     }
 
     /* ===== 6 vicies bis. {recurrence-fractions} : des fractions IMBRIQUÉES à cases ===== */
