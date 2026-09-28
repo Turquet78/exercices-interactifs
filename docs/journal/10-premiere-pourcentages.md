@@ -2658,3 +2658,131 @@ d'ailleurs la bonne façon de le dire à un élève. Les règles universelles
 (taille des cases, case vide, bouton d'aide IA, clavier, couleurs des
 verdicts, énoncé encadré) sont tenues par le banc navigateur sans rien
 déclarer.
+## {evolutions-successives} — le schéma de la fiche porté en Première, et le mot de la conclusion écrit par l'élève (Première, septembre 2026)
+
+**D'où il vient.** Demande de Turquet, septembre 2026 : « en première créer
+un exercice comme le pdf, avec deux évolutions successives, où chacune peut
+être une augmentation ou une diminution. Chaque pourcentage peut être un
+multiple de 10 %. Le résultat doit être un pourcentage entier. Le clavier
+doit être pour les tablettes comme celui de l'exercice 2.3.13. » Le PDF est
+celui de la Seconde (« *Un commerçant augmente un prix de 20 % puis de 30 %.
+Déterminer le pourcentage d'évolution global.* », le schéma à trois boîtes,
+voir {evolutions-successives} plus haut) : l'exercice est donc PORTÉ de la
+Seconde, kind « evs », même identifiant — les deux niveaux n'ont pas la même
+table de résultats, et la Seconde a déjà pris ce chemin pour tout le thème.
+Il arrive en **2.5.4**, au bout de la synthèse, comme le 4.5.5 de la
+Seconde : il couvre les deux sens, il ne relève ni des hausses (2.2) ni des
+baisses (2.3), et il vient après {reconnaitre-coefficient} sans déplacer
+personne.
+
+**Ce qui est REPRIS tel quel, et ce qui change — deux différences voulues.**
+Le schéma est celui de la Seconde au pixel — trois boîtes sans case, deux
+flèches à deux étages (« × (1 ± …) », « ↑ −1 », « × … »), la grande flèche
+du coefficient global et sa multiplication à trois cases, le « ± » de la
+parenthèse globale LU sur le coefficient global à chaque frappe (`evsSigneMAJ`
+sur l'événement `input`, jamais rangé dans la question) — et la feuille de
+styles des boîtes et des flèches (`.pctb-*`, `.pctc-*`, `.evb-rev-arrow`)
+entre dans la Première avec lui, chaque taille de case et de signe portant
+le facteur `--tab-nb` que le banc exige de toute règle de case (le 11 septies
+et son contrôle jsdom : une règle `math-field.pm-mf` sans le facteur
+rougit). Les tournures (`EVS_ENONCES`) sont celles de la Seconde, réécrites
+en FONCTIONS pour `variante()` — la Première n'a pas l'objet `{f, si, poids}`
+de la Seconde, sa table de variantes est une liste de fonctions dont la
+condition et le poids se posent DESSUS (`Object.assign(fn, {si, poids})`),
+comme `poids()` et `siEuros()` le font pour les autres exercices du fichier.
+Les mises en situation sont `BS_CTX`, celles de {hausses-successives} et
+{baisses-successives}. Ce qui change :
+
+* **Les pourcentages sont des multiples de 10** (`EVS_PCTS`, de 10 à 90),
+  et non les multiples de 5 de la Seconde. Le produit de deux multiples de 10
+  est toujours un multiple de 100, donc le global est TOUJOURS entier —
+  ±P1 ± P2 ± P1·P2/100 — sans qu'il faille construire une liste de paires :
+  le tirage prend P1 et P2 librement, et n'écarte que le global nul (aucune
+  paire de multiples de 10 ne le donne, mais la garde reste, et le contrôle
+  l'exige) et ce qui atteint 100 % (+50 % puis +50 % ferait +125 %). Une
+  séance pose les TROIS formes en ordre mélangé, par `distinctes(EVOL_NB, …)`
+  — la Première n'a pas `dmNbQuestions()`, sa coupe passe par
+  `dmAppliquerNbQ()` après le démarrage, comme pour ses voisins.
+* **Le MOT de la conclusion est ÉCRIT par l'élève.** En Seconde, la page
+  écrit « augmentation » ou « diminution » elle-même, lu sur le coefficient
+  global. Ici la phrase de conclusion porte une CASE DE RÉDACTION
+  (`#evsMot`, classe `mf-mots`, liste blanche `_motsFR` posée AVANT la greffe
+  qui monte la case — c'est `configureField` qui la lit) : « … subit
+  globalement une [ … ] de [ … ] % ». C'est ce qui donne son sens à la
+  demande sur le clavier : le clavier B des lettres du 2.3.13 ne vient que
+  là où un champ `mf-mots` est sur l'écran de l'exercice courant
+  (`kbLettres`, aucune liste) — sans un mot à écrire, il n'aurait rien à
+  faire sur ce schéma. Le juge (`evsMotOk`) normalise ce que MathLive rend
+  (minuscules, sans accent, lettres seules : « \; » pour l'espace du clavier
+  à l'écran, « \text{'} » pour l'apostrophe, les commandes sans leurs
+  lettres) et accepte « augmentation » ou « hausse » pour une hausse,
+  « diminution » ou « baisse » pour une baisse. Le mot se juge comme une
+  case : bleu s'il est juste, rouge s'il est faux, rien s'il est vide ; en
+  entraînement, la case vide reçoit le bon mot en VERT (`.sol`), la case
+  fausse sa correction en `mf-cor` à côté — par `corTrainDec`, qui ne sait
+  pas qu'il écrit un mot et n'a pas à le savoir. Le « ± » de la parenthèse,
+  lui, se lit toujours sur le coefficient ; un coefficient du mauvais côté
+  de 1 rougit sa case, et le bon signe se montre en vert.
+
+**Les quinze branchements, et deux à nommer.** `TESTS`, `THEMES` (2.5.4),
+l'écran `scr-evs` avec sa réserve du bas d'emblée (deux rangées de flèches
+et une conclusion : le 4.1.9 avait rougi sur ce bord avec deux rangées),
+`testScreens`, `liveCheckCurrent()`, `restartCurrentTest()`,
+`afficherEcranDe()` (reprise et rejeu), la liste des rendus enveloppés
+(`renderEvsTest`, sans quoi ni les jetons ni le bouton d'aide IA), `RAPPELS_ID`
+(`RAP_EVS`, réécrit avec les voisins de la Première : {augmenter-pourcentage},
+{diminuer-pourcentage}, {hausses-successives}, {baisses-successives},
+{lire-coefficient} — les références de la Seconde, {synthese-evolutions} et
+{pourcentage-chaine}, n'existent pas ici et seraient restées entre
+accolades), `QIA_SUGG['evs']`, une branche `k==='evs'` dans
+`conseilCtxCourant()` (la Seconde retombe sur `ctxVisible()` ; ici la
+chaîne entière part au modèle, avec le mot attendu), `details.test`, et
+l'énoncé en `.mp-instr`. Un détail de reprise : `restoreBoxes` remet les
+saisies APRÈS le rendu, et le « ± » ne se relisait qu'à la frappe suivante —
+`renderEvsTest` relit le signe une fois de plus, 200 ms après.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `evolutionsSuccessives`,
+absent-déclaré en Terminale) : UN contrôle pour les DEUX niveaux, et c'est le
+profil qui dit lequel (`evolutionsSuccessives: { multiplesDe, mot }` dans
+`tests/profils.js` — 5 et « lu » en Seconde, 10 et « ecrit » en Première ;
+deux sources, la page a `EVS_PCTS`). Le tirage sur trente séances (identité,
+kind, trois questions, P1 et P2 multiples de ce que le profil déclare, le
+global recalculé — entier, non nul, sous 100 —, les trois formes en ordre
+variable, aucun doublon, « Recommencer ») ; puis le schéma sur les copies
+ÉPINGLÉES de la Seconde (+20 % puis +30 % → +56 % ; +20 % puis −30 % →
+−16 %), où le mot se POSE comme une case quand le profil dit « ecrit » et se
+LIT quand il dit « lu » ; et, pour la Première seule : la case du mot est un
+`MATH-FIELD` qui porte `mf-mots` ET `_motsFR`, naît vide, et `kbLettres`
+reconnaît l'écran ; « Hausse » accepté, « diminution\; » (l'espace du
+clavier à l'écran) accepté, « baisse » accepté pour une baisse et rouge sur
+deux hausses — le pourcentage juste d'à côté restant bleu —, le mot vide qui
+ne vaut pas le point et reçoit « diminution » en vert, la correction
+« diminution » en `mf-cor` à côté d'un « augmentation » faux, et en soutien
+la case du mot vide qui ne rougit pas. **Éprouvé par deux sabotages** avant
+la première fusion : le juge du mot qui accepte tout (« la copie juste ne
+vaut pas le point » — parce que la copie POSE le mot et que le juge saboté
+retournait vrai pour tout, y compris le mot faux qui aurait dû rougir —,
+« le mot ne rougit pas », « la correction ne s'écrit pas ») et la classe
+`mf-mots` retirée (« la case du mot ne porte pas la classe mf-mots : le
+clavier B des lettres ne viendrait jamais sur tablette »).
+
+**Et le NAVIGATEUR tape le mot sur une vraie tablette** (« 11 undecies »,
+`tests/navigateur.js`, déclaré non applicable là où le profil ne dit pas
+« ecrit ») : tablette tactile debout (820 px), l'exercice ouvert en
+entraînement, la case du mot touchée, le clavier à l'écran stable, « clavier
+B » cliqué — les chiffres partis, la touche « a » là —, « hausse » tapé
+touche par touche et relu par le chemin du juge (`toPlain`) ; puis la copie
+complétée dans la page et VÉRIFIÉE : « hausse » bleu, le point donné ;
+« clavier A » ramène les chiffres avec « clavier B » et « espace » ; et une
+case à NOMBRES du même écran (`#evsP1`) porte elle aussi « clavier B » sur
+son clavier A — le clavier suit l'écran, pas la case. Les règles
+universelles (taille des cases, case vide, bouton d'aide IA, clavier
+atteignable, couleurs des verdicts, énoncé encadré, aucune référence
+{identifiant} affichée) sont tenues par la visite qui ouvre chaque exercice,
+sans rien déclarer. L'exercice n'est PAS ajouté aux témoins
+`clavierEcran.lettres.exercices` du profil : ce contrôle-là exige que TOUTES
+les cases de l'écran soient des lignes de rédaction (c'est la feuille du
+2.3.13 qu'il décrit), et ce schéma a neuf cases à nombres pour un mot.
+
+Ce qu'aucun banc ne voit : une vraie tablette, avec son clavier système que
+la greffe coupe — le banc mesure un Chromium tactile de 820 px, pas un iPad.

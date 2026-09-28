@@ -12948,6 +12948,122 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11 undecies. Sur le schéma des évolutions successives, le mot s'écrit au clavier B ----
+       Demande de Turquet (septembre 2026) sur le 2.5.4 de la Première : « le
+       clavier doit être pour les tablettes comme celui de l'exercice 2.3.13 ».
+       La page ne tient aucune liste : le clavier B des lettres vient dès
+       qu'une case de rédaction (mf-mots) est sur l'écran — ici la case du MOT
+       de la conclusion. jsdom sait que la case porte la classe ; seul un
+       navigateur sait si la couche se REND sur cet écran-là, sur une tablette,
+       et si les lettres cliquées ÉCRIVENT dans la case. Tablette tactile
+       debout : on ouvre l'exercice, on touche la case du mot, on clique
+       « clavier B », on TAPE « hausse » touche par touche et on relit la case
+       par le chemin du juge (toPlain) ; « clavier A » ramène les chiffres ;
+       puis on touche une case à NOMBRES du même écran, et « clavier B » y est
+       aussi — le clavier suit l'écran, pas la case. */
+    titre('11 undecies. LE SCHÉMA DES ÉVOLUTIONS SUCCESSIVES : LE MOT S\'ÉCRIT AU CLAVIER B');
+    if(!(P.evolutionsSuccessives && P.evolutionsSuccessives.mot === 'ecrit' && P.clavierEcran && P.clavierEcran.lettres)){
+      ignorer('sur le schéma des évolutions successives, le mot s\'écrit au clavier B', 'ce fichier ne fait pas écrire le mot de la conclusion par l\'élève');
+    } else {
+      const KL = P.clavierEcran.lettres;
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('sur le schéma des évolutions successives, le mot s\'écrit au clavier B', 'connexion impossible');
+      } else {
+        await s.page.evaluate(() => openTest('evolutions-successives'));
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(900);
+        const champ = '.screen.on math-field#evsMot.mf-mots';
+        const aChamp = await s.page.evaluate(q => !!document.querySelector(q), champ);
+        const stable = async () => s.page.evaluate(async () => {
+          const sig = () => { const kb = document.querySelector('body > .ML__keyboard'); if(!kb) return '';
+            return [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')].map(el => el.textContent.trim()).join('|'); };
+          const t0 = Date.now(); let a = sig();
+          while(Date.now() - t0 < 6000){ await new Promise(r => setTimeout(r, 250)); const b = sig(); if(b && b === a) return; a = b; }
+        });
+        const montrer = async (sel) => {
+          await s.page.click(sel); await s.page.waitForTimeout(700);
+          await s.page.evaluate(() => { const vk = window.mathVirtualKeyboard; if(vk && !vk.visible) vk.show(); });
+          await stable();
+        };
+        const touche = async t => s.page.evaluate(t => {
+          const kb = document.querySelector('body > .ML__keyboard'); if(!kb) return null;
+          const c = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
+            .find(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2 && el.textContent.trim() === t; });
+          if(!c) return null; const q = c.getBoundingClientRect();
+          return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2) };
+        }, t);
+        if(aChamp) await montrer(champ);
+        const versB = aChamp ? await touche(KL.versC) : null;
+        let lu = null, surB = null;
+        if(versB){
+          await s.page.mouse.click(versB.x, versB.y); await s.page.waitForTimeout(400);
+          surB = { a: !!(await touche('a')), cinq: !!(await touche('5')) };
+          for(const t of ['h', 'a', 'u', 's', 's', 'e']){
+            const k = await touche(t); if(!k){ lu = 'touche « ' + t + ' » introuvable'; break; }
+            await s.page.mouse.click(k.x, k.y); await s.page.waitForTimeout(120);
+          }
+          if(lu === null) lu = await s.page.evaluate(q => { const mf = document.querySelector(q);
+            try{ return window.mlDexp.toPlain(mf.getValue()); }catch(e){ return 'illisible : ' + e.message; } }, champ);
+        }
+        verifier('sur la case du mot, « ' + KL.versC + ' » mène aux lettres, et « hausse » s\'y écrit',
+          !!surB && surB.a && !surB.cinq && String(lu).replace(/\s+/g, '') === 'hausse',
+          !aChamp ? 'aucune case de rédaction (math-field#evsMot.mf-mots) sur l\'écran'
+            : !versB ? 'aucune touche « ' + KL.versC + ' » sur le clavier rendu'
+            : surB.cinq ? 'les chiffres sont toujours là : la couche n\'a pas changé'
+            : !surB.a ? 'la touche « a » manque sur le clavier B'
+            : 'la case se relit « ' + lu + ' »');
+        /* le mot tapé est JUGÉ : « hausse » vaut « augmentation » sur deux hausses */
+        const juge = await s.page.evaluate(() => {
+          try{
+            const q = test.questions[test.idx];
+            if(!(q.s1 > 0 && q.s2 > 0)){ q.s1 = 1; q.s2 = 1; q.P1 = 20; q.P2 = 30; q.c1 = 120; q.c2 = 130; q.G = 56; }
+            const setv = (id, v) => { const e = document.getElementById(id); e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); };
+            const d1 = String(q.P1 / 100).replace('.', ','), d2 = String(q.P2 / 100).replace('.', ','), k1 = String(q.c1 / 100).replace('.', ','), k2 = String(q.c2 / 100).replace('.', ',');
+            const kg = String(q.c1 * q.c2 / 10000).replace('.', ','), dg = String(Math.abs(q.G) / 100).replace('.', ',');
+            setv('evsP1', d1); setv('evsC1', k1); setv('evsP2', d2); setv('evsC2', k2);
+            setv('evsG1', k1); setv('evsG2', k2); setv('evsG', kg); setv('evsGP', dg); setv('evsT', String(Math.abs(q.G)));
+            checkEvsAnswer();
+            return { mot: document.getElementById('evsMot').className, score: test.score };
+          }catch(e){ return { erreur: e.message }; }
+        });
+        verifier('le mot tapé au clavier B est jugé : « hausse » est bleu et la copie vaut le point',
+          !!juge && !juge.erreur && /\bok\b/.test(juge.mot) && juge.score === 1,
+          !juge ? 'mesure impossible' : juge.erreur ? juge.erreur : 'case du mot « ' + juge.mot + ' », score ' + juge.score);
+        /* « clavier A » ramène les chiffres ; et sur une case à NOMBRES du même
+           écran, « clavier B » est là aussi — le clavier suit l'écran */
+        const versA = await touche(KL.versA);
+        if(versA){ await s.page.mouse.click(versA.x, versA.y); await s.page.waitForTimeout(400); }
+        const surA = versA ? { cinq: !!(await touche('5')), versB: !!(await touche(KL.versC)), espace: !KL.espace || !!(await touche(KL.espace)) } : null;
+        verifier('« ' + KL.versA + ' » ramène les chiffres, avec « ' + KL.versC + ' »' + (KL.espace ? ' et « ' + KL.espace + ' »' : ''),
+          !!surA && surA.cinq && surA.versB && surA.espace,
+          !versA ? 'aucune touche « ' + KL.versA + ' » sur la couche des lettres' : 'sur le clavier A : ' + JSON.stringify(surA));
+        await s.page.evaluate(() => { try{ window.mathVirtualKeyboard.hide(); }catch(e){} });
+        await s.page.evaluate(() => { openTest('evolutions-successives'); });
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(900);
+        const aNombre = await s.page.evaluate(() => !!document.querySelector('.screen.on math-field#evsP1'));
+        if(aNombre) await montrer('.screen.on math-field#evsP1');
+        const surNombre = aNombre ? { versB: !!(await touche(KL.versC)), cinq: !!(await touche('5')) } : null;
+        verifier('sur une case à nombres du même écran, le clavier A porte aussi « ' + KL.versC + ' »',
+          !!surNombre && surNombre.versB && surNombre.cinq,
+          !aNombre ? 'la case evsP1 manque' : 'sur le clavier rendu : ' + JSON.stringify(surNombre));
+        verifier('le schéma des évolutions successives ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ---- 11 quinquies. Sur une tablette en PAYSAGE, le clavier mathématique tient sur deux rangées, et ⏎ valide ----
        Signalé et demandé par Turquet (septembre 2026) sur le 2.2.10 : « la touche
        valider ne fonctionne pas et ne permet pas de passer à la ligne », et
