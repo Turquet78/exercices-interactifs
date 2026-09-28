@@ -2157,3 +2157,34 @@ bonne proposition vaut le point sans retaper le calcul). Les règles
 universelles (taille des cases, case vide, bouton d'aide IA, clavier) sont
 tenues par le banc navigateur sans rien déclarer : l'écran est celui du
 2.2.9.
+
+## {synthese-diminutions-dix} — le miroir sur les baisses (Première, septembre 2026)
+
+**D'où ça vient.** Le jour même du 2.2.13 : « fais pareil pour les
+diminutions (2.3.8, avec le 2.3.10 et le 2.3.11) ». L'exercice arrive en fin
+de sous-thème, {synthese-diminutions-dix} (2.3.12) : la synthèse des baisses
+du 2.3.8, avec le même troisième bouton « En passant par 10 % ».
+
+**Rien de neuf dans le moteur, seulement le SENS.** Le tirage passe par
+`genSyn('dim', inc, {dix:true})` — la porte `dix` était déjà indépendante du
+sens, seuls ses commentaires nommaient les hausses. Le rendu et le juge de la
+méthode des 10 % lisent `q.sens` là où le 2.3.10 et le 2.3.11 diffèrent de
+leurs jumeaux : « donc : la baisse de P % de N est ▢ », « la valeur diminuée
+est ▢ − ▢ = ▢ » (une soustraction s'écrit dans l'ordre, départ puis baisse —
+la règle de la méthode directe, reprise telle quelle : pas de termes
+inversés acceptés, pas de correction inversée), la soustraction posée en
+pose facultative ; pour le pourcentage, l'écart « a diminué de N − fin = ▢ »
+et « donc le pourcentage de baisse est de ▢ % », la soustraction posée
+`N − fin`. Les messages (« le pourcentage de baisse est 30 % »), la preuve, le
+contexte envoyé au modèle ({diminuer-dix}, {diminuer-taux-dix}), le corrigé
+type et le rappel (`RAP_SDD`) suivent. Le tirage des leurres de la valeur
+initiale est celui du 2.3.8 : des multiples de dix, 10 % en reste entier.
+
+**Un seul contrôle, joué deux fois.** Le contrôle du 2.2.13 est devenu
+`syntheseDix(w, P, CFG)`, appelé avec la configuration de chaque sens :
+l'identité, le démarreur, la famille, le signe, la synthèse témoin qui ne
+doit pas changer (2.2.9 / 2.3.8), et les mots à lire à l'écran (« la valeur
+diminuée est », « la baisse de 15 % de N », l'écart dans le bon ordre, « a
+diminué de », « le pourcentage de baisse est de »). Les quatre bords sont
+donc tenus des deux côtés sans avoir été recopiés : un recopiage aurait fini
+par diverger, c'est la leçon des générateurs, appliquée aux contrôles.
