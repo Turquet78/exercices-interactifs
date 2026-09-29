@@ -3144,7 +3144,11 @@ sabotages** avant la première fusion : la seconde baisse jugée sur 100
 (« la copie juste rougit : bsd10bm,bsdPbm ») et la soustraction rendue
 commutative (« « baisse − valeur de départ » est accepté »). Les règles
 universelles sont tenues par le banc navigateur, qui ouvre cet écran-là
-comme les autres.
+comme les autres. **Un piège de profil, attrapé par `npm test` :** le kind
+avait d'abord été ajouté à `KINDS_PREMIERE`, que la SECONDE dérive pour son
+propre contrôle du contexte IA — elle a rougi (« manque : bsd ») sur un
+démarreur qu'elle n'a pas, exprès. Un kind propre à la Première s'ajoute
+dans la liste `ctx.kinds` de SON profil, là où `ess` l'avait déjà appris.
 
 Ce qu'aucun banc ne voit : le 2.2 n'a pas son pendant « deux hausses en
 passant par 10 % » — la demande disait « les baisses en 2.3 », et rien de

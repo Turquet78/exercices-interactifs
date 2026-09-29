@@ -30,7 +30,7 @@ const KINDS_PREMIERE = [
   ['augq','genAugTaux()'], ['dim','genDim()'], ['mp','genMultPosee()'],
   ['md','genMultDec()'], ['u','genU()'], ['fp','genFP()'],
   ['ag2','genAugAdd()'], ['ag2q','genDimTauxSub()'], ['syn','genSyn()'],
-  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'], ['hsc','genHaussesCent()'], ['bsd','genBaissesDix()'],
+  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'], ['hsc','genHaussesCent()'],
   ['psl','genPctRes()'], ['ac','genAC()'],
 ];
 
@@ -497,7 +497,7 @@ module.exports = {
       conseil: true,
       /* {synthese-evolutions-successives} (2.5.4) n'existe qu'en Première :
          la Seconde dérive sa liste de KINDS_PREMIERE, on l'ajoute donc ICI. */
-      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()']]),
+      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()'], ['bsd','genBaissesDix()']]),
              prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;', psl: 'test.questions[0].choisi=0;' } },
       mlStatic: true,
     },
