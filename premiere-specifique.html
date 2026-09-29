@@ -516,6 +516,8 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   .sig-capture img{max-width:100%;border:1.5px solid var(--line);border-radius:10px;display:block}
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
+  /* {synthese-evolutions-successives-libre} : le corrigé écrit sous le verdict, en entraînement — vert, la couleur de la correction */
+  .mp-feedback .esl-cor{color:var(--green);font-weight:500;margin:8px 0 0;font-size:.95rem}
   .set-h{font-family:"Fredoka";font-weight:600;font-size:1.05rem;margin:20px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
   .set-h.first{border-top:none;padding-top:0;margin-top:2px}
 
@@ -628,7 +630,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-evs,#scr-bsd{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1657,6 +1659,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
     </div>
   </section>
+  <!-- {synthese-evolutions-successives-libre} : le 2.5.4 rédigé — la feuille du 2.2.14, tout s'écrit -->
+  <section class="screen" id="scr-esl">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEsl"></span><span class="q-idx" id="eslIdx">Calcul 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="eslLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="eslPrompt">Rédige ton calcul, puis conclus.</p>
+      <div class="mp-stage"><div style="width:100%" id="eslHost"></div></div>
+      <div class="mp-feedback" id="eslFeedback"></div>
+      <div class="row" style="justify-content:center" id="eslActions">
+        <button class="btn btn-primary" onclick="checkEsl()">Vérifier</button>
+      </div>
+    </div>
+  </section>
 
   <!-- TEST : MULTIPLICATION POSÉE -->
   <section class="screen" id="scr-asptest">
@@ -2371,7 +2388,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=270;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=271;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2780,6 +2797,7 @@ const TESTS={
   'hausses-successives': { name:'Hausse suivie d\u2019une hausse', icon:'\u2197\ufe0f', desc:'Deux hausses de suite : calcule les deux coefficients comme dans {augmenter-pourcentage}, multiplie-les comme dans {mult-dec-un}, et donne la hausse globale en pourcentage.', start:()=>startHausses() },
   'hausses-successives-cent': { name:'Hausse suivie d\u2019une hausse, en partant de 100', icon:'\ud83d\udcaf', desc:'La m\u00eame question qu\u2019en {hausses-successives}, par l\u2019autre chemin : on part de 100, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu\u2019on a gagn\u00e9 pour 100 est le pourcentage global.', start:()=>startHaussesCent() },
   'synthese-evolutions-successives': { name:'Deux \u00e9volutions successives, hausse ou baisse', icon:'\ud83d\udd01', desc:'La synth\u00e8se de {hausses-successives}, {hausses-successives-cent} et {baisses-successives} : deux \u00e9volutions de suite, chacune une hausse ou une baisse. Tu choisis ta m\u00e9thode \u2014 multiplier les coefficients, partir de 100, ou passer par 10 % comme dans {augmenter-dix} \u2014 puis tu dis si l\u2019\u00e9volution globale est une hausse ou une baisse, et de quel pourcentage. Il tombe toujours sur un nombre entier.', start:()=>startEss() },
+  'synthese-evolutions-successives-libre': { name:'Deux \u00e9volutions successives \u2014 r\u00e9dig\u00e9es', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {synthese-evolutions-successives}, mais plus une seule case : tu R\u00c9DIGES tout le calcul toi-m\u00eame, par la m\u00e9thode qui te convient \u2014 les coefficients, partir de 100 avec les coefficients, ou partir de 100 avec les pourcentages (\u00ab 5 % de 120 est 6 \u00bb) \u2014, puis tu conclus en mots : une hausse ou une baisse, et de quel pourcentage. La page lit ta r\u00e9daction.', start:()=>startEsl() },
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
   'baisses-successives-dix': { name:'Baisse suivie d\u2019une baisse, en passant par 10 %', icon:'\ud83d\udd1f', desc:'La m\u00eame question qu\u2019en {baisses-successives}, par la m\u00e9thode des 10 % de {diminuer-dix} : on part de 100, on calcule 10 % puis la premi\u00e8re baisse et on la retire, puis 10 % et la seconde baisse sur la nouvelle valeur, et ce qu\u2019on a perdu pour 100 est la baisse globale. Elle tombe toujours sur un nombre entier.', start:()=>startBaissesDix() },
   'evolutions-successives':{ name:'Deux \u00e9volutions successives', icon:'\ud83d\udd01', desc:'Deux \u00e9volutions de suite \u2014 deux hausses, deux baisses, ou une hausse et une baisse \u2014 sur le sch\u00e9ma \u00e0 trois bo\u00eetes de la fiche. Sur chaque fl\u00e8che, \u00d7 (1 \u00b1 \u2026) puis le coefficient, comme dans {hausses-successives} et {baisses-successives} ; en dessous, le coefficient global en un seul calcul, et le pourcentage d\u2019\u00e9volution global, dont le signe se lit sur le coefficient global comme dans {lire-coefficient}. Tu \u00e9cris toi-m\u00eame le mot de la conclusion : augmentation ou diminution. Les pourcentages sont des multiples de 10 %, et le r\u00e9sultat tombe toujours sur un nombre entier.', start:()=>startEvolSucc() },
@@ -2833,7 +2851,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives','evolutions-successives'] }
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives','evolutions-successives','synthese-evolutions-successives-libre'] }
   ] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
@@ -2940,7 +2958,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -3782,7 +3800,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest],
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl],
     sf:['sf',renderSFTest]
   };
   const e=table[k];
@@ -3986,7 +4004,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','evs','bsd'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -10001,13 +10019,13 @@ function renderSal(){
    dénominateur, toute la suite de sa ligne tombant dedans. Les juges, eux,
    ne changent pas d'un iota : toPlain rend « \; » en espace, salExpr les
    saute, salDixNorm les retire. */
-function salEspaces(F){
+function salEspaces(F, feuille){
   if(!F || !Array.isArray(F.lignes)) return;
   const poser=function(L){ try{ if(L && L.mf) L.mf.mathModeSpace='\\;'; }catch(e){} };
   F.lignes.forEach(poser);
   const ajouter=F.ajouterLigne;
   F.ajouterLigne=function(){ const L=ajouter.apply(F, arguments); poser(L); return L; };
-  const sheet=$('salSheet');
+  const sheet=$(feuille||'salSheet');   /* la feuille du 2.2.14, ou celle du 2.5.6 (eslSheet) */
   if(sheet){
     sheet.addEventListener('keydown', salEspaceSort, true);   /* en capture : les lignes naissent au fil des « Entrée » */
     sheet.addEventListener('beforeinput', salEspaceEcranSort, true);   /* la touche « espace » du clavier à l'écran */
@@ -12348,6 +12366,356 @@ async function finishEss(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-evolutions-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+/* ---------- {synthese-evolutions-successives-libre} : le 2.5.4 RÉDIGÉ ----------
+   Demande de Turquet (septembre 2026) : « faire un exercice comme le 2.5.4,
+   mais où l'élève doit tout rédiger avec la méthode qui lui convient, le
+   clavier virtuel sera comme celui du 2.2.14 ». Le TIRAGE et les ÉNONCÉS sont
+   ceux du 2.5.4 (essSeance, ESS_ENONCES, essAns — lus, jamais recopiés) ; la
+   FEUILLE est celle du 2.2.14 (mlFeuille en mode « redaction » : la classe
+   mf-mots appelle le clavier B des lettres sur tablette, la barre d'espace
+   écrit une espace, et salEspaces la fait sortir d'une fraction) ; le JUGE
+   est nouveau, et lit la copie en rationnels exacts sur trois positions,
+   comme salJuge — refuser sur un fait prouvable, accepter quand une méthode
+   est positivement montrée, s'abstenir quand une écriture lui échappe.
+   LES MINIMUMS SONT CEUX QUE TURQUET A FIXÉS, méthode par méthode :
+   · méthode 1 (les coefficients) : la multiplication des deux coefficients
+     qui donne le coefficient global (« 1,2 × 0,95 = 1,14 »), puis le
+     pourcentage d'évolution global directement (« hausse de 14 % ») ;
+   · méthode 2 (partir de 100, multiplier par les coefficients) : la valeur
+     après la première évolution DIRECTEMENT (120, sans calcul), puis sa
+     multiplication par le coefficient de la seconde (« 120 × 0,95 = 114 »),
+     puis le pourcentage global directement ;
+   · méthode 3 (partir de 100, par les pourcentages) : la valeur après la
+     première évolution directement, puis « P2 % de 120 est 6 » pour la
+     seconde, puis la valeur finale (« 120 − 6 = 114 »), puis le pourcentage
+     global directement.
+   Tout ce qui s'écrit EN PLUS (10 % de 100 est 10, 100 × 1,2 = 120, l'écart
+   114 − 100 = 14…) est lu et doit être vrai : une égalité fausse refuse la
+   copie en la nommant. Ce qui est REFUSÉ par leçon, comme au 2.5.4 : la
+   seconde évolution refaite sur 100 (« 5 % de 100 est 5 »), et la conclusion
+   qui additionne les pourcentages (+20 % − 5 % = +15 %). La conclusion
+   s'écrit en mots (« hausse de 14 % », « diminution de 49 % ») ou signée
+   (« +14 % ») ; recopier une conclusion sans calcul n'est pas rédiger.
+   AUCUN REFUS N'ÉCRIT LA RÉPONSE : ni le sens, ni le pourcentage, ni la
+   valeur finale — un refus nomme la ligne fausse, ou ce qui manque à la
+   méthode entamée. Le modèle relit la copie avec le verdict du juge en
+   priorité (le motif de checkSal) : il rédige les acceptations, jamais un
+   refus. Même moteur de tirage que le 2.5.4, pas même identité : la note
+   part sous test.qId, le rappel vit dans RAPPELS_ID, les questions dans
+   QIA_SUGG, le contexte de l'aide dans conseilCtxCourant. */
+let eslFeuille=null;
+async function startEsl(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='esl'; test.qId='synthese-evolutions-successives-libre';
+  /* le tirage du 2.5.4 — les trois formes une fois chacune, les paires sans
+     remise ; la question ne porte ni méthode ni sens choisis : ici, tout
+     s'écrit dans la feuille */
+  test.questions=essSeance(EVOL_NB).map(q=>{ delete q.meth; delete q.choisi; return q; });
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent */
+  test.maxScore=test.questions.length;test.eslBusy=false;
+  show('esl'); renderEsl();
+}
+/* LES TROIS MÉTHODES, NOMMÉES À UN SEUL ENDROIT — l'étiquette de la feuille,
+   le message de la feuille vide et le refus du juge les lisent tous. Sans les
+   nombres de la question : ils sont la réponse, ou y mènent. */
+function eslVoiesTexte(q){
+  const mot=s=>s>0?'hausse':'baisse', sg=s=>s>0?'+':'−';
+  return 'par les coefficients (le produit des deux coefficients = le coefficient global), en partant de 100 avec les coefficients (la valeur après la première '+mot(q.s1)+', puis × le coefficient de la seconde = la valeur finale), ou en partant de 100 avec les pourcentages (la valeur après la première '+mot(q.s1)+', puis « '+q.P2+' % de … est … », puis la valeur finale par '+(q.s2>0?'l’addition':'la soustraction')+') — et dans tous les cas la conclusion : « hausse de … % » ou « baisse de … % » (ou « '+sg(q.s2)+'… % »)';
+}
+function renderEsl(){
+  const q=test.questions[test.idx]; test.locked=false; test.eslBusy=false;
+  $('eslIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagEsl').innerHTML=modeTagHTML();
+  $('eslLiveScore').textContent=test.score;
+  $('eslFeedback').textContent=''; $('eslFeedback').className='mp-feedback';
+  $('eslActions').innerHTML='<button class="btn btn-primary" onclick="checkEsl()">Vérifier</button>';
+  $('eslPrompt').innerHTML=variante(ESS_ENONCES,q)+' Rédige ton calcul par la méthode qui te convient, puis conclus.';
+  $('eslHost').innerHTML=numeros(
+    `<div class="pt-step"><div class="pt-lab">Rédige ton calcul, puis ta conclusion — ${eslVoiesTexte(q)}</div>
+       <div class="dexp2-sheet" id="eslSheet"></div>
+       <p class="dexp-hint">Écris UN calcul par ligne, comme dans {synthese-augmentations-libre-dix} : par exemple « 1,2 × 0,95 = 1,14 » (les coefficients), ou « 120 × 0,95 = 114 » (en partant de 100), ou « 5 % de 120 est 6 » puis « 120 − 6 = 114 » (par les pourcentages) — la touche <b>%</b> est sur le clavier. Termine par la conclusion en mots : « hausse de … % » ou « baisse de … % ». La barre d’espace écrit une espace (sur tablette, la touche <b>espace</b> et les lettres du <b>clavier B</b> sont sur le clavier à l’écran). <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`);
+  /* la feuille de RÉDACTION du 2.2.14 : mode « redaction » (liste blanche des
+     raccourcis, classe mf-mots pour le clavier B), et l'espace qui sort d'une
+     fraction, par salEspaces */
+  eslFeuille=mlFeuille({ conteneur:'eslSheet', mode:'redaction', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
+  salEspaces(eslFeuille,'eslSheet');
+}
+/* ---- Le juge ---- */
+/* La conclusion : « hausse de 14 % », « diminution de 49 % », « c'est une
+   baisse de 49 % », ou signée « +14 % » (« évolution globale = +14 % »,
+   « 1,14 → +14 % »). Rend { sens, k } ou null. Une ligne qui porte un « = »
+   n'est une conclusion en mots que si rien de numérique ne précède le « = »
+   (« hausse de 20 % : 100 × 1,2 = 120 » est un calcul, pas la conclusion). */
+function eslConclusion(ligne){
+  const brut=String(ligne), t=salDixNorm(brut).replace(/\u2212|\u2013|\u2014/g,'-').replace(/\u2192|->/g,'=');
+  const avant=brut.split('=')[0];
+  let r=t.match(/(hausse|augmentation|baisse|diminution|reduction)(?:globale)?(?:de)?(\d+(?:[.,]\d+)?)(?:%|pour100)[.!)]*$/);
+  if(r && (brut.indexOf('=')<0 || !/\d/.test(avant)))
+    return { sens:(r[1]==='baisse'||r[1]==='diminution'||r[1]==='reduction')?-1:1, k:salRat(r[2]) };
+  const t2=t.replace(/evolution|globale|global|taux|conclusion|bilan|resultat|final|finale|soit|donc|c'est|cest|une|un|de|au/g,'');
+  r=t2.match(/^[^a-z]*([+-])(\d+(?:[.,]\d+)?)(?:%|pour100)$/);
+  if(r) return { sens:(r[1]==='-')?-1:1, k:salRat(r[2]) };
+  return null;
+}
+/* Un commentaire NEUTRE : une ligne sans « = » ni nombre — « on prend 100 au
+   départ », « méthode 2 », « première hausse » — n'affirme rien et ne force
+   pas l'abstention ; une ligne en mots qui porte d'AUTRES nombres (« j'ai
+   trouvé 114 ») peut cacher la méthode, et le juge s'abstient si aucune
+   n'est montrée ailleurs (la règle du commentaire de salJuge). */
+function eslCommentaireNeutre(ligne){
+  const t=salDixNorm(ligne).replace(/100|methode[123]|[12](?:ere?|eme?|nde|e)?(?:evolution|augmentation|hausse|baisse|diminution)|premiere|seconde|deuxieme|\u2212/g,'');
+  return !/\d/.test(t);
+}
+/* Lit UNE ligne. Rend { type, … } :
+   · 'concl'  — la conclusion (sens, k) ;
+   · 'vide'   — rien ;
+   · 'commentaire' — des mots sans « = » (neutre:true quand sans nombre) ;
+   · 'inconnu' — une écriture que la grammaire ne lit pas : le juge s'abstient ;
+   · 'nombre' — une valeur seule (val) ;
+   · 'pct'    — « k % [de M] = … » (k, M, val, surV1, sur100), ou faux:true ;
+   · 'ecart'  — « écart = … », ou faux:true ;
+   · 'expr'   — un calcul (val, termes, plusHaut, moinsHaut), ou faux:true.
+   LA FICHE S'ÉCRIT EN MOTS, et la ligne se lit comme l'élève la dit : « est »,
+   « font », « vaut », « donne », « fait » valent « = » (« 5 % de 120 est 6 ») ;
+   une étiquette en tête (« 1ère hausse : », « donc la première hausse donne »,
+   « coefficient global = ») est retirée — un morceau sans nombre n'affirme
+   rien —, et les mots qui précèdent un nombre (« donc 5 % de 120 ») aussi. */
+function eslLireLigne(A, ligne){
+  const brut=String(ligne).trim();
+  if(!brut) return { type:'vide' };
+  const cc=eslConclusion(brut);
+  if(cc) return { type:'concl', sens:cc.sens, k:cc.k };
+  const LET='a-zA-Z\u00C0-\u017F';
+  let txt=brut.replace(new RegExp('^[^=]*?['+LET+'][^=]*?:\\s*'),'');                              /* « 1ère hausse : … » */
+  txt=txt.replace(new RegExp('(^|[^'+LET+'])(est|font|vaut|valent|donne|donnent|fait)(?=[^'+LET+']|$)','gi'),'$1=').replace(/\u2192|->/g,'=');
+  let morceaux=txt.split('=').map(m=>m.trim());
+  const ecartTete=morceaux.length>=2 && salDixEcart(morceaux[0]);
+  const sansNombre=m=>!/\d/.test(String(m).replace(/(^|[^\d])[12](?:ère|ere|ème|eme|nde|re|e)(?=[^\d]|$)/g,'$1'));   /* « 2e baisse » n'est pas un nombre */
+  if(!ecartTete){
+    while(morceaux.length>1 && sansNombre(morceaux[0])) morceaux.shift();                        /* « coefficient global = … », « donc le résultat après la 2e baisse = … » */
+    morceaux[0]=morceaux[0].replace(new RegExp('^['+LET+'\\s:;,’\']+(?=\\d)'),'');                 /* « donc 5 % de 120 » */
+  }
+  if(morceaux.length<2){
+    const x=salExpr(morceaux[0]);
+    return x ? { type:'nombre', val:x.v } : { type:'commentaire', neutre:eslCommentaireNeutre(brut) };
+  }
+  if(morceaux.some(m=>m==='')) return { type:'inconnu' };
+  const pc=salDixPct(morceaux[0]), ec=!pc && ecartTete;
+  if(pc || ec){
+    const reste=morceaux.slice(1), lus=reste.map(salExpr), type=pc?'pct':'ecart';
+    if(lus.some(x=>!x) || (pc && !pc.k)) return { type:'inconnu' };
+    for(let k=1;k<lus.length;k++) if(!salEgal(lus[k-1].v,lus[k].v)) return { type, faux:true, fausse:'« '+reste[k-1]+' = '+reste[k]+' »' };
+    const val=lus[0].v, tete=String(morceaux[0]).replace(/\\%/g,'%');
+    if(pc){
+      const M=pc.M||{n:100,d:1}, attendu={ n:pc.k.n*M.n, d:pc.k.d*M.d*100 };
+      const surV1=!!pc.M && salEgal(pc.M,A.rV1), sur100=!pc.M || salEgal(pc.M,{n:100,d:1});
+      if(!salEgal(val,attendu)){
+        /* « 5 % = 6 » sans base : vrai sur la valeur intermédiaire, faux sur
+           100 — la base manque, et c'est elle que le refus demande */
+        const sansBase=!pc.M && salEgal(pc.k,{n:A.P2,d:1}) && salEgal(val,A.rAug2);
+        return { type, faux:true, sansBase, fausse:'« '+tete+' = '+reste[0]+' »' };
+      }
+      return { type, k:pc.k, M, val, surV1, sur100 };
+    }
+    /* l'écart entre 100 et la valeur finale : en points (14) ou en coefficient (0,14) */
+    const ok=salEgal(val,{n:A.pct,d:1}) || salEgal(val,{n:A.pct,d:100});
+    return ok ? { type, val } : { type, faux:true, fausse:'« '+tete+' = '+reste[0]+' »' };
+  }
+  const lus=morceaux.map(salExpr);
+  if(lus.some(x=>!x)) return { type:'inconnu' };
+  for(let k=1;k<lus.length;k++) if(!salEgal(lus[k-1].v,lus[k].v)) return { type:'expr', faux:true, fausse:'« '+morceaux[k-1]+' = '+morceaux[k]+' »' };
+  const termes=[]; lus.forEach(x=>x.termes.forEach(t=>termes.push(t)));
+  return { type:'expr', val:lus[0].v, termes, plusHaut:lus.some(x=>x.plusHaut), moinsHaut:lus.some(x=>x.moinsHaut) };
+}
+/* Un produit montre « X × Y » si ses facteurs se partagent en deux paquets
+   non vides dont les produits valent X et Y — quel que soit l'ordre, et
+   quelle que soit l'écriture (1,2 ou 12/10 : « 12/10 » livre les facteurs 12
+   et 1/10, la leçon de salExpr). */
+function eslPartage(t, X, Y){
+  const n=t.length; if(n<2 || n>10) return false;
+  const prod=l=>l.reduce((p,f)=>({n:p.n*f.n,d:p.d*f.d}),{n:1,d:1});
+  for(let m=1;m<(1<<n)-1;m++){
+    const S=[],R=[]; t.forEach((f,i)=>((m>>i)&1?S:R).push(f));
+    if(salEgal(prod(S),X) && salEgal(prod(R),Y)) return true;
+  }
+  return false;
+}
+/* L'écriture décimale COMPACTE d'un coefficient sur 100, celle que l'élève tape : 120 → « 1,2 », 95 → « 0,95 », 102 → « 1,02 ». */
+function eslCoefStr(c){ return String(c/100).replace('.',','); }
+/* eslJuge : { sait, correct, phrase }. */
+function eslJuge(q, texte){
+  const a=essAns(q);
+  const A={ rC1:{n:a.c1,d:100}, rC2:{n:a.c2,d:100}, rCG:{n:a.prodNum,d:a.prodDen}, rV1:{n:a.v1,d:1}, rV2:{n:a.v2,d:1},
+            rAug2:{n:a.aug2,d:1}, rP2:{n:q.P2,d:100}, pct:a.pct, P2:q.P2 };
+  const lignes=String(texte).split('\n').map(l=>l.trim()).filter(l=>l!=='');
+  if(!lignes.length) return { sait:false };
+  let coefProd=false, mult2=false, aug2Ok=false, opV2=false, surCent2=false, commentaire=false, conclusion=null;
+  for(const ligne of lignes){
+    const L=eslLireLigne(A, ligne);
+    if(L.type==='vide') continue;
+    if(L.type==='concl'){ conclusion=L; continue; }
+    if(L.type==='commentaire'){ if(!L.neutre) commentaire=true; continue; }
+    if(L.type==='inconnu') return { sait:false };
+    if(L.faux){
+      if(L.sansBase) return { sait:true, correct:false, phrase:L.fausse+' : '+q.P2+' % de quoi ? La seconde évolution porte sur la valeur obtenue après la première — écris-la : « '+q.P2+' % de … est … ».' };
+      if(L.type==='ecart') return { sait:true, correct:false, phrase:L.fausse+' : ce n’est pas l’écart entre 100 et la valeur finale. Reprends cette ligne.' };
+      return { sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul : '+L.fausse+'. Reprends cette ligne.' };
+    }
+    if(L.type==='nombre' || L.type==='ecart') continue;
+    if(L.type==='pct'){
+      if(L.surV1 && salEgal(L.k,{n:q.P2,d:1})) aug2Ok=true;
+      /* « 95 % de 120 est 114 » : la seconde évolution et la valeur finale d'un coup */
+      if(L.surV1 && salEgal(L.k,{n:a.c2,d:1}) && salEgal(L.val,A.rV2)){ aug2Ok=true; opV2=true; }
+      /* la seconde évolution refaite sur 100 — la leçon du 2.5.4, hors le cas des deux taux égaux */
+      if(L.sur100 && !L.surV1 && q.P2!==q.P1 && salEgal(L.k,{n:q.P2,d:1})) surCent2=true;
+      continue;
+    }
+    L.termes.forEach(t=>{
+      if(eslPartage(t,A.rC1,A.rC2)) coefProd=true;    /* 1,2 × 0,95 = 1,14 */
+      if(eslPartage(t,A.rV1,A.rC2)) mult2=true;       /* 120 × 0,95 = 114 (ou 100 × 1,2 × 0,95) */
+      if(eslPartage(t,A.rV1,A.rP2)) aug2Ok=true;      /* 5/100 × 120 = 6 */
+    });
+    if(salEgal(L.val,A.rV2) && (q.s2>0?L.plusHaut:L.moinsHaut)) opV2=true;   /* 120 − 6 = 114 */
+  }
+  const calcOk=coefProd || mult2 || (aug2Ok && opV2);
+  const conclOk=!!conclusion && conclusion.sens===a.sens && !!conclusion.k && salEgal(conclusion.k,{n:a.pct,d:1});
+  if(calcOk && conclOk) return { sait:true, correct:true, phrase:'Bravo ! Ta rédaction montre le calcul, et ta conclusion est juste.' };
+  if(calcOk){
+    if(!conclusion) return { sait:true, correct:false, phrase:'Ton calcul est là, mais il manque la conclusion : une hausse ou une baisse, et de quel pourcentage — écris-la en mots (« hausse de … % » ou « baisse de … % »).' };
+    return { sait:true, correct:false, phrase:'Ton calcul est juste, mais ta conclusion ne s’accorde pas avec lui : '+(coefProd&&!mult2&&!opV2
+      ? 'compare le coefficient global à 1 (plus grand, c’est une hausse ; plus petit, une baisse) et lis le pourcentage sur l’écart à 1.'
+      : 'compare la valeur finale à 100 (au-dessus, c’est une hausse ; au-dessous, une baisse) et lis le pourcentage sur l’écart à 100.') };
+  }
+  /* aucune méthode montrée : la voie est peut-être écrite en mots dans un commentaire */
+  if(commentaire) return { sait:false };
+  const naive=q.s1*q.P1+q.s2*q.P2;
+  const additionne=!!conclusion && !!conclusion.k && naive!==0 && conclusion.sens===(naive>0?1:-1) && salEgal(conclusion.k,{n:Math.abs(naive),d:1});
+  let manque;
+  if(surCent2) manque='la seconde évolution porte sur la valeur obtenue après la première, pas sur 100 : reprends « '+q.P2+' % de … est … » avec cette valeur';
+  else if(aug2Ok && !opV2) manque='il manque la valeur finale, après la seconde évolution ('+(q.s2>0?'l’addition':'la soustraction')+' qui la donne)';
+  else if(opV2 && !aug2Ok) manque='il manque la ligne « '+q.P2+' % de … est … » ('+q.P2+' % de la valeur obtenue après la première évolution), ou la multiplication qui la calcule';
+  else manque=(additionne?'les évolutions ne s’additionnent pas — la seconde porte sur la valeur déjà modifiée. ':'')+'montre le calcul, '+eslVoiesTexte(q);
+  return { sait:true, correct:false, phrase:'Ta rédaction ne suffit pas : '+manque+'. Écrire la conclusion sans calcul n’est pas rédiger.' };
+}
+function eslEnonceIA(q){
+  const strip=s=>String(s==null?'':s).replace(/<[^>]*>/g,'');
+  return 'Exercice de mathématiques de Première (France), sur DEUX ÉVOLUTIONS SUCCESSIVES en pourcentage. '+strip(variante(ESS_ENONCES,q))
+   +' L’élève rédige TOUT le calcul lui-même dans une feuille, ligne par ligne, par la méthode de son choix, puis écrit sa conclusion (une hausse ou une baisse, et de quel pourcentage).'
+   +'\nCHAQUE LIGNE EST UN CALCUL INDÉPENDANT (il peut aussi enchaîner des « = » dans une même ligne). Ne refuse JAMAIS une copie pour sa mise en page.'
+   +'\nLes lignes s’écrivent aussi en pourcents et en mots : « 10 % de 100 est 10 », « 5 % de 120 est 6 », « hausse de 14 % ». L’éditeur écrit « \\% » et peut retirer les espaces : lis « 5\\%de120est6 » comme « 5 % de 120 est 6 » et « haussede14\\% » comme « hausse de 14 % ».';
+}
+function eslAttenduIA(q, juge){
+  const a=essAns(q), mot=s=>s>0?'hausse':'baisse', sg=s=>s>0?'+':'−';
+  const c1=eslCoefStr(a.c1), c2=eslCoefStr(a.c2);
+  return 'RÉPONSE ATTENDUE, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste : une '+mot(a.sens)+' de '+a.pct+' %.'
+   +'\nLes nombres : coefficient de la première évolution '+c1+' ('+a.fA.num+'/'+a.fA.den+'), de la seconde '+c2+' ('+a.fB.num+'/'+a.fB.den+'), coefficient global '+a.coefStr+' ('+a.prodNum+'/'+a.prodDen+') ; en partant de 100 : '+q.P1+' % de 100 est '+a.aug1+', la valeur après la première évolution est '+a.v1+', '+q.P2+' % de '+a.v1+' est '+a.aug2+', la valeur finale est '+a.v2+'.'
+   +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
+   +'\n1. LE CALCUL MONTRE UNE DES TROIS MÉTHODES, et SEULEMENT l’une d’elles est exigée, au minimum :'
+   +'\n   · méthode 1, les coefficients : la multiplication '+c1+' × '+c2+' = '+a.coefStr+' (dans un ordre ou l’autre, en décimaux ou en fractions) ;'
+   +'\n   · méthode 2, partir de 100 avec les coefficients : '+a.v1+' × '+c2+' = '+a.v2+' — la valeur '+a.v1+' peut être écrite directement, sans calcul ;'
+   +'\n   · méthode 3, partir de 100 avec les pourcentages : « '+q.P2+' % de '+a.v1+' est '+a.aug2+' » (ou la multiplication '+pDecStr(q.P2)+' × '+a.v1+' = '+a.aug2+'), puis '+a.v1+' '+sg(q.s2)+' '+a.aug2+' = '+a.v2+' — la valeur '+a.v1+' peut être écrite directement.'
+   +'\n   Les lignes en plus (10 % de 100 est 10, 100 × '+c1+' = '+a.v1+', '+a.v2+' − 100…) sont bienvenues si elles sont vraies. Recopier la conclusion sans aucun calcul est REFUSÉ. La seconde évolution calculée sur 100 au lieu de '+a.v1+' est REFUSÉE : les évolutions ne s’additionnent pas ('+sg(q.s1)+q.P1+' % '+sg(q.s2)+' '+q.P2+' % n’est PAS '+sg(q.s1*q.P1+q.s2*q.P2>0?1:-1)+Math.abs(q.s1*q.P1+q.s2*q.P2)+' %).'
+   +'\n2. LA CONCLUSION est écrite et juste : « '+mot(a.sens)+' de '+a.pct+' % » (« '+(a.sens>0?'augmentation':'diminution')+' de '+a.pct+' % », ou « '+sg(a.sens)+a.pct+' % » conviennent aussi). Le sens et le pourcentage doivent être justes tous les deux.'
+   +'\n3. AUCUNE ÉGALITÉ FAUSSE. Chaque ligne est un calcul indépendant ; à l’intérieur d’une ligne, découpe aux « = » (« est » vaut « = ») : chaque morceau doit être mathématiquement vrai. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
+   +(juge&&juge.sait?'\n\nVERDICT DE LA PAGE, DÉJÀ CALCULÉ ET PRIORITAIRE : correct='+(juge.correct?'true':'false')+' — '+juge.phrase+' Rédige le feedback EN ACCORD avec ce verdict, sans le contester.':'')
+   +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
+   +' Si tout est juste : félicite, et nomme la méthode utilisée.'
+   +' Si le calcul manque : rappelle les trois méthodes possibles, sans écrire le calcul à sa place.'
+   +' Ne te contredis JAMAIS : n’écris jamais qu’un calcul est faux puis qu’il est juste.'
+   +' Si la conclusion est fausse : dis de comparer le coefficient global à 1, ou la valeur finale à 100 — sans JAMAIS donner le sens ni le pourcentage.'
+   +' Si une égalité est fausse : dis laquelle et ce qui cloche.'
+   + LANGUE_SIMPLE;
+}
+/* La vérification PEINT la feuille (la règle de salPeindreLignes) : une ligne
+   dont toutes les égalités sont vraies passe en bleu, une ligne qui porte une
+   égalité fausse en rouge ; la conclusion en mots, une valeur seule, un
+   commentaire ou une écriture inconnue ne reçoivent rien. */
+function eslPeindreLignes(){
+  if(!eslFeuille || !Array.isArray(eslFeuille.lignes)) return;
+  const q=test.questions && test.questions[test.idx]; if(!q) return;
+  const a=essAns(q);
+  const A={ rV1:{n:a.v1,d:1}, rAug2:{n:a.aug2,d:1}, pct:a.pct, P2:q.P2 };
+  eslFeuille.lignes.forEach(function(L){
+    const mf=L&&L.mf; if(!mf||!mf.classList) return;
+    mf.classList.remove('ok','bad');
+    let t='';
+    try{ t=String(window.mlDexp&&window.mlDexp.toPlain?window.mlDexp.toPlain(mf.getValue()):(mf.value||'')).trim(); }
+    catch(e){ try{ t=String(mf.value||'').trim(); }catch(_){ t=''; } }
+    if(!t) return;
+    const R=eslLireLigne(A, t);
+    if(R.type!=='pct' && R.type!=='ecart' && R.type!=='expr') return;
+    mf.classList.add(R.faux?'bad':'ok');
+  });
+}
+/* Le corrigé écrit en entraînement, sous le verdict : les trois méthodes avec
+   les nombres de la question — une fois l'écran verrouillé, jamais avant. */
+function eslCorrection(q){
+  const a=essAns(q), mot=s=>s>0?'hausse':'baisse', sg=s=>s>0?'+':'−';
+  return 'Correction — c’est une '+mot(a.sens)+' de '+a.pct+' %. Par les coefficients : '+eslCoefStr(a.c1)+' × '+eslCoefStr(a.c2)+' = '+a.coefStr+', '+(a.sens>0?'plus grand':'plus petit')+' que 1. En partant de 100 : '+a.v1+' × '+eslCoefStr(a.c2)+' = '+a.v2+'. Par les pourcentages : '+q.P1+' % de 100 est '+a.aug1+', donc 100 '+sg(q.s1)+' '+a.aug1+' = '+a.v1+' ; '+q.P2+' % de '+a.v1+' est '+a.aug2+', donc '+a.v1+' '+sg(q.s2)+' '+a.aug2+' = '+a.v2+'. De 100 à '+a.v2+' : '+sg(a.sens)+a.pct+' %.';
+}
+async function checkEsl(){
+  if(test.locked || test.eslBusy) return;
+  const q=test.questions[test.idx], fb=$('eslFeedback');
+  const rep=(eslFeuille?eslFeuille.lire():'').trim();
+  if(!rep){
+    fb.textContent='Écris d’abord ton calcul, '+eslVoiesTexte(q)+'.'; fb.className='mp-feedback bad';
+    if(eslFeuille && eslFeuille.lignes[0]) eslFeuille.lignes[0].mf.focus(); return; }
+  const juge=eslJuge(q, rep);
+  test.eslBusy=true;
+  $('eslActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  fb.textContent='Je lis ta rédaction…'; fb.className='mp-feedback muted';
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
+      action:'verif', question:eslEnonceIA(q), attendu:eslAttenduIA(q, juge), reponse:rep, balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  test.eslBusy=false;
+  /* le juge PRIME : sans lui le modèle décide ; en panne, le juge répond seul —
+     et sur un refus, la phrase du juge s'affiche toujours (la leçon de checkSal) */
+  let correct, feedback;
+  if(juge.sait){
+    correct=juge.correct;
+    feedback=(correct && res && !res.error && res.correct===true && res.feedback) ? res.feedback : juge.phrase;
+  } else {
+    if(!res || res.error){
+      fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
+      fb.className='mp-feedback bad';
+      $('eslActions').innerHTML='<button class="btn btn-primary" onclick="checkEsl()">Vérifier</button>';
+      return;
+    }
+    correct=res.correct===true; feedback=res.feedback||'';
+  }
+  fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
+  eslPeindreLignes();
+  if(isSoutien() && !correct){
+    $('eslActions').innerHTML='<button class="btn btn-primary" onclick="checkEsl()">Revérifier</button>';
+    if(eslFeuille && eslFeuille.lignes.length) eslFeuille.lignes[eslFeuille.lignes.length-1].mf.focus();
+    return;
+  }
+  test.locked=true; if(eslFeuille) eslFeuille.verrouiller();
+  if(correct){ test.score++; $('eslLiveScore').textContent=test.score; }
+  else if(currentMode==='train') fb.insertAdjacentHTML('beforeend','<p class="esl-cor">'+esc(eslCorrection(q))+'</p>');
+  const a=essAns(q), mot=s=>s>0?'hausse':'baisse';
+  test.answers.push({...(ptsExo()||{}), q:`une ${mot(q.s1)} de ${q.P1} % suivie d'une ${mot(q.s2)} de ${q.P2} %, rédigée`,
+    answer:`${mot(a.sens)} de ${a.pct} %`, given:rep, correct});
+  const last=test.idx===test.questions.length-1;
+  $('eslActions').innerHTML=`<button class="btn btn-primary" id="eslNext" onclick="nextEsl()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  const nb=$('eslNext'); if(nb) nb.focus();
+}
+function nextEsl(){ if(test.idx<test.questions.length-1){ test.idx++; renderEsl(); autoSave(); } else finishEsl(); }
+async function finishEsl(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-evolutions-successives-libre',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -17546,7 +17914,14 @@ Exemple : augmenter de 20 % puis baisser de 5 %.<br>
 <b>Méthode 2 — partir de 100</b>, comme dans {hausses-successives-cent} : la hausse pour 100 vaut \\(\\frac{20}{100}\\times 100=20\\), donc 100 + 20 = <b>120</b> ; la baisse pour <b>120</b> vaut \\(\\frac{5}{100}\\times 120=\\frac{600}{100}=6\\), donc 120 − 6 = <b>114</b>. On est passé de 100 à 114, <b>au-dessus de 100</b> : c’est une hausse de <b>14 pour 100</b>, c’est-à-dire <b>14 %</b>.<br>
 <b>Méthode 3 — en passant par 10 %</b>, comme dans {augmenter-dix} : on prend 100 au départ. 10 % de 100 est <b>10</b>, donc 20 % de 100 est <b>20</b>, et la première hausse donne 100 + 20 = <b>120</b>. Puis 10 % de 120 est <b>12</b>, donc 5 % de 120 est <b>6</b> (la moitié), et la baisse donne 120 − 6 = <b>114</b>. On est passé de 100 à 114 : une hausse de <b>14 %</b>. Pour 2 %, 4 %, 6 % ou 8 %, on passe par 1 % (10 % divisé par 10).<br>
 Piège classique : additionner les pourcentages — +20 % puis −5 %, ce n’est PAS +15 %. Et si le coefficient global est plus petit que 1 (ou la valeur finale sous 100), c’est une baisse, même si l’énoncé commence par une hausse.`;
-const RAPPELS_ID={ 'synthese-evolutions-successives':RAP_ESS, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAP_ESL=`<b>Deux évolutions successives, rédigées : trois méthodes, un seul résultat</b><br>
+Deux évolutions de suite <b>ne s’additionnent pas</b> : la seconde porte sur la valeur <b>déjà modifiée</b>. Exemple : augmenter de 20 % puis baisser de 5 %. Trois méthodes, et tu écris celle qui te convient — au minimum les lignes en gras, puis la <b>conclusion en mots</b>.<br>
+<b>Méthode 1 — les coefficients</b>, comme dans {hausses-successives} : augmenter de 20 %, c’est × 1,2 ; baisser de 5 %, c’est × 0,95. Tu écris <b>1,2 × 0,95 = 1,14</b>. Le coefficient global 1,14 est plus grand que 1 : <b>hausse de 14 %</b> (l’écart à 1).<br>
+<b>Méthode 2 — partir de 100, avec les coefficients</b>, comme dans {hausses-successives-cent} : après la première hausse, on est à <b>120</b> (tu peux l’écrire directement). Puis <b>120 × 0,95 = 114</b>. De 100 à 114, au-dessus de 100 : <b>hausse de 14 %</b>.<br>
+<b>Méthode 3 — partir de 100, avec les pourcentages</b>, comme dans {augmenter-dix} : après la première hausse, on est à <b>120</b>. Puis <b>5 % de 120 est 6</b> (10 % de 120 est 12, et 5 % en est la moitié), donc <b>120 − 6 = 114</b>. De 100 à 114 : <b>hausse de 14 %</b>.<br>
+Tu peux écrire plus de lignes (10 % de 100 est 10, 100 × 1,2 = 120, 114 − 100 = 14…) : chacune doit être vraie. Piège classique : refaire la seconde évolution sur 100 (« 5 % de 100 est 5 ») — elle porte sur 120. Et si le coefficient global est plus petit que 1 (ou la valeur finale sous 100), c’est une baisse, même si l’énoncé commence par une hausse.<br>
+Écrire la conclusion sans calcul n’est pas rédiger : il faut montrer le calcul.`;
+const RAPPELS_ID={ 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -17596,6 +17971,7 @@ const QIA_SUGG={
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
   hs:["Pourquoi deux hausses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième hausse ?","Pourquoi la hausse globale dépasse-t-elle la somme des deux taux ?"],
   hsc:["Pourquoi a-t-on le droit de partir de 100 ?","Sur quelle valeur porte la deuxième hausse ?","Pourquoi « augmentation pour 100 » veut-il dire « pourcentage » ?","Pourquoi deux hausses de suite ne s’additionnent-elles pas ?"],
+  esl:["Comment rédiger avec les coefficients ?","Comment rédiger en partant de 100 ?","Comment écrire « 5 % de 120 est 6 » avec le clavier ?","Comment savoir si l’évolution globale est une hausse ou une baisse ?","Sur quelle valeur porte la seconde évolution ?"],
   ess:["Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi une hausse suivie d’une baisse du même pourcentage ne revient-elle pas au départ ?","Quelle méthode choisir : les coefficients, partir de 100, ou passer par 10 % ?","Sur quelle valeur porte la seconde évolution ?"],
   lc:["Comment savoir si un coefficient fait monter ou descendre ?","Pourquoi 0,96 est-il une baisse de 4 % et non de 96 % ?","Comment retrouver le pourcentage à partir du coefficient ?","Que signifie multiplier par 1,4 ?"],
   ac:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment reconnaître le coefficient d’une diminution ?","Comment passer d’un pourcentage à un coefficient ?"],
@@ -17705,6 +18081,18 @@ function conseilCtxCourant(){
       +'Méthode actuellement choisie par l’élève : '+(q.meth==='coef'?'les coefficients':(q.meth==='cent'?'partir de 100':(q.meth==='dix'?'passer par 10 %':'aucune encore')))+'. Sens actuellement choisi : '+(q.choisi==null?'aucun':mot(q.choisi))+'. '
       +'Les évolutions ne s’additionnent pas, l’erreur classique étant de répondre '+sg(q.s1)+q.P1+' '+sg(q.s2)+' '+q.P2+' = '+(q.s1*q.P1+q.s2*q.P2)+' %. La seconde évolution porte sur la valeur DÉJÀ modifiée, jamais sur la valeur de départ. '
       +'Aucune valeur de départ n’est donnée : le résultat n’en dépend pas.';
+  } else if(k==='esl' && q){
+    /* {synthese-evolutions-successives-libre} : les nombres du 2.5.4, et les
+       minimums de chaque méthode rédigée — la copie n'est pas lue ici (elle
+       part à la vérification), le modèle aide à choisir et à écrire */
+    const a=essAns(q), sg=s=>s>0?'+':'−', mot=s=>s>0?'hausse':'baisse';
+    att='Exercice RÉDIGÉ sur deux évolutions successives : l’élève écrit tout le calcul lui-même dans une feuille, par la méthode de son choix, puis conclut en mots (« hausse de … % » ou « baisse de … % »). '
+      +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : une '+mot(q.s1)+' de '+q.P1+' % suivie d’une '+mot(q.s2)+' de '+q.P2+' % fait une '+mot(a.sens)+' globale de '+a.pct+' %. '
+      +'Méthode 1 (les coefficients, comme dans {hausses-successives}), au minimum : '+eslCoefStr(a.c1)+' × '+eslCoefStr(a.c2)+' = '+a.coefStr+', puis la conclusion (plus '+(a.sens>0?'grand':'petit')+' que 1 : '+mot(a.sens)+', l’écart à 1 donne '+a.pct+' %). '
+      +'Méthode 2 (partir de 100 avec les coefficients, comme dans {hausses-successives-cent}), au minimum : la valeur après la première évolution, '+a.v1+', écrite directement, puis '+a.v1+' × '+eslCoefStr(a.c2)+' = '+a.v2+', puis la conclusion (de 100 à '+a.v2+'). '
+      +'Méthode 3 (partir de 100 avec les pourcentages, comme dans {augmenter-dix}), au minimum : '+a.v1+' écrit directement, puis « '+q.P2+' % de '+a.v1+' est '+a.aug2+' », puis '+a.v1+' '+sg(q.s2)+' '+a.aug2+' = '+a.v2+', puis la conclusion. '
+      +'Toute ligne en plus doit être vraie ; « est » vaut « = ». Les évolutions ne s’additionnent pas, l’erreur classique étant de répondre '+sg(q.s1)+q.P1+' '+sg(q.s2)+' '+q.P2+' = '+(q.s1*q.P1+q.s2*q.P2)+' %, ou de refaire la seconde évolution sur 100 : elle porte sur '+a.v1+'. '
+      +'Aide-le à choisir et à écrire sa méthode, sans lui donner le résultat ni le sens.';
   } else if(k==='bsd' && q){
     const a=bsdAns(q);
     att='Réponses attendues, STRICTEMENT SECRÈTES : on part de 100, en passant par 10 %. Étape ① 10 % de 100 est 10, donc '+q.P1+' % de 100 est '+a.b1+', et la première baisse donne 100 − '+a.b1+' = '+a.v1+' ; '
@@ -18180,7 +18568,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEvsTest','renderBsdTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderEsl','renderCKTest','renderACTest','renderEvsTest','renderBsdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

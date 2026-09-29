@@ -4167,6 +4167,7 @@ function exercices(suite){
     syntheseAugLibreRedigee(w, P);
     syntheseToutesFamillesRedigee(w, P);
     syntheseDimLibreDix(w, P);
+    syntheseEvolutionsLibre(w, P);
     verificationAvecPropositions(w, P);
     teteCollee(w, P);
     poseSuitLEleve(w, P);
@@ -4439,6 +4440,129 @@ function abandonSortDePause(w, apres){
    coûte exactement le point de la feuille, et les cases fausses sont révélées
    et décomptées. Il vit dans la chaîne séquentielle parce qu'il remplace sb :
    lancé en parallèle, un autre contrôle le lui reprendrait en plein vol. */
+/* ---- Les évolutions successives rédigées, CLIQUÉES : le juge prime, la
+   note compte, l'écran se verrouille (Première, 2.5.6) --------------------
+   Le juge eslJuge peut être parfait et ne rien changer si checkEsl n'en fait
+   rien : on clique donc « Vérifier » avec un modèle stubbé qui SE TROMPE, et
+   on lit la note, la couleur, le bouton. Sept bords : le modèle refuse une
+   copie juste et la page donne le point, sans afficher sa prose ; le modèle
+   accepte une copie fausse et la page refuse ; le juge s'abstient et le
+   modèle décide seul, sans bloc VERDICT ; le modèle en panne et le juge
+   répond seul ; en SOUTIEN, une copie fausse rouvre la feuille (« Revérifier »)
+   au lieu de verrouiller ; en ENTRAÎNEMENT, une copie fausse verrouille et
+   écrit le corrigé en vert sous le verdict ; la feuille vide n'appelle pas le
+   modèle ; et la fin de séance enregistre la note sous SON identifiant. */
+function evolutionsRedigeesClique(w, apres){
+  const nom = 'les évolutions successives rédigées, cliquées : le juge prime, la note compte, le corrigé vient en entraînement';
+  const present = evaluer(w, "typeof checkEsl==='function' && typeof eslJuge==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas les évolutions successives rédigées');
+    return jugeArithmetiqueClique(w, apres);
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[]; const ID='synthese-evolutions-successives-libre';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId=ID;
+    const feuille=function(texte){ return { lire:function(){ return texte; },
+      lignes:[{mf:{getValue:function(){ return 'x'; },focus:function(){},setValue:function(){},executeCommand:function(){},classList:{add:function(){},remove:function(){},contains:function(){ return false; }}}}],
+      verrouiller:function(){ this.verrou=true; } }; };
+    let MODELE={correct:false, panne:false}, envoye=null;
+    sb.functions={ invoke:async function(nom, opts){
+      envoye=(opts&&opts.body)||null;
+      if(MODELE.panne) throw new Error('panne simulée');
+      return { data:{ correct:MODELE.correct, feedback:'Retour du modèle stubbé.' } };
+    } };
+    function armer(copie, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'esl', qId:ID, questions:[essQuestion(1,20,-1,5)], idx:0, score:0,
+        answers:[], startTime:Date.now(), locked:false, eslBusy:false, maxScore:1});
+      show('esl'); renderEsl();
+      eslFeuille=feuille(copie); envoye=null;
+    }
+    function couleur(){ const c=(document.getElementById('eslFeedback')||{}).className||'';
+      return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); }
+    const bouton=function(){ return String((document.getElementById('eslActions')||{}).textContent||'').trim(); };
+
+    /* 1. le modèle refuse une copie juste : le juge prime, la prose du modèle ne s'affiche pas */
+    armer('1,2 × 0,95 = 1,14\\nhausse de 14 %'); MODELE={correct:false, panne:false};
+    await checkEsl();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true) vus.push('le modèle refuse une copie juste et la page le suit : score '+test.score);
+    if(couleur()!=='vert') vus.push('copie juste sous modèle qui refuse : peinte « '+couleur()+' » au lieu de vert');
+    const fb1=(document.getElementById('eslFeedback')||{}).textContent||'';
+    if(fb1.indexOf('stubbé')>=0) vus.push('le modèle contredit le verdict et sa prose s\\'affiche quand même');
+    if(!envoye || String(envoye.attendu||'').indexOf('VERDICT DE LA PAGE')<0 || String(envoye.attendu||'').indexOf('correct=true')<0) vus.push('le verdict du juge ne part pas au modèle avec la règle');
+    if(!envoye || envoye.action!=='verif' || String(envoye.reponse||'').indexOf('1,2 × 0,95')<0) vus.push('la copie ne part pas au modèle telle quelle');
+    if(!test.locked || !eslFeuille.verrou) vus.push('après une copie juste en entraînement, l\\'écran n\\'est pas verrouillé');
+    if(!/suivant|résultats/i.test(bouton())) vus.push('après le verdict, le bouton n\\'est pas « suivant » : « '+bouton()+' »');
+    if(test.answers[0].given.indexOf('1,2 × 0,95')<0 || test.answers[0].answer!=='hausse de 14 %') vus.push('la réponse enregistrée ne porte pas la copie et la bonne réponse : '+JSON.stringify(test.answers[0]));
+
+    /* 2. le modèle accepte une copie fausse : la page refuse, et le corrigé vient en entraînement */
+    armer('1,2 × 0,95 = 1,14\\nhausse de 15 %'); MODELE={correct:true, panne:false};
+    await checkEsl();
+    if(test.score!==0 || test.answers[0].correct!==false) vus.push('le modèle accepte une copie fausse et la page le suit : score '+test.score);
+    if(couleur()!=='rouge') vus.push('copie fausse sous modèle qui accepte : peinte « '+couleur()+' » au lieu de rouge');
+    const cor=document.querySelector('#eslFeedback .esl-cor');
+    if(!cor) vus.push('en entraînement, le corrigé n\\'est pas écrit sous le verdict');
+    else if(cor.textContent.indexOf('hausse de 14 %')<0 || cor.textContent.indexOf('120 × 0,95 = 114')<0 || cor.textContent.indexOf('5 % de 120 est 6')<0) vus.push('le corrigé n\\'écrit pas les trois méthodes : « '+cor.textContent.slice(0,160)+' »');
+    if(!test.locked) vus.push('après une copie fausse en entraînement, l\\'écran n\\'est pas verrouillé');
+    if(!envoye || String(envoye.attendu||'').indexOf('correct=false')<0) vus.push('le verdict « faux » du juge ne part pas au modèle');
+
+    /* 3. le juge s'abstient : le modèle décide seul, sans bloc VERDICT */
+    armer('1,2 × 0,95 = 1,14 = 114 %\\nhausse de 14 %'); MODELE={correct:true, panne:false};
+    await checkEsl();
+    if(test.score!==1 || test.answers[0].correct!==true) vus.push('juge abstenu : l\\'acceptation du modèle devait faire foi, score '+test.score);
+    if(envoye && String(envoye.attendu||'').indexOf('VERDICT DE LA PAGE')>=0) vus.push('le juge s\\'abstient mais un bloc VERDICT part quand même au modèle');
+    const fb3=(document.getElementById('eslFeedback')||{}).textContent||'';
+    if(fb3.indexOf('stubbé')<0) vus.push('juge abstenu : la prose du modèle ne s\\'affiche pas');
+
+    /* 4. le modèle en panne : le juge répond seul */
+    armer('120\\n5 % de 120 est 6\\n120 − 6 = 114\\nhausse de 14 %'); MODELE={correct:false, panne:true};
+    await checkEsl();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true) vus.push('modèle en panne sur une copie juste : la page devait donner le point, score '+test.score);
+    const fb4=(document.getElementById('eslFeedback')||{}).textContent||'';
+    if(fb4.indexOf('indisponible')>=0) vus.push('modèle en panne : la page dit « indisponible » alors que le juge savait');
+    /* et quand le juge s'abstient aussi : la page le dit et rend le bouton */
+    armer('1,2 × 0,95 = 1,14 = 114 %\\nhausse de 14 %'); MODELE={correct:true, panne:true};
+    await checkEsl();
+    if(test.locked || test.answers.length) vus.push('juge abstenu et modèle en panne : la page a tranché quand même');
+    if(!/Vérifier/.test(bouton())) vus.push('juge abstenu et modèle en panne : le bouton « Vérifier » ne revient pas');
+
+    /* 5. en soutien, une copie fausse rouvre la feuille */
+    armer('1,2 × 0,95 = 1,14\\nhausse de 15 %','soutien'); MODELE={correct:false, panne:false};
+    await checkEsl();
+    if(test.locked || eslFeuille.verrou) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    if(!/Revérifier/.test(bouton())) vus.push('en soutien, le bouton « Revérifier » n\\'est pas proposé : « '+bouton()+' »');
+    if(test.answers.length) vus.push('en soutien, une copie fausse est déjà comptée');
+    if(document.querySelector('#eslFeedback .esl-cor')) vus.push('en soutien, le corrigé est écrit alors que l\\'élève peut encore corriger');
+    /* puis la copie corrigée vaut le point */
+    eslFeuille=feuille('1,2 × 0,95 = 1,14\\nhausse de 14 %');
+    await checkEsl();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true) vus.push('en soutien, la copie corrigée ne vaut pas le point : score '+test.score);
+
+    /* 6. la feuille vide : un message, aucun appel */
+    armer(''); MODELE={correct:true, panne:false};
+    await checkEsl();
+    if(envoye) vus.push('une feuille vide part au modèle');
+    if(couleur()!=='rouge' || test.locked) vus.push('une feuille vide ne reçoit pas de message, ou verrouille');
+
+    /* 7. la fin de séance : la note part sous SON identifiant */
+    armer('1,2 × 0,95 = 1,14\\nhausse de 14 %'); MODELE={correct:false, panne:false};
+    window.__faux.journal.length=0;
+    await checkEsl();
+    await finishEsl();
+    const ins=window.__faux.operations('insert','resultats_1ere').concat(window.__faux.operations('upsert','resultats_1ere'));
+    const notes=(window.__faux.tables['resultats_1ere']||[]).filter(function(r){ return r.details && r.details.test===ID; });
+    if(!ins.length || !notes.length) vus.push('la fin de séance n\\'enregistre pas la note sous « '+ID+' » ('+ins.length+' écriture(s), '+notes.length+' note(s))');
+    else if(notes[notes.length-1].score!==1 || notes[notes.length-1].total!==1) vus.push('la note enregistrée n\\'est pas 1/1 : '+JSON.stringify({score:notes[notes.length-1].score,total:notes[notes.length-1].total}));
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    jugeArithmetiqueClique(w, apres);
+  });
+}
 /* ---- Le verdict du juge PRIME sur celui du modèle -------------------------
    Le juge peut être parfait et ne rien changer si checkSFL/checkMLL n'en font
    rien : les contrôles CLIQUENT donc « Vérifier » avec un modèle stubbé qui
@@ -8626,6 +8750,284 @@ function syntheseLibreDix(w, P, S){
     console.log('   · la plus longue règle du '+S.num+' : '+p[1]+' caractères pour '+bornes.attendu
       +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
   }
+}
+/* {synthese-evolutions-successives-libre} (2.5.6) — le 2.5.4 RÉDIGÉ (demande
+   de Turquet, septembre 2026 : « un exercice comme le 2.5.4, mais où l'élève
+   doit tout rédiger avec la méthode qui lui convient, le clavier virtuel sera
+   comme celui du 2.2.14 »). Le tirage et les énoncés sont ceux du 2.5.4, la
+   feuille celle du 2.2.14, et le JUGE est neuf : il lit la copie en rationnels
+   exacts, sur trois positions (refuser sur un fait prouvable, accepter quand
+   une méthode est montrée, s'abstenir sinon), avec les MINIMUMS fixés par
+   Turquet — méthode 1 : le produit des coefficients puis la conclusion ;
+   méthode 2 : la valeur après la première évolution directement, sa
+   multiplication par le second coefficient, la conclusion ; méthode 3 : cette
+   valeur directement, « P2 % de … est … », la valeur finale, la conclusion.
+   Sept bords, et n'en tenir qu'un ne tient rien :
+     · le TIRAGE est celui du 2.5.4 (essSeance, lu et non recopié), sans
+       méthode ni sens dans la question : tout s'écrit dans la feuille ;
+     · le JUGE, cas par cas, sur des questions épinglées (+20 % puis −5 % ;
+       −50 % puis +2 % ; +20 % puis +20 %, où les deux taux sont égaux ; +5 %
+       puis +20 %, où 10 % de 105 est un décimal) : les trois méthodes au
+       minimum, dans toutes les écritures (décimaux, fractions, parenthèses,
+       « est », étiquettes, ordinaux, tel que MathLive aplatit), les lignes en
+       plus vraies, la fiche du 2.5.4 recopiée ligne à ligne ; les refus — sans
+       conclusion, conclusion seule, sens ou pourcentage faux, les pourcentages
+       additionnés, une égalité fausse, la seconde évolution refaite sur 100,
+       « P2 % = … » sans base, la méthode 3 sans sa valeur finale ou sans son
+       pourcentage, la chaîne d'égalités fausse ; l'abstention sur une écriture
+       inconnue ;
+     · AUCUN REFUS N'ÉCRIT LA RÉPONSE : ni la valeur finale, ni le
+       pourcentage, ni le coefficient global ;
+     · l'ÉCRAN : la feuille de RÉDACTION (mf-mots, la barre d'espace qui
+       écrit une espace, sur les lignes présentes et ajoutées), l'étiquette et
+       l'indication qui nomment les trois méthodes sans les nombres de la
+       question, la peinture ligne à ligne ;
+     · la RÈGLE envoyée au modèle nomme les trois minimums avec les nombres,
+       et tient dans la borne de la fonction Edge ;
+     · l'IDENTITÉ : le numéro, « Recommencer », le rappel (dont l'exemple est
+       tirable, et écrit les trois méthodes), les questions, la description,
+       le contexte de l'aide, le clavier B qui reconnaît l'écran ;
+     · le 2.5.4 et le 2.2.14 NE CHANGENT PAS : le 2.5.4 tire toujours ses deux
+       choix, la feuille du 2.2.14 écrit toujours l'espace. */
+function syntheseEvolutionsLibre(w, P){
+  const nom = 'les évolutions successives rédigées : tirage du 2.5.4, juge sur trois méthodes, écran, règle, identité';
+  const present = evaluer(w, "typeof startEsl==='function' && typeof eslJuge==='function' && typeof eslLireLigne==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas les évolutions successives rédigées');
+    return;
+  }
+  let bornes;
+  try{
+    const srcF = fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8');
+    const q = srcF.match(/payload\.question\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    const a = srcF.match(/payload\.attendu\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    if(q && a) bornes = { question:+q[1], attendu:+a[1] };
+  }catch(e){ bornes = undefined; }
+  if(!bornes){
+    verifier(nom, false, 'les bornes de troncature sont introuvables dans supabase/functions/corriger-definition/index.ts');
+    return;
+  }
+  const mesure = verifierEval(w, nom, `(function(){
+    const vus=[]; const B=${JSON.stringify(bornes)}; const ID='synthese-evolutions-successives-libre';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=ID;
+
+    /* ---- 1. le TIRAGE : celui du 2.5.4, sans les deux choix ---- */
+    const nbAttendu=${JSON.stringify(P.nbQuestionsEvolutions||null)};
+    const formesVues={};
+    for(let t=0;t<30 && !vus.length;t++){
+      startEsl();
+      if(test.qId!==ID){ vus.push('le démarreur ne pose pas son identité : « '+test.qId+' »'); break; }
+      if(test.kind!=='esl'){ vus.push('le démarreur ne pose pas son kind : « '+test.kind+' »'); break; }
+      if(nbAttendu && test.questions.length!==nbAttendu){ vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+nbAttendu); break; }
+      const paires={};
+      test.questions.forEach(function(q,i){
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!=='P1,P2,ci,s1,s2,v') vus.push('tirage '+t+' q'+i+' : la question porte « '+cles+' » — attendu P1,P2,ci,s1,s2,v (ni méthode ni sens : tout s\\'écrit)');
+        const c=Math.min(q.P1,q.P2)+'-'+Math.max(q.P1,q.P2);
+        if(paires[c]) vus.push('tirage '+t+' : la paire '+c+' sort deux fois dans la séance'); paires[c]=1;
+        if(!HS_PAIRES.some(function(p){ return (p[0]===q.P1&&p[1]===q.P2)||(p[0]===q.P2&&p[1]===q.P1); })) vus.push('tirage '+t+' q'+i+' : la paire '+q.P1+'/'+q.P2+' n\\'est pas dans HS_PAIRES');
+        formesVues[(q.s1>0?'+':'-')+(q.s2>0?'+':'-')]=1;
+      });
+      const f=test.questions.map(function(q){ return (q.s1===q.s2)?(q.s1>0?'hh':'bb'):'mixte'; }).sort().join(',');
+      if(f!=='bb,hh,mixte') vus.push('tirage '+t+' : les trois formes ne sortent pas une fois chacune ('+f+')');
+    }
+    if(!vus.length && Object.keys(formesVues).length<4) vus.push('les quatre combinaisons de signes ne sortent pas en 30 séances : '+Object.keys(formesVues).join(' '));
+
+    /* ---- 2. le JUGE, cas par cas ---- */
+    const qA=essQuestion(1,20,-1,5), qB=essQuestion(-1,50,1,2), qC=essQuestion(1,20,1,20), qD=essQuestion(1,5,1,20);
+    /* +20 % puis −5 % : 1,2 × 0,95 = 1,14, 120 puis 114, hausse de 14 % ;
+       −50 % puis +2 % : 0,5 × 1,02 = 0,51, 50 puis 51, baisse de 49 % ;
+       +20 % puis +20 % : 120 puis 144, hausse de 44 % ; +5 % puis +20 % : 105, 10 % de 105 est 10,5, 126, hausse de 26 % */
+    const cas=[
+      ['m1 décimaux',                 qA, '1,2 × 0,95 = 1,14\\nhausse de 14 %',                                   true, true ],
+      ['m1 fractions',                qA, '12/10 × 95/100 = 1140/1000 = 1,14\\naugmentation de 14 %',           true, true ],
+      ['m1 parenthèses et écart à 1', qA, '(1 + 0,2) × (1 − 0,05) = 1,14\\n1,14 − 1 = 0,14\\nc\\'est une hausse de 14 %', true, true ],
+      ['m1 conclusion signée',        qA, '1,2 × 0,95 = 1,14\\n+14 %',                                            true, true ],
+      ['m1 « évolution globale = +14 % »', qA, '1,2 × 0,95 = 1,14\\névolution globale = +14 %',                  true, true ],
+      ['m1 tel que MathLive l\\'écrit', qA, '1,2×0,95=1,14\\nhaussede14\\\\%',                                    true, true ],
+      ['m2 : 120 écrit directement',  qA, '120\\n120 × 0,95 = 114\\nhausse de 14 %',                              true, true ],
+      ['m2 : la multiplication seule', qA, '120 × 0,95 = 114\\nhausse de 14 %',                                   true, true ],
+      ['m2 : en une seule ligne',     qA, '100 × 1,2 × 0,95 = 114\\nhausse de 14 %',                              true, true ],
+      ['m2 : avec 100 × 1,2 et l\\'écart', qA, '100 × 1,2 = 120\\n0,95 × 120 = 114\\n114 − 100 = 14\\nhausse de 14 %', true, true ],
+      ['m2 : le coefficient en fraction', qA, '120 × 95/100 = 114\\nhausse de 14 %',                              true, true ],
+      ['m3 : la fiche au minimum',    qA, '120\\n5 % de 120 est 6\\n120 − 6 = 114\\nhausse de 14 %',              true, true ],
+      ['m3 tel que MathLive l\\'écrit', qA, '120\\n5\\\\%de120est6\\n120-6=114\\nhaussede14\\\\%',                true, true ],
+      ['m3 : la fiche du 2.5.4 ligne à ligne', qA, 'on prend 100 au départ\\n10 % de 100 est 10\\ndonc 20 % de 100 est 20\\ndonc la première hausse donne 100 + 20 = 120\\n10 % de 120 est 12\\ndonc 5 % de 120 est 6\\ndonc le résultat après la 2e baisse est 120 − 6 = 114\\non est passé de 100 à 114, c\\'est une hausse de 14 %', true, true ],
+      ['m3 : des étiquettes en tête', qA, '1ère hausse : 100 + 20 = 120\\n2ème évolution : 5 % de 120 = 6\\nvaleur finale = 120 − 6 = 114\\nconclusion : hausse de 14 %', true, true ],
+      ['m3 : la multiplication à la place de « est »', qA, '120\\n0,05 × 120 = 6\\n120 − 6 = 114\\nhausse de 14 %', true, true ],
+      ['m3 : « 95 % de 120 est 114 » d\\'un coup', qA, '120\\n95 % de 120 est 114\\nhausse de 14 %',              true, true ],
+      ['m3 : « 10 % de 120 = 12 » en plus', qA, '120\\n10 % de 120 = 12\\n5 % de 120 = 6\\n120 − 6 = 114\\nhausse de 14 %', true, true ],
+      ['l\\'écart en coefficient',     qA, '1,2 × 0,95 = 1,14\\nécart = 0,14\\nhausse de 14 %',                     true, true ],
+      ['sans conclusion',             qA, '1,2 × 0,95 = 1,14',                                                    true, false],
+      ['la conclusion seule',         qA, 'hausse de 14 %',                                                       true, false],
+      ['le sens faux',                qA, '1,2 × 0,95 = 1,14\\nbaisse de 14 %',                                   true, false],
+      ['le pourcentage faux',         qA, '1,2 × 0,95 = 1,14\\nhausse de 15 %',                                   true, false],
+      ['les pourcentages additionnés', qA, '20 − 5 = 15\\nhausse de 15 %',                                        true, false],
+      ['une égalité fausse',          qA, '1,2 × 0,95 = 1,15\\nhausse de 15 %',                                   true, false],
+      ['la seconde évolution sur 100', qA, '20 % de 100 est 20\\n100 + 20 = 120\\n5 % de 100 est 5\\n120 − 5 = 115\\nhausse de 15 %', true, false],
+      ['« 5 % = 6 » sans base',       qA, '120\\n5 % = 6\\n120 − 6 = 114\\nhausse de 14 %',                       true, false],
+      ['m3 sans la valeur finale',    qA, '120\\n5 % de 120 est 6\\nhausse de 14 %',                              true, false],
+      ['m3 sans le pourcentage',      qA, '120\\n120 − 6 = 114\\nhausse de 14 %',                                 true, false],
+      ['la chaîne d\\'égalités fausse', qA, '100 × 1,2 = 120 × 0,95 = 114\\nhausse de 14 %',                     true, false],
+      ['un écart faux',               qA, '1,2 × 0,95 = 1,14\\nécart = 15\\nhausse de 14 %',                      true, false],
+      ['des mots sans calcul',        qA, 'j\\'ai multiplié et ça donne 114\\nhausse de 14 %',                     true, false],
+      ['la soustraction à l\\'envers', qA, '120\\n5 % de 120 est 6\\n6 − 120 = 114\\nhausse de 14 %',             true, false],
+      ['une écriture inconnue laisse décider le modèle', qA, '1,2 × 0,95 = 1,14 = 114 %\\nhausse de 14 %',       false, null ],
+      ['baisse : m1',                 qB, '0,5 × 1,02 = 0,51\\nbaisse de 49 %',                                   true, true ],
+      ['baisse : m2',                 qB, '50\\n50 × 1,02 = 51\\ndiminution de 49 %',                             true, true ],
+      ['baisse : m3 complète',        qB, '50 % de 100 est 50\\n100 − 50 = 50\\n2 % de 50 est 1\\n50 + 1 = 51\\nbaisse de 49 %', true, true ],
+      ['baisse : l\\'addition dans l\\'autre ordre', qB, '50\\n2 % de 50 est 1\\n1 + 50 = 51\\nbaisse de 49 %',  true, true ],
+      ['baisse : conclusion signée',  qB, '0,5 × 1,02 = 0,51\\n−49 %',                                            true, true ],
+      ['baisse : le sens faux',       qB, '0,5 × 1,02 = 0,51\\nhausse de 49 %',                                   true, false],
+      ['deux taux égaux : m2',        qC, '120 × 1,2 = 144\\nhausse de 44 %',                                     true, true ],
+      ['deux taux égaux : m3',        qC, '20 % de 100 est 20\\n120\\n20 % de 120 est 24\\n120 + 24 = 144\\nhausse de 44 %', true, true ],
+      ['deux taux égaux : la seconde sur 100 est fausse à l\\'arrivée', qC, '20 % de 100 est 20\\n120 + 20 = 140\\nhausse de 40 %', true, false],
+      ['10 % de 105 est 10,5',        qD, '105\\n10 % de 105 est 10,5\\n20 % de 105 est 21\\n105 + 21 = 126\\nhausse de 26 %', true, true ],
+    ];
+    cas.forEach(function(c){
+      const j=eslJuge(c[1], c[2]);
+      if(j.sait!==c[3]) vus.push('juge « '+c[0]+' » : sait='+j.sait+' au lieu de '+c[3]+(j.phrase?' — « '+j.phrase+' »':''));
+      else if(c[3] && j.correct!==c[4]) vus.push('juge « '+c[0]+' » : correct='+j.correct+' au lieu de '+c[4]+(j.phrase?' — « '+j.phrase+' »':''));
+    });
+    /* les refus nomment ce qui manque, et n'écrivent JAMAIS la réponse (114, 14, 1,14) */
+    if(!vus.length){
+      const dire=function(q,t){ return eslJuge(q,t).phrase||''; };
+      cas.filter(function(c){ return c[1]===qA && c[3]===true && c[4]===false; }).forEach(function(c){
+        const ph=dire(qA,c[2]);
+        /* ce que le refus CITE de la copie (« 6 − 120 = 114 ») est à l'élève, pas à la page */
+        const propre=ph.replace(/«[^»]*»/g,'');
+        if(/\\b114\\b|1,14|\\b14\\b/.test(propre)) vus.push('le refus « '+c[0]+' » écrit la réponse : « '+ph+' »');
+      });
+      let ph=dire(qA,'1,2 × 0,95 = 1,14');
+      if(ph.indexOf('conclusion')<0) vus.push('le refus sans conclusion ne la nomme pas : « '+ph+' »');
+      ph=dire(qA,'1,2 × 0,95 = 1,15\\nhausse de 15 %');
+      if(ph.indexOf('1,2 × 0,95 = 1,15')<0) vus.push('le refus d\\'une égalité fausse ne la nomme pas : « '+ph+' »');
+      ph=dire(qA,'20 % de 100 est 20\\n100 + 20 = 120\\n5 % de 100 est 5\\n120 − 5 = 115\\nhausse de 15 %');
+      if(ph.indexOf('100')<0 || ph.indexOf('5 % de')<0) vus.push('le refus de la seconde évolution sur 100 ne le dit pas : « '+ph+' »');
+      ph=dire(qA,'120\\n5 % = 6\\n120 − 6 = 114\\nhausse de 14 %');
+      if(ph.indexOf('5 % de quoi')<0) vus.push('le refus de « 5 % = 6 » ne demande pas la base : « '+ph+' »');
+      ph=dire(qA,'20 − 5 = 15\\nhausse de 15 %');
+      if(ph.indexOf('additionnent')<0) vus.push('le refus des pourcentages additionnés ne le dit pas : « '+ph+' »');
+      ph=dire(qA,'120\\n5 % de 120 est 6\\nhausse de 14 %');
+      if(ph.indexOf('valeur finale')<0) vus.push('le refus de la méthode 3 sans valeur finale ne la nomme pas : « '+ph+' »');
+      ph=dire(qA,'120\\n120 − 6 = 114\\nhausse de 14 %');
+      if(ph.indexOf('5 % de')<0) vus.push('le refus de la méthode 3 sans pourcentage ne le nomme pas : « '+ph+' »');
+    }
+
+    /* ---- 3. l'ÉCRAN : la feuille de rédaction du 2.2.14, l'étiquette, la peinture ---- */
+    if(!vus.length){
+      startEsl();
+      test.questions[0]=JSON.parse(JSON.stringify(qA)); test.idx=0; renderEsl();
+      if(!document.getElementById('scr-esl').classList.contains('on')) vus.push('l\\'écran scr-esl ne s\\'affiche pas');
+      const prompt=String((document.getElementById('eslPrompt')||{}).textContent||'');
+      if(prompt.indexOf('hausse ou une baisse')<0) vus.push('l\\'énoncé ne pose pas la question du 2.5.4 : « '+prompt.slice(0,120)+' »');
+      const lab=[].slice.call(document.getElementById('eslHost').querySelectorAll('.pt-lab')).map(function(e){ return String(e.textContent||''); }).join(' ');
+      if(lab.indexOf('coefficient')<0 || lab.indexOf('100')<0 || lab.indexOf('5 % de')<0 || lab.indexOf('conclusion')<0) vus.push('l\\'étiquette de la feuille ne nomme pas les trois méthodes et la conclusion : « '+lab+' »');
+      if(/\\b114\\b|1,14|\\b14\\b|\\b120\\b/.test(lab)) vus.push('l\\'étiquette écrit un nombre du calcul : « '+lab+' »');
+      const hint=String((document.getElementById('eslHost').querySelector('.dexp-hint')||{}).textContent||'');
+      if(hint.indexOf('espace')<0 || hint.indexOf('%')<0 || hint.indexOf('est')<0) vus.push('l\\'indication sous la feuille n\\'explique pas comment écrire (« est », %, espace) : « '+hint+' »');
+      if(/\\{[a-z-]+\\}/.test(lab+hint)) vus.push('une référence {identifiant} reste affichée');
+      if(!eslFeuille || !eslFeuille.lignes.length) vus.push('la feuille de rédaction n\\'existe pas');
+      const espLatex=function(v){ v=String(v||''); return v.length>0 && (v==='~' || (v.charCodeAt(0)===92 && v.length===2 && ',;: '.indexOf(v.charAt(1))>=0)); };
+      const l0=eslFeuille&&eslFeuille.lignes[0]&&eslFeuille.lignes[0].mf;
+      if(!l0 || !l0.classList || !l0.classList.contains('mf-mots')) vus.push('la feuille n\\'est pas une feuille de rédaction (classe mf-mots absente) : le clavier B des lettres ne la trouverait pas');
+      if(!l0 || !espLatex(l0.mathModeSpace)) vus.push('la barre d\\'espace n\\'écrit pas d\\'espace : mathModeSpace « '+(l0?l0.mathModeSpace:'?')+' »');
+      const lAj=eslFeuille&&eslFeuille.ajouterLigne();
+      if(!lAj || !lAj.mf || !espLatex(lAj.mf.mathModeSpace) || !lAj.mf.classList.contains('mf-mots')) vus.push('une ligne ajoutée par « Entrée » n\\'est pas une ligne de rédaction avec l\\'espace');
+      if(typeof kbLettres==='function' && !kbLettres(ID)) vus.push('kbLettres ne reconnaît pas l\\'écran : le clavier B ne viendrait pas');
+      /* la peinture : sur une feuille adossée à de vrais éléments */
+      const lignes=['1,2 × 0,95 = 1,14','5 % de 120 est 6','5 % de 100 est 6','hausse de 14 %','120','écart = 15','on prend 100 au départ'];
+      const ls=lignes.map(function(t){ const el=document.createElement('math-field'); el.value=t; return {mf:el, line:el}; });
+      eslFeuille={ lire:function(){ return lignes.join('\\n'); }, lignes:ls, verrouiller:function(){} };
+      eslPeindreLignes();
+      const cl=ls.map(function(L){ return L.mf.className; });
+      if(cl[0].indexOf('ok')<0) vus.push('« 1,2 × 0,95 = 1,14 » (juste) n\\'est pas peinte en bleu : « '+cl[0]+' »');
+      if(cl[1].indexOf('ok')<0) vus.push('« 5 % de 120 est 6 » (juste) n\\'est pas peinte en bleu : « '+cl[1]+' »');
+      if(cl[2].indexOf('bad')<0) vus.push('« 5 % de 100 est 6 » (faux) n\\'est pas peinte en rouge : « '+cl[2]+' »');
+      if(/ok|bad/.test(cl[3])) vus.push('la conclusion en mots reçoit une couleur : « '+cl[3]+' »');
+      if(/ok|bad/.test(cl[4])) vus.push('une valeur seule reçoit une couleur : « '+cl[4]+' »');
+      if(cl[5].indexOf('bad')<0) vus.push('« écart = 15 » (faux) n\\'est pas peinte en rouge : « '+cl[5]+' »');
+      if(/ok|bad/.test(cl[6])) vus.push('un commentaire reçoit une couleur : « '+cl[6]+' »');
+    }
+
+    /* ---- 4. la règle envoyée au modèle ---- */
+    let pireQ=0, pireA=0, pireEti='';
+    const jugeMesure={sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul : « 1,2 × 0,95 = 1,15 ». Reprends cette ligne.'};
+    for(let i=0;i<120 && !vus.length;i++){
+      const q=genEss(), a=essAns(q);
+      const e=eslEnonceIA(q), r=eslAttenduIA(q, (i%4===0)?jugeMesure:null);
+      if(e.length>pireQ) pireQ=e.length;
+      if(r.length>pireA){ pireA=r.length; pireEti=(q.s1>0?'+':'−')+q.P1+' puis '+(q.s2>0?'+':'−')+q.P2; }
+      const eti='('+(q.s1>0?'+':'−')+q.P1+' puis '+(q.s2>0?'+':'−')+q.P2+') ';
+      const regle=r.slice(Math.max(0,r.indexOf('RÈGLE DE DÉCISION')));
+      const c1=eslCoefStr(a.c1), c2=eslCoefStr(a.c2);
+      if(regle.indexOf('TROIS MÉTHODES')<0){ vus.push(eti+'la règle ne compte pas trois méthodes'); break; }
+      if(regle.indexOf(c1+' × '+c2+' = '+a.coefStr)<0){ vus.push(eti+'la règle n\\'écrit pas la méthode 1 « '+c1+' × '+c2+' = '+a.coefStr+' »'); break; }
+      if(regle.indexOf(a.v1+' × '+c2+' = '+a.v2)<0){ vus.push(eti+'la règle n\\'écrit pas la méthode 2 « '+a.v1+' × '+c2+' = '+a.v2+' »'); break; }
+      if(regle.indexOf(q.P2+' % de '+a.v1+' est '+a.aug2)<0 || regle.indexOf(a.v1+' '+(q.s2>0?'+':'−')+' '+a.aug2+' = '+a.v2)<0){ vus.push(eti+'la règle n\\'écrit pas la méthode 3'); break; }
+      if(regle.indexOf('écrite directement')<0){ vus.push(eti+'la règle ne dit pas que la valeur intermédiaire peut être écrite directement'); break; }
+      if(regle.indexOf('sur 100 au lieu de '+a.v1)<0){ vus.push(eti+'la règle ne refuse plus la seconde évolution sur 100'); break; }
+      if(regle.indexOf((a.sens>0?'hausse':'baisse')+' de '+a.pct+' %')<0){ vus.push(eti+'la règle n\\'écrit pas la conclusion attendue'); break; }
+      if(regle.indexOf('AUCUNE ÉGALITÉ FAUSSE')<0){ vus.push(eti+'la règle n\\'interdit plus les égalités fausses'); break; }
+      if(r.indexOf('STRICTEMENT SECRÈTE')<0){ vus.push(eti+'la réponse n\\'est plus déclarée secrète'); break; }
+      if((i%4===0) && (r.indexOf('VERDICT DE LA PAGE')<0 || r.indexOf('PRIORITAIRE')<0)){ vus.push(eti+'le verdict du juge ne part plus avec la règle'); break; }
+      if(e.indexOf('est')<0 || e.indexOf('espaces')<0 || e.indexOf('hausse ou une baisse')<0){ vus.push(eti+'l\\'énoncé envoyé ne dit pas la question, « est » et les lignes aplaties'); break; }
+    }
+    if(!vus.length && pireA>B.attendu-300)
+      vus.push('la règle frôle ou dépasse la borne de la fonction Edge : '+pireA+' caractères pour '+B.attendu+' ('+pireEti+')');
+    if(!vus.length && pireQ>B.question-300)
+      vus.push('l\\'énoncé frôle ou dépasse sa borne : '+pireQ+' caractères pour '+B.question);
+
+    /* ---- 5. l'identité, le rappel, l'aide ---- */
+    if(TEST_NUM[ID]!=='2.5.6') vus.push('le numéro n\\'est pas 2.5.6 : « '+TEST_NUM[ID]+' »');
+    if(TEST_NUM['synthese-evolutions-successives']!=='2.5.4' || TEST_NUM['evolutions-successives']!=='2.5.5') vus.push('le 2.5.4 ou le 2.5.5 a changé de numéro');
+    test.kind='esl'; test.qId='(sentinelle)'; restartCurrentTest();
+    if(test.qId!==ID) vus.push('« Recommencer » relance « '+test.qId+' »');
+    if(!afficherEcranDe('esl') || !document.getElementById('scr-esl').classList.contains('on')) vus.push('la reprise ne connaît pas l\\'écran esl');
+    const rap=(typeof RAPPELS_ID!=='undefined' && RAPPELS_ID[ID])||'';
+    if(!rap) vus.push('aucun rappel de cours');
+    else {
+      const m=/(\\d+) % puis (?:de )?(?:baisser de |augmenter de )?(\\d+) %/.exec(rap);
+      if(!m) vus.push('le rappel ne montre aucun exemple « X % puis Y % »');
+      else if(!HS_PAIRES.some(function(p){ return (p[0]===+m[1]&&p[1]===+m[2])||(p[0]===+m[2]&&p[1]===+m[1]); })) vus.push('le rappel montre '+m[1]+' % puis '+m[2]+' %, que le tirage ne rend jamais');
+      ['Méthode 1','Méthode 2','Méthode 3','1,2 × 0,95 = 1,14','120 × 0,95 = 114','5 % de 120 est 6','120 − 6 = 114','hausse de 14 %','directement','5 % de 100 est 5'].forEach(function(t){ if(rap.indexOf(t)<0) vus.push('le rappel n\\'écrit pas « '+t+' »'); });
+      if(rap===RAPPELS_ID['synthese-evolutions-successives']) vus.push('le rappel est celui du 2.5.4, qui ne dit pas les minimums rédigés');
+    }
+    if(!(QIA_SUGG.esl && QIA_SUGG.esl.length>=3)) vus.push('QIA_SUGG.esl manque');
+    if(!TESTS[ID] || TESTS[ID].desc.indexOf('5 % de 120 est 6')<0 || !/r\\u00e9dig/i.test(TESTS[ID].desc)) vus.push('la description ne dit pas que tout se rédige, ni la forme « 5 % de 120 est 6 »');
+    currentTestId=ID; test.kind='esl'; test.questions=[essQuestion(1,20,-1,5)]; test.idx=0;
+    const ctx=conseilCtxCourant();
+    ['hausse globale de 14 %','1,2 × 0,95 = 1,14','120 × 0,95 = 114','5 % de 120 est 6','Méthode 3','STRICTEMENT SECRÈTES','RÉDIGÉ'].forEach(function(t){ if(ctx.indexOf(t)<0) vus.push('le contexte envoyé au modèle ne dit pas « '+t+' »'); });
+    /* le 2.5.4 et le 2.2.14 ne changent pas */
+    startEss();
+    if(test.questions.some(function(q){ return !('meth' in q) || !('choisi' in q); })) vus.push('le 2.5.4 a perdu ses deux choix (meth, choisi) dans la question');
+    startSynAugLibreDix();
+    const l14=salFeuille&&salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+    if(!l14 || !String(l14.mathModeSpace||'').length) vus.push('la feuille du 2.2.14 n\\'écrit plus l\\'espace');
+    return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
+  })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
+  if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
+    const p=mesure.split('|');
+    console.log('   · la plus longue règle du 2.5.6 : '+p[1]+' caractères pour '+bornes.attendu
+      +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
+  }
+  /* LE TIRAGE ET LA FEUILLE SONT REPRIS, PAS RECOPIÉS : on lit la SOURCE, jamais
+     String(renderEsl) — les rendus sont enveloppés par la greffe des jetons. */
+  const src = lire(CIBLE);
+  const corps = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const texte = n => (corps.find(o => o.nom === n) || { texte:'' }).texte;
+  verifier('le 2.5.6 reprend le tirage du 2.5.4 et la feuille du 2.2.14, sans rien recopier',
+    texte('startEsl').indexOf('essSeance') >= 0 && texte('renderEsl').indexOf('mlFeuille') >= 0
+      && /mode:\s*'redaction'/.test(texte('renderEsl')) && texte('renderEsl').indexOf('salEspaces') >= 0
+      && texte('renderEsl').indexOf('ESS_ENONCES') >= 0 && texte('eslJuge').indexOf('essAns') >= 0
+      && !/\bconst\s+ESL_(?:PAIRES|ENONCES|TAUX)\s*=/.test(src),
+    texte('startEsl').indexOf('essSeance') < 0 ? 'startEsl ne tire plus par essSeance'
+      : texte('renderEsl').indexOf('ESS_ENONCES') < 0 ? 'renderEsl n’écrit plus les énoncés du 2.5.4'
+      : !/mode:\s*'redaction'/.test(texte('renderEsl')) ? 'la feuille n’est plus en mode « redaction »'
+      : texte('renderEsl').indexOf('salEspaces') < 0 ? 'la feuille ne passe plus par salEspaces (l’espace ne sortirait plus d’une fraction)'
+      : texte('eslJuge').indexOf('essAns') < 0 ? 'eslJuge ne lit plus essAns'
+      : 'le 2.5.6 s’est donné un vivier ou des énoncés à lui');
 }
 /* {ordre-croissant} — les nombres de {placer-intervalle}, à ranger avec « < ».
    Quatre bords, et n'en tenir qu'un ne tient rien :
@@ -28834,7 +29236,7 @@ function verdictColore(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux',
       'ce niveau n\'a pas d\'exercice rédigé corrigé par l\'IA');
-    return jugeArithmetiqueClique(w, apres);
+    return evolutionsRedigeesClique(w, apres);
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -28961,7 +29363,7 @@ function verdictColore(w, apres){
   })()`, function(r){
     if(!r.ok) verifier('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux', false, 'erreur JavaScript : '+r.erreur);
     else verifier('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux', r.valeur==='', r.valeur);
-    jugeArithmetiqueClique(w, apres);
+    evolutionsRedigeesClique(w, apres);
   });
 }
 function simplifierBarres(w, P){
