@@ -247,7 +247,9 @@ module.exports = {
        posée pendant la frappe ne dirait que si l'élève a bien recopié. Pire,
        « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre juste.
        Le soutien y colore à la vérification, sans jamais révéler la valeur. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac'] },
+    /* « esl » : {synthese-evolutions-successives-libre} (2.5.6), une feuille
+       rédigée relue à la vérification, comme « sal » */
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'esl'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
@@ -313,7 +315,13 @@ module.exports = {
                           écrit les espaces sur les quatre exercices du moteur
                           (le 2.5.2 est `exercice`, tapé avec des espaces aussi) */
                        espacesAussi: [ { exercice: 'synthese-diminutions-libre', fam: 'dim', num: '2.3.9' },
-                                       { exercice: 'synthese-augmentations-libre', fam: 'aug', num: '2.2.10' } ] },
+                                       { exercice: 'synthese-augmentations-libre', fam: 'aug', num: '2.2.10' } ],
+                       /* {synthese-evolutions-successives-libre} (2.5.6) : le 2.5.4
+                          rédigé sur la feuille du 2.2.14 — le banc tape la méthode 3 de
+                          la fiche EN MOTS (« 5 % de 120 est 6 ») dans un vrai MathLive :
+                          « de » et « est » doivent ressortir entiers, et le juge lire
+                          « est » comme « = » */
+                       evolutions: { exercice: 'synthese-evolutions-successives-libre', num: '2.5.6' } },
     /* Le pavé numérique compact de la Première sert AUSSI ses cases MathLive
        (champsMaths = PAVE_MF dans la page — deux sources) : toutes ses cases
        pm-mf n'attendent qu'un nombre. Le banc navigateur en tape une pour de
@@ -454,7 +462,8 @@ module.exports = {
                        --kb-unites et TOUTES rétrécissent. */
                     lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
                                touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
-                               exercices: ['synthese-diminutions-libre-dix', 'synthese-augmentations-libre-dix'], hors: ['synthese-diminutions-libre', 'synthese-augmentations-libre'] } },
+                               /* puis {synthese-evolutions-successives-libre} (2.5.6), la feuille du 2.2.14 sur le 2.5.4 */
+                               exercices: ['synthese-diminutions-libre-dix', 'synthese-augmentations-libre-dix', 'synthese-evolutions-successives-libre'], hors: ['synthese-diminutions-libre', 'synthese-augmentations-libre'] } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
@@ -497,7 +506,7 @@ module.exports = {
       conseil: true,
       /* {synthese-evolutions-successives} (2.5.4) n'existe qu'en Première :
          la Seconde dérive sa liste de KINDS_PREMIERE, on l'ajoute donc ICI. */
-      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()'], ['bsd','genBaissesDix()']]),
+      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()'], ['esl','genEss()'], ['bsd','genBaissesDix()']]),
              prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;', psl: 'test.questions[0].choisi=0;' } },
       mlStatic: true,
     },

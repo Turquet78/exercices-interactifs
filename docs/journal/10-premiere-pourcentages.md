@@ -3238,3 +3238,155 @@ ouvre l'exercice AVANT tout choix de méthode : les chaînes de la synthèse ne
 sont vues dans un vrai Chromium qu'à travers leurs jumelles, celle de la
 fraction en 2.1.4 / 2.1.5, celles des 10 % en 2.1.9 / 2.1.10, dont le DOM et
 les classes sont les mêmes. C'est nommé, pas tu.
+
+---
+
+## {synthese-evolutions-successives-libre} — le 2.5.4 rédigé, sur la feuille du 2.2.14 (Première, septembre 2026)
+
+**D'où il vient.** Demande de Turquet : « en Première faire un exercice comme
+le 2.5.4, mais où l'élève doit tout rédiger avec la méthode qui lui convient,
+le clavier virtuel sera comme celui du 2.2.14 ». Et les MINIMUMS, méthode par
+méthode : « pour la 1ère méthode : accepter au minimum la multiplication de
+deux coefficients qui donne le coefficient global, et ensuite le % d'évolution
+global directement. Pour la méthode 2 qui part de 100 et qui multiplie par
+les coefficients, accepter au minimum la valeur finale de la première
+évolution directement, puis la multiplication de cette valeur par le
+coefficient de la 2ème évolution, puis le % d'évolution global directement.
+Pour la 3ème méthode, qui part de 100 aussi, accepter au minimum la valeur
+finale de la première évolution puis "…% de ….. est ….." pour la deuxième
+évolution avec la valeur finale ensuite de la 2ème évolution, puis le %
+d'évolution global directement. » L'exercice ferme le sous-thème 2.5,
+{synthese-evolutions-successives-libre} (2.5.6), après le 2.5.5 : rien n'a
+été renuméroté — le motif du 2.2.14 et du 2.3.14, le nouveau venu à la fin de
+son sous-thème.
+
+**Presque rien n'est neuf sauf le juge, et c'est voulu.** Le tirage est
+`essSeance` (les trois formes une fois chacune, les paires de `HS_PAIRES`
+sans remise), les énoncés `ESS_ENONCES`, les nombres `essAns` — lus, jamais
+recopiés, le contrôle lit la SOURCE et l'exige. La question ne porte que
+`s1, s2, P1, P2, ci, v` : `startEsl` retire `meth` et `choisi`, ici tout
+s'écrit. La feuille est `mlFeuille` en mode « redaction » (la liste blanche
+des raccourcis, la classe `mf-mots` que `kbLettres` cherche pour poser le
+clavier B sur tablette, la barre d'espace qui écrit une espace), et
+`salEspaces` — qui ne connaissait que `salSheet` — prend désormais le nom de
+sa feuille pour faire sortir l'espace d'une fraction sur `eslSheet` aussi.
+Le kind est `esl`, l'écran `scr-esl`, les quinze branchements sont posés
+(TESTS, THEMES, l'écran, `testScreens`, la réserve du bas, « Recommencer »,
+`afficherEcranDe`, les enveloppes, `RAP_ESL`, `QIA_SUGG.esl`,
+`conseilCtxCourant`, `details.test`) ; pas de correction en direct, comme
+« sal » — la copie se relit à la vérification, et le profil le déclare
+(`soutienEnDirect.sans`).
+
+**Le juge (`eslJuge`) lit des rationnels exacts sur trois positions**, le
+motif de `salJuge` : refuser sur un fait prouvable, accepter quand une
+méthode est positivement montrée, s'abstenir quand une écriture lui échappe
+(le modèle décide alors seul). Chaque ligne passe par `eslLireLigne`, qui
+rend son TYPE : la conclusion (« hausse de 14 % », « diminution de 49 % »,
+ou signée « +14 % », « évolution globale = +14 % »), une valeur seule
+(« 120 »), un commentaire, une ligne « k % [de M] = … » (par `salDixPct`),
+« écart = … », ou un calcul (par `salExpr`, avec ses TERMES — la liste des
+facteurs de chaque produit). **La fiche s'écrit en mots, et la ligne se lit
+comme l'élève la dit** : « est », « font », « vaut », « donne », « fait »
+valent « = » (« 5 % de 120 est 6 ») ; une étiquette en tête (« 1ère
+hausse : », « donc la première hausse donne », « coefficient global = ») est
+retirée — un morceau sans nombre n'affirme rien, et « 2e baisse » n'est pas
+un nombre — ; les mots qui précèdent un nombre (« donc 5 % de 120 ») aussi.
+Un commentaire NEUTRE (« on prend 100 au départ », « méthode 2 ») ne force
+pas l'abstention ; un commentaire qui porte d'autres nombres peut cacher la
+méthode, et le juge s'abstient si aucune n'est montrée ailleurs.
+**Les trois méthodes se reconnaissent sur les termes** par `eslPartage` : un
+produit montre « X × Y » si ses facteurs se partagent en deux paquets dont
+les produits valent X et Y — quel que soit l'ordre, et quelle que soit
+l'écriture (1,2 ou 12/10, (1 + 0,2)). Méthode 1 : un terme qui se partage en
+c1 et c2. Méthode 2 : un terme qui se partage en v1 et c2 — « 120 × 0,95 »,
+mais aussi « 100 × 1,2 × 0,95 » et « 120 × 95/100 ». Méthode 3 : « P2 % de
+v1 = aug2 » (ou un terme qui se partage en v1 et P2/100, ou « 95 % de 120 est
+114 » d'un coup), ET une ligne à l'opération du bon signe qui vaut v2. La
+conclusion doit porter le bon sens ET le bon pourcentage. Tout ce qui
+s'écrit EN PLUS est lu et doit être vrai : une égalité fausse refuse la
+copie en la nommant.
+**Ce qui est refusé par leçon**, comme au 2.5.4 : la seconde évolution
+refaite sur 100 (« 5 % de 100 est 5 » — vraie arithmétiquement, fausse de
+méthode, détectée quand les deux taux diffèrent, et le refus dit sur quoi
+elle porte), « 5 % = 6 » sans base (le refus demande « 5 % de quoi ? »), et
+la conclusion qui additionne les pourcentages (le refus dit que les
+évolutions ne s'additionnent pas). **Aucun refus n'écrit la réponse** — ni
+la valeur finale, ni le pourcentage, ni le coefficient global : un refus
+nomme la ligne fausse (celle de l'élève, qui peut la contenir), ou ce qui
+manque à la méthode entamée (« il manque la valeur finale », « la ligne « 5 %
+de … est … » »), ou dit de comparer le coefficient à 1 et la valeur finale à
+100 quand le calcul est juste et la conclusion fausse. Le contrôle le
+mesure sur chaque refus des cas épinglés, en retirant ce que le refus CITE.
+
+**La vérification est celle de `checkSal`** : le juge d'abord, puis le
+modèle avec la règle (`eslAttenduIA` — la réponse déclarée secrète, les trois
+minimums avec les nombres, « écrite directement », le refus de la seconde
+évolution sur 100, le VERDICT DE LA PAGE prioritaire) et l'énoncé
+(`eslEnonceIA` — « est » vaut « = », les lignes aplaties par l'éditeur). Le
+juge prime ; en panne du modèle il répond seul ; sur un refus, sa phrase
+s'affiche toujours. La feuille se PEINT ligne à ligne (`eslPeindreLignes` :
+les calculs vrais en bleu, faux en rouge, la conclusion, une valeur seule et
+un commentaire sans couleur). En SOUTIEN, une copie fausse rouvre la feuille
+(« Revérifier ») ; en ENTRAÎNEMENT, elle verrouille et le corrigé s'écrit en
+VERT sous le verdict (`eslCorrection`, classe `.esl-cor` — la couleur de la
+correction, jamais celle du juste). La note part sous
+`synthese-evolutions-successives-libre`. Le rappel (`RAP_ESL`) écrit les
+trois méthodes sur 20 % puis −5 % avec les lignes minimales en gras ; le
+contexte de l'aide dit les trois minimums avec les nombres et l'erreur
+classique ; les coefficients s'y écrivent COMPACTS (`eslCoefStr` : 1,2, pas
+1,20 — c'est ce que l'élève tape). `APP_VERSION` 271.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, « les évolutions
+successives rédigées : tirage du 2.5.4, juge sur trois méthodes, écran,
+règle, identité ») : le tirage (identité, kind, trois questions, les trois
+formes, les paires dans `HS_PAIRES`, sans remise, AUCUN autre champ que les
+six) ; le juge sur quatre questions épinglées (+20 % puis −5 % ; −50 % puis
++2 % ; +20 % puis +20 %, où les deux taux sont égaux ; +5 % puis +20 %, où
+10 % de 105 est 10,5) et quarante-quatre copies — les trois méthodes au
+minimum dans toutes les écritures (décimaux, fractions, parenthèses,
+« est », étiquettes, ordinaux, la fiche du 2.5.4 recopiée ligne à ligne, tel
+que MathLive aplatit), les refus nommés, l'abstention sur « 1,14 = 114 % »,
+la soustraction à l'envers refusée et l'addition dans l'autre ordre acceptée,
+aucun refus qui écrive 114, 1,14 ou 14 hors de ce qu'il cite ; l'écran (la
+feuille de rédaction et l'espace sur les lignes présentes et ajoutées,
+`kbLettres` qui reconnaît l'écran, l'étiquette qui nomme les trois méthodes
+et la conclusion SANS les nombres du calcul, l'indication qui dit « est », le
+%, l'espace, la peinture ligne à ligne) ; la règle au modèle sur 120 tirages
+(les trois minimums avec les nombres, « écrite directement », le refus sur
+100, la borne de la fonction Edge) ; l'identité (2.5.6, et le 2.5.4 et le
+2.5.5 qui gardent leur numéro, « Recommencer », la reprise, le rappel dont
+l'exemple est tirable, les questions, la description, le contexte) ; et le
+2.5.4 qui tire toujours ses deux choix, le 2.2.14 dont la feuille écrit
+toujours l'espace. Un second contrôle lit la SOURCE : `startEsl` tire par
+`essSeance`, `renderEsl` écrit `ESS_ENONCES` sur `mlFeuille` en mode
+« redaction » avec `salEspaces`, `eslJuge` lit `essAns`, aucun vivier ni
+énoncé propre. Un troisième, dans la chaîne séquentielle (« les évolutions
+successives rédigées, cliquées »), CLIQUE « Vérifier » avec un modèle stubbé
+qui se trompe : le juge prime dans les deux sens sans afficher la prose
+contraire, le juge abstenu laisse le modèle décider sans bloc VERDICT, le
+modèle en panne laisse le juge répondre seul (et la page rend le bouton
+quand les deux se taisent), le soutien rouvre la feuille et la copie
+corrigée vaut le point, l'entraînement verrouille et écrit le corrigé, la
+feuille vide n'appelle pas le modèle, la fin de séance enregistre 1/1 sous
+l'identifiant.
+Deux bords sont venus du contrôle lui-même, à la première exécution : la
+copie « tel que MathLive l'écrit » avait été épinglée avec `\times`, que la
+feuille ne rend jamais (toPlain le fait « × ») — le cas est devenu « 1,2×0,95
+=1,14 » sans espaces et « haussede14\% » — ; et le refus « il y a une
+égalité fausse : « 6 − 120 = 114 » » rougissait la règle du secret en citant
+la ligne de l'élève, qui contient 114 : la règle retire désormais ce que le
+refus cite. Un troisième est venu du contexte de l'aide : `essCoefStr` écrit
+« 1,20 », et le contrôle attendait « 1,2 » — c'est la page qui a changé, pas
+le contrôle : l'élève tape 1,2.
+
+**Au banc navigateur** (« 6 vicies octies », étape 5, sur
+`syntheseRedigee.evolutions`) : la méthode 3 de la fiche est TAPÉE en mots
+dans un vrai MathLive (« 120 », « 5 % de 120 est 6 », « 120 - 6 = 114 »,
+« hausse de 14 % ») sur la question épinglée ; « de » et « est » doivent
+ressortir entiers (la liste blanche de la feuille de rédaction — jsdom n'a
+pas MathLive, c'est ici seul que la frappe se mesure), le juge lire « est »
+comme « = », la note compter, les deux lignes de calcul se peindre en bleu,
+la valeur seule et la conclusion ne rien recevoir. Le profil nomme aussi le
+2.5.6 dans `clavierEcran.lettres.exercices` (le clavier B sur tablette), et
+`aide.ctx.kinds` porte `esl` avec `genEss()`. Les règles universelles sont
+tenues par la visite (section 9) sans rien déclarer.

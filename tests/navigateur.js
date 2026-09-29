@@ -5491,11 +5491,14 @@ async function parcours(page, N){
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
       ignorer('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+      ignorer('sur le 2.5.6, la méthode 3 tapée en mots (« 5 % de 120 est 6 ») est lue par le juge, la note compte, la feuille se peint',
+        'ce niveau n\'a pas la synthèse des pourcentages rédigée');
     } else if(!ml){
       ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle', 'MathLive absent');
       ignorer('la voie du coefficient puis de l\'addition vaut aussi son point', 'MathLive absent');
       ignorer('sur le 2.3.13 et le 2.2.14, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée', 'MathLive absent');
       ignorer('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée', 'MathLive absent');
+      ignorer('sur le 2.5.6, la méthode 3 tapée en mots (« 5 % de 120 est 6 ») est lue par le juge, la note compte, la feuille se peint', 'MathLive absent');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
       await connecter(s.page);
@@ -5752,6 +5755,66 @@ async function parcours(page, N){
         }
         verifier('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée',
           dits4.length === 0, dits4.slice(0, 3).join(' | '));
+      }
+      /* ÉTAPE 5 : {synthese-evolutions-successives-libre} (2.5.6) — le 2.5.4
+         rédigé, sur la feuille du 2.2.14 (demande de Turquet, septembre
+         2026). On tape pour de vrai la méthode 3 de la fiche, EN MOTS
+         (« 5 % de 120 est 6 »), sur une question ÉPINGLÉE (+20 % puis −5 %),
+         et on relit : « de » et « est » ressortent entiers (la liste blanche
+         des raccourcis de la feuille de rédaction — jsdom n'a pas MathLive,
+         c'est ici seul que la frappe se mesure), le juge lit « est » comme
+         « = », la note compte, les lignes de calcul se peignent en bleu, la
+         valeur seule et la conclusion ne reçoivent rien. */
+      if(!P.syntheseRedigee.evolutions){
+        ignorer('sur le 2.5.6, la méthode 3 tapée en mots (« 5 % de 120 est 6 ») est lue par le juge, la note compte, la feuille se peint',
+          'ce niveau n\'a pas les évolutions successives rédigées');
+      } else {
+        const X5 = P.syntheseRedigee.evolutions; const dits5 = [];
+        await s.page.evaluate(id => openTest(id), X5.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1300);
+        const q5 = await s.page.evaluate(() => {
+          if(test.qId !== currentTestId) return { manque: 'l\'exercice ouvert est « ' + test.qId + ' »' };
+          test.questions[test.idx] = essQuestion(1, 20, -1, 5); test.locked = false; test.eslBusy = false; renderEsl();
+          return { ok: true };
+        });
+        await s.page.waitForTimeout(800);
+        if(q5.manque) dits5.push(q5.manque);
+        else {
+          await s.page.evaluate(() => { const m = eslFeuille.lignes[0].mf; m.focus();
+            try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+          await s.page.waitForTimeout(150);
+          const COPIE5 = ['120', '5 % de 120 est 6', '120 - 6 = 114', 'hausse de 14 %'];
+          for(let i = 0; i < COPIE5.length; i++){
+            await s.page.keyboard.type(COPIE5[i], { delay: 30 });
+            if(i < COPIE5.length - 1){ await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300); }
+          }
+          await s.page.waitForTimeout(400);
+          const lu5 = await s.page.evaluate(() => {
+            const t = eslFeuille.lire(), L = String(t).split('\n');
+            const j = eslJuge(test.questions[test.idx], t);
+            return { lignes: L, brut: eslFeuille.lignes.map(x => x.mf.getValue()), sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' };
+          });
+          const L5 = lu5.lignes;
+          if(L5.length !== 4) dits5.push('la feuille se lit en ' + L5.length + ' ligne(s) au lieu de 4 : « ' + L5.join(' ⏎ ') + ' »');
+          if(!/ de 120 est 6/.test(L5[1] || '')) dits5.push('« 5 % de 120 est 6 » ne ressort pas entière (un raccourci de MathLive l\'a mangée ?) : « ' + L5[1] + ' »');
+          if(!/^hausse de 14/.test(L5[3] || '')) dits5.push('« hausse de 14 % » ne ressort pas entière : « ' + L5[3] + ' »');
+          if(!lu5.sait || !lu5.correct) dits5.push('le juge ' + (lu5.sait ? 'refuse' : 's\'abstient sur') + ' la copie tapée : « ' + lu5.phrase.slice(0, 120) + ' » (' + L5.join(' ⏎ ') + ')');
+          await s.page.click('#eslActions .btn-primary');
+          await s.page.waitForTimeout(1200);
+          const v5 = await s.page.evaluate(() => {
+            const fb = document.getElementById('eslFeedback');
+            return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score,
+                     lignes: eslFeuille.lignes.map(x => x.mf.className) };
+          });
+          if(v5.classe.indexOf('good') < 0) dits5.push('la copie tapée n\'est pas acceptée à la vérification : « ' + v5.texte.slice(0, 120) + ' »');
+          if(v5.score !== 1) dits5.push('la note ne compte pas la question : score ' + v5.score);
+          [1, 2].forEach(i => { if(!/\bok\b/.test(v5.lignes[i] || '')) dits5.push('la ligne ' + (i + 1) + ' (juste) ne se peint pas en bleu : classes « ' + v5.lignes[i] + ' »'); });
+          [0, 3].forEach(i => { if(/\bok\b|\bbad\b/.test(v5.lignes[i] || '')) dits5.push('la ligne ' + (i + 1) + ' (une valeur seule, ou la conclusion) reçoit une couleur : « ' + v5.lignes[i] + ' »'); });
+        }
+        verifier('sur le ' + X5.num + ', la méthode 3 tapée en mots (« 5 % de 120 est 6 ») est lue par le juge, la note compte, la feuille se peint',
+          dits5.length === 0, dits5.slice(0, 3).join(' | '));
       }
       verifier('l\'écran de la synthèse rédigée ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
