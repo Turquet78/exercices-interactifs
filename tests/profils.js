@@ -490,8 +490,14 @@ module.exports = {
             maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
     /* le témoin des réglages par exercice d'un devoir (coupe du nombre de
        questions) : un exercice au tirage homogène, présent dans la table du
-       rejeu. */
-    reglagesDevoirs: { exercice: 'pourcentage' },
+       rejeu. « allonge » : les exercices dont la séance DOIT s'allonger quand
+       le devoir règle plus de questions que le format normal — le témoin, et
+       une fabrique à taille (les hausses successives tirent par une boucle,
+       pas par distinctes()). « nbQMax » : le plafond que l'éditeur DOIT
+       proposer — 20 (demande de Turquet, septembre 2026 : « en Première,
+       quand je crée une fiche de travail, je veux pouvoir monter à 20
+       questions par exercice »). */
+    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage', 'hausses-successives'], nbQMax: 20 },
     tableResultats: 'resultats_1ere',
     tableEleves: 'eleves_1ere',
     navigateur: {

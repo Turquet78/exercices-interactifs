@@ -29844,6 +29844,49 @@ function reglagesDevoirs(w, apres){
     } else {
       vus.push('aucun éditeur de réglages trouvé (ni readEditorIntoDevoir ni dmSetNbQ)');
     }
+
+    /* ---- 6. le PLAFOND de l'éditeur : une seule constante, DM_NBQ_MAX, que
+       le setter, la liste et le profil (« nbQMax », quand il l'exige)
+       tiennent ensemble — 20 en Première (demande de Turquet, septembre
+       2026). Un niveau sans DM_NBQ_MAX n'a pas d'allongement : rien à
+       mesurer ici, sauf si le profil exige un plafond. ---- */
+    const nbQMax=${JSON.stringify(R.nbQMax||null)};
+    if(typeof DM_NBQ_MAX!=='number'){
+      if(nbQMax) vus.push('le profil exige un plafond de '+nbQMax+' questions, mais la page n\\'a pas DM_NBQ_MAX');
+    } else {
+      if(nbQMax && DM_NBQ_MAX!==nbQMax) vus.push('l\\'éditeur monte à '+DM_NBQ_MAX+' questions au lieu de '+nbQMax);
+      if(typeof dmSetNbQ==='function'){
+        const dev2={exercices:[{id:EX,modes:['train']}]};
+        const ancien2=window.dmCur; window.dmCur=function(){ return dev2; };
+        dmSetNbQ(EX,String(DM_NBQ_MAX));
+        if(dev2.exercices[0].nbQ!==DM_NBQ_MAX) vus.push('le setter de l\\'éditeur refuse le plafond '+DM_NBQ_MAX+' ('+JSON.stringify(dev2.exercices[0])+')');
+        dmSetNbQ(EX,String(DM_NBQ_MAX+1));
+        if('nbQ' in dev2.exercices[0]) vus.push('le setter de l\\'éditeur accepte '+(DM_NBQ_MAX+1)+', au-delà du plafond');
+        window.dmCur=ancien2;
+      }
+      /* la LISTE proposée au professeur va jusqu'au plafond, et pas plus loin */
+      let sel=document.querySelector('#dmExos select[data-nbq]');
+      if(!sel && typeof renderDmEditor==='function' && typeof dmAdminList!=='undefined'){
+        dmAdminList=[{id:'d-ed2',num:1,actif:true,titre:'t',cours:'',exercices:[{id:EX,modes:['train']}]}]; dmSelId='d-ed2';
+        if(typeof dmGenre!=='undefined') dmGenre='dm';
+        renderDmEditor();
+        sel=document.querySelector('#dmEditor select[onchange^="dmSetNbQ"]');
+      }
+      if(!sel) vus.push('la liste « Questions » de l\\'éditeur est introuvable : le plafond ne se mesure pas');
+      else {
+        const valeurs=Array.from(sel.querySelectorAll('option')).map(function(o){ return parseInt(o.value,10); }).filter(function(n){ return Number.isFinite(n); });
+        const max=valeurs.length?Math.max.apply(null,valeurs):0;
+        if(max!==DM_NBQ_MAX || valeurs.length!==DM_NBQ_MAX) vus.push('la liste « Questions » de l\\'éditeur propose 1..'+max+' ('+valeurs.length+' valeurs) au lieu de 1..'+DM_NBQ_MAX);
+        /* et la séance TIENT le plafond : réglé au maximum, le témoin s'allonge jusque-là (ou jusqu'au bout de son vivier) */
+        if(typeof dmNbQuestions==='function'){
+          mesDevoirs=[{id:'dev-max',num:1,actif:true,titre:'Max',cours:'',exercices:[{id:EX,modes:['train'],nbQ:DM_NBQ_MAX}]}];
+          await lancerDevoirExo('dev-max',EX,'train');
+          if((test.questions||[]).length!==DM_NBQ_MAX) vus.push('réglé au plafond ('+DM_NBQ_MAX+'), le témoin pose '+(test.questions||[]).length+' questions');
+          else if((test.maxScore||0)!==DM_NBQ_MAX*baremeDefaut/defaut) vus.push('réglé au plafond, le barème vaut '+test.maxScore+' au lieu de '+(DM_NBQ_MAX*baremeDefaut/defaut));
+          currentDM=null; mesDevoirs=[];
+        }
+      }
+    }
     return vus.slice(0,4).join(' | ');
   })()`, function(r){
     const nom='les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien';
@@ -29984,6 +30027,16 @@ function parcoursNbDevoir(w, apres){
     mesDevoirs[0].exercices[0].nbQ='abc';
     await lancerDevoirExo('dev-p','fractions-decimales','train');
     if(test.perLevel!==5) vus.push('nbQ illisible : le parcours ne retombe pas sur 5 ('+test.perLevel+')');
+    /* et la plage du parcours est celle de l'ÉDITEUR : réglé au plafond
+       (DM_NBQ_MAX, 20 en Première depuis septembre 2026), chaque niveau tire
+       à cette taille et le seuil suit — sans quoi le professeur coche 12 et
+       l'élève en a 5. Un niveau sans DM_NBQ_MAX garde sa plage 1..5. */
+    if(typeof DM_NBQ_MAX==='number' && DM_NBQ_MAX>5){
+      mesDevoirs[0].exercices[0].nbQ=DM_NBQ_MAX;
+      await lancerDevoirExo('dev-p','fractions-decimales','train');
+      if(test.perLevel!==DM_NBQ_MAX||test.passNeeded!==DM_NBQ_MAX-1) vus.push('nbQ='+DM_NBQ_MAX+' (le plafond de l\\'éditeur) : le parcours donne '+test.perLevel+' questions / seuil '+test.passNeeded+' au lieu de '+DM_NBQ_MAX+' / '+(DM_NBQ_MAX-1));
+      if((test.questions||[]).length!==DM_NBQ_MAX) vus.push('nbQ='+DM_NBQ_MAX+' : le niveau 1 tire '+(test.questions||[]).length+' questions');
+    }
 
     /* ---- 5. le réglage ne FUIT pas hors du devoir ---- */
     mesDevoirs[0].exercices[0].nbQ=2; currentDM=null; currentTestId='fractions-decimales';

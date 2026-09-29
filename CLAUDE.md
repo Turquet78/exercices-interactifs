@@ -204,6 +204,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Sur le parcours du 1.6 (Première), « Questions » règle CHAQUE NIVEAU — la coupe générique y faisait pire que rien.**
 - **LE BARÈME SUIT LA COUPE — sans quoi une copie PARFAITE est comptée fausse.**
 - **LE RÉGLAGE « QUESTIONS » ALLONGE AUSSI LA SÉANCE — en Seconde, partout où le tirage le peut.** Un tirage principal par `distinctes()` lit `dmNbQuestions()`, jamais une constante nue.
+- **Puis la Première a suivi, et son éditeur monte à 20** (`DM_NBQ_MAX`, une seule constante pour la liste, le setter et le tirage ; le parcours du 1.6 la lit par niveau).
 - **Et les notes DÉJÀ enregistrées se réparent — celles qu'on peut PROUVER.**
 - **La note d'un DEVOIR ENTIER se pose à la main — en Terminale.**
 - **Un exercice BONUS vaut 1 point, et ne fait jamais dépasser le maximum.**
