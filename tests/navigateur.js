@@ -5465,6 +5465,84 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies sedecies. LE 5.6 : LA FICHE 5 RENDUE — LE TABLEAU, LES DEUX CHAÎNES, LE BOUTON ∞ ===== */
+    /* L'étude menée à la convexité réutilise le tableau du 5.3 (ids ef-*),
+       la chaîne du 2.1 DEUX fois (f′ au c, f″ au g) et les cases de limite du
+       4.6 : jsdom lit les classes, seul un navigateur voit les flèches
+       DESSINÉES, une page qui déborde — l'écran est le plus long du niveau —
+       et la sérialisation RÉELLE de MathLive dans la case u du g), que le
+       juge doit relire. Le bouton ∞ se juge à la doctrine du bouton mort :
+       cliqué pour de vrai, il écrit ∞ ET lève input. */
+    titre('6 vicies sedecies. LE 5.6 : LA FICHE 5 RENDUE — LE TABLEAU, LES DEUX CHAÎNES, LE BOUTON ∞');
+    if(!P.etudeConvexite){
+      ignorer('le 5.6 : le bouton ∞ écrit dans la case et lève input', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+      ignorer('le 5.6 : « -2x+4 » tapé dans la case u du g) se relit tel quel', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+      ignorer('le 5.6 : la copie de la fiche remplie vaut 102 — 102 cases au vert', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+      ignorer('le 5.6 : les flèches du tableau sont DESSINÉES à une taille lisible', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+      ignorer('le 5.6 : la page ne déborde pas', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.etudeConvexite.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(700);
+      /* la question est ÉPINGLÉE sur la fiche même (a = 2, b = −1) */
+      await s.page.evaluate(() => { test.questions = [{ a: 2, b: -1 }]; test.idx = 0; test.score = 0; test.answers = []; test.maxScore = ecvMax(test.questions[0]); renderECV(); });
+      await s.page.waitForTimeout(400);
+      /* le bouton ∞ du b), cliqué pour de vrai */
+      await s.page.evaluate(() => { window.__ecvInput = 0; document.getElementById('ecv-lb').addEventListener('input', () => { window.__ecvInput++; }); });
+      await s.page.click('#ecv-lb + button.lg-inf');
+      await s.page.waitForTimeout(150);
+      const inf = await s.page.evaluate(() => ({ v: limLire('ecv-lb'), ev: window.__ecvInput }));
+      verifier('le 5.6 : le bouton ∞ écrit dans la case et lève input',
+        inf.v.indexOf('∞') >= 0 && inf.ev === 1,
+        'valeur ' + JSON.stringify(inf.v) + ', ' + inf.ev + ' événement(s) input');
+      /* la case u du g) — la fonction à dériver est f′ — TAPÉE pour de vrai :
+         jsdom n'a pas la sérialisation réelle que le juge doit lire */
+      await s.page.click('#ecv-gu');
+      await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide si la case n'a pas fini de prendre le focus */
+      await s.page.evaluate(() => document.getElementById('ecv-gu').focus());
+      await s.page.waitForTimeout(300);
+      await s.page.keyboard.type('-2x+4', { delay: 60 });
+      await s.page.waitForTimeout(300);
+      const tape = await s.page.evaluate(() => dexpCellValue('ecv-gu'));
+      verifier('le 5.6 : « -2x+4 » tapé dans la case u du g) se relit tel quel',
+        tape === '-2x+4', 'lu : ' + JSON.stringify(tape));
+      /* la copie de la fiche, remplie depuis l'attendu de la page, puis le CLIC */
+      await s.page.evaluate(() => {
+        const q = test.questions[0], A = ecvAns(q);
+        const sol1 = asgDerVerdicts(q, { pre: 'ecv-c' }).sol;
+        const sol2 = asgDerVerdicts(q, { pre: 'ecv-g', p: A.dp, q: A.dq }).sol;   /* u déjà posé en polynôme : l'ordre 1, le canonique */
+        ecvCases(q).forEach(x => { const el = document.getElementById(x.id); if (!el) return;
+          const val = (x.type === 'der') ? ((x.grp === 2) ? sol2 : sol1)[x.id] : String(asgVal(q, x));
+          if (el.tagName === 'MATH-FIELD') el.setValue(asgML(val));
+          else el.value = val; });
+        efArrowChange();   /* poser une valeur par script ne lève pas onchange */
+      });
+      await s.page.click('#ecvActions .btn-primary');
+      await s.page.waitForTimeout(400);
+      const vu = await s.page.evaluate(() => {
+        const oks = document.querySelectorAll('#ecvForm .ok').length, bads = document.querySelectorAll('#ecvForm .bad').length;
+        const ov = document.getElementById('ef-var-ov');
+        const fleches = ov ? [...ov.querySelectorAll('path,line,polygon')].filter(e => { try { const r = e.getBBox(); return r.width > 4 || r.height > 4; } catch (err) { return false; } }).length : 0;
+        const ovr = ov ? ov.getBoundingClientRect() : { width: 0, height: 0 };
+        const page = document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
+        return { oks, bads, score: test.score, max: test.maxScore, locked: test.locked, fleches, ovW: Math.round(ovr.width), ovH: Math.round(ovr.height), page };
+      });
+      verifier('le 5.6 : la copie de la fiche remplie vaut 102 — 102 cases au vert',
+        vu.oks === 102 && vu.bads === 0 && vu.score === 102 && vu.max === 102 && vu.locked,
+        vu.oks + ' ok, ' + vu.bads + ' bad, note ' + vu.score + '/' + vu.max + (vu.locked ? '' : ', écran non verrouillé'));
+      verifier('le 5.6 : les flèches du tableau sont DESSINÉES à une taille lisible',
+        vu.fleches >= 2 && vu.ovW > 200 && vu.ovH > 60,
+        vu.fleches + ' flèche(s) dessinée(s), bande ' + vu.ovW + '×' + vu.ovH + ' px');
+      verifier('le 5.6 : la page ne déborde pas',
+        !vu.page, 'la page défile horizontalement');
+      verifier('l\'étude de fonction et convexité ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE =====
        Le 2.5.2 : le 2.5.1 posé sur le moteur rédigé du 2.2.10. Deux choses ne
        se voient QUE dans un vrai navigateur, et elles portent l'exercice.

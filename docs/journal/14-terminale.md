@@ -2288,3 +2288,83 @@ Le contrôle vit dans `tests/verifier.js` (`suiteAlgoSeuil`) : il rejoue
 `sagGenSession()` et vérifie, par DEUX voies indépendantes — la formule fermée
 aⁿ·(U₀−ℓ), et la valeur RÉELLEMENT écrite dans `q.vals[SAG_NMAX]`, celle que
 l'élève lit — que les deux disent la même chose et restent sous le centième.
+
+**{etude-convexite} (5.6) : LA FICHE 5, l'étude menée à la CONVEXITÉ.**
+Demande de Turquet (septembre 2026), fiche « FICHE 5 — Étude de fonction et
+convexité : étude de f(x) = (2x − 2)e^(−x) ». C'est la fiche du 5.5 et du 4.6
+poussée jusqu'à f″, en dix parties dans l'ordre de la feuille : a) les
+intersections avec les axes (les cases mêmes du 5.5), b) les limites et
+l'asymptote conjecturées sur la courbe (le a) du 4.6), c) f′ démontrée COMME
+AU 2.1, d) la racine de f′, le tableau du 5.3 et la valeur de l'extremum,
+e) f(x) = k admet une unique solution sur la branche monotone (les mots du
+4.1), f) la tangente Δ en a = 0 avec les étapes du 5.2, g) f″ démontrée par
+la MÊME chaîne, h) le signe de f″ et la convexité dans un tableau à quatre
+lignes, i) le point d'inflexion, j) la courbe et sa tangente. Un seul écran,
+102 cases, et la note COMPTE LES CASES comme au 5.5 : une étude de deux pages
+ne vaut pas un point.
+**Le tirage élargit le 5.5 d'un coefficient** : f(x) = (ax + ab)e^(−x) avec
+a ∈ {±1, ±2, ±3} et b ∈ {−3, −2, −1} — la fiche est a = 2, b = −1. Tout
+tombe sur des ENTIERS : le zéro de f en −b, la racine de f′ en 1 − b, celle
+de f″ en 2 − b, f(0) = ab, f′(0) = a(1 − b), f(2 − b) = 2a·e^(b−2). Et
+b ≤ −1 garde le point de tangence 0 DANS la partie concave (a > 0) — la
+courbe y est sous Δ, c'est le j). `ecAns()` et `ecTab()` ont été
+généralisés d'un signe (`q.a > 0` au lieu de `q.a === 1`) : pour a = ±1 rien
+ne change, le contrôle du 5.5 le relit sur ses 14 couples.
+**Rien n'est recopié, et le juge du 2.1 a gagné un paramètre.** Le b) du 4.6
+lisait ses douze ids en dur ; `asgDerVerdicts(q, D)` reçoit désormais un
+PRÉFIXE (`asgDerIds`) et la fonction à dériver (u = D.p·x + D.q, v = e^(−x)),
+et `asgDerBlocHTML(pre, nom)` rend la chaîne — le 4.6 l'appelle sans
+argument et ne bouge pas ; le 5.6 l'appelle deux fois, pour f′ (« ecv-c »)
+puis pour f″ (« ecv-g », avec f′ comme fonction à dériver). Même doctrine
+sur les deux chaînes : les deux ordres u/v, les paires libres, la case vide
+d'une ligne juste = le facteur 1 omis, le terme entier NOMMÉ. Le reste est
+emprunté tel quel : `asgLim`/`lgLimOK` pour les limites, `efTableHTML` pour
+le tableau, `asgOkCase`/`asgVal`, `corrCase` et `rfReveal` pour la
+correction, `msgCorrCouleurs` pour la phrase. Un SIXIÈME écran partage les
+ids ef-* : les six hôtes se vident symétriquement, et le contrôle sème un
+fantôme des deux côtés.
+**LA FICHE SE TROMPE DEUX FOIS, ET C'EST LA FONCTION QUI EST TENUE.** Elle
+demande « f(x) = −1 admet une unique solution sur [2 ; +∞[ » — or f y est
+strictement positive (f(2) = 2e^(−2), limite 0) : l'équation a sa solution
+sur ]−∞ ; 2], la branche où f monte de −∞ au maximum, et c'est là qu'on la
+pose (k = −1 si a > 0, k = 1 si a < 0 : toujours entre la limite et
+l'extremum). Elle demande ensuite « f(x) ≥ 4x − 2 sur ]−∞ ; 2] » — or f est
+CONCAVE sur ]−∞ ; 3] (f″ ≤ 0), donc SOUS sa tangente : f(x) ≤ 4x − 2, et
+l'intervalle naturel de l'argument est celui de la concavité, ]−∞ ; 3]. Le
+sens de l'inégalité, « en dessous / au-dessus » et « concave / convexe »
+sont trois listes qui doivent dire la même chose, et le contrôle l'exige.
+(Deux coquilles de moins : la fiche écrit f′(…) pour f(…) et f(…) pour f′(…)
+dans le calcul de la tangente ; la page écrit les bons noms.)
+**Le contrôle (`tests/verifier.js`, `etudeConvexite`) REFAIT l'arithmétique**
+par ses propres moyens sur les 18 couples — f numérique, dérivées première
+et seconde par différences finies, exponentielle de Math : f(−b) = 0, f′
+nulle en 1 − b, f″ nulle en 2 − b et changeant de signe, f(0) et f′(0) contre
+la ligne réduite de Δ, f(xI) = 2a·e^(b−2), f − Δ du côté annoncé sur TOUT
+]−∞ ; xI], k entre la limite et M, la stricte monotonie de la branche, les
+limites. Puis la fiche même (a = 2, b = −1) : les « Démontre que » disent la
+dérivée, la dérivée seconde, la tangente, « f(x) = −1 », « ≤ … sur ]−∞ ; 3] »
+— et le visage a = −2 dit « f(x) = 1 », « ≥ », « minimum » ; les hôtes
+fantômes dans les deux sens ; la copie de la fiche passe entière (102/102,
+verrouillée, `pts` à 1 et `cases` à 102 dans la réponse enregistrée) ; les
+écritures égales (« −2(x−2) », « 2(x−3) », « -inf », « 0,0 », le moins
+Unicode), l'ordre u/v inversé dans le g), la ligne développée FAUSSE qui ne
+passe pas, le facteur 1 omis ; trois fautes valent 99 et rougissent seules,
+le badge d'un select porte « ≤ » ; le terme entier nommé ; la case vide sans
+couleur en soutien, remplie en `sol` en entraînement et non comptée (100 sur
+102, la phrase des couleurs avec le compte) ; le contexte du modèle en dix
+parties avec les saisies et la clause de secret ; le rappel et les questions
+suggérées. Le banc NAVIGATEUR (« 6 vicies sedecies », déclaré par
+`etudeConvexite` dans le profil) tient ce que jsdom ne voit pas : le bouton ∞
+réellement CLIQUÉ, « -2x+4 » TAPÉ dans la case u du g) et relu tel quel, la
+copie de la fiche remplie depuis l'attendu de la page puis vérifiée d'un
+clic (102 vertes), les flèches du tableau DESSINÉES, la page qui ne déborde
+pas — l'écran est le plus long du niveau.
+Éprouvé en le cassant six fois, sur une copie du dépôt — l'abscisse du point
+d'inflexion décalée, la case vide qui rougit, l'inégalité inversée, l'hôte
+fantôme laissé plein, f″ jugée sur f au lieu de f′, le k du TVI hors de la
+branche — chacun rougit en nommant son défaut, et le témoin sans sabotage
+reste vert. Un piège d'outillage s'y est montré avant la page : une
+apostrophe échappée une fois de trop peu dans le code que le contrôle
+ÉVALUE (« n\'est » au lieu de « n\\'est » dans le gabarit) le rendait rouge
+pour une erreur de syntaxe, et `node --check` sur le fichier ne pouvait pas
+la voir — il faut extraire le code évalué et le vérifier lui.

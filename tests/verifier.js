@@ -4052,6 +4052,7 @@ function exercices(suite){
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     alphaSigne(w, P);
+    etudeConvexite(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     suiteTcmLimite(w, P);
@@ -12585,6 +12586,257 @@ function alphaSigne(w, P){
       if(c.indexOf('STRICTEMENT SECRÈTES')<0) vus.push('le contexte du modèle a perdu la clause de secret');
       if(c.indexOf('Saisies')<0) vus.push('le contexte du modèle ne porte plus les saisies de l\\'élève');
       if(/α[^.]*−2/.test(c.replace(/« [^»]* »/g,''))) vus.push('le contexte du modèle révèle α'); }
+
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- 5.6 : l'étude de fonction et la convexité — la fiche 5 ---------- */
+/* Repris de la fiche « FICHE 5 — Étude de fonction et convexité » (demande de
+   Turquet, septembre 2026) : f(x) = (ax + ab)e^(−x), a ∈ {±1, ±2, ±3},
+   b ∈ {−3, −2, −1}, la fiche même étant a = 2, b = −1. Le contrôle REFAIT
+   l'arithmétique par ses propres moyens — f numérique, dérivées première et
+   seconde par différences finies, exponentielle de Math — plutôt que de
+   croire ecvAns : un énoncé ne peut pas contredire sa correction. La fiche se
+   trompe deux fois (« f(x) = −1 sur [2 ; +∞[ » où f > 0 ; « f(x) ≥ 4x − 2 »
+   où f est concave, donc SOUS sa tangente) : c'est la fonction qui tranche,
+   et le contrôle l'exige — le k du TVI est entre la limite et l'extremum de
+   la branche, et f − Δ a le signe annoncé sur tout l'intervalle. */
+function etudeConvexite(w, P){
+  const nom='le 5.6 : l\'étude de fonction et la convexité — la fiche 5';
+  const present = evaluer(w, "typeof startECV==='function' && typeof genECVCase==='function' && typeof ecvCases==='function' && typeof ecvAns==='function' && typeof asgDerVerdicts==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'étude de fonction et convexité');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='etude-convexite';
+
+    /* ---- 0. la place au menu : DERNIER du thème « Étude de fonction », après le 5.5 ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('etude-convexite')>=0; })[0];
+      const i=th?th.ids.indexOf('etude-convexite'):-1;
+      if(!th || th.nom!=='Étude de fonction' || i!==th.ids.length-1 || th.ids[i-1]!=='etude-exponentielle')
+        vus.push('{etude-convexite} n\\'est pas le dernier du thème « Étude de fonction », après {etude-exponentielle}'); }
+
+    /* ---- 1. le tirage : a ∈ {±1, ±2, ±3}, b ∈ {−3, −2, −1}, rien d'autre dans
+       la question — et chaque visage sort ---- */
+    { const as={}, bs={};
+      for(let t=0;t<300 && vus.length<4;t++){
+        const q=genECVCase();
+        if([1,2,3,-1,-2,-3].indexOf(q.a)<0) vus.push('a hors vivier : '+q.a);
+        if([-3,-2,-1].indexOf(q.b)<0) vus.push('b hors vivier : '+q.b);
+        const cles=Object.keys(q).filter(function(k){ return ['a','b'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que a et b : '+cles.join(','));
+        as[q.a]=1; bs[q.b]=1;
+      }
+      if(Object.keys(as).length<6) vus.push('les six valeurs de a ne sortent pas toutes en 300 tirages');
+      if(Object.keys(bs).length<3) vus.push('les trois valeurs de b ne sortent pas toutes en 300 tirages'); }
+
+    /* ---- 2. l'arithmétique, refaite par le contrôle sur les 18 couples ---- */
+    [1,2,3,-1,-2,-3].forEach(function(a){ [-3,-2,-1].forEach(function(b){
+      if(vus.length>=4) return;
+      const q={a:a,b:b}, tag=' (a='+a+', b='+b+')';
+      const f=function(x){ return (a*x+a*b)*Math.exp(-x); };
+      const d1=function(x){ return (f(x+1e-5)-f(x-1e-5))/2e-5; };
+      const d2=function(x){ return (f(x+1e-4)-2*f(x)+f(x-1e-4))/1e-8; };
+      const A=ecvAns(q), cases=ecvCases(q), cs={}; cases.forEach(function(x){ cs[x.id]=x; });
+      if(cases.length!==102 || ecvMax(q)!==102) vus.push(cases.length+' cases au lieu de 102'+tag);
+      if(f(A.x0)!==0) vus.push('f(−b) ne vaut pas exactement 0'+tag);
+      if(cs['ecv-a4'].good!==A.x0 || cs['ecv-a10'].good!==A.q || Math.abs(f(0)-A.q)>1e-12) vus.push('les points sur les axes contredisent la fonction'+tag);
+      if(Math.abs(d1(A.r))>1e-4) vus.push('la dérivée ne s\\'annule pas en 1−b'+tag);
+      if(Math.abs(d2(A.xI))>1e-2) vus.push('la dérivée seconde ne s\\'annule pas en 2−b'+tag+' : '+d2(A.xI));
+      for(let i=0;i<5;i++){ const x=A.r-4+2*i;
+        if(Math.abs(d1(x)-(A.dp*x+A.dq)*Math.exp(-x))>1e-4){ vus.push('f′ ne vaut pas (dp·x+dq)e^(−x)'+tag); break; }
+        if(Math.abs(d2(x)-(A.ddp*x+A.ddq)*Math.exp(-x))>1e-2){ vus.push('f″ ne vaut pas (ddp·x+ddq)e^(−x)'+tag); break; } }
+      /* la tangente en 0 : f(0), f′(0), et sa droite */
+      if(Math.abs(f(0)-cs['ecv-f3'].good)>1e-9 || Math.abs(d1(0)-cs['ecv-f6'].good)>1e-4) vus.push('f(0) ou f′(0) attendu contredit la fonction'+tag);
+      if(cs['ecv-f13'].good!==cs['ecv-f6'].good || cs['ecv-f14'].good!==cs['ecv-f3'].good) vus.push('la ligne réduite de Δ ne porte pas f′(0)·x + f(0)'+tag);
+      /* le point d'inflexion : f(xI) = cI·e^(eI), et f″ y change de signe */
+      if(Math.abs(f(A.xI)-cs['ecv-i5'].good*Math.exp(cs['ecv-i6'].good))>1e-9) vus.push('f(xI) ne vaut pas cI·e^(eI)'+tag);
+      if(cs['ecv-h0'].good!==A.xI || cs['ecv-i1'].good!==A.xI || cs['ecv-i7'].good!==A.xI || cs['ecv-j1'].good!==A.xI) vus.push('l\\'abscisse du point d\\'inflexion n\\'est pas la même partout'+tag);
+      const sG=d2(A.xI-1)>0?'+':'−', sD=d2(A.xI+1)>0?'+':'−';
+      if(sG===sD) vus.push('f″ ne change pas de signe en xI'+tag);
+      if(cs['ecv-h5'].good!==sG || cs['ecv-h6'].good!==sD || cs['ecv-h1'].good!==sG || cs['ecv-h2'].good!==sD) vus.push('le signe de f″ attendu contredit la fonction'+tag+' : '+cs['ecv-h5'].good+cs['ecv-h6'].good+' contre '+sG+sD);
+      if(cs['ecv-h7'].good!==(sG==='+'?'convexe':'concave') || cs['ecv-h8'].good!==(sD==='+'?'convexe':'concave')) vus.push('la convexité attendue contredit le signe de f″'+tag);
+      if(cs['ecv-j2'].good!==cs['ecv-h7'].good) vus.push('le j) et le h) ne disent pas la même convexité'+tag);
+      /* la courbe et Δ : du côté annoncé sur TOUT ]−∞ ; xI] */
+      const T=function(x){ return cs['ecv-f13'].good*x+cs['ecv-f14'].good; };
+      let cote=true; for(let x=A.xI-10;x<=A.xI+1e-9;x+=0.25){ const d=f(x)-T(x); if(cs['ecv-j5'].good==='inf' ? d>1e-9 : d<-1e-9) cote=false; }
+      if(!cote) vus.push('la courbe n\\'est pas du côté annoncé de Δ sur ]−∞ ; xI]'+tag);
+      if(cs['ecv-j3'].good!==(cs['ecv-j5'].good==='inf'?'dessous':'dessus')) vus.push('« en dessous / au-dessus » et ≤ / ≥ se contredisent'+tag);
+      if(cs['ecv-j4'].good!==0 || A.xI<0) vus.push('le point de tangence 0 n\\'est pas dans ]−∞ ; xI]'+tag);
+      /* le TVI : k entre la limite et M, f strictement monotone sur la branche */
+      const M=f(A.r);
+      if(Math.abs(M-a*Math.exp(b-1))>1e-9 || cs['ecv-d6'].good!==a || cs['ecv-d7'].good!==b-1) vus.push('l\\'extremum ne vaut pas a·e^(b−1)'+tag);
+      if(!((a>0 && A.k<M) || (a<0 && A.k>M))) vus.push('k = '+A.k+' n\\'est pas entre la limite et l\\'extremum de la branche'+tag);
+      let mono=true; for(let i=0;i<8;i++){ const x1=A.r-8+i, x2=x1+1; if(a>0 ? f(x2)<=f(x1) : f(x2)>=f(x1)) mono=false; }
+      if(!mono) vus.push('f n\\'est pas strictement monotone sur ]−∞ ; r]'+tag);
+      if(cs['ecv-e2'].good!==(a>0?'croissante':'décroissante')) vus.push('le sens de variation du e) contredit la fonction'+tag);
+      if(Math.abs(f(40))>1e-9 || cs['ecv-la'].lim!==0 || cs['ecv-lat'].good!=='ah' || cs['ecv-lae'].good!==0) vus.push('la limite en +∞ ou l\\'asymptote attendue contredit la fonction'+tag);
+      if(cs['ecv-lb'].lim!==(f(-40)<0?'−∞':'+∞') || cs['ecv-e3'].lim!==cs['ecv-lb'].lim) vus.push('la limite en −∞ attendue contredit la fonction'+tag);
+    }); });
+
+    /* ---- montage : la fiche même — f(x) = (2x − 2)e^(−x) ---- */
+    const Q={a:2,b:-1};
+    const IDS=['ecv-a1','ecv-a2','ecv-aexp','ecv-a3','ecv-a4','ecv-a5','ecv-a6','ecv-a7','ecv-a8','ecv-a9','ecv-a10','ecv-a11','ecv-a12',
+      'ecv-la','ecv-lat','ecv-lae','ecv-lb','ecv-lbt',
+      'ecv-cu','ecv-cv','ecv-cdu','ecv-cdv','ecv-cs2a','ecv-cs2b','ecv-cs2c','ecv-cs2d','ecv-cs3a','ecv-cs3b','ecv-cs3c','ecv-cfac',
+      'ecv-d1','ecv-d2','ef-r0','ef-l0s0','ef-l0s1','ef-l1s0','ef-l1s1','ef-l2s0','ef-l2s1','ef-a0','ef-a1','ef-e0t','ef-e0x',
+      'ecv-d3','ecv-d4','ecv-d5','ecv-d6','ecv-d7',
+      'ecv-e1','ecv-e2','ecv-e3','ecv-e4','ecv-e5',
+      'ecv-f1','ecv-f2','ecv-f3','ecv-f4','ecv-f5','ecv-f6','ecv-f7','ecv-f8','ecv-f9','ecv-f10','ecv-f11','ecv-f12','ecv-f13','ecv-f14',
+      'ecv-gu','ecv-gv','ecv-gdu','ecv-gdv','ecv-gs2a','ecv-gs2b','ecv-gs2c','ecv-gs2d','ecv-gs3a','ecv-gs3b','ecv-gs3c','ecv-gfac',
+      'ecv-h0','ecv-h1','ecv-h2','ecv-h3','ecv-h4','ecv-h5','ecv-h6','ecv-h7','ecv-h8',
+      'ecv-i1','ecv-i2','ecv-i3','ecv-i4','ecv-i5','ecv-i6','ecv-i7','ecv-i8','ecv-i9',
+      'ecv-j1','ecv-j2','ecv-j3','ecv-j4','ecv-j5'];
+    const BON={'ecv-a1':'0','ecv-a2':'0','ecv-aexp':'jamais','ecv-a3':'0','ecv-a4':'1','ecv-a5':'1','ecv-a6':'0','ecv-a7':'0','ecv-a8':'0','ecv-a9':'0','ecv-a10':'-2','ecv-a11':'0','ecv-a12':'-2',
+      'ecv-la':'0','ecv-lat':'ah','ecv-lae':'0','ecv-lb':'-∞','ecv-lbt':'rien',
+      'ecv-cu':'2x-2','ecv-cv':'e^(-x)','ecv-cdu':'2','ecv-cdv':'-e^(-x)','ecv-cs2a':'2','ecv-cs2b':'e^(-x)','ecv-cs2c':'-e^(-x)','ecv-cs2d':'2x-2','ecv-cs3a':'2','ecv-cs3b':'-2x','ecv-cs3c':'2','ecv-cfac':'-2x+4',
+      'ecv-d1':'-4','ecv-d2':'2','ef-r0':'2','ef-l0s0':'+','ef-l0s1':'−','ef-l1s0':'+','ef-l1s1':'+','ef-l2s0':'+','ef-l2s1':'−','ef-a0':'up','ef-a1':'down','ef-e0t':'max','ef-e0x':'2',
+      'ecv-d3':'2','ecv-d4':'2','ecv-d5':'2','ecv-d6':'2','ecv-d7':'-2',
+      'ecv-e1':'continue','ecv-e2':'croissante','ecv-e3':'-∞','ecv-e4':'TVI','ecv-e5':'unique',
+      'ecv-f1':'0','ecv-f2':'0','ecv-f3':'-2','ecv-f4':'0','ecv-f5':'0','ecv-f6':'4','ecv-f7':'0','ecv-f8':'0','ecv-f9':'0','ecv-f10':'4','ecv-f11':'0','ecv-f12':'-2','ecv-f13':'4','ecv-f14':'-2',
+      'ecv-gu':'-2x+4','ecv-gv':'e^(-x)','ecv-gdu':'-2','ecv-gdv':'-e^(-x)','ecv-gs2a':'-2','ecv-gs2b':'e^(-x)','ecv-gs2c':'-e^(-x)','ecv-gs2d':'-2x+4','ecv-gs3a':'-2','ecv-gs3b':'2x','ecv-gs3c':'-4','ecv-gfac':'2x-6',
+      'ecv-h0':'3','ecv-h1':'−','ecv-h2':'+','ecv-h3':'+','ecv-h4':'+','ecv-h5':'−','ecv-h6':'+','ecv-h7':'concave','ecv-h8':'convexe',
+      'ecv-i1':'3','ecv-i2':'3','ecv-i3':'3','ecv-i4':'3','ecv-i5':'4','ecv-i6':'-3','ecv-i7':'3','ecv-i8':'4','ecv-i9':'-3',
+      'ecv-j1':'3','ecv-j2':'concave','ecv-j3':'dessous','ecv-j4':'0','ecv-j5':'inf'};
+    if(IDS.length!==102 || Object.keys(BON).length!==102) vus.push('le montage du contrôle ne porte pas 102 cases : '+IDS.length+'/'+Object.keys(BON).length);
+    { const attendus=ecvCases(Q).map(function(x){ return x.id; });
+      const manque=IDS.filter(function(id){ return attendus.indexOf(id)<0; }), trop=attendus.filter(function(id){ return IDS.indexOf(id)<0; });
+      if(manque.length||trop.length) vus.push('les cases du montage et celles de la page diffèrent : '+manque.concat(trop).slice(0,5).join(',')); }
+    const poser=function(vals, q){
+      Object.assign(test,{kind:'ecv', questions:[JSON.parse(JSON.stringify(q||Q))], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:102});
+      renderECV();
+      IDS.forEach(function(id){ const el=document.getElementById(id);
+        if(!el) return;
+        const v=vals[id]; const s=(v===undefined||v===null)?'':String(v);
+        if(el.tagName==='MATH-FIELD'){
+          /* jsdom n'a pas MathLive : la case s'anime par getValue/setValue,
+             que dexpCellValue et rfReveal lisent à travers le passe-plat */
+          el.getValue=function(){ return s; };
+          el.setValue=function(nv){ const t=String(nv); el.getValue=function(){ return t; }; };
+        } else el.value=s;
+      });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const texte=function(){ return (document.getElementById('ecvForm').textContent||'').replace(/\\s+/g,' '); };
+
+    /* ---- 3. les « Démontre que » disent ce que la correction attend, pour
+       les DEUX visages — et le e), le j) suivent la fonction, pas la fiche ---- */
+    poser({});
+    { const t=texte();
+      [['(−2x + 4) e','la dérivée'],['(2x − 6) e','la dérivée seconde'],['y = 4x − 2','la tangente en 0'],['f(x) = −1 admet','le k du TVI'],['sur ]−∞ ; 2]','la branche du TVI'],['f(x) ≤ 4x − 2 sur ]−∞ ; 3]','l\\'inégalité du j)'],['Ce maximum vaut','l\\'extremum']]
+        .forEach(function(p){ if(t.indexOf(p[0])<0) vus.push('a = 2, b = −1 : '+p[1]+' n\\'est pas annoncée « '+p[0]+' » : '+t.slice(0,60)); });
+      const prompt=(document.getElementById('ecvPrompt').textContent||'').replace(/\\s+/g,' ');
+      if(prompt.indexOf('(2x − 2) e')<0) vus.push('l\\'énoncé n\\'écrit pas la fonction (2x − 2)e^(−x) : '+prompt.slice(0,60)); }
+    test.questions=[{a:-2,b:-1}]; renderECV();
+    { const t=texte();
+      [['(2x − 4) e','la dérivée'],['(−2x + 6) e','la dérivée seconde'],['y = −4x + 2','la tangente en 0'],['f(x) = 1 admet','le k du TVI'],['f(x) ≥ −4x + 2 sur ]−∞ ; 3]','l\\'inégalité du j)'],['Ce minimum vaut','l\\'extremum']]
+        .forEach(function(p){ if(t.indexOf(p[0])<0) vus.push('a = −2, b = −1 : '+p[1]+' n\\'est pas annoncée « '+p[0]+' »'); }); }
+    { const c=ecvCases({a:-2,b:-1}), cs={}; c.forEach(function(x){ cs[x.id]=x; });
+      if(cs['ecv-h7'].good!=='convexe'||cs['ecv-j3'].good!=='dessus'||cs['ecv-j5'].good!=='sup') vus.push('a < 0 : la convexité attendue n\\'est pas « convexe, au-dessus, ≥ »'); }
+
+    /* ---- 4. les hôtes FANTÔMES : le tableau porte les ids ef-* des écrans
+       du 5.3, du 5.5, de la fiche 9 et du 4.6 ---- */
+    document.getElementById('efTable').innerHTML='<input id="ef-r0" value="fantôme">';
+    document.getElementById('asgForm').innerHTML='<input id="ef-a0" value="fantôme">';
+    poser(BON);
+    { if(document.getElementById('efTable').innerHTML!==''||document.getElementById('asgForm').innerHTML!=='') vus.push('les hôtes amont ne sont pas vidés au rendu : le tableau fantôme reprendrait la main');
+      const el=document.getElementById('ef-r0');
+      if(!el || !el.closest('#ecvForm')) vus.push('getElementById(ef-r0) ne rend pas la case de CET écran'); }
+    /* et l'inverse : le 4.6 rendu après vide l'hôte du 5.6 */
+    { Object.assign(test,{kind:'asg', questions:[{a:1,b:2},{a:-1,b:3}], idx:0, locked:false}); renderASG();
+      if(document.getElementById('ecvForm').innerHTML!=='') vus.push('le rendu du 4.6 ne vide pas l\\'hôte du 5.6 : son tableau fantôme resterait'); }
+
+    /* ---- 5. la copie de la fiche passe entière : 102 cases au vert, note
+       102, écran verrouillé, et la note enregistrée dit 102/102 ---- */
+    poser(BON); checkECV();
+    { const pas=IDS.filter(function(id){ return peint(id)!=='vert'; });
+      if(pas.length) vus.push('la copie de la fiche ne passe pas entière au vert : '+pas.slice(0,6).join(','));
+      if(test.score!==102||test.maxScore!==102||!test.locked) vus.push('la copie de la fiche vaut '+test.score+'/'+test.maxScore+' (verrouillée : '+test.locked+')');
+      const a=test.answers[0]||{};
+      if(a.given!=='102/102'||a.correct!==true||a.pts!==1||a.cases!==102) vus.push('la réponse enregistrée ne dit pas 102/102 : '+JSON.stringify(a).slice(0,80)); }
+
+    /* ---- 6. toute écriture ÉGALE est acceptée : f′ et f″ comme fonctions,
+       les limites au mot « inf », l'ordre u/v inversé dans le g), une case
+       vide dans une ligne juste = le facteur 1 omis ---- */
+    [['ecv-cfac','-2(x-2)'],['ecv-gfac','2(x-3)'],['ecv-gfac','-6+2x'],['ecv-lb','-inf'],['ecv-e3','-inf'],['ecv-la','0,0'],['ecv-f14','−2'],['ecv-d1','−4']].forEach(function(p){
+      const v=Object.assign({},BON); v[p[0]]=p[1];
+      poser(v); checkECV();
+      if(test.score!==102) vus.push('l\\'écriture égale « '+p[1]+' » est refusée en '+p[0]); });
+    { const v=Object.assign({},BON,{'ecv-gu':'e^(-x)','ecv-gv':'-2x+4','ecv-gdu':'-e^(-x)','ecv-gdv':'-2',
+        'ecv-gs2a':'-e^(-x)','ecv-gs2b':'-2x+4','ecv-gs2c':'e^(-x)','ecv-gs2d':'-2'});
+      poser(v); checkECV();
+      if(test.score!==102) vus.push('l\\'ordre u = e^(−x), v = −2x+4 est refusé dans le g) : les deux ordres du 2.1 ne sont plus acceptés'); }
+    { const v=Object.assign({},BON); delete v['ecv-gs3a']; v['ecv-gs3b']='2x-2'; v['ecv-gs3c']='-4';
+      poser(v); checkECV();
+      /* −2·e^(−x) + (2x − 2)·e^(−x) − 4·e^(−x) = (2x − 8)e^(−x) ≠ f″ : ligne fausse, donc la case vide MANQUE */
+      if(test.score===102) vus.push('une ligne développée fausse du g) passe pour juste'); }
+    /* le facteur 1 n'existe que si a = ±1 : sur f(x) = (x − 1)e^(−x), u′ = 1
+       s'omet dans la substitution — la copie vient de l'attendu de la page,
+       dont l'arithmétique a été refaite plus haut */
+    { const q1={a:1,b:-1}, A1=ecvAns(q1);
+      Object.assign(test,{kind:'ecv', questions:[q1], idx:0}); renderECV();
+      const s1=asgDerVerdicts(q1,{pre:'ecv-c'}).sol, s2=asgDerVerdicts(q1,{pre:'ecv-g',p:A1.dp,q:A1.dq}).sol;
+      const v={}; ecvCases(q1).forEach(function(x){ v[x.id]=(x.type==='der')?((x.grp===2)?s2:s1)[x.id]:String(asgVal(q1,x)); });
+      if(v['ecv-cs2a']!=='1') vus.push('sur (x − 1)e^(−x), le premier facteur de la substitution n\\'est pas 1 : '+v['ecv-cs2a']);
+      delete v['ecv-cs2a'];
+      poser(v,q1); checkECV();
+      if(test.score!==102) vus.push('le facteur 1 omis (case vide dans une ligne juste du c) est compté faux ou manquant : '+test.score);
+      if(test.score===102 && peint('ecv-cs2a')==='rouge') vus.push('le facteur 1 omis rougit'); }
+
+    /* ---- 7. une case fausse rougit, elle seule, coûte son point, et le
+       badge d'un select porte le libellé (« ≤ », jamais « inf ») ---- */
+    { const v=Object.assign({},BON); v['ecv-gfac']='2x+6'; v['ecv-j5']='sup'; v['ecv-h7']='convexe';
+      poser(v); checkECV();
+      if(peint('ecv-gfac')!=='rouge') vus.push('la dérivée seconde fausse (2x+6) ne rougit pas');
+      if(peint('ecv-j5')!=='rouge'||peint('ecv-h7')!=='rouge') vus.push('l\\'inégalité ou la convexité fausse ne rougit pas');
+      if(test.score!==99) vus.push('trois fautes valent '+test.score+' au lieu de 99');
+      const autres=IDS.filter(function(id){ return ['ecv-gfac','ecv-j5','ecv-h7'].indexOf(id)<0 && peint(id)!=='vert'; });
+      if(autres.length) vus.push('une case fausse fait payer ses voisines : '+autres.slice(0,5).join(','));
+      const el=document.getElementById('ecv-j5'), badge=el&&el.nextElementSibling;
+      const txt=(badge&&/mf-cor/.test(badge.className||''))?badge.textContent:'(pas de badge)';
+      if(txt!=='≤') vus.push('le badge du select ne porte pas le libellé ≤ : '+txt);
+      if(test.answers[0] && (test.answers[0].correct!==false || Math.abs(test.answers[0].pts-99/102)>1e-9)) vus.push('la réponse enregistrée ne porte pas 99/102'); }
+    { const v=Object.assign({},BON); v['ecv-gs3b']='2xe^(-x)';
+      poser(v); checkECV();
+      if(peint('ecv-gs3b')!=='rouge') vus.push('le terme entier recopié dans la case de coefficient du g) ne rougit pas');
+      if(document.getElementById('ecvFeedback').innerHTML.indexOf('COEFFICIENT')<0) vus.push('le terme entier recopié n\\'est pas NOMMÉ dans le message'); }
+
+    /* ---- 8. la case vide : en SOUTIEN aucune couleur et rien ne se
+       verrouille ; en ENTRAÎNEMENT la correction la remplit en sol, et la
+       note ne la compte pas ---- */
+    currentMode='soutien';
+    { const v=Object.assign({},BON); delete v['ecv-i1']; delete v['ecv-h7'];
+      poser(v); checkECV();
+      if(peint('ecv-i1')!=='rien'||peint('ecv-h7')!=='rien') vus.push('en soutien, une case vide reçoit une couleur : '+peint('ecv-i1')+'/'+peint('ecv-h7'));
+      if(test.locked) vus.push('en soutien, une copie incomplète verrouille');
+      const fb=document.getElementById('ecvFeedback').textContent;
+      if(fb.indexOf('manque')<0||fb.indexOf('2 case')<0) vus.push('le message du soutien ne dit pas les cases manquantes : '+fb); }
+    currentMode='train';
+    { const v=Object.assign({},BON); delete v['ecv-i1']; v['ecv-h6']='−';
+      poser(v); checkECV();
+      if(peint('ecv-i1')!=='sol') vus.push('en entraînement, la case vide n\\'est pas remplie en sol : '+peint('ecv-i1'));
+      if(document.getElementById('ecv-i1').value!=='3') vus.push('la case vide remplie ne porte pas l\\'abscisse du point d\\'inflexion : '+document.getElementById('ecv-i1').value);
+      if(peint('ecv-h6')!=='rouge') vus.push('le signe faux ne garde pas son rouge sous la correction');
+      if(test.score!==100) vus.push('une vide et une fausse valent '+test.score+' au lieu de 100');
+      const fb=document.getElementById('ecvFeedback').textContent;
+      if(fb.indexOf('bleu')<0||fb.indexOf('100 cases justes sur 102')<0) vus.push('le message de la correction n\\'est pas la phrase des couleurs avec le compte : '+fb.slice(0,80)); }
+
+    /* ---- 9. le contexte envoyé au modèle : l'énoncé, les dix parties, les
+       saisies, la clause de secret ---- */
+    poser(BON); document.getElementById('ecv-i1').value='';
+    { const c=ecvConseilCtx();
+      if(c.indexOf('e^(−x)')<0||c.indexOf('CONVEXITÉ')<0||c.indexOf('j)')<0) vus.push('le contexte du modèle ne porte pas l\\'énoncé en dix parties : '+c.slice(0,80));
+      if(c.indexOf('STRICTEMENT SECRÈTES')<0) vus.push('le contexte du modèle a perdu la clause de secret');
+      if(c.indexOf('Saisies')<0||c.indexOf('(vide)')<0) vus.push('le contexte du modèle ne porte plus les saisies de l\\'élève');
+      if(c.indexOf('y = 4x − 2')<0||c.indexOf('concave')<0) vus.push('le contexte du modèle ne dit ni la tangente ni la convexité'); }
+    if(!(RAPPELS['ecv']&&RAPPELS['ecv'].indexOf('inflexion')>=0)) vus.push('le rappel de cours du 5.6 ne parle pas du point d\\'inflexion');
+    if(!(QIA_SUGG['ecv']&&QIA_SUGG['ecv'].length>=3)) vus.push('le 5.6 n\\'a pas ses questions suggérées');
 
     currentMode='train';
     return vus.slice(0,4).join(' | ');
