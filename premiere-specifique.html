@@ -1003,8 +1003,8 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    {augmenter-taux-dix} (2.2.12) reprend la même convention, elle aussi sur
    plusieurs lignes empilées. {diminuer-taux-dix} (miroir sur les baisses,
    septembre 2026) la reprend à son tour. */
-#pxHost .pct10-ligne,#atdHost .pct10-ligne,#pdtHost .pct10-ligne,#ddtHost .pct10-ligne,#synHost .pct10-ligne{font-size:1.6rem;font-family:"Fredoka";font-weight:500;color:var(--ink);line-height:1.6;text-align:center;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:8px;row-gap:4px;}
-#pxHost .pct10-ligne math-field.pm-mf,#atdHost .pct10-ligne math-field.pm-mf,#pdtHost .pct10-ligne math-field.pm-mf,#ddtHost .pct10-ligne math-field.pm-mf,#synHost .pct10-ligne math-field.pm-mf{font-size:calc(1.6rem * var(--tab-nb,1));vertical-align:baseline;}
+#pxHost .pct10-ligne,#atdHost .pct10-ligne,#pdtHost .pct10-ligne,#ddtHost .pct10-ligne,#synHost .pct10-ligne,#qHost .pct10-ligne{font-size:1.6rem;font-family:"Fredoka";font-weight:500;color:var(--ink);line-height:1.6;text-align:center;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;column-gap:8px;row-gap:4px;}
+#pxHost .pct10-ligne math-field.pm-mf,#atdHost .pct10-ligne math-field.pm-mf,#pdtHost .pct10-ligne math-field.pm-mf,#ddtHost .pct10-ligne math-field.pm-mf,#synHost .pct10-ligne math-field.pm-mf,#qHost .pct10-ligne math-field.pm-mf{font-size:calc(1.6rem * var(--tab-nb,1));vertical-align:baseline;}
 #pdtHost .pct10-ligne{margin:14px 0;}
 /* {pourcentage-dix-cascade} (2.1.9) : sept rangées (10 % puis les six autres
    pourcentages) s'enchaînaient collées les unes aux autres (demande de
@@ -1065,6 +1065,15 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #synHost.syn-fl .pct10-fl-cible{margin-top:30px}
 #synHost.syn-fl{position:relative}
 #synHost .syn-fleches{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+/* {pourcentage-synthese} (2.1.6), quand l'élève retrouve le pourcentage en
+   passant par 10 % — même piège, même garde : voir le commentaire ci-dessus
+   pour {pourcentage-dix-taux}. Et ses lignes « en passant par 10 % » pour une
+   valeur sont espacées comme .syn-dix. */
+#qHost .pct10-ligne{margin:14px 0;}
+#qHost .qd-dix .pt-row{margin:10px 0;}
+#qHost.qd-fl .pct10-fl-cible{margin-top:30px}
+#qHost.qd-fl{position:relative}
+#qHost .qd-fleches{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
 /* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
    (apres « 1, », « 0, ») : plus courtes. */
 #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:82px;}
@@ -1258,7 +1267,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   #pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));}
   #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#ckHost .f-num,#ckHost .f-den{min-width:78px;max-width:200px;}
   #pHost .f-dec,#pdcHost .f-dec,#adxHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#ckHost .f-dec{min-width:96px;max-width:200px;}
-  #pxHost .pct10-ligne,#atdHost .pct10-ligne,#pdtHost .pct10-ligne{font-size:1.3rem;}
+  #pxHost .pct10-ligne,#atdHost .pct10-ligne,#pdtHost .pct10-ligne,#qHost .pct10-ligne{font-size:1.3rem;}
   .pt-choix-btn .valeur{font-size:1.2rem}
   #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:66px;}
 }
@@ -2362,7 +2371,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=269;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=270;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2753,7 +2762,7 @@ const TESTS={
   'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:TM_NB+' produits des tables de 2 à 9 (résultats à deux chiffres), '+TM_SECONDES+' secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() },
   'pourcentage-depart':  { name:'Retrouver la valeur initiale', icon:'🔎', desc:'On donne le pourcentage et le r\u00e9sultat : choisis la bonne valeur initiale parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice {pourcentage}.', start:()=>startPctDepart() },
   'pourcentage-taux':    { name:'Retrouver le pourcentage', icon:'🧮', desc:'On donne la valeur initiale et le r\u00e9sultat : choisis le bon pourcentage parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice {pourcentage}.', start:()=>startPctTaux() },
-  'pourcentage-synthese':{ name:'Synth\u00e8se : prendre un pourcentage', icon:'🎯', desc:'Synth\u00e8se de {pourcentage}, {pourcentage-depart} et {pourcentage-taux} : le r\u00e9sultat, la valeur initiale ou le pourcentage \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la en \u00e9crivant les 3 \u00e9tapes. Ici, toutes les cases sont vides, m\u00eame le nombre de d\u00e9part.', start:()=>startPctSynthese() },
+  'pourcentage-synthese':{ name:'Synth\u00e8se : prendre un pourcentage', icon:'🎯', desc:'Synth\u00e8se de {pourcentage}, {pourcentage-depart} et {pourcentage-taux} : le r\u00e9sultat, la valeur initiale ou le pourcentage \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la en \u00e9crivant les 3 \u00e9tapes. Ici, toutes les cases sont vides, m\u00eame le nombre de d\u00e9part. Tu choisis ta m\u00e9thode de v\u00e9rification\u00a0: la fraction sur 100, comme {pourcentage} et {pourcentage-taux}, ou le passage par 10\u00a0%, comme {pourcentage-dix} et {pourcentage-dix-taux}.', start:()=>startPctSynthese() },
   'pourcentage-synthese-libre':{ name:'Synth\u00e8se : prendre un pourcentage, en r\u00e9digeant', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {pourcentage-synthese}, mais plus une seule case : tu JUSTIFIES en \u00e9crivant ton calcul toi-m\u00eame \u2014 avant ou apr\u00e8s avoir choisi ta r\u00e9ponse parmi quatre \u2014 et l\u2019IA le lit.', start:()=>startPctSyntheseLibre() },
   'pourcentage-dix':     { name:'Prendre 10 % en divisant par 10', icon:'\ud83d\udd1f', desc:'Les m\u00eames th\u00e8mes qu\u2019en {pourcentage}, mais toujours pour 10 % : prendre 10 % d\u2019un nombre, c\u2019est le diviser par 10 \u2014 comme sur la fiche de cours.', start:()=>startPct10() },
   'pourcentage-dix-cascade': { name:'Retrouver plusieurs pourcentages en passant par 10 %', icon:'\u2797', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans donner le pourcentage \u00e0 l\u2019avance : pars de 10 % du nombre, comme dans {pourcentage-dix}, puis retrouve 20 %, 30 %, 40 %, 5 %, 15 % et 25 % en t\u2019appuyant dessus, comme sur une fiche de m\u00e9thode.', start:()=>startPdc() },
@@ -9271,7 +9280,67 @@ function genPctRes(){
 const SYN21_GENS=[genPctRes,genPctDepart,genPctTaux];
 async function startPctSynthese(){
   const plan=qdMelanger(SYN21_GENS.concat(Array.from({length:Math.max(0,QD_NB-SYN21_GENS.length)},()=>pick(SYN21_GENS))));
-  return startQCM('pourcentage-synthese', (_,i)=>plan[i]());   /* par l'index : distinctes() peut retirer une question, le plan ne doit pas avancer pour autant */
+  /* La méthode de vérification se CHOISIT (demande de Turquet, septembre
+     2026) : la fraction sur 100 — la chaîne de {pourcentage} et
+     {pourcentage-taux} — ou le passage par 10 %, présenté comme
+     {pourcentage-dix-cascade} quand on calcule une valeur et comme
+     {pourcentage-dix-taux} quand on cherche le pourcentage. C'est LA QUESTION
+     qui porte le choix (q.meth : null tant que rien n'est choisi, puis 'frac'
+     ou 'dix'), jamais test.qId : la reprise d'une pause relit la question,
+     pas le démarreur — la leçon du 2.2.13. Les questions de 2.1.4 et 2.1.5
+     n'ont pas de q.meth : leur chaîne est celle de la fraction, sans bouton. */
+  return startQCM('pourcentage-synthese', (_,i)=>{ const q=plan[i](); q.meth=null; return q; });   /* par l'index : distinctes() peut retirer une question, le plan ne doit pas avancer pour autant */
+}
+/* La méthode de vérification d'une question du moteur pctq : 'frac' (la chaîne
+   P/100 × N) ou 'dix' (le passage par 10 %). Une question SANS q.meth (2.1.4,
+   2.1.5, ou une pause de la synthèse antérieure au choix) suit la fraction,
+   sans bouton ; q.meth === null veut dire « la synthèse attend le choix ». */
+function qdMeth(q){ return (q.meth===undefined)?'frac':q.meth; }
+function qdChoixMeth(q){ return q.meth!==undefined; }
+/* Le passage par 10 % sur un couple : P et N sont des multiples de dix (les
+   viviers PCT_PCTS et PCT_VALEURS, et les leurres de leurresProches — N = 10
+   est exclu de la valeur initiale), donc 10 % de N est entier et le facteur k
+   qui mène de 10 % à P % aussi. Aucune case ne multiplie jamais par 1 (la règle
+   du 2.1.10) : quand P EST 10 %, la ligne des 10 % est déjà la réponse, et il
+   n'y a ni facteur ni seconde ligne. */
+function qdDixRegl(P,N){ return {d10:N/10, k:P/10, hasK:P!==10}; }
+function choisirQMeth(m){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(q.meth===m) return;
+  q.meth=m; renderQTest(); autoSave();
+}
+/* Les flèches de la fiche (2.1.10) quand la synthèse cherche le pourcentage en
+   passant par 10 % : du « 10 % » vers la case du pourcentage trouvé, et de sa
+   valeur vers le nombre final de l'énoncé — MESURÉES dans la page, sur pdtArc
+   réutilisé tel quel. La classe « qd-fl » est posée par renderQTest pour LA
+   question affichée : le seul repère fiable contre un redessin retardé (le
+   piège noté dans pdtPoints). */
+let qdRedessine=null;
+function qdDessinerFleches(){
+  const hote=$('qHost'); if(!hote) return;
+  const vieux=hote.querySelector('.qd-fleches'); if(vieux) vieux.remove();
+  if(!hote.classList.contains('qd-fl')) return;
+  const srcPct=$('qxFlPct10'), srcVal=$('qx0'), dstPct=$('qxP'), dstVal=$('qxFlValDst');
+  if(!srcPct || !srcVal || !dstPct || !dstVal) return;
+  const R=hote.getBoundingClientRect(); if(!R.width) return;
+  const bordBas=el=>{ const r=el.getBoundingClientRect(); return {x:(r.left+r.right)/2-R.left, y:r.bottom-R.top}; };
+  const bordHaut=el=>{ const r=el.getBoundingClientRect(); return {x:(r.left+r.right)/2-R.left, y:r.top-R.top}; };
+  const C=getComputedStyle(document.documentElement).getPropertyValue('--pdt-fl').trim()||'#7C3AED';
+  const fond=getComputedStyle(document.documentElement).getPropertyValue('--surface').trim()||'#fff';
+  const pointe='<marker id="qd-p1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5"'
+    +' orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="'+C+'"></path></marker>';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('class','qd-fleches');
+  svg.setAttribute('viewBox','0 0 '+R.width+' '+R.height);
+  svg.setAttribute('width',R.width); svg.setAttribute('height',R.height);
+  svg.setAttribute('aria-hidden','true');
+  const a1=bordBas(srcPct), b1=bordHaut(dstPct), a2=bordBas(srcVal), b2=bordHaut(dstVal);
+  const milieu=(a,b)=>({x:(a.x+b.x)/2, y:(a.y+b.y)/2});
+  const etiquette=m=>'<text x="'+m.x.toFixed(1)+'" y="'+m.y.toFixed(1)+'" text-anchor="middle" dominant-baseline="middle"'
+    +' font-family="Fredoka" font-weight="600" font-size="15" fill="'+C+'" stroke="'+fond+'" stroke-width="4" paint-order="stroke">\u00d7</text>';
+  svg.innerHTML='<defs>'+pointe+'</defs>'+pdtArc(a1,b1,C,'qd-p1')+pdtArc(a2,b2,C,'qd-p1')+etiquette(milieu(a1,b1))+etiquette(milieu(a2,b2));
+  hote.appendChild(svg);
 }
 async function startQCM(id, gen){
   if(!currentEleve){ accueil(); return; }
@@ -9333,17 +9402,75 @@ function renderQTest(){
   const caseN=vide
     ? `<math-field class="dexp-mf pm-mf f-dec" id="qN" aria-label="nombre de d\u00e9part"></math-field>`
     : `<span class="f-whole">${nAff}</span>`;
-  $('qHost').innerHTML=
+  /* Ⓜ la méthode se choisit — dans la synthèse seulement (q.meth posé) : la
+     fraction sur 100, ou le passage par 10 %. Les étapes n'apparaissent
+     qu'une fois la méthode choisie, comme dans la synthèse des évolutions. */
+  const meth=qdMeth(q), choixMeth=qdChoixMeth(q);
+  const methHTML=choixMeth ? `<div class="pt-step"><div class="pt-lab">\u24c2 Choisis ta m\u00e9thode de v\u00e9rification</div>
+       <div class="pt-choix" id="qMeth">
+         <button type="button" class="pt-choix-btn${meth==='frac'?' sel':''}" id="qm0" onclick="choisirQMeth('frac')"><span class="valeur">Avec la fraction sur 100</span></button>
+         <button type="button" class="pt-choix-btn${meth==='dix'?' sel':''}" id="qm1" onclick="choisirQMeth('dix')"><span class="valeur">En passant par 10\u00a0%</span></button>
+       </div></div>` : '';
+  const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const u=esc(q.unit);
+  let etapes='', order=[];
+  if(meth==='frac'){
+    etapes=`<div class="pt-step"><div class="pt-lab">\u2460 le % en fraction d\u00e9cimale&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le r\u00e9sultat en \u00e9criture d\u00e9cimale</div>
+       <div class="pt-row">${frac('q1n','q1d')}<span class="f-times">\u00d7</span>${caseN}${fEq(frac('q2n','q2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="q3" aria-label="r\u00e9sultat"></math-field>`)}<span class="f-whole">${u}</span></div></div>`;
+    order=vide?['q1n','q1d','qN','q2n','q2d','q3']:['q1n','q1d','q2n','q2d','q3'];
+  } else if(meth==='dix' && q.type!=='pct'){
+    /* le passage par 10 % pour CALCULER une valeur : les lignes de
+       {pourcentage-dix-cascade} (2.1.9), sur le couple testé — 10 % du nombre
+       (la fraction N/10 devant la case, comme en {pourcentage-dix}), puis
+       « donc : P % de N est ▢ ». Quand on cherche la valeur INITIALE, le nombre
+       est la proposition choisie (« … » tant qu'il n'y en a pas) : c'est de lui
+       qu'on prend 10 %, et la dernière case doit retomber sur le résultat de
+       l'énoncé. Quand P EST 10 %, la première ligne suffit (qdDixRegl). */
+    const fracFixe=(n,d)=>`<span class="f-whole">${mlTex('\\frac{'+n+'}{'+d+'}', n+'/'+d)}</span>`;
+    const r=qdDixRegl(q.P,c?c.N:0);
+    const ligneBase=`<div class="pt-row"><span class="f-whole">On commence par 10 % de ${nAff} ${u}</span>${fEq(fracFixe(nAff,10))}${fEq(dec('qx0','dix pour cent du nombre de d\u00e9part'))}<span class="f-whole">${u}</span></div>`;
+    const ligneP=r.hasK?`<div class="pt-row"><span class="f-whole">donc : ${q.P} % de ${nAff} ${u} est</span>${dec('qxP',q.P+' % du nombre de d\u00e9part')}<span class="f-whole">${u}</span></div>`:'';
+    etapes=`<div class="pt-step qd-dix">${ligneBase}${ligneP}</div>`;
+    order=['qx0'].concat(r.hasK?['qxP']:[]);
+  } else if(meth==='dix'){
+    /* le passage par 10 % pour RETROUVER le pourcentage : les lignes de
+       {pourcentage-dix-taux} (2.1.10) — 10 % du nombre, « On multiplie par ▢ :
+       donc ▢ % de N = R », avec les flèches de la fiche. CE CALCUL PART DES
+       DONNÉES, PAS DE LA PROPOSITION (la décision du 2.2.13) : il trouve LE
+       pourcentage, qui se compare ensuite à celui que l'élève a choisi. Quand
+       le pourcentage cherché EST 10 %, ni facteur ni flèche. */
+    const r=qdDixRegl(q.P,q.N);
+    const donc=`donc\u00a0: ${dec('qxP','le pourcentage cherch\u00e9')}&nbsp;% de ${q.N} ${u} = <span id="qxFlValDst">${q.result}</span> ${u}`;
+    etapes=`<div class="pct10-ligne">On commence par d\u00e9terminer <b id="qxFlPct10">10</b>&nbsp;% de <b>${q.N}</b> ${u}\u00a0: ${dec('qx0','dix pour cent de '+q.N)} ${u}</div>`
+      +(r.hasK?`<div class="pct10-ligne pct10-fl-cible">On multiplie par ${dec('qxK','facteur qui donne le pourcentage cherch\u00e9')}\u00a0: ${donc}</div>`:`<div class="pct10-ligne">${donc}</div>`);
+    order=['qx0'].concat(r.hasK?['qxK']:[],['qxP']);
+  }
+  const aide=(choixMeth && !q.meth)
+    ? 'Choisis ta m\u00e9thode de v\u00e9rification\u00a0: les deux donnent le m\u00eame r\u00e9sultat.'
+    : c===null
+      ? '\u00c9cris les \u00e9tapes du calcul et choisis ta proposition \u2014 dans l\u2019ordre que tu veux.'
+      : (meth==='dix' && q.type==='pct')
+        ? '\u00c9cris les \u00e9tapes du calcul\u00a0: le pourcentage trouv\u00e9 doit \u00eatre celui que tu as choisi.'
+        : 'V\u00e9rifie ta proposition\u00a0: calcule '+c.P+'\u00a0% de '+c.N+'. Tu dois retrouver '+(q.type==='res'?'la proposition que tu as choisie\u00a0: '+esc(qdLabel(q,q.opts[q.choisi])):q.result+'\u00a0'+u)+'.';
+  const hote=$('qHost');
+  hote.classList.remove('qd-fl');
+  if(qdRedessine){ window.removeEventListener('resize', qdRedessine); qdRedessine=null; }
+  hote.innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${qdQuoi(q)}</div>
        <div class="pt-choix" id="qChoix">${choix}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">\u2460 le % en fraction d\u00e9cimale&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le r\u00e9sultat en \u00e9criture d\u00e9cimale</div>
-       <div class="pt-row">${frac('q1n','q1d')}<span class="f-times">\u00d7</span>${caseN}${fEq(frac('q2n','q2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="q3" aria-label="r\u00e9sultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
-    `<p class="pt-aide">${c===null
-        ? '\u00c9cris les \u00e9tapes du calcul et choisis ta proposition \u2014 dans l\u2019ordre que tu veux.'
-        : 'V\u00e9rifie ta proposition\u00a0: calcule '+c.P+'\u00a0% de '+c.N+'. Tu dois retrouver '+(q.type==='res'?'la proposition que tu as choisie\u00a0: '+esc(qdLabel(q,q.opts[q.choisi])):q.result+'\u00a0'+esc(q.unit))+'.'}</p>`;
-  const order=(vide?['q1n','q1d','qN','q2n','q2d','q3']:['q1n','q1d','q2n','q2d','q3']).map(id=>$(id));
-  order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkQAnswer();} }); });
-  setTimeout(()=>{ if(order[0] && order.every(el=>!el||String(el.value==null?'':el.value).trim()==='')) order[0].focus(); },70);
+    methHTML+etapes+
+    `<p class="pt-aide">${aide}</p>`;
+  if(meth==='dix' && q.type==='pct' && qdDixRegl(q.P,q.N).hasK){
+    hote.classList.add('qd-fl');
+    qdRedessine=function(){ if(test.kind==='pctq' && $('qHost')) qdDessinerFleches(); };
+    window.addEventListener('resize', qdRedessine);
+    setTimeout(qdDessinerFleches, 60);
+    setTimeout(qdDessinerFleches, 240);   /* MathLive finit de poser ses cases */
+  }
+  if(!meth) return;
+  const els=order.map(id=>$(id));
+  els.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<els.length-1)els[i+1].focus(); else checkQAnswer();} }); });
+  setTimeout(()=>{ if(els[0] && els.every(el=>!el||String(el.value==null?'':el.value).trim()==='')) els[0].focus(); },70);
 }
 function checkQAnswer(live){
   if(test.locked) return;
@@ -9353,40 +9480,72 @@ function checkQAnswer(live){
     $('qFeedback').textContent='Choisis d\u2019abord une proposition (a, b, c ou d).';
     $('qFeedback').className='mp-feedback bad'; return;
   }
+  const meth=qdMeth(q);
+  if(!meth){
+    if(live) return;
+    $('qFeedback').textContent='Choisis ta m\u00e9thode de v\u00e9rification\u00a0: la fraction sur 100, ou le passage par 10\u00a0%.';
+    $('qFeedback').className='mp-feedback bad'; return;
+  }
   const c=qdCouple(q), prod=c.P*c.N, res=prod/100;
-  /* Les \u00e9tapes sont jug\u00e9es par rapport \u00e0 la proposition CHOISIE : un calcul correct
-     sur une mauvaise proposition reste un calcul correct. */
-  if(live){ liveColorFrac('q1n','q1d',c.P,100,false); liveColorDec('qN',c.N,1); liveColorFrac('q2n','q2d',prod,100,false); liveColorDec('q3',res,1); return; }
+  /* Le passage par 10 % qui cherche le pourcentage est jugé sur les DONNÉES
+     (le chemin du 2.1.10, qui ne connaît aucune proposition) ; tout le reste
+     est jugé par rapport à la proposition CHOISIE : un calcul correct sur une
+     mauvaise proposition reste un calcul correct. */
+  const dixPct=(meth==='dix' && q.type==='pct');
+  const r=(meth==='dix')?(dixPct?qdDixRegl(q.P,q.N):qdDixRegl(c.P,c.N)):null;
+  const sd=x=>String(x).replace('.',',');
+  if(live){
+    if(meth==='frac'){ liveColorFrac('q1n','q1d',c.P,100,false); liveColorDec('qN',c.N,1); liveColorFrac('q2n','q2d',prod,100,false); liveColorDec('q3',res,1); }
+    else if(!dixPct){ liveColorDec('qx0',c.N,10); if(r.hasK) liveColorDec('qxP',prod,100); }
+    else { liveColorDec('qx0',q.N,10); if(r.hasK) liveColorDec('qxK',r.k,1); liveColorDec('qxP',q.P,1); }
+    return;
+  }
   const v=id=>$(id).value.trim(), iv=id=>parseInt($(id).value.trim(),10);
-  const f1n=iv('q1n'), f1d=iv('q1d');
-  const ok1 = v('q1n')!=='' && v('q1d')!=='' && !isNaN(f1n) && !isNaN(f1d) && f1d!==0 && f1n*100===c.P*f1d;
-  const f2n=iv('q2n'), f2d=iv('q2d');
-  const ok2 = v('q2n')!=='' && v('q2d')!=='' && !isNaN(f2n) && !isNaN(f2d) && f2d!==0 && f2n*100===prod*f2d;
-  const fr=parseDecToFrac(v('q3'));
-  const ok3 = !!fr && fr.n*100===prod*fr.d;      /* tout en entiers : jamais de flottant */
-  /* Synthèse : la case du nombre de départ se juge comme les autres. Absente
-     (2.1.4, 2.1.5 : la page l'écrit), elle ne compte pas. */
-  const eN=$('qN');
-  const okN = !eN || (v('qN')!=='' && !isNaN(iv('qN')) && iv('qN')===c.N);
-  const okChoix=(q.choisi===q.bon), calculOk=ok1&&ok2&&ok3&&okN, allOk=calculOk&&okChoix;
   /* Une case VIDE ne rougit jamais : elle reste sans couleur — en entraînement,
      la correction la complète en vert juste derrière. */
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');
     if(String(el.value||'').trim()===''){ el.disabled=!isSoutien(); return; }
     el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
-  /* Une case seule dans sa fraction se juge sur ce qu'elle PROMET — pouvoir se
-     compléter en une fraction égale à la cible — jamais sur sa jumelle vide :
-     une case juste ne rougit pas parce qu'une autre est vide (règle du projet,
-     à toutes les profondeurs — c'est le bug des sommes de fractions, ici par
-     une autre porte). La NOTE, elle, exige toujours la paire complète. */
-  const promN=(vn,cible)=>{ const n=parseInt(vn,10); return !isNaN(n)&&n>0&&(n*100)%cible===0; };
-  const promD=(vd,cible)=>{ const d=parseInt(vd,10); return !isNaN(d)&&d>0&&(cible*d)%100===0; };
-  mark('q1n', v('q1d')===''?promN(v('q1n'),c.P):ok1);
-  mark('q1d', v('q1n')===''?promD(v('q1d'),c.P):ok1);
-  if(eN) mark('qN',okN);
-  mark('q2n', v('q2d')===''?promN(v('q2n'),prod):ok2);
-  mark('q2d', v('q2n')===''?promD(v('q2d'),prod):ok2);
-  mark('q3',ok3);
+  const eN=$('qN');
+  let calculOk;
+  if(meth==='frac'){
+    const f1n=iv('q1n'), f1d=iv('q1d');
+    const ok1 = v('q1n')!=='' && v('q1d')!=='' && !isNaN(f1n) && !isNaN(f1d) && f1d!==0 && f1n*100===c.P*f1d;
+    const f2n=iv('q2n'), f2d=iv('q2d');
+    const ok2 = v('q2n')!=='' && v('q2d')!=='' && !isNaN(f2n) && !isNaN(f2d) && f2d!==0 && f2n*100===prod*f2d;
+    const fr=parseDecToFrac(v('q3'));
+    const ok3 = !!fr && fr.n*100===prod*fr.d;      /* tout en entiers : jamais de flottant */
+    /* Synthèse : la case du nombre de départ se juge comme les autres. Absente
+       (2.1.4, 2.1.5 : la page l'écrit), elle ne compte pas. */
+    const okN = !eN || (v('qN')!=='' && !isNaN(iv('qN')) && iv('qN')===c.N);
+    /* Une case seule dans sa fraction se juge sur ce qu'elle PROMET — pouvoir se
+       compléter en une fraction égale à la cible — jamais sur sa jumelle vide :
+       une case juste ne rougit pas parce qu'une autre est vide (règle du projet,
+       à toutes les profondeurs — c'est le bug des sommes de fractions, ici par
+       une autre porte). La NOTE, elle, exige toujours la paire complète. */
+    const promN=(vn,cible)=>{ const n=parseInt(vn,10); return !isNaN(n)&&n>0&&(n*100)%cible===0; };
+    const promD=(vd,cible)=>{ const d=parseInt(vd,10); return !isNaN(d)&&d>0&&(cible*d)%100===0; };
+    mark('q1n', v('q1d')===''?promN(v('q1n'),c.P):ok1);
+    mark('q1d', v('q1n')===''?promD(v('q1d'),c.P):ok1);
+    if(eN) mark('qN',okN);
+    mark('q2n', v('q2d')===''?promN(v('q2n'),prod):ok2);
+    mark('q2d', v('q2n')===''?promD(v('q2d'),prod):ok2);
+    mark('q3',ok3);
+    calculOk=ok1&&ok2&&ok3&&okN;
+  } else {
+    /* en fractions exactes, jamais en flottants — comme le 2.1.9 et le 2.1.10 */
+    const eq=(id,n,d)=>{ const el=$(id); if(!el||v(id)==='') return false; const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
+    if(!dixPct){
+      const ok0=eq('qx0',c.N,10), okP=r.hasK?eq('qxP',prod,100):true;
+      mark('qx0',ok0); if(r.hasK) mark('qxP',okP);
+      calculOk=ok0&&okP;
+    } else {
+      const ok0=eq('qx0',q.N,10), okK=r.hasK?eq('qxK',r.k,1):true, okP=eq('qxP',q.P,1);
+      mark('qx0',ok0); if(r.hasK) mark('qxK',okK); mark('qxP',okP);
+      calculOk=ok0&&okK&&okP;
+    }
+  }
+  const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
   const btn=$('qc'+q.choisi);
   if(btn){ btn.classList.remove('sel','ok','bad'); btn.classList.add(okChoix?'ok':'bad'); }
   const font=n=>(n>1?'font':'fait');
@@ -9394,9 +9553,11 @@ function checkQAnswer(live){
     if(calculOk){
       /* Calcul juste, proposition fausse : on rouvre le choix, sinon l'\u00e9l\u00e8ve
          tournerait en rond sur une proposition d\u00e9j\u00e0 condamn\u00e9e. */
-      $('qFeedback').innerHTML=(q.type==='res')
-        ? `Ton calcul est juste\u00a0: ${c.P}\u00a0% de ${c.N} ${font(res)} <b>${res} ${esc(q.unit)}</b> \u2014 or tu avais choisi ${esc(qdLabel(q,q.opts[q.choisi]))}. Choisis la proposition que ton calcul vient de te donner.`
-        : `Ton calcul est juste\u00a0: ${c.P}\u00a0% de ${c.N} ${font(res)} <b>${res} ${esc(q.unit)}</b>, et non ${q.result}. Ce n\u2019est donc pas ${qdQuoi(q)} \u2014 essaie une autre proposition.`;
+      $('qFeedback').innerHTML=dixPct
+        ? `Ton calcul est juste\u00a0: le pourcentage est <b>${q.P} %</b>, et ce n\u2019est pas la proposition que tu as choisie. Essaie une autre proposition.`
+        : (q.type==='res')
+          ? `Ton calcul est juste\u00a0: ${c.P}\u00a0% de ${c.N} ${font(res)} <b>${res} ${esc(q.unit)}</b> \u2014 or tu avais choisi ${esc(qdLabel(q,q.opts[q.choisi]))}. Choisis la proposition que ton calcul vient de te donner.`
+          : `Ton calcul est juste\u00a0: ${c.P}\u00a0% de ${c.N} ${font(res)} <b>${res} ${esc(q.unit)}</b>, et non ${q.result}. Ce n\u2019est donc pas ${qdQuoi(q)} \u2014 essaie une autre proposition.`;
       $('qFeedback').className='mp-feedback bad';
       $('qActions').innerHTML='<button class="btn btn-primary" onclick="checkQAnswer()">V\u00e9rifier</button>';
       setTimeout(()=>{ const z=$('qChoix'); if(z) z.scrollIntoView({block:'center',behavior:'smooth'}); },40);
@@ -9406,23 +9567,44 @@ function checkQAnswer(live){
   }
   test.locked=true;
   const cx=$('qChoix'); if(cx) cx.classList.add('locked');
+  const mx=$('qMeth'); if(mx) mx.classList.add('locked');
   if(!okChoix){ const bon=$('qc'+q.bon); if(bon) bon.classList.add('sol'); }
   const bonLbl=`<b>${QLET[q.bon]}) ${esc(qdLabel(q,q.opts[q.bon]))}</b>`;
-  const preuve=`${q.P}/100 \u00d7 ${q.N} = ${q.prod}/100 = ${q.result}`;
+  /* la preuve, sur les VRAIES données, dans la méthode choisie */
+  const preuveDix=()=>{
+    const R=qdDixRegl(q.P,q.N), D=sd(R.d10), u=q.unit;
+    if(q.type!=='pct') return R.hasK
+      ? `10 % de ${q.N} = ${q.N}/10 = ${D} ${u}, donc ${q.P} % de ${q.N} = ${D} \u00d7 ${R.k} = ${q.result} ${u}`
+      : `10 % de ${q.N} = ${q.N}/10 = ${q.result} ${u}`;
+    return `10 % de ${q.N} = ${D} ${u}`+(R.hasK?`, et ${q.result} = ${D} \u00d7 ${R.k}, donc ${q.P} %`:`, donc ${q.P} %`);
+  };
+  const preuve=(meth==='frac') ? `${q.P}/100 \u00d7 ${q.N} = ${q.prod}/100 = ${q.result}` : preuveDix();
   if(allOk){ test.score++; $('qLiveScore').textContent=test.score;
     $('qFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Tr\u00e8s bien !']); $('qFeedback').className='mp-feedback good';
   } else if(calculOk){
-    $('qFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: ${c.P}\u00a0% de ${c.N} ${font(res)} ${res} ${esc(q.unit)}. La bonne r\u00e9ponse \u00e9tait ${bonLbl}, car ${preuve}.`;
+    $('qFeedback').innerHTML=dixPct
+      ? `Calcul juste, mais mauvaise proposition\u00a0: le pourcentage trouv\u00e9 est ${q.P} %. La bonne r\u00e9ponse \u00e9tait ${bonLbl}, car ${preuve}.`
+      : `Calcul juste, mais mauvaise proposition\u00a0: ${c.P}\u00a0% de ${c.N} ${font(res)} ${res} ${esc(q.unit)}. La bonne r\u00e9ponse \u00e9tait ${bonLbl}, car ${preuve}.`;
     $('qFeedback').className='mp-feedback bad';
   } else {
-    $('qFeedback').innerHTML=`R\u00e9ponse\u00a0: ${bonLbl}, car ${preuve} ${esc(q.unit)} (toute fraction \u00e9gale est accept\u00e9e).`;
+    $('qFeedback').innerHTML=(meth==='frac')
+      ? `R\u00e9ponse\u00a0: ${bonLbl}, car ${preuve} ${esc(q.unit)} (toute fraction \u00e9gale est accept\u00e9e).`
+      : `R\u00e9ponse\u00a0: ${bonLbl}, car ${preuve} (toute \u00e9criture \u00e9gale est accept\u00e9e).`;
     $('qFeedback').className='mp-feedback bad';
-    corTrainFrac('q1n','q1d',c.P,100); if(eN) corTrainDec('qN',String(c.N)); corTrainFrac('q2n','q2d',prod,100);
-    corTrainDec('q3',String(res).replace('.',','));
+    /* corrections calculées sur la proposition CHOISIE (sur les données pour
+       le pourcentage par 10 %), dans la méthode choisie */
+    if(meth==='frac'){
+      corTrainFrac('q1n','q1d',c.P,100); if(eN) corTrainDec('qN',String(c.N)); corTrainFrac('q2n','q2d',prod,100);
+      corTrainDec('q3',sd(res));
+    } else if(!dixPct){
+      corTrainDec('qx0',sd(c.N/10)); if(r.hasK) corTrainDec('qxP',sd(res));
+    } else {
+      corTrainDec('qx0',sd(q.N/10)); if(r.hasK) corTrainDec('qxK',sd(r.k)); corTrainDec('qxP',sd(q.P));
+    }
   }
-  const enonce=(q.type==='pct')
+  const enonce=((q.type==='pct')
     ? `${q.result} ${q.unit} sur ${q.N} ${q.unit}`
-    : `${q.P} % d\u2019un nombre ${q.result>1?'valent':'vaut'} ${q.result} ${q.unit}`;
+    : `${q.P} % d\u2019un nombre ${q.result>1?'valent':'vaut'} ${q.result} ${q.unit}`)+(meth==='dix'?', en passant par 10 %':'');
   test.answers.push({...(ptsExo()||{}), q:enonce,
     answer:qdLabel(q,q.opts[q.bon]), given:qdLabel(q,q.opts[q.choisi]), correct:allOk});
   const last=test.idx===test.questions.length-1;
@@ -17109,7 +17291,9 @@ const RAP_SYN21=`<b>Le résultat, la valeur initiale ou le pourcentage</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
 <b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
 Quand on en connaît deux, le troisième est déterminé. La question peut donc demander n’importe lequel des trois — c’est ce qui change par rapport aux exercices {pourcentage}, {pourcentage-depart} et {pourcentage-taux}, où l’on sait d’avance ce qu’on cherche. Commence toujours par repérer les deux nombres que l’énoncé donne.<br>
-Dans tous les cas, on <b>teste la proposition choisie</b> : on écrit les 3 étapes de l’exercice {pourcentage} — le % en fraction décimale, la multiplication, le résultat en écriture décimale — et on regarde si tout se raccorde. Ici, toutes les cases sont vides : c’est à toi d’écrire aussi le nombre de départ.`;
+Dans tous les cas, on <b>teste la proposition choisie</b>, avec la méthode de ton choix :<br>
+<b>Avec la fraction sur 100</b> : on écrit les 3 étapes de l’exercice {pourcentage} — le % en fraction décimale, la multiplication, le résultat en écriture décimale — et on regarde si tout se raccorde. Ici, toutes les cases sont vides : c’est à toi d’écrire aussi le nombre de départ.<br>
+<b>En passant par 10 %</b> : 10 % de 40 €, c’est 40 ÷ 10 = <b>4 €</b>, donc <b>30 % = 12 €</b> (trois fois 4), comme dans {pourcentage-dix} et {pourcentage-dix-cascade}. Pour <b>retrouver le pourcentage</b> (12 € sur 40 €) : 10 % = 4 €, et comme 12 c’est 4 × 3, c’est <b>30 %</b> — comme dans {pourcentage-dix-taux}. Quand 10 % du nombre est déjà la réponse, une seule ligne suffit.`;
 const RAP_PSL=`<b>Justifier, c’est montrer le calcul</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
 <b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
@@ -17401,7 +17585,7 @@ const QIA_SUGG={
   ddt:["Comment retrouver un pourcentage de baisse à partir de 10 % ?","Pourquoi passe-t-on par 5 % quand le pourcentage se termine par un 5 ?","Comment calculer la baisse d’un prix ?","C’est quoi, un pourcentage ?"],
   ddx:["Pourquoi 5 % est-il la moitié de 10 % ?","Comment retrouver 15 % à partir de 10 % et 5 % ?","Pourquoi retire-t-on la baisse au prix de départ à la fin ?","Comment vérifier que mon résultat est juste ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
-  'pourcentage-synthese':["Comment savoir ce que la question me demande de retrouver ?","Comment tester une proposition ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","C’est quoi, un pourcentage ?"],
+  'pourcentage-synthese':["Comment savoir ce que la question me demande de retrouver ?","Comment tester une proposition ?","Quelle méthode choisir : la fraction sur 100, ou le passage par 10 % ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","C’est quoi, un pourcentage ?"],
   psl:["Comment savoir ce que la question me demande de retrouver ?","Comment justifier ma réponse ?","Par quoi commencer mon calcul ?","C’est quoi, un pourcentage ?"],
   sal:["Comment vérifier avec le coefficient multiplicateur ?","Comment savoir ce que la question me demande de retrouver ?","Comment justifier ma réponse ?","C’est quoi, un coefficient multiplicateur ?"],
   'synthese-augmentations-libre':["Comment vérifier avec le coefficient multiplicateur ?","Comment vérifier en calculant l’augmentation ?","Comment savoir ce que la question me demande de retrouver ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?"],
@@ -17611,6 +17795,19 @@ function conseilCtxCourant(){
         ?'Pour cette question, le calcul ne dépend pas du choix : c’est son RÉSULTAT qui départage les propositions — ne révèle jamais ce résultat.'
         :'Juge son CALCUL par rapport à CE choix : un calcul correct sur une mauvaise proposition reste un calcul correct, et c’est justement la vérification qui doit lui révéler que la proposition ne convient pas.'))
       : 'L’élève n’a pas encore choisi de proposition : aide-le à comprendre comment tester une proposition, sans lui dire laquelle est la bonne.';
+    /* la synthèse (2.1.6) : la méthode se choisit, et le modèle doit parler de
+       CELLE que l'élève a choisie — les 3 étapes ci-dessus sont celles de la
+       fraction sur 100 ; le passage par 10 % n'écrit ni fraction ni produit */
+    if(qdChoixMeth(q)){
+      att+=' Dans cette synthèse, l’élève CHOISIT sa méthode de vérification : « Avec la fraction sur 100 » (les 3 étapes ci-dessus) ou « En passant par 10 % » (comme dans {pourcentage-dix-cascade} pour une valeur, comme dans {pourcentage-dix-taux} pour le pourcentage). ';
+      if(q.meth===null) att+='Il n’a pas encore choisi de méthode : les deux mènent au même résultat, aide-le à en choisir une sans la faire à sa place.';
+      else if(q.meth==='dix'){
+        const r=qdDixRegl(q.P,q.N);
+        att+=(q.type==='pct')
+          ? ('Il a choisi le passage par 10 %, jugé sur les données de l’énoncé et non sur sa proposition : 10 % de '+q.N+' = '+r.d10+' '+q.unit+(r.hasK?(', puis on multiplie par '+r.k+' pour retomber sur '+q.result+' '+q.unit+', donc '+q.P+' %'):(', et c’est déjà '+q.result+' '+q.unit+' : le pourcentage cherché EST 10 %, aucun facteur à écrire'))+' — le pourcentage trouvé se compare ensuite à sa proposition, ne le révèle jamais.')
+          : ('Il a choisi le passage par 10 % sur le nombre testé ('+(ch?ch.N:'aucun tant qu’il n’a pas choisi')+') : 10 % de ce nombre (le diviser par 10), puis '+q.P+' % de ce nombre'+(r.hasK?(' (on multiplie ses 10 % par '+r.k+')'):' — ses 10 % en sont déjà la réponse, une seule case')+'.');
+      } else att+='Il a choisi la fraction sur 100 : les 3 étapes ci-dessus.';
+    }
   } else if(k==='psl' && q){
     const lettres=['a','b','c','d'];
     att='Exercice de synthèse : l’élève choisit '+qdQuoi(q)+' parmi quatre propositions, puis JUSTIFIE son choix en écrivant lui-même son calcul dans une feuille, sans aucune case. '
@@ -17794,6 +17991,15 @@ const QIA_MODELES={
   },
   pctq:function(){
     const q=qdmAutre(genPctTaux, c=>c.P+'x'+c.N);
+    /* la synthèse en passant par 10 % : le corrigé type suit la méthode choisie */
+    const act=(test && test.questions && test.questions[test.idx]) || null;
+    if(act && act.meth==='dix'){
+      const r=qdDixRegl(q.P,q.N);
+      return ['\u00c9nonc\u00e9 : '+q.result+' '+q.unit+', c\u2019est un certain pourcentage de '+q.N+' '+q.unit+'. On passe par 10 %.',
+        '10 % de '+q.N+' '+q.unit+' = '+q.N+' \u00f7 10 = '+r.d10+' '+q.unit,
+        r.hasK ? (q.result+' = '+r.d10+' \u00d7 '+r.k+', donc '+q.result+' '+q.unit+' repr\u00e9sentent '+q.P+' % de '+q.N+' '+q.unit+'.')
+               : ('On retrouve directement '+q.result+' '+q.unit+' : c\u2019est donc 10 % de '+q.N+' '+q.unit+'.')].join('\n');
+    }
     return ['\u00c9nonc\u00e9 : '+q.result+' '+q.unit+', c\u2019est un certain pourcentage de '+q.N+' '+q.unit+'. On teste la proposition '+q.P+' %.',
       '\\('+qdmFrac(q.P,100)+' \\times '+q.N+'\\)',
       '\\(= '+qdmFrac(q.prod,100)+'\\)',

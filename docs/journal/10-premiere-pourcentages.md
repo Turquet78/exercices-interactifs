@@ -3153,3 +3153,88 @@ dans la liste `ctx.kinds` de SON profil, là où `ess` l'avait déjà appris.
 Ce qu'aucun banc ne voit : le 2.2 n'a pas son pendant « deux hausses en
 passant par 10 % » — la demande disait « les baisses en 2.3 », et rien de
 plus.
+
+
+## {pourcentage-synthese} — la méthode se choisit : la fraction sur 100, ou le passage par 10 % (Première, septembre 2026)
+
+**D'où ça vient.** Demande de Turquet : « dans le 2.1.6 donner le choix à
+l'élève, quand il faut déterminer la valeur initiale ou finale, de prendre un
+pourcentage comme le 2.1.3 ou sinon comme le 2.1.8 ; quand il s'agit de
+trouver un %, de faire comme le 2.1.6 ou le 2.1.10 ». La synthèse
+{pourcentage-synthese} arrive après les trois exercices de la méthode des
+10 % ({pourcentage-dix}, {pourcentage-dix-cascade}, {pourcentage-dix-taux}),
+et elle ne connaissait que la chaîne de la fraction — celle de {pourcentage}
+et de {pourcentage-taux}. Elle gagne un étage « Ⓜ Choisis ta méthode de
+vérification », deux boutons : « Avec la fraction sur 100 » et « En passant
+par 10 % » — le même geste que la synthèse des évolutions
+({synthese-augmentations-dix}), dont c'est la copie sur le sous-thème 2.1.
+
+**Ce que « comme le 2.1.8 » veut dire quand P n'est pas 10.** Le 2.1.8 ne
+prend jamais que 10 % ; pour 30 % de 40, c'est {pourcentage-dix-cascade}
+(2.1.9) qui montre le chemin, et sa première ligne EST celle du 2.1.8 (10 % de
+N, la fraction N/10 devant la case). Les lignes du passage par 10 % pour une
+VALEUR sont donc celles du 2.1.9 : « On commence par 10 % de N = N/10 = ▢ »,
+puis « donc : P % de N est ▢ » — sur le couple testé, comme la chaîne de la
+fraction : pour la valeur INITIALE, le nombre est la proposition choisie
+(« … » tant qu'il n'y en a pas), c'est de lui qu'on prend 10 %, et la
+dernière case doit retomber sur le résultat de l'énoncé. Pour le POURCENTAGE,
+les lignes du 2.1.10 : « On commence par déterminer 10 % de N : ▢ », « On
+multiplie par ▢ : donc ▢ % de N = R », avec les deux flèches courbes de la
+fiche (`qdDessinerFleches`, sur `pdtArc` réutilisé tel quel, la classe
+`qd-fl` posée par `renderQTest` pour LA question affichée). Et ce chemin-là
+est jugé sur les DONNÉES, jamais sur la proposition — la décision du 2.2.13,
+reprise mot pour mot : il trouve LE pourcentage, qui se compare ensuite au
+pourcentage choisi (« Ton calcul est juste : le pourcentage est 30 %, et ce
+n'est pas la proposition que tu as choisie »).
+
+**Quand P EST 10 %, une seule ligne.** Les viviers de la synthèse
+(`PCT_PCTS`, 10 à 90) contiennent 10 %, que le 2.2.13 avait écarté de son
+tirage (« la ligne 10 % de N serait déjà la réponse »). Ici le tirage est
+celui de 2.1.3, 2.1.4 et 2.1.5, partagé, et il ne bouge pas : c'est l'écran
+qui s'adapte, par la règle du 2.1.10 (« aucune case ne multiplie jamais par
+1 ») — `qdDixRegl` rend `hasK:false`, la ligne « donc : 10 % de N est ▢ »
+n'apparaît pas, et pour le pourcentage cherché ni facteur ni flèche, comme
+le 2.1.10 quand le pourcentage cherché EST 5 %. Tout tombe juste sans garde :
+P et N sont des multiples de dix (les viviers, et les leurres de
+`leurresProches` — N = 10 est exclu de la valeur initiale), donc 10 % de N
+est entier et le facteur aussi.
+
+**C'est la question qui porte le choix.** `startPctSynthese` pose
+`q.meth = null` sur chaque question tirée ; `qdMeth` lit `'frac'` quand la
+clé est ABSENTE (2.1.4, 2.1.5, et une pause de la synthèse antérieure à ce
+jour), et `null` veut dire « la synthèse attend le choix ». Rien n'est
+accroché à `test.qId` : la reprise d'une pause relit la question, jamais le
+démarreur — la leçon du 2.2.13. Changer de méthode redessine la chaîne
+(`choisirQMeth`, sans restaurer les cases : elles n'ont pas le même sens
+d'une méthode à l'autre) ; choisir une proposition la redessine EN gardant
+les cases (`qcmRedessiner`, comme avant). Le verdict verrouille les boutons
+de méthode comme ceux des propositions. Le rappel (`RAP_SYN21`) présente les
+deux voies sur 30 % de 40 €, le contexte envoyé au modèle dit la méthode
+choisie — ou qu'aucune ne l'est encore —, le corrigé type suit la méthode
+(`QIA_MODELES.pctq`), et une question de plus est proposée dans la fenêtre
+d'aide.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, « 2.1.6 : la méthode se
+choisit ») : le tirage porte `q.meth = null` et 2.1.4 / 2.1.5 n'en portent
+pas (ni boutons, ni message qui réclame une méthode) ; rien ne s'affiche
+avant la méthode et « Vérifier » la réclame sans verrouiller ; la fraction
+montre sa chaîne, `qN` comprise, et vaut le point ; le passage par 10 %
+montre les lignes du 2.1.9 pour une valeur (une seule quand P EST 10 %), les
+lignes du 2.1.10 pour le pourcentage (facteur et flèches quand il y a une
+multiplication, jamais pour 10 %) ; la copie juste vaut le point dans les
+trois types ; sur une proposition FAUSSE, le calcul juste est dit juste — sur
+la proposition pour la valeur initiale, sur les données pour le pourcentage,
+le pourcentage trouvé nommé — et en soutien l'écran reste ouvert puis la
+bonne proposition vaut le point ; une case vide ne rougit jamais et la
+correction d'entraînement la remplit ; changer de méthode reconstruit la
+chaîne ; « Recommencer » relance la synthèse. Le contrôle des QCM (« la
+vérification s'affiche avec les propositions ») choisit d'abord la méthode
+pour la synthèse, et vérifie que la chaîne est CACHÉE avant. Trois sabotages
+avant la première fusion : le pourcentage jugé sur la proposition au lieu des
+données, le facteur affiché pour 10 %, la question tirée sans `q.meth`.
+Les règles universelles sont tenues par le banc navigateur sans rien
+déclarer — mais, comme pour le 2.2.13 et la méthode 3 du 2.5.4, la visite
+ouvre l'exercice AVANT tout choix de méthode : les chaînes de la synthèse ne
+sont vues dans un vrai Chromium qu'à travers leurs jumelles, celle de la
+fraction en 2.1.4 / 2.1.5, celles des 10 % en 2.1.9 / 2.1.10, dont le DOM et
+les classes sont les mêmes. C'est nommé, pas tu.
