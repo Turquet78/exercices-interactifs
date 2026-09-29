@@ -2359,3 +2359,12 @@ réellement CLIQUÉ, « -2x+4 » TAPÉ dans la case u du g) et relu tel quel, la
 copie de la fiche remplie depuis l'attendu de la page puis vérifiée d'un
 clic (102 vertes), les flèches du tableau DESSINÉES, la page qui ne déborde
 pas — l'écran est le plus long du niveau.
+Éprouvé en le cassant six fois, sur une copie du dépôt — l'abscisse du point
+d'inflexion décalée, la case vide qui rougit, l'inégalité inversée, l'hôte
+fantôme laissé plein, f″ jugée sur f au lieu de f′, le k du TVI hors de la
+branche — chacun rougit en nommant son défaut, et le témoin sans sabotage
+reste vert. Un piège d'outillage s'y est montré avant la page : une
+apostrophe échappée une fois de trop peu dans le code que le contrôle
+ÉVALUE (« n\'est » au lieu de « n\\'est » dans le gabarit) le rendait rouge
+pour une erreur de syntaxe, et `node --check` sur le fichier ne pouvait pas
+la voir — il faut extraire le code évalué et le vérifier lui.
