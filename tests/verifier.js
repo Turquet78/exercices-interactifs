@@ -4052,6 +4052,7 @@ function exercices(suite){
     tangenteExp(w, P);
     recurrenceFormule(w, P);
     alphaSigne(w, P);
+    etudeConvexite(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     suiteTcmLimite(w, P);
@@ -4169,6 +4170,7 @@ function exercices(suite){
     syntheseToutesFamillesRedigee(w, P);
     syntheseDimLibreDix(w, P);
     syntheseEvolutionsLibre(w, P);
+    syntheseGeneraleLibre(w, P);
     verificationAvecPropositions(w, P);
     teteCollee(w, P);
     poseSuitLEleve(w, P);
@@ -4458,7 +4460,7 @@ function evolutionsRedigeesClique(w, apres){
   const present = evaluer(w, "typeof checkEsl==='function' && typeof eslJuge==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas les évolutions successives rédigées');
-    return jugeArithmetiqueClique(w, apres);
+    return syntheseGeneraleCliquee(w, apres);
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -4557,6 +4559,117 @@ function evolutionsRedigeesClique(w, apres){
     const notes=(window.__faux.tables['resultats_1ere']||[]).filter(function(r){ return r.details && r.details.test===ID; });
     if(!ins.length || !notes.length) vus.push('la fin de séance n\\'enregistre pas la note sous « '+ID+' » ('+ins.length+' écriture(s), '+notes.length+' note(s))');
     else if(notes[notes.length-1].score!==1 || notes[notes.length-1].total!==1) vus.push('la note enregistrée n\\'est pas 1/1 : '+JSON.stringify({score:notes[notes.length-1].score,total:notes[notes.length-1].total}));
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    syntheseGeneraleCliquee(w, apres);
+  });
+}
+/* ---- La synthèse générale rédigée, CLIQUÉE : les juges d'origine, l'enchaînement
+   des deux écrans, la note sous SON identifiant (Première, 2.5.7) ----------
+   « On vérifiera les rédactions exactement comme le 2.5.2 et le 2.5.6 »
+   (Turquet, septembre 2026). La source dit que la synthèse ne se donne aucun
+   juge ; il reste à voir que la page FAIT ce qu'elle dit. On arme une séance
+   de deux questions — une du 2.5.2 (une hausse, la valeur finale), une du
+   2.5.6 (+20 % puis −5 %) — sous un modèle stubbé qui SE TROMPE toujours, et
+   on clique. Six bords : la justification du 2.5.2 est jugée par checkSal (le
+   juge prime : le point, la couleur, le verrou) ; « Question suivante »
+   passe à l'écran du 2.5.6, déverrouillé ; la rédaction du 2.5.6 est jugée
+   par checkEsl ; « Voir mes résultats » enregistre 2/2 sous
+   « synthese-generale-libre », et RIEN sous les identifiants des deux
+   exercices d'origine ; en SOUTIEN, une copie fausse du 2.5.2 rouvre la
+   feuille (« Revérifier »), comme au 2.5.2 ; et en ENTRAÎNEMENT, une copie
+   fausse du 2.5.6 écrit le corrigé en vert, comme au 2.5.6. */
+function syntheseGeneraleCliquee(w, apres){
+  const nom = 'la synthèse générale rédigée, cliquée : les juges du 2.5.2 et du 2.5.6, les deux écrans enchaînés, la note sous son identifiant';
+  const present = evaluer(w, "typeof startSgl==='function' && typeof checkSal==='function' && typeof checkEsl==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas la synthèse générale rédigée');
+    return jugeArithmetiqueClique(w, apres);
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[]; const ID='synthese-generale-libre';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null; currentTestId=ID;
+    const feuille=function(texte){ return { lire:function(){ return texte; },
+      lignes:[{mf:{getValue:function(){ return 'x'; },focus:function(){},setValue:function(){},executeCommand:function(){},classList:{add:function(){},remove:function(){},contains:function(){ return false; }}}}],
+      verrouiller:function(){ this.verrou=true; } }; };
+    /* le modèle SE TROMPE toujours : accepte le faux, refuse le juste — le juge doit primer */
+    let envoye=null;
+    sb.functions={ invoke:async function(nom, opts){ envoye=(opts&&opts.body)||null;
+      const j=/VERDICT DE LA PAGE[^\\n]*correct=(true|false)/.exec(String(envoye&&envoye.attendu||''));
+      return { data:{ correct: j ? (j[1]!=='true') : false, feedback:'Retour du modèle stubbé.' } }; } };
+    const ecran=function(){ const on=document.querySelector('section.screen.on'); return on?on.id:'(aucun)'; };
+    const couleur=function(id){ const c=(document.getElementById(id)||{}).className||'';
+      return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
+    const bouton=function(id){ return String((document.getElementById(id)||{}).textContent||'').trim(); };
+    function armer(mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const qS=genSyn('aug','fin'); qS.moteur='sal'; qS.mots=true;
+      const qE=essQuestion(1,20,-1,5); delete qE.meth; delete qE.choisi; qE.moteur='esl';
+      Object.assign(test,{kind:'sgl', qId:ID, questions:[qS,qE], idx:0, score:0, answers:[], startTime:Date.now(),
+        locked:false, salBusy:false, eslBusy:false, maxScore:2});
+      renderSgl(); envoye=null;
+      return { qS:qS, qE:qE };
+    }
+
+    /* 1. la question du 2.5.2 : jugée par checkSal, le juge prime */
+    let Q=armer('train');
+    if(ecran()!=='scr-sal') vus.push('la séance ne s\\'ouvre pas sur l\\'écran du 2.5.2 : « '+ecran()+' »');
+    Q.qS.choisi=Q.qS.bon; const c=salCouple(Q.qS);
+    salFeuille=feuille(c.coefStr+' × '+c.N+' = '+c.finStr);
+    await checkSal();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true) vus.push('la justification du 2.5.2 n\\'est pas jugée comme au 2.5.2 (le juge devait primer sur le modèle) : score '+test.score);
+    if(couleur('salFeedback')!=='vert') vus.push('la justification juste du 2.5.2 est peinte « '+couleur('salFeedback')+' »');
+    if(!envoye || envoye.action!=='verif' || String(envoye.attendu||'').indexOf('VERDICT DE LA PAGE')<0) vus.push('la copie du 2.5.2 ne part pas au modèle avec le verdict du juge');
+    if(!test.locked || !salFeuille.verrou) vus.push('après une justification juste, l\\'écran du 2.5.2 n\\'est pas verrouillé');
+    if(!/suivante/i.test(bouton('salActions'))) vus.push('après le verdict du 2.5.2, le bouton n\\'est pas « Question suivante » : « '+bouton('salActions')+' »');
+
+    /* 2. « Question suivante » : l'écran du 2.5.6, déverrouillé */
+    const b1=document.querySelector('#salActions .btn-primary'); if(b1) b1.click();
+    if(test.idx!==1) vus.push('« Question suivante » ne passe pas à la question du 2.5.6 : idx '+test.idx);
+    if(ecran()!=='scr-esl') vus.push('la question du 2.5.6 ne s\\'affiche pas sur l\\'écran du 2.5.6 : « '+ecran()+' »');
+    if(test.locked) vus.push('l\\'écran du 2.5.6 naît verrouillé');
+    if(String((document.getElementById('eslIdx')||{}).textContent||'').indexOf('2 / 2')<0) vus.push('le compteur du 2.5.6 ne dit pas « 2 / 2 » : « '+(document.getElementById('eslIdx')||{}).textContent+' »');
+
+    /* 3. la question du 2.5.6 : jugée par checkEsl */
+    eslFeuille=feuille('120\\n5 % de 120 est 6\\n120 − 6 = 114\\nhausse de 14 %'); envoye=null;
+    await checkEsl();
+    if(test.score!==2 || test.answers.length!==2 || test.answers[1].correct!==true) vus.push('la rédaction du 2.5.6 n\\'est pas jugée comme au 2.5.6 : score '+test.score);
+    if(couleur('eslFeedback')!=='vert') vus.push('la rédaction juste du 2.5.6 est peinte « '+couleur('eslFeedback')+' »');
+    if(!envoye || String(envoye.attendu||'').indexOf('TROIS MÉTHODES')<0) vus.push('la copie du 2.5.6 ne part pas au modèle avec la règle du 2.5.6');
+    if(!/résultats/i.test(bouton('eslActions'))) vus.push('sur la dernière question, le bouton n\\'est pas « Voir mes résultats » : « '+bouton('eslActions')+' »');
+
+    /* 4. la fin de séance : 2/2 sous SON identifiant, rien sous ceux d'origine */
+    window.__faux.journal.length=0;
+    const notes=function(id){ return (window.__faux.tables['resultats_1ere']||[]).filter(function(r){ return r.details && !r.details.state && !r.details.partiel && r.details.test===id; }); };   /* les notes, pas les brouillons de pause */
+    const avant=notes(ID).length;
+    const b2=document.querySelector('#eslActions .btn-primary'); if(b2) b2.click();
+    for(let i=0;i<100 && notes(ID).length===avant;i++) await new Promise(function(r){ setTimeout(r,20); });
+    const n=notes(ID);
+    if(n.length===avant) vus.push('« Voir mes résultats » n\\'enregistre pas la note sous « '+ID+' »');
+    else if(n[n.length-1].score!==2 || n[n.length-1].total!==2) vus.push('la note enregistrée n\\'est pas 2/2 : '+JSON.stringify({score:n[n.length-1].score,total:n[n.length-1].total}));
+    if(notes('synthese-pourcentages-libre').length || notes('synthese-evolutions-successives-libre').length) vus.push('une note part sous l\\'identifiant d\\'un exercice d\\'origine');
+    if(ecran()!=='scr-results') vus.push('la fin de séance ne montre pas les résultats : « '+ecran()+' »');
+
+    /* 5. en soutien, une copie fausse du 2.5.2 rouvre la feuille — comme au 2.5.2 */
+    Q=armer('soutien'); Q.qS.choisi=Q.qS.bon;
+    salFeuille=feuille('1 + 1 = 3');
+    await checkSal();
+    if(test.locked || salFeuille.verrou) vus.push('en soutien, une justification fausse du 2.5.2 verrouille l\\'écran');
+    if(!/Revérifier/.test(bouton('salActions'))) vus.push('en soutien, « Revérifier » n\\'est pas proposé sur le 2.5.2 : « '+bouton('salActions')+' »');
+    if(test.answers.length) vus.push('en soutien, une copie fausse du 2.5.2 est déjà comptée');
+
+    /* 6. en entraînement, une copie fausse du 2.5.6 écrit le corrigé — comme au 2.5.6 */
+    Q=armer('train'); test.idx=1; renderSgl();
+    eslFeuille=feuille('1,2 × 0,95 = 1,14\\nhausse de 15 %');
+    await checkEsl();
+    if(test.score!==0 || !test.locked) vus.push('en entraînement, une rédaction fausse du 2.5.6 ne verrouille pas, ou compte');
+    const cor=document.querySelector('#eslFeedback .esl-cor');
+    if(!cor || cor.textContent.indexOf('hausse de 14 %')<0) vus.push('en entraînement, le corrigé du 2.5.6 n\\'est pas écrit sous le verdict');
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
@@ -9030,6 +9143,198 @@ function syntheseEvolutionsLibre(w, P){
       : texte('eslJuge').indexOf('essAns') < 0 ? 'eslJuge ne lit plus essAns'
       : 'le 2.5.6 s’est donné un vivier ou des énoncés à lui');
 }
+/* {synthese-generale-libre} (2.5.7) — la synthèse RÉDIGÉE des deux familles
+   (demande de Turquet, septembre 2026 : « un exercice de synthèse qui demande
+   de rédiger à l'élève, on utilisera le clavier virtuel du 2.3.13, une
+   synthèse qui contiendra les énoncés du 2.5.2 et du 2.5.6, on vérifiera les
+   rédactions exactement comme le 2.5.2 et le 2.5.6 »). Rien n'est neuf que le
+   tirage et l'aiguillage : chaque question porte son moteur (q.moteur), et
+   c'est renderSal/checkSal ou renderEsl/checkEsl qui la montrent et la
+   jugent. Sept bords, et n'en tenir qu'un ne tient rien :
+     · le TIRAGE : 2 × EVOL_NB questions, autant de chaque moteur ; celles du
+       2.5.2 sont des questions de genSyn (les trois inconnues une fois
+       chacune, les quatre propositions), avec q.mots et SANS q.dix — le juge
+       du 2.5.2 n'accepte pas la méthode des 10 % ; celles du 2.5.6 portent
+       exactement ses six champs plus le moteur, les trois formes, les paires
+       de HS_PAIRES ; et l'ordre est MÉLANGÉ ;
+     · l'ÉCRAN de chaque question est celui de son exercice d'origine, avec la
+       feuille de RÉDACTION du 2.3.13 sur les deux (mf-mots, la liste blanche,
+       l'espace, les lignes ajoutées), le clavier B qui reconnaît les deux, le
+       bouton « Vérifier » qui appelle checkSal ou checkEsl, les quatre
+       propositions du 2.5.2, l'énoncé du 2.5.6 ;
+     · l'ENCHAÎNEMENT : « Question suivante » (nextSal comme nextEsl) passe à
+       l'écran du moteur suivant, et la dernière clôt par finishSgl ;
+     · les JUGES sont ceux d'origine : la SOURCE le dit (renderSgl appelle
+       renderSal et renderEsl, startSgl tire par genSyn et essSeance, aucune
+       fonction sgl* de juge, de règle ou d'énoncé), et l'exécution aussi (le
+       verdict de salJuge sur une question de la synthèse est celui du 2.5.2,
+       q.mots retiré ; une ligne des 10 % y reste inconnue) ;
+     · l'IDENTITÉ : 2.5.7, le 2.5.2 et le 2.5.6 gardent leur numéro,
+       « Recommencer », la reprise, le rappel (les deux d'origine réunis, et
+       la feuille du 2.3.13 nommée), les questions à l'IA, la description, le
+       contexte de l'aide qui suit le moteur de la question ;
+     · la note part sous SON identifiant (le contrôle des fins de test le
+       lit dans la source ; la chaîne séquentielle le clique) ;
+     · le 2.5.2 et le 2.5.6 NE CHANGENT PAS : le 2.5.2 garde sa feuille de
+       calcul (pas de q.mots, pas de mf-mots), le 2.5.6 ses six champs. */
+function syntheseGeneraleLibre(w, P){
+  const nom = 'la synthèse générale rédigée : les énoncés du 2.5.2 et du 2.5.6 mélangés, la feuille du 2.3.13, les juges d’origine, identité';
+  const present = evaluer(w, "typeof startSgl==='function' && typeof renderSgl==='function' && typeof startSynLibre==='function' && typeof startEsl==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas la synthèse générale rédigée');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[]; const ID='synthese-generale-libre', NB=${JSON.stringify(P.nbQuestionsEvolutions||3)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId=ID;
+    const espLatex=function(v){ v=String(v||''); return v.length>0 && (v==='~' || (v.charCodeAt(0)===92 && v.length===2 && ',;: '.indexOf(v.charAt(1))>=0)); };
+    const ecran=function(){ const on=document.querySelector('section.screen.on'); return on?on.id:'(aucun)'; };
+
+    /* ---- 1. le TIRAGE ---- */
+    const premiers={}, ordres={};
+    for(let t=0;t<30 && !vus.length;t++){
+      startSgl();
+      if(test.qId!==ID){ vus.push('le démarreur ne pose pas son identité : « '+test.qId+' »'); break; }
+      if(test.kind!=='sgl'){ vus.push('le démarreur ne pose pas son kind : « '+test.kind+' »'); break; }
+      if(!Array.isArray(test.questions) || test.questions.length!==2*NB){ vus.push('tirage '+t+' : '+(test.questions||[]).length+' questions au lieu de '+(2*NB)); break; }
+      if(test.maxScore!==2*NB) vus.push('tirage '+t+' : le barème est '+test.maxScore+' au lieu de '+(2*NB)+' (un point par question)');
+      const sal=test.questions.filter(function(q){ return q.moteur==='sal'; }), esl=test.questions.filter(function(q){ return q.moteur==='esl'; });
+      if(sal.length!==NB || esl.length!==NB){ vus.push('tirage '+t+' : '+sal.length+' question(s) du 2.5.2 et '+esl.length+' du 2.5.6 au lieu de '+NB+' et '+NB+' (moteurs : '+test.questions.map(function(q){ return q.moteur; }).join(',')+')'); break; }
+      const incs=sal.map(function(q){ return q.inc; }).sort().join(',');
+      if(incs!=='fin,ini,pct') vus.push('tirage '+t+' : les trois inconnues du 2.5.2 ne sortent pas une fois chacune ('+incs+')');
+      sal.forEach(function(q,i){
+        if(q.mots!==true) vus.push('tirage '+t+' q'+i+' (2.5.2) : q.mots manque — la feuille ne serait pas celle du 2.3.13');
+        if(q.dix) vus.push('tirage '+t+' q'+i+' (2.5.2) : q.dix est posé — le juge accepterait la méthode des 10 %, que le 2.5.2 n\\'accepte pas');
+        if(!Array.isArray(q.opts) || q.opts.length!==4 || typeof q.bon!=='number' || q.choisi!==null) vus.push('tirage '+t+' q'+i+' (2.5.2) : la question n\\'a pas les quatre propositions de genSyn');
+        if(['pct','aug','dim'].indexOf(q.fam)<0) vus.push('tirage '+t+' q'+i+' (2.5.2) : famille « '+q.fam+' »');
+      });
+      const formes=esl.map(function(q){ return (q.s1===q.s2)?(q.s1>0?'hh':'bb'):'mixte'; }).sort().join(',');
+      if(formes!=='bb,hh,mixte') vus.push('tirage '+t+' : les trois formes du 2.5.6 ne sortent pas une fois chacune ('+formes+')');
+      esl.forEach(function(q,i){
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!=='P1,P2,ci,moteur,s1,s2,v') vus.push('tirage '+t+' q'+i+' (2.5.6) : la question porte « '+cles+' » — attendu les six champs du 2.5.6 et le moteur');
+        if(!HS_PAIRES.some(function(p){ return (p[0]===q.P1&&p[1]===q.P2)||(p[0]===q.P2&&p[1]===q.P1); })) vus.push('tirage '+t+' q'+i+' (2.5.6) : la paire '+q.P1+'/'+q.P2+' n\\'est pas dans HS_PAIRES');
+      });
+      premiers[test.questions[0].moteur]=1;
+      ordres[test.questions.map(function(q){ return q.moteur==='sal'?'s':'e'; }).join('')]=1;
+    }
+    if(!vus.length && Object.keys(premiers).length<2) vus.push('en 30 séances, la première question vient toujours du même exercice : les questions ne sont pas mélangées');
+    if(!vus.length && Object.keys(ordres).length<3) vus.push('en 30 séances, l\\'ordre des deux familles ne varie pas ('+Object.keys(ordres).join(' ')+')');
+
+    /* ---- 2. l'ÉCRAN de chaque moteur, et l'enchaînement ---- */
+    if(!vus.length){
+      startSgl();
+      const iS=test.questions.findIndex(function(q){ return q.moteur==='sal'; }), iE=test.questions.findIndex(function(q){ return q.moteur==='esl'; });
+      test.idx=iS; renderSgl();
+      if(ecran()!=='scr-sal') vus.push('une question du 2.5.2 ne s\\'affiche pas sur l\\'écran du 2.5.2 : « '+ecran()+' »');
+      if(!afficherEcranDe('sgl') || ecran()!=='scr-sal') vus.push('la reprise (afficherEcranDe) ne pose pas l\\'écran du 2.5.2 sur une question du 2.5.2 : « '+ecran()+' »');
+      const l0=salFeuille&&salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+      if(!l0 || !l0.classList.contains('mf-mots') || !l0._motsFR) vus.push('sur une question du 2.5.2, la feuille n\\'est pas la feuille de rédaction du 2.3.13 (mf-mots, liste blanche des raccourcis)');
+      if(!l0 || !espLatex(l0.mathModeSpace)) vus.push('sur une question du 2.5.2, la barre d\\'espace n\\'écrit pas d\\'espace : mathModeSpace « '+(l0?l0.mathModeSpace:'?')+' »');
+      const lAj=salFeuille&&salFeuille.ajouterLigne();
+      if(!lAj || !lAj.mf.classList.contains('mf-mots') || !espLatex(lAj.mf.mathModeSpace)) vus.push('une ligne ajoutée par « Entrée » sur une question du 2.5.2 n\\'est pas une ligne de rédaction avec l\\'espace');
+      if(typeof kbLettres==='function' && !kbLettres(ID)) vus.push('kbLettres ne reconnaît pas l\\'écran du 2.5.2 dans la synthèse : le clavier B ne viendrait pas');   /* kbLettres vit dans le module MathLive, que jsdom n'exécute pas : le contrôle du clavier B le rejoue à part */
+      const hintS=String((document.getElementById('salHost').querySelector('.dexp-hint')||{}).textContent||'');
+      if(hintS.indexOf('clavier B')<0 || hintS.indexOf('espace')<0) vus.push('l\\'indication sous la feuille du 2.5.2 ne dit ni le clavier B ni l\\'espace : « '+hintS.slice(0,160)+' »');
+      if(hintS.indexOf('10 %')>=0) vus.push('l\\'indication sous la feuille du 2.5.2 promet la méthode des 10 %, que son juge n\\'accepte pas');
+      if(document.getElementById('salHost').querySelectorAll('.pt-choix-btn').length!==4) vus.push('les quatre propositions du 2.5.2 ne sont pas affichées');
+      const bS=document.querySelector('#salActions .btn-primary');
+      if(!bS || String(bS.getAttribute('onclick')||'').indexOf('checkSal()')<0) vus.push('le bouton « Vérifier » d\\'une question du 2.5.2 n\\'appelle pas checkSal : « '+(bS?bS.getAttribute('onclick'):'aucun')+' »');
+      if(String((document.getElementById('salIdx')||{}).textContent||'').indexOf('/ '+(2*NB))<0) vus.push('le compteur ne dit pas la longueur de la séance : « '+(document.getElementById('salIdx')||{}).textContent+' »');
+      if(/\\{[a-z-]+\\}/.test(document.getElementById('salHost').textContent)) vus.push('une référence {identifiant} reste affichée sur l\\'écran du 2.5.2');
+      test.idx=iE; renderSgl();
+      if(ecran()!=='scr-esl') vus.push('une question du 2.5.6 ne s\\'affiche pas sur l\\'écran du 2.5.6 : « '+ecran()+' »');
+      if(!afficherEcranDe('sgl') || ecran()!=='scr-esl') vus.push('la reprise (afficherEcranDe) ne pose pas l\\'écran du 2.5.6 sur une question du 2.5.6 : « '+ecran()+' »');
+      const e0=eslFeuille&&eslFeuille.lignes[0]&&eslFeuille.lignes[0].mf;
+      if(!e0 || !e0.classList.contains('mf-mots') || !espLatex(e0.mathModeSpace)) vus.push('sur une question du 2.5.6, la feuille n\\'est pas la feuille de rédaction avec l\\'espace');
+      if(typeof kbLettres==='function' && !kbLettres(ID)) vus.push('kbLettres ne reconnaît pas l\\'écran du 2.5.6 dans la synthèse');
+      const bE=document.querySelector('#eslActions .btn-primary');
+      if(!bE || String(bE.getAttribute('onclick')||'').indexOf('checkEsl()')<0) vus.push('le bouton « Vérifier » d\\'une question du 2.5.6 n\\'appelle pas checkEsl');
+      const prompt=String((document.getElementById('eslPrompt')||{}).textContent||'');
+      if(prompt.indexOf('hausse ou une baisse')<0) vus.push('l\\'énoncé affiché n\\'est pas celui du 2.5.6 : « '+prompt.slice(0,100)+' »');
+      /* l'enchaînement : « Question suivante » passe à l'écran du moteur suivant, la dernière clôt */
+      const attendu=function(i){ return test.questions[i].moteur==='esl'?'scr-esl':'scr-sal'; };
+      for(let i=0;i<test.questions.length-1 && !vus.length;i++){
+        test.idx=i; renderSgl(); test.locked=true;
+        (test.questions[i].moteur==='esl'?nextEsl:nextSal)();
+        if(test.idx!==i+1) vus.push('« Question suivante » depuis la question '+(i+1)+' ne passe pas à la suivante : idx '+test.idx);
+        else if(ecran()!==attendu(i+1)) vus.push('après la question '+(i+1)+', l\\'écran est « '+ecran()+' » au lieu de « '+attendu(i+1)+' »');
+        else if(test.locked) vus.push('la question '+(i+2)+' naît verrouillée');
+      }
+      const vraieFin=window.finishSgl; let clos=0; window.finishSgl=function(){ clos++; };
+      try{ test.idx=test.questions.length-1; renderSgl(); (test.questions[test.idx].moteur==='esl'?nextEsl:nextSal)(); }
+      finally{ window.finishSgl=vraieFin; }
+      if(clos!==1) vus.push('sur la dernière question, « suivant » ne clôt pas la séance par finishSgl ('+clos+')');
+    }
+
+    /* ---- 3. les JUGES sont ceux d'origine, à l'exécution ---- */
+    if(!vus.length){
+      const q=genSyn('dim','fin'); q.choisi=q.bon; const c=salCouple(q);
+      const copies=[c.coefStr+' × '+c.N+' = '+c.finStr, c.pDecStr+' × '+c.N+' = '+c.augStr+'\\n'+c.N+' − '+c.augStr+' = '+c.finStr, '10 % = '+c.dixStr+'\\n'+c.P+' % = '+c.augStr+'\\n'+c.N+' − '+c.augStr+' = '+c.finStr, '1 + 1 = 3'];
+      copies.forEach(function(t){
+        const sans=JSON.parse(JSON.stringify(q)), avec=JSON.parse(JSON.stringify(q)); avec.moteur='sal'; avec.mots=true;
+        const a=salJuge(sans,t), b=salJuge(avec,t);
+        if(a.sait!==b.sait || a.correct!==b.correct) vus.push('le juge du 2.5.2 ne rend pas le même verdict dans la synthèse sur « '+t.replace(/\\n/g,' ⏎ ')+' » : '+JSON.stringify([a.sait,a.correct])+' contre '+JSON.stringify([b.sait,b.correct]));
+      });
+      const dixJ=salJuge(Object.assign(JSON.parse(JSON.stringify(q)),{moteur:'sal',mots:true}), copies[2]);
+      if(dixJ.sait) vus.push('dans la synthèse, la ligne « 10 % = … » est lue par le juge du 2.5.2, qui ne la connaît pas : la méthode des 10 % y serait acceptée ou refusée à tort');
+      const qE=Object.assign(essQuestion(1,20,-1,5),{moteur:'esl'}); delete qE.meth; delete qE.choisi;
+      const jE=eslJuge(qE,'1,2 × 0,95 = 1,14\\nhausse de 14 %');
+      if(!jE.sait || !jE.correct) vus.push('le juge du 2.5.6 refuse dans la synthèse une copie qu\\'il accepte au 2.5.6');
+    }
+
+    /* ---- 4. l'IDENTITÉ ---- */
+    if(TEST_NUM[ID]!=='2.5.7') vus.push('le numéro n\\'est pas 2.5.7 : « '+TEST_NUM[ID]+' »');
+    if(TEST_NUM['synthese-pourcentages-libre']!=='2.5.2' || TEST_NUM['synthese-evolutions-successives-libre']!=='2.5.6') vus.push('le 2.5.2 ou le 2.5.6 a changé de numéro');
+    test.kind='sgl'; test.qId='(sentinelle)'; restartCurrentTest();
+    if(test.qId!==ID) vus.push('« Recommencer » relance « '+test.qId+' »');
+    const rap=(typeof RAPPELS_ID!=='undefined' && RAPPELS_ID[ID])||'';
+    if(!rap) vus.push('aucun rappel de cours');
+    else {
+      if(rap===RAPPELS_ID['synthese-pourcentages-libre'] || rap===RAPPELS_ID['synthese-evolutions-successives-libre']) vus.push('le rappel est celui d\\'un seul des deux exercices d\\'origine');
+      ['Méthode 1','Méthode 2','Méthode 3','5 % de 120 est 6','quotient','{synthese-pourcentages-libre}','{synthese-evolutions-successives-libre}','{synthese-diminutions-libre-dix}'].forEach(function(t){ if(rap.indexOf(t)<0) vus.push('le rappel n\\'écrit pas « '+t+' »'); });
+      if(/\\{[a-z-]+\\}/.test(rappelHTML())) vus.push('le rappel affiché garde une référence {identifiant}');
+    }
+    if(!(QIA_SUGG.sgl && QIA_SUGG.sgl.length>=3)) vus.push('QIA_SUGG.sgl manque');
+    if(!TESTS[ID] || !/r\\u00e9dig/i.test(TESTS[ID].desc) || ['{synthese-pourcentages-libre}','{synthese-evolutions-successives-libre}','{synthese-diminutions-libre-dix}'].some(function(t){ return TESTS[ID].desc.indexOf(t)<0; })) vus.push('la description ne nomme pas les deux exercices d\\'origine, la feuille du 2.3.13, et la rédaction');
+    currentTestId=ID; test.kind='sgl';
+    test.questions=[Object.assign(essQuestion(1,20,-1,5),{moteur:'esl'})]; test.idx=0;
+    let ctx=conseilCtxCourant();
+    ['RÉDIGÉ','5 % de 120 est 6','hausse globale de 14 %','STRICTEMENT SECRÈTES'].forEach(function(t){ if(ctx.indexOf(t)<0) vus.push('sur une question du 2.5.6, le contexte envoyé au modèle ne dit pas « '+t+' »'); });
+    const qC=genSyn('aug','fin'); qC.moteur='sal'; qC.mots=true; qC.choisi=qC.bon; const cC=salCouple(qC);
+    test.questions=[qC]; test.idx=0; ctx=conseilCtxCourant();
+    ['JUSTIFIE','STRICTEMENT SECRÈTES','coefficient '+cC.coefStr,'valeur finale '+cC.finStr].forEach(function(t){ if(ctx.indexOf(t)<0) vus.push('sur une question du 2.5.2, le contexte envoyé au modèle ne dit pas « '+t+' »'); });
+    if(ctx.indexOf('10 %')>=0 && /méthode des 10 % est acceptée/.test(ctx)) vus.push('sur une question du 2.5.2, le contexte promet la méthode des 10 %');
+
+    /* ---- 5. le 2.5.2 et le 2.5.6 ne changent pas ---- */
+    startSynLibre();
+    if(test.questions.some(function(q){ return q.mots || q.moteur; })) vus.push('le 2.5.2 porte q.mots ou q.moteur : il a pris la feuille de la synthèse');
+    const l2=salFeuille&&salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+    if(l2 && l2.classList.contains('mf-mots')) vus.push('le 2.5.2 a pris la feuille de rédaction : son clavier B fuirait');
+    startEsl();
+    if(test.questions.some(function(q){ return Object.keys(q).sort().join(',')!=='P1,P2,ci,s1,s2,v'; })) vus.push('le 2.5.6 a changé ses champs');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+  /* L'AIGUILLAGE EST REPRIS, PAS RECOPIÉ : on lit la SOURCE, jamais String(renderSgl)
+     — les rendus sont enveloppés par la greffe des jetons. Aucune fonction de
+     juge, de règle ou d'énoncé propre à la synthèse ne doit exister. */
+  const src = lire(CIBLE);
+  const corps = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const texte = n => (corps.find(o => o.nom === n) || { texte:'' }).texte;
+  const propres = corps.map(o => o.nom).filter(n => /^sgl(Juge|Attendu|Enonce|Lire|Peindre|Correction)|^(check|juge)Sgl/i.test(n));
+  verifier('la synthèse générale ne recopie rien : renderSal et renderEsl la montrent, checkSal et checkEsl la jugent, genSyn et essSeance la tirent',
+    texte('renderSgl').indexOf('renderSal()') >= 0 && texte('renderSgl').indexOf('renderEsl()') >= 0
+      && texte('startSgl').indexOf('genSyn(') >= 0 && texte('startSgl').indexOf('essSeance(') >= 0 && texte('startSgl').indexOf('distinctes(') >= 0
+      && texte('nextSal').indexOf('nextSgl') >= 0 && texte('nextEsl').indexOf('nextSgl') >= 0
+      && /test\s*:\s*'synthese-generale-libre'/.test(texte('finishSgl'))
+      && propres.length === 0,
+    texte('renderSgl').indexOf('renderSal()') < 0 || texte('renderSgl').indexOf('renderEsl()') < 0 ? 'renderSgl ne passe plus par renderSal et renderEsl'
+      : texte('startSgl').indexOf('genSyn(') < 0 || texte('startSgl').indexOf('essSeance(') < 0 ? 'startSgl ne tire plus par genSyn et essSeance'
+      : texte('startSgl').indexOf('distinctes(') < 0 ? 'les questions du 2.5.2 ne se tirent plus par distinctes()'
+      : texte('nextSal').indexOf('nextSgl') < 0 || texte('nextEsl').indexOf('nextSgl') < 0 ? 'nextSal ou nextEsl ne rend plus la main à la synthèse'
+      : !/test\s*:\s*'synthese-generale-libre'/.test(texte('finishSgl')) ? 'finishSgl n’enregistre plus sous son identifiant'
+      : 'la synthèse s’est donné un juge, une règle ou un énoncé à elle : ' + propres.join(', '));
+}
 /* {ordre-croissant} — les nombres de {placer-intervalle}, à ranger avec « < ».
    Quatre bords, et n'en tenir qu'un ne tient rien :
      · le tirage vient de plcGen() et garantit trois nombres distincts, dont
@@ -12282,6 +12587,257 @@ function alphaSigne(w, P){
       if(c.indexOf('STRICTEMENT SECRÈTES')<0) vus.push('le contexte du modèle a perdu la clause de secret');
       if(c.indexOf('Saisies')<0) vus.push('le contexte du modèle ne porte plus les saisies de l\\'élève');
       if(/α[^.]*−2/.test(c.replace(/« [^»]* »/g,''))) vus.push('le contexte du modèle révèle α'); }
+
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- 5.6 : l'étude de fonction et la convexité — la fiche 5 ---------- */
+/* Repris de la fiche « FICHE 5 — Étude de fonction et convexité » (demande de
+   Turquet, septembre 2026) : f(x) = (ax + ab)e^(−x), a ∈ {±1, ±2, ±3},
+   b ∈ {−3, −2, −1}, la fiche même étant a = 2, b = −1. Le contrôle REFAIT
+   l'arithmétique par ses propres moyens — f numérique, dérivées première et
+   seconde par différences finies, exponentielle de Math — plutôt que de
+   croire ecvAns : un énoncé ne peut pas contredire sa correction. La fiche se
+   trompe deux fois (« f(x) = −1 sur [2 ; +∞[ » où f > 0 ; « f(x) ≥ 4x − 2 »
+   où f est concave, donc SOUS sa tangente) : c'est la fonction qui tranche,
+   et le contrôle l'exige — le k du TVI est entre la limite et l'extremum de
+   la branche, et f − Δ a le signe annoncé sur tout l'intervalle. */
+function etudeConvexite(w, P){
+  const nom='le 5.6 : l\'étude de fonction et la convexité — la fiche 5';
+  const present = evaluer(w, "typeof startECV==='function' && typeof genECVCase==='function' && typeof ecvCases==='function' && typeof ecvAns==='function' && typeof asgDerVerdicts==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'étude de fonction et convexité');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='etude-convexite';
+
+    /* ---- 0. la place au menu : DERNIER du thème « Étude de fonction », après le 5.5 ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('etude-convexite')>=0; })[0];
+      const i=th?th.ids.indexOf('etude-convexite'):-1;
+      if(!th || th.nom!=='Étude de fonction' || i!==th.ids.length-1 || th.ids[i-1]!=='etude-exponentielle')
+        vus.push('{etude-convexite} n\\'est pas le dernier du thème « Étude de fonction », après {etude-exponentielle}'); }
+
+    /* ---- 1. le tirage : a ∈ {±1, ±2, ±3}, b ∈ {−3, −2, −1}, rien d'autre dans
+       la question — et chaque visage sort ---- */
+    { const as={}, bs={};
+      for(let t=0;t<300 && vus.length<4;t++){
+        const q=genECVCase();
+        if([1,2,3,-1,-2,-3].indexOf(q.a)<0) vus.push('a hors vivier : '+q.a);
+        if([-3,-2,-1].indexOf(q.b)<0) vus.push('b hors vivier : '+q.b);
+        const cles=Object.keys(q).filter(function(k){ return ['a','b'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que a et b : '+cles.join(','));
+        as[q.a]=1; bs[q.b]=1;
+      }
+      if(Object.keys(as).length<6) vus.push('les six valeurs de a ne sortent pas toutes en 300 tirages');
+      if(Object.keys(bs).length<3) vus.push('les trois valeurs de b ne sortent pas toutes en 300 tirages'); }
+
+    /* ---- 2. l'arithmétique, refaite par le contrôle sur les 18 couples ---- */
+    [1,2,3,-1,-2,-3].forEach(function(a){ [-3,-2,-1].forEach(function(b){
+      if(vus.length>=4) return;
+      const q={a:a,b:b}, tag=' (a='+a+', b='+b+')';
+      const f=function(x){ return (a*x+a*b)*Math.exp(-x); };
+      const d1=function(x){ return (f(x+1e-5)-f(x-1e-5))/2e-5; };
+      const d2=function(x){ return (f(x+1e-4)-2*f(x)+f(x-1e-4))/1e-8; };
+      const A=ecvAns(q), cases=ecvCases(q), cs={}; cases.forEach(function(x){ cs[x.id]=x; });
+      if(cases.length!==102 || ecvMax(q)!==102) vus.push(cases.length+' cases au lieu de 102'+tag);
+      if(f(A.x0)!==0) vus.push('f(−b) ne vaut pas exactement 0'+tag);
+      if(cs['ecv-a4'].good!==A.x0 || cs['ecv-a10'].good!==A.q || Math.abs(f(0)-A.q)>1e-12) vus.push('les points sur les axes contredisent la fonction'+tag);
+      if(Math.abs(d1(A.r))>1e-4) vus.push('la dérivée ne s\\'annule pas en 1−b'+tag);
+      if(Math.abs(d2(A.xI))>1e-2) vus.push('la dérivée seconde ne s\\'annule pas en 2−b'+tag+' : '+d2(A.xI));
+      for(let i=0;i<5;i++){ const x=A.r-4+2*i;
+        if(Math.abs(d1(x)-(A.dp*x+A.dq)*Math.exp(-x))>1e-4){ vus.push('f′ ne vaut pas (dp·x+dq)e^(−x)'+tag); break; }
+        if(Math.abs(d2(x)-(A.ddp*x+A.ddq)*Math.exp(-x))>1e-2){ vus.push('f″ ne vaut pas (ddp·x+ddq)e^(−x)'+tag); break; } }
+      /* la tangente en 0 : f(0), f′(0), et sa droite */
+      if(Math.abs(f(0)-cs['ecv-f3'].good)>1e-9 || Math.abs(d1(0)-cs['ecv-f6'].good)>1e-4) vus.push('f(0) ou f′(0) attendu contredit la fonction'+tag);
+      if(cs['ecv-f13'].good!==cs['ecv-f6'].good || cs['ecv-f14'].good!==cs['ecv-f3'].good) vus.push('la ligne réduite de Δ ne porte pas f′(0)·x + f(0)'+tag);
+      /* le point d'inflexion : f(xI) = cI·e^(eI), et f″ y change de signe */
+      if(Math.abs(f(A.xI)-cs['ecv-i5'].good*Math.exp(cs['ecv-i6'].good))>1e-9) vus.push('f(xI) ne vaut pas cI·e^(eI)'+tag);
+      if(cs['ecv-h0'].good!==A.xI || cs['ecv-i1'].good!==A.xI || cs['ecv-i7'].good!==A.xI || cs['ecv-j1'].good!==A.xI) vus.push('l\\'abscisse du point d\\'inflexion n\\'est pas la même partout'+tag);
+      const sG=d2(A.xI-1)>0?'+':'−', sD=d2(A.xI+1)>0?'+':'−';
+      if(sG===sD) vus.push('f″ ne change pas de signe en xI'+tag);
+      if(cs['ecv-h5'].good!==sG || cs['ecv-h6'].good!==sD || cs['ecv-h1'].good!==sG || cs['ecv-h2'].good!==sD) vus.push('le signe de f″ attendu contredit la fonction'+tag+' : '+cs['ecv-h5'].good+cs['ecv-h6'].good+' contre '+sG+sD);
+      if(cs['ecv-h7'].good!==(sG==='+'?'convexe':'concave') || cs['ecv-h8'].good!==(sD==='+'?'convexe':'concave')) vus.push('la convexité attendue contredit le signe de f″'+tag);
+      if(cs['ecv-j2'].good!==cs['ecv-h7'].good) vus.push('le j) et le h) ne disent pas la même convexité'+tag);
+      /* la courbe et Δ : du côté annoncé sur TOUT ]−∞ ; xI] */
+      const T=function(x){ return cs['ecv-f13'].good*x+cs['ecv-f14'].good; };
+      let cote=true; for(let x=A.xI-10;x<=A.xI+1e-9;x+=0.25){ const d=f(x)-T(x); if(cs['ecv-j5'].good==='inf' ? d>1e-9 : d<-1e-9) cote=false; }
+      if(!cote) vus.push('la courbe n\\'est pas du côté annoncé de Δ sur ]−∞ ; xI]'+tag);
+      if(cs['ecv-j3'].good!==(cs['ecv-j5'].good==='inf'?'dessous':'dessus')) vus.push('« en dessous / au-dessus » et ≤ / ≥ se contredisent'+tag);
+      if(cs['ecv-j4'].good!==0 || A.xI<0) vus.push('le point de tangence 0 n\\'est pas dans ]−∞ ; xI]'+tag);
+      /* le TVI : k entre la limite et M, f strictement monotone sur la branche */
+      const M=f(A.r);
+      if(Math.abs(M-a*Math.exp(b-1))>1e-9 || cs['ecv-d6'].good!==a || cs['ecv-d7'].good!==b-1) vus.push('l\\'extremum ne vaut pas a·e^(b−1)'+tag);
+      if(!((a>0 && A.k<M) || (a<0 && A.k>M))) vus.push('k = '+A.k+' n\\'est pas entre la limite et l\\'extremum de la branche'+tag);
+      let mono=true; for(let i=0;i<8;i++){ const x1=A.r-8+i, x2=x1+1; if(a>0 ? f(x2)<=f(x1) : f(x2)>=f(x1)) mono=false; }
+      if(!mono) vus.push('f n\\'est pas strictement monotone sur ]−∞ ; r]'+tag);
+      if(cs['ecv-e2'].good!==(a>0?'croissante':'décroissante')) vus.push('le sens de variation du e) contredit la fonction'+tag);
+      if(Math.abs(f(40))>1e-9 || cs['ecv-la'].lim!==0 || cs['ecv-lat'].good!=='ah' || cs['ecv-lae'].good!==0) vus.push('la limite en +∞ ou l\\'asymptote attendue contredit la fonction'+tag);
+      if(cs['ecv-lb'].lim!==(f(-40)<0?'−∞':'+∞') || cs['ecv-e3'].lim!==cs['ecv-lb'].lim) vus.push('la limite en −∞ attendue contredit la fonction'+tag);
+    }); });
+
+    /* ---- montage : la fiche même — f(x) = (2x − 2)e^(−x) ---- */
+    const Q={a:2,b:-1};
+    const IDS=['ecv-a1','ecv-a2','ecv-aexp','ecv-a3','ecv-a4','ecv-a5','ecv-a6','ecv-a7','ecv-a8','ecv-a9','ecv-a10','ecv-a11','ecv-a12',
+      'ecv-la','ecv-lat','ecv-lae','ecv-lb','ecv-lbt',
+      'ecv-cu','ecv-cv','ecv-cdu','ecv-cdv','ecv-cs2a','ecv-cs2b','ecv-cs2c','ecv-cs2d','ecv-cs3a','ecv-cs3b','ecv-cs3c','ecv-cfac',
+      'ecv-d1','ecv-d2','ef-r0','ef-l0s0','ef-l0s1','ef-l1s0','ef-l1s1','ef-l2s0','ef-l2s1','ef-a0','ef-a1','ef-e0t','ef-e0x',
+      'ecv-d3','ecv-d4','ecv-d5','ecv-d6','ecv-d7',
+      'ecv-e1','ecv-e2','ecv-e3','ecv-e4','ecv-e5',
+      'ecv-f1','ecv-f2','ecv-f3','ecv-f4','ecv-f5','ecv-f6','ecv-f7','ecv-f8','ecv-f9','ecv-f10','ecv-f11','ecv-f12','ecv-f13','ecv-f14',
+      'ecv-gu','ecv-gv','ecv-gdu','ecv-gdv','ecv-gs2a','ecv-gs2b','ecv-gs2c','ecv-gs2d','ecv-gs3a','ecv-gs3b','ecv-gs3c','ecv-gfac',
+      'ecv-h0','ecv-h1','ecv-h2','ecv-h3','ecv-h4','ecv-h5','ecv-h6','ecv-h7','ecv-h8',
+      'ecv-i1','ecv-i2','ecv-i3','ecv-i4','ecv-i5','ecv-i6','ecv-i7','ecv-i8','ecv-i9',
+      'ecv-j1','ecv-j2','ecv-j3','ecv-j4','ecv-j5'];
+    const BON={'ecv-a1':'0','ecv-a2':'0','ecv-aexp':'jamais','ecv-a3':'0','ecv-a4':'1','ecv-a5':'1','ecv-a6':'0','ecv-a7':'0','ecv-a8':'0','ecv-a9':'0','ecv-a10':'-2','ecv-a11':'0','ecv-a12':'-2',
+      'ecv-la':'0','ecv-lat':'ah','ecv-lae':'0','ecv-lb':'-∞','ecv-lbt':'rien',
+      'ecv-cu':'2x-2','ecv-cv':'e^(-x)','ecv-cdu':'2','ecv-cdv':'-e^(-x)','ecv-cs2a':'2','ecv-cs2b':'e^(-x)','ecv-cs2c':'-e^(-x)','ecv-cs2d':'2x-2','ecv-cs3a':'2','ecv-cs3b':'-2x','ecv-cs3c':'2','ecv-cfac':'-2x+4',
+      'ecv-d1':'-4','ecv-d2':'2','ef-r0':'2','ef-l0s0':'+','ef-l0s1':'−','ef-l1s0':'+','ef-l1s1':'+','ef-l2s0':'+','ef-l2s1':'−','ef-a0':'up','ef-a1':'down','ef-e0t':'max','ef-e0x':'2',
+      'ecv-d3':'2','ecv-d4':'2','ecv-d5':'2','ecv-d6':'2','ecv-d7':'-2',
+      'ecv-e1':'continue','ecv-e2':'croissante','ecv-e3':'-∞','ecv-e4':'TVI','ecv-e5':'unique',
+      'ecv-f1':'0','ecv-f2':'0','ecv-f3':'-2','ecv-f4':'0','ecv-f5':'0','ecv-f6':'4','ecv-f7':'0','ecv-f8':'0','ecv-f9':'0','ecv-f10':'4','ecv-f11':'0','ecv-f12':'-2','ecv-f13':'4','ecv-f14':'-2',
+      'ecv-gu':'-2x+4','ecv-gv':'e^(-x)','ecv-gdu':'-2','ecv-gdv':'-e^(-x)','ecv-gs2a':'-2','ecv-gs2b':'e^(-x)','ecv-gs2c':'-e^(-x)','ecv-gs2d':'-2x+4','ecv-gs3a':'-2','ecv-gs3b':'2x','ecv-gs3c':'-4','ecv-gfac':'2x-6',
+      'ecv-h0':'3','ecv-h1':'−','ecv-h2':'+','ecv-h3':'+','ecv-h4':'+','ecv-h5':'−','ecv-h6':'+','ecv-h7':'concave','ecv-h8':'convexe',
+      'ecv-i1':'3','ecv-i2':'3','ecv-i3':'3','ecv-i4':'3','ecv-i5':'4','ecv-i6':'-3','ecv-i7':'3','ecv-i8':'4','ecv-i9':'-3',
+      'ecv-j1':'3','ecv-j2':'concave','ecv-j3':'dessous','ecv-j4':'0','ecv-j5':'inf'};
+    if(IDS.length!==102 || Object.keys(BON).length!==102) vus.push('le montage du contrôle ne porte pas 102 cases : '+IDS.length+'/'+Object.keys(BON).length);
+    { const attendus=ecvCases(Q).map(function(x){ return x.id; });
+      const manque=IDS.filter(function(id){ return attendus.indexOf(id)<0; }), trop=attendus.filter(function(id){ return IDS.indexOf(id)<0; });
+      if(manque.length||trop.length) vus.push('les cases du montage et celles de la page diffèrent : '+manque.concat(trop).slice(0,5).join(',')); }
+    const poser=function(vals, q){
+      Object.assign(test,{kind:'ecv', questions:[JSON.parse(JSON.stringify(q||Q))], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:102});
+      renderECV();
+      IDS.forEach(function(id){ const el=document.getElementById(id);
+        if(!el) return;
+        const v=vals[id]; const s=(v===undefined||v===null)?'':String(v);
+        if(el.tagName==='MATH-FIELD'){
+          /* jsdom n'a pas MathLive : la case s'anime par getValue/setValue,
+             que dexpCellValue et rfReveal lisent à travers le passe-plat */
+          el.getValue=function(){ return s; };
+          el.setValue=function(nv){ const t=String(nv); el.getValue=function(){ return t; }; };
+        } else el.value=s;
+      });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const texte=function(){ return (document.getElementById('ecvForm').textContent||'').replace(/\\s+/g,' '); };
+
+    /* ---- 3. les « Démontre que » disent ce que la correction attend, pour
+       les DEUX visages — et le e), le j) suivent la fonction, pas la fiche ---- */
+    poser({});
+    { const t=texte();
+      [['(−2x + 4) e','la dérivée'],['(2x − 6) e','la dérivée seconde'],['y = 4x − 2','la tangente en 0'],['f(x) = −1 admet','le k du TVI'],['sur ]−∞ ; 2]','la branche du TVI'],['f(x) ≤ 4x − 2 sur ]−∞ ; 3]','l\\'inégalité du j)'],['Ce maximum vaut','l\\'extremum']]
+        .forEach(function(p){ if(t.indexOf(p[0])<0) vus.push('a = 2, b = −1 : '+p[1]+' n\\'est pas annoncée « '+p[0]+' » : '+t.slice(0,60)); });
+      const prompt=(document.getElementById('ecvPrompt').textContent||'').replace(/\\s+/g,' ');
+      if(prompt.indexOf('(2x − 2) e')<0) vus.push('l\\'énoncé n\\'écrit pas la fonction (2x − 2)e^(−x) : '+prompt.slice(0,60)); }
+    test.questions=[{a:-2,b:-1}]; renderECV();
+    { const t=texte();
+      [['(2x − 4) e','la dérivée'],['(−2x + 6) e','la dérivée seconde'],['y = −4x + 2','la tangente en 0'],['f(x) = 1 admet','le k du TVI'],['f(x) ≥ −4x + 2 sur ]−∞ ; 3]','l\\'inégalité du j)'],['Ce minimum vaut','l\\'extremum']]
+        .forEach(function(p){ if(t.indexOf(p[0])<0) vus.push('a = −2, b = −1 : '+p[1]+' n\\'est pas annoncée « '+p[0]+' »'); }); }
+    { const c=ecvCases({a:-2,b:-1}), cs={}; c.forEach(function(x){ cs[x.id]=x; });
+      if(cs['ecv-h7'].good!=='convexe'||cs['ecv-j3'].good!=='dessus'||cs['ecv-j5'].good!=='sup') vus.push('a < 0 : la convexité attendue n\\'est pas « convexe, au-dessus, ≥ »'); }
+
+    /* ---- 4. les hôtes FANTÔMES : le tableau porte les ids ef-* des écrans
+       du 5.3, du 5.5, de la fiche 9 et du 4.6 ---- */
+    document.getElementById('efTable').innerHTML='<input id="ef-r0" value="fantôme">';
+    document.getElementById('asgForm').innerHTML='<input id="ef-a0" value="fantôme">';
+    poser(BON);
+    { if(document.getElementById('efTable').innerHTML!==''||document.getElementById('asgForm').innerHTML!=='') vus.push('les hôtes amont ne sont pas vidés au rendu : le tableau fantôme reprendrait la main');
+      const el=document.getElementById('ef-r0');
+      if(!el || !el.closest('#ecvForm')) vus.push('getElementById(ef-r0) ne rend pas la case de CET écran'); }
+    /* et l'inverse : le 4.6 rendu après vide l'hôte du 5.6 */
+    { Object.assign(test,{kind:'asg', questions:[{a:1,b:2},{a:-1,b:3}], idx:0, locked:false}); renderASG();
+      if(document.getElementById('ecvForm').innerHTML!=='') vus.push('le rendu du 4.6 ne vide pas l\\'hôte du 5.6 : son tableau fantôme resterait'); }
+
+    /* ---- 5. la copie de la fiche passe entière : 102 cases au vert, note
+       102, écran verrouillé, et la note enregistrée dit 102/102 ---- */
+    poser(BON); checkECV();
+    { const pas=IDS.filter(function(id){ return peint(id)!=='vert'; });
+      if(pas.length) vus.push('la copie de la fiche ne passe pas entière au vert : '+pas.slice(0,6).join(','));
+      if(test.score!==102||test.maxScore!==102||!test.locked) vus.push('la copie de la fiche vaut '+test.score+'/'+test.maxScore+' (verrouillée : '+test.locked+')');
+      const a=test.answers[0]||{};
+      if(a.given!=='102/102'||a.correct!==true||a.pts!==1||a.cases!==102) vus.push('la réponse enregistrée ne dit pas 102/102 : '+JSON.stringify(a).slice(0,80)); }
+
+    /* ---- 6. toute écriture ÉGALE est acceptée : f′ et f″ comme fonctions,
+       les limites au mot « inf », l'ordre u/v inversé dans le g), une case
+       vide dans une ligne juste = le facteur 1 omis ---- */
+    [['ecv-cfac','-2(x-2)'],['ecv-gfac','2(x-3)'],['ecv-gfac','-6+2x'],['ecv-lb','-inf'],['ecv-e3','-inf'],['ecv-la','0,0'],['ecv-f14','−2'],['ecv-d1','−4']].forEach(function(p){
+      const v=Object.assign({},BON); v[p[0]]=p[1];
+      poser(v); checkECV();
+      if(test.score!==102) vus.push('l\\'écriture égale « '+p[1]+' » est refusée en '+p[0]); });
+    { const v=Object.assign({},BON,{'ecv-gu':'e^(-x)','ecv-gv':'-2x+4','ecv-gdu':'-e^(-x)','ecv-gdv':'-2',
+        'ecv-gs2a':'-e^(-x)','ecv-gs2b':'-2x+4','ecv-gs2c':'e^(-x)','ecv-gs2d':'-2'});
+      poser(v); checkECV();
+      if(test.score!==102) vus.push('l\\'ordre u = e^(−x), v = −2x+4 est refusé dans le g) : les deux ordres du 2.1 ne sont plus acceptés'); }
+    { const v=Object.assign({},BON); delete v['ecv-gs3a']; v['ecv-gs3b']='2x-2'; v['ecv-gs3c']='-4';
+      poser(v); checkECV();
+      /* −2·e^(−x) + (2x − 2)·e^(−x) − 4·e^(−x) = (2x − 8)e^(−x) ≠ f″ : ligne fausse, donc la case vide MANQUE */
+      if(test.score===102) vus.push('une ligne développée fausse du g) passe pour juste'); }
+    /* le facteur 1 n'existe que si a = ±1 : sur f(x) = (x − 1)e^(−x), u′ = 1
+       s'omet dans la substitution — la copie vient de l'attendu de la page,
+       dont l'arithmétique a été refaite plus haut */
+    { const q1={a:1,b:-1}, A1=ecvAns(q1);
+      Object.assign(test,{kind:'ecv', questions:[q1], idx:0}); renderECV();
+      const s1=asgDerVerdicts(q1,{pre:'ecv-c'}).sol, s2=asgDerVerdicts(q1,{pre:'ecv-g',p:A1.dp,q:A1.dq}).sol;
+      const v={}; ecvCases(q1).forEach(function(x){ v[x.id]=(x.type==='der')?((x.grp===2)?s2:s1)[x.id]:String(asgVal(q1,x)); });
+      if(v['ecv-cs2a']!=='1') vus.push('sur (x − 1)e^(−x), le premier facteur de la substitution n\\'est pas 1 : '+v['ecv-cs2a']);
+      delete v['ecv-cs2a'];
+      poser(v,q1); checkECV();
+      if(test.score!==102) vus.push('le facteur 1 omis (case vide dans une ligne juste du c) est compté faux ou manquant : '+test.score);
+      if(test.score===102 && peint('ecv-cs2a')==='rouge') vus.push('le facteur 1 omis rougit'); }
+
+    /* ---- 7. une case fausse rougit, elle seule, coûte son point, et le
+       badge d'un select porte le libellé (« ≤ », jamais « inf ») ---- */
+    { const v=Object.assign({},BON); v['ecv-gfac']='2x+6'; v['ecv-j5']='sup'; v['ecv-h7']='convexe';
+      poser(v); checkECV();
+      if(peint('ecv-gfac')!=='rouge') vus.push('la dérivée seconde fausse (2x+6) ne rougit pas');
+      if(peint('ecv-j5')!=='rouge'||peint('ecv-h7')!=='rouge') vus.push('l\\'inégalité ou la convexité fausse ne rougit pas');
+      if(test.score!==99) vus.push('trois fautes valent '+test.score+' au lieu de 99');
+      const autres=IDS.filter(function(id){ return ['ecv-gfac','ecv-j5','ecv-h7'].indexOf(id)<0 && peint(id)!=='vert'; });
+      if(autres.length) vus.push('une case fausse fait payer ses voisines : '+autres.slice(0,5).join(','));
+      const el=document.getElementById('ecv-j5'), badge=el&&el.nextElementSibling;
+      const txt=(badge&&/mf-cor/.test(badge.className||''))?badge.textContent:'(pas de badge)';
+      if(txt!=='≤') vus.push('le badge du select ne porte pas le libellé ≤ : '+txt);
+      if(test.answers[0] && (test.answers[0].correct!==false || Math.abs(test.answers[0].pts-99/102)>1e-9)) vus.push('la réponse enregistrée ne porte pas 99/102'); }
+    { const v=Object.assign({},BON); v['ecv-gs3b']='2xe^(-x)';
+      poser(v); checkECV();
+      if(peint('ecv-gs3b')!=='rouge') vus.push('le terme entier recopié dans la case de coefficient du g) ne rougit pas');
+      if(document.getElementById('ecvFeedback').innerHTML.indexOf('COEFFICIENT')<0) vus.push('le terme entier recopié n\\'est pas NOMMÉ dans le message'); }
+
+    /* ---- 8. la case vide : en SOUTIEN aucune couleur et rien ne se
+       verrouille ; en ENTRAÎNEMENT la correction la remplit en sol, et la
+       note ne la compte pas ---- */
+    currentMode='soutien';
+    { const v=Object.assign({},BON); delete v['ecv-i1']; delete v['ecv-h7'];
+      poser(v); checkECV();
+      if(peint('ecv-i1')!=='rien'||peint('ecv-h7')!=='rien') vus.push('en soutien, une case vide reçoit une couleur : '+peint('ecv-i1')+'/'+peint('ecv-h7'));
+      if(test.locked) vus.push('en soutien, une copie incomplète verrouille');
+      const fb=document.getElementById('ecvFeedback').textContent;
+      if(fb.indexOf('manque')<0||fb.indexOf('2 case')<0) vus.push('le message du soutien ne dit pas les cases manquantes : '+fb); }
+    currentMode='train';
+    { const v=Object.assign({},BON); delete v['ecv-i1']; v['ecv-h6']='−';
+      poser(v); checkECV();
+      if(peint('ecv-i1')!=='sol') vus.push('en entraînement, la case vide n\\'est pas remplie en sol : '+peint('ecv-i1'));
+      if(document.getElementById('ecv-i1').value!=='3') vus.push('la case vide remplie ne porte pas l\\'abscisse du point d\\'inflexion : '+document.getElementById('ecv-i1').value);
+      if(peint('ecv-h6')!=='rouge') vus.push('le signe faux ne garde pas son rouge sous la correction');
+      if(test.score!==100) vus.push('une vide et une fausse valent '+test.score+' au lieu de 100');
+      const fb=document.getElementById('ecvFeedback').textContent;
+      if(fb.indexOf('bleu')<0||fb.indexOf('100 cases justes sur 102')<0) vus.push('le message de la correction n\\'est pas la phrase des couleurs avec le compte : '+fb.slice(0,80)); }
+
+    /* ---- 9. le contexte envoyé au modèle : l'énoncé, les dix parties, les
+       saisies, la clause de secret ---- */
+    poser(BON); document.getElementById('ecv-i1').value='';
+    { const c=ecvConseilCtx();
+      if(c.indexOf('e^(−x)')<0||c.indexOf('CONVEXITÉ')<0||c.indexOf('j)')<0) vus.push('le contexte du modèle ne porte pas l\\'énoncé en dix parties : '+c.slice(0,80));
+      if(c.indexOf('STRICTEMENT SECRÈTES')<0) vus.push('le contexte du modèle a perdu la clause de secret');
+      if(c.indexOf('Saisies')<0||c.indexOf('(vide)')<0) vus.push('le contexte du modèle ne porte plus les saisies de l\\'élève');
+      if(c.indexOf('y = 4x − 2')<0||c.indexOf('concave')<0) vus.push('le contexte du modèle ne dit ni la tangente ni la convexité'); }
+    if(!(RAPPELS['ecv']&&RAPPELS['ecv'].indexOf('inflexion')>=0)) vus.push('le rappel de cours du 5.6 ne parle pas du point d\\'inflexion');
+    if(!(QIA_SUGG['ecv']&&QIA_SUGG['ecv'].length>=3)) vus.push('le 5.6 n\\'a pas ses questions suggérées');
 
     currentMode='train';
     return vus.slice(0,4).join(' | ');

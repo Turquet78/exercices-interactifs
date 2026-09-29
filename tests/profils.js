@@ -248,8 +248,9 @@ module.exports = {
        « 4 » tapé avant « .5 » se déclarerait faux au milieu d'un nombre juste.
        Le soutien y colore à la vérification, sans jamais révéler la valeur. */
     /* « esl » : {synthese-evolutions-successives-libre} (2.5.6), une feuille
-       rédigée relue à la vérification, comme « sal » */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'esl'] },
+       rédigée relue à la vérification, comme « sal » ; « sgl » :
+       {synthese-generale-libre} (2.5.7), qui enchaîne les deux moteurs */
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'esl', 'sgl'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
@@ -321,7 +322,15 @@ module.exports = {
                           la fiche EN MOTS (« 5 % de 120 est 6 ») dans un vrai MathLive :
                           « de » et « est » doivent ressortir entiers, et le juge lire
                           « est » comme « = » */
-                       evolutions: { exercice: 'synthese-evolutions-successives-libre', num: '2.5.6' } },
+                       evolutions: { exercice: 'synthese-evolutions-successives-libre', num: '2.5.6' },
+                       /* {synthese-generale-libre} (2.5.7) : les énoncés du 2.5.2 et du
+                          2.5.6 dans une même séance, sur la feuille du 2.3.13 — le banc
+                          épingle une question de chaque moteur, tape les deux copies dans
+                          un vrai MathLive (la justification du 2.5.2 EN MODE RÉDACTION,
+                          puis la méthode 3 du 2.5.6), passe d'un écran à l'autre par
+                          « Question suivante », et lit la note enregistrée sous SON
+                          identifiant */
+                       generale: { exercice: 'synthese-generale-libre', num: '2.5.7' } },
     /* Le pavé numérique compact de la Première sert AUSSI ses cases MathLive
        (champsMaths = PAVE_MF dans la page — deux sources) : toutes ses cases
        pm-mf n'attendent qu'un nombre. Le banc navigateur en tape une pour de
@@ -463,7 +472,9 @@ module.exports = {
                     lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
                                touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
                                /* puis {synthese-evolutions-successives-libre} (2.5.6), la feuille du 2.2.14 sur le 2.5.4 */
-                               exercices: ['synthese-diminutions-libre-dix', 'synthese-augmentations-libre-dix', 'synthese-evolutions-successives-libre'], hors: ['synthese-diminutions-libre', 'synthese-augmentations-libre'] } },
+                               /* et {synthese-generale-libre} (2.5.7), dont les deux écrans portent la feuille du 2.3.13 ;
+                                  le 2.5.2 lui-même reste hors du clavier B : c'est le bord opposé */
+                               exercices: ['synthese-diminutions-libre-dix', 'synthese-augmentations-libre-dix', 'synthese-evolutions-successives-libre', 'synthese-generale-libre'], hors: ['synthese-diminutions-libre', 'synthese-augmentations-libre', 'synthese-pourcentages-libre'] } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
@@ -506,7 +517,7 @@ module.exports = {
       conseil: true,
       /* {synthese-evolutions-successives} (2.5.4) n'existe qu'en Première :
          la Seconde dérive sa liste de KINDS_PREMIERE, on l'ajoute donc ICI. */
-      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()'], ['esl','genEss()'], ['bsd','genBaissesDix()']]),
+      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()'], ['esl','genEss()'], ['sgl',"Object.assign(genEss(),{moteur:'esl'})"], ['bsd','genBaissesDix()']]),
              prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;', psl: 'test.questions[0].choisi=0;' } },
       mlStatic: true,
     },
@@ -1767,6 +1778,9 @@ module.exports = {
           pose: "var q=genLG('homo'); q.tv=lg2Table(q); test.questions=[q]; test.idx=0; renderLG3();", cases: 2 },
         { exercice: 'tvi-alpha-signe',      ecran: 'asg', kind: 'asg',
           pose: "test.questions=[{a:1,b:2}]; test.idx=0; renderASG();", cases: 3 },
+        /* le 5.6 (la fiche 5) pose ses limites au b) et au e), comme le 4.6 */
+        { exercice: 'etude-convexite',      ecran: 'ecv', kind: 'ecv',
+          pose: "test.questions=[{a:2,b:-1}]; test.idx=0; renderECV();", cases: 3 },
         { exercice: 'suite-vocabulaire',    ecran: 'svq', kind: 'svq',
           pose: "test.questions=[{fam:'decconv',L:1,A:3,q:0.8,rep:{}}]; test.idx=0; renderSVQ();", cases: 1 },
       ],
@@ -1857,6 +1871,11 @@ module.exports = {
        déborde pas, et le bouton ∞ réellement CLIQUÉ, qui écrit dans la case
        et lève l'événement input. */
     alphaSigne: { exercice: 'tvi-alpha-signe' },
+    /* Le 5.6 (la fiche 5 : l'étude menée à la convexité) : le même tableau
+       du 5.3 RENDU, les DEUX chaînes du 2.1 (f′ puis f″) dont la première
+       case est TAPÉE pour de vrai, le bouton ∞ cliqué, et la copie de la
+       fiche — 102 cases — remplie puis vérifiée d'un clic. */
+    etudeConvexite: { exercice: 'etude-convexite' },
     /* L'étiquette « Cf′ » du dessin partagé des dérivées (afGraphSVG) se pose
        À CÔTÉ de la courbe, jamais dessus : le banc navigateur mesure la boîte
        RENDUE (getBBox) contre le chemin RENDU (getPointAtLength) sur chacun

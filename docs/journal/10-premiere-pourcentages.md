@@ -3390,3 +3390,123 @@ la valeur seule et la conclusion ne rien recevoir. Le profil nomme aussi le
 2.5.6 dans `clavierEcran.lettres.exercices` (le clavier B sur tablette), et
 `aide.ctx.kinds` porte `esl` avec `genEss()`. Les règles universelles sont
 tenues par la visite (section 9) sans rien déclarer.
+
+## {synthese-generale-libre} — les énoncés du 2.5.2 et du 2.5.6 dans une même séance, sur la feuille du 2.3.13 (Première, septembre 2026)
+
+**D'où il vient.** Demande de Turquet, le jour même de la mise en ligne du
+2.5.6 : « en Première, fais un exercice de synthèse qui demande de rédiger à
+l'élève ; on utilisera le clavier virtuel du 2.3.13 ; ce sera une synthèse
+qui contiendra les énoncés du 2.5.2 et du 2.5.6 ; on vérifiera les rédactions
+exactement comme le 2.5.5 et le 2.5.6 ». Le « 2.5.5 » de la demande est lu
+comme le 2.5.2 : le 2.5.5 ({evolutions-successives}) est le schéma à cases de
+la fiche, où rien ne se rédige, et les deux exercices dont la synthèse prend
+les ÉNONCÉS sont le 2.5.2 et le 2.5.6 — vérifier « exactement comme » les
+exercices d'origine est la seule lecture qui tienne. L'exercice ferme le
+sous-thème 2.5, {synthese-generale-libre} (2.5.7), kind `sgl` : rien n'est
+renuméroté.
+
+**Rien n'est neuf que le tirage et l'aiguillage, et c'est le point.** Une
+séance de six questions : trois du 2.5.2 (`genSyn(undefined, inc)` par
+`distinctes()` — les trois familles au hasard, les trois inconnues une fois
+chacune, les quatre propositions) et trois du 2.5.6 (`essSeance` — les trois
+formes, les paires sans remise, `meth` et `choisi` retirés), MÉLANGÉES par
+`qdMelanger` : l'élève doit reconnaître la question avant de rédiger. Chaque
+question porte son MOTEUR (`q.moteur` : `'sal'` ou `'esl'`), et c'est la
+QUESTION qui dit sur quel écran elle s'affiche et quel juge la lit — la
+reprise d'une pause relit la question, jamais le démarreur. `renderSgl`
+montre l'écran du moteur (`sglEcran()`, que la table d'`afficherEcranDe` lit
+aussi) puis appelle `renderSal` ou `renderEsl` ; les boutons « Vérifier » de
+ces écrans appellent `checkSal` et `checkEsl` — `salJuge` puis le modèle, le
+juge prime ; `eslJuge` de même. La synthèse n'a ni juge, ni règle, ni énoncé
+à elle : « exactement comme » se tient en ne recopiant rien, et le contrôle
+lit la SOURCE pour l'exiger (aucune fonction `sglJuge`, `sglAttenduIA`,
+`checkSgl`… ne doit exister ; `renderSgl` doit appeler les deux rendus). Ce
+qui a bougé dans les moteurs tient en deux lignes : `nextSal` et `nextEsl`
+rendent la main à `nextSgl` quand `test.kind` vaut `'sgl'` — c'est lui qui
+enchaîne les écrans et qui clôt par `finishSgl`, la note partant sous
+`synthese-generale-libre`, un point par question (le barème homogène que la
+coupe d'un devoir sait lire). Le rappel (`RAP_SGL`) réunit ceux des deux
+exercices d'origine derrière trois phrases ; les questions à l'IA
+(`QIA_SUGG.sgl`) et le contexte de l'aide suivent la question affichée —
+`conseilCtxCourant` aiguille `k` sur `q.moteur`, et c'est la branche du 2.5.2
+ou du 2.5.6 qui parle. Pas de correction en direct, comme ses deux moteurs
+(`soutienEnDirect.sans`).
+
+**Le clavier est celui du 2.3.13, et c'est la seule chose que les questions
+du 2.5.2 changent.** Les questions du 2.5.6 ont déjà la feuille de rédaction
+(mode « redaction », classe `mf-mots`, liste blanche des raccourcis, la barre
+d'espace qui écrit une espace, `salEspaces` sur `eslSheet`). Le 2.5.2, lui,
+rédige sur une feuille de CALCUL : `renderSal` ne posait le mode « redaction »
+que sur `q.dix` (le 2.3.13 et le 2.2.14). Il lit désormais `q.dix || q.mots`,
+et `startSgl` pose `q.mots` sur ses trois questions du 2.5.2 — la feuille du
+2.3.13, le clavier B des lettres sur tablette (`kbLettres` cherche `mf-mots`
+sur l'écran courant, sans liste), l'indication sous la feuille qui dit
+l'espace et le clavier B. Le JUGE, lui, ne change pas : `q.dix` n'est pas
+posé, les lignes « 10 % = … » restent des écritures inconnues, et le juge du
+2.5.2 rend sur une question de la synthèse exactement le verdict qu'il rend
+sur la même question sans `q.mots` — le contrôle le mesure sur quatre copies
+(le coefficient, l'augmentation puis l'addition, la voie des 10 %, une
+égalité fausse). Le 2.5.2 lui-même garde sa feuille de calcul : `q.mots`
+n'est posé qu'ici, et le profil le nomme désormais dans
+`clavierEcran.lettres.hors` — le bord opposé.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, « la synthèse générale
+rédigée : les énoncés du 2.5.2 et du 2.5.6 mélangés, la feuille du 2.3.13,
+les juges d'origine, identité ») : le tirage sur 30 séances (identité, kind,
+2 × `EVOL_NB` questions, le barème, trois de chaque moteur, les trois
+inconnues du 2.5.2 avec `q.mots` et SANS `q.dix`, les quatre propositions, les
+six champs du 2.5.6 plus le moteur, les trois formes, les paires de
+`HS_PAIRES`, et l'ordre qui VARIE : la première question change de moteur,
+l'ordre des six prend au moins trois formes) ; l'écran de chaque moteur
+(`scr-sal` pour une question du 2.5.2, `scr-esl` pour une du 2.5.6, par
+`renderSgl` comme par `afficherEcranDe('sgl')` — la reprise —, la feuille de
+rédaction avec l'espace sur les lignes présentes et ajoutées, l'indication
+qui dit le clavier B sans promettre les 10 %, les quatre propositions,
+l'énoncé du 2.5.6, les boutons qui appellent `checkSal()` et `checkEsl()`, le
+compteur qui dit « / 6 », aucune référence `{identifiant}`) ;
+l'enchaînement (depuis chaque question, « suivant » passe à l'écran du moteur
+suivant, déverrouillé ; depuis la dernière, il clôt par `finishSgl`, mesuré
+en remplaçant la fonction) ; les juges à l'exécution (les mêmes verdicts avec
+et sans `q.mots`, la ligne des 10 % inconnue, le juge du 2.5.6 inchangé) ;
+l'identité (2.5.7, le 2.5.2 et le 2.5.6 gardent leur numéro, « Recommencer »,
+le rappel — ni l'un ni l'autre des deux d'origine seuls, les trois méthodes,
+le quotient, les trois références résolues à l'affichage —, `QIA_SUGG.sgl`,
+la description, le contexte de l'aide sur une question de chaque moteur) ; et
+le 2.5.2 et le 2.5.6 qui ne changent pas. Un second contrôle lit la SOURCE :
+`renderSgl` appelle `renderSal()` et `renderEsl()`, `startSgl` tire par
+`genSyn`, `essSeance` et `distinctes`, `nextSal` et `nextEsl` rendent la main
+à `nextSgl`, `finishSgl` enregistre sous son identifiant, aucune fonction de
+juge, de règle ou d'énoncé propre. Un troisième, dans la chaîne séquentielle
+(« la synthèse générale rédigée, cliquée »), CLIQUE : sous un modèle stubbé
+qui se trompe toujours, la justification du 2.5.2 est jugée par `checkSal`
+(le point, la couleur, le verrou, la copie partie avec le verdict du juge),
+« Question suivante » passe à l'écran du 2.5.6 déverrouillé, la rédaction du
+2.5.6 est jugée par `checkEsl` avec la règle du 2.5.6, « Voir mes résultats »
+enregistre 2/2 sous `synthese-generale-libre` et RIEN sous les identifiants
+d'origine, le soutien rouvre la feuille sur une copie fausse du 2.5.2, et
+l'entraînement écrit le corrigé vert sur une copie fausse du 2.5.6.
+Deux pièges de banc en passant : `kbLettres` vit dans le module MathLive,
+que jsdom n'exécute pas — l'exiger là rougit toujours, le contrôle du clavier
+B le rejoue à part, et le contrôle de la synthèse ne le mesure que s'il
+existe (le motif du 2.5.6) ; et un contrôle écrit dans un gabarit JavaScript
+double ses barres obliques inverses (`\\n`, `\\'`, `\\b`), sans quoi le code
+évalué reçoit un vrai retour à la ligne au milieu d'une expression régulière
+(« Invalid regular expression: missing / ») — la première exécution l'a
+attrapé.
+
+**Au banc navigateur** (« 6 vicies octies », étape 6, sur
+`syntheseRedigee.generale`) : une séance de DEUX questions épinglées — une
+hausse du 2.5.2, puis +20 % puis −5 % du 2.5.6 —, et les deux copies TAPÉES
+dans un vrai MathLive. La justification du 2.5.2 s'écrit ici en mode
+RÉDACTION, ce que le 2.5.2 seul ne fait jamais : la liste blanche des
+raccourcis doit laisser passer « * », « = » et les espaces (jsdom n'a pas
+MathLive, c'est ici seul que la frappe se mesure). Puis « Vérifier » (le juge
+du 2.5.2 prime sur le double, qui refuse toujours), « Question suivante »
+(l'écran du 2.5.6 apparaît, déverrouillé), la méthode 3 en mots,
+« Vérifier », « Voir mes résultats », et la note lue dans le double de
+Supabase : 2/2 sous l'identifiant de la synthèse, rien sous ceux d'origine.
+Le profil nomme aussi le 2.5.7 dans `clavierEcran.lettres.exercices` (les
+deux écrans portent la feuille du 2.3.13), le 2.5.2 dans `hors`, `sgl` dans
+`soutienEnDirect.sans` et dans `aide.ctx.kinds` (avec une question du 2.5.6
+marquée de son moteur). Les règles universelles sont tenues par la visite
+(section 9) sans rien déclarer. `APP_VERSION` 272.
