@@ -628,14 +628,14 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-evs{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-evs,#scr-bsd{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
      la famille pt- (dim, hs, hsc, bs, lc, ck…) et n'a pas à bouger pour elles. */
   #aHost .pt-step{margin-bottom:32px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
-  #bsHost .f-num,#bsHost .f-den{width:94px} #bsHost .f-dec{width:130px}
+  #bsHost .f-num,#bsdHost .f-num,#bsHost .f-den,#bsdHost .f-den{width:94px} #bsHost .f-dec,#bsdHost .f-dec{width:130px}
   #lcHost .f-num,#lcHost .f-den{width:94px} #lcHost .f-dec{width:130px}
   #hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den,#essHost .f-num,#essHost .f-den{width:94px} #hsHost .f-dec,#hscHost .f-dec,#essHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -987,12 +987,12 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
       large (flex column + align-items:stretch), sinon numerateur et denominateur
       ne seraient plus alignes des que l'un des deux s'allonge. --- */
-#pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#adxHost math-field.pm-mf,#ddxHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#hscHost math-field.pm-mf,#essHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
-#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#hscHost .f-frac-input,#essHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input,#ckHost .f-frac-input{align-items:stretch;}
-#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den,#essHost .f-num,#essHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den,#ckHost .f-num,#ckHost .f-den{
+#pHost math-field.pm-mf,#pdcHost math-field.pm-mf,#adxHost math-field.pm-mf,#ddxHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#hscHost math-field.pm-mf,#essHost math-field.pm-mf,#bsHost math-field.pm-mf,#bsdHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
+#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#hscHost .f-frac-input,#essHost .f-frac-input,#bsHost .f-frac-input,#bsdHost .f-frac-input,#lcHost .f-frac-input,#ckHost .f-frac-input{align-items:stretch;}
+#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den,#essHost .f-num,#essHost .f-den,#bsHost .f-num,#bsdHost .f-num,#bsHost .f-den,#bsdHost .f-den,#lcHost .f-num,#lcHost .f-den,#ckHost .f-num,#ckHost .f-den{
   width:auto;min-width:96px;max-width:320px;}
-#pHost .f-dec,#pdcHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#mdHost .f-dec,#uHost .f-dec,#hsHost .f-dec,#hscHost .f-dec,#essHost .f-dec,#bsHost .f-dec,#lcHost .f-dec,#ckHost .f-dec{width:auto;min-width:120px;max-width:320px;}
-#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar,#mdHost .f-fbar,#uHost .f-fbar,#hsHost .f-fbar,#hscHost .f-fbar,#essHost .f-fbar,#bsHost .f-fbar,#lcHost .f-fbar,#ckHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+#pHost .f-dec,#pdcHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#mdHost .f-dec,#uHost .f-dec,#hsHost .f-dec,#hscHost .f-dec,#essHost .f-dec,#bsHost .f-dec,#bsdHost .f-dec,#lcHost .f-dec,#ckHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar,#mdHost .f-fbar,#uHost .f-fbar,#hsHost .f-fbar,#hscHost .f-fbar,#essHost .f-fbar,#bsHost .f-fbar,#bsdHost .f-fbar,#lcHost .f-fbar,#ckHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 /* {pourcentage-dix} (2.1.8) : UNE seule phrase, mots et case à la MÊME
    taille — pas le mélange petit label / grosses cases du reste du
    sous-thème. .f-dec garde sa taille de BASE (1,6 rem, la même que la
@@ -1038,6 +1038,8 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* {synthese-evolutions-successives} (2.5.4) : sa méthode 3, en passant par 10 %,
    reprend les rangées espacées du 2.2.11 — scopé à la méthode, comme .syn-dix */
 #essHost .ess-dix .pt-row{margin:10px 0;}
+/* {baisses-successives-dix} (2.3.14) : la même chaîne des 10 %, seule sur son écran */
+#bsdHost .pt-row{margin:10px 0;}
 /* Les flèches de la fiche papier (2.1.10, demande de Turquet, PDF « 3e méthode
    retrouver un pourcentage ») : la ligne CIBLE (« On multiplie par ... : donc ... »)
    gagne de la place au-dessus d'elle pour que les deux traits courbes aient où
@@ -2060,6 +2062,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-bsd">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagBsd"></span><span class="q-idx" id="bsdqIdx">Calcul 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="bsdLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="bsdPrompt">Une baisse suivie d’une autre baisse, en passant par 10 %.</p>
+      <div class="mp-stage"><div style="width:100%" id="bsdHost"></div></div>
+      <div class="mp-feedback" id="bsdFeedback"></div>
+      <div class="row" style="justify-content:center" id="bsdActions">
+        <button class="btn btn-primary" onclick="checkBsdAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-lctest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagLc"></span><span class="q-idx" id="lcqIdx">Calcul 1 / 6</span></span>
@@ -2354,7 +2371,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=269;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=270;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2764,6 +2781,7 @@ const TESTS={
   'hausses-successives-cent': { name:'Hausse suivie d\u2019une hausse, en partant de 100', icon:'\ud83d\udcaf', desc:'La m\u00eame question qu\u2019en {hausses-successives}, par l\u2019autre chemin : on part de 100, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu\u2019on a gagn\u00e9 pour 100 est le pourcentage global.', start:()=>startHaussesCent() },
   'synthese-evolutions-successives': { name:'Deux \u00e9volutions successives, hausse ou baisse', icon:'\ud83d\udd01', desc:'La synth\u00e8se de {hausses-successives}, {hausses-successives-cent} et {baisses-successives} : deux \u00e9volutions de suite, chacune une hausse ou une baisse. Tu choisis ta m\u00e9thode \u2014 multiplier les coefficients, partir de 100, ou passer par 10 % comme dans {augmenter-dix} \u2014 puis tu dis si l\u2019\u00e9volution globale est une hausse ou une baisse, et de quel pourcentage. Il tombe toujours sur un nombre entier.', start:()=>startEss() },
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
+  'baisses-successives-dix': { name:'Baisse suivie d\u2019une baisse, en passant par 10 %', icon:'\ud83d\udd1f', desc:'La m\u00eame question qu\u2019en {baisses-successives}, par la m\u00e9thode des 10 % de {diminuer-dix} : on part de 100, on calcule 10 % puis la premi\u00e8re baisse et on la retire, puis 10 % et la seconde baisse sur la nouvelle valeur, et ce qu\u2019on a perdu pour 100 est la baisse globale. Elle tombe toujours sur un nombre entier.', start:()=>startBaissesDix() },
   'evolutions-successives':{ name:'Deux \u00e9volutions successives', icon:'\ud83d\udd01', desc:'Deux \u00e9volutions de suite \u2014 deux hausses, deux baisses, ou une hausse et une baisse \u2014 sur le sch\u00e9ma \u00e0 trois bo\u00eetes de la fiche. Sur chaque fl\u00e8che, \u00d7 (1 \u00b1 \u2026) puis le coefficient, comme dans {hausses-successives} et {baisses-successives} ; en dessous, le coefficient global en un seul calcul, et le pourcentage d\u2019\u00e9volution global, dont le signe se lit sur le coefficient global comme dans {lire-coefficient}. Tu \u00e9cris toi-m\u00eame le mot de la conclusion : augmentation ou diminution. Les pourcentages sont des multiples de 10 %, et le r\u00e9sultat tombe toujours sur un nombre entier.', start:()=>startEvolSucc() },
   'lire-coefficient':    { name:'Lire un coefficient multiplicateur', icon:'🔎', desc:'On donne un coefficient : dis si c\u2019est une hausse ou une baisse, donne le pourcentage, puis vérifie-le avec les étapes de {augmenter-pourcentage} et {diminuer-pourcentage}.', start:()=>startLireCoef() },
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
@@ -2811,7 +2829,7 @@ const THEMES=[
   { num:2, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre','pourcentage-dix','pourcentage-dix-cascade','pourcentage-dix-taux'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre','augmenter-dix','augmenter-taux-dix','synthese-augmentations-dix','synthese-augmentations-libre-dix'] },
-      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre','diminuer-dix','diminuer-taux-dix','synthese-diminutions-dix','synthese-diminutions-libre-dix'] },
+      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre','diminuer-dix','diminuer-taux-dix','synthese-diminutions-dix','synthese-diminutions-libre-dix','baisses-successives-dix'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
@@ -2922,7 +2940,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='ess') startEss(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -3131,6 +3149,7 @@ function liveCheckCurrent(){
   else if(k==='syn') checkSynAnswer(true);
   else if(k==='sf') checkSFAnswer(true);
   else if(k==='evs') checkEvsAnswer(true);
+  else if(k==='bsd') checkBsdAnswer(true);
 }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
@@ -3763,7 +3782,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], ess:['esstest',renderEssTest],
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest],
     sf:['sf',renderSFTest]
   };
   const e=table[k];
@@ -3967,7 +3986,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','evs'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','evs','bsd'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -13159,6 +13178,149 @@ async function finishBaisses(){
   showResults({score,total,percent:pct,durationSec});
 }
 
+/* ---------- 2.3.14 : deux baisses de suite, EN PASSANT PAR 10 % ----------
+   Demande de Turquet (septembre 2026), après la méthode 3 du 2.5.4 : « fais
+   pareil pour les baisses en 2.3 ». La MÊME question qu'en {baisses-successives}
+   (2.3.7), par la méthode de la fiche « méthode 3 avec 10 % », écrite pour deux
+   baisses : on prend 100 au départ ; 10 % de 100, P1 % de 100, « la première
+   baisse donne 100 − … = … » ; 10 % de la nouvelle valeur (RÉÉCRITE, comme les
+   pointillés de la fiche), P2 %, « le résultat après la 2ème baisse est … − …
+   = … » ; on est passé de 100 à …, une baisse de … pour 100, c'est-à-dire … %.
+   C'est au 2.2.8 ({hausses-successives-cent}) ce que le 2.3.10 ({diminuer-dix})
+   est au 2.3.2 : le même chemin « on suit une valeur », par 10 % au lieu de la
+   fraction. Un exercice à part, comme 2.2.7 et 2.2.8 le sont : chaque méthode
+   a son écran dans ce sous-thème, et le choix de méthode reste aux synthèses.
+   LE VIVIER EST CELUI DU 2.3.7 (BS_PAIRES), lu et non recopié, tiré SANS REMISE
+   comme au 2.2.8 : deux multiples de dix, la baisse globale au plus 90 %. Deux
+   multiples de dix rendent TOUTE la chaîne entière — 10 % de 100 est 10, la
+   nouvelle valeur est un multiple de dix, ses 10 % un entier, P2 % un multiple
+   de cet entier — sans jamais la ligne « 1 % » que le 2.5.4 doit intercaler sur
+   2, 4, 6 et 8 % ; et la baisse globale est entière (100 − c1·c2/100, c1 et c2
+   multiples de dix). AUCUN GARDE N'EST POSÉ ici : le contrôle exige ces
+   propriétés sur le vivier entier, par sa propre arithmétique.
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : celle-ci ne porte
+   que les deux taux, le contexte et la variante ; bsdAns() recalcule tout, et
+   le rendu, le juge, la correction et le contexte envoyé au modèle le lisent. */
+function bsdAns(q){
+  const b1=q.P1, v1=100-q.P1;                     /* 10 % de 100 est 10, P1 % de 100 est P1 */
+  const d10b=v1/10, b2=v1*q.P2/100, v2=v1-b2;     /* 10 % de la nouvelle valeur, P2 % d'elle, la valeur finale */
+  return {d10a:10, b1, v1, d10b, b2, v2, h:100-v2};
+}
+function bsdQuestion(P1,P2){
+  const q={P1,P2,ci:tirerContexte(BS_CTX,0)};
+  q.v=tirerVariante(BS_ENONCES,q);                   /* les énoncés du 2.3.7, partagés */
+  return q;
+}
+/* L'ORDRE DE LA PAIRE EST TIRÉ, comme au 2.3.7 : l'ordre change le chemin
+   (100 → 80 → 48 ou 100 → 60 → 48) sans changer la réponse. */
+function bsdCouple(p){ const ordre=pick([true,false]); return bsdQuestion(ordre?p[0]:p[1], ordre?p[1]:p[0]); }
+function genBaissesDix(){ return bsdCouple(pick(BS_PAIRES)); }
+function bsdSeance(n){
+  const vivier=BS_PAIRES.slice(), out=[];
+  while(out.length<n && vivier.length){ const p=vivier.splice(rand(0,vivier.length-1),1)[0]; out.push(bsdCouple(p)); }
+  return out;
+}
+async function startBaissesDix(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='bsd'; test.qId='baisses-successives-dix';
+  test.questions=bsdSeance(EVOL_NB);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent */
+  test.maxScore=test.questions.length;
+  show('bsd'); renderBsdTest();
+}
+/* L'ordre de saisie, et la liste que le contrôle relit : une case ajoutée
+   demain au rendu sans l'être ici sortirait de la navigation au clavier. */
+const BSD_CASES=['bsd10a','bsdPa','bsd1sa','bsd1sb','bsd1sr',
+                 'bsd10bm','bsd10b','bsdPbm','bsdPb','bsd2sa','bsd2sb','bsd2sr',
+                 'bsdFin','bsdPour','bsdPct'];
+function renderBsdTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('bsdqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagBsd').innerHTML=modeTagHTML();
+  $('bsdLiveScore').textContent=test.score;
+  $('bsdFeedback').textContent=''; $('bsdFeedback').className='mp-feedback';
+  $('bsdActions').innerHTML='<button class="btn btn-primary" onclick="checkBsdAnswer()">Vérifier</button>';
+  $('bsdPrompt').innerHTML=variante(BS_ENONCES,q)+' Pour le savoir, prends <b>100</b> comme valeur de départ, et passe par <b>10 %</b>.';
+  const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const ligneSub=(a,b,r,lblR)=>`<div class="pt-row">${dec(a,'la valeur de départ')}<span class="f-whole">−</span>${dec(b,'la baisse')}${fEq(dec(r,lblR))}</div>`;
+  const ligneDe=(txt,idBase,lblBase,id,lbl)=>`<div class="pt-row"><span class="f-whole">${txt}</span>${dec(idBase,lblBase)}<span class="f-whole">est</span>${dec(id,lbl)}</div>`;
+  $('bsdHost').innerHTML=numeros(
+    `<div class="pt-step"><div class="pt-lab">① On prend <b>100</b> au départ. Première baisse : ${q.P1} % de 100, en passant par 10 % — comme dans {diminuer-dix}</div>
+       <div class="pt-row"><span class="f-whole">10 % de 100 est</span>${dec('bsd10a','dix pour cent de 100')}</div>
+       <div class="pt-row"><span class="f-whole">donc : ${q.P1} % de 100 est</span>${dec('bsdPa',q.P1+' pour cent de 100')}</div>
+       <div class="pt-row"><span class="f-whole">donc la première baisse donne</span>${dec('bsd1sa','la valeur de départ')}<span class="f-whole">−</span>${dec('bsd1sb','la première baisse')}${fEq(dec('bsd1sr','la nouvelle valeur'))}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">② Deuxième baisse : ${q.P2} % du <b>résultat précédent</b>, en passant par 10 %</div>
+       ${ligneDe('10 % de','bsd10bm','la nouvelle valeur de départ','bsd10b','dix pour cent de la nouvelle valeur')}
+       ${ligneDe('donc : '+q.P2+' % de','bsdPbm','la nouvelle valeur de départ','bsdPb',q.P2+' pour cent de la nouvelle valeur')}
+       <div class="pt-row"><span class="f-whole">donc le résultat après la 2<sup>e</sup> baisse est</span>${dec('bsd2sa','la nouvelle valeur de départ')}<span class="f-whole">−</span>${dec('bsd2sb','la seconde baisse')}${fEq(dec('bsd2sr','la valeur finale'))}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">③ Bilan — ce qu’on a perdu « pour 100 », c’est le pourcentage : il n’y a plus rien à calculer</div>
+       <div class="pt-row"><span class="f-whole">la valeur est passée de 100 à</span>${dec('bsdFin','la valeur finale')}</div>
+       <div class="pt-row"><span class="f-whole">soit une baisse de</span>${dec('bsdPour','la baisse pour 100')}<span class="f-whole">pour 100, c’est-à-dire</span>${dec('bsdPct','la baisse globale en pourcentage')}<span class="f-whole">%</span></div></div>`);
+  const order=BSD_CASES.map(id=>$(id)).filter(Boolean);
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  order.forEach((el,i)=>{
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkBsdAnswer();} });
+  });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkBsdAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx], a=bsdAns(q);
+  const soutien=isSoutien();
+  const v=id=>{const e=$(id);return e?String(e.value==null?'':e.value).trim():'';};
+  const decEst=(id,n)=>{ const t=v(id); if(t==='') return false; const fr=parseDecToFrac(t); return !!fr && fr.n===n*fr.d; };
+  /* la soustraction n'est PAS commutative : « valeur de départ − baisse » se
+     juge dans l'ordre, chaque case contre sa valeur (essOrdre, la règle de la
+     méthode 2 du 2.5.4) */
+  const s1=essOrdre(['bsd1sa','bsd1sb'],[100,a.b1]);
+  const s2=essOrdre(['bsd2sa','bsd2sb'],[a.v1,a.b2]);
+  const simples=[['bsd10a',a.d10a],['bsdPa',a.b1],['bsd1sr',a.v1],['bsd10bm',a.v1],['bsd10b',a.d10b],['bsdPbm',a.v1],['bsdPb',a.b2],['bsd2sr',a.v2],['bsdFin',a.v2],['bsdPour',a.h],['bsdPct',a.h]];
+  if(live){
+    simples.forEach(p=>liveColorDec(p[0],p[1],1));
+    [['bsd1sa','bsd1sb'],['bsd2sa','bsd2sb']].forEach((p,k)=>{ const r=k?s2:s1;
+      p.forEach((id,i)=>{ const el=$(id); if(!el||el.disabled) return;
+        el.classList.remove('ok','bad'); if(v(id)==='') return;
+        el.classList.add(r.ok[i]?'ok':'bad'); }); });
+    return;
+  }
+  const oks=simples.map(p=>decEst(p[0],p[1]));
+  simples.forEach((p,i)=>marqueSaufVide(p[0],oks[i],soutien));
+  marqueSaufVide('bsd1sa',s1.ok[0],soutien); marqueSaufVide('bsd1sb',s1.ok[1],soutien);
+  marqueSaufVide('bsd2sa',s2.ok[0],soutien); marqueSaufVide('bsd2sb',s2.ok[1],soutien);
+  const allOk=oks.every(Boolean)&&s1.ok[0]&&s1.ok[1]&&s2.ok[0]&&s2.ok[1];
+  if(!allOk && soutien){ soutienAgain('bsdFeedback','bsdActions','checkBsdAnswer','bsdHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('bsdLiveScore').textContent=test.score;
+    $('bsdFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('bsdFeedback').className='mp-feedback good';
+  } else {
+    $('bsdFeedback').textContent=`Méthode : on part de 100. 10 % de 100 est 10, donc ${q.P1} % de 100 est ${a.b1}, et 100 − ${a.b1} = ${a.v1} ; puis 10 % de ${a.v1} est ${a.d10b}, donc ${q.P2} % de ${a.v1} est ${a.b2}, et ${a.v1} − ${a.b2} = ${a.v2}. On est passé de 100 à ${a.v2} : on a perdu ${a.h} pour 100, c’est-à-dire une baisse de ${a.h} %, et non ${q.P1} + ${q.P2} = ${q.P1+q.P2} % : les baisses ne s’additionnent pas.`;
+    $('bsdFeedback').className='mp-feedback bad';
+    simples.forEach(p=>corTrainDec(p[0],p[1]));
+    ['bsd1sa','bsd1sb'].forEach((id,i)=>{ if(!s1.ok[i]) corTrainDec(id,s1.reste.shift()); });
+    ['bsd2sa','bsd2sb'].forEach((id,i)=>{ if(!s2.ok[i]) corTrainDec(id,s2.reste.shift()); });
+  }
+  const given=v('bsdPct')===''?null:(v('bsdPct').replace('.', ',')+' %');
+  test.answers.push({...(ptsExo()||{}),q:`une baisse de ${q.P1} % suivie d'une baisse de ${q.P2} %, en partant de 100 et en passant par 10 %`,
+    answer:`${a.h} %`, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('bsdActions').innerHTML=`<button class="btn btn-primary" id="bsdNext" onclick="nextBsdQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('bsdNext').focus();
+}
+function nextBsdQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderBsdTest(); autoSave(); } else finishBaissesDix(); }
+async function finishBaissesDix(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'baisses-successives-dix',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
 /* ============ {evolutions-successives} (2.5.5) : deux évolutions de suite, le schéma de la fiche ============
    Demande de Turquet (septembre 2026) : « en première créer un exercice comme
    le pdf, avec deux évolutions successives, où chacune peut être une
@@ -17297,6 +17459,12 @@ Trois boîtes reliées par deux flèches : <b>[valeur initiale]</b> → <b>[vale
 Le coefficient <b>global</b>, celui qui va directement de la valeur initiale à la valeur finale, est le <b>PRODUIT</b> des deux coefficients — jamais leur somme, et jamais la somme des deux pourcentages, comme dans {hausses-successives} et {baisses-successives} : c’est la deuxième rangée du schéma. Par exemple, 1,2 × 0,7 = 0,84.<br>
 Pour retrouver le pourcentage d’évolution global, on retire 1 au coefficient global — la flèche « −1 » : 0,84 − 1 = −0,16, donc <b>× (1 − 0,16)</b>, une <b>diminution</b> de 16 %. Un coefficient global plus grand que 1 dit une <b>augmentation</b>, plus petit que 1 une <b>diminution</b>, comme dans {lire-coefficient} : le signe de la parenthèse se lit sur lui, et c’est ce mot-là que tu écris toi-même dans la phrase de conclusion.<br>
 Toutes les cases sont vides, même les deux pourcentages que l’énoncé donne déjà : c’est en les récrivant qu’on montre qu’on a compris le schéma.`;
+const RAP_BSD=`<b>Deux baisses de suite, en passant par 10 %</b><br>
+Deux baisses <b>ne s’additionnent pas</b> : la seconde porte sur la valeur <b>déjà diminuée</b>. La baisse globale ne dépend pas de la valeur de départ : on prend <b>100</b>, et on calcule chaque baisse <b>en passant par 10 %</b>, comme dans {diminuer-dix} — 10 % d’un nombre, c’est ce nombre divisé par 10, et 30 %, c’est 3 fois 10 %.<br>
+Exemple : baisser de 20 % puis de 40 %.<br>
+· 10 % de 100 est <b>10</b>, donc 20 % de 100 est <b>20</b> : la première baisse donne 100 − 20 = <b>80</b> ;<br>
+· 10 % de <b>80</b> est <b>8</b>, donc 40 % de 80 est <b>32</b> : la seconde baisse donne 80 − 32 = <b>48</b>.<br>
+On est parti de 100 et on arrive à 48 : on a perdu <b>52 pour 100</b>, c’est-à-dire une baisse globale de <b>52 %</b> — et non 20 + 40 = 60 %. C’est le même résultat qu’en {baisses-successives}, par l’autre chemin : là on multiplie deux coefficients (0,8 × 0,6 = 0,48), ici on suit une valeur.`;
 const RAP_CK=`<b>Reconnaître le coefficient multiplicateur</b><br>
 Trois situations, trois coefficients :<br>
 <b>Augmenter de P %</b> : \\(1+\\frac{P}{100}\\). Exemple : +30 % → 1 + 0,30 = <b>1,30</b>.<br>
@@ -17378,7 +17546,7 @@ Exemple : augmenter de 20 % puis baisser de 5 %.<br>
 <b>Méthode 2 — partir de 100</b>, comme dans {hausses-successives-cent} : la hausse pour 100 vaut \\(\\frac{20}{100}\\times 100=20\\), donc 100 + 20 = <b>120</b> ; la baisse pour <b>120</b> vaut \\(\\frac{5}{100}\\times 120=\\frac{600}{100}=6\\), donc 120 − 6 = <b>114</b>. On est passé de 100 à 114, <b>au-dessus de 100</b> : c’est une hausse de <b>14 pour 100</b>, c’est-à-dire <b>14 %</b>.<br>
 <b>Méthode 3 — en passant par 10 %</b>, comme dans {augmenter-dix} : on prend 100 au départ. 10 % de 100 est <b>10</b>, donc 20 % de 100 est <b>20</b>, et la première hausse donne 100 + 20 = <b>120</b>. Puis 10 % de 120 est <b>12</b>, donc 5 % de 120 est <b>6</b> (la moitié), et la baisse donne 120 − 6 = <b>114</b>. On est passé de 100 à 114 : une hausse de <b>14 %</b>. Pour 2 %, 4 %, 6 % ou 8 %, on passe par 1 % (10 % divisé par 10).<br>
 Piège classique : additionner les pourcentages — +20 % puis −5 %, ce n’est PAS +15 %. Et si le coefficient global est plus petit que 1 (ou la valeur finale sous 100), c’est une baisse, même si l’énoncé commence par une hausse.`;
-const RAPPELS_ID={ 'synthese-evolutions-successives':RAP_ESS, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'synthese-evolutions-successives':RAP_ESS, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -17433,6 +17601,7 @@ const QIA_SUGG={
   ac:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment reconnaître le coefficient d’une diminution ?","Comment passer d’un pourcentage à un coefficient ?"],
   ck:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment calculer le coefficient d’une augmentation ?","Comment calculer le coefficient d’une diminution ?"],
   evs:["Pourquoi n’additionne-t-on pas les deux pourcentages ?","Comment savoir si l’évolution globale est une augmentation ou une diminution ?","Pourquoi retire-t-on 1 au coefficient global pour trouver le pourcentage ?","Une hausse de 20 % suivie d’une baisse de 20 %, ça revient au départ ?"],
+  bsd:["Pourquoi a-t-on le droit de partir de 100 ?","Pourquoi 10 % d’un nombre, c’est ce nombre divisé par 10 ?","Sur quelle valeur porte la deuxième baisse ?","Pourquoi deux baisses de suite ne s’additionnent-elles pas ?"],
   bs:["Pourquoi deux baisses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième baisse ?","Comment relire un coefficient global en pourcentage de baisse ?"],
   dim:["Pourquoi une remise de 30 % revient à multiplier par 0,7 ?","C’est quoi, un coefficient multiplicateur ?","Après une remise de 25 %, que reste-t-il à payer ?","Quelle différence entre une remise et un rabais ?"],
   mp:["Comment fonctionne une retenue ?","Pourquoi commence-t-on par les unités ?","Comment vérifier un résultat de multiplication ?"],
@@ -17536,6 +17705,14 @@ function conseilCtxCourant(){
       +'Méthode actuellement choisie par l’élève : '+(q.meth==='coef'?'les coefficients':(q.meth==='cent'?'partir de 100':(q.meth==='dix'?'passer par 10 %':'aucune encore')))+'. Sens actuellement choisi : '+(q.choisi==null?'aucun':mot(q.choisi))+'. '
       +'Les évolutions ne s’additionnent pas, l’erreur classique étant de répondre '+sg(q.s1)+q.P1+' '+sg(q.s2)+' '+q.P2+' = '+(q.s1*q.P1+q.s2*q.P2)+' %. La seconde évolution porte sur la valeur DÉJÀ modifiée, jamais sur la valeur de départ. '
       +'Aucune valeur de départ n’est donnée : le résultat n’en dépend pas.';
+  } else if(k==='bsd' && q){
+    const a=bsdAns(q);
+    att='Réponses attendues, STRICTEMENT SECRÈTES : on part de 100, en passant par 10 %. Étape ① 10 % de 100 est 10, donc '+q.P1+' % de 100 est '+a.b1+', et la première baisse donne 100 − '+a.b1+' = '+a.v1+' ; '
+      +'étape ② 10 % de '+a.v1+' est '+a.d10b+', donc '+q.P2+' % de '+a.v1+' est '+a.b2+', et la seconde baisse donne '+a.v1+' − '+a.b2+' = '+a.v2+' ; '
+      +'étape ③ on est passé de 100 à '+a.v2+', soit une baisse de '+a.h+' pour 100, c’est-à-dire '+a.h+' %. '
+      +'Méthode enseignée : on CHOISIT 100 comme valeur de départ — la baisse globale n’en dépend pas —, on calcule chaque baisse en passant par 10 % (le nombre divisé par 10, puis multiplié par le bon facteur), comme dans {diminuer-dix}, et ce qu’on a perdu « pour 100 » EST le pourcentage. '
+      +'La seconde baisse porte sur la valeur DÉJÀ diminuée ('+a.v1+'), jamais sur 100 : c’est pourquoi les baisses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. '
+      +'C’est le même calcul qu’en {baisses-successives}, par l’autre chemin : là on multiplie deux coefficients, ici on suit une valeur.';
   } else if(k==='lc' && q){
     const mot=q.sens>0?'augmentation':'baisse';
     att='Réponses attendues, STRICTEMENT SECRÈTES : le coefficient '+q.coefStr+' correspond à une '+mot+' de '+q.P+' %. '
@@ -18003,7 +18180,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEvsTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEvsTest','renderBsdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

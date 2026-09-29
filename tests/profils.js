@@ -50,7 +50,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','synthese-evolutions-successives':'ess',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd','synthese-evolutions-successives':'ess',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -96,7 +96,7 @@ const RAPPELS_SECONDE = `(function(){
                'augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q',
                'synthese-pourcentages':'psyn','synthese-augmentations':'psyn','synthese-diminutions':'psyn','synthese-evolutions':'evb','evolutions-successives':'evs',
                'synthese-pourcentages-libre':'sal','synthese-augmentations-libre':'sal','synthese-diminutions-libre':'sal',
-               'baisses-successives':'bs','lire-coefficient':'lc','tableau-coefficients':'tc','hausses-successives':'hs','hausses-successives-cent':'hsc',
+               'baisses-successives':'bs','lire-coefficient':'lc','tableau-coefficients':'tc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd',
                'reconnaitre-coefficient':'ck','associer-coefficient':'ac',
                'calcul-mental':'cm','addition-soustraction':'asp','tables-multiplication':'tm','tables-multiplication-2':'tm',
                'multiplication-posee':'mp','fractions-decimales':'fracp','mult-decimaux':'md','mult-dec-un':'u',
@@ -497,7 +497,7 @@ module.exports = {
       conseil: true,
       /* {synthese-evolutions-successives} (2.5.4) n'existe qu'en Première :
          la Seconde dérive sa liste de KINDS_PREMIERE, on l'ajoute donc ICI. */
-      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()']]),
+      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()'], ['bsd','genBaissesDix()']]),
              prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;', psl: 'test.questions[0].choisi=0;' } },
       mlStatic: true,
     },
