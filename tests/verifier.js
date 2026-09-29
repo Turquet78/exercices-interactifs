@@ -4143,6 +4143,7 @@ function exercices(suite){
     jetonsSignePremier(w, P);
     variationsDerivee(w, P);
     signeDeriveeQcm(w, P);
+    convexiteTroisCourbes(w, P);
     suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
     etiquetteCourbeSeconde(w, P);
@@ -28382,6 +28383,185 @@ function signeDeriveeQcm(w, P){
     /* le contexte du modèle porte la clause de secret et la bonne lettre */
     pose(null);
     { const c=sdqConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/affirmation vraie : c/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec la bonne lettre'); }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Convexité : lire f, f′ et f″ sur trois courbes ----
+   La fiche « Exercice 2 / Exercice 3 » (demande de Turquet, septembre 2026) :
+   les courbes de f, de f′ et de f″, et un tableau à cinq lignes — signe de f″,
+   variation de f′ avec la VALEUR de son extremum, signe de f′, variation de
+   f, convexité de f. Les trois courbes sont celles d'UNE fonction connue en
+   fermé ; le contrôle ne fait confiance à rien de ce que la page range : il
+   relit les trois fonctions par DIFFÉRENCES FINIES — la dérivée numérique de f
+   doit être f′, celle de f′ doit être f″ —, retrouve les zéros de f″ et de f′
+   par changement de signe sur une grille fine, et compare chaque case du
+   tableau attendu (cvxTab) à ce que les courbes montrent, intervalle par
+   intervalle, jamais par les paramètres. La séance pose deux questions de
+   chaque famille (f′ s'annule une fois / jamais), la question ne range que
+   ses paramètres (des nombres : elle part en base), les nœuds sont des
+   entiers de [−4 ; 4], et la valeur de l'extremum se lit d'un coup d'œil
+   (un demi au plus, jamais 0). Puis les gestes, sur deux questions ÉPINGLÉES :
+   la copie juste vaut le point et compte ses 18 (ou 12) cases, la page pose
+   le 0 au bon nœud de chaque ligne de signes, la valeur de l'extremum
+   s'accepte avec le moins typographique comme avec le tiret et la virgule,
+   un signe faux ne rougit que lui, la case vide ne rougit jamais (verte, en
+   entraînement comme en soutien), le soutien ne verrouille pas et colore en
+   direct, la copie vide redemande, la case de la valeur SUIT son nœud quand
+   les flèches bougent, l'énoncé nomme le bon extremum (minimum / maximum), et
+   le contexte du modèle porte la clause de secret. */
+function convexiteTroisCourbes(w, P){
+  const nom='convexité : les trois courbes sont celles d\'une même fonction, et le tableau dit ce qu\'elles montrent';
+  const present = evaluer(w, "typeof startCvx==='function' && typeof cvxBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice de convexité sur trois courbes');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='convexite-trois-courbes';
+    const MOINS='\\u2212', H=1e-4;
+    const der=function(g,x){ return (g(x+H)-g(x-H))/(2*H); };
+    const sg=function(v){ return v>0?'+':MOINS; };
+    /* les zéros d'une fonction, par changement de signe sur une grille fine */
+    const zeros=function(g, a, b){ const z=[]; let prev=g(a);
+      for(let i=1;i<=Math.round((b-a)*100);i++){ const x=a+i/100, v=g(x);
+        if((prev<0&&v>0)||(prev>0&&v<0)||v===0){ if(!z.length||Math.abs(z[z.length-1]-x)>0.05) z.push(Math.round(x*100)/100); }
+        prev=v; }
+      return z; };
+    /* la SECONDE arithmétique : tout se relit sur les trois fonctions,
+       jamais par cvxTab ni par les paramètres */
+    const juge=function(q, ou){
+      const cles=Object.keys(q).filter(function(k){ return ['fam','s','k','d','x2','A','e'].indexOf(k)<0; });
+      if(cles.length) vus.push(ou+' : la question range autre chose que ses paramètres : '+cles.join(','));
+      if(Object.keys(q).some(function(k){ return typeof q[k]!=='number' && k!=='fam'; })) vus.push(ou+' : un paramètre qui n\\'est pas un nombre');
+      if(['A','B'].indexOf(q.fam)<0){ vus.push(ou+' : famille inconnue '+q.fam); return; }
+      const F=cvxFn(q), t=cvxTab(q), cases=cvxCases(q);
+      const lo=t.noeuds[0], hi=t.noeuds[t.noeuds.length-1];
+      if(t.noeuds.some(function(v){ return v!==Math.round(v) || Math.abs(v)>4; })) vus.push(ou+' : un nœud non entier ou hors de [−4 ; 4] : '+t.noeuds.join(','));
+      if(new Set(t.noeuds).size!==t.noeuds.length) vus.push(ou+' : deux nœuds confondus');
+      if(t.noeuds.length!==(q.fam==='A'?2:1)) vus.push(ou+' : '+t.noeuds.length+' nœud(s) pour la famille '+q.fam);
+      for(let j=1;j<t.noeuds.length;j++){ if(t.noeuds[j]<=t.noeuds[j-1]) vus.push(ou+' : nœuds dans le désordre'); }
+      /* f′ est la dérivée de f, f″ celle de f′ — sur toute la fenêtre du dessin */
+      for(let x=lo-4;x<=hi+4;x+=0.25){
+        const e1=Math.abs(der(F.f,x)-F.fp(x))/Math.max(1,Math.abs(F.fp(x)));
+        const e2=Math.abs(der(F.fp,x)-F.fpp(x))/Math.max(1,Math.abs(F.fpp(x)));
+        if(e1>1e-5){ vus.push(ou+' : la courbe de f′ n\\'est pas la dérivée de celle de f (x = '+x+')'); break; }
+        if(e2>1e-5){ vus.push(ou+' : la courbe de f″ n\\'est pas la dérivée de celle de f′ (x = '+x+')'); break; }
+      }
+      /* f″ s'annule au nœud attendu et nulle part ailleurs ; f′ au second nœud
+         (famille A) ou jamais (famille B) */
+      const z2=zeros(F.fpp, lo-4, hi+4), z1=zeros(F.fp, lo-4, hi+4);
+      if(z2.length!==1 || t.jE<0 || Math.abs(z2[0]-t.noeuds[t.jE])>0.02) vus.push(ou+' : f″ s\\'annule en '+z2.join(',')+' — le tableau pose son zéro au nœud '+t.jE);
+      if(q.fam==='A'){ if(z1.length!==1 || t.jZ<0 || Math.abs(z1[0]-t.noeuds[t.jZ])>0.02) vus.push(ou+' : f′ s\\'annule en '+z1.join(',')+' — le tableau pose son zéro au nœud '+t.jZ); }
+      else { if(z1.length) vus.push(ou+' : en famille B, f′ s\\'annule en '+z1.join(',')); if(t.jZ!==-1) vus.push(ou+' : un zéro de f′ posé en famille B'); }
+      /* chaque intervalle, en trois points : signe de f″, sens de f′, signe
+         de f′, sens de f, convexité */
+      const seps=[lo-2].concat(t.noeuds,[hi+2]);
+      const nI=t.noeuds.length+1;
+      [t.s2,t.a1,t.s1,t.a0,t.c].forEach(function(l,k){ if(l.length!==nI) vus.push(ou+' : la ligne '+k+' du tableau a '+l.length+' cases pour '+nI+' intervalles'); });
+      for(let i=0;i<seps.length-1;i++){
+        const a=seps[i], b=seps[i+1];
+        [0.2,0.5,0.8].forEach(function(r){ const x=a+(b-a)*r;
+          if(sg(F.fpp(x))!==t.s2[i]) vus.push(ou+' : signe de f″ faux sur l\\'intervalle '+i);
+          if(sg(der(F.fp,x))!==(t.a1[i]==='up'?'+':MOINS)) vus.push(ou+' : sens de f′ faux sur l\\'intervalle '+i);
+          if(sg(F.fp(x))!==t.s1[i]) vus.push(ou+' : signe de f′ faux sur l\\'intervalle '+i);
+          if(sg(der(F.f,x))!==(t.a0[i]==='up'?'+':MOINS)) vus.push(ou+' : sens de f faux sur l\\'intervalle '+i);
+          if((F.fpp(x)>0?'convexe':'concave')!==t.c[i]) vus.push(ou+' : convexité fausse sur l\\'intervalle '+i);
+        });
+      }
+      /* la valeur attendue de l'extremum de f′ est f′ au zéro de f″, c'est bien
+         un extremum, du nom que porte le tableau, et il se lit d'un coup d'œil */
+      const xE=t.noeuds[t.jE];
+      if(Math.abs(F.fp(xE)-t.E)>1e-9) vus.push(ou+' : la valeur attendue de l\\'extremum de f′ n\\'est pas f′ au zéro de f″');
+      const g=F.fp(xE-0.5), d=F.fp(xE+0.5);
+      const vrai=(g>t.E&&d>t.E)?'min':((g<t.E&&d<t.E)?'max':'aucun');
+      if(vrai!==t.extr) vus.push(ou+' : f′ admet un '+vrai+' au zéro de f″, le tableau dit '+t.extr);
+      if(t.E===0 || Math.abs(t.E*2-Math.round(t.E*2))>1e-9) vus.push(ou+' : extremum de f′ illisible sur un écran : '+t.E);
+      if(cases.length!==(q.fam==='A'?18:12)) vus.push(ou+' : '+cases.length+' cases au lieu de '+(q.fam==='A'?18:12));
+      if(new Set(cases.map(function(c){ return c.id; })).size!==cases.length) vus.push(ou+' : deux cases portent le même identifiant');
+    };
+    const fams={A:0,B:0};
+    for(let n=0;n<120 && !vus.length;n++){
+      const qs=cvxBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      const nA=qs.filter(function(q){ return q.fam==='A'; }).length;
+      if(nA!==2) vus.push('la séance pose '+nA+' question(s) de la famille A : chaque visage doit sortir deux fois');
+      if(qs[0].fam==='A') fams.A++; else fams.B++;
+      if(new Set(qs.map(cleQuestion)).size!==4) vus.push('deux questions de la séance reprennent les mêmes données');
+      qs.forEach(function(q,i){ juge(q,'question '+(i+1)); });
+    }
+    if(!vus.length && (!fams.A || !fams.B)) vus.push('la première question est toujours de la même famille');
+
+    /* ---- les gestes, sur deux questions FIXES ----
+       Q0 (famille A) : f″ nulle en 0, f′ nulle en 1, minimum de f′ = −1 ;
+       Q1 (famille B) : f″ nulle en 2, f′ ne s'annule jamais, maximum −1,5. */
+    const Q0={fam:'A',s:1,k:1,d:1,x2:0,A:1};
+    const Q1={fam:'B',s:-1,k:-1,d:2,x2:2,A:2,e:1.5};
+    const JUSTE={'cvx-x0':'0','cvx-x1':'1','cvx-s2-0':MOINS,'cvx-s2-1':'+','cvx-s2-2':'+','cvx-a1-0':'down','cvx-a1-1':'up','cvx-a1-2':'up','cvx-e':MOINS+'1',
+      'cvx-s1-0':MOINS,'cvx-s1-1':MOINS,'cvx-s1-2':'+','cvx-a0-0':'down','cvx-a0-1':'down','cvx-a0-2':'up','cvx-c-0':'concave','cvx-c-1':'convexe','cvx-c-2':'convexe'};
+    const JUSTE1={'cvx-x0':'2','cvx-s2-0':'+','cvx-s2-1':MOINS,'cvx-a1-0':'up','cvx-a1-1':'down','cvx-e':'-1,5','cvx-s1-0':MOINS,'cvx-s1-1':MOINS,'cvx-a0-0':'down','cvx-a0-1':'down','cvx-c-0':'convexe','cvx-c-1':'concave'};
+    function pose(valeurs, mode, q){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'cvx', questions:[JSON.parse(JSON.stringify(q||Q0))], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('cvx'); renderCvx();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkCvx();
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      return { score:test.score, fb:document.getElementById('cvxFeedback').textContent, cls:cls, cases:(test.answers[0]||{}).cases,
+        rouges:[].slice.call(document.querySelectorAll('#scr-cvx .bad')).filter(function(e){ return /^(INPUT|SELECT)$/.test(e.tagName); }).map(function(e){ return e.id; }) };
+    }
+    const zerosPoses=function(){ return [].slice.call(document.querySelectorAll('#cvxTable tr')).map(function(tr){
+      return [].slice.call(tr.querySelectorAll('.ef-node')).map(function(td){ return td.textContent.trim(); }).join('|'); }); };
+    let r=pose(JUSTE);
+    if(r.score!==1) vus.push('la copie juste (A) ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==18) vus.push('la copie juste (A) compte '+r.cases+' cases au lieu de 18');
+    if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    if(!/minimum de/.test(document.getElementById('cvxPrompt').textContent)) vus.push('l\\'énoncé de Q0 ne demande pas le MINIMUM de f′');
+    { const z=zerosPoses(); if(z[1]!=='0|' || z[3]!=='|0' || z[5]!=='|') vus.push('les 0 posés par la page ne sont pas aux bons nœuds : '+JSON.stringify(z)); }
+    r=pose(JUSTE1, 'train', Q1);
+    if(r.score!==1) vus.push('la copie juste (B) ne vaut pas le point ('+r.fb+') — « -1,5 » avec tiret et virgule doit passer');
+    if(r.cases!==12) vus.push('la copie juste (B) compte '+r.cases+' cases au lieu de 12');
+    if(!/maximum de/.test(document.getElementById('cvxPrompt').textContent)) vus.push('l\\'énoncé de Q1 ne demande pas le MAXIMUM de f′');
+    { const z=zerosPoses(); if(z[1]!=='0' || z[3]!=='' || z[5]!=='') vus.push('en famille B, un 0 est posé là où f′ ne s\\'annule pas : '+JSON.stringify(z)); }
+    /* un signe faux, une valeur fausse : chacun ne rougit que lui, la voisine juste est bleue */
+    r=pose(Object.assign({},JUSTE,{'cvx-s2-0':'+'}));
+    if(r.score!==0) vus.push('un signe de f″ faux vaut encore le point');
+    if(r.rouges.join(',')!=='cvx-s2-0') vus.push('un signe faux rougit autre chose que lui-même : '+r.rouges.join(','));
+    if(!/\\bok\\b/.test(r.cls('cvx-s2-1'))) vus.push('le signe juste à côté d\\'un signe faux n\\'est pas bleu');
+    r=pose(Object.assign({},JUSTE,{'cvx-e':'1'}));
+    if(r.rouges.join(',')!=='cvx-e') vus.push('la valeur de l\\'extremum au mauvais signe ne rougit pas seule : '+r.rouges.join(','));
+    { const b=document.getElementById('cvx-e').nextElementSibling;
+      if(!b || !/mf-cor/.test(b.className) || b.textContent!==MOINS+'1') vus.push('la bonne valeur de l\\'extremum ne s\\'affiche pas à côté de la case fausse');
+      else if(b.style.position!=='absolute') vus.push('le badge de la valeur n\\'est pas calé sur sa case (il s\\'empilerait au coin du tableau)'); }
+    /* la case vide ne rougit jamais, en entraînement comme en soutien */
+    r=pose({'cvx-x0':'0'});
+    if(r.rouges.length) vus.push('en entraînement, une case vide rougit : '+r.rouges.join(','));
+    if(!/\\bsol\\b/.test(r.cls('cvx-e')) || document.getElementById('cvx-e').value!==MOINS+'1') vus.push('la valeur laissée vide ne reçoit pas la correction (sol)');
+    if(!/\\bsol\\b/.test(r.cls('cvx-a1-0'))) vus.push('la flèche laissée vide ne reçoit pas la correction (sol)');
+    r=pose({'cvx-x0':'0','cvx-c-0':'convexe'},'soutien');
+    if(r.rouges.join(',')!=='cvx-c-0') vus.push('en soutien, autre chose que la convexité fausse rougit : '+r.rouges.join(','));
+    if(!/Revérifier/.test(document.getElementById('cvxActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(test.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    if(!document.getElementById('cvx-x0').disabled) vus.push('en soutien, la case juste n\\'est pas verrouillée');
+    pose(null,'soutien');
+    { const s0=document.getElementById('cvx-s1-0'); s0.value='+'; s0.dispatchEvent(new Event('change'));
+      if(!/\\bbad\\b/.test(s0.className)) vus.push('en soutien, un signe faux ne se colore pas en direct');
+      const e=document.getElementById('cvx-e'); e.value='-1'; e.dispatchEvent(new Event('input'));
+      if(!/\\bok\\b/.test(e.className)) vus.push('en soutien, la valeur juste ne se colore pas en direct (« -1 » au tiret)'); }
+    r=pose(null);
+    if(!/Complète au moins une case/.test(r.fb)) vus.push('une copie vide devrait demander de compléter, pas juger');
+    /* la case de la valeur SUIT son nœud : f′ décroît puis croît, le nœud
+       descend au bas de l'escalier, la case avec lui */
+    pose(null);
+    { document.getElementById('cvx-a1-0').value='down'; document.getElementById('cvx-a1-1').value='up'; cvxArrowChange();
+      const top=parseFloat(document.getElementById('cvx-e').style.top);
+      if(Math.abs(top-EF_B)>0.5) vus.push('la case de la valeur ne suit pas son nœud (top '+top+' au lieu de '+EF_B+')');
+      if(!document.querySelector('#cvx-ov1 line') || !document.querySelector('#cvx-ov0 circle')) vus.push('les deux escaliers ne se dessinent pas'); }
+    /* le contexte du modèle porte la clause de secret et les réponses */
+    pose(null);
+    { const c=cvxConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/extremum \\u22121 en 0/.test(c) || !/colonnes : 0 ; 1/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec les réponses'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
