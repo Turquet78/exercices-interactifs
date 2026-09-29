@@ -4758,7 +4758,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=239;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=240;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -18814,12 +18814,18 @@ function genFrac(level){
    motif de tmNbDevoir), tous les niveaux tirent à cette taille, et la coupe
    générique n'a plus rien à couper (length <= n). Le seuil de passage SUIT :
    « 4 sur 5 » n'a jamais été 80 %, c'est UNE erreur permise — max(1, n−1).
-   Une valeur hors du format normal (1..5) retombe sur 5 : on ne sait que
-   réduire, et un réglage bricolé dans le JSON ne fabrique pas de séance
-   infaisable. Hors devoir, dmReglageExo() rend null : rien ne change. */
+   Une valeur hors de la plage de l'éditeur (1..DM_NBQ_MAX) retombe sur 5 :
+   un réglage bricolé dans le JSON ne fabrique pas de séance infaisable. La
+   plage s'arrêtait à 5 quand le réglage ne savait que réduire — mais
+   l'éditeur proposait déjà jusqu'à 10, et un professeur qui cochait 8 lisait
+   « Pour ce devoir : 8 questions » devant un parcours qui en posait 5 par
+   niveau ; le contrôle du parcours, réglé au plafond de l'éditeur, l'a
+   montré en septembre 2026 (le jour où la Première est montée à 20). La
+   plage est celle de l'éditeur, chaque niveau tire à cette taille et le
+   seuil suit. Hors devoir, dmReglageExo() rend null : rien ne change. */
 function fracpNbDevoir(){
   const ex=dmReglageExo(); const n=ex?parseInt(ex.nbQ,10):NaN;
-  return (Number.isFinite(n)&&n>=1&&n<=5)?n:5;
+  return (Number.isFinite(n)&&n>=1&&n<=DM_NBQ_MAX)?n:5;
 }
 async function startFracParcours(){
   if(!currentEleve){ accueil(); return; }

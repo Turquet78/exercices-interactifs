@@ -282,6 +282,58 @@ longueur — comme le 4.1.7 libre, corrigé du même geste. C'est exactement ce
 que le bord dynamique existe pour voir : une constante peut se cacher
 AILLEURS que dans l'appel à `distinctes()`.
 
+**Puis la Première a suivi, et son éditeur monte à 20.** Demande de Turquet
+(septembre 2026) : « en Première, quand je crée une fiche de travail, je veux
+pouvoir monter à 20 questions par exercice ». Monter la liste de l'éditeur ne
+suffisait pas : la Première ne savait que RÉDUIRE, et un professeur qui aurait
+coché 20 devant un tirage de 3 aurait lu « Pour ce devoir : 20 questions » sur
+la carte pendant que l'élève en faisait 3 — le mensonge du 4.1.8 de la Seconde,
+à plus grande échelle. Le geste de la Seconde s'est donc porté tel quel :
+`DM_NBQ_MAX` (20) et `dmNbQuestions(defaut)` à côté de `dmReglageExo()`, et
+chaque tirage principal par `distinctes()` le lit — trente-deux appels, plus
+les fabriques à taille (`tirageAddSub`, `genFPSerie`, `hscSeance`,
+`essSeance` deux fois, `bsdSeance`, les deux boucles des hausses et des
+baisses successives). Les deux PLANS du 2.1.7 (`startPctSynthese` et sa
+version libre) ont la taille réglée et leur index tourne modulo la longueur
+— le défaut que le bord dynamique de la Seconde avait attrapé à sa première
+exécution, corrigé ici avant qu'il ne se montre. La synthèse générale libre, qui réunit deux moteurs,
+partage la séance réglée entre eux : la moitié haute aux pourcentages, l'autre
+aux évolutions (6 = 3 + 3). Les viviers tiennent le plafond : 25 paires de
+hausses, 32 de baisses. Le barème suivait déjà : chaque démarreur pose
+`test.maxScore=test.questions.length` APRÈS son tirage. **Une seule
+constante** tient la liste de l'éditeur (`Array.from({length:DM_NBQ_MAX})`),
+son setter (`dmSetNbQ`) et le tirage — deux endroits reliés, pas trois qu'on
+oublie. **Le parcours du 1.6 lit la même plage** : `fracpNbDevoir()` allait de
+1 à 5 parce que le réglage ne savait que réduire ; il va maintenant jusqu'à
+`DM_NBQ_MAX`, chaque niveau tire à cette taille et le seuil suit — une erreur
+permise, `max(1, n−1)`. Cinquante et un exercices s'allongent ; cinq gardent
+leur format, nommés à chaque exécution : les deux tables (réglage propre),
+{associer-coefficient} et {reconnaitre-coefficient} (forme fixe, une question
+par pourcentage ou par famille) et {somme-fractions}.
+**Le contrôle existant s'est mis en marche tout seul** : `reglageAllonge`
+cessait d'être « non applicable » dès que `dmNbQuestions` existait, et ses
+deux bords ont mesuré la page (le profil nomme `allonge` : le témoin et les
+hausses successives, une fabrique à boucle). **Trois bords de plus**, dans le
+contrôle des réglages : le profil peut EXIGER le plafond (`nbQMax: 20` — la
+demande elle-même devient un contrôle), le setter accepte `DM_NBQ_MAX` et
+refuse `DM_NBQ_MAX + 1`, la liste rendue par `renderDmEditor()` propose
+exactement `1..DM_NBQ_MAX`, et le témoin réglé au plafond pose vingt questions
+avec un barème de vingt ; et dans le contrôle du parcours, réglé au plafond,
+chaque niveau en tire vingt et le seuil vaut dix-neuf. Quatre sabotages,
+chacun rougissant en nommant son défaut : `DM_NBQ_MAX` ramené à 10 (« l'éditeur
+monte à 10 questions au lieu de 20 »), la liste recodée en dur `1..10` devant
+une constante à 20 (« la liste propose 1..10 au lieu de 1..20 »), la boucle
+des hausses successives rendue à `EVOL_NB` (« réglé à 5 questions, la séance
+en garde 3 »), et la plage du parcours ramenée à 5 (« nbQ=20 : le parcours
+donne 5 questions / seuil 4 »). **Et le bord du parcours a rougi en Seconde
+avant tout sabotage** : son éditeur proposait 1..10 depuis août, mais son
+`fracpNbDevoir()` s'arrêtait à 5 — un professeur qui cochait 8 lisait « Pour
+ce devoir : 8 questions » devant un parcours qui en posait 5 par niveau. La
+plage du parcours de la Seconde est maintenant celle de son éditeur (10),
+même geste, une ligne. La Seconde garde son plafond de 10 et la Terminale sa
+liste en dur : la demande ne portait que sur la Première, et l'une comme
+l'autre passent au 20 par le même geste le jour où il sera demandé.
+
 **Et les notes DÉJÀ enregistrées se réparent — celles qu'on peut PROUVER.**
 Demande de Turquet (septembre 2026) : « peux-tu corriger les notes des élèves
 en Seconde sur la fiche 3 ». `supabase/corriger-notes-coupe.sql` se colle dans
