@@ -30,7 +30,7 @@ const KINDS_PREMIERE = [
   ['augq','genAugTaux()'], ['dim','genDim()'], ['mp','genMultPosee()'],
   ['md','genMultDec()'], ['u','genU()'], ['fp','genFP()'],
   ['ag2','genAugAdd()'], ['ag2q','genDimTauxSub()'], ['syn','genSyn()'],
-  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'], ['hsc','genHaussesCent()'],
+  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'], ['hsc','genHaussesCent()'], ['bsd','genBaissesDix()'],
   ['psl','genPctRes()'], ['ac','genAC()'],
 ];
 
@@ -50,7 +50,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','synthese-evolutions-successives':'ess',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd','synthese-evolutions-successives':'ess',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -96,7 +96,7 @@ const RAPPELS_SECONDE = `(function(){
                'augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q',
                'synthese-pourcentages':'psyn','synthese-augmentations':'psyn','synthese-diminutions':'psyn','synthese-evolutions':'evb','evolutions-successives':'evs',
                'synthese-pourcentages-libre':'sal','synthese-augmentations-libre':'sal','synthese-diminutions-libre':'sal',
-               'baisses-successives':'bs','lire-coefficient':'lc','tableau-coefficients':'tc','hausses-successives':'hs','hausses-successives-cent':'hsc',
+               'baisses-successives':'bs','lire-coefficient':'lc','tableau-coefficients':'tc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd',
                'reconnaitre-coefficient':'ck','associer-coefficient':'ac',
                'calcul-mental':'cm','addition-soustraction':'asp','tables-multiplication':'tm','tables-multiplication-2':'tm',
                'multiplication-posee':'mp','fractions-decimales':'fracp','mult-decimaux':'md','mult-dec-un':'u',
