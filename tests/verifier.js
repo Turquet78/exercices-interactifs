@@ -4168,6 +4168,7 @@ function exercices(suite){
     syntheseToutesFamillesRedigee(w, P);
     syntheseDimLibreDix(w, P);
     syntheseEvolutionsLibre(w, P);
+    syntheseGeneraleLibre(w, P);
     verificationAvecPropositions(w, P);
     teteCollee(w, P);
     poseSuitLEleve(w, P);
@@ -4457,7 +4458,7 @@ function evolutionsRedigeesClique(w, apres){
   const present = evaluer(w, "typeof checkEsl==='function' && typeof eslJuge==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas les évolutions successives rédigées');
-    return jugeArithmetiqueClique(w, apres);
+    return syntheseGeneraleCliquee(w, apres);
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -4556,6 +4557,117 @@ function evolutionsRedigeesClique(w, apres){
     const notes=(window.__faux.tables['resultats_1ere']||[]).filter(function(r){ return r.details && r.details.test===ID; });
     if(!ins.length || !notes.length) vus.push('la fin de séance n\\'enregistre pas la note sous « '+ID+' » ('+ins.length+' écriture(s), '+notes.length+' note(s))');
     else if(notes[notes.length-1].score!==1 || notes[notes.length-1].total!==1) vus.push('la note enregistrée n\\'est pas 1/1 : '+JSON.stringify({score:notes[notes.length-1].score,total:notes[notes.length-1].total}));
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    syntheseGeneraleCliquee(w, apres);
+  });
+}
+/* ---- La synthèse générale rédigée, CLIQUÉE : les juges d'origine, l'enchaînement
+   des deux écrans, la note sous SON identifiant (Première, 2.5.7) ----------
+   « On vérifiera les rédactions exactement comme le 2.5.2 et le 2.5.6 »
+   (Turquet, septembre 2026). La source dit que la synthèse ne se donne aucun
+   juge ; il reste à voir que la page FAIT ce qu'elle dit. On arme une séance
+   de deux questions — une du 2.5.2 (une hausse, la valeur finale), une du
+   2.5.6 (+20 % puis −5 %) — sous un modèle stubbé qui SE TROMPE toujours, et
+   on clique. Six bords : la justification du 2.5.2 est jugée par checkSal (le
+   juge prime : le point, la couleur, le verrou) ; « Question suivante »
+   passe à l'écran du 2.5.6, déverrouillé ; la rédaction du 2.5.6 est jugée
+   par checkEsl ; « Voir mes résultats » enregistre 2/2 sous
+   « synthese-generale-libre », et RIEN sous les identifiants des deux
+   exercices d'origine ; en SOUTIEN, une copie fausse du 2.5.2 rouvre la
+   feuille (« Revérifier »), comme au 2.5.2 ; et en ENTRAÎNEMENT, une copie
+   fausse du 2.5.6 écrit le corrigé en vert, comme au 2.5.6. */
+function syntheseGeneraleCliquee(w, apres){
+  const nom = 'la synthèse générale rédigée, cliquée : les juges du 2.5.2 et du 2.5.6, les deux écrans enchaînés, la note sous son identifiant';
+  const present = evaluer(w, "typeof startSgl==='function' && typeof checkSal==='function' && typeof checkEsl==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas la synthèse générale rédigée');
+    return jugeArithmetiqueClique(w, apres);
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[]; const ID='synthese-generale-libre';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null; currentTestId=ID;
+    const feuille=function(texte){ return { lire:function(){ return texte; },
+      lignes:[{mf:{getValue:function(){ return 'x'; },focus:function(){},setValue:function(){},executeCommand:function(){},classList:{add:function(){},remove:function(){},contains:function(){ return false; }}}}],
+      verrouiller:function(){ this.verrou=true; } }; };
+    /* le modèle SE TROMPE toujours : accepte le faux, refuse le juste — le juge doit primer */
+    let envoye=null;
+    sb.functions={ invoke:async function(nom, opts){ envoye=(opts&&opts.body)||null;
+      const j=/VERDICT DE LA PAGE[^\\n]*correct=(true|false)/.exec(String(envoye&&envoye.attendu||''));
+      return { data:{ correct: j ? (j[1]!=='true') : false, feedback:'Retour du modèle stubbé.' } }; } };
+    const ecran=function(){ const on=document.querySelector('section.screen.on'); return on?on.id:'(aucun)'; };
+    const couleur=function(id){ const c=(document.getElementById(id)||{}).className||'';
+      return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
+    const bouton=function(id){ return String((document.getElementById(id)||{}).textContent||'').trim(); };
+    function armer(mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const qS=genSyn('aug','fin'); qS.moteur='sal'; qS.mots=true;
+      const qE=essQuestion(1,20,-1,5); delete qE.meth; delete qE.choisi; qE.moteur='esl';
+      Object.assign(test,{kind:'sgl', qId:ID, questions:[qS,qE], idx:0, score:0, answers:[], startTime:Date.now(),
+        locked:false, salBusy:false, eslBusy:false, maxScore:2});
+      renderSgl(); envoye=null;
+      return { qS:qS, qE:qE };
+    }
+
+    /* 1. la question du 2.5.2 : jugée par checkSal, le juge prime */
+    let Q=armer('train');
+    if(ecran()!=='scr-sal') vus.push('la séance ne s\\'ouvre pas sur l\\'écran du 2.5.2 : « '+ecran()+' »');
+    Q.qS.choisi=Q.qS.bon; const c=salCouple(Q.qS);
+    salFeuille=feuille(c.coefStr+' × '+c.N+' = '+c.finStr);
+    await checkSal();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true) vus.push('la justification du 2.5.2 n\\'est pas jugée comme au 2.5.2 (le juge devait primer sur le modèle) : score '+test.score);
+    if(couleur('salFeedback')!=='vert') vus.push('la justification juste du 2.5.2 est peinte « '+couleur('salFeedback')+' »');
+    if(!envoye || envoye.action!=='verif' || String(envoye.attendu||'').indexOf('VERDICT DE LA PAGE')<0) vus.push('la copie du 2.5.2 ne part pas au modèle avec le verdict du juge');
+    if(!test.locked || !salFeuille.verrou) vus.push('après une justification juste, l\\'écran du 2.5.2 n\\'est pas verrouillé');
+    if(!/suivante/i.test(bouton('salActions'))) vus.push('après le verdict du 2.5.2, le bouton n\\'est pas « Question suivante » : « '+bouton('salActions')+' »');
+
+    /* 2. « Question suivante » : l'écran du 2.5.6, déverrouillé */
+    const b1=document.querySelector('#salActions .btn-primary'); if(b1) b1.click();
+    if(test.idx!==1) vus.push('« Question suivante » ne passe pas à la question du 2.5.6 : idx '+test.idx);
+    if(ecran()!=='scr-esl') vus.push('la question du 2.5.6 ne s\\'affiche pas sur l\\'écran du 2.5.6 : « '+ecran()+' »');
+    if(test.locked) vus.push('l\\'écran du 2.5.6 naît verrouillé');
+    if(String((document.getElementById('eslIdx')||{}).textContent||'').indexOf('2 / 2')<0) vus.push('le compteur du 2.5.6 ne dit pas « 2 / 2 » : « '+(document.getElementById('eslIdx')||{}).textContent+' »');
+
+    /* 3. la question du 2.5.6 : jugée par checkEsl */
+    eslFeuille=feuille('120\\n5 % de 120 est 6\\n120 − 6 = 114\\nhausse de 14 %'); envoye=null;
+    await checkEsl();
+    if(test.score!==2 || test.answers.length!==2 || test.answers[1].correct!==true) vus.push('la rédaction du 2.5.6 n\\'est pas jugée comme au 2.5.6 : score '+test.score);
+    if(couleur('eslFeedback')!=='vert') vus.push('la rédaction juste du 2.5.6 est peinte « '+couleur('eslFeedback')+' »');
+    if(!envoye || String(envoye.attendu||'').indexOf('TROIS MÉTHODES')<0) vus.push('la copie du 2.5.6 ne part pas au modèle avec la règle du 2.5.6');
+    if(!/résultats/i.test(bouton('eslActions'))) vus.push('sur la dernière question, le bouton n\\'est pas « Voir mes résultats » : « '+bouton('eslActions')+' »');
+
+    /* 4. la fin de séance : 2/2 sous SON identifiant, rien sous ceux d'origine */
+    window.__faux.journal.length=0;
+    const notes=function(id){ return (window.__faux.tables['resultats_1ere']||[]).filter(function(r){ return r.details && !r.details.state && !r.details.partiel && r.details.test===id; }); };   /* les notes, pas les brouillons de pause */
+    const avant=notes(ID).length;
+    const b2=document.querySelector('#eslActions .btn-primary'); if(b2) b2.click();
+    for(let i=0;i<100 && notes(ID).length===avant;i++) await new Promise(function(r){ setTimeout(r,20); });
+    const n=notes(ID);
+    if(n.length===avant) vus.push('« Voir mes résultats » n\\'enregistre pas la note sous « '+ID+' »');
+    else if(n[n.length-1].score!==2 || n[n.length-1].total!==2) vus.push('la note enregistrée n\\'est pas 2/2 : '+JSON.stringify({score:n[n.length-1].score,total:n[n.length-1].total}));
+    if(notes('synthese-pourcentages-libre').length || notes('synthese-evolutions-successives-libre').length) vus.push('une note part sous l\\'identifiant d\\'un exercice d\\'origine');
+    if(ecran()!=='scr-results') vus.push('la fin de séance ne montre pas les résultats : « '+ecran()+' »');
+
+    /* 5. en soutien, une copie fausse du 2.5.2 rouvre la feuille — comme au 2.5.2 */
+    Q=armer('soutien'); Q.qS.choisi=Q.qS.bon;
+    salFeuille=feuille('1 + 1 = 3');
+    await checkSal();
+    if(test.locked || salFeuille.verrou) vus.push('en soutien, une justification fausse du 2.5.2 verrouille l\\'écran');
+    if(!/Revérifier/.test(bouton('salActions'))) vus.push('en soutien, « Revérifier » n\\'est pas proposé sur le 2.5.2 : « '+bouton('salActions')+' »');
+    if(test.answers.length) vus.push('en soutien, une copie fausse du 2.5.2 est déjà comptée');
+
+    /* 6. en entraînement, une copie fausse du 2.5.6 écrit le corrigé — comme au 2.5.6 */
+    Q=armer('train'); test.idx=1; renderSgl();
+    eslFeuille=feuille('1,2 × 0,95 = 1,14\\nhausse de 15 %');
+    await checkEsl();
+    if(test.score!==0 || !test.locked) vus.push('en entraînement, une rédaction fausse du 2.5.6 ne verrouille pas, ou compte');
+    const cor=document.querySelector('#eslFeedback .esl-cor');
+    if(!cor || cor.textContent.indexOf('hausse de 14 %')<0) vus.push('en entraînement, le corrigé du 2.5.6 n\\'est pas écrit sous le verdict');
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
@@ -9028,6 +9140,198 @@ function syntheseEvolutionsLibre(w, P){
       : texte('renderEsl').indexOf('salEspaces') < 0 ? 'la feuille ne passe plus par salEspaces (l’espace ne sortirait plus d’une fraction)'
       : texte('eslJuge').indexOf('essAns') < 0 ? 'eslJuge ne lit plus essAns'
       : 'le 2.5.6 s’est donné un vivier ou des énoncés à lui');
+}
+/* {synthese-generale-libre} (2.5.7) — la synthèse RÉDIGÉE des deux familles
+   (demande de Turquet, septembre 2026 : « un exercice de synthèse qui demande
+   de rédiger à l'élève, on utilisera le clavier virtuel du 2.3.13, une
+   synthèse qui contiendra les énoncés du 2.5.2 et du 2.5.6, on vérifiera les
+   rédactions exactement comme le 2.5.2 et le 2.5.6 »). Rien n'est neuf que le
+   tirage et l'aiguillage : chaque question porte son moteur (q.moteur), et
+   c'est renderSal/checkSal ou renderEsl/checkEsl qui la montrent et la
+   jugent. Sept bords, et n'en tenir qu'un ne tient rien :
+     · le TIRAGE : 2 × EVOL_NB questions, autant de chaque moteur ; celles du
+       2.5.2 sont des questions de genSyn (les trois inconnues une fois
+       chacune, les quatre propositions), avec q.mots et SANS q.dix — le juge
+       du 2.5.2 n'accepte pas la méthode des 10 % ; celles du 2.5.6 portent
+       exactement ses six champs plus le moteur, les trois formes, les paires
+       de HS_PAIRES ; et l'ordre est MÉLANGÉ ;
+     · l'ÉCRAN de chaque question est celui de son exercice d'origine, avec la
+       feuille de RÉDACTION du 2.3.13 sur les deux (mf-mots, la liste blanche,
+       l'espace, les lignes ajoutées), le clavier B qui reconnaît les deux, le
+       bouton « Vérifier » qui appelle checkSal ou checkEsl, les quatre
+       propositions du 2.5.2, l'énoncé du 2.5.6 ;
+     · l'ENCHAÎNEMENT : « Question suivante » (nextSal comme nextEsl) passe à
+       l'écran du moteur suivant, et la dernière clôt par finishSgl ;
+     · les JUGES sont ceux d'origine : la SOURCE le dit (renderSgl appelle
+       renderSal et renderEsl, startSgl tire par genSyn et essSeance, aucune
+       fonction sgl* de juge, de règle ou d'énoncé), et l'exécution aussi (le
+       verdict de salJuge sur une question de la synthèse est celui du 2.5.2,
+       q.mots retiré ; une ligne des 10 % y reste inconnue) ;
+     · l'IDENTITÉ : 2.5.7, le 2.5.2 et le 2.5.6 gardent leur numéro,
+       « Recommencer », la reprise, le rappel (les deux d'origine réunis, et
+       la feuille du 2.3.13 nommée), les questions à l'IA, la description, le
+       contexte de l'aide qui suit le moteur de la question ;
+     · la note part sous SON identifiant (le contrôle des fins de test le
+       lit dans la source ; la chaîne séquentielle le clique) ;
+     · le 2.5.2 et le 2.5.6 NE CHANGENT PAS : le 2.5.2 garde sa feuille de
+       calcul (pas de q.mots, pas de mf-mots), le 2.5.6 ses six champs. */
+function syntheseGeneraleLibre(w, P){
+  const nom = 'la synthèse générale rédigée : les énoncés du 2.5.2 et du 2.5.6 mélangés, la feuille du 2.3.13, les juges d’origine, identité';
+  const present = evaluer(w, "typeof startSgl==='function' && typeof renderSgl==='function' && typeof startSynLibre==='function' && typeof startEsl==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas la synthèse générale rédigée');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[]; const ID='synthese-generale-libre', NB=${JSON.stringify(P.nbQuestionsEvolutions||3)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId=ID;
+    const espLatex=function(v){ v=String(v||''); return v.length>0 && (v==='~' || (v.charCodeAt(0)===92 && v.length===2 && ',;: '.indexOf(v.charAt(1))>=0)); };
+    const ecran=function(){ const on=document.querySelector('section.screen.on'); return on?on.id:'(aucun)'; };
+
+    /* ---- 1. le TIRAGE ---- */
+    const premiers={}, ordres={};
+    for(let t=0;t<30 && !vus.length;t++){
+      startSgl();
+      if(test.qId!==ID){ vus.push('le démarreur ne pose pas son identité : « '+test.qId+' »'); break; }
+      if(test.kind!=='sgl'){ vus.push('le démarreur ne pose pas son kind : « '+test.kind+' »'); break; }
+      if(!Array.isArray(test.questions) || test.questions.length!==2*NB){ vus.push('tirage '+t+' : '+(test.questions||[]).length+' questions au lieu de '+(2*NB)); break; }
+      if(test.maxScore!==2*NB) vus.push('tirage '+t+' : le barème est '+test.maxScore+' au lieu de '+(2*NB)+' (un point par question)');
+      const sal=test.questions.filter(function(q){ return q.moteur==='sal'; }), esl=test.questions.filter(function(q){ return q.moteur==='esl'; });
+      if(sal.length!==NB || esl.length!==NB){ vus.push('tirage '+t+' : '+sal.length+' question(s) du 2.5.2 et '+esl.length+' du 2.5.6 au lieu de '+NB+' et '+NB+' (moteurs : '+test.questions.map(function(q){ return q.moteur; }).join(',')+')'); break; }
+      const incs=sal.map(function(q){ return q.inc; }).sort().join(',');
+      if(incs!=='fin,ini,pct') vus.push('tirage '+t+' : les trois inconnues du 2.5.2 ne sortent pas une fois chacune ('+incs+')');
+      sal.forEach(function(q,i){
+        if(q.mots!==true) vus.push('tirage '+t+' q'+i+' (2.5.2) : q.mots manque — la feuille ne serait pas celle du 2.3.13');
+        if(q.dix) vus.push('tirage '+t+' q'+i+' (2.5.2) : q.dix est posé — le juge accepterait la méthode des 10 %, que le 2.5.2 n\\'accepte pas');
+        if(!Array.isArray(q.opts) || q.opts.length!==4 || typeof q.bon!=='number' || q.choisi!==null) vus.push('tirage '+t+' q'+i+' (2.5.2) : la question n\\'a pas les quatre propositions de genSyn');
+        if(['pct','aug','dim'].indexOf(q.fam)<0) vus.push('tirage '+t+' q'+i+' (2.5.2) : famille « '+q.fam+' »');
+      });
+      const formes=esl.map(function(q){ return (q.s1===q.s2)?(q.s1>0?'hh':'bb'):'mixte'; }).sort().join(',');
+      if(formes!=='bb,hh,mixte') vus.push('tirage '+t+' : les trois formes du 2.5.6 ne sortent pas une fois chacune ('+formes+')');
+      esl.forEach(function(q,i){
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!=='P1,P2,ci,moteur,s1,s2,v') vus.push('tirage '+t+' q'+i+' (2.5.6) : la question porte « '+cles+' » — attendu les six champs du 2.5.6 et le moteur');
+        if(!HS_PAIRES.some(function(p){ return (p[0]===q.P1&&p[1]===q.P2)||(p[0]===q.P2&&p[1]===q.P1); })) vus.push('tirage '+t+' q'+i+' (2.5.6) : la paire '+q.P1+'/'+q.P2+' n\\'est pas dans HS_PAIRES');
+      });
+      premiers[test.questions[0].moteur]=1;
+      ordres[test.questions.map(function(q){ return q.moteur==='sal'?'s':'e'; }).join('')]=1;
+    }
+    if(!vus.length && Object.keys(premiers).length<2) vus.push('en 30 séances, la première question vient toujours du même exercice : les questions ne sont pas mélangées');
+    if(!vus.length && Object.keys(ordres).length<3) vus.push('en 30 séances, l\\'ordre des deux familles ne varie pas ('+Object.keys(ordres).join(' ')+')');
+
+    /* ---- 2. l'ÉCRAN de chaque moteur, et l'enchaînement ---- */
+    if(!vus.length){
+      startSgl();
+      const iS=test.questions.findIndex(function(q){ return q.moteur==='sal'; }), iE=test.questions.findIndex(function(q){ return q.moteur==='esl'; });
+      test.idx=iS; renderSgl();
+      if(ecran()!=='scr-sal') vus.push('une question du 2.5.2 ne s\\'affiche pas sur l\\'écran du 2.5.2 : « '+ecran()+' »');
+      if(!afficherEcranDe('sgl') || ecran()!=='scr-sal') vus.push('la reprise (afficherEcranDe) ne pose pas l\\'écran du 2.5.2 sur une question du 2.5.2 : « '+ecran()+' »');
+      const l0=salFeuille&&salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+      if(!l0 || !l0.classList.contains('mf-mots') || !l0._motsFR) vus.push('sur une question du 2.5.2, la feuille n\\'est pas la feuille de rédaction du 2.3.13 (mf-mots, liste blanche des raccourcis)');
+      if(!l0 || !espLatex(l0.mathModeSpace)) vus.push('sur une question du 2.5.2, la barre d\\'espace n\\'écrit pas d\\'espace : mathModeSpace « '+(l0?l0.mathModeSpace:'?')+' »');
+      const lAj=salFeuille&&salFeuille.ajouterLigne();
+      if(!lAj || !lAj.mf.classList.contains('mf-mots') || !espLatex(lAj.mf.mathModeSpace)) vus.push('une ligne ajoutée par « Entrée » sur une question du 2.5.2 n\\'est pas une ligne de rédaction avec l\\'espace');
+      if(typeof kbLettres==='function' && !kbLettres(ID)) vus.push('kbLettres ne reconnaît pas l\\'écran du 2.5.2 dans la synthèse : le clavier B ne viendrait pas');   /* kbLettres vit dans le module MathLive, que jsdom n'exécute pas : le contrôle du clavier B le rejoue à part */
+      const hintS=String((document.getElementById('salHost').querySelector('.dexp-hint')||{}).textContent||'');
+      if(hintS.indexOf('clavier B')<0 || hintS.indexOf('espace')<0) vus.push('l\\'indication sous la feuille du 2.5.2 ne dit ni le clavier B ni l\\'espace : « '+hintS.slice(0,160)+' »');
+      if(hintS.indexOf('10 %')>=0) vus.push('l\\'indication sous la feuille du 2.5.2 promet la méthode des 10 %, que son juge n\\'accepte pas');
+      if(document.getElementById('salHost').querySelectorAll('.pt-choix-btn').length!==4) vus.push('les quatre propositions du 2.5.2 ne sont pas affichées');
+      const bS=document.querySelector('#salActions .btn-primary');
+      if(!bS || String(bS.getAttribute('onclick')||'').indexOf('checkSal()')<0) vus.push('le bouton « Vérifier » d\\'une question du 2.5.2 n\\'appelle pas checkSal : « '+(bS?bS.getAttribute('onclick'):'aucun')+' »');
+      if(String((document.getElementById('salIdx')||{}).textContent||'').indexOf('/ '+(2*NB))<0) vus.push('le compteur ne dit pas la longueur de la séance : « '+(document.getElementById('salIdx')||{}).textContent+' »');
+      if(/\\{[a-z-]+\\}/.test(document.getElementById('salHost').textContent)) vus.push('une référence {identifiant} reste affichée sur l\\'écran du 2.5.2');
+      test.idx=iE; renderSgl();
+      if(ecran()!=='scr-esl') vus.push('une question du 2.5.6 ne s\\'affiche pas sur l\\'écran du 2.5.6 : « '+ecran()+' »');
+      if(!afficherEcranDe('sgl') || ecran()!=='scr-esl') vus.push('la reprise (afficherEcranDe) ne pose pas l\\'écran du 2.5.6 sur une question du 2.5.6 : « '+ecran()+' »');
+      const e0=eslFeuille&&eslFeuille.lignes[0]&&eslFeuille.lignes[0].mf;
+      if(!e0 || !e0.classList.contains('mf-mots') || !espLatex(e0.mathModeSpace)) vus.push('sur une question du 2.5.6, la feuille n\\'est pas la feuille de rédaction avec l\\'espace');
+      if(typeof kbLettres==='function' && !kbLettres(ID)) vus.push('kbLettres ne reconnaît pas l\\'écran du 2.5.6 dans la synthèse');
+      const bE=document.querySelector('#eslActions .btn-primary');
+      if(!bE || String(bE.getAttribute('onclick')||'').indexOf('checkEsl()')<0) vus.push('le bouton « Vérifier » d\\'une question du 2.5.6 n\\'appelle pas checkEsl');
+      const prompt=String((document.getElementById('eslPrompt')||{}).textContent||'');
+      if(prompt.indexOf('hausse ou une baisse')<0) vus.push('l\\'énoncé affiché n\\'est pas celui du 2.5.6 : « '+prompt.slice(0,100)+' »');
+      /* l'enchaînement : « Question suivante » passe à l'écran du moteur suivant, la dernière clôt */
+      const attendu=function(i){ return test.questions[i].moteur==='esl'?'scr-esl':'scr-sal'; };
+      for(let i=0;i<test.questions.length-1 && !vus.length;i++){
+        test.idx=i; renderSgl(); test.locked=true;
+        (test.questions[i].moteur==='esl'?nextEsl:nextSal)();
+        if(test.idx!==i+1) vus.push('« Question suivante » depuis la question '+(i+1)+' ne passe pas à la suivante : idx '+test.idx);
+        else if(ecran()!==attendu(i+1)) vus.push('après la question '+(i+1)+', l\\'écran est « '+ecran()+' » au lieu de « '+attendu(i+1)+' »');
+        else if(test.locked) vus.push('la question '+(i+2)+' naît verrouillée');
+      }
+      const vraieFin=window.finishSgl; let clos=0; window.finishSgl=function(){ clos++; };
+      try{ test.idx=test.questions.length-1; renderSgl(); (test.questions[test.idx].moteur==='esl'?nextEsl:nextSal)(); }
+      finally{ window.finishSgl=vraieFin; }
+      if(clos!==1) vus.push('sur la dernière question, « suivant » ne clôt pas la séance par finishSgl ('+clos+')');
+    }
+
+    /* ---- 3. les JUGES sont ceux d'origine, à l'exécution ---- */
+    if(!vus.length){
+      const q=genSyn('dim','fin'); q.choisi=q.bon; const c=salCouple(q);
+      const copies=[c.coefStr+' × '+c.N+' = '+c.finStr, c.pDecStr+' × '+c.N+' = '+c.augStr+'\\n'+c.N+' − '+c.augStr+' = '+c.finStr, '10 % = '+c.dixStr+'\\n'+c.P+' % = '+c.augStr+'\\n'+c.N+' − '+c.augStr+' = '+c.finStr, '1 + 1 = 3'];
+      copies.forEach(function(t){
+        const sans=JSON.parse(JSON.stringify(q)), avec=JSON.parse(JSON.stringify(q)); avec.moteur='sal'; avec.mots=true;
+        const a=salJuge(sans,t), b=salJuge(avec,t);
+        if(a.sait!==b.sait || a.correct!==b.correct) vus.push('le juge du 2.5.2 ne rend pas le même verdict dans la synthèse sur « '+t.replace(/\\n/g,' ⏎ ')+' » : '+JSON.stringify([a.sait,a.correct])+' contre '+JSON.stringify([b.sait,b.correct]));
+      });
+      const dixJ=salJuge(Object.assign(JSON.parse(JSON.stringify(q)),{moteur:'sal',mots:true}), copies[2]);
+      if(dixJ.sait) vus.push('dans la synthèse, la ligne « 10 % = … » est lue par le juge du 2.5.2, qui ne la connaît pas : la méthode des 10 % y serait acceptée ou refusée à tort');
+      const qE=Object.assign(essQuestion(1,20,-1,5),{moteur:'esl'}); delete qE.meth; delete qE.choisi;
+      const jE=eslJuge(qE,'1,2 × 0,95 = 1,14\\nhausse de 14 %');
+      if(!jE.sait || !jE.correct) vus.push('le juge du 2.5.6 refuse dans la synthèse une copie qu\\'il accepte au 2.5.6');
+    }
+
+    /* ---- 4. l'IDENTITÉ ---- */
+    if(TEST_NUM[ID]!=='2.5.7') vus.push('le numéro n\\'est pas 2.5.7 : « '+TEST_NUM[ID]+' »');
+    if(TEST_NUM['synthese-pourcentages-libre']!=='2.5.2' || TEST_NUM['synthese-evolutions-successives-libre']!=='2.5.6') vus.push('le 2.5.2 ou le 2.5.6 a changé de numéro');
+    test.kind='sgl'; test.qId='(sentinelle)'; restartCurrentTest();
+    if(test.qId!==ID) vus.push('« Recommencer » relance « '+test.qId+' »');
+    const rap=(typeof RAPPELS_ID!=='undefined' && RAPPELS_ID[ID])||'';
+    if(!rap) vus.push('aucun rappel de cours');
+    else {
+      if(rap===RAPPELS_ID['synthese-pourcentages-libre'] || rap===RAPPELS_ID['synthese-evolutions-successives-libre']) vus.push('le rappel est celui d\\'un seul des deux exercices d\\'origine');
+      ['Méthode 1','Méthode 2','Méthode 3','5 % de 120 est 6','quotient','{synthese-pourcentages-libre}','{synthese-evolutions-successives-libre}','{synthese-diminutions-libre-dix}'].forEach(function(t){ if(rap.indexOf(t)<0) vus.push('le rappel n\\'écrit pas « '+t+' »'); });
+      if(/\\{[a-z-]+\\}/.test(rappelHTML())) vus.push('le rappel affiché garde une référence {identifiant}');
+    }
+    if(!(QIA_SUGG.sgl && QIA_SUGG.sgl.length>=3)) vus.push('QIA_SUGG.sgl manque');
+    if(!TESTS[ID] || !/r\\u00e9dig/i.test(TESTS[ID].desc) || ['{synthese-pourcentages-libre}','{synthese-evolutions-successives-libre}','{synthese-diminutions-libre-dix}'].some(function(t){ return TESTS[ID].desc.indexOf(t)<0; })) vus.push('la description ne nomme pas les deux exercices d\\'origine, la feuille du 2.3.13, et la rédaction');
+    currentTestId=ID; test.kind='sgl';
+    test.questions=[Object.assign(essQuestion(1,20,-1,5),{moteur:'esl'})]; test.idx=0;
+    let ctx=conseilCtxCourant();
+    ['RÉDIGÉ','5 % de 120 est 6','hausse globale de 14 %','STRICTEMENT SECRÈTES'].forEach(function(t){ if(ctx.indexOf(t)<0) vus.push('sur une question du 2.5.6, le contexte envoyé au modèle ne dit pas « '+t+' »'); });
+    const qC=genSyn('aug','fin'); qC.moteur='sal'; qC.mots=true; qC.choisi=qC.bon; const cC=salCouple(qC);
+    test.questions=[qC]; test.idx=0; ctx=conseilCtxCourant();
+    ['JUSTIFIE','STRICTEMENT SECRÈTES','coefficient '+cC.coefStr,'valeur finale '+cC.finStr].forEach(function(t){ if(ctx.indexOf(t)<0) vus.push('sur une question du 2.5.2, le contexte envoyé au modèle ne dit pas « '+t+' »'); });
+    if(ctx.indexOf('10 %')>=0 && /méthode des 10 % est acceptée/.test(ctx)) vus.push('sur une question du 2.5.2, le contexte promet la méthode des 10 %');
+
+    /* ---- 5. le 2.5.2 et le 2.5.6 ne changent pas ---- */
+    startSynLibre();
+    if(test.questions.some(function(q){ return q.mots || q.moteur; })) vus.push('le 2.5.2 porte q.mots ou q.moteur : il a pris la feuille de la synthèse');
+    const l2=salFeuille&&salFeuille.lignes[0]&&salFeuille.lignes[0].mf;
+    if(l2 && l2.classList.contains('mf-mots')) vus.push('le 2.5.2 a pris la feuille de rédaction : son clavier B fuirait');
+    startEsl();
+    if(test.questions.some(function(q){ return Object.keys(q).sort().join(',')!=='P1,P2,ci,s1,s2,v'; })) vus.push('le 2.5.6 a changé ses champs');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+  /* L'AIGUILLAGE EST REPRIS, PAS RECOPIÉ : on lit la SOURCE, jamais String(renderSgl)
+     — les rendus sont enveloppés par la greffe des jetons. Aucune fonction de
+     juge, de règle ou d'énoncé propre à la synthèse ne doit exister. */
+  const src = lire(CIBLE);
+  const corps = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const texte = n => (corps.find(o => o.nom === n) || { texte:'' }).texte;
+  const propres = corps.map(o => o.nom).filter(n => /^sgl(Juge|Attendu|Enonce|Lire|Peindre|Correction)|^(check|juge)Sgl/i.test(n));
+  verifier('la synthèse générale ne recopie rien : renderSal et renderEsl la montrent, checkSal et checkEsl la jugent, genSyn et essSeance la tirent',
+    texte('renderSgl').indexOf('renderSal()') >= 0 && texte('renderSgl').indexOf('renderEsl()') >= 0
+      && texte('startSgl').indexOf('genSyn(') >= 0 && texte('startSgl').indexOf('essSeance(') >= 0 && texte('startSgl').indexOf('distinctes(') >= 0
+      && texte('nextSal').indexOf('nextSgl') >= 0 && texte('nextEsl').indexOf('nextSgl') >= 0
+      && /test\s*:\s*'synthese-generale-libre'/.test(texte('finishSgl'))
+      && propres.length === 0,
+    texte('renderSgl').indexOf('renderSal()') < 0 || texte('renderSgl').indexOf('renderEsl()') < 0 ? 'renderSgl ne passe plus par renderSal et renderEsl'
+      : texte('startSgl').indexOf('genSyn(') < 0 || texte('startSgl').indexOf('essSeance(') < 0 ? 'startSgl ne tire plus par genSyn et essSeance'
+      : texte('startSgl').indexOf('distinctes(') < 0 ? 'les questions du 2.5.2 ne se tirent plus par distinctes()'
+      : texte('nextSal').indexOf('nextSgl') < 0 || texte('nextEsl').indexOf('nextSgl') < 0 ? 'nextSal ou nextEsl ne rend plus la main à la synthèse'
+      : !/test\s*:\s*'synthese-generale-libre'/.test(texte('finishSgl')) ? 'finishSgl n’enregistre plus sous son identifiant'
+      : 'la synthèse s’est donné un juge, une règle ou un énoncé à elle : ' + propres.join(', '));
 }
 /* {ordre-croissant} — les nombres de {placer-intervalle}, à ranger avec « < ».
    Quatre bords, et n'en tenir qu'un ne tient rien :

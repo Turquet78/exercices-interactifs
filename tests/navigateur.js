@@ -5493,12 +5493,15 @@ async function parcours(page, N){
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
       ignorer('sur le 2.5.6, la méthode 3 tapée en mots (« 5 % de 120 est 6 ») est lue par le juge, la note compte, la feuille se peint',
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+      ignorer('sur le 2.5.7, la justification du 2.5.2 tapée sur la feuille de rédaction puis la méthode 3 du 2.5.6 sont lues par leurs juges, les deux écrans s\'enchaînent, la note part sous son identifiant',
+        'ce niveau n\'a pas la synthèse des pourcentages rédigée');
     } else if(!ml){
       ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle', 'MathLive absent');
       ignorer('la voie du coefficient puis de l\'addition vaut aussi son point', 'MathLive absent');
       ignorer('sur le 2.3.13 et le 2.2.14, la barre d\'espace écrit une espace, sort d\'une fraction, et le juge lit la copie espacée', 'MathLive absent');
       ignorer('sur le 2.3.9, le 2.2.10 et le 2.5.2, la barre d\'espace écrit une espace, et le juge lit la copie espacée', 'MathLive absent');
       ignorer('sur le 2.5.6, la méthode 3 tapée en mots (« 5 % de 120 est 6 ») est lue par le juge, la note compte, la feuille se peint', 'MathLive absent');
+      ignorer('sur le 2.5.7, la justification du 2.5.2 tapée sur la feuille de rédaction puis la méthode 3 du 2.5.6 sont lues par leurs juges, les deux écrans s\'enchaînent, la note part sous son identifiant', 'MathLive absent');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
       await connecter(s.page);
@@ -5815,6 +5818,111 @@ async function parcours(page, N){
         }
         verifier('sur le ' + X5.num + ', la méthode 3 tapée en mots (« 5 % de 120 est 6 ») est lue par le juge, la note compte, la feuille se peint',
           dits5.length === 0, dits5.slice(0, 3).join(' | '));
+      }
+      /* ÉTAPE 6 : {synthese-generale-libre} (2.5.7) — les énoncés du 2.5.2 et
+         du 2.5.6 dans une même séance, sur la feuille du 2.3.13 (demande de
+         Turquet, septembre 2026 : « on utilisera le clavier virtuel du 2.3.13
+         … on vérifiera les rédactions exactement comme le 2.5.2 et le
+         2.5.6 »). On épingle une séance de DEUX questions — une du 2.5.2 (une
+         hausse, la valeur finale) puis une du 2.5.6 (+20 % puis −5 %) — et on
+         TAPE les deux copies dans un vrai MathLive. La justification du 2.5.2
+         s'écrit ici en MODE RÉDACTION, ce que le 2.5.2 seul ne fait jamais :
+         la liste blanche des raccourcis doit laisser passer « * » (×), « = »
+         et les espaces — jsdom n'a pas MathLive, c'est ici seul que la frappe
+         se mesure. Puis « Vérifier » (le juge du 2.5.2 prime sur le double,
+         qui refuse toujours), « Question suivante » (l'écran du 2.5.6
+         apparaît, déverrouillé), la méthode 3 en mots, « Vérifier » (le juge
+         du 2.5.6), « Voir mes résultats » — et la note se lit dans le double
+         de Supabase, 2/2, sous SON identifiant. */
+      const NOM6 = 'sur le ' + ((P.syntheseRedigee.generale || {}).num || '2.5.7') + ', la justification du 2.5.2 tapée sur la feuille de rédaction puis la méthode 3 du 2.5.6 sont lues par leurs juges, les deux écrans s\'enchaînent, la note part sous son identifiant';
+      if(!P.syntheseRedigee.generale){
+        ignorer(NOM6, 'ce niveau n\'a pas la synthèse générale rédigée');
+      } else {
+        const X6 = P.syntheseRedigee.generale; const dits6 = [];
+        await s.page.evaluate(id => openTest(id), X6.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1300);
+        const q6 = await s.page.evaluate(() => {
+          if(test.qId !== currentTestId) return { manque: 'l\'exercice ouvert est « ' + test.qId + ' »' };
+          if(test.kind !== 'sgl') return { manque: 'le kind ouvert est « ' + test.kind + ' »' };
+          const qS = genSyn('aug', 'fin'); qS.moteur = 'sal'; qS.mots = true;
+          const qE = essQuestion(1, 20, -1, 5); delete qE.meth; delete qE.choisi; qE.moteur = 'esl';
+          test.questions = [qS, qE]; test.idx = 0; test.score = 0; test.answers = []; test.maxScore = 2;
+          test.locked = false; test.salBusy = false; test.eslBusy = false;
+          renderSgl();
+          const c = salCouple(Object.assign({}, qS, { choisi: qS.bon }));
+          return { bon: qS.bon, N: c.N, coef: c.coefStr, fin: c.finStr, ecran: (document.querySelector('section.screen.on') || {}).id };
+        });
+        await s.page.waitForTimeout(800);
+        if(q6.manque) dits6.push(q6.manque);
+        else {
+          if(q6.ecran !== 'scr-sal') dits6.push('la question du 2.5.2 ne s\'affiche pas sur l\'écran du 2.5.2 : « ' + q6.ecran + ' »');
+          await s.page.click('#salc' + q6.bon);
+          await s.page.waitForTimeout(150);
+          await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
+            try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+          await s.page.waitForTimeout(150);
+          await s.page.keyboard.type(q6.coef + ' * ' + q6.N + ' = ' + q6.fin, { delay: 30 });
+          await s.page.waitForTimeout(400);
+          const lu6 = await s.page.evaluate(() => {
+            const t = salFeuille.lire(), j = salJuge(test.questions[test.idx], t), mf = salFeuille.lignes[0].mf;
+            return { texte: t, sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '', mots: mf.classList.contains('mf-mots'), brut: mf.getValue() };
+          });
+          if(!lu6.mots) dits6.push('la feuille du 2.5.2 dans la synthèse n\'est pas la feuille de rédaction (mf-mots)');
+          if(!/ = /.test(lu6.texte)) dits6.push('les espaces tapées ne ressortent pas sur la feuille de rédaction : « ' + lu6.texte + ' »');
+          if(!lu6.sait || !lu6.correct) dits6.push('le juge du 2.5.2 ' + (lu6.sait ? 'refuse' : 's\'abstient sur') + ' la copie tapée en mode rédaction : « ' + lu6.phrase.slice(0, 120) + ' » (' + lu6.texte + ' ; LaTeX ' + lu6.brut + ')');
+          await s.page.click('#salActions .btn-primary');
+          await s.page.waitForTimeout(1200);
+          const v6a = await s.page.evaluate(() => { const fb = document.getElementById('salFeedback');
+            return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score,
+                     bouton: String((document.getElementById('salActions') || {}).textContent || '').trim() }; });
+          if(v6a.classe.indexOf('good') < 0) dits6.push('la justification du 2.5.2 n\'est pas acceptée à la vérification : « ' + v6a.texte.slice(0, 120) + ' »');
+          if(v6a.score !== 1) dits6.push('la note ne compte pas la question du 2.5.2 : score ' + v6a.score);
+          if(!/suivante/i.test(v6a.bouton)) dits6.push('après le verdict du 2.5.2, le bouton n\'est pas « Question suivante » : « ' + v6a.bouton + ' »');
+          await s.page.click('#salActions .btn-primary');
+          await s.page.waitForTimeout(900);
+          const e6 = await s.page.evaluate(() => ({ ecran: (document.querySelector('section.screen.on') || {}).id, idx: test.idx, locked: test.locked }));
+          if(e6.ecran !== 'scr-esl' || e6.idx !== 1) dits6.push('« Question suivante » ne passe pas à l\'écran du 2.5.6 : « ' + e6.ecran + ' », question ' + (e6.idx + 1));
+          if(e6.locked) dits6.push('l\'écran du 2.5.6 naît verrouillé');
+          await s.page.evaluate(() => { const m = eslFeuille.lignes[0].mf; m.focus();
+            try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+          await s.page.waitForTimeout(150);
+          const COPIE6 = ['120', '5 % de 120 est 6', '120 - 6 = 114', 'hausse de 14 %'];
+          for(let i = 0; i < COPIE6.length; i++){
+            await s.page.keyboard.type(COPIE6[i], { delay: 30 });
+            if(i < COPIE6.length - 1){ await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300); }
+          }
+          await s.page.waitForTimeout(400);
+          const lu6b = await s.page.evaluate(() => { const t = eslFeuille.lire(), j = eslJuge(test.questions[test.idx], t);
+            return { lignes: String(t).split('\n'), sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' }; });
+          if(lu6b.lignes.length !== 4) dits6.push('la feuille du 2.5.6 se lit en ' + lu6b.lignes.length + ' ligne(s) au lieu de 4 : « ' + lu6b.lignes.join(' ⏎ ') + ' »');
+          if(!lu6b.sait || !lu6b.correct) dits6.push('le juge du 2.5.6 ' + (lu6b.sait ? 'refuse' : 's\'abstient sur') + ' la copie tapée : « ' + lu6b.phrase.slice(0, 120) + ' » (' + lu6b.lignes.join(' ⏎ ') + ')');
+          await s.page.click('#eslActions .btn-primary');
+          await s.page.waitForTimeout(1200);
+          const v6b = await s.page.evaluate(() => { const fb = document.getElementById('eslFeedback');
+            return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score,
+                     bouton: String((document.getElementById('eslActions') || {}).textContent || '').trim() }; });
+          if(v6b.classe.indexOf('good') < 0) dits6.push('la rédaction du 2.5.6 n\'est pas acceptée à la vérification : « ' + v6b.texte.slice(0, 120) + ' »');
+          if(v6b.score !== 2) dits6.push('la note ne compte pas la question du 2.5.6 : score ' + v6b.score);
+          if(!/résultats/i.test(v6b.bouton)) dits6.push('sur la dernière question, le bouton n\'est pas « Voir mes résultats » : « ' + v6b.bouton + ' »');
+          await s.page.click('#eslActions .btn-primary');
+          await s.page.waitForTimeout(1500);
+          const f6 = await s.page.evaluate(([id, table]) => {
+            /* les NOTES, pas les brouillons de pause : un brouillon porte details.state
+               (les étapes précédentes en ont laissé sous le 2.5.2 et le 2.5.6) */
+            const lignes = ((window.__faux && window.__faux.tables && window.__faux.tables[table]) || []).filter(r => r.details && !r.details.state && !r.details.partiel);
+            const notes = lignes.filter(r => r.details.test === id);
+            const n = notes[notes.length - 1];
+            const autres = lignes.filter(r => r.details.test === 'synthese-pourcentages-libre' || r.details.test === 'synthese-evolutions-successives-libre').length;
+            return { ecran: (document.querySelector('section.screen.on') || {}).id, n: notes.length, score: n ? n.score : null, total: n ? n.total : null, autres };
+          }, [X6.exercice, P.tableResultats]);
+          if(f6.ecran !== 'scr-results') dits6.push('la fin de séance ne montre pas les résultats : « ' + f6.ecran + ' »');
+          if(!f6.n) dits6.push('aucune note enregistrée sous « ' + X6.exercice + ' »');
+          else if(f6.score !== 2 || f6.total !== 2) dits6.push('la note enregistrée n\'est pas 2/2 : ' + f6.score + '/' + f6.total);
+          if(f6.autres) dits6.push('une note part sous l\'identifiant d\'un des deux exercices d\'origine');
+        }
+        verifier(NOM6, dits6.length === 0, dits6.slice(0, 3).join(' | '));
       }
       verifier('l\'écran de la synthèse rédigée ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));

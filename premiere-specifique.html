@@ -2388,7 +2388,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=271;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=272;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2798,6 +2798,8 @@ const TESTS={
   'hausses-successives-cent': { name:'Hausse suivie d\u2019une hausse, en partant de 100', icon:'\ud83d\udcaf', desc:'La m\u00eame question qu\u2019en {hausses-successives}, par l\u2019autre chemin : on part de 100, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu\u2019on a gagn\u00e9 pour 100 est le pourcentage global.', start:()=>startHaussesCent() },
   'synthese-evolutions-successives': { name:'Deux \u00e9volutions successives, hausse ou baisse', icon:'\ud83d\udd01', desc:'La synth\u00e8se de {hausses-successives}, {hausses-successives-cent} et {baisses-successives} : deux \u00e9volutions de suite, chacune une hausse ou une baisse. Tu choisis ta m\u00e9thode \u2014 multiplier les coefficients, partir de 100, ou passer par 10 % comme dans {augmenter-dix} \u2014 puis tu dis si l\u2019\u00e9volution globale est une hausse ou une baisse, et de quel pourcentage. Il tombe toujours sur un nombre entier.', start:()=>startEss() },
   'synthese-evolutions-successives-libre': { name:'Deux \u00e9volutions successives \u2014 r\u00e9dig\u00e9es', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {synthese-evolutions-successives}, mais plus une seule case : tu R\u00c9DIGES tout le calcul toi-m\u00eame, par la m\u00e9thode qui te convient \u2014 les coefficients, partir de 100 avec les coefficients, ou partir de 100 avec les pourcentages (\u00ab 5 % de 120 est 6 \u00bb) \u2014, puis tu conclus en mots : une hausse ou une baisse, et de quel pourcentage. La page lit ta r\u00e9daction.', start:()=>startEsl() },
+  /* {synthese-generale-libre} (2.5.7, demande de Turquet, septembre 2026) : la synthèse RÉDIGÉE des deux familles — les énoncés du 2.5.2 et du 2.5.6 dans une même séance, la feuille et le clavier du 2.3.13, et la vérification de chacun des deux exercices d'origine, sans rien recopier. */
+  'synthese-generale-libre': { name:'Synthèse générale — rédigée : pourcentages et évolutions successives', icon:'\ud83e\uddfe', desc:'Les questions de {synthese-pourcentages-libre} et de {synthese-evolutions-successives-libre} mélangées dans une même séance. Un pourcentage à prendre, une hausse ou une baisse : tu choisis la proposition, puis tu JUSTIFIES en écrivant ta vérification. Deux évolutions successives : tu RÉDIGES tout le calcul par la méthode qui te convient (« 5 % de 120 est 6 »), puis tu conclus en mots. La feuille et le clavier sont ceux de {synthese-diminutions-libre-dix}, et chaque rédaction est lue exactement comme dans son exercice d’origine.', start:()=>startSgl() },
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
   'baisses-successives-dix': { name:'Baisse suivie d\u2019une baisse, en passant par 10 %', icon:'\ud83d\udd1f', desc:'La m\u00eame question qu\u2019en {baisses-successives}, par la m\u00e9thode des 10 % de {diminuer-dix} : on part de 100, on calcule 10 % puis la premi\u00e8re baisse et on la retire, puis 10 % et la seconde baisse sur la nouvelle valeur, et ce qu\u2019on a perdu pour 100 est la baisse globale. Elle tombe toujours sur un nombre entier.', start:()=>startBaissesDix() },
   'evolutions-successives':{ name:'Deux \u00e9volutions successives', icon:'\ud83d\udd01', desc:'Deux \u00e9volutions de suite \u2014 deux hausses, deux baisses, ou une hausse et une baisse \u2014 sur le sch\u00e9ma \u00e0 trois bo\u00eetes de la fiche. Sur chaque fl\u00e8che, \u00d7 (1 \u00b1 \u2026) puis le coefficient, comme dans {hausses-successives} et {baisses-successives} ; en dessous, le coefficient global en un seul calcul, et le pourcentage d\u2019\u00e9volution global, dont le signe se lit sur le coefficient global comme dans {lire-coefficient}. Tu \u00e9cris toi-m\u00eame le mot de la conclusion : augmentation ou diminution. Les pourcentages sont des multiples de 10 %, et le r\u00e9sultat tombe toujours sur un nombre entier.', start:()=>startEvolSucc() },
@@ -2851,7 +2853,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives','evolutions-successives','synthese-evolutions-successives-libre'] }
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives','evolutions-successives','synthese-evolutions-successives-libre','synthese-generale-libre'] }
   ] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
@@ -2958,7 +2960,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -3800,7 +3802,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl],
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl],
     sf:['sf',renderSFTest]
   };
   const e=table[k];
@@ -9989,17 +9991,19 @@ function renderSal(){
        <div class="pt-choix" id="salChoix">${choix}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">justifie ta réponse — ${salVoiesTexte(sens,null,!!q.dix)}</div>
        <div class="dexp2-sheet" id="salSheet"></div>
-       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}.${q.dix?' En passant par 10 %, écris « 10 % = … » (la touche <b>%</b> est sur le clavier), puis « … % = … », puis '+(neg?'la soustraction':'l’addition')+' ; pour retrouver un pourcentage, « écart = … » et « '+(neg?'diminution':'augmentation')+' de … % » s’écrivent en mots, la barre d’espace écrit une espace (sur tablette, la touche <b>espace</b> et les lettres du <b>clavier B</b> sont sur le clavier à l’écran).':' La barre d’espace écrit une espace.'} Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
+       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}.${q.dix?' En passant par 10 %, écris « 10 % = … » (la touche <b>%</b> est sur le clavier), puis « … % = … », puis '+(neg?'la soustraction':'l’addition')+' ; pour retrouver un pourcentage, « écart = … » et « '+(neg?'diminution':'augmentation')+' de … % » s’écrivent en mots, la barre d’espace écrit une espace (sur tablette, la touche <b>espace</b> et les lettres du <b>clavier B</b> sont sur le clavier à l’écran).':(q.mots?' La barre d’espace écrit une espace (sur tablette, la touche <b>espace</b> et les lettres du <b>clavier B</b> sont sur le clavier à l’écran).':' La barre d’espace écrit une espace.')} Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
   /* Les lignes sont INDÉPENDANTES : pas de préfixe « = » qui les enchaîne —
      la voie de l'augmentation demande deux égalités séparées. La feuille naît
      toujours VISIBLE (la leçon de mlFeuille), et reste intouchée. */
   /* Le 2.3.13 et son jumeau 2.2.14 (q.dix) se rédigent en MOTS : leur feuille
      est en mode « redaction » — la liste blanche des raccourcis (« diminution »
      ne devient plus « di\minution »), et la classe mf-mots qu'attend le
-     clavier B des lettres (kbLettres). Les trois autres exercices du moteur
-     gardent la feuille de calcul — avec les espaces, que salEspaces pose sur
-     les cinq. */
-  salFeuille=mlFeuille({ conteneur:'salSheet', mode:(q.dix?'redaction':'calcul'), prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
+     clavier B des lettres (kbLettres). Les questions du 2.5.2 posées dans la
+     synthèse générale ({synthese-generale-libre}) portent q.mots et prennent
+     la même feuille — « le clavier virtuel du 2.3.13 » (Turquet) — sans que
+     leur juge change. Les trois autres exercices du moteur gardent la feuille
+     de calcul — avec les espaces, que salEspaces pose sur tous. */
+  salFeuille=mlFeuille({ conteneur:'salSheet', mode:((q.dix||q.mots)?'redaction':'calcul'), prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
   salEspaces(salFeuille);   /* la barre d'espace écrit une espace — sur les quatre exercices du moteur rédigé */
 }
 /* LA BARRE D'ESPACE ÉCRIT UNE ESPACE dans la feuille rédigée (demande de
@@ -10465,7 +10469,8 @@ async function checkSal(){
   $('salActions').innerHTML=`<button class="btn btn-primary" id="salNext" onclick="nextSal()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   const nb=$('salNext'); if(nb) nb.focus();
 }
-function nextSal(){ if(test.idx<test.questions.length-1){ test.idx++; renderSal(); autoSave(); } else finishSal(); }
+function nextSal(){ if(test.kind==='sgl'){ nextSgl(); return; }   /* {synthese-generale-libre} : c'est elle qui enchaîne et qui clôt */
+  if(test.idx<test.questions.length-1){ test.idx++; renderSal(); autoSave(); } else finishSal(); }
 async function finishSal(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;
@@ -12708,7 +12713,8 @@ async function checkEsl(){
   $('eslActions').innerHTML=`<button class="btn btn-primary" id="eslNext" onclick="nextEsl()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
   const nb=$('eslNext'); if(nb) nb.focus();
 }
-function nextEsl(){ if(test.idx<test.questions.length-1){ test.idx++; renderEsl(); autoSave(); } else finishEsl(); }
+function nextEsl(){ if(test.kind==='sgl'){ nextSgl(); return; }   /* {synthese-generale-libre} : c'est elle qui enchaîne et qui clôt */
+  if(test.idx<test.questions.length-1){ test.idx++; renderEsl(); autoSave(); } else finishEsl(); }
 async function finishEsl(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
@@ -12716,6 +12722,72 @@ async function finishEsl(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-evolutions-successives-libre',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+/* ---------- {synthese-generale-libre} (2.5.7) : la synthèse RÉDIGÉE des deux familles ----------
+   Demande de Turquet (septembre 2026) : « en Première, un exercice de synthèse
+   qui demande de rédiger à l'élève ; on utilisera le clavier virtuel du
+   2.3.13 ; ce sera une synthèse qui contiendra les énoncés du 2.5.2 et du
+   2.5.6 ; on vérifiera les rédactions exactement comme le 2.5.2 et le 2.5.6 ».
+   RIEN N'EST NEUF QUE LE TIRAGE ET L'AIGUILLAGE, et c'est le point. Une
+   séance de six questions — trois du 2.5.2 (genSyn : les trois familles au
+   hasard, les trois inconnues une fois chacune) et trois du 2.5.6 (essSeance :
+   les trois formes, les paires sans remise) —, MÉLANGÉES : l'élève doit
+   reconnaître la question avant de rédiger. Chaque question porte son MOTEUR
+   (q.moteur : 'sal' ou 'esl') : c'est la question qui dit sur quel écran elle
+   s'affiche et quel juge la lit — la reprise d'une pause relit la question,
+   jamais le démarreur. Une question 'sal' est rendue par renderSal sur
+   scr-sal et vérifiée par checkSal (salJuge, puis le modèle, le juge prime) ;
+   une question 'esl' par renderEsl sur scr-esl et checkEsl (eslJuge). Ni
+   juge, ni règle, ni énoncé propres : « exactement comme » se tient en ne
+   recopiant rien — c'est un bord du contrôle, qui lit la source.
+   LE CLAVIER EST CELUI DU 2.3.13 : les questions 'esl' l'ont déjà (la
+   feuille de rédaction du 2.5.6) ; les questions 'sal' portent q.mots, que
+   renderSal lit pour créer la feuille en mode « redaction » — la liste
+   blanche des raccourcis, la classe mf-mots que kbLettres cherche pour poser
+   le clavier B des lettres sur tablette, la barre d'espace qui écrit une
+   espace. Le 2.5.2 lui-même garde sa feuille de calcul : q.mots n'est posé
+   qu'ici (le bord opposé du contrôle).
+   Les boutons « Question suivante » des deux moteurs (nextSal, nextEsl)
+   rendent la main à nextSgl quand test.kind vaut 'sgl' : c'est lui qui
+   enchaîne les écrans et qui clôt la séance — la note part sous
+   'synthese-generale-libre', un point par question (le barème homogène que
+   la coupe d'un devoir sait lire). Le rappel (RAP_SGL) réunit ceux des deux
+   exercices d'origine ; les questions à l'IA (QIA_SUGG.sgl) et le contexte de
+   l'aide (conseilCtxCourant, qui aiguille sur q.moteur) suivent la question
+   affichée. Pas de correction en direct, comme ses deux moteurs. */
+async function startSgl(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='sgl'; test.qId='synthese-generale-libre';
+  const incs=qdMelanger(['fin','ini','pct']);
+  /* le 2.5.2 : les trois familles au hasard, les trois inconnues une fois chacune — et la feuille de rédaction (q.mots) */
+  const pct=distinctes(EVOL_NB,(_,i)=>genSyn(undefined, incs[i%incs.length])).map(q=>{ q.moteur='sal'; q.mots=true; return q; });
+  /* le 2.5.6 : les trois formes une fois chacune, sans méthode ni sens choisis — tout s'écrit */
+  const evo=essSeance(EVOL_NB).map(q=>{ delete q.meth; delete q.choisi; q.moteur='esl'; return q; });
+  test.questions=qdMelanger(pct.concat(evo));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : un point par question, homogène — c'est lui que lit la coupe d'un devoir */
+  test.maxScore=test.questions.length;test.salBusy=false;test.eslBusy=false;
+  renderSgl();
+}
+/* L'écran de la question courante : celui de son moteur. C'est ce que lit la
+   table d'afficherEcranDe (reprise et rejeu) comme renderSgl. */
+function sglEcran(){ const q=test.questions&&test.questions[test.idx]; return (q&&q.moteur==='esl')?'esl':'sal'; }
+function renderSgl(){
+  const e=sglEcran();
+  show(e);
+  if(e==='esl') renderEsl(); else renderSal();
+}
+function nextSgl(){ if(test.idx<test.questions.length-1){ test.idx++; renderSgl(); autoSave(); } else finishSgl(); }
+async function finishSgl(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-generale-libre',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -17921,7 +17993,11 @@ Deux évolutions de suite <b>ne s’additionnent pas</b> : la seconde porte sur 
 <b>Méthode 3 — partir de 100, avec les pourcentages</b>, comme dans {augmenter-dix} : après la première hausse, on est à <b>120</b>. Puis <b>5 % de 120 est 6</b> (10 % de 120 est 12, et 5 % en est la moitié), donc <b>120 − 6 = 114</b>. De 100 à 114 : <b>hausse de 14 %</b>.<br>
 Tu peux écrire plus de lignes (10 % de 100 est 10, 100 × 1,2 = 120, 114 − 100 = 14…) : chacune doit être vraie. Piège classique : refaire la seconde évolution sur 100 (« 5 % de 100 est 5 ») — elle porte sur 120. Et si le coefficient global est plus petit que 1 (ou la valeur finale sous 100), c’est une baisse, même si l’énoncé commence par une hausse.<br>
 Écrire la conclusion sans calcul n’est pas rédiger : il faut montrer le calcul.`;
-const RAPPELS_ID={ 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+/* {synthese-generale-libre} (2.5.7) : les deux rappels d'origine, l'un après
+   l'autre — la question affichée dit lequel lire. */
+const RAP_SGL=`<b>Synthèse générale rédigée : deux familles de questions, deux rédactions</b><br>
+Une question sur <b>un pourcentage</b> — prendre, augmenter ou diminuer, comme dans {synthese-pourcentages-libre} : tu choisis la proposition, puis tu JUSTIFIES en écrivant ta vérification. Une question sur <b>deux évolutions successives</b>, comme dans {synthese-evolutions-successives-libre} : tu RÉDIGES tout le calcul, puis tu conclus en mots. Dans les deux cas, la feuille est celle de {synthese-diminutions-libre-dix} : la barre d’espace écrit une espace, la touche % est sur le clavier.<br><br>`+RAP_SPL+`<br><br>`+RAP_ESL;
+const RAPPELS_ID={ 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -17972,6 +18048,8 @@ const QIA_SUGG={
   hs:["Pourquoi deux hausses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième hausse ?","Pourquoi la hausse globale dépasse-t-elle la somme des deux taux ?"],
   hsc:["Pourquoi a-t-on le droit de partir de 100 ?","Sur quelle valeur porte la deuxième hausse ?","Pourquoi « augmentation pour 100 » veut-il dire « pourcentage » ?","Pourquoi deux hausses de suite ne s’additionnent-elles pas ?"],
   esl:["Comment rédiger avec les coefficients ?","Comment rédiger en partant de 100 ?","Comment écrire « 5 % de 120 est 6 » avec le clavier ?","Comment savoir si l’évolution globale est une hausse ou une baisse ?","Sur quelle valeur porte la seconde évolution ?"],
+  /* {synthese-generale-libre} (2.5.7) : les deux familles dans une même séance — les questions des deux exercices d'origine */
+  sgl:["Comment savoir ce que la question me demande : un pourcentage à prendre, une évolution, ou deux évolutions de suite ?","Comment justifier avec le coefficient multiplicateur ?","Comment rédiger deux évolutions successives en partant de 100 ?","Comment écrire « 5 % de 120 est 6 » avec le clavier ?","Sur quelle valeur porte la seconde évolution ?"],
   ess:["Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi une hausse suivie d’une baisse du même pourcentage ne revient-elle pas au départ ?","Quelle méthode choisir : les coefficients, partir de 100, ou passer par 10 % ?","Sur quelle valeur porte la seconde évolution ?"],
   lc:["Comment savoir si un coefficient fait monter ou descendre ?","Pourquoi 0,96 est-il une baisse de 4 % et non de 96 % ?","Comment retrouver le pourcentage à partir du coefficient ?","Que signifie multiplier par 1,4 ?"],
   ac:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment reconnaître le coefficient d’une diminution ?","Comment passer d’un pourcentage à un coefficient ?"],
@@ -18044,7 +18122,10 @@ function ctxEcranPremiere(){
 /* ---------- Contexte complet envoyé au modèle ---------- */
 function conseilCtxCourant(){
   const q=(test && test.questions && test.questions[test.idx]) || null;
-  const k=(test && test.kind) || '';
+  let k=(test && test.kind) || '';
+  /* {synthese-generale-libre} : le contexte est celui du moteur de la
+     question affichée (le 2.5.2 ou le 2.5.6), comme son juge */
+  if(k==='sgl' && q) k=(q.moteur==='esl')?'esl':'sal';
   const nom=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name) || 'un exercice';
   const num=(typeof testNum==='function' && testNum(currentTestId)) || '';
   let att='';
