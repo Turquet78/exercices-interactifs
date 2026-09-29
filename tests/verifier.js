@@ -12593,7 +12593,7 @@ function alphaSigne(w, P){
   })()`, v => v === '', undefined);
 }
 
-/* ---------- 5.6 : l'étude de fonction et la convexité — la fiche 5 ---------- */
+/* ---------- 2.2.2 : l'étude de fonction et la convexité — la fiche 5 ---------- */
 /* Repris de la fiche « FICHE 5 — Étude de fonction et convexité » (demande de
    Turquet, septembre 2026) : f(x) = (ax + ab)e^(−x), a ∈ {±1, ±2, ±3},
    b ∈ {−3, −2, −1}, la fiche même étant a = 2, b = −1. Le contrôle REFAIT
@@ -12605,7 +12605,7 @@ function alphaSigne(w, P){
    et le contrôle l'exige — le k du TVI est entre la limite et l'extremum de
    la branche, et f − Δ a le signe annoncé sur tout l'intervalle. */
 function etudeConvexite(w, P){
-  const nom='le 5.6 : l\'étude de fonction et la convexité — la fiche 5';
+  const nom='le 2.2.2 : l\'étude de fonction et la convexité — la fiche 5';
   const present = evaluer(w, "typeof startECV==='function' && typeof genECVCase==='function' && typeof ecvCases==='function' && typeof ecvAns==='function' && typeof asgDerVerdicts==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas l\'étude de fonction et convexité');
@@ -12616,11 +12616,18 @@ function etudeConvexite(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='etude-convexite';
 
-    /* ---- 0. la place au menu : DERNIER du thème « Étude de fonction », après le 5.5 ---- */
-    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('etude-convexite')>=0; })[0];
-      const i=th?th.ids.indexOf('etude-convexite'):-1;
-      if(!th || th.nom!=='Étude de fonction' || i!==th.ids.length-1 || th.ids[i-1]!=='etude-exponentielle')
-        vus.push('{etude-convexite} n\\'est pas le dernier du thème « Étude de fonction », après {etude-exponentielle}'); }
+    /* ---- 0. la place au menu : la partie « Convexité » du thème 2, après
+       le 2.2.1 — demande de Turquet (septembre 2026) : « créer un exercice
+       comme le pdf dans le sous-thème convexité » ; le thème 5 ne le porte
+       plus, et ses cinq exercices gardent leur numéro ---- */
+    { const th=THEMES.filter(function(t){ return t.num===2; })[0];
+      const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==='Convexité'; })[0];
+      if(!th || !st || st.ids.indexOf('etude-convexite')!==st.ids.length-1 || st.ids[0]!=='convexite-trois-courbes')
+        vus.push('{etude-convexite} n\\'est pas le dernier de la partie « Convexité » du thème 2, après {convexite-trois-courbes}');
+      if(TEST_NUM['etude-convexite']!=='2.2.2') vus.push('le numéro n\\'est pas 2.2.2 : '+TEST_NUM['etude-convexite']);
+      if(TEST_NUM['etude-exponentielle']!=='5.5'||TEST_NUM['equation-tangente']!=='5.1') vus.push('le thème 5 a été renuméroté');
+      const t5=THEMES.filter(function(t){ return t.num===5; })[0];
+      if(!t5 || t5.ids.indexOf('etude-convexite')>=0) vus.push('{etude-convexite} est encore dans le thème 5'); }
 
     /* ---- 1. le tirage : a ∈ {±1, ±2, ±3}, b ∈ {−3, −2, −1}, rien d'autre dans
        la question — et chaque visage sort ---- */
@@ -12749,9 +12756,9 @@ function etudeConvexite(w, P){
     { if(document.getElementById('efTable').innerHTML!==''||document.getElementById('asgForm').innerHTML!=='') vus.push('les hôtes amont ne sont pas vidés au rendu : le tableau fantôme reprendrait la main');
       const el=document.getElementById('ef-r0');
       if(!el || !el.closest('#ecvForm')) vus.push('getElementById(ef-r0) ne rend pas la case de CET écran'); }
-    /* et l'inverse : le 4.6 rendu après vide l'hôte du 5.6 */
+    /* et l'inverse : le 4.6 rendu après vide l'hôte du 2.2.2 */
     { Object.assign(test,{kind:'asg', questions:[{a:1,b:2},{a:-1,b:3}], idx:0, locked:false}); renderASG();
-      if(document.getElementById('ecvForm').innerHTML!=='') vus.push('le rendu du 4.6 ne vide pas l\\'hôte du 5.6 : son tableau fantôme resterait'); }
+      if(document.getElementById('ecvForm').innerHTML!=='') vus.push('le rendu du 4.6 ne vide pas l\\'hôte du 2.2.2 : son tableau fantôme resterait'); }
 
     /* ---- 5. la copie de la fiche passe entière : 102 cases au vert, note
        102, écran verrouillé, et la note enregistrée dit 102/102 ---- */
@@ -12836,8 +12843,33 @@ function etudeConvexite(w, P){
       if(c.indexOf('STRICTEMENT SECRÈTES')<0) vus.push('le contexte du modèle a perdu la clause de secret');
       if(c.indexOf('Saisies')<0||c.indexOf('(vide)')<0) vus.push('le contexte du modèle ne porte plus les saisies de l\\'élève');
       if(c.indexOf('y = 4x − 2')<0||c.indexOf('concave')<0) vus.push('le contexte du modèle ne dit ni la tangente ni la convexité'); }
-    if(!(RAPPELS['ecv']&&RAPPELS['ecv'].indexOf('inflexion')>=0)) vus.push('le rappel de cours du 5.6 ne parle pas du point d\\'inflexion');
-    if(!(QIA_SUGG['ecv']&&QIA_SUGG['ecv'].length>=3)) vus.push('le 5.6 n\\'a pas ses questions suggérées');
+    if(!(RAPPELS['ecv']&&RAPPELS['ecv'].indexOf('inflexion')>=0)) vus.push('le rappel de cours du 2.2.2 ne parle pas du point d\\'inflexion');
+    if(!(QIA_SUGG['ecv']&&QIA_SUGG['ecv'].length>=3)) vus.push('le 2.2.2 n\\'a pas ses questions suggérées');
+
+    /* ---- la courbe : la fenêtre se cale sur la bosse et l'inflexion (vu sur
+       capture : cadrée comme au 5.5, la bosse tenait sur dix pixels). On
+       relit le SVG écrit par la page : la hauteur de la courbe entre
+       l'extremum et l'inflexion doit prendre une part lisible du cadre, et
+       l'inflexion doit être DANS le cadre, à distance du bord droit ---- */
+    [{a:2,b:-1},{a:-1,b:-3},{a:3,b:-2}].forEach(function(q){
+      const A=ecvAns(q);
+      const svg=ecvGraphSVG(q);
+      const vb=(svg.match(/viewBox="0 0 (\\d+) (\\d+)"/)||[]);
+      const d=(svg.match(/class="sv-curve" d="([^"]*)"/)||[])[1]||'';
+      const pts=d.match(/[ML]([\\d.]+),([\\d.]+)/g)||[];
+      if(!vb.length||pts.length<20){ vus.push('la courbe du 2.2.2 ne se relit pas dans son SVG (a='+q.a+', b='+q.b+')'); return; }
+      const H=parseFloat(vb[2]), W=parseFloat(vb[1]);
+      const xy=pts.map(function(p){ const m=p.match(/([\\d.]+),([\\d.]+)/); return {x:parseFloat(m[1]),y:parseFloat(m[2])}; });
+      /* l'abscisse écran de l'extremum et de l'inflexion : la même affine que la page (lo..hi sur 34..316) */
+      const lo=Math.min(A.x0,0)-2, hi=A.xI+2, sx=function(x){ return 34+(x-lo)/(hi-lo)*(316-34); };
+      const pres=function(x){ let best=null; xy.forEach(function(p){ if(best===null||Math.abs(p.x-sx(x))<Math.abs(best.x-sx(x))) best=p; }); return best; };
+      const pR=pres(A.r), pI=pres(A.xI);
+      if(!pR||!pI){ vus.push('extremum ou inflexion introuvable sur la courbe (a='+q.a+', b='+q.b+')'); return; }
+      if(Math.abs(pR.y-pI.y)<H*0.12) vus.push('la bosse du 2.2.2 est écrasée : '+Math.abs(pR.y-pI.y).toFixed(0)+' px entre l\\'extremum et l\\'inflexion sur '+H+' (a='+q.a+', b='+q.b+')');
+      if(sx(A.xI)>W-40) vus.push('l\\'inflexion est collée au bord droit du cadre (a='+q.a+', b='+q.b+')');
+      /* et le sens : sur l'écran, y croît vers le bas — un maximum est plus HAUT (y plus petit) que l'inflexion */
+      if((q.a>0 && pR.y>pI.y) || (q.a<0 && pR.y<pI.y)) vus.push('l\\'extremum n\\'est pas du bon côté de l\\'inflexion sur le dessin (a='+q.a+', b='+q.b+')');
+    });
 
     currentMode='train';
     return vus.slice(0,4).join(' | ');
