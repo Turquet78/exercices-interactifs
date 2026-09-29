@@ -2368,3 +2368,73 @@ apostrophe échappée une fois de trop peu dans le code que le contrôle
 ÉVALUE (« n\'est » au lieu de « n\\'est » dans le gabarit) le rendait rouge
 pour une erreur de syntaxe, et `node --check` sur le fichier ne pouvait pas
 la voir — il faut extraire le code évalué et le vérifier lui.
+
+**{convexite-trois-courbes} (2.2.1) : LES TROIS COURBES SONT CELLES D'UNE MÊME
+FONCTION, ET LE CONTRÔLE LE VÉRIFIE PAR DIFFÉRENCES FINIES.** Demande de
+Turquet (septembre 2026), un PDF joint : « en terminale, dans le sous-thème
+convexité, créer un exercice comme le PDF ». La fiche pose deux exercices
+jumeaux : trois écrans de calculatrice (Cf, Cf′, Cf″), et un tableau à cinq
+lignes à compléter — signe de f″, variation de f′ « avec la valeur du
+maximum (ou du minimum) de f′ », signe de f′, variation de f, convexité de f.
+L'exercice 2 a deux colonnes (le zéro de f″, puis celui de f′) ; l'exercice
+3 n'en a qu'une : f′ garde son signe, f est monotone, seule la convexité
+change. L'exercice de la page tire les deux visages, deux fois chacun par
+séance, en ordre mélangé (famille A / famille B).
+**Le sous-thème n'existait pas** : le thème 2 « Dérivée » était une liste
+plate. Il est découpé en deux parties — « Dérivée et variations » (les huit
+exercices qu'il avait, dans leur ordre : 2.1 devient 2.1.1, et ainsi de
+suite) et « Convexité », qui s'ouvre avec cet exercice (2.2.1). Les notes
+portent l'identifiant, rien de ce qui est enregistré ne bouge ; le contrôle
+universel des menus (verifier.js, « la page d'une partie ») couvre le thème
+dès qu'il déclare `sous`.
+**Trois dessins posés côte à côte auraient fini par se contredire** : un
+point d'inflexion de Cf qui ne tombe pas sur le zéro de Cf″, un extremum de
+Cf′ décalé d'une graduation. Les trois courbes sont donc celles d'UNE
+fonction connue en fermé, f(x) = A·s·(x − x₂ − 2kd)·e^{k(x−x₂)/d} + m·x, dont
+f′ = A·(sk/d)·(x − x₂ − kd)·e^{k(x−x₂)/d} + m et f″ = A·(s/d²)·(x − x₂)·e^{k(x−x₂)/d}
+se calculent à la main : f″ s'annule en x₂ et seulement là ; f′ y admet son
+extremum E = m − sA ; f′ s'annule en x₁ = x₂ + kd quand m = 0 (famille A),
+jamais quand m = s(A + e) (famille B, E = s·e du signe de m). Le paramètre k
+choisit le côté de l'asymptote, s le sens (minimum ou maximum de f′), d la
+distance entre les deux nœuds, A l'amplitude — et la valeur E, celle que
+l'élève recopie de « l'écran de la calculatrice » sous Cf′, tombe sur un
+demi (±1, ±1,5, …), jamais 0. La question ne range que ces paramètres
+(`cvxGen`) : le tableau attendu se recalcule par `cvxTab`, les fonctions par
+`cvxFn` — la question part en base pour la reprise, sans fonction dedans.
+**La fenêtre de chaque cadre se cale sur ce qui compte**, pas sur ce que la
+fonction fait aux bords : Cf″ sur ±3 fois sa bosse (A/(d·e)), Cf′ sur son
+asymptote, son extremum et 0, Cf sur ses valeurs aux nœuds et à 0 — la
+courbe SORT du cadre du côté où elle part vers ±∞, comme sur l'écran d'une
+calculatrice, et c'est voulu. L'étiquette Cf se pose dans le coin le plus
+loin de tout point tracé. Les deux lectures « X = … Y = … » sous Cf′ et Cf″
+imitent le curseur de la fiche : elles DONNENT x₂ et E — la fiche aussi —,
+l'élève a encore à lire x₁ sur Cf′, à comprendre quelle colonne est
+laquelle, et à enchaîner les cinq lignes. L'énoncé nomme le bon extremum
+(« la valeur du minimum de f′ » quand f′ décroît puis croît).
+**Le tableau est l'escalier du 5.3** (`efTableHTML`, refait avec des
+identifiants cvx-* pour ne rien partager : rien à vider ailleurs), sur DEUX
+calques — un escalier pour f′, un pour f —, et la case de la valeur de
+l'extremum est posée SUR le nœud de l'escalier de f′ ; elle suit le nœud
+quand l'élève change une flèche (`cvxArrowChange`), et son badge de
+correction se cale sur elle, comme celui d'un menu de flèche. Les 0 des
+lignes de signes sont posés par la page — la convention du 5.3 — au nœud de
+f″ dans sa ligne, au nœud de f′ dans la sienne, nulle part en famille B.
+Deux intervalles voisins portent souvent le même signe (f″ ne s'annule
+qu'une fois sur trois colonnes) : c'est le tableau de la fiche, où chaque
+ligne traverse toutes les colonnes.
+**Le contrôle ne croit rien de ce que la page range** (verifier.js,
+`convexiteTroisCourbes`) : il relit les trois fonctions par DIFFÉRENCES
+FINIES — la dérivée numérique de f doit être f′ et celle de f′ doit être f″
+sur toute la fenêtre —, retrouve les zéros de f″ et de f′ par changement de
+signe sur une grille au centième, et compare chaque case de `cvxTab` à ce
+que les courbes montrent, intervalle par intervalle, en trois points ; il
+exige deux questions par famille, des nœuds entiers de [−4 ; 4], une valeur
+d'extremum lisible, et rejoue les gestes sur deux questions épinglées (la
+copie juste et ses 18 ou 12 cases, les 0 posés au bon nœud, « −1 » au moins
+typographique comme « -1,5 » au tiret et à la virgule, un signe faux qui ne
+rougit que lui, la case vide verte en entraînement comme en soutien, le
+soutien qui colore en direct sans verrouiller, la case de la valeur qui
+suit son nœud, l'énoncé qui nomme minimum ou maximum, la clause de secret).
+Vu dans un vrai Chromium avant la mise en ligne : les quatre visages, la
+copie juste (1 point, 18 cases), une copie fausse (rouge, badge vert), et
+la tablette (les trois cadres se replient en 2 + 1).
