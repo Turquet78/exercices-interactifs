@@ -3070,3 +3070,86 @@ la visite ouvre l'exercice AVANT tout choix de méthode, et aucun banc
 navigateur ne clique le troisième bouton : ce que l'écran de la méthode 3
 donne dans un vrai Chromium, jsdom l'a lu dans le DOM, personne ne l'a
 regardé. C'est nommé, pas tu.
+## {baisses-successives-dix} — deux baisses de suite, en passant par 10 % (Première, 2.3.14, septembre 2026)
+
+**D'où il vient.** « Fais pareil pour les baisses en 2.3 » (Turquet, septembre
+2026), juste après la méthode 3 du 2.5.4. Le sous-thème 2.3 n'avait qu'un
+exercice à deux baisses, {baisses-successives} (2.3.7), par les coefficients
+— là où le 2.2 en a deux, les coefficients (2.2.7) et « partir de 100 »
+(2.2.8). « Pareil » est lu comme les paires 2.2.7/2.2.8 et 2.3.2/2.3.10 le
+disent : UN EXERCICE PAR MÉTHODE dans un sous-thème, le choix de méthode
+restant aux synthèses. Le 2.3.14 est donc la même question qu'en 2.3.7, par
+la chaîne de la fiche « méthode 3 avec 10 % », écrite pour deux baisses :
+on prend 100 au départ ; « 10 % de 100 est ▢ », « P1 % de 100 est ▢ »,
+« la première baisse donne ▢ − ▢ = ▢ » ; « 10 % de ▢ est ▢ », « P2 % de ▢ est
+▢ », « le résultat après la 2ᵉ baisse est ▢ − ▢ = ▢ » ; « la valeur est passée
+de 100 à ▢, soit une baisse de ▢ pour 100, c'est-à-dire ▢ % » — le bilan du
+2.2.8, mot pour mot, au signe près. Kind « bsd », écran `scr-bsd`, au bout du
+2.3, derrière {synthese-diminutions-libre-dix} : rien n'est renuméroté.
+L'autre lecture — un choix de méthode ajouté au 2.3.7 lui-même — aurait
+changé le parcours d'un exercice en place (rien ne s'affiche avant le
+choix) et ses contrôles ; elle reste possible si c'est ce qui était voulu.
+
+**Le vivier est celui du 2.3.7, et c'est ce qui rend la chaîne entière.**
+`BS_PAIRES` — lu, jamais recopié, tiré SANS REMISE par `bsdSeance` comme
+`hscSeance` au 2.2.8 —, deux multiples de dix dont la baisse globale reste
+au plus 90 %. Deux multiples de dix rendent TOUT entier : 10 % de 100 est 10,
+la nouvelle valeur 100 − P1 est un multiple de dix, ses 10 % un entier, P2 %
+un multiple de cet entier, la valeur finale et la baisse globale
+(100 − c1·c2/100) des entiers. Jamais la ligne « 1 % » que le 2.5.4 doit
+intercaler sur 2, 4, 6 et 8 % ; le contrôle exige d'ailleurs qu'aucune ne
+s'affiche. Aucun garde n'est posé dans la page : le contrôle refait la
+chaîne sur le vivier entier, dans les deux ordres, par sa propre
+arithmétique. La question ne porte que ses deux taux, le contexte et la
+variante (`BS_ENONCES`, les tournures du 2.3.7, partagées) ; `bsdAns()`
+recalcule tout, et le rendu, le juge, la correction, le message et le
+contexte envoyé au modèle le lisent.
+
+**Le juge, ligne à ligne.** Chaque valeur seule (`decEst`), les deux
+soustractions DANS L'ORDRE (`essOrdre`, celle de la méthode 2 du 2.5.4:
+« 20 − 100 » rougit), la nouvelle valeur RÉÉCRITE en tête des lignes de la
+seconde baisse — c'est elle qui refuse « 10 % de 100 » à la place de « 10 %
+de 80 », le piège même de l'exercice. Une case fausse rougit seule et reçoit
+sa correction ; la case vide ne rougit jamais et se complète en vert en
+entraînement ; le soutien ne révèle rien. Le message d'erreur écrit la
+chaîne et nomme l'erreur classique (« 52 %, et non 20 + 40 = 60 % »).
+`#bsdHost` a rejoint `#bsHost` dans chaque règle de taille de la feuille de
+styles (une case laissée à 1,05 rem devant des nombres à 2 rem, le contrôle
+universel l'aurait vue), et ses rangées sont espacées comme celles du
+2.2.11. Les quinze branchements : `TESTS`, `THEMES`, l'écran, `testScreens`,
+la réserve du bas, `liveCheckCurrent()`, `restartCurrentTest()`,
+`afficherEcranDe()`, les rendus enveloppés, `RAPPELS_ID` (`RAP_BSD` : 20 %
+puis 40 % → 10, 20, 80, 8, 32, 48, 52), `QIA_SUGG.bsd`, la branche `bsd` de
+`conseilCtxCourant()`, `details.test`, l'énoncé en `.mp-instr` ; et dans
+`tests/profils.js`, `KINDS_PREMIERE` (le contexte part au modèle) et la
+table des identifiants. `APP_VERSION` 269.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `baissesSuccessivesDix`,
+absent-déclaré en Seconde et en Terminale) : le vivier refait par une
+seconde arithmétique et mesuré sur ce que la page TIRE (sans remise, les
+32 paires, rien d'autre) ; la chaîne entière et la baisse globale sous 90 %
+dans les deux ordres ; la séance (identité, trois questions, paires
+distinctes, ordre tiré, la question sans autre champ, l'énoncé avec ses
+deux taux) ; le rendu de −20 % puis −40 % (les cases EXACTES de `BSD_CASES`,
+aucune ligne « 1 % », la consigne qui dit 10 %, les huit lignes lues dans le
+DOM, aucune référence {identifiant}) ; la copie juste sur trois questions
+épinglées, comptée par `ptsEcran` ; « 20 − 100 » refusé ; la seconde baisse
+refaite sur 100 refusée ; « 60 % » (les baisses additionnées) qui rougit
+seul avec un message disant 52 et 60 ; une case fausse seule avec sa
+correction « 8 » ; la case vide complétée en vert en entraînement, jamais en
+soutien, où la voisine juste reste bleue ; « Recommencer », le rappel dont
+l'exemple est tirable et porte les nombres de la chaîne, `QIA_SUGG`, le
+contexte (« 10 % de 80 est 8 », « 80 − 32 = 48 », « 52 % »). **Deux
+sabotages** avant la première fusion : la seconde baisse jugée sur 100
+(« la copie juste rougit : bsd10bm,bsdPbm ») et la soustraction rendue
+commutative (« « baisse − valeur de départ » est accepté »). Les règles
+universelles sont tenues par le banc navigateur, qui ouvre cet écran-là
+comme les autres. **Un piège de profil, attrapé par `npm test` :** le kind
+avait d'abord été ajouté à `KINDS_PREMIERE`, que la SECONDE dérive pour son
+propre contrôle du contexte IA — elle a rougi (« manque : bsd ») sur un
+démarreur qu'elle n'a pas, exprès. Un kind propre à la Première s'ajoute
+dans la liste `ctx.kinds` de SON profil, là où `ess` l'avait déjà appris.
+
+Ce qu'aucun banc ne voit : le 2.2 n'a pas son pendant « deux hausses en
+passant par 10 % » — la demande disait « les baisses en 2.3 », et rien de
+plus.

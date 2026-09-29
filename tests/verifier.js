@@ -4135,6 +4135,7 @@ function exercices(suite){
     coefficientDeuxDecimalesSynthese(w, P);
     syntheseEvolutions(w, P);
     evolutionsSuccessives(w, P);
+    baissesSuccessivesDix(w, P);
     pourcentageSchema(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
@@ -26542,6 +26543,170 @@ function evolutionsSuccessives(w, P){
     if(txt('evsPM')!=='\\u00b1') vus.push('coefficient global vide, vérifié en soutien : la parenthèse ne montre plus « ± »');
     if(test.score!==0) vus.push('copie incomplète : elle vaut le point');
     currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- {baisses-successives-dix} (2.3.14, Première SEULE) : deux baisses de suite, EN PASSANT PAR 10 % ----
+   « fais pareil pour les baisses en 2.3 » (Turquet, septembre 2026), après la
+   méthode 3 du 2.5.4 : la même question qu'en 2.3.7, par la chaîne de la fiche
+   « méthode 3 avec 10 % » écrite pour deux baisses — on prend 100, 10 % de 100,
+   P1 % de 100, la soustraction ; 10 % de la nouvelle valeur (réécrite), P2 %,
+   la soustraction ; le bilan pour 100. L'exercice n'existe qu'en Première : le
+   contrôle se déclare ABSENT ailleurs. Ses bords : le vivier est celui du 2.3.7
+   (BS_PAIRES, tiré sans remise — mesuré sur ce que la page TIRE), TOUTE la
+   chaîne est entière et la baisse globale l'est aussi, au plus 90 %, dans les
+   deux ordres ; la séance, la question sans autre champ que ses taux, son
+   contexte et sa variante ; les cases EXACTES (BSD_CASES) et jamais de ligne
+   « 1 % » ; la copie juste sur −20 % puis −40 % (48, baisse de 52 %) comptée
+   par ptsEcran ; la soustraction DANS L'ORDRE (« 20 − 100 » refusé) ; la seconde
+   baisse recalculée sur 100 refusée ; une seule case fausse qui rougit seule
+   avec sa correction ; le soutien qui ne révèle rien, la case vide qui ne
+   rougit pas ; « Recommencer », le rappel avec les nombres de la chaîne, l'aide
+   et le contexte. */
+function baissesSuccessivesDix(w, P){
+  const present = evaluer(w, "typeof startBaissesDix==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{baisses-successives-dix} : deux baisses de suite en passant par 10 %, vivier du 2.3.7, chaîne entière, verdict case par case',
+      'ce niveau n\'a pas les deux baisses en passant par 10 %');
+    return;
+  }
+  verifierEval(w, '{baisses-successives-dix} : deux baisses de suite en passant par 10 %, vivier du 2.3.7, chaîne entière, verdict case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='baisses-successives-dix';
+    /* ---- 1. le vivier : celui du 2.3.7, refait par une seconde arithmétique ---- */
+    const attendues=[];
+    for(let a=10;a<=80;a+=10) for(let b=a;b<=80;b+=10){ if((10-a/10)*(10-b/10)<10) continue; attendues.push(a+'-'+b); }
+    const paire=function(q){ return Math.min(q.P1,q.P2)+'-'+Math.max(q.P1,q.P2); };
+    const tirees=bsdSeance(attendues.length+50).map(paire), dedans={};
+    tirees.forEach(function(c){ if(dedans[c]) vus.push('la paire '+c+' sort deux fois : le tirage n\\'est pas SANS REMISE'); dedans[c]=1; });
+    attendues.forEach(function(c){ if(!dedans[c]) vus.push('la paire '+c+' manque au vivier du 2.3.14'); });
+    Object.keys(dedans).forEach(function(c){ if(attendues.indexOf(c)<0) vus.push('la paire '+c+' est tirable alors que les règles du 2.3.7 la refusent'); });
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* ---- 2. toute la chaîne est entière, dans les deux ordres, et la baisse globale aussi ---- */
+    attendues.forEach(function(c){
+      const t=c.split('-').map(Number);
+      [[t[0],t[1]],[t[1],t[0]]].forEach(function(o){
+        const a=bsdAns({P1:o[0],P2:o[1]}), nom='−'+o[0]+' puis −'+o[1];
+        const G=100-(100-o[0])*(100-o[1])/100;
+        [['10 % de 100',a.d10a,10],['la première baisse',a.b1,o[0]],['la nouvelle valeur',a.v1,100-o[0]],['10 % de la nouvelle valeur',a.d10b,(100-o[0])/10],
+         ['la seconde baisse',a.b2,(100-o[0])*o[1]/100],['la valeur finale',a.v2,(100-o[0])*(100-o[1])/100],['la baisse globale',a.h,G]].forEach(function(p){
+          if(p[1]!==p[2]) vus.push(nom+' : '+p[0]+' vaut '+p[1]+' au lieu de '+p[2]);
+          if(!Number.isInteger(p[1])) vus.push(nom+' : '+p[0]+' ('+p[1]+') n\\'est pas entier'); });
+        if(G<=0 || G>90) vus.push(nom+' : la baisse globale vaut '+G+' %');
+      });
+    });
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* ---- 3. la séance ---- */
+    const plat=[]; THEMES.forEach(function(t){ (t.sous||[{ids:t.ids}]).forEach(function(s){ (s.ids||[]).forEach(function(i){ plat.push(i); }); }); });
+    if(plat[plat.indexOf('synthese-diminutions-libre-dix')+1]!=='baisses-successives-dix') vus.push('l\\'exercice ne suit plus {synthese-diminutions-libre-dix} au menu');
+    const ordres={};
+    for(let t=0;t<40 && !vus.length;t++){
+      startBaissesDix();
+      if(test.kind!=='bsd' || test.qId!=='baisses-successives-dix') vus.push('le démarreur n\\'épingle pas son identité');
+      if(test.questions.length!==EVOL_NB) vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+EVOL_NB);
+      const sig={};
+      test.questions.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['P1','P2','ci','v'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question porte d\\'autres champs que ses taux, le contexte et la variante : '+cles.join(','));
+        if(!dedans[paire(q)]) vus.push('le tirage rend le couple '+q.P1+'/'+q.P2+', que les règles du 2.3.7 refusent');
+        if(q.P1<q.P2) ordres.croissant=1; if(q.P1>q.P2) ordres.decroissant=1;
+        if(sig[paire(q)]) vus.push('tirage '+t+' : la paire '+paire(q)+' sort deux fois dans la même séance'); sig[paire(q)]=1;
+        const en=variante(BS_ENONCES,q);
+        if(/undefined|NaN/.test(en) || en.indexOf(q.P1+' %')<0 || en.indexOf(q.P2+' %')<0) vus.push('énoncé « '+en.replace(/<[^>]+>/g,'')+' »');
+      });
+    }
+    if(!vus.length && (!ordres.croissant || !ordres.decroissant)) vus.push('l\\'ordre de la paire n\\'est pas tiré');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* ---- 4. le rendu : les cases exactes, jamais de ligne « 1 % », la consigne dit 10 % ---- */
+    const hote=document.getElementById('bsdHost');
+    const champs=function(){ return [].slice.call(hote.querySelectorAll('math-field')).map(function(e){ return e.id; }); };
+    const cl=function(id){ const e=document.getElementById(id); return (e&&e.className)||''; };
+    const rouges=function(){ return [].slice.call(hote.querySelectorAll('.bad')).filter(function(e){ return /^(MATH-FIELD|INPUT)$/.test(e.tagName); }).map(function(e){ return e.id||'(sans id)'; }); };
+    const epingle=function(P1,P2){ test.questions=[bsdQuestion(P1,P2)]; test.idx=0; test.answers=[]; test.score=0; renderBsdTest(); return test.questions[0]; };
+    let q=epingle(20,40), a=bsdAns(q);
+    if(a.v1!==80 || a.d10b!==8 || a.b2!==32 || a.v2!==48 || a.h!==52) vus.push('−20 % puis −40 % : la chaîne donne '+JSON.stringify(a)+' au lieu de 80, 8, 32, 48, 52');
+    const hors=champs().filter(function(id){ return BSD_CASES.indexOf(id)<0; }), abs=BSD_CASES.filter(function(id){ return !document.getElementById(id); });
+    if(hors.length) vus.push('des cases sont hors de BSD_CASES, donc hors de la navigation au clavier : '+hors.join(','));
+    if(abs.length) vus.push('cases absentes : '+abs.join(','));
+    if(/1 % de/.test(hote.textContent)) vus.push('une ligne « 1 % » s\\'affiche : deux multiples de dix n\\'en ont jamais besoin');
+    const texte=hote.textContent+' '+document.getElementById('bsdPrompt').textContent;
+    const acc=texte.match(/\\{[a-z-]+\\}/); if(acc) vus.push('une référence {identifiant} reste affichée : '+acc[0]);
+    if(!/10 %/.test(document.getElementById('bsdPrompt').textContent)) vus.push('la consigne ne dit pas de passer par 10 %');
+    const rows=[].slice.call(hote.querySelectorAll('.pt-row')).map(function(r){ return r.textContent.replace(/\\s+/g,' ').trim(); });
+    if(!/^10 % de 100 est/.test(rows[0]||'')) vus.push('la première ligne n\\'est pas « 10 % de 100 est » : « '+rows[0]+' »');
+    if(!/20 % de 100 est/.test(rows[1]||'')) vus.push('« 20 % de 100 est » manque : « '+rows[1]+' »');
+    if(!/première baisse donne/.test(rows[2]||'') || rows[2].indexOf('−')<0) vus.push('« la première baisse donne ▢ − ▢ = ▢ » manque : « '+rows[2]+' »');
+    if(!/^10 % de\\s*est/.test(rows[3]||'')) vus.push('« 10 % de ▢ est ▢ » manque en seconde baisse : « '+rows[3]+' »');
+    if(!/40 % de\\s*est/.test(rows[4]||'')) vus.push('« 40 % de ▢ est ▢ » manque : « '+rows[4]+' »');
+    if(!/2e baisse est/.test(rows[5]||'')) vus.push('« le résultat après la 2e baisse est » manque : « '+rows[5]+' »');
+    if(!/passée de 100 à/.test(rows[6]||'') || !/baisse de/.test(rows[7]||'')) vus.push('le bilan ne dit pas « passée de 100 à » puis « une baisse de » : « '+rows[6]+' » / « '+rows[7]+' »');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* ---- 5. la copie juste, l'ordre de la soustraction, la seconde baisse sur 100 ---- */
+    const poser=function(o){
+      [].slice.call(hote.querySelectorAll('math-field')).forEach(function(e){
+        e.value=''; e.className=e.className.replace(/\\b(ok|bad|sol)\\b/g,'').trim(); e.disabled=false;
+        const s=e.nextElementSibling; if(s && /mf-cor/.test(s.className||'')) s.parentNode.removeChild(s); });
+      Object.keys(o).forEach(function(id){ const e=document.getElementById(id); if(e) e.value=String(o[id]); });
+      test.answers=[]; test.score=0; test.locked=false; };
+    const copie=function(a){ return {bsd10a:10,bsdPa:a.b1,bsd1sa:100,bsd1sb:a.b1,bsd1sr:a.v1,bsd10bm:a.v1,bsd10b:a.d10b,bsdPbm:a.v1,bsdPb:a.b2,bsd2sa:a.v1,bsd2sb:a.b2,bsd2sr:a.v2,bsdFin:a.v2,bsdPour:a.h,bsdPct:a.h}; };
+    [[20,40,'−20 % puis −40 %'],[40,20,'−40 % puis −20 %'],[50,30,'−50 % puis −30 %']].forEach(function(e){
+      q=epingle(e[0],e[1]); a=bsdAns(q);
+      poser(copie(a)); checkBsdAnswer();
+      if(test.score!==1) vus.push(e[2]+' : la copie juste ne vaut pas le point');
+      if(rouges().length) vus.push(e[2]+' : la copie juste rougit : '+rouges().join(','));
+      const m=ptsEcran();
+      if(!m || m.justes!==BSD_CASES.length || m.cases!==BSD_CASES.length) vus.push(e[2]+' : la note de l\\'écran compte '+(m?m.justes+'/'+m.cases:'rien')+' au lieu de '+BSD_CASES.length+'/'+BSD_CASES.length);
+    });
+    q=epingle(20,40); a=bsdAns(q);
+    const inv=copie(a); inv.bsd1sa=a.b1; inv.bsd1sb=100;
+    poser(inv); checkBsdAnswer();
+    if(test.score===1) vus.push('« baisse − valeur de départ » est accepté');
+    if(!/\\bbad\\b/.test(cl('bsd1sa'))) vus.push('la soustraction à l\\'envers ne rougit pas');
+    const cent=copie(a); cent.bsd10bm=100; cent.bsd10b=10; cent.bsdPbm=100; cent.bsdPb=40;
+    poser(cent); checkBsdAnswer();
+    if(!/\\bbad\\b/.test(cl('bsd10bm')) || !/\\bbad\\b/.test(cl('bsdPb'))) vus.push('la seconde baisse recalculée sur 100 est acceptée');
+    if(test.score===1) vus.push('une copie qui refait la seconde baisse sur 100 vaut le point');
+    const somme=copie(a); somme.bsdPct=60; somme.bsdPour=60;
+    poser(somme); checkBsdAnswer();
+    if(test.score===1) vus.push('« 60 % » (les baisses additionnées) vaut le point');
+    if(rouges().sort().join(',')!=='bsdPct,bsdPour') vus.push('les baisses additionnées ne rougissent pas seules : '+rouges().join(','));
+    if(!/60/.test(document.getElementById('bsdFeedback').textContent) || !/52/.test(document.getElementById('bsdFeedback').textContent)) vus.push('le message ne dit pas 52 % et non 60 %');
+    /* ---- 6. chaque case seule, la vide, le soutien ---- */
+    const une=copie(a); une.bsd10b=10;
+    poser(une); checkBsdAnswer();
+    if(rouges().join(',')!=='bsd10b') vus.push('une seule case fausse en fait rougir d\\'autres : '+rouges().join(','));
+    const badge=document.getElementById('bsd10b').nextElementSibling;
+    if(!badge || !/mf-cor/.test(badge.className||'') || badge.textContent.trim()!=='8') vus.push('en entraînement, la correction « 8 » ne s\\'écrit pas à côté de la case fausse');
+    const troue=copie(a); delete troue.bsdPct;
+    poser(troue); checkBsdAnswer();
+    if(test.score===1) vus.push('une copie dont la dernière case est vide vaut le point');
+    if(document.getElementById('bsdPct').value!=='52' || !/\\bsol\\b/.test(cl('bsdPct'))) vus.push('en entraînement, la case laissée vide n\\'est pas complétée en vert');
+    currentMode='soutien';
+    poser({}); checkBsdAnswer();
+    if(test.locked) vus.push('en soutien, une copie vide verrouille l\\'exercice');
+    if(rouges().length) vus.push('en soutien, des cases laissées vides rougissent : '+rouges().join(','));
+    poser(troue); checkBsdAnswer();
+    if(document.getElementById('bsdPct').value!=='') vus.push('en soutien, la case vide reçoit la réponse');
+    if(!/\\bok\\b/.test(cl('bsdFin'))) vus.push('en soutien, une case juste n\\'est pas bleue quand une voisine est vide');
+    currentMode='train';
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    /* ---- 7. l'identité, le rappel, l'aide, le contexte ---- */
+    test.kind='bsd'; test.qId='(sentinelle)'; restartCurrentTest();
+    if(test.qId!=='baisses-successives-dix') vus.push('« Recommencer » relance « '+test.qId+' »');
+    const rap=(typeof RAPPELS_ID!=='undefined' && RAPPELS_ID['baisses-successives-dix'])||'';
+    const m=/(\\d+) % puis de (\\d+) %/.exec(rap);
+    if(!m) vus.push('le rappel ne montre aucun exemple « X % puis de Y % »');
+    else {
+      const tirable=BS_PAIRES.some(function(p){ return (p[0]===+m[1]&&p[1]===+m[2])||(p[0]===+m[2]&&p[1]===+m[1]); });
+      if(!tirable) vus.push('le rappel montre '+m[1]+' % puis '+m[2]+' %, que le tirage ne rend jamais');
+      const ex=bsdAns({P1:+m[1],P2:+m[2]});
+      [['la nouvelle valeur',ex.v1],['10 % de la nouvelle valeur',ex.d10b],['la seconde baisse',ex.b2],['la valeur finale',ex.v2],['la baisse globale',ex.h]].forEach(function(p){
+        if(rap.indexOf(String(p[1]))<0) vus.push('le rappel n\\'écrit pas '+p[0]+' ('+p[1]+')'); });
+    }
+    if(!(QIA_SUGG.bsd && QIA_SUGG.bsd.length>=3)) vus.push('QIA_SUGG.bsd manque');
+    currentTestId='baisses-successives-dix'; test.kind='bsd'; test.questions=[bsdQuestion(20,40)]; test.idx=0;
+    const ctx=conseilCtxCourant();
+    ['10 % de 80 est 8','80 − 32 = 48','52 %','STRICTEMENT SECRÈTES'].forEach(function(t){ if(ctx.indexOf(t)<0) vus.push('le contexte envoyé au modèle ne dit pas « '+t+' »'); });
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
