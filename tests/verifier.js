@@ -4643,7 +4643,7 @@ function syntheseGeneraleCliquee(w, apres){
 
     /* 4. la fin de séance : 2/2 sous SON identifiant, rien sous ceux d'origine */
     window.__faux.journal.length=0;
-    const notes=function(id){ return (window.__faux.tables['resultats_1ere']||[]).filter(function(r){ return r.details && r.details.test===id; }); };
+    const notes=function(id){ return (window.__faux.tables['resultats_1ere']||[]).filter(function(r){ return r.details && !r.details.state && !r.details.partiel && r.details.test===id; }); };   /* les notes, pas les brouillons de pause */
     const avant=notes(ID).length;
     const b2=document.querySelector('#eslActions .btn-primary'); if(b2) b2.click();
     for(let i=0;i<100 && notes(ID).length===avant;i++) await new Promise(function(r){ setTimeout(r,20); });

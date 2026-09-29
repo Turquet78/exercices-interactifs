@@ -5909,9 +5909,12 @@ async function parcours(page, N){
           await s.page.click('#eslActions .btn-primary');
           await s.page.waitForTimeout(1500);
           const f6 = await s.page.evaluate(([id, table]) => {
-            const notes = ((window.__faux && window.__faux.tables && window.__faux.tables[table]) || []).filter(r => r.details && r.details.test === id);
+            /* les NOTES, pas les brouillons de pause : un brouillon porte details.state
+               (les étapes précédentes en ont laissé sous le 2.5.2 et le 2.5.6) */
+            const lignes = ((window.__faux && window.__faux.tables && window.__faux.tables[table]) || []).filter(r => r.details && !r.details.state && !r.details.partiel);
+            const notes = lignes.filter(r => r.details.test === id);
             const n = notes[notes.length - 1];
-            const autres = ((window.__faux && window.__faux.tables && window.__faux.tables[table]) || []).filter(r => r.details && (r.details.test === 'synthese-pourcentages-libre' || r.details.test === 'synthese-evolutions-successives-libre')).length;
+            const autres = lignes.filter(r => r.details.test === 'synthese-pourcentages-libre' || r.details.test === 'synthese-evolutions-successives-libre').length;
             return { ecran: (document.querySelector('section.screen.on') || {}).id, n: notes.length, score: n ? n.score : null, total: n ? n.total : null, autres };
           }, [X6.exercice, P.tableResultats]);
           if(f6.ecran !== 'scr-results') dits6.push('la fin de séance ne montre pas les résultats : « ' + f6.ecran + ' »');
