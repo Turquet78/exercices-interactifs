@@ -4161,6 +4161,7 @@ function exercices(suite){
     simplifierBarres(w, P);
     multiplierFractions(w, P);
     synthesePourcentage(w, P);
+    synthesePourcentageMethode(w, P);
     syntheseLibrePourcentage(w, P);
     syntheseAugLibreRedigee(w, P);
     syntheseToutesFamillesRedigee(w, P);
@@ -6989,6 +6990,175 @@ function synthesePourcentage(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* {pourcentage-synthese} (Première 2.1.6) — la méthode de vérification se
+   CHOISIT (demande de Turquet, septembre 2026) : « Avec la fraction sur 100 »
+   (la chaîne de {pourcentage} et {pourcentage-taux}) ou « En passant par
+   10 % », présenté comme {pourcentage-dix-cascade} pour une valeur et comme
+   {pourcentage-dix-taux} pour le pourcentage. Ses bords, éprouvés par
+   sabotage :
+     · le TIRAGE : chaque question de la synthèse porte q.meth = null, celles
+       de 2.1.4 et 2.1.5 n'en portent pas — et leur écran n'a ni bouton de
+       méthode ni message qui en réclame une ;
+     · l'ÉCRAN : rien ne s'affiche avant la méthode, et « Vérifier » la
+       réclame ; la fraction montre la chaîne P/100 × N (qN comprise) ; le
+       passage par 10 % montre « On commence par 10 % de N », puis « P % de N
+       est ▢ » pour une valeur — une seule ligne quand P EST 10 % — et, pour le
+       pourcentage, le facteur et les flèches de la fiche quand il y a une
+       multiplication à montrer, jamais quand le pourcentage cherché EST 10 % ;
+     · le JUGE : la copie juste vaut le point dans les trois types ; sur une
+       proposition FAUSSE, le calcul juste est dit juste — sur la proposition
+       pour la valeur initiale, sur les DONNÉES pour le pourcentage (le
+       pourcentage trouvé nommé, la preuve passe par 10 % de N) — et en soutien
+       l'écran reste ouvert, puis la bonne proposition vaut le point ;
+     · une case vide ne rougit jamais, la correction d'entraînement la remplit ;
+       changer de méthode reconstruit la chaîne ; le verdict verrouille les
+       boutons de méthode. */
+function synthesePourcentageMethode(w, P){
+  const T='2.1.6 : la méthode se choisit — la fraction sur 100, ou le passage par 10 % comme le 2.1.9 et le 2.1.10 — et la copie juste vaut le point';
+  const present = evaluer(w, "typeof startPctSynthese==='function' && typeof choisirQMeth==='function' && typeof qdDixRegl==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(T, 'ce niveau n\'a pas le choix de méthode de la synthèse « prendre un pourcentage »');
+    return;
+  }
+  verifierEval(w, T, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='pourcentage-synthese';
+    const $=function(id){ return document.getElementById(id); };
+    const texte=function(){ return ($('qHost')||{}).textContent||''; };
+    const fb=function(){ return ($('qFeedback')||{}).textContent||''; };
+    const couleur=function(id){ const c=$(id)?$(id).className:''; return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const fixe=function(q,choix){ test.idx=0; test.locked=false; test.answers=[]; test.score=0;
+      test.questions[0]=JSON.parse(JSON.stringify(q)); test.questions[0].choisi=choix;
+      renderQTest(); return test.questions[0]; };
+    const ecrire=function(copie){ Object.keys(copie).forEach(function(id){ const el=$(id); if(el) el.value=copie[id]; else vus.push('la case '+id+' manque'); }); };
+    const toutes=function(copie,nom){ Object.keys(copie).forEach(function(id){ if(couleur(id)!=='ok') vus.push(nom+' : '+id+' est « '+couleur(id)+' »'); }); };
+    const RES={type:'res',P:30,N:40,unit:'€',prod:1200,result:12,opts:[11,12,13,14],bon:1,choisi:null,ci:0,v:0,meth:null};
+    const RESD=Object.assign({},RES,{meth:'dix'});
+    const RES10={type:'res',P:10,N:40,unit:'€',prod:400,result:4,opts:[3,4,5,6],bon:1,choisi:null,ci:0,v:0,meth:'dix'};
+    const VAL={type:'val',P:30,N:40,unit:'€',prod:1200,result:12,opts:[30,40,50,60],bon:1,choisi:null,ci:0,v:0,meth:'dix'};
+    const PCT={type:'pct',P:30,N:40,unit:'€',prod:1200,result:12,opts:[20,30,40,50],bon:1,choisi:null,ci:0,v:0,meth:'dix'};
+    const PCT10={type:'pct',P:10,N:40,unit:'€',prod:400,result:4,opts:[10,20,30,40],bon:0,choisi:null,ci:0,v:0,meth:'dix'};
+
+    /* ---- 0. le tirage porte le choix ; 2.1.4 et 2.1.5 n'en ont pas ---- */
+    startPctSynthese();
+    test.questions.forEach(function(q,i){ if(q.meth!==null) vus.push('tirage q'+i+' : q.meth vaut '+JSON.stringify(q.meth)+' au lieu de null'); });
+    if(!$('qMeth') || !$('qm0') || !$('qm1')) vus.push('les deux boutons de méthode manquent');
+    if($('q1n') || $('qN') || $('qx0')) vus.push('une chaîne est affichée avant le choix de la méthode');
+    if(texte().indexOf('méthode')<0) vus.push('rien ne dit de choisir une méthode : « '+texte().slice(-120)+' »');
+    choisirQ(0); checkQAnswer();
+    if(fb().indexOf('méthode')<0) vus.push('« Vérifier » sans méthode ne la réclame pas : « '+fb()+' »');
+    if(test.locked) vus.push('« Vérifier » sans méthode verrouille la question');
+    startPctDepart();
+    if(test.questions.some(function(q){ return q.meth!==undefined; })) vus.push('2.1.4 tire des questions qui portent q.meth');
+    choisirQ(0);
+    if($('qMeth')) vus.push('2.1.4 montre les boutons de méthode');
+    if(!$('q1n')) vus.push('2.1.4 : la chaîne ne s\\'affiche plus sans méthode');
+    checkQAnswer(); if(fb().indexOf('méthode')>=0) vus.push('2.1.4 réclame une méthode : « '+fb()+' »');
+    startPctTaux(); choisirQ(0);
+    if($('qMeth') || !$('q1n')) vus.push('2.1.5 a changé : boutons de méthode « '+!!$('qMeth')+' », chaîne « '+!!$('q1n')+' »');
+
+    /* ---- 1. la fraction sur 100 : la chaîne d'avant, toutes cases vides ---- */
+    startPctSynthese(); fixe(RES,1); choisirQMeth('frac');
+    if(!$('qm0') || $('qm0').className.indexOf('sel')<0) vus.push('fraction : le bouton ne se marque pas choisi');
+    ['q1n','q1d','qN','q2n','q2d','q3'].forEach(function(id){ if(!$(id)) vus.push('fraction : la case '+id+' manque'); });
+    if($('qx0')) vus.push('fraction : une case du passage par 10 % reste affichée');
+    ecrire({q1n:'30',q1d:'100',qN:'40',q2n:'1200',q2d:'100',q3:'12'}); checkQAnswer();
+    if(test.score!==1) vus.push('fraction : la copie juste ne vaut pas le point');
+    if(!$('qMeth').classList.contains('locked')) vus.push('le verdict ne verrouille pas les boutons de méthode');
+    choisirQMeth('dix'); if(test.questions[0].meth!=='frac') vus.push('la méthode change après le verdict');
+
+    /* ---- 2. le résultat, en passant par 10 % : les lignes du 2.1.9 ---- */
+    fixe(RES,null); choisirQMeth('dix');
+    if(!$('qm1') || $('qm1').className.indexOf('sel')<0) vus.push('10 % : le bouton ne se marque pas choisi');
+    if(!$('qx0') || !$('qxP')) vus.push('résultat : les cases qx0 / qxP manquent');
+    if($('q1n') || $('qN')) vus.push('résultat : la chaîne de la fraction reste affichée');
+    if($('qxK') || $('qHost').classList.contains('qd-fl')) vus.push('résultat : un facteur ou des flèches s\\'affichent pour une valeur');
+    if(texte().indexOf('On commence par 10 % de 40')<0) vus.push('résultat : la ligne « On commence par 10 % de 40 » manque : « '+texte().slice(0,160)+' »');
+    if(texte().indexOf('30 % de 40')<0) vus.push('résultat : la ligne « 30 % de 40 … est » manque');
+    $('qx0').value='4'; choisirQ(1);
+    if(String($('qx0').value)!=='4') vus.push('résultat : choisir la proposition efface la case écrite');
+    ecrire({qx0:'4',qxP:'12'}); checkQAnswer();
+    toutes({qx0:1,qxP:1},'résultat (copie juste)');
+    if(test.score!==1) vus.push('résultat : la copie juste ne vaut pas le point');
+    if(($('qFeedback').className||'').indexOf('good')<0) vus.push('résultat : la copie juste n\\'est pas félicitée');
+    if(!/en passant par 10 %/.test((test.answers[0]||{}).q||'')) vus.push('résultat : la réponse enregistrée ne dit pas la méthode : « '+((test.answers[0]||{}).q)+' »');
+    /* P EST 10 % : une seule ligne, et elle vaut le point */
+    fixe(RES10,1);
+    if(!$('qx0')) vus.push('10 % : la ligne des 10 % manque');
+    if($('qxP')) vus.push('10 % : une seconde ligne s\\'affiche alors que 10 % est déjà la réponse');
+    ecrire({qx0:'4'}); checkQAnswer();
+    if(test.score!==1) vus.push('10 % : la copie juste (une case) ne vaut pas le point');
+    /* une copie fausse : la preuve passe par 10 % de 40, et la correction remplit les cases vides */
+    fixe(RESD,1); ecrire({qx0:'5'}); checkQAnswer();
+    if(couleur('qx0')!=='bad') vus.push('résultat : 5 pour 10 % de 40 est peint « '+couleur('qx0')+' »');
+    if(couleur('qxP')!=='sol') vus.push('résultat : la case vide n\\'est pas complétée par la correction (« '+couleur('qxP')+' »)');
+    if(fb().indexOf('10 % de 40')<0) vus.push('résultat : la preuve ne passe pas par 10 % de 40 : « '+fb().slice(0,120)+' »');
+    /* une copie VIDE ne rougit jamais */
+    fixe(RESD,1); checkQAnswer();
+    if(couleur('qx0')==='bad' || couleur('qxP')==='bad') vus.push('résultat : une case vide rougit');
+
+    /* ---- 3. la valeur initiale : sur la proposition choisie ---- */
+    fixe(VAL,null);
+    if(texte().indexOf('10 % de …')<0) vus.push('valeur initiale : sans proposition, la ligne des 10 % ne montre pas « … » : « '+texte().slice(0,160)+' »');
+    choisirQ(2);   /* 50, faux */
+    if(texte().indexOf('On commence par 10 % de 50')<0) vus.push('valeur initiale : la ligne des 10 % ne suit pas la proposition choisie (50)');
+    ecrire({qx0:'5',qxP:'15'}); checkQAnswer();
+    toutes({qx0:1,qxP:1},'valeur initiale (calcul juste sur une proposition fausse)');
+    if(test.score!==0) vus.push('valeur initiale : une proposition fausse vaut le point');
+    if(fb().indexOf('Calcul juste, mais mauvaise proposition')<0) vus.push('valeur initiale : le message ne dit pas « calcul juste, mauvaise proposition » : « '+fb().slice(0,80)+' »');
+    if(fb().indexOf('10 % de 40')<0) vus.push('valeur initiale : la preuve ne passe pas par 10 % de 40 : « '+fb().slice(0,140)+' »');
+    currentMode='soutien';
+    fixe(VAL,2); ecrire({qx0:'5',qxP:'15'}); checkQAnswer();
+    if(test.locked) vus.push('soutien : l\\'écran se verrouille sur une proposition fausse au calcul juste');
+    if(fb().indexOf('Ton calcul est juste')<0 || fb().indexOf('15')<0) vus.push('soutien : le message ne dit pas que le calcul est juste et ce qu\\'il donne : « '+fb().slice(0,100)+' »');
+    choisirQ(1); ecrire({qx0:'4',qxP:'12'}); checkQAnswer();
+    if(test.score!==1) vus.push('soutien : la bonne proposition après correction ne vaut pas le point');
+    currentMode='train';
+
+    /* ---- 4. le pourcentage : les lignes du 2.1.10, jugées sur les DONNÉES ---- */
+    fixe(PCT,null);
+    ['qx0','qxK','qxP','qxFlPct10','qxFlValDst'].forEach(function(id){ if(!$(id)) vus.push('pourcentage : '+id+' manque'); });
+    if(!$('qHost').classList.contains('qd-fl')) vus.push('pourcentage : la classe des flèches n\\'est pas posée');
+    if($('q1n')) vus.push('pourcentage : la chaîne de la fraction reste affichée');
+    if(texte().indexOf('On multiplie par')<0 || texte().indexOf('% de 40 € = 12')<0) vus.push('pourcentage : les mots du 2.1.10 manquent : « '+texte().slice(0,200)+' »');
+    choisirQ(0);   /* 20 %, faux */
+    if(texte().indexOf('le pourcentage trouvé doit être celui que tu as choisi')<0) vus.push('pourcentage : l\\'aide ne dit pas que le pourcentage trouvé se compare au choix');
+    ecrire({qx0:'4',qxK:'3',qxP:'30'}); checkQAnswer();
+    toutes({qx0:1,qxK:1,qxP:1},'pourcentage (calcul juste sur une proposition fausse)');
+    if(test.score!==0) vus.push('pourcentage : une proposition fausse vaut le point');
+    if(fb().indexOf('le pourcentage trouvé est 30 %')<0) vus.push('pourcentage : le message ne nomme pas le pourcentage trouvé : « '+fb().slice(0,100)+' »');
+    fixe(PCT,1); ecrire({qx0:'4',qxK:'3',qxP:'30'}); checkQAnswer();
+    if(test.score!==1) vus.push('pourcentage : la copie juste ne vaut pas le point');
+    currentMode='soutien';
+    fixe(PCT,0); ecrire({qx0:'4',qxK:'3',qxP:'30'}); checkQAnswer();
+    if(test.locked) vus.push('pourcentage, soutien : l\\'écran se verrouille sur une proposition fausse au calcul juste');
+    if(fb().indexOf('Ton calcul est juste')<0 || fb().indexOf('30 %')<0) vus.push('pourcentage, soutien : « '+fb().slice(0,100)+' »');
+    choisirQ(1); ecrire({qx0:'4',qxK:'3',qxP:'30'}); checkQAnswer();
+    if(test.score!==1) vus.push('pourcentage, soutien : la bonne proposition après correction ne vaut pas le point');
+    currentMode='train';
+    /* le pourcentage cherché EST 10 % : ni facteur, ni flèches */
+    fixe(PCT10,0);
+    if($('qxK')) vus.push('10 % cherché : une case de facteur s\\'affiche alors qu\\'il n\\'y a rien à multiplier');
+    if($('qHost').classList.contains('qd-fl')) vus.push('10 % cherché : les flèches sont annoncées sans multiplication à montrer');
+    ecrire({qx0:'4',qxP:'10'}); checkQAnswer();
+    if(test.score!==1) vus.push('10 % cherché : la copie juste ne vaut pas le point');
+    /* une copie vide ne rougit jamais, et la correction remplit */
+    fixe(PCT,1); checkQAnswer();
+    ['qx0','qxK','qxP'].forEach(function(id){ if(couleur(id)==='bad') vus.push('pourcentage : la case vide '+id+' rougit'); if(couleur(id)!=='sol') vus.push('pourcentage : la case vide '+id+' n\\'est pas complétée (« '+couleur(id)+' »)'); });
+
+    /* ---- 5. changer de méthode reconstruit la chaîne ---- */
+    fixe(RES,1); choisirQMeth('dix'); $('qx0').value='7'; choisirQMeth('frac');
+    if(!$('q1n') || $('qx0')) vus.push('passer aux fractions ne reconstruit pas la chaîne');
+    choisirQMeth('dix');
+    if(!$('qx0') || $('q1n')) vus.push('revenir aux 10 % ne reconstruit pas la chaîne');
+
+    /* ---- 6. « Recommencer » relance bien la synthèse -------- */
+    test.kind='pctq'; test.qId='pourcentage-synthese'; restartCurrentTest();
+    if(test.qId!=='pourcentage-synthese') vus.push('« Recommencer » relance '+test.qId);
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---------- La pose facultative suit les nombres de L'ÉLÈVE -----------------
    (décision de Turquet, août 2026) : dans les quatre écrans qui posent la
    multiplication des numérateurs (2.2.1, 2.3.1, les QCM « retrouver », la
@@ -7657,7 +7827,16 @@ function verificationAvecPropositions(w, P){
     }
     essai('2.1.4', startPctDepart, 'q1n', choisirQ, 'qc');
     essai('2.1.5', startPctTaux, 'q1n', choisirQ, 'qc');
-    essai('2.1.6', startPctSynthese, 'qN', choisirQ, 'qc');
+    /* la synthèse 2.1.6 de la Première : la méthode se choisit AVANT que la
+       chaîne apparaisse (comme la synthèse des évolutions, plus bas), puis
+       choisir n'efface rien ; en Seconde, la synthèse n'a pas ce choix et la
+       chaîne s'affiche dès le départ */
+    if(typeof choisirQMeth==='function'){
+      startPctSynthese();
+      if(!$('qMeth')) vus.push('2.1.6 : les boutons de méthode manquent avant le choix de la proposition');
+      if($('qN') || $('q1n') || $('qx0')) vus.push('2.1.6 : la chaîne de vérification est affichée avant le choix de la méthode');
+      essai('2.1.6', function(){ startPctSynthese(); choisirQMeth('frac'); }, 'qN', choisirQ, 'qc');
+    } else essai('synthèse « prendre un pourcentage »', startPctSynthese, 'qN', choisirQ, 'qc');
     essai('retrouver la valeur (hausse)', startAugDepart, 'v1n', choisirV, 'vc');
     essai('retrouver le taux (hausse)', startAugTaux, 'v1n', choisirV, 'vc');
     essai('retrouver le taux (addition)', startAugTauxAdd, 'w1n', choisirW, 'wc');
