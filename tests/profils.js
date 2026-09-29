@@ -1767,6 +1767,9 @@ module.exports = {
           pose: "var q=genLG('homo'); q.tv=lg2Table(q); test.questions=[q]; test.idx=0; renderLG3();", cases: 2 },
         { exercice: 'tvi-alpha-signe',      ecran: 'asg', kind: 'asg',
           pose: "test.questions=[{a:1,b:2}]; test.idx=0; renderASG();", cases: 3 },
+        /* le 5.6 (la fiche 5) pose ses limites au b) et au e), comme le 4.6 */
+        { exercice: 'etude-convexite',      ecran: 'ecv', kind: 'ecv',
+          pose: "test.questions=[{a:2,b:-1}]; test.idx=0; renderECV();", cases: 3 },
         { exercice: 'suite-vocabulaire',    ecran: 'svq', kind: 'svq',
           pose: "test.questions=[{fam:'decconv',L:1,A:3,q:0.8,rep:{}}]; test.idx=0; renderSVQ();", cases: 1 },
       ],
@@ -1857,6 +1860,11 @@ module.exports = {
        déborde pas, et le bouton ∞ réellement CLIQUÉ, qui écrit dans la case
        et lève l'événement input. */
     alphaSigne: { exercice: 'tvi-alpha-signe' },
+    /* Le 5.6 (la fiche 5 : l'étude menée à la convexité) : le même tableau
+       du 5.3 RENDU, les DEUX chaînes du 2.1 (f′ puis f″) dont la première
+       case est TAPÉE pour de vrai, le bouton ∞ cliqué, et la copie de la
+       fiche — 102 cases — remplie puis vérifiée d'un clic. */
+    etudeConvexite: { exercice: 'etude-convexite' },
     /* L'étiquette « Cf′ » du dessin partagé des dérivées (afGraphSVG) se pose
        À CÔTÉ de la courbe, jamais dessus : le banc navigateur mesure la boîte
        RENDUE (getBBox) contre le chemin RENDU (getPointAtLength) sur chacun
