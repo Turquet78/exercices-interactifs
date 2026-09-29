@@ -2032,7 +2032,20 @@ function branchements(w){
   }
 
   /* ---- {synthese-evolutions-successives} (2.5.4) : deux évolutions, hausse OU
-     baisse chacune, par l'une des deux méthodes ------------------------------
+     baisse chacune, par l'une des trois méthodes -----------------------------
+     LA MÉTHODE 3, EN PASSANT PAR 10 % (demande de Turquet, septembre 2026 : « il
+     manque la méthode 3 "en passant par 10 %" qui reprend la méthode comme le
+     pdf joint ») : on prend 100 au départ, 10 % de 100, P1 % de 100, l'opération ;
+     puis 10 % de la nouvelle valeur (RÉÉCRITE, comme la fiche), P2 %, l'opération ;
+     la conclusion. Ses bords : les cases EXACTES, la ligne « 1 % » qui ne
+     s'affiche que lorsqu'un taux n'est pas un multiple de 5 (2 %, 4 %, 6 %, 8 %
+     du vivier) et là seulement, la copie juste sur les deux questions épinglées
+     ET sur une troisième dont les dixièmes sont un DÉCIMAL (+5 % puis +20 % :
+     10 % de 105 est 10,5), l'ordre de l'addition libre et celui de la
+     soustraction imposé, la seconde évolution recalculée sur 100 refusée, une
+     seule case fausse qui rougit seule avec sa correction « 10,5 », la case vide
+     qui ne rougit pas en soutien, le rappel et le contexte qui disent la
+     méthode 3 avec ses nombres.
      La synthèse du 2.2.7, du 2.2.8 et du 2.3.7 (demande de Turquet, septembre
      2026) : les énoncés du 2.2.7 avec les deux sens, le choix de la méthode —
      multiplier les coefficients, ou partir de 100 — et un résultat ENTIER dont
@@ -2073,7 +2086,7 @@ function branchements(w){
        · l'IDENTITÉ de « Recommencer », le rappel sur un tirage possible avec
          les nombres des deux chaînes, le contexte envoyé au modèle. */
   if(evaluer(w,'typeof startEss').valeur==='function'){
-    verifierEval(w, 'deux évolutions successives : vivier partagé, entiers dans les quatre signes, deux méthodes, sens jugé', `(function(){
+    verifierEval(w, 'deux évolutions successives : vivier partagé, entiers dans les quatre signes, trois méthodes, sens jugé', `(function(){
       const vus=[];
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
       /* ---- 1. LE VIVIER : celui du 2.2.7, refait par une seconde arithmétique ---- */
@@ -2213,6 +2226,28 @@ function branchements(w){
       if(!/20 % de 100/.test(labs[1]||'')) vus.push('méthode 2 : l’étape ① ne dit pas « 20 % de 100 » : « '+labs[1]+' »');
       if(!/5 % du résultat précédent/.test(labs[3]||'')) vus.push('méthode 2 : l’étape ③ ne dit pas « 5 % du résultat précédent » : « '+labs[3]+' »');
       if(!/soustraction/.test(labs[4]||'')) vus.push('méthode 2 : l’étape ④ d’une baisse ne parle pas de soustraction : « '+labs[4]+' »');
+      /* la méthode 3 : les cases exactes, aucune ligne « 1 % » sur deux multiples de 5, les lignes de la fiche */
+      choisirEssMeth('dix');
+      if(test.locked) vus.push('changer de méthode (10 %) verrouille l’exercice');
+      const horsD=champs().filter(function(id){ return ESS_CASES.dix.indexOf(id)<0; });
+      if(horsD.length) vus.push('méthode 3 : des cases sont hors de ESS_CASES : '+horsD.join(','));
+      ['essd10a','essdPa','essd1sa','essd1sb','essd1sr','essd10bm','essd10b','essdPbm','essdPb','essd2sa','essd2sb','essd2sr','essdFin','essdPct'].forEach(function(id){ if(!document.getElementById(id)) vus.push('méthode 3 : la case '+id+' manque'); });
+      ['essd1a','essd1bm','essd1b'].forEach(function(id){ if(document.getElementById(id)) vus.push('méthode 3, +20 % puis −5 % : une ligne « 1 % » s’affiche alors que les deux taux sont des multiples de 5 ('+id+')'); });
+      if(!document.getElementById('essSensH') || !document.getElementById('essSensB')) vus.push('méthode 3 : les deux boutons du sens manquent');
+      texte=hote.textContent; acc=texte.match(/\\{[a-z-]+\\}/); if(acc) vus.push('une référence {identifiant} reste affichée : '+acc[0]);
+      const rowsD=[].slice.call(hote.querySelectorAll('.ess-dix .pt-row')).map(function(r){ return r.textContent.replace(/\\s+/g,' ').trim(); });
+      if(rowsD.length!==6) vus.push('méthode 3, +20 % puis −5 % : '+rowsD.length+' lignes au lieu de 6');
+      if(!/^10 % de 100 est/.test(rowsD[0]||'')) vus.push('méthode 3 : la première ligne n’est pas « 10 % de 100 est » : « '+rowsD[0]+' »');
+      if(!/20 % de 100 est/.test(rowsD[1]||'')) vus.push('méthode 3 : « 20 % de 100 est » manque : « '+rowsD[1]+' »');
+      if(!/première hausse donne/.test(rowsD[2]||'')) vus.push('méthode 3 : « la première hausse donne » manque : « '+rowsD[2]+' »');
+      if(!/^10 % de\\s*est/.test(rowsD[3]||'')) vus.push('méthode 3 : « 10 % de ▢ est ▢ » manque en seconde évolution : « '+rowsD[3]+' »');
+      if(!/5 % de\\s*est/.test(rowsD[4]||'')) vus.push('méthode 3 : « 5 % de ▢ est ▢ » manque : « '+rowsD[4]+' »');
+      if(!/2e baisse est/.test(rowsD[5]||'')) vus.push('méthode 3 : « le résultat après la 2e baisse est » manque : « '+rowsD[5]+' »');
+      /* −50 % puis +2 % : la ligne « 1 % » sur la seconde évolution seulement, et ses rationnels */
+      q=epingle(-1,50,1,2); a=essAns(q); choisirEssMeth('dix');
+      if(document.getElementById('essd1a')) vus.push('méthode 3, −50 % puis +2 % : une ligne « 1 % de 100 » pour 50 %');
+      if(!document.getElementById('essd1b') || !document.getElementById('essd1bm')) vus.push('méthode 3, −50 % puis +2 % : la ligne « 1 % de 50 » manque — 2 % ne se déduit pas de 10 %');
+      if(!a.dix || a.dix.d10b.n!==50 || a.dix.d10b.d!==10 || a.dix.d1b.n!==50 || a.dix.d1b.d!==100) vus.push('méthode 3 : 10 % et 1 % de 50 ne sont pas 50/10 et 50/100');
       if(vus.length) return vus.slice(0,4).join(' | ');
 
       /* ---- 6. la copie juste, par les deux méthodes, sur deux questions épinglées ---- */
@@ -2231,6 +2266,9 @@ function branchements(w){
         essc1sa:100,essc1sb:a.aug1,essc1sr:a.v1,
         essc2n:q.P2,essc2d:100,essc2m:a.v1,essc2pn:a.prod2,essc2pd:100,essc2a:a.aug2,
         essc2sa:a.v1,essc2sb:a.aug2,essc2sr:a.v2,esscFin:a.v2,esscPour:a.pct,esscPct:a.pct}; };
+      const copieDix=function(q,a){ const D=a.dix, o={essd10a:10,essdPa:a.aug1,essd1sa:100,essd1sb:a.aug1,essd1sr:a.v1,
+        essd10bm:a.v1,essd10b:essDixStr(D.d10b),essdPbm:a.v1,essdPb:a.aug2,essd2sa:a.v1,essd2sb:a.aug2,essd2sr:a.v2,essdFin:a.v2,essdPct:a.pct};
+        if(D.un1) o.essd1a=1; if(D.un2){ o.essd1bm=a.v1; o.essd1b=essDixStr(D.d1b); } return o; };
       const juste=function(nom,copie,nb){
         checkEssAnswer();
         if(test.score!==1) vus.push(nom+' : la copie juste ne vaut pas le point');
@@ -2272,7 +2310,32 @@ function branchements(w){
         poser(cent); choisirEssSens(a.sens); checkEssAnswer();
         if(!/\\bbad\\b/.test(cl('essc2m'))) vus.push(e[5]+' : la seconde évolution recalculée sur 100 est acceptée');
         if(test.score===1) vus.push(e[5]+' : une copie qui refait la seconde évolution sur 100 vaut le point');
+        /* méthode 3 */
+        q=epingle(e[0],e[1],e[2],e[3]); a=essAns(q);
+        choisirEssMeth('dix'); const cd=copieDix(q,a); poser(cd); choisirEssSens(a.sens); juste(e[5]+', méthode 3', null, Object.keys(cd).length);
+        const invD=copieDix(q,a); invD.essd1sa=a.aug1; invD.essd1sb=100;
+        poser(invD); choisirEssSens(a.sens); checkEssAnswer();
+        if(e[0]>0){ if(test.score!==1) vus.push(e[5]+' : méthode 3, l’addition écrite dans l’autre sens est comptée fausse'); }
+        else { if(test.score===1) vus.push(e[5]+' : méthode 3, « baisse − valeur de départ » est accepté'); if(!/\\bbad\\b/.test(cl('essd1sa'))) vus.push(e[5]+' : méthode 3, la soustraction à l’envers ne rougit pas'); }
+        const centD=copieDix(q,a); centD.essd10bm=100; centD.essd10b=10; centD.essdPbm=100; centD.essdPb=q.P2; if(centD.essd1bm!=null){ centD.essd1bm=100; centD.essd1b=1; }
+        poser(centD); choisirEssSens(a.sens); checkEssAnswer();
+        if(!/\\bbad\\b/.test(cl('essd10bm'))) vus.push(e[5]+' : méthode 3, la seconde évolution recalculée sur 100 est acceptée');
+        if(test.score===1) vus.push(e[5]+' : méthode 3, une copie qui refait la seconde évolution sur 100 vaut le point');
       });
+      /* méthode 3, +5 % puis +20 % : les dixièmes de 105 sont un DÉCIMAL, 10,5 — jugé, et corrigé, comme un rationnel */
+      q=epingle(1,5,1,20); a=essAns(q);
+      if(a.G!==26 || a.v1!==105) vus.push('+5 % puis +20 % : le global vaut '+a.G+' (nouvelle valeur '+a.v1+') au lieu de +26 (105)');
+      choisirEssMeth('dix'); poser(copieDix(q,a)); choisirEssSens(1); checkEssAnswer();
+      if(test.score!==1) vus.push('+5 % puis +20 % par 10 % : « 10,5 » pour 10 % de 105 n’est pas accepté'+(rouges().length?' ('+rouges().join(',')+')':''));
+      const uneD=copieDix(q,a); uneD.essd10b='10';
+      poser(uneD); choisirEssSens(1); checkEssAnswer();
+      if(rouges().join(',')!=='essd10b') vus.push('méthode 3 : une seule case fausse en fait rougir d’autres : '+rouges().join(','));
+      const badgeD=document.getElementById('essd10b').nextElementSibling;
+      if(!badgeD || !/mf-cor/.test(badgeD.className||'') || badgeD.textContent.trim()!=='10,5') vus.push('méthode 3 : la correction « 10,5 » ne s’écrit pas à côté de la case fausse');
+      currentMode='soutien'; poser({}); checkEssAnswer();
+      if(rouges().length) vus.push('méthode 3, soutien : des cases laissées vides rougissent : '+rouges().join(','));
+      if(test.locked) vus.push('méthode 3, soutien : une copie vide verrouille l’exercice');
+      currentMode='train';
       if(vus.length) return vus.slice(0,4).join(' | ');
 
       /* ---- 7. chaque case se juge seule, la vide ne rougit jamais, le soutien ne révèle rien ---- */
@@ -2325,13 +2388,15 @@ function branchements(w){
         const tirable=HS_PAIRES.some(function(p){ return (p[0]===+m[1]&&p[1]===+m[2])||(p[0]===+m[2]&&p[1]===+m[1]); });
         if(!tirable) vus.push('le rappel montre '+m[1]+' % puis '+m[2]+' %, que le tirage ne rend jamais');
         const ex=essAns({s1:1,P1:+m[1],s2:-1,P2:+m[2]});
-        [['le coefficient global',ex.coefStr],['le produit des numérateurs',ex.prodNum],['la nouvelle valeur',ex.v1],['la valeur finale',ex.v2],['le global',ex.pct]].forEach(function(p){
+        [['le coefficient global',ex.coefStr],['le produit des numérateurs',ex.prodNum],['la nouvelle valeur',ex.v1],['la valeur finale',ex.v2],['le global',ex.pct],
+         ['10 % de la nouvelle valeur (méthode 3)',essDixStr(ex.dix.d10b)]].forEach(function(p){
           if(rap.indexOf(String(p[1]))<0) vus.push('le rappel n’écrit pas '+p[0]+' ('+p[1]+')'); });
+        if(!/Méthode 3/.test(rap) || !/10 %/.test(rap)) vus.push('le rappel ne présente pas la méthode 3, en passant par 10 %');
       }
       if(!(QIA_SUGG.ess && QIA_SUGG.ess.length>=3)) vus.push('QIA_SUGG.ess manque');
       currentTestId='synthese-evolutions-successives'; test.kind='ess'; test.questions=[essQuestion(1,20,-1,5)]; test.idx=0;
       const ctx=conseilCtxCourant();
-      ['hausse globale de 14 %','1,14','Méthode 1','Méthode 2','114','STRICTEMENT SECRÈTES'].forEach(function(t){ if(ctx.indexOf(t)<0) vus.push('le contexte envoyé au modèle ne dit pas « '+t+' »'); });
+      ['hausse globale de 14 %','1,14','Méthode 1','Méthode 2','Méthode 3','10 % de 120 est 12','114','STRICTEMENT SECRÈTES'].forEach(function(t){ if(ctx.indexOf(t)<0) vus.push('le contexte envoyé au modèle ne dit pas « '+t+' »'); });
       return vus.slice(0,4).join(' | ');
     })()`, v => v === '', undefined);
 

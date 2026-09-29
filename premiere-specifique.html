@@ -1035,6 +1035,9 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    .pct10-ligne, même écart que #atdHost). */
 #synHost .pct10-ligne{margin:16px 0;}
 #synHost .syn-dix .pt-row{margin:10px 0;}
+/* {synthese-evolutions-successives} (2.5.4) : sa méthode 3, en passant par 10 %,
+   reprend les rangées espacées du 2.2.11 — scopé à la méthode, comme .syn-dix */
+#essHost .ess-dix .pt-row{margin:10px 0;}
 /* Les flèches de la fiche papier (2.1.10, demande de Turquet, PDF « 3e méthode
    retrouver un pourcentage ») : la ligne CIBLE (« On multiplie par ... : donc ... »)
    gagne de la place au-dessus d'elle pour que les deux traits courbes aient où
@@ -2342,7 +2345,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=267;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=268;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2750,7 +2753,7 @@ const TESTS={
   'augmenter-addition':  { name:'Augmenter d\u2019un pourcentage en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en {pourcentage}), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
   'hausses-successives': { name:'Hausse suivie d\u2019une hausse', icon:'\u2197\ufe0f', desc:'Deux hausses de suite : calcule les deux coefficients comme dans {augmenter-pourcentage}, multiplie-les comme dans {mult-dec-un}, et donne la hausse globale en pourcentage.', start:()=>startHausses() },
   'hausses-successives-cent': { name:'Hausse suivie d\u2019une hausse, en partant de 100', icon:'\ud83d\udcaf', desc:'La m\u00eame question qu\u2019en {hausses-successives}, par l\u2019autre chemin : on part de 100, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu\u2019on a gagn\u00e9 pour 100 est le pourcentage global.', start:()=>startHaussesCent() },
-  'synthese-evolutions-successives': { name:'Deux \u00e9volutions successives, hausse ou baisse', icon:'\ud83d\udd01', desc:'La synth\u00e8se de {hausses-successives}, {hausses-successives-cent} et {baisses-successives} : deux \u00e9volutions de suite, chacune une hausse ou une baisse. Tu choisis ta m\u00e9thode \u2014 multiplier les coefficients, ou partir de 100 \u2014 puis tu dis si l\u2019\u00e9volution globale est une hausse ou une baisse, et de quel pourcentage. Il tombe toujours sur un nombre entier.', start:()=>startEss() },
+  'synthese-evolutions-successives': { name:'Deux \u00e9volutions successives, hausse ou baisse', icon:'\ud83d\udd01', desc:'La synth\u00e8se de {hausses-successives}, {hausses-successives-cent} et {baisses-successives} : deux \u00e9volutions de suite, chacune une hausse ou une baisse. Tu choisis ta m\u00e9thode \u2014 multiplier les coefficients, partir de 100, ou passer par 10 % comme dans {augmenter-dix} \u2014 puis tu dis si l\u2019\u00e9volution globale est une hausse ou une baisse, et de quel pourcentage. Il tombe toujours sur un nombre entier.', start:()=>startEss() },
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
   'evolutions-successives':{ name:'Deux \u00e9volutions successives', icon:'\ud83d\udd01', desc:'Deux \u00e9volutions de suite \u2014 deux hausses, deux baisses, ou une hausse et une baisse \u2014 sur le sch\u00e9ma \u00e0 trois bo\u00eetes de la fiche. Sur chaque fl\u00e8che, \u00d7 (1 \u00b1 \u2026) puis le coefficient, comme dans {hausses-successives} et {baisses-successives} ; en dessous, le coefficient global en un seul calcul, et le pourcentage d\u2019\u00e9volution global, dont le signe se lit sur le coefficient global comme dans {lire-coefficient}. Tu \u00e9cris toi-m\u00eame le mot de la conclusion : augmentation ou diminution. Les pourcentages sont des multiples de 10 %, et le r\u00e9sultat tombe toujours sur un nombre entier.', start:()=>startEvolSucc() },
   'lire-coefficient':    { name:'Lire un coefficient multiplicateur', icon:'🔎', desc:'On donne un coefficient : dis si c\u2019est une hausse ou une baisse, donne le pourcentage, puis vérifie-le avec les étapes de {augmenter-pourcentage} et {diminuer-pourcentage}.', start:()=>startLireCoef() },
@@ -11688,9 +11691,22 @@ function essAns(q){
   }
   /* la méthode 2 : on part de 100 */
   const aug1=q.P1, v1=100+q.s1*q.P1, aug2=v1*q.P2/100, v2=v1+q.s2*aug2;
+  /* la méthode 3, en passant par 10 % (la fiche « méthode 3 avec 10 % ») : 10 %
+     de la valeur de départ, puis P % — par 1 % quand P n'est pas un multiple
+     de 5 (2 %, 4 %, 6 %, 8 % du vivier, sur 50 %), la moitié de 10 % pour 5 %,
+     k fois 10 % pour un multiple de 10. Les dixièmes et centièmes de la
+     valeur intermédiaire sont des RATIONNELS (105 → 10,5 et 1,05), rangés en
+     numérateur/dénominateur : le juge compare des fractions, jamais des
+     flottants. */
+  const dix={un1:essDixUn(q.P1), un2:essDixUn(q.P2), d10a:{n:10,d:1}, d1a:{n:1,d:1}, dPa:{n:aug1,d:1},
+             d10b:{n:v1,d:10}, d1b:{n:v1,d:100}, dPb:{n:aug2,d:1}};
   return {fA,fB,c1,c2,prodNum,prodDen,coefStr:String(prodNum/prodDen).replace('.',','),G,sens,pct,pose,
-          aug1,prod1:100*q.P1,v1,aug2,prod2:v1*q.P2,v2,h:v2-100};
+          aug1,prod1:100*q.P1,v1,aug2,prod2:v1*q.P2,v2,h:v2-100,dix};
 }
+/* La méthode des 10 % passe par 1 % quand le taux n'est pas un multiple de 5. */
+function essDixUn(P){ return P%5!==0; }
+/* L'écriture d'un rationnel de la chaîne des 10 %, pour les textes et la correction : 105/10 → « 10,5 ». */
+function essDixStr(r){ return String(r.n/r.d).replace('.',','); }
 /* L'écriture décimale d'un coefficient sur 100, pour les textes : 120 → « 1,20 », 95 → « 0,95 ». */
 function essCoefStr(s,c){ return s>0 ? '1,'+String(c-100).padStart(2,'0') : '0,'+String(c).padStart(2,'0'); }
 function essSujet(q){ return BS_CTX[q.ci].sujet; }
@@ -11737,7 +11753,12 @@ async function startEss(){
 const ESS_CASES={
   coef:['ess1n','ess1d','ess1p','ess1dec','ess2n','ess2d','ess2p','ess2dec','essAn','essAd','essBn','essBd','essPn','essPd','essDec','essP'],
   cent:['essc1n','essc1d','essc1m','essc1pn','essc1pd','essc1a','essc1sa','essc1sb','essc1sr',
-        'essc2n','essc2d','essc2m','essc2pn','essc2pd','essc2a','essc2sa','essc2sb','essc2sr','esscFin','esscPour','esscPct']
+        'essc2n','essc2d','essc2m','essc2pn','essc2pd','essc2a','essc2sa','essc2sb','essc2sr','esscFin','esscPour','esscPct'],
+  /* la méthode 3 : les cases « 1 % » (essd1a, essd1bm, essd1b) ne sont rendues
+     que lorsque le taux n'est pas un multiple de 5 — la liste les porte
+     toutes, le rendu et la navigation ne gardent que celles de l'écran */
+  dix: ['essd10a','essd1a','essdPa','essd1sa','essd1sb','essd1sr',
+        'essd10bm','essd10b','essd1bm','essd1b','essdPbm','essdPb','essd2sa','essd2sb','essd2sr','essdFin','essdPct']
 };
 const ESS_VERIF=['essVn','essVd','essVp','essVc'];   /* l'étape ④ facultative de la méthode des coefficients */
 function choisirEssMeth(m){
@@ -11788,10 +11809,11 @@ function renderEssTest(){
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
   const sg=s=>s>0?'+':'−', tete=s=>s>0?'1,':'0,';
-  const methHTML=`<div class="pt-step"><div class="pt-lab">Ⓜ Choisis ta méthode — les deux trouvent le même résultat</div>
+  const methHTML=`<div class="pt-step"><div class="pt-lab">Ⓜ Choisis ta méthode — les trois trouvent le même résultat</div>
        <div class="pt-choix" id="essMeth">
          <button type="button" class="pt-choix-btn${q.meth==='coef'?' sel':''}" id="essM0" onclick="choisirEssMeth('coef')"><span class="valeur">Multiplier les coefficients, comme dans {hausses-successives}</span></button>
          <button type="button" class="pt-choix-btn${q.meth==='cent'?' sel':''}" id="essM1" onclick="choisirEssMeth('cent')"><span class="valeur">Partir de 100, comme dans {hausses-successives-cent}</span></button>
+         <button type="button" class="pt-choix-btn${q.meth==='dix'?' sel':''}" id="essM2" onclick="choisirEssMeth('dix')"><span class="valeur">En passant par 10 %, comme dans {augmenter-dix}</span></button>
        </div></div>`;
   let etapes='';
   if(q.meth==='coef'){
@@ -11833,8 +11855,40 @@ function renderEssTest(){
          <div class="pt-row"><span class="f-whole">la valeur est passée de 100 à</span>${dec('esscFin','la valeur finale')}</div>
          <div class="pt-row"><span class="f-whole">c’est</span>${essSensHTML(q)}<span class="f-whole">de</span>${dec('esscPour','l’écart pour 100')}<span class="f-whole">pour 100</span></div>
          <div class="pt-row"><span class="f-whole">c’est-à-dire</span>${dec('esscPct','le pourcentage de l’évolution globale')}<span class="f-whole">%</span></div></div>`;
+  } else if(q.meth==='dix'){
+    /* LA MÉTHODE 3, EN PASSANT PAR 10 % — la fiche « méthode 3 avec 10 % »
+       (demande de Turquet, septembre 2026 : « il manque la méthode 3 en
+       passant par 10 %, qui reprend la méthode comme le pdf joint »), ligne à
+       ligne : « on prend 100 au départ » ; 10 % de 100 est ▢, P1 % de 100 est
+       ▢, « donc la première augmentation donne ▢ + ▢ = ▢ » ; « 10 % de ▢ est
+       ▢, donc P2 % de ▢ est ▢, donc le résultat après la 2ème évolution est
+       ▢ + ▢ = ▢ » ; « on est passé de 100 à ▢, c'est une … de ▢ % ». La
+       fiche est écrite pour deux hausses : sur une baisse, le « + » devient
+       « − » et le mot suit, comme la méthode 2. Quand le taux n'est pas un
+       multiple de 5 (2 %, 4 %, 6 %, 8 %), une ligne « 1 % de … est ▢ »
+       s'intercale : 10 % divisé par 10, puis 2 % = 2 fois 1 % — la fiche ne
+       la connaît pas, ses taux sont des multiples de 10, et le vivier du
+       2.2.7 impose ces quatre-là. Les rangées reprennent celles du 2.2.11
+       ({augmenter-dix}), la valeur intermédiaire se RÉÉCRIT dans les lignes
+       de la seconde évolution, comme la fiche le fait (« 10 % de ....... »). */
+    const mot=s=>s>0?'hausse':'baisse';
+    const ligneOp=(s,x,y,r,lblR)=>`<div class="pt-row">${dec(x,'premier terme')}<span class="f-whole">${sg(s)}</span>${dec(y,'deuxième terme')}${fEq(dec(r,lblR))}</div>`;
+    const ligneDe=(txt,idBase,lblBase,id,lbl)=>`<div class="pt-row"><span class="f-whole">${txt}</span>${idBase?dec(idBase,lblBase):''}<span class="f-whole">${idBase?'est':''}</span>${dec(id,lbl)}</div>`;
+    etapes=
+      `<div class="pt-step ess-dix"><div class="pt-lab">① On prend <b>100</b> au départ. Première évolution : ${q.P1} % de 100, en passant par 10 % — comme dans {${q.s1>0?'augmenter-dix':'diminuer-dix'}}</div>
+         <div class="pt-row"><span class="f-whole">10 % de 100 est</span>${dec('essd10a','dix pour cent de 100')}</div>
+         ${a.dix.un1?`<div class="pt-row"><span class="f-whole">donc : 1 % de 100 est</span>${dec('essd1a','un pour cent de 100')}</div>`:''}
+         <div class="pt-row"><span class="f-whole">donc : ${q.P1} % de 100 est</span>${dec('essdPa',q.P1+' pour cent de 100')}</div>
+         <div class="pt-row"><span class="f-whole">donc la première ${mot(q.s1)} donne</span>${dec('essd1sa','la valeur de départ')}<span class="f-whole">${sg(q.s1)}</span>${dec('essd1sb','la première '+mot(q.s1))}${fEq(dec('essd1sr','la nouvelle valeur'))}</div></div>`+
+      `<div class="pt-step ess-dix"><div class="pt-lab">② Deuxième évolution : ${q.P2} % du <b>résultat précédent</b>, en passant par 10 %</div>
+         ${ligneDe('10 % de','essd10bm','la nouvelle valeur de départ','essd10b','dix pour cent de la nouvelle valeur')}
+         ${a.dix.un2?ligneDe('donc : 1 % de','essd1bm','la nouvelle valeur de départ','essd1b','un pour cent de la nouvelle valeur'):''}
+         ${ligneDe('donc : '+q.P2+' % de','essdPbm','la nouvelle valeur de départ','essdPb',q.P2+' pour cent de la nouvelle valeur')}
+         <div class="pt-row"><span class="f-whole">donc le résultat après la 2<sup>e</sup> ${mot(q.s2)} est</span>${dec('essd2sa','la nouvelle valeur de départ')}<span class="f-whole">${sg(q.s2)}</span>${dec('essd2sb','la seconde '+mot(q.s2))}${fEq(dec('essd2sr','la valeur finale'))}</div></div>`+
+      `<div class="pt-step"><div class="pt-lab">③ Conclusion — on est parti de 100 : au-dessus, c’est une hausse ; au-dessous, une baisse. Ce qu’on a gagné ou perdu « pour 100 » EST le pourcentage</div>
+         <div class="pt-row"><span class="f-whole">on est passé de 100 à</span>${dec('essdFin','la valeur finale')}<span class="f-whole">, c’est</span>${essSensHTML(q)}<span class="f-whole">de</span>${dec('essdPct','le pourcentage de l’évolution globale')}<span class="f-whole">%</span></div></div>`;
   }
-  const aide = q.meth ? '' : '<p class="pt-aide">Commence par choisir ta méthode : les deux trouvent le même résultat.</p>';
+  const aide = q.meth ? '' : '<p class="pt-aide">Commence par choisir ta méthode : les trois trouvent le même résultat.</p>';
   $('essHost').innerHTML=numeros(methHTML+etapes+aide);
   essBrancher(q,a);
 }
@@ -11842,7 +11896,7 @@ function renderEssTest(){
    remplit de la droite vers la gauche (la règle du 2.2.7 pour la pose en
    colonnes, celle du 2.2.1 pour la pose à un chiffre). */
 function essBrancher(q,a){
-  const ids = q.meth==='coef' ? ESS_CASES.coef : (q.meth==='cent' ? ESS_CASES.cent : []);
+  const ids = q.meth==='coef' ? ESS_CASES.coef : (q.meth==='cent' ? ESS_CASES.cent : (q.meth==='dix' ? ESS_CASES.dix : []));
   let posedIns=[];
   const host=$('essMul');
   if(host && a.pose){
@@ -11885,7 +11939,7 @@ function checkEssAnswer(live){
   const v=id=>{const e=$(id);return e?String(e.value==null?'':e.value).trim():'';};
   if(!q.meth){
     if(live) return;
-    $('essFeedback').textContent='Choisis d’abord ta méthode : multiplier les coefficients, ou partir de 100.';
+    $('essFeedback').textContent='Choisis d’abord ta méthode : multiplier les coefficients, partir de 100, ou passer par 10 %.';
     $('essFeedback').className='mp-feedback bad'; return;
   }
   const decOk=(id,pre,n,d)=>{ const t=v(id); if(t==='') return false;
@@ -11983,7 +12037,7 @@ function checkEssAnswer(live){
     }
     given=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('essP')||'?')+' %');
     quoi=`une ${q.s1>0?'hausse':'baisse'} de ${q.P1} % suivie d'une ${q.s2>0?'hausse':'baisse'} de ${q.P2} %, par les coefficients`;
-  } else {
+  } else if(q.meth==='cent'){
     const s1=q.s1>0?hscPaire(['essc1sa','essc1sb'],[100,a.aug1]):essOrdre(['essc1sa','essc1sb'],[100,a.aug1]);
     const s2=q.s2>0?hscPaire(['essc2sa','essc2sb'],[a.v1,a.aug2]):essOrdre(['essc2sa','essc2sb'],[a.v1,a.aug2]);
     if(live){
@@ -12035,6 +12089,50 @@ function checkEssAnswer(live){
     }
     given=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('esscPct')||'?')+' %');
     quoi=`une ${q.s1>0?'hausse':'baisse'} de ${q.P1} % suivie d'une ${q.s2>0?'hausse':'baisse'} de ${q.P2} %, en partant de 100`;
+  } else {
+    /* la méthode 3 : chaque case contre sa valeur (un rationnel, jamais un
+       flottant) ; l'addition à ordre libre, la soustraction dans l'ordre —
+       les règles de la méthode 2, mot pour mot */
+    const D=a.dix, R=(id,r)=>decOk(id,'',r.n,r.d);
+    const s1=q.s1>0?hscPaire(['essd1sa','essd1sb'],[100,a.aug1]):essOrdre(['essd1sa','essd1sb'],[100,a.aug1]);
+    const s2=q.s2>0?hscPaire(['essd2sa','essd2sb'],[a.v1,a.aug2]):essOrdre(['essd2sa','essd2sb'],[a.v1,a.aug2]);
+    const lignes=[['essd10a',D.d10a],['essd1a',D.d1a],['essdPa',D.dPa],['essd10bm',{n:a.v1,d:1}],['essd10b',D.d10b],
+                  ['essd1bm',{n:a.v1,d:1}],['essd1b',D.d1b],['essdPbm',{n:a.v1,d:1}],['essdPb',D.dPb]].filter(p=>$(p[0]));
+    if(live){
+      lignes.forEach(p=>liveColorDec(p[0],p[1].n,p[1].d));
+      liveColorDec('essd1sr',a.v1,1); liveColorDec('essd2sr',a.v2,1);
+      liveColorDec('essdFin',a.v2,1); liveColorDec('essdPct',a.pct,1);
+      [['essd1sa','essd1sb'],['essd2sa','essd2sb']].forEach((p,k)=>{ const r=k?s2:s1;
+        p.forEach((id,i)=>{ const el=$(id); if(!el||el.disabled) return;
+          el.classList.remove('ok','bad'); if(v(id)==='') return;
+          el.classList.add(r.ok[i]?'ok':'bad'); }); });
+      return;
+    }
+    const oks=lignes.map(p=>R(p[0],p[1]));
+    const ok1r=decEst('essd1sr',a.v1), ok2r=decEst('essd2sr',a.v2), okFin=decEst('essdFin',a.v2), okPct=decEst('essdPct',a.pct);
+    lignes.forEach((p,i)=>marqueSaufVide(p[0],oks[i],soutien));
+    marqueSaufVide('essd1sa',s1.ok[0],soutien); marqueSaufVide('essd1sb',s1.ok[1],soutien); marqueSaufVide('essd1sr',ok1r,soutien);
+    marqueSaufVide('essd2sa',s2.ok[0],soutien); marqueSaufVide('essd2sb',s2.ok[1],soutien); marqueSaufVide('essd2sr',ok2r,soutien);
+    marqueSaufVide('essdFin',okFin,soutien); marqueSaufVide('essdPct',okPct,soutien);
+    peindreSens();
+    allOk=oks.every(Boolean)&&s1.ok[0]&&s1.ok[1]&&ok1r&&s2.ok[0]&&s2.ok[1]&&ok2r&&okFin&&okPct&&okSens;
+    if(!allOk && soutien){ soutienAgain('essFeedback','essActions','checkEssAnswer','essHost'); return; }
+    test.locked=true;
+    if(allOk){ test.score++; $('essLiveScore').textContent=test.score;
+      $('essFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('essFeedback').className='mp-feedback good';
+    } else {
+      const un1=D.un1?` ; 1 % de 100 est 1`:'', un2=D.un2?` ; 1 % de ${a.v1} est ${essDixStr(D.d1b)}`:'';
+      $('essFeedback').textContent=`Méthode : on part de 100. 10 % de 100 est 10${un1} ; ${q.P1} % de 100 est ${a.aug1}, donc 100 ${sg(q.s1)} ${a.aug1} = ${a.v1} ; puis 10 % de ${a.v1} est ${essDixStr(D.d10b)}${un2} ; ${q.P2} % de ${a.v1} est ${a.aug2}, donc ${a.v1} ${sg(q.s2)} ${a.aug2} = ${a.v2}. On est passé de 100 à ${a.v2}, ${a.sens>0?'au-dessus':'au-dessous'} de 100 : c’est une ${motSens} de ${a.pct} %${etNon}.`;
+      $('essFeedback').className='mp-feedback bad';
+      lignes.forEach(p=>corTrainDec(p[0],essDixStr(p[1])));
+      ['essd1sa','essd1sb'].forEach((id,i)=>{ if(!s1.ok[i]) corTrainDec(id,s1.reste.shift()); });
+      corTrainDec('essd1sr',a.v1);
+      ['essd2sa','essd2sb'].forEach((id,i)=>{ if(!s2.ok[i]) corTrainDec(id,s2.reste.shift()); });
+      corTrainDec('essd2sr',a.v2);
+      corTrainDec('essdFin',a.v2); corTrainDec('essdPct',a.pct);
+    }
+    given=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('essdPct')||'?')+' %');
+    quoi=`une ${q.s1>0?'hausse':'baisse'} de ${q.P1} % suivie d'une ${q.s2>0?'hausse':'baisse'} de ${q.P2} %, en passant par 10 %`;
   }
   test.answers.push({...(ptsExo()||{}),q:quoi, answer, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
@@ -17090,10 +17188,11 @@ Un coefficient <b>plus grand que 1</b> fait monter, <b>plus petit que 1</b> fait
 <b>Premier piège : confondre les trois.</b> Prendre 30 %, c’est n’en garder que 30 % (× 0,30) ; diminuer de 30 %, c’est en garder 70 % (× 0,70). Les deux font descendre, mais pas de la même chose.<br>
 <b>Second piège : la place de la virgule.</b> 30 % s’écrit 0,<b>30</b> et 3 % s’écrit 0,<b>03</b> : un pourcentage à un seul chiffre garde un zéro après la virgule. Multiplier par 1,03, c’est donc augmenter de 3 % et non de 30 %.`;
 const RAP_ESS=`<b>Deux évolutions successives, hausse ou baisse</b><br>
-Deux évolutions de suite <b>ne s’additionnent pas</b> : la seconde porte sur la valeur <b>déjà modifiée</b>, pas sur la valeur de départ. Et quand l’une monte et l’autre descend, rien ne dit d’avance si le résultat est une hausse ou une baisse : c’est à toi de le trouver. Deux méthodes, un seul résultat.<br>
+Deux évolutions de suite <b>ne s’additionnent pas</b> : la seconde porte sur la valeur <b>déjà modifiée</b>, pas sur la valeur de départ. Et quand l’une monte et l’autre descend, rien ne dit d’avance si le résultat est une hausse ou une baisse : c’est à toi de le trouver. Trois méthodes, un seul résultat.<br>
 Exemple : augmenter de 20 % puis baisser de 5 %.<br>
 <b>Méthode 1 — multiplier les coefficients</b>, comme dans {hausses-successives} : augmenter de 20 %, c’est multiplier par 1 + 0,20 = <b>1,2</b> ; baisser de 5 %, c’est multiplier par 1 − 0,05 = <b>0,95</b>. Le coefficient global est le <b>produit</b> : \\(1{,}2\\times 0{,}95=\\frac{12}{10}\\times \\frac{95}{100}=\\frac{1140}{1000}\\) = <b>1,14</b>. On le lit comme dans {lire-coefficient} : 1,14 est <b>plus grand que 1</b>, c’est une <b>hausse</b>, et l’écart à 1 vaut 0,14 : une hausse de <b>14 %</b>.<br>
 <b>Méthode 2 — partir de 100</b>, comme dans {hausses-successives-cent} : la hausse pour 100 vaut \\(\\frac{20}{100}\\times 100=20\\), donc 100 + 20 = <b>120</b> ; la baisse pour <b>120</b> vaut \\(\\frac{5}{100}\\times 120=\\frac{600}{100}=6\\), donc 120 − 6 = <b>114</b>. On est passé de 100 à 114, <b>au-dessus de 100</b> : c’est une hausse de <b>14 pour 100</b>, c’est-à-dire <b>14 %</b>.<br>
+<b>Méthode 3 — en passant par 10 %</b>, comme dans {augmenter-dix} : on prend 100 au départ. 10 % de 100 est <b>10</b>, donc 20 % de 100 est <b>20</b>, et la première hausse donne 100 + 20 = <b>120</b>. Puis 10 % de 120 est <b>12</b>, donc 5 % de 120 est <b>6</b> (la moitié), et la baisse donne 120 − 6 = <b>114</b>. On est passé de 100 à 114 : une hausse de <b>14 %</b>. Pour 2 %, 4 %, 6 % ou 8 %, on passe par 1 % (10 % divisé par 10).<br>
 Piège classique : additionner les pourcentages — +20 % puis −5 %, ce n’est PAS +15 %. Et si le coefficient global est plus petit que 1 (ou la valeur finale sous 100), c’est une baisse, même si l’énoncé commence par une hausse.`;
 const RAPPELS_ID={ 'synthese-evolutions-successives':RAP_ESS, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -17145,7 +17244,7 @@ const QIA_SUGG={
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
   hs:["Pourquoi deux hausses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième hausse ?","Pourquoi la hausse globale dépasse-t-elle la somme des deux taux ?"],
   hsc:["Pourquoi a-t-on le droit de partir de 100 ?","Sur quelle valeur porte la deuxième hausse ?","Pourquoi « augmentation pour 100 » veut-il dire « pourcentage » ?","Pourquoi deux hausses de suite ne s’additionnent-elles pas ?"],
-  ess:["Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi une hausse suivie d’une baisse du même pourcentage ne revient-elle pas au départ ?","Quelle méthode choisir : les coefficients ou partir de 100 ?","Sur quelle valeur porte la seconde évolution ?"],
+  ess:["Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi une hausse suivie d’une baisse du même pourcentage ne revient-elle pas au départ ?","Quelle méthode choisir : les coefficients, partir de 100, ou passer par 10 % ?","Sur quelle valeur porte la seconde évolution ?"],
   lc:["Comment savoir si un coefficient fait monter ou descendre ?","Pourquoi 0,96 est-il une baisse de 4 % et non de 96 % ?","Comment retrouver le pourcentage à partir du coefficient ?","Que signifie multiplier par 1,4 ?"],
   ac:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment reconnaître le coefficient d’une diminution ?","Comment passer d’un pourcentage à un coefficient ?"],
   ck:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment calculer le coefficient d’une augmentation ?","Comment calculer le coefficient d’une diminution ?"],
@@ -17249,7 +17348,8 @@ function conseilCtxCourant(){
       +'Méthode 1 (les coefficients, comme dans {hausses-successives}) : 1 '+sg(q.s1)+' '+q.P1+'/100 = '+essCoefStr(q.s1,a.c1)+' et 1 '+sg(q.s2)+' '+q.P2+'/100 = '+essCoefStr(q.s2,a.c2)+' ; '
       +a.fA.num+'/'+a.fA.den+' × '+a.fB.num+'/'+a.fB.den+' = '+a.prodNum+'/'+a.prodDen+' = '+a.coefStr+' (toute fraction égale convient) ; le coefficient global '+a.coefStr+' est plus '+(a.sens>0?'grand':'petit')+' que 1, donc une '+mot(a.sens)+', et l’écart à 1 donne '+a.pct+' %. '
       +'Méthode 2 (partir de 100, comme dans {hausses-successives-cent}) : '+q.P1+'/100 × 100 = '+a.aug1+', donc 100 '+sg(q.s1)+' '+a.aug1+' = '+a.v1+' ; puis '+q.P2+'/100 × '+a.v1+' = '+a.prod2+'/100 = '+a.aug2+', donc '+a.v1+' '+sg(q.s2)+' '+a.aug2+' = '+a.v2+' ; de 100 à '+a.v2+', c’est une '+mot(a.sens)+' de '+a.pct+' pour 100, soit '+a.pct+' %. '
-      +'Méthode actuellement choisie par l’élève : '+(q.meth==='coef'?'les coefficients':(q.meth==='cent'?'partir de 100':'aucune encore'))+'. Sens actuellement choisi : '+(q.choisi==null?'aucun':mot(q.choisi))+'. '
+      +'Méthode 3 (en passant par 10 %, comme dans {augmenter-dix}) : 10 % de 100 est 10'+(a.dix.un1?', 1 % de 100 est 1':'')+', donc '+q.P1+' % de 100 est '+a.aug1+' et 100 '+sg(q.s1)+' '+a.aug1+' = '+a.v1+' ; puis 10 % de '+a.v1+' est '+essDixStr(a.dix.d10b)+(a.dix.un2?', 1 % de '+a.v1+' est '+essDixStr(a.dix.d1b):'')+', donc '+q.P2+' % de '+a.v1+' est '+a.aug2+' et '+a.v1+' '+sg(q.s2)+' '+a.aug2+' = '+a.v2+' : on est passé de 100 à '+a.v2+', une '+mot(a.sens)+' de '+a.pct+' %. '
+      +'Méthode actuellement choisie par l’élève : '+(q.meth==='coef'?'les coefficients':(q.meth==='cent'?'partir de 100':(q.meth==='dix'?'passer par 10 %':'aucune encore')))+'. Sens actuellement choisi : '+(q.choisi==null?'aucun':mot(q.choisi))+'. '
       +'Les évolutions ne s’additionnent pas, l’erreur classique étant de répondre '+sg(q.s1)+q.P1+' '+sg(q.s2)+' '+q.P2+' = '+(q.s1*q.P1+q.s2*q.P2)+' %. La seconde évolution porte sur la valeur DÉJÀ modifiée, jamais sur la valeur de départ. '
       +'Aucune valeur de départ n’est donnée : le résultat n’en dépend pas.';
   } else if(k==='lc' && q){

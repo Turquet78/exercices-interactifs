@@ -2979,3 +2979,94 @@ les cases de l'écran soient des lignes de rédaction (c'est la feuille du
 
 Ce qu'aucun banc ne voit : une vraie tablette, avec son clavier système que
 la greffe coupe — le banc mesure un Chromium tactile de 820 px, pas un iPad.
+## {synthese-evolutions-successives} — la méthode 3, en passant par 10 % (Première, septembre 2026)
+
+**D'où il vient.** Demande de Turquet, le lendemain de la mise en ligne du
+2.5.4 et du 2.5.5, avec une fiche PDF (« 2_augmentation_methode_3_avec_10 ») :
+« il manque la méthode 3 "en passant par 10 %" qui reprend la méthode comme
+le pdf joint ». La fiche : « *Un prix augmente de 50 % puis de 20 %. Méthode
+3 : en passant par 10 %. On prend 100 au départ. 1ère augmentation : 10 % de
+100 est ……, 50 % de 100 est ……, donc la première augmentation donne …… +
+…… = ……. 2ème augmentation : on a 10 % de …… est ……, donc 20 % de …… est ……,
+donc le résultat après la 2ème augmentation est de …… + …… = ……. Conclusion :
+donc est passé de 100 à ……, c'est une …… de …… %.* » Le 2.5.4 (celui de la
+PR #412, né sur « le choix entre la méthode du 2.2.7 ou la méthode du 2.2.8 »)
+n'offrait que ces deux-là : la méthode des 10 %, que la Première enseigne
+déjà au 2.2.11 ({augmenter-dix}) et au 2.2.13, y manquait.
+
+**Un troisième bouton, et la chaîne de la fiche ligne à ligne.** `q.meth`
+prend la valeur « dix », à côté de « coef » et « cent » — rien d'autre ne
+change dans la question, le contrôle refuse toujours tout autre champ.
+L'écran suit la fiche au mot près, dans les rangées `.pt-row` du 2.2.11
+(espacées par `#essHost .ess-dix .pt-row`, comme `.syn-dix` au 2.2.13) : ① « On
+prend 100 au départ » — « 10 % de 100 est ▢ », « donc P1 % de 100 est ▢ »,
+« donc la première hausse donne ▢ + ▢ = ▢ » ; ② « 10 % de ▢ est ▢ », « donc
+P2 % de ▢ est ▢ », « donc le résultat après la 2ᵉ hausse est ▢ + ▢ = ▢ » — la
+nouvelle valeur se RÉÉCRIT dans chaque ligne, comme les pointillés de la
+fiche le demandent, et c'est ce qui empêche de refaire la seconde évolution
+sur 100 (le bord que la méthode 2 tenait déjà avec `essc2m`) ; ③ « on est
+passé de 100 à ▢, c'est [une hausse | une baisse] de ▢ % » — les deux boutons
+du sens de l'exercice (`essSensHTML`), le bon sens jugé comme dans les deux
+autres méthodes. Sur une baisse, le « + » devient « − » et le mot suit,
+exactement comme la méthode 2 : la fiche est écrite pour deux hausses, et
+l'exercice porte les quatre combinaisons.
+
+**Ce que la fiche ne dit pas, et qu'il a fallu décider : 2 %, 4 %, 6 %, 8 %.**
+Le vivier est `HS_PAIRES`, celui du 2.2.7 — lu, jamais recopié, le contrôle
+l'exige — et il porte quatre paires où un taux n'est pas un multiple de 5 :
+2, 4, 6 et 8 % avec 50 %. « 2 % de 150 » ne se déduit pas de « 10 % de
+150 » par un facteur entier ni par une moitié. Plutôt que de faire
+disparaître le bouton sur ces questions-là (un bouton qui va et vient
+ressemble à une panne) ou de rétrécir le vivier (ce que les contrôles du
+2.5.4 interdisent, à raison), une ligne s'intercale : « donc 1 % de 150 est
+▢ » — 10 % divisé par 10 —, puis « 2 % de 150 est ▢ ». `essDixUn(P)` (`P % 5
+≠ 0`) la déclenche, pour la première évolution comme pour la seconde, et là
+seulement : sur +20 % puis −5 %, aucune ligne « 1 % » ; sur −50 % puis +2 %,
+une seule, à la seconde évolution. Le contrôle mesure les deux bords, et son
+sabotage (`essDixUn` rendu toujours faux) a rougi : « la ligne « 1 % de 50 »
+manque — 2 % ne se déduit pas de 10 % ».
+
+**Les dixièmes de la valeur intermédiaire ne sont pas toujours entiers, et le
+juge compare des rationnels.** +5 % puis +20 % passe par 105 : 10 % de 105
+est 10,5, et 1,05 pour 1 %. `essAns` range ces valeurs en
+numérateur/dénominateur (`a.dix.d10b = {n:105, d:10}`), jamais en flottant :
+le juge (`decOk(id, '', n, d)`, donc `parseDecToFrac`) accepte « 10,5 » et
+« 10,50 », la correction en vert écrit « 10,5 » (`essDixStr`), et la
+correction en direct du soutien passe par `liveColorDec(id, n, d)` avec le
+même couple. Les additions à ordre libre (`hscPaire`) et les soustractions
+dans l'ordre (`essOrdre`) sont celles de la méthode 2, réutilisées telles
+quelles ; les cases sont listées dans `ESS_CASES.dix` — toutes, les trois
+« 1 % » comprises —, le rendu et la navigation au clavier ne gardant que
+celles de l'écran (`.filter(Boolean)` dans `essBrancher`).
+
+**Le reste a suivi la méthode : le message d'erreur écrit la chaîne des 10 %
+(avec ses lignes « 1 % » quand elles existent), le contexte envoyé au modèle
+dit « Méthode 3 » avec ses nombres et la méthode choisie, `RAP_ESS` gagne son
+paragraphe (20 % puis −5 % : 10, 20, 120, 12, 6, 114 — et la règle du 1 %),
+`QIA_SUGG.ess` propose « passer par 10 % », la carte et le message « Choisis
+d'abord ta méthode » disent trois méthodes.** `APP_VERSION` 268.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, le contrôle du 2.5.4,
+désormais « trois méthodes ») : les cases EXACTES de la méthode 3 (aucune hors
+de `ESS_CASES.dix`, les quatorze de base présentes), les six lignes de +20 %
+puis −5 % lues dans le DOM (« 10 % de 100 est », « 20 % de 100 est », « la
+première hausse donne », « 10 % de ▢ est », « 5 % de ▢ est », « le résultat
+après la 2e baisse est »), la ligne « 1 % » absente là et présente sur −50 %
+puis +2 % à la seconde évolution seulement, 50/10 et 50/100 rangés en
+rationnels ; la copie juste sur les deux questions épinglées (ses cases
+comptées par `ptsEcran`), l'addition dans l'autre ordre acceptée et la
+soustraction à l'envers refusée, la seconde évolution recalculée sur 100
+refusée (« 10 % de 100 » réécrit à la place de « 10 % de 120 » rougit
+`essd10bm`) ; +5 % puis +20 % où « 10,5 » vaut le point, où « 10 » à sa place
+rougit SEUL et reçoit « 10,5 » en `mf-cor`, et où en soutien la copie vide ne
+rougit pas ; le rappel qui écrit « 12 » (10 % de 120) et présente la méthode
+3 ; le contexte qui dit « Méthode 3 » et « 10 % de 120 est 12 ». Deux
+sabotages avant la première fusion : la ligne « 1 % » supprimée (ci-dessus),
+et la base de la seconde évolution jugée contre 100 au lieu de 120 (« la copie
+juste rougit : essd10bm »). Les règles universelles (taille des cases, case
+vide, bouton d'aide IA, clavier, couleurs, énoncé, aucune référence
+{identifiant}) sont tenues par le banc navigateur sans rien déclarer — mais
+la visite ouvre l'exercice AVANT tout choix de méthode, et aucun banc
+navigateur ne clique le troisième bouton : ce que l'écran de la méthode 3
+donne dans un vrai Chromium, jsdom l'a lu dans le DOM, personne ne l'a
+regardé. C'est nommé, pas tu.
