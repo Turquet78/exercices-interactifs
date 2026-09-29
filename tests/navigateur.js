@@ -5465,7 +5465,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies sedecies. LE 5.6 : LA FICHE 5 RENDUE — LE TABLEAU, LES DEUX CHAÎNES, LE BOUTON ∞ ===== */
+    /* ===== 6 vicies sedecies. LE 2.2.2 : LA FICHE 5 RENDUE — LE TABLEAU, LES DEUX CHAÎNES, LE BOUTON ∞ ===== */
     /* L'étude menée à la convexité réutilise le tableau du 5.3 (ids ef-*),
        la chaîne du 2.1 DEUX fois (f′ au c, f″ au g) et les cases de limite du
        4.6 : jsdom lit les classes, seul un navigateur voit les flèches
@@ -5473,13 +5473,13 @@ async function parcours(page, N){
        et la sérialisation RÉELLE de MathLive dans la case u du g), que le
        juge doit relire. Le bouton ∞ se juge à la doctrine du bouton mort :
        cliqué pour de vrai, il écrit ∞ ET lève input. */
-    titre('6 vicies sedecies. LE 5.6 : LA FICHE 5 RENDUE — LE TABLEAU, LES DEUX CHAÎNES, LE BOUTON ∞');
+    titre('6 vicies sedecies. LE 2.2.2 : LA FICHE 5 RENDUE — LE TABLEAU, LES DEUX CHAÎNES, LE BOUTON ∞');
     if(!P.etudeConvexite){
-      ignorer('le 5.6 : le bouton ∞ écrit dans la case et lève input', 'ce niveau n\'a pas l\'étude de fonction et convexité');
-      ignorer('le 5.6 : « -2x+4 » tapé dans la case u du g) se relit tel quel', 'ce niveau n\'a pas l\'étude de fonction et convexité');
-      ignorer('le 5.6 : la copie de la fiche remplie vaut 102 — 102 cases au vert', 'ce niveau n\'a pas l\'étude de fonction et convexité');
-      ignorer('le 5.6 : les flèches du tableau sont DESSINÉES à une taille lisible', 'ce niveau n\'a pas l\'étude de fonction et convexité');
-      ignorer('le 5.6 : la page ne déborde pas', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+      ignorer('le 2.2.2 : le bouton ∞ écrit dans la case et lève input', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+      ignorer('le 2.2.2 : « -2x+4 » tapé dans la case u du g) se relit tel quel', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+      ignorer('le 2.2.2 : la copie de la fiche remplie vaut 102 — 102 cases au vert', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+      ignorer('le 2.2.2 : les flèches du tableau sont DESSINÉES à une taille lisible', 'ce niveau n\'a pas l\'étude de fonction et convexité');
+      ignorer('le 2.2.2 : la page ne déborde pas', 'ce niveau n\'a pas l\'étude de fonction et convexité');
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
       await connecter(s.page);
@@ -5495,7 +5495,7 @@ async function parcours(page, N){
       await s.page.click('#ecv-lb + button.lg-inf');
       await s.page.waitForTimeout(150);
       const inf = await s.page.evaluate(() => ({ v: limLire('ecv-lb'), ev: window.__ecvInput }));
-      verifier('le 5.6 : le bouton ∞ écrit dans la case et lève input',
+      verifier('le 2.2.2 : le bouton ∞ écrit dans la case et lève input',
         inf.v.indexOf('∞') >= 0 && inf.ev === 1,
         'valeur ' + JSON.stringify(inf.v) + ', ' + inf.ev + ' événement(s) input');
       /* la case u du g) — la fonction à dériver est f′ — TAPÉE pour de vrai :
@@ -5507,7 +5507,7 @@ async function parcours(page, N){
       await s.page.keyboard.type('-2x+4', { delay: 60 });
       await s.page.waitForTimeout(300);
       const tape = await s.page.evaluate(() => dexpCellValue('ecv-gu'));
-      verifier('le 5.6 : « -2x+4 » tapé dans la case u du g) se relit tel quel',
+      verifier('le 2.2.2 : « -2x+4 » tapé dans la case u du g) se relit tel quel',
         tape === '-2x+4', 'lu : ' + JSON.stringify(tape));
       /* la copie de la fiche, remplie depuis l'attendu de la page, puis le CLIC */
       await s.page.evaluate(() => {
@@ -5530,13 +5530,13 @@ async function parcours(page, N){
         const page = document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
         return { oks, bads, score: test.score, max: test.maxScore, locked: test.locked, fleches, ovW: Math.round(ovr.width), ovH: Math.round(ovr.height), page };
       });
-      verifier('le 5.6 : la copie de la fiche remplie vaut 102 — 102 cases au vert',
+      verifier('le 2.2.2 : la copie de la fiche remplie vaut 102 — 102 cases au vert',
         vu.oks === 102 && vu.bads === 0 && vu.score === 102 && vu.max === 102 && vu.locked,
         vu.oks + ' ok, ' + vu.bads + ' bad, note ' + vu.score + '/' + vu.max + (vu.locked ? '' : ', écran non verrouillé'));
-      verifier('le 5.6 : les flèches du tableau sont DESSINÉES à une taille lisible',
+      verifier('le 2.2.2 : les flèches du tableau sont DESSINÉES à une taille lisible',
         vu.fleches >= 2 && vu.ovW > 200 && vu.ovH > 60,
         vu.fleches + ' flèche(s) dessinée(s), bande ' + vu.ovW + '×' + vu.ovH + ' px');
-      verifier('le 5.6 : la page ne déborde pas',
+      verifier('le 2.2.2 : la page ne déborde pas',
         !vu.page, 'la page défile horizontalement');
       verifier('l\'étude de fonction et convexité ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));

@@ -2289,7 +2289,7 @@ Le contrôle vit dans `tests/verifier.js` (`suiteAlgoSeuil`) : il rejoue
 aⁿ·(U₀−ℓ), et la valeur RÉELLEMENT écrite dans `q.vals[SAG_NMAX]`, celle que
 l'élève lit — que les deux disent la même chose et restent sous le centième.
 
-**{etude-convexite} (5.6) : LA FICHE 5, l'étude menée à la CONVEXITÉ.**
+**{etude-convexite} (5.6, devenu 2.2.2 le jour même — voir plus bas) : LA FICHE 5, l'étude menée à la CONVEXITÉ.**
 Demande de Turquet (septembre 2026), fiche « FICHE 5 — Étude de fonction et
 convexité : étude de f(x) = (2x − 2)e^(−x) ». C'est la fiche du 5.5 et du 4.6
 poussée jusqu'à f″, en dix parties dans l'ordre de la feuille : a) les
@@ -2438,3 +2438,29 @@ suit son nœud, l'énoncé qui nomme minimum ou maximum, la clause de secret).
 Vu dans un vrai Chromium avant la mise en ligne : les quatre visages, la
 copie juste (1 point, 18 cases), une copie fausse (rouge, badge vert), et
 la tablette (les trois cadres se replient en 2 + 1).
+
+**Puis « dans le sous-thème convexité », le même jour : le 5.6 est devenu le
+2.2.2, et sa courbe s'est calée sur la bosse.** Trois sessions ont travaillé
+la convexité le même matin : l'une a fusionné la fiche 5 en 5.6 (ci-dessus),
+une autre a ouvert le sous-thème « Convexité » du thème Dérivée avec
+{convexite-trois-courbes} (2.2.1), et la troisième, partie de la consigne
+« créer un exercice comme le pdf dans le sous-thème convexité », a repris
+`main` pour ne livrer que ce qui manquait : la fiche 5 REJOINT le
+sous-thème Convexité, en 2.2.2, après le 2.2.1 — le thème 5 revient à ses
+cinq exercices et personne n'y est renuméroté. Les notes portent
+l'identifiant, rien de ce qui est enregistré ne bouge, et le contrôle du
+2.2.2 exige désormais la place et le numéro.
+**Et la CAPTURE de la troisième session a montré ce qu'aucun banc ne mesurait**
+: cadrée comme au 5.5 (`ecGraphSVG`, fenêtre calée sur le zéro, l'extremum
+et x = 0), la courbe de la fiche même — a = 2, b = −1 — était PLATE. À 0,9 à
+gauche du zéro elle plonge déjà à −1,6 pour un maximum de 2e^(−2) ≈ 0,27 :
+la bosse tenait sur dix pixels, l'inflexion sur aucun, et la question
+« graphiquement » ne se lisait plus. `ecvGraphSVG` cale la fenêtre sur
+l'extremum et le point d'inflexion et prolonge l'axe de deux unités après
+l'inflexion ; la courbe sort du cadre par le bas à gauche comme sur la
+fiche, A reste marqué, et B (0 ; ab) sort du cadre quand il est trop bas —
+ses coordonnées se calculent au a). Le contrôle relit le SVG écrit par la
+page sur trois couples : la hauteur entre l'extremum et l'inflexion prend
+au moins 12 % du cadre, l'inflexion n'est pas collée au bord droit, et le
+maximum est bien plus haut que l'inflexion à l'écran. Éprouvé en rendant
+`ecGraphSVG` à la place : il rougit en nommant la bosse écrasée.

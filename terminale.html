@@ -3049,7 +3049,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=351;
+const APP_VERSION=352;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3272,11 +3272,14 @@ const THEMES=[
      pas le numéro : rien de ce qui est enregistré ne bouge. */
   { num:2, nom:'Dérivée', sous:[
       { num:1, nom:'Dérivée et variations', ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2','associer-derivee','variations-depuis-derivee','signe-derivee-qcm'] },
-      { num:2, nom:'Convexité',             ids:['convexite-trois-courbes'] }
+      /* Puis {etude-convexite}, la fiche 5 née 5.6 le même matin, a rejoint
+         la partie Convexité le jour même (demande de Turquet : « créer un
+         exercice comme le pdf dans le sous-thème convexité ») : 2.2.2. */
+      { num:2, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite'] }
     ] },
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique','tvi-alpha-signe'] },
-  { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle','etude-convexite'] },
+  { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
   /* Le thème des Suites est découpé en PARTIES (demande de Turquet, septembre
      2026) — le motif de la Seconde et de la Première, porté. Le découpage suit
      le SUJET de l'exercice, jamais son moteur ; l'ordre à l'intérieur de
@@ -9716,7 +9719,7 @@ function dexpLiveCheck(id){
     if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkASG(true); },0);
     return;
   }
-  if(test && test.kind==='ecv'){   /* les c) et g) du 5.6 : même route, vers checkECV */
+  if(test && test.kind==='ecv'){   /* les c) et g) du 2.2.2 : même route, vers checkECV */
     if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkECV(true); },0);
     return;
   }
@@ -14953,7 +14956,7 @@ function asgVal(q,x){
 }
 /* ---- le b) : la présentation du 2.1, et son juge ---- */
 /* Les ids d'une chaîne « présentée comme au 2.1 » se déduisent d'un PRÉFIXE :
-   « asg-b » pour le b) du 4.6, « ecv-c » et « ecv-g » pour f′ et f″ du 5.6.
+   « asg-b » pour le b) du 4.6, « ecv-c » et « ecv-g » pour f′ et f″ du 2.2.2.
    Une seule fabrique — le rendu, le juge et la correction lisent la même. */
 function asgDerIds(pre){
   return { u:pre+'u', v:pre+'v', du:pre+'du', dv:pre+'dv',
@@ -14978,7 +14981,7 @@ function asgML(plain){ return mlTexN(plain).replace(/\^\(([^)]+)\)/g,'^{$1}'); }
    qui ressemble trait pour trait à la bonne démarche). */
 /* D (facultatif) : { pre, p, q } — le préfixe des ids (« asg-b » par défaut)
    et la fonction à dériver, u = p·x + q avec v = e^(−x) (par défaut f même :
-   p = A.p, q = A.q). Le 5.6 y passe f′ (p = A.dp, q = A.dq) pour démontrer
+   p = A.p, q = A.q). Le 2.2.2 y passe f′ (p = A.dp, q = A.dq) pour démontrer
    f″ avec la même doctrine, sans recopier le juge. */
 function asgDerVerdicts(q, D){
   const A=ecAns(q); D=D||{};
@@ -15038,7 +15041,7 @@ function asgDerVerdicts(q, D){
   return {verdicts, order, groups:{s2:s2ok, s3:s3ok, s3TermeEntier}, sol};
 }
 /* La chaîne du 2.1 rendue depuis un préfixe — le b) du 4.6 et les c) et g)
-   du 5.6 : « On pose », la formule, la substitution, le développement, la
+   du 2.2.2 : « On pose », la formule, la substitution, le développement, la
    factorisation. `nom` est le nom de la fonction dérivée ({tex, html}). */
 function asgDerBlocHTML(pre, nom){
   const I=asgDerIds(pre);
@@ -15073,7 +15076,7 @@ function asgFormHTML(q){
     +' <span>— il y a donc</span> '+asgSelTyp('asg-lbt')+'<span>.</span></div>';
   /* le b), présenté comme au 2.1 : la chaîne u/v/u′/v′ → formule →
      substitution → développement → factorisation, en cases MathLive —
-     rendue par la fabrique asgDerBlocHTML, que le 5.6 partage */
+     rendue par la fabrique asgDerBlocHTML, que le 2.2.2 partage */
   h+='<p class="tx-part">b. Démontre que <i>f</i> ′(<i>x</i>) = ('+aff+') e<sup>−<i>x</i></sup> :</p>'
     +asgDerBlocHTML('asg-b', {tex:"f\\;{}'(x)", html:'<i>f</i>\u00a0′(x)'});
   h+='<p class="tx-part">c. Étudie les variations de '+f+' — résous, puis complète le tableau :</p>'
@@ -15248,6 +15251,22 @@ function genECVCase(){
   const b=pick([-3,-2,-1]);
   return {a:a, b:b};
 }
+/* La courbe du 2.2.2 : celle du 5.5 (efGraphSVG), mais la FENÊTRE verticale
+   se cale sur la bosse et l'inflexion, PAS sur le zéro ni sur x = 0. Vu sur
+   capture (septembre 2026) : avec le cadrage du 5.5, à 0,9 à gauche du zéro
+   la courbe plonge déjà à −1,6 pour un maximum de 2e^(−2) ≈ 0,27 — la bosse
+   tenait sur dix pixels, l'inflexion sur aucun, et la convexité, qui est
+   toute la question, ne se lisait pas. La fenêtre part de l'extremum et du
+   point d'inflexion, et l'axe des x s'étend jusqu'à deux unités après
+   l'inflexion pour que le changement de courbure se voie. La courbe sort du
+   cadre par le bas à gauche, comme sur la fiche ; A reste marqué, B (0 ; ab)
+   sort du cadre quand il est trop bas — ses coordonnées se CALCULENT au a). */
+function ecvGraphSVG(q){
+  const A=ecvAns(q), f=x=>(A.p*x+A.q)*Math.exp(-x);
+  const lo=Math.min(A.x0,0)-2, hi=A.xI+2, N=240;
+  const X=[], Y=[]; for(let i=0;i<=N;i++){ const x=lo+(hi-lo)*i/N; X.push(x); Y.push(f(x)); }
+  return efGraphSVG(X,Y,lo,hi,[A.r,A.xI],[{x:A.x0,t:null},{x:0,t:null}]);
+}
 function ecvAns(q){
   const A=ecAns(q);
   A.xI=2-q.b;                       /* abscisse du point d'inflexion : la racine de f″ */
@@ -15411,7 +15430,7 @@ function renderECV(){
   $('ecvFeedback').textContent=''; $('ecvFeedback').className='mp-feedback';
   $('ecvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkECV()">Vérifier</button>';
   $('ecvPrompt').innerHTML='Étude de <i>f</i>(<i>x</i>) = '+ecFx(A.p,A.q)+' sur ]−∞ ; +∞[ — la courbe C est tracée ci-dessous. Complète l’étude, partie par partie.';
-  $('ecvGraph').innerHTML=ecGraphSVG(q);
+  $('ecvGraph').innerHTML=ecvGraphSVG(q);
   /* les ids ef-* du tableau vivent aussi sur les écrans du 5.3, du 5.5, de la
      fiche 9 et du 4.6 : leurs hôtes se vident, sans quoi $() lirait un
      tableau FANTÔME de l'écran quitté — le piège documenté */
