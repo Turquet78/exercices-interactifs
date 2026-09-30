@@ -2583,3 +2583,17 @@ parent sa fonte calculée. Il a trouvé quinze exercices antérieurs de la Termi
 au x droit : ils sont déclarés, NOMMÉS, dans `xItalique.dispenses`
 (`tests/profils.js`) — une dette écrite qui ne grandit pas, et qui rougit dès
 qu'une dispense ne protège plus rien. La Première n'avait aucun cas ; la Seconde, vingt-sept (même déclaration).
+
+**« Italique » veut dire l'écriture ARRONDIE du x (même jour, second message).**
+Le premier correctif posait `<i>x</i>` : dans la police du texte (Nunito), cela
+donne un x simplement PENCHÉ — pas l'écriture de MathLive, que Turquet montre en
+image (« quand je veux dire en italique, c'est l'écriture arrondie du x »).
+Règle globale posée dans les trois fichiers : `i{font-family:KaTeX_Math,Georgia,…}`
+— un `<i>` autour d'une lettre est une variable —, et les règles Georgia
+existantes ont pris KaTeX_Math en tête pour que rien ne diffère dans une même
+page. Le contrôle exige désormais l'italique ET une fonte mathématique (KaTeX_Math
+ou à empattements, jamais Nunito/Fredoka) : il a trouvé deux étiquettes encore
+penchées, corrigées — « y = x » du repère du 6.2.6 (`tspan.svr-m`) et le `.itv-x`
+du 2.6 de la Seconde. Les autres `.sv-cf`, `.lv-cf`, `.eqg-cg` (étiquettes de
+courbes) restent en Nunito : aucun « x » isolé n'y passe aujourd'hui, le contrôle
+les attrapera le jour où l'un y sera écrit.

@@ -75,6 +75,13 @@
     background-size:28px 28px; background-position:-1px -1px;
     -webkit-font-smoothing:antialiased; min-height:100dvh; line-height:1.5;
   }
+  /* L'inconnue et les noms de fonctions s'écrivent en ÉCRITURE MATHÉMATIQUE
+     arrondie, celle que MathLive trace dans les cases (KaTeX_Math), et pas en
+     simple penché de la police du texte (décision de Turquet, septembre 2026 :
+     « l'italique, c'est l'écriture arrondie du x »). Règle GLOBALE : un <i>
+     autour d'une lettre est une variable. Les règles plus précises de la
+     feuille (Georgia, etc.) gardent la main sur leur bloc. */
+  i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic}
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
   /* Sur un écran d'exercice, le cadre blanc prend toute la largeur de l'appareil :
      les égalités à compléter tiennent sur une ligne dès que l'écran le permet.
@@ -2388,7 +2395,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=273;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=274;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
