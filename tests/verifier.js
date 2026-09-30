@@ -1617,8 +1617,12 @@ function branchements(w){
      correction CLIQUÉE (bonne choisie = ok, bonne montrée = sol, case vide
      jamais rougie, le piège choisi NOMMÉ) ; et l'identité. */
   if(typeof evaluer(w,"typeof startReconnaitreCoef").valeur==='string' && evaluer(w,"typeof startReconnaitreCoef").valeur==='function'){
+    /* l'étape ③ « c'est une hausse de … % » n'existe qu'en Seconde (4.5.3, septembre 2026) */
+    const etape3=evaluer(w,"(function(){ currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; startReconnaitreCoef(); test.questions[0]={fam:'aug',P:30,opts:[130,103,70,30],choisi:null}; test.idx=0; renderCKTest(); return !!document.getElementById('ckW'); })()").valeur===true;
+    if(!etape3) ignorer('reconnaître le coefficient : l\'étape ③ « c\'est une hausse / baisse de … % »',
+      'ce niveau n\'a pas la lecture inverse du coefficient (Seconde seulement)');
     verifierEval(w, 'reconnaître le coefficient : trois familles, pièges nommés, vérification honnête', `(function(){
-      const vus=[];
+      const vus=[]; const etape3=${etape3};
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
       /* ---- 1. le tirage ---- */
       const ordres={}, rangs={aug:{},dim:{},pre:{}};
@@ -1659,24 +1663,32 @@ function branchements(w){
       const fb=function(){ return document.getElementById('ckFeedback').textContent; };
       const QA={fam:'aug',P:30,opts:[130,103,70,30],choisi:0};
       /* copie juste */
-      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30'});
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'hausse',ckT:'30'});
       test.score=0; checkCKAnswer();
       if(test.score!==1) vus.push('la copie juste ne vaut pas le point ('+test.score+')');
       if(!/\\bok\\b/.test(cls('ckc0'))) vus.push('la bonne proposition choisie ne se marque pas ok');
       if(!/\\bok\\b/.test(cls('ckC'))) vus.push('le coefficient juste ne se marque pas ok');
       /* proposition fausse (le coefficient de la baisse), cases justes : le piège est NOMMÉ */
-      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:2}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30'});
+      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:2}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'hausse',ckT:'30'});
       checkCKAnswer();
       if(!test.answers.length || test.answers[test.answers.length-1].correct) vus.push('la mauvaise proposition est comptée juste');
       if(!/\\bbad\\b/.test(cls('ckc2'))) vus.push('la proposition fausse ne rougit pas');
       if(!/\\bsol\\b/.test(cls('ckc0'))) vus.push('la bonne proposition ne se montre pas en correction (sol)');
       if(fb().indexOf('DIMINUTION')<0) vus.push('le retour ne nomme pas le piège du sens : '+fb().slice(0,60));
       /* la virgule décalée se nomme */
-      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:1}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30'});
+      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:1}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'hausse',ckT:'30'});
       checkCKAnswer();
       if(fb().indexOf('VIRGULE')<0) vus.push('le retour ne nomme pas le piège de la virgule : '+fb().slice(0,60));
+      /* l'étape ③ : « c'est une hausse de 30 % » — le mot faux est refusé et corrigé en vert, le pourcentage vide ne rougit pas */
+      if(etape3 && (!document.getElementById('ckT') || !document.getElementById('ckW'))) vus.push('l\\'étape ③ manque');
+      if(etape3){ poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'baisse',ckT:'30'});
+      test.score=0; checkCKAnswer();
+      if(test.score!==0 || !/\\bsol\\b/.test(cls('ckW')) || document.getElementById('ckW').value!=='hausse') vus.push('« baisse » pour une hausse n\\'est pas refusé, ou « hausse » n\\'est pas montré en vert');
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'hausse'});
+      checkCKAnswer();
+      if(/\\bbad\\b/.test(cls('ckT'))) vus.push('le pourcentage laissé vide rougit à la vérification'); }
       /* case vide en entraînement : jamais rouge, remplie en vert */
-      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30'});
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckW:'hausse',ckT:'30'});
       checkCKAnswer();
       if(/\\bbad\\b/.test(cls('ckC'))) vus.push('une case laissée vide rougit à la vérification');
       if(!/\\bsol\\b/.test(cls('ckC'))) vus.push('la case vide ne reçoit pas la correction en vert');
@@ -1697,6 +1709,7 @@ function branchements(w){
       const QP={fam:'pre',P:30,opts:[3,130,30,70],choisi:2};
       poser(JSON.parse(JSON.stringify(QP)),{ck1n:'30',ck1d:'100',ck1p:'30'});
       if(document.getElementById('ckC')) vus.push('« prendre » affiche un maillon « 1 ± » qui n\\'existe pas');
+      if(etape3 && (document.getElementById('ckW')||document.getElementById('ckT'))) vus.push('« prendre » n\\'est pas une évolution : pas de phrase « hausse / baisse »');
       test.score=0; checkCKAnswer();
       if(test.score!==1) vus.push('« prendre » : la copie juste ne vaut pas le point');
 
@@ -4140,6 +4153,7 @@ function exercices(suite){
     baissesSuccessivesDix(w, P);
     pourcentageSchema(w, P);
     pourcentagePhrases(w, P);
+    pourcentageSchemaCadres(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -28278,6 +28292,60 @@ function pourcentageSchema(w, P){
     if(/\\bbad\\b/.test(cls('pcsG2')) || /\\bbad\\b/.test(cls('pcsS2'))) vus.push('une case laissée vide rougit à la vérification');
     if(!/\\bok\\b/.test(cls('pcsG1'))) vus.push('soutien : la case juste pcsG1 n\\'est pas bleue quand une voisine est vide');
     if(test.score!==0) vus.push('copie incomplète : elle vaut le point');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- {pourcentage-schema-cadres} : Seconde SEULE, LE 4.1.10 AVEC SES CADRES ---
+   « en seconde fais un nouvel exercice comme le 4.1.10 en rajoutant les cadres
+   et le texte en gris comme sur le pdf » (Turquet, septembre 2026). Kind
+   « pcc » : le code de {pourcentage-schema}, renommé — le jugement est tenu
+   par le contrôle voisin ; celui-ci tient ce qui est NEUF : trois cadres de
+   trois styles (bleu plein, rouge tirets, vert pointillés) sur les mots qui
+   désignent le total, le premier et le second sous-groupe — dans la consigne,
+   sur les trois boîtes et dans les trois phrases, sur les huit contextes — et
+   le texte gris à côté de la troisième boîte. Les cadres ne portent aucune
+   classe de verdict. */
+function pourcentageSchemaCadres(w, P){
+  const present = evaluer(w, "typeof startPcc==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{pourcentage-schema-cadres} : trois cadres sur la consigne, les boîtes et les phrases, le texte gris, et le verdict',
+      'ce niveau n\'a pas le schéma de pourcentages à cadres');
+    return;
+  }
+  verifierEval(w, '{pourcentage-schema-cadres} : trois cadres sur la consigne, les boîtes et les phrases, le texte gris, et le verdict', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-schema-cadres';
+    const q0={inc:'comb',P1:30,P2:20,comb:6,v:[0,0,0,0],ordre:[0,1,2]};
+    for(let ci=0; ci<CTX_PCC.length; ci++){
+      startPcc(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:ci}); test.idx=0; test.locked=false; renderPccTest();
+      const nom='contexte '+ci+' ('+CTX_PCC[ci].total+') : ';
+      const pr=document.getElementById('pccPrompt');
+      [0,1,2].forEach(function(k){ if(!pr.querySelector('.cdr-'+k)) vus.push(nom+'la consigne ne cadre pas le groupe '+k); });
+      const labs=[].map.call(document.querySelectorAll('#pccHost .pctb-lab'), function(e){ return e; });
+      if(labs.length!==3) vus.push(nom+labs.length+' boîte(s) au lieu de 3');
+      labs.forEach(function(e,k){ if(!e.querySelector('.cdr-'+k)) vus.push(nom+'la boîte '+k+' n\\'est pas cadrée du style '+k); });
+      const gris=document.querySelectorAll('#pccHost .cdr-prec');
+      if(gris.length!==1 || !gris[0].textContent.trim() || labs[2].querySelector('.cdr-prec')!==gris[0]) vus.push(nom+'le texte gris n\\'est pas posé une fois, non vide, à côté de la troisième boîte');
+      const ph=document.querySelectorAll('#pccHost .pcc-phrase');
+      if(ph.length!==3) vus.push(nom+ph.length+' phrase(s) au lieu de 3');
+      [].forEach.call(ph, function(e,i){ if(!e.querySelector('.cdr')) vus.push(nom+'la phrase '+(i+1)+' ne porte aucun cadre'); });
+      if(/\\bundefined\\b|\\$\\{|\\[object/.test(pr.textContent+document.getElementById('pccHost').textContent)) vus.push(nom+'un gabarit ou « undefined » reste affiché');
+      const verdict=document.querySelectorAll('#pccHost .cdr.ok,#pccHost .cdr.bad,#pccHost .cdr.sol,#pccPrompt .cdr.ok,#pccPrompt .cdr.bad,#pccPrompt .cdr.sol');
+      if(verdict.length) vus.push(nom+'un cadre porte une classe de verdict');
+    }
+    /* le verdict est celui du schéma sans cadres : juste, puis fautif d'une seule case */
+    startPcc(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:5}); test.idx=0; test.locked=false; renderPccTest();
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    setv('pccG1','0,30'); setv('pccG2','0,2'); setv('pccG','0,06'); setv('pccS1','30'); setv('pccS2','20'); setv('pccS3','65');
+    checkPccAnswer();
+    if(!/\\bbad\\b/.test(cls('pccS3')) || test.score!==0) vus.push('« 65 % » ne rougit pas seul');
+    ['pccG1','pccG2','pccG','pccS1','pccS2'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('la case juste '+id+' n\\'est pas bleue'); });
+    startPcc(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:5}); test.idx=0; test.locked=false; renderPccTest();
+    setv('pccG1','0,30'); setv('pccG2','0,2'); setv('pccG','0,06'); setv('pccS1','30'); setv('pccS2','20'); setv('pccS3','6');
+    checkPccAnswer();
+    if(test.score!==1) vus.push('la copie juste ne vaut pas le point');
     currentMode='train';
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
