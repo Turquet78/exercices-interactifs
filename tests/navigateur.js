@@ -11549,14 +11549,17 @@ async function parcours(page, N){
                italique par <i>, <em> ou une classe de la feuille de styles,
                peu importe — c'est ce que l'élève VOIT qui est mesuré. Les
                math-field sont hors champ : MathLive compose lui-même. */
-            const xDroits = [];
+            const xDroits = [], xCtx = [];
             (function(){
               const w = document.createTreeWalker(on, NodeFilter.SHOW_TEXT);
               let n;
               while((n = w.nextNode())){
                 const t = n.nodeValue || '', p = n.parentElement;
                 if(!p || !/(^|[^A-Za-zÀ-ÿ_])x(?![A-Za-zÀ-ÿ_])/.test(t)) continue;
-                if(p.closest('math-field,script,style,textarea')) continue;
+                if(p.closest('math-field,script,style,textarea,input,option')) continue;
+                /* du CODE n'est pas une inconnue : le x d'un programme Python
+                   s'écrit en chasse fixe, comme dans l'éditeur. */
+                if(/mono|courier|consolas|menlo/i.test(getComputedStyle(p).fontFamily)) continue;
                 if(!visible(p) && !p.closest('svg')) continue;
                 const cs = getComputedStyle(p);
                 /* ITALIQUE ET ARRONDI : le penché de la police du texte ne suffit
@@ -11566,6 +11569,7 @@ async function parcours(page, N){
                 const arrondi = /KaTeX_Math|Georgia|Times|Cambria|serif/i.test(cs.fontFamily) && !/Nunito|Fredoka/i.test(cs.fontFamily.split(',')[0]);
                 if((cs.fontStyle === 'italic' || cs.fontStyle === 'oblique') && arrondi) continue;
                 xDroits.push(t.trim().slice(0, 50));
+                xCtx.push(t.trim().slice(0, 60) + '   ⟦' + p.outerHTML.replace(/\s+/g, ' ').slice(0, 170) + '⟧');
               }
             })();
             /* Une case où l'élève écrit s'écrit à la MÊME TAILLE que les nombres
@@ -11771,7 +11775,7 @@ async function parcours(page, N){
                       const cs=getComputedStyle(w);
                       return { c:Math.round(c.getBoundingClientRect().width),
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
-                    accolades: [...new Set(connus)], gabarits: gabarits, xDroits: [...new Set(xDroits)], cases: cases, signes: [...new Set(signes)],
+                    accolades: [...new Set(connus)], gabarits: gabarits, xDroits: [...new Set(xDroits)], xCtx: xCtx, cases: cases, signes: [...new Set(signes)],
                     debuts: [...new Set(debuts)], etiquettes: etiquettes,
                     indices: [...new Set(indices)], nIndices: nIndices,
                     limCases: limCases, limKb: limKb};
@@ -11779,6 +11783,9 @@ async function parcours(page, N){
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
+          /* XDETAIL=fichier : le contexte (balise parente) de chaque « x » droit, pour le corriger. */
+          if(process.env.XDETAIL && vu.xCtx && vu.xCtx.length)
+            fs.appendFileSync(process.env.XDETAIL, id + ' (' + mode + ')\n  ' + [...new Set(vu.xCtx)].join('\n  ') + '\n');
           if(vu.xDroits && vu.xDroits.length) xDroits.push(id + ' ' + (await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') : « ' + vu.xDroits.slice(0, 2).join(' » « ') + ' »');
           if(vu.gabarits && vu.gabarits.length) gabarits.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') : ' + vu.gabarits.join(' '));
           /* 8 px de marge : on compare à la largeur DISPONIBLE, donc un cadre

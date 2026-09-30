@@ -81,7 +81,7 @@
      « l'italique, c'est l'écriture arrondie du x »). Règle GLOBALE : un <i>
      autour d'une lettre est une variable. Les règles plus précises de la
      feuille (Georgia, etc.) gardent la main sur leur bloc. */
-  i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic}
+  i,.mth{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic}
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
   /* Sur un écran d'exercice, le cadre blanc prend toute la largeur de l'appareil :
      les égalités à compléter tiennent sur une ligne dès que l'écran le permet.
@@ -2395,7 +2395,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=274;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=275;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -19329,4 +19329,93 @@ window.mlDexp = {
   showShortcuts(){ if(!helpWin) return false; helpWin.classList.toggle("open"); return true; }
 };
 customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
+</script>
+<script id="italiquer-x">
+/* L'INCONNUE « x » S'ÉCRIT TOUJOURS EN ITALIQUE ARRONDI — filet de sécurité.
+   Décision de Turquet, septembre 2026 : « à retenir pour tous les prochains
+   exercices sur tous les niveaux », puis « corrige les x droits des exercices
+   restants ». Un x posé dans une chaîne en texte brut (« f (x) ≤ 2 », « en x »,
+   « 2x + 3 ») s'affichait droit, et les énoncés sont tirés au hasard : corriger
+   les chaînes une à une laissait toujours un x droit dans un tirage qu'on
+   n'avait pas vu. Ce filet lit donc le TEXTE AFFICHÉ, après chaque rendu, et
+   enveloppe tout « x » isolé — jamais celui de « max » ni de « exp ».
+   On écrit toujours <i>x</i> dans la source quand on le peut ; ce filet
+   rattrape le reste, et le banc navigateur vérifie le résultat (« l'inconnue
+   « x » s'écrit toujours en italique »). Hors champ : le code (Python, police à
+   chasse fixe, reconnue à sa fonte), les champs de saisie et MathLive, qui composent eux-mêmes. */
+(function(){
+  const RE=/(^|[^A-Za-zÀ-ÿ_])x(?![A-Za-zÀ-ÿ_])/g;
+  const TEST=/(^|[^A-Za-zÀ-ÿ_])x(?![A-Za-zÀ-ÿ_])/;
+  const SVGNS='http://www.w3.org/2000/svg';
+  const HORS='math-field,script,style,textarea,input,code,pre,#qiaInput';
+  function dejaBon(p){
+    const cs=getComputedStyle(p);
+    if(/mono|courier|consolas|menlo/i.test(cs.fontFamily)) return true;            /* du code, pas une inconnue */
+    return (cs.fontStyle==='italic'||cs.fontStyle==='oblique')
+      && /KaTeX_Math|Georgia|Times|Cambria|serif/i.test(cs.fontFamily)
+      && !/Nunito|Fredoka/i.test(cs.fontFamily.split(',')[0]);
+  }
+  function traiter(n){
+    const p=n.parentElement; if(!p) return;
+    const t=n.nodeValue;
+    if(p.closest(HORS)) return;
+    if(p.tagName==='OPTION'){                    /* une <option> ne porte pas de balise : le x mathématique s'écrit 𝑥 */
+      n.nodeValue=t.replace(RE,function(m,a){ return a+'\u{1D465}'; });
+      return;
+    }
+    if(dejaBon(p)) return;
+    const svg=!!p.closest('svg');
+    const frag=document.createDocumentFragment();
+    let dernier=0, m; RE.lastIndex=0;
+    while((m=RE.exec(t))){
+      const deb=m.index+m[1].length;              /* position du x lui-même */
+      if(deb>dernier) frag.appendChild(document.createTextNode(t.slice(dernier,deb)));
+      const e=svg ? document.createElementNS(SVGNS,'tspan') : document.createElement('i');
+      e.setAttribute('class',svg?'mth':'xi'); e.textContent='x';   /* className est en lecture seule sur un élément SVG */
+      frag.appendChild(e);
+      dernier=deb+1;
+    }
+    if(dernier<t.length) frag.appendChild(document.createTextNode(t.slice(dernier)));
+    n.replaceWith(frag);
+  }
+  function italiquer(racine){
+    if(!racine) return;
+    try{
+      const noeuds=[];
+      if(racine.nodeType===3){ if(TEST.test(racine.nodeValue)) noeuds.push(racine); }
+      else if(racine.nodeType===1){
+        const w=document.createTreeWalker(racine,NodeFilter.SHOW_TEXT);
+        let n; while((n=w.nextNode())){ if(TEST.test(n.nodeValue)) noeuds.push(n); }
+      }
+      noeuds.forEach(traiter);
+    }catch(e){}
+  }
+  window.italiquerX=italiquer;
+  let file=[], prevu=false, obs=null;
+  function noter(r){
+    file.push(r);
+    if(!prevu){ prevu=true; (window.queueMicrotask||function(f){ Promise.resolve().then(f); })(vider); }
+  }
+  function lire(recs){
+    recs.forEach(function(r){
+      if(r.type==='characterData'){ if(r.target.parentElement) noter(r.target.parentElement); return; }
+      r.addedNodes.forEach(function(n){ if(n.nodeType===1) noter(n); else if(n.nodeType===3&&n.parentElement) noter(n.parentElement); });
+    });
+  }
+  function vider(){
+    prevu=false;
+    if(obs){ lire(obs.takeRecords()); obs.disconnect(); }   /* nos propres enveloppes ne se relisent pas */
+    const racines=file; file=[];
+    racines.forEach(function(r){ if(r.isConnected) italiquer(r); });
+    if(obs) obs.observe(document.body,{childList:true,subtree:true,characterData:true});
+  }
+  function demarrer(){
+    if(!document.body||!window.MutationObserver) return;
+    if(/jsdom/i.test(navigator.userAgent)) return;   /* le banc jsdom n'a pas de rendu : getComputedStyle y est très lent, et rien n'y mesure l'écriture */
+    obs=new MutationObserver(lire);
+    obs.observe(document.body,{childList:true,subtree:true,characterData:true});
+    noter(document.body);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',demarrer); else demarrer();
+})();
 </script>
