@@ -2477,6 +2477,15 @@ f″(x) = 0 — (exercice 6), et la courbe de f″ (dernier exercice). Ce sont l
 six VISAGES de l'exercice, un par question, une fois chacun par séance en
 ordre mélangé : `courbe`, `tableau`, `extremum`, `inflexion`, `seconde`,
 `courbe2`. Il ferme la partie Convexité, après le 2.2.2.
+**Le 0 d'un tableau de variations se pose SUR la flèche, il ne la coupe pas**
+(septembre 2026, version 354, demande de Turquet : « il ne doit y avoir
+qu'une seule flèche qui passe par zéro, pas deux flèches disjointes comme
+dans le PDF »). `cvqNoeuds` faisait des zéros des nœuds du tableau : une
+flèche qui traversait l'axe était dessinée en deux morceaux. Les nœuds sont
+désormais les seuls bords et sommets ; `cvqTableHTML` pose le « 0 » au point
+de la flèche où f′ s'annule (`top` en pourcentage : le dessin est étiré à la
+hauteur de la cellule). Le banc vérifie les nœuds (−3, 1, 3) et le nombre de
+flèches tracées (deux, pas trois).
 **La fiche pose parfois DEUX affirmations vraies** (question 3 : f″ ≥ 0 à
 gauche du maximum ET f″(−3/2) = 0). Ici il n'y en a jamais qu'une — la règle
 que Turquet avait posée pour le 2.1.8 (« il ne doit y avoir qu'une seule bonne

@@ -29497,7 +29497,8 @@ function convexiteQcm(w, P){
     const Q1={vis:'tableau', pts:[-2,-1,0,2,3,2,1], props:[{t:'conv',c:'convexe',a:-3,b:-1},{t:'conv',c:'concave',a:-3,b:-1},{t:'conv',c:'convexe',a:-1,b:3},{t:'conv',c:'concave',a:-1,b:3}]};
     pose(null,'train',Q1);
     { const xs=[].slice.call(document.querySelectorAll('#cvqHost .cvq-tbl tr.vt-xr .vnx')).map(function(td){ return td.textContent.trim(); });
-      if(xs.join(' ')!=='−3 −1 1 3') vus.push('le tableau de f′ ne pose pas les nœuds −3, −1, 1, 3 : '+xs.join(' '));
+      if(xs.join(' ')!=='−3 1 3') vus.push('le tableau de f′ ne pose pas les seuls nœuds −3, 1, 3 (le zéro n\\'est pas un nœud) : '+xs.join(' '));
+      if(document.querySelectorAll('#cvqHost .cvq-tbl svg.vt-overlay .vt-shaft').length!==2) vus.push('le tableau de f′ ne trace pas UNE flèche par sens de variation (la flèche qui passe par 0 est coupée en deux)');
       const vals=[].slice.call(document.querySelectorAll('#cvqHost .cvq-tbl .lg3-val')).map(function(e){ return e.textContent.trim(); });
       if(vals.join(' ')!=='−2 0 3 1') vus.push('le tableau de f′ ne porte pas ses valeurs −2, 0, 3, 1 : '+vals.join(' '));
       if(document.querySelector('#cvqHost svg.lv-svg')) vus.push('le visage « tableau » dessine aussi la courbe');

@@ -3070,7 +3070,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=353;
+const APP_VERSION=354;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -12434,11 +12434,13 @@ function cvqBuildQuestions(){
   return distinctes(vis.length, function(_,i){ return cvqGen(vis[i]); });
 }
 function cvqBon(q){ const src=cvqSrc(q.vis); for(let i=0;i<q.props.length;i++){ if(cvqVrai(q.pts,src,q.props[i])) return i; } return -1; }
-/* Le tableau de variations de f′ de l'exercice 4 : les nœuds sont les bords,
-   les sommets ET les zéros — le 0 de la fiche posé au milieu d'une flèche —,
-   chaque nœud porte sa valeur, et entre deux nœuds la flèche suit la courbe. */
+/* Le tableau de variations de f′ de l'exercice 4 : les nœuds sont les bords
+   et les SOMMETS — une flèche par sens de variation, jamais coupée. Un zéro
+   n'est pas un nœud : c'est le 0 de la fiche, posé AU MILIEU de la flèche
+   qu'il traverse (un zéro n'est jamais un sommet, et sur une flèche
+   monotone il n'y en a qu'un). */
 function cvqNoeuds(pts){
-  const xs=[-3,3].concat(cvqSommets(pts).map(function(s){ return s.x; }), cvqZeros(pts));
+  const xs=[-3,3].concat(cvqSommets(pts).map(function(s){ return s.x; }));
   return xs.filter(function(x,i){ return xs.indexOf(x)===i; }).sort(function(a,b){ return a-b; });
 }
 function cvqTableHTML(pts){
@@ -12459,7 +12461,16 @@ function cvqTableHTML(pts){
   let g='';
   for(let i=0;i<nS;i++){ const y0=(dirs[i]==='up')?BB:TT, y1=(dirs[i]==='up')?TT:BB; g+=svArrowSVG(ncx(i),y0,ncx(i+1),y1); }
   let spans='';
-  xs.forEach(function(x,j){ spans+='<span class="lg3-val" style="left:'+ncx(j)+'px;top:'+posY[j]+'px">'+numFmt(pts[x+3])+'</span>'; });
+  xs.forEach(function(x,j){
+    spans+='<span class="lg3-val" style="left:'+ncx(j)+'px;top:'+posY[j]+'px">'+numFmt(pts[x+3])+'</span>';
+    if(j<nS){
+      /* le zéro traversé par la flèche j : posé sur elle, à sa place entre les deux nœuds (top en % : le dessin est étiré à la hauteur de la cellule, le zéro doit suivre la flèche) */
+      cvqZeros(pts).filter(function(z){ return z>x&&z<xs[j+1]; }).forEach(function(z){
+        const t=(z-x)/(xs[j+1]-x), y0=(dirs[j]==='up')?BB:TT, y1=(dirs[j]==='up')?TT:BB;
+        spans+='<span class="lg3-val cvq-zero" style="left:'+(ncx(j)+t*(ncx(j+1)-ncx(j)))+'px;top:'+((y0+t*(y1-y0))/H*100).toFixed(2)+'%">0</span>';
+      });
+    }
+  });
   return '<div class="lv-tblwrap"><table class="lv-vartbl2 cvq-tbl" style="width:'+(110+innerW)+'px"><tbody>'
     +'<tr class="vt-xr">'+xr+'</tr>'
     +'<tr class="vt-fr"><td class="vlab">variations de <i>f</i> ′</td><td class="vfcell" colspan="'+(2*nN-1)+'" style="height:'+H+'px">'
