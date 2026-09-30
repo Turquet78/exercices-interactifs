@@ -4152,6 +4152,7 @@ function exercices(suite){
     syntheseEvolutions(w, P);
     evolutionsSuccessives(w, P);
     schemaEvolution(w, P);
+    evolutionsSuccessivesCoef(w, P);
     baissesSuccessivesDix(w, P);
     pourcentageSchema(w, P);
     pourcentagePhrases(w, P);
@@ -27912,6 +27913,86 @@ function schemaEvolution(w, P){
     setv('sevP',''); setv('sevW','baisse'); setv('sevT',10);
     checkSevAnswer();
     if(/\\bbad\\b/.test(cls('sevP'))) vus.push('une case laissée vide rougit à la vérification');
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- {evolutions-successives-coef} (4.5.7) : Seconde SEULE, LE SCHÉMA DU 4.5.5 AVEC SES DEUX COEFFICIENTS DONNÉS
+   « comme le 4.5.5, mais on donne les deux coefficients multiplicateurs du haut ;
+   l'élève complète toutes les cases logiquement, puis trois phrases, une par
+   évolution » (Turquet, septembre 2026). Kind « evc ». Bords : le tirage (le
+   global est entier, les trois formes sortent, « Recommencer » garde l'identité) ;
+   le schéma (les coefficients sont ÉCRITS, le signe des parenthèses les suit) ;
+   le verdict case par case sur des copies épinglées (juste bleue, mauvais mot
+   rouge avec la correction verte, case vide jamais rouge). */
+function evolutionsSuccessivesCoef(w, P){
+  const present = evaluer(w, "typeof startEvolSuccCoef==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{evolutions-successives-coef} : deux évolutions, coefficients donnés, le global est entier, les trois formes sortent',
+      'ce niveau n\'a pas le schéma des deux évolutions à coefficients donnés');
+    ignorer('{evolutions-successives-coef} : coefficients écrits, signes lus, trois phrases, verdict case par case',
+      'ce niveau n\'a pas le schéma des deux évolutions à coefficients donnés');
+    return;
+  }
+  verifierEval(w, '{evolutions-successives-coef} : deux évolutions, coefficients donnés, le global est entier, les trois formes sortent', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='evolutions-successives-coef';
+    for(let t=0;t<40 && vus.length<3;t++){
+      startEvolSuccCoef();
+      if(test.qId!=='evolutions-successives-coef') vus.push('tirage '+t+' : identité « '+test.qId+' »');
+      if(test.kind!=='evc') vus.push('tirage '+t+' : kind « '+test.kind+' »');
+      const qs=test.questions||[], formes={};
+      if(qs.length!==3) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de 3');
+      qs.forEach(function(q,i){
+        formes[q.s1+'|'+q.s2]=1;
+        if(!Number.isInteger(q.G) || q.G===0 || Math.abs(q.G)>=100) vus.push('tirage '+t+' q'+i+' : global '+q.G+' % non entier, nul ou hors bornes');
+        if(q.c1!==100+q.s1*q.P1 || q.c2!==100+q.s2*q.P2) vus.push('tirage '+t+' q'+i+' : coefficients incohérents');
+        if(/undefined|\\$\\{/.test(evcEnonce(q))) vus.push('tirage '+t+' q'+i+' : énoncé mal formé');
+      });
+      const nb=Object.keys(formes).length;
+      if(nb<3 && qs.length===3) vus.push('tirage '+t+' : seulement '+nb+' forme(s) de signes');
+    }
+    if(!vus.length){ restartCurrentTest(); if(test.qId!=='evolutions-successives-coef') vus.push('« Recommencer » relance « '+test.qId+' »'); }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '{evolutions-successives-coef} : coefficients écrits, signes lus, trois phrases, verdict case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='evolutions-successives-coef';
+    const poser=function(q){ startEvolSuccCoef(); test.questions[0]=q; test.idx=0; test.locked=false; renderEvcTest(); };
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    const remplir=function(q,fx){
+      const g=Math.abs(q.G);
+      setv('evcP1',q.P1/100); setv('evcP2',q.P2/100);
+      setv('evcG1',q.c1/100); setv('evcG2',q.c2/100); setv('evcG',q.c1*q.c2/10000); setv('evcGP',g/100);
+      setv('evcW1',q.s1>0?'hausse':'baisse'); setv('evcT1',q.P1);
+      setv('evcW2',q.s2>0?'hausse':'baisse'); setv('evcT2',q.P2);
+      setv('evcW3',q.G>0?'hausse':'baisse'); setv('evcT3',g);
+      if(fx) fx();
+    };
+    const A={s1:-1,s2:1,P1:30,P2:10,c1:70,c2:110,G:-23,ci:0,v:0};
+    const B={s1:1,s2:1,P1:20,P2:30,c1:120,c2:130,G:56,ci:0,v:0};
+    [A,B].forEach(function(q){
+      poser(q);
+      const vals=document.querySelectorAll('#evcHost .evc-val');
+      if(vals.length!==2 || document.querySelectorAll('#evcHost .pctb-arrow math-field').length!==2) vus.push('les deux coefficients doivent être écrits par la page, les deux pourcentages saisis');
+      else if(vals[0].textContent.trim()!==(q.c1/100).toString().replace('.',',') || vals[1].textContent.trim()!==(q.c2/100).toString().replace('.',',')) vus.push('coefficients affichés : '+vals[0].textContent+' ; '+vals[1].textContent);
+      const pm=document.getElementById('evcPM'); if(!pm || pm.textContent.trim()!=='±') vus.push('le signe global doit être « ± » avant la frappe');
+      if(document.querySelectorAll('#evcHost .evc-phrase select').length!==3) vus.push('il faut trois phrases à mot choisi');
+      remplir(q);
+      checkEvcAnswer();
+      ['evcP1','evcP2','evcG1','evcG2','evcG','evcGP','evcW1','evcT1','evcW2','evcT2','evcW3','evcT3'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push(q.c1+'/'+q.c2+' : '+id+' juste n\\'est pas bleu ('+cls(id)+')'); });
+      if(test.score!==1) vus.push(q.c1+'/'+q.c2+' : la copie juste ne vaut pas le point');
+    });
+    poser(A); remplir(A); setv('evcW3','hausse'); setv('evcT2',99);
+    checkEvcAnswer();
+    if(test.score!==0) vus.push('une copie fautive vaut le point');
+    if(!/\\bbad\\b/.test(cls('evcT2'))) vus.push('le mauvais pourcentage ne rougit pas');
+    if(/\\bbad\\b/.test(cls('evcP1')) || /\\bbad\\b/.test(cls('evcG'))) vus.push('une case juste rougit à côté d\\'une fausse');
+    if(document.getElementById('evcW3').value!=='baisse' || !/\\bsol\\b/.test(cls('evcW3'))) vus.push('la correction « baisse » n\\'est pas montrée en vert');
+    poser(B); remplir(B); setv('evcP1',''); setv('evcT3','');
+    checkEvcAnswer();
+    if(/\\bbad\\b/.test(cls('evcP1')) || /\\bbad\\b/.test(cls('evcT3'))) vus.push('une case laissée vide rougit à la vérification');
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
