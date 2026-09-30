@@ -23192,6 +23192,28 @@ function salCouple(q){
     finStr:String(fin).replace('.',','),
     pDecStr:String(P/100).replace('.',',') };
 }
+/* La phrase de conclusion du 4.5.2 (« C'est une hausse de 22 % », demande de
+   Turquet, septembre 2026, après le 4.5.4 et le 4.5.3) : seulement sur
+   {synthese-pourcentages-libre} — test.qId, jamais le kind « sal », que
+   partagent les rédigés du 4.2 et du 4.3 et la synthèse générale —, seulement
+   quand l'inconnue est le pourcentage d'une HAUSSE ou d'une BAISSE : « prendre
+   P % » n'est pas une évolution. Le mot se tire du sens de la question. */
+function salConclu(q){
+  return (test.qId==='synthese-pourcentages-libre' && q && q.inc==='pct' && q.fam!=='pct')
+    ? { mot:(salSens(q)<0?'baisse':'hausse') } : null;
+}
+function salMarquerConclusion(q,okW,okT,fin){
+  const w=$('salW'), t=$('salT'); if(!w||!t) return;
+  const tv=String(t.value||'').trim();
+  w.classList.remove('ok','bad'); t.classList.remove('ok','bad');
+  if(w.value) w.classList.add(okW?'ok':'bad');
+  if(tv!=='') t.classList.add(okT?'ok':'bad');
+  w.disabled=okW||fin; t.disabled=okT||fin;
+  if(fin && currentMode==='train'){
+    if(!okW){ w.value=salConclu(q).mot; w.classList.remove('bad'); w.classList.add('sol'); }
+    if(!okT) corTrainDec('salT', String(q.P));
+  }
+}
 function renderSal(){
   const q=test.questions[test.idx]; test.locked=false; test.salBusy=false;
   $('salIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
@@ -23202,14 +23224,18 @@ function renderSal(){
   const sens=salSens(q), neg=(sens<0);
   const tab=synTab(q);
   $('salPrompt').innerHTML=(tab[q.v]||tab[0])(q)
-    +` Choisis ${synQuoi(q)}, puis JUSTIFIE ta réponse en écrivant ta vérification — dans l’ordre que tu veux.`;
+    +` Choisis ${synQuoi(q)}, puis JUSTIFIE ta réponse en écrivant ta vérification — dans l’ordre que tu veux`+(salConclu(q)?', et CONCLUS par une phrase.':'.');
   const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="salc${i}" onclick="choisirSal(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(synLabel(q,v))}</span></button>`).join('');
   $('salHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">Choisis ${synQuoi(q)}</div>
        <div class="pt-choix" id="salChoix">${choix}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">justifie ta réponse — ${salVoiesTexte(sens,null)}</div>
        <div class="dexp2-sheet" id="salSheet"></div>
-       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}. Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
+       <p class="dexp-hint">Écris UN calcul par ligne${sens===0?'':' — par exemple la multiplication sur une ligne, '+(neg?'la soustraction':'l’addition')+' sur la suivante'}. Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`+
+    (salConclu(q)
+      ? `<div class="pt-step"><div class="pt-lab">conclus par une phrase</div>
+         <div class="pt-row"><span class="f-whole">C’est une</span><select id="salW" class="itv-sel large" aria-label="hausse ou baisse"><option value="">…………</option><option value="hausse">hausse</option><option value="baisse">baisse</option></select><span class="f-whole">de</span><math-field class="dexp-mf pm-mf f-dec" id="salT" aria-label="le pourcentage d’évolution"></math-field><span class="f-whole">%</span></div></div>`
+      : '');
   /* Les lignes sont INDÉPENDANTES : pas de préfixe « = » qui les enchaîne —
      la voie de l'augmentation demande deux égalités séparées. La feuille naît
      toujours VISIBLE (la leçon de mlFeuille), et reste intouchée. */
@@ -23457,7 +23483,17 @@ async function checkSal(){
     }
     correct=res.correct===true; feedback=res.feedback||'';
   }
+  /* la conclusion « C'est une hausse de … % » compte dans la note : une
+     justification juste ne sauve pas une phrase fausse (ni une phrase vide) */
+  const conc=salConclu(q);
+  let okW=true, okT=true;
+  if(conc){
+    okW=($('salW').value===conc.mot);
+    okT=(String($('salT').value||'').trim()!=='' && parseInt(String($('salT').value).trim(),10)===q.P);
+    if(correct && !(okW&&okT)){ correct=false; feedback='Ta justification est bonne, mais ta conclusion ne l’est pas : relis ta phrase « C’est une … de … % ».'; }
+  }
   fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
+  if(conc) salMarquerConclusion(q,okW,okT,!(isSoutien() && !correct));
   salPeindreLignes();                       /* la copie se voit : lignes justes en bleu, fausses en rouge */
   const okChoix=(q.choisi===q.bon);
   if(isSoutien() && !correct){
@@ -23481,7 +23517,8 @@ async function checkSal(){
     : (q.inc==='ini') ? `quelle valeur donne ${q.decStr} ${q.unit} après ${sgn}${q.P} % ?`
     : `de ${q.N} à ${q.decStr} ${q.unit} : quel pourcentage de ${evoN} ?`;
   test.answers.push({...(ptsExo()||{}), q:enonce,
-    answer:synLabel(q,q.opts[q.bon]), given:synLabel(q,q.opts[q.choisi])+' — '+rep, correct:correct});
+    answer:synLabel(q,q.opts[q.bon])+(conc?' — '+conc.mot+' de '+q.P+' %':''),
+    given:synLabel(q,q.opts[q.choisi])+' — '+rep+(conc?' — '+($('salW').value||'…')+' de '+(String($('salT').value||'').trim()||'…')+' %':''), correct:correct});
   const last=test.idx===test.questions.length-1;
   $('salActions').innerHTML=`<button class="btn btn-primary" id="salNext" onclick="nextSal()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   const nb=$('salNext'); if(nb) nb.focus();

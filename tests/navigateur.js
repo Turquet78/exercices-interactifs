@@ -1763,6 +1763,87 @@ async function parcours(page, N){
       }
       await s.nav.close(); s = null;
     }
+    /* ===== 6 quater decies bis. la phrase de conclusion du 4.5.2 ===== */
+    /* {synthese-pourcentages-libre} (Seconde, 4.5.2) : quand l'inconnue est le
+       pourcentage d'une hausse ou d'une baisse, la copie se termine par la
+       phrase « C'est une [hausse/baisse] de [ … ] % ». jsdom ne clique pas
+       « Vérifier » sur une vraie page : ici on le fait, sur la question
+       tirée par la page, dans un vrai Chromium. */
+    titre('6 quater decies bis. LA PHRASE DE CONCLUSION DU 4.5.2');
+    if(!P.syntheseConclusion){
+      ignorer('4.5.2 : la phrase « C\'est une hausse de … % » compte dans la note, et une case vide ne rougit pas',
+        'ce niveau n\'a pas la phrase de conclusion du 4.5.2');
+      ignorer('4.5.2 : un mot faux est refusé, la phrase juste est bleue, « prendre P % » n\'a pas de phrase',
+        'ce niveau n\'a pas la phrase de conclusion du 4.5.2');
+    } else if(!ml){
+      ignorer('4.5.2 : la phrase « C\'est une hausse de … % » compte dans la note, et une case vide ne rougit pas', 'MathLive absent');
+      ignorer('4.5.2 : un mot faux est refusé, la phrase juste est bleue, « prendre P % » n\'a pas de phrase', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.syntheseConclusion.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1300);
+      /* la PHRASE DE CONCLUSION « C'est une hausse de … % » (4.5.2,
+         septembre 2026). Sur une hausse ou une baisse dont l'inconnue est le
+         POURCENTAGE : la phrase existe, une justification juste ne sauve pas
+         une phrase vide ou fausse, la phrase juste se peint en bleu ; et sur
+         « prendre P % » elle n'existe pas. */
+      let ditsC = [];
+      const qC = await s.page.evaluate(() => {
+        const q = genSyn('aug', 'pct');
+        test.questions[test.idx] = q; test.locked = false; test.salBusy = false; test.salBusy = false; renderSal();
+        const c = salCouple(Object.assign({}, q, { choisi: q.bon }));
+        return { bon: q.bon, N: c.N, coef: c.coefStr, fin: c.finStr, P: q.P,
+                 phrase: !!document.getElementById('salW') && !!document.getElementById('salT') };
+      });
+      await s.page.waitForTimeout(800);
+      if(!qC.phrase) ditsC.push('sur une hausse dont l\'inconnue est le pourcentage, la phrase « C\'est une … de … % » manque');
+      else {
+        await s.page.click('#salc' + qC.bon);
+        await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
+          try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+        await s.page.waitForTimeout(150);
+        await s.page.keyboard.type(qC.coef + ' * ' + qC.N + ' = ' + qC.fin, { delay: 30 });
+        await s.page.waitForTimeout(300);
+        /* justification juste, phrase VIDE : pas de point, et la case vide ne rougit pas */
+        await s.page.click('#salActions .btn-primary');
+        await s.page.waitForTimeout(1200);
+        const vC1 = await s.page.evaluate(() => ({ score: test.score, bad: /\bbad\b/.test(document.getElementById('salT').className + ' ' + document.getElementById('salW').className),
+          boutons: String((document.getElementById('salActions') || {}).textContent || '').trim() }));
+        if(vC1.score !== 0) ditsC.push('une phrase de conclusion vide laisse passer la copie : score ' + vC1.score);
+        if(vC1.bad) ditsC.push('une phrase de conclusion laissée vide rougit');
+      }
+      verifier('4.5.2 : la phrase « C\'est une hausse de … % » compte dans la note, et une case vide ne rougit pas',
+        ditsC.length === 0, ditsC.slice(0, 3).join(' | '));
+
+      let ditsD = [];
+      const vC2 = await s.page.evaluate(async () => {
+        const q = test.questions[test.idx];
+        test.locked = false; test.salBusy = false; test.score = 0; test.answers = [];
+        document.getElementById('salW').disabled = false; document.getElementById('salT').disabled = false;
+        document.getElementById('salW').value = 'baisse'; document.getElementById('salT').value = String(q.P);
+        await checkSal();
+        const faux = { score: test.score, wCls: document.getElementById('salW').className };
+        test.locked = false; test.salBusy = false; test.score = 0; test.answers = [];
+        document.getElementById('salW').disabled = false; document.getElementById('salT').disabled = false;
+        document.getElementById('salW').className = 'itv-sel large'; document.getElementById('salT').className = 'dexp-mf pm-mf f-dec';
+        document.getElementById('salW').value = 'hausse'; document.getElementById('salT').value = String(q.P);
+        await checkSal();
+        return { faux, juste: { score: test.score, wCls: document.getElementById('salW').className, tCls: document.getElementById('salT').className } };
+      });
+      if(vC2.faux.score !== 0) ditsD.push('« baisse » pour une hausse est compté juste');
+      if(vC2.juste.score !== 1) ditsD.push('la phrase juste « hausse de P % » n\'est pas comptée : score ' + vC2.juste.score);
+      if(!/\bok\b/.test(vC2.juste.wCls) || !/\bok\b/.test(vC2.juste.tCls)) ditsD.push('la phrase juste ne se peint pas en bleu : « ' + vC2.juste.wCls + ' » / « ' + vC2.juste.tCls + ' »');
+      const sansPhrase = await s.page.evaluate(() => { const q = genSyn('pct', 'pct'); test.questions[test.idx] = q; test.locked = false; renderSal();
+        return !!document.getElementById('salW') || !!document.getElementById('salT'); });
+      if(sansPhrase) ditsD.push('« prendre P % » affiche la phrase « C\'est une … de … % » alors que ce n\'est pas une évolution');
+      verifier('4.5.2 : un mot faux est refusé, la phrase juste est bleue, « prendre P % » n\'a pas de phrase',
+        ditsD.length === 0, ditsD.slice(0, 3).join(' | '));
+
+      await s.nav.close(); s = null;
+    }
     /* ===== 6 quinquies. l'étiquette de la colonne de gauche ===== */
     /* Elle doit nommer le dénominateur de la fraction étudiée : « pour 5 »
        devant 2/5. C'est ce qui met les deux colonnes en regard — « 2 pour 5 »
