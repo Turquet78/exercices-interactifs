@@ -3763,3 +3763,31 @@ puis le schéma sur des copies épinglées (1,3 / 0,95 / 2) : coefficient écrit
 et non saisissable, signe, flèche « −1 », copie juste bleue qui vaut le
 point, mauvais mot rouge avec correction verte sans faire rougir les cases
 justes, coefficient recopié (0,8 et 80 %) refusé, case vide jamais rouge.
+
+## {evolutions-successives-coef} — le 4.5.5 à coefficients donnés, puis trois phrases (Seconde, 4.5.7, septembre 2026)
+
+**D'où il vient.** « Un exercice comme le 4.5.5, mais où l'on donne les deux
+coefficients multiplicateurs du haut ; l'élève complète toutes les cases du
+schéma logiquement, puis trois phrases qui demandent chacune l'une des trois
+évolutions en pourcentage. » (image jointe : 0,70 et 1,10 écrits sous les
+flèches, parenthèses « 1 − » et « 1 + » à compléter, calcul global vide.)
+
+**Ce qui est repris, ce qui change.** Tirage, énoncés et boîtes viennent de
+{evolutions-successives} (`genEvs` : le global est entier, non nul, sous 100 ;
+trois formes de signes par séance). Les deux coefficients sont ÉCRITS par la
+page (`.evc-val`, à la taille d'une case, le motif de `.sev-val`) et le signe
+des parenthèses se lit sur eux. L'élève saisit : les deux pourcentages
+décimaux, le calcul du coefficient global (les deux facteurs recopiés, le
+produit), le pourcentage global décimal (le signe « ± » se lit sur le produit
+écrit), puis trois phrases « Première évolution / Deuxième évolution /
+Évolution globale : une [hausse|baisse] de … % ». Kind « evc », écran
+`scr-evc`, rappel `RAP_EVC`. Les boîtes n'ont pas de case.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `evolutionsSuccessivesCoef`,
+absent-déclaré sans `startEvolSuccCoef`) : le tirage sur quarante séances
+(global entier, coefficients cohérents, trois formes, « Recommencer ») ; le
+schéma (coefficients écrits et non saisissables, « ± » avant la frappe, trois
+menus) ; le verdict case par case sur des copies épinglées (−30 % puis +10 % ;
++20 % puis +30 %) : copie juste bleue qui vaut le point, faute isolée sans
+faire rougir les cases justes, correction verte du mot, case vide jamais rouge.
+Le navigateur voit le reste par la visite universelle (section 9).
