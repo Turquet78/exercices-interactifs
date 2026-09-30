@@ -28544,11 +28544,21 @@ function pourcentageSchemaCadres(w, P){
       const labs=[].map.call(document.querySelectorAll('#pccHost .pctb-lab'), function(e){ return e; });
       if(labs.length!==3) vus.push(nom+labs.length+' boîte(s) au lieu de 3');
       labs.forEach(function(e,k){ if(!e.querySelector('.cdr-'+k)) vus.push(nom+'la boîte '+k+' n\\'est pas cadrée du style '+k); });
-      const gris=document.querySelectorAll('#pccHost .cdr-prec');
-      if(gris.length!==1 || !gris[0].textContent.trim() || labs[2].querySelector('.cdr-prec')!==gris[0]) vus.push(nom+'le texte gris n\\'est pas posé une fois, non vide, à côté de la troisième boîte');
+      if(document.querySelectorAll('#pccHost .cdr-prec').length) vus.push(nom+'un texte gris « parmi … » reste à côté de la troisième boîte : le groupe croisé s\\'écrit en entier dans la boîte');
+      if(labs[2] && labs[2].textContent.trim()!==CTX_PCC[ci].inter) vus.push(nom+'la troisième boîte ne porte pas le groupe croisé « '+CTX_PCC[ci].inter+' »');
+      if(labs[2] && labs[2].querySelectorAll('.cdr-2').length!==1) vus.push(nom+'le groupe croisé n\\'est pas dans un seul cadre vert');
       const ph=document.querySelectorAll('#pccHost .pcc-phrase');
       if(ph.length!==3) vus.push(nom+ph.length+' phrase(s) au lieu de 3');
       [].forEach.call(ph, function(e,i){ if(!e.querySelector('.cdr')) vus.push(nom+'la phrase '+(i+1)+' ne porte aucun cadre'); });
+      /* l'intersection de deux groupes prend UN cadre vert, jamais un rouge collé à un vert */
+      [0,1].forEach(function(tv){
+        test.questions[0].v=[0,0,0,tv]; renderPccTest();
+        const p3=document.getElementById('pccS3').closest('.pcc-phrase');
+        if(p3.querySelector('.cdr-1')) vus.push(nom+'la 3e phrase (tournure '+tv+') porte un cadre rouge : le groupe croisé est un seul cadre vert');
+        if(!p3.querySelector('.cdr-2')) vus.push(nom+'la 3e phrase (tournure '+tv+') ne porte pas de cadre vert');
+        if(p3.querySelectorAll('.cdr-2').length!==1) vus.push(nom+'la 3e phrase (tournure '+tv+') coupe le groupe croisé en plusieurs cadres verts');
+      });
+      test.questions[0].v=[0,0,0,0]; renderPccTest();
       if(/\\bundefined\\b|\\$\\{|\\[object/.test(pr.textContent+document.getElementById('pccHost').textContent)) vus.push(nom+'un gabarit ou « undefined » reste affiché');
       const verdict=document.querySelectorAll('#pccHost .cdr.ok,#pccHost .cdr.bad,#pccHost .cdr.sol,#pccPrompt .cdr.ok,#pccPrompt .cdr.bad,#pccPrompt .cdr.sol');
       if(verdict.length) vus.push(nom+'un cadre porte une classe de verdict');
