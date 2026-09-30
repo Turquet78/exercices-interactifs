@@ -15895,6 +15895,20 @@ function tableauProportions(w, P){
     if(peint('tdp-parmi')!=='rouge' || peint('tdp-den')!=='rouge') vus.push('le mauvais tout n\\'est pas rouge');
     if(peint('tdp-qui')!=='vert' || peint('tdp-num')!=='vert') vus.push('une case juste rougit à côté du mauvais tout');
     if(!/3 sur 13/.test(texte('tdpFeedback')) || !/3\\/13/.test(texte('tdpFeedback'))) vus.push('le message n\\'écrit pas 3/13 : « '+texte('tdpFeedback')+' »');
+    /* LA CASE DU CROISEMENT EST ACCEPTÉE AUSSI : « sont des garçons avec
+       lunettes » parmi « les garçons », 3/13 — mais pas parmi la classe, et
+       pas une autre case */
+    poser(qP, Object.assign({},JP,{'tdp-qui':'x00'})); checkTdpAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('« sont des garçons avec lunettes » parmi les garçons est refusé');
+    if(peint('tdp-qui')!=='vert') vus.push('la case du croisement est peinte en '+peint('tdp-qui'));
+    poser(qP, Object.assign({},JP,{'tdp-qui':'x01'})); checkTdpAnswer();
+    if(peint('tdp-qui')!=='rouge') vus.push('« sont des filles avec lunettes » parmi les garçons est peint en '+peint('tdp-qui'));
+    const qC={ci:0,t:T,phase:'prop',gk:'x00',rk:'tout',v:0};
+    poser(qC, {'tdp-qui':'l0','tdp-parmi':'tout','tdp-num':'3','tdp-den':'30'}); checkTdpAnswer();
+    if(peint('tdp-qui')!=='rouge') vus.push('« ont des lunettes » dans la classe, pour les garçons à lunettes, est peint en '+peint('tdp-qui'));
+    if(tdpAlt(qC).length || tdpAlt({gk:'c0',rk:'tout'}).length) vus.push('une alternative est offerte quand le tout est la classe');
+    if(tdpAlt({gk:'c1',rk:'l0'})[0]!=='x01' || tdpAlt({gk:'l1',rk:'c0'})[0]!=='x10') vus.push('la case du croisement est mal calculée');
     /* les listes vides restent vides de rouge, et reçoivent leur réponse */
     poser(qP, Object.assign({},JP,{'tdp-qui':'','tdp-num':''})); checkTdpAnswer();
     if(peint('tdp-qui')!=='bleu' || peint('tdp-num')!=='bleu') vus.push('une case vide de la proportion est peinte en '+peint('tdp-qui')+'/'+peint('tdp-num'));

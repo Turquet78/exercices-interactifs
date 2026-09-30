@@ -3651,3 +3651,15 @@ cases, trois cadres, copie juste bleue qui vaut le point, « 50 % » (30 + 20)
 rouge seul avec sa correction verte, « 6,5 » refusé, case vide jamais rouge.
 Le premier passage a rougi sur le contrôle : la correction porte la classe
 `mf-cor`, pas `sol`.
+**Puis la case du croisement a été acceptée aussi** (demande de Turquet, le
+lendemain : « accepte aussi « sont des garçons avec lunettes » parmi les
+garçons »). Pour une proportion d'un groupe parmi l'autre axe, `tdpAlt(q)`
+donne la clé de la case au croisement (`gk` = `l0`, `rk` = `c0` → `x00`), et
+`tdpJuste` l'accepte dans la liste « qui » à côté de la formulation de la
+fiche — la correction, elle, écrit toujours celle de la fiche (`bon` ne
+change pas, c'est `alt` qui s'ajoute). Rien quand le tout est l'effectif
+entier : « ont des lunettes » dans la classe n'est pas « sont des garçons
+avec lunettes » dans la classe, la fraction n'est pas la même. Le contrôle
+tient les deux bords : la case du croisement acceptée (3/13, bleue), une
+autre case refusée (« sont des filles avec lunettes » parmi les garçons,
+rouge), et aucune alternative quand le tout est la classe. `APP_VERSION` 242.
