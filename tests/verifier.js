@@ -1617,8 +1617,12 @@ function branchements(w){
      correction CLIQUÉE (bonne choisie = ok, bonne montrée = sol, case vide
      jamais rougie, le piège choisi NOMMÉ) ; et l'identité. */
   if(typeof evaluer(w,"typeof startReconnaitreCoef").valeur==='string' && evaluer(w,"typeof startReconnaitreCoef").valeur==='function'){
+    /* l'étape ③ « c'est une hausse de … % » n'existe qu'en Seconde (4.5.3, septembre 2026) */
+    const etape3=evaluer(w,"(function(){ currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; startReconnaitreCoef(); test.questions[0]={fam:'aug',P:30,opts:[130,103,70,30],choisi:null}; test.idx=0; renderCKTest(); return !!document.getElementById('ckW'); })()").valeur===true;
+    if(!etape3) ignorer('reconnaître le coefficient : l\'étape ③ « c\'est une hausse / baisse de … % »',
+      'ce niveau n\'a pas la lecture inverse du coefficient (Seconde seulement)');
     verifierEval(w, 'reconnaître le coefficient : trois familles, pièges nommés, vérification honnête', `(function(){
-      const vus=[];
+      const vus=[]; const etape3=${etape3};
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
       /* ---- 1. le tirage ---- */
       const ordres={}, rangs={aug:{},dim:{},pre:{}};
@@ -1676,13 +1680,13 @@ function branchements(w){
       checkCKAnswer();
       if(fb().indexOf('VIRGULE')<0) vus.push('le retour ne nomme pas le piège de la virgule : '+fb().slice(0,60));
       /* l'étape ③ : « c'est une hausse de 30 % » — le mot faux est refusé et corrigé en vert, le pourcentage vide ne rougit pas */
-      if(!document.getElementById('ckT') || !document.getElementById('ckW')) vus.push('l\\'étape ③ manque');
-      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'baisse',ckT:'30'});
+      if(etape3 && (!document.getElementById('ckT') || !document.getElementById('ckW'))) vus.push('l\\'étape ③ manque');
+      if(etape3){ poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'baisse',ckT:'30'});
       test.score=0; checkCKAnswer();
       if(test.score!==0 || !/\\bsol\\b/.test(cls('ckW')) || document.getElementById('ckW').value!=='hausse') vus.push('« baisse » pour une hausse n\\'est pas refusé, ou « hausse » n\\'est pas montré en vert');
       poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'hausse'});
       checkCKAnswer();
-      if(/\\bbad\\b/.test(cls('ckT'))) vus.push('le pourcentage laissé vide rougit à la vérification');
+      if(/\\bbad\\b/.test(cls('ckT'))) vus.push('le pourcentage laissé vide rougit à la vérification'); }
       /* case vide en entraînement : jamais rouge, remplie en vert */
       poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckW:'hausse',ckT:'30'});
       checkCKAnswer();
@@ -1705,7 +1709,7 @@ function branchements(w){
       const QP={fam:'pre',P:30,opts:[3,130,30,70],choisi:2};
       poser(JSON.parse(JSON.stringify(QP)),{ck1n:'30',ck1d:'100',ck1p:'30'});
       if(document.getElementById('ckC')) vus.push('« prendre » affiche un maillon « 1 ± » qui n\\'existe pas');
-      if(document.getElementById('ckW')||document.getElementById('ckT')) vus.push('« prendre » n\\'est pas une évolution : pas de phrase « hausse / baisse »');
+      if(etape3 && (document.getElementById('ckW')||document.getElementById('ckT'))) vus.push('« prendre » n\\'est pas une évolution : pas de phrase « hausse / baisse »');
       test.score=0; checkCKAnswer();
       if(test.score!==1) vus.push('« prendre » : la copie juste ne vaut pas le point');
 
