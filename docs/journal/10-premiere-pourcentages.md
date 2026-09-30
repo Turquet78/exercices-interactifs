@@ -3612,6 +3612,45 @@ séparateur (« Avec lunettes369 ») — le contrôle lit désormais les `.tdp-n
 par un. Et le rappel de cours a rougi au contrôle des fractions empilées :
 « 3/30 » et « 3/13 » s'écrivent en `\frac`, jamais à plat. `APP_VERSION` 241.
 
+## {pourcentage-phrases} — du texte au schéma, le 4.1.10 pris depuis les phrases (Seconde, septembre 2026, 4.1.11)
+
+**D'où il vient.** Demande de Turquet : « en seconde, un nouvel exercice comme
+le 4.1.10, modifié pour qu'il apparaisse comme sur le pdf, avec des cadres
+supplémentaires, la phrase en gris et les nombres à placer dans le schéma pour
+déterminer la case manquante dans la 3ème phrase ». **Le PDF n'était pas
+joint à la session** : la mise en page est une LECTURE de cette phrase, à
+corriger si la fiche dit autre chose (les phrases grises, l'ordre des cadres,
+la phrase à trous toujours en troisième).
+
+**Ce que fait l'exercice.** Le 4.1.10 lit un schéma pour écrire des phrases ;
+celui-ci part des phrases. Un cadre gris porte les DEUX premières phrases,
+données et écrites en gris (`.pcp-phrase.pcp-grise`, jamais une case), et la
+troisième, à trou : la case `pcpS3`, un pourcentage entier. Sous ce cadre, le
+schéma (boîtes et deux flèches) dans un cadre, puis le calcul global dans un
+cadre en pointillé : six cases en tout, `pcpD1`, `pcpD2` (les flèches),
+`pcpG1`, `pcpG2`, `pcpG` (le calcul), `pcpS3` (la phrase). Une seule forme :
+il n'y a plus de flèche à retrouver, les nombres sont dans les phrases.
+
+**Ce qui est partagé avec le 4.1.10** : `PCS_PCTS` (multiples de 5, produit
+multiple de 100 — le global est toujours entier), `CTX_PCS` (les huit mises
+en situation et leurs tournures `s1`/`s2`/`s3`), `pcsJuge`, `pcsAttendu`. Les
+jugements sont donc les mêmes : 0,3 et 0,30 valent le même nombre, « 6,5 »
+n'est pas « 6 ». Ce qui est propre : `genPcp`, `PCP_ENONCES`, `pcpCases`,
+`renderPcpTest`, `checkPcpAnswer`, `RAP_PCP`, `QIA_SUGG.pcp`. `q.v` range les
+habits (consigne, tournure des trois phrases), hors de la clé de `distinctes()`.
+
+**Branchements** : les quinze, dont `THEMES` (4.1.11, après le 4.1.10), la
+réserve du bas, `liveCheckCurrent()`, `DISPATCH`, `testScreens`, les rendus
+enveloppés, `RAPPELS_ID` et la table `cles` de `tests/profils.js`.
+
+**Contrôles** (`tests/verifier.js`, `pourcentagePhrases`, absent-déclaré hors
+Seconde) : le tirage sur quarante séances (entiers, produit, global de 1 à 99,
+énoncé sans « undefined », aucun doublon, « Recommencer »), puis l'écran sur
+copies épinglées : deux phrases grises écrites et une phrase à case, six
+cases, trois cadres, copie juste bleue qui vaut le point, « 50 % » (30 + 20)
+rouge seul avec sa correction verte, « 6,5 » refusé, case vide jamais rouge.
+Le premier passage a rougi sur le contrôle : la correction porte la classe
+`mf-cor`, pas `sol`.
 **Puis la case du croisement a été acceptée aussi** (demande de Turquet, le
 lendemain : « accepte aussi « sont des garçons avec lunettes » parmi les
 garçons »). Pour une proportion d'un groupe parmi l'autre axe, `tdpAlt(q)`
