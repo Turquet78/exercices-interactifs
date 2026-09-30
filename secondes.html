@@ -35707,16 +35707,27 @@ function tdpCases(q){
              {id:'tdp-ct-1', bon:String(T.ct[1]), kind:'nb', quoi:'c1'},
              {id:'tdp-tt',   bon:String(T.tt),    kind:'nb', quoi:'tout'} ];
   }
-  return [ {id:'tdp-qui',   bon:q.gk, kind:'sel'},
+  return [ {id:'tdp-qui',   bon:q.gk, kind:'sel', alt:tdpAlt(q)},
            {id:'tdp-parmi', bon:q.rk, kind:'sel'},
            {id:'tdp-num',   bon:String(tdpEff(q,q.gk,q.rk)), kind:'nb'},
            {id:'tdp-den',   bon:String(tdpEff(q,q.rk,'tout')), kind:'nb'} ];
+}
+/* LA CASE DU CROISEMENT EST ACCEPTÉE AUSSI (demande de Turquet, septembre
+   2026) : pour « ceux qui ont des lunettes parmi les garçons », l'élève peut
+   répondre « ont des lunettes » — la formulation de la fiche, celle que la
+   correction écrit — ou « sont des garçons avec lunettes » : parmi les
+   garçons, ce sont les mêmes élèves, et la fraction est la même. Quand le
+   tout est l'effectif entier, il n'y a pas d'autre réponse. */
+function tdpAlt(q){
+  if(q.rk==='tout' || q.gk[0]==='x') return [];
+  const l=q.gk[0]==='l'?q.gk[1]:q.rk[1], c=q.gk[0]==='c'?q.gk[1]:q.rk[1];
+  return ['x'+l+c];
 }
 function tdpLit(v){ const t=String(v==null?'':v).replace(/\s+/g,''); return /^\d+$/.test(t)?parseInt(t,10):null; }
 function tdpJuste(c, el){
   if(!el) return false;
   if(c.kind==='nb'){ const n=tdpLit(el.value); return n!==null && n===parseInt(c.bon,10); }
-  return el.value===c.bon;
+  return el.value===c.bon || (c.alt||[]).indexOf(el.value)>=0;
 }
 /* Le tableau : les quatre effectifs écrits, les totaux en cases de saisie
    (saisie=true) ou écrits à leur tour (le tableau complété qui accompagne
@@ -35867,7 +35878,9 @@ function ctxTdp(q){
     const g=tdpGroupe(ctx,q.gk), r=tdpGroupe(ctx,q.rk), num=tdpEff(q,q.gk,q.rk), den=tdpEff(q,q.rk,'tout');
     c+='Le tableau est déjà complété (totaux de lignes '+T.lt.join(' et ')+', de colonnes '+T.ct.join(' et ')+', total '+T.tt+'). Question : « '+tdpEnonce(q)+' » '
      +'L’élève choisit dans deux listes qui l’on étudie (« '+ctx.qui+' … ») et parmi qui, puis écrit la proportion en fraction : numérateur et dénominateur. '
-     +'Réponses attendues, STRICTEMENT SECRÈTES : on étudie '+ctx.qui+' '+g.p+' parmi '+r.nom+' ; la proportion est '+num+'/'+den+'. '
+     +'Réponses attendues, STRICTEMENT SECRÈTES : on étudie '+ctx.qui+' '+g.p+' parmi '+r.nom
+     +tdpAlt(q).map(function(k){ return ' (la page accepte aussi « '+tdpGroupe(ctx,k).p+' », les mêmes '+ctx.de.replace(/^d[e’]\s*/,'')+' parmi '+r.nom+')'; }).join('')
+     +' ; la proportion est '+num+'/'+den+'. '
      +'Méthode enseignée : une proportion est « une partie sur un tout » ; le mot « parmi » (ou « dans ») dit quel est le tout, c’est l’effectif qu’on met au dénominateur ; le numérateur est l’effectif de ceux qu’on étudie À L’INTÉRIEUR de ce tout. '
      +'Erreurs classiques : diviser par l’effectif total alors que la question dit « parmi les garçons » ; confondre « les garçons à lunettes dans la classe » (3/30) et « ceux qui ont des lunettes parmi les garçons » (3/13).';
   }
