@@ -28849,6 +28849,15 @@ function pourcentageSchemaVide(w, P){
       [].forEach.call(labs,function(e,k){ if(!e.querySelector('.cdr-'+k)) vus.push(nom+'la boîte '+k+' n\\'est pas cadrée du style '+k); });
       if(/\\bundefined\\b|\\$\\{|\\[object/.test(document.getElementById('psvPrompt').textContent+h.textContent)) vus.push(nom+'un gabarit ou « undefined » reste affiché');
     }
+    /* l'ORDRE des trois phrases est tiré : la phrase à case suit q.ordre, et le tirage sort les six ordres */
+    [[2,0,1],[1,2,0],[0,2,1]].forEach(function(o){
+      startPsv(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:5,ordre:o}); test.idx=0; test.locked=false; renderPsvTest();
+      const ph=document.querySelectorAll('#psvHost .psv-phrase');
+      if(ph.length!==3 || !ph[o.indexOf(2)].querySelector('#psvS3')) vus.push('l\\'ordre '+o.join('')+' n\\'est pas suivi : la phrase à case n\\'est pas à sa place');
+      if(ph.length===3 && !new RegExp('30').test(ph[o.indexOf(0)].textContent)) vus.push('l\\'ordre '+o.join('')+' : la phrase du premier pourcentage n\\'est pas à sa place');
+    });
+    const ordresVus={}; for(let i=0;i<300;i++){ ordresVus[genPsv().ordre.join('')]=1; }
+    if(Object.keys(ordresVus).length!==6) vus.push('le tirage ne sort que '+Object.keys(ordresVus).length+' ordre(s) des phrases sur 6');
     const setv=function(id,val){ document.getElementById(id).value=String(val); };
     const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
     const copie=function(s3){ startPsv(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:5}); test.idx=0; test.locked=false; renderPsvTest();
