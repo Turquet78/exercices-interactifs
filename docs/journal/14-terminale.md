@@ -2549,3 +2549,19 @@ secret. **Et le contrôle du 2.2.2 a rougi sur une place juste** : il
 exigeait que la fiche 5 soit « le dernier de la partie Convexité » — la
 règle est le RANG (juste après le 2.2.1), pas la fin de liste, et il le dit
 désormais ainsi.
+
+## L'inconnue « x » s'écrit en italique — partout (septembre 2026)
+
+Demande de Turquet, à propos du 2.2.2 : « je veux que l'inconnue x soit
+toujours écrite en italique, à retenir pour tous les prochains exercices sur
+tous les niveaux. » Le 2.2.2 écrivait « on cherche donc x tel que », « c'est-à-dire
+x = » et une option « s'annule en x = 0 » avec un x droit ; corrigés en
+`<i>x</i>` (et `𝑥` dans l'`<option>`, qui ne porte pas de balise). Le 5.5, qui
+partage ces phrases, a suivi.
+
+La règle est tenue par un contrôle universel du banc navigateur (section 9) :
+il lit chaque morceau de texte affiché, repère un « x » isolé et demande à son
+parent sa fonte calculée. Il a trouvé quinze exercices antérieurs de la Terminale
+au x droit : ils sont déclarés, NOMMÉS, dans `xItalique.dispenses`
+(`tests/profils.js`) — une dette écrite qui ne grandit pas, et qui rougit dès
+qu'une dispense ne protège plus rien. La Première n'avait aucun cas ; la Seconde, vingt-sept (même déclaration).
