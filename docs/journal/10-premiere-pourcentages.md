@@ -3674,6 +3674,33 @@ puis la correction par le BOUTON — tableau juste et totaux échangés, phase
 « 3 sur 13 »), « A et C » accepté, « B et C » refusé, cases vides. Le banc
 navigateur couvre l'écran par ses contrôles universels sans rien déclarer.
 
+## Seconde 4.6.3 — {tableau-proportions-lettres-tirees} : le 4.6.2, la paire de lettres TIRÉE
+
+**Demandé par Turquet en septembre 2026** : « en seconde, un nouvel exercice
+exactement comme le 4.6.2, mais il faudra choisir une lettre parmi A ou B puis
+une lettre parmi C ou D au hasard, puis construire l'exercice avec ces deux
+lettres ». Le 4.6.2 tirait déjà une colonne et une ligne par situation ; la
+réponse de Turquet à la question posée : « une seule lettre par axe, tout le
+reste sur elles » — donc le même moteur, et des proportions plus variées.
+
+**Moteur partagé, identité propre** (journal 09) : même `kind` `tdl`, même
+écran, même rendu et même correction ; seuls changent le tirage
+(`tdlBuildQuestionsTirees`), le démarreur (`startTdlTirees` →
+`demarrerTdl(qId, construire)`) et `test.qId`. Le rappel et les questions à
+l'IA restent ceux du 4.6.2 (indexés par `kind`).
+
+**Le tirage** : X (colonne A ou B) et Y (ligne C ou D) tirés une fois par
+situation et rangés (`q.c`, `q.l`). Sept questions : tableau, nombres de X, Y,
+« X et Y », puis cinq proportions — trois fixes dans la classe (X, Y, « X et Y »)
+et DEUX tirées sans remise parmi quatre (`TDL_FIN`) : Y parmi X, X parmi Y,
+« X et Y » parmi X, « X et Y » parmi Y. Aucune lettre hors de la paire ne sort.
+Barème inchangé : 31 cases par situation.
+
+**Contrôle** (`tableauProportionsTirees`) : 1 000 tirages (sept questions, phases
+dans l'ordre, jamais une lettre hors paire, les quatre paires sortent, les deux
+proportions finales diffèrent et varient), deux effectifs contre des sommes
+écrites à part, une copie juste par le bouton (7 cases bleues).
+
 ## {pourcentage-phrases} — du texte au schéma, le 4.1.10 pris depuis les phrases (Seconde, septembre 2026, 4.1.11)
 
 **D'où il vient.** Demande de Turquet : « en seconde, un nouvel exercice comme
@@ -3836,3 +3863,31 @@ menus) ; le verdict case par case sur des copies épinglées (−30 % puis +10 %
 +20 % puis +30 %) : copie juste bleue qui vaut le point, faute isolée sans
 faire rougir les cases justes, correction verte du mot, case vide jamais rouge.
 Le navigateur voit le reste par la visite universelle (section 9).
+
+## {evolutions-successives-phrases} — le 4.5.5 dont les deux premières phrases sont données (Seconde, 4.5.8, septembre 2026)
+
+**D'où il vient.** « Un exercice comme le 4.5.7, mais où l'on donne dans les
+phrases du bas les deux premiers pourcentages d'évolution, en précisant si
+c'est une baisse ou une hausse à chaque fois ; l'élève complète ensuite le
+schéma du dessus ainsi que la dernière phrase. »
+
+**Ce qui est repris, ce qui change.** C'est le 4.5.7 retourné. Tirage, énoncés
+et boîtes viennent de {evolutions-successives} (`genEvs` : le global est entier,
+trois formes de signes par séance). Ce qui est donné n'est plus le coefficient
+sous la flèche mais la phrase « Première évolution : une hausse de 20 % » (écrite
+par la page, deux fois) : le signe de chaque parenthèse « × (1 + … » se lit
+donc sur elle et la page l'écrit d'avance. L'élève saisit les deux pourcentages
+décimaux, les deux coefficients (les deux cases sont saisies, contrairement au
+4.5.7), le calcul du coefficient global, le pourcentage global décimal (« ± »
+lu sur le produit écrit), puis la dernière phrase : mot choisi et pourcentage.
+Kind « evp », écran `scr-evp`, rappel `RAP_EVP`, identité
+`evolutions-successives-phrases`. Dix cases jugées, chacune seule : une case
+juste ne rougit pas à côté d'une fausse, une case vide ne rougit jamais.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `evolutionsSuccessivesPhrases`,
+absent-déclaré sans `startEvolSuccPhrases`) : le tirage sur quarante séances ;
+l'écran (deux phrases écrites au bon mot et au bon pourcentage, une seule à
+compléter, signes des parenthèses, « ± » avant la frappe) ; le verdict sur des
+copies épinglées (−30 % puis +10 % ; +20 % puis +30 %) : copie juste bleue qui
+vaut le point, faute isolée sans faire rougir les autres, correction verte du
+mot, case vide jamais rouge. `APP_VERSION` 254.
