@@ -4157,6 +4157,7 @@ function exercices(suite){
     pourcentageSchema(w, P);
     pourcentagePhrases(w, P);
     pourcentageSchemaCadres(w, P);
+    pourcentageSchemaVide(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -28657,6 +28658,54 @@ function pourcentageSchemaCadres(w, P){
     setv('pccG1','0,30'); setv('pccG2','0,2'); setv('pccG','0,06'); setv('pccS1','30'); setv('pccS2','20'); setv('pccS3','6');
     checkPccAnswer();
     if(test.score!==1) vus.push('la copie juste ne vaut pas le point');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- {pourcentage-schema-vide} : Seconde SEULE, LE 4.1.12 SANS NOMBRE DANS LE SCHÉMA ---
+   Kind « psv » : deux pourcentages DONNÉS dans les deux premières phrases,
+   cinq cases de schéma vides et la case de la troisième phrase. Le contrôle
+   tient : le schéma sans aucun nombre écrit, les phrases 1 et 2 sans case, les
+   cadres partout, six cases, et le verdict (copie juste = le point, « 65 % »
+   rouge seul, case vide jamais rouge). */
+function pourcentageSchemaVide(w, P){
+  const titre='{pourcentage-schema-vide} : schéma sans nombre, deux pourcentages dans les phrases, six cases, et le verdict';
+  const present = evaluer(w, "typeof startPsv==='function'");
+  if(!present.ok || !present.valeur){ ignorer(titre, 'ce niveau n\'a pas le schéma de pourcentages vide'); return; }
+  verifierEval(w, titre, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-schema-vide';
+    const q0={P1:30,P2:20,comb:6,v:[0,0,0,0]};
+    for(let ci=0; ci<CTX_PCC.length; ci++){
+      startPsv(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:ci}); test.idx=0; test.locked=false; renderPsvTest();
+      const nom='contexte '+ci+' : ';
+      const h=document.getElementById('psvHost');
+      if(h.querySelectorAll('math-field').length!==6) vus.push(nom+h.querySelectorAll('math-field').length+' case(s) au lieu de 6');
+      if(h.querySelectorAll('.psv-val').length) vus.push(nom+'un nombre est écrit dans le schéma');
+      const ph=h.querySelectorAll('.psv-phrase');
+      if(ph.length!==3) vus.push(nom+ph.length+' phrase(s) au lieu de 3');
+      else {
+        if(ph[0].querySelector('math-field')||ph[1].querySelector('math-field')) vus.push(nom+'une des deux phrases données porte une case');
+        if(!/30/.test(ph[0].textContent)||!/20/.test(ph[1].textContent)) vus.push(nom+'les deux pourcentages ne sont pas écrits dans les phrases');
+        if(!ph[2].querySelector('#psvS3')) vus.push(nom+'la 3e phrase n\\'a pas sa case');
+        [].forEach.call(ph,function(e,i){ if(!e.querySelector('.cdr')) vus.push(nom+'la phrase '+(i+1)+' ne porte aucun cadre'); });
+      }
+      const labs=h.querySelectorAll('.pctb-lab');
+      if(labs.length!==3) vus.push(nom+labs.length+' boîte(s) au lieu de 3');
+      [].forEach.call(labs,function(e,k){ if(!e.querySelector('.cdr-'+k)) vus.push(nom+'la boîte '+k+' n\\'est pas cadrée du style '+k); });
+      if(/\\bundefined\\b|\\$\\{|\\[object/.test(document.getElementById('psvPrompt').textContent+h.textContent)) vus.push(nom+'un gabarit ou « undefined » reste affiché');
+    }
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    const copie=function(s3){ startPsv(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:5}); test.idx=0; test.locked=false; renderPsvTest();
+      setv('psvD1','0,3'); setv('psvD2','0,20'); setv('psvG1','0,30'); setv('psvG2','0,2'); setv('psvG','0,06'); if(s3!=='') setv('psvS3',s3); checkPsvAnswer(); };
+    copie('65');
+    if(!/\\bbad\\b/.test(cls('psvS3')) || test.score!==0) vus.push('« 65 % » ne rougit pas seul');
+    ['psvD1','psvD2','psvG1','psvG2','psvG'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('la case juste '+id+' n\\'est pas bleue'); });
+    copie('6');
+    if(test.score!==1) vus.push('la copie juste ne vaut pas le point');
+    copie('');
+    if(/\\bbad\\b/.test(cls('psvS3'))) vus.push('la case vide rougit');
     currentMode='train';
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
