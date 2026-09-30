@@ -1470,6 +1470,7 @@
   .tdp-in.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
   .tdp-in.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
   .tdp-tab .mf-cor{display:block;margin-top:4px;font-size:1.1rem}
+  .tdp-quest{text-align:center;margin:14px 0 12px;font-size:1.1rem;color:var(--ink)}
   .tdp-etude{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 18px;font-weight:600;font-size:1.08rem;color:var(--ink)}
   .tdp-etude .plc-sel.tdp-sel{width:auto;min-width:230px;max-width:100%;padding:0 14px;font-size:1.05rem}
   .tdp-frac-ligne{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap}
@@ -1822,6 +1823,7 @@
   #scr-iqd{padding-bottom:84px}
   #scr-pctc{padding-bottom:84px}
   #scr-pcs{padding-bottom:84px}
+  #scr-pcp{padding-bottom:84px}
   #scr-evs{padding-bottom:84px}
   #iqdGraph .lv-svg{cursor:pointer;touch-action:none;max-width:600px}
   .iqd-sel{width:auto;min-width:130px;padding:0 10px}
@@ -2086,6 +2088,24 @@
   #pcsHost math-field.pm-mf.pcs-pct{min-width:58px;max-width:110px}
   @media(max-width:900px){ #pcsHost math-field.pm-mf,#pcsHost .pcs-val{font-size:1.4rem} }
   @media(max-width:560px){ #pcsHost math-field.pm-mf{font-size:1.2rem;min-width:60px} #pcsHost .pcs-val{font-size:1.2rem} .pcs-phrase{font-size:.98rem} }
+  /* ===== {pourcentage-phrases} : le 4.1.10 repris DANS L'AUTRE SENS, comme sur la
+     fiche PDF (demande de Turquet, septembre 2026) : les deux premières phrases
+     sont DONNÉES, écrites en gris dans un cadre ; la troisième a un nombre
+     manquant. Les nombres des phrases se PLACENT dans le schéma (deux flèches,
+     puis le calcul global, chacun dans son cadre), et le produit donne la case
+     manquante de la troisième phrase. Boîtes, flèches et calcul sont ceux de
+     {pourcentage-chaine} (.pctb-*, .pctc-*). */
+  .pcp-cadre{width:100%;max-width:760px;margin:14px auto 0;box-sizing:border-box;border:2px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--surface)}
+  .pcp-texte{background:#f1f2f4;border-color:#c9ccd2}
+  .pcp-phrases{display:flex;flex-direction:column;gap:10px}
+  .pcp-phrase{font-family:"Fredoka";font-weight:700;font-size:1.1rem;color:var(--ink);text-align:left;line-height:1.7}
+  .pcp-phrase.pcp-grise{color:#8a8f98}
+  .pcp-cadre-calc{border-style:dashed}
+  #pcpHost .pctc-global{margin-top:0}
+  #pcpHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
+  #pcpHost math-field.pm-mf.pcp-pct{min-width:58px;max-width:110px}
+  @media(max-width:900px){ #pcpHost math-field.pm-mf{font-size:1.4rem} }
+  @media(max-width:560px){ #pcpHost math-field.pm-mf{font-size:1.2rem;min-width:60px} .pcp-phrase{font-size:.98rem} .pcp-cadre{padding:10px 10px} }
   /* ===== {evolutions-successives} : la SYNTHÈSE des deux schémas ci-dessus
      (demande de Turquet, septembre 2026, fiche « évolutions successives »).
      Les trois boîtes et la grande flèche du dessous viennent de
@@ -3489,6 +3509,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-pcp">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPcp"></span><span class="q-idx" id="pcpIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="pcpLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="pcpPrompt">Place les nombres dans le schéma, puis complète la dernière phrase.</p>
+      <div class="mp-stage"><div style="width:100%" id="pcpHost"></div></div>
+      <div class="mp-feedback" id="pcpFeedback"></div>
+      <div class="row" style="justify-content:center" id="pcpActions">
+        <button class="btn btn-primary" onclick="checkPcpAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-evbtest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEvb"></span><span class="q-idx" id="evbIdx">Question 1 / 3</span></span>
@@ -4806,7 +4841,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=241;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=244;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5410,6 +5445,7 @@ const TESTS={
   'pourcentage-boite':   { name:'Le sch\u00e9ma en bo\u00eete', icon:'\ud83d\udce6', desc:'Le sch\u00e9ma de la fiche papier : deux bo\u00eetes reli\u00e9es par une fl\u00e8che, et sur la fl\u00e8che le pourcentage puis son \u00e9criture d\u00e9cimale. Les 4 cases sont toujours vides, m\u00eame les nombres que l\u2019\u00e9nonc\u00e9 donne d\u00e9j\u00e0 \u2014 le r\u00e9sultat, la valeur initiale ou le pourcentage, m\u00e9lang\u00e9s.', start:()=>startPctBoite() },
   'pourcentage-chaine':  { name:'Composer deux pourcentages', icon:'\ud83d\udd17', desc:'Le sch\u00e9ma en bo\u00eete de {pourcentage-boite}, mais \u00e0 trois bo\u00eetes : le total, un sous-groupe, puis un sous-groupe DU sous-groupe \u2014 comme la fiche \u00ab 40 % de filles, dont 30 % font du basket \u00bb. Une deuxi\u00e8me rang\u00e9e donne le coefficient qui va directement du total au dernier sous-groupe, en un seul calcul.', start:()=>startPctChaine() },
   'pourcentage-schema':  { name:'Lire un sch\u00e9ma de pourcentages', icon:'\ud83e\udde9', desc:'Le sch\u00e9ma \u00e0 trois bo\u00eetes de {pourcentage-chaine}, pris \u00e0 l\u2019envers : les \u00e9critures d\u00e9cimales sont d\u00e9j\u00e0 \u00e9crites sur les fl\u00e8ches \u2014 ou l\u2019une d\u2019elles et le produit \u2014, tu compl\u00e8tes ce qui manque, puis trois phrases qui lisent le sch\u00e9ma en pourcentages, comme la fiche \u00ab Dans le club de sport il y a \u2026 % de filles \u00bb. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcs() },
+  'pourcentage-phrases': { name:'Du texte au sch\u00e9ma de pourcentages', icon:'\ud83d\udcdd', desc:'Le sch\u00e9ma de {pourcentage-schema}, mais depuis des phrases : les deux premi\u00e8res, \u00e9crites en gris, donnent les pourcentages ; tu places les nombres dans le sch\u00e9ma (les deux fl\u00e8ches, puis le calcul global), et le produit te donne le nombre qui manque dans la troisi\u00e8me phrase. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcp() },
   'augmenter-pourcentage':{ name:'Augmenter d\u2019un pourcentage en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'📈', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
   'augmenter-addition':  { name:'Augmenter d\u2019un pourcentage en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en {pourcentage}), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
   'augmenter-depart':    { name:'Retrouver la valeur initiale apr\u00e8s une hausse en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'🔁', desc:'On donne le pourcentage d\u2019augmentation et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis v\u00e9rifie-la avec les 5 \u00e9tapes de l\u2019exercice {augmenter-pourcentage}.', start:()=>startAugDepart() },
@@ -5570,7 +5606,7 @@ const THEMES=[
   /* Le thème des pourcentages est celui de la Première, porté tel quel avec
      ses cinq sous-thèmes (demande de Turquet, septembre 2026). */
   { num:4, nom:'Pourcentages', sous:[
-      { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre','pourcentage-boite','pourcentage-chaine','pourcentage-schema'] },
+      { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre','pourcentage-boite','pourcentage-chaine','pourcentage-schema','pourcentage-phrases'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 3.2 ni de 3.3, et il
@@ -5686,6 +5722,7 @@ function liveCheckCurrent(){
   else if(k==='pctb') checkPctBoiteAnswer(true);
   else if(k==='pctc') checkPctChaineAnswer(true);
   else if(k==='pcs') checkPcsAnswer(true);
+  else if(k==='pcp') checkPcpAnswer(true);
   else if(k==='aug') checkAAnswer(true);
   else if(k==='dim') checkDAnswer(true);
   else if(k==='mp') checkMAnswer(true);
@@ -6616,6 +6653,7 @@ const QIA_SUGG={
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
   pctb:["Que représente chaque boîte du schéma ?","Comment retrouver le tout quand je connais la partie et le pourcentage ?","Pourquoi le pourcentage s’écrit-il aussi en décimal ?","Comment retrouver le pourcentage à partir du tout et de la partie ?"],
   pctc:["Pourquoi n’additionne-t-on pas les deux pourcentages ?","Comment calculer le coefficient qui va directement du total au dernier sous-groupe ?","Pourquoi le total vaut-il toujours 100 % ?","Comment retrouver un pourcentage manquant quand je connais le résultat global ?"],
+  pcp:["Comment trouver le pourcentage de la troisième phrase ?","Sur quelle flèche du schéma place-t-on chaque nombre ?","Pourquoi ne faut-il pas additionner les deux pourcentages ?","Comment passer de 0,06 à un pourcentage ?"],
   pcs:["Comment lire un pourcentage sur une flèche du schéma ?","Comment retrouver le coefficient d’une flèche quand je connais le produit ?","Pourquoi le produit des deux écritures décimales donne-t-il le pourcentage global ?","Comment passer de 0,06 à un pourcentage ?"],
   evs:["Pourquoi n’additionne-t-on pas les deux pourcentages ?","Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi retire-t-on 1 au coefficient global pour trouver le pourcentage ?","Une hausse de 20 % suivie d’une baisse de 20 %, ça revient au départ ?"],
   evb:["Comment sait-on si le signe est + ou − dans la parenthèse ?","Comment retrouver la valeur d’avant quand je connais celle d’après ?","Comment retrouver le pourcentage à partir de l’avant et de l’après ?","Pourquoi retire-t-on 1 au coefficient pour trouver le pourcentage ?"],
@@ -6861,6 +6899,11 @@ const RAP_PCS=`<b>Lire un schéma de pourcentages</b><br>
 Le même schéma que dans {pourcentage-chaine} : <b>[le total]</b> → <b>[un sous-groupe]</b> → <b>[un sous-groupe DU sous-groupe]</b>, et chaque flèche porte l’écriture décimale du pourcentage qu’elle applique. Mais cette fois, c’est le schéma qui donne les nombres, et c’est à toi de les lire : <b>× 0,30</b> sur la première flèche veut dire « 30 % du total » — c’est × \\(\\frac{30}{100}\\) —, <b>× 0,20</b> sur la seconde veut dire « 20 % du sous-groupe » (× \\(\\frac{20}{100}\\)), jamais 20 % du total.<br>
 La grande flèche du dessous va directement du total au dernier sous-groupe : son coefficient est le <b>PRODUIT</b> des deux écritures décimales, \\(0{,}30\\times0{,}20=0{,}06\\), c’est-à-dire <b>6 %</b> du total. On n’additionne jamais deux pourcentages qui ne portent pas sur la même chose.<br>
 <b>Quand une flèche manque</b> et que le produit est donné, on la retrouve par une division : dans \\(0{,}30\\times\\;?\\;=0{,}06\\), le facteur manquant est \\(0{,}06\\div0{,}30=0{,}2\\), donc 20 %.<br>
+Pour passer d’une écriture décimale au pourcentage, on multiplie par 100 : 0,06 → 6 %, 0,25 → 25 %, 0,4 → 40 %.`;
+const RAP_PCP=`<b>Du texte au schéma de pourcentages</b><br>
+Les deux premières phrases (en gris) donnent les pourcentages : la première parle du <b>total</b>, la seconde d’une <b>partie de ce premier groupe</b> — « Parmi les filles… » veut dire 20 % <b>des filles</b>, jamais 20 % du total. Chaque nombre se place sur la flèche qui lui correspond, en écriture décimale : 30 % s’écrit ×  0,30 (c’est × \\(\\frac{30}{100}\\)).<br>
+Le calcul du dessous va directement du total au dernier sous-groupe : on <b>multiplie</b> les deux écritures décimales, \\(0{,}30\\times0{,}20=0{,}06\\). La troisième phrase se lit alors sur le produit : 0,06 = <b>6 %</b> du total.<br>
+On n’additionne jamais deux pourcentages qui ne portent pas sur la même chose : 30 % puis 20 % ne font pas 50 %.<br>
 Pour passer d’une écriture décimale au pourcentage, on multiplie par 100 : 0,06 → 6 %, 0,25 → 25 %, 0,4 → 40 %.`;
 const RAP_EVB=`<b>Le schéma en boîte d’une évolution</b><br>
 Deux boîtes reliées par une flèche : <b>[Avant]</b> → <b>[Après]</b>. Sur la flèche, le coefficient multiplicateur en deux temps — <b>× (1 + …)</b> pour une hausse, <b>× (1 − …)</b> pour une baisse, avec le pourcentage en écriture décimale dans la parenthèse — puis son écriture décimale complète (<b>1,05</b> pour +5 %, <b>0,95</b> pour −5 %).<br>
@@ -7698,7 +7741,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
-const RAPPELS_ID={ 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
+const RAPPELS_ID={ 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -8245,7 +8288,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -8373,7 +8416,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','evbtest','evs','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','evbtest','evs','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -20300,6 +20343,149 @@ async function finishPcs(){
   showResults({score,total,percent:pct,durationSec});
 }
 
+/* ============ {pourcentage-phrases} : du texte au schéma de pourcentages ============
+   Demande de Turquet (septembre 2026) : « un nouvel exercice comme le 4.1.10,
+   modifié pour qu'il apparaisse comme sur le pdf, avec des cadres
+   supplémentaires, la phrase en gris et les nombres à placer dans le schéma
+   pour déterminer la case manquante de la 3ème phrase ». Le 4.1.10 lit un
+   schéma pour écrire des phrases ; celui-ci part des PHRASES : les deux
+   premières sont données (écrites en gris, dans un cadre), la troisième a un
+   nombre à écrire. L'élève place les nombres dans le schéma — écriture
+   décimale de chaque flèche, reprise dans le calcul global, puis le produit —
+   et lit le pourcentage manquant sur ce produit. Les pourcentages sont des
+   entiers, comme en 4.1.10 (P1, P2 multiples de 5 dont le produit est un
+   multiple de 100 : PCS_PCTS, CTX_PCS et genPcs-la-règle sont partagés). */
+const PCP_NB=3;
+const PCP_ENONCES=[
+  (q,ctx)=>`${ctx.intro} Place les nombres des deux premières phrases dans le schéma, puis complète la dernière phrase.`,
+  (q,ctx)=>`${ctx.intro} Les deux phrases en gris donnent deux pourcentages : écris-les sur les flèches du schéma, calcule le produit, puis complète la troisième phrase.`,
+  (q,ctx)=>`${ctx.intro} Complète le schéma avec les nombres des phrases grises, et trouve le pourcentage qui manque dans la dernière phrase.`
+];
+function genPcp(){
+  const P1=pick(PCS_PCTS);
+  const P2=pick(PCS_PCTS.filter(p=>(P1*p)%100===0));      /* le produit est un multiple de 100 : le global est ENTIER */
+  const comb=P1*P2/100;
+  const ci=tirerContexte(CTX_PCS), ctx=CTX_PCS[ci];
+  return {P1,P2,comb,ci,v:[rand(0,PCP_ENONCES.length-1), rand(0,ctx.s1.length-1), rand(0,ctx.s2.length-1), rand(0,ctx.s3.length-1)]};
+}
+function pcpEnonce(q){
+  const ctx=CTX_PCS[q.ci]||CTX_PCS[CTX_PCS.length-1];
+  return (PCP_ENONCES[(q.v&&q.v[0])||0]||PCP_ENONCES[0])(q,ctx);
+}
+/* Les six cases : le schéma (dec, jugé par parseDecToFrac contre P/100) et le
+   pourcentage de la troisième phrase (ent). Les deux premières phrases sont
+   écrites par la page et ne sont jamais jugées. */
+function pcpCases(q){
+  return [{id:'pcpD1',dec:q.P1},{id:'pcpD2',dec:q.P2},{id:'pcpG1',dec:q.P1},{id:'pcpG2',dec:q.P2},{id:'pcpG',dec:q.comb},{id:'pcpS3',ent:q.comb}];
+}
+async function startPcp(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='pcp'; test.qId='pourcentage-phrases';
+  test.questions=distinctes(dmNbQuestions(PCP_NB),()=>genPcp());
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=test.questions.length;
+  show('pcp'); renderPcpTest();
+}
+function renderPcpTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  const ctx=CTX_PCS[q.ci]||CTX_PCS[CTX_PCS.length-1];
+  $('pcpIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagPcp').innerHTML=modeTagHTML();
+  $('pcpLiveScore').textContent=test.score;
+  $('pcpFeedback').textContent=''; $('pcpFeedback').className='mp-feedback';
+  $('pcpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkPcpAnswer()">Vérifier</button>';
+  $('pcpPrompt').innerHTML=pcpEnonce(q);
+  const boiteLab=lab=>`<div class="pctb-box"><div class="pctb-lab">${esc(lab)}</div></div>`;
+  const mf=(id,lab,cls)=>`<math-field class="dexp-mf pm-mf${cls?' '+cls:''}" id="${id}" aria-label="${lab}"></math-field>`;
+  const ph=(k,c,grise)=>{ const tours=ctx['s'+(k+1)], f=tours[(q.v&&q.v[k+1])||0]||tours[0]; return `<div class="pcp-phrase${grise?' pcp-grise':''}">${f(c)}</div>`; };
+  $('pcpHost').innerHTML=
+    `<div class="pcp-cadre pcp-texte">
+       <div class="pcp-phrases">
+         ${ph(0,q.P1,true)}
+         ${ph(1,q.P2,true)}
+         ${ph(2,mf('pcpS3','pourcentage, en nombre entier','pcp-pct'),false)}
+       </div>
+     </div>
+     <div class="pcp-cadre">
+       <div class="pctb-row">
+         ${boiteLab(ctx.total)}
+         <div class="pctb-arrow">
+           <div class="pctb-af"><span class="pctb-af-x">×</span>${mf('pcpD1','écriture décimale du premier pourcentage')}</div>
+           <div class="pctb-shaft" aria-hidden="true"></div>
+         </div>
+         ${boiteLab(ctx.niv1)}
+         <div class="pctb-arrow">
+           <div class="pctb-af"><span class="pctb-af-x">×</span>${mf('pcpD2','écriture décimale du second pourcentage')}</div>
+           <div class="pctb-shaft" aria-hidden="true"></div>
+         </div>
+         ${boiteLab(ctx.niv2)}
+       </div>
+     </div>
+     <div class="pcp-cadre pcp-cadre-calc">
+       <div class="pctc-global">
+         <div class="pctc-global-shaft" aria-hidden="true"></div>
+         <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.niv2)} en un seul calcul&nbsp;: coefficient global</div>
+         <div class="pctc-calc">
+           ${mf('pcpG1','écriture décimale du premier pourcentage, reprise dans le calcul global')}
+           <span class="pctb-af-x">×</span>
+           ${mf('pcpG2','écriture décimale du second pourcentage, reprise dans le calcul global')}
+           <span class="pctb-af-x">=</span>
+           ${mf('pcpG','coefficient multiplicateur global')}
+         </div>
+       </div>
+     </div>`;
+  /* l'ordre de la touche Entrée : le schéma d'abord, la phrase à la fin */
+  const order=['pcpD1','pcpD2','pcpG1','pcpG2','pcpG','pcpS3'].map(id=>$(id));
+  order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPcpAnswer();} }); });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkPcpAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  const v=id=>$(id).value.trim();
+  const cases=pcpCases(q);
+  if(live){
+    cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
+      el.classList.remove('ok','bad'); if(s==='') return;
+      el.classList.add(pcsJuge(c,s)?'ok':'bad'); });
+    return;
+  }
+  // une case vide ne rougit jamais (règle universelle) ; chaque case se juge SEULE
+  let allOk=true;
+  cases.forEach(c=>{ const el=$(c.id), s=v(c.id), ok=pcsJuge(c,s); c.ok=ok; if(!ok) allOk=false;
+    el.classList.remove('ok','bad'); if(s!=='') el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien(); });
+  if(!allOk && isSoutien()){ soutienAgain('pcpFeedback','pcpActions','checkPcpAnswer','pcpHost'); return; }
+  test.locked=true;
+  const d1Str=pDecStr(q.P1), d2Str=pDecStr(q.P2), gStr=pDecStr(q.comb);
+  if(allOk){ test.score++; $('pcpLiveScore').textContent=test.score;
+    $('pcpFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('pcpFeedback').className='mp-feedback good';
+  } else {
+    $('pcpFeedback').textContent=`Réponse : ${d1Str} × ${d2Str} = ${gStr} — c’est-à-dire ${q.P1} %, puis ${q.P2} % de ces ${q.P1} %, soit ${q.comb} % du total.`;
+    $('pcpFeedback').className='mp-feedback bad';
+    cases.forEach(c=>corTrainDec(c.id,pcsAttendu(c)));
+  }
+  const ctx=CTX_PCS[q.ci]||CTX_PCS[CTX_PCS.length-1];
+  const enonce=`${ctx.total} → ${ctx.niv1} → ${ctx.niv2} : ${q.P1} % puis ${q.P2} %`;
+  const given=cases.map(c=>c.id.replace('pcp','')+'='+(v(c.id)||'—')).join(' ');
+  const answer=cases.map(c=>c.id.replace('pcp','')+'='+pcsAttendu(c)).join(' ');
+  test.answers.push({...(ptsExo()||{}), q:enonce, answer, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('pcpActions').innerHTML=`<button class="btn btn-primary" id="pcpNext" onclick="nextPcpQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('pcpNext').focus();
+}
+function nextPcpQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPcpTest(); autoSave(); } else finishPcp(); }
+async function finishPcp(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage-phrases',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
 /* ============ 3.1.4 Fraction et pourcentage : deux colonnes ============
    Une fraction a/b (a < b, b divise 100 : 2, 4, 5 ou 10). L'élève colorie a
    parts d'une colonne divisée en b, puis choisit la même hauteur sur une
@@ -21372,9 +21558,9 @@ function renderEvbTest(){
      </div>`+
     (pct ? `<div class="pctb-row evb-rev-row">
        <div class="pctb-box"><div class="pctb-lab">Pourcentage d’évolution</div>
-         <span style="display:flex;align-items:center;gap:6px"><math-field class="dexp-mf pm-mf evb-pct" id="evbT" aria-label="pourcentage d’évolution"></math-field><span class="pctb-af-x">%</span></span></div>
+         <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="pctb-af-x">C’est une</span><select id="evbW" class="itv-sel large" aria-label="hausse ou baisse"><option value="">…………</option><option value="hausse">hausse</option><option value="baisse">baisse</option></select><span class="pctb-af-x">de</span><math-field class="dexp-mf pm-mf evb-pct" id="evbT" aria-label="pourcentage d’évolution"></math-field><span class="pctb-af-x">%</span></span></div>
      </div>` : '');
-  const order=(pct?['evbN','evbP','evbC','evbF','evbT']:['evbN','evbP','evbC','evbF']).map(id=>$(id));
+  const order=(pct?['evbN','evbP','evbC','evbF','evbW','evbT']:['evbN','evbP','evbC','evbF']).map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkEvbAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
@@ -21388,6 +21574,7 @@ function checkEvbAnswer(live){
       el.classList.remove('ok','bad'); if(val==='') return;
       const n=parseInt(val,10); el.classList.add((!isNaN(n)&&n===target)?'ok':'bad'); };
     col('evbN',q.N); col('evbF',q.fin); if(pct) col('evbT',q.P);
+    if(pct){ const w=$('evbW'); if(w&&!w.disabled){ w.classList.remove('ok','bad'); if(w.value) w.classList.add(w.value===(q.sens<0?'baisse':'hausse')?'ok':'bad'); } }
     liveColorDec('evbP',q.P,100); liveColorDec('evbC',coef,100);
     return;
   }
@@ -21396,23 +21583,25 @@ function checkEvbAnswer(live){
   const frP=parseDecToFrac(v('evbP')), okP=!!frP && frP.n*100===q.P*frP.d;
   const frC=parseDecToFrac(v('evbC')), okC=!!frC && frC.n*100===coef*frC.d;
   const okT=!pct || (v('evbT')!=='' && parseInt(v('evbT'),10)===q.P);
+  const mot=q.sens<0?'baisse':'hausse', okW=!pct || v('evbW')===mot;
   const mark=(id,ok)=>{ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien(); };
-  mark('evbN',okN); mark('evbP',okP); mark('evbC',okC); mark('evbF',okF); if(pct) mark('evbT',okT);
-  const allOk=okN&&okF&&okP&&okC&&okT;
+  mark('evbN',okN); mark('evbP',okP); mark('evbC',okC); mark('evbF',okF); if(pct){ mark('evbT',okT); mark('evbW',okW); }
+  const allOk=okN&&okF&&okP&&okC&&okT&&okW;
   if(!allOk && isSoutien()){ soutienAgain('evbFeedback','evbActions','checkEvbAnswer','evbHost'); return; }
   test.locked=true;
   const decCoef=String(coef/100).replace('.',','), decP=pDecStr(q.P);
   if(allOk){ test.score++; $('evbLiveScore').textContent=test.score;
     $('evbFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('evbFeedback').className='mp-feedback good';
   } else {
-    $('evbFeedback').textContent=`Réponse : ${q.N} × (1 ${q.sens<0?'−':'+'} ${decP}) = ${q.N} × ${decCoef} = ${q.fin}`+(pct?` — soit une évolution de ${q.P} %`:'');
+    $('evbFeedback').textContent=`Réponse : ${q.N} × (1 ${q.sens<0?'−':'+'} ${decP}) = ${q.N} × ${decCoef} = ${q.fin}`+(pct?` — c’est une ${mot} de ${q.P} %`:'');
     $('evbFeedback').className='mp-feedback bad';
     corTrainDec('evbN', String(q.N)); corTrainDec('evbP', decP); corTrainDec('evbC', decCoef); corTrainDec('evbF', String(q.fin));
-    if(pct) corTrainDec('evbT', String(q.P));
+    if(pct){ corTrainDec('evbT', String(q.P));
+      const w=$('evbW'); if(w&&currentMode==='train'&&!w.classList.contains('ok')){ w.value=mot; w.classList.remove('bad'); w.classList.add('sol'); w.disabled=true; } }
   }
   const enonce=evbEnonce(q).replace(/<[^>]+>/g,'');
-  const given=`${v('evbN')||'—'} / ${v('evbP')||'—'} / ${v('evbC')||'—'} / ${v('evbF')||'—'}`+(pct?` / ${v('evbT')||'—'} %`:'');
-  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${q.N} ; ${decP} ; ${decCoef} ; ${q.fin}`+(pct?` ; ${q.P} %`:''), given, correct:allOk});
+  const given=`${v('evbN')||'—'} / ${v('evbP')||'—'} / ${v('evbC')||'—'} / ${v('evbF')||'—'}`+(pct?` / ${v('evbW')||'—'} de ${v('evbT')||'—'} %`:'');
+  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${q.N} ; ${decP} ; ${decCoef} ; ${q.fin}`+(pct?` ; ${mot} de ${q.P} %`:''), given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('evbActions').innerHTML=`<button class="btn btn-primary" id="evbNext" onclick="nextEvbQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   $('evbNext').focus();
@@ -35704,16 +35893,27 @@ function tdpCases(q){
              {id:'tdp-ct-1', bon:String(T.ct[1]), kind:'nb', quoi:'c1'},
              {id:'tdp-tt',   bon:String(T.tt),    kind:'nb', quoi:'tout'} ];
   }
-  return [ {id:'tdp-qui',   bon:q.gk, kind:'sel'},
+  return [ {id:'tdp-qui',   bon:q.gk, kind:'sel', alt:tdpAlt(q)},
            {id:'tdp-parmi', bon:q.rk, kind:'sel'},
            {id:'tdp-num',   bon:String(tdpEff(q,q.gk,q.rk)), kind:'nb'},
            {id:'tdp-den',   bon:String(tdpEff(q,q.rk,'tout')), kind:'nb'} ];
+}
+/* LA CASE DU CROISEMENT EST ACCEPTÉE AUSSI (demande de Turquet, septembre
+   2026) : pour « ceux qui ont des lunettes parmi les garçons », l'élève peut
+   répondre « ont des lunettes » — la formulation de la fiche, celle que la
+   correction écrit — ou « sont des garçons avec lunettes » : parmi les
+   garçons, ce sont les mêmes élèves, et la fraction est la même. Quand le
+   tout est l'effectif entier, il n'y a pas d'autre réponse. */
+function tdpAlt(q){
+  if(q.rk==='tout' || q.gk[0]==='x') return [];
+  const l=q.gk[0]==='l'?q.gk[1]:q.rk[1], c=q.gk[0]==='c'?q.gk[1]:q.rk[1];
+  return ['x'+l+c];
 }
 function tdpLit(v){ const t=String(v==null?'':v).replace(/\s+/g,''); return /^\d+$/.test(t)?parseInt(t,10):null; }
 function tdpJuste(c, el){
   if(!el) return false;
   if(c.kind==='nb'){ const n=tdpLit(el.value); return n!==null && n===parseInt(c.bon,10); }
-  return el.value===c.bon;
+  return el.value===c.bon || (c.alt||[]).indexOf(el.value)>=0;
 }
 /* Le tableau : les quatre effectifs écrits, les totaux en cases de saisie
    (saisie=true) ou écrits à leur tour (le tableau complété qui accompagne
@@ -35760,6 +35960,7 @@ function renderTdpTest(){
   } else {
     const vide='<option value="" selected disabled>?</option>';
     h=tdpTableHTML(q, false)
+     +'<p class="tdp-quest"><b>'+esc(tdpEnonce(q))+'</b></p>'
      +'<div class="tdp-etude"><span>Ici, on étudie '+esc(ctx.qui)+'</span>'
      +'<select class="plc-sel tdp-sel" id="tdp-qui" aria-label="qui l’on étudie">'+vide
      +TDP_QUI.map(function(k){ return '<option value="'+k+'">'+esc(tdpGroupe(ctx,k).p)+'</option>'; }).join('')+'</select>'
@@ -35864,7 +36065,9 @@ function ctxTdp(q){
     const g=tdpGroupe(ctx,q.gk), r=tdpGroupe(ctx,q.rk), num=tdpEff(q,q.gk,q.rk), den=tdpEff(q,q.rk,'tout');
     c+='Le tableau est déjà complété (totaux de lignes '+T.lt.join(' et ')+', de colonnes '+T.ct.join(' et ')+', total '+T.tt+'). Question : « '+tdpEnonce(q)+' » '
      +'L’élève choisit dans deux listes qui l’on étudie (« '+ctx.qui+' … ») et parmi qui, puis écrit la proportion en fraction : numérateur et dénominateur. '
-     +'Réponses attendues, STRICTEMENT SECRÈTES : on étudie '+ctx.qui+' '+g.p+' parmi '+r.nom+' ; la proportion est '+num+'/'+den+'. '
+     +'Réponses attendues, STRICTEMENT SECRÈTES : on étudie '+ctx.qui+' '+g.p+' parmi '+r.nom
+     +tdpAlt(q).map(function(k){ return ' (la page accepte aussi « '+tdpGroupe(ctx,k).p+' », les mêmes '+ctx.de.replace(/^d[e’]\s*/,'')+' parmi '+r.nom+')'; }).join('')
+     +' ; la proportion est '+num+'/'+den+'. '
      +'Méthode enseignée : une proportion est « une partie sur un tout » ; le mot « parmi » (ou « dans ») dit quel est le tout, c’est l’effectif qu’on met au dénominateur ; le numérateur est l’effectif de ceux qu’on étudie À L’INTÉRIEUR de ce tout. '
      +'Erreurs classiques : diviser par l’effectif total alors que la question dit « parmi les garçons » ; confondre « les garçons à lunettes dans la classe » (3/30) et « ceux qui ont des lunettes parmi les garçons » (3/13).';
   }
@@ -39770,7 +39973,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderEvbTest','renderEvsTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPcpTest','renderEvbTest','renderEvsTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
