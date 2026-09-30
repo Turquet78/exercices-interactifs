@@ -94,7 +94,7 @@ const RAPPELS_SECONDE = `(function(){
                'augmenter-depart':'augq','augmenter-taux':'augq','diminuer-depart':'augq','diminuer-taux':'augq',
                'fraction-pourcentage':'fp','pourcentage-colonnes':'pcol','augmenter-addition':'ag2','diminuer-soustraction':'ag2',
                'augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q',
-               'synthese-pourcentages':'psyn','synthese-augmentations':'psyn','synthese-diminutions':'psyn','synthese-evolutions':'evb','evolutions-successives':'evs','schema-evolution':'sev','evolutions-successives-coef':'evc',
+               'synthese-pourcentages':'psyn','synthese-augmentations':'psyn','synthese-diminutions':'psyn','synthese-evolutions':'evb','evolutions-successives':'evs','schema-evolution':'sev','evolutions-successives-coef':'evc','evolutions-successives-phrases':'evp',
                'synthese-pourcentages-libre':'sal','synthese-augmentations-libre':'sal','synthese-diminutions-libre':'sal',
                'baisses-successives':'bs','lire-coefficient':'lc','tableau-coefficients':'tc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd',
                'reconnaitre-coefficient':'ck','associer-coefficient':'ac',

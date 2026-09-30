@@ -4154,6 +4154,7 @@ function exercices(suite){
     evolutionsSuccessives(w, P);
     schemaEvolution(w, P);
     evolutionsSuccessivesCoef(w, P);
+    evolutionsSuccessivesPhrases(w, P);
     baissesSuccessivesDix(w, P);
     pourcentageSchema(w, P);
     pourcentagePhrases(w, P);
@@ -28065,6 +28066,89 @@ function evolutionsSuccessivesCoef(w, P){
     poser(B); remplir(B); setv('evcP1',''); setv('evcT3','');
     checkEvcAnswer();
     if(/\\bbad\\b/.test(cls('evcP1')) || /\\bbad\\b/.test(cls('evcT3'))) vus.push('une case laissée vide rougit à la vérification');
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- {evolutions-successives-phrases} (4.5.8) : Seconde SEULE, LE SCHÉMA DU 4.5.5 AVEC SES DEUX PREMIÈRES PHRASES DONNÉES
+   « comme le 4.5.7, mais on donne dans les phrases du bas les deux premiers
+   pourcentages, hausse ou baisse ; l'élève complète le schéma et la dernière
+   phrase » (Turquet, septembre 2026). Kind « evp ». Bords : le tirage (global
+   entier, trois formes, « Recommencer » garde l'identité) ; l'écran (deux
+   phrases ÉCRITES, une seule à compléter, signe des parenthèses lu sur elles) ;
+   le verdict case par case sur des copies épinglées (juste bleue, mauvais mot
+   rouge avec la correction verte, case vide jamais rouge). */
+function evolutionsSuccessivesPhrases(w, P){
+  const present = evaluer(w, "typeof startEvolSuccPhrases==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{evolutions-successives-phrases} : deux évolutions, phrases données, le global est entier, les trois formes sortent',
+      'ce niveau n\'a pas le schéma des deux évolutions à phrases données');
+    ignorer('{evolutions-successives-phrases} : phrases écrites, signes lus, dernière phrase, verdict case par case',
+      'ce niveau n\'a pas le schéma des deux évolutions à phrases données');
+    return;
+  }
+  verifierEval(w, '{evolutions-successives-phrases} : deux évolutions, phrases données, le global est entier, les trois formes sortent', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='evolutions-successives-phrases';
+    for(let t=0;t<40 && vus.length<3;t++){
+      startEvolSuccPhrases();
+      if(test.qId!=='evolutions-successives-phrases') vus.push('tirage '+t+' : identité « '+test.qId+' »');
+      if(test.kind!=='evp') vus.push('tirage '+t+' : kind « '+test.kind+' »');
+      const qs=test.questions||[], formes={};
+      if(qs.length!==3) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de 3');
+      qs.forEach(function(q,i){
+        formes[q.s1+'|'+q.s2]=1;
+        if(!Number.isInteger(q.G) || q.G===0 || Math.abs(q.G)>=100) vus.push('tirage '+t+' q'+i+' : global '+q.G+' % non entier, nul ou hors bornes');
+        if(q.c1!==100+q.s1*q.P1 || q.c2!==100+q.s2*q.P2) vus.push('tirage '+t+' q'+i+' : coefficients incohérents');
+        if(/undefined|\\$\\{/.test(evpEnonce(q))) vus.push('tirage '+t+' q'+i+' : énoncé mal formé');
+      });
+      const nb=Object.keys(formes).length;
+      if(nb<3 && qs.length===3) vus.push('tirage '+t+' : seulement '+nb+' forme(s) de signes');
+    }
+    if(!vus.length){ restartCurrentTest(); if(test.qId!=='evolutions-successives-phrases') vus.push('« Recommencer » relance « '+test.qId+' »'); }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '{evolutions-successives-phrases} : phrases écrites, signes lus, dernière phrase, verdict case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='evolutions-successives-phrases';
+    const poser=function(q){ startEvolSuccPhrases(); test.questions[0]=q; test.idx=0; test.locked=false; renderEvpTest(); };
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    const remplir=function(q){
+      const g=Math.abs(q.G);
+      setv('evpP1',q.P1/100); setv('evpP2',q.P2/100); setv('evpC1',q.c1/100); setv('evpC2',q.c2/100);
+      setv('evpG1',q.c1/100); setv('evpG2',q.c2/100); setv('evpG',q.c1*q.c2/10000); setv('evpGP',g/100);
+      setv('evpW3',q.G>0?'hausse':'baisse'); setv('evpT3',g);
+    };
+    const A={s1:-1,s2:1,P1:30,P2:10,c1:70,c2:110,G:-23,ci:0,v:0};
+    const B={s1:1,s2:1,P1:20,P2:30,c1:120,c2:130,G:56,ci:0,v:0};
+    [A,B].forEach(function(q){
+      poser(q);
+      const ph=document.querySelectorAll('#evpHost .evp-phrase');
+      if(ph.length!==3 || document.querySelectorAll('#evpHost .evp-phrase select').length!==1) vus.push('il faut deux phrases écrites et une seule à compléter');
+      else {
+        const t1=ph[0].textContent.replace(/\\s+/g,' '), t2=ph[1].textContent.replace(/\\s+/g,' ');
+        if(t1.indexOf(q.s1>0?'hausse':'baisse')<0 || t1.indexOf(q.P1+' %')<0) vus.push('première phrase : '+t1);
+        if(t2.indexOf(q.s2>0?'hausse':'baisse')<0 || t2.indexOf(q.P2+' %')<0) vus.push('deuxième phrase : '+t2);
+      }
+      if(document.querySelectorAll('#evpHost .pctb-arrow math-field').length!==4) vus.push('les deux pourcentages et les deux coefficients doivent être saisis');
+      const sg=Array.prototype.map.call(document.querySelectorAll('#evpHost .pctb-arrow .pctb-af-x'),function(e){return e.textContent;}).join('');
+      if(sg.indexOf('(1 '+(q.s1<0?'−':'+'))<0 || sg.indexOf('(1 '+(q.s2<0?'−':'+'))<0) vus.push('signes des parenthèses : '+sg);
+      const pm=document.getElementById('evpPM'); if(!pm || pm.textContent.trim()!=='±') vus.push('le signe global doit être « ± » avant la frappe');
+      remplir(q);
+      checkEvpAnswer();
+      ['evpP1','evpP2','evpC1','evpC2','evpG1','evpG2','evpG','evpGP','evpW3','evpT3'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push(q.c1+'/'+q.c2+' : '+id+' juste n\\'est pas bleu ('+cls(id)+')'); });
+      if(test.score!==1) vus.push(q.c1+'/'+q.c2+' : la copie juste ne vaut pas le point');
+    });
+    poser(A); remplir(A); setv('evpW3','hausse'); setv('evpC2',99);
+    checkEvpAnswer();
+    if(test.score!==0) vus.push('une copie fautive vaut le point');
+    if(!/\\bbad\\b/.test(cls('evpC2'))) vus.push('le mauvais coefficient ne rougit pas');
+    if(/\\bbad\\b/.test(cls('evpP1')) || /\\bbad\\b/.test(cls('evpG'))) vus.push('une case juste rougit à côté d\\'une fausse');
+    if(document.getElementById('evpW3').value!=='baisse' || !/\\bsol\\b/.test(cls('evpW3'))) vus.push('la correction « baisse » n\\'est pas montrée en vert');
+    poser(B); remplir(B); setv('evpP1',''); setv('evpT3','');
+    checkEvpAnswer();
+    if(/\\bbad\\b/.test(cls('evpP1')) || /\\bbad\\b/.test(cls('evpT3'))) vus.push('une case laissée vide rougit à la vérification');
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
