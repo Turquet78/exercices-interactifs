@@ -3070,7 +3070,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=353;
+const APP_VERSION=354;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3252,7 +3252,7 @@ const TESTS={
   'associer-derivee': { name:'Associer f et f\u2009\u2032', icon:'\ud83d\udd17', desc:'La fiche 9, sans aucune formule : une courbe de f dont tu déduis le signe de f\u2009\u2032, une courbe de f\u2009\u2032 dont tu déduis les variations de f, puis la question de la fiche — ces deux courbes sont-elles compatibles ?', start:()=>startAfp() },
   'variations-depuis-derivee': { name:'Le tableau de f depuis la courbe de f\u2009\u2032', icon:'\ud83e\udded', desc:'On te donne la courbe de f\u2009\u2032 : choisis, parmi quatre tableaux de variations, celui de f. Les pièges de la fiche sont dans les propositions — lire les sommets de f\u2009\u2032 au lieu de ses zéros, inverser les sens.', start:()=>startAfq() },
   'signe-derivee-qcm': { name:'Signe de f\u2009\u2032, variations de f et QCM', icon:'\u2705', desc:'La fiche « QCM » : on te donne la courbe de f\u2009\u2032. Complète le tableau de signes de f\u2009\u2032 avec les variations de f sur la ligne suivante, puis choisis la SEULE affirmation vraie parmi quatre — minimum ou maximum de f, sens de variation sur un intervalle. Les pièges de {variations-depuis-derivee} y sont : le sommet de f\u2009\u2032 pris pour un extremum de f, l\u2019intervalle qui enjambe un zéro.', start:()=>startSdq() },
-  'convexite-trois-courbes': { name:'Convexit\u00e9 \u2014 lire f, f\u2009\u2032 et f\u2009\u2033 sur trois courbes', icon:'\u222a', desc:'La fiche \u00ab convexit\u00e9 \u00bb : on te donne les courbes de f, de f\u2009\u2032 et de f\u2009\u2033. Compl\u00e8te le tableau \u00e0 cinq lignes \u2014 signe de f\u2009\u2033, variations de f\u2009\u2032 avec la valeur de son extremum lue sur l\u2019\u00e9cran de la calculatrice, signe de f\u2009\u2032, variations de f, convexit\u00e9 de f. Tant\u00f4t f\u2009\u2032 s\u2019annule (deux colonnes), tant\u00f4t jamais (une seule : f est monotone).', start:()=>startCvx() },
+  'convexite-trois-courbes': { name:'Convexit\u00e9 \u2014 lire f, f\u2009\u2032 et f\u2009\u2033 sur trois courbes', icon:'\u222a', desc:'La fiche \u00ab convexit\u00e9 \u00bb : on te donne les courbes de f, de f\u2009\u2032 et de f\u2009\u2033. Compl\u00e8te deux tableaux \u2014 le premier pour f\u2009\u2032 (son z\u00e9ro, son signe, les variations de f), le second pour f\u2009\u2033 (son z\u00e9ro, son signe, les variations de f\u2009\u2032 avec la valeur de son extremum lue sur l\u2019\u00e9cran de la calculatrice, la convexit\u00e9 de f). Tant\u00f4t f\u2009\u2032 s\u2019annule, tant\u00f4t jamais (f est alors monotone).', start:()=>startCvx() },
   'etude-exponentielle': { name:'Étude complète — (ax+b)e\u207b\u02e3', icon:'\ud83d\udccb', desc:'L\u2019étude de la fiche, de bout en bout : les points d\u2019intersection avec les axes, la dérivée rédigée comme dans {derivee-exp-2}, le tableau de variations comme dans {etude-fonction}, l\u2019extremum, puis la tangente en x = 1 comme dans {tangente-exp}.', start:()=>startEC() },
   'etude-convexite': { name:'Étude de fonction et convexité', icon:'\u222a', desc:'La fiche 5, de bout en bout : les axes et les limites comme dans {tvi-alpha-signe}, f\u2009\u2032 démontrée comme dans {derivee-exp}, le tableau de variations comme dans {etude-fonction}, l\u2019unique solution de f(x) = k par le TVI, la tangente en 0 comme dans {equation-tangente}, puis f\u2009\u2033, son signe et la convexité, le point d\u2019inflexion, et la courbe sous sa tangente.', start:()=>startECV() },
   'convexite-qcm': { name:'Convexit\u00e9 \u2014 QCM vari\u00e9s', icon:'\u2611\ufe0f', desc:'La fiche \u00ab QCM convexit\u00e9 \u00bb, six visages par s\u00e9ance : la courbe de f\u2009\u2032, son tableau de variations, ou la courbe de f\u2009\u2033 \u2014 et \u00e0 chaque fois quatre affirmations dont UNE SEULE est vraie : f convexe ou concave sur un intervalle, extremum de f, tangente horizontale, point d\u2019inflexion, signe de f\u2009\u2033, extremum de f\u2009\u2032. Les pi\u00e8ges de la fiche y sont : l\u2019intervalle qui enjambe le point d\u2019inflexion, le z\u00e9ro de f\u2009\u2032 pris pour un point d\u2019inflexion, le sommet de f\u2009\u2032 pris pour un extremum de f \u2014 comme au {signe-derivee-qcm}.', start:()=>startCvq() },
@@ -11863,13 +11863,15 @@ function sdqConseilCtx(){
 /* ================= Exercice Terminale : convexité — lire f, f′ et f″ sur trois courbes (kind 'cvx') =================
    Repris de la fiche « Exercice 2 / Exercice 3 » (demande de Turquet,
    septembre 2026 : « dans le sous-thème convexité, créer un exercice comme le
-   PDF ») : on donne les TROIS courbes — Cf, Cf′, Cf″ — et l'élève complète un
-   tableau à cinq lignes : signe de f″, variation de f′ (avec la VALEUR de son
-   extremum, lue sur l'écran de la calculatrice), signe de f′, variation de f,
-   convexité de f. Deux visages, comme les deux exercices de la fiche : f′
-   s'annule UNE fois (deux colonnes — le zéro de f″ et celui de f′ —,
-   l'exercice 2), ou jamais (une colonne, l'exercice 3 : f′ garde son signe,
-   f est monotone, et seule la convexité change).
+   PDF ») : on donne les TROIS courbes — Cf, Cf′, Cf″ — et l'élève complète
+   DEUX tableaux (septembre 2026 : « un premier tableau pour f′, un deuxième
+   pour f″ »), chacun avec ses colonnes à écrire : le premier a le zéro de f′
+   (s'il existe), le signe de f′ et les variations de f ; le second a le zéro
+   de f″, son signe, les variations de f′ (avec la VALEUR de son extremum, lue
+   sur l'écran de la calculatrice) et la convexité de f. Deux visages, comme
+   les deux exercices de la fiche : f′ s'annule UNE fois (le premier tableau a
+   une colonne, l'exercice 2), ou jamais (il n'en a aucune : f′ garde son
+   signe, f est monotone, et seule la convexité change, l'exercice 3).
    Les trois courbes sont celles d'UNE VRAIE fonction, pas trois dessins posés
    côte à côte :  f(x) = A·s·(x − x₂ − 2kd)·e^{k(x−x₂)/d} + m·x,  dont f′ et f″
    se connaissent en fermé — f″ s'annule en x₂ et seulement là, f′ y admet son
@@ -11901,16 +11903,19 @@ function cvxFn(q){
    le signe de f′, le sens de f, la convexité — chaque ligne DÉCOULE de la
    précédente, c'est la lecture « logique » de la fiche. */
 function cvxTab(q){
-  const noeuds = q.fam==='A' ? [q.x2, cvxX1(q)].sort((a,b)=>a-b) : [q.x2];
-  const nI=noeuds.length+1, sg=v=>v>0?'+':CVX_MOINS;
-  const s2=[], s1=[];
-  for(let i=0;i<nI;i++){
-    const xm = i===0 ? noeuds[0]-1 : (i===nI-1 ? noeuds[nI-2]+1 : (noeuds[i-1]+noeuds[i])/2);
-    s2.push(sg(q.s*(xm-q.x2)));
-    s1.push(q.fam==='A' ? sg(q.s*q.k*(xm-cvxX1(q))) : sg(q.s));
-  }
+  /* DEUX tableaux : celui de f′ (ses zéros, son signe, les variations de f) puis
+     celui de f″ (son zéro, son signe, les variations de f′, la convexité de f).
+     Chacun a ses propres colonnes : n1 les zéros de f′ (aucun en famille B),
+     n2 le zéro de f″. `noeuds` — leur réunion — ne sert qu'à caler la fenêtre
+     des dessins. */
+  const n1 = q.fam==='A' ? [cvxX1(q)] : [], n2=[q.x2];
+  const noeuds = n1.concat(n2).sort((a,b)=>a-b);
+  const sg=v=>v>0?'+':CVX_MOINS;
+  const milieux=function(n){ return n.length ? [n[0]-1, n[0]+1] : [0]; };
+  const s2=milieux(n2).map(xm=>sg(q.s*(xm-q.x2)));
+  const s1=milieux(n1).map(xm=>q.fam==='A' ? sg(q.s*q.k*(xm-cvxX1(q))) : sg(q.s));
   return {
-    noeuds:noeuds, jE:noeuds.indexOf(q.x2), jZ:(q.fam==='A'?noeuds.indexOf(cvxX1(q)):-1),
+    noeuds:noeuds, n1:n1, n2:n2,
     s2:s2, a1:s2.map(x=>x==='+'?'up':'down'), E:cvxE(q),
     s1:s1, a0:s1.map(x=>x==='+'?'up':'down'),
     c:s2.map(x=>x==='+'?'convexe':'concave'),
@@ -11986,20 +11991,26 @@ function cvxGraphesHTML(q){
    l'escalier du 5.3 (flèches redessinées à chaque choix), et celle de f′ porte
    en plus, SUR le nœud de son extremum, la case de sa valeur. */
 const CVX_WL=176;
-function cvxTableHTML(q){
-  const t=cvxTab(q), nN=t.noeuds.length, nI=nN+1, innerW=(nN+2)*EF_WN+nI*EF_WS;
+function cvxTableHTML(q, num){
+  const t=cvxTab(q), noeuds=(num===1?t.n1:t.n2), nN=noeuds.length, nI=nN+1, innerW=(nN+2)*EF_WN+nI*EF_WS;
   const ncx=j=>(j*(EF_WN+EF_WS)+EF_WN/2), scx=i=>(i*(EF_WN+EF_WS)+EF_WN+EF_WS/2);
   const sel=(id,opts)=>'<select class="tvi-sel" id="'+id+'"><option value="">…</option>'+opts.map(o=>'<option value="'+o+'">'+o+'</option>').join('')+'</select>';
   const signe=id=>sel(id,['+',CVX_MOINS]);
   const conv=id=>sel(id,['convexe','concave']);
   const fleche=(id,x)=>'<select id="'+id+'" class="vt-sel2" onchange="cvxArrowChange()" style="left:'+x+'px;top:'+(EF_H/2)+'px"><option value="">—</option><option value="up">↗</option><option value="down">↘</option></select>';
-  const fx='<i>f</i> (<i>x</i>)', fpx='<i>f</i> ′(<i>x</i>)', fppx='<i>f</i> ″(<i>x</i>)';
+  const fx='<i>f</i> (<i>x</i>)', fpx='<i>f</i> ′(<i>x</i>)', fppx='<i>f</i> ″(<i>x</i>)';
+  const pre=(num===1?'cvx-u':'cvx-x');
   let xr='<td class="vlab" style="width:'+CVX_WL+'px"><i>x</i></td><td class="vnx" style="width:'+EF_WN+'px">'+CVX_MOINS+'∞</td>';
-  for(let j=0;j<nN;j++) xr+='<td class="vax" style="width:'+EF_WS+'px"></td><td class="vnx" style="width:'+EF_WN+'px">'+s1Box('cvx-x'+j,1)+'</td>';
+  for(let j=0;j<nN;j++) xr+='<td class="vax" style="width:'+EF_WS+'px"></td><td class="vnx" style="width:'+EF_WN+'px">'+s1Box(pre+j,1)+'</td>';
   xr+='<td class="vax" style="width:'+EF_WS+'px"></td><td class="vnx" style="width:'+EF_WN+'px">+∞</td>';
-  const ligne=function(lab,fab,pref,jZero){
+  const ligne=function(lab,fab,pref){
     let r='<td class="vlab">'+lab+'</td><td></td>';
-    for(let i=0;i<nI;i++){ r+='<td>'+fab(pref+i)+'</td>'; if(i<nN) r+='<td class="ef-node">'+(i===jZero?'<b>0</b>':'')+'</td>'; }
+    for(let i=0;i<nI;i++){ r+='<td>'+fab(pref+i)+'</td>'; if(i<nN) r+='<td class="ef-node"><b>0</b></td>'; }
+    return '<tr class="vt-xr">'+r+'<td></td></tr>';
+  };
+  const ligneConv=function(lab,fab,pref){
+    let r='<td class="vlab">'+lab+'</td><td></td>';
+    for(let i=0;i<nI;i++){ r+='<td>'+fab(pref+i)+'</td>'; if(i<nN) r+='<td class="ef-node"></td>'; }
     return '<tr class="vt-xr">'+r+'<td></td></tr>';
   };
   const varLigne=function(lab,ov,pref,valeur){
@@ -12007,13 +12018,15 @@ function cvxTableHTML(q){
     for(let i=0;i<nI;i++) inner+=fleche(pref+i,scx(i));
     return '<tr class="vt-fr"><td class="vlab">'+lab+'</td><td class="vfcell" colspan="'+(2*(nN+2)-1)+'" style="height:'+EF_H+'px">'+inner+(valeur||'')+'</td></tr>';
   };
-  const valE='<input type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" class="s1-in sm cvx-val" id="cvx-e" title="valeur de l’extremum de f ′" style="left:'+ncx(t.jE+1)+'px;top:'+(EF_H/2)+'px">';
-  const rows='<tr class="vt-xr">'+xr+'</tr>'
-    +ligne('Signe de '+fppx, signe, 'cvx-s2-', t.jE)
-    +varLigne('Variation de '+fpx, 'cvx-ov1', 'cvx-a1-', valE)
-    +ligne('Signe de '+fpx, signe, 'cvx-s1-', t.jZ)
-    +varLigne('Variation de '+fx, 'cvx-ov0', 'cvx-a0-', '')
-    +ligne('Convexité de '+fx, conv, 'cvx-c-', -1);
+  const valE='<input type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" class="s1-in sm cvx-val" id="cvx-e" title="valeur de l’extremum de f ′" style="left:'+ncx(1)+'px;top:'+(EF_H/2)+'px">';
+  const rows = num===1
+    ? '<tr class="vt-xr">'+xr+'</tr>'
+      +ligne('Signe de '+fpx, signe, 'cvx-s1-')
+      +varLigne('Variation de '+fx, 'cvx-ov0', 'cvx-a0-', '')
+    : '<tr class="vt-xr">'+xr+'</tr>'
+      +ligne('Signe de '+fppx, signe, 'cvx-s2-')
+      +varLigne('Variation de '+fpx, 'cvx-ov1', 'cvx-a1-', valE)
+      +ligneConv('Convexité de '+fx, conv, 'cvx-c-');
   return '<div class="lv-tblwrap"><table class="lv-vartbl2 cvx-tbl" style="width:'+(CVX_WL+innerW)+'px"><tbody>'+rows+'</tbody></table></div>';
 }
 /* Flèches et points des DEUX escaliers — efArrowChange, sur deux calques ; la
@@ -12022,9 +12035,9 @@ function cvxTableHTML(q){
 function cvxArrowChange(){
   if(test.kind!=='cvx') return;
   const q=test.questions[test.idx]; if(!q) return;
-  const t=cvxTab(q), nI=t.noeuds.length+1, ncx=j=>(j*(EF_WN+EF_WS)+EF_WN/2);
-  [['cvx-ov1','cvx-a1-'],['cvx-ov0','cvx-a0-']].forEach(function(p){
-    const ov=$(p[0]); if(!ov) return;
+  const t=cvxTab(q), ncx=j=>(j*(EF_WN+EF_WS)+EF_WN/2);
+  [['cvx-ov1','cvx-a1-',t.n2.length+1],['cvx-ov0','cvx-a0-',t.n1.length+1]].forEach(function(p){
+    const ov=$(p[0]); if(!ov) return; const nI=p[2];
     const dirs=[]; for(let i=0;i<nI;i++) dirs.push(($(p[1]+i)||{}).value||'');
     const posY=[];
     for(let j=0;j<=nI;j++){
@@ -12040,7 +12053,7 @@ function cvxArrowChange(){
       g+=svArrowSVG(ncx(i),y0,ncx(i+1),y1); }
     posY.forEach(function(y,j){ g+='<circle class="vt-node" cx="'+ncx(j)+'" cy="'+y+'" r="4.5"/>'; });
     ov.innerHTML=g;
-    if(p[0]==='cvx-ov1'){ const v=$('cvx-e'); if(v){ v.style.top=posY[t.jE+1]+'px';
+    if(p[0]==='cvx-ov1'){ const v=$('cvx-e'); if(v){ v.style.top=posY[1]+'px';
       const b=v.nextElementSibling; if(b&&b.classList&&b.classList.contains('mf-cor')) b.style.top=v.style.top; } }
   });
 }
@@ -12049,12 +12062,13 @@ function cvxArrowChange(){
    le reste des menus. */
 function cvxCases(q){
   const t=cvxTab(q), out=[];
-  t.noeuds.forEach(function(v,j){ out.push({id:'cvx-x'+j, type:'num', good:v}); });
+  t.n1.forEach(function(v,j){ out.push({id:'cvx-u'+j, type:'num', good:v}); });
+  t.s1.forEach(function(sg,i){ out.push({id:'cvx-s1-'+i, type:'sel', good:sg}); });
+  t.a0.forEach(function(d,i){ out.push({id:'cvx-a0-'+i, type:'sel', good:d}); });
+  t.n2.forEach(function(v,j){ out.push({id:'cvx-x'+j, type:'num', good:v}); });
   t.s2.forEach(function(sg,i){ out.push({id:'cvx-s2-'+i, type:'sel', good:sg}); });
   t.a1.forEach(function(d,i){ out.push({id:'cvx-a1-'+i, type:'sel', good:d}); });
   out.push({id:'cvx-e', type:'num', good:t.E});
-  t.s1.forEach(function(sg,i){ out.push({id:'cvx-s1-'+i, type:'sel', good:sg}); });
-  t.a0.forEach(function(d,i){ out.push({id:'cvx-a0-'+i, type:'sel', good:d}); });
   t.c.forEach(function(c,i){ out.push({id:'cvx-c-'+i, type:'sel', good:c}); });
   return out;
 }
@@ -12078,7 +12092,10 @@ function renderCvx(){
   $('cvxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCvx()">Vérifier</button>';
   $('cvxPrompt').innerHTML='On donne les courbes d’une fonction <i>f</i> définie et deux fois dérivable sur ]−∞ ; +∞[, de sa dérivée <i>f</i> ′ et de sa dérivée seconde <i>f</i> ″. À l’aide des schémas, complète le tableau ci-dessous avec la valeur du <b>'+(t.extr==='max'?'maximum':'minimum')+' de <i>f</i> ′</b>.';
   $('cvxHost').innerHTML=cvxGraphesHTML(q)
-    +'<p class="af-instr">Compléter logiquement :</p><div class="sv-tables" id="cvxTable">'+cvxTableHTML(q)+'</div>';
+    +'<p class="af-instr">Premier tableau — <i>f</i> ′ et les variations de <i>f</i> : écris les valeurs de <i>x</i> où <i>f</i> ′ s’annule, puis complète.</p>'
+    +'<div class="sv-tables" id="cvxTable"><div>'+cvxTableHTML(q,1)+'</div>'
+    +'<p class="af-instr" style="margin:6px 0 0">Second tableau — <i>f</i> ″ et la convexité de <i>f</i> : écris la valeur de <i>x</i> où <i>f</i> ″ s’annule, puis complète.</p>'
+    +'<div>'+cvxTableHTML(q,2)+'</div></div>';
   setTimeout(cvxArrowChange,0);   /* points au centre au départ ; redessin après une reprise (restoreBoxes) */
   if(isSoutien()){
     cvxCases(q).forEach(function(x){ const el=$(x.id); if(!el) return;
@@ -12139,7 +12156,7 @@ function checkCvx(live){
     $('cvxFeedback').className='mp-feedback bad';
   }
   test.answers.push({...(ptsExo()||{}),q:'Convexité — lire f, f′ et f″ sur trois courbes (question '+(test.idx+1)+')',
-    answer:'nœuds : '+t.noeuds.map(numFmt).join(' ; ')+' — f″ '+t.s2.join(' ')+' — f′ '+t.s1.join(' ')+' — extremum de f′ : '+numFmt(t.E)+' — '+t.c.join(' puis '),
+    answer:'zéros de f′ : '+(t.n1.length?t.n1.map(numFmt).join(' ; '):'aucun')+' — f′ '+t.s1.join(' ')+' — zéro de f″ : '+t.n2.map(numFmt).join(' ; ')+' — f″ '+t.s2.join(' ')+' — extremum de f′ : '+numFmt(t.E)+' — '+t.c.join(' puis '),
     given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('cvxActions').innerHTML='<button class="btn btn-primary" onclick="nextCvx()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
@@ -12149,8 +12166,8 @@ function cvxConseilCtx(){
   const q=test.questions[test.idx], t=cvxTab(q), cases=cvxCases(q);
   const lu=function(id){ const el=$(id); if(!el) return '(vide)'; const v=String(el.value||'').trim(); return v===''?'(vide)':'« '+v+' »'; };
   const sens=function(a){ return a.map(function(d){ return d==='up'?'croissante':'décroissante'; }).join(' puis '); };
-  return 'Exercice « Convexité — lire f, f′ et f″ sur trois courbes » (fiche, exercices 2 et 3). On donne les courbes de f, de f′ et de f″ ; l’élève complète un tableau : les abscisses des colonnes, le signe de f″, les variations de f′ avec la valeur de son '+(t.extr==='max'?'maximum':'minimum')+' (lue sur l’écran de la calculatrice sous la courbe de f′), le signe de f′, les variations de f, la convexité de f. '
-   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : colonnes : '+t.noeuds.map(numFmt).join(' ; ')+' ; signe de f″ : '+t.s2.join(' puis ')+' (zéro en '+numFmt(q.x2)+') ; f′ : '+sens(t.a1)+', extremum '+numFmt(t.E)+' en '+numFmt(q.x2)+' ; signe de f′ : '+t.s1.join(' puis ')+(q.fam==='A'?' (zéro en '+numFmt(cvxX1(q))+')':' (f′ ne s’annule jamais)')+' ; f : '+sens(t.a0)+' ; convexité : '+t.c.join(' puis ')+'. '
+  return 'Exercice « Convexité — lire f, f′ et f″ sur trois courbes » (fiche, exercices 2 et 3). On donne les courbes de f, de f′ et de f″ ; l’élève complète un tableau : dans un premier tableau, le zéro de f′ s’il existe, le signe de f′ et les variations de f ; dans un second, le zéro de f″, son signe, les variations de f′ avec la valeur de son '+(t.extr==='max'?'maximum':'minimum')+' (lue sur l’écran de la calculatrice sous la courbe de f′) et la convexité de f. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : zéro de f′ : '+(t.n1.length?t.n1.map(numFmt).join(' ; '):'aucun')+' ; zéro de f″ : '+t.n2.map(numFmt).join(' ; ')+' ; signe de f″ : '+t.s2.join(' puis ')+' (zéro en '+numFmt(q.x2)+') ; f′ : '+sens(t.a1)+', extremum '+numFmt(t.E)+' en '+numFmt(q.x2)+' ; signe de f′ : '+t.s1.join(' puis ')+(q.fam==='A'?' (zéro en '+numFmt(cvxX1(q))+')':' (f′ ne s’annule jamais)')+' ; f : '+sens(t.a0)+' ; convexité : '+t.c.join(' puis ')+'. '
    +'Saisies actuelles : '+cases.map(function(x){ return x.id.replace('cvx-','')+' '+lu(x.id); }).join(' ; ')
    +'. Méthode à faire appliquer, sans donner la réponse : le signe de f″ se lit sur SA courbe (au-dessus / au-dessous de l’axe) ; f′ croît là où f″ est positive et f y est convexe ; le signe de f′ se lit sur la courbe de f′, et f croît là où f′ est positive ; l’extremum de f′ est au zéro de f″, ce n’est pas un extremum de f. Aide sur la PREMIÈRE case fausse ou vide.';
 }
