@@ -5002,7 +5002,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=253;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=254;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5692,6 +5692,7 @@ const TESTS={
   'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
   'tableau-proportions': { name:'Proportions dans un tableau', icon:'\ud83d\udcca', desc:'Comme sur la fiche papier\u00a0: un tableau \u00e0 double entr\u00e9e dont tu compl\u00e8tes la ligne et la colonne \u00ab\u00a0total\u00a0\u00bb, puis des proportions \u00e0 \u00e9crire en fraction \u2014 qui l\u2019on \u00e9tudie, parmi qui, et les deux effectifs. Les situations changent \u00e0 chaque s\u00e9ance.', start:()=>startTdp() },
   'tableau-proportions-lettres': { name:'Proportions dans un tableau (avec des lettres)', icon:'\ud83d\udd24', desc:'Le tableau de {tableau-proportions}, r\u00e9dig\u00e9 comme sur la fiche\u00a0: les groupes portent des lettres (A, B, C, D). Tu compl\u00e8tes le tableau, tu donnes le nombre correspondant \u00e0 A, \u00e0 C, \u00e0 \u00ab\u00a0A et C\u00a0\u00bb, puis tu \u00e9cris cinq proportions avec les lettres. Les situations changent \u00e0 chaque s\u00e9ance.', start:()=>startTdl() },
+  'tableau-proportions-lettres-tirees': { name:'Proportions dans un tableau (lettres tir\u00e9es)', icon:'\ud83c\udfb2', desc:'Comme {tableau-proportions-lettres}, mais la paire de lettres change \u00e0 chaque situation\u00a0: une lettre parmi A ou B, une lettre parmi C ou D, tir\u00e9es au hasard. Tu compl\u00e8tes le tableau, tu donnes le nombre correspondant \u00e0 chacune d\u2019elles et \u00e0 leur croisement, puis tu \u00e9cris cinq proportions qui ne parlent que de ces deux lettres.', start:()=>startTdlTirees() },
   'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
   'python-completer': { name:'Afficher un texte suivi d\u2019une variable', icon:'\ud83d\udda8\ufe0f', desc:'Le cours explique comment afficher un texte suivi de la valeur d\u2019une variable : print("texte", variable). Puis \u00e0 toi d\u2019\u00e9crire : le programme commence par note = 12, compl\u00e8te-le pour qu\u2019il affiche \u00ab la note est : 12 \u00bb, ex\u00e9cute-le et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYX() },
   /* La suite du 5.7 : le programme porte TROIS variables et une ligne
@@ -5782,7 +5783,7 @@ const THEMES=[
       /* Une proportion AVANT le pourcentage : le tableau \u00e0 double entr\u00e9e de la
          fiche papier (demande de Turquet, septembre 2026). Ajout\u00e9e EN DERNIER,
          la partie ne renum\u00e9rote rien. */
-      { num:6, nom:'Proportions dans un tableau', ids:['tableau-proportions','tableau-proportions-lettres'] }
+      { num:6, nom:'Proportions dans un tableau', ids:['tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees'] }
   ] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -8044,7 +8045,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -37046,6 +37047,41 @@ function tdlBuildQuestions(){
   }
   return qs;
 }
+/* {tableau-proportions-lettres-tirees} (4.6.3) : le 4.6.2, mais la paire de
+   lettres est TIRÉE puis tient toute la situation. On tire X parmi A ou B
+   (une colonne), Y parmi C ou D (une ligne) ; le tableau, les nombres
+   « X, Y, X et Y » et les cinq proportions ne parlent que de X et de Y. Les
+   trois premières proportions sont dans la classe (X, Y, « X et Y »), les
+   deux dernières se tirent parmi quatre : Y parmi X, X parmi Y, « X et Y »
+   parmi X, « X et Y » parmi Y. On range les clés (c, l), jamais les réponses. */
+const TDL_FIN=[ function(c,l){ return {gk:'l'+l, rk:'c'+c}; },
+                function(c,l){ return {gk:'c'+c, rk:'l'+l}; },
+                function(c,l){ return {gk:'x'+l+c, rk:'c'+c}; },
+                function(c,l){ return {gk:'x'+l+c, rk:'l'+l}; } ];
+function tdlBuildQuestionsTirees(){
+  const n=dmNbQuestions(TDL_NB);
+  const qs=[], tabs=[], cis=ensShuffle(TDP_CTX.map(function(_,i){ return i; })), vus=[];
+  let s=0;
+  while(qs.length<n){
+    const ci=cis[s%cis.length];
+    const tab=distincte(tabs, function(){ return {t:tdpGenTable()}; }); tabs.push(tab);
+    const c=rand(0,1), l=rand(0,1), base={ci:ci, t:tab.t, c:c, l:l};
+    const fin=ensShuffle([0,1,2,3]).slice(0,2).map(function(i){ return TDL_FIN[i](c,l); });
+    const seq=[ {phase:'tab'},
+                {phase:'nb', ks:['c'+c,'l'+l,'x'+l+c]},
+                {phase:'prop', gk:'c'+c,     rk:'tout'},
+                {phase:'prop', gk:'l'+l,     rk:'tout'},
+                {phase:'prop', gk:'x'+l+c,   rk:'tout'},
+                Object.assign({phase:'prop'}, fin[0]),
+                Object.assign({phase:'prop'}, fin[1]) ];
+    seq.forEach(function(p,i){
+      if(qs.length>=n) return;
+      qs.push(Object.assign({}, base, p, p.phase==='prop' ? {v:rand(0,TDL_V.length-1), n:i-1} : {}));
+    });
+    s++;
+  }
+  return qs;
+}
 /* La question de la fiche : le groupe étudié en gris, le tout en gras. */
 const TDL_V=[
   function(g,r,ctx){ return 'Calculer la proportion '+tdlGris(tdpDes(g.nom))+' '+tdlGras(tdlTout(r,ctx))+'.'; },
@@ -37230,15 +37266,17 @@ function checkTdlAnswer(live){
   const nb=$('tdlNext'); if(nb) nb.focus();
 }
 function nextTdlQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTdlTest(); autoSave(); } else finishTest(); }
-function startTdl(){
+function startTdl(){ demarrerTdl('tableau-proportions-lettres', tdlBuildQuestions); }
+function startTdlTirees(){ demarrerTdl('tableau-proportions-lettres-tirees', tdlBuildQuestionsTirees); }
+function demarrerTdl(qId, construire){
   if(!currentEleve){ accueil(); return; }
-  const qs=tdlBuildQuestions();
+  const qs=construire();
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'tdl', questions:qs, idx:0, score:0,
     maxScore:qs.reduce(function(s,q){ return s+tdlCases(q).length; },0), answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false});
-  test.qId='tableau-proportions-lettres';
+  test.qId=qId;
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('tdl'); renderTdlTest();
 }

@@ -4062,6 +4062,7 @@ function exercices(suite){
     reduireProduit(w, P);
     tableauProportions(w, P);
     tableauProportionsLettres(w, P);
+    tableauProportionsTirees(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -16068,6 +16069,75 @@ function tableauProportionsLettres(w, P){
     poser(qP, Object.assign({},JP,{'tdl-qui':'','tdl-num':''})); checkTdlAnswer();
     if(peint('tdl-qui')!=='bleu' || peint('tdl-num')!=='bleu' || peint('tdl-den')!=='vert') vus.push('cases vides de la proportion mal peintes');
     if(test.qId!=='tableau-proportions-lettres' || test.kind!=='tdl') vus.push('identité '+test.qId+'/'+test.kind);
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {tableau-proportions-lettres-tirees} — 4.6.3 : le 4.6.2 dont la paire de
+   lettres est tirée (A ou B, C ou D) et tient toute la situation. Les
+   effectifs attendus sont recalculés ICI, par des sommes écrites à part. */
+function tableauProportionsTirees(w, P){
+  const present = evaluer(w, "typeof startTdlTirees==='function' && typeof tdlBuildQuestionsTirees==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('proportions dans un tableau, lettres tirées : le tirage de la paire, la correction et la place',
+      'ce niveau n\'a pas l\'exercice du tableau à lettres tirées');
+    return;
+  }
+  verifierEval(w, 'proportions dans un tableau, lettres tirées : le tirage de la paire, la correction et la place', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-proportions-lettres-tirees';
+    const th=THEMES.find(function(t){ return t.num===4; });
+    if(!th || th.ids.indexOf('tableau-proportions-lettres-tirees')<0) vus.push('l\\'exercice n\\'est pas dans le thème 4');
+    if(TEST_NUM['tableau-proportions-lettres-tirees']!=='4.6.3') vus.push('numéro '+TEST_NUM['tableau-proportions-lettres-tirees']+' au lieu de 4.6.3');
+    if(TEST_NUM['tableau-proportions-lettres']!=='4.6.2') vus.push('le 4.6.2 a bougé');
+    if(TABLES_SANS.indexOf('tableau-proportions-lettres-tirees')<0) vus.push('le bouton des tables est proposé');
+    const vuesPaires={}, vuesFin={};
+    for(let i=0;i<1000 && !vus.length;i++){
+      const qs=tdlBuildQuestionsTirees();
+      if(qs.length!==7){ vus.push(qs.length+' questions au lieu de 7'); break; }
+      const c=qs[0].c, l=qs[0].l; vuesPaires[c+''+l]=1;
+      const attendu=['tab','nb','prop','prop','prop','prop','prop'];
+      qs.forEach(function(q,ix){
+        if(q.phase!==attendu[ix]) vus.push('question '+(ix+1)+' : phase '+q.phase);
+        if(q.c!==c || q.l!==l || JSON.stringify(q.t)!==JSON.stringify(qs[0].t) || q.ci!==qs[0].ci) vus.push('la question '+(ix+1)+' ne porte pas la situation');
+        if(q.phase==='prop'){
+          [q.gk,q.rk].forEach(function(k){
+            const ok=k==='tout' || k==='c'+c || k==='l'+l || k==='x'+l+c;
+            if(!ok) vus.push('la lettre '+k+' sort de la paire tirée (c'+c+', l'+l+')');
+          });
+        }
+      });
+      const pr=qs.slice(2,5).map(function(q){ return q.gk+'/'+q.rk; }).join(' ');
+      if(pr!=='c'+c+'/tout l'+l+'/tout x'+l+c+'/tout') vus.push('les trois premières proportions : '+pr);
+      const f4=qs[5].gk+'/'+qs[5].rk, f5=qs[6].gk+'/'+qs[6].rk;
+      if(f4===f5) vus.push('deux fois la même proportion finale : '+f4);
+      vuesFin[f4.replace(/\\d/g,'')+'>'+f5.replace(/\\d/g,'')]=1;
+      if(qs[1].ks.join(' ')!=='c'+c+' l'+l+' x'+l+c) vus.push('phase « nombre » : '+qs[1].ks.join(' '));
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(Object.keys(vuesPaires).length!==4) vus.push('les quatre paires (A/B × C/D) ne sortent pas toutes : '+Object.keys(vuesPaires).join(' '));
+    if(Object.keys(vuesFin).length<6) vus.push('les deux dernières proportions ne varient pas : '+Object.keys(vuesFin).length+' couples');
+    /* les réponses, contre des sommes écrites ici */
+    const T=[[3,6],[10,11]];
+    const eff=function(gk, rk){ let n=0;
+      for(let l=0;l<2;l++) for(let c=0;c<2;c++){
+        const dans=function(k){ return k==='tout' || (k[0]==='c' && c===+k[1]) || (k[0]==='l' && l===+k[1]) || (k[0]==='x' && l===+k[1] && c===+k[2]); };
+        if(dans(gk) && dans(rk)) n+=T[l][c]; }
+      return n; };
+    [['x00','c0',3,13],['x01','l0',6,9]].forEach(function(f){
+      const q={ci:0,t:T,c:0,l:0,phase:'prop',gk:f[0],rk:f[1],v:0,n:1};
+      const cs=tdlCases(q), num=cs.find(function(x){ return x.id==='tdl-num'; }).bon, den=cs.find(function(x){ return x.id==='tdl-den'; }).bon;
+      if(+num!==eff(f[0],f[1]) || +den!==eff(f[1],'tout')) vus.push('« '+f[0]+' parmi '+f[1]+' » : '+num+'/'+den);
+    });
+    /* la copie juste par le bouton : X et Y parmi X */
+    startTdlTirees();
+    if(test.qId!=='tableau-proportions-lettres-tirees' || test.kind!=='tdl') vus.push('identité '+test.qId+'/'+test.kind);
+    const q0=test.questions[5]; test.idx=5;
+    renderTdlTest();
+    tdlCases(q0).forEach(function(c){ const el=document.getElementById(c.id); if(el) el.value=c.bon; });
+    checkTdlAnswer();
+    const faux=document.querySelectorAll('#tdlHost .bad').length, bons=document.querySelectorAll('#tdlHost .ok').length;
+    if(faux || bons!==7) vus.push('copie juste : '+bons+' cases justes, '+faux+' fausses');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
