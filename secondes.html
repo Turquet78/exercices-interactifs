@@ -2122,7 +2122,7 @@
   @media(max-width:900px){ #pcpHost math-field.pm-mf{font-size:1.4rem} }
   @media(max-width:560px){ #pcpHost math-field.pm-mf{font-size:1.2rem;min-width:60px} .pcp-phrase{font-size:.98rem} .pcp-cadre{padding:10px 10px} }
   /* ===== {pourcentage-schema-cadres} : les MÊMES règles que {pourcentage-schema},
-     plus les cadres (.cdr) et le texte gris (.cdr-prec) du schéma PDF de
+     plus les cadres (.cdr) du schéma PDF de
      Turquet (septembre 2026). Trois cadres de trois styles — plein bleu (le
      total), tirets rouges (le premier sous-groupe), pointillés verts (le
      second) — posés sur les mots qui désignent le groupe. Ce ne sont PAS des
@@ -2135,7 +2135,6 @@
   .cdr-0{border-style:solid;border-color:var(--cdr-t)}
   .cdr-1{border-style:dashed;border-color:var(--cdr-a)}
   .cdr-2{border-style:dotted;border-color:var(--cdr-b)}
-  .cdr-prec{font-family:"Nunito";font-weight:700;font-size:.8rem;color:#8a8f98}
   #pccHost .pctb-lab{max-width:190px}
   #pccHost .pcc-val{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;padding:8px 6px;border:2px solid transparent;
     font-family:"Fredoka";font-weight:600;font-size:1.7rem;color:var(--ink);line-height:1.2}
@@ -5515,7 +5514,7 @@ const TESTS={
   'pourcentage-boite':   { name:'Le sch\u00e9ma en bo\u00eete', icon:'\ud83d\udce6', desc:'Le sch\u00e9ma de la fiche papier : deux bo\u00eetes reli\u00e9es par une fl\u00e8che, et sur la fl\u00e8che le pourcentage puis son \u00e9criture d\u00e9cimale. Les 4 cases sont toujours vides, m\u00eame les nombres que l\u2019\u00e9nonc\u00e9 donne d\u00e9j\u00e0 \u2014 le r\u00e9sultat, la valeur initiale ou le pourcentage, m\u00e9lang\u00e9s.', start:()=>startPctBoite() },
   'pourcentage-chaine':  { name:'Composer deux pourcentages', icon:'\ud83d\udd17', desc:'Le sch\u00e9ma en bo\u00eete de {pourcentage-boite}, mais \u00e0 trois bo\u00eetes : le total, un sous-groupe, puis un sous-groupe DU sous-groupe \u2014 comme la fiche \u00ab 40 % de filles, dont 30 % font du basket \u00bb. Une deuxi\u00e8me rang\u00e9e donne le coefficient qui va directement du total au dernier sous-groupe, en un seul calcul.', start:()=>startPctChaine() },
   'pourcentage-schema':  { name:'Lire un sch\u00e9ma de pourcentages', icon:'\ud83e\udde9', desc:'Le sch\u00e9ma \u00e0 trois bo\u00eetes de {pourcentage-chaine}, pris \u00e0 l\u2019envers : les \u00e9critures d\u00e9cimales sont d\u00e9j\u00e0 \u00e9crites sur les fl\u00e8ches \u2014 ou l\u2019une d\u2019elles et le produit \u2014, tu compl\u00e8tes ce qui manque, puis trois phrases qui lisent le sch\u00e9ma en pourcentages, comme la fiche \u00ab Dans le club de sport il y a \u2026 % de filles \u00bb. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcs() },
-  'pourcentage-schema-cadres': { name:'Lire un schéma de pourcentages (avec cadres)', icon:'🖼️', desc:'Le schéma de {pourcentage-schema}, avec des CADRES : un cadre de couleur et de style différent pour le total, le premier sous-groupe et le second, posés sur les mots qui les désignent dans la consigne, sur les boîtes et dans les trois phrases. Le texte gris à côté de la dernière boîte rappelle que ce sous-groupe est pris DANS le précédent. Tu complètes ce qui manque au schéma, puis les trois phrases. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcc() },
+  'pourcentage-schema-cadres': { name:'Lire un schéma de pourcentages (avec cadres)', icon:'🖼️', desc:'Le schéma de {pourcentage-schema}, avec des CADRES : un cadre de couleur et de style différent pour le total, le premier sous-groupe et le second, posés sur les mots qui les désignent dans la consigne, sur les boîtes et dans les trois phrases. La dernière boîte porte le groupe croisé en entier (« les moins de 18 ans licenciés dans un club »), dans un seul cadre vert. Tu complètes ce qui manque au schéma, puis les trois phrases. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcc() },
   'pourcentage-phrases': { name:'Du texte au sch\u00e9ma de pourcentages', icon:'\ud83d\udcdd', desc:'Le sch\u00e9ma de {pourcentage-schema}, mais depuis des phrases : les deux premi\u00e8res, \u00e9crites en gris, donnent les pourcentages ; tu places les nombres dans le sch\u00e9ma (les deux fl\u00e8ches, puis le calcul global), et le produit te donne le nombre qui manque dans la troisi\u00e8me phrase. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcp() },
   'augmenter-pourcentage':{ name:'Augmenter d\u2019un pourcentage en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'📈', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
   'augmenter-addition':  { name:'Augmenter d\u2019un pourcentage en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en {pourcentage}), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
@@ -6978,7 +6977,7 @@ La grande flèche du dessous va directement du total au dernier sous-groupe : so
 <b>Quand une flèche manque</b> et que le produit est donné, on la retrouve par une division : dans \\(0{,}30\\times\\;?\\;=0{,}06\\), le facteur manquant est \\(0{,}06\\div0{,}30=0{,}2\\), donc 20 %.<br>
 Pour passer d’une écriture décimale au pourcentage, on multiplie par 100 : 0,06 → 6 %, 0,25 → 25 %, 0,4 → 40 %.`;
 const RAP_PCC=RAP_PCS+`<br>
-<b>Les cadres</b> relient les mots au schéma : le cadre <b>bleu</b> entoure le total, le cadre <b>rouge</b> (en tirets) le premier sous-groupe, le cadre <b>vert</b> (en pointillés) le second. Un mot cadré dans une phrase désigne donc la boîte qui porte le même cadre — c’est elle qui dit sur QUOI porte le pourcentage : « des <b>spectateurs</b> » (cadre bleu), c’est le total ; « parmi ceux qui ont <b>un pass 3 jours</b> » (cadre rouge), c’est le premier sous-groupe. Le texte <b>gris</b> à côté de la dernière boîte rappelle que ce sous-groupe est pris <i>dans</i> le précédent.`;
+<b>Les cadres</b> relient les mots au schéma : le cadre <b>bleu</b> entoure le total, le cadre <b>rouge</b> (en tirets) le premier sous-groupe, le cadre <b>vert</b> (en pointillés) le second. Un mot cadré dans une phrase désigne donc la boîte qui porte le même cadre — c’est elle qui dit sur QUOI porte le pourcentage : « des <b>spectateurs</b> » (cadre bleu), c’est le total ; « parmi ceux qui ont <b>un pass 3 jours</b> » (cadre rouge), c’est le premier sous-groupe. La dernière boîte porte le groupe <b>croisé</b> en entier (« les moins de 18 ans licenciés dans un club ») dans un seul cadre vert : c’est le second sous-groupe, pris <i>dans</i> le précédent.`;
 const RAP_PCP=`<b>Du texte au schéma de pourcentages</b><br>
 Les deux premières phrases (en gris) donnent les pourcentages : la première parle du <b>total</b>, la seconde d’une <b>partie de ce premier groupe</b> — « Parmi les filles… » veut dire 20 % <b>des filles</b>, jamais 20 % du total. Chaque nombre se place sur la flèche qui lui correspond, en écriture décimale : 30 % s’écrit ×  0,30 (c’est × \\(\\frac{30}{100}\\)).<br>
 Le calcul du dessous va directement du total au dernier sous-groupe : on <b>multiplie</b> les deux écritures décimales, \\(0{,}30\\times0{,}20=0{,}06\\). La troisième phrase se lit alors sur le produit : 0,06 = <b>6 %</b> du total.<br>
@@ -20028,42 +20027,42 @@ const PCTC_NB=3;
    restent à remplir quel que soit le sens — seule la PHRASE change ce qu'elle
    donne et ce qu'elle demande. */
 const CTX_CHAINE=[
-  { total:'Club de sport', niv1:'Filles', niv2:'Basketteuses',
+  { total:'Club de sport', niv1:'Filles', niv2:'Basketteuses', inter:'Les filles qui font du basket',
     comb:(P1,P2)=>`Dans un club de sport, il y a <b>${P1} %</b> de filles. Parmi les filles, <b>${P2} %</b> font du basket. Quel pourcentage des membres du club cela représente-t-il ?`,
     p1:(P2,C)=>`Dans un club de sport, parmi les filles, <b>${P2} %</b> font du basket ; ces basketteuses représentent <b>${C} %</b> des membres du club. Quel pourcentage du club est composé de filles ?`,
     p2:(P1,C)=>`Dans un club de sport, il y a <b>${P1} %</b> de filles. Les filles qui font du basket représentent <b>${C} %</b> des membres du club. Quel pourcentage des filles fait du basket ?`,
     ccl:{ comb:champ=>`Donc les basketteuses représentent ${champ} % des membres du club.`,
           p1:champ=>`Donc le club est composé de ${champ} % de filles.`,
           p2:champ=>`Donc ${champ} % des filles font du basket.` } },
-  { total:'Lycée', niv1:'Internes', niv2:'Sportifs du mercredi',
+  { total:'Lycée', niv1:'Internes', niv2:'Sportifs du mercredi', inter:'Les internes qui font du sport le mercredi',
     comb:(P1,P2)=>`Dans un lycée, <b>${P1} %</b> des élèves sont internes. Parmi les internes, <b>${P2} %</b> pratiquent un sport le mercredi après-midi. Quel pourcentage des élèves du lycée cela représente-t-il ?`,
     p1:(P2,C)=>`Dans un lycée, parmi les internes, <b>${P2} %</b> pratiquent un sport le mercredi après-midi ; ils représentent <b>${C} %</b> des élèves du lycée. Quel pourcentage des élèves du lycée est interne ?`,
     p2:(P1,C)=>`Dans un lycée, <b>${P1} %</b> des élèves sont internes. Les internes qui pratiquent un sport le mercredi après-midi représentent <b>${C} %</b> des élèves du lycée. Quel pourcentage des internes pratique un sport le mercredi après-midi ?`,
     ccl:{ comb:champ=>`Donc les sportifs du mercredi représentent ${champ} % des élèves du lycée.`,
           p1:champ=>`Donc ${champ} % des élèves du lycée sont internes.`,
           p2:champ=>`Donc ${champ} % des internes pratiquent un sport le mercredi après-midi.` } },
-  { total:'Village', niv1:'Moins de 18 ans', niv2:'Licenciés en club',
+  { total:'Village', niv1:'Moins de 18 ans', niv2:'Licenciés en club', inter:'Les moins de 18 ans licenciés dans un club',
     comb:(P1,P2)=>`Dans un village, <b>${P1} %</b> des habitants ont moins de 18 ans. Parmi eux, <b>${P2} %</b> sont licenciés dans un club de sport. Quel pourcentage des habitants du village cela représente-t-il ?`,
     p1:(P2,C)=>`Dans un village, parmi les habitants de moins de 18 ans, <b>${P2} %</b> sont licenciés dans un club de sport ; ils représentent <b>${C} %</b> des habitants du village. Quel pourcentage des habitants du village a moins de 18 ans ?`,
     p2:(P1,C)=>`Dans un village, <b>${P1} %</b> des habitants ont moins de 18 ans. Les moins de 18 ans licenciés dans un club de sport représentent <b>${C} %</b> des habitants du village. Quel pourcentage des moins de 18 ans est licencié dans un club de sport ?`,
     ccl:{ comb:champ=>`Donc les licenciés en club représentent ${champ} % des habitants du village.`,
           p1:champ=>`Donc ${champ} % des habitants du village ont moins de 18 ans.`,
           p2:champ=>`Donc ${champ} % des moins de 18 ans sont licenciés dans un club de sport.` } },
-  { total:'Entreprise', niv1:'Télétravail', niv2:'Habitent loin',
+  { total:'Entreprise', niv1:'Télétravail', niv2:'Habitent loin', inter:'Les télétravailleurs qui habitent loin',
     comb:(P1,P2)=>`Dans une entreprise, <b>${P1} %</b> des salariés travaillent en télétravail. Parmi eux, <b>${P2} %</b> habitent à plus de 30 km du bureau. Quel pourcentage des salariés de l’entreprise cela représente-t-il ?`,
     p1:(P2,C)=>`Dans une entreprise, parmi les salariés en télétravail, <b>${P2} %</b> habitent à plus de 30 km du bureau ; ils représentent <b>${C} %</b> des salariés de l’entreprise. Quel pourcentage des salariés de l’entreprise est en télétravail ?`,
     p2:(P1,C)=>`Dans une entreprise, <b>${P1} %</b> des salariés travaillent en télétravail. Ceux qui habitent à plus de 30 km du bureau représentent <b>${C} %</b> des salariés de l’entreprise. Quel pourcentage des salariés en télétravail habite à plus de 30 km du bureau ?`,
     ccl:{ comb:champ=>`Donc les salariés en télétravail qui habitent loin représentent ${champ} % des salariés de l’entreprise.`,
           p1:champ=>`Donc ${champ} % des salariés de l’entreprise sont en télétravail.`,
           p2:champ=>`Donc ${champ} % des salariés en télétravail habitent à plus de 30 km du bureau.` } },
-  { total:'Bibliothèque', niv1:'Romans', niv2:'Romans empruntés',
+  { total:'Bibliothèque', niv1:'Romans', niv2:'Romans empruntés', inter:'Les romans empruntés',
     comb:(P1,P2)=>`Dans une bibliothèque, <b>${P1} %</b> des livres sont des romans. Parmi les romans, <b>${P2} %</b> sont actuellement empruntés. Quel pourcentage du fonds total cela représente-t-il ?`,
     p1:(P2,C)=>`Dans une bibliothèque, parmi les romans, <b>${P2} %</b> sont actuellement empruntés ; ils représentent <b>${C} %</b> du fonds total. Quel pourcentage des livres de la bibliothèque est composé de romans ?`,
     p2:(P1,C)=>`Dans une bibliothèque, <b>${P1} %</b> des livres sont des romans. Les romans actuellement empruntés représentent <b>${C} %</b> du fonds total. Quel pourcentage des romans est actuellement emprunté ?`,
     ccl:{ comb:champ=>`Donc les romans empruntés représentent ${champ} % du fonds total.`,
           p1:champ=>`Donc ${champ} % des livres de la bibliothèque sont des romans.`,
           p2:champ=>`Donc ${champ} % des romans sont actuellement empruntés.` } },
-  { total:'Festival', niv1:'Pass 3 jours', niv2:'Moins de 20 ans',
+  { total:'Festival', niv1:'Pass 3 jours', niv2:'Moins de 20 ans', inter:'Les moins de 20 ans qui ont un pass 3 jours',
     comb:(P1,P2)=>`Dans un festival, <b>${P1} %</b> des spectateurs ont un pass 3 jours. Parmi eux, <b>${P2} %</b> ont moins de 20 ans. Quel pourcentage des spectateurs du festival cela représente-t-il ?`,
     p1:(P2,C)=>`Dans un festival, parmi les spectateurs ayant un pass 3 jours, <b>${P2} %</b> ont moins de 20 ans ; ils représentent <b>${C} %</b> des spectateurs du festival. Quel pourcentage des spectateurs du festival a un pass 3 jours ?`,
     p2:(P1,C)=>`Dans un festival, <b>${P1} %</b> des spectateurs ont un pass 3 jours. Ceux qui ont moins de 20 ans parmi eux représentent <b>${C} %</b> des spectateurs du festival. Quel pourcentage des détenteurs d’un pass 3 jours a moins de 20 ans ?`,
@@ -20120,11 +20119,11 @@ function renderPctChaineTest(){
          <div class="pctb-af"><span class="pctb-af-x">×</span><math-field class="dexp-mf pm-mf" id="pctcD2" aria-label="écriture décimale du second pourcentage"></math-field></div>
          <div class="pctb-shaft" aria-hidden="true"></div>
        </div>
-       ${boiteLab(ctx.niv2)}
+       ${boiteLab(ctx.inter)}
      </div>
      <div class="pctc-global">
        <div class="pctc-global-shaft" aria-hidden="true"></div>
-       <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.niv2)} en un seul calcul&nbsp;: coefficient global</div>
+       <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.inter)} en un seul calcul&nbsp;: coefficient global</div>
        <div class="pctc-calc">
          <math-field class="dexp-mf pm-mf" id="pctcG1" aria-label="écriture décimale du premier pourcentage, reprise dans le calcul global"></math-field>
          <span class="pctb-af-x">×</span>
@@ -20232,42 +20231,42 @@ const PCS_PCTS=(()=>{ const t=[]; for(let p=5;p<=95;p+=5) t.push(p); return t; }
    pour que le schéma se lise avec les mêmes boîtes qu'en 4.1.9. Chaque phrase
    a deux tournures ; `champ` est la case à compléter, posée AVANT le « % ». */
 const CTX_PCS=[
-  { total:'Club de sport', niv1:'Filles', niv2:'Basket',
+  { total:'Club de sport', niv1:'Filles', niv2:'Basket', inter:'Les filles qui font du basket',
     intro:'Dans un club de sport, on s’intéresse aux filles, puis, parmi elles, à celles qui font du basket.',
     s1:[c=>`Dans le club de sport, il y a ${c} % de filles.`, c=>`Les filles représentent ${c} % des membres du club.`],
     s2:[c=>`Parmi les filles, ${c} % font du basket.`, c=>`${c} % des filles font du basket.`],
     s3:[c=>`Dans le club de sport, il y a ${c} % de filles qui pratiquent le basket.`, c=>`Les filles qui font du basket représentent ${c} % des membres du club.`] },
-  { total:'Classe', niv1:'Filles', niv2:'Moyenne',
+  { total:'Classe', niv1:'Filles', niv2:'Moyenne', inter:'Les filles ayant la moyenne',
     intro:'Dans une classe, on s’intéresse aux filles, puis, parmi elles, à celles qui ont la moyenne.',
     s1:[c=>`Dans la classe, il y a ${c} % de filles.`, c=>`Les filles représentent ${c} % de la classe.`],
     s2:[c=>`Parmi les filles, ${c} % ont la moyenne.`, c=>`${c} % des filles ont la moyenne.`],
     s3:[c=>`Les filles ayant la moyenne représentent ${c} % de la classe.`, c=>`Dans la classe, il y a ${c} % de filles qui ont la moyenne.`] },
-  { total:'Entreprise', niv1:'Filles', niv2:'Cadres',
+  { total:'Entreprise', niv1:'Filles', niv2:'Cadres', inter:'Les femmes cadres',
     intro:'Dans une entreprise, on s’intéresse aux femmes, puis, parmi elles, à celles qui sont cadres.',
     s1:[c=>`Dans l’entreprise, il y a ${c} % de femmes.`, c=>`Les femmes représentent ${c} % des salariés de l’entreprise.`],
     s2:[c=>`${c} % des femmes sont des cadres.`, c=>`Parmi les femmes, ${c} % sont cadres.`],
     s3:[c=>`Dans l’entreprise, il y a ${c} % de femmes cadres.`, c=>`Les femmes cadres représentent ${c} % des salariés de l’entreprise.`] },
-  { total:'Lycée', niv1:'Internes', niv2:'Sportifs du mercredi',
+  { total:'Lycée', niv1:'Internes', niv2:'Sportifs du mercredi', inter:'Les internes qui font du sport le mercredi',
     intro:'Dans un lycée, on s’intéresse aux internes, puis, parmi eux, à ceux qui font du sport le mercredi après-midi.',
     s1:[c=>`Dans le lycée, ${c} % des élèves sont internes.`, c=>`Les internes représentent ${c} % des élèves du lycée.`],
     s2:[c=>`Parmi les internes, ${c} % font du sport le mercredi après-midi.`, c=>`${c} % des internes font du sport le mercredi après-midi.`],
     s3:[c=>`Dans le lycée, ${c} % des élèves sont des internes qui font du sport le mercredi après-midi.`, c=>`Les internes qui font du sport le mercredi représentent ${c} % des élèves du lycée.`] },
-  { total:'Village', niv1:'Moins de 18 ans', niv2:'Licenciés en club',
+  { total:'Village', niv1:'Moins de 18 ans', niv2:'Licenciés en club', inter:'Les moins de 18 ans licenciés dans un club',
     intro:'Dans un village, on s’intéresse aux habitants de moins de 18 ans, puis, parmi eux, à ceux qui sont licenciés dans un club de sport.',
     s1:[c=>`Dans le village, ${c} % des habitants ont moins de 18 ans.`, c=>`Les moins de 18 ans représentent ${c} % des habitants du village.`],
     s2:[c=>`Parmi les moins de 18 ans, ${c} % sont licenciés dans un club.`, c=>`${c} % des moins de 18 ans sont licenciés dans un club.`],
     s3:[c=>`Dans le village, ${c} % des habitants sont des jeunes de moins de 18 ans licenciés dans un club.`, c=>`Les moins de 18 ans licenciés dans un club représentent ${c} % des habitants du village.`] },
-  { total:'Bibliothèque', niv1:'Romans', niv2:'Romans empruntés',
+  { total:'Bibliothèque', niv1:'Romans', niv2:'Romans empruntés', inter:'Les romans empruntés',
     intro:'Dans une bibliothèque, on s’intéresse aux romans, puis, parmi eux, à ceux qui sont empruntés en ce moment.',
     s1:[c=>`Dans la bibliothèque, ${c} % des livres sont des romans.`, c=>`Les romans représentent ${c} % des livres de la bibliothèque.`],
     s2:[c=>`Parmi les romans, ${c} % sont empruntés en ce moment.`, c=>`${c} % des romans sont empruntés en ce moment.`],
     s3:[c=>`Dans la bibliothèque, ${c} % des livres sont des romans empruntés en ce moment.`, c=>`Les romans empruntés représentent ${c} % des livres de la bibliothèque.`] },
-  { total:'Festival', niv1:'Pass 3 jours', niv2:'Moins de 20 ans',
+  { total:'Festival', niv1:'Pass 3 jours', niv2:'Moins de 20 ans', inter:'Les moins de 20 ans qui ont un pass 3 jours',
     intro:'Dans un festival, on s’intéresse aux spectateurs qui ont un pass 3 jours, puis, parmi eux, à ceux qui ont moins de 20 ans.',
     s1:[c=>`Dans le festival, ${c} % des spectateurs ont un pass 3 jours.`, c=>`Les détenteurs d’un pass 3 jours représentent ${c} % des spectateurs.`],
     s2:[c=>`Parmi les détenteurs d’un pass 3 jours, ${c} % ont moins de 20 ans.`, c=>`${c} % des détenteurs d’un pass 3 jours ont moins de 20 ans.`],
     s3:[c=>`Dans le festival, ${c} % des spectateurs ont un pass 3 jours et moins de 20 ans.`, c=>`Les moins de 20 ans qui ont un pass 3 jours représentent ${c} % des spectateurs.`] },
-  { total:'Cinéma', niv1:'Abonnés', niv2:'Moins de 25 ans',
+  { total:'Cinéma', niv1:'Abonnés', niv2:'Moins de 25 ans', inter:'Les abonnés de moins de 25 ans',
     intro:'Dans un cinéma, on s’intéresse aux spectateurs abonnés, puis, parmi eux, à ceux qui ont moins de 25 ans.',
     s1:[c=>`Dans le cinéma, ${c} % des spectateurs sont abonnés.`, c=>`Les abonnés représentent ${c} % des spectateurs du cinéma.`],
     s2:[c=>`Parmi les abonnés, ${c} % ont moins de 25 ans.`, c=>`${c} % des abonnés ont moins de 25 ans.`],
@@ -20351,11 +20350,11 @@ function renderPcsTest(){
          <div class="pctb-af"><span class="pctb-af-x">×</span>${cell('pcsD2',d2,'écriture décimale du second pourcentage')}</div>
          <div class="pctb-shaft" aria-hidden="true"></div>
        </div>
-       ${boiteLab(ctx.niv2)}
+       ${boiteLab(ctx.inter)}
      </div>
      <div class="pctc-global">
        <div class="pctc-global-shaft" aria-hidden="true"></div>
-       <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.niv2)} en un seul calcul&nbsp;: coefficient global</div>
+       <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.inter)} en un seul calcul&nbsp;: coefficient global</div>
        <div class="pctc-calc">
          ${cell('pcsG1',d1,'écriture décimale du premier pourcentage, reprise dans le calcul global')}
          <span class="pctb-af-x">×</span>
@@ -20502,13 +20501,13 @@ function renderPcpTest(){
            <div class="pctb-af"><span class="pctb-af-x">×</span>${mf('pcpD2','écriture décimale du second pourcentage')}</div>
            <div class="pctb-shaft" aria-hidden="true"></div>
          </div>
-         ${boiteLab(ctx.niv2)}
+         ${boiteLab(ctx.inter)}
        </div>
      </div>
      <div class="pcp-cadre pcp-cadre-calc">
        <div class="pctc-global">
          <div class="pctc-global-shaft" aria-hidden="true"></div>
-         <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.niv2)} en un seul calcul&nbsp;: coefficient global</div>
+         <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.inter)} en un seul calcul&nbsp;: coefficient global</div>
          <div class="pctc-calc">
            ${mf('pcpG1','écriture décimale du premier pourcentage, reprise dans le calcul global')}
            <span class="pctb-af-x">×</span>
@@ -20581,9 +20580,14 @@ async function finishPcp(){
        consigne, sur les trois boîtes du schéma et dans les trois phrases. Le
        cadre relie le mot à la boîte : l'élève voit quel groupe est le « tout »
        de quelle phrase (« des spectateurs » = le cadre bleu = « Festival ») ;
-     · un TEXTE EN GRIS (.cdr-prec) à côté de la troisième boîte, qui rappelle
-       que ce sous-groupe est pris DANS le précédent (« qui ont un pass 3
-       jours ») : c'est le sens de « imbriqué ».
+     · la troisième boîte écrit le groupe CROISÉ en entier (« Les moins de 18
+       ans licenciés dans un club »), dans UN cadre vert : plus de texte gris
+       « parmi les … » à côté (Turquet, septembre 2026).
+   RÈGLE (Turquet, septembre 2026) : un groupe qui est l'INTERSECTION de deux
+   groupes (« les moins de 18 ans licenciés dans un club ») désigne les
+   licenciés : il prend UN SEUL cadre, celui du second sous-groupe (vert), sur
+   toute l'expression — jamais un cadre rouge sur le premier groupe collé à un
+   cadre vert sur le second. Vaut pour la troisième phrase de chaque contexte.
    Les cadres sont des SPANS de texte (.cdr, .cdr-0/1/2), jamais des classes de
    verdict : ils ne portent ni .ok, ni .bad, ni .sol, et le contrôle des
    couleurs de vérification ne les voit pas. */
@@ -20593,51 +20597,51 @@ const PCC_NB=3;
 const PCC_PCTS=(()=>{ const t=[]; for(let p=5;p<=95;p+=5) t.push(p); return t; })();
 /* Huit mises en situation, celles de CTX_PCS (le festival est celui du PDF),
    avec leurs mots cadrés : cdrT le total (bleu plein), cdrA le premier
-   sous-groupe (rouge, tirets), cdrB le second (vert, pointillés). `prec` est le
-   texte gris posé à côté de la troisième boîte. Une phrase où le total est déjà
+   sous-groupe (rouge, tirets), cdrB le second (vert, pointillés). `inter` est le
+   groupe croisé, écrit en entier dans la troisième boîte. Une phrase où le total est déjà
    cadré ne recadre pas « les spectateurs » : un mot n'est cadré qu'une fois par
    phrase. */
 const CTX_PCC=[
-  { total:'Club de sport', niv1:'Filles', niv2:'Basket', prec:'parmi les filles',
+  { total:'Club de sport', niv1:'Filles', niv2:'Basket', inter:'Les filles qui font du basket',
     intro:`Dans ${cdrT('un club de sport')}, on s’intéresse aux ${cdrA('filles')}, puis, parmi elles, à celles qui ${cdrB('font du basket')}.`,
     s1:[c=>`Dans ${cdrT('le club de sport')}, il y a ${c} % de ${cdrA('filles')}.`, c=>`Les ${cdrA('filles')} représentent ${c} % des ${cdrT('membres du club')}.`],
     s2:[c=>`Parmi les ${cdrA('filles')}, ${c} % ${cdrB('font du basket')}.`, c=>`${c} % des ${cdrA('filles')} ${cdrB('font du basket')}.`],
-    s3:[c=>`Dans ${cdrT('le club de sport')}, il y a ${c} % de ${cdrA('filles')} qui ${cdrB('pratiquent le basket')}.`, c=>`Les ${cdrA('filles')} qui ${cdrB('font du basket')} représentent ${c} % des ${cdrT('membres du club')}.`] },
-  { total:'Classe', niv1:'Filles', niv2:'Moyenne', prec:'parmi les filles',
+    s3:[c=>`Dans ${cdrT('le club de sport')}, il y a ${c} % de ${cdrB('filles qui pratiquent le basket')}.`, c=>`Les ${cdrB('filles qui font du basket')} représentent ${c} % des ${cdrT('membres du club')}.`] },
+  { total:'Classe', niv1:'Filles', niv2:'Moyenne', inter:'Les filles ayant la moyenne',
     intro:`Dans ${cdrT('une classe')}, on s’intéresse aux ${cdrA('filles')}, puis, parmi elles, à celles qui ${cdrB('ont la moyenne')}.`,
     s1:[c=>`Dans ${cdrT('la classe')}, il y a ${c} % de ${cdrA('filles')}.`, c=>`Les ${cdrA('filles')} représentent ${c} % de ${cdrT('la classe')}.`],
     s2:[c=>`Parmi les ${cdrA('filles')}, ${c} % ${cdrB('ont la moyenne')}.`, c=>`${c} % des ${cdrA('filles')} ${cdrB('ont la moyenne')}.`],
-    s3:[c=>`Les ${cdrA('filles')} ${cdrB('ayant la moyenne')} représentent ${c} % de ${cdrT('la classe')}.`, c=>`Dans ${cdrT('la classe')}, il y a ${c} % de ${cdrA('filles')} qui ${cdrB('ont la moyenne')}.`] },
-  { total:'Entreprise', niv1:'Femmes', niv2:'Cadres', prec:'parmi les femmes',
+    s3:[c=>`Les ${cdrB('filles ayant la moyenne')} représentent ${c} % de ${cdrT('la classe')}.`, c=>`Dans ${cdrT('la classe')}, il y a ${c} % de ${cdrB('filles qui ont la moyenne')}.`] },
+  { total:'Entreprise', niv1:'Femmes', niv2:'Cadres', inter:'Les femmes cadres',
     intro:`Dans ${cdrT('une entreprise')}, on s’intéresse aux ${cdrA('femmes')}, puis, parmi elles, à celles qui ${cdrB('sont cadres')}.`,
     s1:[c=>`Dans ${cdrT('l’entreprise')}, il y a ${c} % de ${cdrA('femmes')}.`, c=>`Les ${cdrA('femmes')} représentent ${c} % des ${cdrT('salariés de l’entreprise')}.`],
     s2:[c=>`${c} % des ${cdrA('femmes')} ${cdrB('sont des cadres')}.`, c=>`Parmi les ${cdrA('femmes')}, ${c} % ${cdrB('sont cadres')}.`],
-    s3:[c=>`Dans ${cdrT('l’entreprise')}, il y a ${c} % de ${cdrA('femmes')} ${cdrB('cadres')}.`, c=>`Les ${cdrA('femmes')} ${cdrB('cadres')} représentent ${c} % des ${cdrT('salariés de l’entreprise')}.`] },
-  { total:'Lycée', niv1:'Internes', niv2:'Sportifs du mercredi', prec:'parmi les internes',
+    s3:[c=>`Dans ${cdrT('l’entreprise')}, il y a ${c} % de ${cdrB('femmes cadres')}.`, c=>`Les ${cdrB('femmes cadres')} représentent ${c} % des ${cdrT('salariés de l’entreprise')}.`] },
+  { total:'Lycée', niv1:'Internes', niv2:'Sportifs du mercredi', inter:'Les internes qui font du sport le mercredi',
     intro:`Dans ${cdrT('un lycée')}, on s’intéresse aux ${cdrA('internes')}, puis, parmi eux, à ceux qui ${cdrB('font du sport le mercredi après-midi')}.`,
     s1:[c=>`Dans ${cdrT('le lycée')}, ${c} % des élèves sont ${cdrA('internes')}.`, c=>`Les ${cdrA('internes')} représentent ${c} % des ${cdrT('élèves du lycée')}.`],
     s2:[c=>`Parmi les ${cdrA('internes')}, ${c} % ${cdrB('font du sport le mercredi après-midi')}.`, c=>`${c} % des ${cdrA('internes')} ${cdrB('font du sport le mercredi après-midi')}.`],
-    s3:[c=>`Dans ${cdrT('le lycée')}, ${c} % des élèves sont des ${cdrA('internes')} qui ${cdrB('font du sport le mercredi après-midi')}.`, c=>`Les ${cdrA('internes')} qui ${cdrB('font du sport le mercredi')} représentent ${c} % des ${cdrT('élèves du lycée')}.`] },
-  { total:'Village', niv1:'Moins de 18 ans', niv2:'Licenciés en club', prec:'parmi les moins de 18 ans',
+    s3:[c=>`Dans ${cdrT('le lycée')}, ${c} % des élèves sont des ${cdrB('internes qui font du sport le mercredi après-midi')}.`, c=>`Les ${cdrB('internes qui font du sport le mercredi')} représentent ${c} % des ${cdrT('élèves du lycée')}.`] },
+  { total:'Village', niv1:'Moins de 18 ans', niv2:'Licenciés en club', inter:'Les moins de 18 ans licenciés dans un club',
     intro:`Dans ${cdrT('un village')}, on s’intéresse aux habitants ${cdrA('de moins de 18 ans')}, puis, parmi eux, à ceux qui ${cdrB('sont licenciés dans un club de sport')}.`,
     s1:[c=>`Dans ${cdrT('le village')}, ${c} % des habitants ont ${cdrA('moins de 18 ans')}.`, c=>`Les ${cdrA('moins de 18 ans')} représentent ${c} % des ${cdrT('habitants du village')}.`],
     s2:[c=>`Parmi les ${cdrA('moins de 18 ans')}, ${c} % ${cdrB('sont licenciés dans un club')}.`, c=>`${c} % des ${cdrA('moins de 18 ans')} ${cdrB('sont licenciés dans un club')}.`],
-    s3:[c=>`Dans ${cdrT('le village')}, ${c} % des habitants sont des jeunes ${cdrA('de moins de 18 ans')} ${cdrB('licenciés dans un club')}.`, c=>`Les ${cdrA('moins de 18 ans')} ${cdrB('licenciés dans un club')} représentent ${c} % des ${cdrT('habitants du village')}.`] },
-  { total:'Bibliothèque', niv1:'Romans', niv2:'Empruntés', prec:'parmi les romans',
+    s3:[c=>`Dans ${cdrT('le village')}, ${c} % des habitants sont des ${cdrB('jeunes de moins de 18 ans licenciés dans un club')}.`, c=>`Les ${cdrB('moins de 18 ans licenciés dans un club')} représentent ${c} % des ${cdrT('habitants du village')}.`] },
+  { total:'Bibliothèque', niv1:'Romans', niv2:'Empruntés', inter:'Les romans empruntés',
     intro:`Dans ${cdrT('une bibliothèque')}, on s’intéresse aux ${cdrA('romans')}, puis, parmi eux, à ceux qui ${cdrB('sont empruntés en ce moment')}.`,
     s1:[c=>`Dans ${cdrT('la bibliothèque')}, ${c} % des livres sont des ${cdrA('romans')}.`, c=>`Les ${cdrA('romans')} représentent ${c} % des ${cdrT('livres de la bibliothèque')}.`],
     s2:[c=>`Parmi les ${cdrA('romans')}, ${c} % ${cdrB('sont empruntés en ce moment')}.`, c=>`${c} % des ${cdrA('romans')} ${cdrB('sont empruntés en ce moment')}.`],
-    s3:[c=>`Dans ${cdrT('la bibliothèque')}, ${c} % des livres sont des ${cdrA('romans')} ${cdrB('empruntés en ce moment')}.`, c=>`Les ${cdrA('romans')} ${cdrB('empruntés')} représentent ${c} % des ${cdrT('livres de la bibliothèque')}.`] },
-  { total:'Festival', niv1:'Pass 3 jours', niv2:'Moins de 20 ans', prec:'qui ont un pass 3 jours',
+    s3:[c=>`Dans ${cdrT('la bibliothèque')}, ${c} % des livres sont des ${cdrB('romans empruntés en ce moment')}.`, c=>`Les ${cdrB('romans empruntés')} représentent ${c} % des ${cdrT('livres de la bibliothèque')}.`] },
+  { total:'Festival', niv1:'Pass 3 jours', niv2:'Moins de 20 ans', inter:'Les moins de 20 ans qui ont un pass 3 jours',
     intro:`Dans ${cdrT('un festival')}, on s’intéresse aux spectateurs qui ont ${cdrA('un pass 3 jours')}, puis, parmi eux, à ceux qui ont ${cdrB('moins de 20 ans')}.`,
     s1:[c=>`Dans ${cdrT('le festival')}, ${c} % des spectateurs ont ${cdrA('un pass 3 jours')}.`, c=>`Les détenteurs ${cdrA('d’un pass 3 jours')} représentent ${c} % des ${cdrT('spectateurs')}.`],
     s2:[c=>`Parmi les détenteurs ${cdrA('d’un pass 3 jours')}, ${c} % ont ${cdrB('moins de 20 ans')}.`, c=>`${c} % des détenteurs ${cdrA('d’un pass 3 jours')} ont ${cdrB('moins de 20 ans')}.`],
-    s3:[c=>`Dans ${cdrT('le festival')}, ${c} % des spectateurs ont un pass 3 jours et ${cdrB('moins de 20 ans')}.`, c=>`${cdrB('Les moins de 20 ans')} qui ont un pass 3 jours représentent ${c} % des ${cdrT('spectateurs')}.`] },
-  { total:'Cinéma', niv1:'Abonnés', niv2:'Moins de 25 ans', prec:'parmi les abonnés',
+    s3:[c=>`Dans ${cdrT('le festival')}, ${c} % des spectateurs ont ${cdrB('un pass 3 jours et moins de 20 ans')}.`, c=>`${cdrB('Les moins de 20 ans qui ont un pass 3 jours')} représentent ${c} % des ${cdrT('spectateurs')}.`] },
+  { total:'Cinéma', niv1:'Abonnés', niv2:'Moins de 25 ans', inter:'Les abonnés de moins de 25 ans',
     intro:`Dans ${cdrT('un cinéma')}, on s’intéresse aux spectateurs ${cdrA('abonnés')}, puis, parmi eux, à ceux qui ont ${cdrB('moins de 25 ans')}.`,
     s1:[c=>`Dans ${cdrT('le cinéma')}, ${c} % des spectateurs sont ${cdrA('abonnés')}.`, c=>`Les ${cdrA('abonnés')} représentent ${c} % des ${cdrT('spectateurs du cinéma')}.`],
     s2:[c=>`Parmi les ${cdrA('abonnés')}, ${c} % ont ${cdrB('moins de 25 ans')}.`, c=>`${c} % des ${cdrA('abonnés')} ont ${cdrB('moins de 25 ans')}.`],
-    s3:[c=>`Dans ${cdrT('le cinéma')}, ${c} % des spectateurs sont des ${cdrA('abonnés')} de ${cdrB('moins de 25 ans')}.`, c=>`Les ${cdrA('abonnés')} de ${cdrB('moins de 25 ans')} représentent ${c} % des ${cdrT('spectateurs du cinéma')}.`] }
+    s3:[c=>`Dans ${cdrT('le cinéma')}, ${c} % des spectateurs sont des ${cdrB('abonnés de moins de 25 ans')}.`, c=>`Les ${cdrB('abonnés de moins de 25 ans')} représentent ${c} % des ${cdrT('spectateurs du cinéma')}.`] }
 ];
 /* La consigne, en trois tournures ; l'intro du contexte dit ce que sont les
    trois boîtes, pour que le schéma se lise avant de se compléter. */
@@ -20695,7 +20699,7 @@ function renderPccTest(){
   $('pccActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkPccAnswer()">Vérifier</button>';
   $('pccPrompt').innerHTML=pccEnonce(q);
   const aSaisir={}; pccCases(q).forEach(c=>{ aSaisir[c.id]=1; });
-  const boiteLab=(lab,k,prec)=>`<div class="pctb-box"><div class="pctb-lab">${cdr(k,esc(lab))}${prec?` <span class="cdr-prec">${esc(prec)}</span>`:''}</div></div>`;
+  const boiteLab=(lab,k)=>`<div class="pctb-box"><div class="pctb-lab">${cdr(k,esc(lab))}</div></div>`;
   const mf=(id,lab,cls)=>`<math-field class="dexp-mf pm-mf${cls?' '+cls:''}" id="${id}" aria-label="${lab}"></math-field>`;
   /* une valeur DONNÉE prend la place de la case, à sa taille ; une valeur à
      trouver est une case */
@@ -20717,11 +20721,11 @@ function renderPccTest(){
          <div class="pctb-af"><span class="pctb-af-x">×</span>${cell('pccD2',d2,'écriture décimale du second pourcentage')}</div>
          <div class="pctb-shaft" aria-hidden="true"></div>
        </div>
-       ${boiteLab(ctx.niv2,2,ctx.prec)}
+       ${boiteLab(ctx.inter,2)}
      </div>
      <div class="pctc-global">
        <div class="pctc-global-shaft" aria-hidden="true"></div>
-       <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.niv2)} en un seul calcul&nbsp;: coefficient global</div>
+       <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.inter)} en un seul calcul&nbsp;: coefficient global</div>
        <div class="pctc-calc">
          ${cell('pccG1',d1,'écriture décimale du premier pourcentage, reprise dans le calcul global')}
          <span class="pctb-af-x">×</span>
