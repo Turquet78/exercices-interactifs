@@ -4139,6 +4139,7 @@ function exercices(suite){
     evolutionsSuccessives(w, P);
     baissesSuccessivesDix(w, P);
     pourcentageSchema(w, P);
+    pourcentagePhrases(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -28052,6 +28053,92 @@ function baissesSuccessivesDix(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------------------------------------------------------------------------
+   Kind « pcp » — {pourcentage-phrases}, le 4.1.10 pris depuis les PHRASES :
+   deux phrases données (en gris, dans un cadre), une troisième à compléter, un
+   schéma dont les six cases se remplissent avec les nombres des phrases.
+   Seconde seulement : absent-déclaré ailleurs. Bords tenus : pourcentages
+   entiers (produit multiple de 100), les deux phrases données sont ÉCRITES
+   (jamais une case) et grises, six cases exactement, verdict case par case,
+   « 6,5 » n'est pas « 6 », la case vide ne rougit jamais. */
+function pourcentagePhrases(w, P){
+  const present = evaluer(w, "typeof startPcp==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{pourcentage-phrases} : les pourcentages sont entiers et les questions toutes différentes',
+      'ce niveau n\'a pas l\'exercice des phrases à placer dans le schéma');
+    ignorer('{pourcentage-phrases} : phrases grises données, six cases, et le verdict case par case',
+      'ce niveau n\'a pas l\'exercice des phrases à placer dans le schéma');
+    return;
+  }
+  verifierEval(w, '{pourcentage-phrases} : les pourcentages sont entiers et les questions toutes différentes', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-phrases';
+    for(let t=0;t<40 && !vus.length;t++){
+      startPcp();
+      if(test.kind!=='pcp') vus.push('kind « '+test.kind+' » au lieu de « pcp »');
+      if(test.questions.length!==PCP_NB) vus.push(test.questions.length+' question(s) au lieu de '+PCP_NB);
+      const cles={};
+      test.questions.forEach(function(q){
+        if(q.P1%5||q.P2%5||q.P1<5||q.P2<5||q.P1>95||q.P2>95) vus.push('pourcentage hors des multiples de 5 : '+q.P1+', '+q.P2);
+        if((q.P1*q.P2)%100!==0) vus.push('produit non multiple de 100 : '+q.P1+' × '+q.P2);
+        if(q.comb!==q.P1*q.P2/100 || q.comb<1 || q.comb>99) vus.push('global '+q.comb+' faux ou non entier');
+        const en=pcpEnonce(q);
+        if(/undefined|\\$\\{|\\{[a-z-]+\\}/.test(en)) vus.push('énoncé abîmé : '+en);
+        cles[q.P1+'/'+q.P2+'/'+q.ci]=1;
+      });
+      if(Object.keys(cles).length!==test.questions.length) vus.push('deux questions identiques dans la séance');
+    }
+    if(!vus.length){ restartCurrentTest(); if(test.qId!=='pourcentage-phrases') vus.push('« Recommencer » relance « '+test.qId+' »'); }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '{pourcentage-phrases} : phrases grises données, six cases, et le verdict case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-phrases';
+    const poser=function(q){ startPcp(); test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; test.locked=false; renderPcpTest(); };
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    const Q={P1:30,P2:20,comb:6,ci:0,v:[0,0,0,0]};
+    poser(Q);
+    const h=document.getElementById('pcpHost');
+    const phr=h.querySelectorAll('.pcp-phrase');
+    if(phr.length!==3) vus.push(phr.length+' phrase(s) au lieu de 3');
+    if(h.querySelectorAll('.pcp-phrase.pcp-grise').length!==2) vus.push('les deux premières phrases ne sont pas grises');
+    if(phr[0] && (phr[0].querySelector('math-field') || !/30/.test(phr[0].textContent))) vus.push('la première phrase devrait être écrite avec « 30 »');
+    if(phr[1] && (phr[1].querySelector('math-field') || !/20/.test(phr[1].textContent))) vus.push('la deuxième phrase devrait être écrite avec « 20 »');
+    if(phr[2] && !phr[2].querySelector('math-field#pcpS3')) vus.push('la troisième phrase devrait porter la case');
+    if(h.querySelectorAll('math-field').length!==6) vus.push(h.querySelectorAll('math-field').length+' case(s) au lieu de 6');
+    if(h.querySelectorAll('.pcp-cadre').length<3) vus.push('les cadres du texte et du schéma manquent');
+    /* copie juste */
+    setv('pcpD1','0,3'); setv('pcpD2','0,20'); setv('pcpG1','0,30'); setv('pcpG2','0,2'); setv('pcpG','0,06'); setv('pcpS3','6');
+    checkPcpAnswer();
+    ['pcpD1','pcpD2','pcpG1','pcpG2','pcpG','pcpS3'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('copie juste : '+id+' n\\'est pas bleue ('+cls(id)+')'); });
+    if(test.score!==1) vus.push('la copie juste ne vaut pas le point ('+test.score+')');
+    /* les pourcentages additionnés */
+    poser(Q);
+    setv('pcpD1','0,3'); setv('pcpD2','0,2'); setv('pcpG1','0,3'); setv('pcpG2','0,2'); setv('pcpG','0,06'); setv('pcpS3','50');
+    checkPcpAnswer();
+    if(!/\\bbad\\b/.test(cls('pcpS3')) || test.score!==0) vus.push('« 50 % » (30 + 20) est compté juste');
+    if(/\\bbad\\b/.test(cls('pcpG')) || /\\bbad\\b/.test(cls('pcpD1'))) vus.push('une case juste rougit à cause de la phrase fautive');
+    const cor=document.getElementById('pcpS3').nextElementSibling;
+    if(!cor || !/mf-cor/.test(cor.className||'') || (cor.textContent||'').trim()!=='6') vus.push('la correction « 6 » ne s\\'écrit pas en vert');
+    /* « 6,5 » n'est pas « 6 » */
+    poser(Q);
+    setv('pcpD1','0,3'); setv('pcpD2','0,2'); setv('pcpG1','0,3'); setv('pcpG2','0,2'); setv('pcpG','0,06'); setv('pcpS3','6,5');
+    checkPcpAnswer();
+    if(!/\\bbad\\b/.test(cls('pcpS3')) || test.score!==0) vus.push('« 6,5 % » est compté juste pour 6 %');
+    /* soutien : la case vide ne rougit pas, la voisine juste reste bleue */
+    currentMode='soutien';
+    poser(Q);
+    setv('pcpD1','0,3'); setv('pcpD2',''); setv('pcpG1','0,3'); setv('pcpG2','0,2'); setv('pcpG','0,06'); setv('pcpS3','');
+    checkPcpAnswer();
+    if(/\\bbad\\b/.test(cls('pcpD2')) || /\\bbad\\b/.test(cls('pcpS3'))) vus.push('une case laissée vide rougit à la vérification');
+    if(!/\\bok\\b/.test(cls('pcpD1'))) vus.push('soutien : la case juste pcpD1 n\\'est pas bleue quand une voisine est vide');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 /* ---- {pourcentage-schema} : Seconde SEULE, LE SCHÉMA DU 4.1.9 PRIS À L'ENVERS --
    « en seconde faire un exercice comme le pdf en variant les énoncés, les %
    seront toujours des entiers, et le schéma sera fait comme dans l'exercice
