@@ -3826,3 +3826,31 @@ menus) ; le verdict case par case sur des copies épinglées (−30 % puis +10 %
 +20 % puis +30 %) : copie juste bleue qui vaut le point, faute isolée sans
 faire rougir les cases justes, correction verte du mot, case vide jamais rouge.
 Le navigateur voit le reste par la visite universelle (section 9).
+
+## {evolutions-successives-phrases} — le 4.5.5 dont les deux premières phrases sont données (Seconde, 4.5.8, septembre 2026)
+
+**D'où il vient.** « Un exercice comme le 4.5.7, mais où l'on donne dans les
+phrases du bas les deux premiers pourcentages d'évolution, en précisant si
+c'est une baisse ou une hausse à chaque fois ; l'élève complète ensuite le
+schéma du dessus ainsi que la dernière phrase. »
+
+**Ce qui est repris, ce qui change.** C'est le 4.5.7 retourné. Tirage, énoncés
+et boîtes viennent de {evolutions-successives} (`genEvs` : le global est entier,
+trois formes de signes par séance). Ce qui est donné n'est plus le coefficient
+sous la flèche mais la phrase « Première évolution : une hausse de 20 % » (écrite
+par la page, deux fois) : le signe de chaque parenthèse « × (1 + … » se lit
+donc sur elle et la page l'écrit d'avance. L'élève saisit les deux pourcentages
+décimaux, les deux coefficients (les deux cases sont saisies, contrairement au
+4.5.7), le calcul du coefficient global, le pourcentage global décimal (« ± »
+lu sur le produit écrit), puis la dernière phrase : mot choisi et pourcentage.
+Kind « evp », écran `scr-evp`, rappel `RAP_EVP`, identité
+`evolutions-successives-phrases`. Dix cases jugées, chacune seule : une case
+juste ne rougit pas à côté d'une fausse, une case vide ne rougit jamais.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `evolutionsSuccessivesPhrases`,
+absent-déclaré sans `startEvolSuccPhrases`) : le tirage sur quarante séances ;
+l'écran (deux phrases écrites au bon mot et au bon pourcentage, une seule à
+compléter, signes des parenthèses, « ± » avant la frappe) ; le verdict sur des
+copies épinglées (−30 % puis +10 % ; +20 % puis +30 %) : copie juste bleue qui
+vaut le point, faute isolée sans faire rougir les autres, correction verte du
+mot, case vide jamais rouge. `APP_VERSION` 254.
