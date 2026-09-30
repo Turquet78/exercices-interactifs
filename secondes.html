@@ -1469,6 +1469,11 @@
   .tdl-fr .tdp-num,.tdl-fr .tdp-den{justify-content:center}
   .tdl-sel-ph{width:auto;min-width:96px;height:38px;font-size:1rem;padding:0 8px;margin:0 4px;vertical-align:middle}
   .tdl-fr .tdl-lib-frac .tdp-lib{text-align:center}
+  /* le libellé de la fraction de gauche tient sur UNE ligne, et ses listes
+     (une lettre, « A et C », ou le tout) sont étroites : width:auto les faisait
+     grandes comme leur plus longue option. */
+  .tdl-fr .tdl-lib-frac .tdp-lib{max-width:none;white-space:nowrap}
+  .tdl-fr .tdl-lib-frac .tdl-sel-ph{width:84px;min-width:0;padding:0 4px;margin:0 3px}
   @media(max-width:520px){ .tdl-ligne{gap:8px} }
   /* ---- Proportions dans un tableau à double entrée (4.6.1, thème Pourcentages) ----
      Le tableau de la fiche papier : les quatre effectifs écrits, les totaux en
@@ -1502,7 +1507,7 @@
   .tdp-num{border-bottom:3px solid var(--blue-dark)}
   .tdp-lib{font-size:.98rem;font-weight:500;color:var(--ink);text-align:right;max-width:420px}
   .tdp-lib i{font-style:normal;font-weight:600;color:var(--blue-dark)}
-  @media(max-width:520px){ .tdp-tab th,.tdp-tab td{padding:6px 6px;min-width:0} .tdp-in{width:68px;height:44px} .tdp-etude .plc-sel.tdp-sel{min-width:0;width:100%} .tdp-num,.tdp-den{flex-wrap:wrap;justify-content:center} .tdp-lib{text-align:center} }
+  @media(max-width:520px){ .tdp-tab th,.tdp-tab td{padding:6px 6px;min-width:0} .tdp-in{width:68px;height:44px} .tdp-etude .plc-sel.tdp-sel{min-width:0;width:100%} .tdp-num,.tdp-den{flex-wrap:wrap;justify-content:center} .tdp-lib{text-align:center} .tdl-fr .tdl-lib-frac .tdp-lib{white-space:normal} }
   #scr-rpd .rpd-sg{width:44px;font-size:1.05rem;padding:0}
   #scr-rpd .rpd-coef{width:54px;font-size:1.05rem;padding:0}
   #scr-rpd .rpd-deg{width:58px;font-size:1.05rem;padding:0;font-family:"Times New Roman",serif;font-style:italic}
@@ -5031,7 +5036,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=255;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=256;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
