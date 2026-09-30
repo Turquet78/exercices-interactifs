@@ -3674,6 +3674,33 @@ puis la correction par le BOUTON — tableau juste et totaux échangés, phase
 « 3 sur 13 »), « A et C » accepté, « B et C » refusé, cases vides. Le banc
 navigateur couvre l'écran par ses contrôles universels sans rien déclarer.
 
+## Seconde 4.6.3 — {tableau-proportions-lettres-tirees} : le 4.6.2, la paire de lettres TIRÉE
+
+**Demandé par Turquet en septembre 2026** : « en seconde, un nouvel exercice
+exactement comme le 4.6.2, mais il faudra choisir une lettre parmi A ou B puis
+une lettre parmi C ou D au hasard, puis construire l'exercice avec ces deux
+lettres ». Le 4.6.2 tirait déjà une colonne et une ligne par situation ; la
+réponse de Turquet à la question posée : « une seule lettre par axe, tout le
+reste sur elles » — donc le même moteur, et des proportions plus variées.
+
+**Moteur partagé, identité propre** (journal 09) : même `kind` `tdl`, même
+écran, même rendu et même correction ; seuls changent le tirage
+(`tdlBuildQuestionsTirees`), le démarreur (`startTdlTirees` →
+`demarrerTdl(qId, construire)`) et `test.qId`. Le rappel et les questions à
+l'IA restent ceux du 4.6.2 (indexés par `kind`).
+
+**Le tirage** : X (colonne A ou B) et Y (ligne C ou D) tirés une fois par
+situation et rangés (`q.c`, `q.l`). Sept questions : tableau, nombres de X, Y,
+« X et Y », puis cinq proportions — trois fixes dans la classe (X, Y, « X et Y »)
+et DEUX tirées sans remise parmi quatre (`TDL_FIN`) : Y parmi X, X parmi Y,
+« X et Y » parmi X, « X et Y » parmi Y. Aucune lettre hors de la paire ne sort.
+Barème inchangé : 31 cases par situation.
+
+**Contrôle** (`tableauProportionsTirees`) : 1 000 tirages (sept questions, phases
+dans l'ordre, jamais une lettre hors paire, les quatre paires sortent, les deux
+proportions finales diffèrent et varient), deux effectifs contre des sommes
+écrites à part, une copie juste par le bouton (7 cases bleues).
+
 ## {pourcentage-phrases} — du texte au schéma, le 4.1.10 pris depuis les phrases (Seconde, septembre 2026, 4.1.11)
 
 **D'où il vient.** Demande de Turquet : « en seconde, un nouvel exercice comme
@@ -3799,3 +3826,30 @@ contextes, six cases, aucun nombre écrit dans le schéma, phrases 1 et 2 sans
 case et avec leur pourcentage, cadres sur boîtes et phrases ; puis « 65 % »
 rouge seul, les cinq cases justes bleues, la copie juste vaut le point, la
 case vide ne rougit pas. `APP_VERSION` 252.
+## {evolutions-successives-coef} — le 4.5.5 à coefficients donnés, puis trois phrases (Seconde, 4.5.7, septembre 2026)
+
+**D'où il vient.** « Un exercice comme le 4.5.5, mais où l'on donne les deux
+coefficients multiplicateurs du haut ; l'élève complète toutes les cases du
+schéma logiquement, puis trois phrases qui demandent chacune l'une des trois
+évolutions en pourcentage. » (image jointe : 0,70 et 1,10 écrits sous les
+flèches, parenthèses « 1 − » et « 1 + » à compléter, calcul global vide.)
+
+**Ce qui est repris, ce qui change.** Tirage, énoncés et boîtes viennent de
+{evolutions-successives} (`genEvs` : le global est entier, non nul, sous 100 ;
+trois formes de signes par séance). Les deux coefficients sont ÉCRITS par la
+page (`.evc-val`, à la taille d'une case, le motif de `.sev-val`) et le signe
+des parenthèses se lit sur eux. L'élève saisit : les deux pourcentages
+décimaux, le calcul du coefficient global (les deux facteurs recopiés, le
+produit), le pourcentage global décimal (le signe « ± » se lit sur le produit
+écrit), puis trois phrases « Première évolution / Deuxième évolution /
+Évolution globale : une [hausse|baisse] de … % ». Kind « evc », écran
+`scr-evc`, rappel `RAP_EVC`. Les boîtes n'ont pas de case.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `evolutionsSuccessivesCoef`,
+absent-déclaré sans `startEvolSuccCoef`) : le tirage sur quarante séances
+(global entier, coefficients cohérents, trois formes, « Recommencer ») ; le
+schéma (coefficients écrits et non saisissables, « ± » avant la frappe, trois
+menus) ; le verdict case par case sur des copies épinglées (−30 % puis +10 % ;
++20 % puis +30 %) : copie juste bleue qui vaut le point, faute isolée sans
+faire rougir les cases justes, correction verte du mot, case vide jamais rouge.
+Le navigateur voit le reste par la visite universelle (section 9).
