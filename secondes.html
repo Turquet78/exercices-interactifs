@@ -1467,6 +1467,7 @@
   .tdl-quest .tdl-n{margin-right:8px}
   .tdl-fr .tdp-den{border-top:3px solid transparent}
   .tdl-fr .tdp-num,.tdl-fr .tdp-den{justify-content:center}
+  .tdl-sel-ph{width:auto;min-width:96px;height:38px;font-size:1rem;padding:0 8px;margin:0 4px;vertical-align:middle}
   .tdl-fr .tdl-lib-frac .tdp-lib{text-align:center}
   @media(max-width:520px){ .tdl-ligne{gap:8px} }
   /* ---- Proportions dans un tableau à double entrée (4.6.1, thème Pourcentages) ----
@@ -4944,7 +4945,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=251;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=252;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -36699,7 +36700,10 @@ function tdlCases(q){
   return [ {id:'tdl-qui',   bon:q.gk, kind:'sel', alt:tdpAlt(q)},
            {id:'tdl-parmi', bon:q.rk, kind:'sel'},
            {id:'tdl-num',   bon:String(tdpEff(q,q.gk,q.rk)),   kind:'nb'},
-           {id:'tdl-den',   bon:String(tdpEff(q,q.rk,'tout')), kind:'nb'} ];
+           {id:'tdl-den',   bon:String(tdpEff(q,q.rk,'tout')), kind:'nb'},
+           {id:'tdl-nqui',  bon:q.gk, kind:'sel', alt:tdpAlt(q)},
+           {id:'tdl-nparmi',bon:q.rk, kind:'sel'},
+           {id:'tdl-dparmi',bon:q.rk, kind:'sel'} ];
 }
 /* Le tableau de la fiche : « A = Garçons », « C = Avec lunettes ». Les totaux
    sont des cases (saisie=true) ou des nombres écrits (le tableau complété). */
@@ -36722,16 +36726,9 @@ function tdlTableHTML(q, saisie){
     +'<td class="tdp-tot">'+cell('tdl-tt', T.tt, 'le total '+ctx.dans)+'</td></tr></tbody></table>';
   return h;
 }
-/* Les lettres choisies dans les deux listes se recopient dans la fraction de
-   gauche — « nbr d'élèves [A] et qui sont parmi [la classe] » —, comme la
-   fiche le fait écrire. */
-function tdlLibelles(){
-  const lit=function(id){ const el=$(id); if(!el || !el.value) return '……'; 
-    const o=[].find.call(el.options, function(x){ return x.value===el.value; }); return o?o.textContent:'……'; };
-  const qui=lit('tdl-qui'), parmi=lit('tdl-parmi');
-  const e1=$('tdl-lib-qui'); if(e1) e1.textContent=qui;
-  ['tdl-lib-parmi','tdl-lib-parmi2'].forEach(function(id){ const e=$(id); if(e) e.textContent=parmi; });
-}
+/* Dans les phrases de la fraction de gauche — « nbr d'élèves [A] et qui sont
+   parmi [la classe] » — les lettres sont des listes que l'ÉLÈVE complète : la
+   page ne les recopie plus (elles étaient écrites en bleu à sa place). */
 function tdlPromptTxt(q){
   const ctx=TDP_CTX[q.ci];
   if(q.phase==='tab') return 'Complète le tableau : le total de chaque ligne, le total de chaque colonne, et le total '+ctx.dans+'.';
@@ -36760,6 +36757,10 @@ function renderTdlTest(){
     }).join('');
   } else {
     const vide='<option value="" selected disabled>?</option>';
+    const selQui=function(id, lbl){ return '<select class="plc-sel tdp-sel tdl-sel tdl-sel-ph" id="'+id+'" aria-label="'+esc(lbl)+'">'+vide
+      +TDL_QUI.map(function(k){ return '<option value="'+k+'">'+esc(tdlLettre(k))+'</option>'; }).join('')+'</select>'; };
+    const selParmi=function(id, lbl){ return '<select class="plc-sel tdp-sel tdl-sel tdl-sel-ph" id="'+id+'" aria-label="'+esc(lbl)+'">'+vide
+      +TDL_PARMI.map(function(k){ return '<option value="'+k+'">'+esc(tdlNom(ctx,k))+'</option>'; }).join('')+'</select>'; };
     h=tdlTableHTML(q, false)
      +'<p class="tdl-quest"><b class="tdl-n">'+q.n+')</b>'+tdlEnonceHTML(q)+'</p>'
      +'<div class="tdp-etude"><span>Ici on étudie '+esc(tdlPop(ctx))+'</span>'
@@ -36770,8 +36771,8 @@ function renderTdlTest(){
      +TDL_PARMI.map(function(k){ return '<option value="'+k+'">'+esc(tdlNom(ctx,k))+'</option>'; }).join('')+'</select></div>'
      +'<div class="tdp-frac-ligne tdl-fr">'
        +'<span class="tdp-frac tdl-lib-frac">'
-         +'<span class="tdp-num"><span class="tdp-lib">nbr '+esc(ctx.de)+' <i id="tdl-lib-qui">……</i> et qui sont parmi <i id="tdl-lib-parmi">……</i></span></span>'
-         +'<span class="tdp-den"><span class="tdp-lib">nombre total '+esc(ctx.de)+' parmi <i id="tdl-lib-parmi2">……</i></span></span>'
+         +'<span class="tdp-num"><span class="tdp-lib">nbr '+esc(ctx.de)+' '+selQui('tdl-nqui','dans la phrase du numérateur : qui l’on compte')+' et qui sont parmi '+selParmi('tdl-nparmi','dans la phrase du numérateur : parmi qui')+'</span></span>'
+         +'<span class="tdp-den"><span class="tdp-lib">nombre total '+esc(ctx.de)+' parmi '+selParmi('tdl-dparmi','dans la phrase du dénominateur : parmi qui')+'</span></span>'
        +'</span>'
        +'<span class="tdp-egal">=</span>'
        +'<span class="tdp-frac tdl-res">'
@@ -36781,7 +36782,7 @@ function renderTdlTest(){
   }
   $('tdlHost').innerHTML=h;
   tdlCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
-    el.addEventListener(c.kind==='nb'?'input':'change', function(){ tdlLibelles(); if(isSoutien()) checkTdlAnswer(true);
+    el.addEventListener(c.kind==='nb'?'input':'change', function(){ if(isSoutien()) checkTdlAnswer(true);
       clearTimeout(test.tdlSave); test.tdlSave=setTimeout(autoSave,1000); });
     if(c.kind==='nb') el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkTdlAnswer(); } });
   });
@@ -36819,7 +36820,6 @@ function checkTdlAnswer(live){
     return {c:c, el:el, ok:tdpJuste(c,el), vide:!el || String(el.value).trim()===''}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
-  tdlLibelles();
   if(!allOk && isSoutien()){ soutienAgain('tdlFeedback','tdlActions','checkTdlAnswer','tdlHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('tdlLiveScore').textContent=test.score;

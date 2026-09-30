@@ -16002,7 +16002,7 @@ function tableauProportionsLettres(w, P){
 
     /* ---- 3. la correction, par le BOUTON --------------------------------- */
     startTdl();
-    if(test.maxScore!==5+6+5*4) vus.push('barème de '+test.maxScore+' au lieu de 31');
+    if(test.maxScore!==5+6+5*7) vus.push('barème de '+test.maxScore+' au lieu de 46');
     const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
       return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
     const poser=function(q, vals){
@@ -16041,7 +16041,7 @@ function tableauProportionsLettres(w, P){
     if(peint('tdl-n0a')!=='vert') vus.push('une case juste rougit à côté d\\'une fausse');
     /* la proportion : C parmi A (« ceux qui portent des lunettes parmi les garçons ») */
     const qP=Object.assign({},base,{phase:'prop',gk:'l0',rk:'c0',v:3,n:4});
-    const JP={'tdl-qui':'l0','tdl-parmi':'c0','tdl-num':'3','tdl-den':'13'};
+    const JP={'tdl-qui':'l0','tdl-parmi':'c0','tdl-nqui':'l0','tdl-nparmi':'c0','tdl-dparmi':'c0','tdl-num':'3','tdl-den':'13'};
     poser(qP, {});
     if(Object.keys(JP).some(function(id){ return !document.getElementById(id); })) return 'une case de la proportion manque à l\\'écran';
     if(!/ceux qui ont des lunettes parmi les garçons/.test(texte('tdlHost')) && !/ceux qui ont des lunettes parmi les garçons/.test(document.querySelector('#tdlHost .tdl-quest').textContent)) vus.push('la question reste écrite en mots : '+document.querySelector('#tdlHost .tdl-quest').textContent);
@@ -16052,8 +16052,9 @@ function tableauProportionsLettres(w, P){
     const optp=[].map.call(document.getElementById('tdl-parmi').options, function(o){ return o.textContent; });
     if(optp.indexOf('la classe')<0 || optp.indexOf('A')<0) vus.push('la liste « parmi » n\\'offre pas « la classe » et les lettres');
     poser(qP, JP); checkTdlAnswer();
-    if(!dernier().correct || dernier().cases!==4) vus.push('la proportion juste est comptée faux ou mal (cases '+dernier().cases+')');
-    if(!/\\bA\\b/.test(texte('tdl-lib-parmi'))) vus.push('la lettre choisie ne se recopie pas dans la fraction : « '+texte('tdl-lib-parmi')+' »');
+    if(!dernier().correct || dernier().cases!==7) vus.push('la proportion juste est comptée faux ou mal (cases '+dernier().cases+')');
+    ['tdl-nqui','tdl-nparmi','tdl-dparmi'].forEach(function(id){ const e=document.getElementById(id);
+      if(!e || e.tagName!=='SELECT' || !e.querySelector('option[value=""]')) vus.push('la phrase de la fraction doit offrir une liste vide à compléter : '+id); });
     poser(qP, Object.assign({},JP,{'tdl-parmi':'tout','tdl-den':'30'})); checkTdlAnswer();
     if(peint('tdl-parmi')!=='rouge' || peint('tdl-den')!=='rouge' || peint('tdl-qui')!=='vert' || peint('tdl-num')!=='vert') vus.push('le mauvais tout est mal peint');
     if(!/3 sur 13/.test(texte('tdlFeedback')) || !/3\\/13/.test(texte('tdlFeedback'))) vus.push('le message n\\'écrit pas 3/13 : « '+texte('tdlFeedback')+' »');
