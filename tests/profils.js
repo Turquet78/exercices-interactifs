@@ -1032,15 +1032,7 @@ module.exports = {
        une dette nommée, à rembourser un par un — la liste ne grandit jamais. */
     /* python-noms-variables : « 3x » y est un NOM de variable Python (invalide),
        du code proposé au choix de l'élève — pas l'inconnue d'une équation. */
-    xItalique: { dispenses: ['python-noms-variables', 'antecedent-nombre', 'antecedents-droite', 'choisir-tableau-variation',
-                             'construire-fonction', 'construire-max-min', 'ecrire-solutions',
-                             'equation-graphique', 'image-nombre', 'inequation-droite',
-                             'inequation-graphique', 'intervalles-inegalite', 'lecture-deux-courbes',
-                             'lecture-signes', 'lecture-variations', 'maximum-minimum',
-                             'placer-image', 'python-tableau-valeurs', 'python-types',
-                             'reduire-produit', 'reduire-somme', 'resolutions-graphiques',
-                             'signes-variations', 'signes-variations-grand', 'solutions-graphique',
-                             'synthese-fonction', 'tableau-signes-graphique', 'tableau-variation'] },
+    xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'lecture-variations',
@@ -1758,12 +1750,7 @@ module.exports = {
     /* L'inconnue « x » s'écrit en italique (décision de Turquet, septembre
        2026). Ces exercices sont ANTÉRIEURS à la règle : leur « x » droit est
        une dette nommée, à rembourser un par un — la liste ne grandit jamais. */
-    xItalique: { dispenses: ['associer-derivee', 'convexite-qcm', 'derivee-exp-quotient-2',
-                             'etude-exponentielle', 'etude-quotient', 'limites-graphiques',
-                             'limites-graphiques-2', 'limites-graphiques-3', 'signe-derivee-qcm',
-                             'suite-synthese-variations', 'suite-variation-recurrence', 'tvi',
-                             'tvi-lecture-graphique', 'tvi-redaction', 'variations-depuis-derivee',
-                             'derivee-exp-2', 'tvi-contre-exemples', 'tvi-nombre-solutions'] },
+    xItalique: { dispenses: [] },
 
 
     /* Le signalement : la table du niveau, et le nom de la fonction de rendu de

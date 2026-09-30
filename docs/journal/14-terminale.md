@@ -2597,3 +2597,22 @@ penchées, corrigées — « y = x » du repère du 6.2.6 (`tspan.svr-m`) et le 
 du 2.6 de la Seconde. Les autres `.sv-cf`, `.lv-cf`, `.eqg-cg` (étiquettes de
 courbes) restent en Nunito : aucun « x » isolé n'y passe aujourd'hui, le contrôle
 les attrapera le jour où l'un y sera écrit.
+
+**Les x droits restants — un FILET plutôt que quarante-six corrections (même jour, 3ᵉ message).**
+« Corrige les x droits des exercices restants. » Le relevé (`XDETAIL=fichier`
+dans le banc navigateur écrit la balise parente de chaque x droit) montrait que
+les chaînes sont partout — `f (x) ≤ 2`, `2x + 3`, étiquettes SVG, options de
+liste — et que les énoncés sont tirés au hasard : une correction chaîne par
+chaîne laisse toujours un x droit dans un tirage qu'on n'a pas vu, et le
+contrôle, lui, rougit au hasard. La correction est donc double : les cas
+fréquents sont écrits en `<i>x</i>` dans la source (`</i>(x)` → `</i>(<i>x</i>)`,
+étiquettes du 6.2.6, `.sv-cf`, `.tvi-it`…), et le script `#italiquer-x` (fin de
+chaque fichier) lit le texte AFFICHÉ après chaque rendu (MutationObserver) et
+enveloppe tout x isolé : `<i>` en HTML, `<tspan class="mth">` en SVG, le
+caractère 𝑥 dans une `<option>`. Hors champ : le code — reconnu à sa fonte
+(chasse fixe), pas à un nom de classe, ce qui a d'abord fait exclure à tort la
+phrase « Écris une valeur de x » du 6.1.5. Deux pièges vus : `className` est en
+lecture seule sur un élément SVG (il faut `setAttribute('class', …)`), et sous
+jsdom, où `getComputedStyle` est très lent sur ces feuilles, le filet se
+désactive (le banc jsdom gelait) — seul le vrai navigateur le mesure.
+`xItalique.dispenses` est vidé : plus aucune dette nommée.
