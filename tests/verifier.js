@@ -4153,6 +4153,7 @@ function exercices(suite){
     baissesSuccessivesDix(w, P);
     pourcentageSchema(w, P);
     pourcentagePhrases(w, P);
+    pourcentageSchemaCadres(w, P);
     coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -28295,6 +28296,60 @@ function pourcentageSchema(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---- {pourcentage-schema-cadres} : Seconde SEULE, LE 4.1.10 AVEC SES CADRES ---
+   « en seconde fais un nouvel exercice comme le 4.1.10 en rajoutant les cadres
+   et le texte en gris comme sur le pdf » (Turquet, septembre 2026). Kind
+   « pcc » : le code de {pourcentage-schema}, renommé — le jugement est tenu
+   par le contrôle voisin ; celui-ci tient ce qui est NEUF : trois cadres de
+   trois styles (bleu plein, rouge tirets, vert pointillés) sur les mots qui
+   désignent le total, le premier et le second sous-groupe — dans la consigne,
+   sur les trois boîtes et dans les trois phrases, sur les huit contextes — et
+   le texte gris à côté de la troisième boîte. Les cadres ne portent aucune
+   classe de verdict. */
+function pourcentageSchemaCadres(w, P){
+  const present = evaluer(w, "typeof startPcc==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{pourcentage-schema-cadres} : trois cadres sur la consigne, les boîtes et les phrases, le texte gris, et le verdict',
+      'ce niveau n\'a pas le schéma de pourcentages à cadres');
+    return;
+  }
+  verifierEval(w, '{pourcentage-schema-cadres} : trois cadres sur la consigne, les boîtes et les phrases, le texte gris, et le verdict', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-schema-cadres';
+    const q0={inc:'comb',P1:30,P2:20,comb:6,v:[0,0,0,0],ordre:[0,1,2]};
+    for(let ci=0; ci<CTX_PCC.length; ci++){
+      startPcc(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:ci}); test.idx=0; test.locked=false; renderPccTest();
+      const nom='contexte '+ci+' ('+CTX_PCC[ci].total+') : ';
+      const pr=document.getElementById('pccPrompt');
+      [0,1,2].forEach(function(k){ if(!pr.querySelector('.cdr-'+k)) vus.push(nom+'la consigne ne cadre pas le groupe '+k); });
+      const labs=[].map.call(document.querySelectorAll('#pccHost .pctb-lab'), function(e){ return e; });
+      if(labs.length!==3) vus.push(nom+labs.length+' boîte(s) au lieu de 3');
+      labs.forEach(function(e,k){ if(!e.querySelector('.cdr-'+k)) vus.push(nom+'la boîte '+k+' n\\'est pas cadrée du style '+k); });
+      const gris=document.querySelectorAll('#pccHost .cdr-prec');
+      if(gris.length!==1 || !gris[0].textContent.trim() || labs[2].querySelector('.cdr-prec')!==gris[0]) vus.push(nom+'le texte gris n\\'est pas posé une fois, non vide, à côté de la troisième boîte');
+      const ph=document.querySelectorAll('#pccHost .pcc-phrase');
+      if(ph.length!==3) vus.push(nom+ph.length+' phrase(s) au lieu de 3');
+      [].forEach.call(ph, function(e,i){ if(!e.querySelector('.cdr')) vus.push(nom+'la phrase '+(i+1)+' ne porte aucun cadre'); });
+      if(/\\bundefined\\b|\\$\\{|\\[object/.test(pr.textContent+document.getElementById('pccHost').textContent)) vus.push(nom+'un gabarit ou « undefined » reste affiché');
+      const verdict=document.querySelectorAll('#pccHost .cdr.ok,#pccHost .cdr.bad,#pccHost .cdr.sol,#pccPrompt .cdr.ok,#pccPrompt .cdr.bad,#pccPrompt .cdr.sol');
+      if(verdict.length) vus.push(nom+'un cadre porte une classe de verdict');
+    }
+    /* le verdict est celui du schéma sans cadres : juste, puis fautif d'une seule case */
+    startPcc(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:5}); test.idx=0; test.locked=false; renderPccTest();
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    setv('pccG1','0,30'); setv('pccG2','0,2'); setv('pccG','0,06'); setv('pccS1','30'); setv('pccS2','20'); setv('pccS3','65');
+    checkPccAnswer();
+    if(!/\\bbad\\b/.test(cls('pccS3')) || test.score!==0) vus.push('« 65 % » ne rougit pas seul');
+    ['pccG1','pccG2','pccG','pccS1','pccS2'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('la case juste '+id+' n\\'est pas bleue'); });
+    startPcc(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:5}); test.idx=0; test.locked=false; renderPccTest();
+    setv('pccG1','0,30'); setv('pccG2','0,2'); setv('pccG','0,06'); setv('pccS1','30'); setv('pccS2','20'); setv('pccS3','6');
+    checkPccAnswer();
+    if(test.score!==1) vus.push('la copie juste ne vaut pas le point');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---- 2.1.3 : le coefficient s'écrit court, et la chaîne tombe sur des entiers
    « fais la même chose pour le 2.1.3 » (Turquet, septembre 2026), après la
    règle posée sur le 2.2.7, le 2.3.7, le 2.2.8 puis le 2.5.1 : un coefficient
@@ -29601,7 +29656,8 @@ function convexiteQcm(w, P){
     const Q1={vis:'tableau', pts:[-2,-1,0,2,3,2,1], props:[{t:'conv',c:'convexe',a:-3,b:-1},{t:'conv',c:'concave',a:-3,b:-1},{t:'conv',c:'convexe',a:-1,b:3},{t:'conv',c:'concave',a:-1,b:3}]};
     pose(null,'train',Q1);
     { const xs=[].slice.call(document.querySelectorAll('#cvqHost .cvq-tbl tr.vt-xr .vnx')).map(function(td){ return td.textContent.trim(); });
-      if(xs.join(' ')!=='−3 −1 1 3') vus.push('le tableau de f′ ne pose pas les nœuds −3, −1, 1, 3 : '+xs.join(' '));
+      if(xs.join(' ')!=='−3 1 3') vus.push('le tableau de f′ ne pose pas les seuls nœuds −3, 1, 3 (le zéro n\\'est pas un nœud) : '+xs.join(' '));
+      if(document.querySelectorAll('#cvqHost .cvq-tbl svg.vt-overlay .vt-shaft').length!==2) vus.push('le tableau de f′ ne trace pas UNE flèche par sens de variation (la flèche qui passe par 0 est coupée en deux)');
       const vals=[].slice.call(document.querySelectorAll('#cvqHost .cvq-tbl .lg3-val')).map(function(e){ return e.textContent.trim(); });
       if(vals.join(' ')!=='−2 0 3 1') vus.push('le tableau de f′ ne porte pas ses valeurs −2, 0, 3, 1 : '+vals.join(' '));
       if(document.querySelector('#cvqHost svg.lv-svg')) vus.push('le visage « tableau » dessine aussi la courbe');

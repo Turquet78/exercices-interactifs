@@ -1823,6 +1823,7 @@
   #scr-iqd{padding-bottom:84px}
   #scr-pctc{padding-bottom:84px}
   #scr-pcs{padding-bottom:84px}
+  #scr-pcc{padding-bottom:84px}
   #scr-pcp{padding-bottom:84px}
   #scr-evs{padding-bottom:84px}
   #iqdGraph .lv-svg{cursor:pointer;touch-action:none;max-width:600px}
@@ -2106,6 +2107,30 @@
   #pcpHost math-field.pm-mf.pcp-pct{min-width:58px;max-width:110px}
   @media(max-width:900px){ #pcpHost math-field.pm-mf{font-size:1.4rem} }
   @media(max-width:560px){ #pcpHost math-field.pm-mf{font-size:1.2rem;min-width:60px} .pcp-phrase{font-size:.98rem} .pcp-cadre{padding:10px 10px} }
+  /* ===== {pourcentage-schema-cadres} : les MÊMES règles que {pourcentage-schema},
+     plus les cadres (.cdr) et le texte gris (.cdr-prec) du schéma PDF de
+     Turquet (septembre 2026). Trois cadres de trois styles — plein bleu (le
+     total), tirets rouges (le premier sous-groupe), pointillés verts (le
+     second) — posés sur les mots qui désignent le groupe. Ce ne sont PAS des
+     classes de verdict (.ok/.bad/.sol) : le vert pointillé n'est pas la
+     correction. Un cadre est en ligne, et se replie avec le texte
+     (box-decoration-break) ; l'interligne des phrases est élargi pour que deux
+     cadres de deux lignes voisines ne se touchent pas. */
+  :root{--cdr-t:#3b82c4;--cdr-a:#c0121f;--cdr-b:#2fb83f}
+  .cdr{padding:1px 4px;border:2px solid var(--cdr-t);border-radius:2px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+  .cdr-0{border-style:solid;border-color:var(--cdr-t)}
+  .cdr-1{border-style:dashed;border-color:var(--cdr-a)}
+  .cdr-2{border-style:dotted;border-color:var(--cdr-b)}
+  .cdr-prec{font-family:"Nunito";font-weight:700;font-size:.8rem;color:#8a8f98}
+  #pccHost .pctb-lab{max-width:190px}
+  #pccHost .pcc-val{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;padding:8px 6px;border:2px solid transparent;
+    font-family:"Fredoka";font-weight:600;font-size:1.7rem;color:var(--ink);line-height:1.2}
+  .pcc-phrases{display:flex;flex-direction:column;gap:12px;width:100%;margin-top:18px;max-width:760px;margin-left:auto;margin-right:auto}
+  .pcc-phrase{font-family:"Fredoka";font-weight:700;font-size:1.1rem;color:var(--ink);text-align:left;line-height:2}
+  #pccHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
+  #pccHost math-field.pm-mf.pcc-pct{min-width:58px;max-width:110px}
+  @media(max-width:900px){ #pccHost math-field.pm-mf,#pccHost .pcc-val{font-size:1.4rem} }
+  @media(max-width:560px){ #pccHost math-field.pm-mf{font-size:1.2rem;min-width:60px} #pccHost .pcc-val{font-size:1.2rem} .pcc-phrase{font-size:.98rem} }
   /* ===== {evolutions-successives} : la SYNTHÈSE des deux schémas ci-dessus
      (demande de Turquet, septembre 2026, fiche « évolutions successives »).
      Les trois boîtes et la grande flèche du dessous viennent de
@@ -3505,6 +3530,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="mp-feedback" id="pcsFeedback"></div>
       <div class="row" style="justify-content:center" id="pcsActions">
         <button class="btn btn-primary" onclick="checkPcsAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-pcc">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPcc"></span><span class="q-idx" id="pccIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="pccLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="pccPrompt">Complète le schéma, puis les phrases.</p>
+      <div class="mp-stage"><div style="width:100%" id="pccHost"></div></div>
+      <div class="mp-feedback" id="pccFeedback"></div>
+      <div class="row" style="justify-content:center" id="pccActions">
+        <button class="btn btn-primary" onclick="checkPccAnswer()">Vérifier</button>
       </div>
     </div>
   </section>
@@ -5445,6 +5485,7 @@ const TESTS={
   'pourcentage-boite':   { name:'Le sch\u00e9ma en bo\u00eete', icon:'\ud83d\udce6', desc:'Le sch\u00e9ma de la fiche papier : deux bo\u00eetes reli\u00e9es par une fl\u00e8che, et sur la fl\u00e8che le pourcentage puis son \u00e9criture d\u00e9cimale. Les 4 cases sont toujours vides, m\u00eame les nombres que l\u2019\u00e9nonc\u00e9 donne d\u00e9j\u00e0 \u2014 le r\u00e9sultat, la valeur initiale ou le pourcentage, m\u00e9lang\u00e9s.', start:()=>startPctBoite() },
   'pourcentage-chaine':  { name:'Composer deux pourcentages', icon:'\ud83d\udd17', desc:'Le sch\u00e9ma en bo\u00eete de {pourcentage-boite}, mais \u00e0 trois bo\u00eetes : le total, un sous-groupe, puis un sous-groupe DU sous-groupe \u2014 comme la fiche \u00ab 40 % de filles, dont 30 % font du basket \u00bb. Une deuxi\u00e8me rang\u00e9e donne le coefficient qui va directement du total au dernier sous-groupe, en un seul calcul.', start:()=>startPctChaine() },
   'pourcentage-schema':  { name:'Lire un sch\u00e9ma de pourcentages', icon:'\ud83e\udde9', desc:'Le sch\u00e9ma \u00e0 trois bo\u00eetes de {pourcentage-chaine}, pris \u00e0 l\u2019envers : les \u00e9critures d\u00e9cimales sont d\u00e9j\u00e0 \u00e9crites sur les fl\u00e8ches \u2014 ou l\u2019une d\u2019elles et le produit \u2014, tu compl\u00e8tes ce qui manque, puis trois phrases qui lisent le sch\u00e9ma en pourcentages, comme la fiche \u00ab Dans le club de sport il y a \u2026 % de filles \u00bb. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcs() },
+  'pourcentage-schema-cadres': { name:'Lire un schéma de pourcentages (avec cadres)', icon:'🖼️', desc:'Le schéma de {pourcentage-schema}, avec des CADRES : un cadre de couleur et de style différent pour le total, le premier sous-groupe et le second, posés sur les mots qui les désignent dans la consigne, sur les boîtes et dans les trois phrases. Le texte gris à côté de la dernière boîte rappelle que ce sous-groupe est pris DANS le précédent. Tu complètes ce qui manque au schéma, puis les trois phrases. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcc() },
   'pourcentage-phrases': { name:'Du texte au sch\u00e9ma de pourcentages', icon:'\ud83d\udcdd', desc:'Le sch\u00e9ma de {pourcentage-schema}, mais depuis des phrases : les deux premi\u00e8res, \u00e9crites en gris, donnent les pourcentages ; tu places les nombres dans le sch\u00e9ma (les deux fl\u00e8ches, puis le calcul global), et le produit te donne le nombre qui manque dans la troisi\u00e8me phrase. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcp() },
   'augmenter-pourcentage':{ name:'Augmenter d\u2019un pourcentage en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'📈', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
   'augmenter-addition':  { name:'Augmenter d\u2019un pourcentage en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en {pourcentage}), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
@@ -5606,7 +5647,7 @@ const THEMES=[
   /* Le thème des pourcentages est celui de la Première, porté tel quel avec
      ses cinq sous-thèmes (demande de Turquet, septembre 2026). */
   { num:4, nom:'Pourcentages', sous:[
-      { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre','pourcentage-boite','pourcentage-chaine','pourcentage-schema','pourcentage-phrases'] },
+      { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre','pourcentage-boite','pourcentage-chaine','pourcentage-schema','pourcentage-phrases','pourcentage-schema-cadres'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 3.2 ni de 3.3, et il
@@ -5722,6 +5763,7 @@ function liveCheckCurrent(){
   else if(k==='pctb') checkPctBoiteAnswer(true);
   else if(k==='pctc') checkPctChaineAnswer(true);
   else if(k==='pcs') checkPcsAnswer(true);
+  else if(k==='pcc') checkPccAnswer(true);
   else if(k==='pcp') checkPcpAnswer(true);
   else if(k==='aug') checkAAnswer(true);
   else if(k==='dim') checkDAnswer(true);
@@ -6655,6 +6697,7 @@ const QIA_SUGG={
   pctc:["Pourquoi n’additionne-t-on pas les deux pourcentages ?","Comment calculer le coefficient qui va directement du total au dernier sous-groupe ?","Pourquoi le total vaut-il toujours 100 % ?","Comment retrouver un pourcentage manquant quand je connais le résultat global ?"],
   pcp:["Comment trouver le pourcentage de la troisième phrase ?","Sur quelle flèche du schéma place-t-on chaque nombre ?","Pourquoi ne faut-il pas additionner les deux pourcentages ?","Comment passer de 0,06 à un pourcentage ?"],
   pcs:["Comment lire un pourcentage sur une flèche du schéma ?","Comment retrouver le coefficient d’une flèche quand je connais le produit ?","Pourquoi le produit des deux écritures décimales donne-t-il le pourcentage global ?","Comment passer de 0,06 à un pourcentage ?"],
+  pcc:["Que veulent dire les cadres de couleur ?","Comment retrouver le coefficient d’une flèche quand je connais le produit ?","Pourquoi le produit des deux écritures décimales donne-t-il le pourcentage global ?","Comment passer de 0,06 à un pourcentage ?"],
   evs:["Pourquoi n’additionne-t-on pas les deux pourcentages ?","Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi retire-t-on 1 au coefficient global pour trouver le pourcentage ?","Une hausse de 20 % suivie d’une baisse de 20 %, ça revient au départ ?"],
   evb:["Comment sait-on si le signe est + ou − dans la parenthèse ?","Comment retrouver la valeur d’avant quand je connais celle d’après ?","Comment retrouver le pourcentage à partir de l’avant et de l’après ?","Pourquoi retire-t-on 1 au coefficient pour trouver le pourcentage ?"],
   psl:["Comment savoir ce que la question me demande de retrouver ?","Comment justifier ma réponse ?","Par quoi commencer mon calcul ?","C’est quoi, un pourcentage ?"],
@@ -6900,6 +6943,8 @@ Le même schéma que dans {pourcentage-chaine} : <b>[le total]</b> → <b>[un so
 La grande flèche du dessous va directement du total au dernier sous-groupe : son coefficient est le <b>PRODUIT</b> des deux écritures décimales, \\(0{,}30\\times0{,}20=0{,}06\\), c’est-à-dire <b>6 %</b> du total. On n’additionne jamais deux pourcentages qui ne portent pas sur la même chose.<br>
 <b>Quand une flèche manque</b> et que le produit est donné, on la retrouve par une division : dans \\(0{,}30\\times\\;?\\;=0{,}06\\), le facteur manquant est \\(0{,}06\\div0{,}30=0{,}2\\), donc 20 %.<br>
 Pour passer d’une écriture décimale au pourcentage, on multiplie par 100 : 0,06 → 6 %, 0,25 → 25 %, 0,4 → 40 %.`;
+const RAP_PCC=RAP_PCS+`<br>
+<b>Les cadres</b> relient les mots au schéma : le cadre <b>bleu</b> entoure le total, le cadre <b>rouge</b> (en tirets) le premier sous-groupe, le cadre <b>vert</b> (en pointillés) le second. Un mot cadré dans une phrase désigne donc la boîte qui porte le même cadre — c’est elle qui dit sur QUOI porte le pourcentage : « des <b>spectateurs</b> » (cadre bleu), c’est le total ; « parmi ceux qui ont <b>un pass 3 jours</b> » (cadre rouge), c’est le premier sous-groupe. Le texte <b>gris</b> à côté de la dernière boîte rappelle que ce sous-groupe est pris <i>dans</i> le précédent.`;
 const RAP_PCP=`<b>Du texte au schéma de pourcentages</b><br>
 Les deux premières phrases (en gris) donnent les pourcentages : la première parle du <b>total</b>, la seconde d’une <b>partie de ce premier groupe</b> — « Parmi les filles… » veut dire 20 % <b>des filles</b>, jamais 20 % du total. Chaque nombre se place sur la flèche qui lui correspond, en écriture décimale : 30 % s’écrit ×  0,30 (c’est × \\(\\frac{30}{100}\\)).<br>
 Le calcul du dessous va directement du total au dernier sous-groupe : on <b>multiplie</b> les deux écritures décimales, \\(0{,}30\\times0{,}20=0{,}06\\). La troisième phrase se lit alors sur le produit : 0,06 = <b>6 %</b> du total.<br>
@@ -7741,7 +7786,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
-const RAPPELS_ID={ 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
+const RAPPELS_ID={ 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -8288,7 +8333,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -8416,7 +8461,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','evbtest','evs','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','evbtest','evs','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -20482,6 +20527,229 @@ async function finishPcp(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage-phrases',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ============ {pourcentage-schema-cadres} : le même schéma, avec des CADRES ============
+   Demande de Turquet (septembre 2026, schéma PDF « schéma imbriqué ») : « en
+   seconde fais un nouvel exercice comme le 4.1.10 en rajoutant les cadres et
+   le texte en gris comme sur le pdf ». Le schéma, les trois formes (comb, p1,
+   p2), les pourcentages entiers et le jugement sont CEUX de
+   {pourcentage-schema} — le code est le sien, renommé. Ce qui est neuf :
+     · trois CADRES de trois styles — plein bleu pour le total, tirets rouges
+       pour le premier sous-groupe, pointillés verts pour le second — posés sur
+       les mots qui DÉSIGNENT ce groupe, partout où il est nommé : dans la
+       consigne, sur les trois boîtes du schéma et dans les trois phrases. Le
+       cadre relie le mot à la boîte : l'élève voit quel groupe est le « tout »
+       de quelle phrase (« des spectateurs » = le cadre bleu = « Festival ») ;
+     · un TEXTE EN GRIS (.cdr-prec) à côté de la troisième boîte, qui rappelle
+       que ce sous-groupe est pris DANS le précédent (« qui ont un pass 3
+       jours ») : c'est le sens de « imbriqué ».
+   Les cadres sont des SPANS de texte (.cdr, .cdr-0/1/2), jamais des classes de
+   verdict : ils ne portent ni .ok, ni .bad, ni .sol, et le contrôle des
+   couleurs de vérification ne les voit pas. */
+const cdr=(k,t)=>`<span class="cdr cdr-${k}">${t}</span>`;
+const cdrT=t=>cdr(0,t), cdrA=t=>cdr(1,t), cdrB=t=>cdr(2,t);
+const PCC_NB=3;
+const PCC_PCTS=(()=>{ const t=[]; for(let p=5;p<=95;p+=5) t.push(p); return t; })();
+/* Huit mises en situation, celles de CTX_PCS (le festival est celui du PDF),
+   avec leurs mots cadrés : cdrT le total (bleu plein), cdrA le premier
+   sous-groupe (rouge, tirets), cdrB le second (vert, pointillés). `prec` est le
+   texte gris posé à côté de la troisième boîte. Une phrase où le total est déjà
+   cadré ne recadre pas « les spectateurs » : un mot n'est cadré qu'une fois par
+   phrase. */
+const CTX_PCC=[
+  { total:'Club de sport', niv1:'Filles', niv2:'Basket', prec:'parmi les filles',
+    intro:`Dans ${cdrT('un club de sport')}, on s’intéresse aux ${cdrA('filles')}, puis, parmi elles, à celles qui ${cdrB('font du basket')}.`,
+    s1:[c=>`Dans ${cdrT('le club de sport')}, il y a ${c} % de ${cdrA('filles')}.`, c=>`Les ${cdrA('filles')} représentent ${c} % des ${cdrT('membres du club')}.`],
+    s2:[c=>`Parmi les ${cdrA('filles')}, ${c} % ${cdrB('font du basket')}.`, c=>`${c} % des ${cdrA('filles')} ${cdrB('font du basket')}.`],
+    s3:[c=>`Dans ${cdrT('le club de sport')}, il y a ${c} % de ${cdrA('filles')} qui ${cdrB('pratiquent le basket')}.`, c=>`Les ${cdrA('filles')} qui ${cdrB('font du basket')} représentent ${c} % des ${cdrT('membres du club')}.`] },
+  { total:'Classe', niv1:'Filles', niv2:'Moyenne', prec:'parmi les filles',
+    intro:`Dans ${cdrT('une classe')}, on s’intéresse aux ${cdrA('filles')}, puis, parmi elles, à celles qui ${cdrB('ont la moyenne')}.`,
+    s1:[c=>`Dans ${cdrT('la classe')}, il y a ${c} % de ${cdrA('filles')}.`, c=>`Les ${cdrA('filles')} représentent ${c} % de ${cdrT('la classe')}.`],
+    s2:[c=>`Parmi les ${cdrA('filles')}, ${c} % ${cdrB('ont la moyenne')}.`, c=>`${c} % des ${cdrA('filles')} ${cdrB('ont la moyenne')}.`],
+    s3:[c=>`Les ${cdrA('filles')} ${cdrB('ayant la moyenne')} représentent ${c} % de ${cdrT('la classe')}.`, c=>`Dans ${cdrT('la classe')}, il y a ${c} % de ${cdrA('filles')} qui ${cdrB('ont la moyenne')}.`] },
+  { total:'Entreprise', niv1:'Femmes', niv2:'Cadres', prec:'parmi les femmes',
+    intro:`Dans ${cdrT('une entreprise')}, on s’intéresse aux ${cdrA('femmes')}, puis, parmi elles, à celles qui ${cdrB('sont cadres')}.`,
+    s1:[c=>`Dans ${cdrT('l’entreprise')}, il y a ${c} % de ${cdrA('femmes')}.`, c=>`Les ${cdrA('femmes')} représentent ${c} % des ${cdrT('salariés de l’entreprise')}.`],
+    s2:[c=>`${c} % des ${cdrA('femmes')} ${cdrB('sont des cadres')}.`, c=>`Parmi les ${cdrA('femmes')}, ${c} % ${cdrB('sont cadres')}.`],
+    s3:[c=>`Dans ${cdrT('l’entreprise')}, il y a ${c} % de ${cdrA('femmes')} ${cdrB('cadres')}.`, c=>`Les ${cdrA('femmes')} ${cdrB('cadres')} représentent ${c} % des ${cdrT('salariés de l’entreprise')}.`] },
+  { total:'Lycée', niv1:'Internes', niv2:'Sportifs du mercredi', prec:'parmi les internes',
+    intro:`Dans ${cdrT('un lycée')}, on s’intéresse aux ${cdrA('internes')}, puis, parmi eux, à ceux qui ${cdrB('font du sport le mercredi après-midi')}.`,
+    s1:[c=>`Dans ${cdrT('le lycée')}, ${c} % des élèves sont ${cdrA('internes')}.`, c=>`Les ${cdrA('internes')} représentent ${c} % des ${cdrT('élèves du lycée')}.`],
+    s2:[c=>`Parmi les ${cdrA('internes')}, ${c} % ${cdrB('font du sport le mercredi après-midi')}.`, c=>`${c} % des ${cdrA('internes')} ${cdrB('font du sport le mercredi après-midi')}.`],
+    s3:[c=>`Dans ${cdrT('le lycée')}, ${c} % des élèves sont des ${cdrA('internes')} qui ${cdrB('font du sport le mercredi après-midi')}.`, c=>`Les ${cdrA('internes')} qui ${cdrB('font du sport le mercredi')} représentent ${c} % des ${cdrT('élèves du lycée')}.`] },
+  { total:'Village', niv1:'Moins de 18 ans', niv2:'Licenciés en club', prec:'parmi les moins de 18 ans',
+    intro:`Dans ${cdrT('un village')}, on s’intéresse aux habitants ${cdrA('de moins de 18 ans')}, puis, parmi eux, à ceux qui ${cdrB('sont licenciés dans un club de sport')}.`,
+    s1:[c=>`Dans ${cdrT('le village')}, ${c} % des habitants ont ${cdrA('moins de 18 ans')}.`, c=>`Les ${cdrA('moins de 18 ans')} représentent ${c} % des ${cdrT('habitants du village')}.`],
+    s2:[c=>`Parmi les ${cdrA('moins de 18 ans')}, ${c} % ${cdrB('sont licenciés dans un club')}.`, c=>`${c} % des ${cdrA('moins de 18 ans')} ${cdrB('sont licenciés dans un club')}.`],
+    s3:[c=>`Dans ${cdrT('le village')}, ${c} % des habitants sont des jeunes ${cdrA('de moins de 18 ans')} ${cdrB('licenciés dans un club')}.`, c=>`Les ${cdrA('moins de 18 ans')} ${cdrB('licenciés dans un club')} représentent ${c} % des ${cdrT('habitants du village')}.`] },
+  { total:'Bibliothèque', niv1:'Romans', niv2:'Empruntés', prec:'parmi les romans',
+    intro:`Dans ${cdrT('une bibliothèque')}, on s’intéresse aux ${cdrA('romans')}, puis, parmi eux, à ceux qui ${cdrB('sont empruntés en ce moment')}.`,
+    s1:[c=>`Dans ${cdrT('la bibliothèque')}, ${c} % des livres sont des ${cdrA('romans')}.`, c=>`Les ${cdrA('romans')} représentent ${c} % des ${cdrT('livres de la bibliothèque')}.`],
+    s2:[c=>`Parmi les ${cdrA('romans')}, ${c} % ${cdrB('sont empruntés en ce moment')}.`, c=>`${c} % des ${cdrA('romans')} ${cdrB('sont empruntés en ce moment')}.`],
+    s3:[c=>`Dans ${cdrT('la bibliothèque')}, ${c} % des livres sont des ${cdrA('romans')} ${cdrB('empruntés en ce moment')}.`, c=>`Les ${cdrA('romans')} ${cdrB('empruntés')} représentent ${c} % des ${cdrT('livres de la bibliothèque')}.`] },
+  { total:'Festival', niv1:'Pass 3 jours', niv2:'Moins de 20 ans', prec:'qui ont un pass 3 jours',
+    intro:`Dans ${cdrT('un festival')}, on s’intéresse aux spectateurs qui ont ${cdrA('un pass 3 jours')}, puis, parmi eux, à ceux qui ont ${cdrB('moins de 20 ans')}.`,
+    s1:[c=>`Dans ${cdrT('le festival')}, ${c} % des spectateurs ont ${cdrA('un pass 3 jours')}.`, c=>`Les détenteurs ${cdrA('d’un pass 3 jours')} représentent ${c} % des ${cdrT('spectateurs')}.`],
+    s2:[c=>`Parmi les détenteurs ${cdrA('d’un pass 3 jours')}, ${c} % ont ${cdrB('moins de 20 ans')}.`, c=>`${c} % des détenteurs ${cdrA('d’un pass 3 jours')} ont ${cdrB('moins de 20 ans')}.`],
+    s3:[c=>`Dans ${cdrT('le festival')}, ${c} % des spectateurs ont un pass 3 jours et ${cdrB('moins de 20 ans')}.`, c=>`${cdrB('Les moins de 20 ans')} qui ont un pass 3 jours représentent ${c} % des ${cdrT('spectateurs')}.`] },
+  { total:'Cinéma', niv1:'Abonnés', niv2:'Moins de 25 ans', prec:'parmi les abonnés',
+    intro:`Dans ${cdrT('un cinéma')}, on s’intéresse aux spectateurs ${cdrA('abonnés')}, puis, parmi eux, à ceux qui ont ${cdrB('moins de 25 ans')}.`,
+    s1:[c=>`Dans ${cdrT('le cinéma')}, ${c} % des spectateurs sont ${cdrA('abonnés')}.`, c=>`Les ${cdrA('abonnés')} représentent ${c} % des ${cdrT('spectateurs du cinéma')}.`],
+    s2:[c=>`Parmi les ${cdrA('abonnés')}, ${c} % ont ${cdrB('moins de 25 ans')}.`, c=>`${c} % des ${cdrA('abonnés')} ont ${cdrB('moins de 25 ans')}.`],
+    s3:[c=>`Dans ${cdrT('le cinéma')}, ${c} % des spectateurs sont des ${cdrA('abonnés')} de ${cdrB('moins de 25 ans')}.`, c=>`Les ${cdrA('abonnés')} de ${cdrB('moins de 25 ans')} représentent ${c} % des ${cdrT('spectateurs du cinéma')}.`] }
+];
+/* La consigne, en trois tournures ; l'intro du contexte dit ce que sont les
+   trois boîtes, pour que le schéma se lise avant de se compléter. */
+const PCC_ENONCES=[
+  (q,ctx)=>`${ctx.intro} Complète le schéma, puis les phrases suivantes.`,
+  (q,ctx)=>`${ctx.intro} Chaque flèche porte l’écriture décimale d’un pourcentage : complète ce qui manque au schéma, puis les trois phrases.`,
+  (q,ctx)=>`${ctx.intro} Retrouve ce qui manque au schéma, puis écris les pourcentages dans les phrases.`
+];
+function genPcc(inc){
+  inc=inc||pick(['comb','p1','p2']);
+  const P1=pick(PCC_PCTS);
+  const P2=pick(PCC_PCTS.filter(p=>(P1*p)%100===0));      /* le produit est un multiple de 100 : le global est ENTIER */
+  const comb=P1*P2/100;
+  const ci=tirerContexte(CTX_PCC), ctx=CTX_PCC[ci];
+  /* v : la consigne, puis la tournure de chacune des trois phrases — des
+     habits, pas des données : hors de la clé de distinctes(), comme ordre */
+  return {inc,P1,P2,comb,ci,
+          v:[rand(0,PCC_ENONCES.length-1), rand(0,ctx.s1.length-1), rand(0,ctx.s2.length-1), rand(0,ctx.s3.length-1)],
+          ordre:qdMelanger([0,1,2])};
+}
+function pccEnonce(q){
+  const ctx=CTX_PCC[q.ci]||CTX_PCC[CTX_PCC.length-1];
+  return (PCC_ENONCES[(q.v&&q.v[0])||0]||PCC_ENONCES[0])(q,ctx);
+}
+/* Les cases que l'élève remplit, avec ce que chacune attend : `dec` pour une
+   écriture décimale (jugée comme en 4.1.9, par parseDecToFrac contre P/100),
+   `ent` pour un pourcentage entier écrit dans une phrase. Ce qui n'est pas
+   dans cette liste est ÉCRIT par la page (.pcc-val) et n'est jamais jugé. */
+function pccCases(q){
+  const t=[];
+  if(q.inc==='p1') t.push({id:'pccD1',dec:q.P1},{id:'pccG1',dec:q.P1});
+  else if(q.inc==='p2') t.push({id:'pccD2',dec:q.P2},{id:'pccG2',dec:q.P2});
+  else t.push({id:'pccG1',dec:q.P1},{id:'pccG2',dec:q.P2},{id:'pccG',dec:q.comb});
+  t.push({id:'pccS1',ent:q.P1},{id:'pccS2',ent:q.P2},{id:'pccS3',ent:q.comb});
+  return t;
+}
+function pccAttendu(c){ return c.dec!==undefined ? pDecStr(c.dec) : String(c.ent); }
+async function startPcc(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='pcc'; test.qId='pourcentage-schema-cadres';
+  const incs=qdMelanger(['comb','p1','p2']);                /* chaque forme de la fiche sort une fois, ordre mélangé */
+  test.questions=distinctes(dmNbQuestions(PCC_NB),(_,i)=>genPcc(incs[i%incs.length]));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=test.questions.length;
+  show('pcc'); renderPccTest();
+}
+function renderPccTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  const ctx=CTX_PCC[q.ci]||CTX_PCC[CTX_PCC.length-1];
+  $('pccIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagPcc').innerHTML=modeTagHTML();
+  $('pccLiveScore').textContent=test.score;
+  $('pccFeedback').textContent=''; $('pccFeedback').className='mp-feedback';
+  $('pccActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkPccAnswer()">Vérifier</button>';
+  $('pccPrompt').innerHTML=pccEnonce(q);
+  const aSaisir={}; pccCases(q).forEach(c=>{ aSaisir[c.id]=1; });
+  const boiteLab=(lab,k,prec)=>`<div class="pctb-box"><div class="pctb-lab">${cdr(k,esc(lab))}${prec?` <span class="cdr-prec">${esc(prec)}</span>`:''}</div></div>`;
+  const mf=(id,lab,cls)=>`<math-field class="dexp-mf pm-mf${cls?' '+cls:''}" id="${id}" aria-label="${lab}"></math-field>`;
+  /* une valeur DONNÉE prend la place de la case, à sa taille ; une valeur à
+     trouver est une case */
+  const cell=(id,valeur,lab)=>aSaisir[id] ? mf(id,lab) : `<span class="pcc-val" id="${id}">${valeur}</span>`;
+  const d1=pDecStr(q.P1), d2=pDecStr(q.P2), g=pDecStr(q.comb);
+  const phrases=q.ordre.map(k=>{
+    const id=['pccS1','pccS2','pccS3'][k], tours=ctx['s'+(k+1)], f=tours[(q.v&&q.v[k+1])||0]||tours[0];
+    return `<div class="pcc-phrase">${f(mf(id,'pourcentage, en nombre entier','pcc-pct'))}</div>`;
+  }).join('');
+  $('pccHost').innerHTML=
+    `<div class="pctb-row">
+       ${boiteLab(ctx.total,0)}
+       <div class="pctb-arrow">
+         <div class="pctb-af"><span class="pctb-af-x">×</span>${cell('pccD1',d1,'écriture décimale du premier pourcentage')}</div>
+         <div class="pctb-shaft" aria-hidden="true"></div>
+       </div>
+       ${boiteLab(ctx.niv1,1)}
+       <div class="pctb-arrow">
+         <div class="pctb-af"><span class="pctb-af-x">×</span>${cell('pccD2',d2,'écriture décimale du second pourcentage')}</div>
+         <div class="pctb-shaft" aria-hidden="true"></div>
+       </div>
+       ${boiteLab(ctx.niv2,2,ctx.prec)}
+     </div>
+     <div class="pctc-global">
+       <div class="pctc-global-shaft" aria-hidden="true"></div>
+       <div class="pctc-global-lab">${esc(ctx.total)} → ${esc(ctx.niv2)} en un seul calcul&nbsp;: coefficient global</div>
+       <div class="pctc-calc">
+         ${cell('pccG1',d1,'écriture décimale du premier pourcentage, reprise dans le calcul global')}
+         <span class="pctb-af-x">×</span>
+         ${cell('pccG2',d2,'écriture décimale du second pourcentage, reprise dans le calcul global')}
+         <span class="pctb-af-x">=</span>
+         ${cell('pccG',g,'coefficient multiplicateur global')}
+       </div>
+     </div>
+     <div class="pcc-phrases">${phrases}</div>`;
+  const order=[...$('pccHost').querySelectorAll('math-field')];
+  order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPccAnswer();} }); });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* Un pourcentage écrit dans une phrase est un ENTIER, en toutes lettres de
+   chiffres : « 6 » — jamais « 0,06 », ni « 6,0 » ; parseInt seul aurait lu
+   6 dans « 6,5 » et compté juste une réponse fausse. */
+function pccEntier(s){ return /^\d+$/.test(s) ? parseInt(s,10) : NaN; }
+function pccJuge(c,s){
+  if(s==='') return false;
+  if(c.dec!==undefined){ const fr=parseDecToFrac(s); return !!fr && fr.n*100===c.dec*fr.d; }
+  return pccEntier(s)===c.ent;
+}
+function checkPccAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  const v=id=>$(id).value.trim();
+  const cases=pccCases(q);
+  if(live){
+    cases.forEach(c=>{ const el=$(c.id); if(!el||el.disabled) return; const s=v(c.id);
+      el.classList.remove('ok','bad'); if(s==='') return;
+      el.classList.add(pccJuge(c,s)?'ok':'bad'); });
+    return;
+  }
+  // une case vide ne rougit jamais (règle universelle) : mark() ne colore que
+  // les cases écrites, et chacune se juge SEULE contre sa valeur canonique
+  let allOk=true;
+  cases.forEach(c=>{ const el=$(c.id), s=v(c.id), ok=pccJuge(c,s); c.ok=ok; if(!ok) allOk=false;
+    el.classList.remove('ok','bad'); if(s!=='') el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien(); });
+  if(!allOk && isSoutien()){ soutienAgain('pccFeedback','pccActions','checkPccAnswer','pccHost'); return; }
+  test.locked=true;
+  const d1Str=pDecStr(q.P1), d2Str=pDecStr(q.P2), gStr=pDecStr(q.comb);
+  if(allOk){ test.score++; $('pccLiveScore').textContent=test.score;
+    $('pccFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('pccFeedback').className='mp-feedback good';
+  } else {
+    $('pccFeedback').textContent=`Réponse : ${d1Str} × ${d2Str} = ${gStr} — c’est-à-dire ${q.P1} %, puis ${q.P2} % de ces ${q.P1} %, soit ${q.comb} % du total.`;
+    $('pccFeedback').className='mp-feedback bad';
+    cases.forEach(c=>corTrainDec(c.id,pccAttendu(c)));
+  }
+  const ctx=CTX_PCC[q.ci]||CTX_PCC[CTX_PCC.length-1];
+  const donnees=q.inc==='comb' ? `× ${d1Str} puis × ${d2Str}` : q.inc==='p2' ? `× ${d1Str} puis × ? ; ${d1Str} × ? = ${gStr}` : `× ? puis × ${d2Str} ; ? × ${d2Str} = ${gStr}`;
+  const enonce=`${ctx.total} → ${ctx.niv1} → ${ctx.niv2} : ${donnees}`;
+  const given=cases.map(c=>c.id.replace('pcc','')+'='+(v(c.id)||'—')).join(' ');
+  const answer=cases.map(c=>c.id.replace('pcc','')+'='+pccAttendu(c)).join(' ');
+  test.answers.push({...(ptsExo()||{}), q:enonce, answer, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('pccActions').innerHTML=`<button class="btn btn-primary" id="pccNext" onclick="nextPccQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('pccNext').focus();
+}
+function nextPccQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPccTest(); autoSave(); } else finishPcc(); }
+async function finishPcc(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage-schema-cadres',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -39983,7 +40251,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPcpTest','renderEvbTest','renderEvsTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPcpTest','renderEvbTest','renderEvsTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
