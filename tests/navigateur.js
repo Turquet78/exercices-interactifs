@@ -11373,7 +11373,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
       const indicesPlats = []; let nIndicesFlex = 0;
       const sansClavierLim = []; let nLimCases = 0;
       const avecTables = new Set(), sansTables = new Set();
@@ -11458,6 +11458,30 @@ async function parcours(page, N){
                déclarer. */
             const gabarits = [...new Set(((on.textContent || '')
               .match(/\$\{[^}]{0,40}\}?|`\)\}/g) || []).map(x => x.slice(0, 30)))];
+            /* L'INCONNUE « x » S'ÉCRIT TOUJOURS EN ITALIQUE (décision de
+               Turquet, septembre 2026, à propos du 2.2.2 de la Terminale :
+               « à retenir pour tous les prochains exercices sur tous les
+               niveaux »). Un « x » droit passe pour une lettre de texte, ou
+               pour le signe de la multiplication. On lit chaque morceau de
+               texte affiché, on repère le « x » ISOLÉ (jamais celui de « max »
+               ou de « exp ») et on demande à son parent sa fonte calculée :
+               italique par <i>, <em> ou une classe de la feuille de styles,
+               peu importe — c'est ce que l'élève VOIT qui est mesuré. Les
+               math-field sont hors champ : MathLive compose lui-même. */
+            const xDroits = [];
+            (function(){
+              const w = document.createTreeWalker(on, NodeFilter.SHOW_TEXT);
+              let n;
+              while((n = w.nextNode())){
+                const t = n.nodeValue || '', p = n.parentElement;
+                if(!p || !/(^|[^A-Za-zÀ-ÿ_])x(?![A-Za-zÀ-ÿ_])/.test(t)) continue;
+                if(p.closest('math-field,script,style,textarea')) continue;
+                if(!visible(p) && !p.closest('svg')) continue;
+                const st = getComputedStyle(p).fontStyle;
+                if(st === 'italic' || st === 'oblique') continue;
+                xDroits.push(t.trim().slice(0, 50));
+              }
+            })();
             /* Une case où l'élève écrit s'écrit à la MÊME TAILLE que les nombres
                qui l'entourent (décision de Turquet, août 2026, valable pour tout
                exercice à saisie) : une case plus petite fait passer la réponse de
@@ -11661,7 +11685,7 @@ async function parcours(page, N){
                       const cs=getComputedStyle(w);
                       return { c:Math.round(c.getBoundingClientRect().width),
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
-                    accolades: [...new Set(connus)], gabarits: gabarits, cases: cases, signes: [...new Set(signes)],
+                    accolades: [...new Set(connus)], gabarits: gabarits, xDroits: [...new Set(xDroits)], cases: cases, signes: [...new Set(signes)],
                     debuts: [...new Set(debuts)], etiquettes: etiquettes,
                     indices: [...new Set(indices)], nIndices: nIndices,
                     limCases: limCases, limKb: limKb};
@@ -11669,6 +11693,7 @@ async function parcours(page, N){
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
+          if(vu.xDroits && vu.xDroits.length) xDroits.push(id + ' ' + (await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') : « ' + vu.xDroits.slice(0, 2).join(' » « ') + ' »');
           if(vu.gabarits && vu.gabarits.length) gabarits.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') : ' + vu.gabarits.join(' '));
           /* 8 px de marge : on compare à la largeur DISPONIBLE, donc un cadre
              plein vaut exactement celle-ci, aux arrondis près. */
@@ -11823,6 +11848,23 @@ async function parcours(page, N){
       /* Le même défaut par l'autre porte : du CODE affiché à l'élève. */
       verifier('aucun gabarit « ${…} » non interprété ne reste affiché à l\'élève',
         gabarits.length === 0, gabarits.join(' | '));
+      /* Les exercices ANTÉRIEURS à la règle sont déclarés dans
+         « xItalique.dispenses » (tests/profils.js), NOMMÉS : la dette est
+         écrite, elle ne s'agrandit pas — tout exercice non déclaré doit
+         écrire son x en italique dès le premier jour. Une dispense qui ne
+         protège plus rien (exercice corrigé) est signalée. */
+      const dispX = (P.xItalique && P.xItalique.dispenses) || [];
+      const numX = xDroits.map(c => c.split(' ')[0]);   /* l'identifiant : les numéros glissent, pas les identifiants */
+      const horsDispX = xDroits.filter(c => dispX.indexOf(c.split(' ')[0]) < 0);
+      const dispInutiles = dispX.filter(n => numX.indexOf(n) < 0);
+      verifier('l\'inconnue « x » s\'écrit toujours en italique',
+        horsDispX.length === 0, horsDispX.length + ' cas (identifiant, n°) — ' + horsDispX.join(' | '));
+      /* Une dispense inutilisée est SIGNALÉE, jamais refusée : les énoncés
+         sont tirés au hasard, et un exercice au x droit ne le montre pas à
+         chaque visite (le 4.4 l'a montré en passant du rouge au vert sans
+         qu'on y touche). */
+      if(dispInutiles.length) console.log('   · dispenses sans x droit vu cette fois (tirage, ou corrigé — à retirer alors) : ' + dispInutiles.join(', '));
+      if(dispX.length) console.log('   · ' + dispX.length + ' exercice(s) antérieurs à la règle, dispensés : ' + dispX.join(', '));
       /* La Terminale donne à ses cartes une largeur propre (--card-max, avec
          ses paliers) : elle ne déclare pas ce contrôle, et le banc le dit au
          lieu de le taire — un contrôle qui ne s'applique pas se déclare. */
