@@ -27498,9 +27498,16 @@ function syntheseEvolutions(w, P){
     if(!document.getElementById('evbT')) vus.push('inconnue « pct » : la case du pourcentage retrouvé manque');
     if(!document.querySelector('#evbHost .evb-rev-arrow')) vus.push('inconnue « pct » : la flèche « −1 » manque');
     setv('evbN',50); setv('evbP','0,22'); setv('evbC','1,22'); setv('evbF',61); setv('evbT',22);
+    if(!document.getElementById('evbW')) vus.push('inconnue « pct » : le mot « hausse / baisse » de la phrase à compléter manque');
+    setv('evbW','hausse');
     checkEvbAnswer();
     if(test.score!==1) vus.push('inconnue « pct », copie juste : ne vaut pas le point');
     if(!/\\bok\\b/.test(cls('evbT'))) vus.push('inconnue « pct » : la case du pourcentage retrouvé, juste, n\\'est pas bleue');
+    if(!/\\bok\\b/.test(cls('evbW'))) vus.push('inconnue « pct » : le mot « hausse », juste, n\\'est pas bleu');
+    poser({fam:'dim',inc:'pct',sens:-1,P:20,N:50,aug:10,fin:40,decStr:'40',opts:[20],bon:0,choisi:null,meth:null,ci:0,v:0,unit:'€'});
+    setv('evbN',50); setv('evbP','0,20'); setv('evbC','0,80'); setv('evbF',40); setv('evbT',20); setv('evbW','hausse');
+    checkEvbAnswer();
+    if(test.score!==0 || v('evbW')!=='baisse' || !/\\bsol\\b/.test(cls('evbW'))) vus.push('inconnue « pct » : « hausse » pour une baisse n\\'est pas refusé, ou la correction « baisse » n\\'est pas montrée en vert');
     /* 4. une case laissée VIDE ne rougit jamais */
     poser({fam:'dim',inc:'fin',sens:-1,P:10,N:200,aug:20,fin:180,decStr:'180',opts:[180],bon:0,choisi:null,meth:null,ci:0,v:0,unit:'€'});
     setv('evbN',200); setv('evbP',''); setv('evbC','0,90'); setv('evbF',180);
