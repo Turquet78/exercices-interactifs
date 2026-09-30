@@ -2464,3 +2464,88 @@ page sur trois couples : la hauteur entre l'extremum et l'inflexion prend
 au moins 12 % du cadre, l'inflexion n'est pas collée au bord droit, et le
 maximum est bien plus haut que l'inflexion à l'écran. Éprouvé en rendant
 `ecGraphSVG` à la place : il rougit en nommant la bosse écrasée.
+
+**{convexite-qcm} (2.2.3) : LES QCM DE LA FICHE, SIX VISAGES, UNE SEULE
+AFFIRMATION VRAIE.** Demande de Turquet (septembre 2026), un PDF joint : « en
+terminale faire des QCM variés comme sur le PDF ». La fiche pose quatre
+cadres — la courbe de f′ et « on peut affirmer que f est … » (exercice 3), le
+TABLEAU DE VARIATIONS de f′ avec ses valeurs et un 0 posé au milieu d'une
+flèche (exercice 4), la courbe de f′ « dont on admet qu'elle admet un maximum
+en −3/2 et coupe l'axe en (−1/2 ; 0) » avec trois questions — extremum de f
+et tangente horizontale, convexité et point d'inflexion, signe de f″ et
+f″(x) = 0 — (exercice 6), et la courbe de f″ (dernier exercice). Ce sont les
+six VISAGES de l'exercice, un par question, une fois chacun par séance en
+ordre mélangé : `courbe`, `tableau`, `extremum`, `inflexion`, `seconde`,
+`courbe2`. Il ferme la partie Convexité, après le 2.2.2.
+**La fiche pose parfois DEUX affirmations vraies** (question 3 : f″ ≥ 0 à
+gauche du maximum ET f″(−3/2) = 0). Ici il n'y en a jamais qu'une — la règle
+que Turquet avait posée pour le 2.1.8 (« il ne doit y avoir qu'une seule bonne
+réponse ») — et le domaine est [−3 ; 3], pas ℝ : les intervalles de la fiche
+qui partent vers −∞ deviennent des intervalles à bornes entières.
+**La courbe est la suite de sept valeurs entières du dessin partagé des
+dérivées** (afGraphSVG, la spline monotone de lvPath), avec deux règles de
+plus que le 2.1.8 pour qu'elle se lise d'un coup d'œil : deux valeurs
+voisines ne sont jamais égales (un sommet est net, et c'est le sommet qui
+porte la convexité), et ne changent jamais de signe sans passer par un 0
+posé sur une graduation ; un zéro n'est jamais un sommet. Un ou deux zéros,
+un ou deux sommets. **Le premier tirage, sept valeurs au hasard filtrées, en
+acceptait UNE SUR SIX CENTS** — quatre cents essais laissaient une question
+sur quatre au repli ; la sonde l'a mesuré avant tout banc. Le tirage pose
+d'abord les zéros (celui du 2.1.8), puis les valeurs segment par segment, du
+signe du segment : six courbes sur dix passent. Le même dessin sert à f″ :
+`afGraphSVG` prend désormais un suffixe d'étiquette (Cf″), sa position n'a
+pas bougé.
+**Une seule fonction lit la courbe, et c'est celle qui juge l'élève.** La
+question porte le visage, la courbe et les quatre affirmations — leur
+NATURE (`{t:'conv',c,a,b}`, `{t:'ext',k,x}`, `tan`, `infl`, `noinfl`, `f2s`,
+`f2z`, `extP`, `monoP`), jamais leur vérité. `cvqVrai()` relit chacune sur
+la courbe : sur la courbe de f′, f est convexe là où f′ croît (aucun sommet
+STRICTEMENT à l'intérieur, et la pente du morceau), un extremum de f est un
+zéro de f′ qui change de signe, la tangente est horizontale où f′ = 0, le
+point d'inflexion est un sommet de f′ ; sur la courbe de f″, convexité et
+sens de f′ suivent le signe (aucun zéro strictement dedans — un 0 au bord
+laisse f″ ≥ 0 vrai), l'extremum de f′ et l'inflexion sont ses zéros. Ce que
+la courbe de f″ ne dit pas — un extremum de f, une tangente — est faux par
+défaut : le tirage ne le pose jamais, et le contrôle l'interdit.
+`cvqPiege()` retrouve de la même façon le piège d'une affirmation fausse
+pour le NOMMER dans le retour : `enjambe` (le point d'inflexion strictement
+dans l'intervalle — le « convexe sur ]−∞ ; −1/2[ » de la fiche, l'intervalle
+borné au zéro de f′), `sens` (inversé sur un bon morceau, et si la borne est
+un zéro de f′ le retour dit que ce zéro dit où f change de SENS, pas de
+convexité), `sommet` (le sommet de f′ pris pour un extremum de f — le
+« maximum en −3/2 » —, le sommet de f″ pris pour un zéro), `zero` (le zéro
+de f′ pris pour un point d'inflexion ou pour un zéro de f″ — le
+« f″(−1/2) = 0 » à côté du « f″(−3/2) = 0 »), `genre`. **Le tirage choisit
+ses pièges par ces deux fonctions** : chaque visage est une recette de
+filtres sur le vivier de TOUTES les affirmations possibles (« une
+affirmation `conv` fausse qui enjambe, longue de deux au moins, bornée à un
+zéro de f′ si possible »), chaque filtre avec son repli, et une recette
+qui reste vide retire la courbe. Ce n'est pas un garde mort : c'est la
+construction. **Un filtre s'est pris en défaut à la première sonde** : au
+visage `inflexion`, la « courbe sans point d'inflexion » était demandée
+VRAIE — elle ne l'est jamais —, la moitié du visage ne sortait pas, et le
+repli échouait ; le banc de fumée l'a montré en comptant les familles de la
+vraie (0 sur 300).
+**Le contrôle (`tests/verifier.js`, `convexiteQcm`) refait tout par une
+SECONDE arithmétique** : le sens d'un intervalle lu sur TOUTES ses
+différences (jamais sur les sommets), le signe sur toutes ses valeurs, la
+vérité de chaque affirmation relue dessus sans jamais appeler cvqVrai ; puis
+exactement une vraie par question, quatre affirmations distinctes, les six
+visages une fois chacun, la courbe lisible (plateau, changement de signe
+sans zéro, zéro au bord ou qui touche l'axe), sur f″ aucune affirmation
+infondée, le piège propre à chaque visage, le rang de la vraie qui varie, et
+la famille de la vraie qui varie là où le visage en a plusieurs (extremum
+ou tangente ; convexité ou inflexion ; f″ ≥ 0 ou f″(x) = 0 ; extremum de f′,
+convexité ou sens de f′) ; le repli est repassé par les mêmes gardes sur les
+six visages. Puis les gestes, sur quatre questions FIXES : la copie juste
+vaut le point et compte SA case (le QCM seul), le sens inversé et
+l'intervalle qui enjambe nommés, la copie vide qui demande de choisir, la
+liste qui ne se colore jamais en direct, le soutien qui rougit sans
+verrouiller, la carte cliquée qui choisit, le tableau de l'exercice 4 qui
+pose ses nœuds (−3, −1, 1, 3) et ses valeurs (−2, 0, 3, 1) sans dessiner de
+courbe, l'étiquette Cf″, la phrase « on admet que f′ admet un maximum en 1
+et que sa courbe coupe l'axe en ( −1 ; 0 ) » lue sur la courbe, la clause de
+secret. **Et le contrôle du 2.2.2 a rougi sur une place juste** : il
+exigeait que la fiche 5 soit « le dernier de la partie Convexité » — la
+règle est le RANG (juste après le 2.2.1), pas la fin de liste, et il le dit
+désormais ainsi.
