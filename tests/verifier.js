@@ -29521,6 +29521,12 @@ function convexiteQcm(w, P){
       const visVus=qs.map(function(q){ return q.vis; }).sort();
       if(visVus.join()!==VIS.slice().sort().join()) vus.push('la séance ne pose pas les six visages une fois chacun : '+visVus.join(','));
       if(new Set(qs.map(cleQuestion)).size!==6) vus.push('deux questions de la séance reprennent les mêmes données');
+      /* les trois cas que Turquet exige de CHAQUE séance (septembre 2026) : le tableau de variations de f′,
+         le schéma de f″, et une affirmation « f″(x) ≥ 0 sur … » — vraie ou non. Les deux premiers découlent des six
+         visages ; le troisième est un piège de plus, et rien d'autre ne l'oblige à sortir. */
+      if(!qs.some(function(q){ return q.vis==='tableau'; })) vus.push('la séance ne pose pas le tableau de variations de f′');
+      if(!qs.some(function(q){ return q.vis==='courbe2'; })) vus.push('la séance ne pose pas le schéma de f″');
+      if(!qs.some(function(q){ return q.props.some(function(pr){ return pr.t==='f2s'; }); })) vus.push('aucune question de la séance ne propose « f″(x) ≥ 0 sur … »');
       qs.forEach(function(q,i){ const r=jugeQuestion(q,'question '+(i+1)); if(r&&r.fam){ rangs[q.vis].add(r.rang); fams[q.vis].add(r.fam); } });
     }
     if(!vus.length){

@@ -2563,7 +2563,15 @@ verrouiller, la carte cliquée qui choisit, le tableau de l'exercice 4 qui
 pose ses nœuds (−3, −1, 1, 3) et ses valeurs (−2, 0, 3, 1) sans dessiner de
 courbe, l'étiquette Cf″, la phrase « on admet que f′ admet un maximum en 1
 et que sa courbe coupe l'axe en ( −1 ; 0 ) » lue sur la courbe, la clause de
-secret. **Et le contrôle du 2.2.2 a rougi sur une place juste** : il
+secret. **Trois cas exigés de CHAQUE séance** (septembre 2026, demande de Turquet :
+« sur les 6 QCM, au moins une fois “f″(x) ≥ 0 sur …”, pas forcément vrai, une
+fois le tableau de variations de f′, une fois le schéma de f″ »). Le code les
+tenait déjà — les six visages sortent une fois chacun, et le visage `seconde`
+porte toujours une affirmation `f2s`, vraie ou piège —, mesuré sur 600
+séances : zéro manque. Rien n'a changé dans la page ; le banc (`convexiteQcm`)
+l'exige désormais à chaque séance, pour qu'un remaniement du tirage ne le
+perde pas en silence.
+**Et le contrôle du 2.2.2 a rougi sur une place juste** : il
 exigeait que la fiche 5 soit « le dernier de la partie Convexité » — la
 règle est le RANG (juste après le 2.2.1), pas la fin de liste, et il le dit
 désormais ainsi.
