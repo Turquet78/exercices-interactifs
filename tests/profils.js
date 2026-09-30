@@ -1025,7 +1025,9 @@ module.exports = {
     /* L'inconnue « x » s'écrit en italique (décision de Turquet, septembre
        2026). Ces exercices sont ANTÉRIEURS à la règle : leur « x » droit est
        une dette nommée, à rembourser un par un — la liste ne grandit jamais. */
-    xItalique: { dispenses: ['antecedent-nombre', 'antecedents-droite', 'choisir-tableau-variation',
+    /* python-noms-variables : « 3x » y est un NOM de variable Python (invalide),
+       du code proposé au choix de l'élève — pas l'inconnue d'une équation. */
+    xItalique: { dispenses: ['python-noms-variables', 'antecedent-nombre', 'antecedents-droite', 'choisir-tableau-variation',
                              'construire-fonction', 'construire-max-min', 'ecrire-solutions',
                              'equation-graphique', 'image-nombre', 'inequation-droite',
                              'inequation-graphique', 'intervalles-inegalite', 'lecture-deux-courbes',

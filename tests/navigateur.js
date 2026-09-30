@@ -11852,15 +11852,18 @@ async function parcours(page, N){
          « xItalique.dispenses » (tests/profils.js), NOMMÉS : la dette est
          écrite, elle ne s'agrandit pas — tout exercice non déclaré doit
          écrire son x en italique dès le premier jour. Une dispense qui ne
-         protège plus rien (exercice corrigé) doit être retirée. */
+         protège plus rien (exercice corrigé) est signalée. */
       const dispX = (P.xItalique && P.xItalique.dispenses) || [];
       const numX = xDroits.map(c => c.split(' ')[0]);   /* l'identifiant : les numéros glissent, pas les identifiants */
       const horsDispX = xDroits.filter(c => dispX.indexOf(c.split(' ')[0]) < 0);
       const dispInutiles = dispX.filter(n => numX.indexOf(n) < 0);
       verifier('l\'inconnue « x » s\'écrit toujours en italique',
         horsDispX.length === 0, horsDispX.length + ' cas (identifiant, n°) — ' + horsDispX.join(' | '));
-      verifier('chaque exercice dispensé de l\'italique de « x » a encore un x droit',
-        dispInutiles.length === 0, 'à retirer de xItalique.dispenses : ' + dispInutiles.join(', '));
+      /* Une dispense inutilisée est SIGNALÉE, jamais refusée : les énoncés
+         sont tirés au hasard, et un exercice au x droit ne le montre pas à
+         chaque visite (le 4.4 l'a montré en passant du rouge au vert sans
+         qu'on y touche). */
+      if(dispInutiles.length) console.log('   · dispenses sans x droit vu cette fois (tirage, ou corrigé — à retirer alors) : ' + dispInutiles.join(', '));
       if(dispX.length) console.log('   · ' + dispX.length + ' exercice(s) antérieurs à la règle, dispensés : ' + dispX.join(', '));
       /* La Terminale donne à ses cartes une largeur propre (--card-max, avec
          ses paliers) : elle ne déclare pas ce contrôle, et le banc le dit au
