@@ -1659,24 +1659,32 @@ function branchements(w){
       const fb=function(){ return document.getElementById('ckFeedback').textContent; };
       const QA={fam:'aug',P:30,opts:[130,103,70,30],choisi:0};
       /* copie juste */
-      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30'});
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'hausse',ckT:'30'});
       test.score=0; checkCKAnswer();
       if(test.score!==1) vus.push('la copie juste ne vaut pas le point ('+test.score+')');
       if(!/\\bok\\b/.test(cls('ckc0'))) vus.push('la bonne proposition choisie ne se marque pas ok');
       if(!/\\bok\\b/.test(cls('ckC'))) vus.push('le coefficient juste ne se marque pas ok');
       /* proposition fausse (le coefficient de la baisse), cases justes : le piège est NOMMÉ */
-      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:2}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30'});
+      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:2}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'hausse',ckT:'30'});
       checkCKAnswer();
       if(!test.answers.length || test.answers[test.answers.length-1].correct) vus.push('la mauvaise proposition est comptée juste');
       if(!/\\bbad\\b/.test(cls('ckc2'))) vus.push('la proposition fausse ne rougit pas');
       if(!/\\bsol\\b/.test(cls('ckc0'))) vus.push('la bonne proposition ne se montre pas en correction (sol)');
       if(fb().indexOf('DIMINUTION')<0) vus.push('le retour ne nomme pas le piège du sens : '+fb().slice(0,60));
       /* la virgule décalée se nomme */
-      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:1}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30'});
+      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:1}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'hausse',ckT:'30'});
       checkCKAnswer();
       if(fb().indexOf('VIRGULE')<0) vus.push('le retour ne nomme pas le piège de la virgule : '+fb().slice(0,60));
+      /* l'étape ③ : « c'est une hausse de 30 % » — le mot faux est refusé et corrigé en vert, le pourcentage vide ne rougit pas */
+      if(!document.getElementById('ckT') || !document.getElementById('ckW')) vus.push('l\\'étape ③ manque');
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'baisse',ckT:'30'});
+      test.score=0; checkCKAnswer();
+      if(test.score!==0 || !/\\bsol\\b/.test(cls('ckW')) || document.getElementById('ckW').value!=='hausse') vus.push('« baisse » pour une hausse n\\'est pas refusé, ou « hausse » n\\'est pas montré en vert');
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30',ckW:'hausse'});
+      checkCKAnswer();
+      if(/\\bbad\\b/.test(cls('ckT'))) vus.push('le pourcentage laissé vide rougit à la vérification');
       /* case vide en entraînement : jamais rouge, remplie en vert */
-      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30'});
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckW:'hausse',ckT:'30'});
       checkCKAnswer();
       if(/\\bbad\\b/.test(cls('ckC'))) vus.push('une case laissée vide rougit à la vérification');
       if(!/\\bsol\\b/.test(cls('ckC'))) vus.push('la case vide ne reçoit pas la correction en vert');
@@ -1697,6 +1705,7 @@ function branchements(w){
       const QP={fam:'pre',P:30,opts:[3,130,30,70],choisi:2};
       poser(JSON.parse(JSON.stringify(QP)),{ck1n:'30',ck1d:'100',ck1p:'30'});
       if(document.getElementById('ckC')) vus.push('« prendre » affiche un maillon « 1 ± » qui n\\'existe pas');
+      if(document.getElementById('ckW')||document.getElementById('ckT')) vus.push('« prendre » n\\'est pas une évolution : pas de phrase « hausse / baisse »');
       test.score=0; checkCKAnswer();
       if(test.score!==1) vus.push('« prendre » : la copie juste ne vaut pas le point');
 
