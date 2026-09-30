@@ -108,7 +108,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'python-print':'pyp', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -1027,9 +1027,23 @@ module.exports = {
        Cette liste est la SECONDE source : la page a la sienne, le banc compare
        ce qui est réellement affiché à celle-ci. Les lire toutes deux au même
        endroit n'aurait rien prouvé. */
+    /* L'inconnue « x » s'écrit en italique (décision de Turquet, septembre
+       2026). Ces exercices sont ANTÉRIEURS à la règle : leur « x » droit est
+       une dette nommée, à rembourser un par un — la liste ne grandit jamais. */
+    /* python-noms-variables : « 3x » y est un NOM de variable Python (invalide),
+       du code proposé au choix de l'élève — pas l'inconnue d'une équation. */
+    xItalique: { dispenses: ['python-noms-variables', 'antecedent-nombre', 'antecedents-droite', 'choisir-tableau-variation',
+                             'construire-fonction', 'construire-max-min', 'ecrire-solutions',
+                             'equation-graphique', 'image-nombre', 'inequation-droite',
+                             'inequation-graphique', 'intervalles-inegalite', 'lecture-deux-courbes',
+                             'lecture-signes', 'lecture-variations', 'maximum-minimum',
+                             'placer-image', 'python-tableau-valeurs', 'python-types',
+                             'reduire-produit', 'reduire-somme', 'resolutions-graphiques',
+                             'signes-variations', 'signes-variations-grand', 'solutions-graphique',
+                             'synthese-fonction', 'tableau-signes-graphique', 'tableau-variation'] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
-                         'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'lecture-variations',
+                         'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
                          'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres'] },
@@ -1741,6 +1755,15 @@ module.exports = {
 
     casesVides: { sans: ['derivee-exp', 'derivee-exp-3', 'derivee-exp-quotient',
                          'etude-fonction', 'etude-quotient', 'recurrence-encadrement'] },
+    /* L'inconnue « x » s'écrit en italique (décision de Turquet, septembre
+       2026). Ces exercices sont ANTÉRIEURS à la règle : leur « x » droit est
+       une dette nommée, à rembourser un par un — la liste ne grandit jamais. */
+    xItalique: { dispenses: ['associer-derivee', 'convexite-qcm', 'derivee-exp-quotient-2',
+                             'etude-exponentielle', 'etude-quotient', 'limites-graphiques',
+                             'limites-graphiques-2', 'limites-graphiques-3', 'signe-derivee-qcm',
+                             'suite-synthese-variations', 'suite-variation-recurrence', 'tvi',
+                             'tvi-lecture-graphique', 'tvi-redaction', 'variations-depuis-derivee',
+                             'derivee-exp-2', 'tvi-contre-exemples', 'tvi-nombre-solutions'] },
 
 
     /* Le signalement : la table du niveau, et le nom de la fonction de rendu de

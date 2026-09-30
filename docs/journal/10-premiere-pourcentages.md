@@ -3612,6 +3612,68 @@ séparateur (« Avec lunettes369 ») — le contrôle lit désormais les `.tdp-n
 par un. Et le rappel de cours a rougi au contrôle des fractions empilées :
 « 3/30 » et « 3/13 » s'écrivent en `\frac`, jamais à plat. `APP_VERSION` 241.
 
+## Seconde 4.6.2 — {tableau-proportions-lettres} : le tableau du 4.6.1, rédigé avec des LETTRES comme la fiche
+
+**Demandé par Turquet en septembre 2026** : « en seconde, fait un exercice comme
+le 4.6.1 mais rédigé comme le pdf joint ». Le PDF est la fiche « Compléter le
+tableau » dans sa rédaction d'origine, que le 4.6.1 avait paraphrasée : les
+groupes du tableau portent des LETTRES — A = Garçons, B = Filles, C = Élèves
+avec lunettes, D = Élèves sans lunettes — et toute la fiche se dit avec elles.
+
+**Ce que dit la fiche, et ce que fait l'exercice** (une SITUATION = sept
+questions, dans l'ordre de la fiche) :
+
+1. **le tableau** — les quatre effectifs donnés, cinq totaux à écrire (5 cases) ;
+2. **« Donner le nombre correspondant au total de A : … on dit que A = … »**,
+   puis de C, puis « à A et C » — une question de trois lignes, DEUX cases par
+   ligne (le nombre, puis le même nombre redit avec la notation) : 6 cases.
+   La fiche ne dit pas ce que la seconde case attend ; l'exercice la lit comme
+   le même effectif, dit avec « A = … ». À corriger si la fiche voulait autre chose ;
+3. **cinq proportions** (5 × 4 cases), dans l'ordre de la fiche : A dans la
+   classe, C dans la classe, « A et C » dans la classe, C parmi A, A parmi C.
+   (La fiche numérote 1, 2, 3, 5, 6 : le 4 manque, l'exercice numérote 1 à 5.)
+   Chacune : « Ici on étudie les élèves [A] parmi [la classe] », puis la
+   fraction « nbr d'élèves [A] et qui sont parmi [la classe] / nombre total
+   d'élèves parmi [la classe] = … / … ». Les deux listes se complètent
+   « avec les lettres A ; C ; A et C ou la classe » (elles offrent toutes les
+   lettres : A, B, C, D et les quatre croisements). Les mots du libellé
+   (« [A] », « [la classe] ») se recopient depuis les listes, comme au 4.6.1 ;
+   ce sont les DEUX effectifs, après le « = », qui sont des cases empilées.
+
+**La question reste écrite en MOTS**, comme sur la fiche : « Calculer la
+proportion <gris>des garçons</gris> <gras>dans la classe</gras>. » — le groupe
+étudié en gris (`.tdl-g`), le tout en gras. Traduire les mots en lettres est le
+travail de l'élève ; c'est aussi pourquoi le numéro de la question précède
+l'énoncé (« 1) »).
+
+**Ce qui est partagé avec le 4.6.1** : les huit mises en situation `TDP_CTX`,
+le tirage des quatre cases (1 à 20, `tdpGenTable`, tables distinctes par
+`distincte()`), les clés de groupes (`c0`, `c1`, `l0`, `l1`, `xLC`), `tdpEff`,
+`tdpTotaux`, `tdpAlt` (« A et C » est aussi juste pour « C parmi A » : mêmes
+élèves), `tdpJuste`, et les styles `.tdp-*`. **Ce qui est propre** : les lettres
+(`tdlLettre`), la phase « nombre », `TDL_V` (quatre tournures, le gris et le
+gras), la fraction de droite. Une situation choisit UNE colonne et UNE ligne
+(`q.c`, `q.l`) : le tableau, les nombres et les cinq proportions parlent des
+mêmes lettres. `q.v` range l'indice de la tournure, jamais le texte.
+
+**Barème** : 5 + 6 + 5 × 4 = 31 cases par situation. Sept questions par défaut
+(`TDL_NB`) ; le réglage « Questions » d'un devoir se lit au tirage
+(`dmNbQuestions`) et allonge la séance situation par situation (au plus 10 :
+la seconde situation est alors coupée). Pas de bouton des tables (`TABLES_SANS`
+et `tablesAide.sans` du profil).
+
+**Le contrôle** (banc principal, « proportions dans un tableau avec des lettres :
+le tirage, la correction et la place dans le thème Pourcentages ») : la place
+(4.6.2, le 4.6.1 et le 4.5.5 ne bougent pas) ; 1 000 tirages (sept questions, phases
+dans l'ordre, cinq proportions telles que la fiche les pose, une seule
+situation par séance, cases de 1 à 20) ; les réponses attendues contre des SOMMES
+écrites dans le banc, sur la table de la fiche (13, 9 et 3 pour A, C, A et C ;
+13/30, 9/30, 3/30, 3/13, 3/9) et sur les quarante croisements (qui, parmi) ;
+puis la correction par le BOUTON — tableau juste et totaux échangés, phase
+« nombre » juste, fausse et vide, proportion juste, mauvais « tout » (message
+« 3 sur 13 »), « A et C » accepté, « B et C » refusé, cases vides. Le banc
+navigateur couvre l'écran par ses contrôles universels sans rien déclarer.
+
 ## {pourcentage-phrases} — du texte au schéma, le 4.1.10 pris depuis les phrases (Seconde, septembre 2026, 4.1.11)
 
 **D'où il vient.** Demande de Turquet : « en seconde, un nouvel exercice comme
