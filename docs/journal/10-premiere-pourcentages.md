@@ -3510,3 +3510,104 @@ deux écrans portent la feuille du 2.3.13), le 2.5.2 dans `hors`, `sgl` dans
 `soutienEnDirect.sans` et dans `aide.ctx.kinds` (avec une question du 2.5.6
 marquée de son moteur). Les règles universelles sont tenues par la visite
 (section 9) sans rien déclarer. `APP_VERSION` 272.
+
+---
+
+## Seconde 4.6.1 — {tableau-proportions} : le tableau à double entrée de la fiche, et ses proportions
+
+**Demandé par Turquet en septembre 2026**, d'après une fiche papier
+« Compléter le tableau » : un tableau croisé 2 × 2 — garçons et filles, avec
+ou sans lunettes — dont les quatre cases intérieures sont données (3, 6, 10,
+11) et dont l'élève complète la ligne et la colonne « total dans la classe » ;
+puis sept proportions à écrire en fraction, chacune en deux temps : « Ici on
+étudie les élèves qui …… parmi …… », puis la fraction « nombre d'élèves qui …
+et qui sont parmi … / nombre total d'élèves parmi … = …/… ». Deux consignes
+avec la fiche : **des nombres plus petits ou égaux à 20 dans les cases
+intérieures** — et donc pas forcément dans les cases de la ligne et de la
+colonne total —, et **des énoncés variés**.
+
+**Où il vit.** Une sixième partie du thème 4 « Pourcentages », « Proportions
+dans un tableau », ajoutée EN DERNIER : rien ne se renumérote, les renvois
+{identifiant} ne bougent pas. Une proportion vient avant le pourcentage, mais
+l'insérer en tête aurait renuméroté les cinq parties portées de la Première.
+Kind `tdp`, écran `scr-tdp`, pas de bouton des tables (on n'y multiplie rien :
+`TABLES_SANS` et `tablesAide.sans` du profil).
+
+**Le tirage.** Les quatre cases intérieures se tirent de 1 à `TDP_MAX` (20) ;
+les totaux ne sont jamais tirés, ils se calculent. Huit mises en situation
+(`TDP_CTX`) : la classe de la fiche, un club de sport (adultes/enfants ×
+tennis/judo), un refuge (chiens/chats × adoptés/en attente), un parking
+(voitures/motos × électriques/thermiques), une bibliothèque, une classe
+droitiers/gauchers × avec/sans animal, un lycée (demi-pensionnaires/externes ×
+bus/à pied), une salle de cinéma. Chaque contexte porte, pour chacun de ses
+quatre groupes, une TÊTE de tableau (« Garçons »), un PRÉDICAT pour la liste
+« qui » (« sont des garçons »), un NOM pour la liste « parmi » (« les
+garçons ») et, pour les lignes, un QUALIFICATIF qui fabrique les quatre cases
+(« sont des garçons » + « avec lunettes »). Quatre tournures de question
+(`TDP_V`), tirées à la génération et rangées dans la question (`q.v`, `q.ci`)
+— jamais au rendu, c'est la règle des énoncés.
+
+**Une séance enchaîne des situations** : pour chacune, une question
+« tableau » (cinq cases) puis TROIS proportions, une par famille et dans
+l'ordre de la fiche — un groupe dans le tout (« les garçons dans la classe »),
+une case dans le tout (« les garçons avec lunettes dans la classe »), un groupe
+parmi l'autre axe (« ceux qui ont des lunettes parmi les garçons »). Huit
+questions par défaut (deux situations, barème 2 × (5 + 3 × 4) = 34). Le
+réglage « Questions » d'un devoir se lit au tirage (`dmNbQuestions`) et
+allonge la séance situation par situation : réglé à 10, une troisième
+situation apporte son tableau et une proportion. Les tables d'une séance
+passent par `distincte()` — deux situations ne portent jamais les mêmes quatre
+nombres — et les contextes d'une séance sont tirés sans remise.
+
+**Les clés, jamais les réponses.** Une proportion range `gk` (qui l'on
+étudie : `c0`, `c1` les colonnes, `l0`, `l1` les lignes, `xLC` une case) et
+`rk` (parmi qui : `tout` ou un groupe d'un axe). `tdpCases()` recalcule les
+totaux, le numérateur (l'effectif de gk ∩ rk) et le dénominateur (l'effectif
+de rk) dans la fonction même qui corrige. Les deux listes attendent la
+formulation CANONIQUE de la fiche : « ont des lunettes » parmi « les garçons »,
+jamais « sont des garçons avec lunettes » parmi « les garçons » — la fiche
+apprend précisément à nommer la partie et le tout.
+
+**L'écran.** Un vrai `<table>` : les quatre effectifs écrits en `.tdp-nb`, les
+totaux en `.tdp-in` du MÊME corps (1,45 rem) — la règle de la taille des cases
+—, les cases « total » sur fond ambré. Sous le tableau de la proportion (le
+tableau COMPLÉTÉ accompagne chaque question), la phrase « Ici, on étudie les
+élèves qui [liste] parmi [liste] », puis la fraction en rangée flex centrée :
+le « = » tombe sur le trait ; numérateur et dénominateur portent leur libellé,
+où les mots choisis dans les listes se recopient en direct (`tdpLibelles`),
+comme la fiche le fait écrire. Les mots de ces libellés, en `<i>` recolorés,
+ne sont pas des italiques : `.tdp-lib i` remet le style droit.
+
+**Le message d'erreur.** Sur la première case fausse du tableau, la somme qui
+donne ce total-là (« Le total de la ligne « Sans lunettes » est la somme de
+ses deux cases : 10 + 11 = 21 ») ; sur une proportion, la phrase entière
+(« On étudie les élèves qui ont des lunettes parmi les garçons : ils sont 3
+sur 13, la proportion est 3/13 »). Les cases vides passent par
+`msgAvecVides` et `corrChoix`, comme toute la famille des listes.
+
+**Le contrôle** (banc principal, « proportions dans un tableau : le tirage, la
+correction et la place dans le thème Pourcentages ») : la place (4.6.1, six
+parties, les numéros du thème 4 inchangés) ; 1 500 tirages (cases de 1 à 20,
+huit questions, phases dans l'ordre, chaque proportion sur la table de SA
+situation, tables et contextes distincts, aucun groupe parmi son propre axe,
+au moins un total au-delà de 20, les quatre tournures et les huit contextes
+vus) ; les réponses attendues contre des SOMMES écrites dans le banc, sur la
+table de la fiche et ses seize couples (qui, parmi), dont les sept questions
+de la fiche mot à mot (13/30, 17/30, 3/30, 11/30, 3/13, 6/17, 6/9) ; puis la
+correction par le BOUTON — tableau juste (5 cases), totaux de lignes et de
+colonnes ÉCHANGÉS (rouges, les voisins bleus), case vide (verte, remplie de
+30), « 3O » illisible (rouge), proportion juste (4 cases), le piège de la fiche
+(diviser par la classe entière quand la question dit « parmi les garçons » :
+liste et dénominateur rouges, les deux autres bleues, le message écrit 3/13),
+listes vides (vertes), identité `tableau-proportions`/`tdp`. Le banc
+navigateur couvre l'écran par ses contrôles universels sans rien déclarer,
+et la page a été ouverte dans Chromium à trois largeurs (1280, 820, 400 px) :
+aucune erreur, aucun débordement.
+
+**Deux faux pas du banc, à la première exécution** : `const th` déclaré deux
+fois dans le même contrôle (le thème, puis le texte de l'écran) — jsdom lève
+« Identifier 'th' has already been declared » ; et une lecture du tableau
+complété par `/\b9\b/` sur `textContent`, qui colle les cellules sans
+séparateur (« Avec lunettes369 ») — le contrôle lit désormais les `.tdp-nb` un
+par un. Et le rappel de cours a rougi au contrôle des fractions empilées :
+« 3/30 » et « 3/13 » s'écrivent en `\frac`, jamais à plat. `APP_VERSION` 241.

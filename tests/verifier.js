@@ -4047,6 +4047,7 @@ function exercices(suite){
     reduireSomme(w, P);
     soustraireRelatifs(w, P);
     reduireProduit(w, P);
+    tableauProportions(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -15753,6 +15754,152 @@ function soustraireRelatifs(w, P){
     if(peint('srl-r-0')!=='rouge') vus.push('« 1, » est peint en '+peint('srl-r-0'));
     /* le barème : 3 pages de 9 cases */
     if(test.maxScore!==27) vus.push('barème de '+test.maxScore+' au lieu de 27');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {tableau-proportions} — thème 4 « Pourcentages », partie 6, 4.6.1 : le
+   tableau à double entrée de la fiche papier (garçons/filles × avec/sans
+   lunettes), dont l'élève complète les totaux, puis des proportions à écrire
+   en fraction. Le tirage (cases intérieures de 1 à 20, contextes et tables
+   distincts dans une séance) et les réponses attendues sont jugés par une
+   SECONDE méthode : les sommes recalculées ici, jamais tdpCases() ni tdpEff().
+   La correction s'éprouve par le BOUTON, sur la table de la fiche (3, 6, 10,
+   11) et sur ses sept questions. */
+function tableauProportions(w, P){
+  const present = evaluer(w, "typeof startTdp==='function' && typeof tdpBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('proportions dans un tableau : le tirage, la correction et la place dans le thème Pourcentages',
+      'ce niveau n\'a pas l\'exercice du tableau à double entrée');
+    return;
+  }
+  verifierEval(w, 'proportions dans un tableau : le tirage, la correction et la place dans le thème Pourcentages', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-proportions';
+
+    /* ---- 0. la place : 4.6.1, une sixième partie ajoutée en fin du thème 4 */
+    const th=THEMES.find(function(t){ return t.num===4; });
+    if(!th || !/Pourcentages/i.test(th.nom) || !th.sous || th.sous.length!==6 || !/Proportions/i.test(th.sous[5].nom) || th.ids.indexOf('tableau-proportions')<0)
+      vus.push('l\\'exercice n\\'est pas la partie 6 du thème 4 « Pourcentages »');
+    if(TEST_NUM['tableau-proportions']!=='4.6.1') vus.push('numéro '+TEST_NUM['tableau-proportions']+' au lieu de 4.6.1');
+    if(TEST_NUM['synthese-pourcentages']!=='4.5.1' || TEST_NUM['evolutions-successives']!=='4.5.5' || TEST_NUM['fraction-pourcentage']!=='4.1.1') vus.push('un exercice du thème 4 a changé de numéro');
+    if(THEMES.map(function(t){ return t.num; }).join(',')!=='1,2,3,4,5,6,7') vus.push('les thèmes ont changé de numéros');
+    if(TABLES_SANS.indexOf('tableau-proportions')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    const somme=function(t){ return t[0][0]+t[0][1]+t[1][0]+t[1][1]; };
+    const fam=function(q){ if(q.rk==='tout') return q.gk[0]==='x'?1:0; return 2; };
+    let grosTotal=0, tournures={}, contextes={};
+    for(let i=0;i<1500 && !vus.length;i++){
+      const qs=tdpBuildQuestions();
+      if(qs.length!==8){ vus.push(qs.length+' questions au lieu de 8'); break; }
+      const tables=[], cis=[];
+      qs.forEach(function(q,ix){
+        [q.t[0][0],q.t[0][1],q.t[1][0],q.t[1][1]].forEach(function(n){ if(!(Number.isInteger(n) && n>=1 && n<=20)) vus.push('case intérieure hors de 1…20 : '+n); });
+        if(somme(q.t)>20) grosTotal++;
+        if(ix%4===0){ if(q.phase!=='tab') vus.push('la question '+(ix+1)+' n\\'est pas le tableau'); tables.push(JSON.stringify(q.t)); cis.push(q.ci); }
+        else {
+          if(q.phase!=='prop') vus.push('la question '+(ix+1)+' n\\'est pas une proportion');
+          if(fam(q)!==(ix%4)-1) vus.push('question '+(ix+1)+' : famille '+fam(q)+' au lieu de '+((ix%4)-1));
+          if(JSON.stringify(q.t)!==tables[tables.length-1] || q.ci!==cis[cis.length-1]) vus.push('une proportion ne porte pas la table de sa situation');
+          tournures[q.v]=1; contextes[q.ci]=1;
+          if(q.rk!=='tout' && q.gk[0]===q.rk[0]) vus.push('un groupe parmi son propre axe : '+q.gk+' parmi '+q.rk);
+        }
+      });
+      if(new Set(tables).size!==2) vus.push('deux situations tirent la même table');
+      if(new Set(cis).size!==2) vus.push('deux situations tirent le même contexte');
+    }
+    if(!vus.length && grosTotal===0) vus.push('aucun total ne dépasse 20 en 1500 séances : les totaux sont bridés comme les cases');
+    if(!vus.length && Object.keys(tournures).length<4) vus.push('seulement '+Object.keys(tournures).length+' tournure(s) sur 4');
+    if(!vus.length && Object.keys(contextes).length<TDP_CTX.length) vus.push('seulement '+Object.keys(contextes).length+' contexte(s) sur '+TDP_CTX.length);
+
+    /* ---- 2. les réponses attendues, contre les sommes elles-mêmes -------- */
+    const T=[[3,6],[10,11]];   /* la fiche */
+    const eff=function(gk, rk){ let n=0;
+      for(let l=0;l<2;l++) for(let c=0;c<2;c++){
+        const dans=function(k){ return k==='tout' || (k[0]==='c' && c===+k[1]) || (k[0]==='l' && l===+k[1]) || (k[0]==='x' && l===+k[1] && c===+k[2]); };
+        if(dans(gk) && dans(rk)) n+=T[l][c]; }
+      return n; };
+    const cT=tdpCases({ci:0,t:T,phase:'tab'}).map(function(c){ return c.bon; }).join(' ');
+    if(cT!=='9 21 13 17 30') vus.push('les totaux attendus de la fiche sont « '+cT+' » au lieu de « 9 21 13 17 30 »');
+    ['c0','c1','l0','l1','x00','x01','x10','x11'].forEach(function(gk){ ['tout','c0','c1','l0','l1'].forEach(function(rk){
+      const cs=tdpCases({ci:0,t:T,phase:'prop',gk:gk,rk:rk,v:0});
+      if(cs[0].bon!==gk || cs[1].bon!==rk) vus.push(gk+'/'+rk+' : les listes attendent '+cs[0].bon+'/'+cs[1].bon);
+      if(cs[2].bon!==String(eff(gk,rk)) || cs[3].bon!==String(eff(rk,'tout'))) vus.push(gk+' parmi '+rk+' : '+cs[2].bon+'/'+cs[3].bon+' au lieu de '+eff(gk,rk)+'/'+eff(rk,'tout'));
+    }); });
+    /* les sept questions de la fiche, dans ses mots */
+    const fiche=[['c0','tout',13,30],['c1','tout',17,30],['x00','tout',3,30],['x11','tout',11,30],['l0','c0',3,13],['l0','c1',6,17],['c1','l0',6,9]];
+    fiche.forEach(function(f){ const cs=tdpCases({ci:0,t:T,phase:'prop',gk:f[0],rk:f[1],v:0});
+      if(cs[2].bon!==String(f[2]) || cs[3].bon!==String(f[3])) vus.push('fiche '+f[0]+' parmi '+f[1]+' : '+cs[2].bon+'/'+cs[3].bon+' au lieu de '+f[2]+'/'+f[3]); });
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- 3. la correction, par le BOUTON --------------------------------- */
+    startTdp();
+    if(test.maxScore!==34) vus.push('barème de '+test.maxScore+' au lieu de 34 (2 × (5 + 3 × 4))');
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const poser=function(q, vals){
+      test.questions[test.idx]=q; test.locked=false; renderTdpTest();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=vals[id]; });
+    };
+    const texte=function(id){ return (document.getElementById(id)||{}).textContent||''; };
+    /* le tableau */
+    const qT={ci:0,t:T,phase:'tab'};
+    const JT={'tdp-lt-0':'9','tdp-lt-1':'21','tdp-ct-0':'13','tdp-ct-1':'17','tdp-tt':'30'};
+    poser(qT, {});
+    if(Object.keys(JT).some(function(id){ return !document.getElementById(id); })) return 'une case du tableau manque à l\\'écran';
+    const hT=texte('tdpHost');
+    if(!/Garçons/.test(hT) || !/Filles/.test(hT) || !/Avec lunettes/.test(hT) || !/dans la classe/.test(hT)) vus.push('le tableau de la fiche ne s\\'écrit pas : '+hT.slice(0,120));
+    if(!/lunettes/.test(texte('tdpPrompt'))) vus.push('l\\'énoncé ne dit pas la situation');
+    poser(qT, JT); checkTdpAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('le tableau juste est compté faux');
+    if(Object.keys(JT).some(function(id){ return peint(id)!=='vert'; })) vus.push('le tableau juste n\\'est pas entièrement juste');
+    if(!der || der.cases!==5) vus.push('le tableau compte '+(der?der.cases:'?')+' cases au lieu de 5');
+    /* LE PIÈGE : totaux de lignes et de colonnes échangés */
+    poser(qT, Object.assign({},JT,{'tdp-lt-0':'13','tdp-ct-0':'9'})); checkTdpAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('les totaux échangés sont acceptés');
+    if(peint('tdp-lt-0')!=='rouge' || peint('tdp-ct-0')!=='rouge') vus.push('un total faux n\\'est pas rouge');
+    if(peint('tdp-lt-1')!=='vert' || peint('tdp-tt')!=='vert') vus.push('un total juste rougit à côté d\\'un faux');
+    if(!/3 \\+ 6 = 9/.test(texte('tdpFeedback'))) vus.push('le message n\\'écrit pas la somme de la ligne : « '+texte('tdpFeedback')+' »');
+    /* une case vide ne rougit pas, et reçoit la réponse */
+    poser(qT, Object.assign({},JT,{'tdp-tt':''})); checkTdpAnswer();
+    if(peint('tdp-tt')!=='bleu') vus.push('case vide tdp-tt peinte en '+peint('tdp-tt'));
+    if((document.getElementById('tdp-tt')||{}).value!=='30') vus.push('la correction de la case vide n\\'écrit pas 30');
+    if(peint('tdp-ct-1')!=='vert') vus.push('une case juste rougit parce qu\\'une voisine est vide');
+    /* une réponse illisible est fausse, pas vide */
+    poser(qT, Object.assign({},JT,{'tdp-tt':'3O'})); checkTdpAnswer();
+    if(peint('tdp-tt')!=='rouge') vus.push('« 3O » est peint en '+peint('tdp-tt'));
+    /* la proportion : « ceux qui portent des lunettes parmi les garçons » */
+    const qP={ci:0,t:T,phase:'prop',gk:'l0',rk:'c0',v:3};
+    const JP={'tdp-qui':'l0','tdp-parmi':'c0','tdp-num':'3','tdp-den':'13'};
+    poser(qP, {});
+    if(Object.keys(JP).some(function(id){ return !document.getElementById(id); })) return 'une case de la proportion manque à l\\'écran';
+    if(!/ont des lunettes parmi les garçons/.test(texte('tdpPrompt'))) vus.push('l\\'énoncé de la fiche ne s\\'écrit pas : '+texte('tdpPrompt'));
+    const hp=texte('tdpHost');
+    const nbs=[].map.call(document.querySelectorAll('#tdpHost .tdp-nb'), function(e){ return e.textContent; });
+    if(nbs.join(' ')!=='3 6 9 10 11 21 13 17 30') vus.push('le tableau complété n\\'accompagne pas la proportion : '+nbs.join(' '));
+    if(!/on étudie les élèves qui/.test(hp) || !/parmi/.test(hp)) vus.push('la phrase « on étudie … parmi … » manque');
+    const opts=[].map.call(document.getElementById('tdp-qui').options, function(o){ return o.textContent; });
+    ['sont des garçons','sont des filles','ont des lunettes','n’ont pas de lunettes','sont des garçons avec lunettes','sont des filles sans lunettes'].forEach(function(t){ if(opts.indexOf(t)<0) vus.push('la liste « qui » n\\'offre pas « '+t+' »'); });
+    poser(qP, JP); checkTdpAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la proportion juste est comptée fausse');
+    if(!der || der.cases!==4) vus.push('la proportion compte '+(der?der.cases:'?')+' cases au lieu de 4');
+    /* LE PIÈGE : diviser par la classe entière quand la question dit « parmi les garçons » */
+    poser(qP, Object.assign({},JP,{'tdp-parmi':'tout','tdp-den':'30'})); checkTdpAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('3/30 est accepté pour « parmi les garçons »');
+    if(peint('tdp-parmi')!=='rouge' || peint('tdp-den')!=='rouge') vus.push('le mauvais tout n\\'est pas rouge');
+    if(peint('tdp-qui')!=='vert' || peint('tdp-num')!=='vert') vus.push('une case juste rougit à côté du mauvais tout');
+    if(!/3 sur 13/.test(texte('tdpFeedback')) || !/3\\/13/.test(texte('tdpFeedback'))) vus.push('le message n\\'écrit pas 3/13 : « '+texte('tdpFeedback')+' »');
+    /* les listes vides restent vides de rouge, et reçoivent leur réponse */
+    poser(qP, Object.assign({},JP,{'tdp-qui':'','tdp-num':''})); checkTdpAnswer();
+    if(peint('tdp-qui')!=='bleu' || peint('tdp-num')!=='bleu') vus.push('une case vide de la proportion est peinte en '+peint('tdp-qui')+'/'+peint('tdp-num'));
+    if(peint('tdp-den')!=='vert') vus.push('le dénominateur juste rougit à côté d\\'une case vide');
+    /* et la note part sous le bon identifiant */
+    if(test.qId!=='tableau-proportions' || test.kind!=='tdp') vus.push('identité '+test.qId+'/'+test.kind);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
