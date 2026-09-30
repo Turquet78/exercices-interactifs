@@ -80,7 +80,7 @@
      « l'italique, c'est l'écriture arrondie du x »). Règle GLOBALE : un <i>
      autour d'une lettre est une variable. Les règles plus précises de la
      feuille (Georgia, etc.) gardent la main sur leur bloc. */
-  i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic}
+  i,.mth{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic}
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
 /* Sur écran d'ordinateur, le cadre blanc prend plus de largeur ; téléphones inchangés. */
 @media (min-width:1080px){ .wrap{max-width:1200px} }
@@ -929,7 +929,8 @@
 .tvi-table{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px 6px;margin:0 0 16px;overflow-x:auto;}
 .tvi-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
 .tvi-t{font-family:'Nunito',sans-serif;font-size:14px;fill:var(--ink);}
-.tvi-it{font-style:italic;}
+.tvi-it{font-style:italic;font-family:KaTeX_Math,Georgia,'Times New Roman',serif}
+.mth{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic}
 .tvi-vr{font-size:12px;fill:var(--ink-soft);}
 .tvi-al{font-weight:800;}
 .tvi-v{font-weight:600;}
@@ -1327,7 +1328,7 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
 .sv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .sv-svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;}
 .sv-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
-.sv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:16px;fill:var(--green);}
+.sv-cf{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;font-weight:800;font-size:16px;fill:var(--green);}
 .sv-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
 .sv-tables{display:flex;flex-direction:column;gap:14px;margin:0 0 2px;}
 .sv-tbl{width:100%;border-collapse:collapse;font-family:'Nunito',sans-serif;table-layout:fixed;}
@@ -3078,7 +3079,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=356;
+const APP_VERSION=357;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -6556,7 +6557,7 @@ function tviSVG(c){
     <text x="${xMid}" y="28" class="tvi-t tvi-al" text-anchor="middle">\u03b1</text>
     <text x="330" y="28" class="tvi-t" text-anchor="end">${c.bLabel}</text>
     <text x="48" y="92" class="tvi-t tvi-vr" text-anchor="middle">Variation</text>
-    <text x="48" y="106" class="tvi-t tvi-vr" text-anchor="middle">de ${c.fname}(${c.v})</text>
+    <text x="48" y="106" class="tvi-t tvi-vr" text-anchor="middle">de <tspan class="mth">${c.fname}(${c.v})</tspan></text>
     <line x1="${xMid}" y1="40" x2="${xMid}" y2="${yMid.toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1" stroke-dasharray="3 3"/>
     <line x1="${xL}" y1="${y1}" x2="${xR-4}" y2="${y2}" stroke="var(--blue)" stroke-width="2.5" marker-end="url(#tviAh)"/>
     <text x="${xL}" y="${vgY}" class="tvi-t tvi-v" text-anchor="middle">${c.vGL}</text>
@@ -6777,7 +6778,7 @@ function tvi3SVG(c){
     <line x1="2" y1="40" x2="338" y2="40" stroke="var(--line)" stroke-width="1.5"/>
     <text x="48" y="28" class="tvi-t tvi-it" text-anchor="middle">${c.v}</text>
     <text x="48" y="92" class="tvi-t tvi-vr" text-anchor="middle">Variation</text>
-    <text x="48" y="106" class="tvi-t tvi-vr" text-anchor="middle">de ${c.fname}(${c.v})</text>
+    <text x="48" y="106" class="tvi-t tvi-vr" text-anchor="middle">de <tspan class="mth">${c.fname}(${c.v})</tspan></text>
     ${corps}
   </svg>`;
 }
@@ -7009,7 +7010,7 @@ function lrReponseTxt(){ return lrsRead(); }
    mode 'calcul'    : prefixe affiche sur la premiere ligne puis « = » ; espace
      et raccourcis standard MathLive (comportement du 2.2).
    API : F = mlFeuille({ conteneur:'idOuElement', mode:'redaction'|'calcul',
-           prefixes:{premiere:'<i>f</i> \u2032(x) =', suite:'='},      affichage, HTML permis
+           prefixes:{premiere:'<i>f</i> \u2032(<i>x</i>) =', suite:'='},      affichage, HTML permis
            prefixesTexte:{premiere:"f'(x) =", suite:'='} })            version texte pour lire()
    F.lignes | F.ajouterLigne(apresIdx) | F.retirerLigne(L) | F.lire() | F.verrouiller() */
 function mlFeuille(opts){
@@ -7796,9 +7797,9 @@ function renderTVG(){
   $('tvgLiveScore').textContent=test.score;
   $('tvgFeedback').textContent=''; $('tvgFeedback').className='mp-feedback';
   $('tvgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVG()">Vérifier mes réponses</button>';
-  $('tvgPrompt').innerHTML=`Soit <i>${c.fname}</i> une fonction dont la courbe est tracée ci-dessous. On s’intéresse à l’équation <i>${c.fname}</i>(x) = ${c.kL}.`;
+  $('tvgPrompt').innerHTML=`Soit <i>${c.fname}</i> une fonction dont la courbe est tracée ci-dessous. On s’intéresse à l’équation <i>${c.fname}</i>(<i>x</i>) = ${c.kL}.`;
   $('tvgGraph').innerHTML=tvgSVG(c);
-  $('tvgConsignes').innerHTML='<b>a)</b> Clique sur la courbe le ou les <b>points</b> (ronds) vérifiant <i>'+c.fname+'</i>(x) = '+c.kL+'.<br><b>b)</b> Clique sur les solutions de l’axe des abscisses de <i>'+c.fname+'</i>(x) = '+c.kL+' (carrés).<br><b>c)</b> Écris les solutions de l’équation <i>'+c.fname+'</i>(x) = '+c.kL+' en les séparant par un point-virgule s’il y en a plusieurs.';
+  $('tvgConsignes').innerHTML='<b>a)</b> Clique sur la courbe le ou les <b>points</b> (ronds) vérifiant <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+'.<br><b>b)</b> Clique sur les solutions de l’axe des abscisses de <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+' (carrés).<br><b>c)</b> Écris les solutions de l’équation <i>'+c.fname+'</i>(<i>x</i>) = '+c.kL+' en les séparant par un point-virgule s’il y en a plusieurs.';
   $('tvgSolZone').innerHTML='<span class="tvg-sollbl"><i>x</i>&nbsp;=</span><input class="tvg-solin" id="tvgSol" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="…"><button type="button" class="tvg-vide" onclick="tvgVide()" title="Aucune solution (∅) — raccourci clavier : tape vid">∅</button><span class="tvg-hint">raccourci clavier : <kbd>vid</kbd></span>';
   const si=$('tvgSol');
   si.oninput=function(){ const av=this.value; if(/vid/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/vid/gi,'∅'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } };
@@ -8220,11 +8221,11 @@ function lgSVG(c, opts){
   let asyLignes='', asyLab='';
   c.ahs.forEach(v=>{
     asyLignes+=`<line x1="${X(LG_XMIN).toFixed(1)}" y1="${Y(v).toFixed(1)}" x2="${X(LG_XMAX).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="#5b6b8c" stroke-width="1.3" stroke-dasharray="6 4"/>`;
-    asyLab+=`<text x="${(X(LG_XMAX)-4).toFixed(1)}" y="${(Y(v)-5).toFixed(1)}" class="sv-ax" text-anchor="end" fill="var(--blue)" font-weight="800">y = ${numFmt(v)}</text>`;
+    asyLab+=`<text x="${(X(LG_XMAX)-4).toFixed(1)}" y="${(Y(v)-5).toFixed(1)}" class="sv-ax" text-anchor="end" fill="var(--blue)" font-weight="800"><tspan class="mth">y</tspan> = ${numFmt(v)}</text>`;
   });
   if(c.av!=null){
     asyLignes+=`<line x1="${X(c.av).toFixed(1)}" y1="${Y(c.yMax).toFixed(1)}" x2="${X(c.av).toFixed(1)}" y2="${Y(c.yMin).toFixed(1)}" stroke="#5b6b8c" stroke-width="1.3" stroke-dasharray="6 4"/>`;
-    asyLab+=`<text x="${(X(c.av)+5).toFixed(1)}" y="${(Y(c.yMax)+12).toFixed(1)}" class="sv-ax" fill="var(--blue)" font-weight="800">x = ${numFmt(c.av)}</text>`;
+    asyLab+=`<text x="${(X(c.av)+5).toFixed(1)}" y="${(Y(c.yMax)+12).toFixed(1)}" class="sv-ax" fill="var(--blue)" font-weight="800"><tspan class="mth">x</tspan> = ${numFmt(c.av)}</text>`;
   }
   if(asyCachees) g+=`<g id="${pfx}AsyLabs" style="display:none">${asyLignes}${asyLab}</g>`;
   else g+=`${asyLignes}<g id="${pfx}AsyLabs" style="display:none">${asyLab}</g>`;
@@ -8387,7 +8388,7 @@ function renderLG(){
   const aide=(currentMode!=='eval');
   $('lgHint').innerHTML=(aide?'<span class="tvg-hint">▶ fait apparaître un point qui se déplace sur la courbe&nbsp;·&nbsp;</span>':'')+'<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
   $('lgSubs').innerHTML=c.subs.map((s,i)=>
-    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → '+limHTML('lg-lim'+i,'lg-lim')+' <button type="button" class="lg-inf" id="lg-inf'+i+'" onclick="lgInsInf('+i+')" title="Insérer le symbole ∞">∞</button></span>'
+    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(<i>x</i>) → '+limHTML('lg-lim'+i,'lg-lim')+' <button type="button" class="lg-inf" id="lg-inf'+i+'" onclick="lgInsInf('+i+')" title="Insérer le symbole ∞">∞</button></span>'
     +(aide?' <button type="button" class="lg-play" onclick="lgAnime('+i+')" title="Voir un point se déplacer sur la courbe vers cette cible">▶</button>':'')
     +'<br>il y a donc <select class="lg-sel" id="lg-typ'+i+'" onchange="lgSync('+i+')"><option value="">—</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'
     +' <span class="dhv-eqgrp" id="lg-eqz'+i+'" style="display:none">, d’équation <span id="lg-pre'+i+'"></span> = <input class="dhv-in" id="lg-eq'+i+'" type="text" inputmode="numeric" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
@@ -8644,7 +8645,7 @@ function lg2DBarres(tv){
 /* --- Sous-questions de limites (partagées niveaux 2 et 3) : préfixe d'ids paramétré --- */
 function lgSubsHTML(c,pfx){
   return c.subs.map((s,i)=>
-    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → '+limHTML(pfx+'-lim'+i,'lg-lim')+' <button type="button" class="lg-inf" id="'+pfx+'-inf'+i+'" onclick="lgSubsInsInf(\''+pfx+'\','+i+')" title="Insérer le symbole ∞">∞</button></span>'
+    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(<i>x</i>) → '+limHTML(pfx+'-lim'+i,'lg-lim')+' <button type="button" class="lg-inf" id="'+pfx+'-inf'+i+'" onclick="lgSubsInsInf(\''+pfx+'\','+i+')" title="Insérer le symbole ∞">∞</button></span>'
     +'<br>il y a donc <select class="lg-sel" id="'+pfx+'-typ'+i+'" onchange="lgSubsSync(\''+pfx+'\','+i+')"><option value="">—</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'
     +' <span class="dhv-eqgrp" id="'+pfx+'-eqz'+i+'" style="display:none">, d’équation <span id="'+pfx+'-pre'+i+'"></span> = <input class="dhv-in" id="'+pfx+'-eq'+i+'" type="text" inputmode="numeric" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
   ).join('');
@@ -9466,7 +9467,7 @@ function renderDexp2(){
   if($('dexpHintP')) $('dexpHintP').style.display='none';
   const eOld=`<span class="dexp-ek">e<sup>${esc(c.expHtml)}</sup></span>`;
   const eTex='e^{'+mlTexN(c.expHtml)+'}';
-  $('dexpEnonce').innerHTML=mlTex('f(x)=\\left('+mlTexN(c.uStr)+'\\right)'+eTex, `<i>f</i>(x) = (${esc(c.uStr)})${eOld}`);
+  $('dexpEnonce').innerHTML=mlTex('f(x)=\\left('+mlTexN(c.uStr)+'\\right)'+eTex, `<i>f</i>(<i>x</i>) = (${esc(c.uStr)})${eOld}`);
   const ce=id=>`<math-field class="dexp-mf" id="${id}"></math-field>`;
   $('dexpBody').innerHTML=`<div class="dexp-facblock">
      <div class="dexp-pose"><b class="dexp-fac">Facultatif</b> — On pose <span class="dexp-hint">(u et v dans l'ordre que tu veux)</span> :</div>
@@ -9546,7 +9547,7 @@ function dexp2AlignPrefix(L){
   }catch(e){} });
 }
 function dexp2RefreshPrefixes(){
-  dexp2Lines.forEach((L,i)=>{ L.prefix.innerHTML=(i===0)?"<i>f</i>\u00a0\u2032(x) =":"="; dexp2AlignPrefix(L); });
+  dexp2Lines.forEach((L,i)=>{ L.prefix.innerHTML=(i===0)?"<i>f</i>\u00a0\u2032(<i>x</i>) =":"="; dexp2AlignPrefix(L); });
 }
 function dexp2KeepCaret(mf){
   const sheet=$('dexp2Sheet'); if(!sheet) return;
@@ -9621,7 +9622,7 @@ function renderDexp(){
   const eOld=`<span class="dexp-ek">e<sup>${esc(c.expHtml)}</sup></span>`;
   const eTex='e^{'+mlTexN(c.expHtml)+'}';
   const e=mlTex(eTex, eOld);
-  $('dexpEnonce').innerHTML=mlTex('f(x)=\\left('+mlTexN(c.uStr)+'\\right)'+eTex, `<i>f</i>(x) = (${esc(c.uStr)})${eOld}`);
+  $('dexpEnonce').innerHTML=mlTex('f(x)=\\left('+mlTexN(c.uStr)+'\\right)'+eTex, `<i>f</i>(<i>x</i>) = (${esc(c.uStr)})${eOld}`);
   const ce=id=>`<math-field class="dexp-mf" id="${id}"></math-field>`;
   const cep=id=>`<span class="dexp-pwrap"><span class="par">(</span>${ce(id)}<span class="par">)</span></span>`;
   /* etape du developpement : le terme bk·e^(kx) disparait quand b=0 (case inutile) */
@@ -9631,7 +9632,7 @@ function renderDexp(){
     `<div class="dexp-pose">On pose <span class="dexp-hint">(u et v dans l'ordre que tu veux)</span> :</div>
      <div class="dexp-row"><span>${mlTex('u=','<i>u</i> = ')}${ce('dexp-u')}</span><span>${mlTex('v=','<i>v</i> = ')}${ce('dexp-v')}</span></div>
      <div class="dexp-row"><span>${mlTex("u'=",'<i>u\u2032</i> = ')}${ce('dexp-du')}</span><span>${mlTex("v'=",'<i>v\u2032</i> = ')}${ce('dexp-dv')}</span></div>
-     <div class="dexp-formula">${mlTex("f\\;{}'(x)=u'\\times v+u\\times v'", "<i>f</i>\u00a0\u2032(x) = <i>u\u2032</i>\u00d7<i>v</i> + <i>u</i>\u00d7<i>v\u2032</i>")}</div>
+     <div class="dexp-formula">${mlTex("f\\;{}'(x)=u'\\times v+u\\times v'", "<i>f</i>\u00a0\u2032(<i>x</i>) = <i>u\u2032</i>\u00d7<i>v</i> + <i>u</i>\u00d7<i>v\u2032</i>")}</div>
      <div class="dexp-steprow"><span class="eq">=</span>${cep('dexp-s2a')}<span class="op">\u00d7</span>${cep('dexp-s2b')}<span class="op">+</span>${cep('dexp-s2c')}<span class="op">\u00d7</span>${cep('dexp-s2d')}</div>
      <div class="dexp-steprow"><span class="eq">=</span>${s3row}</div>
      <div class="dexp-steprow dexp-stepfac"><span class="eq">=</span>${e} ( <math-field class="dexp-mf dexp-mf-wide" id="dexp-fac"></math-field> )</div>`;
@@ -9887,7 +9888,7 @@ function checkDexp(){
       '<div style="text-align:left;display:inline-block;line-height:1.9">'+
       '<b>La bonne d\u00e9marche :</b><br>'+
       '<i>u</i> = '+polyH+' \u00a0\u00a0 <i>v</i> = '+expH+' \u00a0\u00a0 <i>u\u2032</i> = '+dpolyH+' \u00a0\u00a0 <i>v\u2032</i> = '+dexpH+'<br>'+
-      '<i>f</i>\u00a0\u2032(x) = '+dpolyH+'\u00d7'+expH+' + ('+polyH+')\u00d7('+dexpH+')<br>'+
+      '<i>f</i>\u00a0\u2032(<i>x</i>) = '+dpolyH+'\u00d7'+expH+' + ('+polyH+')\u00d7('+dexpH+')<br>'+
       '\u00a0\u00a0\u00a0\u00a0= '+((c.b!==0?(s3a+expH+' + '+s3b+expH+' + '+s3c+expH):(s3a+expH+' + '+s3b+expH))).replace(/ \+ \u2212/g,' \u2212 ')+'<br>'+
       '\u00a0\u00a0\u00a0\u00a0= '+expH+' ( '+exprToHtml(c.facAns)+' )'+
       '</div>';
@@ -9959,7 +9960,7 @@ function renderDexp3(){
   const aTex=d3ATex(c), sgn=(c.b>0?'+':'-'), babs=(Math.abs(c.b)===1?'':numFmt(Math.abs(c.b)));
   const aHtml=esc(c.aStr), bxAbsHtml=esc(babs)+'x';
   $('dexpEnonce').innerHTML=mlTex('f(x)='+aTex+sgn+mlTexN(babs)+'x'+eTex,
-    `<i>f</i>(x) = ${aHtml} ${sgn==='+'?'+':'\u2212'} ${bxAbsHtml}${eOld}`);
+    `<i>f</i>(<i>x</i>) = ${aHtml} ${sgn==='+'?'+':'\u2212'} ${bxAbsHtml}${eOld}`);
   const ce=id=>`<math-field class="dexp-mf" id="${id}"></math-field>`;
   const cep=id=>`<span class="dexp-pwrap"><span class="par">(</span>${ce(id)}<span class="par">)</span></span>`;
   const s3cell=id=>`<math-field class="dexp-mf dexp-mf-slim" id="${id}"></math-field>${e}`;
@@ -9968,7 +9969,7 @@ function renderDexp3(){
     `<div class="dexp-pose">Pour le 2\u1d49 terme (le produit), on pose <span class="dexp-hint">(u et v dans l'ordre que tu veux)</span> :</div>
      <div class="dexp-row"><span>${mlTex('u=','<i>u</i> = ')}${ce('d3-u')}</span><span>${mlTex('v=','<i>v</i> = ')}${ce('d3-v')}</span></div>
      <div class="dexp-row"><span>${mlTex("u'=",'<i>u\u2032</i> = ')}${ce('d3-du')}</span><span>${mlTex("v'=",'<i>v\u2032</i> = ')}${ce('d3-dv')}</span></div>
-     <div class="dexp-formula">${mlTex("f\\;{}'(x)=\\left("+aTex+"\\right)'+u'\\times v+u\\times v'", "<i>f</i>\u00a0\u2032(x) = ("+aHtml+")\u2032 + <i>u\u2032</i>\u00d7<i>v</i> + <i>u</i>\u00d7<i>v\u2032</i>")}</div>
+     <div class="dexp-formula">${mlTex("f\\;{}'(x)=\\left("+aTex+"\\right)'+u'\\times v+u\\times v'", "<i>f</i>\u00a0\u2032(<i>x</i>) = ("+aHtml+")\u2032 + <i>u\u2032</i>\u00d7<i>v</i> + <i>u</i>\u00d7<i>v\u2032</i>")}</div>
      <div class="dexp-steprow"><span class="eq">=</span>${mir('d3-da')}<span class="op">+</span>${cep('d3-s2a')}<span class="op">\u00d7</span>${cep('d3-s2b')}<span class="op">+</span>${cep('d3-s2c')}<span class="op">\u00d7</span>${cep('d3-s2d')}</div>
      <div class="dexp-steprow"><span class="eq">=</span>${mir('d3-da3')}<span class="op">+</span>${s3cell('d3-s3a')}<span class="op">+</span>${s3cell('d3-s3b')}</div>
      <div class="dexp-steprow dexp-stepfac"><span class="eq">=</span>${mir('d3-da4')}<span class="op">+</span>${e} ( <math-field class="dexp-mf dexp-mf-wide" id="d3-fac"></math-field> )</div>`;
@@ -10198,7 +10199,7 @@ function renderDexpQ2(){
   if($('dexpHintP')) $('dexpHintP').style.display='none';
   const eOld=`<span class="dexp-ek">e<sup>${esc(c.expHtml)}</sup></span>`;
   const eTex='e^{'+mlTexN(c.expHtml)+'}';
-  $('dexpEnonce').innerHTML=mlTex('f(x)=\\frac{'+eTex+'}{'+mlTexN(c.vStr)+'}', `<i>f</i>(x) = ${eOld} / (${esc(c.vStr)})`);
+  $('dexpEnonce').innerHTML=mlTex('f(x)=\\frac{'+eTex+'}{'+mlTexN(c.vStr)+'}', `<i>f</i>(<i>x</i>) = ${eOld} / (${esc(c.vStr)})`);
   const ce=id=>`<math-field class="dexp-mf" id="${id}"></math-field>`;
   $('dexpBody').innerHTML=`<div class="dexp-facblock">
      <div class="dexp-pose"><b class="dexp-fac">Facultatif</b> \u2014 On pose <span class="dexp-hint">(u = num\u00e9rateur, v = d\u00e9nominateur)</span> :</div>
@@ -10273,7 +10274,7 @@ function renderDexpQ(){
   const eOld=`<span class="dexp-ek">e<sup>${esc(c.expHtml)}</sup></span>`;
   const eTex='e^{'+mlTexN(c.expHtml)+'}';
   const e=mlTex(eTex, eOld);
-  $('dexpEnonce').innerHTML=mlTex('f(x)=\\frac{'+eTex+'}{'+mlTexN(c.vStr)+'}', `<i>f</i>(x) = ${eOld} / (${esc(c.vStr)})`);
+  $('dexpEnonce').innerHTML=mlTex('f(x)=\\frac{'+eTex+'}{'+mlTexN(c.vStr)+'}', `<i>f</i>(<i>x</i>) = ${eOld} / (${esc(c.vStr)})`);
   const ce=id=>`<math-field class="dexp-mf" id="${id}"></math-field>`;
   const cep=id=>`<span class="dexp-pwrap"><span class="par">(</span>${ce(id)}<span class="par">)</span></span>`;
   const den=esc(c.vStr);
@@ -10284,7 +10285,7 @@ function renderDexpQ(){
     `<div class="dexp-pose">On pose <span class="dexp-hint">(u = num\u00e9rateur, v = d\u00e9nominateur)</span> :</div>
      <div class="dexp-row"><span>${mlTex('u=','<i>u</i> = ')}${ce('dq-u')}</span><span>${mlTex('v=','<i>v</i> = ')}${ce('dq-v')}</span></div>
      <div class="dexp-row"><span>${mlTex("u'=",'<i>u\u2032</i> = ')}${ce('dq-du')}</span><span>${mlTex("v'=",'<i>v\u2032</i> = ')}${ce('dq-dv')}</span></div>
-     <div class="dexp-formula">${mlTex("f\\;{}'(x)=\\frac{u'\\times v-u\\times v'}{v^2}", "<i>f</i>\u00a0\u2032(x) = (<i>u\u2032</i>\u00d7<i>v</i> \u2212 <i>u</i>\u00d7<i>v\u2032</i>) / <i>v</i>\u00b2")}</div>
+     <div class="dexp-formula">${mlTex("f\\;{}'(x)=\\frac{u'\\times v-u\\times v'}{v^2}", "<i>f</i>\u00a0\u2032(<i>x</i>) = (<i>u\u2032</i>\u00d7<i>v</i> \u2212 <i>u</i>\u00d7<i>v\u2032</i>) / <i>v</i>\u00b2")}</div>
      <div class="dexp-steprow"><span class="eq">=</span><span class="dq-frac"><span class="dq-num">${cep('dq-s2a')}<span class="op">\u00d7</span>${cep('dq-s2b')}<span class="op">\u2212</span>${cep('dq-s2c')}<span class="op">\u00d7</span>${cep('dq-s2d')}</span><span class="dq-bar"></span><span class="dq-den"><math-field class="dexp-mf dexp-mf-wide" id="dq-s2e"></math-field></span></span></div>
      <div class="dexp-steprow"><span class="eq">=</span><span class="dq-frac"><span class="dq-num">${s3row}</span><span class="dq-bar"></span><span class="dq-den"><math-field class="dexp-mf dexp-mf-wide dq-mirror" id="dq-s3d"></math-field></span></span></div>
      <div class="dexp-steprow dexp-stepfac"><span class="eq">=</span><span class="dq-frac"><span class="dq-num">${e} ( <math-field class="dexp-mf dexp-mf-wide" id="dq-fac"></math-field> )</span><span class="dq-bar"></span><span class="dq-den"><math-field class="dexp-mf dexp-mf-wide dq-mirror" id="dq-facd"></math-field></span></span></div>`;
@@ -10475,7 +10476,7 @@ function checkDexpQ(){
     const expH='e<sup>'+esc(c.expHtml)+'</sup>';
     const oldHtml='<div style="text-align:left;display:inline-block;line-height:1.9"><b>La bonne d\u00e9marche :</b><br>'+
       '<i>u</i> = '+expH+' \u00a0 <i>v</i> = '+esc(c.vStr)+' \u00a0 <i>u\u2032</i> = '+esc(coefDisp)+expH+' \u00a0 <i>v\u2032</i> = '+esc(c.dvTxt)+'<br>'+
-      '<i>f</i>\u00a0\u2032(x) = [ ('+esc(coefDisp)+expH+')\u00d7('+esc(c.vStr)+') \u2212 '+expH+'\u00d7'+esc(c.dvTxt)+' ] / ('+esc(c.vStr)+')\u00b2<br>'+
+      '<i>f</i>\u00a0\u2032(<i>x</i>) = [ ('+esc(coefDisp)+expH+')\u00d7('+esc(c.vStr)+') \u2212 '+expH+'\u00d7'+esc(c.dvTxt)+' ] / ('+esc(c.vStr)+')\u00b2<br>'+
       '\u00a0\u00a0= [ '+expH+' ( '+exprToHtml(c.facAns)+' ) ] / ('+esc(c.vStr)+')\u00b2</div>';
     $('dexpFeedback').innerHTML = texHtml || oldHtml;
     $('dexpFeedback').className='mp-feedback bad';
@@ -11230,7 +11231,7 @@ function afGraphSVG(pts, prime){
     +'<line x1="'+x0.toFixed(1)+'" y1="'+(PB)+'" x2="'+x0.toFixed(1)+'" y2="'+(PT-6)+'" class="lv-axis"/>'
     +'<polygon points="'+(PR+8)+','+y0.toFixed(1)+' '+(PR)+','+(y0-3.5).toFixed(1)+' '+(PR)+','+(y0+3.5).toFixed(1)+'" class="lv-axfill"/>'
     +'<polygon points="'+x0.toFixed(1)+','+(PT-8)+' '+(x0-3.5).toFixed(1)+','+(PT)+' '+(x0+3.5).toFixed(1)+','+(PT)+'" class="lv-axfill"/>'
-    +'<text x="'+(PR+6)+'" y="'+(y0+15).toFixed(1)+'" class="lv-ax" text-anchor="middle">x</text>';
+    +'<text x="'+(PR+6)+'" y="'+(y0+15).toFixed(1)+'" class="lv-ax" text-anchor="middle"><tspan class="mth">x</tspan></text>';
   let labels='';
   for(let x=-3;x<=3;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
   for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
@@ -12903,7 +12904,7 @@ function eqCases(c){
 function eqTableHTML(c){
   const innerW=3*EF_WN+2*EF_WS;
   const scx=i=>(i*(EF_WN+EF_WS)+EF_WN+EF_WS/2);
-  const den2='('+esc(c.denStr)+')<sup>2</sup>';
+  const den2='('+esc(c.denStr).replace(/x/g,'<i>x</i>')+')<sup>2</sup>';
   const xr='<td class="vlab" style="width:176px"><i>x</i></td>'
     +'<td class="vnx" style="width:'+EF_WN+'px">\u2212\u221e</td><td class="vax" style="width:'+EF_WS+'px"></td>'
     +'<td class="vnx" style="width:'+EF_WN+'px">'+s1Box('eq-x0',1)+'</td>'
@@ -12967,7 +12968,7 @@ function renderEQ(){
   $('eqLiveScore').textContent=test.score;
   $('eqFeedback').textContent=''; $('eqFeedback').className='mp-feedback';
   $('eqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEQ()">V\u00e9rifier</button>';
-  $('eqPrompt').innerHTML='On consid\u00e8re la fonction '+mlTex(eqFxTex(c), '<i>f</i>(x) = ('+esc(c.numStr)+') / ('+esc(c.denStr)+')')+'.';
+  $('eqPrompt').innerHTML='On consid\u00e8re la fonction '+mlTex(eqFxTex(c), '<i>f</i>(<i>x</i>) = ('+esc(c.numStr)+') / ('+esc(c.denStr)+')')+'.';
   const ce=id=>'<math-field class="dexp-mf" id="'+id+'"></math-field>';
   const cep=id=>'<span class="dexp-pwrap"><span class="par">(</span>'+ce(id)+'<span class="par">)</span></span>';
   $('eqBody').innerHTML=
@@ -12975,18 +12976,18 @@ function renderEQ(){
     +'<div class="s1-res"><div class="s1-line">Pour trouver la ou les valeurs interdites, on r\u00e9sout :&nbsp; '+ce('eq-den')+' <span class="op">= 0</span></div>'
     +'<div class="s1-line">Donc&nbsp; <i>x</i> = <span class="eq-frac-in">'+s1Box('eq-fn',1)+'<span class="eq-fbar"></span>'+s1Box('eq-fd',1)+'</span> = '+s1Box('eq-fv',1)+'</div>'
     +'<div class="s1-line">Donc l\u2019ensemble de d\u00e9finition de <i>f</i> est&nbsp; \u211d\u2009\\\u2009{ '+s1Box('eq-dom',1)+' }</div></div></div>'
-    +'<div class="eq-part"><b>b) D\u00e9montrer que</b> '+mlTex(eqFpTex(c), '<i>f</i>\u2009\u2032(x) = '+numFmt(c.k)+' / ('+esc(c.denStr)+')\u00b2')+'.'
+    +'<div class="eq-part"><b>b) D\u00e9montrer que</b> '+mlTex(eqFpTex(c), '<i>f</i>\u2009\u2032(<i>x</i>) = '+numFmt(c.k)+' / ('+esc(c.denStr)+')\u00b2')+'.'
     +'<div class="dexp-pose">On pose <span class="dexp-hint">(u = num\u00e9rateur, v = d\u00e9nominateur)</span> :</div>'
     +'<div class="dexp-row"><span>'+mlTex('u=','<i>u</i> = ')+ce('eq-u')+'</span><span>'+mlTex('v=','<i>v</i> = ')+ce('eq-v')+'</span></div>'
     +'<div class="dexp-row"><span>'+mlTex("u'=",'<i>u\u2032</i> = ')+ce('eq-du')+'</span><span>'+mlTex("v'=",'<i>v\u2032</i> = ')+ce('eq-dv')+'</span></div>'
-    +'<div class="dexp-formula">'+mlTex("f\\;{}'(x)=\\frac{u'\\times v-u\\times v'}{v^2}", "<i>f</i>\u00a0\u2032(x) = (<i>u\u2032</i>\u00d7<i>v</i> \u2212 <i>u</i>\u00d7<i>v\u2032</i>) / <i>v</i>\u00b2")+'</div>'
+    +'<div class="dexp-formula">'+mlTex("f\\;{}'(x)=\\frac{u'\\times v-u\\times v'}{v^2}", "<i>f</i>\u00a0\u2032(<i>x</i>) = (<i>u\u2032</i>\u00d7<i>v</i> \u2212 <i>u</i>\u00d7<i>v\u2032</i>) / <i>v</i>\u00b2")+'</div>'
     +'<div class="dexp-steprow"><span class="eq">=</span><span class="dq-frac"><span class="dq-num">'+cep('eq-s2a')+'<span class="op">\u00d7</span>'+cep('eq-s2b')+'<span class="op">\u2212</span>'+cep('eq-s2c')+'<span class="op">\u00d7</span>'+cep('eq-s2d')+'</span><span class="dq-bar"></span><span class="dq-den"><math-field class="dexp-mf dexp-mf-wide" id="eq-s2e"></math-field></span></span></div>'
     +'<div class="dexp-steprow"><span class="eq">=</span><span class="dq-frac"><span class="dq-num">'+['eq-d1','eq-d2','eq-d3','eq-d4'].map(id=>'<math-field class="dexp-mf dexp-mf-slim" id="'+id+'"></math-field>').join('<span class="op">+</span>')+'</span><span class="dq-bar"></span><span class="dq-den"><math-field class="dexp-mf dexp-mf-wide dq-mirror" id="eq-ddev"></math-field></span></span></div>'
     +'<p class="dexp-hint eq-devhint">On d\u00e9veloppe d\u2019abord : un terme par case, avec son signe (les deux termes en <i>x</i> se compensent).</p>'
     +'<div class="dexp-steprow"><span class="eq">=</span><span class="dq-frac"><span class="dq-num"><math-field class="dexp-mf dexp-mf-wide" id="eq-num"></math-field></span><span class="dq-bar"></span><span class="dq-den"><math-field class="dexp-mf dexp-mf-wide dq-mirror" id="eq-dend"></math-field></span></span></div>'
     +'<p class="dexp-hint">Au clavier : <b>^</b> exposant, <b>/</b> fraction, <b>barre d\u2019espace</b> pour sortir d\u2019une fraction ou d\u2019un exposant.<span class="hint-souris"> <b>Clic droit</b> sur un champ : clavier \u00e0 l\u2019\u00e9cran et raccourcis clavier.</span></p></div>'
     +'<div class="eq-part"><b>c) \u00c9tudier les variations de <i>f</i>.</b>'
-    +'<div class="s1-res"><div class="s1-line">Comme&nbsp; '+mlTex(eqFpTex(c), '<i>f</i>\u2009\u2032(x) = '+numFmt(c.k)+' / ('+esc(c.denStr)+')\u00b2')+'&nbsp;, compl\u00e8te le tableau (valeur interdite, signes, variations) :</div></div>'
+    +'<div class="s1-res"><div class="s1-line">Comme&nbsp; '+mlTex(eqFpTex(c), '<i>f</i>\u2009\u2032(<i>x</i>) = '+numFmt(c.k)+' / ('+esc(c.denStr)+')\u00b2')+'&nbsp;, compl\u00e8te le tableau (valeur interdite, signes, variations) :</div></div>'
     +eqTableHTML(c)
     +'<div class="s1-res eq-synt"><div class="s1-line">Sur chacun de ses deux intervalles de d\u00e9finition, <i>f</i> est <select class="tvi-sel" id="eq-syn"><option value="">\u2026</option><option value="croi">croissante</option><option value="decr">d\u00e9croissante</option></select>.</div></div>'+eqGraphHTML(c)+'</div>';
   if(window.mlDexp) window.mlDexp.upgrade($('eqBody'));
@@ -15168,10 +15169,10 @@ function ecFormHTML(q){
   /* ---- a. les axes ---- */
   h+='<p class="tx-part">a. Détermine les coordonnées des points d’intersection de la courbe C avec les axes du repère :</p>'
     +'<div class="tg-line tx-avec">Avec l’axe des ABSCISSES — un point de cet axe a une ordonnée qui vaut '+txInp('ec-a1')
-    +' : on cherche donc x tel que '+f+'(x) = '+txInp('ec-a2')+'.</div>'
+    +' : on cherche donc <i>x</i> tel que '+f+'(<i>x</i>) = '+txInp('ec-a2')+'.</div>'
     +'<div class="tg-line">'+ecFx(A.p,A.q)+' = 0 : une exponentielle '
     +'<select class="tvi-sel ec-sel" id="ec-aexp"><option value="">…</option><option value="jamais">ne s’annule jamais</option><option value="zero">s’annule en 𝑥 = 0</option></select>, '
-    +'donc '+txAX(A.p)+txB(A.q)+' = '+txInp('ec-a3')+', c’est-à-dire x = '+txInp('ec-a4')+'.</div>'
+    +'donc '+txAX(A.p)+txB(A.q)+' = '+txInp('ec-a3')+', c’est-à-dire <i>x</i> = '+txInp('ec-a4')+'.</div>'
     +'<div class="tg-line">Le point est ( '+txInp('ec-a5')+' ; '+txInp('ec-a6')+' ).</div>'
     +'<div class="tg-line tx-avec">Avec l’axe des ORDONNÉES — un point de cet axe a une abscisse qui vaut '+txInp('ec-a7')
     +' : on calcule '+f+'(0) = '+txSubst(A.p,A.q,txInp('ec-a8'))+' '+ecEsupNeg('ec-a9')+' = '+txInp('ec-a10')+'.</div>'
@@ -15618,7 +15619,7 @@ function asgFormHTML(q){
      substitution → développement → factorisation, en cases MathLive —
      rendue par la fabrique asgDerBlocHTML, que le 2.2.2 partage */
   h+='<p class="tx-part">b. Démontre que <i>f</i> ′(<i>x</i>) = ('+aff+') e<sup>−<i>x</i></sup> :</p>'
-    +asgDerBlocHTML('asg-b', {tex:"f\\;{}'(x)", html:'<i>f</i>\u00a0′(x)'});
+    +asgDerBlocHTML('asg-b', {tex:"f\\;{}'(x)", html:'<i>f</i>\u00a0′(<i>x</i>)'});
   h+='<p class="tx-part">c. Étudie les variations de '+f+' — résous, puis complète le tableau :</p>'
     +'<div class="tg-line asg-line">'+aff+' = 0 <span class="tg-eq">⟺</span> '+s1ExprHTML(A.dp,0)+' = '+txInp('asg-c1')+' <span class="tg-eq">⟺</span> <i>x</i> '+tEq('=', txInp('asg-c2'))+'</div>'
     +efTableHTML(ecTab(q))+efSyntHTML(ecTab(q));
@@ -20869,7 +20870,7 @@ function renderSVR(){
      dans les trois fichiers et un contrôle le compare au caractère près — on
      s'en sert, on n'y touche pas. */
   svrFeuille=mlFeuille({ conteneur:'svrSheet', mode:'calcul',
-    prefixes:{premiere:'<i>f</i>\u00a0′(x) =', suite:'='},
+    prefixes:{premiere:'<i>f</i>\u00a0′(<i>x</i>) =', suite:'='},
     prefixesTexte:{premiere:"f'(x) =", suite:'='} });
   /* La feuille n'a aucun id : _boxes ne sait pas la restaurer. Elle voyage donc
      dans test (le motif du 6.7), que snapshotTest photographie en entier. */
@@ -26112,4 +26113,93 @@ window.mlDexp = {
   showShortcuts(){ if(!helpWin) return false; helpWin.classList.toggle("open"); return true; }
 };
 customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
+</script>
+<script id="italiquer-x">
+/* L'INCONNUE « x » S'ÉCRIT TOUJOURS EN ITALIQUE ARRONDI — filet de sécurité.
+   Décision de Turquet, septembre 2026 : « à retenir pour tous les prochains
+   exercices sur tous les niveaux », puis « corrige les x droits des exercices
+   restants ». Un x posé dans une chaîne en texte brut (« f (x) ≤ 2 », « en x »,
+   « 2x + 3 ») s'affichait droit, et les énoncés sont tirés au hasard : corriger
+   les chaînes une à une laissait toujours un x droit dans un tirage qu'on
+   n'avait pas vu. Ce filet lit donc le TEXTE AFFICHÉ, après chaque rendu, et
+   enveloppe tout « x » isolé — jamais celui de « max » ni de « exp ».
+   On écrit toujours <i>x</i> dans la source quand on le peut ; ce filet
+   rattrape le reste, et le banc navigateur vérifie le résultat (« l'inconnue
+   « x » s'écrit toujours en italique »). Hors champ : le code (Python, police à
+   chasse fixe, reconnue à sa fonte), les champs de saisie et MathLive, qui composent eux-mêmes. */
+(function(){
+  const RE=/(^|[^A-Za-zÀ-ÿ_])x(?![A-Za-zÀ-ÿ_])/g;
+  const TEST=/(^|[^A-Za-zÀ-ÿ_])x(?![A-Za-zÀ-ÿ_])/;
+  const SVGNS='http://www.w3.org/2000/svg';
+  const HORS='math-field,script,style,textarea,input,code,pre,#qiaInput';
+  function dejaBon(p){
+    const cs=getComputedStyle(p);
+    if(/mono|courier|consolas|menlo/i.test(cs.fontFamily)) return true;            /* du code, pas une inconnue */
+    return (cs.fontStyle==='italic'||cs.fontStyle==='oblique')
+      && /KaTeX_Math|Georgia|Times|Cambria|serif/i.test(cs.fontFamily)
+      && !/Nunito|Fredoka/i.test(cs.fontFamily.split(',')[0]);
+  }
+  function traiter(n){
+    const p=n.parentElement; if(!p) return;
+    const t=n.nodeValue;
+    if(p.closest(HORS)) return;
+    if(p.tagName==='OPTION'){                    /* une <option> ne porte pas de balise : le x mathématique s'écrit 𝑥 */
+      n.nodeValue=t.replace(RE,function(m,a){ return a+'\u{1D465}'; });
+      return;
+    }
+    if(dejaBon(p)) return;
+    const svg=!!p.closest('svg');
+    const frag=document.createDocumentFragment();
+    let dernier=0, m; RE.lastIndex=0;
+    while((m=RE.exec(t))){
+      const deb=m.index+m[1].length;              /* position du x lui-même */
+      if(deb>dernier) frag.appendChild(document.createTextNode(t.slice(dernier,deb)));
+      const e=svg ? document.createElementNS(SVGNS,'tspan') : document.createElement('i');
+      e.setAttribute('class',svg?'mth':'xi'); e.textContent='x';   /* className est en lecture seule sur un élément SVG */
+      frag.appendChild(e);
+      dernier=deb+1;
+    }
+    if(dernier<t.length) frag.appendChild(document.createTextNode(t.slice(dernier)));
+    n.replaceWith(frag);
+  }
+  function italiquer(racine){
+    if(!racine) return;
+    try{
+      const noeuds=[];
+      if(racine.nodeType===3){ if(TEST.test(racine.nodeValue)) noeuds.push(racine); }
+      else if(racine.nodeType===1){
+        const w=document.createTreeWalker(racine,NodeFilter.SHOW_TEXT);
+        let n; while((n=w.nextNode())){ if(TEST.test(n.nodeValue)) noeuds.push(n); }
+      }
+      noeuds.forEach(traiter);
+    }catch(e){}
+  }
+  window.italiquerX=italiquer;
+  let file=[], prevu=false, obs=null;
+  function noter(r){
+    file.push(r);
+    if(!prevu){ prevu=true; (window.queueMicrotask||function(f){ Promise.resolve().then(f); })(vider); }
+  }
+  function lire(recs){
+    recs.forEach(function(r){
+      if(r.type==='characterData'){ if(r.target.parentElement) noter(r.target.parentElement); return; }
+      r.addedNodes.forEach(function(n){ if(n.nodeType===1) noter(n); else if(n.nodeType===3&&n.parentElement) noter(n.parentElement); });
+    });
+  }
+  function vider(){
+    prevu=false;
+    if(obs){ lire(obs.takeRecords()); obs.disconnect(); }   /* nos propres enveloppes ne se relisent pas */
+    const racines=file; file=[];
+    racines.forEach(function(r){ if(r.isConnected) italiquer(r); });
+    if(obs) obs.observe(document.body,{childList:true,subtree:true,characterData:true});
+  }
+  function demarrer(){
+    if(!document.body||!window.MutationObserver) return;
+    if(/jsdom/i.test(navigator.userAgent)) return;   /* le banc jsdom n'a pas de rendu : getComputedStyle y est très lent, et rien n'y mesure l'écriture */
+    obs=new MutationObserver(lire);
+    obs.observe(document.body,{childList:true,subtree:true,characterData:true});
+    noter(document.body);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',demarrer); else demarrer();
+})();
 </script>
