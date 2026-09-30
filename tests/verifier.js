@@ -4146,6 +4146,7 @@ function exercices(suite){
     variationsDerivee(w, P);
     signeDeriveeQcm(w, P);
     convexiteTroisCourbes(w, P);
+    convexiteQcm(w, P);
     suiteVocabulaire(w, P);
     etiquetteCourbe(w, P);
     etiquetteCourbeSeconde(w, P);
@@ -12617,14 +12618,17 @@ function etudeConvexite(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='etude-convexite';
 
-    /* ---- 0. la place au menu : la partie « Convexité » du thème 2, après
-       le 2.2.1 — demande de Turquet (septembre 2026) : « créer un exercice
-       comme le pdf dans le sous-thème convexité » ; le thème 5 ne le porte
-       plus, et ses cinq exercices gardent leur numéro ---- */
+    /* ---- 0. la place au menu : la partie « Convexité » du thème 2, JUSTE
+       après le 2.2.1 — demande de Turquet (septembre 2026) : « créer un
+       exercice comme le pdf dans le sous-thème convexité » ; le thème 5 ne le
+       porte plus, et ses cinq exercices gardent leur numéro. Le premier jet
+       exigeait « le dernier de la partie » : le jour où les QCM de
+       convexité (2.2.3) sont venus derrière, il rougissait sur une place
+       parfaitement juste — la règle est le RANG, pas la fin de liste. ---- */
     { const th=THEMES.filter(function(t){ return t.num===2; })[0];
       const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==='Convexité'; })[0];
-      if(!th || !st || st.ids.indexOf('etude-convexite')!==st.ids.length-1 || st.ids[0]!=='convexite-trois-courbes')
-        vus.push('{etude-convexite} n\\'est pas le dernier de la partie « Convexité » du thème 2, après {convexite-trois-courbes}');
+      if(!th || !st || st.ids.indexOf('etude-convexite')!==1 || st.ids[0]!=='convexite-trois-courbes')
+        vus.push('{etude-convexite} n\\'est pas le deuxième de la partie « Convexité » du thème 2, juste après {convexite-trois-courbes}');
       if(TEST_NUM['etude-convexite']!=='2.2.2') vus.push('le numéro n\\'est pas 2.2.2 : '+TEST_NUM['etude-convexite']);
       if(TEST_NUM['etude-exponentielle']!=='5.5'||TEST_NUM['equation-tangente']!=='5.1') vus.push('le thème 5 a été renuméroté');
       const t5=THEMES.filter(function(t){ return t.num===5; })[0];
@@ -29297,6 +29301,217 @@ function convexiteTroisCourbes(w, P){
     /* le contexte du modèle porte la clause de secret et les réponses */
     pose(null);
     { const c=cvxConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/extremum \\u22121 en 0/.test(c) || !/colonnes : 0 ; 1/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec les réponses'); }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Convexité — QCM variés : six visages, une seule affirmation vraie ----
+   La fiche « QCM convexité » (demande de Turquet, septembre 2026 : « en
+   terminale faire des QCM variés comme sur le PDF ») : la courbe de f′, son
+   tableau de variations ou la courbe de f″, et quatre affirmations dont UNE
+   SEULE est vraie. Le contrôle recompte TOUT par sa propre arithmétique —
+   zéros, signes et sommets sur les sept valeurs, le sens d'un intervalle lu
+   sur TOUTES ses différences, et la vérité de chaque affirmation relue
+   dessus, sans jamais appeler cvqVrai —, puis exige exactement une vraie par
+   question, quatre affirmations distinctes, les six visages une fois chacun
+   par séance, sur la courbe de f″ aucune affirmation que f″ ne peut fonder
+   (extremum de f, tangente), une courbe lisible (pas de plateau, pas de
+   changement de signe hors d'un zéro, un ou deux zéros, un ou deux sommets),
+   le piège de chaque visage (l'intervalle qui enjambe et le sens inversé, le
+   sommet de f′ pris pour un extremum de f, le zéro de f′ pris pour un point
+   d'inflexion ou pour un zéro de f″, un extremum de f′ posé à côté), le rang
+   de la vraie qui varie, et la famille de la vraie qui varie là où le visage
+   en a plusieurs. Le repli est repassé par les mêmes gardes sur les six
+   visages. Puis les gestes, sur des questions FIXES : la copie juste vaut le
+   point et compte sa case, le QCM faux nomme son piège, la copie vide demande
+   de choisir, la liste ne se colore pas en direct, le soutien ne verrouille
+   pas, la carte cliquée choisit, le tableau de l'exercice 4 pose ses nœuds
+   et ses valeurs sans dessiner de courbe, la courbe de f″ s'étiquette Cf″,
+   la phrase « on admet que » lit la courbe, et la clause de secret. */
+function convexiteQcm(w, P){
+  const nom='convexité — QCM variés : six visages, une seule affirmation vraie';
+  const present = evaluer(w, "typeof startCvq==='function' && typeof cvqBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas les QCM de convexité');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='convexite-qcm';
+    const VIS=['courbe','tableau','extremum','inflexion','seconde','courbe2'];
+    const zerosDe=function(p){ const out=[]; for(let x=-3;x<=3;x++){ if(p[x+3]===0) out.push(x); } return out; };
+    const sommetsDe=function(p){ const out=[]; for(let x=-2;x<=2;x++){ const g=p[x+3]-p[x+2], d=p[x+4]-p[x+3]; if(g>0&&d<0) out.push({x:x,k:'max'}); else if(g<0&&d>0) out.push({x:x,k:'min'}); } return out; };
+    /* le genre au zéro x de la courbe : le signe de part et d'autre */
+    const genreDe=function(p,x){ if(!(x>-3&&x<3)||p[x+3]!==0) return null; return (p[x+2]<0&&p[x+4]>0)?'min':((p[x+2]>0&&p[x+4]<0)?'max':null); };
+    /* le sens de la courbe sur [a;b] : lu sur TOUTES ses différences, jamais sur les sommets */
+    const sensDe=function(p,a,b){ let up=false, down=false; for(let x=a;x<b;x++){ if(p[x+4]>p[x+3]) up=true; else down=true; } return (up&&down)?null:(up?'up':'down'); };
+    /* le signe sur [a;b] : toutes les valeurs de même signe, un 0 toléré au bord seulement */
+    const signeDe=function(p,a,b){ let pos=false, neg=false; for(let x=a;x<=b;x++){ if(x>a&&x<b&&p[x+3]===0) return null; if(p[x+3]>0) pos=true; if(p[x+3]<0) neg=true; } return (pos&&neg)?null:(pos?'+':'-'); };
+    const vraiSelonMoi=function(p, src, prop){
+      const t=prop.t;
+      if(t==='conv'||t==='monoP'||t==='f2s'){
+        const haut=(t==='conv')?(prop.c==='convexe'):((t==='monoP')?(prop.d==='croissante'):(prop.s==='+'));
+        if(src==='fp'){ const s=sensDe(p,prop.a,prop.b); return s!==null && ((s==='up')===haut); }
+        const s=signeDe(p,prop.a,prop.b); return s!==null && ((s==='+')===haut);
+      }
+      const som=sommetsDe(p).filter(function(s){ return s.x===prop.x; })[0];
+      const zero=(prop.x>-3 && prop.x<3 && p[prop.x+3]===0);
+      if(t==='ext') return src==='fp' && genreDe(p,prop.x)===prop.k;
+      if(t==='tan') return src==='fp' && zero;
+      if(t==='extP') return src==='fp' ? (!!som && som.k===prop.k) : genreDe(p,prop.x)===prop.k;
+      if(t==='infl') return src==='fp' ? !!som : genreDe(p,prop.x)!==null;
+      if(t==='noinfl') return src==='fp' ? !sommetsDe(p).length : !zerosDe(p).length;
+      if(t==='f2z') return src==='fp' ? !!som : zero;
+      return null;
+    };
+    const sig=function(p){ return JSON.stringify([p.t,p.c,p.d,p.s,p.k,p.x,p.a,p.b]); };
+    const CHAMPS={conv:['t','c','a','b'], monoP:['t','d','a','b'], f2s:['t','s','a','b'], ext:['t','k','x'], extP:['t','k','x'], tan:['t','x'], infl:['t','x'], noinfl:['t'], f2z:['t','x']};
+    const jugeQuestion=function(q, ou){
+      const cles=Object.keys(q).filter(function(k){ return ['vis','pts','props'].indexOf(k)<0; });
+      if(cles.length) vus.push(ou+' : la question range autre chose que le visage, la courbe et les affirmations : '+cles.join(','));
+      if(VIS.indexOf(q.vis)<0){ vus.push(ou+' : visage inconnu '+q.vis); return null; }
+      const src=(q.vis==='courbe2')?'fpp':'fp', p=q.pts;
+      if(!Array.isArray(p)||p.length!==7||p.some(function(v){ return v!==Math.round(v)||Math.abs(v)>3; })){ vus.push(ou+' : la courbe n\\'est pas sept valeurs entières de [−3 ; 3]'); return null; }
+      for(let i=0;i<6;i++){
+        if(p[i]===p[i+1]) vus.push(ou+' : un plateau sur la courbe (deux valeurs voisines égales) — le sommet ne se lit plus');
+        if(p[i]!==0&&p[i+1]!==0&&Math.sign(p[i])!==Math.sign(p[i+1])) vus.push(ou+' : la courbe change de signe entre deux graduations, sans zéro posé');
+      }
+      const zeros=zerosDe(p), som=sommetsDe(p);
+      if(!zeros.length||zeros.length>2) vus.push(ou+' : '+zeros.length+' zéro(s) sur la courbe');
+      if(zeros.some(function(z){ return genreDe(p,z)===null; })) vus.push(ou+' : un zéro au bord, ou un zéro sans changement de signe (la courbe touche l\\'axe)');
+      if(!som.length||som.length>2) vus.push(ou+' : '+som.length+' sommet(s) sur la courbe');
+      if(!Array.isArray(q.props)||q.props.length!==4){ vus.push(ou+' : '+(q.props||[]).length+' affirmations au lieu de 4'); return null; }
+      q.props.forEach(function(pr){
+        const ok=CHAMPS[pr.t]; if(!ok){ vus.push(ou+' : affirmation de nature inconnue '+JSON.stringify(pr)); return; }
+        const etr=Object.keys(pr).filter(function(k){ return ok.indexOf(k)<0; });
+        if(etr.length) vus.push(ou+' : une affirmation range autre chose que sa nature ('+etr.join(',')+') — sa vérité ou son piège seraient rangés à côté de la question');
+        if(ok.indexOf('a')>=0 && !(pr.a<pr.b && pr.a>=-3 && pr.b<=3)) vus.push(ou+' : intervalle mal formé '+JSON.stringify(pr));
+        if(ok.indexOf('x')>=0 && !(pr.x>-3 && pr.x<3)) vus.push(ou+' : abscisse hors du dessin '+JSON.stringify(pr));
+        if(src==='fpp' && (pr.t==='ext'||pr.t==='tan')) vus.push(ou+' : sur la courbe de f″, une affirmation que f″ ne peut pas fonder ('+pr.t+')');
+      });
+      const verites=q.props.map(function(pr){ return vraiSelonMoi(p, src, pr); });
+      const nbV=verites.filter(function(v){ return v===true; }).length;
+      if(nbV!==1) vus.push(ou+' ('+q.vis+') : '+nbV+' affirmation(s) vraie(s) au lieu d\\'une — '+q.props.map(sig).join(' ; ')+' sur '+p.join(','));
+      if(new Set(q.props.map(sig)).size!==4) vus.push(ou+' : deux affirmations identiques : deux bonnes réponses, une seule comptée');
+      /* le piège de chaque visage, relu par la même arithmétique */
+      const faux=q.props.filter(function(pr,i){ return verites[i]!==true; });
+      const enjambe=function(pr){ return pr.a!=null && (src==='fp' ? som.some(function(s){ return s.x>pr.a&&s.x<pr.b; }) : zeros.some(function(z){ return z>pr.a&&z<pr.b; })); };
+      const surSommet=function(pr){ return pr.x!=null && som.some(function(s){ return s.x===pr.x; }); };
+      const surZero=function(pr){ return pr.x!=null && zeros.indexOf(pr.x)>=0; };
+      if(['courbe','tableau','inflexion','seconde'].indexOf(q.vis)>=0){
+        if(!faux.some(enjambe)) vus.push(ou+' ('+q.vis+') : aucune affirmation n\\'enjambe le point d\\'inflexion — le piège de la fiche manque');
+        if(!faux.some(function(pr){ return pr.a!=null && !enjambe(pr); })) vus.push(ou+' ('+q.vis+') : aucune affirmation au sens inversé sur un bon intervalle');
+      }
+      if(q.vis==='extremum' && !faux.some(function(pr){ return pr.t==='ext' && surSommet(pr); })) vus.push(ou+' : aucune affirmation ne pose un extremum de f sur un SOMMET de f′ — le piège de la fiche manque');
+      if(q.vis==='inflexion' && !faux.some(function(pr){ return pr.t==='noinfl' || (pr.t==='infl' && surZero(pr)); })) vus.push(ou+' : ni « pas de point d\\'inflexion », ni le zéro de f′ pris pour un point d\\'inflexion');
+      if(q.vis==='seconde' && !faux.some(function(pr){ return pr.t==='f2z' && surZero(pr); })) vus.push(ou+' : le zéro de f′ n\\'est pas proposé comme zéro de f″ — le piège de la fiche manque');
+      if(q.vis==='courbe2' && !faux.some(function(pr){ return pr.t==='extP'; })) vus.push(ou+' : aucune affirmation fausse sur un extremum de f′');
+      const iv=verites.indexOf(true);
+      return { fam: iv<0?null:q.props[iv].t, rang: iv };
+    };
+    const rangs={}, fams={}; VIS.forEach(function(v){ rangs[v]=new Set(); fams[v]=new Set(); });
+    for(let t=0;t<120 && !vus.length;t++){
+      const qs=cvqBuildQuestions();
+      if(qs.length!==6){ vus.push(qs.length+' questions au lieu de 6'); break; }
+      const visVus=qs.map(function(q){ return q.vis; }).sort();
+      if(visVus.join()!==VIS.slice().sort().join()) vus.push('la séance ne pose pas les six visages une fois chacun : '+visVus.join(','));
+      if(new Set(qs.map(cleQuestion)).size!==6) vus.push('deux questions de la séance reprennent les mêmes données');
+      qs.forEach(function(q,i){ const r=jugeQuestion(q,'question '+(i+1)); if(r&&r.fam){ rangs[q.vis].add(r.rang); fams[q.vis].add(r.fam); } });
+    }
+    if(!vus.length){
+      VIS.forEach(function(v){ if(rangs[v].size<3) vus.push('au visage « '+v+' », la vraie tombe toujours aux rangs '+Array.from(rangs[v]).join('')); });
+      const ATTENDU={extremum:['ext','tan'], inflexion:['conv','infl'], seconde:['f2s','f2z'], courbe2:['extP','conv','monoP']};
+      Object.keys(ATTENDU).forEach(function(v){ ATTENDU[v].forEach(function(f){ if(!fams[v].has(f)) vus.push('au visage « '+v+' », la vraie n\\'est jamais de la famille '+f); }); });
+      /* le repli de la courbe, par les mêmes gardes, sur les six visages */
+      VIS.forEach(function(v){ for(let k=0;k<12;k++){ const pr=cvqProps(CVQ_REPLI.slice(), v);
+        if(!pr){ vus.push('le repli CVQ_REPLI ne porte pas le visage « '+v+' »'); break; }
+        jugeQuestion({vis:v, pts:CVQ_REPLI.slice(), props:pr}, 'le repli CVQ_REPLI ('+v+')'); } });
+    }
+
+    /* ---- les gestes, sur des questions FIXES. Q0 (visage « courbe ») :
+       f′ = (−2,−1,0,2,3,2,1), zéro en −1, sommet (maximum) en 1 : f est
+       convexe sur [−3 ; 1] (b), concave sur [1 ; 3] ; a) inverse le sens,
+       c) et d) enjambent le sommet. ---- */
+    const Q0={vis:'courbe', pts:[-2,-1,0,2,3,2,1], props:[{t:'conv',c:'concave',a:-3,b:1},{t:'conv',c:'convexe',a:-3,b:1},{t:'conv',c:'convexe',a:0,b:2},{t:'conv',c:'concave',a:0,b:2}]};
+    function pose(valeur, mode, q){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'cvq', questions:[JSON.parse(JSON.stringify(q||Q0))], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('cvq'); renderCvq();
+      if(valeur!=null){ const el=document.getElementById('cvq-sel'); if(el) el.value=valeur; }
+      checkCvq();
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      return { score:test.score, fb:document.getElementById('cvqFeedback').textContent, cls:cls, cases:(test.answers[0]||{}).cases,
+        props:[].slice.call(document.querySelectorAll('#cvqHost .sdq-prop')).map(function(e){ return e.className.replace('sdq-prop','').trim(); }) };
+    }
+    let r=pose('1');
+    if(r.score!==1) vus.push('la copie juste ne vaut pas le point ('+r.fb+')');
+    if(r.cases!==1) vus.push('la copie juste compte '+r.cases+' case(s) au lieu de 1');
+    if(r.props[1].indexOf('ok')<0) vus.push('la bonne affirmation choisie ne se marque pas juste (ok)');
+    if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    if(!/\\bok\\b/.test(r.cls('cvq-sel'))) vus.push('le menu du QCM juste n\\'est pas marqué juste (ok)');
+    if(!document.querySelector('#cvqHost svg.lv-svg .lv-cf')) vus.push('la courbe de f′ n\\'a pas d\\'étiquette');
+    /* le QCM faux : le sens inversé, puis l'intervalle qui enjambe, nommés */
+    r=pose('0');
+    if(r.score!==0) vus.push('le sens inversé vaut le point');
+    if(!/SENS/.test(r.fb)) vus.push('le retour ne nomme pas le sens inversé : '+r.fb.slice(0,140));
+    if(r.props[0].indexOf('bad')<0 || r.props[1].indexOf('sol')<0) vus.push('les affirmations ne montrent pas la choisie (bad) et la bonne en correction (sol)');
+    if(!/\\bbad\\b/.test(r.cls('cvq-sel'))) vus.push('le menu du QCM faux ne rougit pas');
+    r=pose('2');
+    if(!/INTÉRIEUR/.test(r.fb) || !/inflexion/.test(r.fb)) vus.push('le retour ne nomme pas l\\'intervalle qui enjambe le point d\\'inflexion : '+r.fb.slice(0,140));
+    r=pose(null);
+    if(!/Choisis une affirmation/.test(r.fb)) vus.push('une copie vide devrait demander de choisir, pas juger');
+    if(test.locked) vus.push('une copie vide verrouille');
+    r=pose('0','soutien');
+    if(!/\\bbad\\b/.test(r.cls('cvq-sel'))) vus.push('en soutien, le QCM faux ne rougit pas');
+    if(!/Revérifier/.test(document.getElementById('cvqActions').textContent)) vus.push('en soutien, une copie fausse n\\'offre pas « Revérifier »');
+    if(test.locked) vus.push('en soutien, une copie fausse verrouille l\\'écran');
+    /* la liste ne se colore pas en direct, même en soutien */
+    pose(null,'soutien');
+    { const sel=document.getElementById('cvq-sel'); sel.value='0'; sel.dispatchEvent(new Event('change'));
+      if(/\\b(ok|bad)\\b/.test(sel.className)) vus.push('la liste du QCM se colore en direct'); }
+    /* cliquer une affirmation la choisit dans le menu */
+    pose(null);
+    { const p=document.querySelectorAll('#cvqHost .sdq-prop')[3]; p.click();
+      if(document.getElementById('cvq-sel').value!=='3') vus.push('cliquer une affirmation ne la choisit pas');
+      if(!/\\bchoisie\\b/.test(p.className)) vus.push('l\\'affirmation cliquée ne se marque pas choisie'); }
+    /* le contexte du modèle porte la clause de secret et la bonne lettre */
+    pose(null);
+    { const c=cvqConseilCtx(); if(!/STRICTEMENT SECR/.test(c) || !/affirmation vraie : b/.test(c)) vus.push('le contexte du modèle ne porte pas la clause de secret avec la bonne lettre'); }
+    /* Q1, le tableau de l'exercice 4 : les nœuds −3, −1 (le zéro, valeur 0), 1
+       (le sommet, valeur 3) et 3, avec leurs valeurs — et aucune courbe */
+    const Q1={vis:'tableau', pts:[-2,-1,0,2,3,2,1], props:[{t:'conv',c:'convexe',a:-3,b:-1},{t:'conv',c:'concave',a:-3,b:-1},{t:'conv',c:'convexe',a:-1,b:3},{t:'conv',c:'concave',a:-1,b:3}]};
+    pose(null,'train',Q1);
+    { const xs=[].slice.call(document.querySelectorAll('#cvqHost .cvq-tbl tr.vt-xr .vnx')).map(function(td){ return td.textContent.trim(); });
+      if(xs.join(' ')!=='−3 −1 1 3') vus.push('le tableau de f′ ne pose pas les nœuds −3, −1, 1, 3 : '+xs.join(' '));
+      const vals=[].slice.call(document.querySelectorAll('#cvqHost .cvq-tbl .lg3-val')).map(function(e){ return e.textContent.trim(); });
+      if(vals.join(' ')!=='−2 0 3 1') vus.push('le tableau de f′ ne porte pas ses valeurs −2, 0, 3, 1 : '+vals.join(' '));
+      if(document.querySelector('#cvqHost svg.lv-svg')) vus.push('le visage « tableau » dessine aussi la courbe');
+      if(!/tableau de variations/.test(document.getElementById('cvqPrompt').textContent)) vus.push('l\\'énoncé du tableau ne le nomme pas'); }
+    r=pose('0','train',Q1);
+    if(r.score!==1) vus.push('sur le tableau, la copie juste (convexe sur [−3 ; −1]) ne vaut pas le point : '+r.fb);
+    /* Q2, la courbe de f″ : l'étiquette Cf″, et « f′ admet un minimum en −1 »
+       (f″ passe du − au +) est la vraie */
+    const Q2={vis:'courbe2', pts:[-2,-1,0,2,3,2,1], props:[{t:'extP',k:'max',x:1},{t:'conv',c:'concave',a:-1,b:3},{t:'extP',k:'min',x:-1},{t:'monoP',d:'croissante',a:-2,b:0}]};
+    r=pose('2','train',Q2);
+    if(r.score!==1) vus.push('sur la courbe de f″, la copie juste (f′ minimum en −1) ne vaut pas le point : '+r.fb);
+    { const et=document.querySelector('#cvqHost svg.lv-svg .lv-cf'); if(!et || et.textContent.replace(/\\s+/g,'')!=='Cf\\u2033') vus.push('la courbe de f″ ne s\\'étiquette pas Cf″ : '+(et?et.textContent:'(aucune)')); }
+    r=pose('0','train',Q2);
+    if(!/SOMMET/.test(r.fb)) vus.push('sur la courbe de f″, le sommet pris pour un zéro n\\'est pas nommé : '+r.fb.slice(0,140));
+    r=pose('3','train',Q2);
+    if(!/INTÉRIEUR/.test(r.fb)) vus.push('sur la courbe de f″, l\\'intervalle qui enjambe le zéro n\\'est pas nommé : '+r.fb.slice(0,140));
+    /* Q3, l'exercice 6 : la phrase « on admet que » lit la courbe (maximum
+       en 1, coupe l'axe en (−1 ; 0)), et le sommet pris pour un extremum de f
+       est nommé */
+    const Q3={vis:'extremum', pts:[-2,-1,0,2,3,2,1], props:[{t:'ext',k:'max',x:1},{t:'ext',k:'min',x:-1},{t:'ext',k:'max',x:-1},{t:'tan',x:1}]};
+    r=pose('0','train',Q3);
+    { const pr=document.getElementById('cvqPrompt').textContent;
+      if(!/maximum en 1/.test(pr) || !/\\( −1 ; 0 \\)/.test(pr)) vus.push('l\\'énoncé de l\\'exercice 6 ne dit pas « maximum en 1 » et « ( −1 ; 0 ) » : '+pr.slice(0,200)); }
+    if(r.score!==0 || !/SOMMET/.test(r.fb)) vus.push('le sommet de f′ pris pour un maximum de f n\\'est pas nommé : '+r.fb.slice(0,140));
+    r=pose('2','train',Q3);
+    if(!/GENRE/.test(r.fb)) vus.push('le mauvais genre au bon zéro n\\'est pas nommé : '+r.fb.slice(0,140));
+    r=pose('1','train',Q3);
+    if(r.score!==1) vus.push('la copie juste de l\\'exercice 6 (minimum en −1) ne vaut pas le point : '+r.fb);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

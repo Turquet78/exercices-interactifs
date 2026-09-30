@@ -851,7 +851,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-sag,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-sag,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1375,6 +1375,11 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
   .cvx-marque{fill:var(--ink);stroke:#fff;stroke-width:1.2}
   .cvx-croix{stroke:var(--ink);stroke-width:1.2}
   .vfcell .cvx-val{position:absolute;transform:translate(-50%,-50%);z-index:3;box-shadow:0 0 0 3px var(--surface)}
+  /* ---- {convexite-qcm} : le tableau de variations de f′ de l'exercice 4, DONNÉ
+     (les valeurs posées sur les nœuds, le 0 au milieu d'une flèche) ; les
+     affirmations reprennent les cartes du 2.1.8 (.sdq-prop). ---- */
+  .cvq-table{align-items:center;margin:8px 0 4px}
+  .cvq-tbl .vlab{white-space:nowrap}
 .lv-tblwrap{overflow-x:auto;margin:0 0 4px}
 .lv-vartbl2{border-collapse:collapse;margin:0 auto;font-family:'Nunito',sans-serif;border:1.6px solid var(--grid);table-layout:fixed}
 .lv-vartbl2 td{border:none;text-align:center;padding:0}
@@ -2384,6 +2389,22 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <!-- 2.2.3 CONVEXITÉ — QCM variés : six visages de la fiche, une seule affirmation vraie -->
+  <section class="screen" id="scr-cvq">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="cvqModeTag"></span><span class="q-idx" id="cvqQIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="cvqLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="tvi-prompt" id="cvqPrompt"></p>
+      <div id="cvqHost"></div>
+      <div class="mp-feedback" id="cvqFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="cvqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkCvq()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- 4.x TVI — LA SOLUTION α ET LE SIGNE : l'étude de la fiche menée au TVI.
        Placé APRÈS scr-ef, scr-ec et scr-afp : le tableau porte les ids ef-*
        partagés, et un écran plus haut dans le document gagnerait $() — le
@@ -3049,7 +3070,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=352;
+const APP_VERSION=353;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3234,6 +3255,7 @@ const TESTS={
   'convexite-trois-courbes': { name:'Convexit\u00e9 \u2014 lire f, f\u2009\u2032 et f\u2009\u2033 sur trois courbes', icon:'\u222a', desc:'La fiche \u00ab convexit\u00e9 \u00bb : on te donne les courbes de f, de f\u2009\u2032 et de f\u2009\u2033. Compl\u00e8te le tableau \u00e0 cinq lignes \u2014 signe de f\u2009\u2033, variations de f\u2009\u2032 avec la valeur de son extremum lue sur l\u2019\u00e9cran de la calculatrice, signe de f\u2009\u2032, variations de f, convexit\u00e9 de f. Tant\u00f4t f\u2009\u2032 s\u2019annule (deux colonnes), tant\u00f4t jamais (une seule : f est monotone).', start:()=>startCvx() },
   'etude-exponentielle': { name:'Étude complète — (ax+b)e\u207b\u02e3', icon:'\ud83d\udccb', desc:'L\u2019étude de la fiche, de bout en bout : les points d\u2019intersection avec les axes, la dérivée rédigée comme dans {derivee-exp-2}, le tableau de variations comme dans {etude-fonction}, l\u2019extremum, puis la tangente en x = 1 comme dans {tangente-exp}.', start:()=>startEC() },
   'etude-convexite': { name:'Étude de fonction et convexité', icon:'\u222a', desc:'La fiche 5, de bout en bout : les axes et les limites comme dans {tvi-alpha-signe}, f\u2009\u2032 démontrée comme dans {derivee-exp}, le tableau de variations comme dans {etude-fonction}, l\u2019unique solution de f(x) = k par le TVI, la tangente en 0 comme dans {equation-tangente}, puis f\u2009\u2033, son signe et la convexité, le point d\u2019inflexion, et la courbe sous sa tangente.', start:()=>startECV() },
+  'convexite-qcm': { name:'Convexit\u00e9 \u2014 QCM vari\u00e9s', icon:'\u2611\ufe0f', desc:'La fiche \u00ab QCM convexit\u00e9 \u00bb, six visages par s\u00e9ance : la courbe de f\u2009\u2032, son tableau de variations, ou la courbe de f\u2009\u2033 \u2014 et \u00e0 chaque fois quatre affirmations dont UNE SEULE est vraie : f convexe ou concave sur un intervalle, extremum de f, tangente horizontale, point d\u2019inflexion, signe de f\u2009\u2033, extremum de f\u2009\u2032. Les pi\u00e8ges de la fiche y sont : l\u2019intervalle qui enjambe le point d\u2019inflexion, le z\u00e9ro de f\u2009\u2032 pris pour un point d\u2019inflexion, le sommet de f\u2009\u2032 pris pour un extremum de f \u2014 comme au {signe-derivee-qcm}.', start:()=>startCvq() },
   'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
   'signe-quotient-carre': { name:'Signe de (ax+b)/(cx+d)\u00b2', icon:'\u00f7',
@@ -3275,7 +3297,10 @@ const THEMES=[
       /* Puis {etude-convexite}, la fiche 5 née 5.6 le même matin, a rejoint
          la partie Convexité le jour même (demande de Turquet : « créer un
          exercice comme le pdf dans le sous-thème convexité ») : 2.2.2. */
-      { num:2, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite'] }
+      /* Puis les QCM de la fiche « QCM convexité » (demande de Turquet,
+         septembre 2026 : « en terminale faire des QCM variés comme sur le
+         PDF ») ferment la partie : 2.2.3. */
+      { num:2, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm'] }
     ] },
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique','tvi-alpha-signe'] },
@@ -3923,6 +3948,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='afq' && test.questions && test.questions[test.idx]){ c=afqConseilCtx(); }
   else if(test && test.kind==='sdq' && test.questions && test.questions[test.idx]){ c=sdqConseilCtx(); }
   else if(test && test.kind==='cvx' && test.questions && test.questions[test.idx]){ c=cvxConseilCtx(); }
+  else if(test && test.kind==='cvq' && test.questions && test.questions[test.idx]){ c=cvqConseilCtx(); }
   else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
   else if(test && test.kind==='rc' && test.questions && test.questions[test.idx]){ c=rcConseilCtx(); }
   else if(test && test.kind==='rf' && test.questions && test.questions[test.idx]){ c=rfConseilCtx(); }
@@ -4848,7 +4874,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], sag:['sag',renderSAG], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], sag:['sag',renderSAG], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4970,7 +4996,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','sag','enc','rec','ef','eq','rc','rf','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','sag','enc','rec','ef','eq','rc','rf','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -11201,7 +11227,9 @@ function afGraphSVG(pts, prime){
   for(let x=-3;x<=3;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
   for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
   const pos=afEtiquettePos(pts,sx,sy,x0,y0,PL,PR,PT,PB);
-  const cf='<text x="'+pos[0].toFixed(1)+'" y="'+pos[1].toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f'+(prime?'\u2009\u2032':'')+'</tspan></text>';
+  /* « prime » : true écrit Cf′ ; une chaîne écrit ce suffixe-là (Cf″ pour la
+     courbe de f″ du {convexite-qcm}) ; rien écrit Cf */
+  const cf='<text x="'+pos[0].toFixed(1)+'" y="'+pos[1].toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f'+(prime===true?'\u2009\u2032':(typeof prime==='string'?prime:''))+'</tspan></text>';
   return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy)+'"/>'+cf+'</svg>';
 }
 async function startAfp(){
@@ -12125,6 +12153,482 @@ function cvxConseilCtx(){
    +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : colonnes : '+t.noeuds.map(numFmt).join(' ; ')+' ; signe de f″ : '+t.s2.join(' puis ')+' (zéro en '+numFmt(q.x2)+') ; f′ : '+sens(t.a1)+', extremum '+numFmt(t.E)+' en '+numFmt(q.x2)+' ; signe de f′ : '+t.s1.join(' puis ')+(q.fam==='A'?' (zéro en '+numFmt(cvxX1(q))+')':' (f′ ne s’annule jamais)')+' ; f : '+sens(t.a0)+' ; convexité : '+t.c.join(' puis ')+'. '
    +'Saisies actuelles : '+cases.map(function(x){ return x.id.replace('cvx-','')+' '+lu(x.id); }).join(' ; ')
    +'. Méthode à faire appliquer, sans donner la réponse : le signe de f″ se lit sur SA courbe (au-dessus / au-dessous de l’axe) ; f′ croît là où f″ est positive et f y est convexe ; le signe de f′ se lit sur la courbe de f′, et f croît là où f′ est positive ; l’extremum de f′ est au zéro de f″, ce n’est pas un extremum de f. Aide sur la PREMIÈRE case fausse ou vide.';
+}
+
+/* ================= Exercice Terminale : convexité — QCM variés (kind 'cvq') =================
+   Repris de la fiche « QCM convexité » (demande de Turquet, septembre 2026 :
+   « en terminale faire des QCM variés comme sur le PDF ») : six VISAGES, un
+   par exercice de la fiche, chacun une fois par séance en ordre mélangé —
+   quatre affirmations, UNE SEULE vraie, comme au {signe-derivee-qcm}.
+     · courbe    — la courbe de f′ est donnée ; « on peut affirmer que f
+                   est … » convexe ou concave sur un intervalle (exercice 3) ;
+     · tableau   — le TABLEAU DE VARIATIONS de f′, avec ses valeurs et le 0
+                   posé au milieu d'une flèche ; la même question (exercice 4) ;
+     · extremum  — la courbe de f′, « on admet que f′ admet un maximum en s et
+                   que sa courbe coupe l'axe en (z ; 0) » : extremum de f,
+                   tangente horizontale (exercice 6, question 1) ;
+     · inflexion — même cadre : convexité de f, point d'inflexion (question 2) ;
+     · seconde   — même cadre : f″ ≥ 0 sur un intervalle, f″(x) = 0 (question 3) ;
+     · courbe2   — la courbe de f″ est donnée : convexité de f, sens de f′,
+                   extremum de f′ (dernier exercice).
+   Les quatre affirmations ne diffèrent que par ce qui fait l'erreur, et ce
+   sont les pièges de la fiche : l'intervalle qui ENJAMBE le point d'inflexion
+   (un sommet de f′, un zéro de f″), le SENS inversé sur un bon intervalle, le
+   ZÉRO de f′ pris pour un point d'inflexion (ou pour un zéro de f″), le
+   SOMMET de f′ pris pour un extremum de f (le « maximum en −3/2 » de la
+   fiche), le mauvais GENRE au bon point, et la courbe « sans point
+   d'inflexion ». La fiche pose parfois DEUX affirmations vraies (question
+   3 : f″ ≥ 0 à gauche du maximum ET f″(−3/2) = 0) ; ici il n'y en a jamais
+   qu'une — la règle du QCM de ce niveau, demandée par Turquet pour le 2.1.8.
+   LA COURBE EST UNE SUITE DE SEPT VALEURS ENTIÈRES aux graduations −3…3, le
+   dessin partagé des dérivées (afGraphSVG, la spline monotone de lvPath : entre
+   deux graduations elle ne change ni de sens ni de signe). Deux règles la
+   rendent lisible d'un coup d'œil : deux valeurs voisines ne sont jamais
+   égales (un sommet est net) et ne changent jamais de signe sans passer par
+   un 0 posé sur une graduation (un zéro est net) ; un zéro n'est jamais un
+   sommet (il change de signe). Un ou deux zéros, un ou deux sommets.
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : la question
+   porte le visage, la courbe et les quatre affirmations (leur nature, jamais
+   leur vérité). cvqVrai() relit chaque affirmation sur la courbe — c'est la
+   fonction même qui corrige l'élève — et cvqPiege() retrouve le piège de la
+   même façon pour le NOMMER dans le retour. Le tirage choisit ses pièges par
+   ces deux fonctions (une affirmation dont cvqVrai dit qu'elle est fausse et
+   cvqPiege qu'elle enjambe) : le contrôle (tests/verifier.js, convexiteQcm)
+   refait la vérité de chaque affirmation par une SECONDE arithmétique et
+   exige exactement une vraie sur chaque tirage, le piège de chaque visage,
+   les six visages par séance, et le rang de la vraie qui varie. */
+const CVQ_LETTRES=['a','b','c','d'];
+const CVQ_VISAGES=['courbe','tableau','extremum','inflexion','seconde','courbe2'];
+/* Le repli du tirage, RÉEL : f′ = (−2,−1,0,2,3,2,1), un zéro en −1 (− puis +,
+   minimum de f), un sommet en 1 (maximum de f′ : le point d'inflexion). Le
+   contrôle y construit les affirmations des six visages pour les juger. */
+const CVQ_REPLI=[-2,-1,0,2,3,2,1];
+/* Ce que la courbe dessine : f′ (cinq visages) ou f″ (le dernier). */
+function cvqSrc(vis){ return vis==='courbe2' ? 'fpp' : 'fp'; }
+function cvqZeros(pts){ const z=[]; for(let x=-3;x<=3;x++){ if(pts[x+3]===0) z.push(x); } return z; }
+/* Les sommets de la courbe dessinée, avec leur genre : elle monte puis
+   descend (max) ou descend puis monte (min). Sans plateau, un sommet est
+   exactement une graduation où la différence change de signe. */
+function cvqSommets(pts){
+  const out=[];
+  for(let x=-2;x<=2;x++){ const g=pts[x+3]-pts[x+2], d=pts[x+4]-pts[x+3];
+    if(g>0&&d<0) out.push({x:x,k:'max'}); else if(g<0&&d>0) out.push({x:x,k:'min'}); }
+  return out;
+}
+/* Le sens de la courbe dessinée sur [a ; b] : 'up', 'down', ou null si un
+   sommet est STRICTEMENT à l'intérieur. */
+function cvqSens(pts,a,b){
+  if(cvqSommets(pts).some(function(s){ return s.x>a&&s.x<b; })) return null;
+  return (pts[a+4]-pts[a+3]>0)?'up':'down';
+}
+/* Le signe de la courbe dessinée sur [a ; b] : '+', '−', ou null si un zéro
+   est STRICTEMENT à l'intérieur (un zéro au bord ne compte pas : f″ ≥ 0 y
+   reste vrai). */
+function cvqSigne(pts,a,b){
+  if(cvqZeros(pts).some(function(z){ return z>a&&z<b; })) return null;
+  for(let x=a;x<=b;x++){ if(pts[x+3]!==0) return pts[x+3]>0?'+':'−'; }
+  return null;
+}
+/* Le genre de l'extremum de la PRIMITIVE au zéro x de la courbe dessinée :
+   − puis + est un minimum, + puis − un maximum, null si x n'est pas un zéro. */
+function cvqGenreZero(pts,x){
+  if(x<=-3||x>=3||pts[x+3]!==0) return null;
+  return (pts[x+2]<0&&pts[x+4]>0) ? 'min' : ((pts[x+2]>0&&pts[x+4]<0) ? 'max' : null);
+}
+/* LA VÉRITÉ d'une affirmation, lue sur la courbe — jamais rangée.
+   Sur la courbe de f′ : f est convexe là où f′ croît ; un extremum de f est un
+   zéro de f′ qui change de signe ; la tangente est horizontale où f′ = 0 ; le
+   point d'inflexion est un sommet de f′, où f″ s'annule ; f″ ≥ 0 où f′ croît.
+   Sur la courbe de f″ : f est convexe et f′ croît là où f″ ≥ 0 ; f′ admet un
+   extremum, et f un point d'inflexion, à un zéro de f″. Ce que la courbe de
+   f″ ne dit pas (un extremum de f, une tangente) est faux par défaut : le
+   tirage ne le pose jamais, et le contrôle l'interdit. */
+function cvqVrai(pts, src, p){
+  if(p.t==='conv'||p.t==='monoP'||p.t==='f2s'){
+    const haut=(p.t==='conv')?(p.c==='convexe'):((p.t==='monoP')?(p.d==='croissante'):(p.s==='+'));
+    if(src==='fp'){ const s=cvqSens(pts,p.a,p.b); return s!==null && ((s==='up')===haut); }
+    const sg=cvqSigne(pts,p.a,p.b); return sg!==null && ((sg==='+')===haut);
+  }
+  if(p.t==='ext'){ return src==='fp' && cvqGenreZero(pts,p.x)===p.k; }
+  if(p.t==='tan'){ return src==='fp' && pts[p.x+3]===0; }
+  if(p.t==='extP'){
+    if(src==='fp') return cvqSommets(pts).some(function(s){ return s.x===p.x&&s.k===p.k; });
+    return cvqGenreZero(pts,p.x)===p.k;
+  }
+  if(p.t==='infl'){ return src==='fp' ? cvqSommets(pts).some(function(s){ return s.x===p.x; }) : (cvqGenreZero(pts,p.x)!==null); }
+  if(p.t==='noinfl'){ return src==='fp' ? !cvqSommets(pts).length : !cvqZeros(pts).length; }
+  if(p.t==='f2z'){ return src==='fp' ? cvqSommets(pts).some(function(s){ return s.x===p.x; }) : pts[p.x+3]===0; }
+  return false;
+}
+/* LE PIÈGE d'une affirmation fausse, retrouvé sur la courbe : 'enjambe' (un
+   point d'inflexion strictement dans l'intervalle), 'sens' (le sens ou le
+   signe inversé), 'sommet' (un sommet de la courbe pris pour un zéro), 'zero'
+   (un zéro de la courbe pris pour un sommet), 'genre' (le bon point, le
+   mauvais genre), 'autre'. */
+function cvqPiege(pts, src, p){
+  const somm=cvqSommets(pts).some(function(s){ return s.x===p.x; }), zero=(p.x>-3&&p.x<3&&pts[p.x+3]===0);
+  if(p.t==='conv'||p.t==='monoP'||p.t==='f2s'){
+    const dedans = (src==='fp') ? cvqSens(pts,p.a,p.b)===null : cvqSigne(pts,p.a,p.b)===null;
+    return dedans ? 'enjambe' : 'sens';
+  }
+  if(p.t==='ext'||p.t==='tan'){ return somm ? 'sommet' : (zero ? 'genre' : 'autre'); }
+  if(p.t==='extP'){ return src==='fp' ? (somm ? 'genre' : (zero ? 'zero' : 'autre')) : (somm ? 'sommet' : (zero ? 'genre' : 'autre')); }
+  if(p.t==='infl'||p.t==='f2z'){ return src==='fp' ? (zero ? 'zero' : 'autre') : (somm ? 'sommet' : 'autre'); }
+  return 'autre';
+}
+/* Le point d'inflexion strictement à l'intérieur de [a ; b] — un sommet de f′
+   ou un zéro de f″ —, pour le nommer. */
+function cvqDedans(pts, src, p){
+  const xs = (src==='fp') ? cvqSommets(pts).map(function(s){ return s.x; }) : cvqZeros(pts);
+  return xs.filter(function(x){ return x>p.a&&x<p.b; });
+}
+function cvqInt(p){ return '[ '+numFmt(p.a)+' ; '+numFmt(p.b)+' ]'; }
+function cvqTexte(p){
+  const F='<i>f</i>', Fp='<i>f</i> ′', Fpp='<i>f</i> ″';
+  if(p.t==='conv') return F+' est '+p.c+' sur '+cvqInt(p)+'.';
+  if(p.t==='monoP') return Fp+' est '+p.d+' sur '+cvqInt(p)+'.';
+  if(p.t==='f2s') return Fpp+'(<i>x</i>) '+(p.s==='+'?'≥':'≤')+' 0 pour <i>x</i> ∈ '+cvqInt(p)+'.';
+  if(p.t==='ext') return F+' admet un '+(p.k==='min'?'minimum':'maximum')+' en '+numFmt(p.x)+'.';
+  if(p.t==='extP') return Fp+' admet un '+(p.k==='min'?'minimum':'maximum')+' en '+numFmt(p.x)+'.';
+  if(p.t==='tan') return 'Au point d’abscisse '+numFmt(p.x)+', la courbe de '+F+' admet une tangente horizontale.';
+  if(p.t==='infl') return 'La courbe de '+F+' admet un point d’inflexion au point d’abscisse '+numFmt(p.x)+'.';
+  if(p.t==='noinfl') return 'La courbe de '+F+' n’admet pas de point d’inflexion.';
+  if(p.t==='f2z') return Fpp+'('+numFmt(p.x)+') = 0.';
+  return '';
+}
+function cvqSig(p){ return [p.t,p.c,p.d,p.s,p.k,p.x,p.a,p.b].map(function(v){ return v==null?'':String(v); }).join('|'); }
+/* Une courbe propre au QCM : sept valeurs entières, sans plateau, sans
+   changement de signe hors d'un zéro, un ou deux zéros (jamais un sommet), un
+   ou deux sommets — tirage par rejet, repli réel. */
+function cvqCourbeOk(pts){
+  if(pts.length!==7) return false;
+  for(let i=0;i<6;i++){ const a=pts[i], b=pts[i+1];
+    if(a===b) return false;
+    if(a!==0&&b!==0&&Math.sign(a)!==Math.sign(b)) return false; }
+  const z=cvqZeros(pts);
+  if(!z.length||z.length>2) return false;
+  if(z.some(function(x){ return x<=-3||x>=3||cvqGenreZero(pts,x)===null; })) return false;
+  const s=cvqSommets(pts);
+  return s.length>=1 && s.length<=2;
+}
+function cvqCourbe(){
+  for(let att=0;att<400;att++){
+    /* les zéros d'abord — le tirage du 2.1.8 —, puis, segment par segment,
+       des valeurs du signe du segment et jamais deux fois la même de suite ;
+       cvqCourbeOk ne retient que les courbes à un ou deux sommets. Un tirage
+       de sept valeurs au hasard n'en acceptait qu'une sur six cents. */
+    const nz=pick([1,2,2]); let zeros;
+    if(nz===1) zeros=[pick([-2,-1,0,1,2])];
+    else { const z1=pick([-2,-1,0]); const c2=[z1+2,z1+3,z1+4].filter(function(v){ return v<=2; }); zeros=[z1,pick(c2)]; }
+    let sg=pick([1,-1]); const pts=[];
+    for(let x=-3;x<=3;x++){
+      if(zeros.indexOf(x)>=0){ pts.push(0); sg=-sg; continue; }
+      let v; do{ v=sg*rand(1,3); }while(pts.length && v===pts[pts.length-1]);
+      pts.push(v);
+    }
+    if(cvqCourbeOk(pts)) return pts;
+  }
+  return CVQ_REPLI.slice();
+}
+/* Toutes les affirmations possibles sur une courbe, avec leur vérité et leur
+   piège — le vivier où chaque visage pioche. */
+function cvqCandidats(pts, src){
+  const out=[];
+  for(let a=-3;a<3;a++) for(let b=a+1;b<=3;b++){
+    ['convexe','concave'].forEach(function(c){ out.push({t:'conv',c:c,a:a,b:b}); });
+    ['croissante','décroissante'].forEach(function(d){ out.push({t:'monoP',d:d,a:a,b:b}); });
+    ['+','−'].forEach(function(s){ out.push({t:'f2s',s:s,a:a,b:b}); });
+  }
+  for(let x=-2;x<=2;x++){
+    ['min','max'].forEach(function(k){ out.push({t:'ext',k:k,x:x}); out.push({t:'extP',k:k,x:x}); });
+    out.push({t:'tan',x:x}); out.push({t:'infl',x:x}); out.push({t:'f2z',x:x});
+  }
+  out.push({t:'noinfl'});
+  return out.map(function(p){ const v=cvqVrai(pts,src,p); return {p:p, vrai:v, piege:v?null:cvqPiege(pts,src,p)}; });
+}
+/* Les quatre affirmations d'un visage : une vraie et trois pièges, choisis
+   dans le vivier par des filtres successifs — chaque filtre a son repli, et
+   si l'un reste vide la courbe est retirée. */
+function cvqProps(pts, vis){
+  const src=cvqSrc(vis), C=cvqCandidats(pts,src), zeros=cvqZeros(pts);
+  const pris=[];
+  const prendre=function(){
+    const filtres=Array.prototype.slice.call(arguments);
+    for(let i=0;i<filtres.length;i++){
+      const pool=C.filter(function(c){ return filtres[i](c) && pris.indexOf(cvqSig(c.p))<0; });
+      if(pool.length){ const c=pick(pool); pris.push(cvqSig(c.p)); return c.p; }
+    }
+    return null;
+  };
+  const est=function(t,piege){ return function(c){ return c.p.t===t && (piege==null ? c.vrai : c.piege===piege); }; };
+  const long=function(f){ return function(c){ return f(c) && c.p.b-c.p.a>=2; }; };
+  const borneZero=function(f){ return function(c){ return f(c) && (zeros.indexOf(c.p.a)>=0||zeros.indexOf(c.p.b)>=0); }; };
+  let vraie, faux;
+  if(vis==='courbe'){
+    vraie=prendre(long(est('conv')), est('conv'));
+    const e1=prendre(long(est('conv','enjambe')), est('conv','enjambe'));
+    const e2=e1 && prendre(function(c){ return c.p.t==='conv'&&c.piege==='enjambe'&&c.p.a===e1.a&&c.p.b===e1.b; }, est('conv','enjambe'), est('conv','sens'));
+    faux=[e1, e2, prendre(long(est('conv','sens')), est('conv','sens'))];
+  } else if(vis==='tableau'){
+    vraie=prendre(long(est('conv')), est('conv'));
+    faux=[prendre(borneZero(est('conv','sens')), est('conv','sens')),
+          prendre(long(est('conv','enjambe')), est('conv','enjambe')),
+          prendre(est('conv','sens'), est('conv','enjambe'))];
+  } else if(vis==='extremum'){
+    const fam=pick(['ext','ext','tan']);
+    if(fam==='ext'){
+      vraie=prendre(est('ext'));
+      faux=[prendre(est('ext','sommet')),
+            vraie && prendre(function(c){ return c.p.t==='ext'&&c.piege==='genre'&&c.p.x===vraie.x; }, est('ext','genre')),
+            prendre(est('tan','sommet'), est('tan','autre'))];
+    } else {
+      vraie=prendre(est('tan'));
+      faux=[prendre(est('ext','sommet')), prendre(est('ext','genre')), prendre(est('tan','sommet'), est('tan','autre'))];
+    }
+  } else if(vis==='inflexion'){
+    const fam=pick(['conv','infl']);
+    if(fam==='conv'){
+      vraie=prendre(long(est('conv')), est('conv'));
+      faux=[prendre(est('noinfl','autre')),
+            prendre(borneZero(est('conv','enjambe')), est('conv','enjambe')),
+            prendre(long(est('conv','sens')), est('conv','sens'))];
+    } else {
+      vraie=prendre(est('infl'));
+      faux=[prendre(est('infl','zero')), prendre(long(est('conv','sens')), est('conv','sens')), prendre(long(est('conv','enjambe')), est('conv','enjambe'))];
+    }
+  } else if(vis==='seconde'){
+    const fam=pick(['f2s','f2z']);
+    if(fam==='f2s'){
+      vraie=prendre(long(est('f2s')), est('f2s'));
+      faux=[prendre(long(est('f2s','enjambe')), est('f2s','enjambe')), prendre(est('f2z','zero')), prendre(long(est('f2s','sens')), est('f2s','sens'))];
+    } else {
+      vraie=prendre(est('f2z'));
+      faux=[prendre(est('f2z','zero')), prendre(long(est('f2s','enjambe')), est('f2s','enjambe')), prendre(long(est('f2s','sens')), est('f2s','sens'))];
+    }
+  } else {   /* courbe2 : la courbe de f″ */
+    const fam=pick(['extP','conv','monoP']);
+    if(fam==='extP'){
+      vraie=prendre(est('extP'));
+      faux=[prendre(est('extP','sommet'), est('extP','genre')), prendre(long(est('conv','sens')), est('conv','sens')), prendre(long(est('monoP','enjambe')), est('monoP','enjambe'))];
+    } else if(fam==='conv'){
+      vraie=prendre(long(est('conv')), est('conv'));
+      faux=[prendre(est('extP','sommet'), est('extP','genre')), prendre(long(est('conv','enjambe')), est('conv','enjambe')), prendre(long(est('monoP','sens')), est('monoP','sens'))];
+    } else {
+      vraie=prendre(long(est('monoP')), est('monoP'));
+      faux=[prendre(est('extP','genre'), est('extP','sommet')), prendre(long(est('conv','enjambe')), est('conv','enjambe')), prendre(long(est('conv','sens')), est('conv','sens'))];
+    }
+  }
+  if(!vraie || faux.some(function(p){ return !p; })) return null;
+  return afqMelange([vraie].concat(faux));
+}
+function cvqGen(vis){
+  for(let att=0;att<60;att++){
+    const pts=cvqCourbe(), props=cvqProps(pts, vis);
+    if(props) return {vis:vis, pts:pts, props:props};
+  }
+  return {vis:vis, pts:CVQ_REPLI.slice(), props:cvqProps(CVQ_REPLI.slice(), vis)};
+}
+/* Une séance : les six visages de la fiche, une fois chacun, en ordre mélangé. */
+function cvqBuildQuestions(){
+  const vis=afqMelange(CVQ_VISAGES.slice());
+  return distinctes(vis.length, function(_,i){ return cvqGen(vis[i]); });
+}
+function cvqBon(q){ const src=cvqSrc(q.vis); for(let i=0;i<q.props.length;i++){ if(cvqVrai(q.pts,src,q.props[i])) return i; } return -1; }
+/* Le tableau de variations de f′ de l'exercice 4 : les nœuds sont les bords,
+   les sommets ET les zéros — le 0 de la fiche posé au milieu d'une flèche —,
+   chaque nœud porte sa valeur, et entre deux nœuds la flèche suit la courbe. */
+function cvqNoeuds(pts){
+  const xs=[-3,3].concat(cvqSommets(pts).map(function(s){ return s.x; }), cvqZeros(pts));
+  return xs.filter(function(x,i){ return xs.indexOf(x)===i; }).sort(function(a,b){ return a-b; });
+}
+function cvqTableHTML(pts){
+  const WN=46, WS=88, H=84, TT=16, BB=70;
+  const xs=cvqNoeuds(pts), nN=xs.length, nS=nN-1, innerW=nN*WN+nS*WS;
+  const ncx=function(j){ return j*(WN+WS)+WN/2; };
+  let xr='<td class="vlab" style="width:110px"><i>x</i></td>';
+  xs.forEach(function(x,j){ xr+='<td class="vnx" style="width:'+WN+'px">'+numFmt(x)+'</td>'; if(j<nS) xr+='<td class="vax" style="width:'+WS+'px"></td>'; });
+  const dirs=[]; for(let i=0;i<nS;i++) dirs.push(pts[xs[i+1]+3]>pts[xs[i]+3]?'up':'down');
+  const posY=[];
+  for(let j=0;j<=nS;j++){
+    const right=dirs[j]||'', left=(j>0?dirs[j-1]:'')||'';
+    let y=(TT+BB)/2;
+    if(right==='up') y=BB; else if(right==='down') y=TT;
+    else if(left==='up') y=TT; else if(left==='down') y=BB;
+    posY.push(y);
+  }
+  let g='';
+  for(let i=0;i<nS;i++){ const y0=(dirs[i]==='up')?BB:TT, y1=(dirs[i]==='up')?TT:BB; g+=svArrowSVG(ncx(i),y0,ncx(i+1),y1); }
+  let spans='';
+  xs.forEach(function(x,j){ spans+='<span class="lg3-val" style="left:'+ncx(j)+'px;top:'+posY[j]+'px">'+numFmt(pts[x+3])+'</span>'; });
+  return '<div class="lv-tblwrap"><table class="lv-vartbl2 cvq-tbl" style="width:'+(110+innerW)+'px"><tbody>'
+    +'<tr class="vt-xr">'+xr+'</tr>'
+    +'<tr class="vt-fr"><td class="vlab">variations de <i>f</i> ′</td><td class="vfcell" colspan="'+(2*nN-1)+'" style="height:'+H+'px">'
+    +'<svg class="vt-overlay" viewBox="0 0 '+innerW+' '+H+'" preserveAspectRatio="none">'+g+'</svg>'+spans+'</td></tr>'
+    +'</tbody></table></div>';
+}
+/* La phrase de la fiche pour les trois questions de l'exercice 6, lue sur la
+   courbe : le PREMIER sommet de f′ et son PREMIER zéro — déterministe, donc
+   stable au redessin et à la reprise. */
+function cvqAdmis(pts){
+  const s=cvqSommets(pts)[0], z=cvqZeros(pts)[0];
+  return 'On admet que <i>f</i> ′ admet un '+(s.k==='max'?'maximum':'minimum')+' en '+numFmt(s.x)
+    +' et que sa courbe coupe l’axe des abscisses au point de coordonnées ( '+numFmt(z)+' ; 0 ).';
+}
+function cvqPrompt(q){
+  const F='<i>f</i>', Fp='<i>f</i> ′', Fpp='<i>f</i> ″';
+  const cadre='On considère une fonction '+F+' définie et deux fois dérivable sur [ −3 ; 3 ]. On donne ci-dessous la courbe de sa fonction <b>DÉRIVÉE '+Fp+'</b> — attention, c’est '+Fp+' qui est dessinée. '+cvqAdmis(q.pts)+' ';
+  const seule='Choisis la <b>seule</b> affirmation vraie.';
+  if(q.vis==='courbe') return 'On donne ci-dessous la représentation graphique de <b>la fonction DÉRIVÉE '+Fp+'</b> d’une fonction '+F+' définie et deux fois dérivable sur [ −3 ; 3 ] — attention, c’est '+Fp+' qui est dessinée. On peut affirmer que la fonction '+F+' est… '+seule;
+  if(q.vis==='tableau') return 'On considère une fonction '+F+' définie et deux fois dérivable sur [ −3 ; 3 ]. Le <b>tableau de variations de la fonction '+Fp+'</b>, dérivée de '+F+', sur [ −3 ; 3 ] est donné ci-dessous. La fonction '+F+' est… '+seule;
+  if(q.vis==='extremum') return cadre+seule;
+  if(q.vis==='inflexion') return cadre+'Convexité et point d’inflexion : '+seule.toLowerCase();
+  if(q.vis==='seconde') return cadre+'La dérivée seconde '+Fpp+' de la fonction '+F+' vérifie… '+seule;
+  return 'Soit '+F+' une fonction deux fois dérivable sur [ −3 ; 3 ]. On donne ci-dessous la représentation graphique de sa fonction <b>DÉRIVÉE SECONDE '+Fpp+'</b> — attention, c’est '+Fpp+' qui est dessinée. On peut alors affirmer que… '+seule;
+}
+async function startCvq(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='convexite-qcm'; test.kind='cvq';
+  test.questions=cvqBuildQuestions();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('cvq'); renderCvq();
+}
+function renderCvq(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('cvqQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('cvqModeTag').innerHTML=modeTagHTML();
+  $('cvqLiveScore').textContent=test.score;
+  $('cvqFeedback').textContent=''; $('cvqFeedback').className='mp-feedback';
+  $('cvqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCvq()">Vérifier</button>';
+  $('cvqPrompt').innerHTML=cvqPrompt(q);
+  const dessin = (q.vis==='tableau')
+    ? '<div class="sv-tables cvq-table">'+cvqTableHTML(q.pts)+'</div>'
+    : '<div class="af-graph">'+afGraphSVG(q.pts, q.vis==='courbe2' ? ' ″' : true)+'</div>';
+  const props=q.props.map(function(p,i){
+    return '<div class="sdq-prop" data-prop="'+i+'"><span class="sdq-lettre">'+CVQ_LETTRES[i]+')</span>'+cvqTexte(p)+'</div>';
+  }).join('');
+  $('cvqHost').innerHTML=dessin
+    +'<div class="sdq-qcm"><p class="sdq-titre">QCM — une seule bonne réponse</p><div class="sdq-props">'+props+'</div>'
+    +'<p class="af-instr">La bonne réponse est <select class="tvi-sel" id="cvq-sel"><option value="">…</option>'
+    +CVQ_LETTRES.map(function(l,i){ return '<option value="'+i+'">'+l+'</option>'; }).join('')+'</select></p></div>';
+  /* cliquer une affirmation la choisit — sur tablette, la fiche se répond en
+     montrant la ligne du doigt — et le menu suit ; rien ne se colore avant
+     la vérification, même en soutien : à quatre propositions, il suffirait
+     d'essayer (la règle du 2.1.8) */
+  const marquer=function(){ const v=String(($('cvq-sel')||{}).value||'');
+    document.querySelectorAll('#cvqHost .sdq-prop').forEach(function(el,i){ el.classList.toggle('choisie', String(i)===v); }); };
+  $('cvqHost').querySelectorAll('.sdq-prop').forEach(function(el){
+    el.addEventListener('click', function(){ if(test.locked) return;
+      const sel=$('cvq-sel'); if(!sel||sel.disabled) return; sel.value=el.getAttribute('data-prop'); marquer(); });
+  });
+  const sel=$('cvq-sel'); if(sel) sel.addEventListener('change', marquer);
+}
+/* Le POURQUOI d'une affirmation fausse, retrouvé sur la courbe — jamais rangé. */
+function cvqPourquoi(q, p){
+  const src=cvqSrc(q.vis), pts=q.pts, piege=cvqPiege(pts,src,p), x=numFmt(p.x);
+  const F='<i>f</i>', Fp='<i>f</i> ′', Fpp='<i>f</i> ″';
+  const dessine = (src==='fp') ? Fp : Fpp;
+  if(p.t==='conv'||p.t==='monoP'||p.t==='f2s'){
+    if(piege==='enjambe'){
+      const d=cvqDedans(pts,src,p).map(numFmt).join(' et ');
+      return (src==='fp' ? Fp+' change de sens en '+d : Fpp+' s’annule en changeant de signe en '+d)
+        +', à l’INTÉRIEUR de '+cvqInt(p)+' : c’est un point d’inflexion de '+F+' — sur cet intervalle, '+F+' change de convexité et '+Fp+' change de sens.';
+    }
+    const haut = (src==='fp') ? (cvqSens(pts,p.a,p.b)==='up') : (cvqSigne(pts,p.a,p.b)==='+');
+    const lu = (src==='fp') ? (Fp+' est '+(haut?'CROISSANTE':'DÉCROISSANTE')) : (Fpp+' est '+(haut?'POSITIVE':'NÉGATIVE'));
+    const donc = (p.t==='conv') ? (F+' y est '+(haut?'convexe':'concave')+', pas '+p.c)
+      : (p.t==='monoP' ? (Fp+' y est '+(haut?'croissante':'décroissante')+', pas '+p.d)
+      : (Fpp+' y est '+(haut?'positive ou nulle':'négative ou nulle')+', pas '+(p.s==='+'?'positive':'négative')));
+    const zb = (src==='fp' && (pts[p.a+3]===0||pts[p.b+3]===0));
+    return 'Sur '+cvqInt(p)+', '+lu+' : '+donc+' — c’est le SENS qui est inversé.'
+      +(zb ? ' Le zéro de '+Fp+' au bord de l’intervalle dit où '+F+' change de sens de VARIATION, pas de convexité.' : '');
+  }
+  if(p.t==='ext'||p.t==='tan'){
+    if(piege==='sommet') return 'En '+x+', c’est la courbe de '+Fp+' qui a un SOMMET — '+Fp+' ne s’y annule pas, '+F+' n’y change pas de sens : c’est le point d’INFLEXION de '+F+' (là où '+Fpp+' s’annule), pas un extremum ni une tangente horizontale.';
+    if(piege==='genre'){ const g=cvqGenreZero(pts,p.x); return 'En '+x+', '+Fp+' s’annule en passant du '+(g==='min'?'− au +':'+ au −')+' : '+F+' y admet un '+(g==='min'?'MINIMUM':'MAXIMUM')+', pas un '+(p.k==='min'?'minimum':'maximum')+' — c’est le GENRE qui est faux.'; }
+    return Fp+' ne s’annule pas en '+x+' : '+F+' n’y admet ni extremum ni tangente horizontale.';
+  }
+  if(p.t==='extP'){
+    if(piege==='sommet') return 'En '+x+', c’est la courbe de '+Fpp+' qui a un SOMMET — '+Fpp+' ne s’y annule pas, donc '+Fp+' n’y change pas de sens.';
+    if(piege==='zero') return 'En '+x+', c’est '+Fp+' qui s’ANNULE — c’est un extremum de '+F+', pas de '+Fp+' : l’extremum de '+Fp+' est à son sommet.';
+    if(piege==='genre'){
+      const g = (src==='fp') ? cvqSommets(pts).filter(function(s){ return s.x===p.x; })[0].k : cvqGenreZero(pts,p.x);
+      return 'En '+x+', '+Fp+' admet un '+(g==='min'?'MINIMUM':'MAXIMUM')+(src==='fp'?'':' ('+Fpp+' passe du '+(g==='min'?'− au +':'+ au −')+')')+', pas un '+(p.k==='min'?'minimum':'maximum')+' — c’est le GENRE qui est faux.';
+    }
+    return dessine+' ne '+(src==='fp'?'change pas de sens':'s’annule pas')+' en '+x+' : '+Fp+' n’y admet pas d’extremum.';
+  }
+  if(p.t==='infl'||p.t==='f2z'){
+    if(piege==='zero') return 'En '+x+', c’est '+Fp+' qui s’annule, pas '+Fpp+' : '+F+' y admet un EXTREMUM. Le point d’inflexion est là où '+Fp+' change de SENS — à un sommet de sa courbe.';
+    if(piege==='sommet') return 'En '+x+', c’est la courbe de '+Fpp+' qui a un SOMMET — '+Fpp+' ne s’y annule pas : ce n’est pas un point d’inflexion.';
+    return (src==='fp' ? Fp+' ne change pas de sens en '+x : Fpp+' ne s’annule pas en '+x)+' : '+Fpp+'('+x+') ≠ 0, ce n’est pas un point d’inflexion.';
+  }
+  if(p.t==='noinfl'){
+    const xs = (src==='fp') ? cvqSommets(pts).map(function(s){ return numFmt(s.x); }) : cvqZeros(pts).map(numFmt);
+    return (src==='fp' ? Fp+' change de sens en '+xs.join(' et ') : Fpp+' s’annule en changeant de signe en '+xs.join(' et '))+' : la courbe de '+F+' y admet un point d’inflexion.';
+  }
+  return '';
+}
+function cvqRetiens(q){
+  const F='<i>f</i>', Fp='<i>f</i> ′', Fpp='<i>f</i> ″';
+  if(cvqSrc(q.vis)==='fpp') return 'Retiens : ici c’est '+Fpp+' qui est dessinée — '+F+' est convexe là où '+Fpp+' est POSITIVE (au-dessus de l’axe) et '+Fp+' y est croissante ; là où '+Fpp+' s’annule en changeant de signe, '+Fp+' admet un extremum et '+F+' un point d’inflexion — ce n’est PAS un extremum de '+F+'.';
+  return 'Retiens : ici c’est '+Fp+' qui est dessinée — '+F+' est convexe là où '+Fp+' est CROISSANTE ('+Fpp+' ≥ 0), concave là où elle décroît ; un SOMMET de la courbe de '+Fp+' est un point d’inflexion de '+F+' ('+Fpp+' s’y annule), un ZÉRO de '+Fp+' un extremum de '+F+'.';
+}
+function checkCvq(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], sel=$('cvq-sel');
+  const raw=sel?String(sel.value):'', bon=cvqBon(q);
+  const ok=(raw===String(bon));
+  if(live) return;   /* la liste du QCM ne se colore jamais en direct */
+  if(raw===''){ $('cvqFeedback').textContent='Choisis une affirmation avant de vérifier.'; $('cvqFeedback').className='mp-feedback'; return; }
+  if(!ok && isSoutien()){
+    sel.classList.remove('ok'); sel.classList.add('bad');
+    $('cvqFeedback').textContent='Ce n’est pas cette affirmation — relis '+(cvqSrc(q.vis)==='fp'?'le sens et les zéros de f ′':'le signe et les zéros de f ″')+', puis réessaie.';
+    $('cvqFeedback').className='mp-feedback bad';
+    $('cvqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCvq()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  corrCase('cvq-sel', String(bon), ok);   /* faux : la lettre choisie reste en rouge, la bonne en vert à côté */
+  /* la bonne affirmation CHOISIE est bleue, la bonne MONTRÉE est verte, et
+     l'affirmation choisie à tort reste rouge */
+  document.querySelectorAll('#cvqHost .sdq-prop').forEach(function(el,i){
+    el.classList.remove('ok','bad','sol','choisie');
+    if(i===bon) el.classList.add(String(i)===raw?'ok':'sol');
+    else if(String(i)===raw) el.classList.add('bad');
+  });
+  if(ok){
+    test.score++; $('cvqLiveScore').textContent=test.score;
+    $('cvqFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo !']);
+    $('cvqFeedback').className='mp-feedback good';
+  } else {
+    $('cvqFeedback').innerHTML='La bonne affirmation était la <b>'+CVQ_LETTRES[bon]+')</b>. '+cvqPourquoi(q, q.props[parseInt(raw,10)])+'<br>'+cvqRetiens(q);
+    $('cvqFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({...(ptsExo()||{}),q:'Convexité — QCM ('+q.vis+') — bonne réponse '+CVQ_LETTRES[bon],
+    answer:CVQ_LETTRES[bon], given:raw===''?'(vide)':CVQ_LETTRES[parseInt(raw,10)], correct:ok, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('cvqActions').innerHTML='<button class="btn btn-primary" onclick="nextCvq()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextCvq(){ if(test.idx<test.questions.length-1){ test.idx++; renderCvq(); } else finishTest(); }
+function cvqConseilCtx(){
+  const q=test.questions[test.idx], bon=cvqBon(q), src=cvqSrc(q.vis);
+  const sel=$('cvq-sel'), v=sel?String(sel.value):'';
+  const brut=function(p){ return cvqTexte(p).replace(/<[^>]+>/g,''); };
+  const lu = (src==='fp')
+    ? 'zéros de f′ (donc extremums de f) : '+cvqZeros(q.pts).map(numFmt).join(' ; ')+' ; sommets de f′ (donc points d’inflexion de f, zéros de f″) : '+cvqSommets(q.pts).map(function(s){ return numFmt(s.x)+' ('+s.k+' de f′)'; }).join(' ; ')
+    : 'zéros de f″ (donc points d’inflexion de f, extremums de f′) : '+cvqZeros(q.pts).map(function(z){ return numFmt(z)+' ('+cvqGenreZero(q.pts,z)+' de f′)'; }).join(' ; ')+' ; sommets de f″ : '+cvqSommets(q.pts).map(function(s){ return numFmt(s.x); }).join(' ; ');
+  return 'Exercice « Convexité — QCM variés » (fiche QCM, visage « '+q.vis+' »). '
+   +(q.vis==='tableau' ? 'On donne le TABLEAU DE VARIATIONS de f′ (avec ses valeurs). ' : (src==='fp' ? 'On donne la COURBE de f′ (c’est la dérivée qui est dessinée). ' : 'On donne la COURBE de f″ (c’est la dérivée seconde qui est dessinée). '))
+   +'L’élève choisit la SEULE affirmation vraie parmi quatre (a à d). '
+   +'Réponse attendue, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste : affirmation vraie : '+CVQ_LETTRES[bon]+'. Lecture de la courbe (secrète aussi) : '+lu+'. '
+   +'Les quatre affirmations : '+q.props.map(function(p,i){ return CVQ_LETTRES[i]+' ('+brut(p)+')'; }).join(' ; ')+'. '
+   +'Choix actuel de l’élève : '+(v===''?'(aucun)':CVQ_LETTRES[parseInt(v,10)])+'. '
+   +'Méthode à faire appliquer, sans donner la lettre : '+(src==='fp'
+     ? 'f est convexe là où f′ est CROISSANTE (f″ ≥ 0) et concave là où f′ décroît ; un point d’inflexion de f est un SOMMET de la courbe de f′ (f″ s’y annule) ; un extremum de f est un ZÉRO de f′ avec changement de signe (− puis + : minimum) ; la tangente est horizontale où f′ = 0. Faire repérer d’abord les sommets et les zéros de f′, puis relire chaque affirmation.'
+     : 'f est convexe là où f″ est POSITIVE (au-dessus de l’axe) et f′ y est croissante ; là où f″ s’annule en changeant de signe, f′ admet un extremum (+ puis − : maximum) et f un point d’inflexion. Un sommet de f″ n’est rien de tout cela. Faire repérer d’abord les zéros de f″ et son signe, puis relire chaque affirmation.');
 }
 
 
@@ -16266,6 +16770,12 @@ const RAP_CVX=`<b>Convexité : lire f, f\u2009′ et f\u2009″ sur trois courbe
 \u2022 <b>Le zéro de f\u2009″</b> est le point d'INFLEXION de f : la courbe de f y change de convexité, et f\u2009′ y admet son extremum (un minimum si f\u2009′ décroît puis croît, un maximum sinon). Ce n'est PAS un extremum de f — f y change de courbure, pas de sens.<br>
 \u2022 <b>Le signe de f\u2009′ se lit sur la courbe de f\u2009′</b>, et f croît là où f\u2009′ est positive. Un extremum de f est un zéro de f\u2009′ où le signe change. Si f\u2009′ garde son signe (son minimum est positif, ou son maximum négatif), f est monotone sur ℝ.<br>
 \u2022 <b>La valeur du maximum ou du minimum de f\u2009′</b> se lit sur l'écran de la calculatrice sous la courbe de f\u2009′ (X = abscisse, Y = valeur) : elle s'écrit sur la ligne « Variation de f\u2009′ », au nœud de la flèche.`;
+const RAP_CVQ=`<b>Convexité : répondre à un QCM depuis la courbe de f\u2009′ (ou de f\u2009″)</b><br>
+\u2022 <b>Si c'est f\u2009′ qui est dessinée</b> : f est CONVEXE là où f\u2009′ est croissante (f\u2009″ ≥ 0), CONCAVE là où f\u2009′ est décroissante. Un SOMMET de la courbe de f\u2009′ est un point d'inflexion de f : f\u2009″ s'y annule en changeant de signe, f y change de convexité — mais f\u2009′ ne s'y annule pas, f n'y a ni maximum ni minimum.<br>
+\u2022 <b>Un ZÉRO de f\u2009′</b> est un extremum de f (− puis + : minimum ; + puis − : maximum), et la tangente à la courbe de f y est horizontale. Ce n'est PAS un point d'inflexion : le zéro de f\u2009′ dit où f change de SENS, le sommet de f\u2009′ dit où elle change de COURBURE.<br>
+\u2022 <b>Un tableau de variations de f\u2009′</b> se lit pareil : f est convexe sur les colonnes où la flèche monte, concave où elle descend ; un 0 posé au milieu d'une flèche est un zéro de f\u2009′, pas un changement de convexité.<br>
+\u2022 <b>Si c'est f\u2009″ qui est dessinée</b> : f est convexe là où f\u2009″ est POSITIVE (au-dessus de l'axe), f\u2009′ y est croissante ; là où f\u2009″ s'annule en changeant de signe, f\u2009′ admet un extremum (+ puis − : maximum) et f un point d'inflexion. Un sommet de f\u2009″ ne dit rien.<br>
+\u2022 <b>Une affirmation sur un intervalle</b> n'est vraie que si le point d'inflexion n'est PAS strictement à l'intérieur : un intervalle qui l'enjambe contient un changement de convexité. Une seule affirmation est vraie : élimine les trois pièges.`;
 const RAP_SVR=`<b>Sens de variation d’une suite U<sub>n+1</sub> = f (U<sub>n</sub>)</b><br>
 • <b>Le tracé en escalier</b> : on part de U<sub>0</sub> sur l’axe des abscisses, on MONTE jusqu’à la courbe — la hauteur lue est U<sub>1</sub> —, puis on rejoint la droite d’équation <i>y</i> = <i>x</i> pour ramener U<sub>1</sub> sur l’axe, et on recommence. La droite <i>y</i> = <i>x</i> ne sert qu’à cela : reporter une hauteur sur l’axe des abscisses.<br>
 • <b>Une récurrence qui dit le sens ET la borne</b> : au lieu de démontrer séparément que la suite décroît et qu’elle est minorée, on démontre d’un seul coup un encadrement qui contient les deux, par exemple 1 ≤ U<sub>n+1</sub> ≤ U<sub>n</sub> ≤ 2.<br>
@@ -16302,7 +16812,7 @@ const RAP_SSV=`<b>Synthèse : variations d’une suite U<sub>n+1</sub> = f (U<su
 • <b>Le signe de U<sub>n+1</sub> − U<sub>n</sub></b> : on met tout sur le même dénominateur — on multiplie U<sub>n</sub> en haut ET en bas par ce dénominateur. Il reste un quotient dont le numérateur est un trinôme du second degré : son signe se lit sur la position de U<sub>n</sub> par rapport à ses deux racines, et le dénominateur, lui, est positif.<br>
 • <b>Le théorème de convergence monotone</b> : une suite <b>croissante et majorée</b> converge ; une suite <b>décroissante et minorée</b> converge aussi. C’est la borne du BON côté qui compte.<br>
 • <b>La limite, par produit en croix</b> : U<sub>n</sub> et U<sub>n+1</sub> ont la MÊME limite ℓ. On remplace les deux par ℓ dans la relation, puis on chasse le dénominateur : \(\ell=\frac{a\ell-p}{\ell+c}\) devient ℓ(ℓ + <i>c</i>) = <i>a</i>ℓ − <i>p</i>, c’est-à-dire une équation du second degré, avec en général <b>deux</b> solutions. C’est l’ENCADREMENT démontré à la récurrence qui dit laquelle garder : la limite est du même côté que tous les termes de la suite.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, sag:RAP_SAG, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, sag:RAP_SAG, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -23840,6 +24350,7 @@ try{
    imagé, programme de Terminale spécialité, définitions du cours autorisées, mais
    jamais les valeurs de l'exercice en cours. */
 const QIA_SUGG={
+  cvq:["Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2032 ?","Pourquoi un sommet de la courbe de f\u2009\u2032 est-il un point d'inflexion de f ?","Quelle diff\u00e9rence entre un z\u00e9ro de f\u2009\u2032 et un z\u00e9ro de f\u2009\u2033 ?","Comment lire la convexit\u00e9 de f sur la courbe de f\u2009\u2033 ?"],
   cvx:["Comment lire le signe de f\u2009\u2033 sur sa courbe ?","Pourquoi f\u2009\u2032 est-elle croissante l\u00e0 o\u00f9 f\u2009\u2033 est positive ?","Que se passe-t-il pour f au z\u00e9ro de f\u2009\u2033 ?","Comment trouver les variations de f \u00e0 partir de la courbe de f\u2009\u2032 ?"],
   sdq:["Comment lire le signe de f\u2009\u2032 sur sa courbe ?","Pourquoi un sommet de la courbe de f\u2009\u2032 n'est-il pas un extremum de f ?","Comment savoir si c'est un minimum ou un maximum ?","Que veut dire \u00ab f est d\u00e9croissante sur un intervalle \u00bb quand f\u2009\u2032 s'annule dedans ?"],
   afq:["Pourquoi les variations de f changent-elles l\u00e0 o\u00f9 f\u2009\u2032 coupe l'axe ?","Quel est le pi\u00e8ge du sommet de f\u2009\u2032 ?","Comment savoir si f monte ou descend sur un intervalle ?","Pourquoi le tableau ne se lit-il pas sur les bosses de f\u2009\u2032 ?"],
