@@ -3827,7 +3827,7 @@ case et avec leur pourcentage, cadres sur boîtes et phrases ; puis « 65 % »
 rouge seul, les cinq cases justes bleues, la copie juste vaut le point, la
 case vide ne rougit pas. `APP_VERSION` 252.
 
-**L'ordre des trois phrases est tiré** (septembre 2026, `APP_VERSION` 255).
+**L'ordre des trois phrases est tiré** (septembre 2026, `APP_VERSION` 257).
 Demande : « les 3 phrases en dessous du schéma dans un ordre aléatoire » pour
 le 4.1.12 et le 4.1.13. Le 4.1.12 (`genPcc`) rangeait déjà `q.ordre`
 (`qdMelanger([0,1,2])`) ; le 4.1.13 (`genPsv`) posait toujours les phrases dans
