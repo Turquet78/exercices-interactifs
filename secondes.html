@@ -4881,7 +4881,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=245;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=246;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -25300,7 +25300,7 @@ function renderCKTest(){
   $('ckLiveScore').textContent=test.score;
   $('ckFeedback').textContent=''; $('ckFeedback').className='mp-feedback';
   $('ckActions').innerHTML='<button class="btn btn-primary" onclick="checkCKAnswer()">Vérifier</button>';
-  const M=ckMots(q.fam);
+  const M=ckMots(q.fam), coef=ckCoef(q);
   $('ckPrompt').innerHTML=`<b>${esc(M.verbe)} ${q.P} %</b>, c’est multiplier par… Choisis le bon coefficient, puis VÉRIFIE ta réponse en le calculant.`;
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
@@ -25315,8 +25315,11 @@ function renderCKTest(){
        <div class="pt-choix" id="ckChoix">${choix}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Vérifie ta proposition : calcule le coefficient, comme dans {augmenter-pourcentage}</div>
        ${chaine}</div>`+
+    ((q.fam==='pre') ? '' :
+    `<div class="pt-step"><div class="pt-lab">③ Lis le coefficient dans l’autre sens : de quelle évolution est-ce le coefficient ?</div>
+       <div class="pt-row"><span class="f-whole">× ${ckStr(coef)} : c’est une</span><select id="ckW" class="itv-sel large" aria-label="hausse ou baisse"><option value="">…………</option><option value="hausse">hausse</option><option value="baisse">baisse</option></select><span class="f-whole">de</span>${dec('ckT','le pourcentage d’évolution')}<span class="f-whole">%</span></div></div>`)+
     `<p class="pt-aide">Tu peux calculer d’abord et choisir ensuite : le coefficient que tu calcules est celui qu’il faut choisir.</p>`);
-  const order=[$('ck1n'),$('ck1d'),$('ck1p'),$('ckC')].filter(Boolean);
+  const order=[$('ck1n'),$('ck1d'),$('ck1p'),$('ckC'),$('ckW'),$('ckT')].filter(Boolean);
   order.forEach((el,i)=>{
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i+1<order.length)order[i+1].focus(); else checkCKAnswer();} });
   });
@@ -25340,11 +25343,15 @@ function checkCKAnswer(live){
   const decOk=(id,pre,n,d)=>{ const t=v(id); if(t==='') return false;
     const fr=parseDecToFrac((pre||'')+t); return !!fr && fr.n*d===n*fr.d; };
   const coef=ckCoef(q);
+  const mot=q.fam==='aug'?'hausse':'baisse';
   if(live){
     liveColorFrac('ck1n','ck1d',q.P,100);
     liveColorDecCoef0('ck1p',q.P);
     if(q.fam!=='pre'){ const el=$('ckC'); if(el&&!el.disabled){
       el.classList.remove('ok','bad'); if(v('ckC')!=='') el.classList.add(decOk('ckC',M.tete,coef,100)?'ok':'bad'); } }
+    if(q.fam!=='pre'){
+      const w=$('ckW'); if(w&&!w.disabled){ w.classList.remove('ok','bad'); if(w.value) w.classList.add(w.value===mot?'ok':'bad'); }
+      const t=$('ckT'); if(t&&!t.disabled){ t.classList.remove('ok','bad'); if(v('ckT')!=='') t.classList.add(parseInt(v('ckT'),10)===q.P?'ok':'bad'); } }
     return;
   }
   if(q.choisi==null){
@@ -25357,19 +25364,21 @@ function checkCKAnswer(live){
   const ok1  = v('ck1n')!=='' && fracEqual(iv('ck1n'),den('ck1d'),q.P,100);
   const ok1p = decOk('ck1p','0,',q.P,100);
   const okC  = (q.fam==='pre') ? true : decOk('ckC',M.tete,coef,100);
+  const okW  = (q.fam==='pre') ? true : v('ckW')===mot;
+  const okT  = (q.fam==='pre') ? true : (v('ckT')!=='' && iv('ckT')===q.P);
   /* une case VIDE ne reçoit aucune couleur : en entraînement la correction la
      remplit en vert juste après, en soutien elle reste à écrire */
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');
     if(v(id)===''){ el.disabled=!soutien; return; }
     el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;};
-  mark('ck1n',ok1); mark('ck1d',ok1); mark('ck1p',ok1p); if(q.fam!=='pre') mark('ckC',okC);
+  mark('ck1n',ok1); mark('ck1d',ok1); mark('ck1p',ok1p); if(q.fam!=='pre'){ mark('ckC',okC); mark('ckW',okW); mark('ckT',okT); }
   const bon=ckBon(q);
   q.opts.forEach((_,i)=>{ const b=$('ckc'+i); if(!b) return;
     b.classList.remove('ok','bad','sol');
     if(i===q.choisi) b.classList.add(okChoix?'ok':'bad');
     else if(i===bon && !okChoix) b.classList.add('sol');   /* la bonne MONTRÉE : correction, verte */
   });
-  const allOk=okChoix&&ok1&&ok1p&&okC;
+  const allOk=okChoix&&ok1&&ok1p&&okC&&okW&&okT;
   if(!allOk && soutien){ soutienAgain('ckFeedback','ckActions','checkCKAnswer','ckHost'); return; }
   test.locked=true;
   const cx=$('ckChoix'); if(cx) cx.classList.add('locked');
@@ -25378,12 +25387,13 @@ function checkCKAnswer(live){
   } else {
     const methode=(q.fam==='pre')
       ? `Méthode : prendre ${q.P} %, c’est multiplier par ${q.P}/100 = ${ckStr(coef)}.`
-      : `Méthode : 1 ${M.signe} ${q.P}/100 = 1 ${M.signe} ${pDecStr(q.P)} = ${ckStr(coef)}.`;
+      : `Méthode : 1 ${M.signe} ${q.P}/100 = 1 ${M.signe} ${pDecStr(q.P)} = ${ckStr(coef)}. Lu dans l’autre sens : c’est une ${mot} de ${q.P} %.`;
     const piege=okChoix?'':ckPiege(q, q.opts[q.choisi]);
     $('ckFeedback').textContent=(piege?piege+' ':'')+methode;
     $('ckFeedback').className='mp-feedback bad';
     corTrainFrac('ck1n','ck1d',q.P,100); corTrainDec('ck1p',String(q.P).padStart(2,'0'));
-    if(q.fam!=='pre') corTrainDec('ckC',String(coef%100).padStart(2,'0'));
+    if(q.fam!=='pre'){ corTrainDec('ckC',String(coef%100).padStart(2,'0')); corTrainDec('ckT',String(q.P));
+      const w=$('ckW'); if(w&&currentMode==='train'&&!w.classList.contains('ok')){ w.value=mot; w.classList.remove('bad'); w.classList.add('sol'); w.disabled=true; } }
   }
   test.answers.push({...(ptsExo()||{}),q:`${M.verbe} ${q.P} % : coefficient ?`,
     answer:'× '+ckStr(coef), given:(q.choisi==null)?null:('× '+ckStr(q.opts[q.choisi])), correct:allOk});
