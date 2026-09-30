@@ -3725,3 +3725,41 @@ avec lunettes » dans la classe, la fraction n'est pas la même. Le contrôle
 tient les deux bords : la case du croisement acceptée (3/13, bleue), une
 autre case refusée (« sont des filles avec lunettes » parmi les garçons,
 rouge), et aucune alternative quand le tout est la classe. `APP_VERSION` 242.
+
+---
+
+## {schema-evolution} — le schéma du 4.5.4 à coefficient donné (Seconde, 4.5.6, septembre 2026)
+
+**D'où il vient.** Une image du schéma de {synthese-evolutions} et une
+demande : « un exercice comme le schéma du 4.5.4. Il faut donner un
+coefficient multiplicateur dans la case juste en bas de la flèche, et l'élève
+doit compléter logiquement le schéma. Le résultat doit être un pourcentage
+multiple de 10 ou inférieur à 10. » C'est le 4.5.4 PRIS À L'ENVERS : la page
+écrit le coefficient sous la flèche (`span.sev-val`, à la taille d'une case,
+le motif de `.pcs-val` — le contrôle « les cases de saisie ont la taille des
+nombres qui les entourent » le compte parmi les nombres), et l'élève remonte
+la flèche « ↑ −1 » : le pourcentage décimal dans la parenthèse (`sevP`,
+jugé par `parseDecToFrac` : 0,3 et 0,30 valent pareil), le mot
+hausse/baisse (`sevW`) et le pourcentage entier (`sevT`).
+
+**Le signe de la parenthèse est écrit par la page**, comme sur l'image
+(« × (1 − … ) ») : il se lit sur le coefficient. Les boîtes Avant/Après n'ont
+pas de case — aucun nombre n'est donné pour elles, on n'en juge donc aucune
+(le motif de {evolutions-successives}) ; c'est un choix à revoir si la
+consigne voulait des cases libres.
+
+**Les pourcentages** : 1 à 9, ou un multiple de 10 (jusqu'à 100 pour une
+hausse — coefficient 2 —, 90 pour une baisse). Une séance pose une hausse et
+une baisse d'office et, sur au moins une question, un pourcentage inférieur à
+10 (`q.s`, `q.P`, `q.c` en centièmes ; `q.v` et `q.ci` hors de la clé de
+`distinctes()`). Kind « sev », hors de `PCT_KINDS` (contexte au modèle =
+`ctxVisible()`), rappel `RAP_SEV`, « Recommencer » générique.
+
+**Ce que le contrôle tient** (`tests/verifier.js`, `schemaEvolution`,
+absent-déclaré sans `startSchemaEvol`) : le tirage sur quarante séances
+(pourcentage < 10 ou multiple de 10, coefficient cohérent, les deux sens,
+un petit pourcentage au moins une fois, aucun doublon, « Recommencer ») ;
+puis le schéma sur des copies épinglées (1,3 / 0,95 / 2) : coefficient écrit
+et non saisissable, signe, flèche « −1 », copie juste bleue qui vaut le
+point, mauvais mot rouge avec correction verte sans faire rougir les cases
+justes, coefficient recopié (0,8 et 80 %) refusé, case vide jamais rouge.

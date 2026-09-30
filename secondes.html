@@ -1840,6 +1840,7 @@
   #scr-pcc{padding-bottom:84px}
   #scr-pcp{padding-bottom:84px}
   #scr-evs{padding-bottom:84px}
+  #scr-sev{padding-bottom:84px}
   #iqdGraph .lv-svg{cursor:pointer;touch-action:none;max-width:600px}
   .iqd-sel{width:auto;min-width:130px;padding:0 10px}
   .iqd-ineq{font-size:1.15rem;color:var(--blue-dark)}
@@ -2171,6 +2172,17 @@
   .evs-pm.sol,.evs-mot.sol{color:var(--green)}
   #evsHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
   #evsHost math-field.pm-mf.evs-pct{min-width:58px;max-width:110px}
+  /* ===== {schema-evolution} (4.5.6) : le schéma de {synthese-evolutions} dont le
+     COEFFICIENT est donné. Le nombre écrit par la page (.sev-val) prend la place
+     de la case et sa taille, comme .pcs-val : le contrôle « les cases de saisie
+     ont la taille des nombres qui les entourent » le compte parmi les nombres. */
+  #sevHost .pctb-shaft{margin:14px 0}
+  #sevHost .sev-val{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;padding:8px 6px;border:2px solid transparent;
+    font-family:"Fredoka";font-weight:600;font-size:1.7rem;color:var(--ink);line-height:1.2;min-width:74px}
+  #sevHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
+  #sevHost math-field.pm-mf.sev-pct{min-width:58px;max-width:110px}
+  @media(max-width:900px){ #sevHost math-field.pm-mf,#sevHost .sev-val{font-size:1.4rem} }
+  @media(max-width:560px){ #sevHost math-field.pm-mf{font-size:1.2rem;min-width:60px} #sevHost .sev-val{font-size:1.2rem;min-width:60px} }
   @media(max-width:900px){ #evsHost math-field.pm-mf{font-size:1.4rem} }
   @media(max-width:560px){ #evsHost math-field.pm-mf{font-size:1.2rem;min-width:60px} }
 
@@ -3607,6 +3619,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-sev">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagSev"></span><span class="q-idx" id="sevIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="sevLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="sevPrompt">Complète le schéma.</p>
+      <div class="mp-stage"><div style="width:100%" id="sevHost"></div></div>
+      <div class="mp-feedback" id="sevFeedback"></div>
+      <div class="row" style="justify-content:center" id="sevActions">
+        <button class="btn btn-primary" onclick="checkSevAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-qtest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagQ"></span><span class="q-idx" id="qqIdx">Question 1 / 6</span></span>
@@ -4910,7 +4937,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=248;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=249;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5543,6 +5570,7 @@ const TESTS={
   'reconnaitre-coefficient':{ name:'Reconnaître le coefficient', icon:'🎯', desc:'Augmenter de 30 %, diminuer de 3 %, prendre 30 % : quel coefficient multiplicateur ? Choisis parmi quatre — les pièges classiques y sont — puis VÉRIFIE ta réponse en calculant le coefficient, comme dans {augmenter-pourcentage}.', start:()=>startReconnaitreCoef() },
   'synthese-evolutions':{ name:'Synthèse sur les évolutions', icon:'🔄', desc:'Le schéma en boîte de la fiche papier, pour les évolutions : [Avant] → × (1 ± …) → [Après]. Mélange de hausses et de baisses, jamais « prendre » un pourcentage — selon la question, c’est l’après, l’avant ou le pourcentage qui est à retrouver. Le résultat est toujours un nombre entier.', start:()=>startSynEvol() },
   'evolutions-successives':{ name:'Deux évolutions successives', icon:'🔁', desc:'La synthèse de {synthese-evolutions} et de {pourcentage-chaine} : deux évolutions de suite — deux hausses, deux baisses, ou une hausse et une baisse — sur le schéma à trois boîtes de la fiche. Sur chaque flèche, × (1 ± …) puis le coefficient ; en dessous, le coefficient global en un seul calcul, et le pourcentage d’évolution global, dont le signe se lit sur le coefficient global. Il tombe toujours sur un nombre entier.', start:()=>startEvolSucc() },
+  'schema-evolution':{ name:'Compléter le schéma d’une évolution', icon:'🧭', desc:'Le schéma en boîte de {synthese-evolutions}, pris à l’envers : le coefficient multiplicateur est déjà écrit sous la flèche, tu retrouves le pourcentage en retirant 1 (la flèche « −1 »), puis tu dis si c’est une hausse ou une baisse, et de combien de pour cent. Le pourcentage est toujours un multiple de 10, ou un nombre inférieur à 10.', start:()=>startSchemaEvol() },
   'intervalles': { name:'Intervalles', icon:'\ud83d\udccf', desc:'Le chemin inverse de {intervalles-inegalite} : on te donne le schéma, et tu écris les crochets, l’inégalité et la phrase « ouvert / fermé en … ».', start:()=>startItv() },
   'intervalles-inegalite': { name:'De l’inégalité à l’intervalle', icon:'\ud83d\udd01', desc:'On ne te donne que l’inégalité : retrouve le schéma qui lui correspond, l’écriture de l’intervalle et la phrase « ouvert / fermé en … ».', start:()=>startItq() },
   'appartient-intervalle': { name:'Appartient ou pas ? — niveau 1', icon:'\ud83c\udfaf', desc:'Un nombre, un intervalle : dis s’il appartient (∈) ou non (∉). Attention aux bornes — c’est le crochet qui décide.', start:()=>startApp1() },
@@ -5683,7 +5711,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 3.2 ni de 3.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient','tableau-coefficients'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions','evolutions-successives'] },
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions','evolutions-successives','schema-evolution'] },
       /* Une proportion AVANT le pourcentage : le tableau \u00e0 double entr\u00e9e de la
          fiche papier (demande de Turquet, septembre 2026). Ajout\u00e9e EN DERNIER,
          la partie ne renum\u00e9rote rien. */
@@ -5811,6 +5839,7 @@ function liveCheckCurrent(){
   else if(k==='psyn') checkSynAnswer(true);
   else if(k==='evb') checkEvbAnswer(true);
   else if(k==='evs') checkEvsAnswer(true);
+  else if(k==='sev') checkSevAnswer(true);
   else if(k==='hs') checkHSAnswer(true);
   else if(k==='hsc') checkHSCAnswer(true);
   else if(k==='lc') checkLCAnswer(true);
@@ -6731,6 +6760,7 @@ const QIA_SUGG={
   pcs:["Comment lire un pourcentage sur une flèche du schéma ?","Comment retrouver le coefficient d’une flèche quand je connais le produit ?","Pourquoi le produit des deux écritures décimales donne-t-il le pourcentage global ?","Comment passer de 0,06 à un pourcentage ?"],
   pcc:["Que veulent dire les cadres de couleur ?","Comment retrouver le coefficient d’une flèche quand je connais le produit ?","Pourquoi le produit des deux écritures décimales donne-t-il le pourcentage global ?","Comment passer de 0,06 à un pourcentage ?"],
   evs:["Pourquoi n’additionne-t-on pas les deux pourcentages ?","Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi retire-t-on 1 au coefficient global pour trouver le pourcentage ?","Une hausse de 20 % suivie d’une baisse de 20 %, ça revient au départ ?"],
+  sev:["Comment retrouver le pourcentage à partir du coefficient ?","Comment savoir si c’est une hausse ou une baisse ?","Pourquoi retire-t-on 1 au coefficient ?","Que veut dire un coefficient de 0,05 ?"],
   evb:["Comment sait-on si le signe est + ou − dans la parenthèse ?","Comment retrouver la valeur d’avant quand je connais celle d’après ?","Comment retrouver le pourcentage à partir de l’avant et de l’après ?","Pourquoi retire-t-on 1 au coefficient pour trouver le pourcentage ?"],
   psl:["Comment savoir ce que la question me demande de retrouver ?","Comment justifier ma réponse ?","Par quoi commencer mon calcul ?","C’est quoi, un pourcentage ?"],
   sal:["Comment vérifier avec le coefficient multiplicateur ?","Comment savoir ce que la question me demande de retrouver ?","Comment justifier ma réponse ?","C’est quoi, un coefficient multiplicateur ?"],
@@ -6994,6 +7024,10 @@ Trois boîtes reliées par deux flèches : <b>[valeur initiale]</b> → <b>[vale
 Le coefficient <b>global</b>, celui qui va directement de la valeur initiale à la valeur finale, est le <b>PRODUIT</b> des deux coefficients — jamais leur somme, et jamais la somme des deux pourcentages : c’est la deuxième rangée du schéma, comme dans {pourcentage-chaine}. Par exemple, 1,2 × 0,7 = 0,84.<br>
 Pour retrouver le pourcentage d’évolution global, on retire 1 au coefficient global — la flèche « −1 » : 0,84 − 1 = −0,16, donc <b>× (1 − 0,16)</b>, une <b>baisse</b> de 16 %. Un coefficient global plus grand que 1 dit une <b>augmentation</b>, plus petit que 1 une <b>diminution</b> : le signe de la parenthèse se lit sur lui.<br>
 Toutes les cases sont vides, même les deux pourcentages que l’énoncé donne déjà : c’est en les récrivant qu’on montre qu’on a compris le schéma.`;
+const RAP_SEV=`<b>Du coefficient multiplicateur au pourcentage</b><br>
+C’est le schéma de {synthese-evolutions}, lu dans l’autre sens : le coefficient multiplicateur est déjà écrit sous la flèche, et c’est à toi de retrouver le pourcentage.<br>
+Le coefficient et le pourcentage sont liés par la flèche « −1 » : pour une <b>hausse</b>, <b>coefficient = 1 + pourcentage</b>, donc pourcentage = coefficient − 1 ; pour une <b>baisse</b>, <b>coefficient = 1 − pourcentage</b>, donc pourcentage = 1 − coefficient. Par exemple, 1,3 − 1 = 0,3, soit <b>× (1 + 0,3)</b>, une hausse de <b>30 %</b> ; et 1 − 0,8 = 0,2, soit <b>× (1 − 0,2)</b>, une baisse de <b>20 %</b>.<br>
+Un coefficient plus grand que 1 dit une <b>hausse</b>, plus petit que 1 une <b>baisse</b>. Le pourcentage s’écrit d’abord en décimal (0,3), puis en pour cent : 0,3 = \\(\\frac{30}{100}\\) = <b>30 %</b>. Et 0,05 = \\(\\frac{5}{100}\\) = <b>5 %</b>.`;
 const RAP_PCTQ=`<b>Retrouver la valeur initiale ou le pourcentage</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
 <b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
@@ -7823,7 +7857,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
-const RAPPELS_ID={ 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
+const RAPPELS_ID={ 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'schema-evolution':RAP_SEV, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -8370,7 +8404,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -8498,7 +8532,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','evbtest','evs','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','evbtest','evs','sev','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -22131,6 +22165,122 @@ async function finishEvs(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'evolutions-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+/* ============ {schema-evolution} (4.5.6) : le schéma de {synthese-evolutions}, COEFFICIENT DONNÉ ============
+   Demande de Turquet (septembre 2026) : « un exercice comme le schéma du 4.5.4,
+   avec le schéma donné en image. Il faut donner un coefficient multiplicateur
+   dans la case juste en bas de la flèche, et l'élève doit compléter
+   logiquement le schéma. Le résultat doit être un pourcentage multiple de 10
+   ou inférieur à 10. » Le schéma est celui de {synthese-evolutions} (Avant →
+   × (1 ± …) → Après, la flèche « ↑ −1 », « Pourcentage d'évolution », « C'est
+   une … de … % »), pris À L'ENVERS : le coefficient est ÉCRIT par la page sous
+   la flèche (`.sev-val`, à la taille d'une case), le signe de la parenthèse
+   aussi — comme sur l'image —, et l'élève retrouve le pourcentage décimal
+   (coefficient − 1, ou 1 − coefficient), le mot hausse/baisse et le
+   pourcentage en entier. Les boîtes Avant/Après n'ont pas de case : aucun
+   nombre n'est donné pour elles, on n'en juge donc pas (le motif de
+   {evolutions-successives}). Les pourcentages : 1 à 9, ou un multiple de 10
+   (jusqu'à 100 pour une hausse, 90 pour une baisse). */
+const SEV_NB=3;
+const SEV_PETITS=[1,2,3,4,5,6,7,8,9];
+const SEV_DIZAINES_H=[10,20,30,40,50,60,70,80,90,100];
+const SEV_DIZAINES_B=[10,20,30,40,50,60,70,80,90];
+const SEV_ENONCES=[
+  {f:q=>`${BS_CTX[q.ci].sujet} évolue. Le coefficient multiplicateur de cette évolution est déjà écrit sur le schéma.`},
+  {f:q=>`On connaît le coefficient multiplicateur de l’évolution de la grandeur suivante&nbsp;: ${BS_CTX[q.ci].sujet.charAt(0).toLowerCase()+BS_CTX[q.ci].sujet.slice(1)}.`},
+  {f:q=>`${BS_CTX[q.ci].sujet} est multiplié${BS_CTX[q.ci].g==='f'?'e':''} par le coefficient écrit sur le schéma.`}
+];
+function genSev(sens,petit){
+  const s=sens||pick([1,-1]);
+  const P=pick(petit?SEV_PETITS:(s>0?SEV_DIZAINES_H:SEV_DIZAINES_B));
+  const q={s,P,c:100+s*P,ci:tirerContexte(BS_CTX,0)};
+  q.v=tirerVariante(SEV_ENONCES,q);
+  return q;
+}
+function sevEnonce(q){ return (SEV_ENONCES[q.v]||SEV_ENONCES[0]).f(q)+' Complète le schéma, puis la phrase.'; }
+async function startSchemaEvol(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='sev'; test.qId='schema-evolution';
+  /* une hausse et une baisse posées d'office, la troisième tirée ; et un
+     pourcentage inférieur à 10 sur l'une des trois (0,05 se lit autrement que 0,3) */
+  const sens=qdMelanger([1,-1,pick([1,-1])]), petits=qdMelanger([true,false,pick([true,false])]);
+  test.questions=distinctes(dmNbQuestions(SEV_NB),(_,i)=>genSev(sens[i%sens.length],petits[i%petits.length]));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('sev'); renderSevTest();
+}
+function renderSevTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('sevIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagSev').innerHTML=modeTagHTML();
+  $('sevLiveScore').textContent=test.score;
+  $('sevFeedback').textContent=''; $('sevFeedback').className='mp-feedback';
+  $('sevActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSevAnswer()">Vérifier</button>';
+  $('sevPrompt').innerHTML=sevEnonce(q);
+  $('sevHost').innerHTML=
+    `<div class="pctb-row">
+       <div class="pctb-box"><div class="pctb-lab">Avant</div></div>
+       <div class="pctb-arrow">
+         <div class="pctb-af"><span class="pctb-af-x">× (1 ${q.s<0?'−':'+'}</span><math-field class="dexp-mf pm-mf sev-pct" id="sevP" aria-label="le pourcentage en écriture décimale"></math-field><span class="pctb-af-x">)</span></div>
+         <div class="pctb-shaft" aria-hidden="true"><span class="evb-rev-arrow">↑ −1</span></div>
+         <div class="pctb-af"><span class="pctb-af-x">×</span><span class="sev-val" id="sevC" aria-label="coefficient multiplicateur donné">${evsDec(q.c)}</span></div>
+       </div>
+       <div class="pctb-box"><div class="pctb-lab">Après</div></div>
+     </div>
+     <div class="pctb-row evb-rev-row">
+       <div class="pctb-box"><div class="pctb-lab">Pourcentage d’évolution</div>
+         <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="pctb-af-x">C’est une</span><select id="sevW" class="itv-sel large" aria-label="hausse ou baisse"><option value="">…………</option><option value="hausse">hausse</option><option value="baisse">baisse</option></select><span class="pctb-af-x">de</span><math-field class="dexp-mf pm-mf sev-pct" id="sevT" aria-label="pourcentage d’évolution"></math-field><span class="pctb-af-x">%</span></span></div>
+     </div>`;
+  const order=['sevP','sevW','sevT'].map(id=>$(id));
+  order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkSevAnswer();} }); });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkSevAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  const v=id=>$(id).value.trim();
+  const mot=q.s<0?'baisse':'hausse';
+  if(live){
+    liveColorDec('sevP',q.P,100); liveColorDec('sevT',q.P,1);
+    const w=$('sevW'); if(w&&!w.disabled){ w.classList.remove('ok','bad'); if(w.value) w.classList.add(w.value===mot?'ok':'bad'); }
+    return;
+  }
+  const dec=(id,n,d)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n*d===n*fr.d; };
+  const ok={ sevP:dec('sevP',q.P,100), sevW:v('sevW')===mot, sevT:dec('sevT',q.P,1) };
+  // une case vide ne rougit jamais (règle universelle) : mark() ne colore que ce qui est écrit
+  const mark=(id,o)=>{ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(o?'ok':'bad'); el.disabled=o||!isSoutien(); };
+  Object.keys(ok).forEach(id=>mark(id,ok[id]));
+  const allOk=Object.keys(ok).every(id=>ok[id]);
+  if(!allOk && isSoutien()){ soutienAgain('sevFeedback','sevActions','checkSevAnswer','sevHost'); return; }
+  test.locked=true;
+  const dP=evsDec(q.P), dC=evsDec(q.c);
+  if(allOk){ test.score++; $('sevLiveScore').textContent=test.score;
+    $('sevFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('sevFeedback').className='mp-feedback good';
+  } else {
+    $('sevFeedback').textContent=`Réponse : ${q.s<0?'1 − '+dC+' = '+dP:dC+' − 1 = '+dP}, donc × (1 ${q.s<0?'−':'+'} ${dP}) : c’est une ${mot} de ${q.P} %.`;
+    $('sevFeedback').className='mp-feedback bad';
+    corTrainDec('sevP',dP); corTrainDec('sevT',String(q.P));
+    const w=$('sevW'); if(w&&currentMode==='train'&&!w.classList.contains('ok')){ w.value=mot; w.classList.remove('bad'); w.classList.add('sol'); w.disabled=true; }
+  }
+  const enonce=sevEnonce(q).replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ');
+  const given=`${v('sevP')||'—'} / ${v('sevW')||'—'} de ${v('sevT')||'—'} %`;
+  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${dP} ; ${mot} de ${q.P} %`, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('sevActions').innerHTML=`<button class="btn btn-primary" id="sevNext" onclick="nextSevQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('sevNext').focus();
+}
+function nextSevQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSevTest(); autoSave(); } else finishSev(); }
+async function finishSev(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'schema-evolution',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -40578,7 +40728,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPcpTest','renderEvbTest','renderEvsTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
