@@ -2161,7 +2161,7 @@
      un peu plus étroits qu'en 4.1.9 pour que la rangée tienne d'un trait. */
   #evsHost .pctb-shaft{margin:14px 0}
   #evsHost .pctb-arrow{flex:1 1 150px;min-width:130px;max-width:230px}
-  #evsHost .pctb-lab{max-width:120px}
+  #evsHost .pctb-lab{max-width:150px}
   .evs-gpar{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
   .evs-rev{font-family:"Fredoka";font-weight:700;font-size:1.15rem;color:var(--ink-soft);line-height:1.1}
   .evs-conclusion{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0 0;font-family:"Nunito";font-weight:800;font-size:1.15rem;color:var(--ink)}
@@ -22023,6 +22023,20 @@ function genEvs(sens){
   return q;
 }
 function evsEnonce(q){ return (EVS_ENONCES[q.v]||EVS_ENONCES[1]).f(q)+' Complète le schéma.'; }
+/* Les trois boîtes du schéma portent des libellés tirés de la SCÈNE (Turquet,
+   septembre 2026 : « la valeur de la voiture au départ », non « valeur
+   initiale »). BS_CTX[].de donne le groupe nominal défini ; la variante « En un
+   an… » (indice 3) dit « après un an » et « au bout de 2 ans », les autres
+   « après la 1re hausse » et « après la 2e baisse ». Une LECTURE de q.ci, q.v
+   et q.s1/q.s2 : rien n'est rangé, le libellé ne change pas au redessin. */
+function evsLibs(q){
+  const de=BS_CTX[q.ci].de, maj=t=>t.charAt(0).toUpperCase()+t.slice(1);
+  const an=q.v===3, m1=q.s1>0?'hausse':'baisse', m2=q.s2>0?'hausse':'baisse';
+  const ini=maj(de)+' au départ';
+  const mid=maj(de)+(an?' après un an':' après la 1re '+m1);
+  const fin=maj(de)+(an?' au bout de 2 ans':' après la 2e '+m2);
+  return {ini,mid,fin};
+}
 async function startEvolSucc(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
@@ -22061,6 +22075,7 @@ function renderEvsTest(){
   $('evsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEvsAnswer()">Vérifier</button>';
   $('evsPrompt').innerHTML=evsEnonce(q);
   const boite=lab=>`<div class="pctb-box"><div class="pctb-lab">${lab}</div></div>`;
+  const lib=evsLibs(q);
   const fleche=(s,idP,idC)=>
     `<div class="pctb-arrow">
        <div class="pctb-af"><span class="pctb-af-x">× (1 ${s<0?'−':'+'}</span><math-field class="dexp-mf pm-mf evs-pct" id="${idP}" aria-label="le pourcentage en écriture décimale"></math-field><span class="pctb-af-x">)</span></div>
@@ -22069,15 +22084,15 @@ function renderEvsTest(){
      </div>`;
   $('evsHost').innerHTML=
     `<div class="pctb-row">
-       ${boite('Valeur initiale')}
+       ${boite(esc(lib.ini))}
        ${fleche(q.s1,'evsP1','evsC1')}
-       ${boite('Valeur intermédiaire')}
+       ${boite(esc(lib.mid))}
        ${fleche(q.s2,'evsP2','evsC2')}
-       ${boite('Valeur finale')}
+       ${boite(esc(lib.fin))}
      </div>
      <div class="pctc-global">
        <div class="pctc-global-shaft" aria-hidden="true"></div>
-       <div class="pctc-global-lab">Valeur initiale → Valeur finale en un seul calcul&nbsp;: coefficient global</div>
+       <div class="pctc-global-lab">Du départ à la fin, en un seul calcul&nbsp;: coefficient global</div>
        <div class="evs-gpar">
          <span class="pctb-af-x">× (1</span>
          <span class="pctb-af-x evs-pm evs-pm-vide" id="evsPM" aria-label="signe de l’évolution globale, lu sur le coefficient global">±</span>
@@ -24849,17 +24864,17 @@ async function finishHausses(){
    calculent comme dans {diminuer-pourcentage}, puis se multiplient comme dans
    « Multiplier des décimaux » de la Première — mêmes fractions décimales, même pose des numérateurs. */
 const BS_CTX=[
-  {sujet:'Le prix d’un article',                            g:'m'},
-  {sujet:'Le prix d’un vélo',                               g:'m'},
-  {sujet:'Le prix d’un ordinateur',                         g:'m'},
-  {sujet:'Le prix d’un billet d’avion',                g:'m'},
-  {sujet:'Le tarif d’un abonnement',                        g:'m'},
-  {sujet:'Le salaire d’un employé',                         g:'m'},
-  {sujet:'La valeur d’une voiture',                         g:'f'},
-  {sujet:'La population d’une ville',                       g:'f'},
-  {sujet:'La consommation d’électricité d’une usine',  g:'f'},
-  {sujet:'La surface d’une forêt',                          g:'f'},
-  {sujet:'Le nombre d’abonnés d’un journal',           g:'m'}
+  {sujet:'Le prix d’un article',                            g:'m', de:'le prix de l’article'},
+  {sujet:'Le prix d’un vélo',                               g:'m', de:'le prix du vélo'},
+  {sujet:'Le prix d’un ordinateur',                         g:'m', de:'le prix de l’ordinateur'},
+  {sujet:'Le prix d’un billet d’avion',                g:'m', de:'le prix du billet d’avion'},
+  {sujet:'Le tarif d’un abonnement',                        g:'m', de:'le tarif de l’abonnement'},
+  {sujet:'Le salaire d’un employé',                         g:'m', de:'le salaire de l’employé'},
+  {sujet:'La valeur d’une voiture',                         g:'f', de:'la valeur de la voiture'},
+  {sujet:'La population d’une ville',                       g:'f', de:'la population de la ville'},
+  {sujet:'La consommation d’électricité d’une usine',  g:'f', de:'la consommation d’électricité de l’usine'},
+  {sujet:'La surface d’une forêt',                          g:'f', de:'la surface de la forêt'},
+  {sujet:'Le nombre d’abonnés d’un journal',           g:'m', de:'le nombre d’abonnés du journal'}
 ];
 const BS_ENONCES=[
   q=>`${BS_CTX[q.ci].sujet} baisse de <b>${q.P1} %</b>, puis de <b>${q.P2} %</b>. Quelle est la baisse globale, en pourcentage ?`,
