@@ -3763,3 +3763,39 @@ puis le schéma sur des copies épinglées (1,3 / 0,95 / 2) : coefficient écrit
 et non saisissable, signe, flèche « −1 », copie juste bleue qui vaut le
 point, mauvais mot rouge avec correction verte sans faire rougir les cases
 justes, coefficient recopié (0,8 et 80 %) refusé, case vide jamais rouge.
+
+---
+
+## {pourcentage-schema-vide} — le 4.1.12 sans aucun nombre dans le schéma (Seconde, 4.1.13, septembre 2026)
+
+**D'où il vient.** Demande de Turquet : « en seconde, un exercice comme le
+4.1.12, mais on ne met aucun nombre dans le schéma ; on donne deux pourcentages
+dans les phrases et on complète toutes les autres cases, présenté comme le
+4.1.12 avec les cadres de couleurs ».
+
+**Ce que fait l'exercice.** Même écran que `{pourcentage-schema-cadres}` : trois
+boîtes cadrées (bleu plein, rouge tirets, vert pointillés), calcul global, trois
+phrases cadrées. Les deux premières phrases DONNENT P1 et P2, écrits — ce ne
+sont pas des cases ; le schéma est entièrement vide : `psvD1`, `psvD2` (les
+flèches), `psvG1`, `psvG2`, `psvG` (le calcul global), plus `psvS3` (la
+troisième phrase) — six cases. Une seule forme, la question n'a pas de flèche
+à retrouver.
+
+**Partagé avec le 4.1.12** : `CTX_PCC` (huit contextes et leurs cadres),
+`PCC_PCTS` (multiples de 5, produit multiple de 100 : le global est entier),
+`.cdr`. Propre : `genPsv`, `PSV_ENONCES`, `psvCases`, `renderPsvTest`,
+`checkPsvAnswer`, `RAP_PSV`, `QIA_SUGG.psv`. Jugement identique (0,3 = 0,30,
+« 6,5 » refusé).
+
+**Piège : le préfixe.** Le premier jet s'appelait `pcv`. Or `pcv` est déjà le
+kind de l'exercice Python (`RAPPELS.pcv`, `scr-pcv`, `pcvHost`, `pcvCases`…) :
+le fichier chargeait avec une erreur « Identifier 'RAP_PCV' has already been
+declared », et un préfixe qui n'aurait pas eu de const en double aurait
+silencieusement remplacé l'autre exercice. Avant de choisir un préfixe :
+`git show HEAD:secondes.html | grep -ic "<préfixe>"`. Retenu : `psv`.
+
+**Contrôle** (`pourcentageSchemaVide`, `tests/verifier.js`) : sur les huit
+contextes, six cases, aucun nombre écrit dans le schéma, phrases 1 et 2 sans
+case et avec leur pourcentage, cadres sur boîtes et phrases ; puis « 65 % »
+rouge seul, les cinq cases justes bleues, la copie juste vaut le point, la
+case vide ne rougit pas. `APP_VERSION` 252.
