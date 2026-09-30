@@ -2435,6 +2435,15 @@ typographique comme « -1,5 » au tiret et à la virgule, un signe faux qui ne
 rougit que lui, la case vide verte en entraînement comme en soutien, le
 soutien qui colore en direct sans verrouiller, la case de la valeur qui
 suit son nœud, l'énoncé qui nomme minimum ou maximum, la clause de secret).
+**Puis DEUX tableaux, pas un (v354, septembre 2026).** Demande de Turquet : « un
+premier tableau pour f′ (x, signe de f′, variations de f, avec les cases des
+zéros de f′), puis un deuxième pour f″ (x, signe de f″, variations de f′,
+convexité de f, avec la case du zéro de f″) ». `cvxTab` rend désormais `n1`
+(zéros de f′ : un en famille A, aucun en B) et `n2` (le zéro de f″), chaque
+tableau a ses propres colonnes ; `noeuds` (leur réunion) ne cale plus que la
+fenêtre des dessins. Identifiants : `cvx-u0` (zéro de f′), `cvx-x0` (zéro de
+f″), les autres inchangés. Copie juste : 13 cases (A) ou 10 (B), au lieu de 18
+et 12. Le contrôle relit chaque tableau sur ses propres intervalles.
 Vu dans un vrai Chromium avant la mise en ligne : les quatre visages, la
 copie juste (1 point, 18 cases), une copie fausse (rouge, badge vert), et
 la tablette (les trois cadres se replient en 2 + 1).

@@ -4846,7 +4846,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=242;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=244;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -21640,9 +21640,9 @@ function renderEvbTest(){
      </div>`+
     (pct ? `<div class="pctb-row evb-rev-row">
        <div class="pctb-box"><div class="pctb-lab">Pourcentage d’évolution</div>
-         <span style="display:flex;align-items:center;gap:6px"><math-field class="dexp-mf pm-mf evb-pct" id="evbT" aria-label="pourcentage d’évolution"></math-field><span class="pctb-af-x">%</span></span></div>
+         <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="pctb-af-x">C’est une</span><select id="evbW" class="itv-sel large" aria-label="hausse ou baisse"><option value="">…………</option><option value="hausse">hausse</option><option value="baisse">baisse</option></select><span class="pctb-af-x">de</span><math-field class="dexp-mf pm-mf evb-pct" id="evbT" aria-label="pourcentage d’évolution"></math-field><span class="pctb-af-x">%</span></span></div>
      </div>` : '');
-  const order=(pct?['evbN','evbP','evbC','evbF','evbT']:['evbN','evbP','evbC','evbF']).map(id=>$(id));
+  const order=(pct?['evbN','evbP','evbC','evbF','evbW','evbT']:['evbN','evbP','evbC','evbF']).map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkEvbAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
@@ -21656,6 +21656,7 @@ function checkEvbAnswer(live){
       el.classList.remove('ok','bad'); if(val==='') return;
       const n=parseInt(val,10); el.classList.add((!isNaN(n)&&n===target)?'ok':'bad'); };
     col('evbN',q.N); col('evbF',q.fin); if(pct) col('evbT',q.P);
+    if(pct){ const w=$('evbW'); if(w&&!w.disabled){ w.classList.remove('ok','bad'); if(w.value) w.classList.add(w.value===(q.sens<0?'baisse':'hausse')?'ok':'bad'); } }
     liveColorDec('evbP',q.P,100); liveColorDec('evbC',coef,100);
     return;
   }
@@ -21664,23 +21665,25 @@ function checkEvbAnswer(live){
   const frP=parseDecToFrac(v('evbP')), okP=!!frP && frP.n*100===q.P*frP.d;
   const frC=parseDecToFrac(v('evbC')), okC=!!frC && frC.n*100===coef*frC.d;
   const okT=!pct || (v('evbT')!=='' && parseInt(v('evbT'),10)===q.P);
+  const mot=q.sens<0?'baisse':'hausse', okW=!pct || v('evbW')===mot;
   const mark=(id,ok)=>{ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien(); };
-  mark('evbN',okN); mark('evbP',okP); mark('evbC',okC); mark('evbF',okF); if(pct) mark('evbT',okT);
-  const allOk=okN&&okF&&okP&&okC&&okT;
+  mark('evbN',okN); mark('evbP',okP); mark('evbC',okC); mark('evbF',okF); if(pct){ mark('evbT',okT); mark('evbW',okW); }
+  const allOk=okN&&okF&&okP&&okC&&okT&&okW;
   if(!allOk && isSoutien()){ soutienAgain('evbFeedback','evbActions','checkEvbAnswer','evbHost'); return; }
   test.locked=true;
   const decCoef=String(coef/100).replace('.',','), decP=pDecStr(q.P);
   if(allOk){ test.score++; $('evbLiveScore').textContent=test.score;
     $('evbFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('evbFeedback').className='mp-feedback good';
   } else {
-    $('evbFeedback').textContent=`Réponse : ${q.N} × (1 ${q.sens<0?'−':'+'} ${decP}) = ${q.N} × ${decCoef} = ${q.fin}`+(pct?` — soit une évolution de ${q.P} %`:'');
+    $('evbFeedback').textContent=`Réponse : ${q.N} × (1 ${q.sens<0?'−':'+'} ${decP}) = ${q.N} × ${decCoef} = ${q.fin}`+(pct?` — c’est une ${mot} de ${q.P} %`:'');
     $('evbFeedback').className='mp-feedback bad';
     corTrainDec('evbN', String(q.N)); corTrainDec('evbP', decP); corTrainDec('evbC', decCoef); corTrainDec('evbF', String(q.fin));
-    if(pct) corTrainDec('evbT', String(q.P));
+    if(pct){ corTrainDec('evbT', String(q.P));
+      const w=$('evbW'); if(w&&currentMode==='train'&&!w.classList.contains('ok')){ w.value=mot; w.classList.remove('bad'); w.classList.add('sol'); w.disabled=true; } }
   }
   const enonce=evbEnonce(q).replace(/<[^>]+>/g,'');
-  const given=`${v('evbN')||'—'} / ${v('evbP')||'—'} / ${v('evbC')||'—'} / ${v('evbF')||'—'}`+(pct?` / ${v('evbT')||'—'} %`:'');
-  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${q.N} ; ${decP} ; ${decCoef} ; ${q.fin}`+(pct?` ; ${q.P} %`:''), given, correct:allOk});
+  const given=`${v('evbN')||'—'} / ${v('evbP')||'—'} / ${v('evbC')||'—'} / ${v('evbF')||'—'}`+(pct?` / ${v('evbW')||'—'} de ${v('evbT')||'—'} %`:'');
+  test.answers.push({...(ptsExo()||{}), q:enonce, answer:`${q.N} ; ${decP} ; ${decCoef} ; ${q.fin}`+(pct?` ; ${mot} de ${q.P} %`:''), given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('evbActions').innerHTML=`<button class="btn btn-primary" id="evbNext" onclick="nextEvbQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   $('evbNext').focus();
@@ -35972,16 +35975,27 @@ function tdpCases(q){
              {id:'tdp-ct-1', bon:String(T.ct[1]), kind:'nb', quoi:'c1'},
              {id:'tdp-tt',   bon:String(T.tt),    kind:'nb', quoi:'tout'} ];
   }
-  return [ {id:'tdp-qui',   bon:q.gk, kind:'sel'},
+  return [ {id:'tdp-qui',   bon:q.gk, kind:'sel', alt:tdpAlt(q)},
            {id:'tdp-parmi', bon:q.rk, kind:'sel'},
            {id:'tdp-num',   bon:String(tdpEff(q,q.gk,q.rk)), kind:'nb'},
            {id:'tdp-den',   bon:String(tdpEff(q,q.rk,'tout')), kind:'nb'} ];
+}
+/* LA CASE DU CROISEMENT EST ACCEPTÉE AUSSI (demande de Turquet, septembre
+   2026) : pour « ceux qui ont des lunettes parmi les garçons », l'élève peut
+   répondre « ont des lunettes » — la formulation de la fiche, celle que la
+   correction écrit — ou « sont des garçons avec lunettes » : parmi les
+   garçons, ce sont les mêmes élèves, et la fraction est la même. Quand le
+   tout est l'effectif entier, il n'y a pas d'autre réponse. */
+function tdpAlt(q){
+  if(q.rk==='tout' || q.gk[0]==='x') return [];
+  const l=q.gk[0]==='l'?q.gk[1]:q.rk[1], c=q.gk[0]==='c'?q.gk[1]:q.rk[1];
+  return ['x'+l+c];
 }
 function tdpLit(v){ const t=String(v==null?'':v).replace(/\s+/g,''); return /^\d+$/.test(t)?parseInt(t,10):null; }
 function tdpJuste(c, el){
   if(!el) return false;
   if(c.kind==='nb'){ const n=tdpLit(el.value); return n!==null && n===parseInt(c.bon,10); }
-  return el.value===c.bon;
+  return el.value===c.bon || (c.alt||[]).indexOf(el.value)>=0;
 }
 /* Le tableau : les quatre effectifs écrits, les totaux en cases de saisie
    (saisie=true) ou écrits à leur tour (le tableau complété qui accompagne
@@ -36132,7 +36146,9 @@ function ctxTdp(q){
     const g=tdpGroupe(ctx,q.gk), r=tdpGroupe(ctx,q.rk), num=tdpEff(q,q.gk,q.rk), den=tdpEff(q,q.rk,'tout');
     c+='Le tableau est déjà complété (totaux de lignes '+T.lt.join(' et ')+', de colonnes '+T.ct.join(' et ')+', total '+T.tt+'). Question : « '+tdpEnonce(q)+' » '
      +'L’élève choisit dans deux listes qui l’on étudie (« '+ctx.qui+' … ») et parmi qui, puis écrit la proportion en fraction : numérateur et dénominateur. '
-     +'Réponses attendues, STRICTEMENT SECRÈTES : on étudie '+ctx.qui+' '+g.p+' parmi '+r.nom+' ; la proportion est '+num+'/'+den+'. '
+     +'Réponses attendues, STRICTEMENT SECRÈTES : on étudie '+ctx.qui+' '+g.p+' parmi '+r.nom
+     +tdpAlt(q).map(function(k){ return ' (la page accepte aussi « '+tdpGroupe(ctx,k).p+' », les mêmes '+ctx.de.replace(/^d[e’]\s*/,'')+' parmi '+r.nom+')'; }).join('')
+     +' ; la proportion est '+num+'/'+den+'. '
      +'Méthode enseignée : une proportion est « une partie sur un tout » ; le mot « parmi » (ou « dans ») dit quel est le tout, c’est l’effectif qu’on met au dénominateur ; le numérateur est l’effectif de ceux qu’on étudie À L’INTÉRIEUR de ce tout. '
      +'Erreurs classiques : diviser par l’effectif total alors que la question dit « parmi les garçons » ; confondre « les garçons à lunettes dans la classe » (3/30) et « ceux qui ont des lunettes parmi les garçons » (3/13).';
   }
