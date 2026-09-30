@@ -67,6 +67,13 @@
     background-size:28px 28px; background-position:-1px -1px;
     -webkit-font-smoothing:antialiased; min-height:100dvh; line-height:1.5;
   }
+  /* L'inconnue et les noms de fonctions s'écrivent en ÉCRITURE MATHÉMATIQUE
+     arrondie, celle que MathLive trace dans les cases (KaTeX_Math), et pas en
+     simple penché de la police du texte (décision de Turquet, septembre 2026 :
+     « l'italique, c'est l'écriture arrondie du x »). Règle GLOBALE : un <i>
+     autour d'une lettre est une variable. Les règles plus précises de la
+     feuille (Georgia, etc.) gardent la main sur leur bloc. */
+  i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic}
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
   /* L'écran d'un exercice prend toute la largeur, comme en Première : une
      colonne de 780 px replie les enchaînements d'égalités que l'élève doit
@@ -1565,7 +1572,7 @@
   .itv-lbl{font-family:"Fredoka";font-weight:600;color:var(--blue-dark);font-size:.95rem;white-space:nowrap}
   .itv-corps{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink)}
   .itv-fixe{color:var(--blue-dark)}
-  .itv-x{font-style:italic;font-family:"Fredoka";font-weight:600;font-size:1.35rem;color:var(--blue-dark)}
+  .itv-x{font-style:italic;font-family:KaTeX_Math,Georgia,"Times New Roman",serif;font-weight:600;font-size:1.35rem;color:var(--blue-dark)}
   /* La feuille pose « select{width:100%} » : sans largeur explicite, chaque
      case s'étirait sur toute la ligne et les quatre se posaient l'une sous
      l'autre — l'intervalle n'était plus lisible en une ligne. Un min-width n'y
@@ -2350,7 +2357,7 @@
 .tg-coef{display:inline-flex;align-items:center;gap:3px;}
 .tg-read{gap:10px 28px;margin-bottom:4px;}
 .tg-eq,.tg-gap{font-weight:700;}
-.tg-form i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+.tg-form i{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
 .tg-imp{color:var(--ink-soft);font-weight:700;font-size:1.05rem;}
 .tg-sub{font-weight:700;color:var(--ink);margin:14px 0 4px;}
 .tg-in{width:46px;text-align:center;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:8px;padding:4px 4px;-webkit-appearance:none;appearance:none;}
@@ -2360,7 +2367,7 @@
 .tg-in:disabled{opacity:1;}
 /* ---- Test : signe du 1er degré ---- */
 .s1-card{max-width:560px;margin:0 auto;}
-.s1-card i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+.s1-card i{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
 .s1-tbl td.lab{width:32%;text-align:center;}
 .s1-tbl td.s1-bl{text-align:left;padding-left:10px;}
 .s1-tbl td.s1-br{text-align:right;padding-right:10px;}

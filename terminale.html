@@ -74,6 +74,13 @@
     background-size:28px 28px; background-position:-1px -1px;
     -webkit-font-smoothing:antialiased; min-height:100dvh; line-height:1.5;
   }
+  /* L'inconnue et les noms de fonctions s'écrivent en ÉCRITURE MATHÉMATIQUE
+     arrondie, celle que MathLive trace dans les cases (KaTeX_Math), et pas en
+     simple penché de la police du texte (décision de Turquet, septembre 2026 :
+     « l'italique, c'est l'écriture arrondie du x »). Règle GLOBALE : un <i>
+     autour d'une lettre est une variable. Les règles plus précises de la
+     feuille (Georgia, etc.) gardent la main sur leur bloc. */
+  i{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic}
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
 /* Sur écran d'ordinateur, le cadre blanc prend plus de largeur ; téléphones inchangés. */
 @media (min-width:1080px){ .wrap{max-width:1200px} }
@@ -744,6 +751,7 @@
   .svr-hit{fill:none;stroke:transparent;stroke-width:22;pointer-events:stroke;cursor:crosshair}
   /* le halo : « y = x » est posé SUR la droite qu'il nomme, et « Cf » sur la
      courbe — sans lui, l'étiquette se lit barrée (vu sur une capture). */
+  .svr-lbl .svr-m{font-family:KaTeX_Math,Georgia,'Times New Roman',serif}
   .svr-lbl{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:15px;
            paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
   .svr-lbl-c{fill:var(--ink)}
@@ -1190,7 +1198,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .dexp-in.sol,.dexp-ce.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 .dexp-in:disabled{opacity:1;}
 .dexp2-in{display:block;min-height:2.4em;width:100%;box-sizing:border-box;font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:10px;padding:9px 12px;text-align:left;line-height:1.7;margin:8px 0;}
-.dexp2-in .mvar{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:600;}
+.dexp2-in .mvar{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:600;}
 .dexp2-in:focus{outline:none;border-color:var(--blue);background:var(--surface);}
 .dexp2-in sup{font-size:.72em;vertical-align:super;line-height:0;}
 .dexp2-in:empty:before{content:"f ′(x) = \2026";color:var(--ink-soft);font-weight:600;}
@@ -1208,7 +1216,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .dexp2-sheet:focus-within{border-color:var(--blue);background:var(--surface);box-shadow:0 0 0 3px rgba(43,80,200,.16);}
 .dexp2-line{display:flex;align-items:center;gap:10px;padding:5px 2px;width:max-content;min-width:100%;}
 .dexp2-prefix{flex:none;min-width:56px;text-align:right;white-space:nowrap;font-family:'Nunito',sans-serif;font-weight:700;font-size:1.15rem;color:var(--ink);}
-.dexp2-prefix i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:600;}
+.dexp2-prefix i{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:600;}
 .dexp2-sheet math-field.dexp-mf{border:none;outline:none;box-shadow:none;background:transparent;flex:1 0 auto;min-width:6ch;min-height:1.9em;font-size:1.3rem;padding:2px 0;color:var(--ink);}
 .dexp2-sheet math-field.dexp-mf:focus-within{border:none;background:transparent;box-shadow:none;}
 /* ===== Exercice 2.4 — quotient : affichage en fraction ===== */
@@ -1432,7 +1440,7 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
 .tg-coef{display:inline-flex;align-items:center;gap:3px;}
 .tg-read{gap:10px 28px;margin-bottom:4px;}
 .tg-eq,.tg-gap{font-weight:700;}
-.tg-form i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+.tg-form i{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
 .tg-imp{color:var(--ink-soft);font-weight:700;font-size:1.05rem;}
 .tg-sub{font-weight:700;color:var(--ink);margin:14px 0 4px;}
 .tg-in{width:46px;text-align:center;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:8px;padding:4px 4px;-webkit-appearance:none;appearance:none;}
@@ -1442,7 +1450,7 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
 .tx-part:first-child{margin-top:4px;}
 .tx-avec{color:var(--ink-soft);font-weight:600;margin-bottom:2px;}
 .tx-se{width:30px;padding:2px 2px;font-size:.85rem;position:relative;top:-8px;}
-.tx-e{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:700;}
+.tx-e{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:700;}
 /* ---- Pavé numérique compact des écrans tactiles ---- */
 #paveNum{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:9500;display:flex;gap:6px;
   background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px;
@@ -1500,7 +1508,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .tg-in:disabled{opacity:1;}
 /* ---- Test : signe du 1er degré ---- */
 .s1-card{max-width:var(--card-max);margin:0 auto;}
-.s1-card i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+.s1-card i{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
 .s1-tbl td.lab{width:32%;text-align:center;}
 .s1-tbl td.s1-bl{text-align:left;padding-left:10px;}
 .s1-tbl td.s1-br{text-align:right;padding-right:10px;}
@@ -1732,7 +1740,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
 .rap .rap-t{font-weight:800;margin:11px 0 3px;color:var(--ink);}
 .rap ul{margin:2px 0 4px;padding-left:17px;}
 .rap li{margin:3px 0;}
-.rap i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+.rap i{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
 </style>
 
 <div class="wrap">
@@ -3070,7 +3078,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=355;
+const APP_VERSION=356;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -20690,7 +20698,7 @@ function escSVG(c, etat){
     dCourbe+=(ouvert?'L':'M')+X(x).toFixed(1)+' '+Y(y).toFixed(1); ouvert=true;
   }
   g+='<path d="'+dDiag+'" class="svr-diag"/><path d="'+dCourbe+'" class="svr-courbe"/>'
-    +'<text class="svr-lbl svr-lbl-d" x="'+(X(c.W)-6).toFixed(1)+'" y="'+(Y(c.W)-7).toFixed(1)+'" text-anchor="end">y = x</text>'
+    +'<text class="svr-lbl svr-lbl-d" x="'+(X(c.W)-6).toFixed(1)+'" y="'+(Y(c.W)-7).toFixed(1)+'" text-anchor="end"><tspan class="svr-m">y</tspan> = <tspan class="svr-m">x</tspan></text>'
     +'<text class="svr-lbl svr-lbl-c" x="'+(X(c.W)-6).toFixed(1)+'" y="'+(Y(f(c.W))+21).toFixed(1)+'" text-anchor="end">C<tspan font-size="11" dy="4">f</tspan></text>';
   /* le point de départ, donné */
   g+='<g class="svr-dep"><circle cx="'+X(c.U0).toFixed(1)+'" cy="'+Y(0).toFixed(1)+'" r="5.5"/>'

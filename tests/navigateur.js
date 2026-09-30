@@ -11558,8 +11558,13 @@ async function parcours(page, N){
                 if(!p || !/(^|[^A-Za-zÀ-ÿ_])x(?![A-Za-zÀ-ÿ_])/.test(t)) continue;
                 if(p.closest('math-field,script,style,textarea')) continue;
                 if(!visible(p) && !p.closest('svg')) continue;
-                const st = getComputedStyle(p).fontStyle;
-                if(st === 'italic' || st === 'oblique') continue;
+                const cs = getComputedStyle(p);
+                /* ITALIQUE ET ARRONDI : le penché de la police du texte ne suffit
+                   pas (Turquet, septembre 2026 : « l'écriture arrondie du x »),
+                   la fonte doit être celle des maths — KaTeX_Math, ou à défaut
+                   une police à empattements. */
+                const arrondi = /KaTeX_Math|Georgia|Times|Cambria|serif/i.test(cs.fontFamily) && !/Nunito|Fredoka/i.test(cs.fontFamily.split(',')[0]);
+                if((cs.fontStyle === 'italic' || cs.fontStyle === 'oblique') && arrondi) continue;
                 xDroits.push(t.trim().slice(0, 50));
               }
             })();
