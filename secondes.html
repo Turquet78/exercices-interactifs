@@ -5002,7 +5002,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=253;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=254;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -20935,7 +20935,8 @@ function genPsv(){
      habits, pas des données : hors de la clé de distinctes() */
   const ctx=CTX_PCC[ci];
   return {P1,P2,comb,ci,
-          v:[rand(0,PSV_ENONCES.length-1), rand(0,ctx.s1.length-1), rand(0,ctx.s2.length-1), rand(0,ctx.s3.length-1)]};
+          v:[rand(0,PSV_ENONCES.length-1), rand(0,ctx.s1.length-1), rand(0,ctx.s2.length-1), rand(0,ctx.s3.length-1)],
+          ordre:qdMelanger([0,1,2])};      /* l'ordre des trois phrases sous le schéma — une habitude, hors de la clé de distinctes() */
 }
 function psvEnonce(q){
   const ctx=CTX_PCC[q.ci]||CTX_PCC[CTX_PCC.length-1];
@@ -20973,11 +20974,12 @@ function renderPsvTest(){
   const d1=pDecStr(q.P1), d2=pDecStr(q.P2), g=pDecStr(q.comb);
   /* les deux premières phrases DONNENT les pourcentages ; la troisième a sa case */
   const tour=k=>{ const t=ctx['s'+k]; return t[(q.v&&q.v[k])||0]||t[0]; };
-  const phrases=[
+  const phrasesTab=[
     `<div class="psv-phrase">${tour(1)(q.P1)}</div>`,
     `<div class="psv-phrase">${tour(2)(q.P2)}</div>`,
     `<div class="psv-phrase">${tour(3)(mf('psvS3','pourcentage, en nombre entier','psv-pct'))}</div>`
-  ].join('');
+  ];
+  const phrases=(q.ordre||[0,1,2]).map(k=>phrasesTab[k]).join('');   /* une pause ancienne n'a pas d'ordre : l'ordre d'avant */
   $('psvHost').innerHTML=
     `<div class="pctb-row">
        ${boiteLab(ctx.total,0)}
