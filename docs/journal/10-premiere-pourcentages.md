@@ -3798,4 +3798,4 @@ silencieusement remplacé l'autre exercice. Avant de choisir un préfixe :
 contextes, six cases, aucun nombre écrit dans le schéma, phrases 1 et 2 sans
 case et avec leur pourcentage, cadres sur boîtes et phrases ; puis « 65 % »
 rouge seul, les cinq cases justes bleues, la copie juste vaut le point, la
-case vide ne rougit pas. `APP_VERSION` 250.
+case vide ne rougit pas. `APP_VERSION` 252.

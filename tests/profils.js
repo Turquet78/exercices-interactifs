@@ -638,6 +638,11 @@ module.exports = {
        n'en voit que la présence ; c'est le banc navigateur qui la mesure
        (section « 6 quater decies »). */
     syntheseEvolutions: { exercice: 'synthese-evolutions' },
+    /* {synthese-pourcentages-libre} (4.5.2, Seconde) : la phrase de conclusion
+       « C'est une hausse de … % » quand l'inconnue est le pourcentage d'une
+       hausse ou d'une baisse (septembre 2026). Le banc navigateur clique
+       « Vérifier » dans un vrai Chromium (section « 6 quater decies bis »). */
+    syntheseConclusion: { exercice: 'synthese-pourcentages-libre' },
     /* La fenêtre « Soutien » se saisit n'importe où, et pas seulement par sa
        barre de titre. Un exercice de ce niveau qui a un mode soutien suffit :
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
