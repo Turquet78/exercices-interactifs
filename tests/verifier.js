@@ -4151,6 +4151,7 @@ function exercices(suite){
     coefficientDeuxDecimalesSynthese(w, P);
     syntheseEvolutions(w, P);
     evolutionsSuccessives(w, P);
+    schemaEvolution(w, P);
     baissesSuccessivesDix(w, P);
     pourcentageSchema(w, P);
     pourcentagePhrases(w, P);
@@ -27831,6 +27832,89 @@ function syntheseEvolutions(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---- {schema-evolution} (4.5.6) : Seconde SEULE, LE SCHÉMA DU 4.5.4 À COEFFICIENT DONNÉ
+   « un exercice comme le schéma du 4.5.4, avec le schéma en image ; il faut
+   donner un coefficient multiplicateur dans la case du bas de la flèche, et
+   l'élève complète logiquement le schéma ; le résultat doit être un
+   pourcentage multiple de 10 ou inférieur à 10 » (Turquet, septembre 2026).
+   Kind « sev ». Trois bords : le tirage (le pourcentage est inférieur à 10 ou
+   multiple de 10, le coefficient en découle, les deux sens sortent, un petit
+   pourcentage sort) ; le schéma (le coefficient est ÉCRIT, pas une case, et le
+   signe de la parenthèse le suit) ; le verdict case par case. Absent-déclaré
+   sur les niveaux qui n'ont pas startSchemaEvol. */
+function schemaEvolution(w, P){
+  const present = evaluer(w, "typeof startSchemaEvol==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('{schema-evolution} : le pourcentage est inférieur à 10 ou multiple de 10, les deux sens sortent',
+      'ce niveau n\'a pas le schéma d\'évolution à coefficient donné');
+    ignorer('{schema-evolution} : le coefficient est écrit, le signe le suit, le verdict est juste case par case',
+      'ce niveau n\'a pas le schéma d\'évolution à coefficient donné');
+    return;
+  }
+  verifierEval(w, '{schema-evolution} : le pourcentage est inférieur à 10 ou multiple de 10, les deux sens sortent', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='schema-evolution';
+    let petit=false;
+    for(let t=0;t<40 && vus.length<3;t++){
+      startSchemaEvol();
+      if(test.qId!=='schema-evolution') vus.push('tirage '+t+' : identité « '+test.qId+' »');
+      if(test.kind!=='sev') vus.push('tirage '+t+' : kind « '+test.kind+' »');
+      const qs=test.questions||[], sens={};
+      if(qs.length!==3) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de 3');
+      qs.forEach(function(q,i){
+        sens[q.s]=1;
+        if(!(q.P>=1 && (q.P<10 || q.P%10===0))) vus.push('tirage '+t+' q'+i+' : '+q.P+' % n\\'est ni inférieur à 10 ni multiple de 10');
+        if(q.s<0 && q.P>90) vus.push('tirage '+t+' q'+i+' : une baisse de '+q.P+' %');
+        if(q.c!==100+q.s*q.P) vus.push('tirage '+t+' q'+i+' : coefficient '+q.c+' incohérent avec '+q.s*q.P+' %');
+        if(q.P<10) petit=true;
+        if(/undefined|\\$\\{/.test(sevEnonce(q))) vus.push('tirage '+t+' q'+i+' : énoncé mal formé');
+      });
+      if(!sens[1] || !sens[-1]) vus.push('tirage '+t+' : une seule des deux évolutions sort');
+      const vu={}; qs.forEach(function(q){ const c=q.s+'|'+q.P; if(vu[c]) vus.push('tirage '+t+' : deux questions identiques'); vu[c]=1; });
+    }
+    if(!vus.length && !petit) vus.push('aucun pourcentage inférieur à 10 sur quarante séances');
+    if(!vus.length){ restartCurrentTest(); if(test.qId!=='schema-evolution') vus.push('« Recommencer » relance « '+test.qId+' »'); }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '{schema-evolution} : le coefficient est écrit, le signe le suit, le verdict est juste case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='schema-evolution';
+    const poser=function(q){ startSchemaEvol(); test.questions[0]=q; test.idx=0; test.locked=false; renderSevTest(); };
+    const setv=function(id,val){ document.getElementById(id).value=String(val); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    [{s:1,P:30,c:130,dec:'1,3',p:'0,3',mot:'hausse',sig:'+'},{s:-1,P:5,c:95,dec:'0,95',p:'0,05',mot:'baisse',sig:'\\u2212'},{s:1,P:100,c:200,dec:'2',p:'1',mot:'hausse',sig:'+'}].forEach(function(C){
+      poser({s:C.s,P:C.P,c:C.c,ci:0,v:0});
+      const cEl=document.getElementById('sevC');
+      if(!cEl || cEl.tagName==='MATH-FIELD') vus.push(C.dec+' : le coefficient donné doit être écrit par la page, pas une case');
+      else if(cEl.textContent.trim()!==C.dec) vus.push(C.dec+' : le coefficient affiché est « '+cEl.textContent+' »');
+      const af=document.querySelector('#sevHost .pctb-af-x');
+      if(!af || af.textContent.indexOf(C.sig)<0) vus.push(C.dec+' : la parenthèse n\\'affiche pas « '+C.sig+' »');
+      if(!document.querySelector('#sevHost .evb-rev-arrow')) vus.push(C.dec+' : la flèche « −1 » manque');
+      setv('sevP',C.p); setv('sevW',C.mot); setv('sevT',C.P);
+      checkSevAnswer();
+      ['sevP','sevW','sevT'].forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push(C.dec+' : '+id+' juste n\\'est pas bleu ('+cls(id)+')'); });
+      if(test.score!==1) vus.push(C.dec+' : la copie juste ne vaut pas le point');
+    });
+    /* le pourcentage laissé en 30 % au lieu de 0,3, et le mauvais mot */
+    poser({s:1,P:30,c:130,ci:0,v:0});
+    setv('sevP','0,3'); setv('sevW','baisse'); setv('sevT',30);
+    checkSevAnswer();
+    if(test.score!==0) vus.push('« baisse » pour un coefficient 1,3 vaut le point');
+    if(/\\bbad\\b/.test(cls('sevP')) || /\\bbad\\b/.test(cls('sevT'))) vus.push('une case juste rougit à côté du mauvais mot');
+    if(document.getElementById('sevW').value!=='hausse' || !/\\bsol\\b/.test(cls('sevW'))) vus.push('la correction « hausse » n\\'est pas montrée en vert');
+    poser({s:-1,P:20,c:80,ci:0,v:0});
+    setv('sevP','0,8'); setv('sevW','baisse'); setv('sevT',80);
+    checkSevAnswer();
+    if(!/\\bbad\\b/.test(cls('sevP')) || !/\\bbad\\b/.test(cls('sevT'))) vus.push('0,8 et 80 % (le coefficient recopié) ne rougissent pas');
+    /* case vide : ne rougit jamais */
+    poser({s:-1,P:10,c:90,ci:0,v:0});
+    setv('sevP',''); setv('sevW','baisse'); setv('sevT',10);
+    checkSevAnswer();
+    if(/\\bbad\\b/.test(cls('sevP'))) vus.push('une case laissée vide rougit à la vérification');
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---- {evolutions-successives} : Seconde SEULE, LA SYNTHÈSE DES DEUX SCHÉMAS --
    « créer un exercice comme le pdf en variant les énoncés et avec des
    augmentations ou des baisses ; l'évolution globale doit être un pourcentage
@@ -28460,11 +28544,21 @@ function pourcentageSchemaCadres(w, P){
       const labs=[].map.call(document.querySelectorAll('#pccHost .pctb-lab'), function(e){ return e; });
       if(labs.length!==3) vus.push(nom+labs.length+' boîte(s) au lieu de 3');
       labs.forEach(function(e,k){ if(!e.querySelector('.cdr-'+k)) vus.push(nom+'la boîte '+k+' n\\'est pas cadrée du style '+k); });
-      const gris=document.querySelectorAll('#pccHost .cdr-prec');
-      if(gris.length!==1 || !gris[0].textContent.trim() || labs[2].querySelector('.cdr-prec')!==gris[0]) vus.push(nom+'le texte gris n\\'est pas posé une fois, non vide, à côté de la troisième boîte');
+      if(document.querySelectorAll('#pccHost .cdr-prec').length) vus.push(nom+'un texte gris « parmi … » reste à côté de la troisième boîte : le groupe croisé s\\'écrit en entier dans la boîte');
+      if(labs[2] && labs[2].textContent.trim()!==CTX_PCC[ci].inter) vus.push(nom+'la troisième boîte ne porte pas le groupe croisé « '+CTX_PCC[ci].inter+' »');
+      if(labs[2] && labs[2].querySelectorAll('.cdr-2').length!==1) vus.push(nom+'le groupe croisé n\\'est pas dans un seul cadre vert');
       const ph=document.querySelectorAll('#pccHost .pcc-phrase');
       if(ph.length!==3) vus.push(nom+ph.length+' phrase(s) au lieu de 3');
       [].forEach.call(ph, function(e,i){ if(!e.querySelector('.cdr')) vus.push(nom+'la phrase '+(i+1)+' ne porte aucun cadre'); });
+      /* l'intersection de deux groupes prend UN cadre vert, jamais un rouge collé à un vert */
+      [0,1].forEach(function(tv){
+        test.questions[0].v=[0,0,0,tv]; renderPccTest();
+        const p3=document.getElementById('pccS3').closest('.pcc-phrase');
+        if(p3.querySelector('.cdr-1')) vus.push(nom+'la 3e phrase (tournure '+tv+') porte un cadre rouge : le groupe croisé est un seul cadre vert');
+        if(!p3.querySelector('.cdr-2')) vus.push(nom+'la 3e phrase (tournure '+tv+') ne porte pas de cadre vert');
+        if(p3.querySelectorAll('.cdr-2').length!==1) vus.push(nom+'la 3e phrase (tournure '+tv+') coupe le groupe croisé en plusieurs cadres verts');
+      });
+      test.questions[0].v=[0,0,0,0]; renderPccTest();
       if(/\\bundefined\\b|\\$\\{|\\[object/.test(pr.textContent+document.getElementById('pccHost').textContent)) vus.push(nom+'un gabarit ou « undefined » reste affiché');
       const verdict=document.querySelectorAll('#pccHost .cdr.ok,#pccHost .cdr.bad,#pccHost .cdr.sol,#pccPrompt .cdr.ok,#pccPrompt .cdr.bad,#pccPrompt .cdr.sol');
       if(verdict.length) vus.push(nom+'un cadre porte une classe de verdict');
