@@ -4148,6 +4148,7 @@ function exercices(suite){
     pythonOperations(w, P);
     pythonDoubleTripleCarre(w, P);
     pythonInputInt(w, P);
+    pythonInputFloat(w, P);
     pythonPasAPas(w, P);
     pythonValeurCase(w, P);
     pythonPasAPasChaine(w, P);
@@ -24714,6 +24715,195 @@ function pythonInputInt(w, P){
   }
   /* CPython reçoit le MÊME programme, précédé d'un input qui rend la réponse
      sans écrire la question — la page ne la met pas dans la sortie non plus */
+  const pourPy = tires.map(t => '__r = [' + JSON.stringify(t.rep) + ']\ndef input(p=""):\n    return __r.pop(0)\n' + t.src);
+  const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(tires) + '.map(function(t){ try{ return piiSortie(pyRun(t.src,[t.rep])); }catch(e){ return "ERREUR:"+e.message; } }))');
+  const mien = r.ok ? JSON.parse(r.valeur) : [];
+  let ref = null; try{ ref = pythonExecuter(py, pourPy); }catch(e){ ref = null; }
+  if(!ref || ref.length !== tires.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); return; }
+  const ecarts = [];
+  tires.forEach((t, i) => {
+    const a = mien[i], b = ref[i];
+    const meme = (a === b) || (String(a).indexOf('ERREUR:') === 0 && String(b).indexOf('ERREUR:') === 0);
+    if(!meme) ecarts.push(JSON.stringify(t.src.split('\n').pop()) + ' avec ' + JSON.stringify(t.rep) + ' : page ' + JSON.stringify(a) + ' / CPython ' + JSON.stringify(b));
+  });
+  verifier(nomPy + ' (' + tires.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-input-float} (Seconde, 6.3.4) : la fiche « Exercice 6 » du carnet —
+   taille = float(input(...)). Le MOTEUR du 6.3.3, une identite propre : ses
+   questions portent f:1, et c'est ce drapeau qui choisit contextes, definition
+   et messages. Le controle tient la fiche, float dans l'interpreteur (le point
+   accepte, la virgule refusee, l'entier tape qui devient 2.0), la place au
+   menu, les branchements PAR IDENTIFIANT (rappel, questions a l'IA — pas ceux
+   du 6.3.3), le tirage et ses trois visages, le juge (la reponse ecrite a la
+   main, l'accent du carnet « metres » accepte et NOMME), les portes avec la
+   virgule refusee en le disant, la case vide, le soutien, l'identite de la
+   note, et compare l'interpreteur a un vrai CPython. Aucun accent grave dans
+   ce texte : il vit dans un template litteral. */
+function pythonInputFloat(w, P){
+  const nom = '{python-input-float} : la reponse est un nombre decimal';
+  if(!P.pythonInputFloat){ ignorer(nom, 'ce niveau n\'a pas l\'exercice float(input)'); return; }
+  const D = P.pythonInputFloat, ID = D.exercice, NB = D.nb, CASES = D.cases, F = D.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPIF==='function' && typeof pifBuildQuestions==='function' && typeof PIF_CTX==='object' && typeof piiJuge==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPIF / pifBuildQuestions / PIF_CTX introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+  const GESTES = `
+    var NL=String.fromCharCode(10);
+    function entree(id, rep){ var i=document.getElementById(id); if(!i) return false; i.value=rep; i.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); return true; }
+    function jusquaB(rep){ piiExecA(); return entree("piiConsAIn", rep); }
+    function choisir(t){ var s=document.getElementById("piiType"); s.value=t; s.dispatchEvent(new Event("change",{bubbles:true})); }
+    function jusquaC(rep, t){ jusquaB(rep); choisir(t); piiExecB(); }
+    function ecrire(l){ var e=document.getElementById("piiLigne"); e.value=l; e.dispatchEvent(new Event("input",{bubbles:true})); }
+    function execC(l, rep){ ecrire(l); piiExecC(); return entree("piiConsCIn", rep); }
+    function demarrer(m){ currentEleve={id:"e-controle",prenom:"Contr\\u00f4le"}; currentMode=m; currentDM=null; currentTestId="${ID}"; startPIF(); }
+  `;
+
+  /* ---- 1. la fiche, et float dans l'interpreteur ---- */
+  verifierEval(w, 'la fiche du carnet : ' + F.ligneA + ', puis print(taille) et print(type(taille)) qui affichent ' + J(F.sortieB) + ', puis ' + F.ligneC + ' — float lit le POINT, refuse la virgule, et un entier tape devient ' + J(F.sortieEntier), `(function(){
+    var NL=String.fromCharCode(10), vus=[], q={vis:"float", k:0, f:1};
+    if(piiLigneA(q)!==${J(F.ligneA)}) vus.push("ligne a) : "+piiLigneA(q));
+    if(piiLignesB(q).join(" | ")!==${J(F.lignesB.join(' | '))}) vus.push("lignes b) : "+piiLignesB(q).join(" | "));
+    if(piiLigneC(q)!==${J(F.ligneC)}) vus.push("ligne c) : "+piiLigneC(q));
+    if(piiC(q).invite!==${J(F.invite)}) vus.push("la question posee : "+piiC(q).invite);
+    if(piiType(q)!=="float") vus.push("type attendu "+piiType(q));
+    var rb=piiSortie(pyRun(piiLigneA(q)+NL+piiLignesB(q).join(NL),[${J(F.reponse)}]));
+    if(rb.replace(/\\n$/,"")!==${J(F.sortieB)}) vus.push("le b) affiche "+JSON.stringify(rb));
+    if(piiAttendu(q,${J(F.reponse)}).replace(/\\n$/,"")!==${J(F.sortieC)}) vus.push("le c) affiche "+JSON.stringify(piiAttendu(q,${J(F.reponse)})));
+    if(piiAttendu(q,${J(F.entier)}).replace(/\\n$/,"")!==${J(F.sortieEntier)}) vus.push("un entier tape : "+JSON.stringify(piiAttendu(q,${J(F.entier)})));
+    ["1,65","un metre","",".","1.6.5"].forEach(function(r){ if(piiLit(q,r).ok) vus.push("float accepte « "+r+" »"); });
+    [" 1.65 ","2","-3.5",".5"].forEach(function(r){ if(!piiLit(q,r).ok) vus.push("float refuse « "+r+" »"); });
+    if(piiDefHTML(q).indexOf("float(")<0||piiDefHTML(q).indexOf("taille")<0) vus.push("la definition n\\u2019est pas celle de la fiche 6");
+    if(piiDefHTML({vis:"int",k:0}).indexOf("int(")<0) vus.push("la definition du 6.3.3 a change");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la place au menu et les branchements par identifiant ---- */
+  verifierEval(w, 'il suit {python-input-int} dans le sous-thème 6.3, numéroté ' + D.numero + ' ; son rappel et ses questions à l’IA sont les SIENS, pas ceux du 6.3.3 — et rien d’autre ne bouge', `(function(){
+    var vus=[], th=THEMES.find(function(t){ return t.num===6; });
+    var st=th&&th.sous&&th.sous.find(function(x){ return x.num===3; });
+    if(!st||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-int")+1) vus.push("sous-theme 6.3 : "+JSON.stringify(st&&st.ids));
+    if(TEST_NUM["${ID}"]!=="${D.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3"||TEST_NUM["python-echange-par-lettres"]!=="6.2.7"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l\\u2019exercice ajoute a renumerote les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d\\u2019entree TESTS");
+    if(/<code>|<b>/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte des balises");
+    var rap=RAPPELS_ID["${ID}"];
+    if(!rap||rap===RAPPELS.pii) vus.push("pas de rappel propre");
+    else {
+      if(String(rap).indexOf("float(")<0) vus.push("le rappel ne parle pas de float");
+      if(/\\d+\\.\\d+/.test(String(rap).replace(/<code[^>]*>[\\s\\S]*?<\\/code>/g,""))) vus.push("le rappel ecrit un « chiffre.chiffre » hors d\\u2019une balise code");
+      if(String(rap).indexOf("taille")>=0) vus.push("le rappel reprend l\\u2019exemple de la fiche : l\\u2019eleve recopierait");
+    }
+    if(!QIA_SUGG_ID["${ID}"]||QIA_SUGG_ID["${ID}"].length<2) vus.push("aucune question propre proposee a l\\u2019IA");
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est propose : rien ne se calcule");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le tirage ---- */
+  verifierEval(w, 'le tirage : ' + NB + ' questions marquées f:1, la fiche EN TÊTE, puis un autre décimal, un entier avec int et un nombre SANS rien, en ordre mélangé — chaque mise en situation sort, et le témoin passe au juge (400 séances) ; le 6.3.3 n’en hérite rien', `(function(){
+    var vus=[], ordres={}, ctx={}, NL=String.fromCharCode(10);
+    for(var s=0;s<400 && vus.length<4;s++){
+      var qs=pifBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("seance de "+qs.length+" questions"); break; }
+      if(qs[0].vis!=="float"||qs[0].k!==0){ vus.push("la premiere question n\\u2019est pas la fiche : "+JSON.stringify(qs[0])); break; }
+      ordres[qs.slice(1).map(function(q){ return q.vis; }).join(",")]=1;
+      if(qs.slice(1).map(function(q){ return q.vis; }).sort().join(",")!=="float,int,sansfloat") vus.push("les trois visages ne sortent pas chacun une fois : "+JSON.stringify(qs));
+      if(qs.slice(1).some(function(q){ return q.vis==="float"&&q.k===0; })) vus.push("la taille de la fiche revient dans la seance");
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(",")!=="f,k,vis"||q.f!==1){ vus.push("la question ne porte pas vis / k / f:1 : "+JSON.stringify(q)); return; }
+        if(!PIF_CTX[q.vis]||!PIF_CTX[q.vis][q.k]){ vus.push("contexte introuvable : "+JSON.stringify(q)); return; }
+        ctx[q.vis+q.k]=1;
+        var rep=q.vis==="int"?"14":"12.5";
+        var t=piiSortie(pyRun(piiLigneA(q)+NL+piiLignesB(q)[1],[rep]));
+        if(t!=="<class '"+piiType(q)+"'>"+NL) vus.push("Python ne repond pas le type attendu : "+t+" pour "+q.vis);
+        var j=piiJuge(q, piiType(q), piiLigneC(q), rep);
+        if(!j[0].ok||!j[1].ok) vus.push("le temoin ne passe pas au juge : "+piiLigneC(q)+" — "+j[1].diag);
+      });
+    }
+    if(Object.keys(ordres).length<6) vus.push("l\\u2019ordre des visages ne varie pas");
+    var n=0; Object.keys(PIF_CTX).forEach(function(v){ n+=PIF_CTX[v].length; });
+    if(Object.keys(ctx).length<n) vus.push("des mises en situation ne sortent jamais : "+Object.keys(ctx).length+" sur "+n);
+    if(piiBuildQuestions().some(function(q){ return q.f; })) vus.push("le 6.3.3 tire des questions du float");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le juge du c) ---- */
+  verifierEval(w, 'le juge du c) EXÉCUTE : « metres » sans accent (l’écriture du carnet) est accepté et NOMMÉ ; la réponse écrite à la main, le nom entre guillemets et le texte manquant sont refusés en le nommant ; la seconde réponse est un décimal que float lit', `(function(){
+    var vus=[], q={vis:"float", k:0, f:1}, R=${J(F.reponse)};
+    [${J(F.ligneC)}, "print(\\"je mesure\\",taille,\\"m\\u00e8tres\\")", "print(\\"je mesure \\" + str(taille) + \\" m\\u00e8tres\\")", "print('je mesure', taille, 'm\\u00e8tres')"].forEach(function(l){
+      var j=piiJugeLigne(q,l,R); if(!j.ok) vus.push("ligne juste refusee : « "+l+" » — "+(j.diag||j.erreur));
+    });
+    var ja=piiJugeLigne(q,"print(\\"je mesure\\", taille, \\"metres\\")",R);
+    if(!ja.ok||ja.ecart.indexOf("accent")<0) vus.push("« metres » sans accent : "+JSON.stringify(ja));
+    if(piiJugeLigne(q,${J(F.ligneC)},R).ecart!=="") vus.push("la ligne EXACTE recoit un ecart");
+    [["print(\\"je mesure\\", 1.65, \\"m\\u00e8tres\\")","main"],["print(\\"je mesure 1.65 m\\u00e8tres\\")","main"],
+     ["print(\\"je mesure\\", \\"taille\\", \\"m\\u00e8tres\\")","guillemets"],["print(\\"je mesure\\", taille)","m\\u00e8tres"]].forEach(function(c){
+      var j=piiJugeLigne(q,c[0],R);
+      if(j.ok) vus.push("ligne fausse acceptee : « "+c[0]+" »");
+      else if(j.diag.indexOf(c[1])<0) vus.push("« "+c[0]+" » : le diagnostic ne dit pas « "+c[1]+" » : "+j.diag);
+    });
+    ["1.65","1.72","2","-3.5"].forEach(function(v){ var a=piiAutre(q,v); if(Number(a)===Number(v)) vus.push("la seconde reponse est la meme : "+v); if(!piiLit(q,a).ok) vus.push("la seconde reponse est refusee : "+a); });
+    if(piiJuge(q,"int",${J(F.ligneC)},R)[0].ok) vus.push("le type int est accepte pour taille");
+    if(!piiJuge({vis:"sansfloat",k:0,f:1},"str",piiLigneC({vis:"sansfloat",k:0,f:1}),"12.5")[0].ok) vus.push("str refuse pour un nombre demande sans float");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le trajet, la virgule refusee, la copie juste, l'identite ---- */
+  verifierEval(w, 'le trajet : la définition de la fiche 6 est à l’écran ; « 1,65 » est refusé par float et le message dit le POINT ; la copie juste vaut ' + CASES + ', la séance vaut ' + (NB * CASES) + ', et la note part sous ' + ID, `(function(){
+    ${GESTES}
+    demarrer("train");
+    var vus=[], q=test.questions[0];
+    if(test.kind!=="pii"||test.qId!=="${ID}") vus.push("kind / qId : "+test.kind+" / "+test.qId);
+    if(test.maxScore!==${NB * CASES}) vus.push("bareme "+test.maxScore);
+    var def=document.querySelector("#piiHost .pii-def");
+    if(!def||def.textContent.indexOf("float(")<0) vus.push("la definition de la fiche 6 n\\u2019est pas sur l\\u2019ecran");
+    piiExecA(); entree("piiConsAIn","1,65");
+    if(!document.getElementById("piiConsA").classList.contains("pyx-err")) vus.push("1,65 ne recoit pas l\\u2019erreur de float");
+    if(document.getElementById("piiB")) vus.push("une reponse refusee par float ouvre le b)");
+    if(document.getElementById("piiHintA").textContent.indexOf("POINT")<0) vus.push("le message ne dit pas le point : "+document.getElementById("piiHintA").textContent);
+    jusquaC(${J(F.reponse)},"float");
+    if(document.getElementById("piiConsB").textContent!==${J(F.sortieB)}) vus.push("la console du b) : "+JSON.stringify(document.getElementById("piiConsB").textContent));
+    execC(${J(F.ligneC)},${J(F.entier)});
+    if(document.getElementById("piiConsC").textContent!==${J(F.invite)}+${J(F.entier)}+NL+${J(F.sortieEntier)}) vus.push("la console du c) : "+JSON.stringify(document.getElementById("piiConsC").textContent));
+    checkPII();
+    var sel=document.getElementById("piiType"), li=document.getElementById("piiLigne");
+    if(!sel.classList.contains("ok")||!li.classList.contains("ok")) vus.push("la copie juste n\\u2019est pas peinte ok : "+sel.className+" / "+li.className);
+    if(test.score!==${CASES}) vus.push("note "+test.score);
+    var ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==${CASES}||ans.justes!==${CASES}) vus.push("la note ne compte pas les cases : "+JSON.stringify(ans));
+    /* le type faux : la correction verte dit float, le message parle de float(...) */
+    demarrer("train"); jusquaC(${J(F.reponse)},"str"); execC(${J(F.ligneC)},${J(F.reponse)}); checkPII();
+    var cor=[].map.call(document.querySelectorAll("#piiHost .mf-cor"),function(e){ return e.textContent; });
+    if(cor.join("|")!=="float") vus.push("la correction en vert : "+cor.join("|"));
+    if(document.getElementById("piiFeedback").textContent.indexOf("float(")<0) vus.push("le message n\\u2019explique pas float(…)");
+    /* la case vide n'est jamais peinte, en soutien non plus */
+    demarrer("soutien"); jusquaC(${J(F.reponse)},"float"); ecrire(""); checkPII();
+    if(/\\bok\\b|\\bbad\\b/.test(document.getElementById("piiLigne").className+" "+document.getElementById("piiType").className)) vus.push("une case est peinte alors que la ligne manque");
+    /* la reprise : le drapeau f voyage dans la question */
+    demarrer("train"); var qs=JSON.parse(JSON.stringify(test.questions)); test.questions=qs; test.idx=0;
+    if(!afficherEcranDe("pii")||document.querySelector("#piiHost .pii-def").textContent.indexOf("float(")<0) vus.push("la reprise perd l\\u2019identite du float");
+    var c=ctxPii(test.questions[0]).contexte; if(c.indexOf("float(input(")<0||c.indexOf("SECR\\u00c8TES")<0) vus.push("le contexte du modele");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. l'interpreteur repond comme un vrai CPython ---- */
+  const nomPy = 'les programmes de {python-input-float} — témoins, lignes d\'élève, réponses refusées — donnent la sortie d\'un vrai CPython';
+  const progs = evaluer(w, `(function(){ var o=[], NL=String.fromCharCode(10);
+    Object.keys(PIF_CTX).forEach(function(vis){ PIF_CTX[vis].forEach(function(_,k){
+      var q={vis:vis,k:k,f:1}, c=piiC(q);
+      ["1.65","2","-3.5"," 0.5 ","1,65","1.50",".5","1e3"].forEach(function(r){
+        [piiLigneC(q), piiLignesB(q).join(NL), 'print('+c.nom+' * 2)', 'print('+c.nom+' + 1)'].forEach(function(l){ o.push({src:piiLigneA(q)+NL+l, rep:r}); });
+      });
+    }); });
+    return JSON.stringify(o); })()`);
+  const tires = progs.ok ? JSON.parse(progs.valeur) : [];
+  verifier('le tirage de {python-input-float} fournit des programmes à comparer', tires.length >= 300, tires.length + ' programme(s)');
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
   const pourPy = tires.map(t => '__r = [' + JSON.stringify(t.rep) + ']\ndef input(p=""):\n    return __r.pop(0)\n' + t.src);
   const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(tires) + '.map(function(t){ try{ return piiSortie(pyRun(t.src,[t.rep])); }catch(e){ return "ERREUR:"+e.message; } }))');
   const mien = r.ok ? JSON.parse(r.valeur) : [];
