@@ -11472,6 +11472,72 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies duovicies. {python-input-float} : la réponse décimale, tapée avec un POINT =====
+       Le moteur du 6.3.3, que la section précédente éprouve déjà au clavier.
+       Ce que le banc jsdom ne voit pas ici : la définition de la fiche 6
+       RENDUE à l'écran, la virgule « 1,65 » tapée au clavier et refusée en
+       rouge avec le message du point, la réponse entière qui s'affiche 2.0,
+       le « metres » du carnet accepté en BLEU, et le téléphone. */
+    titre('6 tricies duovicies. {python-input-float} : LA RÉPONSE DÉCIMALE, TAPÉE AVEC UN POINT');
+    if(!P.pythonInputFloat){
+      ignorer('float(input) lit un décimal tapé avec un point', 'ce niveau n\'a pas l\'exercice float(input)');
+    } else {
+      const PF = P.pythonInputFloat, FF = PF.fiche;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), PF.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const e0 = await s.page.evaluate(() => ({ def: (document.querySelector('#piiHost .pii-def') || {}).textContent || '',
+        ligne: document.querySelector('#piiA .pyx-l1').textContent, qId: test.qId }));
+      verifier('la question 1 montre la définition de la fiche 6 (float, la taille) et la ligne ' + FF.ligneA,
+        /float\(/.test(e0.def) && /taille/.test(e0.def) && e0.ligne === FF.ligneA && e0.qId === PF.exercice, JSON.stringify(e0));
+      await s.page.click('#piiRunA');
+      await s.page.waitForTimeout(250);
+      await s.page.keyboard.type('1,65');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(200);
+      const err = await s.page.evaluate(() => ({ err: document.getElementById('piiConsA').classList.contains('pyx-err'),
+        couleur: getComputedStyle(document.getElementById('piiConsA')).color, texte: document.getElementById('piiConsA').textContent,
+        aide: document.getElementById('piiHintA').textContent, b: !!document.getElementById('piiB') }));
+      verifier('« 1,65 » tapé avec une virgule reçoit l\'erreur de float, en rouge, le message dit le POINT, et le b) reste fermé',
+        err.err && dom(err.couleur) === 'rouge' && /ValueError/.test(err.texte) && /POINT/.test(err.aide) && !err.b, JSON.stringify(err));
+      await s.page.click('#piiRunA');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type(FF.reponse);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.selectOption('#piiType', 'float');
+      await s.page.click('#piiRunB');
+      await s.page.waitForTimeout(250);
+      const c = await s.page.evaluate(() => ({ console: document.getElementById('piiConsB').textContent, c: !!document.getElementById('piiC') }));
+      verifier('le type choisi, Python répond ' + JSON.stringify(FF.sortieB) + ' ; le c) s\'ouvre', c.console === FF.sortieB && c.c, JSON.stringify(c));
+      await s.page.click('#piiLigne');
+      await s.page.keyboard.type('print("je mesure", taille, "metres")');
+      await s.page.click('#piiRunC');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type(FF.entier);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const cc = await s.page.evaluate(() => document.getElementById('piiConsC').textContent);
+      verifier('la réponse entière ' + FF.entier + ' s\'affiche 2.0 : float en a fait un décimal', cc === FF.invite + FF.entier + '\nje mesure 2.0 metres', JSON.stringify(cc));
+      await s.page.click('#piiValidate');
+      await s.page.waitForTimeout(400);
+      const v = await s.page.evaluate(() => ({ sel: getComputedStyle(document.getElementById('piiType')).color,
+        ligne: getComputedStyle(document.getElementById('piiLigne')).color, score: test.score,
+        fb: document.getElementById('piiFeedback').textContent }));
+      verifier('« metres » sans accent, l\'écriture du carnet : la ligne est acceptée en BLEU et l\'accent est NOMMÉ ; le type float en bleu ; la note vaut ' + PF.cases,
+        dom(v.sel) === 'bleu' && dom(v.ligne) === 'bleu' && v.score === PF.cases && /accent/.test(v.fb), JSON.stringify(v));
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const phone = await s.page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2);
+      verifier('sur un téléphone (390 px), la page de float(input) ne déborde pas en largeur', !phone, 'scrollWidth > clientWidth');
+      verifier('l\'écran de float(input) ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 tricies vicies semel. {python-input-reponse} : la console qui ATTEND une réponse =====
        Le banc jsdom tient l'interpréteur (comparé à CPython), le tirage, les
        portes, le juge et la reprise. Ce qu'il ne voit pas : la case de la
