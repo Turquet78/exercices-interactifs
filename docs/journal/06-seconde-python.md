@@ -3072,3 +3072,54 @@ copies justes et quinze fausses chacune avec son mot, le dialogue joué au
 clavier, les copies juste, fausse et vide, le soutien qui ne révèle rien, et
 les modèles comparés à un vrai CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+**float : la réponse est un nombre DÉCIMAL — l'exercice 6 du carnet.**
+{python-input-float} (Seconde, 6.3.5, demande de Turquet, octobre 2026 : « créer
+un exercice comme l'image dans le sous thème input en seconde ») est la fiche
+« Exercice 6 » : la définition (« pour demander quelle est ta taille en mètre ?
+et mettre la réponse dans la variable taille qui est un décimal, on rajoute
+float(…) »), puis a) exécuter `taille = float(input("Quelle est ta taille en
+mètres ? (ici : 1 m 65 = 1.65) "))` et répondre avec Entrée, b) exécuter
+`print(taille)` et `type(taille)` et donner le type, c) compléter le programme
+pour qu'il affiche `"je mesure", taille, "mètres"`, avec le coup de pouce
+replié. La définition du carnet écrit « on écrit : age = float(…) » : c'est
+une coquille de la fiche, l'écran écrit `taille`.
+
+**LE MOTEUR DU 6.3.3, PAS SON IDENTITÉ.** Le geste est exactement celui de
+{python-input-int} — la console qui demande, le type qui se choisit puis se
+fige, la ligne jugée en exécutant sous deux réponses — et une copie du moteur
+aurait fait deux vérités. Même kind `pii`, même écran ; l'identité passe par
+`test.qId` (la note, « Recommencer »), `RAPPELS_ID` et `QIA_SUGG_ID`. Ce qui
+distingue les deux exercices est rangé DANS la question : `f:1`. C'est lui qui
+choisit les contextes (`PIF_CTX`), la définition, les messages — donc il
+voyage avec la pause, et la reprise retrouve le float sans rien demander.
+Les questions du 6.3.3 n'ont pas ce drapeau : son contrôle, qui exige des
+questions « vis / k » seulement, en est le garde.
+
+**QUATRE QUESTIONS** : la fiche épinglée, puis en ordre mélangé un AUTRE
+décimal (un prix, une distance, une moyenne, un poids), un ENTIER demandé
+avec `int(…)` (les contextes du 6.3.3) — le contraste qui dit à quoi sert
+chacun —, et un nombre demandé SANS rien (un temps, une longueur, une
+température : type `str`).
+
+**LA LEÇON PROPRE EST LE POINT.** « 1,65 » est refusé par float, comme par
+CPython, et le message le dit (« écris le nombre avec un POINT : 1.65, pas
+1,65 ») ; un entier tapé s'affiche `2.0` — le juge le compare à CPython.
+
+**« metres » SANS ACCENT EST ACCEPTÉ ET NOMMÉ** : c'est l'écriture du carnet,
+et une tablette la produit aussi. Le juge partagé compare désormais sans les
+accents, et l'écart se dit (« un accent manque ou diffère ») comme l'espace et
+la majuscule ; le 6.3.3 en profite, sans que rien d'autre change.
+
+Bancs : jsdom (`pythonInputFloat`) tient la fiche, float dans l'interpréteur,
+la place au menu et les branchements par identifiant, le tirage (400
+séances, chaque mise en situation), le juge, le trajet avec la virgule
+refusée, la case vide, la reprise et CPython ; le navigateur (« 6 tricies
+duovicies ») tape « 1,65 » au clavier et relit le message, puis la réponse
+entière qui s'affiche 2.0 et le « metres » accepté en bleu.
+
+**Puis {python-input-calcul} (l'exercice 5 du carnet) est arrivé sur `main`
+pendant les bancs, en 6.3.4 et en version 261** : l'exercice 6 a pris la
+place d'après, 6.3.5, et la version 262. Le contrôle du 6.3.4 exigeait
+d'être le DERNIER du sous-thème — une exigence qui casse au premier exercice
+suivant. Il exige désormais de SUIVRE {python-input-int}, l'ordre du carnet,
+et celui d'ici de suivre {python-input-calcul}.

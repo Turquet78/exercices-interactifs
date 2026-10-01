@@ -5847,6 +5847,8 @@ const TESTS={
   /* La fiche « Exercice 4 » du carnet (demande de Turquet, octobre 2026) : le
      programme DEMANDE une valeur avec input, et int(…) en fait un nombre (6.3.2). */
   'python-input-int': { name:'input\u00a0: le programme pose une question', icon:'\u2753', desc:'Avec input, le programme pose une question et range ta r\u00e9ponse dans une variable. a) Ex\u00e9cute-le et r\u00e9ponds avec la touche Entr\u00e9e\u00a0; b) donne le type de la variable\u00a0; c) compl\u00e8te le programme pour qu\u2019il l\u2019affiche dans une phrase.', start:()=>startPII() },
+  /* {python-input-float} (6.3.5) : la fiche « Exercice 6 » du carnet — float(input(…)), le moteur du 6.3.3 */
+  'python-input-float': { name:'float\u00a0: la r\u00e9ponse est un nombre d\u00e9cimal', icon:'\ud83d\udccf', desc:'Avec float(input(\u2026)), la r\u00e9ponse tap\u00e9e devient un nombre d\u00e9cimal. a) Ex\u00e9cute le programme et r\u00e9ponds avec la touche Entr\u00e9e\u00a0; b) donne le type de la variable\u00a0; c) compl\u00e8te le programme pour qu\u2019il l\u2019affiche dans une phrase.', start:()=>startPIF() },
   'python-types': { name:'int, float ou str\u00a0?', icon:'\ud83c\udff7\ufe0f', desc:'Trois types de variables : un entier (int), un nombre \u00e0 virgule (float), un texte entre guillemets (str). Le cours est sur l\u2019\u00e9cran ; lis chaque programme, dis le type de chaque variable \u2014 puis ex\u00e9cute-le : Python te r\u00e9pond avec type().', start:()=>startPTY() },
   'python-afficher-variable': { name:'Affiche la variable\u00a0!', icon:'\ud83d\udda8\ufe0f', desc:'On t\u2019explique comment afficher une variable, puis un programme commence par note = 12 : \u00e0 toi d\u2019\u00e9crire la suite pour qu\u2019il affiche la valeur de la variable. Ex\u00e9cute-le, puis v\u00e9rifie \u2014 en soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYC() },
   'python-noms-variables': { name:'Noms de variables en Python', icon:'\ud83c\udff7\ufe0f', desc:'Le nom d\u2019une variable doit respecter quatre r\u00e8gles. Pour chaque nom propos\u00e9, dis s\u2019il est correct ou incorrect \u2014 et, s\u2019il est incorrect, pourquoi.', start:()=>startPVN() },
@@ -5948,7 +5950,7 @@ const THEMES=[
   { num:6, nom:'Algorithmique et Python', sous:[
       { num:1, nom:'Print et variable',   ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre'] },
       { num:2, nom:'Variable et calcul',  ids:['python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-pas-a-pas-multiplication','python-echange-par-lettres'] },
-      { num:3, nom:'Input',               ids:['python-input-reponse','python-input','python-input-int','python-input-calcul'] }
+      { num:3, nom:'Input',               ids:['python-input-reponse','python-input','python-input-int','python-input-calcul','python-input-float'] }
   ] },
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
@@ -7083,6 +7085,7 @@ const QIA_SUGG={
    la Terminale applique déjà pour ses deux exercices en « cm ». */
 /* Les questions propres à un exercice, indexées par IDENTIFIANT. */
 const QIA_SUGG_ID={
+  'python-input-float':["À quoi sert float(…) autour de input ?","Quelle différence entre int et float ?","Pourquoi Python refuse-t-il 1,65 ?","Pourquoi Python affiche-t-il 2.0 quand je tape 2 ?"],
   'pourcentage-synthese':["Comment savoir ce que la question me demande de retrouver ?","Comment tester une proposition ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","C’est quoi, un pourcentage ?"],
   'synthese-augmentations-libre':["Comment vérifier avec le coefficient multiplicateur ?","Comment vérifier en calculant l’augmentation ?","Comment savoir ce que la question me demande de retrouver ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?"],
   'synthese-diminutions-libre':["Comment vérifier avec le coefficient multiplicateur ?","Comment vérifier en calculant la diminution ?","Comment savoir ce que la question me demande de retrouver ?","Pourquoi diminuer de 20 % revient à multiplier par 0,8 ?"],
@@ -8006,6 +8009,14 @@ const RAP_PII=`<b>input : le programme pose une question</b><br>
 <b>② input rend toujours du TEXTE</b> (type <code class="inline">str</code>), même si l’on tape un nombre : sans rien d’autre, la réponse 38 est le texte "38".<br>
 <b>③ Pour un nombre entier, on rajoute int(…)</b> : <code class="inline">pointure = int(input("Quelle est ta pointure ? "))</code> — la variable est alors de type <code class="inline">int</code>. Une réponse qui n’est pas un entier, comme un nombre à virgule, provoque une erreur.<br>
 <b>④ Pour afficher la réponse dans une phrase</b>, on sépare les morceaux par des <b>virgules</b> : <code class="inline">print("je chausse du", pointure, "en baskets")</code>. Les textes vont entre guillemets, le <b>nom</b> de la variable s’écrit sans guillemets — ainsi l’affichage suit la réponse tapée.`;
+/* Le rappel de {python-input-float}. Son exemple est un PRIX, aucune des
+   questions posées telles quelles : l'élève transpose. */
+const RAP_PIF=`<b>float : la réponse est un nombre décimal</b><br>
+<code class="inline">input("Combien coûte un croissant ? ")</code> écrit la question, attend que l’on tape une réponse et la touche <b>Entrée</b>, puis rend ce qui a été tapé — toujours sous forme de <b>texte</b> (type <code class="inline">str</code>).<br>
+<b>① Pour un nombre décimal, on rajoute float(…)</b> : <code class="inline">croissant = float(input("Combien coûte un croissant ? "))</code> — la variable est alors de type <code class="inline">float</code>.<br>
+<b>② En Python, la virgule s’écrit avec un POINT</b> : on tape <code class="inline">1.15</code>. La réponse <code class="inline">1,15</code> provoque une erreur : float ne sait pas la lire.<br>
+<b>③ Un entier tapé devient lui aussi un décimal</b> : si l’on tape 2, la variable vaut <code class="inline">2.0</code>. Pour un nombre entier, c’est <code class="inline">int(…)</code> ; sans int ni float, la réponse reste du texte.<br>
+<b>④ Pour afficher la réponse dans une phrase</b>, on sépare les morceaux par des <b>virgules</b> : <code class="inline">print("un croissant coûte", croissant, "euros")</code>. Les textes vont entre guillemets, le <b>nom</b> de la variable s’écrit sans guillemets.`;
 const RAP_PAP=`<b>Une variable est une case de la mémoire</b><br>
 Quand Python lit <code class="inline">a = 10</code>, il réserve une case de la mémoire, l’appelle <code class="inline">a</code>, et y range le nombre 10.<br>
 <b>① Le nom de la case est À GAUCHE du signe égal</b>, la valeur qui y va est à droite. <code class="inline">a = 10</code> se lit « le nombre 10 va dans la case appelée a », et jamais l’inverse.<br>
@@ -8119,7 +8130,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pii:RAP_PII, pia:RAP_PIA, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
-const RAPPELS_ID={ 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
+const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -8228,7 +8239,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['python-input-int','python-input-calcul','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['python-input-int','python-input-calcul','python-input-float','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-input-reponse'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -33057,9 +33068,35 @@ const PII_CTX={
 };
 const PII_NB=4;            /* la fiche, puis les trois visages — tests/profils.js en est la seconde source */
 const PII_TYPES=['int','float','str'];
-function piiC(q){ return PII_CTX[q.vis][q.k]; }
-function piiType(q){ return q.vis==='int'?'int':'str'; }
-function piiLigneA(q){ const c=piiC(q); return c.nom+' = '+(q.vis==='int'?'int(input("'+c.invite+'"))':'input("'+c.invite+'")'); }
+/* {python-input-float} (6.3.5) : la fiche « Exercice 6 » du carnet — le MÊME
+   moteur, float(…) au lieu de int(…). Ses questions portent f:1, et c'est ce
+   drapeau, rangé DANS la question (donc dans la pause), qui choisit les
+   contextes, la définition et les messages : jamais le kind, que les deux
+   exercices partagent. Quatre questions : la fiche (taille, « je mesure »,
+   « mètres »), puis un AUTRE décimal, un ENTIER demandé avec int(…) — le
+   contraste qui dit à quoi sert chacun —, et un nombre demandé SANS rien
+   (type str), en ordre mélangé. Le visage int emprunte les contextes du
+   6.3.3. La leçon propre est le POINT décimal : « 1,65 » est refusé par
+   float, comme par CPython, et le message le dit. */
+const PIF_CTX={
+  float:[
+    {nom:'taille',   invite:'Quelle est ta taille en mètres ? (ici : 1 m 65 = 1.65) ', avant:'je mesure',              apres:'mètres'},
+    {nom:'prix',     invite:'Combien coûte une baguette, en euros ? ',               avant:'une baguette coûte',     apres:'euros'},
+    {nom:'distance', invite:'À combien de kilomètres du lycée habites-tu ? ',        avant:"j'habite à",             apres:'km du lycée'},
+    {nom:'moyenne',  invite:'Quelle est ta moyenne en maths ? ',                     avant:'ma moyenne en maths est', apres:'sur 20'},
+    {nom:'poids',    invite:'Combien pèse ton sac, en kg ? ',                        avant:'mon sac pèse',           apres:'kg'}
+  ],
+  int: PII_CTX.int,
+  sansfloat:[
+    {nom:'temps',    invite:'En combien de secondes cours-tu le 100 m ? ',  avant:'je cours le 100 m en', apres:'secondes'},
+    {nom:'longueur', invite:'Quelle est la longueur de ta trousse, en cm ? ', avant:'ma trousse mesure',    apres:'cm'},
+    {nom:'degres',   invite:'Quelle température fait-il dehors ? ',          avant:'il fait',              apres:'degrés'}
+  ]
+};
+const PIF_NB=4;            /* la fiche, puis les trois visages — tests/profils.js en est la seconde source */
+function piiC(q){ return (q.f?PIF_CTX:PII_CTX)[q.vis][q.k]; }
+function piiType(q){ return q.vis==='int'?'int':(q.vis==='float'?'float':'str'); }
+function piiLigneA(q){ const c=piiC(q); return c.nom+' = '+(q.vis==='int'?'int(input("'+c.invite+'"))':(q.vis==='float'?'float(input("'+c.invite+'"))':'input("'+c.invite+'")')); }
 function piiLignesB(q){ const n=piiC(q).nom; return ['print('+n+')','print(type('+n+'))']; }
 function piiLigneC(q){ const c=piiC(q); return 'print("'+c.avant+'", '+c.nom+', "'+c.apres+'")'; }
 /* ce que les PRINT affichent, sans la question ni la réponse tapée */
@@ -33073,6 +33110,11 @@ function piiBuildQuestions(){
   const tire=function(vis){ return {vis:vis, k:vis==='int'?rand(1,PII_CTX.int.length-1):rand(0,PII_CTX[vis].length-1)}; };
   return [{vis:'int', k:0}].concat(ensShuffle(['int','sansint','texte']).map(tire)).slice(0,PII_NB);
 }
+function pifBuildQuestions(){
+  /* un AUTRE décimal que la fiche : k part de 1 pour le visage float */
+  const tire=function(vis){ return {vis:vis, k:vis==='float'?rand(1,PIF_CTX.float.length-1):rand(0,PIF_CTX[vis].length-1), f:1}; };
+  return [{vis:'float', k:0, f:1}].concat(ensShuffle(['float','int','sansfloat']).map(tire)).slice(0,PIF_NB);
+}
 /* La réponse est-elle de celles que la ligne 1 accepte ? C'est pyRun qui
    tranche — la fonction MÊME qui exécute le programme sous « Exécuter ». */
 function piiLit(q, v){
@@ -33084,6 +33126,7 @@ function piiLit(q, v){
 function piiAutre(q, v){
   const s=String(v).trim();
   if(q.vis==='texte') return s.toLowerCase()==='zoé'?'Malo':'Zoé';
+  if(q.vis==='float') return Number(s)===1.72?'1.58':'1.72';
   const n=/^[+-]?\d+$/.test(s)?parseInt(s,10):NaN;
   return String(isNaN(n)?37:(n===37?52:n+7));
 }
@@ -33118,17 +33161,24 @@ function piiJugeLigne(q, ligne, v){
   if(!l) return {vide:true, ok:false, ecart:'', diag:''};
   const v2=piiAutre(q,v), att=piiAttendu(q,v), att2=piiAttendu(q,v2);
   const un=piiEssai(q,l,v), deux=piiEssai(q,l,v2);
-  const egal=function(a,b){ return piiNorm(a).toLowerCase()===piiNorm(b).toLowerCase(); };
+  /* un accent oublié (« metres », l'écriture même du carnet) est accepté et NOMMÉ */
+  const plat=function(a){ return piiNorm(a).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); };
+  const egal=function(a,b){ return plat(a)===plat(b); };
   const ok=!un.err && !deux.err && egal(un.out,att) && egal(deux.out,att2);
   let ecart='';
-  if(ok && un.out!==att) ecart=piiNorm(un.out)===piiNorm(att)?'il y a une espace en trop ou en moins':'les majuscules diffèrent';
+  if(ok && un.out!==att) ecart=piiNorm(un.out)===piiNorm(att)?'il y a une espace en trop ou en moins'
+    :(piiNorm(un.out).toLowerCase()===piiNorm(att).toLowerCase()?'les majuscules diffèrent':'un accent manque ou diffère');
   return {vide:false, ok:ok, ecart:ecart, sortie:un.out, erreur:un.err, diag:ok?'':piiDiag(q,l,v,un,deux,att)};
 }
 function piiJuge(q, type, ligne, v){
   return [{vide:!type, ok:type===piiType(q)}, piiJugeLigne(q, ligne, v)];
 }
 /* ---- L'écran ---- */
-function piiDefHTML(){
+function piiDefHTML(q){
+  if(q&&q.f) return '<div class="pii-def"><p class="pii-def-t">⚠ Définition</p>'
+    +'<p>Pour demander «&nbsp;quelle est ta taille en mètres&nbsp;?&nbsp;» et mettre la réponse dans la variable <code>taille</code>, qui est un <b>décimal</b>, on rajoute <code>float(…)</code>.</p>'
+    +'<p>On écrit&nbsp;: <code>'+pyColorie('taille = float(input("Quelle est ta taille en mètres ? "))')+'</code></p>'
+    +'<p class="pii-def-n"><code>float(…)</code> fait de ce qu’on a tapé un nombre <b>décimal</b>, de type <code>float</code>. En Python, un décimal s’écrit avec un <b>point</b>&nbsp;: on tape <code>1.65</code>, pas <code>1,65</code>.</p></div>';
   return '<div class="pii-def"><p class="pii-def-t">⚠ Définition</p>'
     +'<p>Pour demander «&nbsp;quel âge as-tu&nbsp;?&nbsp;» et mettre la réponse dans la variable <code>age</code>, qui est un <b>entier</b>, on rajoute <code>int(…)</code>.</p>'
     +'<p>On écrit&nbsp;: <code>'+pyColorie('age = int(input("Quel est ton âge ? "))')+'</code></p>'
@@ -33189,13 +33239,16 @@ function piiConsole(consId, texte, err){
   c.classList.add('py-exec'); c.classList.toggle('pyx-err',!!err); c.classList.toggle('pyx-vide',!err&&!texte);
 }
 /* ---- Cycle de vie ---- */
-async function startPII(){
+async function startPII(){ demarrerPII(piiBuildQuestions, 'python-input-int'); }
+async function startPIF(){ demarrerPII(pifBuildQuestions, 'python-input-float'); }
+function demarrerPII(construire, qId){
   if(!currentEleve){ accueil(); return; }
-  const qs=piiBuildQuestions();
+  const qs=construire();
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'pii', questions:qs, idx:0, score:0, maxScore:qs.length*2, answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false, piiEtape:'a', piiVal:'', piiValC:'', piiExec:null});
+  test.qId=qId;
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('pii'); renderPII();
 }
@@ -33212,7 +33265,7 @@ function renderPII(){
   $('piiLiveScore').textContent=test.score;
   $('piiFeedback').textContent=''; $('piiFeedback').className='mp-feedback';
   $('piiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="piiValidate" onclick="checkPII()" disabled title="Fais d’abord les étapes a), b) et c)">Vérifier</button>';
-  $('piiHost').innerHTML='<div class="py-cell">'+piiDefHTML()+piiAHTML(q)+'</div>';
+  $('piiHost').innerHTML='<div class="py-cell">'+piiDefHTML(q)+piiAHTML(q)+'</div>';
 }
 function piiExecA(){
   if(test.locked||test.piiEtape!=='a') return;
@@ -33222,7 +33275,9 @@ function piiExecA(){
     const r=piiLit(q,v);
     if(!r.ok){
       piiConsole('piiConsA', r.ecran+'Erreur : '+r.err, true);
-      if(h) h.textContent='Python n’a pas pu lire ta réponse comme un nombre ENTIER — int(…) l’exige. Exécute à nouveau et tape un nombre entier, sans virgule.';
+      if(h) h.textContent=q.vis==='float'
+        ?'Python n’a pas pu lire ta réponse comme un nombre DÉCIMAL — float(…) l’exige. Exécute à nouveau et écris le nombre avec un POINT : 1.65, pas 1,65.'
+        :'Python n’a pas pu lire ta réponse comme un nombre ENTIER — int(…) l’exige. Exécute à nouveau et tape un nombre entier, sans virgule.';
       return;
     }
     piiConsole('piiConsA', r.r.out, false);
@@ -33269,7 +33324,7 @@ function piiExecC(){
     const r0=piiLit(q,v);
     if(!r0.ok){
       piiConsole('piiConsC', r0.ecran+'Erreur : '+r0.err, true);
-      if(h) h.textContent='Python n’a pas pu lire ta réponse comme un nombre entier. Exécute à nouveau.';
+      if(h) h.textContent=q.vis==='float'?'Python n’a pas pu lire ta réponse comme un nombre décimal : écris-le avec un point. Exécute à nouveau.':'Python n’a pas pu lire ta réponse comme un nombre entier. Exécute à nouveau.';
       return;
     }
     let txt='', err=false;
@@ -33317,11 +33372,12 @@ function checkPII(live){
   const justes=j.filter(function(x){ return x.ok; }).length, allOk=justes===2;
   const c=piiC(q);
   const pourquoiType=function(){
-    return '<b>Le type&nbsp;:</b> '+(q.vis==='int'
-      ? 'la ligne 1 passe la réponse dans <code>int(…)</code> : '+esc(c.nom)+' est un nombre entier, de type <code>int</code>.'
-      : (q.vis==='sansint'
-        ? 'il n’y a pas de <code>int(…)</code> autour de <code>input</code> : même si tu as tapé un nombre, '+esc(c.nom)+' reste du TEXTE, de type <code>str</code>.'
-        : '<code>input</code> rend ce qu’on tape sous forme de texte : '+esc(c.nom)+' est de type <code>str</code>.'));
+    return '<b>Le type&nbsp;:</b> '+({
+      int:'la ligne 1 passe la réponse dans <code>int(…)</code> : '+esc(c.nom)+' est un nombre entier, de type <code>int</code>.',
+      float:'la ligne 1 passe la réponse dans <code>float(…)</code> : '+esc(c.nom)+' est un nombre décimal, de type <code>float</code>.',
+      sansint:'il n’y a pas de <code>int(…)</code> autour de <code>input</code> : même si tu as tapé un nombre, '+esc(c.nom)+' reste du TEXTE, de type <code>str</code>.',
+      sansfloat:'il n’y a ni <code>float(…)</code> ni <code>int(…)</code> autour de <code>input</code> : même si tu as tapé un nombre, '+esc(c.nom)+' reste du TEXTE, de type <code>str</code>.'
+    }[q.vis] || '<code>input</code> rend ce qu’on tape sous forme de texte : '+esc(c.nom)+' est de type <code>str</code>.');
   };
   const oules=function(){
     const t=[];
@@ -33374,7 +33430,7 @@ function ctxPii(q){
     let j=null; try{ j=piiJugeLigne(q, inp.value, test.piiValC||test.piiVal||'15'); }catch(e){}
     if(j&&!j.vide) t+=j.ok?'Cette ligne est juste. ':('Cette ligne est fausse. Diagnostic de la page : '+j.diag+' ');
   }
-  t+='Règles à rappeler sans donner la réponse : input pose la question et rend TOUJOURS ce qu’on tape sous forme de texte (str) ; int(…) autour de input en fait un nombre entier (int) — sans int, même un nombre tapé reste du texte ; print sépare ses morceaux par des virgules, les textes vont entre guillemets et le nom de la variable s’écrit sans guillemets ; un texte qui contient une apostrophe se met entre guillemets doubles.';
+  t+='Règles à rappeler sans donner la réponse : input pose la question et rend TOUJOURS ce qu’on tape sous forme de texte (str) ; int(…) autour de input en fait un nombre entier (int), float(…) un nombre décimal (float), qui s’écrit avec un point et non une virgule — sans int ni float, même un nombre tapé reste du texte ; print sépare ses morceaux par des virgules, les textes vont entre guillemets et le nom de la variable s’écrit sans guillemets ; un texte qui contient une apostrophe se met entre guillemets doubles.';
   return {nombre:'', contexte:t};
 }
 
