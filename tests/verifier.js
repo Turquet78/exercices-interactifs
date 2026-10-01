@@ -28869,8 +28869,33 @@ function pourcentageSchemaVide(w, P){
     if(test.score!==1) vus.push('la copie juste ne vaut pas le point');
     copie('');
     if(/\\bbad\\b/.test(cls('psvS3'))) vus.push('la case vide rougit');
+    /* LA PHRASE À CASE EST TIRÉE : parfois le GLOBAL est donné dans la 3e phrase,
+       et c'est une petite flèche qui manque (demande de Turquet, octobre 2026) */
+    [[1,'30','psvS1'],[2,'20','psvS2']].forEach(function(t){
+      const inc=t[0], bon=t[1], id=t[2], nom='forme inc='+inc+' : ';
+      startPsv(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:5,inc:inc,ordre:[0,1,2]}); test.idx=0; test.locked=false; renderPsvTest();
+      const h=document.getElementById('psvHost'), ph=h.querySelectorAll('.psv-phrase');
+      if(h.querySelectorAll('math-field').length!==6) vus.push(nom+h.querySelectorAll('math-field').length+' case(s) au lieu de 6');
+      if(ph.length!==3) { vus.push(nom+ph.length+' phrase(s)'); return; }
+      if(!ph[inc-1].querySelector('#'+id)) vus.push(nom+'la phrase '+inc+' n\\'a pas sa case');
+      if(ph[inc===1?1:0].querySelector('math-field')) vus.push(nom+'la phrase donnée porte une case');
+      if(ph[2].querySelector('math-field')) vus.push(nom+'la phrase du global porte une case');
+      if(!/\\b6 %/.test(ph[2].textContent.replace(/\\u00a0/g,' '))) vus.push(nom+'le pourcentage global 6 % n\\'est pas écrit dans la 3e phrase');
+      if(document.getElementById('psvS3')) vus.push(nom+'la case psvS3 existe encore');
+      const remplir=function(val){ startPsv(); test.questions[0]=Object.assign(JSON.parse(JSON.stringify(q0)),{ci:5,inc:inc}); test.idx=0; test.locked=false; renderPsvTest();
+        setv('psvD1','0,3'); setv('psvD2','0,2'); setv('psvG1','0,3'); setv('psvG2','0,2'); setv('psvG','0,06'); if(val!=='') setv(id,val); checkPsvAnswer(); };
+      remplir('6');
+      if(!/\\bbad\\b/.test(cls(id)) || test.score!==0) vus.push(nom+'« 6 % » (le global recopié) ne rougit pas');
+      remplir(bon);
+      if(test.score!==1 || !/\\bok\\b/.test(cls(id))) vus.push(nom+'la copie juste ne vaut pas le point');
+      remplir('');
+      if(/\\bbad\\b/.test(cls(id))) vus.push(nom+'la case vide rougit');
+    });
+    const incVus={}; for(let i=0;i<400;i++){ const g=genPsv(); incVus[g.inc]=(incVus[g.inc]||0)+1; }
+    if(!incVus[1]||!incVus[2]||!incVus[3]) vus.push('le tirage ne sort pas les trois phrases à case : '+JSON.stringify(incVus));
+    else if(incVus[3]<120||incVus[3]>280) vus.push('le global n\\'est pas inconnu une fois sur deux : '+JSON.stringify(incVus));
     currentMode='train';
-    return vus.slice(0,4).join(' | ');
+    return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
 /* ---- 2.1.3 : le coefficient s'écrit court, et la chaîne tombe sur des entiers

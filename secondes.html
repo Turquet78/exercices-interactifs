@@ -3634,7 +3634,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="psvLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr" id="psvPrompt">Place les deux pourcentages dans le schéma, complète-le, puis la dernière phrase.</p>
+      <p class="mp-instr" id="psvPrompt">Place les deux pourcentages donnés dans le schéma, complète-le, puis la phrase à compléter.</p>
       <div class="mp-stage"><div style="width:100%" id="psvHost"></div></div>
       <div class="mp-feedback" id="psvFeedback"></div>
       <div class="row" style="justify-content:center" id="psvActions">
@@ -5036,7 +5036,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=257;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=258;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5641,7 +5641,7 @@ const TESTS={
   'pourcentage-chaine':  { name:'Composer deux pourcentages', icon:'\ud83d\udd17', desc:'Le sch\u00e9ma en bo\u00eete de {pourcentage-boite}, mais \u00e0 trois bo\u00eetes : le total, un sous-groupe, puis un sous-groupe DU sous-groupe \u2014 comme la fiche \u00ab 40 % de filles, dont 30 % font du basket \u00bb. Une deuxi\u00e8me rang\u00e9e donne le coefficient qui va directement du total au dernier sous-groupe, en un seul calcul.', start:()=>startPctChaine() },
   'pourcentage-schema':  { name:'Lire un sch\u00e9ma de pourcentages', icon:'\ud83e\udde9', desc:'Le sch\u00e9ma \u00e0 trois bo\u00eetes de {pourcentage-chaine}, pris \u00e0 l\u2019envers : les \u00e9critures d\u00e9cimales sont d\u00e9j\u00e0 \u00e9crites sur les fl\u00e8ches \u2014 ou l\u2019une d\u2019elles et le produit \u2014, tu compl\u00e8tes ce qui manque, puis trois phrases qui lisent le sch\u00e9ma en pourcentages, comme la fiche \u00ab Dans le club de sport il y a \u2026 % de filles \u00bb. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcs() },
   'pourcentage-schema-cadres': { name:'Lire un schéma de pourcentages (avec cadres)', icon:'🖼️', desc:'Le schéma de {pourcentage-schema}, avec des CADRES : un cadre de couleur et de style différent pour le total, le premier sous-groupe et le second, posés sur les mots qui les désignent dans la consigne, sur les boîtes et dans les trois phrases. La dernière boîte porte le groupe croisé en entier (« les moins de 18 ans licenciés dans un club »), dans un seul cadre vert. Tu complètes ce qui manque au schéma, puis les trois phrases. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcc() },
-  'pourcentage-schema-vide': { name:'Compléter un schéma de pourcentages (avec cadres, sans nombres)', icon:'🧩', desc:'Le schéma de {pourcentage-schema-cadres}, avec ses cadres de couleur, mais VIDE : aucun nombre n’y est écrit. Les deux premières phrases donnent deux pourcentages ; tu les places dans le schéma (les deux flèches, puis le calcul global) et tu écris le pourcentage qui manque dans la troisième phrase. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPsv() },
+  'pourcentage-schema-vide': { name:'Compléter un schéma de pourcentages (avec cadres, sans nombres)', icon:'🧩', desc:'Le schéma de {pourcentage-schema-cadres}, avec ses cadres de couleur, mais VIDE : aucun nombre n’y est écrit. Deux des trois phrases donnent un pourcentage — celui d’une petite flèche, ou parfois celui de la grande flèche, le coefficient global ; tu complètes tout le schéma (les deux flèches, puis le calcul global) et tu écris le pourcentage qui manque dans la phrase à compléter. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPsv() },
   'pourcentage-phrases': { name:'Du texte au sch\u00e9ma de pourcentages', icon:'\ud83d\udcdd', desc:'Le sch\u00e9ma de {pourcentage-schema}, mais depuis des phrases : les deux premi\u00e8res, \u00e9crites en gris, donnent les pourcentages ; tu places les nombres dans le sch\u00e9ma (les deux fl\u00e8ches, puis le calcul global), et le produit te donne le nombre qui manque dans la troisi\u00e8me phrase. Les pourcentages tombent toujours sur des nombres entiers.', start:()=>startPcp() },
   'augmenter-pourcentage':{ name:'Augmenter d\u2019un pourcentage en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'📈', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
   'augmenter-addition':  { name:'Augmenter d\u2019un pourcentage en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en {pourcentage}), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
@@ -6865,7 +6865,7 @@ const QIA_SUGG={
   pcp:["Comment trouver le pourcentage de la troisième phrase ?","Sur quelle flèche du schéma place-t-on chaque nombre ?","Pourquoi ne faut-il pas additionner les deux pourcentages ?","Comment passer de 0,06 à un pourcentage ?"],
   pcs:["Comment lire un pourcentage sur une flèche du schéma ?","Comment retrouver le coefficient d’une flèche quand je connais le produit ?","Pourquoi le produit des deux écritures décimales donne-t-il le pourcentage global ?","Comment passer de 0,06 à un pourcentage ?"],
   pcc:["Que veulent dire les cadres de couleur ?","Comment retrouver le coefficient d’une flèche quand je connais le produit ?","Pourquoi le produit des deux écritures décimales donne-t-il le pourcentage global ?","Comment passer de 0,06 à un pourcentage ?"],
-  psv:["Où place-t-on chaque pourcentage des deux premières phrases dans le schéma ?","Comment écrire 30 % en écriture décimale ?","Pourquoi multiplie-t-on les deux écritures décimales ?","Que veulent dire les cadres de couleur ?"],
+  psv:["Sur quelle flèche porte chaque pourcentage donné dans les phrases ?","Comment retrouver un pourcentage d’une petite flèche quand on connaît le global ?","Comment écrire 30 % en écriture décimale ?","Pourquoi multiplie-t-on les deux écritures décimales ?","Que veulent dire les cadres de couleur ?"],
   evs:["Pourquoi n’additionne-t-on pas les deux pourcentages ?","Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi retire-t-on 1 au coefficient global pour trouver le pourcentage ?","Une hausse de 20 % suivie d’une baisse de 20 %, ça revient au départ ?"],
   evc:["Pourquoi multiplie-t-on les deux coefficients ?","Comment savoir si l’évolution globale est une hausse ou une baisse ?","Comment passe-t-on d’un coefficient à un pourcentage ?","Pourquoi le pourcentage global n’est-il pas la somme des deux ?"],
   evp:["Comment passe-t-on d’un pourcentage à un coefficient multiplicateur ?","Pourquoi multiplie-t-on les deux coefficients ?","Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi le pourcentage global n’est-il pas la somme des deux ?"],
@@ -7118,7 +7118,8 @@ Pour passer d’une écriture décimale au pourcentage, on multiplie par 100 : 0
 const RAP_PCC=RAP_PCS+`<br>
 <b>Les cadres</b> relient les mots au schéma : le cadre <b>bleu</b> entoure le total, le cadre <b>rouge</b> (en tirets) le premier sous-groupe, le cadre <b>vert</b> (en pointillés) le second. Un mot cadré dans une phrase désigne donc la boîte qui porte le même cadre — c’est elle qui dit sur QUOI porte le pourcentage : « des <b>spectateurs</b> » (cadre bleu), c’est le total ; « parmi ceux qui ont <b>un pass 3 jours</b> » (cadre rouge), c’est le premier sous-groupe. La dernière boîte porte le groupe <b>croisé</b> en entier (« les moins de 18 ans licenciés dans un club ») dans un seul cadre vert : c’est le second sous-groupe, pris <i>dans</i> le précédent.`;
 const RAP_PSV=RAP_PCC+`<br>
-<b>Ici le schéma est vide</b> : les deux premières phrases donnent les pourcentages. La première parle du total (cadre bleu), la seconde d’une partie du premier groupe (cadre rouge) : « parmi les filles, 20 % … » veut dire 20 % <b>des filles</b>. Chaque nombre se place, en écriture décimale, sur la flèche qui lui correspond, puis se reprend dans le calcul global, dont le produit donne le pourcentage de la troisième phrase.`;
+<b>Ici le schéma est vide</b> : deux phrases donnent un pourcentage, la troisième est à compléter. Une phrase qui part du total vers le premier groupe (cadre rouge) porte sur la première petite flèche ; « parmi les filles, 20 % … » veut dire 20 % <b>des filles</b> : seconde petite flèche ; une phrase qui va du total (cadre bleu) jusqu’au dernier groupe (cadre vert) porte sur la <b>grande flèche</b>, le coefficient global. Chaque nombre se place, en écriture décimale, sur sa flèche.<br>
+Si c’est un pourcentage d’une petite flèche qui manque, on le retrouve par <b>division</b> : le global divisé par l’autre petite flèche, par exemple \\(0{,}06\\div0{,}20=0{,}30\\), soit 30 %.`;
 const RAP_PCP=`<b>Du texte au schéma de pourcentages</b><br>
 Les deux premières phrases (en gris) donnent les pourcentages : la première parle du <b>total</b>, la seconde d’une <b>partie de ce premier groupe</b> — « Parmi les filles… » veut dire 20 % <b>des filles</b>, jamais 20 % du total. Chaque nombre se place sur la flèche qui lui correspond, en écriture décimale : 30 % s’écrit ×  0,30 (c’est × \\(\\frac{30}{100}\\)).<br>
 Le calcul du dessous va directement du total au dernier sous-groupe : on <b>multiplie</b> les deux écritures décimales, \\(0{,}30\\times0{,}20=0{,}06\\). La troisième phrase se lit alors sur le produit : 0,06 = <b>6 %</b> du total.<br>
@@ -20961,13 +20962,21 @@ async function finishPcc(){
    les deux flèches et le calcul global — sont toutes vides, et la troisième
    phrase a sa case : six cases en tout. Kind « psv » (« pcv » est pris par
    l'exercice de Python, qui a aussi ses `pcv…` : un préfixe déjà utilisé
-   s'ouvre sans erreur et casse l'autre exercice). */
+   s'ouvre sans erreur et casse l'autre exercice).
+   LA PHRASE À CASE EST TIRÉE (demande de Turquet, octobre 2026 : « les %
+   donnés dans les phrases ne concernent pas forcément les petites flèches ;
+   il faut aussi donner de temps en temps le % de la grande flèche »). q.inc
+   dit quel pourcentage est inconnu : 3 (le global, une fois sur deux), 1 ou
+   2 (une petite flèche — le global est alors DONNÉ dans la troisième phrase,
+   et l'élève divise). C'est une donnée, pas un habit : il est dans la clé de
+   distinctes(). Une pause ancienne n'a pas d'inc : elle se rouvre comme avant. */
 const PSV_NB=3;
 const PSV_ENONCES=[
-  (q,ctx)=>`${ctx.intro} Les deux premières phrases donnent deux pourcentages : place-les dans le schéma, qui ne contient aucun nombre, puis complète la dernière phrase.`,
-  (q,ctx)=>`${ctx.intro} Le schéma est vide : les nombres sont dans les deux premières phrases. Complète le schéma (chaque flèche porte l’écriture décimale d’un pourcentage), puis la dernière phrase.`,
-  (q,ctx)=>`${ctx.intro} Lis les deux premières phrases, complète tout le schéma, puis écris le pourcentage qui manque dans la troisième phrase.`
+  (q,ctx)=>`${ctx.intro} Deux des trois phrases sous le schéma donnent un pourcentage : place-les dans le schéma, qui ne contient aucun nombre, complète-le, puis écris le pourcentage qui manque dans la phrase à compléter.`,
+  (q,ctx)=>`${ctx.intro} Le schéma est vide : les nombres sont dans les phrases. Complète le schéma (chaque flèche porte l’écriture décimale d’un pourcentage, le calcul global aussi), puis la phrase où il manque un pourcentage.`,
+  (q,ctx)=>`${ctx.intro} Lis les phrases, repère sur quelle flèche porte chaque pourcentage donné, complète tout le schéma, puis le pourcentage qui manque.`
 ];
+function psvInc(q){ return (q&&(q.inc===1||q.inc===2))?q.inc:3; }
 function genPsv(){
   const P1=pick(PCC_PCTS);
   const P2=pick(PCC_PCTS.filter(p=>(P1*p)%100===0));      /* le produit est un multiple de 100 : le global est ENTIER */
@@ -20976,7 +20985,8 @@ function genPsv(){
   /* v : la consigne, puis la tournure de chacune des trois phrases — des
      habits, pas des données : hors de la clé de distinctes() */
   const ctx=CTX_PCC[ci];
-  return {P1,P2,comb,ci,
+  const inc=Math.random()<0.5?3:(Math.random()<0.5?1:2);   /* le pourcentage inconnu : le global une fois sur deux, sinon une petite flèche */
+  return {P1,P2,comb,ci,inc,
           v:[rand(0,PSV_ENONCES.length-1), rand(0,ctx.s1.length-1), rand(0,ctx.s2.length-1), rand(0,ctx.s3.length-1)],
           ordre:qdMelanger([0,1,2])};      /* l'ordre des trois phrases sous le schéma — une habitude, hors de la clé de distinctes() */
 }
@@ -20989,7 +20999,8 @@ function psvEnonce(q){
    `ent` pour un pourcentage entier écrit dans une phrase. Ce qui n'est pas
    dans cette liste est ÉCRIT par la page (.psv-val) et n'est jamais jugé. */
 function psvCases(q){
-  return [{id:'psvD1',dec:q.P1},{id:'psvD2',dec:q.P2},{id:'psvG1',dec:q.P1},{id:'psvG2',dec:q.P2},{id:'psvG',dec:q.comb},{id:'psvS3',ent:q.comb}];
+  const inc=psvInc(q), ent=[q.P1,q.P2,q.comb][inc-1];
+  return [{id:'psvD1',dec:q.P1},{id:'psvD2',dec:q.P2},{id:'psvG1',dec:q.P1},{id:'psvG2',dec:q.P2},{id:'psvG',dec:q.comb},{id:'psvS'+inc,ent}];
 }
 function psvAttendu(c){ return c.dec!==undefined ? pDecStr(c.dec) : String(c.ent); }
 async function startPsv(){
@@ -21014,13 +21025,11 @@ function renderPsvTest(){
   const mf=(id,lab,cls)=>`<math-field class="dexp-mf pm-mf${cls?' '+cls:''}" id="${id}" aria-label="${lab}"></math-field>`;
   const cell=(id,lab)=>mf(id,lab);
   const d1=pDecStr(q.P1), d2=pDecStr(q.P2), g=pDecStr(q.comb);
-  /* les deux premières phrases DONNENT les pourcentages ; la troisième a sa case */
+  /* deux phrases DONNENT leur pourcentage ; celle de q.inc a sa case — la
+     troisième (le global) une fois sur deux, sinon une petite flèche */
   const tour=k=>{ const t=ctx['s'+k]; return t[(q.v&&q.v[k])||0]||t[0]; };
-  const phrasesTab=[
-    `<div class="psv-phrase">${tour(1)(q.P1)}</div>`,
-    `<div class="psv-phrase">${tour(2)(q.P2)}</div>`,
-    `<div class="psv-phrase">${tour(3)(mf('psvS3','pourcentage, en nombre entier','psv-pct'))}</div>`
-  ];
+  const inc=psvInc(q), vals=[q.P1,q.P2,q.comb];
+  const phrasesTab=[1,2,3].map(k=>`<div class="psv-phrase">${tour(k)(k===inc?mf('psvS'+k,'pourcentage, en nombre entier','psv-pct'):vals[k-1])}</div>`);
   const phrases=(q.ordre||[0,1,2]).map(k=>phrasesTab[k]).join('');   /* une pause ancienne n'a pas d'ordre : l'ordre d'avant */
   $('psvHost').innerHTML=
     `<div class="pctb-row">
@@ -21083,14 +21092,16 @@ function checkPsvAnswer(live){
   if(allOk){ test.score++; $('psvLiveScore').textContent=test.score;
     $('psvFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('psvFeedback').className='mp-feedback good';
   } else {
-    $('psvFeedback').textContent=`Réponse : ${d1Str} × ${d2Str} = ${gStr} — c’est-à-dire ${q.P1} %, puis ${q.P2} % de ces ${q.P1} %, soit ${q.comb} % du total.`;
+    const inc=psvInc(q);
+    $('psvFeedback').textContent=`Réponse : ${d1Str} × ${d2Str} = ${gStr} — c’est-à-dire ${q.P1} %, puis ${q.P2} % de ces ${q.P1} %, soit ${q.comb} % du total.`
+      +(inc===1?` Le premier pourcentage se retrouve par division : ${gStr} ÷ ${d2Str} = ${d1Str}.`:inc===2?` Le second pourcentage se retrouve par division : ${gStr} ÷ ${d1Str} = ${d2Str}.`:'');
     $('psvFeedback').className='mp-feedback bad';
     cases.forEach(c=>corTrainDec(c.id,psvAttendu(c)));
   }
   const ctx=CTX_PCC[q.ci]||CTX_PCC[CTX_PCC.length-1];
-  const donnees=`${q.P1} % puis ${q.P2} % (schéma vide) ; ${d1Str} × ${d2Str} = ${gStr}`;
+  const donnees=`${psvInc(q)===3?q.P1+' % puis '+q.P2+' % donnés':psvInc(q)===1?'global '+q.comb+' % et second '+q.P2+' % donnés':'premier '+q.P1+' % et global '+q.comb+' % donnés'} (schéma vide) ; ${d1Str} × ${d2Str} = ${gStr}`;
   const enonce=`${ctx.total} → ${ctx.niv1} → ${ctx.niv2} : ${donnees}`;
-  const given=cases.map(c=>c.id.replace('psv','')+'='+(v(c.id)||'—')).join(' ');
+  const given=cases.map(c=>c.id.replace('psv','')+'='+(v(c.id)||'—')).join(' ');   /* S1, S2 ou S3 : le nom dit quelle phrase portait la case */
   const answer=cases.map(c=>c.id.replace('psv','')+'='+psvAttendu(c)).join(' ');
   test.answers.push({...(ptsExo()||{}), q:enonce, answer, given, correct:allOk});
   const last=test.idx===test.questions.length-1;

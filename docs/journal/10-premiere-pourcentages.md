@@ -3836,6 +3836,25 @@ range l'indice, jamais l'objet) et hors de la clé de `distinctes()` ; une pause
 ancienne, sans `ordre`, se rouvre dans l'ancien ordre. Le contrôle
 (`pourcentageSchemaVide`) impose trois ordres épinglés à l'écran et les six
 ordres sur 300 tirages.
+
+**La phrase à case est tirée — parfois le global est donné** (octobre 2026,
+`APP_VERSION` 258). Demande : « les % donnés dans les phrases sous le schéma
+ne concernent pas forcément les petites flèches ; il faut aussi donner de
+temps en temps le % de la grande flèche ». `genPsv` range `q.inc`, le
+pourcentage inconnu : 3 (le global, une fois sur deux — l'exercice d'avant),
+1 ou 2 (une petite flèche ; la troisième phrase DONNE alors le global, et
+l'élève retrouve la flèche par division, 0,06 ÷ 0,20 = 0,30). `inc` est une
+donnée, pas un habit : il entre dans la clé de `distinctes()`. La case de
+phrase s'appelle `psvS1`, `psvS2` ou `psvS3` selon la phrase qui la porte ;
+une pause ancienne, sans `inc`, se rouvre en forme 3 (`psvInc`). Les
+consignes ne disent plus « les deux premières phrases » — faux depuis que
+l'ordre est tiré. Le rappel nomme la grande flèche et la division ; la
+correction montre la division quand une petite flèche manquait. Contrôle
+(`pourcentageSchemaVide`) : formes 1 et 2 épinglées (case à sa place, global
+« 6 % » écrit, « 6 » recopié rouge, copie juste au point, case vide jamais
+rouge), et les trois formes sur 400 tirages, le global inconnu entre 30 et
+70 % des fois.
+
 ## {evolutions-successives-coef} — le 4.5.5 à coefficients donnés, puis trois phrases (Seconde, 4.5.7, septembre 2026)
 
 **D'où il vient.** « Un exercice comme le 4.5.5, mais où l'on donne les deux
