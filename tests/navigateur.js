@@ -11355,6 +11355,122 @@ async function parcours(page, N){
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
+    /* ===== 6 tricies unvicies. {python-input-int} : la console demande, l'élève tape et appuie sur Entrée =====
+       Le banc jsdom tient la fiche, l'interpréteur qui a appris input, le
+       tirage, le juge cas par cas, les portes, la case vide, le soutien et
+       CPython. Ce qu'il ne voit pas : la question écrite DANS la console et la
+       case qui s'ouvre AU BOUT de sa ligne, à la taille de la console — la
+       réponse fait partie de ce que Python affiche —, la réponse TAPÉE au
+       clavier et envoyée par la vraie touche Entrée, le type CHOISI pour de
+       vrai dans la liste, la ligne tapée, l'encre RENDUE des verdicts, et la
+       page qui ne déborde pas sur un téléphone. */
+    titre('6 tricies unvicies. {python-input-int} : LA CONSOLE DEMANDE, L\'ÉLÈVE TAPE ET APPUIE SUR ENTRÉE');
+    if(!P.pythonInputInt){
+      ignorer('la console de input pose la question, la réponse se tape et part sur Entrée', 'ce niveau n\'a pas l\'exercice input');
+    } else {
+      const PI = P.pythonInputInt, FI = PI.fiche;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), PI.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const ecran0 = await s.page.evaluate(() => ({ def: !!document.querySelector('#piiHost .pii-def'),
+        b: !!document.getElementById('piiB'), val: document.getElementById('piiValidate').disabled,
+        code: getComputedStyle(document.querySelector('#piiA .pyx-l1')).fontFamily }));
+      verifier('la question 1 montre la définition et le seul a) — le b), le c) et « Vérifier » attendent',
+        ecran0.def && !ecran0.b && ecran0.val && /mono|Menlo|Consolas|Courier/i.test(ecran0.code), JSON.stringify(ecran0));
+      await s.page.click('#piiRunA');
+      await s.page.waitForTimeout(250);
+      const cons = await s.page.evaluate(() => {
+        const c = document.getElementById('piiConsA'), i = document.getElementById('piiConsAIn');
+        if(!i) return { pasDeCase: true };
+        const r = e => e.getBoundingClientRect(), px = e => parseFloat(getComputedStyle(e).fontSize);
+        const t = c.firstChild && c.firstChild.nodeType === 3 ? c.firstChild.textContent : '';
+        return { question: t, focus: document.activeElement === i, memeTaille: Math.abs(px(i) - px(c)) < 0.6,
+                 memeLigne: Math.abs((r(i).top + r(i).bottom) / 2 - (r(c).top + 10 + px(c) * 0.775)) < px(c), dedans: r(i).right <= r(c).right + 1 };
+      });
+      verifier('« Exécuter » écrit la question dans la console, et la case de la réponse s\'ouvre AU BOUT de sa ligne, à la taille de la console, le curseur dedans',
+        !cons.pasDeCase && cons.question === FI.invite && cons.focus && cons.memeTaille && cons.dedans, JSON.stringify(cons));
+      await s.page.keyboard.type('15.5');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(200);
+      const err = await s.page.evaluate(() => ({ err: document.getElementById('piiConsA').classList.contains('pyx-err'),
+        couleur: getComputedStyle(document.getElementById('piiConsA')).color,
+        texte: document.getElementById('piiConsA').textContent, b: !!document.getElementById('piiB') }));
+      verifier('une réponse que int ne sait pas lire (15.5) reçoit l\'erreur de Python, en rouge, et le b) reste fermé',
+        !!err && err.err && dom(err.couleur) === 'rouge' && /ValueError/.test(err.texte) && !err.b, JSON.stringify(err));
+      await s.page.click('#piiRunA');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type(FI.reponse);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const b = await s.page.evaluate(() => ({ console: document.getElementById('piiConsA').textContent, b: !!document.getElementById('piiB'),
+        runB: document.getElementById('piiRunB') && document.getElementById('piiRunB').disabled }));
+      verifier('la réponse tapée et envoyée par la vraie touche Entrée reste dans la console après la question, et ouvre le b) — dont « Exécuter » attend un type',
+        b.console === FI.invite + FI.reponse && b.b && b.runB === true, JSON.stringify(b));
+      await s.page.selectOption('#piiType', 'int');
+      await s.page.click('#piiRunB');
+      await s.page.waitForTimeout(250);
+      const c = await s.page.evaluate(() => ({ console: document.getElementById('piiConsB').textContent, fige: document.getElementById('piiType').disabled,
+        c: !!document.getElementById('piiC') }));
+      verifier('le type choisi, « Exécuter » le FIGE et Python répond ' + JSON.stringify(FI.sortieB) + ' ; le c) s\'ouvre',
+        c.console === FI.sortieB && c.fige && c.c, JSON.stringify(c));
+      await s.page.click('#piiLigne');
+      await s.page.keyboard.type(FI.ligneC);
+      await s.page.click('#piiRunC');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type('16');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const cc = await s.page.evaluate(() => ({ console: document.getElementById('piiConsC').textContent, val: document.getElementById('piiValidate').disabled }));
+      verifier('le c) repose la question, et la ligne tapée affiche la phrase avec la NOUVELLE réponse ; « Vérifier » s\'ouvre',
+        cc.console === FI.invite + '16\n' + FI.sortieC.replace(FI.reponse, '16') && !cc.val, JSON.stringify(cc));
+      await s.page.click('#piiValidate');
+      await s.page.waitForTimeout(400);
+      const v = await s.page.evaluate(() => ({ sel: getComputedStyle(document.getElementById('piiType')).color,
+        ligne: getComputedStyle(document.getElementById('piiLigne')).color, score: test.score,
+        fb: document.getElementById('piiFeedback').className, suivant: !!document.getElementById('piiNext') }));
+      verifier('la copie juste : le type et la ligne s\'écrivent en BLEU, la note vaut ' + PI.cases + ', et « Question suivante » est proposée',
+        dom(v.sel) === 'bleu' && dom(v.ligne) === 'bleu' && v.score === PI.cases && v.suivant, JSON.stringify(v));
+      /* la question 2 : une ligne écrite à la main rougit, le type juste reste bleu */
+      await s.page.click('#piiNext');
+      await s.page.waitForTimeout(400);
+      const q2 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { type: piiType(q), invite: piiC(q).invite, nom: piiC(q).nom, avant: piiC(q).avant, apres: piiC(q).apres, vis: q.vis }; });
+      await s.page.click('#piiRunA');
+      await s.page.waitForTimeout(200);
+      const rep2 = q2.vis === 'texte' ? 'Léa' : '12';
+      await s.page.keyboard.type(rep2);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(250);
+      await s.page.selectOption('#piiType', q2.type);
+      await s.page.click('#piiRunB');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#piiLigne');
+      await s.page.keyboard.type('print("' + q2.avant + ' ' + rep2 + ' ' + q2.apres + '")');
+      await s.page.click('#piiRunC');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type(rep2);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#piiValidate');
+      await s.page.waitForTimeout(400);
+      const v2 = await s.page.evaluate(() => {
+        const l = document.getElementById('piiLigne'), cor = l.nextElementSibling, r = e => e.getBoundingClientRect();
+        return { sel: getComputedStyle(document.getElementById('piiType')).color, ligne: getComputedStyle(l).color,
+                 cor: cor && cor.classList.contains('mf-cor') ? getComputedStyle(cor).color : '', dessous: !!cor && r(cor).top >= r(l).bottom - 2,
+                 fb: document.getElementById('piiFeedback').textContent, score: test.score };
+      });
+      verifier('la ligne écrite À LA MAIN (question 2, ' + q2.vis + ') rougit et le diagnostic le dit ; le type juste reste bleu ; la bonne ligne s\'écrit en VERT, SOUS la case',
+        dom(v2.sel) === 'bleu' && dom(v2.ligne) === 'rouge' && dom(v2.cor) === 'vert' && v2.dessous && /main/.test(v2.fb) && v2.score === PI.cases + 1, JSON.stringify(v2));
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const phone = await s.page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2);
+      verifier('sur un téléphone (390 px), la page de input ne déborde pas en largeur', !phone, 'scrollWidth > clientWidth');
+      verifier('l\'écran de input ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
 
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
