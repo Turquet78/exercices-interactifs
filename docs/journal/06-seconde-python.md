@@ -3124,6 +3124,58 @@ d'être le DERNIER du sous-thème — une exigence qui casse au premier exercice
 suivant. Il exige désormais de SUIVRE {python-input-int}, l'ordre du carnet,
 et celui d'ici de suivre {python-input-calcul}.
 
+
+---
+
+**Deux nombres à virgule, et leur MOYENNE — l'exercice 8 du carnet.**
+{python-input-moyenne} (Seconde, 6.3.6 à sa fusion, 6.3.7 depuis que l'exercice 7 est passé devant, demande de Turquet, octobre 2026 :
+« en seconde dans le sous-thème input, créer l'exercice correspondant à
+l'image ») est la fiche « Exercice 8 » : un programme qui demande une 1ère
+note sous la forme d'un nombre à virgule, puis une 2ème, calcule leur moyenne
+et l'affiche — avec les TROIS coups de pouce du carnet, repliés
+(`note_1 = float(input("......... ? "))`, `moyenne = ( note_1 + note_2 )/2`,
+`print ("la moyenne est de :", .... )`). Il ferme le sous-thème 6.3, ajouté
+en dernier derrière {python-input-float} (6.3.5, fusionné le même jour) :
+rien n'est renuméroté.
+
+**Ce qu'il ajoute au 6.3.4** : `float(…)` au lieu de `int(…)`, deux questions
+au lieu d'une, et les parenthèses du calcul. L'énoncé du carnet ne nomme pas
+les variables — ses coups de pouce si : l'énoncé de l'écran les nomme donc
+dans ses puces (`note_1`, `note_2`, `moyenne`), comme le 6.3.4 nommait
+`naissance` et `age`, puisque le juge les exige.
+
+**Le juge** (`pmyDiag`) exécute la copie sous DEUX PAIRES de réponses
+décimales que l'élève ne connaît pas. Décimales exprès : un `int(input(…))`
+y échoue toujours (« int ne lit que les nombres ENTIERS »), et le contrôle
+exige qu'aucune réponse du juge ne soit entière. Ce sont des multiples de 1/8 :
+leur moyenne est EXACTE en binaire, si bien que `(a + b) / 2`,
+`a / 2 + b / 2` et `(a + b) * 0.5` donnent le même nombre, à la page comme
+dans CPython. Nommés : le float oublié (« TOUJOURS un texte »), `int` au lieu
+de `float`, `note_1 + note_2 / 2` (la valeur `a + b/2` est reconnue : « Sans
+parenthèses, Python divise d'abord note_2 par 2 »), la somme non divisée, la
+moyenne écrite à la main que la SECONDE paire trahit, le nom entre
+guillemets, une réponse affichée au lieu de la moyenne, le calcul fait dans
+le print sans variable, une, puis trois questions. La ligne affichée passe
+par `piaLigneOk` (texte, valeur, texte — le second texte est vide sur la
+fiche).
+
+**La console** est celle du 6.3.2 (la case à la suite de la question, Entrée
+qui rejoue), avec un pavé `decimal` sur tablette. Une seule chose en plus :
+`12,5` tapé dans la console fait échouer `float()`, et la console le NOMME
+(« la virgule d'un nombre s'écrit avec un POINT ») — c'est la faute qu'un
+élève fera la première fois.
+
+**La séance** : la fiche épinglée en tête, puis deux situations tirées par
+`distinctes()` (températures matin et soir, temps de deux courses, tailles,
+prix dans deux magasins), jusqu'à cinq avec le réglage « Questions ». Pas de
+correction au fil de la frappe (`soutienEnDirect.sans`). Banc jsdom
+(`pythonInputMoyenne`) : la place, la fiche et le tirage (300 séances), le
+juge sur quatre copies justes et dix-neuf fausses chacune avec son mot, le
+dialogue joué au clavier (la virgule nommée, puis les deux réponses), les
+copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
+comparés à un vrai CPython. Pas de section propre au banc navigateur : la
+visite universelle (section 9) l'ouvre dans les deux modes.
+
 ---
 
 **Deux nombres DÉCIMAUX, puis leur SOMME — l'exercice 7 du carnet.**
@@ -3170,9 +3222,9 @@ seul input finit sur un NameError (`nombre2` n'existe pas) : le juge le dit
 banc à la première exécution.
 
 **La séance** : la fiche épinglée en tête, puis deux situations tirées par
-`distinctes()` (deux prix → total, deux notes → moyenne, longueur et
+`distinctes()` (deux prix → total, deux colis → masse totale, longueur et
 largeur → aire, deux tailles → écart, deux distances → total). L'énoncé
-écrit le calcul (« le résultat de `(note1 + note2) / 2` »), comme la fiche :
+écrit le calcul (« le résultat de `longueur * largeur` »), comme la fiche :
 la leçon est l'input décimal, pas la formule. Le dialogue de la console est
 celui du 6.3.4, la case reçoit `inputmode="decimal"`. Pas de correction au
 fil de la frappe (`soutienEnDirect.sans`). Banc jsdom (`pythonInputSomme`) :
@@ -3182,3 +3234,17 @@ questions joué au clavier (et la virgule nommée), les copies juste, fausse
 et vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
 CPython. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
+
+**Puis l'exercice 8 l'a croisé à son tour, et l'ordre du carnet a décidé.**
+Pendant que la Terminale rejouait son banc navigateur (un premier passage
+resté six heures bloqué dans l'installation de Chromium, avant le moindre
+test), {python-input-moyenne} — l'exercice 8 : deux notes, leur moyenne —
+a été fusionné en 6.3.6 avec la version 263. Les deux exercices s'étaient
+insérés aux mêmes ancres avec un code jumeau : une union bloc par bloc des
+conflits aurait entrelacé les deux programmes. La branche a donc pris les
+fichiers de `main` et y a REJOUÉ ses insertions (une fusion, pas une
+réécriture), puis : l'exercice 7 passe en 6.3.6, l'exercice 8 en 6.3.7 —
+son contrôle épingle désormais ce numéro et exige le 6.3.6 devant lui —,
+version 264. Et la situation « deux notes → moyenne » de cet exercice est
+devenue « deux colis → masse totale » : la moyenne de deux notes EST
+l'exercice suivant.
