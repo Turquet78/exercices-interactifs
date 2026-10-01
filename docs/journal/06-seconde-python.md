@@ -3123,3 +3123,62 @@ place d'après, 6.3.5, et la version 262. Le contrôle du 6.3.4 exigeait
 d'être le DERNIER du sous-thème — une exigence qui casse au premier exercice
 suivant. Il exige désormais de SUIVRE {python-input-int}, l'ordre du carnet,
 et celui d'ici de suivre {python-input-calcul}.
+
+---
+
+**Deux nombres DÉCIMAUX, puis leur SOMME — l'exercice 7 du carnet.**
+{python-input-somme} (Seconde, 6.3.6, demande de Turquet, octobre 2026 : « en
+seconde dans le sous-thème input créer l'exercice correspondant à l'image »)
+est la fiche « Exercice 7 » : un programme qui demande « Choisis un 1er
+nombre décimal : » et range la réponse dans la variable DÉCIMALE `nombre1`,
+puis la même chose pour `nombre2`, range `nombre1 + nombre2` dans `somme`, et
+affiche `"La somme des deux nombres est ", somme` — avec les TROIS coups de
+pouce du carnet, repliés (les deux lignes de float, le calcul, le print). La
+fiche écrit « choisit » : l'écran écrit « Choisis » — la coquille n'est pas
+recopiée, et c'est un écart nommé.
+**Troisième collision du sous-thème.** Écrit d'abord sous l'identifiant
+`python-input-float` (kind `pif`, 6.3.5), il a croisé sur `main`
+l'exercice 6 du carnet, fusionné entre-temps sous le MÊME identifiant et les
+mêmes noms (`startPIF`, `PIF_NB`, `RAP_PIF`, la clé `pythonInputFloat` de
+`tests/profils.js`) ; c'est le contrôle des numéros de version
+(`npm run test:version` : « v262 est DÉJÀ PRIS sur main ») qui l'a montré,
+pas un conflit de texte. Comme pour le 6.3.1, la branche a été REFAITE sur
+`main` : l'exercice 6 garde sa place, celui-ci prend `python-input-somme`,
+le kind `pis` et le numéro 6.3.6 — l'ordre du carnet.
+
+**Ce qu'il ajoute au 6.3.5** : deux questions, et un CALCUL avec les deux
+décimaux. Les deux fautes propres à la leçon sont nommées : `int(input(…))`
+refuse « 2.5 » (le message dit que c'est float qu'il faut), et sans
+conversion `nombre1 + nombre2` COLLE deux textes — le cours de l'écran le
+montre (`"2.5" + "1.25"` donne `2.51.25`). Dans la console, une réponse
+tapée avec une VIRGULE (« 2,5 ») reçoit, sous l'erreur de Python, la règle
+du point.
+
+**Le juge est celui du 6.3.4** (`pisDiag`, calqué sur `piaDiag`, et qui
+réemploie `piaLigneOk`) : la copie s'exécute sous DEUX paires de réponses que
+l'élève ne connaît pas, des décimaux dont les résultats tombent juste en
+binaire (aucun 0.1 + 0.2 dans une leçon sur input). Le contrôle exige que
+les deux paires donnent deux résultats différents, et c'est lui qui a
+attrapé la première version de la situation des tailles (1.75 − 1.5 et
+1.875 − 1.625 : 0.25 les deux fois — un `ecart = 0.25` écrit à la main
+serait passé). Il exige deux input dans l'ordre de la fiche (le désordre est
+nommé), chacun dans SA variable, `float`, avec sa question ; le résultat
+dans sa variable, juste sous les deux paires ; puis une ligne : texte,
+valeur, et le second texte quand la situation en a un. Un programme à UN
+seul input finit sur un NameError (`nombre2` n'existe pas) : le juge le dit
+« ne pose qu'une question », pas « la variable n'existe pas » — vu par le
+banc à la première exécution.
+
+**La séance** : la fiche épinglée en tête, puis deux situations tirées par
+`distinctes()` (deux prix → total, deux notes → moyenne, longueur et
+largeur → aire, deux tailles → écart, deux distances → total). L'énoncé
+écrit le calcul (« le résultat de `(note1 + note2) / 2` »), comme la fiche :
+la leçon est l'input décimal, pas la formule. Le dialogue de la console est
+celui du 6.3.4, la case reçoit `inputmode="decimal"`. Pas de correction au
+fil de la frappe (`soutienEnDirect.sans`). Banc jsdom (`pythonInputSomme`) :
+la place, la fiche et le tirage (300 séances), le juge sur quatre copies
+justes et dix-huit fausses chacune avec son mot, le dialogue à deux
+questions joué au clavier (et la virgule nommée), les copies juste, fausse
+et vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
+CPython. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.

@@ -4149,6 +4149,7 @@ function exercices(suite){
     pythonDoubleTripleCarre(w, P);
     pythonInputInt(w, P);
     pythonInputFloat(w, P);
+    pythonInputSomme(w, P);
     pythonPasAPas(w, P);
     pythonValeurCase(w, P);
     pythonPasAPasChaine(w, P);
@@ -23361,6 +23362,197 @@ function pythonInputCalcul(w, P){
   const ref = pythonExecuter(cmd, liste.map(([src, n]) => 'def input(q=""):\n    return ' + JSON.stringify(n) + '\n' + src));
   const ecarts = [];
   liste.forEach(([src, n, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + n + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-input-somme} (Seconde, 6.3.6) : l'exercice 7 du carnet — demander
+   deux nombres décimaux avec float(input(…)), ranger leur somme dans somme,
+   puis l'afficher. Le contrôle tient la place au menu (il ferme le sous-thème
+   6.3, rien d'autre ne bouge), la fiche épinglée et le tirage, le juge sur
+   des copies justes et fausses — chacune avec le mot qui la nomme, dont le
+   float oublié (les textes qui se COLLENT), le int à la place, une seule
+   question, les questions dans le désordre, la somme écrite à la main que la
+   SECONDE paire trahit —, le dialogue de la console à deux questions (et la
+   virgule française nommée), la copie juste, fausse et vide, le soutien qui
+   explique sans révéler, puis compare à un vrai CPython ce que les modèles
+   affichent. Aucun accent grave ni antislash littéral dans le code évalué. */
+function pythonInputSomme(w, P){
+  const nom = '{python-input-somme} : demander deux nombres décimaux, calculer avec, afficher le résultat';
+  if(!P.pythonInputSomme){ ignorer(nom, 'ce niveau n\'a pas l\'exercice input'); return; }
+  const ID = P.pythonInputSomme.exercice, NB = P.pythonInputSomme.nb, NUM = P.pythonInputSomme.numero;
+  const present = evaluer(w, "typeof startPIS==='function' && typeof pisDiag==='function' && typeof pisBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPIS / pisDiag / pisBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ' derrière les cinq autres, juste après {python-input-float} (l’exercice 6 du carnet), et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
+    else if(st.ids[st.ids.length-1]!=="${ID}") vus.push("il n’est pas le dernier du sous-thème : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3"||TEST_NUM["python-input-calcul"]!=="6.3.4"||TEST_NUM["python-input-float"]!=="6.3.5") vus.push("les cinq autres ont bougé");
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (nombre1, nombre2, somme = nombre1 + nombre2, « La somme des deux nombres est »), puis des situations distinctes ; le modèle de chacune passe au juge, et chaque situation sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pisBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=pisSit(qs[0]);
+      if(S0.v1!=="nombre1"||S0.v2!=="nombre2"||S0.v3!=="somme"||S0.expr!=="nombre1 + nombre2"||S0.t1!=="La somme des deux nombres est"){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois la même situation : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PIS_SITUATIONS.forEach(function(S, i){
+      const d=pisDiag(pisModele({s:i}),{s:i});
+      if(!d.ok||d.ecart) vus.push("le modèle de la situation "+i+" : "+(d.dits||[]).join(" ")+(d.ecart||""));
+      if(S.f(S.ex[0][0],S.ex[0][1])===S.f(S.ex[1][0],S.ex[1][1])) vus.push("les deux paires du juge donnent le même résultat en "+i);
+      S.ex.forEach(function(p){ if(p.every(function(m){ return m===Math.trunc(m); })) vus.push("une paire sans aucun décimal en "+i); });
+    });
+    if(Object.keys(vues).length!==PIS_SITUATIONS.length) vus.push("des situations ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (espaces, texte presque bon, guillemets simples, somme écrite autrement, concaténation) et nomme chaque défaut — float oublié, int à la place, une seule question, questions dans le désordre, somme écrite à la main, nom entre guillemets, réponses affichées au lieu du résultat, résultat non rangé, mauvais calcul, input muet, autre variable, trois questions, deux lignes, autre texte, rien d’affiché, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const i1="nombre1 = float(input("+Q+"Choisis un 1er nombre décimal : "+Q+"))", i2="nombre2 = float(input("+Q+"Choisis un 2e nombre décimal : "+Q+"))", c1="somme = nombre1 + nombre2";
+    const pr=function(args){ return "print("+args+")"; };
+    const bon=pr(Q+"La somme des deux nombres est "+Q+", somme");
+    const justes=[i1+NL+i2+NL+c1+NL+bon,
+                  i1+NL+i2+NL+c1+NL+pr(Q+"La somme des deux nombres est :"+Q+", somme"),
+                  i1+NL+i2+NL+"somme = nombre2 + nombre1"+NL+pr(A+"la somme des deux nombres est"+A+", somme"),
+                  i1+NL+i2+NL+NL+"# le calcul"+NL+c1+NL+pr(Q+"La somme des deux nombres est "+Q+" + str(somme)")];
+    justes.forEach(function(p){ const d=pisDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      ["nombre1 = input("+Q+"A ? "+Q+")"+NL+"nombre2 = input("+Q+"B ? "+Q+")"+NL+c1+NL+bon, /float\\(input/],
+      ["nombre1 = int(input("+Q+"A ? "+Q+"))"+NL+"nombre2 = int(input("+Q+"B ? "+Q+"))"+NL+c1+NL+bon, /ENTIER/],
+      [i1+NL+c1+NL+bon, /qu’une question/],
+      [i2+NL+i1+NL+c1+NL+bon, /désordre/],
+      [i1+NL+i2+NL+"somme = 3.75"+NL+bon, /toujours 3.75/],
+      [i1+NL+i2+NL+c1+NL+pr(Q+"La somme des deux nombres est 3.75"+Q), /même nombre/],
+      [i1+NL+i2+NL+c1+NL+pr(Q+"La somme des deux nombres est"+Q+", "+Q+"somme"+Q), /SANS guillemets/],
+      [i1+NL+i2+NL+c1+NL+pr(Q+"La somme des deux nombres est"+Q+", nombre1, nombre2"), /réponses tapées/],
+      [i1+NL+i2+NL+pr(Q+"La somme des deux nombres est"+Q+", nombre1 + nombre2"), /variable somme/],
+      [i1+NL+i2+NL+"somme = nombre1 - nombre2"+NL+bon, /Vérifie ton calcul/],
+      ["nombre1 = float(input())"+NL+i2+NL+c1+NL+bon, /pas de question/],
+      ["a = float(input("+Q+"?"+Q+"))"+NL+"b = float(input("+Q+"?"+Q+"))"+NL+"somme = a + b"+NL+bon, /variable nombre1/],
+      [i1+NL+i2+NL+"z = input("+Q+"?"+Q+")"+NL+c1+NL+bon, /plus de deux questions/],
+      [i1+NL+i2+NL+c1+NL+pr(Q+"La somme des deux nombres est"+Q)+NL+pr("somme"), /2 lignes/],
+      [i1+NL+i2+NL+c1+NL+pr(Q+"Bonjour"+Q+", somme"), /La somme des deux nombres est/],
+      [i1+NL+i2+NL+c1, /n’affiche rien/],
+      [bon+NL+i1+NL+i2+NL+c1, /AVANT le print/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pisDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, le dialogue, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : l’énoncé à quatre puces nomme les trois variables, trois coups de pouce repliés, « Exécuter » pose les DEUX questions dans la console, Entrée affiche le résultat, une virgule française est nommée ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPIS();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pisInstr");
+    if(!en||!en.classList.contains("mp-instr")||en.querySelectorAll("li").length!==4||["nombre1","nombre2","somme"].some(function(v){ return en.textContent.indexOf(v)<0; })) vus.push("l’énoncé : "+(en&&en.textContent));
+    const pouces=document.querySelectorAll("#pisHost details.pyd-pouce");
+    if(pouces.length!==3) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); });
+    const ta=document.getElementById("pis-prog"), cons=document.getElementById("pisConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value="nombre1 = float(input("+Q+"A ? "+Q+"))"+NL+"nombre2 = float(input("+Q+"B ? "+Q+"))"+NL+"somme = nombre1 + nombre2"+NL+"print("+Q+"La somme des deux nombres est"+Q+", somme)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    const repondre=function(v){ const r=document.getElementById("pis-rep"); if(!r||!cons.contains(r)){ vus.push("la console ne demande pas la réponse ("+v+")"); return false; } r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); return true; };
+    pisExecuter();
+    if(cons.textContent.indexOf("A ? ")<0) vus.push("la première question n’est pas écrite dans la console");
+    if(repondre("2.5")){
+      if(cons.textContent.indexOf("B ? ")<0) vus.push("la seconde question n’est pas posée");
+      if(repondre("1.25")){
+        if(document.getElementById("pis-rep")) vus.push("la case reste après la dernière réponse");
+        if(cons.textContent.split(NL).pop()!=="La somme des deux nombres est 3.75") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+      }
+    }
+    pisExecuter(); repondre("2,5");
+    if(!cons.classList.contains("py-err")||!/POINT/.test(cons.textContent)) vus.push("la virgule française n’est pas nommée : "+JSON.stringify(cons.textContent));
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPIS();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("pisNext")) vus.push("pas de « Question suivante »");
+    nextPIS();
+    if(test.idx!==1||document.getElementById("pis-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPIS();
+    let ta=document.getElementById("pis-prog");
+    ta.value="nombre1 = int(input("+Q+"A ? "+Q+"))"+NL+"nombre2 = int(input("+Q+"B ? "+Q+"))"+NL+"somme = nombre1 + nombre2"+NL+"print("+Q+"La somme des deux nombres est"+Q+", somme)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPIS();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pisModele .sol");
+    if(!mod||mod.textContent!==pisModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("pisConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPIS(); ta=document.getElementById("pis-prog");
+    checkPIS();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pisModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPIS(); ta=document.getElementById("pis-prog");
+    checkPIS();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="nombre1 = float(input("+Q+"A ? "+Q+"))"+NL+"nombre2 = float(input("+Q+"B ? "+Q+"))"+NL+"somme = 3.75"+NL+"print("+Q+"La somme des deux nombres est"+Q+", somme)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPIS();
+    const fb=document.getElementById("pisFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/quelles que soient les réponses/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pisModele .sol")||fb.indexOf("nombre1 + nombre2")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPis(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ----
+     input est remplacé, côté CPython, par une fonction qui rend les réponses
+     l'une après l'autre sans écrire la question. */
+  const nomPy = 'ce que les modèles de {python-input-somme} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PIS_SITUATIONS.forEach(function(S, i){ S.ex.forEach(function(p){
+      const src=pisModele({s:i}), r=pyRun(src,[String(p[0]),String(p[1])]);
+      res.push([src, [String(p[0]),String(p[1])], r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
