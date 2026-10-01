@@ -2938,6 +2938,20 @@ du type ouverte avant l'exécution, input qui rend un entier pour « 15 » (le
 contrôle de l'interpréteur ET CPython rougissent), le diagnostic de
 l'apostrophe retiré, le type VIDE rougi.
 
+**Puis les énoncés sont venus À CÔTÉ de chaque étape du 6.3.1** (demande de
+Turquet, octobre 2026 : « en seconde dans le 6.3.1 écrire les énoncés à côté
+de chaque question dans l'exercice »). L'énoncé du haut changeait avec
+l'étape, et les cadres ne portaient que « a) Le programme » : au b),
+l'élève ne relisait plus ce qu'on lui avait demandé au a), et au c) il
+fallait remonter tout l'écran pour la consigne. Chaque étape est désormais
+un cadre (`pyn-etape`, le motif `pii-etape` du 6.3.3, même encre) ouvert
+par SON énoncé (« ✏️ a) Exécute le programme… »), et le cadre le GARDE quand
+la suivante s'ouvre. L'énoncé du haut dit l'exercice entier — il ne répète
+plus l'étape. Le banc jsdom exige l'énoncé du b) dans son cadre, celui du
+a) encore là au b), les trois au c), et un énoncé du haut qui
+n'ouvre plus sur une lettre d'étape ; le navigateur relit l'énoncé du b) dans son cadre après la VRAIE
+touche Entrée.
+
 ---
 
 **Le programme DEMANDE une valeur, et int(…) en fait un nombre.**

@@ -22916,7 +22916,11 @@ function pythonInputReponse(w, P){
     const q=test.questions[1];
     if(q.etape!=="b"||q.rep!=="15") vus.push("après Entrée : étape "+q.etape+", réponse "+JSON.stringify(q.rep));
     if($("pynConsoleA").textContent!=="quel âge as-tu ? 15") vus.push("console du a) : "+JSON.stringify($("pynConsoleA").textContent));
-    if(!/b\\)/.test($("pynInstr").textContent)||!/age/.test($("pynInstr").textContent)) vus.push("l’énoncé ne passe pas au b) : "+$("pynInstr").textContent);
+    /* chaque étape porte SON énoncé, et le garde quand la suivante s'ouvre */
+    const tB=document.querySelector("#pynEtapeB .pyn-titre"), tA=document.querySelector("#pynEtapeA .pyn-titre");
+    if(!tB||!/^✏️ b\\)/.test(tB.textContent)||!/age/.test(tB.textContent)) vus.push("le b) n’a pas son énoncé en tête : "+(tB?tB.textContent:"aucun"));
+    if(!tA||!/^✏️ a\\)/.test(tA.textContent)||!/Entrée/.test(tA.textContent)) vus.push("le a) a perdu son énoncé au b) : "+(tA?tA.textContent:"aucun"));
+    if(/^\\s*[abc]\\)/.test($("pynInstr").textContent)||!/age/.test($("pynInstr").textContent)) vus.push("l’énoncé du haut doit dire l’exercice entier : "+$("pynInstr").textContent);
     const sel=$("pyn-type");
     if(!sel||!sel.disabled) vus.push("la liste du type est ouverte avant l’exécution");
     if(!$("pynValidate")||!$("pynValidate").disabled) vus.push("« Vérifier » est ouvert avant l’exécution du b)");
@@ -22932,7 +22936,9 @@ function pythonInputReponse(w, P){
     if(!/15/.test($("pynFeedback").textContent)||!/texte/.test($("pynFeedback").textContent)) vus.push("le message ne dit pas que « 15 » est un texte : "+$("pynFeedback").textContent);
     pynVersC();
     if(!$("pyn-type").classList.contains("bad")||!document.querySelector("#pynHost .pyn-cor")) vus.push("le verdict du b) disparaît au c)");
-    if(!/c\\)/.test($("pynInstr").textContent)||!/mon âge est/.test($("pynInstr").textContent)) vus.push("l’énoncé du c) : "+$("pynInstr").textContent);
+    const tC=document.querySelector("#pynEtapeC .pyn-titre");
+    if(!tC||!/^✏️ c\\)/.test(tC.textContent)||!/mon âge est/.test(tC.textContent)) vus.push("l’énoncé du c) : "+(tC?tC.textContent:"aucun"));
+    if(document.querySelectorAll("#pynHost .pyn-etape .pyn-titre").length!==3) vus.push("au c), les trois étapes ne gardent pas leurs trois énoncés");
     const inp=$("pyn-in");
     pynExecuterC(); $("pynEntree").value="16"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
     checkPYN();

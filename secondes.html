@@ -1019,8 +1019,9 @@
   .pii-def-t{font-family:"Fredoka";font-weight:600;color:#b35c00}
   .pii-def-n{color:var(--ink-soft)}
   .pii-def code,.pii-titre code,.pii-rep-l code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
-  .pii-etape{margin:14px 0 0;padding:12px 14px;border:1.5px solid var(--line);border-left:5px solid var(--blue);border-radius:10px;background:#f6f9ff;text-align:left}
-  .pii-titre{margin:0 0 10px;line-height:1.5}
+  .pii-etape,.pyn-etape{margin:14px 0 0;padding:12px 14px;border:1.5px solid var(--line);border-left:5px solid var(--blue);border-radius:10px;background:#f6f9ff;text-align:left}
+  .pii-titre,.pyn-titre{margin:0 0 10px;line-height:1.5}
+  .pyn-etape .py-label:first-child{margin-top:0}
   .pii-titre kbd{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#fde9e4;color:#b13a2a;border-radius:5px;padding:0 6px}
   .pii-etape .py-console{margin:8px 0 0}
   .pii-rep-l{margin:10px 0 0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px}
@@ -5118,7 +5119,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=260;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=261;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -29873,11 +29874,21 @@ const PYN_ENONCES={
   b:'<b>b)</b> Exécute le programme suivant et donne le type de la variable ',
   c:'<b>c)</b> Complète le programme pour qu’il affiche '
 };
-function pynEnonceHTML(q){
+/* Chaque étape porte SON énoncé, en tête de son cadre, et le garde quand on
+   passe à la suivante (demande de Turquet, octobre 2026 : « écrire les
+   énoncés à côté de chaque question ») — le motif du 6.3.3. L'énoncé du haut
+   dit l'exercice entier. */
+function pynEtapeEnonceHTML(q, e){
   const S=pynS(q);
-  if(q.etape==='a') return PYN_ENONCES.a;
-  if(q.etape==='b') return PYN_ENONCES.b+'<code class="pyx-code">'+esc(S.nom)+'</code>.';
+  if(e==='a') return PYN_ENONCES.a;
+  if(e==='b') return PYN_ENONCES.b+'<code class="pyx-code">'+esc(S.nom)+'</code>.';
   return PYN_ENONCES.c+'<code class="pyx-code">'+esc(S.texte)+'</code> suivi de la réponse contenue dans <code class="pyx-code">'+esc(S.nom)+'</code>.';
+}
+function pynEnonceHTML(q){
+  return 'Le programme pose une question avec <code class="pyx-code">input</code> et range la réponse dans la variable <code class="pyx-code">'+esc(pynS(q).nom)+'</code>. Fais les étapes a), b) et c) dans l’ordre.';
+}
+function pynEtapeHTML(q, e, corps){
+  return '<div class="pyn-etape" id="pynEtape'+e.toUpperCase()+'"><p class="pyn-titre">✏️ '+pynEtapeEnonceHTML(q, e)+'</p>'+corps+'</div>';
 }
 /* La définition de la fiche, mot pour mot, à chaque question — elle porte
    l'exemple de la fiche, quelle que soit la question posée. */
@@ -29960,27 +29971,26 @@ function renderPYN(){
   $('pynFeedback').textContent=''; $('pynFeedback').className='mp-feedback';
   const etapes=['a','b','c'], k=etapes.indexOf(q.etape);
   let h='<div class="py-cell">'+pynCoursHTML()
-    +'<p class="py-label">a) Le programme</p>'+pynProgHTML([pynLigneInput(q)])
+    +pynEtapeHTML(q, 'a', pynProgHTML([pynLigneInput(q)])
     +'<div class="py-runrow">'+(k>0?'':'<button class="btn btn-primary" id="pynRunA" type="button" onclick="pynExecuterA()">▶ Exécuter le programme</button>')
     +'<span class="py-hint" id="pynHintA">'+(k>0?'Ta réponse est rangée dans la variable '+esc(S.nom)+'.':'Le programme va te poser une question : écris ta réponse dans la console, puis appuie sur Entrée.')+'</span></div>'
-    +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleA"></pre>';
+    +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleA"></pre>');
   if(k>=1){
-    h+='<p class="py-label">b) Le programme</p><pre class="py-code">'+pyColorie(pynProgB(q))+'</pre>'
+    h+=pynEtapeHTML(q, 'b', '<pre class="py-code">'+pyColorie(pynProgB(q))+'</pre>'
       +'<div class="py-runrow">'+(k>1?'':'<button class="btn btn-primary" id="pynRunB" type="button" onclick="pynExecuterB()">▶ Exécuter le programme</button>')
       +'<span class="py-hint" id="pynHintB">'+(q.bVu?'Programme exécuté : lis la console.':'La variable '+esc(S.nom)+' contient toujours ta réponse du a). Exécute ce programme, puis réponds.')+'</span></div>'
       +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleB"></pre>'
       +'<p class="py-label">Ta réponse</p>'
       +'<div class="py-phrase pyn-phrase"><span>la variable <code class="pyx-code">'+esc(S.nom)+'</code> est de type</span>'
       +'<select class="py-sel" id="pyn-type" aria-label="le type de la variable '+esc(S.nom)+'"><option value="" selected disabled>?</option>'
-      +PYN_TYPES.map(function(o){ return '<option value="'+o+'">'+o+'</option>'; }).join('')+'</select></div>';
+      +PYN_TYPES.map(function(o){ return '<option value="'+o+'">'+o+'</option>'; }).join('')+'</select></div>');
   }
   if(k>=2){
-    h+='<p class="py-label">c) Le programme à compléter</p>'
-      +pyPoucesHTML([['coup de pouce','il faut écrire : <code class="pyx-code">print ( "........." , '+esc(S.nom)+' )</code>']])
+    h+=pynEtapeHTML(q, 'c', pyPoucesHTML([['coup de pouce','il faut écrire : <code class="pyx-code">print ( "........." , '+esc(S.nom)+' )</code>']])
       +pynProgHTML([pynLigneInput(q), {html:'<input class="pyx-in" id="pyn-in" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ligne 2 du programme" placeholder="écris ici la ligne qui affiche…">'}])
       +'<div class="py-runrow"><button class="btn btn-primary" id="pynRunC" type="button" onclick="pynExecuterC()">▶ Exécuter le programme</button>'
       +'<span class="py-hint" id="pynHintC">Écris la ligne 2, puis exécute le programme : il te reposera la question.</span></div>'
-      +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleC"></pre>';
+      +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleC"></pre>');
   }
   h+='</div>';
   $('pynHost').innerHTML=h;
