@@ -28554,7 +28554,7 @@ function pourcentagePhrases(w, P){
         if(q.comb!==q.P1*q.P2/100 || q.comb<1 || q.comb>99) vus.push('global '+q.comb+' faux ou non entier');
         const en=pcpEnonce(q);
         if(/undefined|\\$\\{|\\{[a-z-]+\\}/.test(en)) vus.push('énoncé abîmé : '+en);
-        cles[q.P1+'/'+q.P2+'/'+q.ci]=1;
+        cles[q.P1+'/'+q.P2+'/'+q.ci+'/'+q.inc]=1;
       });
       if(Object.keys(cles).length!==test.questions.length) vus.push('deux questions identiques dans la séance');
     }
@@ -28605,7 +28605,31 @@ function pourcentagePhrases(w, P){
     if(/\\bbad\\b/.test(cls('pcpD2')) || /\\bbad\\b/.test(cls('pcpS3'))) vus.push('une case laissée vide rougit à la vérification');
     if(!/\\bok\\b/.test(cls('pcpD1'))) vus.push('soutien : la case juste pcpD1 n\\'est pas bleue quand une voisine est vide');
     currentMode='train';
-    return vus.slice(0,4).join(' | ');
+    /* LA PHRASE À CASE EST TIRÉE : parfois la 3e phrase DONNE le global, et une
+       petite flèche manque (Turquet, octobre 2026, comme le 4.1.13) */
+    [[1,'30'],[2,'20']].forEach(function(t){
+      const inc=t[0], bon=t[1], id='pcpS'+inc, nom='forme inc='+inc+' : ';
+      const Qi=Object.assign({},Q,{inc:inc});
+      poser(Qi);
+      const ph=document.querySelectorAll('#pcpHost .pcp-phrase');
+      if(ph.length!==3){ vus.push(nom+ph.length+' phrase(s)'); return; }
+      if(!ph[inc-1].querySelector('#'+id) || ph[inc-1].classList.contains('pcp-grise')) vus.push(nom+'la phrase '+inc+' devrait porter la case, sans être grise');
+      if(ph[2].querySelector('math-field') || !ph[2].classList.contains('pcp-grise') || !/\\b6 %/.test(ph[2].textContent.replace(/\\u00a0/g,' '))) vus.push(nom+'la 3e phrase devrait être grise et donner « 6 % »');
+      if(ph[inc===1?1:0].querySelector('math-field')) vus.push(nom+'l\\'autre petite flèche porte une case dans sa phrase');
+      if(document.getElementById('pcpS3')) vus.push(nom+'la case pcpS3 existe encore');
+      if(document.querySelectorAll('#pcpHost math-field').length!==6) vus.push(nom+'pas six cases');
+      const remplir=function(val){ poser(Qi); setv('pcpD1','0,3'); setv('pcpD2','0,2'); setv('pcpG1','0,3'); setv('pcpG2','0,2'); setv('pcpG','0,06'); if(val!=='') setv(id,val); checkPcpAnswer(); };
+      remplir('6');
+      if(!/\\bbad\\b/.test(cls(id)) || test.score!==0) vus.push(nom+'« 6 » (le global recopié) ne rougit pas');
+      remplir(bon);
+      if(test.score!==1 || !/\\bok\\b/.test(cls(id))) vus.push(nom+'la copie juste ne vaut pas le point');
+      remplir('');
+      if(/\\bbad\\b/.test(cls(id))) vus.push(nom+'la case vide rougit');
+    });
+    const incVus={}; for(let i=0;i<400;i++){ const g=genPcp(); incVus[g.inc]=(incVus[g.inc]||0)+1; }
+    if(!incVus[1]||!incVus[2]||!incVus[3]) vus.push('le tirage ne sort pas les trois phrases à case : '+JSON.stringify(incVus));
+    else if(incVus[3]<120||incVus[3]>280) vus.push('le global n\\'est pas inconnu une fois sur deux : '+JSON.stringify(incVus));
+    return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
 

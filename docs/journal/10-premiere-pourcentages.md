@@ -3755,6 +3755,17 @@ rouge), et aucune alternative quand le tout est la classe. `APP_VERSION` 242.
 
 ---
 
+**La phrase à case est tirée — parfois le global est donné** (octobre 2026,
+`APP_VERSION` 259). « Fais pareil » après le 4.1.13 (la demande disait
+« 4.1.12 », mais le 4.1.12 ne donne aucun pourcentage dans ses phrases — et
+donne déjà parfois le global dans son schéma : Turquet a confirmé le 4.1.11).
+`genPcp` range `q.inc` (3 une fois sur deux ; 1 ou 2 sinon). Les deux phrases
+données sont grises, la phrase à case (`pcpS1`, `pcpS2` ou `pcpS3`) ne l'est
+pas ; l'ordre reste 1-2-3. Correction par division quand une petite flèche
+manquait, rappel et consignes mis à jour. Contrôle (`pourcentagePhrases`) :
+formes 1 et 2 épinglées, les trois formes sur 400 tirages ; la clé de
+distinction du premier contrôle inclut désormais `inc`.
+
 ## {schema-evolution} — le schéma du 4.5.4 à coefficient donné (Seconde, 4.5.6, septembre 2026)
 
 **D'où il vient.** Une image du schéma de {synthese-evolutions} et une
