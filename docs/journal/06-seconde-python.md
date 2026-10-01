@@ -3072,3 +3072,54 @@ copies justes et quinze fausses chacune avec son mot, le dialogue joué au
 clavier, les copies juste, fausse et vide, le soutien qui ne révèle rien, et
 les modèles comparés à un vrai CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+**Deux nombres à virgule, et leur MOYENNE — l'exercice 8 du carnet.**
+{python-input-moyenne} (Seconde, 6.3.5, demande de Turquet, octobre 2026 :
+« en seconde dans le sous-thème input, créer l'exercice correspondant à
+l'image ») est la fiche « Exercice 8 » : un programme qui demande une 1ère
+note sous la forme d'un nombre à virgule, puis une 2ème, calcule leur moyenne
+et l'affiche — avec les TROIS coups de pouce du carnet, repliés
+(`note_1 = float(input("......... ? "))`, `moyenne = ( note_1 + note_2 )/2`,
+`print ("la moyenne est de :", .... )`). Il ferme le sous-thème 6.3, ajouté
+en dernier : rien n'est renuméroté. Le contrôle du 6.3.4, qui exigeait d'être
+le DERNIER du sous-thème, exige désormais d'être le QUATRIÈME.
+
+**Ce qu'il ajoute au 6.3.4** : `float(…)` au lieu de `int(…)`, deux questions
+au lieu d'une, et les parenthèses du calcul. L'énoncé du carnet ne nomme pas
+les variables — ses coups de pouce si : l'énoncé de l'écran les nomme donc
+dans ses puces (`note_1`, `note_2`, `moyenne`), comme le 6.3.4 nommait
+`naissance` et `age`, puisque le juge les exige.
+
+**Le juge** (`pmyDiag`) exécute la copie sous DEUX PAIRES de réponses
+décimales que l'élève ne connaît pas. Décimales exprès : un `int(input(…))`
+y échoue toujours (« int ne lit que les nombres ENTIERS »), et le contrôle
+exige qu'aucune réponse du juge ne soit entière. Ce sont des multiples de 1/8 :
+leur moyenne est EXACTE en binaire, si bien que `(a + b) / 2`,
+`a / 2 + b / 2` et `(a + b) * 0.5` donnent le même nombre, à la page comme
+dans CPython. Nommés : le float oublié (« TOUJOURS un texte »), `int` au lieu
+de `float`, `note_1 + note_2 / 2` (la valeur `a + b/2` est reconnue : « Sans
+parenthèses, Python divise d'abord note_2 par 2 »), la somme non divisée, la
+moyenne écrite à la main que la SECONDE paire trahit, le nom entre
+guillemets, une réponse affichée au lieu de la moyenne, le calcul fait dans
+le print sans variable, une, puis trois questions. La ligne affichée passe
+par `piaLigneOk` (texte, valeur, texte — le second texte est vide sur la
+fiche).
+
+**La console** est celle du 6.3.2 (la case à la suite de la question, Entrée
+qui rejoue), avec un pavé `decimal` sur tablette. Une seule chose en plus :
+`12,5` tapé dans la console fait échouer `float()`, et la console le NOMME
+(« la virgule d'un nombre s'écrit avec un POINT ») — c'est la faute qu'un
+élève fera la première fois.
+
+**La séance** : la fiche épinglée en tête, puis deux situations tirées par
+`distinctes()` (températures matin et soir, temps de deux courses, tailles,
+prix dans deux magasins), jusqu'à cinq avec le réglage « Questions ». Pas de
+correction au fil de la frappe (`soutienEnDirect.sans`). Banc jsdom
+(`pythonInputMoyenne`) : la place, la fiche et le tirage (300 séances), le
+juge sur quatre copies justes et dix-neuf fausses chacune avec son mot, le
+dialogue joué au clavier (la virgule nommée, puis les deux réponses), les
+copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
+comparés à un vrai CPython. Pas de section propre au banc navigateur : la
+visite universelle (section 9) l'ouvre dans les deux modes.

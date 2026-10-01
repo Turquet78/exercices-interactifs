@@ -4160,6 +4160,7 @@ function exercices(suite){
     pythonInputReponse(w, P);
     pythonInput(w, P);
     pythonInputCalcul(w, P);
+    pythonInputMoyenne(w, P);
     pythonTexteProche(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
@@ -23199,11 +23200,11 @@ function pythonInputCalcul(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ' derrière les trois autres, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est le quatrième du sous-thème 6.3 « Input », numéroté ' + NUM + ' derrière les trois autres, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
-    else if(st.ids[st.ids.length-1]!=="${ID}") vus.push("il n’est pas le dernier du sous-thème : "+st.ids.join(","));
+    else if(st.ids[3]!=="${ID}") vus.push("il n’est pas le quatrième du sous-thème : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3") vus.push("les trois autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -23360,6 +23361,197 @@ function pythonInputCalcul(w, P){
   const ref = pythonExecuter(cmd, liste.map(([src, n]) => 'def input(q=""):\n    return ' + JSON.stringify(n) + '\n' + src));
   const ecarts = [];
   liste.forEach(([src, n, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + n + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-input-moyenne} (Seconde, 6.3.5) : l'exercice 8 du carnet — deux
+   notes demandées avec float(input(…)), leur moyenne, puis l'affichage. Le
+   contrôle tient la place au menu (il ferme le 6.3, rien d'autre ne bouge),
+   la fiche épinglée et le tirage, le juge sur des copies justes et fausses —
+   chacune avec le mot qui la nomme, dont le int au lieu de float, les
+   parenthèses oubliées et la somme non divisée —, le dialogue de la console
+   (deux questions, et la virgule tapée au lieu du point), la copie juste,
+   fausse et vide, le soutien qui explique sans révéler, puis compare à un
+   vrai CPython ce que les modèles affichent. */
+function pythonInputMoyenne(w, P){
+  const nom = '{python-input-moyenne} : demander deux nombres à virgule, calculer leur moyenne, l’afficher';
+  if(!P.pythonInputMoyenne){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la moyenne'); return; }
+  const ID = P.pythonInputMoyenne.exercice, NB = P.pythonInputMoyenne.nb, NUM = P.pythonInputMoyenne.numero;
+  const present = evaluer(w, "typeof startPMY==='function' && typeof pmyDiag==='function' && typeof pmyBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPMY / pmyDiag / pmyBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ' derrière les quatre autres, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
+    else if(st.ids[st.ids.length-1]!=="${ID}") vus.push("il n’est pas le dernier du sous-thème : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3"||TEST_NUM["python-input-calcul"]!=="6.3.4") vus.push("les quatre autres ont bougé");
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (note_1, note_2, moyenne, « la moyenne est de : »), puis des situations distinctes ; le modèle de chacune passe au juge, chaque réponse du juge est décimale, et chaque situation sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pmyBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=pmySit(qs[0]);
+      if(S0.a!=="note_1"||S0.b!=="note_2"||S0.m!=="moyenne"||S0.t1!=="la moyenne est de :"||S0.t2!==""){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois la même situation : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PMY_SITUATIONS.forEach(function(S, i){
+      const d=pmyDiag(pmyModele({s:i}),{s:i});
+      if(!d.ok||d.ecart) vus.push("le modèle de la situation "+i+" : "+(d.dits||[]).join(" ")+(d.ecart||""));
+      if(pmyMoy(S.ex[0])===pmyMoy(S.ex[1])) vus.push("les deux paires du juge donnent la même moyenne en "+i);
+      S.ex.forEach(function(p){ p.forEach(function(v){ if(v.indexOf(".")<0) vus.push("réponse entière "+v+" en "+i+" : un int(input) passerait"); }); });
+    });
+    if(Object.keys(vues).length!==PMY_SITUATIONS.length) vus.push("des situations ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (espaces, texte presque bon, guillemets simples, calcul écrit autrement) et nomme chaque défaut — int au lieu de float, float oublié, parenthèses oubliées, somme non divisée, moyenne écrite à la main, nom entre guillemets, réponse affichée au lieu de la moyenne, moyenne non rangée, input muet, autre variable, une seule question, trois questions, deux lignes, autre texte, rien d’affiché, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const i1="note_1 = float(input("+Q+"1ère note ? "+Q+"))", i2="note_2 = float(input("+Q+"2ème note ? "+Q+"))", c1="moyenne = (note_1 + note_2) / 2";
+    const ii=i1+NL+i2;
+    const pr=function(args){ return "print("+args+")"; };
+    const bon=pr(Q+"la moyenne est de :"+Q+", moyenne");
+    const justes=[ii+NL+c1+NL+bon,
+                  ii+NL+"moyenne = (note_2+note_1)/2"+NL+pr(A+"la moyenne est de:"+A+", moyenne"),
+                  ii+NL+"moyenne = note_1 / 2 + note_2 / 2"+NL+pr(Q+"La moyenne est de :"+Q+", moyenne"),
+                  ii+NL+NL+"# le calcul"+NL+"moyenne = (note_1 + note_2) * 0.5"+NL+pr(Q+"la moyenne est de : "+Q+" + str(moyenne)")];
+    justes.forEach(function(p){ const d=pmyDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      ["note_1 = int(input("+Q+"?"+Q+"))"+NL+i2+NL+c1+NL+bon, /float\\(input/],
+      ["note_1 = input("+Q+"?"+Q+")"+NL+"note_2 = input("+Q+"?"+Q+")"+NL+c1+NL+bon, /TOUJOURS un texte/],
+      [ii+NL+"moyenne = note_1 + note_2 / 2"+NL+bon, /parenthèses/],
+      [ii+NL+"moyenne = note_1 + note_2"+NL+bon, /SOMME/],
+      [ii+NL+"moyenne = 13.875"+NL+bon, /toujours 13.875/],
+      [ii+NL+c1+NL+pr(Q+"la moyenne est de : 13.875"+Q), /même nombre/],
+      [ii+NL+c1+NL+pr(Q+"la moyenne est de :"+Q+", "+Q+"moyenne"+Q), /SANS guillemets/],
+      [ii+NL+c1+NL+pr(Q+"la moyenne est de :"+Q+", note_1"), /réponses tapées/],
+      [ii+NL+pr(Q+"la moyenne est de :"+Q+", (note_1 + note_2) / 2"), /variable moyenne/],
+      [ii+NL+"moyenne = (note_1 - note_2) / 2"+NL+bon, /Vérifie ton calcul/],
+      ["note_1 = float(input())"+NL+i2+NL+c1+NL+bon, /pas de question/],
+      ["a = float(input("+Q+"?"+Q+"))"+NL+i2+NL+"moyenne = (a + note_2) / 2"+NL+bon, /variable note_1/],
+      [i1+NL+"moyenne = note_1"+NL+bon, /qu’une question/],
+      [ii+NL+"z = input("+Q+"?"+Q+")"+NL+c1+NL+bon, /plus de deux questions/],
+      [ii+NL+c1+NL+pr(Q+"la moyenne est de :"+Q)+NL+pr("moyenne"), /2 lignes/],
+      [ii+NL+c1+NL+pr(Q+"Bonjour"+Q+", moyenne"), /la moyenne est de/],
+      [ii+NL+c1, /n’affiche rien/],
+      [ii+NL+bon+NL+c1, /AVANT le print/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pmyDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, le dialogue, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : l’énoncé à quatre puces nomme les trois variables, trois coups de pouce repliés, « Exécuter » pose les DEUX questions dans la console, une virgule tapée y est nommée, et Entrée affiche la moyenne ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPMY();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pmyInstr");
+    if(!en||!en.classList.contains("mp-instr")||en.querySelectorAll("li").length!==4||["note_1","note_2","moyenne","virgule"].some(function(m){ return en.textContent.indexOf(m)<0; })) vus.push("l’énoncé : "+(en&&en.textContent));
+    const pouces=document.querySelectorAll("#pmyHost details.pyd-pouce");
+    if(pouces.length!==3) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); });
+    const ta=document.getElementById("pmy-prog"), cons=document.getElementById("pmyConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value="note_1 = float(input("+Q+"Note 1 ? "+Q+"))"+NL+"note_2 = float(input("+Q+"Note 2 ? "+Q+"))"+NL+"moyenne = (note_1 + note_2) / 2"+NL+"print("+Q+"la moyenne est de :"+Q+", moyenne)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    const repondre=function(v){ const r=document.getElementById("pmy-rep"); if(!r||!cons.contains(r)){ vus.push("la console ne demande pas la réponse "+v); return false; } r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); return true; };
+    pmyExecuter();
+    if(cons.textContent.indexOf("Note 1 ? ")<0) vus.push("la 1ère question n’est pas écrite dans la console");
+    if(repondre("12,5") && !(cons.classList.contains("py-err") && /POINT/.test(cons.textContent))) vus.push("la virgule tapée n’est pas nommée : "+JSON.stringify(cons.textContent));
+    pmyExecuter();
+    if(repondre("12.5")){
+      if(cons.textContent.indexOf("Note 2 ? ")<0) vus.push("la 2ème question n’est pas posée");
+      if(repondre("15")){
+        if(document.getElementById("pmy-rep")) vus.push("la case reste après la dernière réponse");
+        if(cons.textContent.split(NL).pop()!=="la moyenne est de : 13.75") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+      }
+    }
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPMY();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("pmyNext")) vus.push("pas de « Question suivante »");
+    nextPMY();
+    if(test.idx!==1||document.getElementById("pmy-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPMY();
+    let ta=document.getElementById("pmy-prog");
+    ta.value="note_1 = int(input("+Q+"? "+Q+"))"+NL+"note_2 = int(input("+Q+"? "+Q+"))"+NL+"moyenne = (note_1 + note_2) / 2"+NL+"print("+Q+"la moyenne est de :"+Q+", moyenne)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPMY();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pmyModele .sol");
+    if(!mod||mod.textContent!==pmyModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("pmyConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPMY(); ta=document.getElementById("pmy-prog");
+    checkPMY();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pmyModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPMY(); ta=document.getElementById("pmy-prog");
+    checkPMY();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="note_1 = float(input("+Q+"? "+Q+"))"+NL+"note_2 = float(input("+Q+"? "+Q+"))"+NL+"moyenne = note_1 + note_2 / 2"+NL+"print("+Q+"la moyenne est de :"+Q+", moyenne)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPMY();
+    const fb=document.getElementById("pmyFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/parenthèses/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pmyModele .sol")||fb.indexOf("float(input("+Q+"Quelle")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPmy(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ----
+     input est remplacé, côté CPython, par une fonction qui rend les réponses
+     l'une après l'autre sans écrire la question. */
+  const nomPy = 'ce que les modèles de {python-input-moyenne} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PMY_SITUATIONS.forEach(function(S, i){ S.ex.forEach(function(p){
+      const src=pmyModele({s:i}), r=pyRun(src,p.slice());
+      res.push([src, p, r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_R = iter(' + JSON.stringify(p) + ')\ndef input(q=""):\n    return next(_R)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
