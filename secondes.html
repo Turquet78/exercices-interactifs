@@ -565,7 +565,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pii,#scr-pia,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pii,#scr-pia,#scr-pmy,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -4287,6 +4287,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : DEMANDER DEUX NOMBRES À VIRGULE, CALCULER LEUR MOYENNE (PYTHON, INPUT) -->
+  <section class="screen" id="scr-pmy">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPMY"></span><span class="q-idx" id="pmyIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="pmyLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <div class="mp-instr pyi-instr" id="pmyInstr"></div>
+      <div class="mp-stage"><div style="width:100%" id="pmyHost"></div></div>
+      <div class="mp-feedback" id="pmyFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pmyActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pmyValidate" onclick="checkPMY()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : AFFICHER UN TEXTE SUIVI D'UNE VARIABLE (PYTHON, COMPLÉTER UN PROGRAMME) -->
   <section class="screen" id="scr-pyx">
     <div class="test-top">
@@ -5135,7 +5151,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=262;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=263;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5859,6 +5875,7 @@ const TESTS={
   'python-placer-variables': { name:'Placer les variables dans un print', icon:'\ud83d\udccd', desc:'Le programme est \u00e9crit en entier, print compris\u00a0: seuls les noms des variables manquent. Place chaque variable \u00e0 sa place en lisant le texte qui la pr\u00e9c\u00e8de, ex\u00e9cute le programme et relis la phrase qu\u2019il \u00e9crit \u2014 deux variables \u00e9chang\u00e9es ne provoquent aucune erreur, mais la phrase ne veut plus rien dire.', start:()=>startPYV() },
   'python-input': { name:'Demander deux r\u00e9ponses avec input', icon:'\u2753', desc:'\u00c9cris un programme qui pose deux questions avec input, range chaque r\u00e9ponse dans sa variable, puis affiche un texte suivi des deux r\u00e9ponses. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPYI() },
   'python-input-calcul': { name:'Demander un nombre, puis calculer avec', icon:'\u2753', desc:'\u00c9cris un programme qui demande un nombre entier avec int(input(\u2026)), calcule avec, range le r\u00e9sultat dans une variable, puis l\u2019affiche dans une phrase. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPIA() },
+  'python-input-moyenne': { name:'Demander deux nombres \u00e0 virgule, calculer leur moyenne', icon:'\u2753', desc:'\u00c9cris un programme qui demande deux nombres \u00e0 virgule avec float(input(\u2026)), calcule leur moyenne, la range dans une variable, puis l\u2019affiche. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPMY() },
   'python-input-reponse': { name:'Demander une r\u00e9ponse avec input', icon:'\u2753', desc:'Le programme pose une question et ATTEND ta r\u00e9ponse\u00a0: ex\u00e9cute-le et r\u00e9ponds avec la touche Entr\u00e9e, regarde le type de ce que input a rang\u00e9 dans la variable, puis compl\u00e8te le programme pour qu\u2019il affiche ta r\u00e9ponse dans une phrase.', start:()=>startPYN() },
   'python-print': { name:'\u00c9cris ton premier print', icon:'\u2328\ufe0f', desc:'Le cours explique print et le texte entre guillemets. Puis \u00e0 toi\u00a0: \u00e9cris un programme qui affiche \u00ab\u00a0je suis en seconde\u00a0\u00bb, ex\u00e9cute-le autant de fois que tu veux, et fais-le v\u00e9rifier. En soutien, la page te dit ce qui ne va pas dans ton programme.', start:()=>startPYP() },
   'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
@@ -5950,7 +5967,7 @@ const THEMES=[
   { num:6, nom:'Algorithmique et Python', sous:[
       { num:1, nom:'Print et variable',   ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre'] },
       { num:2, nom:'Variable et calcul',  ids:['python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-pas-a-pas-multiplication','python-echange-par-lettres'] },
-      { num:3, nom:'Input',               ids:['python-input-reponse','python-input','python-input-int','python-input-calcul','python-input-float'] }
+      { num:3, nom:'Input',               ids:['python-input-reponse','python-input','python-input-int','python-input-calcul','python-input-float','python-input-moyenne'] }
   ] },
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
@@ -6686,6 +6703,7 @@ function conseilPaire(){
   else if(test.kind==='pdc' && q) b=ctxPdc(q);
   else if(test.kind==='pii' && q) b=ctxPii(q);
   else if(test.kind==='pia' && q) b=ctxPia(q);
+  else if(test.kind==='pmy' && q) b=ctxPmy(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
@@ -7044,6 +7062,7 @@ const QIA_SUGG={
   pev:["Pourquoi a-t-on besoin d’une troisième case c pour échanger a et b ?","Que se passerait-il si on écrivait a = b puis b = a, sans passer par c ?","Comment expliquer avec mes mots ce qui arrive aux cases a et b à la fin du programme ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
   ppm:["Pourquoi la case l peut-elle changer de valeur deux fois dans le même programme ?","Comment deviner la valeur finale d’une case sans exécuter le programme à la main ?","Le résultat peut être négatif : comment le savoir avant de calculer ?","À quoi sert d’exécuter un programme ligne par ligne après avoir deviné ?"],
   pel:["Pourquoi ne peut-on pas juste écrire k = l puis l = k ?","À quoi sert la troisième case mémoire ?","Comment savoir si mon programme a vraiment échangé les deux valeurs ?","Existe-t-il une autre façon d’écrire les trois lignes qui marche aussi ?"],
+  pmy:["Pourquoi faut-il écrire float(…) autour de input ?","Pourquoi faut-il des parenthèses dans le calcul de la moyenne ?","Pourquoi ma note 12,5 provoque-t-elle une erreur ?","Comment afficher un texte suivi d’une variable ?"],
   pia:["Pourquoi faut-il écrire int(…) autour de input ?","Comment calculer avec la réponse de l’utilisateur ?","Pourquoi ranger le résultat dans une variable avant de l’afficher ?","Comment afficher un texte, puis une variable, puis un autre texte ?"],
   pii:["À quoi sert input ?","Pourquoi faut-il écrire int(…) autour de input ?","Quel est le type d’une réponse tapée sans int ?","Comment afficher un texte, puis une variable, puis un autre texte ?"],
   pdc:["À quoi sert de ranger un résultat dans une variable ?","Pourquoi le calcul doit-il se servir de la variable a ?","Que se passe-t-il si je change la valeur de a ?","Comment afficher un texte suivi d’une valeur ?"],
@@ -7926,6 +7945,13 @@ const RAP_PYP=`<b>Écrire un print</b><br>
 /* Demander un nombre, puis calculer avec : la règle de l'écran, en rappel.
    Les nombres vivent dans des balises code (le contrôle des numéros en dur
    ne lit que la prose). */
+/* Demander deux nombres à virgule, calculer leur moyenne : la règle de
+   l'écran, en rappel. Les nombres vivent dans des balises code. */
+const RAP_PMY=`<b>Demander deux nombres à virgule, calculer leur moyenne</b><br>
+<b>① <code class="inline">variable = float(input("question"))</code></b> : input rend toujours un TEXTE ; <code class="inline">float(…)</code> en fait un nombre à virgule. <code class="inline">int(…)</code>, lui, refuse <code class="inline">12.5</code>.<br>
+<b>② La virgule s’écrit avec un POINT</b>, dans le programme comme dans la console : <code class="inline">12.5</code>, jamais <code class="inline">12,5</code>.<br>
+<b>③ La moyenne de deux nombres</b> est leur somme divisée par <code class="inline">2</code> — avec des parenthèses autour de la somme : <code class="inline">moyenne = (a + b) / 2</code>. Sans elles, Python divise d’abord <code class="inline">b</code> seul.<br>
+<b>④ Pour l’afficher</b> : <code class="inline">print("la moyenne est de :", moyenne)</code> — le nom de la variable SANS guillemets.`;
 const RAP_PIA=`<b>Demander un nombre, puis calculer avec</b><br>
 <b>① <code class="inline">variable = int(input("question"))</code></b> : input rend toujours un TEXTE ; <code class="inline">int(…)</code> en fait un nombre entier.<br>
 <b>② On calcule avec la variable</b>, et on range le résultat dans une autre : <code class="inline">double = n * 2</code>. Sans int, Python refuse de calculer avec un texte.<br>
@@ -8129,7 +8155,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}\\)`;
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pii:RAP_PII, pia:RAP_PIA, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pii:RAP_PII, pia:RAP_PIA, pmy:RAP_PMY, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
 const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
@@ -8239,7 +8265,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['python-input-int','python-input-calcul','python-input-float','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['python-input-int','python-input-calcul','python-input-float','python-input-moyenne','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-input-reponse'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -8677,7 +8703,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pii:['pii',renderPII], pia:['pia',renderPIA], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pii:['pii',renderPII], pia:['pia',renderPIA], pmy:['pmy',renderPMY], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -8805,7 +8831,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pii','pia','pap','pvm','ppc','ppd','ppm','pev','pel'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pii','pia','pmy','pap','pvm','ppc','ppd','ppm','pev','pel'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -29724,6 +29750,319 @@ function ctxPia(q){
   return {nombre:'', contexte:c};
 }
 
+/* ---------- Exercice : demander deux nombres à virgule, calculer leur moyenne (Python) ----------
+   Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème input,
+   créer l'exercice correspondant à l'image » — l'exercice 8 du carnet :
+   « Réaliser un programme dans la cellule suivante qui demande une 1ère note
+   sous la forme d'un nombre à virgule, puis une 2ème note, qui calcule la
+   moyenne de ces deux notes et qui affiche le résultat », avec ses TROIS
+   coups de pouce repliés (note_1 = float(input(…)), moyenne = (note_1 +
+   note_2)/2, print("la moyenne est de :", ….)). Il ferme le sous-thème 6.3,
+   en 6.3.6, derrière {python-input-float} : ajouté en dernier, il ne
+   renumérote rien.
+
+   CE QU'IL AJOUTE AU 6.3.4 : float(…) au lieu de int(…) — un nombre à
+   virgule —, DEUX questions au lieu d'une, et les parenthèses du calcul. Le
+   juge exécute la copie avec deux PAIRES de réponses décimales que l'élève ne
+   connaît pas : un int(input(…)) y échoue toujours (int ne lit pas 12.5), et
+   le juge le nomme ; « note_1 + note_2 / 2 » rend une valeur que le juge
+   reconnaît et nomme (les parenthèses) ; la somme sans division aussi. Les
+   réponses sont des multiples de 1/8 : leur moyenne est EXACTE en binaire,
+   la page et CPython écrivent le même nombre, quelle que soit l'écriture du
+   calcul. La ligne affichée se lit par piaLigneOk (texte, valeur, texte).
+
+   LA SÉANCE : la fiche du carnet ÉPINGLÉE en tête, puis des situations tirées
+   par distinctes() — même geste (deux nombres à virgule, leur moyenne),
+   autre grandeur. Le reste est le 6.3.4 : une case (pts-case), pas de
+   correction au fil de la frappe (déclaré dans tests/profils.js), la console
+   qui pose les questions et Entrée qui rejoue. */
+const PMY_NB=3;
+const PMY_SITUATIONS=[
+  {a:'note_1', b:'note_2', m:'moyenne', da:'une 1ère note', db:'une 2ème note', quoi:'ces deux notes',
+   ia:'Quelle est ta 1ère note ? ', ib:'Quelle est ta 2ème note ? ', t1:'la moyenne est de :', t2:'', ex:[['12.5','15.25'],['8.75','13.5']]},
+  {a:'temp_matin', b:'temp_soir', m:'moyenne', da:'la température du matin', db:'la température du soir', quoi:'ces deux températures',
+   ia:'Température du matin ? ', ib:'Température du soir ? ', t1:'La température moyenne est de', t2:'degrés.', ex:[['4.5','11.25'],['12.25','17.5']]},
+  {a:'temps_1', b:'temps_2', m:'moyenne', da:'le temps de la 1ère course, en secondes', db:'le temps de la 2ème course', quoi:'ces deux temps',
+   ia:'Temps de la 1ère course ? ', ib:'Temps de la 2ème course ? ', t1:'Le temps moyen est de', t2:'secondes.', ex:[['13.5','14.25'],['9.75','10.5']]},
+  {a:'taille_1', b:'taille_2', m:'moyenne', da:'la taille d’une 1ère personne, en mètres', db:'la taille d’une 2ème personne', quoi:'ces deux tailles',
+   ia:'Taille de la 1ère personne ? ', ib:'Taille de la 2ème personne ? ', t1:'La taille moyenne est de', t2:'m.', ex:[['1.5','1.75'],['1.625','1.875']]},
+  {a:'prix_1', b:'prix_2', m:'moyenne', da:'le prix d’un 1er magasin, en euros', db:'le prix d’un 2ème magasin', quoi:'ces deux prix',
+   ia:'Prix dans le 1er magasin ? ', ib:'Prix dans le 2ème magasin ? ', t1:'Le prix moyen est de', t2:'euros.', ex:[['2.5','3.75'],['19.25','22.5']]}
+];
+function pmyBuildQuestions(){
+  const n=Math.min(dmNbQuestions(PMY_NB), PMY_SITUATIONS.length);
+  return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PMY_SITUATIONS.length-1), prog:''}; });
+}
+function pmySit(q){ return PMY_SITUATIONS[q.s]||PMY_SITUATIONS[0]; }
+function pmyMoy(p){ return (Number(p[0])+Number(p[1]))/2; }
+/* Un programme qui convient — pour la correction en vert, jamais pour juger. */
+function pmyModele(q){
+  const S=pmySit(q);
+  return S.a+' = float(input("'+S.ia+'"))\n'+S.b+' = float(input("'+S.ib+'"))\n'+S.m+' = ('+S.a+' + '+S.b+') / 2\nprint("'+S.t1+'", '+S.m+(S.t2?', "'+S.t2+'"':'')+')';
+}
+function pmyCases(q){ return [{id:'pmy-prog'}]; }
+
+/* ---- 1. Le juge ---- */
+function pmyEssai(src, p){
+  try{ return {r:pyRun(src, p.slice()), err:null}; }catch(e){ return {r:null, err:e}; }
+}
+/* L'erreur de l'interpréteur, dite avec les mots d'un élève de Seconde. */
+function pmyTraduire(src, err, S){
+  const msg=err.message||String(err); let m;
+  if(/int\(\) ne sait pas lire/.test(msg)) return 'int(…) ne lit que les nombres ENTIERS : une note comme 12.5 le fait échouer. Pour un nombre à virgule, c’est float(…) : '+S.a+' = float(input("…")).';
+  if(/entre un texte et un nombre/.test(msg)) return 'Python ne sait pas calculer avec un texte : ce que rend input est TOUJOURS un texte. Écris '+S.a+' = float(input("…")) pour que '+S.a+' soit un nombre à virgule — et de même pour '+S.b+'.';
+  if((m=msg.match(/NameError : la variable « ([^»]+) »/))){
+    if(m[1]===S.m) return 'Python lit la variable '+S.m+' alors qu’elle n’existe pas encore : il faut d’abord la calculer, '+S.m+' = …, AVANT le print qui l’affiche.';
+    if(m[1]===S.a||m[1]===S.b) return 'Python lit la variable '+m[1]+' alors qu’elle n’existe pas encore : il faut d’abord écrire '+m[1]+' = float(input("…")), AVANT de calculer avec.';
+  }
+  if((m=msg.match(/fonction « ([^»]+) »/)) && m[1].toLowerCase()==='float' && m[1]!=='float') return '« '+m[1]+' » : float s’écrit tout en minuscules.';
+  return pyiTraduire(src, err, {v1:S.a, v2:S.b});
+}
+/* pmyDiag rend { ok, vide, ecart, ligne, dits } : ok quand les deux
+   exécutions rangent et affichent ce qu'on demande, sinon les défauts NOMMÉS. */
+function pmyDiag(src, q){
+  src=String(src||''); const S=pmySit(q);
+  if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris les deux input, puis le calcul de la moyenne, puis le print.']};
+  const essais=S.ex.map(function(p){ return pmyEssai(src, p); });
+  const a=essais[0], dits=[];
+  if(a.err){
+    if(a.err.attente) dits.push('Ton programme pose plus de deux questions : il faut exactement deux input, un pour '+S.a+' et un pour '+S.b+'.');
+    else dits.push(pmyTraduire(src, a.err, S));
+    return {ok:false, vide:false, dits:dits};
+  }
+  const lus=a.r.entrees, env=a.r.env;
+  if(!lus.length) return {ok:false, vide:false, dits:['Ton programme ne pose aucune question : c’est input("…") qui demande une réponse à l’utilisateur — il en faut deux.']};
+  if(lus.length<2) return {ok:false, vide:false, dits:['Ton programme ne pose qu’une question : il en faut deux, une pour '+S.a+' et une pour '+S.b+'.']};
+  [[0,S.a],[1,S.b]].forEach(function(c){
+    const e=lus[c[0]], nom=c[1];
+    if(e.var!==nom){ dits.push('La '+(c[0]?'2ème':'1ère')+' réponse doit être rangée dans la variable '+nom+' : écris '+nom+' = float(input("…")).'); return; }
+    const x=env[nom];
+    if(!x || x.t==='str') dits.push('La variable '+nom+' contient la réponse sous forme de TEXTE : il faut float(…) autour de input pour qu’elle soit un nombre à virgule, '+nom+' = float(input("…")).');
+    else if(x.t!=='float') dits.push('La variable '+nom+' doit être un nombre à VIRGULE : c’est float(…) qu’il faut autour de input.');
+    else if(x.v!==Number(S.ex[0][c[0]])) dits.push('La variable '+nom+' est modifiée après l’input : elle doit garder la réponse de l’utilisateur.');
+    if(!e.invite.trim()) dits.push('L’input de '+nom+' n’a pas de question entre ses parenthèses : l’utilisateur ne saura pas quoi répondre. Écris la question entre guillemets, input("…").');
+  });
+  if(dits.length) return {ok:false, vide:false, dits:dits};
+  /* la moyenne, dans SA variable, juste sous les deux paires de réponses */
+  if(!Object.prototype.hasOwnProperty.call(env, S.m))
+    return {ok:false, vide:false, dits:['La moyenne doit être rangée dans la variable '+S.m+' : écris '+S.m+' = … sur une ligne, avant le print.']};
+  const vals=essais.map(function(y){ return (!y.err && y.r.env[S.m])?y.r.env[S.m]:null; });
+  const nb=function(y){ return !!y && (y.t==='int'||y.t==='float'); };
+  const juste=function(k){ const y=vals[k]; return nb(y) && y.v===pmyMoy(S.ex[k]); };
+  if(!juste(0) || !juste(1)){
+    const y0=vals[0], y1=vals[1], p=S.ex[0], A=Number(p[0]), B=Number(p[1]);
+    if(y0 && y0.t==='str') dits.push(S.m+' contient un texte : c’est un CALCUL avec '+S.a+' et '+S.b+' qu’il faut ranger dedans, sans guillemets.');
+    else if(y0 && y1 && y0.t===y1.t && y0.v===y1.v) dits.push(S.m+' vaut toujours '+pyRep(y0)+', quelles que soient les réponses : le calcul doit se servir des variables '+S.a+' et '+S.b+', pas d’un nombre écrit à la main.');
+    else if(nb(y0) && y0.v===A+B/2) dits.push('Sans parenthèses, Python divise d’abord '+S.b+' par 2, puis ajoute '+S.a+' : il faut des parenthèses autour de la somme, ('+S.a+' + '+S.b+') / 2.');
+    else if(nb(y0) && y0.v===A+B) dits.push(S.m+' contient la SOMME des deux nombres : pour une moyenne de deux nombres, il faut encore diviser cette somme par 2.');
+    else {
+      const k=juste(0)?1:0, y=vals[k];
+      dits.push('Si l’on répond '+S.ex[k][0]+' puis '+S.ex[k][1]+', '+S.m+' vaut '+(y?pyRep(y):'…')+' au lieu de '+pyFloatRepr(pmyMoy(S.ex[k]))+' : ce n’est pas la moyenne de '+S.quoi+'. Vérifie ton calcul.');
+    }
+    return {ok:false, vide:false, dits:dits};
+  }
+  /* reste ce qui s'affiche */
+  const aff=function(y){ return y.r.prints.map(function(p){ return p.vals.map(pyRep).join(' '); }); };
+  const ligneJuste=function(k){ const y=essais[k]; if(y.err) return false; const l=aff(y); return l.length===1 && piaLigneOk(l[0], S, pyRep(vals[k])); };
+  if(ligneJuste(0) && ligneJuste(1)){
+    const net=function(s){ return String(s).trim().replace(/\s+/g,' '); };
+    const l=net(aff(a)[0]), att=net(S.t1+' '+pyRep(vals[0])+' '+S.t2);
+    return {ok:true, vide:false, ligne:l, ecart:pyEcart(l, att), dits:[]};
+  }
+  const lignes=aff(a);
+  if(!lignes.length) dits.push('Ton programme calcule bien '+S.m+', mais n’affiche rien : il faut un print à la fin.');
+  else if(lignes.length>1) dits.push('Ton programme affiche '+lignes.length+' lignes ; il doit en afficher une seule : le texte, puis '+S.m+(S.t2?', puis le second texte':'')+', dans le MÊME print, séparés par des virgules.');
+  else {
+    const L=lignes[0].trim(), args=a.r.prints[0].args;
+    const nomme=function(v){ return args.some(function(z){ return z.k==='nom' && z.v===v; }); };
+    if(args.some(function(z){ return z.k==='str' && z.v.trim()===S.m; })) dits.push('"'+S.m+'" entre guillemets affiche le MOT « '+S.m+' », pas le résultat : écris le nom de la variable SANS guillemets.');
+    else if((nomme(S.a)||nomme(S.b)) && !nomme(S.m)) dits.push('Ton programme affiche une des réponses tapées au lieu de '+S.m+', le résultat du calcul.');
+    else if(ligneJuste(0)) dits.push('Ton programme affiche toujours le même nombre, quelles que soient les réponses : il faut afficher la VARIABLE '+S.m+', pas un nombre écrit à la main.');
+    else dits.push('Ton programme affiche « '+L+' » : il doit afficher le texte « '+S.t1+' », puis la valeur de '+S.m+(S.t2?', puis le texte « '+S.t2+' »':'')+'.');
+  }
+  return {ok:false, vide:false, dits:dits};
+}
+
+/* ---- 2. L'écran ---- */
+/* L'énoncé du carnet, à puces — écrit par le rendu, depuis la question. */
+function pmyEnonceHTML(q){
+  const S=pmySit(q);
+  return '<b>Réalise</b> un programme dans la cellule ci-dessous qui&nbsp;:'
+    +'<ul class="pyd-puces">'
+    +'<li>demande <b>'+esc(S.da)+'</b> sous la forme d’un nombre à virgule, et la range dans la variable <code>'+esc(S.a)+'</code>&nbsp;;</li>'
+    +'<li>puis qui demande <b>'+esc(S.db)+'</b>, également sous la forme d’un nombre à virgule, et la range dans la variable <code>'+esc(S.b)+'</code>&nbsp;;</li>'
+    +'<li>qui calcule la moyenne de '+esc(S.quoi)+' et la range dans la variable <code>'+esc(S.m)+'</code>&nbsp;;</li>'
+    +'<li>qui affiche le résultat&nbsp;: <code>"'+esc(S.t1)+'"</code>, '+esc(S.m)+(S.t2?', <code>"'+esc(S.t2)+'"</code>':'')+'.</li>'
+    +'</ul>';
+}
+/* Le cours, en un cadre : float(input(…)), le point, et les parenthèses. */
+function pmyCoursHTML(){
+  return '<div class="pyp-regle pyi-cours"><b><code>float(input("…"))</code> demande un nombre à virgule</b> : input rend toujours un TEXTE, float(…) en fait un nombre à virgule — int(…), lui, refuserait <code>12.5</code>. Dans la console, la virgule se tape avec un POINT.'
+    +'<span class="pyp-ex"><code>nombre = float(input("Un nombre ? "))</code> puis <code>moitie = nombre / 2</code> — si l’on répond <code>7.5</code>, la variable <code>moitie</code> contient <code>3.75</code>. Et pour diviser une SOMME, des parenthèses&nbsp;: <code>(a + b) / 2</code>.</span></div>';
+}
+/* Les trois coups de pouce du carnet. */
+function pmyPoucesHTML(q){
+  const S=pmySit(q);
+  return pyPoucesHTML([
+    ['coup de pouce 1', 'On pourra demander la 1ère valeur comme ceci&nbsp;: <code>'+esc(S.a)+' = float(input("......... ? "))</code>'],
+    ['coup de pouce 2', 'Pour calculer la moyenne, on pourra écrire&nbsp;: <code>'+esc(S.m+' = ('+S.a+' + '+S.b+') / 2')+'</code>'],
+    ['coup de pouce 3', 'Pour l’affichage, on pourra écrire&nbsp;: <code>'+esc('print("'+S.t1+'", .... '+(S.t2?', "'+S.t2+'"':'')+')')+'</code>']
+  ]);
+}
+
+/* ---- 3. Cycle de vie ---- */
+async function startPMY(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pmyBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pmy', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+pmyCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pmy'); renderPMY();
+}
+let _pmySaveTimer=null, _pmyRep=null;
+function renderPMY(){
+  const q=test.questions[test.idx]; test.locked=false; _pmyRep=null;
+  $('pmyIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPMY').innerHTML=modeTagHTML();
+  $('pmyLiveScore').textContent=test.score;
+  $('pmyInstr').innerHTML=pmyEnonceHTML(q);
+  $('pmyFeedback').textContent=''; $('pmyFeedback').className='mp-feedback';
+  $('pmyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pmyValidate" onclick="checkPMY()">Vérifier</button>';
+  $('pmyHost').innerHTML=
+    '<div class="py-cell">'
+    +pmyCoursHTML()
+    +pmyPoucesHTML(q)
+    +'<p class="py-label">Ton programme</p>'
+    +'<textarea id="pmy-prog" class="pyp-edit pts-case" rows="5" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="pmyRun" type="button" onclick="pmyExecuter()">▶ Exécuter mon programme</button>'
+    +'<span class="py-hint" id="pmyRunHint">Exécute-le : quand il pose une question, réponds dans la console et appuie sur Entrée.</span></div>'
+    +'<p class="py-label">La console</p>'
+    +'<pre class="py-console" id="pmyConsole"></pre>'
+    +'<div id="pmyModele"></div>'
+    +'</div>';
+  const ta=$('pmy-prog'); ta.value=q.prog||'';
+  ta.addEventListener('input', pmySaisie);
+}
+function pmySaisie(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], ta=$('pmy-prog'); if(!q||!ta) return;
+  q.prog=ta.value;
+  ta.classList.remove('bad');
+  if(_pmyRep){ _pmyRep=null; const c=$('pmyConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','py-err'); } }
+  clearTimeout(_pmySaveTimer); _pmySaveTimer=setTimeout(autoSave,1000);
+}
+/* Une erreur de la console, et la virgule tapée au lieu du point NOMMÉE :
+   c'est la faute qu'on fait en tapant 12,5 dans la console. */
+function pmyErreurConsole(err){
+  const msg=err.message||String(err);
+  let s=(err.sortie||'')+'Erreur : '+msg;
+  if(/float\(\) ne sait pas lire « [^»]*,/.test(msg)) s+='\n→ En Python, la virgule d’un nombre s’écrit avec un POINT : tape 12.5, pas 12,5.';
+  return s;
+}
+/* Le dialogue du 6.3.2 : on exécute avec les réponses déjà données ; si le
+   programme en attend une de plus, la console montre sa question et une case. */
+function pmyPas(){
+  const ta=$('pmy-prog'), c=$('pmyConsole'); if(!ta||!c) return;
+  const src=ta.value;
+  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
+  if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _pmyRep=null; return; }
+  let r=null, err=null;
+  try{ r=pyRun(src, _pmyRep); }catch(e){ err=e; }
+  const h=$('pmyRunHint');
+  if(err && err.attente){
+    c.textContent=err.sortie;
+    const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
+    const inp=document.createElement('input');
+    inp.type='text'; inp.id='pmy-rep'; inp.className='pyi-rep'; inp.autocomplete='off';
+    inp.setAttribute('autocapitalize','off'); inp.setAttribute('autocorrect','off'); inp.spellcheck=false;
+    inp.setAttribute('inputmode','decimal');
+    inp.setAttribute('aria-label','ta réponse à la question du programme');
+    inp.addEventListener('keydown', function(e){
+      if(e.key!=='Enter') return;
+      e.preventDefault();
+      if(!_pmyRep) return;
+      _pmyRep.push(inp.value); pmyPas();
+    });
+    c.appendChild(inp);
+    if(h) h.textContent='Le programme attend ta réponse : écris-la dans la console (avec un point pour la virgule), puis appuie sur Entrée.';
+    try{ inp.focus(); }catch(e){}
+    return;
+  }
+  _pmyRep=null;
+  if(err){ c.textContent=pmyErreurConsole(err); c.classList.add('py-err'); }
+  else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
+  if(h) h.textContent='Programme exécuté. Regarde la console, corrige si besoin, puis « Vérifier ».';
+}
+function pmyExecuter(){
+  if(test.locked) return;
+  const ta=$('pmy-prog'); if(!ta) return;
+  test.questions[test.idx].prog=ta.value;
+  _pmyRep=[]; pmyPas();
+}
+/* À la vérification, la console montre l'exécution que le juge a lue. */
+function pmyAfficherJuge(src, q){
+  const c=$('pmyConsole'); if(!c) return;
+  _pmyRep=null;
+  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
+  if(!String(src).trim()){ c.textContent='(programme vide : rien à exécuter)'; return; }
+  const S=pmySit(q), x=pmyEssai(src, S.ex[0]);
+  const tete='(la page a répondu « '+S.ex[0][0]+' » puis « '+S.ex[0][1]+' »)\n';
+  if(x.err){ c.textContent=tete+(x.err.attente?x.err.sortie+x.err.invite+'… (le programme attend encore une réponse)':pmyErreurConsole(x.err)); if(!x.err.attente) c.classList.add('py-err'); }
+  else c.textContent=tete+(x.r.out?x.r.out.replace(/\n$/,''):'(le programme n’affiche rien)');
+}
+function checkPMY(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], ta=$('pmy-prog'); if(!q||!ta) return;
+  const src=ta.value; q.prog=src;
+  const d=pmyDiag(src, q);
+  pmyAfficherJuge(src, q);
+  ta.classList.remove('ok','bad','sol');
+  const fb=$('pmyFeedback');
+  if(!d.ok && isSoutien()){
+    if(!d.vide) ta.classList.add('bad');        /* une zone vide ne rougit jamais */
+    fb.textContent=(d.vide?'':'Pas encore. ')+d.dits.join(' ')+' Corrige ton programme, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('pmyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pmyValidate" onclick="checkPMY()">Revérifier</button>';
+    setTimeout(function(){ ta.focus(); },40);
+    return;
+  }
+  test.locked=true; ta.readOnly=true;
+  if(d.ok){
+    ta.classList.add('ok'); test.score+=1;
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+(d.ecart
+      ? ' C’est accepté : ton programme affiche « '+d.ligne+' » — '+d.ecart+'.'
+      : ' Ton programme demande les deux nombres, calcule leur moyenne et l’affiche.');
+    fb.className='mp-feedback good';
+  } else if(d.vide){
+    ta.value=pmyModele(q); ta.classList.add('sol');
+    fb.textContent='Tu n’avais rien écrit — la correction a écrit en vert un programme qui convient.'; fb.className='mp-feedback bad';
+  } else {
+    ta.classList.add('bad');
+    fb.textContent=d.dits.join(' ')+' Un programme qui convient est écrit en vert en dessous.'; fb.className='mp-feedback bad';
+    $('pmyModele').innerHTML='<p class="py-label">Un programme qui convient</p><pre class="py-code pyp-modele sol">'+esc(pmyModele(q))+'</pre>';
+  }
+  $('pmyLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:d.ok, q:pmySit(q).a+', '+pmySit(q).b+' → '+pmySit(q).m, answer:pmyModele(q).replace(/\n+/g,' ⏎ '), given:src.trim()?src.replace(/\n+/g,' ⏎ '):'(vide)'});
+  const b=$('pmyRun'); if(b) b.disabled=true;
+  const last=test.idx===test.questions.length-1;
+  $('pmyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pmyNext" onclick="nextPMY()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pmyNext'); if(nb) nb.focus();
+}
+function nextPMY(){ if(test.idx<test.questions.length-1){ test.idx++; renderPMY(); autoSave(); } else finishTest(); }
+function ctxPmy(q){
+  const S=pmySit(q), ta=$('pmy-prog'), prog=(ta&&ta.value)||q.prog||'';
+  let d=null; try{ d=pmyDiag(prog, q); }catch(e){}
+  let c='L’élève doit ÉCRIRE un programme Python qui demande '+S.da+' avec float(input(…)) et la range (un nombre à virgule) dans la variable '+S.a+', puis '+S.db+' dans la variable '+S.b+', qui calcule la moyenne de '+S.quoi+' et la range dans la variable '+S.m+', puis qui affiche le texte « '+S.t1+' » suivi de '+S.m+(S.t2?' et du texte « '+S.t2+' »':'')+'. Il peut exécuter son programme : la console lui pose les questions et il y répond (la virgule se tape avec un point).\n';
+  c+='Ce que l’élève a écrit :\n'+(prog.trim()?prog:'(rien pour l’instant)')+'\n';
+  if(d) c+=d.ok?'Son programme convient. ':('Ce que la page a relevé : '+d.dits.join(' ')+' ');
+  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) :\n'+pmyModele(q)+'\nAide-le à trouver lui-même : rappelle les règles en jeu — variable = float(input("question")) pour obtenir un nombre à virgule, la moyenne de deux nombres est leur somme divisée par 2 avec des parenthèses autour de la somme, puis print("texte", variable) avec le nom de la variable SANS guillemets — sans jamais écrire le programme complet.';
+  return {nombre:'', contexte:c};
+}
+
 /* ---------- Exercice : afficher un texte suivi d'une variable (Python) ----------
    Demande de Turquet (septembre 2026) : « un exercice Python où on explique
    comment afficher du texte suivi d'une variable ; on donne un programme qui
@@ -43092,7 +43431,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPII','renderPIA','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPII','renderPIA','renderPMY','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
