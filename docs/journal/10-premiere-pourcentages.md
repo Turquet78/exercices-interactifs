@@ -3756,7 +3756,7 @@ rouge), et aucune alternative quand le tout est la classe. `APP_VERSION` 242.
 ---
 
 **La phrase à case est tirée — parfois le global est donné** (octobre 2026,
-`APP_VERSION` 259). « Fais pareil » après le 4.1.13 (la demande disait
+`APP_VERSION` 262). « Fais pareil » après le 4.1.13 (la demande disait
 « 4.1.12 », mais le 4.1.12 ne donne aucun pourcentage dans ses phrases — et
 donne déjà parfois le global dans son schéma : Turquet a confirmé le 4.1.11).
 `genPcp` range `q.inc` (3 une fois sur deux ; 1 ou 2 sinon). Les deux phrases
@@ -3849,7 +3849,7 @@ ancienne, sans `ordre`, se rouvre dans l'ancien ordre. Le contrôle
 ordres sur 300 tirages.
 
 **La phrase à case est tirée — parfois le global est donné** (octobre 2026,
-`APP_VERSION` 258). Demande : « les % donnés dans les phrases sous le schéma
+`APP_VERSION` 262). Demande : « les % donnés dans les phrases sous le schéma
 ne concernent pas forcément les petites flèches ; il faut aussi donner de
 temps en temps le % de la grande flèche ». `genPsv` range `q.inc`, le
 pourcentage inconnu : 3 (le global, une fois sur deux — l'exercice d'avant),

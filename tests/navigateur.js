@@ -11355,6 +11355,205 @@ async function parcours(page, N){
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
+    /* ===== 6 tricies unvicies. {python-input-int} : la console demande, l'élève tape et appuie sur Entrée =====
+       Le banc jsdom tient la fiche, l'interpréteur qui a appris input, le
+       tirage, le juge cas par cas, les portes, la case vide, le soutien et
+       CPython. Ce qu'il ne voit pas : la question écrite DANS la console et la
+       case qui s'ouvre AU BOUT de sa ligne, à la taille de la console — la
+       réponse fait partie de ce que Python affiche —, la réponse TAPÉE au
+       clavier et envoyée par la vraie touche Entrée, le type CHOISI pour de
+       vrai dans la liste, la ligne tapée, l'encre RENDUE des verdicts, et la
+       page qui ne déborde pas sur un téléphone. */
+    titre('6 tricies unvicies. {python-input-int} : LA CONSOLE DEMANDE, L\'ÉLÈVE TAPE ET APPUIE SUR ENTRÉE');
+    if(!P.pythonInputInt){
+      ignorer('la console de input pose la question, la réponse se tape et part sur Entrée', 'ce niveau n\'a pas l\'exercice input');
+    } else {
+      const PI = P.pythonInputInt, FI = PI.fiche;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), PI.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
+      const ecran0 = await s.page.evaluate(() => ({ def: !!document.querySelector('#piiHost .pii-def'),
+        b: !!document.getElementById('piiB'), val: document.getElementById('piiValidate').disabled,
+        code: getComputedStyle(document.querySelector('#piiA .pyx-l1')).fontFamily }));
+      verifier('la question 1 montre la définition et le seul a) — le b), le c) et « Vérifier » attendent',
+        ecran0.def && !ecran0.b && ecran0.val && /mono|Menlo|Consolas|Courier/i.test(ecran0.code), JSON.stringify(ecran0));
+      await s.page.click('#piiRunA');
+      await s.page.waitForTimeout(250);
+      const cons = await s.page.evaluate(() => {
+        const c = document.getElementById('piiConsA'), i = document.getElementById('piiConsAIn');
+        if(!i) return { pasDeCase: true };
+        const r = e => e.getBoundingClientRect(), px = e => parseFloat(getComputedStyle(e).fontSize);
+        const t = c.firstChild && c.firstChild.nodeType === 3 ? c.firstChild.textContent : '';
+        return { question: t, focus: document.activeElement === i, memeTaille: Math.abs(px(i) - px(c)) < 0.6,
+                 memeLigne: Math.abs((r(i).top + r(i).bottom) / 2 - (r(c).top + 10 + px(c) * 0.775)) < px(c), dedans: r(i).right <= r(c).right + 1 };
+      });
+      verifier('« Exécuter » écrit la question dans la console, et la case de la réponse s\'ouvre AU BOUT de sa ligne, à la taille de la console, le curseur dedans',
+        !cons.pasDeCase && cons.question === FI.invite && cons.focus && cons.memeTaille && cons.dedans, JSON.stringify(cons));
+      await s.page.keyboard.type('15.5');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(200);
+      const err = await s.page.evaluate(() => ({ err: document.getElementById('piiConsA').classList.contains('pyx-err'),
+        couleur: getComputedStyle(document.getElementById('piiConsA')).color,
+        texte: document.getElementById('piiConsA').textContent, b: !!document.getElementById('piiB') }));
+      verifier('une réponse que int ne sait pas lire (15.5) reçoit l\'erreur de Python, en rouge, et le b) reste fermé',
+        !!err && err.err && dom(err.couleur) === 'rouge' && /ValueError/.test(err.texte) && !err.b, JSON.stringify(err));
+      await s.page.click('#piiRunA');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type(FI.reponse);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const b = await s.page.evaluate(() => ({ console: document.getElementById('piiConsA').textContent, b: !!document.getElementById('piiB'),
+        runB: document.getElementById('piiRunB') && document.getElementById('piiRunB').disabled }));
+      verifier('la réponse tapée et envoyée par la vraie touche Entrée reste dans la console après la question, et ouvre le b) — dont « Exécuter » attend un type',
+        b.console === FI.invite + FI.reponse && b.b && b.runB === true, JSON.stringify(b));
+      await s.page.selectOption('#piiType', 'int');
+      await s.page.click('#piiRunB');
+      await s.page.waitForTimeout(250);
+      const c = await s.page.evaluate(() => ({ console: document.getElementById('piiConsB').textContent, fige: document.getElementById('piiType').disabled,
+        c: !!document.getElementById('piiC') }));
+      verifier('le type choisi, « Exécuter » le FIGE et Python répond ' + JSON.stringify(FI.sortieB) + ' ; le c) s\'ouvre',
+        c.console === FI.sortieB && c.fige && c.c, JSON.stringify(c));
+      await s.page.click('#piiLigne');
+      await s.page.keyboard.type(FI.ligneC);
+      await s.page.click('#piiRunC');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type('16');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      const cc = await s.page.evaluate(() => ({ console: document.getElementById('piiConsC').textContent, val: document.getElementById('piiValidate').disabled }));
+      verifier('le c) repose la question, et la ligne tapée affiche la phrase avec la NOUVELLE réponse ; « Vérifier » s\'ouvre',
+        cc.console === FI.invite + '16\n' + FI.sortieC.replace(FI.reponse, '16') && !cc.val, JSON.stringify(cc));
+      await s.page.click('#piiValidate');
+      await s.page.waitForTimeout(400);
+      const v = await s.page.evaluate(() => ({ sel: getComputedStyle(document.getElementById('piiType')).color,
+        ligne: getComputedStyle(document.getElementById('piiLigne')).color, score: test.score,
+        fb: document.getElementById('piiFeedback').className, suivant: !!document.getElementById('piiNext') }));
+      verifier('la copie juste : le type et la ligne s\'écrivent en BLEU, la note vaut ' + PI.cases + ', et « Question suivante » est proposée',
+        dom(v.sel) === 'bleu' && dom(v.ligne) === 'bleu' && v.score === PI.cases && v.suivant, JSON.stringify(v));
+      /* la question 2 : une ligne écrite à la main rougit, le type juste reste bleu */
+      await s.page.click('#piiNext');
+      await s.page.waitForTimeout(400);
+      const q2 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { type: piiType(q), invite: piiC(q).invite, nom: piiC(q).nom, avant: piiC(q).avant, apres: piiC(q).apres, vis: q.vis }; });
+      await s.page.click('#piiRunA');
+      await s.page.waitForTimeout(200);
+      const rep2 = q2.vis === 'texte' ? 'Léa' : '12';
+      await s.page.keyboard.type(rep2);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(250);
+      await s.page.selectOption('#piiType', q2.type);
+      await s.page.click('#piiRunB');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#piiLigne');
+      await s.page.keyboard.type('print("' + q2.avant + ' ' + rep2 + ' ' + q2.apres + '")');
+      await s.page.click('#piiRunC');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type(rep2);
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#piiValidate');
+      await s.page.waitForTimeout(400);
+      const v2 = await s.page.evaluate(() => {
+        const l = document.getElementById('piiLigne'), cor = l.nextElementSibling, r = e => e.getBoundingClientRect();
+        return { sel: getComputedStyle(document.getElementById('piiType')).color, ligne: getComputedStyle(l).color,
+                 cor: cor && cor.classList.contains('mf-cor') ? getComputedStyle(cor).color : '', dessous: !!cor && r(cor).top >= r(l).bottom - 2,
+                 fb: document.getElementById('piiFeedback').textContent, score: test.score };
+      });
+      verifier('la ligne écrite À LA MAIN (question 2, ' + q2.vis + ') rougit et le diagnostic le dit ; le type juste reste bleu ; la bonne ligne s\'écrit en VERT, SOUS la case',
+        dom(v2.sel) === 'bleu' && dom(v2.ligne) === 'rouge' && dom(v2.cor) === 'vert' && v2.dessous && /main/.test(v2.fb) && v2.score === PI.cases + 1, JSON.stringify(v2));
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const phone = await s.page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2);
+      verifier('sur un téléphone (390 px), la page de input ne déborde pas en largeur', !phone, 'scrollWidth > clientWidth');
+      verifier('l\'écran de input ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 tricies vicies semel. {python-input-reponse} : la console qui ATTEND une réponse =====
+       Le banc jsdom tient l'interpréteur (comparé à CPython), le tirage, les
+       portes, le juge et la reprise. Ce qu'il ne voit pas : la case de la
+       réponse RENDUE dans la console — à la suite de la question, sur la même
+       ligne, dans la même encre à chasse fixe et à la même taille —, la VRAIE
+       touche Entrée du clavier, la liste fermée qui refuse un vrai choix
+       avant l'exécution, l'encre bleue des deux verdicts, et la page sur un
+       téléphone. Il joue la fiche de bout en bout : a), b), c). */
+    titre('6 tricies vicies semel. {python-input-reponse} : LA CONSOLE QUI ATTEND, LA TOUCHE ENTRÉE, LES TROIS ÉTAPES');
+    if(!P.pythonInputReponse){
+      ignorer('la console qui attend une réponse', 'ce niveau n\'a pas l\'exercice sur input');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonInputReponse.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const bleu = await s.page.evaluate(() => { const p = document.createElement('i'); document.body.appendChild(p); p.style.color = 'var(--blue)'; const c = getComputedStyle(p).color; p.remove(); return c; });
+      /* a) un vrai clic sur « Exécuter », la case s'ouvre dans la console */
+      await s.page.click('#pynRunA');
+      await s.page.waitForTimeout(200);
+      const a = await s.page.evaluate(() => {
+        const c = document.getElementById('pynConsoleA'), e = document.getElementById('pynEntree');
+        if(!e) return null;
+        const rg = document.createRange(); rg.selectNodeContents(c.firstChild); const tr = rg.getBoundingClientRect(), er = e.getBoundingClientRect();
+        const cs = getComputedStyle(c), es = getComputedStyle(e);
+        return { focus: document.activeElement === e, texte: c.firstChild.nodeValue,
+                 memeLigne: Math.abs((tr.top + tr.bottom) / 2 - (er.top + er.bottom) / 2) < 8, apres: er.left >= tr.right - 2,
+                 police: es.fontFamily, policeConsole: cs.fontFamily, taille: parseFloat(es.fontSize), tailleConsole: parseFloat(cs.fontSize),
+                 visible: er.width > 60 && er.height > 16 };
+      });
+      if(!a) verifier('« Exécuter » ouvre une case de réponse dans la console', false, 'aucune case #pynEntree');
+      else {
+        verifier('la case de la réponse s\'ouvre DANS la console, à la suite de la question, sur la même ligne, et reçoit le curseur',
+          a.texte === 'comment tu t\'appelles ? ' && a.memeLigne && a.apres && a.focus && a.visible, JSON.stringify(a));
+        verifier('la case de la réponse écrit à chasse fixe, à la taille de la console qui l\'entoure',
+          a.police === a.policeConsole && /mono|menlo|consolas|courier/i.test(a.police) && Math.abs(a.taille - a.tailleConsole) < 0.5, a.police + ' ' + a.taille + ' / ' + a.tailleConsole);
+      }
+      await s.page.keyboard.type('Léa');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(250);
+      const b0 = await s.page.evaluate(() => ({ consoleA: document.getElementById('pynConsoleA').textContent,
+        instr: (document.querySelector('#pynEtapeB .pyn-titre') || {}).textContent || '', sel: !!document.getElementById('pyn-type') && document.getElementById('pyn-type').disabled }));
+      verifier('la VRAIE touche Entrée range la réponse : la console montre la question suivie de « Léa », et le b) s\'ouvre avec son énoncé en tête',
+        b0.consoleA === 'comment tu t\'appelles ? Léa' && /^✏️ b\)/.test(b0.instr) && b0.sel, JSON.stringify(b0));
+      let refuse = false;
+      try{ await s.page.selectOption('#pyn-type', 'str', { timeout: 800 }); }catch(e){ refuse = true; }
+      verifier('avant l\'exécution du b), la liste du type REFUSE un vrai choix', refuse, 'Playwright a pu choisir dans une liste qui devait être fermée');
+      await s.page.click('#pynRunB');
+      await s.page.waitForTimeout(200);
+      await s.page.selectOption('#pyn-type', 'str');
+      await s.page.click('#pynValidate');
+      await s.page.waitForTimeout(250);
+      const b1 = await s.page.evaluate(() => { const e = document.getElementById('pyn-type');
+        return { consoleB: document.getElementById('pynConsoleB').textContent, classe: e.className, encre: getComputedStyle(e).color, suite: !!document.getElementById('pynSuite') }; });
+      verifier('b) : la console affiche « Léa » puis <class \'str\'>, et le bon type choisi pour de vrai se peint en BLEU',
+        b1.consoleB === 'Léa\n<class \'str\'>' && /\bok\b/.test(b1.classe) && b1.encre === bleu && b1.suite, JSON.stringify(b1) + ' (bleu = ' + bleu + ')');
+      /* c) la ligne se TAPE, le programme repose la question, Entrée, puis Vérifier */
+      await s.page.click('#pynSuite');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#pyn-in');
+      await s.page.keyboard.type('print("je m\'appelle", nom)');
+      await s.page.click('#pynRunC');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type('Zoé');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#pynValidate');
+      await s.page.waitForTimeout(250);
+      const c1 = await s.page.evaluate(() => { const e = document.getElementById('pyn-in');
+        return { consoleC: document.getElementById('pynConsoleC').textContent, classe: e.className, encre: getComputedStyle(e).color,
+                 police: getComputedStyle(e).fontFamily, score: test.score, suivante: !!document.getElementById('pynNext') }; });
+      verifier('c) : la ligne tapée au clavier s\'exécute — la question, la réponse « Zoé », puis « je m\'appelle Zoé » —, se peint en BLEU, et la question compte ses 2 cases',
+        c1.consoleC === 'comment tu t\'appelles ? Zoé\nje m\'appelle Zoé' && /\bok\b/.test(c1.classe) && c1.encre === bleu && c1.score === 2 && c1.suivante && /mono|menlo|consolas|courier/i.test(c1.police), JSON.stringify(c1));
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const phone = await s.page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2);
+      verifier('sur un téléphone (390 px), la page ne déborde pas en largeur', !phone, 'scrollWidth > clientWidth');
+      verifier('l\'écran d\'input ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
 
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :

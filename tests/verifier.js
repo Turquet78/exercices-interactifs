@@ -1013,6 +1013,19 @@ function demarrage(suite){
   charger(CIBLE, (w, erreurs) => {
     const reelles = erreurs.filter(e => !/Not implemented/.test(e));   /* limites de jsdom, pas de l'appli */
     verifier('aucune erreur JavaScript au chargement', reelles.length === 0, reelles.join(' | '));
+    /* Une fonction déclarée deux fois au niveau global : la seconde écrase la
+       première sans une erreur (octobre 2026 : le contexte d'une aide IA
+       remplacé par celui d'un exercice voisin). Seule la colonne 0 compte —
+       les fonctions locales, indentées, ne se heurtent pas. */
+    {
+      const decl = (lire(CIBLE).match(/^(?:async )?function [A-Za-z0-9_$]+/gm) || []).map(d => d.replace(/^(?:async )?function /, ''));
+      const vus = {}, doubles = [];
+      decl.forEach(n => { if(vus[n] && doubles.indexOf(n) < 0) doubles.push(n); vus[n] = 1; });
+      const connus = P.fonctionsEnDouble || [];
+      const neufs = doubles.filter(n => connus.indexOf(n) < 0), resolus = connus.filter(n => doubles.indexOf(n) < 0);
+      verifier('aucune fonction n’est déclarée deux fois au niveau global (la seconde écraserait la première en silence)', neufs.length === 0, 'déclarée(s) deux fois : ' + neufs.join(', '));
+      verifier('la dette des fonctions en double ne contient que des doublons encore présents', resolus.length === 0, 'plus en double, à retirer de fonctionsEnDouble : ' + resolus.join(', '));
+    }
     verifier('numéro de version lisible', /^\d+$/.test(String(w.eval('APP_VERSION'))), 'APP_VERSION = ' + w.eval('APP_VERSION'));
     /* testName de la Seconde renvoyait à FRAC_INFO, qui n'existe qu'en Première :
        tout identifiant hors de TESTS — un devoir pointant un exercice retiré, une
@@ -4134,6 +4147,7 @@ function exercices(suite){
     pythonPlacerVariables(w, P);
     pythonOperations(w, P);
     pythonDoubleTripleCarre(w, P);
+    pythonInputInt(w, P);
     pythonPasAPas(w, P);
     pythonValeurCase(w, P);
     pythonPasAPasChaine(w, P);
@@ -4143,6 +4157,9 @@ function exercices(suite){
     pythonNoms(w, P);
     pythonNomVariable(w, P);
     pythonPrint(w, P);
+    pythonInputReponse(w, P);
+    pythonInput(w, P);
+    pythonInputCalcul(w, P);
     pythonTexteProche(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
@@ -22755,6 +22772,597 @@ function pythonNomVariable(w, P){
   }
 }
 
+/* {python-input-reponse} (Seconde, 6.3.1) : la fonction input, en trois étapes sur le
+   même écran — a) exécuter et répondre avec Entrée, b) exécuter print(nom) et
+   print(type(nom)) puis donner le type, c) compléter le programme pour qu'il
+   affiche « je m'appelle » suivi de la réponse (demande de Turquet, octobre
+   2026, d'après l'exercice 2 du carnet). Le contrôle tient la place au menu
+   (le sous-thème 6.3, rien d'autre ne bouge), l'interpréteur qui ATTEND une
+   réponse et la rend en texte — comparé à un vrai CPython qui lit ses
+   réponses sur l'entrée standard —, le tirage, puis le trajet d'un élève :
+   la réponse vide refusée sans rougir, la liste fermée avant l'exécution,
+   le type faux corrigé en vert, la ligne 2 jugée par la sortie, les deux
+   diagnostics propres à input (l'apostrophe entre guillemets simples, le
+   second input), le soutien qui ne verrouille rien, et la reprise. Aucun
+   accent grave ni antislash littéral dans le code évalué. */
+function pythonInputReponse(w, P){
+  const nom = '{python-input-reponse} : demander une réponse avec input, en trois étapes';
+  if(!P.pythonInputReponse){ ignorer(nom, 'ce niveau n\'a pas l\'exercice sur input'); return; }
+  const ID = P.pythonInputReponse.exercice, NB = P.pythonInputReponse.nb, NUM = P.pythonInputReponse.numero;
+  const present = evaluer(w, "typeof startPYN==='function' && typeof pyRun==='function' && typeof pynJuge==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPYN / pyRun / pynJuge introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ouvre le sous-thème 6.3 « Input », numéroté ' + NUM + ' — et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const s3=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!s3||!/input/i.test(s3.nom)||s3.ids[0]!=="${ID}") vus.push("sous-thème 6.3 : "+(s3?s3.nom+" "+s3.ids.join(","):"absent"));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input"]!=="6.3.2") vus.push("{python-input} porte "+TEST_NUM["python-input"]+" au lieu de 6.3.2");
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-echange-par-lettres"]!=="6.2.7"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. l'interpréteur : input attend, puis rend un TEXTE ---- */
+  verifierEval(w, 'pyRun et input : sans réponse le programme S’ARRÊTE sur la question ; avec elle, la console montre la question suivie de la réponse, et la variable est un texte — même « 15 »', `(function(){
+    const NL=String.fromCharCode(10), Q=String.fromCharCode(34), vus=[];
+    const src="age = input("+Q+"quel âge as-tu ? "+Q+")"+NL+"print(age)"+NL+"print(type(age))";
+    let e=null; try{ pyRun(src, []); }catch(x){ e=x; }
+    if(!e||!e.attente) vus.push("sans réponse, pyRun ne s’arrête pas : "+(e?e.message:"aucune erreur"));
+    else if(e.sortie+e.invite!=="quel âge as-tu ? ") vus.push("ce qui s’affiche avant la réponse : "+JSON.stringify(e.sortie+e.invite));
+    const r=pyRun(src,["15"]);
+    if(r.out!=="quel âge as-tu ? 15"+NL+"15"+NL+"<class 'str'>"+NL) vus.push("sortie : "+JSON.stringify(r.out));
+    if(r.env.age.t!=="str") vus.push("la réponse « 15 » est rangée comme "+r.env.age.t);
+    if(pyRun("n = int(input())"+NL+"print(n + 1)",["4"]).out!=="4"+NL+"5"+NL) vus.push("int(input()) ne se calcule pas");
+    let e2=null; try{ pyRun("x = input("+Q+"a"+Q+", "+Q+"b"+Q+")",["1"]); }catch(x){ e2=x; }
+    if(!e2||!/au plus un argument/.test(e2.message)) vus.push("input à deux arguments n’est pas refusé");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  const nomPy = '{python-input-reponse} : input comparé à un vrai CPython qui lit ses réponses sur l’entrée standard';
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    /* chaque cas : le programme, les réponses, et les questions posées dans
+       l'ordre — la console de la page ÉCRIT la réponse après la question
+       (ce qu'on voit au clavier), CPython lisant un fichier ne l'écrit pas :
+       on retire cet écho, et le reste doit être identique */
+    const cas = evaluer(w, `(function(){
+      const NL=String.fromCharCode(10), o=[];
+      PYN_SITUATIONS.forEach(function(S, i){
+        const q={s:i, rep:S.ex};
+        [S.ex, "12", "3.5", "Zoé", "  7 "].forEach(function(v){
+          o.push({src:pynLigneInput(q)+NL+pynProgB(q), ent:[v], qs:[S.question]});
+          o.push({src:pynLigneInput(q)+NL+pynTemoin(q), ent:[v], qs:[S.question]});
+        });
+      });
+      o.push({src:"a = input()"+NL+"b = input()"+NL+"print(b, a)", ent:["x","y"], qs:["",""]});
+      o.push({src:"n = int(input("+String.fromCharCode(34)+"n ? "+String.fromCharCode(34)+"))"+NL+"print(n * 2, type(n))", ent:["21"], qs:["n ? "]});
+      o.forEach(function(c){ try{ c.page=pyRun(c.src, c.ent).out; }catch(e){ c.page="ERREUR:"+e.message; } });
+      return JSON.stringify(o);
+    })()`);
+    if(!cas.ok){ verifier(nomPy, false, 'les cas n\'ont pas pu être tirés : ' + cas.erreur); }
+    else {
+      const liste = JSON.parse(cas.valeur);
+      const script = [
+        'import sys, json, io, contextlib',
+        'cas = json.load(sys.stdin)',
+        'out = []',
+        'for c in cas:',
+        '    b = io.StringIO()',
+        '    vieux = sys.stdin',
+        '    sys.stdin = io.StringIO("\\n".join(c["ent"]) + "\\n")',
+        '    try:',
+        '        with contextlib.redirect_stdout(b):',
+        '            exec(compile(c["src"], "<prog>", "exec"), {})',
+        '        out.append(b.getvalue())',
+        '    except Exception as e:',
+        '        out.append("ERREUR:" + type(e).__name__)',
+        '    sys.stdin = vieux',
+        'json.dump(out, sys.stdout)'
+      ].join('\n');
+      let cp = null;
+      try{ cp = JSON.parse(execFileSync(py, ['-c', script], { input: JSON.stringify(liste), encoding:'utf8', timeout: 120000 })); }
+      catch(e){ verifier(nomPy, false, 'CPython n\'a pas pu être lancé : ' + e.message); }
+      if(cp){
+        const ecarts = [];
+        liste.forEach((c, i) => {
+          let page = c.page;
+          c.ent.forEach((v, k) => { page = page.replace(c.qs[k] + v + '\n', c.qs[k]); });
+          if(page !== cp[i]) ecarts.push(JSON.stringify(c.src) + ' avec ' + JSON.stringify(c.ent) + ' : page ' + JSON.stringify(page) + ', CPython ' + JSON.stringify(cp[i]));
+        });
+        verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+      }
+    }
+  }
+
+  /* ---- 3. le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche en tête (nom, « comment tu t’appelles ? »), puis une réponse NOMBRE et une réponse MOT en ordre mélangé, jamais deux fois la même — et la question ne range que l’indice et ce que l’élève a fait', `(function(){
+    const vus=[], ordres={}, permis=["s","etape","rep","bVu","typ","bOk","ligne","repC"];
+    if(PYN_SITUATIONS[0].nom!=="nom"||PYN_SITUATIONS[0].texte!=="je m"+String.fromCharCode(39)+"appelle"||!/^comment tu t.appelles \\?/.test(PYN_SITUATIONS[0].question)) vus.push("la fiche n’est plus celle du carnet : "+JSON.stringify(PYN_SITUATIONS[0]));
+    for(let n=0;n<400;n++){
+      const qs=pynBuildQuestions();
+      if(qs.length!==${NB}){ vus.push(qs.length+" questions"); break; }
+      if(qs[0].s!==0){ vus.push("la fiche n’est pas en tête"); break; }
+      const s=qs.map(function(q){ return q.s; });
+      if(new Set(s).size!==s.length){ vus.push("deux fois la même situation : "+s); break; }
+      const nb=qs.slice(1).filter(function(q){ return PYN_SITUATIONS[q.s].nombre; }).length;
+      if(nb!==1){ vus.push(nb+" réponse(s) nombre après la fiche"); break; }
+      ordres[PYN_SITUATIONS[qs[1].s].nombre?"N":"M"]=1;
+      qs.forEach(function(q){ Object.keys(q).forEach(function(k){ if(permis.indexOf(k)<0) vus.push("champ « "+k+" » rangé dans la question"); }); });
+      if(vus.length) break;
+    }
+    if(!ordres.N||!ordres.M) vus.push("l’ordre nombre/mot ne varie pas");
+    return vus.slice(0,3).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le trajet en entraînement ---- */
+  verifierEval(w, 'entraînement : a) la réponse vide n’est pas envoyée et ne rougit rien ; b) la liste et « Vérifier » restent fermés avant l’exécution, le type faux rougit et « str » s’écrit en vert ; c) la ligne vide ne rougit pas, la ligne juste est comptée — la note dit 1 case sur 2', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), NL=String.fromCharCode(10);
+    currentEleve=currentEleve||{id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPYN();
+    test.questions[1]={s:1, etape:"a", rep:"", bVu:false, typ:"", bOk:null, ligne:"", repC:""};
+    test.idx=1; renderPYN();
+    if($("pynValidate")&&!$("pynValidate").disabled) vus.push("« Vérifier » est ouvert au a)");
+    pynExecuterA();
+    const e=$("pynEntree"); if(!e){ vus.push("aucune case dans la console après « Exécuter »"); return vus.join(" | "); }
+    if($("pynConsoleA").firstChild.nodeValue!=="quel âge as-tu ? "||e.parentNode!==$("pynConsoleA")) vus.push("la console montre "+JSON.stringify($("pynConsoleA").textContent));
+    e.value="   "; e.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    if(test.questions[1].etape!=="a"||!$("pynEntree")) vus.push("une réponse vide a été envoyée");
+    if(document.querySelector("#pynHost .bad")) vus.push("la réponse vide a rougi une case");
+    $("pynEntree").value="15"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    const q=test.questions[1];
+    if(q.etape!=="b"||q.rep!=="15") vus.push("après Entrée : étape "+q.etape+", réponse "+JSON.stringify(q.rep));
+    if($("pynConsoleA").textContent!=="quel âge as-tu ? 15") vus.push("console du a) : "+JSON.stringify($("pynConsoleA").textContent));
+    /* chaque étape porte SON énoncé, et le garde quand la suivante s'ouvre */
+    const tB=document.querySelector("#pynEtapeB .pyn-titre"), tA=document.querySelector("#pynEtapeA .pyn-titre");
+    if(!tB||!/^✏️ b\\)/.test(tB.textContent)||!/age/.test(tB.textContent)) vus.push("le b) n’a pas son énoncé en tête : "+(tB?tB.textContent:"aucun"));
+    if(!tA||!/^✏️ a\\)/.test(tA.textContent)||!/Entrée/.test(tA.textContent)) vus.push("le a) a perdu son énoncé au b) : "+(tA?tA.textContent:"aucun"));
+    if(/^\\s*[abc]\\)/.test($("pynInstr").textContent)||!/age/.test($("pynInstr").textContent)) vus.push("l’énoncé du haut doit dire l’exercice entier : "+$("pynInstr").textContent);
+    const sel=$("pyn-type");
+    if(!sel||!sel.disabled) vus.push("la liste du type est ouverte avant l’exécution");
+    if(!$("pynValidate")||!$("pynValidate").disabled) vus.push("« Vérifier » est ouvert avant l’exécution du b)");
+    pynExecuterB();
+    if($("pynConsoleB").textContent!=="15"+NL+"<class "+A+"str"+A+">") vus.push("console du b) : "+JSON.stringify($("pynConsoleB").textContent));
+    if(sel.disabled) vus.push("la liste reste fermée après l’exécution");
+    checkPYN();
+    if(sel.classList.contains("bad")) vus.push("le type VIDE a rougi");
+    sel.value="int"; sel.dispatchEvent(new Event("change")); checkPYN();
+    if(!sel.classList.contains("bad")) vus.push("le type faux n’a pas rougi");
+    const cor=document.querySelector("#pynHost .pyn-cor");
+    if(!cor||cor.textContent!=="str") vus.push("la correction verte du type manque");
+    if(!/15/.test($("pynFeedback").textContent)||!/texte/.test($("pynFeedback").textContent)) vus.push("le message ne dit pas que « 15 » est un texte : "+$("pynFeedback").textContent);
+    pynVersC();
+    if(!$("pyn-type").classList.contains("bad")||!document.querySelector("#pynHost .pyn-cor")) vus.push("le verdict du b) disparaît au c)");
+    const tC=document.querySelector("#pynEtapeC .pyn-titre");
+    if(!tC||!/^✏️ c\\)/.test(tC.textContent)||!/mon âge est/.test(tC.textContent)) vus.push("l’énoncé du c) : "+(tC?tC.textContent:"aucun"));
+    if(document.querySelectorAll("#pynHost .pyn-etape .pyn-titre").length!==3) vus.push("au c), les trois étapes ne gardent pas leurs trois énoncés");
+    const inp=$("pyn-in");
+    pynExecuterC(); $("pynEntree").value="16"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    checkPYN();
+    if(inp.classList.contains("bad")||test.locked) vus.push("la ligne VIDE a été jugée");
+    inp.value="print("+Q+"mon âge est"+Q+", age)"; pynModifieeC();
+    if(!$("pynValidate").disabled) vus.push("« Vérifier » s’ouvre sur une ligne pas encore exécutée");
+    pynExecuterC(); $("pynEntree").value="16"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    if($("pynConsoleC").textContent!=="quel âge as-tu ? 16"+NL+"mon âge est 16") vus.push("console du c) : "+JSON.stringify($("pynConsoleC").textContent));
+    checkPYN();
+    if(!inp.classList.contains("ok")) vus.push("la ligne juste n’est pas en bleu : "+$("pynFeedback").textContent);
+    if(test.score!==1) vus.push("score "+test.score);
+    const a=test.answers[test.answers.length-1];
+    if(!a||a.justes!==1||a.cases!==2||a.correct) vus.push("la réponse enregistrée : "+JSON.stringify(a));
+    if(!$("pynNext")) vus.push("pas de « Question suivante »");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le juge du c) et ses diagnostics ---- */
+  verifierEval(w, 'le c) est jugé par la SORTIE : toute écriture qui affiche « je m’appelle » puis la réponse passe ; l’apostrophe entre guillemets simples, le second input, la réponse recopiée, le nom entre guillemets sont refusés chacun pour SA raison', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0};
+    const T="je m"+A+"appelle";
+    [ "print("+Q+T+Q+", nom)", "print("+Q+T+Q+",nom)", "print( "+Q+T+" "+Q+" , nom )", "print("+Q+T+" "+Q+" + nom)" ].forEach(function(l){
+      const j=pynJuge(q,l,"Léa"); if(!j.ok) vus.push("refusé à tort : "+l+" — "+j.diag); });
+    const faux=[["print("+A+T+A+", nom)", /apostrophe/], ["print("+Q+T+Q+", input())", /NOUVELLE question/],
+      ["print("+Q+T+" Léa"+Q+")", /recopi/], ["print("+Q+T+Q+", "+Q+"nom"+Q+")", /TEXTE/], ["print("+Q+T+Q+" nom)", /virgule/],
+      ["print(nom, "+Q+T+Q+")", /inversé/], ["Print("+Q+T+Q+", nom)", /minuscules/], ["print("+Q+T+Q+", Nom)", /majuscules/]];
+    faux.forEach(function(f){ const j=pynJuge(q,f[0],"Léa"); if(j.ok) vus.push("accepté à tort : "+f[0]); else if(!f[1].test(j.diag)) vus.push(f[0]+" : "+j.diag); });
+    if(!pynJuge(q,"","Léa").vide) vus.push("la ligne vide n’est pas reconnue vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. le soutien, puis la reprise ---- */
+  verifierEval(w, 'soutien : le type faux rougit sans verrouiller ni montrer la réponse, se corrige ; la ligne fausse dit OÙ est l’erreur sans écrire la ligne juste ; puis la reprise d’une pause rend l’écran du c) tel qu’il était', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    currentMode="soutien"; startPYN();
+    pynExecuterA(); $("pynEntree").value="Léa"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    pynExecuterB(); const sel=$("pyn-type");
+    sel.value="float"; checkPYN();
+    if(!sel.classList.contains("bad")||sel.disabled||document.querySelector("#pynHost .pyn-cor")) vus.push("le type faux en soutien : verrouillé ou corrigé");
+    if(/str/.test($("pynFeedback").textContent)) vus.push("le soutien écrit la réponse : "+$("pynFeedback").textContent);
+    sel.value="str"; sel.dispatchEvent(new Event("change")); checkPYN();
+    if(!sel.classList.contains("ok")||test.score!==1) vus.push("le type corrigé n’est pas compté");
+    pynVersC();
+    const inp=$("pyn-in"); inp.value="print("+A+"je m"+A+"appelle"+A+", nom)"; pynModifieeC();
+    pynExecuterC(); $("pynEntree").value="Léa"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    checkPYN();
+    if(!inp.classList.contains("bad")||test.locked||inp.disabled) vus.push("la ligne fausse en soutien : verrouillée ou pas rouge");
+    if(!/apostrophe/.test($("pynFeedback").textContent)) vus.push("le soutien ne dit pas où est l’erreur : "+$("pynFeedback").textContent);
+    if($("pynFeedback").textContent.indexOf("appelle"+Q+", nom)")>=0||document.querySelector("#pynHost .mf-cor")) vus.push("le soutien écrit la ligne juste");
+    /* la reprise : les questions reviennent du JSON */
+    const sauve=JSON.parse(JSON.stringify(test.questions));
+    test.questions=sauve; test.locked=false;
+    if(!afficherEcranDe("pyn")) vus.push("afficherEcranDe ne connaît pas pyn");
+    if(!$("pyn-in")||$("pyn-in").value!==sauve[0].ligne) vus.push("la ligne 2 est perdue à la reprise");
+    if(!$("pyn-type")||$("pyn-type").value!=="str"||!$("pyn-type").classList.contains("ok")) vus.push("le b) n’est plus juste à la reprise");
+    if($("pynConsoleA").textContent!=="comment tu t"+A+"appelles ? Léa") vus.push("la console du a) à la reprise : "+JSON.stringify($("pynConsoleA").textContent));
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. les branchements ---- */
+  verifierEval(w, 'branchements : écran, rendu enveloppé, rappel de cours, questions à l’IA, contexte du modèle, et aucun bouton des tables', `(function(){
+    const vus=[];
+    if(!$("scr-pyn")) vus.push("pas d’écran");
+    if(!RAPPELS.pyn||!/input/.test(RAPPELS.pyn)||!/str/.test(RAPPELS.pyn)) vus.push("rappel de cours");
+    if(!QIA_SUGG.pyn||QIA_SUGG.pyn.length<3) vus.push("questions à l’IA");
+    const c=ctxPyn({s:0,etape:"c",rep:"Léa",bVu:true,typ:"str",bOk:true,ligne:"",repC:""});
+    if(!c||!/SECR/.test(c.contexte)) vus.push("contexte du modèle");
+    return vus.join(" | ");
+  })()`, v => v === '');
+}
+
+/* {python-input} (Seconde, 6.3.1 à l'origine, 6.3.2 depuis {python-input-reponse}) : l'exercice 3 du carnet — un programme qui
+   DEMANDE deux réponses avec input, les range dans deux variables nommées,
+   puis affiche un texte suivi des deux réponses (demande de Turquet,
+   septembre 2026). Le contrôle épingle la fiche (animal, couleur, « vous
+   aimez les »), tient la place au menu (le sous-thème 6.3 « Input », rien
+   d'autre ne bouge), l'interpréteur (input refusé sans réponses, comme avant
+   ; avec, la question puis la réponse dans la sortie, et l'ATTENTE quand la
+   liste est épuisée), le juge sur des copies justes variées (ordre des
+   questions libre, espaces, presque bon) et sur des copies fausses — chacune
+   avec le mot qui la nomme, dont la copie qui affiche des mots écrits à la
+   main —, le dialogue d'« Exécuter » (la case de réponse DANS la console,
+   Entrée qui continue), la copie juste, fausse et vide en entraînement, et
+   le soutien qui explique sans révéler. Aucun accent grave ni antislash
+   littéral dans le code évalué. */
+function pythonInput(w, P){
+  const nom = '{python-input} : demander deux réponses avec input, puis les afficher';
+  if(!P.pythonInput){ ignorer(nom, 'ce niveau n\'a pas l\'exercice input'); return; }
+  const ID = P.pythonInput.exercice, NB = P.pythonInput.nb;
+  const present = evaluer(w, "typeof startPYI==='function' && typeof pyiDiag==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPYI / pyiDiag / pyRun introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il est dans le sous-thème 6.3 « Input » du thème 6, numéroté 6.3.2 — derrière {python-input-reponse}, l’exercice 2 du carnet — et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input : "+(st?st.nom:"aucun"));
+    if(TEST_NUM["${ID}"]!=="6.3.2") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. l'interpréteur ---- */
+  verifierEval(w, 'l’interpréteur : input refusé en le nommant quand on ne donne pas de réponses (aucun autre exercice ne change), la question puis la réponse dans la sortie quand on en donne, l’ATTENTE quand elles sont épuisées, et la variable qui a reçu chaque réponse', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    const prog="a = input("+Q+"Q ? "+Q+")"+NL+"print(a)";
+    try{ pyRun(prog); vus.push("input accepté sans réponses"); }catch(e){ if(!/input/.test(e.message)) vus.push("refus muet : "+e.message); }
+    const r=pyRun(prog,["oui"]);
+    if(r.out!=="Q ? oui"+NL+"oui"+NL) vus.push("sortie "+JSON.stringify(r.out));
+    if(!r.entrees.length||r.entrees[0].var!=="a"||r.entrees[0].val!=="oui"||r.entrees[0].invite!=="Q ? ") vus.push("trace "+JSON.stringify(r.entrees));
+    try{ pyRun(prog,[]); vus.push("aucune attente quand les réponses manquent"); }catch(e){ if(!e.attente||e.invite!=="Q ? ") vus.push("attente mal formée : "+e.message); }
+    try{ pyRun(prog); }catch(e){}
+    try{ pyRun("a = input("+Q+"x"+Q+")"); vus.push("une exécution avec réponses a laissé input actif pour la suivante"); }catch(e){}
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (animal, couleur, « vous aimez les »), puis des paires distinctes ; le modèle de chacune passe au juge (200 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<200&&vus.length<4;s++){
+      const qs=pyiBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const P0=pyiPaire(qs[0]);
+      if(P0.v1!=="animal"||P0.v2!=="couleur"||P0.texte!=="vous aimez les"){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(P0)); break; }
+      const ps=qs.map(function(q){ return q.p; });
+      if(new Set(ps).size!==ps.length){ vus.push("deux fois la même paire : "+ps.join(",")); break; }
+      qs.forEach(function(q){ vues[q.p]=1; if(q.prog!=="") vus.push("programme non vide au départ"); if(!pyiDiag(pyiModele(q),q).ok) vus.push("le modèle de la paire "+q.p+" est refusé"); });
+    }
+    if(Object.keys(vues).length<4) vus.push("le tirage ne varie pas : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (ordre des questions libre, espaces, presque bon) et nomme chaque défaut — mots écrits à la main, nom entre guillemets, désordre, input muet, majuscule, print avant input, autres variables, une seule question, une de trop, deux lignes, autre texte, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={p:0,prog:""};
+    const ia="animal = input("+Q+"Ton animal ? "+Q+")", ic="couleur = input("+Q+"Ta couleur ? "+Q+")";
+    const pr=function(args){ return "print("+args+")"; };
+    const justes=[ia+NL+ic+NL+pr(Q+"vous aimez les "+Q+", animal , couleur"),
+                  ic+NL+ia+NL+pr(Q+"vous aimez les"+Q+", animal, couleur"),
+                  ia+NL+ic+NL+pr(Q+"vous aimez le"+Q+", animal, couleur"),
+                  ia+NL+NL+ic+NL+"# affichage"+NL+pr(Q+"vous aimez les "+Q+" + animal + "+Q+" "+Q+" + couleur")];
+    justes.forEach(function(p){ const d=pyiDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      [ia+NL+ic+NL+pr(Q+"vous aimez les chats noirs"+Q), /mêmes mots/],
+      [ia+NL+ic+NL+pr(Q+"vous aimez les"+Q+", "+Q+"animal"+Q+", couleur"), /SANS guillemets/],
+      [ia+NL+ic+NL+pr(Q+"vous aimez les"+Q+", couleur, animal"), /désordre/],
+      ["animal = input()"+NL+ic+NL+pr(Q+"vous aimez les"+Q+", animal, couleur"), /pas de question/],
+      ["animal = Input("+Q+"a"+Q+")", /minuscules/],
+      [pr(Q+"vous aimez les"+Q+", animal, couleur")+NL+ia+NL+ic, /AVANT le print/],
+      ["a = input("+Q+"a"+Q+")"+NL+"b = input("+Q+"b"+Q+")"+NL+pr(Q+"vous aimez les"+Q+", a, b"), /variable animal/],
+      [ia+NL+pr(Q+"vous aimez les"+Q+", animal"), /qu’une question/],
+      [ia+NL+ic+NL+"z = input("+Q+"?"+Q+")"+NL+pr(Q+"vous aimez les"+Q+", animal, couleur"), /plus de deux/],
+      [ia+NL+ic+NL+pr(Q+"vous aimez les"+Q+", animal")+NL+pr("couleur"), /2 lignes/],
+      [ia+NL+ic+NL+pr(Q+"bonjour"+Q+", animal, couleur"), /le texte au début/],
+      [ia+NL+ic, /n’affiche rien/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pyiDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. l'écran, le dialogue, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : l’énoncé à puces nomme les deux variables, deux coups de pouce repliés qui ne donnent pas la ligne du print, « Exécuter » pose la question DANS la console et Entrée continue ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYI();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pyiInstr");
+    if(!en||en.querySelectorAll("li").length!==3||en.textContent.indexOf("animal")<0||en.textContent.indexOf("couleur")<0) vus.push("l’énoncé : "+(en&&en.textContent));
+    const pouces=document.querySelectorAll("#pyiHost details.pyd-pouce");
+    if(pouces.length!==2) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); if(d.textContent.indexOf("vous aimez les")>=0) vus.push("un coup de pouce écrit le texte à afficher"); });
+    const ta=document.getElementById("pyi-prog"), cons=document.getElementById("pyiConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value="animal = input("+Q+"Animal ? "+Q+")"+NL+"couleur = input("+Q+"Couleur ? "+Q+")"+NL+"print("+Q+"vous aimez les"+Q+", animal, couleur)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pyiExecuter();
+    let rep=document.getElementById("pyi-rep");
+    if(!rep||!cons.contains(rep)) vus.push("la console ne demande pas la réponse");
+    else {
+      if(cons.textContent.indexOf("Animal ? ")<0) vus.push("la question n’est pas écrite dans la console : "+JSON.stringify(cons.textContent));
+      rep.value="chiens"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      rep=document.getElementById("pyi-rep");
+      if(!rep||cons.textContent.indexOf("Animal ? chiens")<0) vus.push("Entrée ne passe pas à la question suivante : "+JSON.stringify(cons.textContent));
+      else { rep.value="bleus"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); }
+      if(document.getElementById("pyi-rep")) vus.push("la case reste après la dernière réponse");
+      if(cons.textContent.split(NL).pop()!=="vous aimez les chiens bleus") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+    }
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPYI();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("pyiNext")) vus.push("pas de « Question suivante »");
+    nextPYI();
+    if(test.idx!==1||document.getElementById("pyi-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYI();
+    let ta=document.getElementById("pyi-prog");
+    ta.value="animal = input("+Q+"a ? "+Q+")"+NL+"couleur = input("+Q+"c ? "+Q+")"+NL+"print("+Q+"vous aimez les chats noirs"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYI();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pyiModele .sol");
+    if(!mod||mod.textContent!==pyiModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPYI(); ta=document.getElementById("pyi-prog");
+    checkPYI();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pyiModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPYI(); ta=document.getElementById("pyi-prog");
+    checkPYI();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="animal = input("+Q+"a ? "+Q+")"+NL+"couleur = input("+Q+"c ? "+Q+")"+NL+"print("+Q+"vous aimez les"+Q+", "+Q+"animal"+Q+", couleur)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYI();
+    const fb=document.getElementById("pyiFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/SANS guillemets/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pyiModele .sol")||fb.indexOf("Quel est votre")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPyi(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
+/* {python-input-calcul} (Seconde, 6.3.4) : l'exercice 5 du carnet — demander
+   une année de naissance avec int(input(…)), calculer l'âge en 2025, puis
+   l'afficher dans une phrase. Le contrôle tient la place au menu (il ferme le
+   sous-thème 6.3, rien d'autre ne bouge), la fiche épinglée et le tirage, le
+   juge sur des copies justes et fausses — chacune avec le mot qui la nomme,
+   dont le int oublié et l'âge écrit à la main que la SECONDE réponse
+   trahit —, le dialogue de la console, la copie juste, fausse et vide, le
+   soutien qui explique sans révéler, puis compare à un vrai CPython ce que
+   les modèles affichent. Aucun accent grave ni antislash littéral dans le
+   code évalué. */
+function pythonInputCalcul(w, P){
+  const nom = '{python-input-calcul} : demander un nombre, calculer avec, afficher le résultat';
+  if(!P.pythonInputCalcul){ ignorer(nom, 'ce niveau n\'a pas l\'exercice input'); return; }
+  const ID = P.pythonInputCalcul.exercice, NB = P.pythonInputCalcul.nb, NUM = P.pythonInputCalcul.numero;
+  const present = evaluer(w, "typeof startPIA==='function' && typeof piaDiag==='function' && typeof piaBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPIA / piaDiag / piaBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ' derrière les trois autres, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
+    else if(st.ids[st.ids.length-1]!=="${ID}") vus.push("il n’est pas le dernier du sous-thème : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3") vus.push("les trois autres ont bougé");
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (naissance, age = 2025 - naissance, « Cette année vous aurez »), puis des situations distinctes ; le modèle de chacune passe au juge, et chaque situation sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=piaBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=piaSit(qs[0]);
+      if(S0.v1!=="naissance"||S0.v2!=="age"||S0.expr!=="2025 - naissance"||S0.t1!=="Cette année vous aurez"){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois la même situation : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PIA_SITUATIONS.forEach(function(S, i){
+      const d=piaDiag(piaModele({s:i}),{s:i});
+      if(!d.ok||d.ecart) vus.push("le modèle de la situation "+i+" : "+(d.dits||[]).join(" ")+(d.ecart||""));
+      if(S.f(S.ex[0])===S.f(S.ex[1])) vus.push("les deux réponses du juge donnent le même résultat en "+i);
+    });
+    if(Object.keys(vues).length!==PIA_SITUATIONS.length) vus.push("des situations ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (espaces, texte presque bon, guillemets simples, calcul écrit autrement) et nomme chaque défaut — int oublié, âge écrit à la main, nom entre guillemets, réponse affichée au lieu du résultat, résultat non rangé, mauvais calcul, input muet, autre variable, deux questions, deux lignes, autre texte, rien d’affiché, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const i1="naissance = int(input("+Q+"Ton année de naissance ? "+Q+"))", c1="age = 2025 - naissance";
+    const pr=function(args){ return "print("+args+")"; };
+    const bon=pr(Q+"Cette année vous aurez "+Q+", age, "+Q+"ans "+Q);
+    const justes=[i1+NL+c1+NL+bon,
+                  i1+NL+c1+NL+pr(Q+"Cette année vous aurez"+Q+", age, "+Q+"ans."+Q),
+                  i1+NL+"age = -naissance + 2025"+NL+pr(A+"Cette annee vous aurez"+A+", age, "+A+"ans"+A),
+                  i1+NL+NL+"# le calcul"+NL+c1+NL+pr(Q+"Cette année vous aurez "+Q+" + str(age) + "+Q+" ans"+Q)];
+    justes.forEach(function(p){ const d=piaDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      ["naissance = input("+Q+"Année ? "+Q+")"+NL+c1+NL+bon, /int\\(input/],
+      [i1+NL+"age = 16"+NL+bon, /toujours 16/],
+      [i1+NL+c1+NL+pr(Q+"Cette année vous aurez 16 ans"+Q), /même nombre/],
+      [i1+NL+c1+NL+pr(Q+"Cette année vous aurez"+Q+", "+Q+"age"+Q+", "+Q+"ans"+Q), /SANS guillemets/],
+      [i1+NL+c1+NL+pr(Q+"Cette année vous aurez"+Q+", naissance, "+Q+"ans"+Q), /la réponse tapée/],
+      [i1+NL+pr(Q+"Cette année vous aurez"+Q+", 2025 - naissance, "+Q+"ans"+Q), /variable age/],
+      [i1+NL+"age = naissance - 2025"+NL+bon, /Vérifie ton calcul/],
+      ["naissance = int(input())"+NL+c1+NL+bon, /pas de question/],
+      ["annee = int(input("+Q+"?"+Q+"))"+NL+"age = 2025 - annee"+NL+bon, /variable naissance/],
+      [i1+NL+"z = input("+Q+"?"+Q+")"+NL+c1+NL+bon, /plus d’une question/],
+      [i1+NL+c1+NL+pr(Q+"Cette année vous aurez"+Q+", age")+NL+pr(Q+"ans"+Q), /2 lignes/],
+      [i1+NL+c1+NL+pr(Q+"Bonjour"+Q+", age, "+Q+"ans"+Q), /Cette année vous aurez/],
+      [i1+NL+c1, /n’affiche rien/],
+      [bon+NL+i1+NL+c1, /AVANT le print/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=piaDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, le dialogue, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : l’énoncé à trois puces nomme les deux variables, trois coups de pouce repliés, « Exécuter » pose la question DANS la console et Entrée affiche le résultat ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPIA();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("piaInstr");
+    if(!en||!en.classList.contains("mp-instr")||en.querySelectorAll("li").length!==3||en.textContent.indexOf("naissance")<0||en.textContent.indexOf("age")<0) vus.push("l’énoncé : "+(en&&en.textContent));
+    const pouces=document.querySelectorAll("#piaHost details.pyd-pouce");
+    if(pouces.length!==3) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); });
+    const ta=document.getElementById("pia-prog"), cons=document.getElementById("piaConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value="naissance = int(input("+Q+"Année ? "+Q+"))"+NL+"age = 2025 - naissance"+NL+"print("+Q+"Cette année vous aurez"+Q+", age, "+Q+"ans."+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    piaExecuter();
+    const rep=document.getElementById("pia-rep");
+    if(!rep||!cons.contains(rep)) vus.push("la console ne demande pas la réponse");
+    else {
+      if(cons.textContent.indexOf("Année ? ")<0) vus.push("la question n’est pas écrite dans la console");
+      rep.value="2010"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      if(document.getElementById("pia-rep")) vus.push("la case reste après la réponse");
+      if(cons.textContent.split(NL).pop()!=="Cette année vous aurez 15 ans.") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+    }
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPIA();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("piaNext")) vus.push("pas de « Question suivante »");
+    nextPIA();
+    if(test.idx!==1||document.getElementById("pia-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPIA();
+    let ta=document.getElementById("pia-prog");
+    ta.value="naissance = input("+Q+"Année ? "+Q+")"+NL+"age = 2025 - naissance"+NL+"print("+Q+"Cette année vous aurez"+Q+", age, "+Q+"ans"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPIA();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#piaModele .sol");
+    if(!mod||mod.textContent!==piaModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("piaConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPIA(); ta=document.getElementById("pia-prog");
+    checkPIA();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==piaModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPIA(); ta=document.getElementById("pia-prog");
+    checkPIA();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="naissance = int(input("+Q+"Année ? "+Q+"))"+NL+"age = 16"+NL+"print("+Q+"Cette année vous aurez"+Q+", age, "+Q+"ans"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPIA();
+    const fb=document.getElementById("piaFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/quelle que soit la réponse/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#piaModele .sol")||fb.indexOf("2025 - naissance")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPia(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ----
+     input est remplacé, côté CPython, par une fonction qui rend la réponse
+     sans écrire la question : on ne compare donc que ce que les print
+     affichent. */
+  const nomPy = 'ce que les modèles de {python-input-calcul} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PIA_SITUATIONS.forEach(function(S, i){ S.ex.forEach(function(n){
+      const src=piaModele({s:i}), r=pyRun(src,[String(n)]);
+      res.push([src, String(n), r.prints.map(function(p){ return p.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, n]) => 'def input(q=""):\n    return ' + JSON.stringify(n) + '\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, n, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + n + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-print} (Seconde) : le cours de print en trois cadres, puis l'élève
    ÉCRIT un programme qui affiche la phrase demandée — « je suis en seconde »
    en première question —, l'exécute librement, le fait vérifier, et en
@@ -24004,6 +24612,311 @@ function pythonOperations(w, P){
       verifier(nomPy + ' (' + tous.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
     }
   }
+}
+
+/* {python-input-int} (Seconde, 6.3.2 à l'origine, 6.3.3 depuis {python-input-reponse}) : la fiche « Exercice 4 » du carnet — le
+   programme DEMANDE une valeur avec input. a) l'exécuter et répondre avec
+   Entrée, b) donner le type de la variable, c) compléter le programme pour
+   qu'il affiche la réponse dans une phrase. Le contrôle tient la fiche
+   épinglée, l'interpréteur qui a appris input (il rend TOUJOURS du texte, et
+   int refuse ce qu'il ne sait pas lire), la place au menu, le tirage et ses
+   trois visages, le juge cas par cas — dont la ligne écrite à la main que la
+   SECONDE réponse trahit —, les portes a) → b) → c), la case vide jamais
+   peinte, le soutien, les branchements, et il compare l'interpréteur à un
+   vrai CPython. Aucun accent grave dans ce texte : il vit dans un template
+   littéral. */
+function pythonInputInt(w, P){
+  const nom = '{python-input-int} : le programme pose une question avec input';
+  if(!P.pythonInputInt){ ignorer(nom, 'ce niveau n\'a pas l\'exercice input'); return; }
+  const D = P.pythonInputInt, ID = D.exercice, NB = D.nb, CASES = D.cases, F = D.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPII==='function' && typeof piiJuge==='function' && typeof piiJugeLigne==='function' && typeof piiBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPII / piiJuge / piiBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+  /* les gestes de l'élève, écrits UNE fois pour tous les blocs */
+  const GESTES = `
+    var NL=String.fromCharCode(10);
+    function entree(id, rep){ var i=document.getElementById(id); if(!i) return false; i.value=rep; i.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); return true; }
+    function jusquaB(rep){ piiExecA(); return entree("piiConsAIn", rep); }
+    function choisir(t){ var s=document.getElementById("piiType"); s.value=t; s.dispatchEvent(new Event("change",{bubbles:true})); }
+    function jusquaC(rep, t){ jusquaB(rep); choisir(t); piiExecB(); }
+    function ecrire(l){ var e=document.getElementById("piiLigne"); e.value=l; e.dispatchEvent(new Event("input",{bubbles:true})); }
+    function execC(l, rep){ ecrire(l); piiExecC(); return entree("piiConsCIn", rep); }
+    function demarrer(m){ currentEleve={id:"e-controle",prenom:"Contr\\u00f4le"}; currentMode=m; currentDM=null; currentTestId="${ID}"; startPII(); }
+  `;
+
+  /* ---- 1. la fiche, épinglée, et l'interpréteur qui a appris input ---- */
+  verifierEval(w, 'la fiche du carnet : ' + F.ligneA + ', puis print(age) et print(type(age)) qui affichent ' + J(F.sortieB) + ', puis la ligne ' + F.ligneC + ' qui affiche « ' + F.sortieC + ' » — input rend TOUJOURS du texte, int refuse ce qu’il ne sait pas lire', `(function(){
+    ${GESTES}
+    var vus=[], q={vis:"int", k:0};
+    if(piiLigneA(q)!==${J(F.ligneA)}) vus.push("ligne a) : "+piiLigneA(q));
+    if(piiLignesB(q).join(" | ")!==${J(F.lignesB.join(' | '))}) vus.push("lignes b) : "+piiLignesB(q).join(" | "));
+    if(piiLigneC(q)!==${J(F.ligneC)}) vus.push("ligne c) : "+piiLigneC(q));
+    if(piiC(q).invite!==${J(F.invite)}) vus.push("la question posee : "+piiC(q).invite);
+    var rb={out:piiSortie(pyRun(piiLigneA(q)+NL+piiLignesB(q).join(NL),[${J(F.reponse)}]))};
+    if(rb.out.replace(/\\n$/,"")!==${J(F.sortieB)}) vus.push("le b) affiche "+JSON.stringify(rb.out));
+    if(piiAttendu(q,${J(F.reponse)}).replace(/\\n$/,"")!==${J(F.sortieC)}) vus.push("le c) affiche "+JSON.stringify(piiAttendu(q,${J(F.reponse)})));
+    /* la console montre la question suivie de la reponse ; le juge ne lit que les print */
+    var ra=pyRun(piiLigneA(q),[${J(F.reponse)}]);
+    if(piiSortie(ra)!=="") vus.push("la question posee par input entre dans ce que le juge lit : "+JSON.stringify(piiSortie(ra)));
+    if(ra.out!==${J(F.invite)}+${J(F.reponse)}+NL) vus.push("la console ne montre pas la question suivie de la reponse : "+JSON.stringify(ra.out));
+    /* input rend du TEXTE ; int le lit ; int refuse un decimal et un mot */
+    if(piiSortie(pyRun('x = input("? ")'+NL+"print(type(x))",["15"]))!=="<class 'str'>"+NL) vus.push("input ne rend pas du texte");
+    if(piiSortie(pyRun('x = int(input("? "))'+NL+"print(x + 1)",["15"]))!=="16"+NL) vus.push("int(input()) ne rend pas un entier");
+    ["15.5","quinze","15,5",""].forEach(function(r){ var ok=true; try{ pyRun(piiLigneA(q),[r]); }catch(e){ ok=false; } if(ok) vus.push("int accepte « "+r+" »"); });
+    var sans=true; try{ pyRun(piiLigneA(q),[]); }catch(e){ sans=false; if(!/EOFError/.test(e.message)) vus.push("input sans reponse : "+e.message); }
+    if(sans) vus.push("input sans reponse ne leve rien");
+    if(pyColorie(piiLigneA(q)).indexOf('<span class="py-kw">input</span>')<0) vus.push("input n\\u2019est pas colorie comme un mot de Python");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la place au menu ---- */
+  verifierEval(w, 'il suit {python-input} dans le sous-thème 6.3 « Input », numéroté ' + D.numero + ' — et rien d’autre ne bouge', `(function(){
+    var vus=[], th=THEMES.find(function(t){ return t.num===6; });
+    var st=th&&th.sous&&th.sous.find(function(x){ return x.num===3; });
+    if(!st||!/input/i.test(st.nom)||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input")+1||st.ids.indexOf("python-input")<0) vus.push("sous-theme 6.3 : "+JSON.stringify(st));
+    if(TEST_NUM["${ID}"]!=="${D.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-echange-par-lettres"]!=="6.2.7"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l\\u2019exercice ajoute a renumerote les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d\\u2019entree TESTS");
+    if(/<code>|<b>/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte des balises");
+    if(!RAPPELS.pii) vus.push("aucun rappel de cours");
+    else {
+      if(/\\d+\\.\\d+/.test(String(RAPPELS.pii).replace(/<code[^>]*>[\\s\\S]*?<\\/code>/g,""))) vus.push("le rappel ecrit un « chiffre.chiffre » hors d\\u2019une balise code");
+      if(String(RAPPELS.pii).indexOf("ton âge")>=0) vus.push("le rappel reprend l\\u2019exemple de la fiche : l\\u2019eleve recopierait");
+    }
+    if(!QIA_SUGG.pii||QIA_SUGG.pii.length<2) vus.push("aucune question proposee a l\\u2019IA");
+    if(TABLES_SANS.indexOf("${ID}")<0) vus.push("le bouton des tables est propose : rien ne se calcule");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le tirage ---- */
+  verifierEval(w, 'le tirage : ' + NB + ' questions, la fiche EN TÊTE, puis un autre entier, un nombre demandé SANS int et un texte, en ordre mélangé — et le témoin passe au juge (400 séances)', `(function(){
+    var vus=[], ordres={}, ctx={};
+    for(var s=0;s<400 && vus.length<4;s++){
+      var qs=piiBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("seance de "+qs.length+" questions"); break; }
+      if(qs[0].vis!=="int"||qs[0].k!==0){ vus.push("la premiere question n\\u2019est pas la fiche : "+JSON.stringify(qs[0])); break; }
+      ordres[qs.slice(1).map(function(q){ return q.vis; }).join(",")]=1;
+      if(qs.slice(1).map(function(q){ return q.vis; }).sort().join(",")!=="int,sansint,texte") vus.push("les trois visages ne sortent pas chacun une fois : "+JSON.stringify(qs));
+      if(qs.slice(1).some(function(q){ return q.vis==="int"&&q.k===0; })) vus.push("l\\u2019age de la fiche revient dans la seance");
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(",")!=="k,vis"){ vus.push("la question porte autre chose que vis / k : "+Object.keys(q).join(",")); return; }
+        if(!PII_CTX[q.vis]||!PII_CTX[q.vis][q.k]){ vus.push("contexte introuvable : "+JSON.stringify(q)); return; }
+        ctx[q.vis+q.k]=1;
+        if(piiType(q)!==(q.vis==="int"?"int":"str")) vus.push("type attendu "+piiType(q)+" pour "+q.vis);
+        if((q.vis==="int")!==(piiLigneA(q).indexOf("int(input(")>=0)) vus.push("la ligne a) ne suit pas le visage : "+piiLigneA(q));
+        var rep=q.vis==="texte"?"L\\u00e9a":"14";
+        var t=piiSortie(pyRun(piiLigneA(q)+String.fromCharCode(10)+piiLignesB(q)[1],[rep]));
+        if(t!=="<class '"+piiType(q)+"'>"+String.fromCharCode(10)) vus.push("Python ne repond pas le type attendu : "+t);
+        var j=piiJuge(q, piiType(q), piiLigneC(q), rep);
+        if(!j[0].ok||!j[1].ok) vus.push("le temoin ne passe pas au juge : "+piiLigneC(q)+" — "+j[1].diag);
+      });
+    }
+    if(Object.keys(ordres).length<6) vus.push("l\\u2019ordre des visages ne varie pas : "+Object.keys(ordres).join(" ; "));
+    var n=0; Object.keys(PII_CTX).forEach(function(v){ n+=PII_CTX[v].length; });
+    if(Object.keys(ctx).length<n) vus.push("des mises en situation ne sortent jamais : "+Object.keys(ctx).length+" sur "+n);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le juge du c), cas par cas ---- */
+  verifierEval(w, 'le juge du c) EXÉCUTE : toute ligne qui affiche la phrase passe (concaténation, guillemets simples, espaces, majuscule, apostrophe de tablette) ; la réponse écrite à la main, le nom entre guillemets, le texte manquant, l’apostrophe qui ferme le texte et le Print majuscule sont refusés EN LE NOMMANT', `(function(){
+    var vus=[], q={vis:"int", k:0}, R=${J(F.reponse)};
+    [${J(F.ligneC)}, "print(\\"j'ai\\",age,\\"ans\\")", "print(\\"j'ai \\" + str(age) + \\" ans\\")", "  print( \\"j'ai\\" , age , \\"ans\\" )  ",
+     "print(\\"J'ai\\", age, \\"ans\\")", "print(\\"j\\u2019ai\\", age, \\"ans\\")", "print(\\"j'ai \\", age, \\" ans\\")", "print(\\"j'ai\\", age, 'ans')"].forEach(function(l){
+      var j=piiJugeLigne(q,l,R); if(!j.ok) vus.push("ligne juste refusee : « "+l+" » — "+(j.diag||j.erreur));
+    });
+    if(piiJugeLigne(q,${J(F.ligneC)},R).ecart!=="") vus.push("la ligne EXACTE recoit un ecart");
+    if(piiJugeLigne(q,"print(\\"J'ai\\", age, \\"ans\\")",R).ecart.indexOf("majuscule")<0) vus.push("la majuscule n\\u2019est pas nommee");
+    var cas=[
+      ["print(\\"j'ai\\", 15, \\"ans\\")", "main"],
+      ["print(\\"j'ai 15 ans\\")", "main"],
+      ["print(\\"j'ai\\", \\"age\\", \\"ans\\")", "guillemets"],
+      ["print(\\"j'ai\\", age)", "ans"],
+      ["print('j'ai', age, 'ans')", "apostrophe"],
+      ["Print(\\"j'ai\\", age, \\"ans\\")", "minuscules"],
+      ["print \\"j'ai\\", age, \\"ans\\"", "print("],
+      ["print(\\"j'ai\\", ages, \\"ans\\")", "ages"],
+      ["print(\\"j'ai\\", int(input(\\"?\\")), \\"ans\\")", "input"]
+    ];
+    cas.forEach(function(c){
+      var j=piiJugeLigne(q,c[0],R);
+      if(j.ok) vus.push("ligne fausse acceptee : « "+c[0]+" »");
+      else if(j.diag.indexOf(c[1])<0) vus.push("« "+c[0]+" » : le diagnostic ne dit pas « "+c[1]+" » : "+j.diag);
+      if(j.diag.indexOf(${J(F.ligneC)})>=0) vus.push("le diagnostic ecrit la reponse");
+    });
+    /* la SECONDE reponse differe toujours de la premiere, et la ligne 1 l'accepte */
+    [["int","15"],["int","37"],["int","-4"],["sansint","2010"],["sansint","vingt"],["texte","Zo\\u00e9"],["texte","L\\u00e9a"]].forEach(function(c){
+      var qq={vis:c[0],k:0}, a=piiAutre(qq,c[1]);
+      if(String(a).trim().toLowerCase()===c[1].toLowerCase()) vus.push("la seconde reponse est la meme : "+c[1]);
+      if(!piiLit(qq,a).ok) vus.push("la seconde reponse est refusee par la ligne 1 : "+a);
+    });
+    /* le type : seul le bon passe, le vide n'est jamais faux */
+    var jt=piiJuge(q,"str",${J(F.ligneC)},R); if(jt[0].ok) vus.push("le type str est accepte pour age");
+    if(!piiJuge(q,"",${J(F.ligneC)},R)[0].vide) vus.push("un type vide n\\u2019est pas declare vide");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. les portes a) -> b) -> c), et la copie juste ---- */
+  verifierEval(w, 'les portes : le b) n’apparaît qu’après une réponse que int sait lire, son « Exécuter » attend un type choisi et le FIGE, le c) n’apparaît qu’après, « Vérifier » attend le programme exécuté tel qu’il est écrit ; la copie juste vaut ' + CASES + ' et verrouille', `(function(){
+    ${GESTES}
+    demarrer("train");
+    var vus=[], q=test.questions[0];
+    if(test.maxScore!==${NB * CASES}) vus.push("bareme "+test.maxScore);
+    if(!document.querySelector("#piiHost .pii-def")) vus.push("la definition n\\u2019est pas sur l\\u2019ecran");
+    var en=document.getElementById("piiInstr").textContent; if(en.indexOf(piiC(q).nom)<0) vus.push("l\\u2019enonce ne nomme pas la variable : "+en);
+    if(document.getElementById("piiB")||document.getElementById("piiC")) vus.push("le b) ou le c) est la avant le a)");
+    var v=function(){ return document.getElementById("piiValidate"); };
+    if(!v()||!v().disabled) vus.push("« Verifier » est ouvert d\\u2019emblee");
+    piiExecA();
+    var cons=document.getElementById("piiConsA");
+    if(!document.getElementById("piiConsAIn")) vus.push("la console n\\u2019ouvre pas de case pour la reponse");
+    if(cons.textContent.indexOf(${J(F.invite.trim())})<0) vus.push("la console ne pose pas la question : "+cons.textContent);
+    entree("piiConsAIn","   ");
+    if(document.getElementById("piiB")) vus.push("une reponse vide ouvre le b)");
+    entree("piiConsAIn","15.5");
+    if(!cons.classList.contains("pyx-err")) vus.push("15.5 ne recoit pas l\\u2019erreur de int");
+    if(document.getElementById("piiB")) vus.push("une reponse refusee par int ouvre le b)");
+    if(document.getElementById("piiRunA").disabled) vus.push("on ne peut pas relancer apres l\\u2019erreur");
+    jusquaB(${J(F.reponse)});
+    if(!document.getElementById("piiB")) { vus.push("le b) ne s\\u2019ouvre pas"); return vus.join(" | "); }
+    if(cons.textContent!==${J(F.invite)}+${J(F.reponse)}) vus.push("la console du a) : "+JSON.stringify(cons.textContent));
+    var rb=document.getElementById("piiRunB");
+    if(!rb.disabled) vus.push("« Executer » du b) est ouvert avant le choix du type");
+    piiExecB();
+    if(document.getElementById("piiC")) vus.push("le c) s\\u2019ouvre sans type choisi");
+    choisir("int");
+    if(rb.disabled) vus.push("« Executer » du b) reste ferme apres le choix");
+    piiExecB();
+    if(!document.getElementById("piiType").disabled) vus.push("le choix n\\u2019est pas fige par l\\u2019execution");
+    if(document.getElementById("piiConsB").textContent!==${J(F.sortieB)}) vus.push("la console du b) : "+JSON.stringify(document.getElementById("piiConsB").textContent));
+    if(!document.getElementById("piiC")) { vus.push("le c) ne s\\u2019ouvre pas"); return vus.join(" | "); }
+    if(document.querySelectorAll("#piiC .pyd-pouce").length!==1) vus.push("le coup de pouce n\\u2019est pas la");
+    if(document.querySelector("#piiC .pyd-pouces").textContent.indexOf(${J(F.ligneC)})>=0) vus.push("le coup de pouce ecrit la reponse");
+    ecrire(${J(F.ligneC)});
+    if(!v().disabled) vus.push("« Verifier » s\\u2019ouvre sur une ligne ecrite mais pas executee");
+    piiExecC();
+    if(!document.getElementById("piiConsCIn")) vus.push("le c) ne repose pas la question");
+    entree("piiConsCIn","16");
+    var cc=document.getElementById("piiConsC").textContent;
+    if(cc!==${J(F.invite)}+"16"+NL+"j'ai 16 ans") vus.push("la console du c) : "+JSON.stringify(cc));
+    if(v().disabled) vus.push("« Verifier » reste ferme apres l\\u2019execution");
+    ecrire(${J(F.ligneC)}+" ");
+    if(v().disabled) vus.push("un espace de fin referme « Verifier »");
+    ecrire("print(age)");
+    if(!v().disabled) vus.push("« Verifier » reste ouvert sur une ligne MODIFIEE");
+    execC(${J(F.ligneC)},"16");
+    checkPII();
+    var sel=document.getElementById("piiType"), li=document.getElementById("piiLigne");
+    if(!sel.classList.contains("ok")||!li.classList.contains("ok")) vus.push("la copie juste n\\u2019est pas peinte ok : "+sel.className+" / "+li.className);
+    if(test.score!==${CASES}) vus.push("note "+test.score);
+    if(!test.locked||!li.disabled) vus.push("la question n\\u2019est pas verrouillee");
+    var ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==${CASES}||ans.justes!==${CASES}||!ans.correct) vus.push("la note ne compte pas "+${CASES}+" cases justes : "+JSON.stringify(ans));
+    if(!document.getElementById("piiNext")) vus.push("« Question suivante » n\\u2019apparait pas");
+    nextPII();
+    if(test.idx!==1||document.getElementById("piiB")) vus.push("la question suivante ne repart pas du a)");
+    if(!afficherEcranDe("pii")) vus.push("afficherEcranDe ne connait pas pii (reprise et rejeu)");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. chaque case se juge seule, la case vide n'est jamais peinte ---- */
+  verifierEval(w, 'un type faux ne fait pas rougir la ligne juste, ni l’inverse ; la bonne réponse s’écrit en vert à côté de la case fausse seulement ; une ligne vide n’est jamais peinte', `(function(){
+    ${GESTES}
+    var vus=[];
+    demarrer("train"); jusquaC(${J(F.reponse)},"str"); execC(${J(F.ligneC)},${J(F.reponse)}); checkPII();
+    var sel=document.getElementById("piiType"), li=document.getElementById("piiLigne");
+    if(!sel.classList.contains("bad")) vus.push("le type faux ne rougit pas");
+    if(!li.classList.contains("ok")) vus.push("la ligne juste rougit a cause du type");
+    if(test.score!==1) vus.push("note "+test.score+" au lieu de 1");
+    var cor=[].map.call(document.querySelectorAll("#piiHost .mf-cor"),function(e){ return e.textContent; });
+    if(cor.join("|")!=="int") vus.push("la correction en vert : "+cor.join("|"));
+    if(document.getElementById("piiFeedback").textContent.indexOf("int(")<0) vus.push("le message n\\u2019explique pas int(…)");
+    demarrer("train"); jusquaC(${J(F.reponse)},"int"); execC("print(\\"j'ai\\", 15, \\"ans\\")",${J(F.reponse)}); checkPII();
+    sel=document.getElementById("piiType"); li=document.getElementById("piiLigne");
+    if(!sel.classList.contains("ok")) vus.push("le type juste rougit a cause de la ligne");
+    if(!li.classList.contains("bad")) vus.push("la ligne ecrite a la main ne rougit pas");
+    cor=[].map.call(document.querySelectorAll("#piiHost .mf-cor"),function(e){ return e.textContent; });
+    if(cor.join("|")!==${J(F.ligneC)}) vus.push("la bonne ligne en vert : "+cor.join("|"));
+    ["train","soutien"].forEach(function(m){
+      demarrer(m); jusquaC(${J(F.reponse)},"int"); ecrire(""); checkPII();
+      var l=document.getElementById("piiLigne"), s=document.getElementById("piiType");
+      if(/\\bok\\b|\\bbad\\b/.test(l.className+" "+s.className)) vus.push(m+" : une case est peinte alors que la ligne manque");
+      if(test.locked||test.score!==0) vus.push(m+" : une copie incomplete verrouille ou note");
+      if(document.getElementById("piiFeedback").textContent.indexOf("manque")<0) vus.push(m+" : le message ne dit pas la ligne manquante");
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. le soutien ---- */
+  verifierEval(w, 'en soutien : la copie fausse ne verrouille rien, ne révèle pas la réponse, et le message NOMME l’erreur ; le type faux se rechoisit ; la copie corrigée vaut ' + CASES, `(function(){
+    ${GESTES}
+    demarrer("soutien");
+    var vus=[];
+    jusquaC(${J(F.reponse)},"str"); execC("print(\\"j'ai\\", \\"age\\", \\"ans\\")",${J(F.reponse)}); checkPII();
+    if(test.locked||test.score!==0) vus.push("le soutien verrouille ou note une copie fausse");
+    if(document.querySelectorAll("#piiHost .mf-cor").length) vus.push("le soutien revele la reponse");
+    var fb=document.getElementById("piiFeedback").textContent;
+    if(fb.indexOf("guillemets")<0) vus.push("le message ne nomme pas l\\u2019erreur de la ligne : "+fb.slice(0,160));
+    if(fb.indexOf(${J(F.ligneC)})>=0) vus.push("le message ecrit la ligne attendue");
+    var sel=document.getElementById("piiType");
+    if(sel.disabled) vus.push("le type faux ne se rechoisit pas en soutien");
+    choisir("int"); execC(${J(F.ligneC)},${J(F.reponse)});
+    if(/\\bok\\b|\\bbad\\b/.test(document.getElementById("piiLigne").className)) vus.push("la couleur d\\u2019avant reste apres la frappe");
+    checkPII();
+    if(!test.locked||test.score!==${CASES}) vus.push("la copie corrigee ne vaut pas "+${CASES}+" : "+test.score);
+    demarrer("soutien"); jusquaC(${J(F.reponse)},"int"); ecrire("print(age)"); checkPII(true);
+    if(/\\bok\\b|\\bbad\\b/.test(document.getElementById("piiLigne").className)) vus.push("le soutien colore au fil de la frappe");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 8. les branchements ---- */
+  verifierEval(w, 'le contexte envoyé au modèle dit la ligne 1, l’étape, et porte les réponses en les déclarant STRICTEMENT SECRÈTES — et c’est bien lui que conseilCtxCourant emploie', `(function(){
+    ${GESTES}
+    demarrer("train");
+    var vus=[], q=test.questions[0], c="";
+    try{ c=ctxPii(q).contexte; }catch(e){ return "ctxPii leve : "+e.message; }
+    if(c.indexOf(piiLigneA(q))<0) vus.push("le contexte ne dit pas la ligne 1");
+    if(c.indexOf("SECR\\u00c8TES")<0) vus.push("le contexte ne declare pas les reponses secretes");
+    if(c.indexOf(piiLigneC(q))<0) vus.push("le contexte ne porte pas la ligne attendue");
+    var cc=conseilCtxCourant(); if(!cc||cc.indexOf(piiLigneA(q))<0) vus.push("conseilCtxCourant ne passe pas par ctxPii");
+    if(/\\bcheckPII\\b/.test(String(liveCheckCurrent))) vus.push("liveCheckCurrent route pii alors que le profil le declare sans correction en direct");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 9. l'interpréteur répond comme un vrai CPython ---- */
+  const nomPy = 'les programmes de {python-input-int} — témoins, lignes d\'élève, réponses refusées — donnent la sortie d\'un vrai CPython';
+  const progs = evaluer(w, `(function(){ var o=[], NL=String.fromCharCode(10);
+    var lignes=function(q){ var c=piiC(q); return [piiLigneC(q), piiLignesB(q).join(NL), 'print("'+c.avant+' " + str('+c.nom+') + " '+c.apres+'")',
+      'print("'+c.avant+'", "'+c.nom+'", "'+c.apres+'")', 'print('+c.nom+' + "x")', 'print('+c.nom+' * 2)']; };
+    Object.keys(PII_CTX).forEach(function(vis){ PII_CTX[vis].forEach(function(_,k){
+      var q={vis:vis,k:k};
+      ["15","0","-3","2010","Zo\\u00e9","15.5"," 7 "].forEach(function(r){
+        lignes(q).forEach(function(l){ o.push({src:piiLigneA(q)+NL+l, rep:r}); });
+      });
+    }); });
+    return JSON.stringify(o); })()`);
+  const tires = progs.ok ? JSON.parse(progs.valeur) : [];
+  verifier('le tirage de {python-input-int} fournit des programmes à comparer', tires.length >= 300, tires.length + ' programme(s)');
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  /* CPython reçoit le MÊME programme, précédé d'un input qui rend la réponse
+     sans écrire la question — la page ne la met pas dans la sortie non plus */
+  const pourPy = tires.map(t => '__r = [' + JSON.stringify(t.rep) + ']\ndef input(p=""):\n    return __r.pop(0)\n' + t.src);
+  const r = evaluer(w, 'JSON.stringify(' + JSON.stringify(tires) + '.map(function(t){ try{ return piiSortie(pyRun(t.src,[t.rep])); }catch(e){ return "ERREUR:"+e.message; } }))');
+  const mien = r.ok ? JSON.parse(r.valeur) : [];
+  let ref = null; try{ ref = pythonExecuter(py, pourPy); }catch(e){ ref = null; }
+  if(!ref || ref.length !== tires.length){ verifier(nomPy, false, py + ' n\'a pas pu exécuter les programmes'); return; }
+  const ecarts = [];
+  tires.forEach((t, i) => {
+    const a = mien[i], b = ref[i];
+    const meme = (a === b) || (String(a).indexOf('ERREUR:') === 0 && String(b).indexOf('ERREUR:') === 0);
+    if(!meme) ecarts.push(JSON.stringify(t.src.split('\n').pop()) + ' avec ' + JSON.stringify(t.rep) + ' : page ' + JSON.stringify(a) + ' / CPython ' + JSON.stringify(b));
+  });
+  verifier(nomPy + ' (' + tires.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
 /* {python-double-triple-carre} (Seconde) : l'exercice 13 du carnet — un
