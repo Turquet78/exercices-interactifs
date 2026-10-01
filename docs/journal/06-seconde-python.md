@@ -3030,3 +3030,45 @@ l'encre rendue.
 l'exercice 2 en 6.3.1, l'exercice 3 ({python-input}) en 6.3.2, et celui-ci,
 l'exercice 4, en 6.3.3 — les notes portent l'identifiant et ne bougent pas.
 Son contrôle épingle désormais 6.3.3 et exige les deux autres devant lui.
+
+---
+
+**Demander un nombre, puis CALCULER avec — l'exercice 5 du carnet.**
+{python-input-calcul} (Seconde, 6.3.4, demande de Turquet, octobre 2026 :
+« créer un exercice comme l'image en seconde dans le sous-thème input ») est
+la fiche « Exercice 5 » : un programme qui demande une année de naissance et
+la range dans la variable ENTIÈRE `naissance`, calcule l'âge que la personne
+aura en 2025 dans `age`, puis affiche `"Cette année vous aurez ", age, "ans "`
+— avec les TROIS coups de pouce du carnet, repliés (l'input avec int, le
+calcul, le print). Il ferme le sous-thème 6.3, ajouté en dernier : rien n'est
+renuméroté, et son contrôle l'exige.
+
+**Ce qu'il ajoute aux trois autres** : la réponse ne s'affiche plus telle
+qu'elle a été tapée, elle SERT à calculer — la raison d'être du int(…) que le
+6.3.3 a enseigné. Sans int, `2025 - naissance` mêle un nombre et un texte,
+l'interpréteur refuse, et le juge le dit avec les mots de la leçon (« ce que
+rend input est TOUJOURS un texte »).
+
+**Le juge est celui du 6.3.2, un cran plus loin** (`piaDiag`) : la copie
+s'exécute sous DEUX réponses que l'élève ne connaît pas (`ex`, deux résultats
+différents exigés par le contrôle). Il exige un seul input, rangé dans la
+variable demandée, ENTIER, avec une question ; le résultat rangé dans SA
+variable et juste sous les deux réponses — `age = 16` écrit à la main passe la
+première, jamais la seconde, et le message le nomme (« age vaut toujours 16,
+quelle que soit la réponse ») — ; puis UNE ligne : texte, valeur, texte. Les
+textes passent par `pyTexteProche` (la règle partagée), la valeur est exacte.
+Nommés aussi : le nom entre guillemets, la réponse affichée au lieu du
+résultat, le calcul écrit dans le print sans variable, le calcul renversé.
+
+**La séance** : la fiche épinglée en tête, puis deux situations tirées par
+`distinctes()` (âge dans 10 ans, heures → minutes, places de cinéma → prix,
+semaines → jours, élèves → cahiers) — le réglage « Questions » d'un devoir
+l'allonge jusqu'à six. Le dialogue de la console est celui du 6.3.2 (la case
+À LA SUITE de la question, Entrée qui rejoue), avec un clavier numérique sur
+tablette. Pas de correction au fil de la frappe (`soutienEnDirect.sans`).
+Banc jsdom (`pythonInputCalcul`) : la place, la fiche et le tirage (300
+séances, chaque situation sort, chaque modèle passe), le juge sur quatre
+copies justes et quinze fausses chacune avec son mot, le dialogue joué au
+clavier, les copies juste, fausse et vide, le soutien qui ne révèle rien, et
+les modèles comparés à un vrai CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
