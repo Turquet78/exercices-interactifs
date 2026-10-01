@@ -138,3 +138,19 @@ fichiers ne savent pas faire les mêmes choses : `tests/profils.js` dit pour
 chacun ce que le banc doit piloter, et la liste `lacunes` de son profil énumère
 ce qui lui manque. Ces manques s'affichent à chaque exécution. Un contrôle
 supprimé en silence rend le banc vert sur un fichier qu'il ne vérifie plus.
+
+**Une fonction déclarée deux fois au niveau global ÉCRASE la première, sans
+une erreur.** Octobre 2026 : en reconstruisant {python-input-reponse} sur
+`main` après une collision de noms avec {python-input}, un renommage
+automatique (`pyi` → `pyn`) a laissé passer `ctxPyi` — le « P » majuscule.
+La page déclarait donc deux `ctxPyi` ; la seconde gagnait, et le contexte
+envoyé au modèle pour {python-input} devenait celui de l'exercice voisin.
+Aucune erreur au chargement : c'est le contrôle propre de {python-input},
+qui lit ce contexte, qui a planté. Le banc principal relit maintenant les
+déclarations en colonne 0 (les fonctions locales, indentées, ne se heurtent
+pas) et refuse tout doublon. Ceux qui préexistaient en Première (`fmtNote`,
+`qiaEstExemple`, `qiaEstRedaction`) et en Terminale (`fmtNote`) sont une
+dette nommée (`fonctionsEnDouble` dans `tests/profils.js`) — la liste ne
+grandit jamais, et le second bord rougit dès qu'un doublon y est résolu sans
+être retiré. Éprouvé par sabotage : `ctxPyi` remis en double rougit en le
+nommant.

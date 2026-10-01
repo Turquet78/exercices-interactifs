@@ -2853,6 +2853,93 @@ les deux modes comme tout exercice.
 
 ---
 
+**input : le programme POSE une question et ATTEND — l'exercice 2 du carnet.**
+{python-input-reponse} (Seconde, 6.3.1, demande de Turquet, octobre 2026 : « en
+seconde créer un exercice dans algorithme et sous thème "input", comme les 2
+images ; on présentera comme les autres exercices d'algo de seconde ») est
+l'exercice 2 du carnet : la DÉFINITION (`nom = input("comment tu
+t'appelles?")`), puis a) exécuter et répondre avec la touche Entrée, b)
+exécuter `print(nom)` et `type(nom)` et donner le type de `nom`, c) compléter
+le programme pour qu'il affiche « je m'appelle » suivi de la réponse, avec
+le coup de pouce replié de la fiche (« il faut écrire : print ( "........."
+, nom ) »). **Deux sessions ont construit le sous-thème « Input » le même jour, et la
+collision était COMPLÈTE** : {python-input} (l'exercice 3 du carnet, deux
+input à écrire) a été fusionné pendant que celui-ci passait ses bancs —
+même identifiant `python-input`, même kind `pyi`, mêmes fonctions
+`startPYI`/`renderPYI`, même `APP_VERSION` 258, même numéro 6.3.1, et
+chacun avait appris input à `pyRun`. La branche a été REFAITE sur `main`
+plutôt que fusionnée : l'interpréteur de {python-input} est gardé tel quel
+(pyRun(src, entrees), l'erreur « attente » qui porte `sortie`), celui-ci
+en est le client — il n'y ajoute qu'une chose, la sortie déjà écrite
+attachée à TOUTE erreur, pour que la console montre la question et la
+réponse avant l'erreur de la ligne 2. L'exercice a pris l'identifiant
+`python-input-reponse` et le kind `pyn`, et passe DEVANT : le carnet pose
+la définition et un programme donné (exercice 2) avant un programme à
+écrire (exercice 3). {python-input} devient 6.3.2 — les notes portent
+l'identifiant —, et son contrôle épingle désormais ce numéro. Le contrôle
+d'ici exige l'ordre (6.3.1 en tête, {python-input} en 6.3.2) et que rien
+d'autre ne bouge (6.1.1, 6.1.13, 6.2.1, 6.2.7 et 4.1.3 épinglés).
+**L'interpréteur S'ARRÊTE sur la question.** `pyRun`
+reçoit les réponses déjà données ; quand il lui en manque une, il lève une
+erreur marquée `attente` qui porte ce qui s'est affiché jusque-là — la
+question en dernier. La console de la page la rattrape, ouvre une case À LA
+SUITE de la question, et la touche Entrée (ou le bouton ⏎, pour une
+tablette) REJOUE le programme depuis le début avec une réponse de plus — un
+programme du cours n'a ni hasard ni effet de bord. La console écrit la
+réponse après la question, comme un terminal ou un carnet ; un CPython qui
+lit ses réponses dans un fichier, lui, ne l'écrit pas : c'est la seule
+différence, et le banc la nomme en retirant cet écho avant de comparer
+(82 programmes, mêmes sorties). Ce que rend input est TOUJOURS un texte —
+même « 15 ».
+**Les trois étapes se suivent sur le MÊME écran**, comme les cellules du
+carnet : l'étape passée reste visible et figée, et la variable garde la
+réponse du a) jusqu'au b) (une affectation invisible la remet, comme un
+carnet garde ses variables d'une cellule à l'autre). L'étape a) n'est pas
+notée — elle se fait, elle ne se juge pas — ; b) et c) sont les deux cases
+de la question. Une réponse VIDE n'est pas envoyée : Python l'accepterait,
+mais la consigne demande de répondre, et la case la redemande sans rien
+rougir.
+**b) dans l'ordre de la fiche : exécuter, PUIS répondre** — la liste ne
+s'ouvre qu'après l'exécution (une porte tenue par l'ÉTAT de la liste ; le
+navigateur la mesure sous un vrai choix refusé). C'est l'inverse du 6.1.1,
+et c'est voulu : ici la console ne donne la réponse qu'à qui la LIT, et la
+leçon est dans ce qu'elle montre — la réponse à « quel âge as-tu ? » est
+« 15 », et c'est un texte. La fiche écrit `type(nom)` seul, qu'un carnet
+affiche « str » ; l'écran écrit `print(type(nom))`, l'écriture du 6.1.2 : un
+script n'affiche pas une expression nue (la règle de
+{python-afficher-variable}), et deux écritures du même type sur la même page
+en feraient deux leçons. **C'est un écart à la fiche, et il est nommé.**
+**c) est jugé par le juge du 6.1.7** (`pyxJuge` : la sortie comparée au
+témoin, la variable exigée, ses diagnostics), avec la réponse que l'élève a
+TAPÉE en exécutant — la console et le verdict lisent la même chose. Deux
+diagnostics sont propres à input : l'apostrophe de « je m'appelle » entre
+guillemets SIMPLES (elle ferme le texte trop tôt — le message le dit, au lieu
+du « guillemet jamais fermé » générique), et un second input en ligne 2 (la
+question est déjà posée en ligne 1).
+**La séance : trois questions** — la fiche ÉPINGLÉE en tête (nom, « comment
+tu t'appelles ? », « je m'appelle »), puis une question dont la réponse est
+un NOMBRE (âge, année de naissance, pointure) — celle qui fait la leçon du
+b) — et une dont la réponse est un mot, en ordre mélangé. La question ne
+range que l'INDICE de la situation et ce que l'élève a fait ; le type attendu
+se relit dans `pyRun`. Aucune correction au fil de la frappe
+(`soutienEnDirect.sans`). En soutien, le type faux rougit sans verrouiller ni
+écrire la réponse, la ligne fausse dit OÙ est l'erreur sans écrire la ligne
+juste ; en entraînement, la bonne réponse s'écrit en vert à côté.
+Deux bancs, la répartition habituelle : jsdom (`pythonInput`) tient la
+place, l'interpréteur et CPython, le tirage (400 séances), le trajet en
+entraînement, le juge du c), le soutien et la reprise ; le NAVIGATEUR
+(« 6 tricies vicies semel », déclaré par `pythonInput` dans
+`tests/profils.js`) mesure la case de la réponse RENDUE dans la console — à
+la suite de la question, sur la même ligne, à chasse fixe et à la taille de
+la console —, la VRAIE touche Entrée, la liste fermée qui refuse un vrai
+choix, l'encre bleue des deux verdicts et la page sur un téléphone. Quatre
+sabotages au banc jsdom, chacun rougissant en nommant son défaut : la liste
+du type ouverte avant l'exécution, input qui rend un entier pour « 15 » (le
+contrôle de l'interpréteur ET CPython rougissent), le diagnostic de
+l'apostrophe retiré, le type VIDE rougi.
+
+---
+
 **Le programme DEMANDE une valeur, et int(…) en fait un nombre.**
 {python-input-int} (Seconde, 6.3.2, demande de Turquet, octobre 2026 : « dans
 le sous-thème input du thème algo, créer un exercice comme l'image ») est la
@@ -2924,3 +3011,8 @@ par une fonction qui rend la réponse sans écrire la question) ; le navigateur
 (« 6 tricies unvicies ») tape la réponse dans la console et l'envoie par la
 vraie touche Entrée, choisit le type dans la liste, tape la ligne, et relit
 l'encre rendue.
+
+**Puis {python-input-reponse} est arrivé, et l'ordre du carnet a décidé** :
+l'exercice 2 en 6.3.1, l'exercice 3 ({python-input}) en 6.3.2, et celui-ci,
+l'exercice 4, en 6.3.3 — les notes portent l'identifiant et ne bougent pas.
+Son contrôle épingle désormais 6.3.3 et exige les deux autres devant lui.
