@@ -2802,3 +2802,51 @@ Les notes portent l'IDENTIFIANT et ne bougent pas. Les contrôles qui
 épinglaient chaque numéro (`TEST_NUM[…]` dans `tests/verifier.js`, les
 `numero` des fiches de `tests/profils.js`) ont suivi ; les commentaires plus
 anciens de la page et de ce journal citent les numéros de leur époque.
+
+**Puis le programme a POSÉ DES QUESTIONS : le sous-thème « Input ».**
+{python-input} (Seconde, 6.3.1, demande de Turquet, septembre 2026 : « en
+seconde dans le sous-thème "input" du thème algo, créer un exercice comme
+l'image ») est l'exercice 3 du carnet : un programme qui demande l'animal
+préféré et range la réponse dans `animal`, demande la couleur préférée et la
+range dans `couleur`, puis affiche `"vous aimez les ", animal, couleur` — avec
+les DEUX coups de pouce du carnet, repliés (les deux `input` en pointillés,
+puis le `print` en pointillés). Le sous-thème n'existait pas : il est créé en
+6.3, ajouté en dernier, et ne renumérote rien.
+**L'INTERPRÉTEUR A APPRIS input(), ET SEULEMENT QUAND ON LUI DONNE LES
+RÉPONSES** : `pyRun(src, entrees)` lit une réponse par appel et écrit dans la
+sortie ce qu'un terminal montrerait (la question, la réponse tapée, le retour
+à la ligne) ; la liste épuisée, il LÈVE une erreur qui porte `attente`, la
+question et la sortie déjà produite. Sans liste, `input` reste refusé en le
+nommant, exactement comme avant : aucun autre exercice ne change, et le banc
+le tient. La trace (`entrees` : question, réponse, variable qui l'a reçue)
+est ce que le juge lit.
+**« EXÉCUTER » EST UN DIALOGUE** : la console écrit la question, une case
+attend la réponse À LA SUITE de la question (à la taille du texte de la
+console), Entrée la donne, et la page REJOUE le programme avec une réponse de
+plus — un programme sans hasard redonne la même chose jusque-là, et c'est ce
+qui évite d'écrire un interpréteur suspendable. Le bouton est libre, comme au
+{python-print} : la sortie est l'outil.
+**LE JUGE RÉPOND DEUX FOIS, AVEC DES RÉPONSES QUE L'ÉLÈVE NE CONNAÎT PAS** :
+`pyiDiag` exécute la copie avec deux jeux de réponses rangés dans la paire
+(`ex`). Le risque propre de l'exercice est la copie qui affiche les mots que
+l'élève a tapés en essayant — `print("vous aimez les chats noirs")` — : elle
+ne passe jamais les deux, et le message le nomme (« toujours les mêmes mots,
+quelles que soient les réponses »). Il exige deux input, chaque réponse dans
+SA variable (l'ordre des deux questions est libre : rien ne le rend faux), une
+question dans chaque input (un input muet ne demande rien), puis UNE ligne :
+le texte (presque bon, `pyTexteProche`), puis les deux VALEURS exactes, dans
+l'ordre. À la vérification, la console montre l'exécution que le juge a lue,
+avec les réponses que la page a tapées.
+**LA SÉANCE** : la fiche épinglée en tête, puis deux paires tirées par
+`distinctes()` (prénom/nom, ville/pays, plat/dessert, sport/jour, fruit/légume)
+— le réglage « Questions » d'un devoir l'allonge jusqu'à six. Le programme
+voyage dans `q.prog` et compte pour une `pts-case` ; pas de correction au fil
+de la frappe (`soutienEnDirect.sans`).
+Banc jsdom (`pythonInput`, déclaré par `pythonInput` dans `tests/profils.js`) :
+la place au menu, l'interpréteur (refus sans réponses, sortie, attente,
+trace, et l'état qui ne fuit pas d'une exécution à l'autre), la fiche et le
+tirage (200 séances), le juge sur quatre copies justes et treize fausses
+chacune avec son mot, le dialogue d'« Exécuter » joué au clavier, les copies
+juste, fausse et vide, et le soutien qui ne révèle rien. Pas de section
+propre au banc NAVIGATEUR : la visite universelle (section 9) l'ouvre dans
+les deux modes comme tout exercice.

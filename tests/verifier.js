@@ -4143,6 +4143,7 @@ function exercices(suite){
     pythonNoms(w, P);
     pythonNomVariable(w, P);
     pythonPrint(w, P);
+    pythonInput(w, P);
     pythonTexteProche(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
@@ -22753,6 +22754,174 @@ function pythonNomVariable(w, P){
       verifier(nomPy + ' (' + CANDIDATS.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
     }
   }
+}
+
+/* {python-input} (Seconde, 6.3.1) : l'exercice 3 du carnet — un programme qui
+   DEMANDE deux réponses avec input, les range dans deux variables nommées,
+   puis affiche un texte suivi des deux réponses (demande de Turquet,
+   septembre 2026). Le contrôle épingle la fiche (animal, couleur, « vous
+   aimez les »), tient la place au menu (le sous-thème 6.3 « Input », rien
+   d'autre ne bouge), l'interpréteur (input refusé sans réponses, comme avant
+   ; avec, la question puis la réponse dans la sortie, et l'ATTENTE quand la
+   liste est épuisée), le juge sur des copies justes variées (ordre des
+   questions libre, espaces, presque bon) et sur des copies fausses — chacune
+   avec le mot qui la nomme, dont la copie qui affiche des mots écrits à la
+   main —, le dialogue d'« Exécuter » (la case de réponse DANS la console,
+   Entrée qui continue), la copie juste, fausse et vide en entraînement, et
+   le soutien qui explique sans révéler. Aucun accent grave ni antislash
+   littéral dans le code évalué. */
+function pythonInput(w, P){
+  const nom = '{python-input} : demander deux réponses avec input, puis les afficher';
+  if(!P.pythonInput){ ignorer(nom, 'ce niveau n\'a pas l\'exercice input'); return; }
+  const ID = P.pythonInput.exercice, NB = P.pythonInput.nb;
+  const present = evaluer(w, "typeof startPYI==='function' && typeof pyiDiag==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPYI / pyiDiag / pyRun introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ouvre le sous-thème 6.3 « Input » du thème 6, numéroté 6.3.1 — et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input : "+(st?st.nom:"aucun"));
+    if(TEST_NUM["${ID}"]!=="6.3.1") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. l'interpréteur ---- */
+  verifierEval(w, 'l’interpréteur : input refusé en le nommant quand on ne donne pas de réponses (aucun autre exercice ne change), la question puis la réponse dans la sortie quand on en donne, l’ATTENTE quand elles sont épuisées, et la variable qui a reçu chaque réponse', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    const prog="a = input("+Q+"Q ? "+Q+")"+NL+"print(a)";
+    try{ pyRun(prog); vus.push("input accepté sans réponses"); }catch(e){ if(!/input/.test(e.message)) vus.push("refus muet : "+e.message); }
+    const r=pyRun(prog,["oui"]);
+    if(r.out!=="Q ? oui"+NL+"oui"+NL) vus.push("sortie "+JSON.stringify(r.out));
+    if(!r.entrees.length||r.entrees[0].var!=="a"||r.entrees[0].val!=="oui"||r.entrees[0].invite!=="Q ? ") vus.push("trace "+JSON.stringify(r.entrees));
+    try{ pyRun(prog,[]); vus.push("aucune attente quand les réponses manquent"); }catch(e){ if(!e.attente||e.invite!=="Q ? ") vus.push("attente mal formée : "+e.message); }
+    try{ pyRun(prog); }catch(e){}
+    try{ pyRun("a = input("+Q+"x"+Q+")"); vus.push("une exécution avec réponses a laissé input actif pour la suivante"); }catch(e){}
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (animal, couleur, « vous aimez les »), puis des paires distinctes ; le modèle de chacune passe au juge (200 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<200&&vus.length<4;s++){
+      const qs=pyiBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const P0=pyiPaire(qs[0]);
+      if(P0.v1!=="animal"||P0.v2!=="couleur"||P0.texte!=="vous aimez les"){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(P0)); break; }
+      const ps=qs.map(function(q){ return q.p; });
+      if(new Set(ps).size!==ps.length){ vus.push("deux fois la même paire : "+ps.join(",")); break; }
+      qs.forEach(function(q){ vues[q.p]=1; if(q.prog!=="") vus.push("programme non vide au départ"); if(!pyiDiag(pyiModele(q),q).ok) vus.push("le modèle de la paire "+q.p+" est refusé"); });
+    }
+    if(Object.keys(vues).length<4) vus.push("le tirage ne varie pas : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (ordre des questions libre, espaces, presque bon) et nomme chaque défaut — mots écrits à la main, nom entre guillemets, désordre, input muet, majuscule, print avant input, autres variables, une seule question, une de trop, deux lignes, autre texte, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={p:0,prog:""};
+    const ia="animal = input("+Q+"Ton animal ? "+Q+")", ic="couleur = input("+Q+"Ta couleur ? "+Q+")";
+    const pr=function(args){ return "print("+args+")"; };
+    const justes=[ia+NL+ic+NL+pr(Q+"vous aimez les "+Q+", animal , couleur"),
+                  ic+NL+ia+NL+pr(Q+"vous aimez les"+Q+", animal, couleur"),
+                  ia+NL+ic+NL+pr(Q+"vous aimez le"+Q+", animal, couleur"),
+                  ia+NL+NL+ic+NL+"# affichage"+NL+pr(Q+"vous aimez les "+Q+" + animal + "+Q+" "+Q+" + couleur")];
+    justes.forEach(function(p){ const d=pyiDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      [ia+NL+ic+NL+pr(Q+"vous aimez les chats noirs"+Q), /mêmes mots/],
+      [ia+NL+ic+NL+pr(Q+"vous aimez les"+Q+", "+Q+"animal"+Q+", couleur"), /SANS guillemets/],
+      [ia+NL+ic+NL+pr(Q+"vous aimez les"+Q+", couleur, animal"), /désordre/],
+      ["animal = input()"+NL+ic+NL+pr(Q+"vous aimez les"+Q+", animal, couleur"), /pas de question/],
+      ["animal = Input("+Q+"a"+Q+")", /minuscules/],
+      [pr(Q+"vous aimez les"+Q+", animal, couleur")+NL+ia+NL+ic, /AVANT le print/],
+      ["a = input("+Q+"a"+Q+")"+NL+"b = input("+Q+"b"+Q+")"+NL+pr(Q+"vous aimez les"+Q+", a, b"), /variable animal/],
+      [ia+NL+pr(Q+"vous aimez les"+Q+", animal"), /qu’une question/],
+      [ia+NL+ic+NL+"z = input("+Q+"?"+Q+")"+NL+pr(Q+"vous aimez les"+Q+", animal, couleur"), /plus de deux/],
+      [ia+NL+ic+NL+pr(Q+"vous aimez les"+Q+", animal")+NL+pr("couleur"), /2 lignes/],
+      [ia+NL+ic+NL+pr(Q+"bonjour"+Q+", animal, couleur"), /le texte au début/],
+      [ia+NL+ic, /n’affiche rien/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pyiDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. l'écran, le dialogue, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : l’énoncé à puces nomme les deux variables, deux coups de pouce repliés qui ne donnent pas la ligne du print, « Exécuter » pose la question DANS la console et Entrée continue ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYI();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pyiInstr");
+    if(!en||en.querySelectorAll("li").length!==3||en.textContent.indexOf("animal")<0||en.textContent.indexOf("couleur")<0) vus.push("l’énoncé : "+(en&&en.textContent));
+    const pouces=document.querySelectorAll("#pyiHost details.pyd-pouce");
+    if(pouces.length!==2) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); if(d.textContent.indexOf("vous aimez les")>=0) vus.push("un coup de pouce écrit le texte à afficher"); });
+    const ta=document.getElementById("pyi-prog"), cons=document.getElementById("pyiConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value="animal = input("+Q+"Animal ? "+Q+")"+NL+"couleur = input("+Q+"Couleur ? "+Q+")"+NL+"print("+Q+"vous aimez les"+Q+", animal, couleur)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pyiExecuter();
+    let rep=document.getElementById("pyi-rep");
+    if(!rep||!cons.contains(rep)) vus.push("la console ne demande pas la réponse");
+    else {
+      if(cons.textContent.indexOf("Animal ? ")<0) vus.push("la question n’est pas écrite dans la console : "+JSON.stringify(cons.textContent));
+      rep.value="chiens"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      rep=document.getElementById("pyi-rep");
+      if(!rep||cons.textContent.indexOf("Animal ? chiens")<0) vus.push("Entrée ne passe pas à la question suivante : "+JSON.stringify(cons.textContent));
+      else { rep.value="bleus"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); }
+      if(document.getElementById("pyi-rep")) vus.push("la case reste après la dernière réponse");
+      if(cons.textContent.split(NL).pop()!=="vous aimez les chiens bleus") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+    }
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPYI();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("pyiNext")) vus.push("pas de « Question suivante »");
+    nextPYI();
+    if(test.idx!==1||document.getElementById("pyi-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPYI();
+    let ta=document.getElementById("pyi-prog");
+    ta.value="animal = input("+Q+"a ? "+Q+")"+NL+"couleur = input("+Q+"c ? "+Q+")"+NL+"print("+Q+"vous aimez les chats noirs"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYI();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pyiModele .sol");
+    if(!mod||mod.textContent!==pyiModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPYI(); ta=document.getElementById("pyi-prog");
+    checkPYI();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pyiModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPYI(); ta=document.getElementById("pyi-prog");
+    checkPYI();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="animal = input("+Q+"a ? "+Q+")"+NL+"couleur = input("+Q+"c ? "+Q+")"+NL+"print("+Q+"vous aimez les"+Q+", "+Q+"animal"+Q+", couleur)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPYI();
+    const fb=document.getElementById("pyiFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/SANS guillemets/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pyiModele .sol")||fb.indexOf("Quel est votre")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPyi(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
 }
 
 /* {python-print} (Seconde) : le cours de print en trois cadres, puis l'élève

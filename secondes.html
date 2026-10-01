@@ -565,7 +565,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -1056,6 +1056,11 @@
   .pyp-edit.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
   .pyp-modele.sol{border-color:var(--green);border-left-color:var(--green);background:var(--green-soft);color:var(--green)}
   .py-console.py-err{border-color:var(--red);background:var(--red-soft);color:var(--red);white-space:pre-wrap}
+  /* {python-input} : la réponse se tape DANS la console, à la suite de la question, à la taille du texte qui l'entoure */
+  .pyi-instr{text-align:left}
+  .pyi-instr .pyd-puces{margin:6px 0 0}
+  .pyi-cours{margin:0 0 10px}
+  .pyi-rep{font:inherit;color:var(--blue);background:#fff;border:none;border-bottom:2px solid var(--blue);outline:none;padding:0 2px;margin:0;width:14ch;max-width:60%}
   @media(max-width:760px){ .pyp-cours{grid-template-columns:1fr} }
   @media(max-width:520px){ .pyp-edit{font-size:1rem;padding:10px 12px} }
 
@@ -4203,6 +4208,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : DEMANDER DEUX RÉPONSES AVEC INPUT (PYTHON) -->
+  <section class="screen" id="scr-pyi">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPYI"></span><span class="q-idx" id="pyiIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="pyiLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <div class="mp-instr pyi-instr" id="pyiInstr"></div>
+      <div class="mp-stage"><div style="width:100%" id="pyiHost"></div></div>
+      <div class="mp-feedback" id="pyiFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pyiActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pyiValidate" onclick="checkPYI()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : AFFICHER UN TEXTE SUIVI D'UNE VARIABLE (PYTHON, COMPLÉTER UN PROGRAMME) -->
   <section class="screen" id="scr-pyx">
     <div class="test-top">
@@ -5036,7 +5057,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=257;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=258;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5753,6 +5774,7 @@ const TESTS={
      compris, et seuls les NOMS des variables manquent — « compléter
      LOGIQUEMENT » (demande de Turquet, septembre 2026). */
   'python-placer-variables': { name:'Placer les variables dans un print', icon:'\ud83d\udccd', desc:'Le programme est \u00e9crit en entier, print compris\u00a0: seuls les noms des variables manquent. Place chaque variable \u00e0 sa place en lisant le texte qui la pr\u00e9c\u00e8de, ex\u00e9cute le programme et relis la phrase qu\u2019il \u00e9crit \u2014 deux variables \u00e9chang\u00e9es ne provoquent aucune erreur, mais la phrase ne veut plus rien dire.', start:()=>startPYV() },
+  'python-input': { name:'Demander deux r\u00e9ponses avec input', icon:'\u2753', desc:'\u00c9cris un programme qui pose deux questions avec input, range chaque r\u00e9ponse dans sa variable, puis affiche un texte suivi des deux r\u00e9ponses. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPYI() },
   'python-print': { name:'\u00c9cris ton premier print', icon:'\u2328\ufe0f', desc:'Le cours explique print et le texte entre guillemets. Puis \u00e0 toi\u00a0: \u00e9cris un programme qui affiche \u00ab\u00a0je suis en seconde\u00a0\u00bb, ex\u00e9cute-le autant de fois que tu veux, et fais-le v\u00e9rifier. En soutien, la page te dit ce qui ne va pas dans ton programme.', start:()=>startPYP() },
   'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
   'simplifier-fractions': { name:'Somme de fractions \u00e0 simplifier', icon:'\u2702\ufe0f', desc:'Comme {somme-fractions}, mais les deux d\u00e9nominateurs ont un diviseur commun et le r\u00e9sultat se simplifie : on divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le d\u00e9nominateur commun reste libre.', start:()=>startSFSimp() },
@@ -5842,7 +5864,8 @@ const THEMES=[
      5.2.2). */
   { num:6, nom:'Algorithmique et Python', sous:[
       { num:1, nom:'Print et variable',   ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre'] },
-      { num:2, nom:'Variable et calcul',  ids:['python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-pas-a-pas-multiplication','python-echange-par-lettres'] }
+      { num:2, nom:'Variable et calcul',  ids:['python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-pas-a-pas-multiplication','python-echange-par-lettres'] },
+      { num:3, nom:'Input',               ids:['python-input'] }
   ] },
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
@@ -6581,6 +6604,7 @@ function conseilPaire(){
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
   else if(test.kind==='pnv' && q) b=ctxPnv(q);
   else if(test.kind==='pyp' && q) b=ctxPyp(q);
+  else if(test.kind==='pyi' && q) b=ctxPyi(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
   else if(test.kind==='plc' && q) b=ctxPlc(q);
@@ -6920,6 +6944,7 @@ const QIA_SUGG={
   pty:["Quelle est la différence entre 15 et \"15\" ?","Pourquoi 15.0 est-il un float et pas un int ?","Un nombre négatif comme -3, c’est quel type ?","À quoi sert type() ?"],
   pyc:["Comment afficher la valeur d’une variable ?","Quelle est la différence entre note et \"note\" dans un print ?","Pourquoi écrire juste le nom de la variable n’affiche rien ?","Que veut dire l’erreur « n’existe pas » ?"],
   pnv:["Pourquoi l’espace est-il interdit dans un nom de variable ?","Est-ce que je peux mettre un chiffre dans un nom de variable ?","Pourquoi « print » ne peut-il pas être un nom de variable ?","Comment écrire un nom qui contient deux mots ?"],
+  pyi:["À quoi sert input ?","Où va la réponse que l’utilisateur tape ?","Pourquoi le nom de la variable s’écrit-il sans guillemets dans le print ?","Pourquoi faut-il écrire input avant le print ?"],
   pyp:["Pourquoi faut-il des guillemets autour du texte ?","Quelle est la différence entre print(bonjour) et print(\"bonjour\") ?","Pourquoi Print avec une majuscule ne marche pas ?","À quoi servent les parenthèses de print ?"],
   pyx:["Pourquoi faut-il des guillemets autour du texte, mais pas autour de la variable ?","À quoi sert la virgule dans print ?","Que se passe-t-il si j’écris la variable entre guillemets ?","Pourquoi Python dit-il que la variable « la » n’existe pas ?"],
   pop:["Comment écrire une opération dans un programme ?","Pourquoi faut-il ranger le résultat dans une variable ?","Quelle différence entre / et // en Python ?","Pourquoi le quotient s’affiche-t-il avec un point ?"],
@@ -7796,6 +7821,11 @@ const RAP_PYP=`<b>Écrire un print</b><br>
 /* Afficher un texte suivi d’une variable : le cours de l’écran, en rappel.
    Les nombres vivent dans des balises code (le contrôle des numéros en dur
    ne lit que la prose). */
+/* Demander une réponse avec input : la règle de l'écran, en rappel. */
+const RAP_PYI=`<b>Demander une réponse avec input</b><br>
+<b>① <code class="inline">variable = input("question")</code></b> : Python affiche la question, attend que l’utilisateur tape sa réponse et appuie sur Entrée, puis range cette réponse dans la variable écrite à gauche du <code class="inline">=</code>.<br>
+<b>② La réponse est un texte</b> : elle s’affiche ensuite telle que l’utilisateur l’a tapée.<br>
+<b>③ Pour l’afficher</b>, on écrit le NOM de la variable dans le print, SANS guillemets : <code class="inline">print("vous aimez les", animal, couleur)</code>. Entre guillemets, c’est le mot qui s’afficherait, pas la réponse.`;
 const RAP_PYX=`<b>Afficher un texte suivi de la valeur d’une variable</b><br>
 On écrit les deux dans le MÊME <code class="inline">print</code>, séparés par une <b>virgule</b> : <code class="inline">print("texte", variable)</code>.<br>
 <b>① Le texte se met entre guillemets</b> — il s’affiche tel quel, SANS les guillemets.<br>
@@ -7975,7 +8005,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}\\)`;
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
 const RAPPELS_ID={ 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
@@ -8086,7 +8116,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -8523,7 +8553,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -8651,7 +8681,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyx','pyd','pyv','ptv','pcv','pop','pdc','pap','pvm','ppc','ppd','ppm','pev','pel'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -27347,7 +27377,7 @@ function pyExpr(t, p0, env){
         p++; const args=[];
         if(!isOp(')')){ args.push(arith()); while(isOp(',')){ p++; args.push(arith()); } }
         if(!isOp(')')) throw new Error('SyntaxError : parenthèse non fermée'); p++;
-        return pyAppel(x.v,args);
+        return (x.v==='input' && _pyIn)?pyInput(args):pyAppel(x.v,args);
       }
       if(!Object.prototype.hasOwnProperty.call(env,x.v)) throw new Error('NameError : la variable « '+x.v+' » n’existe pas');
       return env[x.v];
@@ -27368,8 +27398,35 @@ function pyExpr(t, p0, env){
    pour chaque argument, s'il était un texte nu, un nom nu, ou une expression.
    C'est cette trace que pyAns lit pour savoir quel texte et quelle variable
    l'énoncé fait dire. */
-function pyRun(src){
+/* input() N'EXISTE QUE SI L'ON DONNE LES RÉPONSES (le sous-thème « Input »,
+   {python-input}) : pyRun(src, entrees) lit les réponses de l'utilisateur
+   dans la liste « entrees », une par appel, et écrit dans la sortie ce qu'un
+   terminal montrerait — la question, puis la réponse tapée, puis le retour à
+   la ligne. Quand la liste est épuisée, il LÈVE une erreur qui porte
+   « attente » : c'est ce qui permet au bouton « Exécuter » de poser la
+   question à l'élève, puis de rejouer le programme avec une réponse de plus
+   (un programme sans hasard redonne la même chose jusque-là). Sans liste,
+   input() reste refusé en le nommant, comme avant : aucun autre exercice ne
+   change de comportement. La trace des input (la question, la réponse, et la
+   variable qui l'a reçue) sort dans « entrees » : c'est elle que le juge lit. */
+let _pyIn=null;
+function pyInput(a){
+  if(a.length>1) throw new Error('TypeError : input() attend au plus un argument');
+  const invite=a.length?pyRep(a[0]):'';
+  if(!_pyIn.file.length){
+    const e=new Error('EOFError : le programme attend une réponse');
+    e.attente=true; e.invite=invite; e.sortie=_pyIn.sortie(); throw e;
+  }
+  const v=String(_pyIn.file.shift());
+  _pyIn.ecrire(invite+v+'\n'); _pyIn.lus.push({invite:invite, val:v, var:null});
+  return {t:'str', v:v};
+}
+function pyRun(src, entrees){
   const env={}, prints=[]; let out='';
+  const avant=_pyIn;
+  _pyIn=Array.isArray(entrees)?{file:entrees.slice(), lus:[], ecrire:function(s){ out+=s; }, sortie:function(){ return out; }}:null;
+  const lus=_pyIn?_pyIn.lus:[];
+  try{
   String(src).split('\n').forEach(function(ligne, n){
     const t=pyLex(ligne); if(!t.length) return;
     const op=function(i,v){ return !!t[i] && t[i].k==='op' && t[i].v===v; };
@@ -27386,7 +27443,9 @@ function pyRun(src){
       out+=vals.map(pyRep).join(' ')+'\n'; prints.push({args:args, vals:vals}); return;
     }
     if(t[0].k==='nom' && op(1,'=')){
+      const n0=lus.length;
       const r=pyExpr(t,2,env); if(t[r.p]) throw new Error('SyntaxError ligne '+(n+1));
+      for(let k=n0;k<lus.length;k++) lus[k].var=t[0].v;
       env[t[0].v]=r.v; return;
     }
     /* « print note » : CPython dit « Missing parentheses in call to 'print' »,
@@ -27401,12 +27460,13 @@ function pyRun(src){
        inconnue y lève NameError, comme là-bas. */
     const r=pyExpr(t,0,env); if(t[r.p]) throw new Error('SyntaxError ligne '+(n+1));
   });
-  return {out:out, env:env, prints:prints};
+  } finally { _pyIn=avant; }
+  return {out:out, env:env, prints:prints, entrees:lus};
 }
 /* Le code s'affiche coloré comme dans le carnet Jupyter de la fiche : les
    nombres et print en vert, les textes en rouge, le « = » en violet. */
 function pyColorie(src){
-  const re=/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(#[^\n]*)|(\b\d+(?:\.\d*)?(?:[eE][+-]?\d+)?\b)|(\bprint\b|\bstr\b|\bint\b|\bfloat\b|\btype\b)|([=+\-*\/%])/g;
+  const re=/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(#[^\n]*)|(\b\d+(?:\.\d*)?(?:[eE][+-]?\d+)?\b)|(\bprint\b|\binput\b|\bstr\b|\bint\b|\bfloat\b|\btype\b)|([=+\-*\/%])/g;
   let out='', i=0, m;
   while((m=re.exec(src))){
     out+=esc(src.slice(i,m.index));
@@ -28868,6 +28928,334 @@ function ctxPyp(q){
   c+='Ce que l’élève a écrit :\n'+(prog.trim()?prog:'(rien pour l’instant)')+'\n';
   if(d) c+=d.ok?'Son programme affiche bien le texte demandé. ':('Ce que la page a relevé : '+d.dits.join(' ')+' ');
   c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) : print("'+q.texte+'"). Aide-le à trouver lui-même : rappelle la règle en jeu — le mot print en minuscules, les parenthèses, les guillemets droits qui entourent le texte, le texte exact — sans jamais écrire le programme complet.';
+  return {nombre:'', contexte:c};
+}
+
+/* ---------- Exercice : demander deux réponses avec input (Python) ----------
+   Demande de Turquet (septembre 2026) : « en seconde dans le sous-thème
+   "input" du thème algo, créer un exercice comme l'image » — l'exercice 3 du
+   carnet : « Faire un programme dans la cellule ci-dessous qui demande votre
+   animal préféré et met la réponse dans la variable animal, qui demande votre
+   couleur préférée et met la réponse dans la variable couleur, puis qui
+   affiche "vous aimez les ", animal, couleur », avec ses DEUX coups de pouce
+   repliés. Il ouvre le sous-thème 6.3 « Input » : ajouté en dernier, il ne
+   renumérote rien.
+
+   C'EST LE PREMIER PROGRAMME QUI DIALOGUE. Les autres exercices du thème
+   n'affichent que ce que le programme contient ; ici le programme POSE des
+   questions, et ce qu'il affiche dépend des réponses. « Exécuter » est donc
+   un vrai dialogue, comme sur le carnet : la console écrit la question, une
+   case attend la réponse de l'élève, Entrée la donne, et le programme
+   continue (pyRun rejoue le programme avec une réponse de plus — voir
+   l'interpréteur). « Exécuter » est LIBRE, comme au {python-print} : la
+   sortie est l'OUTIL, pas la réponse.
+
+   LE JUGE EST LA SORTIE, ET IL RÉPOND DEUX FOIS. pyiDiag exécute la copie
+   avec DEUX jeux de réponses que l'élève ne connaît pas : une copie qui
+   affiche les mots qu'il a tapés lui-même en essayant (print("vous aimez les
+   chats noirs")) passe la première fois au mieux, jamais la seconde — et le
+   message le nomme. Il exige : deux input, la réponse de l'animal rangée
+   dans la variable animal et celle de la couleur dans couleur (l'ordre des
+   deux questions est libre : rien ne le rend faux), une question écrite dans
+   chaque input (un input muet ne « demande » rien à l'écran), puis UNE ligne
+   affichée : le texte, la valeur d'animal, la valeur de couleur. Le texte se
+   compare par pyTexteProche (les espaces ne comptent pas, un ou deux
+   caractères non plus — la règle partagée des textes affichés) ; les VALEURS,
+   elles, sont exactes. La question écrite dans l'input est libre : c'est la
+   phrase de l'élève.
+
+   LA SÉANCE : la fiche du carnet en tête, ÉPINGLÉE (animal, couleur, « vous
+   aimez les »), puis des paires tirées par distinctes() — même geste, autres
+   noms, pour refaire plutôt que recopier. Le programme de l'élève voyage dans
+   la question (q.prog) et compte pour UNE case (pts-case) : les leçons de
+   {python-print}. Aucune correction au fil de la frappe (déclaré dans
+   tests/profils.js). */
+const PYI_NB=3;
+const PYI_PAIRES=[
+  {v1:'animal', v2:'couleur', d1:'votre animal préféré', d2:'votre couleur préférée', texte:'vous aimez les',
+   i1:'Quel est votre animal préféré ? ', i2:'Quelle est votre couleur préférée ? ', ex:[['chats','noirs'],['lapins','gris']]},
+  {v1:'prenom', v2:'nom', d1:'votre prénom', d2:'votre nom de famille', texte:'vous vous appelez',
+   i1:'Quel est votre prénom ? ', i2:'Quel est votre nom ? ', ex:[['Léa','Martin'],['Hugo','Petit']]},
+  {v1:'ville', v2:'pays', d1:'votre ville', d2:'votre pays', texte:'vous habitez à',
+   i1:'Dans quelle ville habitez-vous ? ', i2:'Dans quel pays ? ', ex:[['Lyon','France'],['Genève','Suisse']]},
+  {v1:'plat', v2:'dessert', d1:'votre plat préféré', d2:'votre dessert préféré', texte:'au menu :',
+   i1:'Quel est votre plat préféré ? ', i2:'Quel est votre dessert préféré ? ', ex:[['pizza','glace'],['lasagnes','tarte']]},
+  {v1:'sport', v2:'jour', d1:'votre sport préféré', d2:'le jour où vous le pratiquez', texte:'vous faites du',
+   i1:'Quel est votre sport préféré ? ', i2:'Quel jour le pratiquez-vous ? ', ex:[['tennis','lundi'],['judo','samedi']]},
+  {v1:'fruit', v2:'legume', d1:'votre fruit préféré', d2:'votre légume préféré', texte:'vos préférés sont :',
+   i1:'Quel est votre fruit préféré ? ', i2:'Quel est votre légume préféré ? ', ex:[['pomme','carotte'],['kiwi','tomate']]}
+];
+function pyiBuildQuestions(){
+  const n=Math.min(dmNbQuestions(PYI_NB), PYI_PAIRES.length);
+  return distinctes(n, function(_, i){ return {p:i===0?0:rand(1,PYI_PAIRES.length-1), prog:''}; });
+}
+function pyiPaire(q){ return PYI_PAIRES[q.p]||PYI_PAIRES[0]; }
+/* Un programme qui convient — pour la correction en vert, jamais pour juger. */
+function pyiModele(q){
+  const P=pyiPaire(q);
+  return P.v1+' = input("'+P.i1+'")\n'+P.v2+' = input("'+P.i2+'")\nprint("'+P.texte+'", '+P.v1+', '+P.v2+')';
+}
+function pyiCases(q){ return [{id:'pyi-prog'}]; }
+
+/* ---- 1. Le juge ---- */
+/* Une exécution avec un jeu de réponses : rend ce qui s'est passé, sans juger. */
+function pyiEssai(src, rep){
+  try{ return {r:pyRun(src, rep), err:null}; }catch(e){ return {r:null, err:e}; }
+}
+/* La ligne affichée est-elle « texte, valeur 1, valeur 2 » ? Les espaces ne
+   comptent pas ; le texte est presque bon à un ou deux caractères près ; les
+   valeurs sont exactes, et dans l'ordre. */
+function pyiLigneOk(ligne, P, a, c){
+  const L=pySansEspaces(ligne), fin=pySansEspaces(a)+pySansEspaces(c);
+  if(L.length<fin.length || L.slice(L.length-fin.length)!==fin) return false;
+  return pyTexteProche(L.slice(0, L.length-fin.length), P.texte);
+}
+function pyiAffiche(r){ return r.prints.map(function(p){ return p.vals.map(pyRep).join(' '); }); }
+/* L'erreur de l'interpréteur, dite avec les mots d'un élève de Seconde. */
+function pyiTraduire(src, err, P){
+  const msg=err.message||String(err); let m;
+  if(/[«»“”‘’]/.test(src)) return 'Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.';
+  if((m=msg.match(/fonction « ([^»]+) »/))){
+    if(m[1].toLowerCase()==='input') return '« '+m[1]+' » : input s’écrit tout en minuscules.';
+    if(m[1].toLowerCase()==='print') return '« '+m[1]+' » : print s’écrit tout en minuscules.';
+    if(pyDist(m[1].toLowerCase(),'input')<=2) return '« '+m[1]+' » n’existe pas en Python : la fonction qui pose une question s’écrit input.';
+  }
+  if((m=msg.match(/NameError : la variable « ([^»]+) »/))){
+    if(m[1]===P.v1||m[1]===P.v2) return 'Python lit la variable '+m[1]+' alors qu’elle n’existe pas encore : il faut d’abord écrire '+m[1]+' = input("…"), AVANT le print qui l’affiche.';
+    if(m[1]==='input') return 'Après input, il faut des parenthèses : input("…").';
+  }
+  if(/argument/.test(msg) && /input/.test(msg)) return 'input("…") ne prend qu’une seule chose entre ses parenthèses : la question, entre guillemets.';
+  return pypTraduire(msg);
+}
+/* pyiDiag rend { ok, vide, ecart, ligne, dits } : ok quand les deux
+   exécutions affichent ce qu'on demande, sinon la liste des défauts NOMMÉS. */
+function pyiDiag(src, q){
+  src=String(src||''); const P=pyiPaire(q);
+  if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris les deux input, puis le print.']};
+  const essais=P.ex.map(function(rep){ return pyiEssai(src, rep); });
+  const a=essais[0], dits=[];
+  if(a.err){
+    if(a.err.attente) dits.push('Ton programme pose plus de deux questions : il faut exactement deux input, un pour '+P.v1+' et un pour '+P.v2+'.');
+    else dits.push(pyiTraduire(src, a.err, P));
+    return {ok:false, vide:false, dits:dits};
+  }
+  const lus=a.r.entrees, env=a.r.env;
+  if(lus.length<2){
+    dits.push(lus.length
+      ? 'Ton programme ne pose qu’une question : il en faut deux, une pour '+P.v1+' et une pour '+P.v2+'.'
+      : 'Ton programme ne pose aucune question : c’est input("…") qui demande une réponse à l’utilisateur, et range cette réponse dans une variable.');
+    return {ok:false, vide:false, dits:dits};
+  }
+  [P.v1, P.v2].forEach(function(v){
+    const e=lus.filter(function(l){ return l.var===v; })[0];
+    if(!e){
+      if(Object.prototype.hasOwnProperty.call(env, v)) dits.push('La variable '+v+' ne reçoit pas la réponse d’un input : écris '+v+' = input("…").');
+      else dits.push('La réponse doit être rangée dans la variable '+v+' : écris '+v+' = input("…").');
+    } else if(!env[v] || env[v].t!=='str' || env[v].v!==e.val) dits.push('La variable '+v+' est modifiée après l’input : elle doit garder la réponse de l’utilisateur.');
+  });
+  if(lus.some(function(l){ return !l.invite.trim(); })) dits.push('Un input n’a pas de question entre ses parenthèses : l’utilisateur ne saura pas quoi répondre. Écris la question entre guillemets, input("…").');
+  if(dits.length) return {ok:false, vide:false, dits:dits};
+  /* les réponses sont dans les bonnes variables : reste ce qui s'affiche */
+  const juge=function(x){
+    if(x.err) return false;
+    const aff=pyiAffiche(x.r);
+    return aff.length===1 && pyiLigneOk(aff[0], P, x.r.env[P.v1].v, x.r.env[P.v2].v);
+  };
+  if(essais.every(juge)){
+    /* les espaces RÉPÉTÉES ne se nomment pas : l'énoncé du carnet écrit
+       "vous aimez les " avec son espace, et la virgule en ajoute une — la copie
+       qui recopie l'énoncé ne doit pas se voir reprocher une espace */
+    const net=function(x){ return String(x).trim().replace(/\s+/g,' '); };
+    const l=net(pyiAffiche(a.r)[0]), att=P.texte+' '+a.r.env[P.v1].v+' '+a.r.env[P.v2].v;
+    return {ok:true, vide:false, ligne:l, ecart:pyEcart(l, att), dits:[]};
+  }
+  const aff=pyiAffiche(a.r), va=a.r.env[P.v1].v, vc=a.r.env[P.v2].v;
+  if(!aff.length) dits.push('Ton programme pose bien les questions, mais n’affiche rien : il faut un print à la fin.');
+  else if(aff.length>1) dits.push('Ton programme affiche '+aff.length+' lignes ; il doit en afficher une seule : le texte, puis '+P.v1+', puis '+P.v2+', dans le MÊME print, séparés par des virgules.');
+  else {
+    const L=aff[0].trim(), args=a.r.prints[0].args;
+    const entreGuill=args.filter(function(x){ return x.k==='str' && (x.v.trim()===P.v1 || x.v.trim()===P.v2); })[0];
+    if(entreGuill) dits.push('"'+entreGuill.v.trim()+'" entre guillemets affiche le MOT « '+entreGuill.v.trim()+' », pas la réponse : écris le nom de la variable SANS guillemets.');
+    else if(juge(a)) dits.push('Ton programme affiche toujours les mêmes mots, quelles que soient les réponses : il faut afficher les VARIABLES '+P.v1+' et '+P.v2+', pas des mots écrits à la main.');
+    else if(pyiLigneOk(L, P, vc, va)) dits.push('Les deux réponses sont affichées dans le désordre : d’abord '+P.v1+', puis '+P.v2+'.');
+    else {
+      const Ls=pySansEspaces(L), fin=pySansEspaces(va)+pySansEspaces(vc);
+      if(Ls.slice(Ls.length-fin.length)===fin) dits.push('Ton programme affiche « '+L+' » : le texte au début doit être « '+P.texte+' ».');
+      else dits.push('Ton programme affiche « '+L+' » : il doit afficher le texte « '+P.texte+' », puis la valeur de '+P.v1+', puis celle de '+P.v2+'.');
+    }
+  }
+  return {ok:false, vide:false, dits:dits};
+}
+
+/* ---- 2. L'écran ---- */
+/* L'énoncé du carnet, à puces — écrit par le rendu, depuis la question. */
+function pyiEnonceHTML(q){
+  const P=pyiPaire(q);
+  return '<b>Écris</b> un programme dans la cellule ci-dessous&nbsp;:'
+    +'<ul class="pyd-puces">'
+    +'<li>qui <b>demande '+esc(P.d1)+'</b> et met la réponse dans la variable <code>'+esc(P.v1)+'</code>&nbsp;;</li>'
+    +'<li>qui <b>demande '+esc(P.d2)+'</b> et met la réponse dans la variable <code>'+esc(P.v2)+'</code>&nbsp;;</li>'
+    +'<li>puis qui affiche&nbsp;: <code>"'+esc(P.texte)+' "</code>, '+esc(P.v1)+', '+esc(P.v2)+'.</li>'
+    +'</ul>';
+}
+/* Le cours d'input, en un cadre : la seule chose que le thème n'a pas encore dite. */
+function pyiCoursHTML(){
+  return '<div class="pyp-regle pyi-cours"><b><code>input("…")</code> pose une question</b> : Python affiche le texte entre guillemets, ATTEND que l’utilisateur tape sa réponse et appuie sur Entrée, puis range cette réponse dans la variable à gauche du <code>=</code>.'
+    +'<span class="pyp-ex"><code>ville = input("Ville ? ")</code> — si l’on répond Paris, la variable <code>ville</code> contient le texte <code>Paris</code>.</span></div>';
+}
+/* Les deux coups de pouce du carnet : la FORME, avec des pointillés. */
+function pyiPoucesHTML(q){
+  const P=pyiPaire(q);
+  return pyPoucesHTML([
+    ['coup de pouce 1', 'Il faut écrire&nbsp;: <code>'+esc(P.v1)+' = input("......... ? ")</code><br>puis&nbsp;: <code>'+esc(P.v2)+' = input("......... ? ")</code>'],
+    ['coup de pouce 2', 'Il faut ensuite écrire&nbsp;: <code>print("........", '+esc(P.v1)+', '+esc(P.v2)+')</code>']
+  ]);
+}
+
+/* ---- 3. Cycle de vie ---- */
+async function startPYI(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pyiBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pyi', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+pyiCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pyi'); renderPYI();
+}
+let _pyiSaveTimer=null, _pyiRep=null;
+function renderPYI(){
+  const q=test.questions[test.idx]; test.locked=false; _pyiRep=null;
+  $('pyiIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPYI').innerHTML=modeTagHTML();
+  $('pyiLiveScore').textContent=test.score;
+  $('pyiInstr').innerHTML=pyiEnonceHTML(q);
+  $('pyiFeedback').textContent=''; $('pyiFeedback').className='mp-feedback';
+  $('pyiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyiValidate" onclick="checkPYI()">Vérifier</button>';
+  $('pyiHost').innerHTML=
+    '<div class="py-cell">'
+    +pyiCoursHTML()
+    +pyiPoucesHTML(q)
+    +'<p class="py-label">Ton programme</p>'
+    +'<textarea id="pyi-prog" class="pyp-edit pts-case" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="pyiRun" type="button" onclick="pyiExecuter()">▶ Exécuter mon programme</button>'
+    +'<span class="py-hint" id="pyiRunHint">Exécute-le : quand il pose une question, réponds dans la console et appuie sur Entrée.</span></div>'
+    +'<p class="py-label">La console</p>'
+    +'<pre class="py-console" id="pyiConsole"></pre>'
+    +'<div id="pyiModele"></div>'
+    +'</div>';
+  const ta=$('pyi-prog'); ta.value=q.prog||'';
+  ta.addEventListener('input', pyiSaisie);
+}
+function pyiSaisie(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], ta=$('pyi-prog'); if(!q||!ta) return;
+  q.prog=ta.value;
+  ta.classList.remove('bad');
+  /* le programme a changé : l'exécution en cours ne le décrit plus */
+  if(_pyiRep){ _pyiRep=null; const c=$('pyiConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','py-err'); } }
+  clearTimeout(_pyiSaveTimer); _pyiSaveTimer=setTimeout(autoSave,1000);
+}
+/* Le dialogue : on exécute avec les réponses déjà données ; si le programme
+   en attend une de plus, la console montre sa question et une case. */
+function pyiPas(){
+  const ta=$('pyi-prog'), c=$('pyiConsole'); if(!ta||!c) return;
+  const src=ta.value;
+  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
+  if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _pyiRep=null; return; }
+  let r=null, err=null;
+  try{ r=pyRun(src, _pyiRep); }catch(e){ err=e; }
+  const h=$('pyiRunHint');
+  if(err && err.attente){
+    c.textContent=err.sortie;
+    const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
+    const inp=document.createElement('input');
+    inp.type='text'; inp.id='pyi-rep'; inp.className='pyi-rep'; inp.autocomplete='off';
+    inp.setAttribute('autocapitalize','off'); inp.setAttribute('autocorrect','off'); inp.spellcheck=false;
+    inp.setAttribute('aria-label','ta réponse à la question du programme');
+    inp.addEventListener('keydown', function(e){
+      if(e.key!=='Enter') return;
+      e.preventDefault();
+      if(!_pyiRep) return;
+      _pyiRep.push(inp.value); pyiPas();
+    });
+    c.appendChild(inp);
+    if(h) h.textContent='Le programme attend ta réponse : écris-la dans la console, puis appuie sur Entrée.';
+    /* le focus tout de suite : différé, la première lettre tapée partait ailleurs */
+    try{ inp.focus(); }catch(e){}
+    return;
+  }
+  _pyiRep=null;
+  if(err){ c.textContent=(r&&r.out||'')+'Erreur : '+(err.message||err); c.classList.add('py-err'); }
+  else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
+  if(h) h.textContent='Programme exécuté. Regarde la console, corrige si besoin, puis « Vérifier ».';
+}
+function pyiExecuter(){
+  if(test.locked) return;
+  const ta=$('pyi-prog'); if(!ta) return;
+  test.questions[test.idx].prog=ta.value;
+  _pyiRep=[]; pyiPas();
+}
+/* À la vérification, la console montre l'exécution que le juge a lue : avec
+   les réponses du premier jeu, que la page a tapées à la place de l'élève. */
+function pyiAfficherJuge(src, q){
+  const c=$('pyiConsole'); if(!c) return;
+  _pyiRep=null;
+  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
+  if(!String(src).trim()){ c.textContent='(programme vide : rien à exécuter)'; return; }
+  const P=pyiPaire(q), x=pyiEssai(src, P.ex[0]);
+  const tete='(la page a répondu « '+P.ex[0][0]+' » puis « '+P.ex[0][1]+' »)\n';
+  if(x.err){ c.textContent=tete+(x.err.attente?x.err.sortie+x.err.invite+'… (le programme attend encore une réponse)':'Erreur : '+(x.err.message||x.err)); if(!x.err.attente) c.classList.add('py-err'); }
+  else c.textContent=tete+(x.r.out?x.r.out.replace(/\n$/,''):'(le programme n’affiche rien)');
+}
+function checkPYI(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], ta=$('pyi-prog'); if(!q||!ta) return;
+  const src=ta.value; q.prog=src;
+  const d=pyiDiag(src, q);
+  pyiAfficherJuge(src, q);
+  ta.classList.remove('ok','bad','sol');
+  const fb=$('pyiFeedback');
+  if(!d.ok && isSoutien()){
+    if(!d.vide) ta.classList.add('bad');        /* une zone vide ne rougit jamais */
+    fb.textContent=(d.vide?'':'Pas encore. ')+d.dits.join(' ')+' Corrige ton programme, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('pyiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyiValidate" onclick="checkPYI()">Revérifier</button>';
+    setTimeout(function(){ ta.focus(); },40);
+    return;
+  }
+  test.locked=true; ta.readOnly=true;
+  if(d.ok){
+    ta.classList.add('ok'); test.score+=1;
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+(d.ecart
+      ? ' C’est accepté : ton programme affiche « '+d.ligne+' » — '+d.ecart+'.'
+      : ' Ton programme pose les deux questions et affiche bien les réponses.');
+    fb.className='mp-feedback good';
+  } else if(d.vide){
+    ta.value=pyiModele(q); ta.classList.add('sol');
+    fb.textContent='Tu n’avais rien écrit — la correction a écrit en vert un programme qui convient.'; fb.className='mp-feedback bad';
+  } else {
+    ta.classList.add('bad');
+    fb.textContent=d.dits.join(' ')+' Un programme qui convient est écrit en vert en dessous.'; fb.className='mp-feedback bad';
+    $('pyiModele').innerHTML='<p class="py-label">Un programme qui convient</p><pre class="py-code pyp-modele sol">'+esc(pyiModele(q))+'</pre>';
+  }
+  $('pyiLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:d.ok, q:pyiPaire(q).v1+' / '+pyiPaire(q).v2, answer:pyiModele(q).replace(/\n+/g,' ⏎ '), given:src.trim()?src.replace(/\n+/g,' ⏎ '):'(vide)'});
+  const b=$('pyiRun'); if(b) b.disabled=true;
+  const last=test.idx===test.questions.length-1;
+  $('pyiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyiNext" onclick="nextPYI()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pyiNext'); if(nb) nb.focus();
+}
+function nextPYI(){ if(test.idx<test.questions.length-1){ test.idx++; renderPYI(); autoSave(); } else finishTest(); }
+function ctxPyi(q){
+  const P=pyiPaire(q), ta=$('pyi-prog'), prog=(ta&&ta.value)||q.prog||'';
+  let d=null; try{ d=pyiDiag(prog, q); }catch(e){}
+  let c='L’élève doit ÉCRIRE un programme Python qui demande '+P.d1+' avec input et range la réponse dans la variable '+P.v1+', qui demande '+P.d2+' et range la réponse dans la variable '+P.v2+', puis qui affiche le texte « '+P.texte+' » suivi de '+P.v1+' et de '+P.v2+'. Il peut exécuter son programme : la console lui pose les questions et il y répond.\n';
+  c+='Ce que l’élève a écrit :\n'+(prog.trim()?prog:'(rien pour l’instant)')+'\n';
+  if(d) c+=d.ok?'Son programme convient. ':('Ce que la page a relevé : '+d.dits.join(' ')+' ');
+  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) :\n'+pyiModele(q)+'\nAide-le à trouver lui-même : rappelle la règle en jeu — variable = input("question"), la réponse est rangée dans la variable à gauche du =, puis print("texte", variable1, variable2) avec les noms des variables SANS guillemets — sans jamais écrire le programme complet.';
   return {nombre:'', contexte:c};
 }
 
@@ -41404,7 +41792,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
