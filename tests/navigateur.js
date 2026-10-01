@@ -11356,6 +11356,89 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 tricies vicies semel. {python-input-reponse} : la console qui ATTEND une réponse =====
+       Le banc jsdom tient l'interpréteur (comparé à CPython), le tirage, les
+       portes, le juge et la reprise. Ce qu'il ne voit pas : la case de la
+       réponse RENDUE dans la console — à la suite de la question, sur la même
+       ligne, dans la même encre à chasse fixe et à la même taille —, la VRAIE
+       touche Entrée du clavier, la liste fermée qui refuse un vrai choix
+       avant l'exécution, l'encre bleue des deux verdicts, et la page sur un
+       téléphone. Il joue la fiche de bout en bout : a), b), c). */
+    titre('6 tricies vicies semel. {python-input-reponse} : LA CONSOLE QUI ATTEND, LA TOUCHE ENTRÉE, LES TROIS ÉTAPES');
+    if(!P.pythonInputReponse){
+      ignorer('la console qui attend une réponse', 'ce niveau n\'a pas l\'exercice sur input');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.pythonInputReponse.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const bleu = await s.page.evaluate(() => { const p = document.createElement('i'); document.body.appendChild(p); p.style.color = 'var(--blue)'; const c = getComputedStyle(p).color; p.remove(); return c; });
+      /* a) un vrai clic sur « Exécuter », la case s'ouvre dans la console */
+      await s.page.click('#pynRunA');
+      await s.page.waitForTimeout(200);
+      const a = await s.page.evaluate(() => {
+        const c = document.getElementById('pynConsoleA'), e = document.getElementById('pynEntree');
+        if(!e) return null;
+        const rg = document.createRange(); rg.selectNodeContents(c.firstChild); const tr = rg.getBoundingClientRect(), er = e.getBoundingClientRect();
+        const cs = getComputedStyle(c), es = getComputedStyle(e);
+        return { focus: document.activeElement === e, texte: c.firstChild.nodeValue,
+                 memeLigne: Math.abs((tr.top + tr.bottom) / 2 - (er.top + er.bottom) / 2) < 8, apres: er.left >= tr.right - 2,
+                 police: es.fontFamily, policeConsole: cs.fontFamily, taille: parseFloat(es.fontSize), tailleConsole: parseFloat(cs.fontSize),
+                 visible: er.width > 60 && er.height > 16 };
+      });
+      if(!a) verifier('« Exécuter » ouvre une case de réponse dans la console', false, 'aucune case #pynEntree');
+      else {
+        verifier('la case de la réponse s\'ouvre DANS la console, à la suite de la question, sur la même ligne, et reçoit le curseur',
+          a.texte === 'comment tu t\'appelles ? ' && a.memeLigne && a.apres && a.focus && a.visible, JSON.stringify(a));
+        verifier('la case de la réponse écrit à chasse fixe, à la taille de la console qui l\'entoure',
+          a.police === a.policeConsole && /mono|menlo|consolas|courier/i.test(a.police) && Math.abs(a.taille - a.tailleConsole) < 0.5, a.police + ' ' + a.taille + ' / ' + a.tailleConsole);
+      }
+      await s.page.keyboard.type('Léa');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(250);
+      const b0 = await s.page.evaluate(() => ({ consoleA: document.getElementById('pynConsoleA').textContent,
+        instr: document.getElementById('pynInstr').textContent, sel: !!document.getElementById('pyn-type') && document.getElementById('pyn-type').disabled }));
+      verifier('la VRAIE touche Entrée range la réponse : la console montre la question suivie de « Léa », et l\'énoncé passe au b)',
+        b0.consoleA === 'comment tu t\'appelles ? Léa' && /^b\)/.test(b0.instr) && b0.sel, JSON.stringify(b0));
+      let refuse = false;
+      try{ await s.page.selectOption('#pyn-type', 'str', { timeout: 800 }); }catch(e){ refuse = true; }
+      verifier('avant l\'exécution du b), la liste du type REFUSE un vrai choix', refuse, 'Playwright a pu choisir dans une liste qui devait être fermée');
+      await s.page.click('#pynRunB');
+      await s.page.waitForTimeout(200);
+      await s.page.selectOption('#pyn-type', 'str');
+      await s.page.click('#pynValidate');
+      await s.page.waitForTimeout(250);
+      const b1 = await s.page.evaluate(() => { const e = document.getElementById('pyn-type');
+        return { consoleB: document.getElementById('pynConsoleB').textContent, classe: e.className, encre: getComputedStyle(e).color, suite: !!document.getElementById('pynSuite') }; });
+      verifier('b) : la console affiche « Léa » puis <class \'str\'>, et le bon type choisi pour de vrai se peint en BLEU',
+        b1.consoleB === 'Léa\n<class \'str\'>' && /\bok\b/.test(b1.classe) && b1.encre === bleu && b1.suite, JSON.stringify(b1) + ' (bleu = ' + bleu + ')');
+      /* c) la ligne se TAPE, le programme repose la question, Entrée, puis Vérifier */
+      await s.page.click('#pynSuite');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#pyn-in');
+      await s.page.keyboard.type('print("je m\'appelle", nom)');
+      await s.page.click('#pynRunC');
+      await s.page.waitForTimeout(200);
+      await s.page.keyboard.type('Zoé');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(250);
+      await s.page.click('#pynValidate');
+      await s.page.waitForTimeout(250);
+      const c1 = await s.page.evaluate(() => { const e = document.getElementById('pyn-in');
+        return { consoleC: document.getElementById('pynConsoleC').textContent, classe: e.className, encre: getComputedStyle(e).color,
+                 police: getComputedStyle(e).fontFamily, score: test.score, suivante: !!document.getElementById('pynNext') }; });
+      verifier('c) : la ligne tapée au clavier s\'exécute — la question, la réponse « Zoé », puis « je m\'appelle Zoé » —, se peint en BLEU, et la question compte ses 2 cases',
+        c1.consoleC === 'comment tu t\'appelles ? Zoé\nje m\'appelle Zoé' && /\bok\b/.test(c1.classe) && c1.encre === bleu && c1.score === 2 && c1.suivante && /mono|menlo|consolas|courier/i.test(c1.police), JSON.stringify(c1));
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const phone = await s.page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2);
+      verifier('sur un téléphone (390 px), la page ne déborde pas en largeur', !phone, 'scrollWidth > clientWidth');
+      verifier('l\'écran d\'input ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent

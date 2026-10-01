@@ -313,6 +313,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Une clé écrite deux fois dans `tests/profils.js` ne casse rien — elle gagne.**
 - **Un NUMÉRO de section du banc ne désigne qu'une section — et un en-tête qui n'imprime pas son titre est pire qu'un titre absent.**
 - **Un contrôle qui ne s'applique pas se déclare, il ne se retire pas.**
+- **Une fonction déclarée deux fois au niveau global écrase la première en silence.**
 
 ### La chronique des exercices, thème par thème
 

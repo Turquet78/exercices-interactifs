@@ -1013,6 +1013,19 @@ function demarrage(suite){
   charger(CIBLE, (w, erreurs) => {
     const reelles = erreurs.filter(e => !/Not implemented/.test(e));   /* limites de jsdom, pas de l'appli */
     verifier('aucune erreur JavaScript au chargement', reelles.length === 0, reelles.join(' | '));
+    /* Une fonction déclarée deux fois au niveau global : la seconde écrase la
+       première sans une erreur (octobre 2026 : le contexte d'une aide IA
+       remplacé par celui d'un exercice voisin). Seule la colonne 0 compte —
+       les fonctions locales, indentées, ne se heurtent pas. */
+    {
+      const decl = (lire(CIBLE).match(/^(?:async )?function [A-Za-z0-9_$]+/gm) || []).map(d => d.replace(/^(?:async )?function /, ''));
+      const vus = {}, doubles = [];
+      decl.forEach(n => { if(vus[n] && doubles.indexOf(n) < 0) doubles.push(n); vus[n] = 1; });
+      const connus = P.fonctionsEnDouble || [];
+      const neufs = doubles.filter(n => connus.indexOf(n) < 0), resolus = connus.filter(n => doubles.indexOf(n) < 0);
+      verifier('aucune fonction n’est déclarée deux fois au niveau global (la seconde écraserait la première en silence)', neufs.length === 0, 'déclarée(s) deux fois : ' + neufs.join(', '));
+      verifier('la dette des fonctions en double ne contient que des doublons encore présents', resolus.length === 0, 'plus en double, à retirer de fonctionsEnDouble : ' + resolus.join(', '));
+    }
     verifier('numéro de version lisible', /^\d+$/.test(String(w.eval('APP_VERSION'))), 'APP_VERSION = ' + w.eval('APP_VERSION'));
     /* testName de la Seconde renvoyait à FRAC_INFO, qui n'existe qu'en Première :
        tout identifiant hors de TESTS — un devoir pointant un exercice retiré, une
@@ -4143,6 +4156,7 @@ function exercices(suite){
     pythonNoms(w, P);
     pythonNomVariable(w, P);
     pythonPrint(w, P);
+    pythonInputReponse(w, P);
     pythonInput(w, P);
     pythonTexteProche(w, P);
     tableauVraiFaux(w, P);
@@ -22756,7 +22770,240 @@ function pythonNomVariable(w, P){
   }
 }
 
-/* {python-input} (Seconde, 6.3.1) : l'exercice 3 du carnet — un programme qui
+/* {python-input-reponse} (Seconde, 6.3.1) : la fonction input, en trois étapes sur le
+   même écran — a) exécuter et répondre avec Entrée, b) exécuter print(nom) et
+   print(type(nom)) puis donner le type, c) compléter le programme pour qu'il
+   affiche « je m'appelle » suivi de la réponse (demande de Turquet, octobre
+   2026, d'après l'exercice 2 du carnet). Le contrôle tient la place au menu
+   (le sous-thème 6.3, rien d'autre ne bouge), l'interpréteur qui ATTEND une
+   réponse et la rend en texte — comparé à un vrai CPython qui lit ses
+   réponses sur l'entrée standard —, le tirage, puis le trajet d'un élève :
+   la réponse vide refusée sans rougir, la liste fermée avant l'exécution,
+   le type faux corrigé en vert, la ligne 2 jugée par la sortie, les deux
+   diagnostics propres à input (l'apostrophe entre guillemets simples, le
+   second input), le soutien qui ne verrouille rien, et la reprise. Aucun
+   accent grave ni antislash littéral dans le code évalué. */
+function pythonInputReponse(w, P){
+  const nom = '{python-input-reponse} : demander une réponse avec input, en trois étapes';
+  if(!P.pythonInputReponse){ ignorer(nom, 'ce niveau n\'a pas l\'exercice sur input'); return; }
+  const ID = P.pythonInputReponse.exercice, NB = P.pythonInputReponse.nb, NUM = P.pythonInputReponse.numero;
+  const present = evaluer(w, "typeof startPYN==='function' && typeof pyRun==='function' && typeof pynJuge==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPYN / pyRun / pynJuge introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ouvre le sous-thème 6.3 « Input », numéroté ' + NUM + ' — et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const s3=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!s3||!/input/i.test(s3.nom)||s3.ids[0]!=="${ID}") vus.push("sous-thème 6.3 : "+(s3?s3.nom+" "+s3.ids.join(","):"absent"));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input"]!=="6.3.2") vus.push("{python-input} porte "+TEST_NUM["python-input"]+" au lieu de 6.3.2");
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-echange-par-lettres"]!=="6.2.7"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. l'interpréteur : input attend, puis rend un TEXTE ---- */
+  verifierEval(w, 'pyRun et input : sans réponse le programme S’ARRÊTE sur la question ; avec elle, la console montre la question suivie de la réponse, et la variable est un texte — même « 15 »', `(function(){
+    const NL=String.fromCharCode(10), Q=String.fromCharCode(34), vus=[];
+    const src="age = input("+Q+"quel âge as-tu ? "+Q+")"+NL+"print(age)"+NL+"print(type(age))";
+    let e=null; try{ pyRun(src, []); }catch(x){ e=x; }
+    if(!e||!e.attente) vus.push("sans réponse, pyRun ne s’arrête pas : "+(e?e.message:"aucune erreur"));
+    else if(e.sortie+e.invite!=="quel âge as-tu ? ") vus.push("ce qui s’affiche avant la réponse : "+JSON.stringify(e.sortie+e.invite));
+    const r=pyRun(src,["15"]);
+    if(r.out!=="quel âge as-tu ? 15"+NL+"15"+NL+"<class 'str'>"+NL) vus.push("sortie : "+JSON.stringify(r.out));
+    if(r.env.age.t!=="str") vus.push("la réponse « 15 » est rangée comme "+r.env.age.t);
+    if(pyRun("n = int(input())"+NL+"print(n + 1)",["4"]).out!=="4"+NL+"5"+NL) vus.push("int(input()) ne se calcule pas");
+    let e2=null; try{ pyRun("x = input("+Q+"a"+Q+", "+Q+"b"+Q+")",["1"]); }catch(x){ e2=x; }
+    if(!e2||!/au plus un argument/.test(e2.message)) vus.push("input à deux arguments n’est pas refusé");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  const nomPy = '{python-input-reponse} : input comparé à un vrai CPython qui lit ses réponses sur l’entrée standard';
+  const py = pythonDisponible();
+  if(!py){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+  } else {
+    /* chaque cas : le programme, les réponses, et les questions posées dans
+       l'ordre — la console de la page ÉCRIT la réponse après la question
+       (ce qu'on voit au clavier), CPython lisant un fichier ne l'écrit pas :
+       on retire cet écho, et le reste doit être identique */
+    const cas = evaluer(w, `(function(){
+      const NL=String.fromCharCode(10), o=[];
+      PYN_SITUATIONS.forEach(function(S, i){
+        const q={s:i, rep:S.ex};
+        [S.ex, "12", "3.5", "Zoé", "  7 "].forEach(function(v){
+          o.push({src:pynLigneInput(q)+NL+pynProgB(q), ent:[v], qs:[S.question]});
+          o.push({src:pynLigneInput(q)+NL+pynTemoin(q), ent:[v], qs:[S.question]});
+        });
+      });
+      o.push({src:"a = input()"+NL+"b = input()"+NL+"print(b, a)", ent:["x","y"], qs:["",""]});
+      o.push({src:"n = int(input("+String.fromCharCode(34)+"n ? "+String.fromCharCode(34)+"))"+NL+"print(n * 2, type(n))", ent:["21"], qs:["n ? "]});
+      o.forEach(function(c){ try{ c.page=pyRun(c.src, c.ent).out; }catch(e){ c.page="ERREUR:"+e.message; } });
+      return JSON.stringify(o);
+    })()`);
+    if(!cas.ok){ verifier(nomPy, false, 'les cas n\'ont pas pu être tirés : ' + cas.erreur); }
+    else {
+      const liste = JSON.parse(cas.valeur);
+      const script = [
+        'import sys, json, io, contextlib',
+        'cas = json.load(sys.stdin)',
+        'out = []',
+        'for c in cas:',
+        '    b = io.StringIO()',
+        '    vieux = sys.stdin',
+        '    sys.stdin = io.StringIO("\\n".join(c["ent"]) + "\\n")',
+        '    try:',
+        '        with contextlib.redirect_stdout(b):',
+        '            exec(compile(c["src"], "<prog>", "exec"), {})',
+        '        out.append(b.getvalue())',
+        '    except Exception as e:',
+        '        out.append("ERREUR:" + type(e).__name__)',
+        '    sys.stdin = vieux',
+        'json.dump(out, sys.stdout)'
+      ].join('\n');
+      let cp = null;
+      try{ cp = JSON.parse(execFileSync(py, ['-c', script], { input: JSON.stringify(liste), encoding:'utf8', timeout: 120000 })); }
+      catch(e){ verifier(nomPy, false, 'CPython n\'a pas pu être lancé : ' + e.message); }
+      if(cp){
+        const ecarts = [];
+        liste.forEach((c, i) => {
+          let page = c.page;
+          c.ent.forEach((v, k) => { page = page.replace(c.qs[k] + v + '\n', c.qs[k]); });
+          if(page !== cp[i]) ecarts.push(JSON.stringify(c.src) + ' avec ' + JSON.stringify(c.ent) + ' : page ' + JSON.stringify(page) + ', CPython ' + JSON.stringify(cp[i]));
+        });
+        verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+      }
+    }
+  }
+
+  /* ---- 3. le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche en tête (nom, « comment tu t’appelles ? »), puis une réponse NOMBRE et une réponse MOT en ordre mélangé, jamais deux fois la même — et la question ne range que l’indice et ce que l’élève a fait', `(function(){
+    const vus=[], ordres={}, permis=["s","etape","rep","bVu","typ","bOk","ligne","repC"];
+    if(PYN_SITUATIONS[0].nom!=="nom"||PYN_SITUATIONS[0].texte!=="je m"+String.fromCharCode(39)+"appelle"||!/^comment tu t.appelles \\?/.test(PYN_SITUATIONS[0].question)) vus.push("la fiche n’est plus celle du carnet : "+JSON.stringify(PYN_SITUATIONS[0]));
+    for(let n=0;n<400;n++){
+      const qs=pynBuildQuestions();
+      if(qs.length!==${NB}){ vus.push(qs.length+" questions"); break; }
+      if(qs[0].s!==0){ vus.push("la fiche n’est pas en tête"); break; }
+      const s=qs.map(function(q){ return q.s; });
+      if(new Set(s).size!==s.length){ vus.push("deux fois la même situation : "+s); break; }
+      const nb=qs.slice(1).filter(function(q){ return PYN_SITUATIONS[q.s].nombre; }).length;
+      if(nb!==1){ vus.push(nb+" réponse(s) nombre après la fiche"); break; }
+      ordres[PYN_SITUATIONS[qs[1].s].nombre?"N":"M"]=1;
+      qs.forEach(function(q){ Object.keys(q).forEach(function(k){ if(permis.indexOf(k)<0) vus.push("champ « "+k+" » rangé dans la question"); }); });
+      if(vus.length) break;
+    }
+    if(!ordres.N||!ordres.M) vus.push("l’ordre nombre/mot ne varie pas");
+    return vus.slice(0,3).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le trajet en entraînement ---- */
+  verifierEval(w, 'entraînement : a) la réponse vide n’est pas envoyée et ne rougit rien ; b) la liste et « Vérifier » restent fermés avant l’exécution, le type faux rougit et « str » s’écrit en vert ; c) la ligne vide ne rougit pas, la ligne juste est comptée — la note dit 1 case sur 2', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), NL=String.fromCharCode(10);
+    currentEleve=currentEleve||{id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPYN();
+    test.questions[1]={s:1, etape:"a", rep:"", bVu:false, typ:"", bOk:null, ligne:"", repC:""};
+    test.idx=1; renderPYN();
+    if($("pynValidate")&&!$("pynValidate").disabled) vus.push("« Vérifier » est ouvert au a)");
+    pynExecuterA();
+    const e=$("pynEntree"); if(!e){ vus.push("aucune case dans la console après « Exécuter »"); return vus.join(" | "); }
+    if($("pynConsoleA").firstChild.nodeValue!=="quel âge as-tu ? "||e.parentNode!==$("pynConsoleA")) vus.push("la console montre "+JSON.stringify($("pynConsoleA").textContent));
+    e.value="   "; e.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    if(test.questions[1].etape!=="a"||!$("pynEntree")) vus.push("une réponse vide a été envoyée");
+    if(document.querySelector("#pynHost .bad")) vus.push("la réponse vide a rougi une case");
+    $("pynEntree").value="15"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    const q=test.questions[1];
+    if(q.etape!=="b"||q.rep!=="15") vus.push("après Entrée : étape "+q.etape+", réponse "+JSON.stringify(q.rep));
+    if($("pynConsoleA").textContent!=="quel âge as-tu ? 15") vus.push("console du a) : "+JSON.stringify($("pynConsoleA").textContent));
+    if(!/b\\)/.test($("pynInstr").textContent)||!/age/.test($("pynInstr").textContent)) vus.push("l’énoncé ne passe pas au b) : "+$("pynInstr").textContent);
+    const sel=$("pyn-type");
+    if(!sel||!sel.disabled) vus.push("la liste du type est ouverte avant l’exécution");
+    if(!$("pynValidate")||!$("pynValidate").disabled) vus.push("« Vérifier » est ouvert avant l’exécution du b)");
+    pynExecuterB();
+    if($("pynConsoleB").textContent!=="15"+NL+"<class "+A+"str"+A+">") vus.push("console du b) : "+JSON.stringify($("pynConsoleB").textContent));
+    if(sel.disabled) vus.push("la liste reste fermée après l’exécution");
+    checkPYN();
+    if(sel.classList.contains("bad")) vus.push("le type VIDE a rougi");
+    sel.value="int"; sel.dispatchEvent(new Event("change")); checkPYN();
+    if(!sel.classList.contains("bad")) vus.push("le type faux n’a pas rougi");
+    const cor=document.querySelector("#pynHost .pyn-cor");
+    if(!cor||cor.textContent!=="str") vus.push("la correction verte du type manque");
+    if(!/15/.test($("pynFeedback").textContent)||!/texte/.test($("pynFeedback").textContent)) vus.push("le message ne dit pas que « 15 » est un texte : "+$("pynFeedback").textContent);
+    pynVersC();
+    if(!$("pyn-type").classList.contains("bad")||!document.querySelector("#pynHost .pyn-cor")) vus.push("le verdict du b) disparaît au c)");
+    if(!/c\\)/.test($("pynInstr").textContent)||!/mon âge est/.test($("pynInstr").textContent)) vus.push("l’énoncé du c) : "+$("pynInstr").textContent);
+    const inp=$("pyn-in");
+    pynExecuterC(); $("pynEntree").value="16"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    checkPYN();
+    if(inp.classList.contains("bad")||test.locked) vus.push("la ligne VIDE a été jugée");
+    inp.value="print("+Q+"mon âge est"+Q+", age)"; pynModifieeC();
+    if(!$("pynValidate").disabled) vus.push("« Vérifier » s’ouvre sur une ligne pas encore exécutée");
+    pynExecuterC(); $("pynEntree").value="16"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    if($("pynConsoleC").textContent!=="quel âge as-tu ? 16"+NL+"mon âge est 16") vus.push("console du c) : "+JSON.stringify($("pynConsoleC").textContent));
+    checkPYN();
+    if(!inp.classList.contains("ok")) vus.push("la ligne juste n’est pas en bleu : "+$("pynFeedback").textContent);
+    if(test.score!==1) vus.push("score "+test.score);
+    const a=test.answers[test.answers.length-1];
+    if(!a||a.justes!==1||a.cases!==2||a.correct) vus.push("la réponse enregistrée : "+JSON.stringify(a));
+    if(!$("pynNext")) vus.push("pas de « Question suivante »");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. le juge du c) et ses diagnostics ---- */
+  verifierEval(w, 'le c) est jugé par la SORTIE : toute écriture qui affiche « je m’appelle » puis la réponse passe ; l’apostrophe entre guillemets simples, le second input, la réponse recopiée, le nom entre guillemets sont refusés chacun pour SA raison', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0};
+    const T="je m"+A+"appelle";
+    [ "print("+Q+T+Q+", nom)", "print("+Q+T+Q+",nom)", "print( "+Q+T+" "+Q+" , nom )", "print("+Q+T+" "+Q+" + nom)" ].forEach(function(l){
+      const j=pynJuge(q,l,"Léa"); if(!j.ok) vus.push("refusé à tort : "+l+" — "+j.diag); });
+    const faux=[["print("+A+T+A+", nom)", /apostrophe/], ["print("+Q+T+Q+", input())", /NOUVELLE question/],
+      ["print("+Q+T+" Léa"+Q+")", /recopi/], ["print("+Q+T+Q+", "+Q+"nom"+Q+")", /TEXTE/], ["print("+Q+T+Q+" nom)", /virgule/],
+      ["print(nom, "+Q+T+Q+")", /inversé/], ["Print("+Q+T+Q+", nom)", /minuscules/], ["print("+Q+T+Q+", Nom)", /majuscules/]];
+    faux.forEach(function(f){ const j=pynJuge(q,f[0],"Léa"); if(j.ok) vus.push("accepté à tort : "+f[0]); else if(!f[1].test(j.diag)) vus.push(f[0]+" : "+j.diag); });
+    if(!pynJuge(q,"","Léa").vide) vus.push("la ligne vide n’est pas reconnue vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. le soutien, puis la reprise ---- */
+  verifierEval(w, 'soutien : le type faux rougit sans verrouiller ni montrer la réponse, se corrige ; la ligne fausse dit OÙ est l’erreur sans écrire la ligne juste ; puis la reprise d’une pause rend l’écran du c) tel qu’il était', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    currentMode="soutien"; startPYN();
+    pynExecuterA(); $("pynEntree").value="Léa"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    pynExecuterB(); const sel=$("pyn-type");
+    sel.value="float"; checkPYN();
+    if(!sel.classList.contains("bad")||sel.disabled||document.querySelector("#pynHost .pyn-cor")) vus.push("le type faux en soutien : verrouillé ou corrigé");
+    if(/str/.test($("pynFeedback").textContent)) vus.push("le soutien écrit la réponse : "+$("pynFeedback").textContent);
+    sel.value="str"; sel.dispatchEvent(new Event("change")); checkPYN();
+    if(!sel.classList.contains("ok")||test.score!==1) vus.push("le type corrigé n’est pas compté");
+    pynVersC();
+    const inp=$("pyn-in"); inp.value="print("+A+"je m"+A+"appelle"+A+", nom)"; pynModifieeC();
+    pynExecuterC(); $("pynEntree").value="Léa"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    checkPYN();
+    if(!inp.classList.contains("bad")||test.locked||inp.disabled) vus.push("la ligne fausse en soutien : verrouillée ou pas rouge");
+    if(!/apostrophe/.test($("pynFeedback").textContent)) vus.push("le soutien ne dit pas où est l’erreur : "+$("pynFeedback").textContent);
+    if($("pynFeedback").textContent.indexOf("appelle"+Q+", nom)")>=0||document.querySelector("#pynHost .mf-cor")) vus.push("le soutien écrit la ligne juste");
+    /* la reprise : les questions reviennent du JSON */
+    const sauve=JSON.parse(JSON.stringify(test.questions));
+    test.questions=sauve; test.locked=false;
+    if(!afficherEcranDe("pyn")) vus.push("afficherEcranDe ne connaît pas pyn");
+    if(!$("pyn-in")||$("pyn-in").value!==sauve[0].ligne) vus.push("la ligne 2 est perdue à la reprise");
+    if(!$("pyn-type")||$("pyn-type").value!=="str"||!$("pyn-type").classList.contains("ok")) vus.push("le b) n’est plus juste à la reprise");
+    if($("pynConsoleA").textContent!=="comment tu t"+A+"appelles ? Léa") vus.push("la console du a) à la reprise : "+JSON.stringify($("pynConsoleA").textContent));
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. les branchements ---- */
+  verifierEval(w, 'branchements : écran, rendu enveloppé, rappel de cours, questions à l’IA, contexte du modèle, et aucun bouton des tables', `(function(){
+    const vus=[];
+    if(!$("scr-pyn")) vus.push("pas d’écran");
+    if(!RAPPELS.pyn||!/input/.test(RAPPELS.pyn)||!/str/.test(RAPPELS.pyn)) vus.push("rappel de cours");
+    if(!QIA_SUGG.pyn||QIA_SUGG.pyn.length<3) vus.push("questions à l’IA");
+    const c=ctxPyn({s:0,etape:"c",rep:"Léa",bVu:true,typ:"str",bOk:true,ligne:"",repC:""});
+    if(!c||!/SECR/.test(c.contexte)) vus.push("contexte du modèle");
+    return vus.join(" | ");
+  })()`, v => v === '');
+}
+
+/* {python-input} (Seconde, 6.3.1 à l'origine, 6.3.2 depuis {python-input-reponse}) : l'exercice 3 du carnet — un programme qui
    DEMANDE deux réponses avec input, les range dans deux variables nommées,
    puis affiche un texte suivi des deux réponses (demande de Turquet,
    septembre 2026). Le contrôle épingle la fiche (animal, couleur, « vous
@@ -22780,11 +23027,11 @@ function pythonInput(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ouvre le sous-thème 6.3 « Input » du thème 6, numéroté 6.3.1 — et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est dans le sous-thème 6.3 « Input » du thème 6, numéroté 6.3.2 — derrière {python-input-reponse}, l’exercice 2 du carnet — et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input : "+(st?st.nom:"aucun"));
-    if(TEST_NUM["${ID}"]!=="6.3.1") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["${ID}"]!=="6.3.2") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
