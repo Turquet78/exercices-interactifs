@@ -565,7 +565,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pii,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pii,#scr-pia,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -4270,6 +4270,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : DEMANDER UN NOMBRE, PUIS CALCULER AVEC (PYTHON, INPUT) -->
+  <section class="screen" id="scr-pia">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPIA"></span><span class="q-idx" id="piaIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="piaLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <div class="mp-instr pyi-instr" id="piaInstr"></div>
+      <div class="mp-stage"><div style="width:100%" id="piaHost"></div></div>
+      <div class="mp-feedback" id="piaFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="piaActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="piaValidate" onclick="checkPIA()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : AFFICHER UN TEXTE SUIVI D'UNE VARIABLE (PYTHON, COMPLÉTER UN PROGRAMME) -->
   <section class="screen" id="scr-pyx">
     <div class="test-top">
@@ -5118,7 +5134,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=260;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=261;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5839,6 +5855,7 @@ const TESTS={
      LOGIQUEMENT » (demande de Turquet, septembre 2026). */
   'python-placer-variables': { name:'Placer les variables dans un print', icon:'\ud83d\udccd', desc:'Le programme est \u00e9crit en entier, print compris\u00a0: seuls les noms des variables manquent. Place chaque variable \u00e0 sa place en lisant le texte qui la pr\u00e9c\u00e8de, ex\u00e9cute le programme et relis la phrase qu\u2019il \u00e9crit \u2014 deux variables \u00e9chang\u00e9es ne provoquent aucune erreur, mais la phrase ne veut plus rien dire.', start:()=>startPYV() },
   'python-input': { name:'Demander deux r\u00e9ponses avec input', icon:'\u2753', desc:'\u00c9cris un programme qui pose deux questions avec input, range chaque r\u00e9ponse dans sa variable, puis affiche un texte suivi des deux r\u00e9ponses. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPYI() },
+  'python-input-calcul': { name:'Demander un nombre, puis calculer avec', icon:'\u2753', desc:'\u00c9cris un programme qui demande un nombre entier avec int(input(\u2026)), calcule avec, range le r\u00e9sultat dans une variable, puis l\u2019affiche dans une phrase. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPIA() },
   'python-input-reponse': { name:'Demander une r\u00e9ponse avec input', icon:'\u2753', desc:'Le programme pose une question et ATTEND ta r\u00e9ponse\u00a0: ex\u00e9cute-le et r\u00e9ponds avec la touche Entr\u00e9e, regarde le type de ce que input a rang\u00e9 dans la variable, puis compl\u00e8te le programme pour qu\u2019il affiche ta r\u00e9ponse dans une phrase.', start:()=>startPYN() },
   'python-print': { name:'\u00c9cris ton premier print', icon:'\u2328\ufe0f', desc:'Le cours explique print et le texte entre guillemets. Puis \u00e0 toi\u00a0: \u00e9cris un programme qui affiche \u00ab\u00a0je suis en seconde\u00a0\u00bb, ex\u00e9cute-le autant de fois que tu veux, et fais-le v\u00e9rifier. En soutien, la page te dit ce qui ne va pas dans ton programme.', start:()=>startPYP() },
   'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
@@ -5930,7 +5947,7 @@ const THEMES=[
   { num:6, nom:'Algorithmique et Python', sous:[
       { num:1, nom:'Print et variable',   ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre'] },
       { num:2, nom:'Variable et calcul',  ids:['python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-pas-a-pas-multiplication','python-echange-par-lettres'] },
-      { num:3, nom:'Input',               ids:['python-input-reponse','python-input','python-input-int'] }
+      { num:3, nom:'Input',               ids:['python-input-reponse','python-input','python-input-int','python-input-calcul'] }
   ] },
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
@@ -6665,6 +6682,7 @@ function conseilPaire(){
   else if(test.kind==='pel' && q) b=ctxPel(q);
   else if(test.kind==='pdc' && q) b=ctxPdc(q);
   else if(test.kind==='pii' && q) b=ctxPii(q);
+  else if(test.kind==='pia' && q) b=ctxPia(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
@@ -7023,6 +7041,7 @@ const QIA_SUGG={
   pev:["Pourquoi a-t-on besoin d’une troisième case c pour échanger a et b ?","Que se passerait-il si on écrivait a = b puis b = a, sans passer par c ?","Comment expliquer avec mes mots ce qui arrive aux cases a et b à la fin du programme ?","À quoi sert d’exécuter un programme ligne par ligne ?"],
   ppm:["Pourquoi la case l peut-elle changer de valeur deux fois dans le même programme ?","Comment deviner la valeur finale d’une case sans exécuter le programme à la main ?","Le résultat peut être négatif : comment le savoir avant de calculer ?","À quoi sert d’exécuter un programme ligne par ligne après avoir deviné ?"],
   pel:["Pourquoi ne peut-on pas juste écrire k = l puis l = k ?","À quoi sert la troisième case mémoire ?","Comment savoir si mon programme a vraiment échangé les deux valeurs ?","Existe-t-il une autre façon d’écrire les trois lignes qui marche aussi ?"],
+  pia:["Pourquoi faut-il écrire int(…) autour de input ?","Comment calculer avec la réponse de l’utilisateur ?","Pourquoi ranger le résultat dans une variable avant de l’afficher ?","Comment afficher un texte, puis une variable, puis un autre texte ?"],
   pii:["À quoi sert input ?","Pourquoi faut-il écrire int(…) autour de input ?","Quel est le type d’une réponse tapée sans int ?","Comment afficher un texte, puis une variable, puis un autre texte ?"],
   pdc:["À quoi sert de ranger un résultat dans une variable ?","Pourquoi le calcul doit-il se servir de la variable a ?","Que se passe-t-il si je change la valeur de a ?","Comment afficher un texte suivi d’une valeur ?"],
   pyv:["Comment savoir quelle variable écrire dans chaque case ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Que se passe-t-il si j’échange deux variables dans le print ?","Pourquoi Python met-il une espace entre les morceaux du print ?"],
@@ -7898,6 +7917,13 @@ const RAP_PYP=`<b>Écrire un print</b><br>
    Les nombres vivent dans des balises code (le contrôle des numéros en dur
    ne lit que la prose). */
 /* Demander une réponse avec input : la règle de l'écran, en rappel. */
+/* Demander un nombre, puis calculer avec : la règle de l'écran, en rappel.
+   Les nombres vivent dans des balises code (le contrôle des numéros en dur
+   ne lit que la prose). */
+const RAP_PIA=`<b>Demander un nombre, puis calculer avec</b><br>
+<b>① <code class="inline">variable = int(input("question"))</code></b> : input rend toujours un TEXTE ; <code class="inline">int(…)</code> en fait un nombre entier.<br>
+<b>② On calcule avec la variable</b>, et on range le résultat dans une autre : <code class="inline">double = n * 2</code>. Sans int, Python refuse de calculer avec un texte.<br>
+<b>③ Pour afficher le résultat dans une phrase</b>, on sépare par des virgules les textes (entre guillemets) et le NOM de la variable (sans guillemets) : <code class="inline">print("le double vaut", double, "!")</code>.`;
 const RAP_PYI=`<b>Demander une réponse avec input</b><br>
 <b>① <code class="inline">variable = input("question")</code></b> : Python affiche la question, attend que l’utilisateur tape sa réponse et appuie sur Entrée, puis range cette réponse dans la variable écrite à gauche du <code class="inline">=</code>.<br>
 <b>② La réponse est un texte</b> : elle s’affiche ensuite telle que l’utilisateur l’a tapée.<br>
@@ -8089,7 +8115,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}\\)`;
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pii:RAP_PII, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pii:RAP_PII, pia:RAP_PIA, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL };
 const RAPPELS_ID={ 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
@@ -8199,7 +8225,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['python-input-int','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['python-input-int','python-input-calcul','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-input-reponse'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -8637,7 +8663,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pii:['pii',renderPII], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pii:['pii',renderPII], pia:['pia',renderPIA], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -8765,7 +8791,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pii','pap','pvm','ppc','ppd','ppm','pev','pel'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pii','pia','pap','pvm','ppc','ppd','ppm','pev','pel'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -29348,6 +29374,321 @@ function ctxPyi(q){
   return {nombre:'', contexte:c};
 }
 
+/* ---------- Exercice : demander un nombre, puis calculer avec (Python) ----------
+   Demande de Turquet (octobre 2026) : « créer un exercice comme l'image en
+   seconde dans le sous-thème input » — l'exercice 5 du carnet : « Faire un
+   programme dans la cellule ci-dessous qui demande une année de naissance et
+   met la réponse dans la variable entière naissance, qui calcule l'âge que la
+   personne aura en 2025 et met le résultat dans la variable age, puis qui
+   affiche "Cette année vous aurez ", age, "ans " », avec ses TROIS coups de
+   pouce repliés (la ligne de l'input avec int, le calcul, le print). Il ferme
+   le sous-thème 6.3 « Input », en 6.3.4 : ajouté en dernier, il ne
+   renumérote rien.
+
+   CE QU'IL AJOUTE AUX TROIS AUTRES : la réponse ne s'affiche plus telle
+   qu'elle a été tapée, elle SERT à calculer. C'est la raison d'être de int(…)
+   que le 6.3.3 a enseignée : sans int, « 2025 - naissance » est un calcul
+   entre un nombre et un texte, et Python refuse — le juge le nomme.
+
+   LE JUGE EST CELUI DU 6.3.2, UN CRAN PLUS LOIN. piaDiag exécute la copie
+   avec DEUX réponses que l'élève ne connaît pas (S.ex), et exige : un seul
+   input, rangé dans la variable demandée, ENTIER (int) ; une question écrite
+   dans l'input ; le résultat rangé dans sa variable, avec la bonne valeur
+   sous les DEUX réponses — un « age = 16 » écrit à la main passe la première
+   fois, jamais la seconde, et le message le dit — ; puis UNE ligne affichée :
+   le premier texte, la valeur du résultat, le second texte. Les textes se
+   comparent par pyTexteProche (la règle partagée), la valeur est exacte.
+
+   LA SÉANCE : la fiche du carnet ÉPINGLÉE en tête, puis des situations tirées
+   par distinctes() — même geste (demander un entier, calculer, afficher),
+   autre calcul. Le programme voyage dans q.prog et compte pour UNE case
+   (pts-case). Aucune correction au fil de la frappe (déclaré dans
+   tests/profils.js). Le dialogue de la console est celui du 6.3.2 (la case de
+   la réponse À LA SUITE de la question, Entrée qui rejoue le programme). */
+const PIA_NB=3;
+const PIA_SITUATIONS=[
+  {v1:'naissance', d1:'une année de naissance', v2:'age', calc:'l’âge que la personne aura en 2025', expr:'2025 - naissance',
+   f:function(n){ return 2025-n; }, t1:'Cette année vous aurez', t2:'ans.', invite:'Quelle est votre année de naissance ? ', ex:[2009, 1987]},
+  {v1:'age', d1:'votre âge', v2:'futur', calc:'l’âge que vous aurez dans 10 ans', expr:'age + 10',
+   f:function(n){ return n+10; }, t1:'Dans 10 ans, vous aurez', t2:'ans.', invite:'Quel âge avez-vous ? ', ex:[15, 38]},
+  {v1:'heures', d1:'un nombre d’heures', v2:'minutes', calc:'le nombre de minutes que cela fait', expr:'heures * 60',
+   f:function(n){ return n*60; }, t1:'Cela fait', t2:'minutes.', invite:'Combien d’heures ? ', ex:[3, 7]},
+  {v1:'places', d1:'un nombre de places de cinéma', v2:'prix', calc:'le prix à payer, une place coûtant 8 euros', expr:'places * 8',
+   f:function(n){ return n*8; }, t1:'Vous devez payer', t2:'euros.', invite:'Combien de places ? ', ex:[4, 9]},
+  {v1:'semaines', d1:'un nombre de semaines', v2:'jours', calc:'le nombre de jours que cela fait', expr:'semaines * 7',
+   f:function(n){ return n*7; }, t1:'Cela fait', t2:'jours.', invite:'Combien de semaines ? ', ex:[2, 5]},
+  {v1:'eleves', d1:'le nombre d’élèves d’une classe', v2:'cahiers', calc:'le nombre de cahiers à acheter, trois par élève', expr:'eleves * 3',
+   f:function(n){ return n*3; }, t1:'Il faut acheter', t2:'cahiers.', invite:'Combien d’élèves ? ', ex:[24, 31]}
+];
+function piaBuildQuestions(){
+  const n=Math.min(dmNbQuestions(PIA_NB), PIA_SITUATIONS.length);
+  return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PIA_SITUATIONS.length-1), prog:''}; });
+}
+function piaSit(q){ return PIA_SITUATIONS[q.s]||PIA_SITUATIONS[0]; }
+/* Un programme qui convient — pour la correction en vert, jamais pour juger. */
+function piaModele(q){
+  const S=piaSit(q);
+  return S.v1+' = int(input("'+S.invite+'"))\n'+S.v2+' = '+S.expr+'\nprint("'+S.t1+'", '+S.v2+(S.t2?', "'+S.t2+'"':'')+')';
+}
+function piaCases(q){ return [{id:'pia-prog'}]; }
+
+/* ---- 1. Le juge ---- */
+function piaEssai(src, n){
+  try{ return {r:pyRun(src, [String(n)]), err:null}; }catch(e){ return {r:null, err:e}; }
+}
+/* La ligne affichée est-elle « texte 1, valeur, texte 2 » ? Les espaces ne
+   comptent pas, les textes sont presque bons à un ou deux caractères près, la
+   valeur est exacte. */
+function piaLigneOk(ligne, S, val){
+  const L=pySansEspaces(ligne), v=String(val);
+  for(let i=L.indexOf(v); i>=0; i=L.indexOf(v, i+1)){
+    if(pyTexteProche(L.slice(0,i), S.t1) && pyTexteProche(L.slice(i+v.length), S.t2)) return true;
+  }
+  return false;
+}
+/* L'erreur de l'interpréteur, dite avec les mots d'un élève de Seconde. */
+function piaTraduire(src, err, S){
+  const msg=err.message||String(err); let m;
+  if(/entre un texte et un nombre/.test(msg)) return 'Python ne sait pas calculer avec un texte : ce que rend input est TOUJOURS un texte. Écris '+S.v1+' = int(input("…")) pour que '+S.v1+' soit un nombre entier.';
+  if((m=msg.match(/NameError : la variable « ([^»]+) »/))){
+    if(m[1]===S.v2) return 'Python lit la variable '+S.v2+' alors qu’elle n’existe pas encore : il faut d’abord la calculer, '+S.v2+' = …, AVANT le print qui l’affiche.';
+    if(m[1]===S.v1) return 'Python lit la variable '+S.v1+' alors qu’elle n’existe pas encore : il faut d’abord écrire '+S.v1+' = int(input("…")), AVANT de calculer avec.';
+  }
+  if((m=msg.match(/fonction « ([^»]+) »/)) && m[1].toLowerCase()==='int' && m[1]!=='int') return '« '+m[1]+' » : int s’écrit tout en minuscules.';
+  return pyiTraduire(src, err, {v1:S.v1, v2:S.v2});
+}
+/* piaDiag rend { ok, vide, ecart, ligne, dits } : ok quand les deux
+   exécutions rangent et affichent ce qu'on demande, sinon les défauts NOMMÉS. */
+function piaDiag(src, q){
+  src=String(src||''); const S=piaSit(q);
+  if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris l’input, puis le calcul, puis le print.']};
+  const essais=S.ex.map(function(n){ return piaEssai(src, n); });
+  const a=essais[0], dits=[];
+  if(a.err){
+    if(a.err.attente) dits.push('Ton programme pose plus d’une question : il faut un seul input, celui de '+S.v1+'.');
+    else dits.push(piaTraduire(src, a.err, S));
+    return {ok:false, vide:false, dits:dits};
+  }
+  const lus=a.r.entrees, env=a.r.env;
+  if(!lus.length) return {ok:false, vide:false, dits:['Ton programme ne pose aucune question : c’est input("…") qui demande une réponse à l’utilisateur.']};
+  const e=lus[0], x=env[S.v1];
+  if(e.var!==S.v1){
+    dits.push('La réponse doit être rangée dans la variable '+S.v1+' : écris '+S.v1+' = int(input("…")).');
+    return {ok:false, vide:false, dits:dits};
+  }
+  if(!x || x.t==='str') dits.push('La variable '+S.v1+' contient la réponse sous forme de TEXTE : il faut int(…) autour de input pour qu’elle soit un nombre entier, '+S.v1+' = int(input("…")).');
+  else if(x.t!=='int') dits.push('La variable '+S.v1+' doit être un nombre ENTIER : c’est int(…) qu’il faut autour de input.');
+  else if(x.v!==S.ex[0]) dits.push('La variable '+S.v1+' est modifiée après l’input : elle doit garder la réponse de l’utilisateur.');
+  if(!e.invite.trim()) dits.push('L’input n’a pas de question entre ses parenthèses : l’utilisateur ne saura pas quoi répondre. Écris la question entre guillemets, input("…").');
+  if(dits.length) return {ok:false, vide:false, dits:dits};
+  /* le résultat, dans SA variable, juste sous les deux réponses */
+  if(!Object.prototype.hasOwnProperty.call(env, S.v2))
+    return {ok:false, vide:false, dits:['Le résultat du calcul doit être rangé dans la variable '+S.v2+' : écris '+S.v2+' = … sur une ligne, avant le print.']};
+  const vals=essais.map(function(y){ return (!y.err && y.r.env[S.v2])?y.r.env[S.v2]:null; });
+  const juste=function(k){ const y=vals[k]; return !!y && y.t!=='str' && y.t!=='type' && y.v===S.f(S.ex[k]); };
+  if(!juste(0) || !juste(1)){
+    const y0=vals[0], y1=vals[1];
+    if(y0 && y1 && y0.t===y1.t && y0.v===y1.v) dits.push(S.v2+' vaut toujours '+pyRep(y0)+', quelle que soit la réponse : le calcul doit se servir de la variable '+S.v1+', pas d’un nombre écrit à la main.');
+    else if(y0 && y0.t==='str') dits.push(S.v2+' contient un texte : c’est un CALCUL avec '+S.v1+' qu’il faut ranger dedans, sans guillemets.');
+    else {
+      const k=juste(0)?1:0, y=vals[k];
+      dits.push('Si l’on répond '+S.ex[k]+', '+S.v2+' vaut '+(y?pyRep(y):'…')+' : ce n’est pas '+S.calc+'. Vérifie ton calcul.');
+    }
+    return {ok:false, vide:false, dits:dits};
+  }
+  /* reste ce qui s'affiche */
+  const aff=function(y){ return y.r.prints.map(function(p){ return p.vals.map(pyRep).join(' '); }); };
+  const ligneJuste=function(k){ const y=essais[k]; if(y.err) return false; const l=aff(y); return l.length===1 && piaLigneOk(l[0], S, pyRep(vals[k])); };
+  if(ligneJuste(0) && ligneJuste(1)){
+    const net=function(s){ return String(s).trim().replace(/\s+/g,' '); };
+    const l=net(aff(a)[0]), att=net(S.t1+' '+pyRep(vals[0])+' '+S.t2);
+    return {ok:true, vide:false, ligne:l, ecart:pyEcart(l, att), dits:[]};
+  }
+  const lignes=aff(a);
+  if(!lignes.length) dits.push('Ton programme calcule bien '+S.v2+', mais n’affiche rien : il faut un print à la fin.');
+  else if(lignes.length>1) dits.push('Ton programme affiche '+lignes.length+' lignes ; il doit en afficher une seule : le texte, puis '+S.v2+', puis le second texte, dans le MÊME print, séparés par des virgules.');
+  else {
+    const L=lignes[0].trim(), args=a.r.prints[0].args;
+    const nomme=function(v){ return args.some(function(z){ return z.k==='nom' && z.v===v; }); };
+    if(args.some(function(z){ return z.k==='str' && z.v.trim()===S.v2; })) dits.push('"'+S.v2+'" entre guillemets affiche le MOT « '+S.v2+' », pas le résultat : écris le nom de la variable SANS guillemets.');
+    else if(nomme(S.v1) && !nomme(S.v2)) dits.push('Ton programme affiche '+S.v1+', la réponse tapée, au lieu de '+S.v2+', le résultat du calcul.');
+    else if(ligneJuste(0)) dits.push('Ton programme affiche toujours le même nombre, quelle que soit la réponse : il faut afficher la VARIABLE '+S.v2+', pas un nombre écrit à la main.');
+    else dits.push('Ton programme affiche « '+L+' » : il doit afficher le texte « '+S.t1+' », puis la valeur de '+S.v2+(S.t2?', puis le texte « '+S.t2+' »':'')+'.');
+  }
+  return {ok:false, vide:false, dits:dits};
+}
+
+/* ---- 2. L'écran ---- */
+/* L'énoncé du carnet, à puces — écrit par le rendu, depuis la question. */
+function piaEnonceHTML(q){
+  const S=piaSit(q);
+  return '<b>Écris</b> un programme dans la cellule ci-dessous&nbsp;:'
+    +'<ul class="pyd-puces">'
+    +'<li>qui <b>demande '+esc(S.d1)+'</b> et met la réponse dans la variable entière <code>'+esc(S.v1)+'</code>&nbsp;;</li>'
+    +'<li>qui calcule '+esc(S.calc)+' et met le résultat dans la variable <code>'+esc(S.v2)+'</code>&nbsp;;</li>'
+    +'<li>puis qui affiche&nbsp;: <code>"'+esc(S.t1)+' "</code>, '+esc(S.v2)+(S.t2?', <code>" '+esc(S.t2)+'"</code>':'')+'.</li>'
+    +'</ul>';
+}
+/* Le cours, en un cadre : int(input(…)), et ce qu'il permet — calculer. */
+function piaCoursHTML(){
+  return '<div class="pyp-regle pyi-cours"><b><code>int(input("…"))</code> demande un nombre entier</b> : input rend toujours un TEXTE, int(…) en fait un nombre — et avec un nombre, on peut CALCULER.'
+    +'<span class="pyp-ex"><code>n = int(input("Un nombre ? "))</code> puis <code>double = n * 2</code> — si l’on répond <code>5</code>, la variable <code>double</code> contient <code>10</code>.</span></div>';
+}
+/* Les trois coups de pouce du carnet. */
+function piaPoucesHTML(q){
+  const S=piaSit(q);
+  return pyPoucesHTML([
+    ['coup de pouce 1', 'Il faut écrire&nbsp;: <code>'+esc(S.v1)+' = int(input("......... ? "))</code>'],
+    ['coup de pouce 2', '<code>'+esc(S.v2+' = '+S.expr)+'</code>'],
+    ['coup de pouce 3', 'Il faut ensuite écrire&nbsp;: <code>'+esc('print("'+S.t1+' ", '+S.v2+(S.t2?', " '+S.t2+'"':'')+')')+'</code>']
+  ]);
+}
+
+/* ---- 3. Cycle de vie ---- */
+async function startPIA(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=piaBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pia', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+piaCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pia'); renderPIA();
+}
+let _piaSaveTimer=null, _piaRep=null;
+function renderPIA(){
+  const q=test.questions[test.idx]; test.locked=false; _piaRep=null;
+  $('piaIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPIA').innerHTML=modeTagHTML();
+  $('piaLiveScore').textContent=test.score;
+  $('piaInstr').innerHTML=piaEnonceHTML(q);
+  $('piaFeedback').textContent=''; $('piaFeedback').className='mp-feedback';
+  $('piaActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="piaValidate" onclick="checkPIA()">Vérifier</button>';
+  $('piaHost').innerHTML=
+    '<div class="py-cell">'
+    +piaCoursHTML()
+    +piaPoucesHTML(q)
+    +'<p class="py-label">Ton programme</p>'
+    +'<textarea id="pia-prog" class="pyp-edit pts-case" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="piaRun" type="button" onclick="piaExecuter()">▶ Exécuter mon programme</button>'
+    +'<span class="py-hint" id="piaRunHint">Exécute-le : quand il pose sa question, réponds dans la console et appuie sur Entrée.</span></div>'
+    +'<p class="py-label">La console</p>'
+    +'<pre class="py-console" id="piaConsole"></pre>'
+    +'<div id="piaModele"></div>'
+    +'</div>';
+  const ta=$('pia-prog'); ta.value=q.prog||'';
+  ta.addEventListener('input', piaSaisie);
+}
+function piaSaisie(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], ta=$('pia-prog'); if(!q||!ta) return;
+  q.prog=ta.value;
+  ta.classList.remove('bad');
+  if(_piaRep){ _piaRep=null; const c=$('piaConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','py-err'); } }
+  clearTimeout(_piaSaveTimer); _piaSaveTimer=setTimeout(autoSave,1000);
+}
+/* Le dialogue du 6.3.2 : on exécute avec les réponses déjà données ; si le
+   programme en attend une de plus, la console montre sa question et une case. */
+function piaPas(){
+  const ta=$('pia-prog'), c=$('piaConsole'); if(!ta||!c) return;
+  const src=ta.value;
+  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
+  if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _piaRep=null; return; }
+  let r=null, err=null;
+  try{ r=pyRun(src, _piaRep); }catch(e){ err=e; }
+  const h=$('piaRunHint');
+  if(err && err.attente){
+    c.textContent=err.sortie;
+    const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
+    const inp=document.createElement('input');
+    inp.type='text'; inp.id='pia-rep'; inp.className='pyi-rep'; inp.autocomplete='off';
+    inp.setAttribute('autocapitalize','off'); inp.setAttribute('autocorrect','off'); inp.spellcheck=false;
+    inp.setAttribute('inputmode','numeric');
+    inp.setAttribute('aria-label','ta réponse à la question du programme');
+    inp.addEventListener('keydown', function(e){
+      if(e.key!=='Enter') return;
+      e.preventDefault();
+      if(!_piaRep) return;
+      _piaRep.push(inp.value); piaPas();
+    });
+    c.appendChild(inp);
+    if(h) h.textContent='Le programme attend ta réponse : écris-la dans la console, puis appuie sur Entrée.';
+    try{ inp.focus(); }catch(e){}
+    return;
+  }
+  _piaRep=null;
+  if(err){ c.textContent=(err.sortie||'')+'Erreur : '+(err.message||err); c.classList.add('py-err'); }
+  else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
+  if(h) h.textContent='Programme exécuté. Regarde la console, corrige si besoin, puis « Vérifier ».';
+}
+function piaExecuter(){
+  if(test.locked) return;
+  const ta=$('pia-prog'); if(!ta) return;
+  test.questions[test.idx].prog=ta.value;
+  _piaRep=[]; piaPas();
+}
+/* À la vérification, la console montre l'exécution que le juge a lue. */
+function piaAfficherJuge(src, q){
+  const c=$('piaConsole'); if(!c) return;
+  _piaRep=null;
+  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
+  if(!String(src).trim()){ c.textContent='(programme vide : rien à exécuter)'; return; }
+  const S=piaSit(q), x=piaEssai(src, S.ex[0]);
+  const tete='(la page a répondu « '+S.ex[0]+' »)\n';
+  if(x.err){ c.textContent=tete+(x.err.attente?x.err.sortie+x.err.invite+'… (le programme attend encore une réponse)':(x.err.sortie||'')+'Erreur : '+(x.err.message||x.err)); if(!x.err.attente) c.classList.add('py-err'); }
+  else c.textContent=tete+(x.r.out?x.r.out.replace(/\n$/,''):'(le programme n’affiche rien)');
+}
+function checkPIA(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], ta=$('pia-prog'); if(!q||!ta) return;
+  const src=ta.value; q.prog=src;
+  const d=piaDiag(src, q);
+  piaAfficherJuge(src, q);
+  ta.classList.remove('ok','bad','sol');
+  const fb=$('piaFeedback');
+  if(!d.ok && isSoutien()){
+    if(!d.vide) ta.classList.add('bad');        /* une zone vide ne rougit jamais */
+    fb.textContent=(d.vide?'':'Pas encore. ')+d.dits.join(' ')+' Corrige ton programme, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('piaActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="piaValidate" onclick="checkPIA()">Revérifier</button>';
+    setTimeout(function(){ ta.focus(); },40);
+    return;
+  }
+  test.locked=true; ta.readOnly=true;
+  if(d.ok){
+    ta.classList.add('ok'); test.score+=1;
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+(d.ecart
+      ? ' C’est accepté : ton programme affiche « '+d.ligne+' » — '+d.ecart+'.'
+      : ' Ton programme demande le nombre, calcule et affiche le bon résultat.');
+    fb.className='mp-feedback good';
+  } else if(d.vide){
+    ta.value=piaModele(q); ta.classList.add('sol');
+    fb.textContent='Tu n’avais rien écrit — la correction a écrit en vert un programme qui convient.'; fb.className='mp-feedback bad';
+  } else {
+    ta.classList.add('bad');
+    fb.textContent=d.dits.join(' ')+' Un programme qui convient est écrit en vert en dessous.'; fb.className='mp-feedback bad';
+    $('piaModele').innerHTML='<p class="py-label">Un programme qui convient</p><pre class="py-code pyp-modele sol">'+esc(piaModele(q))+'</pre>';
+  }
+  $('piaLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:d.ok, q:piaSit(q).v1+' → '+piaSit(q).v2, answer:piaModele(q).replace(/\n+/g,' ⏎ '), given:src.trim()?src.replace(/\n+/g,' ⏎ '):'(vide)'});
+  const b=$('piaRun'); if(b) b.disabled=true;
+  const last=test.idx===test.questions.length-1;
+  $('piaActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="piaNext" onclick="nextPIA()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('piaNext'); if(nb) nb.focus();
+}
+function nextPIA(){ if(test.idx<test.questions.length-1){ test.idx++; renderPIA(); autoSave(); } else finishTest(); }
+function ctxPia(q){
+  const S=piaSit(q), ta=$('pia-prog'), prog=(ta&&ta.value)||q.prog||'';
+  let d=null; try{ d=piaDiag(prog, q); }catch(e){}
+  let c='L’élève doit ÉCRIRE un programme Python qui demande '+S.d1+' avec int(input(…)) et range la réponse (un entier) dans la variable '+S.v1+', qui calcule '+S.calc+' et range le résultat dans la variable '+S.v2+', puis qui affiche le texte « '+S.t1+' » suivi de '+S.v2+(S.t2?' et du texte « '+S.t2+' »':'')+'. Il peut exécuter son programme : la console lui pose la question et il y répond.\n';
+  c+='Ce que l’élève a écrit :\n'+(prog.trim()?prog:'(rien pour l’instant)')+'\n';
+  if(d) c+=d.ok?'Son programme convient. ':('Ce que la page a relevé : '+d.dits.join(' ')+' ');
+  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) :\n'+piaModele(q)+'\nAide-le à trouver lui-même : rappelle les règles en jeu — variable = int(input("question")) pour obtenir un nombre entier, un calcul rangé dans une variable avec =, puis print("texte", variable, "texte") avec le nom de la variable SANS guillemets — sans jamais écrire le programme complet.';
+  return {nombre:'', contexte:c};
+}
+
 /* ---------- Exercice : afficher un texte suivi d'une variable (Python) ----------
    Demande de Turquet (septembre 2026) : « un exercice Python où on explique
    comment afficher du texte suivi d'une variable ; on donne un programme qui
@@ -42662,7 +43003,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPII','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPII','renderPIA','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
