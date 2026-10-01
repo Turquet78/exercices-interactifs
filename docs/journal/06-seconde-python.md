@@ -2850,3 +2850,77 @@ chacune avec son mot, le dialogue d'« Exécuter » joué au clavier, les copies
 juste, fausse et vide, et le soutien qui ne révèle rien. Pas de section
 propre au banc NAVIGATEUR : la visite universelle (section 9) l'ouvre dans
 les deux modes comme tout exercice.
+
+---
+
+**Le programme DEMANDE une valeur, et int(…) en fait un nombre.**
+{python-input-int} (Seconde, 6.3.2, demande de Turquet, octobre 2026 : « dans
+le sous-thème input du thème algo, créer un exercice comme l'image ») est la
+fiche « Exercice 4 » du carnet : la définition (« pour demander quel âge
+as-tu ? et mettre la réponse dans la variable age qui est un entier, on
+rajoute int(…) »), puis a) exécuter `age = int(input("Quel est ton âge ? "))`
+et répondre avec la touche Entrée, b) exécuter `print(age)` et `type(age)`
+et donner le type, c) compléter le programme pour qu'il affiche
+`"j'ai", age, "ans"`. Il SUIT {python-input} (6.3.1, l'exercice 3 du carnet,
+deux input), écrit le même matin dans une autre session : les deux branches
+avaient pris le même identifiant, le même kind et le même numéro, et c'est
+la fusion de `main` qui l'a montré (conflit sur chaque point de branchement).
+L'exercice 4 a cédé la place — nouvel identifiant `python-input-int`, kind
+`pii`, numéro 6.3.2 — et il emploie l'interpréteur tel que le 6.3.1 l'a
+livré plutôt que le sien : deux `input()` dans `pyRun` auraient été deux
+vérités.
+
+**Ce que le juge lit, et ce que la console montre.** `pyRun(src, entrees)`
+écrit dans `out` ce qu'un terminal montrerait — la question, la réponse
+tapée, puis les print. La console l'affiche tel quel ; le juge du c), lui,
+ne compare que ce que les PRINT affichent (`piiSortie`, relue dans la trace
+`prints`), sans quoi une phrase juste serait comptée fausse pour la question
+qui la précède. `int` savait déjà refuser « 15.5 » en nommant ; la console
+écrit la question, la réponse, puis l'erreur, comme un carnet. Un input sans
+réponse lève l'erreur « attente » du 6.3.1 (EOFError) — c'est ce qui arrive
+à l'élève qui recopie `input` dans sa ligne d'affichage, et le diagnostic le
+nomme.
+
+**La console demande pour de vrai.** « Exécuter » écrit la question dans la
+console, une case s'ouvre AU BOUT de la ligne, à la taille de la console (la
+réponse fait partie de ce que Python affiche), et la touche Entrée l'envoie —
+le geste même du a). Un bouton « ⏎ Entrée » double la touche pour une
+tablette. Le c) repose la question à chaque exécution : l'élève peut essayer
+plusieurs réponses et voir la phrase suivre.
+
+**L'ordre du b) est renversé, la doctrine de {python-affichage}** : la
+console répond `<class 'int'>`, et un « Exécuter » cliquable avant le choix
+ferait du b) une recopie. Le type se choisit, puis « Exécuter » se débloque
+et FIGE le choix (corrigé seulement en soutien, après la vérification).
+`type(age)` seul ne s'afficherait pas dans un programme — seul un carnet
+écrit la valeur de la dernière ligne —, la page écrit donc
+`print(type(age))`, comme {python-types}.
+
+**Quatre questions : la fiche, puis trois visages en ordre mélangé** — un
+AUTRE entier (frères et sœurs, pointure…), un NOMBRE demandé SANS `int`
+(année de naissance, taille : le type est `str`, le contraste qui dit à quoi
+sert `int`), et un texte (prénom, ville). Une séance à trois questions
+laissait mortes quatre des cinq mises en situation entières : vu en écrivant
+le contrôle, qui exige que chaque mise en situation sorte.
+
+**Le c) se juge en EXÉCUTANT, sous deux réponses** : celle de l'élève, puis
+une autre (`piiAutre`). Une ligne qui écrit « 15 » à la main affiche juste
+la première fois et se trahit la seconde ; le diagnostic le dit (« si on
+tapait 22, ton programme afficherait encore… »). Toute écriture qui affiche
+la même phrase passe — concaténation avec `str`, guillemets simples autour
+de « ans », apostrophe typographique d'une tablette — ; une espace ou une
+majuscule qui diffère est acceptée et NOMMÉE. Les erreurs propres à la
+fiche sont nommées : le nom entre guillemets, l'apostrophe de « j'ai » qui
+ferme un texte entre guillemets simples, `Print` majuscule, les parenthèses
+oubliées.
+
+**Deux cases notées par question** — le type et la ligne ; le a) est une
+porte, pas une note. Aucune correction au fil de la frappe
+(`soutienEnDirect.sans`). Le banc jsdom tient la fiche, l'interpréteur, la
+place au menu, le tirage (400 séances), le juge cas par cas, les portes
+a) → b) → c), la case vide, le soutien, les branchements, et compare
+ce que les print affichent à un vrai CPython (input remplacé, côté CPython,
+par une fonction qui rend la réponse sans écrire la question) ; le navigateur
+(« 6 tricies unvicies ») tape la réponse dans la console et l'envoie par la
+vraie touche Entrée, choisit le type dans la liste, tape la ligne, et relit
+l'encre rendue.
