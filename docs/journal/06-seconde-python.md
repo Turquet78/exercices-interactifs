@@ -2938,6 +2938,20 @@ du type ouverte avant l'exécution, input qui rend un entier pour « 15 » (le
 contrôle de l'interpréteur ET CPython rougissent), le diagnostic de
 l'apostrophe retiré, le type VIDE rougi.
 
+**Puis les énoncés sont venus À CÔTÉ de chaque étape du 6.3.1** (demande de
+Turquet, octobre 2026 : « en seconde dans le 6.3.1 écrire les énoncés à côté
+de chaque question dans l'exercice »). L'énoncé du haut changeait avec
+l'étape, et les cadres ne portaient que « a) Le programme » : au b),
+l'élève ne relisait plus ce qu'on lui avait demandé au a), et au c) il
+fallait remonter tout l'écran pour la consigne. Chaque étape est désormais
+un cadre (`pyn-etape`, le motif `pii-etape` du 6.3.3, même encre) ouvert
+par SON énoncé (« ✏️ a) Exécute le programme… »), et le cadre le GARDE quand
+la suivante s'ouvre. L'énoncé du haut dit l'exercice entier — il ne répète
+plus l'étape. Le banc jsdom exige l'énoncé du b) dans son cadre, celui du
+a) encore là au b), les trois au c), et un énoncé du haut qui
+n'ouvre plus sur une lettre d'étape ; le navigateur relit l'énoncé du b) dans son cadre après la VRAIE
+touche Entrée.
+
 ---
 
 **Le programme DEMANDE une valeur, et int(…) en fait un nombre.**
@@ -3019,8 +3033,47 @@ Son contrôle épingle désormais 6.3.3 et exige les deux autres devant lui.
 
 ---
 
+**Demander un nombre, puis CALCULER avec — l'exercice 5 du carnet.**
+{python-input-calcul} (Seconde, 6.3.4, demande de Turquet, octobre 2026 :
+« créer un exercice comme l'image en seconde dans le sous-thème input ») est
+la fiche « Exercice 5 » : un programme qui demande une année de naissance et
+la range dans la variable ENTIÈRE `naissance`, calcule l'âge que la personne
+aura en 2025 dans `age`, puis affiche `"Cette année vous aurez ", age, "ans "`
+— avec les TROIS coups de pouce du carnet, repliés (l'input avec int, le
+calcul, le print). Il ferme le sous-thème 6.3, ajouté en dernier : rien n'est
+renuméroté, et son contrôle l'exige.
+
+**Ce qu'il ajoute aux trois autres** : la réponse ne s'affiche plus telle
+qu'elle a été tapée, elle SERT à calculer — la raison d'être du int(…) que le
+6.3.3 a enseigné. Sans int, `2025 - naissance` mêle un nombre et un texte,
+l'interpréteur refuse, et le juge le dit avec les mots de la leçon (« ce que
+rend input est TOUJOURS un texte »).
+
+**Le juge est celui du 6.3.2, un cran plus loin** (`piaDiag`) : la copie
+s'exécute sous DEUX réponses que l'élève ne connaît pas (`ex`, deux résultats
+différents exigés par le contrôle). Il exige un seul input, rangé dans la
+variable demandée, ENTIER, avec une question ; le résultat rangé dans SA
+variable et juste sous les deux réponses — `age = 16` écrit à la main passe la
+première, jamais la seconde, et le message le nomme (« age vaut toujours 16,
+quelle que soit la réponse ») — ; puis UNE ligne : texte, valeur, texte. Les
+textes passent par `pyTexteProche` (la règle partagée), la valeur est exacte.
+Nommés aussi : le nom entre guillemets, la réponse affichée au lieu du
+résultat, le calcul écrit dans le print sans variable, le calcul renversé.
+
+**La séance** : la fiche épinglée en tête, puis deux situations tirées par
+`distinctes()` (âge dans 10 ans, heures → minutes, places de cinéma → prix,
+semaines → jours, élèves → cahiers) — le réglage « Questions » d'un devoir
+l'allonge jusqu'à six. Le dialogue de la console est celui du 6.3.2 (la case
+À LA SUITE de la question, Entrée qui rejoue), avec un clavier numérique sur
+tablette. Pas de correction au fil de la frappe (`soutienEnDirect.sans`).
+Banc jsdom (`pythonInputCalcul`) : la place, la fiche et le tirage (300
+séances, chaque situation sort, chaque modèle passe), le juge sur quatre
+copies justes et quinze fausses chacune avec son mot, le dialogue joué au
+clavier, les copies juste, fausse et vide, le soutien qui ne révèle rien, et
+les modèles comparés à un vrai CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
 **float : la réponse est un nombre DÉCIMAL — l'exercice 6 du carnet.**
-{python-input-float} (Seconde, 6.3.4, demande de Turquet, octobre 2026 : « créer
+{python-input-float} (Seconde, 6.3.5, demande de Turquet, octobre 2026 : « créer
 un exercice comme l'image dans le sous thème input en seconde ») est la fiche
 « Exercice 6 » : la définition (« pour demander quelle est ta taille en mètre ?
 et mettre la réponse dans la variable taille qui est un décimal, on rajoute
@@ -3063,3 +3116,10 @@ séances, chaque mise en situation), le juge, le trajet avec la virgule
 refusée, la case vide, la reprise et CPython ; le navigateur (« 6 tricies
 duovicies ») tape « 1,65 » au clavier et relit le message, puis la réponse
 entière qui s'affiche 2.0 et le « metres » accepté en bleu.
+
+**Puis {python-input-calcul} (l'exercice 5 du carnet) est arrivé sur `main`
+pendant les bancs, en 6.3.4 et en version 261** : l'exercice 6 a pris la
+place d'après, 6.3.5, et la version 262. Le contrôle du 6.3.4 exigeait
+d'être le DERNIER du sous-thème — une exigence qui casse au premier exercice
+suivant. Il exige désormais de SUIVRE {python-input-int}, l'ordre du carnet,
+et celui d'ici de suivre {python-input-calcul}.
