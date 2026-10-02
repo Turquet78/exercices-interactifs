@@ -3254,3 +3254,12 @@ son contrôle épingle désormais ce numéro et exige le 6.3.6 devant lui —,
 version 264. Et la situation « deux notes → moyenne » de cet exercice est
 devenue « deux colis → masse totale » : la moyenne de deux notes EST
 l'exercice suivant.
+
+**Le 6.3.1 ({python-input-def}) perd ses textes d'accompagnement** (demande de
+Turquet, octobre 2026 : « supprimer les textes comme le pdf joint »). Le PDF
+masquait deux sortes de phrases : la note sous la définition (« Le programme
+affiche la question, puis il ATTEND… ») et les consignes posées à côté des trois
+boutons « Exécuter le programme » (`pynHintA/B/C`, réécrites à chaque geste).
+Les deux disparaissent ; les énoncés des étapes, la console et le message de
+verdict suffisent. Les mises à jour de ces consignes, devenues sans cible, sont
+retirées avec elles.

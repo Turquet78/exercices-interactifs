@@ -5170,7 +5170,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=265;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=266;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -30957,7 +30957,6 @@ function pynCoursHTML(){
   return '<div class="pyx-cours">'
     +'<p class="pyx-titre">Définition : la fonction input</p>'
     +'<p>Pour demander « <b>comment tu t’appelles ?</b> » et mettre la réponse dans la variable <b>nom</b>, on écrit :<br><code class="pyn-def">nom = input("comment tu t\'appelles ? ")</code></p>'
-    +'<p class="pyx-ex">Le programme affiche la question, puis il ATTEND : ce que tu tapes, validé par la touche Entrée, est rangé dans la variable.</p>'
     +'</div>';
 }
 function pynProgHTML(lignes){
@@ -31033,13 +31032,11 @@ function renderPYN(){
   const etapes=['a','b','c'], k=etapes.indexOf(q.etape);
   let h='<div class="py-cell">'+pynCoursHTML()
     +pynEtapeHTML(q, 'a', pynProgHTML([pynLigneInput(q)])
-    +'<div class="py-runrow">'+(k>0?'':'<button class="btn btn-primary" id="pynRunA" type="button" onclick="pynExecuterA()">▶ Exécuter le programme</button>')
-    +'<span class="py-hint" id="pynHintA">'+(k>0?'Ta réponse est rangée dans la variable '+esc(S.nom)+'.':'Le programme va te poser une question : écris ta réponse dans la console, puis appuie sur Entrée.')+'</span></div>'
+    +'<div class="py-runrow">'+(k>0?'':'<button class="btn btn-primary" id="pynRunA" type="button" onclick="pynExecuterA()">▶ Exécuter le programme</button>')+'</div>'
     +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleA"></pre>');
   if(k>=1){
     h+=pynEtapeHTML(q, 'b', '<pre class="py-code">'+pyColorie(pynProgB(q))+'</pre>'
-      +'<div class="py-runrow">'+(k>1?'':'<button class="btn btn-primary" id="pynRunB" type="button" onclick="pynExecuterB()">▶ Exécuter le programme</button>')
-      +'<span class="py-hint" id="pynHintB">'+(q.bVu?'Programme exécuté : lis la console.':'La variable '+esc(S.nom)+' contient toujours ta réponse du a). Exécute ce programme, puis réponds.')+'</span></div>'
+      +'<div class="py-runrow">'+(k>1?'':'<button class="btn btn-primary" id="pynRunB" type="button" onclick="pynExecuterB()">▶ Exécuter le programme</button>')+'</div>'
       +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleB"></pre>'
       +'<p class="py-label">Ta réponse</p>'
       +'<div class="py-phrase pyn-phrase"><span>la variable <code class="pyx-code">'+esc(S.nom)+'</code> est de type</span>'
@@ -31049,8 +31046,7 @@ function renderPYN(){
   if(k>=2){
     h+=pynEtapeHTML(q, 'c', pyPoucesHTML([['coup de pouce','il faut écrire : <code class="pyx-code">print ( "........." , '+esc(S.nom)+' )</code>']])
       +pynProgHTML([pynLigneInput(q), {html:'<input class="pyx-in" id="pyn-in" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ligne 2 du programme" placeholder="écris ici la ligne qui affiche…">'}])
-      +'<div class="py-runrow"><button class="btn btn-primary" id="pynRunC" type="button" onclick="pynExecuterC()">▶ Exécuter le programme</button>'
-      +'<span class="py-hint" id="pynHintC">Écris la ligne 2, puis exécute le programme : il te reposera la question.</span></div>'
+      +'<div class="py-runrow"><button class="btn btn-primary" id="pynRunC" type="button" onclick="pynExecuterC()">▶ Exécuter le programme</button></div>'
       +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleC"></pre>');
   }
   h+='</div>';
@@ -31086,7 +31082,6 @@ function pynExecuterA(){
     fb.textContent='Ta réponse « '+q.rep+' » est rangée dans la variable '+pynS(q).nom+'. Passe au b).'; fb.className='mp-feedback';
     const rb=$('pynRunB'); if(rb) rb.focus();
   });
-  const h=$('pynHintA'); if(h) h.textContent='Le programme attend ta réponse : écris-la dans la console, puis appuie sur Entrée.';
 }
 function pynExecuterB(){
   if(test.locked) return;
@@ -31094,7 +31089,6 @@ function pynExecuterB(){
   pynConsoleFigee('pynConsoleB', pynSrcB(q), []);
   q.bVu=true; pynSauver();
   const sel=$('pyn-type'); if(sel){ sel.disabled=false; }
-  const h=$('pynHintB'); if(h) h.textContent='Programme exécuté : la première ligne affiche le contenu de '+pynS(q).nom+', la seconde son type. Choisis le type, puis « Vérifier ».';
   const v=$('pynValidate'); if(v){ v.disabled=false; v.title=''; }
   if(sel) sel.focus();
 }
@@ -31109,7 +31103,6 @@ function pynModifieeC(){
   q.ligne=inp.value; inp.classList.remove('ok','bad');
   const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
   const c=$('pynConsoleC'); if(c){ c.textContent=''; c.classList.remove('py-exec','pyx-vide','pyx-err'); }
-  const h=$('pynHintC'); if(h) h.textContent=(typeof test.pynExec==='string')?'Tu as modifié la ligne : exécute à nouveau le programme, puis vérifie.':'Écris la ligne 2, puis exécute le programme : il te reposera la question.';
   test.pynExec=null; pynMajC(); pynSauver();
 }
 function pynExecuterC(){
@@ -31119,7 +31112,6 @@ function pynExecuterC(){
   test.pynExec=null; pynMajC();
   pynLancer('pynConsoleC', pynSrcC(q, ligne), function(r, entrees){
     q.repC=entrees[0]||''; test.pynExec=ligne; pynSauver();
-    const h=$('pynHintC'); if(h) h.textContent=ligne?'Programme exécuté : compare ce qu’il affiche avec ce qui est demandé, puis clique « Vérifier ».':'La ligne 2 est vide : le programme pose la question, mais n’affiche rien ensuite. Écris-la, puis exécute.';
     pynMajC();
     const v=$('pynValidate'); if(v&&!v.disabled&&ligne) v.focus();
   });
@@ -31189,7 +31181,6 @@ function pynVerifierC(q, fb){
   }
   test.locked=true; inp.disabled=true;
   const run=$('pynRunC'); if(run) run.remove();
-  const h=$('pynHintC'); if(h) h.textContent='Programme exécuté et vérifié.';
   const sortie='« '+S.texte+' '+val+' »';
   if(j.ok){ test.score+=1; fb.textContent=pick(['Bravo, ta ligne est juste !','Parfait !','Excellent !'])+(j.ecart
       ? ' C’est accepté : le programme affiche « '+String(j.sortie).replace(/\n$/,'')+' » — '+j.ecart+', et on demandait '+sortie+'.'
