@@ -29388,8 +29388,7 @@ function renderPYI(){
     +pyiPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pyi-prog" class="pyp-edit pts-case" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
-    +'<div class="py-runrow"><button class="btn btn-ghost" id="pyiRun" type="button" onclick="pyiExecuter()">▶ Exécuter mon programme</button>'
-    +'<span class="py-hint" id="pyiRunHint">Exécute-le : quand il pose une question, réponds dans la console et appuie sur Entrée.</span></div>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="pyiRun" type="button" onclick="pyiExecuter()">▶ Exécuter mon programme</button></div>'
     +'<p class="py-label">La console</p>'
     +'<pre class="py-console" id="pyiConsole"></pre>'
     +'<div id="pyiModele"></div>'
@@ -29415,7 +29414,6 @@ function pyiPas(){
   if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _pyiRep=null; return; }
   let r=null, err=null;
   try{ r=pyRun(src, _pyiRep); }catch(e){ err=e; }
-  const h=$('pyiRunHint');
   if(err && err.attente){
     c.textContent=err.sortie;
     const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
@@ -29430,7 +29428,6 @@ function pyiPas(){
       _pyiRep.push(inp.value); pyiPas();
     });
     c.appendChild(inp);
-    if(h) h.textContent='Le programme attend ta réponse : écris-la dans la console, puis appuie sur Entrée.';
     /* le focus tout de suite : différé, la première lettre tapée partait ailleurs */
     try{ inp.focus(); }catch(e){}
     return;
@@ -29438,7 +29435,6 @@ function pyiPas(){
   _pyiRep=null;
   if(err){ c.textContent=(r&&r.out||'')+'Erreur : '+(err.message||err); c.classList.add('py-err'); }
   else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
-  if(h) h.textContent='Programme exécuté. Regarde la console, corrige si besoin, puis « Vérifier ».';
 }
 function pyiExecuter(){
   if(test.locked) return;
@@ -29705,8 +29701,7 @@ function renderPIA(){
     +piaPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pia-prog" class="pyp-edit pts-case" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
-    +'<div class="py-runrow"><button class="btn btn-ghost" id="piaRun" type="button" onclick="piaExecuter()">▶ Exécuter mon programme</button>'
-    +'<span class="py-hint" id="piaRunHint">Exécute-le : quand il pose sa question, réponds dans la console et appuie sur Entrée.</span></div>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="piaRun" type="button" onclick="piaExecuter()">▶ Exécuter mon programme</button></div>'
     +'<p class="py-label">La console</p>'
     +'<pre class="py-console" id="piaConsole"></pre>'
     +'<div id="piaModele"></div>'
@@ -29731,7 +29726,6 @@ function piaPas(){
   if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _piaRep=null; return; }
   let r=null, err=null;
   try{ r=pyRun(src, _piaRep); }catch(e){ err=e; }
-  const h=$('piaRunHint');
   if(err && err.attente){
     c.textContent=err.sortie;
     const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
@@ -29747,14 +29741,12 @@ function piaPas(){
       _piaRep.push(inp.value); piaPas();
     });
     c.appendChild(inp);
-    if(h) h.textContent='Le programme attend ta réponse : écris-la dans la console, puis appuie sur Entrée.';
     try{ inp.focus(); }catch(e){}
     return;
   }
   _piaRep=null;
   if(err){ c.textContent=(err.sortie||'')+'Erreur : '+(err.message||err); c.classList.add('py-err'); }
   else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
-  if(h) h.textContent='Programme exécuté. Regarde la console, corrige si besoin, puis « Vérifier ».';
 }
 function piaExecuter(){
   if(test.locked) return;
@@ -30011,8 +30003,7 @@ function renderPMY(){
     +pmyPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pmy-prog" class="pyp-edit pts-case" rows="5" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
-    +'<div class="py-runrow"><button class="btn btn-ghost" id="pmyRun" type="button" onclick="pmyExecuter()">▶ Exécuter mon programme</button>'
-    +'<span class="py-hint" id="pmyRunHint">Exécute-le : quand il pose une question, réponds dans la console et appuie sur Entrée.</span></div>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="pmyRun" type="button" onclick="pmyExecuter()">▶ Exécuter mon programme</button></div>'
     +'<p class="py-label">La console</p>'
     +'<pre class="py-console" id="pmyConsole"></pre>'
     +'<div id="pmyModele"></div>'
@@ -30045,7 +30036,6 @@ function pmyPas(){
   if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _pmyRep=null; return; }
   let r=null, err=null;
   try{ r=pyRun(src, _pmyRep); }catch(e){ err=e; }
-  const h=$('pmyRunHint');
   if(err && err.attente){
     c.textContent=err.sortie;
     const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
@@ -30061,14 +30051,12 @@ function pmyPas(){
       _pmyRep.push(inp.value); pmyPas();
     });
     c.appendChild(inp);
-    if(h) h.textContent='Le programme attend ta réponse : écris-la dans la console (avec un point pour la virgule), puis appuie sur Entrée.';
     try{ inp.focus(); }catch(e){}
     return;
   }
   _pmyRep=null;
   if(err){ c.textContent=pmyErreurConsole(err); c.classList.add('py-err'); }
   else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
-  if(h) h.textContent='Programme exécuté. Regarde la console, corrige si besoin, puis « Vérifier ».';
 }
 function pmyExecuter(){
   if(test.locked) return;
@@ -30337,8 +30325,7 @@ function renderPIS(){
     +pisPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pis-prog" class="pyp-edit pts-case" rows="5" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
-    +'<div class="py-runrow"><button class="btn btn-ghost" id="pisRun" type="button" onclick="pisExecuter()">▶ Exécuter mon programme</button>'
-    +'<span class="py-hint" id="pisRunHint">Exécute-le : à chaque question, réponds dans la console et appuie sur Entrée.</span></div>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="pisRun" type="button" onclick="pisExecuter()">▶ Exécuter mon programme</button></div>'
     +'<p class="py-label">La console</p>'
     +'<pre class="py-console" id="pisConsole"></pre>'
     +'<div id="pisModele"></div>'
@@ -30363,7 +30350,6 @@ function pisPas(){
   if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _pisRep=null; return; }
   let r=null, err=null;
   try{ r=pyRun(src, _pisRep); }catch(e){ err=e; }
-  const h=$('pisRunHint');
   if(err && err.attente){
     c.textContent=err.sortie;
     const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
@@ -30379,7 +30365,6 @@ function pisPas(){
       _pisRep.push(inp.value); pisPas();
     });
     c.appendChild(inp);
-    if(h) h.textContent='Le programme attend ta réponse : écris-la dans la console, puis appuie sur Entrée.';
     try{ inp.focus(); }catch(e){}
     return;
   }
@@ -30387,7 +30372,6 @@ function pisPas(){
   _pisRep=null;
   if(err){ c.textContent=(err.sortie||'')+'Erreur : '+(err.message||err)+(virgule?'\n(En Python, la virgule d’un nombre décimal s’écrit avec un POINT : 2.5, pas 2,5.)':''); c.classList.add('py-err'); }
   else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
-  if(h) h.textContent='Programme exécuté. Regarde la console, corrige si besoin, puis « Vérifier ».';
 }
 function pisExecuter(){
   if(test.locked) return;
@@ -33919,7 +33903,7 @@ function piiAHTML(q){
   return piiEtapeHTML('piiA', 'a) <b>Exécute</b> le programme suivant et réponds à la question avec la touche <kbd>Entrée</kbd>.',
     piiProgHTML([piiLigneA(q)])
     +'<div class="py-runrow"><button class="btn btn-primary" id="piiRunA" type="button" onclick="piiExecA()">▶ Exécuter le programme</button>'
-    +'<span class="py-hint" id="piiHintA">Python va te poser la question dans la console.</span></div>'
+    +'<span class="py-hint" id="piiHintA"></span></div>'
     +'<pre class="py-console" id="piiConsA"></pre>');
 }
 function piiBHTML(q){
@@ -33929,8 +33913,7 @@ function piiBHTML(q){
     +'<p class="py-phrase pii-rep-l">Ta réponse ✍️&nbsp;: la variable <code>'+esc(n)+'</code> est de type '
     +'<select class="py-sel" id="piiType" aria-label="le type de la variable '+esc(n)+'"><option value="" selected disabled>?</option>'
     +PII_TYPES.map(function(t){ return '<option value="'+t+'">'+t+'</option>'; }).join('')+'</select></p>'
-    +'<div class="py-runrow"><button class="btn btn-ghost" id="piiRunB" type="button" disabled onclick="piiExecB()">▶ Exécuter le programme</button>'
-    +'<span class="py-hint" id="piiHintB">Choisis d’abord le type : ensuite, Python te dira s’il est d’accord.</span></div>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="piiRunB" type="button" disabled onclick="piiExecB()">▶ Exécuter le programme</button></div>'
     +'<pre class="py-console" id="piiConsB"></pre>');
 }
 function piiCHTML(q){
@@ -33940,7 +33923,7 @@ function piiCHTML(q){
     +'<div class="pyx-prog"><div class="pyx-ligne"><span class="pyx-num">1</span><span class="pyx-l1">'+pyColorie(piiLigneA(q))+'</span></div>'
     +'<div class="pyx-ligne"><span class="pyx-num">2</span><input class="pyx-in" id="piiLigne" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ligne 2 du programme" placeholder="écris ici la ligne d’affichage…"></div></div>'
     +'<div class="py-runrow"><button class="btn btn-primary" id="piiRunC" type="button" onclick="piiExecC()">▶ Exécuter le programme</button>'
-    +'<span class="py-hint" id="piiHintC">Écris la ligne 2, puis exécute : Python te reposera la question.</span></div>'
+    +'<span class="py-hint" id="piiHintC"></span></div>'
     +'<pre class="py-console" id="piiConsC"></pre>');
 }
 /* LA CONSOLE DEMANDE : la question, puis une case au bout de la ligne. La
@@ -33993,7 +33976,7 @@ function renderPII(){
 function piiExecA(){
   if(test.locked||test.piiEtape!=='a') return;
   const q=test.questions[test.idx];
-  const h=$('piiHintA'); if(h) h.textContent='Tape ta réponse au bout de la question, puis appuie sur Entrée.';
+  const h=$('piiHintA'); if(h) h.textContent='';
   piiDemande('piiConsA', q, function(v){
     const r=piiLit(q,v);
     if(!r.ok){
@@ -34006,14 +33989,13 @@ function piiExecA(){
     piiConsole('piiConsA', r.r.out, false);
     test.piiVal=v; test.piiEtape='b';
     const run=$('piiRunA'); if(run) run.disabled=true;
-    if(h) h.textContent='Ta réponse est rangée dans la variable '+piiC(q).nom+'.';
+    if(h) h.textContent='';
     const hote=$('piiHost').querySelector('.py-cell');
     if(hote) hote.insertAdjacentHTML('beforeend', piiBHTML(q));
     const sel=$('piiType');
     if(sel) sel.addEventListener('change', function(){
       const b=$('piiRunB'); if(!b) return;
       b.disabled=!sel.value; b.classList.toggle('btn-ghost',!sel.value); b.classList.toggle('btn-primary',!!sel.value);
-      const hb=$('piiHintB'); if(hb&&sel.value) hb.textContent='Exécute : ton choix sera figé, et Python affichera la valeur et le type.';
     });
     if(sel) try{ sel.focus(); }catch(e){}
   });
@@ -34026,7 +34008,6 @@ function piiExecB(){
   try{ out=piiSortie(pyRun(piiLigneA(q)+'\n'+piiLignesB(q).join('\n'),[test.piiVal])); }catch(e){ out='Erreur : '+e.message; err=true; }
   piiConsole('piiConsB', out, err);
   const b=$('piiRunB'); if(b) b.disabled=true;
-  const hb=$('piiHintB'); if(hb) hb.textContent='Python a répondu : compare la dernière ligne avec ton choix. Tu feras vérifier à la fin.';
   test.piiEtape='c';
   const hote=$('piiHost').querySelector('.py-cell');
   if(hote) hote.insertAdjacentHTML('beforeend', piiCHTML(q));
@@ -34042,7 +34023,7 @@ function piiExecC(){
   const q=test.questions[test.idx], inp=$('piiLigne'); if(!inp) return;
   const l=piiNet(inp.value), h=$('piiHintC');
   if(!l){ if(h) h.textContent='La ligne 2 est vide : écris-la, puis exécute.'; inp.focus(); return; }
-  if(h) h.textContent='Python te repose la question : réponds, puis appuie sur Entrée.';
+  if(h) h.textContent='';
   piiDemande('piiConsC', q, function(v){
     const r0=piiLit(q,v);
     if(!r0.ok){
@@ -34054,7 +34035,7 @@ function piiExecC(){
     try{ txt=pyRun(piiLigneA(q)+'\n'+l,[v]).out; }catch(e){ txt=piiC(q).invite+v+'\n'+'Erreur : '+e.message; err=true; }
     piiConsole('piiConsC', txt, err);
     test.piiExec=JSON.stringify(l); test.piiValC=v;
-    if(h) h.textContent='Programme exécuté : relis ce qu’il affiche, exécute-le encore avec une autre réponse si tu veux, puis clique « Vérifier ».';
+    if(h) h.textContent='';
     piiMaj();
     const val=$('piiValidate'); if(val&&!val.disabled) val.focus();
   });
@@ -34071,8 +34052,6 @@ function piiModifiee(){
   const inp=$('piiLigne');
   if(inp){ inp.classList.remove('ok','bad'); const anc=inp.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove(); }
   const c=$('piiConsC'); if(c && !$('piiConsCIn')){ c.textContent=''; c.classList.remove('py-exec','pyx-vide','pyx-err'); }
-  const h=$('piiHintC');
-  if(h && typeof test.piiExec==='string') h.textContent='Tu as modifié la ligne : exécute à nouveau le programme, puis vérifie.';
   piiMaj();
 }
 function checkPII(live){
@@ -34119,7 +34098,7 @@ function checkPII(live){
   test.locked=true;
   inp.disabled=true; sel.disabled=true;
   const run=$('piiRunC'); if(run) run.disabled=true;
-  const h=$('piiHintC'); if(h) h.textContent='Programme exécuté et vérifié.';
+  const h=$('piiHintC'); if(h) h.textContent='';
   test.score+=justes;
   if(allOk){
     fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' '+c.nom+' est bien de type '+piiType(q)
