@@ -2616,3 +2616,14 @@ lecture seule sur un élément SVG (il faut `setAttribute('class', …)`), et so
 jsdom, où `getComputedStyle` est très lent sur ces feuilles, le filet se
 désactive (le banc jsdom gelait) — seul le vrai navigateur le mesure.
 `xItalique.dispenses` est vidé : plus aucune dette nommée.
+
+**Le 4.4 {tvi-nombre-solutions} posait parfois deux fois le même tableau**
+(octobre 2026). Il tirait ses cinq tableaux par `plan.map(sh=>genTVINS(sh))`,
+sans regarder les précédents : le contrôle universel « aucune séance ne pose
+deux fois la même question » l'a attrapé au hasard de ses 1 800 séances, sur
+une pull request qui ne touchait pas la Terminale. Chaque tableau passe
+désormais par `distincte()`. Le bord STRUCTUREL du contrôle ne lit que le
+motif `test.questions=Array.from({length:` : le motif `plan.map(…)` lui
+échappe, et huit autres démarreurs de la Terminale l'emploient (tvi3, lr,
+tvg, lg, lg2, lg3, s2, su) — la plupart tirent des familles différentes à
+chaque place, mais rien ne le prouve. C'est NOMMÉ, pas encore fermé.

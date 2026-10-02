@@ -23113,13 +23113,18 @@ function pythonInput(w, P){
   })()`, v => v === '');
 
   /* ---- 5. l'écran, le dialogue, et la copie juste TAPÉE ---- */
-  verifierEval(w, 'l’écran : l’énoncé à puces nomme les deux variables, deux coups de pouce repliés qui ne donnent pas la ligne du print, « Exécuter » pose la question DANS la console et Entrée continue ; la copie juste vaut 1', `(function(){
+  verifierEval(w, 'l’écran : l’énoncé à puces, en gras à côté de la cellule, nomme les deux variables, deux coups de pouce repliés qui ne donnent pas la ligne du print, « Exécuter » pose la question DANS la console et Entrée continue ; la copie juste vaut 1', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPYI();
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
-    const en=document.getElementById("pyiInstr");
-    if(!en||en.querySelectorAll("li").length!==3||en.textContent.indexOf("animal")<0||en.textContent.indexOf("couleur")<0) vus.push("l’énoncé : "+(en&&en.textContent));
+    /* l'énoncé à puces se pose À CÔTÉ de la cellule, en tête de son cadre et en
+       GRAS (le motif du 6.3.1) ; celui du haut dit l'exercice, sans les puces */
+    const en=document.querySelector("#pyiEtape .pyn-titre"), haut=document.getElementById("pyiInstr");
+    if(!en||en.querySelectorAll("li").length!==3||en.textContent.indexOf("animal")<0||en.textContent.indexOf("couleur")<0) vus.push("l’énoncé à côté de la cellule : "+(en&&en.textContent));
+    else if(!en.parentNode.contains(document.getElementById("pyi-prog"))) vus.push("l’énoncé n’est pas dans le cadre de la cellule du programme");
+    else if(+getComputedStyle(en).fontWeight<700) vus.push("l’énoncé n’est pas en gras : "+getComputedStyle(en).fontWeight);
+    if(!haut||!haut.textContent.trim()||haut.querySelector("li")) vus.push("l’énoncé du haut : "+(haut&&haut.innerHTML));
     const pouces=document.querySelectorAll("#pyiHost details.pyd-pouce");
     if(pouces.length!==2) vus.push(pouces.length+" coup(s) de pouce");
     pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); if(d.textContent.indexOf("vous aimez les")>=0) vus.push("un coup de pouce écrit le texte à afficher"); });
