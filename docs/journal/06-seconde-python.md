@@ -3335,3 +3335,14 @@ d'accompagnement : ils disent pourquoi le programme s'est arrêté. Une réponse
 lue sans erreur VIDE la case, pour que le message ne survive pas à sa cause.
 Les encadrés de cours (`pyiCoursHTML`…, la définition `pii-def`) ne sont pas
 touchés : ce sont les règles de la fiche, pas des consignes du bouton.
+
+**Puis l'encadré de cours ne s'écrit plus qu'UNE fois par exercice** (même
+jour : « supprime aussi les encadrés de cours quand ils sont répétés une
+seconde fois dans l'exercice »). Dans les sept exercices du sous-thème 6.3,
+le rendu réécrivait l'encadré (`pynCoursHTML`, `pyiCoursHTML`,
+`piaCoursHTML`, `pisCoursHTML`, `pmyCoursHTML`, la définition `piiDefHTML`) à
+CHAQUE question : il ne s'écrit plus qu'à la question 1 (`test.idx===0`). Le
+prix, nommé : une séance reprise après une pause à la question 2 ou 3 ne
+montre plus le cours — l'élève l'a lu à la question 1, et le bouton d'aide
+garde le rappel. Contrôle : le banc principal ({python-input-float}) rend la
+question 2 et exige qu'aucune définition n'y figure.
