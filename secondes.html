@@ -610,6 +610,8 @@
   .py-console{min-height:46px;background:#fff;border:1.5px dashed var(--line);border-radius:10px;padding:10px 16px}
   .py-console.py-exec{border-style:solid;border-color:#6c8ebf;background:#f4f8ff}
   .py-console:empty::before{content:"(rien pour l’instant : exécute le programme)";color:var(--ink-soft);font-family:"Nunito",system-ui,sans-serif;font-size:.92rem;white-space:normal}
+  /* Sous-thème 6.3 « Input » : la console vide reste vide (demande de Turquet, octobre 2026). */
+  #pyiConsole:empty::before,#piaConsole:empty::before,#pmyConsole:empty::before,#pisConsole:empty::before,[id^="pynConsole"]:empty::before,[id^="piiCons"]:empty::before{content:none}
   .py-fin{display:inline-flex;align-items:center;gap:2px}
   /* Sur un téléphone, le code écrit plus petit : à 1,05 rem la ligne du print
      se coupait derrière le défilement horizontal — précisément la ligne que
@@ -1039,7 +1041,6 @@
   .pii-def{margin:0 0 14px;padding:10px 16px;border:1.5px solid #f3d3a6;border-left:5px solid #f0932b;border-radius:10px;background:#fff8ec;text-align:left;line-height:1.55}
   .pii-def p{margin:4px 0}
   .pii-def-t{font-family:"Fredoka";font-weight:600;color:#b35c00}
-  .pii-def-n{color:var(--ink-soft)}
   .pii-def code,.pii-titre code,.pii-rep-l code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
   .pii-etape,.pyn-etape{margin:14px 0 0;padding:12px 14px;border:1.5px solid var(--line);border-left:5px solid var(--blue);border-radius:10px;background:#f6f9ff;text-align:left}
   .pii-titre,.pyn-titre{margin:0 0 10px;line-height:1.5}
@@ -5212,7 +5213,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=270;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=271;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -33899,12 +33900,10 @@ function piiJuge(q, type, ligne, v){
 function piiDefHTML(q){
   if(q&&q.f) return '<div class="pii-def"><p class="pii-def-t">⚠ Définition</p>'
     +'<p>Pour demander «&nbsp;quelle est ta taille en mètres&nbsp;?&nbsp;» et mettre la réponse dans la variable <code>taille</code>, qui est un <b>décimal</b>, on rajoute <code>float(…)</code>.</p>'
-    +'<p>On écrit&nbsp;: <code>'+pyColorie('taille = float(input("Quelle est ta taille en mètres ? "))')+'</code></p>'
-    +'<p class="pii-def-n"><code>float(…)</code> fait de ce qu’on a tapé un nombre <b>décimal</b>, de type <code>float</code>. En Python, un décimal s’écrit avec un <b>point</b>&nbsp;: on tape <code>1.65</code>, pas <code>1,65</code>.</p></div>';
+    +'<p>On écrit&nbsp;: <code>'+pyColorie('taille = float(input("Quelle est ta taille en mètres ? "))')+'</code></p></div>';
   return '<div class="pii-def"><p class="pii-def-t">⚠ Définition</p>'
     +'<p>Pour demander «&nbsp;quel âge as-tu&nbsp;?&nbsp;» et mettre la réponse dans la variable <code>age</code>, qui est un <b>entier</b>, on rajoute <code>int(…)</code>.</p>'
-    +'<p>On écrit&nbsp;: <code>'+pyColorie('age = int(input("Quel est ton âge ? "))')+'</code></p>'
-    +'<p class="pii-def-n"><code>input</code> rend toujours ce qu’on a tapé sous forme de <b>texte</b>&nbsp;: c’est <code>int(…)</code> qui en fait un nombre entier.</p></div>';
+    +'<p>On écrit&nbsp;: <code>'+pyColorie('age = int(input("Quel est ton âge ? "))')+'</code></p></div>';
 }
 function piiProgHTML(lignes){
   return '<div class="pyx-prog">'+lignes.map(function(s,i){
