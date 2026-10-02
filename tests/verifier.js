@@ -25482,6 +25482,8 @@ function pythonInputFloat(w, P){
     /* la reprise : le drapeau f voyage dans la question */
     demarrer("train"); var qs=JSON.parse(JSON.stringify(test.questions)); test.questions=qs; test.idx=0;
     if(!afficherEcranDe("pii")||document.querySelector("#piiHost .pii-def").textContent.indexOf("float(")<0) vus.push("la reprise perd l\\u2019identite du float");
+    /* la definition s'ecrit une seule fois par exercice : a la question 1 seulement */
+    test.idx=1; afficherEcranDe("pii"); if(document.querySelector("#piiHost .pii-def")) vus.push("la definition est repetee a la question 2"); test.idx=0;
     var c=ctxPii(test.questions[0]).contexte; if(c.indexOf("float(input(")<0||c.indexOf("SECR\\u00c8TES")<0) vus.push("le contexte du modele");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
