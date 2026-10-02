@@ -3265,3 +3265,50 @@ son contrôle épingle désormais ce numéro et exige le 6.3.6 devant lui —,
 version 264. Et la situation « deux notes → moyenne » de cet exercice est
 devenue « deux colis → masse totale » : la moyenne de deux notes EST
 l'exercice suivant.
+
+**Puis la fiche « variable pas à pas » est revenue, et c'est sa SECONDE
+moitié qui a fait l'exercice.** {python-phrases-memoire} (Seconde, 6.2.8,
+demande de Turquet, octobre 2026 : « en seconde créer un exercice comme le
+pdf joint » — le MÊME PDF que celui du 6.2.1 : `a = 10 ; b = 2 ; c = b`,
+l'exécution ligne par ligne avec les cases mémoire, « appuyez pour passer à
+l'étape suivante », puis trois phrases à compléter). Un second exercice
+identique au 6.2.1 n'aurait rien appris à personne ; or le 6.2.1 avait
+laissé les phrases de côté, par un arbitrage nommé (« elles disent en mots ce
+que les deux cases de chaque rangée disent déjà »). Celui-ci prend la fiche
+dans son sens à elle : **l'ordinateur EXÉCUTE, l'élève DIT.** Il appuie sur
+« ▶ Exécuter la ligne k », la ligne reçoit le ▶, une rangée s'ajoute à la
+mémoire (nom et valeur encadrée, comme sur le papier, la dernière rangée
+surlignée) ; au bout du programme, les phrases de la fiche paraissent, au mot
+près : « `a = 10` signifie que le nombre 10 va dans la case mémoire appelée
+… », « `c = b` signifie que le nombre dans la case b, qui est …, va dans la
+case mémoire appelée … ». Ajouté à la fin du 6.2, il ne renumérote rien.
+**L'EXÉCUTION NE DIT PAS LES RÉPONSES** : la phrase sous le programme montre
+la ligne lue et invite à regarder la mémoire, jamais « le nombre va dans la
+case a » — sinon les phrases ne seraient qu'une recopie. Le tableau, lui,
+reste sous les yeux : sur la fiche aussi, c'est en le lisant qu'on complète.
+**LA PORTE EST TENUE PAR L'ÉTAT DU BOUTON** : tant que le programme n'est pas
+exécuté jusqu'au bout, il n'y a ni phrase, ni case, ni « Vérifier » — et
+`checkPPH` refuse de juger. Conséquence pour la visite universelle du banc
+navigateur : à l'ouverture, l'écran n'a pas de bouton « Vérifier », et le
+contrôle « aucune case laissée vide ne rougit » ne clique rien ici ; c'est le
+banc jsdom (`pythonPhrasesMemoire`) qui tient ce bord, phrases vides et
+phrase à moitié vide, dans les deux modes.
+**Quatre cases par question** (`pphCases`, la convention que lit la coupe
+d'un devoir) : un blanc par ligne qui range un nombre (la case), deux pour la
+copie (le nombre recopié, puis la case). Les noms se TAPENT, au caractère
+près : « A » nomme une autre case en Python, et le coup de pouce le dit. La
+réponse attendue n'est jamais rangée : la case est le nom de la ligne, le
+nombre recopié est lu dans `pyRun` (`papAns`) — et le banc le refait par un
+dictionnaire tenu à la main.
+**Trois lignes, comme la fiche, et deux visages** : la fiche épinglée en tête
+(`c = b`, « voisine »), puis une copie de la PREMIÈRE case (`c = a`,
+« lointaine » — l'erreur visée est de recopier la plus proche), en
+alternance ; les tirées passent par `distincte()` et leur nombre lit
+`dmNbQuestions()`. **Le moteur est celui du 6.2.1, l'identité ne l'est pas** :
+partagés `papProg`, `papAns`, `papNet`, `papCopie`, `papProgHTML`,
+`PAP_JEUX`, `papValeurs` et la feuille de styles (`.pap-val` et ses trois
+encres) ; propres l'identifiant, le kind `pph`, l'écran, le rappel (celui du
+6.2.1 enseigne à REMPLIR le tableau), les questions à l'IA, le contexte, le
+tirage, les phrases, le juge et le poids. Une case vide est redemandée,
+jamais peinte ; en soutien rien n'est révélé ; aucune correction au fil de la
+frappe (`soutienEnDirect.sans`) ; pas de bouton des tables.

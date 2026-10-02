@@ -4152,6 +4152,7 @@ function exercices(suite){
     pythonInputSomme(w, P);
     pythonPasAPas(w, P);
     pythonValeurCase(w, P);
+    pythonPhrasesMemoire(w, P);
     pythonPasAPasChaine(w, P);
     pythonEchangerParLettres(w, P);
     pythonTypes(w, P);
@@ -34978,6 +34979,163 @@ function pythonPasAPas(w, P){
       verifier(nomPy + ' (' + progs.length + ', ' + py + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
     }
   }
+}
+
+/* {python-phrases-memoire} (Seconde, 6.2.8) : la fiche « variable pas à pas »,
+   la moitié que le 6.2.1 avait laissée — l'ordinateur EXÉCUTE, l'élève dit EN
+   MOTS ce que chaque ligne a fait. Le banc tient le tirage (la fiche en tête,
+   les deux visages), la porte de l'exécution (aucune phrase avant la fin), la
+   mémoire refaite par une SECONDE arithmétique (un dictionnaire tenu à la
+   main, sans l'interpréteur), le barème, la copie juste, la case vide jamais
+   peinte, le soutien qui ne révèle rien, et la reprise. Ce qu'il ne voit pas :
+   la disposition rendue — c'est la visite universelle du banc navigateur. */
+function pythonPhrasesMemoire(w, P){
+  const nom = '{python-phrases-memoire} : le programme pas à pas, puis les phrases de la fiche';
+  if(!P.pythonPhrasesMemoire){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des phrases de la mémoire'); return; }
+  const D = P.pythonPhrasesMemoire, ID = D.exercice, NB = D.nb, F = D.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPPH==='function' && typeof pphBuildQuestions==='function'"
+    + " && typeof pphCases==='function' && typeof checkPPH==='function' && typeof pphSuivante==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPPH / pphBuildQuestions / pphCases introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  verifierEval(w, 'le tirage : ' + NB + ' questions, la fiche du papier EN TÊTE au caractère près, puis les deux visages (voisine, lointaine) ; trois lignes, deux nombres DISTINCTS puis une copie d une case déjà remplie ; la question ne porte que le visage et les lignes (300 séances)', `(function(){
+    currentDM=null;
+    const vus=[];
+    for(let s=0;s<300 && vus.length<4;s++){
+      const qs=pphBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("seance de "+qs.length+" questions"); break; }
+      if(papProg(qs[0])!==${J(F.prog.join('\n'))}){ vus.push("la premiere question n est pas la fiche : "+papProg(qs[0])); break; }
+      const vis=qs.map(function(q){ return q.vis; });
+      if(vis.indexOf("voisine")<0||vis.indexOf("lointaine")<0) vus.push("les visages d une seance : "+vis.join(","));
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(",")!=="lignes,vis") vus.push("la question porte autre chose que vis / lignes : "+Object.keys(q).join(","));
+        if(q.lignes.length!==3) vus.push("un programme de "+q.lignes.length+" lignes");
+        const noms=q.lignes.map(function(l){ return l.nom; });
+        noms.forEach(function(n, k){ if(noms.indexOf(n)!==k) vus.push("la variable "+n+" est affectee deux fois"); });
+        const lit=[q.lignes[0].expr, q.lignes[1].expr];
+        lit.forEach(function(v){ if(!/^[1-9][0-9]?$/.test(v)) vus.push("une valeur ecrite n est pas un entier positif de deux chiffres au plus : "+v); });
+        if(lit[0]===lit[1]) vus.push("deux nombres egaux : "+lit[0]);
+        const c=q.lignes[2].expr;
+        if(c!==noms[q.vis==="lointaine"?0:1]) vus.push("visage "+q.vis+" : la copie lit "+c);
+      });
+      if(new Set(qs.map(function(q){ return papProg(q); })).size!==qs.length) vus.push("deux questions identiques dans une seance");
+    }
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'la mémoire et les réponses attendues, refaites par une SECONDE arithmétique (un dictionnaire tenu à la main, sans interpréteur) : la case est le nom à gauche du signe égal, et le nombre recopié est celui de la case lue (300 séances)', `(function(){
+    const vus=[];
+    for(let s=0;s<300 && vus.length<4;s++){
+      pphBuildQuestions().forEach(function(q){
+        const mem={};
+        q.lignes.forEach(function(l){ mem[l.nom]=/^[0-9]/.test(l.expr)?l.expr:mem[l.expr]; });
+        pphCases(q).forEach(function(c){
+          const l=q.lignes[c.k], att=c.cle==="nom"?l.nom:mem[l.expr];
+          if(pphAttendu(q, c)!==att) vus.push(papProg(q).replace(/\\n/g," ; ")+" : "+c.id+" attend "+pphAttendu(q, c)+" au lieu de "+att);
+        });
+      });
+    }
+    const f=pphBuildQuestions()[0], att=${J(F.memoire)};
+    att.forEach(function(r, k){ const a=papAns(f, k); if(a.nom!==r[0]||a.val!==r[1]) vus.push("fiche, apres la ligne "+(k+1)+" : "+a.nom+" = "+a.val); });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'la PORTE de l exécution : aucune phrase ni « Vérifier » avant la dernière ligne, la mémoire grandit d une rangée par étape, et vérifier avant la fin ne juge rien', `(function(){
+    currentDM=null; currentMode="train"; currentTestId="${ID}"; startPPH();
+    const vus=[], q=test.questions[0], n=q.lignes.length;
+    for(let e=0;e<=n;e++){
+      const rangs=document.querySelectorAll("#pphHost .pph-mval").length;
+      if(rangs!==e) vus.push("etape "+e+" : "+rangs+" rangee(s) dans la memoire");
+      const champs=document.querySelectorAll("#pphHost input").length;
+      if(e<n){
+        if(champs) vus.push("etape "+e+" : "+champs+" case(s) a remplir avant la fin de l execution");
+        if(document.getElementById("pphValidate")) vus.push("etape "+e+" : « Verifier » est la avant la fin");
+        if(!document.getElementById("pphStep")) vus.push("etape "+e+" : aucun bouton pour executer la ligne suivante");
+        checkPPH();
+        if(test.pphVerdict||test.locked) vus.push("etape "+e+" : la verification a juge avant la fin");
+        pphSuivante();
+      } else {
+        if(champs!==pphCases(q).length) vus.push("a la fin : "+champs+" case(s) au lieu de "+pphCases(q).length);
+        if(!document.getElementById("pphValidate")) vus.push("a la fin : pas de « Verifier »");
+        if(document.getElementById("pphStep")) vus.push("a la fin : le bouton d execution est encore la");
+        const av=test.pphEtape; pphSuivante(); if(test.pphEtape!==av) vus.push("pphSuivante depasse la derniere ligne");
+      }
+    }
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'la copie juste : les ' + F.cases + ' cases de la fiche sont bleues, la note affichée et la réponse enregistrée les comptent toutes, le barème de la séance suit pphCases (la convention que lira la coupe d un devoir) ; et la reprise redessine la question jugée à l identique', `(function(){
+    currentDM=null; currentMode="train"; currentTestId="${ID}"; startPPH();
+    const vus=[], q=test.questions[0];
+    const tot=test.questions.reduce(function(s, x){ return s+pphCases(x).length; }, 0);
+    if(test.maxScore!==tot) vus.push("bareme "+test.maxScore+" au lieu de "+tot);
+    if(pphCases(q).length!==${F.cases}) vus.push("la fiche vaut "+pphCases(q).length+" cases");
+    while(test.pphEtape<q.lignes.length) pphSuivante();
+    pphCases(q).forEach(function(c){ document.getElementById(c.id).value=" "+pphAttendu(q, c)+" "; });
+    checkPPH();
+    const n=pphCases(q).length;
+    if(test.score!==n) vus.push("score "+test.score+" au lieu de "+n);
+    if(document.querySelectorAll("#pphHost input.ok").length!==n) vus.push(document.querySelectorAll("#pphHost input.ok").length+" case(s) bleue(s)");
+    const m=ptsEcran(); if(!m||m.cases!==n||m.justes!==n) vus.push("la note affichee : "+JSON.stringify(m));
+    const a0=test.answers[0]; if(!a0||a0.correct!==true||a0.cases!==n) vus.push("la reponse enregistree : "+JSON.stringify(a0));
+    if(!document.getElementById("pphNext")) vus.push("pas de « Question suivante »");
+    renderPPH();
+    if(document.querySelectorAll("#pphHost input.ok").length!==n) vus.push("apres un nouveau rendu : "+document.querySelectorAll("#pphHost input.ok").length+" case(s) bleue(s)");
+    if(test.score!==n) vus.push("un nouveau rendu change le score : "+test.score);
+    nextPPH();
+    if(test.idx!==1||test.pphEtape!==0||test.pphVerdict) vus.push("la question suivante ne repart pas de zero");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'une case laissée VIDE est redemandée, jamais peinte : rien n est jugé tant qu une case des phrases est vide (tout vide, ou une seule), dans les deux modes', `(function(){
+    const vus=[];
+    ["train","soutien"].forEach(function(mode){
+      currentDM=null; currentMode=mode; currentTestId="${ID}"; startPPH();
+      const q=test.questions[0]; while(test.pphEtape<q.lignes.length) pphSuivante();
+      checkPPH();
+      let p=document.querySelectorAll("#pphHost .ok,#pphHost .bad,#pphHost .sol").length;
+      if(p) vus.push(mode+" : "+p+" case(s) peinte(s) sur des phrases vides");
+      if(test.pphVerdict||test.locked||test.score) vus.push(mode+" : les phrases vides ont ete jugees");
+      if(!/^mp-feedback bad$/.test(document.getElementById("pphFeedback").className)) vus.push(mode+" : aucun message sur des cases vides");
+      const cs=pphCases(q);
+      cs.forEach(function(c, i){ document.getElementById(c.id).value=i?"7":"   "; });
+      checkPPH();
+      p=document.querySelectorAll("#pphHost .ok,#pphHost .bad,#pphHost .sol").length;
+      if(p||test.pphVerdict) vus.push(mode+" : une case d espaces seules a laisse juger les phrases");
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'le juge et le soutien : en ENTRAÎNEMENT une case fausse rougit et la bonne réponse s écrit en vert à côté ; en SOUTIEN elle rougit sans RIEN révéler, ne compte rien et reste modifiable — puis corrigée, la question passe', `(function(){
+    const vus=[];
+    currentDM=null; currentMode="train"; currentTestId="${ID}"; startPPH();
+    let q=test.questions[0]; while(test.pphEtape<q.lignes.length) pphSuivante();
+    let cs=pphCases(q);
+    cs.forEach(function(c){ document.getElementById(c.id).value=pphAttendu(q, c); });
+    const faux=cs[cs.length-1]; document.getElementById(faux.id).value=q.lignes[faux.k].expr;
+    checkPPH();
+    const ef=document.getElementById(faux.id);
+    if(!ef.classList.contains("bad")) vus.push("entrainement : la case fausse n est pas rouge : "+ef.className);
+    const cor=ef.nextElementSibling;
+    if(!cor||!cor.classList.contains("mf-cor")||cor.textContent!==pphAttendu(q, faux)) vus.push("entrainement : la bonne reponse n est pas ecrite a cote");
+    if(test.score!==cs.length-1) vus.push("entrainement : score "+test.score+" au lieu de "+(cs.length-1));
+    if(test.answers[0].correct!==false) vus.push("entrainement : la copie fausse est enregistree juste");
+    currentMode="soutien"; startPPH();
+    q=test.questions[0]; while(test.pphEtape<q.lignes.length) pphSuivante();
+    cs=pphCases(q);
+    cs.forEach(function(c){ document.getElementById(c.id).value=pphAttendu(q, c); });
+    document.getElementById(cs[0].id).value="Z";
+    checkPPH();
+    const e0=document.getElementById(cs[0].id);
+    if(!e0.classList.contains("bad")) vus.push("soutien : la case fausse n est pas rouge");
+    if(e0.disabled) vus.push("soutien : la case fausse est verrouillee");
+    if(document.querySelector("#pphHost .mf-cor")||document.querySelector("#pphHost .sol")) vus.push("soutien : une correction est revelee");
+    if(test.score||test.pphVerdict||test.answers.length) vus.push("soutien : la copie fausse a ete comptee");
+    e0.value=pphAttendu(q, cs[0]); checkPPH();
+    if(test.score!==cs.length||!test.pphVerdict) vus.push("soutien : corrigee, la question ne passe pas (score "+test.score+")");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
 }
 
 /* {python-valeur-case} (Seconde) : le MÊME pas à pas que le 5.14, moins une
