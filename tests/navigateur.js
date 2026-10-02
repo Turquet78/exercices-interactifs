@@ -11581,9 +11581,10 @@ async function parcours(page, N){
       await s.page.keyboard.press('Enter');
       await s.page.waitForTimeout(250);
       const b0 = await s.page.evaluate(() => ({ consoleA: document.getElementById('pynConsoleA').textContent,
-        instr: (document.querySelector('#pynEtapeB .pyn-titre') || {}).textContent || '', sel: !!document.getElementById('pyn-type') && document.getElementById('pyn-type').disabled }));
-      verifier('la VRAIE touche Entrée range la réponse : la console montre la question suivie de « Léa », et le b) s\'ouvre avec son énoncé en tête',
-        b0.consoleA === 'comment tu t\'appelles ? Léa' && /^✏️ b\)/.test(b0.instr) && b0.sel, JSON.stringify(b0));
+        instr: (document.querySelector('#pynEtapeB .pyn-titre') || {}).textContent || '',
+        gras: [...document.querySelectorAll('#pynHost .pyn-titre')].map(t => +getComputedStyle(t).fontWeight), sel: !!document.getElementById('pyn-type') && document.getElementById('pyn-type').disabled }));
+      verifier('la VRAIE touche Entrée range la réponse : la console montre la question suivie de « Léa », et le b) s\'ouvre avec son énoncé en tête ; les questions des deux étapes sont en GRAS',
+        b0.consoleA === 'comment tu t\'appelles ? Léa' && /^✏️ b\)/.test(b0.instr) && b0.gras.length === 2 && b0.gras.every(g => g >= 700) && b0.sel, JSON.stringify(b0));
       let refuse = false;
       try{ await s.page.selectOption('#pyn-type', 'str', { timeout: 800 }); }catch(e){ refuse = true; }
       verifier('avant l\'exécution du b), la liste du type REFUSE un vrai choix', refuse, 'Playwright a pu choisir dans une liste qui devait être fermée');
