@@ -3335,3 +3335,10 @@ d'accompagnement : ils disent pourquoi le programme s'est arrêté. Une réponse
 lue sans erreur VIDE la case, pour que le message ne survive pas à sa cause.
 Les encadrés de cours (`pyiCoursHTML`…, la définition `pii-def`) ne sont pas
 touchés : ce sont les règles de la fiche, pas des consignes du bouton.
+
+**Les encadrés « coup de pouce » sont vert clair** (demande de Turquet,
+octobre 2026). Une seule règle les dessine tous — `.pyd-pouce`, écrite par la
+seule fabrique `pyPoucesHTML` — : le fond bleu pâle `#f4f8ff` et son liseré
+`#6c8ebf` sont devenus `#eef9ef` et `#7cc18a`. Un vert PÂLE et non l'encre de
+la correction : le cadre se replie au-dessus du programme, loin de toute case
+jugée, et aucune case de verdict ne porte cette classe.

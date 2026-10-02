@@ -730,13 +730,17 @@
      son coup de pouce (demande de Turquet, septembre 2026) : une seule
      fabrique les écrit (pyPoucesHTML), et le préfixe pyd- reste celui de
      l'exercice où le cadre est né — la convention de pyx-prog, prise dans
-     l'autre sens. */
+     l'autre sens.
+     LE CADRE EST VERT CLAIR (demande de Turquet, octobre 2026) : un FOND pâle
+     et un liseré doux, jamais l'encre franche de la correction — aucune case
+     de verdict ne porte la classe pyd-pouce, et le contrôle des couleurs de la
+     vérification ne lit que .ok, .bad et .sol. */
   .pyd-puces{margin:0 0 8px;padding-left:24px;text-align:left;font-size:1rem;line-height:1.6}
   .pyd-puces li{margin:3px 0}
   .pyd-puces code,.pyd-pouce code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
   .pyd-note{margin:0 0 12px;text-align:left;font-size:.96rem;color:var(--ink-soft)}
   .pyd-pouces{display:flex;flex-direction:column;gap:6px;margin:0 0 12px;text-align:left}
-  .pyd-pouce{border:1px solid var(--line);border-left:5px solid #6c8ebf;border-radius:10px;background:#f4f8ff;padding:7px 14px;font-size:.96rem}
+  .pyd-pouce{border:1px solid var(--line);border-left:5px solid #7cc18a;border-radius:10px;background:#eef9ef;padding:7px 14px;font-size:.96rem}
   .pyd-pouce>summary{cursor:pointer;font-family:"Fredoka";font-weight:600;color:var(--ink);list-style:none}
   .pyd-pouce>summary::-webkit-details-marker{display:none}
   .pyd-pouce>summary::before{content:"🔥\00a0"}
@@ -5208,7 +5212,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=268;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=269;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
