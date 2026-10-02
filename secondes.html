@@ -5212,7 +5212,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=269;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=270;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -29397,7 +29397,7 @@ function renderPYI(){
   $('pyiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyiValidate" onclick="checkPYI()">Vérifier</button>';
   $('pyiHost').innerHTML=
     '<div class="py-cell">'
-    +pyiCoursHTML()
+    +(test.idx===0?pyiCoursHTML():'')
     +'<div class="pyn-etape" id="pyiEtape"><div class="pyn-titre">✏️ '+pyiEnonceHTML(q)+'</div>'
     +pyiPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
@@ -29711,7 +29711,7 @@ function renderPIA(){
   $('piaActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="piaValidate" onclick="checkPIA()">Vérifier</button>';
   $('piaHost').innerHTML=
     '<div class="py-cell">'
-    +piaCoursHTML()
+    +(test.idx===0?piaCoursHTML():'')
     +piaPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pia-prog" class="pyp-edit pts-case" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
@@ -30013,7 +30013,7 @@ function renderPMY(){
   $('pmyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pmyValidate" onclick="checkPMY()">Vérifier</button>';
   $('pmyHost').innerHTML=
     '<div class="py-cell">'
-    +pmyCoursHTML()
+    +(test.idx===0?pmyCoursHTML():'')
     +pmyPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pmy-prog" class="pyp-edit pts-case" rows="5" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
@@ -30335,7 +30335,7 @@ function renderPIS(){
   $('pisActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pisValidate" onclick="checkPIS()">Vérifier</button>';
   $('pisHost').innerHTML=
     '<div class="py-cell">'
-    +pisCoursHTML()
+    +(test.idx===0?pisCoursHTML():'')
     +pisPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pis-prog" class="pyp-edit pts-case" rows="5" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
@@ -30995,7 +30995,8 @@ function pynEnonceHTML(q){
 function pynEtapeHTML(q, e, corps){
   return '<div class="pyn-etape" id="pynEtape'+e.toUpperCase()+'"><p class="pyn-titre">✏️ '+pynEtapeEnonceHTML(q, e)+'</p>'+corps+'</div>';
 }
-/* La définition de la fiche, mot pour mot, à chaque question — elle porte
+/* La définition de la fiche, mot pour mot, à la question 1 SEULEMENT (une
+   fois par exercice, demande de Turquet, octobre 2026) — elle porte
    l'exemple de la fiche, quelle que soit la question posée. */
 function pynCoursHTML(){
   return '<div class="pyx-cours">'
@@ -31074,7 +31075,7 @@ function renderPYN(){
   $('pynLiveScore').textContent=test.score;
   $('pynFeedback').textContent=''; $('pynFeedback').className='mp-feedback';
   const etapes=['a','b','c'], k=etapes.indexOf(q.etape);
-  let h='<div class="py-cell">'+pynCoursHTML()
+  let h='<div class="py-cell">'+(test.idx===0?pynCoursHTML():'')
     +pynEtapeHTML(q, 'a', pynProgHTML([pynLigneInput(q)])
     +'<div class="py-runrow">'+(k>0?'':'<button class="btn btn-primary" id="pynRunA" type="button" onclick="pynExecuterA()">▶ Exécuter le programme</button>')+'</div>'
     +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleA"></pre>');
@@ -33985,7 +33986,7 @@ function renderPII(){
   $('piiLiveScore').textContent=test.score;
   $('piiFeedback').textContent=''; $('piiFeedback').className='mp-feedback';
   $('piiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="piiValidate" onclick="checkPII()" disabled title="Fais d’abord les étapes a), b) et c)">Vérifier</button>';
-  $('piiHost').innerHTML='<div class="py-cell">'+piiDefHTML(q)+piiAHTML(q)+'</div>';
+  $('piiHost').innerHTML='<div class="py-cell">'+(test.idx===0?piiDefHTML(q):'')+piiAHTML(q)+'</div>';
 }
 function piiExecA(){
   if(test.locked||test.piiEtape!=='a') return;

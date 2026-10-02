@@ -3342,3 +3342,14 @@ seule fabrique `pyPoucesHTML` — : le fond bleu pâle `#f4f8ff` et son liseré
 `#6c8ebf` sont devenus `#eef9ef` et `#7cc18a`. Un vert PÂLE et non l'encre de
 la correction : le cadre se replie au-dessus du programme, loin de toute case
 jugée, et aucune case de verdict ne porte cette classe.
+
+**Puis l'encadré de cours ne s'écrit plus qu'UNE fois par exercice** (même
+jour : « supprime aussi les encadrés de cours quand ils sont répétés une
+seconde fois dans l'exercice »). Dans les sept exercices du sous-thème 6.3,
+le rendu réécrivait l'encadré (`pynCoursHTML`, `pyiCoursHTML`,
+`piaCoursHTML`, `pisCoursHTML`, `pmyCoursHTML`, la définition `piiDefHTML`) à
+CHAQUE question : il ne s'écrit plus qu'à la question 1 (`test.idx===0`). Le
+prix, nommé : une séance reprise après une pause à la question 2 ou 3 ne
+montre plus le cours — l'élève l'a lu à la question 1, et le bouton d'aide
+garde le rappel. Contrôle : le banc principal ({python-input-float}) rend la
+question 2 et exige qu'aucune définition n'y figure.
