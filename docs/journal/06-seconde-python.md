@@ -2951,6 +2951,12 @@ plus l'étape. Le banc jsdom exige l'énoncé du b) dans son cadre, celui du
 a) encore là au b), les trois au c), et un énoncé du haut qui
 n'ouvre plus sur une lettre d'étape ; le navigateur relit l'énoncé du b) dans son cadre après la VRAIE
 touche Entrée.
+Le lendemain, **les questions en GRAS** (« les questions doivent être en
+gras en plus ») : `.pyn-titre{font-weight:700}` — la question de chaque
+étape se détache du programme et de la console qu'elle annonce. Le
+navigateur mesure la graisse CALCULÉE des deux énoncés présents au b)
+(≥ 700) : c'est la feuille de styles qui les engraisse, et seul un vrai
+moteur de rendu la résout.
 
 ---
 

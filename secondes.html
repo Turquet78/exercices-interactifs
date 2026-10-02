@@ -1021,6 +1021,9 @@
   .pii-def code,.pii-titre code,.pii-rep-l code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#f1f1f1;border-radius:5px;padding:0 5px}
   .pii-etape,.pyn-etape{margin:14px 0 0;padding:12px 14px;border:1.5px solid var(--line);border-left:5px solid var(--blue);border-radius:10px;background:#f6f9ff;text-align:left}
   .pii-titre,.pyn-titre{margin:0 0 10px;line-height:1.5}
+  /* au 6.3.1, la question de chaque étape s'écrit en GRAS (demande de Turquet,
+     octobre 2026) : elle se détache du programme et de la console qu'elle annonce */
+  .pyn-titre{font-weight:700}
   .pyn-etape .py-label:first-child{margin-top:0}
   .pii-titre kbd{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#fde9e4;color:#b13a2a;border-radius:5px;padding:0 6px}
   .pii-etape .py-console{margin:8px 0 0}
@@ -5167,7 +5170,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=264;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=265;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
