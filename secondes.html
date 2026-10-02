@@ -1040,8 +1040,12 @@
   .pii-etape,.pyn-etape{margin:14px 0 0;padding:12px 14px;border:1.5px solid var(--line);border-left:5px solid var(--blue);border-radius:10px;background:#f6f9ff;text-align:left}
   .pii-titre,.pyn-titre{margin:0 0 10px;line-height:1.5}
   /* au 6.3.1, la question de chaque étape s'écrit en GRAS (demande de Turquet,
-     octobre 2026) : elle se détache du programme et de la console qu'elle annonce */
-  .pyn-titre{font-weight:700}
+     octobre 2026) : elle se détache du programme et de la console qu'elle annonce.
+     Puis le 6.3.2 et le 6.3.3 ont suivi (« fais pareil ») : le 6.3.2 pose son
+     énoncé dans un cadre .pyn-etape à côté de sa cellule, le 6.3.3 avait déjà
+     ses .pii-titre — tous en gras. */
+  .pyn-titre,.pii-titre{font-weight:700}
+  .pyn-titre .pyd-puces{margin:6px 0 0}
   .pyn-etape .py-label:first-child{margin-top:0}
   .pii-titre kbd{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#fde9e4;color:#b13a2a;border-radius:5px;padding:0 6px}
   .pii-etape .py-console{margin:8px 0 0}
@@ -5204,7 +5208,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=266;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=267;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -29337,7 +29341,12 @@ function pyiDiag(src, q){
 }
 
 /* ---- 2. L'écran ---- */
-/* L'énoncé du carnet, à puces — écrit par le rendu, depuis la question. */
+/* L'énoncé du carnet, à puces — écrit par le rendu, depuis la question. Il se
+   pose À CÔTÉ de la cellule, en tête de son cadre et en gras (demande de
+   Turquet, octobre 2026, le motif du 6.3.1) ; l'énoncé du haut dit l'exercice. */
+function pyiEnonceGeneralHTML(q){
+  return 'Le programme demande deux réponses avec <code>input</code>, puis les affiche dans une phrase.';
+}
 function pyiEnonceHTML(q){
   const P=pyiPaire(q);
   return '<b>Écris</b> un programme dans la cellule ci-dessous&nbsp;:'
@@ -29379,19 +29388,20 @@ function renderPYI(){
   $('pyiIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPYI').innerHTML=modeTagHTML();
   $('pyiLiveScore').textContent=test.score;
-  $('pyiInstr').innerHTML=pyiEnonceHTML(q);
+  $('pyiInstr').innerHTML=pyiEnonceGeneralHTML(q);
   $('pyiFeedback').textContent=''; $('pyiFeedback').className='mp-feedback';
   $('pyiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyiValidate" onclick="checkPYI()">Vérifier</button>';
   $('pyiHost').innerHTML=
     '<div class="py-cell">'
     +pyiCoursHTML()
+    +'<div class="pyn-etape" id="pyiEtape"><div class="pyn-titre">✏️ '+pyiEnonceHTML(q)+'</div>'
     +pyiPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pyi-prog" class="pyp-edit pts-case" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
     +'<div class="py-runrow"><button class="btn btn-ghost" id="pyiRun" type="button" onclick="pyiExecuter()">▶ Exécuter mon programme</button>'
     +'<span class="py-hint" id="pyiRunHint">Exécute-le : quand il pose une question, réponds dans la console et appuie sur Entrée.</span></div>'
     +'<p class="py-label">La console</p>'
-    +'<pre class="py-console" id="pyiConsole"></pre>'
+    +'<pre class="py-console" id="pyiConsole"></pre></div>'
     +'<div id="pyiModele"></div>'
     +'</div>';
   const ta=$('pyi-prog'); ta.value=q.prog||'';

@@ -11378,9 +11378,10 @@ async function parcours(page, N){
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const ecran0 = await s.page.evaluate(() => ({ def: !!document.querySelector('#piiHost .pii-def'),
         b: !!document.getElementById('piiB'), val: document.getElementById('piiValidate').disabled,
-        code: getComputedStyle(document.querySelector('#piiA .pyx-l1')).fontFamily }));
-      verifier('la question 1 montre la définition et le seul a) — le b), le c) et « Vérifier » attendent',
-        ecran0.def && !ecran0.b && ecran0.val && /mono|Menlo|Consolas|Courier/i.test(ecran0.code), JSON.stringify(ecran0));
+        code: getComputedStyle(document.querySelector('#piiA .pyx-l1')).fontFamily,
+        gras: +getComputedStyle(document.querySelector('#piiA .pii-titre')).fontWeight }));
+      verifier('la question 1 montre la définition et le seul a), dont l\'énoncé est en GRAS — le b), le c) et « Vérifier » attendent',
+        ecran0.def && !ecran0.b && ecran0.val && /mono|Menlo|Consolas|Courier/i.test(ecran0.code) && ecran0.gras >= 700, JSON.stringify(ecran0));
       await s.page.click('#piiRunA');
       await s.page.waitForTimeout(250);
       const cons = await s.page.evaluate(() => {
