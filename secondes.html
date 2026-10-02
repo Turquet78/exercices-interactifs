@@ -5213,7 +5213,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=271;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=272;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -33933,7 +33933,7 @@ function piiBHTML(q){
 function piiCHTML(q){
   const c=piiC(q);
   return piiEtapeHTML('piiC', 'c) <b>Complète</b> le programme ci-dessous pour qu’il affiche&nbsp;: <code>"'+esc(c.avant)+'"</code>, '+esc(c.nom)+', <code>"'+esc(c.apres)+'"</code>.',
-    pyPoucesHTML([['coup de pouce', 'Il faut écrire&nbsp;: <code>print("………", '+esc(c.nom)+', "………")</code> — les textes <b>entre guillemets</b>, des <b>virgules</b> entre les morceaux, et le nom de la variable <b>sans guillemets</b>.']])
+    pyPoucesHTML([['coup de pouce', 'Il faut écrire&nbsp;: <code>print("………", '+esc(c.nom)+', "………")</code>']])
     +'<div class="pyx-prog"><div class="pyx-ligne"><span class="pyx-num">1</span><span class="pyx-l1">'+pyColorie(piiLigneA(q))+'</span></div>'
     +'<div class="pyx-ligne"><span class="pyx-num">2</span><input class="pyx-in" id="piiLigne" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="ligne 2 du programme" placeholder="écris ici la ligne d’affichage…"></div></div>'
     +'<div class="py-runrow"><button class="btn btn-primary" id="piiRunC" type="button" onclick="piiExecC()">▶ Exécuter le programme</button>'
