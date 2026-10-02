@@ -3335,3 +3335,18 @@ d'accompagnement : ils disent pourquoi le programme s'est arrêté. Une réponse
 lue sans erreur VIDE la case, pour que le message ne survive pas à sa cause.
 Les encadrés de cours (`pyiCoursHTML`…, la définition `pii-def`) ne sont pas
 touchés : ce sont les règles de la fiche, pas des consignes du bouton.
+
+**Puis le 6.3.3 a montré ce qui restait** (« en seconde dans le 6.3.3 il
+fallait supprimer les textes comme sur le pdf joint », octobre 2026). Le
+passage précédent avait déclaré la définition `pii-def` « pas touchée » ; le
+PDF, lui, masquait sa DERNIÈRE ligne — la note grisée `pii-def-n` (« input
+rend toujours ce qu’on a tapé sous forme de texte… », et sa sœur du 6.3.5 sur
+float et le point). Les deux notes partent, avec leur règle CSS : la
+définition garde son titre, sa phrase et son « On écrit ». Le PDF masquait
+aussi le texte d'attente des consoles, « (rien pour l’instant : exécute le
+programme) », posé par `.py-console:empty::before` pour TOUT le thème
+Python : il est éteint (`content:none`) pour les seules consoles du
+sous-thème 6.3 (`pynConsole*`, `pyiConsole`, `piiCons*`, `piaConsole`,
+`pmyConsole`, `pisConsole`) — une console vide y reste un cadre vide. Les
+autres sous-thèmes Python gardent le leur. Vérifié en ouvrant le 6.3.3 et le
+6.3.5 dans Chromium.
