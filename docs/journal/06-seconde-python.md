@@ -2957,6 +2957,17 @@ gras en plus ») : `.pyn-titre{font-weight:700}` — la question de chaque
 navigateur mesure la graisse CALCULÉE des deux énoncés présents au b)
 (≥ 700) : c'est la feuille de styles qui les engraisse, et seul un vrai
 moteur de rendu la résout.
+Puis **le 6.3.2 et le 6.3.3 ont suivi** (« fais pareil pour le 6.3.2 et le
+6.3.3 »). Le 6.3.3 avait déjà un énoncé en tête de chaque étape
+(`.pii-titre`) : il ne lui manquait que le gras, posé par la même règle
+(`.pyn-titre,.pii-titre{font-weight:700}`) — le navigateur mesure celui du
+a). Le 6.3.2 n'a qu'UNE question, écrire le programme, et son énoncé à
+puces vivait en haut de l'écran, au-dessus du cours et des coups de pouce :
+il passe dans un cadre `.pyn-etape` (`#pyiEtape`) qui enveloppe les coups
+de pouce, la cellule, « Exécuter » et la console, en tête et en gras.
+L'énoncé du haut dit l'exercice en une phrase, sans les puces. Le banc
+jsdom exige les trois puces dans le cadre, la cellule dans le même cadre,
+la graisse ≥ 700, et un énoncé du haut sans puce.
 
 ---
 
