@@ -3368,3 +3368,14 @@ sous-thème 6.3 (`pynConsole*`, `pyiConsole`, `piiCons*`, `piaConsole`,
 `pmyConsole`, `pisConsole`) — une console vide y reste un cadre vide. Les
 autres sous-thèmes Python gardent le leur. Vérifié en ouvrant le 6.3.3 et le
 6.3.5 dans Chromium.
+
+**Puis le coup de pouce du 6.3.3 a perdu sa fin** (« supprime aussi le texte
+que j'ai masqué dans le coup de pouce. le faire pour tous les coups de pouce
+dans le sous thème input », octobre 2026). Le coup de pouce de l'étape c),
+partagé par {python-input-int} et {python-input-float}, ne garde que
+« Il faut écrire : `print("………", age, "………")` » : la phrase qui suivait
+(« — les textes entre guillemets, des virgules entre les morceaux, et le nom de
+la variable sans guillemets ») est retirée. C'était le SEUL coup de pouce du
+sous-thème 6.3 à porter un texte après son modèle : ceux du 6.3.1, du 6.3.2,
+du 6.3.4, du 6.3.6 et du 6.3.7 n'ont que leur ligne à recopier, et restent
+tels quels.
