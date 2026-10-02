@@ -3312,3 +3312,26 @@ encres) ; propres l'identifiant, le kind `pph`, l'écran, le rappel (celui du
 tirage, les phrases, le juge et le poids. Une case vide est redemandée,
 jamais peinte ; en soutien rien n'est révélé ; aucune correction au fil de la
 frappe (`soutienEnDirect.sans`) ; pas de bouton des tables.
+
+**Le 6.3.1 ({python-input-def}) perd ses textes d'accompagnement** (demande de
+Turquet, octobre 2026 : « supprimer les textes comme le pdf joint »). Le PDF
+masquait deux sortes de phrases : la note sous la définition (« Le programme
+affiche la question, puis il ATTEND… ») et les consignes posées à côté des trois
+boutons « Exécuter le programme » (`pynHintA/B/C`, réécrites à chaque geste).
+Les deux disparaissent ; les énoncés des étapes, la console et le message de
+verdict suffisent. Les mises à jour de ces consignes, devenues sans cible, sont
+retirées avec elles.
+
+**Puis tout le sous-thème 6.3 « Input » a suivi** (même jour : « efface les
+mêmes textes pour tous les autres exercices du sous thème input »). Les
+consignes posées à côté des boutons « Exécuter » disparaissent des six autres
+exercices : `pyiRunHint` (6.3.2), `piaRunHint`, `pisRunHint`, `pmyRunHint`, et
+les trois `piiHintA/B/C` du moteur partagé par {python-input-int} et
+{python-input-float}. UNE EXCEPTION, nommée : `piiHintA` et `piiHintC` restent
+dans la page, VIDES, parce qu'ils portent aussi les messages d'ERREUR — la
+réponse que `int(…)`/`float(…)` refuse (« écris le nombre avec un POINT », que
+les deux bancs exigent) et la ligne 2 vide. Ce ne sont pas des consignes
+d'accompagnement : ils disent pourquoi le programme s'est arrêté. Une réponse
+lue sans erreur VIDE la case, pour que le message ne survive pas à sa cause.
+Les encadrés de cours (`pyiCoursHTML`…, la définition `pii-def`) ne sont pas
+touchés : ce sont les règles de la fiche, pas des consignes du bouton.
