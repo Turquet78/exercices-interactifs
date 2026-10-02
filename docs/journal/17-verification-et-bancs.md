@@ -154,3 +154,26 @@ dette nommée (`fonctionsEnDouble` dans `tests/profils.js`) — la liste ne
 grandit jamais, et le second bord rougit dès qu'un doublon y est résolu sans
 être retiré. Éprouvé par sabotage : `ctxPyi` remis en double rougit en le
 nommant.
+
+**Le MathLive en cache ne se lit qu'entier — et c'est le banc qui accusait la
+page** (octobre 2026). Au premier lancement de `npm run test:navigateur` sur
+un conteneur neuf, la Seconde est sortie en rouge sur trente contrôles :
+« Unexpected token '}' », `<math-field>` jamais enregistré. La page était
+saine (la CI, verte ; la Seconde relancée seule, verte). Le défaut était dans
+le banc : `tous-navigateur.js` lance les trois niveaux EN MÊME TEMPS, chacun
+voulait MathLive dans `tests/.cache/`, et curl écrivait directement à la place
+définitive. Le fichier existait dès le premier octet : un second banc le
+croyait prêt et lisait un MathLive coupé. La CI n'y est pas exposée — chaque
+niveau y a sa machine.
+Reproduit avant d'être corrigé : trois processus décalés de 0,3 s sur un cache
+vide, curl bridé à 300 ko/s — deux sur trois lisaient 196 340 caractères au
+lieu de 842 568. Le cache vit désormais dans `tests/mathlive-cache.js` : on
+télécharge dans un fichier temporaire propre au processus, on le vérifie, puis
+on le RENOMME (atomique : jamais un fichier à moitié écrit), et
+`tous-navigateur.js` le remplit une fois avant de lancer les trois. La même
+course rejouée : trois fois 842 568.
+Un second bord s'est montré en éprouvant le premier : « entier » ne veut pas
+dire « long ». Le seuil de 100 000 caractères laissait passer le fichier coupé
+au quart, qui pèse le double. La lecture exige donc aussi que `node --check`
+relise le module jusqu'au bout — éprouvé sur un fichier coupé à 196 340 et à
+50 000 caractères : les deux sont retéléchargés.

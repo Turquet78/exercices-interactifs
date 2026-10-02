@@ -25,8 +25,8 @@
    ========================================================================== */
 const fs = require('fs');
 const path = require('path');
-const { execFileSync } = require('child_process');
 const PROFILS = require('./profils');
+const { mathlive } = require('./mathlive-cache');   /* le cache, et pourquoi il ne se lit qu'entier */
 
 const RACINE = path.resolve(__dirname, '..');
 
@@ -39,9 +39,6 @@ let CODE_CONTROLE = '', CODE_FAUX = '';
    double le compare lui-même — comme le ferait Supabase. */
 const MDP_PROF = 'mot-de-passe-du-professeur-de-controle';
 const MDP_PROF_FAUX = 'ce-n-est-pas-le-bon';
-const CACHE = path.join(__dirname, '.cache');
-const ML_FICHIER = path.join(CACHE, 'mathlive-0.110.0.mjs');
-const ML_URL = 'https://cdn.jsdelivr.net/npm/mathlive@0.110.0/mathlive.min.mjs';
 
 const CIBLE = process.argv[2] || 'premiere-specifique.html';
 const P = PROFILS[CIBLE];
@@ -74,21 +71,6 @@ function chercherChromium(){
     }
   } catch(e){}
   return undefined;                      /* Playwright cherchera son propre navigateur */
-}
-
-/* ---------- MathLive en cache ---------- */
-function mathlive(){
-  if(fs.existsSync(ML_FICHIER)) return fs.readFileSync(ML_FICHIER, 'utf8');
-  try {
-    fs.mkdirSync(CACHE, { recursive: true });
-    execFileSync('curl', ['-sL', '--max-time', '120', '-o', ML_FICHIER, ML_URL], { stdio: 'pipe' });
-    const contenu = fs.readFileSync(ML_FICHIER, 'utf8');
-    if(contenu.length < 100000) throw new Error('paquet trop court');
-    return contenu;
-  } catch(e){
-    try { fs.unlinkSync(ML_FICHIER); } catch(e2){}
-    return null;
-  }
 }
 
 /* ---------- un serveur HTTP local, pour ce que file:// ne sait pas ----------
