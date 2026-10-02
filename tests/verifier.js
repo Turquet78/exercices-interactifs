@@ -6259,6 +6259,25 @@ function questionsDistinctes(w, apres){
   verifier(nom + ' (source : chaque tirage passe par distinctes())', bruts === 0 && /function distinctes\(/.test(src),
     bruts ? bruts + ' tirage(s) « test.questions=Array.from({length: » — sans regard sur les questions déjà tirées'
           : 'la page n’a pas de distinctes()');
+  /* Le SECOND motif, celui qui a échappé au premier (octobre 2026 : le 4.4 de
+     la Terminale posait deux fois le même tableau) : « test.questions = ….map( »
+     sans distincte(). Il n'est sûr que si chaque place du plan est une famille
+     différente — et c'est au profil de le DÉCLARER, raison comprise
+     (tiragesParFamilles). Deux bords : un « .map( » non déclaré rougit, une
+     déclaration qui ne désigne plus aucun tirage aussi (une liste morte qu'on
+     croit vivante est pire qu'aucune liste). */
+  {
+    const declares = P.tiragesParFamilles || {}, lignes = src.split('\n'), vus = [], trouves = {};
+    lignes.forEach(function(l, i){
+      if(!/test\.questions\s*=\s*[^;]*\.map\(/.test(l) || /distincte/.test(l)) return;
+      let fn = '';
+      for(let j = i; j >= 0 && !fn; j--){ const m = lignes[j].match(/function\s+([A-Za-z0-9_$]+)\s*\(/); if(m) fn = m[1]; }
+      trouves[fn] = true;
+      if(!declares[fn]) vus.push((fn || '?') + ' (ligne ' + (i + 1) + ') tire par « .map( » sans distincte(), et rien ne dit que chaque place est une famille différente');
+    });
+    Object.keys(declares).forEach(function(fn){ if(!trouves[fn]) vus.push('tiragesParFamilles déclare ' + fn + ', qui ne tire plus par « .map( » : la déclaration est morte'); });
+    verifier(nom + ' (source : un tirage par « .map( » passe par distincte(), ou se déclare tirage par familles)', vus.length === 0, vus.slice(0, 4).join(' | '));
+  }
   evalPromis(w, `(async function(){
     const SEANCES=40, HORS=['v','ci','intro','unit','g','ordre','opts','bon','rep','choisi','selL','selR'];
     const cle=function(q){ return JSON.stringify(q,function(k,v){ return HORS.indexOf(k)>=0?undefined:v; }); };

@@ -2622,8 +2622,23 @@ désactive (le banc jsdom gelait) — seul le vrai navigateur le mesure.
 sans regarder les précédents : le contrôle universel « aucune séance ne pose
 deux fois la même question » l'a attrapé au hasard de ses 1 800 séances, sur
 une pull request qui ne touchait pas la Terminale. Chaque tableau passe
-désormais par `distincte()`. Le bord STRUCTUREL du contrôle ne lit que le
-motif `test.questions=Array.from({length:` : le motif `plan.map(…)` lui
-échappe, et huit autres démarreurs de la Terminale l'emploient (tvi3, lr,
-tvg, lg, lg2, lg3, s2, su) — la plupart tirent des familles différentes à
-chaque place, mais rien ne le prouve. C'est NOMMÉ, pas encore fermé.
+désormais par `distincte()`. Le bord STRUCTUREL du contrôle ne lisait que le
+motif `test.questions=Array.from({length:` : le motif `….map(…)` lui
+échappait.
+
+**Puis le motif a été fermé** (« oui corrige les deux de la terminale »).
+Relus un par un, les démarreurs en `.map(` de la Terminale n'étaient pas
+tous exposés : six tirent une famille DIFFÉRENTE à chaque place
+({limites-redaction}, {tvi-lecture-graphique}, {limites-graphiques} et ses
+deux suites, {suite-explicite}) — deux familles ne font jamais la même
+question. Deux RÉPÉTAIENT un type par `pick` : {tvi-contre-exemples} et
+{signe-second-degre} — ils passent par `distincte()`, comme le 4.4 (APP_VERSION
+Terminale 360). Le contrôle a gagné un second bord structurel, sur les trois
+niveaux : tout `test.questions = ….map(` sans `distincte` rougit, sauf s'il
+est déclaré dans `tests/profils.js` (`tiragesParFamilles`, la RAISON écrite
+à côté) — et une déclaration qui ne désigne plus aucun tirage rougit aussi.
+Déclarés : les six de la Terminale, {reconnaitre-coefficient} en Seconde et
+en Première (aug, dim, pre), et `startEsl` en Première (paires tirées sans
+remise). Éprouvé par sabotage sur la logique du contrôle : le 4.4 remis en
+`plan.map` rougit en nommant `startTVINS`, une déclaration retirée rougit
+en nommant `startSU`, une déclaration inventée rougit comme « morte ».
