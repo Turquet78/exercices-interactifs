@@ -122,6 +122,12 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'premiere-specifique.html': {
+    /* Les tirages par familles : voir le profil de la Terminale. */
+    tiragesParFamilles: {
+      startReconnaitreCoef: 'aug, dim, pre : trois familles différentes',
+      startEsl: 'essSeance() tire ses paires SANS REMISE dans le vivier'
+    },
+
     /* Une fonction déclarée DEUX fois au niveau global : la seconde écrase la
        première en silence (octobre 2026, ctxPyn écrit ctxPyi a remplacé le
        contexte de {python-input} sans une erreur). Ceux qui préexistaient au
@@ -631,6 +637,11 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'secondes.html': {
+    /* Les tirages par familles : voir le profil de la Terminale. */
+    tiragesParFamilles: {
+      startReconnaitreCoef: 'aug, dim, pre : trois familles différentes'
+    },
+
 
     /* Le signalement : la table du niveau, et le nom de la fonction de rendu de
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
@@ -1602,6 +1613,21 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'terminale.html': {
+    /* LES TIRAGES PAR FAMILLES (octobre 2026). Un démarreur qui écrit
+       « test.questions = ….map(…) » sans distincte() ne regarde pas les
+       questions déjà tirées : il n'est sûr que si CHAQUE place du plan est
+       une famille différente — deux familles ne font jamais la même
+       question. Le contrôle des séances rougit tout autre « .map( » ; ceux-ci
+       sont déclarés, chacun avec la raison qui le rend sûr. */
+    tiragesParFamilles: {
+      startLR:  'invD, invG, expP, expM, puis cube OU carré : cinq familles différentes',
+      startTVG: 'droite, une parabole, par0, cub3, cub2 : cinq familles différentes',
+      startLG:  'cinq familles prises SANS REMISE parmi six',
+      startLG2: 'cinq familles prises SANS REMISE parmi six',
+      startLG3: 'cinq familles prises SANS REMISE parmi six',
+      startSU:  'six couples (nature, niveau) tous différents'
+    },
+
     /* Une fonction déclarée DEUX fois au niveau global : la seconde écrase la
        première en silence (octobre 2026, ctxPyn écrit ctxPyi a remplacé le
        contexte de {python-input} sans une erreur). Ceux qui préexistaient au
