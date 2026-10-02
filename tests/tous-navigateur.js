@@ -12,6 +12,12 @@
    c'est lui qui décide de la mise en ligne. Les trois niveaux sont
    indépendants : chacun ouvre SON fichier dans SON navigateur et ne partage
    rien avec les autres. Les mener de front ne retire donc aucun contrôle.
+   SAUF UNE CHOSE, qu'il a fallu apprendre : le MathLive en cache
+   (tests/.cache/). Au premier lancement, les trois bancs le téléchargeaient
+   en même temps, et l'un lisait le fichier qu'un autre écrivait encore — un
+   MathLive coupé, et toute une page en rouge (octobre 2026). Le cache se
+   remplit donc ICI, une fois, avant de lancer les trois ; et il ne se montre
+   qu'entier (tests/mathlive-cache.js), ce qui tient aussi sans ce passage.
 
    LA SORTIE EST GARDÉE PUIS RECRACHÉE DANS L'ORDRE. Trois bancs qui écrivent
    en même temps sur le même terminal entrelacent leurs lignes, et un rapport
@@ -22,6 +28,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const PROFILS = require('./profils');
+const { mathlive } = require('./mathlive-cache');
 
 const banc = path.join(__dirname, 'navigateur.js');
 const fichiers = Object.keys(PROFILS).filter(f => PROFILS[f].navigateur);
@@ -37,6 +44,7 @@ function lancer(fichier){
 }
 
 (async () => {
+  mathlive();                            /* une fois, avant les trois : voir plus haut */
   const resultats = await Promise.all(fichiers.map(lancer));
   resultats.forEach(r => process.stdout.write(r.sortie));
 
