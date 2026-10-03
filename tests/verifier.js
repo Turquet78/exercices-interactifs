@@ -4164,6 +4164,7 @@ function exercices(suite){
     pythonInput(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
+    pythonChaines(w, P);
     pythonTexteProche(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
@@ -23582,6 +23583,199 @@ function pythonInputMoyenne(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-chaines} (Seconde, 6.1.14) : les exercices 21 et 22 du carnet — la
+   concaténation (+) et la répétition (*) des chaînes. Le contrôle tient la
+   place au menu (il ferme le 6.1, rien d'autre ne bouge), le cadre de la
+   fiche MOT POUR MOT au-dessus de l'énoncé et à la question 1 seulement, la
+   fiche épinglée et le tirage, le juge trou par trou (chaque défaut avec le
+   mot qui le nomme, dont le texte écrit à la main que la SECONDE paire de
+   noms trahit), les portes a) → b) → « Vérifier », la copie juste, fausse et
+   vide, le soutien qui explique sans révéler, puis compare à un vrai CPython
+   ce que les programmes affichent. Aucun accent grave ni antislash littéral
+   dans le code évalué. */
+function pythonChaines(w, P){
+  const nom = '{python-chaines} : concaténation et répétition de chaînes de caractères';
+  if(!P.pythonChaines){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des chaînes'); return; }
+  const ID = P.pythonChaines.exercice, NB = P.pythonChaines.nb, NC = P.pythonChaines.cases, NUM = P.pythonChaines.numero;
+  const present = evaluer(w, "typeof startPCH==='function' && typeof pchJuge==='function' && typeof pchBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPCH / pchJuge / pchBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.1 « Print et variable », numéroté ' + NUM + ' derrière {python-double-triple-carre}, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===1; });
+    if(!st||!/print/i.test(st.nom)) vus.push("pas de sous-thème 6.1 Print et variable");
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-double-triple-carre") vus.push("il ne ferme pas le sous-thème : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(typeof RAPPELS==="object"&&!RAPPELS.pch) vus.push("pas de rappel");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (Lou + ane, 3 fois ; 10 fois le nom puis le prénom), puis des questions distinctes ; chaque morceau, chaque nombre et les deux ordres sortent (400 séances)', `(function(){
+    const vus=[], ks={}, ns={}, os={};
+    for(let s=0;s<400&&vus.length<4;s++){
+      const qs=pchBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const q0=qs[0];
+      if(q0.k!==0||q0.n!==10||q0.o!=="np"||pchA(q0).c1!=="Lou"||pchA(q0).c2!=="ane"||pchA(q0).m!==3){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(q0)); break; }
+      const cles=qs.map(cleQuestion);
+      if(new Set(cles).size!==cles.length){ vus.push("deux fois la même question : "+cles.join(" ")); break; }
+      qs.slice(1).forEach(function(q){ ks[q.k]=1; ns[q.n]=1; os[q.o]=1; if(q.k===0) vus.push("la fiche ressort"); });
+    }
+    if(Object.keys(ks).length!==PCH_A.length-1) vus.push("des morceaux ne sortent jamais : "+Object.keys(ks).join(","));
+    if(Object.keys(ns).length!==PCH_N.length) vus.push("des nombres ne sortent jamais : "+Object.keys(ns).join(","));
+    if(!os.np||!os.pn) vus.push("un ordre ne sort jamais");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge, trou par trou ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (10 * chaine1, chaine1 * 10, le calcul entier, des espaces) et nomme chaque défaut — texte écrit à la main, ordre inversé, nom de variable entre guillemets, majuscule ou accent, + au lieu de *, répétition oubliée, mauvais nombre de fois —, juge chaque trou SEUL, et redemande le nom et le prénom', `(function(){
+    const vus=[], Q=String.fromCharCode(34);
+    const q={k:0,n:10,o:"np"}, qp={k:1,n:4,o:"pn"};
+    const r=function(a,b,c,n,p){ return {nom:n==null?"Dupont":n, prenom:p==null?"Jean":p, a:a, b:b, c:c}; };
+    const justes=[[q,r("Nom","Prenom","10 * chaine1")],[q,r(" Nom ","(Prenom)","chaine1*10")],[q,r("Nom","Prenom","(Nom + "+Q+" "+Q+" + Prenom) * 10")],
+                  [qp,r("Prenom","Nom","4 * chaine1")],[q,r("Nom","Prenom","chaine1 * 5 * 2",  "Martin", "Zoé")]];
+    justes.forEach(function(c){ const j=pchJuge(c[0],c[1]); if(j.noms||j.cases.some(function(x){ return !x.ok; })) vus.push("refusé : "+JSON.stringify(c[1])+" — "+JSON.stringify(j)); });
+    const cas=[
+      [q, r(Q+"Dupont"+Q,"Prenom","10 * chaine1"), 0, /à la main/],
+      [q, r("Prenom","Nom","10 * chaine1"), 0, /d’abord le nom/],
+      [qp, r("Nom","Prenom","4 * chaine1"), 0, /d’abord le prénom/],
+      [q, r(Q+"Nom"+Q,"Prenom","10 * chaine1"), 0, /sans guillemets/],
+      [q, r("nom","Prenom","10 * chaine1"), 0, /majuscule/],
+      [q, r("Nom","Prénom","10 * chaine1"), 1, /sans accent/],
+      [q, r("Dupont","Prenom","10 * chaine1"), 0, /comme le nom d’une VARIABLE/],
+      [q, r("Nom","Prenom","chaine1 + 10"), 2, /signe \\*/],
+      [q, r("Nom","Prenom","chaine1"), 2, /il manque la répétition/],
+      [q, r("Nom","Prenom","3 * chaine1"), 2, /3 fois/],
+      [q, r("Nom","Prenom",Q+"Dupont JeanDupont Jean"+Q+" * 5"), 2, /à la main/],
+      [q, r("Nom","Prenom","10 * "+Q+"chaine1"+Q), 2, /sans guillemets/],
+      [q, r("Nom","Prenom","10 * Chaine1"), 2, /minuscules/]
+    ];
+    cas.forEach(function(c){
+      const j=pchJuge(c[0],c[1]), x=j.cases&&j.cases[c[2]];
+      if(!x) vus.push("pas de verdict : "+JSON.stringify(c[1]));
+      else if(x.ok) vus.push("accepté à tort : "+JSON.stringify(c[1]));
+      else if(!c[3].test(x.diag)) vus.push(JSON.stringify(c[1])+" → "+x.diag);
+    });
+    const seul=pchJuge(q, r("Prenom","truc","10 * chaine1"));
+    if(!seul.cases[2].ok) vus.push("le trou de chaine2 rougit à cause de chaine1 : "+seul.cases[2].diag);
+    const vide=pchJuge(q, r("","Prenom",""));
+    if(!vide.cases[0].vide||!vide.cases[2].vide||vide.cases[0].ok) vus.push("trous vides : "+JSON.stringify(vide.cases));
+    if(!pchJuge(q, r("Nom","Prenom","10 * chaine1","","Jean")).noms) vus.push("le nom vide n’est pas redemandé");
+    if(!pchJuge(q, r("Nom","Prenom","10 * chaine1","Du"+Q+"pont")).noms) vus.push("le guillemet dans le nom n’est pas nommé");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran : le cadre AVANT l'énoncé, les portes, la copie juste ---- */
+  verifierEval(w, 'l’écran : le cadre de la fiche (mot pour mot) AU-DESSUS de l’énoncé à la question 1 et seulement là ; a) s’exécute et ouvre b), chaque étape garde sa question en gras, aucune consigne à côté des boutons ; « Vérifier » attend un programme exécuté tel qu’il est écrit ; la copie juste vaut ' + NC + ' cases', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPCH();
+    const vus=[], q=test.questions[0];
+    if(test.maxScore!==${NB}*${NC}) vus.push("barème "+test.maxScore);
+    const cours=document.querySelector("#pchCours .pii-def"), en=document.getElementById("pchInstr");
+    if(!cours) vus.push("pas de cadre de cours à la question 1");
+    else {
+      const t=cours.textContent.replace(/\\s+/g," ");
+      ["Pour les chaînes de caractères c’est plus court car il n’y a que deux opérations possibles","la concaténation qui consiste à mettre bout à bout deux chaînes pour former une unique chaîne : on utilise pour cela le symbole d’addition +.","la répétition qui consiste à ajouter une chaîne un certain nombre de fois à elle-même : on utilise pour cela le symbole de multiplication *."]
+        .forEach(function(m){ if(t.indexOf(m)<0) vus.push("le cadre ne dit pas : "+m); });
+      if(cours.querySelectorAll("p,li").length!==3) vus.push("le cadre a une phrase de plus : "+t);
+      if(!(cours.compareDocumentPosition(en)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("l’énoncé n’est pas APRÈS le cadre");
+    }
+    if(!en.classList.contains("mp-instr")||/^\\s*[ab]\\)/.test(en.textContent)) vus.push("l’énoncé du haut : "+en.textContent);
+    if(document.getElementById("pchB")) vus.push("b) ouvert avant l’exécution du a)");
+    if(!document.getElementById("pchValidate").disabled) vus.push("« Vérifier » ouvert d’emblée");
+    if(document.querySelector("#scr-pch .py-hint")) vus.push("une consigne à côté d’un bouton");
+    pchExecA();
+    const consA=document.getElementById("pchConsA").textContent;
+    if(consA!=="Louane"+String.fromCharCode(10)+"LouLouLou") vus.push("la console du a) : "+JSON.stringify(consA));
+    const ta=document.querySelector("#pchA .pii-titre"), tb=document.querySelector("#pchB .pii-titre");
+    if(!ta||!/Exécute/.test(ta.textContent)||!/deux opérations/.test(ta.textContent)) vus.push("l’énoncé du a) n’est plus dans son cadre");
+    if(!tb||!/Complète/.test(tb.textContent)||!/10 fois/.test(tb.textContent)||!/ton nom et ton prénom/.test(tb.textContent)) vus.push("l’énoncé du b) : "+(tb&&tb.textContent));
+    const pose=function(id,v){ const el=document.getElementById(id); el.value=v; el.dispatchEvent(new Event("input",{bubbles:true})); };
+    pose("pchNom","Dupont"); pose("pchPrenom","Jean"); pose("pchA1","Nom"); pose("pchA2","Prenom"); pose("pchC","10 * chaine1");
+    if(!document.getElementById("pchValidate").disabled) vus.push("« Vérifier » ouvert avant l’exécution du b)");
+    pchExecB();
+    const consB=document.getElementById("pchConsB").textContent;
+    if(consB!=="Dupont Jean".repeat(10)) vus.push("la console du b) : "+JSON.stringify(consB));
+    if(document.getElementById("pchValidate").disabled) vus.push("« Vérifier » fermé après l’exécution");
+    pose("pchC","10 * chaine1 ");
+    if(!document.getElementById("pchValidate").disabled) vus.push("« Vérifier » ouvert sur un programme modifié depuis l’exécution");
+    pchExecB();
+    checkPCH();
+    const oks=document.querySelectorAll("#pchHost .pch-in.ok").length;
+    if(oks!==${NC}||test.score!==${NC}) vus.push("la copie juste : "+oks+" case(s) ok, note "+test.score);
+    if(document.querySelector("#pchNom.ok,#pchNom.bad,#pchPrenom.ok,#pchPrenom.bad")) vus.push("le nom ou le prénom est noté");
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==${NC}||ans.justes!==${NC}||!ans.correct) vus.push("la note ne compte pas ${NC} cases justes : "+JSON.stringify(ans));
+    nextPCH();
+    if(test.idx!==1||document.querySelector("#pchCours .pii-def")) vus.push("le cadre de cours se répète à la question 2");
+    if(document.getElementById("pchB")) vus.push("la question 2 s’ouvre sur le b)");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, le soutien, la reprise ---- */
+  verifierEval(w, 'la case fausse rougit et reçoit la bonne écriture en vert, la case vide ne rougit pas et reçoit la bonne écriture en vert, la case juste reste bleue à côté ; en soutien le diagnostic s’affiche sans rien révéler, la case vide est redemandée, et la question reste ouverte ; une pause garde le b)', `(function(){
+    const vus=[];
+    const pose=function(id,v){ const el=document.getElementById(id); el.value=v; el.dispatchEvent(new Event("input",{bubbles:true})); };
+    const remplir=function(a,b,c){ pchExecA(); pose("pchNom","Dupont"); pose("pchPrenom","Jean"); pose("pchA1",a); pose("pchA2",b); pose("pchC",c); pchExecB(); };
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPCH();
+    remplir("Prenom","Prenom","");
+    checkPCH();
+    const a1=document.getElementById("pchA1"), a2=document.getElementById("pchA2"), c=document.getElementById("pchC");
+    if(!a1.classList.contains("bad")||!a1.nextElementSibling||a1.nextElementSibling.textContent!=="Nom") vus.push("la case fausse : "+a1.className);
+    if(!a2.classList.contains("ok")) vus.push("la case juste n’est pas bleue à côté d’une fausse");
+    if(c.classList.contains("bad")||!c.classList.contains("sol")||c.value!=="10 * chaine1") vus.push("la case vide : "+c.className+" "+c.value);
+    if(test.score!==1) vus.push("note "+test.score);
+    currentMode="soutien"; startPCH();
+    remplir("Nom","","chaine1 + 10");
+    checkPCH();
+    const fb=document.getElementById("pchFeedback").textContent;
+    const A1=document.getElementById("pchA1"), A2=document.getElementById("pchA2"), C=document.getElementById("pchC");
+    if(test.locked) vus.push("soutien : la question se verrouille");
+    if(!A1.classList.contains("ok")||!C.classList.contains("bad")) vus.push("soutien : les cases ne sont pas peintes");
+    if(A2.className.match(/ok|bad|sol/)) vus.push("soutien : la case vide est peinte");
+    if(!/signe \\*/.test(fb)||!/manque 1 case/.test(fb)) vus.push("soutien : "+fb);
+    if(document.querySelector("#pchHost .mf-cor")||fb.indexOf("10 * chaine1")>=0) vus.push("soutien : la réponse est révélée");
+    if(!/STRICTEMENT SECRÈTES/.test(ctxPch(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    const q=test.questions[0];
+    if(!q.fa||!q.rep||q.rep.c!=="chaine1 + 10") vus.push("la question ne garde pas le b) : "+JSON.stringify(q));
+    renderPCH();
+    if(!document.getElementById("pchB")||document.getElementById("pchC").value!=="chaine1 + 10") vus.push("la reprise ne rouvre pas le b) tel quel");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython ---- */
+  const nomPy = 'ce que les programmes de {python-chaines} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const progs = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PCH_A.forEach(function(A, k){ const src=pchLignesA({k:k}).join(String.fromCharCode(10)); res.push([src, pyRun(src).out]); });
+    [[{k:0,n:10,o:"np"},"Dupont","Jean"],[{k:1,n:4,o:"pn"},"Martin","Zoé"],[{k:2,n:12,o:"np"},"Lé","Ana"]].forEach(function(c){
+      const att=pchAttendus(c[0]), src=pchProgB({nom:c[1],prenom:c[2],a:att[0],b:att[1],c:att[2]});
+      res.push([src, pyRun(src).out]);
+    });
+    return res;
+  })())`);
+  if(!progs.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + progs.erreur); return; }
+  const liste = JSON.parse(progs.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-input-somme} (Seconde, 6.3.6) : l'exercice 7 du carnet — demander
    deux nombres décimaux avec float(input(…)), ranger leur somme dans somme,
    puis l'afficher. Le contrôle tient la place au menu (il ferme le sous-thème
@@ -25733,11 +25927,11 @@ function pythonDoubleTripleCarre(w, P){
   })()`, v => v === '');
 
   /* ---- 7. la place au menu ---- */
-  verifierEval(w, 'il vit dans le thème 6, numéroté 6.1.13 entre {python-operations} et {python-pas-a-pas} — et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il vit dans le thème 6, numéroté 6.1.13 entre {python-operations} et {python-chaines} (6.1.14, qui ferme le 6.1) — et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[], i=th?th.ids.indexOf("${ID}"):-1;
     if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(i<0) vus.push("l\\u2019exercice n\\u2019est pas dans le theme 5 : "+(th&&th.ids.join(",")));
-    else if(th.ids[i+1]!=="python-pas-a-pas") vus.push("il n\\u2019est pas suivi de {python-pas-a-pas} : "+th.ids.join(","));
+    else if(th.ids[i+1]!=="python-chaines") vus.push("il n\\u2019est pas suivi de {python-chaines} : "+th.ids.join(","));
     if(i>0&&th.ids[i-1]!=="python-operations") vus.push("il ne suit pas {python-operations} : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="6.1.13") vus.push("numero "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-print"]!=="6.1.6"||TEST_NUM["python-completer"]!=="6.1.7"||TEST_NUM["python-deux-lignes"]!=="6.1.8"||TEST_NUM["python-placer-variables"]!=="6.1.9"||TEST_NUM["python-tableau-valeurs"]!=="6.1.10"||TEST_NUM["python-changer-valeurs"]!=="6.1.11"||TEST_NUM["python-operations"]!=="6.1.12"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l\\u2019exercice ajoute a renumerote les autres");
@@ -34921,12 +35115,12 @@ function pythonPasAPas(w, P){
   })()`, v => v === '');
 
   /* ---- 10. la place au menu et les branchements ---- */
-  verifierEval(w, 'il vit dans le thème 6, numéroté 6.2.1 entre {python-double-triple-carre} et {python-valeur-case} — et rien d autre ne bouge : entrée TESTS, rappel de cours, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
+  verifierEval(w, 'il vit dans le thème 6, numéroté 6.2.1 entre {python-chaines} et {python-valeur-case} — et rien d autre ne bouge : entrée TESTS, rappel de cours, questions à l IA, table du rejeu, réserve du bas, et pas de bouton des tables', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[], i=th?th.ids.indexOf("${ID}"):-1;
     if(!th||th.num!==6||!/Python/i.test(th.nom)) vus.push("theme 6 : "+(th?th.num+" "+th.nom:"aucun"));
     if(i<0) vus.push("l exercice n est pas dans le theme 5 : "+(th&&th.ids.join(",")));
     else if(th.ids[i+1]!=="python-valeur-case") vus.push("il n est pas suivi de {python-valeur-case} : "+th.ids.join(","));
-    if(i>0&&th.ids[i-1]!=="python-double-triple-carre") vus.push("il ne suit pas {python-double-triple-carre} : "+(th&&th.ids.join(",")));
+    if(i>0&&th.ids[i-1]!=="python-chaines") vus.push("il ne suit pas {python-chaines} (6.1.14, qui ferme le 6.1) : "+(th&&th.ids.join(",")));
     if(TEST_NUM["${ID}"]!=="${F.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-operations"]!=="6.1.12"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["pourcentage"]!=="4.1.3")
       vus.push("l exercice ajoute a renumerote les autres");
