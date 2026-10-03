@@ -1109,6 +1109,7 @@ module.exports = {
     pythonAvant: { sans: {
       'python-chaine-len': 'l\u2019élève découvre en exécutant ce que représentent len(chaine) et chaine[i] : leur définition est la réponse attendue',
       'python-input-prix': 'la fiche n\u2019a pas de définition : son étiquette (le dessin, les deux prix au kilo) est l\u2019énoncé, et son rappel ne reprend que la formule du coup de pouce — l\u2019écrire avant l\u2019énoncé donnerait le calcul à écrire',
+      'python-inverser-lettres': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme (comme {python-chaine-tirets})',
       'python-chaine-tirets': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
     } },
     pythonAffichage: { exercice: 'python-affichage', nb: 4 },
