@@ -4076,6 +4076,7 @@ function exercices(suite){
     tableauProportions(w, P);
     tableauProportionsLettres(w, P);
     tableauProportionsTirees(w, P);
+    tableauProportionsDirectes(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -16237,6 +16238,92 @@ function tableauProportionsTirees(w, P){
     checkTdlAnswer();
     const faux=document.querySelectorAll('#tdlHost .bad').length, bons=document.querySelectorAll('#tdlHost .ok').length;
     if(faux || bons!==7) vus.push('copie juste : '+bons+' cases justes, '+faux+' fausses');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {tableau-proportions-directes} — 4.6.4 : le 4.6.3 sans la phase « nombre »
+   ni les phrases à listes. Chaque proportion se répond par DEUX cases, le
+   numérateur et le dénominateur, et l'écran n'en montre aucune autre. Les
+   effectifs attendus sont recalculés ICI, par des sommes écrites à part. */
+function tableauProportionsDirectes(w, P){
+  const present = evaluer(w, "typeof startTdlDirectes==='function' && typeof tdlBuildQuestionsDirectes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('proportions dans un tableau, fraction directe : le tirage, l\'écran à deux cases et la place',
+      'ce niveau n\'a pas l\'exercice du tableau à fraction directe');
+    return;
+  }
+  verifierEval(w, 'proportions dans un tableau, fraction directe : le tirage, l\'écran à deux cases et la place', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-proportions-directes';
+    const th=THEMES.find(function(t){ return t.num===4; });
+    if(!th || th.ids.indexOf('tableau-proportions-directes')<0) vus.push('l\\'exercice n\\'est pas dans le thème 4');
+    if(TEST_NUM['tableau-proportions-directes']!=='4.6.4') vus.push('numéro '+TEST_NUM['tableau-proportions-directes']+' au lieu de 4.6.4');
+    if(TEST_NUM['tableau-proportions-lettres-tirees']!=='4.6.3') vus.push('le 4.6.3 a bougé');
+    if(TABLES_SANS.indexOf('tableau-proportions-directes')<0) vus.push('le bouton des tables est proposé');
+    const vuesPaires={}, vuesFin={};
+    for(let i=0;i<1000 && !vus.length;i++){
+      const qs=tdlBuildQuestionsDirectes();
+      if(qs.length!==6){ vus.push(qs.length+' questions au lieu de 6'); break; }
+      const c=qs[0].c, l=qs[0].l; vuesPaires[c+''+l]=1;
+      const attendu=['tab','prop','prop','prop','prop','prop'];
+      qs.forEach(function(q,ix){
+        if(q.phase!==attendu[ix]) vus.push('question '+(ix+1)+' : phase '+q.phase);
+        if(!q.dir) vus.push('la question '+(ix+1)+' n\\'est pas directe');
+        if(q.c!==c || q.l!==l || JSON.stringify(q.t)!==JSON.stringify(qs[0].t) || q.ci!==qs[0].ci) vus.push('la question '+(ix+1)+' ne porte pas la situation');
+        if(q.phase==='prop'){
+          if(q.n!==ix) vus.push('question '+(ix+1)+' numérotée '+q.n);
+          const ids=tdlCases(q).map(function(x){ return x.id; }).join(' ');
+          if(ids!=='tdl-num tdl-den') vus.push('cases de la proportion : '+ids);
+          [q.gk,q.rk].forEach(function(k){
+            const ok=k==='tout' || k==='c'+c || k==='l'+l || k==='x'+l+c;
+            if(!ok) vus.push('la lettre '+k+' sort de la paire tirée (c'+c+', l'+l+')');
+          });
+        }
+      });
+      const pr=qs.slice(1,4).map(function(q){ return q.gk+'/'+q.rk; }).join(' ');
+      if(pr!=='c'+c+'/tout l'+l+'/tout x'+l+c+'/tout') vus.push('les trois premières proportions : '+pr);
+      const f4=qs[4].gk+'/'+qs[4].rk, f5=qs[5].gk+'/'+qs[5].rk;
+      if(f4===f5) vus.push('deux fois la même proportion finale : '+f4);
+      vuesFin[f4.replace(/\\d/g,'')+'>'+f5.replace(/\\d/g,'')]=1;
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(Object.keys(vuesPaires).length!==4) vus.push('les quatre paires ne sortent pas toutes : '+Object.keys(vuesPaires).join(' '));
+    if(Object.keys(vuesFin).length<6) vus.push('les deux dernières proportions ne varient pas : '+Object.keys(vuesFin).length+' couples');
+    /* les réponses, contre des sommes écrites ici */
+    const T=[[3,6],[10,11]];
+    const eff=function(gk, rk){ let n=0;
+      for(let l=0;l<2;l++) for(let c=0;c<2;c++){
+        const dans=function(k){ return k==='tout' || (k[0]==='c' && c===+k[1]) || (k[0]==='l' && l===+k[1]) || (k[0]==='x' && l===+k[1] && c===+k[2]); };
+        if(dans(gk) && dans(rk)) n+=T[l][c]; }
+      return n; };
+    [['x00','c0'],['l0','c1'],['c0','tout']].forEach(function(f){
+      const q={ci:0,t:T,c:0,l:0,dir:1,phase:'prop',gk:f[0],rk:f[1],v:0,n:1};
+      const cs=tdlCases(q);
+      if(+cs[0].bon!==eff(f[0],f[1]) || +cs[1].bon!==eff(f[1],'tout')) vus.push('« '+f[0]+' parmi '+f[1]+' » : '+cs[0].bon+'/'+cs[1].bon);
+    });
+    /* l'écran : deux cases, aucune liste ; copie juste bleue, copie fausse rouge */
+    startTdlDirectes();
+    if(test.qId!=='tableau-proportions-directes' || test.kind!=='tdl') vus.push('identité '+test.qId+'/'+test.kind);
+    if(test.maxScore!==15) vus.push('barème '+test.maxScore+' au lieu de 15 (5 totaux + 5 × 2 cases)');
+    test.idx=4; let q0=test.questions[4];
+    renderTdlTest();
+    const champs=document.querySelectorAll('#tdlHost input, #tdlHost select');
+    if(champs.length!==2 || document.querySelectorAll('#tdlHost select').length) vus.push('l\\'écran montre '+champs.length+' champs au lieu des deux cases de la fraction');
+    if(document.querySelector('#tdlHost .tdp-lib, #tdlHost .tdp-etude')) vus.push('les phrases « nbr de … » sont encore affichées');
+    tdlCases(q0).forEach(function(c){ const el=document.getElementById(c.id); if(el) el.value=c.bon; });
+    checkTdlAnswer();
+    let faux=document.querySelectorAll('#tdlHost .bad').length, bons=document.querySelectorAll('#tdlHost .ok').length;
+    if(faux || bons!==2) vus.push('copie juste : '+bons+' cases justes, '+faux+' fausses');
+    if(test.answers.length!==1 || !test.answers[0].correct) vus.push('la copie juste n\\'est pas enregistrée juste');
+    test.idx=5; q0=test.questions[5]; renderTdlTest();
+    const cs=tdlCases(q0);
+    document.getElementById('tdl-num').value=cs[0].bon;
+    document.getElementById('tdl-den').value=String(+cs[1].bon+1);
+    checkTdlAnswer();
+    if(!document.getElementById('tdl-num').classList.contains('ok') || !document.getElementById('tdl-den').classList.contains('bad'))
+      vus.push('dénominateur faux : le numérateur doit rester bleu, le dénominateur rougir');
+    if(!/proportion est/.test(document.getElementById('tdlFeedback').textContent)) vus.push('message : '+document.getElementById('tdlFeedback').textContent);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
