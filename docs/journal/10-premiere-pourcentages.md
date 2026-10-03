@@ -3921,3 +3921,81 @@ compléter, signes des parenthèses, « ± » avant la frappe) ; le verdict sur 
 copies épinglées (−30 % puis +10 % ; +20 % puis +30 %) : copie juste bleue qui
 vaut le point, faute isolée sans faire rougir les autres, correction verte du
 mot, case vide jamais rouge. `APP_VERSION` 254.
+
+---
+
+## {synthese-pourcentages-redigee} — la synthèse RÉDIGÉE des quatre schémas (Seconde, 4.5.9, octobre 2026)
+
+**D'où il vient.** Demande de Turquet : « un exercice de synthèse sur les
+pourcentages qui reprend de façon équilibrée toutes les questions possibles
+des exercices 4.1.8, 4.1.9, 4.5.4 et 4.5.5, qui demande de rédiger une
+solution avec une case comme le 4.2.10, et qui vérifie que l'élève a au moins
+écrit une multiplication ou une division donnant la réponse. On ne demande
+pas de détailler l'étape entre le % et le coefficient multiplicateur : si la
+réponse est un pourcentage ou une évolution, « … % », « +… % » ou « −… % »
+suffit. Sinon, un bouton “Aide schéma” affiche le schéma de la question et
+reprend la résolution comme dans l'exercice associé ; l'élève termine
+ensuite comme dans ces exercices. » Kind « spr », écran `scr-spr`, ajouté EN
+DERNIER dans 4.5 : rien n'est renuméroté.
+
+**Le tirage est celui des quatre exercices, et rien n'est recopié.**
+`genPctBoite` (4.1.8, inconnues res/ini/pct), `genPctChaine` (4.1.9,
+comb/p1/p2), `genSyn('aug'|'dim', …)` (4.5.4, fin/ini/pct) et `genEvs`
+(4.5.5, deux hausses / deux baisses / une de chaque). Chaque séance pose UNE
+question de chaque source (4 questions), en ordre mélangé ; un devoir qui
+allonge fait tourner les inconnues de chaque source dans un ordre tiré une
+fois — à 12 questions, chaque inconnue de chaque source sort exactement une
+fois (le contrôle le mesure en remplaçant `dmNbQuestions`). La question garde
+ses champs d'origine, plus `src` et `aide` : c'est ce qui permet de la
+confier telle quelle au rendu de l'exercice d'origine.
+
+**Le juge est dans la page et décide seul — aucun appel au modèle.** La
+feuille est celle du 4.2.10 (`mlFeuille`, lignes indépendantes) ; chaque
+ligne se découpe aux « = » et chaque membre se lit en rationnels exacts par
+`salExpr`, le lecteur du 4.2.10. Il faut AU MOINS UN membre dont l'opération
+du niveau haut est une multiplication ou une division, dans une ligne qui
+écrit un résultat, et dont la valeur est la réponse. Pour une réponse en
+pourcentage, cette valeur peut être le coefficient, l'écriture décimale ou le
+pourcentage lui-même (« 360 ÷ 800 = 0,45 », « 600 ÷ 500 = 1,2 »,
+« 0,4 × 0,3 = 0,12 »), puis la réponse s'écrit « … % » n'importe où dans la
+copie. Un membre qui n'est QU'UN pourcentage CONCLUT et n'entre pas dans les
+égalités : « 600 ÷ 500 = 1,2 = +20 % » est accepté (c'est exactement « on ne
+détaille pas l'étape entre le % et le coefficient ») ; dans un calcul,
+« 40 % » vaut 40/100 (« 40 % × 30 % = 12 % » passe). Le SIGNE : facultatif
+pour une seule évolution (l'énoncé le dit déjà) mais un signe FAUX est
+refusé ; EXIGÉ pour deux évolutions successives, dont c'est le sujet même
+(4.5.5). Une égalité fausse est refusée en la NOMMANT ; une ligne que le juge
+ne sait pas lire est un commentaire, ni comptée ni refusée. La voie
+« augmentation puis addition » du 4.2.10 n'est PAS acceptée seule : la
+demande exige une multiplication ou une division qui donne la réponse, et le
+message le dit (« aucune de tes multiplications ou divisions ne donne
+directement la réponse »). Après un échec, la page écrit UNE solution
+(`sprSolution`), comme les schémas écrivent leur « Réponse : ».
+
+**« Aide schéma » EMPRUNTE l'écran d'origine au lieu de recopier le schéma.**
+Les quatre écrans d'origine ont la même charpente (`…Prompt`, `.mp-stage`
+autour de `…Host`, `…Feedback`, `…Actions`) : `sprEmprunter` déplace la
+scène, le verdict et les commandes de l'écran d'origine dans `#sprSch`, puis
+appelle SON rendu (`renderPctBoiteTest`, `renderPctChaineTest`,
+`renderEvbTest`, `renderEvsTest`) sur la question courante — mêmes
+identifiants, même vérification, même correction en direct du soutien
+(`liveCheckCurrent` → `sprLive` → le `check…(true)` d'origine), même
+correction verte. `sprRestituer` rend les nœuds à leur place, et elle est
+appelée par `show()` dès qu'on quitte `spr`, et par chaque rendu de `spr` :
+un exercice d'origine ouvert ensuite retrouve sa zone intacte. Le seul
+crochet posé chez les quatre exercices est une ligne dans leur
+« Question suivante » (`if(test.kind==='spr') nextSpr()`). `#sprSch` précède
+`#sprRed` dans le DOM pour que la rangée des jetons (et la touche du clavier
+mathématique) se pose devant la zone VISIBLE : `pmJetons` la met devant le
+premier `.mp-feedback` de l'écran. Le choix de l'aide est rangé dans la
+question (`q.aide`) : une pause le reprend. La question aidée vaut le même
+point ; le relevé envoyé au professeur la marque « [schéma] ».
+
+**Ce qui n'est pas mesuré.** Le contrôle dédié (`syntheseRedigee`, banc
+principal) tient le tirage, vingt copies épinglées du juge sur les quatre
+sources (acceptées et refusées), et l'aller-retour de l'emprunt (venue,
+point compté, « Question suivante » qui revient, zone rendue en quittant,
+reprise). Le banc navigateur ouvre l'écran avec tous les autres (contrôles
+universels) ; rien n'y frappe une copie dans une vraie MathLive — c'est
+`toPlain` qui fournit au juge le texte qu'il lit, et les copies épinglées
+sont écrites sous cette forme (« 360\div0.45=800 », « 45\% »).

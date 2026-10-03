@@ -4176,6 +4176,7 @@ function exercices(suite){
     schemaEvolution(w, P);
     evolutionsSuccessivesCoef(w, P);
     evolutionsSuccessivesPhrases(w, P);
+    syntheseRedigee(w, P);
     baissesSuccessivesDix(w, P);
     pourcentageSchema(w, P);
     pourcentagePhrases(w, P);
@@ -29581,6 +29582,126 @@ function evolutionsSuccessivesCoef(w, P){
     checkEvcAnswer();
     if(/\\bbad\\b/.test(cls('evcP1')) || /\\bbad\\b/.test(cls('evcT3'))) vus.push('une case laissée vide rougit à la vérification');
     return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- {synthese-pourcentages-redigee} (4.5.9) : Seconde SEULE, LA SYNTHÈSE RÉDIGÉE DES QUATRE SCHÉMAS
+   « reprend de façon équilibrée toutes les questions des exercices 4.1.8,
+   4.1.9, 4.5.4 et 4.5.5 ; l'élève rédige sa solution dans une case comme au
+   4.2.10, et la page vérifie qu'il a au moins écrit une multiplication ou une
+   division donnant la réponse ; pour un pourcentage, « … % », « +… % » ou
+   « −… % » suffit ; un bouton « Aide schéma » reprend la question sur le
+   schéma de l'exercice associé » (Turquet, octobre 2026). Kind « spr ».
+   Bords : le tirage (une question par source, chaque inconnue de chaque
+   source sort avant qu'aucune ne revienne, identité tenue par
+   « Recommencer ») ; le juge sur des copies épinglées des quatre sources —
+   acceptées par une multiplication ou une division, refusées sans elle, sur
+   une égalité fausse, sans le « % », sans le signe exigé au 4.5.5 ; l'aide
+   schéma (la zone de travail de l'exercice d'origine empruntée, jugée par
+   lui, puis RENDUE à son écran). */
+function syntheseRedigee(w, P){
+  const t1='{synthese-pourcentages-redigee} : une question par schéma, toutes les inconnues tournent, identité tenue';
+  const t2='{synthese-pourcentages-redigee} : le juge exige une multiplication ou une division qui donne la réponse';
+  const t3='{synthese-pourcentages-redigee} : « Aide schéma » emprunte le schéma de l\'exercice d\'origine, puis le rend';
+  const present = evaluer(w, "typeof startSpr==='function'");
+  if(!present.ok || !present.valeur){
+    [t1,t2,t3].forEach(t => ignorer(t, 'ce niveau n\'a pas la synthèse rédigée des quatre schémas'));
+    return;
+  }
+  verifierEval(w, t1, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='synthese-pourcentages-redigee';
+    const incDe=function(q){ return q.src==='evs' ? (q.s1===q.s2?String(q.s1):'mixte') : (q.src==='evb'?q.inc:q.inc); };
+    for(let t=0;t<30 && vus.length<3;t++){
+      startSpr();
+      if(test.kind!=='spr' || test.qId!=='synthese-pourcentages-redigee') vus.push('tirage '+t+' : kind « '+test.kind+' », identité « '+test.qId+' »');
+      const qs=test.questions||[];
+      if(qs.length!==4) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de 4');
+      const src=qs.map(function(q){ return q.src; }).sort().join(',');
+      if(src!=='evb,evs,pctb,pctc') vus.push('tirage '+t+' : sources '+src);
+      qs.forEach(function(q,i){ const e=sprEnonce(q); if(!e || /undefined|NaN|\\$\\{/.test(e)) vus.push('tirage '+t+' q'+i+' : énoncé mal formé'); if(q.aide!==false) vus.push('tirage '+t+' q'+i+' : aide déjà posée'); });
+    }
+    /* un devoir qui allonge à 12 : chaque inconnue de chaque source sort une fois */
+    const dmn=window.dmNbQuestions; window.dmNbQuestions=function(){ return 12; };
+    try{
+      for(let t=0;t<10 && vus.length<3;t++){
+        startSpr();
+        const par={};
+        test.questions.forEach(function(q){ (par[q.src]=par[q.src]||{})[incDe(q)]=1; });
+        ['pctb','pctc','evb','evs'].forEach(function(s){ const n=Object.keys(par[s]||{}).length; if(n!==3) vus.push('12 questions, tirage '+t+' : '+s+' n’a que '+n+' inconnue(s) différente(s)'); });
+      }
+    } finally { window.dmNbQuestions=dmn; }
+    if(!vus.length){ startSpr(); restartCurrentTest(); if(test.kind!=='spr') vus.push('« Recommencer » relance le kind « '+test.kind+' »'); }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, t2, `(function(){
+    const vus=[];
+    const cas=[
+      /* [question, copie, attendu] — la copie est écrite comme la lit la feuille (toPlain) */
+      [{src:'pctb',inc:'res',N:800,P:45,result:360,ci:0}, '800*0.45=360', true],
+      [{src:'pctb',inc:'res',N:800,P:45,result:360,ci:0}, '360', false],
+      [{src:'pctb',inc:'res',N:800,P:45,result:360,ci:0}, '800*0.45=350', false],
+      [{src:'pctb',inc:'ini',N:800,P:45,result:360,ci:0}, '360\\\\div0.45=800', true],
+      [{src:'pctb',inc:'pct',N:800,P:45,result:360,ci:0}, '360/800=0.45\\n45\\\\%', true],
+      [{src:'pctb',inc:'pct',N:800,P:45,result:360,ci:0}, '360/800=0.45', false],
+      [{src:'pctb',inc:'pct',N:800,P:45,result:360,ci:0}, '45\\\\%', false],
+      [{src:'pctc',inc:'comb',P1:40,P2:30,comb:12,ci:0}, '40\\\\%*30\\\\%=12\\\\%', true],
+      [{src:'pctc',inc:'comb',P1:40,P2:30,comb:12,ci:0}, '0.4+0.3=0.7\\n70\\\\%', false],
+      [{src:'pctc',inc:'p1',P1:40,P2:30,comb:12,ci:0}, '0.12÷0.3=0.4=40\\\\%', true],
+      [{src:'evb',fam:'aug',inc:'fin',sens:1,P:20,N:500,aug:100,fin:600}, '500*1.2=600', true],
+      [{src:'evb',fam:'aug',inc:'fin',sens:1,P:20,N:500,aug:100,fin:600}, '500*0.2=100\\n500+100=600', false],
+      [{src:'evb',fam:'dim',inc:'ini',sens:-1,P:20,N:500,aug:100,fin:400}, '400/0.8=500', true],
+      [{src:'evb',fam:'aug',inc:'pct',sens:1,P:20,N:500,aug:100,fin:600}, '600/500=1.2=+20\\\\%', true],
+      [{src:'evb',fam:'aug',inc:'pct',sens:1,P:20,N:500,aug:100,fin:600}, '600/500=1.2\\n20\\\\%', true],
+      [{src:'evb',fam:'aug',inc:'pct',sens:1,P:20,N:500,aug:100,fin:600}, '600/500=1.2\\n-20\\\\%', false],
+      [{src:'evs',s1:1,s2:-1,P1:20,P2:30,c1:120,c2:70,G:-16,ci:0,v:1}, '1.2*0.7=0.84\\n-16\\\\%', true],
+      [{src:'evs',s1:1,s2:-1,P1:20,P2:30,c1:120,c2:70,G:-16,ci:0,v:1}, '1.2*0.7=0.84\\n16\\\\%', false],
+      [{src:'evs',s1:1,s2:-1,P1:20,P2:30,c1:120,c2:70,G:-16,ci:0,v:1}, '1.2*0.7=0.84', false],
+      [{src:'evs',s1:1,s2:-1,P1:20,P2:30,c1:120,c2:70,G:-16,ci:0,v:1}, '20-30=-10\\n-10\\\\%', false],
+    ];
+    cas.forEach(function(c,i){
+      let r; try{ r=sprJuge(Object.assign({aide:false},c[0]), c[1]); }catch(e){ vus.push('cas '+i+' : '+e.message); return; }
+      if(!r || r.correct!==c[2]) vus.push('cas '+i+' ('+c[0].src+'/'+(c[0].inc||'evs')+') « '+c[1].replace(/\\n/g,' ⏎ ')+' » : '+(r&&r.correct?'accepté':'refusé')+' — '+(r&&r.phrase));
+      else if(!c[2] && (!r.phrase || /undefined/.test(r.phrase))) vus.push('cas '+i+' : refus sans phrase');
+    });
+    /* l'égalité fausse est NOMMÉE */
+    const f=sprJuge({src:'pctb',inc:'res',N:800,P:45,result:360,ci:0,aide:false}, '800*0.45=350');
+    if(!/350/.test(f.phrase||'')) vus.push('l’égalité fausse n’est pas nommée : '+f.phrase);
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, t3, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='synthese-pourcentages-redigee';
+    startSpr();
+    test.questions[0]=Object.assign({src:'pctb',aide:false}, {inc:'res',N:800,P:45,result:360,ci:2});
+    test.questions[1]=Object.assign({src:'evs',aide:false}, {s1:1,s2:1,P1:20,P2:30,c1:120,c2:130,G:56,ci:0,v:1});
+    test.idx=0; renderSpr();
+    const dans=function(id,scr){ const e=document.getElementById(id), s=document.getElementById(scr); return !!(e&&s&&s.contains(e)); };
+    if(!document.getElementById('sprAide')) vus.push('pas de bouton « Aide schéma »');
+    if(dans('pctbHost','scr-spr')) vus.push('le schéma est déjà là avant l’aide');
+    sprAideSchema();
+    if(!test.questions[0].aide) vus.push('l’aide n’est pas rangée dans la question');
+    if(!dans('pctbHost','scr-spr') || !dans('pctbActions','scr-spr')) vus.push('le schéma du 4.1.8 n’est pas venu dans l’écran');
+    if(!document.getElementById('pctbN')) vus.push('le schéma du 4.1.8 n’est pas dessiné');
+    else {
+      const sv=function(id,v){ document.getElementById(id).value=v; };
+      sv('pctbN','800'); sv('pctbP','45'); sv('pctbD','0,45'); sv('pctbR','360');
+      checkPctBoiteAnswer();
+      if(test.score!==1) vus.push('le schéma juste ne vaut pas le point ('+test.score+')');
+      const nx=document.getElementById('pctbNext'); if(!nx) vus.push('pas de « Question suivante » après le schéma'); else nx.click();
+      if(test.idx!==1 || test.kind!=='spr') vus.push('« Question suivante » du schéma ne revient pas à la synthèse (idx '+test.idx+', kind '+test.kind+')');
+      if(!dans('pctbHost','scr-pctb')) vus.push('la zone du 4.1.8 n’est pas rendue à son écran');
+      const a=test.answers[0]; if(!a || !/^\\[schéma\\]/.test(a.q)) vus.push('la réponse aidée n’est pas marquée « [schéma] »');
+      sprAideSchema();
+      if(!dans('evsHost','scr-spr') || !document.getElementById('evsG')) vus.push('le schéma du 4.5.5 n’est pas venu');
+      show('theme');
+      if(!dans('evsHost','scr-evs') || !dans('evsActions','scr-evs')) vus.push('quitter l’écran ne rend pas la zone du 4.5.5');
+      afficherEcranDe('spr');
+      if(!dans('evsHost','scr-spr')) vus.push('la reprise ne retrouve pas le schéma demandé');
+      show('theme');
+    }
+    return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
 /* ---- {evolutions-successives-phrases} (4.5.8) : Seconde SEULE, LE SCHÉMA DU 4.5.5 AVEC SES DEUX PREMIÈRES PHRASES DONNÉES
