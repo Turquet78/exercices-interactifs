@@ -3380,6 +3380,59 @@ sous-thème 6.3 à porter un texte après son modèle : ceux du 6.3.1, du 6.3.2,
 du 6.3.4, du 6.3.6 et du 6.3.7 n'ont que leur ligne à recopier, et restent
 tels quels.
 
+**Le prix des pommes et des tomates — l'exercice 10 du carnet.**
+{python-input-prix} (Seconde, 6.3.9, APP_VERSION 284 — 280 à 283 pris sur `main` pendant les bancs —, demande de Turquet,
+octobre 2026 : « en seconde avec les images créer un exercice dans le sous
+thème input qui respecte toutes les nouvelles consignes que j'ai données pour
+le sous-thème input ; ne pas rajouter de phrase dans les définitions ou
+rappels ; écrire les énoncés des questions après les définitions ou
+rappels ») : le serpent au panier, « 1 kg de pomme = 3,62 € », « 1 kg de
+tomate = 5,57 € », puis « Réaliser un programme dans la cellule suivante
+qui » demande le poids des pommes, puis celui des tomates, sous forme
+décimale, calcule le prix total et l'affiche avec une phrase, et un coup de
+pouce : la formule. Il ferme le sous-thème 6.3, derrière {python-input-rectangle}
+(6.3.8, l'exercice 9 du carnet, fusionné pendant les bancs : celui-ci, écrit
+en 6.3.8, est passé en 6.3.9 pour garder l'ordre du carnet) : rien n'est
+renuméroté. Le contrôle du 6.3.8 exigeait d'être le DERNIER du sous-thème ;
+il exige désormais de suivre le 6.3.7.
+**Le dessin vient de la fiche** : découpé dans la capture, sans les prix,
+détouré, en WebP (10 Ko, `PKG_IMG`, une URL `data:`) — la page reste un
+fichier unique. Les prix au kilo sont écrits en TEXTE à côté
+(`pkgEtiquetteHTML`) : ils suivent la question, ce qu'un dessin ne sait pas
+faire.
+**Les consignes du sous-thème, toutes portées** : l'énoncé du haut est
+l'étiquette de la fiche ; la question vit dans un cadre `.pyn-etape`, en
+gras, qui enveloppe le coup de pouce, la cellule, « Exécuter » et la
+console ; aucune consigne à côté du bouton ; la console vide reste un cadre
+vide (`#pkgConsole` rejoint `content:none`) ; le coup de pouce vert clair ne
+porte que la formule (« pomme », « tomate » du coup de pouce mis au pluriel,
+seule correction). **La fiche n'a pas de définition** : l'écran n'a pas
+d'encadré au-dessus de l'énoncé — troisième exception déclarée de
+`pythonAvant.sans`, raison comprise —, et le rappel (`RAP_PKG`) n'est que la
+formule, sans une phrase de plus ; le banc compare son texte caractère par
+caractère, comme celui du coup de pouce.
+**La fiche ne nomme aucune variable : le juge lit ce que le programme
+AFFICHE** (`pkgDiag`). La copie s'exécute sous deux paires de poids décimaux
+que l'élève ne connaît pas (`PKG_EX`) ; il faut deux input avec leur
+question, et une ligne qui porte des mots et le bon prix total, à 1e-6 près
+— `(a*362 + b*557)/100` ou un prix collé par `str()` passent. Nommés : float
+oublié, int à la place (1.5 kg refusé), la virgule française DANS le code
+(`3,62` : sans ce mot, `print(p*3,62)` afficherait « 4.5 62 » sans erreur),
+`round()` que l'interpréteur refuse exprès, une ou trois questions, l'input
+muet, les questions dans le désordre (lu dans leurs textes), les prix
+échangés, le prix écrit à la main que la seconde paire trahit, le nom de
+variable entre guillemets, le prix sans phrase, rien d'affiché, un mauvais
+calcul. **La séance** : la fiche épinglée (3,62 € et 5,57 €), puis d'autres
+étiquettes tirées par `distinctes()` (sept paires de prix, jamais deux prix
+égaux : l'échange ne se verrait pas) ; `dmNbQuestions()` l'allonge. Pas de
+correction au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des
+tables. Banc jsdom (`pythonInputPrix`) : la place, le tirage (300 séances),
+le juge sur quatre copies justes et seize fausses chacune avec son mot,
+l'écran tenu aux consignes, le dialogue de la console, les copies juste,
+fausse et vide, le soutien, et 28 exécutions des modèles comparées à un vrai
+CPython. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
 ---
 
 **L'aire et le périmètre d'un rectangle — l'exercice 9 du carnet.**
@@ -3964,3 +4017,8 @@ fois dans `tests/profils.js` gagne en silence). Le triangle passe en 283.
 Puis une neuvième (Turquet78/exercices-interactifs#485, le rectangle en 6.3.8,
 version 283) : le triangle passe en 284, toujours par la même reprise
 (fichiers de `main`, insertions rejouées et comptées).
+
+Puis une dixième (Turquet78/exercices-interactifs#484, le prix en 6.3.9, version
+284) : le triangle passe en 285. Pour fermer la fenêtre entre « contrôles
+verts » et « fusion », la fusion automatique de GitHub est demandée dès la
+poussée.
