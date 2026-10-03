@@ -565,7 +565,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pch,#scr-pcl,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pch,#scr-pcl,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-ptr,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -611,7 +611,8 @@
   .py-console.py-exec{border-style:solid;border-color:#6c8ebf;background:#f4f8ff}
   .py-console:empty::before{content:"(rien pour l’instant : exécute le programme)";color:var(--ink-soft);font-family:"Nunito",system-ui,sans-serif;font-size:.92rem;white-space:normal}
   /* Sous-thème 6.3 « Input » : la console vide reste vide (demande de Turquet, octobre 2026). */
-  #pyiConsole:empty::before,#piaConsole:empty::before,#pmyConsole:empty::before,#pisConsole:empty::before,[id^="pynConsole"]:empty::before,[id^="piiCons"]:empty::before,[id^="pchCons"]:empty::before,#pclConsole:empty::before{content:none}
+  #pyiConsole:empty::before,#piaConsole:empty::before,#pmyConsole:empty::before,#ptrConsole:empty::before,#pisConsole:empty::before,[id^="pynConsole"]:empty::before,[id^="piiCons"]:empty::before,[id^="pchCons"]:empty::before,#pclConsole:empty::before{content:none}
+[id^="pchCons"]:empty::before{content:none}
   .py-fin{display:inline-flex;align-items:center;gap:2px}
   /* Sur un téléphone, le code écrit plus petit : à 1,05 rem la ligne du print
      se coupait derrière le défilement horizontal — précisément la ligne que
@@ -1052,6 +1053,12 @@
   .pyn-titre,.pii-titre{font-weight:700}
   .pyn-titre .pyd-puces{margin:6px 0 0}
   .pyn-etape .py-label:first-child{margin-top:0}
+  /* {python-triangle-etoiles} : l'exemple de la fiche, en violet gras comme le
+     carnet Jupyter l'imprime ; la console d'un grand triangle défile plutôt
+     que de pousser « Vérifier » hors de l'écran */
+  .ptr-puces{margin:8px 0 2px}
+  .ptr-ex{margin:0 0 12px 44px;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.5;font-weight:700;color:#b02be0;text-align:left;white-space:pre}
+  #ptrConsole{max-height:26em;overflow:auto}
   .pii-titre kbd{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#fde9e4;color:#b13a2a;border-radius:5px;padding:0 6px}
   .pii-etape .py-console{margin:8px 0 0}
   .pii-rep-l{margin:10px 0 0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px}
@@ -4386,6 +4393,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : AFFICHER UN TRIANGLE D'ÉTOILES, LE PLUS COURT POSSIBLE (PYTHON, BONUS) -->
+  <section class="screen" id="scr-ptr">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPTR"></span><span class="q-idx" id="ptrIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="ptrLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <div class="mp-instr pyi-instr" id="ptrInstr"></div>
+      <div class="mp-stage"><div style="width:100%" id="ptrHost"></div></div>
+      <div class="mp-feedback" id="ptrFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="ptrActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ptrValidate" onclick="checkPTR()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : AFFICHER UN TEXTE SUIVI D'UNE VARIABLE (PYTHON, COMPLÉTER UN PROGRAMME) -->
   <section class="screen" id="scr-pyx">
     <div class="test-top">
@@ -5268,7 +5291,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=276;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=277;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5997,6 +6020,7 @@ const TESTS={
   'python-input-somme': { name:'Demander deux nombres d\u00e9cimaux, puis les additionner', icon:'\u2753', desc:'\u00c9cris un programme qui demande deux nombres d\u00e9cimaux avec float(input(\u2026)), calcule avec, range le r\u00e9sultat dans une variable, puis l\u2019affiche dans une phrase. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPIS() },
   'python-input-moyenne': { name:'Demander deux nombres \u00e0 virgule, calculer leur moyenne', icon:'\u2753', desc:'\u00c9cris un programme qui demande deux nombres \u00e0 virgule avec float(input(\u2026)), calcule leur moyenne, la range dans une variable, puis l\u2019affiche. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPMY() },
   'python-chaine-len': { name:'len(chaine) et chaine[i]', icon:'\ud83d\udd24', desc:'Ex\u00e9cute le programme pour comprendre les instructions len(chaine) et chaine[i], puis explique ce qu\u2019elles repr\u00e9sentent.', start:()=>startPCL() },
+  'python-triangle-etoiles': { name:'Afficher un triangle d\u2019\u00e9toiles, le plus court possible', icon:'\u2b50', desc:'\u00c9cris le programme le plus court possible qui affiche un triangle d\u2019\u00e9toiles de taille 10 ou plus. Ex\u00e9cute-le\u00a0: la console montre ton triangle.', start:()=>startPTR() },
   'python-input-reponse': { name:'Demander une r\u00e9ponse avec input', icon:'\u2753', desc:'Le programme pose une question et ATTEND ta r\u00e9ponse\u00a0: ex\u00e9cute-le et r\u00e9ponds avec la touche Entr\u00e9e, regarde le type de ce que input a rang\u00e9 dans la variable, puis compl\u00e8te le programme pour qu\u2019il affiche ta r\u00e9ponse dans une phrase.', start:()=>startPYN() },
   'python-print': { name:'\u00c9cris ton premier print', icon:'\u2328\ufe0f', desc:'Le cours explique print et le texte entre guillemets. Puis \u00e0 toi\u00a0: \u00e9cris un programme qui affiche \u00ab\u00a0je suis en seconde\u00a0\u00bb, ex\u00e9cute-le autant de fois que tu veux, et fais-le v\u00e9rifier. En soutien, la page te dit ce qui ne va pas dans ton programme.', start:()=>startPYP() },
   'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
@@ -6091,7 +6115,7 @@ const THEMES=[
       { num:3, nom:'Input',               ids:['python-input-reponse','python-input','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne'] },
       /* Le sous-thème « Bonus » (demande de Turquet, octobre 2026) : ajouté
          EN DERNIER, il ne renumérote rien. */
-      { num:4, nom:'Bonus',               ids:['python-chaine-len'] }
+      { num:4, nom:'Bonus',               ids:['python-chaine-len','python-triangle-etoiles'] }
   ] },
   /* Le thème des RAPPELS (demande de Turquet, septembre 2026) : les bases du
      collège qu'on reprend en début de Seconde. Ajouté EN DERNIER, il ne
@@ -6831,6 +6855,7 @@ function conseilPaire(){
   else if(test.kind==='pia' && q) b=ctxPia(q);
   else if(test.kind==='pis' && q) b=ctxPis(q);
   else if(test.kind==='pmy' && q) b=ctxPmy(q);
+  else if(test.kind==='ptr' && q) b=ctxPtr(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
@@ -7193,6 +7218,7 @@ const QIA_SUGG={
   pel:["Pourquoi ne peut-on pas juste écrire k = l puis l = k ?","À quoi sert la troisième case mémoire ?","Comment savoir si mon programme a vraiment échangé les deux valeurs ?","Existe-t-il une autre façon d’écrire les trois lignes qui marche aussi ?"],
   pph:["Que veut dire la ligne a = 10 ?","Dans c = b, quelle case reçoit le nombre ?","Pourquoi la case b garde-t-elle son nombre après c = b ?","Pourquoi exécuter un programme ligne par ligne ?"],
   pmy:["Pourquoi faut-il écrire float(…) autour de input ?","Pourquoi faut-il des parenthèses dans le calcul de la moyenne ?","Pourquoi ma note 12,5 provoque-t-elle une erreur ?","Comment afficher un texte suivi d’une variable ?"],
+  ptr:["Comment répéter une instruction sans la recopier ?","Que fait for k in range(1,11) ?","Comment afficher plusieurs étoiles avec un seul print ?","Pourquoi les lignes sous le for doivent-elles être décalées ?"],
   pis:["Pourquoi faut-il écrire float(…) autour de input ?","Pourquoi « 2.5 » + « 1.25 » donne-t-il 2.51.25 ?","Faut-il taper 2,5 ou 2.5 dans la console ?","Comment afficher un texte suivi d’une variable ?"],
   pia:["Pourquoi faut-il écrire int(…) autour de input ?","Comment calculer avec la réponse de l’utilisateur ?","Pourquoi ranger le résultat dans une variable avant de l’afficher ?","Comment afficher un texte, puis une variable, puis un autre texte ?"],
   pch:["Que fait le signe + entre deux chaînes de caractères ?","Que fait le signe * entre un nombre et une chaîne ?","Pourquoi met-on \" \" entre le nom et le prénom ?","Pourquoi le nom d’une variable s’écrit-il sans guillemets ?"],
@@ -8087,6 +8113,11 @@ const RAP_PYP=`<b>Écrire un print</b><br>
    ne lit que la prose). */
 /* Demander deux nombres à virgule, calculer leur moyenne : la règle de
    l'écran, en rappel. Les nombres vivent dans des balises code. */
+/* Afficher un triangle d'étoiles : le coup de pouce de la fiche, mot pour
+   mot — aucune phrase ajoutée (demande de Turquet, octobre 2026). Les nombres
+   vivent dans des balises code. */
+const RAP_PTR=`<b>Afficher un triangle d’étoiles</b><br>
+Pour compter de <code class="inline">1</code> à <code class="inline">10</code> utiliser l’instruction : <code class="inline">for k in range (1,11):</code> <code class="inline">...</code>`;
 const RAP_PMY=`<b>Demander deux nombres à virgule, calculer leur moyenne</b><br>
 <b>① <code class="inline">variable = float(input("question"))</code></b> : input rend toujours un TEXTE ; <code class="inline">float(…)</code> en fait un nombre à virgule. <code class="inline">int(…)</code>, lui, refuse <code class="inline">12.5</code>.<br>
 <b>② La virgule s’écrit avec un POINT</b>, dans le programme comme dans la console : <code class="inline">12.5</code>, jamais <code class="inline">12,5</code>.<br>
@@ -8314,7 +8345,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}\\)`;
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
 const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
@@ -8424,7 +8455,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['python-chaines','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['python-triangle-etoiles','python-chaines','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -8862,7 +8893,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], ptr:['ptr',renderPTR], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -8990,7 +9021,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pii','pia','pis','pmy','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pii','pia','pis','pmy','ptr','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -30239,6 +30270,357 @@ function ctxPmy(q){
   return {nombre:'', contexte:c};
 }
 
+/* ---------- Exercice : afficher un triangle d'étoiles, le plus court possible (Python, bonus) ----------
+   Demande de Turquet (octobre 2026) : « en seconde avec l'image créer un
+   exercice dans le sous thème print et variable qui respecte toutes les
+   nouvelles consignes que j'ai données pour le sous-thème input […] on le
+   mettra dans un sous thème bonus » — l'exercice 23 du carnet : « Faire un
+   programme, le plus court possible, qui affiche un triangle d'étoiles de
+   taille 10 ou plus grand que 10 », l'exemple d'un triangle de taille 4, et
+   UN coup de pouce replié (« Pour compter de 1 à 10 utiliser l'instruction :
+   for k in range (1,11): … »). Il suit {python-chaine-len} dans le
+   sous-thème 6.4 « Bonus » (6.4.2) : ajouté en dernier, il ne renumérote rien.
+
+   LES CONSIGNES DU SOUS-THÈME INPUT, TENUES ICI : l'énoncé de la question en
+   gras dans un cadre .pyn-etape qui enveloppe la cellule et la console (le
+   motif du 6.3.2) ; le coup de pouce vert pâle, replié, sans texte ajouté
+   après sa ligne modèle ; aucune consigne à côté du bouton « Exécuter » ; une
+   console vide reste un cadre vide (pas de texte d'attente) ; aucune note
+   ajoutée sous un cours, et aucun encadré de cours : la fiche n'en a pas.
+   Le rappel (bouton d'aide) ne porte que le coup de pouce, mot pour mot.
+
+   L'INTERPRÉTEUR NE CHANGE PAS : pyRun lit une ligne à la fois et ne connaît
+   pas de bloc. ptrDerouler DÉROULE chaque boucle « for v in range(…): » en
+   lignes plates (v = 1, le corps, v = 2, le corps…) que pyRun exécute telles
+   quelles — exact, puisqu'un programme sans if ni while n'a rien d'autre à
+   décider. Les bornes du range se calculent sur l'état du programme à cet
+   endroit (le début déjà déroulé, exécuté par pyRun). Les décalages sont ceux
+   de Python : un corps non décalé, ou une ligne décalée hors d'une boucle, est
+   une IndentationError nommée. Aucun autre exercice ne passe par ici.
+
+   LE JUGE (ptrDiag) lit ce que la console affiche — les lignes vides du début
+   et de la fin, et les espaces en fin de ligne, ne comptent pas (range(11)
+   commence par une ligne vide, et c'est juste) — et exige le triangle : la
+   ligne k porte k fois le caractère, de 1 jusqu'à la taille. « Le plus court
+   possible » se juge sur le PROGRAMME : une boucle for, et au plus quatre
+   lignes utiles (la version à une variable, e = e + "*", en fait quatre). Le
+   triangle juste écrit à la main, print après print, est refusé en le disant.
+
+   LA SÉANCE : la fiche ÉPINGLÉE en tête (des étoiles, taille 10 ou plus),
+   puis des triangles tirés par distinctes() — un autre caractère, une taille
+   imposée. Le programme voyage dans q.prog et compte pour UNE case
+   (pts-case). Aucune correction au fil de la frappe (déclaré dans
+   tests/profils.js). */
+const PTR_NB=2;
+const PTR_MAX_TOURS=500;
+const PTR_MAX_LIGNES=4;
+const PTR_SITUATIONS=[
+  {car:'*', nom:'d’étoile', n:10, auMoins:true},
+  {car:'#', nom:'de dièses « # »', n:12},
+  {car:'+', nom:'de signes « + »', n:11},
+  {car:'o', nom:'de lettres « o »', n:13},
+  {car:'@', nom:'d’arobases « @ »', n:15},
+  {car:'$', nom:'de dollars « $ »', n:14}
+];
+function ptrBuildQuestions(){
+  const n=Math.min(dmNbQuestions(PTR_NB), PTR_SITUATIONS.length);
+  return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PTR_SITUATIONS.length-1), prog:''}; });
+}
+function ptrSit(q){ return PTR_SITUATIONS[q.s]||PTR_SITUATIONS[0]; }
+/* Un programme qui convient — pour la correction en vert, jamais pour juger. */
+function ptrModele(q){
+  const S=ptrSit(q);
+  return 'for k in range(1,'+(S.n+1)+'):\n    print("'+S.car+'"*k)';
+}
+function ptrCases(q){ return [{id:'ptr-prog'}]; }
+
+/* ---- 1. Les boucles, déroulées ---- */
+function ptrUtile(l){ const t=String(l).trim(); return t!=='' && t[0]!=='#'; }
+function ptrDecalage(l){ return String(l).match(/^ */)[0].length; }
+/* Les deux-points qui ferment l'en-tête du for : le premier HORS des guillemets. */
+function ptrDeuxPoints(l){
+  let g='';
+  for(let i=0;i<l.length;i++){
+    const c=l[i];
+    if(g){ if(c==='\\') i++; else if(c===g) g=''; continue; }
+    if(c==='"'||c==='\'') g=c;
+    else if(c==='#') return -1;
+    else if(c===':') return i;
+  }
+  return -1;
+}
+function ptrErreur(msg){ return new Error(msg); }
+/* Les bornes de range(…), calculées sur l'état du programme déjà déroulé. */
+function ptrBornes(txt, avant){
+  const env=pyRun(avant.join('\n')).env;
+  const t=pyLex(txt), args=[]; let p=0;
+  if(!t.length) throw ptrErreur('TypeError : range() attend au moins un nombre');
+  for(;;){
+    const r=pyExpr(t,p,env); args.push(r.v); p=r.p;
+    if(t[p] && t[p].k==='op' && t[p].v===','){ p++; continue; }
+    break;
+  }
+  if(t[p]) throw ptrErreur('SyntaxError : range(…) mal écrit');
+  if(args.length>3) throw ptrErreur('TypeError : range() attend au plus trois nombres');
+  args.forEach(function(a){ if(a.t!=='int') throw ptrErreur('TypeError : range() n’accepte que des nombres entiers'); });
+  const v=args.map(function(a){ return a.v; });
+  const deb=v.length>1?v[0]:0, fin=v.length>1?v[1]:v[0], pas=v.length>2?v[2]:1;
+  if(pas===0) throw ptrErreur('ValueError : le pas de range() ne peut pas être 0');
+  const vals=[];
+  for(let x=deb; pas>0?x<fin:x>fin; x+=pas){ vals.push(x); if(vals.length>PTR_MAX_TOURS) throw ptrErreur('boucle trop longue pour cette page (plus de '+PTR_MAX_TOURS+' tours)'); }
+  return vals;
+}
+/* ptrDerouler rend le programme SANS for, que pyRun exécute ligne à ligne. */
+function ptrDerouler(src){
+  let L=String(src||'').replace(/\r/g,'').split('\n').map(function(l){ return l.replace(/^[ \t]+/, function(b){ return b.replace(/\t/g,'    '); }); });
+  let tours=0;
+  for(;;){
+    let i=-1;
+    for(let k=0;k<L.length;k++){
+      if(!ptrUtile(L[k])) continue;
+      if(ptrDecalage(L[k])>0) throw ptrErreur('IndentationError : la ligne « '+L[k].trim()+' » est décalée sans raison : seules les lignes répétées par un for se décalent');
+      if(/^for\b/.test(L[k])){ i=k; break; }
+    }
+    if(i<0) return L.join('\n');
+    const ligne=L[i], dp=ptrDeuxPoints(ligne);
+    if(dp<0) throw ptrErreur('SyntaxError : il manque les deux-points « : » à la fin de la ligne du for');
+    const tete=ligne.slice(0,dp).trim(), suite=ligne.slice(dp+1).trim();
+    const m=tete.match(/^for\s+([A-Za-z_À-ɏ][A-Za-z0-9_À-ɏ]*)\s+in\s+(.*)$/);
+    if(!m) throw ptrErreur('SyntaxError : une boucle s’écrit for k in range(…):');
+    const r=m[2].trim().match(/^range\s*\(([\s\S]*)\)$/);
+    if(!r) throw ptrErreur('SyntaxError : après in, cette page ne connaît que range(…)');
+    /* le corps : sur la même ligne après « : », ou les lignes décalées qui suivent */
+    let corps=[], fin=i+1;
+    if(suite && suite[0]!=='#') corps=[suite];
+    else {
+      while(fin<L.length && (!ptrUtile(L[fin]) || ptrDecalage(L[fin])>0)) fin++;
+      const bloc=L.slice(i+1,fin), utiles=bloc.filter(ptrUtile);
+      if(!utiles.length) throw ptrErreur('IndentationError : après la ligne du for, les instructions à répéter doivent être décalées vers la droite');
+      const base=ptrDecalage(utiles[0]);
+      bloc.forEach(function(l){
+        if(!ptrUtile(l)) return;
+        if(ptrDecalage(l)<base) throw ptrErreur('IndentationError : les lignes répétées par le for doivent être décalées de la même façon');
+        corps.push(l.slice(base));
+      });
+    }
+    const vals=ptrBornes(r[1], L.slice(0,i));
+    tours+=vals.length;
+    if(tours>PTR_MAX_TOURS) throw ptrErreur('boucle trop longue pour cette page (plus de '+PTR_MAX_TOURS+' tours)');
+    const deroule=[];
+    vals.forEach(function(v){ deroule.push(m[1]+' = '+v); corps.forEach(function(c){ deroule.push(c); }); });
+    L=L.slice(0,i).concat(deroule, L.slice(fin));
+  }
+}
+/* Exécute la copie : boucles déroulées, puis pyRun. */
+function ptrRun(src){ return pyRun(ptrDerouler(src)); }
+function ptrEssai(src){ try{ return {r:ptrRun(src), err:null}; }catch(e){ return {r:null, err:e}; } }
+/* Les numéros de ligne de pyRun comptent les lignes DÉROULÉES : ils ne
+   désignent rien dans la copie de l'élève, on les retire. */
+function ptrMessage(err){ return String((err&&err.message)||err).replace(/ ligne \d+/g,''); }
+
+/* ---- 2. Le juge ---- */
+/* Ce que la console affiche, sans les lignes vides des bords ni les espaces de fin de ligne. */
+function ptrLignes(out){
+  const l=String(out||'').split('\n').map(function(x){ return x.replace(/\s+$/,''); });
+  while(l.length && l[0]==='') l.shift();
+  while(l.length && l[l.length-1]==='') l.pop();
+  return l;
+}
+function ptrTraduire(src, err){
+  const msg=ptrMessage(err);
+  if(/^IndentationError|deux-points|une boucle s’écrit|ne connaît que range|range\(\)|boucle trop longue/.test(msg)) return msg.replace(/^[A-Za-z]+Error : /,'')+'.';
+  if(/attend une réponse|input/.test(msg)) return 'Ce programme n’a rien à demander : il n’y a pas d’input à écrire.';
+  if(/entre un texte et un nombre/.test(msg)) return 'Python ne sait pas ajouter un texte et un nombre : pour répéter une étoile, on MULTIPLIE le texte par un nombre entier, ou on ajoute "*" à un texte.';
+  let m;
+  if((m=msg.match(/NameError : la variable « ([^»]+) »/))) return 'Python ne connaît pas « '+m[1]+' » : un texte s’écrit entre guillemets, et une variable doit recevoir une valeur avant d’être utilisée.';
+  if(/il manque les parenthèses après print/.test(msg)) return 'print s’écrit avec des parenthèses : print(…).';
+  if(/guillemet non fermé/.test(msg)) return 'Un guillemet n’est pas fermé : un texte commence ET finit par un guillemet.';
+  return 'Python s’arrête sur une erreur : '+msg+'.';
+}
+/* ptrDiag rend { ok, vide, lignes, taille, dits } : ok quand la console
+   affiche le triangle demandé ET que le programme est court (une boucle). */
+function ptrDiag(src, q){
+  src=String(src||''); const S=ptrSit(q);
+  if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris le programme, puis exécute-le.']};
+  const x=ptrEssai(src);
+  if(x.err) return {ok:false, vide:false, dits:[ptrTraduire(src, x.err)]};
+  const L=ptrLignes(x.r.out), c=S.car;
+  if(!L.length) return {ok:false, vide:false, dits:['Ton programme n’affiche rien : c’est print(…) qui écrit dans la console.']};
+  const que=function(l, ch){ return l.length>0 && l.split('').every(function(z){ return z===ch; }); };
+  const triangle=L.every(function(l, k){ return l===c.repeat(k+1); });
+  if(!triangle){
+    if(L.some(function(l){ return /^\s/.test(l); })) return {ok:false, vide:false, dits:['Ton triangle est décalé : chaque ligne doit commencer au bord gauche de la console, sans espace devant.']};
+    const net=L.map(function(l){ return l.replace(/ /g,''); });
+    if(net.every(function(l, k){ return l===c.repeat(k+1); })) return {ok:false, vide:false, dits:['Il y a des espaces entre tes '+(c==='*'?'étoiles':'caractères')+' : chaque ligne doit les coller les uns aux autres, comme sur l’exemple.']};
+    const autre=L[0].length===1 && L[0]!==c && L.every(function(l, k){ return que(l, L[0]) && l.length===k+1; });
+    if(autre) return {ok:false, vide:false, dits:['Ton triangle est fait de « '+L[0]+' » : il doit être fait de « '+c+' ».']};
+    if(L.every(function(l, k){ return que(l, c) && l.length===L.length-k; })) return {ok:false, vide:false, dits:['Ton triangle est à l’envers : la PREMIÈRE ligne doit avoir une seule '+(c==='*'?'étoile':'fois « '+c+' »')+', et chaque ligne une de plus.']};
+    if(L.length>1 && L.every(function(l){ return l===L[0]; })) return {ok:false, vide:false, dits:['Toutes tes lignes sont pareilles (« '+L[0]+' ») : à chaque ligne, il faut '+(c==='*'?'une étoile':'un « '+c+' »')+' de plus.']};
+    const k=L.findIndex(function(l, i){ return l!==c.repeat(i+1); });
+    return {ok:false, vide:false, dits:['La ligne '+(k+1)+' de la console affiche « '+L[k]+' » : il fallait « '+c.repeat(k+1)+' ».']};
+  }
+  const taille=L.length;
+  if(S.auMoins && taille<S.n) return {ok:false, vide:false, taille:taille, dits:['Ton triangle est de taille '+taille+' : il doit être de taille '+S.n+' ou plus.']};
+  if(!S.auMoins && taille!==S.n) return {ok:false, vide:false, taille:taille, dits:['Ton triangle est de taille '+taille+' : il doit être de taille '+S.n+'.']};
+  const lignes=src.split('\n').filter(ptrUtile).length;
+  const boucle=src.split('\n').some(function(l){ return ptrUtile(l) && /^\s*for\b/.test(l); });
+  if(!boucle || lignes>PTR_MAX_LIGNES)
+    return {ok:false, vide:false, taille:taille, lignes:lignes, dits:['Ton triangle est juste, mais ton programme n’est pas le plus court possible'+(lignes>1?' : il fait '+lignes+' lignes':'')+'. Une boucle for répète la même instruction à ta place : regarde le coup de pouce.']};
+  return {ok:true, vide:false, taille:taille, lignes:lignes, dits:[]};
+}
+
+/* ---- 3. L'écran ---- */
+/* L'énoncé du haut dit l'exercice en une phrase ; celui de la question se
+   pose À CÔTÉ de la cellule, en tête de son cadre et en gras (le motif du
+   6.3.2), suivi de l'exemple de la fiche. */
+function ptrEnonceGeneralHTML(q){
+  return 'Le programme affiche un triangle, avec le moins de lignes possible.';
+}
+function ptrEnonceHTML(q){
+  const S=ptrSit(q);
+  return 'Faire un programme, le plus court possible, qui affiche un triangle '+esc(S.nom)+' de taille '+S.n+(S.auMoins?' ou plus grand que '+S.n:'')+'.';
+}
+function ptrExempleHTML(q){
+  const S=ptrSit(q), l=[];
+  for(let k=1;k<=4;k++) l.push(S.car.repeat(k));
+  return '<ul class="pyd-puces ptr-puces"><li>Exemple d’un triangle de taille 4&nbsp;:</li></ul><pre class="ptr-ex">'+esc(l.join('\n'))+'</pre>';
+}
+/* Le coup de pouce de la fiche, mot pour mot — ses nombres suivent la taille. */
+function ptrPoucesHTML(q){
+  const S=ptrSit(q);
+  return pyPoucesHTML([
+    ['coup de pouce', 'Pour compter de 1 à '+S.n+' utiliser l’instruction&nbsp;:<br><code>for k in range ('+'1,'+(S.n+1)+'):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;...</code>']
+  ]);
+}
+
+/* ---- 4. Cycle de vie ---- */
+async function startPTR(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=ptrBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'ptr', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+ptrCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('ptr'); renderPTR();
+}
+let _ptrSaveTimer=null;
+function renderPTR(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('ptrIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPTR').innerHTML=modeTagHTML();
+  $('ptrLiveScore').textContent=test.score;
+  $('ptrInstr').innerHTML=ptrEnonceGeneralHTML(q);
+  $('ptrFeedback').textContent=''; $('ptrFeedback').className='mp-feedback';
+  $('ptrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptrValidate" onclick="checkPTR()">Vérifier</button>';
+  $('ptrHost').innerHTML=
+    '<div class="py-cell">'
+    +'<div class="pyn-etape" id="ptrEtape"><div class="pyn-titre">✏️ '+ptrEnonceHTML(q)+'</div>'
+    +ptrExempleHTML(q)
+    +ptrPoucesHTML(q)
+    +'<p class="py-label">Ton programme</p>'
+    +'<textarea id="ptr-prog" class="pyp-edit pts-case" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="ptrRun" type="button" onclick="ptrExecuter()">▶ Exécuter mon programme</button></div>'
+    +'<p class="py-label">La console</p>'
+    +'<pre class="py-console" id="ptrConsole"></pre></div>'
+    +'<div id="ptrModele"></div>'
+    +'</div>';
+  const ta=$('ptr-prog'); ta.value=q.prog||'';
+  ta.addEventListener('input', ptrSaisie);
+  ta.addEventListener('keydown', ptrTouche);
+}
+/* Dans la cellule, Tab décale de quatre espaces, et Entrée après « : »
+   décale la ligne suivante — comme dans le carnet Jupyter : sans cela, Tab
+   quitte la case, et le corps du for ne se décale qu'à la barre d'espace. */
+function ptrTouche(e){
+  if(test.locked) return;
+  const ta=e.target, v=ta.value, a=ta.selectionStart, b=ta.selectionEnd;
+  let ins=null;
+  if(e.key==='Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) ins='    ';
+  else if(e.key==='Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey){
+    const debut=v.lastIndexOf('\n', a-1)+1, avant=v.slice(debut, a);
+    const dec=avant.match(/^ */)[0];
+    ins='\n'+dec+(/:\s*$/.test(avant)?'    ':'');
+  }
+  if(ins===null) return;
+  e.preventDefault();
+  ta.value=v.slice(0,a)+ins+v.slice(b);
+  ta.selectionStart=ta.selectionEnd=a+ins.length;
+  ptrSaisie();
+}
+function ptrSaisie(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], ta=$('ptr-prog'); if(!q||!ta) return;
+  q.prog=ta.value;
+  ta.classList.remove('bad');
+  clearTimeout(_ptrSaveTimer); _ptrSaveTimer=setTimeout(autoSave,1000);
+}
+/* La console montre ce que le programme affiche, ou l'erreur qui l'arrête. */
+function ptrConsoleMontrer(src){
+  const c=$('ptrConsole'); if(!c) return;
+  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
+  if(!String(src).trim()){ c.textContent='(programme vide : rien à exécuter)'; return; }
+  const x=ptrEssai(src);
+  if(x.err){ c.textContent=(x.err.sortie||'')+'Erreur : '+ptrMessage(x.err); c.classList.add('py-err'); }
+  else c.textContent=x.r.out?x.r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
+}
+function ptrExecuter(){
+  if(test.locked) return;
+  const ta=$('ptr-prog'); if(!ta) return;
+  test.questions[test.idx].prog=ta.value;
+  ptrConsoleMontrer(ta.value);
+}
+function checkPTR(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked) return;
+  const q=test.questions[test.idx], ta=$('ptr-prog'); if(!q||!ta) return;
+  const src=ta.value; q.prog=src;
+  const d=ptrDiag(src, q);
+  ptrConsoleMontrer(src);
+  ta.classList.remove('ok','bad','sol');
+  const fb=$('ptrFeedback');
+  if(!d.ok && isSoutien()){
+    if(!d.vide) ta.classList.add('bad');        /* une zone vide ne rougit jamais */
+    fb.textContent=(d.vide?'':'Pas encore. ')+d.dits.join(' ')+' Corrige ton programme, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('ptrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptrValidate" onclick="checkPTR()">Revérifier</button>';
+    setTimeout(function(){ ta.focus(); },40);
+    return;
+  }
+  test.locked=true; ta.readOnly=true;
+  if(d.ok){
+    ta.classList.add('ok'); test.score+=1;
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme affiche le triangle de taille '+d.taille+' en '+d.lignes+' ligne'+(d.lignes>1?'s':'')+'.';
+    fb.className='mp-feedback good';
+  } else if(d.vide){
+    ta.value=ptrModele(q); ta.classList.add('sol');
+    ptrConsoleMontrer(ta.value);
+    fb.textContent='Tu n’avais rien écrit — la correction a écrit en vert un programme qui convient.'; fb.className='mp-feedback bad';
+  } else {
+    ta.classList.add('bad');
+    fb.textContent=d.dits.join(' ')+' Un programme qui convient est écrit en vert en dessous.'; fb.className='mp-feedback bad';
+    $('ptrModele').innerHTML='<p class="py-label">Un programme qui convient</p><pre class="py-code pyp-modele sol">'+esc(ptrModele(q))+'</pre>';
+  }
+  $('ptrLiveScore').textContent=test.score;
+  const S=ptrSit(q);
+  test.answers.push({...(ptsExo()||{}), correct:d.ok, q:'triangle de « '+S.car+' », taille '+S.n+(S.auMoins?' ou plus':''), answer:ptrModele(q).replace(/\n+/g,' ⏎ '), given:src.trim()?src.replace(/\n+/g,' ⏎ '):'(vide)'});
+  const b=$('ptrRun'); if(b) b.disabled=true;
+  const last=test.idx===test.questions.length-1;
+  $('ptrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptrNext" onclick="nextPTR()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('ptrNext'); if(nb) nb.focus();
+}
+function nextPTR(){ if(test.idx<test.questions.length-1){ test.idx++; renderPTR(); autoSave(); } else finishTest(); }
+function ctxPtr(q){
+  const S=ptrSit(q), ta=$('ptr-prog'), prog=(ta&&ta.value)||q.prog||'';
+  let d=null; try{ d=ptrDiag(prog, q); }catch(e){}
+  let c='L’élève doit ÉCRIRE le programme Python le plus court possible qui affiche un triangle '+S.nom+' de taille '+S.n+(S.auMoins?' ou plus':'')+' : la première ligne porte un « '+S.car+' », chaque ligne un de plus. Exemple de taille 4 : '+[1,2,3,4].map(function(k){ return S.car.repeat(k); }).join(' / ')+'. Le coup de pouce de la fiche donne : for k in range (1,'+(S.n+1)+'): pour compter de 1 à '+S.n+'. Un programme fait de print écrits à la main n’est pas accepté : il faut une boucle for. Il peut exécuter son programme : la console montre ce qu’il affiche.\n';
+  c+='Ce que l’élève a écrit :\n'+(prog.trim()?prog:'(rien pour l’instant)')+'\n';
+  if(d) c+=d.ok?'Son programme convient. ':('Ce que la page a relevé : '+d.dits.join(' ')+' ');
+  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) :\n'+ptrModele(q)+'\nAide-le à trouver lui-même : la boucle for k in range(…): répète les lignes décalées en dessous d’elle, k prenant les valeurs 1, 2, 3… ; un texte multiplié par un nombre entier se répète ("ab"*3 donne ababab) — sans jamais écrire le programme complet.';
+  return {nombre:'', contexte:c};
+}
+
 /* ---------- Exercice : demander deux nombres décimaux, puis les additionner (Python) ----------
    Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème input
    créer l'exercice correspondant à l'image » — l'exercice 7 du carnet :
@@ -44778,7 +45160,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPII','renderPIA','renderPIS','renderPMY','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

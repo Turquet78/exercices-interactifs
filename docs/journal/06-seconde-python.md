@@ -3498,3 +3498,90 @@ sort), le trajet a) → b) → c) avec les énoncés gardés, les copies juste,
 fausse et vide, le soutien, la reprise qui ne rejuge pas un b) déjà jugé, et
 les programmes comparés à un vrai CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+**Le programme le plus court possible : un triangle d'étoiles — le sous-thème
+6.4 « Bonus ».** {python-triangle-etoiles} (Seconde, 6.4.2, demande de Turquet,
+octobre 2026 : « en seconde avec l'image créer un exercice dans le sous thème
+print et variable qui respecte toutes les nouvelles consignes que j'ai données
+pour le sous-thème input. ne pas rajouter de phrase dans les définitions ou
+rappel. écrire les énoncés des questions après les définitions ou rappels. on
+le mettra dans un sous thème bonus ») est l'exercice 23 du carnet : « Faire un
+programme, le plus court possible, qui affiche un triangle d'étoiles de taille
+10 ou plus grand que 10 », l'exemple de taille 4 (en violet gras, comme le
+carnet), et UN coup de pouce replié : « Pour compter de 1 à 10 utiliser
+l'instruction : `for k in range (1,11):` … ». Il suit {python-chaine-len}
+dans le sous-thème 6.4 « Bonus » : ajouté en dernier, rien n'est renuméroté,
+et son contrôle l'exige.
+
+**Les consignes du sous-thème Input, tenues ici** : l'énoncé du haut dit
+l'exercice en une phrase ; l'énoncé de la question s'écrit en GRAS dans un
+cadre `.pyn-etape` qui enveloppe l'exemple, le coup de pouce, la cellule et la
+console (le motif du 6.3.2) — il vient donc APRÈS tout ce qui serait une
+définition ; le coup de pouce est vert pâle, replié, et n'a rien après sa
+ligne modèle ; aucune consigne à côté du bouton « Exécuter » ; une console
+vide reste un cadre vide (`#ptrConsole:empty::before{content:none}`). **Aucun
+encadré de cours** : la fiche n'en a pas, et la demande interdit d'ajouter une
+phrase. Le rappel du bouton d'aide (`RAP_PTR`), obligatoire, ne porte que le
+coup de pouce, mot pour mot.
+
+**L'INTERPRÉTEUR N'A PAS APPRIS LES BLOCS — LA BOUCLE SE DÉROULE.** `pyRun`
+lit une ligne à la fois, et tout le thème 6 s'appuie sur lui : lui apprendre
+l'indentation aurait touché tous les exercices du thème pour en servir un.
+`ptrDerouler` réécrit à la place chaque `for v in range(…):` en lignes plates
+(`v = 1`, le corps, `v = 2`, le corps…) que `pyRun` exécute telles quelles —
+exact, puisqu'un programme sans `if` ni `while` n'a rien d'autre à décider.
+Les bornes du range se calculent sur l'état du programme à cet endroit (le
+début déjà déroulé, exécuté par `pyRun`) : `n = 12` puis `range(1, n+1)`
+marche. Le corps peut suivre les deux-points sur la même ligne. Les erreurs
+de décalage sont celles de Python, nommées en français : corps non décalé,
+ligne décalée hors d'une boucle, décalage incohérent, deux-points oubliés. Les
+numéros de ligne de `pyRun` comptent les lignes DÉROULÉES — ils ne désignent
+rien dans la copie, et sont retirés des messages. Une borne : 500 tours.
+**Tab et Entrée dans la cellule** : Tab décale de quatre espaces (sans cela il
+quitte la case), Entrée après « : » décale la ligne suivante — comme le carnet
+Jupyter.
+
+**LE JUGE LIT LA CONSOLE, PUIS LE PROGRAMME.** Le triangle d'abord : la ligne
+k porte k fois le caractère, les lignes vides des bords et les espaces de fin
+de ligne ne comptent pas (`range(11)` commence par une ligne vide, et c'est
+juste). Nommés : trop petit (ou pas à la taille imposée), à l'envers, décalé
+(espaces devant), espaces entre les étoiles, autre caractère, lignes toutes
+pareilles, rien d'affiché, `"*" + k`. Puis « le plus court possible » : une
+boucle `for` et au plus quatre lignes utiles — la version à une variable
+(`e = e + "*"`, puis `print(e)`) en fait quatre, et c'est la solution d'un
+élève qui ne connaît que print et les variables. **Le triangle juste écrit à
+la main est REFUSÉ**, dix print ou un seul print à `\n` : « ton triangle est
+juste, mais ton programme n'est pas le plus court possible ».
+
+**La séance** : la fiche épinglée en tête (étoiles, taille 10 ou plus), puis
+un triangle tiré par `distinctes()` — un autre caractère (`#`, `+`, `o`, `@`,
+`$`) et une taille IMPOSÉE, le coup de pouce suivant la taille (« de 1 à 12 »,
+`range (1,13)`) ; deux questions, que le réglage « Questions » d'un devoir
+allonge. Une case (`pts-case`), pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables (`TABLES_SANS` — oublié au premier
+jet, et vu en OUVRANT la page : la liste de `tests/profils.js` n'est que la
+seconde source, la page a la sienne). Banc jsdom
+(`pythonTriangle`) : la place, la fiche et le tirage (300 séances), le juge
+sur six copies justes et quinze fausses chacune avec son mot, l'écran et les
+consignes du sous-thème Input, Tab et Entrée, la copie juste tapée, fausse et
+vide, le soutien qui ne révèle rien, et quatorze programmes déroulés comparés
+à un vrai CPython — boucles imbriquées, pas négatif et erreurs d'indentation
+comprises. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
+**Puis {python-chaines} (6.1.14, la répétition `"*" * 10`) est arrivé sur `main`
+pendant que celui-ci passait ses bancs** : les deux s'étaient ajoutés aux
+mêmes listes (écrans, rappels, `TABLES_SANS`, `tests/profils.js`) — union
+ligne à ligne, aucun code commun. `main` avait pris la version 275 :
+celui-ci passe en 276. Le 6.1.14 enseigne justement ce que le modèle du
+triangle utilise (`"*"*k`) : le bonus vient après la leçon.
+
+**Puis {python-chaine-len} a pris le sous-thème « Bonus » le premier.** Une
+autre session avait créé le MÊME sous-thème 6.4 « Bonus », pour
+`len(chaine)` et `chaine[i]`, et l'a fusionné pendant que celui-ci attendait
+ses contrôles. Ce qui est en ligne garde sa place : {python-chaine-len} reste
+6.4.1, le triangle devient 6.4.2 (`THEMES` ne porte qu'UN sous-thème 6.4, aux
+deux identifiants), son contrôle exige désormais de suivre {python-chaine-len},
+et la version passe en 277 (`main` avait pris la 276).
