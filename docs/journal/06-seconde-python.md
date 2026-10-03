@@ -3446,3 +3446,62 @@ Tab et Entrée, les copies juste, fausse et vide, le soutien qui ne révèle
 rien, et les programmes à boucle comparés à un vrai CPython. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans
 les deux modes.
+**Concaténation et répétition : les exercices 21 et 22 du carnet, dans le
+6.1.** {python-chaines} (Seconde, 6.1.14, demande de Turquet, octobre 2026 :
+« en seconde créer un exercice dans le sous-thème print et variable qui
+respecte toutes les nouvelles consignes que j'ai données pour le sous-thème
+input ; ne pas rajouter de phrase dans les définitions ou rappels ; écrire les
+énoncés des questions après les définitions ou rappels »). Le cadre orange de
+la fiche (« Pour les chaînes de caractères c'est plus court car il n'y a que
+deux opérations possibles », la concaténation `+`, la répétition `*`), puis
+a) exécuter `chaine1 = "Lou"`, `chaine2 = "ane"`, `chaine3 = chaine1 +
+chaine2`, `chaine4 = 3 * chaine1`, et b) compléter `Nom = "…"`, `Prenom =
+"…"`, `chaine1 = … + " " + …`, `chaine2 = …`, `print(chaine2)` pour qu'il
+affiche 10 fois le nom et le prénom. Ajouté en dernier dans le 6.1, il ne
+renumérote rien.
+**Les consignes du 6.3, TOUTES, appliquées d'emblée** : le cadre de cours à la
+question 1 seulement ; chaque étape dans un cadre `pii-etape` ouvert par SA
+question en gras (`pii-titre`), gardée quand la suivante s'ouvre ; aucune
+consigne à côté des boutons « Exécuter » ; une console vide reste un cadre vide
+(`[id^="pchCons"]` rejoint la règle `content:none`) ; « Vérifier » ne s'ouvre
+que sur un programme exécuté tel qu'il est écrit. Pas de coup de pouce : la
+fiche n'en a pas.
+**Deux consignes nouvelles, et c'est l'écran qui les porte.** « Ne pas rajouter
+de phrase dans les définitions ou rappels » : le cadre (`pchCoursHTML`) et le
+rappel (`RAP_PCH`) disent la fiche MOT POUR MOT — un titre, deux puces, rien
+d'autre ; le banc jsdom relit les trois phrases et compte trois blocs.
+« Les énoncés après les définitions » : l'écran pose `#pchCours` AVANT
+`#pchInstr` — le cadre de cours est le premier enfant de la carte, l'énoncé
+étiqueté vient dessous, puis les étapes. Les autres exercices écrivent leur
+cours dans l'hôte, sous l'énoncé ; celui-ci est le premier à le monter
+au-dessus, et le banc exige l'ordre (`compareDocumentPosition`).
+**Les trous s'écrivent DANS la ligne de code** (`.pch-in`, `font:inherit`, à
+la chasse du code), la ligne ne se replie pas et le programme défile
+(`.pch-prog{overflow-x:auto}`). **Trois cases notées** : les deux morceaux de
+`chaine1` et `chaine2`. Le nom et le prénom sont ceux de l'élève : tout texte y
+est juste, ils ne se notent ni ne se colorent — mais ils sont exigés avant de
+juger, et un guillemet tapé dedans est nommé.
+**Le juge exécute, sous deux paires de noms** (`pchJuge`) : celle de l'élève,
+puis « Martin Zoé ». Un trou rempli avec `"Dupont"` donne la bonne chaîne la
+première fois et se trahit la seconde. Chaque trou se juge SEUL — celui de
+`chaine2` derrière une ligne `chaine1` juste —, pour qu'une case juste ne rougisse
+pas à cause d'une autre. Toute écriture qui donne la même chaîne passe
+(`10 * chaine1`, `chaine1 * 10`, `(Nom + " " + Prenom) * 10`). Nommés : le
+texte écrit à la main, l'ordre inversé, le nom de variable entre guillemets, la
+majuscule ou l'accent (`nom`, `Prénom`), le nom de l'élève tapé sans
+guillemets, le `+` au lieu du `*`, la répétition oubliée, le mauvais nombre de
+fois.
+**La séance** : la fiche épinglée (Lou + ane, 3 fois ; 10 fois le nom puis le
+prénom), puis des questions tirées par `distinctes()` — d'autres morceaux à
+coller (Ma + non, Ju + les…), un autre nombre de répétitions, et l'ordre
+prénom-nom ; `dmNbQuestions()` l'allonge. La question garde `fa` (le a) est
+fait) et `rep` (le b) tel que l'élève l'a laissé, hors de la clé de
+`distincte`) : une pause rouvre le b) tel quel. Aucune correction au fil de la
+frappe (`soutienEnDirect.sans`), pas de bouton des tables.
+Banc jsdom (`pythonChaines`, déclaré dans `tests/profils.js`) : la place au
+menu, le tirage (400 séances), le juge sur cinq copies justes et treize
+fausses chacune avec son mot, le trou jugé seul, les portes a) → b) →
+« Vérifier », le cadre au-dessus de l'énoncé et absent à la question 2, la
+copie juste, fausse et vide, le soutien qui ne révèle rien, la reprise, et les
+sorties comparées à un vrai CPython. Pas de section propre au banc
+NAVIGATEUR : la visite universelle (section 9) l'ouvre dans les deux modes.

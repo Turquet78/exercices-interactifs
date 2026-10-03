@@ -565,7 +565,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-pbl,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pch,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-pbl,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -611,7 +611,7 @@
   .py-console.py-exec{border-style:solid;border-color:#6c8ebf;background:#f4f8ff}
   .py-console:empty::before{content:"(rien pour l’instant : exécute le programme)";color:var(--ink-soft);font-family:"Nunito",system-ui,sans-serif;font-size:.92rem;white-space:normal}
   /* Sous-thème 6.3 « Input » : la console vide reste vide (demande de Turquet, octobre 2026). */
-  #pyiConsole:empty::before,#piaConsole:empty::before,#pmyConsole:empty::before,#pblConsole:empty::before,#pisConsole:empty::before,[id^="pynConsole"]:empty::before,[id^="piiCons"]:empty::before{content:none}
+  #pyiConsole:empty::before,#piaConsole:empty::before,#pmyConsole:empty::before,#pblConsole:empty::before,#pisConsole:empty::before,[id^="pynConsole"]:empty::before,[id^="piiCons"]:empty::before,[id^="pchCons"]:empty::before{content:none}
   .py-fin{display:inline-flex;align-items:center;gap:2px}
   /* Sur un téléphone, le code écrit plus petit : à 1,05 rem la ligne du print
      se coupait derrière le défilement horizontal — précisément la ligne que
@@ -1058,6 +1058,26 @@
   .pii-in{font:inherit;color:var(--blue);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:0 8px;width:12ch;max-width:100%;outline:none;vertical-align:baseline}
   .pii-in:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
   .pii-entree{margin-left:10px;font-family:"Nunito",system-ui,sans-serif;font-size:.9rem;padding:2px 10px;border:1.5px solid #BBD0F7;border-radius:8px;background:#EAF2FF;color:var(--ink);cursor:pointer;vertical-align:baseline}
+  /* {python-chaines} (6.1.14) : le cadre orange de la fiche (.pii-def), à
+     puces comme sur le papier ; les trous s'écrivent DANS la ligne de code, à
+     la taille et à la chasse du code qui les entoure, et la ligne ne se replie
+     jamais — elle défile. */
+  .pch-ops{margin:6px 0 2px;padding-left:22px}
+  .pch-ops li{margin:4px 0}
+  .pch-prog{overflow-x:auto}
+  .pch-prog .pyx-ligne{flex-wrap:nowrap}
+  .pch-l{white-space:pre;flex:0 0 auto;display:block;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
+  .pch-in{font:inherit;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:1px 6px;outline:none;box-sizing:content-box}
+  .pch-in-n{width:9ch}
+  .pch-in-v{width:7ch}
+  .pch-in-c{width:12ch}
+  .pch-in::placeholder{color:var(--ink-soft);opacity:.8}
+  .pch-in:focus{border-color:var(--blue);background:#FBFDFF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .pch-in:disabled{opacity:1}
+  .pch-in.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+  .pch-in.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  .pch-in.sol{color:var(--green);background:var(--green-soft);border-color:var(--green)}
+  #pchHost .mf-cor{margin:0 4px;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600;white-space:pre}
   /* {python-nom-variable} : la fiche — l'énoncé en cadre SANS étiquette (le
      .mp-instr de l'écran la porte déjà), puis la cellule de réponse du carnet,
      une ligne par grandeur, à chasse fixe ; la case écrit à la taille et à la
@@ -4422,6 +4442,24 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
     </div>
   </section>
+  <!-- TEST : CONCATÉNATION ET RÉPÉTITION DE CHAÎNES (PYTHON, PRINT ET VARIABLE) -->
+  <section class="screen" id="scr-pch">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPCH"></span><span class="q-idx" id="pchIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pchLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <!-- Le cadre de la fiche AU-DESSUS de l'énoncé (question 1 seulement) :
+           les énoncés s'écrivent après les définitions (demande de Turquet). -->
+      <div id="pchCours"></div>
+      <p class="mp-instr" id="pchInstr"></p>
+      <div class="mp-stage"><div style="width:100%" id="pchHost"></div></div>
+      <div class="mp-feedback" id="pchFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="pchActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pchValidate" onclick="checkPCH()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
   <section class="screen" id="scr-pii">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPII"></span><span class="q-idx" id="piiIdx">Question 1 / 4</span></span>
@@ -5229,7 +5267,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=275;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=276;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5931,6 +5969,7 @@ const TESTS={
   'python-tableau-valeurs': { name:'Un tableau de valeurs avec Python', icon:'\ud83d\udcca', desc:'Le programme calcule 2x+3 pour la valeur de x que tu lui donnes. Ex\u00e9cute-le, puis compl\u00e8te le tableau de valeurs\u00a0: pour chaque colonne, \u00e9cris sa valeur de x \u00e0 la ligne 1 \u2014 avec un point, comme Python l\u2019\u00e9crit \u2014, ex\u00e9cute, et recopie ce qui s\u2019affiche.', start:()=>startPTV() },
   'python-operations': { name:'Somme, diff\u00e9rence, produit, quotient', icon:'\ud83e\uddee', desc:'Un programme calcule la somme et le produit de deux nombres a et b\u00a0: ex\u00e9cute-le, change a et b, regarde ce qui suit. Puis compl\u00e8te-le pour qu\u2019il calcule et affiche EN PLUS la diff\u00e9rence et le quotient de a par b, ex\u00e9cute et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPOP() },
   'python-double-triple-carre': { name:'Le double, le triple et le carr\u00e9', icon:'\ud83d\udd22', desc:'Un programme range trois calculs\u00a0: le double, le triple et le carr\u00e9 d\u2019un nombre a. Compl\u00e8te-le, ex\u00e9cute-le \u2014 puis teste-le plusieurs fois en CHANGEANT la valeur de a\u00a0: tout ce qui se calcule ensuite suit. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPDC() },
+  'python-chaines': { name:'Concat\u00e9nation et r\u00e9p\u00e9tition de cha\u00eenes', icon:'\ud83d\udd17', desc:'Deux op\u00e9rations sur les cha\u00eenes de caract\u00e8res\u00a0: la concat\u00e9nation (+) et la r\u00e9p\u00e9tition (*). a) Ex\u00e9cute un programme qui s\u2019en sert\u00a0; b) compl\u00e8te un programme pour qu\u2019il affiche plusieurs fois ton nom et ton pr\u00e9nom.', start:()=>startPCH() },
   'python-pas-a-pas': { name:'Le programme pas \u00e0 pas : les cases m\u00e9moire', icon:'\ud83e\udde0', desc:'Un programme range des nombres dans des cases m\u00e9moire. Ex\u00e9cute-le LIGNE PAR LIGNE\u00a0: \u00e0 chaque ligne, dis quelle case re\u00e7oit la valeur et ce qu\u2019elle contient ensuite. Les cases d\u00e9j\u00e0 remplies gardent leur valeur \u2014 et quand une ligne dit «\u00a0c = b\u00a0», c\u2019est le CONTENU de b qui est recopi\u00e9.', start:()=>startPAP() },
   'python-valeur-case': { name:'La valeur de la case m\u00e9moire, ligne par ligne', icon:'\ud83d\uddc3\ufe0f', desc:'Le m\u00eame programme pas \u00e0 pas, mais plus simple\u00a0: la case m\u00e9moire que la ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau, et tu n\u2019\u00e9cris que LA VALEUR qu\u2019elle contient ensuite. Ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier \u00e0 la fin que toutes les cases m\u00e9moire ont la bonne valeur.', start:()=>startPVM() },
   'python-pas-a-pas-calcul': { name:'Le programme pas \u00e0 pas\u00a0: quand une ligne CALCULE', icon:'\ud83e\uddee', desc:'La suite du pas \u00e0 pas\u00a0: certaines lignes rangent un nombre, d\u2019autres recopient une case \u2014 et maintenant, une ligne comme { c = a+b } CALCULE sa valeur avec ce que les cases contiennent. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPC() },
@@ -6046,7 +6085,7 @@ const THEMES=[
      numéros à deux niveaux de leur époque (« le 5.7 » = 5.1.7, « le 5.15 » =
      5.2.2). */
   { num:6, nom:'Algorithmique et Python', sous:[
-      { num:1, nom:'Print et variable',   ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre'] },
+      { num:1, nom:'Print et variable',   ids:['python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-changer-valeurs','python-operations','python-double-triple-carre','python-chaines'] },
       { num:2, nom:'Variable et calcul',  ids:['python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-pas-a-pas-multiplication','python-echange-par-lettres','python-phrases-memoire'] },
       { num:3, nom:'Input',               ids:['python-input-reponse','python-input','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne'] },
       /* Le sous-thème BONUS (demande de Turquet, octobre 2026) : ce qui dépasse
@@ -6788,6 +6827,7 @@ function conseilPaire(){
   else if(test.kind==='pph' && q) b=ctxPph(q);
   else if(test.kind==='pdc' && q) b=ctxPdc(q);
   else if(test.kind==='pii' && q) b=ctxPii(q);
+  else if(test.kind==='pch' && q) b=ctxPch(q);
   else if(test.kind==='pia' && q) b=ctxPia(q);
   else if(test.kind==='pis' && q) b=ctxPis(q);
   else if(test.kind==='pmy' && q) b=ctxPmy(q);
@@ -7155,6 +7195,7 @@ const QIA_SUGG={
   pbl:["Comment fonctionne la boucle for k in range(len(chaine)) ?","Comment prendre la lettre qui est à la position k ?","Pourquoi faut-il écrire len(chaine) - 1 - k ?","Pourquoi mon print affiche-t-il plusieurs lignes ?"],
   pis:["Pourquoi faut-il écrire float(…) autour de input ?","Pourquoi « 2.5 » + « 1.25 » donne-t-il 2.51.25 ?","Faut-il taper 2,5 ou 2.5 dans la console ?","Comment afficher un texte suivi d’une variable ?"],
   pia:["Pourquoi faut-il écrire int(…) autour de input ?","Comment calculer avec la réponse de l’utilisateur ?","Pourquoi ranger le résultat dans une variable avant de l’afficher ?","Comment afficher un texte, puis une variable, puis un autre texte ?"],
+  pch:["Que fait le signe + entre deux chaînes de caractères ?","Que fait le signe * entre un nombre et une chaîne ?","Pourquoi met-on \" \" entre le nom et le prénom ?","Pourquoi le nom d’une variable s’écrit-il sans guillemets ?"],
   pii:["À quoi sert input ?","Pourquoi faut-il écrire int(…) autour de input ?","Quel est le type d’une réponse tapée sans int ?","Comment afficher un texte, puis une variable, puis un autre texte ?"],
   pdc:["À quoi sert de ranger un résultat dans une variable ?","Pourquoi le calcul doit-il se servir de la variable a ?","Que se passe-t-il si je change la valeur de a ?","Comment afficher un texte suivi d’une valeur ?"],
   pyv:["Comment savoir quelle variable écrire dans chaque case ?","Pourquoi le nom de la variable ne se met-il pas entre guillemets ?","Que se passe-t-il si j’échange deux variables dans le print ?","Pourquoi Python met-il une espace entre les morceaux du print ?"],
@@ -8129,6 +8170,11 @@ Une variable peut garder le <b>résultat d’un calcul</b>. Avec <code class="in
 <b>② Multiplier un nombre par lui-même</b> s’écrit avec le signe <code class="inline">*</code>, comme toute multiplication : <code class="inline">cube = n * n * n</code>. Deux étoiles, <code class="inline">**</code>, élèvent à une puissance : <code class="inline">n ** 3</code> donne la même chose.<br>
 <b>③ Attention</b> : en Python, <code class="inline">^</code> ne veut <b>pas</b> dire « puissance » — c’est un tout autre calcul, et la page refuse de le faire passer pour un carré.<br>
 <b>④ Pour afficher</b>, on sépare par des <b>virgules</b> : <code class="inline">print("Le quadruple de",n,"est égal à ",quadruple)</code> affiche <code class="inline">Le quadruple de 5 est égal à  20</code>. Le texte va entre guillemets ; le <b>nom</b> de la variable, lui, s’écrit sans guillemets.`;
+/* Le rappel de {python-chaines} : le cadre de la fiche, MOT POUR MOT — rien
+   n'y est ajouté (demande de Turquet, octobre 2026). */
+const RAP_PCH=`<b>Pour les chaînes de caractères c’est plus court car il n’y a que deux opérations possibles :</b><br>
+• la <b>concaténation</b> qui consiste à mettre bout à bout deux chaînes pour former une unique chaîne : on utilise pour cela le symbole d’addition <code class="inline">+</code>.<br>
+• la <b>répétition</b> qui consiste à ajouter une chaîne un certain nombre de fois à elle-même : on utilise pour cela le symbole de multiplication <code class="inline">*</code>.`;
 /* Le rappel de {python-input-int}. Son exemple est une POINTURE, aucune des
    questions posées telles quelles : l'élève transpose. */
 const RAP_PII=`<b>input : le programme pose une question</b><br>
@@ -8266,7 +8312,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}\\)`;
 const RAPPELS={ pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, pbl:RAP_PBL, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, pbl:RAP_PBL, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
 const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
@@ -8376,7 +8422,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['python-inverser-lettres','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['python-inverser-lettres','python-chaines','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -8814,7 +8860,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], pbl:['pbl',renderPBL], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], pbl:['pbl',renderPBL], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -8942,7 +8988,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pii','pia','pis','pmy','pbl','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pii','pia','pis','pmy','pbl','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
@@ -34124,6 +34170,379 @@ function ctxPdc(q){
   return {nombre:'', contexte:c};
 }
 
+/* ---------- Exercice : concaténation et répétition de chaînes (Python) ----------
+   {python-chaines} (Seconde, 6.1.14, demande de Turquet, octobre 2026 : « en
+   seconde créer un exercice dans le sous-thème print et variable qui respecte
+   toutes les nouvelles consignes que j'ai données pour le sous-thème input ;
+   ne pas rajouter de phrase dans les définitions ou rappels ; écrire les
+   énoncés des questions après les définitions ou rappels ») : les exercices
+   21 et 22 du carnet. Le cadre orange de la fiche, MOT POUR MOT (« Pour les
+   chaînes de caractères c'est plus court… », la concaténation +, la
+   répétition *), puis
+     a) exécuter chaine1 = "Lou", chaine2 = "ane", chaine3 = chaine1 + chaine2,
+        chaine4 = 3 * chaine1 — pour comprendre les deux opérations ;
+     b) compléter Nom = "…", Prenom = "…", chaine1 = … + " " + …,
+        chaine2 = …, print(chaine2) pour qu'il affiche 10 fois le nom et le
+        prénom de l'élève.
+   Ajouté en dernier dans le 6.1, il ne renumérote rien.
+
+   LES CONSIGNES DU SOUS-THÈME 6.3, TOUTES : le cadre de cours s'écrit à la
+   question 1 seulement, AU-DESSUS de l'énoncé (#pchCours précède #pchInstr) ;
+   chaque étape est un cadre ouvert par SA question, en gras, qu'il garde quand
+   la suivante s'ouvre ; aucune consigne à côté des boutons « Exécuter » ; une
+   console vide reste un cadre vide (content:none) ; « Vérifier » ne s'ouvre
+   que sur un programme exécuté TEL QU'IL EST ÉCRIT. Pas de coup de pouce : la
+   fiche n'en a pas, et rien n'est ajouté à ce qu'elle dit.
+
+   TROIS CASES NOTÉES PAR QUESTION : les deux trous de chaine1 et celui de
+   chaine2. Le nom et le prénom sont ceux de l'élève : tout texte y est juste,
+   ils ne se notent pas — mais ils sont exigés avant de vérifier. Le a) est une
+   porte, pas une note.
+
+   LE JUGE EXÉCUTE, SOUS DEUX PAIRES DE NOMS : celle que l'élève a tapée, puis
+   une autre. Un trou rempli avec « "Dupont" » donne la bonne chaîne la
+   première fois et se trahit la seconde : c'est le NOM de la variable qui fait
+   le travail. Chaque trou se juge SEUL — le trou de chaine2 est exécuté
+   derrière une ligne chaine1 juste —, pour qu'une case juste ne rougisse pas
+   à cause d'une autre. Toute écriture qui donne la même chaîne passe
+   (10 * chaine1, chaine1 * 10, (Nom + " " + Prenom) * 10).
+
+   LA SÉANCE : la fiche épinglée en tête (Lou + ane, 3 fois ; 10 fois le nom
+   puis le prénom), puis des questions tirées par distinctes() — d'autres
+   morceaux à coller, un autre nombre de répétitions, et l'ordre prénom-nom.
+   Le réglage « Questions » d'un devoir l'allonge. */
+const PCH_NB=3;
+const PCH_A=[
+  {c1:'Lou', c2:'ane',   m:3},
+  {c1:'Ma',  c2:'non',   m:2},
+  {c1:'Ju',  c2:'les',   m:4},
+  {c1:'Ro',  c2:'main',  m:3},
+  {c1:'Cla', c2:'ra',    m:2},
+  {c1:'Lé',  c2:'na',    m:4},
+  {c1:'Ti',  c2:'mothée',m:2}
+];
+const PCH_N=[3,4,5,6,7,8,12];
+function pchBuildQuestions(){
+  const n=dmNbQuestions(PCH_NB);
+  return distinctes(n, function(_, i){
+    if(i===0) return {k:0, n:10, o:'np'};
+    return {k:rand(1,PCH_A.length-1), n:pick(PCH_N), o:pick(['np','pn'])};
+  });
+}
+function pchA(q){ return PCH_A[q.k]||PCH_A[0]; }
+function pchLignesA(q){
+  const A=pchA(q);
+  return ['chaine1 = "'+A.c1+'"', 'chaine2 = "'+A.c2+'"', '',
+          'chaine3 = chaine1 + chaine2  # concaténation', 'print(chaine3)', '',
+          'chaine4 = '+A.m+' * chaine1  # répétition', 'print(chaine4)'];
+}
+/* les deux variables, dans l'ordre que l'énoncé demande */
+function pchOrdre(q){ return q.o==='pn'?['Prenom','Nom']:['Nom','Prenom']; }
+function pchRepVide(){ return {nom:'', prenom:'', a:'', b:'', c:''}; }
+function pchRep(q){ return Object.assign(pchRepVide(), q.rep||{}); }
+function pchProgB(r){
+  return ['Nom = "'+r.nom+'"', 'Prenom = "'+r.prenom+'"',
+          'chaine1 = '+r.a+' + " " + '+r.b+'  # concaténation',
+          'chaine2 = '+r.c, 'print(chaine2)'].join('\n');
+}
+/* ce que la correction écrit dans chaque trou */
+function pchAttendus(q){ const o=pchOrdre(q); return [o[0], o[1], q.n+' * chaine1']; }
+/* un nom tapé entre guillemets ne peut contenir ni guillemet ni barre oblique inverse */
+function pchNomOk(s){ return String(s).trim()!=='' && !/["\\\n]/.test(s); }
+
+/* ---- 1. Le juge ---- */
+/* La seconde paire, différente de celle de l'élève. */
+function pchAutres(r){
+  return [String(r.nom).trim()==='Martin'?'Durand':'Martin', String(r.prenom).trim()==='Zoé'?'Malo':'Zoé'];
+}
+function pchVal(expr, N, P, pre){
+  try{
+    const r=pyRun('Nom = "'+N+'"\nPrenom = "'+P+'"\n'+(pre||'')+'pch_v = '+expr);
+    return {v:r.env.pch_v, err:''};
+  }catch(e){ return {v:null, err:e.message||String(e)}; }
+}
+function pchStr(x){ return !!x && x.t==='str'; }
+/* L'erreur de Python, dite avec les mots d'un élève de Seconde. */
+function pchTraduire(err, r){
+  let m;
+  if((m=err.match(/la variable « ([^»]+) »/))){
+    const v=m[1].trim(), plat=v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    if(plat==='nom'||plat==='prenom'){
+      const bon=plat==='nom'?'Nom':'Prenom';
+      return 'La variable s’écrit '+bon+(plat==='prenom'?', avec une majuscule et sans accent':', avec une majuscule')+' : Python fait la différence, « '+v+' » est une autre variable, qui n’existe pas.';
+    }
+    if(plat==='chaine1'||plat==='chaine2') return 'La variable s’écrit chaine1, en minuscules et sans accent : « '+v+' » n’existe pas.';
+    if(v===String(r.nom).trim()||v===String(r.prenom).trim()) return 'Python lit « '+v+' » comme le nom d’une VARIABLE, qui n’existe pas : écris le nom de la variable qui contient ce texte.';
+    return 'Python ne connaît pas la variable « '+v+' » : les deux variables du programme s’appellent Nom et Prenom.';
+  }
+  if(/entre un texte et un nombre/.test(err) && /«\s*\+\s*»/.test(err)) return 'Le signe + colle deux TEXTES bout à bout ; pour répéter un texte un certain nombre de fois, c’est le signe * de la multiplication.';
+  return 'Python s’arrête sur une erreur : '+err+'.';
+}
+/* Un trou de chaine1 : la variable qu'il faut, à la place k (0 ou 1). */
+function pchJugeTrou(q, r, k, expr){
+  const e=String(expr==null?'':expr).trim();
+  if(!e) return {vide:true, ok:false, diag:''};
+  const o=pchOrdre(q), V=o[k], W=o[1-k], au=pchAutres(r);
+  const paires=[[r.nom, r.prenom], au];
+  const val=function(p, nomVar){ return nomVar==='Nom'?p[0]:p[1]; };
+  const x=paires.map(function(p){ return pchVal(e, p[0], p[1]); });
+  if(x[0].err) return {vide:false, ok:false, diag:pchTraduire(x[0].err, r)};
+  const ok=x.every(function(y, i){ return pchStr(y.v) && y.v.v===val(paires[i], V); });
+  if(ok) return {vide:false, ok:true, diag:''};
+  const v0=x[0].v, v1=x[1].v;
+  let diag;
+  if(pchStr(v0) && (v0.v==='Nom'||v0.v==='Prenom')) diag='"'+v0.v+'" entre guillemets est le MOT « '+v0.v+' », pas ce que contient la variable : le nom d’une variable s’écrit sans guillemets.';
+  else if(pchStr(v0) && v0.v===val(paires[0], V)) diag='Tu as écrit le texte à la main : avec un autre nom, ta ligne écrirait encore « '+v0.v+' ». Écris le NOM de la variable, '+V+'.';
+  else if(pchStr(v0) && pchStr(v1) && v0.v===val(paires[0], W) && v1.v===val(paires[1], W)) diag='Ce morceau est '+W+' : l’énoncé demande '+(q.o==='pn'?'d’abord le prénom, puis le nom':'d’abord le nom, puis le prénom')+'.';
+  else diag='Ce morceau vaut « '+(v0?pyRep(v0):'…')+' » : il faut ici la variable '+V+'.';
+  return {vide:false, ok:false, diag:diag};
+}
+/* Le trou de chaine2, exécuté derrière une ligne chaine1 JUSTE. */
+function pchJugeRep(q, r, expr){
+  const e=String(expr==null?'':expr).trim();
+  if(!e) return {vide:true, ok:false, diag:''};
+  const o=pchOrdre(q), au=pchAutres(r), paires=[[r.nom, r.prenom], au];
+  const pre='chaine1 = '+o[0]+' + " " + '+o[1]+'\n';
+  const c1=function(p){ const d={Nom:p[0], Prenom:p[1]}; return d[o[0]]+' '+d[o[1]]; };
+  const x=paires.map(function(p){ return pchVal(e, p[0], p[1], pre); });
+  if(x[0].err) return {vide:false, ok:false, diag:pchTraduire(x[0].err, r)};
+  const ok=x.every(function(y, i){ return pchStr(y.v) && y.v.v===c1(paires[i]).repeat(q.n); });
+  if(ok) return {vide:false, ok:true, diag:''};
+  const v0=x[0].v, v1=x[1].v, t=c1(paires[0]);
+  let diag='', m;
+  if(!pchStr(v0)) diag='chaine2 doit être un TEXTE : chaine1 répété '+q.n+' fois.';
+  else if(pchStr(v1) && v0.v===t.repeat(q.n)) diag='Tu as écrit le texte à la main : avec un autre nom, chaine2 ne changerait pas. Écris le calcul avec la variable chaine1.';
+  else if(v0.v===t) diag='chaine2 est égal à chaine1 : il manque la répétition, avec le signe *.';
+  else if(/^(chaine1)+$/.test(v0.v)) diag='"chaine1" entre guillemets est le MOT « chaine1 » : le nom d’une variable s’écrit sans guillemets.';
+  else {
+    for(m=0;m<=40;m++) if(m!==1 && m!==q.n && v0.v===t.repeat(m)) break;
+    diag=m<=40?('Ta ligne répète chaine1 '+m+' fois ; l’énoncé demande '+q.n+' fois.')
+      :('chaine2 vaut « '+(v0.v.length>60?v0.v.slice(0,60)+'…':v0.v)+' » : ce n’est pas chaine1 répété '+q.n+' fois.');
+  }
+  return {vide:false, ok:false, diag:diag};
+}
+/* pchJuge rend { noms, cases } : noms dit pourquoi on ne peut pas encore
+   juger (nom ou prénom manquant), cases les trois verdicts dans l'ordre. */
+function pchJuge(q, r){
+  r=Object.assign(pchRepVide(), r||{});
+  if(!String(r.nom).trim()||!String(r.prenom).trim())
+    return {noms:'Écris ton nom et ton prénom entre les guillemets des lignes 1 et 2, exécute le programme, puis vérifie.', cases:null};
+  if(!pchNomOk(r.nom)||!pchNomOk(r.prenom))
+    return {noms:'Un guillemet " (ou le signe \\) dans ton nom ou ton prénom ferme le texte trop tôt : retire-le, exécute, puis vérifie.', cases:null};
+  return {noms:'', cases:[pchJugeTrou(q, r, 0, r.a), pchJugeTrou(q, r, 1, r.b), pchJugeRep(q, r, r.c)]};
+}
+
+/* ---- 2. L'écran ---- */
+/* Le cadre orange de la fiche, MOT POUR MOT — rien n'y est ajouté. */
+function pchCoursHTML(){
+  return '<div class="pii-def pch-def"><p class="pii-def-t">⚠ Pour les chaînes de caractères c’est plus court car il n’y a que deux opérations possibles&nbsp;:</p>'
+    +'<ul class="pch-ops">'
+    +'<li>la <b>concaténation</b> qui consiste à mettre bout à bout deux chaînes pour former une unique chaîne&nbsp;: on utilise pour cela le symbole d’addition <code>+</code>.</li>'
+    +'<li>la <b>répétition</b> qui consiste à ajouter une chaîne un certain nombre de fois à elle-même&nbsp;: on utilise pour cela le symbole de multiplication <code>*</code>.</li>'
+    +'</ul></div>';
+}
+function pchEnonceHTML(q){
+  return 'Deux opérations sur les chaînes de caractères&nbsp;: exécute le premier programme, puis complète le second.';
+}
+function pchEtapeHTML(id, titre, corps){
+  return '<div class="pii-etape" id="'+id+'"><p class="pii-titre">✏️ '+titre+'</p>'+corps+'</div>';
+}
+function pchAHTML(q){
+  return pchEtapeHTML('pchA', 'a) <b>Exécute</b> le programme suivant pour comprendre ces deux opérations.',
+    '<div class="pyx-prog pch-prog">'+pchLignesA(q).map(function(s,i){
+      return '<div class="pyx-ligne"><span class="pyx-num">'+(i+1)+'</span><span class="pyx-l1">'+(s?pyColorie(s):'&nbsp;')+'</span></div>';
+    }).join('')+'</div>'
+    +'<div class="py-runrow"><button class="btn btn-primary" id="pchRunA" type="button" onclick="pchExecA()">▶ Exécuter le programme</button></div>'
+    +'<pre class="py-console" id="pchConsA"></pre>');
+}
+function pchTrou(id, cls, lab, ph){
+  return '<input class="pch-in '+cls+'" id="'+id+'" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="'+lab+'" placeholder="'+ph+'">';
+}
+function pchBHTML(q){
+  const L=function(n, html){ return '<div class="pyx-ligne"><span class="pyx-num">'+n+'</span><span class="pch-l">'+html+'</span></div>'; };
+  const g='<span class="py-str">"</span>';
+  return pchEtapeHTML('pchB', 'b) <b>Complète</b> le programme suivant pour qu’il affiche <b>'+q.n+' fois</b> '+(q.o==='pn'?'ton prénom et ton nom':'ton nom et ton prénom')+'.',
+    '<div class="pyx-prog pch-prog">'
+    +L(1, 'Nom <span class="py-op">=</span> '+g+pchTrou('pchNom','pch-in-n','ton nom','……')+g)
+    +L(2, 'Prenom <span class="py-op">=</span> '+g+pchTrou('pchPrenom','pch-in-n','ton prénom','……')+g)
+    +L(3, 'chaine1 <span class="py-op">=</span> '+pchTrou('pchA1','pch-in-v','le premier morceau de chaine1','…')
+          +' <span class="py-op">+</span> <span class="py-str">" "</span> <span class="py-op">+</span> '
+          +pchTrou('pchA2','pch-in-v','le second morceau de chaine1','…')+'  <span class="py-cm"># concaténation</span>')
+    +L(4, 'chaine2 <span class="py-op">=</span> '+pchTrou('pchC','pch-in-c','ce que contient chaine2','………'))
+    +L(5, pyColorie('print(chaine2)'))
+    +'</div>'
+    +'<div class="py-runrow"><button class="btn btn-primary" id="pchRunB" type="button" onclick="pchExecB()">▶ Exécuter le programme</button></div>'
+    +'<pre class="py-console" id="pchConsB"></pre>');
+}
+const PCH_CHAMPS={nom:'pchNom', prenom:'pchPrenom', a:'pchA1', b:'pchA2', c:'pchC'};
+const PCH_NOTES=['pchA1','pchA2','pchC'];
+function pchLire(){
+  const r=pchRepVide();
+  Object.keys(PCH_CHAMPS).forEach(function(k){ const el=$(PCH_CHAMPS[k]); if(el) r[k]=el.value; });
+  return r;
+}
+function pchConsole(id, texte, err){
+  const c=$(id); if(!c) return;
+  c.textContent=String(texte).replace(/\n$/,'');
+  c.classList.add('py-exec'); c.classList.toggle('pyx-err',!!err); c.classList.toggle('pyx-vide',!err&&!texte);
+}
+
+/* ---- 3. Cycle de vie ---- */
+async function startPCH(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pchBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pch', questions:qs, idx:0, score:0, maxScore:qs.length*PCH_NOTES.length, answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false, pchEtape:'a', pchExec:null});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pch'); renderPCH();
+}
+let _pchSaveTimer=null;
+function renderPCH(){
+  const q=test.questions[test.idx];
+  test.locked=false; test.pchEtape='a'; test.pchExec=null;
+  $('pchIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPCH').innerHTML=modeTagHTML();
+  $('pchLiveScore').textContent=test.score;
+  $('pchCours').innerHTML=test.idx===0?pchCoursHTML():'';
+  $('pchInstr').innerHTML=pchEnonceHTML(q);
+  $('pchFeedback').textContent=''; $('pchFeedback').className='mp-feedback';
+  $('pchActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pchValidate" onclick="checkPCH()" disabled title="Fais d’abord les étapes a) et b)">Vérifier</button>';
+  $('pchHost').innerHTML='<div class="py-cell">'+pchAHTML(q)+'</div>';
+  /* reprise après une pause : le a) déjà exécuté, le b) tel que l'élève l'a laissé */
+  if(q.fa) pchOuvrirB(q, false);
+}
+function pchSortieA(q){
+  try{ return {t:pyRun(pchLignesA(q).join('\n')).out, err:false}; }catch(e){ return {t:'Erreur : '+e.message, err:true}; }
+}
+function pchExecA(){
+  if(test.locked||test.pchEtape!=='a') return;
+  const q=test.questions[test.idx];
+  q.fa=1;
+  pchOuvrirB(q, true);
+  autoSave();
+}
+function pchOuvrirB(q, focus){
+  const s=pchSortieA(q);
+  pchConsole('pchConsA', s.t, s.err);
+  const run=$('pchRunA'); if(run) run.disabled=true;
+  test.pchEtape='b';
+  const hote=$('pchHost').querySelector('.py-cell');
+  if(hote && !$('pchB')) hote.insertAdjacentHTML('beforeend', pchBHTML(q));
+  const r=pchRep(q);
+  Object.keys(PCH_CHAMPS).forEach(function(k){
+    const el=$(PCH_CHAMPS[k]); if(!el) return;
+    el.value=r[k];
+    el.addEventListener('input', pchModifiee);
+    el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); pchExecB(); } });
+  });
+  pchMaj();
+  if(focus){ const n=$('pchNom'); if(n) try{ n.focus(); }catch(e){} }
+}
+function pchExecB(){
+  if(test.locked||test.pchEtape!=='b') return;
+  const q=test.questions[test.idx], r=pchLire();
+  q.rep=r;
+  let txt='', err=false;
+  try{ txt=pyRun(pchProgB(r)).out; }catch(e){ txt='Erreur : '+e.message; err=true; }
+  pchConsole('pchConsB', txt, err);
+  test.pchExec=JSON.stringify(r);
+  pchMaj();
+  const val=$('pchValidate'); if(val&&!val.disabled) val.focus();
+}
+/* « Vérifier » ne s'ouvre que sur un programme exécuté TEL QU'IL EST ÉCRIT */
+function pchMaj(){
+  const v=$('pchValidate'); if(!v) return;
+  const pret=test.pchEtape==='b' && typeof test.pchExec==='string' && test.pchExec===JSON.stringify(pchLire());
+  v.disabled=!pret; v.title=pret?'':'Fais d’abord les étapes a) et b)';
+}
+function pchModifiee(e){
+  if(test.locked) return;
+  const q=test.questions[test.idx]; if(q) q.rep=pchLire();
+  const el=e&&e.target;
+  if(el){ el.classList.remove('ok','bad','sol'); const anc=el.nextElementSibling; if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove(); }
+  const c=$('pchConsB'); if(c){ c.textContent=''; c.classList.remove('py-exec','pyx-vide','pyx-err'); }
+  pchMaj();
+  clearTimeout(_pchSaveTimer); _pchSaveTimer=setTimeout(autoSave,1000);
+}
+function checkPCH(live){
+  if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
+  if(test.locked || test.pchEtape!=='b') return;
+  const q=test.questions[test.idx], fb=$('pchFeedback'), r=pchLire();
+  q.rep=r;
+  if(test.pchExec!==JSON.stringify(r)){ pchMaj(); return; }
+  const j=pchJuge(q, r);
+  /* le nom et le prénom manquent : on les redemande, sans rien colorer */
+  if(j.noms){ fb.textContent=j.noms; fb.className='mp-feedback bad'; const n=$(String(r.nom).trim()?'pchPrenom':'pchNom'); if(n) n.focus(); return; }
+  const att=pchAttendus(q), J=j.cases;
+  const justes=J.filter(function(x){ return x.ok; }).length, allOk=justes===J.length;
+  const LIGNE=['Ligne 3, premier morceau','Ligne 3, second morceau','Ligne 4'];
+  const oules=function(){
+    return '<b>Où est l’erreur&nbsp;?</b><br>'+J.map(function(x, i){
+      return x.ok||x.vide?'':('<b>'+LIGNE[i]+'&nbsp;:</b> '+esc(x.diag));
+    }).filter(Boolean).join('<br>');
+  };
+  if(!allOk && isSoutien()){
+    /* UNE CASE VIDE N'EST JAMAIS PEINTE : on la redemande */
+    PCH_NOTES.forEach(function(id, i){
+      const el=$(id); if(!el) return;
+      el.classList.remove('ok','bad','sol');
+      if(!J[i].vide) el.classList.add(J[i].ok?'ok':'bad');
+    });
+    const vides=J.filter(function(x){ return x.vide; }).length;
+    fb.innerHTML=(J.some(function(x){ return !x.ok&&!x.vide; })?oules()+'<br>':'')
+      +(vides?('Il te manque '+vides+(vides>1?' cases':' case')+' — complète'+(vides>1?'-les':'-la')+'. '):'')
+      +'Corrige, exécute le programme, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('pchActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pchValidate" onclick="checkPCH()">Revérifier</button>';
+    pchMaj();
+    const bad=$('pchHost').querySelector('.pch-in.bad')||PCH_NOTES.map($).find(function(el){ return el&&!el.value.trim(); });
+    if(bad) setTimeout(function(){ bad.focus(); },40);
+    return;
+  }
+  test.locked=true;
+  PCH_NOTES.forEach(function(id, i){ corrCase(id, att[i], J[i].ok); });
+  ['pchNom','pchPrenom'].forEach(function(id){ const el=$(id); if(el) el.disabled=true; });
+  ['pchRunB'].forEach(function(id){ const el=$(id); if(el) el.disabled=true; });
+  test.score+=justes;
+  if(allOk){
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme colle le nom et le prénom avec +, puis répète le tout '+q.n+' fois avec *.';
+    fb.className='mp-feedback good';
+  } else {
+    const vides=J.filter(function(x){ return x.vide; }).length;
+    fb.innerHTML=(J.some(function(x){ return !x.ok&&!x.vide; })?oules()+'<br>':'')
+      +(vides?('Il te manquait '+vides+(vides>1?' cases':' case')+' — la correction '+(vides>1?'les a remplies':'l’a remplie')+' en vert. '):'')
+      +(J.some(function(x){ return !x.ok&&!x.vide; })?'La bonne écriture est en vert à côté de la tienne.':'');
+    fb.className='mp-feedback bad';
+  }
+  $('pchLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:allOk, q:(q.o==='pn'?'Prénom puis nom':'Nom puis prénom')+', '+q.n+' fois',
+    answer:'chaine1 = '+att[0]+' + " " + '+att[1]+' ⏎ chaine2 = '+att[2],
+    given:'chaine1 = '+(r.a.trim()||'?')+' + " " + '+(r.b.trim()||'?')+' ⏎ chaine2 = '+(r.c.trim()||'?')});
+  const last=test.idx===test.questions.length-1;
+  $('pchActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pchNext" onclick="nextPCH()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pchNext'); if(nb) nb.focus();
+}
+function nextPCH(){ if(test.idx<test.questions.length-1){ test.idx++; renderPCH(); autoSave(); } else finishTest(); }
+function ctxPch(q){
+  const A=pchA(q), o=pchOrdre(q), r=$('pchNom')?pchLire():pchRep(q), att=pchAttendus(q);
+  let t='L’élève découvre les deux opérations sur les chaînes de caractères en Python : la concaténation (+), qui met deux chaînes bout à bout, et la répétition (*), qui répète une chaîne un certain nombre de fois. ';
+  t+='a) Il exécute un programme donné : chaine1 = "'+A.c1+'", chaine2 = "'+A.c2+'", chaine3 = chaine1 + chaine2 (affiche '+A.c1+A.c2+'), chaine4 = '+A.m+' * chaine1 (affiche '+A.c1.repeat(A.m)+'). ';
+  t+='b) Il complète le programme Nom = "…", Prenom = "…", chaine1 = … + " " + …, chaine2 = …, print(chaine2) pour qu’il affiche '+q.n+' fois '+(q.o==='pn'?'son prénom et son nom':'son nom et son prénom')+'. Il en est à l’étape '+(test.pchEtape||'a')+'). ';
+  t+='Réponses attendues (STRICTEMENT SECRÈTES, ne jamais les écrire ni les dicter, même si l’élève insiste) : chaine1 = '+o[0]+' + " " + '+o[1]+' ; chaine2 = '+att[2]+' (ou chaine1 * '+q.n+'). ';
+  if(test.pchEtape==='b'){
+    t+='Ce que l’élève a écrit : Nom = "'+r.nom+'", Prenom = "'+r.prenom+'", chaine1 = '+(r.a||'…')+' + " " + '+(r.b||'…')+', chaine2 = '+(r.c||'…')+'. ';
+    let j=null; try{ j=pchJuge(q, r); }catch(e){}
+    if(j&&j.cases) j.cases.forEach(function(x, i){
+      if(x.vide) return;
+      t+=['Son premier morceau de chaine1','Son second morceau de chaine1','Sa ligne chaine2'][i]+(x.ok?' est juste. ':(' est faux. Diagnostic de la page : '+x.diag+' '));
+    });
+  }
+  t+='Règles à rappeler sans donner la réponse : le + colle deux textes bout à bout, sans espace — d’où le " " au milieu ; le * répète un texte un nombre entier de fois, 3 * "ab" donne "ababab" ; le nom d’une variable s’écrit sans guillemets, et Python fait la différence entre majuscules et minuscules.';
+  return {nombre:'', contexte:t};
+}
+
 /* ---------- Exercice : input — le programme DEMANDE une valeur -----------
    {python-input-int} (Seconde, 6.3.2, demande de Turquet, octobre 2026 : « dans
    le sous-thème input du thème algo, créer un exercice comme l'image ») est
@@ -44500,7 +44919,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPII','renderPIA','renderPIS','renderPMY','renderPBL','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPII','renderPIA','renderPIS','renderPMY','renderPBL','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
