@@ -30301,8 +30301,7 @@ function pisEnonceHTML(q){
 }
 /* Le cours, en un cadre : float(input(…)), et le point des décimaux. */
 function pisCoursHTML(){
-  return '<div class="pyp-regle pyi-cours"><b><code>float(input("…"))</code> demande un nombre décimal</b> : input rend toujours un TEXTE, float(…) en fait un nombre à virgule — et avec des nombres, on peut CALCULER. En Python, la virgule s’écrit avec un POINT&nbsp;: on répond <code>2.5</code>, pas <code>2,5</code>.'
-    +'<span class="pyp-ex">Sans float, <code>"2.5" + "1.25"</code> COLLE les deux textes et donne <code>2.51.25</code>&nbsp;; avec float, <code>2.5 + 1.25</code> donne <code>3.75</code>.</span></div>';
+  return '<div class="pyp-regle pyi-cours"><b><code>float(input("…"))</code> demande un nombre décimal</b> : input rend toujours un TEXTE, float(…) en fait un nombre à virgule — et avec des nombres, on peut CALCULER. En Python, la virgule s’écrit avec un POINT&nbsp;: on répond <code>2.5</code>, pas <code>2,5</code>.</div>';
 }
 /* Les trois coups de pouce du carnet. */
 function pisPoucesHTML(q){
