@@ -11714,6 +11714,11 @@ async function parcours(page, N){
         const t = (typeof THEMES !== 'undefined') && THEMES.find(x => /python/i.test(x.nom || ''));
         return t ? t.ids.slice() : [];
       });
+      /* les exceptions DÉCLARÉES (tests/profils.js, pythonAvant.sans), raison
+         comprise : nommées à l'écran, jamais tues */
+      const avantSans = (P.pythonAvant && P.pythonAvant.sans) || {};
+      const avantSansMorts = Object.keys(avantSans).filter(id => idsPython.indexOf(id) < 0);
+      const idsAvant = idsPython.filter(id => !avantSans[id]);
       const sansAvant = []; let nAvant = 0;
       const sansClavierLim = []; let nLimCases = 0;
       const avecTables = new Set(), sansTables = new Set();
@@ -11738,7 +11743,7 @@ async function parcours(page, N){
           }, mode);
           if(!pris){ sansMode.push(id + '/' + mode); continue; }
           await s.page.waitForTimeout(650);
-          if(idsPython.indexOf(id) >= 0){
+          if(idsAvant.indexOf(id) >= 0){
             const av = await s.page.evaluate(() => {
               const on = document.querySelector('section.screen.on');
               if(!on) return 'aucun écran ouvert';
@@ -12207,7 +12212,11 @@ async function parcours(page, N){
           sansAvant.length === 0, sansAvant.length + ' cas — ' + sansAvant.join(' | '));
         /* le bord opposé : un contrôle qui n'a rien mesuré ne mesure rien */
         verifier('les définitions avant l\'énoncé : chaque exercice Python a été mesuré',
-          nAvant === idsPython.length * 2, nAvant + ' mesure(s) pour ' + idsPython.length + ' exercice(s) dans deux modes');
+          nAvant === idsAvant.length * 2, nAvant + ' mesure(s) pour ' + idsAvant.length + ' exercice(s) dans deux modes');
+        /* une exception qui ne désigne plus aucun exercice du thème est morte */
+        verifier('chaque exercice Python déclaré sans définitions d\'avance existe encore',
+          avantSansMorts.length === 0, 'identifiant(s) hors du thème : ' + avantSansMorts.join(', '));
+        Object.keys(avantSans).forEach(id => console.log('   · ' + id + ' : sans définitions avant l\'énoncé — ' + avantSans[id]));
       } else {
         ignorer('les définitions d\'un exercice Python s\'écrivent avant son énoncé',
           'ce niveau n\'a pas de thème Algorithmique et Python');
