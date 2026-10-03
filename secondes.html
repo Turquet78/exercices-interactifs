@@ -5213,7 +5213,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=272;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=273;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -29674,10 +29674,11 @@ function piaEnonceHTML(q){
     +'<li>puis qui affiche&nbsp;: <code>"'+esc(S.t1)+' "</code>, '+esc(S.v2)+(S.t2?', <code>" '+esc(S.t2)+'"</code>':'')+'.</li>'
     +'</ul>';
 }
-/* Le cours, en un cadre : int(input(…)), et ce qu'il permet — calculer. */
+/* Le cours, en un cadre : int(input(…)) et un exemple — le texte de la fiche
+   (demande de Turquet, octobre 2026 : « enlever le texte comme dans le pdf »). */
 function piaCoursHTML(){
-  return '<div class="pyp-regle pyi-cours"><b><code>int(input("…"))</code> demande un nombre entier</b> : input rend toujours un TEXTE, int(…) en fait un nombre — et avec un nombre, on peut CALCULER.'
-    +'<span class="pyp-ex"><code>n = int(input("Un nombre ? "))</code> puis <code>double = n * 2</code> — si l’on répond <code>5</code>, la variable <code>double</code> contient <code>10</code>.</span></div>';
+  return '<div class="pyp-regle pyi-cours"><b><code>int(input("…"))</code> demande un nombre entier</b>&nbsp;:'
+    +'<span class="pyp-ex">Exemple&nbsp;:</span><span class="pyp-ex"><code>n = int(input("Un nombre ? "))</code>&ensp;Pose une question et met un nombre entier dans n.</span></div>';
 }
 /* Les trois coups de pouce du carnet. */
 function piaPoucesHTML(q){
