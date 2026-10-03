@@ -23511,7 +23511,7 @@ function pythonChaineLen(w, P){
     if(!sb.classList.contains("bad")||!cor||!cor.classList.contains("mf-cor")||cor.textContent!==pclLib(PCL_OPT_B,"nombre")) vus.push("le b) faux : "+sb.className);
     pclVersC();
     checkPCL();
-    if(test.locked||document.querySelector("#pclHost select.bad")) vus.push("le c) vide est jugé");
+    if(test.locked||document.querySelector("#pclEtapeC select.bad, #pclEtapeC select.sol")) vus.push("le c) vide est jugé");
     const s0=document.getElementById("pcl-c0"), s1=document.getElementById("pcl-c1");
     s0.value="c2"; checkPCL();
     if(!s0.classList.contains("bad")) vus.push("le c) faux ne rougit pas");
