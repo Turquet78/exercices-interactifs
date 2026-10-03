@@ -1108,6 +1108,7 @@ module.exports = {
        définition à donner d'avance : l'écrire serait donner la réponse. */
     pythonAvant: { sans: {
       'python-chaine-len': 'l\u2019élève découvre en exécutant ce que représentent len(chaine) et chaine[i] : leur définition est la réponse attendue',
+      'python-inverser-lettres': 'comme le 6.4.2 : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
       'python-chaine-tirets': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
     } },
     pythonAffichage: { exercice: 'python-affichage', nb: 4 },
