@@ -3381,7 +3381,7 @@ du 6.3.4, du 6.3.6 et du 6.3.7 n'ont que leur ligne à recopier, et restent
 tels quels.
 
 **Le prix des pommes et des tomates — l'exercice 10 du carnet.**
-{python-input-prix} (Seconde, 6.3.8, APP_VERSION 280, demande de Turquet,
+{python-input-prix} (Seconde, 6.3.8, APP_VERSION 282 — 280 et 281 pris sur `main` pendant les bancs —, demande de Turquet,
 octobre 2026 : « en seconde avec les images créer un exercice dans le sous
 thème input qui respecte toutes les nouvelles consignes que j'ai données pour
 le sous-thème input ; ne pas rajouter de phrase dans les définitions ou
