@@ -23789,9 +23789,9 @@ function pythonChaineTirets(w, P){
   const nom = '{python-chaine-tirets} : ajouter un caractère entre chaque caractère d’une chaîne';
   if(!P.pythonChaineTirets){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des chaînes'); return; }
   const ID = P.pythonChaineTirets.exercice, NB = P.pythonChaineTirets.nb, NUM = P.pythonChaineTirets.numero;
-  const present = evaluer(w, "typeof startPCH==='function' && typeof pchDiag==='function' && typeof pchBuildQuestions==='function' && typeof pyRun==='function'");
+  const present = evaluer(w, "typeof startPTT==='function' && typeof pttDiag==='function' && typeof pttBuildQuestions==='function' && typeof pyRun==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPCH / pchDiag / pchBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPTT / pttDiag / pttBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   /* ---- 1. la place au menu ---- */
@@ -23811,20 +23811,20 @@ function pythonChaineTirets(w, P){
   verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (gaston, « - »), puis des mots distincts ; chaque cellule s’ouvre sur chaine = "…" ; le modèle de chacun passe au juge sans réserve, et chaque situation sort (300 séances)', `(function(){
     const vus=[], vues={}, Q=String.fromCharCode(34);
     for(let s=0;s<300&&vus.length<4;s++){
-      const qs=pchBuildQuestions();
+      const qs=pttBuildQuestions();
       if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
-      const S0=pchSit(qs[0]);
+      const S0=pttSit(qs[0]);
       if(S0.mot!=="gaston"||S0.sep!=="-"){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
       const ss=qs.map(function(q){ return q.s; });
       if(new Set(ss).size!==ss.length){ vus.push("deux fois le même mot : "+ss.join(",")); break; }
-      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="chaine = "+Q+pchSit(q).mot+Q) vus.push("la cellule s’ouvre sur "+JSON.stringify(q.prog)); });
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="chaine = "+Q+pttSit(q).mot+Q) vus.push("la cellule s’ouvre sur "+JSON.stringify(q.prog)); });
     }
-    PCH_SITUATIONS.forEach(function(S, i){
-      const d=pchDiag(pchModele({s:i}),{s:i});
+    PTT_SITUATIONS.forEach(function(S, i){
+      const d=pttDiag(pttModele({s:i}),{s:i});
       if(!d.ok||d.ecart) vus.push("le modèle de la situation "+i+" : "+(d.dits||[]).join(" ")+(d.ecart||""));
-      if(PCH_ESSAIS.indexOf(S.mot)>=0) vus.push("un mot d’essai du juge est celui de l’énoncé "+i);
+      if(PTT_ESSAIS.indexOf(S.mot)>=0) vus.push("un mot d’essai du juge est celui de l’énoncé "+i);
     });
-    if(Object.keys(vues).length!==PCH_SITUATIONS.length) vus.push("des situations ne sortent jamais : "+Object.keys(vues).join(","));
+    if(Object.keys(vues).length!==PTT_SITUATIONS.length) vus.push("des situations ne sortent jamais : "+Object.keys(vues).join(","));
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -23835,14 +23835,14 @@ function pythonChaineTirets(w, P){
     const c0="chaine = "+Q+"gaston"+Q, vide="chaine_bis = "+Q+Q, boucle="for k in range(len(chaine)):", aff="print(chaine_bis)";
     const pouce="    chaine_bis = chaine_bis + chaine[k] + "+Q+"-"+Q;
     const fiche=L(c0, vide, boucle, pouce, aff);
-    let d=pchDiag(fiche,q);
+    let d=pttDiag(fiche,q);
     if(!d.ok||!/après la dernière lettre/.test(d.ecart||"")) vus.push("le coup de pouce de la fiche : "+JSON.stringify(d));
-    const justes=[pchModele(q),
+    const justes=[pttModele(q),
       L(c0, "chaine_bis = chaine[0]", "for k in range(1, len(chaine)):", "    chaine_bis = chaine_bis + "+Q+"-"+Q+" + chaine[k]", aff),
       L(c0, vide, "for c in chaine:", "    chaine_bis += c + "+Q+"-"+Q, "print(chaine_bis[:-1])"),
       L(c0, "for k in range(len(chaine)):", "    print(chaine[k], end="+Q+"-"+Q+")", "print()"),
       L("# le mot", c0, "", vide, boucle, "    if k > 0:", "        chaine_bis += "+Q+"-"+Q, "    chaine_bis = chaine_bis + chaine[k]", aff)];
-    justes.forEach(function(p){ const r=pchDiag(p,q); if(!r.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+r.dits.join(" ")); });
+    justes.forEach(function(p){ const r=pttDiag(p,q); if(!r.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+r.dits.join(" ")); });
     const cas=[
       [L(c0, "print("+Q+"g-a-s-t-o-n"+Q+")"), /toujours/],
       [L(c0, vide, boucle, pouce, "    print(chaine_bis)"), /DANS la boucle/],
@@ -23862,29 +23862,29 @@ function pythonChaineTirets(w, P){
       [L(c0, vide, boucle, "    chaine_bis = chaine_bis + chaine[k] + “-”", aff), /guillemets/]
     ];
     cas.forEach(function(c){
-      const r=pchDiag(c[0],q);
+      const r=pttDiag(c[0],q);
       if(r.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
       else if(!c[1].test(r.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+r.dits.join(" | "));
     });
-    [c0, "", L("# rien", c0, "  ")].forEach(function(p){ const r=pchDiag(p,q); if(!r.vide) vus.push("pas vide : "+JSON.stringify(p)); });
+    [c0, "", L("# rien", c0, "  ")].forEach(function(p){ const r=pttDiag(p,q); if(!r.vide) vus.push("pas vide : "+JSON.stringify(p)); });
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
   /* ---- 4. l'écran, la cellule, et la copie juste TAPÉE ---- */
   verifierEval(w, 'l’écran : l’énoncé du haut en une phrase, l’énoncé de la question EN GRAS dans son cadre (deux puces), trois coups de pouce repliés DANS le cadre, aucun encadré de cours, la cellule ouverte sur chaine = "gaston", Tab et Entrée qui font le retrait, « Exécuter » qui affiche le mot ; la copie juste vaut 1', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPCH();
+    startPTT();
     const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
-    const haut=document.getElementById("pchInstr");
+    const haut=document.getElementById("pttInstr");
     if(!haut||!haut.classList.contains("mp-instr")||haut.querySelector("li")) vus.push("l’énoncé du haut : "+(haut&&haut.innerHTML));
-    const cadre=document.getElementById("pchEtape"), titre=cadre&&cadre.querySelector(".pyn-titre");
+    const cadre=document.getElementById("pttEtape"), titre=cadre&&cadre.querySelector(".pyn-titre");
     if(!titre||titre.querySelectorAll("li").length!==2||titre.textContent.indexOf("g-a-s-t-o-n")<0) vus.push("l’énoncé de la question : "+(titre&&titre.textContent));
     const pouces=cadre?cadre.querySelectorAll("details.pyd-pouce"):[];
     if(pouces.length!==3) vus.push(pouces.length+" coup(s) de pouce dans le cadre");
     pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); });
-    if(document.querySelector("#pchHost .pyp-regle,#pchHost .pyi-cours,#pchHost .pii-def")) vus.push("un encadré de cours a été ajouté");
-    const ta=document.getElementById("pch-prog"), cons=document.getElementById("pchConsole");
+    if(document.querySelector("#pttHost .pyp-regle,#pttHost .pyi-cours,#pttHost .pii-def")) vus.push("un encadré de cours a été ajouté");
+    const ta=document.getElementById("ptt-prog"), cons=document.getElementById("pttConsole");
     if(!cadre||!cadre.contains(ta)||!cadre.contains(cons)) vus.push("la cellule ou la console hors du cadre");
     if(ta.value!=="chaine = "+Q+"gaston"+Q) vus.push("la cellule s’ouvre sur "+JSON.stringify(ta.value));
     if(cons.textContent!=="") vus.push("la console n’est pas vide au départ");
@@ -23897,15 +23897,15 @@ function pythonChaineTirets(w, P){
     ta.value=["chaine = "+Q+"gaston"+Q, "chaine_bis = chaine[0]", "for k in range(1, len(chaine)):", "    chaine_bis = chaine_bis + "+Q+"-"+Q+" + chaine[k]", "print(chaine_bis)"].join(NL);
     ta.dispatchEvent(new Event("input",{bubbles:true}));
     if(test.questions[0].prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
-    pchExecuter();
+    pttExecuter();
     if(cons.textContent!=="g-a-s-t-o-n") vus.push("la console : "+JSON.stringify(cons.textContent));
     if(test.locked) vus.push("exécuter verrouille la question");
-    checkPCH();
+    checkPTT();
     if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
     const ans=test.answers[test.answers.length-1];
     if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
-    nextPCH();
-    if(test.idx!==1||document.getElementById("pch-prog").value!==pchDepart(test.questions[1])) vus.push("la question suivante ne s’ouvre pas sur sa première ligne");
+    nextPTT();
+    if(test.idx!==1||document.getElementById("ptt-prog").value!==pttDepart(test.questions[1])) vus.push("la question suivante ne s’ouvre pas sur sa première ligne");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -23913,28 +23913,28 @@ function pythonChaineTirets(w, P){
   verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie restée sur sa première ligne ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
     const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPCH();
-    let ta=document.getElementById("pch-prog");
+    startPTT();
+    let ta=document.getElementById("ptt-prog");
     ta.value="chaine = "+Q+"gaston"+Q+NL+"print("+Q+"g-a-s-t-o-n"+Q+")";
     ta.dispatchEvent(new Event("input",{bubbles:true}));
-    checkPCH();
+    checkPTT();
     if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
-    const mod=document.querySelector("#pchModele .sol");
-    if(!mod||mod.textContent!==pchModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
-    nextPCH(); ta=document.getElementById("pch-prog");
-    checkPCH();
+    const mod=document.querySelector("#pttModele .sol");
+    if(!mod||mod.textContent!==pttModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPTT(); ta=document.getElementById("ptt-prog");
+    checkPTT();
     if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
-    if(!ta.classList.contains("sol")||ta.value!==pchModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
-    currentMode="soutien"; startPCH(); ta=document.getElementById("pch-prog");
-    checkPCH();
+    if(!ta.classList.contains("sol")||ta.value!==pttModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPTT(); ta=document.getElementById("ptt-prog");
+    checkPTT();
     if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
     ta.value="chaine = "+Q+"gaston"+Q+NL+"print("+Q+"g-a-s-t-o-n"+Q+")";
     ta.dispatchEvent(new Event("input",{bubbles:true}));
-    checkPCH();
-    const fb=document.getElementById("pchFeedback").textContent;
+    checkPTT();
+    const fb=document.getElementById("pttFeedback").textContent;
     if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
     if(!/même quand on change/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
-    if(document.querySelector("#pchModele .sol")||fb.indexOf("len(chaine) - 1:")>=0) vus.push("soutien : le modèle est révélé");
+    if(document.querySelector("#pttModele .sol")||fb.indexOf("len(chaine) - 1:")>=0) vus.push("soutien : le modèle est révélé");
     if(!/STRICTEMENT SECRÈTE/.test(ctxPch(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
     currentMode="train";
     return vus.slice(0,4).join(" | ");
@@ -23961,7 +23961,7 @@ function pythonChaineTirets(w, P){
     'mot = "bonjour"\nn = 0\nfor c in mot:\n    if c == "o":\n        n += 1\nprint(n, len(mot) - n, mot[len(mot) - 1])'
   ];
   /* et les modèles de chaque situation, tels que la correction les écrit */
-  const modeles = evaluer(w, 'JSON.stringify(PCH_SITUATIONS.map(function(S, i){ return pchModele({s:i}); }))');
+  const modeles = evaluer(w, 'JSON.stringify(PTT_SITUATIONS.map(function(S, i){ return pttModele({s:i}); }))');
   if(!modeles.ok){ verifier(nomPy, false, 'les modèles ne se lisent pas : ' + modeles.erreur); return; }
   JSON.parse(modeles.valeur).forEach(p => progs.push(p));
   const sorties = evaluer(w, 'JSON.stringify(' + JSON.stringify(progs) + '.map(function(p){ try{ return pyRun(p).out; }catch(e){ return "ERREUR " + e.message; } }))');

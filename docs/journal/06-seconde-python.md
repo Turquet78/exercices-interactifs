@@ -3399,12 +3399,12 @@ sous-thème 6.4 « Bonus » est créé, ajouté en dernier : rien n'est renumér
 **LES CONSIGNES DU SOUS-THÈME INPUT, TENUES D'EMBLÉE** : l'énoncé du haut en
 une phrase ; l'énoncé de la question dans un cadre `.pyn-etape`, EN GRAS, qui
 enveloppe les coups de pouce, la cellule, « Exécuter » et la console ; aucune
-consigne à côté du bouton ; une console vide reste un cadre vide (`#pchConsole`
+consigne à côté du bouton ; une console vide reste un cadre vide (`#pttConsole`
 rejoint la règle `content:none`) ; des coups de pouce vert clair
 (`pyPoucesHTML`) qui ne portent QUE le texte de la fiche, ses coquilles
 corrigées (« caractère », « chaîne ») et le séparateur de la question. **La
 fiche n'a pas de définition : l'écran n'a donc PAS d'encadré de cours**, et le
-rappel (`RAP_PCH`, obligatoire) ne redit que les trois coups de pouce, sans
+rappel (`RAP_PTT`, obligatoire) ne redit que les trois coups de pouce, sans
 phrase ajoutée.
 
 **L'INTERPRÉTEUR A APPRIS LES BOUCLES.** `pyRun` lisait une ligne à la fois :
@@ -3429,7 +3429,7 @@ Quatre écarts à l'ancien comportement, tous vers CPython : `a == 3`, `a < b`,
 
 **LE JUGE CHANGE LA CHAÎNE**, comme la fiche prévient qu'on peut le faire :
 la ligne `chaine = "…"` est réécrite et la copie s'exécute avec le mot de
-l'énoncé, puis avec `chat` et `ordinateur` (`PCH_ESSAIS`). Ce qui est jugé
+l'énoncé, puis avec `chat` et `ordinateur` (`PTT_ESSAIS`). Ce qui est jugé
 est ce que le programme AFFICHE : `chaine_bis`, une tranche, `range(1, …)`,
 `for c in chaine` ou `print(c, end="-")` passent tous. **Le séparateur en
 trop à la fin (ou au début) est ACCEPTÉ ET NOMMÉ** : c'est ce que donne le
