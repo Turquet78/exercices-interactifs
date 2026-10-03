@@ -3444,8 +3444,65 @@ NAVIGATEUR : la visite universelle (section 9) l'ouvre dans les deux modes.
 
 ---
 
+**Le sous-thème « Bonus » : len(chaine) et chaine[i].** {python-chaine-len}
+(Seconde, 6.4.1, APP_VERSION 276 — le 275 a été pris sur `main` par
+{python-chaines} pendant les bancs —, demande de Turquet, octobre 2026 : « avec l'image créer un
+exercice dans le sous-thème print et variable qui respecte toutes les
+nouvelles consignes que j'ai données pour le sous-thème input […] on le
+mettra dans un sous-thème bonus ») est la fiche « Exercice 24 / 25 / 26 » du
+carnet : a) exécuter `chaine = "abcdefghijklmnopq"` et ses quatre print
+(`len(chaine)`, `chaine[0]`, `chaine[1]`, `chaine[16]`) pour comprendre les
+deux instructions ; b) expliquer ce que représente `len(chaine)` ; c)
+expliquer ce que représentent `chaine[0]`, `chaine[1]` et
+`chaine[len(chaine)-1]`. Le sous-thème 6.4 « Bonus » est neuf, ajouté en
+dernier : il ne renumérote rien, et le contrôle l'exige.
+
+**Les consignes du sous-thème « Input », toutes portées** : les trois étapes
+sur le MÊME écran, chacune dans son cadre `.pyn-etape` ouvert par SON énoncé
+en gras, gardé quand la suivante s'ouvre ; aucune consigne à côté du bouton
+« Exécuter » ; la console vide reste un cadre vide (`#pclConsole`, éteint
+comme celles du 6.3). La fiche n'a PAS de définition : l'écran n'en ajoute
+pas, et le rappel (`RAP_PCL`) n'est que le programme de la fiche, sans une
+phrase de plus (« ne pas rajouter de phrase dans les définitions ou
+rappel »). L'énoncé du haut ne dit que l'ordre des étapes ; chaque question
+s'écrit dans son cadre, sous le reste.
+
+**L'interpréteur a appris `len` et les crochets.** `pyLex` lit `[` et `]` ;
+`pyExpr` prend un indice en suffixe de toute valeur (un nom, un texte, une
+parenthèse, un appel), compte depuis la fin pour un indice négatif, et lève
+`IndexError` hors de la chaîne, `TypeError` sur un nombre ou un indice
+décimal ; `len` compte par CARACTÈRE (`Array.from`), comme CPython, pas par
+unité UTF-16. `pyColorie` colore `len` comme `print`. Aucun autre exercice
+n'écrivait de crochet ni de `len` : rien d'autre ne change.
+
+**« Expliquer » devient un CHOIX** — un verdict local, sans modèle : au b),
+« `len(chaine)` représente » une liste (le nombre de caractères, le premier,
+le dernier, le numéro du dernier — ce dernier est le piège du 16 contre 17) ;
+au c), une liste par écriture (le 1er au 4e caractère, l'avant-dernier, le
+dernier, le nombre de caractères). Quatre cases par question. Le dernier
+indice s'écrit EN CHIFFRES dans le programme, comme le 16 de la fiche : c'est
+au c) que l'élève le relie à `len(chaine)-1`. Nommés : l'indice compté à
+partir de 1 (« le premier caractère a l'indice 0 »), l'avant-dernier pour
+`len(chaine)-1`, un nombre de caractères pour un caractère. Une liste vide
+ne rougit jamais (verte en entraînement) ; un c) entièrement vide n'est pas
+jugé ; en soutien rien n'est révélé.
+
+**La séance** : la fiche épinglée en tête, puis deux chaînes tirées par
+`distinctes()` (« bonjour », « python », « seconde »…), jusqu'à neuf avec le
+réglage « Questions ». Chaque chaîne porte SON indice du milieu (1 à 3), si
+bien que deux questions ne montrent jamais la même chaîne. Pas de correction
+au fil des choix (`soutienEnDirect.sans`), pas de bouton des tables. Banc
+jsdom (`pythonChaineLen`) : la place, l'interpréteur (la sortie de la fiche,
+l'indice négatif, les trois erreurs), le tirage (300 séances, chaque chaîne
+sort), le trajet a) → b) → c) avec les énoncés gardés, les copies juste,
+fausse et vide, le soutien, la reprise qui ne rejuge pas un b) déjà jugé, et
+les programmes comparés à un vrai CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
 **Le programme le plus court possible : un triangle d'étoiles — le sous-thème
-6.4 « Bonus ».** {python-triangle-etoiles} (Seconde, 6.4.1, demande de Turquet,
+6.4 « Bonus ».** {python-triangle-etoiles} (Seconde, 6.4.2, demande de Turquet,
 octobre 2026 : « en seconde avec l'image créer un exercice dans le sous thème
 print et variable qui respecte toutes les nouvelles consignes que j'ai données
 pour le sous-thème input. ne pas rajouter de phrase dans les définitions ou
@@ -3454,8 +3511,9 @@ le mettra dans un sous thème bonus ») est l'exercice 23 du carnet : « Faire u
 programme, le plus court possible, qui affiche un triangle d'étoiles de taille
 10 ou plus grand que 10 », l'exemple de taille 4 (en violet gras, comme le
 carnet), et UN coup de pouce replié : « Pour compter de 1 à 10 utiliser
-l'instruction : `for k in range (1,11):` … ». Il ouvre un sous-thème NOUVEAU,
-6.4 « Bonus » : rien n'est renuméroté, et son contrôle l'exige.
+l'instruction : `for k in range (1,11):` … ». Il suit {python-chaine-len}
+dans le sous-thème 6.4 « Bonus » : ajouté en dernier, rien n'est renuméroté,
+et son contrôle l'exige.
 
 **Les consignes du sous-thème Input, tenues ici** : l'énoncé du haut dit
 l'exercice en une phrase ; l'énoncé de la question s'écrit en GRAS dans un
@@ -3519,3 +3577,11 @@ mêmes listes (écrans, rappels, `TABLES_SANS`, `tests/profils.js`) — union
 ligne à ligne, aucun code commun. `main` avait pris la version 275 :
 celui-ci passe en 276. Le 6.1.14 enseigne justement ce que le modèle du
 triangle utilise (`"*"*k`) : le bonus vient après la leçon.
+
+**Puis {python-chaine-len} a pris le sous-thème « Bonus » le premier.** Une
+autre session avait créé le MÊME sous-thème 6.4 « Bonus », pour
+`len(chaine)` et `chaine[i]`, et l'a fusionné pendant que celui-ci attendait
+ses contrôles. Ce qui est en ligne garde sa place : {python-chaine-len} reste
+6.4.1, le triangle devient 6.4.2 (`THEMES` ne porte qu'UN sous-thème 6.4, aux
+deux identifiants), son contrôle exige désormais de suivre {python-chaine-len},
+et la version passe en 277 (`main` avait pris la 276).
