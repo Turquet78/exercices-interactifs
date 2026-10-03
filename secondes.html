@@ -5213,7 +5213,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=272;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=273;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -29976,10 +29976,10 @@ function pmyEnonceHTML(q){
     +'<li>qui affiche le résultat&nbsp;: <code>"'+esc(S.t1)+'"</code>, '+esc(S.m)+(S.t2?', <code>"'+esc(S.t2)+'"</code>':'')+'.</li>'
     +'</ul>';
 }
-/* Le cours, en un cadre : float(input(…)), le point, et les parenthèses. */
+/* Le cours, en un cadre : float(input(…)) et son exemple — rien de plus (carnet de Turquet, octobre 2026). */
 function pmyCoursHTML(){
-  return '<div class="pyp-regle pyi-cours"><b><code>float(input("…"))</code> demande un nombre à virgule</b> : input rend toujours un TEXTE, float(…) en fait un nombre à virgule — int(…), lui, refuserait <code>12.5</code>. Dans la console, la virgule se tape avec un POINT.'
-    +'<span class="pyp-ex"><code>nombre = float(input("Un nombre ? "))</code> puis <code>moitie = nombre / 2</code> — si l’on répond <code>7.5</code>, la variable <code>moitie</code> contient <code>3.75</code>. Et pour diviser une SOMME, des parenthèses&nbsp;: <code>(a + b) / 2</code>.</span></div>';
+  return '<div class="pyp-regle pyi-cours"><b><code>float(input("…"))</code> demande un nombre à virgule</b>&nbsp;:'
+    +'<span class="pyp-ex"><code>nombre = float(input("Un nombre ? "))</code></span></div>';
 }
 /* Les trois coups de pouce du carnet. */
 function pmyPoucesHTML(q){
