@@ -3593,10 +3593,58 @@ passait devant et refusait `len(range(…))` — et la coloration de `len` dans
 
 ---
 
+**Remplacer la première lettre par "*" — l'exercice 27 du carnet.**
+{python-remplacer-lettre} (Seconde, 6.4.3, demande de Turquet, octobre
+2026 : « en seconde avec les images créer un exercice dans le sous-thème
+print et variable qui respecte toutes les nouvelles consignes que j'ai
+données pour le sous-thème input. Ne pas rajouter de phrase dans les
+définitions ou rappels. Écrire les énoncés des questions après les
+définitions ou rappels. On le mettra dans un sous-thème bonus ») :
+« Faire un programme qui remplace la première lettre par "*" » — "gaston"
+devient "*aston" —, ses trois remarques (on peut changer la chaîne ;
+`chaine[0] = "*"` ne marche pas ; on reconstruit la chaîne lettre par
+lettre), ses trois coups de pouce repliés, et la cellule ouverte sur
+`chaine = "gaston"`. Il suit {python-chaine-tirets} dans le sous-thème 6.4
+« Bonus ».
+**Écrit d'abord sur l'ancien `main`, il y créait le sous-thème « Bonus »
+et apprenait à `pyRun` for, len et chaine[k]** — en 6.4.1, version 275.
+Pendant ce temps, {python-chaine-len} et {python-chaine-tirets} ont été
+fusionnés avec un interpréteur plus complet (for, while, if, tranches). La
+branche a repris les fichiers de `main` et y a REJOUÉ son seul exercice : le
+sien n'est pas entré, un seul interpréteur reste. Ce que l'exercice lui
+demande y est déjà : le banc compare toujours à CPython ses six modèles et
+treize programmes de bord, erreurs comprises (seul le texte de l'erreur de
+`chaine[0] = "*"` diffère, en français ; le juge lit celui de la page).
+**LES CONSIGNES DU 6.3, REPRISES UNE À UNE** : l'énoncé dans un cadre
+`.pyn-etape`, en tête et en gras, APRÈS l'encadré des remarques ; l'encadré
+écrit à la question 1 seulement ; aucune consigne à côté d'« Exécuter » ;
+aucun texte d'attente dans la console (`#prlConsole:empty::before`) ; les
+coups de pouce vert clair (`pyPoucesHTML`), sans phrase après leur modèle.
+**AUCUNE PHRASE AJOUTÉE AUX REMARQUES** : l'encadré et le rappel
+(`RAP_PRL`) portent les trois remarques du carnet, mot pour mot — le banc
+compare le texte de l'encadré caractère par caractère. Seules les coquilles
+des coups de pouce sont corrigées (« instructuion », « jusqu'a la dernier
+lettre »).
+**LE JUGE CHANGE LA CHAÎNE** (« on peut changer la valeur de la chaîne comme
+on veut ») : la ligne `chaine = "…"` est remplacée par « informatique » et
+« lycee », et le résultat doit suivre. Il est accepté AFFICHÉ ou RANGÉ dans
+une variable : le carnet ne demande pas d'afficher. `print("*aston")` passe
+le premier mot et pas le second, et le message le nomme ; la dernière lettre
+perdue (`len(chaine)-1`), la première gardée (`range(0, …)`), le "*" oublié,
+la lettre remplacée au lieu d'ajoutée, chacune a son message. **La cellule
+laissée telle qu'elle s'ouvre est une copie VIDE** : elle ne rougit jamais et
+reçoit le modèle en vert.
+**LA SÉANCE** : la fiche épinglée en tête (gaston, "*"), puis des mots et des
+symboles tirés par `distinctes()` ; `dmNbQuestions()` l'allonge. La touche Tab
+décale la ligne (quatre espaces) au lieu de quitter la cellule. Banc jsdom
+`pythonRemplacerLettre`, déclaré dans `tests/profils.js`.
+
+---
+
 ---
 
 **Le programme le plus court possible : un triangle d'étoiles — le sous-thème
-6.4 « Bonus ».** {python-triangle-etoiles} (Seconde, 6.4.3, demande de Turquet,
+6.4 « Bonus ».** {python-triangle-etoiles} (Seconde, 6.4.4, demande de Turquet,
 octobre 2026 : « en seconde avec l'image créer un exercice dans le sous thème
 print et variable qui respecte toutes les nouvelles consignes que j'ai données
 pour le sous-thème input. ne pas rajouter de phrase dans les définitions ou
@@ -3686,3 +3734,13 @@ caractère d'une chaîne » a été fusionné en 6.4.2, avec la version 277. Le
 triangle, ajouté en dernier, passe en 6.4.3 (son contrôle exige de suivre
 {python-chaine-tirets}), version 278. Les préfixes ne se heurtent pas
 (`ptt` là-bas, `ptr` ici) : les listes partagées s'unissent ligne à ligne.
+
+**Et une quatrième : {python-remplacer-lettre}.** Le même scénario — fusionné
+en 6.4.3 avec la version 278 pendant que les contrôles de celui-ci tournaient.
+Le triangle passe en 6.4.4, version 279. Ce bonus-là a appris `for … in
+range(…)` à l'interpréteur commun ; `ptrDerouler` reste tel quel : il déroule
+les boucles AVANT `pyRun`, et ne dépend donc pas de ce que celui-ci sait
+faire. Cette fois le conflit était entremêlé dans le code (les deux blocs
+insérés derrière le même `ctxPmy`) : la page a été reprise de `main`, et les
+insertions de celui-ci y ont été REJOUÉES une à une, puis comptées (173
+mentions de `ptr`/`PTR` avant et après).
