@@ -3887,3 +3887,8 @@ page, profils et banc repris de `main`, insertions rejouées, mentions de
 
 Puis une septième fusion de `main` (le bouton « Retour », version 281, sans
 rapport avec le thème Python) : le triangle passe en version 282.
+
+Puis une huitième (Turquet78/exercices-interactifs#477, version 282), qui
+portait AUSSI l'exception de {python-inverser-lettres} : la sienne est
+gardée, celle que cette branche avait portée est retirée (une clé écrite deux
+fois dans `tests/profils.js` gagne en silence). Le triangle passe en 283.
