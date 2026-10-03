@@ -4151,6 +4151,7 @@ function exercices(suite){
     pythonInputInt(w, P);
     pythonInputFloat(w, P);
     pythonInputSomme(w, P);
+    pythonInputPrix(w, P);
     pythonChaineTirets(w, P);
     pythonRemplacerLettre(w, P);
     pythonPasAPas(w, P);
@@ -23925,11 +23926,11 @@ function pythonInputRectangle(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ' derrière le 6.3.7 (l’exercice 9 du carnet après le 8), et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit le 6.3.7 dans le sous-thème « Input », numéroté ' + NUM + ' (l’exercice 9 du carnet après le 8 ; le 10 le suit), et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-input-moyenne") vus.push("il ne ferme pas le sous-thème derrière le 6.3.7 : "+st.ids.join(","));
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-moyenne")+1||st.ids.indexOf("python-input-moyenne")<0) vus.push("il ne suit pas le 6.3.7 : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-chaine-len"]!=="6.4.1") vus.push("les autres ont bougé");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -24920,6 +24921,210 @@ function pythonInputSomme(w, P){
     const res=[];
     PIS_SITUATIONS.forEach(function(S, i){ S.ex.forEach(function(p){
       const src=pisModele({s:i}), r=pyRun(src,[String(p[0]),String(p[1])]);
+      res.push([src, [String(p[0]),String(p[1])], r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-input-prix} (Seconde, 6.3.9) : l'exercice 10 du carnet — le serpent
+   au panier. Demander le poids des pommes puis celui des tomates sous forme
+   décimale, calculer le prix total, l'afficher avec une phrase. Le contrôle
+   tient la place au menu (il ferme le sous-thème 6.3 derrière le rectangle, rien
+   d'autre ne bouge), la fiche épinglée et le tirage, le juge — qui ne lit que ce que le
+   programme AFFICHE, la fiche ne nommant aucune variable — sur des copies
+   justes et fausses, chacune avec le mot qui la nomme, l'écran tenu aux
+   consignes du sous-thème (l'étiquette avec son dessin, l'énoncé en gras dans
+   son cadre, la formule seule dans le coup de pouce, aucune définition, le
+   rappel réduit à la formule), le dialogue de la console, la copie juste,
+   fausse et vide, le soutien qui explique sans révéler, puis compare à un
+   vrai CPython ce que les modèles affichent. Aucun accent grave ni antislash
+   littéral dans le code évalué. */
+function pythonInputPrix(w, P){
+  const nom = '{python-input-prix} : le prix des pommes et des tomates';
+  if(!P.pythonInputPrix){ ignorer(nom, 'ce niveau n\'a pas l\'exercice input'); return; }
+  const ID = P.pythonInputPrix.exercice, NB = P.pythonInputPrix.nb, NUM = P.pythonInputPrix.numero;
+  const present = evaluer(w, "typeof startPKG==='function' && typeof pkgDiag==='function' && typeof pkgBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPKG / pkgDiag / pkgBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ', derrière {python-input-rectangle} (l’exercice 9 du carnet), et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-input-rectangle") vus.push("il ne ferme pas le sous-thème derrière {python-input-rectangle} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-somme"]!=="6.3.6"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-input-rectangle"]!=="6.3.8") vus.push("les autres ont bougé");
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (3,62 € et 5,57 € le kilo), puis d’autres prix distincts ; le modèle de chacune passe au juge, chaque étiquette sort (300 séances), et les poids du juge sont décimaux', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pkgBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=pkgSit(qs[0]);
+      if(S0.pa!==3.62||S0.pt!==5.57){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois les mêmes prix : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PKG_PRIX.forEach(function(p, i){
+      const d=pkgDiag(pkgModele({s:i}),{s:i});
+      if(!d.ok) vus.push("le modèle des prix "+i+" : "+d.dits.join(" "));
+      if(p[0]===p[1]) vus.push("deux prix égaux en "+i+" : les prix échangés ne se verraient pas");
+    });
+    PKG_EX.forEach(function(p){ if(p.some(function(m){ return m===Math.trunc(m); })) vus.push("un poids entier dans le juge : int(input(…)) passerait"); });
+    if(Object.keys(vues).length!==PKG_PRIX.length) vus.push("des prix ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte toute écriture juste (noms libres, calcul dans un autre ordre, en centimes, directement dans le print) et nomme chaque défaut — float oublié, int à la place, virgule française dans le code, round, une seule question, trois questions, input muet, questions dans le désordre, prix échangés, prix écrit à la main, nom entre guillemets, prix sans phrase, rien d’affiché, mauvais calcul, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const P="pommes = float(input("+Q+"Poids des pommes ? "+Q+"))"+NL+"tomates = float(input("+Q+"Poids des tomates ? "+Q+"))"+NL;
+    const ph=function(e){ return "print("+Q+"Le prix total est"+Q+", "+e+")"; };
+    const justes=[pkgModele(q),
+                  P+"prix = tomates * 5.57 + 3.62 * pommes"+NL+ph("prix"),
+                  "a = float(input("+A+"Combien de kg de pommes ? "+A+"))"+NL+"b = float(input("+A+"Combien de kg de tomates ? "+A+"))"+NL+ph("(a*362 + b*557)/100"),
+                  P+NL+"# le prix"+NL+"total = pommes*3.62 + tomates*5.57"+NL+"print("+Q+"Tu dois payer "+Q+" + str(total) + "+Q+" euros"+Q+")"];
+    justes.forEach(function(p){ const d=pkgDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const calc="pommes*3.62 + tomates*5.57";
+    const cas=[
+      ["p = input("+Q+"A ? "+Q+")"+NL+"t = input("+Q+"B ? "+Q+")"+NL+ph("p*3.62 + t*5.57"), /TOUJOURS un texte/],
+      ["pommes = int(input("+Q+"A ? "+Q+"))"+NL+"tomates = int(input("+Q+"B ? "+Q+"))"+NL+ph(calc), /ENTIER/],
+      [P+ph("pommes*3,62 + tomates*5,57"), /POINT/],
+      [P+ph("round("+calc+")"), /round/],
+      ["pommes = float(input("+Q+"A ? "+Q+"))"+NL+ph("pommes*3.62"), /qu’une question/],
+      [P+"z = input("+Q+"?"+Q+")"+NL+ph(calc), /plus de deux questions/],
+      ["pommes = float(input())"+NL+"tomates = float(input("+Q+"B ? "+Q+"))"+NL+ph(calc), /pas de question/],
+      ["tomates = float(input("+Q+"Poids des tomates ? "+Q+"))"+NL+"pommes = float(input("+Q+"Poids des pommes ? "+Q+"))"+NL+ph(calc), /désordre/],
+      [P+ph("pommes*5.57 + tomates*3.62"), /échangés/],
+      [P+ph("9.6075"), /même prix/],
+      [P+"prix = "+calc+NL+ph(Q+"prix"+Q), /SANS guillemets/],
+      [P+"print("+calc+")", /sans phrase/],
+      [P+"prix = "+calc, /n’affiche rien/],
+      [P+ph("pommes + tomates"), /Vérifie ton calcul/],
+      ["pommes = float(input(«A»))", /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pkgDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : l’étiquette (le dessin, les deux prix), aucune définition ni encadré au-dessus, l’énoncé de la fiche en gras dans son cadre avec le coup de pouce replié (la formule seule), la cellule, « Exécuter » et la console ; le rappel ne dit que la formule ; « Exécuter » pose les DEUX questions, Entrée affiche le prix ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPKG();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pkgInstr"), img=en&&en.querySelector("img.pkg-img");
+    if(!en||!en.classList.contains("mp-instr")||!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("l’étiquette n’a pas son dessin");
+    if(!en||en.textContent.split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(10)).join(" ").replace(/ +/g," ").indexOf("1 kg de pomme = 3,62")<0||en.textContent.split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(10)).join(" ").replace(/ +/g," ").indexOf("1 kg de tomate = 5,57")<0) vus.push("l’étiquette : "+(en&&en.textContent));
+    if(document.querySelector("#scr-pkg .py-avant,#scr-pkg .pyp-regle,#scr-pkg .pyi-cours")) vus.push("un encadré de définition sur l’écran");
+    const et=document.getElementById("pkgEtape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!et||!ti||!/^✏️ Réaliser un programme dans la cellule suivante qui/.test(ti.textContent)||ti.querySelectorAll("li").length!==4) vus.push("l’énoncé de la question : "+(ti&&ti.textContent));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    ["pkg-prog","pkgRun","pkgConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const pouces=document.querySelectorAll("#pkgEtape details.pyd-pouce");
+    if(pouces.length!==1) vus.push(pouces.length+" coup(s) de pouce");
+    else {
+      if(pouces[0].open) vus.push("coup de pouce déplié d’emblée");
+      const t=pouces[0].querySelector("p").textContent.split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(10)).join(" ").replace(/ +/g," ").trim();
+      if(t!=="Formule : Prix total = poids des pommes * 3,62 + poids des tomates * 5,57") vus.push("le coup de pouce : "+JSON.stringify(t));
+    }
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pkg;
+    if(rap.textContent.split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(10)).join(" ").replace(/ +/g," ").trim()!=="Le prix des pommes et des tomates Formule : Prix total = poids des pommes * 3,62 + poids des tomates * 5,57") vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    const ta=document.getElementById("pkg-prog"), cons=document.getElementById("pkgConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=pkgModele(q);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    const repondre=function(v){ const r=document.getElementById("pkg-rep"); if(!r||!cons.contains(r)){ vus.push("la console ne demande pas la réponse ("+v+")"); return false; } r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); return true; };
+    pkgExecuter();
+    if(cons.textContent.indexOf("Poids des pommes")<0) vus.push("la première question n’est pas écrite dans la console");
+    if(repondre("2")){
+      if(cons.textContent.indexOf("Poids des tomates")<0) vus.push("la seconde question n’est pas posée");
+      if(repondre("1.5")){
+        if(document.getElementById("pkg-rep")) vus.push("la case reste après la dernière réponse");
+        if(cons.textContent.split(NL).pop()!=="Le prix total à payer est de 15.595 €") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+      }
+    }
+    pkgExecuter(); repondre("1,5");
+    if(!cons.classList.contains("py-err")||!/POINT/.test(cons.textContent)) vus.push("la virgule française n’est pas nommée : "+JSON.stringify(cons.textContent));
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPKG();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPKG();
+    if(test.idx!==1||document.getElementById("pkg-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    const S1=pkgSit(test.questions[1]), t1=document.getElementById("pkgInstr").textContent.split(String.fromCharCode(160)).join(" ").split(String.fromCharCode(10)).join(" ").replace(/ +/g," ");
+    if(t1.indexOf(S1.pa.toFixed(2).replace(".",","))<0||t1.indexOf(S1.pt.toFixed(2).replace(".",","))<0) vus.push("l’étiquette de la question 2 ne suit pas ses prix : "+t1);
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPKG();
+    let ta=document.getElementById("pkg-prog");
+    ta.value="p = int(input("+Q+"A ? "+Q+"))"+NL+"t = int(input("+Q+"B ? "+Q+"))"+NL+"print("+Q+"prix"+Q+", p*3.62 + t*5.57)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPKG();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pkgModele .sol");
+    if(!mod||mod.textContent!==pkgModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("pkgConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPKG(); ta=document.getElementById("pkg-prog");
+    checkPKG();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pkgModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPKG(); ta=document.getElementById("pkg-prog");
+    checkPKG();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="p = float(input("+Q+"A ? "+Q+"))"+NL+"t = float(input("+Q+"B ? "+Q+"))"+NL+"print("+Q+"prix"+Q+", 9.6075)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPKG();
+    const fb=document.getElementById("pkgFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/quelles que soient les réponses/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pkgModele .sol")||fb.indexOf("pommes * 3.62")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPkg(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ----
+     input est remplacé, côté CPython, par une fonction qui rend les réponses
+     l'une après l'autre sans écrire la question. */
+  const nomPy = 'ce que les modèles de {python-input-prix} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PKG_PRIX.forEach(function(_, i){ PKG_EX.concat([[2, 1.5], [0.35, 3]]).forEach(function(p){
+      const src=pkgModele({s:i}), r=pyRun(src,[String(p[0]),String(p[1])]);
       res.push([src, [String(p[0]),String(p[1])], r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
     }); });
     return res;
