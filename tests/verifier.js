@@ -4454,10 +4454,6 @@ function abandonSortDePause(w, apres){
       await pauseTest();
       bilan.pauseRetour=ecranOn();
       bilan.pauseReprendre=document.getElementById('modeChoices').innerHTML.indexOf('Reprendre l’entraînement')>=0;
-      /* La pause laisse la séance OUVERTE (c'est son rôle) : on la referme,
-         sinon les sauvegardes automatiques écrivent dans les contrôles
-         suivants — celui du signalement comptait huit lignes au lieu d'une. */
-      recoveryClosed=true; recoveryDirty=false; recoveryRowId=null;
       /* 8. « et pour le bouton Retour aussi » : arrivé sur la page des modes
          depuis le rattrapage, son « Retour » y ramène — et pas au sous-thème. */
       ${SEMER} ${POSER}
@@ -4466,7 +4462,14 @@ function abandonSortDePause(w, apres){
       await retourModes();
       bilan.retourBouton=ecranOn();
       bilan.boutonBranche=/retourModes\\(\\)/.test(document.querySelector('#scr-mode .btn-link').getAttribute('onclick')||'');
-    } finally { toast=vraiToast; window.__faux.panne=false; }
+    } finally {
+      toast=vraiToast; window.__faux.panne=false;
+      /* Les étapes 6 à 8 lancent un vrai exercice puis le laissent par la
+         pause ou le menu : la séance reste OUVERTE, et ses sauvegardes
+         automatiques écriraient dans les contrôles suivants — celui du
+         signalement comptait huit lignes au lieu d'une. On la referme. */
+      recoveryClosed=true; recoveryDirty=false; recoveryRowId=null;
+    }
     return bilan;
   })()`, r => {
     const b = r.ok ? (r.valeur || {}) : {};

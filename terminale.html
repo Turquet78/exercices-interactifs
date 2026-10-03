@@ -8031,7 +8031,10 @@ async function startDHV(){
   /* Sur les 2 essais : y = 0 apparaît sur l’une des droites d1, et x = 0 sur l’une des
      droites d2 — l’essai qui porte chaque cas est tiré au hasard, indépendamment. */
   const iH=rand(0,1), iV=rand(0,1);
-  test.questions=[genDHVQ(iH===0,iV===0), genDHVQ(iH===1,iV===1)];
+  /* la seconde passe par distincte() : tirée seule, elle retombait de temps en
+     temps sur les données de la première (vu par le banc, octobre 2026) */
+  const q1=genDHVQ(iH===0,iV===0);
+  test.questions=[q1, distincte([q1], function(){ return genDHVQ(iH===1,iV===1); })];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
