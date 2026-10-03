@@ -4168,6 +4168,7 @@ function exercices(suite){
     pythonInput(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
+    pythonTriangle(w, P);
     pythonInputRectangle(w, P);
     pythonInverserLettres(w, P);
     pythonChaines(w, P);
@@ -23712,6 +23713,211 @@ function pythonChaineLen(w, P){
   const ref = pythonExecuter(cmd, liste.map(([src]) => src));
   const ecarts = [];
   liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(J(src) + ' : page ' + J(mien) + ' / CPython ' + J(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-triangle-etoiles} (Seconde, 6.4.5) : l'exercice 23 du carnet — le
+   programme le plus court possible qui affiche un triangle d'étoiles de
+   taille 10 ou plus. Le contrôle tient la place au menu (il suit
+   {python-inverser-lettres} dans le sous-thème 6.4 « Bonus », rien d'autre ne bouge), la fiche épinglée et le
+   tirage, les boucles DÉROULÉES (comparées à un vrai CPython, avec leurs
+   erreurs d'indentation), le juge sur des copies justes et fausses — chacune
+   avec le mot qui la nomme, dont le triangle juste écrit à la main —, les
+   consignes du sous-thème Input (l'énoncé en gras dans son cadre, un coup de
+   pouce replié, aucune consigne à côté du bouton, aucun cours), la touche
+   Tab de la cellule, la copie juste, fausse et vide, et le soutien qui
+   explique sans révéler. Aucun accent grave ni antislash littéral dans le
+   code évalué. */
+function pythonTriangle(w, P){
+  const nom = '{python-triangle-etoiles} : le programme le plus court possible qui affiche un triangle d’étoiles';
+  if(!P.pythonTriangle){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du triangle'); return; }
+  const ID = P.pythonTriangle.exercice, NB = P.pythonTriangle.nb, NUM = P.pythonTriangle.numero;
+  const present = evaluer(w, "typeof startPTR==='function' && typeof ptrDiag==='function' && typeof ptrBuildQuestions==='function' && typeof ptrDerouler==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPTR / ptrDiag / ptrBuildQuestions / ptrDerouler introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il suit {python-inverser-lettres} dans le sous-thème 6.4 « Bonus », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===4; });
+    if(!st||!/bonus/i.test(st.nom)) vus.push("pas de sous-thème 6.4 Bonus");
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-inverser-lettres")+1||st.ids.indexOf("python-inverser-lettres")<0) vus.push("il ne suit pas {python-inverser-lettres} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-chaine-tirets"]!=="6.4.2"||TEST_NUM["python-remplacer-lettre"]!=="6.4.3"||TEST_NUM["python-inverser-lettres"]!=="6.4.4") vus.push("les quatre premiers bonus ont bougé");
+    if(TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-phrases-memoire"]!=="6.2.8"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(!RAPPELS.ptr) vus.push("pas de rappel");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (des étoiles, taille 10 ou plus), puis des triangles distincts ; le modèle de chacun passe au juge, et chaque triangle sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=ptrBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=ptrSit(qs[0]);
+      if(S0.car!=="*"||S0.n!==10||!S0.auMoins){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois le même triangle : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PTR_SITUATIONS.forEach(function(S, i){
+      const d=ptrDiag(ptrModele({s:i}),{s:i});
+      if(!d.ok||d.taille!==S.n||d.lignes!==2) vus.push("le modèle du triangle "+i+" : "+(d.dits||[]).join(" "));
+    });
+    if(Object.keys(vues).length!==PTR_SITUATIONS.length) vus.push("des triangles ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (deux lignes, une seule ligne, une variable qu’on allonge, range(11), taille 15, n = 12, k*"*", guillemets simples) et nomme chaque défaut — triangle écrit à la main, print avec retours à la ligne, trop petit, à l’envers, décalé, espaces, autre caractère, lignes toutes pareilles, rien d’affiché, corps non décalé, deux-points oubliés, décalage sans raison, input, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), BS=String.fromCharCode(92), q={s:0,prog:""}, T="    ";
+    const p=function(x){ return "print("+x+")"; };
+    const justes=["for k in range(1,11):"+NL+T+p(Q+"*"+Q+"*k"),
+                  "for k in range(1,11): "+p(Q+"*"+Q+"*k"),
+                  "e = "+Q+Q+NL+"for k in range(1,11):"+NL+T+"e = e + "+Q+"*"+Q+NL+T+p("e"),
+                  "for k in range(11):"+NL+"  "+p("k*"+A+"*"+A),
+                  "for i in range (1, 16) :"+NL+NL+T+"# une ligne de plus"+NL+T+p(Q+"*"+Q+" * i"),
+                  "n = 12"+NL+"for k in range(1,n+1):"+NL+T+p(Q+"*"+Q+"*k")];
+    justes.forEach(function(x){ const d=ptrDiag(x,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(x)+" — "+d.dits.join(" ")); });
+    const main=[]; for(let k=1;k<=10;k++) main.push(p(Q+"*".repeat(k)+Q));
+    const cas=[
+      [main.join(NL), /pas le plus court possible/],
+      [p(Q+[1,2,3,4,5,6,7,8,9,10].map(function(k){ return "*".repeat(k); }).join(BS+"n")+Q), /pas le plus court possible/],
+      ["for k in range(1,6):"+NL+T+p(Q+"*"+Q+"*k"), /taille 5 : il doit être de taille 10 ou plus/],
+      ["for k in range(10,0,-1):"+NL+T+p(Q+"*"+Q+"*k"), /à l’envers/],
+      ["for k in range(1,11):"+NL+T+p(Q+" "+Q+"*(10-k)+"+Q+"*"+Q+"*k"), /décalé/],
+      ["for k in range(1,11):"+NL+T+p(Q+"* "+Q+"*k"), /espaces/],
+      ["for k in range(1,11):"+NL+T+p(Q+"#"+Q+"*k"), /fait de « # »/],
+      ["for k in range(1,11):"+NL+T+p(Q+"**********"+Q), /pareilles/],
+      ["for k in range(1,11):"+NL+T+"e = "+Q+"*"+Q+"*k", /n’affiche rien/],
+      ["for k in range(1,11):"+NL+p(Q+"*"+Q+"*k"), /décalées vers la droite/],
+      ["for k in range(1,11)"+NL+T+p(Q+"*"+Q+"*k"), /deux-points/],
+      ["  for k in range(1,11):"+NL+T+p(Q+"*"+Q+"*k"), /décalée sans raison/],
+      ["for k in range(1,11):"+NL+T+p(Q+"*"+Q+"*k")+NL+T+"x = input()", /pas d’input/],
+      ["for k in range(1,11):"+NL+T+p(Q+"*"+Q+"+k"), /texte et un nombre/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=ptrDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    /* un triangle tiré : taille et caractère IMPOSÉS */
+    const qd={s:1,prog:""}, S=ptrSit(qd);
+    if(!ptrDiag("for k in range(1,"+(S.n+1)+"):"+NL+T+p(Q+S.car+Q+"*k"),qd).ok) vus.push("le triangle tiré juste est refusé");
+    const d2=ptrDiag("for k in range(1,"+(S.n+2)+"):"+NL+T+p(Q+S.car+Q+"*k"),qd);
+    if(d2.ok||!/il doit être de taille /.test(d2.dits.join(" "))) vus.push("le triangle tiré trop grand : "+JSON.stringify(d2));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, les consignes du sous-thème Input, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : l’énoncé de la question en gras dans son cadre, après l’énoncé du haut, l’exemple de taille 4, UN coup de pouce replié qui donne range (1,11), aucun cours, aucune consigne à côté du bouton ; Tab décale de quatre espaces ; « Exécuter » montre le triangle ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPTR();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const et=document.querySelector("#ptrHost .pyn-etape .pyn-titre");
+    if(!et||!/le plus court possible/.test(et.textContent)||!/taille 10 ou plus grand que 10/.test(et.textContent)) vus.push("l’énoncé de la question : "+(et&&et.textContent));
+    const ex=document.querySelector("#ptrHost .ptr-ex");
+    if(!ex||ex.textContent!==["*","**","***","****"].join(NL)) vus.push("l’exemple : "+JSON.stringify(ex&&ex.textContent));
+    const pouces=document.querySelectorAll("#ptrHost details.pyd-pouce");
+    if(pouces.length!==1) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); if(!/range \\(1,11\\):/.test(d.textContent)||!/de 1 à 10/.test(d.textContent)) vus.push("coup de pouce : "+d.textContent); });
+    if(document.querySelector("#ptrHost .pyp-regle, #ptrHost .py-hint")) vus.push("un cours ou une consigne est écrit sur l’écran");
+    const ta=document.getElementById("ptr-prog"), cons=document.getElementById("ptrConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    if(!document.getElementById("ptrEtape").contains(cons)) vus.push("la console n’est pas dans le cadre de la question");
+    ta.value="for k in range(1,11):"; ta.selectionStart=ta.selectionEnd=ta.value.length;
+    ta.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true,cancelable:true}));
+    if(ta.value!=="for k in range(1,11):"+NL+"    ") vus.push("Entrée après « : » ne décale pas : "+JSON.stringify(ta.value));
+    ta.value="for k in range(1,11):"+NL; ta.selectionStart=ta.selectionEnd=ta.value.length;
+    ta.dispatchEvent(new KeyboardEvent("keydown",{key:"Tab",bubbles:true,cancelable:true}));
+    if(ta.value!=="for k in range(1,11):"+NL+"    ") vus.push("Tab ne décale pas : "+JSON.stringify(ta.value));
+    ta.value=ta.value+"print("+Q+"*"+Q+"*k)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    ptrExecuter();
+    const att=[]; for(let k=1;k<=10;k++) att.push("*".repeat(k));
+    if(cons.textContent!==att.join(NL)) vus.push("la console : "+JSON.stringify(cons.textContent));
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPTR();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("ptrNext")) vus.push("pas de « Question suivante »");
+    nextPTR();
+    if(test.idx!==1||document.getElementById("ptr-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPTR();
+    let ta=document.getElementById("ptr-prog");
+    ta.value="for k in range(1,11)"+NL+"    print("+Q+"*"+Q+"*k)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPTR();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#ptrModele .sol");
+    if(!mod||mod.textContent!==ptrModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("ptrConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPTR(); ta=document.getElementById("ptr-prog");
+    checkPTR();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==ptrModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPTR(); ta=document.getElementById("ptr-prog");
+    checkPTR();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    const main=[]; for(let k=1;k<=10;k++) main.push("print("+Q+"*".repeat(k)+Q+")");
+    ta.value=main.join(NL);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPTR();
+    const fb=document.getElementById("ptrFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/plus court possible/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#ptrModele .sol")||fb.indexOf("*k")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPtr(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les boucles déroulées ---- */
+  const nomPy = 'ce que les boucles déroulées de {python-triangle-etoiles} affichent est ce qu’affiche un vrai CPython — erreurs d’indentation comprises';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const NL=String.fromCharCode(10), Q=String.fromCharCode(34), T="    ", res=[];
+    const progs=PTR_SITUATIONS.map(function(S,i){ return ptrModele({s:i}); }).concat([
+      "e = "+Q+Q+NL+"for k in range(1,11):"+NL+T+"e = e + "+Q+"*"+Q+NL+T+"print(e)",
+      "for k in range(11):"+NL+"  print(k*"+Q+"*"+Q+")",
+      "for k in range(1,11): print("+Q+"*"+Q+"*k)",
+      "n = 4"+NL+"for i in range(1, n+1):"+NL+T+"for j in range(i):"+NL+T+T+"print(i, j)"+NL+T+"print("+Q+"fin"+Q+", i)"+NL+"print(n, i)",
+      "for k in range(10,0,-3):"+NL+NL+T+"# commentaire"+NL+T+"print(k)",
+      "for k in range(1,4):"+NL+"print(k)",
+      "  print(1)",
+      "for k in range(1,4):"+NL+T+"print(k)"+NL+"  print(k)"
+    ]);
+    progs.forEach(function(src){
+      let o; try{ o=ptrRun(src).prints.map(function(x){ return x.vals.map(pyRep).join(" ")+NL; }).join(""); }
+      catch(e){ const m=String(e.message||e); o=/^IndentationError/.test(m)?"ERREUR:IndentationError":"ERREUR:"+m; }
+      res.push([src, o]);
+    });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
