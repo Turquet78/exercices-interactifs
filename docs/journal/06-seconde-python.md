@@ -3382,19 +3382,239 @@ tels quels.
 
 ---
 
-**Le sous-thème « Bonus », et son premier exercice : remplacer la première
-lettre par "*".** {python-remplacer-lettre} (Seconde, 6.4.1, demande de
-Turquet, octobre 2026 : « en seconde avec les images créer un exercice dans le
-sous-thème print et variable qui respecte toutes les nouvelles consignes que
-j'ai données pour le sous-thème input. Ne pas rajouter de phrase dans les
-définitions ou rappels. Écrire les énoncés des questions après les définitions
-ou rappels. On le mettra dans un sous-thème bonus ») est l'exercice 27 du
-carnet : « Faire un programme qui remplace la première lettre par "*" » —
-"gaston" devient "*aston" —, ses trois remarques (on peut changer la chaîne ;
+**Concaténation et répétition : les exercices 21 et 22 du carnet, dans le
+6.1.** {python-chaines} (Seconde, 6.1.14, demande de Turquet, octobre 2026 :
+« en seconde créer un exercice dans le sous-thème print et variable qui
+respecte toutes les nouvelles consignes que j'ai données pour le sous-thème
+input ; ne pas rajouter de phrase dans les définitions ou rappels ; écrire les
+énoncés des questions après les définitions ou rappels »). Le cadre orange de
+la fiche (« Pour les chaînes de caractères c'est plus court car il n'y a que
+deux opérations possibles », la concaténation `+`, la répétition `*`), puis
+a) exécuter `chaine1 = "Lou"`, `chaine2 = "ane"`, `chaine3 = chaine1 +
+chaine2`, `chaine4 = 3 * chaine1`, et b) compléter `Nom = "…"`, `Prenom =
+"…"`, `chaine1 = … + " " + …`, `chaine2 = …`, `print(chaine2)` pour qu'il
+affiche 10 fois le nom et le prénom. Ajouté en dernier dans le 6.1, il ne
+renumérote rien.
+**Les consignes du 6.3, TOUTES, appliquées d'emblée** : le cadre de cours à la
+question 1 seulement ; chaque étape dans un cadre `pii-etape` ouvert par SA
+question en gras (`pii-titre`), gardée quand la suivante s'ouvre ; aucune
+consigne à côté des boutons « Exécuter » ; une console vide reste un cadre vide
+(`[id^="pchCons"]` rejoint la règle `content:none`) ; « Vérifier » ne s'ouvre
+que sur un programme exécuté tel qu'il est écrit. Pas de coup de pouce : la
+fiche n'en a pas.
+**Deux consignes nouvelles, et c'est l'écran qui les porte.** « Ne pas rajouter
+de phrase dans les définitions ou rappels » : le cadre (`pchCoursHTML`) et le
+rappel (`RAP_PCH`) disent la fiche MOT POUR MOT — un titre, deux puces, rien
+d'autre ; le banc jsdom relit les trois phrases et compte trois blocs.
+« Les énoncés après les définitions » : l'écran pose `#pchCours` AVANT
+`#pchInstr` — le cadre de cours est le premier enfant de la carte, l'énoncé
+étiqueté vient dessous, puis les étapes. Les autres exercices écrivent leur
+cours dans l'hôte, sous l'énoncé ; celui-ci est le premier à le monter
+au-dessus, et le banc exige l'ordre (`compareDocumentPosition`).
+**Les trous s'écrivent DANS la ligne de code** (`.pch-in`, `font:inherit`, à
+la chasse du code), la ligne ne se replie pas et le programme défile
+(`.pch-prog{overflow-x:auto}`). **Trois cases notées** : les deux morceaux de
+`chaine1` et `chaine2`. Le nom et le prénom sont ceux de l'élève : tout texte y
+est juste, ils ne se notent ni ne se colorent — mais ils sont exigés avant de
+juger, et un guillemet tapé dedans est nommé.
+**Le juge exécute, sous deux paires de noms** (`pchJuge`) : celle de l'élève,
+puis « Martin Zoé ». Un trou rempli avec `"Dupont"` donne la bonne chaîne la
+première fois et se trahit la seconde. Chaque trou se juge SEUL — celui de
+`chaine2` derrière une ligne `chaine1` juste —, pour qu'une case juste ne rougisse
+pas à cause d'une autre. Toute écriture qui donne la même chaîne passe
+(`10 * chaine1`, `chaine1 * 10`, `(Nom + " " + Prenom) * 10`). Nommés : le
+texte écrit à la main, l'ordre inversé, le nom de variable entre guillemets, la
+majuscule ou l'accent (`nom`, `Prénom`), le nom de l'élève tapé sans
+guillemets, le `+` au lieu du `*`, la répétition oubliée, le mauvais nombre de
+fois.
+**La séance** : la fiche épinglée (Lou + ane, 3 fois ; 10 fois le nom puis le
+prénom), puis des questions tirées par `distinctes()` — d'autres morceaux à
+coller (Ma + non, Ju + les…), un autre nombre de répétitions, et l'ordre
+prénom-nom ; `dmNbQuestions()` l'allonge. La question garde `fa` (le a) est
+fait) et `rep` (le b) tel que l'élève l'a laissé, hors de la clé de
+`distincte`) : une pause rouvre le b) tel quel. Aucune correction au fil de la
+frappe (`soutienEnDirect.sans`), pas de bouton des tables.
+Banc jsdom (`pythonChaines`, déclaré dans `tests/profils.js`) : la place au
+menu, le tirage (400 séances), le juge sur cinq copies justes et treize
+fausses chacune avec son mot, le trou jugé seul, les portes a) → b) →
+« Vérifier », le cadre au-dessus de l'énoncé et absent à la question 2, la
+copie juste, fausse et vide, le soutien qui ne révèle rien, la reprise, et les
+sorties comparées à un vrai CPython. Pas de section propre au banc
+NAVIGATEUR : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+**Le sous-thème « Bonus » : len(chaine) et chaine[i].** {python-chaine-len}
+(Seconde, 6.4.1, APP_VERSION 276 — le 275 a été pris sur `main` par
+{python-chaines} pendant les bancs —, demande de Turquet, octobre 2026 : « avec l'image créer un
+exercice dans le sous-thème print et variable qui respecte toutes les
+nouvelles consignes que j'ai données pour le sous-thème input […] on le
+mettra dans un sous-thème bonus ») est la fiche « Exercice 24 / 25 / 26 » du
+carnet : a) exécuter `chaine = "abcdefghijklmnopq"` et ses quatre print
+(`len(chaine)`, `chaine[0]`, `chaine[1]`, `chaine[16]`) pour comprendre les
+deux instructions ; b) expliquer ce que représente `len(chaine)` ; c)
+expliquer ce que représentent `chaine[0]`, `chaine[1]` et
+`chaine[len(chaine)-1]`. Le sous-thème 6.4 « Bonus » est neuf, ajouté en
+dernier : il ne renumérote rien, et le contrôle l'exige.
+
+**Les consignes du sous-thème « Input », toutes portées** : les trois étapes
+sur le MÊME écran, chacune dans son cadre `.pyn-etape` ouvert par SON énoncé
+en gras, gardé quand la suivante s'ouvre ; aucune consigne à côté du bouton
+« Exécuter » ; la console vide reste un cadre vide (`#pclConsole`, éteint
+comme celles du 6.3). La fiche n'a PAS de définition : l'écran n'en ajoute
+pas, et le rappel (`RAP_PCL`) n'est que le programme de la fiche, sans une
+phrase de plus (« ne pas rajouter de phrase dans les définitions ou
+rappel »). L'énoncé du haut ne dit que l'ordre des étapes ; chaque question
+s'écrit dans son cadre, sous le reste.
+
+**L'interpréteur a appris `len` et les crochets.** `pyLex` lit `[` et `]` ;
+`pyExpr` prend un indice en suffixe de toute valeur (un nom, un texte, une
+parenthèse, un appel), compte depuis la fin pour un indice négatif, et lève
+`IndexError` hors de la chaîne, `TypeError` sur un nombre ou un indice
+décimal ; `len` compte par CARACTÈRE (`Array.from`), comme CPython, pas par
+unité UTF-16. `pyColorie` colore `len` comme `print`. Aucun autre exercice
+n'écrivait de crochet ni de `len` : rien d'autre ne change.
+
+**« Expliquer » devient un CHOIX** — un verdict local, sans modèle : au b),
+« `len(chaine)` représente » une liste (le nombre de caractères, le premier,
+le dernier, le numéro du dernier — ce dernier est le piège du 16 contre 17) ;
+au c), une liste par écriture (le 1er au 4e caractère, l'avant-dernier, le
+dernier, le nombre de caractères). Quatre cases par question. Le dernier
+indice s'écrit EN CHIFFRES dans le programme, comme le 16 de la fiche : c'est
+au c) que l'élève le relie à `len(chaine)-1`. Nommés : l'indice compté à
+partir de 1 (« le premier caractère a l'indice 0 »), l'avant-dernier pour
+`len(chaine)-1`, un nombre de caractères pour un caractère. Une liste vide
+ne rougit jamais (verte en entraînement) ; un c) entièrement vide n'est pas
+jugé ; en soutien rien n'est révélé.
+
+**La séance** : la fiche épinglée en tête, puis deux chaînes tirées par
+`distinctes()` (« bonjour », « python », « seconde »…), jusqu'à neuf avec le
+réglage « Questions ». Chaque chaîne porte SON indice du milieu (1 à 3), si
+bien que deux questions ne montrent jamais la même chaîne. Pas de correction
+au fil des choix (`soutienEnDirect.sans`), pas de bouton des tables. Banc
+jsdom (`pythonChaineLen`) : la place, l'interpréteur (la sortie de la fiche,
+l'indice négatif, les trois erreurs), le tirage (300 séances, chaque chaîne
+sort), le trajet a) → b) → c) avec les énoncés gardés, les copies juste,
+fausse et vide, le soutien, la reprise qui ne rejuge pas un b) déjà jugé, et
+les programmes comparés à un vrai CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+**Le sous-thème « Bonus » : ajouter un caractère entre chaque caractère d'une
+chaîne — l'exercice 28 du carnet.** {python-chaine-tirets} (Seconde, 6.4.2,
+demande de Turquet, octobre 2026 : « en seconde avec les images créer un
+exercice […] qui respecte toutes les nouvelles consignes que j'ai données pour
+le sous-thème input ; ne pas rajouter de phrase dans les définitions ou
+rappels ; écrire les énoncés des questions après les définitions ou rappels ;
+on le mettra dans un sous-thème bonus ») : « Faire un programme qui ajoute "-"
+entre chaque caractère d'une chaîne — "gaston" devient "g-a-s-t-o-n" ;
+attention, on peut changer la valeur de la chaîne "gaston" comme on veut ! »,
+avec les trois coups de pouce de la fiche, repliés (`chaine_bis = ""`,
+`for k in range(len(chaine)):`, `chaine_bis = chaine_bis + chaine[k] + "-"`).
+La cellule s'ouvre sur `chaine = "gaston"`, comme celle du carnet. Il suit
+{python-chaine-len} dans le sous-thème 6.4 « Bonus » : rien n'est renuméroté.
+
+**LES CONSIGNES DU SOUS-THÈME INPUT, TENUES D'EMBLÉE** : l'énoncé du haut en
+une phrase ; l'énoncé de la question dans un cadre `.pyn-etape`, EN GRAS, qui
+enveloppe les coups de pouce, la cellule, « Exécuter » et la console ; aucune
+consigne à côté du bouton ; une console vide reste un cadre vide (`#pttConsole`
+rejoint la règle `content:none`) ; des coups de pouce vert clair
+(`pyPoucesHTML`) qui ne portent QUE le texte de la fiche, ses coquilles
+corrigées (« caractère », « chaîne ») et le séparateur de la question. **La
+fiche n'a pas de définition : l'écran n'a donc PAS d'encadré de cours**, et le
+rappel (`RAP_PTT`, obligatoire) ne redit que les trois coups de pouce, sans
+phrase ajoutée.
+
+**L'INTERPRÉTEUR A APPRIS LES BOUCLES.** `pyRun` lisait une ligne à la fois :
+pas de `for`, pas de `[`. Il sait désormais `for … in …:`, `while`,
+`if / elif / else` (une instruction peut suivre les deux-points sur la même
+ligne), les comparaisons enchaînables, `not / and / or`, `True / False`,
+`range` (un à trois arguments, `range(0, 5)` à l'affichage), `len`,
+`chaine[k]` (indices négatifs, `IndexError` nommé), les tranches
+`chaine[a:b]`, `+=` et ses trois sœurs, `print(…, end=…, sep=…)`. Une chaîne
+se parcourt par CARACTÈRES (`Array.from`) : `len("été")` vaut 3, comme dans
+CPython. **Rien ne change pour un programme sans bloc** : tant qu'aucune ligne
+ne commence par `for`, `while`, `if`, `elif` ou `else` (`PY_ENTETE`),
+l'exécution reste celle d'avant, ligne par ligne et paresseuse — y compris
+la tolérance au retrait que les autres exercices avaient. Avec un bloc, le
+programme est découpé selon son retrait AVANT de s'exécuter (`pyBlocs`),
+comme CPython le compile : deux-points oubliés, bloc non décalé, retrait qui
+ne correspond à rien, `else` orphelin sont nommés. Une boucle de plus de
+20 000 tours est refusée en le disant (`PY_TOURS_MAX`), plutôt que de figer
+la page. Les méthodes (`"-".join(…)`) restent refusées, en le nommant.
+Quatre écarts à l'ancien comportement, tous vers CPython : `a == 3`, `a < b`,
+`chaine[0]` et `a += 1` s'exécutaient en erreur, ils s'exécutent.
+
+**LE JUGE CHANGE LA CHAÎNE**, comme la fiche prévient qu'on peut le faire :
+la ligne `chaine = "…"` est réécrite et la copie s'exécute avec le mot de
+l'énoncé, puis avec `chat` et `ordinateur` (`PTT_ESSAIS`). Ce qui est jugé
+est ce que le programme AFFICHE : `chaine_bis`, une tranche, `range(1, …)`,
+`for c in chaine` ou `print(c, end="-")` passent tous. **Le séparateur en
+trop à la fin (ou au début) est ACCEPTÉ ET NOMMÉ** : c'est ce que donne le
+coup de pouce 3 de la fiche, mot pour mot — le refuser compterait faux
+l'élève qui a suivi l'aide. Le modèle vert, lui, est exact (un `if` dans la
+boucle). Nommés : le mot écrit à la main (« toujours … même quand on change
+le mot »), le print DANS la boucle, `chaine_bis` jamais créée, l'indice qui
+dépasse, `k` collé au lieu de `chaine[k]`, un autre caractère, les espaces
+d'une virgule de print, le dernier caractère oublié, le mot tel quel, rien
+d'affiché, la première ligne effacée, un `input` inutile, les guillemets
+typographiques.
+
+**LA CELLULE FAIT LE RETRAIT** : Tab écrit quatre espaces, Entrée garde le
+retrait de la ligne et en ajoute un après des deux-points — sur tablette,
+sans touche Tab, c'est Entrée qui décale. **La séance** : la fiche épinglée,
+puis deux mots tirés par `distinctes()` avec leur caractère (`*`, `.`, `_`,
+`+`, `/`) ; le réglage « Questions » l'allonge jusqu'à six. Une copie restée
+sur sa première ligne est VIDE : elle ne rougit pas. Pas de correction au fil
+de la frappe (`soutienEnDirect.sans`).
+Banc jsdom (`pythonChaineTirets`) : la place, la fiche et le tirage (300
+séances), le juge sur cinq copies justes et seize fausses chacune avec son
+mot, l'écran (cadre, gras, coups de pouce, aucune définition, cellule
+pré-remplie, Tab et Entrée), les copies juste, fausse et vide, le soutien qui
+ne révèle rien, et dix programmes à boucles plus les modèles comparés à un
+vrai CPython. Pas de section propre au banc navigateur : la visite
+universelle (section 9) l'ouvre dans les deux modes.
+**Collision, encore — de noms seulement.** {python-chaines} (6.1.14) a été
+fusionné pendant que celui-ci attendait sa fusion, avec le MÊME kind `pch`
+(`startPCH`, `renderPCH`, `RAP_PCH`, `scr-pch`) et la MÊME version 275 ; c'est
+GitHub qui a refusé la fusion (conflits), pas un banc. Les deux exercices ne
+partagent rien d'autre : celui-ci a pris le préfixe `ptt` (« python, tirets »)
+et la version 276, et `main` a été fusionné dans la branche. L'interpréteur,
+lui, n'avait pas été touché par le 6.1.14.
+**Puis une troisième fusion, et cette fois l'interpréteur.** {python-chaine-len}
+a été fusionné à son tour, en 6.4.1, avec la version 276 — et il avait LUI AUSSI
+créé le sous-thème « Bonus », et appris `len(…)` et `chaine[i]` à `pyRun`. Les
+deux sous-thèmes n'en font qu'un (6.4.1 {python-chaine-len}, 6.4.2 celui-ci),
+version 277. Dans l'interpréteur, celui d'ici couvrait le sien (`len` par
+caractère, indices négatifs, `IndexError` et `TypeError` levés aux mêmes
+endroits — ses contrôles ne lisent que le TYPE de l'erreur) : il est gardé, avec
+UNE seule branche `len` — fusionnées telles quelles, celle de {python-chaine-len}
+passait devant et refusait `len(range(…))` — et la coloration de `len` dans
+`pyColorie` apportée par {python-chaine-len}.
+
+---
+
+**Remplacer la première lettre par "*" — l'exercice 27 du carnet.**
+{python-remplacer-lettre} (Seconde, 6.4.3, demande de Turquet, octobre
+2026 : « en seconde avec les images créer un exercice dans le sous-thème
+print et variable qui respecte toutes les nouvelles consignes que j'ai
+données pour le sous-thème input. Ne pas rajouter de phrase dans les
+définitions ou rappels. Écrire les énoncés des questions après les
+définitions ou rappels. On le mettra dans un sous-thème bonus ») :
+« Faire un programme qui remplace la première lettre par "*" » — "gaston"
+devient "*aston" —, ses trois remarques (on peut changer la chaîne ;
 `chaine[0] = "*"` ne marche pas ; on reconstruit la chaîne lettre par
 lettre), ses trois coups de pouce repliés, et la cellule ouverte sur
-`chaine = "gaston"`. Le sous-thème 6.4 « Bonus » est créé pour lui, ajouté en
-dernier : il ne renumérote rien.
+`chaine = "gaston"`. Il suit {python-chaine-tirets} dans le sous-thème 6.4
+« Bonus ».
+**Écrit d'abord sur l'ancien `main`, il y créait le sous-thème « Bonus »
+et apprenait à `pyRun` for, len et chaine[k]** — en 6.4.1, version 275.
+Pendant ce temps, {python-chaine-len} et {python-chaine-tirets} ont été
+fusionnés avec un interpréteur plus complet (for, while, if, tranches). La
+branche a repris les fichiers de `main` et y a REJOUÉ son seul exercice : le
+sien n'est pas entré, un seul interpréteur reste. Ce que l'exercice lui
+demande y est déjà : le banc compare toujours à CPython ses six modèles et
+treize programmes de bord, erreurs comprises (seul le texte de l'erreur de
+`chaine[0] = "*"` diffère, en français ; le juge lit celui de la page).
 **LES CONSIGNES DU 6.3, REPRISES UNE À UNE** : l'énoncé dans un cadre
 `.pyn-etape`, en tête et en gras, APRÈS l'encadré des remarques ; l'encadré
 écrit à la question 1 seulement ; aucune consigne à côté d'« Exécuter » ;
@@ -3405,23 +3625,13 @@ coups de pouce vert clair (`pyPoucesHTML`), sans phrase après leur modèle.
 compare le texte de l'encadré caractère par caractère. Seules les coquilles
 des coups de pouce sont corrigées (« instructuion », « jusqu'a la dernier
 lettre »).
-**L'INTERPRÉTEUR A APPRIS for, len() ET chaine[k]** : `pyRun` lit le corps
-d'un `for` à l'indentation (toutes ses lignes au même décalage, sinon
-IndentationError), parcourt `range(…)` (un à trois entiers) ou un texte ;
-`len` compte les lettres ; `chaine[k]`, `chaine[-1]` et les tranches
-`chaine[a:b]` suivent Python ; `chaine[0] = "*"` lève la vraie TypeError
-(« 'str' object does not support item assignment ») — la remarque 1, que
-l'élève VOIT en exécutant. Hors d'un `for`, rien ne change : chaque ligne est
-lue au moment où elle s'exécute, une ligne décalée reste tolérée, et
-`if`/`while`/`def` sont refusés en le nommant. Le banc compare au vrai
-CPython dix-neuf programmes, erreurs comprises.
 **LE JUGE CHANGE LA CHAÎNE** (« on peut changer la valeur de la chaîne comme
 on veut ») : la ligne `chaine = "…"` est remplacée par « informatique » et
 « lycee », et le résultat doit suivre. Il est accepté AFFICHÉ ou RANGÉ dans
 une variable : le carnet ne demande pas d'afficher. `print("*aston")` passe
 le premier mot et pas le second, et le message le nomme ; la dernière lettre
 perdue (`len(chaine)-1`), la première gardée (`range(0, …)`), le "*" oublié,
-la lettre remplacée au lieu d'ajoutée, chacun a son mot. **La cellule
+la lettre remplacée au lieu d'ajoutée, chacune a son message. **La cellule
 laissée telle qu'elle s'ouvre est une copie VIDE** : elle ne rougit jamais et
 reçoit le modèle en vert.
 **LA SÉANCE** : la fiche épinglée en tête (gaston, "*"), puis des mots et des
