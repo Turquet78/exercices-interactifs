@@ -5213,7 +5213,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=272;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=273;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -30300,8 +30300,7 @@ function pisEnonceHTML(q){
 }
 /* Le cours, en un cadre : float(input(…)), et le point des décimaux. */
 function pisCoursHTML(){
-  return '<div class="pyp-regle pyi-cours"><b><code>float(input("…"))</code> demande un nombre décimal</b> : input rend toujours un TEXTE, float(…) en fait un nombre à virgule — et avec des nombres, on peut CALCULER. En Python, la virgule s’écrit avec un POINT&nbsp;: on répond <code>2.5</code>, pas <code>2,5</code>.'
-    +'<span class="pyp-ex">Sans float, <code>"2.5" + "1.25"</code> COLLE les deux textes et donne <code>2.51.25</code>&nbsp;; avec float, <code>2.5 + 1.25</code> donne <code>3.75</code>.</span></div>';
+  return '<div class="pyp-regle pyi-cours"><b><code>float(input("…"))</code> demande un nombre décimal</b> : input rend toujours un TEXTE, float(…) en fait un nombre à virgule — et avec des nombres, on peut CALCULER. En Python, la virgule s’écrit avec un POINT&nbsp;: on répond <code>2.5</code>, pas <code>2,5</code>.</div>';
 }
 /* Les trois coups de pouce du carnet. */
 function pisPoucesHTML(q){
