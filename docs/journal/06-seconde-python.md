@@ -3382,6 +3382,77 @@ tels quels.
 
 ---
 
+**Le sous-thème « Bonus », et la première BOUCLE — l'exercice 29 du carnet.**
+{python-inverser-lettres} (Seconde, 6.4.4, demande de Turquet, octobre 2026 :
+« en seconde avec les images créer un exercice […] qui respecte toutes les
+nouvelles consignes que j'ai données pour le sous-thème input. Ne pas rajouter
+de phrase dans les définitions ou rappels. Écrire les énoncés des questions
+après les définitions ou rappels. On le mettra dans un sous-thème bonus ») est
+la fiche « Exercice 29 » : « Faire un programme qui inverse l'ordre des
+lettres — par exemple : "juliette" devient "etteiluj" », ses trois coups de
+pouce repliés (`chaine_bis = ""`, `for k in range (len(chaine)):`,
+`len(chaine) - 1 - k`), et la cellule qui porte déjà `chaine = "juliette"`.
+La demande citait aussi le sous-thème « print et variable » ; la boucle
+dépasse ce qu'il enseigne, et la phrase finale tranche : il va dans le
+sous-thème 6.4 « Bonus ».
+**Quatrième, cinquième et sixième collisions du thème : le même sous-thème,
+créé le même jour par trois autres sessions.** Pendant les bancs, {python-chaine-len}
+(`len(chaine)`, `chaine[i]`), {python-chaine-tirets} (la première boucle) puis
+{python-remplacer-lettre} ont été fusionnés, chacun avec « son » sous-thème « Bonus » et chacun avec la
+version que celui-ci venait de prendre. L'ordre des notions a décidé : `len`
+et l'indice, puis la boucle qui écrit des tirets, puis l'inversion qui se
+sert des deux — celui-ci est 6.4.4 (derrière {python-remplacer-lettre},
+arrivé le dernier sur `main` mais avant lui), version 279. **Et l'interpréteur en
+aurait eu deux** : celui-ci avait appris for/range/len/indice sous une option
+`{boucles:true}`, réservée à cet exercice ; {python-chaine-tirets} les a
+appris à TOUT le thème (blocs for/while/if, tranches, `+=`, `print(end=…)`),
+avec son propre contrôle comparé à CPython. Deux implémentations auraient été
+deux vérités : la sienne est gardée telle quelle, l'option est retirée, et
+le juge d'ici ne demande plus rien de propre à l'interpréteur. Conséquence
+nommée : `chaine[::-1]` n'est plus refusé par l'interpréteur (son pas fait
+encore une erreur de syntaxe, mais une tranche à deux bornes passerait) —
+c'est le juge qui repère la tranche DANS LE PROGRAMME et la refuse avec le
+mot de la leçon. Le contrôle d'ici tient ce que le juge demande à
+l'interpréteur ET les messages qu'il traduit : un message qui changerait de
+forme laisserait l'élève devant « Python s'arrête sur une erreur ».
+
+**Les consignes du 6.3, tenues ici** : l'énoncé de la fiche en gras, en tête
+du cadre `.pyn-etape` qui enveloppe coups de pouce, cellule, « Exécuter » et
+console ; aucune consigne à côté du bouton ; des coups de pouce vert clair
+recopiés au mot près, sans phrase après leur modèle ; une console vide qui
+reste un cadre vide (`#pblConsole` rejoint la règle `content:none`). **Aucun
+encadré de cours** : la fiche n'en a pas, et la consigne était de ne pas en
+écrire. Le rappel du bouton d'aide (obligatoire) est fait des TROIS coups de
+pouce, et de rien d'autre que son titre.
+
+**Le juge exécute avec des mots que l'élève ne connaît pas.** La ligne
+`chaine = "…"` est remplacée par le mot de la question, puis par « ordinateur »
+et « pomme » : `print("etteiluj")` passe le premier et se trahit au second,
+`range(8)` écrit à la main bute sur les cinq lettres de « pomme ». Nommés :
+le mot écrit à la main, le nombre de lettres écrit à la main, le print resté
+dans la boucle (huit lignes), les lettres affichées une par une, l'ordre
+inchangé (`chaine[k]`), le « - 1 » oublié, `chaine_bis` jamais créée, la
+tranche, les deux-points, le décalage, la position ajoutée au lieu de la
+lettre, la ligne `chaine` supprimée. Acceptés : `for lettre in chaine`,
+`+=`, un `range` à rebours, un texte avant le mot (nommé). Une cellule
+laissée à sa seule ligne de départ est VIDE : elle ne rougit pas.
+
+**La cellule** accepte Tab (quatre espaces) et garde le décalage à la ligne
+suivante, quatre de plus après « : » — comme un carnet : sans cela, un élève
+sur ordinateur sortait de la cellule en voulant décaler.
+
+**La séance** : « juliette » épinglé en tête, puis des mots tirés par
+`distinctes()` (ni palindrome, ni mot du juge — le contrôle l'exige),
+jusqu'à cinq avec le réglage « Questions ». Une case par question, pas de
+correction au fil de la frappe (`soutienEnDirect.sans`). Banc jsdom
+(`pythonInverserLettres`) : la place, ce que le juge demande à l'interpréteur,
+le tirage (300 séances), le juge sur quatre copies justes et seize fausses
+chacune avec son mot, l'écran tenu aux consignes du 6.3 (énoncé dans le
+cadre, coups de pouce au mot près, aucun cours, aucune consigne au bouton),
+Tab et Entrée, les copies juste, fausse et vide, le soutien qui ne révèle
+rien, et les programmes à boucle comparés à un vrai CPython. Pas de section
+propre au banc navigateur : la visite universelle (section 9) l'ouvre dans
+les deux modes.
 **Concaténation et répétition : les exercices 21 et 22 du carnet, dans le
 6.1.** {python-chaines} (Seconde, 6.1.14, demande de Turquet, octobre 2026 :
 « en seconde créer un exercice dans le sous-thème print et variable qui
@@ -3699,7 +3770,7 @@ autres ; ses contrôles le cherchent dans `#scr-prl`.
 ---
 
 **Le programme le plus court possible : un triangle d'étoiles — le sous-thème
-6.4 « Bonus ».** {python-triangle-etoiles} (Seconde, 6.4.4, demande de Turquet,
+6.4 « Bonus ».** {python-triangle-etoiles} (Seconde, 6.4.5, demande de Turquet,
 octobre 2026 : « en seconde avec l'image créer un exercice dans le sous thème
 print et variable qui respecte toutes les nouvelles consignes que j'ai données
 pour le sous-thème input. ne pas rajouter de phrase dans les définitions ou
@@ -3808,3 +3879,8 @@ Turquet a tranché : « garde le coup de pouce seulement replié ». L'emplaceme
 existe et reste VIDE, et l'exception est NOMMÉE dans `tests/profils.js`
 (`pythonAvant.sans`), comme celle de {python-chaine-tirets}, pour la même
 raison.
+
+**Et une sixième : {python-inverser-lettres}**, fusionné en 6.4.4 pendant les
+bancs de celle-ci. Le triangle passe en 6.4.5, version 280. Même méthode :
+page, profils et banc repris de `main`, insertions rejouées, mentions de
+`ptr` comptées avant et après (aucun écart).
