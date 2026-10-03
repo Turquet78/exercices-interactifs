@@ -3381,7 +3381,7 @@ du 6.3.4, du 6.3.6 et du 6.3.7 n'ont que leur ligne à recopier, et restent
 tels quels.
 
 **Le prix des pommes et des tomates — l'exercice 10 du carnet.**
-{python-input-prix} (Seconde, 6.3.8, APP_VERSION 283 — 280 à 282 pris sur `main` pendant les bancs —, demande de Turquet,
+{python-input-prix} (Seconde, 6.3.9, APP_VERSION 284 — 280 à 283 pris sur `main` pendant les bancs —, demande de Turquet,
 octobre 2026 : « en seconde avec les images créer un exercice dans le sous
 thème input qui respecte toutes les nouvelles consignes que j'ai données pour
 le sous-thème input ; ne pas rajouter de phrase dans les définitions ou
@@ -3390,9 +3390,11 @@ rappels ») : le serpent au panier, « 1 kg de pomme = 3,62 € », « 1 kg de
 tomate = 5,57 € », puis « Réaliser un programme dans la cellule suivante
 qui » demande le poids des pommes, puis celui des tomates, sous forme
 décimale, calcule le prix total et l'affiche avec une phrase, et un coup de
-pouce : la formule. Il ferme le sous-thème 6.3, derrière {python-input-moyenne}
-(6.3.7) : rien n'est renuméroté. Le contrôle du 6.3.7 exigeait d'être le
-DERNIER du sous-thème ; il exige désormais de suivre {python-input-somme}.
+pouce : la formule. Il ferme le sous-thème 6.3, derrière {python-input-rectangle}
+(6.3.8, l'exercice 9 du carnet, fusionné pendant les bancs : celui-ci, écrit
+en 6.3.8, est passé en 6.3.9 pour garder l'ordre du carnet) : rien n'est
+renuméroté. Le contrôle du 6.3.8 exigeait d'être le DERNIER du sous-thème ;
+il exige désormais de suivre le 6.3.7.
 **Le dessin vient de la fiche** : découpé dans la capture, sans les prix,
 détouré, en WebP (10 Ko, `PKG_IMG`, une URL `data:`) — la page reste un
 fichier unique. Les prix au kilo sont écrits en TEXTE à côté
@@ -3428,6 +3430,71 @@ tables. Banc jsdom (`pythonInputPrix`) : la place, le tirage (300 séances),
 le juge sur quatre copies justes et seize fausses chacune avec son mot,
 l'écran tenu aux consignes, le dialogue de la console, les copies juste,
 fausse et vide, le soutien, et 28 exécutions des modèles comparées à un vrai
+CPython. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
+---
+
+**L'aire et le périmètre d'un rectangle — l'exercice 9 du carnet.**
+{python-input-rectangle} (Seconde, 6.3.8, APP_VERSION 283, demande de Turquet,
+octobre 2026 : « en seconde avec les images créer un exercice dans le
+sous-thème input qui respecte toutes les nouvelles consignes que j'ai données
+pour le sous-thème input. Ne pas rajouter de phrase dans les définitions ou
+rappel. Écrire les énoncés des questions après les définitions ou rappels »)
+est la fiche « Exercice 9 » : un programme qui demande la longueur en
+centimètres d'un rectangle sous la forme d'un nombre décimal, puis sa
+largeur, calcule l'aire et le périmètre, et affiche les résultats — avec le
+rectangle de la fiche (« Longueur » au-dessus, « Largeur » sur le côté,
+redessiné en SVG ; le serpent, décoratif, n'est pas repris) et ses TROIS coups
+de pouce repliés. Il ferme le sous-thème 6.3, derrière {python-input-moyenne} :
+rien n'est renuméroté. Le contrôle du 6.3.7 exigeait d'être le DERNIER du
+sous-thème ; il exige désormais sa place (7e, derrière le 6.3.6), et celui
+d'ici de suivre le 6.3.7.
+
+**Les consignes du sous-thème, tenues d'emblée** : l'énoncé de la question
+dans un cadre `.pyn-etape`, EN GRAS, qui enveloppe les coups de pouce, la
+cellule, « Exécuter » et la console ; aucune consigne à côté du bouton ; la
+console vide reste un cadre vide (`#prcConsole` rejoint la règle
+`content:none`) ; des coups de pouce vert clair (`pyPoucesHTML`) qui ne portent
+QUE le texte de la fiche, ses coquilles corrigées (« centimètres ») et le
+« x » de la formule écrit « × » — un x isolé serait mis en italique par le
+filet `italiquerX` et lu comme l'inconnue. **La fiche n'a pas de définition :
+l'écran n'a donc PAS d'encadré de cours** (troisième exception déclarée de
+`pythonAvant.sans`, comme {python-chaine-tirets} : son rappel ne reprend que
+les coups de pouce, les écrire avant l'énoncé donnerait le programme), et le
+rappel (`RAP_PRC`, obligatoire) ne redit que les trois coups de pouce, sans
+phrase ajoutée. L'énoncé du haut est le rectangle de la fiche ; la question
+s'écrit dans son cadre, dessous.
+
+**Ce qu'il ajoute au 6.3.7** : DEUX résultats, donc deux calculs rangés dans
+`aire` et `perimetre` (sans accent — un `périmètre` est nommé), deux lignes
+affichées, et la parenthèse du périmètre. Le juge (`prcDiag`) exécute la copie
+sous deux paires de réponses décimales que l'élève ne connaît pas, multiples de
+1/8 : produits et sommes exacts en binaire, la page et CPython écrivent le même
+nombre. Le contrôle exige qu'aucune réponse ne soit entière, que l'aire ne
+vaille jamais le périmètre, et que les deux paires donnent deux résultats
+différents. Nommés : `int` au lieu de `float`, le float oublié,
+`longueur + largeur * 2` (« sans parenthèses »), le × 2 oublié, l'aire et le
+périmètre échangés, la somme pour l'aire, un nombre écrit à la main, le nom
+entre guillemets, une réponse affichée au lieu du résultat, le calcul fait
+dans le print, une seule ligne, un autre texte. Les deux lignes se lisent par
+`piaLigneOk`, dans un ordre ou dans l'autre ; les espaces que le coup de
+pouce 3 met dans ses guillemets (`"l'aire est de ", …`) ne sont pas un écart.
+Un programme à UN seul input s'arrête plus loin sur une variable jamais
+calculée : le juge dit « ne pose qu'une question », pas « la variable
+n'existe pas » — vu par le banc à la première exécution, comme au 6.3.6.
+
+**La séance** : la fiche épinglée en tête (le rectangle en centimètres), puis
+des situations tirées par `distinctes()` (un jardin, le sol d'une chambre, une
+photo, un terrain de sport), jusqu'à cinq avec le réglage « Questions ». La
+console est celle du 6.3.7 (pavé `decimal`, la virgule nommée par
+`pmyErreurConsole`). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonInputRectangle`) : la place, la fiche et le tirage (300 séances), le
+juge sur trois copies justes et vingt-trois fausses chacune avec son mot,
+l'écran (figure, gras, cadre, coups de pouce repliés, aucune définition, aucune
+consigne au bouton), le dialogue joué au clavier, les copies juste, fausse et
+vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
 CPython. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
 
@@ -3504,6 +3571,9 @@ Tab et Entrée, les copies juste, fausse et vide, le soutien qui ne révèle
 rien, et les programmes à boucle comparés à un vrai CPython. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans
 les deux modes.
+
+---
+
 **Concaténation et répétition : les exercices 21 et 22 du carnet, dans le
 6.1.** {python-chaines} (Seconde, 6.1.14, demande de Turquet, octobre 2026 :
 « en seconde créer un exercice dans le sous-thème print et variable qui

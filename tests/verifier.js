@@ -4168,6 +4168,7 @@ function exercices(suite){
     pythonInput(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
+    pythonInputRectangle(w, P);
     pythonInverserLettres(w, P);
     pythonChaines(w, P);
     pythonChaineLen(w, P);
@@ -23733,11 +23734,11 @@ function pythonInputMoyenne(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il suit les six autres du sous-thème 6.3 « Input », numéroté ' + NUM + ' (l’exercice 8 du carnet après le 7), et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est le 7e du sous-thème 6.3 « Input », numéroté ' + NUM + ' derrière les six autres (l’exercice 8 du carnet après le 7 ; le 9 le suit), et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
-    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-somme")+1||st.ids.indexOf("python-input-somme")<0) vus.push("il ne suit pas {python-input-somme} (l’exercice 7 du carnet) : "+st.ids.join(","));
+    else if(st.ids.indexOf("${ID}")!==6||st.ids[5]!=="python-input-somme") vus.push("il n’est pas le 7e du sous-thème, derrière l’exercice 7 du carnet : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3"||TEST_NUM["python-input-calcul"]!=="6.3.4"||TEST_NUM["python-input-float"]!=="6.3.5"||TEST_NUM["python-input-somme"]!=="6.3.6") vus.push("les six autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -23893,6 +23894,210 @@ function pythonInputMoyenne(w, P){
     const res=[];
     PMY_SITUATIONS.forEach(function(S, i){ S.ex.forEach(function(p){
       const src=pmyModele({s:i}), r=pyRun(src,p.slice());
+      res.push([src, p, r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_R = iter(' + JSON.stringify(p) + ')\ndef input(q=""):\n    return next(_R)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-input-rectangle} (Seconde, 6.3.8) : l'exercice 9 du carnet — la
+   longueur et la largeur d'un rectangle demandées avec float(input(…)), son
+   aire et son périmètre, puis deux lignes affichées. Le contrôle tient la
+   place au menu (il ferme le 6.3, derrière le 6.3.7), la fiche épinglée et le
+   tirage, le juge sur des copies justes et fausses — chacune avec le mot qui
+   la nomme —, les consignes du sous-thème (énoncé en gras dans son cadre,
+   coups de pouce repliés, aucune définition, aucune consigne au bouton), le
+   dialogue de la console, la copie juste, fausse et vide, le soutien qui
+   n'en révèle rien, puis compare à un vrai CPython ce que les modèles
+   affichent. */
+function pythonInputRectangle(w, P){
+  const nom = '{python-input-rectangle} : demander la longueur et la largeur d’un rectangle, calculer son aire et son périmètre, les afficher';
+  if(!P.pythonInputRectangle){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du rectangle'); return; }
+  const ID = P.pythonInputRectangle.exercice, NB = P.pythonInputRectangle.nb, NUM = P.pythonInputRectangle.numero;
+  const present = evaluer(w, "typeof startPRC==='function' && typeof prcDiag==='function' && typeof prcBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPRC / prcDiag / prcBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il suit le 6.3.7 dans le sous-thème « Input », numéroté ' + NUM + ' (l’exercice 9 du carnet après le 8 ; le 10 le suit), et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-moyenne")+1||st.ids.indexOf("python-input-moyenne")<0) vus.push("il ne suit pas le 6.3.7 : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-chaine-len"]!=="6.4.1") vus.push("les autres ont bougé");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (le rectangle en centimètres, « l\'aire est de », « le périmètre est de »), puis des situations distinctes ; le modèle de chacune passe au juge, chaque réponse du juge est décimale, aire et périmètre diffèrent d’une paire à l’autre, et chaque situation sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=prcBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      const S0=prcSit(qs[0]);
+      if(qs[0].s!==0||S0.ta1!=="l'aire est de"||S0.ta2!=="centimètres carrés."||S0.tp1!=="le périmètre est de"||S0.tp2!=="centimètres."){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois la même situation : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PRC_SITUATIONS.forEach(function(S, i){
+      const d=prcDiag(prcModele({s:i}),{s:i});
+      if(!d.ok||d.ecart) vus.push("le modèle de la situation "+i+" : "+(d.dits||[]).join(" ")+(d.ecart||""));
+      if(prcAire(S.ex[0])===prcAire(S.ex[1])||prcPer(S.ex[0])===prcPer(S.ex[1])) vus.push("les deux paires du juge donnent le même résultat en "+i);
+      S.ex.forEach(function(p){
+        if(prcAire(p)===prcPer(p)) vus.push("aire = périmètre en "+i);
+        p.forEach(function(v){ if(v.indexOf(".")<0) vus.push("réponse entière "+v+" en "+i+" : un int(input) passerait"); });
+      });
+    });
+    if(Object.keys(vues).length!==PRC_SITUATIONS.length) vus.push("des situations ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (espaces des coups de pouce, guillemets simples, calcul écrit autrement, lignes dans l’autre ordre) et nomme chaque défaut — int au lieu de float, float oublié, parenthèses oubliées, × 2 oublié, aire et périmètre échangés, nombre écrit à la main, nom entre guillemets, réponse affichée, variable absente ou accentuée, input muet, une seule question, trois questions, une seule ligne, autre texte, rien d’affiché, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const i1="longueur = float(input("+Q+"Longueur ? "+Q+"))", i2="largeur = float(input("+Q+"Largeur ? "+Q+"))";
+    const ii=i1+NL+i2, ca="aire = longueur * largeur", cp="perimetre = (longueur + largeur) * 2", cc=ca+NL+cp;
+    const pa=function(v){ return "print("+Q+"l"+A+"aire est de "+Q+", "+v+" , "+Q+" centimètres carrés."+Q+")"; };
+    const pp=function(v){ return "print("+Q+"le périmètre est de "+Q+", "+v+" , "+Q+" centimètres."+Q+")"; };
+    const bon=pa("aire")+NL+pp("perimetre");
+    const justes=[ii+NL+cc+NL+bon,
+                  ii+NL+"aire = largeur*longueur"+NL+"perimetre = 2*longueur + 2*largeur"+NL+pp("perimetre")+NL+pa("aire"),
+                  ii+NL+NL+"# les calculs"+NL+ca+NL+"perimetre = 2 * (longueur + largeur)"+NL+"print("+Q+"l"+A+"aire est de"+Q+", aire, "+Q+"centimètres carrés."+Q+")"+NL+"print("+A+"le périmètre est de"+A+", perimetre, "+A+"centimètres."+A+")"];
+    justes.forEach(function(p){ const d=prcDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); else if(d.ecart) vus.push("écart nommé à tort : "+d.ecart); });
+    const cas=[
+      ["longueur = int(input("+Q+"?"+Q+"))"+NL+i2+NL+cc+NL+bon, /float\\(input/],
+      ["longueur = input("+Q+"?"+Q+")"+NL+"largeur = input("+Q+"?"+Q+")"+NL+cc+NL+bon, /TOUJOURS un texte/],
+      [ii+NL+ca+NL+"perimetre = longueur + largeur * 2"+NL+bon, /Sans parenthèses/],
+      [ii+NL+ca+NL+"perimetre = longueur + largeur"+NL+bon, /multiplier par 2/],
+      [ii+NL+"aire = (longueur + largeur) * 2"+NL+cp+NL+bon, /PÉRIMÈTRE/],
+      [ii+NL+"aire = longueur + largeur"+NL+cp+NL+bon, /PRODUIT/],
+      [ii+NL+ca+NL+"perimetre = longueur * largeur"+NL+bon, /AIRE/],
+      [ii+NL+"aire = 53.125"+NL+cp+NL+bon, /toujours 53.125/],
+      [ii+NL+cc+NL+pa("53.125")+NL+pp("33.5"), /mêmes nombres/],
+      [ii+NL+cc+NL+pa(Q+"aire"+Q)+NL+pp("perimetre"), /SANS guillemets/],
+      [ii+NL+cc+NL+pa("longueur")+NL+pp("largeur"), /réponses tapées/],
+      [ii+NL+ca+NL+"périmètre = (longueur + largeur) * 2"+NL+pa("aire")+NL+pp("périmètre"), /SANS accent/],
+      [ii+NL+ca+NL+pa("aire")+NL+pp("(longueur + largeur) * 2"), /variable perimetre/],
+      [ii+NL+ca+NL+"perimetre = (longueur - largeur) * 2"+NL+bon, /Vérifie ton calcul/],
+      ["longueur = float(input())"+NL+i2+NL+cc+NL+bon, /pas de question/],
+      ["a = float(input("+Q+"?"+Q+"))"+NL+i2+NL+"aire = a * largeur"+NL+"perimetre = (a + largeur) * 2"+NL+bon, /variable longueur/],
+      [i1+NL+"aire = longueur"+NL+bon, /qu’une question/],
+      [ii+NL+"z = input("+Q+"?"+Q+")"+NL+cc+NL+bon, /plus de deux questions/],
+      [ii+NL+cc+NL+pa("aire"), /qu’une ligne/],
+      [ii+NL+cc+NL+"print("+Q+"Bonjour"+Q+", aire)"+NL+pp("perimetre"), /Pour l’aire/],
+      [ii+NL+cc, /n’affiche rien/],
+      [ii+NL+bon+NL+cc, /AVANT le print/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=prcDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, le dialogue, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : le rectangle de la fiche, l’énoncé EN GRAS dans son cadre (quatre puces, les quatre variables) qui enveloppe trois coups de pouce repliés, la cellule, « Exécuter » et la console ; aucune définition, aucune consigne au bouton ; « Exécuter » pose les DEUX questions, une virgule tapée y est nommée, et Entrée affiche les deux lignes ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPRC();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("prcInstr");
+    if(!en||!en.querySelector("svg rect")||!/Longueur/.test(en.textContent)||!/Largeur/.test(en.textContent)) vus.push("le rectangle de la fiche manque");
+    const et=document.querySelector("#prcHost .pyn-etape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||getComputedStyle(ti).fontWeight!=="700") vus.push("l’énoncé n’est pas en gras dans son cadre");
+    else if(ti.querySelectorAll("li").length!==4||["longueur","largeur","aire","perimetre","décimal"].some(function(m){ return ti.textContent.indexOf(m)<0; })) vus.push("l’énoncé : "+ti.textContent);
+    if(!et||!et.querySelector("#prc-prog")||!et.querySelector("#prcRun")||!et.querySelector("#prcConsole")) vus.push("le cadre n’enveloppe pas la cellule, le bouton et la console");
+    const pouces=document.querySelectorAll("#prcHost .pyn-etape details.pyd-pouce");
+    if(pouces.length!==3) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); });
+    if(document.querySelector("#scr-prc .py-avant, #scr-prc .pyi-cours, #scr-prc .pyp-regle")) vus.push("une définition s’affiche : la fiche n’en a pas");
+    const run=document.getElementById("prcRun"); if(run.parentNode.textContent.trim()!==run.textContent.trim()) vus.push("une consigne est posée à côté du bouton");
+    const ta=document.getElementById("prc-prog"), cons=document.getElementById("prcConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value="longueur = float(input("+Q+"Longueur ? "+Q+"))"+NL+"largeur = float(input("+Q+"Largeur ? "+Q+"))"+NL+"aire = longueur * largeur"+NL+"perimetre = (longueur + largeur) * 2"+NL+"print("+Q+"l"+A+"aire est de"+Q+", aire, "+Q+"centimètres carrés."+Q+")"+NL+"print("+Q+"le périmètre est de"+Q+", perimetre, "+Q+"centimètres."+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    const repondre=function(v){ const r=document.getElementById("prc-rep"); if(!r||!cons.contains(r)){ vus.push("la console ne demande pas la réponse "+v); return false; } r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); return true; };
+    prcExecuter();
+    if(cons.textContent.indexOf("Longueur ? ")<0) vus.push("la 1ère question n’est pas écrite dans la console");
+    if(repondre("12,5") && !(cons.classList.contains("py-err") && /POINT/.test(cons.textContent))) vus.push("la virgule tapée n’est pas nommée : "+JSON.stringify(cons.textContent));
+    prcExecuter();
+    if(repondre("12.5")){
+      if(cons.textContent.indexOf("Largeur ? ")<0) vus.push("la 2ème question n’est pas posée");
+      if(repondre("4")){
+        if(document.getElementById("prc-rep")) vus.push("la case reste après la dernière réponse");
+        if(cons.textContent.split(NL).slice(-2).join("/")!=="l"+A+"aire est de 50.0 centimètres carrés./le périmètre est de 33.0 centimètres.") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+      }
+    }
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPRC();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score+" — "+document.getElementById("prcFeedback").textContent);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("prcNext")) vus.push("pas de « Question suivante »");
+    nextPRC();
+    if(test.idx!==1||document.getElementById("prc-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    if(document.getElementById("prcConsole").textContent!=="") vus.push("la console de la question suivante n’est pas vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPRC();
+    let ta=document.getElementById("prc-prog");
+    const corps=NL+"aire = longueur * largeur"+NL+"perimetre = longueur + largeur * 2"+NL+"print("+Q+"l"+A+"aire est de"+Q+", aire, "+Q+"centimètres carrés."+Q+")"+NL+"print("+Q+"le périmètre est de"+Q+", perimetre, "+Q+"centimètres."+Q+")";
+    ta.value="longueur = int(input("+Q+"? "+Q+"))"+NL+"largeur = int(input("+Q+"? "+Q+"))"+corps;
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPRC();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#prcModele .sol");
+    if(!mod||mod.textContent!==prcModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("prcConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPRC(); ta=document.getElementById("prc-prog");
+    checkPRC();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==prcModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPRC(); ta=document.getElementById("prc-prog");
+    checkPRC();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="longueur = float(input("+Q+"? "+Q+"))"+NL+"largeur = float(input("+Q+"? "+Q+"))"+corps;
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPRC();
+    const fb=document.getElementById("prcFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/parenthèses/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#prcModele .sol")||fb.indexOf("float(input("+Q+"Quelle")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPrc(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ---- */
+  const nomPy = 'ce que les modèles de {python-input-rectangle} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PRC_SITUATIONS.forEach(function(S, i){ S.ex.forEach(function(p){
+      const src=prcModele({s:i}), r=pyRun(src,p.slice());
       res.push([src, p, r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
     }); });
     return res;
@@ -24728,11 +24933,11 @@ function pythonInputSomme(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-input-prix} (Seconde, 6.3.8) : l'exercice 10 du carnet — le serpent
+/* {python-input-prix} (Seconde, 6.3.9) : l'exercice 10 du carnet — le serpent
    au panier. Demander le poids des pommes puis celui des tomates sous forme
    décimale, calculer le prix total, l'afficher avec une phrase. Le contrôle
-   tient la place au menu (il ferme le sous-thème 6.3, rien d'autre ne bouge),
-   la fiche épinglée et le tirage, le juge — qui ne lit que ce que le
+   tient la place au menu (il ferme le sous-thème 6.3 derrière le rectangle, rien
+   d'autre ne bouge), la fiche épinglée et le tirage, le juge — qui ne lit que ce que le
    programme AFFICHE, la fiche ne nommant aucune variable — sur des copies
    justes et fausses, chacune avec le mot qui la nomme, l'écran tenu aux
    consignes du sous-thème (l'étiquette avec son dessin, l'énoncé en gras dans
@@ -24751,13 +24956,13 @@ function pythonInputPrix(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ', derrière {python-input-moyenne} (l’exercice 8 du carnet), et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ', derrière {python-input-rectangle} (l’exercice 9 du carnet), et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
-    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-input-moyenne") vus.push("il ne ferme pas le sous-thème derrière {python-input-moyenne} : "+st.ids.join(","));
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-input-rectangle") vus.push("il ne ferme pas le sous-thème derrière {python-input-rectangle} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-somme"]!=="6.3.6"||TEST_NUM["python-input-moyenne"]!=="6.3.7") vus.push("les autres ont bougé");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-somme"]!=="6.3.6"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-input-rectangle"]!=="6.3.8") vus.push("les autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
