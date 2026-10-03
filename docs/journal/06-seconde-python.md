@@ -3379,3 +3379,70 @@ la variable sans guillemets ») est retirée. C'était le SEUL coup de pouce du
 sous-thème 6.3 à porter un texte après son modèle : ceux du 6.3.1, du 6.3.2,
 du 6.3.4, du 6.3.6 et du 6.3.7 n'ont que leur ligne à recopier, et restent
 tels quels.
+
+---
+
+**Le sous-thème « Bonus », et la première BOUCLE — l'exercice 29 du carnet.**
+{python-inverser-lettres} (Seconde, 6.4.1, demande de Turquet, octobre 2026 :
+« en seconde avec les images créer un exercice […] qui respecte toutes les
+nouvelles consignes que j'ai données pour le sous-thème input. Ne pas rajouter
+de phrase dans les définitions ou rappels. Écrire les énoncés des questions
+après les définitions ou rappels. On le mettra dans un sous-thème bonus ») est
+la fiche « Exercice 29 » : « Faire un programme qui inverse l'ordre des
+lettres — par exemple : "juliette" devient "etteiluj" », ses trois coups de
+pouce repliés (`chaine_bis = ""`, `for k in range (len(chaine)):`,
+`len(chaine) - 1 - k`), et la cellule qui porte déjà `chaine = "juliette"`.
+La demande citait aussi le sous-thème « print et variable » ; la boucle
+dépasse ce qu'il enseigne, et la phrase finale tranche : le sous-thème 6.4
+« Bonus » est créé, ajouté en dernier — rien n'est renuméroté.
+
+**Les consignes du 6.3, tenues ici** : l'énoncé de la fiche en gras, en tête
+du cadre `.pyn-etape` qui enveloppe coups de pouce, cellule, « Exécuter » et
+console ; aucune consigne à côté du bouton ; des coups de pouce vert clair
+recopiés au mot près, sans phrase après leur modèle ; une console vide qui
+reste un cadre vide (`#pblConsole` rejoint la règle `content:none`). **Aucun
+encadré de cours** : la fiche n'en a pas, et la consigne était de ne pas en
+écrire. Le rappel du bouton d'aide (obligatoire) est fait des TROIS coups de
+pouce, et de rien d'autre que son titre.
+
+**L'interpréteur apprend la boucle — sous une option, et pour cet exercice
+seulement.** `pyRun(src, entrees, {boucles:true})` lit `for k in range(…):`
+et `for lettre in chaine:` suivis de leur bloc décalé (boucles imbriquées
+comprises), `range` à un, deux ou trois arguments, `len`, `chaine[k]` (indices
+négatifs compris, IndexError nommée), `+=`, `-=`, `*=`. Le décalage est celui
+de CPython : un bloc vide, une ligne décalée sans `for` au-dessus, un retrait
+qui ne retombe sur aucun niveau sont des IndentationError. Les tranches
+(`chaine[::-1]`) sont REFUSÉES en le nommant — l'exercice enseigne la boucle —,
+`while`/`if` aussi. SANS l'option, rien ne change : « [ », « ] » et « : »
+restent des caractères inattendus (plusieurs diagnostics du thème lisent ce
+message), `range` et `len` des fonctions inconnues, une ligne décalée se lit
+comme avant ; le banc l'exige.
+
+**Le juge exécute avec des mots que l'élève ne connaît pas.** La ligne
+`chaine = "…"` est remplacée par le mot de la question, puis par « ordinateur »
+et « pomme » : `print("etteiluj")` passe le premier et se trahit au second,
+`range(8)` écrit à la main bute sur les cinq lettres de « pomme ». Nommés :
+le mot écrit à la main, le nombre de lettres écrit à la main, le print resté
+dans la boucle (huit lignes), les lettres affichées une par une, l'ordre
+inchangé (`chaine[k]`), le « - 1 » oublié, `chaine_bis` jamais créée, la
+tranche, les deux-points, le décalage, la position ajoutée au lieu de la
+lettre, la ligne `chaine` supprimée. Acceptés : `for lettre in chaine`,
+`+=`, un `range` à rebours, un texte avant le mot (nommé). Une cellule
+laissée à sa seule ligne de départ est VIDE : elle ne rougit pas.
+
+**La cellule** accepte Tab (quatre espaces) et garde le décalage à la ligne
+suivante, quatre de plus après « : » — comme un carnet : sans cela, un élève
+sur ordinateur sortait de la cellule en voulant décaler.
+
+**La séance** : « juliette » épinglé en tête, puis des mots tirés par
+`distinctes()` (ni palindrome, ni mot du juge — le contrôle l'exige),
+jusqu'à cinq avec le réglage « Questions ». Une case par question, pas de
+correction au fil de la frappe (`soutienEnDirect.sans`). Banc jsdom
+(`pythonInverserLettres`) : la place, l'interpréteur avec et sans l'option,
+le tirage (300 séances), le juge sur quatre copies justes et seize fausses
+chacune avec son mot, l'écran tenu aux consignes du 6.3 (énoncé dans le
+cadre, coups de pouce au mot près, aucun cours, aucune consigne au bouton),
+Tab et Entrée, les copies juste, fausse et vide, le soutien qui ne révèle
+rien, et les programmes à boucle comparés à un vrai CPython. Pas de section
+propre au banc navigateur : la visite universelle (section 9) l'ouvre dans
+les deux modes.
