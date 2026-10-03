@@ -4432,7 +4432,48 @@ function abandonSortDePause(w, apres){
       window.__faux.refusMuet=false;
       bilan.muet=${RESTANT};
       bilan.ditsMuet=dits.join(' | ');
-    } finally { toast=vraiToast; window.__faux.panne=false; }
+      /* 6. ET L'ÉLÈVE RETOMBE LÀ D'OÙ IL EST PARTI (demande de Turquet,
+         octobre 2026) : abandonner ramène à l'écran affiché juste avant le
+         lancement — la page des modes quand il y était, un autre menu sinon.
+         On lance vraiment l'exercice témoin, par sa porte normale, et on lit
+         l'écran allumé après l'abandon. */
+      const ecranOn=function(){ const e=document.querySelector('.screen.on'); return e?e.id.replace(/^scr-/,''):''; };
+      ${SEMER} ${POSER} currentMode='train';
+      await openTest('${exo}');
+      await Promise.resolve(TESTS['${exo}'].start());
+      bilan.lanceDepuisModes=ecranOn();
+      await abandonTest();
+      bilan.retourModes=ecranOn();
+      ${SEMER} ${POSER} currentMode='train';
+      show('rattrapage');
+      await Promise.resolve(TESTS['${exo}'].start());
+      await abandonTest();
+      bilan.retourMenu=ecranOn();
+      /* 7. « et pour la pause aussi » : même retour, et la page des modes
+         redessinée propose de REPRENDRE ce qui vient d'être mis en pause. */
+      ${SEMER} ${POSER} currentMode='train';
+      window.__faux.tables['${TR}']=[];
+      await openTest('${exo}');
+      await Promise.resolve(TESTS['${exo}'].start());
+      await pauseTest();
+      bilan.pauseRetour=ecranOn();
+      bilan.pauseReprendre=document.getElementById('modeChoices').innerHTML.indexOf('Reprendre l’entraînement')>=0;
+      /* 8. « et pour le bouton Retour aussi » : arrivé sur la page des modes
+         depuis le rattrapage, son « Retour » y ramène — et pas au sous-thème. */
+      ${SEMER} ${POSER}
+      show('rattrapage');
+      await openTest('${exo}');
+      await retourModes();
+      bilan.retourBouton=ecranOn();
+      bilan.boutonBranche=/retourModes\\(\\)/.test(document.querySelector('#scr-mode .btn-link').getAttribute('onclick')||'');
+    } finally {
+      toast=vraiToast; window.__faux.panne=false;
+      /* Les étapes 6 à 8 lancent un vrai exercice puis le laissent par la
+         pause ou le menu : la séance reste OUVERTE, et ses sauvegardes
+         automatiques écriraient dans les contrôles suivants — celui du
+         signalement comptait huit lignes au lieu d'une. On la referme. */
+      recoveryClosed=true; recoveryDirty=false; recoveryRowId=null;
+    }
     return bilan;
   })()`, r => {
     const b = r.ok ? (r.valeur || {}) : {};
@@ -4461,6 +4502,17 @@ function abandonSortDePause(w, apres){
     verifier('un abandon que la base refuse n’est pas annoncé comme réussi',
       r.ok && b.panne === 'L1,L2,L3,L4' && /err:/.test(String(b.ditsPanne || '')) && /pause/i.test(String(b.ditsPanne || '')),
       souci || 'restants : ' + b.panne + ' — l’élève a lu « ' + b.ditsPanne + ' »');
+    verifier('abandonner ramène à l’écran affiché juste avant le lancement',
+      r.ok && b.lanceDepuisModes && b.lanceDepuisModes !== 'mode' && b.retourModes === 'mode' && b.retourMenu === 'rattrapage',
+      souci || 'lancé depuis la page des modes (écran de l’exercice : « ' + b.lanceDepuisModes + ' ») → retour sur « '
+        + b.retourModes + ' », attendu « mode » ; lancé depuis « rattrapage » → retour sur « ' + b.retourMenu + ' »');
+    verifier('la pause ramène, elle aussi, à la page des modes — qui propose de reprendre',
+      r.ok && b.pauseRetour === 'mode' && b.pauseReprendre === true,
+      souci || 'après la pause : écran « ' + b.pauseRetour + ' », carte « Reprendre » ' + (b.pauseReprendre ? 'présente' : 'absente'));
+    verifier('le bouton « Retour » de la page des modes ramène à l’écran d’où l’on venait',
+      r.ok && b.boutonBranche === true && b.retourBouton === 'rattrapage',
+      souci || (b.boutonBranche ? '' : 'le bouton « Retour » n’appelle pas retourModes() ; ')
+        + 'venu du rattrapage, « Retour » mène à « ' + b.retourBouton + ' »');
     coursEnPdf(w, apres);
   });
 }

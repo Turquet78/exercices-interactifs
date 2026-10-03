@@ -1946,7 +1946,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <div class="topbar">
         <h2 class="title" style="margin:0" id="modeTitle">Test</h2>
-        <button class="btn-link" onclick="retourChoix()">Retour</button>
+        <button class="btn-link" onclick="retourModes()">Retour</button>
       </div>
       <p class="lead">Comment veux-tu faire ce test ?</p>
       <div class="choices" id="modeChoices"></div>
@@ -2484,7 +2484,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <div class="topbar">
         <h2 class="title" style="margin:0">Signe du 2nd degré</h2>
-        <button class="btn-link" onclick="retourChoix()">Retour</button>
+        <button class="btn-link" onclick="openTest(currentTestId)">Retour</button>
       </div>
       <p class="lead">Choisis ton niveau&nbsp;:</p>
       <div class="s1lvl-grid">
@@ -3079,7 +3079,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=360;
+const APP_VERSION=361;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3355,6 +3355,20 @@ let teacherFilter='all';
 let teacherMode='eval';
 let currentTestId=null, currentMode='train';
 let currentDM=null;   // marque qu'un exercice est lancé depuis le devoir maison
+/* L'écran que l'élève voyait JUSTE AVANT de lancer l'exercice — le plus
+   souvent la page des modes, libre ou de devoir. show() le retient au passage
+   d'un écran de menu à un écran d'exercice ; abandonTest() et pauseTest() y
+   ramènent (demande de Turquet, octobre 2026 : « quand on abandonne, revenir à
+   la page qui était affichée juste avant » — « et pour la pause aussi »).
+   L'écran des résultats n'y entre pas : « Recommencer » part de lui, mais
+   l'élève n'a pas lancé l'exercice de là. */
+let ecranAvantExo=null;
+/* Même chose un étage plus haut : l'écran d'où l'élève est arrivé sur la page
+   des modes (sous-thème, devoir, rattrapage…). Son bouton « Retour » y ramène
+   (même demande, « et pour le bouton Retour aussi »). Les écrans qui ne sont
+   qu'un passage — l'exercice lui-même, ses résultats, l'énoncé papier, un
+   choix de niveau — n'y entrent pas : on revient de là PAR la page des modes. */
+let ecranAvantModes=null;
 function pick(a){return a[rand(0,a.length-1)];}
 /* LES QUESTIONS D'UNE SÉANCE SONT DEUX À DEUX DIFFÉRENTES (signalé par Turquet,
    septembre 2026 : une élève a eu deux fois le même énoncé au 4.4.2 de la
@@ -4780,9 +4794,8 @@ async function pauseTest(){
   else if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
   else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
-  if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
-  else if(currentTestId && TESTS[currentTestId]){ openTest(currentTestId); }       // retour à la page des modes de l'exercice (avec « Reprendre »)
-  else { openThemes(); }
+  /* retour à l'écran d'où l'exercice a été lancé, comme l'abandon — voir ecranAvantExo */
+  await retourAvantExo();
 }
 async function abandonTest(){
   if(!currentEleve) return;
@@ -4807,9 +4820,40 @@ async function abandonTest(){
      puis retrouvait sa pause intacte. */
   if(efface) toast('Exercice abandonné','ok');
   else toast('Abandon non enregistré — l’exercice reste en pause, réessaie','err');
-  if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
-  else if(currentTestId && TESTS[currentTestId]){ openTest(currentTestId); }       // retour à la page des modes de l'exercice
-  else { openThemes(); }
+  /* retour à l'écran d'où l'exercice a été lancé — voir ecranAvantExo */
+  await retourAvantExo();
+}
+/* Le retour après un abandon ou une pause : la page des modes se REDESSINE
+   (ses cartes « Reprendre » doivent refléter la pause qui vient d'être posée
+   ou effacée), un autre
+   écran de menu se remontre tel quel ; sans écran retenu, l'ancien repli. */
+async function retourAvantExo(){
+  const avant=ecranAvantExo, id=currentTestId, dm=currentDM;
+  ecranAvantExo=null; currentDM=null;
+  if(avant==='mode' && id && TESTS[id]){ if(dm && dm!==true) return openTestDevoirModes(dm,id); return openTest(id); }
+  if(avant && avant!=='mode'){ const r=rouvrirEcran(avant, dm); if(r!==false) return r; }
+  if(dm){ return ouvrirDevoirDetail(dm); }   // devoir : retour au détail du devoir
+  return openThemes();
+}
+/* Rouvre un écran de menu EN LE REDESSINANT quand il a un rendu (ses cartes
+   portent des notes et des pauses qui ont pu changer), tel quel sinon. Rend
+   false pour un écran inconnu : l'appelant garde alors son repli. */
+function rouvrirEcran(nom, dm){
+  if(!nom || !$('scr-'+nom)) return false;
+  if(nom==='devoirs') return (dm && dm!==true) ? ouvrirDevoirDetail(dm) : openDevoirsEleve(genreEleve);
+  if(nom==='choose') return openThemes();
+  if(nom==='rattrapage') return openRattrapage();
+  if(nom==='theme' && currentThemeNum!=null){ const th=currentThemeNum; return openThemes().then(()=>{ openTheme(th); }); }
+  if(nom==='soustheme' && currentThemeNum!=null && currentSousNum!=null){ const th=currentThemeNum, sous=currentSousNum; return openThemes().then(()=>{ openTheme(th); openSousTheme(th,sous); }); }
+  show(nom);
+}
+/* Le bouton « Retour » de la page des modes : là d'où l'élève est venu ; sans
+   écran retenu, l'ancien chemin (le devoir, ou le sous-thème de l'exercice). */
+function retourModes(){
+  const avant=ecranAvantModes; ecranAvantModes=null;
+  const r=avant ? rouvrirEcran(avant, currentDM) : false;
+  if(r!==false) return r;
+  return retourChoix();
 }
 /* La table écran/rendu, sortie de resumeTest() : la reprise après pause et le
    rejeu d'un signalement font exactement le même geste, et deux listes
@@ -5003,9 +5047,12 @@ function idAuHasard(){
 function show(name){
   /* une exception ici figerait toute la navigation */
   try{ fermerFenetresIA(true); }catch(e){}
+  const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','sag','enc','rec','ef','eq','rc','rf','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq'];
+  if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
+  if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -7984,7 +8031,10 @@ async function startDHV(){
   /* Sur les 2 essais : y = 0 apparaît sur l’une des droites d1, et x = 0 sur l’une des
      droites d2 — l’essai qui porte chaque cas est tiré au hasard, indépendamment. */
   const iH=rand(0,1), iV=rand(0,1);
-  test.questions=[genDHVQ(iH===0,iV===0), genDHVQ(iH===1,iV===1)];
+  /* la seconde passe par distincte() : tirée seule, elle retombait de temps en
+     temps sur les données de la première (vu par le banc, octobre 2026) */
+  const q1=genDHVQ(iH===0,iV===0);
+  test.questions=[q1, distincte([q1], function(){ return genDHVQ(iH===1,iV===1); })];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
