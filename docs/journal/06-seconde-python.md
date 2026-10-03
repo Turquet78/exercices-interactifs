@@ -3379,3 +3379,122 @@ la variable sans guillemets ») est retirée. C'était le SEUL coup de pouce du
 sous-thème 6.3 à porter un texte après son modèle : ceux du 6.3.1, du 6.3.2,
 du 6.3.4, du 6.3.6 et du 6.3.7 n'ont que leur ligne à recopier, et restent
 tels quels.
+
+---
+
+**Concaténation et répétition : les exercices 21 et 22 du carnet, dans le
+6.1.** {python-chaines} (Seconde, 6.1.14, demande de Turquet, octobre 2026 :
+« en seconde créer un exercice dans le sous-thème print et variable qui
+respecte toutes les nouvelles consignes que j'ai données pour le sous-thème
+input ; ne pas rajouter de phrase dans les définitions ou rappels ; écrire les
+énoncés des questions après les définitions ou rappels »). Le cadre orange de
+la fiche (« Pour les chaînes de caractères c'est plus court car il n'y a que
+deux opérations possibles », la concaténation `+`, la répétition `*`), puis
+a) exécuter `chaine1 = "Lou"`, `chaine2 = "ane"`, `chaine3 = chaine1 +
+chaine2`, `chaine4 = 3 * chaine1`, et b) compléter `Nom = "…"`, `Prenom =
+"…"`, `chaine1 = … + " " + …`, `chaine2 = …`, `print(chaine2)` pour qu'il
+affiche 10 fois le nom et le prénom. Ajouté en dernier dans le 6.1, il ne
+renumérote rien.
+**Les consignes du 6.3, TOUTES, appliquées d'emblée** : le cadre de cours à la
+question 1 seulement ; chaque étape dans un cadre `pii-etape` ouvert par SA
+question en gras (`pii-titre`), gardée quand la suivante s'ouvre ; aucune
+consigne à côté des boutons « Exécuter » ; une console vide reste un cadre vide
+(`[id^="pchCons"]` rejoint la règle `content:none`) ; « Vérifier » ne s'ouvre
+que sur un programme exécuté tel qu'il est écrit. Pas de coup de pouce : la
+fiche n'en a pas.
+**Deux consignes nouvelles, et c'est l'écran qui les porte.** « Ne pas rajouter
+de phrase dans les définitions ou rappels » : le cadre (`pchCoursHTML`) et le
+rappel (`RAP_PCH`) disent la fiche MOT POUR MOT — un titre, deux puces, rien
+d'autre ; le banc jsdom relit les trois phrases et compte trois blocs.
+« Les énoncés après les définitions » : l'écran pose `#pchCours` AVANT
+`#pchInstr` — le cadre de cours est le premier enfant de la carte, l'énoncé
+étiqueté vient dessous, puis les étapes. Les autres exercices écrivent leur
+cours dans l'hôte, sous l'énoncé ; celui-ci est le premier à le monter
+au-dessus, et le banc exige l'ordre (`compareDocumentPosition`).
+**Les trous s'écrivent DANS la ligne de code** (`.pch-in`, `font:inherit`, à
+la chasse du code), la ligne ne se replie pas et le programme défile
+(`.pch-prog{overflow-x:auto}`). **Trois cases notées** : les deux morceaux de
+`chaine1` et `chaine2`. Le nom et le prénom sont ceux de l'élève : tout texte y
+est juste, ils ne se notent ni ne se colorent — mais ils sont exigés avant de
+juger, et un guillemet tapé dedans est nommé.
+**Le juge exécute, sous deux paires de noms** (`pchJuge`) : celle de l'élève,
+puis « Martin Zoé ». Un trou rempli avec `"Dupont"` donne la bonne chaîne la
+première fois et se trahit la seconde. Chaque trou se juge SEUL — celui de
+`chaine2` derrière une ligne `chaine1` juste —, pour qu'une case juste ne rougisse
+pas à cause d'une autre. Toute écriture qui donne la même chaîne passe
+(`10 * chaine1`, `chaine1 * 10`, `(Nom + " " + Prenom) * 10`). Nommés : le
+texte écrit à la main, l'ordre inversé, le nom de variable entre guillemets, la
+majuscule ou l'accent (`nom`, `Prénom`), le nom de l'élève tapé sans
+guillemets, le `+` au lieu du `*`, la répétition oubliée, le mauvais nombre de
+fois.
+**La séance** : la fiche épinglée (Lou + ane, 3 fois ; 10 fois le nom puis le
+prénom), puis des questions tirées par `distinctes()` — d'autres morceaux à
+coller (Ma + non, Ju + les…), un autre nombre de répétitions, et l'ordre
+prénom-nom ; `dmNbQuestions()` l'allonge. La question garde `fa` (le a) est
+fait) et `rep` (le b) tel que l'élève l'a laissé, hors de la clé de
+`distincte`) : une pause rouvre le b) tel quel. Aucune correction au fil de la
+frappe (`soutienEnDirect.sans`), pas de bouton des tables.
+Banc jsdom (`pythonChaines`, déclaré dans `tests/profils.js`) : la place au
+menu, le tirage (400 séances), le juge sur cinq copies justes et treize
+fausses chacune avec son mot, le trou jugé seul, les portes a) → b) →
+« Vérifier », le cadre au-dessus de l'énoncé et absent à la question 2, la
+copie juste, fausse et vide, le soutien qui ne révèle rien, la reprise, et les
+sorties comparées à un vrai CPython. Pas de section propre au banc
+NAVIGATEUR : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+---
+
+**Le sous-thème « Bonus » : len(chaine) et chaine[i].** {python-chaine-len}
+(Seconde, 6.4.1, APP_VERSION 276 — le 275 a été pris sur `main` par
+{python-chaines} pendant les bancs —, demande de Turquet, octobre 2026 : « avec l'image créer un
+exercice dans le sous-thème print et variable qui respecte toutes les
+nouvelles consignes que j'ai données pour le sous-thème input […] on le
+mettra dans un sous-thème bonus ») est la fiche « Exercice 24 / 25 / 26 » du
+carnet : a) exécuter `chaine = "abcdefghijklmnopq"` et ses quatre print
+(`len(chaine)`, `chaine[0]`, `chaine[1]`, `chaine[16]`) pour comprendre les
+deux instructions ; b) expliquer ce que représente `len(chaine)` ; c)
+expliquer ce que représentent `chaine[0]`, `chaine[1]` et
+`chaine[len(chaine)-1]`. Le sous-thème 6.4 « Bonus » est neuf, ajouté en
+dernier : il ne renumérote rien, et le contrôle l'exige.
+
+**Les consignes du sous-thème « Input », toutes portées** : les trois étapes
+sur le MÊME écran, chacune dans son cadre `.pyn-etape` ouvert par SON énoncé
+en gras, gardé quand la suivante s'ouvre ; aucune consigne à côté du bouton
+« Exécuter » ; la console vide reste un cadre vide (`#pclConsole`, éteint
+comme celles du 6.3). La fiche n'a PAS de définition : l'écran n'en ajoute
+pas, et le rappel (`RAP_PCL`) n'est que le programme de la fiche, sans une
+phrase de plus (« ne pas rajouter de phrase dans les définitions ou
+rappel »). L'énoncé du haut ne dit que l'ordre des étapes ; chaque question
+s'écrit dans son cadre, sous le reste.
+
+**L'interpréteur a appris `len` et les crochets.** `pyLex` lit `[` et `]` ;
+`pyExpr` prend un indice en suffixe de toute valeur (un nom, un texte, une
+parenthèse, un appel), compte depuis la fin pour un indice négatif, et lève
+`IndexError` hors de la chaîne, `TypeError` sur un nombre ou un indice
+décimal ; `len` compte par CARACTÈRE (`Array.from`), comme CPython, pas par
+unité UTF-16. `pyColorie` colore `len` comme `print`. Aucun autre exercice
+n'écrivait de crochet ni de `len` : rien d'autre ne change.
+
+**« Expliquer » devient un CHOIX** — un verdict local, sans modèle : au b),
+« `len(chaine)` représente » une liste (le nombre de caractères, le premier,
+le dernier, le numéro du dernier — ce dernier est le piège du 16 contre 17) ;
+au c), une liste par écriture (le 1er au 4e caractère, l'avant-dernier, le
+dernier, le nombre de caractères). Quatre cases par question. Le dernier
+indice s'écrit EN CHIFFRES dans le programme, comme le 16 de la fiche : c'est
+au c) que l'élève le relie à `len(chaine)-1`. Nommés : l'indice compté à
+partir de 1 (« le premier caractère a l'indice 0 »), l'avant-dernier pour
+`len(chaine)-1`, un nombre de caractères pour un caractère. Une liste vide
+ne rougit jamais (verte en entraînement) ; un c) entièrement vide n'est pas
+jugé ; en soutien rien n'est révélé.
+
+**La séance** : la fiche épinglée en tête, puis deux chaînes tirées par
+`distinctes()` (« bonjour », « python », « seconde »…), jusqu'à neuf avec le
+réglage « Questions ». Chaque chaîne porte SON indice du milieu (1 à 3), si
+bien que deux questions ne montrent jamais la même chaîne. Pas de correction
+au fil des choix (`soutienEnDirect.sans`), pas de bouton des tables. Banc
+jsdom (`pythonChaineLen`) : la place, l'interpréteur (la sortie de la fiche,
+l'indice négatif, les trois erreurs), le tirage (300 séances, chaque chaîne
+sort), le trajet a) → b) → c) avec les énoncés gardés, les copies juste,
+fausse et vide, le soutien, la reprise qui ne rejuge pas un b) déjà jugé, et
+les programmes comparés à un vrai CPython. Pas de section propre au banc
+navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
