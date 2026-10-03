@@ -30863,7 +30863,6 @@ function checkPTR(live){
 }
 function nextPTR(){ if(test.idx<test.questions.length-1){ test.idx++; renderPTR(); autoSave(); } else finishTest(); }
 function ctxPtr(q){
-function ctxPtr(q){
   const S=ptrSit(q), ta=$('ptr-prog'), prog=(ta&&ta.value)||q.prog||'';
   let d=null; try{ d=ptrDiag(prog, q); }catch(e){}
   let c='L’élève doit ÉCRIRE le programme Python le plus court possible qui affiche un triangle '+S.nom+' de taille '+S.n+(S.auMoins?' ou plus':'')+' : la première ligne porte un « '+S.car+' », chaque ligne un de plus. Exemple de taille 4 : '+[1,2,3,4].map(function(k){ return S.car.repeat(k); }).join(' / ')+'. Le coup de pouce de la fiche donne : for k in range (1,'+(S.n+1)+'): pour compter de 1 à '+S.n+'. Un programme fait de print écrits à la main n’est pas accepté : il faut une boucle for. Il peut exécuter son programme : la console montre ce qu’il affiche.\n';
