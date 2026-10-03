@@ -691,6 +691,12 @@
      sur un téléphone. */
   .pyx-cours{border:1px solid var(--line);border-left:5px solid #6c8ebf;border-radius:10px;background:#f4f8ff;padding:10px 14px;font-size:.98rem;line-height:1.5;color:var(--ink);text-align:left;margin:0 0 12px}
   .pyx-cours p{margin:0 0 6px}
+  /* l'emplacement des définitions, AU-DESSUS de l'énoncé (thème Python) */
+  .py-avant{margin:0 0 20px}
+  .py-avant:empty{display:none}
+  .py-avant>:last-child{margin-bottom:0}
+  .py-rappel{border:1px solid var(--line);border-left:5px solid #6c8ebf;border-radius:10px;background:#f4f8ff;padding:10px 14px;font-size:.98rem;line-height:1.55;color:var(--ink);text-align:left}
+  .py-rappel>b:first-child{font-family:"Fredoka";font-weight:600;font-size:1.05rem}
   .pyx-cours .pyx-titre,.pyx-cours b{font-family:"Fredoka";font-weight:600}
   .pyx-cours .pyx-titre{font-size:1.05rem;margin-bottom:6px}
   .pyx-regles{margin:0 0 6px;padding-left:4px;list-style:none}
@@ -4222,6 +4228,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pyLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pyAvant"></div>
       <p class="mp-instr">Lis le programme et dis ce qu&rsquo;il va afficher, en compl&eacute;tant la phrase. Une fois ta r&eacute;ponse v&eacute;rifi&eacute;e, tu pourras ex&eacute;cuter le programme pour le voir.</p>
       <div class="mp-stage"><div style="width:100%" id="pyHost"></div></div>
       <div class="mp-feedback" id="pyFeedback"></div>
@@ -4238,6 +4245,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ptyLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="ptyAvant"></div>
       <p class="mp-instr">Lis le cours en trois cadres, puis le programme : dis le type de chaque variable &mdash; int, float ou str. Une fois ta r&eacute;ponse v&eacute;rifi&eacute;e, ex&eacute;cute le programme : c&rsquo;est Python qui r&eacute;pond, avec type().</p>
       <div class="mp-stage"><div style="width:100%" id="ptyHost"></div></div>
       <div class="mp-feedback" id="ptyFeedback"></div>
@@ -4254,6 +4262,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pycLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pycAvant"></div>
       <p class="mp-instr">Lis d&rsquo;abord comment on affiche une variable, puis compl&egrave;te le programme : sa premi&egrave;re ligne est d&eacute;j&agrave; &eacute;crite, &agrave; toi d&rsquo;&eacute;crire la suite pour qu&rsquo;il affiche la valeur de la variable &mdash; et seulement elle. Tu peux l&rsquo;ex&eacute;cuter quand tu veux pour voir ce qu&rsquo;il fait, puis v&eacute;rifie.</p>
       <div class="mp-stage"><div style="width:100%" id="pycHost"></div></div>
       <div class="mp-feedback" id="pycFeedback"></div>
@@ -4270,6 +4279,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pvnLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pvnAvant"></div>
       <p class="mp-instr">Quels sont les noms de variables <b>incorrects</b> parmi ceux propos&eacute;s&nbsp;? Pour chaque nom, dis s&rsquo;il est correct ou incorrect&nbsp;; s&rsquo;il est incorrect, indique pourquoi.</p>
       <div class="mp-stage"><div style="width:100%" id="pvnHost"></div></div>
       <div class="mp-feedback" id="pvnFeedback"></div>
@@ -4286,6 +4296,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pnvLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pnvAvant"></div>
       <p class="mp-instr">Pour chaque grandeur, propose un <b>nom de variable</b> : seulement des lettres, des chiffres et le tiret bas <b>_</b> &mdash; <b>pas d&rsquo;espace</b>, pas de tiret, pas d&rsquo;apostrophe &mdash;, qui ne commence pas par un chiffre, qui n&rsquo;est pas un mot de Python (for, print&hellip;), d&rsquo;au moins 2 caract&egrave;res et pas trop long (20 au plus). Deux grandeurs ne portent pas le m&ecirc;me nom. Une fois ta r&eacute;ponse v&eacute;rifi&eacute;e, ex&eacute;cute le programme &eacute;crit avec tes noms.</p>
       <div class="mp-stage"><div style="width:100%" id="pnvHost"></div></div>
       <div class="mp-feedback" id="pnvFeedback"></div>
@@ -4303,6 +4314,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
     <div class="card">
       <!-- L'énoncé est ÉCRIT par le rendu : il suit l'étape a), b) ou c). -->
+      <div class="py-avant" id="pynAvant"></div>
       <p class="mp-instr" id="pynInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pynHost"></div></div>
       <div class="mp-feedback" id="pynFeedback"></div>
@@ -4335,6 +4347,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="pypLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pypAvant"></div>
       <p class="mp-instr">Lis le cours en trois cadres, puis &eacute;cris un programme qui affiche exactement le texte demand&eacute;. Ex&eacute;cute-le autant de fois que tu veux pour voir ce qu&rsquo;il affiche&nbsp;; quand il te convient, clique sur &laquo;&nbsp;V&eacute;rifier&nbsp;&raquo;.</p>
       <div class="mp-stage"><div style="width:100%" id="pypHost"></div></div>
       <div class="mp-feedback" id="pypFeedback"></div>
@@ -4351,6 +4364,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="pyiLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pyiAvant"></div>
       <div class="mp-instr pyi-instr" id="pyiInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pyiHost"></div></div>
       <div class="mp-feedback" id="pyiFeedback"></div>
@@ -4367,6 +4381,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="piaLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="piaAvant"></div>
       <div class="mp-instr pyi-instr" id="piaInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="piaHost"></div></div>
       <div class="mp-feedback" id="piaFeedback"></div>
@@ -4383,6 +4398,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="pisLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pisAvant"></div>
       <div class="mp-instr pyi-instr" id="pisInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pisHost"></div></div>
       <div class="mp-feedback" id="pisFeedback"></div>
@@ -4415,6 +4431,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="pmyLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pmyAvant"></div>
       <div class="mp-instr pyi-instr" id="pmyInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pmyHost"></div></div>
       <div class="mp-feedback" id="pmyFeedback"></div>
@@ -4431,6 +4448,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="prlLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="prlAvant"></div>
       <div class="mp-instr pyi-instr" id="prlInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="prlHost"></div></div>
       <div class="mp-feedback" id="prlFeedback"></div>
@@ -4450,6 +4468,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <!-- L'énoncé est ÉCRIT par le rendu, et par lui seul : le cours et la
            question n'en disent pas le même, et un texte posé ici en plus serait
            une seconde source — celle qui dérive sans que rien ne le dise. -->
+      <div class="py-avant" id="pyxAvant"></div>
       <p class="mp-instr" id="pyxInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pyxHost"></div></div>
       <div class="mp-feedback" id="pyxFeedback"></div>
@@ -4470,6 +4489,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
            question n'en disent pas le même, et la question NOMME les deux
            opérations qu'elle fait écrire — un texte posé ici serait une seconde
            source, celle qui dérive sans que rien ne le dise. -->
+      <div class="py-avant" id="popAvant"></div>
       <p class="mp-instr" id="popInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="popHost"></div></div>
       <div class="mp-feedback" id="popFeedback"></div>
@@ -4489,6 +4509,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
            toutes les trois quand les suivantes en donnent une en modèle. Un
            texte posé ici serait une seconde source, celle qui dérive sans que
            rien ne le dise. -->
+      <div class="py-avant" id="pdcAvant"></div>
       <p class="mp-instr" id="pdcInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pdcHost"></div></div>
       <div class="mp-feedback" id="pdcFeedback"></div>
@@ -4506,7 +4527,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <!-- Le cadre de la fiche AU-DESSUS de l'énoncé (question 1 seulement) :
            les énoncés s'écrivent après les définitions (demande de Turquet). -->
-      <div id="pchCours"></div>
+      <div class="py-avant" id="pchAvant"></div>
       <p class="mp-instr" id="pchInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pchHost"></div></div>
       <div class="mp-feedback" id="pchFeedback"></div>
@@ -4522,6 +4543,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
     <div class="card">
       <!-- L'énoncé est ÉCRIT par le rendu : il nomme la variable de SA question. -->
+      <div class="py-avant" id="piiAvant"></div>
       <p class="mp-instr" id="piiInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="piiHost"></div></div>
       <div class="mp-feedback" id="piiFeedback"></div>
@@ -4536,6 +4558,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pydLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pydAvant"></div>
       <p class="mp-instr">Le programme affecte trois variables et en affiche d&eacute;j&agrave; une&nbsp;: cette ligne-l&agrave; est ton <b>mod&egrave;le</b>. &Eacute;cris les deux lignes qui manquent, ex&eacute;cute le programme pour voir ce qu&rsquo;il affiche, puis v&eacute;rifie.</p>
       <div class="mp-stage"><div style="width:100%" id="pydHost"></div></div>
       <div class="mp-feedback" id="pydFeedback"></div>
@@ -4552,6 +4575,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pyvLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pyvAvant"></div>
       <p class="mp-instr">Le programme est &eacute;crit en entier&nbsp;: seuls les <b>noms des variables</b> manquent dans le print. Place-les en lisant le texte qui pr&eacute;c&egrave;de chaque case, ex&eacute;cute le programme et <b>relis la phrase qu&rsquo;il &eacute;crit</b>, puis v&eacute;rifie.</p>
       <div class="mp-stage"><div style="width:100%" id="pyvHost"></div></div>
       <div class="mp-feedback" id="pyvFeedback"></div>
@@ -4571,6 +4595,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <!-- L'énoncé est ÉCRIT par le rendu, et par lui seul : il NOMME le calcul
            de sa question, et un texte posé ici en plus serait une seconde
            source — celle qui dérive sans que rien ne le dise. -->
+      <div class="py-avant" id="ptvAvant"></div>
       <p class="mp-instr" id="ptvInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="ptvHost"></div></div>
       <div class="mp-feedback" id="ptvFeedback"></div>
@@ -4587,6 +4612,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pcvLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pcvAvant"></div>
       <p class="mp-instr">Le programme range deux calculs dans des variables&nbsp;: <b>somme</b> et <b>produit</b>. Dis ce qu&rsquo;il va afficher, puis ex&eacute;cute-le pour le voir.</p>
       <div class="mp-stage"><div style="width:100%" id="pcvHost"></div></div>
       <div class="mp-feedback" id="pcvFeedback"></div>
@@ -4603,6 +4629,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="papLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="papAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, dis dans quelle <b>case m&eacute;moire</b> la valeur va, et ce que cette case contient ensuite.</p>
       <div class="mp-stage"><div style="width:100%" id="papHost"></div></div>
       <div class="mp-feedback" id="papFeedback"></div>
@@ -4619,6 +4646,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pvmLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pvmAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: tu n&rsquo;as qu&rsquo;&agrave; donner <b>la valeur</b> qu&rsquo;elle contient ensuite. &Agrave; la fin, on v&eacute;rifie que toutes les cases ont la bonne valeur.</p>
       <div class="mp-stage"><div style="width:100%" id="pvmHost"></div></div>
       <div class="mp-feedback" id="pvmFeedback"></div>
@@ -4635,6 +4663,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ppcLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="ppcAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: certaines lignes RECOPIENT une case, d&rsquo;autres CALCULENT une valeur avec ce que des cases contiennent &mdash; &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. &Agrave; la fin, on v&eacute;rifie que toutes les cases ont la bonne valeur.</p>
       <div class="mp-stage"><div style="width:100%" id="ppcHost"></div></div>
       <div class="mp-feedback" id="ppcFeedback"></div>
@@ -4651,6 +4680,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ppdLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="ppdAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: une case d&eacute;j&agrave; CALCUL&eacute;E peut &agrave; son tour nourrir un autre calcul &mdash; &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. &Agrave; la fin, on v&eacute;rifie que toutes les cases ont la bonne valeur.</p>
       <div class="mp-stage"><div style="width:100%" id="ppdHost"></div></div>
       <div class="mp-feedback" id="ppdFeedback"></div>
@@ -4667,6 +4697,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pevLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pevAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b> : il &eacute;change les valeurs de deux cases &agrave; l&rsquo;aide d&rsquo;une troisi&egrave;me. La <b>case m&eacute;moire</b> que chaque ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. &Agrave; la fin, on v&eacute;rifie la m&eacute;moire, puis tu expliques avec tes mots ce qui s&rsquo;est pass&eacute;.</p>
       <div class="mp-stage"><div style="width:100%" id="pevHost"></div></div>
       <div class="mp-feedback" id="pevFeedback"></div>
@@ -4683,6 +4714,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ppmLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="ppmAvant"></div>
       <p class="mp-instr"><b>Devine</b> d&rsquo;abord ce que contiendra une case &agrave; la fin du programme, PUIS ex&eacute;cute-le <b>ligne par ligne</b> pour v&eacute;rifier ta pr&eacute;diction. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: certaines lignes CALCULENT une valeur avec ce que des cases contiennent, d&rsquo;autres R&Eacute;&Eacute;CRIVENT une case d&eacute;j&agrave; remplie &mdash; &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. Si ta pr&eacute;diction &eacute;tait fausse, tu recommences avec d&rsquo;autres nombres.</p>
       <div class="mp-stage"><div style="width:100%" id="ppmHost"></div></div>
       <div class="mp-feedback" id="ppmFeedback"></div>
@@ -4699,6 +4731,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">&Eacute;changes r&eacute;ussis</span>&nbsp;<b id="pelLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pelAvant"></div>
       <p class="mp-instr">Compl&egrave;te le programme <b>uniquement avec les lettres</b> propos&eacute;es dans chaque case, pour que les deux valeurs soient <b>&eacute;chang&eacute;es</b>. Clique sur <b>&laquo;&nbsp;Ex&eacute;cuter&nbsp;&raquo;</b>&nbsp;: si ce n&rsquo;est pas encore bon, modifie les cases et r&eacute;ex&eacute;cute, jusqu&rsquo;&agrave; ce que &ccedil;a fonctionne.</p>
       <div class="mp-stage"><div style="width:100%" id="pelHost"></div></div>
       <div class="mp-feedback" id="pelFeedback"></div>
@@ -4715,6 +4748,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="pphLiveScore">0</b></span>
     </div>
     <div class="card">
+      <div class="py-avant" id="pphAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>en mode pas &agrave; pas</b>&nbsp;: &agrave; chaque &eacute;tape, l&rsquo;ordinateur lit une ligne et range un nombre dans une <b>case m&eacute;moire</b>. Quand il est arriv&eacute; au bout, <b>compl&egrave;te les phrases</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="pphHost"></div></div>
       <div class="mp-feedback" id="pphFeedback"></div>
@@ -8424,6 +8458,22 @@ function rapMaths(h){
   });
 }
 function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || '')); }
+/* LES DÉFINITIONS S'ÉCRIVENT AVANT L'ÉNONCÉ — dans tous les exercices
+   d'algorithmique et Python de la Seconde (demande de Turquet, octobre 2026 :
+   « écrire les définitions ou les rappels avant l'énoncé de l'exercice »).
+   Chaque écran du thème porte, juste au-dessus de son énoncé, un emplacement
+   « <kind>Avant » : l'encadré de cours de l'exercice s'il en a un (les trois
+   cadres des types, la définition d'input…), sinon son rappel de cours, celui
+   du bouton « 📘 ». Le rappel n'y est écrit qu'à la question 1 — la règle du
+   sous-thème Input (« supprime les encadrés répétés ») : le bouton le garde
+   pour la suite. Un seul emplacement, rempli par le rendu et par lui seul ;
+   le banc navigateur exige, sur chaque exercice du thème, qu'il soit rempli et
+   posé AU-DESSUS de l'énoncé. */
+function pyAvant(k, html){ const el=$(k+'Avant'); if(el) el.innerHTML=html||''; }
+function pyRappelAvantHTML(k){
+  const r=RAPPELS_ID[currentTestId] || RAPPELS[k];
+  return (test && test.idx===0 && r) ? '<div class="py-rappel">'+rapMaths(numeros(r))+'</div>' : '';
+}
 function masquerRappel(){
   const box=$('conseilRappel'); if(box){ box.hidden=true; box.innerHTML=''; }
   const b=$('conseilRappelBtn'); if(b) b.textContent='\u{1F4D8} Voir le rappel de cours';
@@ -28494,6 +28544,7 @@ function renderPY(){
   $('pyIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPY').innerHTML=modeTagHTML();
   $('pyLiveScore').textContent=test.score;
+  pyAvant('py', pyRappelAvantHTML('py'));
   $('pyFeedback').textContent=''; $('pyFeedback').className='mp-feedback';
   $('pyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyValidate" onclick="checkPY()">Vérifier</button>';
   const sel=function(id, opts, aria){
@@ -28705,9 +28756,9 @@ function renderPTY(){
     return '<select class="py-sel" id="'+id+'" aria-label="'+aria+'"><option value="" selected disabled>?</option>'
       +PTY_TYPES.map(function(o){ return '<option value="'+o+'">'+o+'</option>'; }).join('')+'</select>';
   };
+  pyAvant('pty', ptyCoursHTML());
   $('ptyHost').innerHTML=
     '<div class="py-cell">'
-    +ptyCoursHTML()
     +'<p class="py-label">Le programme</p>'
     +'<pre class="py-code">'+pyColorie(q.src)+'</pre>'
     +'<div class="py-runrow"><button class="btn btn-ghost" id="ptyRun" type="button" disabled onclick="ptyExecuter()">▶ Exécuter le programme</button>'
@@ -28979,9 +29030,9 @@ function renderPYC(){
   $('pycLiveScore').textContent=test.score;
   $('pycFeedback').textContent=''; $('pycFeedback').className='mp-feedback';
   $('pycActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pycValidate" onclick="checkPYC()">Vérifier</button>';
+  pyAvant('pyc', pycCoursHTML());
   $('pycHost').innerHTML=
     '<div class="py-cell">'
-    +pycCoursHTML()
     +'<p class="py-label">Le programme à compléter</p>'
     +'<div class="py-phrase pyc-consigne">Il doit afficher la valeur de la variable <code>'+esc(q.nom)+'</code> — et seulement elle.</div>'
     +'<div class="pyc-prog"><pre class="py-code" id="pycL1">'+pyColorie(pycLigne1(q))+'</pre>'
@@ -29214,6 +29265,7 @@ function renderPVN(){
   $('pvnIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPVN').innerHTML=modeTagHTML();
   $('pvnLiveScore').textContent=test.score;
+  pyAvant('pvn', pyRappelAvantHTML('pvn'));
   $('pvnFeedback').textContent=''; $('pvnFeedback').className='mp-feedback';
   $('pvnActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pvnValidate" onclick="checkPVN()">Vérifier</button>';
   $('pvnHost').innerHTML='<div class="pvn-liste">'+q.noms.map(function(n,i){
@@ -29462,6 +29514,7 @@ function renderPNV(){
   $('pnvIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPNV').innerHTML=modeTagHTML();
   $('pnvLiveScore').textContent=test.score;
+  pyAvant('pnv', pyRappelAvantHTML('pnv'));
   $('pnvFeedback').textContent=''; $('pnvFeedback').className='mp-feedback';
   $('pnvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pnvValidate" onclick="checkPNV()">Vérifier</button>';
   const cases=pnvCases(q);
@@ -29800,9 +29853,9 @@ function renderPYP(){
   $('pypLiveScore').textContent=test.score;
   $('pypFeedback').textContent=''; $('pypFeedback').className='mp-feedback';
   $('pypActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pypValidate" onclick="checkPYP()">Vérifier</button>';
+  pyAvant('pyp', pypCoursHTML());
   $('pypHost').innerHTML=
     '<div class="py-cell">'
-    +pypCoursHTML()
     +'<p class="py-label">À toi : écris un programme qui affiche exactement</p>'
     +'<div class="pyp-cible" id="pypCible">'+esc(q.texte)+'</div>'
     +'<p class="py-label">Ton programme</p>'
@@ -30103,9 +30156,9 @@ function renderPYI(){
   $('pyiInstr').innerHTML=pyiEnonceGeneralHTML(q);
   $('pyiFeedback').textContent=''; $('pyiFeedback').className='mp-feedback';
   $('pyiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyiValidate" onclick="checkPYI()">Vérifier</button>';
+  pyAvant('pyi', test.idx===0?pyiCoursHTML():'');
   $('pyiHost').innerHTML=
     '<div class="py-cell">'
-    +(test.idx===0?pyiCoursHTML():'')
     +'<div class="pyn-etape" id="pyiEtape"><div class="pyn-titre">✏️ '+pyiEnonceHTML(q)+'</div>'
     +pyiPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
@@ -30418,9 +30471,9 @@ function renderPIA(){
   $('piaInstr').innerHTML=piaEnonceHTML(q);
   $('piaFeedback').textContent=''; $('piaFeedback').className='mp-feedback';
   $('piaActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="piaValidate" onclick="checkPIA()">Vérifier</button>';
+  pyAvant('pia', test.idx===0?piaCoursHTML():'');
   $('piaHost').innerHTML=
     '<div class="py-cell">'
-    +(test.idx===0?piaCoursHTML():'')
     +piaPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pia-prog" class="pyp-edit pts-case" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
@@ -30720,9 +30773,9 @@ function renderPMY(){
   $('pmyInstr').innerHTML=pmyEnonceHTML(q);
   $('pmyFeedback').textContent=''; $('pmyFeedback').className='mp-feedback';
   $('pmyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pmyValidate" onclick="checkPMY()">Vérifier</button>';
+  pyAvant('pmy', test.idx===0?pmyCoursHTML():'');
   $('pmyHost').innerHTML=
     '<div class="py-cell">'
-    +(test.idx===0?pmyCoursHTML():'')
     +pmyPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pmy-prog" class="pyp-edit pts-case" rows="5" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
@@ -31015,9 +31068,9 @@ function renderPRL(){
   $('prlInstr').innerHTML='Le programme remplace la première lettre d’une chaîne de caractères.';
   $('prlFeedback').textContent=''; $('prlFeedback').className='mp-feedback';
   $('prlActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="prlValidate" onclick="checkPRL()">Vérifier</button>';
+  pyAvant('prl', test.idx===0?prlRemarquesHTML():'');
   $('prlHost').innerHTML=
     '<div class="py-cell">'
-    +(test.idx===0?prlRemarquesHTML():'')
     +'<div class="pyn-etape" id="prlEtape"><div class="pyn-titre">✏️ '+prlEnonceHTML(q)+'</div>'
     +prlPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
@@ -31300,9 +31353,9 @@ function renderPIS(){
   $('pisInstr').innerHTML=pisEnonceHTML(q);
   $('pisFeedback').textContent=''; $('pisFeedback').className='mp-feedback';
   $('pisActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pisValidate" onclick="checkPIS()">Vérifier</button>';
+  pyAvant('pis', test.idx===0?pisCoursHTML():'');
   $('pisHost').innerHTML=
     '<div class="py-cell">'
-    +(test.idx===0?pisCoursHTML():'')
     +pisPoucesHTML(q)
     +'<p class="py-label">Ton programme</p>'
     +'<textarea id="pis-prog" class="pyp-edit pts-case" rows="5" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python" placeholder="Écris ton programme ici, puis exécute-le."></textarea>'
@@ -31987,9 +32040,9 @@ function pyxRenderCours(){
   $('pyxFeedback').textContent=''; $('pyxFeedback').className='mp-feedback';
   $('pyxActions').innerHTML=conseilInlineBtn()
     +'<button class="btn btn-primary" id="pyxCompris" type="button" onclick="pyxCompris()" disabled title="Exécute d’abord l’exemple">J’ai compris</button>';
+  pyAvant('pyx', pyxCoursHTML());
   $('pyxHost').innerHTML=
     '<div class="py-cell">'
-    +pyxCoursHTML()
     +'<p class="py-label">L’exemple du cours — exécute-le : qu’affiche-t-il ?</p>'
     +'<div class="pyx-prog">'+pyxExempleHTML()+'</div>'
     +'<div class="py-runrow"><button class="btn btn-primary" id="pyxExRun" type="button" onclick="pyxExempleExecuter()">▶ Exécuter l’exemple</button>'
@@ -32028,6 +32081,7 @@ function renderPYX(){
   $('pyxLiveScore').textContent=test.score;
   $('pyxFeedback').textContent=''; $('pyxFeedback').className='mp-feedback';
   $('pyxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyxValidate" onclick="checkPYX()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
+  pyAvant('pyx', '');   /* le cours a eu son écran : la question ne le répète pas */
   $('pyxHost').innerHTML=
     '<div class="py-cell">'
     +'<p class="py-label">Ton programme doit afficher : <code class="pyx-code pyx-attendu">'+esc(att.sortie.trim())+'</code></p>'
@@ -32333,7 +32387,8 @@ function renderPYN(){
   $('pynLiveScore').textContent=test.score;
   $('pynFeedback').textContent=''; $('pynFeedback').className='mp-feedback';
   const etapes=['a','b','c'], k=etapes.indexOf(q.etape);
-  let h='<div class="py-cell">'+(test.idx===0?pynCoursHTML():'')
+  pyAvant('pyn', test.idx===0?pynCoursHTML():'');
+  let h='<div class="py-cell">'
     +pynEtapeHTML(q, 'a', pynProgHTML([pynLigneInput(q)])
     +'<div class="py-runrow">'+(k>0?'':'<button class="btn btn-primary" id="pynRunA" type="button" onclick="pynExecuterA()">▶ Exécuter le programme</button>')+'</div>'
     +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pynConsoleA"></pre>');
@@ -32923,6 +32978,7 @@ function renderPYD(){
   $('pydIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPYD').innerHTML=modeTagHTML();
   $('pydLiveScore').textContent=test.score;
+  pyAvant('pyd', pyRappelAvantHTML('pyd'));
   $('pydFeedback').textContent=''; $('pydFeedback').className='mp-feedback';
   $('pydActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pydValidate" onclick="checkPYD()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
   const n0=q.aff.length;
@@ -33284,6 +33340,7 @@ function renderPYV(){
   $('pyvIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPYV').innerHTML=modeTagHTML();
   $('pyvLiveScore').textContent=test.score;
+  pyAvant('pyv', pyRappelAvantHTML('pyv'));
   $('pyvFeedback').textContent=''; $('pyvFeedback').className='mp-feedback';
   $('pyvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pyvValidate" onclick="checkPYV()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
   const n0=q.aff.length;
@@ -33625,6 +33682,7 @@ function renderPTV(){
   $('ptvInstr').innerHTML=ptvEnonceHTML(q);
   $('modeTagPTV').innerHTML=modeTagHTML();
   $('ptvLiveScore').textContent=test.score;
+  pyAvant('ptv', pyRappelAvantHTML('ptv'));
   $('ptvFeedback').textContent=''; $('ptvFeedback').className='mp-feedback';
   $('ptvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptvValidate" onclick="checkPTV()">Vérifier</button>';
   $('ptvHost').innerHTML=
@@ -33936,6 +33994,7 @@ function renderPCV(){
   $('pcvIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPCV').innerHTML=modeTagHTML();
   $('pcvLiveScore').textContent=test.score;
+  pyAvant('pcv', pyRappelAvantHTML('pcv'));
   $('pcvFeedback').textContent=''; $('pcvFeedback').className='mp-feedback';
   $('pcvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pcvValidate" onclick="checkPCV()">Vérifier</button>';
   const chg=q.mode==='change';
@@ -34435,9 +34494,9 @@ function popRenderCours(){
   $('popFeedback').textContent=''; $('popFeedback').className='mp-feedback';
   $('popActions').innerHTML=conseilInlineBtn()
     +'<button class="btn btn-primary" id="popCompris" type="button" onclick="popCompris()" disabled title="Exécute d’abord le programme, puis change a et b et exécute à nouveau">J’ai compris</button>';
+  pyAvant('pop', popCoursHTML());
   $('popHost').innerHTML=
     '<div class="py-cell">'
-    +popCoursHTML()
     +'<p class="py-label">Le programme du cours — exécute-le, puis change a et b&nbsp;:</p>'
     +popDecHTML()
     +'<div class="py-runrow"><button class="btn btn-primary" id="popDecRun" type="button" onclick="popDecExecuter()">▶ Exécuter le programme</button>'
@@ -34491,6 +34550,7 @@ function renderPOP(){
   $('popLiveScore').textContent=test.score;
   $('popFeedback').textContent=''; $('popFeedback').className='mp-feedback';
   $('popActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="popValidate" onclick="checkPOP()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
+  pyAvant('pop', '');   /* le cours a eu son écran : la question ne le répète pas */
   $('popHost').innerHTML=
     '<div class="py-cell">'
     +popConsigneHTML(q)
@@ -35018,6 +35078,7 @@ function renderPDC(){
   $('pdcInstr').innerHTML=pdcEnonceHTML(q);
   $('modeTagPDC').innerHTML=modeTagHTML();
   $('pdcLiveScore').textContent=test.score;
+  pyAvant('pdc', pyRappelAvantHTML('pdc'));
   $('pdcFeedback').textContent=''; $('pdcFeedback').className='mp-feedback';
   $('pdcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pdcValidate" onclick="checkPDC()" disabled title="Exécute d’abord ton programme">Vérifier</button>';
   $('pdcHost').innerHTML=
@@ -35205,7 +35266,7 @@ function ctxPdc(q){
    Ajouté en dernier dans le 6.1, il ne renumérote rien.
 
    LES CONSIGNES DU SOUS-THÈME 6.3, TOUTES : le cadre de cours s'écrit à la
-   question 1 seulement, AU-DESSUS de l'énoncé (#pchCours précède #pchInstr) ;
+   question 1 seulement, AU-DESSUS de l'énoncé (#pchAvant précède #pchInstr) ;
    chaque étape est un cadre ouvert par SA question, en gras, qu'il garde quand
    la suivante s'ouvre ; aucune consigne à côté des boutons « Exécuter » ; une
    console vide reste un cadre vide (content:none) ; « Vérifier » ne s'ouvre
@@ -35423,7 +35484,7 @@ function renderPCH(){
   $('pchIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPCH').innerHTML=modeTagHTML();
   $('pchLiveScore').textContent=test.score;
-  $('pchCours').innerHTML=test.idx===0?pchCoursHTML():'';
+  pyAvant('pch', test.idx===0?pchCoursHTML():'');
   $('pchInstr').innerHTML=pchEnonceHTML(q);
   $('pchFeedback').textContent=''; $('pchFeedback').className='mp-feedback';
   $('pchActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pchValidate" onclick="checkPCH()" disabled title="Fais d’abord les étapes a) et b)">Vérifier</button>';
@@ -35831,7 +35892,8 @@ function renderPII(){
   $('piiLiveScore').textContent=test.score;
   $('piiFeedback').textContent=''; $('piiFeedback').className='mp-feedback';
   $('piiActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="piiValidate" onclick="checkPII()" disabled title="Fais d’abord les étapes a), b) et c)">Vérifier</button>';
-  $('piiHost').innerHTML='<div class="py-cell">'+(test.idx===0?piiDefHTML(q):'')+piiAHTML(q)+'</div>';
+  pyAvant('pii', test.idx===0?piiDefHTML(q):'');
+  $('piiHost').innerHTML='<div class="py-cell">'+piiAHTML(q)+'</div>';
 }
 function piiExecA(){
   if(test.locked||test.piiEtape!=='a') return;
@@ -36260,6 +36322,7 @@ function renderPAP(){
   $('papIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPAP').innerHTML=modeTagHTML();
   $('papLiveScore').textContent=test.score;
+  pyAvant('pap', pyRappelAvantHTML('pap'));
   $('papFeedback').textContent=''; $('papFeedback').className='mp-feedback';
   const l=q.lignes[k];
   $('papHost').innerHTML=
@@ -36557,6 +36620,7 @@ function renderPVM(){
   $('pvmIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPVM').innerHTML=modeTagHTML();
   $('pvmLiveScore').textContent=test.score;
+  pyAvant('pvm', pyRappelAvantHTML('pvm'));
   $('pvmFeedback').textContent=''; $('pvmFeedback').className='mp-feedback';
   const l=q.lignes[k];
   $('pvmHost').innerHTML=
@@ -36885,6 +36949,7 @@ function renderPPC(){
   $('ppcIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPPC').innerHTML=modeTagHTML();
   $('ppcLiveScore').textContent=test.score;
+  pyAvant('ppc', pyRappelAvantHTML('ppc'));
   $('ppcFeedback').textContent=''; $('ppcFeedback').className='mp-feedback';
   const l=q.lignes[k];
   $('ppcHost').innerHTML=
@@ -37145,6 +37210,7 @@ function renderPPD(){
   $('ppdIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPPD').innerHTML=modeTagHTML();
   $('ppdLiveScore').textContent=test.score;
+  pyAvant('ppd', pyRappelAvantHTML('ppd'));
   $('ppdFeedback').textContent=''; $('ppdFeedback').className='mp-feedback';
   const l=q.lignes[k];
   $('ppdHost').innerHTML=
@@ -37447,6 +37513,7 @@ function renderPEV(){
   $('pevIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPEV').innerHTML=modeTagHTML();
   $('pevLiveScore').textContent=test.score;
+  pyAvant('pev', pyRappelAvantHTML('pev'));
   $('pevFeedback').textContent=''; $('pevFeedback').className='mp-feedback';
   const l=q.lignes[k];
   $('pevHost').innerHTML=
@@ -37861,6 +37928,7 @@ function renderPPM(){
   $('ppmIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPPM').innerHTML=modeTagHTML();
   $('ppmLiveScore').textContent=test.score;
+  pyAvant('ppm', pyRappelAvantHTML('ppm'));
   $('ppmFeedback').textContent=''; $('ppmFeedback').className='mp-feedback';
   if(test.ppmPhase==='verifier') renderPPMVerifier(q); else renderPPMDeviner(q);
 }
@@ -38268,6 +38336,7 @@ function renderPEL(){
   $('pelIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPEL').innerHTML=modeTagHTML();
   $('pelLiveScore').textContent=test.score;
+  pyAvant('pel', pyRappelAvantHTML('pel'));
   $('pelFeedback').textContent=''; $('pelFeedback').className='mp-feedback';
   $('pelActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pelValidate" onclick="checkPEL()">Exécuter</button>';
   $('pelHost').innerHTML=
@@ -38487,6 +38556,7 @@ function renderPPH(){
   $('pphIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPPH').innerHTML=modeTagHTML();
   $('pphLiveScore').textContent=test.score;
+  pyAvant('pph', pyRappelAvantHTML('pph'));
   $('pphFeedback').textContent=''; $('pphFeedback').className='mp-feedback';
   let ligne;
   if(!e) ligne='La mémoire de l’ordinateur est vide. Appuie sur <b>« Exécuter la ligne 1 »</b>&nbsp;: l’ordinateur va lire la première ligne.';
