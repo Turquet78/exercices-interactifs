@@ -2395,7 +2395,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=275;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=276;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2876,6 +2876,13 @@ THEMES.forEach(t=>{
    de ce que voient les élèves — il l'était déjà. */
 const TEST_ORDER=THEMES.reduce((a,t)=>a.concat(t.ids),[]);
 let currentDM=null;
+/* L'écran que l'élève voyait JUSTE AVANT de lancer l'exercice — le plus
+   souvent la page des modes, libre ou de devoir. show() le retient au passage
+   d'un écran de menu à un écran d'exercice ; abandonTest() y ramène (demande de
+   Turquet, octobre 2026 : « quand on abandonne, revenir à la page qui était
+   affichée juste avant »). L'écran des résultats n'y entre pas : « Recommencer »
+   part de lui, mais l'élève n'a pas lancé l'exercice de là. */
+let ecranAvantExo=null;
 /* Le passage en cours, quand un devoir demande plusieurs fois le même exercice.
    null = passage unique, et la note s'enregistre alors sans « passe » — les
    devoirs déjà rendus gardent exactement la forme qu'ils avaient. */
@@ -3925,7 +3932,7 @@ function renderBilan(results){
 function retourChoix(){
   if(currentDM){ ouvrirDevoirDetail(currentDM); return; }
   const th=currentThemeNum, sous=currentSousNum;
-  openThemes().then(()=>{ if(th!=null){ openTheme(th); if(sous!=null) openSousTheme(th,sous); } });
+  return openThemes().then(()=>{ if(th!=null){ openTheme(th); if(sous!=null) openSousTheme(th,sous); } });
 }
 async function openTest(testId){
   currentTestId=testId;
@@ -4006,15 +4013,28 @@ async function abandonTest(){
      puis retrouvait sa pause intacte. */
   if(efface) toast('Exercice abandonné','ok');
   else toast('Abandon non enregistré — l’exercice reste en pause, réessaie','err');
-  if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }
-  else { retourChoix(); }
+  /* retour à l'écran d'où l'exercice a été lancé — voir ecranAvantExo */
+  await retourAvantExo();
+}
+/* Le retour après un abandon : la page des modes se REDESSINE (ses cartes
+   « Reprendre » doivent refléter la pause qui vient d'être effacée), un autre
+   écran de menu se remontre tel quel ; sans écran retenu, l'ancien repli. */
+async function retourAvantExo(){
+  const avant=ecranAvantExo, id=currentTestId, dm=currentDM;
+  ecranAvantExo=null; currentDM=null;
+  if(avant==='mode' && id && TESTS[id]){ if(dm && dm!==true) return openTestDevoir(dm,id); return openTest(id); }
+  if(avant && avant!=='mode' && $('scr-'+avant)){ show(avant); return; }
+  if(dm){ return ouvrirDevoirDetail(dm); }
+  return retourChoix();
 }
 function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
+  const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
+  if(testScreens.indexOf(name)>=0 && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
   document.body.classList.toggle('menu-large', ['choose','theme','soustheme'].indexOf(name)>=0);

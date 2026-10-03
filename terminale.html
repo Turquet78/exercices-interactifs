@@ -3079,7 +3079,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=360;
+const APP_VERSION=361;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3355,6 +3355,13 @@ let teacherFilter='all';
 let teacherMode='eval';
 let currentTestId=null, currentMode='train';
 let currentDM=null;   // marque qu'un exercice est lancé depuis le devoir maison
+/* L'écran que l'élève voyait JUSTE AVANT de lancer l'exercice — le plus
+   souvent la page des modes, libre ou de devoir. show() le retient au passage
+   d'un écran de menu à un écran d'exercice ; abandonTest() y ramène (demande de
+   Turquet, octobre 2026 : « quand on abandonne, revenir à la page qui était
+   affichée juste avant »). L'écran des résultats n'y entre pas : « Recommencer »
+   part de lui, mais l'élève n'a pas lancé l'exercice de là. */
+let ecranAvantExo=null;
 function pick(a){return a[rand(0,a.length-1)];}
 /* LES QUESTIONS D'UNE SÉANCE SONT DEUX À DEUX DIFFÉRENTES (signalé par Turquet,
    septembre 2026 : une élève a eu deux fois le même énoncé au 4.4.2 de la
@@ -4807,9 +4814,19 @@ async function abandonTest(){
      puis retrouvait sa pause intacte. */
   if(efface) toast('Exercice abandonné','ok');
   else toast('Abandon non enregistré — l’exercice reste en pause, réessaie','err');
-  if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
-  else if(currentTestId && TESTS[currentTestId]){ openTest(currentTestId); }       // retour à la page des modes de l'exercice
-  else { openThemes(); }
+  /* retour à l'écran d'où l'exercice a été lancé — voir ecranAvantExo */
+  await retourAvantExo();
+}
+/* Le retour après un abandon : la page des modes se REDESSINE (ses cartes
+   « Reprendre » doivent refléter la pause qui vient d'être effacée), un autre
+   écran de menu se remontre tel quel ; sans écran retenu, l'ancien repli. */
+async function retourAvantExo(){
+  const avant=ecranAvantExo, id=currentTestId, dm=currentDM;
+  ecranAvantExo=null; currentDM=null;
+  if(avant==='mode' && id && TESTS[id]){ if(dm && dm!==true) return openTestDevoirModes(dm,id); return openTest(id); }
+  if(avant && avant!=='mode' && $('scr-'+avant)){ show(avant); return; }
+  if(dm){ return ouvrirDevoirDetail(dm); }   // devoir : retour au détail du devoir
+  return openThemes();
 }
 /* La table écran/rendu, sortie de resumeTest() : la reprise après pause et le
    rejeu d'un signalement font exactement le même geste, et deux listes
@@ -5003,9 +5020,11 @@ function idAuHasard(){
 function show(name){
   /* une exception ici figerait toute la navigation */
   try{ fermerFenetresIA(true); }catch(e){}
+  const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','sag','enc','rec','ef','eq','rc','rf','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq'];
+  if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
