@@ -6056,10 +6056,11 @@ let currentTestId=null, currentMode='train';
 let currentDM=null;   // marque qu'un exercice est lancé depuis le devoir maison
 /* L'écran que l'élève voyait JUSTE AVANT de lancer l'exercice — le plus
    souvent la page des modes, libre ou de devoir. show() le retient au passage
-   d'un écran de menu à un écran d'exercice ; abandonTest() y ramène (demande de
-   Turquet, octobre 2026 : « quand on abandonne, revenir à la page qui était
-   affichée juste avant »). L'écran des résultats n'y entre pas : « Recommencer »
-   part de lui, mais l'élève n'a pas lancé l'exercice de là. */
+   d'un écran de menu à un écran d'exercice ; abandonTest() et pauseTest() y
+   ramènent (demande de Turquet, octobre 2026 : « quand on abandonne, revenir à
+   la page qui était affichée juste avant » — « et pour la pause aussi »).
+   L'écran des résultats n'y entre pas : « Recommencer » part de lui, mais
+   l'élève n'a pas lancé l'exercice de là. */
 let ecranAvantExo=null;
 function pick(a){return a[rand(0,a.length-1)];}
 /* LES QUESTIONS D'UNE SÉANCE SONT DEUX À DEUX DIFFÉRENTES (signalé par Turquet,
@@ -8756,8 +8757,8 @@ async function pauseTest(){
   else if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
   else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
-  if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
-  else { openThemes(); }
+  /* retour à l'écran d'où l'exercice a été lancé, comme l'abandon — voir ecranAvantExo */
+  await retourAvantExo();
 }
 async function abandonTest(){
   if(!currentEleve) return;
@@ -8785,8 +8786,9 @@ async function abandonTest(){
   /* retour à l'écran d'où l'exercice a été lancé — voir ecranAvantExo */
   await retourAvantExo();
 }
-/* Le retour après un abandon : la page des modes se REDESSINE (ses cartes
-   « Reprendre » doivent refléter la pause qui vient d'être effacée), un autre
+/* Le retour après un abandon ou une pause : la page des modes se REDESSINE
+   (ses cartes « Reprendre » doivent refléter la pause qui vient d'être posée
+   ou effacée), un autre
    écran de menu se remontre tel quel ; sans écran retenu, l'ancien repli. */
 async function retourAvantExo(){
   const avant=ecranAvantExo, id=currentTestId, dm=currentDM;

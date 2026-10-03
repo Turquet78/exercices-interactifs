@@ -4443,6 +4443,15 @@ function abandonSortDePause(w, apres){
       await Promise.resolve(TESTS['${exo}'].start());
       await abandonTest();
       bilan.retourMenu=ecranOn();
+      /* 7. « et pour la pause aussi » : même retour, et la page des modes
+         redessinée propose de REPRENDRE ce qui vient d'être mis en pause. */
+      ${SEMER} ${POSER} currentMode='train';
+      window.__faux.tables['${TR}']=[];
+      await openTest('${exo}');
+      await Promise.resolve(TESTS['${exo}'].start());
+      await pauseTest();
+      bilan.pauseRetour=ecranOn();
+      bilan.pauseReprendre=document.getElementById('modeChoices').innerHTML.indexOf('Reprendre l’entraînement')>=0;
     } finally { toast=vraiToast; window.__faux.panne=false; }
     return bilan;
   })()`, r => {
@@ -4476,6 +4485,9 @@ function abandonSortDePause(w, apres){
       r.ok && b.lanceDepuisModes && b.lanceDepuisModes !== 'mode' && b.retourModes === 'mode' && b.retourMenu === 'rattrapage',
       souci || 'lancé depuis la page des modes (écran de l’exercice : « ' + b.lanceDepuisModes + ' ») → retour sur « '
         + b.retourModes + ' », attendu « mode » ; lancé depuis « rattrapage » → retour sur « ' + b.retourMenu + ' »');
+    verifier('la pause ramène, elle aussi, à la page des modes — qui propose de reprendre',
+      r.ok && b.pauseRetour === 'mode' && b.pauseReprendre === true,
+      souci || 'après la pause : écran « ' + b.pauseRetour + ' », carte « Reprendre » ' + (b.pauseReprendre ? 'présente' : 'absente'));
     coursEnPdf(w, apres);
   });
 }
