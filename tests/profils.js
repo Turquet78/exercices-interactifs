@@ -1109,6 +1109,7 @@ module.exports = {
     pythonAvant: { sans: {
       'python-chaine-len': 'l\u2019élève découvre en exécutant ce que représentent len(chaine) et chaine[i] : leur définition est la réponse attendue',
       'python-chaine-tirets': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
+      'python-inverser-lettres': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme (comme {python-chaine-tirets})',
       'python-triangle-etoiles': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce, qui reste REPLIÉ sous l\u2019énoncé (demande de Turquet, octobre 2026 : « garde le coup de pouce seulement replié »)',
     } },
     pythonAffichage: { exercice: 'python-affichage', nb: 4 },
