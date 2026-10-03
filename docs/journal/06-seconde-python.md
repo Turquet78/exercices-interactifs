@@ -3802,7 +3802,9 @@ mentions de `ptr`/`PTR` avant et après).
 
 **Puis la règle « les définitions avant l'énoncé » est arrivée pour tout le
 thème** (version 279), et le triangle passe en 280. La fiche n'a pas de
-définition : comme les seize exercices sans encadré, il reçoit son RAPPEL
-(`RAP_PTR`, le coup de pouce mot pour mot) dans `ptrAvant`, au-dessus de
-l'énoncé, à la question 1 (`pyRappelAvantHTML`). Le contrôle universel l'a
-exigé à la fusion — l'emplacement manquait —, et c'est ainsi qu'il l'a vu.
+définition, et son seul rappel est le coup de pouce. Un premier jet l'a écrit
+dans `ptrAvant`, au-dessus de l'énoncé, comme les exercices sans encadré ;
+Turquet a tranché : « garde le coup de pouce seulement replié ». L'emplacement
+existe et reste VIDE, et l'exception est NOMMÉE dans `tests/profils.js`
+(`pythonAvant.sans`), comme celle de {python-chaine-tirets}, pour la même
+raison.

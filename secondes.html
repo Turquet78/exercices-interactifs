@@ -30816,7 +30816,11 @@ function renderPTR(){
   $('ptrIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPTR').innerHTML=modeTagHTML();
   $('ptrLiveScore').textContent=test.score;
-  pyAvant('ptr', pyRappelAvantHTML('ptr'));   /* le rappel AVANT l'énoncé, à la question 1 (la règle du thème) */
+  /* ptrAvant reste VIDE, exprès (demande de Turquet, octobre 2026 : « garde le
+     coup de pouce seulement replié ») : le seul rappel de la fiche est le coup
+     de pouce, l'écrire avant l'énoncé le déplierait. Exception nommée dans
+     tests/profils.js (pythonAvant.sans). */
+  pyAvant('ptr', '');
   $('ptrInstr').innerHTML=ptrEnonceGeneralHTML(q);
   $('ptrFeedback').textContent=''; $('ptrFeedback').className='mp-feedback';
   $('ptrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ptrValidate" onclick="checkPTR()">Vérifier</button>';
