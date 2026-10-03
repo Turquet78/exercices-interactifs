@@ -1559,7 +1559,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <div class="topbar">
         <h2 class="title" style="margin:0" id="modeTitle">Test</h2>
-        <button class="btn-link" onclick="retourChoix()">Retour</button>
+        <button class="btn-link" onclick="retourModes()">Retour</button>
       </div>
       <p class="lead">Comment veux-tu faire ce test ?</p>
       <div class="choices" id="modeChoices"></div>
@@ -2884,6 +2884,12 @@ let currentDM=null;
    L'écran des résultats n'y entre pas : « Recommencer » part de lui, mais
    l'élève n'a pas lancé l'exercice de là. */
 let ecranAvantExo=null;
+/* Même chose un étage plus haut : l'écran d'où l'élève est arrivé sur la page
+   des modes (sous-thème, devoir, rattrapage…). Son bouton « Retour » y ramène
+   (même demande, « et pour le bouton Retour aussi »). Les écrans qui ne sont
+   qu'un passage — l'exercice lui-même, ses résultats, l'énoncé papier, un
+   choix de niveau — n'y entrent pas : on revient de là PAR la page des modes. */
+let ecranAvantModes=null;
 /* Le passage en cours, quand un devoir demande plusieurs fois le même exercice.
    null = passage unique, et la note s'enregistre alors sans « passe » — les
    devoirs déjà rendus gardent exactement la forme qu'ils avaient. */
@@ -4025,8 +4031,28 @@ async function retourAvantExo(){
   const avant=ecranAvantExo, id=currentTestId, dm=currentDM;
   ecranAvantExo=null; currentDM=null;
   if(avant==='mode' && id && TESTS[id]){ if(dm && dm!==true) return openTestDevoir(dm,id); return openTest(id); }
-  if(avant && avant!=='mode' && $('scr-'+avant)){ show(avant); return; }
+  if(avant && avant!=='mode'){ const r=rouvrirEcran(avant, dm); if(r!==false) return r; }
   if(dm){ return ouvrirDevoirDetail(dm); }
+  return retourChoix();
+}
+/* Rouvre un écran de menu EN LE REDESSINANT quand il a un rendu (ses cartes
+   portent des notes et des pauses qui ont pu changer), tel quel sinon. Rend
+   false pour un écran inconnu : l'appelant garde alors son repli. */
+function rouvrirEcran(nom, dm){
+  if(!nom || !$('scr-'+nom)) return false;
+  if(nom==='devoirs') return (dm && dm!==true) ? ouvrirDevoirDetail(dm) : openDevoirsEleve(genreEleve);
+  if(nom==='choose') return openThemes();
+  if(nom==='rattrapage') return openRattrapage();
+  if(nom==='theme' && currentThemeNum!=null){ const th=currentThemeNum; return openThemes().then(()=>{ openTheme(th); }); }
+  if(nom==='soustheme' && currentThemeNum!=null && currentSousNum!=null){ const th=currentThemeNum, sous=currentSousNum; return openThemes().then(()=>{ openTheme(th); openSousTheme(th,sous); }); }
+  show(nom);
+}
+/* Le bouton « Retour » de la page des modes : là d'où l'élève est venu ; sans
+   écran retenu, l'ancien chemin (le devoir, ou le sous-thème de l'exercice). */
+function retourModes(){
+  const avant=ecranAvantModes; ecranAvantModes=null;
+  const r=avant ? rouvrirEcran(avant, currentDM) : false;
+  if(r!==false) return r;
   return retourChoix();
 }
 function show(name){
@@ -4037,6 +4063,7 @@ function show(name){
   const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0 && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
+  if(name==='mode' && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ['mode','results','dmenonce','s2lvl'].indexOf(ecranQuitte)<0) ecranAvantModes=ecranQuitte;
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
   document.body.classList.toggle('menu-large', ['choose','theme','soustheme'].indexOf(name)>=0);

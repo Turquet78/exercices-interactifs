@@ -4458,6 +4458,14 @@ function abandonSortDePause(w, apres){
          sinon les sauvegardes automatiques écrivent dans les contrôles
          suivants — celui du signalement comptait huit lignes au lieu d'une. */
       recoveryClosed=true; recoveryDirty=false; recoveryRowId=null;
+      /* 8. « et pour le bouton Retour aussi » : arrivé sur la page des modes
+         depuis le rattrapage, son « Retour » y ramène — et pas au sous-thème. */
+      ${SEMER} ${POSER}
+      show('rattrapage');
+      await openTest('${exo}');
+      await retourModes();
+      bilan.retourBouton=ecranOn();
+      bilan.boutonBranche=/retourModes\\(\\)/.test(document.querySelector('#scr-mode .btn-link').getAttribute('onclick')||'');
     } finally { toast=vraiToast; window.__faux.panne=false; }
     return bilan;
   })()`, r => {
@@ -4494,6 +4502,10 @@ function abandonSortDePause(w, apres){
     verifier('la pause ramène, elle aussi, à la page des modes — qui propose de reprendre',
       r.ok && b.pauseRetour === 'mode' && b.pauseReprendre === true,
       souci || 'après la pause : écran « ' + b.pauseRetour + ' », carte « Reprendre » ' + (b.pauseReprendre ? 'présente' : 'absente'));
+    verifier('le bouton « Retour » de la page des modes ramène à l’écran d’où l’on venait',
+      r.ok && b.boutonBranche === true && b.retourBouton === 'rattrapage',
+      souci || (b.boutonBranche ? '' : 'le bouton « Retour » n’appelle pas retourModes() ; ')
+        + 'venu du rattrapage, « Retour » mène à « ' + b.retourBouton + ' »');
     coursEnPdf(w, apres);
   });
 }

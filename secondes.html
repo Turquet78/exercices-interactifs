@@ -3192,7 +3192,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <div class="topbar">
         <h2 class="title" style="margin:0" id="modeTitle">Test</h2>
-        <button class="btn-link" onclick="retourChoix()">Retour</button>
+        <button class="btn-link" onclick="retourModes()">Retour</button>
       </div>
       <p class="lead">Comment veux-tu faire ce test ?</p>
       <div class="choices" id="modeChoices"></div>
@@ -6122,6 +6122,12 @@ let currentDM=null;   // marque qu'un exercice est lancé depuis le devoir maiso
    L'écran des résultats n'y entre pas : « Recommencer » part de lui, mais
    l'élève n'a pas lancé l'exercice de là. */
 let ecranAvantExo=null;
+/* Même chose un étage plus haut : l'écran d'où l'élève est arrivé sur la page
+   des modes (sous-thème, devoir, rattrapage…). Son bouton « Retour » y ramène
+   (même demande, « et pour le bouton Retour aussi »). Les écrans qui ne sont
+   qu'un passage — l'exercice lui-même, ses résultats, l'énoncé papier, un
+   choix de niveau — n'y entrent pas : on revient de là PAR la page des modes. */
+let ecranAvantModes=null;
 function pick(a){return a[rand(0,a.length-1)];}
 /* LES QUESTIONS D'UNE SÉANCE SONT DEUX À DEUX DIFFÉRENTES (signalé par Turquet,
    septembre 2026 : une élève a eu deux fois le même énoncé au 4.4.2 de la
@@ -8871,9 +8877,29 @@ async function retourAvantExo(){
   const avant=ecranAvantExo, id=currentTestId, dm=currentDM;
   ecranAvantExo=null; currentDM=null;
   if(avant==='mode' && id && TESTS[id]){ if(dm && dm!==true) return openTestDevoir(dm,id); return openTest(id); }
-  if(avant && avant!=='mode' && $('scr-'+avant)){ show(avant); return; }
+  if(avant && avant!=='mode'){ const r=rouvrirEcran(avant, dm); if(r!==false) return r; }
   if(dm){ return ouvrirDevoirDetail(dm); }   // devoir : retour au détail du devoir
   return openThemes();
+}
+/* Rouvre un écran de menu EN LE REDESSINANT quand il a un rendu (ses cartes
+   portent des notes et des pauses qui ont pu changer), tel quel sinon. Rend
+   false pour un écran inconnu : l'appelant garde alors son repli. */
+function rouvrirEcran(nom, dm){
+  if(!nom || !$('scr-'+nom)) return false;
+  if(nom==='devoirs') return (dm && dm!==true) ? ouvrirDevoirDetail(dm) : openDevoirsEleve(genreEleve);
+  if(nom==='choose') return openThemes();
+  if(nom==='rattrapage') return openRattrapage();
+  if(nom==='theme' && currentThemeNum!=null){ const th=currentThemeNum; return openThemes().then(()=>{ openTheme(th); }); }
+  if(nom==='soustheme' && currentThemeNum!=null && currentSousNum!=null){ const th=currentThemeNum, sous=currentSousNum; return openThemes().then(()=>{ openTheme(th); openSousTheme(th,sous); }); }
+  show(nom);
+}
+/* Le bouton « Retour » de la page des modes : là d'où l'élève est venu ; sans
+   écran retenu, l'ancien chemin (le devoir, ou le sous-thème de l'exercice). */
+function retourModes(){
+  const avant=ecranAvantModes; ecranAvantModes=null;
+  const r=avant ? rouvrirEcran(avant, currentDM) : false;
+  if(r!==false) return r;
+  return retourChoix();
 }
 /* La table écran/rendu, sortie de resumeTest() : la reprise après pause et le
    rejeu d'un signalement font exactement le même geste, et deux listes
@@ -9014,6 +9040,7 @@ function show(name){
   const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pii','pia','pis','pmy','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
+  if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
   /* les écrans de rapidité ne passent par aucun rendu enveloppé : leur rangée (le seul bouton des tables) se pose ici */
   if(name==='test'||name==='tm'){ try{ iaBoutons($('scr-'+name)); }catch(e){} }
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
