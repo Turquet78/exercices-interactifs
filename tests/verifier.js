@@ -4166,6 +4166,7 @@ function exercices(suite){
     pythonInput(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
+    pythonInverserLettres(w, P);
     pythonChaines(w, P);
     pythonChaineLen(w, P);
     pythonTexteProche(w, P);
@@ -24160,6 +24161,240 @@ function pythonRemplacerLettre(w, P){
   const ecarts = [];
   liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-inverser-lettres} (Seconde, 6.4.4, sous-thème « Bonus ») : la fiche
+   « Exercice 29 » du carnet — inverser l'ordre des lettres d'un mot avec une
+   boucle for. Le contrôle tient la place au menu (6.4.4, derrière les trois autres du Bonus ;
+   rien d'autre ne bouge), ce que le juge demande à l'interpréteur du thème, la
+   fiche épinglée et le tirage, le juge sur des copies justes et fausses —
+   chacune avec le mot qui la nomme, dont le mot affiché à la main que les
+   mots du juge trahissent, le print resté dans la boucle et la tranche
+   [::-1] —, l'écran tenu aux consignes du sous-thème Input (l'énoncé en gras
+   dans le cadre de la cellule, les trois coups de pouce de la fiche au mot
+   près, aucun encadré de cours, aucune consigne au bouton), la touche Tab et
+   le décalage après « : », la copie juste, fausse et vide, le soutien qui
+   explique sans révéler, puis compare à un vrai CPython ce que les
+   programmes affichent. */
+function pythonInverserLettres(w, P){
+  const nom = '{python-inverser-lettres} : inverser l’ordre des lettres d’un mot avec une boucle for';
+  if(!P.pythonInverserLettres){ ignorer(nom, 'ce niveau n\'a pas l\'exercice bonus des boucles'); return; }
+  const ID = P.pythonInverserLettres.exercice, NB = P.pythonInverserLettres.nb, NUM = P.pythonInverserLettres.numero;
+  const present = evaluer(w, "typeof startPBL==='function' && typeof pblDiag==='function' && typeof pblBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPBL / pblDiag / pblBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il suit les trois autres exercices du sous-thème 6.4 « Bonus », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===4; });
+    if(!st||st.nom!=="Bonus") vus.push("pas de sous-thème 6.4 Bonus");
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-remplacer-lettre")+1) vus.push("il ne suit pas {python-remplacer-lettre} : "+st.ids.join(","));
+    if(TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-chaine-tirets"]!=="6.4.2"||TEST_NUM["python-remplacer-lettre"]!=="6.4.3") vus.push("les trois premiers du Bonus ont bougé : "+TEST_NUM["python-chaine-len"]+", "+TEST_NUM["python-chaine-tirets"]+", "+TEST_NUM["python-remplacer-lettre"]);
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. ce que l'exercice demande à l'interpréteur ----
+     L'interpréteur est celui du thème ({python-chaine-tirets} lui a appris
+     les blocs) : on tient ici ce dont CE juge a besoin, et les erreurs qu'il
+     traduit — un message qui changerait de forme laisserait l'élève devant
+     « Python s'arrête sur une erreur » au lieu de son mot. */
+  verifierEval(w, 'l’interpréteur lit ce que l’exercice demande — for, range, len, chaine[k], +=, le décalage — et lève les erreurs que le juge traduit (IndexError, deux-points, décalage, texte + nombre, variable inconnue)', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    const out=function(src){ try{ return pyRun(src).out; }catch(e){ return "ERR "+e.message; } };
+    const att=[
+      ["c = "+Q+"juliette"+Q+NL+"s = "+Q+Q+NL+"for k in range (len(c)):"+NL+"    s = s + c[len(c) - 1 - k]"+NL+"print(s)", "etteiluj"+NL],
+      ["c = "+Q+"abc"+Q+NL+"s = "+Q+Q+NL+"for l in c:"+NL+"    s = l + s"+NL+"print(s)", "cba"+NL],
+      ["s = "+Q+Q+NL+"for k in range(3):"+NL+NL+"    s += str(k)"+NL+"    # rien"+NL+"print(s, len(s), s[-1])", "012 3 2"+NL],
+      ["for k in range(1, 7, 2):"+NL+"    for j in range(k):"+NL+"        print(k, j)", "1 0"+NL+"3 0"+NL+"3 1"+NL+"3 2"+NL+"5 0"+NL+"5 1"+NL+"5 2"+NL+"5 3"+NL+"5 4"+NL]
+    ];
+    att.forEach(function(c){ const o=out(c[0]); if(o!==c[1]) vus.push(JSON.stringify(c[0])+" → "+JSON.stringify(o)); });
+    const fautes=[
+      ["c = "+Q+"abc"+Q+NL+"print(c[3])", /^ERR IndexError/, /- 1/],
+      ["for k in range(3)"+NL+"    print(k)", /deux-points/, /deux-points/],
+      ["for k in range(3):"+NL+"print(k)", /^ERR IndentationError/, /décalées/],
+      ["c = "+Q+"abc"+Q+NL+"s = "+Q+Q+NL+"for k in range(3):"+NL+"    s = s + k", /entre un texte et un nombre/, /POSITION/],
+      ["for k in range(3):"+NL+"    s = s + "+Q+"a"+Q, /NameError/, /AVANT la boucle/],
+      ["c = "+Q+"abc"+Q+NL+"print("+Q+Q+".join(c))", /« \\. »/, /join/]
+    ];
+    fautes.forEach(function(c){
+      const o=out(c[0]); if(!c[1].test(o)){ vus.push(JSON.stringify(c[0])+" → "+o); return; }
+      let e=null; try{ pyRun(c[0]); }catch(x){ e=x; }
+      if(!e||!c[2].test(pblTraduire(e))) vus.push("le juge ne traduit plus « "+o+" » : "+(e?pblTraduire(e):"pas d’erreur"));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (« juliette »), puis des mots distincts, jamais un palindrome ni un mot du juge ; le modèle de chacun passe au juge, et chaque mot sort (300 séances)', `(function(){
+    const vus=[], vus2={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pblBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(pblMot(qs[0])!=="juliette"){ vus.push("la fiche n’ouvre pas la séance : "+pblMot(qs[0])); break; }
+      const ms=qs.map(function(q){ return q.m; });
+      if(new Set(ms).size!==ms.length){ vus.push("deux fois le même mot : "+ms.join(",")); break; }
+      qs.forEach(function(q){ vus2[q.m]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PBL_MOTS.forEach(function(m, i){
+      const d=pblDiag(pblModele({m:i}),{m:i});
+      if(!d.ok||d.ecart) vus.push("le modèle de « "+m+" » : "+(d.dits||[]).join(" ")+(d.ecart||""));
+      if(pblInverse(m)===m) vus.push("« "+m+" » est un palindrome : le mot affiché tel quel passerait");
+      if(PBL_JUGE.indexOf(m)>=0) vus.push("« "+m+" » est aussi un mot du juge");
+    });
+    if(PBL_JUGE.some(function(m){ return m.length===8 || pblInverse(m)===m; })) vus.push("un mot du juge a 8 lettres ou est un palindrome");
+    if(Object.keys(vus2).length!==PBL_MOTS.length) vus.push("des mots ne sortent jamais : "+Object.keys(vus2).length+"/"+PBL_MOTS.length);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (la boucle de la fiche, for lettre in chaine, +=, un texte avant le mot) et nomme chaque défaut — le mot écrit à la main, range(8), le print dans la boucle, les lettres une par une, l’ordre inchangé, le « - 1 » oublié, chaine_bis jamais créée, la tranche [::-1], le deux-points, le décalage, la ligne chaine supprimée, rien d’affiché, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={m:0,prog:""};
+    const c0="chaine = "+Q+"juliette"+Q, v0="chaine_bis = "+Q+Q, f0="for k in range(len(chaine)):";
+    const justes=[c0+NL+v0+NL+f0+NL+"    chaine_bis = chaine_bis + chaine[len(chaine) - 1 - k]"+NL+"print(chaine_bis)",
+                  c0+NL+"mot = "+Q+Q+NL+"for lettre in chaine:"+NL+"  mot = lettre + mot"+NL+NL+"print(mot)",
+                  c0+NL+v0+NL+"for k in range (len(chaine)) :"+NL+"    chaine_bis += chaine[-1 - k]"+NL+"print("+Q+"le mot inversé :"+Q+", chaine_bis)",
+                  "chaine = 'juliette'"+NL+v0+NL+"for k in range(len(chaine) - 1, -1, -1):"+NL+"    chaine_bis = chaine_bis + chaine[k]"+NL+"print(chaine_bis)"];
+    justes.forEach(function(p){ const d=pblDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      [c0+NL+"print("+Q+"etteiluj"+Q+")", /toujours « etteiluj »/],
+      [c0+NL+v0+NL+"for k in range(8):"+NL+"    chaine_bis = chaine_bis + chaine[7 - k]"+NL+"print(chaine_bis)", /len\\(chaine\\)/],
+      [c0+NL+v0+NL+f0+NL+"    chaine_bis = chaine_bis + chaine[len(chaine) - 1 - k]"+NL+"    print(chaine_bis)", /DANS la boucle/],
+      [c0+NL+f0+NL+"    print(chaine[len(chaine) - 1 - k])", /une par une/],
+      [c0+NL+v0+NL+f0+NL+"    chaine_bis = chaine_bis + chaine[k]"+NL+"print(chaine_bis)", /même ordre/],
+      [c0+NL+v0+NL+f0+NL+"    chaine_bis = chaine_bis + chaine[len(chaine) - k]"+NL+"print(chaine_bis)", /- 1/],
+      [c0+NL+f0+NL+"    chaine_bis = chaine_bis + chaine[len(chaine) - 1 - k]"+NL+"print(chaine_bis)", /AVANT la boucle/],
+      [c0+NL+"print(chaine[::-1])", /boucle for/],
+      [c0+NL+v0+NL+"for k in range(len(chaine))"+NL+"    chaine_bis = chaine_bis + chaine[len(chaine) - 1 - k]"+NL+"print(chaine_bis)", /deux-points/],
+      [c0+NL+v0+NL+f0+NL+"chaine_bis = chaine_bis + chaine[len(chaine) - 1 - k]"+NL+"print(chaine_bis)", /décalées/],
+      [c0+NL+v0+NL+f0+NL+"    chaine_bis = chaine_bis + k"+NL+"print(chaine_bis)", /POSITION/],
+      [v0+NL+"print(chaine_bis)", /a disparu/],
+      [c0+NL+v0+NL+f0+NL+"    chaine_bis = chaine_bis + chaine[len(chaine) - 1 - k]", /n’affiche rien/],
+      [c0+NL+"print("+Q+"bonjour"+Q+")", /au lieu de « etteiluj »/],
+      [c0+NL, /ne fait encore rien/],
+      ["", /ne fait encore rien/]
+    ];
+    cas.forEach(function(c){
+      const d=pblDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+      if((c[0]===""||c[0]===c0+NL)!==!!d.vide) vus.push("vide mal reconnu : "+JSON.stringify(c[0]));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. l'écran, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran tient les consignes du sous-thème Input : l’énoncé de la fiche en gras dans le cadre de la cellule, les trois coups de pouce de la fiche repliés et au mot près, aucun encadré de cours ni consigne au bouton, la cellule qui porte chaine = "juliette" ; Tab écrit quatre espaces, Entrée après « : » décale, « Exécuter » affiche etteiluj, et la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPBL();
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const et=document.querySelector("#pblHost .pyn-etape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||ti.textContent.indexOf("Faire un programme qui inverse l’ordre des lettres")<0||ti.textContent.indexOf("etteiluj")<0) vus.push("l’énoncé du cadre : "+(ti&&ti.textContent));
+    if(!et||!et.contains(document.getElementById("pbl-prog"))||!et.contains(document.getElementById("pblConsole"))) vus.push("la cellule et la console ne sont pas dans le cadre de l’énoncé");
+    if(document.querySelector("#pblHost .pyi-cours, #pblHost .pyp-regle, #pblHost .pii-def")) vus.push("un encadré de cours a été ajouté");
+    const pouces=document.querySelectorAll("#pblHost details.pyd-pouce");
+    const textes=["Pour créer un nouveau mot on utilise une nouvelle variable vide : chaine_bis = "+Q+Q,
+                  "Pour compter de 0 à longueur du mot - 1 utiliser l’instruction :for k in range (len(chaine)):",
+                  "Pour trouver la position de la lettre symétrique de la position k on doit calculer : len(chaine) - 1 - k"];
+    if(pouces.length!==3) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d,i){
+      if(d.open) vus.push("coup de pouce déplié d’emblée");
+      const p=d.querySelector("p"), t=p?p.textContent.replace(/\\u00a0/g," "):"";
+      if(t!==textes[i]) vus.push("coup de pouce "+(i+1)+" : "+JSON.stringify(t));
+      if(!et||!et.contains(d)) vus.push("coup de pouce hors du cadre");
+    });
+    const run=document.getElementById("pblRun");
+    if(!run||run.parentNode.textContent.trim()!=="▶ Exécuter mon programme") vus.push("une consigne est posée à côté du bouton : "+(run&&run.parentNode.textContent));
+    const ta=document.getElementById("pbl-prog"), cons=document.getElementById("pblConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    if(ta.value!=="chaine = "+Q+"juliette"+Q+NL) vus.push("la cellule ne porte pas la ligne de la fiche : "+JSON.stringify(ta.value));
+    if(cons.textContent!=="") vus.push("la console n’est pas vide au départ");
+    /* Tab, puis Entrée après « : » */
+    ta.value="for k in range(3):"; ta.selectionStart=ta.selectionEnd=ta.value.length;
+    ta.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true,cancelable:true}));
+    if(ta.value!=="for k in range(3):"+NL+"    ") vus.push("Entrée après « : » ne décale pas : "+JSON.stringify(ta.value));
+    ta.value="x"; ta.selectionStart=ta.selectionEnd=0;
+    ta.dispatchEvent(new KeyboardEvent("keydown",{key:"Tab",bubbles:true,cancelable:true}));
+    if(ta.value!=="    x") vus.push("Tab n’écrit pas quatre espaces : "+JSON.stringify(ta.value));
+    ta.value="chaine = "+Q+"juliette"+Q+NL+"chaine_bis = "+Q+Q+NL+"for k in range (len(chaine)):"+NL+"    chaine_bis = chaine_bis + chaine[len(chaine) - 1 - k]"+NL+"print(chaine_bis)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(test.questions[0].prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pblExecuter();
+    if(cons.textContent!=="etteiluj") vus.push("la console affiche "+JSON.stringify(cons.textContent));
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPBL();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPBL();
+    if(test.idx!==1||document.getElementById("pbl-prog").value!=="chaine = "+Q+pblMot(test.questions[1])+Q+NL) vus.push("la question suivante ne s’ouvre pas sur la ligne de son mot");
+    if(document.querySelector("#pblHost .pyn-titre").textContent.indexOf(pblInverse(pblMot(test.questions[1])))<0) vus.push("l’exemple de la question 2 ne suit pas son mot");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie laissée à sa ligne de départ ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPBL();
+    let ta=document.getElementById("pbl-prog");
+    ta.value="chaine = "+Q+"juliette"+Q+NL+"print("+Q+"etteiluj"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPBL();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pblModele .sol");
+    if(!mod||mod.textContent!==pblModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPBL(); ta=document.getElementById("pbl-prog");
+    checkPBL();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pblModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPBL(); ta=document.getElementById("pbl-prog");
+    checkPBL();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="chaine = "+Q+"juliette"+Q+NL+"chaine_bis = "+Q+Q+NL+"for k in range(len(chaine)):"+NL+"    chaine_bis = chaine_bis + chaine[len(chaine) - k]"+NL+"print(chaine_bis)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPBL();
+    const fb=document.getElementById("pblFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/- 1/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pblModele .sol")||fb.indexOf("chaine_bis = chaine_bis + chaine[len(chaine) - 1 - k]")>=0) vus.push("soutien : le modèle est révélé");
+    if(!document.getElementById("pblConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPbl(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. la seconde méthode : CPython ---- */
+  const nomPy = 'ce qu’affichent les programmes à boucle de {python-inverser-lettres} est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const progs = evaluer(w, `JSON.stringify((function(){
+    const NL=String.fromCharCode(10), Q=String.fromCharCode(34), res=[];
+    const autres=["s = "+Q+Q+NL+"for k in range(3):"+NL+NL+"    s += str(k)"+NL+"print(s, len(s), s[-1], s[0])",
+      "for k in range(1, 7, 2):"+NL+"    for j in range(k):"+NL+"        print(k, j, k * j)",
+      "for k in range(3, 0, -1):"+NL+"	print(k)"+NL+"print(range(4), range(1, 5), range(0, 9, 3), type(range(2)), len(range(2, 9)))",
+      "c = "+Q+"été"+Q+NL+"for l in c:"+NL+"    print(l, len(c))",
+      "c = "+Q+"abc"+Q+NL+"t = 1"+NL+"for k in range(len(c)):"+NL+"    t *= 2"+NL+"    t -= 1"+NL+"print(t, c[-3], c[2])"];
+    PBL_MOTS.forEach(function(m, i){ res.push(pblModele({m:i})); });
+    autres.forEach(function(s){ res.push(s); });
+    return res.map(function(src){ return [src, pyRun(src).out]; });
+  })())`);
+  if(!progs.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + progs.erreur); return; }
+  const liste = JSON.parse(progs.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
 /* {python-input-somme} (Seconde, 6.3.6) : l'exercice 7 du carnet — demander
