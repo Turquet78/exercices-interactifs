@@ -3585,7 +3585,7 @@ function exercices(suite){
           if(j2.depots.length!==1) vus.push('avec image : '+j2.depots.length+' dépôt(s) au lieu d\\'un');
           else{
             if(j2.lignes.length!==1 || j2.lignes[0].capture!==j2.depots[0])
-              vus.push('avec image : le chemin déposé n\\'est pas celui écrit dans la ligne');
+              vus.push('avec image : le chemin déposé n\\'est pas celui écrit dans la ligne DIAG n='+j2.lignes.length+' '+j2.lignes.map(function(l){return Object.keys(l).join('/')+':'+(l.exercice||'')}).join(' ; '));
             if(j2.depots[0].indexOf('eleve-42/')!==0)
               vus.push('avec image : le chemin ne commence pas par l\\'identifiant de l\\'élève');
           }
