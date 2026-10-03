@@ -3383,7 +3383,7 @@ tels quels.
 ---
 
 **L'aire et le périmètre d'un rectangle — l'exercice 9 du carnet.**
-{python-input-rectangle} (Seconde, 6.3.8, APP_VERSION 282, demande de Turquet,
+{python-input-rectangle} (Seconde, 6.3.8, APP_VERSION 283, demande de Turquet,
 octobre 2026 : « en seconde avec les images créer un exercice dans le
 sous-thème input qui respecte toutes les nouvelles consignes que j'ai données
 pour le sous-thème input. Ne pas rajouter de phrase dans les définitions ou

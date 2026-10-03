@@ -5373,7 +5373,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=282;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=283;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6065,6 +6065,7 @@ const TESTS={
   'tableau-proportions': { name:'Proportions dans un tableau', icon:'\ud83d\udcca', desc:'Comme sur la fiche papier\u00a0: un tableau \u00e0 double entr\u00e9e dont tu compl\u00e8tes la ligne et la colonne \u00ab\u00a0total\u00a0\u00bb, puis des proportions \u00e0 \u00e9crire en fraction \u2014 qui l\u2019on \u00e9tudie, parmi qui, et les deux effectifs. Les situations changent \u00e0 chaque s\u00e9ance.', start:()=>startTdp() },
   'tableau-proportions-lettres': { name:'Proportions dans un tableau (avec des lettres)', icon:'\ud83d\udd24', desc:'Le tableau de {tableau-proportions}, r\u00e9dig\u00e9 comme sur la fiche\u00a0: les groupes portent des lettres (A, B, C, D). Tu compl\u00e8tes le tableau, tu donnes le nombre correspondant \u00e0 A, \u00e0 C, \u00e0 \u00ab\u00a0A et C\u00a0\u00bb, puis tu \u00e9cris cinq proportions avec les lettres. Les situations changent \u00e0 chaque s\u00e9ance.', start:()=>startTdl() },
   'tableau-proportions-lettres-tirees': { name:'Proportions dans un tableau (lettres tir\u00e9es)', icon:'\ud83c\udfb2', desc:'Comme {tableau-proportions-lettres}, mais la paire de lettres change \u00e0 chaque situation\u00a0: une lettre parmi A ou B, une lettre parmi C ou D, tir\u00e9es au hasard. Tu compl\u00e8tes le tableau, tu donnes le nombre correspondant \u00e0 chacune d\u2019elles et \u00e0 leur croisement, puis tu \u00e9cris cinq proportions qui ne parlent que de ces deux lettres.', start:()=>startTdlTirees() },
+  'tableau-proportions-directes': { name:'Proportions dans un tableau (fraction directe)', icon:'\u2797', desc:'Comme {tableau-proportions-lettres-tirees}, en plus court\u00a0: tu compl\u00e8tes le tableau, puis pour chaque question tu \u00e9cris directement la proportion en fraction \u2014 l\u2019effectif \u00e9tudi\u00e9 sur l\u2019effectif du tout. Ni les nombres des lettres, ni les phrases \u00e0 compl\u00e9ter.', start:()=>startTdlDirectes() },
   'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
   'python-completer': { name:'Afficher un texte suivi d\u2019une variable', icon:'\ud83d\udda8\ufe0f', desc:'Le cours explique comment afficher un texte suivi de la valeur d\u2019une variable : print("texte", variable). Puis \u00e0 toi d\u2019\u00e9crire : le programme commence par note = 12, compl\u00e8te-le pour qu\u2019il affiche \u00ab la note est : 12 \u00bb, ex\u00e9cute-le et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYX() },
   /* La suite du 5.7 : le programme porte TROIS variables et une ligne
@@ -6172,7 +6173,7 @@ const THEMES=[
       /* Une proportion AVANT le pourcentage : le tableau \u00e0 double entr\u00e9e de la
          fiche papier (demande de Turquet, septembre 2026). Ajout\u00e9e EN DERNIER,
          la partie ne renum\u00e9rote rien. */
-      { num:6, nom:'Proportions dans un tableau', ids:['tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees'] }
+      { num:6, nom:'Proportions dans un tableau', ids:['tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes'] }
   ] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -8595,7 +8596,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -42259,6 +42260,36 @@ function tdlBuildQuestionsTirees(){
   }
   return qs;
 }
+/* {tableau-proportions-directes} (4.6.4) : le 4.6.3 sans la phase « nombre »
+   (A, C, « A et C ») et sans les phrases à listes. Chaque proportion se
+   répond DIRECTEMENT par une fraction : l'effectif étudié sur l'effectif du
+   tout, deux cases empilées sous la question, rien d'autre. Les questions
+   portent q.dir=1 : tdlCases, le rendu et la correction s'y règlent. Six
+   questions par situation : le tableau, puis les cinq proportions du 4.6.3. */
+const TDLD_NB=6;
+function tdlBuildQuestionsDirectes(){
+  const n=dmNbQuestions(TDLD_NB);
+  const qs=[], tabs=[], cis=ensShuffle(TDP_CTX.map(function(_,i){ return i; }));
+  let s=0;
+  while(qs.length<n){
+    const ci=cis[s%cis.length];
+    const tab=distincte(tabs, function(){ return {t:tdpGenTable()}; }); tabs.push(tab);
+    const c=rand(0,1), l=rand(0,1), base={ci:ci, t:tab.t, c:c, l:l, dir:1};
+    const fin=ensShuffle([0,1,2,3]).slice(0,2).map(function(i){ return TDL_FIN[i](c,l); });
+    const seq=[ {phase:'tab'},
+                {phase:'prop', gk:'c'+c,     rk:'tout'},
+                {phase:'prop', gk:'l'+l,     rk:'tout'},
+                {phase:'prop', gk:'x'+l+c,   rk:'tout'},
+                Object.assign({phase:'prop'}, fin[0]),
+                Object.assign({phase:'prop'}, fin[1]) ];
+    seq.forEach(function(p,i){
+      if(qs.length>=n) return;
+      qs.push(Object.assign({}, base, p, p.phase==='prop' ? {v:rand(0,TDL_V.length-1), n:i} : {}));
+    });
+    s++;
+  }
+  return qs;
+}
 /* La question de la fiche : le groupe étudié en gris, le tout en gras. */
 const TDL_V=[
   function(g,r,ctx){ return 'Calculer la proportion '+tdlGris(tdpDes(g.nom))+' '+tdlGras(tdlTout(r,ctx))+'.'; },
@@ -42291,6 +42322,8 @@ function tdlCases(q){
     });
     return cs;
   }
+  if(q.dir) return [ {id:'tdl-num', bon:String(tdpEff(q,q.gk,q.rk)),   kind:'nb'},
+                     {id:'tdl-den', bon:String(tdpEff(q,q.rk,'tout')), kind:'nb'} ];
   return [ {id:'tdl-qui',   bon:q.gk, kind:'sel', alt:tdpAlt(q)},
            {id:'tdl-parmi', bon:q.rk, kind:'sel'},
            {id:'tdl-num',   bon:String(tdpEff(q,q.gk,q.rk)),   kind:'nb'},
@@ -42327,6 +42360,7 @@ function tdlPromptTxt(q){
   const ctx=TDP_CTX[q.ci];
   if(q.phase==='tab') return 'Complète le tableau : le total de chaque ligne, le total de chaque colonne, et le total '+ctx.dans+'.';
   if(q.phase==='nb') return 'Le tableau est complété. Donne le nombre correspondant à chaque groupe, avec sa lettre.';
+  if(q.dir) return 'Le tableau est complété. Écris directement la proportion en fraction.';
   return 'Complète avec les lettres du tableau ('+tdlLettre('c'+q.c)+' ; '+tdlLettre('l'+q.l)+' ; '+tdlLettre('x'+q.l+q.c)+') ou « '+ctx.pop+' ».';
 }
 function renderTdlTest(){
@@ -42349,6 +42383,13 @@ function renderTdlTest(){
         +'<span>on dit que <b class="tdl-l">'+L+'</b> =</span>'
         +inp('tdl-n'+i+'b', L+' égale')+'</div>';
     }).join('');
+  } else if(q.dir){
+    h=tdlTableHTML(q, false)
+     +'<p class="tdl-quest"><b class="tdl-n">'+q.n+')</b>'+tdlEnonceHTML(q)+'</p>'
+     +'<div class="tdp-frac-ligne tdl-fr"><span class="tdp-frac tdl-res">'
+       +'<span class="tdp-num">'+inp('tdl-num','le numérateur')+'</span>'
+       +'<span class="tdp-den">'+inp('tdl-den','le dénominateur')+'</span>'
+     +'</span></div>';
   } else {
     const vide='<option value="" selected disabled>?</option>';
     const selQui=function(id, lbl){ return '<select class="plc-sel tdp-sel tdl-sel tdl-sel-ph" id="'+id+'" aria-label="'+esc(lbl)+'">'+vide
@@ -42380,7 +42421,7 @@ function renderTdlTest(){
       clearTimeout(test.tdlSave); test.tdlSave=setTimeout(autoSave,1000); });
     if(c.kind==='nb') el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkTdlAnswer(); } });
   });
-  const premier=$(q.phase==='tab'?'tdl-lt-0':(q.phase==='nb'?'tdl-n0a':'tdl-qui')); if(premier) setTimeout(function(){ premier.focus(); },70);
+  const premier=$(q.phase==='tab'?'tdl-lt-0':(q.phase==='nb'?'tdl-n0a':(q.dir?'tdl-num':'tdl-qui'))); if(premier) setTimeout(function(){ premier.focus(); },70);
 }
 /* Le pourquoi, dit sur la PREMIÈRE case fausse. */
 function tdlPourquoi(q, subs){
@@ -42395,6 +42436,7 @@ function tdlPourquoi(q, subs){
     return L+' = '+g.nom+' : on lit le total '+(k[0]==='c'?'de la colonne':'de la ligne')+', '+termes.join(' + ')+' = '+n+'.';
   }
   const g=tdpGroupe(ctx,q.gk), r=tdpGroupe(ctx,q.rk), num=tdpEff(q,q.gk,q.rk), den=tdpEff(q,q.rk,'tout');
+  if(q.dir) return 'On étudie '+g.nom+' '+(q.rk==='tout'?ctx.dans:'parmi '+r.nom)+' : ils sont '+num+' sur '+den+', la proportion est '+num+'/'+den+'.';
   return 'On étudie '+tdlPop(ctx)+' '+tdlLettre(q.gk)+' ('+g.nom+') parmi '+(q.rk==='tout'?ctx.pop:tdlLettre(q.rk)+' ('+r.nom+')')+' : ils sont '+num+' sur '+den+', la proportion est '+num+'/'+den+'.';
 }
 function checkTdlAnswer(live){
@@ -42436,7 +42478,7 @@ function checkTdlAnswer(live){
     test.answers.push({...(ptsExo()||{}),correct:allOk,
       q:tdlEnonce(q),
       answer:tdlPop(ctx)+' '+tdlLettre(q.gk)+' parmi '+tdlNom(ctx,q.rk)+' : '+tdpEff(q,q.gk,q.rk)+'/'+tdpEff(q,q.rk,'tout'),
-      given:tdlPop(ctx)+' '+lu('tdl-qui')+' parmi '+lu('tdl-parmi')+' : '+lu('tdl-num')+'/'+lu('tdl-den')});
+      given:q.dir ? lu('tdl-num')+'/'+lu('tdl-den') : tdlPop(ctx)+' '+lu('tdl-qui')+' parmi '+lu('tdl-parmi')+' : '+lu('tdl-num')+'/'+lu('tdl-den')});
   }
   const last=test.idx===test.questions.length-1;
   $('tdlActions').innerHTML='<button class="btn btn-primary" id="tdlNext" onclick="nextTdlQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
@@ -42445,6 +42487,7 @@ function checkTdlAnswer(live){
 function nextTdlQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTdlTest(); autoSave(); } else finishTest(); }
 function startTdl(){ demarrerTdl('tableau-proportions-lettres', tdlBuildQuestions); }
 function startTdlTirees(){ demarrerTdl('tableau-proportions-lettres-tirees', tdlBuildQuestionsTirees); }
+function startTdlDirectes(){ demarrerTdl('tableau-proportions-directes', tdlBuildQuestionsDirectes); }
 function demarrerTdl(qId, construire){
   if(!currentEleve){ accueil(); return; }
   const qs=construire();
@@ -42474,7 +42517,8 @@ function ctxTdl(q){
   } else {
     const g=tdpGroupe(ctx,q.gk), r=tdpGroupe(ctx,q.rk), num=tdpEff(q,q.gk,q.rk), den=tdpEff(q,q.rk,'tout');
     c+='Le tableau est déjà complété (totaux de lignes '+T.lt.join(' et ')+', de colonnes '+T.ct.join(' et ')+', total '+T.tt+'). Question : « '+tdlEnonce(q)+' » '
-     +'L’élève choisit avec les LETTRES qui l’on étudie et parmi qui (« la classe » ou une lettre), puis écrit la proportion : numérateur et dénominateur. '
+     +(q.dir ? 'L’élève écrit DIRECTEMENT la proportion en fraction : numérateur et dénominateur, sans rien d’autre à remplir. '
+             : 'L’élève choisit avec les LETTRES qui l’on étudie et parmi qui (« la classe » ou une lettre), puis écrit la proportion : numérateur et dénominateur. ')
      +'Réponses attendues, STRICTEMENT SECRÈTES : on étudie '+tdlLettre(q.gk)+' ('+g.nom+') parmi '+(q.rk==='tout'?ctx.pop:tdlLettre(q.rk)+' ('+r.nom+')')
      +tdpAlt(q).map(function(k){ return ' (la page accepte aussi « '+tdlLettre(k)+' »)'; }).join('')
      +' ; la proportion est '+num+'/'+den+'. '
