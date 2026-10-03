@@ -3884,3 +3884,6 @@ raison.
 bancs de celle-ci. Le triangle passe en 6.4.5, version 280. Même méthode :
 page, profils et banc repris de `main`, insertions rejouées, mentions de
 `ptr` comptées avant et après (aucun écart).
+
+Puis une septième fusion de `main` (le bouton « Retour », version 281, sans
+rapport avec le thème Python) : le triangle passe en version 282.
