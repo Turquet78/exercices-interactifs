@@ -4164,6 +4164,7 @@ function exercices(suite){
     pythonInput(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
+    pythonChaineLen(w, P);
     pythonTexteProche(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
@@ -23389,6 +23390,184 @@ function pythonInputCalcul(w, P){
   const ecarts = [];
   liste.forEach(([src, n, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + n + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-chaine-len} (Seconde, 6.4.1, sous-thème « Bonus ») : la fiche
+   « Exercice 24 / 25 / 26 » du carnet — exécuter un programme pour comprendre
+   len(chaine) et chaine[i], puis expliquer ce qu'ils représentent, par un choix
+   dans une liste. Le contrôle tient la place au menu (un sous-thème neuf,
+   ajouté en dernier : rien ne bouge), l'interpréteur (len, l'indice, l'indice
+   négatif, l'indice hors de la chaîne), la fiche et le tirage, le trajet a) →
+   b) → c) sur le même écran avec les énoncés gardés, les copies juste, fausse
+   et vide, le soutien qui ne révèle rien, la reprise, puis compare à un vrai
+   CPython ce que les programmes affichent. */
+function pythonChaineLen(w, P){
+  const nom = '{python-chaine-len} : len(chaine) et chaine[i]';
+  if(!P.pythonChaineLen){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des chaînes'); return; }
+  const D = P.pythonChaineLen, ID = D.exercice, NB = D.nb, NUM = D.numero, F = D.fiche, J = JSON.stringify;
+  const present = evaluer(w, "typeof startPCL==='function' && typeof pclBuildQuestions==='function' && typeof checkPCL==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPCL / pclBuildQuestions / checkPCL introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ouvre le sous-thème 6.4 « Bonus », numéroté ' + NUM + ', ajouté en dernier : rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous[th.sous.length-1];
+    if(!st||st.num!==4||!/bonus/i.test(st.nom)) vus.push("le dernier sous-thème n’est pas 6.4 Bonus : "+(st&&st.nom));
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(RAPPELS.pcl!==RAP_PCL||!QIA_SUGG.pcl) vus.push("rappel ou questions à l’IA absents");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. l'interpréteur ---- */
+  verifierEval(w, 'l’interpréteur sait len(…) et chaine[i] : la fiche affiche ' + J(F.sortie) + ', un indice négatif compte depuis la fin, un indice hors de la chaîne lève IndexError, len d’un nombre et l’indice d’un nombre lèvent TypeError', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    const out=pyRun(pclProg({c:0})).out;
+    if(out!==${J(F.sortie)}+NL) vus.push("la fiche affiche "+JSON.stringify(out));
+    if(pclProg({c:0}).indexOf(Q+"${F.chaine}"+Q)<0) vus.push("la chaîne de la fiche : "+pclProg({c:0}));
+    if(pyRun("c = "+Q+"bonjour"+Q+NL+"print(c[-1], c[len(c)-1], len(c) * 2)").out!=="r r 14"+NL) vus.push("indice négatif ou len dans un calcul");
+    const err=function(src, re){ try{ pyRun(src); vus.push("pas d’erreur pour "+src); }catch(e){ if(!re.test(e.message)) vus.push(src+" → "+e.message); } };
+    err("c = "+Q+"abc"+Q+NL+"print(c[3])", /IndexError/);
+    err("print(len(15))", /TypeError/);
+    err("n = 15"+NL+"print(n[0])", /TypeError/);
+    err("c = "+Q+"abc"+Q+NL+"print(c[1.5])", /TypeError/);
+    err("c = "+Q+"abc"+Q+NL+"print(c[0)", /SyntaxError/);
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord, puis des chaînes distinctes ; chaque chaîne sort, et son indice du milieu n’est ni le premier ni le dernier (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pclBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(pclC(qs[0]).s!=="${F.chaine}"||pclC(qs[0]).k!==1){ vus.push("la fiche n’ouvre pas la séance"); break; }
+      const cs=qs.map(function(q){ return q.c; });
+      if(new Set(cs).size!==cs.length){ vus.push("deux fois la même chaîne : "+cs.join(",")); break; }
+      qs.forEach(function(q){ vues[q.c]=1; if(q.etape!=="a"||q.b!==""||q.r.join("")!=="") vus.push("question non vierge"); });
+    }
+    PCL_CHAINES.forEach(function(C, i){
+      const n=Array.from(C.s).length;
+      if(C.k<1||C.k>3||C.k>=n-2) vus.push("indice du milieu "+C.k+" pour "+C.s);
+      if(!PCL_OPT_C.some(function(o){ return o[0]===pclAttenduC({c:i})[1]; })) vus.push("la réponse du milieu n’est pas dans la liste pour "+C.s);
+    });
+    if(Object.keys(vues).length!==PCL_CHAINES.length) vus.push("des chaînes ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le trajet juste, en entraînement ---- */
+  verifierEval(w, 'le trajet : « Vérifier » fermé avant l’exécution ; « Exécuter » écrit la sortie et ouvre le b) sous le a) ; chaque étape garde SON énoncé ; la copie juste vaut 4 cases sur 4', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPCL();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    if(test.maxScore!==4*${NB}) vus.push("barème "+test.maxScore);
+    const v0=document.getElementById("pclValidate");
+    if(!v0||!v0.disabled) vus.push("« Vérifier » ouvert avant l’exécution");
+    if(document.getElementById("pcl-b")) vus.push("la liste du b) est là avant l’exécution");
+    const ea=document.querySelector("#pclEtapeA .pyn-titre");
+    if(!ea||!/a\\)/.test(ea.textContent)||ea.textContent.indexOf("len(chaine)")<0) vus.push("l’énoncé du a) : "+(ea&&ea.textContent));
+    if(document.getElementById("pclConsole").textContent!=="") vus.push("la console n’est pas vide au départ");
+    pclExecuter();
+    if(document.getElementById("pclConsole").textContent!==${J(F.sortie)}) vus.push("la console : "+JSON.stringify(document.getElementById("pclConsole").textContent));
+    if(document.getElementById("pclRun")) vus.push("« Exécuter » reste après l’exécution");
+    if(!document.querySelector("#pclEtapeA .pyn-titre")) vus.push("l’énoncé du a) disparaît au b)");
+    const eb=document.querySelector("#pclEtapeB .pyn-titre");
+    if(!eb||!/b\\)/.test(eb.textContent)) vus.push("l’énoncé du b) n’est pas dans son cadre");
+    const sb=document.getElementById("pcl-b");
+    if(!sb||!document.getElementById("pclEtapeB").contains(sb)) vus.push("la liste du b) n’est pas dans son cadre");
+    sb.value="${F.b}"; sb.dispatchEvent(new Event("change",{bubbles:true}));
+    checkPCL();
+    if(!sb.classList.contains("ok")||test.score!==1) vus.push("le b) juste : "+sb.className+", note "+test.score);
+    pclVersC();
+    if(!document.querySelector("#pclEtapeA .pyn-titre")||!document.querySelector("#pclEtapeB .pyn-titre")) vus.push("les énoncés du a) et du b) disparaissent au c)");
+    const ec=document.querySelector("#pclEtapeC .pyn-titre");
+    if(!ec||ec.textContent.indexOf("chaine[len(chaine)-1]")<0||ec.textContent.indexOf("chaine[1]")<0) vus.push("l’énoncé du c) : "+(ec&&ec.textContent));
+    if(!document.getElementById("pcl-b").classList.contains("ok")) vus.push("le verdict du b) ne reste pas au c)");
+    ${J(F.c)}.forEach(function(v, i){ const s=document.getElementById("pcl-c"+i); s.value=v; s.dispatchEvent(new Event("change",{bubbles:true})); });
+    checkPCL();
+    [0,1,2].forEach(function(i){ if(!document.getElementById("pcl-c"+i).classList.contains("ok")) vus.push("c) "+i+" n’est pas bleu"); });
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==4||ans.justes!==4||!ans.correct||test.score!==4) vus.push("la note : "+JSON.stringify(ans)+", score "+test.score);
+    if(!document.getElementById("pclNext")) vus.push("pas de « Question suivante »");
+    nextPCL();
+    if(test.idx!==1||document.getElementById("pcl-b")||document.getElementById("pclConsole").textContent!=="") vus.push("la question suivante ne s’ouvre pas sur le a)");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'le b) faux rougit et reçoit la réponse en vert ; un c) entièrement vide n’est pas jugé ; une liste vide ne rougit jamais (vert en entraînement) ; en soutien rien n’est révélé et la question reste ouverte', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPCL(); pclExecuter();
+    let sb=document.getElementById("pcl-b");
+    checkPCL();
+    if(sb.classList.contains("bad")||test.questions[0].bOk!==null) vus.push("le b) vide est jugé");
+    sb.value="numero"; checkPCL();
+    const cor=sb.nextElementSibling;
+    if(!sb.classList.contains("bad")||!cor||!cor.classList.contains("mf-cor")||cor.textContent!==pclLib(PCL_OPT_B,"nombre")) vus.push("le b) faux : "+sb.className);
+    pclVersC();
+    checkPCL();
+    if(test.locked||document.querySelector("#pclHost select.bad")) vus.push("le c) vide est jugé");
+    const s0=document.getElementById("pcl-c0"), s1=document.getElementById("pcl-c1");
+    s0.value="c2"; checkPCL();
+    if(!s0.classList.contains("bad")) vus.push("le c) faux ne rougit pas");
+    if(s1.classList.contains("bad")||!s1.classList.contains("sol")||s1.value!=="c2") vus.push("la liste vide : "+s1.className+" "+s1.value);
+    if(!/indice 0/.test(document.getElementById("pclFeedback").textContent)) vus.push("l’erreur de l’indice 0 n’est pas nommée : "+document.getElementById("pclFeedback").textContent);
+    currentMode="soutien"; startPCL(); pclExecuter();
+    sb=document.getElementById("pcl-b"); sb.value="dernier"; checkPCL();
+    if(!sb.classList.contains("bad")||sb.disabled||document.querySelector("#pclHost .mf-cor")||test.questions[0].bOk!==null) vus.push("soutien : le b) faux est verrouillé ou révélé");
+    sb.value="nombre"; checkPCL(); pclVersC();
+    ["c1","c2","avant"].forEach(function(v, i){ document.getElementById("pcl-c"+i).value=v; });
+    checkPCL();
+    const fb=document.getElementById("pclFeedback").textContent;
+    if(!document.getElementById("pcl-c2").classList.contains("bad")||test.locked||document.querySelector("#pclHost .mf-cor")) vus.push("soutien : le c) faux est verrouillé ou révélé");
+    if(!/len\\(chaine\\)-1 vaut 16/.test(fb)) vus.push("soutien : le diagnostic : "+fb);
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPcl(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la reprise ---- */
+  verifierEval(w, 'la reprise : une question rendue de nouveau au c) retrouve la console, le verdict du b) et les choix du c) ; un b) déjà jugé ne se rejuge pas', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPCL(); pclExecuter();
+    document.getElementById("pcl-b").value="premier"; checkPCL();
+    const sc=test.score; renderPCL();
+    if(document.getElementById("pclValidate")||!document.getElementById("pclSuite")) vus.push("un b) jugé se rejuge après un nouveau rendu");
+    if(test.score!==sc) vus.push("la note a bougé");
+    pclVersC(); document.getElementById("pcl-c1").value="c2"; document.getElementById("pcl-c1").dispatchEvent(new Event("change",{bubbles:true}));
+    renderPCL();
+    if(document.getElementById("pclConsole").textContent!==${J(F.sortie)}) vus.push("la console n’est pas rejouée");
+    if(!document.getElementById("pcl-b").classList.contains("bad")) vus.push("le verdict du b) est perdu");
+    if(document.getElementById("pcl-c1").value!=="c2") vus.push("le choix du c) est perdu");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 7. la seconde méthode : CPython ---- */
+  const nomPy = 'ce que les programmes de {python-chaine-len} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const Q=String.fromCharCode(34), NL=String.fromCharCode(10);
+    const res=PCL_CHAINES.map(function(C, i){ const src=pclProg({c:i}); return [src, pyRun(src).out]; });
+    ["c = "+Q+"bonjour"+Q+NL+"print(c[-1], c[len(c)-1], len(c) * 2)", "c = "+Q+"été"+Q+NL+"print(len(c), c[1])", "print("+Q+"abc"+Q+"[2], len("+Q+Q+"))"].forEach(function(src){ res.push([src, pyRun(src).out]); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(J(src) + ' : page ' + J(mien) + ' / CPython ' + J(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
 /* {python-input-moyenne} (Seconde, 6.3.6) : l'exercice 8 du carnet — deux
