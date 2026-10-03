@@ -1102,6 +1102,14 @@ module.exports = {
        nombre de questions (la page a PY_NB). Le banc jsdom compare
        l'interpréteur de la page à un vrai python3 ; le navigateur choisit dans
        les listes, clique Vérifier puis Exécuter, et relit la console rendue. */
+    /* LES DÉFINITIONS AVANT L'ÉNONCÉ (thème Python, octobre 2026) : le banc
+       navigateur l'exige de tout exercice du thème. Les exceptions sont
+       NOMMÉES, raison comprise — un exercice de DÉCOUVERTE n'a pas de
+       définition à donner d'avance : l'écrire serait donner la réponse. */
+    pythonAvant: { sans: {
+      'python-chaine-len': 'l\u2019élève découvre en exécutant ce que représentent len(chaine) et chaine[i] : leur définition est la réponse attendue',
+      'python-chaine-tirets': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
+    } },
     pythonAffichage: { exercice: 'python-affichage', nb: 4 },
     /* {python-types} : les trois types de variables — int, float, str —
        expliqués par les trois cadres du cours SUR l'écran, puis testés
