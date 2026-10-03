@@ -8102,7 +8102,7 @@ async function parcours(page, N){
       await s.page.waitForTimeout(900);
       const avant = await s.page.evaluate(() => {
         const code = document.querySelector('#ptyHost .py-code'), cons = document.getElementById('ptyConsole'), run = document.getElementById('ptyRun');
-        const cadres = [...document.querySelectorAll('#ptyHost .pty-type')].map(e => e.getBoundingClientRect());
+        const cadres = [...document.querySelectorAll('#scr-pty .pty-type')].map(e => e.getBoundingClientRect());
         const fam = el => getComputedStyle(el).fontFamily;
         const cr = code.getBoundingClientRect(), kr = cons.getBoundingClientRect(), rr = run.getBoundingClientRect();
         const lignes = [...document.querySelectorAll('#ptyHost .pty-ligne')].map(e => e.getBoundingClientRect());
@@ -8156,7 +8156,7 @@ async function parcours(page, N){
       await s.page.setViewportSize({ width: 390, height: 844 });
       await s.page.waitForTimeout(300);
       const tel = await s.page.evaluate(() => {
-        const cadres = [...document.querySelectorAll('#ptyHost .pty-type')].map(e => e.getBoundingClientRect());
+        const cadres = [...document.querySelectorAll('#scr-pty .pty-type')].map(e => e.getBoundingClientRect());
         return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
                  empiles: cadres.length === 3 && cadres[1].top >= cadres[0].bottom - 1 && cadres[2].top >= cadres[1].bottom - 1,
                  larges: cadres.every(r => r.width > 250 && r.right <= 391) };
@@ -8174,7 +8174,7 @@ async function parcours(page, N){
       await s.page.waitForTimeout(400);
       const sout = await s.page.evaluate(() => ({ bad: document.querySelectorAll('#ptyHost select.bad').length,
         runDisabled: document.getElementById('ptyRun').disabled, console: document.getElementById('ptyConsole').textContent,
-        cadres: document.querySelectorAll('#ptyHost .pty-type').length }));
+        cadres: document.querySelectorAll('#scr-pty .pty-type').length }));
       verifier('en soutien, la copie fausse rougit sa case, laisse « Exécuter » verrouillé, et le cours reste affiché', sout.bad === 1 && sout.runDisabled && sout.console === '' && sout.cadres === 3,
         sout.bad + ' rouge(s), verrouillé : ' + sout.runDisabled);
       await s.nav.close(); s = null;
@@ -8203,7 +8203,7 @@ async function parcours(page, N){
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(900);
       const avant = await s.page.evaluate(() => {
-        const cours = document.querySelector('#pycHost .pyc-cours'), l1 = document.getElementById('pycL1'), ta = document.getElementById('pyc-in');
+        const cours = document.querySelector('#scr-pyc .pyc-cours'), l1 = document.getElementById('pycL1'), ta = document.getElementById('pyc-in');
         const run = document.getElementById('pycRun'), cons = document.getElementById('pycConsole');
         const r = e => e ? e.getBoundingClientRect() : { width: 0, height: 0 };
         const cs = e => getComputedStyle(e);
@@ -8252,7 +8252,7 @@ async function parcours(page, N){
       await s.page.setViewportSize({ width: 390, height: 844 });
       await s.page.waitForTimeout(300);
       const tel = await s.page.evaluate(() => {
-        const ta = document.getElementById('pyc-in').getBoundingClientRect(), c = document.querySelector('#pycHost .pyc-cours').getBoundingClientRect();
+        const ta = document.getElementById('pyc-in').getBoundingClientRect(), c = document.querySelector('#scr-pyc .pyc-cours').getBoundingClientRect();
         return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth, ta: ta.right <= 391 && ta.width > 200, cours: c.right <= 391 };
       });
       verifier('sur un téléphone, le cours et la zone tiennent dans l\'écran et la page ne déborde pas', !tel.page && tel.ta && tel.cours, JSON.stringify(tel));
@@ -8537,7 +8537,7 @@ async function parcours(page, N){
       const avant = await s.page.evaluate(() => {
         const ta = document.getElementById('pyp-prog'), cons = document.getElementById('pypConsole'), run = document.getElementById('pypRun');
         const cible = document.getElementById('pypCible');
-        const cadres = [...document.querySelectorAll('#pypHost .pyp-regle')].map(e => e.getBoundingClientRect());
+        const cadres = [...document.querySelectorAll('#scr-pyp .pyp-regle')].map(e => e.getBoundingClientRect());
         const tr = ta.getBoundingClientRect(), kr = cons.getBoundingClientRect(), rr = run.getBoundingClientRect();
         return { police: getComputedStyle(ta).fontFamily, taille: parseFloat(getComputedStyle(ta).fontSize),
                  zone: Math.round(tr.width) + 'x' + Math.round(tr.height), zoneVisible: tr.width > 500 && tr.height > 60,
@@ -8587,7 +8587,7 @@ async function parcours(page, N){
       await s.page.setViewportSize({ width: 390, height: 844 });
       await s.page.waitForTimeout(300);
       const tel = await s.page.evaluate(() => {
-        const cadres = [...document.querySelectorAll('#pypHost .pyp-regle')].map(e => e.getBoundingClientRect());
+        const cadres = [...document.querySelectorAll('#scr-pyp .pyp-regle')].map(e => e.getBoundingClientRect());
         const tr = document.getElementById('pyp-prog').getBoundingClientRect();
         return { page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
                  empiles: cadres.length === 3 && cadres[1].top >= cadres[0].bottom - 1 && cadres[2].top >= cadres[1].bottom - 1,
@@ -8662,7 +8662,7 @@ async function parcours(page, N){
          une porte tenue par le seul « disabled » se franchit au clic si une
          règle CSS la laisse cliquable. */
       const cours = await s.page.evaluate(() => {
-        const c = document.querySelector('#pyxHost .pyx-cours'), ex = document.querySelector('#pyxHost .pyx-prog');
+        const c = document.querySelector('#scr-pyx .pyx-cours'), ex = document.querySelector('#pyxHost .pyx-prog');
         const l = [...document.querySelectorAll('#pyxHost .pyx-prog .pyx-l1')];
         const run = document.getElementById('pyxExRun'), b = document.getElementById('pyxCompris'), cons = document.getElementById('pyxExConsole');
         const r = c ? c.getBoundingClientRect() : null, er = ex ? ex.getBoundingClientRect() : null;
@@ -8723,7 +8723,7 @@ async function parcours(page, N){
         const cons = document.getElementById('pyxConsole'), run = document.getElementById('pyxRun'), val = document.getElementById('pyxValidate');
         const fam = el => getComputedStyle(el).fontFamily, px = el => Math.round(parseFloat(getComputedStyle(el).fontSize) * 10) / 10;
         const ir = inp.getBoundingClientRect(), rr = run.getBoundingClientRect(), vr = val.getBoundingClientRect();
-        return { coursParti: !document.querySelector('#pyxHost .pyx-cours') && !document.getElementById('pyxExRun'),
+        return { coursParti: !document.querySelector('#scr-pyx .pyx-cours') && !document.getElementById('pyxExRun'),
                  policeL1: fam(l1), policeIn: fam(inp), pxL1: px(l1), pxIn: px(inp),
                  l1: l1.textContent, inVisible: ir.width > 200 && ir.height > 28 && ir.right <= document.documentElement.clientWidth,
                  runOk: !run.disabled && rr.width > 40 && rr.height > 20, valFerme: val.disabled && vr.width > 40,
@@ -9691,7 +9691,7 @@ async function parcours(page, N){
       const cours = await s.page.evaluate(() => {
         const host = document.getElementById('popHost'), r = e => e.getBoundingClientRect();
         const ia = document.getElementById('pop-a'), ib = document.getElementById('pop-b');
-        const cadre = host.querySelector('.pyx-cours'), b = document.getElementById('popCompris');
+        const cadre = document.querySelector('#scr-pop .pyx-cours'), b = document.getElementById('popCompris');
         return { cadre: cadre ? Math.round(r(cadre).width) : 0, cadreHaut: cadre ? Math.round(r(cadre).height) : 0,
                  cases: !!ia && !!ib && r(ia).width > 40 && r(ia).height > 24 && r(ib).width > 40,
                  memeLigne: !!ia && !!ib && Math.abs(r(ia).top - r(ia.previousElementSibling).top) < 30,
@@ -11358,7 +11358,7 @@ async function parcours(page, N){
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
-      const ecran0 = await s.page.evaluate(() => ({ def: !!document.querySelector('#piiHost .pii-def'),
+      const ecran0 = await s.page.evaluate(() => ({ def: !!document.querySelector('#scr-pii .pii-def'),
         b: !!document.getElementById('piiB'), val: document.getElementById('piiValidate').disabled,
         code: getComputedStyle(document.querySelector('#piiA .pyx-l1')).fontFamily,
         gras: +getComputedStyle(document.querySelector('#piiA .pii-titre')).fontWeight }));
@@ -11473,7 +11473,7 @@ async function parcours(page, N){
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
-      const e0 = await s.page.evaluate(() => ({ def: (document.querySelector('#piiHost .pii-def') || {}).textContent || '',
+      const e0 = await s.page.evaluate(() => ({ def: (document.querySelector('#scr-pii .pii-def') || {}).textContent || '',
         ligne: document.querySelector('#piiA .pyx-l1').textContent, qId: test.qId }));
       verifier('la question 1 montre la définition de la fiche 6 (float, la taille) et la ligne ' + FF.ligneA,
         /float\(/.test(e0.def) && /taille/.test(e0.def) && e0.ligne === FF.ligneA && e0.qId === PF.exercice, JSON.stringify(e0));
@@ -11705,6 +11705,16 @@ async function parcours(page, N){
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
       const indicesPlats = []; let nIndicesFlex = 0;
+      /* LES DÉFINITIONS S'ÉCRIVENT AVANT L'ÉNONCÉ, dans tout exercice du thème
+         Python (demande de Turquet, octobre 2026). Mesuré sur le PREMIER écran
+         de l'exercice, avant qu'on ne franchisse quoi que ce soit : le cours
+         de {python-completer} est cet écran-là. La liste se lit dans THEMES —
+         un exercice ajouté demain au thème est couvert sans rien déclarer. */
+      const idsPython = await s.page.evaluate(() => {
+        const t = (typeof THEMES !== 'undefined') && THEMES.find(x => /python/i.test(x.nom || ''));
+        return t ? t.ids.slice() : [];
+      });
+      const sansAvant = []; let nAvant = 0;
       const sansClavierLim = []; let nLimCases = 0;
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
@@ -11728,6 +11738,22 @@ async function parcours(page, N){
           }, mode);
           if(!pris){ sansMode.push(id + '/' + mode); continue; }
           await s.page.waitForTimeout(650);
+          if(idsPython.indexOf(id) >= 0){
+            const av = await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on');
+              if(!on) return 'aucun écran ouvert';
+              const a = on.querySelector('.py-avant'), e = on.querySelector('.mp-instr');
+              if(!a) return 'aucun emplacement .py-avant sur ' + on.id;
+              if(!e) return 'aucun énoncé .mp-instr sur ' + on.id;
+              const ra = a.getBoundingClientRect(), re = e.getBoundingClientRect();
+              if(!(ra.height > 20) || (a.textContent || '').trim().length < 40) return 'définitions absentes ou vides (' + Math.round(ra.height) + ' px)';
+              if(!(a.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING)) return 'définitions écrites APRÈS l\'énoncé';
+              if(ra.bottom > re.top + 1) return 'définitions affichées sous l\'énoncé (bas ' + Math.round(ra.bottom) + ' px, énoncé à ' + Math.round(re.top) + ' px)';
+              return '';
+            });
+            nAvant++;
+            if(av) sansAvant.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' ' + id + ' (' + mode + ') — ' + av);
+          }
           /* Certains exercices n'ouvrent pas directement leur écran : les
              tables et le calcul mental passent par un « Commencer », le signe
              du second degré par un choix de niveau, {python-completer} par son
@@ -12175,6 +12201,16 @@ async function parcours(page, N){
       } else {
         ignorer('le bouton des tables n\'est proposé que là où il y a un calcul à faire',
           'ce niveau ne déclare pas où les tables servent');
+      }
+      if(idsPython.length){
+        verifier('les définitions d\'un exercice Python s\'écrivent avant son énoncé',
+          sansAvant.length === 0, sansAvant.length + ' cas — ' + sansAvant.join(' | '));
+        /* le bord opposé : un contrôle qui n'a rien mesuré ne mesure rien */
+        verifier('les définitions avant l\'énoncé : chaque exercice Python a été mesuré',
+          nAvant === idsPython.length * 2, nAvant + ' mesure(s) pour ' + idsPython.length + ' exercice(s) dans deux modes');
+      } else {
+        ignorer('les définitions d\'un exercice Python s\'écrivent avant son énoncé',
+          'ce niveau n\'a pas de thème Algorithmique et Python');
       }
       verifier('le bouton d\'aide IA est présent sur chaque exercice',
         sans.length === 0,

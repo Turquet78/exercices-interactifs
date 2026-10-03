@@ -21892,7 +21892,7 @@ function pythonTypes(w, P){
     const vus=[], q=test.questions[0], a=ptyAns(q);
     if(test.maxScore!==${NB}*3) vus.push("barème "+test.maxScore);
     if(ptyCases(q).length!==3) vus.push("ptyCases rend "+ptyCases(q).length);
-    const cours=document.querySelector("#ptyHost .pty-cours"), cadres=document.querySelectorAll("#ptyHost .pty-type");
+    const cours=document.querySelector("#scr-pty .pty-cours"), cadres=document.querySelectorAll("#scr-pty .pty-type");
     if(!cours||cadres.length!==3) vus.push("le cours n’est pas sur l’écran : "+cadres.length+" cadre(s)");
     else { const tx=cours.textContent; ["int","float","str","guillemets","15H30","Thomas"].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); }); }
     if(document.getElementById("ptyHost").textContent.indexOf("type(")<0) vus.push("l’écran n’explique pas type()");
@@ -21949,7 +21949,7 @@ function pythonTypes(w, P){
   verifierEval(w, 'en soutien : la copie fausse rougit sa case sans badge et laisse « Exécuter » verrouillé, la case vide ne reçoit rien, le cours reste affiché, et la copie corrigée le débloque', `(function(){
     currentMode="soutien"; startPTY();
     const vus=[], q=test.questions[0], a=ptyAns(q), cases=ptyCases(q);
-    if(document.querySelectorAll("#ptyHost .pty-type").length!==3) vus.push("le cours n’est pas sur l’écran en soutien");
+    if(document.querySelectorAll("#scr-pty .pty-type").length!==3) vus.push("le cours n’est pas sur l’écran en soutien");
     const faux=PTY_TYPES.filter(function(t){ return t!==a.types[cases[0].nom]; })[0];
     document.getElementById(cases[0].id).value=faux; document.getElementById(cases[1].id).value=a.types[cases[1].nom];
     checkPTY();
@@ -22137,7 +22137,7 @@ function pythonAfficherVariable(w, P){
     const vus=[], q=test.questions[0], a=pycAns(q), NL=String.fromCharCode(10);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     if(pycCases(q).length!==1) vus.push("pycCases rend "+pycCases(q).length);
-    const cours=document.querySelector("#pycHost .pyc-cours");
+    const cours=document.querySelector("#scr-pyc .pyc-cours");
     if(!cours) vus.push("le cours n’est pas sur l’écran");
     else { const tx=cours.textContent; ["print","guillemets","nombre","afficher"].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); }); if(!cours.querySelector(".py-code")) vus.push("le cours ne montre pas d’exemple de programme"); }
     const l1=document.getElementById("pycL1"), ta=document.getElementById("pyc-in"), run=document.getElementById("pycRun"), cons=document.getElementById("pycConsole");
@@ -23885,7 +23885,7 @@ function pythonPrint(w, P){
     startPYP();
     const vus=[], q=test.questions[0], Q=String.fromCharCode(34);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
-    const cours=document.querySelector("#pypHost .pyp-cours"), cadres=document.querySelectorAll("#pypHost .pyp-regle");
+    const cours=document.querySelector("#scr-pyp .pyp-cours"), cadres=document.querySelectorAll("#scr-pyp .pyp-regle");
     if(!cours||cadres.length!==3) vus.push("le cours n’est pas sur l’écran : "+cadres.length+" cadre(s)");
     else { const tx=cours.textContent; ["print","guillemets","parenth","minuscules","« »"].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); }); }
     const cible=document.getElementById("pypCible"); if(!cible||cible.textContent!==q.texte) vus.push("la phrase à afficher n’est pas à l’écran");
@@ -24320,7 +24320,7 @@ function pythonCompleter(w, P){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPYX();
     const vus=[], NL=String.fromCharCode(10);
-    const cours=function(){ return document.querySelector("#pyxHost .pyx-cours"); };
+    const cours=function(){ return document.querySelector("#scr-pyx .pyx-cours"); };
     if(!cours()) vus.push("le cours n’est pas sur l’écran d’ouverture");
     else { const tx=cours().textContent;
            ["virgule","guillemets","print("].forEach(function(m){ if(tx.indexOf(m)<0) vus.push("le cours ne dit pas « "+m+" »"); });
@@ -24353,7 +24353,7 @@ function pythonCompleter(w, P){
     if(document.getElementById("pyxExRun")) vus.push("l’exemple du cours reste sur l’écran de la question");
     if(document.getElementById("pyxIdx").textContent.indexOf("1 / ${NB}")<0) vus.push("la question n’est pas annoncée : "+document.getElementById("pyxIdx").textContent);
     if(!afficherEcranDe("pyx")) vus.push("afficherEcranDe ne connaît pas pyx (reprise et rejeu)");
-    if(!document.getElementById("pyx-in")||document.querySelector("#pyxHost .pyx-cours")) vus.push("afficherEcranDe rend le cours au lieu de la question");
+    if(!document.getElementById("pyx-in")||document.querySelector("#scr-pyx .pyx-cours")) vus.push("afficherEcranDe rend le cours au lieu de la question");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -24785,7 +24785,7 @@ function pythonOperations(w, P){
     const vus=[], NL=String.fromCharCode(10);
     if(test.maxScore!==${NB * CASES}) vus.push("bareme "+test.maxScore);
     if(document.getElementById("popIdx").textContent!=="Le cours") vus.push("l\\u2019ecran ne s\\u2019ouvre pas sur le cours");
-    if(!document.querySelector("#popHost .pyx-cours")) vus.push("le cadre du cours n\\u2019est pas rendu");
+    if(!document.querySelector("#scr-pop .pyx-cours")) vus.push("le cadre du cours n\\u2019est pas rendu");
     const ia=document.getElementById("pop-a"), ib=document.getElementById("pop-b");
     if(!ia||!ib||ia.tagName!=="INPUT"||ib.tagName!=="INPUT"){ vus.push("a et b ne sont pas des cases"); return vus.join(" | "); }
     if(ia.value!==String(POP_DEC.a)||ib.value!==String(POP_DEC.b)) vus.push("les valeurs de depart : "+ia.value+" / "+ib.value);
@@ -25172,7 +25172,7 @@ function pythonInputInt(w, P){
     demarrer("train");
     var vus=[], q=test.questions[0];
     if(test.maxScore!==${NB * CASES}) vus.push("bareme "+test.maxScore);
-    if(!document.querySelector("#piiHost .pii-def")) vus.push("la definition n\\u2019est pas sur l\\u2019ecran");
+    if(!document.querySelector("#scr-pii .pii-def")) vus.push("la definition n\\u2019est pas sur l\\u2019ecran");
     var en=document.getElementById("piiInstr").textContent; if(en.indexOf(piiC(q).nom)<0) vus.push("l\\u2019enonce ne nomme pas la variable : "+en);
     if(document.getElementById("piiB")||document.getElementById("piiC")) vus.push("le b) ou le c) est la avant le a)");
     var v=function(){ return document.getElementById("piiValidate"); };
@@ -25455,7 +25455,7 @@ function pythonInputFloat(w, P){
     var vus=[], q=test.questions[0];
     if(test.kind!=="pii"||test.qId!=="${ID}") vus.push("kind / qId : "+test.kind+" / "+test.qId);
     if(test.maxScore!==${NB * CASES}) vus.push("bareme "+test.maxScore);
-    var def=document.querySelector("#piiHost .pii-def");
+    var def=document.querySelector("#scr-pii .pii-def");
     if(!def||def.textContent.indexOf("float(")<0) vus.push("la definition de la fiche 6 n\\u2019est pas sur l\\u2019ecran");
     piiExecA(); entree("piiConsAIn","1,65");
     if(!document.getElementById("piiConsA").classList.contains("pyx-err")) vus.push("1,65 ne recoit pas l\\u2019erreur de float");
@@ -25481,9 +25481,9 @@ function pythonInputFloat(w, P){
     if(/\\bok\\b|\\bbad\\b/.test(document.getElementById("piiLigne").className+" "+document.getElementById("piiType").className)) vus.push("une case est peinte alors que la ligne manque");
     /* la reprise : le drapeau f voyage dans la question */
     demarrer("train"); var qs=JSON.parse(JSON.stringify(test.questions)); test.questions=qs; test.idx=0;
-    if(!afficherEcranDe("pii")||document.querySelector("#piiHost .pii-def").textContent.indexOf("float(")<0) vus.push("la reprise perd l\\u2019identite du float");
+    if(!afficherEcranDe("pii")||document.querySelector("#scr-pii .pii-def").textContent.indexOf("float(")<0) vus.push("la reprise perd l\\u2019identite du float");
     /* la definition s'ecrit une seule fois par exercice : a la question 1 seulement */
-    test.idx=1; afficherEcranDe("pii"); if(document.querySelector("#piiHost .pii-def")) vus.push("la definition est repetee a la question 2"); test.idx=0;
+    test.idx=1; afficherEcranDe("pii"); if(document.querySelector("#scr-pii .pii-def")) vus.push("la definition est repetee a la question 2"); test.idx=0;
     var c=ctxPii(test.questions[0]).contexte; if(c.indexOf("float(input(")<0||c.indexOf("SECR\\u00c8TES")<0) vus.push("le contexte du modele");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');

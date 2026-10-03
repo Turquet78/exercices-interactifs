@@ -3379,3 +3379,37 @@ la variable sans guillemets ») est retirée. C'était le SEUL coup de pouce du
 sous-thème 6.3 à porter un texte après son modèle : ceux du 6.3.1, du 6.3.2,
 du 6.3.4, du 6.3.6 et du 6.3.7 n'ont que leur ligne à recopier, et restent
 tels quels.
+
+**Puis les définitions sont passées AVANT l'énoncé, dans tout le thème**
+(octobre 2026 : « en seconde dans tous les exercices d'algorithme python,
+écrire les définitions ou les rappels avant l'énoncé de l'exercice »). Onze
+exercices avaient un encadré de cours, mais il vivait DANS la zone de
+l'exercice (`…Host`), donc sous l'énoncé ; les seize autres n'avaient que le
+bouton « 📘 Rappel de cours ». Chaque écran du thème porte désormais, juste
+avant son `.mp-instr`, un emplacement `<kind>Avant` (classe `py-avant`),
+rempli par le rendu et par lui seul via `pyAvant(k, html)` :
+· les onze encadrés y montent tels quels (`ptyCoursHTML`, `pycCoursHTML`,
+  `pypCoursHTML`, `pyxCoursHTML`, `popCoursHTML`, `pynCoursHTML`,
+  `pyiCoursHTML`, `piaCoursHTML`, `pisCoursHTML`, `pmyCoursHTML`,
+  `piiDefHTML`), avec leurs règles d'avant : les trois cadres des types, du
+  print et de la variable à chaque question, ceux d'Input à la question 1
+  seulement ; {python-completer} et {python-operations} gardent leur écran de
+  cours, et leurs questions VIDENT l'emplacement ;
+· les seize autres y reçoivent leur rappel de cours (`pyRappelAvantHTML`, le
+  texte même du bouton, `RAPPELS_ID` d'abord), à la question 1 seulement — la
+  règle du sous-thème Input (« supprime les encadrés répétés ») étendue : le
+  bouton garde le rappel pour la suite.
+Le prix, nommé : ces rappels s'affichent aussi en ÉVALUATION, où le bouton
+« 📘 » n'est pas offert. C'est le parti des encadrés existants, qui s'y
+affichaient déjà : une définition écrite avant l'énoncé fait partie de
+l'énoncé, comme dans un manuel.
+Contrôle : greffé sur la visite de tous les exercices du banc navigateur
+(section 9), mesuré sur le PREMIER écran de chaque exercice du thème (lu dans
+THEMES, rien à déclarer) dans les deux modes — l'emplacement existe, porte du
+texte, précède l'énoncé dans le document ET s'affiche au-dessus de lui ; son
+bord opposé exige que chaque exercice ait été mesuré. Les contrôles propres
+qui cherchaient l'encadré dans `#…Host` le cherchent dans l'écran (`#scr-…`).
+Éprouvé par sabotage, les deux bords à la fois : le rappel du 6.1.13 retiré
+(« définitions absentes ou vides (0 px) ») et l'emplacement du 6.1.2 reposé
+sous l'énoncé (« définitions écrites APRÈS l'énoncé »), chacun dans les deux
+modes — 1 échec sur 612, page restaurée ensuite.
