@@ -3516,3 +3516,10 @@ pré-remplie, Tab et Entrée), les copies juste, fausse et vide, le soutien qui
 ne révèle rien, et dix programmes à boucles plus les modèles comparés à un
 vrai CPython. Pas de section propre au banc navigateur : la visite
 universelle (section 9) l'ouvre dans les deux modes.
+**Collision, encore — de noms seulement.** {python-chaines} (6.1.14) a été
+fusionné pendant que celui-ci attendait sa fusion, avec le MÊME kind `pch`
+(`startPCH`, `renderPCH`, `RAP_PCH`, `scr-pch`) et la MÊME version 275 ; c'est
+GitHub qui a refusé la fusion (conflits), pas un banc. Les deux exercices ne
+partagent rien d'autre : celui-ci a pris le préfixe `ptt` (« python, tirets »)
+et la version 276, et `main` a été fusionné dans la branche. L'interpréteur,
+lui, n'avait pas été touché par le 6.1.14.
