@@ -3379,3 +3379,52 @@ la variable sans guillemets ») est retirée. C'était le SEUL coup de pouce du
 sous-thème 6.3 à porter un texte après son modèle : ceux du 6.3.1, du 6.3.2,
 du 6.3.4, du 6.3.6 et du 6.3.7 n'ont que leur ligne à recopier, et restent
 tels quels.
+
+---
+
+**Le sous-thème « Bonus », et son premier exercice : remplacer la première
+lettre par "*".** {python-remplacer-lettre} (Seconde, 6.4.1, demande de
+Turquet, octobre 2026 : « en seconde avec les images créer un exercice dans le
+sous-thème print et variable qui respecte toutes les nouvelles consignes que
+j'ai données pour le sous-thème input. Ne pas rajouter de phrase dans les
+définitions ou rappels. Écrire les énoncés des questions après les définitions
+ou rappels. On le mettra dans un sous-thème bonus ») est l'exercice 27 du
+carnet : « Faire un programme qui remplace la première lettre par "*" » —
+"gaston" devient "*aston" —, ses trois remarques (on peut changer la chaîne ;
+`chaine[0] = "*"` ne marche pas ; on reconstruit la chaîne lettre par
+lettre), ses trois coups de pouce repliés, et la cellule ouverte sur
+`chaine = "gaston"`. Le sous-thème 6.4 « Bonus » est créé pour lui, ajouté en
+dernier : il ne renumérote rien.
+**LES CONSIGNES DU 6.3, REPRISES UNE À UNE** : l'énoncé dans un cadre
+`.pyn-etape`, en tête et en gras, APRÈS l'encadré des remarques ; l'encadré
+écrit à la question 1 seulement ; aucune consigne à côté d'« Exécuter » ;
+aucun texte d'attente dans la console (`#prlConsole:empty::before`) ; les
+coups de pouce vert clair (`pyPoucesHTML`), sans phrase après leur modèle.
+**AUCUNE PHRASE AJOUTÉE AUX REMARQUES** : l'encadré et le rappel
+(`RAP_PRL`) portent les trois remarques du carnet, mot pour mot — le banc
+compare le texte de l'encadré caractère par caractère. Seules les coquilles
+des coups de pouce sont corrigées (« instructuion », « jusqu'a la dernier
+lettre »).
+**L'INTERPRÉTEUR A APPRIS for, len() ET chaine[k]** : `pyRun` lit le corps
+d'un `for` à l'indentation (toutes ses lignes au même décalage, sinon
+IndentationError), parcourt `range(…)` (un à trois entiers) ou un texte ;
+`len` compte les lettres ; `chaine[k]`, `chaine[-1]` et les tranches
+`chaine[a:b]` suivent Python ; `chaine[0] = "*"` lève la vraie TypeError
+(« 'str' object does not support item assignment ») — la remarque 1, que
+l'élève VOIT en exécutant. Hors d'un `for`, rien ne change : chaque ligne est
+lue au moment où elle s'exécute, une ligne décalée reste tolérée, et
+`if`/`while`/`def` sont refusés en le nommant. Le banc compare au vrai
+CPython dix-neuf programmes, erreurs comprises.
+**LE JUGE CHANGE LA CHAÎNE** (« on peut changer la valeur de la chaîne comme
+on veut ») : la ligne `chaine = "…"` est remplacée par « informatique » et
+« lycee », et le résultat doit suivre. Il est accepté AFFICHÉ ou RANGÉ dans
+une variable : le carnet ne demande pas d'afficher. `print("*aston")` passe
+le premier mot et pas le second, et le message le nomme ; la dernière lettre
+perdue (`len(chaine)-1`), la première gardée (`range(0, …)`), le "*" oublié,
+la lettre remplacée au lieu d'ajoutée, chacun a son mot. **La cellule
+laissée telle qu'elle s'ouvre est une copie VIDE** : elle ne rougit jamais et
+reçoit le modèle en vert.
+**LA SÉANCE** : la fiche épinglée en tête (gaston, "*"), puis des mots et des
+symboles tirés par `distinctes()` ; `dmNbQuestions()` l'allonge. La touche Tab
+décale la ligne (quatre espaces) au lieu de quitter la cellule. Banc jsdom
+`pythonRemplacerLettre`, déclaré dans `tests/profils.js`.
