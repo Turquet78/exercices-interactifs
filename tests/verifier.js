@@ -24129,7 +24129,7 @@ function pythonChaineTirets(w, P){
     if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
     if(!/même quand on change/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
     if(document.querySelector("#pttModele .sol")||fb.indexOf("len(chaine) - 1:")>=0) vus.push("soutien : le modèle est révélé");
-    if(!/STRICTEMENT SECRÈTE/.test(ctxPch(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPtt(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
     currentMode="train";
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');

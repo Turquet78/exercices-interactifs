@@ -6830,7 +6830,7 @@ function conseilPaire(){
   else if(test.kind==='pia' && q) b=ctxPia(q);
   else if(test.kind==='pis' && q) b=ctxPis(q);
   else if(test.kind==='pmy' && q) b=ctxPmy(q);
-  else if(test.kind==='ptt' && q) b=ctxPch(q);
+  else if(test.kind==='ptt' && q) b=ctxPtt(q);
   else if(test.kind==='pty' && q) b=ctxPty(q);
   else if(test.kind==='pyc' && q) b=ctxPyc(q);
   else if(test.kind==='pvn' && q) b=ctxPvn(q);
@@ -31028,7 +31028,7 @@ function checkPTT(live){
   const nb=$('pttNext'); if(nb) nb.focus();
 }
 function nextPTT(){ if(test.idx<test.questions.length-1){ test.idx++; renderPTT(); autoSave(); } else finishTest(); }
-function ctxPch(q){
+function ctxPtt(q){
   const S=pttSit(q), ta=$('ptt-prog'), prog=(ta&&ta.value)||q.prog||'';
   let d=null; try{ d=pttDiag(prog, q); }catch(e){}
   let c='L’élève doit ÉCRIRE un programme Python qui ajoute le caractère « '+S.sep+' » entre chaque caractère de la chaîne rangée dans la variable chaine (la première ligne, chaine = "'+S.mot+'", est donnée) : "'+S.mot+'" doit devenir "'+pttAttendu(S.mot, S.sep)+'", et le programme doit marcher quel que soit le mot rangé dans chaine. Les coups de pouce de la fiche : une nouvelle variable vide chaine_bis = "", la boucle for k in range(len(chaine)):, et chaine_bis = chaine_bis + chaine[k] + "'+S.sep+'". Il peut exécuter son programme et voir ce qu’il affiche.\n';
