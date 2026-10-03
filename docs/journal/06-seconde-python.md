@@ -3440,7 +3440,9 @@ un triangle tiré par `distinctes()` — un autre caractère (`#`, `+`, `o`, `@`
 `$`) et une taille IMPOSÉE, le coup de pouce suivant la taille (« de 1 à 12 »,
 `range (1,13)`) ; deux questions, que le réglage « Questions » d'un devoir
 allonge. Une case (`pts-case`), pas de correction au fil de la frappe
-(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`soutienEnDirect.sans`), pas de bouton des tables (`TABLES_SANS` — oublié au premier
+jet, et vu en OUVRANT la page : la liste de `tests/profils.js` n'est que la
+seconde source, la page a la sienne). Banc jsdom
 (`pythonTriangle`) : la place, la fiche et le tirage (300 séances), le juge
 sur six copies justes et quinze fausses chacune avec son mot, l'écran et les
 consignes du sous-thème Input, Tab et Entrée, la copie juste tapée, fausse et
