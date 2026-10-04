@@ -4057,6 +4057,37 @@ la vérification ne se gardent pas — le schéma revient neutre, sans
 vert ni rouge, jusqu'à la prochaine vérification. Le contrôle `t3` remplit une
 case, revient, redemande l'aide et la retrouve.
 
+**Puis les CADRES du 4.1.13 dans l'aide schéma** (octobre 2026,
+`APP_VERSION` 290). Demande de Turquet : « dans le 4.5.9, quand un élève
+demande le schéma, faire en plus des cadres comme dans l'exercice 4.1.13 sur
+le schéma et dans l'énoncé ». Les mêmes `.cdr` (bleu plein, rouge tirets,
+vert pointillés), dans l'ordre des boîtes de gauche à droite, et dans
+l'énoncé les mots ou le nombre qui désignent chaque boîte :
+· 4.1.8 (`CTX_BOITE`) — le tout et sa valeur en bleu, la partie en rouge ;
+  la question prend le cadre de la boîte qu'elle cherche ;
+· 4.1.9 (`CTX_CHAINE`) — le total, le sous-groupe, le sous-groupe du
+  sous-groupe, comme les phrases du 4.1.13 ; aussi la ligne du calcul global
+  et la phrase de conclusion ;
+· 4.5.4 — Avant en bleu, Après en rouge, la boîte « Pourcentage
+  d'évolution » en vert. Ses tables d'énoncés sont partagées par tout le
+  thème : on n'y touche pas, `cdrValeurs` cadre le `<b>nombre unité</b>`
+  (sans « % ») qui vaut N ou la valeur finale, et « Retrouve … » prend le
+  cadre de la boîte cherchée ;
+· 4.5.5 (`EVS_ENONCES`) — le sujet (la valeur au départ) en bleu, la
+  première évolution en rouge (elle mène à la boîte du milieu), la seconde en
+  vert (elle mène à la boîte d'arrivée).
+**Les cadres ne sortent que dans l'aide.** Chaque énoncé reçoit un jeu
+`k` ; `cdrAide()` rend `CDR_AVEC` quand `test.kind` vaut « spr », `CDR_SANS`
+(l'identité) sinon. Le 4.1.8, le 4.1.9, le 4.5.4 et le 4.5.5 ouverts pour
+eux-mêmes sont INCHANGÉS — vérifié à la main au caractère près sur plus de
+mille énoncés tirés, ancienne page contre nouvelle — et la rédaction du
+4.5.9 (`sprEnonce`, sans `k`) reste sans cadre, comme le texte envoyé au
+professeur. Contrôle `t4` (`syntheseRedigee`) : onze questions épinglées
+(toutes les inconnues des quatre sources) — boîtes cadrées dans l'ordre,
+cadres de l'énoncé, aucun cadre dans un cadre, texte sans cadres mot pour mot
+celui de l'origine, rédaction sans cadre ; puis les quatre exercices
+d'origine sans aucun cadre.
+
 ## {pourcentages-problemes} — des PROBLÈMES de pourcentages, rédigés (Seconde, 4.5.10, octobre 2026)
 
 **D'où il vient.** Demande de Turquet, une fiche papier de perfectionnement
