@@ -449,8 +449,17 @@
   .sig-apercu img{max-width:100%;max-height:220px;border:1.5px solid var(--line);border-radius:10px}
   /* Côté professeur : la capture s'affiche DANS la carte, jamais dans un onglet
      ouvert après une attente — Chrome le bloquerait comme une fenêtre surgissante. */
-  .sig-capture{margin-top:8px}
-  .sig-capture img{max-width:100%;border:1.5px solid var(--line);border-radius:10px;display:block}
+  /* La copie d'écran d'un signalement s'ouvre PAR-DESSUS la liste : la liste
+     ne bouge pas, et la refermer rend le professeur là où il était. */
+  .sig-capcard{max-width:min(1100px,96vw);max-height:92vh;overscroll-behavior:contain}
+  .sig-capcard img{max-width:100%;border:1.5px solid var(--line);border-radius:10px;display:block}
+  /* « Retour aux signalements » pendant un écran rejoué : la barre du bas est
+     celle de l'élève, cachée sans élève connecté — c'était la seule sortie. */
+  #sigRetourBtn{position:fixed;left:16px;bottom:16px;z-index:61;border:none;cursor:pointer;
+    font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;padding:11px 16px;border-radius:30px;
+    background:var(--blue);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+  #sigRetourBtn[hidden]{display:none}
+  body.pave-actif #sigRetourBtn,body.clavier-ouvert #sigRetourBtn{top:8px;bottom:auto;left:8px;padding:7px 12px;font-size:.85rem}
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
   .mp-feedback .fb-ok{color:var(--green);font-weight:600}
@@ -5421,6 +5430,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 <div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()" title="Signaler un problème" aria-label="Signaler un problème">⚑ <span class="tc-long">Signaler un problème</span><span class="tc-court">Signaler</span></button><button id="abandonBtn" onclick="abandonTest()" title="Abandonner" aria-label="Abandonner">✕ <span class="tc-court">Abandonner</span><span class="tc-long">Abandonner</span></button><button id="pauseBtn" onclick="pauseTest()" title="Mettre en pause" aria-label="Mettre en pause">⏸ <span class="tc-long">Mettre en pause</span><span class="tc-court">Pause</span></button></div>
 
 <!-- SIGNALER UN PROBLÈME (élève) -->
+<!-- COPIE D'ÉCRAN D'UN SIGNALEMENT (professeur) -->
+<div id="sigCapModal" class="notes-modal" hidden onclick="if(event.target===this)fermerCaptureSignalement()">
+  <div class="card notes-card sig-capcard">
+    <div class="notes-head">
+      <h3 id="sigCapTitre">Copie d’écran</h3>
+      <button class="btn btn-primary btn-sm" onclick="fermerCaptureSignalement()">← Retour aux signalements</button>
+    </div>
+    <div id="sigCapCorps"></div>
+  </div>
+</div>
+<button id="sigRetourBtn" hidden onclick="retourSignalements()">← Retour aux signalements</button>
+
 <div id="sigModal" class="notes-modal" hidden onclick="if(event.target===this)fermerSignalement()">
   <div class="card notes-card">
     <div class="notes-head">
@@ -9391,6 +9412,7 @@ function show(name){
   }else if(name==='teacher'){
     pill.hidden=false; pill.innerHTML=`Professeur <button onclick="quitToHome()">Quitter</button>`;
   }else{ pill.hidden=true; }
+  majRetourSignalements(name);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 /* Oublier currentEleve ne suffit plus : la session Supabase survit au
@@ -9970,7 +9992,6 @@ function renderSignalements(){
         <button class="btn btn-sm btn-ghost" onclick="repondreSignalement('${escJS(r.id)}')">${r.reponse?'Modifier ma réponse':'Répondre'}</button>
         <button class="btn btn-sm btn-ghost" onclick="supprimerSignalement('${escJS(r.id)}')">Supprimer</button>
       </div>
-      <div class="sig-capture" id="sigCap-${escJS(r.id)}"></div>
       <div class="sig-repzone" id="sigRep-${escJS(r.id)}"></div>
     </div>`;
   }).join('');
@@ -9998,22 +10019,32 @@ async function marquerSignalementLu(id){
 }
 
 
-/* La capture s'affiche DANS la carte, pas dans un onglet : window.open() appelé
+/* La capture s'affiche dans la PAGE, pas dans un onglet : window.open() appelé
    APRÈS une attente est bloqué par Chrome comme une fenêtre surgissante — c'est
-   le piège qui avait déjà mordu sur les cours en PDF. Ici il n'y a pas d'onglet
-   à ouvrir, donc pas de piège. Le bucket est privé : l'adresse est SIGNÉE, et
-   ne vaut qu'une heure. */
+   le piège qui avait déjà mordu sur les cours en PDF. Le bucket est privé :
+   l'adresse est SIGNÉE, et ne vaut qu'une heure.
+   Elle s'ouvre PAR-DESSUS la liste (demande de Turquet, octobre 2026 : « quand
+   je quitte, revenir à la page de signalement, au même niveau »). Dépliée dans
+   la carte, elle poussait toute la liste vers le bas et n'avait aucun geste de
+   sortie ; posée au-dessus, la liste ne bouge pas, et « Retour aux
+   signalements » (ou Échap, ou un clic à côté) rend l'endroit exact. */
 async function voirCaptureSignalement(id){
   const r=mesSignalements.find(x=>x.id===id); if(!r||!r.capture) return;
-  const hote=$('sigCap-'+id); if(!hote) return;
-  if(hote.dataset.ouvert==='1'){ hote.innerHTML=''; hote.dataset.ouvert=''; return; }
-  hote.innerHTML='<p class="muted">Ouverture\u2026</p>'; hote.dataset.ouvert='1';
+  const vue=$('sigCapModal'), hote=$('sigCapCorps'); if(!vue||!hote) return;
+  $('sigCapTitre').textContent='Copie d\u2019\u00e9cran \u2014 '+(r.prenom||'\u00e9l\u00e8ve');
+  hote.innerHTML='<p class="muted">Ouverture\u2026</p>'; vue.hidden=false;
   let url='', err=null;
   try{ const s=await sb.storage.from(SIG_BUCKET).createSignedUrl(r.capture,3600);
        err=s.error; url=(s.data&&s.data.signedUrl)||''; }catch(e){ err=e; }
+  if(vue.hidden) return;                       /* refermée pendant l'attente */
   if(err||!url){ hote.innerHTML='<p class="muted">Cette copie d\u2019\u00e9cran n\u2019a pas pu \u00eatre ouverte.</p>'; return; }
   hote.innerHTML='<img src="'+esc(url)+'" alt="copie d\u2019\u00e9cran de l\u2019\u00e9l\u00e8ve">';
 }
+function fermerCaptureSignalement(){
+  const vue=$('sigCapModal'); if(!vue||vue.hidden) return;
+  vue.hidden=true; $('sigCapCorps').innerHTML='';
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') fermerCaptureSignalement(); });
 async function supprimerSignalement(id){
   if(!confirm('Supprimer ce signalement ?')) return;
   /* La capture part AVEC lui : gardée, elle serait invisible et décomptée du
@@ -10036,6 +10067,39 @@ async function supprimerSignalement(id){
   }catch(e){ toast('Non supprimé (connexion)','err'); }
 }
 
+/* ---------- Revenir aux signalements, au même endroit ----------
+   Demande de Turquet (octobre 2026) : après avoir rejoué un écran, le
+   professeur revient à la liste des signalements, à la hauteur où il l'avait
+   quittée. Il n'avait AUCUNE sortie : la barre du bas (pause, abandon) est
+   celle de l'élève, cachée sans élève connecté — seul un rechargement le
+   ramenait, en haut du « Suivi de la classe », la liste à refaire défiler.
+   La position est retenue AU CLIC, et un bouton fixe la rend depuis n'importe
+   quel écran où le rejeu a mené (résultats, « Autre exercice »…).
+   La liste n'est PAS relue au retour : relue, elle passerait par
+   « Chargement… », vide, et la hauteur retenue ne voudrait plus rien dire.
+   « var » et non « let » : show() lit cette variable, et show() tourne dès le
+   démarrage — un let pas encore atteint y lèverait une erreur. */
+var sigRetour=null;
+function retenirSignalements(id){ sigRetour={ id:id, y:window.scrollY||0 }; }
+function majRetourSignalements(ecran){
+  const b=$('sigRetourBtn'); if(b) b.hidden=!(sigRetour && ecran!=='teacher');
+}
+function retourSignalements(){
+  const m=sigRetour; sigRetour=null; REJEU=false;
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  show('teacher');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab==='signalements'));
+  document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
+  $('pane-signalements').classList.add('on');
+  renderSignalements();
+  /* show() vient de lancer un défilement DOUX vers le haut : un défilement
+     immédiat l'annule, et on le redit à l'image suivante, le temps que la
+     liste ait sa hauteur. */
+  const y=m?m.y:0;
+  window.scrollTo({top:y,behavior:'instant'});
+  requestAnimationFrame(()=>window.scrollTo({top:y,behavior:'instant'}));
+}
+
 /* ---------- Rejouer l'écran signalé ----------
    Même chemin que la reprise après pause, à deux différences près :
    — REJEU verrouille l'écriture des notes, sur le client lui-même
@@ -10047,6 +10111,7 @@ function rejouerSignalement(id){
   const r=mesSignalements.find(x=>x.id===id);
   if(!r || !r.contexte || !r.contexte.kind){ toast('Cet écran ne peut pas être rejoué','err'); return; }
   const d=r.contexte;
+  retenirSignalements(id);
   REJEU=true;
   currentTestId=r.exercice; currentMode=r.mode||'train'; currentDM=null;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
@@ -10058,7 +10123,7 @@ function rejouerSignalement(id){
      Un rendu lancé avant rehydrateQuestions() échoue sur un exercice à graphe,
      et ce sont précisément ceux-là qu'on signale. */
   try{ rehydrateQuestions(); }catch(e){}
-  if(!afficherEcranDe(test.kind)){ REJEU=false; toast('Cet exercice ne sait pas être rejoué','err'); return; }
+  if(!afficherEcranDe(test.kind)){ REJEU=false; sigRetour=null; majRetourSignalements('teacher'); toast('Cet exercice ne sait pas être rejoué','err'); return; }
   const boxes=d._boxes;
   setTimeout(()=>{ try{ restoreBoxes(boxes); }catch(e){} }, 60);
   toast('Écran rejoué — aucune note ne sera enregistrée','ok');
@@ -12573,10 +12638,23 @@ function eqgGen(){
     const kC2=kc.filter(function(y){
       if(y===ka||g(x1)===y||g(x2)===y) return false;
       const ix=[]; for(let x=-3;x<=3;x++){ if(pts[x+3]===y) ix.push(x); }
-      return ix[0]>-3&&ix[1]<3;
+      if(!(ix[0]>-3&&ix[1]<3)) return false;
+      /* au moins UNE des deux solutions est un vrai croisement : deux sommets
+         posés à la hauteur k laisseraient f (x) signe k vide ou partout */
+      return ix.some(function(x){ return (pts[x+2]-y)*(pts[x+4]-y)<0; });
     });
     if(!kC2.length) continue;
     const k=pick(kC2);
+    /* LE SOMMET À LA HAUTEUR k. Sur ce dessin, k touche presque toujours un
+       sommet de f sans le traverser (28 dessins possibles sur 32, énumérés) :
+       f (x) = k n'en souffre pas, mais f (x) signe k n'est plus « entre les
+       solutions » ni « dehors ». Le signe de l'inéquation est alors tiré parmi
+       les deux qui rangent le sommet du même côté que ses voisins — pris s'ils
+       sont pris, exclu s'ils sont exclus — et S est une DEMI-DROITE depuis le
+       croisement (signalé par Turquet, octobre 2026 : aucune des quatre cartes
+       n'était juste). */
+    let opfC=ING_OPS;
+    for(let x=-2;x<=2;x++){ if(pts[x+3]===k && (pts[x+2]-k)*(pts[x+4]-k)>0) opfC=(pts[x+2]<k)?['gt','le']:['ge','lt']; }
     /* les images : a quelconque, b là où la droite reste dans le dessin */
     const a=pick([-3,-2,-1,0,1,2,3]);
     const bs=[]; for(let x=-3;x<=3;x++){ if(Math.abs(g(x))<=3) bs.push(x); }
@@ -12605,7 +12683,7 @@ function eqgGen(){
     const xtaLoin=xtaC.filter(x=>Math.abs(pts[x+3]-ka)>=2);
     const xta=pick(xtaLoin.length?xtaLoin:xtaC);
     return {pts:pts, s:s, c:c, k:k, kg:kg, ka:ka, a:a, b:b,
-            op:pick(ING_OPS), opf:pick(ING_OPS), opg:pick(ING_OPS),
+            op:pick(ING_OPS), opf:pick(opfC), opg:pick(ING_OPS),
             xtk:xtk, xtg:xtg, xtc:xtc, xta:xta,
             permE:ensShuffle(EQG_FORMES_EQ.slice()), permI:ensShuffle(EQG_FORMES_IN.slice()),
             permG:ensShuffle(EQG_FORMES_GIN.slice())};
@@ -12652,7 +12730,23 @@ function eqgMilieuK(q){
   for(let x=so[0]+1;x<so[1];x++){ const d=q.pts[x+3]-q.k; if(d!==0) return d>0?1:-1; }
   return 1;
 }
+/* Le SOMMET de f posé à la hauteur k (touché sans être traversé), ou null —
+   et quand il existe, S de f (x) signe k est une demi-droite depuis l'AUTRE
+   solution, le croisement : du côté où f (3) vérifie le signe. */
+function eqgSommetK(q){
+  const so=eqgSolsK(q);
+  for(let i=0;i<so.length;i++){ const x=so[i]; if((q.pts[x+2]-q.k)*(q.pts[x+4]-q.k)>0) return x; }
+  return null;
+}
+function eqgDemiK(q){
+  const xt=eqgSommetK(q); if(xt===null) return null;
+  const xc=eqgSolsK(q).filter(function(x){ return x!==xt; })[0];
+  const veut=(q.opf==='ge'||q.opf==='gt');
+  return {x:xc, droite:(veut?1:-1)===(q.pts[6]>q.k?1:-1), pris:(q.opf==='ge'||q.opf==='le')};
+}
 function eqgFormeInFk(q){
+  const dk=eqgDemiK(q);
+  if(dk) return (dk.droite?'d':'g')+(dk.pris?'p':'v');
   const un=((q.opf==='ge'||q.opf==='gt')?1:-1)===eqgMilieuK(q);
   const pris=(q.opf==='ge'||q.opf==='le');
   return (un?'m':'e')+(pris?'o':'n');
@@ -12672,6 +12766,7 @@ function eqgSubCount(q){
     return un?5:9;
   }
   if(q.type==='infk'){
+    if(eqgDemiK(q)) return 5;
     const un=((q.opf==='ge'||q.opf==='gt')?1:-1)===eqgMilieuK(q);
     return un?5:9;
   }
@@ -12785,6 +12880,17 @@ function eqgCarteExtra(q, forme){
     /* f (x) signe k : les quatre coloriages d'{inequation-graphique}, contre
        la LIGNE à la hauteur k — le morceau rouge suit f, les marques suivent
        les solutions de f (x) = k */
+    /* le sommet à la hauteur k : les quatre demi-droites de g (x) signe k,
+       portées par la COURBE depuis le croisement — le sommet ne reçoit aucune
+       marque, il est dans le morceau ou hors de lui comme ses voisins */
+    if(q.type==='infk' && eqgDemiK(q)){
+      const xc=eqgDemiK(q).x;
+      const droite=(forme.charAt(0)==='d'), pris=(forme.charAt(1)==='p');
+      out+=niv(q.k)+'<path class="ing-rouge" d="'+(droite?lvPath(q.pts,sx,sy,xc+3,6):lvPath(q.pts,sx,sy,0,xc+3))+'"/>';
+      out+=(droite?plein(3,q.pts[6]):plein(-3,q.pts[0]));
+      out+=(pris?plein(xc,q.k):vide(xc,q.k));
+      return out;
+    }
     if(q.type==='infk'){
       const so=eqgSolsK(q), x1=so[0], x2=so[1];
       const milieu=(forme.charAt(0)==='m'), pris=(forme.charAt(1)==='o');
@@ -12819,6 +12925,8 @@ function eqgCarteExtra(q, forme){
 /* S de l'inéquation, en toutes lettres — f contre g ou f contre k selon le
    type ; et la demi-droite de g contre kg. */
 function eqgPlain(q){
+  const dk=(q.type==='infk')?eqgDemiK(q):null;
+  if(dk) return dk.droite?(dk.pris?'[':']')+itvNum(dk.x)+' ; 3]':'[−3 ; '+itvNum(dk.x)+(dk.pris?']':'[');
   const sp=eqgItvSpec(q), pris=sp.pris;
   if(sp.un) return (pris?'[':']')+itvNum(sp.x1)+' ; '+itvNum(sp.x2)+(pris?']':'[');
   return '[−3 ; '+itvNum(sp.x1)+(pris?']':'[')+' ∪ '+(pris?'[':']')+itvNum(sp.x2)+' ; 3]';
@@ -12831,6 +12939,7 @@ function eqgPlainGk(q){
 /* Les cases et leur bonne réponse CANONIQUE (pour le total) ; le jugement
    passe par eqgJuge, où l'ordre des listes est libre. */
 function eqgPerm(q){
+  if(q.type==='infk' && eqgDemiK(q)) return q.permG;
   if(q.type==='ineq'||q.type==='infk') return q.permI;
   if(q.type==='ingk') return q.permG;
   return q.permE;
@@ -12867,6 +12976,13 @@ function eqgCases(q){
                                   {id:'eqg-b2', bon:'3'}, {id:'eqg-cf1', bon:']'}];
     return [eqgSch(q), {id:'eqg-co1', bon:'['}, {id:'eqg-b1', bon:'-3'},
             {id:'eqg-b2', bon:String(xg)}, {id:'eqg-cf1', bon:pris?']':'['}];
+  }
+  const dk=(q.type==='infk')?eqgDemiK(q):null;
+  if(dk){
+    if(dk.droite) return [eqgSch(q), {id:'eqg-co1', bon:dk.pris?'[':']'}, {id:'eqg-b1', bon:String(dk.x)},
+                          {id:'eqg-b2', bon:'3'}, {id:'eqg-cf1', bon:']'}];
+    return [eqgSch(q), {id:'eqg-co1', bon:'['}, {id:'eqg-b1', bon:'-3'},
+            {id:'eqg-b2', bon:String(dk.x)}, {id:'eqg-cf1', bon:dk.pris?']':'['}];
   }
   const sp=eqgItvSpec(q), x1=sp.x1, x2=sp.x2, pris=sp.pris;
   if(sp.un) return [eqgSch(q), {id:'eqg-co1', bon:pris?'[':']'}, {id:'eqg-b1', bon:String(x1)},
@@ -12973,7 +13089,7 @@ function renderEqgTest(){
       +'<span class="itv-fixe">;</span>'+selN(b2,'Borne de droite')+itvSelHTML(cf,ITV_OPT_CROCHET,'Crochet fermant');
     /* g (x) signe kg est une DEMI-DROITE : un seul intervalle, toujours ;
        f (x) signe k suit le côté de f, comme f (x) signe g (x) */
-    const un=(q.type==='ingk')?true:eqgItvSpec(q).un;
+    const un=(q.type==='ingk'||(q.type==='infk'&&eqgDemiK(q)))?true:eqgItvSpec(q).un;
     let sol='<span class="itv-corps"><span class="itv-fixe">S =</span>'+inter('eqg-co1','eqg-b1','eqg-b2','eqg-cf1');
     if(!un) sol+='<span class="itv-fixe">∪</span>'+inter('eqg-co2','eqg-b3','eqg-b4','eqg-cf2');
     sol+='</span>';
@@ -13042,6 +13158,17 @@ function eqgWhy(q){
   if(q.type==='infk'){
     const sp=eqgItvSpec(q), veut=(q.opf==='ge'||q.opf==='gt');
     const p=['« f (x) '+ING_SIGNE[q.opf]+' '+itvNum(q.k)+' » demande les x où la COURBE est '+(veut?'AU-DESSUS':'AU-DESSOUS')+' de la ligne à la hauteur '+itvNum(q.k)+' : c’est le dessin '+L+'.'];
+    const dk=eqgDemiK(q);
+    if(dk){
+      const xt=eqgSommetK(q), dessus=(q.pts[xt+2]>q.k);
+      p.push('En '+itvNum(xt)+', la courbe TOUCHE la ligne sans la traverser : c’est un sommet, elle reste '
+        +(dessus?'au-dessus':'au-dessous')+' de part et d’autre. Elle ne change de côté qu’en '+itvNum(dk.x)
+        +' : c’est donc TOUT UN CÔTÉ de '+itvNum(dk.x)+' — '+(dk.droite?'à droite':'à gauche')+', et le bout du dessin est pris.');
+      p.push(dk.pris ? 'Le signe '+ING_SIGNE[q.opf]+' accepte l’égalité : '+itvNum(dk.x)+' est PRIS — crochet fermé.'
+                     : 'Le signe '+ING_SIGNE[q.opf]+' refuse l’égalité : '+itvNum(dk.x)+' est EXCLU — crochet ouvert.');
+      p.push('Donc S = '+eqgPlain(q)+'.');
+      return p.join(' ');
+    }
     if(sp.un) p.push('C’est le morceau entre les deux croisements, de '+itvNum(sp.x1)+' à '+itvNum(sp.x2)+'.');
     else p.push('Il y a DEUX morceaux : de −3 à '+itvNum(sp.x1)+', puis de '+itvNum(sp.x2)+' à 3 — et les bouts du dessin (−3 et 3) sont toujours pris.');
     p.push(sp.pris ? 'Le signe '+ING_SIGNE[q.opf]+' accepte l’égalité : les croisements sont PRIS — crochet fermé.'
