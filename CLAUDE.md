@@ -175,6 +175,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Une copie d'écran jointe est FACULTATIVE, et tout le reste en découle.**
 - **Un signalement d'élève est du texte libre tapé par un mineur, et le rejeu se fait sous le compte du professeur.**
 - **Le professeur RÉPOND à un signalement, et c'est la lecture qu'il a fallu renverser.**
+- **Le professeur revient aux signalements, à la hauteur où il les avait quittés.**
 - **La case où l'élève ÉCRIT ne se colore pas.**
 - **La case rouge propose de COMPRENDRE l'erreur — et l'explication ne part que sur un clic.**
 - **Puis la bulle est venue À CÔTÉ de la case, une flèche pointée sur elle.**

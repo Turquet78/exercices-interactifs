@@ -2736,6 +2736,88 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 septies quinquies bis. le retour aux signalements ===== */
+    /* Demande de Turquet (octobre 2026) : après « Rejouer l'écran » ou « Voir
+       la copie d'écran », le professeur revient à la liste des signalements, à
+       la hauteur où il l'avait quittée. Pendant un rejeu, il n'avait AUCUNE
+       sortie — la barre du bas est celle de l'élève, cachée sans élève
+       connecté — et la copie d'écran se dépliait dans la carte, sans geste de
+       sortie, en poussant toute la liste.
+
+       DEUX BORDS POUR CHAQUE GESTE, et le premier empêche le second d'être
+       creux : la liste doit avoir été DÉFILÉE avant (une hauteur 0 « rendue »
+       à 0 ne prouve rien), et le rejeu doit avoir réellement ouvert un écran
+       d'exercice (un rejeu refusé laisse la page sur la liste, et le retour
+       paraîtrait parfait). */
+    titre('6 septies quinquies bis. LE PROFESSEUR REVIENT AUX SIGNALEMENTS, AU MÊME ENDROIT');
+    if(!/function retourSignalements\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('le professeur revient aux signalements au même endroit', 'ce niveau n\'a pas retourSignalements()');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('le professeur revient aux signalements au même endroit', 'connexion impossible — rien à mesurer');
+      } else {
+        /* un instantané RÉEL : l'exercice témoin lancé par l'élève connecté */
+        await s.page.evaluate(id => openTest(id), P.navigateur.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(600);
+        const m = await s.page.evaluate(async exo => {
+          const attendre = ms => new Promise(r => setTimeout(r, ms));
+          const res = {};
+          const instantane = JSON.parse(JSON.stringify(test));
+          currentEleve = null;                     /* le professeur rejoue sous SON compte */
+          const lignes = [];
+          for(let i = 0; i < 15; i++) lignes.push({ id: 's' + i, created_at: '2026-08-01T10:00:00Z',
+            eleve_id: 'e', exercice: exo, numero: '1.1', mode: 'train', message: 'signalement ' + i,
+            contexte: i === 9 ? instantane : null, capture: i === 12 ? 'c/ecran.jpg' : null });
+          window.__faux.tables[TABLE_SIG] = lignes;
+          show('teacher'); teacherTab('signalements'); await attendre(400);
+          const ecran = () => (document.querySelector('.screen.on') || {}).id || '';
+          const b = document.getElementById('sigRetourBtn');
+          const visible = el => !!el && el.getBoundingClientRect().width > 0;
+          /* 1. rejouer, puis revenir */
+          window.scrollTo({ top: 1500, behavior: 'instant' }); await attendre(150);
+          res.yAvant = window.scrollY;
+          rejouerSignalement('s9'); await attendre(500);
+          res.ecranRejeu = ecran(); res.bouton = visible(b);
+          if(b) b.click(); await attendre(500);
+          res.ecranApres = ecran();
+          res.onglet = (document.querySelector('.tab.on') || {dataset:{}}).dataset.tab;
+          res.yApres = window.scrollY; res.rejeu = REJEU; res.boutonApres = visible(b);
+          /* 2. la copie d'écran : ouverte par-dessus, la liste ne bouge pas */
+          window.scrollTo({ top: 1200, behavior: 'instant' }); await attendre(150);
+          res.yCapAvant = window.scrollY;
+          sb.storage.from = () => ({ createSignedUrl: async () =>
+            ({ data: { signedUrl: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=' }, error: null }) });
+          await voirCaptureSignalement('s12'); await attendre(150);
+          res.capOuverte = visible(document.querySelector('#sigCapModal .sig-capcard img'));
+          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); await attendre(150);
+          res.capFermee = !visible(document.getElementById('sigCapModal'));
+          res.yCapApres = window.scrollY;
+          return res;
+        }, P.navigateur.exercice);
+
+        verifier('la liste des signalements a bien été défilée avant de la quitter',
+          m.yAvant > 300 && m.yCapAvant > 300,
+          'hauteur avant : ' + m.yAvant + ' / ' + m.yCapAvant + ' px — la liste est trop courte, rien ne se mesure');
+        verifier('« Rejouer l\'écran » ouvre un écran d\'exercice, avec un bouton de retour visible',
+          m.ecranRejeu && m.ecranRejeu !== 'scr-teacher' && m.bouton,
+          'écran : ' + m.ecranRejeu + ' — bouton visible : ' + m.bouton);
+        verifier('le retour rouvre l\'onglet Signalements, à la même hauteur',
+          m.ecranApres === 'scr-teacher' && m.onglet === 'signalements' && Math.abs(m.yApres - m.yAvant) <= 2,
+          'écran : ' + m.ecranApres + ', onglet : ' + m.onglet + ', hauteur ' + m.yApres + ' px au lieu de ' + m.yAvant);
+        verifier('après le retour, le verrou du rejeu est levé et le bouton a disparu',
+          m.rejeu === false && !m.boutonApres, 'REJEU : ' + m.rejeu + ' — bouton visible : ' + m.boutonApres);
+        verifier('la copie d\'écran s\'ouvre, puis se referme sans que la liste bouge',
+          m.capOuverte && m.capFermee && Math.abs(m.yCapApres - m.yCapAvant) <= 2,
+          'ouverte : ' + m.capOuverte + ', refermée : ' + m.capFermee + ', hauteur ' + m.yCapApres + ' px au lieu de ' + m.yCapAvant);
+        verifier('le retour aux signalements n\'a levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 septies sexies. la case où l'élève écrit ne se colore pas ===== */
     /* Décision de Turquet (août 2026) : en SOUTIEN, une case ne devient ni rouge
        ni bleue tant que l'élève y écrit. Elle attend qu'il la QUITTE — case

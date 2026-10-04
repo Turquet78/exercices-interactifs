@@ -449,8 +449,17 @@
   .sig-apercu img{max-width:100%;max-height:220px;border:1.5px solid var(--line);border-radius:10px}
   /* Côté professeur : la capture s'affiche DANS la carte, jamais dans un onglet
      ouvert après une attente — Chrome le bloquerait comme une fenêtre surgissante. */
-  .sig-capture{margin-top:8px}
-  .sig-capture img{max-width:100%;border:1.5px solid var(--line);border-radius:10px;display:block}
+  /* La copie d'écran d'un signalement s'ouvre PAR-DESSUS la liste : la liste
+     ne bouge pas, et la refermer rend le professeur là où il était. */
+  .sig-capcard{max-width:min(1100px,96vw);max-height:92vh;overscroll-behavior:contain}
+  .sig-capcard img{max-width:100%;border:1.5px solid var(--line);border-radius:10px;display:block}
+  /* « Retour aux signalements » pendant un écran rejoué : la barre du bas est
+     celle de l'élève, cachée sans élève connecté — c'était la seule sortie. */
+  #sigRetourBtn{position:fixed;left:16px;bottom:16px;z-index:61;border:none;cursor:pointer;
+    font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;padding:11px 16px;border-radius:30px;
+    background:var(--blue);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+  #sigRetourBtn[hidden]{display:none}
+  body.pave-actif #sigRetourBtn,body.clavier-ouvert #sigRetourBtn{top:8px;bottom:auto;left:8px;padding:7px 12px;font-size:.85rem}
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
   .mp-feedback .fb-ok{color:var(--green);font-weight:600}
@@ -5414,6 +5423,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 <div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()" title="Signaler un problème" aria-label="Signaler un problème">⚑ <span class="tc-long">Signaler un problème</span><span class="tc-court">Signaler</span></button><button id="abandonBtn" onclick="abandonTest()" title="Abandonner" aria-label="Abandonner">✕ <span class="tc-court">Abandonner</span><span class="tc-long">Abandonner</span></button><button id="pauseBtn" onclick="pauseTest()" title="Mettre en pause" aria-label="Mettre en pause">⏸ <span class="tc-long">Mettre en pause</span><span class="tc-court">Pause</span></button></div>
 
 <!-- SIGNALER UN PROBLÈME (élève) -->
+<!-- COPIE D'ÉCRAN D'UN SIGNALEMENT (professeur) -->
+<div id="sigCapModal" class="notes-modal" hidden onclick="if(event.target===this)fermerCaptureSignalement()">
+  <div class="card notes-card sig-capcard">
+    <div class="notes-head">
+      <h3 id="sigCapTitre">Copie d’écran</h3>
+      <button class="btn btn-primary btn-sm" onclick="fermerCaptureSignalement()">← Retour aux signalements</button>
+    </div>
+    <div id="sigCapCorps"></div>
+  </div>
+</div>
+<button id="sigRetourBtn" hidden onclick="retourSignalements()">← Retour aux signalements</button>
+
 <div id="sigModal" class="notes-modal" hidden onclick="if(event.target===this)fermerSignalement()">
   <div class="card notes-card">
     <div class="notes-head">
@@ -9384,6 +9405,7 @@ function show(name){
   }else if(name==='teacher'){
     pill.hidden=false; pill.innerHTML=`Professeur <button onclick="quitToHome()">Quitter</button>`;
   }else{ pill.hidden=true; }
+  majRetourSignalements(name);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 /* Oublier currentEleve ne suffit plus : la session Supabase survit au
@@ -9963,7 +9985,6 @@ function renderSignalements(){
         <button class="btn btn-sm btn-ghost" onclick="repondreSignalement('${escJS(r.id)}')">${r.reponse?'Modifier ma réponse':'Répondre'}</button>
         <button class="btn btn-sm btn-ghost" onclick="supprimerSignalement('${escJS(r.id)}')">Supprimer</button>
       </div>
-      <div class="sig-capture" id="sigCap-${escJS(r.id)}"></div>
       <div class="sig-repzone" id="sigRep-${escJS(r.id)}"></div>
     </div>`;
   }).join('');
@@ -9991,22 +10012,32 @@ async function marquerSignalementLu(id){
 }
 
 
-/* La capture s'affiche DANS la carte, pas dans un onglet : window.open() appelé
+/* La capture s'affiche dans la PAGE, pas dans un onglet : window.open() appelé
    APRÈS une attente est bloqué par Chrome comme une fenêtre surgissante — c'est
-   le piège qui avait déjà mordu sur les cours en PDF. Ici il n'y a pas d'onglet
-   à ouvrir, donc pas de piège. Le bucket est privé : l'adresse est SIGNÉE, et
-   ne vaut qu'une heure. */
+   le piège qui avait déjà mordu sur les cours en PDF. Le bucket est privé :
+   l'adresse est SIGNÉE, et ne vaut qu'une heure.
+   Elle s'ouvre PAR-DESSUS la liste (demande de Turquet, octobre 2026 : « quand
+   je quitte, revenir à la page de signalement, au même niveau »). Dépliée dans
+   la carte, elle poussait toute la liste vers le bas et n'avait aucun geste de
+   sortie ; posée au-dessus, la liste ne bouge pas, et « Retour aux
+   signalements » (ou Échap, ou un clic à côté) rend l'endroit exact. */
 async function voirCaptureSignalement(id){
   const r=mesSignalements.find(x=>x.id===id); if(!r||!r.capture) return;
-  const hote=$('sigCap-'+id); if(!hote) return;
-  if(hote.dataset.ouvert==='1'){ hote.innerHTML=''; hote.dataset.ouvert=''; return; }
-  hote.innerHTML='<p class="muted">Ouverture\u2026</p>'; hote.dataset.ouvert='1';
+  const vue=$('sigCapModal'), hote=$('sigCapCorps'); if(!vue||!hote) return;
+  $('sigCapTitre').textContent='Copie d\u2019\u00e9cran \u2014 '+(r.prenom||'\u00e9l\u00e8ve');
+  hote.innerHTML='<p class="muted">Ouverture\u2026</p>'; vue.hidden=false;
   let url='', err=null;
   try{ const s=await sb.storage.from(SIG_BUCKET).createSignedUrl(r.capture,3600);
        err=s.error; url=(s.data&&s.data.signedUrl)||''; }catch(e){ err=e; }
+  if(vue.hidden) return;                       /* refermée pendant l'attente */
   if(err||!url){ hote.innerHTML='<p class="muted">Cette copie d\u2019\u00e9cran n\u2019a pas pu \u00eatre ouverte.</p>'; return; }
   hote.innerHTML='<img src="'+esc(url)+'" alt="copie d\u2019\u00e9cran de l\u2019\u00e9l\u00e8ve">';
 }
+function fermerCaptureSignalement(){
+  const vue=$('sigCapModal'); if(!vue||vue.hidden) return;
+  vue.hidden=true; $('sigCapCorps').innerHTML='';
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') fermerCaptureSignalement(); });
 async function supprimerSignalement(id){
   if(!confirm('Supprimer ce signalement ?')) return;
   /* La capture part AVEC lui : gardée, elle serait invisible et décomptée du
@@ -10029,6 +10060,39 @@ async function supprimerSignalement(id){
   }catch(e){ toast('Non supprimé (connexion)','err'); }
 }
 
+/* ---------- Revenir aux signalements, au même endroit ----------
+   Demande de Turquet (octobre 2026) : après avoir rejoué un écran, le
+   professeur revient à la liste des signalements, à la hauteur où il l'avait
+   quittée. Il n'avait AUCUNE sortie : la barre du bas (pause, abandon) est
+   celle de l'élève, cachée sans élève connecté — seul un rechargement le
+   ramenait, en haut du « Suivi de la classe », la liste à refaire défiler.
+   La position est retenue AU CLIC, et un bouton fixe la rend depuis n'importe
+   quel écran où le rejeu a mené (résultats, « Autre exercice »…).
+   La liste n'est PAS relue au retour : relue, elle passerait par
+   « Chargement… », vide, et la hauteur retenue ne voudrait plus rien dire.
+   « var » et non « let » : show() lit cette variable, et show() tourne dès le
+   démarrage — un let pas encore atteint y lèverait une erreur. */
+var sigRetour=null;
+function retenirSignalements(id){ sigRetour={ id:id, y:window.scrollY||0 }; }
+function majRetourSignalements(ecran){
+  const b=$('sigRetourBtn'); if(b) b.hidden=!(sigRetour && ecran!=='teacher');
+}
+function retourSignalements(){
+  const m=sigRetour; sigRetour=null; REJEU=false;
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  show('teacher');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab==='signalements'));
+  document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
+  $('pane-signalements').classList.add('on');
+  renderSignalements();
+  /* show() vient de lancer un défilement DOUX vers le haut : un défilement
+     immédiat l'annule, et on le redit à l'image suivante, le temps que la
+     liste ait sa hauteur. */
+  const y=m?m.y:0;
+  window.scrollTo({top:y,behavior:'instant'});
+  requestAnimationFrame(()=>window.scrollTo({top:y,behavior:'instant'}));
+}
+
 /* ---------- Rejouer l'écran signalé ----------
    Même chemin que la reprise après pause, à deux différences près :
    — REJEU verrouille l'écriture des notes, sur le client lui-même
@@ -10040,6 +10104,7 @@ function rejouerSignalement(id){
   const r=mesSignalements.find(x=>x.id===id);
   if(!r || !r.contexte || !r.contexte.kind){ toast('Cet écran ne peut pas être rejoué','err'); return; }
   const d=r.contexte;
+  retenirSignalements(id);
   REJEU=true;
   currentTestId=r.exercice; currentMode=r.mode||'train'; currentDM=null;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
@@ -10051,7 +10116,7 @@ function rejouerSignalement(id){
      Un rendu lancé avant rehydrateQuestions() échoue sur un exercice à graphe,
      et ce sont précisément ceux-là qu'on signale. */
   try{ rehydrateQuestions(); }catch(e){}
-  if(!afficherEcranDe(test.kind)){ REJEU=false; toast('Cet exercice ne sait pas être rejoué','err'); return; }
+  if(!afficherEcranDe(test.kind)){ REJEU=false; sigRetour=null; majRetourSignalements('teacher'); toast('Cet exercice ne sait pas être rejoué','err'); return; }
   const boxes=d._boxes;
   setTimeout(()=>{ try{ restoreBoxes(boxes); }catch(e){} }, 60);
   toast('Écran rejoué — aucune note ne sera enregistrée','ok');

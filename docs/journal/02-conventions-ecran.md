@@ -171,6 +171,51 @@ porte. Treize sabotages en tout, chacun rougissant en nommant son défaut, plus
 deux mutations au banc de la base (la lecture redevenue réservée au professeur,
 et l'élève reçu au droit d'écrire).
 
+**Le professeur revient aux signalements, à la hauteur où il les avait
+quittés.** Demande de Turquet (octobre 2026), sur les trois niveaux : « quand
+je fais rejouer un écran ou voir une copie d'écran, quand je quitte la page, je
+souhaite revenir à la page de signalement précédente au même niveau ». Pendant
+un rejeu, il n'y avait en fait AUCUNE sortie : la barre du bas (pause, abandon)
+est celle de l'élève, et `show()` la cache sans élève connecté — seul un
+rechargement ramenait le professeur, en haut du « Suivi de la classe », la
+liste à refaire défiler depuis le début. Et le verrou `REJEU` restait posé
+jusque-là, aucun chemin ne le levant.
+
+Trois gestes, dans les trois fichiers :
+
+* **`rejouerSignalement()` retient la position AU CLIC** (`retenirSignalements`),
+  et un bouton fixe « ← Retour aux signalements » (`#sigRetourBtn`, en bas à
+  gauche — la droite est aux commandes de l'élève) reste visible sur TOUT écran
+  autre que celui du professeur : le rejeu peut mener aux résultats, puis à
+  « Autre exercice », et la sortie doit suivre. `show()` règle sa visibilité,
+  comme il règle celle de la barre de l'élève.
+* **`retourSignalements()` ne relit PAS la base.** Relue, la liste passerait par
+  « Chargement… », vide, et la hauteur retenue tomberait sur une page sans
+  hauteur. Elle se redessine depuis `mesSignalements`, et le défilement se pose
+  en `instant` — `show()` vient de lancer un défilement DOUX vers le haut,
+  qu'un défilement immédiat annule ; on le redit à l'image suivante. Le retour
+  lève `REJEU`.
+* **La copie d'écran s'ouvre PAR-DESSUS la liste** (`#sigCapModal`, la famille
+  `.notes-modal`), et non plus dépliée dans la carte : dépliée, elle poussait
+  toute la liste vers le bas et n'avait aucun geste de sortie. Posée au-dessus,
+  la liste ne bouge pas ; « Retour aux signalements », Échap ou un clic à côté
+  la referment. `overscroll-behavior:contain` empêche la molette, arrivée au
+  bout de l'image, de faire défiler la liste dessous.
+
+En Terminale, « Voir l'énoncé complet » d'un devoir sur papier passe par le même
+verrou et le même écran-photo : son bouton dit maintenant « Retour aux
+signalements » et y ramène au même endroit (`dmeRetour()` sans contexte
+d'élève) ; le bouton flottant s'y efface, l'écran ayant déjà le sien.
+
+`var sigRetour` et non `let` : `show()` le lit, et `show()` tourne dès le
+démarrage — un `let` pas encore atteint y lèverait une erreur.
+
+Le banc navigateur le tient (« 6 septies quinquies bis ») sur les trois niveaux,
+avec un instantané RÉEL de l'exercice témoin, et ses deux bords préalables : la
+liste doit avoir été DÉFILÉE avant (une hauteur 0 rendue à 0 ne prouve rien), et
+le rejeu doit avoir réellement ouvert un écran d'exercice (un rejeu refusé
+laisse la page sur la liste, et le retour y paraîtrait parfait).
+
 **La case où l'élève ÉCRIT ne se colore pas.** Décision de Turquet (août
 2026) : en SOUTIEN, une case ne devient ni rouge ni bleue tant qu'il y écrit.
 Elle attend qu'il la QUITTE — case suivante, clic ailleurs — ou qu'il vérifie.
