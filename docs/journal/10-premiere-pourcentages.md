@@ -4056,3 +4056,69 @@ qui gagnerait une case demain est gardé sans rien déclarer. Les couleurs de
 la vérification ne se gardent pas — le schéma revient neutre, sans
 vert ni rouge, jusqu'à la prochaine vérification. Le contrôle `t3` remplit une
 case, revient, redemande l'aide et la retrouve.
+
+## {pourcentages-problemes} — des PROBLÈMES de pourcentages, rédigés (Seconde, 4.5.10, octobre 2026)
+
+**D'où il vient.** Demande de Turquet, une fiche papier de perfectionnement
+jointe : « en seconde fais un exercice comme le 4.5.9 de synthèse avec des
+énoncés un peu plus complexes comme sur le pdf joint ». La fiche : une veste
+augmentée de 20 %, la remise d'une casquette (prix payé et ancien prix, ou
+réduction en euros), un sweat-shirt HT et TTC, l'ancien prix d'une chemise
+soldée, des proportions de proportions (60 % de garçons dont 15 %… ; 40 % de
+filles et, parmi les garçons, 30 %…), le taux d'évolution d'un salaire et
+d'un nombre de buts, la cantine (fréquentation en baisse ET tarif en hausse),
+la population de Rennes (une hausse, puis deux de suite). Kind « ppb », écran
+`scr-ppb`, ajouté EN DERNIER dans 4.5 : rien n'est renuméroté.
+
+**Quatre familles, treize situations.** `val` (une valeur après une
+évolution : hausse, ancien prix, cantine, population), `pct` (un pourcentage
+d'évolution : remise depuis le prix payé, réduction en euros, taxe HT/TTC,
+taux d'évolution entre deux nombres), `prop` (produit de proportions,
+complément « 40 % de filles » à convertir en garçons, quotient pour remonter
+à la proportion intérieure), `deux` (deux évolutions de suite, TVA puis
+remise ou deux évolutions sur un prix, prix de départ avant deux
+évolutions). Une question par famille et par séance, en ordre mélangé ; un
+devoir qui allonge fait tourner les situations de chaque famille — à 16
+questions, toutes sortent (le contrôle le mesure). **Tout tombe juste** : les
+prix sont tirés en CENTIMES, les populations en dixièmes de pour cent, et
+chaque condition de divisibilité est posée au tirage (`c*(100+P)%100===0`…) —
+aucun flottant n'entre dans un calcul. La cantine et la population donnent
+une donnée QUI NE SERT PAS (le tarif quand on demande les élèves, une autre
+année) : c'est la complexité demandée.
+
+**Le juge est celui du 4.5.9**, à qui l'on passe désormais la CIBLE :
+`sprJuge(q, texte, cible)`, la cible par défaut restant `sprCible(q)` — le
+4.5.9 ne voit aucune différence (un contrôle le dit). La cible du 4.5.10
+(`ppbCible`) est en rationnels exacts `{n,d}` puisque ses réponses ont des
+centimes (50,40 €) ou une décimale (5,5 %) ; elle porte `signeExige` (taux
+d'évolution, deux évolutions : l'énoncé ne dit pas le sens) ou `signeLibre`
+(remise, taxe : l'énoncé le dit, un signe faux reste refusé), et sa propre
+consigne.
+
+**Une copie de problème écrit des unités et des mots** : « 42 × 1,2 =
+50,40 € », « 39,52 ÷ 52 = 0,76 soit 24 % », « 546 ÷ 0,91 = 600 élèves ».
+Le lecteur du 4.5.9 tenait de telles lignes pour des commentaires — la copie
+juste était refusée. `ppbTexte` retire « € » et COUPE LA LIGNE à chaque mot :
+un mot n'est jamais un nombre, et « soit » sépare naturellement le calcul de
+sa conclusion. Un « x » tapé au clavier entre deux nombres redevient « × »
+avant la coupe, sans quoi « 42x1,2 » se serait lu « 42 » puis « 1,2 ».
+
+**« Aide schéma » ne peut PAS emprunter les schémas du 4.5.9** : leurs cases
+se lisent par `parseInt`, et ces problèmes ont des centimes. L'aide DESSINE
+le schéma en boîtes de la question (`ppbSchema` → `ppbSchemaHTML`, les
+classes `.pctb-*` du 4.1.8), données écrites, inconnue en « ? », coefficient
+sous la flèche — ou « × ? » quand c'est lui qu'on cherche. La rédaction reste
+en place dessous ; le bouton bascule « Masquer le schéma ». Le choix est rangé
+dans `q.aide` (une pause le reprend), et `q.vu` retient qu'il a été ouvert :
+la réponse est marquée « [schéma] » pour le professeur, et vaut le même point.
+
+**Ce qui est mesuré.** `problemesPourcentages` (banc principal) : le tirage
+et la rotation ; **la solution que la page écrit après un échec passe son
+propre juge**, sur 60 tirages de chacune des treize situations — et la même
+copie au résultat faussé d'une unité est refusée (c'est ce bord qui garantit
+qu'aucune situation ne pose une question à laquelle le juge ne sait pas dire
+oui) ; 26 copies épinglées (unités, mots, « x », signe exigé ou facultatif,
+voie « augmentation puis addition » refusée comme au 4.5.9, donnée inutile
+employée) ; l'aide (dessinée, reprise, masquée, « [schéma] »). **Ce qui ne
+l'est pas** : comme au 4.5.9, rien ne frappe une copie dans une vraie
+MathLive — les copies épinglées sont écrites comme `toPlain` les rend.

@@ -94,7 +94,7 @@ const RAPPELS_SECONDE = `(function(){
                'augmenter-depart':'augq','augmenter-taux':'augq','diminuer-depart':'augq','diminuer-taux':'augq',
                'fraction-pourcentage':'fp','pourcentage-colonnes':'pcol','augmenter-addition':'ag2','diminuer-soustraction':'ag2',
                'augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q',
-               'synthese-pourcentages':'psyn','synthese-augmentations':'psyn','synthese-diminutions':'psyn','synthese-evolutions':'evb','evolutions-successives':'evs','schema-evolution':'sev','evolutions-successives-coef':'evc','evolutions-successives-phrases':'evp','synthese-pourcentages-redigee':'spr',
+               'synthese-pourcentages':'psyn','synthese-augmentations':'psyn','synthese-diminutions':'psyn','synthese-evolutions':'evb','evolutions-successives':'evs','schema-evolution':'sev','evolutions-successives-coef':'evc','evolutions-successives-phrases':'evp','synthese-pourcentages-redigee':'spr','pourcentages-problemes':'ppb',
                'synthese-pourcentages-libre':'sal','synthese-augmentations-libre':'sal','synthese-diminutions-libre':'sal',
                'baisses-successives':'bs','lire-coefficient':'lc','tableau-coefficients':'tc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd',
                'reconnaitre-coefficient':'ck','associer-coefficient':'ac',
@@ -857,7 +857,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'prc', 'pkg', 'pbl', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'prc', 'pkg', 'pbl', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph', 'ppb'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
