@@ -31369,7 +31369,7 @@ function evolutionsSuccessivesCoef(w, P){
 function syntheseRedigee(w, P){
   const t1='{synthese-pourcentages-redigee} : une question par schéma, toutes les inconnues tournent, identité tenue';
   const t2='{synthese-pourcentages-redigee} : le juge exige une multiplication ou une division qui donne la réponse';
-  const t3='{synthese-pourcentages-redigee} : « Aide schéma » emprunte le schéma de l\'exercice d\'origine, puis le rend ; « Revenir à la rédaction » le quitte tant qu\'il n\'a pas jugé';
+  const t3='{synthese-pourcentages-redigee} : « Aide schéma » emprunte le schéma de l\'exercice d\'origine, puis le rend ; « Revenir à la rédaction » le quitte tant qu\'il n\'a pas jugé, et le schéma rempli est retrouvé';
   const t4='{synthese-pourcentages-redigee} : l\'aide schéma pose les cadres du 4.1.13 sur les boîtes et dans l\'énoncé, les exercices d\'origine n\'en ont pas';
   const present = evaluer(w, "typeof startSpr==='function'");
   if(!present.ok || !present.valeur){
@@ -31456,13 +31456,16 @@ function syntheseRedigee(w, P){
     /* l'aller-retour : le schéma rendu, la rédaction revenue, puis l'aide redemandée */
     if(typeof sprRedaction!=='function') vus.push('pas de sprRedaction');
     else {
+      if(document.getElementById('pctbN')) document.getElementById('pctbN').value='800';
       sprRedaction();
+      if(!test.questions[0].schema || test.questions[0].schema.pctbN!=='800') vus.push('le schéma rempli n’est pas rangé au retour ('+JSON.stringify(test.questions[0].schema)+')');
       if(test.questions[0].aide) vus.push('« Revenir à la rédaction » laisse l’aide posée');
       if(!dans('pctbHost','scr-pctb')) vus.push('« Revenir à la rédaction » ne rend pas la zone du 4.1.8');
       if(!document.getElementById('sprSheet') || document.getElementById('sprRed').hidden || !document.getElementById('sprSch').hidden) vus.push('« Revenir à la rédaction » ne remontre pas la feuille');
       if(!document.getElementById('sprAide')) vus.push('après le retour, plus de bouton « Aide schéma »');
       sprAideSchema();
       if(!test.questions[0].aide || !dans('pctbHost','scr-spr')) vus.push('l’aide redemandée après le retour ne revient pas');
+      if(!document.getElementById('pctbN') || document.getElementById('pctbN').value!=='800') vus.push('l’aide redemandée ne retrouve pas le schéma rempli');
       const ordre=document.getElementById('sprSch').lastElementChild;
       if(!ordre || ordre.id!=='sprRetourRow') vus.push('la rangée du retour n’est plus sous la zone empruntée');
     }

@@ -4034,8 +4034,8 @@ feuille. La rangée est le DERNIER enfant de `#sprSch` — `sprEmprunter` insèr
 la zone avant elle, et `sprRestituer` ne la déplace pas puisqu'elle n'est pas
 empruntée. **La rédaction commencée n'est pas perdue** : `sprAideSchema` range
 ses lignes en LaTeX dans `q.brouillon` (du JSON, donc une pause la garde), et
-`renderSpr` les récrit dans la feuille au retour. Le schéma rempli, lui, ne se
-garde pas : l'aide redemandée repart d'un schéma vide. **Le retour se ferme
+`renderSpr` les récrit dans la feuille au retour. Le schéma rempli ne se
+gardait pas d'abord (l'aide redemandée repartait vide) — voir plus bas. **Le retour se ferme
 dès que le schéma a donné son verdict** : `sprRedaction` ne fait rien quand
 `test.locked`, et la rangée disparaît par CSS dès qu'un bouton « …Next » est
 dans `#sprSch` (`:has`). En soutien, un schéma faux ne verrouille pas
@@ -4045,8 +4045,20 @@ l'aller-retour (zone rendue, feuille remontrée, aide redemandée, rangée sous 
 zone) et vérifie que le retour est refusé après le verdict du schéma ; rien ne
 mesure la feuille récrite, que jsdom ne sait pas lire (pas de MathLive).
 
+**Puis le schéma rempli s'est GARDÉ, lui aussi** (octobre 2026, v288). Demande
+de Turquet : « garde aussi le schéma rempli quand l'élève revient ».
+`sprRedaction` lit, avant de rendre la zone, chaque case du schéma emprunté
+par son identifiant (`sprSchemaLire` : `math-field` en LaTeX par `getValue`,
+champ ou liste par `value`) et range l'objet dans `q.schema` ; `renderSpr`,
+après le rendu de l'exercice d'origine, les récrit (`sprSchemaRecrire`). La
+lecture passe par `querySelectorAll` sur le `…Host` de la source : un schéma
+qui gagnerait une case demain est gardé sans rien déclarer. Les couleurs de
+la vérification ne se gardent pas — le schéma revient neutre, sans
+vert ni rouge, jusqu'à la prochaine vérification. Le contrôle `t3` remplit une
+case, revient, redemande l'aide et la retrouve.
+
 **Puis les CADRES du 4.1.13 dans l'aide schéma** (octobre 2026,
-`APP_VERSION` 288). Demande de Turquet : « dans le 4.5.9, quand un élève
+`APP_VERSION` 289). Demande de Turquet : « dans le 4.5.9, quand un élève
 demande le schéma, faire en plus des cadres comme dans l'exercice 4.1.13 sur
 le schéma et dans l'énoncé ». Les mêmes `.cdr` (bleu plein, rouge tirets,
 vert pointillés), dans l'ordre des boîtes de gauche à droite, et dans
