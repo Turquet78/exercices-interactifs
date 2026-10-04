@@ -19001,7 +19001,7 @@ function equationGraphique(w, P){
         if(!permOk(q0.permG,['dp','dv','gp','gv'])) vus.push('permG n\\'est pas une permutation des quatre demi-droites');
         const rb=q0.permE.indexOf('bon'); rangsBonN[rb]=(rangsBonN[rb]||0)+1;
         noteRang(rangsParForme, eqgFormeIneq(qs[7]), q0.permI.indexOf(eqgFormeIneq(qs[7])));
-        noteRang(rangsParForme, eqgFormeInFk(qs[3]), q0.permI.indexOf(eqgFormeInFk(qs[3])));
+        noteRang(rangsParForme, eqgFormeInFk(qs[3]), eqgPerm(qs[3]).indexOf(eqgFormeInFk(qs[3])));
         noteRang(rangsParFormeG, eqgFormeInGk(qs[5]), q0.permG.indexOf(eqgFormeInGk(qs[5])));
       }
       dessins.add(JSON.stringify([q0.pts,q0.s,q0.c])); opsVus.add(q0.op); opsFVus.add(q0.opf); opsGVus.add(q0.opg);
