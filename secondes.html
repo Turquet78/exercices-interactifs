@@ -1439,7 +1439,14 @@
 #qdbHost .f-times{font-size:.8rem}
 #qdbHost math-field.pm-mf{font-size:.85rem;min-width:30px;max-width:46px;padding:2px 2px}
 #qdbHost .sf-l .f-num,#qdbHost .sf-l .f-den{width:46px}
-#qdbHost .sf-l math-field.qdb-mult{width:26px;min-width:26px}
+/* Le multiplicateur du croisement : 26 px tant qu'il porte UN chiffre (la
+   rangée tient dans son budget), mais la case GRANDIT avec ce que l'élève a
+   écrit, jusqu'au plafond des autres cases. Figée à 26 px, elle montrait
+   « 3 » quand elle contenait « 33 » : la paire rougissait, la correction
+   verte disait « 3 », et l'élève lisait un juge qui se trompe (signalé par
+   Turquet, octobre 2026, sur le 5.15). Une case montre TOUT ce qu'elle
+   contient. */
+#qdbHost .sf-l math-field.qdb-mult{width:auto;min-width:26px;max-width:46px}
 #qdbHost math-field#qdb-fn{min-width:56px;max-width:56px}
 /* Descendant, et non plus enfant direct : les fractions littérales de
    l'énoncé vivent maintenant DANS la parenthèse (.f-pgrp, via fParen), où
@@ -5488,7 +5495,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=292;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=293;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
