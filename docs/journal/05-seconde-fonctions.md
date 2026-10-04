@@ -394,6 +394,30 @@ d'abord volait la seule hauteur lisible sur g. Le tirage fait 4 000 essais
 repli au pluriel, un second au singulier — passent par les mêmes gardes que
 le tirage. Éprouvé par les sabotages nommés du contrôle réécrit.
 
+**Puis f(x) signe k s'est montré EN LIGNE sans aucune bonne carte — la
+tangence, que le 2.7 avait vue avant son premier contrôle, et que le 2.5 a
+reprise sans elle.** Signalé par Turquet (octobre 2026, capture : « Résoudre
+f(x) ≥ 2 », il n'y a pas le bon dessin) : k = 2 TOUCHAIT un sommet de f en
+x = −2 sans le traverser. f(x) = k restait juste — deux solutions, c'est vrai
+— mais l'inéquation n'est plus « entre » ni « dehors » : S = {−2} ∪ [x2 ; 3],
+et les quatre coloriages mentaient tous. Le contrôle du tirage ne relisait
+que les solutions de f(x) = k ; et le tirage ÉPINGLÉ du contrôle (le repli,
+k = −2 au sommet x = 2) avait GRAVÉ la réponse fausse : « S = [−2 ; 2] ».
+Écarter les sommets n'était pas possible : énuméré, le dessin n'offre que 32
+tirages viables, et k touche un sommet dans 28 — il en restait 4, tous au
+singulier pour ka. Ce qui est fait à la place : quand k touche un sommet, le
+signe de l'inéquation est tiré parmi les DEUX qui rangent le sommet du côté
+de ses voisins (sommet par-dessous : > ou ≤ ; par-dessus : ≥ ou <), et S est
+alors une DEMI-DROITE depuis le croisement — les quatre cartes de g(x) signe
+kg (permG, côté × marque), portées par la courbe, le sommet sans marque, une
+seule case d'intervalle, et la correction qui NOMME le sommet. Au moins un
+croisement est exigé (deux sommets laisseraient S vide ou partout). **Le
+contrôle recalcule désormais S POINT PAR POINT** — aux graduations et à
+mi-chemin, où la courbe monotone a le côté de la graduation hors de la
+hauteur k — et le compare aux cases attendues par la page, quel que soit le
+signe : c'est lui qui aurait vu la panne, et il exige que les quatre signes
+sortent au sommet sur 300 séances.
+
 **Deux courbes, chacune sur SON domaine — et le garde-fou d'échantillonnage
 est VIVANT cette fois.** {lecture-deux-courbes} (Seconde, 2.6, demande de
 Turquet, août 2026) est repris de la fiche « images et antécédents avec f et
