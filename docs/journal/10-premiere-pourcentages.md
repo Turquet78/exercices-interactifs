@@ -4024,3 +4024,23 @@ reprise). Le banc navigateur ouvre l'écran avec tous les autres (contrôles
 universels) ; rien n'y frappe une copie dans une vraie MathLive — c'est
 `toPlain` qui fournit au juge le texte qu'il lit, et les copies épinglées
 sont écrites sous cette forme (« 360\div0.45=800 », « 45\% »).
+
+**Puis le RETOUR à la rédaction** (octobre 2026). Demande de Turquet :
+« il faut que l'élève puisse revenir à la version rédigée sans schéma s'il le
+souhaite pour réaliser l'exercice ». Sous la zone empruntée, une rangée fixe de
+`#sprSch` porte « ✍️ Revenir à la rédaction » (`sprRedaction`) : `q.aide`
+repasse à faux, `renderSpr` rend la zone à son écran d'origine et remontre la
+feuille. La rangée est le DERNIER enfant de `#sprSch` — `sprEmprunter` insère
+la zone avant elle, et `sprRestituer` ne la déplace pas puisqu'elle n'est pas
+empruntée. **La rédaction commencée n'est pas perdue** : `sprAideSchema` range
+ses lignes en LaTeX dans `q.brouillon` (du JSON, donc une pause la garde), et
+`renderSpr` les récrit dans la feuille au retour. Le schéma rempli, lui, ne se
+garde pas : l'aide redemandée repart d'un schéma vide. **Le retour se ferme
+dès que le schéma a donné son verdict** : `sprRedaction` ne fait rien quand
+`test.locked`, et la rangée disparaît par CSS dès qu'un bouton « …Next » est
+dans `#sprSch` (`:has`). En soutien, un schéma faux ne verrouille pas
+(« Revérifier ») : le retour reste offert. Une question finie par la rédaction
+après un aller-retour n'est pas marquée « [schéma] ». Le contrôle `t3` fait
+l'aller-retour (zone rendue, feuille remontrée, aide redemandée, rangée sous la
+zone) et vérifie que le retour est refusé après le verdict du schéma ; rien ne
+mesure la feuille récrite, que jsdom ne sait pas lire (pas de MathLive).

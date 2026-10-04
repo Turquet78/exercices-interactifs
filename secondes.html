@@ -1681,6 +1681,8 @@
   .itv-fiche{display:flex;flex-direction:column;gap:12px;align-items:center;width:100%}
   /* Le schéma se pose sur du blanc : le quadrillage de .mp-stage passerait
      derrière la droite graduée, et deux quadrillages se lisent mal. */
+  /* {synthese-pourcentages-redigee} : le retour à la rédaction n'a plus de sens une fois le schéma jugé */
+  #sprSch:has([id$="Next"]) #sprRetourRow{display:none}
   .itv-schema{width:100%;max-width:560px;box-sizing:border-box;background:#fff;border:1.5px solid #DCE7FB;border-radius:14px;padding:8px 6px}
   .itv-schema svg{width:100%;height:auto;display:block}
   .itv-ligne{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;width:100%;max-width:560px;box-sizing:border-box;background:#F7FAFF;border:1.5px solid #DCE7FB;border-radius:14px;padding:10px 14px}
@@ -3896,7 +3898,12 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="sprPrompt">Rédige ta solution.</p>
       <!-- l'aide schéma : la zone de travail de l'exercice d'origine y est EMPRUNTÉE (sprEmprunter) ; elle précède la rédaction, pour que la rangée des jetons se pose devant la zone visible -->
-      <div id="sprSch" hidden></div>
+      <div id="sprSch" hidden>
+        <!-- le chemin du retour : la zone empruntée se pose AVANT cette rangée (sprEmprunter) ; elle s'efface dès que le schéma a donné son verdict (« Question suivante ») -->
+        <div class="row" style="justify-content:center" id="sprRetourRow">
+          <button class="btn btn-ghost" type="button" id="sprRetour" onclick="sprRedaction()">✍️ Revenir à la rédaction</button>
+        </div>
+      </div>
       <div id="sprRed">
         <div class="mp-stage"><div style="width:100%" id="sprHost"></div></div>
         <div class="mp-feedback" id="sprFeedback"></div>
@@ -5436,7 +5443,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=286;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=287;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -25001,7 +25008,8 @@ function sprEmprunter(src){
   const stage=host&&host.closest('.mp-stage');
   if(!stage||!fb||!act) return false;
   [stage,fb,act].forEach(function(el){ sprPret.push({el:el, parent:el.parentNode, suivant:el.nextSibling}); });
-  [stage,fb,act].forEach(function(el){ sch.appendChild(el); });
+  const retour=$('sprRetourRow');
+  [stage,fb,act].forEach(function(el){ sch.insertBefore(el, retour&&retour.parentNode===sch ? retour : null); });
   sch.hidden=false; $('sprRed').hidden=true;
   return true;
 }
@@ -25030,6 +25038,11 @@ function renderSpr(){
        <div class="dexp2-sheet" id="sprSheet"></div>
        <p class="dexp-hint">Écris UN calcul par ligne. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Bloqué&nbsp;? Le bouton <b>Aide schéma</b> reprend la question sur le schéma.</p></div>`;
   sprFeuille=mlFeuille({ conteneur:'sprSheet', mode:'calcul', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
+  /* revenu du schéma : la rédaction commencée avant l'aide est récrite */
+  (Array.isArray(q.brouillon)?q.brouillon.filter(s=>s):[]).forEach(function(s,i){
+    const L=(i===0)?sprFeuille.lignes[0]:sprFeuille.ajouterLigne(); if(!L||!L.mf) return;
+    try{ L.mf.setValue(s); }catch(e){ try{ L.mf.value=s; }catch(_){} }
+  });
 }
 function sprBoutons(revoir){
   $('sprActions').innerHTML=conseilInlineBtn()
@@ -25042,7 +25055,20 @@ function sprBoutons(revoir){
 function sprAideSchema(){
   if(test.locked) return;
   const q=test.questions[test.idx]; if(!q||q.aide) return;
+  /* la rédaction commencée est gardée (en LaTeX, du JSON) : « Revenir à la rédaction » la rend */
+  q.brouillon=(sprFeuille&&Array.isArray(sprFeuille.lignes)?sprFeuille.lignes:[]).map(function(L){
+    try{ return String(L.mf.getValue()||''); }catch(e){ try{ return String(L.mf.value||''); }catch(_){ return ''; } }
+  }).filter(s=>s.trim()!=='');
   q.aide=true; autoSave(); renderSpr();
+}
+/* « Revenir à la rédaction » : l'élève quitte le schéma, tant qu'il n'a pas
+   donné son verdict, et reprend la question rédigée — elle vaut alors comme
+   une question rédigée (pas de marque « [schéma] »). Le schéma rempli ne se
+   garde pas : l'aide redemandée repart d'un schéma vide. */
+function sprRedaction(){
+  if(test.locked || test.kind!=='spr') return;
+  const q=test.questions[test.idx]; if(!q||!q.aide) return;
+  q.aide=false; autoSave(); renderSpr();
 }
 function checkSpr(){
   if(test.locked) return;
