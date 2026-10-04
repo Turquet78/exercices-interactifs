@@ -25473,7 +25473,7 @@ function ppbSchemaHTML(q){
    « 42 × 1,2 = 50,40 € » se lit sans l'euro ; « 0,76 soit 24 % » se coupe
    au mot, en deux lignes : un mot n'est jamais un nombre. */
 function ppbTexte(t){
-  return String(t||'').replace(/(\d)\s*[xX]\s*(?=[\d(])/g,'$1*').replace(/\\div(?![a-zA-Z])/g,'÷').replace(/\\%/g,'%').replace(/\\euro|€/g,'')
+  return String(t||'').replace(/\\(?:times|cdot)(?![a-zA-Z])/g,'*').replace(/(\d)\s*[xX]\s*(?=[\d(])/g,'$1*').replace(/\\div(?![a-zA-Z])/g,'÷').replace(/\\%/g,'%').replace(/\\euro|€/g,'')
     .replace(/\\(?:approx|simeq)(?![a-zA-Z])|≈/g,'=')
     .replace(/[A-Za-zÀ-ÖØ-öø-ÿ’']+/g,'\n');
 }

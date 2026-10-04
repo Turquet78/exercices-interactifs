@@ -31544,7 +31544,8 @@ function problemesPourcentages(w, P){
         const r=ppbJuge(q, sol);
         if(!r.correct){ vus.push(f+' : sa solution « '+sol.replace(/\\n/g,' ⏎ ')+' » est refusée — '+r.phrase); break; }
         /* la même, le résultat de la dernière égalité de la première ligne faussé d'une unité */
-        const faux=sol.replace(/=([0-9.]+)/, function(m,x){ return '='+(parseFloat(x)+1); });
+        const faux=sol.replace(/=\\s*([0-9.]+)/, function(m,x){ return '='+(parseFloat(x)+1); });
+        if(faux===sol){ vus.push(f+' : la copie n’a pas pu être faussée : '+sol); break; }
         const r2=ppbJuge(q, faux);
         if(r2.correct){ vus.push(f+' : la copie faussée « '+faux.replace(/\\n/g,' ⏎ ')+' » est acceptée'); break; }
       }
@@ -31569,7 +31570,7 @@ function problemesPourcentages(w, P){
       [R,'39.52/52=0.76soit24\\\\%',true], [R,'39.52\\\\div52=0.76\\n-24\\\\%',true], [R,'39.52/52=0.76\\n+24\\\\%',false], [R,'39.52/52=0.76',false],
       [R,'(52-39.52)/52=0.24=24\\\\%',true],
       [T,'21/28=0.75\\n-25\\\\%',true], [T,'21/28=0.75\\n25\\\\%',false], [T,'(21-28)/28=-0.25\\n-25\\\\%',true],
-      [X,'21.10/20=1.055\\n5.5\\\\%',true], [X,'21.1/20=1.055=5,5\\\\%',false],
+      [X,'21.10/20=1.055\\n5.5\\\\%',true], [X,'21.1/20=1.055=5,5\\\\%',true], [X,'21.1/20=1.055\\n55\\\\%',false],
       [C,'0.6*0.3=0.18\\n18\\\\%',true], [C,'0.4*0.3=0.12\\n12\\\\%',false], [C,'1-0.4=0.6\\n0.6*0.3=0.18=18\\\\%',true],
       [S,'1.1*1.2=1.32\\n+32\\\\%',true], [S,'1.1*1.2=1.32\\n32\\\\%',false], [S,'10+20=30\\n+30\\\\%',false],
       [K,'546/0.91=600élèves',true], [K,'520/1.04=500',false],
