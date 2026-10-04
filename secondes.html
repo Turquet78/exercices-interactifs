@@ -5467,7 +5467,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=288;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=289;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -25065,6 +25065,7 @@ function renderSpr(){
   if(q.aide && sprEmprunter(q.src)){
     const S=SPR_SOURCES[q.src];
     window[S.rendu]();
+    sprSchemaRecrire(q);
     $('sprPrompt').innerHTML=$(S.pre+'Prompt').innerHTML;
     $('sprIdx').textContent=`Question ${test.idx+1} / ${test.questions.length} — avec le schéma`;
     return;
@@ -25100,13 +25101,39 @@ function sprAideSchema(){
   }).filter(s=>s.trim()!=='');
   q.aide=true; autoSave(); renderSpr();
 }
+/* Les cases du schéma emprunté, lues et récrites par leur identifiant :
+   math-field en LaTeX, champ ou liste par sa valeur — du JSON, rangé dans
+   la question (q.schema), qu'une pause garde comme le brouillon. */
+function sprSchemaCases(q){
+  const S=SPR_SOURCES[q.src], host=S&&$(S.pre+'Host');
+  return host ? [...host.querySelectorAll('math-field[id], input[id], select[id]')] : [];
+}
+function sprSchemaLire(q){
+  const o={};
+  sprSchemaCases(q).forEach(function(el){
+    let v='';
+    if(el.tagName==='MATH-FIELD'){ try{ v=String(el.getValue()||''); }catch(e){ try{ v=String(el.value||''); }catch(_){} } }
+    else v=String(el.value||'');
+    if(v.trim()!=='') o[el.id]=v;
+  });
+  return o;
+}
+function sprSchemaRecrire(q){
+  const o=(q.schema && typeof q.schema==='object') ? q.schema : null; if(!o) return;
+  sprSchemaCases(q).forEach(function(el){
+    if(!(el.id in o)) return;
+    if(el.tagName==='MATH-FIELD'){ try{ el.setValue(o[el.id]); }catch(e){ try{ el.value=o[el.id]; }catch(_){} } }
+    else el.value=o[el.id];
+  });
+}
 /* « Revenir à la rédaction » : l'élève quitte le schéma, tant qu'il n'a pas
    donné son verdict, et reprend la question rédigée — elle vaut alors comme
-   une question rédigée (pas de marque « [schéma] »). Le schéma rempli ne se
-   garde pas : l'aide redemandée repart d'un schéma vide. */
+   une question rédigée (pas de marque « [schéma] »). Le schéma rempli est
+   gardé (q.schema) : l'aide redemandée le retrouve tel qu'il l'a laissé. */
 function sprRedaction(){
   if(test.locked || test.kind!=='spr') return;
   const q=test.questions[test.idx]; if(!q||!q.aide) return;
+  q.schema=sprSchemaLire(q);
   q.aide=false; autoSave(); renderSpr();
 }
 function checkSpr(){
