@@ -712,6 +712,19 @@ avant leur résultat, et la cacher les réduisait à un vocabulaire réciter :
   `rvf-inv-d`=n2) — la forme du maillon `mlt-i1`/`mlt-i2` de
   {diviser-fractions}.
 
+**Puis {diff-sub-entier} a gagné la mise au même dénominateur, en octobre
+2026** (demande de Turquet, sur une capture de `1/7 − 7 = 1/7 − 7/[1] = ?/7` :
+« il faut les étapes pour mettre au même dénominateur comme dans les autres
+exercices »). L'entier écrit `k/1`, la réponse sautait directement à
+`?/d1` : le passage `k/1 = (k×d1)/(1×d1)` — LE geste d'une soustraction de
+dénominateurs différents — restait à faire de tête. La chaîne est désormais
+`n1/d1 − k = n1/d1 − k/[1] = n1/d1 − (k×[d1])/(1×[d1]) = [num]/[den]`, avec
+le `rvfProduitCaseHTML()` de {diff-add} sur le seul terme entier (l'autre a
+déjà le bon dénominateur) ; `rvfExtra` y ajoute `rvf-ka`/`rvf-kb` (valant
+d1), le libellé passe à trois étapes, et le barème total de 34 à 36.
+{mult-entier} n'a rien reçu : une multiplication ne met jamais au même
+dénominateur.
+
 **Le barème n'est plus `qs.length*3`.** `rvfExtra(q)` rend les cases propres
 à chaque type (vide pour les trois qui n'en ont pas), `rvfCases()` les
 insère entre la règle et le résultat, et `startRvf()` somme

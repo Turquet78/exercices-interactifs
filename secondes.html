@@ -5479,6 +5479,19 @@ const APP_VERSION=291;                       /* numero de version affiche dans l
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
    Un signe seul (« + ») n'est pas un residu : si le nettoyage vide la case, on garde l'ecrit. */
+/* LA LETTRE O TAPÉE POUR LE CHIFFRE ZÉRO (signalement de Turquet, octobre
+   2026, sur le 4.5.8 de la Seconde) : « O,9 », « O,81 » rougissaient à côté
+   d'une correction « 0,9 » — l'élève avait raison, sa main avait glissé d'une
+   touche. À l'écran, rien ne le trahit qu'un O un peu plus rond. Le lecteur
+   rend donc le zéro, MAIS seulement quand la case ne porte qu'un NOMBRE
+   (chiffres, O, virgule ou point, espaces, un signe en tête) et au moins un
+   vrai chiffre ou une virgule : « O » seul reste « O » (c'est le nom d'un
+   point), et une expression où O voisine avec une autre lettre n'est pas
+   touchée. */
+function zeroPourO(s){
+  s=String(s==null?'':s);
+  return (/[Oo]/.test(s) && /[\d.,]/.test(s) && /^[-\u2212+]?[\dOo\s.,]+$/.test(s)) ? s.replace(/[Oo]/g,'0') : s;
+}
 function saClean(s){
   s=String(s==null?'':s);
   s=s.replace(/\\placeholder\{\}/g,'');
@@ -5496,8 +5509,8 @@ function pmPlain(el){
   try{
     var lx = String(el.getValue?el.getValue():'');
     var net = saClean(lx); if(net==='') net = lx;
-    if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(net)||'').trim();
-    return net.trim();
+    if(window.mlDexp && window.mlDexp.toPlain) return zeroPourO(String(window.mlDexp.toPlain(net)||'').trim());
+    return zeroPourO(net.trim());
   }catch(e){ return ''; }
 }
 
@@ -44264,8 +44277,10 @@ function rvfGauche(q){
    trois autres gardent leur unique case, sans rien au-dessus pour l'annoncer. */
 function rvfLabel(q){
   switch(q.type){
-    case 'mult-entier': case 'diff-sub-entier':
+    case 'mult-entier':
       return '① l’entier écrit comme une fraction de dénominateur 1&nbsp;· ② le résultat';
+    case 'diff-sub-entier':
+      return '① l’entier écrit comme une fraction de dénominateur 1&nbsp;· ② mettre au même dénominateur&nbsp;· ③ le résultat';
     case 'diff-add':
       return '① mettre au même dénominateur (produit des deux)&nbsp;· ② le résultat';
     case 'div-1': case 'div-2':
@@ -44318,6 +44333,7 @@ function rvfEtapes(q){
     case 'diff-sub-entier':
       return t(q.n1,q.d1)+op('−')+t(q.k,1)
         +fEq(t(q.n1,q.d1)+op('−')+rvfEntierCaseHTML(q.k,'rvf-kden'))
+        +fEq(t(q.n1,q.d1)+op('−')+rvfProduitCaseHTML(q.k,1,'rvf-ka','rvf-kb'))
         +finale;
     case 'diff-add':
       return t(q.n1,q.d1)+op('+')+t(q.n2,q.d2)
@@ -44354,8 +44370,13 @@ function rvfTexte(q){
    unique, comme tout le reste de cette révision. */
 function rvfExtra(q){
   switch(q.type){
-    case 'mult-entier': case 'diff-sub-entier':
+    case 'mult-entier':
       return [{id:'rvf-kden', bon:1}];
+    /* depuis octobre 2026 : k/1 se met ensuite au dénominateur de la
+       fraction, k×d1 / 1×d1 — la même étape que {diff-add}, sur un seul terme
+       puisque l'autre a déjà le bon dénominateur. */
+    case 'diff-sub-entier':
+      return [{id:'rvf-kden', bon:1}, {id:'rvf-ka', bon:q.d1}, {id:'rvf-kb', bon:q.d1}];
     case 'diff-add':
       return [{id:'rvf-a1', bon:q.d2}, {id:'rvf-b1', bon:q.d2}, {id:'rvf-a2', bon:q.d1}, {id:'rvf-b2', bon:q.d1}];
     case 'div-1': case 'div-2':
@@ -44424,7 +44445,7 @@ function rvfPourquoi(q){
     case 'mult-frac': return 'Pour multiplier deux fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux, sans jamais chercher un dénominateur commun. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'mult-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. Ensuite, on multiplie comme deux fractions : les numérateurs entre eux, les dénominateurs entre eux. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'diff-add': return 'Avec des dénominateurs différents, on multiplie chaque fraction, en haut ET en bas, par le dénominateur de l’autre. '+rvfTexte(q)+' = ('+q.n1+'×'+q.d2+' + '+q.n2+'×'+q.d1+')/('+q.d1+'×'+q.d2+') = '+r.num+'/'+r.den+'.';
-    case 'diff-sub-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
+    case 'diff-sub-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. Puis on le met au même dénominateur que l’autre fraction, en multipliant en haut ET en bas par '+q.d1+' : '+q.k+'/1 = ('+q.k+'×'+q.d1+')/(1×'+q.d1+'). '+rvfTexte(q)+' = '+q.n1+'/'+q.d1+' − '+(q.k*q.d1)+'/'+q.d1+' = '+r.num+'/'+r.den+'.';
     case 'div-1': case 'div-2': return 'Diviser par une fraction, c’est multiplier par son inverse : on échange son numérateur et son dénominateur. '+rvfTexte(q)+' = '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' = '+r.num+'/'+r.den+'.';
   }
 }
