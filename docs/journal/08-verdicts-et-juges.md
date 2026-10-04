@@ -166,3 +166,22 @@ APRÈS chaque case — écris seulement le coefficient ». Jamais sur une copie
 juste. Le contrôle rejoue la copie du signalement — d'abord SANS l'erreur (si
 elle ne passe pas, c'est le contrôle qui a tort), puis avec — éprouvé par
 sabotage.
+
+**La lettre O tapée pour le chiffre zéro.** Signalement de Turquet, octobre
+2026, sur le {evolutions-successives-phrases} (4.5.8 de la Seconde) : une copie
+juste — baisse de 10 % puis de 10 %, coefficient global 0,81 — notée « 7 cases
+justes sur 10 », trois cases rouges, chacune à côté d'une correction verte qui
+écrivait la MÊME chose : « 0,9 » rouge, « 0,9 » vert. Le juge n'y était pour
+rien : les quatre façons de taper la virgule (clavier « , » ou « . », jeton
+« Insérer , ») se lisaient toutes justes. Ce qui trahissait la saisie était le
+DESSIN : le « O » des cases rouges plus rond que le « 0 » des bleues, et une
+virgule suivie d'un espace — MathLive espace la virgule après une LETTRE, pas
+après un chiffre. L'élève avait tapé la lettre O ; `parseDecToFrac("O,9")` rend
+`null`, donc la case rougit. Le correctif est dans les lecteurs de chaque
+niveau (`pmPlain()` en Seconde et en Première, `dexpCellValue()` en Terminale),
+pas dans un juge : `zeroPourO()` rend le zéro quand la case ne porte qu'un
+NOMBRE — chiffres, O, virgule ou point, espaces, un signe en tête — et au moins
+un vrai chiffre ou une virgule. Deux bords tenus, et tous deux contrôlés dans
+la section « 6 undecies » du banc navigateur : « O{,}9 », « O,81 », « 1O »,
+« -O.5 » se lisent comme leur version à zéros ; « O » seul reste « O » (le nom
+d'un point), et « xO » n'est pas touché.
