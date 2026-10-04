@@ -4260,7 +4260,10 @@ async function parcours(page, N){
         const mf = hote.firstChild;
         const essai = v => { mf.setValue(v); return String(fn('ctrl-residu')); };
         const out = { propre: essai('2'), avec: residus.map(r => [r, essai('2' + r)]),
-                      signe: essai('+'), vide: essai('') };
+                      signe: essai('+'), vide: essai(''),
+                      lettreO: [['O{,}9','0{,}9'], ['O,81','0,81'], ['1O','10'], ['-O.5','-0.5']]
+                        .map(([o, z]) => [o, essai(o), essai(z)]),
+                      oSeul: essai('O'), oLettre: essai('xO') };
         hote.remove();
         return out;
       }, [P.residuMathlive.lire, RESIDUS]);
@@ -4275,6 +4278,16 @@ async function parcours(page, N){
       verifier('un signe seul n\'est pas nettoyé (« + » = coefficient +1)',
         lu.signe === '+', 'lu « ' + lu.signe + ' »');
       verifier('une case vide se lit vide', lu.vide === '', 'lu « ' + lu.vide + ' »');
+      /* La lettre O tapée pour le chiffre zéro (4.5.8 de la Seconde, octobre
+         2026) : « O,9 » rougissait à côté d'une correction « 0,9 ». Une case qui
+         ne porte qu'un nombre se lit avec des zéros — et le bord opposé : « O »
+         seul (le nom d'un point) et une expression ne sont pas touchés. */
+      for(const [o, vo, vz] of lu.lettreO){
+        verifier('la lettre O pour zéro : « ' + o + ' » se lit comme le nombre écrit avec 0',
+          vo === vz && !/[Oo]/.test(vo), 'lu « ' + vo + ' », attendu « ' + vz + ' »');
+      }
+      verifier('« O » seul reste la lettre O (nom de point)', lu.oSeul === 'O', 'lu « ' + lu.oSeul + ' »');
+      verifier('une expression avec la lettre O n\'est pas touchée', /O/.test(lu.oLettre), 'lu « ' + lu.oLettre + ' »');
 
       /* et la copie de l'élève, jouée de bout en bout */
       const C = P.residuMathlive.copie;
