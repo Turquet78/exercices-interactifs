@@ -4186,6 +4186,7 @@ function exercices(suite){
     evolutionsSuccessivesCoef(w, P);
     evolutionsSuccessivesPhrases(w, P);
     syntheseRedigee(w, P);
+    problemesPourcentages(w, P);
     baissesSuccessivesDix(w, P);
     pourcentageSchema(w, P);
     pourcentagePhrases(w, P);
@@ -31485,6 +31486,135 @@ function syntheseRedigee(w, P){
       show('theme');
     }
     return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- {pourcentages-problemes} (4.5.10) : Seconde SEULE, DES PROBLÈMES DE POURCENTAGES RÉDIGÉS
+   « comme le 4.5.9 de synthèse, avec des énoncés un peu plus complexes »,
+   sur une fiche papier de perfectionnement (Turquet, octobre 2026). Kind
+   « ppb ». Bords : le tirage (une question par famille, toutes les
+   situations tournent quand un devoir allonge, identité tenue) ; la
+   SOLUTION que la page écrit après un échec est acceptée par son propre
+   juge, sur des centaines de tirages — et la même copie au résultat faussé
+   est refusée ; des copies épinglées (unités et mots dans la copie, « x »
+   tapé au clavier, signe exigé ou facultatif, donnée inutile) ; l'aide
+   schéma (dessinée, rangée dans la question, reprise, « [schéma] »). */
+function problemesPourcentages(w, P){
+  const t1='{pourcentages-problemes} : une question par famille, toutes les situations tournent, identité tenue';
+  const t2='{pourcentages-problemes} : la solution écrite par la page passe son propre juge, la même faussée ne passe pas';
+  const t3='{pourcentages-problemes} : le juge lit les copies épinglées (unités, mots, signe)';
+  const t4='{pourcentages-problemes} : « Aide schéma » dessine le schéma, le range dans la question, et le marque pour le professeur';
+  const present = evaluer(w, "typeof startPpb==='function'");
+  if(!present.ok || !present.valeur){
+    [t1,t2,t3,t4].forEach(t => ignorer(t, 'ce niveau n\'a pas les problèmes de pourcentages rédigés'));
+    return;
+  }
+  verifierEval(w, t1, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentages-problemes';
+    for(let t=0;t<40 && vus.length<3;t++){
+      startPpb();
+      if(test.kind!=='ppb' || test.qId!=='pourcentages-problemes') vus.push('tirage '+t+' : kind « '+test.kind+' », identité « '+test.qId+' »');
+      const qs=test.questions||[];
+      if(qs.length!==4) vus.push('tirage '+t+' : '+qs.length+' question(s) au lieu de 4');
+      const g=qs.map(function(q){ return q.grp; }).sort().join(',');
+      if(g!=='deux,pct,prop,val') vus.push('tirage '+t+' : familles '+g);
+      qs.forEach(function(q,i){ const e=ppbEnonce(q)+ppbSolution(q)+ppbSchemaHTML(q); if(!e || /undefined|NaN|null|\\$\\{/.test(e)) vus.push('tirage '+t+' q'+i+' ('+q.fam+') : énoncé mal formé — '+e.slice(0,160)); if(q.aide!==false) vus.push('tirage '+t+' q'+i+' : aide déjà posée'); });
+    }
+    const dmn=window.dmNbQuestions; window.dmNbQuestions=function(){ return 16; };
+    try{
+      for(let t=0;t<10 && vus.length<3;t++){
+        startPpb();
+        const vues={}; test.questions.forEach(function(q){ vues[q.fam]=1; });
+        Object.keys(PPB_FAMILLES).forEach(function(g){ PPB_FAMILLES[g].forEach(function(f){ if(!vues[f]) vus.push('16 questions, tirage '+t+' : le problème « '+f+' » ne sort pas'); }); });
+      }
+    } finally { window.dmNbQuestions=dmn; }
+    if(!vus.length){ startPpb(); restartCurrentTest(); if(test.kind!=='ppb') vus.push('« Recommencer » relance le kind « '+test.kind+' »'); }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, t2, `(function(){
+    const vus=[];
+    /* la solution affichée, écrite comme la lirait la feuille : « , soit » et « , puis » vont à la ligne */
+    const plat=function(t){ return String(t).replace(/, (?:soit|puis) /g,'\\n').replace(/[\\u202f\\u00a0]/g,'').replace(/(\\d),(\\d)/g,'$1.$2')
+      .replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/%/g,'\\\\%'); };
+    let n=0;
+    Object.keys(PPB_FAMILLES).forEach(function(g){ PPB_FAMILLES[g].forEach(function(f){
+      for(let k=0;k<60 && vus.length<6;k++){
+        const q=genPpb(g,f), sol=plat(ppbSolution(q)); n++;
+        const r=ppbJuge(q, sol);
+        if(!r.correct){ vus.push(f+' : sa solution « '+sol.replace(/\\n/g,' ⏎ ')+' » est refusée — '+r.phrase); break; }
+        /* la même, le résultat de la dernière égalité de la première ligne faussé d'une unité */
+        const faux=sol.replace(/=([0-9.]+)/, function(m,x){ return '='+(parseFloat(x)+1); });
+        const r2=ppbJuge(q, faux);
+        if(r2.correct){ vus.push(f+' : la copie faussée « '+faux.replace(/\\n/g,' ⏎ ')+' » est acceptée'); break; }
+      }
+    }); });
+    if(n<500) vus.push('seulement '+n+' copies essayées');
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, t3, `(function(){
+    const vus=[];
+    const H={grp:'val',fam:'hausse',o:0,P:20,N:4200,F:5040,aide:false};
+    const R={grp:'pct',fam:'remise',o:2,pi:0,P:24,N:5200,F:3952,aide:false};
+    const T={grp:'pct',fam:'taux',c:1,G:-25,V1:28,V2:21,aide:false};
+    const X={grp:'pct',fam:'taxe',o:3,P10:55,N:2000,F:2110,aide:false};
+    const C={grp:'prop',fam:'complement',c:0,a:40,b:30,C:18,aide:false};
+    const S={grp:'deux',fam:'successives',c:0,s1:1,s2:1,P1:10,P2:20,K:13200,G10:320,aide:false};
+    const K={grp:'val',fam:'cantine',inc:'eleves',N:600,P:9,F:546,t0:500,P2:4,T:520,aide:false};
+    const A={grp:'val',fam:'ancien',o:4,pi:1,P:30,N:5300,F:3710,aide:false};
+    const cas=[
+      [H,'42*1.2=50.40€',true], [H,'42\\\\times1.2=50.4',true], [H,'42x1.2=50.4',true], [H,'42*0.2=8.4\\n42+8.4=50.4',false],
+      [H,'50.4',false], [H,'42*1.2=50',false],
+      [R,'39.52/52=0.76soit24\\\\%',true], [R,'39.52\\\\div52=0.76\\n-24\\\\%',true], [R,'39.52/52=0.76\\n+24\\\\%',false], [R,'39.52/52=0.76',false],
+      [R,'(52-39.52)/52=0.24=24\\\\%',true],
+      [T,'21/28=0.75\\n-25\\\\%',true], [T,'21/28=0.75\\n25\\\\%',false], [T,'(21-28)/28=-0.25\\n-25\\\\%',true],
+      [X,'21.10/20=1.055\\n5.5\\\\%',true], [X,'21.1/20=1.055=5,5\\\\%',false],
+      [C,'0.6*0.3=0.18\\n18\\\\%',true], [C,'0.4*0.3=0.12\\n12\\\\%',false], [C,'1-0.4=0.6\\n0.6*0.3=0.18=18\\\\%',true],
+      [S,'1.1*1.2=1.32\\n+32\\\\%',true], [S,'1.1*1.2=1.32\\n32\\\\%',false], [S,'10+20=30\\n+30\\\\%',false],
+      [K,'546/0.91=600élèves',true], [K,'520/1.04=500',false],
+      [A,'37.10/0.7=53',true], [A,'37.1*0.7=25.97',false]
+    ];
+    cas.forEach(function(c,i){
+      let r; try{ r=ppbJuge(c[0], c[1]); }catch(e){ vus.push('cas '+i+' : '+e.message); return; }
+      if(!r || r.correct!==c[2]) vus.push('cas '+i+' ('+c[0].fam+') « '+c[1].replace(/\\n/g,' ⏎ ')+' » : '+(r&&r.correct?'accepté':'refusé')+' — '+(r&&r.phrase));
+      else if(!c[2] && (!r.phrase || /undefined/.test(r.phrase))) vus.push('cas '+i+' : refus sans phrase');
+    });
+    const f=ppbJuge(H,'42*1.2=50');
+    if(!/50/.test(f.phrase||'') || !/fausse/.test(f.phrase||'')) vus.push('l’égalité fausse n’est pas nommée : '+f.phrase);
+    /* le 4.5.9 n'a pas bougé : son juge, sans cible, garde ses verdicts */
+    if(!sprJuge({src:'evs',s1:1,s2:-1,P1:20,P2:30,c1:120,c2:70,G:-16,ci:0,v:1,aide:false},'1.2*0.7=0.84\\n16\\\\%').phrase.match(/l’évolution globale/)) vus.push('le message du signe du 4.5.9 a changé');
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, t4, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentages-problemes';
+    startPpb();
+    test.questions[0]={grp:'pct',fam:'remise',o:2,pi:0,P:24,N:5200,F:3952,aide:false};
+    test.idx=0; renderPpb();
+    const sch=document.getElementById('ppbSch');
+    if(!document.getElementById('ppbAide')) vus.push('pas de bouton « Aide schéma »');
+    if(!sch || !sch.hidden) vus.push('le schéma est déjà là avant l’aide');
+    ppbAideSchema();
+    if(!test.questions[0].aide) vus.push('l’aide n’est pas rangée dans la question');
+    if(sch.hidden || !/39,52/.test(sch.textContent) || !/52/.test(sch.textContent) || sch.querySelectorAll('.pctb-box').length!==2) vus.push('le schéma dessiné ne porte pas les données : '+sch.textContent);
+    if(!document.getElementById('ppbSheet')) vus.push('la rédaction a disparu sous le schéma');
+    afficherEcranDe('ppb');
+    if(document.getElementById('ppbSch').hidden) vus.push('la reprise ne retrouve pas le schéma demandé');
+    ppbAideSchema();
+    if(test.questions[0].aide || !document.getElementById('ppbSch').hidden) vus.push('« Masquer le schéma » ne le masque pas');
+    ppbFeuille.lire=function(){ return '39.52/52=0.76\\n24\\\\%'; };
+    checkPpb();
+    if(test.score!==1) vus.push('la copie juste ne vaut pas le point ('+test.score+')');
+    const a=test.answers[0]; if(!a || !/^\\[schéma\\]/.test(a.q)) vus.push('la réponse aidée n’est pas marquée « [schéma] »');
+    if(a && /&nbsp;|<|undefined/.test(a.q)) vus.push('l’énoncé envoyé au professeur garde du HTML : '+a.q);
+    ppbAideSchema();
+    if(test.questions[0].aide) vus.push('l’aide reste ouverte après le verdict');
+    const nx=document.getElementById('ppbNext'); if(!nx) vus.push('pas de « Question suivante »'); else nx.click();
+    if(test.idx!==1 || !document.getElementById('ppbSch').hidden) vus.push('la question suivante hérite du schéma');
+    show('theme');
+    return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
 /* ---- {evolutions-successives-phrases} (4.5.8) : Seconde SEULE, LE SCHÉMA DU 4.5.5 AVEC SES DEUX PREMIÈRES PHRASES DONNÉES
