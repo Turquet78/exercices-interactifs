@@ -1147,3 +1147,19 @@ le jugement n'a pas bougé. Le commentaire de tête de l'exercice, qui
 affirmait encore que l'écran n'était « PAS déclaré dans `pleineLargeur` »,
 disait le contraire de `tests/profils.js` depuis la fusion en une rangée :
 corrigé au passage.
+
+**Une case trop étroite pour ce qu'elle contient fait mentir le juge
+(5.15, octobre 2026).** Signalé par Turquet sur une capture : dans la
+parenthèse de droite, les deux multiplicateurs « 3 » de la seconde fraction
+étaient ROUGES, la correction verte à côté disait « 3 », et le message
+« … ici 3 — en haut ET en bas ». Le juge avait raison : une des deux cases
+contenait « 33 » (deux appuis), et `pfMult` exige que la paire porte le même
+nombre — un seul « 33 » rougit les DEUX cases. Mais la case `.qdb-mult` était
+FIGÉE à `width:26px`, posée pour tenir le budget de largeur de la rangée :
+MathLive faisait défiler son contenu, et l'écran montrait « 3 ». Reproduit au
+banc (Chromium, MathLive réel, « 33 » posé dans `qdb-b-b2`) : capture identique
+à celle de l'élève. Correctif : `width:auto;min-width:26px;max-width:46px` —
+26 px tant qu'il y a un chiffre (le budget de la rangée ne bouge pas, une copie
+juste se dessine à l'identique), et la case GRANDIT dès que l'élève écrit plus,
+jusqu'au plafond des autres cases de l'écran. C'était la seule case de
+mathématiques à largeur figée des trois niveaux.
