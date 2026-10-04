@@ -5467,7 +5467,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=290;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=291;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -12553,10 +12553,23 @@ function eqgGen(){
     const kC2=kc.filter(function(y){
       if(y===ka||g(x1)===y||g(x2)===y) return false;
       const ix=[]; for(let x=-3;x<=3;x++){ if(pts[x+3]===y) ix.push(x); }
-      return ix[0]>-3&&ix[1]<3;
+      if(!(ix[0]>-3&&ix[1]<3)) return false;
+      /* au moins UNE des deux solutions est un vrai croisement : deux sommets
+         posés à la hauteur k laisseraient f (x) signe k vide ou partout */
+      return ix.some(function(x){ return (pts[x+2]-y)*(pts[x+4]-y)<0; });
     });
     if(!kC2.length) continue;
     const k=pick(kC2);
+    /* LE SOMMET À LA HAUTEUR k. Sur ce dessin, k touche presque toujours un
+       sommet de f sans le traverser (28 dessins possibles sur 32, énumérés) :
+       f (x) = k n'en souffre pas, mais f (x) signe k n'est plus « entre les
+       solutions » ni « dehors ». Le signe de l'inéquation est alors tiré parmi
+       les deux qui rangent le sommet du même côté que ses voisins — pris s'ils
+       sont pris, exclu s'ils sont exclus — et S est une DEMI-DROITE depuis le
+       croisement (signalé par Turquet, octobre 2026 : aucune des quatre cartes
+       n'était juste). */
+    let opfC=ING_OPS;
+    for(let x=-2;x<=2;x++){ if(pts[x+3]===k && (pts[x+2]-k)*(pts[x+4]-k)>0) opfC=(pts[x+2]<k)?['gt','le']:['ge','lt']; }
     /* les images : a quelconque, b là où la droite reste dans le dessin */
     const a=pick([-3,-2,-1,0,1,2,3]);
     const bs=[]; for(let x=-3;x<=3;x++){ if(Math.abs(g(x))<=3) bs.push(x); }
@@ -12585,7 +12598,7 @@ function eqgGen(){
     const xtaLoin=xtaC.filter(x=>Math.abs(pts[x+3]-ka)>=2);
     const xta=pick(xtaLoin.length?xtaLoin:xtaC);
     return {pts:pts, s:s, c:c, k:k, kg:kg, ka:ka, a:a, b:b,
-            op:pick(ING_OPS), opf:pick(ING_OPS), opg:pick(ING_OPS),
+            op:pick(ING_OPS), opf:pick(opfC), opg:pick(ING_OPS),
             xtk:xtk, xtg:xtg, xtc:xtc, xta:xta,
             permE:ensShuffle(EQG_FORMES_EQ.slice()), permI:ensShuffle(EQG_FORMES_IN.slice()),
             permG:ensShuffle(EQG_FORMES_GIN.slice())};
@@ -12632,7 +12645,23 @@ function eqgMilieuK(q){
   for(let x=so[0]+1;x<so[1];x++){ const d=q.pts[x+3]-q.k; if(d!==0) return d>0?1:-1; }
   return 1;
 }
+/* Le SOMMET de f posé à la hauteur k (touché sans être traversé), ou null —
+   et quand il existe, S de f (x) signe k est une demi-droite depuis l'AUTRE
+   solution, le croisement : du côté où f (3) vérifie le signe. */
+function eqgSommetK(q){
+  const so=eqgSolsK(q);
+  for(let i=0;i<so.length;i++){ const x=so[i]; if((q.pts[x+2]-q.k)*(q.pts[x+4]-q.k)>0) return x; }
+  return null;
+}
+function eqgDemiK(q){
+  const xt=eqgSommetK(q); if(xt===null) return null;
+  const xc=eqgSolsK(q).filter(function(x){ return x!==xt; })[0];
+  const veut=(q.opf==='ge'||q.opf==='gt');
+  return {x:xc, droite:(veut?1:-1)===(q.pts[6]>q.k?1:-1), pris:(q.opf==='ge'||q.opf==='le')};
+}
 function eqgFormeInFk(q){
+  const dk=eqgDemiK(q);
+  if(dk) return (dk.droite?'d':'g')+(dk.pris?'p':'v');
   const un=((q.opf==='ge'||q.opf==='gt')?1:-1)===eqgMilieuK(q);
   const pris=(q.opf==='ge'||q.opf==='le');
   return (un?'m':'e')+(pris?'o':'n');
@@ -12652,6 +12681,7 @@ function eqgSubCount(q){
     return un?5:9;
   }
   if(q.type==='infk'){
+    if(eqgDemiK(q)) return 5;
     const un=((q.opf==='ge'||q.opf==='gt')?1:-1)===eqgMilieuK(q);
     return un?5:9;
   }
@@ -12765,6 +12795,17 @@ function eqgCarteExtra(q, forme){
     /* f (x) signe k : les quatre coloriages d'{inequation-graphique}, contre
        la LIGNE à la hauteur k — le morceau rouge suit f, les marques suivent
        les solutions de f (x) = k */
+    /* le sommet à la hauteur k : les quatre demi-droites de g (x) signe k,
+       portées par la COURBE depuis le croisement — le sommet ne reçoit aucune
+       marque, il est dans le morceau ou hors de lui comme ses voisins */
+    if(q.type==='infk' && eqgDemiK(q)){
+      const xc=eqgDemiK(q).x;
+      const droite=(forme.charAt(0)==='d'), pris=(forme.charAt(1)==='p');
+      out+=niv(q.k)+'<path class="ing-rouge" d="'+(droite?lvPath(q.pts,sx,sy,xc+3,6):lvPath(q.pts,sx,sy,0,xc+3))+'"/>';
+      out+=(droite?plein(3,q.pts[6]):plein(-3,q.pts[0]));
+      out+=(pris?plein(xc,q.k):vide(xc,q.k));
+      return out;
+    }
     if(q.type==='infk'){
       const so=eqgSolsK(q), x1=so[0], x2=so[1];
       const milieu=(forme.charAt(0)==='m'), pris=(forme.charAt(1)==='o');
@@ -12799,6 +12840,8 @@ function eqgCarteExtra(q, forme){
 /* S de l'inéquation, en toutes lettres — f contre g ou f contre k selon le
    type ; et la demi-droite de g contre kg. */
 function eqgPlain(q){
+  const dk=(q.type==='infk')?eqgDemiK(q):null;
+  if(dk) return dk.droite?(dk.pris?'[':']')+itvNum(dk.x)+' ; 3]':'[−3 ; '+itvNum(dk.x)+(dk.pris?']':'[');
   const sp=eqgItvSpec(q), pris=sp.pris;
   if(sp.un) return (pris?'[':']')+itvNum(sp.x1)+' ; '+itvNum(sp.x2)+(pris?']':'[');
   return '[−3 ; '+itvNum(sp.x1)+(pris?']':'[')+' ∪ '+(pris?'[':']')+itvNum(sp.x2)+' ; 3]';
@@ -12811,6 +12854,7 @@ function eqgPlainGk(q){
 /* Les cases et leur bonne réponse CANONIQUE (pour le total) ; le jugement
    passe par eqgJuge, où l'ordre des listes est libre. */
 function eqgPerm(q){
+  if(q.type==='infk' && eqgDemiK(q)) return q.permG;
   if(q.type==='ineq'||q.type==='infk') return q.permI;
   if(q.type==='ingk') return q.permG;
   return q.permE;
@@ -12847,6 +12891,13 @@ function eqgCases(q){
                                   {id:'eqg-b2', bon:'3'}, {id:'eqg-cf1', bon:']'}];
     return [eqgSch(q), {id:'eqg-co1', bon:'['}, {id:'eqg-b1', bon:'-3'},
             {id:'eqg-b2', bon:String(xg)}, {id:'eqg-cf1', bon:pris?']':'['}];
+  }
+  const dk=(q.type==='infk')?eqgDemiK(q):null;
+  if(dk){
+    if(dk.droite) return [eqgSch(q), {id:'eqg-co1', bon:dk.pris?'[':']'}, {id:'eqg-b1', bon:String(dk.x)},
+                          {id:'eqg-b2', bon:'3'}, {id:'eqg-cf1', bon:']'}];
+    return [eqgSch(q), {id:'eqg-co1', bon:'['}, {id:'eqg-b1', bon:'-3'},
+            {id:'eqg-b2', bon:String(dk.x)}, {id:'eqg-cf1', bon:dk.pris?']':'['}];
   }
   const sp=eqgItvSpec(q), x1=sp.x1, x2=sp.x2, pris=sp.pris;
   if(sp.un) return [eqgSch(q), {id:'eqg-co1', bon:pris?'[':']'}, {id:'eqg-b1', bon:String(x1)},
@@ -12953,7 +13004,7 @@ function renderEqgTest(){
       +'<span class="itv-fixe">;</span>'+selN(b2,'Borne de droite')+itvSelHTML(cf,ITV_OPT_CROCHET,'Crochet fermant');
     /* g (x) signe kg est une DEMI-DROITE : un seul intervalle, toujours ;
        f (x) signe k suit le côté de f, comme f (x) signe g (x) */
-    const un=(q.type==='ingk')?true:eqgItvSpec(q).un;
+    const un=(q.type==='ingk'||(q.type==='infk'&&eqgDemiK(q)))?true:eqgItvSpec(q).un;
     let sol='<span class="itv-corps"><span class="itv-fixe">S =</span>'+inter('eqg-co1','eqg-b1','eqg-b2','eqg-cf1');
     if(!un) sol+='<span class="itv-fixe">∪</span>'+inter('eqg-co2','eqg-b3','eqg-b4','eqg-cf2');
     sol+='</span>';
@@ -13022,6 +13073,17 @@ function eqgWhy(q){
   if(q.type==='infk'){
     const sp=eqgItvSpec(q), veut=(q.opf==='ge'||q.opf==='gt');
     const p=['« f (x) '+ING_SIGNE[q.opf]+' '+itvNum(q.k)+' » demande les x où la COURBE est '+(veut?'AU-DESSUS':'AU-DESSOUS')+' de la ligne à la hauteur '+itvNum(q.k)+' : c’est le dessin '+L+'.'];
+    const dk=eqgDemiK(q);
+    if(dk){
+      const xt=eqgSommetK(q), dessus=(q.pts[xt+2]>q.k);
+      p.push('En '+itvNum(xt)+', la courbe TOUCHE la ligne sans la traverser : c’est un sommet, elle reste '
+        +(dessus?'au-dessus':'au-dessous')+' de part et d’autre. Elle ne change de côté qu’en '+itvNum(dk.x)
+        +' : c’est donc TOUT UN CÔTÉ de '+itvNum(dk.x)+' — '+(dk.droite?'à droite':'à gauche')+', et le bout du dessin est pris.');
+      p.push(dk.pris ? 'Le signe '+ING_SIGNE[q.opf]+' accepte l’égalité : '+itvNum(dk.x)+' est PRIS — crochet fermé.'
+                     : 'Le signe '+ING_SIGNE[q.opf]+' refuse l’égalité : '+itvNum(dk.x)+' est EXCLU — crochet ouvert.');
+      p.push('Donc S = '+eqgPlain(q)+'.');
+      return p.join(' ');
+    }
     if(sp.un) p.push('C’est le morceau entre les deux croisements, de '+itvNum(sp.x1)+' à '+itvNum(sp.x2)+'.');
     else p.push('Il y a DEUX morceaux : de −3 à '+itvNum(sp.x1)+', puis de '+itvNum(sp.x2)+' à 3 — et les bouts du dessin (−3 et 3) sont toujours pris.');
     p.push(sp.pris ? 'Le signe '+ING_SIGNE[q.opf]+' accepte l’égalité : les croisements sont PRIS — crochet fermé.'

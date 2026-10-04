@@ -18941,7 +18941,7 @@ function equationGraphique(w, P){
 
     /* ---- 1. le tirage : 300 séances, tout par sa propre arithmétique ---- */
     const dessins=new Set(), opsVus=new Set(), opsFVus=new Set(), opsGVus=new Set(),
-          rangsBonN={}, rangsParForme={}, rangsParFormeG={}, nAntVus=new Set();
+          rangsBonN={}, rangsParForme={}, rangsParFormeG={}, nAntVus=new Set(), opsFSommet=new Set();
     /* le REPLI du tirage garde ses permutations mélangées : une séance de
        repli parmi les 300 suffisait à faire varier UN rang et à masquer une
        permutation figée — le sabotage restait vert une fois sur trois. On
@@ -19033,6 +19033,32 @@ function equationGraphique(w, P){
         vus.push('les deux solutions de f(x) = '+q0.k+' sont voisines ('+sols.join(',')+') : le segment entier est à cette hauteur');
       for(let i=0;i<6;i++){ const lo=Math.min(q0.pts[i],q0.pts[i+1]), hi=Math.max(q0.pts[i],q0.pts[i+1]);
         if(q0.k>lo && q0.k<hi) vus.push('la hauteur k = '+q0.k+' est traversée ENTRE deux graduations : une solution illisible'); }
+      /* S DE f (x) signe k, RECALCULÉ POINT PAR POINT et comparé à la réponse
+         attendue par la page. La forme de S ne se déduit pas : quand k touche
+         un SOMMET de f sans le traverser, S n'est ni « entre » ni « dehors »,
+         et les quatre cartes étaient toutes fausses — en ligne, signalé par
+         Turquet (octobre 2026). Ce contrôle-là ne lisait que les solutions de
+         f (x) = k, qui restaient justes. La courbe est monotone entre deux
+         graduations : le côté de f à mi-chemin est celui de la graduation qui
+         n'est pas à la hauteur k. */
+      {
+        const qf=qs[3], op=qf.opf;
+        const tient=function(d){ return op==='ge'?d>=0:op==='gt'?d>0:op==='le'?d<=0:d<0; };
+        const c=eqgCases(qf).slice(1).map(function(x){ return x.bon; });
+        const itv=[]; for(let i=0;i+3<c.length;i+=4) itv.push(c.slice(i,i+4));
+        const dedans=function(x){ return itv.some(function(t){ const a=+t[1], b=+t[2];
+          return (x>a||(x===a&&t[0]==='['))&&(x<b||(x===b&&t[3]===']')); }); };
+        if(!itv.length||c.length%4) vus.push('f(x) signe k : les cases attendues ne forment pas des intervalles ('+c.join(' ')+')');
+        for(let h=-6;h<=6;h++){ const x=h/2;
+          let d;
+          if(h%2===0) d=q0.pts[x+3]-q0.k;
+          else { const da=q0.pts[Math.floor(x)+3]-q0.k, db=q0.pts[Math.ceil(x)+3]-q0.k; d=da!==0?da:db; }
+          if(tient(d)!==dedans(x)){ vus.push('f(x) '+op+' '+q0.k+' sur ['+q0.pts.join(',')+'] : x = '+x+' est '+(tient(d)?'solution':'hors de S')+' mais la réponse attendue ('+eqgPlain(qf)+') dit le contraire'); break; }
+        }
+        /* et la bonne carte porte la forme que la réponse attendue écrit */
+        if(eqgPerm(qf)[+eqgSch(qf).bon]!==eqgFormeInFk(qf)) vus.push('f(x) signe k : la carte désignée n\'est pas la forme de S');
+        if(eqgSommetK(qf)!==null) opsFSommet.add(op);
+      }
       /* les images se lisent : g(b) reste dans le quadrillage */
       if(Math.abs(g(q0.b))>3) vus.push('g('+q0.b+') = '+g(q0.b)+' sort du dessin : l\\'image ne se lit pas');
       /* LE DESSIN MÊME : la courbe écrite par lvPath ne frôle ni ne recroise
@@ -19056,6 +19082,10 @@ function equationGraphique(w, P){
       vus.push('le signe de l\\'inéquation f signe g ne varie pas assez : '+Array.from(opsVus).join(','));
     if(!vus.length && (opsFVus.size<4||opsGVus.size<4))
       vus.push('les signes de f(x) signe k ('+opsFVus.size+') ou de g(x) signe k ('+opsGVus.size+') ne varient pas assez');
+    /* le sommet à la hauteur k est le cas COURANT du tirage : il doit sortir,
+       et sous ses deux visages (sommet par-dessus, sommet par-dessous) */
+    if(!vus.length && opsFSommet.size<4)
+      vus.push('le sommet à la hauteur k ne sort qu\'avec les signes '+Array.from(opsFSommet).join(',')+' sur 300 séances');
     if(!vus.length && nAntVus.size<2)
       vus.push('les antécédents par f ne montrent jamais les deux visages (un seul / deux) sur 300 séances');
     /* à forme égale, le rang du bon dessin varie d'une séance à l'autre —
@@ -19132,8 +19162,12 @@ function equationGraphique(w, P){
     if(ptsParCarte('.ing-pt')!=='3,2,4,2') vus.push('antécédents : points des cartes (bon,oubli,trop,confu) = '+ptsParCarte('.ing-pt')+' au lieu de 3,2,4,2 — l\\'oubli est le point de g');
     montre('infk');
     if(ptsParCarte('.ing-niv')!=='1,1,1,1') vus.push('f(x) signe k : la ligne manque sur une carte ('+ptsParCarte('.ing-niv')+')');
-    if(ptsParCarte('.ing-rouge')!=='1,1,2,2') vus.push('f(x) signe k : morceaux rouges = '+ptsParCarte('.ing-rouge')+' au lieu de 1,1,2,2');
-    if(ptsParCarte('.ing-pt')!=='2,0,4,2') vus.push('f(x) signe k : points pleins = '+ptsParCarte('.ing-pt')+' au lieu de 2,0,4,2');
+    /* Q0 : k = -2 TOUCHE le sommet x = 2 sans le traverser — les quatre
+       cartes sont des demi-droites depuis le croisement -2 (permG identité :
+       dp, dv, gp, gv), le bout du dessin marqué plein */
+    if(ptsParCarte('.ing-rouge')!=='1,1,1,1') vus.push('f(x) signe k (sommet) : morceaux rouges = '+ptsParCarte('.ing-rouge')+' au lieu de 1,1,1,1');
+    if(ptsParCarte('.ing-pt')!=='2,1,2,1') vus.push('f(x) signe k (sommet) : points pleins = '+ptsParCarte('.ing-pt')+' au lieu de 2,1,2,1');
+    if(ptsParCarte('.ing-vide')!=='0,1,0,1') vus.push('f(x) signe k (sommet) : points vides = '+ptsParCarte('.ing-vide')+' au lieu de 0,1,0,1');
     montre('ingk');
     if(ptsParCarte('.ing-niv')!=='1,1,1,1') vus.push('g(x) signe kg : la ligne manque sur une carte ('+ptsParCarte('.ing-niv')+')');
     if(ptsParCarte('.ing-rouge')!=='1,1,1,1') vus.push('g(x) signe kg : chaque carte porte UN morceau rouge sur la droite ('+ptsParCarte('.ing-rouge')+')');
@@ -19169,12 +19203,15 @@ function equationGraphique(w, P){
     if(r.score!==2) vus.push('la même solution écrite deux fois : score '+r.score+'/3 attendu 2 — défendable une fois, fausse la seconde');
     r=pose('eqk', null, {'eqg-sch':'2','eqg-s-0':'-2','eqg-s-1':'2'});
     if(cartesEtat()!=='sol||bad|') vus.push('mauvaise carte : attendu sol||bad|, vu '+cartesEtat());
-    /* f(x) signe k : le coloriage et l'intervalle suivent le signe — f est
-       AU-DESSUS de k entre les solutions -2 et 2 */
-    r=pose('infk', {opf:'ge'}, {'eqg-sch':'0','eqg-co1':'[','eqg-b1':'-2','eqg-b2':'2','eqg-cf1':']'});
-    if(r.score!==5) vus.push('f(x) ≥ k : carte + S = [-2 ; 2] refusés, score '+r.score+'/5');
-    r=pose('infk', {opf:'lt'}, {'eqg-sch':'3','eqg-co1':'[','eqg-b1':'-3','eqg-b2':'-2','eqg-cf1':'[','eqg-co2':']','eqg-b3':'2','eqg-b4':'3','eqg-cf2':']'});
-    if(r.score!==9) vus.push('f(x) < k : carte + S = [-3 ; -2[ ∪ ]2 ; 3] refusés, score '+r.score+'/9');
+    /* f(x) signe k sur Q0 : k = -2 TOUCHE le sommet x = 2 (f y remonte à 3) —
+       S est une DEMI-DROITE depuis le croisement -2. Ce contrôle attendait
+       autrefois [-2 ; 2] et [-3 ; -2[ ∪ ]2 ; 3] : il avait gravé la réponse
+       fausse que la page donnait en ligne. */
+    r=pose('infk', {opf:'ge'}, {'eqg-sch':'0','eqg-co1':'[','eqg-b1':'-2','eqg-b2':'3','eqg-cf1':']'});
+    if(r.score!==5) vus.push('f(x) ≥ k (sommet) : carte + S = [-2 ; 3] refusés, score '+r.score+'/5');
+    r=pose('infk', {opf:'lt'}, {'eqg-sch':'3','eqg-co1':'[','eqg-b1':'-3','eqg-b2':'-2','eqg-cf1':'['});
+    if(r.score!==5) vus.push('f(x) < k (sommet) : carte + S = [-3 ; -2[ refusés, score '+r.score+'/5');
+    if(document.getElementById('eqg-co2')) vus.push('f(x) < k (sommet) : une seconde case d\'intervalle est proposée alors que S est une demi-droite');
     /* sur Q1 le côté S'INVERSE (f au-dessous de k entre les solutions) : un
        côté figé dans le code passerait Q0 sans broncher */
     r=pose('infk', {opf:'ge'}, {'eqg-sch':'2','eqg-co1':'[','eqg-b1':'-3','eqg-b2':'-2','eqg-cf1':']','eqg-co2':'[','eqg-b3':'2','eqg-b4':'3','eqg-cf2':']'}, Q1);
