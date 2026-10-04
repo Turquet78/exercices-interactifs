@@ -31370,9 +31370,10 @@ function syntheseRedigee(w, P){
   const t1='{synthese-pourcentages-redigee} : une question par schéma, toutes les inconnues tournent, identité tenue';
   const t2='{synthese-pourcentages-redigee} : le juge exige une multiplication ou une division qui donne la réponse';
   const t3='{synthese-pourcentages-redigee} : « Aide schéma » emprunte le schéma de l\'exercice d\'origine, puis le rend ; « Revenir à la rédaction » le quitte tant qu\'il n\'a pas jugé';
+  const t4='{synthese-pourcentages-redigee} : l\'aide schéma pose les cadres du 4.1.13 sur les boîtes et dans l\'énoncé, les exercices d\'origine n\'en ont pas';
   const present = evaluer(w, "typeof startSpr==='function'");
   if(!present.ok || !present.valeur){
-    [t1,t2,t3].forEach(t => ignorer(t, 'ce niveau n\'a pas la synthèse rédigée des quatre schémas'));
+    [t1,t2,t3,t4].forEach(t => ignorer(t, 'ce niveau n\'a pas la synthèse rédigée des quatre schémas'));
     return;
   }
   verifierEval(w, t1, `(function(){
@@ -31484,6 +31485,59 @@ function syntheseRedigee(w, P){
       if(!dans('evsHost','scr-spr')) vus.push('la reprise ne retrouve pas le schéma demandé');
       show('theme');
     }
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+  /* Les cadres : sur chaque source et chaque inconnue, une fois l'aide
+     demandée, chaque boîte du schéma porte son cadre (gauche cdr-0, puis
+     cdr-1, cdr-2), l'énoncé porte au moins un cadre de chaque boîte qu'il
+     désigne, et le texte sans les cadres est mot pour mot celui de
+     l'exercice d'origine ; ouvert pour lui-même, l'exercice d'origine n'a
+     aucun cadre. */
+  verifierEval(w, t4, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='synthese-pourcentages-redigee';
+    const cas=[
+      ['pctb',{inc:'res',N:800,P:45,result:360,ci:0},[0,1],[0,1]],
+      ['pctb',{inc:'ini',N:800,P:45,result:360,ci:3},[0,1],[0,1]],
+      ['pctb',{inc:'pct',N:800,P:45,result:360,ci:6},[0,1],[0,1]],
+      ['pctc',{inc:'comb',P1:40,P2:30,comb:12,ci:0},[0,1,2],[0,1,2]],
+      ['pctc',{inc:'p1',P1:40,P2:30,comb:12,ci:2},[0,1,2],[0,1,2]],
+      ['pctc',{inc:'p2',P1:40,P2:30,comb:12,ci:5},[0,1,2],[0,1,2]],
+      ['evb',{fam:'aug',inc:'fin',sens:1,P:20,N:500,aug:100,fin:600,decStr:'600',intro:'Un poids de',unit:'kg',g:'m',ci:0,v:0},[0,1],[0,1]],
+      ['evb',{fam:'dim',inc:'ini',sens:-1,P:20,N:500,aug:100,fin:400,decStr:'400',unit:'€',ci:0,v:0},[0,1],[0,1]],
+      ['evb',{fam:'aug',inc:'pct',sens:1,P:20,N:500,aug:100,fin:600,decStr:'600',unit:'€',ci:0,v:1},[0,1,2],[0,1,2]],
+      ['evs',{s1:1,s2:-1,P1:20,P2:30,c1:120,c2:70,G:-16,ci:0,v:0},[0,1,2],[0,1,2]],
+      ['evs',{s1:-1,s2:-1,P1:20,P2:30,c1:80,c2:70,G:-44,ci:6,v:3},[0,1,2],[0,1,2]]
+    ];
+    const pre={pctb:'pctb',pctc:'pctc',evb:'evb',evs:'evs'};
+    const cadres=function(el){ return [0,1,2].filter(function(k){ return el && el.querySelector('.cdr-'+k); }); };
+    const nu=function(h){ const d=document.createElement('div'); d.innerHTML=h; return d.textContent.replace(/\\s+/g,' ').trim(); };
+    cas.forEach(function(c,i){
+      if(vus.length>=5) return;
+      startSpr();
+      test.questions[0]=Object.assign({src:c[0],aide:false}, c[1]); test.idx=0; renderSpr();
+      if(document.querySelector('#sprPrompt .cdr')) vus.push('cas '+i+' : la rédaction porte déjà des cadres');
+      sprAideSchema();
+      const p=pre[c[0]], host=document.getElementById(p+'Host'), labs=host?[...host.querySelectorAll('.pctb-lab')]:[];
+      const bx=labs.map(function(l){ const s=l.querySelector('.cdr'); return s?+(s.className.match(/cdr-(\\d)/)||[])[1]:-1; });
+      if(bx.join()!==c[2].join()) vus.push('cas '+i+' ('+c[0]+'/'+(c[1].inc||'evs')+') : boîtes cadrées '+bx.join()+' au lieu de '+c[2].join());
+      const pr=document.getElementById('sprPrompt'), vu=cadres(pr);
+      if(vu.join()!==c[3].join()) vus.push('cas '+i+' ('+c[0]+'/'+(c[1].inc||'evs')+') : énoncé cadré '+vu.join()+' au lieu de '+c[3].join());
+      if(pr && pr.querySelector('.cdr .cdr')) vus.push('cas '+i+' : un cadre dans un cadre');
+      /* le texte, cadres ôtés, est celui de l'exercice d'origine */
+      if(pr && nu(pr.innerHTML)!==nu(document.getElementById(p+'Prompt').innerHTML)) vus.push('cas '+i+' : l’énoncé de l’aide n’est pas celui du schéma');
+      const q0=Object.assign({},c[1]);
+      const orig=c[0]==='pctb'?pctbEnonce(q0):c[0]==='pctc'?pctcEnonce(q0):c[0]==='evb'?evbEnonce(q0):evsEnonce(q0);
+      if(pr && nu(pr.innerHTML)!==nu(orig)) vus.push('cas '+i+' : cadres ôtés, le texte change — « '+nu(pr.innerHTML)+' » / « '+nu(orig)+' »');
+      show('theme');
+    });
+    /* les exercices d'origine, ouverts pour eux-mêmes : aucun cadre */
+    [['startPctBoite','pctb'],['startPctChaine','pctc'],['startSynEvol','evb'],['startEvolSucc','evs']].forEach(function(s){
+      window[s[0]]();
+      const z=document.getElementById('scr-'+(s[1]==='evb'?'evbtest':s[1]));
+      if(z && z.querySelector('.cdr')) vus.push(s[0]+' : l’exercice d’origine porte des cadres');
+    });
+    show('theme');
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
