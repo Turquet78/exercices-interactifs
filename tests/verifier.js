@@ -31369,7 +31369,7 @@ function evolutionsSuccessivesCoef(w, P){
 function syntheseRedigee(w, P){
   const t1='{synthese-pourcentages-redigee} : une question par schéma, toutes les inconnues tournent, identité tenue';
   const t2='{synthese-pourcentages-redigee} : le juge exige une multiplication ou une division qui donne la réponse';
-  const t3='{synthese-pourcentages-redigee} : « Aide schéma » emprunte le schéma de l\'exercice d\'origine, puis le rend';
+  const t3='{synthese-pourcentages-redigee} : « Aide schéma » emprunte le schéma de l\'exercice d\'origine, puis le rend ; « Revenir à la rédaction » le quitte tant qu\'il n\'a pas jugé';
   const present = evaluer(w, "typeof startSpr==='function'");
   if(!present.ok || !present.valeur){
     [t1,t2,t3].forEach(t => ignorer(t, 'ce niveau n\'a pas la synthèse rédigée des quatre schémas'));
@@ -31451,12 +31451,27 @@ function syntheseRedigee(w, P){
     sprAideSchema();
     if(!test.questions[0].aide) vus.push('l’aide n’est pas rangée dans la question');
     if(!dans('pctbHost','scr-spr') || !dans('pctbActions','scr-spr')) vus.push('le schéma du 4.1.8 n’est pas venu dans l’écran');
+    if(!document.getElementById('sprRetour') || !dans('sprRetour','sprSch')) vus.push('pas de bouton « Revenir à la rédaction » sous le schéma');
+    /* l'aller-retour : le schéma rendu, la rédaction revenue, puis l'aide redemandée */
+    if(typeof sprRedaction!=='function') vus.push('pas de sprRedaction');
+    else {
+      sprRedaction();
+      if(test.questions[0].aide) vus.push('« Revenir à la rédaction » laisse l’aide posée');
+      if(!dans('pctbHost','scr-pctb')) vus.push('« Revenir à la rédaction » ne rend pas la zone du 4.1.8');
+      if(!document.getElementById('sprSheet') || document.getElementById('sprRed').hidden || !document.getElementById('sprSch').hidden) vus.push('« Revenir à la rédaction » ne remontre pas la feuille');
+      if(!document.getElementById('sprAide')) vus.push('après le retour, plus de bouton « Aide schéma »');
+      sprAideSchema();
+      if(!test.questions[0].aide || !dans('pctbHost','scr-spr')) vus.push('l’aide redemandée après le retour ne revient pas');
+      const ordre=document.getElementById('sprSch').lastElementChild;
+      if(!ordre || ordre.id!=='sprRetourRow') vus.push('la rangée du retour n’est plus sous la zone empruntée');
+    }
     if(!document.getElementById('pctbN')) vus.push('le schéma du 4.1.8 n’est pas dessiné');
     else {
       const sv=function(id,v){ document.getElementById(id).value=v; };
       sv('pctbN','800'); sv('pctbP','45'); sv('pctbD','0,45'); sv('pctbR','360');
       checkPctBoiteAnswer();
       if(test.score!==1) vus.push('le schéma juste ne vaut pas le point ('+test.score+')');
+      if(typeof sprRedaction==='function'){ sprRedaction(); if(!test.questions[0].aide || !dans('pctbHost','scr-spr')) vus.push('le retour à la rédaction reste possible après le verdict du schéma'); }
       const nx=document.getElementById('pctbNext'); if(!nx) vus.push('pas de « Question suivante » après le schéma'); else nx.click();
       if(test.idx!==1 || test.kind!=='spr') vus.push('« Question suivante » du schéma ne revient pas à la synthèse (idx '+test.idx+', kind '+test.kind+')');
       if(!dans('pctbHost','scr-pctb')) vus.push('la zone du 4.1.8 n’est pas rendue à son écran');
