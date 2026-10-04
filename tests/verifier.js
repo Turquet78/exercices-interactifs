@@ -19056,7 +19056,7 @@ function equationGraphique(w, P){
           if(tient(d)!==dedans(x)){ vus.push('f(x) '+op+' '+q0.k+' sur ['+q0.pts.join(',')+'] : x = '+x+' est '+(tient(d)?'solution':'hors de S')+' mais la réponse attendue ('+eqgPlain(qf)+') dit le contraire'); break; }
         }
         /* et la bonne carte porte la forme que la réponse attendue écrit */
-        if(eqgPerm(qf)[+eqgSch(qf).bon]!==eqgFormeInFk(qf)) vus.push('f(x) signe k : la carte désignée n\'est pas la forme de S');
+        if(eqgPerm(qf)[+eqgSch(qf).bon]!==eqgFormeInFk(qf)) vus.push('f(x) signe k : la carte désignée n\\'est pas la forme de S');
         if(eqgSommetK(qf)!==null) opsFSommet.add(op);
       }
       /* les images se lisent : g(b) reste dans le quadrillage */
@@ -19085,7 +19085,7 @@ function equationGraphique(w, P){
     /* le sommet à la hauteur k est le cas COURANT du tirage : il doit sortir,
        et sous ses deux visages (sommet par-dessus, sommet par-dessous) */
     if(!vus.length && opsFSommet.size<4)
-      vus.push('le sommet à la hauteur k ne sort qu\'avec les signes '+Array.from(opsFSommet).join(',')+' sur 300 séances');
+      vus.push('le sommet à la hauteur k ne sort qu\\'avec les signes '+Array.from(opsFSommet).join(',')+' sur 300 séances');
     if(!vus.length && nAntVus.size<2)
       vus.push('les antécédents par f ne montrent jamais les deux visages (un seul / deux) sur 300 séances');
     /* à forme égale, le rang du bon dessin varie d'une séance à l'autre —
@@ -19211,7 +19211,7 @@ function equationGraphique(w, P){
     if(r.score!==5) vus.push('f(x) ≥ k (sommet) : carte + S = [-2 ; 3] refusés, score '+r.score+'/5');
     r=pose('infk', {opf:'lt'}, {'eqg-sch':'3','eqg-co1':'[','eqg-b1':'-3','eqg-b2':'-2','eqg-cf1':'['});
     if(r.score!==5) vus.push('f(x) < k (sommet) : carte + S = [-3 ; -2[ refusés, score '+r.score+'/5');
-    if(document.getElementById('eqg-co2')) vus.push('f(x) < k (sommet) : une seconde case d\'intervalle est proposée alors que S est une demi-droite');
+    if(document.getElementById('eqg-co2')) vus.push('f(x) < k (sommet) : une seconde case d\\'intervalle est proposée alors que S est une demi-droite');
     /* sur Q1 le côté S'INVERSE (f au-dessous de k entre les solutions) : un
        côté figé dans le code passerait Q0 sans broncher */
     r=pose('infk', {opf:'ge'}, {'eqg-sch':'2','eqg-co1':'[','eqg-b1':'-3','eqg-b2':'-2','eqg-cf1':']','eqg-co2':'[','eqg-b3':'2','eqg-b4':'3','eqg-cf2':']'}, Q1);
