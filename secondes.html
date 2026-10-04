@@ -5472,6 +5472,19 @@ const APP_VERSION=291;                       /* numero de version affiche dans l
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
    Un signe seul (« + ») n'est pas un residu : si le nettoyage vide la case, on garde l'ecrit. */
+/* LA LETTRE O TAPÉE POUR LE CHIFFRE ZÉRO (signalement de Turquet, octobre
+   2026, sur le 4.5.8 de la Seconde) : « O,9 », « O,81 » rougissaient à côté
+   d'une correction « 0,9 » — l'élève avait raison, sa main avait glissé d'une
+   touche. À l'écran, rien ne le trahit qu'un O un peu plus rond. Le lecteur
+   rend donc le zéro, MAIS seulement quand la case ne porte qu'un NOMBRE
+   (chiffres, O, virgule ou point, espaces, un signe en tête) et au moins un
+   vrai chiffre ou une virgule : « O » seul reste « O » (c'est le nom d'un
+   point), et une expression où O voisine avec une autre lettre n'est pas
+   touchée. */
+function zeroPourO(s){
+  s=String(s==null?'':s);
+  return (/[Oo]/.test(s) && /[\d.,]/.test(s) && /^[-\u2212+]?[\dOo\s.,]+$/.test(s)) ? s.replace(/[Oo]/g,'0') : s;
+}
 function saClean(s){
   s=String(s==null?'':s);
   s=s.replace(/\\placeholder\{\}/g,'');
@@ -5489,8 +5502,8 @@ function pmPlain(el){
   try{
     var lx = String(el.getValue?el.getValue():'');
     var net = saClean(lx); if(net==='') net = lx;
-    if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(net)||'').trim();
-    return net.trim();
+    if(window.mlDexp && window.mlDexp.toPlain) return zeroPourO(String(window.mlDexp.toPlain(net)||'').trim());
+    return zeroPourO(net.trim());
   }catch(e){ return ''; }
 }
 
