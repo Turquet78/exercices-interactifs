@@ -3380,6 +3380,124 @@ sous-thème 6.3 à porter un texte après son modèle : ceux du 6.3.1, du 6.3.2,
 du 6.3.4, du 6.3.6 et du 6.3.7 n'ont que leur ligne à recopier, et restent
 tels quels.
 
+**Le prix des pommes et des tomates — l'exercice 10 du carnet.**
+{python-input-prix} (Seconde, 6.3.9, APP_VERSION 284 — 280 à 283 pris sur `main` pendant les bancs —, demande de Turquet,
+octobre 2026 : « en seconde avec les images créer un exercice dans le sous
+thème input qui respecte toutes les nouvelles consignes que j'ai données pour
+le sous-thème input ; ne pas rajouter de phrase dans les définitions ou
+rappels ; écrire les énoncés des questions après les définitions ou
+rappels ») : le serpent au panier, « 1 kg de pomme = 3,62 € », « 1 kg de
+tomate = 5,57 € », puis « Réaliser un programme dans la cellule suivante
+qui » demande le poids des pommes, puis celui des tomates, sous forme
+décimale, calcule le prix total et l'affiche avec une phrase, et un coup de
+pouce : la formule. Il ferme le sous-thème 6.3, derrière {python-input-rectangle}
+(6.3.8, l'exercice 9 du carnet, fusionné pendant les bancs : celui-ci, écrit
+en 6.3.8, est passé en 6.3.9 pour garder l'ordre du carnet) : rien n'est
+renuméroté. Le contrôle du 6.3.8 exigeait d'être le DERNIER du sous-thème ;
+il exige désormais de suivre le 6.3.7.
+**Le dessin vient de la fiche** : découpé dans la capture, sans les prix,
+détouré, en WebP (10 Ko, `PKG_IMG`, une URL `data:`) — la page reste un
+fichier unique. Les prix au kilo sont écrits en TEXTE à côté
+(`pkgEtiquetteHTML`) : ils suivent la question, ce qu'un dessin ne sait pas
+faire.
+**Les consignes du sous-thème, toutes portées** : l'énoncé du haut est
+l'étiquette de la fiche ; la question vit dans un cadre `.pyn-etape`, en
+gras, qui enveloppe le coup de pouce, la cellule, « Exécuter » et la
+console ; aucune consigne à côté du bouton ; la console vide reste un cadre
+vide (`#pkgConsole` rejoint `content:none`) ; le coup de pouce vert clair ne
+porte que la formule (« pomme », « tomate » du coup de pouce mis au pluriel,
+seule correction). **La fiche n'a pas de définition** : l'écran n'a pas
+d'encadré au-dessus de l'énoncé — troisième exception déclarée de
+`pythonAvant.sans`, raison comprise —, et le rappel (`RAP_PKG`) n'est que la
+formule, sans une phrase de plus ; le banc compare son texte caractère par
+caractère, comme celui du coup de pouce.
+**La fiche ne nomme aucune variable : le juge lit ce que le programme
+AFFICHE** (`pkgDiag`). La copie s'exécute sous deux paires de poids décimaux
+que l'élève ne connaît pas (`PKG_EX`) ; il faut deux input avec leur
+question, et une ligne qui porte des mots et le bon prix total, à 1e-6 près
+— `(a*362 + b*557)/100` ou un prix collé par `str()` passent. Nommés : float
+oublié, int à la place (1.5 kg refusé), la virgule française DANS le code
+(`3,62` : sans ce mot, `print(p*3,62)` afficherait « 4.5 62 » sans erreur),
+`round()` que l'interpréteur refuse exprès, une ou trois questions, l'input
+muet, les questions dans le désordre (lu dans leurs textes), les prix
+échangés, le prix écrit à la main que la seconde paire trahit, le nom de
+variable entre guillemets, le prix sans phrase, rien d'affiché, un mauvais
+calcul. **La séance** : la fiche épinglée (3,62 € et 5,57 €), puis d'autres
+étiquettes tirées par `distinctes()` (sept paires de prix, jamais deux prix
+égaux : l'échange ne se verrait pas) ; `dmNbQuestions()` l'allonge. Pas de
+correction au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des
+tables. Banc jsdom (`pythonInputPrix`) : la place, le tirage (300 séances),
+le juge sur quatre copies justes et seize fausses chacune avec son mot,
+l'écran tenu aux consignes, le dialogue de la console, les copies juste,
+fausse et vide, le soutien, et 28 exécutions des modèles comparées à un vrai
+CPython. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
+---
+
+**L'aire et le périmètre d'un rectangle — l'exercice 9 du carnet.**
+{python-input-rectangle} (Seconde, 6.3.8, APP_VERSION 283, demande de Turquet,
+octobre 2026 : « en seconde avec les images créer un exercice dans le
+sous-thème input qui respecte toutes les nouvelles consignes que j'ai données
+pour le sous-thème input. Ne pas rajouter de phrase dans les définitions ou
+rappel. Écrire les énoncés des questions après les définitions ou rappels »)
+est la fiche « Exercice 9 » : un programme qui demande la longueur en
+centimètres d'un rectangle sous la forme d'un nombre décimal, puis sa
+largeur, calcule l'aire et le périmètre, et affiche les résultats — avec le
+rectangle de la fiche (« Longueur » au-dessus, « Largeur » sur le côté,
+redessiné en SVG ; le serpent, décoratif, n'est pas repris) et ses TROIS coups
+de pouce repliés. Il ferme le sous-thème 6.3, derrière {python-input-moyenne} :
+rien n'est renuméroté. Le contrôle du 6.3.7 exigeait d'être le DERNIER du
+sous-thème ; il exige désormais sa place (7e, derrière le 6.3.6), et celui
+d'ici de suivre le 6.3.7.
+
+**Les consignes du sous-thème, tenues d'emblée** : l'énoncé de la question
+dans un cadre `.pyn-etape`, EN GRAS, qui enveloppe les coups de pouce, la
+cellule, « Exécuter » et la console ; aucune consigne à côté du bouton ; la
+console vide reste un cadre vide (`#prcConsole` rejoint la règle
+`content:none`) ; des coups de pouce vert clair (`pyPoucesHTML`) qui ne portent
+QUE le texte de la fiche, ses coquilles corrigées (« centimètres ») et le
+« x » de la formule écrit « × » — un x isolé serait mis en italique par le
+filet `italiquerX` et lu comme l'inconnue. **La fiche n'a pas de définition :
+l'écran n'a donc PAS d'encadré de cours** (troisième exception déclarée de
+`pythonAvant.sans`, comme {python-chaine-tirets} : son rappel ne reprend que
+les coups de pouce, les écrire avant l'énoncé donnerait le programme), et le
+rappel (`RAP_PRC`, obligatoire) ne redit que les trois coups de pouce, sans
+phrase ajoutée. L'énoncé du haut est le rectangle de la fiche ; la question
+s'écrit dans son cadre, dessous.
+
+**Ce qu'il ajoute au 6.3.7** : DEUX résultats, donc deux calculs rangés dans
+`aire` et `perimetre` (sans accent — un `périmètre` est nommé), deux lignes
+affichées, et la parenthèse du périmètre. Le juge (`prcDiag`) exécute la copie
+sous deux paires de réponses décimales que l'élève ne connaît pas, multiples de
+1/8 : produits et sommes exacts en binaire, la page et CPython écrivent le même
+nombre. Le contrôle exige qu'aucune réponse ne soit entière, que l'aire ne
+vaille jamais le périmètre, et que les deux paires donnent deux résultats
+différents. Nommés : `int` au lieu de `float`, le float oublié,
+`longueur + largeur * 2` (« sans parenthèses »), le × 2 oublié, l'aire et le
+périmètre échangés, la somme pour l'aire, un nombre écrit à la main, le nom
+entre guillemets, une réponse affichée au lieu du résultat, le calcul fait
+dans le print, une seule ligne, un autre texte. Les deux lignes se lisent par
+`piaLigneOk`, dans un ordre ou dans l'autre ; les espaces que le coup de
+pouce 3 met dans ses guillemets (`"l'aire est de ", …`) ne sont pas un écart.
+Un programme à UN seul input s'arrête plus loin sur une variable jamais
+calculée : le juge dit « ne pose qu'une question », pas « la variable
+n'existe pas » — vu par le banc à la première exécution, comme au 6.3.6.
+
+**La séance** : la fiche épinglée en tête (le rectangle en centimètres), puis
+des situations tirées par `distinctes()` (un jardin, le sol d'une chambre, une
+photo, un terrain de sport), jusqu'à cinq avec le réglage « Questions ». La
+console est celle du 6.3.7 (pavé `decimal`, la virgule nommée par
+`pmyErreurConsole`). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonInputRectangle`) : la place, la fiche et le tirage (300 séances), le
+juge sur trois copies justes et vingt-trois fausses chacune avec son mot,
+l'écran (figure, gras, cadre, coups de pouce repliés, aucune définition, aucune
+consigne au bouton), le dialogue joué au clavier, les copies juste, fausse et
+vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
+CPython. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
 ---
 
 **Le sous-thème « Bonus », et la première BOUCLE — l'exercice 29 du carnet.**
@@ -3453,6 +3571,9 @@ Tab et Entrée, les copies juste, fausse et vide, le soutien qui ne révèle
 rien, et les programmes à boucle comparés à un vrai CPython. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans
 les deux modes.
+
+---
+
 **Concaténation et répétition : les exercices 21 et 22 du carnet, dans le
 6.1.** {python-chaines} (Seconde, 6.1.14, demande de Turquet, octobre 2026 :
 « en seconde créer un exercice dans le sous-thème print et variable qui
@@ -3762,3 +3883,142 @@ Puis {python-remplacer-lettre} (6.4.3, même jour) : son encadré des
 remarques du carnet (`prlRemarquesHTML`, question 1 seulement) vivait dans
 `#prlHost`, sous l'énoncé général — il monte dans `#prlAvant` comme les onze
 autres ; ses contrôles le cherchent dans `#scr-prl`.
+
+---
+
+---
+
+---
+
+**Le programme le plus court possible : un triangle d'étoiles — le sous-thème
+6.4 « Bonus ».** {python-triangle-etoiles} (Seconde, 6.4.5, demande de Turquet,
+octobre 2026 : « en seconde avec l'image créer un exercice dans le sous thème
+print et variable qui respecte toutes les nouvelles consignes que j'ai données
+pour le sous-thème input. ne pas rajouter de phrase dans les définitions ou
+rappel. écrire les énoncés des questions après les définitions ou rappels. on
+le mettra dans un sous thème bonus ») est l'exercice 23 du carnet : « Faire un
+programme, le plus court possible, qui affiche un triangle d'étoiles de taille
+10 ou plus grand que 10 », l'exemple de taille 4 (en violet gras, comme le
+carnet), et UN coup de pouce replié : « Pour compter de 1 à 10 utiliser
+l'instruction : `for k in range (1,11):` … ». Il suit {python-chaine-len}
+dans le sous-thème 6.4 « Bonus » : ajouté en dernier, rien n'est renuméroté,
+et son contrôle l'exige.
+
+**Les consignes du sous-thème Input, tenues ici** : l'énoncé du haut dit
+l'exercice en une phrase ; l'énoncé de la question s'écrit en GRAS dans un
+cadre `.pyn-etape` qui enveloppe l'exemple, le coup de pouce, la cellule et la
+console (le motif du 6.3.2) — il vient donc APRÈS tout ce qui serait une
+définition ; le coup de pouce est vert pâle, replié, et n'a rien après sa
+ligne modèle ; aucune consigne à côté du bouton « Exécuter » ; une console
+vide reste un cadre vide (`#ptrConsole:empty::before{content:none}`). **Aucun
+encadré de cours** : la fiche n'en a pas, et la demande interdit d'ajouter une
+phrase. Le rappel du bouton d'aide (`RAP_PTR`), obligatoire, ne porte que le
+coup de pouce, mot pour mot.
+
+**L'INTERPRÉTEUR N'A PAS APPRIS LES BLOCS — LA BOUCLE SE DÉROULE.** `pyRun`
+lit une ligne à la fois, et tout le thème 6 s'appuie sur lui : lui apprendre
+l'indentation aurait touché tous les exercices du thème pour en servir un.
+`ptrDerouler` réécrit à la place chaque `for v in range(…):` en lignes plates
+(`v = 1`, le corps, `v = 2`, le corps…) que `pyRun` exécute telles quelles —
+exact, puisqu'un programme sans `if` ni `while` n'a rien d'autre à décider.
+Les bornes du range se calculent sur l'état du programme à cet endroit (le
+début déjà déroulé, exécuté par `pyRun`) : `n = 12` puis `range(1, n+1)`
+marche. Le corps peut suivre les deux-points sur la même ligne. Les erreurs
+de décalage sont celles de Python, nommées en français : corps non décalé,
+ligne décalée hors d'une boucle, décalage incohérent, deux-points oubliés. Les
+numéros de ligne de `pyRun` comptent les lignes DÉROULÉES — ils ne désignent
+rien dans la copie, et sont retirés des messages. Une borne : 500 tours.
+**Tab et Entrée dans la cellule** : Tab décale de quatre espaces (sans cela il
+quitte la case), Entrée après « : » décale la ligne suivante — comme le carnet
+Jupyter.
+
+**LE JUGE LIT LA CONSOLE, PUIS LE PROGRAMME.** Le triangle d'abord : la ligne
+k porte k fois le caractère, les lignes vides des bords et les espaces de fin
+de ligne ne comptent pas (`range(11)` commence par une ligne vide, et c'est
+juste). Nommés : trop petit (ou pas à la taille imposée), à l'envers, décalé
+(espaces devant), espaces entre les étoiles, autre caractère, lignes toutes
+pareilles, rien d'affiché, `"*" + k`. Puis « le plus court possible » : une
+boucle `for` et au plus quatre lignes utiles — la version à une variable
+(`e = e + "*"`, puis `print(e)`) en fait quatre, et c'est la solution d'un
+élève qui ne connaît que print et les variables. **Le triangle juste écrit à
+la main est REFUSÉ**, dix print ou un seul print à `\n` : « ton triangle est
+juste, mais ton programme n'est pas le plus court possible ».
+
+**La séance** : la fiche épinglée en tête (étoiles, taille 10 ou plus), puis
+un triangle tiré par `distinctes()` — un autre caractère (`#`, `+`, `o`, `@`,
+`$`) et une taille IMPOSÉE, le coup de pouce suivant la taille (« de 1 à 12 »,
+`range (1,13)`) ; deux questions, que le réglage « Questions » d'un devoir
+allonge. Une case (`pts-case`), pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables (`TABLES_SANS` — oublié au premier
+jet, et vu en OUVRANT la page : la liste de `tests/profils.js` n'est que la
+seconde source, la page a la sienne). Banc jsdom
+(`pythonTriangle`) : la place, la fiche et le tirage (300 séances), le juge
+sur six copies justes et quinze fausses chacune avec son mot, l'écran et les
+consignes du sous-thème Input, Tab et Entrée, la copie juste tapée, fausse et
+vide, le soutien qui ne révèle rien, et quatorze programmes déroulés comparés
+à un vrai CPython — boucles imbriquées, pas négatif et erreurs d'indentation
+comprises. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
+**Puis {python-chaines} (6.1.14, la répétition `"*" * 10`) est arrivé sur `main`
+pendant que celui-ci passait ses bancs** : les deux s'étaient ajoutés aux
+mêmes listes (écrans, rappels, `TABLES_SANS`, `tests/profils.js`) — union
+ligne à ligne, aucun code commun. `main` avait pris la version 275 :
+celui-ci passe en 276. Le 6.1.14 enseigne justement ce que le modèle du
+triangle utilise (`"*"*k`) : le bonus vient après la leçon.
+
+**Puis {python-chaine-len} a pris le sous-thème « Bonus » le premier.** Une
+autre session avait créé le MÊME sous-thème 6.4 « Bonus », pour
+`len(chaine)` et `chaine[i]`, et l'a fusionné pendant que celui-ci attendait
+ses contrôles. Ce qui est en ligne garde sa place : {python-chaine-len} reste
+6.4.1, le triangle devient 6.4.2 (`THEMES` ne porte qu'UN sous-thème 6.4, aux
+deux identifiants), son contrôle exige désormais de suivre {python-chaine-len},
+et la version passe en 277 (`main` avait pris la 276).
+
+**Et une troisième fois : {python-chaine-tirets}.** Pendant que la fusion
+précédente passait ses bancs, l'exercice « ajouter un caractère entre chaque
+caractère d'une chaîne » a été fusionné en 6.4.2, avec la version 277. Le
+triangle, ajouté en dernier, passe en 6.4.3 (son contrôle exige de suivre
+{python-chaine-tirets}), version 278. Les préfixes ne se heurtent pas
+(`ptt` là-bas, `ptr` ici) : les listes partagées s'unissent ligne à ligne.
+
+**Et une quatrième : {python-remplacer-lettre}.** Le même scénario — fusionné
+en 6.4.3 avec la version 278 pendant que les contrôles de celui-ci tournaient.
+Le triangle passe en 6.4.4, version 279. Ce bonus-là a appris `for … in
+range(…)` à l'interpréteur commun ; `ptrDerouler` reste tel quel : il déroule
+les boucles AVANT `pyRun`, et ne dépend donc pas de ce que celui-ci sait
+faire. Cette fois le conflit était entremêlé dans le code (les deux blocs
+insérés derrière le même `ctxPmy`) : la page a été reprise de `main`, et les
+insertions de celui-ci y ont été REJOUÉES une à une, puis comptées (173
+mentions de `ptr`/`PTR` avant et après).
+
+**Puis la règle « les définitions avant l'énoncé » est arrivée pour tout le
+thème** (version 279), et le triangle passe en 280. La fiche n'a pas de
+définition, et son seul rappel est le coup de pouce. Un premier jet l'a écrit
+dans `ptrAvant`, au-dessus de l'énoncé, comme les exercices sans encadré ;
+Turquet a tranché : « garde le coup de pouce seulement replié ». L'emplacement
+existe et reste VIDE, et l'exception est NOMMÉE dans `tests/profils.js`
+(`pythonAvant.sans`), comme celle de {python-chaine-tirets}, pour la même
+raison.
+
+**Et une sixième : {python-inverser-lettres}**, fusionné en 6.4.4 pendant les
+bancs de celle-ci. Le triangle passe en 6.4.5, version 280. Même méthode :
+page, profils et banc repris de `main`, insertions rejouées, mentions de
+`ptr` comptées avant et après (aucun écart).
+
+Puis une septième fusion de `main` (le bouton « Retour », version 281, sans
+rapport avec le thème Python) : le triangle passe en version 282.
+
+Puis une huitième (Turquet78/exercices-interactifs#477, version 282), qui
+portait AUSSI l'exception de {python-inverser-lettres} : la sienne est
+gardée, celle que cette branche avait portée est retirée (une clé écrite deux
+fois dans `tests/profils.js` gagne en silence). Le triangle passe en 283.
+
+Puis une neuvième (Turquet78/exercices-interactifs#485, le rectangle en 6.3.8,
+version 283) : le triangle passe en 284, toujours par la même reprise
+(fichiers de `main`, insertions rejouées et comptées).
+
+Puis une dixième (Turquet78/exercices-interactifs#484, le prix en 6.3.9, version
+284) : le triangle passe en 285. Pour fermer la fenêtre entre « contrôles
+verts » et « fusion », la fusion automatique de GitHub est demandée dès la
+poussée.

@@ -3701,6 +3701,31 @@ dans l'ordre, jamais une lettre hors paire, les quatre paires sortent, les deux
 proportions finales diffèrent et varient), deux effectifs contre des sommes
 écrites à part, une copie juste par le bouton (7 cases bleues).
 
+## Seconde 4.6.4 — {tableau-proportions-directes} : le 4.6.3, la fraction DIRECTE
+
+**Demandé par Turquet en octobre 2026** : « un exercice comme le 4.6.3, qui
+demande de compléter un tableau de valeurs, mais qui ne demande plus les
+valeurs des lettres (A ; C ; A et C). De plus, pour chaque question, on
+demandera directement la valeur du petit effectif sur le grand effectif sans
+rien afficher d'autre. »
+
+**Moteur partagé, identité propre** (journal 09) : même `kind` `tdl`, même
+écran, même tirage de paire que le 4.6.3 (`TDL_FIN`). Les questions portent
+`q.dir=1`, et quatre endroits s'y règlent : `tdlCases` (deux cases seulement,
+`tdl-num` et `tdl-den`), le rendu (le tableau complété, la question, puis la
+fraction à deux cases empilées — ni « Ici on étudie… », ni les phrases
+« nbr de … / nombre total de … »), le pourquoi (dit en mots, sans lettre) et
+la copie enregistrée (`given` = « num/den »). Six questions par situation
+(`TDLD_NB`) : le tableau, puis les cinq proportions, numérotées 1) à 5).
+Barème : 5 + 5 × 2 = 15 cases.
+
+**Contrôle** (`tableauProportionsDirectes`) : 1 000 tirages (six questions,
+phases dans l'ordre, deux cases par proportion, jamais une lettre hors de la
+paire, les quatre paires et les couples finaux varient), trois effectifs
+contre des sommes écrites à part, l'écran (deux champs, aucune liste, aucune
+phrase à trous), une copie juste (2 cases bleues, enregistrée juste) et un
+dénominateur faux (le numérateur reste bleu, seul le dénominateur rougit).
+
 ## {pourcentage-phrases} — du texte au schéma, le 4.1.10 pris depuis les phrases (Seconde, septembre 2026, 4.1.11)
 
 **D'où il vient.** Demande de Turquet : « en seconde, un nouvel exercice comme
