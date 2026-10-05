@@ -211,6 +211,14 @@ module.exports = {
        qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
        juge pas à moitié écrite —, puis mesure l'alignement des termes. */
     sommeFractions: { exercice: 'somme-fractions' },
+    /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
+       (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
+       de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
+       SUJET est une fraction réductible, raison comprise. */
+    fractionsIrreductibles: { sans: {
+      'fractions-decimales': 'une fraction décimale (30/100) est le sujet même : la rendre irréductible la ferait sortir des puissances de 10',
+      'fraction-pourcentage': 'aucune opération entre fractions : on colorie une fraction pour lire un pourcentage'
+    } },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au
@@ -736,6 +744,15 @@ module.exports = {
        qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
        juge pas à moitié écrite —, puis mesure l'alignement des termes. */
     sommeFractions: { exercice: 'somme-fractions' },
+    /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
+       (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
+       de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
+       SUJET est une fraction réductible, raison comprise. */
+    fractionsIrreductibles: { sans: {
+      'fractions-decimales': 'une fraction décimale (30/100) est le sujet même : la rendre irréductible la ferait sortir des puissances de 10',
+      'fraction-pourcentage': 'aucune opération entre fractions : on colorie une fraction pour lire un pourcentage',
+      'simplifier-barres': 'simplifier EST le sujet : la fraction de départ doit être réductible'
+    } },
 
     /* {croiser-denominateurs} : le même moteur que {somme-fractions}, avec les
        flèches en plus. Le banc navigateur mesure ce que l'élève VOIT — les

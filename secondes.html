@@ -5495,7 +5495,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=293;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=294;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -44299,9 +44299,12 @@ function ctxTdl(q){
    {additionner-relatifs}) : dénominateurs de 2 à 9, numérateurs et entiers de
    1 à 9. AUCUNE simplification n'est demandée ni recherchée — ce n'est pas le
    sujet ici, à la différence de {multiplier-fractions} — et le tirage écarte
-   seulement un résultat NUL là où la case deviendrait ambiguë (meme-sub :
-   deux numérateurs distincts ; diff-sub-entier : le numérateur final n'est
-   jamais zéro).
+   un résultat NUL là où la case deviendrait ambiguë (meme-sub : deux
+   numérateurs distincts ; diff-sub-entier : le numérateur final n'est jamais
+   zéro). LES FRACTIONS DE L'ÉNONCÉ SONT TOUJOURS IRRÉDUCTIBLES (décision de
+   Turquet, octobre 2026, pour tous les calculs de fractions de la Seconde et
+   de la Première) : « 6/8 + 3/8 » ne sort plus. Le résultat, lui, reste le
+   calcul direct, non simplifié, comme avant (rvfReponse).
 
    ON RANGE LES NOMBRES TIRÉS, JAMAIS LA RÉPONSE : rvfReponse() la recalcule à
    chaque correction, comme relLignes() le fait pour {additionner-relatifs} —
@@ -44342,31 +44345,42 @@ function rvfFallback(type){
 function rvfTirage(type){
   for(let essai=0; essai<200; essai++){
     if(type==='meme-add'){
-      return {type:type, d:rand(2,9), n1:rand(1,9), n2:rand(1,9)};
+      const d=rand(2,9), n1=rand(1,9), n2=rand(1,9);
+      if(gcd(n1,d)!==1 || gcd(n2,d)!==1) continue;
+      return {type:type, d:d, n1:n1, n2:n2};
     }
     if(type==='meme-sub'){
       const d=rand(2,9), n1=rand(1,9), n2=rand(1,9);
       if(n1===n2) continue;
+      if(gcd(n1,d)!==1 || gcd(n2,d)!==1) continue;
       return {type:type, d:d, n1:n1, n2:n2};
     }
     if(type==='mult-frac'){
-      return {type:type, d1:rand(2,9), d2:rand(2,9), n1:rand(1,9), n2:rand(1,9)};
+      const d1=rand(2,9), d2=rand(2,9), n1=rand(1,9), n2=rand(1,9);
+      if(gcd(n1,d1)!==1 || gcd(n2,d2)!==1) continue;
+      return {type:type, d1:d1, d2:d2, n1:n1, n2:n2};
     }
     if(type==='mult-entier'){
-      return {type:type, d:rand(2,9), n:rand(1,9), k:rand(1,9)};
+      const d=rand(2,9), n=rand(1,9);
+      if(gcd(n,d)!==1) continue;
+      return {type:type, d:d, n:n, k:rand(1,9)};
     }
     if(type==='diff-add'){
-      const d1=rand(2,9), d2=rand(2,9);
+      const d1=rand(2,9), d2=rand(2,9), n1=rand(1,9), n2=rand(1,9);
       if(d1===d2) continue;
-      return {type:type, d1:d1, d2:d2, n1:rand(1,9), n2:rand(1,9)};
+      if(gcd(n1,d1)!==1 || gcd(n2,d2)!==1) continue;
+      return {type:type, d1:d1, d2:d2, n1:n1, n2:n2};
     }
     if(type==='diff-sub-entier'){
       const d1=rand(2,9), n1=rand(1,9), k=rand(1,9);
       if(n1-k*d1===0) continue;
+      if(gcd(n1,d1)!==1) continue;
       return {type:type, d1:d1, n1:n1, k:k};
     }
     if(type==='div-1' || type==='div-2'){
-      return {type:type, d1:rand(2,9), d2:rand(2,9), n1:rand(1,9), n2:rand(1,9)};
+      const d1=rand(2,9), d2=rand(2,9), n1=rand(1,9), n2=rand(1,9);
+      if(gcd(n1,d1)!==1 || gcd(n2,d2)!==1) continue;
+      return {type:type, d1:d1, d2:d2, n1:n1, n2:n2};
     }
   }
   return rvfFallback(type);
