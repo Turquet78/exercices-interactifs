@@ -4155,6 +4155,7 @@ function exercices(suite){
     pythonInputPrix(w, P);
     pythonInputEvolution(w, P);
     pythonInputDuree(w, P);
+    pythonInputDureeSecondes(w, P);
     pythonChaineTirets(w, P);
     pythonRemplacerLettre(w, P);
     pythonPasAPas(w, P);
@@ -26129,6 +26130,191 @@ function pythonInputEvolution(w, P){
     return res;
   })())`);
   if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-input-duree-secondes} (Seconde, 6.5.3) : l'exercice 12 du carnet — demander
+   une durée en secondes, l'afficher en heures, minutes et secondes. Le
+   contrôle tient la place au menu (il ferme le sous-thème 6.5 « Bonus :
+   input », derrière {python-input-evolution}, rien d'autre ne bouge), la fiche épinglée et le tirage, le juge —
+   qui ne lit que ce que les print AFFICHENT — sur des copies justes et
+   fausses, chacune avec le mot qui la nomme, l'écran (le dessin, l'encadré
+   de // et % AVANT l'énoncé, l'énoncé en gras dans son cadre), le dialogue
+   de la console, la copie juste, fausse et vide, le soutien qui explique
+   sans révéler, puis compare à un vrai CPython ce que le modèle affiche.
+   Aucun accent grave ni antislash littéral dans le code évalué. */
+function pythonInputDureeSecondes(w, P){
+  const nom = '{python-input-duree-secondes} : convertir une durée en heures, minutes et secondes';
+  if(!P.pythonInputDureeSecondes){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la durée'); return; }
+  const ID = P.pythonInputDureeSecondes.exercice, NB = P.pythonInputDureeSecondes.nb, NUM = P.pythonInputDureeSecondes.numero;
+  const present = evaluer(w, "typeof startPHM==='function' && typeof phmDiag==='function' && typeof phmBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPHM / phmDiag / phmBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.5 « Bonus : input », numéroté ' + NUM + ', derrière {python-input-evolution}, et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===5; });
+    if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-input-evolution") vus.push("il ne ferme pas le sous-thème derrière {python-input-evolution} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-input-evolution"]!=="6.5.2"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (3730 secondes), puis d’autres durées distinctes ; chaque durée sort (300 séances), et les durées du juge ont heures, minutes et secondes toutes différentes et non nulles', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=phmBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(phmDuree(qs[0])!==3730){ vus.push("la fiche n’ouvre pas la séance : "+phmDuree(qs[0])); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois la même durée : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    if(Object.keys(vues).length!==PHM_DUREES.length) vus.push("des durées ne sortent jamais : "+Object.keys(vues).join(","));
+    if(phmHMS(3730).join(",")!=="1,2,10") vus.push("phmHMS(3730) = "+phmHMS(3730));
+    PHM_DUREES.concat(PHM_EX).forEach(function(n){ const h=phmHMS(n); if(h.some(function(x){ return x<1; })) vus.push(n+" a une partie nulle"); });
+    PHM_EX.forEach(function(n){ const h=phmHMS(n); if(new Set(h).size!==3) vus.push(n+" : deux parties égales"); if(PHM_DUREES.indexOf(n)>=0) vus.push(n+" est aussi un exemple de l’énoncé"); });
+    if(!phmDiag(phmModele(),{s:0}).ok) vus.push("le modèle est refusé : "+phmDiag(phmModele(),{s:0}).dits.join(" "));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte toute écriture juste (noms libres, trois print, la durée rappelée devant, le calcul des minutes par // puis %) et nomme chaque défaut — int oublié, float, la barre /, minutes ou secondes au-delà de 59, l’ordre, les mots absents, l’exemple écrit à la main, deux questions, aucune question, input muet, rien d’affiché, autre calcul, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const I="n = int(input("+Q+"Durée en secondes ? "+Q+"))"+NL;
+    const ph=function(h,m,s){ return "print("+h+", "+Q+"heures,"+Q+", "+m+", "+Q+"minutes et"+Q+", "+s+", "+Q+"secondes"+Q+")"; };
+    const justes=[phmModele(),
+                  I+ph("n // 3600","n % 3600 // 60","n % 60"),
+                  I+"h = n // 3600"+NL+"reste = n - h * 3600"+NL+"m = reste // 60"+NL+"s = reste - m * 60"+NL+"print(h, "+Q+"h"+Q+")"+NL+"print(m, "+Q+"min"+Q+")"+NL+"print(s, "+Q+"s"+Q+")"+NL+"print("+Q+"heures minutes secondes"+Q+")",
+                  "d = int(input("+A+"Entrer une durée : "+A+"))"+NL+"print(d, "+Q+"secondes ="+Q+", d // 3600, "+Q+"heures,"+Q+", (d // 60) % 60, "+Q+"minutes et"+Q+", d % 60, "+Q+"secondes"+Q+")"];
+    justes.forEach(function(p){ const d=phmDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
+    const cas=[
+      ["n = input("+Q+"D ? "+Q+")"+NL+ph("n // 3600","n % 3600 // 60","n % 60"), /TOUJOURS un texte/],
+      ["n = float(input("+Q+"D ? "+Q+"))"+NL+ph("n // 3600","n % 3600 // 60","n % 60"), /ENTIER/],
+      [I+ph("n / 3600","n % 3600 / 60","n % 60"), /barre/],
+      [I+ph("n // 3600","n // 60","n % 60"), /minutes dépassent/],
+      [I+ph("n // 3600","n % 3600 // 60","n % 3600"), /secondes dépassent/],
+      [I+ph("n % 60","n % 3600 // 60","n // 3600"), /ordre/],
+      [I+"print(n // 3600, n % 3600 // 60, n % 60)", /il manque les mots/],
+      [I+ph("1","2","10"), /même chose/],
+      [I+"z = input("+Q+"?"+Q+")"+NL+ph("n // 3600","n % 3600 // 60","n % 60"), /plus d’une question/],
+      ["n = 3730"+NL+ph("n // 3600","n % 3600 // 60","n % 60"), /aucune question/],
+      ["n = int(input())"+NL+ph("n // 3600","n % 3600 // 60","n % 60"), /pas de question/],
+      [I+"h = n // 3600", /n’affiche rien/],
+      [I+ph("n // 3000","n % 3000 // 50","n % 50"), /Vérifie tes calculs/],
+      ["n = int(input(«D»))", /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=phmDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : l’encadré de // et % AVANT l’énoncé (première question seulement), le dessin, l’énoncé de la fiche en gras dans son cadre avec l’exemple de la question, la cellule, « Exécuter » et la console, aucun coup de pouce ; « Exécuter » pose la question, Entrée affiche la conversion ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPHM();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    const net=function(t){ return String(t||"").split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const av=document.getElementById("phmAvant"), en=document.getElementById("phmInstr");
+    if(!av||net(av.textContent).indexOf("17 // 5 vaut 3")<0||net(av.textContent).indexOf("17 % 5 vaut 2")<0) vus.push("l’encadré de cours : "+(av&&av.textContent));
+    if(!(av.compareDocumentPosition(en) & Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("l’encadré n’est pas avant l’énoncé");
+    const img=en&&en.querySelector("img.phm-img");
+    if(!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("pas de dessin");
+    const et=document.getElementById("phmEtape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||net(ti.textContent).indexOf("Faire un programme qui demande une durée en secondes et qui affiche le résultat en heures, minutes et secondes.")<0||net(ti.textContent).indexOf("si on rentre 3730 secondes, il doit afficher : 1 heures, 2 minutes et 10 secondes")<0) vus.push("l’énoncé : "+(ti&&ti.textContent));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    ["phm-prog","phmRun","phmConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    if(document.querySelector("#phmEtape details.pyd-pouce")) vus.push("un coup de pouce que la fiche n’a pas");
+    const ta=document.getElementById("phm-prog"), cons=document.getElementById("phmConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=phmModele();
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    phmExecuter();
+    const r=document.getElementById("phm-rep");
+    if(cons.textContent.indexOf("Entrer une durée en secondes")<0||!r) vus.push("la question n’est pas posée dans la console");
+    else {
+      r.value="3730"; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      if(document.getElementById("phm-rep")) vus.push("la case reste après la réponse");
+      if(cons.textContent.split(NL).pop()!=="1 heures, 2 minutes et 10 secondes") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+    }
+    checkPHM();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPHM();
+    if(test.idx!==1||document.getElementById("phm-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    if(net(document.getElementById("phmAvant").textContent)!=="") vus.push("l’encadré de cours revient à la question 2");
+    const n1=phmDuree(test.questions[1]);
+    if(net(document.getElementById("phmEtape").textContent).indexOf("si on rentre "+n1+" secondes")<0) vus.push("l’exemple de la question 2 ne suit pas sa durée");
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.phm;
+    if(net(rap.textContent).indexOf("17 % 5 vaut 2")<0) vus.push("le rappel");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPHM();
+    let ta=document.getElementById("phm-prog");
+    ta.value="n = input("+Q+"D ? "+Q+")"+NL+"print(n // 3600, "+Q+"heures"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPHM();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#phmModele .sol");
+    if(!mod||mod.textContent!==phmModele()) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("phmConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPHM(); ta=document.getElementById("phm-prog");
+    checkPHM();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==phmModele()) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPHM(); ta=document.getElementById("phm-prog");
+    checkPHM();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="n = int(input("+Q+"D ? "+Q+"))"+NL+"print(n // 3600, "+Q+"heures,"+Q+", n // 60, "+Q+"minutes et"+Q+", n % 60, "+Q+"secondes"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPHM();
+    const fb=document.getElementById("phmFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/minutes dépassent/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#phmModele .sol")||fb.indexOf("duree % 3600")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPhm(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur le modèle ---- */
+  const nomPy = 'ce que le modèle de {python-input-duree-secondes} affiche est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PHM_DUREES.concat(PHM_EX, [59, 60, 3599, 3600, 86399]).forEach(function(n){
+      const src=phmModele(), r=pyRun(src,[String(n)]);
+      res.push([src, [String(n)], r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'le modèle ne s\'exécute pas : ' + paires.erreur); return; }
   const liste = JSON.parse(paires.valeur);
   const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
   const ecarts = [];

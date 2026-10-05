@@ -4196,3 +4196,62 @@ cinq copies justes et vingt fausses (chacune avec le mot qui la nomme), les
 trois questions, l'étape 2 qui reprend le programme, l'étape 3 qui repart de
 la correction —, la copie vide, le soutien sans révélation, puis compare à un
 vrai CPython ce que les modèles affichent.
+
+---
+
+**Une durée en heures, minutes et secondes — l'exercice 12 du carnet.**
+{python-input-duree-secondes} (Seconde, 6.5.3, APP_VERSION 300, demande de
+Turquet, octobre 2026 : « en seconde dans le thème algo dans la partie bonus
+créer un sous-thème input et faire un exercice comme l'image ») est la fiche
+« Exercice 12 » : le serpent devant son ordinateur, puis « Faire un programme
+qui demande une durée en secondes et qui affiche le résultat en heures,
+minutes et secondes » — 3730 secondes donnent « 1 heures, 2 minutes et 10
+secondes » (les espaces avant les virgules de la fiche sont retirés, rien
+d'autre ne change).
+
+**La même demande, deux sessions, deux fiches — et un seul sous-thème.**
+Pendant que celui-ci était écrit, la même phrase, avec l'image de l'exercice
+11, a créé le sous-thème 6.5 « Bonus : input » ({python-input-duree}, des
+minutes en heures et minutes), puis {python-input-evolution} l'a rejoint.
+Écrit d'abord sous le MÊME identifiant `python-input-duree`, et rangé dans un
+« groupe Input » DANS le 6.4 (des blocs titrés sur la page du sous-thème), il
+aurait fait deux sous-thèmes Input et deux exercices pour un nom. Il a donc
+été reconstruit sur `main` : identifiant propre, rangé en dernier dans le 6.5
+(6.5.3, rien n'est renuméroté), les blocs abandonnés — ils ne servaient qu'à
+ce que le 6.5 fait déjà. Son contrôle exige de fermer le 6.5 derrière
+{python-input-evolution}. L'ordre du carnet (11 puis 12) n'est pas suivi : le
+6.5.2 était déjà en ligne, le renuméroter aurait déplacé un exercice que des
+élèves ont pu travailler.
+
+**Ce que la fiche suppose : `//` et `%`.** Le 6.5.1 les fait ESSAYER dans son
+coup de pouce ; aucun exercice ne les définit. L'encadré de cours (avant
+l'énoncé, au premier écran seulement, `pyAvant`) les définit sur 17 et 5 —
+jamais sur une durée, qui donnerait le programme — et le rappel (`RAP_PHM`)
+dit la même chose. La fiche n'a pas de coup de pouce : l'écran n'en invente
+pas. Le dessin est découpé dans la capture, détouré, en WebP (10 Ko,
+`PHM_IMG`).
+
+**La fiche ne nomme aucune variable : le juge lit ce que les print
+AFFICHENT** (`phmDiag`), pas l'écho de la question d'input — sans quoi
+« durée en secondes » fournirait le mot « secondes ». La copie s'exécute sous
+deux durées que l'élève ne connaît pas (`PHM_EX` : 45296 et 8125, heures,
+minutes et secondes toutes différentes et non nulles) ; il faut, à la suite,
+les trois nombres ENTIERS et les mots « heures », « minutes », « secondes ».
+Acceptés : trois print, la durée rappelée devant, `(d // 60) % 60`, une
+soustraction au lieu de `%`. Nommés : int oublié, float (« 12.0 »), la barre
+`/`, les minutes au-delà de 59 (`n // 60`), les secondes au-delà de 59
+(`n % 3600`), l'ordre, les mots absents, l'exemple écrit à la main, deux
+questions, aucune, l'input muet, rien d'affiché, un autre calcul.
+
+**La séance** : la fiche épinglée (3730 s), puis d'autres durées d'exemple
+tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. Pas de correction au
+fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables
+(`TABLES_SANS` ET `tablesAide.sans` : oublier la seconde a fait rougir le banc
+navigateur, « sans bouton alors qu'il devrait l'avoir »). Banc jsdom
+(`pythonInputDureeSecondes`) : la place, le tirage (300 séances), le juge sur
+quatre copies justes et quinze fausses chacune avec son mot, l'écran (encadré
+avant l'énoncé, dessin, énoncé en gras dans son cadre, aucun coup de pouce),
+le dialogue joué au clavier, les copies juste, fausse et vide, le soutien qui
+ne révèle rien, et le modèle comparé à un vrai CPython. Pas de section propre
+au banc navigateur : la visite universelle (section 9) l'ouvre dans les deux
+modes.
