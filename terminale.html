@@ -3100,7 +3100,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=362;
+const APP_VERSION=363;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -12148,7 +12148,11 @@ function cvxTableHTML(q, num){
     for(let i=0;i<nI;i++) inner+=fleche(pref+i,scx(i));
     return '<tr class="vt-fr"><td class="vlab">'+lab+'</td><td class="vfcell" colspan="'+(2*(nN+2)-1)+'" style="height:'+EF_H+'px">'+inner+(valeur||'')+'</td></tr>';
   };
-  const valE='<input type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" class="s1-in sm cvx-val" id="cvx-e" title="valeur de l’extremum de f ′" style="left:'+ncx(1)+'px;top:'+(EF_H/2)+'px">';
+  /* inputmode « numeric », jamais « decimal » : le pavé de la page (qui porte
+     le signe moins) ne s'attache qu'aux cases numériques, et le clavier
+     décimal du système n'a PAS de « − » sur tablette ni sur téléphone — or
+     l'extremum de f ′ est souvent négatif. */
+  const valE='<input type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" class="s1-in sm cvx-val" id="cvx-e" title="valeur de l’extremum de f ′" style="left:'+ncx(1)+'px;top:'+(EF_H/2)+'px">';
   const rows = num===1
     ? '<tr class="vt-xr">'+xr+'</tr>'
       +ligne('Signe de '+fpx, signe, 'cvx-s1-')
