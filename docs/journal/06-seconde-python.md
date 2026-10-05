@@ -4026,7 +4026,7 @@ poussée.
 ---
 
 **Coder un programme de calcul — l'exercice 19 du carnet, et il ferme le
-sous-thème 6.2.** {python-programme-calcul} (Seconde, 6.2.9, APP_VERSION 294,
+sous-thème 6.2.** {python-programme-calcul} (Seconde, 6.2.9, APP_VERSION 295 — 294 pris sur `main` pendant les bancs —,
 demande de Turquet, octobre 2026 : « fais un exercice dans les algo de seconde
 dans le sous thème variable et calcul comme le pdf ») : « On considère le
 programme de calcul suivant » — A prend la valeur 5, multiplier A par 3,
