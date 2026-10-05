@@ -4083,7 +4083,7 @@ section propre au banc navigateur : la visite universelle (section 9) l'ouvre
 dans les deux modes.
 
 **Le sous-thème « Bonus : input », et une durée en heures et minutes — l'exercice 11 du carnet.**
-{python-input-duree} (Seconde, 6.5.1, APP_VERSION 296 — 294 et 295 pris sur `main` pendant les bancs —, demande de Turquet,
+{python-input-duree} (Seconde, 6.5.1, APP_VERSION 297 — 294 à 296 pris sur `main` pendant les bancs —, demande de Turquet,
 octobre 2026 : « en seconde dans le thème algo dans la partie bonus créer un
 sous-thème input et faire un exercice comme l'image ») : les deux serpents
 (« C'est trop dur pour toi !! »), puis « Faire un programme qui demande une
