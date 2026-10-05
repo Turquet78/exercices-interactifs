@@ -6319,6 +6319,7 @@ function contexteChaqueExercice(w, apres){
    par distinctes() ou rougit ici. Et le contrôle dit ce qu'il a mesuré : un
    parcours sans aucune séance à plusieurs questions ne mesure rien. */
 function questionsDistinctes(w, apres){
+  const suite = apres; apres = () => fractionsDepartIrreductibles(w, suite);
   const nom = 'aucune séance ne pose deux fois la même question';
   const src = lire(CIBLE);
   const bruts = (src.match(/test\.questions\s*=\s*Array\.from\(\{length:/g) || []).length;
@@ -6367,6 +6368,76 @@ function questionsDistinctes(w, apres){
     const v = r.valeur || {};
     if(!v.mesures){ verifier(nom, false, 'aucune séance à plusieurs questions : le contrôle ne mesure rien'); return apres(); }
     verifier(nom + ' (' + v.mesures + ' séances tirées)', v.doubles.length === 0, v.doubles.slice(0, 5).join(' | '));
+    apres();
+  });
+}
+
+/* ---------- Les fractions de DÉPART d'un calcul sont irréductibles ---------
+   Décision de Turquet (octobre 2026) : en Seconde et en Première, quand un
+   exercice de fractions fait faire une OPÉRATION, les fractions de l'énoncé
+   sont toujours irréductibles. La règle était déjà tenue, exercice par
+   exercice, par huit tirages sur neuf — chacun avec son propre test, dans son
+   propre contrôle. Le neuvième, {revision-fractions}, tirait « 6/8 + 3/8 »
+   sans que rien ne rougisse : une règle valable partout se tient partout.
+
+   Le contrôle démarre chaque exercice de fractions — ceux du thème
+   « Fractions », et tout identifiant qui contient « fraction », où qu'il soit
+   rangé (la Première range {somme-fractions} dans le calcul mental) — et lit
+   les questions TIRÉES, pas le source : les paires (numérateur, dénominateur)
+   suivent les noms des moteurs (a/b, c/d, e/f, g/h ; n1/d1, n2/d2, n/d ; et
+   n1/d, n2/d quand les deux fractions partagent leur dénominateur). Un
+   exercice où le contrôle ne reconnaît AUCUNE fraction rougit au lieu de
+   passer : un contrôle qui n'a rien à mesurer doit le dire. Ceux dont le
+   sujet EST une fraction réductible (simplifier, une fraction décimale) se
+   déclarent, raison comprise, dans le profil (fractionsIrreductibles.sans) ;
+   une déclaration qui ne désigne plus aucun exercice rougit aussi. */
+function fractionsDepartIrreductibles(w, apres){
+  const nom = 'les fractions de départ d’un calcul de fractions sont irréductibles';
+  const decl = P.fractionsIrreductibles;
+  if(!decl){ ignorer(nom, 'ce niveau ne déclare pas la règle (fractionsIrreductibles)'); return apres(); }
+  evalPromis(w, `(async function(){
+    const SANS=${JSON.stringify(Object.keys(decl.sans || {}))}, SEANCES=60;
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    const num=function(v){ return typeof v==='number' && isFinite(v); };
+    const paires=function(q){
+      const r=[];
+      if(num(q.a) && num(q.b)){ [['a','b'],['c','d'],['e','f'],['g','h']].forEach(function(p){ if(num(q[p[0]])&&num(q[p[1]])) r.push(p); }); }
+      else {
+        [['n1','d1'],['n2','d2'],['n','d']].forEach(function(p){ if(num(q[p[0]])&&num(q[p[1]])) r.push(p); });
+        if(num(q.d) && !num(q.d1)) ['n1','n2'].forEach(function(n){ if(num(q[n])) r.push([n,'d']); });
+      }
+      return r;
+    };
+    const fr=(THEMES.find(function(t){ return /^fractions$/i.test(t.nom); })||{ids:[]}).ids;
+    const ids=Object.keys(TEST_NUM).filter(function(id){ return TEST_NUM[id] && (fr.indexOf(id)>=0 || /fraction/.test(id)); });
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const vus=[], mortes=SANS.filter(function(id){ return ids.indexOf(id)<0; }); let mesures=0, exos=0;
+    for(const id of ids){
+      if(SANS.indexOf(id)>=0) continue;
+      if(!TESTS[id] || typeof TESTS[id].start!=='function'){ vus.push(TEST_NUM[id]+' '+id+' : aucun démarreur'); continue; }
+      let lues=0, faute='';
+      for(let t=0;t<SEANCES && !faute;t++){
+        currentTestId=id; test.questions=null;
+        try{ await TESTS[id].start(); }catch(e){ faute='le démarrage lève « '+e.message+' »'; break; }
+        (Array.isArray(test.questions)?test.questions:[]).forEach(function(q){
+          if(faute || !q || typeof q!=='object') return;
+          paires(q).forEach(function(p){
+            lues++;
+            if(!faute && q[p[1]]>0 && pgcd(q[p[0]],q[p[1]])!==1)
+              faute='tire '+q[p[0]]+'/'+q[p[1]]+' ('+p[0]+'/'+p[1]+(q.type?', '+q.type:'')+')';
+          });
+        });
+      }
+      if(!faute && !lues) faute='aucune fraction de départ reconnue dans ses questions — à déclarer dans fractionsIrreductibles.sans si son sujet est une fraction réductible';
+      if(faute) vus.push(TEST_NUM[id]+' '+id+' : '+faute); else { exos++; mesures+=lues; }
+    }
+    mortes.forEach(function(id){ vus.push('fractionsIrreductibles.sans déclare '+id+', qui n’est plus un exercice de fractions du menu : la déclaration est morte'); });
+    return { vus:vus, exos:exos, mesures:mesures };
+  })()`, r => {
+    if(!r.ok){ verifier(nom, false, 'erreur JavaScript : ' + r.erreur); return apres(); }
+    const v = r.valeur || {};
+    if(!v.exos && !v.vus.length){ verifier(nom, false, 'aucun exercice de fractions mesuré : le contrôle ne mesure rien'); return apres(); }
+    verifier(nom + ' (' + (v.exos || 0) + ' exercices, ' + (v.mesures || 0) + ' fractions lues)', v.vus.length === 0, v.vus.slice(0, 5).join(' | '));
     apres();
   });
 }
