@@ -4082,7 +4082,62 @@ le modèle ni le résultat, et les modèles comparés à un vrai CPython. Pas de
 section propre au banc navigateur : la visite universelle (section 9) l'ouvre
 dans les deux modes.
 
-## {python-input-evolution} — prix de départ, prix d'arrivée ou pourcentage d'évolution (6.4.6, Bonus › Input)
+**Le sous-thème « Bonus : input », et une durée en heures et minutes — l'exercice 11 du carnet.**
+{python-input-duree} (Seconde, 6.5.1, APP_VERSION 297 — 294 à 296 pris sur `main` pendant les bancs —, demande de Turquet,
+octobre 2026 : « en seconde dans le thème algo dans la partie bonus créer un
+sous-thème input et faire un exercice comme l'image ») : les deux serpents
+(« C'est trop dur pour toi !! »), puis « Faire un programme qui demande une
+durée en minutes et qui affiche le résultat en heures et minutes — par
+exemple : si on rentre 135 min il doit afficher 2 heures et 15 minutes », et
+UN coup de pouce : « Essayer les calculs : 135/60 ou 135 // 60 ou 135 % 60 ».
+
+**Un sous-thème, pas un sous-sous-thème.** `THEMES` n'a que deux étages
+(thème, partie) : « un sous-thème input dans la partie bonus » est devenu la
+partie 6.5 « Bonus : input », ajoutée EN DERNIER — rien n'est renuméroté.
+Trois contrôles du banc exigeaient que 6.4 « Bonus » soit le DERNIER
+sous-thème ({python-chaine-len}, {python-chaine-tirets}, {python-remplacer-lettre}) :
+ils exigent désormais qu'il soit le QUATRIÈME, ce qui tenait la même chose
+(rien ne l'a renuméroté).
+
+**Les consignes du sous-thème Input, tenues d'emblée** : le dessin de la
+fiche en tête (découpé dans la capture, détouré, WebP de 14 Ko, `PDU_IMG`) ;
+l'énoncé en gras dans un cadre `.pyn-etape` qui enveloppe le coup de pouce,
+la cellule, « Exécuter » et la console ; aucune consigne au bouton ; la
+console vide reste un cadre vide (`#pduConsole` rejoint `content:none`) ; le
+coup de pouce vert clair ne porte que le texte de la fiche (« minute » mis
+au pluriel, seule correction). La fiche n'a pas de définition : exception
+déclarée de `pythonAvant.sans`, et le rappel (`RAP_PDU`) n'est que le coup de
+pouce.
+
+**Le juge lit ce que le programme AFFICHE** (`pduDiag`) : la copie s'exécute
+sous 215 et 508 minutes, que l'élève ne connaît pas. Il faut un input avec
+sa question, puis des mots, les heures, et PLUS LOIN les minutes (une ligne
+ou deux). 215 / 60 = 3,58… : `round` dirait 4, ce qui le trahit ;
+`int(d / 60)` et `d - h * 60` sont justes. Nommés : int oublié, la division
+`/` (le décimal), float (« 3.0 heures »), les minutes ou les heures
+manquantes, le désordre, round, aucune ou deux questions, l'input muet,
+l'exemple écrit à la main, le nom entre guillemets, sans phrase, rien
+d'affiché, un mauvais calcul. **La séance** : la fiche épinglée (135 min),
+puis d'autres durées d'exemple tirées par `distinctes()` — jamais un nombre
+rond d'heures, toujours plus d'une heure — qui suivent dans l'énoncé et le
+coup de pouce ; `dmNbQuestions()` l'allonge. Pas de correction au fil de la
+frappe, pas de bouton des tables. Banc jsdom (`pythonInputDuree`) : la
+place, le tirage (300 séances), le juge sur six copies justes et dix-sept
+fausses chacune avec son mot, l'écran, le dialogue de la console, les copies
+juste, fausse et vide, le soutien, et le modèle comparé à un vrai CPython.
+Pas de section propre au banc navigateur : la visite universelle (section 9)
+l'ouvre dans les deux modes.
+
+**Le banc a attrapé trois défauts du juge à sa première exécution.** Le
+contrôle des guillemets typographiques, repris du 6.3.9, refusait « c’est »
+écrit DANS une chaîne — juste en Python : il ne regarde plus que le code hors
+des chaînes. Le nom de variable entre guillemets (`print("h", …)`) recevait
+« affiche toujours la même chose » : il est lu AVANT. Et un contrôle « le
+résultat de l'exemple » s'est déclenché par coïncidence sur `d // 100`
+(215 // 100 = 2, 215 % 100 = 15, les nombres de la fiche) : redondant avec
+« la même sortie pour deux durées », il est retiré.
+
+## {python-input-evolution} — prix de départ, prix d'arrivée ou pourcentage d'évolution (6.5.2, Bonus : input)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le thème algo dans la
 partie bonus créer un sous thème input et faire un exercice comme l'image ».
@@ -4092,17 +4147,16 @@ L'image est l'« Exercice 13 » du carnet : deux serpents et une trottinette
 l'information ! », demande un prix de départ, un prix d'arrivée et un
 pourcentage d'évolution, et calcule la donnée manquante ; l'exemple 40 / 30 /
 0 → −25 %, et un coup de pouce : le bloc `if evolution==0:` écrit, les deux
-autres en pointillés. Version 294 ; 296 à la fusion de `main` (qui avait porté 295).
+autres en pointillés. Version 298 (294 à l'écriture ; `main` a avancé trois
+fois pendant les bancs).
 
-**Un sous-thème d'un sous-thème est un INTERTITRE, pas un quatrième étage de
-numéros.** La partie 6.4 « Bonus » porte désormais `groupes` (« Chaînes et
-boucles », les cinq exercices qui y étaient ; « Input », le nouveau), et sa
-page montre un intertitre `h3.st-groupe` au-dessus des cartes de chaque
-groupe. `st.ids` se DÉDUIT des groupes, avant la mise à plat du thème : tout
-le reste du fichier (prof, devoirs, comptages, TEST_NUM) ne lit que la liste
-plate et n'a rien su du changement. Le nouvel exercice est 6.4.6 : rien n'est
-renuméroté, et la partie Bonus reste la dernière du thème (un contrôle du
-6.4.2 l'exige).
+**Deux sessions ont reçu la même demande le même jour.** La première a
+publié le sous-thème 6.5 « Bonus : input » avec {python-input-duree} (6.5.1) ;
+celle-ci avait d'abord fait de « Input » un intertitre DANS la partie 6.4
+(des `groupes`, l'exercice en 6.4.6). À la fusion de `main`, la structure
+déjà en ligne a été gardée — deux endroits « Bonus input » auraient dit deux
+choses — et l'exercice la rejoint en 6.5.2, derrière la durée : les
+intertitres sont retirés, rien n'est renuméroté.
 
 **La séance monte le programme en TROIS ÉTAPES**, dans l'ordre du coup de
 pouce : la question 1 demande le message, les trois `input` et le cas où
@@ -4136,8 +4190,7 @@ le rappel (`RAP_PVO`) ne redit que le coup de pouce. Pas de correction au fil
 de la frappe (`soutienEnDirect.sans`). L'image est la capture de la fiche,
 découpée, son fond crème rendu transparent, en WebP dans la page.
 
-Le banc (`pythonInputEvolution`, `tests/verifier.js`) tient la place au menu
-et les deux intertitres, les trois étapes et la fiche épinglée, le juge sur
+Le banc (`pythonInputEvolution`, `tests/verifier.js`) tient la place au menu, les trois étapes et la fiche épinglée, le juge sur
 cinq copies justes et vingt fausses (chacune avec le mot qui la nomme), les
 étapes jouées à l'écran — la console qui affiche le message puis pose les
 trois questions, l'étape 2 qui reprend le programme, l'étape 3 qui repart de
