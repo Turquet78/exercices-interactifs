@@ -25440,7 +25440,7 @@ function pythonInputEvolution(w, P){
     let total=0;
     PVO_EXEMPLES.forEach(function(l, k){ l.forEach(function(v, x){
       total++;
-      const z=[0,1,2].map(function(j){ return v[j]; }); if(z[k]!==0) vus.push("l’exemple "+k+":"+x+" n’a pas 0 à sa donnée manquante");
+      if(v[[2,1,0][k]]!==0) vus.push("l’exemple "+k+":"+x+" n’a pas 0 à sa donnée manquante");
       const r=pyRun(pvoModele({e:3,k:k,x:x}), v.map(String)), att=pvoAttendu(k, v);
       if(!r.prints.some(function(p){ return p.vals.some(function(y){ return (y.t==="float"||y.t==="int")&&Math.abs(y.v-att)<1e-6; }); })) vus.push("le modèle n’affiche pas le résultat de l’exemple "+k+":"+x);
     }); });
