@@ -4153,6 +4153,7 @@ function exercices(suite){
     pythonInputFloat(w, P);
     pythonInputSomme(w, P);
     pythonInputPrix(w, P);
+    pythonInputEvolution(w, P);
     pythonInputDuree(w, P);
     pythonChaineTirets(w, P);
     pythonRemplacerLettre(w, P);
@@ -25926,6 +25927,208 @@ function pythonInputDuree(w, P){
     return res;
   })())`);
   if(!paires.ok){ verifier(nomPy, false, 'le modèle ne s\'exécute pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-input-evolution} (Seconde, 6.5.2) : l'exercice 13 du carnet — les
+   deux serpents et la trottinette. Afficher « mettre 0 si on n'a pas
+   l'information ! », demander un prix de départ, un prix d'arrivée et un
+   pourcentage d'évolution, puis calculer celle qui manque avec des if. Le
+   contrôle tient la place au menu (le sous-thème 6.5 « Bonus : input »,
+   derrière {python-input-duree}, rien d'autre ne bouge), les
+   trois étapes de la séance et l'exemple épinglé, le juge sur des copies
+   justes et fausses — chacune avec le mot qui la nomme —, l'écran (le dessin,
+   l'énoncé en gras dans son cadre, le coup de pouce de la fiche, la cellule
+   qui reprend le programme de l'étape d'avant, le dialogue de la console),
+   la copie juste, fausse et vide, le soutien qui explique sans révéler, puis
+   compare à un vrai CPython ce que les modèles affichent. Aucun accent grave
+   ni antislash littéral dans le code évalué. */
+function pythonInputEvolution(w, P){
+  const nom = '{python-input-evolution} : prix de départ, prix d’arrivée ou pourcentage d’évolution';
+  if(!P.pythonInputEvolution){ ignorer(nom, 'ce niveau n\'a pas l\'exercice bonus des évolutions'); return; }
+  const ID = P.pythonInputEvolution.exercice, NB = P.pythonInputEvolution.nb, NUM = P.pythonInputEvolution.numero;
+  const present = evaluer(w, "typeof startPVO==='function' && typeof pvoDiag==='function' && typeof pvoBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPVO / pvoDiag / pvoBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il suit {python-input-duree} dans le sous-thème 6.5 « Bonus : input », numéroté ' + NUM + ' ; rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===5; });
+    if(!st||!/bonus/i.test(st.nom)||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-duree")+1||st.ids.indexOf("python-input-duree")<0) vus.push("il ne suit pas {python-input-duree} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["reduire-produit"]!=="7.8") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la séance ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, les étapes 1, 2, 3 (évolution, arrivée, départ), l’exemple de la fiche d’abord (40, 30, 0) ; le modèle de chaque étape passe au juge et l’étape d’avant ne passe pas l’étape d’après ; chaque exemple sort (300 séances de ' + NB + ', 300 de huit)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pvoBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(qs.map(function(q){ return q.e+":"+q.k; }).join()!=="1:0,2:1,3:2"){ vus.push("étapes "+JSON.stringify(qs)); break; }
+      if(pvoEx(qs[0]).join()!=="40,30,0"){ vus.push("la fiche n’ouvre pas la séance"); break; }
+      qs.forEach(function(q){ vues[q.k+":"+q.x]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    /* au-delà de trois questions (réglage d'un devoir), le programme entier, sur les autres exemples */
+    const dmAvant=dmNbQuestions; dmNbQuestions=function(){ return 8; };
+    try{ for(let s=0;s<300;s++){ const qs=pvoBuildQuestions(); if(qs.length!==8){ vus.push("séance longue de "+qs.length); break; } qs.forEach(function(q, i){ vues[q.k+":"+q.x]=1; if(i>=3&&q.e!==3) vus.push("question "+(i+1)+" à l’étape "+q.e); }); } }
+    finally{ dmNbQuestions=dmAvant; }
+    let total=0;
+    PVO_EXEMPLES.forEach(function(l, k){ l.forEach(function(v, x){
+      total++;
+      if(v[[2,1,0][k]]!==0) vus.push("l’exemple "+k+":"+x+" n’a pas 0 à sa donnée manquante");
+      const r=pyRun(pvoModele({e:3,k:k,x:x}), v.map(String)), att=pvoAttendu(k, v);
+      if(!r.prints.some(function(p){ return p.vals.some(function(y){ return (y.t==="float"||y.t==="int")&&Math.abs(y.v-att)<1e-6; }); })) vus.push("le modèle n’affiche pas le résultat de l’exemple "+k+":"+x);
+    }); });
+    if(Object.keys(vues).length!==total) vus.push("des exemples ne sortent jamais : "+Object.keys(vues).length+" / "+total);
+    [1,2,3].forEach(function(e){
+      const d=pvoDiag(pvoModele({e:e,k:e-1,x:0}),{e:e,k:e-1,x:0});
+      if(!d.ok) vus.push("le modèle de l’étape "+e+" : "+d.dits.join(" "));
+      if(e>1){ const d2=pvoDiag(pvoModele({e:e-1,k:0,x:0}),{e:e,k:e-1,x:0}); if(d2.ok||!/n’affiche rien/.test(d2.dits.join(" "))) vus.push("le modèle de l’étape "+(e-1)+" passe l’étape "+e+" : "+d2.dits.join(" ")); }
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte toute écriture juste (noms libres, int, if/elif, calcul dans le print) et nomme chaque défaut — input sans float, division par 0 hors du if, une ou quatre questions, question muette, désordre, message oublié, coefficient, × 100 oublié, rapport à l’envers, écart en euros, signe inversé, pourcentage non divisé par 100, pourcentage ajouté, départ en enlevant le pourcentage, résultat écrit à la main, sans phrase, rien d’affiché, vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), I="    ";
+    const q3={e:3,k:2,x:0,prog:""}, q1={e:1,k:0,x:0,prog:""};
+    const M="print("+Q+"mettre 0 si on n"+A+"a pas l"+A+"information !"+Q+")"+NL;
+    const ent=function(f){ return "d = "+f+"(input("+Q+"prix de départ ? "+Q+"))"+NL+"a = "+f+"(input("+Q+"prix d"+A+"arrivée ? "+Q+"))"+NL+"t = "+f+"(input("+Q+"pourcentage d"+A+"évolution ? "+Q+"))"+NL; };
+    const E="if t==0:"+NL+I+"print("+Q+"évolution :"+Q+", (a/d-1)*100, "+Q+"%"+Q+")"+NL;
+    const R="if a==0:"+NL+I+"print("+Q+"arrivée :"+Q+", d*(1+t/100))"+NL;
+    const D="if d==0:"+NL+I+"print("+Q+"départ :"+Q+", a/(1+t/100))"+NL;
+    const justes=[[pvoModele(q3),q3], [M+ent("float")+E+R+D,q3], [M+ent("int")+E+R+D,q3], [M+ent("float")+"if t==0:"+NL+I+"print("+Q+"évolution :"+Q+", (a/d-1)*100)"+NL+"elif a==0:"+NL+I+"print("+Q+"arrivée :"+Q+", d*(1+t/100))"+NL+"else:"+NL+I+"print("+Q+"départ :"+Q+", a/(1+t/100))",q3], [M+ent("float")+E,q1]];
+    justes.forEach(function(j){ const d=pvoDiag(j[0],j[1]); if(!d.ok) vus.push("refusé : "+JSON.stringify(j[0])+" — "+d.dits.join(" ")); });
+    const ev=function(x){ return M+ent("float")+"if t==0:"+NL+I+"print("+Q+"évolution :"+Q+", "+x+")"+NL; };
+    const ar=function(x){ return M+ent("float")+E+"if a==0:"+NL+I+"print("+Q+"arrivée :"+Q+", "+x+")"+NL+D; };
+    const de=function(x){ return M+ent("float")+E+R+"if d==0:"+NL+I+"print("+Q+"départ :"+Q+", "+x+")"+NL; };
+    const cas=[
+      [M+"d = input("+Q+"départ ? "+Q+")"+NL+"a = input("+Q+"arrivée ? "+Q+")"+NL+"t = input("+Q+"évolution ? "+Q+")"+NL+E, q1, /TOUJOURS un texte/],
+      [M+ent("float")+"print("+Q+"évolution :"+Q+", (a/d-1)*100)"+NL+R+D, q3, /DANS son if/],
+      [M+"d = float(input("+Q+"départ ? "+Q+"))"+NL+E, q1, /trois/],
+      [M+ent("float")+"z = input("+Q+"?"+Q+")"+NL+E, q1, /plus de trois/],
+      [M+"d = float(input())"+NL+"a = float(input("+Q+"arrivée ? "+Q+"))"+NL+"t = float(input("+Q+"évolution ? "+Q+"))"+NL+E, q1, /pas de question/],
+      [M+"a = float(input("+Q+"prix d"+A+"arrivée ? "+Q+"))"+NL+"d = float(input("+Q+"prix de départ ? "+Q+"))"+NL+"t = float(input("+Q+"évolution ? "+Q+"))"+NL+E, q1, /désordre/],
+      [ent("float")+E, q1, /d’abord afficher/],
+      [ev("a/d"), q1, /coefficient multiplicateur/],
+      [ev("a/d-1"), q1, /multiplie-le par 100/],
+      [ev("(d/a-1)*100"), q1, /à l’envers/],
+      [ev("a-d"), q1, /écart en euros/],
+      [ev("(d-a)/d*100"), q1, /signe est inversé/],
+      [ar("d*(1+t)"), q3, /divisé par 100/],
+      [ar("d+t"), q3, /n’ajoute pas/],
+      [de("a*(1-t/100)"), q3, /n’enlève pas/],
+      [ev("30"), q1, /même résultat/],
+      [M+ent("float")+"if t==0:"+NL+I+"print((a/d-1)*100)"+NL, q1, /sans phrase/],
+      [M+ent("float")+"if t==0:"+NL+I+"evol = a/d-1"+NL, q1, /n’affiche rien/],
+      [ar("d"), q3, /ce n’est pas le prix d’arrivée/],
+      ["", q1, /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pvoDiag(c[0],c[1]);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[2].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, et les trois étapes jouées ---- */
+  verifierEval(w, 'l’écran : le dessin, l’énoncé de la fiche en gras dans son cadre avec son exemple et l’étape, le coup de pouce replié (le bloc if evolution==0), la cellule, « Exécuter » et la console ; « Exécuter » affiche le message puis pose les trois questions ; la copie juste vaut 1 ; l’étape suivante reprend le programme, et la correction quand la copie était fausse', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPVO();
+    const vus=[], NL=String.fromCharCode(10);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const img=document.querySelector("#pvoInstr img.pvo-img");
+    if(!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("pas de dessin");
+    const et=document.getElementById("pvoEtape"), ti=et&&et.querySelector(".pyn-titre");
+    const tx=ti?ti.textContent.split(String.fromCharCode(160)).join(" "):"";
+    if(!ti||!/^✏️ Faire un programme qui/.test(tx)||ti.querySelectorAll("li").length!==3) vus.push("l’énoncé : "+tx);
+    if(tx.indexOf("le pourcentage d"+String.fromCharCode(39)+"évolution est de -25%")<0||!/Étape 1/.test(tx)) vus.push("l’exemple ou l’étape : "+tx);
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    ["pvo-prog","pvoRun","pvoConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const pouces=document.querySelectorAll("#pvoEtape details.pyd-pouce");
+    if(pouces.length!==1||pouces[0].open||pouces[0].textContent.indexOf("if evolution==0:")<0||pouces[0].textContent.indexOf("if depart==0:")<0) vus.push("le coup de pouce");
+    const ta=document.getElementById("pvo-prog"), cons=document.getElementById("pvoConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    if(ta.value!=="") vus.push("la première cellule n’est pas vide");
+    ta.value=pvoModele(test.questions[0]); ta.dispatchEvent(new Event("input",{bubbles:true}));
+    const repondre=function(v){ const r=document.getElementById("pvo-rep"); if(!r||!cons.contains(r)){ vus.push("la console ne demande pas la réponse ("+v+")"); return false; } r.value=v; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); return true; };
+    pvoExecuter();
+    if(cons.textContent.indexOf("mettre 0 si on n")!==0) vus.push("le message ne vient pas d’abord : "+JSON.stringify(cons.textContent));
+    if(repondre("400")&&repondre("350")&&repondre("0")){
+      if(document.getElementById("pvo-rep")) vus.push("la case reste après la dernière réponse");
+      if(cons.textContent.split(NL).pop()!=="le pourcentage d"+String.fromCharCode(39)+"évolution est de -12.5 %") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+    }
+    checkPVO();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPVO();
+    let t2=document.getElementById("pvo-prog");
+    if(t2.value!==pvoModele(test.questions[0])) vus.push("l’étape 2 ne reprend pas le programme de l’étape 1");
+    if(!/Étape 2/.test(document.getElementById("pvoEtape").textContent)) vus.push("l’étape 2 n’est pas dite");
+    t2.value=t2.value+NL+"if arrive==0:"+NL+"    print("+String.fromCharCode(34)+"arrivée"+String.fromCharCode(34)+", depart+evolution)";
+    t2.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPVO();
+    if(!t2.classList.contains("bad")||!/n’ajoute pas/.test(document.getElementById("pvoFeedback").textContent)) vus.push("la copie fausse de l’étape 2 : "+document.getElementById("pvoFeedback").textContent);
+    if(!document.querySelector("#pvoModele .sol")) vus.push("pas de modèle vert sous la copie fausse");
+    nextPVO();
+    if(document.getElementById("pvo-prog").value!==pvoModele(test.questions[1])) vus.push("l’étape 3 ne repart pas de la correction de l’étape 2");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. vide, et le soutien ---- */
+  verifierEval(w, 'la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte ; le contexte de l’IA garde le secret', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPVO();
+    let ta=document.getElementById("pvo-prog");
+    checkPVO();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pvoModele(test.questions[0])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPVO(); ta=document.getElementById("pvo-prog");
+    checkPVO();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="d = float(input("+Q+"départ ? "+Q+"))"+NL+"a = float(input("+Q+"arrivée ? "+Q+"))"+NL+"t = float(input("+Q+"évolution ? "+Q+"))"+NL+"if t==0:"+NL+"    print("+Q+"évolution"+Q+", (a/d-1)*100)";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPVO();
+    const fb=document.getElementById("pvoFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/d’abord afficher/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pvoModele .sol")||fb.indexOf("evol = arrive")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPvo(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur les modèles ---- */
+  const nomPy = 'ce que les modèles de {python-input-evolution} affichent est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    [1,2,3].forEach(function(e){ PVO_EXEMPLES.forEach(function(l, k){ if(k>=e) return; l.concat(PVO_JUGE[k]).forEach(function(v){
+      const src=pvoModele({e:e,k:k,x:0}), p=v.map(String), r=pyRun(src,p);
+      res.push([src, p, r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    }); }); });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les modèles ne s\'exécutent pas : ' + paires.erreur); return; }
   const liste = JSON.parse(paires.valeur);
   const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
   const ecarts = [];

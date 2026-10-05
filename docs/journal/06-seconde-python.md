@@ -4136,3 +4136,63 @@ des chaînes. Le nom de variable entre guillemets (`print("h", …)`) recevait
 résultat de l'exemple » s'est déclenché par coïncidence sur `d // 100`
 (215 // 100 = 2, 215 % 100 = 15, les nombres de la fiche) : redondant avec
 « la même sortie pour deux durées », il est retiré.
+
+## {python-input-evolution} — prix de départ, prix d'arrivée ou pourcentage d'évolution (6.5.2, Bonus : input)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le thème algo dans la
+partie bonus créer un sous thème input et faire un exercice comme l'image ».
+L'image est l'« Exercice 13 » du carnet : deux serpents et une trottinette
+(« Je la fais à 350 € au lieu de 400 € » — « C'est un rabais de combien de
+% ? »), puis « Faire un programme qui » affiche « mettre 0 si on n'a pas
+l'information ! », demande un prix de départ, un prix d'arrivée et un
+pourcentage d'évolution, et calcule la donnée manquante ; l'exemple 40 / 30 /
+0 → −25 %, et un coup de pouce : le bloc `if evolution==0:` écrit, les deux
+autres en pointillés. Version 298 (294 à l'écriture ; `main` a avancé trois
+fois pendant les bancs).
+
+**Deux sessions ont reçu la même demande le même jour.** La première a
+publié le sous-thème 6.5 « Bonus : input » avec {python-input-duree} (6.5.1) ;
+celle-ci avait d'abord fait de « Input » un intertitre DANS la partie 6.4
+(des `groupes`, l'exercice en 6.4.6). À la fusion de `main`, la structure
+déjà en ligne a été gardée — deux endroits « Bonus input » auraient dit deux
+choses — et l'exercice la rejoint en 6.5.2, derrière la durée : les
+intertitres sont retirés, rien n'est renuméroté.
+
+**La séance monte le programme en TROIS ÉTAPES**, dans l'ordre du coup de
+pouce : la question 1 demande le message, les trois `input` et le cas où
+l'évolution manque ; la 2 ajoute le cas où l'arrivée manque ; la 3 celui où
+le départ manque. Chaque cellule s'ouvre sur le programme de la question
+d'avant — celui de l'élève s'il était juste, la correction sinon (`q.fin`,
+posé à la vérification) : on ne retape pas dix lignes pour en ajouter trois.
+L'exemple affiché suit l'étape, tiré par `distinctes()` (la fiche épinglée en
+tête) ; au-delà de trois questions (réglage d'un devoir), le programme
+entier, sur d'autres exemples.
+
+**Le juge exécute, avec des prix que l'élève ne connaît pas** (`PVO_JUGE`,
+deux jeux par donnée manquante, 0 à la place de celle qui manque). La fiche
+ne nomme ni variable ni phrase : il lit ce que le programme AFFICHE — une
+ligne qui porte des mots et le bon nombre, à 1e-6 près en relatif — et exige
+le message AVANT la première question (lu dans la sortie, avant l'écho de la
+première réponse). `int(input(…))` passe : les prix du juge sont entiers,
+comme ceux de la fiche. Nommés : `input` sans `float` (le texte « 0 » n'est
+pas le nombre 0 : le `if` ne voit jamais la donnée manquante), la division
+par 0 d'un calcul resté hors de son `if`, une variable jamais demandée (une
+question manque), quatre questions, une question muette, les questions dans
+le désordre, le message oublié, le coefficient au lieu du pourcentage, le
+« × 100 » oublié, le rapport à l'envers, l'écart en euros, le signe inversé,
+le pourcentage non divisé par 100, le pourcentage ajouté au prix, la hausse
+seule, le départ retrouvé en enlevant le pourcentage ou en multipliant, le
+résultat écrit à la main, le résultat sans phrase, rien d'affiché.
+
+**La fiche n'a pas de définition** : l'écran n'a donc pas d'encadré au-dessus
+de l'énoncé (exception déclarée, `tests/profils.js`, `pythonAvant.sans`), et
+le rappel (`RAP_PVO`) ne redit que le coup de pouce. Pas de correction au fil
+de la frappe (`soutienEnDirect.sans`). L'image est la capture de la fiche,
+découpée, son fond crème rendu transparent, en WebP dans la page.
+
+Le banc (`pythonInputEvolution`, `tests/verifier.js`) tient la place au menu, les trois étapes et la fiche épinglée, le juge sur
+cinq copies justes et vingt fausses (chacune avec le mot qui la nomme), les
+étapes jouées à l'écran — la console qui affiche le message puis pose les
+trois questions, l'étape 2 qui reprend le programme, l'étape 3 qui repart de
+la correction —, la copie vide, le soutien sans révélation, puis compare à un
+vrai CPython ce que les modèles affichent.
