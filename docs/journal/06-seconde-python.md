@@ -4022,3 +4022,51 @@ Puis une dixième (Turquet78/exercices-interactifs#484, le prix en 6.3.9, versio
 284) : le triangle passe en 285. Pour fermer la fenêtre entre « contrôles
 verts » et « fusion », la fusion automatique de GitHub est demandée dès la
 poussée.
+
+---
+
+**La moyenne de N notes : le groupe « Input » de la partie « Bonus » —
+l'exercice 14 du carnet.** {python-moyenne-notes} (Seconde, 6.4.6, demande de
+Turquet, octobre 2026 : « en seconde dans le thème algo dans la partie bonus
+créer un sous thème input et faire un exercice comme l'image ») : « Faire un
+programme qui fonctionne comme l'exemple ci-dessous : Tu as combien de
+notes ? 3 / Ta note 1 ? 12 / Ta note 2 ? 8 / Ta note 3 ? 16 / Ta moyenne est de
+12. », avec ses deux coups de pouce repliés.
+
+**UN « SOUS-THÈME » DANS UNE PARTIE N'EXISTAIT PAS, ET IL N'A PAS FALLU UN
+QUATRIÈME NIVEAU.** `THEMES` connaît deux étages (thème, partie) ; un
+troisième aurait touché la numérotation, le tableau du professeur, les
+devoirs, la reprise. Le 6.4 porte à la place `groupes:[{nom:'Input',
+ids:[…]}]`, que SEUL `openSousTheme()` lit : la page de la partie montre ses
+cinq exercices, puis le titre « Input » (`h3.sous-groupe`) et la carte du
+nouveau. Les identifiants d'un groupe restent dans `ids`, en dernier : le
+numéro est 6.4.6, rien n'est renuméroté, et tout le reste du fichier continue
+de ne connaître que la liste plate. Le contrôle exige que chaque identifiant
+d'un groupe soit aussi dans `ids`, et relit la page rendue.
+
+**LES COUPS DE POUCE DE LA FICHE SONT FAUX SUR DEUX POINTS, ET ILS SONT
+CORRIGÉS EN LE NOMMANT.** La fiche écrit `input ( "ta note",k,"?")` — la forme
+de print ; input n'accepte qu'UN texte, et CPython lève TypeError (le banc le
+vérifie des deux côtés). Recopié au mot près, le coup de pouce ferait échouer
+l'élève qui le suit : il porte `input("Ta note " + str(k) + " ? ")`. Le second
+écrivait `range (N)`, qui ferait dire « Ta note 0 ? » : il compte de 1 à N
+comme le premier. Le juge reconnaît l'écriture de la fiche et dit pourquoi
+elle échoue (« les virgules, c'est pour print »).
+
+**LE JUGE EXÉCUTE AVEC DES NOTES QUE L'ÉLÈVE NE CONNAÎT PAS** : les réponses
+de la question, puis deux séries (`PMN_JUGE` — quatre notes entières, puis
+deux notes dont 13.5). `range(1, 4)` écrit à la main se trahit (« demande
+toujours 3 notes »), « / 3 » aussi, `int(input(…))` pour une note bute sur
+13.5, la moyenne écrite à la main ne suit pas. Aucune moyenne d'exemple n'est
+celle d'une série du juge (le contrôle l'exige). La phrase est jugée avec
+`pyTexteProche` ; une autre phrase qui dit « moyenne » est acceptée et
+nommée, des questions qui ne numérotent pas les notes aussi. La console est
+le dialogue du 6.3.2 (une case, Entrée rejoue), la cellule fait le retrait
+comme au 6.4.4, aucun encadré de cours (exception déclarée dans
+`pythonAvant.sans`), pas de bouton des tables, pas de correction au fil de la
+frappe. Banc jsdom (`pythonMoyenneNotes`) : la place et la page du groupe, la
+fiche et le tirage (300 séances), le juge sur cinq copies justes et dix-neuf
+fausses chacune avec son mot, l'écran, le dialogue tapé réponse par réponse,
+juste/faux/vide, le soutien, et les exécutions comparées à CPython questions
+comprises. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
