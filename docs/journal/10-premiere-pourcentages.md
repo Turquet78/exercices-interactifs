@@ -3726,6 +3726,52 @@ contre des sommes écrites à part, l'écran (deux champs, aucune liste, aucune
 phrase à trous), une copie juste (2 cases bleues, enregistrée juste) et un
 dénominateur faux (le numérateur reste bleu, seul le dénominateur rougit).
 
+## Seconde 4.6.5 — {tableau-proportions-parmi} : « C'est la proportion de … parmi … »
+
+**Demandé par Turquet en octobre 2026**, avec une fiche PDF d'une demi-page :
+« un exercice comme le 4.6.3, avec des valeurs plus petites ou égales à 10
+dans les cases qui ne sont pas dans les lignes ou colonnes des totaux.
+Demander de compléter le tableau, puis ne pas demander de déterminer les
+effectifs des lettres. Les questions peuvent être en rapport avec n'importe
+quelle colonne ou ligne. » La fiche dit quoi afficher après le tableau :
+« C'est la proportion de …… parmi …… » (les …… sont les lettres A ; B ; C ;
+D ou A et C ; A et D ; B et C ou B et D, ou tout), puis « en fonction de la
+question » la fraction « A parmi C / parmi C = …/… » — ou « A parmi tout /
+parmi tout », « A et C parmi tout / parmi tout ».
+
+**Moteur partagé, identité propre** (journal 09) : même `kind` `tdl`, même
+écran ; les questions portent `q.red=1`, et cinq endroits s'y règlent :
+`tdlCases` (quatre cases : `tdl-qui`, `tdl-parmi`, `tdl-num`, `tdl-den`), le
+prompt, le rendu, le pourquoi et la copie enregistrée ; l'aide IA (`ctxTdl`)
+décrit la rédaction propre. Le rappel et `QIA_SUGG` restent ceux du `kind`.
+
+**Le tirage** : cases intérieures de 1 à 10 (`TDLR_MAX`, `tdlrGenTable`) ;
+les totaux se calculent et dépassent 10. Plus de paire de lettres : les
+seize proportions possibles se rangent en trois familles, celles de la fiche
+— une lettre parmi tout (4), un croisement parmi tout (4), une lettre parmi
+une lettre de l'autre axe (8). Une de chaque, puis deux de plus tirées dans
+le reste : cinq proportions DISTINCTES, ordre mélangé (`tdlrProportions`).
+Six questions par situation (`TDLR_NB`) : le tableau, puis les cinq
+proportions numérotées 1) à 5). Barème : 5 + 5 × 4 = 25 cases.
+
+**La rédaction.** Les deux listes offrent les neuf choix de la fiche, dans
+son ordre (`TDLR_LISTE` : A, B, C, D, A et C, A et D, B et C, B et D, tout).
+« Afficher en fonction de la question » est LU comme : les libellés de la
+fraction recopient EN DIRECT les choix de l'élève (`tdlLibellesR`, « … »
+tant que rien n'est choisi) — écrire la bonne lettre à sa place aurait
+donné la réponse des listes. À corriger si la fiche voulait l'inverse.
+« A et C » est accepté pour « A parmi C » (`tdpAlt`, mêmes élèves).
+
+**Contrôle** (`tableauProportionsParmi`) : la place (4.6.5, le 4.6.4 ne
+bouge pas) ; 1 000 tirages (six questions, cases de 1 à 10 et les deux bornes
+vues, quatre cases par proportion, les trois familles dans chaque situation,
+aucune proportion deux fois ni impossible, les seize vues) ; quatre
+effectifs contre des sommes écrites à part ; l'écran (les neuf choix dans
+l'ordre de la fiche, la phrase, les libellés « A parmi D / parmi D » recopiés
+après choix) ; une copie juste (4 cases bleues, enregistrée juste) ; le piège
+« parmi tout » au lieu de « parmi D » (la liste « parmi » rougit, « de »
+reste bleue, le message écrit la proportion).
+
 ## {pourcentage-phrases} — du texte au schéma, le 4.1.10 pris depuis les phrases (Seconde, septembre 2026, 4.1.11)
 
 **D'où il vient.** Demande de Turquet : « en seconde, un nouvel exercice comme

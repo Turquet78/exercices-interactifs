@@ -1192,3 +1192,37 @@ banc (Chromium, MathLive réel, « 33 » posé dans `qdb-b-b2`) : capture identi
 juste se dessine à l'identique), et la case GRANDIT dès que l'élève écrit plus,
 jusqu'au plafond des autres cases de l'écran. C'était la seule case de
 mathématiques à largeur figée des trois niveaux.
+
+**Les fractions de DÉPART d'un calcul sont toujours irréductibles — en Seconde
+et en Première, et c'est désormais UN contrôle qui le tient partout (octobre
+2026).** Demande de Turquet : « pour les exercices sur les fractions, quand on
+demande de faire une opération avec des fractions, toujours mettre des
+fractions irréductibles au départ de l'exercice. » L'inventaire a montré que
+la règle était déjà tenue par huit moteurs sur neuf, chacun à sa manière et
+dans son coin : `sfGen` (tous les exercices du moteur sf, dans les deux
+niveaux), `pfGen`, `spfGen`, `pqdGen`, `qdbGen`, `tsfGen` par un `gcd(…)!==1`
+explicite, `mltGen` et `divGen` par l'irréductibilité du PRODUIT (un facteur
+commun à n1 et d1 diviserait aussi P et Q — la condition du produit implique
+celle des facteurs). Le neuvième, {revision-fractions} (5.11), tirait ses
+huit questions sans aucune condition : « 6/8 + 3/8 », « 4/6 × 3/9 »
+sortaient. `rvfTirage` écarte désormais toute fraction réductible de
+l'énoncé, type par type (le dénominateur partagé de meme-add/meme-sub doit
+être premier avec LES DEUX numérateurs) ; les replis codés en dur l'étaient
+déjà. Le résultat attendu, lui, ne change pas : il reste le calcul direct,
+non simplifié (`rvfReponse`).
+
+**Le contrôle — « les fractions de départ d'un calcul de fractions sont
+irréductibles » (`tests/verifier.js`, greffé après « aucune séance ne pose
+deux fois la même question »)** démarre chaque exercice du thème
+« Fractions » et chaque identifiant contenant « fraction », soixante fois, et
+lit les questions TIRÉES : les paires (numérateur, dénominateur) suivent les
+noms des moteurs (a/b … g/h ; n1/d1, n2/d2, n/d ; n1/d, n2/d). Deux bords :
+un exercice où il ne reconnaît AUCUNE fraction rougit (un exercice ajouté
+demain avec d'autres noms se fait voir au lieu de passer en silence), et une
+dispense (`fractionsIrreductibles.sans`, `tests/profils.js`) qui ne désigne
+plus d'exercice rougit aussi. Trois dispenses, raison comprise :
+{simplifier-barres} (simplifier EST le sujet), {fractions-decimales} (30/100
+est le sujet même) et {fraction-pourcentage} (aucune opération). La
+Terminale ne déclare pas la règle : le banc l'affiche « non applicable ».
+Éprouvé à l'envers : lancé avant le correctif, le contrôle a rougi sur le
+5.11 et sur lui seul.
