@@ -4077,6 +4077,7 @@ function exercices(suite){
     tableauProportionsLettres(w, P);
     tableauProportionsTirees(w, P);
     tableauProportionsDirectes(w, P);
+    tableauProportionsParmi(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -16398,6 +16399,99 @@ function tableauProportionsDirectes(w, P){
     checkTdlAnswer();
     if(!document.getElementById('tdl-num').classList.contains('ok') || !document.getElementById('tdl-den').classList.contains('bad'))
       vus.push('dénominateur faux : le numérateur doit rester bleu, le dénominateur rougir');
+    if(!/proportion est/.test(document.getElementById('tdlFeedback').textContent)) vus.push('message : '+document.getElementById('tdlFeedback').textContent);
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {tableau-proportions-parmi} — 4.6.5 : le 4.6.3 aux cases de 1 à 10, sans la
+   phase « nombre », rédigé « C'est la proportion de … parmi … » puis la
+   fraction « X parmi Y / parmi Y = … / … ». Les proportions portent sur
+   n'importe quelle ligne ou colonne. Les effectifs attendus sont recalculés
+   ICI, par des sommes écrites à part. */
+function tableauProportionsParmi(w, P){
+  const present = evaluer(w, "typeof startTdlParmi==='function' && typeof tdlBuildQuestionsParmi==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('proportions dans un tableau, « parmi » : le tirage, la rédaction et la place',
+      'ce niveau n\'a pas l\'exercice du tableau rédigé « parmi »');
+    return;
+  }
+  verifierEval(w, 'proportions dans un tableau, « parmi » : le tirage, la rédaction et la place', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-proportions-parmi';
+    const th=THEMES.find(function(t){ return t.num===4; });
+    if(!th || th.ids.indexOf('tableau-proportions-parmi')<0) vus.push('l\\'exercice n\\'est pas dans le thème 4');
+    if(TEST_NUM['tableau-proportions-parmi']!=='4.6.5') vus.push('numéro '+TEST_NUM['tableau-proportions-parmi']+' au lieu de 4.6.5');
+    if(TEST_NUM['tableau-proportions-directes']!=='4.6.4') vus.push('le 4.6.4 a bougé');
+    if(TABLES_SANS.indexOf('tableau-proportions-parmi')<0) vus.push('le bouton des tables est proposé');
+    const vuesProp={}, vuesFam={}, vuesVal={};
+    for(let i=0;i<1000 && !vus.length;i++){
+      const qs=tdlBuildQuestionsParmi();
+      if(qs.length!==6){ vus.push(qs.length+' questions au lieu de 6'); break; }
+      const attendu=['tab','prop','prop','prop','prop','prop'];
+      qs[0].t.forEach(function(r){ r.forEach(function(v){ vuesVal[v]=1; if(!(v>=1 && v<=10)) vus.push('case intérieure '+v); }); });
+      const fam={};
+      qs.forEach(function(q,ix){
+        if(q.phase!==attendu[ix]) vus.push('question '+(ix+1)+' : phase '+q.phase);
+        if(!q.red) vus.push('la question '+(ix+1)+' n\\'est pas rédigée « parmi »');
+        if(JSON.stringify(q.t)!==JSON.stringify(qs[0].t) || q.ci!==qs[0].ci) vus.push('la question '+(ix+1)+' ne porte pas la situation');
+        if(q.phase==='prop'){
+          if(q.n!==ix) vus.push('question '+(ix+1)+' numérotée '+q.n);
+          const ids=tdlCases(q).map(function(x){ return x.id; }).join(' ');
+          if(ids!=='tdl-qui tdl-parmi tdl-num tdl-den') vus.push('cases de la proportion : '+ids);
+          const f=q.rk==='tout' ? (q.gk[0]==='x'?'case/tout':'lettre/tout') : 'lettre/lettre';
+          if(q.rk!=='tout' && (q.gk[0]==='x' || q.gk[0]===q.rk[0])) vus.push('proportion impossible : '+q.gk+' parmi '+q.rk);
+          fam[f]=1; vuesFam[f]=1; vuesProp[q.gk+'/'+q.rk]=1;
+        }
+      });
+      if(Object.keys(fam).length!==3) vus.push('une situation sans les trois familles de la fiche : '+Object.keys(fam).join(' '));
+      const props=qs.slice(1).map(function(q){ return q.gk+'/'+q.rk; });
+      if(props.some(function(p,k){ return props.indexOf(p)!==k; })) vus.push('deux fois la même proportion : '+props.join(' '));
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(Object.keys(vuesProp).length!==16) vus.push(Object.keys(vuesProp).length+' proportions vues sur 16');
+    if(!vuesVal[1] || !vuesVal[10]) vus.push('les cases ne vont pas de 1 à 10');
+    /* les réponses, contre des sommes écrites ici */
+    const T=[[3,6],[10,1]];
+    const eff=function(gk, rk){ let n=0;
+      for(let l=0;l<2;l++) for(let c=0;c<2;c++){
+        const dans=function(k){ return k==='tout' || (k[0]==='c' && c===+k[1]) || (k[0]==='l' && l===+k[1]) || (k[0]==='x' && l===+k[1] && c===+k[2]); };
+        if(dans(gk) && dans(rk)) n+=T[l][c]; }
+      return n; };
+    [['c0','l0'],['l1','c1'],['x10','tout'],['c1','tout']].forEach(function(f){
+      const q={ci:0,t:T,red:1,phase:'prop',gk:f[0],rk:f[1],v:0,n:1};
+      const cs=tdlCases(q);
+      if(+cs[2].bon!==eff(f[0],f[1]) || +cs[3].bon!==eff(f[1],'tout')) vus.push('« '+f[0]+' parmi '+f[1]+' » : '+cs[2].bon+'/'+cs[3].bon);
+    });
+    /* l'écran : la phrase à deux listes de neuf choix, les libellés recopiés */
+    startTdlParmi();
+    if(test.qId!=='tableau-proportions-parmi' || test.kind!=='tdl') vus.push('identité '+test.qId+'/'+test.kind);
+    if(test.maxScore!==25) vus.push('barème '+test.maxScore+' au lieu de 25 (5 totaux + 5 × 4 cases)');
+    let q0=test.questions[1]; test.idx=1;
+    q0.gk='c0'; q0.rk='l1';
+    renderTdlTest();
+    const opts=[].map.call(document.querySelectorAll('#tdl-qui option'), function(o){ return o.textContent; }).slice(1).join(' ; ');
+    if(opts!=='A ; B ; C ; D ; A et C ; A et D ; B et C ; B et D ; tout') vus.push('liste : '+opts);
+    if(!/C’est la proportion de/.test(document.getElementById('tdlHost').textContent)) vus.push('la phrase « C’est la proportion de » manque');
+    document.getElementById('tdl-qui').value='c0'; document.getElementById('tdl-qui').dispatchEvent(new Event('change'));
+    document.getElementById('tdl-parmi').value='l1'; document.getElementById('tdl-parmi').dispatchEvent(new Event('change'));
+    const lib=document.querySelector('#tdlHost .tdl-lib-frac').textContent.replace(/\\s+/g,' ').trim();
+    if(lib!=='A parmi Dparmi D') vus.push('libellés de la fraction : « '+lib+' »');
+    tdlCases(q0).forEach(function(c){ const el=document.getElementById(c.id); if(el) el.value=c.bon; });
+    checkTdlAnswer();
+    let faux=document.querySelectorAll('#tdlHost .bad').length, bons=document.querySelectorAll('#tdlHost .ok').length;
+    if(faux || bons!==4) vus.push('copie juste : '+bons+' cases justes, '+faux+' fausses');
+    if(test.answers.length!==1 || !test.answers[0].correct) vus.push('la copie juste n\\'est pas enregistrée juste');
+    /* le piège : diviser par tout quand la question dit « parmi D » */
+    test.idx=2; q0=test.questions[2]; q0.gk='c0'; q0.rk='l1'; renderTdlTest();
+    const cs=tdlCases(q0);
+    document.getElementById('tdl-qui').value='c0';
+    document.getElementById('tdl-parmi').value='tout';
+    document.getElementById('tdl-num').value=cs[2].bon;
+    document.getElementById('tdl-den').value=String(tdpTotaux(q0).tt);
+    checkTdlAnswer();
+    if(!document.getElementById('tdl-qui').classList.contains('ok') || !document.getElementById('tdl-parmi').classList.contains('bad'))
+      vus.push('« parmi tout » au lieu de « parmi D » : la liste « parmi » doit rougir, « de » rester bleue');
     if(!/proportion est/.test(document.getElementById('tdlFeedback').textContent)) vus.push('message : '+document.getElementById('tdlFeedback').textContent);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
