@@ -4077,6 +4077,7 @@ function exercices(suite){
     tableauProportionsLettres(w, P);
     tableauProportionsTirees(w, P);
     tableauProportionsDirectes(w, P);
+    tableauProportionsParmi(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -4170,6 +4171,7 @@ function exercices(suite){
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
     pythonTriangle(w, P);
+    pythonProgrammeCalcul(w, P);
     pythonInputRectangle(w, P);
     pythonInverserLettres(w, P);
     pythonChaines(w, P);
@@ -6317,6 +6319,7 @@ function contexteChaqueExercice(w, apres){
    par distinctes() ou rougit ici. Et le contrôle dit ce qu'il a mesuré : un
    parcours sans aucune séance à plusieurs questions ne mesure rien. */
 function questionsDistinctes(w, apres){
+  const suite = apres; apres = () => fractionsDepartIrreductibles(w, suite);
   const nom = 'aucune séance ne pose deux fois la même question';
   const src = lire(CIBLE);
   const bruts = (src.match(/test\.questions\s*=\s*Array\.from\(\{length:/g) || []).length;
@@ -6365,6 +6368,76 @@ function questionsDistinctes(w, apres){
     const v = r.valeur || {};
     if(!v.mesures){ verifier(nom, false, 'aucune séance à plusieurs questions : le contrôle ne mesure rien'); return apres(); }
     verifier(nom + ' (' + v.mesures + ' séances tirées)', v.doubles.length === 0, v.doubles.slice(0, 5).join(' | '));
+    apres();
+  });
+}
+
+/* ---------- Les fractions de DÉPART d'un calcul sont irréductibles ---------
+   Décision de Turquet (octobre 2026) : en Seconde et en Première, quand un
+   exercice de fractions fait faire une OPÉRATION, les fractions de l'énoncé
+   sont toujours irréductibles. La règle était déjà tenue, exercice par
+   exercice, par huit tirages sur neuf — chacun avec son propre test, dans son
+   propre contrôle. Le neuvième, {revision-fractions}, tirait « 6/8 + 3/8 »
+   sans que rien ne rougisse : une règle valable partout se tient partout.
+
+   Le contrôle démarre chaque exercice de fractions — ceux du thème
+   « Fractions », et tout identifiant qui contient « fraction », où qu'il soit
+   rangé (la Première range {somme-fractions} dans le calcul mental) — et lit
+   les questions TIRÉES, pas le source : les paires (numérateur, dénominateur)
+   suivent les noms des moteurs (a/b, c/d, e/f, g/h ; n1/d1, n2/d2, n/d ; et
+   n1/d, n2/d quand les deux fractions partagent leur dénominateur). Un
+   exercice où le contrôle ne reconnaît AUCUNE fraction rougit au lieu de
+   passer : un contrôle qui n'a rien à mesurer doit le dire. Ceux dont le
+   sujet EST une fraction réductible (simplifier, une fraction décimale) se
+   déclarent, raison comprise, dans le profil (fractionsIrreductibles.sans) ;
+   une déclaration qui ne désigne plus aucun exercice rougit aussi. */
+function fractionsDepartIrreductibles(w, apres){
+  const nom = 'les fractions de départ d’un calcul de fractions sont irréductibles';
+  const decl = P.fractionsIrreductibles;
+  if(!decl){ ignorer(nom, 'ce niveau ne déclare pas la règle (fractionsIrreductibles)'); return apres(); }
+  evalPromis(w, `(async function(){
+    const SANS=${JSON.stringify(Object.keys(decl.sans || {}))}, SEANCES=60;
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    const num=function(v){ return typeof v==='number' && isFinite(v); };
+    const paires=function(q){
+      const r=[];
+      if(num(q.a) && num(q.b)){ [['a','b'],['c','d'],['e','f'],['g','h']].forEach(function(p){ if(num(q[p[0]])&&num(q[p[1]])) r.push(p); }); }
+      else {
+        [['n1','d1'],['n2','d2'],['n','d']].forEach(function(p){ if(num(q[p[0]])&&num(q[p[1]])) r.push(p); });
+        if(num(q.d) && !num(q.d1)) ['n1','n2'].forEach(function(n){ if(num(q[n])) r.push([n,'d']); });
+      }
+      return r;
+    };
+    const fr=(THEMES.find(function(t){ return /^fractions$/i.test(t.nom); })||{ids:[]}).ids;
+    const ids=Object.keys(TEST_NUM).filter(function(id){ return TEST_NUM[id] && (fr.indexOf(id)>=0 || /fraction/.test(id)); });
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const vus=[], mortes=SANS.filter(function(id){ return ids.indexOf(id)<0; }); let mesures=0, exos=0;
+    for(const id of ids){
+      if(SANS.indexOf(id)>=0) continue;
+      if(!TESTS[id] || typeof TESTS[id].start!=='function'){ vus.push(TEST_NUM[id]+' '+id+' : aucun démarreur'); continue; }
+      let lues=0, faute='';
+      for(let t=0;t<SEANCES && !faute;t++){
+        currentTestId=id; test.questions=null;
+        try{ await TESTS[id].start(); }catch(e){ faute='le démarrage lève « '+e.message+' »'; break; }
+        (Array.isArray(test.questions)?test.questions:[]).forEach(function(q){
+          if(faute || !q || typeof q!=='object') return;
+          paires(q).forEach(function(p){
+            lues++;
+            if(!faute && q[p[1]]>0 && pgcd(q[p[0]],q[p[1]])!==1)
+              faute='tire '+q[p[0]]+'/'+q[p[1]]+' ('+p[0]+'/'+p[1]+(q.type?', '+q.type:'')+')';
+          });
+        });
+      }
+      if(!faute && !lues) faute='aucune fraction de départ reconnue dans ses questions — à déclarer dans fractionsIrreductibles.sans si son sujet est une fraction réductible';
+      if(faute) vus.push(TEST_NUM[id]+' '+id+' : '+faute); else { exos++; mesures+=lues; }
+    }
+    mortes.forEach(function(id){ vus.push('fractionsIrreductibles.sans déclare '+id+', qui n’est plus un exercice de fractions du menu : la déclaration est morte'); });
+    return { vus:vus, exos:exos, mesures:mesures };
+  })()`, r => {
+    if(!r.ok){ verifier(nom, false, 'erreur JavaScript : ' + r.erreur); return apres(); }
+    const v = r.valeur || {};
+    if(!v.exos && !v.vus.length){ verifier(nom, false, 'aucun exercice de fractions mesuré : le contrôle ne mesure rien'); return apres(); }
+    verifier(nom + ' (' + (v.exos || 0) + ' exercices, ' + (v.mesures || 0) + ' fractions lues)', v.vus.length === 0, v.vus.slice(0, 5).join(' | '));
     apres();
   });
 }
@@ -16332,6 +16405,99 @@ function tableauProportionsDirectes(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* {tableau-proportions-parmi} — 4.6.5 : le 4.6.3 aux cases de 1 à 10, sans la
+   phase « nombre », rédigé « C'est la proportion de … parmi … » puis la
+   fraction « X parmi Y / parmi Y = … / … ». Les proportions portent sur
+   n'importe quelle ligne ou colonne. Les effectifs attendus sont recalculés
+   ICI, par des sommes écrites à part. */
+function tableauProportionsParmi(w, P){
+  const present = evaluer(w, "typeof startTdlParmi==='function' && typeof tdlBuildQuestionsParmi==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('proportions dans un tableau, « parmi » : le tirage, la rédaction et la place',
+      'ce niveau n\'a pas l\'exercice du tableau rédigé « parmi »');
+    return;
+  }
+  verifierEval(w, 'proportions dans un tableau, « parmi » : le tirage, la rédaction et la place', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-proportions-parmi';
+    const th=THEMES.find(function(t){ return t.num===4; });
+    if(!th || th.ids.indexOf('tableau-proportions-parmi')<0) vus.push('l\\'exercice n\\'est pas dans le thème 4');
+    if(TEST_NUM['tableau-proportions-parmi']!=='4.6.5') vus.push('numéro '+TEST_NUM['tableau-proportions-parmi']+' au lieu de 4.6.5');
+    if(TEST_NUM['tableau-proportions-directes']!=='4.6.4') vus.push('le 4.6.4 a bougé');
+    if(TABLES_SANS.indexOf('tableau-proportions-parmi')<0) vus.push('le bouton des tables est proposé');
+    const vuesProp={}, vuesFam={}, vuesVal={};
+    for(let i=0;i<1000 && !vus.length;i++){
+      const qs=tdlBuildQuestionsParmi();
+      if(qs.length!==6){ vus.push(qs.length+' questions au lieu de 6'); break; }
+      const attendu=['tab','prop','prop','prop','prop','prop'];
+      qs[0].t.forEach(function(r){ r.forEach(function(v){ vuesVal[v]=1; if(!(v>=1 && v<=10)) vus.push('case intérieure '+v); }); });
+      const fam={};
+      qs.forEach(function(q,ix){
+        if(q.phase!==attendu[ix]) vus.push('question '+(ix+1)+' : phase '+q.phase);
+        if(!q.red) vus.push('la question '+(ix+1)+' n\\'est pas rédigée « parmi »');
+        if(JSON.stringify(q.t)!==JSON.stringify(qs[0].t) || q.ci!==qs[0].ci) vus.push('la question '+(ix+1)+' ne porte pas la situation');
+        if(q.phase==='prop'){
+          if(q.n!==ix) vus.push('question '+(ix+1)+' numérotée '+q.n);
+          const ids=tdlCases(q).map(function(x){ return x.id; }).join(' ');
+          if(ids!=='tdl-qui tdl-parmi tdl-num tdl-den') vus.push('cases de la proportion : '+ids);
+          const f=q.rk==='tout' ? (q.gk[0]==='x'?'case/tout':'lettre/tout') : 'lettre/lettre';
+          if(q.rk!=='tout' && (q.gk[0]==='x' || q.gk[0]===q.rk[0])) vus.push('proportion impossible : '+q.gk+' parmi '+q.rk);
+          fam[f]=1; vuesFam[f]=1; vuesProp[q.gk+'/'+q.rk]=1;
+        }
+      });
+      if(Object.keys(fam).length!==3) vus.push('une situation sans les trois familles de la fiche : '+Object.keys(fam).join(' '));
+      const props=qs.slice(1).map(function(q){ return q.gk+'/'+q.rk; });
+      if(props.some(function(p,k){ return props.indexOf(p)!==k; })) vus.push('deux fois la même proportion : '+props.join(' '));
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(Object.keys(vuesProp).length!==16) vus.push(Object.keys(vuesProp).length+' proportions vues sur 16');
+    if(!vuesVal[1] || !vuesVal[10]) vus.push('les cases ne vont pas de 1 à 10');
+    /* les réponses, contre des sommes écrites ici */
+    const T=[[3,6],[10,1]];
+    const eff=function(gk, rk){ let n=0;
+      for(let l=0;l<2;l++) for(let c=0;c<2;c++){
+        const dans=function(k){ return k==='tout' || (k[0]==='c' && c===+k[1]) || (k[0]==='l' && l===+k[1]) || (k[0]==='x' && l===+k[1] && c===+k[2]); };
+        if(dans(gk) && dans(rk)) n+=T[l][c]; }
+      return n; };
+    [['c0','l0'],['l1','c1'],['x10','tout'],['c1','tout']].forEach(function(f){
+      const q={ci:0,t:T,red:1,phase:'prop',gk:f[0],rk:f[1],v:0,n:1};
+      const cs=tdlCases(q);
+      if(+cs[2].bon!==eff(f[0],f[1]) || +cs[3].bon!==eff(f[1],'tout')) vus.push('« '+f[0]+' parmi '+f[1]+' » : '+cs[2].bon+'/'+cs[3].bon);
+    });
+    /* l'écran : la phrase à deux listes de neuf choix, les libellés recopiés */
+    startTdlParmi();
+    if(test.qId!=='tableau-proportions-parmi' || test.kind!=='tdl') vus.push('identité '+test.qId+'/'+test.kind);
+    if(test.maxScore!==25) vus.push('barème '+test.maxScore+' au lieu de 25 (5 totaux + 5 × 4 cases)');
+    let q0=test.questions[1]; test.idx=1;
+    q0.gk='c0'; q0.rk='l1';
+    renderTdlTest();
+    const opts=[].map.call(document.querySelectorAll('#tdl-qui option'), function(o){ return o.textContent; }).slice(1).join(' ; ');
+    if(opts!=='A ; B ; C ; D ; A et C ; A et D ; B et C ; B et D ; tout') vus.push('liste : '+opts);
+    if(!/C’est la proportion de/.test(document.getElementById('tdlHost').textContent)) vus.push('la phrase « C’est la proportion de » manque');
+    document.getElementById('tdl-qui').value='c0'; document.getElementById('tdl-qui').dispatchEvent(new Event('change'));
+    document.getElementById('tdl-parmi').value='l1'; document.getElementById('tdl-parmi').dispatchEvent(new Event('change'));
+    const lib=document.querySelector('#tdlHost .tdl-lib-frac').textContent.replace(/\\s+/g,' ').trim();
+    if(lib!=='A parmi Dparmi D') vus.push('libellés de la fraction : « '+lib+' »');
+    tdlCases(q0).forEach(function(c){ const el=document.getElementById(c.id); if(el) el.value=c.bon; });
+    checkTdlAnswer();
+    let faux=document.querySelectorAll('#tdlHost .bad').length, bons=document.querySelectorAll('#tdlHost .ok').length;
+    if(faux || bons!==4) vus.push('copie juste : '+bons+' cases justes, '+faux+' fausses');
+    if(test.answers.length!==1 || !test.answers[0].correct) vus.push('la copie juste n\\'est pas enregistrée juste');
+    /* le piège : diviser par tout quand la question dit « parmi D » */
+    test.idx=2; q0=test.questions[2]; q0.gk='c0'; q0.rk='l1'; renderTdlTest();
+    const cs=tdlCases(q0);
+    document.getElementById('tdl-qui').value='c0';
+    document.getElementById('tdl-parmi').value='tout';
+    document.getElementById('tdl-num').value=cs[2].bon;
+    document.getElementById('tdl-den').value=String(tdpTotaux(q0).tt);
+    checkTdlAnswer();
+    if(!document.getElementById('tdl-qui').classList.contains('ok') || !document.getElementById('tdl-parmi').classList.contains('bad'))
+      vus.push('« parmi tout » au lieu de « parmi D » : la liste « parmi » doit rougir, « de » rester bleue');
+    if(!/proportion est/.test(document.getElementById('tdlFeedback').textContent)) vus.push('message : '+document.getElementById('tdlFeedback').textContent);
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* {reduire-produit} — thème 7 « Calcul littéral », 7.8 : quinze produits de
    deux facteurs (un nombre ou une lettre x, jamais x²), d'abord décomposés en
    trois cases (signe, coefficient, x ou x²), puis écrits directement en une
@@ -23753,6 +23919,189 @@ function pythonChaineLen(w, P){
   const ref = pythonExecuter(cmd, liste.map(([src]) => src));
   const ecarts = [];
   liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(J(src) + ' : page ' + J(mien) + ' / CPython ' + J(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-programme-calcul} (Seconde, 6.2.9) : l'exercice 19 du carnet — un
+   programme de calcul en étapes, à coder en Python. Le contrôle tient la
+   place au menu (il ferme le sous-thème 6.2, rien d'autre ne bouge), la fiche
+   épinglée et le tirage, le juge sur des copies justes et fausses — chacune
+   avec le mot qui la nomme, dont le résultat écrit à la main que la seconde
+   valeur de départ trahit —, l'écran (le programme de calcul dans l'énoncé,
+   la question en gras dans son cadre, un coup de pouce replié, aucun cours),
+   la copie juste, fausse et vide, le soutien qui explique sans révéler, puis
+   les modèles comparés à un vrai CPython. */
+function pythonProgrammeCalcul(w, P){
+  const nom = '{python-programme-calcul} : coder un programme de calcul en Python';
+  if(!P.pythonProgrammeCalcul){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du programme de calcul'); return; }
+  const ID = P.pythonProgrammeCalcul.exercice, NB = P.pythonProgrammeCalcul.nb, NUM = P.pythonProgrammeCalcul.numero;
+  const present = evaluer(w, "typeof startPGC==='function' && typeof pgcDiag==='function' && typeof pgcBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPGC / pgcDiag / pgcBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.2 « Variable et calcul », derrière {python-phrases-memoire}, numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===2; });
+    if(!st||!/variable et calcul/i.test(st.nom)) vus.push("pas de sous-thème 6.2 Variable et calcul");
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-phrases-memoire") vus.push("il ne ferme pas le sous-thème derrière {python-phrases-memoire} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-phrases-memoire"]!=="6.2.8"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(!RAPPELS.pgc) vus.push("pas de rappel");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (A = 5, × 3, − 4, au carré : 121), puis des programmes distincts ; chaque modèle passe au juge, aucun résultat ne vaut une valeur intermédiaire, et chaque programme sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pgcBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(qs[0].s!==0){ vus.push("la fiche n’ouvre pas la séance"); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois le même programme : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    const S0=PGC_SITUATIONS[0];
+    if(S0.v!=="A"||S0.a!==5||pgcResultat(S0,5)!==121||pgcEtapes(S0).join("|")!=="A prend la valeur 5|Multiplier A par 3|Soustraire 4 au résultat|Élever le résultat au carré|Afficher le résultat") vus.push("la fiche : "+pgcEtapes(S0).join("|"));
+    PGC_SITUATIONS.forEach(function(S, i){
+      const d=pgcDiag(pgcModele({s:i}),{s:i});
+      if(!d.ok) vus.push("le modèle du programme "+i+" : "+d.dits.join(" "));
+      const t=pgcTrace(S,S.a), r=t[t.length-1];
+      if(t.slice(0,-1).indexOf(r)>=0) vus.push("programme "+i+" : le résultat vaut une valeur intermédiaire");
+      if(pgcResultat(S,pgcAutre(S))===r) vus.push("programme "+i+" : la seconde valeur de départ donne le même résultat");
+    });
+    if(Object.keys(vues).length!==PGC_SITUATIONS.length) vus.push("des programmes ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (le modèle, A * A, une seule ligne de calcul, une phrase, print ( A ) espacé, un print après chaque étape, des commentaires, a minuscule partout) et nomme chaque défaut — résultat écrit à la main, calcul sans A, première étape absente, carré en * 2, ^, ², ×, ligne qui ne range pas, étape oubliée, rien d’affiché, a et A confondus, print sans parenthèses, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
+    const J=function(){ return Array.prototype.slice.call(arguments).join(NL); };
+    const justes=[pgcModele(q),
+      J("A = 5","A = A * 3","A = A - 4","A = A * A","print(A)"),
+      J("A = 5","A = (A * 3 - 4) ** 2","print(A)"),
+      J("A = 5","A = A*3","A = A-4","A = A**2","print("+Q+"le résultat est"+Q+", A)"),
+      J("A = 5","A = A * 3","A = A - 4","A = A ** 2","print ( A )"),
+      J("A = 5","A = A * 3","print(A)","A = A - 4","print(A)","A = A ** 2","print(A)"),
+      J("# programme de calcul","A = 5   # départ","","A = A * 3","A = A - 4","A = A ** 2","print(A)"),
+      J("a = 5","a = a * 3","a = a - 4","a = a ** 2","print(a)")];
+    justes.forEach(function(x){ const d=pgcDiag(x,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(x)+" — "+d.dits.join(" ")); });
+    const cas=[
+      [J("print(121)"), /commencer par la première étape/],
+      [J("A = 5","print(121)"), /ne le calcule pas à partir de A/],
+      [J("A = 5","B = (5 * 3 - 4) ** 2","print(B)"), /ne le calcule pas à partir de A/],
+      [J("A = 5","A = A * 3","A = A - 4","A = A * 2","print(A)"), /LUI-MÊME/],
+      [J("A = 5","A = A * 3","A = A - 4","A = A ^ 2","print(A)"), /\\*\\* 2/],
+      [J("A = 5","A = A * 3","A = A - 4","A = A²","print(A)"), /\\*\\* 2/],
+      [J("A = 5","A = A × 3","print(A)"), /étoile/],
+      [J("A = 5","A * 3","A = A - 4","A = A ** 2","print(A)"), /ne range le résultat nulle part/],
+      [J("A = 5","A = A * 3","A = A - 4","print(A)"), /après l’étape « Soustraire 4 au résultat »/],
+      [J("A = 5","print(A)"), /valeur de départ/],
+      [J("A = 5","A = A * 3","A = A - 4","A = A ** 2"), /n’affiche rien/],
+      [J("A = 5","A = a * 3","print(A)"), /majuscules/],
+      [J("A = 5","print A"), /parenthèses/],
+      [J("A = 5","A = A - 4","A = A * 3","A = A ** 2","print(A)"), /l’ordre compte/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pgcDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : le programme de calcul en liste dans l’énoncé, la question en gras dans son cadre, UN coup de pouce replié (les deux premières étapes traduites), aucun cours, rien avant l’énoncé ; « Exécuter » montre le résultat ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPGC();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const li=Array.prototype.map.call(document.querySelectorAll("#pgcInstr .pgc-etapes li"),function(l){ return l.textContent; });
+    if(li.join("|")!==pgcEtapes(PGC_SITUATIONS[0]).join("|")) vus.push("les étapes de l’énoncé : "+li.join("|"));
+    const et=document.querySelector("#pgcHost .pyn-etape .pyn-titre");
+    if(!et||!/Écrivez un programme Python permettant de coder ce programme de calcul/.test(et.textContent)) vus.push("l’énoncé de la question : "+(et&&et.textContent));
+    const pouces=document.querySelectorAll("#pgcHost details.pyd-pouce");
+    if(pouces.length!==1) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); if(d.textContent.indexOf("A = A * 3")<0||d.textContent.indexOf("print ( ... )")<0||d.textContent.indexOf("A = A - 4")>=0) vus.push("coup de pouce : "+d.textContent); });
+    if(document.getElementById("pgcAvant").textContent.trim()) vus.push("quelque chose est écrit avant l’énoncé");
+    if(document.querySelector("#pgcHost .pyp-regle, #pgcHost .py-hint")) vus.push("un cours ou une consigne est écrit sur l’écran");
+    const ta=document.getElementById("pgc-prog"), cons=document.getElementById("pgcConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    if(!document.getElementById("pgcEtape").contains(cons)) vus.push("la console n’est pas dans le cadre de la question");
+    ta.value=["A = 5","A = A * 3","A = A - 4","A = A ** 2","print(A)"].join(NL);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pgcExecuter();
+    if(cons.textContent!=="121") vus.push("la console : "+JSON.stringify(cons.textContent));
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPGC();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("pgcNext")) vus.push("pas de « Question suivante »");
+    nextPGC();
+    if(test.idx!==1||document.getElementById("pgc-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPGC();
+    let ta=document.getElementById("pgc-prog");
+    ta.value=["A = 5","print(121)"].join(NL);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPGC();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pgcModele .sol");
+    if(!mod||mod.textContent!==pgcModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPGC(); ta=document.getElementById("pgc-prog");
+    checkPGC();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pgcModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPGC(); ta=document.getElementById("pgc-prog");
+    checkPGC();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value=["A = 5","A = A * 3","A = A - 4","A = A * 2","print(A)"].join(NL);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPGC();
+    const fb=document.getElementById("pgcFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/LUI-MÊME/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pgcModele .sol")||fb.indexOf("121")>=0) vus.push("soutien : le modèle ou le résultat est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPgc(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython ---- */
+  const nomPy = 'ce que les modèles de {python-programme-calcul} affichent dans la page est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const NL=String.fromCharCode(10), res=[];
+    PGC_SITUATIONS.forEach(function(S,i){
+      const src=pgcModele({s:i});
+      let o; try{ o=pyRun(src).out; }catch(e){ o="ERREUR:"+String(e.message||e); }
+      res.push([src, o]);
+    });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 

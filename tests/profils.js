@@ -108,7 +108,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-input-evolution':'pvo', 'python-inverser-lettres':'pbl', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-input-evolution':'pvo', 'python-inverser-lettres':'pbl', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -211,6 +211,14 @@ module.exports = {
        qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
        juge pas à moitié écrite —, puis mesure l'alignement des termes. */
     sommeFractions: { exercice: 'somme-fractions' },
+    /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
+       (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
+       de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
+       SUJET est une fraction réductible, raison comprise. */
+    fractionsIrreductibles: { sans: {
+      'fractions-decimales': 'une fraction décimale (30/100) est le sujet même : la rendre irréductible la ferait sortir des puissances de 10',
+      'fraction-pourcentage': 'aucune opération entre fractions : on colorie une fraction pour lire un pourcentage'
+    } },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au
@@ -736,6 +744,15 @@ module.exports = {
        qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
        juge pas à moitié écrite —, puis mesure l'alignement des termes. */
     sommeFractions: { exercice: 'somme-fractions' },
+    /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
+       (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
+       de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
+       SUJET est une fraction réductible, raison comprise. */
+    fractionsIrreductibles: { sans: {
+      'fractions-decimales': 'une fraction décimale (30/100) est le sujet même : la rendre irréductible la ferait sortir des puissances de 10',
+      'fraction-pourcentage': 'aucune opération entre fractions : on colorie une fraction pour lire un pourcentage',
+      'simplifier-barres': 'simplifier EST le sujet : la fraction de départ doit être réductible'
+    } },
 
     /* {croiser-denominateurs} : le même moteur que {somme-fractions}, avec les
        flèches en plus. Le banc navigateur mesure ce que l'élève VOIT — les
@@ -857,7 +874,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'prc', 'pkg', 'pvo', 'pbl', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph', 'ppb'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pgc', 'prc', 'pkg', 'pvo', 'pbl', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph', 'ppb'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1051,10 +1068,10 @@ module.exports = {
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
                   sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
-                         'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'lecture-variations',
+                         'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-input', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-chaines', 'python-input-int', 'python-input-calcul', 'python-input-float', 'python-input-somme', 'python-input-moyenne', 'python-input-rectangle', 'python-input-prix', 'python-input-evolution', 'python-inverser-lettres', 'python-remplacer-lettre', 'python-triangle-etoiles', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres', 'python-phrases-memoire', 'python-input-reponse', 'python-chaine-len', 'python-chaine-tirets'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction', 'python-affichage', 'python-types', 'python-afficher-variable', 'python-noms-variables', 'python-nom-variable', 'python-print', 'python-input', 'python-completer', 'python-deux-lignes', 'python-placer-variables', 'python-operations', 'python-tableau-valeurs', 'python-double-triple-carre', 'python-chaines', 'python-input-int', 'python-input-calcul', 'python-input-float', 'python-input-somme', 'python-input-moyenne', 'python-input-rectangle', 'python-input-prix', 'python-input-evolution', 'python-inverser-lettres', 'python-remplacer-lettre', 'python-triangle-etoiles', 'python-programme-calcul', 'python-pas-a-pas', 'python-valeur-case', 'python-pas-a-pas-calcul', 'python-pas-a-pas-chaine', 'python-echange-variables', 'python-echange-par-lettres', 'python-phrases-memoire', 'python-input-reponse', 'python-chaine-len', 'python-chaine-tirets'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -1113,6 +1130,7 @@ module.exports = {
       'python-inverser-lettres': 'comme le 6.4.2 : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
       'python-chaine-tirets': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce, déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
       'python-input-rectangle': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce (la ligne de float, les formules, les print), déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
+      'python-programme-calcul': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (les deux premières étapes traduites, les autres en pointillés), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait le programme',
       'python-triangle-etoiles': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce, qui reste REPLIÉ sous l\u2019énoncé (demande de Turquet, octobre 2026 : « garde le coup de pouce seulement replié »)',
     } },
     pythonAffichage: { exercice: 'python-affichage', nb: 4 },
@@ -1194,6 +1212,12 @@ module.exports = {
        {python-inverser-lettres} dans le sous-thème 6.4 « Bonus ». « nb » est la seconde source du compte (la
        page a PTR_NB). */
     pythonTriangle: { exercice: 'python-triangle-etoiles', nb: 2, numero: '6.4.5' },
+    /* {python-programme-calcul} (6.2.9, demande de Turquet, octobre 2026) :
+       l'exercice 19 du carnet — un programme de calcul en étapes (A prend la
+       valeur 5, multiplier A par 3, soustraire 4, élever au carré, afficher)
+       à coder en Python. Il ferme le sous-thème 6.2 « Variable et calcul ».
+       « nb » est la seconde source du compte (la page a PGC_NB). */
+    pythonProgrammeCalcul: { exercice: 'python-programme-calcul', nb: 3, numero: '6.2.9' },
     /* {python-input-rectangle} (6.3.8, demande de Turquet, octobre 2026) :
        l'exercice 9 du carnet — la longueur et la largeur d'un rectangle
        demandées avec float(input(…)), son aire et son périmètre rangés dans
