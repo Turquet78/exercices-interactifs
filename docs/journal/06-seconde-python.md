@@ -4025,6 +4025,63 @@ poussée.
 
 ---
 
+**Coder un programme de calcul — l'exercice 19 du carnet, et il ferme le
+sous-thème 6.2.** {python-programme-calcul} (Seconde, 6.2.9, APP_VERSION 295 — 294 pris sur `main` pendant les bancs —,
+demande de Turquet, octobre 2026 : « fais un exercice dans les algo de seconde
+dans le sous thème variable et calcul comme le pdf ») : « On considère le
+programme de calcul suivant » — A prend la valeur 5, multiplier A par 3,
+soustraire 4 au résultat, élever le résultat au carré, afficher le résultat —,
+puis « **Écrivez un programme Python** permettant de coder ce programme de
+calcul. Vérifiez ensuite **en l'exécutant** », et le coup de pouce de la fiche
+replié : les deux premières étapes traduites (`A = 5`, `A = A * 3`), les
+suivantes en pointillés (`A = ...`, `print ( ... )`), à chasse fixe comme le
+carnet. Ajouté en dernier dans le sous-thème, il ne renumérote rien ; son
+contrôle exige de suivre {python-phrases-memoire}.
+
+**CE QU'IL AJOUTE AU SOUS-THÈME est le geste inverse des pas à pas** : du 6.2.1
+au 6.2.8 l'élève LIT un programme et suit la mémoire ; ici il ÉCRIT le
+programme à partir d'une suite d'étapes en français — chaque étape devient une
+ligne qui change la même variable.
+
+**Les consignes du thème, tenues comme au 6.4.5** : le programme de calcul en
+liste dans l'énoncé du haut ; la question en gras dans un cadre `.pyn-etape`
+qui enveloppe le coup de pouce, la cellule, « Exécuter » et la console ; aucune
+consigne à côté du bouton ; la console vide reste un cadre vide
+(`#pgcConsole` rejoint `content:none`). La fiche n'a pas de définition :
+`pgcAvant` reste vide — exception déclarée de `pythonAvant.sans`, raison
+comprise —, et le rappel (`RAP_PGC`) n'est que le coup de pouce, mot pour mot
+(« Elever » corrigé en « Élever », seule retouche).
+
+**LE JUGE EXÉCUTE, PUIS REJOUE AVEC UNE AUTRE VALEUR DE DÉPART** (`pgcDiag`).
+La copie passe par `pyRun` ; la DERNIÈRE ligne affichée doit porter le
+résultat — `print(A)`, une phrase qui le contient, ou un print après chaque
+étape passent. Puis la seconde méthode : le nombre de la première ligne utile
+(`A = 5`) est remplacé par `a + 3`, et la copie doit afficher le résultat du
+programme de calcul pour cette valeur-là — `print(121)` écrit à la main, ou
+`B = (5 * 3 - 4) ** 2`, affichent le bon nombre et sont refusés en le disant.
+`A * A`, une seule ligne `A = (A * 3 - 4) ** 2`, un nom en minuscule tenu
+partout passent. Nommés : le carré écrit `* 2` (lu en rejouant le programme
+avec ce défaut), `^` et `²`, le `×`, une ligne qui calcule sans ranger
+(`A * 3` : A garde sa valeur), une étape oubliée (la valeur affichée est
+reconnue parmi les valeurs intermédiaires, et l'étape suivante est nommée), la
+valeur de départ affichée telle quelle, `a` et `A` confondus, print sans
+parenthèses, rien d'affiché, et l'ordre des étapes. Aucun résultat tiré ne
+vaut une valeur intermédiaire, et la seconde valeur de départ change toujours
+le résultat — le banc l'exige de chaque programme.
+
+**La séance** : la fiche épinglée en tête (121), puis deux programmes tirés par
+`distinctes()` parmi six (variables A, B, N, C ; ajouter, soustraire,
+multiplier, élever au carré — aucune division, donc aucun flottant à écrire),
+que le réglage « Questions » allonge. Une case (`pts-case`), pas de correction
+au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables
+(`TABLES_SANS`, et sa seconde source dans `tests/profils.js`). Banc jsdom
+(`pythonProgrammeCalcul`) : la place, la fiche et le tirage (300 séances), le
+juge sur huit copies justes et quinze fausses chacune avec son mot, l'écran,
+la copie juste tapée et exécutée, fausse et vide, le soutien qui ne révèle ni
+le modèle ni le résultat, et les modèles comparés à un vrai CPython. Pas de
+section propre au banc navigateur : la visite universelle (section 9) l'ouvre
+dans les deux modes.
+
 **Le sous-thème « Bonus : input », et une durée en heures et minutes — l'exercice 11 du carnet.**
 {python-input-duree} (Seconde, 6.5.1, APP_VERSION 294, demande de Turquet,
 octobre 2026 : « en seconde dans le thème algo dans la partie bonus créer un
