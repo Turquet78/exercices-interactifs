@@ -25428,7 +25428,7 @@ function pythonInputEvolution(w, P){
   })()`, v => v === '');
 
   /* ---- 2. la séance ---- */
-  verifierEval(w, 'la séance : ' + NB + ' questions, les étapes 1, 2, 3 (évolution, arrivée, départ), l’exemple de la fiche d’abord (40, 30, 0) ; le modèle de chaque étape passe au juge et l’étape d’avant ne passe pas l’étape d’après ; chaque exemple sort (300 séances)', `(function(){
+  verifierEval(w, 'la séance : ' + NB + ' questions, les étapes 1, 2, 3 (évolution, arrivée, départ), l’exemple de la fiche d’abord (40, 30, 0) ; le modèle de chaque étape passe au juge et l’étape d’avant ne passe pas l’étape d’après ; chaque exemple sort (300 séances de ' + NB + ', 300 de huit)', `(function(){
     const vus=[], vues={};
     for(let s=0;s<300&&vus.length<4;s++){
       const qs=pvoBuildQuestions();
@@ -25437,6 +25437,10 @@ function pythonInputEvolution(w, P){
       if(pvoEx(qs[0]).join()!=="40,30,0"){ vus.push("la fiche n’ouvre pas la séance"); break; }
       qs.forEach(function(q){ vues[q.k+":"+q.x]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
     }
+    /* au-delà de trois questions (réglage d'un devoir), le programme entier, sur les autres exemples */
+    const dmAvant=dmNbQuestions; dmNbQuestions=function(){ return 8; };
+    try{ for(let s=0;s<300;s++){ const qs=pvoBuildQuestions(); if(qs.length!==8){ vus.push("séance longue de "+qs.length); break; } qs.forEach(function(q, i){ vues[q.k+":"+q.x]=1; if(i>=3&&q.e!==3) vus.push("question "+(i+1)+" à l’étape "+q.e); }); } }
+    finally{ dmNbQuestions=dmAvant; }
     let total=0;
     PVO_EXEMPLES.forEach(function(l, k){ l.forEach(function(v, x){
       total++;
