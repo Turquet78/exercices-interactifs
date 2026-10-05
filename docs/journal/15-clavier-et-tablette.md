@@ -1407,3 +1407,19 @@ Ce qu'aucun banc ne voit : une vraie tablette, avec son clavier système
 que la greffe coupe et sa bande du bas — le banc mesure un Chromium de
 768 px tactile, pas un iPad.
 
+
+**Une case NOMBRE en `inputmode="decimal"` n'a pas de signe moins sur tablette
+(octobre 2026, 2.2.1 de la Terminale).** Signalé par Turquet : « les élèves
+n'ont pas accès au moins dans le clavier virtuel ». La case de la valeur de
+l'extremum de f ′ ({convexite-trois-courbes}, `cvx-e`) était la seule de
+l'exercice déclarée `decimal` : le pavé de la page ne s'attache qu'aux cases
+`numeric`, si bien que c'est le clavier DÉCIMAL du système qui s'ouvrait — et
+celui de l'iPad comme de l'iPhone n'a que chiffres et virgule. Un extremum
+négatif devenait impossible à écrire. La case passe en `numeric` (le pavé, qui
+porte « − » et insère le tiret que lit `efParse`), et le contrôle de
+l'exercice (tests/verifier.js, convexité) exige que TOUTES ses cases nombre se
+déclarent numériques ; éprouvé en remettant `decimal` : il rougit en nommant
+`cvx-e`. Reste nommé, pas corrigé : le 7.x Python de la Seconde
+({ptv}, `ptv-x` et `ptv-in`) est lui aussi en `decimal` — mais `ptv-x` est une
+ligne de programme Python, où le séparateur est le POINT, que le pavé n'a pas :
+la conversion demande une décision.

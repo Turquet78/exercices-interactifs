@@ -33645,6 +33645,12 @@ function convexiteTroisCourbes(w, P){
     if(r.score!==1) vus.push('la copie juste (A) ne vaut pas le point ('+r.fb+')');
     if(r.cases!==13) vus.push('la copie juste (A) compte '+r.cases+' cases au lieu de 13');
     if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    /* les cases NOMBRE se déclarent numériques : en « decimal », le pavé ne
+       s'y attachait pas et le clavier du système, sans « − », laissait l'élève
+       sans moyen d'écrire un extremum négatif sur tablette (octobre 2026) */
+    cvxCases(Q0).filter(function(x){ return x.type==='num'; }).forEach(function(x){ const el=document.getElementById(x.id);
+      if(el && el.getAttribute('inputmode')!=='numeric' && !el.hasAttribute('data-pave'))
+        vus.push('la case '+x.id+' ne se déclare pas numérique (inputmode='+el.getAttribute('inputmode')+') : sur tablette, pas de pavé, donc pas de signe moins'); });
     if(!/minimum de/.test(document.getElementById('cvxPrompt').textContent)) vus.push('l\\'énoncé de Q0 ne demande pas le MINIMUM de f′');
     { const z=zerosPoses(); if(z.length!==7 || z[1]!=='0' || z[2]!=='' || z[4]!=='0' || z[6]!=='') vus.push('les 0 posés par la page ne sont pas aux bons nœuds : '+JSON.stringify(z)); }
     r=pose(JUSTE1, 'train', Q1);
