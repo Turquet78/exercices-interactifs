@@ -35387,8 +35387,8 @@ function revisionFractions(w, P){
       'meme-sub':       {num:3,  den:5,  extra:[]},
       'mult-frac':      {num:2,  den:15, extra:[]},
       'mult-entier':    {num:6,  den:5,  extra:[['rvf-kden',1]]},
-      'diff-add':       {num:11, den:15, extra:[['rvf-a1',5],['rvf-b1',5],['rvf-a2',3],['rvf-b2',3]]},
-      'diff-sub-entier':{num:-3, den:4,  extra:[['rvf-kden',1],['rvf-ka',4],['rvf-kb',4]]},
+      'diff-add':       {num:11, den:15, extra:[['rvf-a1',5],['rvf-b1',5],['rvf-a2',3],['rvf-b2',3],['rvf-p1n',5],['rvf-p1d',15],['rvf-p2n',6],['rvf-p2d',15]]},
+      'diff-sub-entier':{num:-3, den:4,  extra:[['rvf-kden',1],['rvf-ka',4],['rvf-kb',4],['rvf-kpn',4],['rvf-kpd',4]]},
       'div-1':          {num:10, den:3,  extra:[['rvf-inv-n',5],['rvf-inv-d',1]]},
       'div-2':          {num:21, den:8,  extra:[['rvf-inv-n',7],['rvf-inv-d',4]]}
     };
@@ -35407,7 +35407,7 @@ function revisionFractions(w, P){
 
     /* ---- 3. le rendu, le libellé d'étape, et la copie juste, par le BOUTON */
     startRvf();
-    if(test.maxScore!==36) vus.push('barème de '+test.maxScore+' au lieu de 36 (3+3+3+4+7+6+5+5)');
+    if(test.maxScore!==42) vus.push('barème de '+test.maxScore+' au lieu de 42 (3+3+3+4+11+8+5+5)');
     test.questions=RVF_ORDRE.map(function(type){ return FIXES[type]; });
     for(let i=0;i<RVF_ORDRE.length && !vus.length;i++){
       const type=RVF_ORDRE[i], att=ATTENDU[type];
@@ -35428,7 +35428,7 @@ function revisionFractions(w, P){
       if(!der || !der.correct) vus.push(type+' : la copie juste est comptée fausse');
     }
     if(vus.length) return vus.slice(0,6).join(' | ');
-    if(test.score!==36) vus.push('score '+test.score+' au lieu de 36, sur une copie entièrement juste des huit questions');
+    if(test.score!==42) vus.push('score '+test.score+' au lieu de 42, sur une copie entièrement juste des huit questions');
 
     /* ---- 4. mult-entier : la case du dénominateur est bien DEMANDÉE (vide
        au départ), et une mauvaise valeur la peint en rouge — la correction
