@@ -4070,3 +4070,5 @@ fausses chacune avec son mot, l'écran, le dialogue tapé réponse par réponse,
 juste/faux/vide, le soutien, et les exécutions comparées à CPython questions
 comprises. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
+
+Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, version 294) pendant les bancs : deux listes partagées (`TABLES_SANS`, la table des kinds de `tests/profils.js`) unies ligne à ligne, et la version passe en 295.
