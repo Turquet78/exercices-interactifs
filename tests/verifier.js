@@ -4170,6 +4170,7 @@ function exercices(suite){
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
     pythonTriangle(w, P);
+    pythonProgrammeCalcul(w, P);
     pythonInputRectangle(w, P);
     pythonInverserLettres(w, P);
     pythonChaines(w, P);
@@ -23846,6 +23847,189 @@ function pythonChaineLen(w, P){
   const ref = pythonExecuter(cmd, liste.map(([src]) => src));
   const ecarts = [];
   liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(J(src) + ' : page ' + J(mien) + ' / CPython ' + J(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
+/* {python-programme-calcul} (Seconde, 6.2.9) : l'exercice 19 du carnet — un
+   programme de calcul en étapes, à coder en Python. Le contrôle tient la
+   place au menu (il ferme le sous-thème 6.2, rien d'autre ne bouge), la fiche
+   épinglée et le tirage, le juge sur des copies justes et fausses — chacune
+   avec le mot qui la nomme, dont le résultat écrit à la main que la seconde
+   valeur de départ trahit —, l'écran (le programme de calcul dans l'énoncé,
+   la question en gras dans son cadre, un coup de pouce replié, aucun cours),
+   la copie juste, fausse et vide, le soutien qui explique sans révéler, puis
+   les modèles comparés à un vrai CPython. */
+function pythonProgrammeCalcul(w, P){
+  const nom = '{python-programme-calcul} : coder un programme de calcul en Python';
+  if(!P.pythonProgrammeCalcul){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du programme de calcul'); return; }
+  const ID = P.pythonProgrammeCalcul.exercice, NB = P.pythonProgrammeCalcul.nb, NUM = P.pythonProgrammeCalcul.numero;
+  const present = evaluer(w, "typeof startPGC==='function' && typeof pgcDiag==='function' && typeof pgcBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPGC / pgcDiag / pgcBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ferme le sous-thème 6.2 « Variable et calcul », derrière {python-phrases-memoire}, numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===2; });
+    if(!st||!/variable et calcul/i.test(st.nom)) vus.push("pas de sous-thème 6.2 Variable et calcul");
+    else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-phrases-memoire") vus.push("il ne ferme pas le sous-thème derrière {python-phrases-memoire} : "+st.ids.join(","));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-phrases-memoire"]!=="6.2.8"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(!RAPPELS.pgc) vus.push("pas de rappel");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (A = 5, × 3, − 4, au carré : 121), puis des programmes distincts ; chaque modèle passe au juge, aucun résultat ne vaut une valeur intermédiaire, et chaque programme sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pgcBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(qs[0].s!==0){ vus.push("la fiche n’ouvre pas la séance"); break; }
+      const ss=qs.map(function(q){ return q.s; });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois le même programme : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    const S0=PGC_SITUATIONS[0];
+    if(S0.v!=="A"||S0.a!==5||pgcResultat(S0,5)!==121||pgcEtapes(S0).join("|")!=="A prend la valeur 5|Multiplier A par 3|Soustraire 4 au résultat|Élever le résultat au carré|Afficher le résultat") vus.push("la fiche : "+pgcEtapes(S0).join("|"));
+    PGC_SITUATIONS.forEach(function(S, i){
+      const d=pgcDiag(pgcModele({s:i}),{s:i});
+      if(!d.ok) vus.push("le modèle du programme "+i+" : "+d.dits.join(" "));
+      const t=pgcTrace(S,S.a), r=t[t.length-1];
+      if(t.slice(0,-1).indexOf(r)>=0) vus.push("programme "+i+" : le résultat vaut une valeur intermédiaire");
+      if(pgcResultat(S,pgcAutre(S))===r) vus.push("programme "+i+" : la seconde valeur de départ donne le même résultat");
+    });
+    if(Object.keys(vues).length!==PGC_SITUATIONS.length) vus.push("des programmes ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte les écritures justes (le modèle, A * A, une seule ligne de calcul, une phrase, print ( A ) espacé, un print après chaque étape, des commentaires, a minuscule partout) et nomme chaque défaut — résultat écrit à la main, calcul sans A, première étape absente, carré en * 2, ^, ², ×, ligne qui ne range pas, étape oubliée, rien d’affiché, a et A confondus, print sans parenthèses, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
+    const J=function(){ return Array.prototype.slice.call(arguments).join(NL); };
+    const justes=[pgcModele(q),
+      J("A = 5","A = A * 3","A = A - 4","A = A * A","print(A)"),
+      J("A = 5","A = (A * 3 - 4) ** 2","print(A)"),
+      J("A = 5","A = A*3","A = A-4","A = A**2","print("+Q+"le résultat est"+Q+", A)"),
+      J("A = 5","A = A * 3","A = A - 4","A = A ** 2","print ( A )"),
+      J("A = 5","A = A * 3","print(A)","A = A - 4","print(A)","A = A ** 2","print(A)"),
+      J("# programme de calcul","A = 5   # départ","","A = A * 3","A = A - 4","A = A ** 2","print(A)"),
+      J("a = 5","a = a * 3","a = a - 4","a = a ** 2","print(a)")];
+    justes.forEach(function(x){ const d=pgcDiag(x,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(x)+" — "+d.dits.join(" ")); });
+    const cas=[
+      [J("print(121)"), /commencer par la première étape/],
+      [J("A = 5","print(121)"), /ne le calcule pas à partir de A/],
+      [J("A = 5","B = (5 * 3 - 4) ** 2","print(B)"), /ne le calcule pas à partir de A/],
+      [J("A = 5","A = A * 3","A = A - 4","A = A * 2","print(A)"), /LUI-MÊME/],
+      [J("A = 5","A = A * 3","A = A - 4","A = A ^ 2","print(A)"), /\\*\\* 2/],
+      [J("A = 5","A = A * 3","A = A - 4","A = A²","print(A)"), /\\*\\* 2/],
+      [J("A = 5","A = A × 3","print(A)"), /étoile/],
+      [J("A = 5","A * 3","A = A - 4","A = A ** 2","print(A)"), /ne range le résultat nulle part/],
+      [J("A = 5","A = A * 3","A = A - 4","print(A)"), /après l’étape « Soustraire 4 au résultat »/],
+      [J("A = 5","print(A)"), /valeur de départ/],
+      [J("A = 5","A = A * 3","A = A - 4","A = A ** 2"), /n’affiche rien/],
+      [J("A = 5","A = a * 3","print(A)"), /majuscules/],
+      [J("A = 5","print A"), /parenthèses/],
+      [J("A = 5","A = A - 4","A = A * 3","A = A ** 2","print(A)"), /l’ordre compte/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const d=pgcDiag(c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : le programme de calcul en liste dans l’énoncé, la question en gras dans son cadre, UN coup de pouce replié (les deux premières étapes traduites), aucun cours, rien avant l’énoncé ; « Exécuter » montre le résultat ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPGC();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const li=Array.prototype.map.call(document.querySelectorAll("#pgcInstr .pgc-etapes li"),function(l){ return l.textContent; });
+    if(li.join("|")!==pgcEtapes(PGC_SITUATIONS[0]).join("|")) vus.push("les étapes de l’énoncé : "+li.join("|"));
+    const et=document.querySelector("#pgcHost .pyn-etape .pyn-titre");
+    if(!et||!/Écrivez un programme Python permettant de coder ce programme de calcul/.test(et.textContent)) vus.push("l’énoncé de la question : "+(et&&et.textContent));
+    const pouces=document.querySelectorAll("#pgcHost details.pyd-pouce");
+    if(pouces.length!==1) vus.push(pouces.length+" coup(s) de pouce");
+    pouces.forEach(function(d){ if(d.open) vus.push("coup de pouce déplié d’emblée"); if(d.textContent.indexOf("A = A * 3")<0||d.textContent.indexOf("print ( ... )")<0||d.textContent.indexOf("A = A - 4")>=0) vus.push("coup de pouce : "+d.textContent); });
+    if(document.getElementById("pgcAvant").textContent.trim()) vus.push("quelque chose est écrit avant l’énoncé");
+    if(document.querySelector("#pgcHost .pyp-regle, #pgcHost .py-hint")) vus.push("un cours ou une consigne est écrit sur l’écran");
+    const ta=document.getElementById("pgc-prog"), cons=document.getElementById("pgcConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    if(!document.getElementById("pgcEtape").contains(cons)) vus.push("la console n’est pas dans le cadre de la question");
+    ta.value=["A = 5","A = A * 3","A = A - 4","A = A ** 2","print(A)"].join(NL);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pgcExecuter();
+    if(cons.textContent!=="121") vus.push("la console : "+JSON.stringify(cons.textContent));
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPGC();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!document.getElementById("pgcNext")) vus.push("pas de « Question suivante »");
+    nextPGC();
+    if(test.idx!==1||document.getElementById("pgc-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPGC();
+    let ta=document.getElementById("pgc-prog");
+    ta.value=["A = 5","print(121)"].join(NL);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPGC();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pgcModele .sol");
+    if(!mod||mod.textContent!==pgcModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    nextPGC(); ta=document.getElementById("pgc-prog");
+    checkPGC();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pgcModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPGC(); ta=document.getElementById("pgc-prog");
+    checkPGC();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value=["A = 5","A = A * 3","A = A - 4","A = A * 2","print(A)"].join(NL);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPGC();
+    const fb=document.getElementById("pgcFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/LUI-MÊME/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pgcModele .sol")||fb.indexOf("121")>=0) vus.push("soutien : le modèle ou le résultat est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPgc(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython ---- */
+  const nomPy = 'ce que les modèles de {python-programme-calcul} affichent dans la page est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const NL=String.fromCharCode(10), res=[];
+    PGC_SITUATIONS.forEach(function(S,i){
+      const src=pgcModele({s:i});
+      let o; try{ o=pyRun(src).out; }catch(e){ o="ERREUR:"+String(e.message||e); }
+      res.push([src, o]);
+    });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'les programmes ne s\'exécutent pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src]) => src));
+  const ecarts = [];
+  liste.forEach(([src, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
