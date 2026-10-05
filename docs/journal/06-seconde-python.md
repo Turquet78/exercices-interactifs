@@ -4070,3 +4070,12 @@ fausses chacune avec son mot, l'écran, le dialogue de la console, les copies
 juste, fausse et vide, le soutien, et le modèle comparé à un vrai CPython.
 Pas de section propre au banc navigateur : la visite universelle (section 9)
 l'ouvre dans les deux modes.
+
+**Le banc a attrapé trois défauts du juge à sa première exécution.** Le
+contrôle des guillemets typographiques, repris du 6.3.9, refusait « c’est »
+écrit DANS une chaîne — juste en Python : il ne regarde plus que le code hors
+des chaînes. Le nom de variable entre guillemets (`print("h", …)`) recevait
+« affiche toujours la même chose » : il est lu AVANT. Et un contrôle « le
+résultat de l'exemple » s'est déclenché par coïncidence sur `d // 100`
+(215 // 100 = 2, 215 % 100 = 15, les nombres de la fiche) : redondant avec
+« la même sortie pour deux durées », il est retiré.

@@ -33696,7 +33696,8 @@ function pduDiag(src, q){
   src=String(src||''); const D=pduDuree(q);
   const non=function(d){ return {ok:false, vide:false, dits:[d]}; };
   if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris l’input qui demande la durée, puis les calculs, puis le print.']};
-  if(/[«»“”‘’]/.test(src)) return non('Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.');
+  /* les guillemets typographiques ne trompent qu'EN DEHORS d'une chaîne : « c’est » entre "…" est juste */
+  if(/[«»“”‘’]/.test(src.replace(/"[^"\n]*"|'[^'\n]*'/g, '""'))) return non('Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.');
   const essais=PDU_EX.map(function(d){ return pduEssai(src, d); }), a=essais[0];
   if(a.err){
     const msg=String(a.err.message||a.err);
@@ -33724,12 +33725,10 @@ function pduDiag(src, q){
   if(a2(function(k){ return lit(k, PDU_EX[k]/60); })) return non('La division / donne un nombre décimal : '+D+' / 60 = '+pyRep({t:'float', v:D/60})+'. Pour le nombre d’heures ENTIÈRES, c’est // qu’il faut : '+D+' // 60. Et le reste de la division, % , donne les minutes : '+D+' % 60.');
   if(a2(function(k){ return lit(k, E[k].h); }) && !a2(function(k){ return lit(k, E[k].m); })) return non('Il manque les minutes : ce sont celles qui restent une fois les heures entières enlevées — le reste de la division par 60, '+D+' % 60.');
   if(a2(function(k){ return lit(k, E[k].m); }) && !a2(function(k){ return lit(k, E[k].h); })) return non('Il manque les heures : le nombre d’heures entières, c’est '+D+' // 60.');
-  const H=pduHM(D);
-  if(S[1] && S[0].t===S[1].t) return non('Ton programme affiche toujours la même chose, quelle que soit la durée tapée : les calculs doivent se servir de la réponse à l’input, pas d’un nombre écrit à la main.');
-  if(lit(0, H.h) && lit(0, H.m) && H.h!==E[0].h) return non('Ton programme affiche toujours le résultat de l’exemple ('+H.h+' heures et '+H.m+' minutes) : les calculs doivent se servir de la durée tapée.');
   const env=a.r.env;
   if(a.r.prints.some(function(p){ return (p.args||[]).some(function(z){ const v=z.k==='str'?z.v.trim():''; return v && Object.prototype.hasOwnProperty.call(env, v) && env[v].t!=='str'; }); }))
     return non('Un nom de variable entre guillemets affiche le MOT, pas sa valeur : écris le nom de la variable SANS guillemets dans le print.');
+  if(S[1] && S[0].t===S[1].t) return non('Ton programme affiche toujours la même chose, quelle que soit la durée tapée : les calculs doivent se servir de la réponse à l’input, pas d’un nombre écrit à la main.');
   return non('Si l’on répond '+PDU_EX[0]+', ton programme affiche « '+S[0].t.replace(/\n/g, ' / ')+' » : il fallait '+E[0].h+' heures et '+E[0].m+' minutes. Vérifie tes calculs.');
 }
 
