@@ -4152,6 +4152,7 @@ function exercices(suite){
     pythonInputFloat(w, P);
     pythonInputSomme(w, P);
     pythonInputPrix(w, P);
+    pythonInputDuree(w, P);
     pythonChaineTirets(w, P);
     pythonRemplacerLettre(w, P);
     pythonPasAPas(w, P);
@@ -23598,8 +23599,9 @@ function pythonChaineLen(w, P){
   /* ---- 1. la place au menu ---- */
   verifierEval(w, 'il ouvre le sous-thème 6.4 « Bonus », numéroté ' + NUM + ', ajouté en dernier : rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
-    const st=th&&th.sous&&th.sous[th.sous.length-1];
-    if(!st||st.num!==4||!/bonus/i.test(st.nom)) vus.push("le dernier sous-thème n’est pas 6.4 Bonus : "+(st&&st.nom));
+    /* 6.4 n'est plus le dernier depuis « Bonus : input » (6.5) : il est le quatrième */
+    const st=th&&th.sous&&th.sous[3];
+    if(!st||st.num!==4||st.nom!=="Bonus") vus.push("le quatrième sous-thème n’est pas 6.4 Bonus : "+(st&&st.nom));
     else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -24574,7 +24576,7 @@ function pythonRemplacerLettre(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===4; });
     if(!st||st.nom!=="Bonus") vus.push("pas de sous-thème 6.4 Bonus");
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-chaine-tirets")+1||st.ids.indexOf("${ID}")<1) vus.push("il ne suit pas {python-chaine-tirets} : "+st.ids.join(","));
-    if(th.sous[th.sous.length-1]!==st) vus.push("le sous-thème Bonus n’est pas le dernier");
+    if(th.sous.indexOf(st)!==3) vus.push("le sous-thème Bonus n’est pas le quatrième");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-chaine-tirets"]!=="6.4.2"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -25382,6 +25384,206 @@ function pythonInputPrix(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
+/* {python-input-duree} (Seconde, 6.5.1) : l'exercice 11 du carnet — les deux
+   serpents. Demander une durée en minutes, l'afficher en heures et minutes.
+   Le contrôle tient la place au menu (il ouvre le sous-thème 6.5 « Bonus :
+   input », ajouté en dernier : rien d'autre ne bouge), la fiche épinglée et
+   le tirage, le juge — qui ne lit que ce que le programme AFFICHE — sur des
+   copies justes et fausses, chacune avec le mot qui la nomme, l'écran tenu
+   aux consignes du sous-thème Input (le dessin, l'énoncé en gras dans son
+   cadre, le coup de pouce seul et replié, aucune définition, le rappel
+   réduit au coup de pouce), le dialogue de la console, la copie juste,
+   fausse et vide, le soutien qui explique sans révéler, puis compare à un
+   vrai CPython ce que le modèle affiche. Aucun accent grave ni antislash
+   littéral dans le code évalué. */
+function pythonInputDuree(w, P){
+  const nom = '{python-input-duree} : une durée en heures et minutes';
+  if(!P.pythonInputDuree){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des durées'); return; }
+  const ID = P.pythonInputDuree.exercice, NB = P.pythonInputDuree.nb, NUM = P.pythonInputDuree.numero;
+  const present = evaluer(w, "typeof startPDU==='function' && typeof pduDiag==='function' && typeof pduBuildQuestions==='function' && typeof pyRun==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPDU / pduDiag / pduBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il ouvre le sous-thème 6.5 « Bonus : input », numéroté ' + NUM + ', derrière le sous-thème « Bonus », et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const st=th&&th.sous&&th.sous.find(function(s){ return s.num===5; });
+    if(!st||!/bonus/i.test(st.nom)||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
+    else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
+    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. la fiche épinglée, et le tirage ---- */
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (135 min), puis d’autres durées distinctes ; le modèle passe au juge sur chacune, chaque durée sort (300 séances), et le juge tape des durées où round se trahirait', `(function(){
+    const vus=[], vues={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pduBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("séance de "+qs.length); break; }
+      if(pduDuree(qs[0])!==135){ vus.push("la fiche n’ouvre pas la séance : "+pduDuree(qs[0])); break; }
+      const ss=qs.map(function(q){ return pduDuree(q); });
+      if(new Set(ss).size!==ss.length){ vus.push("deux fois la même durée : "+ss.join(",")); break; }
+      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+    }
+    PDU_DUREES.forEach(function(d, i){
+      const r=pduDiag(pduModele({s:i}),{s:i});
+      if(!r.ok) vus.push("le modèle sur "+d+" : "+r.dits.join(" "));
+      if(d<60||d%60===0) vus.push("une durée d’exemple sans heures ou sans minutes : "+d);
+    });
+    if(!PDU_EX.some(function(d){ return Math.round(d/60)!==Math.floor(d/60); })) vus.push("aucune durée du juge ne trahit round");
+    PDU_EX.forEach(function(d){ if(d%60===Math.floor(d/60)) vus.push("heures et minutes égales pour "+d+" : le désordre ne se verrait pas"); });
+    if(Object.keys(vues).length!==PDU_DUREES.length) vus.push("des durées ne sortent jamais : "+Object.keys(vues).join(","));
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le juge ---- */
+  verifierEval(w, 'le juge accepte toute écriture juste (noms libres, int(d / 60), la soustraction, deux lignes, str collé, calcul dans le print) et nomme chaque défaut — int oublié, la division /, float, minutes ou heures manquantes, désordre, round, aucune ou deux questions, input muet, exemple écrit à la main, nom entre guillemets, sans phrase, rien d’affiché, mauvais calcul, guillemets typographiques, programme vide', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0,prog:""};
+    const I="d = int(input("+Q+"Durée en minutes ? "+Q+"))"+NL;
+    const ph=function(h, m){ return "print("+h+", "+Q+"heures et"+Q+", "+m+", "+Q+"minutes"+Q+")"; };
+    const justes=[pduModele(q),
+                  I+ph("d // 60","d % 60"),
+                  I+"h = int(d / 60)"+NL+"m = d - h * 60"+NL+ph("h","m"),
+                  "temps = int(input("+A+"Combien de minutes ? "+A+"))"+NL+"print(temps // 60, "+Q+"h"+Q+")"+NL+"print(temps % 60, "+Q+"min"+Q+")",
+                  I+"print("+Q+"Cela fait "+Q+" + str(d // 60) + "+Q+" heures et "+Q+" + str(d % 60) + "+Q+" minutes"+Q+")",
+                  I+"print(d, "+Q+"minutes, c’est"+Q+", d // 60, "+Q+"heures et"+Q+", d % 60, "+Q+"minutes"+Q+")"];
+    justes.forEach(function(p){ const r=pduDiag(p,q); if(!r.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+r.dits.join(" ")); });
+    const cas=[
+      ["d = input("+Q+"Durée ? "+Q+")"+NL+ph("d // 60","d % 60"), /TOUJOURS un texte/],
+      [I+ph("d / 60","d % 60"), /décimal/],
+      ["d = float(input("+Q+"Durée ? "+Q+"))"+NL+ph("d // 60","d % 60"), /ENTIER/],
+      [I+"print(d // 60, "+Q+"heures"+Q+")", /manque les minutes/],
+      [I+"print(d % 60, "+Q+"minutes"+Q+")", /manque les heures/],
+      [I+ph("d % 60","d // 60"), /désordre/],
+      [I+ph("round(d / 60)","d % 60"), /round/],
+      ["print(2, "+Q+"heures et"+Q+", 15, "+Q+"minutes"+Q+")", /aucune question/],
+      [I+"e = int(input("+Q+"Encore ? "+Q+"))"+NL+ph("d // 60","d % 60"), /plus d’une question/],
+      ["d = int(input())"+NL+ph("d // 60","d % 60"), /pas de question/],
+      [I+ph("135 // 60","135 % 60"), /toujours la même chose/],
+      [I+"h = d // 60"+NL+"m = d % 60"+NL+"print("+Q+"h"+Q+", "+Q+"heures et"+Q+", "+Q+"m"+Q+", "+Q+"minutes"+Q+")", /SANS guillemets/],
+      [I+"print(d // 60, d % 60)", /sans phrase/],
+      [I+"h = d // 60", /n’affiche rien/],
+      [I+ph("d // 100","d % 100"), /Vérifie tes calculs/],
+      ["d = int(input(«Durée»))", /guillemets/],
+      ["", /vide/]
+    ];
+    cas.forEach(function(c){
+      const r=pduDiag(c[0],q);
+      if(r.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
+      else if(!c[1].test(r.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+r.dits.join(" | "));
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, et la copie juste TAPÉE ---- */
+  verifierEval(w, 'l’écran : le dessin de la fiche, aucune définition au-dessus, l’énoncé de la fiche en gras dans son cadre avec le coup de pouce replié (les trois calculs seuls), la cellule, « Exécuter » et la console ; le rappel ne dit que le coup de pouce ; « Exécuter » pose la question, Entrée affiche le résultat ; la copie juste vaut 1', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPDU();
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    const net=function(t){ return t.split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const en=document.getElementById("pduInstr"), img=en&&en.querySelector("img.pdu-img");
+    if(!en||!en.classList.contains("mp-instr")||!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("l’écran n’a pas le dessin de la fiche");
+    if(document.querySelector("#scr-pdu .py-avant,#scr-pdu .pyp-regle,#scr-pdu .pyi-cours")) vus.push("un encadré de définition sur l’écran");
+    const et=document.getElementById("pduEtape"), ti=et&&et.querySelector(".pyn-titre");
+    if(!ti||net(ti.textContent)!=="✏️ Faire un programme qui demande une durée en minutes et qui affiche le résultat en heures et minutes.par exemple : si on rentre 135 min il doit afficher 2 heures et 15 minutes.") vus.push("l’énoncé de la question : "+JSON.stringify(ti&&net(ti.textContent)));
+    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
+    ["pdu-prog","pduRun","pduConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const pouces=document.querySelectorAll("#pduEtape details.pyd-pouce");
+    if(pouces.length!==1) vus.push(pouces.length+" coup(s) de pouce");
+    else {
+      if(pouces[0].open) vus.push("coup de pouce déplié d’emblée");
+      const t=net(pouces[0].querySelector("p").textContent);
+      if(t!=="Essayer les calculs : 135/60 ou 135 // 60 ou 135 % 60") vus.push("le coup de pouce : "+JSON.stringify(t));
+    }
+    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pdu||"";
+    if(net(rap.textContent)!=="Une durée en heures et minutes Essayer les calculs : 135/60 ou 135 // 60 ou 135 % 60") vus.push("le rappel : "+JSON.stringify(rap.textContent));
+    const ta=document.getElementById("pdu-prog"), cons=document.getElementById("pduConsole");
+    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
+    ta.value=pduModele(q);
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    pduExecuter();
+    if(cons.textContent.indexOf("Durée en minutes")<0) vus.push("la question n’est pas écrite dans la console");
+    const r=document.getElementById("pdu-rep");
+    if(!r||!cons.contains(r)) vus.push("la console ne demande pas la réponse");
+    else {
+      r.value="135"; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      if(document.getElementById("pdu-rep")) vus.push("la case reste après la réponse");
+      if(cons.textContent.split(NL).pop()!=="2 heures et 15 minutes") vus.push("la console finit par "+JSON.stringify(cons.textContent));
+    }
+    if(test.locked) vus.push("exécuter verrouille la question");
+    checkPDU();
+    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    nextPDU();
+    if(test.idx!==1||document.getElementById("pdu-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    const D1=pduDuree(test.questions[1]), t1=net(document.getElementById("pduEtape").textContent);
+    if(t1.indexOf("si on rentre "+D1+" min")<0||t1.indexOf(D1+" // 60")<0) vus.push("la question 2 ne suit pas sa durée : "+t1);
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. faux, vide, et le soutien ---- */
+  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPDU();
+    let ta=document.getElementById("pdu-prog");
+    ta.value="d = input("+Q+"Durée ? "+Q+")"+NL+"print(d // 60, "+Q+"heures"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPDU();
+    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    const mod=document.querySelector("#pduModele .sol");
+    if(!mod||mod.textContent!==pduModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
+    if(!document.getElementById("pduConsole").classList.contains("py-err")) vus.push("la console ne montre pas l’erreur de Python");
+    nextPDU(); ta=document.getElementById("pdu-prog");
+    checkPDU();
+    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
+    if(!ta.classList.contains("sol")||ta.value!==pduModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
+    currentMode="soutien"; startPDU(); ta=document.getElementById("pdu-prog");
+    checkPDU();
+    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
+    ta.value="d = int(input("+Q+"Durée ? "+Q+"))"+NL+"print(d / 60, "+Q+"heures"+Q+")";
+    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    checkPDU();
+    const fb=document.getElementById("pduFeedback").textContent;
+    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
+    if(!/décimal/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pduModele .sol")||fb.indexOf("duree % 60")>=0) vus.push("soutien : le modèle est révélé");
+    if(!/STRICTEMENT SECRÈTE/.test(ctxPdu(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    currentMode="train";
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. la seconde méthode : CPython, sur le modèle ---- */
+  const nomPy = 'ce que le modèle de {python-input-duree} affiche est ce qu’affiche un vrai CPython';
+  const cmd = pythonDisponible();
+  if(!cmd){
+    if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la sortie n\'a été comparée à RIEN');
+    else ignorer(nomPy, 'python3 introuvable sur cette machine — l\'intégration continue, elle, l\'a');
+    return;
+  }
+  const paires = evaluer(w, `JSON.stringify((function(){
+    const res=[];
+    PDU_DUREES.concat(PDU_EX, [60, 59, 0, 1439]).forEach(function(d){
+      const src=pduModele({s:0}), r=pyRun(src,[String(d)]);
+      res.push([src, [String(d)], r.prints.map(function(x){ return x.vals.map(pyRep).join(" ")+String.fromCharCode(10); }).join("")]);
+    });
+    return res;
+  })())`);
+  if(!paires.ok){ verifier(nomPy, false, 'le modèle ne s\'exécute pas : ' + paires.erreur); return; }
+  const liste = JSON.parse(paires.valeur);
+  const ref = pythonExecuter(cmd, liste.map(([src, p]) => '_r = ' + JSON.stringify(p) + '\ndef input(q=""):\n    return _r.pop(0)\n' + src));
+  const ecarts = [];
+  liste.forEach(([src, p, mien], i) => { if(ref[i] !== mien) ecarts.push(JSON.stringify(src) + ' (' + p.join(', ') + ') : page ' + JSON.stringify(mien) + ' / CPython ' + JSON.stringify(ref[i])); });
+  verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+}
+
 /* {python-chaine-tirets} (Seconde, 6.4.2) : l'exercice 28 du carnet — ajouter
    « - » entre chaque caractère d'une chaîne avec une boucle for. Le contrôle
    tient la place au menu (le sous-thème 6.4 « Bonus », derrière
@@ -25409,7 +25611,7 @@ function pythonChaineTirets(w, P){
     if(!st||st.nom!=="Bonus") vus.push("pas de sous-thème 6.4 Bonus");
     else if(st.ids.indexOf("${ID}")<0||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-chaine-len")+1) vus.push("il ne suit pas {python-chaine-len} : "+st.ids.join(","));
     if(TEST_NUM["python-chaine-len"]!=="6.4.1") vus.push("{python-chaine-len} a bougé : "+TEST_NUM["python-chaine-len"]);
-    if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème Bonus n’est pas le dernier");
+    if(th&&th.sous&&th.sous.indexOf(st)!==3) vus.push("le sous-thème Bonus n’est pas le quatrième");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["reduire-produit"]!=="7.8") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");

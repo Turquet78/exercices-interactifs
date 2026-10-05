@@ -4022,3 +4022,51 @@ Puis une dixième (Turquet78/exercices-interactifs#484, le prix en 6.3.9, versio
 284) : le triangle passe en 285. Pour fermer la fenêtre entre « contrôles
 verts » et « fusion », la fusion automatique de GitHub est demandée dès la
 poussée.
+
+---
+
+**Le sous-thème « Bonus : input », et une durée en heures et minutes — l'exercice 11 du carnet.**
+{python-input-duree} (Seconde, 6.5.1, APP_VERSION 294, demande de Turquet,
+octobre 2026 : « en seconde dans le thème algo dans la partie bonus créer un
+sous-thème input et faire un exercice comme l'image ») : les deux serpents
+(« C'est trop dur pour toi !! »), puis « Faire un programme qui demande une
+durée en minutes et qui affiche le résultat en heures et minutes — par
+exemple : si on rentre 135 min il doit afficher 2 heures et 15 minutes », et
+UN coup de pouce : « Essayer les calculs : 135/60 ou 135 // 60 ou 135 % 60 ».
+
+**Un sous-thème, pas un sous-sous-thème.** `THEMES` n'a que deux étages
+(thème, partie) : « un sous-thème input dans la partie bonus » est devenu la
+partie 6.5 « Bonus : input », ajoutée EN DERNIER — rien n'est renuméroté.
+Trois contrôles du banc exigeaient que 6.4 « Bonus » soit le DERNIER
+sous-thème ({python-chaine-len}, {python-chaine-tirets}, {python-remplacer-lettre}) :
+ils exigent désormais qu'il soit le QUATRIÈME, ce qui tenait la même chose
+(rien ne l'a renuméroté).
+
+**Les consignes du sous-thème Input, tenues d'emblée** : le dessin de la
+fiche en tête (découpé dans la capture, détouré, WebP de 14 Ko, `PDU_IMG`) ;
+l'énoncé en gras dans un cadre `.pyn-etape` qui enveloppe le coup de pouce,
+la cellule, « Exécuter » et la console ; aucune consigne au bouton ; la
+console vide reste un cadre vide (`#pduConsole` rejoint `content:none`) ; le
+coup de pouce vert clair ne porte que le texte de la fiche (« minute » mis
+au pluriel, seule correction). La fiche n'a pas de définition : exception
+déclarée de `pythonAvant.sans`, et le rappel (`RAP_PDU`) n'est que le coup de
+pouce.
+
+**Le juge lit ce que le programme AFFICHE** (`pduDiag`) : la copie s'exécute
+sous 215 et 508 minutes, que l'élève ne connaît pas. Il faut un input avec
+sa question, puis des mots, les heures, et PLUS LOIN les minutes (une ligne
+ou deux). 215 / 60 = 3,58… : `round` dirait 4, ce qui le trahit ;
+`int(d / 60)` et `d - h * 60` sont justes. Nommés : int oublié, la division
+`/` (le décimal), float (« 3.0 heures »), les minutes ou les heures
+manquantes, le désordre, round, aucune ou deux questions, l'input muet,
+l'exemple écrit à la main, le nom entre guillemets, sans phrase, rien
+d'affiché, un mauvais calcul. **La séance** : la fiche épinglée (135 min),
+puis d'autres durées d'exemple tirées par `distinctes()` — jamais un nombre
+rond d'heures, toujours plus d'une heure — qui suivent dans l'énoncé et le
+coup de pouce ; `dmNbQuestions()` l'allonge. Pas de correction au fil de la
+frappe, pas de bouton des tables. Banc jsdom (`pythonInputDuree`) : la
+place, le tirage (300 séances), le juge sur six copies justes et dix-sept
+fausses chacune avec son mot, l'écran, le dialogue de la console, les copies
+juste, fausse et vide, le soutien, et le modèle comparé à un vrai CPython.
+Pas de section propre au banc navigateur : la visite universelle (section 9)
+l'ouvre dans les deux modes.
