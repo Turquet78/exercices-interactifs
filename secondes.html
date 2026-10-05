@@ -5561,7 +5561,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=298;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=299;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -45485,9 +45485,9 @@ function rvfLabel(q){
     case 'mult-entier':
       return '① l’entier écrit comme une fraction de dénominateur 1&nbsp;· ② le résultat';
     case 'diff-sub-entier':
-      return '① l’entier écrit comme une fraction de dénominateur 1&nbsp;· ② mettre au même dénominateur&nbsp;· ③ le résultat';
+      return '① l’entier écrit comme une fraction de dénominateur 1&nbsp;· ② mettre au même dénominateur&nbsp;· ③ effectuer les produits&nbsp;· ④ le résultat';
     case 'diff-add':
-      return '① mettre au même dénominateur (produit des deux)&nbsp;· ② le résultat';
+      return '① mettre au même dénominateur (produit des deux)&nbsp;· ② effectuer les produits&nbsp;· ③ le résultat';
     case 'div-1': case 'div-2':
       return '① diviser, c’est multiplier par l’inverse&nbsp;· ② le résultat';
     default: return '';
@@ -45539,10 +45539,12 @@ function rvfEtapes(q){
       return t(q.n1,q.d1)+op('−')+t(q.k,1)
         +fEq(t(q.n1,q.d1)+op('−')+rvfEntierCaseHTML(q.k,'rvf-kden'))
         +fEq(t(q.n1,q.d1)+op('−')+rvfProduitCaseHTML(q.k,1,'rvf-ka','rvf-kb'))
+        +fEq(t(q.n1,q.d1)+op('−')+rvfFracHTML('rvf-kpn','rvf-kpd'))
         +finale;
     case 'diff-add':
       return t(q.n1,q.d1)+op('+')+t(q.n2,q.d2)
         +fEq(rvfProduitCaseHTML(q.n1,q.d1,'rvf-a1','rvf-b1')+op('+')+rvfProduitCaseHTML(q.n2,q.d2,'rvf-a2','rvf-b2'))
+        +fEq(rvfFracHTML('rvf-p1n','rvf-p1d')+op('+')+rvfFracHTML('rvf-p2n','rvf-p2d'))
         +finale;
     case 'div-1': case 'div-2':
       return t(q.n1,q.d1)+op('÷')+t(q.n2,q.d2)
@@ -45580,10 +45582,15 @@ function rvfExtra(q){
     /* depuis octobre 2026 : k/1 se met ensuite au dénominateur de la
        fraction, k×d1 / 1×d1 — la même étape que {diff-add}, sur un seul terme
        puisque l'autre a déjà le bon dénominateur. */
+    /* depuis octobre 2026 aussi : chaque produit s'écrit CALCULÉ dans sa
+       case (rvf-kpn/kpd, rvf-p1n…p2d) avant le résultat final — « le
+       résultat de chaque opération dans une case », demande de Turquet. */
     case 'diff-sub-entier':
-      return [{id:'rvf-kden', bon:1}, {id:'rvf-ka', bon:q.d1}, {id:'rvf-kb', bon:q.d1}];
+      return [{id:'rvf-kden', bon:1}, {id:'rvf-ka', bon:q.d1}, {id:'rvf-kb', bon:q.d1},
+              {id:'rvf-kpn', bon:q.k*q.d1}, {id:'rvf-kpd', bon:q.d1}];
     case 'diff-add':
-      return [{id:'rvf-a1', bon:q.d2}, {id:'rvf-b1', bon:q.d2}, {id:'rvf-a2', bon:q.d1}, {id:'rvf-b2', bon:q.d1}];
+      return [{id:'rvf-a1', bon:q.d2}, {id:'rvf-b1', bon:q.d2}, {id:'rvf-a2', bon:q.d1}, {id:'rvf-b2', bon:q.d1},
+              {id:'rvf-p1n', bon:q.n1*q.d2}, {id:'rvf-p1d', bon:q.d1*q.d2}, {id:'rvf-p2n', bon:q.n2*q.d1}, {id:'rvf-p2d', bon:q.d1*q.d2}];
     case 'div-1': case 'div-2':
       return [{id:'rvf-inv-n', bon:q.d2}, {id:'rvf-inv-d', bon:q.n2}];
     default: return [];
@@ -45649,7 +45656,7 @@ function rvfPourquoi(q){
     case 'meme-sub': return 'Le dénominateur ne bouge pas quand les deux fractions l’ont déjà en commun : on soustrait seulement les numérateurs. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'mult-frac': return 'Pour multiplier deux fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux, sans jamais chercher un dénominateur commun. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'mult-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. Ensuite, on multiplie comme deux fractions : les numérateurs entre eux, les dénominateurs entre eux. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
-    case 'diff-add': return 'Avec des dénominateurs différents, on multiplie chaque fraction, en haut ET en bas, par le dénominateur de l’autre. '+rvfTexte(q)+' = ('+q.n1+'×'+q.d2+' + '+q.n2+'×'+q.d1+')/('+q.d1+'×'+q.d2+') = '+r.num+'/'+r.den+'.';
+    case 'diff-add': return 'Avec des dénominateurs différents, on multiplie chaque fraction, en haut ET en bas, par le dénominateur de l’autre, puis on effectue les produits. '+rvfTexte(q)+' = ('+q.n1+'×'+q.d2+')/('+q.d1+'×'+q.d2+') + ('+q.n2+'×'+q.d1+')/('+q.d2+'×'+q.d1+') = '+(q.n1*q.d2)+'/'+(q.d1*q.d2)+' + '+(q.n2*q.d1)+'/'+(q.d1*q.d2)+' = '+r.num+'/'+r.den+'.';
     case 'diff-sub-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. Puis on le met au même dénominateur que l’autre fraction, en multipliant en haut ET en bas par '+q.d1+' : '+q.k+'/1 = ('+q.k+'×'+q.d1+')/(1×'+q.d1+'). '+rvfTexte(q)+' = '+q.n1+'/'+q.d1+' − '+(q.k*q.d1)+'/'+q.d1+' = '+r.num+'/'+r.den+'.';
     case 'div-1': case 'div-2': return 'Diviser par une fraction, c’est multiplier par son inverse : on échange son numérateur et son dénominateur. '+rvfTexte(q)+' = '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' = '+r.num+'/'+r.den+'.';
   }

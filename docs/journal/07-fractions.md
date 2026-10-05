@@ -725,6 +725,22 @@ d1), le libellé passe à trois étapes, et le barème total de 34 à 36.
 {mult-entier} n'a rien reçu : une multiplication ne met jamais au même
 dénominateur.
 
+**Puis chaque produit s'est écrit CALCULÉ, dans sa case — toujours en
+octobre 2026** (demande de Turquet, sur une capture de
+`9/5 + 6/6 = (9×[6])/(5×[6]) + (6×[5])/(6×[5]) = ?/?` : « il faut toutes les
+étapes intermédiaires, pour donner le résultat de chaque opération dans une
+case »). La chaîne posait les produits, puis sautait directement à la somme :
+`54/30 + 30/30` restait à faire de tête — deux multiplications et une
+addition dans les mêmes deux cases. {diff-add} gagne donc un maillon
+`= [n1·d2]/[d1·d2] + [n2·d1]/[d1·d2]` (`rvf-p1n`, `rvf-p1d`, `rvf-p2n`,
+`rvf-p2d`), {diff-sub-entier} le maillon `= n1/d1 − [k·d1]/[d1]`
+(`rvf-kpn`, `rvf-kpd`) ; leurs libellés comptent une étape de plus
+(« effectuer les produits »), et le barème passe de 36 à 42. Les six
+autres questions n'ont qu'UNE opération par case — leur case finale EST
+déjà le résultat de l'opération — et n'ont rien reçu. Les valeurs attendues
+sont uniques (le dénominateur commun est fixé au produit des deux), comme
+le reste de cette révision.
+
 **Le barème n'est plus `qs.length*3`.** `rvfExtra(q)` rend les cases propres
 à chaque type (vide pour les trois qui n'en ont pas), `rvfCases()` les
 insère entre la règle et le résultat, et `startRvf()` somme
