@@ -2825,6 +2825,22 @@ recalcule à chaque « Exécuter »/« Réexécuter » et `pelSaisie` vide la tr
 dès qu'une case change, pour ne jamais laisser affichée l'exécution d'un
 programme que l'élève vient de modifier.
 
+**Puis un dessin en tête de l'exercice** (demande de Turquet, octobre 2026 :
+« placer cette image en seconde dans l'exercice 6.2.7 au début », APP_VERSION
+320 — les 305 à 313 prises une à une par d'autres dessins du même jour pendant
+les bancs, à cinq fusions de `main` ; l'action « Contrôles » met plus d'une heure
+en file d'attente, et chaque fusion voisine reprenait le numéro suivant avant
+qu'elle ne finisse. Le saut jusqu'à 320 est voulu (d'abord 315, puis `main` a atteint 313 pendant
+l'action suivante) : le numéro n'est qu'une
+étiquette d'affichage, le contrôle exige qu'il dépasse celui de `main` et ne
+soit pas déjà pris, rien de plus) : un serpent perplexe devant un point d'interrogation, le motif des
+fiches du 6.5 (`PKG_IMG`, `PDU_IMG`, `PVO_IMG`, `PHM_IMG`) repris tel quel —
+l'image fournie (PNG, 327 × 269) convertie en WebP (7 Ko, `PEL_IMG`, une URL
+`data:`), posée par `renderPEL` dans `#pelFig`, PREMIER enfant de la carte,
+avant le rappel et la consigne. Décorative : aucun juge ne la lit, aucun
+contrôle propre — la visite universelle du banc navigateur (section 9) ouvre
+l'écran dans les deux modes, et elle y est.
+
 ---
 
 **Le thème 5 se découpe en deux sous-thèmes** (demande de Turquet,
@@ -3174,7 +3190,7 @@ rendu transparent depuis les bords, puis rognée), encodée en WebP (14 Ko,
 `PIA_IMG`), et `piaFigureHTML()` la pose DEVANT le texte de l'énoncé dans
 `piaInstr`, à chaque question — l'encadré de cours (`pyAvant`, première
 question seulement) reste au-dessus, comme sur le 6.5.3. Décoratif : rien
-ne change au tirage, au juge ni aux coups de pouce. Version 314, au bout de SEPT fusions de `main` dans la branche : 305, 306, 307, 308 puis 309 ont été pris sur `main` pendant les bancs, par les PR 510, 514, 521, 522, 511 et 526, cinq fois de suite — chaque tour de l'action dure une heure, et une fusion concurrente de la Seconde tombe presque à chaque tour, en conflit sur la ligne du numéro. Le cinquième cran a sauté à 312 pour laisser passer deux fusions concurrentes : `tests/version.js` n'exige que de dépasser `main`. Mais sauter ne protège que du contrôle, pas du conflit : la PR 529 a posé 310 (sixième fusion, 312 gardé), puis la PR 527 a posé 313 (septième fusion, 314) — 311 et 312 restent libres. Deux pièges de banc se sont montrés en chemin : un script de résolution qui échoue sans arrêter une chaîne de commandes a laissé partir un commit AVEC ses marqueurs de conflit (corrigé trois minutes après, rien n'a fusionné) ; et le banc navigateur lit le fichier de l'ARBRE DE TRAVAIL, si bien qu'une résolution faite pendant qu'il tourne lui fait lire « <<<<<<< » (« Unexpected token '<<' », trois rouges sans défaut dans la page). On ne touche pas au fichier pendant un banc.
+ne change au tirage, au juge ni aux coups de pouce. Version 321, au bout de HUIT fusions de `main` dans la branche (la huitième : la PR 525 avait posé 320) : 305, 306, 307, 308 puis 309 ont été pris sur `main` pendant les bancs, par les PR 510, 514, 521, 522, 511 et 526, cinq fois de suite — chaque tour de l'action dure une heure, et une fusion concurrente de la Seconde tombe presque à chaque tour, en conflit sur la ligne du numéro. Le cinquième cran a sauté à 312 pour laisser passer deux fusions concurrentes : `tests/version.js` n'exige que de dépasser `main`. Mais sauter ne protège que du contrôle, pas du conflit : la PR 529 a posé 310 (sixième fusion, 312 gardé), puis la PR 527 a posé 313 (septième fusion, 314) — 311 et 312 restent libres. Deux pièges de banc se sont montrés en chemin : un script de résolution qui échoue sans arrêter une chaîne de commandes a laissé partir un commit AVEC ses marqueurs de conflit (corrigé trois minutes après, rien n'a fusionné) ; et le banc navigateur lit le fichier de l'ARBRE DE TRAVAIL, si bien qu'une résolution faite pendant qu'il tourne lui fait lire « <<<<<<< » (« Unexpected token '<<' », trois rouges sans défaut dans la page). On ne touche pas au fichier pendant un banc.
 
 **float : la réponse est un nombre DÉCIMAL — l'exercice 6 du carnet.**
 {python-input-float} (Seconde, 6.3.5, demande de Turquet, octobre 2026 : « créer
