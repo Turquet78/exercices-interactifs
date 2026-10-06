@@ -646,7 +646,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1675,6 +1675,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
     </div>
   </section>
+  <!-- {devoir-blanc-pourcentages} (2.5.8) : la question rédigée du devoir blanc — la question 1 et l'aide méthode vivent sur l'écran du 2.1.3 -->
+  <section class="screen" id="scr-dbp">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagDbp"></span><span class="q-idx" id="dbpIdx">Question 2 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="dbpLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="dbpPrompt">Rédige ton calcul.</p>
+      <div class="mp-stage"><div style="width:100%" id="dbpHost"></div></div>
+      <div class="mp-feedback" id="dbpFeedback"></div>
+      <div class="row" style="justify-content:center" id="dbpActions">
+        <button class="btn btn-primary" onclick="checkDbp()">Vérifier</button>
+      </div>
+    </div>
+  </section>
   <!-- {synthese-evolutions-successives-libre} : le 2.5.4 rédigé — la feuille du 2.2.14, tout s'écrit -->
   <section class="screen" id="scr-esl">
     <div class="test-top">
@@ -2416,7 +2431,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=277;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=278;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2840,6 +2855,8 @@ const TESTS={
   'synthese-evolutions-successives': { name:'Deux \u00e9volutions successives, hausse ou baisse', icon:'\ud83d\udd01', desc:'La synth\u00e8se de {hausses-successives}, {hausses-successives-cent} et {baisses-successives} : deux \u00e9volutions de suite, chacune une hausse ou une baisse. Tu choisis ta m\u00e9thode \u2014 multiplier les coefficients, partir de 100, ou passer par 10 % comme dans {augmenter-dix} \u2014 puis tu dis si l\u2019\u00e9volution globale est une hausse ou une baisse, et de quel pourcentage. Il tombe toujours sur un nombre entier.', start:()=>startEss() },
   'synthese-evolutions-successives-libre': { name:'Deux \u00e9volutions successives \u2014 r\u00e9dig\u00e9es', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {synthese-evolutions-successives}, mais plus une seule case : tu R\u00c9DIGES tout le calcul toi-m\u00eame, par la m\u00e9thode qui te convient \u2014 les coefficients, partir de 100 avec les coefficients, ou partir de 100 avec les pourcentages (\u00ab 5 % de 120 est 6 \u00bb) \u2014, puis tu conclus en mots : une hausse ou une baisse, et de quel pourcentage. La page lit ta r\u00e9daction.', start:()=>startEsl() },
   /* {synthese-generale-libre} (2.5.7, demande de Turquet, septembre 2026) : la synthèse RÉDIGÉE des deux familles — les énoncés du 2.5.2 et du 2.5.6 dans une même séance, la feuille et le clavier du 2.3.13, et la vérification de chacun des deux exercices d'origine, sans rien recopier. */
+  /* {devoir-blanc-pourcentages} (2.5.8, demande de Turquet, octobre 2026) : une question du 2.1.3, puis la même sorte de question RÉDIGÉE comme au 2.1.7, avec une aide méthode qui montre les cases du 2.1.3. */
+  'devoir-blanc-pourcentages': { name:'Devoir blanc', icon:'\ud83d\udcdd', desc:'Deux questions, comme un devoir sur table. Question 1 : prendre un pourcentage d’un nombre en 3 étapes, comme dans {pourcentage}. Question 2 : la même sorte de question, mais tu RÉDIGES ton calcul toi-même, comme dans {pourcentage-synthese-libre} — tout calcul juste est accepté. Bloqué ? Le bouton « Aide méthode » affiche les étapes de {pourcentage}, et un autre bouton te ramène à la version rédigée.', start:()=>startDbp() },
   'synthese-generale-libre': { name:'Synthèse générale — rédigée : pourcentages et évolutions successives', icon:'\ud83e\uddfe', desc:'Les questions de {synthese-pourcentages-libre} et de {synthese-evolutions-successives-libre} mélangées dans une même séance. Un pourcentage à prendre, une hausse ou une baisse : tu choisis la proposition, puis tu JUSTIFIES en écrivant ta vérification. Deux évolutions successives : tu RÉDIGES tout le calcul par la méthode qui te convient (« 5 % de 120 est 6 »), puis tu conclus en mots. La feuille et le clavier sont ceux de {synthese-diminutions-libre-dix}, et chaque rédaction est lue exactement comme dans son exercice d’origine.', start:()=>startSgl() },
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
   'baisses-successives-dix': { name:'Baisse suivie d\u2019une baisse, en passant par 10 %', icon:'\ud83d\udd1f', desc:'La m\u00eame question qu\u2019en {baisses-successives}, par la m\u00e9thode des 10 % de {diminuer-dix} : on part de 100, on calcule 10 % puis la premi\u00e8re baisse et on la retire, puis 10 % et la seconde baisse sur la nouvelle valeur, et ce qu\u2019on a perdu pour 100 est la baisse globale. Elle tombe toujours sur un nombre entier.', start:()=>startBaissesDix() },
@@ -2894,7 +2911,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives','evolutions-successives','synthese-evolutions-successives-libre','synthese-generale-libre'] }
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives','evolutions-successives','synthese-evolutions-successives-libre','synthese-generale-libre','devoir-blanc-pourcentages'] }
   ] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
@@ -3015,7 +3032,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -3204,6 +3221,7 @@ function liveCheckCurrent(){
   else if(k==='asp') checkASPAnswer(true);
   else if(k==='fracp') checkFAnswer(true);
   else if(k==='pct') checkPAnswer(true);
+  else if(k==='dbp'){ if(dbpEcran()==='ptest') checkPAnswer(true); }   /* {devoir-blanc-pourcentages} : les cases du 2.1.3 seules ; la rédaction se relit à la vérification */
   else if(k==='pct10') checkPct10Answer(true);
   else if(k==='pdc') checkPdcAnswer(true);
   else if(k==='atd') checkAtdAnswer(true);
@@ -3900,7 +3918,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl],
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
     sf:['sf',renderSFTest]
   };
   const e=table[k];
@@ -4137,7 +4155,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0 && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ['mode','results','dmenonce','s2lvl'].indexOf(ecranQuitte)<0) ecranAvantModes=ecranQuitte;
@@ -6412,7 +6430,7 @@ function renderPTest(){
   $('pActions').innerHTML='<button class="btn btn-primary" onclick="checkPAnswer()">Vérifier</button>';
   $('pPrompt').innerHTML=variante(PCT_ENONCES,q);
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
-  $('pHost').innerHTML=
+  $('pHost').innerHTML=dbpRetourHTML()+   /* {devoir-blanc-pourcentages} : l'aide méthode ramène à la version rédigée */
     `<div class="pt-step"><div class="pt-lab">① le % en fraction décimale&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
        <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span>${fEq(frac('p2n','p2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const order=['p1n','p1d','p2n','p2d','p3'].map(id=>$(id));
@@ -6442,6 +6460,7 @@ function checkPAnswer(live){
   const allOk=ok1&&ok2&&ok3;
   if(!allOk && isSoutien()){ soutienAgain('pFeedback','pActions','checkPAnswer','pHost'); return; }
   test.locked=true;
+  { const rb=$('dbpRetour'); if(rb) rb.remove(); }   /* {devoir-blanc-pourcentages} : la réponse est donnée, plus de retour */
   if(allOk){ test.score++; $('pLiveScore').textContent=test.score;
     $('pFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('pFeedback').className='mp-feedback good';
   } else {
@@ -6455,7 +6474,8 @@ function checkPAnswer(live){
   $('pActions').innerHTML=`<button class="btn btn-primary" id="pNext" onclick="nextPQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   $('pNext').focus();
 }
-function nextPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPTest(); autoSave(); } else finishPercent(); }
+function nextPQuestion(){ if(test.kind==='dbp'){ nextDbp(); return; }   /* {devoir-blanc-pourcentages} : c'est lui qui enchaîne et qui clôt */
+  if(test.idx<test.questions.length-1){ test.idx++; renderPTest(); autoSave(); } else finishPercent(); }
 async function finishPercent(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
@@ -12951,6 +12971,220 @@ async function finishSgl(){
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
+/* ---------- {devoir-blanc-pourcentages} (2.5.8) : le devoir blanc ----------
+   Demande de Turquet (octobre 2026) : « créer un exercice dans Synthèse sur
+   les pourcentages, intitulé Devoir blanc. Il prendra comme première question
+   une question du 2.1.3. Comme deuxième question, une question du 2.1.3, mais
+   où il faut rédiger comme dans le 2.1.7 — on acceptera toutes les rédactions
+   comme dans le 2.1.7. L'élève aura un bouton aide méthode pour afficher la
+   résolution comme dans le 2.1.3, il aura aussi un bouton pour revenir à la
+   version rédigée. »
+   Deux questions tirées par genPercent (le tirage, les tournures et les
+   contextes du 2.1.3), distinctes. Chacune porte son MOTEUR, comme dans la
+   synthèse générale ({synthese-generale-libre}) :
+   · q.moteur='pct' — la question 1 : l'écran, les cases et le juge du 2.1.3
+     (renderPTest, checkPAnswer), sans rien recopier ;
+   · q.moteur='red' — la question 2 : la feuille du 2.1.7 (le préfixe « = »
+     qui enchaîne les lignes en une seule égalité), sans proposition à choisir
+     — on demande le calcul, la page le lit. « Aide méthode » pose q.aide et
+     montre la MÊME question sur l'écran du 2.1.3, cases vides ; « Revenir à
+     la version rédigée » retire q.aide et rend l'écran rédigé SANS le
+     redessiner : la rédaction déjà écrite est encore là. L'élève répond dans
+     la version affichée, et c'est elle qui est jugée.
+   Le juge de la rédaction (dbpJuge) tient les trois positions de la page :
+   il refuse sur un fait prouvable (une égalité fausse, un calcul qui n'arrive
+   pas à P % de N, un résultat absent), accepte quand la chaîne est juste,
+   montre P/100 × N et finit sur le résultat écrit en décimal, et s'abstient
+   sinon — toute autre rédaction juste (le passage par 10 %, 0,2 × 150…) est
+   alors lue par le modèle, avec la règle du 2.1.7. Un point par question. */
+let dbpFeuille=null, dbpFeuilleIdx=-1;
+async function startDbp(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='dbp'; test.qId='devoir-blanc-pourcentages';
+  /* deux questions : une du 2.1.3, puis une rédigée. Le réglage « Questions »
+     d'un devoir allonge la séance en gardant cet ordre — la moitié haute en
+     cases, l'autre rédigée, comme la synthèse générale : 2 = 1 + 1 */
+  test.questions=distinctes(dmNbQuestions(2),genPercent);
+  const nbCases=Math.ceil(test.questions.length/2);
+  test.questions.forEach((q,i)=>{ q.moteur=(i<nbCases)?'pct':'red'; if(q.moteur==='red') q.aide=false; });
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=test.questions.length;test.dbpBusy=false;
+  dbpFeuille=null; dbpFeuilleIdx=-1;
+  renderDbp();
+}
+/* L'écran de la question courante : celui du 2.1.3 pour la question 1 et
+   pour l'aide méthode, l'écran rédigé sinon. La table d'afficherEcranDe le
+   lit (reprise et rejeu). */
+function dbpEcran(){ const q=test.questions&&test.questions[test.idx]; return (q&&q.moteur==='red'&&!q.aide)?'dbp':'ptest'; }
+function renderDbp(){
+  const e=dbpEcran();
+  show(e);
+  if(e==='ptest') renderPTest(); else renderDbpRed();
+}
+function renderDbpRed(){
+  const q=test.questions[test.idx]; test.locked=false; test.dbpBusy=false;
+  $('dbpIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagDbp').innerHTML=modeTagHTML();
+  $('dbpLiveScore').textContent=test.score;
+  $('dbpFeedback').textContent=''; $('dbpFeedback').className='mp-feedback';
+  dbpBoutons('Vérifier');
+  $('dbpPrompt').innerHTML=variante(PCT_ENONCES,q)+' RÉDIGE ton calcul jusqu’au résultat.';
+  $('dbpHost').innerHTML=numeros(
+    `<div class="pt-step"><div class="pt-lab">rédige ton calcul — commence par écrire le pourcentage en fraction × le nombre, et termine par le résultat</div>
+       <div class="dexp2-sheet" id="dbpSheet"></div>
+       <p class="dexp-hint"><b>Entrée</b> ajoute une ligne, qui commence par «&nbsp;=&nbsp;»&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort. Les étapes intermédiaires sont libres, et tout calcul juste est accepté. Bloqué&nbsp;? Le bouton <b>Aide méthode</b> montre les étapes de {pourcentage}.</p></div>`);
+  /* la feuille du 2.1.7, à l'identique : elle naît dans un écran VISIBLE */
+  dbpFeuille=mlFeuille({ conteneur:'dbpSheet', mode:'calcul', prefixes:{premiere:'',suite:'='}, prefixesTexte:{premiere:'',suite:'='} });
+  dbpFeuilleIdx=test.idx;
+}
+function dbpBoutons(lib){
+  $('dbpActions').innerHTML=`<button class="btn btn-primary" onclick="checkDbp()">${lib}</button><button class="btn btn-ghost" id="dbpAideBtn" onclick="dbpAide()">💡 Aide méthode</button>`;
+}
+/* « Aide méthode » : la même question, sur l'écran du 2.1.3 */
+function dbpAide(){
+  const q=test.questions[test.idx];
+  if(test.locked||test.dbpBusy||!q||q.moteur!=='red') return;
+  q.aide=true;
+  show('ptest'); renderPTest(); autoSave();
+}
+/* « Revenir à la version rédigée » : l'écran rédigé n'est PAS redessiné — la
+   rédaction déjà écrite y est restée. Il ne l'est qu'à la reprise d'une pause,
+   où rien n'avait encore été dessiné. */
+function dbpRevenir(){
+  const q=test.questions[test.idx];
+  if(test.locked||!q||q.moteur!=='red') return;
+  q.aide=false;
+  show('dbp');
+  if(!dbpFeuille || dbpFeuilleIdx!==test.idx || !$('dbpSheet')) renderDbpRed();
+  else { test.locked=false; $('dbpFeedback').textContent=''; $('dbpFeedback').className='mp-feedback'; if(dbpFeuille.lignes[0]) dbpFeuille.lignes[dbpFeuille.lignes.length-1].mf.focus(); }
+  autoSave();
+}
+/* Le bouton de retour, posé en tête des cases du 2.1.3 quand la question est
+   celle de la rédaction (renderPTest l'appelle). */
+function dbpRetourHTML(){
+  const q=test.kind==='dbp' && test.questions && test.questions[test.idx];
+  if(!q || q.moteur!=='red') return '';
+  return '<div class="row" style="justify-content:flex-end;margin:0 0 8px" id="dbpRetour"><button class="btn btn-ghost" onclick="dbpRevenir()">✍️ Revenir à la version rédigée</button></div>';
+}
+/* dbpJuge : { sait, correct, phrase }. La chaîne entière (les lignes de la
+   feuille sont reliées par « = ») est découpée aux « = » et lue en rationnels
+   exacts par la grammaire du moteur rédigé (salExpr). */
+function dbpJuge(q, texte){
+  const t=String(texte).replace(/\n/g,' ').replace(/=(\s*=)+/g,'=');
+  const morceaux=t.split('=').map(function(m){ return m.trim(); });
+  while(morceaux.length && morceaux[0]==='') morceaux.shift();
+  while(morceaux.length && morceaux[morceaux.length-1]==='') morceaux.pop();
+  if(!morceaux.length || morceaux.some(function(m){ return m===''; })) return { sait:false };
+  /* l'unité écrite après le résultat (« 30 € ») ne fait pas partie du calcul */
+  const der=morceaux[morceaux.length-1].replace(/\s*[^\d\s)]+$/,'');
+  if(der!==morceaux[morceaux.length-1] && salRat(der.replace(/\s+/g,''))) morceaux[morceaux.length-1]=der;
+  const lus=morceaux.map(salExpr);
+  if(lus.some(function(x){ return !x; })) return { sait:false };   /* écriture inconnue : le modèle décide */
+  for(let k=1;k<lus.length;k++)
+    if(!salEgal(lus[k-1].v, lus[k].v))
+      return { sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul : « '+morceaux[k-1]+' = '+morceaux[k]+' ». Reprends cette étape.' };
+  const rN=salRatDe(q.N), rP={n:q.P,d:100}, rRes=salRatDe(q.result);
+  const montre=lus.some(function(x){ return x.termes.some(function(tm){
+    const iN=tm.findIndex(function(f){ return salEgal(f,rN); });
+    if(iN<0) return false;
+    let p={n:1,d:1}; tm.forEach(function(f,j){ if(j!==iN) p={n:p.n*f.n,d:p.d*f.d}; });
+    return salEgal(p,rP); }); });
+  if(lus.length<2){
+    return { sait:true, correct:false, phrase: montre
+      ? 'Ton calcul est bien commencé, mais il s’arrête là : poursuis-le jusqu’au résultat.'
+      : 'Écrire seulement un nombre n’est pas rédiger : montre le calcul, en commençant par le pourcentage en fraction × le nombre.' };
+  }
+  if(!salEgal(lus[0].v, rRes))
+    return { sait:true, correct:false, phrase:'Tes égalités sont justes, mais ton calcul ne donne pas '+q.P+' % de '+q.N+' : relis l’énoncé, et vérifie que tu multiplies bien le bon nombre par le bon pourcentage.' };
+  if(!salRat(morceaux[morceaux.length-1].replace(/\s+/g,'')))
+    return { sait:true, correct:false, phrase:'Ton calcul est juste, mais il n’est pas terminé : écris le résultat en écriture décimale à la fin.' };
+  if(!montre) return { sait:false };   /* une autre voie juste (le passage par 10 %…) : le modèle la lit */
+  return { sait:true, correct:true, phrase:'Bravo ! Ton calcul est rédigé, et tout est juste.' };
+}
+function dbpEnonceIA(q){
+  const strip=s=>String(s==null?'':s).replace(/<[^>]*>/g,'');
+  return 'Exercice de mathématiques de Première (France), devoir blanc. '+strip(variante(PCT_ENONCES,q))
+   +' L’élève RÉDIGE son calcul LUI-MÊME dans une feuille, ligne par ligne, jusqu’au résultat — il n’y a aucune proposition à choisir.'
+   +'\n\nDEUX FAÇONS D’ÉCRIRE, ÉGALEMENT CORRECTES, et il peut aussi les MÉLANGER :'
+   +'\n· une étape par ligne — les lignes suivantes sont alors précédées de « = » ;'
+   +'\n· ou tout à la suite sur une seule ligne, en enchaînant les « = ».'
+   +'\nNe refuse JAMAIS une copie pour sa mise en page. Les fractions sont écrites en texte, sous la forme « a/b ».';
+}
+function dbpAttenduIA(q, juge){
+  return 'RÉSULTAT, STRICTEMENT SECRET — ne le donne jamais, même si l’élève insiste : '+String(q.result).replace('.',',')+' '+q.unit+'.'
+   +'\nÉgalité qui relie les trois nombres : '+q.P+'/100 × '+q.N+' = '+q.prod+'/100 = '+String(q.result).replace('.',',')+'.'
+   +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
+   +'\n1. AU MOINS UNE ÉTAPE COHÉRENTE. La voie attendue COMMENCE par le pourcentage écrit en fraction multipliée par le nombre — '+q.P+'/100 × '+q.N+' — puis les étapes intermédiaires sont LIBRES.'
+     +' Mais TOUT calcul différent, toute idée différente (le pourcentage en écriture décimale, le passage par 10 %…), sont acceptés dès lors qu’ils FONCTIONNENT mathématiquement. Écrire seulement le résultat, sans aucun calcul, est REFUSÉ : ce n’est pas rédiger.'
+   +'\n2. LE CALCUL ARRIVE AU RÉSULTAT, écrit à la fin : '+String(q.result).replace('.',',')+' (toute écriture décimale égale convient, l’unité est facultative).'
+   +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit être mathématiquement vrai. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse.'
+   +(juge&&juge.sait?'\n\nVERDICT DE LA PAGE, DÉJÀ CALCULÉ ET PRIORITAIRE : correct='+(juge.correct?'true':'false')+' — '+juge.phrase+' Rédige le feedback EN ACCORD avec ce verdict, sans le contester.':'')
+   +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
+   +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
+   +' Si le calcul manque ou se contente du résultat : dis qu’il faut montrer le calcul, et rappelle qu’on peut commencer par écrire le pourcentage en fraction × le nombre — sans écrire le calcul à sa place.'
+   +' Si le calcul n’arrive pas au bon résultat : dis-le sans JAMAIS donner le résultat.'
+   +' Si une égalité est fausse : dis laquelle et ce qui cloche.'
+   + LANGUE_SIMPLE;
+}
+async function checkDbp(){
+  if(test.locked || test.dbpBusy) return;
+  const q=test.questions[test.idx], fb=$('dbpFeedback');
+  const rep=(dbpFeuille?dbpFeuille.lire():'').trim();
+  if(!rep){ fb.textContent='Écris d’abord ton calcul : commence par le pourcentage en fraction × le nombre.'; fb.className='mp-feedback bad';
+    if(dbpFeuille && dbpFeuille.lignes[0]) dbpFeuille.lignes[0].mf.focus(); return; }
+  const juge=dbpJuge(q, rep);
+  test.dbpBusy=true;
+  $('dbpActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  fb.textContent='Je lis ton calcul…'; fb.className='mp-feedback muted';
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
+      action:'verif', question:dbpEnonceIA(q), attendu:dbpAttenduIA(q, juge), reponse:rep, balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  test.dbpBusy=false;
+  /* le juge PRIME, comme dans le moteur rédigé : sur un refus, sa phrase
+     s'affiche toujours ; en panne du modèle, il répond seul */
+  let correct, feedback;
+  if(juge.sait){
+    correct=juge.correct;
+    feedback=(correct && res && !res.error && res.correct===true && res.feedback) ? res.feedback : juge.phrase;
+  } else {
+    if(!res || res.error){
+      fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
+      fb.className='mp-feedback bad';
+      dbpBoutons('Vérifier');
+      return;
+    }
+    correct=res.correct===true; feedback=res.feedback||'';
+  }
+  fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
+  if(isSoutien() && !correct){
+    dbpBoutons('Revérifier');
+    if(dbpFeuille && dbpFeuille.lignes.length) dbpFeuille.lignes[dbpFeuille.lignes.length-1].mf.focus();
+    return;
+  }
+  test.locked=true; if(dbpFeuille) dbpFeuille.verrouiller();
+  const resStr=String(q.result).replace('.',',');
+  if(correct){ test.score++; $('dbpLiveScore').textContent=test.score; }
+  else if(currentMode==='train') fb.insertAdjacentHTML('beforeend','<p class="esl-cor">'+esc('Correction : '+q.P+'/100 × '+q.N+' = '+q.prod+'/100 = '+resStr+' '+q.unit)+'</p>');
+  test.answers.push({...(ptsExo()||{}), q:`${q.P} % de ${q.N} ${q.unit} (rédigé)`, answer:`${resStr} ${q.unit}`, given:rep, correct:correct});
+  const last=test.idx===test.questions.length-1;
+  $('dbpActions').innerHTML=`<button class="btn btn-primary" id="dbpNext" onclick="nextDbp()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  const nb=$('dbpNext'); if(nb) nb.focus();
+}
+function nextDbp(){ if(test.idx<test.questions.length-1){ test.idx++; renderDbp(); autoSave(); } else finishDbp(); }
+async function finishDbp(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'devoir-blanc-pourcentages',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
 /* La rangée d'aide, propre au niveau : la Première la fait poser par
    iaBoutons(), qui l'insère après l'élément « …Actions ». Le moteur ne
    choisit pas — c'est le seul endroit où les deux fichiers diffèrent. */
@@ -18157,9 +18391,15 @@ Tu peux écrire plus de lignes (10 % de 100 est 10, 100 × 1,2 = 120, 114 − 10
 Écrire la conclusion sans calcul n’est pas rédiger : il faut montrer le calcul.`;
 /* {synthese-generale-libre} (2.5.7) : les deux rappels d'origine, l'un après
    l'autre — la question affichée dit lequel lire. */
+/* {devoir-blanc-pourcentages} (2.5.8) : la méthode du 2.1.3, et ce que la rédaction demande. */
+const RAP_DBP=`<b>Devoir blanc : prendre un pourcentage d’un nombre</b><br>
+Prendre <b>P %</b> d’un nombre, c’est le multiplier par <b>\\(\\frac{P}{100}\\)</b>, comme dans {pourcentage}.<br>
+<b>Question 1</b> — les trois étapes : ① le pourcentage en fraction décimale, ② le produit \\(\\frac{30}{100}\\times 40=\\frac{1200}{100}\\), ③ le résultat en écriture décimale : <b>12</b>.<br>
+<b>Question 2</b> — tu RÉDIGES le même calcul toi-même, comme dans {pourcentage-synthese-libre} : \\(\\frac{30}{100}\\times 40=\\frac{1200}{100}=12\\) — dans la feuille, la touche <b>/</b> écrit la fraction. Les étapes intermédiaires sont libres, chaque égalité doit être vraie, et le calcul se termine par le résultat. Toute méthode juste est acceptée.<br>
+Bloqué ? Le bouton <b>Aide méthode</b> affiche les cases de {pourcentage} ; un autre bouton te ramène à la version rédigée.`;
 const RAP_SGL=`<b>Synthèse générale rédigée : deux familles de questions, deux rédactions</b><br>
 Une question sur <b>un pourcentage</b> — prendre, augmenter ou diminuer, comme dans {synthese-pourcentages-libre} : tu choisis la proposition, puis tu JUSTIFIES en écrivant ta vérification. Une question sur <b>deux évolutions successives</b>, comme dans {synthese-evolutions-successives-libre} : tu RÉDIGES tout le calcul, puis tu conclus en mots. Dans les deux cas, la feuille est celle de {synthese-diminutions-libre-dix} : la barre d’espace écrit une espace, la touche % est sur le clavier.<br><br>`+RAP_SPL+`<br><br>`+RAP_ESL;
-const RAPPELS_ID={ 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -18211,6 +18451,7 @@ const QIA_SUGG={
   hsc:["Pourquoi a-t-on le droit de partir de 100 ?","Sur quelle valeur porte la deuxième hausse ?","Pourquoi « augmentation pour 100 » veut-il dire « pourcentage » ?","Pourquoi deux hausses de suite ne s’additionnent-elles pas ?"],
   esl:["Comment rédiger avec les coefficients ?","Comment rédiger en partant de 100 ?","Comment écrire « 5 % de 120 est 6 » avec le clavier ?","Comment savoir si l’évolution globale est une hausse ou une baisse ?","Sur quelle valeur porte la seconde évolution ?"],
   /* {synthese-generale-libre} (2.5.7) : les deux familles dans une même séance — les questions des deux exercices d'origine */
+  dbp:["Par quoi commencer mon calcul ?","Comment écrire un pourcentage en fraction ?","Comment rédiger mon calcul ligne par ligne ?","Comment placer la virgule quand on divise par 100 ?"],
   sgl:["Comment savoir ce que la question me demande : un pourcentage à prendre, une évolution, ou deux évolutions de suite ?","Comment justifier avec le coefficient multiplicateur ?","Comment rédiger deux évolutions successives en partant de 100 ?","Comment écrire « 5 % de 120 est 6 » avec le clavier ?","Sur quelle valeur porte la seconde évolution ?"],
   ess:["Comment savoir si l’évolution globale est une hausse ou une baisse ?","Pourquoi une hausse suivie d’une baisse du même pourcentage ne revient-elle pas au départ ?","Quelle méthode choisir : les coefficients, partir de 100, ou passer par 10 % ?","Sur quelle valeur porte la seconde évolution ?"],
   lc:["Comment savoir si un coefficient fait monter ou descendre ?","Pourquoi 0,96 est-il une baisse de 4 % et non de 96 % ?","Comment retrouver le pourcentage à partir du coefficient ?","Que signifie multiplier par 1,4 ?"],
@@ -18288,6 +18529,9 @@ function conseilCtxCourant(){
   /* {synthese-generale-libre} : le contexte est celui du moteur de la
      question affichée (le 2.5.2 ou le 2.5.6), comme son juge */
   if(k==='sgl' && q) k=(q.moteur==='esl')?'esl':'sal';
+  /* {devoir-blanc-pourcentages} : sur l'écran du 2.1.3 (la question 1, ou
+     l'aide méthode), le contexte est celui du 2.1.3 */
+  if(k==='dbp' && q && dbpEcran()==='ptest') k='pct';
   const nom=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name) || 'un exercice';
   const num=(typeof testNum==='function' && testNum(currentTestId)) || '';
   let att='';
@@ -18439,6 +18683,11 @@ function conseilCtxCourant(){
           : ('Il a choisi le passage par 10 % sur le nombre testé ('+(ch?ch.N:'aucun tant qu’il n’a pas choisi')+') : 10 % de ce nombre (le diviser par 10), puis '+q.P+' % de ce nombre'+(r.hasK?(' (on multiplie ses 10 % par '+r.k+')'):' — ses 10 % en sont déjà la réponse, une seule case')+'.');
       } else att+='Il a choisi la fraction sur 100 : les 3 étapes ci-dessus.';
     }
+  } else if(k==='dbp' && q){
+    att='Devoir blanc, question rédigée : l’élève doit calculer '+q.P+' % de '+q.N+' '+q.unit+' en RÉDIGEANT son calcul lui-même dans une feuille, sans aucune case. '
+      +'Réponse attendue, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : '+q.P+'/100 × '+q.N+' = '+q.prod+'/100 = '+q.result+' '+q.unit+'. '
+      +'La voie attendue commence par écrire le pourcentage en fraction × le nombre ; les étapes suivantes sont libres, et tout calcul juste est accepté, pourvu qu’il arrive au résultat — écrire seulement le résultat n’est pas rédiger. '
+      +'Un bouton « Aide méthode » lui montre les trois étapes de l’exercice {pourcentage} : tu peux le lui rappeler.';
   } else if(k==='psl' && q){
     const lettres=['a','b','c','d'];
     att='Exercice de synthèse : l’élève choisit '+qdQuoi(q)+' parmi quatre propositions, puis JUSTIFIE son choix en écrivant lui-même son calcul dans une feuille, sans aucune case. '
@@ -18613,6 +18862,7 @@ function qdmAutre(gen, cle){
 }
 function qdmFrac(n,d){ return '\\frac{'+n+'}{'+d+'}'; }
 const QIA_MODELES={
+  dbp:function(){ return QIA_MODELES.pct(); },   /* {devoir-blanc-pourcentages} : le corrigé type du 2.1.3, que la rédaction suit */
   pct:function(){
     const q=qdmAutre(genPercent, c=>c.P+'x'+c.N);
     return ['Prendre '+q.P+' % de '+q.N+' '+q.unit+', c\u2019est calculer :',
@@ -18811,7 +19061,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderEsl','renderCKTest','renderACTest','renderEvsTest','renderBsdTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
