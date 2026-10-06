@@ -6160,6 +6160,91 @@ async function parcours(page, N){
         }
         verifier(NOM6, dits6.length === 0, dits6.slice(0, 3).join(' | '));
       }
+      /* ÉTAPE 7 : {devoir-blanc-pourcentages} (2.5.8) — le devoir blanc
+         (demande de Turquet, octobre 2026). jsdom n'a pas MathLive : c'est
+         ici seul que la frappe se mesure. On épingle deux questions (20 % de
+         150, puis 30 % de 40), on TAPE les cases du 2.1.3, puis la rédaction
+         sur la feuille du 2.1.7 — fractions par « / », lignes par « Entrée »,
+         chacune préfixée de « = ». « Aide méthode » montre l'écran du 2.1.3,
+         « Revenir à la version rédigée » ramène la feuille AVEC la rédaction
+         tapée ; « Vérifier » (le juge prime sur le double, qui refuse
+         toujours), « Voir mes résultats », et la note 2/2 sous SON
+         identifiant. */
+      const NOM7 = 'sur le devoir blanc, les cases du 2.1.3 puis la rédaction tapée sont lues, l’aide méthode et le retour gardent la rédaction, la note part sous son identifiant';
+      const dbpPresent = await s.page.evaluate(() => typeof startDbp === 'function' && !!TESTS['devoir-blanc-pourcentages']);
+      if(!dbpPresent){
+        ignorer(NOM7, 'ce niveau n\'a pas le devoir blanc des pourcentages');
+      } else {
+        const ID7 = 'devoir-blanc-pourcentages'; const dits7 = [];
+        await s.page.evaluate(id => openTest(id), ID7);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1300);
+        const q7 = await s.page.evaluate(() => {
+          if(test.kind !== 'dbp') return { manque: 'le kind ouvert est « ' + test.kind + ' »' };
+          const fab = (P, N) => { const q = { P, N, unit: '€', prod: P * N, result: P * N / 100, ci: 0, v: 0 }; return q; };
+          test.questions = [Object.assign(fab(20, 150), { moteur: 'pct' }), Object.assign(fab(30, 40), { moteur: 'red', aide: false })];
+          test.idx = 0; test.score = 0; test.answers = []; test.maxScore = 2; test.locked = false; test.dbpBusy = false;
+          renderDbp();
+          return { ecran: (document.querySelector('section.screen.on') || {}).id };
+        });
+        await s.page.waitForTimeout(800);
+        const taper = async (id, txt) => { await s.page.evaluate(i => { const m = document.getElementById(i); m.focus(); }, id);
+          await s.page.waitForTimeout(80); await s.page.keyboard.type(txt, { delay: 30 }); };
+        if(q7.manque) dits7.push(q7.manque);
+        else {
+          if(q7.ecran !== 'scr-ptest') dits7.push('la question 1 ne s\'affiche pas sur l\'écran du 2.1.3 : « ' + q7.ecran + ' »');
+          await taper('p1n', '20'); await taper('p1d', '100'); await taper('p2n', '3000'); await taper('p2d', '100'); await taper('p3', '30');
+          await s.page.waitForTimeout(300);
+          await s.page.click('#pActions .btn-primary');
+          await s.page.waitForTimeout(500);
+          const v7a = await s.page.evaluate(() => ({ score: test.score, bouton: String((document.getElementById('pActions') || {}).textContent || '').trim() }));
+          if(v7a.score !== 1) dits7.push('les cases tapées de la question 1 ne valent pas le point : score ' + v7a.score);
+          await s.page.click('#pNext');
+          await s.page.waitForTimeout(900);
+          const e7 = await s.page.evaluate(() => ({ ecran: (document.querySelector('section.screen.on') || {}).id, idx: test.idx, locked: test.locked }));
+          if(e7.ecran !== 'scr-dbp' || e7.idx !== 1 || e7.locked) dits7.push('« Question suivante » ne mène pas à la question rédigée, déverrouillée : « ' + e7.ecran + ' », question ' + (e7.idx + 1));
+          await s.page.evaluate(() => { const m = dbpFeuille.lignes[0].mf; m.focus(); try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+          await s.page.waitForTimeout(150);
+          await s.page.keyboard.type('30/100', { delay: 30 }); await s.page.keyboard.press('ArrowRight');
+          await s.page.keyboard.type('*40', { delay: 30 }); await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300);
+          await s.page.keyboard.type('1200/100', { delay: 30 }); await s.page.keyboard.press('ArrowRight');
+          await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300);
+          await s.page.keyboard.type('12', { delay: 30 });
+          await s.page.waitForTimeout(400);
+          const lu7 = await s.page.evaluate(() => { const t = dbpFeuille.lire(), j = dbpJuge(test.questions[test.idx], t);
+            return { texte: t, sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' }; });
+          if(!lu7.sait || !lu7.correct) dits7.push('le juge ' + (lu7.sait ? 'refuse' : 's\'abstient sur') + ' la rédaction tapée : « ' + lu7.phrase.slice(0, 120) + ' » (' + lu7.texte.replace(/\n/g, ' ⏎ ') + ')');
+          /* l'aide méthode, puis le retour : la rédaction est toujours là */
+          await s.page.click('#dbpAideBtn');
+          await s.page.waitForTimeout(600);
+          const a7 = await s.page.evaluate(() => ({ ecran: (document.querySelector('section.screen.on') || {}).id, cases: !!document.getElementById('p1n'), retour: !!document.querySelector('#dbpRetour button') }));
+          if(a7.ecran !== 'scr-ptest' || !a7.cases || !a7.retour) dits7.push('« Aide méthode » ne montre pas les cases du 2.1.3 avec le bouton de retour : « ' + a7.ecran + ' »');
+          if(a7.retour){ await s.page.click('#dbpRetour button'); await s.page.waitForTimeout(600); }
+          const r7 = await s.page.evaluate(() => ({ ecran: (document.querySelector('section.screen.on') || {}).id, texte: dbpFeuille ? dbpFeuille.lire() : '' }));
+          if(r7.ecran !== 'scr-dbp') dits7.push('le retour ne ramène pas à la version rédigée : « ' + r7.ecran + ' »');
+          if(r7.texte !== lu7.texte) dits7.push('après l\'aide méthode et le retour, la rédaction a changé : « ' + r7.texte.replace(/\n/g, ' ⏎ ') + ' »');
+          await s.page.click('#dbpActions .btn-primary');
+          await s.page.waitForTimeout(1200);
+          const v7 = await s.page.evaluate(() => { const fb = document.getElementById('dbpFeedback');
+            return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score,
+                     bouton: String((document.getElementById('dbpActions') || {}).textContent || '').trim() }; });
+          if(v7.classe.indexOf('good') < 0) dits7.push('la rédaction tapée n\'est pas acceptée à la vérification : « ' + v7.texte.slice(0, 120) + ' »');
+          if(v7.score !== 2) dits7.push('la note ne compte pas la rédaction : score ' + v7.score);
+          if(!/résultats/i.test(v7.bouton)) dits7.push('sur la dernière question, le bouton n\'est pas « Voir mes résultats » : « ' + v7.bouton + ' »');
+          await s.page.click('#dbpActions .btn-primary');
+          await s.page.waitForTimeout(1500);
+          const f7 = await s.page.evaluate(([id, table]) => {
+            const lignes = ((window.__faux && window.__faux.tables && window.__faux.tables[table]) || []).filter(r => r.details && !r.details.state && !r.details.partiel);
+            const notes = lignes.filter(r => r.details.test === id), n = notes[notes.length - 1];
+            return { ecran: (document.querySelector('section.screen.on') || {}).id, n: notes.length, score: n ? n.score : null, total: n ? n.total : null };
+          }, [ID7, P.tableResultats]);
+          if(f7.ecran !== 'scr-results') dits7.push('la fin de séance ne montre pas les résultats : « ' + f7.ecran + ' »');
+          if(!f7.n) dits7.push('aucune note enregistrée sous « ' + ID7 + ' »');
+          else if(f7.score !== 2 || f7.total !== 2) dits7.push('la note enregistrée n\'est pas 2/2 : ' + f7.score + '/' + f7.total);
+        }
+        verifier(NOM7, dits7.length === 0, dits7.slice(0, 3).join(' | '));
+      }
       verifier('l\'écran de la synthèse rédigée ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
