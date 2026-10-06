@@ -4306,3 +4306,20 @@ comprises. Pas de section propre au banc navigateur : la visite universelle
 
 Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, version 294) pendant les bancs : deux listes partagées (`TABLES_SANS`, la table des kinds de `tests/profils.js`) unies ligne à ligne, et la version passe en 295.
 Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301, puis en 302 (le 6.1.3, #505, avait pris la 301).
+
+**Puis le serpent au champagne est venu ouvrir le 6.2.3.**
+{python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.3
+au début ») : le dessin fourni — un serpent à lunettes de soleil qui fait
+sauter le bouchon d'une bouteille de champagne — ouvre l'écran, PREMIER
+élément de la carte, au-dessus de l'encadré de définition et de la consigne.
+Le geste est celui de `PDU_IMG` : le fond blanc du PNG est détouré (remplissage
+depuis les bords, alpha dégradé sur le liseré), le WebP de 11 Ko est embarqué
+en `data:` dans la constante `PPC_IMG`, et `ppcDessinHTML()` le pose dans
+`#ppcFig` à chaque `renderPPC()`. Il est purement décoratif : rien du tirage,
+du juge ni du bilan ne bouge, et l'image porte `width`/`height` pour que la
+page ne saute pas au chargement. Le banc navigateur (section « 6 tricies
+sedecies », 1 bis) exige que le dessin soit le premier enfant de la carte,
+embarqué en `data:`, réellement CHARGÉ (`naturalWidth` > 0 — un `data:`
+tronqué passerait un contrôle qui ne lirait que l'attribut) et visible à au
+moins 120 px de large.
