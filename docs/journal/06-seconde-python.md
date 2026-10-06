@@ -2825,6 +2825,22 @@ recalcule à chaque « Exécuter »/« Réexécuter » et `pelSaisie` vide la tr
 dès qu'une case change, pour ne jamais laisser affichée l'exécution d'un
 programme que l'élève vient de modifier.
 
+**Puis un dessin en tête de l'exercice** (demande de Turquet, octobre 2026 :
+« placer cette image en seconde dans l'exercice 6.2.7 au début », APP_VERSION
+320 — les 305 à 313 prises une à une par d'autres dessins du même jour pendant
+les bancs, à cinq fusions de `main` ; l'action « Contrôles » met plus d'une heure
+en file d'attente, et chaque fusion voisine reprenait le numéro suivant avant
+qu'elle ne finisse. Le saut jusqu'à 320 est voulu (d'abord 315, puis `main` a atteint 313 pendant
+l'action suivante) : le numéro n'est qu'une
+étiquette d'affichage, le contrôle exige qu'il dépasse celui de `main` et ne
+soit pas déjà pris, rien de plus) : un serpent perplexe devant un point d'interrogation, le motif des
+fiches du 6.5 (`PKG_IMG`, `PDU_IMG`, `PVO_IMG`, `PHM_IMG`) repris tel quel —
+l'image fournie (PNG, 327 × 269) convertie en WebP (7 Ko, `PEL_IMG`, une URL
+`data:`), posée par `renderPEL` dans `#pelFig`, PREMIER enfant de la carte,
+avant le rappel et la consigne. Décorative : aucun juge ne la lit, aucun
+contrôle propre — la visite universelle du banc navigateur (section 9) ouvre
+l'écran dans les deux modes, et elle y est.
+
 ---
 
 **Le thème 5 se découpe en deux sous-thèmes** (demande de Turquet,
