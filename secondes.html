@@ -5610,7 +5610,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=303;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=304;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -10458,7 +10458,7 @@ function dmReglageExo(){
    la plage que l'éditeur propose (1..DM_NBQ_MAX), le format normal. Un
    exercice dont la séance a une forme fixe (un tableau, trois familles) ne
    passe pas par là : le réglage ne peut que le raccourcir, par la coupe. */
-const DM_NBQ_MAX=10;
+const DM_NBQ_MAX=20;   /* 20 questions par exercice d'un devoir ou d'une fiche (demande de Turquet, octobre 2026) */
 function dmNbQuestions(defaut){
   const ex=dmReglageExo(); const n=ex?parseInt(ex.nbQ,10):NaN;
   return (Number.isFinite(n)&&n>=1&&n<=DM_NBQ_MAX)?n:defaut;
@@ -18604,7 +18604,7 @@ function readEditorIntoDevoir(){
   dev.titre=val('dmTitre').trim()||GENRE_DEVOIRS[dmGenre].defTitre;
   dev.cours=$('dmCours').value;
   const nbqs={}, smaxs={}, bonus={};
-  document.querySelectorAll('#dmExos select[data-nbq]').forEach(s=>{ const n=parseInt(s.value,10); if(Number.isFinite(n)&&n>=1&&n<=10) nbqs[s.dataset.nbq]=n; });
+  document.querySelectorAll('#dmExos select[data-nbq]').forEach(s=>{ const n=parseInt(s.value,10); if(Number.isFinite(n)&&n>=1&&n<=DM_NBQ_MAX) nbqs[s.dataset.nbq]=n; });
   document.querySelectorAll('#dmExos select[data-smax]').forEach(s=>{ const n=parseInt(s.value,10); if(n>=6&&n<=10) smaxs[s.dataset.smax]=n; });   /* 5 = le défaut, ne s'écrit pas */
   document.querySelectorAll('#dmExos input[data-bonus]').forEach(cb=>{ if(cb.checked) bonus[cb.dataset.bonus]=true; });   /* le défaut (pas bonus) ne s'écrit pas */
   /* L'ORDRE RANGÉ EST CELUI DU DEVOIR OU DE LA FICHE, dans les deux familles

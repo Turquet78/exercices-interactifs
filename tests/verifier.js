@@ -35844,6 +35844,20 @@ function reglagesDevoirs(w, apres){
         if('nbQ' in dev2.exercices[0]) vus.push('le setter de l\\'éditeur accepte '+(DM_NBQ_MAX+1)+', au-delà du plafond');
         window.dmCur=ancien2;
       }
+      /* l'ENREGISTREMENT du formulaire (la Seconde n'a pas de setter : elle
+         relit ses listes par readEditorIntoDevoir) garde le plafond — une
+         borne recodée en dur y jetait en silence tout réglage au-delà de 10 */
+      if(typeof readEditorIntoDevoir==='function' && typeof dmList!=='undefined' && dmList[0]){
+        const sq2=document.querySelector('#dmExos select[data-nbq]');
+        if(sq2){
+          const exid2=sq2.dataset.nbq, cb2=document.querySelector('#dmExos input[type=checkbox][data-ex="'+exid2+'"]');
+          if(cb2) cb2.checked=true;
+          sq2.value=String(DM_NBQ_MAX); readEditorIntoDevoir();
+          const e2=(dmList[0].exercices||[]).find(function(x){ return x.id===exid2; });
+          if(!e2||e2.nbQ!==DM_NBQ_MAX) vus.push('l\\'enregistrement du formulaire perd le plafond '+DM_NBQ_MAX+' ('+JSON.stringify(e2)+')');
+          sq2.value=''; readEditorIntoDevoir();
+        }
+      }
       /* la LISTE proposée au professeur va jusqu'au plafond, et pas plus loin */
       let sel=document.querySelector('#dmExos select[data-nbq]');
       if(!sel && typeof renderDmEditor==='function' && typeof dmAdminList!=='undefined'){
