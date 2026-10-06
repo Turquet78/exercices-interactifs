@@ -22499,7 +22499,7 @@ function pythonAfficherVariable(w, P){
     const l1=document.getElementById("pycL1"), ta=document.getElementById("pyc-in"), run=document.getElementById("pycRun"), cons=document.getElementById("pycConsole");
     if(!l1||l1.textContent!=="note = 12") vus.push("la première ligne affichée n’est pas « note = 12 » : "+(l1&&l1.textContent));
     if(!ta||ta.tagName!=="TEXTAREA"||!ta.classList.contains("pts-case")||ta.value!=="") vus.push("pas de zone de saisie pts-case vide");
-    if(document.getElementById("pycHost").textContent.indexOf("variable note")<0) vus.push("la consigne ne nomme pas la variable");
+    if(document.getElementById("pycInstr").textContent.indexOf("variable note")<0) vus.push("l’énoncé ne nomme pas la variable");
     if(!run||run.disabled) vus.push("« Exécuter » n’est pas libre dès le départ");
     pycExecuter();
     if(!/n’affiche rien/.test(cons.textContent)) vus.push("le programme vide exécuté ne dit pas qu’il n’affiche rien : "+JSON.stringify(cons.textContent));
