@@ -673,12 +673,10 @@
      correction ; la console d’une exécution en erreur s’encadre de rouge. */
   .pyc-cours{border:1px solid var(--line);border-left:5px solid #6c8ebf;border-radius:10px;background:#f4f8ff;padding:10px 14px;margin:0 0 10px;font-size:.98rem;line-height:1.5;color:var(--ink);text-align:left}
   .pyc-cours b{font-family:"Fredoka";font-weight:600}
-  .pyc-cours code,.pyc-consigne code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#fff;border:1px solid var(--line);border-radius:5px;padding:0 5px;white-space:nowrap}
-  .pyc-cours .pyc-ex{display:block;margin-top:6px;color:var(--ink-soft);font-size:.94rem}
+  .pyc-cours code,#pycInstr code{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;background:#fff;border:1px solid var(--line);border-radius:5px;padding:0 5px;white-space:nowrap}
   .pyc-exemple{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 0}
   .pyc-exemple .py-code,.pyc-exemple .py-console{font-size:.98rem;padding:6px 12px;min-height:0}
   .pyc-fleche{font-family:"Fredoka";font-weight:600;color:var(--ink-soft);font-size:.92rem}
-  .pyc-consigne{justify-content:flex-start;font-size:1.05rem;padding:0 0 6px}
   .pyc-prog{background:#f7f7f7;border:1px solid var(--line);border-left:4px solid #6c8ebf;border-radius:10px;padding:12px 16px;text-align:left}
   .pyc-prog .py-code{background:none;border:0;border-radius:0;padding:0;overflow:visible}
   .pyc-in{display:block;width:100%;box-sizing:border-box;margin:4px 0 0;resize:vertical;min-height:2.7em;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.05rem;line-height:1.55;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:6px 10px;outline:none;tab-size:4}
@@ -4345,7 +4343,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
     <div class="card">
       <div class="py-avant" id="pycAvant"></div>
-      <p class="mp-instr">Lis d&rsquo;abord comment on affiche une variable, puis compl&egrave;te le programme : sa premi&egrave;re ligne est d&eacute;j&agrave; &eacute;crite, &agrave; toi d&rsquo;&eacute;crire la suite pour qu&rsquo;il affiche la valeur de la variable &mdash; et seulement elle. Tu peux l&rsquo;ex&eacute;cuter quand tu veux pour voir ce qu&rsquo;il fait, puis v&eacute;rifie.</p>
+      <p class="mp-instr" id="pycInstr">Ci-dessous le programme &agrave; compl&eacute;ter<br>Il doit afficher la valeur de la variable <code>note</code> &mdash; et seulement elle.</p>
       <div class="mp-stage"><div style="width:100%" id="pycHost"></div></div>
       <div class="mp-feedback" id="pycFeedback"></div>
       <div class="row" style="justify-content:center">
@@ -5581,7 +5579,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=300;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=301;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -29984,7 +29982,6 @@ function pycCoursHTML(){
   return '<div class="pyc-cours">'
     +'<b>Comment afficher une variable ?</b> Une variable range une valeur sous un nom. Pour AFFICHER cette valeur, on écrit le nom de la variable entre les parenthèses de <code>print( )</code>, <b>sans guillemets</b>.'
     +'<div class="pyc-exemple"><pre class="py-code">'+pyColorie('nombre = 7'+NL+'print(nombre)')+'</pre><span class="pyc-fleche">affiche</span><pre class="py-console py-exec">7</pre></div>'
-    +'<span class="pyc-ex">Avec des guillemets, <code>print("nombre")</code> afficherait le mot <code>nombre</code> : un texte entre guillemets s’affiche tel quel. Et la ligne <code>nombre</code> toute seule n’affiche rien — seul <code>print</code> affiche.</span>'
     +'</div>';
 }
 
@@ -30009,14 +30006,12 @@ function renderPYC(){
   $('pycFeedback').textContent=''; $('pycFeedback').className='mp-feedback';
   $('pycActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pycValidate" onclick="checkPYC()">Vérifier</button>';
   pyAvant('pyc', pycCoursHTML());
+  $('pycInstr').innerHTML='Ci-dessous le programme à compléter<br>Il doit afficher la valeur de la variable <code>'+esc(q.nom)+'</code> — et seulement elle.';
   $('pycHost').innerHTML=
     '<div class="py-cell">'
-    +'<p class="py-label">Le programme à compléter</p>'
-    +'<div class="py-phrase pyc-consigne">Il doit afficher la valeur de la variable <code>'+esc(q.nom)+'</code> — et seulement elle.</div>'
     +'<div class="pyc-prog"><pre class="py-code" id="pycL1">'+pyColorie(pycLigne1(q))+'</pre>'
     +'<textarea class="pyc-in pts-case" id="pyc-in" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="la suite du programme" placeholder="écris ici la suite du programme"></textarea></div>'
-    +'<div class="py-runrow"><button class="btn btn-ghost" id="pycRun" type="button" onclick="pycExecuter()">▶ Exécuter le programme</button>'
-    +'<span class="py-hint" id="pycRunHint">Tu peux l’exécuter autant de fois que tu veux, puis vérifie.</span></div>'
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="pycRun" type="button" onclick="pycExecuter()">▶ Exécuter le programme</button></div>'
     +'<p class="py-label">Ce que ton programme affiche</p>'
     +'<pre class="py-console" id="pycConsole"></pre>'
     +'</div>';
@@ -30024,7 +30019,6 @@ function renderPYC(){
   ta.addEventListener('input', function(){
     q.rep=ta.value; ta.classList.remove('bad');
     const c=$('pycConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','py-err'); }
-    const h=$('pycRunHint'); if(h) h.textContent='Tu peux l’exécuter autant de fois que tu veux, puis vérifie.';
     clearTimeout(_pycSaveTimer); _pycSaveTimer=setTimeout(autoSave,1000);
   });
 }
@@ -30062,7 +30056,6 @@ function checkPYC(live){
   const last=test.idx===test.questions.length-1;
   $('pycActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pycNext" onclick="nextPYC()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   /* la question est verrouillée : « Exécuter » reste là, pour VOIR — plus pour modifier */
-  const h=$('pycRunHint'); if(h) h.textContent='Tu peux encore exécuter ce programme pour voir ce qu’il fait.';
   const c=$('pycConsole'), nb=$('pycNext');
   if(c && !c.classList.contains('py-exec')){ const b=$('pycRun'); if(b) b.focus(); } else if(nb) nb.focus();
 }
@@ -30075,7 +30068,6 @@ function pycExecuter(){
   try{ out=pyRun(pycProgramme(q, q.rep)).out; }catch(e){ out='Erreur : '+e.message; err=true; }
   if(!err && out==='') out='(le programme n’affiche rien)';
   const c=$('pycConsole'); c.textContent=out.replace(/\n$/,''); c.classList.add('py-exec'); c.classList.toggle('py-err', err);
-  const h=$('pycRunHint'); if(h) h.textContent='Programme exécuté.'+(test.locked?'':' Modifie-le si besoin, puis vérifie.');
 }
 function nextPYC(){ if(test.idx<test.questions.length-1){ test.idx++; renderPYC(); autoSave(); } else finishTest(); }
 function ctxPyc(q){
