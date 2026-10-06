@@ -1703,7 +1703,11 @@ module.exports = {
        court texte que ces exercices font afficher — « age : 16 », six
        caractères une fois les espaces retirées : en dessous, deux fautes ne
        seraient plus une faute de frappe mais un autre texte, et le banc MESURE
-       les trois tirages plutôt que de le supposer. */
+       les trois tirages plutôt que de le supposer.
+       Puis (octobre 2026) la tolérance est allée PARTOUT, même sur les textes
+       que l'exercice impose : les quatre juges qui la contournaient encore
+       (6.3.3/6.3.5, 6.5.3, les guillemets typographiques du 6.3.9/6.5.3/6.4.2,
+       l'apostrophe du 6.3.1) sont tenus par pythonFautesOrthographe. */
     toleranceTexte: { plusCourt: 6 },
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
