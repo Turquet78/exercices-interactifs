@@ -4555,7 +4555,11 @@ première — `git` n'a vu aucun conflit, deux pages différentes portaient
 320, c'est le garde de `tests/version.js` qui l'a dit. La branche passe à
 327, un numéro qu'aucune règle simple ne fait choisir à deux sessions à la
 fois — puis à 333 à la dixième fusion (#523 avait porté `main` à 325, et
-la ligne de version était le seul conflit).
+la ligne de version était le seul conflit), et la 333 reste à la onzième
+(#532, `main` en 326). La leçon du jour n'est pas le numéro : c'est que la
+LIGNE de version entre en conflit à CHAQUE fusion voisine, quel que soit le
+numéro choisi, et qu'une branche ne sort de la file qu'en fusionnant la
+première après ses propres contrôles verts.
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
 {python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
@@ -4610,3 +4614,59 @@ le second message était une erreur, le troisième sa correction, et le 6.2.5
 a gardé le sien — un dessin par exercice, jamais deux sur un écran. Le banc
 navigateur mesure le dessin RENDU, la mesure du 6.2.5 reprise mot pour mot :
 décodé, haut de plus de 100 px, posé avant la consigne, servi en `data:`.
+
+**Puis les fautes d'orthographe ont été tolérées PARTOUT, même dans les textes
+que l'exercice impose.** Décision de Turquet (octobre 2026, APP_VERSION 307) :
+« en seconde dans tous les exercices d'algorithme python, autoriser les fautes
+d'orthographe dans les textes entre "", même ceux qui sont imposés par
+l'exercice. » La règle partagée existait depuis septembre (`pyTexteProche`,
+« un texte presque bon est un texte bon » plus haut) et servait déjà les
+exercices qui FONT AFFICHER un texte — le 6.1.6, le 6.1.7, le 6.1.8, le
+6.1.12, le 6.1.13, le 6.3.2, le 6.3.4, le 6.3.6, le 6.3.7, le 6.3.8, le 6.5.4
+et le c) du 6.3.1. Un inventaire des quarante et un juges du thème a montré
+QUATRE contournements, chacun refusant encore un texte à une lettre près :
+· **{python-input-int} et {python-input-float}** (6.3.3, 6.3.5, moteur
+  partagé) comparaient la ligne entière au caractère près, espaces, casse et
+  accents mis à part : « j'ai 15 an » était faux. `piiJugeLigne` passe
+  désormais par `pyTexteProche` sur la ligne aplatie (sans accents ni casse,
+  comme avant) ; la VALEUR tapée doit toujours se lire telle quelle dans la
+  sortie, et la SECONDE exécution (une autre réponse) garde le bord « recopiée
+  à la main » — le diagnostic la nomme même quand le texte autour est toléré
+  (`piiDiag` compare par `pyTexteProche`, le piège du 6.1.7 pris à l'avance).
+  L'écart est NOMMÉ comme partout : espace, majuscule, accent, puis
+  `pyEcart` (« un caractère diffère », « deux caractères diffèrent »).
+· **{python-input-duree-secondes}** (6.5.3) cherchait « heure », « minute »
+  et « seconde » tels quels dans la sortie : « heurs », « minuts »,
+  « segondes » faisaient dire « il manque le mot ». `phmMot` compare chaque
+  mot affiché (sans accents ni casse) au mot et à son pluriel avec la
+  tolérance du thème (`pyTolerance` : une faute sur « heures », deux sur
+  « secondes ») ; « temps » ou « h » restent « le mot manque ».
+· **{python-input-prix}, {python-input-duree-secondes} et
+  {python-chaine-tirets}** (6.3.9, 6.5.3, 6.4.2) refusaient un ’ ou des « »
+  posés DANS un texte entre "…", en lisant le source entier : « l’addition
+  s’élève à » était faux. Ils retirent maintenant les chaînes bien formées
+  avant de chercher — le geste que le 6.5.1 et le 6.5.2 faisaient déjà. HORS
+  d'une chaîne, `input(«D»)` ou `+ “-”` restent refusés en se nommant.
+· **{python-input-reponse}** (6.3.1, c) refusait `print('je mappelle', nom)`
+  AVANT de l'exécuter, au nom de l'apostrophe que l'élève, justement, n'avait
+  pas écrite. Le juge exécute d'abord ; le reproche de l'apostrophe ne vient
+  que sur une ligne que Python refuse — `print('je m'appelle', nom)` le reçoit
+  toujours, et la réponse recopiée reste tenue par `pyxUtilise`.
+Les exercices que l'inventaire a laissés tels quels n'ont AUCUN texte entre
+guillemets à juger : listes et nombres (6.1.1 à 6.1.5, 6.1.10, 6.1.11, le
+thème 6.2 entier), ou un texte CALCULÉ par le programme (le mot inversé du
+6.4.4, le mot tireté du 6.4.2, les étoiles du 6.4.5) qu'aucune tolérance ne
+saurait lire sans accepter un autre résultat ; le 6.1.3 reste dehors par
+décision nommée (sa sortie EST la valeur) ; la question ouverte du 6.2.5 est
+jugée par le modèle, dont la règle tolère déjà l'orthographe. La TOLÉRANCE,
+elle, n'a pas changé de mesure : un caractère par tranche de quatre, deux au
+plus, les espaces jamais comptées, les CHIFFRES toujours — c'est la règle de
+septembre, posée à un seul endroit, qui va maintenant partout.
+Banc jsdom (`pythonFautesOrthographe`, après `pythonTexteProche`) : les six
+lignes tolérées du 6.3.3/6.3.5 avec leur écart nommé et cinq refus qui se
+nomment (la valeur à la main, le calcul, un autre texte) ; les quatre sorties
+tolérées du 6.5.3, les mots absents, « temps » pour « heures », les bords de
+`phmMot` ; le ’ et les « » dans un texte du 6.3.9 et du 6.4.2, les “ ” hors
+texte ; les trois lignes tolérées du 6.3.1 et l'apostrophe toujours reprochée.
+Pas de contrôle navigateur : la tolérance est une affaire de chaînes, et
+jsdom voit tout ce qu'un Chromium en dirait.
