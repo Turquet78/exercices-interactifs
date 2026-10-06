@@ -3581,6 +3581,112 @@ lit dans le double de Supabase. `APP_VERSION` 278.
 
 ---
 
+## {devoir-blanc-pourcentages} — les questions 3 à 9 : chaque exercice du thème, en cases puis rédigé (Première, 2.5.8, octobre 2026)
+
+**D'où ça vient.** Demande de Turquet, le jour même de la première livraison :
+« continuer l'exercice 2.5.8 ». Question 3 : une question du 2.2.2, rédigée
+exactement de la même façon ; question 4 : une question du 2.2.2, « mais à
+rédiger comme dans 2.2.14 », avec un bouton aide méthode qui affiche la
+résolution comme dans le 2.2.2 et un bouton pour revenir à la version
+rédigée ; questions 5 et 6 : la même chose avec le 2.3.2 et le 2.3.13 ;
+question 7 : une question du 2.4.2 ; question 8 : une question du 2.5.4 avec
+une hausse suivie d'une baisse, « on ne proposera que la méthode avec les
+coefficients » ; question 9 : la même, « où l'élève peut rédiger comme dans
+le 2.5.6 (on acceptera toutes les rédactions comme dans le 2.5.6) », avec
+l'aide méthode qui affiche la résolution du 2.5.4 par les coefficients seuls,
+et le retour. Neuf questions, un point chacune.
+
+**Rien n'est recopié des exercices repris — c'est la question qui dit son
+moteur.** `DBP_SLOTS` liste les neuf questions dans l'ordre (moteur, famille
+de tirage, aide ou non) ; `dbpTirage(n)` tire chaque famille par
+`distinctes()` — la question en cases et sa jumelle rédigée ne portent jamais
+les mêmes nombres — et pose `q.moteur` sur chacune. `dbpEcran()` dit l'écran
+de la question courante, aide comprise, et `renderDbp()` appelle le rendu de
+ce moteur : `renderPTest`, `renderAG2Test`, `renderACTest`, `renderEssTest`,
+`renderEsl`, ou `renderDbpRed` pour les deux rédigées sans écran propre. Les
+« suivant » des moteurs repris (`nextPQuestion`, `nextAG2Question`,
+`nextACQuestion`, `nextEssQuestion`, `nextEsl`) rendent la main à `nextDbp`
+quand `test.kind` vaut `'dbp'` — le motif de la synthèse générale. Le réglage
+« Questions » d'un devoir raccourcit la liste (les n premières) ou la rejoue
+depuis le début (`dbpTirage(11)` = les neuf, puis les deux premières).
+
+**Le 2.5.4 repris ne propose que les coefficients.** `q.methFixe='coef'`
+(et `q.meth='coef'`) sur les questions 8 et 9 : `renderEssTest` n'affiche
+pas le choix de méthode quand la question le porte, et les cases des
+coefficients s'affichent d'emblée. Le 2.5.4 lui-même ne pose jamais
+`methFixe` — c'est un bord du contrôle (`#essMeth` présent chez lui). La
+question 9 garde `meth` et `choisi` (le 2.5.6 les retire) : l'aide méthode en
+a besoin, et le juge du 2.5.6 (`eslJuge`) ne les lit pas.
+
+**La question rédigée du 2.2.14 (et du 2.3.13) n'a pas de proposition — la
+nouvelle valeur en tient la place.** Même arbitrage que pour la question 2 :
+un devoir sur table demande le calcul. La feuille est celle du 2.2.14 (mode
+« redaction », lignes indépendantes, `salEspaces` — la touche %, les mots, le
+clavier B sur tablette). Le juge est `salJuge`, lu sur une VUE de la question
+(`dbpEvoVueSal` : `fam`, `sens`, `inc='fin'`, `opts=[fin]`, `choisi=bon=0`,
+`dix=true`) : les quatre voies du 2.2.14 sont acceptées telles quelles — le
+coefficient, le quotient, l'augmentation ou la diminution suivie de
+l'opération, les 10 % — et `dbpEvoJuge` exige en plus que la nouvelle valeur
+soit ÉCRITE en écriture décimale (« 150 × 12/10 = 1800/10 » est juste et
+refusé, en le disant). L'unité écrite après un résultat est retirée ligne par
+ligne (`dbpSansUnite`, la règle de `dbpJuge`) : sans cela « 420 € » faisait
+s'abstenir le juge — le contrôle l'a attrapé à la première exécution.
+
+**`q.secret` : un refus du 2.2.14 écrivait la réponse.** Sur le 2.2.14, un
+refus nomme ce qui manque AVEC les nombres de la proposition choisie
+(« il manque l'addition qui donne la valeur finale (150 + 30) », « montre le
+calcul : le coefficient (1,2 × 150 = 180)… ») — l'élève les a choisis, rien
+ne fuit. Ici ces nombres SONT la réponse. La vue pose `q.secret`, que
+`salJuge` lit à un seul endroit : les parenthèses chiffrées disparaissent
+(`opEx`, `mulEx`), `salVoiesTexte` est appelée sans couple, la phrase dit
+« Ta rédaction ne suffit pas … Écrire seulement le résultat n'est pas
+rédiger », et la conclusion en mots fausse est renvoyée à « le pourcentage de
+l'énoncé » plutôt qu'à « la proposition que tu as choisie ». Sans `q.secret`,
+rien ne change — le contrôle rejoue le même refus sur la vue sans le drapeau
+et exige « 150 + 30 » et « proposition ». Le contrôle passe aussi chaque
+refus des cas épinglés au peigne de la nouvelle valeur et de l'augmentation,
+en retirant ce que le refus CITE entre guillemets (la ligne de l'élève peut
+les contenir).
+
+**L'aide méthode et le retour, généralisés.** `dbpAideHTML()` rend le bouton
+« Aide méthode » sur une question qui porte `q.aide===false` — `dbpBoutons`
+et `renderEsl`/`checkEsl` l'appellent, et il est vide hors du devoir blanc.
+`dbpAide()` pose `q.aide` et redessine par `renderDbp()` : l'écran de l'aide
+est celui du moteur d'origine (les cases du 2.1.3, du 2.2.2 / 2.3.2, ou du
+2.5.4 par les coefficients). `dbpRetourHTML()` pose le bouton de retour en
+tête des cases quand `q.aide` est vrai (`renderPTest`, `renderAG2Test`,
+`renderEssTest` l'appellent), `dbpRetourRetirer()` le retire dès que la
+réponse est donnée (`checkPAnswer`, `checkAG2Answer`, `checkEssAnswer`) et au
+retour lui-même. `dbpRevenir()` rend l'écran rédigé SANS le redessiner — la
+feuille du devoir blanc (`dbpFeuille`, `dbpFeuilleIdx`) ou celle du 2.5.6
+(`eslFeuille`, `dbpEslIdx`) est encore là. La correction en direct du soutien
+(`liveCheckCurrent`) suit l'écran : les cases du 2.1.3, du 2.2.2 et du 2.5.4 ;
+rien sur les feuilles ni sur les listes du 2.4.2. Le contexte de l'aide, les
+questions à l'IA et le corrigé type suivent l'écran AFFICHÉ (`dbpQiaCle`) :
+ceux du moteur repris sur ses cases, ceux du devoir blanc sur ses feuilles
+(un contexte propre à la question du 2.2.14 rédigée, qui nomme les quatre
+voies et la nouvelle valeur secrète), ceux du 2.5.6 sur sa feuille.
+
+**Ce que les contrôles tiennent.** `tests/verifier.js`, « le devoir blanc :
+neuf questions reprises du thème… » (le tirage sur 30 séances et ses deux
+rallonges, les neuf écrans et la reprise, l'aide et le retour sur les trois
+rédigées sans recréer la feuille, dix-neuf copies du juge et ses refus sans
+la réponse, la règle du modèle sous la borne, l'identité, les contextes de
+l'aide par écran, les cinq exercices repris inchangés) et « le devoir blanc,
+cliqué » (la séance entière répondue sur les écrans de ses moteurs sous un
+modèle qui se trompe toujours, la note 9/9 sous son identifiant et rien sous
+les neuf identifiants repris ; l'aide méthode qui répond sur les questions 2,
+4 et 9, retire le retour, enchaîne ou clôt ; le soutien qui rouvre les deux
+feuilles ; l'entraînement qui écrit la correction sans l'avoir livrée dans le
+verdict ; la feuille vide). Au banc navigateur (étape 7 de la synthèse
+rédigée), les neuf questions sont TAPÉES dans un vrai Chromium — les cases,
+la méthode des 10 % en mots avec la touche % sur la feuille de rédaction,
+les listes du 2.4.2, les seize cases des coefficients, la conclusion en mots
+du 2.5.6 —, l'aide et le retour gardent chaque rédaction, et la note 9/9 se
+lit dans le double de Supabase. `APP_VERSION` 279.
+
+---
+
 ## Seconde 4.6.1 — {tableau-proportions} : le tableau à double entrée de la fiche, et ses proportions
 
 **Demandé par Turquet en septembre 2026**, d'après une fiche papier

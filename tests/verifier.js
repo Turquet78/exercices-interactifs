@@ -4791,19 +4791,23 @@ function syntheseGeneraleCliquee(w, apres){
     devoirBlancClique(w, apres);
   });
 }
-/* ---- Le devoir blanc, CLIQUÉ : la question 1 jugée par le 2.1.3, la question
-   rédigée jugée par la page avant le modèle, l'aide méthode qui répond aussi,
-   la note sous SON identifiant (Première, 2.5.8) --------------------------
-   On arme une séance, on remplit les cases du 2.1.3, on clique ; puis on
-   rédige sous un modèle stubbé qui SE TROMPE toujours (le juge doit primer),
-   et on lit la note dans le double de Supabase : 2/2 sous
-   « devoir-blanc-pourcentages », rien sous « pourcentage ». Puis trois bords :
-   la réponse donnée dans les cases de l'aide méthode compte et clôt ; en
-   soutien, une rédaction fausse rouvre la feuille et garde l'aide ; en
-   entraînement, une rédaction fausse écrit la correction en vert. */
+/* ---- Le devoir blanc, CLIQUÉ : les neuf questions répondues dans les cases,
+   les listes et les feuilles de leurs moteurs d'origine, la note 9/9 sous SON
+   identifiant (Première, 2.5.8) ------------------------------------------
+   On arme une séance, on remplit chaque écran comme l'élève le ferait, on
+   clique son « Vérifier » puis son « suivant » ; les rédactions sont jugées
+   sous un modèle stubbé qui SE TROMPE toujours (le juge doit primer), et la
+   note se lit dans le double de Supabase : 9/9 sous
+   « devoir-blanc-pourcentages », rien sous les identifiants des exercices
+   repris. Puis quatre bords : la réponse donnée dans les cases de l'aide
+   méthode compte, retire le retour et enchaîne (ou clôt) ; en soutien, une
+   rédaction fausse rouvre la feuille et garde l'aide — sur la question du
+   2.2.14 comme sur celle du 2.5.6 ; en entraînement, une rédaction fausse
+   écrit la correction en vert, et le verdict n'avait pas livré la nouvelle
+   valeur avant elle ; la feuille vide ne part pas au modèle. */
 function devoirBlancClique(w, apres){
-  const nom = 'le devoir blanc, cliqué : les cases du 2.1.3, la rédaction jugée par la page, l’aide méthode qui répond, la note sous son identifiant';
-  const present = evaluer(w, "typeof startDbp==='function' && typeof checkDbp==='function'");
+  const nom = 'le devoir blanc, cliqué : les neuf questions répondues sur les écrans de leurs moteurs, l’aide méthode qui répond, la note 9/9 sous son identifiant';
+  const present = evaluer(w, "typeof startDbp==='function' && typeof checkDbp==='function' && typeof dbpEvoJuge==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas le devoir blanc des pourcentages');
     return jugeArithmetiqueClique(w, apres);
@@ -4824,73 +4828,128 @@ function devoirBlancClique(w, apres){
     const couleur=function(id){ const c=(document.getElementById(id)||{}).className||'';
       return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
     const bouton=function(id){ return String((document.getElementById(id)||{}).textContent||'').trim(); };
-    const remplir=function(q){ const v={p1n:q.P,p1d:100,p2n:q.prod,p2d:100,p3:String(q.result).replace('.',',')};
-      Object.keys(v).forEach(function(id){ document.getElementById(id).value=String(v[id]); }); };
+    const val=function(id,v){ const e=document.getElementById(id); if(!e){ vus.push('la case '+id+' manque'); return; } e.value=String(v); };
+    const remplirPct=function(q){ val('p1n',q.P); val('p1d',100); val('p2n',q.prod); val('p2d',100); val('p3',String(q.result).replace('.',',')); };
+    const remplirAg2=function(q){ val('g1n',q.P); val('g1d',100); val('g2n',q.prod); val('g2d',100); val('g3',q.aug); val('g4a',q.N); val('g4b',q.aug); val('g4r',q.fin); };
+    const remplirEss=function(q){ const a=essAns(q);
+      val('ess1n',q.P1); val('ess1d',100); val('ess1p',String(q.P1).padStart(2,'0')); val('ess1dec',essCoefStr(q.s1,a.c1).slice(2));
+      val('ess2n',q.P2); val('ess2d',100); val('ess2p',String(q.P2).padStart(2,'0')); val('ess2dec',essCoefStr(q.s2,a.c2).slice(2));
+      val('essAn',a.fA.num); val('essAd',a.fA.den); val('essBn',a.fB.num); val('essBd',a.fB.den);
+      val('essPn',a.prodNum); val('essPd',a.prodDen); val('essDec',a.coefStr); val('essP',a.pct); choisirEssSens(a.sens); };
+    const redacEvo=function(q){ const c=salCouple(dbpEvoVueSal(q)); return c.coefStr+' × '+q.N+' = '+c.finStr; };
+    const redacEsl=function(q){ const a=essAns(q); return eslCoefStr(a.c1)+' × '+eslCoefStr(a.c2)+' = '+a.coefStr+'\\n'+(a.sens>0?'hausse':'baisse')+' de '+a.pct+' %'; };
     const notes=function(id){ return (window.__faux.tables['resultats_1ere']||[]).filter(function(r){ return r.details && !r.details.state && !r.details.partiel && r.details.test===id; }); };
     const attendreNote=async function(avant){ for(let i=0;i<100 && notes(ID).length===avant;i++) await new Promise(function(r){ setTimeout(r,20); }); };
+    const suivant=function(id){ const b=document.getElementById(id); if(b) b.click(); else vus.push('pas de bouton « '+id+' »'); };
+    const attendu=function(n, e, verrou){ if(test.idx!==n-1 || ecran()!==e || (verrou===false && test.locked)) vus.push('la question '+n+' ne s\\'ouvre pas sur « '+e+' », déverrouillée : idx '+test.idx+', « '+ecran()+' »'+(test.locked?', verrouillée':'')); };
 
-    /* 1. la question 1 : les cases et le juge du 2.1.3 */
+    /* 1. la séance entière, en entraînement, sous un modèle qui se trompe toujours */
     currentMode='train'; startDbp();
-    if(ecran()!=='scr-ptest') vus.push('la séance ne s\\'ouvre pas sur l\\'écran du 2.1.3 : « '+ecran()+' »');
-    remplir(test.questions[0]); checkPAnswer();
-    if(test.score!==1 || test.answers.length!==1 || test.answers[0].correct!==true) vus.push('les cases justes de la question 1 ne valent pas le point : score '+test.score);
-    const b1=document.getElementById('pNext'); if(b1) b1.click(); else vus.push('pas de « Question suivante » après la question 1');
-    if(test.idx!==1 || ecran()!=='scr-dbp' || test.locked) vus.push('« Question suivante » ne mène pas à la question rédigée, déverrouillée : idx '+test.idx+', « '+ecran()+' »');
-
-    /* 2. la question rédigée : le juge prime sur un modèle qui se trompe */
-    const q2=test.questions[1];
-    dbpFeuille=feuille(q2.P+'/100 × '+q2.N+'\\n= '+q2.prod+'/100\\n= '+String(q2.result).replace('.',','));
+    const Q=test.questions;
+    attendu(1,'scr-ptest',false);
+    remplirPct(Q[0]); checkPAnswer();
+    if(test.score!==1 || test.answers.length!==1 || test.answers[0].correct!==true) vus.push('q1 : les cases justes du 2.1.3 ne valent pas le point : score '+test.score);
+    suivant('pNext');
+    attendu(2,'scr-dbp',false);
+    dbpFeuille=feuille(Q[1].P+'/100 × '+Q[1].N+'\\n= '+Q[1].prod+'/100\\n= '+String(Q[1].result).replace('.',','));
     await checkDbp();
-    if(test.score!==2 || test.answers.length!==2 || test.answers[1].correct!==true) vus.push('la rédaction juste n\\'est pas jugée par la page (le juge devait primer sur le modèle) : score '+test.score);
-    if(couleur('dbpFeedback')!=='vert') vus.push('la rédaction juste est peinte « '+couleur('dbpFeedback')+' »');
-    if(!envoye || envoye.action!=='verif' || String(envoye.attendu||'').indexOf('VERDICT DE LA PAGE')<0) vus.push('la rédaction ne part pas au modèle avec le verdict de la page');
-    if(!test.locked || !dbpFeuille.verrou) vus.push('après une rédaction juste, l\\'écran n\\'est pas verrouillé');
-    if(!/résultats/i.test(bouton('dbpActions'))) vus.push('sur la dernière question, le bouton n\\'est pas « Voir mes résultats » : « '+bouton('dbpActions')+' »');
+    if(test.score!==2 || couleur('dbpFeedback')!=='vert') vus.push('q2 : la rédaction juste n\\'est pas jugée par la page (le juge devait primer) : score '+test.score+', « '+couleur('dbpFeedback')+' »');
+    if(!envoye || envoye.action!=='verif' || String(envoye.attendu||'').indexOf('VERDICT DE LA PAGE')<0) vus.push('q2 : la rédaction ne part pas au modèle avec le verdict de la page');
+    suivant('dbpNext');
+    attendu(3,'scr-ag2test',false);
+    remplirAg2(Q[2]); checkAG2Answer();
+    if(test.score!==3 || test.answers.length!==3 || test.answers[2].correct!==true) vus.push('q3 : les cases justes du 2.2.2 ne valent pas le point : score '+test.score);
+    if(!/suivant/i.test(bouton('ag2Actions'))) vus.push('q3 : le bouton n\\'est pas « Calcul suivant » : « '+bouton('ag2Actions')+' »');
+    suivant('ag2Next');
+    attendu(4,'scr-dbp',false);
+    envoye=null; dbpFeuille=feuille(redacEvo(Q[3])); await checkDbp();
+    if(test.score!==4 || couleur('dbpFeedback')!=='vert') vus.push('q4 : la rédaction juste du 2.2.14 n\\'est pas jugée par la page : score '+test.score+', « '+couleur('dbpFeedback')+' » — '+String((document.getElementById('dbpFeedback')||{}).textContent||'').slice(0,120));
+    if(!envoye || String(envoye.attendu||'').indexOf('NOUVELLE VALEUR')<0 || String(envoye.attendu||'').indexOf('VERDICT DE LA PAGE')<0) vus.push('q4 : la rédaction ne part pas au modèle avec la règle du 2.2.14 et le verdict de la page');
+    suivant('dbpNext');
+    attendu(5,'scr-ag2test',false);
+    remplirAg2(Q[4]); checkAG2Answer();
+    if(test.score!==5) vus.push('q5 : les cases justes du 2.3.2 ne valent pas le point : score '+test.score);
+    suivant('ag2Next');
+    attendu(6,'scr-dbp',false);
+    dbpFeuille=feuille(redacEvo(Q[5])); await checkDbp();
+    if(test.score!==6 || couleur('dbpFeedback')!=='vert') vus.push('q6 : la rédaction juste du 2.3.13 n\\'est pas jugée par la page : score '+test.score);
+    suivant('dbpNext');
+    attendu(7,'scr-actest',false);
+    AC_FAMS.forEach(function(f){ choisirAC(f, acBon(Q[6],f)); }); checkACAnswer();
+    if(test.score!==7 || test.answers.length!==7 || test.answers[6].correct!==true) vus.push('q7 : les trois associations justes du 2.4.2 ne valent pas le point : score '+test.score);
+    suivant('acNext');
+    attendu(8,'scr-esstest',false);
+    if(document.getElementById('essMeth')) vus.push('q8 propose le choix de méthode');
+    remplirEss(Q[7]); checkEssAnswer();
+    if(test.score!==8 || test.answers.length!==8 || test.answers[7].correct!==true) vus.push('q8 : les cases justes des coefficients du 2.5.4 ne valent pas le point : score '+test.score+' — '+String((document.getElementById('essFeedback')||{}).textContent||'').slice(0,160));
+    suivant('essNext');
+    attendu(9,'scr-esl',false);
+    if(!/Aide méthode/.test(bouton('eslActions'))) vus.push('q9 : « Aide méthode » n\\'est pas offerte sur la feuille du 2.5.6 : « '+bouton('eslActions')+' »');
+    eslFeuille=feuille(redacEsl(Q[8])); await checkEsl();
+    if(test.score!==9 || couleur('eslFeedback')!=='vert') vus.push('q9 : la rédaction juste du 2.5.6 n\\'est pas jugée par la page : score '+test.score+' — '+String((document.getElementById('eslFeedback')||{}).textContent||'').slice(0,120));
+    if(!/résultats/i.test(bouton('eslActions'))) vus.push('sur la dernière question, le bouton n\\'est pas « Voir mes résultats » : « '+bouton('eslActions')+' »');
+    if(test.answers.length!==9) vus.push('la séance ne compte pas neuf réponses : '+test.answers.length);
     window.__faux.journal.length=0;
     let avant=notes(ID).length;
-    const b2=document.getElementById('dbpNext'); if(b2) b2.click();
+    suivant('eslNext');
     await attendreNote(avant);
     let n=notes(ID);
     if(n.length===avant) vus.push('« Voir mes résultats » n\\'enregistre pas la note sous « '+ID+' »');
-    else if(n[n.length-1].score!==2 || n[n.length-1].total!==2) vus.push('la note enregistrée n\\'est pas 2/2 : '+JSON.stringify({score:n[n.length-1].score,total:n[n.length-1].total}));
-    if(notes('pourcentage').length || notes('pourcentage-synthese-libre').length) vus.push('une note part sous l\\'identifiant du 2.1.3 ou du 2.1.7');
+    else if(n[n.length-1].score!==9 || n[n.length-1].total!==9) vus.push('la note enregistrée n\\'est pas 9/9 : '+JSON.stringify({score:n[n.length-1].score,total:n[n.length-1].total}));
+    ['pourcentage','pourcentage-synthese-libre','augmenter-addition','diminuer-soustraction','synthese-augmentations-libre-dix','synthese-diminutions-libre-dix','associer-coefficient','synthese-evolutions-successives','synthese-evolutions-successives-libre'].forEach(function(id){ if(notes(id).length) vus.push('une note part sous « '+id+' »'); });
 
-    /* 3. l'aide méthode répond : les cases du 2.1.3 jugent la question 2, et clôturent */
-    currentMode='train'; startDbp(); test.locked=true; nextPQuestion();
-    dbpAide();
-    if(ecran()!=='scr-ptest' || !document.getElementById('dbpRetour')) vus.push('« Aide méthode » ne montre pas les cases du 2.1.3 avec le retour');
-    remplir(test.questions[1]); checkPAnswer();
-    if(test.score!==1 || test.answers.length!==1 || test.answers[0].correct!==true) vus.push('la réponse donnée dans l\\'aide méthode ne compte pas : score '+test.score);
-    if(document.getElementById('dbpRetour')) vus.push('après la réponse donnée dans l\\'aide méthode, le bouton de retour reste offert');
-    if(!/résultats/i.test(bouton('pActions'))) vus.push('dans l\\'aide méthode, la dernière question n\\'offre pas « Voir mes résultats » : « '+bouton('pActions')+' »');
+    /* 2. l'aide méthode répond : les cases jugent la question rédigée, retirent le retour, et enchaînent ou clôturent */
+    const aller=function(i){ currentMode='train'; startDbp(); test.idx=i; renderDbp(); };
+    aller(1); dbpAide();
+    if(ecran()!=='scr-ptest' || !document.getElementById('dbpRetour')) vus.push('q2 : « Aide méthode » ne montre pas les cases du 2.1.3 avec le retour');
+    remplirPct(test.questions[1]); checkPAnswer();
+    if(test.score!==1 || test.answers.length!==1 || test.answers[0].correct!==true) vus.push('q2 : la réponse donnée dans l\\'aide méthode ne compte pas : score '+test.score);
+    if(document.getElementById('dbpRetour')) vus.push('q2 : après la réponse donnée dans l\\'aide méthode, le bouton de retour reste offert');
+    suivant('pNext'); if(test.idx!==2 || ecran()!=='scr-ag2test') vus.push('q2 : « Question suivante » depuis l\\'aide ne mène pas à la question 3 : idx '+test.idx+', « '+ecran()+' »');
+    aller(3); dbpAide();
+    if(ecran()!=='scr-ag2test' || !document.getElementById('dbpRetour')) vus.push('q4 : « Aide méthode » ne montre pas les cases du 2.2.2 avec le retour');
+    remplirAg2(test.questions[3]); checkAG2Answer();
+    if(test.score!==1 || test.answers.length!==1 || !test.answers[0].correct) vus.push('q4 : la réponse donnée dans l\\'aide méthode ne compte pas : score '+test.score);
+    if(document.getElementById('dbpRetour')) vus.push('q4 : après la réponse donnée dans l\\'aide méthode, le retour reste offert');
+    suivant('ag2Next'); if(test.idx!==4 || ecran()!=='scr-ag2test') vus.push('q4 : « Calcul suivant » depuis l\\'aide ne mène pas à la question 5 : idx '+test.idx+', « '+ecran()+' »');
+    aller(8); dbpAide();
+    if(ecran()!=='scr-esstest' || !document.getElementById('dbpRetour') || document.getElementById('essMeth')) vus.push('q9 : « Aide méthode » ne montre pas les cases du 2.5.4 (coefficients seuls) avec le retour');
+    remplirEss(test.questions[8]); checkEssAnswer();
+    if(test.score!==1 || test.answers.length!==1 || !test.answers[0].correct) vus.push('q9 : la réponse donnée dans l\\'aide méthode ne compte pas : score '+test.score);
+    if(document.getElementById('dbpRetour')) vus.push('q9 : après la réponse donnée dans l\\'aide méthode, le retour reste offert');
+    if(!/résultats/i.test(bouton('essActions'))) vus.push('q9 : dans l\\'aide méthode, la dernière question n\\'offre pas « Voir mes résultats » : « '+bouton('essActions')+' »');
     avant=notes(ID).length;
-    const b3=document.getElementById('pNext'); if(b3) b3.click();
-    await attendreNote(avant);
+    suivant('essNext'); await attendreNote(avant);
     n=notes(ID);
-    if(n.length===avant) vus.push('depuis l\\'aide méthode, « Voir mes résultats » n\\'enregistre pas sous « '+ID+' »');
-    else if(n[n.length-1].total!==2) vus.push('depuis l\\'aide méthode, la note n\\'est pas sur 2');
+    if(n.length===avant) vus.push('depuis l\\'aide méthode de la q9, « Voir mes résultats » n\\'enregistre pas sous « '+ID+' »');
+    else if(n[n.length-1].total!==9) vus.push('depuis l\\'aide méthode, la note n\\'est pas sur 9');
 
-    /* 4. en soutien, une rédaction fausse rouvre la feuille, et l'aide reste offerte */
-    currentMode='soutien'; startDbp(); test.locked=true; nextPQuestion();
-    dbpFeuille=feuille('1 + 1 = 3');
-    await checkDbp();
-    if(test.locked || dbpFeuille.verrou || test.answers.length) vus.push('en soutien, une rédaction fausse verrouille ou compte');
-    if(!/Revérifier/.test(bouton('dbpActions')) || !/Aide méthode/.test(bouton('dbpActions'))) vus.push('en soutien, « Revérifier » et « Aide méthode » ne sont pas proposés : « '+bouton('dbpActions')+' »');
-    if(couleur('dbpFeedback')!=='rouge') vus.push('en soutien, la rédaction fausse est peinte « '+couleur('dbpFeedback')+' »');
+    /* 3. en soutien, une rédaction fausse rouvre la feuille, et l'aide reste offerte — q4 (2.2.14) et q9 (2.5.6) */
+    currentMode='soutien'; startDbp(); test.idx=3; renderDbp();
+    dbpFeuille=feuille('1 + 1 = 3'); await checkDbp();
+    if(test.locked || dbpFeuille.verrou || test.answers.length) vus.push('q4 en soutien : une rédaction fausse verrouille ou compte');
+    if(!/Revérifier/.test(bouton('dbpActions')) || !/Aide méthode/.test(bouton('dbpActions'))) vus.push('q4 en soutien : « Revérifier » et « Aide méthode » ne sont pas proposés : « '+bouton('dbpActions')+' »');
+    if(couleur('dbpFeedback')!=='rouge') vus.push('q4 en soutien : la rédaction fausse est peinte « '+couleur('dbpFeedback')+' »');
+    test.idx=8; renderDbp();
+    eslFeuille=feuille('1 + 1 = 3'); await checkEsl();
+    if(test.locked || test.answers.length) vus.push('q9 en soutien : une rédaction fausse verrouille ou compte');
+    if(!/Revérifier/.test(bouton('eslActions')) || !/Aide méthode/.test(bouton('eslActions'))) vus.push('q9 en soutien : « Revérifier » et « Aide méthode » ne sont pas proposés : « '+bouton('eslActions')+' »');
 
-    /* 5. en entraînement, une rédaction fausse écrit la correction en vert */
-    currentMode='train'; startDbp(); test.locked=true; nextPQuestion();
-    const q5=test.questions[1];
-    dbpFeuille=feuille(q5.P+'/100 × '+q5.N+' = '+(q5.prod+100)+'/100');
+    /* 4. en entraînement, une rédaction fausse de la q4 écrit la correction en vert — et le verdict n'avait pas livré la nouvelle valeur */
+    currentMode='train'; startDbp(); test.idx=3; renderDbp();
+    const q4=test.questions[3], c4=salCouple(dbpEvoVueSal(q4));
+    dbpFeuille=feuille(c4.pDecStr+' × '+q4.N+' = '+c4.augStr);   /* il manque l'addition */
     await checkDbp();
-    if(test.score!==0 || !test.locked) vus.push('en entraînement, une rédaction fausse ne verrouille pas, ou compte');
+    if(test.score!==0 || !test.locked) vus.push('q4 en entraînement : une rédaction fausse ne verrouille pas, ou compte');
     const cor=document.querySelector('#dbpFeedback .esl-cor');
-    if(!cor || cor.textContent.indexOf(String(q5.result).replace('.',','))<0) vus.push('en entraînement, la correction n\\'est pas écrite sous le verdict');
+    if(!cor || cor.textContent.indexOf(c4.finStr)<0) vus.push('q4 en entraînement : la correction n\\'est pas écrite sous le verdict');
+    const verdict=String((document.getElementById('dbpFeedback')||{}).textContent||'').replace(cor?cor.textContent:'','');
+    if(verdict.indexOf(c4.finStr)>=0 || !/addition/.test(verdict)) vus.push('q4 : le verdict livre la nouvelle valeur, ou ne nomme pas l\\'addition qui manque : « '+verdict+' »');
     /* et la feuille vide : un message, aucun appel */
-    startDbp(); test.locked=true; nextPQuestion(); envoye=null;
+    startDbp(); test.idx=3; renderDbp(); envoye=null;
     dbpFeuille=feuille('');
     await checkDbp();
-    if(envoye || test.locked || couleur('dbpFeedback')!=='rouge') vus.push('une feuille vide part au modèle, verrouille, ou ne reçoit pas de message');
+    if(envoye || test.locked || couleur('dbpFeedback')!=='rouge') vus.push('q4 : une feuille vide part au modèle, verrouille, ou ne reçoit pas de message');
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
@@ -9647,29 +9706,37 @@ function syntheseGeneraleLibre(w, P){
       : 'la synthèse s’est donné un juge, une règle ou un énoncé à elle : ' + propres.join(', '));
 }
 /* {devoir-blanc-pourcentages} (2.5.8) — le devoir blanc (demande de Turquet,
-   octobre 2026 : « une question du 2.1.3, puis une question du 2.1.3 où il
-   faut rédiger comme dans le 2.1.7 ; un bouton aide méthode pour afficher la
-   résolution comme dans le 2.1.3, et un bouton pour revenir à la version
-   rédigée »). Cinq bords, et n'en tenir qu'un ne tient rien :
-     · le TIRAGE : deux questions de genPercent, distinctes, la première en
-       cases (moteur 'pct'), la seconde rédigée (moteur 'red', sans aide) ;
-     · les ÉCRANS : la question 1 sur l'écran du 2.1.3 (ses cases, son
-       « Vérifier » qui appelle checkPAnswer), la question 2 sur l'écran
-       rédigé (la feuille du 2.1.7, « Vérifier » et « Aide méthode ») ; la
-       reprise (afficherEcranDe) suit la question ET l'aide ;
-     · l'AIDE MÉTHODE : elle montre la MÊME question sur l'écran du 2.1.3, avec
-       le bouton de retour ; le retour rend l'écran rédigé SANS recréer la
-       feuille — la rédaction écrite n'est pas perdue ;
-     · le JUGE de la rédaction : il accepte les rédactions justes du 2.1.7
-       (fraction, écriture décimale, ordre libre, l'unité), refuse sur un fait
-       prouvable (égalité fausse, calcul inachevé, résultat seul, autre
-       pourcentage) et s'abstient sur une écriture qu'il ne lit pas ;
-     · l'IDENTITÉ : 2.5.8, « Recommencer », le rappel, QIA_SUGG.dbp, le
-       contexte de l'aide qui suit l'écran affiché — et le 2.1.3 qui ne
-       change pas (aucun bouton de retour hors du devoir blanc). */
+   octobre 2026, en deux temps : « une question du 2.1.3, puis une question
+   du 2.1.3 où il faut rédiger comme dans le 2.1.7 ; un bouton aide méthode
+   pour afficher la résolution comme dans le 2.1.3, et un bouton pour revenir
+   à la version rédigée » — puis « continuer l'exercice 2.5.8 » : les
+   questions 3 à 9, reprises du 2.2.2 et du 2.2.14, du 2.3.2 et du 2.3.13, du
+   2.4.2, du 2.5.4 — une hausse suivie d'une baisse, les coefficients seuls —
+   et du 2.5.6). Six bords, et n'en tenir qu'un ne tient rien :
+     · le TIRAGE : neuf questions, dans l'ordre de DBP_SLOTS — les moteurs
+       pct, red, ag2 (hausse), evo (hausse), ag2 (baisse), evo (baisse), ac,
+       ess, esl —, chaque jumelle rédigée distincte de sa question en cases,
+       les rédigées sans aide, l'évolution successive une hausse PUIS une
+       baisse avec la méthode des coefficients fixée ; le réglage « Questions »
+       raccourcit la liste ou la rejoue ;
+     · les ÉCRANS : chaque question s'affiche sur l'écran de son moteur
+       d'origine (ses cases, son « Vérifier »), les rédigées sur l'écran
+       rédigé ou sur celui du 2.5.6 ; la reprise (afficherEcranDe) suit la
+       question ET l'aide ; le 2.5.4 repris ne propose pas le choix de
+       méthode ; les « suivant » des moteurs repris rendent la main à nextDbp ;
+     · l'AIDE MÉTHODE, sur les trois rédigées : la MÊME question en cases,
+       avec le retour ; le retour rend l'écran rédigé SANS recréer la feuille ;
+     · le JUGE de la rédaction du 2.2.14 sans proposition : les quatre voies
+       acceptées, la nouvelle valeur exigée en écriture décimale, les refus
+       nommés — et AUCUN refus n'écrit la nouvelle valeur ni l'augmentation ;
+       le 2.2.14 lui-même (sans q.secret) garde ses refus chiffrés ;
+     · l'IDENTITÉ : 2.5.8, « Recommencer », le rappel, QIA_SUGG, le contexte
+       de l'aide et les questions à l'IA qui suivent l'écran affiché ;
+     · les EXERCICES REPRIS ne changent pas : ni retour, ni aide, ni moteur
+       sur leurs questions, le choix de méthode du 2.5.4 toujours là. */
 function devoirBlancPourcentages(w, P){
-  const nom = 'le devoir blanc : une question du 2.1.3, puis la même rédigée comme au 2.1.7, l’aide méthode et le retour, le juge, identité';
-  const present = evaluer(w, "typeof startDbp==='function' && typeof renderDbp==='function' && typeof dbpJuge==='function'");
+  const nom = 'le devoir blanc : neuf questions reprises du thème, en cases puis rédigées, l’aide méthode et le retour, le juge, identité';
+  const present = evaluer(w, "typeof startDbp==='function' && typeof renderDbp==='function' && typeof dbpJuge==='function' && typeof dbpEvoJuge==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas le devoir blanc des pourcentages');
     return;
@@ -9678,90 +9745,162 @@ function devoirBlancPourcentages(w, P){
     const vus=[]; const ID='devoir-blanc-pourcentages';
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId=ID;
     const ecran=function(){ const on=document.querySelector('section.screen.on'); return on?on.id:'(aucun)'; };
+    const MOTEURS=['pct','red','ag2','evo','ag2','evo','ac','ess','esl'];
+    const ECRANS={pct:'scr-ptest',red:'scr-dbp',ag2:'scr-ag2test',evo:'scr-dbp',ac:'scr-actest',ess:'scr-esstest',esl:'scr-esl'};
+    const AIDE={red:'scr-ptest',evo:'scr-ag2test',esl:'scr-esstest'};
 
     /* ---- 1. le TIRAGE ---- */
     for(let t=0;t<30 && !vus.length;t++){
       startDbp();
       if(test.qId!==ID || test.kind!=='dbp'){ vus.push('le démarreur ne pose pas son identité : « '+test.qId+' » / « '+test.kind+' »'); break; }
-      if(!Array.isArray(test.questions) || test.questions.length!==2){ vus.push('tirage '+t+' : '+(test.questions||[]).length+' questions au lieu de 2'); break; }
-      if(test.maxScore!==2) vus.push('tirage '+t+' : le barème est '+test.maxScore+' au lieu de 2');
-      const a=test.questions[0], b=test.questions[1];
-      if(a.moteur!=='pct' || b.moteur!=='red' || b.aide!==false) vus.push('tirage '+t+' : les moteurs sont '+a.moteur+' / '+b.moteur+' (aide '+b.aide+') au lieu de pct / red sans aide');
-      [a,b].forEach(function(q,i){ if(q.P*q.N!==q.prod || q.prod/100!==q.result || typeof q.v!=='number' || typeof q.ci!=='number' || !q.unit) vus.push('tirage '+t+' q'+i+' : la question n\\'est pas une question de genPercent : '+JSON.stringify(q)); });
-      if(a.P===b.P && a.N===b.N) vus.push('tirage '+t+' : les deux questions sont les mêmes ('+a.P+' % de '+a.N+')');
+      if(!Array.isArray(test.questions) || test.questions.length!==9){ vus.push('tirage '+t+' : '+(test.questions||[]).length+' questions au lieu de 9'); break; }
+      if(test.maxScore!==9) vus.push('tirage '+t+' : le barème est '+test.maxScore+' au lieu de 9');
+      const Q=test.questions;
+      Q.forEach(function(q,i){
+        if(q.moteur!==MOTEURS[i]) vus.push('tirage '+t+' q'+(i+1)+' : moteur « '+q.moteur+' » au lieu de « '+MOTEURS[i]+' »');
+        const redigee=(q.moteur==='red'||q.moteur==='evo'||q.moteur==='esl');
+        if(redigee ? q.aide!==false : q.aide!==undefined) vus.push('tirage '+t+' q'+(i+1)+' : aide = '+q.aide);
+      });
+      [Q[0],Q[1]].forEach(function(q,i){ if(q.P*q.N!==q.prod || q.prod/100!==q.result || typeof q.v!=='number' || typeof q.ci!=='number' || !q.unit) vus.push('tirage '+t+' q'+(i+1)+' : pas une question de genPercent : '+JSON.stringify(q)); });
+      if(Q[0].P===Q[1].P && Q[0].N===Q[1].N) vus.push('tirage '+t+' : les questions 1 et 2 sont les mêmes ('+Q[0].P+' % de '+Q[0].N+')');
+      [[Q[2],1],[Q[3],1],[Q[4],-1],[Q[5],-1]].forEach(function(p,i){ const q=p[0];
+        if(augqSens(q)!==p[1] || q.P*q.N/100!==q.aug || q.N+p[1]*q.aug!==q.fin || q.P*q.N!==q.prod || typeof q.v!=='number' || !q.unit) vus.push('tirage '+t+' q'+(i+3)+' : pas une question de genEvolAdd de sens '+p[1]+' : '+JSON.stringify(q)); });
+      if(Q[2].P===Q[3].P && Q[2].N===Q[3].N) vus.push('tirage '+t+' : les questions 3 et 4 sont les mêmes');
+      if(Q[4].P===Q[5].P && Q[4].N===Q[5].N) vus.push('tirage '+t+' : les questions 5 et 6 sont les mêmes');
+      if(!Q[6].ordre || Q[6].ordre.length!==6 || !Q[6].rep || typeof Q[6].P!=='number') vus.push('tirage '+t+' q7 : pas une question de genAC : '+JSON.stringify(Q[6]));
+      [Q[7],Q[8]].forEach(function(q,i){
+        if(q.s1!==1 || q.s2!==-1) vus.push('tirage '+t+' q'+(i+8)+' : pas une hausse suivie d\\'une baisse ('+q.s1+', '+q.s2+')');
+        if(q.meth!=='coef' || q.methFixe!=='coef' || q.choisi!==null) vus.push('tirage '+t+' q'+(i+8)+' : la méthode des coefficients n\\'est pas fixée : '+JSON.stringify([q.meth,q.methFixe,q.choisi]));
+        if(!HS_PAIRES.some(function(p){ return (p[0]===q.P1&&p[1]===q.P2)||(p[0]===q.P2&&p[1]===q.P1); })) vus.push('tirage '+t+' q'+(i+8)+' : la paire ('+q.P1+', '+q.P2+') n\\'est pas dans HS_PAIRES');
+        if(typeof q.v!=='number' || typeof q.ci!=='number') vus.push('tirage '+t+' q'+(i+8)+' : pas une question de essQuestion');
+      });
+      if(Q[7].P1===Q[8].P1 && Q[7].P2===Q[8].P2) vus.push('tirage '+t+' : les questions 8 et 9 sont les mêmes');
+    }
+    if(!vus.length){
+      if(dbpTirage(4).map(function(q){ return q.moteur; }).join()!=='pct,red,ag2,evo') vus.push('dbpTirage(4) ne garde pas les quatre premières questions');
+      if(dbpTirage(11).map(function(q){ return q.moteur; }).join()!==MOTEURS.concat(['pct','red']).join()) vus.push('dbpTirage(11) ne rejoue pas la liste depuis le début');
     }
 
     /* ---- 2. les ÉCRANS, l'aide méthode et le retour ---- */
     if(!vus.length){
       startDbp();
-      if(ecran()!=='scr-ptest') vus.push('la question 1 ne s\\'affiche pas sur l\\'écran du 2.1.3 : « '+ecran()+' »');
-      ['p1n','p1d','p2n','p2d','p3'].forEach(function(id){ if(!document.getElementById(id)) vus.push('la question 1 n\\'a pas la case '+id+' du 2.1.3'); });
-      if(document.getElementById('dbpRetour')) vus.push('la question 1 porte le bouton de retour à la version rédigée');
-      const bP=document.querySelector('#pActions .btn-primary');
-      if(!bP || String(bP.getAttribute('onclick')||'').indexOf('checkPAnswer()')<0) vus.push('le « Vérifier » de la question 1 n\\'appelle pas checkPAnswer');
-      if(String((document.getElementById('pqIdx')||{}).textContent||'').indexOf('1 / 2')<0) vus.push('le compteur de la question 1 ne dit pas « 1 / 2 »');
-      test.locked=true; nextPQuestion();
-      if(test.idx!==1 || ecran()!=='scr-dbp') vus.push('« Question suivante » ne mène pas à la question rédigée : idx '+test.idx+', écran « '+ecran()+' »');
-      if(test.locked) vus.push('la question rédigée naît verrouillée');
-      if(!afficherEcranDe('dbp') || ecran()!=='scr-dbp') vus.push('la reprise (afficherEcranDe) ne pose pas l\\'écran rédigé : « '+ecran()+' »');
-      const q=test.questions[1];
-      if(!dbpFeuille || !document.querySelector('#dbpHost .dexp2-sheet')) vus.push('la question rédigée n\\'a pas la feuille du 2.1.7');
-      if(document.getElementById('dbpHost').querySelectorAll('.pt-choix-btn').length) vus.push('la question rédigée affiche des propositions à choisir');
-      const boutons=Array.prototype.map.call(document.querySelectorAll('#dbpActions button'),function(b){ return b.getAttribute('onclick')||''; }).join(' ');
-      if(boutons.indexOf('checkDbp()')<0 || boutons.indexOf('dbpAide()')<0) vus.push('la question rédigée n\\'offre pas « Vérifier » et « Aide méthode » : '+boutons);
-      if(!/Aide méthode/.test((document.getElementById('dbpActions')||{}).textContent||'')) vus.push('le bouton ne s\\'appelle pas « Aide méthode »');
-      const promptR=String((document.getElementById('dbpPrompt')||{}).textContent||'');
-      if(promptR.indexOf(String(q.N))<0 || promptR.indexOf(String(q.P))<0) vus.push('l\\'énoncé rédigé ne porte pas les nombres de la question : « '+promptR.slice(0,120)+' »');
-      if(String((document.getElementById('dbpIdx')||{}).textContent||'').indexOf('2 / 2')<0) vus.push('le compteur de la question rédigée ne dit pas « 2 / 2 »');
-      if(/\\{[a-z-]+\\}/.test(document.getElementById('scr-dbp').textContent)) vus.push('une référence {identifiant} reste affichée sur l\\'écran rédigé');
-      const F0=dbpFeuille;
-      dbpAide();
-      if(!q.aide || ecran()!=='scr-ptest') vus.push('« Aide méthode » ne montre pas l\\'écran du 2.1.3 : « '+ecran()+' »');
-      if(!document.getElementById('p1n')) vus.push('l\\'aide méthode n\\'a pas les cases du 2.1.3');
-      if(!document.getElementById('dbpRetour')) vus.push('l\\'aide méthode n\\'a pas le bouton de retour à la version rédigée');
-      if(String((document.getElementById('pPrompt')||{}).textContent||'')!==promptR.replace(/ RÉDIGE.*$/,'')) vus.push('l\\'aide méthode ne montre pas la même question : « '+(document.getElementById('pPrompt')||{}).textContent+' »');
-      if(!afficherEcranDe('dbp') || ecran()!=='scr-ptest') vus.push('la reprise pendant l\\'aide méthode ne pose pas l\\'écran du 2.1.3');
-      dbpRevenir();
-      if(q.aide || ecran()!=='scr-dbp') vus.push('le retour ne ramène pas à la version rédigée : « '+ecran()+' »');
-      if(dbpFeuille!==F0) vus.push('le retour recrée la feuille : la rédaction écrite serait perdue');
-      if(document.getElementById('dbpHost').querySelectorAll('.dexp2-sheet').length!==1) vus.push('après le retour, la feuille rédigée n\\'est plus là');
+      const Q=test.questions;
+      for(let i=0;i<9;i++){
+        test.idx=i; Q.forEach(function(q){ if(q.aide) q.aide=false; });
+        renderDbp();
+        const m=Q[i].moteur, n=(i+1), scr0=document.getElementById(ECRANS[m]);
+        if(ecran()!==ECRANS[m]) vus.push('q'+n+' ('+m+') ne s\\'affiche pas sur « '+ECRANS[m]+' » : « '+ecran()+' »');
+        if(test.locked) vus.push('q'+n+' naît verrouillée');
+        if(scr0.querySelector('#dbpRetour')) vus.push('q'+n+' porte le bouton de retour hors de l\\'aide méthode');
+        if(!afficherEcranDe('dbp') || ecran()!==ECRANS[m]) vus.push('q'+n+' : la reprise (afficherEcranDe) ne pose pas « '+ECRANS[m]+' » : « '+ecran()+' »');
+        const scr=document.getElementById(ECRANS[m]);
+        if(/\\{[a-z-]+\\}/.test(scr.textContent)) vus.push('q'+n+' : une référence {identifiant} reste affichée');
+        const actions=scr.querySelector('[id$="Actions"]');
+        const boutons=Array.prototype.map.call(actions.querySelectorAll('button'),function(b){ return b.getAttribute('onclick')||''; }).join(' ');
+        const aideAttendue=(m==='red'||m==='evo'||m==='esl');
+        if(aideAttendue !== (boutons.indexOf('dbpAide()')>=0)) vus.push('q'+n+' ('+m+') : « Aide méthode » '+(aideAttendue?'manque':'est offerte')+' : '+boutons);
+        if(aideAttendue && !/Aide méthode/.test(actions.textContent||'')) vus.push('q'+n+' : le bouton ne s\\'appelle pas « Aide méthode »');
+        if(m==='pct' && (boutons.indexOf('checkPAnswer()')<0 || !document.getElementById('p1n') || !document.getElementById('p3'))) vus.push('q1 n\\'a pas les cases et le « Vérifier » du 2.1.3');
+        if(m==='ag2' && (boutons.indexOf('checkAG2Answer()')<0 || !document.getElementById('g1n') || !document.getElementById('g4r'))) vus.push('q'+n+' n\\'a pas les cases et le « Vérifier » du 2.2.2 / 2.3.2');
+        if(m==='ac' && (boutons.indexOf('checkACAnswer()')<0 || !document.getElementById('ac-pre') || !document.getElementById('ac-dim'))) vus.push('q7 n\\'a pas les listes et le « Vérifier » du 2.4.2');
+        if(m==='ess'){
+          if(boutons.indexOf('checkEssAnswer()')<0 || !document.getElementById('ess1n') || !document.getElementById('essP') || !document.getElementById('essSensB')) vus.push('q8 n\\'a pas les cases des coefficients et le « Vérifier » du 2.5.4');
+          if(document.getElementById('essMeth') || document.getElementById('essc1n') || document.getElementById('essd10a')) vus.push('q8 propose le choix de méthode, ou une autre méthode : seuls les coefficients sont demandés');
+        }
+        if(m==='esl' && (boutons.indexOf('checkEsl()')<0 || !eslFeuille || !document.querySelector('#eslHost .dexp2-sheet'))) vus.push('q9 n\\'a pas la feuille et le « Vérifier » du 2.5.6');
+        if(m==='red' || m==='evo'){
+          if(boutons.indexOf('checkDbp()')<0 || !dbpFeuille || !document.querySelector('#dbpHost .dexp2-sheet')) vus.push('q'+n+' n\\'a pas la feuille rédigée et son « Vérifier »');
+          if(document.getElementById('dbpHost').querySelectorAll('.pt-choix-btn').length) vus.push('q'+n+' affiche des propositions à choisir');
+          const promptR=String((document.getElementById('dbpPrompt')||{}).textContent||'');
+          if(promptR.indexOf(String(Q[i].N))<0 || promptR.indexOf(String(Q[i].P))<0) vus.push('q'+n+' : l\\'énoncé rédigé ne porte pas les nombres de la question : « '+promptR.slice(0,120)+' »');
+          const mots=!!document.querySelector('#dbpSheet math-field.mf-mots');
+          if(mots!==(m==='evo')) vus.push('q'+n+' : la feuille '+(m==='evo'?'n\\'est pas':'est')+' en mode rédaction (mf-mots)');
+          if(String((document.getElementById('dbpIdx')||{}).textContent||'').indexOf(n+' / 9')<0) vus.push('q'+n+' : le compteur ne dit pas « '+n+' / 9 »');
+        }
+        if(aideAttendue){
+          const F0=(m==='esl')?eslFeuille:dbpFeuille, promptAvant=String((scr.querySelector('.mp-instr')||{}).textContent||'');
+          dbpAide();
+          if(!Q[i].aide || ecran()!==AIDE[m]) vus.push('q'+n+' : « Aide méthode » ne montre pas « '+AIDE[m]+' » : « '+ecran()+' »');
+          if(!document.getElementById('dbpRetour')) vus.push('q'+n+' : l\\'aide méthode n\\'a pas le bouton de retour à la version rédigée');
+          if(!afficherEcranDe('dbp') || ecran()!==AIDE[m]) vus.push('q'+n+' : la reprise pendant l\\'aide méthode ne pose pas « '+AIDE[m]+' »');
+          const promptAide=String((document.getElementById(AIDE[m]).querySelector('.mp-instr')||{}).textContent||'');
+          if(m!=='esl' && (promptAide.indexOf(String(Q[i].N))<0 || promptAide.indexOf(String(Q[i].P))<0)) vus.push('q'+n+' : l\\'aide méthode ne montre pas la même question : « '+promptAide.slice(0,120)+' »');
+          if(m==='red' && !document.getElementById('p1n')) vus.push('q2 : l\\'aide méthode n\\'a pas les cases du 2.1.3');
+          if(m==='evo' && (!document.getElementById('g1n') || !document.getElementById('g4r'))) vus.push('q'+n+' : l\\'aide méthode n\\'a pas les cases du 2.2.2 / 2.3.2');
+          if(m==='esl' && (promptAide.indexOf(String(Q[i].P1))<0 || promptAide.indexOf(String(Q[i].P2))<0 || document.getElementById('essMeth') || !document.getElementById('ess1n') || !document.getElementById('essSensH'))) vus.push('q9 : l\\'aide méthode n\\'est pas le 2.5.4 par les coefficients seuls, sur la même question');
+          dbpRevenir();
+          if(Q[i].aide || ecran()!==ECRANS[m]) vus.push('q'+n+' : le retour ne ramène pas à la version rédigée : « '+ecran()+' »');
+          if(((m==='esl')?eslFeuille:dbpFeuille)!==F0) vus.push('q'+n+' : le retour recrée la feuille — la rédaction écrite serait perdue');
+          if(scr.querySelectorAll('.dexp2-sheet').length!==1) vus.push('q'+n+' : après le retour, la feuille rédigée n\\'est plus là');
+          if(String((scr.querySelector('.mp-instr')||{}).textContent||'')!==promptAvant) vus.push('q'+n+' : l\\'énoncé a changé après le retour');
+          if(document.getElementById('dbpRetour')) vus.push('q'+n+' : le bouton de retour survit au retour');
+        }
+      }
       /* depuis l'aide, « suivant » sur la dernière question clôt par finishDbp */
-      dbpAide(); test.locked=true;
+      test.idx=8; renderDbp(); dbpAide(); test.locked=true;
       const vraieFin=window.finishDbp; let clos=0; window.finishDbp=function(){ clos++; };
-      try{ nextPQuestion(); } finally{ window.finishDbp=vraieFin; }
-      if(clos!==1) vus.push('depuis l\\'aide méthode, la dernière question ne clôt pas par finishDbp ('+clos+')');
+      try{ nextEssQuestion(); } finally{ window.finishDbp=vraieFin; }
+      if(clos!==1) vus.push('depuis l\\'aide méthode de la question 9, la dernière question ne clôt pas par finishDbp ('+clos+')');
+      ['nextPQuestion','nextAG2Question','nextACQuestion','nextEssQuestion','nextEsl'].forEach(function(f){ if(String(window[f]).indexOf('nextDbp')<0) vus.push(f+' ne rend pas la main à nextDbp'); });
     }
 
-    /* ---- 3. le JUGE de la rédaction ---- */
+    /* ---- 3. le JUGE de la rédaction du 2.2.14, sans proposition ---- */
     if(!vus.length){
-      const q={P:20,N:150,prod:3000,result:30,unit:'€',v:0,ci:0,moteur:'red'};
+      const qa={sens:1,P:20,N:150,aug:30,fin:180,prod:3000,unit:'€',ci:0,v:0,moteur:'evo'};
+      const qd={sens:-1,P:30,N:600,aug:180,fin:420,prod:18000,unit:'€',ci:0,v:0,moteur:'evo'};
       const cas=[
-        ['20/100 × 150\\n= 3000/100\\n= 30', true, true],
-        ['(20)/(100)*150=(3000)/(100)=30', true, true],
-        ['20/100 × 150 = 30 €', true, true],
-        ['0.2*150=30', true, true],
-        ['150 × 20/100 = 30', true, true],
-        ['20/100 × 150 = 3000/100', true, false],
-        ['20/100 × 150 = 300', true, false],
-        ['20/100 × 150\\n= 3000/100\\n= 3', true, false],
-        ['30', true, false],
-        ['20/100 × 150', true, false],
-        ['10/100 × 150 = 15', true, false],
-        ['30 % de 150 = 45', false, null]
+        [qa,'1,2 × 150 = 180', true, true],
+        [qa,'150 × 1,2 = 180 €', true, true],
+        [qa,'150 × 120/100 = 180', true, true],
+        [qa,'180/150 = 1,2\\n180', true, true],
+        [qa,'0,2 × 150 = 30\\n150 + 30 = 180', true, true],
+        [qa,'10 % = 15\\n20 % = 30\\n150 + 30 = 180', true, true],
+        [qa,'10 % = 15\\n120 % = 180', true, true],
+        [qa,'150 × 12/10 = 1800/10', true, false],
+        [qa,'180', true, false],
+        [qa,'1,2 × 150 = 170', true, false],
+        [qa,'0,2 × 150 = 30', true, false],
+        [qa,'20 % = 30\\n150 + 30 = 180', true, false],
+        [qa,'1,2 × 150 = 180\\naugmentation de 30 %', true, false],
+        [qd,'0,7 × 600 = 420', true, true],
+        [qd,'600 × 0,3 = 180\\n600 − 180 = 420', true, true],
+        [qd,'10 % = 60\\n30 % = 180\\n600 − 180 = 420 €', true, true],
+        [qd,'600 + 180 = 780', true, false],
+        [qd,'10 % = 60\\n30 % = 180', true, false],
+        [qa,'je multiplie par le coefficient', false, null]
       ];
       cas.forEach(function(c){
-        const j=dbpJuge(q,c[0]);
-        if(j.sait!==c[1] || (c[1] && j.correct!==c[2])) vus.push('juge sur « '+c[0].replace(/\\n/g,' ⏎ ')+' » : '+JSON.stringify([j.sait,j.correct])+' au lieu de '+JSON.stringify([c[1],c[2]]));
+        const j=dbpEvoJuge(c[0],c[1]);
+        if(j.sait!==c[2] || (c[2] && j.correct!==c[3])) vus.push('juge sur « '+c[1].replace(/\\n/g,' ⏎ ')+' » : '+JSON.stringify([j.sait,j.correct])+' au lieu de '+JSON.stringify([c[2],c[3]])+(j.phrase?' — « '+j.phrase+' »':''));
+        /* aucun refus n'écrit la nouvelle valeur ni l'augmentation, sauf à citer la ligne de l'élève */
+        if(j.sait && !j.correct){
+          const q=c[0], cite=String(j.phrase).replace(/«[^»]*»/g,'');
+          [q.fin, q.aug].forEach(function(nb){ if(new RegExp('(^|[^\\\\d,])'+nb+'([^\\\\d]|$)').test(cite)) vus.push('le refus sur « '+c[1].replace(/\\n/g,' ⏎ ')+' » écrit '+nb+' : « '+j.phrase+' »'); });
+        }
       });
-      const jF=dbpJuge(q,'20/100 × 150 = 300');
-      if(!jF.phrase || jF.phrase.indexOf('20/100 × 150 = 300')<0) vus.push('le refus d\\'une égalité fausse ne la nomme pas : « '+(jF.phrase||'')+' »');
-      const att=dbpAttenduIA(q, dbpJuge(q,'20/100 × 150 = 30'));
-      ['STRICTEMENT SECRET','20/100 × 150','VERDICT DE LA PAGE','AUCUNE ÉGALITÉ FAUSSE'].forEach(function(t){ if(att.indexOf(t)<0) vus.push('la règle du modèle n\\'écrit pas « '+t+' »'); });
+      const jF=dbpEvoJuge(qa,'1,2 × 150 = 170');
+      if(!jF.phrase || jF.phrase.indexOf('1,2 × 150 = 170')<0) vus.push('le refus d\\'une égalité fausse ne la nomme pas : « '+(jF.phrase||'')+' »');
+      const jM=dbpEvoJuge(qa,'0,2 × 150 = 30');
+      if(!/addition/.test(jM.phrase||'')) vus.push('le refus sans addition ne la nomme pas : « '+(jM.phrase||'')+' »');
+      const jD=dbpEvoJuge(qa,'150 × 12/10 = 1800/10');
+      if(!/écriture décimale/.test(jD.phrase||'')) vus.push('le refus sans la nouvelle valeur en décimal ne le dit pas : « '+(jD.phrase||'')+' »');
+      const att=dbpAttenduIA(qa, dbpEvoJuge(qa,'1,2 × 150 = 180'));
+      ['STRICTEMENT SECRÈTE','1,2 × 150','10 % = 15','VERDICT DE LA PAGE','AUCUNE ÉGALITÉ FAUSSE'].forEach(function(t){ if(att.indexOf(t)<0) vus.push('la règle du modèle (evo) n\\'écrit pas « '+t+' »'); });
+      if(att.length>3700) vus.push('la règle du modèle (evo) fait '+att.length+' caractères : la fonction Edge coupe à 4000');
+      if(dbpEnonceIA(qa).indexOf('aucune proposition')<0) vus.push('l\\'énoncé envoyé au modèle (evo) ne dit pas qu\\'il n\\'y a aucune proposition');
+      /* le 2.2.14 ne change pas : sans q.secret, le refus garde ses nombres */
+      const qS=Object.assign({}, dbpEvoVueSal(qa)); delete qS.secret;
+      const jS=salJuge(qS,'0,2 × 150 = 30');
+      if(!jS.sait || jS.correct || String(jS.phrase).indexOf('150 + 30')<0 || String(jS.phrase).indexOf('proposition')<0) vus.push('sans q.secret, le refus du 2.2.14 a changé : « '+(jS.phrase||'')+' »');
+      /* le juge de la question 2 (le 2.1.7 rédigé) est toujours là */
+      const q2={P:20,N:150,prod:3000,result:30,unit:'€',v:0,ci:0,moteur:'red'};
+      if(!dbpJuge(q2,'20/100 × 150\\n= 3000/100\\n= 30').correct || dbpJuge(q2,'20/100 × 150 = 300').correct || dbpJuge(q2,'30 % de 150 = 45').sait) vus.push('le juge de la question 2 (2.1.7) a changé');
     }
 
     /* ---- 4. l'IDENTITÉ ---- */
     if(TEST_NUM[ID]!=='2.5.8') vus.push('le numéro n\\'est pas 2.5.8 : « '+TEST_NUM[ID]+' »');
-    if(TEST_NUM['pourcentage']!=='2.1.3' || TEST_NUM['pourcentage-synthese-libre']!=='2.1.7') vus.push('le 2.1.3 ou le 2.1.7 a changé de numéro');
+    const NUMS={'pourcentage':'2.1.3','pourcentage-synthese-libre':'2.1.7','augmenter-addition':'2.2.2','synthese-augmentations-libre-dix':'2.2.14','diminuer-soustraction':'2.3.2','synthese-diminutions-libre-dix':'2.3.13','associer-coefficient':'2.4.2','synthese-evolutions-successives':'2.5.4','synthese-evolutions-successives-libre':'2.5.6'};
+    Object.keys(NUMS).forEach(function(id){ if(TEST_NUM[id]!==NUMS[id]) vus.push(id+' a changé de numéro : '+TEST_NUM[id]); });
     if(!TESTS[ID] || TESTS[ID].name!=='Devoir blanc') vus.push('l\\'exercice ne s\\'intitule pas « Devoir blanc »');
     test.kind='dbp'; test.qId='(sentinelle)'; restartCurrentTest();
     if(test.qId!==ID) vus.push('« Recommencer » relance « '+test.qId+' »');
@@ -9769,17 +9908,36 @@ function devoirBlancPourcentages(w, P){
     if(!rap || rap.indexOf('Aide méthode')<0) vus.push('le rappel de cours manque, ou ne dit pas l\\'aide méthode');
     else if(/\\{[a-z-]+\\}/.test(rappelHTML())) vus.push('le rappel affiché garde une référence {identifiant}');
     if(!(QIA_SUGG.dbp && QIA_SUGG.dbp.length>=3)) vus.push('QIA_SUGG.dbp manque');
-    if(!TESTS[ID] || ['{pourcentage}','{pourcentage-synthese-libre}','Aide méthode'].some(function(t){ return TESTS[ID].desc.indexOf(t)<0; })) vus.push('la description ne nomme pas le 2.1.3, le 2.1.7 et l\\'aide méthode');
-    currentTestId=ID; startDbp(); test.idx=1; renderDbp();
-    let ctx=conseilCtxCourant();
-    if(ctx.indexOf('RÉDIGEANT')<0 || ctx.indexOf(String(test.questions[1].result))<0) vus.push('sur la question rédigée, le contexte de l\\'aide ne dit pas la rédaction et sa réponse secrète');
+    if(!TESTS[ID] || Object.keys(NUMS).some(function(id){ return TESTS[ID].desc.indexOf('{'+id+'}')<0; }) || TESTS[ID].desc.indexOf('Aide méthode')<0) vus.push('la description ne nomme pas les neuf exercices repris et l\\'aide méthode');
+    currentTestId=ID; startDbp();
+    const ctxDe=function(i){ test.idx=i; renderDbp(); return conseilCtxCourant(); };
+    let ctx=ctxDe(1);
+    if(ctx.indexOf('RÉDIGEANT')<0 || ctx.indexOf(String(test.questions[1].result))<0) vus.push('sur la question 2, le contexte de l\\'aide ne dit pas la rédaction et sa réponse secrète');
     dbpAide(); ctx=conseilCtxCourant();
-    if(ctx.indexOf('étape ②')<0) vus.push('pendant l\\'aide méthode, le contexte de l\\'aide n\\'est pas celui du 2.1.3');
+    if(ctx.indexOf('étape ②')<0) vus.push('pendant l\\'aide méthode de la question 2, le contexte n\\'est pas celui du 2.1.3');
+    ctx=ctxDe(3);
+    if(ctx.indexOf('RÉDIGEANT')<0 || ctx.indexOf(String(test.questions[3].fin).replace('.',','))<0 || ctx.indexOf('10 %')<0) vus.push('sur la question 4, le contexte ne dit pas la rédaction, sa réponse secrète et les voies');
+    if(qiaSuggestions().indexOf(QIA_SUGG.dbp[3])<0) vus.push('sur la question 4, les questions à l\\'IA ne sont pas celles du devoir blanc');
+    dbpAide(); ctx=conseilCtxCourant();
+    if(ctx.indexOf('sans coefficient')<0) vus.push('pendant l\\'aide méthode de la question 4, le contexte n\\'est pas celui du 2.2.2');
+    if(qiaSuggestions().indexOf(QIA_SUGG.ag2[0])<0) vus.push('pendant l\\'aide méthode de la question 4, les questions à l\\'IA ne sont pas celles du 2.2.2');
+    if(ctxDe(6).indexOf('association')<0) vus.push('sur la question 7, le contexte n\\'est pas celui du 2.4.2');
+    if(ctxDe(7).indexOf('Méthode 1')<0) vus.push('sur la question 8, le contexte n\\'est pas celui du 2.5.4');
+    if(ctxDe(8).indexOf('RÉDIGÉ')<0) vus.push('sur la question 9, le contexte n\\'est pas celui du 2.5.6');
+    if(qiaSuggestions().indexOf(QIA_SUGG.esl[0])<0) vus.push('sur la question 9, les questions à l\\'IA ne sont pas celles du 2.5.6');
 
-    /* ---- 5. le 2.1.3 ne change pas ---- */
+    /* ---- 5. les exercices repris ne changent pas ---- */
     startPercent();
-    if(document.getElementById('dbpRetour')) vus.push('le 2.1.3 affiche le bouton de retour du devoir blanc');
+    if(document.querySelector('#scr-ptest #dbpRetour')) vus.push('le 2.1.3 affiche le bouton de retour du devoir blanc');
     if(test.questions.some(function(q){ return q.moteur || q.aide!==undefined; })) vus.push('les questions du 2.1.3 portent un moteur ou une aide');
+    startAugAdd();
+    if(document.querySelector('#scr-ag2test #dbpRetour') || test.questions.some(function(q){ return q.moteur || q.aide!==undefined; })) vus.push('le 2.2.2 a changé : un retour, ou un moteur sur ses questions');
+    startAssocierCoef();
+    if(test.questions.some(function(q){ return q.moteur; })) vus.push('le 2.4.2 a changé : un moteur sur ses questions');
+    startEss();
+    if(!document.getElementById('essMeth') || document.querySelector('#scr-esstest #dbpRetour') || test.questions.some(function(q){ return q.methFixe || q.moteur; })) vus.push('le 2.5.4 a changé : le choix de méthode manque, ou un retour, ou une méthode fixée');
+    startEsl();
+    if(document.querySelector('#scr-esl #dbpAideBtn') || test.questions.some(function(q){ return q.meth || q.methFixe || q.aide!==undefined; })) vus.push('le 2.5.6 a changé : une aide méthode, ou une méthode sur ses questions');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

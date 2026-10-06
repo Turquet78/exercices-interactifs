@@ -6161,17 +6161,23 @@ async function parcours(page, N){
         verifier(NOM6, dits6.length === 0, dits6.slice(0, 3).join(' | '));
       }
       /* ÉTAPE 7 : {devoir-blanc-pourcentages} (2.5.8) — le devoir blanc
-         (demande de Turquet, octobre 2026). jsdom n'a pas MathLive : c'est
-         ici seul que la frappe se mesure. On épingle deux questions (20 % de
-         150, puis 30 % de 40), on TAPE les cases du 2.1.3, puis la rédaction
-         sur la feuille du 2.1.7 — fractions par « / », lignes par « Entrée »,
-         chacune préfixée de « = ». « Aide méthode » montre l'écran du 2.1.3,
-         « Revenir à la version rédigée » ramène la feuille AVEC la rédaction
-         tapée ; « Vérifier » (le juge prime sur le double, qui refuse
-         toujours), « Voir mes résultats », et la note 2/2 sous SON
-         identifiant. */
-      const NOM7 = 'sur le devoir blanc, les cases du 2.1.3 puis la rédaction tapée sont lues, l’aide méthode et le retour gardent la rédaction, la note part sous son identifiant';
-      const dbpPresent = await s.page.evaluate(() => typeof startDbp === 'function' && !!TESTS['devoir-blanc-pourcentages']);
+         (demande de Turquet, octobre 2026, en deux temps : les deux
+         questions du 2.1.3, puis « continuer » — les neuf questions reprises
+         du thème). jsdom n'a pas MathLive : c'est ici seul que la frappe se
+         mesure. On épingle neuf questions et on TAPE chaque écran comme
+         l'élève : les cases du 2.1.3, la rédaction du 2.1.7 (fractions par
+         « / », lignes par « Entrée »), les cases du 2.2.2 et du 2.3.2, la
+         rédaction du 2.2.14 par la méthode des 10 % EN MOTS (« 10 % = 60 »,
+         la touche % — la liste blanche de la feuille de rédaction), celle du
+         2.3.13 par le coefficient, les listes du 2.4.2, les seize cases des
+         coefficients du 2.5.4, la rédaction du 2.5.6 et sa conclusion en
+         mots. Sur les questions 2, 4 et 9, « Aide méthode » montre l'écran
+         en cases de l'exercice d'origine, « Revenir à la version rédigée »
+         ramène la feuille AVEC la rédaction tapée ; chaque « Vérifier » (le
+         juge prime sur le double, qui refuse toujours), « Voir mes
+         résultats », et la note 9/9 sous SON identifiant. */
+      const NOM7 = 'sur le devoir blanc, les neuf questions tapées sur les écrans de leurs moteurs sont lues, l’aide méthode et le retour gardent chaque rédaction, la note 9/9 part sous son identifiant';
+      const dbpPresent = await s.page.evaluate(() => typeof startDbp === 'function' && typeof dbpEvoJuge === 'function' && !!TESTS['devoir-blanc-pourcentages']);
       if(!dbpPresent){
         ignorer(NOM7, 'ce niveau n\'a pas le devoir blanc des pourcentages');
       } else {
@@ -6182,57 +6188,129 @@ async function parcours(page, N){
         await s.page.waitForTimeout(1300);
         const q7 = await s.page.evaluate(() => {
           if(test.kind !== 'dbp') return { manque: 'le kind ouvert est « ' + test.kind + ' »' };
-          const fab = (P, N) => { const q = { P, N, unit: '€', prod: P * N, result: P * N / 100, ci: 0, v: 0 }; return q; };
-          test.questions = [Object.assign(fab(20, 150), { moteur: 'pct' }), Object.assign(fab(30, 40), { moteur: 'red', aide: false })];
-          test.idx = 0; test.score = 0; test.answers = []; test.maxScore = 2; test.locked = false; test.dbpBusy = false;
+          const pct = (P, N) => ({ P, N, unit: '€', prod: P * N, result: P * N / 100, ci: 0, v: 0 });
+          const evo = (sens, P, N) => Object.assign(genEvolAdd(sens), { P, N, aug: P * N / 100, fin: N + sens * P * N / 100, prod: P * N });
+          const ess = () => Object.assign(essQuestion(1, 20, -1, 5), { meth: 'coef', methFixe: 'coef', choisi: null });
+          test.questions = [
+            Object.assign(pct(20, 150), { moteur: 'pct' }),
+            Object.assign(pct(30, 40), { moteur: 'red', aide: false }),
+            Object.assign(evo(1, 20, 150), { moteur: 'ag2' }),
+            Object.assign(evo(1, 30, 600), { moteur: 'evo', aide: false }),
+            Object.assign(evo(-1, 20, 150), { moteur: 'ag2' }),
+            Object.assign(evo(-1, 30, 600), { moteur: 'evo', aide: false }),
+            Object.assign(genAC([]), { moteur: 'ac' }),
+            Object.assign(ess(), { moteur: 'ess' }),
+            Object.assign(ess(), { moteur: 'esl', aide: false })
+          ];
+          test.idx = 0; test.score = 0; test.answers = []; test.maxScore = 9; test.locked = false; test.dbpBusy = false; test.eslBusy = false;
           renderDbp();
-          return { ecran: (document.querySelector('section.screen.on') || {}).id };
+          return { ecran: (document.querySelector('section.screen.on') || {}).id, ac: AC_FAMS.map(f => String(acBon(test.questions[6], f))) };
         });
         await s.page.waitForTimeout(800);
         const taper = async (id, txt) => { await s.page.evaluate(i => { const m = document.getElementById(i); m.focus(); }, id);
           await s.page.waitForTimeout(80); await s.page.keyboard.type(txt, { delay: 30 }); };
+        const cases = async (paires) => { for(const p of paires) await taper(p[0], p[1]); await s.page.waitForTimeout(300); };
+        const etat = () => s.page.evaluate(() => ({ ecran: (document.querySelector('section.screen.on') || {}).id, idx: test.idx, locked: test.locked, score: test.score }));
+        const ouverte = async (n, e) => { const x = await etat();
+          if(x.ecran !== e || x.idx !== n - 1 || x.locked) dits7.push('la question ' + n + ' ne s\'ouvre pas sur « ' + e + ' », déverrouillée : « ' + x.ecran + ' », question ' + (x.idx + 1) + (x.locked ? ', verrouillée' : '')); };
+        const verifie = async (actions, n, bouton) => { await s.page.click('#' + actions + ' .btn-primary'); await s.page.waitForTimeout(bouton ? 1200 : 500);
+          const x = await s.page.evaluate(a => ({ score: test.score, bouton: String((document.getElementById(a) || {}).textContent || '').trim(),
+            fb: String(((document.getElementById(a).parentElement || {}).querySelector('.mp-feedback') || {}).textContent || '') }), actions);
+          if(x.score !== n) dits7.push('q' + n + ' : la réponse tapée ne vaut pas le point : score ' + x.score + ' — « ' + x.fb.slice(0, 120) + ' »');
+          return x; };
+        const feuilleFocus = async (nom) => { await s.page.evaluate(f => { const F = (f === 'dbpFeuille' ? dbpFeuille : eslFeuille); const m = F.lignes[0].mf; m.focus(); try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} }, nom); await s.page.waitForTimeout(150); };
+        const lignes = async (txts) => { for(let i = 0; i < txts.length; i++){ await s.page.keyboard.type(txts[i], { delay: 30 });
+          if(i < txts.length - 1){ await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300); } } await s.page.waitForTimeout(400); };
+        /* l'aide méthode puis le retour, sur la question rédigée courante : la rédaction est toujours là */
+        const aideEtRetour = async (n, feuille, ecranAide, ecranRed, caseAide) => {
+          const avant = await s.page.evaluate(f => (f === 'dbpFeuille' ? dbpFeuille : eslFeuille).lire(), feuille);
+          await s.page.click('#dbpAideBtn'); await s.page.waitForTimeout(600);
+          const a = await s.page.evaluate(c => ({ ecran: (document.querySelector('section.screen.on') || {}).id, cases: !!document.getElementById(c), retour: !!document.querySelector('#dbpRetour button'), meth: !!document.getElementById('essMeth') }), caseAide);
+          if(a.ecran !== ecranAide || !a.cases || !a.retour) dits7.push('q' + n + ' : « Aide méthode » ne montre pas « ' + ecranAide + ' » avec ses cases et le retour : « ' + a.ecran + ' »');
+          if(a.meth) dits7.push('q' + n + ' : l\'aide méthode propose le choix de méthode');
+          if(a.retour){ await s.page.click('#dbpRetour button'); await s.page.waitForTimeout(600); }
+          const r = await s.page.evaluate(f => ({ ecran: (document.querySelector('section.screen.on') || {}).id, texte: (f === 'dbpFeuille' ? dbpFeuille : eslFeuille) ? (f === 'dbpFeuille' ? dbpFeuille : eslFeuille).lire() : '' }), feuille);
+          if(r.ecran !== ecranRed) dits7.push('q' + n + ' : le retour ne ramène pas à la version rédigée : « ' + r.ecran + ' »');
+          if(r.texte !== avant) dits7.push('q' + n + ' : après l\'aide méthode et le retour, la rédaction a changé : « ' + r.texte.replace(/\n/g, ' ⏎ ') + ' »');
+        };
         if(q7.manque) dits7.push(q7.manque);
         else {
+          /* q1 — les cases du 2.1.3 */
           if(q7.ecran !== 'scr-ptest') dits7.push('la question 1 ne s\'affiche pas sur l\'écran du 2.1.3 : « ' + q7.ecran + ' »');
-          await taper('p1n', '20'); await taper('p1d', '100'); await taper('p2n', '3000'); await taper('p2d', '100'); await taper('p3', '30');
-          await s.page.waitForTimeout(300);
-          await s.page.click('#pActions .btn-primary');
-          await s.page.waitForTimeout(500);
-          const v7a = await s.page.evaluate(() => ({ score: test.score, bouton: String((document.getElementById('pActions') || {}).textContent || '').trim() }));
-          if(v7a.score !== 1) dits7.push('les cases tapées de la question 1 ne valent pas le point : score ' + v7a.score);
-          await s.page.click('#pNext');
-          await s.page.waitForTimeout(900);
-          const e7 = await s.page.evaluate(() => ({ ecran: (document.querySelector('section.screen.on') || {}).id, idx: test.idx, locked: test.locked }));
-          if(e7.ecran !== 'scr-dbp' || e7.idx !== 1 || e7.locked) dits7.push('« Question suivante » ne mène pas à la question rédigée, déverrouillée : « ' + e7.ecran + ' », question ' + (e7.idx + 1));
-          await s.page.evaluate(() => { const m = dbpFeuille.lignes[0].mf; m.focus(); try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
-          await s.page.waitForTimeout(150);
+          await cases([['p1n', '20'], ['p1d', '100'], ['p2n', '3000'], ['p2d', '100'], ['p3', '30']]);
+          await verifie('pActions', 1);
+          await s.page.click('#pNext'); await s.page.waitForTimeout(900);
+          /* q2 — la rédaction du 2.1.7, l'aide méthode et le retour */
+          await ouverte(2, 'scr-dbp');
+          await feuilleFocus('dbpFeuille');
           await s.page.keyboard.type('30/100', { delay: 30 }); await s.page.keyboard.press('ArrowRight');
           await s.page.keyboard.type('*40', { delay: 30 }); await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300);
           await s.page.keyboard.type('1200/100', { delay: 30 }); await s.page.keyboard.press('ArrowRight');
           await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(300);
-          await s.page.keyboard.type('12', { delay: 30 });
-          await s.page.waitForTimeout(400);
-          const lu7 = await s.page.evaluate(() => { const t = dbpFeuille.lire(), j = dbpJuge(test.questions[test.idx], t);
-            return { texte: t, sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' }; });
-          if(!lu7.sait || !lu7.correct) dits7.push('le juge ' + (lu7.sait ? 'refuse' : 's\'abstient sur') + ' la rédaction tapée : « ' + lu7.phrase.slice(0, 120) + ' » (' + lu7.texte.replace(/\n/g, ' ⏎ ') + ')');
-          /* l'aide méthode, puis le retour : la rédaction est toujours là */
-          await s.page.click('#dbpAideBtn');
-          await s.page.waitForTimeout(600);
-          const a7 = await s.page.evaluate(() => ({ ecran: (document.querySelector('section.screen.on') || {}).id, cases: !!document.getElementById('p1n'), retour: !!document.querySelector('#dbpRetour button') }));
-          if(a7.ecran !== 'scr-ptest' || !a7.cases || !a7.retour) dits7.push('« Aide méthode » ne montre pas les cases du 2.1.3 avec le bouton de retour : « ' + a7.ecran + ' »');
-          if(a7.retour){ await s.page.click('#dbpRetour button'); await s.page.waitForTimeout(600); }
-          const r7 = await s.page.evaluate(() => ({ ecran: (document.querySelector('section.screen.on') || {}).id, texte: dbpFeuille ? dbpFeuille.lire() : '' }));
-          if(r7.ecran !== 'scr-dbp') dits7.push('le retour ne ramène pas à la version rédigée : « ' + r7.ecran + ' »');
-          if(r7.texte !== lu7.texte) dits7.push('après l\'aide méthode et le retour, la rédaction a changé : « ' + r7.texte.replace(/\n/g, ' ⏎ ') + ' »');
-          await s.page.click('#dbpActions .btn-primary');
-          await s.page.waitForTimeout(1200);
-          const v7 = await s.page.evaluate(() => { const fb = document.getElementById('dbpFeedback');
-            return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score,
-                     bouton: String((document.getElementById('dbpActions') || {}).textContent || '').trim() }; });
-          if(v7.classe.indexOf('good') < 0) dits7.push('la rédaction tapée n\'est pas acceptée à la vérification : « ' + v7.texte.slice(0, 120) + ' »');
-          if(v7.score !== 2) dits7.push('la note ne compte pas la rédaction : score ' + v7.score);
-          if(!/résultats/i.test(v7.bouton)) dits7.push('sur la dernière question, le bouton n\'est pas « Voir mes résultats » : « ' + v7.bouton + ' »');
-          await s.page.click('#dbpActions .btn-primary');
+          await s.page.keyboard.type('12', { delay: 30 }); await s.page.waitForTimeout(400);
+          const lu2 = await s.page.evaluate(() => { const t = dbpFeuille.lire(), j = dbpJuge(test.questions[test.idx], t); return { texte: t, sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' }; });
+          if(!lu2.sait || !lu2.correct) dits7.push('q2 : le juge ' + (lu2.sait ? 'refuse' : 's\'abstient sur') + ' la rédaction tapée : « ' + lu2.phrase.slice(0, 120) + ' » (' + lu2.texte.replace(/\n/g, ' ⏎ ') + ')');
+          await aideEtRetour(2, 'dbpFeuille', 'scr-ptest', 'scr-dbp', 'p1n');
+          const v2 = await verifie('dbpActions', 2, true);
+          if(!/suivante/i.test(v2.bouton)) dits7.push('q2 : le bouton n\'est pas « Question suivante » : « ' + v2.bouton + ' »');
+          await s.page.click('#dbpNext'); await s.page.waitForTimeout(900);
+          /* q3 — les cases du 2.2.2 */
+          await ouverte(3, 'scr-ag2test');
+          await cases([['g1n', '20'], ['g1d', '100'], ['g2n', '3000'], ['g2d', '100'], ['g3', '30'], ['g4a', '150'], ['g4b', '30'], ['g4r', '180']]);
+          await verifie('ag2Actions', 3);
+          await s.page.click('#ag2Next'); await s.page.waitForTimeout(900);
+          /* q4 — la rédaction du 2.2.14, par les 10 % EN MOTS, l'aide (les cases du 2.2.2) et le retour */
+          await ouverte(4, 'scr-dbp');
+          const mots4 = await s.page.evaluate(() => !!document.querySelector('#dbpSheet math-field.mf-mots'));
+          if(!mots4) dits7.push('q4 : la feuille n\'est pas celle de la rédaction (mf-mots)');
+          await feuilleFocus('dbpFeuille');
+          await lignes(['10 % = 60', '30 % = 180', '600 + 180 = 780']);
+          const lu4 = await s.page.evaluate(() => { const t = dbpFeuille.lire(), j = dbpEvoJuge(test.questions[test.idx], t); return { lignes: String(t).split('\n'), sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' }; });
+          if(lu4.lignes.length !== 3) dits7.push('q4 : la feuille se lit en ' + lu4.lignes.length + ' ligne(s) au lieu de 3 : « ' + lu4.lignes.join(' ⏎ ') + ' »');
+          if(!lu4.sait || !lu4.correct) dits7.push('q4 : le juge ' + (lu4.sait ? 'refuse' : 's\'abstient sur') + ' la méthode des 10 % tapée : « ' + lu4.phrase.slice(0, 120) + ' » (' + lu4.lignes.join(' ⏎ ') + ')');
+          await aideEtRetour(4, 'dbpFeuille', 'scr-ag2test', 'scr-dbp', 'g1n');
+          await verifie('dbpActions', 4, true);
+          const peint4 = await s.page.evaluate(() => dbpFeuille.lignes.map(x => x.mf.className));
+          peint4.forEach((c, i) => { if(!/\bok\b/.test(c || '')) dits7.push('q4 : la ligne ' + (i + 1) + ' (juste) ne se peint pas en bleu : « ' + c + ' »'); });
+          await s.page.click('#dbpNext'); await s.page.waitForTimeout(900);
+          /* q5 — les cases du 2.3.2 */
+          await ouverte(5, 'scr-ag2test');
+          await cases([['g1n', '20'], ['g1d', '100'], ['g2n', '3000'], ['g2d', '100'], ['g3', '30'], ['g4a', '150'], ['g4b', '30'], ['g4r', '120']]);
+          await verifie('ag2Actions', 5);
+          await s.page.click('#ag2Next'); await s.page.waitForTimeout(900);
+          /* q6 — la rédaction du 2.3.13, par le coefficient */
+          await ouverte(6, 'scr-dbp');
+          await feuilleFocus('dbpFeuille');
+          await lignes(['0,7 * 600 = 420']);
+          await verifie('dbpActions', 6, true);
+          await s.page.click('#dbpNext'); await s.page.waitForTimeout(900);
+          /* q7 — les listes du 2.4.2 */
+          await ouverte(7, 'scr-actest');
+          for(let i = 0; i < 3; i++) await s.page.selectOption('#ac-' + ['pre', 'aug', 'dim'][i], q7.ac[i]);
+          await s.page.waitForTimeout(200);
+          await verifie('acActions', 7);
+          await s.page.click('#acNext'); await s.page.waitForTimeout(900);
+          /* q8 — les seize cases des coefficients du 2.5.4 (+20 % puis −5 %), sans choix de méthode */
+          await ouverte(8, 'scr-esstest');
+          const m8 = await s.page.evaluate(() => ({ meth: !!document.getElementById('essMeth'), cases: !!document.getElementById('ess1n') }));
+          if(m8.meth || !m8.cases) dits7.push('q8 : le choix de méthode est proposé, ou les cases des coefficients manquent');
+          await cases([['ess1n', '20'], ['ess1d', '100'], ['ess1p', '20'], ['ess1dec', '20'], ['ess2n', '5'], ['ess2d', '100'], ['ess2p', '05'], ['ess2dec', '95'],
+                       ['essAn', '12'], ['essAd', '10'], ['essBn', '95'], ['essBd', '100'], ['essPn', '1140'], ['essPd', '1000'], ['essDec', '1,14'], ['essP', '14']]);
+          await s.page.click('#essSensH'); await s.page.waitForTimeout(200);
+          await verifie('essActions', 8);
+          await s.page.click('#essNext'); await s.page.waitForTimeout(900);
+          /* q9 — la rédaction du 2.5.6, l'aide (les cases du 2.5.4, coefficients seuls) et le retour */
+          await ouverte(9, 'scr-esl');
+          const b9 = await s.page.evaluate(() => !!document.getElementById('dbpAideBtn'));
+          if(!b9) dits7.push('q9 : « Aide méthode » n\'est pas offerte sur la feuille du 2.5.6');
+          await feuilleFocus('eslFeuille');
+          await lignes(['1,2 * 0,95 = 1,14', 'hausse de 14 %']);
+          const lu9 = await s.page.evaluate(() => { const t = eslFeuille.lire(), j = eslJuge(test.questions[test.idx], t); return { lignes: String(t).split('\n'), sait: !!j.sait, correct: !!j.correct, phrase: j.phrase || '' }; });
+          if(!lu9.sait || !lu9.correct) dits7.push('q9 : le juge ' + (lu9.sait ? 'refuse' : 's\'abstient sur') + ' la copie tapée : « ' + lu9.phrase.slice(0, 120) + ' » (' + lu9.lignes.join(' ⏎ ') + ')');
+          await aideEtRetour(9, 'eslFeuille', 'scr-esstest', 'scr-esl', 'ess1n');
+          const v9 = await verifie('eslActions', 9, true);
+          if(!/résultats/i.test(v9.bouton)) dits7.push('sur la dernière question, le bouton n\'est pas « Voir mes résultats » : « ' + v9.bouton + ' »');
+          await s.page.click('#eslActions .btn-primary');
           await s.page.waitForTimeout(1500);
           const f7 = await s.page.evaluate(([id, table]) => {
             const lignes = ((window.__faux && window.__faux.tables && window.__faux.tables[table]) || []).filter(r => r.details && !r.details.state && !r.details.partiel);
@@ -6241,7 +6319,7 @@ async function parcours(page, N){
           }, [ID7, P.tableResultats]);
           if(f7.ecran !== 'scr-results') dits7.push('la fin de séance ne montre pas les résultats : « ' + f7.ecran + ' »');
           if(!f7.n) dits7.push('aucune note enregistrée sous « ' + ID7 + ' »');
-          else if(f7.score !== 2 || f7.total !== 2) dits7.push('la note enregistrée n\'est pas 2/2 : ' + f7.score + '/' + f7.total);
+          else if(f7.score !== 9 || f7.total !== 9) dits7.push('la note enregistrée n\'est pas 9/9 : ' + f7.score + '/' + f7.total);
         }
         verifier(NOM7, dits7.length === 0, dits7.slice(0, 3).join(' | '));
       }
