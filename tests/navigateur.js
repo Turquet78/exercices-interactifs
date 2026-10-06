@@ -10768,7 +10768,13 @@ async function parcours(page, N){
                  bilan: !!host.querySelector('.pvm-bilan'),
                  bouton: (document.getElementById('pvmValidate') || {}).textContent,
                  step: !!document.getElementById('pvmStep'),
-                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 /* le dessin en tête : premier enfant de la carte, réellement chargé (naturalWidth) */
+                 fig: (() => { const f = document.getElementById('pvmFig'), img = f && f.querySelector('img.pvm-img');
+                   return { premier: !!f && f.parentElement.firstElementChild === f,
+                            data: !!img && /^data:image/.test(img.getAttribute('src') || ''),
+                            charge: !!img && img.complete && img.naturalWidth > 0,
+                            large: img ? img.getBoundingClientRect().width : 0 }; })() };
       });
       if(vu.cols !== 2 || !vu.aCote) dits.push('les deux colonnes ne sont pas côte à côte (' + vu.cols + ' colonne(s))');
       if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
@@ -10796,6 +10802,15 @@ async function parcours(page, N){
       if(vu.page) dits.push('la page déborde en largeur à 1400 px');
       verifier('les deux colonnes rendues côte à côte, le NOM de la case ÉCRIT (aucune liste) et une seule case à la chasse du code',
         !dits.length, dits.slice(0, 3).join(' | '));
+      /* 1 bis. LE DESSIN EN TÊTE DE L'ÉCRAN (demande de Turquet, octobre 2026) : premier
+         enfant de la carte, image embarquée, chargée, et visible (≥ 120 px de large) */
+      const fig = vu.fig, fd = [];
+      if(!fig.premier) fd.push('le dessin n\'est pas le premier élément de la carte');
+      if(!fig.data) fd.push('pas d\'image embarquée');
+      if(!fig.charge) fd.push('image non chargée');
+      if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
+      verifier('le dessin du serpent « Trop facile ! » ouvre l\'écran : premier dans la carte, embarqué, chargé et visible',
+        !fd.length, fd.join(' | '));
       /* 2. LA VALEUR SE TAPE POUR DE VRAI, et le verdict s'encre en BLEU */
       const bons = await s.page.evaluate(() => { const q = test.questions[test.idx];
         return q.lignes.map((l, k) => papAns(q, k)); });
