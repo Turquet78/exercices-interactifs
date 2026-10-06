@@ -4430,7 +4430,9 @@ numéro — et un troisième à 12:08, le 6.3.6
 (Turquet78/exercices-interactifs#513), encore en 305. La PR de suite qui
 passait la Seconde en 306 a trouvé `main` DÉJÀ en 306 à l'heure de ses
 contrôles : deux autres sessions (#514, #521) avaient corrigé la même
-collision chacune de leur côté, avec le même chiffre. Elle passe donc en 307.
+collision chacune de leur côté, avec le même chiffre. Elle est passée en 307 —
+et `main` a pris 307 à son tour (#522) avant qu'elle ne fusionne : la PR de
+suite n'a plus porté que cette chronique, la page étant celle de `main`.
 La règle à retenir : avant de fusionner, relire `APP_VERSION` sur `main` à
 CET instant, pas à celui des contrôles — et quand plusieurs sessions
 travaillent le même fichier le même jour, le numéro se pose à la fusion,
