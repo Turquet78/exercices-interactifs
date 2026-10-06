@@ -4368,6 +4368,8 @@ conflit, et `main` a porté deux états du site sous le numéro 305. Le banc des
 versions ne voit que l'instant où il tourne ; c'est la vérification de la
 publication (« la page en ligne est-elle celle de la branche ? »), faite après
 la fusion, qui a montré l'écart — un fichier plus gros de 10 Ko sous le même
-numéro. La Seconde passe en 306 par une PR de suite. La règle à retenir :
+numéro — et un troisième à 12:08, le 6.3.6
+(Turquet78/exercices-interactifs#513), encore en 305. La Seconde passe en 306
+par une PR de suite. La règle à retenir :
 avant de fusionner, relire `APP_VERSION` sur `main` à CET instant, pas à
 celui des contrôles.
