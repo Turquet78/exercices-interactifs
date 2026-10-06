@@ -4171,7 +4171,7 @@ résultat de l'exemple » s'est déclenché par coïncidence sur `d // 100`
 (215 // 100 = 2, 215 % 100 = 15, les nombres de la fiche) : redondant avec
 « la même sortie pour deux durées », il est retiré.
 
-**Puis le serpent fatigué a ouvert le dessin** (APP_VERSION 305, demande de
+**Puis le serpent fatigué a ouvert le dessin** (APP_VERSION 306 — 305 pris sur `main` pendant les bancs —, demande de
 Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.5.1
 au début »). L'image est un serpent en sueur, la langue pendante, qui dit
 « Je fatigue un peu là ! » : détourée, rognée à ses bords, WebP de 10 Ko
