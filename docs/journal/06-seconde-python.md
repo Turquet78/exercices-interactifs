@@ -4306,3 +4306,16 @@ comprises. Pas de section propre au banc navigateur : la visite universelle
 
 Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, version 294) pendant les bancs : deux listes partagées (`TABLES_SANS`, la table des kinds de `tests/profils.js`) unies ligne à ligne, et la version passe en 295.
 Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301, puis en 302 (le 6.1.3, #505, avait pris la 301).
+
+**Puis un dessin en tête des 6.2.4 et 6.2.5** ({python-pas-a-pas-chaine} et
+{python-echange-variables}, demande de Turquet, octobre 2026, version 305 —
+la demande a nommé le 6.2.4, puis le 6.2.5, puis le 6.2.4 : les deux écrans
+l'ont reçu). Le serpent à lunettes devant son ordinateur, découpé dans la
+capture et détouré de son fond blanc par les quatre coins (le blanc INTÉRIEUR
+du dessin reste), en WebP de 10 Ko (`PAP_SERPENT_IMG`, une seule constante
+pour les deux). Il se pose AVANT le rappel de cours (`#ppdFig`, `#pevFig`,
+premier enfant de la carte), comme « au début » le dit, et c'est le rendu
+(`renderPPD`, `renderPEV`) qui l'y écrit, à chaque question. Décoratif :
+aucun juge, aucune case, aucun contrôle propre — la visite universelle du
+banc navigateur (section 9) ouvre les deux écrans dans les deux modes, et
+c'est elle qui verrait un écran qui ne s'affiche plus.
