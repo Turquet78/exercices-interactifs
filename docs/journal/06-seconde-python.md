@@ -1781,6 +1781,37 @@ et **cette branche prend 186**, la règle ne changeant pas d'un mot pour
 autant se répéter : le premier arrivé garde, le second prend le suivant. Rien
 d'autre du fichier n'entrait en collision.
 
+**PUIS LE DESSIN EN TÊTE, un an après** (demande de Turquet, octobre 2026 :
+« placer cette image en seconde dans l'exercice 6.2.1 au début ») : le
+serpent qui dit « Pour l'instant tout va bien ! », détouré, en WebP (10 Ko,
+`PAP_IMG`, une URL `data:` — la page reste un fichier unique, comme pour
+`PKG_IMG` et `PDU_IMG`), ouvre la carte de {python-pas-a-pas} : au-dessus des
+définitions et de la consigne, à 150 px (`.pap-fig`, `.pap-img`, 45 % de la
+largeur au plus sur un téléphone). **Il est posé UNE fois par écran**
+(`papDessin`, rempli par `renderPAP` seulement s'il est vide) : le rendu se
+rejoue à chaque ligne du programme, et reposer une image `data:` à chaque
+rendu la fait clignoter. Banc jsdom (`pythonPasAPas`, « 11 bis ») : la carte
+s'ouvre sur le dessin, WebP embarqué, texte de remplacement, au-dessus de
+`papAvant`, et un second `renderPAP` ne le repose pas. La visite universelle
+du banc navigateur (section 9) voit la page rendue. Version 305 — puis 307 :
+pendant les bancs, `main` a reçu le 6.2.3 (le serpent au champagne, #512) et
+le 6.3.6 (#513, qui a pris la 305), et le 6.3.2 (#522, la 306) attendait sa
+fusion ; la branche reprend `main`, garde les deux blocs CSS voisins
+(`.pap-fig` à côté de `.ppc-fig`) et saute à 307, strictement au-dessus de ce
+que `main` porte et de ce qui l'attend. Puis une seconde reprise de `main`, une heure
+plus tard (#514, #516, #521 fusionnés, `main` à 306) : seule la ligne de
+version était en conflit, 307 restait strictement au-dessus — jusqu'à ce que
+#522 (le 6.3.2) prenne la 307 à son tour : troisième reprise de `main`, et la
+page passe à **309**, deux crans au-dessus, pour laisser une marche aux
+branches voisines qui montent toutes d'un cran à la fois. La marche a servi : #511 (le
+6.2.8) a pris la 308 dans l'heure, quatrième reprise de `main`, 309 tient.
+Puis #520 et #526 ont pris la 309 : cinquième reprise, la page passe à **311**.
+Puis #528 et #529 (`main` à 310) : sixième reprise, 311 tient.
+Puis #518 a pris la 311 : septième reprise, la page passe à **315** — quatre
+crans de marge, puisque chaque branche voisine ne monte que d'un cran. Puis #527
+(`main` à 313) : huitième reprise, 315 tient. Puis #525 a sauté à 320 : neuvième
+reprise, la page passe à **325**.
+
 **Puis la MÊME marche, une question en moins : la valeur seule.**
 {python-valeur-case} (Seconde, 5.15, demande de Turquet, septembre 2026 :
 « il doit exécuter le programme pas à pas, dans le tableau à côté le nom de la
@@ -4523,7 +4554,8 @@ une branche voisine avait fait LE MÊME saut, 315 puis 320, et a fusionné la
 première — `git` n'a vu aucun conflit, deux pages différentes portaient
 320, c'est le garde de `tests/version.js` qui l'a dit. La branche passe à
 327, un numéro qu'aucune règle simple ne fait choisir à deux sessions à la
-fois.
+fois — puis à 333 à la dixième fusion (#523 avait porté `main` à 325, et
+la ligne de version était le seul conflit).
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
 {python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
