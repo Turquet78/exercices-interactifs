@@ -4038,6 +4038,17 @@ suivantes en pointillés (`A = ...`, `print ( ... )`), à chasse fixe comme le
 carnet. Ajouté en dernier dans le sous-thème, il ne renumérote rien ; son
 contrôle exige de suivre {python-phrases-memoire}.
 
+**Puis le dessin de la fiche est venu en tête du 6.2.8.** {python-phrases-memoire}
+(Seconde, APP_VERSION 305, demande de Turquet, octobre 2026 : « placer cette
+image en seconde dans l'exercice 6.2.8 au début ») : le serpent qui note sur
+sa feuille, « Très bien, je le note. », découpé en WebP (11 Ko, `PPH_IMG`),
+comme les dessins des 6.3.9, 6.5.1, 6.5.2 et 6.5.3. « Au début » est pris au
+mot : un conteneur `#pphFig` ouvre la carte, AVANT le rappel de cours et la
+consigne, et le dessin s'y pose UNE fois (`pphEtiquetteHTML`, si le conteneur
+est vide) — `renderPPH` se rejoue à chaque ligne exécutée, et un dessin
+reconstruit à chaque étape aurait clignoté. Décoratif : il ne porte ni
+énoncé ni réponse, son `alt` le décrit, et il n'entre dans aucun juge.
+
 **CE QU'IL AJOUTE AU SOUS-THÈME est le geste inverse des pas à pas** : du 6.2.1
 au 6.2.8 l'élève LIT un programme et suit la mémoire ; ici il ÉCRIT le
 programme à partir d'une suite d'étapes en français — chaque étape devient une
