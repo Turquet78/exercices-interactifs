@@ -4335,6 +4335,20 @@ le modèle ni le résultat, et les modèles comparés à un vrai CPython. Pas de
 section propre au banc navigateur : la visite universelle (section 9) l'ouvre
 dans les deux modes.
 
+**Puis le dessin de la fiche est venu en tête** (APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.9
+au début ») : un serpent qui pense aux quatre opérations, dans une bulle. Il
+se place AVANT le programme de calcul, en tête de `#pgcInstr` — pas dans
+`pgcAvant`, qui reste vide par exception déclarée (`pythonAvant.sans`), et pas
+dans le cadre de la question, qui porte la consigne. Détouré (le fond blanc
+rendu transparent par remplissage depuis les bords, pour que le blanc de la
+bulle reste blanc), rogné, en WebP de 10 Ko (`PGC_IMG`, une URL `data:`),
+comme les trois autres dessins du thème ; 170 px de large, jamais plus de la
+moitié de l'écran. Le contrôle de l'écran (`pythonProgrammeCalcul`, section 4)
+exige le dessin dans `#pgcInstr` et AVANT la liste des étapes — éprouvé en
+l'ôtant du rendu (« pas de dessin ») et en le plaçant après la liste (« pas
+AVANT »).
+
 **Le sous-thème « Bonus : input », et une durée en heures et minutes — l'exercice 11 du carnet.**
 {python-input-duree} (Seconde, 6.5.1, APP_VERSION 297 — 294 à 296 pris sur `main` pendant les bancs —, demande de Turquet,
 octobre 2026 : « en seconde dans le thème algo dans la partie bonus créer un
