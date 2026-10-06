@@ -2612,6 +2612,27 @@ noir plutôt qu'en vert — repérée à la dominante RENDUE, jamais à la class
 seule, la leçon de `docs/journal/08-verdicts-et-juges.md` retombée telle
 quelle sur un neuvième exercice.
 
+**Puis un dessin est venu EN TÊTE de l'exercice** (demande de Turquet,
+octobre 2026, APP_VERSION 306 — 305 pris sur `main` pendant les bancs, par trois autres dessins fusionnés en parallèle — : « placer cette image en seconde dans
+l'exercice 6.2.5 au début ») : le serpent au bonnet rasta qui dit « Moi là
+monté sur Python ! ». Il est fait comme ses quatre aînés du thème (`PKG_IMG`,
+`PDU_IMG`, `PVO_IMG`, `PHM_IMG`) : l'image reçue avait un fond BLANC opaque,
+elle a été détourée (remplissage depuis les bords, les blancs INTÉRIEURS — les
+yeux, la bulle — gardés), recadrée et passée en WebP (13 Ko, `PEV_IMG`, une URL
+`data:` — la page reste un seul fichier). Il est posé UNE fois dans `#pevFig`,
+premier enfant de la carte, AVANT le rappel de cours et la consigne — « au
+début » veut dire au début —, par `renderPEV()` qui ne le repose pas quand il y
+est déjà ; `.pev-img` le tient à 200 px et à 55 % de la largeur au plus, pour
+qu'il ne pousse pas le programme sous le pli sur un téléphone. Il est
+DÉCORATIF : son `alt` dit ce qu'il montre, rien de ce qu'il dit n'est à lire
+pour répondre. Le banc navigateur (« 6 tricies duodevicies ») le mesure RENDU,
+pas déclaré : l'image doit être décodée (`naturalWidth`), haute de plus de 100
+px à l'écran, servie en `data:` et posée avant la consigne — un `<img>` dont le
+fichier manquerait serait présent dans le DOM et invisible sur la page, c'est
+la règle 3 de `CLAUDE.md` sur un dessin. Éprouvé par sabotage : `PEV_IMG`
+remplacé par quatre octets de base64 — un seul contrôle rougit, celui-ci, et
+dit « non décodé » ; les 624 autres restent verts.
+
 **Puis échanger deux valeurs PAR LES LETTRES — un exercice différent de
 {python-echange-variables}, et le nom le dit.** {python-echange-par-lettres}
 (Seconde, 5.20, demande de Turquet, septembre 2026, sur un PDF transcrit :
