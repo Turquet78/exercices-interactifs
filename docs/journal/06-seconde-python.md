@@ -3221,7 +3221,7 @@ rendu transparent depuis les bords, puis rognée), encodée en WebP (14 Ko,
 `PIA_IMG`), et `piaFigureHTML()` la pose DEVANT le texte de l'énoncé dans
 `piaInstr`, à chaque question — l'encadré de cours (`pyAvant`, première
 question seulement) reste au-dessus, comme sur le 6.5.3. Décoratif : rien
-ne change au tirage, au juge ni aux coups de pouce. Version 331, au bout de ONZE fusions de `main` dans la branche (la huitième : la PR 525 avait posé 320 ; la neuvième : la PR 523, 325 ; la dixième : la PR 532, 326 ; la onzième : la PR 530, 330) : 305, 306, 307, 308 puis 309 ont été pris sur `main` pendant les bancs, par les PR 510, 514, 521, 522, 511 et 526, cinq fois de suite — chaque tour de l'action dure une heure, et une fusion concurrente de la Seconde tombe presque à chaque tour, en conflit sur la ligne du numéro. Le cinquième cran a sauté à 312 pour laisser passer deux fusions concurrentes : `tests/version.js` n'exige que de dépasser `main`. Mais sauter ne protège que du contrôle, pas du conflit : la PR 529 a posé 310 (sixième fusion, 312 gardé), puis la PR 527 a posé 313 (septième fusion, 314) — 311 et 312 restent libres. Deux pièges de banc se sont montrés en chemin : un script de résolution qui échoue sans arrêter une chaîne de commandes a laissé partir un commit AVEC ses marqueurs de conflit (corrigé trois minutes après, rien n'a fusionné) ; et le banc navigateur lit le fichier de l'ARBRE DE TRAVAIL, si bien qu'une résolution faite pendant qu'il tourne lui fait lire « <<<<<<< » (« Unexpected token '<<' », trois rouges sans défaut dans la page). On ne touche pas au fichier pendant un banc.
+ne change au tirage, au juge ni aux coups de pouce. Version 361, au bout de DOUZE fusions de `main` dans la branche (la huitième : la PR 525 avait posé 320 ; la neuvième : la PR 523, 325 ; la dixième : la PR 532, 326 ; la onzième : la PR 530, 330 ; la douzième : la PR 515, 360) : 305, 306, 307, 308 puis 309 ont été pris sur `main` pendant les bancs, par les PR 510, 514, 521, 522, 511 et 526, cinq fois de suite — chaque tour de l'action dure une heure, et une fusion concurrente de la Seconde tombe presque à chaque tour, en conflit sur la ligne du numéro. Le cinquième cran a sauté à 312 pour laisser passer deux fusions concurrentes : `tests/version.js` n'exige que de dépasser `main`. Mais sauter ne protège que du contrôle, pas du conflit : la PR 529 a posé 310 (sixième fusion, 312 gardé), puis la PR 527 a posé 313 (septième fusion, 314) — 311 et 312 restent libres. Deux pièges de banc se sont montrés en chemin : un script de résolution qui échoue sans arrêter une chaîne de commandes a laissé partir un commit AVEC ses marqueurs de conflit (corrigé trois minutes après, rien n'a fusionné) ; et le banc navigateur lit le fichier de l'ARBRE DE TRAVAIL, si bien qu'une résolution faite pendant qu'il tourne lui fait lire « <<<<<<< » (« Unexpected token '<<' », trois rouges sans défaut dans la page). On ne touche pas au fichier pendant un banc.
 
 **float : la réponse est un nombre DÉCIMAL — l'exercice 6 du carnet.**
 {python-input-float} (Seconde, 6.3.5, demande de Turquet, octobre 2026 : « créer
@@ -3274,6 +3274,27 @@ place d'après, 6.3.5, et la version 262. Le contrôle du 6.3.4 exigeait
 d'être le DERNIER du sous-thème — une exigence qui casse au premier exercice
 suivant. Il exige désormais de SUIVRE {python-input-int}, l'ordre du carnet,
 et celui d'ici de suivre {python-input-calcul}.
+
+**Puis le dessin de la fiche est venu en tête** (demande de Turquet, octobre
+2026 : « placer cette image en seconde dans l'exercice 6.3.5 au début ») : les
+deux serpents — « Quelle est ta taille ? », « T'en n'as pas marre de poser des
+questions. » — et la boîte « taille ». Détouré (le fond blanc joint aux bords
+est vidé, le blanc des bulles et des yeux reste), recadré, en WebP (18 Ko,
+`PIF_IMG`, une URL `data:`) : la page reste un fichier unique. **Le 6.3.3 a
+reçu le sien le même jour, sur `main`, pendant les bancs de celui-ci** — et
+l'écran est PARTAGÉ : deux règles pour deux dessins du même écran auraient
+fait deux vérités. Le 6.3.5 suit donc la règle que le 6.3.3 a posée en
+premier : UNE fabrique, `piiFigHTML`, choisit le dessin selon le drapeau `f`
+de la question (jamais le kind, jamais `currentTestId` : il voyage dans la
+pause), et l'écrit dans `pyAvant`, au-dessus de la définition, au premier
+écran seulement — le dessin illustre la définition et vit avec elle, comme
+elle il ne se répète pas à la question 2. Mêmes classes (`.pii-fig`,
+`.pii-img`), même largeur de vignette ; `.pif-img` en plus, pour que le banc
+distingue les deux. Contrôle (banc principal, {python-input-float},
+section 5) : le dessin est une URL `data:` dans `#piiAvant`, avant la
+définition et avant l'énoncé, porte son texte de remplacement, ne se répète
+pas à la question 2, celui du 6.3.3 n'est pas là, et le sien n'apparaît pas
+quand le 6.3.3 démarre sur le même écran.
 
 
 ---
