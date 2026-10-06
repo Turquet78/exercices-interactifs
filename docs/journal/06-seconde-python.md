@@ -3378,6 +3378,30 @@ contrôle propre ; la visite universelle du banc navigateur l'ouvre dans les
 deux modes, et le banc jsdom (`pythonInputSomme`) relit l'énoncé derrière le
 dessin sans rien y changer. Affiché à 200 px (55 % de l'écran au plus,
 `.pis-img`), comme ses voisins.
+**Et le numéro a été pris trois fois le même jour — puis la course a été
+perdue deux fois, et abandonnée à bon droit.** La branche portait la Seconde
+de 304 à 305, et `npm run test:version` l'avait admis — `main` était encore
+à 304. Entre-temps, deux autres branches (le 6.3.3 et le 6.2.3, écrites en
+parallèle) ont fait le même pas et ont été fusionnées les premières :
+chaque fusion a pris le même « 305 », sans conflit de texte, puisque la
+ligne changeait à l'identique des trois côtés. `main` a donc publié trois
+changements sous un seul numéro, ce que la règle 4 interdit — le numéro de
+l'en-tête ne disait plus laquelle des trois pages était ouverte. Une branche
+de suite, refaite sur `main`, l'a porté à 306 ; le temps que ses contrôles
+tournent, deux autres fusions avaient pris 306, et son contrôle des
+versions a rougi — à juste titre. Refaite sur `main` à 307, elle a vu une
+quatrième fusion prendre 307 avant la sienne. Mais ce 307-là était SEUL sur
+`main` : le numéro courant était redevenu unique, et une page qui ne change
+pas n'a pas à changer de numéro. La branche de suite s'est donc réduite à ce
+paragraphe. Ce qu'il enseigne : le contrôle des versions ne voit `main`
+qu'au moment où il tourne, deux branches vertes en même temps restent
+aveugles l'une à l'autre, et c'est À LA FUSION qu'il faut relire le numéro
+(ce que le CLAUDE.md dit déjà : « se relit à chaque fusion de `main` ») —
+plusieurs sessions qui fusionnent la même heure dans le même fichier se
+marcheront toujours dessus, et courir après un numéro que d'autres prennent
+pendant que les bancs tournent coûte vingt minutes par tour pour rien.
+Les 305 et 306 publiés en triple ne se réparent pas : ces pages ne sont plus
+servies.
 
 **Puis la fiche « variable pas à pas » est revenue, et c'est sa SECONDE
 moitié qui a fait l'exercice.** {python-phrases-memoire} (Seconde, 6.2.8,
@@ -4491,3 +4515,18 @@ La règle à retenir : avant de fusionner, relire `APP_VERSION` sur `main` à
 CET instant, pas à celui des contrôles — et quand plusieurs sessions
 travaillent le même fichier le même jour, le numéro se pose à la fusion,
 jamais à l'ouverture.
+
+**Puis un dessin en tête du 6.2.4** ({python-pas-a-pas-chaine}, demande de
+Turquet, octobre 2026, version 311 — 305 à 310 prises sur `main` pendant les
+bancs, par sept dessins voisins et deux suites, dont celui du 6.2.5). Le serpent à lunettes
+devant son ordinateur, découpé dans la capture et détouré de son fond blanc
+par les quatre coins (le blanc INTÉRIEUR du dessin reste), en WebP de 10 Ko
+(`PPD_IMG`). Il se pose AVANT le rappel de cours (`#ppdFig`, premier enfant
+de la carte), comme « au début » le dit, UNE fois, par `renderPPD`. La
+demande a nommé le 6.2.4, puis le 6.2.5, puis le 6.2.4 — et les deux écrans
+l'avaient reçu, sous une constante partagée. Mais `main` portait déjà, par
+une autre session (#514), le dessin PROPRE du 6.2.5 (le serpent au bonnet) :
+le second message était une erreur, le troisième sa correction, et le 6.2.5
+a gardé le sien — un dessin par exercice, jamais deux sur un écran. Le banc
+navigateur mesure le dessin RENDU, la mesure du 6.2.5 reprise mot pour mot :
+décodé, haut de plus de 100 px, posé avant la consigne, servi en `data:`.
