@@ -3553,7 +3553,7 @@ vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
 CPython. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
 
-**Puis le dessin de la fiche a pris la tête de l'exercice** (APP_VERSION 306,
+**Puis le dessin de la fiche a pris la tête de l'exercice** (APP_VERSION 307,
 demande de Turquet, octobre 2026 : « placer cette image en seconde dans
 l'exercice 6.3.8 au début »). Le rectangle redessiné en SVG des premiers jours
 est remplacé par l'image de la fiche elle-même — le serpent qui s'interroge
