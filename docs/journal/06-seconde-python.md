@@ -2976,11 +2976,13 @@ définition. Découpé dans la capture, détouré (le fond crème relié aux
 bords rendu transparent, jamais l'intérieur des bulles), en WebP de 17 Ko
 (`PYN_IMG`, une URL `data:`, le motif de `PHM_IMG` au 6.5.3). Il vit dans
 son propre conteneur (`#pynFig`, `.pyn-fig`) AVANT la définition
-(`#pynAvant`) et l'énoncé (`#pynInstr`), à CHAQUE question — la
-définition, elle, ne se dit qu'à la première. Décoratif : rien de l'énoncé
-n'y est, et l'`alt` raconte la scène. Le banc jsdom exige le dessin (une
-`data:` avec son `alt`) devant la définition et devant l'énoncé à la
-question 1, encore là à la question 2 où la définition s'est tue.
+(`#pynAvant`) et l'énoncé (`#pynInstr`), au PREMIER écran seulement, comme
+la définition qu'il illustre — et comme le dessin du 6.3.3, fusionné le
+même jour sur la même demande : les questions suivantes rangent leur
+réponse dans une autre variable que « nom », le dessin y mentirait.
+Décoratif : rien de l'énoncé n'y est, et l'`alt` raconte la scène. Le banc
+jsdom exige le dessin (une `data:` avec son `alt`) devant la définition et
+devant l'énoncé à la question 1, et son absence à la question 2.
 
 ---
 

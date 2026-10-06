@@ -23683,7 +23683,7 @@ function pythonInputReponse(w, P){
   })()`, v => v === '');
 
   /* ---- 4. le trajet en entraînement ---- */
-  verifierEval(w, 'entraînement : le dessin de la fiche (les deux serpents) ouvre l’écran à chaque question, avant la définition et l’énoncé ; a) la réponse vide n’est pas envoyée et ne rougit rien ; b) la liste et « Vérifier » restent fermés avant l’exécution, le type faux rougit et « str » s’écrit en vert ; c) la ligne vide ne rougit pas, la ligne juste est comptée — la note dit 1 case sur 2', `(function(){
+  verifierEval(w, 'entraînement : le dessin de la fiche (les deux serpents) ouvre le premier écran, avant la définition et l’énoncé, et s’efface avec elle à la question 2 ; a) la réponse vide n’est pas envoyée et ne rougit rien ; b) la liste et « Vérifier » restent fermés avant l’exécution, le type faux rougit et « str » s’écrit en vert ; c) la ligne vide ne rougit pas, la ligne juste est comptée — la note dit 1 case sur 2', `(function(){
     const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), NL=String.fromCharCode(10);
     currentEleve=currentEleve||{id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPYN();
     /* le dessin de la fiche ouvre l'écran, avant la définition et l'énoncé — à la question 1… */
@@ -23694,8 +23694,8 @@ function pythonInputReponse(w, P){
     if(!$("pynAvant")||!/input/.test($("pynAvant").textContent)) vus.push("la définition manque à la question 1");
     test.questions[1]={s:1, etape:"a", rep:"", bVu:false, typ:"", bOk:null, ligne:"", repC:""};
     test.idx=1; renderPYN();
-    /* …et encore à la question 2, où la définition n'est plus affichée */
-    if(!$("pynFig").querySelector("img.pyn-img")) vus.push("le dessin a disparu à la question 2");
+    /* …et plus à la question 2, où la variable n'est plus « nom » et la définition s'est tue */
+    if($("pynFig").querySelector("img.pyn-img")) vus.push("le dessin (« la variable nom ») reste à la question 2");
     if($("pynAvant").textContent.trim()!=="") vus.push("la définition est redite à la question 2");
     if($("pynValidate")&&!$("pynValidate").disabled) vus.push("« Vérifier » est ouvert au a)");
     pynExecuterA();
