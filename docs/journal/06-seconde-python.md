@@ -4322,7 +4322,8 @@ Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, versio
 Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301, puis en 302 (le 6.1.3, #505, avait pris la 301).
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
-{python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305, demande de
+{python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
+ci-dessous —, demande de
 Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.3
 au début ») : le dessin fourni — un serpent à lunettes de soleil qui fait
 sauter le bouchon d'une bouteille de champagne — ouvre l'écran, PREMIER
@@ -4337,3 +4338,16 @@ sedecies », 1 bis) exige que le dessin soit le premier enfant de la carte,
 embarqué en `data:`, réellement CHARGÉ (`naturalWidth` > 0 — un `data:`
 tronqué passerait un contrôle qui ne lirait que l'attribut) et visible à au
 moins 120 px de large.
+
+**Et deux PR ont porté le même numéro 305 pendant douze minutes.** Le 6.3.3
+(Turquet78/exercices-interactifs#510) a été fusionné à 11:54 UTC, ENTRE les
+contrôles de cette PR (verts à 11:45, `test:version` compris, contre un
+`main` encore en 304) et sa fusion (12:05). Les deux branches écrivaient
+`APP_VERSION=305` sur la même ligne, au même chiffre : Git fusionne sans
+conflit, et `main` a porté deux états du site sous le numéro 305. Le banc des
+versions ne voit que l'instant où il tourne ; c'est la vérification de la
+publication (« la page en ligne est-elle celle de la branche ? »), faite après
+la fusion, qui a montré l'écart — un fichier plus gros de 10 Ko sous le même
+numéro. La Seconde passe en 306 par une PR de suite. La règle à retenir :
+avant de fusionner, relire `APP_VERSION` sur `main` à CET instant, pas à
+celui des contrôles.
