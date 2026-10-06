@@ -4402,7 +4402,8 @@ soit le premier enfant de la carte, embarqué en `data:`, réellement CHARGÉ
 (`naturalWidth` > 0) et visible à au moins 120 px de large. Écrit en
 version 305, puis la fusion de `main` — trois dessins posés le même jour
 sur les 6.2.3, 6.3.3 et 6.3.6 (#510, #512, #513), la 305 prise — l'a fait
-passer en 306.
+passer en 306 ; puis une seconde fusion (6.2.5, 6.5.1, 6.3.1 — #514, #521,
+#516 — la 306 prise) en 307.
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
 {python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305, demande de
