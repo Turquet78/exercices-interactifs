@@ -2826,6 +2826,18 @@ console), Entrée la donne, et la page REJOUE le programme avec une réponse de
 plus — un programme sans hasard redonne la même chose jusque-là, et c'est ce
 qui évite d'écrire un interpréteur suspendable. Le bouton est libre, comme au
 {python-print} : la sortie est l'outil.
+**L'IMAGE DU CARNET OUVRE L'EXERCICE** (demande de Turquet, octobre 2026 :
+« placer cette image en seconde dans l'exercice 6.3.2 au début ») : le
+serpent dans son hamac, entre deux palmiers, se montre en tête du PREMIER
+écran, au-dessus de la définition d'`input` (`pyiImageHTML`, dans `pyiAvant`,
+avec la même condition `idx===0` que le cours) — et plus sur les questions
+suivantes, comme la fiche qu'elle illustre. Elle vit dans le fichier, en
+`data:` comme l'image du bilan : un PNG ramené à 220 px de large et 128
+couleurs (10 Ko au lieu de 127), affiché à 150 px, jamais plus de 45 % de
+la largeur sur un téléphone. Décorative, donc `alt=""` : rien à lire pour
+un lecteur d'écran. Aucun contrôle propre : la visite universelle ouvre
+l'écran dans les deux modes, et un `data:` cassé y ferait une image vide,
+pas une panne.
 **LE JUGE RÉPOND DEUX FOIS, AVEC DES RÉPONSES QUE L'ÉLÈVE NE CONNAÎT PAS** :
 `pyiDiag` exécute la copie avec deux jeux de réponses rangés dans la paire
 (`ex`). Le risque propre de l'exercice est la copie qui affiche les mots que
