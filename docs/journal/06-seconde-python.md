@@ -4560,6 +4560,45 @@ comprises. Pas de section propre au banc navigateur : la visite universelle
 Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, version 294) pendant les bancs : deux listes partagées (`TABLES_SANS`, la table des kinds de `tests/profils.js`) unies ligne à ligne, et la version passe en 295.
 Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301, puis en 302 (le 6.1.3, #505, avait pris la 301).
 
+**Puis le 6.2.2 ({python-valeur-case}) a reçu un DESSIN EN TÊTE** (demande
+de Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice
+6.2.2 au début ») : le serpent qui lit un livre et dit « Trop facile ! »,
+détouré, en WebP de 13 Ko (`PVM_IMG`, une URL `data:`, le motif de
+`PKG_IMG`, `PDU_IMG` et `PVO_IMG` — la page reste un fichier unique). Il
+vit dans `#pvmFig`, premier enfant de la carte, AVANT l'encadré de cours et
+l'énoncé ; `renderPVM` le pose à chaque dessin (`pvmDessinHTML`), si bien
+que la reprise d'une pause le retrouve sans rien déclarer. Rien d'autre ne
+bouge : ni le tirage, ni le juge, ni les cases. Le banc navigateur (section
+« 6 tricies quindecies », 1 bis) exige, comme pour le 6.2.3, que le dessin
+soit le premier enfant de la carte, embarqué en `data:`, réellement CHARGÉ
+(`naturalWidth` > 0) et visible à au moins 120 px de large. Écrit en
+version 305, puis la fusion de `main` — trois dessins posés le même jour
+sur les 6.2.3, 6.3.3 et 6.3.6 (#510, #512, #513), la 305 prise — l'a fait
+passer en 306 ; puis une seconde fusion (6.2.5, 6.5.1, 6.3.1 — #514, #521,
+#516 — la 306 prise) en 307, et une troisième (6.3.2, #522 — la 307 prise)
+en 308, puis une quatrième (6.2.8, #511 — la 308 prise) en 309, et une cinquième
+(#520 et #526 — la 309 prise) en 310, puis une sixième (#528, #529 — la 310
+prise). Six fois de suite, le numéro pris pendant les vingt minutes de
+l'action : la branche passe alors à 315, pas 311 — le garde de
+`tests/version.js` exige STRICTEMENT PLUS GRAND, et non +1, exactement pour
+ce cas ; les quatre numéros sautés ne manquent à personne, et chaque fusion
+voisine coûtait une heure de file d'attente. La septième fusion (#518, qui
+portait la 311) l'a aussitôt justifié : seul le numéro entrait en conflit,
+la 315 reste. La huitième (#527, qui portait la 313) a mangé la marge : la
+branche passe à 320. Et la neuvième (#525) a montré la limite du procédé :
+une branche voisine avait fait LE MÊME saut, 315 puis 320, et a fusionné la
+première — `git` n'a vu aucun conflit, deux pages différentes portaient
+320, c'est le garde de `tests/version.js` qui l'a dit. La branche passe à
+327, un numéro qu'aucune règle simple ne fait choisir à deux sessions à la
+fois — puis à 333 à la dixième fusion (#523 avait porté `main` à 325, et
+la ligne de version était le seul conflit), et la 333 reste à la onzième
+(#532, `main` en 326). La leçon du jour n'est pas le numéro : c'est que la
+LIGNE de version entre en conflit à CHAQUE fusion voisine, quel que soit le
+numéro choisi, et qu'une branche ne sort de la file qu'en fusionnant la
+première après ses propres contrôles verts. Douzième fusion (#530, `main`
+en 330) : la page passe à 341 ; treizième (#515, `main` en 360) : à 371 ;
+quatorzième (#531, `main` en 370) : à 383.
+
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
 {python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
 ci-dessous —, demande de
