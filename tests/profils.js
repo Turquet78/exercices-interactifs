@@ -990,8 +990,12 @@ module.exports = {
     syntheseFonction: { exercice: 'synthese-fonction' },
     /* « allonge » : les exercices dont la séance DOIT s'allonger quand le
        devoir règle plus de questions que le format normal — le 4.1.8 signalé
-       par Turquet (septembre 2026), et le témoin lui-même. */
-    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'] },
+       par Turquet (septembre 2026), et le témoin lui-même. « nbQMax » : le
+       plafond que l'éditeur DOIT proposer — 20 (demande de Turquet, octobre
+       2026 : « en seconde, pour la création de devoir maison ou de fiche de
+       travail, je souhaite que le professeur puisse mettre jusqu'à 20
+       questions par exercice »). */
+    reglagesDevoirs: { exercice: 'pourcentage', allonge: ['pourcentage-boite', 'pourcentage'], nbQMax: 20 },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {
@@ -2167,7 +2171,13 @@ module.exports = {
        qui a porté par erreur la classe des énoncés. */
     enonce: { classes: ['enonce', 'tvi-prompt'], ardoise: ['test'],
               navigateur: ['signe-produit', 'limites-graphiques-2'] },
-    reglagesDevoirs: { exercice: 'tangente-exp' },
+    /* « nbQMax » : 20 questions par exercice (demande de Turquet, octobre
+       2026 : « fais pareil pour la terminale », après la Seconde). La
+       Terminale tire surtout par plans et par familles : onze tirages par
+       distinctes() (« tiragesMin »), et le témoin de la coupe a une séance à
+       forme fixe — le plafond se mesure sur {derivees} (« exercicePlafond »).
+       « allonge » : les exercices dont la séance DOIT s'allonger. */
+    reglagesDevoirs: { exercice: 'tangente-exp', exercicePlafond: 'derivees', allonge: ['derivees', 'equation-tangente', 'signes-variations'], nbQMax: 20, tiragesMin: 11 },
     tableResultats: 'resultats',
     tableEleves: 'eleves',
     navigateur: {
