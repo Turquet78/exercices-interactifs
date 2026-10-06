@@ -4350,7 +4350,7 @@ vit dans `#pvmFig`, premier enfant de la carte, AVANT l'encadré de cours et
 l'énoncé ; `renderPVM` le pose à chaque dessin (`pvmDessinHTML`), si bien
 que la reprise d'une pause le retrouve sans rien déclarer. Rien d'autre ne
 bouge : ni le tirage, ni le juge, ni les cases. Le banc navigateur (section
-« 6 tricies quinquies », 1 bis) exige, comme pour le 6.2.3, que le dessin
+« 6 tricies quindecies », 1 bis) exige, comme pour le 6.2.3, que le dessin
 soit le premier enfant de la carte, embarqué en `data:`, réellement CHARGÉ
 (`naturalWidth` > 0) et visible à au moins 120 px de large. Écrit en
 version 305, puis la fusion de `main` — trois dessins posés le même jour
