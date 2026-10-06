@@ -4306,3 +4306,13 @@ comprises. Pas de section propre au banc navigateur : la visite universelle
 
 Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, version 294) pendant les bancs : deux listes partagées (`TABLES_SANS`, la table des kinds de `tests/profils.js`) unies ligne à ligne, et la version passe en 295.
 Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301, puis en 302 (le 6.1.3, #505, avait pris la 301).
+
+**Puis le 6.2.2 ({python-valeur-case}) a reçu un DESSIN EN TÊTE** (demande
+de Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice
+6.2.2 au début ») : le serpent qui lit un livre et dit « Trop facile ! »,
+détouré, en WebP de 13 Ko (`PVM_IMG`, une URL `data:`, le motif de
+`PKG_IMG`, `PDU_IMG` et `PVO_IMG` — la page reste un fichier unique). Il
+vit dans `#pvmFig`, premier enfant de la carte, AVANT l'encadré de cours et
+l'énoncé ; `renderPVM` le pose à chaque dessin (`pvmDessinHTML`), si bien
+que la reprise d'une pause le retrouve sans rien déclarer. Rien d'autre ne
+bouge : ni le tirage, ni le juge, ni les cases. Version 305.
