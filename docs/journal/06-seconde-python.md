@@ -4401,7 +4401,11 @@ versions ne voit que l'instant où il tourne ; c'est la vérification de la
 publication (« la page en ligne est-elle celle de la branche ? »), faite après
 la fusion, qui a montré l'écart — un fichier plus gros de 10 Ko sous le même
 numéro — et un troisième à 12:08, le 6.3.6
-(Turquet78/exercices-interactifs#513), encore en 305. La Seconde passe en 306
-par une PR de suite. La règle à retenir :
-avant de fusionner, relire `APP_VERSION` sur `main` à CET instant, pas à
-celui des contrôles.
+(Turquet78/exercices-interactifs#513), encore en 305. La PR de suite qui
+passait la Seconde en 306 a trouvé `main` DÉJÀ en 306 à l'heure de ses
+contrôles : deux autres sessions (#514, #521) avaient corrigé la même
+collision chacune de leur côté, avec le même chiffre. Elle passe donc en 307.
+La règle à retenir : avant de fusionner, relire `APP_VERSION` sur `main` à
+CET instant, pas à celui des contrôles — et quand plusieurs sessions
+travaillent le même fichier le même jour, le numéro se pose à la fusion,
+jamais à l'ouverture.
