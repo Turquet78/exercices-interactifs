@@ -574,7 +574,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pch,#scr-pcl,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-ptr,#scr-pgc,#scr-prc,#scr-pkg,#scr-phm,#scr-pvo,#scr-pdu,#scr-pbl,#scr-pmn,#scr-prl,#scr-ptt,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-mdtest,#scr-utest,#scr-ptest,#scr-pctb,#scr-evbtest,#scr-atest,#scr-dtest,#scr-qtest,#scr-psl,#scr-sal,#scr-pcol,#scr-fptest,#scr-vtest,#scr-a2qtest,#scr-syntest,#scr-ag2test,#scr-bstest,#scr-hstest,#scr-hsctest,#scr-lctest,#scr-tctest,#scr-cktest,#scr-actest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-pf,#scr-rvf,#scr-spf,#scr-pqd,#scr-qdb,#scr-tsf,#scr-ord,#scr-rel,#scr-asx,#scr-cit,#scr-mrl,#scr-srl,#scr-rpd,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn,#scr-py,#scr-pty,#scr-pyc,#scr-pvn,#scr-pnv,#scr-pyp,#scr-pyi,#scr-pyn,#scr-pyx,#scr-pyd,#scr-pyv,#scr-ptv,#scr-pcv,#scr-pop,#scr-pdc,#scr-pch,#scr-pcl,#scr-pii,#scr-pia,#scr-pis,#scr-pmy,#scr-ptr,#scr-pgc,#scr-prc,#scr-pkg,#scr-phm,#scr-pvo,#scr-pdu,#scr-pbl,#scr-pmn,#scr-prl,#scr-ptt,#scr-pap,#scr-pvm,#scr-ppc,#scr-ppd,#scr-pev,#scr-ppm,#scr-pel,#scr-pph,#scr-rgp,#scr-red,#scr-tdp,#scr-tdl,#scr-tdc{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -1618,6 +1618,13 @@
   .tdl-fr .tdl-lib-frac .tdp-lib{max-width:none;white-space:nowrap}
   .tdl-fr .tdl-lib-frac .tdl-sel-ph{width:84px;min-width:0;padding:0 4px;margin:0 3px}
   @media(max-width:520px){ .tdl-ligne{gap:8px} }
+  /* ---- Proportions dans un tableau à TROIS colonnes (4.6.6) ---- réutilise les
+     .tdp-* et .tdl-* ; le tableau, plus large (cinq colonnes), défile
+     horizontalement sur un petit écran plutôt que de replier ses rangées. */
+  .tdc-wrap{overflow-x:auto;max-width:100%;padding-bottom:4px}
+  .tdc-wrap .tdp-tab{margin-bottom:14px}
+  .tdc-wrap .tdp-tab th,.tdc-wrap .tdp-tab td{min-width:84px}
+  @media(max-width:520px){ .tdc-wrap .tdp-tab th,.tdc-wrap .tdp-tab td{padding:6px 4px;min-width:0} .tdc-wrap .tdp-in{width:64px} }
   /* ---- Proportions dans un tableau à double entrée (4.6.1, thème Pourcentages) ----
      Le tableau de la fiche papier : les quatre effectifs écrits, les totaux en
      cases de saisie — à la taille des nombres qui les entourent (.tdp-in et
@@ -5347,6 +5354,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- POURCENTAGES : PROPORTIONS DANS UN TABLEAU À TROIS COLONNES (4.6.6) -->
+  <section class="screen" id="scr-tdc">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagTdc"></span><span class="q-idx" id="tdcIdx">Question 1 / 7</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="tdcLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="tdcPrompt"></p>
+      <div class="mp-stage"><div style="width:100%" id="tdcHost"></div></div>
+      <div class="mp-feedback" id="tdcFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="tdcActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkTdcAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- FRACTIONS : RÉVISER LES QUATRE RÈGLES (5.11) -->
   <section class="screen" id="scr-rvf">
     <div class="test-top">
@@ -5610,7 +5633,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=304;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=305;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6319,6 +6342,12 @@ const TESTS={
   'tableau-proportions-lettres-tirees': { name:'Proportions dans un tableau (lettres tir\u00e9es)', icon:'\ud83c\udfb2', desc:'Comme {tableau-proportions-lettres}, mais la paire de lettres change \u00e0 chaque situation\u00a0: une lettre parmi A ou B, une lettre parmi C ou D, tir\u00e9es au hasard. Tu compl\u00e8tes le tableau, tu donnes le nombre correspondant \u00e0 chacune d\u2019elles et \u00e0 leur croisement, puis tu \u00e9cris cinq proportions qui ne parlent que de ces deux lettres.', start:()=>startTdlTirees() },
   'tableau-proportions-directes': { name:'Proportions dans un tableau (fraction directe)', icon:'\u2797', desc:'Comme {tableau-proportions-lettres-tirees}, en plus court\u00a0: tu compl\u00e8tes le tableau, puis pour chaque question tu \u00e9cris directement la proportion en fraction \u2014 l\u2019effectif \u00e9tudi\u00e9 sur l\u2019effectif du tout. Ni les nombres des lettres, ni les phrases \u00e0 compl\u00e9ter.', start:()=>startTdlDirectes() },
   'tableau-proportions-parmi': { name:'Proportions dans un tableau (\u00ab\u00a0parmi\u00a0\u00bb)', icon:'\ud83e\udde9', desc:'Un tableau aux nombres plus petits\u00a0: tu le compl\u00e8tes, puis pour chaque question tu dis avec les lettres de quelle proportion il s\u2019agit \u2014 \u00ab\u00a0C\u2019est la proportion de \u2026 parmi \u2026\u00a0\u00bb \u2014, et tu \u00e9cris la fraction. Les questions portent sur n\u2019importe quelle ligne ou colonne.', start:()=>startTdlParmi() },
+  /* La fiche « tableau_3_colonne » (PDF, octobre 2026) : un tableau à TROIS
+     colonnes et deux lignes, des cases vides à retrouver, puis six
+     proportions rédigées comme au 4.6.5 — « un exercice comme le pdf et
+     présenté comme le 4.6.5 ; des énoncés variés et des questions aux
+     tournures variées ». */
+  'tableau-proportions-trois-colonnes': { name:'Proportions dans un tableau \u00e0 trois colonnes', icon:'\ud83d\uddc2\ufe0f', desc:'Une enqu\u00eate pr\u00e9sent\u00e9e dans un tableau \u00e0 trois colonnes et deux lignes, aux effectifs de quelques centaines\u00a0: tu retrouves les cases vides, puis pour chaque question tu dis avec les lettres de quelle proportion il s\u2019agit \u2014 \u00ab\u00a0C\u2019est la proportion de \u2026 parmi \u2026\u00a0\u00bb \u2014, et tu \u00e9cris la fraction. Les situations et les tournures changent.', start:()=>startTdc() },
   'python-affichage': { name:'Qu\u2019affiche ce programme\u00a0?', icon:'\ud83d\udc0d', desc:'Un petit programme Python : des variables, puis un print(\u2026). Dis d\u2019abord ce qu\u2019il va afficher \u2014 le texte, puis la valeur de la variable \u2014 et ex\u00e9cute-le ensuite pour le voir.', start:()=>startPY() },
   'python-completer': { name:'Afficher un texte suivi d\u2019une variable', icon:'\ud83d\udda8\ufe0f', desc:'Le cours explique comment afficher un texte suivi de la valeur d\u2019une variable : print("texte", variable). Puis \u00e0 toi d\u2019\u00e9crire : le programme commence par note = 12, compl\u00e8te-le pour qu\u2019il affiche \u00ab la note est : 12 \u00bb, ex\u00e9cute-le et v\u00e9rifie. En soutien, la page te dit o\u00f9 est l\u2019erreur.', start:()=>startPYX() },
   /* La suite du 5.7 : le programme porte TROIS variables et une ligne
@@ -6433,7 +6462,7 @@ const THEMES=[
       /* Une proportion AVANT le pourcentage : le tableau \u00e0 double entr\u00e9e de la
          fiche papier (demande de Turquet, septembre 2026). Ajout\u00e9e EN DERNIER,
          la partie ne renum\u00e9rote rien. */
-      { num:6, nom:'Proportions dans un tableau', ids:['tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi'] }
+      { num:6, nom:'Proportions dans un tableau', ids:['tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes'] }
   ] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -6624,6 +6653,7 @@ function liveCheckCurrent(){
   else if(k==='srl') checkSrlAnswer(true);
   else if(k==='tdp') checkTdpAnswer(true);
   else if(k==='tdl') checkTdlAnswer(true);
+  else if(k==='tdc') checkTdcAnswer(true);
   else if(k==='rvf') checkRvfAnswer(true);
   else if(k==='spf') checkSpfAnswer(true);
   else if(k==='pqd') checkPqdAnswer(true);
@@ -7250,6 +7280,7 @@ function conseilPaire(){
   else if(test.kind==='srl' && q) b=ctxSrl(q);
   else if(test.kind==='tdp' && q) b=ctxTdp(q);
   else if(test.kind==='tdl' && q) b=ctxTdl(q);
+  else if(test.kind==='tdc' && q) b=ctxTdc(q);
   else if(test.kind==='rpd' && q) b=ctxRpd(q);
   else if(test.kind==='rvf' && q) b=ctxRvf(q);
   else if(test.kind==='asx' && q) b=ctxAsx(q);
@@ -7629,6 +7660,7 @@ const QIA_SUGG={
   srl:["Qu\u2019est-ce que l\u2019oppos\u00e9 d\u2019un nombre\u00a0?","Pourquoi \u2212 (\u22122) devient-il + (+2)\u00a0?","Quelle diff\u00e9rence entre l\u2019oppos\u00e9 et l\u2019inverse\u00a0?","Comment calculer ensuite l\u2019addition\u00a0?"],
   tdp:["Comment trouver le total d\u2019une ligne ou d\u2019une colonne\u00a0?","Qu\u2019est-ce qu\u2019une proportion\u00a0?","Comment savoir par quoi diviser\u00a0?","Pourquoi \u00ab\u00a0parmi les gar\u00e7ons\u00a0\u00bb change-t-il le d\u00e9nominateur\u00a0?"],
   tdl:["Que veulent dire les lettres A, B, C et D\u00a0?","Que veut dire \u00ab\u00a0A et C\u00a0\u00bb\u00a0?","Comment savoir par quoi diviser\u00a0?","Pourquoi \u00ab\u00a0parmi A\u00a0\u00bb change-t-il le d\u00e9nominateur\u00a0?"],
+  tdc:["Comment retrouver une case vide du tableau\u00a0?","Que veut dire \u00ab\u00a0A et D\u00a0\u00bb\u00a0?","Comment savoir par quoi diviser\u00a0?","Quelle diff\u00e9rence entre \u00ab\u00a0D parmi A\u00a0\u00bb et \u00ab\u00a0A parmi D\u00a0\u00bb\u00a0?"],
   rpd:["Comment trouver le signe d\u2019un produit\u00a0?","Pourquoi x \u00d7 x fait-il x\u00b2\u00a0?","Comment calculer le coefficient sans les signes\u00a0?","Pourquoi n\u2019\u00e9crit-on jamais 1x\u00a0?"],
   rvf:["Pourquoi on ne met pas au m\u00eame d\u00e9nominateur pour multiplier\u00a0?","Comment trouver le d\u00e9nominateur commun quand ils sont diff\u00e9rents\u00a0?","Pourquoi diviser par une fraction, c\u2019est multiplier par son inverse\u00a0?","Comment \u00e9crire un entier en fraction\u00a0?"],
   spf:["Pourquoi calculer le produit avant la somme\u00a0?","Comment croiser les d\u00e9nominateurs\u00a0?","Que faire une fois le produit calcul\u00e9\u00a0?","Est-ce que l\u2019ordre d\u2019\u00e9criture change le r\u00e9sultat\u00a0?"],
@@ -8778,6 +8810,10 @@ const RAP_TDL=`<b>Proportions dans un tableau, avec des lettres</b><br>
 <b>① Chaque groupe a sa lettre.</b> Dans le tableau, A et B sont les colonnes, C et D les lignes : « A = Garçons », « C = Avec lunettes ». Le nombre correspondant à <b>A</b> est le total de sa colonne ; celui de <b>C</b>, le total de sa ligne ; celui de « <b>A et C</b> », la case où la colonne A croise la ligne C : ceux qui sont dans les deux groupes à la fois.<br>
 <b>② Une proportion, c'est « une partie sur un tout ».</b> On écrit d'abord qui on étudie, puis <b>parmi</b> qui : « Ici on étudie les élèves <b>A</b> parmi <b>la classe</b> ». Le mot « parmi » (ou « dans ») donne le tout, celui qu'on met au dénominateur.<br>
 <b>③ Exemple.</b> 3 garçons à lunettes (A et C), 13 garçons (A), 30 élèves : la proportion de A <b>dans la classe</b> est \\(\\frac{13}{30}\\) ; la proportion de C <b>parmi A</b> est \\(\\frac{3}{13}\\). Même groupe étudié possible, pas le même tout.`;
+const RAP_TDC=`<b>Proportions dans un tableau à trois colonnes</b><br>
+<b>① Compléter le tableau.</b> Le total d'une ligne est la somme de ses trois cases ; le total d'une colonne, la somme de ses deux cases ; le total général est la somme des totaux de lignes — et aussi celle des totaux de colonnes, ce qui permet de vérifier. Une case vide se retrouve par un <b>reste</b> : dans une ligne où une seule case manque, c'est le total de la ligne moins les autres cases.<br>
+<b>② Chaque groupe a sa lettre.</b> A, B et C sont les colonnes, D et E les lignes : « A = Train », « D = Femmes ». « <b>A et D</b> » désigne la case où la colonne A croise la ligne D : les femmes qui souhaitent prendre le train.<br>
+<b>③ Une proportion, c'est « une partie sur un tout ».</b> Le mot <b>parmi</b> (ou « dans ») donne le tout, celui qu'on met au dénominateur ; le numérateur est l'effectif de ceux qu'on étudie À L'INTÉRIEUR de ce tout. Avec 468 femmes en train, 720 femmes, 618 personnes en train et 1 200 employés : la proportion de D <b>dans l'entreprise</b> est \\(\\frac{720}{1200}\\) ; celle de D <b>parmi A</b> est \\(\\frac{468}{618}\\) ; celle de A <b>parmi D</b> est \\(\\frac{468}{720}\\). Même case en haut, pas le même tout.`;
 const RAP_RPD=`<b>Réduire un produit avec x</b><br>
 <b>① Le signe d'abord : la règle des signes.</b> Deux signes <b>pareils</b> donnent <b>+</b> ; deux signes <b>contraires</b> donnent <b>−</b>. Comme pour multiplier deux nombres relatifs.<br>
 <b>② Puis les coefficients se multiplient</b>, sans leurs signes : dans (−3<i>x</i>) × (−5<i>x</i>), on calcule 3 × 5 = 15.<br>
@@ -8803,7 +8839,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}\\)`;
 const RAPPELS={ pgc:RAP_PGC, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
-  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, prc:RAP_PRC, pkg:RAP_PKG, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pbl:RAP_PBL, pmn:RAP_PMN, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
+  pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, prc:RAP_PRC, pkg:RAP_PKG, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pbl:RAP_PBL, pmn:RAP_PMN, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
 const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
@@ -8930,7 +8966,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-input-prix','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -9399,7 +9435,7 @@ function retourModes(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], spr:['spr',renderSpr], ppb:['ppb',renderPpb], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], ptr:['ptr',renderPTR], pgc:['pgc',renderPGC], prc:['prc',renderPRC], pkg:['pkg',renderPKG], phm:['phm',renderPHM], pvo:['pvo',renderPVO], pdu:['pdu',renderPDU], pbl:['pbl',renderPBL], pmn:['pmn',renderPMN], prl:['prl',renderPRL], ptt:['ptt',renderPTT], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], asp:['asptest',renderASPTest], mp:['mtest',renderMTest], fracp:['ftest',renderFTest], md:['mdtest',renderMDTest], u:['utest',renderUTest], pct:['ptest',renderPTest], pctb:['pctb',renderPctBoiteTest], pctc:['pctc',renderPctChaineTest], pcs:['pcs',renderPcsTest], pcc:['pcc',renderPccTest], psv:['psv',renderPsvTest], pcp:['pcp',renderPcpTest], aug:['atest',renderATest], dim:['dtest',renderDTest], pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], augq:['vtest',renderVTest], fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest], psyn:['syntest',renderSynTest], evb:['evbtest',renderEvbTest], evs:['evs',renderEvsTest], spr:['spr',renderSpr], ppb:['ppb',renderPpb], sev:['sev',renderSevTest], evc:['evc',renderEvcTest], evp:['evp',renderEvpTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], tc:['tctest',renderTCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], pf:['pf',renderPF], rvf:['rvf',renderRvfTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], qdb:['qdb',renderQdbTest], tsf:['tsf',renderTsfTest], ord:['ord',renderOrdTest], rel:['rel',renderRelTest], asx:['asx',renderAsxTest], cit:['cit',renderCitTest], rgp:['rgp',renderRgpTest], red:['red',renderRedTest], mrl:['mrl',renderMrlTest], srl:['srl',renderSrlTest], rpd:['rpd',renderRpdTest], tdp:['tdp',renderTdpTest], tdl:['tdl',renderTdlTest], tdc:['tdc',renderTdcTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS], py:['py',renderPY], pty:['pty',renderPTY], pyc:['pyc',renderPYC], pvn:['pvn',renderPVN], pnv:['pnv',renderPNV], pyp:['pyp',renderPYP], pyi:['pyi',renderPYI], pyn:['pyn',renderPYN], pyx:['pyx',renderPYX], pyd:['pyd',renderPYD], pyv:['pyv',renderPYV], ptv:['ptv',renderPTV], pcv:['pcv',renderPCV], pop:['pop',renderPOP], pdc:['pdc',renderPDC], pch:['pch',renderPCH], pcl:['pcl',renderPCL], pii:['pii',renderPII], pia:['pia',renderPIA], pis:['pis',renderPIS], pmy:['pmy',renderPMY], ptr:['ptr',renderPTR], pgc:['pgc',renderPGC], prc:['prc',renderPRC], pkg:['pkg',renderPKG], phm:['phm',renderPHM], pvo:['pvo',renderPVO], pdu:['pdu',renderPDU], pbl:['pbl',renderPBL], pmn:['pmn',renderPMN], prl:['prl',renderPRL], ptt:['ptt',renderPTT], pap:['pap',renderPAP], pvm:['pvm',renderPVM], ppc:['ppc',renderPPC], ppd:['ppd',renderPPD], ppm:['ppm',renderPPM], pev:['pev',renderPEV], pel:['pel',renderPEL], pph:['pph',renderPPH]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -9530,7 +9566,7 @@ function show(name){
   if(name!=='spr'){ try{ sprRestituer(); }catch(e){} }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','spr','ppb','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pii','pia','pis','pmy','ptr','pgc','prc','pkg','phm','pvo','pdu','pbl','pmn','prl','ptt','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','test','tm','asptest','mtest','ftest','mdtest','utest','ptest','pctb','pctc','pcs','pcp','pcc','psv','evbtest','evs','spr','ppb','sev','evc','evp','atest','dtest','qtest','psl','sal','pcol','fptest','vtest','a2qtest','syntest','ag2test','bstest','hstest','hsctest','lctest','tctest','cktest','actest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','pf','rvf','spf','pqd','qdb','tsf','ord','rel','asx','cit','rgp','mrl','red','srl','rpd','tdp','tdl','tdc','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs','py','pty','pyc','pvn','pnv','pyp','pyi','pyn','pyx','pyd','pyv','ptv','pcv','pop','pdc','pch','pcl','pii','pia','pis','pmy','ptr','pgc','prc','pkg','phm','pvo','pdu','pbl','pmn','prl','ptt','pap','pvm','ppc','ppd','ppm','pev','pel','pph'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -46197,6 +46233,437 @@ function startTdl(){ demarrerTdl('tableau-proportions-lettres', tdlBuildQuestion
 function startTdlTirees(){ demarrerTdl('tableau-proportions-lettres-tirees', tdlBuildQuestionsTirees); }
 function startTdlDirectes(){ demarrerTdl('tableau-proportions-directes', tdlBuildQuestionsDirectes); }
 function startTdlParmi(){ demarrerTdl('tableau-proportions-parmi', tdlBuildQuestionsParmi); }
+
+/* ===== EXERCICE : PROPORTIONS DANS UN TABLEAU À TROIS COLONNES ============
+   (identifiant « tableau-proportions-trois-colonnes », kind « tdc », thème
+   Pourcentages, partie 6, numéro 4.6.6)
+   Demandé par Turquet en octobre 2026, avec la fiche « tableau_3_colonne »
+   (PDF) : « un exercice comme le pdf et présenté comme le 4.6.5 ; des énoncés
+   variés et des questions aux tournures variées ». La fiche : le comité
+   d'entreprise d'une société organise un week-end à Rome, une enquête auprès
+   des 1 200 employés sur le moyen de transport — (A) Train, (B) Avion, (C)
+   Autocar en colonnes, (D) Femmes, (E) Hommes en lignes —, un tableau où deux
+   cases manquent (468, 196, _, 720 / 150, _, 64, 480 / 618, 462, 120, 1200),
+   puis six proportions : D dans l'entreprise, A dans l'entreprise, « A et D »
+   dans l'entreprise, D parmi A, A parmi D, et D parmi B (« On s'intéresse aux
+   employés qui ont choisi l'avion… »).
+   Ce que fait l'exercice : une mise en situation tirée parmi sept (TDC_CTX,
+   dont celle de la fiche), avec son texte d'introduction qui porte l'effectif
+   total ; un tableau 2 lignes × 3 colonnes aux effectifs de l'ordre de la
+   fiche — le total tiré parmi des nombres ronds (TDC_TOTAUX), les lignes en
+   dizaines, les cases quelconques (tdcGenTable) —, dont deux à quatre cases
+   sont VIDES (q.vides, tdcGenVides) : toujours retrouvables de proche en
+   proche, une ligne ou une colonne à la fois (tdcResoudre), et au moins une
+   case intérieure parmi elles. Puis six proportions rédigées comme au 4.6.5 :
+   « C'est la proportion de [liste] parmi [liste] », les listes offrant
+   A ; B ; C ; D ; E ; les six croisements « A et D »… ; tout (TDC_LISTE), et
+   la fraction aux libellés recopiés en direct. Les proportions suivent l'ordre
+   de la fiche — trois « dans l'entreprise » (une ligne, une colonne, un
+   croisement), puis trois « parmi » (une lettre de ligne parmi une colonne,
+   une de colonne parmi une ligne, et une de plus) — et leurs questions se
+   tirent parmi huit tournures (TDC_V), le groupe étudié en gris, le tout en
+   gras. Sept questions par situation (TDC_NB) ; barème : les cases vides du
+   tableau + 6 × 4. Le réglage « Questions » d'un devoir se lit au tirage.
+   Partagé avec les 4.6.1–4.6.5 : les styles .tdp-* et .tdl-*, corrChoix,
+   msgAvecVides, tdpLit, tdpJuste, tdpDes, tdpCap, tdlGris, tdlGras. Propre :
+   tout le reste — le 2 × 2 des moteurs tdp/tdl est écrit en dur (tdpEff,
+   tdpTotaux, tdlLettre), et le plier à trois colonnes aurait touché cinq
+   exercices en ligne pour en écrire un.
+   On range les indices (q.ci, q.v), les effectifs (q.t), les clés (q.gk,
+   q.rk, q.vides), jamais les réponses ni les textes. Les clés : c0, c1, c2
+   les colonnes ; l0, l1 les lignes ; xLC la case (ligne L, colonne C) ; tout
+   l'effectif entier. */
+const TDC_NB=7, TDC_TOTAUX=[600,800,900,1000,1200,1500,1800,2000];
+/* Chaque colonne porte sa tête, son verbe (« souhaitent prendre le train »)
+   et son participe (« souhaitant prendre le train »), qui fabrique le nom du
+   groupe (« les employés souhaitant prendre le train ») et celui d'un
+   croisement (« les femmes souhaitant prendre le train »). L'introduction
+   est une fonction de l'effectif total, écrit comme sur la fiche. */
+const TDC_CTX=[
+  /* la fiche */
+  { intro:function(tt){ return 'Le comité d’entreprise d’une société souhaite organiser un week-end à Rome. Une enquête est faite auprès des '+tt+' employés de cette société afin de connaître leur choix en matière de moyen de transport : le train, l’avion ou l’autocar.'; },
+    pop:'l’entreprise', dans:'dans l’entreprise', de:'d’employés',
+    col:[{tete:'Train',   p:'souhaitent prendre le train',   q:'souhaitant prendre le train'},
+         {tete:'Avion',   p:'souhaitent prendre l’avion',    q:'souhaitant prendre l’avion'},
+         {tete:'Autocar', p:'souhaitent prendre l’autocar',  q:'souhaitant prendre l’autocar'}],
+    lig:[{tete:'Femmes', p:'sont des femmes', nom:'les femmes', f:true},
+         {tete:'Hommes', p:'sont des hommes', nom:'les hommes'}] },
+  { intro:function(tt){ return 'Dans un lycée, on a relevé la seconde langue vivante choisie par chacun des '+tt+' élèves : l’espagnol, l’allemand ou l’italien.'; },
+    pop:'le lycée', dans:'dans le lycée', de:'d’élèves',
+    col:[{tete:'Espagnol', p:'étudient l’espagnol', q:'étudiant l’espagnol'},
+         {tete:'Allemand', p:'étudient l’allemand', q:'étudiant l’allemand'},
+         {tete:'Italien',  p:'étudient l’italien',  q:'étudiant l’italien'}],
+    lig:[{tete:'Filles',  p:'sont des filles',  nom:'les filles', f:true},
+         {tete:'Garçons', p:'sont des garçons', nom:'les garçons'}] },
+  { intro:function(tt){ return 'Un club sportif compte '+tt+' adhérents. Chacun pratique une seule discipline : la natation, le tennis ou le judo.'; },
+    pop:'le club', dans:'dans le club', de:'d’adhérents',
+    col:[{tete:'Natation', p:'pratiquent la natation', q:'pratiquant la natation'},
+         {tete:'Tennis',   p:'pratiquent le tennis',   q:'pratiquant le tennis'},
+         {tete:'Judo',     p:'pratiquent le judo',     q:'pratiquant le judo'}],
+    lig:[{tete:'Adultes', p:'sont des adultes', nom:'les adultes'},
+         {tete:'Enfants', p:'sont des enfants', nom:'les enfants'}] },
+  { intro:function(tt){ return 'Un cinéma a interrogé les '+tt+' spectateurs d’un samedi sur le film qu’ils ont choisi : une comédie, un film d’action ou un film d’animation.'; },
+    pop:'le cinéma', dans:'dans le cinéma', de:'de spectateurs',
+    col:[{tete:'Comédie',   p:'ont choisi la comédie',          q:'ayant choisi la comédie'},
+         {tete:'Action',    p:'ont choisi le film d’action',    q:'ayant choisi le film d’action'},
+         {tete:'Animation', p:'ont choisi le film d’animation', q:'ayant choisi le film d’animation'}],
+    lig:[{tete:'Adultes', p:'sont des adultes', nom:'les adultes'},
+         {tete:'Enfants', p:'sont des enfants', nom:'les enfants'}] },
+  { intro:function(tt){ return 'À la cantine d’un collège, on a noté le plat choisi par chacun des '+tt+' élèves : des pâtes, du riz ou des légumes.'; },
+    pop:'la cantine', dans:'à la cantine', de:'d’élèves',
+    col:[{tete:'Pâtes',   p:'ont choisi les pâtes',   q:'ayant choisi les pâtes'},
+         {tete:'Riz',     p:'ont choisi le riz',      q:'ayant choisi le riz'},
+         {tete:'Légumes', p:'ont choisi les légumes', q:'ayant choisi les légumes'}],
+    lig:[{tete:'Filles',  p:'sont des filles',  nom:'les filles', f:true},
+         {tete:'Garçons', p:'sont des garçons', nom:'les garçons'}] },
+  { intro:function(tt){ return 'Une enquête auprès des '+tt+' salariés d’une zone d’activité porte sur leur façon de venir au travail : à vélo, en bus ou en voiture.'; },
+    pop:'la zone d’activité', dans:'dans la zone d’activité', de:'de salariés',
+    col:[{tete:'Vélo',    p:'viennent à vélo',     q:'venant à vélo'},
+         {tete:'Bus',     p:'viennent en bus',     q:'venant en bus'},
+         {tete:'Voiture', p:'viennent en voiture', q:'venant en voiture'}],
+    lig:[{tete:'Femmes', p:'sont des femmes', nom:'les femmes', f:true},
+         {tete:'Hommes', p:'sont des hommes', nom:'les hommes'}] },
+  { intro:function(tt){ return 'Une librairie a relevé, pour chacun de ses '+tt+' clients du mois, le type de livre acheté : un roman, une BD ou un manga.'; },
+    pop:'la librairie', dans:'dans la librairie', de:'de clients',
+    col:[{tete:'Roman', p:'ont acheté un roman', q:'ayant acheté un roman'},
+         {tete:'BD',    p:'ont acheté une BD',   q:'ayant acheté une BD'},
+         {tete:'Manga', p:'ont acheté un manga', q:'ayant acheté un manga'}],
+    lig:[{tete:'Adultes', p:'sont des adultes', nom:'les adultes'},
+         {tete:'Enfants', p:'sont des enfants', nom:'les enfants'}] }
+];
+const TDC_CLES=['x00','x01','x02','x10','x11','x12','l0','l1','c0','c1','c2','tout'];
+/* la liste des deux choix, dans l'ordre : les lettres, les croisements, tout */
+const TDC_LISTE=['c0','c1','c2','l0','l1','x00','x01','x02','x10','x11','x12','tout'];
+/* les sept lignes du tableau où une somme se lit : la dernière clé est le total des autres */
+const TDC_LIGNES=[['x00','x01','x02','l0'],['x10','x11','x12','l1'],['x00','x10','c0'],['x01','x11','c1'],['x02','x12','c2'],['c0','c1','c2','tout'],['l0','l1','tout']];
+function tdcNbFr(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }   /* 1200 → « 1 200 » */
+function tdcUnite(ctx){ return ctx.de.replace(/^d[e’]\s*/,''); }                       /* « d’employés » → « employés » */
+function tdcDans(k, l, c){
+  if(k==='tout') return true;
+  if(k[0]==='c') return c===+k[1];
+  if(k[0]==='l') return l===+k[1];
+  return l===+k[1] && c===+k[2];
+}
+/* l'effectif des cases qui sont à la fois dans le groupe gk et dans le groupe rk */
+function tdcEff(q, gk, rk){
+  let n=0;
+  for(let l=0;l<2;l++) for(let c=0;c<3;c++) if(tdcDans(gk,l,c) && tdcDans(rk||'tout',l,c)) n+=q.t[l][c];
+  return n;
+}
+function tdcTotaux(q){
+  const lt=[0,1].map(function(l){ return q.t[l][0]+q.t[l][1]+q.t[l][2]; });
+  const ct=[0,1,2].map(function(c){ return q.t[0][c]+q.t[1][c]; });
+  return {lt:lt, ct:ct, tt:lt[0]+lt[1]};
+}
+function tdcVal(q, k){
+  const T=tdcTotaux(q);
+  if(k==='tout') return T.tt;
+  if(k[0]==='c') return T.ct[+k[1]];
+  if(k[0]==='l') return T.lt[+k[1]];
+  return q.t[+k[1]][+k[2]];
+}
+function tdcLettre(k){
+  if(k==='tout') return 'tout';
+  if(k[0]==='c') return 'ABC'.charAt(+k[1]);
+  if(k[0]==='l') return 'DE'.charAt(+k[1]);
+  return 'ABC'.charAt(+k[2])+' et '+'DE'.charAt(+k[1]);
+}
+function tdcGroupe(ctx, k){
+  if(k==='tout') return {k:k, nom:ctx.pop, p:''};
+  if(k[0]==='c'){ const g=ctx.col[+k[1]]; return {k:k, nom:'les '+tdcUnite(ctx)+' '+g.q, p:g.p}; }
+  if(k[0]==='l'){ const g=ctx.lig[+k[1]]; return {k:k, nom:g.nom, p:g.p, f:!!g.f}; }
+  const g=ctx.col[+k[2]], h=ctx.lig[+k[1]];
+  return {k:k, nom:h.nom+' '+g.q, p:h.p+' '+g.q, f:!!h.f};
+}
+/* le nom d'une case du tableau, pour une étiquette ou un message */
+function tdcNomCase(ctx, k){
+  if(k==='tout') return 'le total général';
+  if(k[0]==='c') return 'le total de la colonne « '+ctx.col[+k[1]].tete+' »';
+  if(k[0]==='l') return 'le total de la ligne « '+ctx.lig[+k[1]].tete+' »';
+  return 'la case « '+ctx.lig[+k[1]].tete+' / '+ctx.col[+k[2]].tete+' »';
+}
+/* Le tableau : le total parmi des nombres ronds, les deux lignes en dizaines
+   (de 35 à 65 % du total), chaque ligne coupée en trois cases d'au moins un
+   dixième de la ligne. */
+function tdcGenTable(){
+  const tt=pick(TDC_TOTAUX);
+  const l0=10*rand(Math.ceil(0.35*tt/10), Math.floor(0.65*tt/10));
+  return [l0, tt-l0].map(function(L){
+    const min=Math.max(1, Math.round(L/10));
+    const a=rand(min, L-2*min), b=rand(min, L-a-min);
+    return ensShuffle([a, b, L-a-b]);
+  });
+}
+/* Les cases vides se retrouvent de proche en proche : une ligne du tableau
+   (TDC_LIGNES) où une seule case manque la donne. L'ordre de résolution est
+   rendu — c'est lui que le pourquoi raconte — ou null si une case reste
+   introuvable. */
+function tdcResoudre(vides){
+  const inc=vides.slice(), ordre=[];
+  let bouge=true;
+  while(inc.length && bouge){
+    bouge=false;
+    TDC_LIGNES.forEach(function(L){
+      const m=L.filter(function(k){ return inc.indexOf(k)>=0; });
+      if(m.length===1){ ordre.push({k:m[0], ligne:L}); inc.splice(inc.indexOf(m[0]),1); bouge=true; }
+    });
+  }
+  return inc.length ? null : ordre;
+}
+function tdcGenVides(){
+  for(let i=0;i<100;i++){
+    const n=rand(2,4);
+    const v=ensShuffle(TDC_CLES.slice()).slice(0,n).sort(function(a,b){ return TDC_CLES.indexOf(a)-TDC_CLES.indexOf(b); });
+    if(v.some(function(k){ return k[0]==='x'; }) && tdcResoudre(v)) return v;
+  }
+  return ['x02','x11'];   /* la fiche */
+}
+/* Les proportions d'une situation, dans l'ordre de la fiche : trois « dans
+   l'entreprise » (une ligne, une colonne, un croisement), puis trois « parmi »
+   (une ligne parmi une colonne, une colonne parmi une ligne, une de plus). */
+function tdcProportions(){
+  const f1=[], f2=[], f3=[];
+  for(let l=0;l<2;l++) for(let c=0;c<3;c++){ f1.push({gk:'x'+l+c, rk:'tout'}); f2.push({gk:'l'+l, rk:'c'+c}); f3.push({gk:'c'+c, rk:'l'+l}); }
+  const dans=ensShuffle([{gk:pick(['l0','l1']), rk:'tout'}, {gk:pick(['c0','c1','c2']), rk:'tout'}, pick(f1)]);
+  const p2=pick(f2), p3=pick(f3);
+  const reste=ensShuffle(f2.concat(f3).filter(function(p){ return p!==p2 && p!==p3; }));
+  return dans.concat(ensShuffle([p2, p3, reste[0]]));
+}
+/* « A et D » est aussi juste pour « D parmi A » : les mêmes personnes (le motif
+   du 4.6.1, tdpAlt). Rien quand le tout est l'effectif entier. */
+function tdcAlt(q){
+  if(q.rk==='tout' || q.gk[0]==='x') return [];
+  const l=q.gk[0]==='l'?q.gk[1]:q.rk[1], c=q.gk[0]==='c'?q.gk[1]:q.rk[1];
+  return ['x'+l+c];
+}
+function tdcBuildQuestions(){
+  const n=dmNbQuestions(TDC_NB);
+  const qs=[], tabs=[], cis=ensShuffle(TDC_CTX.map(function(_,i){ return i; }));
+  let s=0;
+  while(qs.length<n){
+    const ci=cis[s%cis.length];
+    const tab=distincte(tabs, function(){ return {t:tdcGenTable()}; }); tabs.push(tab);
+    const base={ci:ci, t:tab.t, vides:tdcGenVides()};
+    const seq=[{phase:'tab'}].concat(tdcProportions().map(function(p){ return Object.assign({phase:'prop'}, p); }));
+    seq.forEach(function(p,i){
+      if(qs.length>=n) return;
+      qs.push(Object.assign({}, base, p, p.phase==='prop' ? {v:rand(0,TDC_V.length-1), n:i} : {}));
+    });
+    s++;
+  }
+  return qs;
+}
+/* Les tournures de la question : le groupe étudié en gris, le tout en gras,
+   comme sur la fiche (« Calculer la proportion des femmes parmi les gens
+   souhaitant prendre le train » ; « On s'intéresse aux employés qui ont choisi
+   l'avion… »). */
+function tdcTout(r, ctx){ return r.k==='tout' ? ctx.dans : 'parmi '+r.nom; }
+function tdcAux(nom){ return nom.replace(/^les /,'aux '); }
+const TDC_V=[
+  function(g,r,ctx){ return 'Calculer la proportion '+tdlGris(tdpDes(g.nom))+' '+tdlGras(tdcTout(r,ctx))+'.'; },
+  function(g,r,ctx){ return 'Quelle est la proportion '+tdlGris(tdpDes(g.nom))+' '+tdlGras(tdcTout(r,ctx))+' ?'; },
+  function(g,r,ctx){ return tdlGras(tdpCap(tdcTout(r,ctx)))+', quelle est la proportion '+tdlGris(tdpDes(g.nom))+' ?'; },
+  function(g,r,ctx){ return 'Calculer la proportion de ceux qui '+tdlGris(g.p)+' '+tdlGras(tdcTout(r,ctx))+'.'; },
+  function(g,r,ctx){ return tdlGras(tdpCap(tdcTout(r,ctx)))+', quelle est la part de ceux qui '+tdlGris(g.p)+' ?'; },
+  function(g,r,ctx){ return 'Quelle proportion '+tdlGras(r.k==='tout'?'des '+tdcUnite(ctx):tdpDes(r.nom))+' '+tdlGris(g.p)+' ?'; },
+  function(g,r,ctx){ return 'On s’intéresse '+tdlGras(r.k==='tout'?'à l’ensemble des '+tdcUnite(ctx):tdcAux(r.nom))+'. Quelle est la proportion '+tdlGris(tdpDes(g.nom))+' parmi '+(r.f?'elles':'eux')+' ?'; },
+  function(g,r,ctx){ return 'Écrire sous forme de fraction la proportion '+tdlGris(tdpDes(g.nom))+' '+tdlGras(tdcTout(r,ctx))+'.'; }
+];
+function tdcEnonceHTML(q){
+  const ctx=TDC_CTX[q.ci];
+  return TDC_V[q.v%TDC_V.length](tdcGroupe(ctx,q.gk), tdcGroupe(ctx,q.rk), ctx);
+}
+function tdcEnonce(q){ return tdcEnonceHTML(q).replace(/<[^>]+>/g,'').replace(/&amp;/g,'&'); }
+function tdcIntro(q){ const ctx=TDC_CTX[q.ci]; return ctx.intro(tdcNbFr(tdcTotaux(q).tt)); }
+/* Ce que chaque case attend. Le poids d'une question (dmPoidsQuestion) se lit
+   sur la longueur de cette liste : les cases vides pour un tableau, 4 pour une
+   proportion. */
+function tdcCases(q){
+  if(q.phase==='tab') return q.vides.map(function(k){ return {id:'tdc-'+k, bon:String(tdcVal(q,k)), kind:'nb', quoi:k}; });
+  return [ {id:'tdc-qui',   bon:q.gk, kind:'sel', alt:tdcAlt(q)},
+           {id:'tdc-parmi', bon:q.rk, kind:'sel'},
+           {id:'tdc-num',   bon:String(tdcEff(q,q.gk,q.rk)),   kind:'nb'},
+           {id:'tdc-den',   bon:String(tdcEff(q,q.rk,'tout')), kind:'nb'} ];
+}
+/* Le tableau de la fiche : « (A) Train », « (D) Femmes ». Les cases vides sont
+   des saisies (saisie=true) ou des nombres écrits (le tableau complété qui
+   accompagne chaque proportion) ; les nombres s'écrivent avec l'espace des
+   milliers, à la taille des cases (.tdp-nb et .tdp-in partagent leur corps). */
+function tdcTableHTML(q, saisie){
+  const ctx=TDC_CTX[q.ci];
+  const nb=function(v){ return '<span class="tdp-nb">'+tdcNbFr(v)+'</span>'; };
+  const cell=function(k){ return (saisie && q.vides.indexOf(k)>=0)
+    ? '<input class="tdp-in" id="tdc-'+k+'" type="text" inputmode="numeric" autocomplete="off" aria-label="'+esc(tdcNomCase(ctx,k))+'">'
+    : nb(tdcVal(q,k)); };
+  const ent=function(k,tete){ return '<b class="tdl-tl">('+tdcLettre(k)+')</b> '+esc(tete); };
+  let h='<div class="tdc-wrap"><table class="tdp-tab tdc-tab"><thead><tr><th></th>'
+    +[0,1,2].map(function(c){ return '<th>'+ent('c'+c,ctx.col[c].tete)+'</th>'; }).join('')
+    +'<th class="tdp-tot">Total</th></tr></thead><tbody>';
+  for(let l=0;l<2;l++){
+    h+='<tr><th>'+ent('l'+l,ctx.lig[l].tete)+'</th>'
+      +[0,1,2].map(function(c){ return '<td>'+cell('x'+l+c)+'</td>'; }).join('')
+      +'<td class="tdp-tot">'+cell('l'+l)+'</td></tr>';
+  }
+  h+='<tr><th class="tdp-tot">Total</th>'
+    +[0,1,2].map(function(c){ return '<td class="tdp-tot">'+cell('c'+c)+'</td>'; }).join('')
+    +'<td class="tdp-tot">'+cell('tout')+'</td></tr></tbody></table></div>';
+  return h;
+}
+/* Les choix des deux listes se recopient dans les libellés de la fraction. */
+function tdcLibelles(){
+  const lit=function(id){ const el=$(id); if(!el || !el.value) return '…';
+    const o=[].find.call(el.options, function(x){ return x.value===el.value; }); return o?o.textContent:'…'; };
+  const qui=lit('tdc-qui'), parmi=lit('tdc-parmi');
+  const e=$('tdc-lib-qui'); if(e) e.textContent=qui;
+  ['tdc-lib-parmi','tdc-lib-parmi2'].forEach(function(id){ const x=$(id); if(x) x.textContent=parmi; });
+}
+function tdcPromptTxt(q){
+  if(q.phase==='tab') return 'Complète les cases vides du tableau.';
+  return 'Le tableau est complété. Dis de quelle proportion il s’agit, avec les lettres A ; B ; C ; D ; E, un croisement comme « A et D », ou « tout », puis écris-la en fraction.';
+}
+function renderTdcTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('tdcIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagTdc').innerHTML=modeTagHTML();
+  $('tdcLiveScore').textContent=test.score;
+  $('tdcFeedback').textContent=''; $('tdcFeedback').className='mp-feedback';
+  $('tdcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkTdcAnswer()">Vérifier</button>';
+  $('tdcPrompt').innerHTML=esc(tdcIntro(q))+'<br>'+esc(tdcPromptTxt(q));
+  const inp=function(id, lbl){ return '<input class="tdp-in" id="'+id+'" type="text" inputmode="numeric" autocomplete="off" aria-label="'+esc(lbl)+'">'; };
+  let h;
+  if(q.phase==='tab'){
+    h=tdcTableHTML(q, true);
+  } else {
+    const vide='<option value="" selected disabled>?</option>';
+    const sel=function(id, lbl){ return '<select class="plc-sel tdp-sel tdl-sel" id="'+id+'" aria-label="'+esc(lbl)+'">'+vide
+      +TDC_LISTE.map(function(k){ return '<option value="'+k+'">'+esc(tdcLettre(k))+'</option>'; }).join('')+'</select>'; };
+    h=tdcTableHTML(q, false)
+     +'<p class="tdl-quest"><b class="tdl-n">'+q.n+')</b>'+tdcEnonceHTML(q)+'</p>'
+     +'<div class="tdp-etude tdl-etude-r"><span>C’est la proportion de</span>'+sel('tdc-qui','la proportion de qui')
+     +'<span>parmi</span>'+sel('tdc-parmi','parmi qui')+'</div>'
+     +'<div class="tdp-frac-ligne tdl-fr">'
+       +'<span class="tdp-frac tdl-lib-frac">'
+         +'<span class="tdp-num"><span class="tdp-lib"><i id="tdc-lib-qui">…</i> parmi <i id="tdc-lib-parmi">…</i></span></span>'
+         +'<span class="tdp-den"><span class="tdp-lib">parmi <i id="tdc-lib-parmi2">…</i></span></span>'
+       +'</span>'
+       +'<span class="tdp-egal">=</span>'
+       +'<span class="tdp-frac tdl-res">'
+         +'<span class="tdp-num">'+inp('tdc-num','le numérateur')+'</span>'
+         +'<span class="tdp-den">'+inp('tdc-den','le dénominateur')+'</span>'
+       +'</span></div>';
+  }
+  $('tdcHost').innerHTML=h;
+  tdcCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
+    el.addEventListener(c.kind==='nb'?'input':'change', function(){ if(q.phase!=='tab') tdcLibelles(); if(isSoutien()) checkTdcAnswer(true);
+      clearTimeout(test.tdcSave); test.tdcSave=setTimeout(autoSave,1000); });
+    if(c.kind==='nb') el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkTdcAnswer(); } });
+  });
+  const premier=$(q.phase==='tab' ? 'tdc-'+q.vides[0] : 'tdc-qui'); if(premier) setTimeout(function(){ premier.focus(); },70);
+}
+/* Le pourquoi d'une case vide du tableau : la ligne qui la donne, telle que la
+   résolution l'a trouvée — un total est la somme de ses cases, une case est
+   le reste de sa ligne ou de sa colonne. */
+function tdcExplication(q, k){
+  const ctx=TDC_CTX[q.ci], ordre=tdcResoudre(q.vides)||[];
+  const e=ordre.find(function(o){ return o.k===k; });
+  if(!e) return tdpCap(tdcNomCase(ctx,k))+' vaut '+tdcNbFr(tdcVal(q,k))+'.';
+  const L=e.ligne, tot=L[L.length-1], autres=L.slice(0,-1), nb=function(x){ return tdcNbFr(tdcVal(q,x)); };
+  const totaux=(tot==='tout');   /* la ligne ou la colonne des totaux */
+  if(k===tot){
+    const de=totaux ? (L===TDC_LIGNES[5] ? 'des totaux de colonnes' : 'des totaux de lignes') : 'de ses cases';
+    return tdpCap(tdcNomCase(ctx,k))+' est la somme '+de+' : '+autres.map(nb).join(' + ')+' = '+nb(k)+'.';
+  }
+  const reste=autres.filter(function(x){ return x!==k; });
+  const ou=totaux ? 'du total général' : (L.length===4 ? 'de la ligne « '+ctx.lig[+tot[1]].tete+' »' : 'de la colonne « '+ctx.col[+tot[1]].tete+' »');
+  return tdpCap(tdcNomCase(ctx,k))+' est le reste '+ou+' : '+nb(tot)+' − '+reste.map(nb).join(' − ')+' = '+nb(k)+'.';
+}
+/* Le pourquoi, dit sur la PREMIÈRE case fausse. */
+function tdcPourquoi(q, subs){
+  const ctx=TDC_CTX[q.ci];
+  const f=subs.find(function(s){ return !s.ok && !s.vide; });
+  if(!f) return '';
+  if(q.phase==='tab') return tdcExplication(q, f.c.quoi);
+  const g=tdcGroupe(ctx,q.gk), r=tdcGroupe(ctx,q.rk), num=tdcEff(q,q.gk,q.rk), den=tdcEff(q,q.rk,'tout');
+  return 'C’est la proportion de '+tdcLettre(q.gk)+' ('+g.nom+') parmi '+(q.rk==='tout'?'tout ('+ctx.pop+')':tdcLettre(q.rk)+' ('+r.nom+')')+' : ils sont '+tdcNbFr(num)+' sur '+tdcNbFr(den)+', la proportion est '+num+'/'+den+'.';
+}
+function checkTdcAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx], ctx=TDC_CTX[q.ci];
+  const cases=tdcCases(q);
+  if(live){   /* soutien : on ne juge que les cases déjà remplies */
+    if(!isSoutien()) return;
+    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
+      el.classList.remove('ok','bad');
+      if(String(el.value).trim()==='') return;
+      el.classList.add(tdpJuste(c,el)?'ok':'bad');
+    });
+    return;
+  }
+  const subs=cases.map(function(c){ const el=$(c.id);
+    return {c:c, el:el, ok:tdpJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
+  if(q.phase!=='tab') tdcLibelles();
+  if(!allOk && isSoutien()){ soutienAgain('tdcFeedback','tdcActions','checkTdcAnswer','tdcHost'); return; }
+  test.locked=true;
+  test.score+=nCorrect; $('tdcLiveScore').textContent=test.score;
+  if(allOk){ $('tdcFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('tdcFeedback').className='mp-feedback good'; }
+  else { $('tdcFeedback').textContent=msgAvecVides(subs, tdcPourquoi(q, subs)); $('tdcFeedback').className='mp-feedback bad'; }
+  const lu=function(id){ const el=$(id); if(!el) return '?'; const v=String(el.value).trim(); if(!v) return '?';
+    if(el.options){ const o=[].find.call(el.options, function(x){ return x.value===v; }); return o?o.textContent:v; } return v; };
+  if(q.phase==='tab'){
+    test.answers.push({...(ptsExo()||{}),correct:allOk,
+      q:'tableau '+ctx.pop+' ('+q.t[0].join(' ; ')+' / '+q.t[1].join(' ; ')+'), cases vides : '+q.vides.map(function(k){ return tdcNomCase(ctx,k); }).join(', '),
+      answer:q.vides.map(function(k){ return tdcNomCase(ctx,k)+' = '+tdcVal(q,k); }).join(' ; '),
+      given:q.vides.map(function(k){ return tdcNomCase(ctx,k)+' = '+lu('tdc-'+k); }).join(' ; ')});
+  } else {
+    test.answers.push({...(ptsExo()||{}),correct:allOk,
+      q:tdcEnonce(q),
+      answer:'proportion de '+tdcLettre(q.gk)+' parmi '+tdcLettre(q.rk)+' : '+tdcEff(q,q.gk,q.rk)+'/'+tdcEff(q,q.rk,'tout'),
+      given:'proportion de '+lu('tdc-qui')+' parmi '+lu('tdc-parmi')+' : '+lu('tdc-num')+'/'+lu('tdc-den')});
+  }
+  const last=test.idx===test.questions.length-1;
+  $('tdcActions').innerHTML='<button class="btn btn-primary" id="tdcNext" onclick="nextTdcQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('tdcNext'); if(nb) nb.focus();
+}
+function nextTdcQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTdcTest(); autoSave(); } else finishTest(); }
+function startTdc(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=tdcBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'tdc', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+tdcCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  test.qId='tableau-proportions-trois-colonnes';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('tdc'); renderTdcTest();
+}
+/* Le contexte envoyé au modèle : l'introduction, le tableau avec ses cases
+   vides, la question, et les réponses dans la partie SECRÈTE. */
+function ctxTdc(q){
+  const ctx=TDC_CTX[q.ci], T=tdcTotaux(q);
+  const faux=tdcCases(q).filter(function(c){ const el=$(c.id); return el && String(el.value).trim()!=='' && !tdpJuste(c,el); }).length;
+  const lettres='A = '+ctx.col[0].tete+', B = '+ctx.col[1].tete+', C = '+ctx.col[2].tete+' (colonnes), D = '+ctx.lig[0].tete+', E = '+ctx.lig[1].tete+' (lignes)';
+  const ecrit=function(k){ return (q.phase==='tab' && q.vides.indexOf(k)>=0) ? '…' : String(tdcVal(q,k)); };
+  const lig=function(l){ return ctx.lig[l].tete+' → '+[0,1,2].map(function(c){ return ecrit('x'+l+c); }).join(', ')+', total '+ecrit('l'+l); };
+  let c=tdcIntro(q)+' Tableau à double entrée dont les groupes portent des lettres ('+lettres+') : '+lig(0)+' ; '+lig(1)+' ; totaux de colonnes '+[0,1,2].map(function(c){ return ecrit('c'+c); }).join(', ')+' ; total général '+ecrit('tout')+'. ';
+  if(q.phase==='tab'){
+    c+='Les « … » sont les cases vides que l’élève complète. Réponses attendues, STRICTEMENT SECRÈTES : '+q.vides.map(function(k){ return tdcNomCase(ctx,k)+' = '+tdcVal(q,k); }).join(' ; ')+'. '
+     +'Méthode enseignée : le total d’une ligne est la somme de ses trois cases, celui d’une colonne la somme de ses deux cases, le total général la somme des totaux de lignes (et des totaux de colonnes) ; une case vide est un RESTE — dans une ligne ou une colonne où elle est la seule à manquer, c’est le total moins les autres cases.';
+  } else {
+    const g=tdcGroupe(ctx,q.gk), r=tdcGroupe(ctx,q.rk), num=tdcEff(q,q.gk,q.rk), den=tdcEff(q,q.rk,'tout');
+    c+='Le tableau est entièrement complété. Question : « '+tdcEnonce(q)+' » '
+     +'L’élève complète « C’est la proportion de … parmi … » avec les lettres (A, B, C, D, E, « A et D »…) ou « tout » pour l’effectif entier, puis écrit la fraction « X parmi Y / parmi Y » : numérateur et dénominateur. '
+     +'Réponses attendues, STRICTEMENT SECRÈTES : c’est la proportion de '+tdcLettre(q.gk)+' ('+g.nom+') parmi '+(q.rk==='tout'?'tout ('+ctx.pop+')':tdcLettre(q.rk)+' ('+r.nom+')')
+     +tdcAlt(q).map(function(k){ return ' (la page accepte aussi « '+tdcLettre(k)+' »)'; }).join('')
+     +' ; la proportion est '+num+'/'+den+'. '
+     +'Méthode enseignée : une proportion est « une partie sur un tout » ; le mot « parmi » (ou « dans ») dit quel est le tout, c’est l’effectif qu’on met au dénominateur ; le numérateur est l’effectif de ceux qu’on étudie À L’INTÉRIEUR de ce tout. '
+     +'Erreur classique : diviser par l’effectif total alors que la question dit « parmi » un groupe ; confondre « D parmi A » et « A parmi D », qui ont le même numérateur et pas le même dénominateur.';
+  }
+  if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';
+  return {nombre:'', contexte:c};
+}
 function demarrerTdl(qId, construire){
   if(!currentEleve){ accueil(); return; }
   const qs=construire();
@@ -50169,7 +50636,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPGC','renderPRC','renderPKG','renderPHM','renderPVO','renderPDU','renderPBL','renderPMN','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderMDTest','renderUTest','renderPTest','renderPctBoiteTest','renderPctChaineTest','renderPcsTest','renderPccTest','renderPsvTest','renderPcpTest','renderEvbTest','renderEvsTest','renderSpr','renderPpb','renderSevTest','renderEvcTest','renderEvpTest','renderATest','renderDTest','renderQTest','renderVTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderTCTest','renderHSTest','renderHSCTest','renderPsl','renderSal','renderCKTest','renderACTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderPF','renderRvfTest','renderSpfTest','renderPqdTest','renderQdbTest','renderTsfTest','renderOrdTest','renderRelTest','renderAsxTest','renderCitTest','renderRgpTest','renderRedTest','renderMrlTest','renderSrlTest','renderRpdTest','renderTdpTest','renderTdcTest','renderTVG','renderECS','renderPY','renderPTY','renderPYC','renderPVN','renderPNV','renderPYP','renderPYI','renderPYN','renderPYX','renderPYD','renderPYV','renderPTV','renderPCV','renderPOP','renderPDC','renderPCH','renderPCL','renderPII','renderPIA','renderPIS','renderPMY','renderPTR','renderPGC','renderPRC','renderPKG','renderPHM','renderPVO','renderPDU','renderPBL','renderPMN','renderPRL','renderPTT','renderPAP','renderPVM','renderPPC','renderPPD','renderPPM','renderPEV','renderPEL','renderPPH'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

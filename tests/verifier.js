@@ -4078,6 +4078,7 @@ function exercices(suite){
     tableauProportionsTirees(w, P);
     tableauProportionsDirectes(w, P);
     tableauProportionsParmi(w, P);
+    tableauProportionsTroisColonnes(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -16901,6 +16902,159 @@ function tableauProportionsParmi(w, P){
     if(!document.getElementById('tdl-qui').classList.contains('ok') || !document.getElementById('tdl-parmi').classList.contains('bad'))
       vus.push('« parmi tout » au lieu de « parmi D » : la liste « parmi » doit rougir, « de » rester bleue');
     if(!/proportion est/.test(document.getElementById('tdlFeedback').textContent)) vus.push('message : '+document.getElementById('tdlFeedback').textContent);
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {tableau-proportions-trois-colonnes} (Seconde, 4.6.6) : la fiche
+   « tableau_3_colonne » — un tableau 2 lignes × 3 colonnes aux cases vides,
+   puis six proportions rédigées comme au 4.6.5. Les réponses attendues sont
+   reconstruites ICI par des sommes écrites à part, sur la table de la fiche
+   (468, 196, 56 / 150, 266, 64) et ses six questions ; jamais par les
+   fonctions de la page qui corrigent. */
+function tableauProportionsTroisColonnes(w, P){
+  const present = evaluer(w, "typeof startTdc==='function' && typeof tdcBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('proportions dans un tableau à trois colonnes : le tirage, les cases vides, la rédaction et la place',
+      'ce niveau n\'a pas l\'exercice du tableau à trois colonnes');
+    return;
+  }
+  verifierEval(w, 'proportions dans un tableau à trois colonnes : le tirage, les cases vides, la rédaction et la place', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-proportions-trois-colonnes';
+    /* ---- la place : 4.6.6, le 4.6.5 ne bouge pas, pas de bouton des tables, l'écran est connu */
+    const th=THEMES.find(function(t){ return t.num===4; });
+    if(!th || th.ids.indexOf('tableau-proportions-trois-colonnes')<0) vus.push('l\\'exercice n\\'est pas dans le thème 4');
+    if(TEST_NUM['tableau-proportions-trois-colonnes']!=='4.6.6') vus.push('numéro '+TEST_NUM['tableau-proportions-trois-colonnes']+' au lieu de 4.6.6');
+    if(TEST_NUM['tableau-proportions-parmi']!=='4.6.5') vus.push('le 4.6.5 a bougé');
+    if(TABLES_SANS.indexOf('tableau-proportions-trois-colonnes')<0) vus.push('le bouton des tables est proposé');
+    if(!RAPPELS.tdc || !QIA_SUGG.tdc) vus.push('le rappel ou les questions à l\\'IA manquent');
+    /* ---- le tirage, sur mille séances */
+    const vuesProp={}, vuesV={}, vuesCi={}, vuesNb={}, vuesVides={}, vuesTot={};
+    for(let i=0;i<1000 && !vus.length;i++){
+      const qs=tdcBuildQuestions();
+      if(qs.length!==7){ vus.push(qs.length+' questions au lieu de 7'); break; }
+      const q0=qs[0], T=tdcTotaux(q0);
+      if(q0.t.length!==2 || q0.t.some(function(r){ return r.length!==3; })) vus.push('le tableau n\\'est pas 2 × 3');
+      if(TDC_TOTAUX.indexOf(T.tt)<0) vus.push('total '+T.tt+' hors des nombres ronds');
+      if(T.lt.some(function(v){ return v%10!==0; })) vus.push('une ligne n\\'est pas en dizaines : '+T.lt.join(' ; '));
+      q0.t.forEach(function(r,l){ r.forEach(function(v){ if(!(v>=1) || v<T.lt[l]/10-1) vus.push('case '+v+' trop petite pour une ligne de '+T.lt[l]); }); });
+      vuesTot[T.tt]=1; vuesNb[q0.vides.length]=1; q0.vides.forEach(function(k){ vuesVides[k]=1; });
+      if(q0.vides.length<2 || q0.vides.length>4) vus.push(q0.vides.length+' cases vides');
+      if(!q0.vides.some(function(k){ return k[0]==='x'; })) vus.push('aucune case intérieure vide : '+q0.vides.join(' '));
+      if(!tdcResoudre(q0.vides)) vus.push('cases vides introuvables : '+q0.vides.join(' '));
+      if(q0.vides.slice().sort().join()!==q0.vides.filter(function(k,ix){ return q0.vides.indexOf(k)===ix; }).sort().join()) vus.push('une case vide deux fois');
+      vuesCi[q0.ci]=1;
+      const intro=tdcIntro(q0);
+      if(intro.indexOf(tdcNbFr(T.tt))<0 || /undefined|NaN/.test(intro)) vus.push('introduction : « '+intro+' »');
+      const attendu=['tab','prop','prop','prop','prop','prop','prop'];
+      const fam=[];
+      qs.forEach(function(q,ix){
+        if(q.phase!==attendu[ix]) vus.push('question '+(ix+1)+' : phase '+q.phase);
+        if(JSON.stringify(q.t)!==JSON.stringify(q0.t) || q.ci!==q0.ci || JSON.stringify(q.vides)!==JSON.stringify(q0.vides)) vus.push('la question '+(ix+1)+' ne porte pas la situation');
+        if(q.phase==='prop'){
+          if(q.n!==ix) vus.push('question '+(ix+1)+' numérotée '+q.n);
+          vuesV[q.v]=1;
+          const ids=tdcCases(q).map(function(x){ return x.id; }).join(' ');
+          if(ids!=='tdc-qui tdc-parmi tdc-num tdc-den') vus.push('cases de la proportion : '+ids);
+          const f=q.rk==='tout' ? (q.gk[0]==='x'?'case/tout':q.gk[0]+'/tout') : q.gk[0]+'/'+q.rk[0];
+          if(q.rk!=='tout' && (q.gk[0]==='x' || q.gk[0]===q.rk[0])) vus.push('proportion impossible : '+q.gk+' parmi '+q.rk);
+          fam.push(f); vuesProp[q.gk+'/'+q.rk]=1;
+          const e=tdcEnonce(q);
+          if(!e || /undefined|NaN|\\bles les\\b/.test(e)) vus.push('question : « '+e+' »');
+        }
+      });
+      /* l'ordre de la fiche : trois « dans » (une ligne, une colonne, un croisement), puis trois « parmi » (ligne parmi colonne, colonne parmi ligne, une de plus) */
+      const dans=fam.slice(0,3).sort().join(' '), parmi=fam.slice(3);
+      if(dans!=='c/tout case/tout l/tout') vus.push('les trois premières proportions : '+fam.slice(0,3).join(' '));
+      if(parmi.some(function(f){ return f.indexOf('tout')>=0; }) || parmi.indexOf('l/c')<0 || parmi.indexOf('c/l')<0) vus.push('les trois dernières proportions : '+parmi.join(' '));
+      const props=qs.slice(1).map(function(q){ return q.gk+'/'+q.rk; });
+      if(props.some(function(p,k){ return props.indexOf(p)!==k; })) vus.push('deux fois la même proportion : '+props.join(' '));
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    if(Object.keys(vuesProp).length!==23) vus.push(Object.keys(vuesProp).length+' proportions vues sur 23');
+    if(Object.keys(vuesV).length!==TDC_V.length || TDC_V.length<8) vus.push(Object.keys(vuesV).length+' tournures vues sur '+TDC_V.length);
+    if(Object.keys(vuesCi).length!==TDC_CTX.length || TDC_CTX.length<7) vus.push(Object.keys(vuesCi).length+' situations vues sur '+TDC_CTX.length);
+    if(Object.keys(vuesNb).sort().join()!=='2,3,4') vus.push('nombres de cases vides vus : '+Object.keys(vuesNb).join(' '));
+    if(Object.keys(vuesVides).length!==12) vus.push(Object.keys(vuesVides).length+' cases vues vides sur 12');
+    if(Object.keys(vuesTot).length!==TDC_TOTAUX.length) vus.push(Object.keys(vuesTot).length+' totaux vus sur '+TDC_TOTAUX.length);
+    /* ---- la fiche : les cases, les six proportions, contre des sommes écrites ici */
+    const T=[[468,196,56],[150,266,64]];
+    const qf={ci:0, t:T, vides:['x02','x11'], phase:'tab'};
+    const cs=tdcCases(qf);
+    if(cs.length!==2 || cs[0].bon!=='56' || cs[1].bon!=='266') vus.push('les cases vides de la fiche : '+cs.map(function(c){ return c.quoi+'='+c.bon; }).join(' '));
+    const fiche=[['l0','tout',720,1200],['c0','tout',468+150,1200],['x00','tout',468,1200],['l0','c0',468,618],['c0','l0',468,720],['l0','c1',196,196+266]];
+    fiche.forEach(function(f){
+      const c=tdcCases(Object.assign({}, qf, {phase:'prop', gk:f[0], rk:f[1], v:0, n:1}));
+      if(+c[2].bon!==f[2] || +c[3].bon!==f[3]) vus.push('« '+f[0]+' parmi '+f[1]+' » : '+c[2].bon+'/'+c[3].bon+' au lieu de '+f[2]+'/'+f[3]);
+    });
+    if(tdcIntro(qf).indexOf('auprès des 1\\u202f200 employés')<0) vus.push('introduction de la fiche : « '+tdcIntro(qf)+' »');
+    /* ---- la résolution des cases vides, et ce que le pourquoi en dit */
+    if(!/reste de la ligne « Femmes » : 720 − 468 − 196 = 56/.test(tdcExplication(qf,'x02'))) vus.push('explication x02 : « '+tdcExplication(qf,'x02')+' »');
+    const q4={ci:0, t:T, vides:['x00','x12','c2','tout'], phase:'tab'};
+    if(!tdcResoudre(q4.vides)) vus.push('quatre cases vides introuvables alors qu\\'elles se déduisent');
+    if(!/est la somme de ses cases : 56 \\+ 64 = 120/.test(tdcExplication(q4,'c2'))) vus.push('explication c2 : « '+tdcExplication(q4,'c2')+' »');
+    if(!/somme des totaux de (lignes|colonnes) : .*= 1\\u202f200/.test(tdcExplication(q4,'tout'))) vus.push('explication tout : « '+tdcExplication(q4,'tout')+' »');
+    if(tdcResoudre(['x00','x01','x10','x11'])) vus.push('un carré de quatre cases vides est déclaré résoluble');
+    if(!tdcResoudre(['x00','x01','x02','l0'])) vus.push('une ligne entière vide se retrouve pourtant par ses colonnes');
+    /* ---- l'écran : le tableau aux deux cases vides, l'introduction en tête */
+    startTdc();
+    if(test.qId!=='tableau-proportions-trois-colonnes' || test.kind!=='tdc') vus.push('identité '+test.qId+'/'+test.kind);
+    if(test.maxScore!==test.questions[0].vides.length+24) vus.push('barème '+test.maxScore+' au lieu de '+(test.questions[0].vides.length+24));
+    let q=test.questions[0]; Object.assign(q, {ci:0, t:T, vides:['x02','x11']}); test.idx=0; renderTdcTest();
+    const host=document.getElementById('tdcHost');
+    if(host.querySelectorAll('input.tdp-in').length!==2) vus.push(host.querySelectorAll('input.tdp-in').length+' cases à l\\'écran au lieu de 2');
+    if(host.querySelectorAll('.tdp-nb').length!==10) vus.push(host.querySelectorAll('.tdp-nb').length+' nombres écrits au lieu de 10');
+    const tetes=[].map.call(host.querySelectorAll('th'), function(x){ return x.textContent.trim(); }).join(' | ');
+    if(tetes!==' | (A) Train | (B) Avion | (C) Autocar | Total | (D) Femmes | (E) Hommes | Total') vus.push('têtes : « '+tetes+' »');
+    if(host.textContent.indexOf('1\\u202f200')<0) vus.push('le total général ne s\\'écrit pas « 1 200 »');
+    if(document.getElementById('tdcPrompt').textContent.indexOf('week-end à Rome')<0) vus.push('l\\'introduction n\\'est pas en tête');
+    document.getElementById('tdc-x02').value='56'; document.getElementById('tdc-x11').value='266';
+    checkTdcAnswer();
+    let faux=host.querySelectorAll('.bad').length, bons=host.querySelectorAll('.ok').length;
+    if(faux || bons!==2) vus.push('tableau juste : '+bons+' cases justes, '+faux+' fausses');
+    if(test.answers.length!==1 || !test.answers[0].correct) vus.push('le tableau juste n\\'est pas enregistré juste');
+    /* une case fausse rougit seule et le pourquoi la nomme ; une case vide ne rougit pas */
+    renderTdcTest(); test.locked=false;
+    document.getElementById('tdc-x02').value='65';
+    checkTdcAnswer();
+    faux=host.querySelectorAll('.bad').length; bons=host.querySelectorAll('.ok').length;
+    if(faux!==1 || bons!==0) vus.push('une case fausse et une vide : '+bons+' bleues, '+faux+' rouges');
+    if(document.getElementById('tdc-x11').classList.contains('bad')) vus.push('la case vide a rougi');
+    if(!document.getElementById('tdc-x11').classList.contains('sol') || document.getElementById('tdc-x11').value!=='266') vus.push('la case vide n\\'est pas remplie en vert');
+    if(!/720 − 468 − 196 = 56/.test(document.getElementById('tdcFeedback').textContent)) vus.push('message : '+document.getElementById('tdcFeedback').textContent);
+    /* ---- une proportion : la rédaction du 4.6.5, la liste des douze choix, la question de la fiche */
+    test.idx=1; q=test.questions[1]; Object.assign(q, {ci:0, t:T, vides:['x02','x11'], gk:'l0', rk:'c1', v:6}); renderTdcTest();
+    const opts=[].map.call(document.querySelectorAll('#tdc-qui option'), function(o){ return o.textContent; }).slice(1).join(' ; ');
+    if(opts!=='A ; B ; C ; D ; E ; A et D ; B et D ; C et D ; A et E ; B et E ; C et E ; tout') vus.push('liste : '+opts);
+    if(!/C’est la proportion de/.test(host.textContent)) vus.push('la phrase « C’est la proportion de » manque');
+    const quest=host.querySelector('.tdl-quest').textContent;
+    if(quest.indexOf('On s’intéresse aux employés souhaitant prendre l’avion. Quelle est la proportion des femmes parmi eux ?')<0) vus.push('question : « '+quest+' »');
+    if(host.querySelectorAll('.tdp-nb').length!==12) vus.push('le tableau complété n\\'écrit pas ses douze nombres');
+    document.getElementById('tdc-qui').value='l0'; document.getElementById('tdc-qui').dispatchEvent(new Event('change'));
+    document.getElementById('tdc-parmi').value='c1'; document.getElementById('tdc-parmi').dispatchEvent(new Event('change'));
+    const lib=host.querySelector('.tdl-lib-frac').textContent.replace(/\\s+/g,' ').trim();
+    if(lib!=='D parmi Bparmi B') vus.push('libellés de la fraction : « '+lib+' »');
+    document.getElementById('tdc-num').value='196'; document.getElementById('tdc-den').value='462';
+    checkTdcAnswer();
+    faux=host.querySelectorAll('.bad').length; bons=host.querySelectorAll('.ok').length;
+    if(faux || bons!==4) vus.push('proportion juste : '+bons+' cases justes, '+faux+' fausses');
+    if(!test.answers.length || !test.answers[test.answers.length-1].correct) vus.push('la proportion juste n\\'est pas enregistrée juste');
+    /* « parmi elles » pour les femmes ; « A et D » accepté pour « D parmi A » ; le piège « parmi tout » */
+    test.idx=2; q=test.questions[2]; Object.assign(q, {ci:0, t:T, vides:['x02','x11'], gk:'c0', rk:'l0', v:6}); renderTdcTest();
+    if(host.querySelector('.tdl-quest').textContent.indexOf('On s’intéresse aux femmes. Quelle est la proportion des employés souhaitant prendre le train parmi elles ?')<0) vus.push('question féminine : « '+host.querySelector('.tdl-quest').textContent+' »');
+    test.idx=3; q=test.questions[3]; Object.assign(q, {ci:0, t:T, vides:['x02','x11'], gk:'l0', rk:'c0', v:0}); renderTdcTest();
+    document.getElementById('tdc-qui').value='x00'; document.getElementById('tdc-parmi').value='c0';
+    document.getElementById('tdc-num').value='468'; document.getElementById('tdc-den').value='618';
+    checkTdcAnswer();
+    if(host.querySelectorAll('.bad').length || host.querySelectorAll('.ok').length!==4) vus.push('« A et D » parmi A n\\'est pas accepté pour « D parmi A »');
+    test.idx=4; q=test.questions[4]; Object.assign(q, {ci:0, t:T, vides:['x02','x11'], gk:'l0', rk:'c0', v:1}); renderTdcTest();
+    document.getElementById('tdc-qui').value='l0'; document.getElementById('tdc-parmi').value='tout';
+    document.getElementById('tdc-num').value='468'; document.getElementById('tdc-den').value='1200';
+    checkTdcAnswer();
+    if(!document.getElementById('tdc-qui').classList.contains('ok') || !document.getElementById('tdc-parmi').classList.contains('bad') || !document.getElementById('tdc-den').classList.contains('bad'))
+      vus.push('« parmi tout » au lieu de « parmi A » : la liste « parmi » et le dénominateur doivent rougir, « de » rester bleue');
+    if(!/468 sur 618/.test(document.getElementById('tdcFeedback').textContent)) vus.push('message : '+document.getElementById('tdcFeedback').textContent);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

@@ -3946,6 +3946,123 @@ après choix) ; une copie juste (4 cases bleues, enregistrée juste) ; le piège
 « parmi tout » au lieu de « parmi D » (la liste « parmi » rougit, « de »
 reste bleue, le message écrit la proportion).
 
+## Seconde 4.6.6 — {tableau-proportions-trois-colonnes} : la fiche « tableau_3_colonne », présentée comme le 4.6.5
+
+**Demandé par Turquet en octobre 2026** : « en seconde faire un exercice
+comme le pdf et présenté comme le 4.6.5. On donnera des énoncés variés et des
+questions aux tournures variées. » **Le PDF n'était pas arrivé avec la
+première demande**, et un premier exercice avait été écrit sur une lecture de
+la phrase seule (un énoncé en mots pour un tableau 2 × 2) ; Turquet a joint la
+fiche : « c'était ça le pdf, je pense qu'il faut tout reprendre ». Tout a été
+repris, et c'est la leçon : **quand la demande dit « comme le pdf » et qu'aucun
+PDF n'est là, on le demande avant d'écrire**, le 4.1.11 et celui-ci l'ont
+coûté deux fois.
+
+**La fiche.** Le comité d'entreprise d'une société organise un week-end à
+Rome ; une enquête auprès des 1 200 employés sur le moyen de transport. Un
+tableau à TROIS colonnes et deux lignes, lettré comme la fiche — (A) Train,
+(B) Avion, (C) Autocar en colonnes, (D) Femmes, (E) Hommes en lignes — où deux
+cases manquent (468, 196, _, 720 / 150, _, 64, 480 / 618, 462, 120, 1200).
+Puis sept questions : compléter le tableau ; la proportion de femmes dans
+l'entreprise ; des gens souhaitant prendre le train dans l'entreprise ; des
+femmes souhaitant prendre le train dans l'entreprise ; des femmes parmi les
+gens souhaitant prendre le train ; des gens souhaitant prendre le train parmi
+les femmes ; et « On s'intéresse aux employés qui ont choisi l'avion. Calculer
+la proportion que cet employé soit une femme ».
+
+**Ce que fait l'exercice.** Kind `tdc`, écran `scr-tdc`, un moteur à lui : le
+2 × 2 des moteurs `tdp`/`tdl` est écrit en dur (`tdpEff`, `tdpTotaux`,
+`tdlLettre`), et le plier à trois colonnes aurait touché cinq exercices en
+ligne pour en écrire un. Il partage les styles `.tdp-*` et `.tdl-*`,
+`corrChoix`, `msgAvecVides`, `tdpLit`, `tdpJuste`, `tdpDes`, `tdpCap`,
+`tdlGris`, `tdlGras`. Une SITUATION = sept questions, dans l'ordre de la
+fiche : le tableau, puis six proportions.
+
+*Les énoncés variés.* Sept mises en situation (`TDC_CTX`), celle de la fiche
+en tête : l'entreprise et ses transports, le lycée et la seconde langue, le
+club et sa discipline, le cinéma et le film choisi, la cantine et le plat, la
+zone d'activité et le trajet, la librairie et le type de livre. Chacune porte
+une introduction, fonction de l'effectif total écrit comme sur la fiche
+(« 1 200 », `tdcNbFr`), et pour chaque colonne un verbe (« souhaitent prendre
+le train ») et un participe (« souhaitant prendre le train ») qui fabrique le
+nom du groupe (« les employés souhaitant prendre le train ») et celui d'un
+croisement (« les femmes souhaitant prendre le train » — la fiche dit
+exactement cela). Les lignes féminines portent `f:true` : « On s'intéresse aux
+femmes. Quelle est la proportion … parmi ELLES ? ».
+
+*Le tableau.* Le total se tire parmi des nombres ronds (`TDC_TOTAUX` : 600 à
+2 000), les deux lignes en dizaines (35 à 65 % du total), chaque ligne coupée
+en trois cases d'au moins un dixième (`tdcGenTable`) : des effectifs de
+l'ordre de la fiche. Deux à quatre cases sont VIDES (`q.vides`,
+`tdcGenVides`), dont au moins une case intérieure, et toujours retrouvables
+DE PROCHE EN PROCHE : `tdcResoudre` relit les sept lignes du tableau où une
+somme se lit (`TDC_LIGNES` : deux lignes, trois colonnes, la ligne et la
+colonne des totaux) et résout celle où une seule case manque, jusqu'à la
+dernière ; un tirage qui laisse une case introuvable est retiré. L'ordre de
+résolution est aussi ce que le pourquoi raconte (`tdcExplication`) : « La case
+« Femmes / Autocar » est le reste de la ligne « Femmes » : 720 − 468 − 196 =
+56 » ; « Le total de la colonne « Italien » est la somme de ses cases » ; « Le
+total général est la somme des totaux de lignes ». Les cases vides sont des
+`.tdp-in` à la taille des nombres ; les nombres s'écrivent avec l'espace des
+milliers ; le tableau, à cinq colonnes, vit dans `.tdc-wrap` et défile
+horizontalement sur un petit écran plutôt que de replier ses rangées.
+
+*Les proportions.* Vingt-trois sont possibles : une lettre dans tout (5), un
+croisement dans tout (6), une lettre de ligne parmi une colonne (6), une de
+colonne parmi une ligne (6). Une situation en pose six, dans l'ORDRE de la
+fiche (`tdcProportions`) : trois « dans l'entreprise » — une ligne, une
+colonne, un croisement, mélangées — puis trois « parmi » — une ligne parmi une
+colonne, une colonne parmi une ligne, et une de plus, mélangées. Rédigées
+comme au 4.6.5 : « C'est la proportion de [liste] parmi [liste] », les deux
+listes offrant les douze choix dans l'ordre A ; B ; C ; D ; E ; A et D ; B et
+D ; C et D ; A et E ; B et E ; C et E ; tout (`TDC_LISTE`), puis la fraction
+dont les libellés recopient EN DIRECT les choix (`tdcLibelles`). « A et D »
+est accepté pour « D parmi A » (`tdcAlt`, mêmes personnes).
+
+*Les questions aux tournures variées.* Huit (`TDC_V`), le groupe étudié en
+gris, le tout en gras : « Calculer la proportion … », « Quelle est la
+proportion … ? », « Parmi …, quelle est la proportion … ? », « Calculer la
+proportion de ceux qui … », « Parmi …, quelle est la part de ceux qui … ? »,
+« Quelle proportion des femmes souhaitent prendre le train ? », « On
+s'intéresse aux employés souhaitant prendre l'avion. Quelle est la proportion
+des femmes parmi eux ? » (la question 7 de la fiche, rendue grammaticale) et
+« Écrire sous forme de fraction la proportion … ». `q.v` range l'indice.
+
+**Barème** : les cases vides du tableau + 6 × 4 = 26 à 28 cases. Sept
+questions par défaut (`TDC_NB`) ; le réglage « Questions » d'un devoir se lit
+au tirage et allonge la séance situation par situation. Pas de bouton des
+tables (`TABLES_SANS`, `tablesAide.sans`). Rappel `RAP_TDC` (compléter par un
+reste, les lettres, « même case en haut, pas le même tout »), `QIA_SUGG.tdc`,
+`ctxTdc` (l'introduction, le tableau avec ses « … », les réponses dans la
+partie secrète). Branchements : les quinze, dont `THEMES` (4.6.6, ajouté en
+dernier : rien ne se renumérote), la réserve du bas, `liveCheckCurrent`,
+`DISPATCH`, `testScreens`, les rendus enveloppés, la table `cles` de
+`tests/profils.js`.
+
+**Contrôle** (`tableauProportionsTroisColonnes`, banc principal) : la place
+(4.6.6, le 4.6.5 ne bouge pas, pas de bouton des tables, rappel et questions
+à l'IA présents) ; 1 000 tirages (sept questions, phases dans l'ordre, un
+tableau 2 × 3 au total rond et aux lignes en dizaines, 2 à 4 cases vides dont
+une intérieure, résolubles, jamais deux fois la même, la situation partagée
+par les sept questions, l'introduction porte le total écrit « 1 200 », les
+trois « dans » puis les trois « parmi », aucune proportion impossible ni
+répétée ; les 23 proportions, les 8 tournures, les 7 situations, les 3
+nombres de cases vides, les 12 cases et les 8 totaux vus) ; la fiche contre
+des sommes écrites dans le banc (56 et 266, puis 720/1200, 618/1200, 468/1200,
+468/618, 468/720, 196/462) ; la résolution (quatre cases vides se déduisent,
+une ligne entière vide est refusée, les trois phrases du pourquoi mot à mot) ;
+l'écran (deux cases, dix nombres, les têtes « (A) Train … (E) Hommes »,
+« 1 200 », l'introduction en tête) ; le tableau juste (2 bleues, enregistré
+juste) ; une case fausse et une vide (1 rouge, la vide en vert avec 266, le
+message « 720 − 468 − 196 = 56 ») ; une proportion (les douze choix dans
+l'ordre, la phrase, la question 7 de la fiche mot à mot, le tableau complété
+écrit ses douze nombres, les libellés « D parmi B / parmi B » recopiés, 4
+bleues, 196/462 enregistrée juste) ; « parmi elles » pour les femmes ; « A et
+D » accepté pour « D parmi A » ; le piège « parmi tout » (la liste et le
+dénominateur rougissent, « de » reste bleue, le message écrit « 468 sur
+618 »). Le banc navigateur couvre l'écran par ses contrôles universels sans
+rien déclarer.
+
 ## {pourcentage-phrases} — du texte au schéma, le 4.1.10 pris depuis les phrases (Seconde, septembre 2026, 4.1.11)
 
 **D'où il vient.** Demande de Turquet : « en seconde, un nouvel exercice comme
