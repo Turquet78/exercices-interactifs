@@ -1800,7 +1800,10 @@ fusion ; la branche reprend `main`, garde les deux blocs CSS voisins
 (`.pap-fig` à côté de `.ppc-fig`) et saute à 307, strictement au-dessus de ce
 que `main` porte et de ce qui l'attend. Puis une seconde reprise de `main`, une heure
 plus tard (#514, #516, #521 fusionnés, `main` à 306) : seule la ligne de
-version était en conflit, 307 reste strictement au-dessus.
+version était en conflit, 307 restait strictement au-dessus — jusqu'à ce que
+#522 (le 6.3.2) prenne la 307 à son tour : troisième reprise de `main`, et la
+page passe à **309**, deux crans au-dessus, pour laisser une marche aux
+branches voisines qui montent toutes d'un cran à la fois.
 
 **Puis la MÊME marche, une question en moins : la valeur seule.**
 {python-valeur-case} (Seconde, 5.15, demande de Turquet, septembre 2026 :
