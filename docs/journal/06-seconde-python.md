@@ -2612,6 +2612,27 @@ noir plutôt qu'en vert — repérée à la dominante RENDUE, jamais à la class
 seule, la leçon de `docs/journal/08-verdicts-et-juges.md` retombée telle
 quelle sur un neuvième exercice.
 
+**Puis un dessin est venu EN TÊTE de l'exercice** (demande de Turquet,
+octobre 2026, APP_VERSION 306 — 305 pris sur `main` pendant les bancs, par trois autres dessins fusionnés en parallèle — : « placer cette image en seconde dans
+l'exercice 6.2.5 au début ») : le serpent au bonnet rasta qui dit « Moi là
+monté sur Python ! ». Il est fait comme ses quatre aînés du thème (`PKG_IMG`,
+`PDU_IMG`, `PVO_IMG`, `PHM_IMG`) : l'image reçue avait un fond BLANC opaque,
+elle a été détourée (remplissage depuis les bords, les blancs INTÉRIEURS — les
+yeux, la bulle — gardés), recadrée et passée en WebP (13 Ko, `PEV_IMG`, une URL
+`data:` — la page reste un seul fichier). Il est posé UNE fois dans `#pevFig`,
+premier enfant de la carte, AVANT le rappel de cours et la consigne — « au
+début » veut dire au début —, par `renderPEV()` qui ne le repose pas quand il y
+est déjà ; `.pev-img` le tient à 200 px et à 55 % de la largeur au plus, pour
+qu'il ne pousse pas le programme sous le pli sur un téléphone. Il est
+DÉCORATIF : son `alt` dit ce qu'il montre, rien de ce qu'il dit n'est à lire
+pour répondre. Le banc navigateur (« 6 tricies duodevicies ») le mesure RENDU,
+pas déclaré : l'image doit être décodée (`naturalWidth`), haute de plus de 100
+px à l'écran, servie en `data:` et posée avant la consigne — un `<img>` dont le
+fichier manquerait serait présent dans le DOM et invisible sur la page, c'est
+la règle 3 de `CLAUDE.md` sur un dessin. Éprouvé par sabotage : `PEV_IMG`
+remplacé par quatre octets de base64 — un seul contrôle rougit, celui-ci, et
+dit « non décodé » ; les 624 autres restent verts.
+
 **Puis échanger deux valeurs PAR LES LETTRES — un exercice différent de
 {python-echange-variables}, et le nom le dit.** {python-echange-par-lettres}
 (Seconde, 5.20, demande de Turquet, septembre 2026, sur un PDF transcrit :
@@ -3279,6 +3300,26 @@ son contrôle épingle désormais ce numéro et exige le 6.3.6 devant lui —,
 version 264. Et la situation « deux notes → moyenne » de cet exercice est
 devenue « deux colis → masse totale » : la moyenne de deux notes EST
 l'exercice suivant.
+
+**Puis le dessin de la fiche est venu en tête (APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice
+6.3.6 au début »)** : le serpent qui lève les bras, tout content, sous trois
+feux d'artifice — l'illustration de l'exercice 7 du carnet. Même geste que
+pour les autres fiches du sous-thème ({python-input-prix}, {python-input-duree},
+{python-input-evolution}, {python-input-duree-secondes}) : le PNG reçu est
+DÉTOURÉ (les pixels quasi blancs reliés au bord deviennent transparents — le
+blanc des yeux, enfermé dans son trait, reste), ROGNÉ aux marges, puis
+converti en WebP de 20 Ko rangé dans la page (`PIS_IMG`, une URL `data:`).
+`pisDessinHTML()` l'écrit dans `#pisInstr`, DEVANT l'énoncé, à chaque
+question — comme {python-input-duree} écrit le sien dans `#pduInstr` —, avec
+`width`/`height` d'origine pour que la page ne saute pas au chargement, et
+un `alt` qui décrit la scène. Le cadre de cours (`pyAvant`, premier écran
+seulement) reste au-dessus : le dessin est en tête de l'EXERCICE, l'encadré
+de cours en tête de l'ÉCRAN, comme sur le 6.5.3. Décoratif : aucun juge, aucun
+contrôle propre ; la visite universelle du banc navigateur l'ouvre dans les
+deux modes, et le banc jsdom (`pythonInputSomme`) relit l'énoncé derrière le
+dessin sans rien y changer. Affiché à 200 px (55 % de l'écran au plus,
+`.pis-img`), comme ses voisins.
 
 **Puis la fiche « variable pas à pas » est revenue, et c'est sa SECONDE
 moitié qui a fait l'exercice.** {python-phrases-memoire} (Seconde, 6.2.8,
@@ -4053,7 +4094,7 @@ carnet. Ajouté en dernier dans le sous-thème, il ne renumérote rien ; son
 contrôle exige de suivre {python-phrases-memoire}.
 
 **Puis le dessin de la fiche est venu en tête du 6.2.8.** {python-phrases-memoire}
-(Seconde, APP_VERSION 306, demande de Turquet, octobre 2026 : « placer cette
+(Seconde, APP_VERSION 307, demande de Turquet, octobre 2026 : « placer cette
 image en seconde dans l'exercice 6.2.8 au début ») : le serpent qui note sur
 sa feuille, « Très bien, je le note. », découpé en WebP (11 Ko, `PPH_IMG`),
 comme les dessins des 6.3.9, 6.5.1, 6.5.2 et 6.5.3. « Au début » est pris au
@@ -4161,6 +4202,17 @@ des chaînes. Le nom de variable entre guillemets (`print("h", …)`) recevait
 résultat de l'exemple » s'est déclenché par coïncidence sur `d // 100`
 (215 // 100 = 2, 215 % 100 = 15, les nombres de la fiche) : redondant avec
 « la même sortie pour deux durées », il est retiré.
+
+**Puis le serpent fatigué a ouvert le dessin** (APP_VERSION 306 — 305 pris sur `main` pendant les bancs —, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.5.1
+au début »). L'image est un serpent en sueur, la langue pendante, qui dit
+« Je fatigue un peu là ! » : détourée, rognée à ses bords, WebP de 10 Ko
+(`PDU_IMG_FATIGUE`). « Au début » : elle se pose EN TÊTE du dessin de la
+fiche, à gauche des deux serpents, dans la même figure `.pdu-fig`, devenue une
+rangée centrée qui se replie sur un écran étroit — rien d'autre ne bouge,
+l'énoncé reste sous le dessin. Le contrôle jsdom de l'écran exige désormais
+DEUX images dans `#pduInstr`, la première de classe `.pdu-img-fatigue`, en
+`data:` et dont l'alt dit « fatigue » — avant les deux serpents.
 
 ## {python-input-evolution} — prix de départ, prix d'arrivée ou pourcentage d'évolution (6.5.2, Bonus : input)
 
@@ -4331,3 +4383,20 @@ comprises. Pas de section propre au banc navigateur : la visite universelle
 
 Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, version 294) pendant les bancs : deux listes partagées (`TABLES_SANS`, la table des kinds de `tests/profils.js`) unies ligne à ligne, et la version passe en 295.
 Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301, puis en 302 (le 6.1.3, #505, avait pris la 301).
+
+**Puis le serpent au champagne est venu ouvrir le 6.2.3.**
+{python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.3
+au début ») : le dessin fourni — un serpent à lunettes de soleil qui fait
+sauter le bouchon d'une bouteille de champagne — ouvre l'écran, PREMIER
+élément de la carte, au-dessus de l'encadré de définition et de la consigne.
+Le geste est celui de `PDU_IMG` : le fond blanc du PNG est détouré (remplissage
+depuis les bords, alpha dégradé sur le liseré), le WebP de 11 Ko est embarqué
+en `data:` dans la constante `PPC_IMG`, et `ppcDessinHTML()` le pose dans
+`#ppcFig` à chaque `renderPPC()`. Il est purement décoratif : rien du tirage,
+du juge ni du bilan ne bouge, et l'image porte `width`/`height` pour que la
+page ne saute pas au chargement. Le banc navigateur (section « 6 tricies
+sedecies », 1 bis) exige que le dessin soit le premier enfant de la carte,
+embarqué en `data:`, réellement CHARGÉ (`naturalWidth` > 0 — un `data:`
+tronqué passerait un contrôle qui ne lirait que l'attribut) et visible à au
+moins 120 px de large.
