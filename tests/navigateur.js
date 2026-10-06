@@ -11349,6 +11349,22 @@ async function parcours(page, N){
       if(dev.case !== 'INPUT') dits.push('la case de prédiction : ' + JSON.stringify(dev.case));
       verifier('la phase « deviner » montre le programme entier sans repère, et une seule case de prédiction',
         !dits.length, dits.slice(0, 3).join(' | '));
+      /* 1 bis. LE DESSIN DE LA FICHE EN TÊTE DE L'EXERCICE (demande de Turquet,
+         octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.6
+         au début ») : un vrai dessin (données embarquées), RENDU (une largeur
+         mesurée, pas un alt sur une image cassée), posé après le rappel et
+         AVANT la consigne et le programme — pas en bas de page. */
+      const fig = await s.page.evaluate(() => {
+        const i = document.querySelector('#ppmFig img.ppm-img'), av = document.getElementById('ppmAvant'),
+              instr = document.querySelector('#scr-ppm .mp-instr'), host = document.getElementById('ppmHost');
+        if(!i) return { absent: true };
+        const apres = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+        return { src: (i.getAttribute('src') || '').slice(0, 16), largeur: i.getBoundingClientRect().width,
+                 naturelle: i.naturalWidth, apresRappel: apres(av, i), avantConsigne: apres(i, instr) && apres(i, host) };
+      });
+      verifier('le dessin de la fiche est en tête de l\'exercice, rendu, après le rappel et avant la consigne',
+        !fig.absent && /^data:image\//.test(fig.src) && fig.largeur > 100 && fig.naturelle > 0 && fig.apresRappel && fig.avantConsigne,
+        JSON.stringify(fig));
       /* 2. UNE PRÉDICTION VIDE EST REDEMANDÉE, JAMAIS JUGÉE */
       await s.page.click('#ppmGuessValidate');
       await s.page.waitForTimeout(200);
