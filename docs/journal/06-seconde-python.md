@@ -2999,6 +2999,20 @@ réponse lève l'erreur « attente » du 6.3.1 (EOFError) — c'est ce qui arriv
 à l'élève qui recopie `input` dans sa ligne d'affichage, et le diagnostic le
 nomme.
 
+**Le dessin de la fiche en tête** (demande de Turquet, octobre 2026 :
+« placer cette image en seconde dans l'exercice 6.3.3 au début ») : les deux
+serpents — « Quel est ton âge ? », « Je mets ma réponse dans la variable
+age. » — et la boîte « age », découpés dans la capture, détourés (le fond
+blanc joint aux bords est vidé, le blanc des bulles et des yeux reste), en
+WebP de 18 Ko (`PII_IMG`, une URL `data:` — la page reste un fichier unique),
+le motif de `PDU_IMG` et `PHM_IMG`. Il illustre la DÉFINITION et vit avec
+elle (`piiFigHTML`, dans `pyAvant`) : au premier écran seulement, au-dessus
+du cadre orange, et jamais sur {python-input-float}, qui partage ce moteur
+(`q.f`) mais pas cette fiche — son écran garde sa définition seule. Un
+`width`/`height` sur la balise réserve la place avant le décodage ; la
+largeur affichée (300 px, 84 % au plus) est celle d'une vignette, pas d'un
+énoncé.
+
 **La console demande pour de vrai.** « Exécuter » écrit la question dans la
 console, une case s'ouvre AU BOUT de la ligne, à la taille de la console (la
 réponse fait partie de ce que Python affiche), et la touche Entrée l'envoie —
@@ -3144,22 +3158,23 @@ et celui d'ici de suivre {python-input-calcul}.
 **Puis le dessin de la fiche est venu en tête** (demande de Turquet, octobre
 2026 : « placer cette image en seconde dans l'exercice 6.3.5 au début ») : les
 deux serpents — « Quelle est ta taille ? », « T'en n'as pas marre de poser des
-questions. » — et la boîte « taille ». Détouré, recadré, en WebP (18 Ko,
-`PIF_IMG`, une URL `data:`) : la page reste un fichier unique, comme pour les
-dessins du 6.3.9, du 6.5.1 et du 6.5.3. **L'écran est PARTAGÉ avec le 6.3.3**,
-et c'est le drapeau `f` de la question — pas le kind, pas `currentTestId` —
-qui écrit le dessin (`pifFigHTML`) : il voyage dans la pause, la reprise le
-retrouve, et le 6.3.3 ne le gagne pas. Il s'écrit dans un emplacement à lui
-(`#piiFig`), AVANT `#piiAvant` : la définition de la question 1 reste
-l'exception déclarée nulle part — le contrôle du banc navigateur qui veut la
-définition avant l'énoncé ne regarde que `.py-avant` et `.mp-instr`, et un
-dessin au-dessus des deux ne le dérange pas. « Au début » : à CHAQUE question,
-comme les dessins voisins, pas seulement à la première comme la définition —
-la question 2 est un autre contexte (un prix, une distance), mais la fiche
-garde son image. Contrôle (banc principal, {python-input-float}, section 5) :
-le dessin est une URL `data:`, avant la définition et avant l'énoncé, porte
-son texte de remplacement, reste à la question 2, et n'apparaît pas quand le
-6.3.3 démarre sur le même écran.
+questions. » — et la boîte « taille ». Détouré (le fond blanc joint aux bords
+est vidé, le blanc des bulles et des yeux reste), recadré, en WebP (18 Ko,
+`PIF_IMG`, une URL `data:`) : la page reste un fichier unique. **Le 6.3.3 a
+reçu le sien le même jour, sur `main`, pendant les bancs de celui-ci** — et
+l'écran est PARTAGÉ : deux règles pour deux dessins du même écran auraient
+fait deux vérités. Le 6.3.5 suit donc la règle que le 6.3.3 a posée en
+premier : UNE fabrique, `piiFigHTML`, choisit le dessin selon le drapeau `f`
+de la question (jamais le kind, jamais `currentTestId` : il voyage dans la
+pause), et l'écrit dans `pyAvant`, au-dessus de la définition, au premier
+écran seulement — le dessin illustre la définition et vit avec elle, comme
+elle il ne se répète pas à la question 2. Mêmes classes (`.pii-fig`,
+`.pii-img`), même largeur de vignette ; `.pif-img` en plus, pour que le banc
+distingue les deux. Contrôle (banc principal, {python-input-float},
+section 5) : le dessin est une URL `data:` dans `#piiAvant`, avant la
+définition et avant l'énoncé, porte son texte de remplacement, ne se répète
+pas à la question 2, celui du 6.3.3 n'est pas là, et le sien n'apparaît pas
+quand le 6.3.3 démarre sur le même écran.
 
 
 ---
@@ -3285,6 +3300,26 @@ son contrôle épingle désormais ce numéro et exige le 6.3.6 devant lui —,
 version 264. Et la situation « deux notes → moyenne » de cet exercice est
 devenue « deux colis → masse totale » : la moyenne de deux notes EST
 l'exercice suivant.
+
+**Puis le dessin de la fiche est venu en tête (APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice
+6.3.6 au début »)** : le serpent qui lève les bras, tout content, sous trois
+feux d'artifice — l'illustration de l'exercice 7 du carnet. Même geste que
+pour les autres fiches du sous-thème ({python-input-prix}, {python-input-duree},
+{python-input-evolution}, {python-input-duree-secondes}) : le PNG reçu est
+DÉTOURÉ (les pixels quasi blancs reliés au bord deviennent transparents — le
+blanc des yeux, enfermé dans son trait, reste), ROGNÉ aux marges, puis
+converti en WebP de 20 Ko rangé dans la page (`PIS_IMG`, une URL `data:`).
+`pisDessinHTML()` l'écrit dans `#pisInstr`, DEVANT l'énoncé, à chaque
+question — comme {python-input-duree} écrit le sien dans `#pduInstr` —, avec
+`width`/`height` d'origine pour que la page ne saute pas au chargement, et
+un `alt` qui décrit la scène. Le cadre de cours (`pyAvant`, premier écran
+seulement) reste au-dessus : le dessin est en tête de l'EXERCICE, l'encadré
+de cours en tête de l'ÉCRAN, comme sur le 6.5.3. Décoratif : aucun juge, aucun
+contrôle propre ; la visite universelle du banc navigateur l'ouvre dans les
+deux modes, et le banc jsdom (`pythonInputSomme`) relit l'énoncé derrière le
+dessin sans rien y changer. Affiché à 200 px (55 % de l'écran au plus,
+`.pis-img`), comme ses voisins.
 
 **Puis la fiche « variable pas à pas » est revenue, et c'est sa SECONDE
 moitié qui a fait l'exercice.** {python-phrases-memoire} (Seconde, 6.2.8,
@@ -4326,3 +4361,20 @@ comprises. Pas de section propre au banc navigateur : la visite universelle
 
 Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, version 294) pendant les bancs : deux listes partagées (`TABLES_SANS`, la table des kinds de `tests/profils.js`) unies ligne à ligne, et la version passe en 295.
 Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301, puis en 302 (le 6.1.3, #505, avait pris la 301).
+
+**Puis le serpent au champagne est venu ouvrir le 6.2.3.**
+{python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.3
+au début ») : le dessin fourni — un serpent à lunettes de soleil qui fait
+sauter le bouchon d'une bouteille de champagne — ouvre l'écran, PREMIER
+élément de la carte, au-dessus de l'encadré de définition et de la consigne.
+Le geste est celui de `PDU_IMG` : le fond blanc du PNG est détouré (remplissage
+depuis les bords, alpha dégradé sur le liseré), le WebP de 11 Ko est embarqué
+en `data:` dans la constante `PPC_IMG`, et `ppcDessinHTML()` le pose dans
+`#ppcFig` à chaque `renderPPC()`. Il est purement décoratif : rien du tirage,
+du juge ni du bilan ne bouge, et l'image porte `width`/`height` pour que la
+page ne saute pas au chargement. Le banc navigateur (section « 6 tricies
+sedecies », 1 bis) exige que le dessin soit le premier enfant de la carte,
+embarqué en `data:`, réellement CHARGÉ (`naturalWidth` > 0 — un `data:`
+tronqué passerait un contrôle qui ne lirait que l'attribut) et visible à au
+moins 120 px de large.
