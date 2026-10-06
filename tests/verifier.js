@@ -38787,6 +38787,22 @@ function pythonPasAPas(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
+  /* ---- 11 bis. le dessin en tête de l'écran ---- */
+  verifierEval(w, 'le dessin de tête (le serpent « Pour l’instant tout va bien ! ») ouvre la carte de l’exercice, en WebP embarqué, avec son texte de remplacement, au-dessus des définitions — et un second rendu ne le repose pas', `(function(){
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPAP();
+    const vus=[];
+    const card=document.querySelector("#scr-pap .card"), fig=document.getElementById("papDessin"), img=fig&&fig.querySelector("img.pap-img");
+    if(!card||!fig||card.firstElementChild!==fig) vus.push("le dessin n’ouvre pas la carte");
+    if(!img||!/^data:image\\/webp;base64,/.test(img.getAttribute("src")||"")) vus.push("pas de dessin WebP embarqué");
+    if(!img||!/Pour l.instant tout va bien/.test(img.getAttribute("alt")||"")) vus.push("le texte de remplacement : "+(img&&img.getAttribute("alt")));
+    const avant=document.getElementById("papAvant");
+    if(fig&&avant&&!(fig.compareDocumentPosition(avant)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas au-dessus des définitions");
+    renderPAP();
+    if(fig&&fig.querySelector("img.pap-img")!==img) vus.push("le dessin est reposé à chaque rendu");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
   /* ---- 12. l interpréteur contre un vrai CPython ---- */
   const nomPy = 'les programmes de {python-pas-a-pas} — chaque tranche suivie d un print de la case remplie — donnent la sortie d un vrai CPython';
   const paires = evaluer(w, `(function(){ const o=[], NL=String.fromCharCode(10);
