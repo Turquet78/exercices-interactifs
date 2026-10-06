@@ -3243,7 +3243,7 @@ copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
 comparés à un vrai CPython. Pas de section propre au banc navigateur : la
 visite universelle (section 9) l'ouvre dans les deux modes.
 
-**Puis le dessin est venu EN TÊTE** (APP_VERSION 306 — 305 pris sur `main` pendant les bancs —, demande de Turquet,
+**Puis le dessin est venu EN TÊTE** (APP_VERSION 307 — 305 et 306 pris sur `main` pendant les bancs —, demande de Turquet,
 octobre 2026 : « placer cette image en seconde dans l'exercice 6.3.7 au
 début ») : deux serpents, « Comment ça va ? » — « C'est variable ! ». Le
 motif est celui du 6.5.1 et du 6.3.9 : l'image détourée (le blanc rendu
