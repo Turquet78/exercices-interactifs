@@ -4255,3 +4255,54 @@ le dialogue joué au clavier, les copies juste, fausse et vide, le soutien qui
 ne révèle rien, et le modèle comparé à un vrai CPython. Pas de section propre
 au banc navigateur : la visite universelle (section 9) l'ouvre dans les deux
 modes.
+
+**La moyenne de N notes : le sous-thème « Bonus : input » —
+l'exercice 14 du carnet.** {python-moyenne-notes} (Seconde, 6.5.4, demande de
+Turquet, octobre 2026 : « en seconde dans le thème algo dans la partie bonus
+créer un sous thème input et faire un exercice comme l'image ») : « Faire un
+programme qui fonctionne comme l'exemple ci-dessous : Tu as combien de
+notes ? 3 / Ta note 1 ? 12 / Ta note 2 ? 8 / Ta note 3 ? 16 / Ta moyenne est de
+12. », avec ses deux coups de pouce repliés.
+
+**LA MÊME DEMANDE, TROIS SESSIONS, TROIS STRUCTURES — ET CELLE QUI ÉTAIT EN
+LIGNE A DÉCIDÉ.** Écrit d'abord comme un GROUPE titré « Input » dans la page
+du 6.4 (`groupes`, lu par le seul `openSousTheme()`), pendant que deux autres
+sessions répondaient à la même phrase : l'une par d'autres groupes dans le 6.4
+(`blocs`), l'autre par un sous-thème à part, 6.5 « Bonus : input ». Turquet a
+d'abord choisi le groupe ; mais le 6.5 était déjà fusionné, avec trois
+exercices publiés (la durée, l'évolution, la durée en secondes). Le garder
+aurait renuméroté trois exercices en ligne : sur la question reposée, la
+moyenne a rejoint le 6.5, en dernier (6.5.4). Le mécanisme de groupes est
+RETIRÉ, pas laissé dormant — une structure morte qu'on croit vivante est pire
+qu'aucune. Le contrôle de {python-input-duree-secondes}, qui exigeait de
+fermer le 6.5, est retourné en « il suit {python-input-evolution} ».
+
+**LES COUPS DE POUCE DE LA FICHE SONT FAUX SUR DEUX POINTS, ET ILS SONT
+CORRIGÉS EN LE NOMMANT.** La fiche écrit `input ( "ta note",k,"?")` — la forme
+de print ; input n'accepte qu'UN texte, et CPython lève TypeError (le banc le
+vérifie des deux côtés). Recopié au mot près, le coup de pouce ferait échouer
+l'élève qui le suit : il porte `input("Ta note " + str(k) + " ? ")`. Le second
+écrivait `range (N)`, qui ferait dire « Ta note 0 ? » : il compte de 1 à N
+comme le premier. Le juge reconnaît l'écriture de la fiche et dit pourquoi
+elle échoue (« les virgules, c'est pour print »).
+
+**LE JUGE EXÉCUTE AVEC DES NOTES QUE L'ÉLÈVE NE CONNAÎT PAS** : les réponses
+de la question, puis deux séries (`PMN_JUGE` — quatre notes entières, puis
+deux notes dont 13.5). `range(1, 4)` écrit à la main se trahit (« demande
+toujours 3 notes »), « / 3 » aussi, `int(input(…))` pour une note bute sur
+13.5, la moyenne écrite à la main ne suit pas. Aucune moyenne d'exemple n'est
+celle d'une série du juge (le contrôle l'exige). La phrase est jugée avec
+`pyTexteProche` ; une autre phrase qui dit « moyenne » est acceptée et
+nommée, des questions qui ne numérotent pas les notes aussi. La console est
+le dialogue du 6.3.2 (une case, Entrée rejoue), la cellule fait le retrait
+comme au 6.4.4, aucun encadré de cours (exception déclarée dans
+`pythonAvant.sans`), pas de bouton des tables, pas de correction au fil de la
+frappe. Banc jsdom (`pythonMoyenneNotes`) : la place au menu, la
+fiche et le tirage (300 séances), le juge sur cinq copies justes et dix-neuf
+fausses chacune avec son mot, l'écran, le dialogue tapé réponse par réponse,
+juste/faux/vide, le soutien, et les exécutions comparées à CPython questions
+comprises. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
+Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, version 294) pendant les bancs : deux listes partagées (`TABLES_SANS`, la table des kinds de `tests/profils.js`) unies ligne à ligne, et la version passe en 295.
+Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301, puis en 302 (le 6.1.3, #505, avait pris la 301).
