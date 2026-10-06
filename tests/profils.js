@@ -1138,6 +1138,7 @@ module.exports = {
       'python-input-rectangle': 'la fiche n\u2019a pas de définition : son rappel ne reprend que les trois coups de pouce (la ligne de float, les formules, les print), déjà proposés sous l\u2019énoncé — les écrire avant lui donnerait le programme',
       'python-programme-calcul': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (les deux premières étapes traduites, les autres en pointillés), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait le programme',
       'python-triangle-etoiles': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce, qui reste REPLIÉ sous l\u2019énoncé (demande de Turquet, octobre 2026 : « garde le coup de pouce seulement replié »)',
+      'python-phrases-memoire': 'son rappel écrit, au mot près et avec les nombres de la fiche, les phrases que l\u2019élève doit compléter (« c = b signifie que le nombre dans la case b, qui est 2, va dans la case mémoire appelée c ») — l\u2019écrire avant l\u2019énoncé donnerait les réponses ; il reste derrière le bouton 📘 (demande de Turquet, octobre 2026 : « enlever l\u2019encadré bleu ainsi que son contenu avant l\u2019énoncé »)',
     } },
     pythonAffichage: { exercice: 'python-affichage', nb: 4 },
     /* {python-types} : les trois types de variables — int, float, str —
