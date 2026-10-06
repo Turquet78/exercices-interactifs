@@ -4484,7 +4484,9 @@ prise). Six fois de suite, le numéro pris pendant les vingt minutes de
 l'action : la branche passe alors à 315, pas 311 — le garde de
 `tests/version.js` exige STRICTEMENT PLUS GRAND, et non +1, exactement pour
 ce cas ; les quatre numéros sautés ne manquent à personne, et chaque fusion
-voisine coûtait une heure de file d'attente.
+voisine coûtait une heure de file d'attente. La septième fusion (#518, qui
+portait la 311) l'a aussitôt justifié : seul le numéro entrait en conflit,
+la 315 reste.
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
 {python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
@@ -4524,3 +4526,18 @@ La règle à retenir : avant de fusionner, relire `APP_VERSION` sur `main` à
 CET instant, pas à celui des contrôles — et quand plusieurs sessions
 travaillent le même fichier le même jour, le numéro se pose à la fusion,
 jamais à l'ouverture.
+
+**Puis un dessin en tête du 6.2.4** ({python-pas-a-pas-chaine}, demande de
+Turquet, octobre 2026, version 311 — 305 à 310 prises sur `main` pendant les
+bancs, par sept dessins voisins et deux suites, dont celui du 6.2.5). Le serpent à lunettes
+devant son ordinateur, découpé dans la capture et détouré de son fond blanc
+par les quatre coins (le blanc INTÉRIEUR du dessin reste), en WebP de 10 Ko
+(`PPD_IMG`). Il se pose AVANT le rappel de cours (`#ppdFig`, premier enfant
+de la carte), comme « au début » le dit, UNE fois, par `renderPPD`. La
+demande a nommé le 6.2.4, puis le 6.2.5, puis le 6.2.4 — et les deux écrans
+l'avaient reçu, sous une constante partagée. Mais `main` portait déjà, par
+une autre session (#514), le dessin PROPRE du 6.2.5 (le serpent au bonnet) :
+le second message était une erreur, le troisième sa correction, et le 6.2.5
+a gardé le sien — un dessin par exercice, jamais deux sur un écran. Le banc
+navigateur mesure le dessin RENDU, la mesure du 6.2.5 reprise mot pour mot :
+décodé, haut de plus de 100 px, posé avant la consigne, servi en `data:`.
