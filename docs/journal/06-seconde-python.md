@@ -2999,6 +2999,20 @@ réponse lève l'erreur « attente » du 6.3.1 (EOFError) — c'est ce qui arriv
 à l'élève qui recopie `input` dans sa ligne d'affichage, et le diagnostic le
 nomme.
 
+**Le dessin de la fiche en tête** (demande de Turquet, octobre 2026 :
+« placer cette image en seconde dans l'exercice 6.3.3 au début ») : les deux
+serpents — « Quel est ton âge ? », « Je mets ma réponse dans la variable
+age. » — et la boîte « age », découpés dans la capture, détourés (le fond
+blanc joint aux bords est vidé, le blanc des bulles et des yeux reste), en
+WebP de 18 Ko (`PII_IMG`, une URL `data:` — la page reste un fichier unique),
+le motif de `PDU_IMG` et `PHM_IMG`. Il illustre la DÉFINITION et vit avec
+elle (`piiFigHTML`, dans `pyAvant`) : au premier écran seulement, au-dessus
+du cadre orange, et jamais sur {python-input-float}, qui partage ce moteur
+(`q.f`) mais pas cette fiche — son écran garde sa définition seule. Un
+`width`/`height` sur la balise réserve la place avant le décodage ; la
+largeur affichée (300 px, 84 % au plus) est celle d'une vignette, pas d'un
+énoncé.
+
 **La console demande pour de vrai.** « Exécuter » écrit la question dans la
 console, une case s'ouvre AU BOUT de la ligne, à la taille de la console (la
 réponse fait partie de ce que Python affiche), et la touche Entrée l'envoie —
@@ -3098,7 +3112,7 @@ rendu transparent depuis les bords, puis rognée), encodée en WebP (14 Ko,
 `PIA_IMG`), et `piaFigureHTML()` la pose DEVANT le texte de l'énoncé dans
 `piaInstr`, à chaque question — l'encadré de cours (`pyAvant`, première
 question seulement) reste au-dessus, comme sur le 6.5.3. Décoratif : rien
-ne change au tirage, au juge ni aux coups de pouce. Version 305.
+ne change au tirage, au juge ni aux coups de pouce. Version 306 (305 a été pris par le 6.3.3, fusionné pendant les bancs).
 
 **float : la réponse est un nombre DÉCIMAL — l'exercice 6 du carnet.**
 {python-input-float} (Seconde, 6.3.5, demande de Turquet, octobre 2026 : « créer
