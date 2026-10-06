@@ -4437,7 +4437,8 @@ version 305, puis la fusion de `main` — trois dessins posés le même jour
 sur les 6.2.3, 6.3.3 et 6.3.6 (#510, #512, #513), la 305 prise — l'a fait
 passer en 306 ; puis une seconde fusion (6.2.5, 6.5.1, 6.3.1 — #514, #521,
 #516 — la 306 prise) en 307, et une troisième (6.3.2, #522 — la 307 prise)
-en 308, puis une quatrième (6.2.8, #511 — la 308 prise) en 309.
+en 308, puis une quatrième (6.2.8, #511 — la 308 prise) en 309, et une cinquième
+(#520 et #526 — la 309 prise) en 310.
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
 {python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
