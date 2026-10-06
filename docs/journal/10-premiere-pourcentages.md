@@ -3513,6 +3513,74 @@ marquée de son moteur). Les règles universelles sont tenues par la visite
 
 ---
 
+## {devoir-blanc-pourcentages} — le devoir blanc : une question du 2.1.3, puis la même rédigée comme au 2.1.7 (Première, 2.5.8, octobre 2026)
+
+**D'où il vient.** Demande de Turquet : « créer un exercice en Première dans
+Synthèse sur les pourcentages, intitulé Devoir blanc. Il prendra comme
+première question une question du 2.1.3. Comme deuxième question, une
+question du 2.1.3, mais où il faut rédiger comme dans le 2.1.7 (on acceptera
+toutes les rédactions comme dans le 2.1.7) ; l'élève aura un bouton aide
+méthode pour afficher la résolution comme dans le 2.1.3, il aura aussi un
+bouton pour revenir à la version rédigée. » Il ferme le sous-thème 2.5,
+{devoir-blanc-pourcentages} (2.5.8), kind `dbp` : rien n'est renuméroté.
+
+**Deux lectures arbitrées, à confirmer.** La question rédigée n'a PAS les
+quatre propositions du 2.1.7 : le 2.1.3 n'en a pas, et un devoir sur table
+demande le calcul — l'élève rédige jusqu'au résultat, et c'est la rédaction
+qui porte la réponse. « Aide méthode » montre la MÊME question en cases VIDES
+(l'échafaudage du 2.1.3, pas la correction remplie), et répondre dans les
+cases compte le point comme la rédaction : aucune pénalité n'a été demandée.
+
+**Le tirage.** `distinctes(dmNbQuestions(2), genPercent)` : les tournures et
+les contextes du 2.1.3, deux questions différentes. Chacune porte son moteur
+(`q.moteur`), comme la synthèse générale : la moitié haute en cases (`'pct'`),
+l'autre rédigée (`'red'`, avec `q.aide`) — 2 = 1 + 1 hors devoir, et le
+réglage « Questions » d'un devoir allonge la séance en gardant l'ordre.
+
+**Rien n'est recopié du 2.1.3.** La question 1 et l'aide méthode s'affichent
+sur l'écran du 2.1.3 (`renderPTest`) et sont jugées par `checkPAnswer` ; seul
+le bouton de retour s'y ajoute (`dbpRetourHTML`, vide hors du devoir blanc,
+retiré dès que la réponse est donnée), et `nextPQuestion` rend la main à
+`nextDbp` quand `test.kind` vaut `'dbp'`. La question rédigée vit sur son
+écran (`scr-dbp`), avec la feuille du 2.1.7 à l'identique (`mlFeuille` en
+mode calcul, le préfixe « = » qui enchaîne les lignes en une seule égalité).
+« Revenir à la version rédigée » NE redessine PAS cet écran : la rédaction
+tapée avant l'aide est toujours là (un redessin recréerait la feuille — la
+leçon du 2.1.7). `dbpEcran()` dit l'écran de la question courante, aide
+comprise : la table d'`afficherEcranDe` le lit, la reprise d'une pause revient
+donc là où l'élève était.
+
+**Le juge.** Le 2.1.7 confiait tout au modèle ; la page porte désormais son
+juge (`dbpJuge`, la grammaire `salExpr` du moteur rédigé, en rationnels
+exacts), selon la règle « un verdict arithmétique ne se confie pas à un
+modèle ». Il REFUSE sur un fait prouvable — une égalité fausse (nommée), un
+calcul juste qui ne donne pas P % de N, un calcul qui s'arrête avant le
+résultat écrit en décimal, un nombre seul ; il ACCEPTE une chaîne juste qui
+montre P/100 × N (dans un ordre ou l'autre, 0,2 comme 20/100) et finit sur le
+résultat (l'unité est permise) ; il S'ABSTIENT sinon, et le modèle lit alors
+la copie avec la règle du 2.1.7 (« tout calcul juste qui fonctionne est
+accepté » : le passage par 10 %, « 30 % de 150 = 45 »…). Le juge prime, sa
+phrase s'affiche sur un refus, il répond seul si le modèle est en panne —
+le contrat de `checkSal`. En entraînement, une rédaction fausse reçoit la
+correction en vert (`esl-cor`) ; en soutien, la feuille se rouvre avec
+« Revérifier » et « Aide méthode ».
+
+**Ce que les contrôles tiennent.** `tests/verifier.js`, « le devoir blanc : … »
+(le tirage sur 30 séances, les deux écrans, l'aide et le retour SANS
+recréation de la feuille, la reprise dans les deux états, douze copies du
+juge, l'identité, le 2.1.3 inchangé) et « le devoir blanc, cliqué » (sous un
+modèle qui se trompe toujours : les cases du 2.1.3, la rédaction jugée par la
+page, la réponse donnée dans l'aide méthode qui compte et clôt, la note 2/2
+sous son identifiant et rien sous `pourcentage`, soutien, entraînement, la
+feuille vide). Éprouvés par sabotage : un retour qui redessine (« le retour
+recrée la feuille ») et un juge muet (« la rédaction juste n'est pas jugée par
+la page »). Au banc navigateur (étape 7 de la synthèse rédigée), les cases et
+la rédaction sont TAPÉES dans un vrai MathLive — fractions par « / », lignes
+par « Entrée » —, l'aide puis le retour gardent la rédaction, et la note se
+lit dans le double de Supabase. `APP_VERSION` 278.
+
+---
+
 ## Seconde 4.6.1 — {tableau-proportions} : le tableau à double entrée de la fiche, et ses proportions
 
 **Demandé par Turquet en septembre 2026**, d'après une fiche papier
