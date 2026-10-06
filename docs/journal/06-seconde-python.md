@@ -3348,7 +3348,7 @@ jamais peinte ; en soutien rien n'est révélé ; aucune correction au fil de la
 frappe (`soutienEnDirect.sans`) ; pas de bouton des tables.
 **Puis son encadré bleu d'avant l'énoncé a disparu** (demande de Turquet,
 octobre 2026 : « enlever l'encadré bleu ainsi que son contenu avant l'énoncé
-au début de l'exercice », version 305). C'était le rappel de cours, écrit à la
+au début de l'exercice », version 306). C'était le rappel de cours, écrit à la
 question 1 par `pyRappelAvantHTML` comme sur tout le thème — et son point ②
 disait, au mot près et avec les nombres mêmes de la fiche, la phrase que
 l'élève doit compléter : « c = b signifie que le nombre dans la case b, qui
