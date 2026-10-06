@@ -3159,7 +3159,7 @@ rendu transparent depuis les bords, puis rognée), encodée en WebP (14 Ko,
 `PIA_IMG`), et `piaFigureHTML()` la pose DEVANT le texte de l'énoncé dans
 `piaInstr`, à chaque question — l'encadré de cours (`pyAvant`, première
 question seulement) reste au-dessus, comme sur le 6.5.3. Décoratif : rien
-ne change au tirage, au juge ni aux coups de pouce. Version 309 (305, 306, 307 puis 308 ont été pris sur `main` pendant les bancs, par les PR 510, 514, 521, 522 et 511).
+ne change au tirage, au juge ni aux coups de pouce. Version 312 : 305, 306, 307, 308 puis 309 ont été pris sur `main` pendant les bancs, par les PR 510, 514, 521, 522, 511 et 526, cinq fois de suite — chaque tour de l'action dure une heure, et une fusion concurrente tombe presque à chaque tour. Le cinquième cran saute donc deux numéros (310 et 311 restent libres) pour laisser passer deux fusions concurrentes sans recommencer : le contrôle de `tests/version.js` n'exige que de dépasser `main`, et le numéro reste croissant.
 
 **float : la réponse est un nombre DÉCIMAL — l'exercice 6 du carnet.**
 {python-input-float} (Seconde, 6.3.5, demande de Turquet, octobre 2026 : « créer
