@@ -3393,6 +3393,17 @@ encres) ; propres l'identifiant, le kind `pph`, l'écran, le rappel (celui du
 tirage, les phrases, le juge et le poids. Une case vide est redemandée,
 jamais peinte ; en soutien rien n'est révélé ; aucune correction au fil de la
 frappe (`soutienEnDirect.sans`) ; pas de bouton des tables.
+**Puis son encadré bleu d'avant l'énoncé a disparu** (demande de Turquet,
+octobre 2026 : « enlever l'encadré bleu ainsi que son contenu avant l'énoncé
+au début de l'exercice », version 309). C'était le rappel de cours, écrit à la
+question 1 par `pyRappelAvantHTML` comme sur tout le thème — et son point ②
+disait, au mot près et avec les nombres mêmes de la fiche, la phrase que
+l'élève doit compléter : « c = b signifie que le nombre dans la case b, qui
+est 2, va dans la case mémoire appelée c ». L'emplacement `pphAvant` reste
+vide, le rappel reste derrière le bouton « 📘 », et la dispense est NOMMÉE
+dans `tests/profils.js` (`pythonAvant.sans`), raison comprise — le banc
+navigateur exige l'encadré de tout exercice du thème qui n'y est pas
+déclaré.
 
 **Le 6.3.1 ({python-input-def}) perd ses textes d'accompagnement** (demande de
 Turquet, octobre 2026 : « supprimer les textes comme le pdf joint »). Le PDF
@@ -4411,7 +4422,8 @@ Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, versio
 Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301, puis en 302 (le 6.1.3, #505, avait pris la 301).
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
-{python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305, demande de
+{python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
+ci-dessous —, demande de
 Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.3
 au début ») : le dessin fourni — un serpent à lunettes de soleil qui fait
 sauter le bouchon d'une bouteille de champagne — ouvre l'écran, PREMIER
@@ -4427,9 +4439,30 @@ embarqué en `data:`, réellement CHARGÉ (`naturalWidth` > 0 — un `data:`
 tronqué passerait un contrôle qui ne lirait que l'attribut) et visible à au
 moins 120 px de large.
 
+**Et deux PR ont porté le même numéro 305 pendant douze minutes.** Le 6.3.3
+(Turquet78/exercices-interactifs#510) a été fusionné à 11:54 UTC, ENTRE les
+contrôles de cette PR (verts à 11:45, `test:version` compris, contre un
+`main` encore en 304) et sa fusion (12:05). Les deux branches écrivaient
+`APP_VERSION=305` sur la même ligne, au même chiffre : Git fusionne sans
+conflit, et `main` a porté deux états du site sous le numéro 305. Le banc des
+versions ne voit que l'instant où il tourne ; c'est la vérification de la
+publication (« la page en ligne est-elle celle de la branche ? »), faite après
+la fusion, qui a montré l'écart — un fichier plus gros de 10 Ko sous le même
+numéro — et un troisième à 12:08, le 6.3.6
+(Turquet78/exercices-interactifs#513), encore en 305. La PR de suite qui
+passait la Seconde en 306 a trouvé `main` DÉJÀ en 306 à l'heure de ses
+contrôles : deux autres sessions (#514, #521) avaient corrigé la même
+collision chacune de leur côté, avec le même chiffre. Elle est passée en 307 —
+et `main` a pris 307 à son tour (#522) avant qu'elle ne fusionne : la PR de
+suite n'a plus porté que cette chronique, la page étant celle de `main`.
+La règle à retenir : avant de fusionner, relire `APP_VERSION` sur `main` à
+CET instant, pas à celui des contrôles — et quand plusieurs sessions
+travaillent le même fichier le même jour, le numéro se pose à la fusion,
+jamais à l'ouverture.
+
 **Puis un dessin en tête du 6.2.4** ({python-pas-a-pas-chaine}, demande de
-Turquet, octobre 2026, version 309 — 305 à 308 prises sur `main` pendant les
-bancs, par six dessins voisins, dont celui du 6.2.5). Le serpent à lunettes
+Turquet, octobre 2026, version 310 — 305 à 309 prises sur `main` pendant les
+bancs, par six dessins voisins et deux suites, dont celui du 6.2.5). Le serpent à lunettes
 devant son ordinateur, découpé dans la capture et détouré de son fond blanc
 par les quatre coins (le blanc INTÉRIEUR du dessin reste), en WebP de 10 Ko
 (`PPD_IMG`). Il se pose AVANT le rappel de cours (`#ppdFig`, premier enfant
