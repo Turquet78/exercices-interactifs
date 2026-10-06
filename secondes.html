@@ -5630,7 +5630,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=306;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=307;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -34415,7 +34415,8 @@ function pkgDiag(src, q){
   src=String(src||''); const S=pkgSit(q);
   const non=function(d){ return {ok:false, vide:false, dits:[d]}; };
   if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris les deux input, puis le calcul, puis le print.']};
-  if(/[«»“”‘’]/.test(src)) return non('Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.');
+  /* les guillemets typographiques ne trompent qu'EN DEHORS d'une chaîne : « l’aire » entre "…" est juste */
+  if(/[«»“”‘’]/.test(src.replace(/"[^"\n]*"|'[^'\n]*'/g, '""'))) return non('Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.');
   if(/\d,\d/.test(src.replace(/"[^"\n]*"|'[^'\n]*'/g, '""'))) return non('En Python, un nombre décimal s’écrit avec un POINT : '+pkgCode(S.pa)+', pas '+pkgEuro(S.pa)+'.');
   const essais=PKG_EX.map(function(p){ return pkgEssai(src, p); }), a=essais[0];
   if(a.err){
@@ -35310,13 +35311,22 @@ function phmSuite(nb, x){
   }
   return -1;
 }
+/* Le mot (ou son pluriel) se lit-il dans ce qui est affiché, à une faute
+   d'orthographe près ? Les accents et la casse ne comptent pas, et chaque
+   mot affiché est comparé à « heure » et « heures » avec la tolérance du
+   thème (pyTolerance : un caractère par tranche de quatre, deux au plus). */
+function phmMot(t, m){
+  const mots=pySansAccents(String(t)).toLowerCase().split(/[^a-z]+/).filter(Boolean);
+  return mots.some(function(w){ return pyDist(w,m)<=pyTolerance(m) || pyDist(w,m+'s')<=pyTolerance(m+'s'); });
+}
 /* phmDiag rend { ok, vide, dits }. */
 function phmDiag(src, q){
   src=String(src||'');
   const non=function(d){ return {ok:false, vide:false, dits:[d]}; };
   const ex=phmDuree(q||{s:0}), exHMS=phmHMS(ex);
   if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris l’input, puis les calculs, puis le print.']};
-  if(/[«»“”‘’]/.test(src)) return non('Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.');
+  /* les guillemets typographiques ne trompent qu'EN DEHORS d'une chaîne : « c’est » entre "…" est juste */
+  if(/[«»“”‘’]/.test(src.replace(/"[^"\n]*"|'[^'\n]*'/g, '""'))) return non('Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.');
   const essais=PHM_EX.map(function(n){ return phmEssai(src, n); }), a=essais[0];
   if(a.err){
     const msg=String(a.err.message||a.err);
@@ -35338,7 +35348,10 @@ function phmDiag(src, q){
       ? 'Les nombres s’affichent avec une virgule (comme '+E[0][0]+'.0) : une durée en secondes est un nombre ENTIER, écris int(input("…")) et non float(…).'
       : 'Les nombres s’affichent avec une virgule (comme '+E[0][0]+'.0) : la barre / donne toujours un nombre à virgule, // donne le quotient entier.');
     const t=L[0].t;
-    const manque=['heure','minute','seconde'].filter(function(m){ return t.toLowerCase().indexOf(m)<0; });
+    /* « heurs », « minuts », « segondes » : une faute d'orthographe dans le
+       mot est tolérée (la règle partagée du thème, pyTolerance sur le mot au
+       pluriel) — c'est le mot qui doit être là, pas sa dactylographie */
+    const manque=['heure','minute','seconde'].filter(function(m){ return !phmMot(t, m); });
     if(manque.length) return non('Les bons nombres s’affichent, mais il manque '+(manque.length>1?'les mots':'le mot')+' « '+manque.map(function(m){ return m+'s'; }).join(' », « ')+' » : écris-les entre guillemets dans le print.');
     return {ok:true, vide:false, dits:[]};
   }
@@ -35602,7 +35615,8 @@ function pttTraduire(err, mot){
 function pttDiag(src, q){
   src=String(src||''); const S=pttSit(q);
   if(pttVide(src)) return {ok:false, vide:true, dits:['Ton programme ne fait encore rien : sous la ligne chaine = "'+S.mot+'", écris ce qui construit le nouveau mot, puis le print qui l’affiche.']};
-  if(/[«»“”‘’]/.test(src)) return {ok:false, vide:false, dits:['Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.']};
+  /* les guillemets typographiques ne trompent qu'EN DEHORS d'une chaîne */
+  if(/[«»“”‘’]/.test(src.replace(/"[^"\n]*"|'[^'\n]*'/g, '""'))) return {ok:false, vide:false, dits:['Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.']};
   if(pttRemplacer(src, S.mot)===null) return {ok:false, vide:false, dits:['Garde la première ligne, chaine = "'+S.mot+'" : c’est elle qui donne le mot que le programme transforme.']};
   const essais=[S.mot].concat(PTT_ESSAIS).map(function(mot){
     const e={mot:mot, att:pttAttendu(mot, S.sep), out:null, err:null};
@@ -36314,8 +36328,11 @@ function pynJuge(q, ligne, val){
   const l=String(ligne||'').replace(/[\r\n]+/g,' ').trim(), S=pynS(q);
   if(!l) return {vide:true, ok:false, diag:''};
   if(/\binput\s*\(/.test(l)) return {ok:false, vide:false, diag:'Ta ligne 2 pose une NOUVELLE question avec input : la question est déjà posée à la ligne 1, et la réponse est rangée dans '+S.nom+'. La ligne 2 n’a plus qu’à afficher, avec print.'};
-  if(/'/.test(S.texte) && /print\s*\(\s*'/.test(l)) return {ok:false, vide:false, diag:'Le texte « '+S.texte+' » contient une apostrophe : entre guillemets simples \' … \', elle FERME le texte trop tôt, et Python ne comprend plus la suite. Écris le texte entre guillemets doubles " … ".'};
+  /* le juge EXÉCUTE d'abord : print('je mappelle', nom) affiche la phrase à
+     une faute près et passe (octobre 2026) ; l'apostrophe ne se reproche
+     qu'à la ligne que Python refuse */
   const j=pyxJuge(pynQx(q, val), l);
+  if(!j.ok && /'/.test(S.texte) && /print\s*\(\s*'/.test(l)) return {ok:false, vide:false, diag:'Le texte « '+S.texte+' » contient une apostrophe : entre guillemets simples \' … \', elle FERME le texte trop tôt, et Python ne comprend plus la suite. Écris le texte entre guillemets doubles " … ".'};
   return j;
 }
 const PYN_ENONCES={
@@ -39823,7 +39840,7 @@ function piiDiag(q, l, v, un, deux, att){
   }
   const ov=String(v).trim();
   if(o.indexOf(c.nom)>=0 && o.indexOf(ov)<0) return '« '+c.nom+' » est entre guillemets : c’est le MOT qui s’affiche, pas ce que tu as tapé. Le nom de la variable s’écrit sans guillemets.';
-  if(o.toLowerCase()===piiNorm(att).toLowerCase())
+  if(pyTexteProche(o.toLowerCase(),piiNorm(att).toLowerCase()))
     return 'Tu as écrit ta réponse à la main : si on tapait « '+piiAutre(q,v)+' », ton programme afficherait encore « '+o+' ». Écris le NOM de la variable, '+c.nom+', pour que l’affichage suive ce qu’on tape.';
   if(!o) return 'Ta ligne n’affiche rien.';
   const manque=[c.avant, c.apres].filter(function(t){ return o.toLowerCase().indexOf(piiNorm(t).toLowerCase())<0; });
@@ -39835,13 +39852,23 @@ function piiJugeLigne(q, ligne, v){
   if(!l) return {vide:true, ok:false, ecart:'', diag:''};
   const v2=piiAutre(q,v), att=piiAttendu(q,v), att2=piiAttendu(q,v2);
   const un=piiEssai(q,l,v), deux=piiEssai(q,l,v2);
-  /* un accent oublié (« metres », l'écriture même du carnet) est accepté et NOMMÉ */
+  /* un accent oublié (« metres », l'écriture même du carnet), et depuis
+     octobre 2026 toute faute d'orthographe dans le texte (« j'ai 15 an »,
+     « je mesur 1.65 metre ») : la règle partagée du thème, pyTexteProche —
+     les espaces ne comptent pas, un ou deux caractères près, les CHIFFRES
+     jamais. La VALEUR tapée doit se lire telle quelle dans la sortie, et la
+     seconde exécution garde le bord « recopiée à la main ». L'écart est NOMMÉ. */
   const plat=function(a){ return piiNorm(a).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); };
-  const egal=function(a,b){ return plat(a)===plat(b); };
-  const ok=!un.err && !deux.err && egal(un.out,att) && egal(deux.out,att2);
+  const ecrit=function(val){ return piiEssai(q,'print('+piiC(q).nom+')',val).out.trim(); };   /* la valeur telle que Python l'écrit (« 1.650 » tapé s'affiche 1.65) */
+  const proche=function(out,a,val){ return pyTexteProche(plat(out),plat(a)) && String(out).indexOf(ecrit(val))>=0; };
+  const ok=!un.err && !deux.err && proche(un.out,att,v) && proche(deux.out,att2,v2);
   let ecart='';
-  if(ok && un.out!==att) ecart=piiNorm(un.out)===piiNorm(att)?'il y a une espace en trop ou en moins'
-    :(piiNorm(un.out).toLowerCase()===piiNorm(att).toLowerCase()?'les majuscules diffèrent':'un accent manque ou diffère');
+  if(ok && un.out!==att){
+    const nv=piiNorm(un.out), na=piiNorm(att);
+    ecart=nv===na?'il y a une espace en trop ou en moins'
+      :(nv.toLowerCase()===na.toLowerCase()?'les majuscules diffèrent'
+      :(plat(un.out)===plat(att)?'un accent manque ou diffère':pyEcart(nv,na)));
+  }
   return {vide:false, ok:ok, ecart:ecart, sortie:un.out, erreur:un.err, diag:ok?'':piiDiag(q,l,v,un,deux,att)};
 }
 function piiJuge(q, type, ligne, v){
