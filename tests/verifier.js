@@ -24423,13 +24423,16 @@ function pythonProgrammeCalcul(w, P){
   })()`, v => v === '');
 
   /* ---- 4. l'écran, et la copie juste TAPÉE ---- */
-  verifierEval(w, 'l’écran : le programme de calcul en liste dans l’énoncé, la question en gras dans son cadre, UN coup de pouce replié (les deux premières étapes traduites), aucun cours, rien avant l’énoncé ; « Exécuter » montre le résultat ; la copie juste vaut 1', `(function(){
+  verifierEval(w, 'l’écran : le dessin du serpent en tête, puis le programme de calcul en liste dans l’énoncé, la question en gras dans son cadre, UN coup de pouce replié (les deux premières étapes traduites), aucun cours, rien avant l’énoncé ; « Exécuter » montre le résultat ; la copie juste vaut 1', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPGC();
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const li=Array.prototype.map.call(document.querySelectorAll("#pgcInstr .pgc-etapes li"),function(l){ return l.textContent; });
     if(li.join("|")!==pgcEtapes(PGC_SITUATIONS[0]).join("|")) vus.push("les étapes de l’énoncé : "+li.join("|"));
+    const img=document.querySelector("#pgcInstr img.pgc-img"), etapes=document.querySelector("#pgcInstr .pgc-etapes");
+    if(!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("pas de dessin en tête de l’énoncé");
+    else if(!(img.compareDocumentPosition(etapes) & Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas AVANT le programme de calcul");
     const et=document.querySelector("#pgcHost .pyn-etape .pyn-titre");
     if(!et||!/Écrivez un programme Python permettant de coder ce programme de calcul/.test(et.textContent)) vus.push("l’énoncé de la question : "+(et&&et.textContent));
     const pouces=document.querySelectorAll("#pgcHost details.pyd-pouce");
