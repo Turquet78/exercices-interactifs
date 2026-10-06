@@ -42656,7 +42656,12 @@ function renderPPH(){
   $('pphIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPPH').innerHTML=modeTagHTML();
   $('pphLiveScore').textContent=test.score;
-  pyAvant('pph', pyRappelAvantHTML('pph'));
+  /* pphAvant reste VIDE, exprès (demande de Turquet, octobre 2026 : « enlever
+     l'encadré bleu ainsi que son contenu avant l'énoncé ») : le point ② du
+     rappel écrit, au mot près et avec les nombres de la fiche, la phrase que
+     l'élève doit compléter. Le rappel reste derrière le bouton « 📘 ».
+     Exception nommée dans tests/profils.js (pythonAvant.sans). */
+  pyAvant('pph', '');
   $('pphFeedback').textContent=''; $('pphFeedback').className='mp-feedback';
   let ligne;
   if(!e) ligne='La mémoire de l’ordinateur est vide. Appuie sur <b>« Exécuter la ligne 1 »</b>&nbsp;: l’ordinateur va lire la première ligne.';
