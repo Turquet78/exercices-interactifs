@@ -1808,7 +1808,8 @@ branches voisines qui montent toutes d'un cran à la fois. La marche a servi : #
 Puis #520 et #526 ont pris la 309 : cinquième reprise, la page passe à **311**.
 Puis #528 et #529 (`main` à 310) : sixième reprise, 311 tient.
 Puis #518 a pris la 311 : septième reprise, la page passe à **315** — quatre
-crans de marge, puisque chaque branche voisine ne monte que d'un cran.
+crans de marge, puisque chaque branche voisine ne monte que d'un cran. Puis #527
+(`main` à 313) : huitième reprise, 315 tient.
 
 **Puis la MÊME marche, une question en moins : la valeur seule.**
 {python-valeur-case} (Seconde, 5.15, demande de Turquet, septembre 2026 :
@@ -2303,6 +2304,21 @@ l'avance), et la question suivante atteinte avec le score complet. `TESTS`,
 le rappel de cours et les questions à l'IA ont été réécrits dans le même
 mouvement — l'identifiant, lui, n'a pas bougé (« les identifiants ne se
 renomment jamais »).
+
+**PUIS LE DESSIN DE LA FICHE EST VENU EN TÊTE** (APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.6
+au début ») : le serpent fatigué, la langue pendante, devant son ordinateur
+portable — l'illustration de la fiche « variable_pas_a_pas_7 ». Même traitement
+que le serpent du 6.5.3 : la capture détourée (le blanc relié au bord devient
+transparent, le blanc des yeux reste), recadrée, en WebP (8 Ko, `PPM_IMG`),
+posée dans `#ppmFig` par `renderPPM` à chaque question — entre le rappel de
+cours (`#ppmAvant`, première question seulement) et la consigne « Devine
+d'abord… », donc avant le programme. Purement décoratif : rien ne s'y lit, le
+juge, le contexte envoyé au modèle et le rappel ne le connaissent pas. Le banc
+navigateur (« 6 tricies undevicies », 1 bis) mesure qu'il est RENDU — une
+largeur à l'écran et une largeur naturelle, pas seulement un `alt` sur une
+image cassée — et qu'il est bien après le rappel et avant la consigne et le
+programme.
 
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
