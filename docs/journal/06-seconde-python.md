@@ -2275,6 +2275,21 @@ le rappel de cours et les questions à l'IA ont été réécrits dans le même
 mouvement — l'identifiant, lui, n'a pas bougé (« les identifiants ne se
 renomment jamais »).
 
+**PUIS LE DESSIN DE LA FICHE EST VENU EN TÊTE** (APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.6
+au début ») : le serpent fatigué, la langue pendante, devant son ordinateur
+portable — l'illustration de la fiche « variable_pas_a_pas_7 ». Même traitement
+que le serpent du 6.5.3 : la capture détourée (le blanc relié au bord devient
+transparent, le blanc des yeux reste), recadrée, en WebP (8 Ko, `PPM_IMG`),
+posée dans `#ppmFig` par `renderPPM` à chaque question — entre le rappel de
+cours (`#ppmAvant`, première question seulement) et la consigne « Devine
+d'abord… », donc avant le programme. Purement décoratif : rien ne s'y lit, le
+juge, le contexte envoyé au modèle et le rappel ne le connaissent pas. Le banc
+navigateur (« 6 tricies undevicies », 1 bis) mesure qu'il est RENDU — une
+largeur à l'écran et une largeur naturelle, pas seulement un `alt` sur une
+image cassée — et qu'il est bien après le rappel et avant la consigne et le
+programme.
+
 **Le nom d'une variable se juge, et l'incorrect se JUSTIFIE.**
 {python-noms-variables} (Seconde, 5.4, demande de Turquet, septembre 2026 —
 « un exercice qui rappelle ce que l'on peut mettre pour le nom d'une variable
@@ -3159,7 +3174,7 @@ rendu transparent depuis les bords, puis rognée), encodée en WebP (14 Ko,
 `PIA_IMG`), et `piaFigureHTML()` la pose DEVANT le texte de l'énoncé dans
 `piaInstr`, à chaque question — l'encadré de cours (`pyAvant`, première
 question seulement) reste au-dessus, comme sur le 6.5.3. Décoratif : rien
-ne change au tirage, au juge ni aux coups de pouce. Version 312 : 305, 306, 307, 308 puis 309 ont été pris sur `main` pendant les bancs, par les PR 510, 514, 521, 522, 511 et 526, cinq fois de suite (puis la PR 529 a posé 310 pendant le tour suivant : le numéro 312 tenait, mais la ligne elle-même était en conflit, sixième fusion de `main`) — chaque tour de l'action dure une heure, et une fusion concurrente tombe presque à chaque tour. Le cinquième cran saute donc deux numéros (310 et 311 restent libres) pour laisser passer deux fusions concurrentes sans recommencer : le contrôle de `tests/version.js` n'exige que de dépasser `main`, et le numéro reste croissant.
+ne change au tirage, au juge ni aux coups de pouce. Version 312 : 305, 306, 307, 308 puis 309 ont été pris sur `main` pendant les bancs, par les PR 510, 514, 521, 522, 511 et 526, cinq fois de suite (puis la PR 529 a posé 310 pendant le tour suivant : le numéro 312 tenait, mais la ligne elle-même était en conflit, sixième fusion de `main` ; puis la PR 527 a posé 313, septième fusion, et le numéro est passé à 314) — chaque tour de l'action dure une heure, et une fusion concurrente tombe presque à chaque tour. Le cinquième cran saute donc deux numéros (310 et 311 restent libres) pour laisser passer deux fusions concurrentes sans recommencer : le contrôle de `tests/version.js` n'exige que de dépasser `main`, et le numéro reste croissant.
 
 **float : la réponse est un nombre DÉCIMAL — l'exercice 6 du carnet.**
 {python-input-float} (Seconde, 6.3.5, demande de Turquet, octobre 2026 : « créer
@@ -4511,3 +4526,18 @@ La règle à retenir : avant de fusionner, relire `APP_VERSION` sur `main` à
 CET instant, pas à celui des contrôles — et quand plusieurs sessions
 travaillent le même fichier le même jour, le numéro se pose à la fusion,
 jamais à l'ouverture.
+
+**Puis un dessin en tête du 6.2.4** ({python-pas-a-pas-chaine}, demande de
+Turquet, octobre 2026, version 311 — 305 à 310 prises sur `main` pendant les
+bancs, par sept dessins voisins et deux suites, dont celui du 6.2.5). Le serpent à lunettes
+devant son ordinateur, découpé dans la capture et détouré de son fond blanc
+par les quatre coins (le blanc INTÉRIEUR du dessin reste), en WebP de 10 Ko
+(`PPD_IMG`). Il se pose AVANT le rappel de cours (`#ppdFig`, premier enfant
+de la carte), comme « au début » le dit, UNE fois, par `renderPPD`. La
+demande a nommé le 6.2.4, puis le 6.2.5, puis le 6.2.4 — et les deux écrans
+l'avaient reçu, sous une constante partagée. Mais `main` portait déjà, par
+une autre session (#514), le dessin PROPRE du 6.2.5 (le serpent au bonnet) :
+le second message était une erreur, le troisième sa correction, et le 6.2.5
+a gardé le sien — un dessin par exercice, jamais deux sur un écran. Le banc
+navigateur mesure le dessin RENDU, la mesure du 6.2.5 reprise mot pour mot :
+décodé, haut de plus de 100 px, posé avant la consigne, servi en `data:`.

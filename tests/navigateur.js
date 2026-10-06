@@ -11037,8 +11037,22 @@ async function parcours(page, N){
                  listes: host.querySelectorAll('select').length,
                  nom: nm ? nm.textContent.trim() : null,
                  case: ve ? ve.tagName : null,
-                 bilan: !!host.querySelector('.ppd-bilan') };
+                 bilan: !!host.querySelector('.ppd-bilan'),
+                 /* le dessin en tête (octobre 2026), la même mesure qu'au
+                    6.2.5 : RENDU — décodé, haut de plus de 100 px, posé AVANT
+                    la consigne — et jamais un chemin de fichier */
+                 fig: (() => {
+                   const img = document.querySelector('#scr-ppd img.ppd-img'), ins = document.querySelector('#scr-ppd .mp-instr');
+                   if(!img) return 'absent';
+                   if(!/^data:image\//.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
+                   if(!img.complete || !img.naturalWidth) return 'non décodé';
+                   const h = img.getBoundingClientRect().height;
+                   if(h < 100) return 'haut de ' + Math.round(h) + ' px';
+                   if(!ins || !(img.compareDocumentPosition(ins) & Node.DOCUMENT_POSITION_FOLLOWING)) return 'après la consigne';
+                   return 'ok';
+                 })() };
       });
+      if(vu.fig !== 'ok') dits.push('le dessin en tête de l\'exercice : ' + vu.fig);
       if(vu.cols !== 2 || !vu.aCote) dits.push('les deux colonnes ne sont pas côte à côte (' + vu.cols + ' colonne(s))');
       if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
       if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
@@ -11378,6 +11392,22 @@ async function parcours(page, N){
       if(dev.case !== 'INPUT') dits.push('la case de prédiction : ' + JSON.stringify(dev.case));
       verifier('la phase « deviner » montre le programme entier sans repère, et une seule case de prédiction',
         !dits.length, dits.slice(0, 3).join(' | '));
+      /* 1 bis. LE DESSIN DE LA FICHE EN TÊTE DE L'EXERCICE (demande de Turquet,
+         octobre 2026 : « placer cette image en seconde dans l'exercice 6.2.6
+         au début ») : un vrai dessin (données embarquées), RENDU (une largeur
+         mesurée, pas un alt sur une image cassée), posé après le rappel et
+         AVANT la consigne et le programme — pas en bas de page. */
+      const fig = await s.page.evaluate(() => {
+        const i = document.querySelector('#ppmFig img.ppm-img'), av = document.getElementById('ppmAvant'),
+              instr = document.querySelector('#scr-ppm .mp-instr'), host = document.getElementById('ppmHost');
+        if(!i) return { absent: true };
+        const apres = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+        return { src: (i.getAttribute('src') || '').slice(0, 16), largeur: i.getBoundingClientRect().width,
+                 naturelle: i.naturalWidth, apresRappel: apres(av, i), avantConsigne: apres(i, instr) && apres(i, host) };
+      });
+      verifier('le dessin de la fiche est en tête de l\'exercice, rendu, après le rappel et avant la consigne',
+        !fig.absent && /^data:image\//.test(fig.src) && fig.largeur > 100 && fig.naturelle > 0 && fig.apresRappel && fig.avantConsigne,
+        JSON.stringify(fig));
       /* 2. UNE PRÉDICTION VIDE EST REDEMANDÉE, JAMAIS JUGÉE */
       await s.page.click('#ppmGuessValidate');
       await s.page.waitForTimeout(200);
