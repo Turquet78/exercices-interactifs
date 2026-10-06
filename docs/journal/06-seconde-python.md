@@ -3269,6 +3269,23 @@ copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
 comparés à un vrai CPython. Pas de section propre au banc navigateur : la
 visite universelle (section 9) l'ouvre dans les deux modes.
 
+**Puis le dessin est venu EN TÊTE** (APP_VERSION 310 — 305, 306 puis 307 pris sur `main` pendant les bancs, trois fois de suite : le contrôle exige « strictement plus grand », pas « +1 », et le saut laisse une marge aux branches voisines —, demande de Turquet,
+octobre 2026 : « placer cette image en seconde dans l'exercice 6.3.7 au
+début ») : deux serpents, « Comment ça va ? » — « C'est variable ! ». Le
+motif est celui du 6.5.1 et du 6.3.9 : l'image détourée (le blanc rendu
+transparent, recadrée sur son contenu), en WebP de 13 Ko, une URL `data:`
+dans une constante (`PMY_IMG`) — la page reste un seul fichier, et le
+`sw.js` n'a rien de plus à servir. « Au début » veut dire AVANT TOUT : le
+cadre `#pmyDessin` est le PREMIER enfant de la carte, devant le cours
+(`#pmyAvant`, qui ne paraît qu'à la première question) et devant l'énoncé ;
+`renderPMY` le remplit à CHAQUE question, comme l'étiquette du 6.3.9 — le
+dessin est celui de l'exercice, pas de sa première question. Le contrôle de
+l'écran (`pythonInputMoyenne`, section 4) exige le dessin : un `<img>` en
+`data:`, dont l'`alt` dit « variable », premier enfant de la carte, et qui
+précède l'énoncé. Sabotage : le `<div id="pmyDessin">` déplacé après
+`#pmyAvant` rougit (« le dessin n'est pas en tête du cadre »), l'`innerHTML`
+retiré du rendu rougit (« l'écran n'a pas le dessin des deux serpents »).
+
 ---
 
 **Deux nombres DÉCIMAUX, puis leur SOMME — l'exercice 7 du carnet.**
