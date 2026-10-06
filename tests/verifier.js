@@ -24975,11 +24975,15 @@ function pythonInputMoyenne(w, P){
   })()`, v => v === '');
 
   /* ---- 4. l'écran, le dialogue, et la copie juste TAPÉE ---- */
-  verifierEval(w, 'l’écran : l’énoncé à quatre puces nomme les trois variables, trois coups de pouce repliés, « Exécuter » pose les DEUX questions dans la console, une virgule tapée y est nommée, et Entrée affiche la moyenne ; la copie juste vaut 1', `(function(){
+  verifierEval(w, 'l’écran : le dessin des deux serpents en tête, l’énoncé à quatre puces nomme les trois variables, trois coups de pouce repliés, « Exécuter » pose les DEUX questions dans la console, une virgule tapée y est nommée, et Entrée affiche la moyenne ; la copie juste vaut 1', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPMY();
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    const des=document.getElementById("pmyDessin"), img=des&&des.querySelector("img.pmy-img"), carte=des&&des.parentNode;
+    if(!img||!/^data:image/.test(img.getAttribute("src")||"")||!/variable/.test(img.getAttribute("alt")||"")) vus.push("l’écran n’a pas le dessin des deux serpents");
+    else if(!carte||!carte.classList.contains("card")||carte.firstElementChild!==des) vus.push("le dessin n’est pas en tête du cadre");
+    else if(des.compareDocumentPosition(document.getElementById("pmyInstr"))&Node.DOCUMENT_POSITION_PRECEDING) vus.push("le dessin vient après l’énoncé");
     const en=document.getElementById("pmyInstr");
     if(!en||!en.classList.contains("mp-instr")||en.querySelectorAll("li").length!==4||["note_1","note_2","moyenne","virgule"].some(function(m){ return en.textContent.indexOf(m)<0; })) vus.push("l’énoncé : "+(en&&en.textContent));
     const pouces=document.querySelectorAll("#pmyHost details.pyd-pouce");
