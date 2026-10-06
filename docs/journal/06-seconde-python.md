@@ -4518,7 +4518,12 @@ ce cas ; les quatre numéros sautés ne manquent à personne, et chaque fusion
 voisine coûtait une heure de file d'attente. La septième fusion (#518, qui
 portait la 311) l'a aussitôt justifié : seul le numéro entrait en conflit,
 la 315 reste. La huitième (#527, qui portait la 313) a mangé la marge : la
-branche passe à 320.
+branche passe à 320. Et la neuvième (#525) a montré la limite du procédé :
+une branche voisine avait fait LE MÊME saut, 315 puis 320, et a fusionné la
+première — `git` n'a vu aucun conflit, deux pages différentes portaient
+320, c'est le garde de `tests/version.js` qui l'a dit. La branche passe à
+327, un numéro qu'aucune règle simple ne fait choisir à deux sessions à la
+fois.
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
 {python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
