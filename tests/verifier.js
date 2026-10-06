@@ -36007,14 +36007,25 @@ function reglagesDevoirs(w, apres){
        démarreur lit le réglage à son tirage, le barème suit, et le bouton
        « Recommencer » — qui repasse par le démarreur — garde la longueur. */
     if(${JSON.stringify(!!allonge)}){
-      const plus=defaut+2;
+      /* le témoin de l'allongement : celui de la coupe, sauf si sa séance a
+         une forme fixe — le profil nomme alors « exercicePlafond » (la
+         Terminale : tangente-exp ne s'allonge pas, derivees si) */
+      const EXA=${JSON.stringify(R.exercicePlafond||null)}||EX;
+      let defA=defaut, barA=baremeDefaut;
+      if(EXA!==EX){
+        mesDevoirs=[{id:'dev-a',num:1,actif:true,titre:'A',cours:'',exercices:[{id:EXA,modes:['soutien','train']}]}];
+        await lancerDevoirExo('dev-a',EXA,'train');
+        defA=(test.questions||[]).length; barA=test.maxScore||0;
+      }
+      const plus=defA+2;
       mesDevoirs[0].exercices[0].nbQ=plus;
-      await lancerDevoirExo('dev-r',EX,'train');
+      await lancerDevoirExo(mesDevoirs[0].id,EXA,'train');
       const nq=(test.questions||[]).length;
-      if(nq!==plus) vus.push('nbQ='+plus+' : la séance ne s\\'allonge pas ('+nq+' questions au lieu de '+plus+')');
-      else if(baremeDefaut && (test.maxScore||0)!==Math.round(baremeDefaut*plus/defaut)) vus.push('nbQ='+plus+' : le barème ne suit pas l\\'allongement ('+test.maxScore+' pour '+plus+' questions, '+baremeDefaut+' pour '+defaut+')');
+      if(nq!==plus) vus.push(EXA+', nbQ='+plus+' : la séance ne s\\'allonge pas ('+nq+' questions au lieu de '+plus+')');
+      else if(barA && (test.maxScore||0)!==Math.round(barA*plus/defA)) vus.push('nbQ='+plus+' : le barème ne suit pas l\\'allongement ('+test.maxScore+' pour '+plus+' questions, '+barA+' pour '+defA+')');
       restartCurrentTest(); await new Promise(function(r){ setTimeout(r,0); });
       if((test.questions||[]).length!==plus) vus.push('« Recommencer » depuis le devoir perd le réglage ('+(test.questions||[]).length+' questions au lieu de '+plus+')');
+      if(EXA!==EX) mesDevoirs=[{id:'dev-r',num:1,actif:true,titre:'Réglages',cours:'',exercices:[{id:EX,modes:['soutien','train']}]}];
     }
     /* le réglage ne FUIT pas hors du devoir */
     mesDevoirs[0].exercices[0].nbQ=2; currentDM=null; currentTestId=EX;
