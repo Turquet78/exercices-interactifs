@@ -26467,6 +26467,9 @@ function pythonInputDuree(w, P){
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("pduInstr"), img=en&&en.querySelector("img.pdu-img");
     if(!en||!en.classList.contains("mp-instr")||!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("l’écran n’a pas le dessin de la fiche");
+    /* le serpent fatigué (« Je fatigue un peu là ! ») ouvre le dessin, AVANT les deux serpents */
+    const imgs=en?en.querySelectorAll("img"):[], fat=imgs[0];
+    if(imgs.length!==2||!fat||!fat.classList.contains("pdu-img-fatigue")||!/^data:image/.test(fat.getAttribute("src")||"")||!/fatigue/i.test(fat.getAttribute("alt")||"")) vus.push("le serpent fatigué n’ouvre pas le dessin ("+imgs.length+" image(s))");
     if(document.querySelector("#scr-pdu .py-avant,#scr-pdu .pyp-regle,#scr-pdu .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pduEtape"), ti=et&&et.querySelector(".pyn-titre");
     if(!ti||net(ti.textContent)!=="✏️ Faire un programme qui demande une durée en minutes et qui affiche le résultat en heures et minutes.par exemple : si on rentre 135 min il doit afficher 2 heures et 15 minutes.") vus.push("l’énoncé de la question : "+JSON.stringify(ti&&net(ti.textContent)));
