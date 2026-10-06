@@ -4137,6 +4137,17 @@ résultat de l'exemple » s'est déclenché par coïncidence sur `d // 100`
 (215 // 100 = 2, 215 % 100 = 15, les nombres de la fiche) : redondant avec
 « la même sortie pour deux durées », il est retiré.
 
+**Puis le serpent fatigué a ouvert le dessin** (APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.5.1
+au début »). L'image est un serpent en sueur, la langue pendante, qui dit
+« Je fatigue un peu là ! » : détourée, rognée à ses bords, WebP de 10 Ko
+(`PDU_IMG_FATIGUE`). « Au début » : elle se pose EN TÊTE du dessin de la
+fiche, à gauche des deux serpents, dans la même figure `.pdu-fig`, devenue une
+rangée centrée qui se replie sur un écran étroit — rien d'autre ne bouge,
+l'énoncé reste sous le dessin. Le contrôle jsdom de l'écran exige désormais
+DEUX images dans `#pduInstr`, la première de classe `.pdu-img-fatigue`, en
+`data:` et dont l'alt dit « fatigue » — avant les deux serpents.
+
 ## {python-input-evolution} — prix de départ, prix d'arrivée ou pourcentage d'évolution (6.5.2, Bonus : input)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le thème algo dans la
