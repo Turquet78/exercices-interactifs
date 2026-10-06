@@ -4025,24 +4025,257 @@ poussée.
 
 ---
 
-**La moyenne de N notes : le groupe « Input » de la partie « Bonus » —
-l'exercice 14 du carnet.** {python-moyenne-notes} (Seconde, 6.4.6, demande de
+**Coder un programme de calcul — l'exercice 19 du carnet, et il ferme le
+sous-thème 6.2.** {python-programme-calcul} (Seconde, 6.2.9, APP_VERSION 295 — 294 pris sur `main` pendant les bancs —,
+demande de Turquet, octobre 2026 : « fais un exercice dans les algo de seconde
+dans le sous thème variable et calcul comme le pdf ») : « On considère le
+programme de calcul suivant » — A prend la valeur 5, multiplier A par 3,
+soustraire 4 au résultat, élever le résultat au carré, afficher le résultat —,
+puis « **Écrivez un programme Python** permettant de coder ce programme de
+calcul. Vérifiez ensuite **en l'exécutant** », et le coup de pouce de la fiche
+replié : les deux premières étapes traduites (`A = 5`, `A = A * 3`), les
+suivantes en pointillés (`A = ...`, `print ( ... )`), à chasse fixe comme le
+carnet. Ajouté en dernier dans le sous-thème, il ne renumérote rien ; son
+contrôle exige de suivre {python-phrases-memoire}.
+
+**CE QU'IL AJOUTE AU SOUS-THÈME est le geste inverse des pas à pas** : du 6.2.1
+au 6.2.8 l'élève LIT un programme et suit la mémoire ; ici il ÉCRIT le
+programme à partir d'une suite d'étapes en français — chaque étape devient une
+ligne qui change la même variable.
+
+**Les consignes du thème, tenues comme au 6.4.5** : le programme de calcul en
+liste dans l'énoncé du haut ; la question en gras dans un cadre `.pyn-etape`
+qui enveloppe le coup de pouce, la cellule, « Exécuter » et la console ; aucune
+consigne à côté du bouton ; la console vide reste un cadre vide
+(`#pgcConsole` rejoint `content:none`). La fiche n'a pas de définition :
+`pgcAvant` reste vide — exception déclarée de `pythonAvant.sans`, raison
+comprise —, et le rappel (`RAP_PGC`) n'est que le coup de pouce, mot pour mot
+(« Elever » corrigé en « Élever », seule retouche).
+
+**LE JUGE EXÉCUTE, PUIS REJOUE AVEC UNE AUTRE VALEUR DE DÉPART** (`pgcDiag`).
+La copie passe par `pyRun` ; la DERNIÈRE ligne affichée doit porter le
+résultat — `print(A)`, une phrase qui le contient, ou un print après chaque
+étape passent. Puis la seconde méthode : le nombre de la première ligne utile
+(`A = 5`) est remplacé par `a + 3`, et la copie doit afficher le résultat du
+programme de calcul pour cette valeur-là — `print(121)` écrit à la main, ou
+`B = (5 * 3 - 4) ** 2`, affichent le bon nombre et sont refusés en le disant.
+`A * A`, une seule ligne `A = (A * 3 - 4) ** 2`, un nom en minuscule tenu
+partout passent. Nommés : le carré écrit `* 2` (lu en rejouant le programme
+avec ce défaut), `^` et `²`, le `×`, une ligne qui calcule sans ranger
+(`A * 3` : A garde sa valeur), une étape oubliée (la valeur affichée est
+reconnue parmi les valeurs intermédiaires, et l'étape suivante est nommée), la
+valeur de départ affichée telle quelle, `a` et `A` confondus, print sans
+parenthèses, rien d'affiché, et l'ordre des étapes. Aucun résultat tiré ne
+vaut une valeur intermédiaire, et la seconde valeur de départ change toujours
+le résultat — le banc l'exige de chaque programme.
+
+**La séance** : la fiche épinglée en tête (121), puis deux programmes tirés par
+`distinctes()` parmi six (variables A, B, N, C ; ajouter, soustraire,
+multiplier, élever au carré — aucune division, donc aucun flottant à écrire),
+que le réglage « Questions » allonge. Une case (`pts-case`), pas de correction
+au fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables
+(`TABLES_SANS`, et sa seconde source dans `tests/profils.js`). Banc jsdom
+(`pythonProgrammeCalcul`) : la place, la fiche et le tirage (300 séances), le
+juge sur huit copies justes et quinze fausses chacune avec son mot, l'écran,
+la copie juste tapée et exécutée, fausse et vide, le soutien qui ne révèle ni
+le modèle ni le résultat, et les modèles comparés à un vrai CPython. Pas de
+section propre au banc navigateur : la visite universelle (section 9) l'ouvre
+dans les deux modes.
+
+**Le sous-thème « Bonus : input », et une durée en heures et minutes — l'exercice 11 du carnet.**
+{python-input-duree} (Seconde, 6.5.1, APP_VERSION 297 — 294 à 296 pris sur `main` pendant les bancs —, demande de Turquet,
+octobre 2026 : « en seconde dans le thème algo dans la partie bonus créer un
+sous-thème input et faire un exercice comme l'image ») : les deux serpents
+(« C'est trop dur pour toi !! »), puis « Faire un programme qui demande une
+durée en minutes et qui affiche le résultat en heures et minutes — par
+exemple : si on rentre 135 min il doit afficher 2 heures et 15 minutes », et
+UN coup de pouce : « Essayer les calculs : 135/60 ou 135 // 60 ou 135 % 60 ».
+
+**Un sous-thème, pas un sous-sous-thème.** `THEMES` n'a que deux étages
+(thème, partie) : « un sous-thème input dans la partie bonus » est devenu la
+partie 6.5 « Bonus : input », ajoutée EN DERNIER — rien n'est renuméroté.
+Trois contrôles du banc exigeaient que 6.4 « Bonus » soit le DERNIER
+sous-thème ({python-chaine-len}, {python-chaine-tirets}, {python-remplacer-lettre}) :
+ils exigent désormais qu'il soit le QUATRIÈME, ce qui tenait la même chose
+(rien ne l'a renuméroté).
+
+**Les consignes du sous-thème Input, tenues d'emblée** : le dessin de la
+fiche en tête (découpé dans la capture, détouré, WebP de 14 Ko, `PDU_IMG`) ;
+l'énoncé en gras dans un cadre `.pyn-etape` qui enveloppe le coup de pouce,
+la cellule, « Exécuter » et la console ; aucune consigne au bouton ; la
+console vide reste un cadre vide (`#pduConsole` rejoint `content:none`) ; le
+coup de pouce vert clair ne porte que le texte de la fiche (« minute » mis
+au pluriel, seule correction). La fiche n'a pas de définition : exception
+déclarée de `pythonAvant.sans`, et le rappel (`RAP_PDU`) n'est que le coup de
+pouce.
+
+**Le juge lit ce que le programme AFFICHE** (`pduDiag`) : la copie s'exécute
+sous 215 et 508 minutes, que l'élève ne connaît pas. Il faut un input avec
+sa question, puis des mots, les heures, et PLUS LOIN les minutes (une ligne
+ou deux). 215 / 60 = 3,58… : `round` dirait 4, ce qui le trahit ;
+`int(d / 60)` et `d - h * 60` sont justes. Nommés : int oublié, la division
+`/` (le décimal), float (« 3.0 heures »), les minutes ou les heures
+manquantes, le désordre, round, aucune ou deux questions, l'input muet,
+l'exemple écrit à la main, le nom entre guillemets, sans phrase, rien
+d'affiché, un mauvais calcul. **La séance** : la fiche épinglée (135 min),
+puis d'autres durées d'exemple tirées par `distinctes()` — jamais un nombre
+rond d'heures, toujours plus d'une heure — qui suivent dans l'énoncé et le
+coup de pouce ; `dmNbQuestions()` l'allonge. Pas de correction au fil de la
+frappe, pas de bouton des tables. Banc jsdom (`pythonInputDuree`) : la
+place, le tirage (300 séances), le juge sur six copies justes et dix-sept
+fausses chacune avec son mot, l'écran, le dialogue de la console, les copies
+juste, fausse et vide, le soutien, et le modèle comparé à un vrai CPython.
+Pas de section propre au banc navigateur : la visite universelle (section 9)
+l'ouvre dans les deux modes.
+
+**Le banc a attrapé trois défauts du juge à sa première exécution.** Le
+contrôle des guillemets typographiques, repris du 6.3.9, refusait « c’est »
+écrit DANS une chaîne — juste en Python : il ne regarde plus que le code hors
+des chaînes. Le nom de variable entre guillemets (`print("h", …)`) recevait
+« affiche toujours la même chose » : il est lu AVANT. Et un contrôle « le
+résultat de l'exemple » s'est déclenché par coïncidence sur `d // 100`
+(215 // 100 = 2, 215 % 100 = 15, les nombres de la fiche) : redondant avec
+« la même sortie pour deux durées », il est retiré.
+
+## {python-input-evolution} — prix de départ, prix d'arrivée ou pourcentage d'évolution (6.5.2, Bonus : input)
+
+Demande de Turquet (octobre 2026) : « en seconde dans le thème algo dans la
+partie bonus créer un sous thème input et faire un exercice comme l'image ».
+L'image est l'« Exercice 13 » du carnet : deux serpents et une trottinette
+(« Je la fais à 350 € au lieu de 400 € » — « C'est un rabais de combien de
+% ? »), puis « Faire un programme qui » affiche « mettre 0 si on n'a pas
+l'information ! », demande un prix de départ, un prix d'arrivée et un
+pourcentage d'évolution, et calcule la donnée manquante ; l'exemple 40 / 30 /
+0 → −25 %, et un coup de pouce : le bloc `if evolution==0:` écrit, les deux
+autres en pointillés. Version 298 (294 à l'écriture ; `main` a avancé trois
+fois pendant les bancs).
+
+**Deux sessions ont reçu la même demande le même jour.** La première a
+publié le sous-thème 6.5 « Bonus : input » avec {python-input-duree} (6.5.1) ;
+celle-ci avait d'abord fait de « Input » un intertitre DANS la partie 6.4
+(des `groupes`, l'exercice en 6.4.6). À la fusion de `main`, la structure
+déjà en ligne a été gardée — deux endroits « Bonus input » auraient dit deux
+choses — et l'exercice la rejoint en 6.5.2, derrière la durée : les
+intertitres sont retirés, rien n'est renuméroté.
+
+**La séance monte le programme en TROIS ÉTAPES**, dans l'ordre du coup de
+pouce : la question 1 demande le message, les trois `input` et le cas où
+l'évolution manque ; la 2 ajoute le cas où l'arrivée manque ; la 3 celui où
+le départ manque. Chaque cellule s'ouvre sur le programme de la question
+d'avant — celui de l'élève s'il était juste, la correction sinon (`q.fin`,
+posé à la vérification) : on ne retape pas dix lignes pour en ajouter trois.
+L'exemple affiché suit l'étape, tiré par `distinctes()` (la fiche épinglée en
+tête) ; au-delà de trois questions (réglage d'un devoir), le programme
+entier, sur d'autres exemples.
+
+**Le juge exécute, avec des prix que l'élève ne connaît pas** (`PVO_JUGE`,
+deux jeux par donnée manquante, 0 à la place de celle qui manque). La fiche
+ne nomme ni variable ni phrase : il lit ce que le programme AFFICHE — une
+ligne qui porte des mots et le bon nombre, à 1e-6 près en relatif — et exige
+le message AVANT la première question (lu dans la sortie, avant l'écho de la
+première réponse). `int(input(…))` passe : les prix du juge sont entiers,
+comme ceux de la fiche. Nommés : `input` sans `float` (le texte « 0 » n'est
+pas le nombre 0 : le `if` ne voit jamais la donnée manquante), la division
+par 0 d'un calcul resté hors de son `if`, une variable jamais demandée (une
+question manque), quatre questions, une question muette, les questions dans
+le désordre, le message oublié, le coefficient au lieu du pourcentage, le
+« × 100 » oublié, le rapport à l'envers, l'écart en euros, le signe inversé,
+le pourcentage non divisé par 100, le pourcentage ajouté au prix, la hausse
+seule, le départ retrouvé en enlevant le pourcentage ou en multipliant, le
+résultat écrit à la main, le résultat sans phrase, rien d'affiché.
+
+**La fiche n'a pas de définition** : l'écran n'a donc pas d'encadré au-dessus
+de l'énoncé (exception déclarée, `tests/profils.js`, `pythonAvant.sans`), et
+le rappel (`RAP_PVO`) ne redit que le coup de pouce. Pas de correction au fil
+de la frappe (`soutienEnDirect.sans`). L'image est la capture de la fiche,
+découpée, son fond crème rendu transparent, en WebP dans la page.
+
+Le banc (`pythonInputEvolution`, `tests/verifier.js`) tient la place au menu, les trois étapes et la fiche épinglée, le juge sur
+cinq copies justes et vingt fausses (chacune avec le mot qui la nomme), les
+étapes jouées à l'écran — la console qui affiche le message puis pose les
+trois questions, l'étape 2 qui reprend le programme, l'étape 3 qui repart de
+la correction —, la copie vide, le soutien sans révélation, puis compare à un
+vrai CPython ce que les modèles affichent.
+
+---
+
+**Une durée en heures, minutes et secondes — l'exercice 12 du carnet.**
+{python-input-duree-secondes} (Seconde, 6.5.3, APP_VERSION 300, demande de
+Turquet, octobre 2026 : « en seconde dans le thème algo dans la partie bonus
+créer un sous-thème input et faire un exercice comme l'image ») est la fiche
+« Exercice 12 » : le serpent devant son ordinateur, puis « Faire un programme
+qui demande une durée en secondes et qui affiche le résultat en heures,
+minutes et secondes » — 3730 secondes donnent « 1 heures, 2 minutes et 10
+secondes » (les espaces avant les virgules de la fiche sont retirés, rien
+d'autre ne change).
+
+**La même demande, deux sessions, deux fiches — et un seul sous-thème.**
+Pendant que celui-ci était écrit, la même phrase, avec l'image de l'exercice
+11, a créé le sous-thème 6.5 « Bonus : input » ({python-input-duree}, des
+minutes en heures et minutes), puis {python-input-evolution} l'a rejoint.
+Écrit d'abord sous le MÊME identifiant `python-input-duree`, et rangé dans un
+« groupe Input » DANS le 6.4 (des blocs titrés sur la page du sous-thème), il
+aurait fait deux sous-thèmes Input et deux exercices pour un nom. Il a donc
+été reconstruit sur `main` : identifiant propre, rangé en dernier dans le 6.5
+(6.5.3, rien n'est renuméroté), les blocs abandonnés — ils ne servaient qu'à
+ce que le 6.5 fait déjà. Son contrôle exige de fermer le 6.5 derrière
+{python-input-evolution}. L'ordre du carnet (11 puis 12) n'est pas suivi : le
+6.5.2 était déjà en ligne, le renuméroter aurait déplacé un exercice que des
+élèves ont pu travailler.
+
+**Ce que la fiche suppose : `//` et `%`.** Le 6.5.1 les fait ESSAYER dans son
+coup de pouce ; aucun exercice ne les définit. L'encadré de cours (avant
+l'énoncé, au premier écran seulement, `pyAvant`) les définit sur 17 et 5 —
+jamais sur une durée, qui donnerait le programme — et le rappel (`RAP_PHM`)
+dit la même chose. La fiche n'a pas de coup de pouce : l'écran n'en invente
+pas. Le dessin est découpé dans la capture, détouré, en WebP (10 Ko,
+`PHM_IMG`).
+
+**La fiche ne nomme aucune variable : le juge lit ce que les print
+AFFICHENT** (`phmDiag`), pas l'écho de la question d'input — sans quoi
+« durée en secondes » fournirait le mot « secondes ». La copie s'exécute sous
+deux durées que l'élève ne connaît pas (`PHM_EX` : 45296 et 8125, heures,
+minutes et secondes toutes différentes et non nulles) ; il faut, à la suite,
+les trois nombres ENTIERS et les mots « heures », « minutes », « secondes ».
+Acceptés : trois print, la durée rappelée devant, `(d // 60) % 60`, une
+soustraction au lieu de `%`. Nommés : int oublié, float (« 12.0 »), la barre
+`/`, les minutes au-delà de 59 (`n // 60`), les secondes au-delà de 59
+(`n % 3600`), l'ordre, les mots absents, l'exemple écrit à la main, deux
+questions, aucune, l'input muet, rien d'affiché, un autre calcul.
+
+**La séance** : la fiche épinglée (3730 s), puis d'autres durées d'exemple
+tirées par `distinctes()` ; `dmNbQuestions()` l'allonge. Pas de correction au
+fil de la frappe (`soutienEnDirect.sans`), pas de bouton des tables
+(`TABLES_SANS` ET `tablesAide.sans` : oublier la seconde a fait rougir le banc
+navigateur, « sans bouton alors qu'il devrait l'avoir »). Banc jsdom
+(`pythonInputDureeSecondes`) : la place, le tirage (300 séances), le juge sur
+quatre copies justes et quinze fausses chacune avec son mot, l'écran (encadré
+avant l'énoncé, dessin, énoncé en gras dans son cadre, aucun coup de pouce),
+le dialogue joué au clavier, les copies juste, fausse et vide, le soutien qui
+ne révèle rien, et le modèle comparé à un vrai CPython. Pas de section propre
+au banc navigateur : la visite universelle (section 9) l'ouvre dans les deux
+modes.
+
+**La moyenne de N notes : le sous-thème « Bonus : input » —
+l'exercice 14 du carnet.** {python-moyenne-notes} (Seconde, 6.5.4, demande de
 Turquet, octobre 2026 : « en seconde dans le thème algo dans la partie bonus
 créer un sous thème input et faire un exercice comme l'image ») : « Faire un
 programme qui fonctionne comme l'exemple ci-dessous : Tu as combien de
 notes ? 3 / Ta note 1 ? 12 / Ta note 2 ? 8 / Ta note 3 ? 16 / Ta moyenne est de
 12. », avec ses deux coups de pouce repliés.
 
-**UN « SOUS-THÈME » DANS UNE PARTIE N'EXISTAIT PAS, ET IL N'A PAS FALLU UN
-QUATRIÈME NIVEAU.** `THEMES` connaît deux étages (thème, partie) ; un
-troisième aurait touché la numérotation, le tableau du professeur, les
-devoirs, la reprise. Le 6.4 porte à la place `groupes:[{nom:'Input',
-ids:[…]}]`, que SEUL `openSousTheme()` lit : la page de la partie montre ses
-cinq exercices, puis le titre « Input » (`h3.sous-groupe`) et la carte du
-nouveau. Les identifiants d'un groupe restent dans `ids`, en dernier : le
-numéro est 6.4.6, rien n'est renuméroté, et tout le reste du fichier continue
-de ne connaître que la liste plate. Le contrôle exige que chaque identifiant
-d'un groupe soit aussi dans `ids`, et relit la page rendue.
+**LA MÊME DEMANDE, TROIS SESSIONS, TROIS STRUCTURES — ET CELLE QUI ÉTAIT EN
+LIGNE A DÉCIDÉ.** Écrit d'abord comme un GROUPE titré « Input » dans la page
+du 6.4 (`groupes`, lu par le seul `openSousTheme()`), pendant que deux autres
+sessions répondaient à la même phrase : l'une par d'autres groupes dans le 6.4
+(`blocs`), l'autre par un sous-thème à part, 6.5 « Bonus : input ». Turquet a
+d'abord choisi le groupe ; mais le 6.5 était déjà fusionné, avec trois
+exercices publiés (la durée, l'évolution, la durée en secondes). Le garder
+aurait renuméroté trois exercices en ligne : sur la question reposée, la
+moyenne a rejoint le 6.5, en dernier (6.5.4). Le mécanisme de groupes est
+RETIRÉ, pas laissé dormant — une structure morte qu'on croit vivante est pire
+qu'aucune. Le contrôle de {python-input-duree-secondes}, qui exigeait de
+fermer le 6.5, est retourné en « il suit {python-input-evolution} ».
 
 **LES COUPS DE POUCE DE LA FICHE SONT FAUX SUR DEUX POINTS, ET ILS SONT
 CORRIGÉS EN LE NOMMANT.** La fiche écrit `input ( "ta note",k,"?")` — la forme
@@ -4064,7 +4297,7 @@ nommée, des questions qui ne numérotent pas les notes aussi. La console est
 le dialogue du 6.3.2 (une case, Entrée rejoue), la cellule fait le retrait
 comme au 6.4.4, aucun encadré de cours (exception déclarée dans
 `pythonAvant.sans`), pas de bouton des tables, pas de correction au fil de la
-frappe. Banc jsdom (`pythonMoyenneNotes`) : la place et la page du groupe, la
+frappe. Banc jsdom (`pythonMoyenneNotes`) : la place au menu, la
 fiche et le tirage (300 séances), le juge sur cinq copies justes et dix-neuf
 fausses chacune avec son mot, l'écran, le dialogue tapé réponse par réponse,
 juste/faux/vide, le soutien, et les exécutions comparées à CPython questions
@@ -4072,3 +4305,4 @@ comprises. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
 
 Puis une fusion de `main` (Turquet78/exercices-interactifs#496, le 4.6.5, version 294) pendant les bancs : deux listes partagées (`TABLES_SANS`, la table des kinds de `tests/profils.js`) unies ligne à ligne, et la version passe en 295.
+Puis la fusion qui a apporté le 6.5 (version 300 sur `main`) : la version passe en 301.

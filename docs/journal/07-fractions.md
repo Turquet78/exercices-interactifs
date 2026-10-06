@@ -725,6 +725,22 @@ d1), le libellé passe à trois étapes, et le barème total de 34 à 36.
 {mult-entier} n'a rien reçu : une multiplication ne met jamais au même
 dénominateur.
 
+**Puis chaque produit s'est écrit CALCULÉ, dans sa case — toujours en
+octobre 2026** (demande de Turquet, sur une capture de
+`9/5 + 6/6 = (9×[6])/(5×[6]) + (6×[5])/(6×[5]) = ?/?` : « il faut toutes les
+étapes intermédiaires, pour donner le résultat de chaque opération dans une
+case »). La chaîne posait les produits, puis sautait directement à la somme :
+`54/30 + 30/30` restait à faire de tête — deux multiplications et une
+addition dans les mêmes deux cases. {diff-add} gagne donc un maillon
+`= [n1·d2]/[d1·d2] + [n2·d1]/[d1·d2]` (`rvf-p1n`, `rvf-p1d`, `rvf-p2n`,
+`rvf-p2d`), {diff-sub-entier} le maillon `= n1/d1 − [k·d1]/[d1]`
+(`rvf-kpn`, `rvf-kpd`) ; leurs libellés comptent une étape de plus
+(« effectuer les produits »), et le barème passe de 36 à 42. Les six
+autres questions n'ont qu'UNE opération par case — leur case finale EST
+déjà le résultat de l'opération — et n'ont rien reçu. Les valeurs attendues
+sont uniques (le dénominateur commun est fixé au produit des deux), comme
+le reste de cette révision.
+
 **Le barème n'est plus `qs.length*3`.** `rvfExtra(q)` rend les cases propres
 à chaque type (vide pour les trois qui n'en ont pas), `rvfCases()` les
 insère entre la règle et le résultat, et `startRvf()` somme
@@ -1176,3 +1192,37 @@ banc (Chromium, MathLive réel, « 33 » posé dans `qdb-b-b2`) : capture identi
 juste se dessine à l'identique), et la case GRANDIT dès que l'élève écrit plus,
 jusqu'au plafond des autres cases de l'écran. C'était la seule case de
 mathématiques à largeur figée des trois niveaux.
+
+**Les fractions de DÉPART d'un calcul sont toujours irréductibles — en Seconde
+et en Première, et c'est désormais UN contrôle qui le tient partout (octobre
+2026).** Demande de Turquet : « pour les exercices sur les fractions, quand on
+demande de faire une opération avec des fractions, toujours mettre des
+fractions irréductibles au départ de l'exercice. » L'inventaire a montré que
+la règle était déjà tenue par huit moteurs sur neuf, chacun à sa manière et
+dans son coin : `sfGen` (tous les exercices du moteur sf, dans les deux
+niveaux), `pfGen`, `spfGen`, `pqdGen`, `qdbGen`, `tsfGen` par un `gcd(…)!==1`
+explicite, `mltGen` et `divGen` par l'irréductibilité du PRODUIT (un facteur
+commun à n1 et d1 diviserait aussi P et Q — la condition du produit implique
+celle des facteurs). Le neuvième, {revision-fractions} (5.11), tirait ses
+huit questions sans aucune condition : « 6/8 + 3/8 », « 4/6 × 3/9 »
+sortaient. `rvfTirage` écarte désormais toute fraction réductible de
+l'énoncé, type par type (le dénominateur partagé de meme-add/meme-sub doit
+être premier avec LES DEUX numérateurs) ; les replis codés en dur l'étaient
+déjà. Le résultat attendu, lui, ne change pas : il reste le calcul direct,
+non simplifié (`rvfReponse`).
+
+**Le contrôle — « les fractions de départ d'un calcul de fractions sont
+irréductibles » (`tests/verifier.js`, greffé après « aucune séance ne pose
+deux fois la même question »)** démarre chaque exercice du thème
+« Fractions » et chaque identifiant contenant « fraction », soixante fois, et
+lit les questions TIRÉES : les paires (numérateur, dénominateur) suivent les
+noms des moteurs (a/b … g/h ; n1/d1, n2/d2, n/d ; n1/d, n2/d). Deux bords :
+un exercice où il ne reconnaît AUCUNE fraction rougit (un exercice ajouté
+demain avec d'autres noms se fait voir au lieu de passer en silence), et une
+dispense (`fractionsIrreductibles.sans`, `tests/profils.js`) qui ne désigne
+plus d'exercice rougit aussi. Trois dispenses, raison comprise :
+{simplifier-barres} (simplifier EST le sujet), {fractions-decimales} (30/100
+est le sujet même) et {fraction-pourcentage} (aucune opération). La
+Terminale ne déclare pas la règle : le banc l'affiche « non applicable ».
+Éprouvé à l'envers : lancé avant le correctif, le contrôle a rougi sur le
+5.11 et sur lui seul.
