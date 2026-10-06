@@ -4478,8 +4478,8 @@ travaillent le même fichier le même jour, le numéro se pose à la fusion,
 jamais à l'ouverture.
 
 **Puis un dessin en tête du 6.2.4** ({python-pas-a-pas-chaine}, demande de
-Turquet, octobre 2026, version 310 — 305 à 309 prises sur `main` pendant les
-bancs, par six dessins voisins et deux suites, dont celui du 6.2.5). Le serpent à lunettes
+Turquet, octobre 2026, version 311 — 305 à 310 prises sur `main` pendant les
+bancs, par sept dessins voisins et deux suites, dont celui du 6.2.5). Le serpent à lunettes
 devant son ordinateur, découpé dans la capture et détouré de son fond blanc
 par les quatre coins (le blanc INTÉRIEUR du dessin reste), en WebP de 10 Ko
 (`PPD_IMG`). Il se pose AVANT le rappel de cours (`#ppdFig`, premier enfant
