@@ -2629,7 +2629,9 @@ pour répondre. Le banc navigateur (« 6 tricies duodevicies ») le mesure RENDU
 pas déclaré : l'image doit être décodée (`naturalWidth`), haute de plus de 100
 px à l'écran, servie en `data:` et posée avant la consigne — un `<img>` dont le
 fichier manquerait serait présent dans le DOM et invisible sur la page, c'est
-la règle 3 de `CLAUDE.md` sur un dessin.
+la règle 3 de `CLAUDE.md` sur un dessin. Éprouvé par sabotage : `PEV_IMG`
+remplacé par quatre octets de base64 — un seul contrôle rougit, celui-ci, et
+dit « non décodé » ; les 624 autres restent verts.
 
 **Puis échanger deux valeurs PAR LES LETTRES — un exercice différent de
 {python-echange-variables}, et le nom le dit.** {python-echange-par-lettres}
