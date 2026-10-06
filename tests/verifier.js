@@ -25016,7 +25016,8 @@ function pythonInputRectangle(w, P){
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("prcInstr");
-    if(!en||!en.querySelector("svg rect")||!/Longueur/.test(en.textContent)||!/Largeur/.test(en.textContent)) vus.push("le rectangle de la fiche manque");
+    const fig=en&&en.querySelector("figure.prc-fig img.prc-img"), alt=fig?(fig.getAttribute("alt")||""):"";
+    if(!fig||!/^data:image[/]webp;base64,/.test(fig.getAttribute("src")||"")||!/Longueur/.test(alt)||!/Largeur/.test(alt)) vus.push("le dessin de la fiche (le serpent et le rectangle) manque");
     const et=document.querySelector("#prcHost .pyn-etape"), ti=et&&et.querySelector(".pyn-titre");
     if(!ti||getComputedStyle(ti).fontWeight!=="700") vus.push("l’énoncé n’est pas en gras dans son cadre");
     else if(ti.querySelectorAll("li").length!==4||["longueur","largeur","aire","perimetre","décimal"].some(function(m){ return ti.textContent.indexOf(m)<0; })) vus.push("l’énoncé : "+ti.textContent);
