@@ -2812,8 +2812,12 @@ programme que l'élève vient de modifier.
 
 **Puis un dessin en tête de l'exercice** (demande de Turquet, octobre 2026 :
 « placer cette image en seconde dans l'exercice 6.2.7 au début », APP_VERSION
-309 — les 305 à 308 prises une à une par d'autres dessins du même jour pendant
-les bancs, à quatre fusions de `main`) : un serpent perplexe devant un point d'interrogation, le motif des
+315 — les 305 à 309 prises une à une par d'autres dessins du même jour pendant
+les bancs, à cinq fusions de `main` ; l'action « Contrôles » met plus d'une heure
+en file d'attente, et chaque fusion voisine reprenait le numéro suivant avant
+qu'elle ne finisse. Le saut de 310 à 315 est voulu : le numéro n'est qu'une
+étiquette d'affichage, le contrôle exige qu'il dépasse celui de `main` et ne
+soit pas déjà pris, rien de plus) : un serpent perplexe devant un point d'interrogation, le motif des
 fiches du 6.5 (`PKG_IMG`, `PDU_IMG`, `PVO_IMG`, `PHM_IMG`) repris tel quel —
 l'image fournie (PNG, 327 × 269) convertie en WebP (7 Ko, `PEL_IMG`, une URL
 `data:`), posée par `renderPEL` dans `#pelFig`, PREMIER enfant de la carte,
