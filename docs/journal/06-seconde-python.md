@@ -3089,6 +3089,17 @@ copies justes et quinze fausses chacune avec son mot, le dialogue joué au
 clavier, les copies juste, fausse et vide, le soutien qui ne révèle rien, et
 les modèles comparés à un vrai CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+
+**Puis le dessin de la fiche est venu en tête de l'énoncé** (demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice
+6.3.4 au début ») : le serpent au bandeau, concentré devant son ordinateur.
+Même recette que le 6.5.3 : la capture est détourée (le blanc du fond
+rendu transparent depuis les bords, puis rognée), encodée en WebP (14 Ko,
+`PIA_IMG`), et `piaFigureHTML()` la pose DEVANT le texte de l'énoncé dans
+`piaInstr`, à chaque question — l'encadré de cours (`pyAvant`, première
+question seulement) reste au-dessus, comme sur le 6.5.3. Décoratif : rien
+ne change au tirage, au juge ni aux coups de pouce. Version 305.
+
 **float : la réponse est un nombre DÉCIMAL — l'exercice 6 du carnet.**
 {python-input-float} (Seconde, 6.3.5, demande de Turquet, octobre 2026 : « créer
 un exercice comme l'image dans le sous thème input en seconde ») est la fiche
