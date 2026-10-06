@@ -32536,10 +32536,11 @@ function problemesPourcentages(w, P){
   const t1='{pourcentages-problemes} : une question par famille, toutes les situations tournent, identité tenue';
   const t2='{pourcentages-problemes} : la solution écrite par la page passe son propre juge, la même faussée ne passe pas';
   const t3='{pourcentages-problemes} : le juge lit les copies épinglées (unités, mots, signe)';
-  const t4='{pourcentages-problemes} : « Aide schéma » dessine le schéma, le range dans la question, et le marque pour le professeur';
+  const t4='{pourcentages-problemes} : « Aide schéma » fonctionne comme au 4.5.9 — le schéma remplace la rédaction, se juge, se quitte, se reprend, et se marque pour le professeur';
+  const t5='{pourcentages-problemes} : chaque situation se résout sur son schéma à cases (les valeurs justes valent le point, une case faussée non), cadres compris';
   const present = evaluer(w, "typeof startPpb==='function'");
   if(!present.ok || !present.valeur){
-    [t1,t2,t3,t4].forEach(t => ignorer(t, 'ce niveau n\'a pas les problèmes de pourcentages rédigés'));
+    [t1,t2,t3,t4,t5].forEach(t => ignorer(t, 'ce niveau n\'a pas les problèmes de pourcentages rédigés'));
     return;
   }
   verifierEval(w, t1, `(function(){
@@ -32627,27 +32628,83 @@ function problemesPourcentages(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentages-problemes';
     startPpb();
     test.questions[0]={grp:'pct',fam:'remise',o:2,pi:0,P:24,N:5200,F:3952,aide:false};
+    test.questions[1]={grp:'deux',fam:'successives',c:0,s1:1,s2:-1,P1:20,P2:10,K:10800,G10:80,aide:false};
     test.idx=0; renderPpb();
-    const sch=document.getElementById('ppbSch');
+    const sch=document.getElementById('ppbSch'), red=document.getElementById('ppbRed');
     if(!document.getElementById('ppbAide')) vus.push('pas de bouton « Aide schéma »');
     if(!sch || !sch.hidden) vus.push('le schéma est déjà là avant l’aide');
     ppbAideSchema();
     if(!test.questions[0].aide) vus.push('l’aide n’est pas rangée dans la question');
-    if(sch.hidden || !/39,52/.test(sch.textContent) || !/52/.test(sch.textContent) || sch.querySelectorAll('.pctb-box').length!==2) vus.push('le schéma dessiné ne porte pas les données : '+sch.textContent);
-    if(!document.getElementById('ppbSheet')) vus.push('la rédaction a disparu sous le schéma');
-    afficherEcranDe('ppb');
-    if(document.getElementById('ppbSch').hidden) vus.push('la reprise ne retrouve pas le schéma demandé');
+    if(sch.hidden || !red.hidden) vus.push('le schéma ne remplace pas la rédaction, comme au 4.5.9');
+    if(!document.getElementById('ppbN') || !document.getElementById('ppbC') || !document.getElementById('ppbW') || !document.getElementById('ppbT')) vus.push('le schéma du 4.5.4 (cases avant, coefficient, après, hausse/baisse de … %) n’est pas là');
+    if(!document.getElementById('ppbRetour') || !sch.contains(document.getElementById('ppbRetour'))) vus.push('pas de bouton « Revenir à la rédaction » sous le schéma');
+    /* l'aller-retour : le schéma rempli gardé, la rédaction revenue, puis l'aide redemandée */
+    document.getElementById('ppbN').value='52';
+    ppbRedaction();
+    if(!test.questions[0].schema || test.questions[0].schema.ppbN!=='52') vus.push('le schéma rempli n’est pas rangé au retour ('+JSON.stringify(test.questions[0].schema)+')');
+    if(test.questions[0].aide || !sch.hidden || red.hidden || !document.getElementById('ppbSheet')) vus.push('« Revenir à la rédaction » ne remontre pas la feuille');
     ppbAideSchema();
-    if(test.questions[0].aide || !document.getElementById('ppbSch').hidden) vus.push('« Masquer le schéma » ne le masque pas');
-    ppbFeuille.lire=function(){ return '39.52/52=0.76\\n24\\\\%'; };
-    checkPpb();
-    if(test.score!==1) vus.push('la copie juste ne vaut pas le point ('+test.score+')');
+    if(!document.getElementById('ppbN') || document.getElementById('ppbN').value!=='52') vus.push('l’aide redemandée ne retrouve pas le schéma rempli');
+    afficherEcranDe('ppb');
+    if(document.getElementById('ppbSch').hidden || !document.getElementById('ppbN')) vus.push('la reprise ne retrouve pas le schéma demandé');
+    /* une case fausse, en entraînement : pas de point, la correction se pose */
+    const sv=function(id,v){ const e=document.getElementById(id); if(e) e.value=v; };
+    sv('ppbN','52'); sv('ppbP','0,24'); sv('ppbC','0,76'); sv('ppbF','39,52'); sv('ppbW','baisse'); sv('ppbT','25');
+    checkPpbSchema();
+    if(test.score!==0) vus.push('un schéma faux vaut le point');
+    if(!document.getElementById('ppbT').classList.contains('bad') || !document.getElementById('ppbF').classList.contains('ok')) vus.push('les cases ne sont pas jugées une à une');
     const a=test.answers[0]; if(!a || !/^\\[schéma\\]/.test(a.q)) vus.push('la réponse aidée n’est pas marquée « [schéma] »');
     if(a && /&nbsp;|<|undefined/.test(a.q)) vus.push('l’énoncé envoyé au professeur garde du HTML : '+a.q);
-    ppbAideSchema();
-    if(test.questions[0].aide) vus.push('l’aide reste ouverte après le verdict');
+    ppbRedaction();
+    if(!test.questions[0].aide) vus.push('le retour à la rédaction reste possible après le verdict du schéma');
     const nx=document.getElementById('ppbNext'); if(!nx) vus.push('pas de « Question suivante »'); else nx.click();
     if(test.idx!==1 || !document.getElementById('ppbSch').hidden) vus.push('la question suivante hérite du schéma');
+    /* deux évolutions : le schéma du 4.5.5, son signe lu sur le coefficient global */
+    ppbAideSchema();
+    if(!document.getElementById('ppbG') || !document.getElementById('ppbGP') || !document.getElementById('ppbMot')) vus.push('le schéma du 4.5.5 n’est pas venu');
+    else { sv('ppbG','1,08'); ppbSigneMAJ(); if(document.getElementById('ppbPM').textContent!=='+' || document.getElementById('ppbMot').textContent!=='augmentation') vus.push('le signe ne se lit pas sur le coefficient global'); }
+    /* le soutien : correction en direct, et une case fausse se reprend */
+    currentMode='soutien'; renderPpb(); sv('ppbP1','0,3'); liveCheckCurrent();
+    if(!document.getElementById('ppbP1').classList.contains('bad')) vus.push('le soutien ne corrige pas le schéma en direct');
+    show('theme'); currentMode='train';
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* Chaque situation, sur son schéma : les valeurs attendues écrites dans
+     les cases valent le point ; une case faussée ne le vaut pas ; les boîtes
+     portent leurs cadres dans l'ordre, l'énoncé aussi, et, cadres ôtés, son
+     texte est celui de la rédaction. */
+  verifierEval(w, t5, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentages-problemes';
+    const nu=function(h){ const d=document.createElement('div'); d.innerHTML=h; return d.textContent.replace(/\\s+/g,' ').trim(); };
+    let n=0;
+    Object.keys(PPB_FAMILLES).forEach(function(g){ PPB_FAMILLES[g].forEach(function(f){
+      for(let k=0;k<25 && vus.length<6;k++){
+        const q=genPpb(g,f), C=ppbSchemaCases(q), ids=Object.keys(C);
+        startPpb(); test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; renderPpb(); ppbAideSchema(); n++;
+        const manque=ids.filter(function(id){ return !document.getElementById(id) || !document.getElementById('ppbSchHost').contains(document.getElementById(id)); });
+        if(manque.length){ vus.push(f+' : case(s) absente(s) du schéma — '+manque.join(', ')); break; }
+        const html=document.getElementById('ppbSchHost').innerHTML;
+        if(/undefined|NaN|null/.test(html)){ vus.push(f+' : schéma mal formé'); break; }
+        if(k===0){
+          const bx=[...document.querySelectorAll('#ppbSchHost .pctb-lab')].map(function(l){ const c=l.querySelector('.cdr'); return c?+(c.className.match(/cdr-(\\d)/)||[])[1]:-1; });
+          const att=bx.map(function(_,i){ return i; });
+          if(bx.join()!==att.join()) vus.push(f+' : boîtes cadrées '+bx.join());
+          const pr=document.getElementById('ppbPrompt');
+          if(!pr.querySelector('.cdr-0')) vus.push(f+' : l’énoncé n’a pas le cadre de la boîte de gauche');
+          if(pr.querySelector('.cdr .cdr')) vus.push(f+' : un cadre dans un cadre');
+          if(nu(pr.innerHTML)!==nu(ppbEnonce(q)+' Complète le schéma.')) vus.push(f+' : cadres ôtés, le texte change — « '+nu(pr.innerHTML)+' »');
+        }
+        const pose=function(faux){ ids.forEach(function(id,i){ let v=ppbRatTexte(C[id]); if(faux && i===ids.length-1) v=C[id].mot?(C[id].mot==='hausse'?'baisse':'hausse'):ppbRatTexte({n:C[id].n+C[id].d,d:C[id].d}); document.getElementById(id).value=v; }); };
+        pose(false); checkPpbSchema();
+        if(test.score!==1){ vus.push(f+' : le schéma juste ne vaut pas le point — '+ids.map(function(id){ return id+'='+document.getElementById(id).value+(document.getElementById(id).classList.contains('bad')?'✗':''); }).join(' ')); break; }
+        startPpb(); test.questions[0]=JSON.parse(JSON.stringify(q)); test.idx=0; renderPpb(); ppbAideSchema();
+        pose(true); checkPpbSchema();
+        if(test.score!==0){ vus.push(f+' : le schéma faussé vaut le point'); break; }
+      }
+    }); });
+    if(n<300) vus.push('seulement '+n+' schémas essayés');
     show('theme');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);

@@ -1717,12 +1717,17 @@
      derrière la droite graduée, et deux quadrillages se lisent mal. */
   /* {synthese-pourcentages-redigee} : le retour à la rédaction n'a plus de sens une fois le schéma jugé */
   #sprSch:has([id$="Next"]) #sprRetourRow{display:none}
-  /* {pourcentages-problemes} : le schéma de l'aide est DESSINÉ, ses boîtes portent des nombres écrits, pas des cases */
-  #ppbSch{margin:4px 0 14px;padding:12px 8px;border:2px dashed var(--line);border-radius:14px}
-  #ppbSch .ppb-val{min-width:70px;padding:6px 12px;border:2px solid var(--ink);border-radius:10px;text-align:center;
-    font-family:"Fredoka";font-weight:600;font-size:1.3rem;color:var(--ink);background:var(--surface)}
-  #ppbSch .pctb-shaft{margin:10px 0}
-  #ppbSch .ppb-global{text-align:center;margin-top:10px;font-family:"Fredoka";font-weight:600;font-size:1.1rem;color:var(--ink)}
+  /* {pourcentages-problemes} : l'aide schéma est celle du 4.5.9 — les schémas À CASES du 4.1.8, du 4.1.9, du
+     4.5.4 et du 4.5.5 (mêmes classes .pctb-*, .pctc-*, .evs-*), aux nombres du problème ; même retour impossible
+     une fois le schéma jugé. Les cases ont la taille de celles des exercices d'origine. */
+  #ppbSch:has([id$="Next"]) #ppbRetourRow{display:none}
+  #ppbSchHost .pctb-shaft{margin:14px 0}
+  #ppbSchHost .ppb-trois .pctb-arrow{flex:1 1 150px;min-width:130px;max-width:230px}
+  #ppbSchHost .ppb-trois .pctb-lab{max-width:150px}
+  #ppbSchHost math-field.pm-mf{font-size:1.7rem;min-width:74px;max-width:150px}
+  #ppbSchHost math-field.pm-mf.ppb-pct{min-width:58px;max-width:110px}
+  @media(max-width:900px){ #ppbSchHost math-field.pm-mf{font-size:1.4rem} }
+  @media(max-width:560px){ #ppbSchHost math-field.pm-mf{font-size:1.2rem;min-width:60px} }
   .itv-schema{width:100%;max-width:560px;box-sizing:border-box;background:#fff;border:1.5px solid #DCE7FB;border-radius:14px;padding:8px 6px}
   .itv-schema svg{width:100%;height:auto;display:block}
   .itv-ligne{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;width:100%;max-width:560px;box-sizing:border-box;background:#F7FAFF;border:1.5px solid #DCE7FB;border-radius:14px;padding:10px 14px}
@@ -3962,12 +3967,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
     <div class="card">
       <p class="mp-instr" id="ppbPrompt">Rédige ta solution.</p>
-      <!-- l'aide schéma : le schéma en boîtes de la question, DESSINÉ (ppbSchemaHTML) ; la rédaction reste dessous -->
-      <div id="ppbSch" hidden></div>
-      <div class="mp-stage"><div style="width:100%" id="ppbHost"></div></div>
-      <div class="mp-feedback" id="ppbFeedback"></div>
-      <div class="row" style="justify-content:center" id="ppbActions">
-        <button class="btn btn-primary" onclick="checkPpb()">Vérifier</button>
+      <!-- l'aide schéma, comme au 4.5.9 : le schéma À CASES de la question (ppbSchemaHTML), qui REMPLACE la rédaction tant qu'il est ouvert ; il précède la rédaction, pour que la rangée des jetons se pose devant la zone visible -->
+      <div id="ppbSch" hidden>
+        <div class="mp-stage"><div style="width:100%" id="ppbSchHost"></div></div>
+        <div class="mp-feedback" id="ppbSchFeedback"></div>
+        <div class="row" style="justify-content:center" id="ppbSchActions"></div>
+        <!-- le chemin du retour : il s'efface dès que le schéma a donné son verdict (« Question suivante ») -->
+        <div class="row" style="justify-content:center" id="ppbRetourRow">
+          <button class="btn btn-ghost" type="button" id="ppbRetour" onclick="ppbRedaction()">✍️ Revenir à la rédaction</button>
+        </div>
+      </div>
+      <div id="ppbRed">
+        <div class="mp-stage"><div style="width:100%" id="ppbHost"></div></div>
+        <div class="mp-feedback" id="ppbFeedback"></div>
+        <div class="row" style="justify-content:center" id="ppbActions">
+          <button class="btn btn-primary" onclick="checkPpb()">Vérifier</button>
+        </div>
       </div>
     </div>
   </section>
@@ -5579,7 +5594,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=301;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=302;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6230,7 +6245,7 @@ const TESTS={
   'evolutions-successives-coef':{ name:'Deux évolutions : coefficients donnés', icon:'🔗', desc:'Le schéma de {evolutions-successives}, mais les deux coefficients multiplicateurs sont déjà écrits sous les flèches : tu complètes les pourcentages des deux flèches, le calcul du coefficient global et son pourcentage, puis trois phrases — la première évolution, la deuxième et l’évolution globale : hausse ou baisse, et de combien de pour cent.', start:()=>startEvolSuccCoef() },
   'evolutions-successives-phrases':{ name:'Deux évolutions : phrases données', icon:'💬', desc:'Le schéma de {evolutions-successives}, mais les deux premières évolutions sont données par deux phrases (une hausse ou une baisse de tant de pour cent) : tu complètes les pourcentages et les coefficients du schéma, le calcul du coefficient global et son pourcentage, puis la phrase de l’évolution globale : hausse ou baisse, et de combien de pour cent.', start:()=>startEvolSuccPhrases() },
   'synthese-pourcentages-redigee':{ name:'Synthèse rédigée sur les pourcentages', icon:'✍️', desc:'Les questions de {pourcentage-boite}, {pourcentage-chaine}, {synthese-evolutions} et {evolutions-successives}, mélangées à parts égales — mais sans schéma : tu RÉDIGES ta solution dans une case, et la page vérifie que tu as écrit au moins la multiplication ou la division qui donne la réponse. Pour un pourcentage, « … % », « +… % » ou « −… % » suffit après le calcul. Bloqué ? Le bouton « Aide schéma » reprend la question sur le schéma de son exercice.', start:()=>startSpr() },
-  'pourcentages-problemes':{ name:'Problèmes de pourcentages — rédigés', icon:'🧮', desc:'Comme {synthese-pourcentages-redigee}, mais avec des énoncés de problèmes : une remise donnée en euros, un prix hors taxe et toutes taxes comprises, l’ancien prix d’un article soldé, une proportion de proportion, un taux d’évolution, la cantine ou la population d’une ville d’une année sur l’autre, deux évolutions de suite. Tu RÉDIGES ta solution dans une case, et la page vérifie que tu as écrit au moins la multiplication ou la division qui donne la réponse. Bloqué ? Le bouton « Aide schéma » dessine le schéma de la question.', start:()=>startPpb() },
+  'pourcentages-problemes':{ name:'Problèmes de pourcentages — rédigés', icon:'🧮', desc:'Comme {synthese-pourcentages-redigee}, mais avec des énoncés de problèmes : une remise donnée en euros, un prix hors taxe et toutes taxes comprises, l’ancien prix d’un article soldé, une proportion de proportion, un taux d’évolution, la cantine ou la population d’une ville d’une année sur l’autre, deux évolutions de suite. Tu RÉDIGES ta solution dans une case, et la page vérifie que tu as écrit au moins la multiplication ou la division qui donne la réponse. Bloqué ? Le bouton « Aide schéma » reprend la question sur un schéma à compléter, comme au {synthese-pourcentages-redigee}.', start:()=>startPpb() },
   'intervalles': { name:'Intervalles', icon:'\ud83d\udccf', desc:'Le chemin inverse de {intervalles-inegalite} : on te donne le schéma, et tu écris les crochets, l’inégalité et la phrase « ouvert / fermé en … ».', start:()=>startItv() },
   'intervalles-inegalite': { name:'De l’inégalité à l’intervalle', icon:'\ud83d\udd01', desc:'On ne te donne que l’inégalité : retrouve le schéma qui lui correspond, l’écriture de l’intervalle et la phrase « ouvert / fermé en … ».', start:()=>startItq() },
   'appartient-intervalle': { name:'Appartient ou pas ? — niveau 1', icon:'\ud83c\udfaf', desc:'Un nombre, un intervalle : dis s’il appartient (∈) ou non (∉). Attention aux bornes — c’est le crochet qui décide.', start:()=>startApp1() },
@@ -6550,6 +6565,7 @@ function liveCheckCurrent(){
   else if(k==='evb') checkEvbAnswer(true);
   else if(k==='evs') checkEvsAnswer(true);
   else if(k==='spr') sprLive();
+  else if(k==='ppb') ppbLive();
   else if(k==='sev') checkSevAnswer(true);
   else if(k==='evc') checkEvcAnswer(true);
   else if(k==='evp') checkEvpAnswer(true);
@@ -7808,7 +7824,7 @@ Repère d’abord la <b>valeur de départ</b>, la <b>valeur d’arrivée</b> et 
 • <b>retrouver un pourcentage</b> : on divise l’arrivée par le départ — 39,52 ÷ 52 = 0,76, soit une remise de <b>24 %</b> ; une réduction de 11,70 € sur 65 € : 11,70 ÷ 65 = 0,18, soit <b>18 %</b> ;<br>
 • <b>une proportion d’une proportion</b> : 25 % de 60 %, c’est 0,6 × 0,25 = 0,15, soit <b>15 %</b> ; s’il y a 40 % de filles, il y a 1 − 0,4 = 0,6, soit 60 % de garçons ;<br>
 • <b>deux évolutions de suite</b> : on multiplie les coefficients, 1,1 × 1,2 = 1,32, soit <b>+32 %</b> ; et un taux d’évolution s’écrit <b>avec son signe</b> : 21 ÷ 28 = 0,75, soit <b>−25 %</b>.<br>
-Un énoncé peut donner des nombres qui ne servent pas : lis bien ce qu’on te demande. Bloqué ? Le bouton <b>Aide schéma</b> dessine le schéma de la question.`;
+Un énoncé peut donner des nombres qui ne servent pas : lis bien ce qu’on te demande. Bloqué ? Le bouton <b>Aide schéma</b> reprend la question sur un schéma à compléter : les boîtes, les flèches et leurs coefficients, comme dans {synthese-evolutions} ou {evolutions-successives}.`;
 const RAP_SEV=`<b>Du coefficient multiplicateur au pourcentage</b><br>
 C’est le schéma de {synthese-evolutions}, lu dans l’autre sens : le coefficient multiplicateur est déjà écrit sous la flèche, et c’est à toi de retrouver le pourcentage.<br>
 Le coefficient et le pourcentage sont liés par la flèche « −1 » : pour une <b>hausse</b>, <b>coefficient = 1 + pourcentage</b>, donc pourcentage = coefficient − 1 ; pour une <b>baisse</b>, <b>coefficient = 1 − pourcentage</b>, donc pourcentage = 1 − coefficient. Par exemple, 1,3 − 1 = 0,3, soit <b>× (1 + 0,3)</b>, une hausse de <b>30 %</b> ; et 1 − 0,8 = 0,2, soit <b>× (1 − 0,2)</b>, une baisse de <b>20 %</b>.<br>
@@ -25519,12 +25535,12 @@ async function finishSpr(){
    · UNE COPIE ÉCRIT DES MOTS ET DES UNITÉS (« 42 × 1,2 = 50,40 € », « soit
      24 % ») : ppbTexte retire « € » et coupe la ligne à chaque mot, si bien
      que « 39,52 ÷ 52 = 0,76 soit 24 % » se lit comme deux lignes.
-   · « AIDE SCHÉMA » ne peut pas emprunter les schémas du 4.5.9 : leurs cases
-     n'acceptent que des entiers, et ces problèmes ont des centimes. L'aide
-     DESSINE le schéma en boîtes de la question (ppbSchema), les données
-     écrites, l'inconnue en « ? » — l'élève continue de rédiger dessous. Le
-     choix est rangé dans la question (q.aide) ; la réponse est marquée
-     « [schéma] » pour le professeur, et vaut le même point.
+   · « AIDE SCHÉMA » fonctionne comme au 4.5.9 (Turquet, octobre 2026) : la
+     question passe sur le schéma À CASES de l'exercice qui pose la même
+     question (4.1.8, 4.1.9, 4.5.4 ou 4.5.5), aux nombres du problème, avec
+     les cadres et « Revenir à la rédaction ». Les juges de ces schémas lisent
+     des entiers : ici chaque case se juge en rationnels exacts — voir
+     ppbSchemaDef plus bas.
    · LE TIRAGE : quatre familles de problèmes (une valeur après une
      évolution, un pourcentage d'évolution, des proportions, deux étapes),
      une question de chaque par séance, en ordre mélangé ; un devoir qui
@@ -25545,49 +25561,65 @@ const PPB_OBJETS=[
   {un:'une paire de baskets', le:'la paire de baskets', ce:'cette paire de baskets', min:45, max:160},
   {un:'un casque audio', le:'le casque audio', ce:'ce casque audio', min:40, max:250}
 ];
-/* proportion d'une proportion : le tout, la partie, la sous-partie */
+/* proportion d'une proportion : le tout, la partie, la sous-partie. k : les
+   cadres de l'aide schéma (CDR_SANS dans la rédaction, le texte nu) — le tout
+   cdrT, la partie cdrA, la sous-partie cdrB, comme au 4.1.9 ; cp et cq : la
+   phrase de conclusion du schéma, qui se termine par la case du pourcentage. */
 const PPB_PROP=[
-  { f:(a,b)=>`Dans un groupe d’élèves, ${a}&nbsp;% sont des garçons et, parmi ces garçons, ${b}&nbsp;% pratiquent un sport.`,
+  { f:(a,b,k=CDR_SANS)=>`Dans ${k.T('un groupe d’élèves')}, ${a}&nbsp;% sont ${k.A('des garçons')} et, parmi ces garçons, ${b}&nbsp;% ${k.B('pratiquent un sport')}.`,
     qp:'Quelle proportion du groupe représentent les garçons qui pratiquent un sport&nbsp;?',
     qq:'Quelle est la proportion des élèves qui pratiquent un sport parmi les garçons&nbsp;?',
-    fq:(c,a)=>`Dans un groupe d’élèves, les garçons qui pratiquent un sport représentent ${c}&nbsp;% du groupe. On sait que ${a}&nbsp;% des élèves du groupe sont des garçons.`,
-    t:'le groupe', p:'les garçons', s:'les garçons sportifs' },
-  { f:(a,b)=>`Dans une glace, il y a ${a}&nbsp;% de fruits et, parmi les fruits, ${b}&nbsp;% de mangue.`,
+    fq:(c,a,k=CDR_SANS)=>`Dans ${k.T('un groupe d’élèves')}, ${k.B('les garçons qui pratiquent un sport')} représentent ${c}&nbsp;% du groupe. On sait que ${a}&nbsp;% des élèves du groupe sont ${k.A('des garçons')}.`,
+    t:'le groupe', p:'les garçons', s:'les garçons sportifs',
+    cp:(x,k=CDR_SANS)=>`Donc ${k.B('les garçons qui pratiquent un sport')} représentent ${x} % ${k.T('du groupe')}.`,
+    cq:(x,k=CDR_SANS)=>`Donc ${x} % ${k.A('des garçons')} ${k.B('pratiquent un sport')}.` },
+  { f:(a,b,k=CDR_SANS)=>`Dans ${k.T('une glace')}, il y a ${a}&nbsp;% ${k.A('de fruits')} et, parmi les fruits, ${b}&nbsp;% ${k.B('de mangue')}.`,
     qp:'Donne la proportion de mangue dans la glace.',
     qq:'Quelle proportion des fruits de cette glace est de la mangue&nbsp;?',
-    fq:(c,a)=>`La mangue représente ${c}&nbsp;% d’une glace, et l’ensemble des fruits ${a}&nbsp;% de cette glace.`,
-    t:'la glace', p:'les fruits', s:'la mangue' },
-  { f:(a,b)=>`Dans un lycée, ${a}&nbsp;% des élèves sont internes et, parmi les internes, ${b}&nbsp;% rentrent chez eux le mercredi.`,
+    fq:(c,a,k=CDR_SANS)=>`${k.B('La mangue')} représente ${c}&nbsp;% d’${k.T('une glace')}, et l’ensemble ${k.A('des fruits')} ${a}&nbsp;% de cette glace.`,
+    t:'la glace', p:'les fruits', s:'la mangue',
+    cp:(x,k=CDR_SANS)=>`Donc ${k.B('la mangue')} représente ${x} % ${k.T('de la glace')}.`,
+    cq:(x,k=CDR_SANS)=>`Donc ${k.B('la mangue')} représente ${x} % ${k.A('des fruits')}.` },
+  { f:(a,b,k=CDR_SANS)=>`Dans ${k.T('un lycée')}, ${a}&nbsp;% des élèves sont ${k.A('internes')} et, parmi les internes, ${b}&nbsp;% ${k.B('rentrent chez eux le mercredi')}.`,
     qp:'Quelle proportion des élèves du lycée représentent les internes qui rentrent chez eux le mercredi&nbsp;?',
     qq:'Quelle est la proportion des internes qui rentrent chez eux le mercredi&nbsp;?',
-    fq:(c,a)=>`Dans un lycée, les internes qui rentrent chez eux le mercredi représentent ${c}&nbsp;% des élèves, et les internes ${a}&nbsp;% des élèves.`,
-    t:'le lycée', p:'les internes', s:'rentrent le mercredi' },
-  { f:(a,b)=>`Dans une commune, ${a}&nbsp;% des habitants ont voté et, parmi les votants, ${b}&nbsp;% ont choisi le projet&nbsp;A.`,
+    fq:(c,a,k=CDR_SANS)=>`Dans ${k.T('un lycée')}, ${k.B('les internes qui rentrent chez eux le mercredi')} représentent ${c}&nbsp;% des élèves, et ${k.A('les internes')} ${a}&nbsp;% des élèves.`,
+    t:'le lycée', p:'les internes', s:'rentrent le mercredi',
+    cp:(x,k=CDR_SANS)=>`Donc ${k.B('les internes qui rentrent chez eux le mercredi')} représentent ${x} % ${k.T('des élèves du lycée')}.`,
+    cq:(x,k=CDR_SANS)=>`Donc ${x} % ${k.A('des internes')} ${k.B('rentrent chez eux le mercredi')}.` },
+  { f:(a,b,k=CDR_SANS)=>`Dans ${k.T('une commune')}, ${a}&nbsp;% des habitants ${k.A('ont voté')} et, parmi les votants, ${b}&nbsp;% ${k.B('ont choisi le projet&nbsp;A')}.`,
     qp:'Quelle proportion des habitants de la commune a choisi le projet&nbsp;A&nbsp;?',
     qq:'Quelle est la proportion des votants qui ont choisi le projet&nbsp;A&nbsp;?',
-    fq:(c,a)=>`Dans une commune, ${c}&nbsp;% des habitants ont voté pour le projet&nbsp;A, et ${a}&nbsp;% des habitants ont voté.`,
-    t:'les habitants', p:'les votants', s:'le projet A' }
+    fq:(c,a,k=CDR_SANS)=>`Dans ${k.T('une commune')}, ${c}&nbsp;% des habitants ${k.B('ont voté pour le projet&nbsp;A')}, et ${a}&nbsp;% des habitants ${k.A('ont voté')}.`,
+    t:'les habitants', p:'les votants', s:'le projet A',
+    cp:(x,k=CDR_SANS)=>`Donc ${x} % ${k.T('des habitants')} ${k.B('ont choisi le projet A')}.`,
+    cq:(x,k=CDR_SANS)=>`Donc ${x} % ${k.A('des votants')} ${k.B('ont choisi le projet A')}.` }
 ];
 /* le complément : on donne l'AUTRE part (les filles), il faut en tirer la bonne (les garçons) */
 const PPB_COMPL=[
-  { f:(a,b)=>`Dans une classe, il y a ${a}&nbsp;% de filles et, parmi les garçons, ${b}&nbsp;% pratiquent un sport.`,
-    q:'Quelle proportion de la classe représentent les garçons qui pratiquent un sport&nbsp;?', t:'la classe', p:'les garçons', s:'les garçons sportifs' },
-  { f:(a,b)=>`Dans une entreprise, ${a}&nbsp;% des salariés travaillent à temps partiel et, parmi les salariés à temps plein, ${b}&nbsp;% viennent à vélo.`,
-    q:'Quelle proportion des salariés de l’entreprise représentent ceux à temps plein qui viennent à vélo&nbsp;?', t:'les salariés', p:'temps plein', s:'temps plein, à vélo' },
-  { f:(a,b)=>`Dans un club, ${a}&nbsp;% des adhérents ont moins de 18&nbsp;ans et, parmi les adultes, ${b}&nbsp;% participent aux compétitions.`,
-    q:'Quelle proportion des adhérents du club représentent les adultes qui participent aux compétitions&nbsp;?', t:'le club', p:'les adultes', s:'adultes en compétition' }
+  { f:(a,b,k=CDR_SANS)=>`Dans ${k.T('une classe')}, il y a ${a}&nbsp;% de filles et, parmi ${k.A('les garçons')}, ${b}&nbsp;% ${k.B('pratiquent un sport')}.`,
+    q:'Quelle proportion de la classe représentent les garçons qui pratiquent un sport&nbsp;?', t:'la classe', p:'les garçons', s:'les garçons sportifs',
+    c:(x,k=CDR_SANS)=>`Donc ${k.B('les garçons qui pratiquent un sport')} représentent ${x} % ${k.T('de la classe')}.` },
+  { f:(a,b,k=CDR_SANS)=>`Dans ${k.T('une entreprise')}, ${a}&nbsp;% des salariés travaillent à temps partiel et, parmi ${k.A('les salariés à temps plein')}, ${b}&nbsp;% ${k.B('viennent à vélo')}.`,
+    q:'Quelle proportion des salariés de l’entreprise représentent ceux à temps plein qui viennent à vélo&nbsp;?', t:'les salariés', p:'temps plein', s:'temps plein, à vélo',
+    c:(x,k=CDR_SANS)=>`Donc ${k.B('les salariés à temps plein qui viennent à vélo')} représentent ${x} % ${k.T('des salariés')}.` },
+  { f:(a,b,k=CDR_SANS)=>`Dans ${k.T('un club')}, ${a}&nbsp;% des adhérents ont moins de 18&nbsp;ans et, parmi ${k.A('les adultes')}, ${b}&nbsp;% ${k.B('participent aux compétitions')}.`,
+    q:'Quelle proportion des adhérents du club représentent les adultes qui participent aux compétitions&nbsp;?', t:'le club', p:'les adultes', s:'adultes en compétition',
+    c:(x,k=CDR_SANS)=>`Donc ${k.B('les adultes qui participent aux compétitions')} représentent ${x} % ${k.T('des adhérents')}.` }
 ];
-/* le taux d'évolution entre deux nombres : salaire, buts, spectateurs, abonnés */
+/* le taux d'évolution entre deux nombres : salaire, buts, spectateurs, abonnés.
+   Les deux nombres arrivent déjà cadrés : f ne fait que les poser. */
 const PPB_TAUX=[
   { f:(a,b)=>`Un footballeur gagnait ${a}&nbsp;€ brut par an. Son club lui propose ${b}&nbsp;€ brut.`, q:'Exprime en pourcentage le taux d’évolution de son salaire.', u:'€', t1:'avant', t2:'proposé' },
   { f:(a,b)=>`Lors d’une saison, un attaquant a marqué ${a}&nbsp;buts&nbsp;; la saison suivante, il en a marqué ${b}.`, q:'Exprime en pourcentage le taux d’évolution du nombre de buts.', u:'', t1:'1<sup>re</sup> saison', t2:'2<sup>e</sup> saison' },
   { f:(a,b)=>`Un festival a accueilli ${a}&nbsp;spectateurs en 2024, et ${b}&nbsp;spectateurs en 2025.`, q:'Exprime en pourcentage le taux d’évolution du nombre de spectateurs entre 2024 et 2025.', u:'', t1:'2024', t2:'2025' },
   { f:(a,b)=>`Une chaîne vidéo comptait ${a}&nbsp;abonnés en janvier, et ${b}&nbsp;abonnés en juin.`, q:'Exprime en pourcentage le taux d’évolution du nombre d’abonnés entre janvier et juin.', u:'', t1:'janvier', t2:'juin' }
 ];
+/* deux évolutions de suite : sujet est celui de la phrase de conclusion du schéma (comme au 4.5.5) */
 const PPB_SUCC=[
-  { f:(e1,e2)=>`Entre 1982 et 2007, la population d’une ville ${e1}, puis ${e2}.`, q:'Quel est le pourcentage d’évolution du nombre d’habitants entre 1982 et 2007&nbsp;?', t:['1982','','2007'] },
-  { f:(e1,e2)=>`Le prix d’un article ${e1} en janvier, puis ${e2} en février.`, q:'Quel est le pourcentage d’évolution global du prix de cet article&nbsp;?', t:['départ','janvier','février'] },
-  { f:(e1,e2)=>`En bourse, la valeur d’une action ${e1} en mars, puis ${e2} en avril.`, q:'Quel est le pourcentage d’évolution de la valeur de cette action sur les deux mois&nbsp;?', t:['début mars','fin mars','fin avril'] }
+  { f:(e1,e2,k=CDR_SANS)=>`Entre 1982 et 2007, ${k.T('la population d’une ville')} ${e1}, puis ${e2}.`, q:'Quel est le pourcentage d’évolution du nombre d’habitants entre 1982 et 2007&nbsp;?', t:['1982','entre les deux','2007'], sujet:'La population de la ville' },
+  { f:(e1,e2,k=CDR_SANS)=>`${k.T('Le prix d’un article')} ${e1} en janvier, puis ${e2} en février.`, q:'Quel est le pourcentage d’évolution global du prix de cet article&nbsp;?', t:['départ','janvier','février'], sujet:'Le prix de l’article' },
+  { f:(e1,e2,k=CDR_SANS)=>`En bourse, ${k.T('la valeur d’une action')} ${e1} en mars, puis ${e2} en avril.`, q:'Quel est le pourcentage d’évolution de la valeur de cette action sur les deux mois&nbsp;?', t:['début mars','fin mars','fin avril'], sujet:'La valeur de l’action' }
 ];
 /* ---- les nombres : des entiers, des centimes, des dixièmes — jamais un flottant dans un calcul ---- */
 function ppbNb(n, d){                    /* n/d (d puissance de 10) -> « 1 234,5 » */
@@ -25698,29 +25730,34 @@ async function startPpb(){
   test.maxScore=test.questions.length;
   show('ppb'); renderPpb();
 }
-/* ---- l'énoncé ---- */
-function ppbEnonce(q){
+/* ---- l'énoncé ----
+   k : les cadres de l'aide schéma, comme au 4.5.9 — CDR_SANS dans la
+   rédaction (le texte nu), CDR_AVEC sur le schéma : ce qui va dans la boîte
+   de gauche prend cdrT, dans la boîte d'arrivée ou du milieu cdrA, dans la
+   troisième cdrB (au 4.5.4 : le pourcentage d'évolution cherché). */
+function ppbEnonce(q,k){
+  k=k||CDR_SANS;
   const o=PPB_OBJETS[q.o]||PPB_OBJETS[0], qui=PPB_PRENOMS[q.pi]||PPB_PRENOMS[0], e=c=>ppbEur(c)+'&nbsp;€';
   switch(q.fam){
-    case 'hausse': return `Le prix d’${o.un} a augmenté de ${q.P}&nbsp;% par rapport à l’an dernier. Combien coûte ${o.le} cette année, si son prix était de ${e(q.N)} l’an dernier&nbsp;?`;
-    case 'ancien': return `Grâce à une remise de ${q.P}&nbsp;%, ${qui} a payé ${o.un} ${e(q.F)}. Quel était l’ancien prix de ${o.ce}&nbsp;?`;
-    case 'cantine': return `La fréquentation quotidienne de la cantine est de ${ppbNb(q.F)}&nbsp;élèves&nbsp;: elle a baissé de ${q.P}&nbsp;% par rapport à l’année dernière. Le tarif d’un repas, lui, a augmenté de ${q.P2}&nbsp;% pour atteindre ${e(q.T)}. `
-      +(q.inc==='eleves'?'Calcule le nombre d’élèves qui fréquentaient la cantine l’année dernière.':'Calcule le tarif d’un repas l’année dernière.');
-    case 'population': return `La population d’une ville était de ${ppbNb(q.N)}&nbsp;habitants en ${q.a}, et de ${ppbNb(q.M)}&nbsp;habitants en ${q.b+12}. Entre ${q.a} et ${q.b}, cette population ${ppbEvol(q.s,ppbNb(q.P10,10),true)}. Calcule le nombre d’habitants de cette ville en ${q.b}.`;
-    case 'remise': return `Dans un magasin, ${qui} paye ${e(q.F)} ${o.un} dont l’ancien prix était de ${e(q.N)}. Quel est le pourcentage de la remise&nbsp;?`;
-    case 'reduction': return `Dans un magasin, ${qui} obtient une réduction de ${e(q.R)} sur ${o.un} à ${e(q.N)}. Quel est le pourcentage de la remise&nbsp;?`;
-    case 'taxe': return `Dans une boutique, ${o.un} est étiqueté${/^une /.test(o.un)?'e':''} ${e(q.N)} hors taxe (HT), et vendu${/^une /.test(o.un)?'e':''} ${e(q.F)} toutes taxes comprises (TTC). Quel est le pourcentage de la taxe par rapport au prix hors taxe&nbsp;?`;
-    case 'taux': { const C=PPB_TAUX[q.c]||PPB_TAUX[0]; return C.f(ppbNb(q.V1),ppbNb(q.V2))+' '+C.q; }
-    case 'produit': { const C=PPB_PROP[q.c]||PPB_PROP[0]; return C.f(q.a,q.b)+' '+C.qp; }
-    case 'complement': { const C=PPB_COMPL[q.c]||PPB_COMPL[0]; return C.f(q.a,q.b)+' '+C.q; }
-    case 'quotient': { const C=PPB_PROP[q.c]||PPB_PROP[0]; return C.fq(q.C,q.a)+' '+C.qq; }
+    case 'hausse': return `Le prix d’${o.un} a augmenté de ${q.P}&nbsp;% par rapport à l’an dernier. Combien coûte ${k.A(o.le+' cette année')}, si son prix était de ${k.T(e(q.N))} l’an dernier&nbsp;?`;
+    case 'ancien': return `Grâce à une remise de ${q.P}&nbsp;%, ${qui} a payé ${o.un} ${k.A(e(q.F))}. Quel était ${k.T('l’ancien prix')} de ${o.ce}&nbsp;?`;
+    case 'cantine': return `La fréquentation quotidienne de la cantine est de ${q.inc==='eleves'?k.A(ppbNb(q.F)+'&nbsp;élèves'):ppbNb(q.F)+'&nbsp;élèves'}&nbsp;: elle a baissé de ${q.P}&nbsp;% par rapport à l’année dernière. Le tarif d’un repas, lui, a augmenté de ${q.P2}&nbsp;% pour atteindre ${q.inc==='eleves'?e(q.T):k.A(e(q.T))}. `
+      +(q.inc==='eleves'?`Calcule ${k.T('le nombre d’élèves qui fréquentaient la cantine l’année dernière')}.`:`Calcule ${k.T('le tarif d’un repas l’année dernière')}.`);
+    case 'population': return `La population d’une ville était de ${k.T(ppbNb(q.N)+'&nbsp;habitants')} en ${q.a}, et de ${ppbNb(q.M)}&nbsp;habitants en ${q.b+12}. Entre ${q.a} et ${q.b}, cette population ${ppbEvol(q.s,ppbNb(q.P10,10),true)}. Calcule ${k.A('le nombre d’habitants de cette ville en '+q.b)}.`;
+    case 'remise': return `Dans un magasin, ${qui} paye ${k.A(e(q.F))} ${o.un} dont l’ancien prix était de ${k.T(e(q.N))}. Quel est ${k.B('le pourcentage de la remise')}&nbsp;?`;
+    case 'reduction': return `Dans un magasin, ${qui} obtient une réduction de ${k.A(e(q.R))} sur ${o.un} à ${k.T(e(q.N))}. Quel est le pourcentage de la remise&nbsp;?`;
+    case 'taxe': return `Dans une boutique, ${o.un} est étiqueté${/^une /.test(o.un)?'e':''} ${k.T(e(q.N)+' hors taxe (HT)')}, et vendu${/^une /.test(o.un)?'e':''} ${k.A(e(q.F)+' toutes taxes comprises (TTC)')}. Quel est ${k.B('le pourcentage de la taxe')} par rapport au prix hors taxe&nbsp;?`;
+    case 'taux': { const C=PPB_TAUX[q.c]||PPB_TAUX[0]; return C.f(k.T(ppbNb(q.V1)),k.A(ppbNb(q.V2)))+' '+k.B(C.q); }
+    case 'produit': { const C=PPB_PROP[q.c]||PPB_PROP[0]; return C.f(q.a,q.b,k)+' '+C.qp; }
+    case 'complement': { const C=PPB_COMPL[q.c]||PPB_COMPL[0]; return C.f(q.a,q.b,k)+' '+C.q; }
+    case 'quotient': { const C=PPB_PROP[q.c]||PPB_PROP[0]; return C.fq(q.C,q.a,k)+' '+C.qq; }
     case 'successives': { const C=PPB_SUCC[q.c]||PPB_SUCC[0], passe=(q.c===0);
       const e2=(passe && q.s1===q.s2) ? 'de '+q.P2+'&nbsp;%' : ppbEvol(q.s2,q.P2,passe);
-      return C.f(ppbEvol(q.s1,q.P1,passe), e2)+' '+C.q; }
+      return C.f(k.A(ppbEvol(q.s1,q.P1,passe)), k.B(e2), k)+' '+C.q; }
     case 'tva': return q.v===0
-      ? `${o.un.charAt(0).toUpperCase()+o.un.slice(1)} coûte ${e(q.N)} hors taxe. On lui ajoute la TVA de 20&nbsp;%, puis le magasin accorde une remise de ${q.P2}&nbsp;% sur le prix TTC. Combien le client paie-t-il ${o.ce}&nbsp;?`
-      : `Le prix d’${o.un} de ${e(q.N)} ${q.s1>0?'augmente':'baisse'} de ${q.P1}&nbsp;% en mars, puis ${q.s2>0?'augmente':'baisse'} de ${q.P2}&nbsp;% en avril. Quel est son prix à la fin du mois d’avril&nbsp;?`;
-    default: return `Après ${q.s1>0?'une hausse':'une baisse'} de ${q.P1}&nbsp;%, puis ${q.s2>0?'une hausse':'une baisse'} de ${q.P2}&nbsp;%, ${o.un} coûte ${e(q.F)}. Quel était son prix de départ&nbsp;?`;
+      ? `${o.un.charAt(0).toUpperCase()+o.un.slice(1)} coûte ${k.T(e(q.N)+' hors taxe')}. On lui ajoute ${k.A('la TVA de 20&nbsp;%')}, puis le magasin accorde ${k.B('une remise de '+q.P2+'&nbsp;%')} sur le prix TTC. Combien le client paie-t-il ${o.ce}&nbsp;?`
+      : `Le prix d’${o.un} de ${k.T(e(q.N))} ${k.A((q.s1>0?'augmente':'baisse')+' de '+q.P1+'&nbsp;% en mars')}, puis ${k.B((q.s2>0?'augmente':'baisse')+' de '+q.P2+'&nbsp;% en avril')}. Quel est son prix à la fin du mois d’avril&nbsp;?`;
+    default: return `Après ${k.A((q.s1>0?'une hausse':'une baisse')+' de '+q.P1+'&nbsp;%')}, puis ${k.B((q.s2>0?'une hausse':'une baisse')+' de '+q.P2+'&nbsp;%')}, ${o.un} coûte ${k.B(e(q.F))}. Quel était ${k.T('son prix de départ')}&nbsp;?`;
   }
 }
 /* ---- la cible du juge : une VALEUR, ou un POURCENTAGE avec ce qu'une
@@ -25763,44 +25800,228 @@ function ppbSolution(q){
     default: return e(q.F)+' ÷ ('+co(q.P1,q.s1)+' × '+co(q.P2,q.s2)+') = '+e(q.N)+' €';
   }
 }
-/* ---- « Aide schéma » : le schéma en boîtes de la question, DESSINÉ ----
-   des boîtes {lab, val} et, entre deux boîtes, une flèche [haut, bas] */
-function ppbSchema(q){
-  const e=c=>ppbEur(c)+' €', o=PPB_OBJETS[q.o]||PPB_OBJETS[0];
-  /* une flèche d'évolution : le pourcentage p/d (d = 100, ou 1000 pour un dixième de pour cent), ou « ? » */
-  const fl=(s,p,d)=>{ d=d||100; const sg=(s>0?'+':'−');
-    return p==null ? ['× (1 '+sg+' ?)','× ?'] : ['× (1 '+sg+' '+ppbNb(p,d)+')','× '+ppbNb(d+s*p,d)]; };
-  const B=(lab,val)=>({lab:lab,val:val});
+/* ---- « Aide schéma » : le schéma À CASES de la question, celui du 4.5.9 ----
+   Demande de Turquet (octobre 2026) : « je souhaite que le bouton aide schéma
+   fonctionne exactement comme le 4.5.9, avec les mêmes schémas et la même
+   méthode de résolution ». Chaque problème prend le schéma de l'exercice du
+   4.5.9 qui pose la même question :
+   · une valeur après UNE évolution, ou son pourcentage (hausse, ancien prix,
+     cantine, population, remise, taxe, taux) : le schéma du 4.5.4 — [avant]
+     → × (1 ± …) puis × … → [après], et pour un pourcentage la flèche « ↑ −1 »
+     et la phrase « C'est une hausse/baisse de … % » ;
+   · une réduction en euros : le schéma du 4.1.8 — [prix] → × … % puis × … →
+     [réduction] ;
+   · une proportion de proportion (produit, complément, quotient) : le schéma
+     du 4.1.9 — trois boîtes, deux flèches, le coefficient global et la phrase
+     de conclusion ;
+   · deux évolutions de suite : le schéma du 4.5.5 — trois boîtes, deux
+     flèches à deux étages, le coefficient global, la parenthèse dont le
+     signe se LIT sur lui, et la conclusion ; quand on cherche un PRIX (TVA
+     puis remise, prix de départ), les boîtes de départ et d'arrivée portent
+     leur case, comme celles du 4.5.4, et la conclusion n'a pas lieu d'être.
+   Les cases sont TOUTES vides, même les nombres que l'énoncé donne : c'est la
+   convention des quatre schémas. Ce qui ne peut pas être emprunté, ce sont
+   leurs JUGES : ils lisent leurs cases par parseInt, et ces problèmes ont des
+   centimes (50,40 €), des dixièmes de pour cent (5,5 %) et des coefficients à
+   trois ou quatre décimales (1,055). Chaque case se juge donc ici en
+   rationnels exacts ({n,d}, jamais un flottant), toute écriture égale
+   acceptée (50,4 = 50,40). Le reste est le 4.5.9 : la rédaction commencée
+   est gardée (q.brouillon), « Revenir à la rédaction » la rend tant que le
+   schéma n'a pas donné son verdict, le schéma rempli est gardé (q.schema),
+   la question aidée vaut le même point et le relevé du professeur la marque
+   « [schéma] » ; l'énoncé et les boîtes prennent les cadres du 4.1.13. */
+const PPB_R=(n,d)=>({n:n, d:d||1});
+function ppbSchemaDef(q){
+  const R=PPB_R, E=c=>R(c,100);                                    /* un prix en centimes */
   switch(q.fam){
-    case 'hausse': return {b:[B('l’an dernier',e(q.N)),B('cette année','?')], f:[fl(1,q.P)]};
-    case 'ancien': return {b:[B('ancien prix','?'),B('prix payé',e(q.F))], f:[fl(-1,q.P)]};
+    case 'hausse': return {forme:'evb', s:1, p:R(q.P,100), labs:['l’an dernier','cette année'], N:E(q.N), F:E(q.F)};
+    case 'ancien': return {forme:'evb', s:-1, p:R(q.P,100), labs:['ancien prix','prix payé'], N:E(q.N), F:E(q.F)};
     case 'cantine': return q.inc==='eleves'
-      ? {b:[B('l’année dernière','?'),B('cette année',ppbNb(q.F)+' élèves')], f:[fl(-1,q.P)]}
-      : {b:[B('l’année dernière','?'),B('cette année',e(q.T))], f:[fl(1,q.P2)]};
-    case 'population': return {b:[B(String(q.a),ppbNb(q.N)),B(String(q.b),'?')], f:[fl(q.s,q.P10,1000)]};
-    case 'remise': return {b:[B('ancien prix',e(q.N)),B('prix payé',e(q.F))], f:[fl(-1,null)]};
-    case 'reduction': return {b:[B('prix',e(q.N)),B('réduction',e(q.R))], f:[['× ?','']]};
-    case 'taxe': return {b:[B('prix HT',e(q.N)),B('prix TTC',e(q.F))], f:[fl(1,null)]};
-    case 'taux': { const C=PPB_TAUX[q.c]||PPB_TAUX[0]; return {b:[B(C.t1,ppbNb(q.V1)),B(C.t2,ppbNb(q.V2))], f:[['× (1 ± ?)','× ?']]}; }
-    case 'produit': { const C=PPB_PROP[q.c]||PPB_PROP[0]; return {b:[B(C.t,'1'),B(C.p,'?'),B(C.s,'?')], f:[['× '+ppbDec(q.a),''],['× '+ppbDec(q.b),'']]}; }
-    case 'complement': { const C=PPB_COMPL[q.c]||PPB_COMPL[0]; return {b:[B(C.t,'1'),B(C.p,'?'),B(C.s,'?')], f:[['× (1 − '+ppbDec(q.a)+')',''],['× '+ppbDec(q.b),'']]}; }
-    case 'quotient': { const C=PPB_PROP[q.c]||PPB_PROP[0]; return {b:[B(C.t,'1'),B(C.p,ppbDec(q.a)),B(C.s,ppbDec(q.C))], f:[['× '+ppbDec(q.a),''],['× ?','']]}; }
-    case 'successives': { const C=PPB_SUCC[q.c]||PPB_SUCC[0]; return {b:[B(C.t[0],''),B(C.t[1],''),B(C.t[2],'')], f:[fl(q.s1,q.P1),fl(q.s2,q.P2)], g:'coefficient global : × ?'}; }
-    case 'tva': return q.v===0
-      ? {b:[B('prix HT',e(q.N)),B('prix TTC','?'),B('prix payé','?')], f:[fl(1,20),fl(-1,q.P2)]}
-      : {b:[B('début mars',e(q.N)),B('fin mars','?'),B('fin avril','?')], f:[fl(q.s1,q.P1),fl(q.s2,q.P2)]};
-    default: return {b:[B('prix de départ','?'),B('',''),B('prix final',e(q.F))], f:[fl(q.s1,q.P1),fl(q.s2,q.P2)], g:'coefficient global : × ?'};
+      ? {forme:'evb', s:-1, p:R(q.P,100), labs:['élèves l’année dernière','élèves cette année'], N:R(q.N), F:R(q.F)}
+      : {forme:'evb', s:1, p:R(q.P2,100), labs:['tarif l’année dernière','tarif cette année'], N:E(q.t0), F:E(q.T)};
+    case 'population': return {forme:'evb', s:q.s, p:R(q.P10,1000), labs:['habitants en '+q.a,'habitants en '+q.b], N:R(q.N), F:R(q.F)};
+    case 'remise': return {forme:'evb', pct:true, s:-1, p:R(q.P,100), t:R(q.P), labs:['ancien prix','prix payé'], N:E(q.N), F:E(q.F)};
+    case 'taxe': return {forme:'evb', pct:true, s:1, p:R(q.P10,1000), t:R(q.P10,10), labs:['prix HT','prix TTC'], N:E(q.N), F:E(q.F)};
+    case 'taux': { const C=PPB_TAUX[q.c]||PPB_TAUX[0];
+      return {forme:'evb', pct:true, s:(q.G<0?-1:1), signeLu:true, p:R(Math.abs(q.G),100), t:R(Math.abs(q.G)), labs:[C.t1,C.t2], N:R(q.V1), F:R(q.V2)}; }
+    case 'reduction': return {forme:'pctb', labs:['prix','réduction'], N:E(q.N), P:R(q.P), D:R(q.P,100), F:E(q.R)};
+    case 'produit': { const C=PPB_PROP[q.c]||PPB_PROP[0];
+      return {forme:'pctc', labs:[C.t,C.p,C.s], d1:R(q.a,100), d2:R(q.b,100), g:R(q.C,100), c:R(q.C), ccl:C.cp}; }
+    case 'complement': { const C=PPB_COMPL[q.c]||PPB_COMPL[0];
+      return {forme:'pctc', labs:[C.t,C.p,C.s], d1:R(100-q.a,100), d2:R(q.b,100), g:R(q.C,100), c:R(q.C), ccl:C.c}; }
+    case 'quotient': { const C=PPB_PROP[q.c]||PPB_PROP[0];
+      return {forme:'pctc', labs:[C.t,C.p,C.s], d1:R(q.a,100), d2:R(q.b,100), g:R(q.C,100), c:R(q.b), ccl:C.cq}; }
+    case 'successives': { const C=PPB_SUCC[q.c]||PPB_SUCC[0];
+      return {forme:'evs', labs:C.t, s1:q.s1, s2:q.s2, p1:R(q.P1,100), p2:R(q.P2,100), g:R(q.K,10000), gp:R(Math.abs(q.G10),1000), t:R(Math.abs(q.G10),10), sujet:C.sujet}; }
+    case 'tva': return {forme:'evs', val:true, labs:q.v===0?['prix HT','prix TTC','prix payé']:['début mars','fin mars','fin avril'],
+      s1:q.s1, s2:q.s2, p1:R(q.P1,100), p2:R(q.P2,100), g:R((100+q.s1*q.P1)*(100+q.s2*q.P2),10000), N:E(q.N), F:E(q.F)};
+    default: return {forme:'evs', val:true, labs:['prix de départ','après la 1re évolution','prix final'],
+      s1:q.s1, s2:q.s2, p1:R(q.P1,100), p2:R(q.P2,100), g:R((100+q.s1*q.P1)*(100+q.s2*q.P2),10000), N:E(q.N), F:E(q.F)};
   }
 }
-function ppbSchemaHTML(q){
-  const S=ppbSchema(q); let h='';
-  S.b.forEach(function(b,i){
-    h+=`<div class="pctb-box"><div class="pctb-lab">${b.lab||'&nbsp;'}</div><div class="ppb-val">${b.val||'&nbsp;'}</div></div>`;
-    const f=S.f[i]; if(!f) return;
-    h+=`<div class="pctb-arrow"><div class="pctb-af"><span class="pctb-af-x">${f[0]}</span></div><div class="pctb-shaft" aria-hidden="true"></div><div class="pctb-af"><span class="pctb-af-x">${f[1]||'&nbsp;'}</span></div></div>`;
-  });
-  return `<div class="pctb-row ppb-schema-row">${h}</div>`+(S.g?`<div class="ppb-global">${S.g}</div>`:'');
+/* le coefficient d'une évolution de signe s et de taux p (une fraction décimale) */
+function ppbCoefR(s,p){ return PPB_R(p.d+s*p.n, p.d); }
+/* Les cases du schéma, dans l'ordre de la résolution : identifiant -> la
+   valeur attendue ({n,d}), ou {mot} pour la liste « hausse / baisse ». */
+function ppbSchemaCases(q){
+  const D=ppbSchemaDef(q), c={};
+  if(D.forme==='evb'){
+    c.ppbN=D.N; c.ppbP=D.p; c.ppbC=ppbCoefR(D.s,D.p); c.ppbF=D.F;
+    if(D.pct){ c.ppbW={mot:(D.s<0?'baisse':'hausse')}; c.ppbT=D.t; }
+  } else if(D.forme==='pctb'){
+    c.ppbN=D.N; c.ppbP=D.P; c.ppbD=D.D; c.ppbF=D.F;
+  } else if(D.forme==='pctc'){
+    c.ppbD1=D.d1; c.ppbD2=D.d2; c.ppbG1=D.d1; c.ppbG2=D.d2; c.ppbG=D.g; c.ppbK=D.c;
+  } else {
+    if(D.val) c.ppbN=D.N;
+    c.ppbP1=D.p1; c.ppbC1=ppbCoefR(D.s1,D.p1); c.ppbP2=D.p2; c.ppbC2=ppbCoefR(D.s2,D.p2);
+    c.ppbG1=c.ppbC1; c.ppbG2=c.ppbC2; c.ppbG=D.g;
+    if(D.val) c.ppbF=D.F; else { c.ppbGP=D.gp; c.ppbT=D.t; }
+  }
+  return c;
 }
+/* une valeur attendue, écrite comme une case l'attend : « 50,4 », « 1,055 » — sans espace */
+function ppbRatTexte(r){ return r.mot ? r.mot : ppbNb(r.n, r.d).replace(/\s/g,''); }
+function ppbSchemaHTML(q,k){
+  k=k||CDR_SANS;
+  const D=ppbSchemaDef(q), K=[k.T,k.A,k.B];
+  const mf=(id,lab,pct)=>`<math-field class="dexp-mf pm-mf${pct?' ppb-pct':''}" id="${id}" aria-label="${lab}"></math-field>`;
+  const x=t=>`<span class="pctb-af-x">${t}</span>`;
+  const boite=(i,cas)=>`<div class="pctb-box"><div class="pctb-lab">${K[i](D.labs[i])}</div>${cas||''}</div>`;
+  /* une flèche d'évolution, comme au 4.5.4 et au 4.5.5 : « × (1 ± …) », la flèche « ↑ −1 », puis « × … » ;
+     ouv : « × (1 + », « × (1 − », ou « × (1 » suivi du signe LU sur le coefficient (taux d'évolution) */
+  const fleche=(ouv,idP,idC,rev)=>
+    `<div class="pctb-arrow">
+       <div class="pctb-af">${ouv}${mf(idP,'le pourcentage en écriture décimale',true)}${x(')')}</div>
+       <div class="pctb-shaft" aria-hidden="true">${rev?'<span class="evb-rev-arrow">↑ −1</span>':''}</div>
+       <div class="pctb-af">${x('×')}${mf(idC,'coefficient multiplicateur')}</div>
+     </div>`;
+  const ouv=s=>x('× (1 '+(s<0?'−':'+'));
+  if(D.forme==='evb'){
+    const sg=D.signeLu ? x('× (1')+'<span class="pctb-af-x evs-pm evs-pm-vide" id="ppbPM" data-de="ppbC" aria-label="signe de l’évolution, lu sur le coefficient">±</span>' : ouv(D.s);
+    return `<div class="pctb-row">
+        ${boite(0,mf('ppbN','valeur avant'))}
+        ${fleche(sg,'ppbP','ppbC',D.pct)}
+        ${boite(1,mf('ppbF','valeur après'))}
+      </div>`+
+      (D.pct ? `<div class="pctb-row evb-rev-row">
+        <div class="pctb-box"><div class="pctb-lab">${k.B('Pourcentage d’évolution')}</div>
+          <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${x('C’est une')}<select id="ppbW" class="itv-sel large" aria-label="hausse ou baisse"><option value="">…………</option><option value="hausse">hausse</option><option value="baisse">baisse</option></select>${x('de')}${mf('ppbT','pourcentage d’évolution',true)}${x('%')}</span></div>
+      </div>` : '');
+  }
+  if(D.forme==='pctb') return `<div class="pctb-row">
+      ${boite(0,mf('ppbN',D.labs[0]))}
+      <div class="pctb-arrow">
+        <div class="pctb-af">${x('×')}${mf('ppbP','pourcentage',true)}${x('%')}</div>
+        <div class="pctb-shaft" aria-hidden="true"></div>
+        <div class="pctb-af">${x('×')}${mf('ppbD','écriture décimale du pourcentage')}</div>
+      </div>
+      ${boite(1,mf('ppbF',D.labs[1]))}
+    </div>`;
+  if(D.forme==='pctc'){
+    const fl=id=>`<div class="pctb-arrow"><div class="pctb-af">${x('×')}${mf(id,'écriture décimale du pourcentage')}</div><div class="pctb-shaft" aria-hidden="true"></div></div>`;
+    return `<div class="pctb-row ppb-trois">${boite(0)}${fl('ppbD1')}${boite(1)}${fl('ppbD2')}${boite(2)}</div>
+      <div class="pctc-global">
+        <div class="pctc-global-shaft" aria-hidden="true"></div>
+        <div class="pctc-global-lab">${k.T(D.labs[0])} → ${k.B(D.labs[2])} en un seul calcul&nbsp;: coefficient global</div>
+        <div class="pctc-calc">${mf('ppbG1','premier coefficient, repris dans le calcul global')}${x('×')}${mf('ppbG2','second coefficient, repris dans le calcul global')}${x('=')}${mf('ppbG','coefficient multiplicateur global')}</div>
+      </div>
+      <div class="pctc-concl">${D.ccl(mf('ppbK','pourcentage trouvé',true),k)}</div>`;
+  }
+  /* evs : deux évolutions de suite */
+  return `<div class="pctb-row ppb-trois">
+      ${boite(0,D.val?mf('ppbN','valeur de départ'):'')}
+      ${fleche(ouv(D.s1),'ppbP1','ppbC1',true)}
+      ${boite(1)}
+      ${fleche(ouv(D.s2),'ppbP2','ppbC2',true)}
+      ${boite(2,D.val?mf('ppbF','valeur finale'):'')}
+    </div>
+    <div class="pctc-global">
+      <div class="pctc-global-shaft" aria-hidden="true"></div>
+      <div class="pctc-global-lab">Du départ à la fin, en un seul calcul&nbsp;: coefficient global</div>
+      ${D.val?'':`<div class="evs-gpar">${x('× (1')}<span class="pctb-af-x evs-pm evs-pm-vide" id="ppbPM" data-de="ppbG" aria-label="signe de l’évolution globale, lu sur le coefficient global">±</span>${mf('ppbGP','le pourcentage global en écriture décimale',true)}${x(')')}</div>
+      <div class="evs-rev" aria-hidden="true">↑ −1</div>`}
+      <div class="pctc-calc">${mf('ppbG1','premier coefficient, repris dans le calcul global')}${x('×')}${mf('ppbG2','second coefficient, repris dans le calcul global')}${x('=')}${mf('ppbG','coefficient multiplicateur global')}</div>
+    </div>`+
+    (D.val ? '' : `<p class="evs-conclusion">${esc(D.sujet)} subit globalement une <b class="evs-mot evs-mot-vide" id="ppbMot">……</b> de
+      ${mf('ppbT','pourcentage d’évolution global',true)}<span class="pctb-af-x">%</span></p>`);
+}
+/* Le signe d'une parenthèse « ± » se LIT sur le coefficient que l'élève
+   écrit (data-de), comme au 4.5.5 : plus grand que 1, « + » ; plus petit,
+   « − » ; vide ou 1, « ± ». Le mot de la conclusion suit. */
+function ppbSigneMAJ(){
+  const pm=$('ppbPM'); if(!pm) return;
+  const src=$(pm.dataset.de), s=src?evsSigneDe(String(src.value||'').trim()):null;
+  if(!pm.classList.contains('sol')){ pm.textContent=s||'±'; pm.classList.toggle('evs-pm-vide',!s); }
+  const mot=$('ppbMot');
+  if(mot && !mot.classList.contains('sol')){ mot.textContent=evsMotDe(s); mot.classList.toggle('evs-mot-vide',!s); }
+}
+/* Les cases lues et récrites par leur identifiant — du JSON, rangé dans la
+   question (q.schema), qu'une pause garde comme le brouillon. */
+function ppbSchemaLire(q){
+  const o={};
+  Object.keys(ppbSchemaCases(q)).forEach(function(id){
+    const el=$(id); if(!el) return;
+    let v='';
+    if(el.tagName==='MATH-FIELD'){ try{ v=String(el.getValue()||''); }catch(e){ try{ v=String(el.value||''); }catch(_){} } }
+    else v=String(el.value||'');
+    if(v.trim()!=='') o[id]=v;
+  });
+  return o;
+}
+function ppbSchemaRecrire(q){
+  const o=(q.schema && typeof q.schema==='object') ? q.schema : null; if(!o) return;
+  Object.keys(ppbSchemaCases(q)).forEach(function(id){
+    const el=$(id); if(!el || !(id in o)) return;
+    if(el.tagName==='MATH-FIELD'){ try{ el.setValue(o[id]); }catch(e){ try{ el.value=o[id]; }catch(_){} } }
+    else el.value=o[id];
+  });
+}
+/* La vérification du schéma : chaque case se juge SEULE contre sa valeur
+   (une case vide ne rougit jamais) ; en soutien, la correction en direct
+   (live) colore sans juger. */
+function checkPpbSchema(live){
+  if(test.locked || test.kind!=='ppb') return;
+  const q=test.questions[test.idx]; if(!q || !q.aide) return;
+  const C=ppbSchemaCases(q), ids=Object.keys(C).filter(id=>$(id));
+  const v=id=>String($(id).value||'').trim();
+  const juste=function(id){ const t=C[id]; if(t.mot) return v(id)===t.mot; const fr=parseDecToFrac(v(id)); return !!fr && fr.n*t.d===t.n*fr.d; };
+  if(live){
+    ids.forEach(function(id){ const el=$(id); if(el.disabled) return; el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(juste(id)?'ok':'bad'); });
+    ppbSigneMAJ(); return;
+  }
+  const ok={}; ids.forEach(id=>{ ok[id]=juste(id); });
+  // une case vide ne rougit jamais (règle universelle) : chacune se juge SEULE contre sa valeur
+  ids.forEach(function(id){ const el=$(id); el.classList.remove('ok','bad'); if(v(id)!=='') el.classList.add(ok[id]?'ok':'bad'); el.disabled=ok[id]||!isSoutien(); });
+  ppbSigneMAJ();
+  const allOk=ids.length>0 && ids.every(id=>ok[id]);
+  if(!allOk && isSoutien()){ soutienAgain('ppbSchFeedback','ppbSchActions','checkPpbSchema','ppbSchHost'); return; }
+  test.locked=true;
+  const fb=$('ppbSchFeedback');
+  if(allOk){ test.score++; $('ppbLiveScore').textContent=test.score;
+    fb.textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); fb.className='mp-feedback good';
+  } else {
+    fb.textContent='Réponse : '+ppbSolution(q)+'.'; fb.className='mp-feedback bad';
+    ids.forEach(function(id){
+      if(!C[id].mot){ corTrainDec(id, ppbRatTexte(C[id])); return; }
+      const w=$(id); if(w && currentMode==='train' && !w.classList.contains('ok')){ w.value=C[id].mot; w.classList.remove('bad'); w.classList.add('sol'); w.disabled=true; }
+    });
+    /* en entraînement, le signe et le mot se relisent sur la case corrigée ; s'ils restent faux, on les montre en VERT, comme une correction */
+    if(currentMode==='train'){
+      ppbSigneMAJ();
+      const pm=$('ppbPM'), D=ppbSchemaDef(q);
+      if(pm){ const src=pm.dataset.de, bon=(src==='ppbG' ? (C.ppbG.n>C.ppbG.d?'+':'−') : (D.s<0?'−':'+'));
+        if(evsSigneDe(v(src))!==bon){ pm.textContent=bon; pm.classList.remove('evs-pm-vide'); pm.classList.add('sol');
+          const m=$('ppbMot'); if(m){ m.textContent=evsMotDe(bon); m.classList.remove('evs-mot-vide'); m.classList.add('sol'); } } }
+    }
+  }
+  test.answers.push({...(ptsExo()||{}), q:'[schéma] '+ppbEnonce(q).replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' '), answer:ppbSolution(q),
+    given:ids.map(id=>v(id)||'—').join(' / '), correct:allOk, schema:true});
+  const last=test.idx===test.questions.length-1;
+  $('ppbSchActions').innerHTML=`<button class="btn btn-primary" id="ppbNext" onclick="nextPpb()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  const nb=$('ppbNext'); if(nb) nb.focus();
+}
+function ppbLive(){ const q=test.questions[test.idx]; if(q && q.aide) checkPpbSchema(true); }
 /* ---- la copie : les mots et les unités tombent ----
    « 42 × 1,2 = 50,40 € » se lit sans l'euro ; « 0,76 soit 24 % » se coupe
    au mot, en deux lignes : un mot n'est jamais un nombre. */
@@ -25814,39 +26035,70 @@ let ppbFeuille=null;
 function renderPpb(){
   const q=test.questions[test.idx]; test.locked=false;
   const scr=$('scr-ppb');
+  /* la rangée des jetons (et la touche du clavier) se repose devant la zone
+     visible : celle de la rédaction, ou celle du schéma */
   if(scr) scr.querySelectorAll('.rc-jetons').forEach(e=>e.remove());
   $('ppbIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
   $('modeTagPpb').innerHTML=modeTagHTML();
   $('ppbLiveScore').textContent=test.score;
   $('ppbFeedback').textContent=''; $('ppbFeedback').className='mp-feedback';
+  $('ppbSchFeedback').textContent=''; $('ppbSchFeedback').className='mp-feedback';
+  if(q.aide){
+    /* l'aide schéma, comme au 4.5.9 : le schéma REMPLACE la rédaction */
+    $('ppbRed').hidden=true; $('ppbSch').hidden=false;
+    $('ppbHost').innerHTML=''; ppbFeuille=null;
+    $('ppbIdx').textContent=`Question ${test.idx+1} / ${test.questions.length} — avec le schéma`;
+    $('ppbPrompt').innerHTML=ppbEnonce(q,CDR_AVEC)+' Complète le schéma.';
+    $('ppbSchHost').innerHTML=ppbSchemaHTML(q,CDR_AVEC);
+    $('ppbSchActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkPpbSchema()">Vérifier</button>';
+    ppbSchemaRecrire(q);
+    const order=Object.keys(ppbSchemaCases(q)).map(id=>$(id)).filter(Boolean);
+    order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPpbSchema();} }); });
+    const pm=$('ppbPM'), src=pm&&$(pm.dataset.de); if(src) src.addEventListener('input', ppbSigneMAJ);
+    ppbSigneMAJ();
+    setTimeout(()=>order[0]&&order[0].focus(),70);
+    return;
+  }
+  $('ppbSch').hidden=true; $('ppbSchHost').innerHTML=''; $('ppbSchActions').innerHTML='';
+  $('ppbRed').hidden=false;
   $('ppbPrompt').innerHTML=ppbEnonce(q);
-  ppbAfficherSchema(q);
   ppbBoutons(false);
   $('ppbHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">ta solution</div>
        <div class="dexp2-sheet" id="ppbSheet"></div>
-       <p class="dexp-hint">Écris UN calcul par ligne, avec son résultat. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Il faut au moins la multiplication ou la division qui donne la réponse — et, si la réponse est un pourcentage, le pourcentage&nbsp;: «&nbsp;…&nbsp;%&nbsp;», «&nbsp;+…&nbsp;%&nbsp;» ou «&nbsp;−…&nbsp;%&nbsp;».</p></div>`;
+       <p class="dexp-hint">Écris UN calcul par ligne, avec son résultat. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Il faut au moins la multiplication ou la division qui donne la réponse — et, si la réponse est un pourcentage, le pourcentage&nbsp;: «&nbsp;…&nbsp;%&nbsp;», «&nbsp;+…&nbsp;%&nbsp;» ou «&nbsp;−…&nbsp;%&nbsp;». Bloqué&nbsp;? Le bouton <b>Aide schéma</b> reprend la question sur le schéma.</p></div>`;
   ppbFeuille=mlFeuille({ conteneur:'ppbSheet', mode:'calcul', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
-}
-function ppbAfficherSchema(q){
-  const sch=$('ppbSch'); if(!sch) return;
-  if(q && q.aide){ sch.innerHTML=ppbSchemaHTML(q); sch.hidden=false; }
-  else { sch.innerHTML=''; sch.hidden=true; }
+  /* revenu du schéma : la rédaction commencée avant l'aide est récrite */
+  (Array.isArray(q.brouillon)?q.brouillon.filter(s=>s):[]).forEach(function(s,i){
+    const L=(i===0)?ppbFeuille.lignes[0]:ppbFeuille.ajouterLigne(); if(!L||!L.mf) return;
+    try{ L.mf.setValue(s); }catch(e){ try{ L.mf.value=s; }catch(_){} }
+  });
 }
 function ppbBoutons(revoir){
-  const q=test.questions[test.idx];
   $('ppbActions').innerHTML=conseilInlineBtn()
-    +`<button class="btn btn-ghost" type="button" id="ppbAide" onclick="ppbAideSchema()">${q&&q.aide?'🙈 Masquer le schéma':'🧩 Aide schéma'}</button>`
+    +'<button class="btn btn-ghost" type="button" id="ppbAide" onclick="ppbAideSchema()">🧩 Aide schéma</button>'
     +`<button class="btn btn-primary" onclick="checkPpb()">${revoir?'Revérifier':'Vérifier'}</button>`;
 }
-/* « Aide schéma » montre ou masque le schéma ; la rédaction reste en place.
-   Le choix est RANGÉ dans la question : une pause le reprend. */
+/* « Aide schéma » : la question passe sur son schéma, aux mêmes nombres. Le
+   choix est RANGÉ dans la question : une pause le reprend. */
 function ppbAideSchema(){
   if(test.locked || test.kind!=='ppb') return;
-  const q=test.questions[test.idx]; if(!q) return;
-  q.aide=!q.aide; if(q.aide) q.vu=true;
-  ppbAfficherSchema(q); autoSave();
-  const b=$('ppbAide'); if(b) b.textContent=q.aide?'🙈 Masquer le schéma':'🧩 Aide schéma';
+  const q=test.questions[test.idx]; if(!q || q.aide) return;
+  /* la rédaction commencée est gardée (en LaTeX, du JSON) : « Revenir à la rédaction » la rend */
+  q.brouillon=(ppbFeuille&&Array.isArray(ppbFeuille.lignes)?ppbFeuille.lignes:[]).map(function(L){
+    try{ return String(L.mf.getValue()||''); }catch(e){ try{ return String(L.mf.value||''); }catch(_){ return ''; } }
+  }).filter(s=>s.trim()!=='');
+  q.aide=true; autoSave(); renderPpb();
+}
+/* « Revenir à la rédaction » : tant que le schéma n'a pas donné son verdict,
+   l'élève reprend la question rédigée — elle vaut alors comme une question
+   rédigée (pas de marque « [schéma] »). Le schéma rempli est gardé
+   (q.schema) : l'aide redemandée le retrouve tel qu'il l'a laissé. */
+function ppbRedaction(){
+  if(test.locked || test.kind!=='ppb') return;
+  const q=test.questions[test.idx]; if(!q || !q.aide) return;
+  q.schema=ppbSchemaLire(q);
+  q.aide=false; autoSave(); renderPpb();
 }
 function ppbPeindreLignes(){
   if(!ppbFeuille || !Array.isArray(ppbFeuille.lignes)) return;
@@ -25864,6 +26116,7 @@ function ppbPeindreLignes(){
 function checkPpb(){
   if(test.locked) return;
   const q=test.questions[test.idx], fb=$('ppbFeedback'), c=ppbCible(q);
+  if(q.aide) return;
   const rep=(ppbFeuille?ppbFeuille.lire():'').trim();
   if(!rep){
     fb.textContent='Écris d’abord ta solution. '+c.consigne.replace(/^Rédige ta solution : /,'Il faut ');
@@ -25881,8 +26134,8 @@ function checkPpb(){
   if(correct){ test.score++; $('ppbLiveScore').textContent=test.score; }
   fb.textContent=correct ? juge.phrase : (juge.phrase+' Une solution : '+ppbSolution(q)+'.');
   fb.className='mp-feedback '+(correct?'good':'bad');
-  test.answers.push({...(ptsExo()||{}), q:(q.vu?'[schéma] ':'')+ppbEnonce(q).replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' '), answer:ppbSolution(q),
-    given:rep.replace(/\n/g,' ; ').replace(/\*/g,'×').replace(/\./g,',').replace(/\\%/g,'%'), correct:correct, ...(q.vu?{schema:true}:{})});
+  test.answers.push({...(ptsExo()||{}), q:ppbEnonce(q).replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' '), answer:ppbSolution(q),
+    given:rep.replace(/\n/g,' ; ').replace(/\*/g,'×').replace(/\./g,',').replace(/\\%/g,'%'), correct:correct});
   const last=test.idx===test.questions.length-1;
   $('ppbActions').innerHTML=`<button class="btn btn-primary" id="ppbNext" onclick="nextPpb()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   const nb=$('ppbNext'); if(nb) nb.focus();
@@ -25908,7 +26161,8 @@ function ppbCtxTexte(q){
     +'La page exige au moins UNE multiplication ou division qui donne la réponse (avec le coefficient multiplicateur : 1 + t pour une hausse, 1 − t pour une baisse), '
     +'puis, si la réponse est un pourcentage, ce pourcentage écrit « … % » (avec son signe pour un taux d’évolution). '
     +'Réponse attendue, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : '+ppbSolution(q)+'. '
-    +'Guide-le vers la démarche : repérer la valeur de départ, la valeur d’arrivée et le coefficient, puis choisir entre multiplier et diviser.';
+    +'Guide-le vers la démarche : repérer la valeur de départ, la valeur d’arrivée et le coefficient, puis choisir entre multiplier et diviser.'
+    +(q.aide?' L’élève a demandé l’aide schéma : il complète maintenant un schéma en boîtes reliées par des flèches (chaque flèche porte × (1 ± taux), puis le coefficient multiplicateur), au lieu de rédiger.':'');
 }
 
 /* ---------- Test 7 : augmenter d'un pourcentage (méthode en 4 étapes) ---------- */
