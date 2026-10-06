@@ -3133,7 +3133,7 @@ rendu transparent depuis les bords, puis rognée), encodée en WebP (14 Ko,
 `PIA_IMG`), et `piaFigureHTML()` la pose DEVANT le texte de l'énoncé dans
 `piaInstr`, à chaque question — l'encadré de cours (`pyAvant`, première
 question seulement) reste au-dessus, comme sur le 6.5.3. Décoratif : rien
-ne change au tirage, au juge ni aux coups de pouce. Version 306 (305 a été pris par le 6.3.3, fusionné pendant les bancs).
+ne change au tirage, au juge ni aux coups de pouce. Version 307 (305 puis 306 ont été pris sur `main` pendant les bancs, par le 6.3.3 et par les PR 514 et 521).
 
 **float : la réponse est un nombre DÉCIMAL — l'exercice 6 du carnet.**
 {python-input-float} (Seconde, 6.3.5, demande de Turquet, octobre 2026 : « créer
