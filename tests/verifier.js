@@ -4180,6 +4180,7 @@ function exercices(suite){
     pythonChaines(w, P);
     pythonChaineLen(w, P);
     pythonTexteProche(w, P);
+    pythonFautesOrthographe(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -27598,6 +27599,95 @@ function pythonTexteProche(w, P){
    diagnostic, Revérifier, la correction qui débloque), les branchements, puis
    compare pyRun à un vrai CPython sur les programmes que l'exercice ferait
    tourner. Aucun accent grave ni antislash simple dans le code évalué. */
+/* ---- Les fautes d'orthographe dans les textes entre guillemets, PARTOUT ----
+   Décision de Turquet (octobre 2026) : « en seconde dans tous les exercices
+   d'algorithme python, autoriser les fautes d'orthographe dans les textes
+   entre "", même ceux qui sont imposés par l'exercice. » La règle partagée
+   (pyTexteProche) servait déjà les exercices qui FONT AFFICHER un texte ;
+   quatre juges la contournaient encore, et c'est eux que ce contrôle tient :
+   · {python-input-int} et {python-input-float} comparaient la ligne entière
+     au caractère près (espaces, casse et accents mis à part) ;
+   · {python-input-duree-secondes} cherchait « heure », « minute » et
+     « seconde » tels quels dans la sortie ;
+   · {python-input-prix}, {python-input-duree-secondes} et
+     {python-chaine-tirets} refusaient un ’ posé DANS un texte entre "…" ;
+   · {python-input-reponse} refusait print('je mappelle', nom) avant même de
+     l'exécuter, au nom de l'apostrophe que l'élève n'avait pas écrite.
+   Les deux gardes de la tolérance tiennent toujours : les CHIFFRES comptent,
+   et la valeur recopiée à la main reste refusée EN SE NOMMANT. Les guillemets
+   typographiques HORS d'une chaîne restent refusés eux aussi. */
+function pythonFautesOrthographe(w, P){
+  const nom = 'les fautes d’orthographe dans un texte entre guillemets sont tolérées par TOUS les juges Python, les chiffres et la valeur recopiée jamais';
+  if(!P.toleranceTexte){ ignorer(nom, 'ce niveau n\'a aucun exercice qui fasse afficher un texte'); return; }
+  const manque=['pythonInputInt','pythonInputDureeSecondes','pythonInputPrix','pythonChaineTirets','pythonInputReponse'].filter(function(k){ return !P[k]; });
+  if(manque.length){ ignorer(nom, 'le profil ne déclare pas '+manque.join(', ')); return; }
+  const present = evaluer(w, "['piiJugeLigne','phmDiag','phmMot','pkgDiag','pttDiag','pynJuge','pyTexteProche'].every(function(f){ return typeof window[f]==='function'; })");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'un des juges est introuvable : piiJugeLigne, phmDiag, phmMot, pkgDiag, pttDiag, pynJuge'); return; }
+
+  verifierEval(w, '{python-input-int} et {python-input-float} : « j’ai 15 an », « jai 15 ans », « je mesur 1.65 metre » passent et l’écart est NOMMÉ ; la valeur recopiée à la main et le calcul restent refusés en se nommant, et un texte qui n’est plus celui-là aussi', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), q={vis:"int",k:0}, R="15", qf={vis:"float",k:0,f:1}, RF="1.65";
+    const p=function(a,v,b){ return "print("+Q+a+Q+", "+v+", "+Q+b+Q+")"; };
+    [[q,R,p("j"+A+"ai","age","an"),/caractère/], [q,R,p("jai","age","ans"),/caractère/], [q,R,p("j"+A+"ai","age","anss"),/caractère/],
+     [q,R,p("J"+A+"ai","age","ans"),/majuscule/], [qf,RF,p("je mesur","taille","metre"),/caractères/], [qf,RF,p("je mesure","taille","mètres"),/^$/]].forEach(function(c){
+      const j=piiJugeLigne(c[0],c[2],c[1]);
+      if(!j.ok) vus.push("refusé : "+c[2]+" — "+(j.diag||j.erreur));
+      else if(!c[3].test(j.ecart)) vus.push(c[2]+" : l’écart est dit « "+j.ecart+" »");
+    });
+    [[p("j"+A+"ai","15","an"),/main/], [p("j"+A+"ai","age + 1","ans"),/affiche/], ["print("+Q+"j"+A+"ai 15 an"+Q+")",/main/],
+     [p("je chausse du","age","ans"),/affiche/], [p("j"+A+"ai","age","mois"),/affiche/]].forEach(function(c){
+      const j=piiJugeLigne(q,c[0],R);
+      if(j.ok) vus.push("accepté à tort : "+c[0]);
+      else if(!c[1].test(j.diag)) vus.push(c[0]+" : "+j.diag);
+    });
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, '{python-input-duree-secondes} : « heurs », « minuts », « segondes », « Heures » passent ; les mots absents et un mot qui n’est plus celui-là restent refusés en se nommant ; un ’ DANS un texte passe, « » hors d’un texte est refusé', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
+    const I="n = int(input("+Q+"Durée en secondes ? "+Q+"))"+NL;
+    const ph=function(h,m,s){ return "print(n // 3600, "+Q+h+Q+", n % 3600 // 60, "+Q+m+Q+", n % 60, "+Q+s+Q+")"; };
+    [ph("heurs","minuts et","segondes"), ph("Heures,","MINUTES et","Secondes"), ph("heure","minute","seconde"), ph("heures, c’est","minutes et","secondes")].forEach(function(l){
+      const d=phmDiag(I+l,q); if(!d.ok) vus.push("refusé : "+l+" — "+d.dits.join(" "));
+    });
+    [[ph("h","min","s"),/manque les mots/], [ph("heures","minutes","s"),/manque le mot « secondes »/], [ph("temps","minutes","secondes"),/manque le mot « heures »/],
+     ["n = int(input(«D»))"+NL+ph("heures","minutes","secondes"),/guillemets/]].forEach(function(c){
+      const d=phmDiag(I+c[0],q);
+      if(d.ok) vus.push("accepté à tort : "+c[0]);
+      else if(!c[1].test(d.dits.join(" "))) vus.push(c[0]+" → "+d.dits.join(" | "));
+    });
+    if(!phmMot("3 heurs","heure")||phmMot("3 h","heure")||phmMot("3 temps","heure")||!phmMot("SECONDES","seconde")) vus.push("phmMot ne tient pas ses bords");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, '{python-input-prix} et {python-chaine-tirets} : un ’ ou des « » DANS un texte entre guillemets passent ; hors d’un texte, ils restent refusés', `(function(){
+    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
+    const P="pommes = float(input("+Q+"Poids des pommes ? "+Q+"))"+NL+"tomates = float(input("+Q+"Poids des tomates ? "+Q+"))"+NL;
+    const bon=P+"print("+Q+"L’addition s’élève à"+Q+", pommes*3.62 + tomates*5.57)";
+    let d=pkgDiag(bon,q); if(!d.ok) vus.push("prix, ’ dans le texte refusé : "+d.dits.join(" "));
+    d=pkgDiag(P+"print("+Q+"Le prix « total » est"+Q+", pommes*3.62 + tomates*5.57)",q); if(!d.ok) vus.push("prix, « » dans le texte refusés : "+d.dits.join(" "));
+    d=pkgDiag(P+"print(“Le prix total est”, pommes*3.62 + tomates*5.57)",q); if(d.ok||!/guillemets/.test(d.dits.join(" "))) vus.push("prix, “ ” HORS texte acceptés");
+    const c0="chaine = "+Q+"gaston"+Q, vide="chaine_bis = "+Q+Q, boucle="for k in range(len(chaine)):", pouce="    chaine_bis = chaine_bis + chaine[k] + "+Q+"-"+Q, aff="print(chaine_bis)";
+    const t=pttDiag([c0, vide, "note = "+Q+"c’est le mot"+Q, boucle, pouce, aff].join(NL),q);
+    if(!t.ok) vus.push("tirets, ’ dans un texte refusé : "+t.dits.join(" "));
+    const t2=pttDiag([c0, vide, boucle, "    chaine_bis = chaine_bis + chaine[k] + “-”", aff].join(NL),q);
+    if(t2.ok||!/guillemets/.test(t2.dits.join(" "))) vus.push("tirets, “ ” HORS texte acceptés");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, '{python-input-reponse} : print(\'je mappelle\', nom) et print("je m’apelle", nom) passent — le juge EXÉCUTE avant de reprocher l’apostrophe ; print(\'je m\'appelle\', nom) reste refusé en nommant l’apostrophe', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), q={s:0};
+    ["print("+A+"je mappelle"+A+", nom)", "print("+Q+"je m"+A+"apelle"+Q+", nom)", "print("+Q+"je m’appelle"+Q+", nom)"].forEach(function(l){
+      const j=pynJuge(q,l,"Léa"); if(!j.ok) vus.push("refusé : "+l+" — "+j.diag);
+    });
+    const j=pynJuge(q,"print("+A+"je m"+A+"appelle"+A+", nom)","Léa");
+    if(j.ok) vus.push("l’apostrophe qui ferme le texte est acceptée");
+    else if(!/apostrophe/.test(j.diag)) vus.push("l’apostrophe n’est plus nommée : "+j.diag);
+    const j2=pynJuge(q,"print("+A+"je mappelle Léa"+A+")","Léa");
+    if(j2.ok) vus.push("la réponse recopiée passe parce que le texte a été toléré");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
 function pythonCompleter(w, P){
   const nom = '{python-completer} : le cours, puis la ligne 2 à écrire, exécuter et vérifier';
   if(!P.pythonCompleter){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du print à compléter'); return; }
