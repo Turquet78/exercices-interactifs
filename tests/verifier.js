@@ -36118,10 +36118,20 @@ function reglagesDevoirs(w, apres){
         if(max!==DM_NBQ_MAX || valeurs.length!==DM_NBQ_MAX) vus.push('la liste « Questions » de l\\'éditeur propose 1..'+max+' ('+valeurs.length+' valeurs) au lieu de 1..'+DM_NBQ_MAX);
         /* et la séance TIENT le plafond : réglé au maximum, le témoin s'allonge jusque-là (ou jusqu'au bout de son vivier) */
         if(typeof dmNbQuestions==='function'){
-          mesDevoirs=[{id:'dev-max',num:1,actif:true,titre:'Max',cours:'',exercices:[{id:EX,modes:['train'],nbQ:DM_NBQ_MAX}]}];
-          await lancerDevoirExo('dev-max',EX,'train');
-          if((test.questions||[]).length!==DM_NBQ_MAX) vus.push('réglé au plafond ('+DM_NBQ_MAX+'), le témoin pose '+(test.questions||[]).length+' questions');
-          else if((test.maxScore||0)!==DM_NBQ_MAX*baremeDefaut/defaut) vus.push('réglé au plafond, le barème vaut '+test.maxScore+' au lieu de '+(DM_NBQ_MAX*baremeDefaut/defaut));
+          /* le témoin du plafond : celui des réglages, sauf si le profil en
+             nomme un autre (« exercicePlafond ») — en Terminale, le témoin de
+             la coupe a une séance à forme fixe, qui ne s'allonge pas */
+          const EXP=${JSON.stringify(R.exercicePlafond||null)}||EX;
+          let defP=defaut, barP=baremeDefaut;
+          if(EXP!==EX){
+            mesDevoirs=[{id:'dev-p0',num:1,actif:true,titre:'P0',cours:'',exercices:[{id:EXP,modes:['train']}]}];
+            await lancerDevoirExo('dev-p0',EXP,'train');
+            defP=(test.questions||[]).length; barP=test.maxScore||0;
+          }
+          mesDevoirs=[{id:'dev-max',num:1,actif:true,titre:'Max',cours:'',exercices:[{id:EXP,modes:['train'],nbQ:DM_NBQ_MAX}]}];
+          await lancerDevoirExo('dev-max',EXP,'train');
+          if((test.questions||[]).length!==DM_NBQ_MAX) vus.push('réglé au plafond ('+DM_NBQ_MAX+'), le témoin '+EXP+' pose '+(test.questions||[]).length+' questions');
+          else if((test.maxScore||0)!==DM_NBQ_MAX*barP/defP) vus.push('réglé au plafond, le barème vaut '+test.maxScore+' au lieu de '+(DM_NBQ_MAX*barP/defP));
           currentDM=null; mesDevoirs=[];
         }
       }
@@ -36161,10 +36171,14 @@ function reglageAllonge(w, apres){
   /* le bord statique */
   const src=lire(CIBLE);
   const tirages=(src.match(/test\.questions=distinctes\([^,]*,/g)||[]);
+  /* le plancher dit « le contrôle lit encore la page » : 20 en Seconde et en
+     Première, moins là où le profil le déclare (la Terminale tire surtout par
+     plans et par familles : onze tirages par distinctes()) */
+  const tiragesMin=R.tiragesMin||20;
   const sansReglage=tirages.filter(function(t){ return !/distinctes\((dmNbQuestions\(|test\.perLevel,)/.test(t); });
   verifier('chaque tirage principal par distinctes() lit le réglage « Questions » du devoir',
-    tirages.length>=20 && sansReglage.length===0,
-    tirages.length<20 ? 'seulement '+tirages.length+' tirages trouvés : le contrôle ne lit plus la page'
+    tirages.length>=tiragesMin && sansReglage.length===0,
+    tirages.length<tiragesMin ? 'seulement '+tirages.length+' tirages trouvés (au moins '+tiragesMin+' attendus) : le contrôle ne lit plus la page'
                       : sansReglage.length+' tirage(s) ignorent le réglage : '+sansReglage.join(' ; '));
   const doivent=(R.allonge||[]);
   evalPromis(w, `(async function(){

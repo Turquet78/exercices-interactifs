@@ -2171,7 +2171,13 @@ module.exports = {
        qui a porté par erreur la classe des énoncés. */
     enonce: { classes: ['enonce', 'tvi-prompt'], ardoise: ['test'],
               navigateur: ['signe-produit', 'limites-graphiques-2'] },
-    reglagesDevoirs: { exercice: 'tangente-exp' },
+    /* « nbQMax » : 20 questions par exercice (demande de Turquet, octobre
+       2026 : « fais pareil pour la terminale », après la Seconde). La
+       Terminale tire surtout par plans et par familles : onze tirages par
+       distinctes() (« tiragesMin »), et le témoin de la coupe a une séance à
+       forme fixe — le plafond se mesure sur {derivees} (« exercicePlafond »).
+       « allonge » : les exercices dont la séance DOIT s'allonger. */
+    reglagesDevoirs: { exercice: 'tangente-exp', exercicePlafond: 'derivees', allonge: ['derivees', 'equation-tangente', 'signes-variations'], nbQMax: 20, tiragesMin: 11 },
     tableResultats: 'resultats',
     tableEleves: 'eleves',
     navigateur: {

@@ -351,6 +351,32 @@ lit maintenant `DM_NBQ_MAX`. Le contrôle du plafond ne voyait pas ce trou : il
 profil de la Seconde exige `nbQMax: 20`. Sabotage : la borne remise à 10
 rougit en nommant « l'enregistrement du formulaire perd le plafond 20 ».
 
+**Puis la Terminale, le jour même : « fais pareil pour la terminale ».** Elle
+ne savait que RÉDUIRE, avec une liste écrite en dur (`[1..10]`) et la même
+borne 10 à l'enregistrement. Monter la liste seule aurait été le mensonge du
+4.1.8 de la Seconde : « Pour ce devoir : 20 questions » sur la carte, et cinq
+questions à l'écran. Le geste s'est donc porté entier : `DM_NBQ_MAX` (20) et
+`dmNbQuestions(defaut)` à côté de `dmReglageExo()`, la liste et
+l'enregistrement lisent la constante, et les onze tirages principaux par
+`distinctes()` lisent le réglage (suites, dérivées, les deux TVI, les cinq
+dérivées d'exponentielles, signes et variations, équation de tangente). Le
+barème suivait déjà : chaque démarreur pose `test.maxScore` APRÈS son tirage.
+L'étude de fonction et convexité ({etude-convexite}, une seule question) tire
+désormais par `[genECVCase()]` : une étude est une forme fixe, et son vivier
+(18 couples) ne tiendrait pas vingt questions distinctes. **La Terminale tire
+surtout par plans et par familles** : tous ces exercices gardent leur forme,
+et le contrôle les nomme à chaque exécution. Pour eux, la carte du devoir
+annonce un nombre que la séance ne tient pas au-delà du format normal : c'est
+le prix nommé, le même qu'en Seconde.
+**Le banc a dû apprendre deux choses du profil, sans rien relâcher
+ailleurs.** Le bord statique exigeait au moins 20 tirages par `distinctes()`
+pour s'assurer qu'il lisait encore la page : la Terminale n'en a que onze, et
+le profil le déclare (`tiragesMin: 11`), les deux autres niveaux gardant 20.
+Le témoin de la coupe (`tangente-exp`) a une séance à forme fixe : le plafond
+se mesure sur {derivees} (`exercicePlafond`), qui doit poser vingt questions
+avec un barème de vingt. Le profil exige `nbQMax: 20` et nomme trois
+exercices qui DOIVENT s'allonger.
+
 **Et les notes DÉJÀ enregistrées se réparent — celles qu'on peut PROUVER.**
 Demande de Turquet (septembre 2026) : « peux-tu corriger les notes des élèves
 en Seconde sur la fiche 3 ». `supabase/corriger-notes-coupe.sql` se colle dans
