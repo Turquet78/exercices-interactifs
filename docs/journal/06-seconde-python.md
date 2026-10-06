@@ -3693,6 +3693,21 @@ vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
 CPython. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
 
+**Puis le dessin de la fiche a pris la tête de l'exercice** (APP_VERSION 330,
+demande de Turquet, octobre 2026 : « placer cette image en seconde dans
+l'exercice 6.3.8 au début »). Le rectangle redessiné en SVG des premiers jours
+est remplacé par l'image de la fiche elle-même — le serpent qui s'interroge
+devant le rectangle, « Longueur » au-dessus, « Largeur » sur le côté —
+découpée dans la capture, en WebP (8 Ko, `PRC_IMG`, une URL `data:`, comme
+`PKG_IMG` et `PHM_IMG`) : la page reste un fichier unique. Elle garde sa
+place, dans `#prcInstr` au-dessus du cadre de la question (`prcFigureHTML`),
+et son `alt` nomme les deux mots de la fiche. Le contrôle du banc jsdom qui
+cherchait un `<svg>` et ses deux textes cherche désormais l'image
+(`img.prc-img`, une URL `data:image/webp`) et les deux mots dans son `alt` —
+la règle n'a pas changé, seule l'encre. Les règles CSS du SVG (`.prc-fig svg`,
+`.prc-fig-r`, `.prc-fig-t`) sont retirées : une règle morte qu'on croit
+vivante est pire qu'aucune règle.
+
 ---
 
 **Le sous-thème « Bonus », et la première BOUCLE — l'exercice 29 du carnet.**
@@ -4559,7 +4574,8 @@ la ligne de version était le seul conflit), et la 333 reste à la onzième
 (#532, `main` en 326). La leçon du jour n'est pas le numéro : c'est que la
 LIGNE de version entre en conflit à CHAQUE fusion voisine, quel que soit le
 numéro choisi, et qu'une branche ne sort de la file qu'en fusionnant la
-première après ses propres contrôles verts.
+première après ses propres contrôles verts. Douzième fusion (#530, `main`
+en 330) : la page passe à 341.
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
 {python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
