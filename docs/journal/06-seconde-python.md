@@ -4596,7 +4596,8 @@ la ligne de version était le seul conflit), et la 333 reste à la onzième
 LIGNE de version entre en conflit à CHAQUE fusion voisine, quel que soit le
 numéro choisi, et qu'une branche ne sort de la file qu'en fusionnant la
 première après ses propres contrôles verts. Douzième fusion (#530, `main`
-en 330) : la page passe à 341 ; treizième (#515, `main` en 360) : à 371.
+en 330) : la page passe à 341 ; treizième (#515, `main` en 360) : à 371 ;
+quatorzième (#531, `main` en 370) : à 383.
 
 **Puis le serpent au champagne est venu ouvrir le 6.2.3.**
 {python-pas-a-pas-calcul} (Seconde, 6.2.3, APP_VERSION 305 puis 306 — voir
