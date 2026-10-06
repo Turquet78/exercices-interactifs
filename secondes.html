@@ -49801,7 +49801,10 @@ function pmJetons(scr){
   const s=scr||document.querySelector('.screen.on'); if(!s) return;
   if(!s.querySelector('math-field.pm-mf') && !s.querySelector('.dexp2-sheet')) return;
   if(s.querySelector('.rc-jetons')) return;
-  const fb=s.querySelector('.mp-feedback');
+  /* devant la zone VISIBLE : un écran qui tient deux zones de travail (le
+     4.5.10, rédaction ou schéma) cache l'une des deux, et une rangée posée
+     dans la zone cachée emporte avec elle le bouton du clavier */
+  const fb=[...s.querySelectorAll('.mp-feedback')].find(f=>!f.closest('[hidden]'))||s.querySelector('.mp-feedback');
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
