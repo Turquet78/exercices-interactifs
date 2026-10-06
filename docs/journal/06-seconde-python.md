@@ -1807,6 +1807,8 @@ branches voisines qui montent toutes d'un cran à la fois. La marche a servi : #
 6.2.8) a pris la 308 dans l'heure, quatrième reprise de `main`, 309 tient.
 Puis #520 et #526 ont pris la 309 : cinquième reprise, la page passe à **311**.
 Puis #528 et #529 (`main` à 310) : sixième reprise, 311 tient.
+Puis #518 a pris la 311 : septième reprise, la page passe à **315** — quatre
+crans de marge, puisque chaque branche voisine ne monte que d'un cran.
 
 **Puis la MÊME marche, une question en moins : la valeur seule.**
 {python-valeur-case} (Seconde, 5.15, demande de Turquet, septembre 2026 :
