@@ -1781,6 +1781,20 @@ et **cette branche prend 186**, la règle ne changeant pas d'un mot pour
 autant se répéter : le premier arrivé garde, le second prend le suivant. Rien
 d'autre du fichier n'entrait en collision.
 
+**PUIS LE DESSIN EN TÊTE, un an après** (demande de Turquet, octobre 2026 :
+« placer cette image en seconde dans l'exercice 6.2.1 au début ») : le
+serpent qui dit « Pour l'instant tout va bien ! », détouré, en WebP (10 Ko,
+`PAP_IMG`, une URL `data:` — la page reste un fichier unique, comme pour
+`PKG_IMG` et `PDU_IMG`), ouvre la carte de {python-pas-a-pas} : au-dessus des
+définitions et de la consigne, à 150 px (`.pap-fig`, `.pap-img`, 45 % de la
+largeur au plus sur un téléphone). **Il est posé UNE fois par écran**
+(`papDessin`, rempli par `renderPAP` seulement s'il est vide) : le rendu se
+rejoue à chaque ligne du programme, et reposer une image `data:` à chaque
+rendu la fait clignoter. Banc jsdom (`pythonPasAPas`, « 11 bis ») : la carte
+s'ouvre sur le dessin, WebP embarqué, texte de remplacement, au-dessus de
+`papAvant`, et un second `renderPAP` ne le repose pas. La visite universelle
+du banc navigateur (section 9) voit la page rendue. Version 305.
+
 **Puis la MÊME marche, une question en moins : la valeur seule.**
 {python-valeur-case} (Seconde, 5.15, demande de Turquet, septembre 2026 :
 « il doit exécuter le programme pas à pas, dans le tableau à côté le nom de la
