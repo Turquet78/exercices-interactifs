@@ -2989,6 +2989,21 @@ de pouce, la cellule, « Exécuter » et la console, en tête et en gras.
 L'énoncé du haut dit l'exercice en une phrase, sans les puces. Le banc
 jsdom exige les trois puces dans le cadre, la cellule dans le même cadre,
 la graisse ≥ 700, et un énoncé du haut sans puce.
+**Puis le DESSIN de la fiche a ouvert l'écran** (demande de Turquet,
+octobre 2026 : « placer cette image en seconde dans l'exercice 6.3.1 au
+début ») : les deux serpents — « Comment tu t'appelles ? » / « Je mets ma
+réponse dans la variable nom. » — et la boîte « nom », la scène même de la
+définition. Découpé dans la capture, détouré (le fond crème relié aux
+bords rendu transparent, jamais l'intérieur des bulles), en WebP de 17 Ko
+(`PYN_IMG`, une URL `data:`, le motif de `PHM_IMG` au 6.5.3). Il vit dans
+son propre conteneur (`#pynFig`, `.pyn-fig`) AVANT la définition
+(`#pynAvant`) et l'énoncé (`#pynInstr`), au PREMIER écran seulement, comme
+la définition qu'il illustre — et comme le dessin du 6.3.3, fusionné le
+même jour sur la même demande : les questions suivantes rangent leur
+réponse dans une autre variable que « nom », le dessin y mentirait.
+Décoratif : rien de l'énoncé n'y est, et l'`alt` raconte la scène. Le banc
+jsdom exige le dessin (une `data:` avec son `alt`) devant la définition et
+devant l'énoncé à la question 1, et son absence à la question 2.
 
 ---
 
