@@ -2612,6 +2612,27 @@ noir plutôt qu'en vert — repérée à la dominante RENDUE, jamais à la class
 seule, la leçon de `docs/journal/08-verdicts-et-juges.md` retombée telle
 quelle sur un neuvième exercice.
 
+**Puis un dessin est venu EN TÊTE de l'exercice** (demande de Turquet,
+octobre 2026, APP_VERSION 306 — 305 pris sur `main` pendant les bancs, par trois autres dessins fusionnés en parallèle — : « placer cette image en seconde dans
+l'exercice 6.2.5 au début ») : le serpent au bonnet rasta qui dit « Moi là
+monté sur Python ! ». Il est fait comme ses quatre aînés du thème (`PKG_IMG`,
+`PDU_IMG`, `PVO_IMG`, `PHM_IMG`) : l'image reçue avait un fond BLANC opaque,
+elle a été détourée (remplissage depuis les bords, les blancs INTÉRIEURS — les
+yeux, la bulle — gardés), recadrée et passée en WebP (13 Ko, `PEV_IMG`, une URL
+`data:` — la page reste un seul fichier). Il est posé UNE fois dans `#pevFig`,
+premier enfant de la carte, AVANT le rappel de cours et la consigne — « au
+début » veut dire au début —, par `renderPEV()` qui ne le repose pas quand il y
+est déjà ; `.pev-img` le tient à 200 px et à 55 % de la largeur au plus, pour
+qu'il ne pousse pas le programme sous le pli sur un téléphone. Il est
+DÉCORATIF : son `alt` dit ce qu'il montre, rien de ce qu'il dit n'est à lire
+pour répondre. Le banc navigateur (« 6 tricies duodevicies ») le mesure RENDU,
+pas déclaré : l'image doit être décodée (`naturalWidth`), haute de plus de 100
+px à l'écran, servie en `data:` et posée avant la consigne — un `<img>` dont le
+fichier manquerait serait présent dans le DOM et invisible sur la page, c'est
+la règle 3 de `CLAUDE.md` sur un dessin. Éprouvé par sabotage : `PEV_IMG`
+remplacé par quatre octets de base64 — un seul contrôle rougit, celui-ci, et
+dit « non décodé » ; les 624 autres restent verts.
+
 **Puis échanger deux valeurs PAR LES LETTRES — un exercice différent de
 {python-echange-variables}, et le nom le dit.** {python-echange-par-lettres}
 (Seconde, 5.20, demande de Turquet, septembre 2026, sur un PDF transcrit :
@@ -2968,6 +2989,21 @@ de pouce, la cellule, « Exécuter » et la console, en tête et en gras.
 L'énoncé du haut dit l'exercice en une phrase, sans les puces. Le banc
 jsdom exige les trois puces dans le cadre, la cellule dans le même cadre,
 la graisse ≥ 700, et un énoncé du haut sans puce.
+**Puis le DESSIN de la fiche a ouvert l'écran** (demande de Turquet,
+octobre 2026 : « placer cette image en seconde dans l'exercice 6.3.1 au
+début ») : les deux serpents — « Comment tu t'appelles ? » / « Je mets ma
+réponse dans la variable nom. » — et la boîte « nom », la scène même de la
+définition. Découpé dans la capture, détouré (le fond crème relié aux
+bords rendu transparent, jamais l'intérieur des bulles), en WebP de 17 Ko
+(`PYN_IMG`, une URL `data:`, le motif de `PHM_IMG` au 6.5.3). Il vit dans
+son propre conteneur (`#pynFig`, `.pyn-fig`) AVANT la définition
+(`#pynAvant`) et l'énoncé (`#pynInstr`), au PREMIER écran seulement, comme
+la définition qu'il illustre — et comme le dessin du 6.3.3, fusionné le
+même jour sur la même demande : les questions suivantes rangent leur
+réponse dans une autre variable que « nom », le dessin y mentirait.
+Décoratif : rien de l'énoncé n'y est, et l'`alt` raconte la scène. Le banc
+jsdom exige le dessin (une `data:` avec son `alt`) devant la définition et
+devant l'énoncé à la question 1, et son absence à la question 2.
 
 ---
 
@@ -4187,6 +4223,17 @@ des chaînes. Le nom de variable entre guillemets (`print("h", …)`) recevait
 résultat de l'exemple » s'est déclenché par coïncidence sur `d // 100`
 (215 // 100 = 2, 215 % 100 = 15, les nombres de la fiche) : redondant avec
 « la même sortie pour deux durées », il est retiré.
+
+**Puis le serpent fatigué a ouvert le dessin** (APP_VERSION 306 — 305 pris sur `main` pendant les bancs —, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice 6.5.1
+au début »). L'image est un serpent en sueur, la langue pendante, qui dit
+« Je fatigue un peu là ! » : détourée, rognée à ses bords, WebP de 10 Ko
+(`PDU_IMG_FATIGUE`). « Au début » : elle se pose EN TÊTE du dessin de la
+fiche, à gauche des deux serpents, dans la même figure `.pdu-fig`, devenue une
+rangée centrée qui se replie sur un écran étroit — rien d'autre ne bouge,
+l'énoncé reste sous le dessin. Le contrôle jsdom de l'écran exige désormais
+DEUX images dans `#pduInstr`, la première de classe `.pdu-img-fatigue`, en
+`data:` et dont l'alt dit « fatigue » — avant les deux serpents.
 
 ## {python-input-evolution} — prix de départ, prix d'arrivée ou pourcentage d'évolution (6.5.2, Bonus : input)
 
