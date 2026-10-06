@@ -23837,11 +23837,20 @@ function pythonInputReponse(w, P){
   })()`, v => v === '');
 
   /* ---- 4. le trajet en entraînement ---- */
-  verifierEval(w, 'entraînement : a) la réponse vide n’est pas envoyée et ne rougit rien ; b) la liste et « Vérifier » restent fermés avant l’exécution, le type faux rougit et « str » s’écrit en vert ; c) la ligne vide ne rougit pas, la ligne juste est comptée — la note dit 1 case sur 2', `(function(){
+  verifierEval(w, 'entraînement : le dessin de la fiche (les deux serpents) ouvre le premier écran, avant la définition et l’énoncé, et s’efface avec elle à la question 2 ; a) la réponse vide n’est pas envoyée et ne rougit rien ; b) la liste et « Vérifier » restent fermés avant l’exécution, le type faux rougit et « str » s’écrit en vert ; c) la ligne vide ne rougit pas, la ligne juste est comptée — la note dit 1 case sur 2', `(function(){
     const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), NL=String.fromCharCode(10);
     currentEleve=currentEleve||{id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPYN();
+    /* le dessin de la fiche ouvre l'écran, avant la définition et l'énoncé — à la question 1… */
+    const fig=$("pynFig"), img=fig&&fig.querySelector("img.pyn-img");
+    if(!img||!/^data:image/.test(img.getAttribute("src")||"")||!img.getAttribute("alt")) vus.push("le dessin de la fiche manque en tête de l’exercice");
+    if(fig&&!(fig.compareDocumentPosition($("pynAvant")) & Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas avant la définition");
+    if(fig&&!(fig.compareDocumentPosition($("pynInstr")) & Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n’est pas avant l’énoncé");
+    if(!$("pynAvant")||!/input/.test($("pynAvant").textContent)) vus.push("la définition manque à la question 1");
     test.questions[1]={s:1, etape:"a", rep:"", bVu:false, typ:"", bOk:null, ligne:"", repC:""};
     test.idx=1; renderPYN();
+    /* …et plus à la question 2, où la variable n'est plus « nom » et la définition s'est tue */
+    if($("pynFig").querySelector("img.pyn-img")) vus.push("le dessin (« la variable nom ») reste à la question 2");
+    if($("pynAvant").textContent.trim()!=="") vus.push("la définition est redite à la question 2");
     if($("pynValidate")&&!$("pynValidate").disabled) vus.push("« Vérifier » est ouvert au a)");
     pynExecuterA();
     const e=$("pynEntree"); if(!e){ vus.push("aucune case dans la console après « Exécuter »"); return vus.join(" | "); }
@@ -26620,6 +26629,9 @@ function pythonInputDuree(w, P){
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const en=document.getElementById("pduInstr"), img=en&&en.querySelector("img.pdu-img");
     if(!en||!en.classList.contains("mp-instr")||!img||!/^data:image/.test(img.getAttribute("src")||"")) vus.push("l’écran n’a pas le dessin de la fiche");
+    /* le serpent fatigué (« Je fatigue un peu là ! ») ouvre le dessin, AVANT les deux serpents */
+    const imgs=en?en.querySelectorAll("img"):[], fat=imgs[0];
+    if(imgs.length!==2||!fat||!fat.classList.contains("pdu-img-fatigue")||!/^data:image/.test(fat.getAttribute("src")||"")||!/fatigue/i.test(fat.getAttribute("alt")||"")) vus.push("le serpent fatigué n’ouvre pas le dessin ("+imgs.length+" image(s))");
     if(document.querySelector("#scr-pdu .py-avant,#scr-pdu .pyp-regle,#scr-pdu .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pduEtape"), ti=et&&et.querySelector(".pyn-titre");
     if(!ti||net(ti.textContent)!=="✏️ Faire un programme qui demande une durée en minutes et qui affiche le résultat en heures et minutes.par exemple : si on rentre 135 min il doit afficher 2 heures et 15 minutes.") vus.push("l’énoncé de la question : "+JSON.stringify(ti&&net(ti.textContent)));
