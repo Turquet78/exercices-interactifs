@@ -10929,7 +10929,13 @@ async function parcours(page, N){
                  listes: host.querySelectorAll('select').length,
                  nom: nm ? nm.textContent.trim() : null,
                  case: ve ? ve.tagName : null,
-                 bilan: !!host.querySelector('.ppc-bilan') };
+                 bilan: !!host.querySelector('.ppc-bilan'),
+                 /* le dessin de la fiche : en TÊTE de la carte, réellement chargé (naturalWidth) */
+                 fig: (() => { const f = document.getElementById('ppcFig'), img = f && f.querySelector('img.ppc-img');
+                   return { premier: !!f && f.parentElement.firstElementChild === f,
+                            data: !!img && /^data:image/.test(img.getAttribute('src') || ''),
+                            charge: !!img && img.complete && img.naturalWidth > 0,
+                            large: img ? img.getBoundingClientRect().width : 0 }; })() };
       });
       if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
       if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
@@ -10940,6 +10946,15 @@ async function parcours(page, N){
       if(vu.bilan) dits.push('le bilan de la mémoire est affiché avant la fin du programme');
       verifier('la fiche épinglée (a = 10, b = 2, c = a+b) est rendue, avec le nom de la case ÉCRIT',
         !dits.length, dits.slice(0, 3).join(' | '));
+      /* 1 bis. LE DESSIN EN TÊTE DE L'ÉCRAN (demande de Turquet, octobre 2026) : premier
+         enfant de la carte, image embarquée, chargée, et visible (≥ 120 px de large) */
+      const fig = vu.fig, fd = [];
+      if(!fig.premier) fd.push('le dessin n\'est pas le premier élément de la carte');
+      if(!fig.data) fd.push('pas d\'image embarquée');
+      if(!fig.charge) fd.push('image non chargée');
+      if(!(fig.large >= 120)) fd.push('largeur ' + Math.round(fig.large) + ' px');
+      verifier('le dessin du serpent au champagne ouvre l\'écran : premier dans la carte, embarqué, chargé et visible',
+        !fd.length, fd.join(' | '));
       /* 2. LES DEUX LIGNES LITTÉRALES SE TAPENT ET SE JUGENT COMME AVANT */
       for(let k = 0; k < nL - 1; k++){
         await s.page.click('#ppc-val-' + k);
