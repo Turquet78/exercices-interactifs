@@ -3266,6 +3266,26 @@ version 264. Et la situation « deux notes → moyenne » de cet exercice est
 devenue « deux colis → masse totale » : la moyenne de deux notes EST
 l'exercice suivant.
 
+**Puis le dessin de la fiche est venu en tête (APP_VERSION 305, demande de
+Turquet, octobre 2026 : « placer cette image en seconde dans l'exercice
+6.3.6 au début »)** : le serpent qui lève les bras, tout content, sous trois
+feux d'artifice — l'illustration de l'exercice 7 du carnet. Même geste que
+pour les autres fiches du sous-thème ({python-input-prix}, {python-input-duree},
+{python-input-evolution}, {python-input-duree-secondes}) : le PNG reçu est
+DÉTOURÉ (les pixels quasi blancs reliés au bord deviennent transparents — le
+blanc des yeux, enfermé dans son trait, reste), ROGNÉ aux marges, puis
+converti en WebP de 20 Ko rangé dans la page (`PIS_IMG`, une URL `data:`).
+`pisDessinHTML()` l'écrit dans `#pisInstr`, DEVANT l'énoncé, à chaque
+question — comme {python-input-duree} écrit le sien dans `#pduInstr` —, avec
+`width`/`height` d'origine pour que la page ne saute pas au chargement, et
+un `alt` qui décrit la scène. Le cadre de cours (`pyAvant`, premier écran
+seulement) reste au-dessus : le dessin est en tête de l'EXERCICE, l'encadré
+de cours en tête de l'ÉCRAN, comme sur le 6.5.3. Décoratif : aucun juge, aucun
+contrôle propre ; la visite universelle du banc navigateur l'ouvre dans les
+deux modes, et le banc jsdom (`pythonInputSomme`) relit l'énoncé derrière le
+dessin sans rien y changer. Affiché à 200 px (55 % de l'écran au plus,
+`.pis-img`), comme ses voisins.
+
 **Puis la fiche « variable pas à pas » est revenue, et c'est sa SECONDE
 moitié qui a fait l'exercice.** {python-phrases-memoire} (Seconde, 6.2.8,
 demande de Turquet, octobre 2026 : « en seconde créer un exercice comme le
