@@ -4267,3 +4267,42 @@ voie « augmentation puis addition » refusée comme au 4.5.9, donnée inutile
 employée) ; l'aide (dessinée, reprise, masquée, « [schéma] »). **Ce qui ne
 l'est pas** : comme au 4.5.9, rien ne frappe une copie dans une vraie
 MathLive — les copies épinglées sont écrites comme `toPlain` les rend.
+
+**Puis l'aide schéma est devenue CELLE DU 4.5.9** (Turquet, octobre 2026 :
+« je souhaite que le bouton aide schéma fonctionne exactement comme le 4.5.9,
+avec les mêmes schémas et la même méthode de résolution »). Le schéma dessiné,
+avec ses « ? », se regardait et ne se résolvait pas. Désormais la question
+PASSE sur le schéma à cases de l'exercice qui pose la même question : le 4.5.4
+pour une valeur ou un pourcentage après UNE évolution (hausse, ancien prix,
+cantine, population, remise, taxe, taux — la flèche « ↑ −1 » et « C'est une
+hausse/baisse de … % » pour un pourcentage), le 4.1.8 pour une réduction en
+euros, le 4.1.9 pour une proportion de proportion (coefficient global et
+phrase de conclusion), le 4.5.5 pour deux évolutions (parenthèse « ± » LUE sur
+le coefficient global, conclusion « augmentation/diminution »). TVA puis
+remise et prix de départ — un PRIX après deux évolutions, que le 4.5.9 ne
+pose pas — prennent le schéma du 4.5.5 avec une case aux boîtes de départ et
+d'arrivée, comme celles du 4.5.4, et sans conclusion. Le schéma REMPLACE la
+rédaction, « Revenir à la rédaction » la rend tant qu'il n'a pas donné son
+verdict, brouillon et schéma rempli sont gardés (`q.brouillon`, `q.schema`),
+l'énoncé et les boîtes prennent les cadres du 4.1.13, la réponse est marquée
+« [schéma] » — tout comme au 4.5.9, et le soutien corrige en direct (« ppb »
+a quitté la liste des dispenses).
+
+**Ce qui n'a PAS été emprunté : les juges.** Le 4.5.9 déplace la zone de
+travail de l'écran d'origine et appelle son rendu et sa vérification ; ceux-ci
+lisent leurs cases par `parseInt` et leurs énoncés dans leurs propres tables.
+Les centimes (50,40 €), les dixièmes de pour cent (5,5 %) et les coefficients à
+trois ou quatre décimales (1,055 ; 1,08) n'y passent pas. Le 4.5.10 écrit donc
+ses schémas avec les MÊMES classes (`.pctb-*`, `.pctc-*`, `.evs-*`, `.evb-rev-*`)
+et juge chaque case en rationnels exacts (`ppbSchemaCases` : identifiant →
+`{n,d}`), toute écriture égale acceptée. Les quatre exercices d'origine n'ont
+pas bougé d'une ligne.
+
+**Ce qui est mesuré.** Le contrôle de l'aide (remplace la rédaction, aller-
+retour avec le schéma rempli gardé, reprise après pause, case jugée seule,
+« [schéma] », retour impossible après le verdict, signe lu sur le coefficient
+global, correction en direct du soutien) ; et **chaque situation se résout sur
+son schéma** : sur 25 tirages de chacune des treize, les valeurs attendues
+écrites dans les cases valent le point, la même copie à la dernière case
+faussée ne le vaut pas, les boîtes portent leurs cadres dans l'ordre et
+l'énoncé, cadres ôtés, est mot pour mot celui de la rédaction.
