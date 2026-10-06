@@ -2812,7 +2812,8 @@ programme que l'élève vient de modifier.
 
 **Puis un dessin en tête de l'exercice** (demande de Turquet, octobre 2026 :
 « placer cette image en seconde dans l'exercice 6.2.7 au début », APP_VERSION
-306 — la 305 prise par le 6.3.6 pendant les bancs, à la fusion de `main`) : un serpent perplexe devant un point d'interrogation, le motif des
+307 — la 305 prise par le 6.3.6 et la 306 par le 6.3.1 pendant les bancs, à deux
+fusions de `main`) : un serpent perplexe devant un point d'interrogation, le motif des
 fiches du 6.5 (`PKG_IMG`, `PDU_IMG`, `PVO_IMG`, `PHM_IMG`) repris tel quel —
 l'image fournie (PNG, 327 × 269) convertie en WebP (7 Ko, `PEL_IMG`, une URL
 `data:`), posée par `renderPEL` dans `#pelFig`, PREMIER enfant de la carte,
