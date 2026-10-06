@@ -2868,6 +2868,17 @@ console), Entrée la donne, et la page REJOUE le programme avec une réponse de
 plus — un programme sans hasard redonne la même chose jusque-là, et c'est ce
 qui évite d'écrire un interpréteur suspendable. Le bouton est libre, comme au
 {python-print} : la sortie est l'outil.
+**Le dessin de la fiche en tête** (demande de Turquet, octobre 2026 :
+« placer cette image en seconde dans l'exercice 6.3.2 au début ») : le
+serpent dans son hamac, entre deux palmiers, en WebP de 10 Ko (`PYI_IMG`,
+une URL `data:` — la page reste un fichier unique), le motif de `PII_IMG`
+au 6.3.3. Il ouvre l'exercice et vit avec la définition d'`input`
+(`pyiFigHTML`, dans `pyAvant`, sous la même condition `idx===0`) : au
+premier écran seulement, plus sur les questions suivantes. Sans texte,
+donc décoratif : `alt=""`, rien à lire pour un lecteur d'écran. Un
+`width`/`height` sur la balise réserve la place avant le décodage ; la
+largeur affichée (160 px, 50 % au plus) est celle d'une vignette. Aucun
+contrôle propre : la visite universelle ouvre l'écran dans les deux modes.
 **LE JUGE RÉPOND DEUX FOIS, AVEC DES RÉPONSES QUE L'ÉLÈVE NE CONNAÎT PAS** :
 `pyiDiag` exécute la copie avec deux jeux de réponses rangés dans la paire
 (`ex`). Le risque propre de l'exercice est la copie qui affiche les mots que
