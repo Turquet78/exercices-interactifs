@@ -3141,6 +3141,26 @@ d'être le DERNIER du sous-thème — une exigence qui casse au premier exercice
 suivant. Il exige désormais de SUIVRE {python-input-int}, l'ordre du carnet,
 et celui d'ici de suivre {python-input-calcul}.
 
+**Puis le dessin de la fiche est venu en tête** (demande de Turquet, octobre
+2026 : « placer cette image en seconde dans l'exercice 6.3.5 au début ») : les
+deux serpents — « Quelle est ta taille ? », « T'en n'as pas marre de poser des
+questions. » — et la boîte « taille ». Détouré, recadré, en WebP (18 Ko,
+`PIF_IMG`, une URL `data:`) : la page reste un fichier unique, comme pour les
+dessins du 6.3.9, du 6.5.1 et du 6.5.3. **L'écran est PARTAGÉ avec le 6.3.3**,
+et c'est le drapeau `f` de la question — pas le kind, pas `currentTestId` —
+qui écrit le dessin (`pifFigHTML`) : il voyage dans la pause, la reprise le
+retrouve, et le 6.3.3 ne le gagne pas. Il s'écrit dans un emplacement à lui
+(`#piiFig`), AVANT `#piiAvant` : la définition de la question 1 reste
+l'exception déclarée nulle part — le contrôle du banc navigateur qui veut la
+définition avant l'énoncé ne regarde que `.py-avant` et `.mp-instr`, et un
+dessin au-dessus des deux ne le dérange pas. « Au début » : à CHAQUE question,
+comme les dessins voisins, pas seulement à la première comme la définition —
+la question 2 est un autre contexte (un prix, une distance), mais la fiche
+garde son image. Contrôle (banc principal, {python-input-float}, section 5) :
+le dessin est une URL `data:`, avant la définition et avant l'énoncé, porte
+son texte de remplacement, reste à la question 2, et n'apparaît pas quand le
+6.3.3 démarre sur le même écran.
+
 
 ---
 
