@@ -11037,8 +11037,22 @@ async function parcours(page, N){
                  listes: host.querySelectorAll('select').length,
                  nom: nm ? nm.textContent.trim() : null,
                  case: ve ? ve.tagName : null,
-                 bilan: !!host.querySelector('.ppd-bilan') };
+                 bilan: !!host.querySelector('.ppd-bilan'),
+                 /* le dessin en tête (octobre 2026), la même mesure qu'au
+                    6.2.5 : RENDU — décodé, haut de plus de 100 px, posé AVANT
+                    la consigne — et jamais un chemin de fichier */
+                 fig: (() => {
+                   const img = document.querySelector('#scr-ppd img.ppd-img'), ins = document.querySelector('#scr-ppd .mp-instr');
+                   if(!img) return 'absent';
+                   if(!/^data:image\//.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
+                   if(!img.complete || !img.naturalWidth) return 'non décodé';
+                   const h = img.getBoundingClientRect().height;
+                   if(h < 100) return 'haut de ' + Math.round(h) + ' px';
+                   if(!ins || !(img.compareDocumentPosition(ins) & Node.DOCUMENT_POSITION_FOLLOWING)) return 'après la consigne';
+                   return 'ok';
+                 })() };
       });
+      if(vu.fig !== 'ok') dits.push('le dessin en tête de l\'exercice : ' + vu.fig);
       if(vu.cols !== 2 || !vu.aCote) dits.push('les deux colonnes ne sont pas côte à côte (' + vu.cols + ' colonne(s))');
       if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
       if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
@@ -11146,8 +11160,22 @@ async function parcours(page, N){
                  case: ve ? ve.tagName : null,
                  cases: host.querySelectorAll('input').length,
                  bilan: !!host.querySelector('.pev-bilan'),
-                 exp: !!document.getElementById('pev-exp') };
+                 exp: !!document.getElementById('pev-exp'),
+                 /* le dessin en tête (octobre 2026) : RENDU — décodé, haut de
+                    plus de 100 px, posé AVANT la consigne — et jamais un
+                    chemin de fichier, la page reste un seul fichier */
+                 fig: (() => {
+                   const img = document.querySelector('#scr-pev img.pev-img'), ins = document.querySelector('#scr-pev .mp-instr');
+                   if(!img) return 'absent';
+                   if(!/^data:image\//.test(img.getAttribute('src') || '')) return 'src ' + String(img.getAttribute('src')).slice(0, 30);
+                   if(!img.complete || !img.naturalWidth) return 'non décodé';
+                   const h = img.getBoundingClientRect().height;
+                   if(h < 100) return 'haut de ' + Math.round(h) + ' px';
+                   if(!ins || !(img.compareDocumentPosition(ins) & Node.DOCUMENT_POSITION_FOLLOWING)) return 'après la consigne';
+                   return 'ok';
+                 })() };
       });
+      if(vu.fig !== 'ok') dits.push('le dessin en tête de l\'exercice : ' + vu.fig);
       if(vu.lignes.length !== nL) dits.push(vu.lignes.length + ' ligne(s) de programme rendues au lieu de ' + nL);
       if(!A.fiche.prog.every((c, i) => (vu.lignes[i] || '').indexOf(c) >= 0))
         dits.push('le programme rendu : ' + JSON.stringify(vu.lignes));
