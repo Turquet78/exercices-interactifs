@@ -2847,6 +2847,17 @@ console), Entrée la donne, et la page REJOUE le programme avec une réponse de
 plus — un programme sans hasard redonne la même chose jusque-là, et c'est ce
 qui évite d'écrire un interpréteur suspendable. Le bouton est libre, comme au
 {python-print} : la sortie est l'outil.
+**Le dessin de la fiche en tête** (demande de Turquet, octobre 2026 :
+« placer cette image en seconde dans l'exercice 6.3.2 au début ») : le
+serpent dans son hamac, entre deux palmiers, en WebP de 10 Ko (`PYI_IMG`,
+une URL `data:` — la page reste un fichier unique), le motif de `PII_IMG`
+au 6.3.3. Il ouvre l'exercice et vit avec la définition d'`input`
+(`pyiFigHTML`, dans `pyAvant`, sous la même condition `idx===0`) : au
+premier écran seulement, plus sur les questions suivantes. Sans texte,
+donc décoratif : `alt=""`, rien à lire pour un lecteur d'écran. Un
+`width`/`height` sur la balise réserve la place avant le décodage ; la
+largeur affichée (160 px, 50 % au plus) est celle d'une vignette. Aucun
+contrôle propre : la visite universelle ouvre l'écran dans les deux modes.
 **LE JUGE RÉPOND DEUX FOIS, AVEC DES RÉPONSES QUE L'ÉLÈVE NE CONNAÎT PAS** :
 `pyiDiag` exécute la copie avec deux jeux de réponses rangés dans la paire
 (`ex`). Le risque propre de l'exercice est la copie qui affiche les mots que
@@ -4128,6 +4139,17 @@ replié : les deux premières étapes traduites (`A = 5`, `A = A * 3`), les
 suivantes en pointillés (`A = ...`, `print ( ... )`), à chasse fixe comme le
 carnet. Ajouté en dernier dans le sous-thème, il ne renumérote rien ; son
 contrôle exige de suivre {python-phrases-memoire}.
+
+**Puis le dessin de la fiche est venu en tête du 6.2.8.** {python-phrases-memoire}
+(Seconde, APP_VERSION 308, demande de Turquet, octobre 2026 : « placer cette
+image en seconde dans l'exercice 6.2.8 au début ») : le serpent qui note sur
+sa feuille, « Très bien, je le note. », découpé en WebP (11 Ko, `PPH_IMG`),
+comme les dessins des 6.3.9, 6.5.1, 6.5.2 et 6.5.3. « Au début » est pris au
+mot : un conteneur `#pphFig` ouvre la carte, AVANT le rappel de cours et la
+consigne, et le dessin s'y pose UNE fois (`pphEtiquetteHTML`, si le conteneur
+est vide) — `renderPPH` se rejoue à chaque ligne exécutée, et un dessin
+reconstruit à chaque étape aurait clignoté. Décoratif : il ne porte ni
+énoncé ni réponse, son `alt` le décrit, et il n'entre dans aucun juge.
 
 **CE QU'IL AJOUTE AU SOUS-THÈME est le geste inverse des pas à pas** : du 6.2.1
 au 6.2.8 l'élève LIT un programme et suit la mémoire ; ici il ÉCRIT le
