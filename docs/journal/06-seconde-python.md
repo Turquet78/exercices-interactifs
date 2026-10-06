@@ -1806,6 +1806,7 @@ page passe à **309**, deux crans au-dessus, pour laisser une marche aux
 branches voisines qui montent toutes d'un cran à la fois. La marche a servi : #511 (le
 6.2.8) a pris la 308 dans l'heure, quatrième reprise de `main`, 309 tient.
 Puis #520 et #526 ont pris la 309 : cinquième reprise, la page passe à **311**.
+Puis #528 et #529 (`main` à 310) : sixième reprise, 311 tient.
 
 **Puis la MÊME marche, une question en moins : la valeur seule.**
 {python-valeur-case} (Seconde, 5.15, demande de Turquet, septembre 2026 :
@@ -3280,6 +3281,23 @@ copies juste, fausse et vide, le soutien qui ne révèle rien, et les modèles
 comparés à un vrai CPython. Pas de section propre au banc navigateur : la
 visite universelle (section 9) l'ouvre dans les deux modes.
 
+**Puis le dessin est venu EN TÊTE** (APP_VERSION 310 — 305, 306 puis 307 pris sur `main` pendant les bancs, trois fois de suite : le contrôle exige « strictement plus grand », pas « +1 », et le saut laisse une marge aux branches voisines —, demande de Turquet,
+octobre 2026 : « placer cette image en seconde dans l'exercice 6.3.7 au
+début ») : deux serpents, « Comment ça va ? » — « C'est variable ! ». Le
+motif est celui du 6.5.1 et du 6.3.9 : l'image détourée (le blanc rendu
+transparent, recadrée sur son contenu), en WebP de 13 Ko, une URL `data:`
+dans une constante (`PMY_IMG`) — la page reste un seul fichier, et le
+`sw.js` n'a rien de plus à servir. « Au début » veut dire AVANT TOUT : le
+cadre `#pmyDessin` est le PREMIER enfant de la carte, devant le cours
+(`#pmyAvant`, qui ne paraît qu'à la première question) et devant l'énoncé ;
+`renderPMY` le remplit à CHAQUE question, comme l'étiquette du 6.3.9 — le
+dessin est celui de l'exercice, pas de sa première question. Le contrôle de
+l'écran (`pythonInputMoyenne`, section 4) exige le dessin : un `<img>` en
+`data:`, dont l'`alt` dit « variable », premier enfant de la carte, et qui
+précède l'énoncé. Sabotage : le `<div id="pmyDessin">` déplacé après
+`#pmyAvant` rougit (« le dessin n'est pas en tête du cadre »), l'`innerHTML`
+retiré du rendu rougit (« l'écran n'a pas le dessin des deux serpents »).
+
 ---
 
 **Deux nombres DÉCIMAUX, puis leur SOMME — l'exercice 7 du carnet.**
@@ -3372,6 +3390,30 @@ contrôle propre ; la visite universelle du banc navigateur l'ouvre dans les
 deux modes, et le banc jsdom (`pythonInputSomme`) relit l'énoncé derrière le
 dessin sans rien y changer. Affiché à 200 px (55 % de l'écran au plus,
 `.pis-img`), comme ses voisins.
+**Et le numéro a été pris trois fois le même jour — puis la course a été
+perdue deux fois, et abandonnée à bon droit.** La branche portait la Seconde
+de 304 à 305, et `npm run test:version` l'avait admis — `main` était encore
+à 304. Entre-temps, deux autres branches (le 6.3.3 et le 6.2.3, écrites en
+parallèle) ont fait le même pas et ont été fusionnées les premières :
+chaque fusion a pris le même « 305 », sans conflit de texte, puisque la
+ligne changeait à l'identique des trois côtés. `main` a donc publié trois
+changements sous un seul numéro, ce que la règle 4 interdit — le numéro de
+l'en-tête ne disait plus laquelle des trois pages était ouverte. Une branche
+de suite, refaite sur `main`, l'a porté à 306 ; le temps que ses contrôles
+tournent, deux autres fusions avaient pris 306, et son contrôle des
+versions a rougi — à juste titre. Refaite sur `main` à 307, elle a vu une
+quatrième fusion prendre 307 avant la sienne. Mais ce 307-là était SEUL sur
+`main` : le numéro courant était redevenu unique, et une page qui ne change
+pas n'a pas à changer de numéro. La branche de suite s'est donc réduite à ce
+paragraphe. Ce qu'il enseigne : le contrôle des versions ne voit `main`
+qu'au moment où il tourne, deux branches vertes en même temps restent
+aveugles l'une à l'autre, et c'est À LA FUSION qu'il faut relire le numéro
+(ce que le CLAUDE.md dit déjà : « se relit à chaque fusion de `main` ») —
+plusieurs sessions qui fusionnent la même heure dans le même fichier se
+marcheront toujours dessus, et courir après un numéro que d'autres prennent
+pendant que les bancs tournent coûte vingt minutes par tour pour rien.
+Les 305 et 306 publiés en triple ne se réparent pas : ces pages ne sont plus
+servies.
 
 **Puis la fiche « variable pas à pas » est revenue, et c'est sa SECONDE
 moitié qui a fait l'exercice.** {python-phrases-memoire} (Seconde, 6.2.8,
