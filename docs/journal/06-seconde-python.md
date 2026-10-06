@@ -3264,6 +3264,27 @@ d'être le DERNIER du sous-thème — une exigence qui casse au premier exercice
 suivant. Il exige désormais de SUIVRE {python-input-int}, l'ordre du carnet,
 et celui d'ici de suivre {python-input-calcul}.
 
+**Puis le dessin de la fiche est venu en tête** (demande de Turquet, octobre
+2026 : « placer cette image en seconde dans l'exercice 6.3.5 au début ») : les
+deux serpents — « Quelle est ta taille ? », « T'en n'as pas marre de poser des
+questions. » — et la boîte « taille ». Détouré (le fond blanc joint aux bords
+est vidé, le blanc des bulles et des yeux reste), recadré, en WebP (18 Ko,
+`PIF_IMG`, une URL `data:`) : la page reste un fichier unique. **Le 6.3.3 a
+reçu le sien le même jour, sur `main`, pendant les bancs de celui-ci** — et
+l'écran est PARTAGÉ : deux règles pour deux dessins du même écran auraient
+fait deux vérités. Le 6.3.5 suit donc la règle que le 6.3.3 a posée en
+premier : UNE fabrique, `piiFigHTML`, choisit le dessin selon le drapeau `f`
+de la question (jamais le kind, jamais `currentTestId` : il voyage dans la
+pause), et l'écrit dans `pyAvant`, au-dessus de la définition, au premier
+écran seulement — le dessin illustre la définition et vit avec elle, comme
+elle il ne se répète pas à la question 2. Mêmes classes (`.pii-fig`,
+`.pii-img`), même largeur de vignette ; `.pif-img` en plus, pour que le banc
+distingue les deux. Contrôle (banc principal, {python-input-float},
+section 5) : le dessin est une URL `data:` dans `#piiAvant`, avant la
+définition et avant l'énoncé, porte son texte de remplacement, ne se répète
+pas à la question 2, celui du 6.3.3 n'est pas là, et le sien n'apparaît pas
+quand le 6.3.3 démarre sur le même écran.
+
 
 ---
 
