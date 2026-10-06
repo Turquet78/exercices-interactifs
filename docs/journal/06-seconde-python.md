@@ -1805,6 +1805,7 @@ version était en conflit, 307 restait strictement au-dessus — jusqu'à ce que
 page passe à **309**, deux crans au-dessus, pour laisser une marche aux
 branches voisines qui montent toutes d'un cran à la fois. La marche a servi : #511 (le
 6.2.8) a pris la 308 dans l'heure, quatrième reprise de `main`, 309 tient.
+Puis #520 et #526 ont pris la 309 : cinquième reprise, la page passe à **311**.
 
 **Puis la MÊME marche, une question en moins : la valeur seule.**
 {python-valeur-case} (Seconde, 5.15, demande de Turquet, septembre 2026 :
