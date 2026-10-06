@@ -29094,6 +29094,16 @@ function pythonInputFloat(w, P){
     if(test.maxScore!==${NB * CASES}) vus.push("bareme "+test.maxScore);
     var def=document.querySelector("#scr-pii .pii-def");
     if(!def||def.textContent.indexOf("float(")<0) vus.push("la definition de la fiche 6 n\\u2019est pas sur l\\u2019ecran");
+    /* le dessin de la fiche (les deux serpents, « Quelle est ta taille ? »)
+       est en TETE : avant la definition et l'enonce, et il n'est qu'au 6.3.5 */
+    var fig=document.querySelector("#piiAvant img.pif-img"), en0=document.getElementById("piiInstr");
+    if(!fig||!/^data:image/.test(fig.getAttribute("src")||"")) vus.push("pas de dessin en tete du 6.3.5");
+    else{
+      if(document.querySelector("#scr-pii img.pii-img:not(.pif-img)")) vus.push("le dessin du 6.3.3 s\\u2019affiche aussi sur le 6.3.5");
+      if(!(fig.compareDocumentPosition(def)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n\\u2019est pas avant la definition");
+      if(!(fig.compareDocumentPosition(en0)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n\\u2019est pas avant l\\u2019enonce");
+      if(!/taille/.test(fig.getAttribute("alt")||"")) vus.push("le dessin n\\u2019a pas de texte de remplacement");
+    }
     piiExecA(); entree("piiConsAIn","1,65");
     if(!document.getElementById("piiConsA").classList.contains("pyx-err")) vus.push("1,65 ne recoit pas l\\u2019erreur de float");
     if(document.getElementById("piiB")) vus.push("une reponse refusee par float ouvre le b)");
@@ -29120,7 +29130,13 @@ function pythonInputFloat(w, P){
     demarrer("train"); var qs=JSON.parse(JSON.stringify(test.questions)); test.questions=qs; test.idx=0;
     if(!afficherEcranDe("pii")||document.querySelector("#scr-pii .pii-def").textContent.indexOf("float(")<0) vus.push("la reprise perd l\\u2019identite du float");
     /* la definition s'ecrit une seule fois par exercice : a la question 1 seulement */
-    test.idx=1; afficherEcranDe("pii"); if(document.querySelector("#scr-pii .pii-def")) vus.push("la definition est repetee a la question 2"); test.idx=0;
+    test.idx=1; afficherEcranDe("pii"); if(document.querySelector("#scr-pii .pii-def")) vus.push("la definition est repetee a la question 2");
+    /* le dessin vit avec la definition : il ne se repete pas non plus */
+    if(document.querySelector("#scr-pii img.pif-img")) vus.push("le dessin est repete a la question 2"); test.idx=0;
+    /* le 6.3.3 partage l'ecran : il ne gagne pas le dessin du 6.3.5 */
+    currentTestId="python-input-int"; startPII();
+    if(document.querySelector("#scr-pii img.pif-img")) vus.push("le dessin du 6.3.5 s\\u2019affiche sur le 6.3.3");
+    demarrer("train");
     var c=ctxPii(test.questions[0]).contexte; if(c.indexOf("float(input(")<0||c.indexOf("SECR\\u00c8TES")<0) vus.push("le contexte du modele");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
