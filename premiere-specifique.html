@@ -48,8 +48,14 @@
   :root{
     --paper:#F7F6F1; --grid:#CBD8EC; --ink:#1E2A4A; --ink-soft:#5C668A;
     --blue:#2B50C8; --blue-dark:#1E3CA0;
-    --green:#1FA971; --green-soft:#E4F5EE;
-    --red:#E23D52; --red-soft:#FCE7EA;
+    /* Vert et rouge assombris (audit d'octobre 2026, A1) : #1FA971 et #E23D52
+       ne faisaient que 3,0 et 4,2 sur blanc, sous le seuil AA de 4,5 pour du
+       texte. Mêmes dominantes (le banc « 9 bis » les classe toujours vert et
+       rouge), reprises des pastilles .badge.hi / .badge.lo : #157A52 = 5,3 sur
+       blanc, 4,9 sur le papier, 4,7 sur --green-soft ; #BF2C3E = 5,8 / 5,3 /
+       4,9 sur --red-soft. */
+    --green:#157A52; --green-soft:#E4F5EE;
+    --red:#BF2C3E; --red-soft:#FCE7EA;
     --gold:#F2A93B;
     --pdt-fl:#7C3AED;
     --slate:#2E4039; --slate-2:#26352D; --chalk:#F4F3EC; --chalk-soft:#AFC0B5;
@@ -755,7 +761,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .qia-illu .qi-as{stroke:#E23D52;stroke-width:1.7;stroke-dasharray:6 4;fill:none;}
 .qia-illu .qi-gd{stroke:#8A93B4;stroke-width:1.1;stroke-dasharray:3 3;fill:none;}
 .qia-illu .qi-tx{font-size:12.5px;font-weight:700;fill:#1E2A4A;}
-.qia-illu .qi-tr{font-size:12.5px;font-weight:800;fill:#E23D52;}
+.qia-illu .qi-tr{font-size:12.5px;font-weight:800;fill:#BF2C3E;}
 .qia-illu .qi-tb{font-size:12.5px;font-weight:800;fill:#2B50C8;}
 .qia-illu .qi-pt{fill:#2B50C8;stroke:#fff;stroke-width:1.4;}
 .qia-illu .qi-po{fill:#FFFFFF;stroke:#2B50C8;stroke-width:2;}
