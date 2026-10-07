@@ -117,3 +117,20 @@ démarrage — passe par `accueil()`, un seul entonnoir : trois chemins séparé
 auraient fini par diverger, comme l'ont fait la réserve du bas et `testScreens`.
 
 ---
+
+**Le portail, trois corrections de l'audit d'octobre 2026 (T6, T7, A8).** Une
+faute de frappe, `color:varA(--encre-douce)`, faisait ignorer la couleur de
+« Lycée · Mathématiques », qui prenait l'encre pleine : `var(…)`. La table de
+REPLI des numéros d'exercices (`DM_CFG`, `exos`) était restée à l'ancienne
+numérotation — 8 écarts en Seconde (ensembles 1.1 → 2.1, pourcentage 3.1 →
+4.1.3…), 12 en Terminale (derivee-exp 2.1 → 2.1.1, recurrence-complete 6.5 →
+6.2.3…). La carte publiée par l'application (`valeurs.exos`, écrite par
+`carteExercices()`) prime ; le repli ne sert qu'aux devoirs enregistrés avant
+elle — mais un devoir de ce temps-là affichait le mauvais numéro. Les trois
+tables sont désormais la COPIE de `carteExercices()` lue dans jsdom sur les
+trois pages (159, 57 et 50 exercices), régénérées par une sonde, jamais à la
+main ; le commentaire du portail le dit. L'orange de la Première `#b06a12`
+(4,20 sur la carte) devient `#94590d` : 5,6 sur la carte, 4,9 sur le papier,
+4,6 sur la pastille teintée. L'étiquette « Mathématiques » des fiches (`.tag`,
+11,5 px) et les badges (« Bientôt disponible », « Devoir n° », 11,2 px)
+passent à 12 px. Mesuré dans Chromium à 380 px : plus aucun texte sous 12 px.

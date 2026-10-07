@@ -640,6 +640,12 @@ module.exports = {
        liste historique qui recopie les exercices. */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
               ordre: true, sur20: true, compacte: true },
+    /* Aucun écran d'exercice de la Première ne pose de tableau dans une
+       enveloppe qui défile (audit d'octobre 2026, A7) : le contrôle universel
+       du banc navigateur (§ 9) n'y a rien à mesurer, et le DIT plutôt que de
+       passer. Si un tableau défilant apparaît, ce champ devient faux et le
+       banc rougit : retire-le alors. */
+    defilants: { aucun: 'aucun tableau défilant dans les exercices de la Première' },
     lacunes: [],
   },
 

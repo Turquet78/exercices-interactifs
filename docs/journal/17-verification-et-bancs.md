@@ -177,3 +177,21 @@ dire « long ». Le seuil de 100 000 caractères laissait passer le fichier coup
 au quart, qui pèse le double. La lecture exige donc aussi que `node --check`
 relise le module jusqu'au bout — éprouvé sur un fichier coupé à 196 340 et à
 50 000 caractères : les deux sont retéléchargés.
+
+**Les contrôles des « mineures » techniques et d'accessibilité (octobre 2026).**
+La course sur le cache MathLive (T4) était déjà réglée (`tests/mathlive-cache.js`,
+paragraphe précédent). Ce qui s'ajoute : au banc principal, la structure de la
+page (`<html lang="fr">`, `<meta charset>` dans les 1 024 premiers octets,
+`<head>`/`<body>` écrits), le code de connexion masqué sans être un mot de
+passe, et les conteneurs du verdict, du score et du « Bravo » dans une région
+`aria-live` (lu sur la page chargée, toutes familles confondues). Au banc
+navigateur, § 1 : la page ouverte en `file://` se lit en UTF-8, en français, en
+mode standard, et `#loginPin` est masqué ; § 5 : à 390 px les commandes du bas
+tiennent sur une ligne, en libellés courts, cibles de 24 px au moins ; § 9,
+greffés sur la visite de tous les exercices : les textes des graphiques à
+12 px au moins (un indice d'étiquette de 14 px ou plus à 10), aucune
+graduation sous le nom d'une courbe, toute enveloppe défilante d'un tableau
+focusable. Les deux contrôles universels qui pourraient n'avoir rien à mesurer
+le DISENT (« le contrôle ne mesure rien ») ; la Première, sans tableau
+défilant, se déclare dans `tests/profils.js` (`defilants.aucun`), et la
+déclaration rougit le jour où elle devient fausse.

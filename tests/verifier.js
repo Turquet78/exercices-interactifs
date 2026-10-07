@@ -204,6 +204,27 @@ function structure(){
   /* sans lui, le navigateur passe en mode quirks et la mise en page casse sur mobile */
   verifier('<!DOCTYPE html> en première ligne', /^<!DOCTYPE html>/i.test(s));
 
+  /* LA LANGUE ET L'ENCODAGE SONT DÉCLARÉS, et l'encodage assez tôt (audit
+     d'octobre 2026, T5). Sans <html lang="fr">, un lecteur d'écran lit le
+     français avec la voix de sa langue par défaut ; un <meta charset> au-delà
+     des 1 024 premiers octets n'est plus garanti d'être lu avant que le
+     navigateur ne devine l'encodage — en ligne l'en-tête HTTP rattrape, ouverte
+     depuis le disque la page peut s'afficher en caractères brouillés. Les
+     balises <head> et <body> écrites rendent la frontière visible : ce qui est
+     au-dessus de </head> est de l'en-tête, et rien d'autre. */
+  {
+    const octets = Buffer.from(s, 'utf8');
+    const posCharset = octets.indexOf(Buffer.from('<meta charset="utf-8">'));
+    const manque = [];
+    if(!/^<!DOCTYPE html>\r?\n<html lang="fr">/i.test(s)) manque.push('<html lang="fr"> juste après le DOCTYPE');
+    if(!/^<!DOCTYPE html>\r?\n<html lang="fr">\r?\n<head>\r?\n<meta charset="utf-8">/i.test(s)) manque.push('<head> puis <meta charset="utf-8"> en tête');
+    if(posCharset < 0 || posCharset + 22 > 1024) manque.push('<meta charset> à l’octet ' + posCharset + ' (au-delà des 1 024 premiers)');
+    if((s.match(/^<\/head>$/mg) || []).length !== 1 || (s.match(/^<body>$/mg) || []).length !== 1) manque.push('une ligne </head> et une ligne <body>, une fois chacune');
+    if(!/<\/body>\r?\n<\/html>\s*$/.test(s)) manque.push('</body></html> en fin de fichier');
+    verifier('la page déclare sa langue et son encodage dans les 1 024 premiers octets, et écrit <head> et <body>',
+      manque.length === 0, manque.join(' | '));
+  }
+
   /* Supabase renvoie ses erreurs sans lever d'exception : tout appel doit les
      examiner. Deux façons de passer à côté, et le banc ne voyait que la
      première — l'insertion de la note de fin de test échappait au compte. */
@@ -779,6 +800,24 @@ function structure(){
     champs.length !== 3 ? champs.length + ' champ(s) trouvé(s) au lieu de 3'
                         : 'trop court(s) : ' + troples.join(', '));
 
+  /* LE CODE DE CONNEXION SE TAPE MASQUÉ (audit d'octobre 2026, T10) — en
+     classe, il s'affichait sur l'écran du voisin. Et masqué par la feuille de
+     styles, PAS par type="password" : le formulaire de l'élève n'offre aucun
+     identifiant (le prénom est un bouton), Chrome irait le chercher ailleurs
+     et proposerait d'enregistrer le code d'un élève sur un poste partagé (le
+     piège « Sans balise <form> »). Les deux bords : masqué, et pas en
+     password ; le pavé numérique, lui, ne s'attache qu'aux cases numeric. */
+  {
+    const pin = (s.match(/<input[^>]*id="loginPin"[^>]*>/) || [''])[0];
+    const regle = /#loginPin\{[^}]*-webkit-text-security:\s*disc/.test(s);
+    verifier('le code de connexion se tape masqué, sans devenir un mot de passe pour le navigateur',
+      !!pin && regle && !/type="password"/.test(pin) && /inputmode="numeric"/.test(pin),
+      !pin ? 'aucun champ loginPin'
+        : !regle ? 'aucune règle « #loginPin{-webkit-text-security:disc} » : le code s’affiche en clair'
+        : /type="password"/.test(pin) ? 'loginPin est en type="password" : Chrome proposera d’enregistrer le code'
+        : 'loginPin a perdu inputmode="numeric" : le pavé numérique ne s’y attache plus');
+  }
+
   /* L'ÉLÈVE DOIT ÊTRE PRÉVENU DE NOTER SON CODE, AUX DEUX ENDROITS où il s'en
      donne un : la création de compte, et le changement imposé après un code
      provisoire (décision de Turquet, août 2026). N'en couvrir qu'un seul ne
@@ -1166,6 +1205,20 @@ function branchements(w){
   } else {
     ignorer('un refus de la base nomme la session remplacée, une autre erreur reste brute', 'ce niveau n\'a pas dmRaison()');
   }
+  /* LE VERDICT, LE SCORE ET LE « BRAVO » SONT ANNONCÉS (audit d'octobre 2026,
+     A6) : chacun vit dans une région aria-live, sans quoi un lecteur d'écran
+     ne dit rien quand la case rougit ou que la note tombe. Lu sur la page
+     CHARGÉE — le script #annonces pose l'attribut à l'ouverture —, et sur
+     toutes les familles de conteneurs : une famille ajoutée demain sous l'un
+     de ces noms est couverte sans rien déclarer. */
+  verifierEval(w, 'le verdict, le score et le « Bravo » sont annoncés aux lecteurs d’écran', `(function(){
+    const sel='.score-tag, .mp-feedback, .lv-feedback, .def-feedback, #resultMsg, #resultScore, [id$="LiveScore"], #liveScore';
+    const tous=Array.from(document.querySelectorAll(sel));
+    if(tous.length<3) return 'seulement '+tous.length+' conteneur(s) trouvé(s) : le contrôle ne mesure plus rien';
+    const muets=tous.filter(function(e){ return !e.closest('[aria-live]'); })
+      .map(function(e){ return e.id ? '#'+e.id : '.'+String(e.className).split(/\\s+/)[0]; });
+    return muets.length ? muets.length+' muet(s) : '+Array.from(new Set(muets)).slice(0,6).join(', ') : '';
+  })()`, v => v === '', undefined);
   verifierEval(w, 'le gestionnaire de mots de passe ne peut pas déborder sur un exercice', `(function(){
     const vus=[];
     const mdp=Array.from(document.querySelectorAll('input[type=password]'));

@@ -1457,3 +1457,56 @@ les `select.tvi-sel` de la Terminale, les cases de la Première et les
 `math-field` hors `rc-mf` restent sans nom (élargir `CASES_A_NOMMER`) ;
 MathLive ne propage pas le nom à son `.ML__keyboard-sink`.
 
+
+**Les « mineures » techniques et d'accessibilité de l'audit (octobre 2026).**
+La STRUCTURE des trois pages : elles n'avaient ni `<html>`, ni `<head>`, ni
+`<body>` (le navigateur les synthétisait), et leur `<meta charset>` tombait
+vers le 1 300ᵉ octet — au-delà des 1 024 où il est garanti d'être lu avant que
+le navigateur ne devine l'encodage ; en ligne l'en-tête HTTP rattrapait, une
+page ouverte depuis le disque pouvait s'afficher brouillée. Elles s'ouvrent
+désormais sur `<!DOCTYPE html>`, `<html lang="fr">`, `<head>`, `<meta
+charset="utf-8">` (octet 40), puis les commentaires d'en-tête ; `</head>` suit
+la feuille de styles, `<body>` précède `.wrap`, `</body></html>` ferment. La
+langue posée par script au premier `<script>` (`document.documentElement.lang`)
+est RETIRÉE : la balise la donne avant toute analyse, y compris dans le double
+jsdom (le `<html>` qui suit le substitut du harnais fusionne ses attributs).
+Tenu par « la page déclare sa langue et son encodage… » (`tests/verifier.js`,
+§ 1) et, au navigateur, par une page ouverte en `file://` lue en UTF-8, en
+français et en mode standard.
+Les COMMANDES DU BAS sur un téléphone : à 380 px, « Signaler un problème /
+Abandonner / Mettre en pause » montaient à trois lignes en Terminale (76 px
+couverts en permanence) et deux en Seconde et Première (59 px) — les libellés
+courts `tc-court` n'y servaient qu'à la tablette couchée. La Terminale reçoit
+le balisage de la Seconde (deux libellés, `aria-label` et `title` complets),
+et les trois pages une règle `@media (max-width:480px)` : libellés courts,
+une rangée de 36 px. Tenu au § 5 du banc navigateur.
+Les TEXTES DES GRAPHIQUES passent à 12 px au moins : graduations `sv-ax`,
+`lv-ax`, `tg-ax`, `svq-ax`, `lr-num` (10 à 11 px), `small` du « n→+∞ »
+(`max(12px,.5em)`), indices à 9 px des étiquettes « Uₙ » et « d₁ » (11 px, leur
+étiquette à 15). Les indices des NOMS DE COURBE (« Cf », « Cg ») gardent 10-11 px :
+la boîte de ces étiquettes est MESURÉE à l'encre (`ETQ_*`), un indice plus
+grand la ferait mentir. Mesuré à 1 280 px sur toutes les visites : 42 écrans
+de la Terminale et 44 de la Seconde avaient un texte de graphique sous 12 px,
+aucun après ; aucune graduation ne s'est mise à en chevaucher une autre. Mais
+plus grandes, elles ont touché quelquefois le nom de la courbe posé par un
+placement qui ne les connaît pas (1 à 2 dessins sur ~370 par visite, aucun
+avant) : le script `#graduations` fait TAIRE la graduation numérique qui
+recouvre une étiquette de courbe (la grille régulière la redonne ; les bords
+±∞ et les asymptotes ne se taisent jamais), mesuré à l'encre — sans mise en
+page, jsdom, rien ne bouge. À 380 px les dessins sont réduits par leur
+`viewBox` : 12 px déclarés s'y rendent 6 à 9 px, et aucune taille de police n'y
+peut rien — c'est la largeur du dessin qu'il faudrait revoir. Les exposants de
+MathLive (11,2 à 11,8 px) sont hors de portée de la page.
+L'ANNONCE aux lecteurs d'écran (A6) : `aria-live` couvrait les `.mp-feedback` ;
+le script `#annonces` le pose, à l'ouverture, sur le score en direct
+(`.score-tag`, `aria-atomic` : « Cases justes 3 » et non « 3 »), l'écran de fin
+(« Bravo ! » et la note) et les verdicts `.lv-feedback`/`.def-feedback` de la
+Seconde — 113 scores muets en Seconde, 37 en Première, 43 en Terminale.
+LES TABLEAUX QUI DÉFILENT (A7) : le script `#defilants` lit dans la feuille de
+styles toute règle qui fait défiler (`overflow` auto ou scroll) et rend
+l'enveloppe d'un tableau (parent ou grand-parent) focusable, `role="region"`,
+nommée — aucune liste écrite à la main, une enveloppe ajoutée demain est
+couverte. 12 exercices de la Terminale (`.lv-tblwrap`) ; `#tveTable`, `#tvfTable`,
+`.lv-tblwrap`, `.tdc-wrap`, `.pap-wrap` en Seconde. Contrôles universels du
+§ 9 du banc navigateur ; la Première, sans tableau défilant, le DÉCLARE
+(`defilants.aucun`, tests/profils.js).

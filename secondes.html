@@ -1,17 +1,16 @@
 <!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<!-- La langue et l'encodage d'abord : <meta charset> doit tenir dans les 1 024
+     premiers octets, sans quoi une page ouverte depuis le disque peut être mal
+     décodée (audit d'octobre 2026, T5). Rien ne se glisse avant lui. -->
 <!-- Calcul mental — version "comptes à l'année" (base de données Supabase). -->
 <!-- ========================================================================= -->
 <!--  ⚙️  À CONFIGURER : remplace les 3 valeurs ci-dessous (voir le guide).     -->
 <!--      Elles se trouvent dans Supabase > Project Settings > API.            -->
 <!-- ========================================================================= -->
 <script>
-  /* LA LANGUE DE LA PAGE (audit d'octobre 2026, A6/T5). La page n'a pas de
-     balise <html> — le navigateur la synthétise —, donc pas d'attribut lang :
-     un lecteur d'écran lisait le français avec la voix de sa langue par
-     défaut, et la césure comme les correcteurs ne savaient pas quelle
-     langue appliquer. Posée ici, au premier script, elle vaut avant tout
-     le reste de l'analyse. */
-  document.documentElement.lang='fr';
   const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← projet Supabase (partagé avec la terminale ; la Seconde utilise des tables séparées « _2nde »)
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";              // ← clé "anon public" du projet
   const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";   // ← l'adresse du compte Supabase du professeur
@@ -23,7 +22,6 @@
 </script>
 <!-- ========================================================================= -->
 
-<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maths Seconde — comptes de la classe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -281,6 +279,13 @@
   .chip:hover{border-color:#cdd3e0}
   .chip.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
   .pin-input{width:170px;text-align:center;letter-spacing:.4em;font-family:"Fredoka";font-weight:600;font-size:1.5rem;border:1.5px solid var(--line);border-radius:13px;padding:11px 12px;background:#fff;color:var(--ink)}
+  /* Le code de l'élève se tape MASQUÉ (audit d'octobre 2026, T10) : en classe, il
+     s'affichait en clair sur l'écran du voisin. Masqué par la feuille de styles
+     et non par type="password" : le formulaire de connexion n'a pas
+     d'identifiant (le prénom est un bouton), Chrome irait en chercher un
+     ailleurs et proposerait d'ENREGISTRER le code d'un élève sur un poste
+     partagé — le piège « Sans balise <form> » du journal 11. */
+  #loginPin{-webkit-text-security:disc}
 
   .hello{font-family:"Fredoka";font-weight:600;font-size:1.7rem;margin:0 0 2px}
   .stats{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap}
@@ -2600,7 +2605,7 @@
 .sv-card{max-width:560px;margin:0 auto;}
 .sv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .sv-svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;}
-.sv-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
+.sv-ax{font-family:'Nunito',sans-serif;font-size:12px;fill:var(--ink-soft);}
 .sv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:16px;fill:var(--green);}
 .sv-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
 .sv-tables{display:flex;flex-direction:column;gap:14px;margin:0 0 2px;}
@@ -2616,7 +2621,7 @@
 .tg-card{max-width:600px;margin:0 auto;}
 .tg-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .tg-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
-.tg-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
+.tg-ax{font-family:'Nunito',sans-serif;font-size:12px;fill:var(--ink-soft);}
 .tg-albl{font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;fill:var(--ink);}
 .tg-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
 .tg-tan{fill:none;stroke:var(--ink-soft);stroke-width:1.7;stroke-dasharray:6 4;stroke-linecap:round;}
@@ -2705,7 +2710,7 @@
     .lv-grid{stroke:var(--grid);stroke-width:1}
     .lv-axis{stroke:var(--ink-soft);stroke-width:1.4}
     .lv-axfill{fill:var(--ink-soft)}
-    .lv-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft)}
+    .lv-ax{font-family:'Nunito',sans-serif;font-size:12px;fill:var(--ink-soft)}
     .lv-curve{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
     .lv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:15px;fill:var(--blue)}
     .lv-tblwrap{overflow-x:auto;margin:0 0 4px}
@@ -2792,6 +2797,18 @@
 body.pave-actif #testCtrls{bottom:6px;right:8px}
 body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
+/* SUR UN TÉLÉPHONE EN PORTRAIT, les commandes du bas prennent leurs libellés
+   COURTS (audit d'octobre 2026, T12) : à 380 px, « Signaler un problème »,
+   « Abandonner » et « Mettre en pause » s'écrivaient sur deux ou trois lignes
+   et couvraient en permanence le bas de l'exercice (76 px de haut en
+   Terminale, 59 en Seconde et en Première). Le nom complet reste dans
+   aria-label et title. Le contrôle : banc navigateur, § 5. */
+@media (max-width:480px){
+  #testCtrls{gap:6px;right:8px}
+  #testCtrls button{padding:9px 12px;font-size:.85rem}
+  #testCtrls .tc-long{display:none}
+  #testCtrls .tc-court{display:inline}
+}
 @media (orientation:landscape){
   body.pave-actif #testCtrls{bottom:12px;gap:6px}
   body.pave-actif #testCtrls button{padding:7px 10px;font-size:.8rem}
@@ -3155,8 +3172,13 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #fpHost .fp-col{height:510px}
 /* 3.1.5 : dix parts ; à 260 px, traits compris, la plus basse en gardait 23,7. */
 @media(max-width:520px){ #pcHost .fp-col{height:270px} }
+/* L'enveloppe d'un tableau qui défile reçoit le focus (A7, script #defilants) :
+   elle montre qu'elle l'a. */
+[data-defile]:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 </style>
+</head>
 
+<body>
 <div class="wrap">
   <header class="mast">
     <div class="logo">ƒ</div>
@@ -52238,3 +52260,127 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',demarrer); else demarrer();
 })();
 </script>
+<script id="defilants">
+/* LES TABLEAUX QUI DÉFILENT SE PRENNENT AU CLAVIER (audit d'octobre 2026, A7).
+   Sur un téléphone, un tableau de variation déborde de sa carte et défile
+   dans son enveloppe (overflow-x:auto) ; sans tabindex, l'enveloppe n'était
+   pas atteignable au clavier, et la partie droite du tableau restait hors de
+   portée de qui n'a ni souris ni doigt. Les enveloppes se LISENT dans la
+   feuille de styles — toute règle qui fait défiler —, jamais dans une liste
+   écrite à la main : une enveloppe ajoutée demain est couverte sans rien
+   déclarer. Celle qui entoure un tableau (parent ou grand-parent) devient
+   focusable, région nommée. Contrôle : banc navigateur, § 9. */
+(function(){
+  let SEL=null;
+  function selecteur(){
+    const vus=[];
+    function lire(regles){
+      Array.prototype.forEach.call(regles||[], function(r){
+        try{
+          if(r.style && r.selectorText){
+            const o=(r.style.getPropertyValue('overflow-x')||'')+' '+(r.style.getPropertyValue('overflow')||'');
+            if(/\b(auto|scroll)\b/.test(o)) r.selectorText.split(',').forEach(function(x){
+              x=x.trim(); if(!x || vus.indexOf(x)>=0) return;
+              try{ document.querySelector(x); vus.push(x); }catch(e){} });
+          }
+          if(r.cssRules && r.cssRules.length) lire(r.cssRules);   /* @media, et règles imbriquées */
+        }catch(e){}
+      });
+    }
+    Array.prototype.forEach.call(document.styleSheets, function(f){ try{ lire(f.cssRules); }catch(e){} });
+    return vus.join(',');
+  }
+  function defile(e){
+    if(SEL && e.matches(SEL)) return true;
+    const o=(e.style && (e.style.overflowX || e.style.overflow)) || '';
+    return /\b(auto|scroll)\b/.test(o);
+  }
+  function marquer(){
+    if(SEL===null) SEL=selecteur();
+    document.querySelectorAll('table').forEach(function(t){
+      let e=t.parentElement;
+      for(let k=0;k<2 && e && e!==document.body;k++,e=e.parentElement){
+        if(!defile(e)) continue;
+        if(!e.hasAttribute('data-defile')){
+          e.setAttribute('data-defile','');
+          if(!e.hasAttribute('tabindex')) e.tabIndex=0;
+          if(!e.hasAttribute('role')) e.setAttribute('role','region');
+          if(!e.hasAttribute('aria-label') && !e.hasAttribute('aria-labelledby'))
+            e.setAttribute('aria-label','Tableau, défilement horizontal');
+        }
+        break;
+      }
+    });
+  }
+  let prevu=false;
+  function bientot(){ if(prevu) return; prevu=true; setTimeout(function(){ prevu=false; marquer(); },60); }
+  function demarrer(){
+    marquer();
+    try{ new MutationObserver(bientot).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',demarrer); else demarrer();
+})();
+</script>
+<script id="graduations">
+/* UNE GRADUATION CÈDE LA PLACE AU NOM DE LA COURBE (audit d'octobre 2026, A5).
+   Les graduations sont passées de 10 à 12 px — sur un téléphone elles sont
+   le support même de la lecture graphique. Plus grandes, elles ont fini par
+   toucher, sur quelques dessins, l'étiquette « Cf » posée par un placement qui
+   ne les connaît pas (1 à 2 dessins sur ~370 par visite complète). La
+   graduation numérique qui recouvre une étiquette de courbe se tait : la
+   grille est régulière, ses voisines la redonnent, alors qu'une étiquette
+   masquée ne se devine pas. Les bords ±∞ et les asymptotes ne se taisent
+   jamais. Mesuré à l'encre rendue (getBBox) : sans mise en page — jsdom —,
+   rien ne bouge. Contrôle : banc navigateur, § 9. */
+(function(){
+  const ETIQ=/(^|\s)(sv-cf|lv-cf|eqg-cg)(\s|$)/, GRAD=/(^|\s)([a-z0-9]+-ax|lr-num)(\s|$)/, NOMBRE=/^[−-]?\d+([,.]\d+)?$/;
+  function boite(t){ try{ const r=t.getBoundingClientRect(); return (r.width>0&&r.height>0)?r:null; }catch(e){ return null; } }
+  function ceder(){
+    document.querySelectorAll('svg').forEach(function(svg){
+      const etiq=[], grad=[];
+      svg.querySelectorAll('text').forEach(function(t){
+        const c=t.getAttribute('class')||'';
+        if(ETIQ.test(c)) etiq.push(t);
+        else if(GRAD.test(c) && NOMBRE.test((t.textContent||'').trim()) && !t.hasAttribute('data-cede')) grad.push(t);
+      });
+      if(!etiq.length || !grad.length) return;
+      const be=etiq.map(boite).filter(Boolean); if(!be.length) return;
+      grad.forEach(function(t){
+        const b=boite(t); if(!b) return;
+        if(be.some(function(e){ return Math.min(b.right,e.right)-Math.max(b.left,e.left)>1 && Math.min(b.bottom,e.bottom)-Math.max(b.top,e.top)>2; })){
+          t.setAttribute('data-cede',''); t.style.visibility='hidden';
+        }
+      });
+    });
+  }
+  let prevu=false;
+  function bientot(){ if(prevu) return; prevu=true; setTimeout(function(){ prevu=false; ceder(); },60); }
+  function demarrer(){
+    if(typeof SVGElement==='undefined' || !('getBBox' in SVGElement.prototype)) return;   /* sans mise en page, rien à mesurer */
+    try{ new MutationObserver(bientot).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',demarrer); else demarrer();
+})();
+</script>
+<script id="annonces">
+/* LE VERDICT, LE SCORE ET LE « BRAVO » SE DISENT AUSSI À L'OREILLE (audit
+   d'octobre 2026, A6). aria-live était posé sur les .mp-feedback ; restaient
+   muets pour un lecteur d'écran le score en direct (.score-tag, « Cases
+   justes 3 »), l'écran de fin (« Bravo ! » et la note) et, en Seconde, les
+   verdicts .lv-feedback et .def-feedback. aria-atomic : il relit « Cases
+   justes 3 », pas « 3 ». Posé ici, à l'ouverture, une fois pour toutes les
+   balises de la page, plutôt que dans deux cents lignes d'écrans.
+   Contrôle : tests/verifier.js (« le verdict, le score et le Bravo sont
+   annoncés »). */
+(function(){
+  function poser(){
+    document.querySelectorAll('.score-tag, .result-head, .score-circle .val, .lv-feedback, .def-feedback, .mp-feedback').forEach(function(e){
+      if(e.closest('[aria-live]')) return;
+      e.setAttribute('aria-live','polite'); e.setAttribute('aria-atomic','true');
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',poser); else poser();
+})();
+</script>
+</body>
+</html>
