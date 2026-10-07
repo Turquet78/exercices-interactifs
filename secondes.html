@@ -52337,6 +52337,7 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   function boite(t){ try{ const r=t.getBoundingClientRect(); return (r.width>0&&r.height>0)?r:null; }catch(e){ return null; } }
   function ceder(){
     document.querySelectorAll('svg').forEach(function(svg){
+      const scr=svg.closest('section.screen'); if(scr && !scr.classList.contains('on')) return;   /* seul l'écran ouvert se mesure */
       const etiq=[], grad=[];
       svg.querySelectorAll('text').forEach(function(t){
         const c=t.getAttribute('class')||'';
@@ -52356,8 +52357,15 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   let prevu=false;
   function bientot(){ if(prevu) return; prevu=true; setTimeout(function(){ prevu=false; ceder(); },60); }
   function demarrer(){
-    if(typeof SVGElement==='undefined' || !('getBBox' in SVGElement.prototype)) return;   /* sans mise en page, rien à mesurer */
-    try{ new MutationObserver(bientot).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+    /* getBBox vit sur SVGGraphicsElement, pas sur SVGElement : le premier
+       garde (« 'getBBox' in SVGElement.prototype ») était faux dans TOUT
+       navigateur, et le script ne cédait jamais rien — le banc l'a vu au
+       2.2.1 de la Terminale, « −1 » sous le nom de la courbe (octobre 2026). */
+    const proto=(window.SVGGraphicsElement||window.SVGElement||{}).prototype;
+    if(!proto || !('getBBox' in proto)) return;   /* sans mise en page (jsdom), rien à mesurer */
+    /* childList : un dessin qui naît ; attributes (class) : un écran qui
+       devient visible APRÈS avoir été dessiné — caché, il ne se mesure pas. */
+    try{ new MutationObserver(bientot).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']}); }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',demarrer); else demarrer();
 })();

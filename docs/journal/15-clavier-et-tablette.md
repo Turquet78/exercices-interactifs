@@ -1510,3 +1510,19 @@ couverte. 12 exercices de la Terminale (`.lv-tblwrap`) ; `#tveTable`, `#tvfTable
 `.lv-tblwrap`, `.tdc-wrap`, `.pap-wrap` en Seconde. Contrôles universels du
 § 9 du banc navigateur ; la Première, sans tableau défilant, le DÉCLARE
 (`defilants.aucun`, tests/profils.js).
+
+**Et le script `#graduations` ne cédait RIEN — dans aucun navigateur.** Son
+garde testait `'getBBox' in SVGElement.prototype` pour se taire sous jsdom ;
+or `getBBox` vit sur `SVGGraphicsElement`, pas sur `SVGElement` : le garde
+était faux partout, Chromium compris, et le script sortait avant de poser son
+observateur. Le banc l'a vu à la première exécution sur l'intégration des six
+lots : « 2.2.1 (train) — « −1 » sous le nom de la courbe ». Une sonde de
+quatre-vingts ouvertures du 2.2.1 comptait trois collisions, zéro graduation
+cédée. Le garde lit maintenant `(SVGGraphicsElement||SVGElement).prototype`
+(jsdom a bien `SVGGraphicsElement`, sans `getBBox` : il se tait toujours), et
+l'observateur écoute aussi les changements de `class` : un dessin fait AVANT
+que son écran s'ouvre ne se mesurait pas, caché. Seul l'écran ouvert se
+mesure. Même sonde après : les trois collisions sont cédées (`visibility:
+hidden`), zéro visible. La leçon est celle du § 9 bis : un contrôle qui n'a
+rien à mesurer doit le dire — ici c'est le contrôle du banc qui a attrapé le
+script muet, parce qu'il mesure le DOM rendu et non le script.
