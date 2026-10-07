@@ -24802,7 +24802,7 @@ function mdlSU(){
     ? 'U_{n+1}=U_n'+(c.raison.v>=0?'+':'-')+suLatexNum(suNum(Math.abs(c.raison.v)))
     : 'U_{n+1}='+suLatexNum(c.raison)+'\\times U_n';
   return 'Soit \\((U_n)\\) d\u00e9finie par \\(U_{'+c.p+'}='+suLatexNum(c.up)+'\\) et \\('+rec+'\\).\n'
-   +'a) \\((U_n)\\) est une suite '+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+' de raison \\('+suLatexNum(c.raison)+'\\), car pour passer de \\(U_n\\) \u00e0 \\(U_{n+1}\\) on '+(c.kind==='arith'?'ajoute toujours':'multiplie toujours par')+' \\('+suLatexNum(c.kind==='arith'?suNum(Math.abs(c.raison.v)):c.raison)+'\\).\n'
+   +'a) \\((U_n)\\) est une suite '+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+' de raison \\('+suLatexNum(c.raison)+'\\), car pour passer de \\(U_n\\) \u00e0 \\(U_{n+1}\\) on '+(c.kind==='arith'?(c.raison.v<0?'retranche toujours':'ajoute toujours'):'multiplie toujours par')+' \\('+suLatexNum(c.kind==='arith'?suNum(Math.abs(c.raison.v)):c.raison)+'\\).\n'
    +'b) Le premier terme donn\u00e9 est \\(U_{'+c.p+'}\\), donc la formule explicite est \\(U_n='+suLatexFormule(c)+'\\).';
 }
 function mdlENC(){
