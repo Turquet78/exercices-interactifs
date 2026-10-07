@@ -19226,14 +19226,14 @@ function liveColorFrac(idn,idd,tn,td,denOptional){   // paire numérateur/dénom
      Turquet, août 2026 — le vide valait 1 et 4/1 se comparait à 4/100. */
   if(vd===''){
     if(!denOptional) return;                         // fraction incomplète : aucune couleur
-    const n=parseInt(vn,10);
+    const n=entierDec(vn);
     if(isNaN(n)){ if(!en.disabled) en.classList.add('bad'); return; }
     if(n*td===tn){ if(!en.disabled) en.classList.add('ok'); return; }   // déjà juste en entier
     const mene = tn>0 && n>0 && (n*td)%tn===0;       // un dénominateur peut encore la rendre égale
     if(!mene && !en.disabled) en.classList.add('bad');
     return;
   }
-  const n=parseInt(vn,10), d=parseInt(vd,10);
+  const n=entierDec(vn), d=entierDec(vd);
   const ok = !isNaN(n)&&!isNaN(d)&&d!==0 && n*td===tn*d;
   /* la paire fausse ne rougit que sa case fautive : la case qui porte la
      valeur canonique reste juste (le 616 de 616/100000) */
@@ -19245,7 +19245,7 @@ function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dé
   const vn=en.value.trim(), vd=ed.value.trim();
   if(!en.disabled) en.classList.remove('ok','bad'); if(!ed.disabled) ed.classList.remove('ok','bad');
   if(vn===''||vd==='') return;
-  const n=parseInt(vn,10), d=parseInt(vd,10);
+  const n=entierDec(vn), d=entierDec(vd);
   const ok = !isNaN(n)&&!isNaN(d)&&d>0&&isPow10(d)&&n*td===tn*d;
   if(!en.disabled) en.classList.add((ok||n===tn)?'ok':'bad');
   if(!ed.disabled) ed.classList.add((ok||(isPow10(d)&&d===td))?'ok':'bad');
@@ -19271,6 +19271,16 @@ function parseDecToFrac(str){
   const d=Math.pow(10,frac.length), n=parseInt((intp+frac)||'0',10);
   return isNaN(n)?null:{n,d};
 }
+/* UN ENTIER LU DANS UNE CASE, en écriture décimale EXACTE : « 20 » et « 20,0 »
+   valent 20 ; « 20,5 », « 12abc » ne valent rien (NaN). C'est le remplaçant
+   de parseInt partout où une case est JUGÉE : parseInt lisait « 20,5 » comme
+   20, et une réponse fausse dont la partie entière était bonne passait pour
+   juste (audit, octobre 2026). */
+function entierDec(s){ const fr=parseDecToFrac(s==null?'':s); return (fr && fr.n%fr.d===0) ? fr.n/fr.d : NaN; }
+/* La case vaut-elle EXACTEMENT t (entier ou décimal) ? « 300,0 » vaut 300 ;
+   « 300,5 » non. Le motif `fr.n===t*fr.d` des juges, à l'abri d'un t décimal. */
+function decVaut(s,t){ const fr=parseDecToFrac(s==null?'':s); if(!fr) return false;
+  const x=t*fr.d, r=Math.round(x); return Math.abs(x-r)<1e-6 && fr.n===r; }
 /* ================= Calcul mental : le thème 1 de la Première, porté tel quel ================= */
 /* ---- La fraction décimale du 1.6, case par case (demande de Turquet, août
    2026). Attendu tn/td (ex. 23/10 pour 2,3), toute écriture ÉGALE acceptée —
@@ -28694,13 +28704,64 @@ function marqueSaufVide(id,ok,soutien){
 function marqueFracSaufVide(idn,idd,tn,td,soutien){
   const lireV=id=>{const el=$(id);return el?String(el.value==null?'':el.value).trim():'';};
   const vn=lireV(idn), vd=lireV(idd);
-  const n=parseInt(vn,10), d=(vd===''?1:parseInt(vd,10));
+  const n=entierDec(vn), d=(vd===''?1:entierDec(vd));   /* « 20,5 » ne vaut pas 20 */
   const ok=vn!==''&&!isNaN(n)&&!isNaN(d)&&d!==0&&n*td===tn*d;
   /* l'ancre ne joue que si l'AUTRE case est écrite : un numérateur seul
      garde la convention du facteur entier — vide vaut 1, « 4 » seul dit 4 */
   marqueSaufVide(idn, ok||(vd!==''&&n===tn), soutien);
   marqueSaufVide(idd, ok||(vd!==''&&d===td), soutien);
   return ok;
+}
+/* La même règle pour une fraction dont les DEUX cases sont exigées — le
+   P/100 des pourcentages : ici un dénominateur vide ne vaut PAS 1, il ne
+   vaut rien, et la paire n'est juste qu'écrite en entier. Mais chaque case
+   reçoit SON verdict, toujours contre la valeur canonique : le P écrit au
+   numérateur reste bleu que le dénominateur soit faux OU VIDE — la jumelle
+   ne le fait plus rougir (audit, octobre 2026). Toute fraction égale reste
+   acceptée (2P/200), et une case vide ne reçoit aucune couleur. */
+function marqueFracPaire(idn,idd,tn,td,soutien){
+  const lireV=id=>{const el=$(id);return el?String(el.value==null?'':el.value).trim():'';};
+  const vn=lireV(idn), vd=lireV(idd), n=entierDec(vn), d=entierDec(vd);
+  const ok=vn!==''&&vd!==''&&fracEqual(n,d,tn,td);
+  marqueSaufVide(idn, ok||n===tn, soutien);
+  marqueSaufVide(idd, ok||d===td, soutien);
+  return ok;
+}
+/* La pose FACULTATIVE d'une multiplication (augmenter, diminuer, retrouver,
+   synthèses) : elle ne compte pas dans la note, mais dès qu'une case y est
+   écrite, chaque chiffre reçoit son verdict. Un chiffre laissé VIDE ne rougit
+   pas (ni pastille ✗) : rouge veut dire faux, pas « pas fini » — sauf en
+   entraînement, où la correction l'écrit en vert comme avant. Six copies
+   identiques de ce bloc vivaient dans six juges ; elles passent toutes ici. */
+function jugePoseFac(host,soutien){
+  if(!host) return;
+  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
+  const nettoie=el=>{ const cl=el.parentElement; if(cl) cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); };
+  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
+  if(!engaged){ [...boxes,...carries].forEach(nettoie); return; }
+  const train=currentMode==='train';
+  const pastille=(cl,ok)=>{ const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag); };
+  const fix=(cl,exp)=>{ const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); };
+  boxes.forEach(el=>{
+    const exp=el.dataset.exp, vv=el.value.trim(), cl=el.parentElement;
+    nettoie(el); el.classList.remove('sol');
+    if(vv===''){
+      el.disabled=!soutien;
+      if(train){ el.value=exp; el.classList.add('sol'); pastille(cl,false); }
+      return;
+    }
+    const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    pastille(cl,ok);
+    if(!ok && train) fix(cl,exp);
+  });
+  carries.forEach(el=>{
+    const exp=el.dataset.exp, vv=el.value.trim(), cl=el.parentElement;
+    nettoie(el); el.disabled=!soutien;
+    if(vv==='') return;
+    const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    pastille(cl,ok);
+    if(!ok && train) fix(cl,exp);
+  });
 }
 function mlTex(lx, fb){ try{ const h = window.mlDexp && window.mlDexp.tex ? window.mlDexp.tex(lx) : null; if(h) return h; }catch(e){} return fb; }
 /* L'entonnoir des notes, comme en Première : le verrou du rejeu est déjà posé
