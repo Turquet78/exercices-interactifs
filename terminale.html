@@ -13955,6 +13955,120 @@ function rrFausses(t){
   });
   return out;
 }
+/* L'ENCADREMENT DE U(n+1) SE LIT À SA PLACE (audit M35, octobre 2026). Le
+   juge acceptait dès que f(m) et f(M) apparaissaient QUELQUE PART dans la
+   copie ; or, quand f(m) = m ou f(M) = M — deux tirages sur trois —, ces
+   nombres sont déjà écrits comme BORNES : « 5 ≤ U(n+1) ≤ 9 » pour f(8) = 8,
+   puis « ≤ 8 » ailleurs, passait pour une hérédité juste (4 231 copies fausses
+   acceptées sur 6 000). L'acceptation exige désormais les deux images
+   ADJACENTES à U(n+1), dans UNE MÊME chaîne d'une même ligne :
+   « f(m) ≤ U(n+1) ≤ f(M) », ou « f(M) ≥ U(n+1) ≥ f(m) » écrite dans l'autre
+   sens. Une image se lit en nombre (« 4,5 », « 9/2 ») ou en « f(M) = 4,5 »,
+   dont l'argument doit alors être la bonne borne. Le nombre doit être un
+   TERME ENTIER : le « 3 » de « 0,5 × 6 + 3 » n'est pas une valeur. */
+const RR_NB='[+\\-−]?\\(?\\d+(?:[.,]\\d+)?\\)?(?:\\/\\(?\\d+(?:[.,]\\d+)?\\)?)?';
+function rrNbVal(s){
+  const m=/^([+\-−]?)\(?(\d+(?:[.,]\d+)?)\)?(?:\/\(?(\d+(?:[.,]\d+)?)\)?)?$/.exec(String(s).replace(/\s+/g,''));
+  if(!m) return null;
+  const n=parseFloat(m[2].replace(',','.')), d=m[3]?parseFloat(m[3].replace(',','.')):1;
+  if(!d) return null;
+  return (m[1]?-1:1)*n/d;
+}
+/* Le nombre au BORD d'un morceau — à la fin (fin = true : il touche le
+   comparateur qui suit) ou au début. Il ne compte que s'il est un terme
+   entier : ce qui le borde de l'autre côté est un début de ligne, une
+   ponctuation (« sur [0 ; 6] 3 ») ou un MOT (« donc 3 », « or 9 »), jamais un opérateur, une
+   lettre seule (2x), une parenthèse ou un indice. */
+function rrBordNb(piece, fin){
+  const s=String(piece==null?'':piece);
+  if(fin){
+    const m=new RegExp('('+RR_NB+')[\\s;:,!?]*$').exec(s); if(!m) return null;
+    const av=s.slice(0,m.index).replace(/\s+$/,'');
+    if(av==='' || /(?:^|[^a-z])[a-z]{2,}$/.test(av) || /[=:;,(\[\]]$/.test(av)) return rrNbVal(m[1]);
+    return null;
+  }
+  const m=new RegExp('^[\\s;:]*('+RR_NB+')').exec(s); if(!m) return null;
+  const ap=s.slice(m[0].length).replace(/^\s+/,'');
+  if(ap!=='' && /^[+\-−*\/×·÷^_(0-9]/.test(ap)) return null;
+  if(/^[a-z](?![a-z])/.test(ap)) return null;
+  if(/^[.,]\d/.test(ap)) return null;
+  return rrNbVal(m[1]);
+}
+/* Le morceau voisin de U(n+1) dit-il la bonne image ? « 4,5 », « f(6) = 4,5 »
+   et « 4,5 = f(6) » se valent ; un « f(…) » écrit porte la bonne borne. */
+function rrImageVoisine(piece, fin, image, borne){
+  const parts=String(piece==null?'':piece).split('=');
+  const fArg=p=>{ const m=new RegExp(fin?'f ?\\( ?('+RR_NB+') ?\\)[\\s;:,]*$':'^[\\s;:]*f ?\\( ?('+RR_NB+') ?\\)').exec(p); return m?rrNbVal(m[1]):null; };
+  const proche=fin?parts[parts.length-1]:parts[0], loin=fin?parts[parts.length-2]:parts[1];
+  let v=rrBordNb(proche, fin), arg=null;
+  if(v===null){
+    arg=fArg(proche); if(arg===null || loin==null) return false;
+    v=rrBordNb(loin, fin);
+  } else if(loin!=null){
+    arg=fArg(loin);
+  }
+  if(v===null || Math.abs(v-image)>1e-9) return false;
+  return arg===null || Math.abs(arg-borne)<1e-9;
+}
+const RR_UN1=/u[_ ]?(?:\(?n\+1\)?|\(n\) ?\+ ?1)/g;
+/* « <= » et « >= » tapés au clavier sont ≤ et ≥ (« => » reste une flèche). */
+function rrComparateurs(lg){
+  return String(lg).replace(/<=/g,'≤').replace(/>=/g,'≥');
+}
+function rrEncadre(c, t){
+  return String(t==null?'':t).split('\n').some(function(lg){
+    const s=rrComparateurs(lg).replace(RR_UN1, function(m0,off,str){
+      return /f ?\($/.test(str.slice(Math.max(0,off-3),off)) ? m0 : '\u00a7'; });
+    const P=s.split(/([≤≥<>])/);
+    for(let i=2;i+2<P.length;i+=2){
+      if(P[i].indexOf('\u00a7')<0) continue;
+      /* le morceau de U(n+1) ne porte que lui (et « = f(U(n)) ») : « 2U(n+1) »
+         ou « U(n+1) + 3 » ne sont pas U(n+1) */
+      if(P[i].replace(/\u00a7/g,'').replace(/f ?\(u[_ ]?\(?n\)?\)/g,'').replace(/[\s=]/g,'')!=='') continue;
+      const monte=/[≤<]/.test(P[i-1])&&/[≤<]/.test(P[i+1]);
+      const descend=/[≥>]/.test(P[i-1])&&/[≥>]/.test(P[i+1]);
+      if(!monte&&!descend) continue;
+      const gI=monte?c.fm:c.fM, gB=monte?c.m:c.M, dI=monte?c.fM:c.fm, dB=monte?c.M:c.m;
+      if(rrImageVoisine(P[i-2],true,gI,gB) && rrImageVoisine(P[i+2],false,dI,dB)) return true;
+    }
+    return false;
+  });
+}
+/* LA LIGNE QUI N'EST PAS LUE. rrFausses ne juge que les côtés PUREMENT
+   numériques : « or 9 ≤ 8 », une comparaison fausse précédée d'un mot,
+   passait sans être jugée. Ses deux bords se lisent pourtant ; s'ils disent
+   une comparaison fausse, la page ne la REFUSE pas — elle n'a pas lu la
+   phrase entière, et refuser une écriture qu'on devine recréerait le faux
+   négatif —, mais elle ne peut plus ACCEPTER : le verdict retombe en
+   abstention, et le modèle juge seul. Même chose pour un calcul écrit EN
+   ENTIER entre deux signes (« f(6) = 0,5 × 6 + 3 = 4,5 ») : il s'évalue, et
+   faux, il interdit l'acceptation. */
+function rrArith(piece){
+  const s=String(piece==null?'':piece).trim().replace(/[.;:!?]+$/,'').trim();
+  if(!/[+\-−*×·\/]/.test(s.replace(/^[+\-−]/,'')) || !/^[\d\s.,+\-−*×·\/()]+$/.test(s)) return null;
+  if(/,\s|\d\s+[\d(]/.test(s)) return null;                 /* une liste, ou deux nombres sans opérateur */
+  const f=compileExprExp(s.replace(/[×·]/g,'*')); if(!f) return null;
+  let v; try{ v=f(0); }catch(e){ return null; }
+  return (typeof v==='number' && isFinite(v)) ? v : null;
+}
+function rrNonLues(t){
+  const out=[], ecrit=v=>String(Math.round(v*1e9)/1e9).replace('.',',');
+  String(t==null?'':t).split('\n').forEach(function(lg){
+    const m=rrComparateurs(lg).split(/([≤≥<>=])/);
+    for(let i=1;i<m.length;i+=2){
+      if(rrValeurPure(m[i-1])!==null && rrValeurPure(m[i+1])!==null) continue;   /* rrFausses l'a jugée */
+      const ga=rrArith(m[i-1]), da=rrArith(m[i+1]);
+      const g=ga!==null?ga:rrBordNb(m[i-1],true), d=da!==null?da:rrBordNb(m[i+1],false);
+      if(g===null||d===null) continue;
+      const op=m[i], e=1e-9;
+      const faux = op==='≤' ? g>d+e : op==='<' ? !(g<d-e)
+                 : op==='≥' ? g<d-e : op==='>' ? !(g>d+e)
+                 : Math.abs(g-d)>e;
+      if(faux) out.push(ecrit(g)+' '+op+' '+ecrit(d));
+    }
+  });
+  return out;
+}
 /* Le juge de la page. Il ne prononce que des faits prouvables ; le calcul, lui,
    part au modèle. Chaque critère porte son libellé (ce que l'élève lit) et une
    version COURTE (ce que le modèle reçoit, pour ne pas répéter la liste). */
@@ -14069,14 +14183,16 @@ function rrJuge(c, txt){
      que l'élève calcule, ceux que l'énoncé ne donne pas — et aucune
      comparaison numérique fausse. Une copie qui porte tout cela est une
      démonstration complète : le modèle ne peut plus la refuser (signalé par
-     Turquet, septembre 2026 — il refusait une copie juste malgré la clause). */
+     Turquet, septembre 2026 — il refusait une copie juste malgré la clause).
+     Les images se lisent À LEUR PLACE, de part et d'autre de U(n+1)
+     (rrEncadre, audit M35), et une comparaison que la page n'a pas pu juger
+     sans la deviner (rrNonLues) interdit l'acceptation : abstention. */
   const fausses=rrFausses(t);
-  const nbT=(t.match(/\d+(?:[.,]\d+)?/g)||[]).map(x=>parseFloat(x.replace(',','.')));
-  const aT=v=>nbT.some(x=>Math.abs(x-v)<1e-9);
-  const images=aT(c.fm)&&aT(c.fM);
+  const images=rrEncadre(c,t);
+  const nonLues=rrNonLues(t);
   const toutOk=crit.every(x=>x.ok);
-  const verdict=(!toutOk||fausses.length)?'refus':(images?'accepte':'abstention');
-  return {crit:crit, toutOk:toutOk, fausses:fausses, images:images, verdict:verdict};
+  const verdict=(!toutOk||fausses.length)?'refus':((images&&!nonLues.length)?'accepte':'abstention');
+  return {crit:crit, toutOk:toutOk, fausses:fausses, images:images, nonLues:nonLues, verdict:verdict};
 }
 /* Le bilan de la page : vert ce qui va, rouge ce qui manque — et le ✓ ou le ✗
    devant, parce que la couleur ne porte jamais seule. */
