@@ -7790,7 +7790,7 @@ async function parcours(page, N){
         ssvCases(q).forEach(x => {
           const e = document.getElementById(x.id); if(!e) return;
           if(x.t === 'sel') e.value = x.v;
-          else if(x.t === 'nb') e.value = ssvN(x.v);
+          else if(x.t === 'nb' || x.t === 'borne') e.value = ssvN(x.v);   /* « borne » : UN majorant (M84) — la copie juste écrit ℓ₂ */
           else if(x.t === 'cent') e.value = String(Math.round(x.v * 100) / 100).replace('.', ',');
           else if(x.t === 'rang') e.value = svrRangStr(x.v);
           else if(x.t === 'paire') e.value = ssvN(/1$/.test(x.id) ? x.v[0] : x.v[1]);
