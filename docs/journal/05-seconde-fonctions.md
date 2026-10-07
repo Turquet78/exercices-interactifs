@@ -1557,3 +1557,21 @@ tombe d'un essai sur 680 à un sur 800, et les essais passent de 4 000 à
 rougit sur 3, 2, 0, −2, −2, 2, −3). Le commentaire « un essai sur 220 » est
 remesuré, et ceux de `lvGenPts`/`lvAnalyze` parlent de 7 valeurs f(−3..3), pas
 de 9.
+
+**Les « mineures » de l'audit, thème des fonctions.** Le 3.2.3
+({equation-graphique}) corrigeait « le bout du dessin est toujours pris »
+sans avoir jamais dit où f et g sont définies : le domaine est désormais
+rangé dans la question (`q.dom`, [−3 ; 3], repli `eqgDom` pour une pause
+d'avant) et écrit dans l'énoncé (`#eqgInstr`). Cinq rappels (RAP_ING,
+RAP_IFG, RAP_TSG, RAP_EIG, RAP_EQG) et une question à l'IA affirmaient que
+les bouts du dessin sont « toujours pris » — faux pour une cloche, où S
+s'arrête aux croisements : ils disent maintenant qu'un bout n'est dans S que
+si un morceau va jusqu'à lui, et qu'il est alors pris. Les corrections
+détaillées, elles, ne le disaient que dans le cas des DEUX morceaux, où
+c'est vrai : intactes. Au {construire-fonction}, RAP_CFX et `cfxWhy`
+exigeaient que la courbe touche k « à chaque bord » ; le juge ne l'exige
+qu'aux bords INTÉRIEURS (ailleurs, ce serait traverser entre deux
+graduations) — `cfxBordsTexte` les nomme, les bouts −5 et 5 n'exigent rien.
+`lvReadInt` (constat M58) était déjà strict depuis les importantes : il
+gagne son contrôle. Tenu par `mineursFonctionsPython` (tests/verifier.js),
+qui a rougi sur chaque ancien comportement remis en place.

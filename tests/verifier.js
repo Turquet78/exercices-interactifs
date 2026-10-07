@@ -4059,6 +4059,24 @@ function exercices(suite){
       return debranches.length ? 'ces fonctions laissent passer un texte sans le résoudre : '+debranches.join(', ') : '';
     })()`, v => v === '', undefined);
 
+    /* Les accolades d'une carte du menu, une fois numeros() passé, ne peuvent
+       plus être qu'un ENSEMBLE — « S = { … } », « { 2 ; 3 } ». Le contrôle
+       des {identifiant} ne voyait pas « { c = a+b } » (6.2.3, audit M64) :
+       une ligne de CODE posée entre accolades, que l'élève lisait telle
+       quelle sur la carte. Un ensemble se reconnaît à ses points de
+       suspension ou à son point-virgule, et jamais à un « = ». */
+    verifierEval(w, 'les cartes du menu n\'affichent d\'accolades que pour un ensemble', `(function(){
+      var fautifs=[];
+      Object.keys(TESTS).forEach(function(id){
+        var d=numeros(String(TESTS[id].desc||'')).replace(/<[^>]*>/g,'');
+        (d.match(/\\{[^{}]*\\}/g)||[]).forEach(function(m){
+          var c=m.slice(1,-1);
+          if(/=/.test(c) || !/…|;/.test(c)) fautifs.push(id+' : '+m);
+        });
+      });
+      return fautifs.join(' | ');
+    })()`, v => v === '', undefined);
+
     sommeFractions(w, P);
     simplifierFractions(w, P);
     sommeFractionsLibre(w, P);
@@ -4243,11 +4261,151 @@ function exercices(suite){
     syntheseAugmentationsDix(w, P);
     correctionSignesVariations(w, P);
     termeEntierDansCaseCoefficient(w, P);
+    mineursFonctionsPython(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
     fiabilite(w, suite);
   });
+}
+
+/* ---------- Constats mineurs de l'audit (M56–M64) : fonctions et Python ----------
+   Chaque contrôle aurait rougi avant sa correction, et chacun s'est vu
+   rougir par sabotage. Ils ne s'appliquent qu'où l'exercice existe : un
+   niveau qui ne l'a pas le DÉCLARE (ignorer), il ne le tait pas. */
+function mineursFonctionsPython(w, P){
+  const a = (expr) => { const r = evaluer(w, expr); return r.ok && r.valeur; };
+
+  /* M56 — le domaine de f et g est ÉNONCÉ, rangé dans la question */
+  if(a("typeof startEqg==='function' && typeof eqgBuildQuestions==='function'"))
+    verifierEval(w, '{equation-graphique} : le domaine de f et g est rangé dans la question et énoncé à l\'écran', `(function(){
+      const vus=[];
+      for(let n=0;n<40;n++){ const qs=eqgBuildQuestions(); if(!qs.every(function(q){ return Array.isArray(q.dom)&&q.dom[0]===-3&&q.dom[1]===3; })){ vus.push('dom absent ou faux : '+JSON.stringify(qs[0].dom)); break; } }
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentTestId='equation-graphique';
+      startEqg();
+      const t=(document.getElementById('eqgInstr')||{}).textContent||'';
+      if(!/définies sur \\[ −3 ; 3 \\]/.test(t)) vus.push('l’énoncé ne dit pas le domaine : '+t);
+      return vus.join(' ; ');
+    })()`, v => v === '', undefined);
+  else ignorer('{equation-graphique} : le domaine de f et g est rangé dans la question et énoncé à l\'écran', 'ce niveau n\'a pas l\'exercice');
+
+  /* M57 — aucun rappel ne dit que les bouts sont « toujours pris » (faux pour
+     une cloche), et la correction de {construire-fonction} n'exige le contact
+     avec k qu'aux bords INTÉRIEURS de S — ce que son juge exige, rien de plus */
+  if(a("typeof cfxGen==='function' && typeof cfxWhy==='function' && typeof RAPPELS!=='undefined'"))
+    verifierEval(w, 'les rappels des inéquations graphiques et la correction de {construire-fonction} disent ce que le juge exige', `(function(){
+      const vus=[];
+      Object.keys(RAPPELS).forEach(function(k){ const v=String(RAPPELS[k]||''); if(/toujours pris/.test(v)) vus.push('RAPPELS.'+k+' dit « toujours pris »'); });
+      if(/TOUCHE la hauteur k à chaque bord/.test(String(RAPPELS.cfx||''))) vus.push('RAP_CFX exige le contact à chaque bord');
+      for(let n=0;n<200;n++){
+        const q=cfxGen(); if(q.fam==='mmx') continue;
+        const m=cfxWhy(q,{subs:[{id:'cfx-c4',ok:false}]});
+        if(/chaque bord/.test(m)){ vus.push('cfxWhy dit encore « chaque bord »'); break; }
+        /* les bords que le juge exige : ceux de S qui ne sont pas un bout du dessin */
+        const bords=[];
+        cfxEnsemble(q.w,q.k,q.op).forEach(function(p){ [p[0],p[1]].forEach(function(x){ if(x!==CFX_X0&&x!==CFX_X0+CFX_NX-1&&bords.indexOf(itvNum(x))<0) bords.push(itvNum(x)); }); });
+        const dit=(m.match(/la toucher en (.*)\\.$/)||[])[1]||'';
+        const dits=dit?dit.split(/, en | et en /):[];
+        if(dits.slice().sort().join('|')!==bords.slice().sort().join('|')){ vus.push('cfxWhy exige le contact en '+(dits.join(', ')||'aucun point')+', le juge en '+(bords.join(', ')||'aucun point')+' : '+m); break; }
+      }
+      return vus.join(' ; ');
+    })()`, v => v === '', undefined);
+  else ignorer('les rappels des inéquations graphiques et la correction de {construire-fonction} disent ce que le juge exige', 'ce niveau n\'a pas ces exercices');
+
+  /* M58 — une case de lecture lit un ENTIER, strictement, et le moins
+     typographique (U+2212, celui des énoncés) vaut le tiret du clavier */
+  if(a("typeof lvReadInt==='function'"))
+    verifierEval(w, 'lvReadInt lit un entier strictement : « 2abc » et « 1/2 » illisibles, « −2 » (U+2212) vaut −2', `(function(){
+      const el=document.createElement('input'); el.id='lv-controle-int'; document.body.appendChild(el);
+      const vus=[], cas=[['2abc',NaN],['1/2',NaN],[String.fromCharCode(8722)+'2',-2],['-2',-2],[' 3 ',3],['',null]];
+      cas.forEach(function(c){ el.value=c[0]; const v=lvReadInt('lv-controle-int');
+        const ok=(c[1]===null)?v===null:(Number.isNaN(c[1])?Number.isNaN(v):v===c[1]);
+        if(!ok) vus.push(JSON.stringify(c[0])+' → '+v); });
+      el.remove();
+      return vus.join(' ; ');
+    })()`, v => v === '', undefined);
+  else ignorer('lvReadInt lit un entier strictement : « 2abc » et « 1/2 » illisibles, « −2 » (U+2212) vaut −2', 'ce niveau n\'a pas les cases de lecture graphique');
+
+  /* M61 — le pas à pas de la multiplication ne tire jamais k = l : la
+     dernière ligne réécrirait l avec sa propre valeur, et le piège disparaîtrait */
+  if(a("typeof ppmGen==='function'"))
+    verifierEval(w, '{python-pas-a-pas-multiplication} ne tire jamais k = l (4000 tirages)', `(function(){
+      for(let n=0;n<4000;n++){ const g=ppmGen(); if(g.k===g.l) return 'k = l = '+g.k; }
+      return '';
+    })()`, v => v === '', undefined);
+  else ignorer('{python-pas-a-pas-multiplication} ne tire jamais k = l (4000 tirages)', 'ce niveau n\'a pas l\'exercice');
+
+  /* M62 — le message ne propose pas le « − » qu'il refuse, et la consigne
+     d'affichage ne demande pas « le quotient de a PAR b » là où le juge exige
+     la phrase du modèle (« … de a ET b ») */
+  if(a("typeof popJuge==='function' && typeof popConsigneHTML==='function'"))
+    verifierEval(w, '{python-operations} : le message ne propose que des signes que Python accepte, et la consigne d\'affichage suit le modèle', `(function(){
+      const vus=[], q={a:10,b:2,ecrire:['difference','quotient']}, M=String.fromCharCode(8722);
+      ['a '+M+' b','a $ b','a ? b'].forEach(function(s){ const d=popJuge(q,[s,'a/b','',''])[0].diag||'';
+        if(d.indexOf(M)>=0 && !/n’est pas celui de Python/.test(d)) vus.push('« '+s+' » : le message propose « − » : '+d); });
+      const li=popConsigneHTML(q).replace(/<[^>]*>/g,'').split('lignes ')[1]||'';
+      if(/de a par b/.test(li)) vus.push('la consigne d’affichage demande « le quotient de a par b » : '+li);
+      return vus.join(' ; ');
+    })()`, v => v === '', undefined);
+  else ignorer('{python-operations} : le message ne propose que des signes que Python accepte, et la consigne d\'affichage suit le modèle', 'ce niveau n\'a pas l\'exercice');
+
+  /* M63 — la page répond comme CPython sur ce qu'elle refusait ou acceptait
+     à tort : π (une lettre), la virgule finale, le retrait sans bloc. Le
+     point-virgule reste la divergence ASSUMÉE (journal 06) : la page le
+     refuse, mais aucun diagnostic ne dit plus que « Python ne sait pas le lire ». */
+  const nomPy = 'pyRun répond comme CPython sur π, la virgule finale et le retrait inattendu — sortie pour sortie, refus pour refus';
+  if(a("typeof pyRun==='function' && typeof pycJuge==='function'")){
+    const progs = [
+      'π = 3.14\nprint(π)', 'Δ = 5\nprint(Δ * 2)', 'été = 2\nprint(été * 3)',
+      'a = 2\nprint("a", a,)', 'x = int("7",)\nprint(x + 1)', 'print(1, end="!",)',
+      'print(,)', 'x = int(,)', 'a = 2 × 3', 'x² = 4',
+      '  print(1)', 'a = 1\n    b = 2\nprint(a)', 'print(1)\n print(2)',
+      'a = 1\n  # un commentaire décalé\n\nprint(a)'
+    ];
+    const r = evaluer(w, `(function(){ const L=${JSON.stringify(progs)}; return JSON.stringify(L.map(function(s){
+      try{ return pyRun(s).out; }catch(e){ const m=String(e.message||e).match(/^([A-Za-z]+Error)/); return 'ERREUR:'+(m?m[1]:'?'); } })); })()`);
+    const py = pythonDisponible();
+    if(!r.ok) verifier(nomPy, false, 'erreur JavaScript : ' + r.erreur);
+    else if(!py){
+      if(process.env.CI) verifier(nomPy, false, 'python3 introuvable sur l\'intégration continue : la page n\'a été comparée à RIEN');
+      else ignorer(nomPy, 'python3 introuvable sur ce poste — l\'intégration continue, elle, l\'exige');
+    }
+    else {
+      const page = JSON.parse(r.valeur), cp = pythonExecuter(py, progs), ecarts = [];
+      progs.forEach((s, i) => { if(page[i] !== cp[i]) ecarts.push(JSON.stringify(s) + ' : page ' + JSON.stringify(page[i]) + ', CPython ' + JSON.stringify(cp[i])); });
+      verifier(nomPy + ' (' + progs.length + ')', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
+    }
+    verifierEval(w, 'le point-virgule (divergence assumée) : aucun diagnostic ne dit que Python « ne sait pas le lire » ou « ne le comprend pas »', `(function(){
+      const vus=[], q={nom:'age',lit:'15',vis:'int',rep:''};
+      const m1=pycJuge(q,'print(age);').pourquoi||'';
+      if(/ne sait pas|ne comprend pas/.test(m1)) vus.push('python-afficher-variable : '+m1);
+      if(typeof pyxDiagErreur==='function'){ const m2=pyxDiagErreur({nom:'age',texte:'tu as'},'print("tu as", age);','SyntaxError : caractère inattendu « ; »',{}); if(/ne sait pas|ne comprend pas/.test(m2)) vus.push('pyx : '+m2); }
+      const m3=pycJuge(q,'   print(age)');
+      if(m3.ok) vus.push('une ligne décalée sans bloc est acceptée');
+      return vus.join(' ; ');
+    })()`, v => v === '', undefined);
+  } else {
+    ignorer(nomPy, 'ce niveau n\'a pas l\'interpréteur Python');
+    ignorer('le point-virgule (divergence assumée) : aucun diagnostic ne dit que Python « ne sait pas le lire » ou « ne le comprend pas »', 'ce niveau n\'a pas l\'interpréteur Python');
+  }
+
+  /* M64 — « note+0 » n'est pas « recopié à la main », et le rappel du
+     tableau de valeurs ne fige pas le calcul sur 2*x+3 */
+  if(a("typeof pyvJuge==='function' && typeof pyvBuildQuestions==='function'"))
+    verifierEval(w, '{python-placer-variables} : un calcul autour du bon nom (note+0) est nommé calcul, jamais « recopié à la main »', `(function(){
+      const vus=[];
+      for(let n=0;n<10;n++){
+        const q=pyvBuildQuestions()[0], att=pyvAns(q);
+        pyvJuge(q, att.map(function(x){ return x.variable+'+0'; })).forEach(function(j, i){
+          if(j.ok) return;
+          if(/recopiée à la main/.test(j.diag||'')) vus.push(att[i].variable+'+0 : '+j.diag);
+        });
+        if(vus.length) break;
+      }
+      if(typeof RAPPELS!=='undefined' && RAPPELS.ptv && /calcule <code class="inline">fonction = 2\\*x\\+3<\\/code> pour/.test(RAPPELS.ptv)) vus.push('RAP_PTV présente 2*x+3 comme LE calcul de tout l’exercice');
+      return vus.join(' ; ');
+    })()`, v => v === '', undefined);
+  else ignorer('{python-placer-variables} : un calcul autour du bon nom (note+0) est nommé calcul, jamais « recopié à la main »', 'ce niveau n\'a pas l\'exercice');
 }
 
 /* ---------- 4 ter. Ce que l'application dit à l'élève ---------- */
@@ -19710,7 +19868,8 @@ function equationGraphique(w, P){
       if(qs.map(function(q){ return q.type; }).join(',')!=='img,ant,eqk,infk,gk,ingk,crx,ineq')
         vus.push('les questions ne suivent pas l\\'ordre attendu (images, antécédents, f(x)=k puis son inéquation, g(x)=k puis la sienne, f(x)=g(x), f signe g) : '+qs.map(function(q){ return q.type; }).join(','));
       const q0=qs[0];
-      const CHAMPS=['pts','s','c','k','kg','ka','a','b','op','opf','opg','xtk','xtg','xtc','xta','permE','permI','permG'];
+      /* dom : le domaine ÉNONCÉ (audit, M56) — rangé comme le reste du tirage */
+      const CHAMPS=['pts','dom','s','c','k','kg','ka','a','b','op','opf','opg','xtk','xtg','xtc','xta','permE','permI','permG'];
       const ref=JSON.stringify(CHAMPS.map(function(ch){ return q0[ch]; }));
       if(qs.some(function(q){ return JSON.stringify(CHAMPS.map(function(ch){ return q[ch]; }))!==ref; }))
         vus.push('le tirage CHANGE d\\'une question à l\\'autre — le même dessin doit servir aux huit');
@@ -22998,7 +23157,9 @@ function pythonAfficherVariable(w, P){
   verifierEval(w, 'la demande, épinglée : sous « note = 12 », print(note) et ses écritures égales sont acceptés ; print(12), print("note"), le nom seul, Print, print sans parenthèses, la parenthèse ouverte, Note, une variable inconnue, du texte autour, deux lignes, la première ligne réécrite sont refusés — chacun avec SA raison et SON lieu, jamais la réponse', `(function(){
     const NL=String.fromCharCode(10), vus=[], q={nom:"note",lit:"12",vis:"premiere",rep:""}, a=pycAns(q);
     if(a.valeur!=="12"||a.solution!=="print(note)"||a.sortie!=="12"+NL) vus.push("pycAns : "+JSON.stringify(a));
-    ["print(note)","print( note )","  print(note)  ","x = note"+NL+"print(x)","print(str(note))","print(note + 0)","# j’affiche"+NL+"print(note)"].forEach(function(c){
+    /* « print(note)  » : les espaces de FIN sont permises ; un RETRAIT au début
+       ne l'est plus — CPython lève IndentationError (audit, M63) */
+    ["print(note)","print( note )","print(note)  ","x = note"+NL+"print(x)","print(str(note))","print(note + 0)","# j’affiche"+NL+"print(note)"].forEach(function(c){
       const v=pycJuge(q,c); if(!v.ok) vus.push("refusée à tort : "+JSON.stringify(c)+" — "+v.ou+" / "+v.pourquoi);
       else if(v.sortie!=="12"+NL) vus.push("acceptée avec la sortie "+JSON.stringify(v.sortie));
     });
@@ -23019,7 +23180,8 @@ function pythonAfficherVariable(w, P){
       ['print("12")', /VARIABLE/, /note = 47/, 2],
       ["print(note))", /de trop/, /\\)/, 2],
       ['print("note)', /guillemet/, /par deux/, 2],
-      ["x = note", /Rien ne s’affiche/, /print/, 2]
+      ["x = note", /Rien ne s’affiche/, /print/, 2],
+      ["  print(note)  ", /décalée/, /tout à gauche/, 2]
     ];
     refus.forEach(function(r){
       const v=pycJuge(q,r[0]);
@@ -27926,7 +28088,8 @@ function pythonCompleter(w, P){
       ['print("la note est :", note, note)', '3 choses'],
       ['print("la note est :" + note)', 'VIRGULE'],
       ['note = 13', 'RIEN'],
-      ['print("la note est :", note);', 'caractère']
+      /* le point-virgule : la divergence assumée, dite vraie (M63) — plus « Python ne comprend pas le caractère » */
+      ['print("la note est :", note);', 'point-virgule']
     ];
     cas.forEach(function(c){
       let j; try{ j=pyxJuge(q,c[0]); }catch(e){ vus.push("le juge lève sur « "+c[0]+" » : "+e.message); return; }
@@ -29818,7 +29981,7 @@ function pythonDeuxLignes(w, P){
       ['print("bonjour", note2)', 'caractère par caractère'],
       ['print("la 2ème note vaut" + note2)', 'VIRGULE'],
       ['note2 = 13', 'RIEN'],
-      ['print("la 2ème note vaut", note2);', 'caractère']
+      ['print("la 2ème note vaut", note2);', 'point-virgule']
     ];
     cas.forEach(function(c){
       let j; try{ j=pydJuge(q,[c[0],bonne]); }catch(e){ vus.push("le juge lève sur « "+c[0]+" » : "+e.message); return; }

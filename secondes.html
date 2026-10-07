@@ -3630,7 +3630,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="eqgLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">On a repr&eacute;sent&eacute; la courbe de f et la droite de g dans le m&ecirc;me rep&egrave;re. R&eacute;ponds avec le dessin&nbsp;: les solutions se lisent sur l&rsquo;axe des abscisses.</p>
+      <p class="mp-instr" id="eqgInstr">On a repr&eacute;sent&eacute; la courbe de f et la droite de g dans le m&ecirc;me rep&egrave;re. R&eacute;ponds avec le dessin&nbsp;: les solutions se lisent sur l&rsquo;axe des abscisses.</p>
       <p class="ens-note"><b>C<sub>f</sub></b> est la courbe en trait plein&nbsp;; <b>C<sub>g</sub></b> est la droite en pointill&eacute;s.</p>
       <div class="mp-stage"><div style="width:100%" id="eqgHost"></div></div>
       <div class="mp-feedback" id="eqgFeedback" aria-live="polite"></div>
@@ -6469,7 +6469,7 @@ const TESTS={
   'python-chaines': { name:'Concat\u00e9nation et r\u00e9p\u00e9tition de cha\u00eenes', icon:'\ud83d\udd17', desc:'Deux op\u00e9rations sur les cha\u00eenes de caract\u00e8res\u00a0: la concat\u00e9nation (+) et la r\u00e9p\u00e9tition (*). a) Ex\u00e9cute un programme qui s\u2019en sert\u00a0; b) compl\u00e8te un programme pour qu\u2019il affiche plusieurs fois ton nom et ton pr\u00e9nom.', start:()=>startPCH() },
   'python-pas-a-pas': { name:'Le programme pas \u00e0 pas : les cases m\u00e9moire', icon:'\ud83e\udde0', desc:'Un programme range des nombres dans des cases m\u00e9moire. Ex\u00e9cute-le LIGNE PAR LIGNE\u00a0: \u00e0 chaque ligne, dis quelle case re\u00e7oit la valeur et ce qu\u2019elle contient ensuite. Les cases d\u00e9j\u00e0 remplies gardent leur valeur \u2014 et quand une ligne dit «\u00a0c = b\u00a0», c\u2019est le CONTENU de b qui est recopi\u00e9.', start:()=>startPAP() },
   'python-valeur-case': { name:'La valeur de la case m\u00e9moire, ligne par ligne', icon:'\ud83d\uddc3\ufe0f', desc:'Le m\u00eame programme pas \u00e0 pas, mais plus simple\u00a0: la case m\u00e9moire que la ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau, et tu n\u2019\u00e9cris que LA VALEUR qu\u2019elle contient ensuite. Ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier \u00e0 la fin que toutes les cases m\u00e9moire ont la bonne valeur.', start:()=>startPVM() },
-  'python-pas-a-pas-calcul': { name:'Le programme pas \u00e0 pas\u00a0: quand une ligne CALCULE', icon:'\ud83e\uddee', desc:'La suite du pas \u00e0 pas\u00a0: certaines lignes rangent un nombre, d\u2019autres recopient une case \u2014 et maintenant, une ligne comme { c = a+b } CALCULE sa valeur avec ce que les cases contiennent. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPC() },
+  'python-pas-a-pas-calcul': { name:'Le programme pas \u00e0 pas\u00a0: quand une ligne CALCULE', icon:'\ud83e\uddee', desc:'La suite du pas \u00e0 pas\u00a0: certaines lignes rangent un nombre, d\u2019autres recopient une case \u2014 et maintenant, une ligne comme \u00ab\u00a0c = a+b\u00a0\u00bb CALCULE sa valeur avec ce que les cases contiennent. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPC() },
   'python-pas-a-pas-chaine': { name:'Le programme pas \u00e0 pas\u00a0: un calcul qui en lit un autre', icon:'\ud83d\udd17', desc:'La marche encore suivante\u00a0: une case d\u00e9j\u00e0 CALCUL\u00e9e peut \u00e0 son tour nourrir un autre calcul, comme dans \u00ab d = c+a \u00bb quand c vient elle-m\u00eame d\u2019un calcul. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPD() },
   'python-echange-variables': { name:'\u00c9changer deux variables', icon:'\ud83d\udd01', desc:'Ex\u00e9cute pas \u00e0 pas un programme qui \u00e9change les valeurs de deux cases \u00e0 l\u2019aide d\u2019une troisi\u00e8me. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite \u2014 puis, \u00e0 la fin, explique avec tes mots ce qui s\u2019est pass\u00e9 pour les deux cases \u00e9chang\u00e9es.', start:()=>startPEV() },
   'python-pas-a-pas-multiplication': { name:'Devine, puis v\u00e9rifie pas \u00e0 pas', icon:'\ud83e\udd14', desc:'Devine d\u2019abord ce que contiendra la case l une fois le programme termin\u00e9 \u2014 elle est R\u00c9\u00c9CRITE par la derni\u00e8re ligne, et le r\u00e9sultat peut \u00eatre n\u00e9gatif. Puis ex\u00e9cute le programme ligne par ligne pour v\u00e9rifier ta pr\u00e9diction\u00a0: si elle \u00e9tait fausse, tu recommences avec d\u2019autres nombres.', start:()=>startPPM() },
@@ -7954,11 +7954,11 @@ const QIA_SUGG={
   eig:["Quelle différence entre résoudre f (x) = 2 et f (x) ≥ 2 ?","Pourquoi S s’écrit avec des accolades pour une équation et des crochets pour une inéquation ?","Comment savoir combien de points doit montrer le bon dessin ?","Le signe ≥ donne quel crochet ?"],
   tsg:["Pourquoi écrit-on 0 dans le tableau sous une racine, et pas un signe ?","Pourquoi les racines sont-elles EXCLUES de S quand on résout f (x) > 0 ?","Comment lire le signe de f (x) sur le dessin ?","Pourquoi S s’écrit avec des accolades pour f (x) = 0 et des crochets pour f (x) > 0 ?"],
   cfx:["Comment placer un point pour respecter f ( −2 ) = 3 ?","Que veut dire « l’antécédent de −4 est 3 » pour mon tracé ?","Pourquoi ma courbe ne doit-elle pas recouper l’axe ailleurs que sur S ?","Comment respecter une inéquation dont la solution est un intervalle ?"],
-  ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Pourquoi les bouts de la courbe sont-ils toujours pris ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
+  ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Quand un bout de la courbe fait-il partie de la solution ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
   pvn:["Pourquoi un nom de variable ne peut-il pas commencer par un chiffre ?","Est-ce que les majuscules sont autorisées dans un nom de variable ?","Comment écrire un nom en deux mots, comme « prix d’achat » ?","Pourquoi les lettres accentuées sont-elles interdites ?"],
   pty:["Quelle est la différence entre 15 et \"15\" ?","Pourquoi 15.0 est-il un float et pas un int ?","Un nombre négatif comme -3, c’est quel type ?","À quoi sert type() ?"],
-  pyc:["Comment afficher la valeur d’une variable ?","Quelle est la différence entre note et \"note\" dans un print ?","Pourquoi écrire juste le nom de la variable n’affiche rien ?","Que veut dire l’erreur « n’existe pas » ?"],
+  pyc:["Comment afficher la valeur d’une variable ?","Quelle est la différence entre note et \"note\" dans un print ?","Pourquoi, dans un programme, écrire juste le nom de la variable n’affiche rien ?","Que veut dire l’erreur « n’existe pas » ?"],
   pnv:["Pourquoi l’espace est-il interdit dans un nom de variable ?","Est-ce que je peux mettre un chiffre dans un nom de variable ?","Pourquoi « print » ne peut-il pas être un nom de variable ?","Comment écrire un nom qui contient deux mots ?"],
   pyi:["À quoi sert input ?","Où va la réponse que l’utilisateur tape ?","Pourquoi le nom de la variable s’écrit-il sans guillemets dans le print ?","Pourquoi faut-il écrire input avant le print ?"],
   pcl:["Que représente len(chaine) ?","Pourquoi chaine[0] est-il le premier caractère ?","Pourquoi le dernier caractère est-il chaine[len(chaine)-1] ?","Que se passe-t-il si l’indice est trop grand ?"],
@@ -8560,7 +8560,7 @@ const RAP_ING=`<b>Résoudre une inéquation avec un dessin</b><br>
 <b>\u2460 Trace la droite horizontale</b> y = 2 : elle coupe la courbe en deux points.<br>
 <b>\u2461 Colorie le morceau qui répond.</b> \u2265 et &gt; \u2192 la partie de la courbe AU-DESSUS de la droite ; \u2264 et &lt; \u2192 AU-DESSOUS (souvent DEUX morceaux).<br>
 <b>\u2462 Lis les x sur l'axe des abscisses</b> : la solution est l'intervalle des x du morceau colorié.<br>
-<b>\u2463 Le signe décide des bornes.</b> \u2265 ou \u2264 : les croisements sont PRIS — point plein, crochet fermé. &gt; ou &lt; : ils sont EXCLUS — rond vide, crochet ouvert. Les bouts de la courbe, eux, sont toujours pris.<br>
+<b>\u2463 Le signe décide des bornes.</b> \u2265 ou \u2264 : les croisements sont PRIS — point plein, crochet fermé. &gt; ou &lt; : ils sont EXCLUS — rond vide, crochet ouvert. Un bout de la courbe n'est dans S que si le morceau colorié va jusqu'à lui : il est alors PRIS — crochet fermé, la courbe y existe. Un morceau ENTRE les deux croisements (une cloche) s'arrête aux croisements, et les bouts de la courbe n'y sont pas.<br>
 <b>Les quatre dessins, sur un exemple :</b>${rapIngDessins()}Piège classique : répondre avec les HAUTEURS (les y) au lieu des nombres de l'axe des abscisses — la solution est un ensemble de x.`;
 
 const RAP_ITV=`<b>Lire et écrire un intervalle</b><br>
@@ -8725,7 +8725,7 @@ const RAP_IFG=`<b>Lire avec deux courbes, chacune sur son domaine</b><br>
 • <b>Une image</b> se lit en MONTANT du nombre jusqu'à SA courbe (f en trait plein, g en pointillés), puis en allant vers l'axe des y — comme dans {image-nombre}. Attention à bien viser la bonne courbe !<br>
 • <b>Un antécédent</b> se trouve avec la ligne de niveau — un trait horizontal à la hauteur donnée : chaque croisement avec la courbe donne un antécédent, comme dans {antecedent-nombre}. La même hauteur peut avoir UN antécédent par f et PLUSIEURS par g.<br>
 • <b>Résoudre f\u2009(x) = g\u2009(x)</b> : chercher les x où les deux courbes se CROISENT — mais seulement là où les deux existent.<br>
-• <b>Résoudre f\u2009(x) > g\u2009(x)</b> : chercher les x où la courbe de f est AU-DESSUS de celle de g, comme dans {equation-graphique}. Les bouts de S sont les bouts du domaine COMMUN, et ils sont toujours pris ; les croisements suivent le signe — fermé si l'égalité est acceptée (≥), ouvert sinon (>).`;
+• <b>Résoudre f\u2009(x) > g\u2009(x)</b> : chercher les x où la courbe de f est AU-DESSUS de celle de g, comme dans {equation-graphique}. Quand un morceau de S va jusqu'au bout du domaine COMMUN, ce bout est pris — crochet fermé ; quand S est entre deux croisements, les bouts du domaine n'y sont pas. Les croisements suivent le signe — fermé si l'égalité est acceptée (≥), ouvert sinon (>).`;
 const RAP_LS=`<b>Le tableau de signes d’une courbe</b><br>
 On regarde où la courbe est par rapport à l’<b>axe des abscisses</b> (l’axe horizontal).<br>
 La courbe est <b>au-dessus</b> de l’axe → f (x) est <b>positive</b> → signe <b>+</b>.<br>
@@ -8772,24 +8772,24 @@ const RAP_TSG=`<b>Le tableau de signes se lit sur le dessin</b><br>
 • <b>Au-dessus de l'axe des abscisses</b> (en ROUGE sur le dessin) : f (x) &gt; 0, on écrit le signe <b>+</b>. <b>En dessous</b> (en BLEU) : f (x) &lt; 0, signe <b>−</b>.<br>
 • <b>Aux racines</b> — les x où la courbe COUPE l'axe — f (x) = 0 : on écrit <b>0</b> dans le tableau, jamais un signe.<br>
 • <b>Résoudre f (x) = 0</b> : les solutions sont les racines. On écrit S = { −2 ; 1 } avec des ACCOLADES : ce sont quelques nombres, pas un intervalle.<br>
-• <b>Résoudre f (x) &gt; 0 ou f (x) &lt; 0</b> : la solution s'écrit en INTERVALLE, lue dans le tableau. L'inégalité est STRICTE, donc les racines sont EXCLUES — crochet ouvert. Les bouts du dessin (−3 et 3) sont toujours pris.<br>
+• <b>Résoudre f (x) &gt; 0 ou f (x) &lt; 0</b> : la solution s'écrit en INTERVALLE, lue dans le tableau. L'inégalité est STRICTE, donc les racines sont EXCLUES — crochet ouvert. Un bout du dessin (−3 ou 3) n'est dans S que si f y a le bon signe : il est alors pris — crochet fermé.<br>
 • Deux morceaux du même signe s'écrivent avec le symbole ∪ : par exemple S = [−3 ; −2[ ∪ ]1 ; 3].`;
 const RAP_EIG=`<b>Résoudre graphiquement, avec la droite y = k</b><br>
 • <b>Résoudre f (x) = k</b> : on trace la droite horizontale y = k et on cherche TOUS les points où la courbe la croise. Les solutions sont les ABSCISSES de ces points, lues en descendant sur l'axe horizontal — comme dans {antecedent-nombre}. On écrit S = { −2 ; 1 } avec des ACCOLADES : ce sont quelques nombres, pas un intervalle.<br>
 • <b>Le bon dessin d'une équation</b> montre la ligne à la BONNE hauteur, avec un point à CHAQUE croisement — ni point oublié, ni point en trop, ni l'autre hauteur.<br>
-• <b>Résoudre f (x) ≥ k</b> : on cherche les x où la courbe est AU-DESSUS de la droite (au-dessous pour ≤) — comme dans {inequation-graphique}. La solution s'écrit en INTERVALLE : les croisements pour bornes, crochet fermé si le signe accepte l'égalité (≥, ≤), ouvert sinon (&gt;, &lt;). Les bouts du dessin (−3 et 3) sont toujours pris.<br>
+• <b>Résoudre f (x) ≥ k</b> : on cherche les x où la courbe est AU-DESSUS de la droite (au-dessous pour ≤) — comme dans {inequation-graphique}. La solution s'écrit en INTERVALLE : les croisements pour bornes, crochet fermé si le signe accepte l'égalité (≥, ≤), ouvert sinon (&gt;, &lt;). Un bout du dessin (−3 ou 3) n'est dans S que si un morceau va jusqu'à lui : il est alors pris — crochet fermé.<br>
 • <b>Point plein ou rond vide</b> : plein = le nombre est pris, vide = il ne l'est pas — le dessin dit la même chose que le crochet.`;
 const RAP_EQG=`<b>Deux courbes sur un même dessin</b><br>
 \u2022 <b>Lire une image</b> : f\u2009(2) est la HAUTEUR de la courbe C<sub>f</sub> au-dessus de 2. On monte (ou on descend) de 2 jusqu'à C<sub>f</sub>, puis on lit sur l'axe vertical. Pour g\u2009(2), même geste sur la droite C<sub>g</sub>.<br>
 \u2022 <b>Résoudre f\u2009(x) = k</b> : on cherche TOUS les x où la courbe est à la hauteur k. Les solutions se lisent sur l'axe des abscisses — comme dans {antecedent-nombre}.<br>
 \u2022 <b>Résoudre f\u2009(x) = g\u2009(x)</b> : on cherche les x où les deux courbes se CROISENT. Chaque croisement donne une solution, lue en descendant sur l'axe des abscisses.<br>
-\u2022 <b>Résoudre f\u2009(x) &gt; g\u2009(x)</b> : on cherche les x où C<sub>f</sub> est AU-DESSUS de C<sub>g</sub> — comme dans {inequation-graphique}, mais la droite n'est plus horizontale. La solution s'écrit en intervalle, avec les croisements pour bornes : crochet fermé si le signe accepte l'égalité (\u2265), ouvert sinon (&gt;). Les bouts du dessin (\u22123 et 3) sont toujours pris.`;
+\u2022 <b>Résoudre f\u2009(x) &gt; g\u2009(x)</b> : on cherche les x où C<sub>f</sub> est AU-DESSUS de C<sub>g</sub> — comme dans {inequation-graphique}, mais la droite n'est plus horizontale. La solution s'écrit en intervalle, avec les croisements pour bornes : crochet fermé si le signe accepte l'égalité (\u2265), ouvert sinon (&gt;). Un bout du dessin (\u22123 ou 3) n'est dans S que si un morceau va jusqu'à lui : il est alors pris — crochet fermé.`;
 const RAP_CFX=`<b>Construire une courbe qui respecte des consignes</b><br>
 C’est la lecture graphique à L’ENVERS : chaque consigne se traduit par un geste sur le dessin.<br><br>
 • <b>f (a) = v</b> ou « l’image de a est v » : le point de la colonne a se pose à la hauteur v.<br>
 • <b>« L’antécédent de y est b »</b> : la courbe passe à la hauteur y au-dessus de b — et NULLE PART ailleurs à cette hauteur, sinon y aurait plusieurs antécédents.<br>
 • <b>f (x) = 0 avec S = { … }</b> : la courbe coupe l’axe des abscisses exactement en ces points — pas un de moins, pas un de plus.<br>
-• <b>f (x) ≤ k avec S = [ … ]</b> : la courbe est au-dessous de la hauteur k exactement sur ces intervalles, et elle TOUCHE la hauteur k à chaque bord.<br><br>
+• <b>f (x) ≤ k avec S = [ … ]</b> : la courbe est au-dessous de la hauteur k exactement sur ces intervalles (au-dessus pour ≥). À chaque bord de S qui n'est pas un bout du dessin (−5 ou 5), elle TOUCHE la hauteur k : elle ne la traverse jamais entre deux graduations.<br><br>
 Plusieurs courbes différentes peuvent respecter les mêmes consignes : la correction en montre UNE, la tienne peut être une autre.`;
 /* Le rappel de la seconde famille de {construire-fonction} : même geste, autres
    consignes. Sans LaTeX — rien à empiler, et une formule sans fraction laisse
@@ -8849,7 +8849,7 @@ const RAP_PTY=`<b>Les trois types de variables</b><br>
 const RAP_PYC=`<b>Afficher une variable avec <code class="inline">print</code></b><br>
 <b>① On écrit le NOM de la variable entre les parenthèses, sans guillemets</b> : si <code class="inline">nombre = 7</code>, alors <code class="inline">print(nombre)</code> affiche <code class="inline">7</code> — la VALEUR de la variable.<br>
 <b>② Avec des guillemets, ce n’est plus la variable</b> : <code class="inline">print("nombre")</code> affiche le mot <code class="inline">nombre</code>, parce qu’un texte entre guillemets s’affiche tel quel.<br>
-<b>③ Écrire le nom tout seul n’affiche rien</b> : la ligne <code class="inline">nombre</code> ne fait rien. Seul <code class="inline">print(…)</code> affiche quelque chose.<br>
+<b>③ Dans un programme, écrire le nom tout seul n’affiche rien</b> : la ligne <code class="inline">nombre</code> lit la variable, sans rien montrer. Seul <code class="inline">print(…)</code> affiche quelque chose. (Dans un carnet Jupyter, le nom écrit seul en DERNIÈRE ligne d’une cellule fait voir sa valeur : c’est le carnet qui l’ajoute, pas Python — et un programme, lui, n’a pas de cellule.)<br>
 <b>④ Attention à l’orthographe</b> : <code class="inline">print</code> s’écrit tout en minuscules, et Python distingue <code class="inline">nombre</code> de <code class="inline">Nombre</code>. Les parenthèses et les guillemets vont par deux.`;
 /* Le rappel du nom de variable : les QUATRE règles de la fiche, dans son
    ordre, avec ses exemples. Aucun LaTeX — rien n'y empile — et aucun nombre à
@@ -9007,11 +9007,11 @@ Exemple : avec <code class="inline">ville = "Brest"</code> et <code class="inlin
    dans des balises code — le contrôle des numéros en dur ne lit que la
    prose, et « 0.5 » y passerait pour le numéro d'un exercice. */
 const RAP_PTV=`<b>Compléter un tableau de valeurs avec un programme</b><br>
-Le programme calcule <code class="inline">fonction = 2*x+3</code> pour la valeur de <code class="inline">x</code> écrite à la ligne&nbsp;1, et <code class="inline">print(fonction)</code> l’affiche.<br>
+Le programme calcule <code class="inline">fonction = …</code> — le calcul de l’énoncé, qui change d’une question à l’autre — pour la valeur de <code class="inline">x</code> écrite à la ligne&nbsp;1, et <code class="inline">print(fonction)</code> l’affiche.<br>
 <b>① Une colonne à la fois</b> — tu remplaces la valeur de <code class="inline">x</code> à la ligne&nbsp;1, tu exécutes, et tu recopies ce qui s’affiche dans la colonne de cette valeur.<br>
 <b>② Dans un programme, un nombre à virgule s’écrit avec un POINT</b> : le tableau écrit <code class="inline">0,5</code>, Python veut <code class="inline">0.5</code>. Avec une virgule, il s’arrête.<br>
 <b>③ Le résultat garde son point, lui aussi</b> — dès que <code class="inline">x</code> est un nombre à virgule, le résultat est un <code class="inline">float</code>, et Python l’écrit avec au moins une décimale : <code class="inline">4.0</code>.<br>
-Exemple : avec <code class="inline">x = 0.5</code>, le programme affiche <code class="inline">4.0</code> — c’est la valeur à recopier sous <code class="inline">0,5</code>.`;
+Exemple, avec le programme <code class="inline">fonction = 2*x+3</code> : pour <code class="inline">x = 0.5</code>, il affiche <code class="inline">4.0</code> — c’est la valeur à recopier sous <code class="inline">0,5</code>.`;
 const RAP_PCV=`<b>Une variable peut recevoir un CALCUL — et si on change les valeurs, tout suit</b><br>
 <b>① Une variable range une valeur.</b> <code class="inline">a = 6</code> met le nombre 6 dans la variable <code class="inline">a</code>.<br>
 <b>② Une variable peut recevoir le résultat d’un calcul.</b> <code class="inline">somme = a + b</code> calcule <code class="inline">a + b</code>, puis range le <b>résultat</b> dans <code class="inline">somme</code> — c’est le résultat qui est gardé, pas le calcul.<br>
@@ -13256,7 +13256,7 @@ function eqgGen(){
     if(!xtaC.length) continue;
     const xtaLoin=xtaC.filter(x=>Math.abs(pts[x+3]-ka)>=2);
     const xta=pick(xtaLoin.length?xtaLoin:xtaC);
-    return {pts:pts, s:s, c:c, k:k, kg:kg, ka:ka, a:a, b:b,
+    return {pts:pts, dom:[-3,3], s:s, c:c, k:k, kg:kg, ka:ka, a:a, b:b,
             op:pick(ING_OPS), opf:pick(opfC), opg:pick(ING_OPS),
             xtk:xtk, xtg:xtg, xtc:xtc, xta:xta,
             permE:ensShuffle(EQG_FORMES_EQ.slice()), permI:ensShuffle(EQG_FORMES_IN.slice()),
@@ -13279,8 +13279,16 @@ const EQG_FORMES_IN=['mo','mn','eo','en'];
 const EQG_FORMES_GIN=['dp','dv','gp','gv'];
 /* Le repli du tirage — un tirage RÉEL, relevé sur le générateur puis figé,
    et éprouvé par les mêmes contrôles que le tirage (la leçon d'IFG_FB). */
-const EQG_REPLI={pts:[-3,-2,0,3,2,-2,3], s:1, c:1, k:-2, kg:1, ka:3, a:2, b:2,
+const EQG_REPLI={pts:[-3,-2,0,3,2,-2,3], dom:[-3,3], s:1, c:1, k:-2, kg:1, ka:3, a:2, b:2,
                  op:'ge', opf:'lt', opg:'le', xtk:-1, xtg:-1, xtc:2, xta:-2};
+/* LE DOMAINE EST ÉNONCÉ. Les corrections disent « le bout du dessin est
+   pris » : c'est vrai parce que f et g sont DÉFINIES sur [−3 ; 3], et
+   l'élève doit pouvoir le lire dans l'énoncé, pas seulement dans la
+   correction (audit, M56). Rangé dans la question comme le reste du
+   tirage ; une question reprise d'avant n'a pas de dom, et le dessin à
+   7 graduations a toujours été [−3 ; 3]. */
+function eqgDom(q){ return (q&&q.dom)||[-3,3]; }
+function eqgDomTexte(q){ const d=eqgDom(q); return '[ '+itvNum(d[0])+' ; '+itvNum(d[1])+' ]'; }
 function eqgBuildQuestions(){
   const g=eqgGen();
   return EQG_TYPES.map(function(t){ return Object.assign({}, g, {type:t}); });
@@ -13638,6 +13646,9 @@ function renderEqgTest(){
   $('modeTagEqg').innerHTML=modeTagHTML();
   $('eqgLiveScore').textContent=test.score;
   $('eqgFeedback').textContent=''; $('eqgFeedback').className='mp-feedback';
+  { const ins=$('eqgInstr'); if(ins) ins.innerHTML='On a représenté la courbe de <i>f</i> et la droite de <i>g</i> dans le même repère. '
+      +'<i>f</i> et <i>g</i> sont définies sur '+eqgDomTexte(q)+' : le dessin s’arrête aux bouts du domaine, et ces bouts en font partie. '
+      +'Réponds avec le dessin : les solutions se lisent sur l’axe des abscisses.'; }
   $('eqgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEqgAnswer()">Vérifier</button>';
   const inp=(id)=>'<input id="'+id+'" class="lv-in" inputmode="numeric" autocomplete="off" aria-label="Réponse">';
   let corps='';
@@ -14198,6 +14209,18 @@ function cfxLive(){
     if(res&&res.complet){ const sub=res.subs.find(function(x){ return x.id===c.id; }); if(sub) el.classList.add(sub.ok?'ok':'bad'); }
   });
 }
+/* Les bords de S où la courbe TOUCHE la hauteur k — ceux que le juge exige
+   (passer de l'autre côté ailleurs qu'à une graduation, c'est traverser) :
+   les bords INTÉRIEURS seulement. Un bord qui est un bout du dessin (−5 ou
+   5) n'exige rien — la courbe s'y arrête, à la hauteur qu'elle veut (audit,
+   M57 : « la toucher à chaque bord » disait plus que le juge). */
+function cfxBordsTexte(q){
+  const b=[];
+  cfxEnsemble(q.w,q.k,q.op).forEach(function(p){ [p[0],p[1]].forEach(function(x){
+    if(x!==CFX_X0 && x!==CFX_X0+CFX_NX-1 && b.indexOf(x)<0) b.push(x); }); });
+  if(!b.length) return '';
+  return ', et la toucher en '+b.map(itvNum).join(', en ').replace(/, en ([^,]*)$/, ' et en $1');
+}
 function cfxWhy(q,res){
   if(q&&q.fam==='mmx') return cfmWhy(q,res);
   const b=cfxB(q), S0=cfxAnt(q.w,0);
@@ -14206,7 +14229,7 @@ function cfxWhy(q,res){
     'cfx-c1':'l’image de '+itvNum(q.a2)+' est la hauteur du point de la colonne '+itvNum(q.a2)+' : elle doit valoir '+itvNum(q.w[q.a2-CFX_X0])+'.',
     'cfx-c2':'l’antécédent de '+itvNum(q.ya)+' est '+itvNum(b)+' : la courbe doit passer à la hauteur '+itvNum(q.ya)+' au-dessus de '+itvNum(b)+' — et NULLE PART ailleurs, sinon '+itvNum(q.ya)+' aurait d’autres antécédents.',
     'cfx-c3':'S = { '+S0.map(itvNum).join(' ; ')+' } : la courbe doit couper l’axe des abscisses exactement là — pas une fois de moins, pas une fois de plus, et sans le traverser entre deux graduations.',
-    'cfx-c4':'f (x) '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' : la courbe doit être '+(q.op==='le'?'au-dessous':'au-dessus')+' de la hauteur '+itvNum(q.k)+' exactement sur '+cfxEnsTexte(cfxEnsemble(q.w,q.k,q.op))+', et la toucher à chaque bord.'
+    'cfx-c4':'f (x) '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' : la courbe doit être '+(q.op==='le'?'au-dessous':'au-dessus')+' de la hauteur '+itvNum(q.k)+' exactement sur '+cfxEnsTexte(cfxEnsemble(q.w,q.k,q.op))+cfxBordsTexte(q)+'.'
   };
   const faux=res.subs.filter(function(x){ return !x.ok; }).map(function(x){ return dic[x.id]; });
   return 'Ta courbe ne respecte pas '+(faux.length===1?'une consigne':faux.length+' consignes')+' : '+faux.join(' ');
@@ -30019,8 +30042,12 @@ function pyLex(s){
       const lit=s.slice(i).match(/^(\d[\d_]*)?(\.\d*)?([eE][+-]?\d+)?/)[0];
       t.push({k:'num', flo:/[.eE]/.test(lit), v:Number(lit.replace(/_/g,''))}); i+=lit.length; continue;
     }
-    if(/[A-Za-z_À-ɏ]/.test(c)){
-      let j=i; while(j<s.length && /[A-Za-z0-9_À-ɏ]/.test(s[j])) j++;
+    /* Un nom commence par une LETTRE ou « _ », de n'importe quel alphabet —
+       CPython accepte « π = 3.14 » (audit, M63) ; les chiffres, les accents
+       combinants et « _ » le continuent. Ni « × », ni « − », ni « ² », ni
+       un emoji ne sont des lettres : ils restent refusés, comme là-bas. */
+    if(/[\p{L}_]/u.test(c)){
+      let j=i; while(j<s.length && /[\p{L}\p{Nd}\p{Mn}\p{Mc}_]/u.test(s[j])) j++;
       t.push({k:'nom',v:s.slice(i,j)}); i=j; continue;
     }
     const deux=s.slice(i,i+2);
@@ -30047,7 +30074,9 @@ function pyExpr(t, p0, env){
       p++;
       if(isOp('(')){
         p++; const args=[];
-        if(!isOp(')')){ args.push(expression()); while(isOp(',')){ p++; args.push(expression()); } }
+        /* print(a, b,) et int("2",) passent en CPython : une virgule
+           FINALE est permise, une virgule seule — f(,) — ne l'est pas */
+        if(!isOp(')')){ args.push(expression()); while(isOp(',')){ p++; if(isOp(')')) break; args.push(expression()); } }
         if(!isOp(')')) throw new Error('SyntaxError : parenthèse non fermée'); p++;
         return (x.v==='input' && _pyIn)?pyInput(args):pyAppel(x.v,args);
       }
@@ -30218,6 +30247,8 @@ function pyRun(src, entrees){
       let p=2; const args=[], vals=[]; let sep=' ', fin='\n';
       if(!op(p,')')){
         for(;;){
+          /* la virgule FINALE — print("a", a,) — est permise, comme en CPython */
+          if(op(p,')')) break;
           /* print(…, end="-") et sep="…" : les deux mots-clés de print */
           if(t[p] && t[p].k==='nom' && (t[p].v==='end'||t[p].v==='sep') && op(p+1,'=')){
             const k=t[p].v, r=pyExpr(t,p+2,env);
@@ -30265,8 +30296,19 @@ function pyRun(src, entrees){
   /* Sans boucle ni test, l'exécution est celle d'avant, ligne par ligne :
      aucun autre exercice ne change. Avec un for, un while ou un if, le
      programme est d'abord découpé en BLOCS selon son retrait (pyBlocs). */
-  if(!lignes.some(function(l){ return PY_ENTETE.test(l); }))
+  /* Sans boucle ni test, une ligne DÉCALÉE est une IndentationError, comme
+     CPython la lève avant d'exécuter quoi que ce soit (audit, M63 : la page
+     l'acceptait). Vérifié sur tout le programme AVANT d'exécuter —
+     rien ne s'affiche avant l'erreur, comme là-bas. Une ligne vide ou un
+     commentaire seul ne comptent pas. Les cases d'une seule ligne passent
+     par leur propre nettoyage (popNet, pydNet…) : seul ce que l'élève écrit
+     sur plusieurs lignes peut porter un retrait. */
+  if(!lignes.some(function(l){ return PY_ENTETE.test(l); })){
+    lignes.forEach(function(ligne, n){
+      if(/^[ \t]+[^\s#]/.test(ligne)) throw new Error('IndentationError ligne '+(n+1)+' : retrait inattendu — cette ligne est décalée vers la droite alors qu’aucune boucle ni aucun test ne l’annonce : elle doit commencer tout à gauche');
+    });
     lignes.forEach(function(ligne, n){ const t=pyLex(ligne); if(t.length) execLigne(t, n); });
+  }
   else pyBlocs(lignes, execLigne, env);
   } catch(e){
     /* ce qui s'est affiché AVANT l'erreur voyage avec elle : la console de
@@ -30747,7 +30789,7 @@ function pycJuge(q, rep){
       if(((t.match(/"/g)||[]).length%2) || ((t.match(/'/g)||[]).length%2))
         return refus(i, 'dans « '+t+' »', 'Un guillemet est ouvert et jamais refermé : les guillemets vont par deux.');
     } else if(mot && t===mot && mot===q.nom){
-      return refus(i, 'dans « '+t+' »', 'Écrire le nom de la variable tout seul ne l’affiche pas : il faut demander l’affichage avec print.');
+      return refus(i, 'dans « '+t+' »', 'Dans un programme, écrire le nom de la variable tout seul ne l’affiche pas (seul un carnet Jupyter montre la valeur de la dernière ligne d’une cellule) : il faut demander l’affichage avec print.');
     }
   }
   /* 2. l'exécution : la ligne qui arrête l'interpréteur se trouve en
@@ -30788,9 +30830,11 @@ function pycErreurExec(q, t, i, msg, refus){
   if((m=msg.match(/fonction « (.+?) » n’est pas prise en charge/)))
     return refus(i, 'dans le mot « '+m[1]+' »', 'Python ne connaît pas « '+m[1]+' ». Pour afficher, le mot est print.');
   if((m=msg.match(/caractère inattendu « (.+?) »/)))
-    return refus(i, 'dans « '+t+' »', 'Le caractère « '+m[1]+' » n’a rien à faire ici : Python ne sait pas le lire.');
+    return refus(i, 'dans « '+t+' »', m[1]===';' ? PY_POINT_VIRGULE : 'Le caractère « '+m[1]+' » n’a rien à faire ici : Python ne sait pas le lire.');
   if(/guillemet non fermé/.test(msg))
     return refus(i, 'dans « '+t+' »', 'Un guillemet est ouvert et jamais refermé : les guillemets vont par deux.');
+  if(/^IndentationError/.test(msg))
+    return refus(i, 'au début de « '+t+' »', PY_RETRAIT);
   if(/non prise en charge/.test(msg))
     return refus(i, 'dans « '+t+' »', 'Python ne sait pas quoi faire de cette ligne : pour afficher, il faut print( … ).');
   if(/SyntaxError/.test(msg))
@@ -30897,7 +30941,7 @@ function ctxPyc(q){
   const ta=$('pyc-in'), code=(ta&&ta.value)||q.rep||'';
   let c='L’élève doit COMPLÉTER un programme Python qui commence par « '+pycLigne1(q)+' » pour qu’il affiche la valeur de la variable '+q.nom+', et seulement elle. Il écrit la suite du programme lui-même, et peut l’exécuter.\n';
   if(ans) c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire, ni aucune ligne de code qui affiche la variable) : '+ans.solution+', qui affiche '+ans.valeur+'. ';
-  c+='Ce que l’élève a écrit : '+(code.trim()?'« '+code.trim()+' »':'(rien)')+'. Règles à rappeler sans donner la réponse : pour afficher la VALEUR d’une variable, on écrit son nom entre les parenthèses de print, sans guillemets ; avec des guillemets, c’est le mot qui s’affiche ; écrire le nom tout seul n’affiche rien ; print s’écrit en minuscules et Python distingue majuscules et minuscules ; les parenthèses et les guillemets vont par deux.';
+  c+='Ce que l’élève a écrit : '+(code.trim()?'« '+code.trim()+' »':'(rien)')+'. Règles à rappeler sans donner la réponse : pour afficher la VALEUR d’une variable, on écrit son nom entre les parenthèses de print, sans guillemets ; avec des guillemets, c’est le mot qui s’affiche ; dans un programme, écrire le nom tout seul n’affiche rien (seul un carnet Jupyter montre la dernière ligne d’une cellule) ; print s’écrit en minuscules et Python distingue majuscules et minuscules ; les parenthèses et les guillemets vont par deux.';
   return {nombre:'', contexte:c};
 }
 
@@ -31539,13 +31583,21 @@ function pypCases(q){ return [{id:'pyp-prog'}]; }
 
 /* ---- 1. Le diagnostic ---- */
 /* L'erreur de l'interpréteur, dite avec les mots d'un élève de Seconde. */
+/* Le point-virgule en fin d'instruction : CPython l'ACCEPTE, l'interpréteur
+   de la page le refuse — la divergence assumée du 6.1.6. Le message dit donc
+   ce qui est vrai (« pas besoin »), jamais « Python ne sait pas le lire »
+   (audit, M63). Un seul texte, pour tous les diagnostics qui le croisent. */
+const PY_POINT_VIRGULE='En Python, une instruction n’a pas besoin de point-virgule : retire le « ; ».';
+/* Le retrait sans bloc : pyRun lève l'IndentationError de CPython (M63). */
+const PY_RETRAIT='Cette ligne est décalée vers la droite : sans boucle ni test au-dessus, chaque ligne d’un programme commence tout à gauche — Python s’arrête sur une IndentationError.';
 function pypTraduire(msg){
   let m;
+  if(/^IndentationError/.test(msg)) return PY_RETRAIT;
   if((m=msg.match(/NameError : la variable « ([^»]+) »/))) return 'Python ne connaît pas « '+m[1]+' » : sans guillemets, il le prend pour le nom d’une variable. Un texte s’écrit entre guillemets.';
   if(/guillemet non fermé/.test(msg)) return 'Un guillemet n’est pas fermé : le texte doit commencer ET finir par un guillemet.';
   if(/parenthèse non fermée/.test(msg)) return 'Il manque la parenthèse fermante ) à la fin.';
   if((m=msg.match(/caractère inattendu « (.) »/))){
-    if(m[1]===';') return 'En Python, une instruction n’a pas besoin de point-virgule : retire le « ; ».';
+    if(m[1]===';') return PY_POINT_VIRGULE;
     return 'Python ne comprend pas le caractère « '+m[1]+' ».';
   }
   if((m=msg.match(/fonction « ([^»]+) »/))) return '« '+m[1]+' » n’est pas une fonction connue ici : c’est print(…) qui affiche.';
@@ -36504,6 +36556,7 @@ function pyxDiagErreur(q, l, msg, att){
   }catch(e){}
   if(/TypeError : « \+ »/.test(msg)) return 'Avec « + », Python refuse d’ajouter un texte et un nombre. Le plus simple : une VIRGULE entre le texte et la variable — print ajoute l’espace tout seul.';
   const mc=msg.match(/caractère inattendu « (.) »/);
+  if(mc && mc[1]===';') return PY_POINT_VIRGULE;
   if(mc) return 'Python ne comprend pas le caractère « '+mc[1]+' » : il n’a rien à faire dans cette ligne. Relis : print, une parenthèse, le texte entre guillemets, une virgule, la variable, la parenthèse fermante.';
   return 'Python s’arrête sur une erreur : « '+msg+' ». Relis ta ligne : print, une parenthèse, le texte entre guillemets, une virgule, la variable, la parenthèse fermante.';
 }
@@ -37911,6 +37964,11 @@ function pyvDiag(q, a, s, r, err){
     return 'Ce que tu as écrit est entre guillemets : Python l’affiche tel quel, comme un texte. Ici on attend le NOM d’une variable, sans guillemets.';
   }
   if(k!=='nom'){
+    /* « note+0 » affiche la bonne valeur ET se sert de la variable : rien n'y
+       est recopié à la main (audit, M64) — c'est un CALCUL autour du nom,
+       et c'est ce qu'on nomme. */
+    const nomsVus=noms.filter(function(n){ return pyxUtilise(s, n); });
+    if(v===a.valeur && nomsVus.length) return 'Ta case affiche bien « '+v+' », mais elle porte un CALCUL autour de '+nomsVus.join(', ')+' : on attend le NOM de la variable, seul, sans rien autour.';
     if(v===a.valeur) return 'Ta case affiche bien « '+v+' », mais la valeur est recopiée à la main : écris le NOM de la variable — si sa valeur changeait plus haut, l’affichage suivrait tout seul.';
     return 'Ici on attend le NOM d’une variable, pas une valeur ni un calcul : ta case affiche « '+v+' ».';
   }
@@ -38933,7 +38991,9 @@ function popDiagExpr(q, cle, l, un, deux){
     }
     if(/guillemet/.test(un.err)) return 'Un calcul ne se met pas entre guillemets : entre guillemets, Python voit du TEXTE et non des nombres.';
     if(/TypeError/.test(un.err)) return 'Python refuse ce calcul : « '+un.err+' ». Ici, a et b sont des nombres — écris l’opération entre eux.';
-    return 'Python s’arrête sur une erreur : « '+un.err+' ». Le calcul s’écrit avec a, b et un signe d’opération : + − * ou /.';
+    if(/caractère inattendu « [−–—] »/.test(un.err)) return 'Ce signe « − » n’est pas celui de Python : la soustraction s’écrit avec le tiret du clavier, « - ».';
+    if(/caractère inattendu « ; »/.test(un.err)) return PY_POINT_VIRGULE;
+    return 'Python s’arrête sur une erreur : « '+un.err+' ». Le calcul s’écrit avec a, b et un signe d’opération : « + », « - », « * » ou « / ».';
   }
   if(un.type==='str') return 'Un calcul ne se met pas entre guillemets : Python y voit du TEXTE, et la variable « '+cle+' » reçoit les lettres « '+un.val+' » au lieu d’un nombre.';
   if(/\/\//.test(l)) return '« // » est la division ENTIÈRE : elle jette ce qu’il y a après la virgule. Le quotient s’écrit avec une seule barre : /.';
@@ -39088,8 +39148,8 @@ function popConsigneHTML(q){
       const o=popOp(c), n=popNumLigne(q,function(x){ return x.t==='ex' && x.cle===c; });
       return '<li>ligne '+n+'&nbsp;: ranger '+o.mot+' dans la variable <code>'+esc(c)+'</code>&nbsp;;</li>';
     }).join('')
-    +'<li>lignes '+l1+' et '+(l1+1)+'&nbsp;: <b>afficher</b> '+q.ecrire.map(function(c){ return popOp(c).mot; }).join(' et ')
-    +', sur le <b>modèle</b> des deux lignes <code>print</code> déjà écrites — avec les textes <code>'+esc(popOp(q.ecrire[0]).txt)+'</code> et <code>'+esc(popOp(q.ecrire[1]).txt)+'</code>.</li>'
+    +'<li>lignes '+l1+' et '+(l1+1)+'&nbsp;: <b>afficher</b> '+q.ecrire.map(function(c){ return popOp(c).mot.replace(/ de a (?:et|par) b$/,''); }).join(' et ')
+    +', sur le <b>modèle</b> des deux lignes <code>print</code> déjà écrites — la même phrase, où ne changent que le texte du début, <code>'+esc(popOp(q.ecrire[0]).txt)+'</code> ou <code>'+esc(popOp(q.ecrire[1]).txt)+'</code>, et la variable de la fin.</li>'
     +'</ul>'
     +'<p class="pyd-note">Écris les deux lignes d’affichage dans l’ordre que tu veux, puis <b>vérifie en exécutant le programme</b>.</p>';
 }
@@ -42562,10 +42622,13 @@ function ppmQuestion(k, l){ return {vis:(k===10&&l===2)?'fiche':'tire', k:k, l:l
 /* k et l tirés entre 2 et 20 : assez petits pour un calcul de tête, assez
    variés pour que m-k change de signe d'un tirage à l'autre — la prédiction
    resterait triviale si le résultat était toujours du même signe. La fiche
-   du PDF (10, 2) n'est jamais retirée par hasard. */
+   du PDF (10, 2) n'est jamais retirée par hasard. Et k n'est JAMAIS égal à
+   l : m-k vaudrait alors 2l-l = l, la dernière ligne réécrirait l avec sa
+   propre valeur, et le piège de la réaffectation — tout l'exercice —
+   disparaîtrait (4,7 % des tirages ; audit, M61). */
 function ppmGen(){
   let k, l;
-  do{ k=rand(2,20); l=rand(2,20); } while(k===10 && l===2);
+  do{ k=rand(2,20); l=rand(2,20); } while((k===10 && l===2) || k===l);
   return {k:k, l:l};
 }
 function ppmBuildQuestions(){
