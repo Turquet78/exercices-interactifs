@@ -15083,8 +15083,10 @@ function renderIfgTest(){
     if(!spec.un) sol+='<span class="itv-fixe">∪</span>'+inter('ifg-co2','ifg-b3','ifg-b4','ifg-cf2');
     sol+='</span>';
     corps='<div class="itv-ligne"><span class="itv-lbl">Solution</span>'+sol+'</div>'
-      +(q.type==='ineq'?'<p class="ens-note">On ne compare f et g que là où les DEUX existent : les bouts de S sont les bouts du domaine commun.</p>'
-                       :'<p class="ens-note">Les bouts de S sont les bouts du domaine de f.</p>');
+      /* « les bouts de S sont les bouts du domaine » n'est vrai que pour une
+         UNION ; quand S = [x1 ; x2] (spec.un), ses bouts sont les croisements */
+      +(q.type==='ineq'?'<p class="ens-note">On ne compare f et g que là où les DEUX existent'+(spec.un?'.':' : les bouts de S sont les bouts du domaine commun.')+'</p>'
+                       :(spec.un?'':'<p class="ens-note">Les bouts de S sont les bouts du domaine de f.</p>'));
   }
   $('ifgHost').innerHTML='<div class="itv-fiche">'
     +'<div class="itq-ineg">'+ifgTitre(q)+'</div>'
