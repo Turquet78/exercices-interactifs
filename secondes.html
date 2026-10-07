@@ -28993,6 +28993,20 @@ function iaEtatCase(el){
   }
   return s;
 }
+/* Les opérations POSÉES (1.1 et 1.5) vivent dans une grille que ctxEcranPct ne
+   lit pas — ni étape, ni case dans .mp-stage : le modèle recevait l'opération
+   et la réponse attendue, mais pas ce que l'élève avait écrit, et ne pouvait
+   pas montrer la colonne où ça bloque (M22). Le résultat se lit de gauche à
+   droite ; le « +1 » recopié tout seul par la page sous une soustraction
+   (data-bas) n'est pas une écriture de l'élève et ne se compte pas. */
+function ctxPosee(hostId){
+  const h=$(hostId); if(!h) return '';
+  const res=[].slice.call(h.querySelectorAll('.mp-box')).map(iaEtatCase);
+  const ret=[].slice.call(h.querySelectorAll('.mp-carry, .asp-ret:not([data-bas])')).map(iaEtatCase);
+  if(!res.length) return '';
+  return 'Ce que l’élève a écrit — résultat, chiffre par chiffre de gauche à droite : '+res.join(' | ')
+    +(ret.length?(' ; '+(ret.length>1?'retenues, de gauche à droite : ':'retenue : ')+ret.join(' | ')):'')+'. ';
+}
 function ctxEcranPct(){
   const scr=document.querySelector('.screen.on'); if(!scr) return '';
   const out=[];
@@ -29199,6 +29213,7 @@ function ctxPourcentages(){
 
   } else if(k==='mp' && q){
     att='Multiplication posée : '+q.a+' × '+q.m+'. Réponses attendues, STRICTEMENT SECRÈTES : retenue '+q.carry1+', résultat '+q.result+'. '
+      +ctxPosee('mpHost')
       +'Méthode : multiplier d’abord les unités, écrire le chiffre des unités du produit et retenir les dizaines, puis multiplier les dizaines et AJOUTER la retenue. La case de retenue est facultative, mais si elle est écrite elle doit être juste.';
   } else if(k==='md' && q){
     att='Produit de décimaux : '+q.aStr+' × '+q.bStr+'. Réponses attendues, STRICTEMENT SECRÈTES : multiplication posée des numérateurs '
@@ -29211,8 +29226,9 @@ function ctxPourcentages(){
   } else if(k==='fracp' && q){
     att='Question : '+(q.qtext||'')+'. Réponse attendue, STRICTEMENT SECRÈTE : '+(q.atext||'')+'. '
       +'Méthode : diviser par 10, 100 ou 1000 décale la virgule de 1, 2 ou 3 rangs vers la gauche ; inversement, le nombre de chiffres après la virgule donne le dénominateur.';
-  } else if(currentTestId==='addition-soustraction' && q){
+  } else if((k==='asp' || currentTestId==='addition-soustraction') && q){
     att='Op\u00e9ration POS\u00c9E en colonnes : '+q.text+'. R\u00e9ponse attendue, STRICTEMENT SECR\u00c8TE : '+q.answer+'. '
+      +ctxPosee('aspHost')
       +'L\u2019\u00e9l\u00e8ve remplit les cases du r\u00e9sultat, colonne par colonne en partant des unit\u00e9s ; '
       +'les cases de retenue sont facultatives. Il y a TOUJOURS une retenue dans cet exercice. '
       +'M\u00e9thode : \u00e0 l\u2019addition, la retenue s\u2019\u00e9crit au-dessus de la colonne o\u00f9 elle s\u2019ajoute ; '
