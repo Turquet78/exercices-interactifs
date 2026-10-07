@@ -15683,7 +15683,7 @@ function renderTsgTest(){
     +'<span class="itv-fixe">et représente le signe</span>'+selS(idG,'Signe de la partie f(x) '+op+' 0')
     +'<span class="itv-fixe">.</span></span></div>'; };
   const table='<table class="tsg-tbl"><tbody>'
-    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+itvNum(x1)+'</td><td></td><td class="tsg-root">'+itvNum(x2)+'</td><td class="bnd tsg-br">+∞</td></tr>'
+    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">'+itvNum(-3)+'</td><td class="tsg-root">'+itvNum(x1)+'</td><td></td><td class="tsg-root">'+itvNum(x2)+'</td><td class="bnd tsg-br">'+itvNum(3)+'</td></tr>'
     +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('tsg-t0','Signe avant '+itvNum(x1))+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsg-t1','Signe entre les deux racines')+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsg-t2','Signe après '+itvNum(x2))+'</td></tr>'
     +'</tbody></table>';
   const inter=function(co,b1,b2,cf){ return itvSelHTML(co,ITV_OPT_CROCHET,'Crochet ouvrant')+selN(b1,'Borne de gauche')
@@ -15853,7 +15853,7 @@ function renderLS(){
     instr='Construis le tableau de signes : écris les deux racines dans la ligne des x (la plus petite à gauche), puis choisis +, − ou 0 dans chaque case de la ligne du signe.';
     const selS=function(id,aria){ return '<select id="'+id+'" class="lv-sel arr" aria-label="'+aria+'"><option value="">\u2014</option><option value="+">+</option><option value="-">\u2212</option><option value="0">0</option></select>'; };
     const table='<table class="tsg-tbl"><tbody>'
-      +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">\u2212\u221e</td><td class="tsg-root"><input id="ls-c-x-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Première racine"></td><td></td><td class="tsg-root"><input id="ls-c-x-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Seconde racine"></td><td class="bnd tsg-br">+\u221e</td></tr>'
+      +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">'+numFmt(-3)+'</td><td class="tsg-root"><input id="ls-c-x-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Première racine"></td><td></td><td class="tsg-root"><input id="ls-c-x-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Seconde racine"></td><td class="bnd tsg-br">'+numFmt(3)+'</td></tr>'
       +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('ls-c-s-0','Signe avant la première racine')+'</td><td>'+selS('ls-c-s-1','Sous la première racine')+'</td><td>'+selS('ls-c-s-2','Signe entre les deux racines')+'</td><td>'+selS('ls-c-s-3','Sous la seconde racine')+'</td><td>'+selS('ls-c-s-4','Signe après la seconde racine')+'</td></tr>'
       +'</tbody></table>';
     body='<div class="lv-tblwrap">'+table+'</div>';
@@ -15987,7 +15987,7 @@ function renderLSV(){
   /* --- ① le tableau de signes : celui de {lecture-signes} --- */
   const selS=function(id,aria){ return '<select id="'+id+'" class="lv-sel arr" aria-label="'+aria+'"><option value="">—</option><option value="+">+</option><option value="-">−</option><option value="0">0</option></select>'; };
   const tSignes='<table class="tsg-tbl"><tbody>'
-    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root"><input id="lsv-s-x-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Première racine"></td><td></td><td class="tsg-root"><input id="lsv-s-x-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Seconde racine"></td><td class="bnd tsg-br">+∞</td></tr>'
+    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">'+numFmt(-3)+'</td><td class="tsg-root"><input id="lsv-s-x-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Première racine"></td><td></td><td class="tsg-root"><input id="lsv-s-x-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Seconde racine"></td><td class="bnd tsg-br">'+numFmt(3)+'</td></tr>'
     +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('lsv-s-s-0','Signe avant la première racine')+'</td><td>'+selS('lsv-s-s-1','Sous la première racine')+'</td><td>'+selS('lsv-s-s-2','Signe entre les deux racines')+'</td><td>'+selS('lsv-s-s-3','Sous la seconde racine')+'</td><td>'+selS('lsv-s-s-4','Signe après la seconde racine')+'</td></tr>'
     +'</tbody></table>';
   /* --- ② le tableau de variation : celui de {lecture-variations},
@@ -16188,7 +16188,7 @@ function renderGSV(){
   /* --- ① le tableau de signes : celui de {signes-variations} --- */
   const selS=function(id,aria){ return '<select id="'+id+'" class="lv-sel arr" aria-label="'+aria+'"><option value="">—</option><option value="+">+</option><option value="-">−</option><option value="0">0</option></select>'; };
   const tSignes='<table class="tsg-tbl"><tbody>'
-    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root"><input id="gsv-s-x-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Première racine"></td><td></td><td class="tsg-root"><input id="gsv-s-x-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Seconde racine"></td><td class="bnd tsg-br">+∞</td></tr>'
+    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">'+numFmt(-GSV_R)+'</td><td class="tsg-root"><input id="gsv-s-x-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Première racine"></td><td></td><td class="tsg-root"><input id="gsv-s-x-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Seconde racine"></td><td class="bnd tsg-br">'+numFmt(GSV_R)+'</td></tr>'
     +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('gsv-s-s-0','Signe avant la première racine')+'</td><td>'+selS('gsv-s-s-1','Sous la première racine')+'</td><td>'+selS('gsv-s-s-2','Signe entre les deux racines')+'</td><td>'+selS('gsv-s-s-3','Sous la seconde racine')+'</td><td>'+selS('gsv-s-s-4','Signe après la seconde racine')+'</td></tr>'
     +'</tbody></table>';
   /* --- ② le tableau de variation : rendu par varTableHTML — la fonction
