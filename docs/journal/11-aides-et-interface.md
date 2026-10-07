@@ -853,3 +853,17 @@ sabotages ont d'abord fait LEVER le contrôle jsdom au lieu de nommer quoi que c
 soit : privé de sa carte, `ouvrirQIA` va chercher `#qiaSugg`, qui vit DEDANS, et
 meurt sur un null. Un contrôle qui lève ne nomme rien : il attrape, et il dit ce
 qui manque.
+
+**Le code de l'élève se tape masqué — par la feuille de styles, pas par
+`type="password"` (audit d'octobre 2026, T10).** `#loginPin` s'affichait en
+clair : en classe, le code se lisait sur l'écran du voisin. Le passer en
+`password` aurait rouvert le piège « Sans balise `<form>` » par l'autre bout :
+le formulaire de l'élève n'a aucun identifiant (le prénom est un bouton),
+Chrome serait allé en chercher un et aurait proposé d'ENREGISTRER le code
+d'un élève sur un poste partagé — et de le préremplir pour le suivant. Il est
+donc masqué par `-webkit-text-security:disc` (Chrome, Edge, Safari ; un
+navigateur qui l'ignore l'affiche en clair, comme avant) et reste un champ
+texte `inputmode="numeric"` : le pavé numérique s'y attache toujours, le banc
+navigateur s'y connecte toujours (`page.fill`). Tenu par deux bords dans
+`tests/verifier.js` (masqué, et pas en password) et, au navigateur, par le
+style calculé (`webkitTextSecurity` = `disc`, type `text`).
