@@ -7406,9 +7406,14 @@ async function startLR(){
    - borne infinie, ou borne finie OUVERTE (asymptote verticale) : la valeur affichée
      est une LIMITE, jamais atteinte ;
    - le sommet du V/Λ est toujours atteint, et ne compte qu’UNE fois.
-   Le nombre de solutions est calculé à la GÉNÉRATION (source de vérité) ; l’IA
-   (fonction Edge « corriger-definition », action verif) confronte les réponses de
-   l’élève à ces nombres et rédige le retour pédagogique. */
+   Le nombre de solutions est calculé à la GÉNÉRATION (source de vérité) et la
+   page JUGE elle-même (audit M16, octobre 2026 : un verdict qu’on peut prouver
+   ne se confie pas à un modèle — avec un modèle qui se trompe, une copie fausse
+   obtenait 1/1 avec ses cases en rouge, une copie parfaite 0,75, et en soutien
+   l’élève tournait en rond devant des cases justes verrouillées). L’IA
+   (fonction Edge « corriger-definition », action verif) ne fait plus que
+   rédiger le commentaire des erreurs, écarté s’il contredit le verdict local ;
+   en panne, la page note seule. */
 /* 1 solution sur une branche monotone si k est strictement entre les deux valeurs,
    ou égal à une valeur ATTEINTE (u/w : valeurs aux extrémités ; uAtt/wAtt : atteintes ?). */
 function tvinsBranche(u,uAtt,w,wAtt,k){
@@ -7603,27 +7608,29 @@ async function checkTVINS(){
   const c=test.questions[test.idx];
   const vals=c.eqs.map((e,i)=>(($('tvins-eq'+i)||{}).value||''));
   if(vals.some(x=>x==='')){ toast('Réponds à toutes les équations d’abord'); return; }
-  tvinsBusy=true;
-  $('tvinsActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
-  $('tvinsFeedback').textContent='L’IA relit tes réponses…'; $('tvinsFeedback').className='mp-feedback muted';
-  let res=null;
-  try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:tvinsQuestionIA(c), attendu:tvinsAttenduIA(c), reponse:tvinsReponseTxt(vals), balises:true } });
-    if(r.error) throw r.error; res=r.data;
-  }catch(e){ res=null; }
-  tvinsBusy=false;
-  res=iaNettoie(res);
-  /* Pas de correcteur de secours (deux correcteurs = deux barèmes) : sans l’IA on ne note pas,
-     la tentative n’est ni comptée ni verrouillée, l’élève réessaie quand le service répond. */
-  if(!res || res.error){
-    $('tvinsFeedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
-    $('tvinsFeedback').className='mp-feedback bad';
-    $('tvinsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVINS()">Réessayer</button>';
-    return;
+  /* VERDICT LOCAL : les nombres de solutions sont connus de la page. L’IA ne
+     décide plus de la note ni des couleurs : appelée seulement sur une copie
+     fausse, elle reçoit le verdict local et rédige le commentaire ; sa prose
+     n’est gardée que si elle dit, elle aussi, « faux ». */
+  const fautes=c.eqs.map((e,i)=>i).filter(i=>vals[i]!==String(c.eqs[i].n));
+  const correct=fautes.length===0;
+  let fbHTML='';
+  if(!correct){
+    tvinsBusy=true;
+    $('tvinsActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+    $('tvinsFeedback').textContent='L’IA relit tes réponses…'; $('tvinsFeedback').className='mp-feedback muted';
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:tvinsQuestionIA(c),
+        attendu:tvinsAttenduIA(c)+' Équations actuellement fausses (verdict local certain) : '+fautes.map(i=>'('+(i+1)+')').join(', ')+'. Réponds correct = false et commente UNIQUEMENT ces équations-là.',
+        reponse:tvinsReponseTxt(vals), balises:true } });
+      if(!r.error && r.data){ const res=iaNettoie(r.data);
+        if(res && !res.error && res.correct===false && res.feedback) fbHTML=conseilHTML(res.feedback);
+      }
+    }catch(e){ fbHTML=''; }
+    tvinsBusy=false;
   }
-  const correct=res.correct===true;
-  const fbHTML=conseilHTML(res.feedback||'');
-  /* coloration locale d’après les nombres calculés (les mêmes que ceux envoyés à l’IA) */
+  /* coloration d’après les mêmes nombres que le verdict */
   c.eqs.forEach((e,i)=>{
     const el=$('tvins-eq'+i); if(!el) return;
     const ok=(vals[i]===String(e.n));
@@ -7639,8 +7646,8 @@ async function checkTVINS(){
   test.locked=true;
   if(correct){
     test.score++; $('tvinsLiveScore').textContent=test.score;
-    $('tvinsFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !'])));
-    $('tvinsFeedback').className='mp-feedback good'+(fbHTML?' iafb':'');
+    $('tvinsFeedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
+    $('tvinsFeedback').className='mp-feedback good';
   } else {
     $('tvinsFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : la bonne réponse est indiquée en vert à côté de chaque équation fausse.';
     $('tvinsFeedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
@@ -7669,8 +7676,12 @@ function nextTVINS(){ if(test.idx<test.questions.length-1){ test.idx++; renderTV
    frôle la hauteur k (pas d’ambiguïté visuelle). Familles générées, fidèles aux 5
    exemples du document : droite (1 solution), parabole (2 solutions), parabole tangente
    au sommet (1), courbe à deux extremums (3), courbe tangente à un extremum (2).
-   Les solutions calculées à la génération font foi ; l’IA (fonction Edge
-   « corriger-definition », action verif) rend le verdict et rédige le retour. */
+   Les solutions calculées à la génération font foi, et c’est la PAGE qui juge
+   (tvgJuste, audit M16, octobre 2026 : le verdict venait du seul modèle — une
+   copie fausse notée 1/1, une copie parfaite 0,75, l’élève en soutien bloqué
+   devant des cibles justes verrouillées). L’IA (fonction Edge
+   « corriger-definition », action verif) ne fait que rédiger le commentaire des
+   erreurs, écarté s’il contredit le verdict local ; en panne, la page note seule. */
 const TVG_XMIN=-5, TVG_XMAX=5;
 /* Spline de Hermite monotone par morceaux (Fritsch–Carlson) : la courbe passe
    EXACTEMENT par les nœuds et reste strictement monotone entre deux nœuds. */
@@ -7917,7 +7928,7 @@ function tvgFinal(c){
   const vb=document.querySelector('.tvg-vide'); if(vb) vb.disabled=true;
 }
 /* Question, attendu et réponse envoyés à l’IA (action verif) : les solutions calculées
-   à la génération font foi, l’IA vérifie les deux ensembles et rédige le retour. */
+   à la génération font foi ; la page a déjà jugé (tvgJuste), l’IA rédige le retour. */
 function tvgQuestionIA(c){
   return 'Exercice de lecture graphique : '+c.desc
     +' Consignes : a) cliquer sur la courbe le ou les points vérifiant '+c.fname+'(x) = '+c.kL
@@ -7992,6 +8003,18 @@ function tvgSolOK(c,t){
   const a=arr.slice().sort((x,y)=>x-y), b=c.sols.slice().sort((x,y)=>x-y);
   return a.every((v,i)=>numOkTol(v,b[i]));   /* valeur approchée au dixième acceptée */
 }
+/* LE JUGE DE LA PAGE : les trois réponses (points de la courbe, abscisses de
+   l’axe, écriture) contre les solutions calculées à la génération. Rend la
+   liste des réponses fausses, nommées comme le modèle les lira. */
+function tvgFautes(c){
+  const meme=(sel)=>{ const a=sel.slice().sort((x,y)=>x-y), b=c.sols.slice().sort((x,y)=>x-y);
+    return a.length===b.length && a.every((v,i)=>v===b[i]); };
+  const si=$('tvgSol'), f=[];
+  if(!meme(c.selPts||[])) f.push('a) les points cliqués sur la courbe');
+  if(!meme(c.selXs||[])) f.push('b) les abscisses cliquées sur l’axe');
+  if(!tvgSolOK(c, si?si.value:'')) f.push('c) l’écriture des solutions');
+  return f;
+}
 let tvgBusy=false;
 async function checkTVG(){
   if(test.locked||tvgBusy) return;
@@ -8000,26 +8023,27 @@ async function checkTVG(){
   if(!solTxt){ toast('Écris les solutions à la question c) — ou ∅ s’il n’y en a aucune'); return; }
   const estVide=(solTxt==='∅'||solTxt.toLowerCase()==='vide');
   if(!estVide && (!c.selPts.length || !c.selXs.length)){ toast('Sélectionne les points sur la courbe et les abscisses sur l’axe — ou écris ∅ si l’équation n’a pas de solution'); return; }
-  tvgBusy=true;
-  $('tvgActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
-  $('tvgFeedback').textContent='L’IA relit tes réponses…'; $('tvgFeedback').className='mp-feedback muted';
-  let res=null;
-  try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:tvgQuestionIA(c), attendu:tvgAttenduIA(c), reponse:tvgReponseTxt(c), balises:true } });
-    if(r.error) throw r.error; res=r.data;
-  }catch(e){ res=null; }
-  tvgBusy=false;
-  res=iaNettoie(res);
-  /* Pas de correcteur de secours (deux correcteurs = deux barèmes) : sans l’IA on ne note pas,
-     la tentative n’est ni comptée ni verrouillée, l’élève réessaie quand le service répond. */
-  if(!res || res.error){
-    $('tvgFeedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
-    $('tvgFeedback').className='mp-feedback bad';
-    $('tvgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVG()">Réessayer</button>';
-    return;
+  /* VERDICT LOCAL : la note et les couleurs viennent de tvgFautes. L’IA,
+     appelée seulement sur une copie fausse, reçoit ce verdict et rédige ; sa
+     prose n’est gardée que si elle dit, elle aussi, « faux ». */
+  const fautes=tvgFautes(c);
+  const correct=fautes.length===0;
+  let fbHTML='';
+  if(!correct){
+    tvgBusy=true;
+    $('tvgActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+    $('tvgFeedback').textContent='L’IA relit tes réponses…'; $('tvgFeedback').className='mp-feedback muted';
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:tvgQuestionIA(c),
+        attendu:tvgAttenduIA(c)+' Réponses actuellement fausses (verdict local certain) : '+fautes.join(', ')+'. Réponds correct = false et commente UNIQUEMENT ces réponses-là.',
+        reponse:tvgReponseTxt(c), balises:true } });
+      if(!r.error && r.data){ const res=iaNettoie(r.data);
+        if(res && !res.error && res.correct===false && res.feedback) fbHTML=conseilHTML(res.feedback);
+      }
+    }catch(e){ fbHTML=''; }
+    tvgBusy=false;
   }
-  const correct=res.correct===true;
-  const fbHTML=conseilHTML(res.feedback||'');
   if(!correct && isSoutien()){
     tvgMarqueSoutien(c);
     $('tvgFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Imagine la droite horizontale y = '+c.kL+' : où touche-t-elle la courbe ? Retire les sélections en rouge, complète ce qui manque, puis revérifie.');
@@ -8031,8 +8055,8 @@ async function checkTVG(){
   tvgFinal(c);
   if(correct){
     test.score++; $('tvgLiveScore').textContent=test.score;
-    $('tvgFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !'])));
-    $('tvgFeedback').className='mp-feedback good'+(fbHTML?' iafb':'');
+    $('tvgFeedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
+    $('tvgFeedback').className='mp-feedback good';
   } else {
     $('tvgFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Les bonnes réponses sont en vert — la droite y = '+c.kL+' est tracée en pointillés.';
     $('tvgFeedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
