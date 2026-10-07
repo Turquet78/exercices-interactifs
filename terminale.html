@@ -4034,7 +4034,7 @@ function conseilCtxCourant(){
     const dsc=tvi3TableTexte(q);
     const attendu=(q.raison==='horsbornes')?(q.kL+' n’est pas compris entre '+q.vGL+' et '+q.vDL)
       :(q.raison==='nonmonotone')?(q.fname+' n’est pas strictement monotone : l’équation '+q.fname+'('+q.v+') = '+q.kL+' admet DEUX solutions')
-      :(q.fname+' n’est pas continue ('+q.v+' = '+q.cLabel+' est une valeur interdite)');
+      :(q.fname+' n’est pas définie en '+q.v+' = '+q.cLabel+' (valeur interdite) : l’ensemble d’étude n’est pas un intervalle, le TVI ne s’y applique pas');
     c='Exercice : expliquer en une ou deux phrases pourquoi le théorème des valeurs intermédiaires ne permet PAS d’affirmer que '+q.fname+'('+q.v+') = '+q.kL+' admet une unique solution sur '+tvi3Intervalle(q)+'. Description exacte du tableau de variation (tu ne vois pas l’image) : '+dsc
      +' La bonne explication, à faire trouver SANS jamais la donner ni la reformuler : '+attendu+'. '
      +'CONTRAINTE ANTI-RECOPIE (l’élève peut coller ton conseil dans sa réponse) : ne cite NI la raison en toutes lettres, NI les valeurs à écrire. Guide par des questions : les trois hypothèses du corollaire du TVI (continuité, stricte monotonie, valeur k comprise entre les deux images du tableau) sont-elles toutes vérifiées ici ? Laquelle est en défaut ?'
@@ -4168,11 +4168,11 @@ function conseilCtxCourant(){
     const q=test.questions[test.idx], a=q.ans;
     const iv=q.leftBrk+' '+q.aLabel+' ; '+q.bLabel+' '+q.rightBrk;
     c='Exercice 4.1 : compléter la justification du TVI à partir d’un tableau de variation. '
-     +'Énoncé : démontrer que l’équation '+q.fname+'('+q.v+') = '+q.kL+' admet une unique solution, notée α, sur ℝ. '
+     +'Énoncé : démontrer que l’équation '+q.fname+'('+q.v+') = '+q.kL+' admet une unique solution, notée α, sur '+tvi2Intervalle(q)+'. '
      +'Description exacte du tableau de variation (tu ne vois pas l’image) : la ligne des '+q.v+' va de '+q.aLabel+' à '+q.bLabel+', avec α entre les deux ; '
      +q.fname+' est continue et strictement '+q.sens+' sur '+iv+', et varie de '+q.vGL+' (en '+q.aLabel+') à '+q.vDL+' (en '+q.bLabel+') ; '
      +'la valeur '+q.kL+' est écrite sur la flèche, en face de α. '
-     +'Phrase à compléter, un menu déroulant par « … » : « Sur [ … ; … ], '+q.fname+'('+q.v+') est … et elle est strictement …, elle varie de … à …. De plus, … est compris entre … et …. D’après le …, '+q.fname+'('+q.v+') = … admet une … solution. » '
+     +'Phrase à compléter, un menu déroulant par « … » : « Sur [ … ; … ], '+q.fname+' est … et elle est strictement …, elle varie de … à …. De plus, … est compris entre … et …. D’après le …, '+q.fname+'('+q.v+') = … admet une … solution. » '
      +'Réponses attendues (à ne JAMAIS révéler) : borne gauche '+a.bg+' ; borne droite '+a.bd+' ; « '+a.cont+' » ; « '+a.sens+' » ; varie de '+a.vg+' à '+a.vd+' ; nombre encadré '+a.enck+' ; bornes de l’encadrement '+a.enclo+' et '+a.enchi+' (les deux ordres sont acceptés) ; théorème « '+a.tvi+' » ; valeur dans l’équation '+a.k+' ; « '+a.uniq+' ».';
     c+=dexpFeuilleCtx([
       ['Intervalle et hypothèses', [['borne gauche','tvi-bg'],['borne droite','tvi-bd'],['mot après « est »','tvi-cont'],['mot après « strictement »','tvi-sens'],['valeur de départ','tvi-vg'],['valeur d’arrivée','tvi-vd']]],
@@ -6622,6 +6622,10 @@ function numFmt(x){ return String(x).replace('.', ',').replace('-', '\u2212'); }
 function vlabel(x){ if(x===Infinity) return '+\u221e'; if(x===-Infinity) return '\u2212\u221e'; return numFmt(x); }
 function tviNumKey(s){ if(s==='\u2212\u221e') return -1e9; if(s==='+\u221e') return 1e9; return parseFloat(s.replace(',', '.').replace('\u2212', '-')); }
 
+/* ±∞ survivent au JSON de la pause : rangés « +inf » / « -inf », relus en nombres.
+   Une vieille pause a rangé « null » à leur place : il ne se relit en rien (NaN). */
+function tviSer(x){ return x===Infinity?'+inf':(x===-Infinity?'-inf':x); }
+function tviDeser(x){ if(x==='+inf') return Infinity; if(x==='-inf') return -Infinity; return (typeof x==='number')?x:NaN; }
 /* Génère un cas : intervalle, sens, valeurs aux bornes, valeur cible k (strictement encadrée). */
 function genTVI(){
   const v = rand(0,1) ? 't' : 'x';
@@ -6666,7 +6670,9 @@ function genTVI(){
     type:'tvi', v, fname, croissante, sens,
     leftBrk, rightBrk, aLabel, bLabel,
     vGL:vlabel(vG), vDL:vlabel(vD), kL:numFmt(k),
-    _vG:vG, _vD:vD, _k:k,
+    /* ±∞ rangés en CHAÎNE : la question part en JSON à la pause, et JSON écrit
+       Infinity « null » — à la reprise, la liste des valeurs proposait « null ». */
+    _vG:tviSer(vG), _vD:tviSer(vD), _k:k,
     ans:{ bg:aLabel, bd:bLabel, cont:'continue', sens:sens, vg:vlabel(vG), vd:vlabel(vD), tvi:'TVI', k:numFmt(k), uniq:'unique', enck:numFmt(k), enclo:vlabel(Math.min(vG,vD)), enchi:vlabel(Math.max(vG,vD)) }
   };
 }
@@ -6702,13 +6708,14 @@ function tviSentence(c){
   const words=['continue','croissante','d\u00e9croissante','TVI','unique'];
   // pool de valeurs proposées (bonnes réponses + quelques distracteurs)
   const pool=new Set([c.aLabel,c.bLabel,c.vGL,c.vDL,c.kL]);
-  [c._k+1,c._k-1,0,c._vG,c._vD].forEach(x=>{ if(isFinite(x)) pool.add(numFmt(x)); });
+  [c._k+1,c._k-1,0,tviDeser(c._vG),tviDeser(c._vD)].forEach(x=>{ if(typeof x==='number' && isFinite(x)) pool.add(numFmt(x)); });
   pool.add('\u2212\u221e'); pool.add('+\u221e');
   const vals=[...pool].sort((a,b)=>tviNumKey(a)-tviNumKey(b));
   const selW=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2014</option>${words.map(w=>`<option value="${esc(w)}">${esc(w)}</option>`).join('')}</select>`;
   const selV=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2014</option>${vals.map(w=>`<option value="${esc(w)}">${esc(w)}</option>`).join('')}</select>`;
   const fn=`<i>${c.fname}</i>(${c.v})`;
-  return `Sur <span class="tvi-int"><b>${c.leftBrk}</b> ${selV('tvi-bg')} ; ${selV('tvi-bd')} <b>${c.rightBrk}</b></span> , ${fn} est ${selW('tvi-cont')} et elle est strictement ${selW('tvi-sens')}, elle varie de ${selV('tvi-vg')} à ${selV('tvi-vd')}.<br>
+  /* c'est f qui est continue, pas le nombre f(x) : l'équation, elle, garde f(x) */
+  return `Sur <span class="tvi-int"><b>${c.leftBrk}</b> ${selV('tvi-bg')} ; ${selV('tvi-bd')} <b>${c.rightBrk}</b></span> , <i>${c.fname}</i> est ${selW('tvi-cont')} et elle est strictement ${selW('tvi-sens')}, elle varie de ${selV('tvi-vg')} à ${selV('tvi-vd')}.<br>
   De plus, ${selV('tvi-enc-k')} est compris entre ${selV('tvi-enc-lo')} et ${selV('tvi-enc-hi')}.<br>
   D\u2019apr\u00e8s le ${selW('tvi-tvi')}, ${fn} ${tEq('=', selV('tvi-k'))} admet une ${selW('tvi-uniq')} solution.`;
 }
@@ -6734,7 +6741,9 @@ function renderTVI(){
   $('tviLiveScore').textContent=test.score;
   $('tviFeedback').textContent=''; $('tviFeedback').className='mp-feedback';
   $('tviActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI()">V\u00e9rifier</button>';
-  $('tviPrompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur \u211d.`;
+  /* l'intervalle du TIRAGE, celui du tableau et des deux premiers menus (« ℝ » quand
+     les deux bornes sont infinies) — « sur ℝ » en dur contredisait le tableau */
+  $('tviPrompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur ${esc(tvi2Intervalle(c))}.`;
   $('tviTable').innerHTML=tviSVG(c);
   $('tviFill').innerHTML=tviSentence(c);
   if(isSoutien()){
@@ -6745,24 +6754,38 @@ function checkTVI(live){
   if(test.locked && !live) return;
   const c=test.questions[test.idx], a=c.ans;
   const map=[['tvi-bg',a.bg],['tvi-bd',a.bd],['tvi-cont',a.cont],['tvi-sens',a.sens],['tvi-vg',a.vg],['tvi-vd',a.vd],['tvi-tvi',a.tvi],['tvi-k',a.k],['tvi-uniq',a.uniq],['tvi-enc-k',a.enck],['tvi-enc-lo',a.enclo],['tvi-enc-hi',a.enchi]];
-  // Les deux bornes de l'encadrement de k sont acceptées dans n'importe quel ordre.
+  /* Les deux bornes de l'encadrement de k sont acceptées dans n'importe quel ordre — et
+     chacune a SON verdict : une borne juste ne rougit pas parce que l'autre est fausse
+     ou vide, et elle compte. Une même valeur choisie deux fois ne vaut qu'une fois : la
+     seconde case est fausse. La correction d'une borne fausse est l'AUTRE valeur que
+     celle que l'élève a déjà juste. */
   const encLo=($('tvi-enc-lo')||{}).value||'', encHi=($('tvi-enc-hi')||{}).value||'';
-  const encPairOk = (encLo===a.enclo && encHi===a.enchi) || (encLo===a.enchi && encHi===a.enclo);
   const encValide = v => (v===a.enclo || v===a.enchi);
+  const okLo = encValide(encLo), okHi = encValide(encHi) && encHi!==encLo;
+  const autre = v => (v===a.enclo ? a.enchi : a.enclo);
+  const solEnc = { 'tvi-enc-lo': okHi ? autre(encHi) : a.enclo, 'tvi-enc-hi': okLo ? autre(encLo) : a.enchi };
+  map.forEach(m=>{ if(solEnc[m[0]]) m[1]=solEnc[m[0]]; });
   let allOk=true;
   map.forEach(([id,good])=>{
     const el=$(id); if(!el) return; const val=el.value;
     let ok;
-    if(id==='tvi-enc-lo'||id==='tvi-enc-hi'){ ok = live ? encValide(val) : encPairOk; }
+    if(id==='tvi-enc-lo') ok = okLo;
+    else if(id==='tvi-enc-hi') ok = live ? encValide(val) : okHi;
     else { ok=(val===good); }
     el.classList.remove('ok','bad');
     if(live){ if(val!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
     if(!ok) allOk=false;
+    /* une case VIDE ne rougit jamais : en soutien elle reste neutre et ouverte ; hors
+       soutien la révélation ci-dessous la remplit en « sol » */
+    if(val==='' && isSoutien()){ el.disabled=false; return; }
     el.classList.add(ok?'ok':'bad'); el.disabled = ok || !isSoutien();
   });
   if(live) return;
   if(!allOk && isSoutien()){
-    $('tviFeedback').textContent='Presque ! Corrige les menus en rouge, puis rev\u00e9rifie.';
+    const vides=map.some(([id])=>{ const el=$(id); return el && el.value===''; }), rouges=map.some(([id])=>{ const el=$(id); return el && el.classList.contains('bad'); });
+    $('tviFeedback').textContent = (vides && !rouges) ? 'Il reste des menus vides : compl\u00e8te-les, puis rev\u00e9rifie.'
+      : vides ? 'Presque ! Corrige les menus en rouge, compl\u00e8te les menus vides, puis rev\u00e9rifie.'
+      : 'Presque ! Corrige les menus en rouge, puis rev\u00e9rifie.';
     $('tviFeedback').className='mp-feedback bad';
     $('tviActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI()">Rev\u00e9rifier</button>';
     return;
@@ -6877,6 +6900,12 @@ function tvi3Intervalle(c){
   if(c.shape==='saut') I+=' \\ {'+c.cLabel+'}';
   return I;
 }
+/* L'intervalle d'étude SANS la valeur interdite retirée (« ]a ; b[ », « ℝ ») : la
+   correction du saut dit que cet intervalle PRIVÉ de c n'en est plus un. */
+function tvi3Base(c){
+  const infG=String(c.aLabel).indexOf('∞')>=0, infD=String(c.bLabel).indexOf('∞')>=0;
+  return (infG&&infD)?'ℝ':(c.leftBrk+c.aLabel+' ; '+c.bLabel+c.rightBrk);
+}
 /* Tableau de variation SVG : monotone, en V/Λ, ou avec double barre (valeur interdite).
    Cas « saut » : les images à gauche et à droite de la barre ne sont PAS écrites. */
 function tvi3SVG(c){
@@ -6917,7 +6946,7 @@ function tvi3SVG(c){
 function tvi3TableTexte(c){
   if(c.shape==='mono') return c.fname+' est continue et strictement '+(c.croissante?'croissante':'décroissante')+' : elle varie de '+c.vGL+' à '+c.vDL+' sur '+tvi3Intervalle(c)+'.';
   if(c.shape==='v') return c.fname+' est continue sur '+tvi3Intervalle(c)+' mais change de sens en '+c.v+' = '+c.cLabel+' : elle '+(c.extr==='min'?('décroît de '+c.vGL+' à '+c.vML+' puis croît jusqu’à '+c.vDL):('croît de '+c.vGL+' à '+c.vML+' puis décroît jusqu’à '+c.vDL))+'.';
-  return 'le tableau a une DOUBLE BARRE en '+c.v+' = '+c.cLabel+' (valeur interdite : '+c.fname+' n’est pas continue). Les images autour de la barre ne sont pas affichées ; la première image est '+c.vGL+', la dernière '+c.vDL+', et '+c.kL+' est compris entre les deux.';
+  return 'le tableau a une DOUBLE BARRE en '+c.v+' = '+c.cLabel+' (valeur interdite : '+c.fname+' n’y est pas définie, '+tvi3Base(c)+' privé de '+c.cLabel+' n’est pas un intervalle). Les images autour de la barre ne sont pas affichées ; la première image est '+c.vGL+', la dernière '+c.vDL+', et '+c.kL+' est compris entre les deux.';
 }
 /* Question et attendu envoyés à l’IA (action 'verif', comme les niveaux 2 du thème 2) :
    le barème de chaque famille vit dans l’attendu, l’IA renvoie { correct, feedback }. */
@@ -6942,8 +6971,8 @@ function tvi3AttenduIA(c){
       +'Toute formulation équivalente est correcte (« pas strictement croissante », « pas strictement décroissante », « change de variation ») ; citer des valeurs n’est pas exigé. '
       +'FAUX si l’élève invoque la continuité, ou dit que '+c.kL+' n’est pas encadré (il l’est).';
   }
-  return c.fname+' n’est pas continue : '+c.v+' = '+c.cLabel+' est une valeur interdite (double barre du tableau). '
-    +'ÉGALEMENT CORRECT : « '+c.fname+' est discontinue », « il y a une valeur interdite en '+c.cLabel+' ». '
+  return c.fname+' n’est pas définie en '+c.v+' = '+c.cLabel+' (valeur interdite, double barre du tableau) : '+tvi3Base(c)+' privé de '+c.cLabel+' n’est pas un intervalle, le TVI ne s’y applique pas. '
+    +'ÉGALEMENT CORRECT : « '+c.fname+' n’est pas continue sur '+tvi3Base(c)+' », « '+c.fname+' est discontinue », « il y a une valeur interdite en '+c.cLabel+' », « '+c.fname+' n’est pas définie en '+c.cLabel+' ». '
     +'FAUX si l’élève invoque la monotonie (les flèches vont dans le même sens) ou l’encadrement de '+c.kL+' (il est bien compris entre la première et la dernière image).';
 }
 /* Réponse modèle, affichée en correction. */
@@ -6951,13 +6980,15 @@ function tvi3Model(c){
   const I=tvi3Intervalle(c);
   if(c.raison==='horsbornes') return 'Le TVI ne permet pas de conclure car '+c.kL+' n’est pas compris entre '+c.vGL+' et '+c.vDL+'.';
   if(c.raison==='nonmonotone') return 'Le TVI ne permet pas de conclure car '+c.fname+' n’est pas strictement monotone sur '+I+' (elle change de sens) : l’équation '+c.fname+'('+c.v+') = '+c.kL+' admet en fait deux solutions.';
-  return 'Le TVI ne permet pas de conclure car '+c.fname+' n’est pas continue sur son ensemble de définition ('+c.v+' = '+c.cLabel+' est une valeur interdite).';
+  /* f est continue sur son ensemble de définition ]a ; c[ ∪ ]c ; b[ : ce qui manque au
+     TVI, c'est que cet ensemble n'est PAS un intervalle — f n'est pas définie en c. */
+  return 'Le TVI ne s’applique pas car '+c.fname+' n’est pas définie en '+c.v+' = '+c.cLabel+' (valeur interdite) : '+tvi3Base(c)+' privé de '+c.cLabel+' n’est pas un intervalle.';
 }
 /* Texte de la raison attendue, pour la page de résultats et le tableau de bord. */
 function tvi3RaisonTexte(c){
   if(c.raison==='horsbornes') return c.kL+' n’est pas compris entre '+c.vGL+' et '+c.vDL;
   if(c.raison==='nonmonotone') return c.fname+' n’est pas strictement monotone ('+c.fname+'('+c.v+') = '+c.kL+' admet deux solutions)';
-  return c.fname+' n’est pas continue ('+c.v+' = '+c.cLabel+' est une valeur interdite)';
+  return c.fname+' n’est pas définie en '+c.v+' = '+c.cLabel+' (valeur interdite : '+tvi3Base(c)+' privé de '+c.cLabel+' n’est pas un intervalle)';
 }
 async function startTVI3(){
   if(!currentEleve){ accueil(); return; }
@@ -7375,9 +7406,14 @@ async function startLR(){
    - borne infinie, ou borne finie OUVERTE (asymptote verticale) : la valeur affichée
      est une LIMITE, jamais atteinte ;
    - le sommet du V/Λ est toujours atteint, et ne compte qu’UNE fois.
-   Le nombre de solutions est calculé à la GÉNÉRATION (source de vérité) ; l’IA
-   (fonction Edge « corriger-definition », action verif) confronte les réponses de
-   l’élève à ces nombres et rédige le retour pédagogique. */
+   Le nombre de solutions est calculé à la GÉNÉRATION (source de vérité) et la
+   page JUGE elle-même (audit M16, octobre 2026 : un verdict qu’on peut prouver
+   ne se confie pas à un modèle — avec un modèle qui se trompe, une copie fausse
+   obtenait 1/1 avec ses cases en rouge, une copie parfaite 0,75, et en soutien
+   l’élève tournait en rond devant des cases justes verrouillées). L’IA
+   (fonction Edge « corriger-definition », action verif) ne fait plus que
+   rédiger le commentaire des erreurs, écarté s’il contredit le verdict local ;
+   en panne, la page note seule. */
 /* 1 solution sur une branche monotone si k est strictement entre les deux valeurs,
    ou égal à une valeur ATTEINTE (u/w : valeurs aux extrémités ; uAtt/wAtt : atteintes ?). */
 function tvinsBranche(u,uAtt,w,wAtt,k){
@@ -7572,27 +7608,29 @@ async function checkTVINS(){
   const c=test.questions[test.idx];
   const vals=c.eqs.map((e,i)=>(($('tvins-eq'+i)||{}).value||''));
   if(vals.some(x=>x==='')){ toast('Réponds à toutes les équations d’abord'); return; }
-  tvinsBusy=true;
-  $('tvinsActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
-  $('tvinsFeedback').textContent='L’IA relit tes réponses…'; $('tvinsFeedback').className='mp-feedback muted';
-  let res=null;
-  try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:tvinsQuestionIA(c), attendu:tvinsAttenduIA(c), reponse:tvinsReponseTxt(vals), balises:true } });
-    if(r.error) throw r.error; res=r.data;
-  }catch(e){ res=null; }
-  tvinsBusy=false;
-  res=iaNettoie(res);
-  /* Pas de correcteur de secours (deux correcteurs = deux barèmes) : sans l’IA on ne note pas,
-     la tentative n’est ni comptée ni verrouillée, l’élève réessaie quand le service répond. */
-  if(!res || res.error){
-    $('tvinsFeedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
-    $('tvinsFeedback').className='mp-feedback bad';
-    $('tvinsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVINS()">Réessayer</button>';
-    return;
+  /* VERDICT LOCAL : les nombres de solutions sont connus de la page. L’IA ne
+     décide plus de la note ni des couleurs : appelée seulement sur une copie
+     fausse, elle reçoit le verdict local et rédige le commentaire ; sa prose
+     n’est gardée que si elle dit, elle aussi, « faux ». */
+  const fautes=c.eqs.map((e,i)=>i).filter(i=>vals[i]!==String(c.eqs[i].n));
+  const correct=fautes.length===0;
+  let fbHTML='';
+  if(!correct){
+    tvinsBusy=true;
+    $('tvinsActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+    $('tvinsFeedback').textContent='L’IA relit tes réponses…'; $('tvinsFeedback').className='mp-feedback muted';
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:tvinsQuestionIA(c),
+        attendu:tvinsAttenduIA(c)+' Équations actuellement fausses (verdict local certain) : '+fautes.map(i=>'('+(i+1)+')').join(', ')+'. Réponds correct = false et commente UNIQUEMENT ces équations-là.',
+        reponse:tvinsReponseTxt(vals), balises:true } });
+      if(!r.error && r.data){ const res=iaNettoie(r.data);
+        if(res && !res.error && res.correct===false && res.feedback) fbHTML=conseilHTML(res.feedback);
+      }
+    }catch(e){ fbHTML=''; }
+    tvinsBusy=false;
   }
-  const correct=res.correct===true;
-  const fbHTML=conseilHTML(res.feedback||'');
-  /* coloration locale d’après les nombres calculés (les mêmes que ceux envoyés à l’IA) */
+  /* coloration d’après les mêmes nombres que le verdict */
   c.eqs.forEach((e,i)=>{
     const el=$('tvins-eq'+i); if(!el) return;
     const ok=(vals[i]===String(e.n));
@@ -7608,8 +7646,8 @@ async function checkTVINS(){
   test.locked=true;
   if(correct){
     test.score++; $('tvinsLiveScore').textContent=test.score;
-    $('tvinsFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !'])));
-    $('tvinsFeedback').className='mp-feedback good'+(fbHTML?' iafb':'');
+    $('tvinsFeedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
+    $('tvinsFeedback').className='mp-feedback good';
   } else {
     $('tvinsFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : la bonne réponse est indiquée en vert à côté de chaque équation fausse.';
     $('tvinsFeedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
@@ -7638,8 +7676,12 @@ function nextTVINS(){ if(test.idx<test.questions.length-1){ test.idx++; renderTV
    frôle la hauteur k (pas d’ambiguïté visuelle). Familles générées, fidèles aux 5
    exemples du document : droite (1 solution), parabole (2 solutions), parabole tangente
    au sommet (1), courbe à deux extremums (3), courbe tangente à un extremum (2).
-   Les solutions calculées à la génération font foi ; l’IA (fonction Edge
-   « corriger-definition », action verif) rend le verdict et rédige le retour. */
+   Les solutions calculées à la génération font foi, et c’est la PAGE qui juge
+   (tvgJuste, audit M16, octobre 2026 : le verdict venait du seul modèle — une
+   copie fausse notée 1/1, une copie parfaite 0,75, l’élève en soutien bloqué
+   devant des cibles justes verrouillées). L’IA (fonction Edge
+   « corriger-definition », action verif) ne fait que rédiger le commentaire des
+   erreurs, écarté s’il contredit le verdict local ; en panne, la page note seule. */
 const TVG_XMIN=-5, TVG_XMAX=5;
 /* Spline de Hermite monotone par morceaux (Fritsch–Carlson) : la courbe passe
    EXACTEMENT par les nœuds et reste strictement monotone entre deux nœuds. */
@@ -7886,7 +7928,7 @@ function tvgFinal(c){
   const vb=document.querySelector('.tvg-vide'); if(vb) vb.disabled=true;
 }
 /* Question, attendu et réponse envoyés à l’IA (action verif) : les solutions calculées
-   à la génération font foi, l’IA vérifie les deux ensembles et rédige le retour. */
+   à la génération font foi ; la page a déjà jugé (tvgJuste), l’IA rédige le retour. */
 function tvgQuestionIA(c){
   return 'Exercice de lecture graphique : '+c.desc
     +' Consignes : a) cliquer sur la courbe le ou les points vérifiant '+c.fname+'(x) = '+c.kL
@@ -7961,6 +8003,18 @@ function tvgSolOK(c,t){
   const a=arr.slice().sort((x,y)=>x-y), b=c.sols.slice().sort((x,y)=>x-y);
   return a.every((v,i)=>numOkTol(v,b[i]));   /* valeur approchée au dixième acceptée */
 }
+/* LE JUGE DE LA PAGE : les trois réponses (points de la courbe, abscisses de
+   l’axe, écriture) contre les solutions calculées à la génération. Rend la
+   liste des réponses fausses, nommées comme le modèle les lira. */
+function tvgFautes(c){
+  const meme=(sel)=>{ const a=sel.slice().sort((x,y)=>x-y), b=c.sols.slice().sort((x,y)=>x-y);
+    return a.length===b.length && a.every((v,i)=>v===b[i]); };
+  const si=$('tvgSol'), f=[];
+  if(!meme(c.selPts||[])) f.push('a) les points cliqués sur la courbe');
+  if(!meme(c.selXs||[])) f.push('b) les abscisses cliquées sur l’axe');
+  if(!tvgSolOK(c, si?si.value:'')) f.push('c) l’écriture des solutions');
+  return f;
+}
 let tvgBusy=false;
 async function checkTVG(){
   if(test.locked||tvgBusy) return;
@@ -7969,26 +8023,27 @@ async function checkTVG(){
   if(!solTxt){ toast('Écris les solutions à la question c) — ou ∅ s’il n’y en a aucune'); return; }
   const estVide=(solTxt==='∅'||solTxt.toLowerCase()==='vide');
   if(!estVide && (!c.selPts.length || !c.selXs.length)){ toast('Sélectionne les points sur la courbe et les abscisses sur l’axe — ou écris ∅ si l’équation n’a pas de solution'); return; }
-  tvgBusy=true;
-  $('tvgActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
-  $('tvgFeedback').textContent='L’IA relit tes réponses…'; $('tvgFeedback').className='mp-feedback muted';
-  let res=null;
-  try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:tvgQuestionIA(c), attendu:tvgAttenduIA(c), reponse:tvgReponseTxt(c), balises:true } });
-    if(r.error) throw r.error; res=r.data;
-  }catch(e){ res=null; }
-  tvgBusy=false;
-  res=iaNettoie(res);
-  /* Pas de correcteur de secours (deux correcteurs = deux barèmes) : sans l’IA on ne note pas,
-     la tentative n’est ni comptée ni verrouillée, l’élève réessaie quand le service répond. */
-  if(!res || res.error){
-    $('tvgFeedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
-    $('tvgFeedback').className='mp-feedback bad';
-    $('tvgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVG()">Réessayer</button>';
-    return;
+  /* VERDICT LOCAL : la note et les couleurs viennent de tvgFautes. L’IA,
+     appelée seulement sur une copie fausse, reçoit ce verdict et rédige ; sa
+     prose n’est gardée que si elle dit, elle aussi, « faux ». */
+  const fautes=tvgFautes(c);
+  const correct=fautes.length===0;
+  let fbHTML='';
+  if(!correct){
+    tvgBusy=true;
+    $('tvgActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+    $('tvgFeedback').textContent='L’IA relit tes réponses…'; $('tvgFeedback').className='mp-feedback muted';
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:tvgQuestionIA(c),
+        attendu:tvgAttenduIA(c)+' Réponses actuellement fausses (verdict local certain) : '+fautes.join(', ')+'. Réponds correct = false et commente UNIQUEMENT ces réponses-là.',
+        reponse:tvgReponseTxt(c), balises:true } });
+      if(!r.error && r.data){ const res=iaNettoie(r.data);
+        if(res && !res.error && res.correct===false && res.feedback) fbHTML=conseilHTML(res.feedback);
+      }
+    }catch(e){ fbHTML=''; }
+    tvgBusy=false;
   }
-  const correct=res.correct===true;
-  const fbHTML=conseilHTML(res.feedback||'');
   if(!correct && isSoutien()){
     tvgMarqueSoutien(c);
     $('tvgFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Imagine la droite horizontale y = '+c.kL+' : où touche-t-elle la courbe ? Retire les sélections en rouge, complète ce qui manque, puis revérifie.');
@@ -8000,8 +8055,8 @@ async function checkTVG(){
   tvgFinal(c);
   if(correct){
     test.score++; $('tvgLiveScore').textContent=test.score;
-    $('tvgFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !'])));
-    $('tvgFeedback').className='mp-feedback good'+(fbHTML?' iafb':'');
+    $('tvgFeedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
+    $('tvgFeedback').className='mp-feedback good';
   } else {
     $('tvgFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Les bonnes réponses sont en vert — la droite y = '+c.kL+' est tracée en pointillés.';
     $('tvgFeedback').className='mp-feedback bad'+(fbHTML?' iafb':'');
@@ -9205,7 +9260,9 @@ function evalJustif(c, raw){
 /* Justification mod\u00e8le, affich\u00e9e en correction. */
 function modelJustif(c){
   const I=`${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`;
-  return `Sur ${I}, ${c.fname}(${c.v}) est continue et strictement ${c.sens}, elle varie de ${c.vGL} à ${c.vDL}. D\u2019apr\u00e8s le th\u00e9or\u00e8me des valeurs interm\u00e9diaires, l\u2019\u00e9quation ${c.fname}(${c.v}) = ${c.kL} admet une unique solution \u03b1.`;
+  /* c'est f qui est continue (pas le nombre f(x)) ; et l'encadrement de k, que RAP_TVI
+     exige, figure dans le corrigé */
+  return `Sur ${I}, ${c.fname} est continue et strictement ${c.sens}, elle varie de ${c.vGL} à ${c.vDL}. De plus, ${c.kL} est compris entre ${c.vGL} et ${c.vDL}. D\u2019apr\u00e8s le th\u00e9or\u00e8me des valeurs interm\u00e9diaires, l\u2019\u00e9quation ${c.fname}(${c.v}) = ${c.kL} admet une unique solution \u03b1.`;
 }
 function renderJustifCheck(r){
   const ess=(lab,ok)=>`<div class="just-item ${ok?'ok':'miss'}"><span>${ok?'\u2713':'\u2717'}</span> ${esc(lab)}</div>`;
@@ -9638,15 +9695,22 @@ async function checkDexp2(){
   const posesTxt=poses.length?(" [Champs facultatifs remplis par l'élève — simple contexte, à ne PAS juger ni corriger dans le feedback : "+poses.map(p=>p.n+' = '+p.v).join(' ; ')+"]"):"";
   const question=dexpFxPlain(c)+posesTxt, attendu=dexpDfPlain(c);
   const attenduIA=attendu+" — ÉGALEMENT CORRECT dans l'autre ordre : "+dexpDfPlainAlt(c)+" (l'ordre des facteurs d'un produit est indifférent ; toute écriture équivalente de ce produit factorisé est juste).";
+  /* le juge de la dernière ligne PRIME (voir dexp2Juge) */
+  const j=dexp2Juge(x=>polyEval(c.dcoef,x)*Math.exp(c.k*x), DEXP2_PTS);
   let res=null;
   try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:question, attendu:attenduIA, reponse:rep, balises:true } });
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:question, attendu:attenduIA+dexp2VerdictIA(j), reponse:rep, balises:true } });
     if(r.error) throw r.error; res=r.data;
   }catch(e){ res=null; }
   test.dexpBusy=false;
-  if(!res || res.error){ fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Vérifier</button>'; return; }
-  const correct=res.correct===true;
-  fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
+  if(!res || res.error){
+    if(j.verdict==='abstention'){ fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Vérifier</button>'; return; }
+    res={correct:j.verdict==='accepte', feedback:''};   /* le modèle est en panne : le juge note seul */
+  }
+  const correct = j.verdict==='accepte' ? true : j.verdict==='refus' ? false : (res.correct===true);
+  let prose=res.feedback||'';
+  if(j.verdict!=='abstention' && ((res.correct===true)!==correct || !prose)) prose=dexp2Phrase(j,false);   /* une prose qui contredit le juge raconte l'autre verdict */
+  fb.innerHTML=conseilHTML(prose); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   if(isSoutien() && !correct){ $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Revérifier</button>'; if(dexp2Lines.length) dexp2Lines[dexp2Lines.length-1].mf.focus(); return; }
   test.locked=true; dexp2Lines.forEach(L=>{ try{ L.mf.readOnly=true; }catch(e){} });
   ['dexp-u','dexp-v','dexp-du','dexp-dv'].forEach(id=>{ const el=$(id); if(el) el.readOnly=true; });
@@ -9746,6 +9810,72 @@ function dexp2ReadSheet(){
   const parts=dexp2Lines.map(L=>{ try{ return (window.mlDexp?window.mlDexp.toPlain(L.mf.getValue()):'').trim(); }catch(e){ return ''; } }).filter(s=>s!=='');
   if(!parts.length) return '';
   return parts.map((p,i)=>(i===0?"f'(x) = ":"= ")+p).join('\n');
+}
+/* LE JUGE DE LA DERNIÈRE LIGNE — 2.1.2 et 2.1.5 (audit M16, octobre 2026).
+   La note de ces deux feuilles venait du SEUL modèle, alors que la page sait
+   dériver : un verdict qu'on peut prouver ne se confie pas à un modèle (la
+   leçon de libreJuge, payée en production). La dernière ligne écrite — ce
+   qui suit son dernier « = » — est lue comme une FONCTION, exactement comme
+   la case du 2.1.1 (compileExprExp, nettoyée de ses résidus par saClean),
+   puis comparée à f′ en plusieurs valeurs de x. TROIS positions :
+   · ACCEPTE — égale à f′ partout, ET factorisée (une seule exponentielle,
+     aucun + ni − au premier niveau) : c'est ce que la consigne demande ;
+   · REFUSE — lisible, mais différente de f′ : un fait prouvable ;
+   · S'ABSTIENT — illisible, ou juste mais pas factorisée : le modèle reste
+     seul juge, comme avant. Refuser une écriture qu'on ne sait pas lire
+     recréerait le faux négatif qu'on corrige.
+   Le verdict local PRIME : le modèle le reçoit et ne fait que rédiger ; une
+   prose qui le contredit est remplacée par la phrase du juge ; en panne du
+   modèle, le juge note seul (sauf abstention : rien n'est alors compté). */
+const DEXP2_PTS=[0.37,1.13,-1.5,2.71,-0.8,3.33,0.05];
+function dexp2DerniereLigne(){
+  for(let i=dexp2Lines.length-1;i>=0;i--){
+    let lx=''; try{ lx=String(dexp2Lines[i].mf.getValue?dexp2Lines[i].mf.getValue():''); }catch(e){}
+    const net=saClean(lx);
+    let pl=''; try{ pl=window.mlDexp?String(window.mlDexp.toPlain(net===''?lx:net)):''; }catch(e){ pl=''; }
+    pl=pl.trim(); if(pl==='') continue;
+    const k=pl.lastIndexOf('='); if(k>=0) pl=pl.slice(k+1).trim();
+    return zeroPourO(pl);
+  }
+  return '';
+}
+function dexp2Factorisee(pl){
+  const s=String(pl).replace(/\s+/g,'').toLowerCase();
+  if((s.match(/e\^|exp\(/g)||[]).length!==1) return false;
+  let p=0;
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
+    if(ch==='('||ch==='[') p++;
+    else if(ch===')'||ch===']') p--;
+    else if(p===0 && i>0 && /[+\-\u2212]/.test(ch) && s[i-1]!=='^') return false;
+  }
+  return true;
+}
+function dexp2Juge(refFn, pts){
+  const pl=dexp2DerniereLigne();
+  const f=pl?compileExprExp(pl):null;
+  if(!f) return {verdict:'abstention', ligne:pl};
+  let egal=true;
+  for(const x of pts){
+    let v; try{ v=f(x); }catch(e){ return {verdict:'abstention', ligne:pl}; }
+    if(typeof v!=='number' || !isFinite(v)) return {verdict:'abstention', ligne:pl};
+    const t=refFn(x);
+    if(Math.abs(v-t) > 1e-6*(1+Math.abs(t))) egal=false;
+  }
+  if(!egal) return {verdict:'refus', ligne:pl};
+  return {verdict:dexp2Factorisee(pl)?'accepte':'abstention', ligne:pl};
+}
+/* Ce que le modèle reçoit du juge, et la phrase du juge quand la prose du
+   modèle le contredit (ou manque). */
+function dexp2VerdictIA(j){
+  if(j.verdict==='accepte') return ' VERDICT DE LA PAGE, PRIORITAIRE : la dernière ligne de l\u2019élève (« '+j.ligne+' ») a été vérifiée numériquement — elle est ÉGALE à f\u2032(x) et factorisée. La réponse est CORRECTE : réponds correct = true, obligatoirement ; ton feedback dit en 2 phrases ce qui est bien fait et ne signale AUCUNE erreur.';
+  if(j.verdict==='refus') return ' VERDICT DE LA PAGE, PRIORITAIRE : la dernière ligne de l\u2019élève (« '+j.ligne+' ») a été vérifiée numériquement — elle N\u2019EST PAS égale à f\u2032(x). La réponse est FAUSSE : réponds correct = false, obligatoirement ; commente l\u2019erreur sans donner la dérivée.';
+  return '';
+}
+function dexp2Phrase(j, quotient){
+  return j.verdict==='accepte'
+    ? 'Ta dernière ligne est bien égale à f\u2032(x), et elle est factorisée : c\u2019est la bonne dérivée.'
+    : 'Ta dernière ligne n\u2019est pas égale à f\u2032(x) : en donnant à x quelques valeurs, elle ne donne pas les mêmes nombres que la dérivée. Reprends la formule '+(quotient?'(u/v)\u2032 = (u\u2032v \u2212 uv\u2032)/v\u00b2':'(uv)\u2032 = u\u2032v + uv\u2032')+' ligne par ligne.';
 }
 function renderDexp(){
   if(test.dexpLevel===2) return renderDexp2();
@@ -10370,15 +10500,22 @@ async function checkDexpQ2(){
   const posesTxt=poses.length?(" [Champs facultatifs remplis par l'élève \u2014 simple contexte, à ne PAS juger ni corriger dans le feedback : "+poses.map(p=>p.n+' = '+p.v).join(' ; ')+"]"):"";
   const question=dqFxPlain(c)+posesTxt, attendu=dqDfPlain(c);
   const attenduIA=attendu+" \u2014 ÉGALEMENT CORRECT dans l'autre ordre du numérateur : "+dqDfPlainAlt(c)+" (l'ordre des facteurs du numérateur est indifférent ; le dénominateur peut s'écrire ("+c.vStr+")^2 ou sous sa forme développée : les deux sont justes ; toute écriture équivalente de ce quotient est juste).";
+  /* le juge de la dernière ligne PRIME (voir dexp2Juge) */
+  const j=dexp2Juge(x=>{ const v=c.a*x+c.b; return (c.k*Math.exp(c.k*x)*v - c.a*Math.exp(c.k*x))/(v*v); }, DQ_PTS);
   let res=null;
   try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:question, attendu:attenduIA, reponse:rep, balises:true } });
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:question, attendu:attenduIA+dexp2VerdictIA(j), reponse:rep, balises:true } });
     if(r.error) throw r.error; res=r.data;
   }catch(e){ res=null; }
   test.dexpBusy=false;
-  if(!res || res.error){ fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexpQ2()">Vérifier</button>'; return; }
-  const correct=res.correct===true;
-  fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
+  if(!res || res.error){
+    if(j.verdict==='abstention'){ fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexpQ2()">Vérifier</button>'; return; }
+    res={correct:j.verdict==='accepte', feedback:''};   /* le modèle est en panne : le juge note seul */
+  }
+  const correct = j.verdict==='accepte' ? true : j.verdict==='refus' ? false : (res.correct===true);
+  let prose=res.feedback||'';
+  if(j.verdict!=='abstention' && ((res.correct===true)!==correct || !prose)) prose=dexp2Phrase(j,true);   /* une prose qui contredit le juge raconte l'autre verdict */
+  fb.innerHTML=conseilHTML(prose); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   if(isSoutien() && !correct){ $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexpQ2()">Revérifier</button>'; if(dexp2Lines.length) dexp2Lines[dexp2Lines.length-1].mf.focus(); return; }
   test.locked=true; dexp2Lines.forEach(L=>{ try{ L.mf.readOnly=true; }catch(e){} });
   ['dq-u','dq-v','dq-du','dq-dv'].forEach(id=>{ const el=$(id); if(el) el.readOnly=true; });
@@ -13163,11 +13300,15 @@ function checkEQ(live){
   if(test.locked && !live) return;
   const c=test.questions[test.idx], cases=eqCases(c), r=eqVerdicts(c);
   let allOk=true, anyFilled=false;
+  /* la valeur interdite −d/c écrite en fraction : « 2/−2 » pour « −2/2 » est juste (racineFracOk) */
+  const efn=$('eq-fn'), efd=$('eq-fd');
+  const paireOk=!!(efn && efd) && racineFracOk(efParse(efn.value), efParse(efd.value), c.dd, c.cd);
   cases.forEach(x=>{
     const el=$(x.id); if(!el) return;
     let raw, ok;
     if(x.type==='mf'){ raw=dexpCellValue(x.id); ok=!!r.verdicts[x.id]; }
     else if(x.type==='sel'){ raw=String(el.value||''); ok=(raw===x.good); }
+    else if(paireOk && (x.id==='eq-fn'||x.id==='eq-fd')){ raw=String(el.value||''); ok=true; }
     else { raw=String(el.value||''); const v=efParse(raw); ok=numOkTol(v,x.good,x.tol); }   /* valeur approchée au dixième (x.tol pour exiger plus fin) */
     if(raw.trim()!=='') anyFilled=true;
     if(x.type==='mf' && live) return;   /* en direct, les champs math sont juges par eqLiveMf a la sortie de case */
@@ -13918,6 +14059,120 @@ function rrFausses(t){
   });
   return out;
 }
+/* L'ENCADREMENT DE U(n+1) SE LIT À SA PLACE (audit M35, octobre 2026). Le
+   juge acceptait dès que f(m) et f(M) apparaissaient QUELQUE PART dans la
+   copie ; or, quand f(m) = m ou f(M) = M — deux tirages sur trois —, ces
+   nombres sont déjà écrits comme BORNES : « 5 ≤ U(n+1) ≤ 9 » pour f(8) = 8,
+   puis « ≤ 8 » ailleurs, passait pour une hérédité juste (4 231 copies fausses
+   acceptées sur 6 000). L'acceptation exige désormais les deux images
+   ADJACENTES à U(n+1), dans UNE MÊME chaîne d'une même ligne :
+   « f(m) ≤ U(n+1) ≤ f(M) », ou « f(M) ≥ U(n+1) ≥ f(m) » écrite dans l'autre
+   sens. Une image se lit en nombre (« 4,5 », « 9/2 ») ou en « f(M) = 4,5 »,
+   dont l'argument doit alors être la bonne borne. Le nombre doit être un
+   TERME ENTIER : le « 3 » de « 0,5 × 6 + 3 » n'est pas une valeur. */
+const RR_NB='[+\\-−]?\\(?\\d+(?:[.,]\\d+)?\\)?(?:\\/\\(?\\d+(?:[.,]\\d+)?\\)?)?';
+function rrNbVal(s){
+  const m=/^([+\-−]?)\(?(\d+(?:[.,]\d+)?)\)?(?:\/\(?(\d+(?:[.,]\d+)?)\)?)?$/.exec(String(s).replace(/\s+/g,''));
+  if(!m) return null;
+  const n=parseFloat(m[2].replace(',','.')), d=m[3]?parseFloat(m[3].replace(',','.')):1;
+  if(!d) return null;
+  return (m[1]?-1:1)*n/d;
+}
+/* Le nombre au BORD d'un morceau — à la fin (fin = true : il touche le
+   comparateur qui suit) ou au début. Il ne compte que s'il est un terme
+   entier : ce qui le borde de l'autre côté est un début de ligne, une
+   ponctuation (« sur [0 ; 6] 3 ») ou un MOT (« donc 3 », « or 9 »), jamais un opérateur, une
+   lettre seule (2x), une parenthèse ou un indice. */
+function rrBordNb(piece, fin){
+  const s=String(piece==null?'':piece);
+  if(fin){
+    const m=new RegExp('('+RR_NB+')[\\s;:,!?]*$').exec(s); if(!m) return null;
+    const av=s.slice(0,m.index).replace(/\s+$/,'');
+    if(av==='' || /(?:^|[^a-z])[a-z]{2,}$/.test(av) || /[=:;,(\[\]]$/.test(av)) return rrNbVal(m[1]);
+    return null;
+  }
+  const m=new RegExp('^[\\s;:]*('+RR_NB+')').exec(s); if(!m) return null;
+  const ap=s.slice(m[0].length).replace(/^\s+/,'');
+  if(ap!=='' && /^[+\-−*\/×·÷^_(0-9]/.test(ap)) return null;
+  if(/^[a-z](?![a-z])/.test(ap)) return null;
+  if(/^[.,]\d/.test(ap)) return null;
+  return rrNbVal(m[1]);
+}
+/* Le morceau voisin de U(n+1) dit-il la bonne image ? « 4,5 », « f(6) = 4,5 »
+   et « 4,5 = f(6) » se valent ; un « f(…) » écrit porte la bonne borne. */
+function rrImageVoisine(piece, fin, image, borne){
+  const parts=String(piece==null?'':piece).split('=');
+  const fArg=p=>{ const m=new RegExp(fin?'f ?\\( ?('+RR_NB+') ?\\)[\\s;:,]*$':'^[\\s;:]*f ?\\( ?('+RR_NB+') ?\\)').exec(p); return m?rrNbVal(m[1]):null; };
+  const proche=fin?parts[parts.length-1]:parts[0], loin=fin?parts[parts.length-2]:parts[1];
+  let v=rrBordNb(proche, fin), arg=null;
+  if(v===null){
+    arg=fArg(proche); if(arg===null || loin==null) return false;
+    v=rrBordNb(loin, fin);
+  } else if(loin!=null){
+    arg=fArg(loin);
+  }
+  if(v===null || Math.abs(v-image)>1e-9) return false;
+  return arg===null || Math.abs(arg-borne)<1e-9;
+}
+const RR_UN1=/u[_ ]?(?:\(?n\+1\)?|\(n\) ?\+ ?1)/g;
+/* « <= » et « >= » tapés au clavier sont ≤ et ≥ (« => » reste une flèche). */
+function rrComparateurs(lg){
+  return String(lg).replace(/<=/g,'≤').replace(/>=/g,'≥');
+}
+function rrEncadre(c, t){
+  return String(t==null?'':t).split('\n').some(function(lg){
+    const s=rrComparateurs(lg).replace(RR_UN1, function(m0,off,str){
+      return /f ?\($/.test(str.slice(Math.max(0,off-3),off)) ? m0 : '\u00a7'; });
+    const P=s.split(/([≤≥<>])/);
+    for(let i=2;i+2<P.length;i+=2){
+      if(P[i].indexOf('\u00a7')<0) continue;
+      /* le morceau de U(n+1) ne porte que lui (et « = f(U(n)) ») : « 2U(n+1) »
+         ou « U(n+1) + 3 » ne sont pas U(n+1) */
+      if(P[i].replace(/\u00a7/g,'').replace(/f ?\(u[_ ]?\(?n\)?\)/g,'').replace(/[\s=]/g,'')!=='') continue;
+      const monte=/[≤<]/.test(P[i-1])&&/[≤<]/.test(P[i+1]);
+      const descend=/[≥>]/.test(P[i-1])&&/[≥>]/.test(P[i+1]);
+      if(!monte&&!descend) continue;
+      const gI=monte?c.fm:c.fM, gB=monte?c.m:c.M, dI=monte?c.fM:c.fm, dB=monte?c.M:c.m;
+      if(rrImageVoisine(P[i-2],true,gI,gB) && rrImageVoisine(P[i+2],false,dI,dB)) return true;
+    }
+    return false;
+  });
+}
+/* LA LIGNE QUI N'EST PAS LUE. rrFausses ne juge que les côtés PUREMENT
+   numériques : « or 9 ≤ 8 », une comparaison fausse précédée d'un mot,
+   passait sans être jugée. Ses deux bords se lisent pourtant ; s'ils disent
+   une comparaison fausse, la page ne la REFUSE pas — elle n'a pas lu la
+   phrase entière, et refuser une écriture qu'on devine recréerait le faux
+   négatif —, mais elle ne peut plus ACCEPTER : le verdict retombe en
+   abstention, et le modèle juge seul. Même chose pour un calcul écrit EN
+   ENTIER entre deux signes (« f(6) = 0,5 × 6 + 3 = 4,5 ») : il s'évalue, et
+   faux, il interdit l'acceptation. */
+function rrArith(piece){
+  const s=String(piece==null?'':piece).trim().replace(/[.;:!?]+$/,'').trim();
+  if(!/[+\-−*×·\/]/.test(s.replace(/^[+\-−]/,'')) || !/^[\d\s.,+\-−*×·\/()]+$/.test(s)) return null;
+  if(/,\s|\d\s+[\d(]/.test(s)) return null;                 /* une liste, ou deux nombres sans opérateur */
+  const f=compileExprExp(s.replace(/[×·]/g,'*')); if(!f) return null;
+  let v; try{ v=f(0); }catch(e){ return null; }
+  return (typeof v==='number' && isFinite(v)) ? v : null;
+}
+function rrNonLues(t){
+  const out=[], ecrit=v=>String(Math.round(v*1e9)/1e9).replace('.',',');
+  String(t==null?'':t).split('\n').forEach(function(lg){
+    const m=rrComparateurs(lg).split(/([≤≥<>=])/);
+    for(let i=1;i<m.length;i+=2){
+      if(rrValeurPure(m[i-1])!==null && rrValeurPure(m[i+1])!==null) continue;   /* rrFausses l'a jugée */
+      const ga=rrArith(m[i-1]), da=rrArith(m[i+1]);
+      const g=ga!==null?ga:rrBordNb(m[i-1],true), d=da!==null?da:rrBordNb(m[i+1],false);
+      if(g===null||d===null) continue;
+      const op=m[i], e=1e-9;
+      const faux = op==='≤' ? g>d+e : op==='<' ? !(g<d-e)
+                 : op==='≥' ? g<d-e : op==='>' ? !(g>d+e)
+                 : Math.abs(g-d)>e;
+      if(faux) out.push(ecrit(g)+' '+op+' '+ecrit(d));
+    }
+  });
+  return out;
+}
 /* Le juge de la page. Il ne prononce que des faits prouvables ; le calcul, lui,
    part au modèle. Chaque critère porte son libellé (ce que l'élève lit) et une
    version COURTE (ce que le modèle reçoit, pour ne pas répéter la liste). */
@@ -14032,14 +14287,16 @@ function rrJuge(c, txt){
      que l'élève calcule, ceux que l'énoncé ne donne pas — et aucune
      comparaison numérique fausse. Une copie qui porte tout cela est une
      démonstration complète : le modèle ne peut plus la refuser (signalé par
-     Turquet, septembre 2026 — il refusait une copie juste malgré la clause). */
+     Turquet, septembre 2026 — il refusait une copie juste malgré la clause).
+     Les images se lisent À LEUR PLACE, de part et d'autre de U(n+1)
+     (rrEncadre, audit M35), et une comparaison que la page n'a pas pu juger
+     sans la deviner (rrNonLues) interdit l'acceptation : abstention. */
   const fausses=rrFausses(t);
-  const nbT=(t.match(/\d+(?:[.,]\d+)?/g)||[]).map(x=>parseFloat(x.replace(',','.')));
-  const aT=v=>nbT.some(x=>Math.abs(x-v)<1e-9);
-  const images=aT(c.fm)&&aT(c.fM);
+  const images=rrEncadre(c,t);
+  const nonLues=rrNonLues(t);
   const toutOk=crit.every(x=>x.ok);
-  const verdict=(!toutOk||fausses.length)?'refus':(images?'accepte':'abstention');
-  return {crit:crit, toutOk:toutOk, fausses:fausses, images:images, verdict:verdict};
+  const verdict=(!toutOk||fausses.length)?'refus':((images&&!nonLues.length)?'accepte':'abstention');
+  return {crit:crit, toutOk:toutOk, fausses:fausses, images:images, nonLues:nonLues, verdict:verdict};
 }
 /* Le bilan de la page : vert ce qui va, rouge ce qui manque — et le ✓ ou le ✗
    devant, parce que la couleur ne porte jamais seule. */
@@ -14951,7 +15208,7 @@ function tgFormHTML(c){
     <div class="tg-line"><span class="tg-eq">y =</span> ${f}\u00a0\u2032(\u00a0${inp('tg-a1')}\u00a0)(\u00a0<i>x</i> \u2212 ${inp('tg-a2')}\u00a0) + ${f}(\u00a0${inp('tg-a3')}\u00a0)</div>
     <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> ${inp('tg-m1')} (\u00a0<i>x</i> \u2212 ${inp('tg-a4')}\u00a0) + ${inp('tg-fa2')}</div>
     <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> <span class="tg-coef">${inp('tg-m2')}<i>x</i></span> ${inp('tg-t1')} ${inp('tg-t2')}</div>
-    <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> <span class="tg-coef">${inp('tg-m3')}<i>x</i></span> ${inp('tg-b')}</div>
+    <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> <span class="tg-coef">${inp('tg-m3')}<i>x</i></span>${c.ans.b===0?'':' '+inp('tg-b')}</div>
   </div>`;
 }
 async function startTG(){
@@ -14980,10 +15237,23 @@ function renderTG(){
     TG_IDS.forEach(id=>{ const el=$(id); if(el) el.addEventListener('input',()=>checkTG(true)); });
   }
 }
+/* Quand b = 0, la ligne réduite n'a pas de case « + b » (tgFormHTML ne la rend pas) :
+   une case pour écrire zéro n'apprend rien — la leçon du 5.2. Quand f(a) = 0, le
+   « + f(a) » de la deuxième ligne et la constante f(a) de la ligne développée valent
+   0 : la case laissée VIDE y vaut 0, elle n'est ni jugée ni comptée ; écrite, elle se
+   juge comme les autres. */
+function tgFixed(c){
+  const a=c.ans;
+  const L=[['tg-fa',a.fa,0],['tg-m',a.m,1],['tg-a1',a.a1,0],['tg-a2',a.a2,0],['tg-a3',a.a3,0],['tg-m1',a.m1,1],['tg-a4',a.a4,0],['tg-fa2',a.fa2,0],['tg-m2',a.m2,1],['tg-m3',a.m3,1]];
+  if(a.b!==0) L.push(['tg-b',a.b,0]);
+  return L;
+}
 function checkTG(live){
   if(test.locked && !live) return;
   const c=test.questions[test.idx], a=c.ans;
-  const fixed=[['tg-fa',a.fa,0],['tg-m',a.m,1],['tg-a1',a.a1,0],['tg-a2',a.a2,0],['tg-a3',a.a3,0],['tg-m1',a.m1,1],['tg-a4',a.a4,0],['tg-fa2',a.fa2,0],['tg-m2',a.m2,1],['tg-m3',a.m3,1],['tg-b',a.b,0]];
+  const fixed=tgFixed(c);
+  const faNul=(a.fa2===0);
+  const optionnel={};                          /* cases vides qui valent 0 : ni jugées ni comptées */
   let allOk=true, anyFilled=false;
   fixed.forEach(([id,good,frac])=>{
     const el=$(id); if(!el) return;
@@ -14991,46 +15261,72 @@ function checkTG(live){
     const v=((id==='tg-m'||id==='tg-m1'||id==='tg-m2'||id==='tg-m3')?tgParseCoef(raw):(frac?tgParseFrac(raw):tgParse(raw)));
     const ok=numOkTol(v,good);   /* valeur approchée au dixième acceptée */
     if(raw.trim()!=='') anyFilled=true;
-    el.classList.remove('ok','bad');
+    el.classList.remove('ok','bad','sol');
+    if(id==='tg-fa2' && faNul && raw.trim()===''){ optionnel[id]=true; return; }
     if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
     if(!ok) allOk=false;
+    /* une case laissée VIDE ne rougit jamais : en soutien elle reste neutre (et
+       ouverte) ; hors soutien, la révélation ci-dessous la remplit en « sol » */
+    if(raw.trim()==='' && isSoutien()){ el.disabled=false; return; }
     el.classList.add(ok?'ok':'bad'); el.disabled = ok || !isSoutien();
   });
-  /* Ligne développée : les deux constantes (−m·a et f(a)) sont acceptées dans n'importe quel ordre. */
+  /* Ligne développée : les deux constantes (−m·a et f(a)) sont acceptées dans n'importe quel ordre.
+     Quand f(a) = 0, une case laissée vide tient lieu de ce 0. */
   const e1=$('tg-t1'), e2=$('tg-t2');
+  const solPaire={};
   if(e1&&e2){
     const r1=e1.value, r2=e2.value, v1=tgParse(r1), v2=tgParse(r2);
     if(r1.trim()!=='') anyFilled=true; if(r2.trim()!=='') anyFilled=true;
     const left=[a.t1,a.t2];
     const take=(v)=>{ if(v===null) return false; const i=left.findIndex(t=>numOkTol(v,t)); if(i>=0){ left.splice(i,1); return true; } return false; };
     const ok1=take(v1), ok2=take(v2);
-    e1.classList.remove('ok','bad'); e2.classList.remove('ok','bad');
-    if(live){ if(r1.trim()!=='') e1.classList.add(ok1?'ok':'bad'); if(r2.trim()!=='') e2.classList.add(ok2?'ok':'bad'); }
-    else { e1.classList.add(ok1?'ok':'bad'); e1.disabled=ok1||!isSoutien(); e2.classList.add(ok2?'ok':'bad'); e2.disabled=ok2||!isSoutien(); }
-    if(!(ok1&&ok2)) allOk=false;
+    let opt1=false, opt2=false;
+    if(faNul){
+      const z=left.findIndex(t=>t===0);
+      if(z>=0){
+        /* le 0 restant est absorbé par une case vide — la seconde de préférence */
+        if(r2.trim()===''){ opt2=true; left.splice(z,1); }
+        else if(r1.trim()===''){ opt1=true; left.splice(z,1); }
+      }
+    }
+    /* la correction d'une case fausse ou vide est la constante qui reste à écrire */
+    const reste=left.slice();
+    if(!ok1 && !opt1) solPaire['tg-t1']=reste.length?reste.shift():a.t1;
+    if(!ok2 && !opt2) solPaire['tg-t2']=reste.length?reste.shift():a.t2;
+    if(opt1) optionnel['tg-t1']=true; if(opt2) optionnel['tg-t2']=true;
+    e1.classList.remove('ok','bad','sol'); e2.classList.remove('ok','bad','sol');
+    const marque=(el,r,ok,opt)=>{
+      if(opt) return;
+      if(live){ if(r.trim()!=='') el.classList.add(ok?'ok':'bad'); return; }
+      if(r.trim()==='' && isSoutien()){ el.disabled=false; return; }
+      el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
+    };
+    marque(e1,r1,ok1,opt1); marque(e2,r2,ok2,opt2);
+    if(!((ok1||opt1)&&(ok2||opt2))) allOk=false;
   }
   if(live) return;
   if(!anyFilled){ $('tgFeedback').textContent='Complète au moins une case avant de vérifier.'; $('tgFeedback').className='mp-feedback'; TG_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
   if(!allOk && isSoutien()){
-    $('tgFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('tgFeedback').textContent='Presque ! Corrige les cases en rouge et complète celles qui manquent, puis revérifie.';
     $('tgFeedback').className='mp-feedback bad';
     $('tgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTG()">Revérifier</button>';
     return;
   }
   test.locked=true;
+  /* « y = x », « y = −x + 2 » : jamais « 1 x » ni « −1 x » (txAX, comme le 5.2) */
+  const bTxt = a.b===0 ? '' : (a.b>0?` + ${numFmt(a.b)}`:` − ${numFmt(Math.abs(a.b))}`);
   if(allOk){
     test.score++; $('tgLiveScore').textContent=test.score;
     $('tgFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tangente exacte !']);
     $('tgFeedback').className='mp-feedback good';
   } else {
-    const bTxt = a.b===0 ? '' : (a.b>0?` + ${a.b}`:` \u2212 ${Math.abs(a.b)}`);
-    $('tgFeedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br>Tangente : <b>y = ${numFmt(a.m)}\u00a0x${bTxt}</b>&nbsp; (avec <i>f</i>(${numFmt(c.a)}) = ${numFmt(c.fa)} et <i>f</i>\u00a0\u2032(${numFmt(c.a)}) = ${numFmt(c.m)}).`;
+    $('tgFeedback').innerHTML=`Quelques erreurs — les bonnes réponses sont en vert.<br>Tangente : <b>y = ${txAX(a.m)}${bTxt}</b>&nbsp; (avec <i>${esc(c.fname)}</i>(${numFmt(c.a)}) = ${numFmt(c.fa)} et <i>${esc(c.fname)}</i> ′(${numFmt(c.a)}) = ${numFmt(c.m)}).`;
     $('tgFeedback').className='mp-feedback bad';
-    const reveal=fixed.concat([['tg-t1',a.t1],['tg-t2',a.t2]]);
-    reveal.forEach(([id,good])=>{ const el=$(id); if(el){ if(!el.classList.contains('ok')){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('sol'); } el.disabled=true; } });
+    const reveal=fixed.concat([['tg-t1',solPaire['tg-t1']],['tg-t2',solPaire['tg-t2']]]);
+    reveal.forEach(([id,good])=>{ const el=$(id); if(el){ if(!optionnel[id] && !el.classList.contains('ok') && good!==undefined){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('sol'); } el.disabled=true; } });
   }
-  const bRev = a.b===0 ? '' : (a.b>0?'+ '+a.b:'\u2212 '+Math.abs(a.b));
-  test.answers.push({...(ptsExo()||{}),q:`Graphique ${test.idx+1} \u2014 tangente en a = ${numFmt(c.a)} : y = ${numFmt(a.m)} x ${bRev}`, answer:'tangente', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  TG_IDS.forEach(id=>{ const el=$(id); if(el) el.disabled=true; });
+  test.answers.push({...(ptsExo()||{}),q:`Graphique ${test.idx+1} — tangente en a = ${numFmt(c.a)} : y = ${txAX(a.m).replace(/<[^>]*>/g,'')}${bTxt}`, answer:'tangente', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('tgActions').innerHTML=`<button class="btn btn-primary" onclick="nextTG()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
@@ -16263,6 +16559,17 @@ function genS1L3(i){
   return { level:3, a, b, root, rootVal:root, rootStr:numFmt(root), negb:0, coefHtml:s1Coef(a),
            exprHtml:s1ExprHTML(a,b), exprText:s1ExprText(a,b), sl:(a>0?'\u2212':'+'), sr:(a>0?'+':'\u2212') };
 }
+/* LA RACINE −b/a ÉCRITE EN FRACTION n/d (1.1 niveaux 2-3, 1.4, 1.5, 5.4) : la paire
+   est juste dès que d ≠ 0, n/d vaut la racine et |n| = |b|, |d| = |a| — « 6/2 » pour
+   « −6/−2 », le signe déplacé ou simplifié n'est pas une erreur. Quand la racine est 0
+   (b = 0), « 0/d » est juste pour tout d ≠ 0 (« 0/1 » pour −x). n et d sont des
+   nombres déjà lus (null si la case est vide ou illisible) ; une paire qui ne se lit
+   pas en entier rend false, et chaque case retombe sur son verdict propre. */
+function racineFracOk(n, d, b, a){
+  if(typeof n!=='number' || typeof d!=='number' || !isFinite(n) || !isFinite(d) || Math.abs(d)<1e-9) return false;
+  if(b===0) return numOkTol(n,0);
+  return numOkTol(Math.abs(n),Math.abs(b)) && numOkTol(Math.abs(d),Math.abs(a)) && numOkTol(n/d, -b/a);
+}
 /* racine correcte : numérique (entier/fraction ≈ rootVal) ou symbolique (e, π…) */
 function s1RootOK(raw, c){
   if(c.rootKind==='sym'){
@@ -16474,21 +16781,29 @@ function checkS1(live){
     ? [['s1-num','frac',c.negb],['s1-den','frac',c.a],['s1-val','frac',c.rootVal],['s1-place','sign','fin'],['s1-root','frac',c.rootVal],['s1-sl','sign',c.sl],['s1-sr','sign',c.sr]]
     : [['s1-num','int',c.negb],['s1-den','int',c.a],['s1-val','frac',c.rootVal],['s1-place','sign','fin'],['s1-root','frac',c.rootVal],['s1-sl','sign',c.sl],['s1-sr','sign',c.sr]];
   let allOk=true, anyFilled=false; const verd={};
+  /* niveaux 2 et 3 : la fraction −b/a se juge d'abord comme une PAIRE (racineFracOk) */
+  const paireOk = c.level!==1 && !!$('s1-num') && !!$('s1-den')
+    && racineFracOk(tgParseFrac($('s1-num').value), tgParseCoef($('s1-den').value), -c.negb, c.a);
   specs.forEach(([id,type,good])=>{
     const el=$(id); if(!el) return;
     const raw=el.value; let ok;
     if(type==='sign'){ ok=(raw===good); }
     else if(type==='rootl1'){ ok=s1RootOK(raw,c); }
+    else if(paireOk && (id==='s1-num'||id==='s1-den')){ ok=true; }
     else { const v=(id==='s1-den'?tgParseCoef(raw):(type==='frac'?tgParseFrac(raw):tgParse(raw))); ok=numOkTol(v,good); }   /* valeur approchée au dixième acceptée */
     if(raw.trim()!=='') anyFilled=true;
     el.classList.remove('ok','bad');
     if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
-    if(!ok) allOk=false; verd[id]=ok; el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
+    if(!ok) allOk=false; verd[id]=ok;
+    /* une case VIDE ne rougit jamais : en soutien elle reste neutre et ouverte ; hors
+       soutien, corrCase la remplit en « sol » */
+    if(raw.trim()==='' && isSoutien()){ el.disabled=false; return; }
+    el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
   });
   if(live) return;
   if(!anyFilled){ $('s1Feedback').textContent='Complète au moins une case avant de vérifier.'; $('s1Feedback').className='mp-feedback'; S1_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
   if(!allOk && isSoutien()){
-    $('s1Feedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('s1Feedback').textContent='Presque ! Corrige les cases en rouge et complète celles qui manquent, puis revérifie.';
     $('s1Feedback').className='mp-feedback bad';
     $('s1Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkS1()">Revérifier</button>';
     return;
@@ -16670,12 +16985,16 @@ function checkS2(live){
     if(raw.trim()!=='') anyFilled=true;
     el.classList.remove('ok','bad');
     if(live){ if(raw.trim()!=='') (verdS2[id]=ok, el.classList.add(ok?'ok':'bad')); if(!ok) allOk=false; return; }
-    if(!ok) allOk=false; (verdS2[id]=ok, el.classList.add(ok?'ok':'bad')); el.disabled=ok||!isSoutien();
+    if(!ok) allOk=false; verdS2[id]=ok;
+    /* une case VIDE ne rougit jamais : en soutien elle reste neutre et ouverte ; hors
+       soutien, corrCase la remplit en « sol » */
+    if(raw.trim()==='' && isSoutien()){ el.disabled=false; return; }
+    el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
   });
   if(live) return;
   if(!anyFilled){ $('s2Feedback').textContent='Complète au moins une case avant de vérifier.'; $('s2Feedback').className='mp-feedback'; S2_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
   if(!allOk && isSoutien()){
-    $('s2Feedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('s2Feedback').textContent='Presque ! Corrige les cases en rouge et complète celles qui manquent, puis revérifie.';
     $('s2Feedback').className='mp-feedback bad';
     $('s2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkS2()">Revérifier</button>';
     return;
@@ -16761,14 +17080,21 @@ const RAP_LR=
 +'<div class="rap-t">Limites usuelles en \u00b1\u221e</div>'
 +'<ul><li><i>x</i><sup><i>n</i></sup> \u2192 +\u221e en +\u221e &nbsp;;&nbsp; 1/<i>x</i> \u2192 0</li>'
 +'<li>e<sup><i>x</i></sup> \u2192 +\u221e en +\u221e &nbsp;et&nbsp; e<sup><i>x</i></sup> \u2192 0 en \u2212\u221e</li></ul>'
-+'<p>On r\u00e9dige une ligne par \u00e9tape : limite de chaque morceau, puis conclusion par somme, produit ou quotient.</p></div>';
++'<div class="rap-t">Limite en un r\u00e9el et asymptotes</div>'
++'<ul><li>en un r\u00e9el <i>a</i> (borne du domaine), on pr\u00e9cise le c\u00f4t\u00e9 : <b><i>x</i> \u2192 <i>a</i><sup>+</sup></b> (\u00e0 droite) ou <b><i>x</i> \u2192 <i>a</i><sup>\u2212</sup></b> (\u00e0 gauche) \u2014 par exemple 1/<i>x</i> \u2192 +\u221e quand <i>x</i> \u2192 0<sup>+</sup>, et \u2192 \u2212\u221e quand <i>x</i> \u2192 0<sup>\u2212</sup> ;</li>'
++'<li><i>f</i>(<i>x</i>) \u2192 \u00b1\u221e quand <i>x</i> \u2192 <i>a</i> : la droite <b><i>x</i> = <i>a</i></b> est une <b>asymptote verticale</b> ;</li>'
++'<li><i>f</i>(<i>x</i>) \u2192 <i>L</i> (un r\u00e9el) quand <i>x</i> \u2192 \u00b1\u221e : la droite <b><i>y</i> = <i>L</i></b> est une <b>asymptote horizontale</b> ;</li>'
++'<li>une limite infinie en \u00b1\u221e ne donne <b>aucune</b> asymptote.</li></ul>'
++'<p>On r\u00e9dige une ligne par \u00e9tape : limite de chaque morceau, puis conclusion par somme, produit ou quotient \u2014 et l\u2019on dit <b>toujours</b> ce qu\u2019il en est des asymptotes (leur \u00e9quation, ou \u00ab aucune asymptote \u00bb).</p></div>';
 const RAP_TVI=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 th\u00e9or\u00e8me des valeurs interm\u00e9diaires</h4>'
 +'<p>Si <i>f</i> est <b>continue</b> sur [<i>a</i>\u2009;\u2009<i>b</i>] et si <i>k</i> est <b>compris entre <i>f</i>(<i>a</i>) et <i>f</i>(<i>b</i>)</b>, alors l\u2019\u00e9quation <i>f</i>(<i>x</i>) = <i>k</i> admet <b>au moins une</b> solution dans [<i>a</i>\u2009;\u2009<i>b</i>].</p>'
 +'<div class="rap-t">Corollaire (unicit\u00e9)</div>'
 +'<p>Si de plus <i>f</i> est <b>strictement monotone</b> sur [<i>a</i>\u2009;\u2009<i>b</i>], la solution est <b>unique</b>.</p>'
++'<div class="rap-t">Intervalle ouvert ou infini</div>'
++'<p>Le corollaire s\u2019\u00e9tend \u00e0 un intervalle dont une borne est ouverte ou infinie (]<i>a</i>\u2009;\u2009<i>b</i>], [<i>a</i>\u2009;\u2009+\u221e[, ]\u2212\u221e\u2009;\u2009<i>b</i>[\u2026) : \u00e0 cette borne, on remplace <i>f</i>(<i>a</i>) ou <i>f</i>(<i>b</i>) par la <b>limite</b> de <i>f</i>. Une limite n\u2019est <b>pas atteinte</b> : <i>k</i> doit \u00eatre <b>strictement</b> compris entre elle et l\u2019autre valeur (ou limite).</p>'
 +'<div class="rap-t">R\u00e9daction attendue</div>'
-+'<p>Citer les trois points : continuit\u00e9, stricte monotonie, et <i>k</i> compris entre <i>f</i>(<i>a</i>) et <i>f</i>(<i>b</i>) \u2014 puis conclure.</p></div>';
++'<p>Citer les trois points : continuit\u00e9, stricte monotonie, et <i>k</i> compris entre <i>f</i>(<i>a</i>) et <i>f</i>(<i>b</i>) (ou leurs limites) \u2014 puis conclure.</p></div>';
 
 /* Le rappel du 4.6 est en HTML pur, sans un seul \( : sa seule \u00ab formule \u00bb
    est e^(\u2212x), qu'un <sup> \u00e9crit \u2014 une formule qui n'empile rien s'\u00e9crit sans
@@ -16804,6 +17130,7 @@ const RAP_TVINS=
 +'<p>On d\u00e9coupe gr\u00e2ce au <b>tableau de variations</b> : sur chaque intervalle o\u00f9 <i>f</i> est strictement monotone, on applique le corollaire du TVI.</p>'
 +'<ul><li>si <i>k</i> est compris entre les valeurs (ou limites) aux bornes de l\u2019intervalle : <b>une</b> solution ;</li>'
 +'<li>sinon : <b>aucune</b> sur cet intervalle.</li></ul>'
++'<p><b>Une limite n\u2019est pas une valeur prise.</b> \u00c0 une borne ouverte ou infinie, <i>f</i> s\u2019approche de sa limite sans jamais l\u2019atteindre : si <i>k</i> est <b>\u00e9gal</b> \u00e0 cette limite, il n\u2019y a <b>aucune</b> solution de ce c\u00f4t\u00e9. Seule une valeur <b>atteinte</b> (borne ferm\u00e9e, extremum) peut \u00eatre \u00e9gale \u00e0 <i>k</i>.</p>'
 +'<p>Le nombre total de solutions est la somme sur tous les intervalles. Attention aux extremums : si <i>k</i> vaut exactement un maximum ou un minimum, la solution est au sommet.</p></div>';
 const RAP_TVG=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 solutions sur le graphique</h4>'
@@ -17433,6 +17760,11 @@ function spCaseOk(q,x){
   if(x.calc){
     const good=spCalcCible(q,x);
     if(String(el.value||'').trim()==='') return spFacultatif(q,x);   /* d\u00e9nominateur 1 : vide accept\u00e9 */
+    /* la paire n/d de la colonne : « 6/2 » pour « −6/−2 », « 0/1 » pour « 0/−1 » (racineFracOk) */
+    if(x.calc==='n' || x.calc==='d'){
+      const F=q.fac[spColFact(q,x.col)], en=$('sp-n'+x.col), ed=$('sp-d'+x.col);
+      if(en && ed && racineFracOk(tgParse(en.value), tgParseCoef(ed.value), F.b, F.a)) return true;
+    }
     const v=(x.calc==='d')?tgParseCoef(el.value):(x.calc==='v'?tgParseFrac(el.value):tgParse(el.value));
     return numOkTol(v,good);
   }
@@ -17788,17 +18120,24 @@ function checkSU(){
   if(type===''){
     fb.textContent='Indique d\u2019abord en a) si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique.';
     fb.className='mp-feedback';
-    const ts=$('su-type'); if(ts) ts.classList.add('bad');
+    /* le menu est VIDE : il ne rougit pas (une case vide ne rougit jamais) — le message le désigne */
     return;
   }
   const v={ 'su-type': type===c.kind, 'su-raison': suValNum(rRaw,c.raison.v) /* raison : EXACTE à dessein (0,1 vs 0,2 dans le vivier) */, 'su-formule': suFormOk(fRaw,c) };
   const setEdit=(el,on)=>{ if(!el) return; if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=!on; }catch(e){} } else el.disabled=!on; };
+  const vide={ 'su-type': type==='', 'su-raison': rRaw==='', 'su-formule': fRaw==='' };
   SU_IDS.forEach(id=>{ const el=$(id); if(!el) return;
-    el.classList.remove('ok','bad','sol'); el.classList.add(v[id]?'ok':'bad');
+    el.classList.remove('ok','bad','sol');
+    /* une case VIDE ne rougit jamais : en soutien elle reste neutre et ouverte ; hors
+       soutien, fillVide la remplit en « sol » plus bas */
+    if(vide[id] && isSoutien()){ setEdit(el, true); return; }
+    el.classList.add(v[id]?'ok':'bad');
     setEdit(el, !v[id] && isSoutien()); });
   const allOk=v['su-type']&&v['su-raison']&&v['su-formule'];
   if(!allOk && isSoutien()){
-    fb.textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    fb.textContent=(vide['su-raison']||vide['su-formule'])
+      ? 'Presque ! Corrige les cases en rouge et compl\u00e8te celles qui manquent, puis rev\u00e9rifie.'
+      : 'Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
     fb.className='mp-feedback bad';
     $('suActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSU()">Rev\u00e9rifier</button>';
     return;
@@ -18668,11 +19007,17 @@ function checkENC(){
   cases.forEach(x=>{ const s=lus[x.id]; v[x.id]=(x.okIdx!=null) ? (s!=='' && +s===x.okIdx) : suValNum(s, x.cible.v, encTol(x.cible)); });
   const setEdit=(el,on)=>{ if(!el) return; if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=!on; }catch(e){} } else el.disabled=!on; };
   cases.forEach(x=>{ const el=$(x.id); if(!el) return;
-    el.classList.remove('ok','bad','sol'); el.classList.add(v[x.id]?'ok':'bad');
+    el.classList.remove('ok','bad','sol');
+    /* une case VIDE ne rougit jamais : en soutien elle reste neutre et ouverte ; hors
+       soutien, la correction plus bas la remplit en « sol » */
+    if(lus[x.id]==='' && isSoutien()){ setEdit(el, true); return; }
+    el.classList.add(v[x.id]?'ok':'bad');
     setEdit(el, !v[x.id] && isSoutien()); });
   const allOk=cases.every(x=>v[x.id]);
   if(!allOk && isSoutien()){
-    fb.textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    fb.textContent=cases.some(x=>lus[x.id]==='')
+      ? 'Presque ! Corrige les cases en rouge et compl\u00e8te celles qui manquent, puis rev\u00e9rifie.'
+      : 'Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
     fb.className='mp-feedback bad';
     $('encActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkENC()">Rev\u00e9rifier</button>';
     return;
@@ -18935,11 +19280,17 @@ function checkREC(){
   const v={}; cases.forEach(x=>{ v[x.id]=recCaseOk(q,x); });
   const setEdit=(el,on)=>{ if(!el) return; if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=!on; }catch(e){} } else el.disabled=!on; };
   cases.forEach(x=>{ const el=$(x.id); if(!el) return;
-    el.classList.remove('ok','bad','sol'); el.classList.add(v[x.id]?'ok':'bad');
+    el.classList.remove('ok','bad','sol');
+    /* une case VIDE ne rougit jamais : en soutien elle reste neutre et ouverte ; hors
+       soutien, la correction plus bas la remplit en « sol » */
+    if(!v[x.id] && recVide(x) && isSoutien()){ setEdit(el, true); return; }
+    el.classList.add(v[x.id]?'ok':'bad');
     setEdit(el, !v[x.id] && isSoutien()); });
   const allOk=cases.every(x=>v[x.id]);
   if(!allOk && isSoutien()){
-    fb.textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    fb.textContent=cases.some(x=>!v[x.id] && recVide(x))
+      ? 'Presque ! Corrige les cases en rouge et compl\u00e8te celles qui manquent, puis rev\u00e9rifie.'
+      : 'Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
     fb.className='mp-feedback bad';
     $('recActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkREC()">Rev\u00e9rifier</button>';
     return;
@@ -19172,11 +19523,18 @@ function checkSA(){
   const v={}; let allOk=true;
   SA_ORDER.forEach(id=>{ v[id]=saOk(id); if(!v[id]) allOk=false; });
   const setEdit=(el,on)=>{ if(!el) return; if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=!on; }catch(e){} } else el.disabled=!on; };
+  const vide=id=>!v[id] && saRawId(id)==='';
   SA_ORDER.forEach(id=>{ const el=$(id); if(!el) return;
-    el.classList.remove('ok','bad','sol'); el.classList.add(v[id]?'ok':'bad');
+    el.classList.remove('ok','bad','sol');
+    /* une case VIDE ne rougit jamais : en soutien elle reste neutre et ouverte ; hors
+       soutien, la correction plus bas la remplit en « sol » */
+    if(vide(id) && isSoutien()){ setEdit(el, true); return; }
+    el.classList.add(v[id]?'ok':'bad');
     setEdit(el, !v[id] && isSoutien()); });
   if(!allOk && isSoutien()){
-    fb.textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    fb.textContent=SA_ORDER.some(vide)
+      ? 'Presque ! Corrige les cases en rouge et compl\u00e8te celles qui manquent, puis rev\u00e9rifie.'
+      : 'Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
     fb.className='mp-feedback bad';
     $('saActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSA()">Rev\u00e9rifier</button>';
     return;
@@ -24761,7 +25119,7 @@ function mdlSU(){
     ? 'U_{n+1}=U_n'+(c.raison.v>=0?'+':'-')+suLatexNum(suNum(Math.abs(c.raison.v)))
     : 'U_{n+1}='+suLatexNum(c.raison)+'\\times U_n';
   return 'Soit \\((U_n)\\) d\u00e9finie par \\(U_{'+c.p+'}='+suLatexNum(c.up)+'\\) et \\('+rec+'\\).\n'
-   +'a) \\((U_n)\\) est une suite '+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+' de raison \\('+suLatexNum(c.raison)+'\\), car pour passer de \\(U_n\\) \u00e0 \\(U_{n+1}\\) on '+(c.kind==='arith'?'ajoute toujours':'multiplie toujours par')+' \\('+suLatexNum(c.kind==='arith'?suNum(Math.abs(c.raison.v)):c.raison)+'\\).\n'
+   +'a) \\((U_n)\\) est une suite '+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+' de raison \\('+suLatexNum(c.raison)+'\\), car pour passer de \\(U_n\\) \u00e0 \\(U_{n+1}\\) on '+(c.kind==='arith'?(c.raison.v<0?'retranche toujours':'ajoute toujours'):'multiplie toujours par')+' \\('+suLatexNum(c.kind==='arith'?suNum(Math.abs(c.raison.v)):c.raison)+'\\).\n'
    +'b) Le premier terme donn\u00e9 est \\(U_{'+c.p+'}\\), donc la formule explicite est \\(U_n='+suLatexFormule(c)+'\\).';
 }
 function mdlENC(){
