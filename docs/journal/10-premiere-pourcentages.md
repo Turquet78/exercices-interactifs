@@ -4634,3 +4634,24 @@ un pourcentage manquant. Dans {pourcentage-schema}, le contexte
 femmes (« au mot près » de la fiche, qui se trompait là) : la boîte s'appelle
 « Femmes ». Le contrôle du tirage de {pourcentage-schema} exige que chaque
 boîte du premier sous-groupe se lise dans ses phrases.
+
+**Les « mineures » de l'audit, thème des pourcentages (Seconde, octobre
+2026).** La valeur de départ jugée par égalité de chaînes (« 300,0 »
+refusé) était déjà réglée par le lot des importantes (`decVaut`). Le reste :
+{pourcentage-chaine} posait le même couple (P1, P2) deux fois dans 3 % des
+séances — la clé de `distinctes()` porte le sens (comb, p1, p2), le couple
+est désormais écarté rang par rang. Les contextes tiennent leurs bornes : le
+lycée de {pourcentage-boite} s'arrête à 3 000 élèves ; la vitesse porte
+`poidsHausse:0`, que `tirerContexte` lit comme une exclusion (« Une vitesse
+s'accroît de 2 % » sortait par les tournures abstraites malgré le commentaire
+qui l'interdisait) ; « 10,4 € » et « 9,5 € » retombaient sur « Un prix », dont
+`nOk` écarte ces nombres — un sujet « Le prix d'un ticket » (moins de 20 €)
+s'ajoute EN DERNIER à `AUGQ_CTX`, et le repli décimal cherche le sujet en euros
+dont la borne convient ; « 61,2 licenciés » (le calcul juste d'une proposition
+fausse) perd son unité dénombrable (`augqQte`). La pose FACULTATIVE ne compte
+plus dans la note partielle : `jugePoseFac` marque son hôte `.pose-fac`, que
+`ptsEcran` saute — le commentaire « non comptée » disait vrai du verdict, pas
+de la note. {diminuer-soustraction} a ses questions à l'IA (il proposait
+« Pourquoi calcule-t-on d'abord l'augmentation ? ») et deux contextes envoyés
+au modèle disaient « Exercice de mathématiques de Première ». Contrôles du
+banc principal (`seconde()`, fin de section), rougis sur le code d'avant.

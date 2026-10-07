@@ -38124,6 +38124,154 @@ function seconde(w){
     return vus.slice(0,3).join(' | ');
   })()`, v => v === '', undefined);
 
+  /* ---- Les « mineures » de l'audit d'octobre 2026, lot de la Seconde ----
+     Un contrôle par défaut corrigé : chacun aurait rougi sur le code d'avant
+     (éprouvé par sabotage, voir docs/journal/10, 07 et 03). */
+  verifierEval(w, 'pourcentage-chaine : jamais deux fois le même couple (P1, P2) dans une séance (400 séances)', `(function(){
+    if(typeof startPctChaine!=="function") return "startPctChaine introuvable : le contrôle ne mesure rien";
+    const sauveE=currentEleve, sauveM=currentMode, vus=[];
+    try{
+      currentEleve={id:"ctl",prenom:"Ctl"}; currentMode="train";
+      for(let s=0;s<400 && vus.length<3;s++){
+        startPctChaine();
+        const cles=test.questions.map(function(q){ return q.P1+"/"+q.P2; });
+        if(new Set(cles).size!==cles.length) vus.push("séance "+cles.join(", "));
+      }
+    } finally { currentEleve=sauveE; currentMode=sauveM; }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, 'les contextes des pourcentages tiennent leurs bornes : lycée ≤ 3 000 élèves, vitesse jamais à la hausse, nOk des sujets « retrouver » respecté, pas de « 61,2 licenciés »', `(function(){
+    const vus=[];
+    for(let k=0;k<4000;k++){ const q=genPctBoite(); const c=CTX_BOITE[q.ci];
+      if(c.nOk && !c.nOk(q.N)){ vus.push(c.tout+" avec "+q.N); break; }
+      if(c.tout==="Lycée" && q.N>3000){ vus.push("un lycée de "+q.N+" élèves"); break; } }
+    for(let k=0;k<4000;k++){
+      const h=genAug(); if(/vitesse/i.test(h.intro)){ vus.push("« "+h.intro+" … » tirée à la HAUSSE"); break; }
+      const a=genEvolAdd(1); if(/vitesse/i.test(a.intro)){ vus.push("vitesse tirée à la hausse (addition)"); break; } }
+    ["genAugDepart","genAugTaux","genDimDepart","genDimTaux","genAugDepAdd","genAugTauxAdd","genDimDepSub","genDimTauxSub"].forEach(function(nom){
+      if(typeof window[nom]!=="function"){ vus.push(nom+" introuvable"); return; }
+      for(let k=0;k<3000;k++){
+        const q=window[nom](), c=AUGQ_CTX[q.ci], ref=(q.type==="val") ? (q.prodNum!=null ? q.prodNum/100 : q.fin) : q.N;
+        if(c.nOk && !c.nOk(ref)){ vus.push(nom+" : « "+c.s+" » avec "+String(ref).replace(".",",")+" "+c.u); break; }
+      }
+    });
+    if(typeof augqQte!=="function") vus.push("augqQte introuvable : les messages écrivent l unité après tout nombre (« 61,2 licenciés »)");
+    else {
+      if(augqQte("61,2","licenciés")!=="61,2") vus.push("augqQte écrit « "+augqQte("61,2","licenciés")+" »");
+      if(augqQte("612","licenciés")!=="612 licenciés") vus.push("augqQte perd l unité d un entier");
+      if(augqQte("10,4","€")!=="10,4 €") vus.push("augqQte perd l unité d un montant");
+    }
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, 'la pose FACULTATIVE se peint mais n’entre pas dans la note partielle (ptsEcran)', `(function(){
+    const sauveE=currentEleve, sauveM=currentMode, vus=[];
+    try{
+      currentEleve={id:"ctl",prenom:"Ctl"}; currentMode="train";
+      startAug();
+      const scr=document.querySelector(".screen.on"), juste=document.getElementById("a5");
+      if(!scr || !juste) return "écran de {augmenter-pourcentage} introuvable";
+      juste.classList.add("ok");
+      const avant=JSON.stringify(ptsEcran());
+      const hote=document.createElement("div"); hote.className="mp-op";
+      hote.innerHTML='<span class="mp-cell"><input class="mp-box" data-exp="3" value="4"></span><span class="mp-cell"><input class="mp-box" data-exp="7" value="7"></span>';
+      scr.appendChild(hote);
+      jugePoseFac(hote,false);
+      if(!hote.querySelector(".mp-box.bad")) vus.push("la pose n est plus peinte");
+      const apres=JSON.stringify(ptsEcran());
+      if(apres!==avant) vus.push("la note passe de "+avant+" à "+apres+" avec une pose facultative");
+      hote.remove(); juste.classList.remove("ok");
+    } finally { currentEleve=sauveE; currentMode=sauveM; }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, 'fractions-decimales : une seule lecture stricte pour la note et la peinture (« −15/−10 », « 15abc/10 », « 1/2 » au niveau 1)', `(function(){
+    const vus=[], sauveM=currentMode, sauveE=currentEleve;
+    const poser=function(q){
+      test.kind="fracp"; test.levels=[q.level]; test.perLevel=5; test.passNeeded=4; test.levelIdx=0;
+      test.level=q.level; test.levelScore=0; test.idx=0; test.score=0; test.locked=false; test.answers=[];
+      test.questions=[q]; show("ftest"); renderFTest();
+    };
+    const cls=function(id){ const e=document.getElementById(id); return e.classList.contains("ok")?"ok":e.classList.contains("bad")?"bad":""; };
+    try{
+      currentEleve={id:"ctl",prenom:"Ctl"}; currentMode="train";
+      const Q3={level:"frac-n3",facA:{whole:3},facB:{n:5,d:10},pn:15,pd:10,qtext:"3 × 5/10",atext:"15/10"};
+      [["-15","-10",false],["15abc","10",false],["15","10",true],["30","20",true]].forEach(function(c){
+        poser(Object.assign({},Q3));
+        document.getElementById("fNum").value=c[0]; document.getElementById("fDen").value=c[1];
+        checkFAnswer();
+        const a=test.answers[test.answers.length-1], peint=cls("fNum")==="ok"&&cls("fDen")==="ok";
+        if(!a || a.correct!==c[2]) vus.push("niveau 3, « "+c[0]+"/"+c[1]+" » noté "+(a&&a.correct));
+        if(a && a.correct!==peint) vus.push("niveau 3, « "+c[0]+"/"+c[1]+" » : note "+a.correct+", cases "+cls("fNum")+"/"+cls("fDen"));
+      });
+      const Q1={level:"frac-n1",num:5,d:10,qtext:"5/10",atext:"0,5"};
+      [["1/2",false],["0,5",true],["0,50",true]].forEach(function(c){
+        poser(Object.assign({},Q1)); document.getElementById("fDec").value=c[0]; checkFAnswer();
+        const a=test.answers[test.answers.length-1];
+        if(!a || a.correct!==c[1]) vus.push("niveau 1 (forme décimale), « "+c[0]+" » noté "+(a&&a.correct));
+      });
+      const Q4={level:"frac-n4",facA:{whole:30},facB:{n:7,d:100},pn:210,pd:100,qtext:"30 × 7/100",atext:"2,1"};
+      poser(Q4);
+      if(/ces fractions décimales/.test(document.getElementById("fInstr").textContent)) vus.push("niveau 4 : « ces fractions décimales » devant un facteur entier");
+    } finally { currentMode=sauveM; currentEleve=sauveE; }
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, 'le calcul mental ne tire aucun calcul trivial (0 − 0, 0 + x, × 1, ÷ 1)', `(function(){
+    const cfg=JSON.parse(JSON.stringify(DEFAULT_CFG)); cfg.ops={add:true,sub:true,mul:true,div:true};
+    for(let k=0;k<6000;k++){
+      const q=genQuestion(cfg), m=q.text.match(/^(\\d+) (.) (\\d+)$/);
+      if(!m) return "énoncé illisible : "+q.text;
+      const a=+m[1], op=m[2], b=+m[3];
+      if((op==="+"||op==="−") && (a===0||b===0||q.answer===0)) return "trivial : "+q.text;
+      if((op==="×"||op==="÷") && (a===1||b===1||q.answer===1)) return "trivial : "+q.text;
+    }
+    return "";
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, 'fractions : la fraction finale montrée est irréductible, les rappels vont jusqu’au bout, et 104/44 vaut 156/66', `(function(){
+    const vus=[], sauveM=currentMode, sauveE=currentEleve;
+    if(RAP_TSF.indexOf("frac{1}{30}")<0) vus.push("RAP_TSF s arrête à 3/90");
+    if(RAP_RVF.indexOf("frac{5}{6}")<0) vus.push("RAP_RVF ④ s arrête à 10/12");
+    const j=pfFracJuge(104,44,156,66); if(!(j[0]&&j[1])) vus.push("pfFracJuge refuse 104/44 pour 156/66");
+    const j2=pfFracJuge(26,11,156,66); if(!(j2[0]&&j2[1])) vus.push("pfFracJuge refuse 26/11 pour 156/66");
+    const j3=pfFracJuge(6,40,3,40); if(j3[0]||j3[1]) vus.push("pfFracJuge accepte 6/40 pour 3/40");
+    const j4=pfFracJuge(-52,22,-156,66); if(!(j4[0]&&j4[1])) vus.push("pfFracJuge refuse −52/22 pour −156/66");
+    try{
+      currentEleve={id:"ctl",prenom:"Ctl"}; currentMode="train";
+      let q=null; for(let k=0;k<3000 && !q;k++){ const c=pqdGen(false); if(gcd(c.P,c.Q)>1) q=c; }
+      if(!q) vus.push("aucun tirage de {produit-difference-fractions} à fraction finale réductible : rien à mesurer");
+      else {
+        startPqdH(); test.questions=[q]; test.idx=0; renderPqdTest(); checkPqdAnswer();
+        const fn=+document.getElementById("pqd-fn").value, fd=+document.getElementById("pqd-fd").value;
+        if(gcd(fn,fd)!==1 || fn*q.Q!==q.P*fd) vus.push("correction verte "+fn+"/"+fd+" pour "+q.P+"/"+q.Q);
+        const r={vide:false,cx:{ok1:true,ok2:true,okN1:true,okN2:true,okD:true,okRn:true,okRd:true},pr:{inverse:true}};
+        const g=gcd(q.P,q.Q), msg=pqdPourquoi(q,r);
+        if(msg.indexOf((q.P/g)+" sur "+(q.Q/g))<0) vus.push("message : "+msg);
+        /* la route de l'élève : un numérateur juste mais non simplifié appelle SON dénominateur */
+        startPqdH(); test.questions=[q]; test.idx=0; renderPqdTest();
+        document.getElementById("pqd-fn").value=String(q.P*2); checkPqdAnswer();
+        const fd2=+document.getElementById("pqd-fd").value;
+        if(fd2!==q.Q*2) vus.push("numérateur "+(q.P*2)+" juste : la case vide reçoit "+fd2+" au lieu de "+(q.Q*2));
+      }
+    } finally { currentMode=sauveM; currentEleve=sauveE; }
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '{diminuer-soustraction} propose ses PROPRES questions à l’IA, et le contexte envoyé au modèle dit « Seconde »', `(function(){
+    const vus=[], sauve=currentTestId, sauveK=test.kind;
+    try{
+      currentTestId="diminuer-soustraction"; test.kind="ag2";   /* le moteur partagé avec {augmenter-addition} */
+      const s=qiaSuggestions();
+      if(s.some(function(t){ return /augmentation|ajouter/i.test(t); })) vus.push("questions de l augmentation : "+s.join(" / "));
+      if(!s.some(function(t){ return /baisse|soustraire/i.test(t); })) vus.push("aucune question sur la baisse");
+    } finally { currentTestId=sauve; test.kind=sauveK; }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+  verifier('le contexte envoyé au modèle ne dit jamais « Première » dans la page de Seconde',
+    !/mathématiques de Première/.test(lire(CIBLE)));
+
 }
 
 

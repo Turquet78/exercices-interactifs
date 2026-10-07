@@ -1252,3 +1252,19 @@ retirée, avec ses deux voisines mortes pour la même raison (d2 vaut au moins
 « rien à multiplier en haut » (n1 = d2 = 1). Le tirage n'a pas changé d'un
 seul résultat ; le contrôle de la division exigeait déjà les deux premiers
 bords sur 2 000 tirages, et il exige maintenant le troisième.
+
+**Les « mineures » de l'audit, fractions (Seconde, octobre 2026).**
+{fractions-decimales} : la note et la peinture lisaient chacune leur case —
+`parseInt` acceptait « 15abc/10 », et la note du niveau 3 comptait juste
+« −15/−10 » sous deux cases rouges. `fracDecVerdict` lit par `entierDec`, et
+la note des niveaux 2 à 5 EST le `.ok` que rend `marqueFracDec` : une seule
+lecture. Le niveau 1 (« sous forme décimale ») n'accepte plus « 1/2 » pour
+5/10 ; le niveau 4 dit « ce nombre entier et cette fraction décimale » quand
+un facteur est entier. {produit-difference-fractions}, {quotient-difference-
+fractions} et {quotient-double-fractions} : `pfFracJuge` refusait 104/44 pour
+156/66 (une case « promettait » seulement si elle divisait P ou en était un
+multiple) — elle promet désormais quand elle est un multiple de la fraction
+IRRÉDUCTIBLE. La correction verte écrit la fraction irréductible (ou complète
+la route d'une case juste : 312 en haut appelle 132), le message dit « 156 sur
+66, soit 26 sur 11 une fois simplifiée ». `RAP_TSF` va jusqu'à 1/30 et le ④ de
+`RAP_RVF` jusqu'à 5/6. Contrôles dans `seconde()` (banc principal).
