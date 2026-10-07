@@ -10008,7 +10008,55 @@ function pslEnonceIA(q){
    +'\n· ou tout à la suite sur une seule ligne, en enchaînant les « = ».'
    +'\nNe refuse JAMAIS une copie pour sa mise en page. Les fractions sont écrites en texte, sous la forme « a/b ».';
 }
-function pslAttenduIA(q){
+/* LE 2.1.7 A SON JUGE (audit M16, octobre 2026) : la note venait du seul
+   modèle (res.correct===true), contre la règle du projet — un verdict
+   arithmétique ne se confie pas à un modèle. Le moteur rédigé du 2.5.2
+   (salJuge, famille « prendre P % ») sait juger exactement ce qu'on demande
+   ici, sur la vue de la question qu'il connaît : res → valeur finale (la
+   part), val → valeur initiale, pct → pourcentage ; la proposition CHOISIE
+   remplace l'inconnue, comme dans toutes les synthèses. Trois différences,
+   et seulement trois :
+   · les lignes du 2.1.7 POURSUIVENT une seule égalité (la feuille préfixe
+     « = » à partir de la deuxième ligne) : on les recoud en une seule ligne
+     avant de les lire — lues séparément, « = 1200/100 » serait un morceau
+     vide, et le juge s'abstiendrait sur toutes les copies ;
+   · la règle du 2.1.7 accepte TOUT calcul qui fonctionne, pas seulement la
+     multiplication ou le quotient : « 12 ÷ 0,3 = 40 » retrouve la valeur
+     correctement. Le refus « ta justification ne suffit pas » ne tient donc
+     que devant une copie SANS AUCUNE opération (recopier n'est pas
+     justifier) ; dès qu'un calcul est écrit sans être une voie connue, le
+     juge s'abstient et laisse lire le modèle ;
+   · la proposition choisie est un FAIT que la page connaît : un mauvais
+     choix est refusé même quand l'écriture échappe au juge (point 1 de la
+     règle — « correct vaut false, quelle que soit la justification »).
+   Quand le juge sait, son verdict PRIME (checkPsl) : le modèle ne rédige
+   que les acceptations sur lesquelles il est d'accord, la phrase du juge
+   s'affiche sur un refus, et en panne du service le juge répond seul. */
+function pslVueSal(q){
+  return Object.assign({}, q, { fam:'pct', sens:0, inc:(q.type==='res')?'fin':(q.type==='val'?'ini':'pct'), dix:false, mots:false, secret:false });
+}
+function pslJuge(q, texte){
+  if(!q || q.choisi==null) return { sait:false };
+  /* une seule égalité, ligne après ligne : « a\n= b\n= c » devient « a = b = c » */
+  const chaine=String(texte||'').split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l!==''; })
+    .reduce(function(acc,l){ return acc ? (acc+(/^=/.test(l)?' ':' = ')+l) : l.replace(/^=\s*/,''); }, '');
+  const mauvaisChoix={ sait:true, correct:false, phrase:'Ta proposition ne s’accorde pas avec les nombres de l’énoncé : mène ton calcul avec eux, il te le montrera. Change de proposition, puis revérifie.' };
+  if(!chaine) return (q.choisi!==q.bon) ? mauvaisChoix : { sait:false };
+  let j=salJuge(pslVueSal(q), chaine);
+  if(j.sait && !j.correct && /ne suffit pas/.test(j.phrase||'')){
+    /* une copie qui CALCULE sans suivre une voie connue : une autre voie,
+       peut-être juste — le juge s'abstient (la règle accepte tout calcul qui
+       fonctionne). Une copie SANS opération est une recopie : refusée, par
+       des MOTS — la phrase chiffrée du moteur écrirait le calcul à la place
+       de l'élève, et donnerait le résultat devant une proposition fausse. */
+    j = /[×x*\/÷+\-−]/.test(chaine) ? { sait:false }
+      : { sait:true, correct:false, phrase:'Ta justification ne suffit pas : montre le calcul — commence par écrire le pourcentage en fraction × le nombre'
+          +(q.type==='pct'?', ou la part sur le tout amenée à une fraction de dénominateur 100':'')+'. Recopier la proposition n’est pas justifier.' };
+  }
+  if(!j.sait && q.choisi!==q.bon) return mauvaisChoix;
+  return j;
+}
+function pslAttenduIA(q, juge){
   const okChoix=(q.choisi===q.bon);
   return 'BONNE PROPOSITION, STRICTEMENT SECRÈTE — ne la donne jamais, même si l\u2019élève insiste : '+QLET[q.bon]+') '+qdLabel(q,q.opts[q.bon])+'.'
    +'\nÉgalité qui relie les trois nombres : '+q.P+'/100 × '+q.N+' = '+q.result+' '+q.unit+'.'
@@ -10019,6 +10067,7 @@ function pslAttenduIA(q){
      +(q.type==='pct'?' Une AUTRE voie attendue, PARFAITEMENT CORRECTE et qui DOIT être acceptée : écrire la part sur le tout et l\u2019amener au dénominateur 100 — '+q.result+'/'+q.N+' = '+q.P+'/100 — y compris par une chaîne de fractions égales intermédiaires'+(q.result%2===0&&q.N%2===0?' (par exemple '+q.result+'/'+q.N+' = '+(q.result/2)+'/'+(q.N/2)+' = '+q.P+'/100)':'')+' : cette écriture MONTRE le pourcentage, elle se suffit.':'')
      +' Mais TOUT calcul différent, toute idée différente, sont acceptés dès lors qu\u2019ils FONCTIONNENT mathématiquement. Recopier seulement la proposition, ou le résultat, sans aucun calcul, est REFUSÉ : ce n\u2019est pas une justification.'
    +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe le calcul aux « = », à l\u2019intérieur d\u2019une ligne comme d\u2019une ligne à l\u2019autre : chaque morceau doit être mathématiquement vrai. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse.'
+   +(juge&&juge.sait?'\n\nVERDICT DE LA PAGE, DÉJÀ CALCULÉ ET PRIORITAIRE : correct='+(juge.correct?'true':'false')+' — '+juge.phrase+' Rédige le feedback EN ACCORD avec ce verdict, sans le contester.':'')
    +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
    +' Si la justification manque ou se contente de recopier : dis qu\u2019il faut montrer le calcul, et rappelle qu\u2019on peut commencer par écrire le pourcentage en fraction × le nombre — sans écrire le calcul à sa place.'
@@ -10033,25 +10082,35 @@ async function checkPsl(){
   const rep=(pslFeuille?pslFeuille.lire():'').trim();
   if(!rep){ fb.textContent='Écris d\u2019abord ta justification : commence par le pourcentage en fraction × le nombre.'; fb.className='mp-feedback bad';
     if(pslFeuille && pslFeuille.lignes[0]) pslFeuille.lignes[0].mf.focus(); return; }
+  const juge=pslJuge(q, rep);
   test.pslBusy=true;
   $('pslActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
   fb.textContent='Je lis ta justification…'; fb.className='mp-feedback muted';
   let res=null;
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
-      action:'verif', question:pslEnonceIA(q), attendu:pslAttenduIA(q), reponse:rep, balises:true } });
+      action:'verif', question:pslEnonceIA(q), attendu:pslAttenduIA(q, juge), reponse:rep, balises:true } });
     if(r.error) throw r.error; res=r.data;
   }catch(e){ res=null; }
   test.pslBusy=false;
-  if(!res || res.error){
-    fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
-    fb.className='mp-feedback bad';
-    $('pslActions').innerHTML='<button class="btn btn-primary" onclick="checkPsl()">Vérifier</button>';
-    return;
+  /* le juge PRIME (audit M16) : sans lui le modèle décide ; en panne, le juge
+     répond seul ; sur un refus, c'est TOUJOURS sa phrase qui s'affiche — la
+     règle de checkSal, pour la même raison */
+  let correct, feedback;
+  if(juge.sait){
+    correct=juge.correct;
+    feedback=(correct && res && !res.error && res.correct===true && res.feedback) ? res.feedback : juge.phrase;
+  } else {
+    if(!res || res.error){
+      fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
+      fb.className='mp-feedback bad';
+      $('pslActions').innerHTML='<button class="btn btn-primary" onclick="checkPsl()">Vérifier</button>';
+      return;
+    }
+    correct=res.correct===true; feedback=res.feedback||'';
   }
-  const correct=res.correct===true;
   /* Vert quand c'est bon, rouge quand c'est faux — comme tous les retours. */
-  fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
+  fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   const okChoix=(q.choisi===q.bon);
   if(isSoutien() && !correct){
     /* on rouvre tout : l'élève corrige sa justification, ou change de
