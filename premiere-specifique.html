@@ -5,6 +5,13 @@
 <!--      Elles se trouvent dans Supabase > Project Settings > API.            -->
 <!-- ========================================================================= -->
 <script>
+  /* LA LANGUE DE LA PAGE (audit d'octobre 2026, A6/T5). La page n'a pas de
+     balise <html> — le navigateur la synthétise —, donc pas d'attribut lang :
+     un lecteur d'écran lisait le français avec la voix de sa langue par
+     défaut, et la césure comme les correcteurs ne savaient pas quelle
+     langue appliquer. Posée ici, au premier script, elle vaut avant tout
+     le reste de l'analyse. */
+  document.documentElement.lang='fr';
   const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← projet Supabase commun (celui de terminale)
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";              // ← clé "anon public" du projet commun
   const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";   // ← l'adresse du compte Supabase du professeur
@@ -48,8 +55,14 @@
   :root{
     --paper:#F7F6F1; --grid:#CBD8EC; --ink:#1E2A4A; --ink-soft:#5C668A;
     --blue:#2B50C8; --blue-dark:#1E3CA0;
-    --green:#1FA971; --green-soft:#E4F5EE;
-    --red:#E23D52; --red-soft:#FCE7EA;
+    /* Vert et rouge assombris (audit d'octobre 2026, A1) : #1FA971 et #E23D52
+       ne faisaient que 3,0 et 4,2 sur blanc, sous le seuil AA de 4,5 pour du
+       texte. Mêmes dominantes (le banc « 9 bis » les classe toujours vert et
+       rouge), reprises des pastilles .badge.hi / .badge.lo : #157A52 = 5,3 sur
+       blanc, 4,9 sur le papier, 4,7 sur --green-soft ; #BF2C3E = 5,8 / 5,3 /
+       4,9 sur --red-soft. */
+    --green:#157A52; --green-soft:#E4F5EE;
+    --red:#BF2C3E; --red-soft:#FCE7EA;
     --gold:#F2A93B;
     --pdt-fl:#7C3AED;
     --slate:#2E4039; --slate-2:#26352D; --chalk:#F4F3EC; --chalk-soft:#AFC0B5;
@@ -755,7 +768,7 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .qia-illu .qi-as{stroke:#E23D52;stroke-width:1.7;stroke-dasharray:6 4;fill:none;}
 .qia-illu .qi-gd{stroke:#8A93B4;stroke-width:1.1;stroke-dasharray:3 3;fill:none;}
 .qia-illu .qi-tx{font-size:12.5px;font-weight:700;fill:#1E2A4A;}
-.qia-illu .qi-tr{font-size:12.5px;font-weight:800;fill:#E23D52;}
+.qia-illu .qi-tr{font-size:12.5px;font-weight:800;fill:#BF2C3E;}
 .qia-illu .qi-tb{font-size:12.5px;font-weight:800;fill:#2B50C8;}
 .qia-illu .qi-pt{fill:#2B50C8;stroke:#fff;stroke-width:1.4;}
 .qia-illu .qi-po{fill:#FFFFFF;stroke:#2B50C8;stroke-width:2;}
@@ -1136,6 +1149,8 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .fp-col .fp-seg+.fp-seg{border-bottom:2px solid var(--ink);}
 .fp-colr .fp-seg+.fp-seg{border-bottom:1px solid var(--grid);}
 .fp-col .fp-seg.on{background:#BBD0F7;}
+/* la part atteinte au clavier se montre — DEDANS : la colonne rogne ce qui déborde */
+.fp-col .fp-seg:focus-visible,.smp-bar .smp-seg:focus-visible{outline:3px solid var(--blue);outline-offset:-3px}
 .fp-col.ok{border-color:var(--blue);} .fp-col.ok .fp-seg.on{background:#EAF0FF;}
 .fp-col.bad{border-color:var(--red);} .fp-col.bad .fp-seg.on{background:var(--red-soft);}
 /* correction du mode entrainement : trait vert a la bonne hauteur */
@@ -1365,6 +1380,14 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #evsHost math-field.pm-mf.evs-mot{min-width:170px;max-width:300px}
 @media(max-width:900px){ #evsHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1))} .pctb-af-x{font-size:calc(1.15rem * var(--tab-nb,1))} }
 @media(max-width:560px){ #evsHost math-field.pm-mf{font-size:calc(1.2rem * var(--tab-nb,1));min-width:60px} .pctb-row{gap:14px} .pctb-af-x{font-size:calc(1.05rem * var(--tab-nb,1))} }
+/* ---- CIBLES TACTILES : 24 px au moins sous le doigt (audit d'octobre 2026,
+   A3 ; WCAG 2.5.8). Les parts de la colonne « pour 100 » du 1.x « fraction et
+   pourcentage » faisaient 12 px à 380 px, celles de la colonne du
+   pourcentage 23,8 px. Les deux colonnes gardent TOUJOURS la même hauteur —
+   c'est ce qu'elles comparent : 20 parts de 24 px, 19 traits d'un pixel et
+   5 px de bordure font 510 px, à toutes les largeurs. ---- */
+#fpHost .fp-col{height:510px}
+@media(max-width:520px){ #pcHost .fp-col{height:270px} }
 </style>
 
 <div class="wrap">
@@ -1539,7 +1562,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
       <div id="conseilRappelRow" class="rap-row" hidden><button class="btn btn-ghost btn-sm" type="button" id="conseilRappelBtn" onclick="basculerRappel()">📘 Voir le rappel de cours</button></div>
       <div id="conseilRappel" hidden></div>
-      <div id="conseilBody" class="mp-feedback"></div>
+      <div id="conseilBody" class="mp-feedback" aria-live="polite"></div>
     </div>
   </div>
   <div id="notesModal" class="notes-modal" hidden onclick="if(event.target===this)fermerNotes()">
@@ -1605,7 +1628,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="mark" id="tmMark"></span>
       <div class="timerbar" id="tmTimerBar" hidden><i id="tmTimerFill"></i></div>
       <div class="correction" id="tmCorrection"></div>
-      <div class="mp-feedback" id="tmFeedback"></div>
+      <div class="mp-feedback" id="tmFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tmActions"></div>
     </div>
   </section>
@@ -1640,7 +1663,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="qPrompt">Retrouver la valeur initiale.</p>
       <div class="mp-stage"><div style="width:100%" id="qHost"></div></div>
-      <div class="mp-feedback" id="qFeedback"></div>
+      <div class="mp-feedback" id="qFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="qActions">
         <button class="btn btn-primary" onclick="checkQAnswer()">Vérifier</button>
       </div>
@@ -1654,7 +1677,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pslPrompt">Retrouve la bonne réponse, puis justifie-la.</p>
       <div class="mp-stage"><div style="width:100%" id="pslHost"></div></div>
-      <div class="mp-feedback" id="pslFeedback"></div>
+      <div class="mp-feedback" id="pslFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pslActions">
         <button class="btn btn-primary" onclick="checkPsl()">Vérifier</button>
       </div>
@@ -1669,7 +1692,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="salPrompt">Retrouve la bonne réponse, puis justifie-la.</p>
       <div class="mp-stage"><div style="width:100%" id="salHost"></div></div>
-      <div class="mp-feedback" id="salFeedback"></div>
+      <div class="mp-feedback" id="salFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="salActions">
         <button class="btn btn-primary" onclick="checkSal()">Vérifier</button>
       </div>
@@ -1684,7 +1707,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="dbpPrompt">Rédige ton calcul.</p>
       <div class="mp-stage"><div style="width:100%" id="dbpHost"></div></div>
-      <div class="mp-feedback" id="dbpFeedback"></div>
+      <div class="mp-feedback" id="dbpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="dbpActions">
         <button class="btn btn-primary" onclick="checkDbp()">Vérifier</button>
       </div>
@@ -1699,7 +1722,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="eslPrompt">Rédige ton calcul, puis conclus.</p>
       <div class="mp-stage"><div style="width:100%" id="eslHost"></div></div>
-      <div class="mp-feedback" id="eslFeedback"></div>
+      <div class="mp-feedback" id="eslFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="eslActions">
         <button class="btn btn-primary" onclick="checkEsl()">Vérifier</button>
       </div>
@@ -1715,7 +1738,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="aspInstr">Pose l’opération et complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues).</p>
       <div class="mp-stage"><div class="mp-op" id="aspHost"></div></div>
-      <div class="mp-feedback" id="aspFeedback"></div>
+      <div class="mp-feedback" id="aspFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="aspActions">
         <button class="btn btn-primary" onclick="checkASPAnswer()">Vérifier</button>
       </div>
@@ -1730,7 +1753,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues). La <b>retenue</b> (case rouge) est facultative, mais si tu l'écris, elle doit être juste.</p>
       <div class="mp-stage"><div class="mp-op" id="mpHost"></div></div>
-      <div class="mp-feedback" id="mpFeedback"></div>
+      <div class="mp-feedback" id="mpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="mpActions">
         <button class="btn btn-primary" onclick="checkMAnswer()">Vérifier</button>
       </div>
@@ -1746,7 +1769,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="fInstr">Donne la réponse.</p>
       <div class="mp-stage"><div class="f-wrap" id="fHost"></div></div>
-      <div class="mp-feedback" id="fFeedback"></div>
+      <div class="mp-feedback" id="fFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="fActions">
         <button class="btn btn-primary" onclick="checkFAnswer()">Vérifier</button>
       </div>
@@ -1762,7 +1785,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pPrompt">Prendre un pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="pHost"></div></div>
-      <div class="mp-feedback" id="pFeedback"></div>
+      <div class="mp-feedback" id="pFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pActions">
         <button class="btn btn-primary" onclick="checkPAnswer()">Vérifier</button>
       </div>
@@ -1778,7 +1801,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pcPrompt">Prendre un pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="pcHost"></div></div>
-      <div class="mp-feedback" id="pcFeedback"></div>
+      <div class="mp-feedback" id="pcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pcActions">
         <button class="btn btn-primary" onclick="checkPctColAnswer()">Vérifier</button>
       </div>
@@ -1794,7 +1817,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pxPrompt">Prendre 10 % d’un nombre en divisant par 10.</p>
       <div class="mp-stage"><div style="width:100%" id="pxHost"></div></div>
-      <div class="mp-feedback" id="pxFeedback"></div>
+      <div class="mp-feedback" id="pxFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pxActions">
         <button class="btn btn-primary" onclick="checkPct10Answer()">Vérifier</button>
       </div>
@@ -1810,7 +1833,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pdcPrompt">Retrouver plusieurs pourcentages.</p>
       <div class="mp-stage"><div style="width:100%" id="pdcHost"></div></div>
-      <div class="mp-feedback" id="pdcFeedback"></div>
+      <div class="mp-feedback" id="pdcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pdcActions">
         <button class="btn btn-primary" onclick="checkPdcAnswer()">Vérifier</button>
       </div>
@@ -1826,7 +1849,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="enonce" id="atdPrompt">Retrouver le pourcentage d’une augmentation en passant par 10 %.</p>
       <div class="mp-stage"><div style="width:100%" id="atdHost"></div></div>
-      <div class="mp-feedback" id="atdFeedback"></div>
+      <div class="mp-feedback" id="atdFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="atdActions">
         <button class="btn btn-primary" onclick="checkAtdAnswer()">Vérifier</button>
       </div>
@@ -1842,7 +1865,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="enonce" id="pdtPrompt">Retrouver le pourcentage en passant par 10 %.</p>
       <div class="mp-stage"><div style="width:100%" id="pdtHost"></div></div>
-      <div class="mp-feedback" id="pdtFeedback"></div>
+      <div class="mp-feedback" id="pdtFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pdtActions">
         <button class="btn btn-primary" onclick="checkPdtAnswer()">Vérifier</button>
       </div>
@@ -1858,7 +1881,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="adxPrompt">Augmenter un prix en passant par 10 %.</p>
       <div class="mp-stage"><div style="width:100%" id="adxHost"></div></div>
-      <div class="mp-feedback" id="adxFeedback"></div>
+      <div class="mp-feedback" id="adxFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="adxActions">
         <button class="btn btn-primary" onclick="checkAdxAnswer()">Vérifier</button>
       </div>
@@ -1874,7 +1897,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="ddxPrompt">Diminuer un prix en passant par 10 %.</p>
       <div class="mp-stage"><div style="width:100%" id="ddxHost"></div></div>
-      <div class="mp-feedback" id="ddxFeedback"></div>
+      <div class="mp-feedback" id="ddxFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="ddxActions">
         <button class="btn btn-primary" onclick="checkDdxAnswer()">Vérifier</button>
       </div>
@@ -1890,7 +1913,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="enonce" id="ddtPrompt">Retrouver le pourcentage d’une baisse en passant par 10 %.</p>
       <div class="mp-stage"><div style="width:100%" id="ddtHost"></div></div>
-      <div class="mp-feedback" id="ddtFeedback"></div>
+      <div class="mp-feedback" id="ddtFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="ddtActions">
         <button class="btn btn-primary" onclick="checkDdtAnswer()">Vérifier</button>
       </div>
@@ -1905,7 +1928,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="fpPrompt">Fraction et pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="fpHost"></div></div>
-      <div class="mp-feedback" id="fpFeedback"></div>
+      <div class="mp-feedback" id="fpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="fpActions">
         <button class="btn btn-primary" onclick="checkFPAnswer()">Vérifier</button>
       </div>
@@ -1921,7 +1944,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="mdPrompt">Multiplier des décimaux.</p>
       <div class="mp-stage"><div style="width:100%" id="mdHost"></div></div>
-      <div class="mp-feedback" id="mdFeedback"></div>
+      <div class="mp-feedback" id="mdFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="mdActions">
         <button class="btn btn-primary" onclick="checkMDAnswer()">Vérifier</button>
       </div>
@@ -1937,7 +1960,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="uPrompt">Multiplier des décimaux.</p>
       <div class="mp-stage"><div style="width:100%" id="uHost"></div></div>
-      <div class="mp-feedback" id="uFeedback"></div>
+      <div class="mp-feedback" id="uFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="uActions">
         <button class="btn btn-primary" onclick="checkUAnswer()">Vérifier</button>
       </div>
@@ -1953,7 +1976,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="vPrompt">Retrouver la valeur initiale.</p>
       <div class="mp-stage"><div style="width:100%" id="vHost"></div></div>
-      <div class="mp-feedback" id="vFeedback"></div>
+      <div class="mp-feedback" id="vFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="vActions">
         <button class="btn btn-primary" onclick="checkVAnswer()">Vérifier</button>
       </div>
@@ -1968,7 +1991,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="wPrompt">Vérifier une proposition par le calcul direct.</p>
       <div class="mp-stage"><div style="width:100%" id="a2qHost"></div></div>
-      <div class="mp-feedback" id="wFeedback"></div>
+      <div class="mp-feedback" id="wFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="wActions">
         <button class="btn btn-primary" onclick="checkWAnswer()">Vérifier</button>
       </div>
@@ -1983,7 +2006,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="syPrompt">Synthèse sur les pourcentages.</p>
       <div class="mp-stage"><div style="width:100%" id="synHost"></div></div>
-      <div class="mp-feedback" id="syFeedback"></div>
+      <div class="mp-feedback" id="syFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="syActions">
         <button class="btn btn-primary" onclick="checkSynAnswer()">Vérifier</button>
       </div>
@@ -1998,7 +2021,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="aPrompt">Augmenter d'un pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="aHost"></div></div>
-      <div class="mp-feedback" id="aFeedback"></div>
+      <div class="mp-feedback" id="aFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="aActions">
         <button class="btn btn-primary" onclick="checkAAnswer()">Vérifier</button>
       </div>
@@ -2013,7 +2036,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="ag2Prompt">Augmenter d'un pourcentage — calculer l'augmentation.</p>
       <div class="mp-stage"><div style="width:100%" id="ag2Host"></div></div>
-      <div class="mp-feedback" id="ag2Feedback"></div>
+      <div class="mp-feedback" id="ag2Feedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="ag2Actions">
         <button class="btn btn-primary" onclick="checkAG2Answer()">Vérifier</button>
       </div>
@@ -2028,7 +2051,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="dPrompt">Diminuer d'un pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="dHost"></div></div>
-      <div class="mp-feedback" id="dFeedback"></div>
+      <div class="mp-feedback" id="dFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="dActions">
         <button class="btn btn-primary" onclick="checkDAnswer()">Vérifier</button>
       </div>
@@ -2043,7 +2066,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="bsPrompt">Une baisse suivie d'une autre baisse.</p>
       <div class="mp-stage"><div style="width:100%" id="bsHost"></div></div>
-      <div class="mp-feedback" id="bsFeedback"></div>
+      <div class="mp-feedback" id="bsFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="bsActions">
         <button class="btn btn-primary" onclick="checkBSAnswer()">Vérifier</button>
       </div>
@@ -2058,7 +2081,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="hsPrompt">Une hausse suivie d'une autre hausse.</p>
       <div class="mp-stage"><div style="width:100%" id="hsHost"></div></div>
-      <div class="mp-feedback" id="hsFeedback"></div>
+      <div class="mp-feedback" id="hsFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="hsActions">
         <button class="btn btn-primary" onclick="checkHSAnswer()">Vérifier</button>
       </div>
@@ -2073,7 +2096,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="hscPrompt">Une hausse suivie d’une autre hausse, en partant de 100.</p>
       <div class="mp-stage"><div style="width:100%" id="hscHost"></div></div>
-      <div class="mp-feedback" id="hscFeedback"></div>
+      <div class="mp-feedback" id="hscFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="hscActions">
         <button class="btn btn-primary" onclick="checkHSCAnswer()">Vérifier</button>
       </div>
@@ -2088,7 +2111,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="evsPrompt">Complète le schéma.</p>
       <div class="mp-stage"><div style="width:100%" id="evsHost"></div></div>
-      <div class="mp-feedback" id="evsFeedback"></div>
+      <div class="mp-feedback" id="evsFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="evsActions">
         <button class="btn btn-primary" onclick="checkEvsAnswer()">Vérifier</button>
       </div>
@@ -2103,7 +2126,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="essPrompt">Deux évolutions successives, chacune une hausse ou une baisse.</p>
       <div class="mp-stage"><div style="width:100%" id="essHost"></div></div>
-      <div class="mp-feedback" id="essFeedback"></div>
+      <div class="mp-feedback" id="essFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="essActions">
         <button class="btn btn-primary" onclick="checkEssAnswer()">Vérifier</button>
       </div>
@@ -2118,7 +2141,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="bsdPrompt">Une baisse suivie d’une autre baisse, en passant par 10 %.</p>
       <div class="mp-stage"><div style="width:100%" id="bsdHost"></div></div>
-      <div class="mp-feedback" id="bsdFeedback"></div>
+      <div class="mp-feedback" id="bsdFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="bsdActions">
         <button class="btn btn-primary" onclick="checkBsdAnswer()">Vérifier</button>
       </div>
@@ -2133,7 +2156,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="lcPrompt">Lire un coefficient multiplicateur.</p>
       <div class="mp-stage"><div style="width:100%" id="lcHost"></div></div>
-      <div class="mp-feedback" id="lcFeedback"></div>
+      <div class="mp-feedback" id="lcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="lcActions">
         <button class="btn btn-primary" onclick="checkLCAnswer()">Vérifier</button>
       </div>
@@ -2149,7 +2172,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="ckPrompt">Reconnaître le coefficient multiplicateur.</p>
       <div class="mp-stage"><div style="width:100%" id="ckHost"></div></div>
-      <div class="mp-feedback" id="ckFeedback"></div>
+      <div class="mp-feedback" id="ckFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="ckActions">
         <button class="btn btn-primary" onclick="checkCKAnswer()">Vérifier</button>
       </div>
@@ -2165,7 +2188,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="acPrompt">Associer le bon coefficient multiplicateur.</p>
       <div class="mp-stage"><div style="width:100%" id="acHost"></div></div>
-      <div class="mp-feedback" id="acFeedback"></div>
+      <div class="mp-feedback" id="acFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="acActions">
         <button class="btn btn-primary" onclick="checkACAnswer()">Vérifier</button>
       </div>
@@ -2182,7 +2205,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="sfPrompt">Calcule la somme.</p>
       <div class="mp-stage"><div style="width:100%" id="sfHost"></div></div>
-      <div class="mp-feedback" id="sfFeedback"></div>
+      <div class="mp-feedback" id="sfFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="sfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSFAnswer()">Vérifier</button></span>
       </div>
@@ -7884,8 +7907,8 @@ function renderFPTest(){
   $('fpFeedback').textContent=''; $('fpFeedback').className='mp-feedback';
   $('fpActions').innerHTML='<button class="btn btn-primary" onclick="checkFPAnswer()">Vérifier</button>';
   $('fpPrompt').innerHTML=variante(FP_ENONCES,q)+' Termine par la méthode 2 : la même fraction, avec un dénominateur de 100.';
-  const segsL=Array.from({length:q.b},(_,i)=>`<div class="fp-seg${i<q.selL?' on':''}" onclick="fpClickL(${i+1})"></div>`).join('');
-  const segsR=Array.from({length:20},(_,i)=>`<div class="fp-seg${i<q.selR?' on':''}" onclick="fpClickR(${i+1})"></div>`).join('');
+  const segsL=Array.from({length:q.b},(_,i)=>`<div class="fp-seg${i<q.selL?' on':''}" onclick="fpClickL(${i+1})"${segAttr('pour '+q.b+' : ',i,q.b,i<q.selL)}></div>`).join('');
+  const segsR=Array.from({length:20},(_,i)=>`<div class="fp-seg${i<q.selR?' on':''}" onclick="fpClickR(${i+1})"${segAttr('pour 100 : ',i,20,i<q.selR)}></div>`).join('');
   $('fpHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">Méthode 1 : colorie, puis choisis la même hauteur</div>
     <div class="fp-zone">`+
@@ -7905,12 +7928,35 @@ function renderFPTest(){
   const ordre=['fm1n','fm1d','fm2n','fm3'].map(id=>$(id));
   ordre.forEach((el,i)=>{ if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<ordre.length-1)ordre[i+1].focus(); else checkFPAnswer();} }); });
 }
+/* AU CLAVIER, UNE CIBLE QUI N'EST PAS UN VRAI BOUTON (audit d'octobre 2026,
+   A4). Les points du graphique et les parts à colorier sont des <g> et des
+   <div> munis d'un onclick : ni Tab ne les atteignait, ni Entrée ne les
+   actionnait, et ces exercices étaient infaisables sans souris ni doigt. Ils
+   portent désormais tabindex="0" et role="button" là où ils sont rendus ; ce
+   gestionnaire, UN SEUL pour toute la page, leur donne Entrée et Espace —
+   un clic, exactement celui de la souris. Ce qui gère déjà sa touche (la
+   zone de capture du signalement) l'annonce par preventDefault et passe ;
+   les vrais boutons, liens et champs gardent leur comportement natif. */
+document.addEventListener('keydown',function(e){
+  if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||(e.key!=='Enter'&&e.key!==' ')) return;
+  const t=e.target;
+  if(!t||!t.getAttribute||t.getAttribute('role')!=='button') return;
+  if(/^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(t.tagName)||t.isContentEditable) return;
+  e.preventDefault();
+  t.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+});
+/* Une part à colorier est un BOUTON pour le clavier et les lecteurs d'écran
+   (audit A4) : atteinte par Tab, nommée (« pour 100 : part 3 sur 20 »),
+   enfoncée quand elle est coloriée. segAttr la pose au rendu, segPresse
+   suit chaque clic. */
+function segAttr(lab,i,n,on){ return ' role="button" tabindex="0" aria-label="'+esc(lab+'part '+(i+1)+' sur '+n)+'" aria-pressed="'+(on?'true':'false')+'"'; }
+function segPresse(el,on){ el.classList.toggle('on',on); el.setAttribute('aria-pressed',on?'true':'false'); }
 /* Cliquer sur un segment colorie jusqu'à lui ; recliquer le dernier efface d'un cran. */
 function fpMaj(){
   const q=test.questions[test.idx];
   const L=$('fpColL'), R=$('fpColR'); if(!L||!R) return;
-  [...L.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selL));
-  [...R.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selR));
+  [...L.querySelectorAll('.fp-seg')].forEach((el,i)=>segPresse(el, i<q.selL));
+  [...R.querySelectorAll('.fp-seg')].forEach((el,i)=>segPresse(el, i<q.selR));
   L.classList.remove('ok','bad'); R.classList.remove('ok','bad');
   $('fpValL').innerHTML = q.selL ? fpFracHTML(q.selL,q.b) : '…';
   $('fpValR').textContent = q.selR ? (q.selR*5)+' %' : '… %';
@@ -8053,7 +8099,7 @@ function renderPctCol(){
      additionne ce qui est écrit dedans. La colonne des pourcentages reste vide —
      c'est elle qui pose la question, l'autre qui donne la mesure. */
   const segs=(sel,fn,part)=>Array.from({length:PCOL_PARTS},(_,i)=>
-    `<div class="fp-seg${i<sel?' on':''}" onclick="${fn}(${i+1})">`
+    `<div class="fp-seg${i<sel?' on':''}" onclick="${fn}(${i+1})"${segAttr((part!=null?q.N+' '+q.unit:'pour 100')+' : ',i,PCOL_PARTS,i<sel)}>`
     +(part!=null?`<span class="pcol-part">${esc(String(part))}</span>`:'')+`</div>`).join('');
   $('pcHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">Colorie le pourcentage à gauche, reporte la même hauteur à droite, puis complète la phrase</div>
@@ -8072,8 +8118,8 @@ function renderPctCol(){
 function pcMaj(){
   const q=test.questions[test.idx];
   const L=$('pcColL'), R=$('pcColR'); if(!L||!R) return;
-  [...L.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selL));
-  [...R.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selR));
+  [...L.querySelectorAll('.fp-seg')].forEach((el,i)=>segPresse(el, i<q.selL));
+  [...R.querySelectorAll('.fp-seg')].forEach((el,i)=>segPresse(el, i<q.selR));
   L.classList.remove('ok','bad'); R.classList.remove('ok','bad');
 
 }

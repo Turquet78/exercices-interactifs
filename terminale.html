@@ -5,6 +5,13 @@
 <!--      Elles se trouvent dans Supabase > Project Settings > API.            -->
 <!-- ========================================================================= -->
 <script>
+  /* LA LANGUE DE LA PAGE (audit d'octobre 2026, A6/T5). La page n'a pas de
+     balise <html> — le navigateur la synthétise —, donc pas d'attribut lang :
+     un lecteur d'écran lisait le français avec la voix de sa langue par
+     défaut, et la césure comme les correcteurs ne savaient pas quelle
+     langue appliquer. Posée ici, au premier script, elle vaut avant tout
+     le reste de l'analyse. */
+  document.documentElement.lang='fr';
   const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← ton URL de projet (nouveau projet Supabase terminale)
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";              // ← ta clé "anon public"
   const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";   // ← l'adresse du compte Supabase du professeur
@@ -48,8 +55,14 @@
   :root{
     --paper:#F7F6F1; --grid:#CBD8EC; --ink:#1E2A4A; --ink-soft:#5C668A;
     --blue:#2B50C8; --blue-dark:#1E3CA0;
-    --green:#1FA971; --green-soft:#E4F5EE;
-    --red:#E23D52; --red-soft:#FCE7EA;
+    /* Vert et rouge assombris (audit d'octobre 2026, A1) : #1FA971 et #E23D52
+       ne faisaient que 3,0 et 4,2 sur blanc, sous le seuil AA de 4,5 pour du
+       texte. Mêmes dominantes (le banc « 9 bis » les classe toujours vert et
+       rouge), reprises des pastilles .badge.hi / .badge.lo : #157A52 = 5,3 sur
+       blanc, 4,9 sur le papier, 4,7 sur --green-soft ; #BF2C3E = 5,8 / 5,3 /
+       4,9 sur --red-soft. */
+    --green:#157A52; --green-soft:#E4F5EE;
+    --red:#BF2C3E; --red-soft:#FCE7EA;
     --gold:#F2A93B;
     --slate:#2E4039; --slate-2:#26352D; --chalk:#F4F3EC; --chalk-soft:#AFC0B5;
     --line:#E6E3D8; --surface:#FFFFFF;
@@ -1036,6 +1049,12 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .tvg-svg .tvg-t.badc .dot{fill:var(--red);stroke:#bf2c3e;}
 .tvg-svg .tvg-t.missc .dot{fill:var(--green-soft);stroke:var(--green);stroke-width:2.4;}
 .tvg-svg .tvg-t.off{pointer-events:none;}
+/* le point atteint au clavier se montre : son anneau de touche se dessine */
+.tvg-svg .tvg-t:focus{outline:none}
+.tvg-svg .tvg-t:focus-visible .hit{stroke:var(--blue);stroke-width:2.5}
+/* La zone de touche des points (audit A3) : 14 px de rayon à l'écran, quelle
+   que soit l'échelle du repère — le trait ne se met pas à l'échelle. */
+.tvg-svg .tvg-zone{fill:none;stroke:transparent;stroke-width:28px;stroke-linecap:round;vector-effect:non-scaling-stroke;pointer-events:stroke;cursor:pointer}
 #tvgConsignes{line-height:2;}
 #tvgConsignes i{font-style:italic;}
 .tvg-solzone{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 12px;}
@@ -1111,7 +1130,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .qia-illu .qi-as{stroke:#E23D52;stroke-width:1.7;stroke-dasharray:6 4;fill:none;}
 .qia-illu .qi-gd{stroke:#8A93B4;stroke-width:1.1;stroke-dasharray:3 3;fill:none;}
 .qia-illu .qi-tx{font-size:12.5px;font-weight:700;fill:#1E2A4A;}
-.qia-illu .qi-tr{font-size:12.5px;font-weight:800;fill:#E23D52;}
+.qia-illu .qi-tr{font-size:12.5px;font-weight:800;fill:#BF2C3E;}
 .qia-illu .qi-tb{font-size:12.5px;font-weight:800;fill:#2B50C8;}
 .qia-illu .qi-pt{fill:#2B50C8;stroke:#fff;stroke-width:1.4;}
 .qia-illu .qi-po{fill:#FFFFFF;stroke:#2B50C8;stroke-width:2;}
@@ -1751,6 +1770,24 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
 .rap ul{margin:2px 0 4px;padding-left:17px;}
 .rap li{margin:3px 0;}
 .rap i{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+/* ---- CIBLES TACTILES : 24 px au moins sous le doigt (audit d'octobre 2026,
+   A3 ; WCAG 2.5.8 — 32 px visés pour une case). Mesurées à 380 px : menus ↗↘
+   des tableaux de variation 48 × 23, cases tg-in 30 × 23 (exposants .tx-se)
+   à 30 × 29, menu .ec-sel 200 × 21, cases du 6.x (.sa2-in) dès 26 px, case
+   d'indice de la récurrence 20 × 30. Seule la BOÎTE grandit : la police des
+   cases ne bouge pas, et c'est elle que mesure le contrôle « les cases de
+   saisie ont la taille des nombres qui les entourent ». ---- */
+.vfcell .vt-sel2{min-height:32px}
+#scr-ec .ec-sel,.tvi-sel.ec-sel{min-height:32px}
+.tg-in{min-height:32px}
+.tg-in.tx-se{min-width:32px}
+/* .sa2-in est en content-box (sa2Ajuster écrit la largeur du TEXTE) : les
+   32 px se comptent donc sans rembourrage ni bordure — 2 + 2 et 2 + 2. */
+.sa2-in{min-height:24px;min-width:20px}
+.sa2-in.sa2-mot{min-height:26px}
+body math-field.dexp-mf.rc-mf{min-height:32px}
+body math-field.dexp-mf.rc-mf-idx,
+body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
 </style>
 
 <div class="wrap">
@@ -1927,7 +1964,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       </div>
       <div id="conseilRappelRow" class="rap-row" hidden><button class="btn btn-ghost btn-sm" type="button" id="conseilRappelBtn" onclick="basculerRappel()">📘 Voir le rappel de cours</button></div>
       <div id="conseilRappel" hidden></div>
-      <div id="conseilBody" class="mp-feedback"></div>
+      <div id="conseilBody" class="mp-feedback" aria-live="polite"></div>
     </div>
   </div>
   <div id="notesModal" class="notes-modal" hidden onclick="if(event.target===this)fermerNotes()">
@@ -1998,7 +2035,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="tvi-table" id="tviTable"></div>
       <p class="tvi-instr">Complète la justification :</p>
       <div class="tvi-fill" id="tviFill"></div>
-      <div class="mp-feedback" id="tviFeedback"></div>
+      <div class="mp-feedback" id="tviFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tviActions"></div>
     </div>
   </section>
@@ -2017,7 +2054,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="dexp2-sheet" id="tvi2Sheet"></div>
       <p class="dexp-hint">Une ligne par idée : <b>Entrée</b> passe à la ligne suivante.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
       <div class="tvi-check" id="tvi2Check"></div>
-      <div class="mp-feedback" id="tvi2Feedback"></div>
+      <div class="mp-feedback" id="tvi2Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvi2Actions"></div>
     </div>
   </section>
@@ -2035,7 +2072,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="tvi-tools"><button type="button" class="btn btn-ghost tvi-inf" id="tvi3InfBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi3','\\infty')" title="Insérer ∞ — ou tape « inf » au clavier">∞</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AlphaBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi3','\\alpha')" title="Insérer α">α</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AppBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi3','\\in')" title="Insérer ∈ (appartient)">∈</button><span class="muted">au clavier : <b>inf</b> → ∞, <b>va</b> → flèche</span></div>
       <div class="dexp2-sheet" id="tvi3Sheet"></div>
       <p class="dexp-hint">Une ligne par idée : <b>Entrée</b> passe à la ligne suivante.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="tvi3Feedback"></div>
+      <div class="mp-feedback" id="tvi3Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvi3Actions"></div>
     </div>
   </section>
@@ -2051,7 +2088,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="tvi-table" id="tvinsTable"></div>
       <p class="tvi-instr">À l&rsquo;aide du tableau, donne le nombre de solutions de chaque équation&nbsp;:</p>
       <div class="tvins-eqs" id="tvinsEqs"></div>
-      <div class="mp-feedback" id="tvinsFeedback"></div>
+      <div class="mp-feedback" id="tvinsFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvinsActions"></div>
     </div>
   </section>
@@ -2067,7 +2104,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="sv-graph" id="tvgGraph"></div>
       <div class="tvi-instr" id="tvgConsignes"></div>
       <div class="tvg-solzone" id="tvgSolZone"></div>
-      <div class="mp-feedback" id="tvgFeedback"></div>
+      <div class="mp-feedback" id="tvgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvgActions"></div>
     </div>
   </section>
@@ -2082,7 +2119,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="dhvPrompt"></p>
       <div class="sv-graph" id="dhvGraph"></div>
       <div id="dhvBlocs"></div>
-      <div class="mp-feedback" id="dhvFeedback"></div>
+      <div class="mp-feedback" id="dhvFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="dhvActions"></div>
     </div>
   </section>
@@ -2100,7 +2137,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="lr-exemple"><b>Exemple de rédaction :</b> « quand <i>x</i> → … , on a <i>f</i>(<i>x</i>) → … » ou « quand <i>x</i> tend vers … , <i>f</i>(<i>x</i>) tend vers … »</p>
       <div class="dexp2-sheet" id="lrSheet"></div>
       <p class="dexp-hint">Au clavier : <b>va</b> → flèche « tend vers », <b>inf</b> → ∞.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="lrFeedback"></div>
+      <div class="mp-feedback" id="lrFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="lrActions"></div>
     </div>
   </section>
@@ -2115,7 +2152,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="sv-graph" id="lgGraph"></div>
       <div id="lgHint"></div>
       <div id="lgSubs"></div>
-      <div class="mp-feedback" id="lgFeedback"></div>
+      <div class="mp-feedback" id="lgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="lgActions"></div>
     </div>
   </section>
@@ -2132,7 +2169,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="lg2Hint"></div>
       <div id="lg2Subs"></div>
       <div id="lg2TVzone"></div>
-      <div class="mp-feedback" id="lg2Feedback"></div>
+      <div class="mp-feedback" id="lg2Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="lg2Actions"></div>
     </div>
   </section>
@@ -2148,7 +2185,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="lg3TVzone"></div>
       <div id="lg3Hint"></div>
       <div id="lg3Subs"></div>
-      <div class="mp-feedback" id="lg3Feedback"></div>
+      <div class="mp-feedback" id="lg3Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="lg3Actions"></div>
     </div>
   </section>
@@ -2168,7 +2205,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <button type="button" class="del" onclick="dexpDel()">&#9003;</button>
       </div>
       <p class="dexp-hint" id="dexpHintP">Pour <i>v</i> et <i>v'</i> : tape « e », puis appuie sur la touche <b>²</b> (en haut à gauche du clavier, à gauche du « 1 ») ou le bouton <b>x<sup>y</sup></b> pour monter en exposant, puis tape l'exposant (ex. « 2x »).<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="dexpFeedback"></div>
+      <div class="mp-feedback" id="dexpFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="dexpActions"></div>
     </div>
   </section>
@@ -2184,7 +2221,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="sv-graph" id="svGraph"></div>
       <p class="tvi-instr">À l&rsquo;aide du graphique, complète les pointillés et les cases :</p>
       <div class="sv-tables" id="svTables"></div>
-      <div class="mp-feedback" id="svFeedback"></div>
+      <div class="mp-feedback" id="svFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="svActions"></div>
     </div>
   </section>
@@ -2199,7 +2236,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="efPrompt"></p>
       <div class="sv-tables" id="efTable"></div>
       <p class="dexp-hint">Racines et abscisses : entiers, décimaux (0,5) ou fractions (1/2) acceptés.</p>
-      <div class="mp-feedback" id="efFeedback"></div>
+      <div class="mp-feedback" id="efFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="efActions"></div>
     </div>
   </section>
@@ -2213,7 +2250,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="eqPrompt"></p>
       <div class="sv-tables" id="eqBody"></div>
-      <div class="mp-feedback" id="eqFeedback"></div>
+      <div class="mp-feedback" id="eqFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="eqActions"></div>
     </div>
   </section>
@@ -2227,7 +2264,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="rcPrompt"></p>
       <div class="sv-tables" id="rcBody"></div>
-      <div class="mp-feedback" id="rcFeedback"></div>
+      <div class="mp-feedback" id="rcFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="rcActions"></div>
     </div>
   </section>
@@ -2240,7 +2277,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="rfPrompt"></p>
       <div class="sv-tables" id="rfBody"></div>
-      <div class="mp-feedback" id="rfFeedback"></div>
+      <div class="mp-feedback" id="rfFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="rfActions"></div>
     </div>
   </section>
@@ -2261,7 +2298,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="rc-jetons" id="rrOutils"><span class="rc-jlbl">Insérer&nbsp;:</span><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\le')">&#8804;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\ge')">&#8805;</button><button type="button" class="sa-jeton" id="rrJ0" onmousedown="event.preventDefault()" onclick="rrInsertU0()">U&#8320;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_n')">U&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_{n+1}')">U&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrKB()" title="Clavier mathématique à l&rsquo;écran" aria-label="Afficher ou masquer le clavier mathématique">&#9000;&#65039;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">&#9776;</button></div>
       <div class="dexp2-sheet" id="rrSheet"></div>
       <p class="dexp-hint">Une étape par ligne. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Après un indice (<i>U</i><sub>n</sub>), la <b>barre d&rsquo;espace</b> en sort&nbsp;— une seconde espace sépare les mots&nbsp;; les boutons ci-dessus écrivent &#8804;, &#8805; et les indices d&rsquo;un coup. Les accents et les majuscules ne comptent pas&nbsp;: «&nbsp;heredite&nbsp;» vaut «&nbsp;hérédité&nbsp;».<span class="hint-souris"> <b>Clic droit</b> sur le champ&nbsp;: clavier à l&rsquo;écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="rrFeedback"></div>
+      <div class="mp-feedback" id="rrFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="rrActions"></div>
     </div>
   </section>
@@ -2286,7 +2323,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="dexp2-sheet sar-sheet" id="sarSheetD"></div>
       </div>
       <p class="dexp-hint">Une étape par ligne&nbsp;: <b>Entrée</b> ajoute une ligne, <b>retour arrière</b> sur une ligne vide la supprime. Après un indice (<i>V</i><sub>n</sub>), la <b>barre d&rsquo;espace</b> en sort — une seconde espace sépare les mots. La touche <b>*</b> écrit le signe ×, et les boutons ci-dessus écrivent les indices d&rsquo;un coup.<span class="hint-souris"> <b>Clic droit</b> sur le champ&nbsp;: clavier à l&rsquo;écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="sarFeedback"></div>
+      <div class="mp-feedback" id="sarFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="sarActions"></div>
     </div>
   </section>
@@ -2301,7 +2338,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="tg-graph" id="tgGraph"></div>
       <p class="tvi-instr">À l&rsquo;aide du graphique, complète&nbsp;:</p>
       <div id="tgForm"></div>
-      <div class="mp-feedback" id="tgFeedback"></div>
+      <div class="mp-feedback" id="tgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tgActions"></div>
     </div>
   </section>
@@ -2314,7 +2351,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card tvi-card tg-card">
       <p class="tvi-prompt" id="txPrompt"></p>
       <div id="txForm"></div>
-      <div class="mp-feedback" id="txFeedback"></div>
+      <div class="mp-feedback" id="txFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="txActions"></div>
     </div>
   </section>
@@ -2338,7 +2375,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="ecPrompt"></p>
       <div class="ec-graph" id="ecGraph"></div>
       <div id="ecForm"></div>
-      <div class="mp-feedback" id="ecFeedback"></div>
+      <div class="mp-feedback" id="ecFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="ecActions"></div>
     </div>
   </section>
@@ -2352,7 +2389,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="afpPrompt"></p>
       <div id="afpHost"></div>
-      <div class="mp-feedback" id="afpFeedback"></div>
+      <div class="mp-feedback" id="afpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="afpActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkAfp()">V&eacute;rifier</button></span>
       </div>
@@ -2368,7 +2405,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="afqPrompt"></p>
       <div id="afqHost"></div>
-      <div class="mp-feedback" id="afqFeedback"></div>
+      <div class="mp-feedback" id="afqFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="afqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkAfq()">V&eacute;rifier</button></span>
       </div>
@@ -2384,7 +2421,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="sdqPrompt"></p>
       <div id="sdqHost"></div>
-      <div class="mp-feedback" id="sdqFeedback"></div>
+      <div class="mp-feedback" id="sdqFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="sdqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkSdq()">V&eacute;rifier</button></span>
       </div>
@@ -2400,7 +2437,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="cvxPrompt"></p>
       <div id="cvxHost"></div>
-      <div class="mp-feedback" id="cvxFeedback"></div>
+      <div class="mp-feedback" id="cvxFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="cvxActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkCvx()">V&eacute;rifier</button></span>
       </div>
@@ -2416,7 +2453,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="cvqPrompt"></p>
       <div id="cvqHost"></div>
-      <div class="mp-feedback" id="cvqFeedback"></div>
+      <div class="mp-feedback" id="cvqFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="cvqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkCvq()">V&eacute;rifier</button></span>
       </div>
@@ -2436,7 +2473,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="asgPrompt"></p>
       <div class="ec-graph" id="asgGraph"></div>
       <div id="asgForm"></div>
-      <div class="mp-feedback" id="asgFeedback"></div>
+      <div class="mp-feedback" id="asgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="asgActions"></div>
     </div>
   </section>
@@ -2455,7 +2492,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="ecvPrompt"></p>
       <div class="ec-graph" id="ecvGraph"></div>
       <div id="ecvForm"></div>
-      <div class="mp-feedback" id="ecvFeedback"></div>
+      <div class="mp-feedback" id="ecvFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="ecvActions"></div>
     </div>
   </section>
@@ -2485,7 +2522,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="s1KB()" title="Clavier à l’écran" aria-label="Afficher ou masquer le clavier à l’écran">⌨️</button>
         <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="s1Raccourcis()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">☰</button>
       </div>
-      <div class="mp-feedback" id="s1Feedback"></div>
+      <div class="mp-feedback" id="s1Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="s1Actions"></div>
     </div>
   </section>
@@ -2515,7 +2552,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="s1-rule" id="s2Phrase"></p>
       <p class="tvi-instr" id="s2Instr" hidden>Complète le tableau de signe&nbsp;:</p>
       <div id="s2Table"></div>
-      <div class="mp-feedback" id="s2Feedback"></div>
+      <div class="mp-feedback" id="s2Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="s2Actions"></div>
     </div>
   </section>
@@ -2535,7 +2572,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="spQ2"></div>
       <div id="spTabWrap"></div>
       <p class="dexp-hint" id="spHint" hidden>Toutes les cases doivent être complétées pour terminer — sauf le dénominateur d’une fraction égal à 1, qu’on peut laisser vide. La case du carré affiche déjà <b>( )²</b> : écris simplement l’expression <b>à l’intérieur des parenthèses</b> (le bouton <b>□²</b> permet d’ajouter un carré si besoin). Les racines et valeurs acceptent toute écriture équivalente (fraction ou décimal) ou une valeur approchée au dixième près.<span class="hint-souris"> <b>Clic droit</b> sur une case racine : clavier à l’écran.</span></p>
-      <div class="mp-feedback" id="spFeedback"></div>
+      <div class="mp-feedback" id="spFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="spActions"></div>
     </div>
   </section>
@@ -2550,7 +2587,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="su-s" id="suQa"></div>
       <p class="tvi-instr"><span class="su-lab">b)</span> La formule explicite en fonction de <i>n</i> est&nbsp;:</p>
       <div id="suQb"></div>
-      <div class="mp-feedback" id="suFeedback"></div>
+      <div class="mp-feedback" id="suFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="suActions"></div>
     </div>
   </section>
@@ -2580,7 +2617,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <p class="sa-ptitle"><span class="sa-plab">d)</span> En déduire <i>U<sub>n</sub></i> en fonction de <i>n</i>.</p>
         <div class="sa2-ladder" id="sa2LadderD"></div>
       </div>
-      <div class="mp-feedback" id="sa2Feedback"></div>
+      <div class="mp-feedback" id="sa2Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="sa2Actions"></div>
     </div>
   </section>
@@ -2604,7 +2641,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <p class="sa-ptitle"><span class="sa-plab">c)</span> <span id="tclTitreC"></span></p>
         <div class="sa2-ladder" id="tclLadderC"></div>
       </div>
-      <div class="mp-feedback" id="tclFeedback"></div>
+      <div class="mp-feedback" id="tclFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tclActions"></div>
     </div>
   </section>
@@ -2629,7 +2666,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <p class="sa-ptitle"><span class="sa-plab">c)</span> À l’aide du tableau de valeurs, détermine la valeur renvoyée par le programme ci-dessus.</p>
         <div class="sa2-ladder" id="sagLadderC"></div>
       </div>
-      <div class="mp-feedback" id="sagFeedback"></div>
+      <div class="mp-feedback" id="sagFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="sagActions"></div>
     </div>
   </section>
@@ -2650,7 +2687,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <ol class="rfr-legende" id="rfrLegende"></ol>
         <div class="sa2-ladder" id="rfrPartB"></div>
       </div>
-      <div class="mp-feedback" id="rfrFeedback"></div>
+      <div class="mp-feedback" id="rfrFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="rfrActions"></div>
     </div>
   </section>
@@ -2682,7 +2719,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="sa2-ladder" id="svrPartD"></div></div>
       <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">e)</span> <span id="svrTitreE"></span></p>
         <div class="sa2-ladder" id="svrPartE"></div></div>
-      <div class="mp-feedback" id="svrFeedback"></div>
+      <div class="mp-feedback" id="svrFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="svrActions"></div>
     </div>
   </section>
@@ -2716,7 +2753,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="sa2-ladder" id="svdPartE"></div></div>
       <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">f)</span> <span id="svdTitreF"></span></p>
         <div class="sa2-ladder" id="svdPartF"></div></div>
-      <div class="mp-feedback" id="svdFeedback"></div>
+      <div class="mp-feedback" id="svdFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="svdActions"></div>
     </div>
   </section>
@@ -2756,7 +2793,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="sa2-ladder" id="ssvPartH"></div></div>
       <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">i)</span> Déterminer la limite <i>ℓ</i>.</p>
         <div class="sa2-ladder" id="ssvPartI"></div></div>
-      <div class="mp-feedback" id="ssvFeedback"></div>
+      <div class="mp-feedback" id="ssvFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="ssvActions"></div>
     </div>
   </section>
@@ -2772,7 +2809,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="svq-colg"><div class="sv-graph svq-graph" id="svqGraph"></div></div>
         <div class="svq-cold" id="svqForm"></div>
       </div>
-      <div class="mp-feedback" id="svqFeedback"></div>
+      <div class="mp-feedback" id="svqFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="svqActions"></div>
     </div>
   </section>
@@ -2787,7 +2824,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="encJetons"></div>
       <div id="encChaine"></div>
       <p class="dexp-hint">Chaque borne accepte toute écriture équivalente (par exemple 3/4 ou 0,75), ou une valeur <b>approchée au dixième près</b> (par exemple 0,3 pour 1/3). Au clavier : <b>/</b> fraction, <b>barre d’espace</b> pour sortir d’une fraction.<span class="hint-souris"> <b>Clic droit</b> sur une case : clavier à l’écran.</span></p>
-      <div class="mp-feedback" id="encFeedback"></div>
+      <div class="mp-feedback" id="encFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="encActions"></div>
     </div>
   </section>
@@ -2807,7 +2844,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="recC"></div>
       <div id="recChaine"></div>
       <p class="dexp-hint">Chaque case numérique accepte toute écriture équivalente (3/4 ou 0,75) ou une valeur <b>approchée au dixième près</b>. Au clavier : <b>/</b> fraction, <b>barre d’espace</b> pour sortir d’une fraction.<span class="hint-souris"> <b>Clic droit</b> sur une case : clavier à l’écran.</span></p>
-      <div class="mp-feedback" id="recFeedback"></div>
+      <div class="mp-feedback" id="recFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="recActions"></div>
     </div>
   </section>
@@ -2855,7 +2892,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="sa-ladder" id="saLadderD"></div>
       </div>
 
-      <div class="mp-feedback" id="saFeedback"></div>
+      <div class="mp-feedback" id="saFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="saActions"></div>
     </div>
   </section>
@@ -7859,19 +7896,59 @@ function tvgSVG(c){
   const cfy=Math.min(Math.max(ly+((ly>(c.yMin+c.yMax)/2)?-0.9:0.9), c.yMin+0.5), c.yMax-0.4);
   g+=`<text x="${X(lx).toFixed(1)}" y="${Y(cfy).toFixed(1)}" class="sv-cf">C<tspan font-size="11" dy="4">${c.fname}</tspan></text>`;
   g+=`<g id="tvgKgrp" style="display:none"><line x1="${X(TVG_XMIN).toFixed(1)}" y1="${Y(c.k).toFixed(1)}" x2="${X(TVG_XMAX).toFixed(1)}" y2="${Y(c.k).toFixed(1)}" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="6 4"/><text x="${(X(TVG_XMAX)-4).toFixed(1)}" y="${(Y(c.k)-6).toFixed(1)}" class="sv-ax" text-anchor="end" fill="var(--blue)" font-weight="800">y = ${c.kL}</text></g>`;
+  /* LA ZONE DE TOUCHE (audit d'octobre 2026, A3). À 380 px le repère est
+     réduit aux deux tiers : le rond « hit » de 12 unités n'y faisait plus que
+     8 px de rayon, une cible de 16 px qu'un doigt manque. Chaque cible reçoit
+     donc un disque de 14 px de rayon À L'ÉCRAN, quelle que soit l'échelle :
+     un trait de longueur nulle, à bouts ronds, dont l'épaisseur transparente
+     de 28 px ne se met pas à l'échelle (vector-effect, voir .tvg-zone dans la
+     feuille de styles). Pas un ROND épais : le tracé d'un cercle plus petit
+     que la moitié de son trait est un ANNEAU pour le test de touche de
+     Chromium — mesuré, le centre ne répondait plus, seul le bord à 14 px.
+     Ces disques vivent dans une couche À PART, dessinée AVANT toutes les
+     cibles, et non dans chaque groupe : un point de la courbe proche de l'axe
+     (f(n) = 0,6) tombe dans le disque du carré de son abscisse, et ce carré,
+     dessiné après lui, l'aurait volé. Ici, une cible gagne toujours sur le
+     disque d'une autre ; le disque ne prend que ce qu'aucune cible ne prend. */
+  let zones='', cibles='';
+  /* chaque cible est aussi un bouton pour le clavier (audit A4) : son nom dit
+     ce que l'œil lit sur le repère, l'ordonnée au dixième — les cibles qui ne
+     sont pas solution sont tenues à 0,9 au moins de k, l'arrondi ne trompe pas */
+  const lu=v=>String(Math.round(v*10)/10).replace('.',',').replace('-','\u2212');
+  const zone=(x,y,fn)=>`<path class="tvg-zone" d="M${x.toFixed(1)} ${y.toFixed(1)}h0.01" onclick="${fn}"/>`;
   for(let n=TVG_XMIN;n<=TVG_XMAX;n++){
     const idx=n-TVG_XMIN, yv=f(n);
     if(yv>=c.yMin+0.2 && yv<=c.yMax-0.2){
       const sel=(c.selPts.indexOf(n)>=0)?' sel':'';
-      g+=`<g class="tvg-t${sel}" id="tvgp${idx}" onclick="tvgTogglePt(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="12"/><circle class="dot" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="4.6"/></g>`;
+      zones+=zone(X(n),Y(yv),`tvgTogglePt(${n})`);
+      cibles+=`<g class="tvg-t${sel}" id="tvgp${idx}" onclick="tvgTogglePt(${n})" tabindex="0" role="button" aria-label="point (${lu(n)} ; ${lu(yv)}) de la courbe" aria-pressed="${sel?'true':'false'}"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="12"/><circle class="dot" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="4.6"/></g>`;
     }
     const selx=(c.selXs.indexOf(n)>=0)?' sel':'';
-    g+=`<g class="tvg-t${selx}" id="tvgx${idx}" onclick="tvgToggleX(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(0).toFixed(1)}" r="12"/><rect class="dot" x="${(X(n)-4.4).toFixed(1)}" y="${(Y(0)-4.4).toFixed(1)}" width="8.8" height="8.8" rx="2"/></g>`;
+    zones+=zone(X(n),Y(0),`tvgToggleX(${n})`);
+    cibles+=`<g class="tvg-t${selx}" id="tvgx${idx}" onclick="tvgToggleX(${n})" tabindex="0" role="button" aria-label="abscisse ${lu(n)} sur l’axe des abscisses" aria-pressed="${selx?'true':'false'}"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(0).toFixed(1)}" r="12"/><rect class="dot" x="${(X(n)-4.4).toFixed(1)}" y="${(Y(0)-4.4).toFixed(1)}" width="8.8" height="8.8" rx="2"/></g>`;
   }
+  g+=`<g class="tvg-zones" aria-hidden="true">${zones}</g>`+cibles;
   return `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" class="sv-svg tvg-svg"><defs><clipPath id="tvgClip"><rect x="${X(TVG_XMIN).toFixed(1)}" y="${Y(c.yMax).toFixed(1)}" width="${(X(TVG_XMAX)-X(TVG_XMIN)).toFixed(1)}" height="${(Y(c.yMin)-Y(c.yMax)).toFixed(1)}"/></clipPath></defs>${g}</svg>`;
 }
 /* Sélections : cliquer une cible l’ajoute/la retire ; l’état vit dans la question
    (q.selPts / q.selXs), donc il est sauvegardé et restauré avec la pause/reprise. */
+/* AU CLAVIER, UNE CIBLE QUI N'EST PAS UN VRAI BOUTON (audit d'octobre 2026,
+   A4). Les points du graphique et les parts à colorier sont des <g> et des
+   <div> munis d'un onclick : ni Tab ne les atteignait, ni Entrée ne les
+   actionnait, et ces exercices étaient infaisables sans souris ni doigt. Ils
+   portent désormais tabindex="0" et role="button" là où ils sont rendus ; ce
+   gestionnaire, UN SEUL pour toute la page, leur donne Entrée et Espace —
+   un clic, exactement celui de la souris. Ce qui gère déjà sa touche (la
+   zone de capture du signalement) l'annonce par preventDefault et passe ;
+   les vrais boutons, liens et champs gardent leur comportement natif. */
+document.addEventListener('keydown',function(e){
+  if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||(e.key!=='Enter'&&e.key!==' ')) return;
+  const t=e.target;
+  if(!t||!t.getAttribute||t.getAttribute('role')!=='button') return;
+  if(/^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(t.tagName)||t.isContentEditable) return;
+  e.preventDefault();
+  t.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+});
 function tvgTogglePt(n){
   if(test.locked||tvgBusy) return;
   const c=test.questions[test.idx]; if(!c||c.type!=='tvg') return;
@@ -7879,6 +7956,7 @@ function tvgTogglePt(n){
   const i=c.selPts.indexOf(n);
   if(i>=0){ c.selPts.splice(i,1); el.classList.remove('sel','badc'); }
   else { c.selPts.push(n); el.classList.add('sel'); el.classList.remove('badc'); }
+  el.setAttribute('aria-pressed', c.selPts.indexOf(n)>=0?'true':'false');
 }
 function tvgToggleX(n){
   if(test.locked||tvgBusy) return;
@@ -7887,6 +7965,7 @@ function tvgToggleX(n){
   const i=c.selXs.indexOf(n);
   if(i>=0){ c.selXs.splice(i,1); el.classList.remove('sel','badc'); }
   else { c.selXs.push(n); el.classList.add('sel'); el.classList.remove('badc'); }
+  el.setAttribute('aria-pressed', c.selXs.indexOf(n)>=0?'true':'false');
 }
 /* Soutien : colore les sélections (justes en vert et verrouillées, fausses en rouge à retirer),
    sans jamais révéler les cibles manquantes. */
@@ -19659,7 +19738,7 @@ function sa2Ajuster(el){
 function sa2AjusterTout(){ SA2_IDS.forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
 function sa2In(id, mot){
   return '<input class="sa2-in'+(mot?' sa2-mot':'')+'" id="'+id+'" type="text" autocomplete="off"'
-    + (mot?'':' inputmode="numeric"') + ' oninput="sa2Ajuster(this)" aria-label="case à compléter">';
+    + (mot?'':' inputmode="numeric"') + ' oninput="sa2Ajuster(this)">';
 }
 function sa2Frac(hautHTML, basHTML){
   return '<span class="sa2-frac"><span class="num">'+hautHTML+'</span><span class="bar"></span><span class="den">'+basHTML+'</span></span>';
@@ -20700,7 +20779,7 @@ function rfrIn(id, texte){
   /* les expressions en n prennent le clavier du système (il faut la lettre n) ;
      les nombres, le pavé numérique — sa2Ajuster règle la largeur, comme au 6.3 */
   return '<input class="sa2-in rfr-in" id="'+id+'" type="text" autocomplete="off"'
-    + (texte?'':' inputmode="numeric"') + ' oninput="sa2Ajuster(this)" aria-label="case à compléter">';
+    + (texte?'':' inputmode="numeric"') + ' oninput="sa2Ajuster(this)">';
 }
 function rfrAjusterTout(){ RFR_IDS.forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
 function rfrFrHTML(q){ return q.b===1 ? String(q.a) : sa2Frac(String(q.a), String(q.b)); }
@@ -25915,6 +25994,57 @@ function manifesteTablette(){
   if('serviceWorker' in navigator){ try{ navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){} }
   return true;
 }
+
+/* UN NOM POUR CHAQUE CASE (audit d'octobre 2026, A2 — en partie). Un lecteur
+   d'écran annonçait « zone de liste » ou « zone de texte » sans dire laquelle :
+   les menus ↗↘ des tableaux de variation, les cases .tg-in (tangentes,
+   études de fonctions), .sa2-in (suites) et les champs .rc-mf (récurrence) n'avaient aucun nom accessible. Leur nom est tiré de ce
+   qui les entoure, au moment où elles entrent dans la page :
+   · une flèche d'un tableau de variation prend l'étiquette de sa rangée et
+     son rang — « sens de variation de f(x) : flèche 2 sur 3 (↗ ou ↘) »,
+     « Variation de f : flèche 1 sur 2 (↗ ou ↘) » ;
+   · une case prend le texte de sa ligne, chaque case remplacée par « … »,
+     et son rang dans la ligne — « f(0) = … e^… = … — case 2 sur 3 ».
+   Un OBSERVATEUR plutôt qu'une retouche de chaque fonction de rendu : ces
+   cases naissent dans des dizaines d'endroits (56 appels de txInp à eux
+   seuls), et un exercice ajouté demain est nommé sans rien déclarer. Une
+   case qui porte déjà son nom (aria-label, aria-labelledby) le garde. */
+const CASES_A_NOMMER='select.vt-sel2,input.tg-in,input.sa2-in,math-field.rc-mf';
+function texteDeRangee(r){
+  const c=r.cloneNode(true);
+  c.querySelectorAll('input,select,textarea,math-field').forEach(function(e){ e.replaceWith(' … '); });
+  c.querySelectorAll('button,svg,script,style,.mf-cor').forEach(function(e){ e.remove(); });
+  /* les cellules d'une grille (récurrence) se touchent sans espace : « …≤U… » */
+  c.querySelectorAll('div,td,th,li,p,br').forEach(function(e){ e.after(' '); });
+  return c.textContent.replace(/[\u200b-\u200d\u2060\ufeff]/g,'').replace(/\s+/g,' ').replace(/ ([.,:;)])/g,'$1').replace(/\( /g,'(').trim();
+}
+function nommerCases(racine){
+  if(!racine||!racine.querySelectorAll) return;
+  const els=[].slice.call(racine.querySelectorAll(CASES_A_NOMMER));
+  if(racine.matches&&racine.matches(CASES_A_NOMMER)) els.unshift(racine);
+  els.forEach(function(el){
+    if(el.hasAttribute('aria-label')||el.hasAttribute('aria-labelledby')) return;
+    let nom='';
+    if(el.classList.contains('vt-sel2')){
+      const tr=el.closest('tr'), lab=tr&&tr.querySelector('.vlab');
+      const fl=tr?[].slice.call(tr.querySelectorAll('select.vt-sel2')):[el];
+      const tl=lab?texteDeRangee(lab):'';                /* « f(x) » en Seconde, « Variation de f » en Terminale */
+      nom=(/variation/i.test(tl)?tl:'sens de variation'+(tl?' de '+tl:''))+' : flèche '+(fl.indexOf(el)+1)+' sur '+fl.length+' (↗ ou ↘)';
+    } else {
+      const r=el.closest('.tg-line,.sa2-row,.rc-tr,.rf-ligne,tr,li,p')||el.closest('div');
+      if(!r) return;
+      const voisines=[].slice.call(r.querySelectorAll('input,select,textarea,math-field'));   /* le rang parmi TOUTES les cases de la ligne */
+      let t=texteDeRangee(r); if(t.length>140) t=t.slice(0,139)+'…';
+      nom=t+(voisines.length>1?' — case '+(voisines.indexOf(el)+1)+' sur '+voisines.length:'');
+    }
+    if(nom) el.setAttribute('aria-label',nom);
+  });
+}
+try{
+  nommerCases(document);
+  new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if(n.nodeType===1) nommerCases(n); }); }); })
+    .observe(document.documentElement,{childList:true,subtree:true});
+}catch(e){}
 
 /* démarrage */
 try{ paveObserver(); }catch(e){}
