@@ -8425,9 +8425,9 @@ async function finishAugAdd(){
 function genAugDepAdd(){
   const P = pick([10,20,30,40,50,60,70,80,90]);   /* multiples de 10 : entier même sur les leurres 50…90 */
   const N = rand(1,9)*Math.pow(10,pick([2,3]));
-  const leurres=leurresProches(N);
-  const opts=qdMelanger(leurres.concat([N]));
   const aug=P*N/100, fin=N+aug;
+  const leurres=leurresProches(N,{max:fin,pasMin:10});   /* une valeur initiale reste sous la valeur finale ; multiples de 10 : la chaîne reste entière */
+  const opts=qdMelanger(leurres.concat([N]));
   const ci=augqTirerCtx(fin);
   const q={type:'val',sens:1,P,N,aug,fin,unit:AUGQ_CTX[ci].u,ci,
     decStr:String(fin).replace('.',','),
@@ -8483,9 +8483,9 @@ function genAugTauxAdd(){
 function genDimDepSub(){
   const P = pick([10,20,30,40,50,60,70,80,90]);   /* multiples de 10 : entier même sur les leurres 50…90 */
   const N = rand(1,9)*Math.pow(10,pick([2,3]));
-  const leurres=leurresProches(N);
-  const opts=qdMelanger(leurres.concat([N]));
   const aug=P*N/100, fin=N-aug;
+  const leurres=leurresProches(N,{min:fin,pasMin:10});   /* une valeur initiale reste au-dessus de la valeur finale */
+  const opts=qdMelanger(leurres.concat([N]));
   const ci=augqTirerCtx(fin);
   const q={type:'val',sens:-1,P,N,aug,fin,unit:AUGQ_CTX[ci].u,ci,
     decStr:String(fin).replace('.',','),
@@ -8734,8 +8734,9 @@ function genSyn(famVoulu, incVoulu, regl){
       while(!pctCoupleOk(P,N) || (inc==='fin' && P*N/100<10) || (inc==='ini' && N<100));
       const res=P*N/100, ci=tirerContexte(CTX_PART,N);
       q={fam,inc,sens:0,P,N,res,result:res,unit:CTX_PART[ci].u,ci};
-      if(inc==='fin'){ q.bonV=res; q.opts=qdMelanger(leurresProches(res).concat([res])); q.v=tirerVariante(PCT_ENONCES,q); }
-      else { q.bonV=N; q.opts=qdMelanger(leurresProches(N).concat([N])); q.v=tirerVariante(QD_ENONCES_VAL,q); }
+      /* le sens : P % d'une valeur reste sous la valeur, la valeur au-dessus de ses P % */
+      if(inc==='fin'){ q.bonV=res; q.opts=qdMelanger(leurresProches(res,{max:N}).concat([res])); q.v=tirerVariante(PCT_ENONCES,q); }
+      else { q.bonV=N; q.opts=qdMelanger(leurresProches(N,{min:res,pasMin:10}).concat([N])); q.v=tirerVariante(QD_ENONCES_VAL,q); }
     }
   } else {
     const sens=(fam==='aug')?1:-1;
@@ -8764,11 +8765,11 @@ function genSyn(famVoulu, incVoulu, regl){
       const ci=tirerContexte(AUG_THEMES,N,sens<0?'poidsBaisse':'poidsHausse');
       const th=AUG_THEMES[ci];
       Object.assign(q,{intro:th.intro,unit:th.unit,g:th.g,ci,bonV:fin,
-        opts:qdMelanger(leurresProches(fin).concat([fin]))});
+        opts:qdMelanger(leurresProches(fin, sens>0?{min:N}:{max:N}).concat([fin]))});   /* le sens : une hausse finit au-dessus du départ, une baisse en dessous */
       q.v=tirerVariante(sens>0?AUG_ENONCES:DIM_ENONCES,q);
     } else if(inc==='ini'){
       const ci=augqTirerCtx(fin);
-      Object.assign(q,{unit:AUGQ_CTX[ci].u,ci,bonV:N,opts:qdMelanger(leurresProches(N).concat([N]))});
+      Object.assign(q,{unit:AUGQ_CTX[ci].u,ci,bonV:N,opts:qdMelanger(leurresProches(N, sens>0?{max:fin,pasMin:leurresGrain(P)}:{min:fin,pasMin:leurresGrain(P)}).concat([N]))});   /* le sens, et le grain du taux : la chaîne de chaque proposition reste entière, 10 % et 5 % compris */
       q.v=rand(0,(sens>0?AUGQ_EN_VAL:DIMQ_EN_VAL).length-1);
     } else {
       const ci=augqTirerCtx(N);
@@ -9458,19 +9459,64 @@ function qdMelanger(t){ for(let i=t.length-1;i>0;i--){ const j=rand(0,i); const 
    résoudrait à vue. Il faut TOUJOURS une valeur en dessous : quand le pas
    ne le permet pas (100 → 0), on descend d'un cran et on tire entre la
    moitié et le pas inférieur — 100 → 90, 80, … ou 50. */
-function leurresProches(N){
-  const pas=Math.pow(10,Math.floor(Math.log10(N)));
+/* ET LES LEURRES RESPECTENT LE SENS (audit, octobre 2026) : « un prix
+   augmente de 4 % et atteint 520 € » ne propose plus 600 € ni 700 € comme
+   prix de départ — le QCM se résolvait sans calcul dans 32 à 85 % des
+   questions. bornes = {min, max} (exclues) : pour une HAUSSE, une valeur
+   initiale proposée reste sous la valeur finale (max) et une nouvelle valeur
+   au-dessus du départ (min) ; l'inverse pour une BAISSE ; pour « prendre
+   P % », la valeur reste au-dessus du résultat et le résultat sous la
+   valeur. bornes.pasMin est le GRAIN : l'écart de chaque leurre à la bonne
+   réponse en est un multiple — 10 là où la chaîne d'une valeur initiale
+   doit tomber sur des entiers avec un taux multiple de dix, 20 avec 5 % ou
+   15 % (leurresGrain). Le tirage d'avant est gardé tel quel quand il tient
+   dans les bornes et le grain ; sinon le pas se RESSERRE, par la suite
+   1-2-5 (100, 50, 20, 10, 5…), jusqu'à laisser une proposition de CHAQUE
+   côté de la bonne — des leurres tous en dessous feraient de la bonne
+   réponse la plus grande, autre façon de répondre sans calculer : 500 € qui
+   atteignent 510 € après +2 % se voient proposer 495 € et 505 €. Quand aucun
+   pas ne le permet (300 → 315 après +5 %, au grain de 20 : rien entre les
+   deux), les trois leurres vont du seul côté permis. */
+function leurresProches(N, bornes){
+  const b=bornes||{};
+  const lo=(b.min==null)?0:b.min, hi=(b.max==null)?Infinity:b.max, grain=b.pasMin||1;
+  const dedans=x=>x>lo && x<hi && x>0 && Number.isInteger(x) && (x-N)%grain===0;
+  const pas0=Math.pow(10,Math.floor(Math.log10(N)));
   const out=[];
-  if(N-pas>0){
-    out.push(N-pas, N+pas);
-    const deux=[]; if(N-2*pas>0) deux.push(N-2*pas); deux.push(N+2*pas);
+  if(N-pas0>0){
+    out.push(N-pas0, N+pas0);
+    const deux=[]; if(N-2*pas0>0) deux.push(N-2*pas0); deux.push(N+2*pas0);
     out.push(pick(deux));
   } else {
-    out.push(N - (pas/10)*rand(1,5));   /* 100 → 90…50 ; 1000 → 900…500 ; 10 → 9…5 */
-    out.push(N+pas, N+2*pas);
+    out.push(N - (pas0/10)*rand(1,5));   /* 100 → 90…50 ; 1000 → 900…500 ; 10 → 9…5 */
+    out.push(N+pas0, N+2*pas0);
   }
-  return out;
+  if(out.every(dedans)) return out;
+  /* les pas permis, du plus large au plus fin : la suite 1-2-5 sous pas0,
+     multiples du grain */
+  const pasListe=[];
+  for(let d=pas0; d>=1; d/=10) [d, d/2, d/5].forEach(p=>{ if(Number.isInteger(p) && p>=grain && p%grain===0 && pasListe.indexOf(p)<0) pasListe.push(p); });
+  const cote=(pas,s)=>[1,2,3].map(k=>N+s*k*pas).filter(dedans);
+  /* resserrer : le plus grand pas qui laisse une proposition de chaque côté */
+  for(const pas of pasListe){
+    const dessous=cote(pas,-1), dessus=cote(pas,1);
+    if(dessous.length && dessus.length && dessous.length+dessus.length>=3){
+      const reste=dessous.slice(1,2).concat(dessus.slice(1,2));
+      return [dessous[0], dessus[0], pick(reste)];
+    }
+  }
+  /* un seul côté possible : trois pas de ce côté, au plus grand pas qui tient */
+  for(const pas of pasListe){
+    const dessous=cote(pas,-1), dessus=cote(pas,1);
+    if(dessous.length===3) return dessous;
+    if(dessus.length===3) return dessus;
+  }
+  return out;   /* aucun pas ne tient : le tirage d'avant, faute de mieux (jamais atteint sur les viviers actuels — la sonde le mesure) */
 }
+/* Le grain d'une valeur initiale proposée : le plus petit multiple de 10 dont
+   P % tombe sur un entier — 10 pour un taux multiple de dix, 20 pour 5 % ou
+   15 % (la méthode des 10 % : 10 % puis sa moitié restent entiers). */
+function leurresGrain(P){ const g=100/gcd(P,100); return g*10/gcd(g,10); }
 /* --- Retrouver la valeur initiale : P et R donn\u00e9s, N \u00e0 choisir --- */
 function genPctDepart(){
   let P,N;
@@ -9480,7 +9526,7 @@ function genPctDepart(){
   const prod=P*N;
   /* P est un multiple de 10 et les leurres des multiples de 10 : P×leurre reste
      divisible par 100, la vérification d'une mauvaise proposition tombe juste. */
-  const leurres=leurresProches(N);
+  const leurres=leurresProches(N,{min:prod/100,pasMin:10});   /* le sens : la valeur reste au-dessus de ses P % */
   const opts=qdMelanger(leurres.concat([N]));
   const ci=tirerContexte(CTX_PART,N);
   const q={type:'val',P,N,unit:CTX_PART[ci].u,prod,result:prod/100,opts,bon:opts.indexOf(N),choisi:null,ci};
@@ -9530,7 +9576,7 @@ function genPctRes(){
   let P,N;
   do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N) || P*N/100<2);
   const prod=P*N, R=prod/100;
-  const opts=qdMelanger(leurresProches(R).concat([R]));
+  const opts=qdMelanger(leurresProches(R,{max:N}).concat([R]));   /* le sens : P % de N reste sous N */
   const ci=tirerContexte(CTX_PART,N);
   const q={type:'res',P,N,unit:CTX_PART[ci].u,prod,result:R,opts,bon:opts.indexOf(R),choisi:null,ci};
   q.v=tirerVariante(PCT_ENONCES,q);
@@ -11222,9 +11268,9 @@ function augqCouple(q){
 function genAugDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
   const N = rand(1,9)*Math.pow(10,pick([1,2,3]));
-  const leurres=leurresProches(N);          /* au pas de N : voir leurresProches */
-  const opts=qdMelanger(leurres.concat([N]));
   const coef=100+P, prodNum=N*coef;
+  const leurres=leurresProches(N,{max:prodNum/100});   /* au pas de N, sous la valeur finale : voir leurresProches */
+  const opts=qdMelanger(leurres.concat([N]));
   const ci=augqTirerCtx(prodNum/100);            /* c'est la valeur finale qui est affichée */
   const q={type:'val',P,N,coef,prodNum,unit:AUGQ_CTX[ci].u,ci,
     coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',','),
@@ -11251,9 +11297,9 @@ async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux); }
 function genDimDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
   const N = rand(1,9)*Math.pow(10,pick([1,2,3]));
-  const leurres=leurresProches(N);          /* au pas de N : voir leurresProches */
-  const opts=qdMelanger(leurres.concat([N]));
   const coef=100-P, prodNum=N*coef;
+  const leurres=leurresProches(N,{min:prodNum/100});   /* au pas de N, au-dessus de la valeur finale : voir leurresProches */
+  const opts=qdMelanger(leurres.concat([N]));
   const ci=augqTirerCtx(prodNum/100);            /* c'est la valeur finale qui est affichée */
   const q={type:'val',sens:-1,P,N,coef,prodNum,unit:AUGQ_CTX[ci].u,ci,
     coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',','),
