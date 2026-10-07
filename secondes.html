@@ -11232,7 +11232,13 @@ function varTableSubs(a, p){
 }
 
 /* ---- Validation ---- */
-function lvReadInt(id){ const el=$(id); if(!el) return null; const v=(el.value||'').trim().replace(',','.'); if(v==='') return null; const n=parseFloat(v); return isNaN(n)?null:n; }
+/* null = case VIDE ; NaN = case écrite mais illisible (« 2abc », « 1/2 ») —
+   jamais un nombre tronqué par parseFloat, qui lisait 2 et 1. Le moins
+   typographique « − » (U+2212, celui des énoncés) vaut le tiret du clavier. */
+function lvReadInt(id){ const el=$(id); if(!el) return null;
+  const v=(el.value||'').trim().replace(/\s+/g,'').replace(/\u2212/g,'-').replace(',','.');
+  if(v==='') return null;
+  return /^[-+]?\d+(\.\d+)?$/.test(v) ? parseFloat(v) : NaN; }
 function lvCheckPart(q){
   const a=lvAnalyze(q.pts); const subs=[];
   if(q.part==='a'){
@@ -19498,7 +19504,10 @@ function tickTimer(){
 function submitAnswer(timedOut){
   if(test.locked)return;
   const q=test.questions[test.idx],ai=$('answerInput'),raw=ai.value.trim();
-  const given=raw===''?null:parseInt(raw,10), correct=(given===q.answer);
+  /* un ENTIER écrit en chiffres, rien d'autre : parseInt lisait « 12,7 » et
+     « 12abc » comme 12. Une écriture illisible est gardée telle quelle (le
+     professeur voit ce qui a été tapé) et ne vaut jamais la réponse. */
+  const given=raw===''?null:(/^\d+$/.test(raw)?parseInt(raw,10):raw), correct=(given===q.answer);
   // mode soutien : si c'est faux, on dit que c'est faux et on laisse reprendre
   if(isSoutien() && !correct){
     const mark=$('mark');mark.textContent='✗';mark.className='mark bad show';
@@ -19758,7 +19767,8 @@ function tmTick(){
 function tmValider(tempsEcoule){
   if(test.phase!=='saisie') return;
   const it=test.file[test.idx], ai=$('tmInput');
-  const brut=ai.value.trim(), donne=(brut===''?null:parseInt(brut,10));
+  /* un entier en chiffres seulement : « 42.5 » ou « 42abc » ne valent pas 42 */
+  const brut=ai.value.trim(), donne=(brut===''?null:(/^\d+$/.test(brut)?parseInt(brut,10):brut));
   test.phase='correction'; clearTimeout(test.qTimer);
   /* A la fin du temps, on juge ce qui est ECRIT dans la case : une reponse deja saisie
      compte, meme si l'eleve n'a pas eu le temps d'appuyer sur Entree. */
