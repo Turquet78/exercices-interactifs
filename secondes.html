@@ -19976,8 +19976,11 @@ function checkASPAnswer(live){
   boxes.forEach(el=>{
     const exp=el.dataset.exp, v=el.value.trim(), ok=(v!==''&&v===exp);
     const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    /* une case VIDE ne rougit jamais (la règle de partout) : ni « bad », ni ✗ ;
+       en entraînement la correction verte la remplit plus bas, avec sa pastille */
+    const vide=(v==='');
+    el.classList.remove('ok','bad'); if(!vide) el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    if(!vide||currentMode==='train'){ const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag); }
     if(!ok){ resultOk=false;
       if(currentMode==='train'){ if(v===''){ el.value=exp; el.classList.remove('bad'); el.classList.add('sol'); } else { const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
     }
@@ -20075,8 +20078,11 @@ function checkMAnswer(live){
   boxes.forEach(el=>{
     const exp=el.dataset.exp, v=el.value.trim(), ok=(v!==''&&v===exp);
     const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    /* une case VIDE ne rougit jamais (la règle de partout) : ni « bad », ni ✗ ;
+       en entraînement la correction verte la remplit plus bas, avec sa pastille */
+    const vide=(v==='');
+    el.classList.remove('ok','bad'); if(!vide) el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    if(!vide||currentMode==='train'){ const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag); }
     if(!ok){ resultOk=false;
       if(currentMode==='train'){ if(v===''){ el.value=exp; el.classList.remove('bad'); el.classList.add('sol'); } else { const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
     }
@@ -20593,8 +20599,11 @@ function checkMDAnswer(live){
   boxes.forEach(el=>{
     const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
     const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    /* une case VIDE ne rougit jamais (la règle de partout) : ni « bad », ni ✗ ;
+       en entraînement la correction verte la remplit plus bas, avec sa pastille */
+    const vide=(vv==='');
+    el.classList.remove('ok','bad'); if(!vide) el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    if(!vide||currentMode==='train'){ const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag); }
     if(!ok){ resultOk=false; if(currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} } }
   });
   carries.forEach(el=>{
@@ -20726,8 +20735,11 @@ function checkUAnswer(live){
   boxes.forEach(el=>{
     const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
     const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    /* une case VIDE ne rougit jamais (la règle de partout) : ni « bad », ni ✗ ;
+       en entraînement la correction verte la remplit plus bas, avec sa pastille */
+    const vide=(vv==='');
+    el.classList.remove('ok','bad'); if(!vide) el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    if(!vide||currentMode==='train'){ const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag); }
     if(!ok){ resultOk=false; if(currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} } }
   });
   // retenues : facultatives — ignorées si vides, mais justes si écrites
