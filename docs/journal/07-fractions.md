@@ -1236,3 +1236,10 @@ résultat ensemble (`rvfResultatEgal` : produit en croix avec `rvfReponse`),
 et seules ces deux cases y ont droit — les étapes intermédiaires gardent la
 forme brute de la règle, c'est elle que l'exercice fait écrire. Éprouvé dans
 jsdom : 8/9 + 1/9 répondu « 1/1 » vaut 3/3.
+
+**Les « importantes » de l'audit, fractions (v422).** Au 5.13, 5.14 et
+5.15, les dénominateurs d'une même parenthèse sont tirés premiers entre
+eux : avec 2 et 4, le croisement figé attendait 8 quand le PPCM est 4, et la
+route du PPCM — celle du cours — rougissait dix cases. Au 5.11, les entiers
+tirés valent au moins 2 et aucune division ne se fait par une fraction égale
+à 1 (les fractions, elles, sont irréductibles depuis la règle universelle).

@@ -2651,3 +2651,33 @@ pavé n'a aucune lettre — la racine de x − e ou x + e, « e » ou « −e »
 insère « e » dans la case qui a le focus, sinon dans celle de la racine, et
 jamais dans une case verrouillée. Éprouvé dans jsdom : le bouton existe dans
 `.s1-jetons`, « e » s'insère, `s1RootOK` l'accepte.
+
+**Les « importantes » de l'audit, Terminale (v366).** Cases vides : au 1.1,
+1.2, 5.1, 4.1, 6.1.1, 6.1.2, 6.2.1 et 6.2.3, une case laissée vide ne rougit
+plus en soutien (la garde de `checkTX`), et au 4.1 chaque borne de
+l'encadrement reçoit son verdict. Au 5.1, plus de case « 0 » exigée quand
+b = 0 ou f(a) = 0 (« y = x » vaut ses points), et la correction écrit
+« y = x », pas « y = 1 x ». Au 1.1 (niveaux 2–3), 1.4, 1.5 et 5.4, la racine
+−b/a s'accepte avec le signe déplacé (« 6/2 » pour −6/−2) et « 0/1 » quand
+elle vaut 0. Le 4.1 écrit l'intervalle du tirage dans l'énoncé, plus
+« sur ℝ », et ses bornes infinies survivent à la pause (plus d'option
+« null »). Le 4.3 dit que f n'est pas définie en c et que ]a ; b[ privé de c
+n'est pas un intervalle, plus « f n'est pas continue sur son ensemble de
+définition ». Le corrigé du 4.2 porte « k compris entre f(a) et f(b) », le
+rappel du 4.4 dit qu'une limite non atteinte ne compte pas comme valeur
+prise, `RAP_LR` parle de la limite en un réel et de l'asymptote, `RAP_TVI`
+des bornes ouvertes ou infinies. Le corrigé type du 6.1.1 dit « on retranche
+3 » pour une raison −3.
+**Quatre verdicts ne sont plus confiés au seul modèle.** Au 4.4 et au 4.5, la
+page connaît la réponse : la note et les couleurs viennent d'un juge local
+(`tvgFautes`), l'IA n'est appelée que sur une copie fausse et sa prose est
+écartée si elle ne dit pas « faux » ; en panne, la page note seule. Au 2.1.2
+et 2.1.5, la dernière ligne de la feuille est pré-jugée par `checkExprFn`
+en sept points (`dexp2Juge`) : égale à f′ et factorisée → accepte, lisible
+mais différente → refuse, illisible ou développée → abstention et le modèle
+décide ; le verdict local prime. Au 6.2.4, `rrJuge` n'accepte plus une
+hérédité dès que f(m) et f(M) apparaissent quelque part : il faut les deux
+images adjacentes à U(n+1) dans une même chaîne (`rrEncadre`), et une
+comparaison non lue rétrograde en abstention, jamais en acceptation — 6 000
+copies à image fausse, zéro acceptée. Éprouvé par sondes jsdom avec un
+modèle simulé qui se trompe dans les deux sens, en panne, et en soutien.

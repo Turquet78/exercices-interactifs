@@ -4560,3 +4560,35 @@ valeur finale et l'inverse du coefficient et vaut la valeur initiale
 `salVoiesTexte` et `salAttenduIA` nomment ces voies (« cinq » voies, « six »
 avec la méthode des 10 %). Éprouvé : treize copies justes acceptées, la
 fausse « (300 − 240)/300 = 0,3 » et la recopie « 20 » toujours refusées.
+
+**Les « importantes » de l'audit, thème des pourcentages (Seconde v422, Première
+v281).** Trois défauts transversaux, corrigés moteur par moteur dans les deux
+pages. (1) Une case VIDE rougissait à la vérification en soutien (et en
+évaluation en Première) dans une vingtaine de moteurs : les juges passent par
+des aides partagées qui ne posent `bad` que sur une case écrite — en
+entraînement, la correction verte continue de la remplir. (2) Une case JUSTE
+rougissait parce que sa jumelle (dénominateur, second terme d'une addition)
+était fausse ou vide : chaque case reçoit son verdict, sur le motif de
+`marqueFracSaufVide` et `hscPaire`. (3) `parseInt` servait de juge dans les
+schémas en boîte, les évolutions successives, les coefficients et les
+numérateurs : « 20,5 » valait 20 — les cases se lisent par `parseDecToFrac`,
+« 20,0 » reste juste. Et la valeur de départ ne se juge plus par égalité de
+chaînes (« 300,0 »). Les rappels « Augmenter » et « Diminuer » ne disent plus
+« on multiplie par ce coefficient, puis on divise par 100 » devant un
+coefficient 1,2 : « par 120 puis ÷ 100, ou directement par 1,2 ».
+En Première aussi : le 2.1.7 rédigé a son juge local (`pslJuge`, une vue de
+la question passée à `salJuge` famille « prendre », verdict prioritaire,
+réponse seule en panne du modèle) ; le corrigé type des synthèses passe par
+`qdmAutre` et ne reprend plus la question en cours ; `leurresProches` reçoit
+le sens et la borne (une valeur initiale proposée reste sous la valeur finale
+d'une hausse, le pas se resserre jusqu'à encadrer la bonne réponse, et un
+grain `leurresGrain` garde entier le « P % » des propositions en méthode des
+10 %) ; les corrections et contextes du 2.1.9, 2.2.11, 2.3.10 écrivent la
+virgule. Au 1.6 niveau 2 des deux pages, « fraction décimale » exige un
+dénominateur puissance de 10, comme les niveaux 4 et 5. Calcul mental et
+tables exigent un entier écrit (« 12,7 » ne vaut plus 12).
+Éprouvé par sondes jsdom sur chaque moteur (copie vide en soutien, jumelle
+fausse, « 20,5 », « 20,0 », modèle simulé qui se trompe dans les deux sens,
+3 000 tirages par QCM sans leurre impossible) ; reste connu : quand le sens
+ne laisse rien d'un côté, les trois leurres tombent du même côté (18 % des
+tirages de `genPctDepart`), ce que des entiers ne permettent pas d'éviter.

@@ -1517,3 +1517,19 @@ dans `k2s`, `(synY(q,x-1)-c)*(synY(q,x+1)-c)<0` dans `cote` — et les replis
 IFG_FB et SYN_REPLI passent le même garde (vérifié à la main : leurs
 solutions sont des croisements). Éprouvé par 2 000 et 600 tirages après le
 correctif : zéro tangence, zéro repli.
+
+**Les « importantes » de l'audit, thème des fonctions (v422).** Les tableaux
+de signes du 3.3.3 au 3.3.6 bornent la ligne des x par le domaine ([−3 ; 3]
+ou [−6 ; 6]) et plus par −∞/+∞ — le tableau de variation du même écran
+disait déjà −3 et 3. Au 3.1.5, la note « les bouts de S sont les bouts du
+domaine » ne s'affiche plus sous un S d'un seul tenant. Et onze exercices du
+thème (lv, tvd, img, pim, ant, adr, iqd, ls, lsv, gsv, syn) envoyaient au
+modèle le seul texte visible de l'écran, sans la courbe ni la réponse
+attendue : chacun a son contexte (`ctxLv`…`ctxSyn`, bâtis sur des briques
+partagées — la courbe point par point, l'état de chaque case jugé par la
+fonction qui corrige, les attendus sous la clause de secret). Le plus long,
+gsv, fait 6 992 caractères pour une borne de 20 000. Les opérations posées
+du 1.1 et du 1.5 passaient déjà par `ctxPourcentages` ; il leur manquait
+ce que l'élève a écrit dans la grille, que `ctxPosee` lit désormais. Les
+cases de lecture (`lvReadInt`) refusent « 2abc » et « 1/2 », et acceptent
+le moins typographique collé.
