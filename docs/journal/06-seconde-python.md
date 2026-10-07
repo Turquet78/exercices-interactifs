@@ -4757,3 +4757,13 @@ rappel, la raison proposée, l'explication et le contexte envoyé au modèle
 disent désormais « la convention de ce cours — Python 3 l'accepterait »,
 jamais un refus de Python. Un énoncé qui affirme un fait faux sur le langage
 apprend l'inverse de ce qu'il croit enseigner.
+
+**Les « importantes » de l'audit, Python (v422).** Au 6.1.7 et 6.1.8, quand
+le texte à afficher commence par le nom de la variable (« age : »,
+« ville : »), `pyxTexteNu` ne prenait plus ce nom pour un texte nu et le
+diagnostic mentait (« le texte doit être entre guillemets » devant une
+parenthèse jamais fermée) : le premier mot n'est retenu que s'il n'est pas un
+nom du programme. Et `pyxAffiche` exigeait les chiffres de la valeur sans son
+signe : `print("…", -note)` passait. La valeur est désormais un jeton entier
+et signé. Les cases de résultat des opérations posées (1.1, 1.4, 1.7, 1.8)
+laissées vides ne rougissent plus en soutien.

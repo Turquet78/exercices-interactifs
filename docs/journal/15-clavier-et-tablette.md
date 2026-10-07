@@ -1423,3 +1423,37 @@ déclarent numériques ; éprouvé en remettant `decimal` : il rougit en nommant
 ({ptv}, `ptv-x` et `ptv-in`) est lui aussi en `decimal` — mais `ptv-x` est une
 ligne de programme Python, où le séparateur est le POINT, que le pavé n'a pas :
 la conversion demande une décision.
+
+**Les « importantes » techniques et d'accessibilité de l'audit (Seconde v422,
+Première v281, Terminale v366).** Sur un téléphone de 380 px, trois écrans de
+la Seconde débordaient : la rangée d'aide des ensembles (`#ensActions`,
+inline-flex sans repli : 584 px, la page défilait de 102 px) se replie
+comme les 74 autres ; au 5.1 l'étiquette passe au-dessus de la barre à
+colorier ; l'addition à quatre colonnes du 1.1 tient dans l'écran. Les
+couleurs de verdict atteignent le contraste AA sur blanc et sur le papier :
+vert `#157A52` et rouge `#BF2C3E` (3,0 et 4,2 avant), même dominante — le
+banc « 9 bis » classe toujours bleu/rouge/vert. Cibles tactiles (WCAG
+2.5.8) : menus ↗↘ `vt-sel2`, cases `tg-in`, `sa2-in`, `rc-mf`, menus
+`ec-sel` à 32 px de haut ; parts à colorier `fp-seg` à 24 px (`#fpHost
+.fp-col` à 510 px) ; autour des points de courbe de {solutions-graphique}
+et {tvi-lecture-graphique}, une couche `g.tvg-zones` de disques invisibles
+de 14 px de rayon (un trait de longueur nulle à bouts ronds, `vector-effect:
+non-scaling-stroke` — un cercle à trait épais, Chromium le teste comme un
+anneau), mesurée 82/88 touches à 8–12 px du centre ; `tvgSVG` reste
+identique dans les deux pages. Clavier : les points de courbe et les parts à
+colorier portent `tabindex`, `role="button"`, un nom (« point (−2 ; 6) de la
+courbe », « pour 100 : part 3 sur 20 »), `aria-pressed`, un anneau
+`:focus-visible`, et un `keydown` délégué fait d'Entrée ou d'Espace un clic
+sur tout `[role=button]` qui n'est pas un vrai bouton. Noms accessibles : un
+observateur `nommerCases` (Seconde, Terminale) nomme les flèches de variation
+et les cases `tg-in`, `sa2-in`, `rc-mf` par le texte de leur ligne et leur
+rang, sans toucher aux 56 appels de `txInp`. `document.documentElement.lang
+= 'fr'` en tête du premier script des trois pages (elles n'ont pas de balise
+`<html>`), `aria-live="polite"` sur les conteneurs `.mp-feedback`.
+Reste, et c'est une décision à prendre : les parts de la barre du 5.1
+(`smp-seg`, jusqu'à 40 sur 340 px) ne peuvent pas atteindre 24 px sans
+boutons −/+, barres verticales ou plafond du nombre de parts sur téléphone ;
+les `select.tvi-sel` de la Terminale, les cases de la Première et les
+`math-field` hors `rc-mf` restent sans nom (élargir `CASES_A_NOMMER`) ;
+MathLive ne propage pas le nom à son `.ML__keyboard-sink`.
+
