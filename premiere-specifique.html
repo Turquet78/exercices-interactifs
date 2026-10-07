@@ -3035,7 +3035,12 @@ function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fr
 function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
-  $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+  /* le message dit la vérité : une case laissée vide ne rougit plus, et
+     « corrige les cases en rouge » devant un écran sans rouge parlerait
+     d'autre chose (la règle du 1.6) */
+  const zone=(host&&$(host))?($(host).closest('.screen')||$(host)):null;
+  const rouge=zone?zone.querySelector('.bad:not(.mp-feedback):not(.mp-tag)'):null;
+  $(fbId).textContent=(!zone||rouge)?'Presque ! Corrige les cases en rouge, puis revérifie.':'Complète ta réponse, puis revérifie.';
   $(fbId).className='mp-feedback bad';
   $(actionsId).innerHTML=`<button class="btn btn-primary" onclick="${fn}()">Revérifier</button>`;
   if(host){ const bad=$(host)&&$(host).querySelector('.bad'); if(bad&&!bad.disabled)setTimeout(()=>bad.focus(),40); }
@@ -3102,6 +3107,41 @@ function marqueFracSaufVide(idn,idd,tn,td,soutien){
   marqueSaufVide(idn, ok||(vd!==''&&n===tn), soutien);
   marqueSaufVide(idd, ok||(vd!==''&&d===td), soutien);
   return ok;
+}
+/* Un ENTIER écrit, et rien d'autre : parseInt lit « 12,7 » comme 12 et
+   « 12abc » comme 12 — un juge ne lit jamais par parseInt seul (audit,
+   octobre 2026 : le calcul mental et les tables comptaient « 12,7 » juste
+   pour 12). */
+function entierStrict(s){ s=String(s==null?'':s).trim(); return /^\d+$/.test(s)?parseInt(s,10):NaN; }
+/* Les deux cases d'une fraction dont la NOTE exige la paire COMPLÈTE (ok est
+   le verdict de la paire, calculé par l'appelant) : la paire juste fait les
+   deux cases bleues ; sinon chaque case se juge SEULE contre la valeur
+   canonique — l'ancre de checkPAnswer, la règle du 616/100000 du 1.7 : une
+   case juste ne rougit pas parce que sa jumelle est fausse, NI parce qu'elle
+   est vide. Ces fractions-là n'ont pas la convention du facteur entier
+   (« vide vaut 1 », celle de marqueFracSaufVide) : un 20 seul au numérateur
+   de 20/100 n'y dit pas « 20 », il attend son dénominateur — l'ancre joue
+   donc sans condition sur l'autre case. Et une case vide ne reçoit rien
+   (marqueSaufVide). Audit, octobre 2026 : les synthèses, les « retrouver »,
+   le 2.2.1 et le 2.2.2 peignaient encore les deux cases d'un seul verdict. */
+function marqueFracAncre(idn,idd,ok,tn,td,soutien){
+  const lireV=id=>{const el=$(id);return el?String(el.value==null?'':el.value).trim():'';};
+  marqueSaufVide(idn, ok||entierStrict(lireV(idn))===tn, soutien);
+  marqueSaufVide(idd, ok||entierStrict(lireV(idd))===td, soutien);
+}
+/* Les termes d'une addition écrite dans l'ordre que l'élève veut : chaque
+   case se juge contre les termes attendus qui RESTENT — un verdict par case,
+   jamais un verdict de paire qui rougirait le terme juste à côté du faux
+   (le motif de hscPaire, avec le juge d'égalité de l'appelant). */
+function termesLibres(ids, attendus, est){
+  const reste=attendus.slice();
+  return ids.map(id=>{
+    const el=$(id), t=el?String(el.value==null?'':el.value).trim():'';
+    const fr=(t==='')?null:parseDecToFrac(t);
+    const j=fr?reste.findIndex(x=>est(fr,x)):-1;
+    if(j<0) return false;
+    reste.splice(j,1); return true;
+  });
 }
 /* ---- La fraction décimale du 1.6, case par case (demande de Turquet, août
    2026). Attendu tn/td (ex. 23/10 pour 2,3), toute écriture ÉGALE acceptée —
@@ -7905,12 +7945,14 @@ function checkFPAnswer(live){
   colL.classList.remove('ok','bad'); colL.classList.add(okL?'ok':'bad');
   colR.classList.remove('ok','bad'); colR.classList.add(okR?'ok':'bad');
   /* méthode 2 : a×n / b×d = pct/100 exige n = d = 100/b, exactement */
-  const okE = v('fm1n')!=='' && v('fm1d')!=='' && parseInt(v('fm1n'),10)===k && parseInt(v('fm1d'),10)===k;
+  /* chaque multiplicateur a SON verdict : un 25 juste en haut ne rougit pas
+     parce que celui du bas est faux ou vide (audit, octobre 2026) */
+  const okE1 = entierStrict(v('fm1n'))===k, okE2 = entierStrict(v('fm1d'))===k, okE = okE1&&okE2;
   const f2=parseDecToFrac(v('fm2n')); const okN = !!f2 && f2.n===q.pct*f2.d;
   const f3=parseDecToFrac(v('fm3'));  const okP = !!f3 && f3.n===q.pct*f3.d;
   const soutien=isSoutien();
-  const mark=(id,ok)=>{const el=$(id);if(!el)return;el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('fm1n',okE); mark('fm1d',okE); mark('fm2n',okN); mark('fm3',okP);
+  /* une case laissée vide ne rougit pas, ni en soutien ni en évaluation */
+  marqueSaufVide('fm1n',okE1,soutien); marqueSaufVide('fm1d',okE2,soutien); marqueSaufVide('fm2n',okN,soutien); marqueSaufVide('fm3',okP,soutien);
   const allOk=okL&&okR&&okE&&okN&&okP;
   if(!allOk && soutien){ soutienAgain('fpFeedback','fpActions','checkFPAnswer','fpHost'); return; }
   test.locked=true;
@@ -8060,8 +8102,7 @@ function checkPctColAnswer(live){
   colR.classList.remove('ok','bad'); colR.classList.add(okR?'ok':'bad');
   const fr=parseDecToFrac(v('pcRes')); const okR2 = !!fr && fr.n===q.result*fr.d;
   const soutien=isSoutien();
-  const el=$('pcRes');
-  if(el){ el.classList.remove('ok','bad'); el.classList.add(okR2?'ok':'bad'); el.disabled=okR2||!soutien; }
+  marqueSaufVide('pcRes',okR2,soutien);   /* une case laissée vide ne rougit pas */
   const allOk=okL&&okR&&okR2;
   if(!allOk && soutien){ soutienAgain('pcFeedback','pcActions','checkPctColAnswer','pcHost'); return; }
   test.locked=true;
@@ -8294,8 +8335,11 @@ function checkAG2Answer(live){
   const fa=parseDecToFrac(v('g4a')), fb=parseDecToFrac(v('g4b'));
   const est=(fr,c)=>!!fr&&fr.n===c*fr.d;
   const neg=augqSens(q)<0;
-  const okA = neg ? (est(fa,q.N)&&est(fb,q.aug))
-                  : ((est(fa,q.N)&&est(fb,q.aug))||(est(fa,q.aug)&&est(fb,q.N)));
+  /* un verdict PAR TERME (audit, octobre 2026) : le terme juste ne rougit pas
+     parce que l'autre est faux ou vide — la soustraction dans son ordre,
+     l'addition dans celui que l'élève veut */
+  const okAB = neg ? [est(fa,q.N), est(fb,q.aug)] : termesLibres(['g4a','g4b'],[q.N,q.aug],est);
+  const okA = okAB[0]&&okAB[1];
   const f5=parseDecToFrac(v('g4r'));
   const ok5 = !!f5 && f5.n===q.fin*f5.d;
   /* pose facultative : mêmes règles que la pose de multiplication de 3.2.1 */
@@ -8322,9 +8366,11 @@ function checkAG2Answer(live){
   } else {
     [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
   }
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('g1n',ok1); mark('g1d',ok1); mark('g2n',ok2); mark('g2d',ok2); mark('g3',ok3);
-  mark('g4a',okA); mark('g4b',okA); mark('g4r',ok5);
+  /* une case laissée vide ne rougit jamais, et chaque case d'une fraction a
+     son verdict (marqueFracAncre) */
+  marqueFracAncre('g1n','g1d',ok1,q.P,100,soutien); marqueFracAncre('g2n','g2d',ok2,q.prod,100,soutien);
+  marqueSaufVide('g3',ok3,soutien);
+  marqueSaufVide('g4a',okAB[0],soutien); marqueSaufVide('g4b',okAB[1],soutien); marqueSaufVide('g4r',ok5,soutien);
   const allOk=ok1&&ok2&&ok3&&okA&&ok5;                     /* pose facultative non comptée */
   if(!allOk && soutien){ soutienAgain('ag2Feedback','ag2Actions','checkAG2Answer','ag2Host'); return; }
   test.locked=true;
@@ -8540,9 +8586,10 @@ function checkWAnswer(live){
   const ok3 = !!f3 && f3.n===c.aug*f3.d;
   const fa=parseDecToFrac(v('w4a')), fb=parseDecToFrac(v('w4b'));
   const est=(fr,val)=>fracVautDec(fr,val);
-  /* addition : N + aug dans les deux sens ; soustraction : N \u2212 baisse, dans cet ordre */
-  const okA = neg ? (est(fa,c.N)&&est(fb,c.aug))
-                  : ((est(fa,c.N)&&est(fb,c.aug))||(est(fa,c.aug)&&est(fb,c.N)));
+  /* addition : N + aug dans les deux sens ; soustraction : N \u2212 baisse, dans cet ordre \u2014
+     un verdict PAR TERME : le terme juste ne rougit pas \u00e0 c\u00f4t\u00e9 du faux */
+  const okAB = neg ? [est(fa,c.N), est(fb,c.aug)] : termesLibres(['w4a','w4b'],[c.N,c.aug],est);
+  const okA = okAB[0]&&okAB[1];
   const f5=parseDecToFrac(v('w4r'));
   const ok5 = !!f5 && f5.n===c.fin*f5.d;
   const host=$('wMul');
@@ -8568,9 +8615,10 @@ function checkWAnswer(live){
   } else {
     [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
   }
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('w1n',ok1); mark('w1d',ok1); mark('w1v',okV); mark('w2n',ok2); mark('w2d',ok2);
-  mark('w3',ok3); mark('w4a',okA); mark('w4b',okA); mark('w4r',ok5);
+  /* une case laissée vide ne rougit jamais ; chaque case d'une fraction a son verdict */
+  marqueFracAncre('w1n','w1d',ok1,c.P,100,soutien); marqueSaufVide('w1v',okV,soutien);
+  marqueFracAncre('w2n','w2d',ok2,c.prod,100,soutien);
+  marqueSaufVide('w3',ok3,soutien); marqueSaufVide('w4a',okAB[0],soutien); marqueSaufVide('w4b',okAB[1],soutien); marqueSaufVide('w4r',ok5,soutien);
   const calculOk=ok1&&okV&&ok2&&ok3&&okA&&ok5;             /* pose facultative non comptée */
   const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
   const btn=$('wc'+q.choisi);
@@ -9151,7 +9199,10 @@ function checkSynAnswer(live){
     }
     return;
   }
-  const mark=(id,ok)=>{const el=$(id);if(!el)return;el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  /* une case laissée vide ne rougit jamais, en soutien comme en évaluation
+     (audit, octobre 2026) — et chaque case d'une fraction a son verdict */
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
+  const markFrac=(idn,idd,ok,tn,td)=>marqueFracAncre(idn,idd,ok,tn,td,soutien);
   const jugePose=()=>{
     const host=$('syMul'); if(!host) return;
     const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
@@ -9178,7 +9229,7 @@ function checkSynAnswer(live){
     const ok1=v('y1n')!=='' && v('y1d')!=='' && fracEqual(iv('y1n'),iv('y1d'),c.P,100);
     const ok2=v('y2n')!=='' && v('y2d')!=='' && fracEqual(iv('y2n'),iv('y2d'),c.prod,100);
     const f3=parseDecToFrac(v('y3')); const ok3=est(f3,c.res);
-    mark('y1n',ok1);mark('y1d',ok1);mark('y2n',ok2);mark('y2d',ok2);mark('y3',ok3);
+    markFrac('y1n','y1d',ok1,c.P,100);markFrac('y2n','y2d',ok2,c.prod,100);mark('y3',ok3);
     calculOk=ok1&&ok2&&ok3;
   } else if(q.meth==='coef'){
     const ok1=v('y1n')!=='' && v('y1d')!=='' && fracEqual(iv('y1n'),iv('y1d'),c.P,100);
@@ -9192,8 +9243,8 @@ function checkSynAnswer(live){
     jugePose();
     const ok4=v('y4n')!=='' && v('y4d')!=='' && fracEqual(iv('y4n'),iv('y4d'),c.prodNum,100);
     const f5=parseDecToFrac(v('y5')); const ok5=!!f5 && f5.n*100===c.prodNum*f5.d;
-    mark('y1n',ok1);mark('y1d',ok1);mark('y1p',okP);mark('y1dec',okC);mark('y2n',ok2);mark('y2d',ok2);
-    mark('y3n',ok3);mark('y3d',ok3);mark('y3v',okV);mark('y4n',ok4);mark('y4d',ok4);mark('y5',ok5);
+    markFrac('y1n','y1d',ok1,c.P,100);mark('y1p',okP);mark('y1dec',okC);markFrac('y2n','y2d',ok2,c.coef,100);
+    markFrac('y3n','y3d',ok3,c.coef,100);mark('y3v',okV);markFrac('y4n','y4d',ok4,c.prodNum,100);mark('y5',ok5);
     calculOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;
   } else if(q.meth==='dix' && q.inc!=='pct'){
     /* 2.2.11 sur le couple testé : 10 % de N, l'augmentation ligne à ligne,
@@ -9204,11 +9255,13 @@ function checkSynAnswer(live){
     jugePose();
     const fa=parseDecToFrac(v('y4a')), fb=parseDecToFrac(v('y4b'));
     const estAug=fr=>!!fr&&fr.n*100===c.prod*fr.d;
-    const okA = neg ? (est(fa,c.N)&&estAug(fb))
-                    : ((est(fa,c.N)&&estAug(fb))||(estAug(fa)&&est(fb,c.N)));
+    /* un verdict PAR TERME : 'aug' désigne l'augmentation, jugée en centièmes */
+    const estT=(fr,x)=>(x==='aug')?estAug(fr):est(fr,x);
+    const okAB = neg ? [est(fa,c.N), estAug(fb)] : termesLibres(['y4a','y4b'],[c.N,'aug'],estT);
+    const okA = okAB[0]&&okAB[1];
     const okR=eq('y4r',c.N*100+q.sens*c.prod,100);
     mark('y0',ok0); lignes.forEach((p,i)=>mark('yP'+p,oksL[i]));
-    mark('y4a',okA); mark('y4b',okA); mark('y4r',okR);
+    mark('y4a',okAB[0]); mark('y4b',okAB[1]); mark('y4r',okR);
     calculOk=ok0&&oksL.every(Boolean)&&okA&&okR;
   } else if(q.meth==='dix'){
     /* 2.2.12 sur les DONNÉES : l'écart, 10 %, 5 % s'il le faut, le facteur,
@@ -9228,11 +9281,11 @@ function checkSynAnswer(live){
     const ok2=v('y2n')!=='' && v('y2d')!=='' && fracEqual(iv('y2n'),iv('y2d'),c.prod,100);
     const f3=parseDecToFrac(v('y3')); const ok3=est(f3,c.res);
     const fa=parseDecToFrac(v('y4a')), fb=parseDecToFrac(v('y4b'));
-    const okA = neg ? (est(fa,c.N)&&est(fb,c.res))
-                    : ((est(fa,c.N)&&est(fb,c.res))||(est(fa,c.res)&&est(fb,c.N)));
+    const okAB = neg ? [est(fa,c.N), est(fb,c.res)] : termesLibres(['y4a','y4b'],[c.N,c.res],est);
+    const okA = okAB[0]&&okAB[1];
     const f5=parseDecToFrac(v('y4r')); const ok5=est(f5,c.fin);
-    mark('y1n',ok1);mark('y1d',ok1);mark('y1v',okV);mark('y2n',ok2);mark('y2d',ok2);
-    mark('y3',ok3);mark('y4a',okA);mark('y4b',okA);mark('y4r',ok5);
+    markFrac('y1n','y1d',ok1,c.P,100);mark('y1v',okV);markFrac('y2n','y2d',ok2,c.prod,100);
+    mark('y3',ok3);mark('y4a',okAB[0]);mark('y4b',okAB[1]);mark('y4r',ok5);
     calculOk=ok1&&okV&&ok2&&ok3&&okA&&ok5;
   }
   const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
@@ -10896,10 +10949,12 @@ function checkAAnswer(live){
   // ⑤ résultat décimal
   const fr=parseDecToFrac(v('a5'));
   const ok5 = !!fr && fr.n*100===q.prodNum*fr.d;
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('a1n',ok1); mark('a1d',ok1); mark('a1p',okP); mark('a1dec',okC); mark('a2n',ok2); mark('a2d',ok2);
-  mark('a3n',ok3); mark('a3d',ok3); mark('a3v',okV);
-  mark('a4n',ok4); mark('a4d',ok4); mark('a5',ok5);
+  /* une case laissée vide ne rougit jamais, en soutien comme en évaluation ;
+     chaque case d'une fraction a son verdict (audit, octobre 2026) */
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
+  marqueFracAncre('a1n','a1d',ok1,q.P,100,soutien); mark('a1p',okP); mark('a1dec',okC); marqueFracAncre('a2n','a2d',ok2,q.coef,100,soutien);
+  marqueFracAncre('a3n','a3d',ok3,q.coef,100,soutien); mark('a3v',okV);
+  marqueFracAncre('a4n','a4d',ok4,q.prodNum,100,soutien); mark('a5',ok5);
   const allOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;                   // étape ③ facultative non comptée
   if(!allOk && soutien){ soutienAgain('aFeedback','aActions','checkAAnswer','aHost'); return; }
   test.locked=true;
@@ -11336,10 +11391,12 @@ function checkVAnswer(live){
   const ok4 = v('v4n')!=='' && v('v4d')!=='' && fracEqual(iv('v4n'),iv('v4d'),c.prodNum,100);
   const fr=parseDecToFrac(v('v5'));
   const ok5 = !!fr && fr.n*100===c.prodNum*fr.d;
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('v1n',ok1); mark('v1d',ok1); mark('v1p',okP); mark('v1dec',okC); mark('v2n',ok2); mark('v2d',ok2);
-  mark('v3n',ok3); mark('v3d',ok3); mark('v3v',okV);
-  mark('v4n',ok4); mark('v4d',ok4); mark('v5',ok5);
+  /* une case laissée vide ne rougit jamais, en soutien comme en évaluation ;
+     chaque case d'une fraction a son verdict (audit, octobre 2026) */
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
+  marqueFracAncre('v1n','v1d',ok1,c.P,100,soutien); mark('v1p',okP); mark('v1dec',okC); marqueFracAncre('v2n','v2d',ok2,c.coef,100,soutien);
+  marqueFracAncre('v3n','v3d',ok3,c.coef,100,soutien); mark('v3v',okV);
+  marqueFracAncre('v4n','v4d',ok4,c.prodNum,100,soutien); mark('v5',ok5);
   const calculOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5; /* étape ③ facultative non comptée */
   const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
   const btn=$('vc'+q.choisi);
@@ -11500,10 +11557,12 @@ function checkDAnswer(live){
   // ⑤ résultat décimal
   const fr=parseDecToFrac(v('d5'));
   const ok5 = !!fr && fr.n*100===q.prodNum*fr.d;
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('d1n',ok1); mark('d1d',ok1); mark('d1p',okP); mark('d1dec',okC); mark('d2n',ok2); mark('d2d',ok2);
-  mark('d3n',ok3); mark('d3d',ok3); mark('d3v',okV);
-  mark('d4n',ok4); mark('d4d',ok4); mark('d5',ok5);
+  /* une case laissée vide ne rougit jamais, en soutien comme en évaluation ;
+     chaque case d'une fraction a son verdict (audit, octobre 2026) */
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
+  marqueFracAncre('d1n','d1d',ok1,q.P,100,soutien); mark('d1p',okP); mark('d1dec',okC); marqueFracAncre('d2n','d2d',ok2,q.coef,100,soutien);
+  marqueFracAncre('d3n','d3d',ok3,q.coef,100,soutien); mark('d3v',okV);
+  marqueFracAncre('d4n','d4d',ok4,q.prodNum,100,soutien); mark('d5',ok5);
   const allOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;
   if(!allOk && soutien){ soutienAgain('dFeedback','dActions','checkDAnswer','dHost'); return; }
   test.locked=true;
@@ -14747,8 +14806,11 @@ function checkLCAnswer(live){
   const ok1    = v('lc1n')!=='' && fracEqual(iv('lc1n'),den('lc1d'),q.P,100);
   const ok1p   = decOk('lc1p','0,',q.P,100);
   const ok1d   = decOk('lc1dec',tete,q.coef,100);
-  const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('lcP',okP); mark('lc1n',ok1); mark('lc1d',ok1); mark('lc1p',ok1p); mark('lc1dec',ok1d);
+  /* une case laissée vide ne rougit jamais, en soutien comme en évaluation,
+     et les deux cases de P/100 ont chacune leur verdict — la convention du
+     facteur entier (dénominateur vide = 1) est celle de ok1 (audit, octobre 2026) */
+  marqueSaufVide('lcP',okP,soutien); marqueFracSaufVide('lc1n','lc1d',q.P,100,soutien);
+  marqueSaufVide('lc1p',ok1p,soutien); marqueSaufVide('lc1dec',ok1d,soutien);
   [...document.querySelectorAll('#lcChoix .pt-choix-btn')].forEach((b,i)=>{
     b.classList.remove('ok','bad');
     if(q.choisi===(i===0?1:-1)) b.classList.add(okSens?'ok':'bad');
@@ -14910,7 +14972,8 @@ function checkCKAnswer(live){
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');
     if(v(id)===''){ el.disabled=!soutien; return; }
     el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;};
-  mark('ck1n',ok1); mark('ck1d',ok1); mark('ck1p',ok1p); if(q.fam!=='pre') mark('ckC',okC);
+  marqueFracSaufVide('ck1n','ck1d',q.P,100,soutien);   /* chaque case de P/100 a son verdict : la paire, puis l'ancre canonique */
+  mark('ck1p',ok1p); if(q.fam!=='pre') mark('ckC',okC);
   const bon=ckBon(q);
   q.opts.forEach((_,i)=>{ const b=$('ckc'+i); if(!b) return;
     b.classList.remove('ok','bad','sol');
