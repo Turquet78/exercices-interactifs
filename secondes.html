@@ -20354,7 +20354,7 @@ function checkFAnswer(live){
     if(q.level==='frac-n5'){ fracDecLive('f5an','f5ad',q.fnA,q.fdA,true); fracDecLive('f5bn','f5bd',q.fnB,q.fdB,true); fracDecLive('f5pn','f5pd',q.pn,q.pd,true); liveColorDec('fDec',q.pn,q.pd); }
     else if(q.level==='frac-n4'){ fracDecLive('f5n','f5d',q.pn,q.pd,true); liveColorDec('fDec',q.pn,q.pd); }
     else if(q.level==='frac-n1'){ liveColorN1('fDec',q.num,q.d); }
-    else if(q.level==='frac-n2'){ fracDecLive('fNum','fDen',q.numer,q.denom,false); }
+    else if(q.level==='frac-n2'){ fracDecLive('fNum','fDen',q.numer,q.denom,true); }
     else { fracDecLive('fNum','fDen',q.pn,q.pd,false); }
     return;
   }
@@ -20430,10 +20430,13 @@ function checkFAnswer(live){
     const filled=eN.value.trim()!==''&&eD.value.trim()!=='';
     const N=parseInt(eN.value.trim(),10), D=parseInt(eD.value.trim(),10);
     given=filled?`${N}/${D}`:null;
-    if(q.level==='frac-n2') correct=filled&&!isNaN(N)&&!isNaN(D)&&D>0&&N*q.denom===q.numer*D;  // toute fraction égale acceptée (même non décimale)
+    /* niveau 2 : la consigne demande une fraction DÉCIMALE — toute fraction égale
+       dont le dénominateur est une puissance de 10 (225/100, 2250/1000), jamais
+       9/4 pour 2,25 ; comme les étapes des niveaux 4 et 5 (isPow10) */
+    if(q.level==='frac-n2') correct=filled&&!isNaN(N)&&!isNaN(D)&&D>0&&isPow10(D)&&N*q.denom===q.numer*D;
     else correct=filled&&!isNaN(N)&&!isNaN(D)&&D!==0&&N*q.pd===q.pn*D;
     marqueFracDec('fNum','fDen',
-      (q.level==='frac-n2')?q.numer:q.pn, (q.level==='frac-n2')?q.denom:q.pd, soutien, false);
+      (q.level==='frac-n2')?q.numer:q.pn, (q.level==='frac-n2')?q.denom:q.pd, soutien, q.level==='frac-n2');
   }
   if(!correct && soutien){
     /* une case qui peut encore mener quelque part reste SANS couleur : quand
