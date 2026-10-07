@@ -51087,6 +51087,56 @@ function pmJetons(scr){
     window[n]=function(){ const r=f.apply(this,arguments); try{ iaBoutons(); }catch(e){} return r; };
   });
 })();
+/* UN NOM POUR CHAQUE CASE (audit d'octobre 2026, A2 — en partie). Un lecteur
+   d'écran annonçait « zone de liste » ou « zone de texte » sans dire laquelle :
+   les menus ↗↘ des tableaux de variation n'avaient aucun nom accessible. Leur nom est tiré de ce
+   qui les entoure, au moment où elles entrent dans la page :
+   · une flèche d'un tableau de variation prend l'étiquette de sa rangée et
+     son rang — « sens de variation de f(x) : flèche 2 sur 3 (↗ ou ↘) »,
+     « Variation de f : flèche 1 sur 2 (↗ ou ↘) » ;
+   · une case prend le texte de sa ligne, chaque case remplacée par « … »,
+     et son rang dans la ligne (la Terminale s'en sert ; ici, seules les
+     flèches sont visées pour l'instant).
+   Un OBSERVATEUR plutôt qu'une retouche de chaque fonction de rendu : le
+   même mécanisme que la Terminale, où ces cases naissent dans des dizaines
+   d'endroits, et un exercice ajouté demain est nommé sans rien déclarer.
+   Une case qui porte déjà son nom (aria-label, aria-labelledby) le garde. */
+const CASES_A_NOMMER='select.vt-sel2';
+function texteDeRangee(r){
+  const c=r.cloneNode(true);
+  c.querySelectorAll('input,select,textarea,math-field').forEach(function(e){ e.replaceWith(' … '); });
+  c.querySelectorAll('button,svg,script,style,.mf-cor').forEach(function(e){ e.remove(); });
+  /* les cellules d'une grille (récurrence) se touchent sans espace : « …≤U… » */
+  c.querySelectorAll('div,td,th,li,p,br').forEach(function(e){ e.after(' '); });
+  return c.textContent.replace(/[\u200b-\u200d\u2060\ufeff]/g,'').replace(/\s+/g,' ').replace(/ ([.,:;)])/g,'$1').replace(/\( /g,'(').trim();
+}
+function nommerCases(racine){
+  if(!racine||!racine.querySelectorAll) return;
+  const els=[].slice.call(racine.querySelectorAll(CASES_A_NOMMER));
+  if(racine.matches&&racine.matches(CASES_A_NOMMER)) els.unshift(racine);
+  els.forEach(function(el){
+    if(el.hasAttribute('aria-label')||el.hasAttribute('aria-labelledby')) return;
+    let nom='';
+    if(el.classList.contains('vt-sel2')){
+      const tr=el.closest('tr'), lab=tr&&tr.querySelector('.vlab');
+      const fl=tr?[].slice.call(tr.querySelectorAll('select.vt-sel2')):[el];
+      const tl=lab?texteDeRangee(lab):'';                /* « f(x) » en Seconde, « Variation de f » en Terminale */
+      nom=(/variation/i.test(tl)?tl:'sens de variation'+(tl?' de '+tl:''))+' : flèche '+(fl.indexOf(el)+1)+' sur '+fl.length+' (↗ ou ↘)';
+    } else {
+      const r=el.closest('.tg-line,.sa2-row,.rc-tr,.rf-ligne,tr,li,p')||el.closest('div');
+      if(!r) return;
+      const voisines=[].slice.call(r.querySelectorAll('input,select,textarea,math-field'));   /* le rang parmi TOUTES les cases de la ligne */
+      let t=texteDeRangee(r); if(t.length>140) t=t.slice(0,139)+'…';
+      nom=t+(voisines.length>1?' — case '+(voisines.indexOf(el)+1)+' sur '+voisines.length:'');
+    }
+    if(nom) el.setAttribute('aria-label',nom);
+  });
+}
+try{
+  nommerCases(document);
+  new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if(n.nodeType===1) nommerCases(n); }); }); })
+    .observe(document.documentElement,{childList:true,subtree:true});
+}catch(e){}
 </script>
 <script type="module">
 import "https://esm.run/mathlive@0.110.0";
