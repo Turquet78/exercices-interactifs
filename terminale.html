@@ -4168,11 +4168,11 @@ function conseilCtxCourant(){
     const q=test.questions[test.idx], a=q.ans;
     const iv=q.leftBrk+' '+q.aLabel+' ; '+q.bLabel+' '+q.rightBrk;
     c='Exercice 4.1 : compléter la justification du TVI à partir d’un tableau de variation. '
-     +'Énoncé : démontrer que l’équation '+q.fname+'('+q.v+') = '+q.kL+' admet une unique solution, notée α, sur ℝ. '
+     +'Énoncé : démontrer que l’équation '+q.fname+'('+q.v+') = '+q.kL+' admet une unique solution, notée α, sur '+tvi2Intervalle(q)+'. '
      +'Description exacte du tableau de variation (tu ne vois pas l’image) : la ligne des '+q.v+' va de '+q.aLabel+' à '+q.bLabel+', avec α entre les deux ; '
      +q.fname+' est continue et strictement '+q.sens+' sur '+iv+', et varie de '+q.vGL+' (en '+q.aLabel+') à '+q.vDL+' (en '+q.bLabel+') ; '
      +'la valeur '+q.kL+' est écrite sur la flèche, en face de α. '
-     +'Phrase à compléter, un menu déroulant par « … » : « Sur [ … ; … ], '+q.fname+'('+q.v+') est … et elle est strictement …, elle varie de … à …. De plus, … est compris entre … et …. D’après le …, '+q.fname+'('+q.v+') = … admet une … solution. » '
+     +'Phrase à compléter, un menu déroulant par « … » : « Sur [ … ; … ], '+q.fname+' est … et elle est strictement …, elle varie de … à …. De plus, … est compris entre … et …. D’après le …, '+q.fname+'('+q.v+') = … admet une … solution. » '
      +'Réponses attendues (à ne JAMAIS révéler) : borne gauche '+a.bg+' ; borne droite '+a.bd+' ; « '+a.cont+' » ; « '+a.sens+' » ; varie de '+a.vg+' à '+a.vd+' ; nombre encadré '+a.enck+' ; bornes de l’encadrement '+a.enclo+' et '+a.enchi+' (les deux ordres sont acceptés) ; théorème « '+a.tvi+' » ; valeur dans l’équation '+a.k+' ; « '+a.uniq+' ».';
     c+=dexpFeuilleCtx([
       ['Intervalle et hypothèses', [['borne gauche','tvi-bg'],['borne droite','tvi-bd'],['mot après « est »','tvi-cont'],['mot après « strictement »','tvi-sens'],['valeur de départ','tvi-vg'],['valeur d’arrivée','tvi-vd']]],
@@ -6622,6 +6622,10 @@ function numFmt(x){ return String(x).replace('.', ',').replace('-', '\u2212'); }
 function vlabel(x){ if(x===Infinity) return '+\u221e'; if(x===-Infinity) return '\u2212\u221e'; return numFmt(x); }
 function tviNumKey(s){ if(s==='\u2212\u221e') return -1e9; if(s==='+\u221e') return 1e9; return parseFloat(s.replace(',', '.').replace('\u2212', '-')); }
 
+/* ±∞ survivent au JSON de la pause : rangés « +inf » / « -inf », relus en nombres.
+   Une vieille pause a rangé « null » à leur place : il ne se relit en rien (NaN). */
+function tviSer(x){ return x===Infinity?'+inf':(x===-Infinity?'-inf':x); }
+function tviDeser(x){ if(x==='+inf') return Infinity; if(x==='-inf') return -Infinity; return (typeof x==='number')?x:NaN; }
 /* Génère un cas : intervalle, sens, valeurs aux bornes, valeur cible k (strictement encadrée). */
 function genTVI(){
   const v = rand(0,1) ? 't' : 'x';
@@ -6666,7 +6670,9 @@ function genTVI(){
     type:'tvi', v, fname, croissante, sens,
     leftBrk, rightBrk, aLabel, bLabel,
     vGL:vlabel(vG), vDL:vlabel(vD), kL:numFmt(k),
-    _vG:vG, _vD:vD, _k:k,
+    /* ±∞ rangés en CHAÎNE : la question part en JSON à la pause, et JSON écrit
+       Infinity « null » — à la reprise, la liste des valeurs proposait « null ». */
+    _vG:tviSer(vG), _vD:tviSer(vD), _k:k,
     ans:{ bg:aLabel, bd:bLabel, cont:'continue', sens:sens, vg:vlabel(vG), vd:vlabel(vD), tvi:'TVI', k:numFmt(k), uniq:'unique', enck:numFmt(k), enclo:vlabel(Math.min(vG,vD)), enchi:vlabel(Math.max(vG,vD)) }
   };
 }
@@ -6702,13 +6708,14 @@ function tviSentence(c){
   const words=['continue','croissante','d\u00e9croissante','TVI','unique'];
   // pool de valeurs proposées (bonnes réponses + quelques distracteurs)
   const pool=new Set([c.aLabel,c.bLabel,c.vGL,c.vDL,c.kL]);
-  [c._k+1,c._k-1,0,c._vG,c._vD].forEach(x=>{ if(isFinite(x)) pool.add(numFmt(x)); });
+  [c._k+1,c._k-1,0,tviDeser(c._vG),tviDeser(c._vD)].forEach(x=>{ if(typeof x==='number' && isFinite(x)) pool.add(numFmt(x)); });
   pool.add('\u2212\u221e'); pool.add('+\u221e');
   const vals=[...pool].sort((a,b)=>tviNumKey(a)-tviNumKey(b));
   const selW=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2014</option>${words.map(w=>`<option value="${esc(w)}">${esc(w)}</option>`).join('')}</select>`;
   const selV=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2014</option>${vals.map(w=>`<option value="${esc(w)}">${esc(w)}</option>`).join('')}</select>`;
   const fn=`<i>${c.fname}</i>(${c.v})`;
-  return `Sur <span class="tvi-int"><b>${c.leftBrk}</b> ${selV('tvi-bg')} ; ${selV('tvi-bd')} <b>${c.rightBrk}</b></span> , ${fn} est ${selW('tvi-cont')} et elle est strictement ${selW('tvi-sens')}, elle varie de ${selV('tvi-vg')} à ${selV('tvi-vd')}.<br>
+  /* c'est f qui est continue, pas le nombre f(x) : l'équation, elle, garde f(x) */
+  return `Sur <span class="tvi-int"><b>${c.leftBrk}</b> ${selV('tvi-bg')} ; ${selV('tvi-bd')} <b>${c.rightBrk}</b></span> , <i>${c.fname}</i> est ${selW('tvi-cont')} et elle est strictement ${selW('tvi-sens')}, elle varie de ${selV('tvi-vg')} à ${selV('tvi-vd')}.<br>
   De plus, ${selV('tvi-enc-k')} est compris entre ${selV('tvi-enc-lo')} et ${selV('tvi-enc-hi')}.<br>
   D\u2019apr\u00e8s le ${selW('tvi-tvi')}, ${fn} ${tEq('=', selV('tvi-k'))} admet une ${selW('tvi-uniq')} solution.`;
 }
@@ -6734,7 +6741,9 @@ function renderTVI(){
   $('tviLiveScore').textContent=test.score;
   $('tviFeedback').textContent=''; $('tviFeedback').className='mp-feedback';
   $('tviActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI()">V\u00e9rifier</button>';
-  $('tviPrompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur \u211d.`;
+  /* l'intervalle du TIRAGE, celui du tableau et des deux premiers menus (« ℝ » quand
+     les deux bornes sont infinies) — « sur ℝ » en dur contredisait le tableau */
+  $('tviPrompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur ${esc(tvi2Intervalle(c))}.`;
   $('tviTable').innerHTML=tviSVG(c);
   $('tviFill').innerHTML=tviSentence(c);
   if(isSoutien()){
@@ -6745,24 +6754,38 @@ function checkTVI(live){
   if(test.locked && !live) return;
   const c=test.questions[test.idx], a=c.ans;
   const map=[['tvi-bg',a.bg],['tvi-bd',a.bd],['tvi-cont',a.cont],['tvi-sens',a.sens],['tvi-vg',a.vg],['tvi-vd',a.vd],['tvi-tvi',a.tvi],['tvi-k',a.k],['tvi-uniq',a.uniq],['tvi-enc-k',a.enck],['tvi-enc-lo',a.enclo],['tvi-enc-hi',a.enchi]];
-  // Les deux bornes de l'encadrement de k sont acceptées dans n'importe quel ordre.
+  /* Les deux bornes de l'encadrement de k sont acceptées dans n'importe quel ordre — et
+     chacune a SON verdict : une borne juste ne rougit pas parce que l'autre est fausse
+     ou vide, et elle compte. Une même valeur choisie deux fois ne vaut qu'une fois : la
+     seconde case est fausse. La correction d'une borne fausse est l'AUTRE valeur que
+     celle que l'élève a déjà juste. */
   const encLo=($('tvi-enc-lo')||{}).value||'', encHi=($('tvi-enc-hi')||{}).value||'';
-  const encPairOk = (encLo===a.enclo && encHi===a.enchi) || (encLo===a.enchi && encHi===a.enclo);
   const encValide = v => (v===a.enclo || v===a.enchi);
+  const okLo = encValide(encLo), okHi = encValide(encHi) && encHi!==encLo;
+  const autre = v => (v===a.enclo ? a.enchi : a.enclo);
+  const solEnc = { 'tvi-enc-lo': okHi ? autre(encHi) : a.enclo, 'tvi-enc-hi': okLo ? autre(encLo) : a.enchi };
+  map.forEach(m=>{ if(solEnc[m[0]]) m[1]=solEnc[m[0]]; });
   let allOk=true;
   map.forEach(([id,good])=>{
     const el=$(id); if(!el) return; const val=el.value;
     let ok;
-    if(id==='tvi-enc-lo'||id==='tvi-enc-hi'){ ok = live ? encValide(val) : encPairOk; }
+    if(id==='tvi-enc-lo') ok = okLo;
+    else if(id==='tvi-enc-hi') ok = live ? encValide(val) : okHi;
     else { ok=(val===good); }
     el.classList.remove('ok','bad');
     if(live){ if(val!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
     if(!ok) allOk=false;
+    /* une case VIDE ne rougit jamais : en soutien elle reste neutre et ouverte ; hors
+       soutien la révélation ci-dessous la remplit en « sol » */
+    if(val==='' && isSoutien()){ el.disabled=false; return; }
     el.classList.add(ok?'ok':'bad'); el.disabled = ok || !isSoutien();
   });
   if(live) return;
   if(!allOk && isSoutien()){
-    $('tviFeedback').textContent='Presque ! Corrige les menus en rouge, puis rev\u00e9rifie.';
+    const vides=map.some(([id])=>{ const el=$(id); return el && el.value===''; }), rouges=map.some(([id])=>{ const el=$(id); return el && el.classList.contains('bad'); });
+    $('tviFeedback').textContent = (vides && !rouges) ? 'Il reste des menus vides : compl\u00e8te-les, puis rev\u00e9rifie.'
+      : vides ? 'Presque ! Corrige les menus en rouge, compl\u00e8te les menus vides, puis rev\u00e9rifie.'
+      : 'Presque ! Corrige les menus en rouge, puis rev\u00e9rifie.';
     $('tviFeedback').className='mp-feedback bad';
     $('tviActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI()">Rev\u00e9rifier</button>';
     return;
