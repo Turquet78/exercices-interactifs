@@ -3539,6 +3539,17 @@ vide, le rappel reste derrière le bouton « 📘 », et la dispense est NOMMÉE
 dans `tests/profils.js` (`pythonAvant.sans`), raison comprise — le banc
 navigateur exige l'encadré de tout exercice du thème qui n'y est pas
 déclaré.
+**Puis les sept exercices d'avant lui ont suivi, le lendemain** (demande de
+Turquet, octobre 2026 : « fais pareil en seconde pour les exercices 6.2.1 à
+6.2.7 », version 421). Même geste, même raison : sur tout le sous-thème
+« Variable et calcul », le rappel déroule, avec les nombres mêmes de la fiche,
+le mécanisme que l'élève doit produire — le tableau de mémoire à remplir
+(6.2.1 à 6.2.4, 6.2.6), ou les trois lignes de l'échange (6.2.5, 6.2.7).
+Les sept emplacements `<kind>Avant` restent vides, le rappel reste derrière
+le bouton « 📘 », et chaque dispense est NOMMÉE dans `tests/profils.js`
+(`pythonAvant.sans`), raison comprise. Le 6.2.9 garde la sienne d'avant
+(le coup de pouce replié) : tout le sous-thème est désormais sans encadré
+d'avant-énoncé.
 
 **Le 6.3.1 ({python-input-def}) perd ses textes d'accompagnement** (demande de
 Turquet, octobre 2026 : « supprimer les textes comme le pdf joint »). Le PDF

@@ -5689,7 +5689,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=420;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=421;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -40528,7 +40528,12 @@ function renderPAP(){
   $('papIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPAP').innerHTML=modeTagHTML();
   $('papLiveScore').textContent=test.score;
-  pyAvant('pap', pyRappelAvantHTML('pap'));
+  /* papAvant reste VIDE, exprès (demande de Turquet, octobre 2026 : « fais pareil
+     pour les exercices 6.2.1 à 6.2.7 », après le 6.2.8) : le rappel déroule,
+     avec les nombres de la fiche, le mécanisme même que l'élève doit produire.
+     Il reste derrière le bouton « 📘 ». Exception nommée dans tests/profils.js
+     (pythonAvant.sans). */
+  pyAvant('pap', '');
   const fig=$('papDessin'); if(fig&&!fig.firstChild) fig.innerHTML=papDessinHTML();
   $('papFeedback').textContent=''; $('papFeedback').className='mp-feedback';
   const l=q.lignes[k];
@@ -40837,7 +40842,12 @@ function renderPVM(){
   $('modeTagPVM').innerHTML=modeTagHTML();
   $('pvmLiveScore').textContent=test.score;
   $('pvmFig').innerHTML=pvmDessinHTML();
-  pyAvant('pvm', pyRappelAvantHTML('pvm'));
+  /* pvmAvant reste VIDE, exprès (demande de Turquet, octobre 2026 : « fais pareil
+     pour les exercices 6.2.1 à 6.2.7 », après le 6.2.8) : le rappel déroule,
+     avec les nombres de la fiche, le mécanisme même que l'élève doit produire.
+     Il reste derrière le bouton « 📘 ». Exception nommée dans tests/profils.js
+     (pythonAvant.sans). */
+  pyAvant('pvm', '');
   $('pvmFeedback').textContent=''; $('pvmFeedback').className='mp-feedback';
   const l=q.lignes[k];
   $('pvmHost').innerHTML=
@@ -41174,7 +41184,12 @@ function renderPPC(){
   $('modeTagPPC').innerHTML=modeTagHTML();
   $('ppcLiveScore').textContent=test.score;
   $('ppcFig').innerHTML=ppcDessinHTML();
-  pyAvant('ppc', pyRappelAvantHTML('ppc'));
+  /* ppcAvant reste VIDE, exprès (demande de Turquet, octobre 2026 : « fais pareil
+     pour les exercices 6.2.1 à 6.2.7 », après le 6.2.8) : le rappel déroule,
+     avec les nombres de la fiche, le mécanisme même que l'élève doit produire.
+     Il reste derrière le bouton « 📘 ». Exception nommée dans tests/profils.js
+     (pythonAvant.sans). */
+  pyAvant('ppc', '');
   $('ppcFeedback').textContent=''; $('ppcFeedback').className='mp-feedback';
   const l=q.lignes[k];
   $('ppcHost').innerHTML=
@@ -41444,7 +41459,12 @@ function renderPPD(){
   $('modeTagPPD').innerHTML=modeTagHTML();
   $('ppdLiveScore').textContent=test.score;
   if(!$('ppdFig').firstChild) $('ppdFig').innerHTML=ppdFigureHTML();
-  pyAvant('ppd', pyRappelAvantHTML('ppd'));
+  /* ppdAvant reste VIDE, exprès (demande de Turquet, octobre 2026 : « fais pareil
+     pour les exercices 6.2.1 à 6.2.7 », après le 6.2.8) : le rappel déroule,
+     avec les nombres de la fiche, le mécanisme même que l'élève doit produire.
+     Il reste derrière le bouton « 📘 ». Exception nommée dans tests/profils.js
+     (pythonAvant.sans). */
+  pyAvant('ppd', '');
   $('ppdFeedback').textContent=''; $('ppdFeedback').className='mp-feedback';
   const l=q.lignes[k];
   $('ppdHost').innerHTML=
@@ -41757,7 +41777,12 @@ function renderPEV(){
   $('modeTagPEV').innerHTML=modeTagHTML();
   $('pevLiveScore').textContent=test.score;
   if(!$('pevFig').firstChild) $('pevFig').innerHTML=pevFigureHTML();
-  pyAvant('pev', pyRappelAvantHTML('pev'));
+  /* pevAvant reste VIDE, exprès (demande de Turquet, octobre 2026 : « fais pareil
+     pour les exercices 6.2.1 à 6.2.7 », après le 6.2.8) : le rappel déroule,
+     avec les nombres de la fiche, le mécanisme même que l'élève doit produire.
+     Il reste derrière le bouton « 📘 ». Exception nommée dans tests/profils.js
+     (pythonAvant.sans). */
+  pyAvant('pev', '');
   $('pevFeedback').textContent=''; $('pevFeedback').className='mp-feedback';
   const l=q.lignes[k];
   $('pevHost').innerHTML=
@@ -42181,7 +42206,12 @@ function renderPPM(){
   $('ppmIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPPM').innerHTML=modeTagHTML();
   $('ppmLiveScore').textContent=test.score;
-  pyAvant('ppm', pyRappelAvantHTML('ppm'));
+  /* ppmAvant reste VIDE, exprès (demande de Turquet, octobre 2026 : « fais pareil
+     pour les exercices 6.2.1 à 6.2.7 », après le 6.2.8) : le rappel déroule,
+     avec les nombres de la fiche, le mécanisme même que l'élève doit produire.
+     Il reste derrière le bouton « 📘 ». Exception nommée dans tests/profils.js
+     (pythonAvant.sans). */
+  pyAvant('ppm', '');
   $('ppmFig').innerHTML=ppmEtiquetteHTML();
   $('ppmFeedback').textContent=''; $('ppmFeedback').className='mp-feedback';
   if(test.ppmPhase==='verifier') renderPPMVerifier(q); else renderPPMDeviner(q);
@@ -42598,7 +42628,12 @@ function renderPEL(){
   $('modeTagPEL').innerHTML=modeTagHTML();
   $('pelLiveScore').textContent=test.score;
   $('pelFig').innerHTML=pelFigHTML();
-  pyAvant('pel', pyRappelAvantHTML('pel'));
+  /* pelAvant reste VIDE, exprès (demande de Turquet, octobre 2026 : « fais pareil
+     pour les exercices 6.2.1 à 6.2.7 », après le 6.2.8) : le rappel déroule,
+     avec les nombres de la fiche, le mécanisme même que l'élève doit produire.
+     Il reste derrière le bouton « 📘 ». Exception nommée dans tests/profils.js
+     (pythonAvant.sans). */
+  pyAvant('pel', '');
   $('pelFeedback').textContent=''; $('pelFeedback').className='mp-feedback';
   $('pelActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pelValidate" onclick="checkPEL()">Exécuter</button>';
   $('pelHost').innerHTML=
