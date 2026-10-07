@@ -13196,11 +13196,15 @@ function checkEQ(live){
   if(test.locked && !live) return;
   const c=test.questions[test.idx], cases=eqCases(c), r=eqVerdicts(c);
   let allOk=true, anyFilled=false;
+  /* la valeur interdite −d/c écrite en fraction : « 2/−2 » pour « −2/2 » est juste (racineFracOk) */
+  const efn=$('eq-fn'), efd=$('eq-fd');
+  const paireOk=!!(efn && efd) && racineFracOk(efParse(efn.value), efParse(efd.value), c.dd, c.cd);
   cases.forEach(x=>{
     const el=$(x.id); if(!el) return;
     let raw, ok;
     if(x.type==='mf'){ raw=dexpCellValue(x.id); ok=!!r.verdicts[x.id]; }
     else if(x.type==='sel'){ raw=String(el.value||''); ok=(raw===x.good); }
+    else if(paireOk && (x.id==='eq-fn'||x.id==='eq-fd')){ raw=String(el.value||''); ok=true; }
     else { raw=String(el.value||''); const v=efParse(raw); ok=numOkTol(v,x.good,x.tol); }   /* valeur approchée au dixième (x.tol pour exiger plus fin) */
     if(raw.trim()!=='') anyFilled=true;
     if(x.type==='mf' && live) return;   /* en direct, les champs math sont juges par eqLiveMf a la sortie de case */
@@ -16335,6 +16339,17 @@ function genS1L3(i){
   return { level:3, a, b, root, rootVal:root, rootStr:numFmt(root), negb:0, coefHtml:s1Coef(a),
            exprHtml:s1ExprHTML(a,b), exprText:s1ExprText(a,b), sl:(a>0?'\u2212':'+'), sr:(a>0?'+':'\u2212') };
 }
+/* LA RACINE −b/a ÉCRITE EN FRACTION n/d (1.1 niveaux 2-3, 1.4, 1.5, 5.4) : la paire
+   est juste dès que d ≠ 0, n/d vaut la racine et |n| = |b|, |d| = |a| — « 6/2 » pour
+   « −6/−2 », le signe déplacé ou simplifié n'est pas une erreur. Quand la racine est 0
+   (b = 0), « 0/d » est juste pour tout d ≠ 0 (« 0/1 » pour −x). n et d sont des
+   nombres déjà lus (null si la case est vide ou illisible) ; une paire qui ne se lit
+   pas en entier rend false, et chaque case retombe sur son verdict propre. */
+function racineFracOk(n, d, b, a){
+  if(typeof n!=='number' || typeof d!=='number' || !isFinite(n) || !isFinite(d) || Math.abs(d)<1e-9) return false;
+  if(b===0) return numOkTol(n,0);
+  return numOkTol(Math.abs(n),Math.abs(b)) && numOkTol(Math.abs(d),Math.abs(a)) && numOkTol(n/d, -b/a);
+}
 /* racine correcte : numérique (entier/fraction ≈ rootVal) ou symbolique (e, π…) */
 function s1RootOK(raw, c){
   if(c.rootKind==='sym'){
@@ -16546,21 +16561,29 @@ function checkS1(live){
     ? [['s1-num','frac',c.negb],['s1-den','frac',c.a],['s1-val','frac',c.rootVal],['s1-place','sign','fin'],['s1-root','frac',c.rootVal],['s1-sl','sign',c.sl],['s1-sr','sign',c.sr]]
     : [['s1-num','int',c.negb],['s1-den','int',c.a],['s1-val','frac',c.rootVal],['s1-place','sign','fin'],['s1-root','frac',c.rootVal],['s1-sl','sign',c.sl],['s1-sr','sign',c.sr]];
   let allOk=true, anyFilled=false; const verd={};
+  /* niveaux 2 et 3 : la fraction −b/a se juge d'abord comme une PAIRE (racineFracOk) */
+  const paireOk = c.level!==1 && !!$('s1-num') && !!$('s1-den')
+    && racineFracOk(tgParseFrac($('s1-num').value), tgParseCoef($('s1-den').value), -c.negb, c.a);
   specs.forEach(([id,type,good])=>{
     const el=$(id); if(!el) return;
     const raw=el.value; let ok;
     if(type==='sign'){ ok=(raw===good); }
     else if(type==='rootl1'){ ok=s1RootOK(raw,c); }
+    else if(paireOk && (id==='s1-num'||id==='s1-den')){ ok=true; }
     else { const v=(id==='s1-den'?tgParseCoef(raw):(type==='frac'?tgParseFrac(raw):tgParse(raw))); ok=numOkTol(v,good); }   /* valeur approchée au dixième acceptée */
     if(raw.trim()!=='') anyFilled=true;
     el.classList.remove('ok','bad');
     if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
-    if(!ok) allOk=false; verd[id]=ok; el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
+    if(!ok) allOk=false; verd[id]=ok;
+    /* une case VIDE ne rougit jamais : en soutien elle reste neutre et ouverte ; hors
+       soutien, corrCase la remplit en « sol » */
+    if(raw.trim()==='' && isSoutien()){ el.disabled=false; return; }
+    el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
   });
   if(live) return;
   if(!anyFilled){ $('s1Feedback').textContent='Complète au moins une case avant de vérifier.'; $('s1Feedback').className='mp-feedback'; S1_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
   if(!allOk && isSoutien()){
-    $('s1Feedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('s1Feedback').textContent='Presque ! Corrige les cases en rouge et complète celles qui manquent, puis revérifie.';
     $('s1Feedback').className='mp-feedback bad';
     $('s1Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkS1()">Revérifier</button>';
     return;
@@ -17513,6 +17536,11 @@ function spCaseOk(q,x){
   if(x.calc){
     const good=spCalcCible(q,x);
     if(String(el.value||'').trim()==='') return spFacultatif(q,x);   /* d\u00e9nominateur 1 : vide accept\u00e9 */
+    /* la paire n/d de la colonne : « 6/2 » pour « −6/−2 », « 0/1 » pour « 0/−1 » (racineFracOk) */
+    if(x.calc==='n' || x.calc==='d'){
+      const F=q.fac[spColFact(q,x.col)], en=$('sp-n'+x.col), ed=$('sp-d'+x.col);
+      if(en && ed && racineFracOk(tgParse(en.value), tgParseCoef(ed.value), F.b, F.a)) return true;
+    }
     const v=(x.calc==='d')?tgParseCoef(el.value):(x.calc==='v'?tgParseFrac(el.value):tgParse(el.value));
     return numOkTol(v,good);
   }
