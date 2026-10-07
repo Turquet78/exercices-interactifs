@@ -4321,7 +4321,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   <section class="screen" id="scr-ens">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEns"></span><span class="q-idx" id="ensIdx">Question 1 / 10</span></span>
-      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="ensLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ensLiveScore">0</b></span>
     </div>
     <div class="card">
       <p class="mp-instr">Complète chaque ligne avec <b>∈</b> (appartient) ou <b>∉</b> (n'appartient pas).</p>
@@ -6651,13 +6651,18 @@ function pick(a){return a[rand(0,a.length-1)];}
    figer la page. Le contrôle universel du banc relit chaque exercice. */
 const CLE_HORS=['v','ci','intro','unit','g','ordre','ordreExpr','opts','bon','rep','choisi','selL','selR'];
 function cleQuestion(q){ return JSON.stringify(q,function(k,v){ return CLE_HORS.indexOf(k)>=0?undefined:v; }); }
-function distincte(qs, fabrique){
-  const vues=qs.map(cleQuestion); let q, essais=0;
-  do{ q=fabrique(); }while(vues.indexOf(cleQuestion(q))>=0 && ++essais<200);
+/* La clé par défaut compare les DONNÉES telles qu'elles sont rangées. Un
+   exercice dont deux écritures disent la même chose — 18/3 et 30/5 valent 6,
+   (3, 7) et (7, 3) donnent les mêmes produits, trois nombres mélangés dans un
+   autre ordre — passe SA clé (troisième argument), qui identifie la valeur. */
+function distincte(qs, fabrique, cle){
+  cle=cle||cleQuestion;
+  const vues=qs.map(cle); let q, essais=0;
+  do{ q=fabrique(); }while(vues.indexOf(cle(q))>=0 && ++essais<200);
   return q;
 }
-function distinctes(n, fabrique){
-  const qs=[]; for(let i=0;i<n;i++) qs.push(distincte(qs, function(){ return fabrique(undefined, i); }));
+function distinctes(n, fabrique, cle){
+  const qs=[]; for(let i=0;i<n;i++) qs.push(distincte(qs, function(){ return fabrique(undefined, i); }, cle));
   return qs;
 }
 function testIdOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.test) return d.test; return 'derivees'; }
@@ -6676,7 +6681,14 @@ function restartCurrentTest(){
   const t=TESTS[currentTestId]; if(t&&t.start) t.start(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
-  $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+  /* « Corrige les cases en rouge » n'est vrai que s'il y en a : en soutien, une
+     case laissée vide reste neutre, et une page dont il ne manque qu'une case
+     vide (une ligne réductible de {reduire-somme}) n'a RIEN de rouge — même
+     règle que le 1.6. On cherche le rouge dans tout l'écran, message du
+     retour excepté : un rouge hors de l'hôte garde l'ancien message. */
+  const fb=$(fbId), hote=host&&$(host), ecran=hote&&(hote.closest('.screen')||hote);
+  const rouge=!ecran || [].some.call(ecran.querySelectorAll('.bad'), function(e){ return e!==fb && !e.classList.contains('mp-feedback'); });
+  fb.textContent=rouge ? 'Presque ! Corrige les cases en rouge, puis revérifie.' : 'Complète ta réponse, puis revérifie.';
   $(fbId).className='mp-feedback bad';
   /* les écrans portés de la Première ont déjà leur rangée d'aide (iaBoutons) : pas de doublon */
   const rangeeAide=$(actionsId)&&$(actionsId).parentNode&&$(actionsId).parentNode.querySelector('.ia-row');
@@ -7913,9 +7925,9 @@ const QIA_SUGG={
   pcol:["Que vaut une part de la colonne de droite ?","Pourquoi les deux colonnes ont-elles le même nombre de parts ?","Comment lire le résultat sur la colonne ?","Fais-moi un rappel de cours pour cet exercice."],
   fp:["Pourquoi 3/4 égale 75 % ?","Comment passer d’une fraction à un pourcentage ?","Que vaut une part quand la colonne est divisée en 5 ?","Pourquoi 1/2 et 50 % ont-ils la même hauteur ?"],
   psyn:["Quelle méthode choisir : coefficient ou calcul direct ?","Comment reconnaître s\u2019il s\u2019agit de prendre, d\u2019augmenter ou de diminuer ?","Comment tester une proposition ?","Pourquoi les deux méthodes donnent-elles le même résultat ?"],
-  ens:["C\u2019est quoi, un nombre decimal ?","C\u2019est quoi, un nombre rationnel ?","Pourquoi 1/3 n\u2019est pas decimal ?","Que veut dire le symbole \u2208 ?"],
-  def:["Comment ecrire une definition d\u2019ensemble ?","Quelle difference entre \u2115 et \u2124 ?","Pourquoi un exemple ne suffit pas ?"],
-  pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de repondre ?"],
+  ens:["C\u2019est quoi, un nombre d\u00e9cimal ?","C\u2019est quoi, un nombre rationnel ?","Pourquoi 1/3 n\u2019est pas d\u00e9cimal ?","Que veut dire le symbole \u2208 ?"],
+  def:["Comment \u00e9crire une d\u00e9finition d\u2019ensemble ?","Quelle diff\u00e9rence entre \u2115 et \u2124 ?","Pourquoi un exemple ne suffit pas ?"],
+  pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de r\u00e9pondre ?"],
   lv:["Comment lire les variations d\u2019une courbe ?","Que veut dire croissante ?","Comment remplir un tableau de variations ?"],
   ls:["Comment trouver o\u00f9 f (x) = 0 sur le graphique ?","Comment lire le signe de f sur un intervalle ?","Pourquoi \u00e9crit-on 0 sous une racine ?"],
   lsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?"],
@@ -8156,7 +8168,7 @@ const RAP_PCTC=`<b>Composer deux pourcentages</b><br>
 Trois boîtes reliées par deux flèches : <b>[le total]</b> → <b>[un sous-groupe]</b> → <b>[un sous-groupe DU sous-groupe]</b>. Chaque flèche porte l’écriture décimale du pourcentage qu’elle applique — <b>× \\(\\frac{P_1}{100}\\)</b> puis <b>× \\(\\frac{P_2}{100}\\)</b> — exactement comme dans {pourcentage-boite}.<br>
 Passer par les deux étapes ou faire le calcul en un seul coup donne le même résultat : \\(\\frac{P_1}{100}\\times\\frac{P_2}{100}=\\frac{P_1\\times P_2}{10000}\\). Ce produit des deux écritures décimales est le <b>coefficient multiplicateur global</b> : il va directement du total au dernier sous-groupe, sans passer par celui du milieu — c’est la deuxième rangée du schéma.<br>
 Le pourcentage du dernier sous-groupe, par rapport au total, n’est <b>PAS</b> \\(P_1+P_2\\) : on n’additionne jamais deux pourcentages qui ne portent pas sur la même chose. C’est \\(\\frac{P_1\\times P_2}{100}\\) — le produit des deux pourcentages, divisé par 100.<br>
-Toutes les cases sont toujours vides, même le total, qui vaut toujours 100 % : c’est en le récrivant qu’on montre qu’on a compris le schéma.`;
+Les boîtes ne portent que leur nom : tout se lit en pourcentage du total, qui vaut 100 %. On complète les <b>deux flèches</b> (les écritures décimales), puis la <b>rangée du dessous</b> — on y reprend les deux écritures décimales et on écrit leur produit —, et enfin la <b>phrase de conclusion</b>, avec le pourcentage que demande l’énoncé. Quand c’est l’un des deux pourcentages qui manque, on le retrouve par une division : \\(0{,}06\\div0{,}30=0{,}2\\), soit 20 %.`;
 const RAP_PCS=`<b>Lire un schéma de pourcentages</b><br>
 Le même schéma que dans {pourcentage-chaine} : <b>[le total]</b> → <b>[un sous-groupe]</b> → <b>[un sous-groupe DU sous-groupe]</b>, et chaque flèche porte l’écriture décimale du pourcentage qu’elle applique. Mais cette fois, c’est le schéma qui donne les nombres, et c’est à toi de les lire : <b>× 0,30</b> sur la première flèche veut dire « 30 % du total » — c’est × \\(\\frac{30}{100}\\) —, <b>× 0,20</b> sur la seconde veut dire « 20 % du sous-groupe » (× \\(\\frac{20}{100}\\)), jamais 20 % du total.<br>
 La grande flèche du dessous va directement du total au dernier sous-groupe : son coefficient est le <b>PRODUIT</b> des deux écritures décimales, \\(0{,}30\\times0{,}20=0{,}06\\), c’est-à-dire <b>6 %</b> du total. On n’additionne jamais deux pourcentages qui ne portent pas sur la même chose.<br>
@@ -8420,36 +8432,36 @@ par emprunt, laisse-les vides.<br>
 V\u00e9rifie l\u2019ordre de grandeur \u00e0 la fin : 347 + 58, c\u2019est \u00ab un peu plus de 400 \u00bb.
 Une r\u00e9ponse \u00e0 3\u00a0000 ou \u00e0 40 saute alors aux yeux.`;
 const RAP_ENS=`<b>Les ensembles de nombres</b><br>
-Ils sont <b>emboites</b> : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>.<br>
+Ils sont <b>emboîtés</b> : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>.<br>
 <b>ℕ</b> : les entiers positifs — 0, 1, 2, 3…<br>
-<b>ℤ</b> : les entiers, positifs ou negatifs — −5, 0, 7…<br>
-<b>𝔻</b> : les decimaux, ceux qui s’ecrivent avec un nombre <i>fini</i> de chiffres apres la virgule — 2,5 ; −0,75.<br>
-<b>ℚ</b> : les rationnels, ceux qui s’ecrivent comme une fraction de deux entiers — \\(\\frac{1}{3}\\) ; \\(-\\frac{7}{4}\\).<br>
-<b>ℝ</b> : tous les nombres de la droite graduee, y compris √2 et π.<br>
-Comme les ensembles sont emboites, un nombre de ℕ appartient aussi a ℤ, a 𝔻, a ℚ et a ℝ.<br>
-On ecrit <b>∈</b> pour « appartient a » et <b>∉</b> pour « n’appartient pas a ».`;
+<b>ℤ</b> : les entiers, positifs ou négatifs — −5, 0, 7…<br>
+<b>𝔻</b> : les décimaux, ceux qui s’écrivent avec un nombre <i>fini</i> de chiffres après la virgule — 2,5 ; −0,75.<br>
+<b>ℚ</b> : les rationnels, ceux qui s’écrivent comme une fraction de deux entiers, de dénominateur non nul — \\(\\frac{1}{3}\\) ; \\(-\\frac{7}{4}\\).<br>
+<b>ℝ</b> : tous les nombres de la droite graduée, y compris √2 et π.<br>
+Comme les ensembles sont emboîtés, un nombre de ℕ appartient aussi à ℤ, à 𝔻, à ℚ et à ℝ.<br>
+On écrit <b>∈</b> pour « appartient à » et <b>∉</b> pour « n’appartient pas à ».`;
 const RAP_ENS2=`<b>Les ensembles de nombres — les cas qui trompent</b><br>
-Rappel : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>, et un nombre appartient a tous les ensembles qui contiennent le plus petit auquel il appartient.<br>
-<b>Une fraction n’est pas forcement en dehors de ℤ</b> : \\(\\frac{6}{3}=2\\), donc \\(\\frac{6}{3}\\) ∈ ℕ.<br>
-<b>Une ecriture decimale illimitee periodique reste rationnelle</b> : 0,333… = \\(\\frac{1}{3}\\), donc c’est un element de ℚ mais pas de 𝔻.<br>
-<b>\\(\\frac{1}{3}\\) n’est pas decimal</b> : aucune ecriture finie apres la virgule. \\(\\frac{1}{3}\\) ∈ ℚ, \\(\\frac{1}{3}\\) ∉ 𝔻.<br>
-<b>√2 et π ne sont pas rationnels</b> : ils appartiennent a ℝ et a aucun des quatre autres.<br>
-<b>√9 = 3</b> : une racine peut tres bien tomber sur un entier — regarde toujours la valeur, pas l’ecriture.<br>
-Piege classique : juger d’apres la forme ecrite au lieu de calculer la valeur.`;
-const RAP_DEF=`<b>Definir un ensemble de nombres</b><br>
-Une definition dit <i>quels nombres</i> l’ensemble contient, pas des exemples.<br>
-<b>ℕ</b> : l’ensemble des entiers naturels, c’est-a-dire des entiers positifs ou nuls.<br>
-<b>ℤ</b> : l’ensemble des entiers relatifs, c’est-a-dire des entiers positifs, negatifs ou nuls.<br>
-<b>𝔻</b> : l’ensemble des nombres decimaux, ceux qui s’ecrivent avec un nombre fini de chiffres apres la virgule.<br>
-<b>ℚ</b> : l’ensemble des nombres rationnels, ceux qui s’ecrivent comme quotient de deux entiers.<br>
-<b>ℝ</b> : l’ensemble des nombres reels, c’est-a-dire tous les nombres de la droite graduee.<br>
-Piege classique : repondre par un exemple (« 2 ; 3 ; 4 ») au lieu d’une definition.`;
+Rappel : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>, et un nombre appartient à tous les ensembles qui contiennent le plus petit auquel il appartient.<br>
+<b>Une fraction n’est pas forcément en dehors de ℤ</b> : \\(\\frac{6}{3}=2\\), donc \\(\\frac{6}{3}\\) ∈ ℕ.<br>
+<b>Une écriture décimale illimitée périodique reste rationnelle</b> : 0,333… = \\(\\frac{1}{3}\\), donc c’est un élément de ℚ mais pas de 𝔻.<br>
+<b>\\(\\frac{1}{3}\\) n’est pas décimal</b> : aucune écriture finie après la virgule. \\(\\frac{1}{3}\\) ∈ ℚ, \\(\\frac{1}{3}\\) ∉ 𝔻.<br>
+<b>√2 et π ne sont pas rationnels</b> : ils appartiennent à ℝ, mais à aucun des quatre autres.<br>
+<b>√9 = 3</b> : une racine peut très bien tomber sur un entier — regarde toujours la valeur, pas l’écriture.<br>
+Piège classique : juger d’après la forme écrite au lieu de calculer la valeur.`;
+const RAP_DEF=`<b>Définir un ensemble de nombres</b><br>
+Une définition dit <i>quels nombres</i> l’ensemble contient, pas des exemples.<br>
+<b>ℕ</b> : l’ensemble des entiers naturels, c’est-à-dire des entiers positifs ou nuls.<br>
+<b>ℤ</b> : l’ensemble des entiers relatifs, c’est-à-dire des entiers positifs, négatifs ou nuls.<br>
+<b>𝔻</b> : l’ensemble des nombres décimaux, ceux qui s’écrivent avec un nombre fini de chiffres après la virgule.<br>
+<b>ℚ</b> : l’ensemble des nombres rationnels, ceux qui s’écrivent comme quotient de deux entiers, le dénominateur étant non nul.<br>
+<b>ℝ</b> : l’ensemble des nombres réels, c’est-à-dire tous les nombres de la droite graduée.<br>
+Piège classique : répondre par un exemple (« 2 ; 3 ; 4 ») au lieu d’une définition.`;
 const RAP_PGE=`<b>Trouver le plus petit ensemble qui contient un nombre</b><br>
-Les ensembles sont emboites : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>. Le « plus petit » est donc le premier de cette liste auquel le nombre appartient.<br>
-<b>① Calcule d’abord la valeur</b> : \\(\\frac{6}{3}\\) vaut 2, √9 vaut 3. L’ecriture n’est pas la valeur.<br>
-<b>② Puis descends la liste</b> : est-il entier positif ? → ℕ. Sinon entier ? → ℤ. Sinon a-t-il un nombre fini de decimales ? → 𝔻. Sinon s’ecrit-il en fraction d’entiers ? → ℚ. Sinon → ℝ.<br>
+Les ensembles sont emboîtés : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>. Le « plus petit » est donc le premier de cette liste auquel le nombre appartient.<br>
+<b>① Calcule d’abord la valeur</b> : \\(\\frac{6}{3}\\) vaut 2, √9 vaut 3. L’écriture n’est pas la valeur.<br>
+<b>② Puis descends la liste</b> : est-il entier positif ? → ℕ. Sinon entier ? → ℤ. Sinon a-t-il un nombre fini de décimales ? → 𝔻. Sinon s’écrit-il en fraction d’entiers (dénominateur non nul) ? → ℚ. Sinon → ℝ.<br>
 Exemples : −3 → ℤ ; 2,5 → 𝔻 ; \\(\\frac{1}{3}\\) → ℚ ; π → ℝ.<br>
-Piege classique : repondre ℝ parce que c’est toujours vrai — on demande le <i>plus petit</i>.`;
+Piège classique : répondre ℝ parce que c’est toujours vrai — on demande le <i>plus petit</i>.`;
 const RAP_LV=`<b>Lire les variations d’une courbe</b><br>
 On parcourt la courbe <b>de gauche a droite</b>, dans le sens des x croissants.<br>
 <b>La courbe monte</b> → la fonction est <b>croissante</b> sur cet intervalle → fleche <b>↗</b>.<br>
@@ -11079,7 +11091,7 @@ function lvPickSubset(arr, m){
   return idx.slice(0,m).sort((a,b)=>a-b).map(i=>arr[i]);
 }
 
-/* Génère 9 valeurs entières f(-4..4) formant k segments monotones (k=2 ou 3),
+/* Génère 7 valeurs entières f(-3..3) formant k segments monotones (k=2 ou 3),
    valeurs dans [-3,3], changements de sens à des abscisses entières. */
 function lvGenPts(k){
   const FALL2=[[-3,-1,1,3,1,-1,-3],[3,1,-1,-3,-1,1,3],[-2,0,2,3,2,0,-2]];
@@ -11117,7 +11129,7 @@ function lvGenPts(k){
   return {pts:fb.slice()};
 }
 
-/* À partir des 9 valeurs, retrouve nœuds (bornes + sommets) et segments avec leur sens. */
+/* À partir des 7 valeurs, retrouve nœuds (bornes + sommets) et segments avec leur sens. */
 function lvAnalyze(pts){
   const xs=[-3,-2,-1,0,1,2,3];
   const d=[]; for(let i=0;i<6;i++) d.push(Math.sign(pts[i+1]-pts[i]));
@@ -12396,6 +12408,15 @@ function adrMaj(){
   const v=$('adr-v'); if(v) v.disabled=!pose||fige;
   const aucun=!!(v && v.value==='aucun');
   ['adr-n-0','adr-n-1','adr-n-2'].forEach(function(id){ const el=$(id); if(el) el.disabled=!pose||fige||aucun; });
+  adrSujet();
+}
+/* Le sujet de la phrase s'accorde avec le verbe CHOISI : « L’antécédent de 3
+   est 4 », « Les antécédents de 3 sont … » — jamais « Les antécédents de 3
+   est 4 » (constat M59 de l'audit). Il suit le choix de l'élève, sans rien
+   lui souffler : c'est le verbe qu'il choisit qui est jugé. */
+function adrSujet(){
+  const q=test.questions[test.idx], s=$('adr-suj'), v=$('adr-v'); if(!q || !s) return;
+  s.textContent=(v && v.value==='est' ? 'L’antécédent de ' : 'Les antécédents de ')+numFmt(q.y0);
 }
 function startAdr(){
   const qs=adrTirage();
@@ -12420,7 +12441,7 @@ function renderAdr(){
   const inp=id=>'<input id="'+id+'" class="lv-in" inputmode="numeric" autocomplete="off">';
   $('adrBody').innerHTML=
     '<div class="img-line"><span class="pts-case pim-case" id="adr-dr"></span> <span class="pts-case pim-case" id="adr-pts"></span></div>'
-    +'<div class="img-line">Les antécédents de '+Y+' <select id="adr-v" class="itv-sel adr-verbe"><option value="">—</option><option value="est">est</option><option value="sont">sont</option><option value="aucun">n’existent pas</option></select> '
+    +'<div class="img-line"><span id="adr-suj">Les antécédents de '+Y+'</span> <select id="adr-v" class="itv-sel adr-verbe"><option value="">—</option><option value="est">est</option><option value="sont">sont</option><option value="aucun">n’existent pas</option></select> '
     +inp('adr-n-0')+' ; '+inp('adr-n-1')+' ; '+inp('adr-n-2')+'</div>';
   $('adrBody').querySelectorAll('input').forEach(el=>{ el.addEventListener('input',adrLive); el.addEventListener('change',adrLive); });
   const v=$('adr-v'); if(v) v.addEventListener('change',function(){ adrMaj(); adrLive(); });
@@ -12505,7 +12526,7 @@ function submitAdr(){
   }
   test.locked=true; clearTimeout(test.qTimer);
   lvMarkFields(res, true);
-  corrCase('adr-v', res.vAtt, res.vOk);
+  corrCase('adr-v', res.vAtt, res.vOk); adrSujet();
   pastille('adr-dr',res.drOk); pastille('adr-pts',res.ptOk);
   /* la droite fausse passe au rouge ; la bonne hauteur (vert pointillé) et
      les croisements attendus (anneaux verts) se montrent avec le reste de la
@@ -13102,9 +13123,11 @@ function eqgMilieu(q){
   return 1;
 }
 function eqgGen(){
-  /* 4000 essais : le tirage étendu ne réussit qu'environ un essai sur 220 —
-     mesuré — et à 800 le repli sortait une séance sur 38. */
-  for(let att=0;att<4000;att++){
+  /* 8000 essais : le tirage ne réussit qu'environ un essai sur 800 — mesuré
+     en octobre 2026 sur 3000 séances, depuis que k doit être un vrai
+     croisement et que f n'a plus de palier (un sur 220 au premier jet, avant
+     ces deux exigences) ; à 4000 le repli sortait une séance sur 190. */
+  for(let att=0;att<8000;att++){
     const s=pick([1,-1]), c=pick([-2,-1,0,1,2]);
     const x1=pick([-2,-1,0]);
     const x2=pick([x1+2,x1+3,x1+4].filter(v=>v<=2));
@@ -13123,6 +13146,14 @@ function eqgGen(){
       pts[x+3]=pick(cands);
     }
     if(!ok) continue;
+    /* JAMAIS DE PALIER : deux valeurs voisines égales feraient un morceau de
+       courbe horizontal — « plate sur [0 ; 1] » —, ce que les autres tirages
+       du thème (lvGenPts, adrGenPts) excluent. Les hauteurs interrogées
+       l'écartaient déjà (jamais deux solutions voisines), si bien qu'aucune
+       correction n'était fausse ; mais une séance sur sept montrait ce
+       dessin que le reste du thème ne montre jamais (constat M60 de
+       l'audit). */
+    if(pts.some(function(v,i){ return i && v===pts[i-1]; })) continue;
     /* k : exactement DEUX solutions, jamais traversé entre deux graduations —
        la règle d'antCibles : entre deux graduations la spline est monotone,
        une hauteur n'est traversée qu'entre deux valeurs qui l'encadrent */
@@ -14046,8 +14077,8 @@ function cfxConsignes(q){
     {id:'cfx-c0', txt:'f ( '+itvNum(q.a1)+' ) = '+itvNum(q.w[q.a1-CFX_X0])},
     {id:'cfx-c1', txt:'L’image de '+itvNum(q.a2)+' est '+itvNum(q.w[q.a2-CFX_X0])+'.'},
     {id:'cfx-c2', txt:'L’antécédent de '+itvNum(q.ya)+' est '+itvNum(cfxB(q))+'.'},
-    {id:'cfx-c3', txt:'L’équation '+fx+' = 0 admet pour solution S = { '+S0.map(itvNum).join(' ; ')+' }.'},
-    {id:'cfx-c4', txt:'L’inéquation '+fx+' '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' admet pour solution S = '+cfxEnsTexte(S5)+'.'}
+    {id:'cfx-c3', txt:'L’équation '+fx+' = 0 a pour ensemble de solutions S = { '+S0.map(itvNum).join(' ; ')+' }.'},
+    {id:'cfx-c4', txt:'L’inéquation '+fx+' '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' a pour ensemble de solutions S = '+cfxEnsTexte(S5)+'.'}
   ];
 }
 /* Chaque consigne se juge sur la courbe de l'ÉLÈVE seule — jamais sur le
@@ -17612,7 +17643,7 @@ function renderMMT(){
   $('mmtSub').textContent='Le même tableau pour les '+test.questions.length+' questions — seul l’intervalle change.';
   /* le tableau du 2.1, rendu en LECTURE : rien à remplir, tout à lire */
   $('mmtTable').innerHTML=varTableHTML(gsvAnalyze(q.pts), 'mmt-v', '', true);
-  $('mmtInstr').textContent='Lis le tableau de variation de la fonction f, défini sur [ −6 ; 6 ], puis complète. Entre deux flèches, f ne fait que monter (ou que descendre) : le maximum et le minimum d’un morceau sont donc parmi les valeurs ÉCRITES dans le tableau. L’encadrement reprend ces deux nombres.';
+  $('mmtInstr').textContent='Lis le tableau de variation de la fonction f, définie sur [ −6 ; 6 ], puis complète. Entre deux flèches, f ne fait que monter (ou que descendre) : le maximum et le minimum d’un morceau sont donc parmi les valeurs ÉCRITES dans le tableau. L’encadrement reprend ces deux nombres.';
   const iv=mmxIntervalle(q);
   const inp=function(id,aria){ return '<input id="'+id+'" class="lv-in" inputmode="numeric" autocomplete="off" aria-label="'+aria+'">'; };
   $('mmtBody').innerHTML=
@@ -21832,7 +21863,11 @@ const PCS_PCTS=(()=>{ const t=[]; for(let p=5;p<=95;p+=5) t.push(p); return t; }
 /* Huit mises en situation : les trois de la fiche (club de sport, classe,
    entreprise — au mot près), puis cinq reprises des libellés de CTX_CHAINE,
    pour que le schéma se lise avec les mêmes boîtes qu'en 4.1.9. Chaque phrase
-   a deux tournures ; `champ` est la case à compléter, posée AVANT le « % ». */
+   a deux tournures ; `champ` est la case à compléter, posée AVANT le « % ».
+   Une exception au « mot près » : la boîte de l'entreprise s'appelle
+   « Femmes », comme ses phrases et sa dernière boîte (« Les femmes cadres ») —
+   « Filles » sous des phrases qui parlent de femmes faisait lire deux groupes
+   (constat M45 de l'audit). */
 const CTX_PCS=[
   { total:'Club de sport', niv1:'Filles', niv2:'Basket', inter:'Les filles qui font du basket',
     intro:'Dans un club de sport, on s’intéresse aux filles, puis, parmi elles, à celles qui font du basket.',
@@ -21844,7 +21879,7 @@ const CTX_PCS=[
     s1:[c=>`Dans la classe, il y a ${c} % de filles.`, c=>`Les filles représentent ${c} % de la classe.`],
     s2:[c=>`Parmi les filles, ${c} % ont la moyenne.`, c=>`${c} % des filles ont la moyenne.`],
     s3:[c=>`Les filles ayant la moyenne représentent ${c} % de la classe.`, c=>`Dans la classe, il y a ${c} % de filles qui ont la moyenne.`] },
-  { total:'Entreprise', niv1:'Filles', niv2:'Cadres', inter:'Les femmes cadres',
+  { total:'Entreprise', niv1:'Femmes', niv2:'Cadres', inter:'Les femmes cadres',
     intro:'Dans une entreprise, on s’intéresse aux femmes, puis, parmi elles, à celles qui sont cadres.',
     s1:[c=>`Dans l’entreprise, il y a ${c} % de femmes.`, c=>`Les femmes représentent ${c} % des salariés de l’entreprise.`],
     s2:[c=>`${c} % des femmes sont des cadres.`, c=>`Parmi les femmes, ${c} % sont cadres.`],
@@ -29349,7 +29384,30 @@ function ensResultForQ(q){
   return {sym:'=', html:s};
 }
 /* ---- Générateurs (un par catégorie pédagogique) ---- */
+/* LES PIÈGES DU RAPPEL SORTENT AUSSI DU TIRAGE (constat M44 de l'audit) :
+   RAP_ENS2 et RAP_PGE enseignent que √9 = 3 — « une racine peut très bien
+   tomber sur un entier » —, mais toute racine tirée était irrationnelle, si
+   bien que « racine ⇒ ℝ seulement » passait toujours. Un tiers des questions
+   d'entiers (deux places positives, une négative : une par séance en
+   moyenne) écrit maintenant l'entier en racine — √4, √9 … √81, ou −√9 — et
+   une sur quatre de ces places positives pose 0, l'entier naturel qu'on
+   oublie. Les places d'irrationnels restent irrationnelles. */
+const ENS_PART_RACINE=1/3;
+function ensGenRacineEntiere(neg){
+  if(!neg && Math.random()<0.25){
+    const m=ensRatMembership(0,1);
+    return {inner:'<span class="ens-plain">0</span>', plain:'0', valueStr:'0', p:0, q:1, noRes:true, sets:m,
+      why:'0 est un entier naturel (ℕ commence à 0) \u2014 il appartient \u00e0 '+ENS_SYM.N+', '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+' et '+ENS_SYM.R+'.'};
+  }
+  const k=rand(2,9), n=k*k, p=neg?-k:k, m=ensRatMembership(p,1);
+  const ecr=(neg?ENS_MINUS:'')+'\u221A'+n, val=(neg?ENS_MINUS:'')+k;
+  return {inner:(neg?'<span class="ens-plain">'+ENS_MINUS+'</span>':'')+ensRadInner(n), plain:ecr, valueStr:val, p:p, q:1, sets:m,
+    why:ecr+' = '+val+' car '+k+' \u00d7 '+k+' = '+n+' : une racine peut tomber juste. '
+      +(neg ? 'C\u2019est un entier relatif n\u00e9gatif \u2014 dans '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+', '+ENS_SYM.R+' mais pas dans '+ENS_SYM.N+'.'
+            : 'C\u2019est un entier naturel \u2014 il appartient \u00e0 '+ENS_SYM.N+', '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+' et '+ENS_SYM.R+'.')};
+}
 function ensGenPosInt(){
+  if(Math.random()<ENS_PART_RACINE) return ensGenRacineEntiere(false);
   if(Math.random()<0.4){                                   // piège : dénominateur décimal, a/0,5 = 2a
     const a=rand(2,9), p=2*a, q=1, m=ensRatMembership(p,q);
     return {inner:ensFracInner(String(a),'0,5'), plain:a+'/0,5', valueStr:String(p), p:p, q:q, sets:m,
@@ -29360,6 +29418,7 @@ function ensGenPosInt(){
     why:a+'/'+b+' = '+k+' : entier naturel \u2014 il appartient \u00e0 '+ENS_SYM.N+', '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+' et '+ENS_SYM.R+'.'};
 }
 function ensGenNegInt(){
+  if(Math.random()<ENS_PART_RACINE) return ensGenRacineEntiere(true);
   const k=rand(2,9), b=pick([2,3,4,5]), a=k*b, [p,q]=ensReduce(-a,b), m=ensRatMembership(p,q);
   return {inner:ensFracInner(ENS_MINUS+a,String(b)), plain:ENS_MINUS+a+'/'+b, valueStr:ENS_MINUS+k, p:p, q:q, sets:m,
     why:ENS_MINUS+a+'/'+b+' = '+ENS_MINUS+k+' : entier relatif n\u00e9gatif \u2014 dans '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+', '+ENS_SYM.R+' mais pas dans '+ENS_SYM.N+' (les naturels sont positifs).'};
@@ -29475,18 +29534,21 @@ function appDec(n,k){                            /* 290,2 -> « 2,9 » : zéros 
 }
 function appBorne(b){ return appDec(b.n,b.k); }
 function appIntervalle(iv){ return (iv.fg?'[':']')+appBorne(iv.a)+' ; '+appBorne(iv.b)+(iv.fd?']':'['); }
+/* L'unité s'accorde : pluriel dès 2 — « 0,2 millier », « 1,5 millier »,
+   mais « 2 milliers », « 4,5 centaines ». */
+function appUnite(v){ return v.u+(Math.abs(v.n)>=2*Math.pow(10,v.k)?'s':''); }
 function appNombreHTML(v){
   if(v.t==='rac')  return ensRadInner(v.n);
   if(v.t==='pi')   return '<span class="ens-plain">π</span>';
   if(v.t==='frac') return ensFracInner(String(v.p), String(v.q));
-  if(v.t==='mult') return '<span class="ens-plain">'+appDec(v.n,v.k)+'&nbsp;'+v.u+'</span>';
+  if(v.t==='mult') return '<span class="ens-plain">'+appDec(v.n,v.k)+'&nbsp;'+appUnite(v)+'</span>';
   return '<span class="ens-plain">'+appDec(v.n,v.k)+'</span>';
 }
 function appNombrePlain(v){
   if(v.t==='rac')  return '√'+v.n;
   if(v.t==='pi')   return 'π';
   if(v.t==='frac') return v.p+'/'+v.q;
-  if(v.t==='mult') return appDec(v.n,v.k)+' '+v.u;
+  if(v.t==='mult') return appDec(v.n,v.k)+' '+appUnite(v);
   return appDec(v.n,v.k);
 }
 /* La valeur décimale, quand elle n'est pas déjà écrite ainsi — c'est tout
@@ -44017,7 +44079,11 @@ function plcGen(){
   return { p:2, a:{n:107,k:2}, b:{n:108,k:2},
            nombres:[{n:1075,k:3},{n:1009,k:3},{n:11,k:1}] };
 }
-function plcBuildQuestions(){ const qs=[]; for(let i=0;i<6;i++) qs.push(plcGen()); return qs; }
+/* Deux questions sont la même quand elles posent les mêmes graduations et les
+   mêmes trois nombres, dans n'importe quel ordre : la clé les TRIE. */
+function plcCleNombres(nombres){ return nombres.map(function(v){ const r=plcReduit(v.n,v.k); return r.n+'e'+r.k; }).sort().join(' '); }
+function plcCle(q){ return plcCleNombres([q.a,q.b])+' | '+plcCleNombres(q.nombres); }
+function plcBuildQuestions(){ return distinctes(6, plcGen, plcCle); }
 function plcCases(q){
   return q.nombres.map(function(v,i){ return {id:'plc-s-'+i, bon:plcZone(v,q)}; });
 }
@@ -44291,9 +44357,17 @@ function mltGen(){
 
        n1/d1 ÷ n2/d2 = n1/d1 × d2/n2 = (n1 × d2)/(d1 × n2) = P/Q
 
-   Le tirage a deux conditions de plus que celui du produit. n2 ne peut pas
-   valoir 0 — on ne divise pas par zéro, et la seconde fraction ne peut pas non
-   plus valoir 1, sinon il n'y a rien à faire. Et c'est encore le PRODUIT
+   n2 ne peut pas valoir 0 — on ne divise pas par zéro (rand(1,9) le tient),
+   et la seconde fraction ne peut pas valoir 1, sinon il n'y a rien à faire.
+   Ce second bord n'a PAS de garde-fou à lui : si n2 = d2 = k, le quotient
+   vaut n1·k/(d1·k), de PGCD au moins k ≥ 2, et la condition d'irréductibilité
+   l'écarte déjà — le « n2 === d2 » qui le répétait n'écartait jamais rien, et
+   il est retiré, comme le journal des fractions l'avait écrit (le banc exige
+   la propriété sur le tirage). Ses deux voisins l'étaient aussi, pour la même
+   raison : d2 vaut au moins 2, donc « 1 tout rond » (P = Q, irréductible,
+   donc P = Q = 1, donc d2 = 1) et « rien à multiplier en haut » (n1 = d2 = 1)
+   ne sortent jamais — le banc exige les trois bords sur le tirage, sans
+   ligne morte qui ferait croire qu'on les vérifie ici. C'est donc le PRODUIT
    INVERSÉ qui doit être irréductible : ni « chaque fraction irréductible » ni
    la condition du produit direct ne l'impliquent. */
 function divGen(){
@@ -44301,9 +44375,6 @@ function divGen(){
     const n1=rand(1,9), d1=rand(2,9), n2=rand(1,9), d2=rand(2,9);
     const P=n1*d2, Q=d1*n2;
     if(mltPgcd(P,Q)!==1) continue;      /* le quotient doit être irréductible */
-    if(P===Q) continue;                 /* 1 tout rond : l'écriture finale devient ambiguë */
-    if(n2===d2) continue;               /* diviser par 1 n'est pas un calcul */
-    if(n1===1 && d2===1) continue;      /* rien à multiplier en haut */
     return {n1:n1,d1:d1,n2:n2,d2:d2,a1:n1,a2:d2,b1:d1,b2:n2,P:P,Q:Q};
   }
   return {n1:3,d1:5,n2:2,d2:7,a1:3,a2:7,b1:5,b2:2,P:21,Q:10};
@@ -45438,7 +45509,7 @@ function ordGen(){
   /* les trois nombres de la fiche, si le tirage n'aboutissait pas */
   return { nombres:[{n:11,k:1},{n:1075,k:3},{n:1009,k:3}] };
 }
-function ordBuildQuestions(){ const qs=[]; for(let i=0;i<6;i++) qs.push(ordGen()); return qs; }
+function ordBuildQuestions(){ return distinctes(6, ordGen, function(q){ return plcCleNombres(q.nombres); }); }
 function ordDecMax(q){ return Math.max.apply(null, q.nombres.map(function(v){ return v.k; })); }
 /* L'ordre, calculé par la fonction qui corrige : les indices des trois
    nombres, du plus petit au plus grand. */
@@ -45997,9 +46068,12 @@ function rpdCases(q){
 /* Le coefficient se propose en TROIS valeurs — la bonne, et ses deux
    voisines +1 et -1 — plutôt qu'en saisie libre (demande de Turquet,
    septembre 2026) : comme le signe et la fin de l'écriture, c'est un choix,
-   pas un texte à taper. */
+   pas un texte à taper. Un coefficient de 1 (x × x, −x × −x) n'a pas de
+   voisine en dessous : « 0 » n'est pas un coefficient de x² — 0x², c'est 0, et
+   l'élève lirait un piège qui n'en est pas un. Il se propose alors avec 2 et 3. */
 function rpdCoefOpts(coef){
-  return ensShuffle([coef, coef+1, coef-1]).map(function(v){ return '<option value="'+v+'">'+v+'</option>'; }).join('');
+  const vois=(coef>1) ? [coef+1, coef-1] : [coef+1, coef+2];
+  return ensShuffle([coef].concat(vois)).map(function(v){ return '<option value="'+v+'">'+v+'</option>'; }).join('');
 }
 function rpdJuste(c, el){
   if(!el) return false;
@@ -48888,7 +48962,9 @@ function mrlS(s){ return s>0?'+':'−'; }
 function mrlGen(pris){
   for(let essai=0; essai<200; essai++){
     const a=1+Math.floor(Math.random()*9), b=1+Math.floor(Math.random()*9);
-    const cle=a+'-'+b;
+    /* (3, 7) et (7, 3) posent les quatre mêmes produits : la clé est la
+       paire NON ORDONNÉE */
+    const cle=Math.min(a,b)+'-'+Math.max(a,b);
     if(pris.indexOf(cle)>=0) continue;
     pris.push(cle);
     return {a:a, b:b};
@@ -50003,13 +50079,17 @@ function ctxApp(q){
   return {nombre:'', contexte:c};
 }
 
+function ensCleValeur(q){ return q.irr ? q.plain : q.p+'/'+q.q; }
 function ensBuildQuestions(){
   // 10 exemples couvrant les 6 catégories (entiers +/-, décimaux +/-, rationnel non décimal, irrationnel)
   const gens=[ensGenPosInt, ensGenPosInt, ensGenNegInt,
     ()=>ensGenDec(false), ()=>ensGenDec(false), ()=>ensGenDec(true),
     ensGenFrac, ensGenFrac, ensGenIrr, ensGenIrr];
-  const qs=[], seen={};
-  for(const gen of gens){ let q, t=0; do{ q=gen(); t++; }while(seen[q.plain] && t<25); seen[q.plain]=true; qs.push(q); }
+  /* Deux écritures du même nombre (18/3 et 30/5, 2/4 et 0,5) sont la même
+     question : la clé est la VALEUR — le rationnel réduit p/q, ou l'écriture
+     d'un irrationnel (√n, π). */
+  const qs=[];
+  for(const gen of gens) qs.push(distincte(qs, gen, ensCleValeur));
   return ensShuffle(qs);
 }
 /* ---- Cycle de vie de l'exercice ---- */

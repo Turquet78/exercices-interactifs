@@ -4592,3 +4592,14 @@ fausse, « 20,5 », « 20,0 », modèle simulé qui se trompe dans les deux sens
 3 000 tirages par QCM sans leurre impossible) ; reste connu : quand le sens
 ne laisse rien d'un côté, les trois leurres tombent du même côté (18 % des
 tirages de `genPctDepart`), ce que des entiers ne permettent pas d'éviter.
+
+**Le rappel de {pourcentage-chaine} décrivait des cases disparues (audit
+d'octobre 2026, M45).** `RAP_PCTC` disait « toutes les cases sont toujours
+vides, même le total, qui vaut toujours 100 % » : les boîtes ne portent plus
+que leur nom. Il décrit maintenant l'écran tel qu'il est — les deux flèches,
+la rangée du dessous, la phrase de conclusion — et la division qui retrouve
+un pourcentage manquant. Dans {pourcentage-schema}, le contexte
+« Entreprise » nommait sa boîte « Filles » sous des phrases qui parlent de
+femmes (« au mot près » de la fiche, qui se trompait là) : la boîte s'appelle
+« Femmes ». Le contrôle du tirage de {pourcentage-schema} exige que chaque
+boîte du premier sous-groupe se lise dans ses phrases.

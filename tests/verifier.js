@@ -7371,6 +7371,7 @@ function multiplierFractions(w, P){
         if(g.n2===0){ vus.push(eti+' : on divise par zéro'); break; }
         if(g.n2===g.d2){ vus.push(eti+' : on divise par 1, il n\\'y a rien à faire'); break; }
         if(g.P===g.Q){ vus.push(eti+' : le quotient vaut 1 tout rond'); break; }
+        if(g.a1===1 && g.a2===1){ vus.push(eti+' : rien à multiplier en haut'); break; }
       }
       /* la correction : l'inverse se juge case par case, et le MESSAGE nomme
          l'erreur visée — multiplier sans retourner la seconde fraction. */
@@ -13854,6 +13855,13 @@ function antecedentsDroite(w, P){
     /* copie juste à TROIS antécédents, nombres dans un AUTRE ordre ;
        toutes les réponses comptées, et les cases affichées le disent */
     poser(Q3, 3, [-3,-1,4], 'sont', [-1,4,-3]);
+    /* le sujet de la phrase s'accorde avec le verbe choisi (constat M59 de
+       l'audit) : jamais « Les antécédents de 3 est … » */
+    { const suj=function(){ return (document.getElementById('adr-suj')||{}).textContent||''; };
+      if(!/^Les antécédents de /.test(suj())) vus.push('verbe « sont » : le sujet se lit « '+suj()+' »');
+      const ve=document.getElementById('adr-v'); ve.value='est'; adrMaj();
+      if(!/^L’antécédent de /.test(suj())) vus.push('verbe « est » : le sujet se lit « '+suj()+' »');
+      ve.value='sont'; adrMaj(); }
     let avant=test.score; submitAdr(); clearTimeout(test.fbTimer);
     if(test.score-avant!==6) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 6');
     ['adr-dr','adr-pts','adr-v','adr-n-0','adr-n-1','adr-n-2'].forEach(function(id){
@@ -15967,8 +15975,9 @@ function multiplierRelatifs(w, P){
     for(let i=0;i<500 && !vus.length;i++){
       const qs=mrlBuildQuestions();
       if(qs.length!==3){ vus.push(qs.length+' pages au lieu de 3'); break; }
-      const cles=qs.map(function(q){ return q.a+'-'+q.b; });
-      if(new Set(cles).size!==qs.length){ vus.push('deux pages tirent la même paire : '+cles.join(' ')); break; }
+      /* la paire NON ORDONNÉE : (3, 7) et (7, 3) posent les quatre mêmes produits */
+      const cles=qs.map(function(q){ return Math.min(q.a,q.b)+'-'+Math.max(q.a,q.b); });
+      if(new Set(cles).size!==qs.length){ vus.push('deux pages tirent la même paire (à l\\'ordre près) : '+qs.map(function(q){ return q.a+'-'+q.b; }).join(' ')); break; }
       qs.forEach(function(q){
         [q.a,q.b].forEach(function(n){ if(!(Number.isInteger(n) && n>=1 && n<=9)) vus.push('nombre tiré hors de 1…9 : '+n); });
         vusA[q.a]=1; vusB[q.b]=1;
@@ -16250,6 +16259,19 @@ function reduireSomme(w, P){
     if(peint('red-regle')!=='bleu') vus.push('red-regle, vraiment manquante, peinte en '+peint('red-regle'));
     const fbVide=(document.getElementById('redFeedback')||{}).textContent||'';
     if(!/manquait 1 case\\b/.test(fbVide)) vus.push('le message compte mal les cases manquantes à côté d\\'une case vide correcte : '+fbVide);
+    /* en SOUTIEN, une case réductible laissée vide reste neutre : le message
+       ne parle pas de « cases en rouge » quand il n'y en a pas (constat M43
+       de l'audit) — et il les nomme dès qu'il y en a une */
+    currentMode='soutien';
+    poser(Object.assign({},JUSTE,{'red-r-0':''}));
+    checkRedAnswer();
+    const fbS=(document.getElementById('redFeedback')||{}).textContent||'';
+    if(peint('red-r-0')!=='rien') vus.push('soutien : la case vide red-r-0 est peinte en '+peint('red-r-0'));
+    if(/rouge/.test(fbS)) vus.push('soutien : « '+fbS+' » alors qu\\'aucune case n\\'est rouge');
+    poser(Object.assign({},JUSTE,{'red-r-0':'6x'}));
+    checkRedAnswer();
+    if(!/rouge/.test((document.getElementById('redFeedback')||{}).textContent||'')) vus.push('soutien : le message ne nomme plus les cases en rouge quand il y en a');
+    currentMode='train';
     /* une réponse illisible est fausse, pas vide */
     poser(Object.assign({},JUSTE,{'red-r-0':'5x+'}));
     checkRedAnswer();
@@ -17194,6 +17216,11 @@ function reduireProduit(w, P){
     const optsC0=[...(document.getElementById('rpd-c-0')||{options:[]}).options].map(function(o){ return o.value; }).filter(Boolean);
     if(optsC0.slice().sort().join(',')!==[String(COEF[0]-1),String(COEF[0]),String(COEF[0]+1)].sort().join(','))
       vus.push('rpd-c-0 ne propose pas '+(COEF[0]-1)+', '+COEF[0]+' et '+(COEF[0]+1)+' : '+optsC0.join(', '));
+    /* b. x × x : le coefficient vaut 1, et « 0 » n'est pas un coefficient de
+       x² (constat M42 de l'audit) — la liste propose 1, 2 et 3 */
+    const optsC1=[...(document.getElementById('rpd-c-1')||{options:[]}).options].map(function(o){ return o.value; }).filter(Boolean);
+    if(optsC1.indexOf('0')>=0 || optsC1.slice().sort().join(',')!=='1,2,3')
+      vus.push('rpd-c-1 (x × x) propose '+optsC1.join(', ')+' au lieu de 1, 2 et 3');
     poser(Object.assign({}, JUSTE_D, {'rpd-c-0':String(COEF[0]+1)}), IDS_D); checkRpdAnswer();
     if(peint('rpd-c-0')!=='rouge') vus.push('le coefficient '+(COEF[0]+1)+' au lieu de '+COEF[0]+' est peint en '+peint('rpd-c-0'));
 
@@ -19734,6 +19761,9 @@ function equationGraphique(w, P){
         noteRang(rangsParFormeG, eqgFormeInGk(qs[5]), q0.permG.indexOf(eqgFormeInGk(qs[5])));
       }
       dessins.add(JSON.stringify([q0.pts,q0.s,q0.c])); opsVus.add(q0.op); opsFVus.add(q0.opf); opsGVus.add(q0.opg);
+      /* jamais de palier : deux valeurs voisines égales dessinent un morceau
+         horizontal que le reste du thème ne montre jamais (constat M60) */
+      for(let i=1;i<7;i++){ if(q0.pts[i]===q0.pts[i-1]){ vus.push('f porte un palier sur [ '+(i-4)+' ; '+(i-3)+' ] : '+q0.pts.join(',')); break; } }
       const g=function(x){ return q0.s*x+q0.c; };
       /* les croisements : exactement 2, sur des graduations, jamais au bord,
          hauteur lisible, et le signe de f-g change bien à chacun */
@@ -34219,6 +34249,13 @@ function pourcentageSchema(w, P){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='pourcentage-schema';
     const attendu=PCS_NB, ordres={}, ordresPhrases={}, impairs={};
+    /* la boîte du premier sous-groupe porte le mot de ses phrases : « Filles »
+       sous des phrases qui parlent de femmes faisait lire deux groupes
+       (constat M45 de l'audit, contexte « Entreprise ») */
+    CTX_PCS.forEach(function(c){
+      const ph=c.s1.concat(c.s2).map(function(f){ return f('…'); }).join(' ').toLowerCase();
+      if(ph.indexOf(c.niv1.toLowerCase())<0) vus.push('contexte « '+c.total+' » : la boîte « '+c.niv1+' » ne se lit dans aucune de ses phrases');
+    });
     for(let t=0;t<40 && !vus.length;t++){
       startPcs();
       if(test.qId!=='pourcentage-schema') vus.push('tirage '+t+' : identité « '+test.qId+' » au lieu de « pourcentage-schema »');
@@ -37709,6 +37746,100 @@ function seconde(w){
       });
     }
     return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- Deux écritures du même nombre sont la même question ----------------
+     Constat M41 de l'audit (octobre 2026) : une séance des ensembles de
+     nombres posait 18/3 PUIS 30/5 — deux écritures de 6, la même question
+     sous un autre habit — dans 7 % des séances ; la clé était l'écriture. La
+     clé d'égalité est désormais la VALEUR (ensCleValeur) : on la recalcule
+     ICI, par la fraction réduite, sans la fonction de la page. Et
+     {placer-intervalle} et {ordre-croissant} tirent par distinctes(), avec
+     une clé qui trie les nombres — leur doublon est trop rare pour qu'un
+     échantillon le voie : c'est le source de leur tirage qui se lit. Le
+     libellé du score des ensembles, enfin, dit ce qu'il compte : des cases
+     (M39), pas des exercices parfaits. */
+  verifierEval(w, 'thème 2 : une valeur jamais posée deux fois, des cases comptées comme des cases, des rappels accentués, des unités accordées', `(function(){
+    const vus=[];
+    if(typeof ensBuildQuestions!=='function') return 'ensBuildQuestions() introuvable';
+    const pg=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    const val=function(q){ if(q.irr) return q.plain; const g=pg(q.p,q.q), s=q.q<0?-1:1; return (s*q.p/g)+'/'+(s*q.q/g); };
+    let n=0;
+    for(let i=0;i<2000 && !vus.length;i++){
+      const qs=ensBuildQuestions(), vs=qs.map(val);
+      n+=qs.length;
+      const j=vs.findIndex(function(v,k){ return vs.indexOf(v)!==k; });
+      if(j>=0) vus.push('une séance pose deux fois la valeur '+vs[j]+' : '+qs.filter(function(q){ return val(q)===vs[j]; }).map(function(q){ return q.plain; }).join(' et '));
+    }
+    if(!n) return 'aucune question tirée : le contrôle ne mesure rien';
+    [['plcBuildQuestions','placer-intervalle'],['ordBuildQuestions','ordre-croissant']].forEach(function(f){
+      const fn=window[f[0]];
+      if(typeof fn!=='function') vus.push(f[0]+' introuvable');
+      else if(!/distincte/.test(String(fn))) vus.push('{'+f[1]+'} tire ses questions sans distinctes()');
+    });
+    /* les rappels du thème 2 s'écrivent avec leurs accents (M37), et ℚ s'y
+       définit avec un dénominateur non nul (M38) */
+    const RAPS={RAP_ENS:RAP_ENS, RAP_ENS2:RAP_ENS2, RAP_DEF:RAP_DEF, RAP_PGE:RAP_PGE,
+      'QIA_SUGG.ens':QIA_SUGG.ens.join(' '), 'QIA_SUGG.def':QIA_SUGG.def.join(' '), 'QIA_SUGG.pge':QIA_SUGG.pge.join(' ')};
+    const SANS_ACCENT=/(^|[^\\wÀ-ÿ])(emboites?|decima(l|ux)|negatifs?|[Pp]iege|c[’']est-a-dire|ecri(t|vent|re|ture)|s[’']ecri|apres|graduee|reels|[Dd]efini(r|tion)|repondre|difference|forcement|illimitee|periodique|element|tres|appartient a|d[’']apres)(?![\\wÀ-ÿ])/;
+    Object.keys(RAPS).forEach(function(k){ const m=SANS_ACCENT.exec(RAPS[k]); if(m) vus.push(k+' écrit « '+m[2]+' » sans accent'); });
+    ['RAP_ENS','RAP_DEF'].forEach(function(k){
+      const l=RAPS[k].split('<br>').filter(function(x){ return /ℚ/.test(x) && /rationnels/.test(x); })[0]||'';
+      if(!/non nul/.test(l)) vus.push(k+' définit ℚ sans « dénominateur non nul »');
+    });
+    /* {appartient-intervalle-2} : l'unité s'accorde, pluriel dès 2 (M40) */
+    if(typeof appNombrePlain==='function'){
+      [[{t:'mult',n:2,k:1,u:'millier'},'0,2 millier'],[{t:'mult',n:15,k:1,u:'millier'},'1,5 millier'],
+       [{t:'mult',n:20,k:1,u:'millier'},'2 milliers'],[{t:'mult',n:45,k:1,u:'centaine'},'4,5 centaines'],
+       [{t:'mult',n:30,k:1,u:'dizaine'},'3 dizaines']].forEach(function(c){
+        const lu=appNombrePlain(c[0]); if(lu!==c[1]) vus.push('« '+lu+' » au lieu de « '+c[1]+' »'); });
+    }
+    const sc=document.getElementById('ensLiveScore'), lbl=sc && sc.parentNode.querySelector('.score-lbl');
+    if(!lbl) vus.push('le score des ensembles n\\'a pas de libellé');
+    else if(!/case/i.test(lbl.textContent)) vus.push('le score des ensembles compte des cases sous le libellé « '+lbl.textContent+' »');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- Les pièges du rappel sortent du tirage --------------------------------
+     Constat M44 de l'audit (octobre 2026) : RAP_ENS2 et RAP_PGE enseignent
+     « √9 = 3 », mais toute racine tirée était irrationnelle — « une racine
+     n'est que dans ℝ » passait à tous les coups. On tire des séances et on
+     exige les quatre pièges (0, une racine positive qui tombe juste, une
+     négative, et l'irrationnelle qui reste), à une fréquence raisonnable :
+     au moins une séance sur trois en pose un, jamais toutes. Chaque racine
+     entière est rejugée ICI par une seconde méthode — la racine carrée de
+     JavaScript sur le radicande lu dans l'écriture — contre q.sets. */
+  verifierEval(w, 'les ensembles de nombres tirent aussi les pièges du rappel (0, √9, −√9)', `(function(){
+    const vus=[];
+    if(typeof ensBuildQuestions!=='function') return 'ensBuildQuestions() introuvable';
+    const vu={zero:0, rac:0, racNeg:0, irr:0}; let seances=0, avecPiege=0;
+    for(let i=0;i<1500;i++){
+      const qs=ensBuildQuestions(); seances++; let piege=false;
+      qs.forEach(function(q){
+        const m=/^([\u2212-]?)\u221A(\\d+)$/.exec(q.plain||'');
+        if(q.plain==='0'){ vu.zero++; piege=true;
+          if(!(q.sets.N && q.sets.Z && q.sets.D && q.sets.Q && q.sets.R)) vus.push('0 n\\'est pas dans les cinq ensembles'); }
+        if(!m) return;
+        const r=Math.sqrt(+m[2]), neg=!!m[1];
+        if(Number.isInteger(r)){
+          piege=true; if(neg) vu.racNeg++; else vu.rac++;
+          const v=neg?-r:r, att={N:v>=0, Z:true, D:true, Q:true, R:true};
+          Object.keys(att).forEach(function(k){ if(q.sets[k]!==att[k]) vus.push(q.plain+' : '+k+' '+(q.sets[k]?'∈':'∉')+' au lieu de '+(att[k]?'∈':'∉')); });
+          if(q.irr) vus.push(q.plain+' est marqué irrationnel');
+        } else {
+          vu.irr++;
+          if(!q.irr || q.sets.Q) vus.push(q.plain+' est rangé dans ℚ');
+        }
+      });
+      if(piege) avecPiege++;
+      if(vus.length) break;
+    }
+    if(!vus.length){
+      Object.keys(vu).forEach(function(k){ if(!vu[k]) vus.push('le piège « '+k+' » ne sort jamais en '+seances+' séances'); });
+      const f=avecPiege/seances;
+      if(f<1/3 || f>0.95) vus.push('les pièges sortent dans '+Math.round(f*100)+' % des séances');
+    }
+    return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
   /* ---- La note d'une question compte ses cases JUSTES, pas seulement ses

@@ -232,3 +232,49 @@ reste du schéma — emboîtement, 0,1 ; −12,748 ; 3/2 = 1,5 ; 358/100 ; 1/3 =
 bancs : c'est la seule pièce du site qu'aucun contrôle ne relit, et la
 chronique le dit ici pour qu'on y pense la prochaine fois qu'elle change.
 
+
+**Les rappels du thème 2 avaient perdu leurs accents, et ℚ son dénominateur
+non nul (audit d'octobre 2026, M37 et M38).** `RAP_ENS`, `RAP_ENS2`,
+`RAP_DEF`, `RAP_PGE` et les questions proposées des ensembles écrivaient
+« emboites », « decimaux », « Piege », « c'est-a-dire » ; et ℚ s'y définissait
+comme « fraction de deux entiers » sans dire que le dénominateur est non nul
+— la fonction Edge l'écrivait, la page non. Tout est réaccentué, et ℚ porte
+sa condition dans les deux définitions. Le contrôle « thème 2 : une valeur
+jamais posée deux fois, des cases comptées comme des cases, des rappels
+accentués, des unités accordées » relit les sept textes contre une liste de mots sans accent et exige « non
+nul » sur la ligne de ℚ ; l'ancien texte le fait rougir neuf fois.
+
+**L'écran des ensembles compte des CASES, et son libellé le dit (M39).** Le
+score montait de 0 à 5 par question sous « Exercices parfaits » : il s'écrit
+désormais « Cases justes », comme les 46 autres écrans qui comptent des
+cases. Le même contrôle lit le libellé posé à côté de `#ensLiveScore`.
+
+**Deux écritures du même nombre sont la même question (M41).** Une séance
+d'ensembles posait 18/3 puis 30/5 — deux écritures de 6 — dans 7 % des cas :
+la clé de `ensBuildQuestions` était l'écriture. `distincte()` accepte
+maintenant une clé d'égalité en troisième argument (la clé par défaut reste
+`cleQuestion`), et les ensembles passent `ensCleValeur` — le rationnel réduit,
+ou l'écriture d'un irrationnel. {placer-intervalle} et {ordre-croissant}
+tiraient leurs six questions sans aucun regard : ils passent par
+`distinctes()`, avec une clé qui TRIE les nombres (`plcCle`), puisque leurs
+listes sont mélangées. Le contrôle recalcule la valeur par sa propre fraction
+réduite sur 2 000 séances, et lit le source des deux tirages ; l'ancien code
+rougit sur « 4/0,5 et 40/5 ».
+
+**« 2 millier » s'accorde (M40).** Dans {appartient-intervalle-2},
+l'unité restait au singulier — « 2 millier », « 4,5 centaine ». `appUnite()`
+met le pluriel dès 2 (« 1,5 millier », « 2 milliers »), sur l'écran comme
+dans la correction ; la valeur, elle, n'a jamais été fausse. Le même
+contrôle lit cinq écritures, de « 0,2 millier » à « 4,5 centaines ».
+
+**Les pièges du rappel sortent enfin du tirage (M44).** `RAP_ENS2` et
+`RAP_PGE` enseignent « √9 = 3 », mais toute racine tirée était irrationnelle :
+« racine ⇒ ℝ seulement » passait à tous les coups. Un tiers des places
+d'entiers (`ENS_PART_RACINE` — deux positives, une négative) écrit
+maintenant l'entier en racine, √4 à √81 ou −√9, et une place positive sur
+quatre de celles-là pose 0. Les places d'irrationnels ne changent pas ; la
+clé de valeur (M41) empêche √9 et 27/9 dans la même séance. Le contrôle « les
+ensembles de nombres tirent aussi les pièges du rappel » exige les quatre
+visages, rejuge chaque racine entière par `Math.sqrt` contre `q.sets`, et
+borne la fréquence (une séance sur trois au moins en pose un, jamais
+toutes) ; l'ancien tirage le fait rougir à 0 %.
