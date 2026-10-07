@@ -4034,7 +4034,7 @@ function conseilCtxCourant(){
     const dsc=tvi3TableTexte(q);
     const attendu=(q.raison==='horsbornes')?(q.kL+' n’est pas compris entre '+q.vGL+' et '+q.vDL)
       :(q.raison==='nonmonotone')?(q.fname+' n’est pas strictement monotone : l’équation '+q.fname+'('+q.v+') = '+q.kL+' admet DEUX solutions')
-      :(q.fname+' n’est pas continue ('+q.v+' = '+q.cLabel+' est une valeur interdite)');
+      :(q.fname+' n’est pas définie en '+q.v+' = '+q.cLabel+' (valeur interdite) : l’ensemble d’étude n’est pas un intervalle, le TVI ne s’y applique pas');
     c='Exercice : expliquer en une ou deux phrases pourquoi le théorème des valeurs intermédiaires ne permet PAS d’affirmer que '+q.fname+'('+q.v+') = '+q.kL+' admet une unique solution sur '+tvi3Intervalle(q)+'. Description exacte du tableau de variation (tu ne vois pas l’image) : '+dsc
      +' La bonne explication, à faire trouver SANS jamais la donner ni la reformuler : '+attendu+'. '
      +'CONTRAINTE ANTI-RECOPIE (l’élève peut coller ton conseil dans sa réponse) : ne cite NI la raison en toutes lettres, NI les valeurs à écrire. Guide par des questions : les trois hypothèses du corollaire du TVI (continuité, stricte monotonie, valeur k comprise entre les deux images du tableau) sont-elles toutes vérifiées ici ? Laquelle est en défaut ?'
@@ -6900,6 +6900,12 @@ function tvi3Intervalle(c){
   if(c.shape==='saut') I+=' \\ {'+c.cLabel+'}';
   return I;
 }
+/* L'intervalle d'étude SANS la valeur interdite retirée (« ]a ; b[ », « ℝ ») : la
+   correction du saut dit que cet intervalle PRIVÉ de c n'en est plus un. */
+function tvi3Base(c){
+  const infG=String(c.aLabel).indexOf('∞')>=0, infD=String(c.bLabel).indexOf('∞')>=0;
+  return (infG&&infD)?'ℝ':(c.leftBrk+c.aLabel+' ; '+c.bLabel+c.rightBrk);
+}
 /* Tableau de variation SVG : monotone, en V/Λ, ou avec double barre (valeur interdite).
    Cas « saut » : les images à gauche et à droite de la barre ne sont PAS écrites. */
 function tvi3SVG(c){
@@ -6940,7 +6946,7 @@ function tvi3SVG(c){
 function tvi3TableTexte(c){
   if(c.shape==='mono') return c.fname+' est continue et strictement '+(c.croissante?'croissante':'décroissante')+' : elle varie de '+c.vGL+' à '+c.vDL+' sur '+tvi3Intervalle(c)+'.';
   if(c.shape==='v') return c.fname+' est continue sur '+tvi3Intervalle(c)+' mais change de sens en '+c.v+' = '+c.cLabel+' : elle '+(c.extr==='min'?('décroît de '+c.vGL+' à '+c.vML+' puis croît jusqu’à '+c.vDL):('croît de '+c.vGL+' à '+c.vML+' puis décroît jusqu’à '+c.vDL))+'.';
-  return 'le tableau a une DOUBLE BARRE en '+c.v+' = '+c.cLabel+' (valeur interdite : '+c.fname+' n’est pas continue). Les images autour de la barre ne sont pas affichées ; la première image est '+c.vGL+', la dernière '+c.vDL+', et '+c.kL+' est compris entre les deux.';
+  return 'le tableau a une DOUBLE BARRE en '+c.v+' = '+c.cLabel+' (valeur interdite : '+c.fname+' n’y est pas définie, '+tvi3Base(c)+' privé de '+c.cLabel+' n’est pas un intervalle). Les images autour de la barre ne sont pas affichées ; la première image est '+c.vGL+', la dernière '+c.vDL+', et '+c.kL+' est compris entre les deux.';
 }
 /* Question et attendu envoyés à l’IA (action 'verif', comme les niveaux 2 du thème 2) :
    le barème de chaque famille vit dans l’attendu, l’IA renvoie { correct, feedback }. */
@@ -6965,8 +6971,8 @@ function tvi3AttenduIA(c){
       +'Toute formulation équivalente est correcte (« pas strictement croissante », « pas strictement décroissante », « change de variation ») ; citer des valeurs n’est pas exigé. '
       +'FAUX si l’élève invoque la continuité, ou dit que '+c.kL+' n’est pas encadré (il l’est).';
   }
-  return c.fname+' n’est pas continue : '+c.v+' = '+c.cLabel+' est une valeur interdite (double barre du tableau). '
-    +'ÉGALEMENT CORRECT : « '+c.fname+' est discontinue », « il y a une valeur interdite en '+c.cLabel+' ». '
+  return c.fname+' n’est pas définie en '+c.v+' = '+c.cLabel+' (valeur interdite, double barre du tableau) : '+tvi3Base(c)+' privé de '+c.cLabel+' n’est pas un intervalle, le TVI ne s’y applique pas. '
+    +'ÉGALEMENT CORRECT : « '+c.fname+' n’est pas continue sur '+tvi3Base(c)+' », « '+c.fname+' est discontinue », « il y a une valeur interdite en '+c.cLabel+' », « '+c.fname+' n’est pas définie en '+c.cLabel+' ». '
     +'FAUX si l’élève invoque la monotonie (les flèches vont dans le même sens) ou l’encadrement de '+c.kL+' (il est bien compris entre la première et la dernière image).';
 }
 /* Réponse modèle, affichée en correction. */
@@ -6974,13 +6980,15 @@ function tvi3Model(c){
   const I=tvi3Intervalle(c);
   if(c.raison==='horsbornes') return 'Le TVI ne permet pas de conclure car '+c.kL+' n’est pas compris entre '+c.vGL+' et '+c.vDL+'.';
   if(c.raison==='nonmonotone') return 'Le TVI ne permet pas de conclure car '+c.fname+' n’est pas strictement monotone sur '+I+' (elle change de sens) : l’équation '+c.fname+'('+c.v+') = '+c.kL+' admet en fait deux solutions.';
-  return 'Le TVI ne permet pas de conclure car '+c.fname+' n’est pas continue sur son ensemble de définition ('+c.v+' = '+c.cLabel+' est une valeur interdite).';
+  /* f est continue sur son ensemble de définition ]a ; c[ ∪ ]c ; b[ : ce qui manque au
+     TVI, c'est que cet ensemble n'est PAS un intervalle — f n'est pas définie en c. */
+  return 'Le TVI ne s’applique pas car '+c.fname+' n’est pas définie en '+c.v+' = '+c.cLabel+' (valeur interdite) : '+tvi3Base(c)+' privé de '+c.cLabel+' n’est pas un intervalle.';
 }
 /* Texte de la raison attendue, pour la page de résultats et le tableau de bord. */
 function tvi3RaisonTexte(c){
   if(c.raison==='horsbornes') return c.kL+' n’est pas compris entre '+c.vGL+' et '+c.vDL;
   if(c.raison==='nonmonotone') return c.fname+' n’est pas strictement monotone ('+c.fname+'('+c.v+') = '+c.kL+' admet deux solutions)';
-  return c.fname+' n’est pas continue ('+c.v+' = '+c.cLabel+' est une valeur interdite)';
+  return c.fname+' n’est pas définie en '+c.v+' = '+c.cLabel+' (valeur interdite : '+tvi3Base(c)+' privé de '+c.cLabel+' n’est pas un intervalle)';
 }
 async function startTVI3(){
   if(!currentEleve){ accueil(); return; }
