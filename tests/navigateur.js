@@ -4962,8 +4962,29 @@ async function parcours(page, N){
         window.__rrAvantKb = L.mf.getValue();
         L.mf.setValue(''); L.mf.focus();
       });
+      let kbRects0 = {};
       await s.page.click('#rrOutils button[aria-label^="Afficher ou masquer le clavier"]');
       await s.page.waitForTimeout(800);
+      /* Et l'on clique un clavier STABLE, jamais à délai fixe — la leçon de la
+         section 11 sexies, reprise ici après un rougissement en CI (octobre
+         2026 : « touches trouvées : le lt gt », « = » et « ≥ » introuvables
+         sur un runner chargé, les deux couches encore en construction au
+         moment du clic ; trois passages locaux verts). On attend que la couche
+         visible garde le MÊME jeu de touches d'un quart de seconde au suivant,
+         à l'ouverture et après chaque bascule de couche. */
+      const clavierStable = async () => s.page.evaluate(async () => {
+        const sig = () => [...document.querySelectorAll('#kbwin .MLK__layer.is-visible .MLK__rows > .MLK__row > *, body > .ML__keyboard .MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
+          .filter(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; })
+          .map(el => el.textContent.trim()).join('|');
+        const t0 = Date.now(); let a = sig();
+        while(Date.now() - t0 < 6000){
+          await new Promise(r => setTimeout(r, 250));
+          const b = sig(); if(b && b === a) return true;
+          a = b;
+        }
+        return false;
+      });
+      kbRects0 = { stable: await clavierStable() };
       /* les touches se cherchent parmi les ENFANTS DIRECTS des rangées : la
          touche de bascule ne porte pas la classe « keycap » de MathLive, et un
          sélecteur qui la manque ferait échouer la mesure sur la page juste. */
@@ -4975,7 +4996,7 @@ async function parcours(page, N){
       }, txt);
       const cliquerCap = async (txt) => { const p = await trouverCap(txt);
         if(p){ await s.page.mouse.click(p.x, p.y); await s.page.waitForTimeout(140); } return !!p; };
-      const kbRects = { ouvert: await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible)) };
+      const kbRects = { ouvert: await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible)), stable: kbRects0.stable };
       /* et la touche « clavier B » (les mots vivent dans le profil), dans la
          fenêtre FLOTTANTE de l'ordinateur : un libellé de neuf lettres dans
          une touche rembourrée de 12 px de chaque côté — à 1,5 unité il y
@@ -4997,10 +5018,12 @@ async function parcours(page, N){
       kbRects.eq = await cliquerCap('=');
       kbRects.versB = await cliquerCap(P.clavierEcran ? P.clavierEcran.versB : 'clavier B');
       await s.page.waitForTimeout(200);
+      kbRects.stableB = await clavierStable();
       kbRects.le = await cliquerCap('≤'); kbRects.ge = await cliquerCap('≥');
       kbRects.lt = await cliquerCap('<'); kbRects.gt = await cliquerCap('>');
       await cliquerCap(P.clavierEcran ? P.clavierEcran.versA : 'clavier A');
       await s.page.waitForTimeout(200);
+      await clavierStable();
       const kbTape = await s.page.evaluate(() => {
         const lignes = rrTexte().split('\n');
         return lignes[lignes.length - 1];
@@ -5030,6 +5053,7 @@ async function parcours(page, N){
           && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0
           && kbTape.indexOf('=') >= 0 && kbFerme,
         (kbRects.ouvert ? '' : 'le clavier ne s\'ouvre pas au ⌨️ ; ')
+          + (kbRects.stable && kbRects.stableB ? '' : 'le clavier changeait encore après 6 s ; ')
           + (kbRects.versB ? '' : 'la touche de bascule est introuvable ; ')
           + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt', 'eq'].filter(t => kbRects[t]).join(' ')
           + ', ligne lue : ' + JSON.stringify(kbTape.slice(0, 60))

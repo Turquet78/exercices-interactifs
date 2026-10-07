@@ -195,3 +195,21 @@ focusable. Les deux contrôles universels qui pourraient n'avoir rien à mesurer
 le DISENT (« le contrôle ne mesure rien ») ; la Première, sans tableau
 défilant, se déclare dans `tests/profils.js` (`defilants.aucun`), et la
 déclaration rougit le jour où elle devient fausse.
+
+**Le clavier du 6.7 se clique STABLE, lui aussi.** À la première exécution de
+l'action GitHub sur l'intégration des constats mineurs (octobre 2026), le
+banc navigateur de la Terminale a rougi sur « les touches ≤ ≥ < > = du
+clavier à l'écran écrivent dans la ligne du {recurrence-redaction} » :
+« touches trouvées : le lt gt », « = » et « ≥ » introuvables, la ligne lue
+« ≤<> ». Trois passages locaux étaient verts, et le même contrôle était vert
+sur `main` la veille : un runner chargé, et un clavier dont les deux couches
+étaient encore en construction au moment du clic — 800 ms après le ⌨️, 200 ms
+après la bascule, des DÉLAIS FIXES. La section 11 sexies avait appris la
+même chose un mois plus tôt (« le clavier de la tablette est stable avant
+qu'on le mesure ») : on attend que la couche visible garde le même jeu de
+touches d'un quart de seconde au suivant, six secondes au plus, à
+l'ouverture et après chaque bascule. Le contrôle exige toujours que les
+cinq touches existent et écrivent ; il dit en plus « le clavier changeait
+encore après 6 s » quand c'est ce qui l'a privé d'une touche. « Flake » n'est
+pas un diagnostic : la cause est un délai fixe, et le correctif est
+l'attente de l'état.
