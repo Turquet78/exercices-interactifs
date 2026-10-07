@@ -9193,7 +9193,8 @@ function syntheseLibreDix(w, P, S){
       if(a.length>pireA){ pireA=a.length; pireEti=q.inc+' '+c.P+'% de '+c.N; }
       const eti='('+q.inc+', choix '+(q.choisi===q.bon?'juste':'faux')+') ';
       const regle=a.slice(Math.max(0,a.indexOf('RÈGLE DE DÉCISION')));
-      if(regle.indexOf('QUATRE')<0){ vus.push(eti+'la règle ne compte pas quatre voies'); break; }
+      /* six voies depuis l'audit de septembre 2026 : les trois d'origine, le taux d'évolution, la valeur initiale par division, et celle des 10 % */
+      if(regle.indexOf('SIX')<0){ vus.push(eti+'la règle ne compte pas six voies'); break; }
       if(regle.indexOf('10 % = '+c.dixStr)<0){ vus.push(eti+'la règle n\\'écrit pas « 10 % = '+c.dixStr+' »'); break; }
       if(regle.indexOf(c.P+' % = '+c.augStr)<0){ vus.push(eti+'la règle n\\'écrit pas « '+c.P+' % = '+c.augStr+' »'); break; }
       if(regle.indexOf('écart')<0 || regle.indexOf(S.mot+' de '+c.P+' %')<0){ vus.push(eti+'la règle n\\'écrit pas la forme par l\\'écart et la conclusion'); break; }
@@ -9206,7 +9207,7 @@ function syntheseLibreDix(w, P, S){
       /* le 2.3.9 / 2.2.10 : sa règle ne parle pas de la voie des 10 % */
       const q9=genSyn(S.fam, q.inc); q9.choisi=q9.bon;
       const a9=salAttenduIA(q9, null);
-      if(a9.indexOf('voie des 10 %')>=0 || a9.indexOf('QUATRE')>=0){ vus.push(eti+'la règle du '+S.sansNum+' promet la voie des 10 % que son juge ne lit pas'); break; }
+      if(a9.indexOf('voie des 10 %')>=0 || a9.indexOf('SIX')>=0){ vus.push(eti+'la règle du '+S.sansNum+' promet la voie des 10 % que son juge ne lit pas'); break; }
     }
     if(!vus.length && pireA>B.attendu-300)
       vus.push('la règle frôle ou dépasse la borne de la fonction Edge : '+pireA+' caractères pour '+B.attendu+' ('+pireEti+')');

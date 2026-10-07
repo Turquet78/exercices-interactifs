@@ -4529,3 +4529,34 @@ son schéma** : sur 25 tirages de chacune des treize, les valeurs attendues
 écrites dans les cases valent le point, la même copie à la dernière case
 faussée ne le vaut pas, les boîtes portent leurs cadres dans l'ordre et
 l'énoncé, cadres ôtés, est mot pour mot celui de la rédaction.
+
+**Trois bugs de calcul sortis de l'audit de septembre 2026 — les deux
+niveaux.** (1) {hausses-successives} (4.2.7 / 2.2.7) : la case « coefficient
+retrouvé » `hsVc` était jugée sur `prodNum/1000`, alors que `hsCoef` réduit
+les coefficients et que `prodDen` vaut 100 quand les deux taux sont multiples
+de dix (12/10 × 13/10 = 156/100) : « 1,56 » rougissait sur 17 paires sur 25,
+la case `hsDec` juste au-dessus, jugée sur `prodDen`, bleuissait sur la même
+valeur. Les deux lignes passent désormais `q.prodDen`. (2) En Première,
+{diminuer-dix} calculait `total = N − baisse` en flottant : 8 − 7,2 vaut
+0,7999999999999998, la bonne réponse « 0,8 » rougissait, la correction
+affichait le flottant brut et le soutien ne se refermait jamais — une séance
+sur huit. `arrondiCent` tient les totaux au centième. (3) Les juges `egal` et
+`est` et `liveColorDec` comparaient `fr.n === val*fr.d` sur un flottant :
+« 2,30 € » pour 2,3 était refusé alors que l'écran promet « toute écriture
+égale est acceptée ». `fracVautDec` compare au dernier bit près. Éprouvé par
+12 000 tirages (aucun total à plus de deux décimales) et par les copies
+« 0,8 », « 2,30 », « 10,20 » rejouées sur les vrais juges.
+
+**Le juge des rédactions accepte le TAUX D'ÉVOLUTION et la VALEUR INITIALE
+PAR DIVISION — les deux niveaux.** Même audit : « (300 − 240)/300 = 0,2 »,
+« 300 − 240 = 60 ⏎ 60/300 = 0,2 » et « 240/0,8 = 300 » étaient REFUSÉS avec
+« Recopier la proposition n'est pas justifier », et le refus primait sur le
+modèle — alors que la première est la définition même du taux d'évolution
+au programme, t = (VA − VD)/VD. `salJuge` connaît deux voies de plus : un
+terme qui porte 1/valeur-initiale et vaut ±P/100 (ou ±P, en pourcents), ou un
+morceau « quotient − 1 » qui vaut ±P/100 (`tauxOk`) ; un terme qui porte la
+valeur finale et l'inverse du coefficient et vaut la valeur initiale
+(`iniOk`). Le signe est libre : une baisse s'écrit −20 % ou 20 %.
+`salVoiesTexte` et `salAttenduIA` nomment ces voies (« cinq » voies, « six »
+avec la méthode des 10 %). Éprouvé : treize copies justes acceptées, la
+fausse « (300 − 240)/300 = 0,3 » et la recopie « 20 » toujours refusées.

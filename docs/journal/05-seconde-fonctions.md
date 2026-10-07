@@ -1500,3 +1500,20 @@ un navigateur voit qu'un bouton écrit —, leur taille au doigt, les morceaux
 verts et les quatre crochets RENDUS avec une étendue non nulle (un CSS perdu
 les rendrait invisibles sans qu'une erreur ne se lève), et le pavé des
 tablettes en portrait comme en paysage.
+
+**Un sommet posé à la hauteur k est une solution de f(x) = k, pas un bord de
+f(x) ⋚ k.** L'audit de septembre 2026 a relu les trois tirages qui choisissent
+une hauteur « atteinte exactement deux fois, jamais traversée entre deux
+graduations, jamais en deux points voisins » : aucun n'exigeait que chaque
+solution soit un VRAI croisement. Quand la courbe TOUCHE y = k en un sommet
+ou un creux, « le côté entre les deux solutions » ne dit plus rien de S — pour
+f(x) ≥ 1 avec un creux posé à 1, S est [−3 ; 1] et la page attendait [−2 ; 1],
+notait 4/5 la copie juste et écrivait « c'est le morceau entre les deux
+croisements ». Le 3.2.3 l'avait déjà appris en octobre (eqgSommetK, la
+demi-droite) ; {lecture-deux-courbes} (17 % des séances) et la partie b de
+{synthese-fonction} (0,8 %) ne l'avaient pas. Les deux tirages exigent
+désormais le changement de signe des voisins — `(ptsF[x+2]-y)*(ptsF[x+4]-y)<0`
+dans `k2s`, `(synY(q,x-1)-c)*(synY(q,x+1)-c)<0` dans `cote` — et les replis
+IFG_FB et SYN_REPLI passent le même garde (vérifié à la main : leurs
+solutions sont des croisements). Éprouvé par 2 000 et 600 tirages après le
+correctif : zéro tangence, zéro repli.

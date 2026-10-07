@@ -2642,3 +2642,12 @@ en Première (aug, dim, pre), et `startEsl` en Première (paires tirées sans
 remise). Éprouvé par sabotage sur la logique du contrôle : le 4.4 remis en
 `plan.map` rougit en nommant `startTVINS`, une déclaration retirée rougit
 en nommant `startSU`, une déclaration inventée rougit comme « morte ».
+
+**Le 1.1 a un jeton « e ».** L'audit de septembre 2026 : sur tablette le pavé
+de la page remplace le clavier du système (`inputmode` passé à `none`), et le
+pavé n'a aucune lettre — la racine de x − e ou x + e, « e » ou « −e »
+(`rootAccept`), était impossible à taper dans 39 % des séances de niveau 1
+(P(e) = 2/9 par question, deux questions). `s1E()`, calqué sur `s1Pi()`,
+insère « e » dans la case qui a le focus, sinon dans celle de la racine, et
+jamais dans une case verrouillée. Éprouvé dans jsdom : le bouton existe dans
+`.s1-jetons`, « e » s'insère, `s1RootOK` l'accepte.
