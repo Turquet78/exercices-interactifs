@@ -21059,7 +21059,7 @@ function checkPAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   if(live){ liveColorFrac('p1n','p1d',q.P,100,false); liveColorFrac('p2n','p2d',q.prod,100,false); liveColorDec('p3',q.result,1); return; }
-  const v=id=>$(id).value.trim(), iv=id=>parseInt($(id).value.trim(),10);
+  const v=id=>$(id).value.trim(), iv=id=>entierDec($(id).value.trim());   /* « 20,5 » ne vaut pas 20 */
   // étape 1 : toute fraction égale à P/100
   const f1n=iv('p1n'), f1d=iv('p1d');
   const ok1 = v('p1n')!=='' && v('p1d')!=='' && !isNaN(f1n) && !isNaN(f1d) && f1d!==0 && f1n*100===q.P*f1d;
@@ -21073,8 +21073,10 @@ function checkPAnswer(live){
   // fraction est fausse, la case qui porte la valeur canonique reste juste
   // (la règle de la capture du 1.7) — et une case vide ne reçoit rien
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');if(v(id)!=='')el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
-  mark('p1n',ok1||(v('p1d')!==''&&f1n===q.P)); mark('p1d',ok1||(v('p1n')!==''&&f1d===100));
-  mark('p2n',ok2||(v('p2d')!==''&&f2n===q.prod)); mark('p2d',ok2||(v('p2n')!==''&&f2d===100)); mark('p3',ok3);
+  // — ni parce qu'elle est VIDE : ici le dénominateur est exigé, il ne vaut
+  // jamais 1, et le P écrit seul reste bleu (marqueFracPaire, audit d'octobre 2026)
+  mark('p1n',ok1||f1n===q.P); mark('p1d',ok1||f1d===100);
+  mark('p2n',ok2||f2n===q.prod); mark('p2d',ok2||f2d===100); mark('p3',ok3);
   const allOk=ok1&&ok2&&ok3;
   if(!allOk && isSoutien()){ soutienAgain('pFeedback','pActions','checkPAnswer','pHost'); return; }
   test.locked=true;
@@ -22364,7 +22366,7 @@ function checkFPAnswer(live){
        la fraction sans amener le dénominateur à 100 */
     ['fm1n','fm1d'].forEach(id=>{ const el=$(id); if(!el||el.disabled) return;
       const vv=String(el.value||'').trim(); el.classList.remove('ok','bad');
-      if(vv!=='') el.classList.add(parseInt(vv,10)===k?'ok':'bad'); });
+      if(vv!=='') el.classList.add(entierDec(vv)===k?'ok':'bad'); });
     liveColorDec('fm2n',q.pct,1);
     liveColorDec('fm3',q.pct,1);
     return;
@@ -22376,12 +22378,16 @@ function checkFPAnswer(live){
   colL.classList.remove('ok','bad'); colL.classList.add(okL?'ok':'bad');
   colR.classList.remove('ok','bad'); colR.classList.add(okR?'ok':'bad');
   /* méthode 2 : a×n / b×d = pct/100 exige n = d = 100/b, exactement */
-  const okE = v('fm1n')!=='' && v('fm1d')!=='' && parseInt(v('fm1n'),10)===k && parseInt(v('fm1d'),10)===k;
+  /* chaque multiplicateur reçoit SON verdict : un « k » juste en haut ne
+     rougit plus parce que celui du bas est faux ou vide (audit, octobre 2026) */
+  const okE1 = entierDec(v('fm1n'))===k, okE2 = entierDec(v('fm1d'))===k;
+  const okE = okE1 && okE2;
   const f2=parseDecToFrac(v('fm2n')); const okN = !!f2 && f2.n===q.pct*f2.d;
   const f3=parseDecToFrac(v('fm3'));  const okP = !!f3 && f3.n===q.pct*f3.d;
   const soutien=isSoutien();
-  const mark=(id,ok)=>{const el=$(id);if(!el)return;el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('fm1n',okE); mark('fm1d',okE); mark('fm2n',okN); mark('fm3',okP);
+  /* une case vide ne rougit jamais : en entraînement la correction verte la remplit */
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
+  mark('fm1n',okE1); mark('fm1d',okE2); mark('fm2n',okN); mark('fm3',okP);
   const allOk=okL&&okR&&okE&&okN&&okP;
   if(!allOk && soutien){ soutienAgain('fpFeedback','fpActions','checkFPAnswer','fpHost'); return; }
   test.locked=true;
@@ -22531,8 +22537,7 @@ function checkPctColAnswer(live){
   colR.classList.remove('ok','bad'); colR.classList.add(okR?'ok':'bad');
   const fr=parseDecToFrac(v('pcRes')); const okR2 = !!fr && fr.n===q.result*fr.d;
   const soutien=isSoutien();
-  const el=$('pcRes');
-  if(el){ el.classList.remove('ok','bad'); el.classList.add(okR2?'ok':'bad'); el.disabled=okR2||!soutien; }
+  marqueSaufVide('pcRes',okR2,soutien);   /* une case vide ne rougit jamais */
   const allOk=okL&&okR&&okR2;
   if(!allOk && soutien){ soutienAgain('pcFeedback','pcActions','checkPctColAnswer','pcHost'); return; }
   test.locked=true;
@@ -24513,7 +24518,7 @@ function checkQAnswer(live){
   /* Les \u00e9tapes sont jug\u00e9es par rapport \u00e0 la proposition CHOISIE : un calcul correct
      sur une mauvaise proposition reste un calcul correct. */
   if(live){ liveColorFrac('q1n','q1d',c.P,100,false); liveColorDec('qN',c.N,1); liveColorFrac('q2n','q2d',prod,100,false); liveColorDec('q3',res,1); return; }
-  const v=id=>$(id).value.trim(), iv=id=>parseInt($(id).value.trim(),10);
+  const v=id=>$(id).value.trim(), iv=id=>entierDec($(id).value.trim());   /* « 20,5 » ne vaut pas 20 */
   const f1n=iv('q1n'), f1d=iv('q1d');
   const ok1 = v('q1n')!=='' && v('q1d')!=='' && !isNaN(f1n) && !isNaN(f1d) && f1d!==0 && f1n*100===c.P*f1d;
   const f2n=iv('q2n'), f2d=iv('q2d');
@@ -24535,8 +24540,8 @@ function checkQAnswer(live){
      une case juste ne rougit pas parce qu'une autre est vide (règle du projet,
      à toutes les profondeurs — c'est le bug des sommes de fractions, ici par
      une autre porte). La NOTE, elle, exige toujours la paire complète. */
-  const promN=(vn,cible)=>{ const n=parseInt(vn,10); return !isNaN(n)&&n>0&&(n*100)%cible===0; };
-  const promD=(vd,cible)=>{ const d=parseInt(vd,10); return !isNaN(d)&&d>0&&(cible*d)%100===0; };
+  const promN=(vn,cible)=>{ const n=entierDec(vn); return !isNaN(n)&&n>0&&(n*100)%cible===0; };
+  const promD=(vd,cible)=>{ const d=entierDec(vd); return !isNaN(d)&&d>0&&(cible*d)%100===0; };
   mark('q1n', v('q1d')===''?promN(v('q1n'),c.P):ok1);
   mark('q1d', v('q1n')===''?promD(v('q1d'),c.P):ok1);
   if(eN) mark('qN',okN);
@@ -27982,15 +27987,15 @@ function checkLCAnswer(live){
       el.classList.add(decOk(id,tete,q.coef,100)?'ok':'bad'); });
     return;
   }
-  const iv=id=>parseInt(v(id),10);
-  const den=id=>{const t=v(id);return t===''?1:parseInt(t,10);};
   const okSens = q.choisi===q.sens;
   const okP    = decOk('lcP','',q.P,1);
-  const ok1    = v('lc1n')!=='' && fracEqual(iv('lc1n'),den('lc1d'),q.P,100);
+  /* P/100 : chaque case reçoit SON verdict, lu en écriture décimale exacte
+     (« 4,8 » ne vaut plus 4), et une case vide n'en reçoit aucun */
+  const ok1    = marqueFracPaire('lc1n','lc1d',q.P,100,soutien);
   const ok1p   = decOk('lc1p','0,',q.P,100);
   const ok1d   = decOk('lc1dec',tete,q.coef,100);
-  const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('lcP',okP); mark('lc1n',ok1); mark('lc1d',ok1); mark('lc1p',ok1p); mark('lc1dec',ok1d);
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
+  mark('lcP',okP); mark('lc1p',ok1p); mark('lc1dec',ok1d);
   [...document.querySelectorAll('#lcChoix .pt-choix-btn')].forEach((b,i)=>{
     b.classList.remove('ok','bad');
     if(q.choisi===(i===0?1:-1)) b.classList.add(okSens?'ok':'bad');
@@ -28128,7 +28133,8 @@ function checkTCAnswer(live){
   const decOk=(id,pre,n,d)=>{ const t=v(id); if(t==='') return false; const fr=parseDecToFrac((pre||'')+t); return !!fr && fr.n*d===n*fr.d; };
   const ok1 = (q.type==='avant') ? decOk('tc1','0,',q.P,100) : decOk('tc1','',q.P,1);
   const ok2 = (q.type==='avant') ? decOk('tc2',tete,q.coef,100) : decOk('tc2','0,',q.P,100);
-  const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  /* une case vide ne rougit jamais : en entraînement la correction verte la remplit */
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
   mark('tc1',ok1); mark('tc2',ok2);
   const allOk=ok1&&ok2;
   if(!allOk && soutien){ soutienAgain('tcFeedback','tcActions','checkTCAnswer','tcHost'); return; }
@@ -28277,27 +28283,27 @@ function checkCKAnswer(live){
       el.classList.remove('ok','bad'); if(v('ckC')!=='') el.classList.add(decOk('ckC',M.tete,coef,100)?'ok':'bad'); } }
     if(q.fam!=='pre'){
       const w=$('ckW'); if(w&&!w.disabled){ w.classList.remove('ok','bad'); if(w.value) w.classList.add(w.value===mot?'ok':'bad'); }
-      const t=$('ckT'); if(t&&!t.disabled){ t.classList.remove('ok','bad'); if(v('ckT')!=='') t.classList.add(parseInt(v('ckT'),10)===q.P?'ok':'bad'); } }
+      const t=$('ckT'); if(t&&!t.disabled){ t.classList.remove('ok','bad'); if(v('ckT')!=='') t.classList.add(entierDec(v('ckT'))===q.P?'ok':'bad'); } }
     return;
   }
   if(q.choisi==null){
     $('ckFeedback').textContent='Choisis d’abord un coefficient (a, b, c ou d).';
     $('ckFeedback').className='mp-feedback bad'; return;
   }
-  const iv=id=>parseInt(v(id),10);
-  const den=id=>{const t=v(id);return t===''?1:parseInt(t,10);};
   const okChoix = q.choisi===ckBon(q);
-  const ok1  = v('ck1n')!=='' && fracEqual(iv('ck1n'),den('ck1d'),q.P,100);
   const ok1p = decOk('ck1p','0,',q.P,100);
   const okC  = (q.fam==='pre') ? true : decOk('ckC',M.tete,coef,100);
   const okW  = (q.fam==='pre') ? true : v('ckW')===mot;
-  const okT  = (q.fam==='pre') ? true : (v('ckT')!=='' && iv('ckT')===q.P);
+  /* le taux se lit en écriture décimale exacte : « 30,5 » ne vaut plus 30 */
+  const okT  = (q.fam==='pre') ? true : (entierDec(v('ckT'))===q.P);
   /* une case VIDE ne reçoit aucune couleur : en entraînement la correction la
      remplit en vert juste après, en soutien elle reste à écrire */
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');
     if(v(id)===''){ el.disabled=!soutien; return; }
     el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;};
-  mark('ck1n',ok1); mark('ck1d',ok1); mark('ck1p',ok1p); if(q.fam!=='pre'){ mark('ckC',okC); mark('ckW',okW); mark('ckT',okT); }
+  /* P/100 : chaque case reçoit SON verdict, contre la valeur canonique */
+  const ok1  = marqueFracPaire('ck1n','ck1d',q.P,100,soutien);
+  mark('ck1p',ok1p); if(q.fam!=='pre'){ mark('ckC',okC); mark('ckW',okW); mark('ckT',okT); }
   const bon=ckBon(q);
   q.opts.forEach((_,i)=>{ const b=$('ckc'+i); if(!b) return;
     b.classList.remove('ok','bad','sol');
