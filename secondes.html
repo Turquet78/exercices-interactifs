@@ -1,17 +1,16 @@
 <!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<!-- La langue et l'encodage d'abord : <meta charset> doit tenir dans les 1 024
+     premiers octets, sans quoi une page ouverte depuis le disque peut être mal
+     décodée (audit d'octobre 2026, T5). Rien ne se glisse avant lui. -->
 <!-- Calcul mental — version "comptes à l'année" (base de données Supabase). -->
 <!-- ========================================================================= -->
 <!--  ⚙️  À CONFIGURER : remplace les 3 valeurs ci-dessous (voir le guide).     -->
 <!--      Elles se trouvent dans Supabase > Project Settings > API.            -->
 <!-- ========================================================================= -->
 <script>
-  /* LA LANGUE DE LA PAGE (audit d'octobre 2026, A6/T5). La page n'a pas de
-     balise <html> — le navigateur la synthétise —, donc pas d'attribut lang :
-     un lecteur d'écran lisait le français avec la voix de sa langue par
-     défaut, et la césure comme les correcteurs ne savaient pas quelle
-     langue appliquer. Posée ici, au premier script, elle vaut avant tout
-     le reste de l'analyse. */
-  document.documentElement.lang='fr';
   const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← projet Supabase (partagé avec la terminale ; la Seconde utilise des tables séparées « _2nde »)
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";              // ← clé "anon public" du projet
   const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";   // ← l'adresse du compte Supabase du professeur
@@ -23,7 +22,6 @@
 </script>
 <!-- ========================================================================= -->
 
-<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Maths Seconde — comptes de la classe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -281,6 +279,13 @@
   .chip:hover{border-color:#cdd3e0}
   .chip.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
   .pin-input{width:170px;text-align:center;letter-spacing:.4em;font-family:"Fredoka";font-weight:600;font-size:1.5rem;border:1.5px solid var(--line);border-radius:13px;padding:11px 12px;background:#fff;color:var(--ink)}
+  /* Le code de l'élève se tape MASQUÉ (audit d'octobre 2026, T10) : en classe, il
+     s'affichait en clair sur l'écran du voisin. Masqué par la feuille de styles
+     et non par type="password" : le formulaire de connexion n'a pas
+     d'identifiant (le prénom est un bouton), Chrome irait en chercher un
+     ailleurs et proposerait d'ENREGISTRER le code d'un élève sur un poste
+     partagé — le piège « Sans balise <form> » du journal 11. */
+  #loginPin{-webkit-text-security:disc}
 
   .hello{font-family:"Fredoka";font-weight:600;font-size:1.7rem;margin:0 0 2px}
   .stats{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap}
@@ -2600,7 +2605,7 @@
 .sv-card{max-width:560px;margin:0 auto;}
 .sv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .sv-svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;}
-.sv-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
+.sv-ax{font-family:'Nunito',sans-serif;font-size:12px;fill:var(--ink-soft);}
 .sv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:16px;fill:var(--green);}
 .sv-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
 .sv-tables{display:flex;flex-direction:column;gap:14px;margin:0 0 2px;}
@@ -2616,7 +2621,7 @@
 .tg-card{max-width:600px;margin:0 auto;}
 .tg-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .tg-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
-.tg-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
+.tg-ax{font-family:'Nunito',sans-serif;font-size:12px;fill:var(--ink-soft);}
 .tg-albl{font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;fill:var(--ink);}
 .tg-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
 .tg-tan{fill:none;stroke:var(--ink-soft);stroke-width:1.7;stroke-dasharray:6 4;stroke-linecap:round;}
@@ -2705,7 +2710,7 @@
     .lv-grid{stroke:var(--grid);stroke-width:1}
     .lv-axis{stroke:var(--ink-soft);stroke-width:1.4}
     .lv-axfill{fill:var(--ink-soft)}
-    .lv-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft)}
+    .lv-ax{font-family:'Nunito',sans-serif;font-size:12px;fill:var(--ink-soft)}
     .lv-curve{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
     .lv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:15px;fill:var(--blue)}
     .lv-tblwrap{overflow-x:auto;margin:0 0 4px}
@@ -2792,6 +2797,18 @@
 body.pave-actif #testCtrls{bottom:6px;right:8px}
 body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
+/* SUR UN TÉLÉPHONE EN PORTRAIT, les commandes du bas prennent leurs libellés
+   COURTS (audit d'octobre 2026, T12) : à 380 px, « Signaler un problème »,
+   « Abandonner » et « Mettre en pause » s'écrivaient sur deux ou trois lignes
+   et couvraient en permanence le bas de l'exercice (76 px de haut en
+   Terminale, 59 en Seconde et en Première). Le nom complet reste dans
+   aria-label et title. Le contrôle : banc navigateur, § 5. */
+@media (max-width:480px){
+  #testCtrls{gap:6px;right:8px}
+  #testCtrls button{padding:9px 12px;font-size:.85rem}
+  #testCtrls .tc-long{display:none}
+  #testCtrls .tc-court{display:inline}
+}
 @media (orientation:landscape){
   body.pave-actif #testCtrls{bottom:12px;gap:6px}
   body.pave-actif #testCtrls button{padding:7px 10px;font-size:.8rem}
@@ -3155,8 +3172,13 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #fpHost .fp-col{height:510px}
 /* 3.1.5 : dix parts ; à 260 px, traits compris, la plus basse en gardait 23,7. */
 @media(max-width:520px){ #pcHost .fp-col{height:270px} }
+/* L'enveloppe d'un tableau qui défile reçoit le focus (A7, script #defilants) :
+   elle montre qu'elle l'a. */
+[data-defile]:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 </style>
+</head>
 
+<body>
 <div class="wrap">
   <header class="mast">
     <div class="logo">ƒ</div>
@@ -3630,7 +3652,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="eqgLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">On a repr&eacute;sent&eacute; la courbe de f et la droite de g dans le m&ecirc;me rep&egrave;re. R&eacute;ponds avec le dessin&nbsp;: les solutions se lisent sur l&rsquo;axe des abscisses.</p>
+      <p class="mp-instr" id="eqgInstr">On a repr&eacute;sent&eacute; la courbe de f et la droite de g dans le m&ecirc;me rep&egrave;re. R&eacute;ponds avec le dessin&nbsp;: les solutions se lisent sur l&rsquo;axe des abscisses.</p>
       <p class="ens-note"><b>C<sub>f</sub></b> est la courbe en trait plein&nbsp;; <b>C<sub>g</sub></b> est la droite en pointill&eacute;s.</p>
       <div class="mp-stage"><div style="width:100%" id="eqgHost"></div></div>
       <div class="mp-feedback" id="eqgFeedback" aria-live="polite"></div>
@@ -4321,7 +4343,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   <section class="screen" id="scr-ens">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEns"></span><span class="q-idx" id="ensIdx">Question 1 / 10</span></span>
-      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="ensLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ensLiveScore">0</b></span>
     </div>
     <div class="card">
       <p class="mp-instr">Complète chaque ligne avec <b>∈</b> (appartient) ou <b>∉</b> (n'appartient pas).</p>
@@ -5738,7 +5760,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=422;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=423;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6119,9 +6141,12 @@ function ptsEcran(){
     const els=scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
       +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol,'
       +'.pts-case.ok,.pts-case.bad,.pts-case.sol');
-    if(!els.length) return null;
-    let ok=0; els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
-    return {pts:ok/els.length, justes:ok, cases:els.length};
+    /* la pose FACULTATIVE d'une multiplication (jugePoseFac) se peint, mais
+       ne compte pas : ni au verdict, ni dans la note */
+    const comptees=[...els].filter(e=>!e.closest('.pose-fac'));
+    if(!comptees.length) return null;
+    let ok=0; comptees.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
+    return {pts:ok/comptees.length, justes:ok, cases:comptees.length};
   }catch(e){ return null; }
 }
 function ptsRep(a){
@@ -6466,7 +6491,7 @@ const TESTS={
   'python-chaines': { name:'Concat\u00e9nation et r\u00e9p\u00e9tition de cha\u00eenes', icon:'\ud83d\udd17', desc:'Deux op\u00e9rations sur les cha\u00eenes de caract\u00e8res\u00a0: la concat\u00e9nation (+) et la r\u00e9p\u00e9tition (*). a) Ex\u00e9cute un programme qui s\u2019en sert\u00a0; b) compl\u00e8te un programme pour qu\u2019il affiche plusieurs fois ton nom et ton pr\u00e9nom.', start:()=>startPCH() },
   'python-pas-a-pas': { name:'Le programme pas \u00e0 pas : les cases m\u00e9moire', icon:'\ud83e\udde0', desc:'Un programme range des nombres dans des cases m\u00e9moire. Ex\u00e9cute-le LIGNE PAR LIGNE\u00a0: \u00e0 chaque ligne, dis quelle case re\u00e7oit la valeur et ce qu\u2019elle contient ensuite. Les cases d\u00e9j\u00e0 remplies gardent leur valeur \u2014 et quand une ligne dit «\u00a0c = b\u00a0», c\u2019est le CONTENU de b qui est recopi\u00e9.', start:()=>startPAP() },
   'python-valeur-case': { name:'La valeur de la case m\u00e9moire, ligne par ligne', icon:'\ud83d\uddc3\ufe0f', desc:'Le m\u00eame programme pas \u00e0 pas, mais plus simple\u00a0: la case m\u00e9moire que la ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau, et tu n\u2019\u00e9cris que LA VALEUR qu\u2019elle contient ensuite. Ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier \u00e0 la fin que toutes les cases m\u00e9moire ont la bonne valeur.', start:()=>startPVM() },
-  'python-pas-a-pas-calcul': { name:'Le programme pas \u00e0 pas\u00a0: quand une ligne CALCULE', icon:'\ud83e\uddee', desc:'La suite du pas \u00e0 pas\u00a0: certaines lignes rangent un nombre, d\u2019autres recopient une case \u2014 et maintenant, une ligne comme { c = a+b } CALCULE sa valeur avec ce que les cases contiennent. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPC() },
+  'python-pas-a-pas-calcul': { name:'Le programme pas \u00e0 pas\u00a0: quand une ligne CALCULE', icon:'\ud83e\uddee', desc:'La suite du pas \u00e0 pas\u00a0: certaines lignes rangent un nombre, d\u2019autres recopient une case \u2014 et maintenant, une ligne comme \u00ab\u00a0c = a+b\u00a0\u00bb CALCULE sa valeur avec ce que les cases contiennent. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPC() },
   'python-pas-a-pas-chaine': { name:'Le programme pas \u00e0 pas\u00a0: un calcul qui en lit un autre', icon:'\ud83d\udd17', desc:'La marche encore suivante\u00a0: une case d\u00e9j\u00e0 CALCUL\u00e9e peut \u00e0 son tour nourrir un autre calcul, comme dans \u00ab d = c+a \u00bb quand c vient elle-m\u00eame d\u2019un calcul. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPD() },
   'python-echange-variables': { name:'\u00c9changer deux variables', icon:'\ud83d\udd01', desc:'Ex\u00e9cute pas \u00e0 pas un programme qui \u00e9change les valeurs de deux cases \u00e0 l\u2019aide d\u2019une troisi\u00e8me. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite \u2014 puis, \u00e0 la fin, explique avec tes mots ce qui s\u2019est pass\u00e9 pour les deux cases \u00e9chang\u00e9es.', start:()=>startPEV() },
   'python-pas-a-pas-multiplication': { name:'Devine, puis v\u00e9rifie pas \u00e0 pas', icon:'\ud83e\udd14', desc:'Devine d\u2019abord ce que contiendra la case l une fois le programme termin\u00e9 \u2014 elle est R\u00c9\u00c9CRITE par la derni\u00e8re ligne, et le r\u00e9sultat peut \u00eatre n\u00e9gatif. Puis ex\u00e9cute le programme ligne par ligne pour v\u00e9rifier ta pr\u00e9diction\u00a0: si elle \u00e9tait fausse, tu recommences avec d\u2019autres nombres.', start:()=>startPPM() },
@@ -6651,13 +6676,18 @@ function pick(a){return a[rand(0,a.length-1)];}
    figer la page. Le contrôle universel du banc relit chaque exercice. */
 const CLE_HORS=['v','ci','intro','unit','g','ordre','ordreExpr','opts','bon','rep','choisi','selL','selR'];
 function cleQuestion(q){ return JSON.stringify(q,function(k,v){ return CLE_HORS.indexOf(k)>=0?undefined:v; }); }
-function distincte(qs, fabrique){
-  const vues=qs.map(cleQuestion); let q, essais=0;
-  do{ q=fabrique(); }while(vues.indexOf(cleQuestion(q))>=0 && ++essais<200);
+/* La clé par défaut compare les DONNÉES telles qu'elles sont rangées. Un
+   exercice dont deux écritures disent la même chose — 18/3 et 30/5 valent 6,
+   (3, 7) et (7, 3) donnent les mêmes produits, trois nombres mélangés dans un
+   autre ordre — passe SA clé (troisième argument), qui identifie la valeur. */
+function distincte(qs, fabrique, cle){
+  cle=cle||cleQuestion;
+  const vues=qs.map(cle); let q, essais=0;
+  do{ q=fabrique(); }while(vues.indexOf(cle(q))>=0 && ++essais<200);
   return q;
 }
-function distinctes(n, fabrique){
-  const qs=[]; for(let i=0;i<n;i++) qs.push(distincte(qs, function(){ return fabrique(undefined, i); }));
+function distinctes(n, fabrique, cle){
+  const qs=[]; for(let i=0;i<n;i++) qs.push(distincte(qs, function(){ return fabrique(undefined, i); }, cle));
   return qs;
 }
 function testIdOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.test) return d.test; return 'derivees'; }
@@ -6676,7 +6706,14 @@ function restartCurrentTest(){
   const t=TESTS[currentTestId]; if(t&&t.start) t.start(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
-  $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+  /* « Corrige les cases en rouge » n'est vrai que s'il y en a : en soutien, une
+     case laissée vide reste neutre, et une page dont il ne manque qu'une case
+     vide (une ligne réductible de {reduire-somme}) n'a RIEN de rouge — même
+     règle que le 1.6. On cherche le rouge dans tout l'écran, message du
+     retour excepté : un rouge hors de l'hôte garde l'ancien message. */
+  const fb=$(fbId), hote=host&&$(host), ecran=hote&&(hote.closest('.screen')||hote);
+  const rouge=!ecran || [].some.call(ecran.querySelectorAll('.bad'), function(e){ return e!==fb && !e.classList.contains('mp-feedback'); });
+  fb.textContent=rouge ? 'Presque ! Corrige les cases en rouge, puis revérifie.' : 'Complète ta réponse, puis revérifie.';
   $(fbId).className='mp-feedback bad';
   /* les écrans portés de la Première ont déjà leur rangée d'aide (iaBoutons) : pas de doublon */
   const rangeeAide=$(actionsId)&&$(actionsId).parentNode&&$(actionsId).parentNode.querySelector('.ia-row');
@@ -7913,9 +7950,9 @@ const QIA_SUGG={
   pcol:["Que vaut une part de la colonne de droite ?","Pourquoi les deux colonnes ont-elles le même nombre de parts ?","Comment lire le résultat sur la colonne ?","Fais-moi un rappel de cours pour cet exercice."],
   fp:["Pourquoi 3/4 égale 75 % ?","Comment passer d’une fraction à un pourcentage ?","Que vaut une part quand la colonne est divisée en 5 ?","Pourquoi 1/2 et 50 % ont-ils la même hauteur ?"],
   psyn:["Quelle méthode choisir : coefficient ou calcul direct ?","Comment reconnaître s\u2019il s\u2019agit de prendre, d\u2019augmenter ou de diminuer ?","Comment tester une proposition ?","Pourquoi les deux méthodes donnent-elles le même résultat ?"],
-  ens:["C\u2019est quoi, un nombre decimal ?","C\u2019est quoi, un nombre rationnel ?","Pourquoi 1/3 n\u2019est pas decimal ?","Que veut dire le symbole \u2208 ?"],
-  def:["Comment ecrire une definition d\u2019ensemble ?","Quelle difference entre \u2115 et \u2124 ?","Pourquoi un exemple ne suffit pas ?"],
-  pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de repondre ?"],
+  ens:["C\u2019est quoi, un nombre d\u00e9cimal ?","C\u2019est quoi, un nombre rationnel ?","Pourquoi 1/3 n\u2019est pas d\u00e9cimal ?","Que veut dire le symbole \u2208 ?"],
+  def:["Comment \u00e9crire une d\u00e9finition d\u2019ensemble ?","Quelle diff\u00e9rence entre \u2115 et \u2124 ?","Pourquoi un exemple ne suffit pas ?"],
+  pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de r\u00e9pondre ?"],
   lv:["Comment lire les variations d\u2019une courbe ?","Que veut dire croissante ?","Comment remplir un tableau de variations ?"],
   ls:["Comment trouver o\u00f9 f (x) = 0 sur le graphique ?","Comment lire le signe de f sur un intervalle ?","Pourquoi \u00e9crit-on 0 sous une racine ?"],
   lsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?"],
@@ -7939,11 +7976,11 @@ const QIA_SUGG={
   eig:["Quelle différence entre résoudre f (x) = 2 et f (x) ≥ 2 ?","Pourquoi S s’écrit avec des accolades pour une équation et des crochets pour une inéquation ?","Comment savoir combien de points doit montrer le bon dessin ?","Le signe ≥ donne quel crochet ?"],
   tsg:["Pourquoi écrit-on 0 dans le tableau sous une racine, et pas un signe ?","Pourquoi les racines sont-elles EXCLUES de S quand on résout f (x) > 0 ?","Comment lire le signe de f (x) sur le dessin ?","Pourquoi S s’écrit avec des accolades pour f (x) = 0 et des crochets pour f (x) > 0 ?"],
   cfx:["Comment placer un point pour respecter f ( −2 ) = 3 ?","Que veut dire « l’antécédent de −4 est 3 » pour mon tracé ?","Pourquoi ma courbe ne doit-elle pas recouper l’axe ailleurs que sur S ?","Comment respecter une inéquation dont la solution est un intervalle ?"],
-  ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Pourquoi les bouts de la courbe sont-ils toujours pris ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
+  ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Quand un bout de la courbe fait-il partie de la solution ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
   pvn:["Pourquoi un nom de variable ne peut-il pas commencer par un chiffre ?","Est-ce que les majuscules sont autorisées dans un nom de variable ?","Comment écrire un nom en deux mots, comme « prix d’achat » ?","Pourquoi les lettres accentuées sont-elles interdites ?"],
   pty:["Quelle est la différence entre 15 et \"15\" ?","Pourquoi 15.0 est-il un float et pas un int ?","Un nombre négatif comme -3, c’est quel type ?","À quoi sert type() ?"],
-  pyc:["Comment afficher la valeur d’une variable ?","Quelle est la différence entre note et \"note\" dans un print ?","Pourquoi écrire juste le nom de la variable n’affiche rien ?","Que veut dire l’erreur « n’existe pas » ?"],
+  pyc:["Comment afficher la valeur d’une variable ?","Quelle est la différence entre note et \"note\" dans un print ?","Pourquoi, dans un programme, écrire juste le nom de la variable n’affiche rien ?","Que veut dire l’erreur « n’existe pas » ?"],
   pnv:["Pourquoi l’espace est-il interdit dans un nom de variable ?","Est-ce que je peux mettre un chiffre dans un nom de variable ?","Pourquoi « print » ne peut-il pas être un nom de variable ?","Comment écrire un nom qui contient deux mots ?"],
   pyi:["À quoi sert input ?","Où va la réponse que l’utilisateur tape ?","Pourquoi le nom de la variable s’écrit-il sans guillemets dans le print ?","Pourquoi faut-il écrire input avant le print ?"],
   pcl:["Que représente len(chaine) ?","Pourquoi chaine[0] est-il le premier caractère ?","Pourquoi le dernier caractère est-il chaine[len(chaine)-1] ?","Que se passe-t-il si l’indice est trop grand ?"],
@@ -8020,6 +8057,8 @@ const QIA_SUGG_ID={
   'synthese-augmentations-libre':["Comment vérifier avec le coefficient multiplicateur ?","Comment vérifier en calculant l’augmentation ?","Comment savoir ce que la question me demande de retrouver ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?"],
   'synthese-diminutions-libre':["Comment vérifier avec le coefficient multiplicateur ?","Comment vérifier en calculant la diminution ?","Comment savoir ce que la question me demande de retrouver ?","Pourquoi diminuer de 20 % revient à multiplier par 0,8 ?"],
   'synthese-pourcentages-libre':["Comment savoir ce que la question me demande de retrouver ?","Comment justifier avec le coefficient multiplicateur ?","Comment retrouver un pourcentage avec un quotient ?","Quelle différence entre « prendre 30 % » et « augmenter de 30 % » ?"],
+  /* la baisse par soustraction partage le moteur de l'augmentation (ag2) : sans ces questions, elle proposait « Pourquoi calcule-t-on d'abord l'augmentation ? » (audit, octobre 2026) */
+  'diminuer-soustraction':["Pourquoi calcule-t-on d\u2019abord la baisse ?","Quelle différence avec la méthode du coefficient ?","Pourquoi faut-il soustraire la baisse de la valeur de départ ?","Comment calculer 20 % de 300 ?"],
   /* la baisse, en « retrouver » : le moteur est celui de la hausse (augq), les questions sont les siennes */
   'diminuer-depart':["Pourquoi compare-t-on la baisse à la valeur de départ ?","C’est quoi, un coefficient multiplicateur ?","Comment tester une proposition ?","Pourquoi une baisse de 20 % ne s’annule-t-elle pas par une hausse de 20 % ?"],
   'diminuer-taux':["Pourquoi compare-t-on la baisse à la valeur de départ ?","C’est quoi, un coefficient multiplicateur ?","Comment tester une proposition ?","Pourquoi une baisse de 20 % ne s’annule-t-elle pas par une hausse de 20 % ?"],
@@ -8156,7 +8195,7 @@ const RAP_PCTC=`<b>Composer deux pourcentages</b><br>
 Trois boîtes reliées par deux flèches : <b>[le total]</b> → <b>[un sous-groupe]</b> → <b>[un sous-groupe DU sous-groupe]</b>. Chaque flèche porte l’écriture décimale du pourcentage qu’elle applique — <b>× \\(\\frac{P_1}{100}\\)</b> puis <b>× \\(\\frac{P_2}{100}\\)</b> — exactement comme dans {pourcentage-boite}.<br>
 Passer par les deux étapes ou faire le calcul en un seul coup donne le même résultat : \\(\\frac{P_1}{100}\\times\\frac{P_2}{100}=\\frac{P_1\\times P_2}{10000}\\). Ce produit des deux écritures décimales est le <b>coefficient multiplicateur global</b> : il va directement du total au dernier sous-groupe, sans passer par celui du milieu — c’est la deuxième rangée du schéma.<br>
 Le pourcentage du dernier sous-groupe, par rapport au total, n’est <b>PAS</b> \\(P_1+P_2\\) : on n’additionne jamais deux pourcentages qui ne portent pas sur la même chose. C’est \\(\\frac{P_1\\times P_2}{100}\\) — le produit des deux pourcentages, divisé par 100.<br>
-Toutes les cases sont toujours vides, même le total, qui vaut toujours 100 % : c’est en le récrivant qu’on montre qu’on a compris le schéma.`;
+Les boîtes ne portent que leur nom : tout se lit en pourcentage du total, qui vaut 100 %. On complète les <b>deux flèches</b> (les écritures décimales), puis la <b>rangée du dessous</b> — on y reprend les deux écritures décimales et on écrit leur produit —, et enfin la <b>phrase de conclusion</b>, avec le pourcentage que demande l’énoncé. Quand c’est l’un des deux pourcentages qui manque, on le retrouve par une division : \\(0{,}06\\div0{,}30=0{,}2\\), soit 20 %.`;
 const RAP_PCS=`<b>Lire un schéma de pourcentages</b><br>
 Le même schéma que dans {pourcentage-chaine} : <b>[le total]</b> → <b>[un sous-groupe]</b> → <b>[un sous-groupe DU sous-groupe]</b>, et chaque flèche porte l’écriture décimale du pourcentage qu’elle applique. Mais cette fois, c’est le schéma qui donne les nombres, et c’est à toi de les lire : <b>× 0,30</b> sur la première flèche veut dire « 30 % du total » — c’est × \\(\\frac{30}{100}\\) —, <b>× 0,20</b> sur la seconde veut dire « 20 % du sous-groupe » (× \\(\\frac{20}{100}\\)), jamais 20 % du total.<br>
 La grande flèche du dessous va directement du total au dernier sous-groupe : son coefficient est le <b>PRODUIT</b> des deux écritures décimales, \\(0{,}30\\times0{,}20=0{,}06\\), c’est-à-dire <b>6 %</b> du total. On n’additionne jamais deux pourcentages qui ne portent pas sur la même chose.<br>
@@ -8420,36 +8459,36 @@ par emprunt, laisse-les vides.<br>
 V\u00e9rifie l\u2019ordre de grandeur \u00e0 la fin : 347 + 58, c\u2019est \u00ab un peu plus de 400 \u00bb.
 Une r\u00e9ponse \u00e0 3\u00a0000 ou \u00e0 40 saute alors aux yeux.`;
 const RAP_ENS=`<b>Les ensembles de nombres</b><br>
-Ils sont <b>emboites</b> : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>.<br>
+Ils sont <b>emboîtés</b> : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>.<br>
 <b>ℕ</b> : les entiers positifs — 0, 1, 2, 3…<br>
-<b>ℤ</b> : les entiers, positifs ou negatifs — −5, 0, 7…<br>
-<b>𝔻</b> : les decimaux, ceux qui s’ecrivent avec un nombre <i>fini</i> de chiffres apres la virgule — 2,5 ; −0,75.<br>
-<b>ℚ</b> : les rationnels, ceux qui s’ecrivent comme une fraction de deux entiers — \\(\\frac{1}{3}\\) ; \\(-\\frac{7}{4}\\).<br>
-<b>ℝ</b> : tous les nombres de la droite graduee, y compris √2 et π.<br>
-Comme les ensembles sont emboites, un nombre de ℕ appartient aussi a ℤ, a 𝔻, a ℚ et a ℝ.<br>
-On ecrit <b>∈</b> pour « appartient a » et <b>∉</b> pour « n’appartient pas a ».`;
+<b>ℤ</b> : les entiers, positifs ou négatifs — −5, 0, 7…<br>
+<b>𝔻</b> : les décimaux, ceux qui s’écrivent avec un nombre <i>fini</i> de chiffres après la virgule — 2,5 ; −0,75.<br>
+<b>ℚ</b> : les rationnels, ceux qui s’écrivent comme une fraction de deux entiers, de dénominateur non nul — \\(\\frac{1}{3}\\) ; \\(-\\frac{7}{4}\\).<br>
+<b>ℝ</b> : tous les nombres de la droite graduée, y compris √2 et π.<br>
+Comme les ensembles sont emboîtés, un nombre de ℕ appartient aussi à ℤ, à 𝔻, à ℚ et à ℝ.<br>
+On écrit <b>∈</b> pour « appartient à » et <b>∉</b> pour « n’appartient pas à ».`;
 const RAP_ENS2=`<b>Les ensembles de nombres — les cas qui trompent</b><br>
-Rappel : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>, et un nombre appartient a tous les ensembles qui contiennent le plus petit auquel il appartient.<br>
-<b>Une fraction n’est pas forcement en dehors de ℤ</b> : \\(\\frac{6}{3}=2\\), donc \\(\\frac{6}{3}\\) ∈ ℕ.<br>
-<b>Une ecriture decimale illimitee periodique reste rationnelle</b> : 0,333… = \\(\\frac{1}{3}\\), donc c’est un element de ℚ mais pas de 𝔻.<br>
-<b>\\(\\frac{1}{3}\\) n’est pas decimal</b> : aucune ecriture finie apres la virgule. \\(\\frac{1}{3}\\) ∈ ℚ, \\(\\frac{1}{3}\\) ∉ 𝔻.<br>
-<b>√2 et π ne sont pas rationnels</b> : ils appartiennent a ℝ et a aucun des quatre autres.<br>
-<b>√9 = 3</b> : une racine peut tres bien tomber sur un entier — regarde toujours la valeur, pas l’ecriture.<br>
-Piege classique : juger d’apres la forme ecrite au lieu de calculer la valeur.`;
-const RAP_DEF=`<b>Definir un ensemble de nombres</b><br>
-Une definition dit <i>quels nombres</i> l’ensemble contient, pas des exemples.<br>
-<b>ℕ</b> : l’ensemble des entiers naturels, c’est-a-dire des entiers positifs ou nuls.<br>
-<b>ℤ</b> : l’ensemble des entiers relatifs, c’est-a-dire des entiers positifs, negatifs ou nuls.<br>
-<b>𝔻</b> : l’ensemble des nombres decimaux, ceux qui s’ecrivent avec un nombre fini de chiffres apres la virgule.<br>
-<b>ℚ</b> : l’ensemble des nombres rationnels, ceux qui s’ecrivent comme quotient de deux entiers.<br>
-<b>ℝ</b> : l’ensemble des nombres reels, c’est-a-dire tous les nombres de la droite graduee.<br>
-Piege classique : repondre par un exemple (« 2 ; 3 ; 4 ») au lieu d’une definition.`;
+Rappel : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>, et un nombre appartient à tous les ensembles qui contiennent le plus petit auquel il appartient.<br>
+<b>Une fraction n’est pas forcément en dehors de ℤ</b> : \\(\\frac{6}{3}=2\\), donc \\(\\frac{6}{3}\\) ∈ ℕ.<br>
+<b>Une écriture décimale illimitée périodique reste rationnelle</b> : 0,333… = \\(\\frac{1}{3}\\), donc c’est un élément de ℚ mais pas de 𝔻.<br>
+<b>\\(\\frac{1}{3}\\) n’est pas décimal</b> : aucune écriture finie après la virgule. \\(\\frac{1}{3}\\) ∈ ℚ, \\(\\frac{1}{3}\\) ∉ 𝔻.<br>
+<b>√2 et π ne sont pas rationnels</b> : ils appartiennent à ℝ, mais à aucun des quatre autres.<br>
+<b>√9 = 3</b> : une racine peut très bien tomber sur un entier — regarde toujours la valeur, pas l’écriture.<br>
+Piège classique : juger d’après la forme écrite au lieu de calculer la valeur.`;
+const RAP_DEF=`<b>Définir un ensemble de nombres</b><br>
+Une définition dit <i>quels nombres</i> l’ensemble contient, pas des exemples.<br>
+<b>ℕ</b> : l’ensemble des entiers naturels, c’est-à-dire des entiers positifs ou nuls.<br>
+<b>ℤ</b> : l’ensemble des entiers relatifs, c’est-à-dire des entiers positifs, négatifs ou nuls.<br>
+<b>𝔻</b> : l’ensemble des nombres décimaux, ceux qui s’écrivent avec un nombre fini de chiffres après la virgule.<br>
+<b>ℚ</b> : l’ensemble des nombres rationnels, ceux qui s’écrivent comme quotient de deux entiers, le dénominateur étant non nul.<br>
+<b>ℝ</b> : l’ensemble des nombres réels, c’est-à-dire tous les nombres de la droite graduée.<br>
+Piège classique : répondre par un exemple (« 2 ; 3 ; 4 ») au lieu d’une définition.`;
 const RAP_PGE=`<b>Trouver le plus petit ensemble qui contient un nombre</b><br>
-Les ensembles sont emboites : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>. Le « plus petit » est donc le premier de cette liste auquel le nombre appartient.<br>
-<b>① Calcule d’abord la valeur</b> : \\(\\frac{6}{3}\\) vaut 2, √9 vaut 3. L’ecriture n’est pas la valeur.<br>
-<b>② Puis descends la liste</b> : est-il entier positif ? → ℕ. Sinon entier ? → ℤ. Sinon a-t-il un nombre fini de decimales ? → 𝔻. Sinon s’ecrit-il en fraction d’entiers ? → ℚ. Sinon → ℝ.<br>
+Les ensembles sont emboîtés : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>. Le « plus petit » est donc le premier de cette liste auquel le nombre appartient.<br>
+<b>① Calcule d’abord la valeur</b> : \\(\\frac{6}{3}\\) vaut 2, √9 vaut 3. L’écriture n’est pas la valeur.<br>
+<b>② Puis descends la liste</b> : est-il entier positif ? → ℕ. Sinon entier ? → ℤ. Sinon a-t-il un nombre fini de décimales ? → 𝔻. Sinon s’écrit-il en fraction d’entiers (dénominateur non nul) ? → ℚ. Sinon → ℝ.<br>
 Exemples : −3 → ℤ ; 2,5 → 𝔻 ; \\(\\frac{1}{3}\\) → ℚ ; π → ℝ.<br>
-Piege classique : repondre ℝ parce que c’est toujours vrai — on demande le <i>plus petit</i>.`;
+Piège classique : répondre ℝ parce que c’est toujours vrai — on demande le <i>plus petit</i>.`;
 const RAP_LV=`<b>Lire les variations d’une courbe</b><br>
 On parcourt la courbe <b>de gauche a droite</b>, dans le sens des x croissants.<br>
 <b>La courbe monte</b> → la fonction est <b>croissante</b> sur cet intervalle → fleche <b>↗</b>.<br>
@@ -8543,7 +8582,7 @@ const RAP_ING=`<b>Résoudre une inéquation avec un dessin</b><br>
 <b>\u2460 Trace la droite horizontale</b> y = 2 : elle coupe la courbe en deux points.<br>
 <b>\u2461 Colorie le morceau qui répond.</b> \u2265 et &gt; \u2192 la partie de la courbe AU-DESSUS de la droite ; \u2264 et &lt; \u2192 AU-DESSOUS (souvent DEUX morceaux).<br>
 <b>\u2462 Lis les x sur l'axe des abscisses</b> : la solution est l'intervalle des x du morceau colorié.<br>
-<b>\u2463 Le signe décide des bornes.</b> \u2265 ou \u2264 : les croisements sont PRIS — point plein, crochet fermé. &gt; ou &lt; : ils sont EXCLUS — rond vide, crochet ouvert. Les bouts de la courbe, eux, sont toujours pris.<br>
+<b>\u2463 Le signe décide des bornes.</b> \u2265 ou \u2264 : les croisements sont PRIS — point plein, crochet fermé. &gt; ou &lt; : ils sont EXCLUS — rond vide, crochet ouvert. Un bout de la courbe n'est dans S que si le morceau colorié va jusqu'à lui : il est alors PRIS — crochet fermé, la courbe y existe. Un morceau ENTRE les deux croisements (une cloche) s'arrête aux croisements, et les bouts de la courbe n'y sont pas.<br>
 <b>Les quatre dessins, sur un exemple :</b>${rapIngDessins()}Piège classique : répondre avec les HAUTEURS (les y) au lieu des nombres de l'axe des abscisses — la solution est un ensemble de x.`;
 
 const RAP_ITV=`<b>Lire et écrire un intervalle</b><br>
@@ -8699,7 +8738,8 @@ const RAP_TSF=`<b>Mettre TROIS fractions au même dénominateur</b><br>
 Pas de priorité ici — que des + et des − — mais trois fractions au lieu de deux : le croisement s’étend.<br>
 <b>① Chaque terme se multiplie par le PRODUIT des deux AUTRES dénominateurs.</b> Avec \\(\\frac{2}{3}+\\frac{1}{5}-\\frac{5}{6}\\) : le premier terme se multiplie par \\(5\\times 6=30\\), le second par \\(3\\times 6=18\\), le troisième par \\(3\\times 5=15\\).<br>
 <b>② Les trois tombent alors sur le MÊME dénominateur</b> — ici \\(3\\times 5\\times 6=90\\) : \\(\\frac{2\\times 30}{90}+\\frac{1\\times 18}{90}-\\frac{5\\times 15}{90}=\\frac{60}{90}+\\frac{18}{90}-\\frac{75}{90}\\)<br>
-<b>③ On additionne ou on soustrait les numérateurs</b>, jamais les dénominateurs : \\(\\frac{60+18-75}{90}=\\frac{3}{90}\\)`;
+<b>③ On additionne ou on soustrait les numérateurs</b>, jamais les dénominateurs : \\(\\frac{60+18-75}{90}=\\frac{3}{90}\\)<br>
+<b>④ On simplifie à la fin</b>, si c’est possible : ici 3 et 90 se divisent par 3, \\(\\frac{3}{90}=\\frac{1}{30}\\).`;
 /* {ordre-croissant} partage le rappel de {placer-intervalle} : c'est la même
    méthode — écrire avec le même nombre de décimales, puis comparer. */
 const RAP_IFG=`<b>Lire avec deux courbes, chacune sur son domaine</b><br>
@@ -8707,7 +8747,7 @@ const RAP_IFG=`<b>Lire avec deux courbes, chacune sur son domaine</b><br>
 • <b>Une image</b> se lit en MONTANT du nombre jusqu'à SA courbe (f en trait plein, g en pointillés), puis en allant vers l'axe des y — comme dans {image-nombre}. Attention à bien viser la bonne courbe !<br>
 • <b>Un antécédent</b> se trouve avec la ligne de niveau — un trait horizontal à la hauteur donnée : chaque croisement avec la courbe donne un antécédent, comme dans {antecedent-nombre}. La même hauteur peut avoir UN antécédent par f et PLUSIEURS par g.<br>
 • <b>Résoudre f\u2009(x) = g\u2009(x)</b> : chercher les x où les deux courbes se CROISENT — mais seulement là où les deux existent.<br>
-• <b>Résoudre f\u2009(x) > g\u2009(x)</b> : chercher les x où la courbe de f est AU-DESSUS de celle de g, comme dans {equation-graphique}. Les bouts de S sont les bouts du domaine COMMUN, et ils sont toujours pris ; les croisements suivent le signe — fermé si l'égalité est acceptée (≥), ouvert sinon (>).`;
+• <b>Résoudre f\u2009(x) > g\u2009(x)</b> : chercher les x où la courbe de f est AU-DESSUS de celle de g, comme dans {equation-graphique}. Quand un morceau de S va jusqu'au bout du domaine COMMUN, ce bout est pris — crochet fermé ; quand S est entre deux croisements, les bouts du domaine n'y sont pas. Les croisements suivent le signe — fermé si l'égalité est acceptée (≥), ouvert sinon (>).`;
 const RAP_LS=`<b>Le tableau de signes d’une courbe</b><br>
 On regarde où la courbe est par rapport à l’<b>axe des abscisses</b> (l’axe horizontal).<br>
 La courbe est <b>au-dessus</b> de l’axe → f (x) est <b>positive</b> → signe <b>+</b>.<br>
@@ -8754,24 +8794,24 @@ const RAP_TSG=`<b>Le tableau de signes se lit sur le dessin</b><br>
 • <b>Au-dessus de l'axe des abscisses</b> (en ROUGE sur le dessin) : f (x) &gt; 0, on écrit le signe <b>+</b>. <b>En dessous</b> (en BLEU) : f (x) &lt; 0, signe <b>−</b>.<br>
 • <b>Aux racines</b> — les x où la courbe COUPE l'axe — f (x) = 0 : on écrit <b>0</b> dans le tableau, jamais un signe.<br>
 • <b>Résoudre f (x) = 0</b> : les solutions sont les racines. On écrit S = { −2 ; 1 } avec des ACCOLADES : ce sont quelques nombres, pas un intervalle.<br>
-• <b>Résoudre f (x) &gt; 0 ou f (x) &lt; 0</b> : la solution s'écrit en INTERVALLE, lue dans le tableau. L'inégalité est STRICTE, donc les racines sont EXCLUES — crochet ouvert. Les bouts du dessin (−3 et 3) sont toujours pris.<br>
+• <b>Résoudre f (x) &gt; 0 ou f (x) &lt; 0</b> : la solution s'écrit en INTERVALLE, lue dans le tableau. L'inégalité est STRICTE, donc les racines sont EXCLUES — crochet ouvert. Un bout du dessin (−3 ou 3) n'est dans S que si f y a le bon signe : il est alors pris — crochet fermé.<br>
 • Deux morceaux du même signe s'écrivent avec le symbole ∪ : par exemple S = [−3 ; −2[ ∪ ]1 ; 3].`;
 const RAP_EIG=`<b>Résoudre graphiquement, avec la droite y = k</b><br>
 • <b>Résoudre f (x) = k</b> : on trace la droite horizontale y = k et on cherche TOUS les points où la courbe la croise. Les solutions sont les ABSCISSES de ces points, lues en descendant sur l'axe horizontal — comme dans {antecedent-nombre}. On écrit S = { −2 ; 1 } avec des ACCOLADES : ce sont quelques nombres, pas un intervalle.<br>
 • <b>Le bon dessin d'une équation</b> montre la ligne à la BONNE hauteur, avec un point à CHAQUE croisement — ni point oublié, ni point en trop, ni l'autre hauteur.<br>
-• <b>Résoudre f (x) ≥ k</b> : on cherche les x où la courbe est AU-DESSUS de la droite (au-dessous pour ≤) — comme dans {inequation-graphique}. La solution s'écrit en INTERVALLE : les croisements pour bornes, crochet fermé si le signe accepte l'égalité (≥, ≤), ouvert sinon (&gt;, &lt;). Les bouts du dessin (−3 et 3) sont toujours pris.<br>
+• <b>Résoudre f (x) ≥ k</b> : on cherche les x où la courbe est AU-DESSUS de la droite (au-dessous pour ≤) — comme dans {inequation-graphique}. La solution s'écrit en INTERVALLE : les croisements pour bornes, crochet fermé si le signe accepte l'égalité (≥, ≤), ouvert sinon (&gt;, &lt;). Un bout du dessin (−3 ou 3) n'est dans S que si un morceau va jusqu'à lui : il est alors pris — crochet fermé.<br>
 • <b>Point plein ou rond vide</b> : plein = le nombre est pris, vide = il ne l'est pas — le dessin dit la même chose que le crochet.`;
 const RAP_EQG=`<b>Deux courbes sur un même dessin</b><br>
 \u2022 <b>Lire une image</b> : f\u2009(2) est la HAUTEUR de la courbe C<sub>f</sub> au-dessus de 2. On monte (ou on descend) de 2 jusqu'à C<sub>f</sub>, puis on lit sur l'axe vertical. Pour g\u2009(2), même geste sur la droite C<sub>g</sub>.<br>
 \u2022 <b>Résoudre f\u2009(x) = k</b> : on cherche TOUS les x où la courbe est à la hauteur k. Les solutions se lisent sur l'axe des abscisses — comme dans {antecedent-nombre}.<br>
 \u2022 <b>Résoudre f\u2009(x) = g\u2009(x)</b> : on cherche les x où les deux courbes se CROISENT. Chaque croisement donne une solution, lue en descendant sur l'axe des abscisses.<br>
-\u2022 <b>Résoudre f\u2009(x) &gt; g\u2009(x)</b> : on cherche les x où C<sub>f</sub> est AU-DESSUS de C<sub>g</sub> — comme dans {inequation-graphique}, mais la droite n'est plus horizontale. La solution s'écrit en intervalle, avec les croisements pour bornes : crochet fermé si le signe accepte l'égalité (\u2265), ouvert sinon (&gt;). Les bouts du dessin (\u22123 et 3) sont toujours pris.`;
+\u2022 <b>Résoudre f\u2009(x) &gt; g\u2009(x)</b> : on cherche les x où C<sub>f</sub> est AU-DESSUS de C<sub>g</sub> — comme dans {inequation-graphique}, mais la droite n'est plus horizontale. La solution s'écrit en intervalle, avec les croisements pour bornes : crochet fermé si le signe accepte l'égalité (\u2265), ouvert sinon (&gt;). Un bout du dessin (\u22123 ou 3) n'est dans S que si un morceau va jusqu'à lui : il est alors pris — crochet fermé.`;
 const RAP_CFX=`<b>Construire une courbe qui respecte des consignes</b><br>
 C’est la lecture graphique à L’ENVERS : chaque consigne se traduit par un geste sur le dessin.<br><br>
 • <b>f (a) = v</b> ou « l’image de a est v » : le point de la colonne a se pose à la hauteur v.<br>
 • <b>« L’antécédent de y est b »</b> : la courbe passe à la hauteur y au-dessus de b — et NULLE PART ailleurs à cette hauteur, sinon y aurait plusieurs antécédents.<br>
 • <b>f (x) = 0 avec S = { … }</b> : la courbe coupe l’axe des abscisses exactement en ces points — pas un de moins, pas un de plus.<br>
-• <b>f (x) ≤ k avec S = [ … ]</b> : la courbe est au-dessous de la hauteur k exactement sur ces intervalles, et elle TOUCHE la hauteur k à chaque bord.<br><br>
+• <b>f (x) ≤ k avec S = [ … ]</b> : la courbe est au-dessous de la hauteur k exactement sur ces intervalles (au-dessus pour ≥). À chaque bord de S qui n'est pas un bout du dessin (−5 ou 5), elle TOUCHE la hauteur k : elle ne la traverse jamais entre deux graduations.<br><br>
 Plusieurs courbes différentes peuvent respecter les mêmes consignes : la correction en montre UNE, la tienne peut être une autre.`;
 /* Le rappel de la seconde famille de {construire-fonction} : même geste, autres
    consignes. Sans LaTeX — rien à empiler, et une formule sans fraction laisse
@@ -8831,7 +8871,7 @@ const RAP_PTY=`<b>Les trois types de variables</b><br>
 const RAP_PYC=`<b>Afficher une variable avec <code class="inline">print</code></b><br>
 <b>① On écrit le NOM de la variable entre les parenthèses, sans guillemets</b> : si <code class="inline">nombre = 7</code>, alors <code class="inline">print(nombre)</code> affiche <code class="inline">7</code> — la VALEUR de la variable.<br>
 <b>② Avec des guillemets, ce n’est plus la variable</b> : <code class="inline">print("nombre")</code> affiche le mot <code class="inline">nombre</code>, parce qu’un texte entre guillemets s’affiche tel quel.<br>
-<b>③ Écrire le nom tout seul n’affiche rien</b> : la ligne <code class="inline">nombre</code> ne fait rien. Seul <code class="inline">print(…)</code> affiche quelque chose.<br>
+<b>③ Dans un programme, écrire le nom tout seul n’affiche rien</b> : la ligne <code class="inline">nombre</code> lit la variable, sans rien montrer. Seul <code class="inline">print(…)</code> affiche quelque chose. (Dans un carnet Jupyter, le nom écrit seul en DERNIÈRE ligne d’une cellule fait voir sa valeur : c’est le carnet qui l’ajoute, pas Python — et un programme, lui, n’a pas de cellule.)<br>
 <b>④ Attention à l’orthographe</b> : <code class="inline">print</code> s’écrit tout en minuscules, et Python distingue <code class="inline">nombre</code> de <code class="inline">Nombre</code>. Les parenthèses et les guillemets vont par deux.`;
 /* Le rappel du nom de variable : les QUATRE règles de la fiche, dans son
    ordre, avec ses exemples. Aucun LaTeX — rien n'y empile — et aucun nombre à
@@ -8989,11 +9029,11 @@ Exemple : avec <code class="inline">ville = "Brest"</code> et <code class="inlin
    dans des balises code — le contrôle des numéros en dur ne lit que la
    prose, et « 0.5 » y passerait pour le numéro d'un exercice. */
 const RAP_PTV=`<b>Compléter un tableau de valeurs avec un programme</b><br>
-Le programme calcule <code class="inline">fonction = 2*x+3</code> pour la valeur de <code class="inline">x</code> écrite à la ligne&nbsp;1, et <code class="inline">print(fonction)</code> l’affiche.<br>
+Le programme calcule <code class="inline">fonction = …</code> — le calcul de l’énoncé, qui change d’une question à l’autre — pour la valeur de <code class="inline">x</code> écrite à la ligne&nbsp;1, et <code class="inline">print(fonction)</code> l’affiche.<br>
 <b>① Une colonne à la fois</b> — tu remplaces la valeur de <code class="inline">x</code> à la ligne&nbsp;1, tu exécutes, et tu recopies ce qui s’affiche dans la colonne de cette valeur.<br>
 <b>② Dans un programme, un nombre à virgule s’écrit avec un POINT</b> : le tableau écrit <code class="inline">0,5</code>, Python veut <code class="inline">0.5</code>. Avec une virgule, il s’arrête.<br>
 <b>③ Le résultat garde son point, lui aussi</b> — dès que <code class="inline">x</code> est un nombre à virgule, le résultat est un <code class="inline">float</code>, et Python l’écrit avec au moins une décimale : <code class="inline">4.0</code>.<br>
-Exemple : avec <code class="inline">x = 0.5</code>, le programme affiche <code class="inline">4.0</code> — c’est la valeur à recopier sous <code class="inline">0,5</code>.`;
+Exemple, avec le programme <code class="inline">fonction = 2*x+3</code> : pour <code class="inline">x = 0.5</code>, il affiche <code class="inline">4.0</code> — c’est la valeur à recopier sous <code class="inline">0,5</code>.`;
 const RAP_PCV=`<b>Une variable peut recevoir un CALCUL — et si on change les valeurs, tout suit</b><br>
 <b>① Une variable range une valeur.</b> <code class="inline">a = 6</code> met le nombre 6 dans la variable <code class="inline">a</code>.<br>
 <b>② Une variable peut recevoir le résultat d’un calcul.</b> <code class="inline">somme = a + b</code> calcule <code class="inline">a + b</code>, puis range le <b>résultat</b> dans <code class="inline">somme</code> — c’est le résultat qui est gardé, pas le calcul.<br>
@@ -9167,7 +9207,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 <b>① Même dénominateur :</b> on garde ce dénominateur, et on additionne ou on soustrait seulement les numérateurs. \\(\\frac{2}{5}+\\frac{1}{5}=\\frac{3}{5}\\)<br>
 <b>② Multiplier deux fractions :</b> numérateur fois numérateur, dénominateur fois dénominateur — et on NE met JAMAIS au même dénominateur, même si l'un des deux facteurs est un nombre entier. \\(\\frac{2}{3}\\times\\frac{4}{5}=\\frac{8}{15}\\) ; \\(\\frac{2}{3}\\times 4=\\frac{8}{3}\\) (le dénominateur ne change pas).<br>
 <b>③ Dénominateurs différents :</b> il faut d'abord les mettre au même dénominateur — le produit des deux — en multipliant chaque fraction en haut ET en bas. Un entier s'écrit d'abord comme une fraction de dénominateur 1 : \\(5=\\frac{5}{1}\\)<br>
-<b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}\\)`;
+<b>④ Diviser par une fraction :</b> on multiplie par son inverse — on échange son numérateur et son dénominateur. \\(\\frac{2}{3}\\div\\frac{4}{5}=\\frac{2}{3}\\times\\frac{5}{4}=\\frac{10}{12}=\\frac{5}{6}\\) (on simplifie à la fin, ici par 2).`;
 const RAPPELS={ pgc:RAP_PGC, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, prc:RAP_PRC, pkg:RAP_PKG, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pbl:RAP_PBL, pmn:RAP_PMN, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
@@ -11079,7 +11119,7 @@ function lvPickSubset(arr, m){
   return idx.slice(0,m).sort((a,b)=>a-b).map(i=>arr[i]);
 }
 
-/* Génère 9 valeurs entières f(-4..4) formant k segments monotones (k=2 ou 3),
+/* Génère 7 valeurs entières f(-3..3) formant k segments monotones (k=2 ou 3),
    valeurs dans [-3,3], changements de sens à des abscisses entières. */
 function lvGenPts(k){
   const FALL2=[[-3,-1,1,3,1,-1,-3],[3,1,-1,-3,-1,1,3],[-2,0,2,3,2,0,-2]];
@@ -11117,7 +11157,7 @@ function lvGenPts(k){
   return {pts:fb.slice()};
 }
 
-/* À partir des 9 valeurs, retrouve nœuds (bornes + sommets) et segments avec leur sens. */
+/* À partir des 7 valeurs, retrouve nœuds (bornes + sommets) et segments avec leur sens. */
 function lvAnalyze(pts){
   const xs=[-3,-2,-1,0,1,2,3];
   const d=[]; for(let i=0;i<6;i++) d.push(Math.sign(pts[i+1]-pts[i]));
@@ -12396,6 +12436,15 @@ function adrMaj(){
   const v=$('adr-v'); if(v) v.disabled=!pose||fige;
   const aucun=!!(v && v.value==='aucun');
   ['adr-n-0','adr-n-1','adr-n-2'].forEach(function(id){ const el=$(id); if(el) el.disabled=!pose||fige||aucun; });
+  adrSujet();
+}
+/* Le sujet de la phrase s'accorde avec le verbe CHOISI : « L’antécédent de 3
+   est 4 », « Les antécédents de 3 sont … » — jamais « Les antécédents de 3
+   est 4 » (constat M59 de l'audit). Il suit le choix de l'élève, sans rien
+   lui souffler : c'est le verbe qu'il choisit qui est jugé. */
+function adrSujet(){
+  const q=test.questions[test.idx], s=$('adr-suj'), v=$('adr-v'); if(!q || !s) return;
+  s.textContent=(v && v.value==='est' ? 'L’antécédent de ' : 'Les antécédents de ')+numFmt(q.y0);
 }
 function startAdr(){
   const qs=adrTirage();
@@ -12420,7 +12469,7 @@ function renderAdr(){
   const inp=id=>'<input id="'+id+'" class="lv-in" inputmode="numeric" autocomplete="off">';
   $('adrBody').innerHTML=
     '<div class="img-line"><span class="pts-case pim-case" id="adr-dr"></span> <span class="pts-case pim-case" id="adr-pts"></span></div>'
-    +'<div class="img-line">Les antécédents de '+Y+' <select id="adr-v" class="itv-sel adr-verbe"><option value="">—</option><option value="est">est</option><option value="sont">sont</option><option value="aucun">n’existent pas</option></select> '
+    +'<div class="img-line"><span id="adr-suj">Les antécédents de '+Y+'</span> <select id="adr-v" class="itv-sel adr-verbe"><option value="">—</option><option value="est">est</option><option value="sont">sont</option><option value="aucun">n’existent pas</option></select> '
     +inp('adr-n-0')+' ; '+inp('adr-n-1')+' ; '+inp('adr-n-2')+'</div>';
   $('adrBody').querySelectorAll('input').forEach(el=>{ el.addEventListener('input',adrLive); el.addEventListener('change',adrLive); });
   const v=$('adr-v'); if(v) v.addEventListener('change',function(){ adrMaj(); adrLive(); });
@@ -12505,7 +12554,7 @@ function submitAdr(){
   }
   test.locked=true; clearTimeout(test.qTimer);
   lvMarkFields(res, true);
-  corrCase('adr-v', res.vAtt, res.vOk);
+  corrCase('adr-v', res.vAtt, res.vOk); adrSujet();
   pastille('adr-dr',res.drOk); pastille('adr-pts',res.ptOk);
   /* la droite fausse passe au rouge ; la bonne hauteur (vert pointillé) et
      les croisements attendus (anneaux verts) se montrent avec le reste de la
@@ -13102,9 +13151,11 @@ function eqgMilieu(q){
   return 1;
 }
 function eqgGen(){
-  /* 4000 essais : le tirage étendu ne réussit qu'environ un essai sur 220 —
-     mesuré — et à 800 le repli sortait une séance sur 38. */
-  for(let att=0;att<4000;att++){
+  /* 8000 essais : le tirage ne réussit qu'environ un essai sur 800 — mesuré
+     en octobre 2026 sur 3000 séances, depuis que k doit être un vrai
+     croisement et que f n'a plus de palier (un sur 220 au premier jet, avant
+     ces deux exigences) ; à 4000 le repli sortait une séance sur 190. */
+  for(let att=0;att<8000;att++){
     const s=pick([1,-1]), c=pick([-2,-1,0,1,2]);
     const x1=pick([-2,-1,0]);
     const x2=pick([x1+2,x1+3,x1+4].filter(v=>v<=2));
@@ -13123,6 +13174,14 @@ function eqgGen(){
       pts[x+3]=pick(cands);
     }
     if(!ok) continue;
+    /* JAMAIS DE PALIER : deux valeurs voisines égales feraient un morceau de
+       courbe horizontal — « plate sur [0 ; 1] » —, ce que les autres tirages
+       du thème (lvGenPts, adrGenPts) excluent. Les hauteurs interrogées
+       l'écartaient déjà (jamais deux solutions voisines), si bien qu'aucune
+       correction n'était fausse ; mais une séance sur sept montrait ce
+       dessin que le reste du thème ne montre jamais (constat M60 de
+       l'audit). */
+    if(pts.some(function(v,i){ return i && v===pts[i-1]; })) continue;
     /* k : exactement DEUX solutions, jamais traversé entre deux graduations —
        la règle d'antCibles : entre deux graduations la spline est monotone,
        une hauteur n'est traversée qu'entre deux valeurs qui l'encadrent */
@@ -13219,7 +13278,7 @@ function eqgGen(){
     if(!xtaC.length) continue;
     const xtaLoin=xtaC.filter(x=>Math.abs(pts[x+3]-ka)>=2);
     const xta=pick(xtaLoin.length?xtaLoin:xtaC);
-    return {pts:pts, s:s, c:c, k:k, kg:kg, ka:ka, a:a, b:b,
+    return {pts:pts, dom:[-3,3], s:s, c:c, k:k, kg:kg, ka:ka, a:a, b:b,
             op:pick(ING_OPS), opf:pick(opfC), opg:pick(ING_OPS),
             xtk:xtk, xtg:xtg, xtc:xtc, xta:xta,
             permE:ensShuffle(EQG_FORMES_EQ.slice()), permI:ensShuffle(EQG_FORMES_IN.slice()),
@@ -13242,8 +13301,16 @@ const EQG_FORMES_IN=['mo','mn','eo','en'];
 const EQG_FORMES_GIN=['dp','dv','gp','gv'];
 /* Le repli du tirage — un tirage RÉEL, relevé sur le générateur puis figé,
    et éprouvé par les mêmes contrôles que le tirage (la leçon d'IFG_FB). */
-const EQG_REPLI={pts:[-3,-2,0,3,2,-2,3], s:1, c:1, k:-2, kg:1, ka:3, a:2, b:2,
+const EQG_REPLI={pts:[-3,-2,0,3,2,-2,3], dom:[-3,3], s:1, c:1, k:-2, kg:1, ka:3, a:2, b:2,
                  op:'ge', opf:'lt', opg:'le', xtk:-1, xtg:-1, xtc:2, xta:-2};
+/* LE DOMAINE EST ÉNONCÉ. Les corrections disent « le bout du dessin est
+   pris » : c'est vrai parce que f et g sont DÉFINIES sur [−3 ; 3], et
+   l'élève doit pouvoir le lire dans l'énoncé, pas seulement dans la
+   correction (audit, M56). Rangé dans la question comme le reste du
+   tirage ; une question reprise d'avant n'a pas de dom, et le dessin à
+   7 graduations a toujours été [−3 ; 3]. */
+function eqgDom(q){ return (q&&q.dom)||[-3,3]; }
+function eqgDomTexte(q){ const d=eqgDom(q); return '[ '+itvNum(d[0])+' ; '+itvNum(d[1])+' ]'; }
 function eqgBuildQuestions(){
   const g=eqgGen();
   return EQG_TYPES.map(function(t){ return Object.assign({}, g, {type:t}); });
@@ -13601,6 +13668,9 @@ function renderEqgTest(){
   $('modeTagEqg').innerHTML=modeTagHTML();
   $('eqgLiveScore').textContent=test.score;
   $('eqgFeedback').textContent=''; $('eqgFeedback').className='mp-feedback';
+  { const ins=$('eqgInstr'); if(ins) ins.innerHTML='On a représenté la courbe de <i>f</i> et la droite de <i>g</i> dans le même repère. '
+      +'<i>f</i> et <i>g</i> sont définies sur '+eqgDomTexte(q)+' : le dessin s’arrête aux bouts du domaine, et ces bouts en font partie. '
+      +'Réponds avec le dessin : les solutions se lisent sur l’axe des abscisses.'; }
   $('eqgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEqgAnswer()">Vérifier</button>';
   const inp=(id)=>'<input id="'+id+'" class="lv-in" inputmode="numeric" autocomplete="off" aria-label="Réponse">';
   let corps='';
@@ -14046,8 +14116,8 @@ function cfxConsignes(q){
     {id:'cfx-c0', txt:'f ( '+itvNum(q.a1)+' ) = '+itvNum(q.w[q.a1-CFX_X0])},
     {id:'cfx-c1', txt:'L’image de '+itvNum(q.a2)+' est '+itvNum(q.w[q.a2-CFX_X0])+'.'},
     {id:'cfx-c2', txt:'L’antécédent de '+itvNum(q.ya)+' est '+itvNum(cfxB(q))+'.'},
-    {id:'cfx-c3', txt:'L’équation '+fx+' = 0 admet pour solution S = { '+S0.map(itvNum).join(' ; ')+' }.'},
-    {id:'cfx-c4', txt:'L’inéquation '+fx+' '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' admet pour solution S = '+cfxEnsTexte(S5)+'.'}
+    {id:'cfx-c3', txt:'L’équation '+fx+' = 0 a pour ensemble de solutions S = { '+S0.map(itvNum).join(' ; ')+' }.'},
+    {id:'cfx-c4', txt:'L’inéquation '+fx+' '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' a pour ensemble de solutions S = '+cfxEnsTexte(S5)+'.'}
   ];
 }
 /* Chaque consigne se juge sur la courbe de l'ÉLÈVE seule — jamais sur le
@@ -14161,6 +14231,18 @@ function cfxLive(){
     if(res&&res.complet){ const sub=res.subs.find(function(x){ return x.id===c.id; }); if(sub) el.classList.add(sub.ok?'ok':'bad'); }
   });
 }
+/* Les bords de S où la courbe TOUCHE la hauteur k — ceux que le juge exige
+   (passer de l'autre côté ailleurs qu'à une graduation, c'est traverser) :
+   les bords INTÉRIEURS seulement. Un bord qui est un bout du dessin (−5 ou
+   5) n'exige rien — la courbe s'y arrête, à la hauteur qu'elle veut (audit,
+   M57 : « la toucher à chaque bord » disait plus que le juge). */
+function cfxBordsTexte(q){
+  const b=[];
+  cfxEnsemble(q.w,q.k,q.op).forEach(function(p){ [p[0],p[1]].forEach(function(x){
+    if(x!==CFX_X0 && x!==CFX_X0+CFX_NX-1 && b.indexOf(x)<0) b.push(x); }); });
+  if(!b.length) return '';
+  return ', et la toucher en '+b.map(itvNum).join(', en ').replace(/, en ([^,]*)$/, ' et en $1');
+}
 function cfxWhy(q,res){
   if(q&&q.fam==='mmx') return cfmWhy(q,res);
   const b=cfxB(q), S0=cfxAnt(q.w,0);
@@ -14169,7 +14251,7 @@ function cfxWhy(q,res){
     'cfx-c1':'l’image de '+itvNum(q.a2)+' est la hauteur du point de la colonne '+itvNum(q.a2)+' : elle doit valoir '+itvNum(q.w[q.a2-CFX_X0])+'.',
     'cfx-c2':'l’antécédent de '+itvNum(q.ya)+' est '+itvNum(b)+' : la courbe doit passer à la hauteur '+itvNum(q.ya)+' au-dessus de '+itvNum(b)+' — et NULLE PART ailleurs, sinon '+itvNum(q.ya)+' aurait d’autres antécédents.',
     'cfx-c3':'S = { '+S0.map(itvNum).join(' ; ')+' } : la courbe doit couper l’axe des abscisses exactement là — pas une fois de moins, pas une fois de plus, et sans le traverser entre deux graduations.',
-    'cfx-c4':'f (x) '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' : la courbe doit être '+(q.op==='le'?'au-dessous':'au-dessus')+' de la hauteur '+itvNum(q.k)+' exactement sur '+cfxEnsTexte(cfxEnsemble(q.w,q.k,q.op))+', et la toucher à chaque bord.'
+    'cfx-c4':'f (x) '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' : la courbe doit être '+(q.op==='le'?'au-dessous':'au-dessus')+' de la hauteur '+itvNum(q.k)+' exactement sur '+cfxEnsTexte(cfxEnsemble(q.w,q.k,q.op))+cfxBordsTexte(q)+'.'
   };
   const faux=res.subs.filter(function(x){ return !x.ok; }).map(function(x){ return dic[x.id]; });
   return 'Ta courbe ne respecte pas '+(faux.length===1?'une consigne':faux.length+' consignes')+' : '+faux.join(' ');
@@ -17612,7 +17694,7 @@ function renderMMT(){
   $('mmtSub').textContent='Le même tableau pour les '+test.questions.length+' questions — seul l’intervalle change.';
   /* le tableau du 2.1, rendu en LECTURE : rien à remplir, tout à lire */
   $('mmtTable').innerHTML=varTableHTML(gsvAnalyze(q.pts), 'mmt-v', '', true);
-  $('mmtInstr').textContent='Lis le tableau de variation de la fonction f, défini sur [ −6 ; 6 ], puis complète. Entre deux flèches, f ne fait que monter (ou que descendre) : le maximum et le minimum d’un morceau sont donc parmi les valeurs ÉCRITES dans le tableau. L’encadrement reprend ces deux nombres.';
+  $('mmtInstr').textContent='Lis le tableau de variation de la fonction f, définie sur [ −6 ; 6 ], puis complète. Entre deux flèches, f ne fait que monter (ou que descendre) : le maximum et le minimum d’un morceau sont donc parmi les valeurs ÉCRITES dans le tableau. L’encadrement reprend ces deux nombres.';
   const iv=mmxIntervalle(q);
   const inp=function(id,aria){ return '<input id="'+id+'" class="lv-in" inputmode="numeric" autocomplete="off" aria-label="'+aria+'">'; };
   $('mmtBody').innerHTML=
@@ -19621,17 +19703,21 @@ function decVaut(s,t){ const fr=parseDecToFrac(s==null?'':s); if(!fr) return fal
    rendra 24/d égal à 2,3). « pow10 » restreint promesse et paire aux
    dénominateurs en puissance de 10 (les étapes des niveaux 4 et 5).
    UN SEUL juge pour le direct et la vérification : deux verdicts auraient
-   fini par se contredire sous les yeux de l'élève. */
+   fini par se contredire sous les yeux de l'élève. Et UNE SEULE lecture,
+   stricte (entierDec) : parseInt lisait « 15abc » comme 15, et la note,
+   qui faisait sa propre lecture, comptait juste « −15/−10 » sous deux cases
+   rouges (audit, octobre 2026). La note du parcours est désormais le .ok de
+   ce juge. */
 function fracDecVerdict(vn,vd,tn,td,pow10){
   const okD=d=>d>0&&(!pow10||isPow10(d));
-  const n=parseInt(vn,10), d=parseInt(vd,10);
+  const n=entierDec(vn), d=entierDec(vd);
   if(vn!==''&&vd!==''){
     const ok=!isNaN(n)&&!isNaN(d)&&okD(d)&&n*td===tn*d;
     return { ok, cn: (ok||n===tn)?'ok':'bad', cd: (ok||(okD(d)&&d===td))?'ok':'bad' };
   }
   const seul=(v,estNum)=>{
     if(v==='') return null;
-    const x=parseInt(v,10); if(isNaN(x)) return 'bad';
+    const x=entierDec(v); if(isNaN(x)) return 'bad';
     if(estNum){
       if(x===tn) return 'ok';
       const mene = tn>0 && x>0 && (x*td)%tn===0 && okD(x*td/tn);
@@ -19667,18 +19753,16 @@ function marqueFracDec(idn,idd,tn,td,soutien,pow10){
     el.disabled=(c==='ok')||!soutien;
   };
   let solN=tn, solD=td;
-  const n=parseInt(vn,10), d=parseInt(vd,10);
+  const n=entierDec(vn), d=entierDec(vd);
   if(vn!==''&&vd===''&&!isNaN(n)&&v.cn!=='bad') solD=n*td/tn;      /* la route de l'élève */
   if(vd!==''&&vn===''&&!isNaN(d)&&v.cd!=='bad') solN=tn*d/td;
   pose(en, v.cn, solN); pose(ed, v.cd, solD);
   return v.ok;
 }
-function liveColorN1(id,cn,cd){                        // niveau 1 : décimal OU fraction irréductible
+function liveColorN1(id,cn,cd){                        // niveau 1 : l'écriture DÉCIMALE seule, comme à la vérification
   const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
   el.classList.remove('ok','bad'); if(v==='') return;
-  let fr=null;
-  if(v.includes('/')){ const p=v.replace(/\s/g,'').split('/'); if(p.length===2){ const fn=parseInt(p[0],10),fd=parseInt(p[1],10); if(!isNaN(fn)&&!isNaN(fd)&&fd>0&&gcd(fn,fd)===1) fr={n:fn,d:fd}; } }
-  else fr=parseDecToFrac(v);
+  const fr=parseDecToFrac(v);
   el.classList.add(!!fr && fr.n*cd===cn*fr.d ? 'ok':'bad');
 }
 /* ---------- Génération des questions ---------- */
@@ -19686,10 +19770,15 @@ function genQuestion(c){
   const ops=[];if(c.ops.add)ops.push('add');if(c.ops.sub)ops.push('sub');if(c.ops.mul)ops.push('mul');if(c.ops.div)ops.push('div');
   if(!ops.length)ops.push('add');
   const op=ops[rand(0,ops.length-1)]; let a,b,ans,sym;
-  if(op==='add'){a=rand(0,c.addSubMax);b=rand(0,c.addSubMax);ans=a+b;sym='+';}
-  else if(op==='sub'){a=rand(0,c.addSubMax);b=rand(0,a);ans=a-b;sym='−';}
-  else if(op==='mul'){a=rand(1,c.mulMax);b=rand(1,c.mulMax);ans=a*b;sym='×';}
-  else{b=rand(1,c.mulMax);ans=rand(1,c.mulMax);a=b*ans;sym='÷';}
+  /* pas de calcul trivial (audit, octobre 2026) : ni « 0 − 0 », ni « 0 + 7 »,
+     ni « × 1 », ni « ÷ 1 » — chaque terme vaut au moins 1 pour + et −, au
+     moins 2 pour × et ÷ (un quotient de 1 non plus). Une borne réglée trop
+     basse est relevée plutôt que de figer le tirage. */
+  const entre=(lo,hi)=>rand(lo,Math.max(lo,hi));
+  if(op==='add'){a=entre(1,c.addSubMax);b=entre(1,c.addSubMax);ans=a+b;sym='+';}
+  else if(op==='sub'){a=entre(2,c.addSubMax);b=rand(1,a-1);ans=a-b;sym='−';}
+  else if(op==='mul'){a=entre(2,c.mulMax);b=entre(2,c.mulMax);ans=a*b;sym='×';}
+  else{b=entre(2,c.mulMax);ans=entre(2,c.mulMax);a=b*ans;sym='÷';}
   return {text:`${a} ${sym} ${b}`,answer:ans};
 }
 
@@ -20637,7 +20726,10 @@ function renderFTest(){
     html=fa+'<span class="f-times">×</span>'+fb+fEq(fracIn);
   } else if(q.level==='frac-n4'){
     // frac-n4 : produit de fractions en 2 étapes (produit en fraction, puis décimal)
-    instr='Multiplie ces fractions décimales en 2 étapes.';
+    /* un facteur peut être un ENTIER (30 × 7/100) : la consigne ne dit
+       « fractions décimales » que si les deux en sont (audit, octobre 2026) */
+    const unEntier=q.facA.whole!==undefined||q.facB.whole!==undefined;
+    instr=unEntier?'Multiplie ce nombre entier et cette fraction décimale en 2 étapes.':'Multiplie ces fractions décimales en 2 étapes.';
     const fa=q.facA.whole!==undefined?`<span class="f-whole">${q.facA.whole}</span>`:fracBox(q.facA.n,q.facA.d);
     const fb=q.facB.whole!==undefined?`<span class="f-whole">${q.facB.whole}</span>`:fracBox(q.facB.n,q.facB.d);
     const fracIn5='<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="f5n" aria-label="numérateur du produit"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="f5d" aria-label="dénominateur du produit"></math-field></span>';
@@ -20705,66 +20797,49 @@ function checkFAnswer(live){
   let correct=false, given=null;
   if(q.level==='frac-n5'){
     // 3 étapes — É1 : chaque décimal en fraction (puissance de 10) ; É2 : produit en fraction ; É3 : décimal
-    const okFac=(idn,idd,fn,fd)=>{
-      const en=$(idn), ed=$(idd);
-      if(!en||!ed) return {ok:true, els:[]};   // facteur entier affiché tel quel : rien à valider
-      const n=parseInt(en.value.trim(),10), d=parseInt(ed.value.trim(),10);
-      const filled=en.value.trim()!==''&&ed.value.trim()!=='';
-      return {ok: filled && !isNaN(n) && !isNaN(d) && d>0 && isPow10(d) && n*fd===fn*d, els:[en,ed]};
-    };
-    const a=okFac('f5an','f5ad',q.fnA,q.fdA), b=okFac('f5bn','f5bd',q.fnB,q.fdB);
+    /* la note est le verdict MÊME qui peint les cases (marqueFracDec rend
+       le .ok de fracDecVerdict) : une seule lecture, stricte. Un facteur
+       entier affiché tel quel n'a pas de cases : rien à valider. */
     const pN=$('f5pn'), pD=$('f5pd');
-    const Np=parseInt(pN.value.trim(),10), Dp=parseInt(pD.value.trim(),10);
-    const pFilled=pN.value.trim()!==''&&pD.value.trim()!=='';
-    const okProd = pFilled && !isNaN(Np) && !isNaN(Dp) && Dp>0 && isPow10(Dp) && Np*q.pd===q.pn*Dp;
+    const vNp=pN.value.trim(), vDp=pD.value.trim(), pFilled=vNp!==''&&vDp!=='';
     const eDec=$('fDec'), vDec=eDec.value.trim(), frDec=parseDecToFrac(vDec);
     const okDec = !!frDec && frDec.n*q.pd===q.pn*frDec.d;
-    correct = a.ok && b.ok && okProd && okDec;
-    /* la peinture passe au juge PAR CASE (l'ancre canonique) ; le compte,
-       lui, ne bouge pas : correct reste le verdict des paires complètes */
-    marqueFracDec('f5an','f5ad',q.fnA,q.fdA,soutien,true);
-    marqueFracDec('f5bn','f5bd',q.fnB,q.fdB,soutien,true);
-    marqueFracDec('f5pn','f5pd',q.pn,q.pd,soutien,true);
+    const okA = $('f5an') ? marqueFracDec('f5an','f5ad',q.fnA,q.fdA,soutien,true) : true;
+    const okB = $('f5bn') ? marqueFracDec('f5bn','f5bd',q.fnB,q.fdB,soutien,true) : true;
+    const okProd = marqueFracDec('f5pn','f5pd',q.pn,q.pd,soutien,true);
+    correct = okA && okB && okProd && okDec;
     marque(eDec, okDec, q.atext);
-    given = `${pFilled?Np+'/'+Dp:'?'} = ${vDec||'?'}`;
+    given = `${pFilled?vNp+'/'+vDp:'?'} = ${vDec||'?'}`;
   } else if(q.level==='frac-n4'){
     // 2 étapes — Étape 1 : produit en fraction décimale (dénominateur puissance de 10) ; Étape 2 : résultat décimal
     const eN=$('f5n'), eD=$('f5d'), eDec=$('fDec');
-    const Nf=parseInt(eN.value.trim(),10), Df=parseInt(eD.value.trim(),10);
-    const frFilled=eN.value.trim()!==''&&eD.value.trim()!=='';
-    const step1 = frFilled && !isNaN(Nf) && !isNaN(Df) && Df>0 && isPow10(Df) && Nf*q.pd===q.pn*Df;
+    const vNf=eN.value.trim(), vDf=eD.value.trim(), frFilled=vNf!==''&&vDf!=='';
     const vDec=eDec.value.trim(), frDec=parseDecToFrac(vDec);
     const step2 = !!frDec && frDec.n*q.pd===q.pn*frDec.d;
+    const step1 = marqueFracDec('f5n','f5d',q.pn,q.pd,soutien,true);   /* la note = la peinture */
     correct = step1 && step2;
-    marqueFracDec('f5n','f5d',q.pn,q.pd,soutien,true);
     marque(eDec, step2, q.atext);
-    given = `${frFilled?Nf+'/'+Df:'?'} = ${vDec||'?'}`;
+    given = `${frFilled?vNf+'/'+vDf:'?'} = ${vDec||'?'}`;
   } else if(q.level==='frac-n1'){
     const el=$('fDec'), v=el.value.trim();
     given=v===''?null:v.replace('.', ',');
     const cn=q.num, cd=q.d;   // valeur correcte
-    let fr=null;
-    if(v.includes('/')){
-      // forme fractionnaire : acceptée si la valeur est juste ET la fraction est irréductible
-      const p=v.replace(/\s/g,'').split('/');
-      if(p.length===2){ const fn=parseInt(p[0],10), fd=parseInt(p[1],10);
-        if(!isNaN(fn)&&!isNaN(fd)&&fd>0&&gcd(fn,fd)===1) fr={n:fn,d:fd}; }
-    } else {
-      fr=parseDecToFrac(v);   // formes décimales : 20, 20,0, 0,15 ...
-    }
+    /* la consigne demande la forme DÉCIMALE : « 1/2 » pour 5/10 est une
+       fraction égale, pas une écriture décimale — elle n'est plus acceptée
+       (audit, octobre 2026). Formes décimales : 20, 20,0, 0,15 ... */
+    const fr=parseDecToFrac(v);
     correct=!!fr && fr.n*cd===cn*fr.d;
     marque(el, correct, q.atext);
   } else {
     const eN=$('fNum'), eD=$('fDen');
-    const filled=eN.value.trim()!==''&&eD.value.trim()!=='';
-    const N=parseInt(eN.value.trim(),10), D=parseInt(eD.value.trim(),10);
-    given=filled?`${N}/${D}`:null;
+    const vN=eN.value.trim(), vD=eD.value.trim(), filled=vN!==''&&vD!=='';
+    given=filled?`${vN}/${vD}`:null;
     /* niveau 2 : la consigne demande une fraction DÉCIMALE — toute fraction égale
        dont le dénominateur est une puissance de 10 (225/100, 2250/1000), jamais
-       9/4 pour 2,25 ; comme les étapes des niveaux 4 et 5 (isPow10) */
-    if(q.level==='frac-n2') correct=filled&&!isNaN(N)&&!isNaN(D)&&D>0&&isPow10(D)&&N*q.denom===q.numer*D;
-    else correct=filled&&!isNaN(N)&&!isNaN(D)&&D!==0&&N*q.pd===q.pn*D;
-    marqueFracDec('fNum','fDen',
+       9/4 pour 2,25 ; comme les étapes des niveaux 4 et 5 (isPow10). La note
+       est le verdict qui peint : « −15/−10 » ou « 15abc/10 » ne comptent plus
+       juste sous des cases rouges. */
+    correct=marqueFracDec('fNum','fDen',
       (q.level==='frac-n2')?q.numer:q.pn, (q.level==='frac-n2')?q.denom:q.pd, soutien, q.level==='frac-n2');
   }
   if(!correct && soutien){
@@ -21185,7 +21260,10 @@ function poids(f,n){ f.poids=n; return f; }
    ville de 30 habitants ruinent la crédibilité de l'énoncé. */
 function tirerContexte(tab,N,champ){
   const ok=[];
-  tab.forEach((c,i)=>{ if(!c.nOk || c.nOk(N)){ for(let k=((champ&&c[champ])||c.poids||1);k>0;k--) ok.push(i); } });
+  /* un poids de champ EXPLICITEMENT nul exclut le contexte (la vitesse à la
+     hausse) ; absent, c'est le poids général qui vaut, comme avant */
+  tab.forEach((c,i)=>{ if(!c.nOk || c.nOk(N)){ const w=(champ && c[champ]!==undefined) ? c[champ] : (c.poids||1);
+    for(let k=w;k>0;k--) ok.push(i); } });
   return pick(ok.length?ok:[0]);
 }
 
@@ -21470,7 +21548,7 @@ const PCTB_NB=3;
    « bibliothèque » et « concert » acceptent tout N à partir de 100 : au moins
    l'un d'eux convient toujours, quel que soit le tirage. */
 const CTX_BOITE=[
-  { tout:'Lycée', partie:'Demi-pensionnaires', nOk:N=>N>=300,
+  { tout:'Lycée', partie:'Demi-pensionnaires', nOk:N=>N>=300&&N<=3000,   /* pas de lycée de 9 000 élèves (audit) */
     direct:(N,P,k=CDR_SANS)=>`Dans un lycée de ${k.T(`<b>${N} élèves</b>`)}, il y a <b>${P} %</b> de ${k.A('demi-pensionnaires')}. Quel est ${k.A('le nombre de demi-pensionnaires')} ?`,
     total:(P,R,k=CDR_SANS)=>`Dans un lycée, ${k.A(`<b>${R} élèves</b> sont demi-pensionnaires`)} et ils représentent <b>${P} %</b> ${k.T('des élèves')}. Quel est ${k.T('le nombre d’élèves dans ce lycée')} ?`,
     taux:(N,R,k=CDR_SANS)=>`Dans un lycée de ${k.T(`<b>${N} élèves</b>`)}, ${k.A(`<b>${R}</b> sont demi-pensionnaires`)}. Quel est le pourcentage de demi-pensionnaires ?` },
@@ -21693,7 +21771,16 @@ async function startPctChaine(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='pctc';
   const incs=qdMelanger(['comb','p1','p2']);                /* chaque sens sort une fois, ordre mélangé */
-  test.questions=distinctes(dmNbQuestions(PCTC_NB),(_,i)=>genPctChaine(incs[i%incs.length]));
+  /* la clé de distinctes() porte le SENS : le même couple (P1, P2) posé deux
+     fois dans deux sens différents passait pour deux questions — c'est le
+     même calcul (audit, octobre 2026). paires[i] est le couple du rang i ;
+     une fabrique rappelée pour le même rang l'écrase, seul le dernier compte. */
+  const paires=[];
+  test.questions=distinctes(dmNbQuestions(PCTC_NB),(_,i)=>{
+    const avant=paires.slice(0,i); let q, essais=0;
+    do{ q=genPctChaine(incs[i%incs.length]); }while(avant.indexOf(q.P1+'/'+q.P2)>=0 && ++essais<200);
+    paires[i]=q.P1+'/'+q.P2; return q;
+  });
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.maxScore=test.questions.length;
   show('pctc'); renderPctChaineTest();
@@ -21832,7 +21919,11 @@ const PCS_PCTS=(()=>{ const t=[]; for(let p=5;p<=95;p+=5) t.push(p); return t; }
 /* Huit mises en situation : les trois de la fiche (club de sport, classe,
    entreprise — au mot près), puis cinq reprises des libellés de CTX_CHAINE,
    pour que le schéma se lise avec les mêmes boîtes qu'en 4.1.9. Chaque phrase
-   a deux tournures ; `champ` est la case à compléter, posée AVANT le « % ». */
+   a deux tournures ; `champ` est la case à compléter, posée AVANT le « % ».
+   Une exception au « mot près » : la boîte de l'entreprise s'appelle
+   « Femmes », comme ses phrases et sa dernière boîte (« Les femmes cadres ») —
+   « Filles » sous des phrases qui parlent de femmes faisait lire deux groupes
+   (constat M45 de l'audit). */
 const CTX_PCS=[
   { total:'Club de sport', niv1:'Filles', niv2:'Basket', inter:'Les filles qui font du basket',
     intro:'Dans un club de sport, on s’intéresse aux filles, puis, parmi elles, à celles qui font du basket.',
@@ -21844,7 +21935,7 @@ const CTX_PCS=[
     s1:[c=>`Dans la classe, il y a ${c} % de filles.`, c=>`Les filles représentent ${c} % de la classe.`],
     s2:[c=>`Parmi les filles, ${c} % ont la moyenne.`, c=>`${c} % des filles ont la moyenne.`],
     s3:[c=>`Les filles ayant la moyenne représentent ${c} % de la classe.`, c=>`Dans la classe, il y a ${c} % de filles qui ont la moyenne.`] },
-  { total:'Entreprise', niv1:'Filles', niv2:'Cadres', inter:'Les femmes cadres',
+  { total:'Entreprise', niv1:'Femmes', niv2:'Cadres', inter:'Les femmes cadres',
     intro:'Dans une entreprise, on s’intéresse aux femmes, puis, parmi elles, à celles qui sont cadres.',
     s1:[c=>`Dans l’entreprise, il y a ${c} % de femmes.`, c=>`Les femmes représentent ${c} % des salariés de l’entreprise.`],
     s2:[c=>`${c} % des femmes sont des cadres.`, c=>`Parmi les femmes, ${c} % sont cadres.`],
@@ -23363,7 +23454,7 @@ function checkWAnswer(live){
   if(btn){ btn.classList.remove('sel','ok','bad'); btn.classList.add(okChoix?'ok':'bad'); }
   if(!allOk && soutien){
     if(calculOk){
-      $('wFeedback').innerHTML=`Ton calcul est juste\u00a0: on obtient <b>${c.finStr} ${esc(q.unit)}</b>, et non ${q.decStr}. Ce n\u2019est donc pas ${augqQuoi(q)} \u2014 essaie une autre proposition.`;
+      $('wFeedback').innerHTML=`Ton calcul est juste\u00a0: on obtient <b>${augqQte(c.finStr,q.unit)}</b>, et non ${q.decStr}. Ce n\u2019est donc pas ${augqQuoi(q)} \u2014 essaie une autre proposition.`;
       $('wFeedback').className='mp-feedback bad';
       $('wActions').innerHTML='<button class="btn btn-primary" onclick="checkWAnswer()">Vérifier</button>';
       setTimeout(()=>{ const z=$('wChoix'); if(z) z.scrollIntoView({block:'center',behavior:'smooth'}); },40);
@@ -23379,7 +23470,7 @@ function checkWAnswer(live){
   if(allOk){ test.score++; $('wLiveScore').textContent=test.score;
     $('wFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('wFeedback').className='mp-feedback good';
   } else if(calculOk){
-    $('wFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: on obtient ${c.finStr} ${esc(q.unit)}, et non ${q.decStr}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
+    $('wFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: on obtient ${augqQte(c.finStr,q.unit)}, et non ${q.decStr}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
     $('wFeedback').className='mp-feedback bad';
   } else {
     $('wFeedback').innerHTML=`Réponse\u00a0: ${bonLbl}, car ${preuve}.`;
@@ -24572,7 +24663,7 @@ function checkSynAnswer(live){
   const obtenu=(q.fam==='pct')?String(c.res).replace('.',','):(q.meth==='coef'?c.prodFinStr:c.finStr);
   if(!allOk && soutien){
     if(calculOk){
-      $('syFeedback').innerHTML=`Ton calcul est juste\u00a0: on obtient <b>${obtenu} ${esc(q.unit)}</b>${q.inc==='fin'?', ce qui ne correspond pas à ta proposition':', et non '+attendu+' '+esc(q.unit)}. Essaie une autre proposition.`;
+      $('syFeedback').innerHTML=`Ton calcul est juste\u00a0: on obtient <b>${augqQte(obtenu,q.unit)}</b>${q.inc==='fin'?', ce qui ne correspond pas à ta proposition':', et non '+attendu+' '+esc(q.unit)}. Essaie une autre proposition.`;
       $('syFeedback').className='mp-feedback bad';
       $('syActions').innerHTML='<button class="btn btn-primary" onclick="checkSynAnswer()">Vérifier</button>';
       setTimeout(()=>{ const z=$('syChoix'); if(z) z.scrollIntoView({block:'center',behavior:'smooth'}); },40);
@@ -24593,7 +24684,7 @@ function checkSynAnswer(live){
   if(allOk){ test.score++; $('syLiveScore').textContent=test.score;
     $('syFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('syFeedback').className='mp-feedback good';
   } else if(calculOk){
-    $('syFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: on obtient ${obtenu} ${esc(q.unit)}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
+    $('syFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: on obtient ${augqQte(obtenu,q.unit)}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
     $('syFeedback').className='mp-feedback bad';
   } else {
     $('syFeedback').innerHTML=`Réponse\u00a0: ${bonLbl}, car ${preuve}.`;
@@ -25023,7 +25114,7 @@ function renderPsl(){
 function pslEnonceIA(q){
   const strip=s=>String(s==null?'':s).replace(/<[^>]*>/g,'');
   const props=q.opts.map((v,i)=>QLET[i]+') '+qdLabel(q,v)).join(' ; ');
-  return 'Exercice de mathématiques de Première (France). '+strip(variante(q.type==='pct'?QD_ENONCES_PCT:(q.type==='res'?PCT_ENONCES:QD_ENONCES_VAL),q))
+  return 'Exercice de mathématiques de Seconde (France). '+strip(variante(q.type==='pct'?QD_ENONCES_PCT:(q.type==='res'?PCT_ENONCES:QD_ENONCES_VAL),q))
    +' L\u2019élève doit retrouver '+qdQuoi(q)+' parmi quatre propositions : '+props+'.'
    +' Il a choisi '+QLET[q.choisi]+') '+qdLabel(q,q.opts[q.choisi])+', et JUSTIFIE ce choix en écrivant son calcul LUI-MÊME dans une feuille, ligne par ligne.'
    +'\n\nDEUX FAÇONS D\u2019ÉCRIRE, ÉGALEMENT CORRECTES, et il peut aussi les MÉLANGER :'
@@ -25456,7 +25547,7 @@ function salEnonceIA(q){
   const sujet=(sens===0)?'sur un POURCENTAGE d’un nombre (« prendre P % de … »)'
                         :('sur une '+(sens<0?'DIMINUTION':'AUGMENTATION')+' en pourcentage');
   const props=q.opts.map((v,i)=>QLET[i]+') '+synLabel(q,v)).join(' ; ');
-  return 'Exercice de mathématiques de Première (France), '+sujet+'. '+strip((tab[q.v]||tab[0])(q))
+  return 'Exercice de mathématiques de Seconde (France), '+sujet+'. '+strip((tab[q.v]||tab[0])(q))
    +' L’élève doit retrouver '+synQuoi(q)+' parmi quatre propositions : '+props+'.'
    +' Il a choisi '+QLET[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+', et JUSTIFIE ce choix en écrivant sa vérification LUI-MÊME dans une feuille, ligne par ligne.'
    +'\nCHAQUE LIGNE EST UN CALCUL INDÉPENDANT (il peut aussi enchaîner des « = » dans une même ligne). Ne refuse JAMAIS une copie pour sa mise en page.';
@@ -26661,7 +26752,7 @@ const AUG_THEMES=[
     hausse:(N,P)=>`Une entreprise consommait <b>${N} kWh</b> d’électricité par mois. Sa consommation augmente de <b>${P} %</b>. Quelle est sa nouvelle consommation ?`,
     baisse:(N,P)=>`Une entreprise consommait <b>${N} kWh</b> d’électricité par mois. Grâce à des travaux, sa consommation diminue de <b>${P} %</b>. Quelle est sa nouvelle consommation ?`},
   /* Pas de mise en situation à la hausse : on n'invite pas un automobiliste à accélérer. */
-  {intro:'Une vitesse de', unit:'km/h', g:'f', poids:2, nOk:N=>N>=10&&N<=200,
+  {intro:'Une vitesse de', unit:'km/h', g:'f', poids:2, poidsHausse:0, nOk:N=>N>=10&&N<=200,   /* poidsHausse:0 : jamais tiré à la hausse, même en tournure abstraite (« s’accroît ») */
     baisse:(N,P)=>`Un automobiliste roule à <b>${N} km/h</b>. Il ralentit de <b>${P} %</b>. Quelle est sa nouvelle vitesse ?`},
   {intro:'Une capacité de', unit:'places', g:'f', poids:2, nOk:N=>N>=100&&N<=900,
     hausse:(N,P)=>`Une salle de spectacle possède <b>${N} places</b>. Sa capacité augmente de <b>${P} %</b>. Combien de places compte-t-elle désormais ?`,
@@ -26993,7 +27084,12 @@ const AUGQ_CTX=[
   {s:'Une surface cultivée', u:'hectares', g:'f', nOk:x=>x>=20&&x<=990},
   {s:'La capacité d’une salle', u:'places', g:'f', ent:true, nOk:x=>x>=50&&x<=990},
   /* sans condition : garantit qu'un sujet convient toujours */
-  {s:'Un stock', u:'articles', g:'m', ent:true}
+  {s:'Un stock', u:'articles', g:'m', ent:true},
+  /* les petits montants (moins de 20 €, entiers ou non) : sans lui, « 10,4 € »
+     et « 9,5 € » retombaient sur « Un prix », dont nOk écarte justement ces
+     nombres (audit, octobre 2026). Ajouté EN DERNIER : un q.ci déjà rangé
+     dans une pause garde son sujet. */
+  {s:'Le prix d’un ticket', u:'€', g:'m', nOk:x=>x<20}
 ];
 /* Le sujet est choisi d'après le nombre que l'énoncé AFFICHE : la valeur finale
    quand on cherche la valeur initiale, la valeur initiale quand on cherche le %.
@@ -27005,7 +27101,11 @@ function augqTirerCtx(ref, entier){
   if(entier===undefined) entier=Number.isInteger(ref);
   const ok=[]; AUGQ_CTX.forEach((c,i)=>{ if((entier||!c.ent) && (!c.nOk || c.nOk(ref))) ok.push(i); });
   if(ok.length) return pick(ok);
-  return entier ? AUGQ_CTX.length-1 : 0;    /* replis : le stock, ou un prix en euros */
+  /* replis : le stock pour un entier ; pour un décimal, le sujet en euros
+     dont la borne convient (le ticket sous 20 €, le prix au-delà) */
+  if(entier) return AUGQ_CTX.findIndex(c=>c.u==='articles');
+  const sansBorne=AUGQ_CTX.findIndex(c=>!c.ent && c.u==='€' && (!c.nOk || c.nOk(ref)));
+  return sansBorne>=0 ? sansBorne : 0;
 }
 function augqCtx(q){ return AUGQ_CTX[q.ci]||AUGQ_CTX[0]; }
 function augqIl(q){ return augqCtx(q).g==='f'?'elle':'il'; }
@@ -27048,6 +27148,16 @@ function augqFin(N,P){ return N*(100+P)/100; }
 function augqSens(q){ return (q&&q.sens===-1)?-1:1; }
 function augqQuoi(q){ return q.type==='pct'?(augqSens(q)<0?'le pourcentage de baisse':'le pourcentage d’augmentation'):'la valeur initiale'; }
 function augqLabel(q,v){ return q.type==='pct' ? (v+'\u00a0%') : (v+' '+q.unit); }
+/* Le résultat d'une proposition FAUSSE peut tomber décimal : 60 licenciés
+   augmentés de 2 % font 61,2 — un calcul juste, mais « 61,2 licenciés » n'a
+   pas de sens (audit, octobre 2026). Une unité dénombrable ne suit donc qu'un
+   nombre entier ; les grandeurs continues (euros, hectares…) gardent la leur.
+   Rend du HTML échappé. */
+const UNITES_CONTINUES=['€','kg','g','min','h','cm','m','m²','km','km/h','kWh','hectares','L'];
+function augqQte(str,unit){
+  str=String(str); if(!unit) return esc(str);
+  return (UNITES_CONTINUES.indexOf(unit)<0 && /[,.]/.test(str)) ? esc(str) : esc(str)+' '+esc(unit);
+}
 function augqCouple(q){
   if(q.choisi==null) return null;
   const v=q.opts[q.choisi];
@@ -27224,7 +27334,7 @@ function checkVAnswer(live){
   if(!allOk && soutien){
     if(calculOk){
       /* Calcul juste, proposition fausse : on rouvre le choix. */
-      $('vFeedback').innerHTML=`Ton calcul est juste\u00a0: ${c.N} ${neg?'diminu':'augment'}é de ${c.P}\u00a0% donne <b>${c.decStr} ${esc(q.unit)}</b>, et non ${q.decStr}. Ce n’est donc pas ${augqQuoi(q)} \u2014 essaie une autre proposition.`;
+      $('vFeedback').innerHTML=`Ton calcul est juste\u00a0: ${c.N} ${neg?'diminu':'augment'}é de ${c.P}\u00a0% donne <b>${augqQte(c.decStr,q.unit)}</b>, et non ${q.decStr}. Ce n’est donc pas ${augqQuoi(q)} \u2014 essaie une autre proposition.`;
       $('vFeedback').className='mp-feedback bad';
       $('vActions').innerHTML='<button class="btn btn-primary" onclick="checkVAnswer()">Vérifier</button>';
       setTimeout(()=>{ const z=$('vChoix'); if(z) z.scrollIntoView({block:'center',behavior:'smooth'}); },40);
@@ -27240,7 +27350,7 @@ function checkVAnswer(live){
   if(allOk){ test.score++; $('vLiveScore').textContent=test.score;
     $('vFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('vFeedback').className='mp-feedback good';
   } else if(calculOk){
-    $('vFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: ${c.N} ${neg?'diminu':'augment'}é de ${c.P}\u00a0% donne ${c.decStr} ${esc(q.unit)}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
+    $('vFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: ${c.N} ${neg?'diminu':'augment'}é de ${c.P}\u00a0% donne ${augqQte(c.decStr,q.unit)}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
     $('vFeedback').className='mp-feedback bad';
   } else {
     $('vFeedback').innerHTML=`Réponse\u00a0: ${bonLbl}, car ${preuve}.`;
@@ -28970,6 +29080,10 @@ function marqueFracPaire(idn,idd,tn,td,soutien){
    identiques de ce bloc vivaient dans six juges ; elles passent toutes ici. */
 function jugePoseFac(host,soutien){
   if(!host) return;
+  /* la note la laisse de côté (ptsEcran saute .pose-fac) : « non comptée »
+     valait pour le verdict, pas pour la note partielle, qui comptait encore
+     chaque chiffre de la pose (audit, octobre 2026) */
+  host.classList.add('pose-fac');
   const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
   const nettoie=el=>{ const cl=el.parentElement; if(cl) cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); };
   const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
@@ -29349,7 +29463,30 @@ function ensResultForQ(q){
   return {sym:'=', html:s};
 }
 /* ---- Générateurs (un par catégorie pédagogique) ---- */
+/* LES PIÈGES DU RAPPEL SORTENT AUSSI DU TIRAGE (constat M44 de l'audit) :
+   RAP_ENS2 et RAP_PGE enseignent que √9 = 3 — « une racine peut très bien
+   tomber sur un entier » —, mais toute racine tirée était irrationnelle, si
+   bien que « racine ⇒ ℝ seulement » passait toujours. Un tiers des questions
+   d'entiers (deux places positives, une négative : une par séance en
+   moyenne) écrit maintenant l'entier en racine — √4, √9 … √81, ou −√9 — et
+   une sur quatre de ces places positives pose 0, l'entier naturel qu'on
+   oublie. Les places d'irrationnels restent irrationnelles. */
+const ENS_PART_RACINE=1/3;
+function ensGenRacineEntiere(neg){
+  if(!neg && Math.random()<0.25){
+    const m=ensRatMembership(0,1);
+    return {inner:'<span class="ens-plain">0</span>', plain:'0', valueStr:'0', p:0, q:1, noRes:true, sets:m,
+      why:'0 est un entier naturel (ℕ commence à 0) \u2014 il appartient \u00e0 '+ENS_SYM.N+', '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+' et '+ENS_SYM.R+'.'};
+  }
+  const k=rand(2,9), n=k*k, p=neg?-k:k, m=ensRatMembership(p,1);
+  const ecr=(neg?ENS_MINUS:'')+'\u221A'+n, val=(neg?ENS_MINUS:'')+k;
+  return {inner:(neg?'<span class="ens-plain">'+ENS_MINUS+'</span>':'')+ensRadInner(n), plain:ecr, valueStr:val, p:p, q:1, sets:m,
+    why:ecr+' = '+val+' car '+k+' \u00d7 '+k+' = '+n+' : une racine peut tomber juste. '
+      +(neg ? 'C\u2019est un entier relatif n\u00e9gatif \u2014 dans '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+', '+ENS_SYM.R+' mais pas dans '+ENS_SYM.N+'.'
+            : 'C\u2019est un entier naturel \u2014 il appartient \u00e0 '+ENS_SYM.N+', '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+' et '+ENS_SYM.R+'.')};
+}
 function ensGenPosInt(){
+  if(Math.random()<ENS_PART_RACINE) return ensGenRacineEntiere(false);
   if(Math.random()<0.4){                                   // piège : dénominateur décimal, a/0,5 = 2a
     const a=rand(2,9), p=2*a, q=1, m=ensRatMembership(p,q);
     return {inner:ensFracInner(String(a),'0,5'), plain:a+'/0,5', valueStr:String(p), p:p, q:q, sets:m,
@@ -29360,6 +29497,7 @@ function ensGenPosInt(){
     why:a+'/'+b+' = '+k+' : entier naturel \u2014 il appartient \u00e0 '+ENS_SYM.N+', '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+' et '+ENS_SYM.R+'.'};
 }
 function ensGenNegInt(){
+  if(Math.random()<ENS_PART_RACINE) return ensGenRacineEntiere(true);
   const k=rand(2,9), b=pick([2,3,4,5]), a=k*b, [p,q]=ensReduce(-a,b), m=ensRatMembership(p,q);
   return {inner:ensFracInner(ENS_MINUS+a,String(b)), plain:ENS_MINUS+a+'/'+b, valueStr:ENS_MINUS+k, p:p, q:q, sets:m,
     why:ENS_MINUS+a+'/'+b+' = '+ENS_MINUS+k+' : entier relatif n\u00e9gatif \u2014 dans '+ENS_SYM.Z+', '+ENS_SYM.D+', '+ENS_SYM.Q+', '+ENS_SYM.R+' mais pas dans '+ENS_SYM.N+' (les naturels sont positifs).'};
@@ -29475,18 +29613,21 @@ function appDec(n,k){                            /* 290,2 -> « 2,9 » : zéros 
 }
 function appBorne(b){ return appDec(b.n,b.k); }
 function appIntervalle(iv){ return (iv.fg?'[':']')+appBorne(iv.a)+' ; '+appBorne(iv.b)+(iv.fd?']':'['); }
+/* L'unité s'accorde : pluriel dès 2 — « 0,2 millier », « 1,5 millier »,
+   mais « 2 milliers », « 4,5 centaines ». */
+function appUnite(v){ return v.u+(Math.abs(v.n)>=2*Math.pow(10,v.k)?'s':''); }
 function appNombreHTML(v){
   if(v.t==='rac')  return ensRadInner(v.n);
   if(v.t==='pi')   return '<span class="ens-plain">π</span>';
   if(v.t==='frac') return ensFracInner(String(v.p), String(v.q));
-  if(v.t==='mult') return '<span class="ens-plain">'+appDec(v.n,v.k)+'&nbsp;'+v.u+'</span>';
+  if(v.t==='mult') return '<span class="ens-plain">'+appDec(v.n,v.k)+'&nbsp;'+appUnite(v)+'</span>';
   return '<span class="ens-plain">'+appDec(v.n,v.k)+'</span>';
 }
 function appNombrePlain(v){
   if(v.t==='rac')  return '√'+v.n;
   if(v.t==='pi')   return 'π';
   if(v.t==='frac') return v.p+'/'+v.q;
-  if(v.t==='mult') return appDec(v.n,v.k)+' '+v.u;
+  if(v.t==='mult') return appDec(v.n,v.k)+' '+appUnite(v);
   return appDec(v.n,v.k);
 }
 /* La valeur décimale, quand elle n'est pas déjà écrite ainsi — c'est tout
@@ -29923,8 +30064,12 @@ function pyLex(s){
       const lit=s.slice(i).match(/^(\d[\d_]*)?(\.\d*)?([eE][+-]?\d+)?/)[0];
       t.push({k:'num', flo:/[.eE]/.test(lit), v:Number(lit.replace(/_/g,''))}); i+=lit.length; continue;
     }
-    if(/[A-Za-z_À-ɏ]/.test(c)){
-      let j=i; while(j<s.length && /[A-Za-z0-9_À-ɏ]/.test(s[j])) j++;
+    /* Un nom commence par une LETTRE ou « _ », de n'importe quel alphabet —
+       CPython accepte « π = 3.14 » (audit, M63) ; les chiffres, les accents
+       combinants et « _ » le continuent. Ni « × », ni « − », ni « ² », ni
+       un emoji ne sont des lettres : ils restent refusés, comme là-bas. */
+    if(/[\p{L}_]/u.test(c)){
+      let j=i; while(j<s.length && /[\p{L}\p{Nd}\p{Mn}\p{Mc}_]/u.test(s[j])) j++;
       t.push({k:'nom',v:s.slice(i,j)}); i=j; continue;
     }
     const deux=s.slice(i,i+2);
@@ -29951,7 +30096,9 @@ function pyExpr(t, p0, env){
       p++;
       if(isOp('(')){
         p++; const args=[];
-        if(!isOp(')')){ args.push(expression()); while(isOp(',')){ p++; args.push(expression()); } }
+        /* print(a, b,) et int("2",) passent en CPython : une virgule
+           FINALE est permise, une virgule seule — f(,) — ne l'est pas */
+        if(!isOp(')')){ args.push(expression()); while(isOp(',')){ p++; if(isOp(')')) break; args.push(expression()); } }
         if(!isOp(')')) throw new Error('SyntaxError : parenthèse non fermée'); p++;
         return (x.v==='input' && _pyIn)?pyInput(args):pyAppel(x.v,args);
       }
@@ -30122,6 +30269,8 @@ function pyRun(src, entrees){
       let p=2; const args=[], vals=[]; let sep=' ', fin='\n';
       if(!op(p,')')){
         for(;;){
+          /* la virgule FINALE — print("a", a,) — est permise, comme en CPython */
+          if(op(p,')')) break;
           /* print(…, end="-") et sep="…" : les deux mots-clés de print */
           if(t[p] && t[p].k==='nom' && (t[p].v==='end'||t[p].v==='sep') && op(p+1,'=')){
             const k=t[p].v, r=pyExpr(t,p+2,env);
@@ -30169,8 +30318,19 @@ function pyRun(src, entrees){
   /* Sans boucle ni test, l'exécution est celle d'avant, ligne par ligne :
      aucun autre exercice ne change. Avec un for, un while ou un if, le
      programme est d'abord découpé en BLOCS selon son retrait (pyBlocs). */
-  if(!lignes.some(function(l){ return PY_ENTETE.test(l); }))
+  /* Sans boucle ni test, une ligne DÉCALÉE est une IndentationError, comme
+     CPython la lève avant d'exécuter quoi que ce soit (audit, M63 : la page
+     l'acceptait). Vérifié sur tout le programme AVANT d'exécuter —
+     rien ne s'affiche avant l'erreur, comme là-bas. Une ligne vide ou un
+     commentaire seul ne comptent pas. Les cases d'une seule ligne passent
+     par leur propre nettoyage (popNet, pydNet…) : seul ce que l'élève écrit
+     sur plusieurs lignes peut porter un retrait. */
+  if(!lignes.some(function(l){ return PY_ENTETE.test(l); })){
+    lignes.forEach(function(ligne, n){
+      if(/^[ \t]+[^\s#]/.test(ligne)) throw new Error('IndentationError ligne '+(n+1)+' : retrait inattendu — cette ligne est décalée vers la droite alors qu’aucune boucle ni aucun test ne l’annonce : elle doit commencer tout à gauche');
+    });
     lignes.forEach(function(ligne, n){ const t=pyLex(ligne); if(t.length) execLigne(t, n); });
+  }
   else pyBlocs(lignes, execLigne, env);
   } catch(e){
     /* ce qui s'est affiché AVANT l'erreur voyage avec elle : la console de
@@ -30651,7 +30811,7 @@ function pycJuge(q, rep){
       if(((t.match(/"/g)||[]).length%2) || ((t.match(/'/g)||[]).length%2))
         return refus(i, 'dans « '+t+' »', 'Un guillemet est ouvert et jamais refermé : les guillemets vont par deux.');
     } else if(mot && t===mot && mot===q.nom){
-      return refus(i, 'dans « '+t+' »', 'Écrire le nom de la variable tout seul ne l’affiche pas : il faut demander l’affichage avec print.');
+      return refus(i, 'dans « '+t+' »', 'Dans un programme, écrire le nom de la variable tout seul ne l’affiche pas (seul un carnet Jupyter montre la valeur de la dernière ligne d’une cellule) : il faut demander l’affichage avec print.');
     }
   }
   /* 2. l'exécution : la ligne qui arrête l'interpréteur se trouve en
@@ -30692,9 +30852,11 @@ function pycErreurExec(q, t, i, msg, refus){
   if((m=msg.match(/fonction « (.+?) » n’est pas prise en charge/)))
     return refus(i, 'dans le mot « '+m[1]+' »', 'Python ne connaît pas « '+m[1]+' ». Pour afficher, le mot est print.');
   if((m=msg.match(/caractère inattendu « (.+?) »/)))
-    return refus(i, 'dans « '+t+' »', 'Le caractère « '+m[1]+' » n’a rien à faire ici : Python ne sait pas le lire.');
+    return refus(i, 'dans « '+t+' »', m[1]===';' ? PY_POINT_VIRGULE : 'Le caractère « '+m[1]+' » n’a rien à faire ici : Python ne sait pas le lire.');
   if(/guillemet non fermé/.test(msg))
     return refus(i, 'dans « '+t+' »', 'Un guillemet est ouvert et jamais refermé : les guillemets vont par deux.');
+  if(/^IndentationError/.test(msg))
+    return refus(i, 'au début de « '+t+' »', PY_RETRAIT);
   if(/non prise en charge/.test(msg))
     return refus(i, 'dans « '+t+' »', 'Python ne sait pas quoi faire de cette ligne : pour afficher, il faut print( … ).');
   if(/SyntaxError/.test(msg))
@@ -30801,7 +30963,7 @@ function ctxPyc(q){
   const ta=$('pyc-in'), code=(ta&&ta.value)||q.rep||'';
   let c='L’élève doit COMPLÉTER un programme Python qui commence par « '+pycLigne1(q)+' » pour qu’il affiche la valeur de la variable '+q.nom+', et seulement elle. Il écrit la suite du programme lui-même, et peut l’exécuter.\n';
   if(ans) c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire, ni aucune ligne de code qui affiche la variable) : '+ans.solution+', qui affiche '+ans.valeur+'. ';
-  c+='Ce que l’élève a écrit : '+(code.trim()?'« '+code.trim()+' »':'(rien)')+'. Règles à rappeler sans donner la réponse : pour afficher la VALEUR d’une variable, on écrit son nom entre les parenthèses de print, sans guillemets ; avec des guillemets, c’est le mot qui s’affiche ; écrire le nom tout seul n’affiche rien ; print s’écrit en minuscules et Python distingue majuscules et minuscules ; les parenthèses et les guillemets vont par deux.';
+  c+='Ce que l’élève a écrit : '+(code.trim()?'« '+code.trim()+' »':'(rien)')+'. Règles à rappeler sans donner la réponse : pour afficher la VALEUR d’une variable, on écrit son nom entre les parenthèses de print, sans guillemets ; avec des guillemets, c’est le mot qui s’affiche ; dans un programme, écrire le nom tout seul n’affiche rien (seul un carnet Jupyter montre la dernière ligne d’une cellule) ; print s’écrit en minuscules et Python distingue majuscules et minuscules ; les parenthèses et les guillemets vont par deux.';
   return {nombre:'', contexte:c};
 }
 
@@ -31443,13 +31605,21 @@ function pypCases(q){ return [{id:'pyp-prog'}]; }
 
 /* ---- 1. Le diagnostic ---- */
 /* L'erreur de l'interpréteur, dite avec les mots d'un élève de Seconde. */
+/* Le point-virgule en fin d'instruction : CPython l'ACCEPTE, l'interpréteur
+   de la page le refuse — la divergence assumée du 6.1.6. Le message dit donc
+   ce qui est vrai (« pas besoin »), jamais « Python ne sait pas le lire »
+   (audit, M63). Un seul texte, pour tous les diagnostics qui le croisent. */
+const PY_POINT_VIRGULE='En Python, une instruction n’a pas besoin de point-virgule : retire le « ; ».';
+/* Le retrait sans bloc : pyRun lève l'IndentationError de CPython (M63). */
+const PY_RETRAIT='Cette ligne est décalée vers la droite : sans boucle ni test au-dessus, chaque ligne d’un programme commence tout à gauche — Python s’arrête sur une IndentationError.';
 function pypTraduire(msg){
   let m;
+  if(/^IndentationError/.test(msg)) return PY_RETRAIT;
   if((m=msg.match(/NameError : la variable « ([^»]+) »/))) return 'Python ne connaît pas « '+m[1]+' » : sans guillemets, il le prend pour le nom d’une variable. Un texte s’écrit entre guillemets.';
   if(/guillemet non fermé/.test(msg)) return 'Un guillemet n’est pas fermé : le texte doit commencer ET finir par un guillemet.';
   if(/parenthèse non fermée/.test(msg)) return 'Il manque la parenthèse fermante ) à la fin.';
   if((m=msg.match(/caractère inattendu « (.) »/))){
-    if(m[1]===';') return 'En Python, une instruction n’a pas besoin de point-virgule : retire le « ; ».';
+    if(m[1]===';') return PY_POINT_VIRGULE;
     return 'Python ne comprend pas le caractère « '+m[1]+' ».';
   }
   if((m=msg.match(/fonction « ([^»]+) »/))) return '« '+m[1]+' » n’est pas une fonction connue ici : c’est print(…) qui affiche.';
@@ -36408,6 +36578,7 @@ function pyxDiagErreur(q, l, msg, att){
   }catch(e){}
   if(/TypeError : « \+ »/.test(msg)) return 'Avec « + », Python refuse d’ajouter un texte et un nombre. Le plus simple : une VIRGULE entre le texte et la variable — print ajoute l’espace tout seul.';
   const mc=msg.match(/caractère inattendu « (.) »/);
+  if(mc && mc[1]===';') return PY_POINT_VIRGULE;
   if(mc) return 'Python ne comprend pas le caractère « '+mc[1]+' » : il n’a rien à faire dans cette ligne. Relis : print, une parenthèse, le texte entre guillemets, une virgule, la variable, la parenthèse fermante.';
   return 'Python s’arrête sur une erreur : « '+msg+' ». Relis ta ligne : print, une parenthèse, le texte entre guillemets, une virgule, la variable, la parenthèse fermante.';
 }
@@ -37815,6 +37986,11 @@ function pyvDiag(q, a, s, r, err){
     return 'Ce que tu as écrit est entre guillemets : Python l’affiche tel quel, comme un texte. Ici on attend le NOM d’une variable, sans guillemets.';
   }
   if(k!=='nom'){
+    /* « note+0 » affiche la bonne valeur ET se sert de la variable : rien n'y
+       est recopié à la main (audit, M64) — c'est un CALCUL autour du nom,
+       et c'est ce qu'on nomme. */
+    const nomsVus=noms.filter(function(n){ return pyxUtilise(s, n); });
+    if(v===a.valeur && nomsVus.length) return 'Ta case affiche bien « '+v+' », mais elle porte un CALCUL autour de '+nomsVus.join(', ')+' : on attend le NOM de la variable, seul, sans rien autour.';
     if(v===a.valeur) return 'Ta case affiche bien « '+v+' », mais la valeur est recopiée à la main : écris le NOM de la variable — si sa valeur changeait plus haut, l’affichage suivrait tout seul.';
     return 'Ici on attend le NOM d’une variable, pas une valeur ni un calcul : ta case affiche « '+v+' ».';
   }
@@ -38837,7 +39013,9 @@ function popDiagExpr(q, cle, l, un, deux){
     }
     if(/guillemet/.test(un.err)) return 'Un calcul ne se met pas entre guillemets : entre guillemets, Python voit du TEXTE et non des nombres.';
     if(/TypeError/.test(un.err)) return 'Python refuse ce calcul : « '+un.err+' ». Ici, a et b sont des nombres — écris l’opération entre eux.';
-    return 'Python s’arrête sur une erreur : « '+un.err+' ». Le calcul s’écrit avec a, b et un signe d’opération : + − * ou /.';
+    if(/caractère inattendu « [−–—] »/.test(un.err)) return 'Ce signe « − » n’est pas celui de Python : la soustraction s’écrit avec le tiret du clavier, « - ».';
+    if(/caractère inattendu « ; »/.test(un.err)) return PY_POINT_VIRGULE;
+    return 'Python s’arrête sur une erreur : « '+un.err+' ». Le calcul s’écrit avec a, b et un signe d’opération : « + », « - », « * » ou « / ».';
   }
   if(un.type==='str') return 'Un calcul ne se met pas entre guillemets : Python y voit du TEXTE, et la variable « '+cle+' » reçoit les lettres « '+un.val+' » au lieu d’un nombre.';
   if(/\/\//.test(l)) return '« // » est la division ENTIÈRE : elle jette ce qu’il y a après la virgule. Le quotient s’écrit avec une seule barre : /.';
@@ -38992,8 +39170,8 @@ function popConsigneHTML(q){
       const o=popOp(c), n=popNumLigne(q,function(x){ return x.t==='ex' && x.cle===c; });
       return '<li>ligne '+n+'&nbsp;: ranger '+o.mot+' dans la variable <code>'+esc(c)+'</code>&nbsp;;</li>';
     }).join('')
-    +'<li>lignes '+l1+' et '+(l1+1)+'&nbsp;: <b>afficher</b> '+q.ecrire.map(function(c){ return popOp(c).mot; }).join(' et ')
-    +', sur le <b>modèle</b> des deux lignes <code>print</code> déjà écrites — avec les textes <code>'+esc(popOp(q.ecrire[0]).txt)+'</code> et <code>'+esc(popOp(q.ecrire[1]).txt)+'</code>.</li>'
+    +'<li>lignes '+l1+' et '+(l1+1)+'&nbsp;: <b>afficher</b> '+q.ecrire.map(function(c){ return popOp(c).mot.replace(/ de a (?:et|par) b$/,''); }).join(' et ')
+    +', sur le <b>modèle</b> des deux lignes <code>print</code> déjà écrites — la même phrase, où ne changent que le texte du début, <code>'+esc(popOp(q.ecrire[0]).txt)+'</code> ou <code>'+esc(popOp(q.ecrire[1]).txt)+'</code>, et la variable de la fin.</li>'
     +'</ul>'
     +'<p class="pyd-note">Écris les deux lignes d’affichage dans l’ordre que tu veux, puis <b>vérifie en exécutant le programme</b>.</p>';
 }
@@ -42466,10 +42644,13 @@ function ppmQuestion(k, l){ return {vis:(k===10&&l===2)?'fiche':'tire', k:k, l:l
 /* k et l tirés entre 2 et 20 : assez petits pour un calcul de tête, assez
    variés pour que m-k change de signe d'un tirage à l'autre — la prédiction
    resterait triviale si le résultat était toujours du même signe. La fiche
-   du PDF (10, 2) n'est jamais retirée par hasard. */
+   du PDF (10, 2) n'est jamais retirée par hasard. Et k n'est JAMAIS égal à
+   l : m-k vaudrait alors 2l-l = l, la dernière ligne réécrirait l avec sa
+   propre valeur, et le piège de la réaffectation — tout l'exercice —
+   disparaîtrait (4,7 % des tirages ; audit, M61). */
 function ppmGen(){
   let k, l;
-  do{ k=rand(2,20); l=rand(2,20); } while(k===10 && l===2);
+  do{ k=rand(2,20); l=rand(2,20); } while((k===10 && l===2) || k===l);
   return {k:k, l:l};
 }
 function ppmBuildQuestions(){
@@ -44017,7 +44198,11 @@ function plcGen(){
   return { p:2, a:{n:107,k:2}, b:{n:108,k:2},
            nombres:[{n:1075,k:3},{n:1009,k:3},{n:11,k:1}] };
 }
-function plcBuildQuestions(){ const qs=[]; for(let i=0;i<6;i++) qs.push(plcGen()); return qs; }
+/* Deux questions sont la même quand elles posent les mêmes graduations et les
+   mêmes trois nombres, dans n'importe quel ordre : la clé les TRIE. */
+function plcCleNombres(nombres){ return nombres.map(function(v){ const r=plcReduit(v.n,v.k); return r.n+'e'+r.k; }).sort().join(' '); }
+function plcCle(q){ return plcCleNombres([q.a,q.b])+' | '+plcCleNombres(q.nombres); }
+function plcBuildQuestions(){ return distinctes(6, plcGen, plcCle); }
 function plcCases(q){
   return q.nombres.map(function(v,i){ return {id:'plc-s-'+i, bon:plcZone(v,q)}; });
 }
@@ -44291,9 +44476,17 @@ function mltGen(){
 
        n1/d1 ÷ n2/d2 = n1/d1 × d2/n2 = (n1 × d2)/(d1 × n2) = P/Q
 
-   Le tirage a deux conditions de plus que celui du produit. n2 ne peut pas
-   valoir 0 — on ne divise pas par zéro, et la seconde fraction ne peut pas non
-   plus valoir 1, sinon il n'y a rien à faire. Et c'est encore le PRODUIT
+   n2 ne peut pas valoir 0 — on ne divise pas par zéro (rand(1,9) le tient),
+   et la seconde fraction ne peut pas valoir 1, sinon il n'y a rien à faire.
+   Ce second bord n'a PAS de garde-fou à lui : si n2 = d2 = k, le quotient
+   vaut n1·k/(d1·k), de PGCD au moins k ≥ 2, et la condition d'irréductibilité
+   l'écarte déjà — le « n2 === d2 » qui le répétait n'écartait jamais rien, et
+   il est retiré, comme le journal des fractions l'avait écrit (le banc exige
+   la propriété sur le tirage). Ses deux voisins l'étaient aussi, pour la même
+   raison : d2 vaut au moins 2, donc « 1 tout rond » (P = Q, irréductible,
+   donc P = Q = 1, donc d2 = 1) et « rien à multiplier en haut » (n1 = d2 = 1)
+   ne sortent jamais — le banc exige les trois bords sur le tirage, sans
+   ligne morte qui ferait croire qu'on les vérifie ici. C'est donc le PRODUIT
    INVERSÉ qui doit être irréductible : ni « chaque fraction irréductible » ni
    la condition du produit direct ne l'impliquent. */
 function divGen(){
@@ -44301,9 +44494,6 @@ function divGen(){
     const n1=rand(1,9), d1=rand(2,9), n2=rand(1,9), d2=rand(2,9);
     const P=n1*d2, Q=d1*n2;
     if(mltPgcd(P,Q)!==1) continue;      /* le quotient doit être irréductible */
-    if(P===Q) continue;                 /* 1 tout rond : l'écriture finale devient ambiguë */
-    if(n2===d2) continue;               /* diviser par 1 n'est pas un calcul */
-    if(n1===1 && d2===1) continue;      /* rien à multiplier en haut */
     return {n1:n1,d1:d1,n2:n2,d2:d2,a1:n1,a2:d2,b1:d1,b2:n2,P:P,Q:Q};
   }
   return {n1:3,d1:5,n2:2,d2:7,a1:3,a2:7,b1:5,b2:2,P:21,Q:10};
@@ -45438,7 +45628,7 @@ function ordGen(){
   /* les trois nombres de la fiche, si le tirage n'aboutissait pas */
   return { nombres:[{n:11,k:1},{n:1075,k:3},{n:1009,k:3}] };
 }
-function ordBuildQuestions(){ const qs=[]; for(let i=0;i<6;i++) qs.push(ordGen()); return qs; }
+function ordBuildQuestions(){ return distinctes(6, ordGen, function(q){ return plcCleNombres(q.nombres); }); }
 function ordDecMax(q){ return Math.max.apply(null, q.nombres.map(function(v){ return v.k; })); }
 /* L'ordre, calculé par la fonction qui corrige : les indices des trois
    nombres, du plus petit au plus grand. */
@@ -45997,9 +46187,12 @@ function rpdCases(q){
 /* Le coefficient se propose en TROIS valeurs — la bonne, et ses deux
    voisines +1 et -1 — plutôt qu'en saisie libre (demande de Turquet,
    septembre 2026) : comme le signe et la fin de l'écriture, c'est un choix,
-   pas un texte à taper. */
+   pas un texte à taper. Un coefficient de 1 (x × x, −x × −x) n'a pas de
+   voisine en dessous : « 0 » n'est pas un coefficient de x² — 0x², c'est 0, et
+   l'élève lirait un piège qui n'en est pas un. Il se propose alors avec 2 et 3. */
 function rpdCoefOpts(coef){
-  return ensShuffle([coef, coef+1, coef-1]).map(function(v){ return '<option value="'+v+'">'+v+'</option>'; }).join('');
+  const vois=(coef>1) ? [coef+1, coef-1] : [coef+1, coef+2];
+  return ensShuffle([coef].concat(vois)).map(function(v){ return '<option value="'+v+'">'+v+'</option>'; }).join('');
 }
 function rpdJuste(c, el){
   if(!el) return false;
@@ -47810,10 +48003,16 @@ function pfVide(ids){ return ids.some(function(id){ const el=$(id); return !el |
    PROMET, puis les deux doivent se rejoindre. Généralisée au signe : P peut
    être négatif (H, I, J), Q reste toujours positif par construction du
    tirage — c'est lui qui porte le signe. */
+/* Une case PROMET quand elle est un multiple de la fraction IRRÉDUCTIBLE
+   p/q : toute fraction égale s'écrit (k·p)/(k·q). L'ancien critère (divise
+   P ou est divisé par lui) refusait 104/44 pour 156/66 — 104 ne divise pas
+   156 —, alors que 104/44 = 26/11 (audit, octobre 2026) ; et il laissait
+   « promettre » un 1 qu'aucun dénominateur entier ne complète. */
 function pfFracJuge(fn,fd,P,Q){
-  const promFn = !isNaN(fn) && fn!==0 && (fn<0)===(P<0)
-              && (Math.abs(fn)%Math.abs(P)===0 || Math.abs(P)%Math.abs(fn)===0);
-  const promFd = !isNaN(fd) && fd>0 && (fd%Q===0 || Q%fd===0);
+  if(P===0) return [!isNaN(fn) && fn===0, !isNaN(fd) && fd>0];
+  const g=gcd(P,Q), p=P/g, q=Q/g;
+  const promFn = !isNaN(fn) && fn!==0 && fn%p===0 && fn/p>0;
+  const promFd = !isNaN(fd) && fd>0 && fd%q===0;
   const accord = promFn && promFd && fn*Q===P*fd;
   return [promFn && (!promFd || accord), promFd && (!promFn || accord)];
 }
@@ -47996,8 +48195,32 @@ function pfProduitCorrection(pref, withInverse, invAttendu1, invAttendu2, a1,a2,
   if(withInverse){ corTrainDec(pref+'-i1',invAttendu1); corTrainDec(pref+'-i2',invAttendu2); }
   corTrainDec(pref+'-h1',a1); corTrainDec(pref+'-h2',a2);
   corTrainDec(pref+'-b1',b1); corTrainDec(pref+'-b2',b2);
-  corTrainFrac(pref+'-fn',pref+'-fd',P,Q);
+  pfCorFinale(pref+'-fn',pref+'-fd',P,Q);
 }
+/* LA FRACTION FINALE MONTRÉE EST IRRÉDUCTIBLE (audit, octobre 2026) : la
+   correction verte écrivait 156/66 comme réponse modèle, quand 26/11 est la
+   fraction finale. Une case déjà juste (bleue) dit la ROUTE de l'élève : sa
+   voisine vide reçoit le nombre qui la complète (104 en haut appelle 44),
+   jamais un nombre qui lui donnerait tort. */
+function pfIrred(P,Q){ const g=gcd(P,Q); return [P/g, Q/g]; }
+function pfCorFinale(idN,idD,P,Q){
+  const r=pfIrred(P,Q); let n=r[0], d=r[1];
+  const eN=$(idN), eD=$(idD);
+  const lu=el=>{ const v=String((el&&el.value)||'').trim(); return /^-?\d+$/.test(v)?parseInt(v,10):NaN; };
+  if(eN&&eD){
+    const fn=lu(eN), fd=lu(eD), videN=String(eN.value||'').trim()==='', videD=String(eD.value||'').trim()==='';
+    if(!isNaN(fn) && eN.classList.contains('ok') && videD && r[0]!==0){ n=fn; d=fn/r[0]*r[1]; }
+    else if(!isNaN(fd) && eD.classList.contains('ok') && videN){ d=fd; n=fd/r[1]*r[0]; }
+  }
+  corTrainFrac(idN,idD,n,d);
+}
+/* La fraction finale DITE dans un message : « 156 sur 66, soit 26 sur 11 une
+   fois simplifiée » — la valeur du calcul ET la fraction finale. */
+function pfFinaleTexte(P,Q){
+  const r=pfIrred(P,Q);
+  return P+' sur '+Q+(r[1]!==Q ? ', soit '+r[0]+' sur '+r[1]+' une fois simplifiée' : '');
+}
+function pfFinaleRep(P,Q){ const r=pfIrred(P,Q); return P+'/'+Q+(r[1]!==Q ? ' = '+r[0]+'/'+r[1] : ''); }
 
 /* ===== EXERCICE : UNE SOMME OÙ UN TERME EST UN PRODUIT (« G » de la fiche) ==
    (identifiant « somme-produit-fractions », kind « spf »)
@@ -48290,7 +48513,7 @@ function pqdPourquoi(q,r){
   if(!(r.cx.okN1&&r.cx.okN2&&r.cx.okD)) return 'Sur le dénominateur '+r.cx.D+', les numérateurs de la parenthèse deviennent '+r.cx.N1+' et '+r.cx.N2+'.';
   if(!(r.cx.okRn&&r.cx.okRd)) return 'Il reste à calculer la parenthèse : '+r.cx.N1+' − '+r.cx.N2+' = '+q.Rn+', sur '+q.Din+'.';
   if(inv && !r.pr.inverse) return 'Diviser par '+q.Rn+'/'+q.Din+', c’est multiplier par son inverse : '+q.Din+' sur '+q.Rn+'.';
-  return 'Il reste à écrire la fraction finale : '+q.P+' sur '+q.Q+'.';
+  return 'Il reste à écrire la fraction finale : '+pfFinaleTexte(q.P,q.Q)+'.';
 }
 function checkPqdAnswer(live){
   if(test.locked) return;
@@ -48315,7 +48538,7 @@ function checkPqdAnswer(live){
   }
   const donne=pqdCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
   test.answers.push({...(ptsExo()||{}),correct:allOk,
-    q:q.a+'/'+q.b+(test.inv?' ÷ ':' × ')+'('+q.c+'/'+q.d+' − '+q.e+'/'+q.f+')', answer:q.P+'/'+q.Q, given:donne});
+    q:q.a+'/'+q.b+(test.inv?' ÷ ':' × ')+'('+q.c+'/'+q.d+' − '+q.e+'/'+q.f+')', answer:pfFinaleRep(q.P,q.Q), given:donne});
   const last=test.idx===test.questions.length-1;
   $('pqdActions').innerHTML='<button class="btn btn-primary" id="pqdNext" onclick="nextPqdQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('pqdNext'); if(nb) nb.focus();
@@ -48500,7 +48723,7 @@ function qdbPourquoi(q,r){
   if(!r.pr.inverse) return 'Diviser par '+q.BRn+'/'+q.BD+', c’est multiplier par son inverse : '+q.BD+' sur '+q.BRn+'.';
   if(!r.pr.haut) return 'En haut, les deux facteurs de la multiplication : '+q.ARn+' et '+q.BD+'.';
   if(!r.pr.bas) return 'En bas, les deux facteurs de la multiplication : '+q.AD+' et '+q.BRn+'.';
-  return 'Il reste à écrire la fraction finale : '+q.P+' sur '+q.Q+'.';
+  return 'Il reste à écrire la fraction finale : '+pfFinaleTexte(q.P,q.Q)+'.';
 }
 function checkQdbAnswer(live){
   if(test.locked) return;
@@ -48525,7 +48748,7 @@ function checkQdbAnswer(live){
   }
   const donne=qdbCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
   test.answers.push({...(ptsExo()||{}),correct:allOk,
-    q:'('+q.a+'/'+q.b+' − '+q.c+'/'+q.d+') ÷ ('+q.e+'/'+q.f+' + '+q.g+'/'+q.h+')', answer:q.P+'/'+q.Q, given:donne});
+    q:'('+q.a+'/'+q.b+' − '+q.c+'/'+q.d+') ÷ ('+q.e+'/'+q.f+' + '+q.g+'/'+q.h+')', answer:pfFinaleRep(q.P,q.Q), given:donne});
   const last=test.idx===test.questions.length-1;
   $('qdbActions').innerHTML='<button class="btn btn-primary" id="qdbNext" onclick="nextQdbQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('qdbNext'); if(nb) nb.focus();
@@ -48628,7 +48851,7 @@ function tsfPourquoi(q,r){
   if(!r.ok2) return 'Le second terme se multiplie par le produit des deux AUTRES dénominateurs, ici '+q.b+' × '+q.f+' = '+(q.b*q.f)+' — en haut ET en bas.';
   if(!r.ok3) return 'Le troisième terme se multiplie par le produit des deux AUTRES dénominateurs, ici '+q.b+' × '+q.d+' = '+(q.b*q.d)+' — en haut ET en bas.';
   if(!r.somme) return 'Sur le dénominateur '+q.D+', les numérateurs deviennent '+q.N1+', '+q.N2+' et '+q.N3+'.';
-  return 'Il reste à écrire la fraction finale : '+q.N+' sur '+q.D+'.';
+  return 'Il reste à écrire la fraction finale : '+pfFinaleTexte(q.N,q.D)+'.';
 }
 function checkTsfAnswer(live){
   if(test.locked) return;
@@ -48888,7 +49111,9 @@ function mrlS(s){ return s>0?'+':'−'; }
 function mrlGen(pris){
   for(let essai=0; essai<200; essai++){
     const a=1+Math.floor(Math.random()*9), b=1+Math.floor(Math.random()*9);
-    const cle=a+'-'+b;
+    /* (3, 7) et (7, 3) posent les quatre mêmes produits : la clé est la
+       paire NON ORDONNÉE */
+    const cle=Math.min(a,b)+'-'+Math.max(a,b);
     if(pris.indexOf(cle)>=0) continue;
     pris.push(cle);
     return {a:a, b:b};
@@ -50003,13 +50228,17 @@ function ctxApp(q){
   return {nombre:'', contexte:c};
 }
 
+function ensCleValeur(q){ return q.irr ? q.plain : q.p+'/'+q.q; }
 function ensBuildQuestions(){
   // 10 exemples couvrant les 6 catégories (entiers +/-, décimaux +/-, rationnel non décimal, irrationnel)
   const gens=[ensGenPosInt, ensGenPosInt, ensGenNegInt,
     ()=>ensGenDec(false), ()=>ensGenDec(false), ()=>ensGenDec(true),
     ensGenFrac, ensGenFrac, ensGenIrr, ensGenIrr];
-  const qs=[], seen={};
-  for(const gen of gens){ let q, t=0; do{ q=gen(); t++; }while(seen[q.plain] && t<25); seen[q.plain]=true; qs.push(q); }
+  /* Deux écritures du même nombre (18/3 et 30/5, 2/4 et 0,5) sont la même
+     question : la clé est la VALEUR — le rationnel réduit p/q, ou l'écriture
+     d'un irrationnel (√n, π). */
+  const qs=[];
+  for(const gen of gens) qs.push(distincte(qs, gen, ensCleValeur));
   return ensShuffle(qs);
 }
 /* ---- Cycle de vie de l'exercice ---- */
@@ -52031,3 +52260,135 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',demarrer); else demarrer();
 })();
 </script>
+<script id="defilants">
+/* LES TABLEAUX QUI DÉFILENT SE PRENNENT AU CLAVIER (audit d'octobre 2026, A7).
+   Sur un téléphone, un tableau de variation déborde de sa carte et défile
+   dans son enveloppe (overflow-x:auto) ; sans tabindex, l'enveloppe n'était
+   pas atteignable au clavier, et la partie droite du tableau restait hors de
+   portée de qui n'a ni souris ni doigt. Les enveloppes se LISENT dans la
+   feuille de styles — toute règle qui fait défiler —, jamais dans une liste
+   écrite à la main : une enveloppe ajoutée demain est couverte sans rien
+   déclarer. Celle qui entoure un tableau (parent ou grand-parent) devient
+   focusable, région nommée. Contrôle : banc navigateur, § 9. */
+(function(){
+  let SEL=null;
+  function selecteur(){
+    const vus=[];
+    function lire(regles){
+      Array.prototype.forEach.call(regles||[], function(r){
+        try{
+          if(r.style && r.selectorText){
+            const o=(r.style.getPropertyValue('overflow-x')||'')+' '+(r.style.getPropertyValue('overflow')||'');
+            if(/\b(auto|scroll)\b/.test(o)) r.selectorText.split(',').forEach(function(x){
+              x=x.trim(); if(!x || vus.indexOf(x)>=0) return;
+              try{ document.querySelector(x); vus.push(x); }catch(e){} });
+          }
+          if(r.cssRules && r.cssRules.length) lire(r.cssRules);   /* @media, et règles imbriquées */
+        }catch(e){}
+      });
+    }
+    Array.prototype.forEach.call(document.styleSheets, function(f){ try{ lire(f.cssRules); }catch(e){} });
+    return vus.join(',');
+  }
+  function defile(e){
+    if(SEL && e.matches(SEL)) return true;
+    const o=(e.style && (e.style.overflowX || e.style.overflow)) || '';
+    return /\b(auto|scroll)\b/.test(o);
+  }
+  function marquer(){
+    if(SEL===null) SEL=selecteur();
+    document.querySelectorAll('table').forEach(function(t){
+      let e=t.parentElement;
+      for(let k=0;k<2 && e && e!==document.body;k++,e=e.parentElement){
+        if(!defile(e)) continue;
+        if(!e.hasAttribute('data-defile')){
+          e.setAttribute('data-defile','');
+          if(!e.hasAttribute('tabindex')) e.tabIndex=0;
+          if(!e.hasAttribute('role')) e.setAttribute('role','region');
+          if(!e.hasAttribute('aria-label') && !e.hasAttribute('aria-labelledby'))
+            e.setAttribute('aria-label','Tableau, défilement horizontal');
+        }
+        break;
+      }
+    });
+  }
+  let prevu=false;
+  function bientot(){ if(prevu) return; prevu=true; setTimeout(function(){ prevu=false; marquer(); },60); }
+  function demarrer(){
+    marquer();
+    try{ new MutationObserver(bientot).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',demarrer); else demarrer();
+})();
+</script>
+<script id="graduations">
+/* UNE GRADUATION CÈDE LA PLACE AU NOM DE LA COURBE (audit d'octobre 2026, A5).
+   Les graduations sont passées de 10 à 12 px — sur un téléphone elles sont
+   le support même de la lecture graphique. Plus grandes, elles ont fini par
+   toucher, sur quelques dessins, l'étiquette « Cf » posée par un placement qui
+   ne les connaît pas (1 à 2 dessins sur ~370 par visite complète). La
+   graduation numérique qui recouvre une étiquette de courbe se tait : la
+   grille est régulière, ses voisines la redonnent, alors qu'une étiquette
+   masquée ne se devine pas. Les bords ±∞ et les asymptotes ne se taisent
+   jamais. Mesuré à l'encre rendue (getBBox) : sans mise en page — jsdom —,
+   rien ne bouge. Contrôle : banc navigateur, § 9. */
+(function(){
+  const ETIQ=/(^|\s)(sv-cf|lv-cf|eqg-cg)(\s|$)/, GRAD=/(^|\s)([a-z0-9]+-ax|lr-num)(\s|$)/, NOMBRE=/^[−-]?\d+([,.]\d+)?$/;
+  function boite(t){ try{ const r=t.getBoundingClientRect(); return (r.width>0&&r.height>0)?r:null; }catch(e){ return null; } }
+  function ceder(){
+    document.querySelectorAll('svg').forEach(function(svg){
+      const scr=svg.closest('section.screen'); if(scr && !scr.classList.contains('on')) return;   /* seul l'écran ouvert se mesure */
+      const etiq=[], grad=[];
+      svg.querySelectorAll('text').forEach(function(t){
+        const c=t.getAttribute('class')||'';
+        if(ETIQ.test(c)) etiq.push(t);
+        else if(GRAD.test(c) && NOMBRE.test((t.textContent||'').trim()) && !t.hasAttribute('data-cede')) grad.push(t);
+      });
+      if(!etiq.length || !grad.length) return;
+      const be=etiq.map(boite).filter(Boolean); if(!be.length) return;
+      grad.forEach(function(t){
+        const b=boite(t); if(!b) return;
+        if(be.some(function(e){ return Math.min(b.right,e.right)-Math.max(b.left,e.left)>1 && Math.min(b.bottom,e.bottom)-Math.max(b.top,e.top)>2; })){
+          t.setAttribute('data-cede',''); t.style.visibility='hidden';
+        }
+      });
+    });
+  }
+  let prevu=false;
+  function bientot(){ if(prevu) return; prevu=true; setTimeout(function(){ prevu=false; ceder(); },60); }
+  function demarrer(){
+    /* getBBox vit sur SVGGraphicsElement, pas sur SVGElement : le premier
+       garde (« 'getBBox' in SVGElement.prototype ») était faux dans TOUT
+       navigateur, et le script ne cédait jamais rien — le banc l'a vu au
+       2.2.1 de la Terminale, « −1 » sous le nom de la courbe (octobre 2026). */
+    const proto=(window.SVGGraphicsElement||window.SVGElement||{}).prototype;
+    if(!proto || !('getBBox' in proto)) return;   /* sans mise en page (jsdom), rien à mesurer */
+    /* childList : un dessin qui naît ; attributes (class) : un écran qui
+       devient visible APRÈS avoir été dessiné — caché, il ne se mesure pas. */
+    try{ new MutationObserver(bientot).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']}); }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',demarrer); else demarrer();
+})();
+</script>
+<script id="annonces">
+/* LE VERDICT, LE SCORE ET LE « BRAVO » SE DISENT AUSSI À L'OREILLE (audit
+   d'octobre 2026, A6). aria-live était posé sur les .mp-feedback ; restaient
+   muets pour un lecteur d'écran le score en direct (.score-tag, « Cases
+   justes 3 »), l'écran de fin (« Bravo ! » et la note) et, en Seconde, les
+   verdicts .lv-feedback et .def-feedback. aria-atomic : il relit « Cases
+   justes 3 », pas « 3 ». Posé ici, à l'ouverture, une fois pour toutes les
+   balises de la page, plutôt que dans deux cents lignes d'écrans.
+   Contrôle : tests/verifier.js (« le verdict, le score et le Bravo sont
+   annoncés »). */
+(function(){
+  function poser(){
+    document.querySelectorAll('.score-tag, .result-head, .score-circle .val, .lv-feedback, .def-feedback, .mp-feedback').forEach(function(e){
+      if(e.closest('[aria-live]')) return;
+      e.setAttribute('aria-live','polite'); e.setAttribute('aria-atomic','true');
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',poser); else poser();
+})();
+</script>
+</body>
+</html>

@@ -4592,3 +4592,66 @@ fausse, « 20,5 », « 20,0 », modèle simulé qui se trompe dans les deux sens
 3 000 tirages par QCM sans leurre impossible) ; reste connu : quand le sens
 ne laisse rien d'un côté, les trois leurres tombent du même côté (18 % des
 tirages de `genPctDepart`), ce que des entiers ne permettent pas d'éviter.
+
+**Les « mineures » de l'audit, thème des pourcentages (Première, octobre
+2026).** (1) **Aucune quantité dénombrée ne vaut 1** (`pasUnSeul`) : les
+tables de contextes écrivent l'unité au pluriel et accordent le verbe, et
+« soit 1 élèves », « dont 1 pratiquent », « 5 % de 20 = 1 hectares »,
+« un stock vaut 1 articles » sortaient de dix exercices (une séance sur
+cent environ). Plutôt que d'accorder une trentaine de gabarits, les tirages
+écartent le cas : jamais 10 % de 10 (`genPercent`, `genEvolAdd`,
+`genPctTaux`, `genSyn`), ni N = 10 au 2.1.2, ni 10 % ou 5 % qui vaille 1
+(`genPdt`, `genAtdN`, `genPdcN` perd 20), ni 10 diminué de 90 %, ni 1 % de
+100 (`genAugTauxAdd`, `genDimTauxSub`, `genSyn`), ni un leurre à 1
+(`leurresProches` reçoit `min:1`). Le contrôle relit vingt générateurs —
+chaque grandeur, et celle que chaque PROPOSITION ferait écrire — et dit
+combien de tirages à unité plurielle il a lus ; une sonde de 120 séances
+par exercice du thème, écran vérifié et contexte IA compris, n'en trouve
+plus aucun (elle en comptait quatorze familles avant). (2) `parseDecToFrac`
+accepte un « % » redondant (« 15 % » dans une case qu'un « % » suit déjà) et
+une virgule finale (« 12, ») — fonction partagée par toutes les cases
+décimales de la page. (3) Le 2.2.11 et les synthèses disent « l'augmentation
+de 5 % de 7000 € est ▢ € », plus « l'augmentation est … est ». (4) Le corrigé
+type des exercices à propositions (`QIA_MODELES.augq`) écrivait « \\( » et
+« \n » en toutes lettres, et montrait toujours un « retrouver le
+pourcentage » : il suit désormais l'inconnue de la question. (5) Les
+corrections des 2.2.7 et 2.3.7 écrivent « 1,26 − 1 = 0,26, soit 26 % ».
+(6) Les rappels montrent ce que le tirage pose : 10 % de 6 € (et non 32 €,
+jamais tiré) au 2.1.8, 300 € (et non 400 €) au 2.1.9, 40 € et 6 € (et non
+50 €) aux 2.2.11 et 2.3.10 ; `RAP_PDT` ne dit plus « un autre chiffre que 5
+(15 % ou 25 %) ». Le « 30 % de 600 » des rappels des synthèses rédigées est
+bien tiré (sondé) et reste. Déjà réglés par le lot des importantes, et
+vérifiés : la valeur de départ « 300,0 » et la virgule du 2.1.9. Chaque
+contrôle neuf a rougi sur son sabotage.
+
+**Le rappel de {pourcentage-chaine} décrivait des cases disparues (audit
+d'octobre 2026, M45).** `RAP_PCTC` disait « toutes les cases sont toujours
+vides, même le total, qui vaut toujours 100 % » : les boîtes ne portent plus
+que leur nom. Il décrit maintenant l'écran tel qu'il est — les deux flèches,
+la rangée du dessous, la phrase de conclusion — et la division qui retrouve
+un pourcentage manquant. Dans {pourcentage-schema}, le contexte
+« Entreprise » nommait sa boîte « Filles » sous des phrases qui parlent de
+femmes (« au mot près » de la fiche, qui se trompait là) : la boîte s'appelle
+« Femmes ». Le contrôle du tirage de {pourcentage-schema} exige que chaque
+boîte du premier sous-groupe se lise dans ses phrases.
+
+**Les « mineures » de l'audit, thème des pourcentages (Seconde, octobre
+2026).** La valeur de départ jugée par égalité de chaînes (« 300,0 »
+refusé) était déjà réglée par le lot des importantes (`decVaut`). Le reste :
+{pourcentage-chaine} posait le même couple (P1, P2) deux fois dans 3 % des
+séances — la clé de `distinctes()` porte le sens (comb, p1, p2), le couple
+est désormais écarté rang par rang. Les contextes tiennent leurs bornes : le
+lycée de {pourcentage-boite} s'arrête à 3 000 élèves ; la vitesse porte
+`poidsHausse:0`, que `tirerContexte` lit comme une exclusion (« Une vitesse
+s'accroît de 2 % » sortait par les tournures abstraites malgré le commentaire
+qui l'interdisait) ; « 10,4 € » et « 9,5 € » retombaient sur « Un prix », dont
+`nOk` écarte ces nombres — un sujet « Le prix d'un ticket » (moins de 20 €)
+s'ajoute EN DERNIER à `AUGQ_CTX`, et le repli décimal cherche le sujet en euros
+dont la borne convient ; « 61,2 licenciés » (le calcul juste d'une proposition
+fausse) perd son unité dénombrable (`augqQte`). La pose FACULTATIVE ne compte
+plus dans la note partielle : `jugePoseFac` marque son hôte `.pose-fac`, que
+`ptsEcran` saute — le commentaire « non comptée » disait vrai du verdict, pas
+de la note. {diminuer-soustraction} a ses questions à l'IA (il proposait
+« Pourquoi calcule-t-on d'abord l'augmentation ? ») et deux contextes envoyés
+au modèle disaient « Exercice de mathématiques de Première ». Contrôles du
+banc principal (`seconde()`, fin de section), rougis sur le code d'avant.

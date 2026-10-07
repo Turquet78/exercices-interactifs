@@ -1533,3 +1533,45 @@ du 1.1 et du 1.5 passaient déjà par `ctxPourcentages` ; il leur manquait
 ce que l'élève a écrit dans la grille, que `ctxPosee` lit désormais. Les
 cases de lecture (`lvReadInt`) refusent « 2abc » et « 1/2 », et acceptent
 le moins typographique collé.
+
+**Trois phrases mal accordées (audit d'octobre 2026, M59).** Dans
+{antecedents-droite}, l'élève choisit « est », « sont » ou « n'existent pas »
+derrière « Les antécédents de 3 » : choisir « est » faisait lire « Les
+antécédents de 3 est 4 ». Le sujet (`#adr-suj`) suit désormais le verbe
+choisi — « L'antécédent de 3 est … » —, sans rien souffler : c'est le verbe
+qui est jugé (`adrSujet`, appelée par `adrMaj` et après la correction). Le
+contrôle de l'exercice choisit « sont » puis « est » et relit le sujet. La
+consigne de {maximum-minimum-tableau} disait « la fonction f, défini »
+(→ « définie »), et celles de {construire-fonction} « admet pour solution
+S = { a ; b } » (→ « a pour ensemble de solutions »).
+
+**{equation-graphique} n'a plus de palier, et ses commentaires disent vrai
+(M60).** f pouvait porter deux valeurs voisines égales — un morceau de courbe
+horizontal que le reste du thème ne dessine jamais. Les hauteurs interrogées
+l'écartaient, si bien qu'aucune correction n'était fausse ; mais mesuré sur
+3 000 séances, c'était UNE SUR SEPT (l'audit, sur l'état d'avant, en comptait
+4 sur 4 000). `eqgGen` refuse désormais tout palier ; le taux de réussite
+tombe d'un essai sur 680 à un sur 800, et les essais passent de 4 000 à
+8 000 — à 4 000, le repli serait sorti une séance sur 190 ; à 8 000, aucune sur
+3 000. Le contrôle des équations graphiques refuse le palier (l'ancien tirage
+rougit sur 3, 2, 0, −2, −2, 2, −3). Le commentaire « un essai sur 220 » est
+remesuré, et ceux de `lvGenPts`/`lvAnalyze` parlent de 7 valeurs f(−3..3), pas
+de 9.
+
+**Les « mineures » de l'audit, thème des fonctions.** Le 3.2.3
+({equation-graphique}) corrigeait « le bout du dessin est toujours pris »
+sans avoir jamais dit où f et g sont définies : le domaine est désormais
+rangé dans la question (`q.dom`, [−3 ; 3], repli `eqgDom` pour une pause
+d'avant) et écrit dans l'énoncé (`#eqgInstr`). Cinq rappels (RAP_ING,
+RAP_IFG, RAP_TSG, RAP_EIG, RAP_EQG) et une question à l'IA affirmaient que
+les bouts du dessin sont « toujours pris » — faux pour une cloche, où S
+s'arrête aux croisements : ils disent maintenant qu'un bout n'est dans S que
+si un morceau va jusqu'à lui, et qu'il est alors pris. Les corrections
+détaillées, elles, ne le disaient que dans le cas des DEUX morceaux, où
+c'est vrai : intactes. Au {construire-fonction}, RAP_CFX et `cfxWhy`
+exigeaient que la courbe touche k « à chaque bord » ; le juge ne l'exige
+qu'aux bords INTÉRIEURS (ailleurs, ce serait traverser entre deux
+graduations) — `cfxBordsTexte` les nomme, les bouts −5 et 5 n'exigent rien.
+`lvReadInt` (constat M58) était déjà strict depuis les importantes : il
+gagne son contrôle. Tenu par `mineursFonctionsPython` (tests/verifier.js),
+qui a rougi sur chaque ancien comportement remis en place.

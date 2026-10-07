@@ -4767,3 +4767,43 @@ nom du programme. Et `pyxAffiche` exigeait les chiffres de la valeur sans son
 signe : `print("…", -note)` passait. La valeur est désormais un jeton entier
 et signé. Les cases de résultat des opérations posées (1.1, 1.4, 1.7, 1.8)
 laissées vides ne rougissent plus en soutien.
+
+**Les « mineures » de l'audit, Python.** Au 6.2.6 ({python-pas-a-pas-multiplication}),
+`ppmGen` tirait k = l une fois sur vingt : `l = m-k` réécrivait alors l avec
+sa propre valeur, et le piège de la réaffectation disparaissait — k ≠ l est
+exigé. Au {python-operations}, le message d'erreur proposait « + − * ou / »
+avec le moins typographique que l'interpréteur venait de refuser : il écrit
+« - », et un « − » collé reçoit sa propre phrase. La consigne d'affichage
+demandait « le quotient de a par b » quand le juge exige la phrase du
+modèle (« … de a et b … ») : elle dit désormais qu'on recopie le modèle en
+ne changeant que le texte du début et la variable de la fin — la consigne du
+calcul garde « de a par b », juste pour l'ordre de la division.
+
+**La page répond comme CPython sur trois écarts, et le quatrième est
+nommé.** `pyLex` refusait `π = 3.14` : un nom commence désormais par toute
+LETTRE (`\p{L}`, comme les identifiants de PEP 3131) — « × », « − », « ² » et
+les emojis restent refusés, comme là-bas (avant, la plage `À-ɏ` prenait « × »
+pour une lettre). La virgule finale (`print("a", a,)`, `int("7",)`) passe ;
+`f(,)` reste refusé. Sans bloc, une ligne DÉCALÉE est une IndentationError,
+levée avant toute exécution comme CPython la lève à la compilation (la
+tolérance au retrait d'avant les blocs disparaît ; les cases d'une ligne
+sont déjà nettoyées par leur juge, seul un programme écrit sur plusieurs
+lignes peut porter un retrait) ; {python-afficher-variable}
+le dit en clair. Le point-virgule reste la divergence ASSUMÉE, mais aucun
+diagnostic ne dit plus que « Python ne sait pas le lire » : un seul texte,
+`PY_POINT_VIRGULE`, partout où il est croisé. Le contrôle compare quatorze
+programmes à un vrai python3, sortie pour sortie et refus pour refus.
+
+**« Écrire le nom tout seul n'affiche rien » est vrai dans un programme, pas
+dans un carnet.** RAP_PYC, le diagnostic du {python-afficher-variable}, son
+contexte IA et sa question proposée le disent désormais « dans un programme »,
+et le rappel nomme le carnet Jupyter, qui montre la dernière ligne d'une
+cellule. RAP_PTV ne présente plus `2*x+3` comme LE calcul de l'exercice : ce
+n'est qu'un exemple, le calcul change d'une question à l'autre. La carte du
+6.2.3 affichait « { c = a+b } » — une ligne de code entre accolades que le
+contrôle des {identifiant} ne voyait pas : elle écrit « c = a+b » entre
+guillemets, et un contrôle commun aux trois niveaux exige désormais que les
+accolades d'une carte ne soient qu'un ensemble (« … » ou « ; », jamais
+« = »). Et `pyvDiag` disait « la valeur est recopiée à la main » devant
+`note+0`, qui se sert de la variable : il nomme maintenant un CALCUL autour du
+nom.

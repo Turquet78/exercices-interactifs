@@ -374,6 +374,19 @@ async function parcours(page, N){
     verifier('l\'élève arrive sur l\'accueil, pas sur l\'écran d\'installation',
       (await ecranVisible(s.page)) !== 'scr-setup',
       'écran affiché : ' + (await ecranVisible(s.page)));
+    /* La page s'ouvre ici depuis le DISQUE (file://), sans en-tête HTTP pour
+       dire l'encodage : c'est le <meta charset> seul qui le fixe — le cas même
+       de l'audit T5. Et le code de l'élève se tape masqué (T10), sans être un
+       champ mot de passe que le gestionnaire de Chrome voudrait enregistrer. */
+    const entete = await s.page.evaluate(() => {
+      const p = document.getElementById('loginPin');
+      return { enc: document.characterSet, lang: document.documentElement.lang, mode: document.compatMode,
+               pin: p ? { type: p.type, masque: getComputedStyle(p).webkitTextSecurity } : null };
+    });
+    verifier('ouverte depuis le disque, la page se lit en UTF-8, en français et en mode standard',
+      entete.enc === 'UTF-8' && entete.lang === 'fr' && entete.mode === 'CSS1Compat', JSON.stringify(entete));
+    verifier('le code de l\'élève se tape masqué, sans être un mot de passe pour le navigateur',
+      !!entete.pin && entete.pin.masque === 'disc' && entete.pin.type === 'text', JSON.stringify(entete.pin));
 
     /* ===== 1 bis. la porte du professeur ===== */
     /* Elle n'a plus de bouton : elle s'ouvre par « …#prof », mis en favori.
@@ -724,6 +737,26 @@ async function parcours(page, N){
     const exercice = await mesurer();
     verifier('l\'écran de l\'exercice ne déborde pas latéralement', exercice.page <= exercice.vue + 1,
       exercice.page + 'px de large pour un écran de ' + exercice.vue + 'px');
+    /* Les commandes du bas tiennent sur UNE ligne, chacune en une ligne de
+       texte (audit d'octobre 2026, T12) : en libellés longs elles montaient à
+       deux ou trois lignes et couvraient en permanence 60 à 76 px du bas de
+       l'exercice. Et chacune reste une cible du doigt (24 px au moins). */
+    const commandes = await s.page.evaluate(() => {
+      const c = document.getElementById('testCtrls');
+      if(!c || c.hidden) return { absentes: true };
+      const bs = [...c.querySelectorAll('button')].filter(b => b.getBoundingClientRect().width > 0);
+      const r = bs.map(b => b.getBoundingClientRect());
+      const lh = bs.map(b => parseFloat(getComputedStyle(b).lineHeight) || parseFloat(getComputedStyle(b).fontSize) * 1.3);
+      return { n: bs.length, haut: Math.round(c.getBoundingClientRect().height),
+               rangee: r.every(q => Math.abs(q.top - r[0].top) < 2),
+               lignes: bs.map((b, i) => { const cs = getComputedStyle(b);
+                 return Math.round((r[i].height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)) / lh[i]); }),
+               min: Math.round(Math.min(...r.map(q => Math.min(q.width, q.height)))),
+               textes: bs.map(b => b.innerText.trim()) };
+    });
+    verifier('sur un téléphone, les commandes du bas tiennent sur une ligne, en libellés courts',
+      !commandes.absentes && commandes.n === 3 && commandes.rangee && commandes.lignes.every(l => l <= 1) && commandes.min >= 24,
+      JSON.stringify(commandes));
     await s.nav.close(); s = null;
 
     /* ===== 6. l'encadré « Énoncé », tel qu'il s'affiche ===== */
@@ -4929,8 +4962,29 @@ async function parcours(page, N){
         window.__rrAvantKb = L.mf.getValue();
         L.mf.setValue(''); L.mf.focus();
       });
+      let kbRects0 = {};
       await s.page.click('#rrOutils button[aria-label^="Afficher ou masquer le clavier"]');
       await s.page.waitForTimeout(800);
+      /* Et l'on clique un clavier STABLE, jamais à délai fixe — la leçon de la
+         section 11 sexies, reprise ici après un rougissement en CI (octobre
+         2026 : « touches trouvées : le lt gt », « = » et « ≥ » introuvables
+         sur un runner chargé, les deux couches encore en construction au
+         moment du clic ; trois passages locaux verts). On attend que la couche
+         visible garde le MÊME jeu de touches d'un quart de seconde au suivant,
+         à l'ouverture et après chaque bascule de couche. */
+      const clavierStable = async () => s.page.evaluate(async () => {
+        const sig = () => [...document.querySelectorAll('#kbwin .MLK__layer.is-visible .MLK__rows > .MLK__row > *, body > .ML__keyboard .MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
+          .filter(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; })
+          .map(el => el.textContent.trim()).join('|');
+        const t0 = Date.now(); let a = sig();
+        while(Date.now() - t0 < 6000){
+          await new Promise(r => setTimeout(r, 250));
+          const b = sig(); if(b && b === a) return true;
+          a = b;
+        }
+        return false;
+      });
+      kbRects0 = { stable: await clavierStable() };
       /* les touches se cherchent parmi les ENFANTS DIRECTS des rangées : la
          touche de bascule ne porte pas la classe « keycap » de MathLive, et un
          sélecteur qui la manque ferait échouer la mesure sur la page juste. */
@@ -4942,7 +4996,7 @@ async function parcours(page, N){
       }, txt);
       const cliquerCap = async (txt) => { const p = await trouverCap(txt);
         if(p){ await s.page.mouse.click(p.x, p.y); await s.page.waitForTimeout(140); } return !!p; };
-      const kbRects = { ouvert: await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible)) };
+      const kbRects = { ouvert: await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible)), stable: kbRects0.stable };
       /* et la touche « clavier B » (les mots vivent dans le profil), dans la
          fenêtre FLOTTANTE de l'ordinateur : un libellé de neuf lettres dans
          une touche rembourrée de 12 px de chaque côté — à 1,5 unité il y
@@ -4964,10 +5018,12 @@ async function parcours(page, N){
       kbRects.eq = await cliquerCap('=');
       kbRects.versB = await cliquerCap(P.clavierEcran ? P.clavierEcran.versB : 'clavier B');
       await s.page.waitForTimeout(200);
+      kbRects.stableB = await clavierStable();
       kbRects.le = await cliquerCap('≤'); kbRects.ge = await cliquerCap('≥');
       kbRects.lt = await cliquerCap('<'); kbRects.gt = await cliquerCap('>');
       await cliquerCap(P.clavierEcran ? P.clavierEcran.versA : 'clavier A');
       await s.page.waitForTimeout(200);
+      await clavierStable();
       const kbTape = await s.page.evaluate(() => {
         const lignes = rrTexte().split('\n');
         return lignes[lignes.length - 1];
@@ -4997,6 +5053,7 @@ async function parcours(page, N){
           && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0
           && kbTape.indexOf('=') >= 0 && kbFerme,
         (kbRects.ouvert ? '' : 'le clavier ne s\'ouvre pas au ⌨️ ; ')
+          + (kbRects.stable && kbRects.stableB ? '' : 'le clavier changeait encore après 6 s ; ')
           + (kbRects.versB ? '' : 'la touche de bascule est introuvable ; ')
           + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt', 'eq'].filter(t => kbRects[t]).join(' ')
           + ', ligne lue : ' + JSON.stringify(kbTape.slice(0, 60))
@@ -7790,7 +7847,7 @@ async function parcours(page, N){
         ssvCases(q).forEach(x => {
           const e = document.getElementById(x.id); if(!e) return;
           if(x.t === 'sel') e.value = x.v;
-          else if(x.t === 'nb') e.value = ssvN(x.v);
+          else if(x.t === 'nb' || x.t === 'borne') e.value = ssvN(x.v);   /* « borne » : UN majorant (M84) — la copie juste écrit ℓ₂ */
           else if(x.t === 'cent') e.value = String(Math.round(x.v * 100) / 100).replace('.', ',');
           else if(x.t === 'rang') e.value = svrRangStr(x.v);
           else if(x.t === 'paire') e.value = ssvN(/1$/.test(x.id) ? x.v[0] : x.v[1]);
@@ -12037,6 +12094,7 @@ async function parcours(page, N){
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [], surCourbe = [];
       const indicesPlats = []; let nIndicesFlex = 0;
+      const textesPetits = [], gradSurEtiquette = [], defilantsSourds = []; let nTextesSvg = 0, nDefilants = 0;
       /* LES DÉFINITIONS S'ÉCRIVENT AVANT L'ÉNONCÉ, dans tout exercice du thème
          Python (demande de Turquet, octobre 2026). Mesuré sur le PREMIER écran
          de l'exercice, avant qu'on ne franchisse quoi que ce soit : le cours
@@ -12392,6 +12450,56 @@ async function parcours(page, N){
                     indices: [...new Set(indices)], nIndices: nIndices,
                     limCases: limCases, limKb: limKb};
           });
+          /* LES TEXTES DES GRAPHIQUES S'ÉCRIVENT À 12 PX AU MOINS, ET UNE
+             GRADUATION NE RECOUVRE PAS LE NOM D'UNE COURBE (audit d'octobre
+             2026, A5) — les graduations étaient à 9-11 px, le support même de
+             la lecture graphique sur un téléphone. Un INDICE (tspan décalé
+             d'une étiquette de 14 px ou plus : le f de « Cf ») garde 10 px :
+             la boîte des étiquettes est mesurée à son encre (ETQ_*).
+             ET UNE ENVELOPPE QUI FAIT DÉFILER UN TABLEAU SE PREND AU CLAVIER
+             (A7) : tabindex, sans quoi la partie droite du tableau est hors
+             de portée de qui n'a ni souris ni doigt. Les deux sur TOUS les
+             exercices, sans rien déclarer. */
+          const lis = await s.page.evaluate(() => {
+            const on = document.querySelector('section.screen.on'); if(!on) return null;
+            const vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+            const petits = [], chev = []; let n = 0;
+            on.querySelectorAll('svg').forEach(svg => {
+              if(svg.closest('math-field,.ML__keyboard') || !vis(svg)) return;
+              svg.querySelectorAll('text,tspan').forEach(t => {
+                if(!(t.textContent || '').trim() || !vis(t)) return;
+                n++;
+                const fs = parseFloat(getComputedStyle(t).fontSize);
+                const parent = t.tagName === 'tspan' ? t.closest('text') : null;
+                const indice = parent && t.hasAttribute('dy') && parseFloat(getComputedStyle(parent).fontSize) >= 14;
+                if(fs < (indice ? 10 : 12)) petits.push((t.getAttribute('class') || t.tagName) + ' ' + fs + ' px « ' + t.textContent.trim().slice(0, 8) + ' »');
+              });
+              const et = [...svg.querySelectorAll('text.sv-cf,text.lv-cf,text.eqg-cg')].filter(vis).map(t => t.getBoundingClientRect());
+              [...svg.querySelectorAll('text')].filter(t => /(^|\s)([a-z0-9]+-ax|lr-num)(\s|$)/.test(t.getAttribute('class') || '')
+                && /^[−-]?\d+([,.]\d+)?$/.test(t.textContent.trim()) && vis(t)).forEach(t => {
+                const b = t.getBoundingClientRect();
+                if(et.some(e => Math.min(b.right, e.right) - Math.max(b.left, e.left) > 1 && Math.min(b.bottom, e.bottom) - Math.max(b.top, e.top) > 2))
+                  chev.push('« ' + t.textContent.trim() + ' » sous le nom de la courbe');
+              });
+            });
+            const sourds = []; let nd = 0;
+            on.querySelectorAll('table').forEach(t => {
+              for(let e = t.parentElement, k = 0; e && e !== on && k < 2; e = e.parentElement, k++){
+                const ox = getComputedStyle(e).overflowX;
+                if(ox !== 'auto' && ox !== 'scroll') continue;
+                nd++;
+                if(!(e.tabIndex >= 0 && e.hasAttribute('tabindex'))) sourds.push((e.id ? '#' + e.id : '.' + String(e.className).split(/\s+/)[0]) + (e.scrollWidth > e.clientWidth ? ' (défile)' : ''));
+                break;
+              }
+            });
+            return { petits: [...new Set(petits)], chev: [...new Set(chev)], n, sourds: [...new Set(sourds)], nd };
+          });
+          if(lis){
+            nTextesSvg += lis.n; nDefilants += lis.nd;
+            if(lis.petits.length) textesPetits.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + lis.petits.slice(0, 2).join(', '));
+            if(lis.chev.length) gradSurEtiquette.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + lis.chev[0]);
+            if(lis.sourds.length) defilantsSourds.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + lis.sourds.join(', '));
+          }
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
@@ -12458,6 +12566,24 @@ async function parcours(page, N){
       }
       verifier('les cases de saisie ont la taille des nombres qui les entourent',
         petites.length === 0, petites.slice(0, 3).join(' | '));
+      verifier('les textes des graphiques s\'écrivent à 12 px au moins (un indice d\'étiquette à 10)',
+        nTextesSvg > 0 && textesPetits.length === 0,
+        nTextesSvg === 0 ? 'aucun texte de graphique mesuré : le contrôle ne mesure rien'
+          : textesPetits.length + ' écran(s) — ' + textesPetits.slice(0, 3).join(' | '));
+      verifier('aucune graduation ne recouvre le nom d\'une courbe',
+        gradSurEtiquette.length === 0, gradSurEtiquette.slice(0, 3).join(' | '));
+      /* un niveau sans tableau défilant le DÉCLARE (tests/profils.js,
+         defilants.aucun) ; la déclaration devenue fausse rougit */
+      if(P.defilants && P.defilants.aucun){
+        if(nDefilants === 0) ignorer('une enveloppe qui fait défiler un tableau se prend au clavier', P.defilants.aucun);
+        else verifier('le niveau déclaré sans tableau défilant n\'en a toujours aucun', false,
+          nDefilants + ' enveloppe(s) mesurée(s) : retire « defilants.aucun » de tests/profils.js');
+      } else {
+        verifier('une enveloppe qui fait défiler un tableau se prend au clavier',
+          nDefilants > 0 && defilantsSourds.length === 0,
+          nDefilants === 0 ? 'aucune enveloppe défilante mesurée : le contrôle ne mesure rien'
+            : defilantsSourds.length + ' écran(s) — ' + defilantsSourds.slice(0, 3).join(' | '));
+      }
       verifier('un signe posé à côté d\'une fraction tombe sur son trait',
         dechires.length === 0, dechires.slice(0, 3).join(' | '));
       verifier('le calcul en tête de rangée s\'écrit à la taille de sa rangée',

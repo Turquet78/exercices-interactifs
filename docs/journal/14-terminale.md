@@ -2681,3 +2681,99 @@ images adjacentes à U(n+1) dans une même chaîne (`rrEncadre`), et une
 comparaison non lue rétrograde en abstention, jamais en acceptation — 6 000
 copies à image fausse, zéro acceptée. Éprouvé par sondes jsdom avec un
 modèle simulé qui se trompe dans les deux sens, en panne, et en soutien.
+
+**Les « mineures » de l'audit, Terminale (lot J, octobre 2026).** Chaque bord
+ci-dessous est tenu par le contrôle « Terminale : les constats mineurs de
+l'audit (lot J) restent corrigés » (`mineursTerminale`, `tests/verifier.js`),
+éprouvé par sabotage, l'ancien code remis.
+
+**La lettre de la fonction n'est pas une autre question (M74).** Au 1.3, la
+même courbe revenait sous « g » après « f » dans 2,9 % des séances : la clé de
+`distincte()` comptait `fname`. Elle l'ignore désormais (`CLE_HORS`), et la
+clé du banc universel aussi — sûr pour la Seconde, dont le seul tirage à
+lettre (`startTVG`) prend cinq familles différentes. Le contrôle tire 400
+séances du 1.3.
+
+**Une case vide d'une ligne FAUSSE n'est jamais juste (M75).** Au 2.1.1, la
+ligne développée lit une case vide comme le coefficient 1 omis ; sur une
+ligne fausse, ce 1 tombait sur le terme a quand a = 1, et la case que
+l'élève n'avait pas remplie passait au bleu, comptée dans la note. La
+lecture « 1 omis » ne vaut plus que pour une ligne juste dans son ensemble ;
+sur une ligne fausse, le vide reçoit le sort des autres cases vides de
+l'exercice (la lacune déclarée du profil — on n'a pas tranché ici le rouge
+des cases vides du 2.1, qui changerait le calcul de la note). Même garde au
+2.1.4/2.1.5 (`dqVerdicts`) et au b) du 4.6 (`asgDerVerdicts`), qui avaient la
+même ligne.
+
+**Le coefficient 1 de e s'omet, comme au 2.1 (M76).** « f(1) = [ ] e » vide
+se lisait 0 au 5.2 ; au 5.5, au 2.2.2 et au 4.6, « m = [ ] e^… » exigeait le
+1. Même convention que le 2.1, même garde que M75 : le vide vaut 1 si le
+reste de sa ligne est juste (au 5.2, `TX_LIGNES`) ou si l'exposant qui le suit
+est juste (`coefUnOmis`, champ `avec` des cases). Les cases signées de la
+tangente développée du 5.2 prennent « + » seul pour +1. Le contrôle de la
+tangente encodait l'ancien comportement par hasard (sa case vide valait e) :
+il prend tx-b-r pour la case vide, et éprouve la nouvelle règle et son bord
+opposé.
+
+**Les branchements de {derivees} et l'énoncé de {suites} (M77).**
+« Recommencer » sur un identifiant sans démarreur ouvrait {derivees}, qu'aucun
+menu ne mène : il ramène au choix des exercices (`retourChoix`). Les deux
+exercices d'origine restent dans `TESTS` pour l'étiquette des vieilles notes
+et pour le banc (`horsThemes`, `testIdOf`). L'énoncé de {suites} n'écrit plus
+« uₙ₊₁ = 2×uₙ + 0 ».
+
+**Le juge d'affichage du 4.2 lit le signe (M78).** `jHasVal` cherchait la
+valeur sans regarder le « − » devant : « varie de 5 à −4 » cochait
+« de −5 à 4 », « −∞ » cochait « +∞ ». Chaque occurrence est relue avec ce qui
+la précède (« - », « moins »), seul 0 n'a pas de signe ; « sur R » ne coche
+l'intervalle que s'il est ℝ.
+
+**Les cibles exactes sont exactes (M79).** `numOkExact` : quand la cible
+s'écrit en décimal, l'égalité est exacte (l'écriture reste lue avec
+tolérance, virgule ou point, « 2,0 ») ; une cible non décimale (1/3) garde le
+dixième. Passées à l'exact : les limites finies (`lgLimOK` : 3.2, 3.3 — cases
+du tableau comprises —, 3.4, 4.6 et 6.4.1), les équations d'asymptote
+(`lgEqOK`), les solutions de f(x) = k du 4.5 (`tvgSolOK`), les équations
+y = c et x = c du 3.1 (dhv-ab, dhv-cd, dhv-n1, dhv-n2 — les coordonnées lues
+gardent le dixième), les racines du 1.1 (`s1RootOK`, et les cases de la
+fraction −b/a), du 1.2 (s2-r1, s2-r2), de la paire n/d (`racineFracOk` : 1.1,
+1.4, 1.5, 5.4) et des facteurs du 1.4/1.5 (`spCaseOk`, cases zéro et calc),
+et les constantes calculées du 6.1.2 (V₀, b + k, k : « −0,3 » n'est plus
+accepté pour −0,25). Gardent le dixième : les lectures sur un dessin (f(a) et
+f′(a) au 5.1), les bornes d'un encadrement (6.2), les valeurs des tableaux de
+variation (`efParse`, 5.3, 5.5, 4.6), les cases `x.num` du 1.4.
+
+**Une limite infinie est signée, partout (M80).** « ∞ » seul valait +∞ aux
+3.2, 3.3, 3.4, 4.6 et 6.4.1, et le 3.5 le refusait. La règle du programme
+reste : `lgLimOK` exige le signe, l'attendu envoyé au modèle ne dit plus
+« ∞ sans signe vaut +∞ », et le refus se dit (`limAvisSigne` : « une limite
+infinie s'écrit avec son signe »). Le contrôle du 6.4.1 posait « inf » pour
++∞ : il pose « +inf », et éprouve que « inf » est refusé avec ce message.
+
+**Le crochet de l'infini (M81).** L'attendu du 4.3 écrivait « k ∉ [−∞ ; 7] » :
+le crochet s'ouvre désormais du côté infini (« ]−∞ ; 7] »).
+
+**« f(x) est continue » (M82)** était déjà corrigé (« f est continue », 4.1 et
+4.2). Reste « car f (x) est croissante » au 6.2.5 (svr) et au 6.3.x (rc), la
+formulation de la demande de Turquet sur l'emplacement de la justification :
+non touchée, à trancher.
+
+**Le tableau du logarithme (M83).** Aux 3.3 et 3.4, la famille ln commençait
+son tableau à « a » comme si f y prenait une valeur. La borne exclue porte
+désormais la double barre, la limite −∞ posée à sa droite, et l'énoncé écrit
+« f est définie sur ]a ; +∞[ » (`lgDomaineHTML`).
+
+**Les suites (M84).** Au 6.1.4, la raison en fraction (« V₀ × (11/20)ⁿ ») se
+lit comme la décimale (`sarFracA`), aux a), c) et d). Au 6.3.1,
+« 8 + (0,75)^(n+1) » — la base parenthésée — est reconnu réduit. Aux 6.4.2 et
+6.4.3, « majorée par … » demande UN majorant : tout nombre au-delà de la borne
+(au-delà de ℓ₂ au 6.4.3) est accepté, comme au 6.4.1 et au 6.2.3 ; le
+contrôle du 6.4.3 posait 42 comme borne fausse, qui est un majorant vrai d'une
+suite croissante : il pose un nombre du mauvais côté. Au 6.2.5, « 0 »
+n'apparaît plus deux fois dans la liste des limites quand U₀ = 0. Le 6.1.1
+(type vide qui rougit) était déjà corrigé : le menu vide arrête la
+vérification avec un message.
+
+**« y = 1 x » (M73)** était déjà corrigé dans la correction et la réponse
+enregistrée du 5.1 (`txAX`) ; l'attendu envoyé au modèle l'écrivait encore
+(« tangente réduite : y = 1 x ») : il passe par `txAX` lui aussi.
