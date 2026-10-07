@@ -36069,10 +36069,14 @@ function pyxUtilise(ligne, nom){
   try{ return pyLex(ligne).some(function(t){ return t.k==='nom' && t.v===nom; }); }catch(e){ return false; }
 }
 /* le premier mot du texte attendu écrit HORS guillemets : Python le prend
-   pour une variable, et c'est l'erreur la plus fréquente */
-function pyxTexteNu(l, texte){
+   pour une variable, et c'est l'erreur la plus fréquente. Un mot qui est
+   AUSSI le nom d'une variable du programme ne compte pas : dans
+   print("age :", age la variable age est écrite nue à bon droit, et le
+   texte « age : » est bien entre guillemets (q.noms, ou q.nom). */
+function pyxTexteNu(l, texte, noms){
+  const vars=noms||[];
   const sans=l.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g,'""');
-  const mots=texte.split(/\s+/).filter(function(m){ return /^[A-Za-z\u00C0-\u024F_][A-Za-z0-9\u00C0-\u024F_]*$/.test(m); });
+  const mots=texte.split(/\s+/).filter(function(m){ return /^[A-Za-z\u00C0-\u024F_][A-Za-z0-9\u00C0-\u024F_]*$/.test(m) && vars.indexOf(m)<0; });
   if(!mots.length) return false;
   const re=new RegExp('(^|[^A-Za-z0-9\u00C0-\u024F_])'+mots[0].replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'($|[^A-Za-z0-9\u00C0-\u024F_])');
   return re.test(sans);
@@ -36089,7 +36093,7 @@ function pyxDiagErreur(q, l, msg, att){
   /* le guillemet ouvert et jamais fermé AVANT tout : sans lui, tout ce qui
      suit passe pour du texte nu */
   if(/guillemet non fermé/.test(msg)) return 'Un guillemet est ouvert et jamais fermé : le texte doit être entouré de DEUX guillemets, un au début et un à la fin.';
-  if(pyxTexteNu(l, q.texte)) return 'Le texte « '+q.texte+' » doit être entre guillemets : sans eux, Python le prend pour des noms de variables et s’arrête sur ce qu’il ne comprend pas.';
+  if(pyxTexteNu(l, q.texte, noms)) return 'Le texte « '+q.texte+' » doit être entre guillemets : sans eux, Python le prend pour des noms de variables et s’arrête sur ce qu’il ne comprend pas.';
   const m1=l.match(/^([^\s(]+)/), debut=m1?m1[1]:'';
   if(!/^print\b/.test(l)){
     if(/^print$/i.test(debut)) return 'Python distingue les majuscules : la fonction s’écrit « print », tout en minuscules — ta ligne commence par « '+debut+' ».';
