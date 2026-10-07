@@ -10901,7 +10901,7 @@ function checkAAnswer(live){
     liveColorDecCoef('a1dec',q.coef);
     liveColorFrac('a2n','a2d',q.coef,100);
     liveColorFrac('a3n','a3d',q.coef,100);
-    liveColorExp($('a3v'));
+    liveColorDec('a3v',q.N,1);
     [...$('aMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     liveColorFrac('a4n','a4d',q.prodNum,100);
     liveColorDec('a5',q.prodNum,100);
@@ -10918,7 +10918,8 @@ function checkAAnswer(live){
   const ok2 = v('a2n')!=='' && v('a2d')!=='' && fracEqual(iv('a2n'),iv('a2d'),q.coef,100);
   // ② opération : coefficient × valeur
   const ok3 = v('a3n')!=='' && v('a3d')!=='' && fracEqual(iv('a3n'),iv('a3d'),q.coef,100);
-  const okV = v('a3v')===String(q.N);
+  /* la valeur de départ se juge par sa VALEUR (« 300,0 » vaut 300), comme les cases voisines */
+  const fV = parseDecToFrac(v('a3v')); const okV = !!fV && fV.n===q.N*fV.d;
   // ③ FACULTATIVE : pose des numérateurs sans zéros — feedback seulement, n'entre PAS dans allOk
   const aMulHost=$('aMul');
   const aBoxes=[...aMulHost.querySelectorAll('.mp-box')];
@@ -11348,7 +11349,7 @@ function checkVAnswer(live){
     (augqSens(q)<0?liveColorDecCoef0:liveColorDecCoef)('v1dec',c.coef);
     liveColorFrac('v2n','v2d',c.coef,100);
     liveColorFrac('v3n','v3d',c.coef,100);
-    liveColorExp($('v3v'));
+    liveColorDec('v3v',c.N,1);
     [...$('vMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     liveColorFrac('v4n','v4d',c.prodNum,100);
     liveColorDec('v5',c.prodNum,100);
@@ -11363,7 +11364,8 @@ function checkVAnswer(live){
   const okC = v('v1dec')!=='' && !!frC && frC.n*100===c.coef*frC.d;
   const ok2 = v('v2n')!=='' && v('v2d')!=='' && fracEqual(iv('v2n'),iv('v2d'),c.coef,100);
   const ok3 = v('v3n')!=='' && v('v3d')!=='' && fracEqual(iv('v3n'),iv('v3d'),c.coef,100);
-  const okV = v('v3v')===String(c.N);
+  /* la valeur de départ se juge par sa VALEUR (« 300,0 » vaut 300), comme les cases voisines */
+  const fV = parseDecToFrac(v('v3v')); const okV = !!fV && fV.n===c.N*fV.d;
   /* étape ③ facultative : mêmes règles qu'en 3.2.1, elle n'entre pas dans la note */
   const host=$('vMul');
   const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
@@ -11509,7 +11511,7 @@ function checkDAnswer(live){
     liveColorDecCoef0('d1dec',q.coef);
     liveColorFrac('d2n','d2d',q.coef,100);
     liveColorFrac('d3n','d3d',q.coef,100);
-    liveColorExp($('d3v'));
+    liveColorDec('d3v',q.N,1);
     [...$('dMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     liveColorFrac('d4n','d4d',q.prodNum,100);
     liveColorDec('d5',q.prodNum,100);
@@ -11526,7 +11528,8 @@ function checkDAnswer(live){
   const ok2 = v('d2n')!=='' && v('d2d')!=='' && fracEqual(iv('d2n'),iv('d2d'),q.coef,100);
   // ② opération : coefficient × valeur
   const ok3 = v('d3n')!=='' && v('d3d')!=='' && fracEqual(iv('d3n'),iv('d3d'),q.coef,100);
-  const okV = v('d3v')===String(q.N);
+  /* la valeur de départ se juge par sa VALEUR (« 300,0 » vaut 300), comme les cases voisines */
+  const fV = parseDecToFrac(v('d3v')); const okV = !!fV && fV.n===q.N*fV.d;
   // ③ FACULTATIVE : pose des numérateurs sans zéros — feedback seulement, n'entre PAS dans allOk
   const dMulHost=$('dMul');
   const dBoxes=[...dMulHost.querySelectorAll('.mp-box')];
