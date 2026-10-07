@@ -36152,7 +36152,23 @@ function pyxDiagSortie(q, l, r, att){
    écartée par les chiffres de pyTexteProche ; ce garde-ci écarte la valeur
    COUPÉE par une espace — print("la note est :", note // 10, note % 10)
    affiche « la note est : 1 2 », que les espaces retirées rendraient juste. */
-function pyxAffiche(out, att){ return pyTexteProche(out, att.sortie) && String(out).indexOf(att.valeur)>=0; }
+/* Et la valeur doit s'y lire comme un JETON entier et signé : ni précédée
+   d'un signe ou d'un chiffre — print("la note est :", -note) affiche
+   « -12 », que pyTexteProche passait pour « un caractère diffère » —, ni
+   suivie d'un chiffre. Le garde ne joue que si le témoin lui-même s'y lit
+   ainsi : une sortie où la valeur est collée à son texte garde l'ancien test. */
+function pyValeurJeton(out, val){
+  const s=String(out), v=String(val); if(v==='') return true;
+  for(let i=s.indexOf(v); i>=0; i=s.indexOf(v,i+1)){
+    const av=i>0?s.charAt(i-1):'', ap=s.charAt(i+v.length);
+    if(!/[0-9.+\-−]/.test(av) && !/[0-9.]/.test(ap)) return true;
+  }
+  return false;
+}
+function pyxAffiche(out, att){
+  if(!pyTexteProche(out, att.sortie)) return false;
+  return pyValeurJeton(att.sortie, att.valeur) ? pyValeurJeton(out, att.valeur) : String(out).indexOf(att.valeur)>=0;
+}
 /* Le juge : la SORTIE de la ligne comparée à celle du témoin, et la variable
    employée. Sur une ligne fausse, il dit OÙ est l'erreur. */
 function pyxJuge(q, ligne){
