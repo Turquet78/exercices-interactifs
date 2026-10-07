@@ -5,6 +5,13 @@
 <!--      Elles se trouvent dans Supabase > Project Settings > API.            -->
 <!-- ========================================================================= -->
 <script>
+  /* LA LANGUE DE LA PAGE (audit d'octobre 2026, A6/T5). La page n'a pas de
+     balise <html> — le navigateur la synthétise —, donc pas d'attribut lang :
+     un lecteur d'écran lisait le français avec la voix de sa langue par
+     défaut, et la césure comme les correcteurs ne savaient pas quelle
+     langue appliquer. Posée ici, au premier script, elle vaut avant tout
+     le reste de l'analyse. */
+  document.documentElement.lang='fr';
   const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← ton URL de projet (nouveau projet Supabase terminale)
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";              // ← ta clé "anon public"
   const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";   // ← l'adresse du compte Supabase du professeur
@@ -1933,7 +1940,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       </div>
       <div id="conseilRappelRow" class="rap-row" hidden><button class="btn btn-ghost btn-sm" type="button" id="conseilRappelBtn" onclick="basculerRappel()">📘 Voir le rappel de cours</button></div>
       <div id="conseilRappel" hidden></div>
-      <div id="conseilBody" class="mp-feedback"></div>
+      <div id="conseilBody" class="mp-feedback" aria-live="polite"></div>
     </div>
   </div>
   <div id="notesModal" class="notes-modal" hidden onclick="if(event.target===this)fermerNotes()">
@@ -2004,7 +2011,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="tvi-table" id="tviTable"></div>
       <p class="tvi-instr">Complète la justification :</p>
       <div class="tvi-fill" id="tviFill"></div>
-      <div class="mp-feedback" id="tviFeedback"></div>
+      <div class="mp-feedback" id="tviFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tviActions"></div>
     </div>
   </section>
@@ -2023,7 +2030,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="dexp2-sheet" id="tvi2Sheet"></div>
       <p class="dexp-hint">Une ligne par idée : <b>Entrée</b> passe à la ligne suivante.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
       <div class="tvi-check" id="tvi2Check"></div>
-      <div class="mp-feedback" id="tvi2Feedback"></div>
+      <div class="mp-feedback" id="tvi2Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvi2Actions"></div>
     </div>
   </section>
@@ -2041,7 +2048,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="tvi-tools"><button type="button" class="btn btn-ghost tvi-inf" id="tvi3InfBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi3','\\infty')" title="Insérer ∞ — ou tape « inf » au clavier">∞</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AlphaBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi3','\\alpha')" title="Insérer α">α</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AppBtn" onmousedown="event.preventDefault()" onclick="tviSymbole('tvi3','\\in')" title="Insérer ∈ (appartient)">∈</button><span class="muted">au clavier : <b>inf</b> → ∞, <b>va</b> → flèche</span></div>
       <div class="dexp2-sheet" id="tvi3Sheet"></div>
       <p class="dexp-hint">Une ligne par idée : <b>Entrée</b> passe à la ligne suivante.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="tvi3Feedback"></div>
+      <div class="mp-feedback" id="tvi3Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvi3Actions"></div>
     </div>
   </section>
@@ -2057,7 +2064,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="tvi-table" id="tvinsTable"></div>
       <p class="tvi-instr">À l&rsquo;aide du tableau, donne le nombre de solutions de chaque équation&nbsp;:</p>
       <div class="tvins-eqs" id="tvinsEqs"></div>
-      <div class="mp-feedback" id="tvinsFeedback"></div>
+      <div class="mp-feedback" id="tvinsFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvinsActions"></div>
     </div>
   </section>
@@ -2073,7 +2080,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="sv-graph" id="tvgGraph"></div>
       <div class="tvi-instr" id="tvgConsignes"></div>
       <div class="tvg-solzone" id="tvgSolZone"></div>
-      <div class="mp-feedback" id="tvgFeedback"></div>
+      <div class="mp-feedback" id="tvgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvgActions"></div>
     </div>
   </section>
@@ -2088,7 +2095,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="dhvPrompt"></p>
       <div class="sv-graph" id="dhvGraph"></div>
       <div id="dhvBlocs"></div>
-      <div class="mp-feedback" id="dhvFeedback"></div>
+      <div class="mp-feedback" id="dhvFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="dhvActions"></div>
     </div>
   </section>
@@ -2106,7 +2113,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="lr-exemple"><b>Exemple de rédaction :</b> « quand <i>x</i> → … , on a <i>f</i>(<i>x</i>) → … » ou « quand <i>x</i> tend vers … , <i>f</i>(<i>x</i>) tend vers … »</p>
       <div class="dexp2-sheet" id="lrSheet"></div>
       <p class="dexp-hint">Au clavier : <b>va</b> → flèche « tend vers », <b>inf</b> → ∞.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="lrFeedback"></div>
+      <div class="mp-feedback" id="lrFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="lrActions"></div>
     </div>
   </section>
@@ -2121,7 +2128,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="sv-graph" id="lgGraph"></div>
       <div id="lgHint"></div>
       <div id="lgSubs"></div>
-      <div class="mp-feedback" id="lgFeedback"></div>
+      <div class="mp-feedback" id="lgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="lgActions"></div>
     </div>
   </section>
@@ -2138,7 +2145,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="lg2Hint"></div>
       <div id="lg2Subs"></div>
       <div id="lg2TVzone"></div>
-      <div class="mp-feedback" id="lg2Feedback"></div>
+      <div class="mp-feedback" id="lg2Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="lg2Actions"></div>
     </div>
   </section>
@@ -2154,7 +2161,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="lg3TVzone"></div>
       <div id="lg3Hint"></div>
       <div id="lg3Subs"></div>
-      <div class="mp-feedback" id="lg3Feedback"></div>
+      <div class="mp-feedback" id="lg3Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="lg3Actions"></div>
     </div>
   </section>
@@ -2174,7 +2181,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <button type="button" class="del" onclick="dexpDel()">&#9003;</button>
       </div>
       <p class="dexp-hint" id="dexpHintP">Pour <i>v</i> et <i>v'</i> : tape « e », puis appuie sur la touche <b>²</b> (en haut à gauche du clavier, à gauche du « 1 ») ou le bouton <b>x<sup>y</sup></b> pour monter en exposant, puis tape l'exposant (ex. « 2x »).<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="dexpFeedback"></div>
+      <div class="mp-feedback" id="dexpFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="dexpActions"></div>
     </div>
   </section>
@@ -2190,7 +2197,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="sv-graph" id="svGraph"></div>
       <p class="tvi-instr">À l&rsquo;aide du graphique, complète les pointillés et les cases :</p>
       <div class="sv-tables" id="svTables"></div>
-      <div class="mp-feedback" id="svFeedback"></div>
+      <div class="mp-feedback" id="svFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="svActions"></div>
     </div>
   </section>
@@ -2205,7 +2212,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="efPrompt"></p>
       <div class="sv-tables" id="efTable"></div>
       <p class="dexp-hint">Racines et abscisses : entiers, décimaux (0,5) ou fractions (1/2) acceptés.</p>
-      <div class="mp-feedback" id="efFeedback"></div>
+      <div class="mp-feedback" id="efFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="efActions"></div>
     </div>
   </section>
@@ -2219,7 +2226,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="eqPrompt"></p>
       <div class="sv-tables" id="eqBody"></div>
-      <div class="mp-feedback" id="eqFeedback"></div>
+      <div class="mp-feedback" id="eqFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="eqActions"></div>
     </div>
   </section>
@@ -2233,7 +2240,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="rcPrompt"></p>
       <div class="sv-tables" id="rcBody"></div>
-      <div class="mp-feedback" id="rcFeedback"></div>
+      <div class="mp-feedback" id="rcFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="rcActions"></div>
     </div>
   </section>
@@ -2246,7 +2253,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="rfPrompt"></p>
       <div class="sv-tables" id="rfBody"></div>
-      <div class="mp-feedback" id="rfFeedback"></div>
+      <div class="mp-feedback" id="rfFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="rfActions"></div>
     </div>
   </section>
@@ -2267,7 +2274,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="rc-jetons" id="rrOutils"><span class="rc-jlbl">Insérer&nbsp;:</span><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\le')">&#8804;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\ge')">&#8805;</button><button type="button" class="sa-jeton" id="rrJ0" onmousedown="event.preventDefault()" onclick="rrInsertU0()">U&#8320;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_n')">U&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_{n+1}')">U&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrKB()" title="Clavier mathématique à l&rsquo;écran" aria-label="Afficher ou masquer le clavier mathématique">&#9000;&#65039;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">&#9776;</button></div>
       <div class="dexp2-sheet" id="rrSheet"></div>
       <p class="dexp-hint">Une étape par ligne. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Après un indice (<i>U</i><sub>n</sub>), la <b>barre d&rsquo;espace</b> en sort&nbsp;— une seconde espace sépare les mots&nbsp;; les boutons ci-dessus écrivent &#8804;, &#8805; et les indices d&rsquo;un coup. Les accents et les majuscules ne comptent pas&nbsp;: «&nbsp;heredite&nbsp;» vaut «&nbsp;hérédité&nbsp;».<span class="hint-souris"> <b>Clic droit</b> sur le champ&nbsp;: clavier à l&rsquo;écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="rrFeedback"></div>
+      <div class="mp-feedback" id="rrFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="rrActions"></div>
     </div>
   </section>
@@ -2292,7 +2299,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="dexp2-sheet sar-sheet" id="sarSheetD"></div>
       </div>
       <p class="dexp-hint">Une étape par ligne&nbsp;: <b>Entrée</b> ajoute une ligne, <b>retour arrière</b> sur une ligne vide la supprime. Après un indice (<i>V</i><sub>n</sub>), la <b>barre d&rsquo;espace</b> en sort — une seconde espace sépare les mots. La touche <b>*</b> écrit le signe ×, et les boutons ci-dessus écrivent les indices d&rsquo;un coup.<span class="hint-souris"> <b>Clic droit</b> sur le champ&nbsp;: clavier à l&rsquo;écran et raccourcis clavier.</span></p>
-      <div class="mp-feedback" id="sarFeedback"></div>
+      <div class="mp-feedback" id="sarFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="sarActions"></div>
     </div>
   </section>
@@ -2307,7 +2314,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="tg-graph" id="tgGraph"></div>
       <p class="tvi-instr">À l&rsquo;aide du graphique, complète&nbsp;:</p>
       <div id="tgForm"></div>
-      <div class="mp-feedback" id="tgFeedback"></div>
+      <div class="mp-feedback" id="tgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tgActions"></div>
     </div>
   </section>
@@ -2320,7 +2327,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card tvi-card tg-card">
       <p class="tvi-prompt" id="txPrompt"></p>
       <div id="txForm"></div>
-      <div class="mp-feedback" id="txFeedback"></div>
+      <div class="mp-feedback" id="txFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="txActions"></div>
     </div>
   </section>
@@ -2344,7 +2351,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="ecPrompt"></p>
       <div class="ec-graph" id="ecGraph"></div>
       <div id="ecForm"></div>
-      <div class="mp-feedback" id="ecFeedback"></div>
+      <div class="mp-feedback" id="ecFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="ecActions"></div>
     </div>
   </section>
@@ -2358,7 +2365,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="afpPrompt"></p>
       <div id="afpHost"></div>
-      <div class="mp-feedback" id="afpFeedback"></div>
+      <div class="mp-feedback" id="afpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="afpActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkAfp()">V&eacute;rifier</button></span>
       </div>
@@ -2374,7 +2381,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="afqPrompt"></p>
       <div id="afqHost"></div>
-      <div class="mp-feedback" id="afqFeedback"></div>
+      <div class="mp-feedback" id="afqFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="afqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkAfq()">V&eacute;rifier</button></span>
       </div>
@@ -2390,7 +2397,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="sdqPrompt"></p>
       <div id="sdqHost"></div>
-      <div class="mp-feedback" id="sdqFeedback"></div>
+      <div class="mp-feedback" id="sdqFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="sdqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkSdq()">V&eacute;rifier</button></span>
       </div>
@@ -2406,7 +2413,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="cvxPrompt"></p>
       <div id="cvxHost"></div>
-      <div class="mp-feedback" id="cvxFeedback"></div>
+      <div class="mp-feedback" id="cvxFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="cvxActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkCvx()">V&eacute;rifier</button></span>
       </div>
@@ -2422,7 +2429,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <p class="tvi-prompt" id="cvqPrompt"></p>
       <div id="cvqHost"></div>
-      <div class="mp-feedback" id="cvqFeedback"></div>
+      <div class="mp-feedback" id="cvqFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="cvqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkCvq()">V&eacute;rifier</button></span>
       </div>
@@ -2442,7 +2449,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="asgPrompt"></p>
       <div class="ec-graph" id="asgGraph"></div>
       <div id="asgForm"></div>
-      <div class="mp-feedback" id="asgFeedback"></div>
+      <div class="mp-feedback" id="asgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="asgActions"></div>
     </div>
   </section>
@@ -2461,7 +2468,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt" id="ecvPrompt"></p>
       <div class="ec-graph" id="ecvGraph"></div>
       <div id="ecvForm"></div>
-      <div class="mp-feedback" id="ecvFeedback"></div>
+      <div class="mp-feedback" id="ecvFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="ecvActions"></div>
     </div>
   </section>
@@ -2491,7 +2498,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="s1KB()" title="Clavier à l’écran" aria-label="Afficher ou masquer le clavier à l’écran">⌨️</button>
         <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="s1Raccourcis()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">☰</button>
       </div>
-      <div class="mp-feedback" id="s1Feedback"></div>
+      <div class="mp-feedback" id="s1Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="s1Actions"></div>
     </div>
   </section>
@@ -2521,7 +2528,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="s1-rule" id="s2Phrase"></p>
       <p class="tvi-instr" id="s2Instr" hidden>Complète le tableau de signe&nbsp;:</p>
       <div id="s2Table"></div>
-      <div class="mp-feedback" id="s2Feedback"></div>
+      <div class="mp-feedback" id="s2Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="s2Actions"></div>
     </div>
   </section>
@@ -2541,7 +2548,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="spQ2"></div>
       <div id="spTabWrap"></div>
       <p class="dexp-hint" id="spHint" hidden>Toutes les cases doivent être complétées pour terminer — sauf le dénominateur d’une fraction égal à 1, qu’on peut laisser vide. La case du carré affiche déjà <b>( )²</b> : écris simplement l’expression <b>à l’intérieur des parenthèses</b> (le bouton <b>□²</b> permet d’ajouter un carré si besoin). Les racines et valeurs acceptent toute écriture équivalente (fraction ou décimal) ou une valeur approchée au dixième près.<span class="hint-souris"> <b>Clic droit</b> sur une case racine : clavier à l’écran.</span></p>
-      <div class="mp-feedback" id="spFeedback"></div>
+      <div class="mp-feedback" id="spFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="spActions"></div>
     </div>
   </section>
@@ -2556,7 +2563,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="su-s" id="suQa"></div>
       <p class="tvi-instr"><span class="su-lab">b)</span> La formule explicite en fonction de <i>n</i> est&nbsp;:</p>
       <div id="suQb"></div>
-      <div class="mp-feedback" id="suFeedback"></div>
+      <div class="mp-feedback" id="suFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="suActions"></div>
     </div>
   </section>
@@ -2586,7 +2593,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <p class="sa-ptitle"><span class="sa-plab">d)</span> En déduire <i>U<sub>n</sub></i> en fonction de <i>n</i>.</p>
         <div class="sa2-ladder" id="sa2LadderD"></div>
       </div>
-      <div class="mp-feedback" id="sa2Feedback"></div>
+      <div class="mp-feedback" id="sa2Feedback" aria-live="polite"></div>
       <div class="mp-actions" id="sa2Actions"></div>
     </div>
   </section>
@@ -2610,7 +2617,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <p class="sa-ptitle"><span class="sa-plab">c)</span> <span id="tclTitreC"></span></p>
         <div class="sa2-ladder" id="tclLadderC"></div>
       </div>
-      <div class="mp-feedback" id="tclFeedback"></div>
+      <div class="mp-feedback" id="tclFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tclActions"></div>
     </div>
   </section>
@@ -2635,7 +2642,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <p class="sa-ptitle"><span class="sa-plab">c)</span> À l’aide du tableau de valeurs, détermine la valeur renvoyée par le programme ci-dessus.</p>
         <div class="sa2-ladder" id="sagLadderC"></div>
       </div>
-      <div class="mp-feedback" id="sagFeedback"></div>
+      <div class="mp-feedback" id="sagFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="sagActions"></div>
     </div>
   </section>
@@ -2656,7 +2663,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <ol class="rfr-legende" id="rfrLegende"></ol>
         <div class="sa2-ladder" id="rfrPartB"></div>
       </div>
-      <div class="mp-feedback" id="rfrFeedback"></div>
+      <div class="mp-feedback" id="rfrFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="rfrActions"></div>
     </div>
   </section>
@@ -2688,7 +2695,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="sa2-ladder" id="svrPartD"></div></div>
       <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">e)</span> <span id="svrTitreE"></span></p>
         <div class="sa2-ladder" id="svrPartE"></div></div>
-      <div class="mp-feedback" id="svrFeedback"></div>
+      <div class="mp-feedback" id="svrFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="svrActions"></div>
     </div>
   </section>
@@ -2722,7 +2729,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="sa2-ladder" id="svdPartE"></div></div>
       <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">f)</span> <span id="svdTitreF"></span></p>
         <div class="sa2-ladder" id="svdPartF"></div></div>
-      <div class="mp-feedback" id="svdFeedback"></div>
+      <div class="mp-feedback" id="svdFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="svdActions"></div>
     </div>
   </section>
@@ -2762,7 +2769,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="sa2-ladder" id="ssvPartH"></div></div>
       <div class="sa-part"><p class="sa-ptitle"><span class="sa-plab">i)</span> Déterminer la limite <i>ℓ</i>.</p>
         <div class="sa2-ladder" id="ssvPartI"></div></div>
-      <div class="mp-feedback" id="ssvFeedback"></div>
+      <div class="mp-feedback" id="ssvFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="ssvActions"></div>
     </div>
   </section>
@@ -2778,7 +2785,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="svq-colg"><div class="sv-graph svq-graph" id="svqGraph"></div></div>
         <div class="svq-cold" id="svqForm"></div>
       </div>
-      <div class="mp-feedback" id="svqFeedback"></div>
+      <div class="mp-feedback" id="svqFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="svqActions"></div>
     </div>
   </section>
@@ -2793,7 +2800,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="encJetons"></div>
       <div id="encChaine"></div>
       <p class="dexp-hint">Chaque borne accepte toute écriture équivalente (par exemple 3/4 ou 0,75), ou une valeur <b>approchée au dixième près</b> (par exemple 0,3 pour 1/3). Au clavier : <b>/</b> fraction, <b>barre d’espace</b> pour sortir d’une fraction.<span class="hint-souris"> <b>Clic droit</b> sur une case : clavier à l’écran.</span></p>
-      <div class="mp-feedback" id="encFeedback"></div>
+      <div class="mp-feedback" id="encFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="encActions"></div>
     </div>
   </section>
@@ -2813,7 +2820,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="recC"></div>
       <div id="recChaine"></div>
       <p class="dexp-hint">Chaque case numérique accepte toute écriture équivalente (3/4 ou 0,75) ou une valeur <b>approchée au dixième près</b>. Au clavier : <b>/</b> fraction, <b>barre d’espace</b> pour sortir d’une fraction.<span class="hint-souris"> <b>Clic droit</b> sur une case : clavier à l’écran.</span></p>
-      <div class="mp-feedback" id="recFeedback"></div>
+      <div class="mp-feedback" id="recFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="recActions"></div>
     </div>
   </section>
@@ -2861,7 +2868,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="sa-ladder" id="saLadderD"></div>
       </div>
 
-      <div class="mp-feedback" id="saFeedback"></div>
+      <div class="mp-feedback" id="saFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="saActions"></div>
     </div>
   </section>

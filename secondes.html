@@ -5,6 +5,13 @@
 <!--      Elles se trouvent dans Supabase > Project Settings > API.            -->
 <!-- ========================================================================= -->
 <script>
+  /* LA LANGUE DE LA PAGE (audit d'octobre 2026, A6/T5). La page n'a pas de
+     balise <html> — le navigateur la synthétise —, donc pas d'attribut lang :
+     un lecteur d'écran lisait le français avec la voix de sa langue par
+     défaut, et la césure comme les correcteurs ne savaient pas quelle
+     langue appliquer. Posée ici, au premier script, elle vaut avant tout
+     le reste de l'analyse. */
+  document.documentElement.lang='fr';
   const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← projet Supabase (partagé avec la terminale ; la Seconde utilise des tables séparées « _2nde »)
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";              // ← clé "anon public" du projet
   const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";   // ← l'adresse du compte Supabase du professeur
@@ -3309,7 +3316,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
       <div id="conseilRappelRow" class="rap-row" hidden><button class="btn btn-ghost btn-sm" type="button" id="conseilRappelBtn" onclick="basculerRappel()">📘 Voir le rappel de cours</button></div>
       <div id="conseilRappel" hidden></div>
-      <div id="conseilBody" class="mp-feedback"></div>
+      <div id="conseilBody" class="mp-feedback" aria-live="polite"></div>
     </div>
   </div>
   <div id="bilanModal" class="notes-modal" hidden onclick="if(event.target===this)fermerBilanEns()">
@@ -3428,7 +3435,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="lv-instr">Voici la courbe d’une fonction <i>f</i>, tracée de −6 à 6. Cinq tableaux de variations sont proposés (A, B, C, D, E) : un seul correspond à la courbe. Regarde les flèches, les abscisses <b>et les images écrites au bout des flèches</b> — deux tableaux peuvent avoir les mêmes variations sans avoir les mêmes images. Choisis-le — en cliquant sa carte, ou dans la liste — puis vérifie.</p>
       <div class="lv-graph" id="vtqGraph"></div>
       <div id="vtqHost"></div>
-      <div class="mp-feedback" id="vtqFeedback"></div>
+      <div class="mp-feedback" id="vtqFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="vtqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkVtqAnswer()">Vérifier</button></span>
       </div>
@@ -3536,7 +3543,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="lv-instr" id="tvgInstr"></p>
       <div class="lv-graph" id="tvgGraph"></div>
       <div id="tvgBody"></div>
-      <div class="mp-feedback" id="tvgFeedback"></div>
+      <div class="mp-feedback" id="tvgFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tvgActions"></div>
     </div>
   </section>
@@ -3548,7 +3555,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="lv-instr" id="ecsInstr"></p>
       <div class="lv-graph" id="ecsGraph"></div>
       <div id="ecsBody"></div>
-      <div class="mp-feedback" id="ecsFeedback"></div>
+      <div class="mp-feedback" id="ecsFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="ecsActions"></div>
     </div>
   </section>
@@ -3574,7 +3581,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="mp-instr">Résous l&rsquo;inéquation avec le dessin : choisis, parmi les quatre, celui dont la partie rouge correspond, dis où elle commence et s&rsquo;arrête, puis écris la solution S.</p>
       <p class="ens-note">Sur les dessins : un <b>point plein</b> = la borne est prise ; un <b>rond vide</b> = elle ne l&rsquo;est pas.</p>
       <div class="mp-stage"><div style="width:100%" id="ingHost"></div></div>
-      <div class="mp-feedback" id="ingFeedback"></div>
+      <div class="mp-feedback" id="ingFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="ingActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkIngAnswer()">Vérifier</button></span>
       </div>
@@ -3590,7 +3597,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="mp-instr">On a repr&eacute;sent&eacute; les courbes de f et de g dans le m&ecirc;me rep&egrave;re, chacune sur SON domaine. R&eacute;ponds avec le dessin&nbsp;: tout se lit sur les axes.</p>
       <p class="ens-note"><b>C<sub>f</sub></b> est la courbe en trait plein&nbsp;; <b>C<sub>g</sub></b> est la courbe en pointill&eacute;s. Les petits points marquent l&agrave; o&ugrave; chaque courbe commence et s&rsquo;arr&ecirc;te.</p>
       <div class="mp-stage"><div style="width:100%" id="ifgHost"></div></div>
-      <div class="mp-feedback" id="ifgFeedback"></div>
+      <div class="mp-feedback" id="ifgFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="ifgActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkIfgAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -3605,7 +3612,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="mp-instr">On a repr&eacute;sent&eacute; la courbe de f et la droite de g dans le m&ecirc;me rep&egrave;re. R&eacute;ponds avec le dessin&nbsp;: les solutions se lisent sur l&rsquo;axe des abscisses.</p>
       <p class="ens-note"><b>C<sub>f</sub></b> est la courbe en trait plein&nbsp;; <b>C<sub>g</sub></b> est la droite en pointill&eacute;s.</p>
       <div class="mp-stage"><div style="width:100%" id="eqgHost"></div></div>
-      <div class="mp-feedback" id="eqgFeedback"></div>
+      <div class="mp-feedback" id="eqgFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="eqgActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkEqgAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -3619,7 +3626,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="cfxInstr">Trace une courbe sur le domaine [−5 ; 5] en respectant TOUTES les consignes. Pose un point par colonne : clique une case pour poser le point, reclique dessus pour l’enlever.</p>
       <div class="mp-stage"><div style="width:100%" id="cfxHost"></div></div>
-      <div class="mp-feedback" id="cfxFeedback"></div>
+      <div class="mp-feedback" id="cfxFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="cfxActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkCfxAnswer()">Vérifier</button></span>
       </div>
@@ -3634,7 +3641,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="mp-instr">R&eacute;sous avec le dessin : parmi les quatre propositions, une seule montre vraiment la question pos&eacute;e &mdash; choisis-la, puis &eacute;cris la solution.</p>
       <p class="ens-note">Sur les dessins : un <b>point plein</b> = le nombre est pris ; un <b>rond vide</b> = il ne l&rsquo;est pas.</p>
       <div class="mp-stage"><div style="width:100%" id="eigHost"></div></div>
-      <div class="mp-feedback" id="eigFeedback"></div>
+      <div class="mp-feedback" id="eigFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="eigActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkEigAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -3650,7 +3657,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="mp-instr">Sur le dessin, la partie de la courbe <span class="tsg-mot-rouge">au-dessus</span> de l&rsquo;axe des abscisses est en <span class="tsg-mot-rouge">rouge</span>, la partie <span class="tsg-mot-bleu">en dessous</span> en <span class="tsg-mot-bleu">bleu</span>. Compl&egrave;te les phrases, le tableau de signes, puis les trois solutions.</p>
       <p class="ens-note">Dans le tableau, les racines et les z&eacute;ros sont d&eacute;j&agrave; &eacute;crits : tu ne places que les <b>signes</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="tsgHost"></div></div>
-      <div class="mp-feedback" id="tsgFeedback"></div>
+      <div class="mp-feedback" id="tsgFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="tsgActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkTsgAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -3703,7 +3710,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="mark" id="tmMark"></span>
       <div class="timerbar" id="tmTimerBar" hidden><i id="tmTimerFill"></i></div>
       <div class="correction" id="tmCorrection"></div>
-      <div class="mp-feedback" id="tmFeedback"></div>
+      <div class="mp-feedback" id="tmFeedback" aria-live="polite"></div>
       <div class="mp-actions" id="tmActions"></div>
     </div>
   </section>
@@ -3716,7 +3723,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="aspInstr">Pose l’opération et complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues).</p>
       <div class="mp-stage"><div class="mp-op" id="aspHost"></div></div>
-      <div class="mp-feedback" id="aspFeedback"></div>
+      <div class="mp-feedback" id="aspFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="aspActions">
         <button class="btn btn-primary" onclick="checkASPAnswer()">Vérifier</button>
       </div>
@@ -3731,7 +3738,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues). La <b>retenue</b> (case rouge) est facultative, mais si tu l'écris, elle doit être juste.</p>
       <div class="mp-stage"><div class="mp-op" id="mpHost"></div></div>
-      <div class="mp-feedback" id="mpFeedback"></div>
+      <div class="mp-feedback" id="mpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="mpActions">
         <button class="btn btn-primary" onclick="checkMAnswer()">Vérifier</button>
       </div>
@@ -3746,7 +3753,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="fInstr">Donne la réponse.</p>
       <div class="mp-stage"><div class="f-wrap" id="fHost"></div></div>
-      <div class="mp-feedback" id="fFeedback"></div>
+      <div class="mp-feedback" id="fFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="fActions">
         <button class="btn btn-primary" onclick="checkFAnswer()">Vérifier</button>
       </div>
@@ -3761,7 +3768,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="mdPrompt">Multiplier des décimaux.</p>
       <div class="mp-stage"><div style="width:100%" id="mdHost"></div></div>
-      <div class="mp-feedback" id="mdFeedback"></div>
+      <div class="mp-feedback" id="mdFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="mdActions">
         <button class="btn btn-primary" onclick="checkMDAnswer()">Vérifier</button>
       </div>
@@ -3776,7 +3783,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="uPrompt">Multiplier des décimaux.</p>
       <div class="mp-stage"><div style="width:100%" id="uHost"></div></div>
-      <div class="mp-feedback" id="uFeedback"></div>
+      <div class="mp-feedback" id="uFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="uActions">
         <button class="btn btn-primary" onclick="checkUAnswer()">Vérifier</button>
       </div>
@@ -3792,7 +3799,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pPrompt">Prendre un pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="pHost"></div></div>
-      <div class="mp-feedback" id="pFeedback"></div>
+      <div class="mp-feedback" id="pFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pActions">
         <button class="btn btn-primary" onclick="checkPAnswer()">Vérifier</button>
       </div>
@@ -3807,7 +3814,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pctbPrompt">Complète le schéma.</p>
       <div class="mp-stage"><div style="width:100%" id="pctbHost"></div></div>
-      <div class="mp-feedback" id="pctbFeedback"></div>
+      <div class="mp-feedback" id="pctbFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pctbActions">
         <button class="btn btn-primary" onclick="checkPctBoiteAnswer()">Vérifier</button>
       </div>
@@ -3822,7 +3829,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pctcPrompt">Complète le schéma.</p>
       <div class="mp-stage"><div style="width:100%" id="pctcHost"></div></div>
-      <div class="mp-feedback" id="pctcFeedback"></div>
+      <div class="mp-feedback" id="pctcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pctcActions">
         <button class="btn btn-primary" onclick="checkPctChaineAnswer()">Vérifier</button>
       </div>
@@ -3837,7 +3844,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pcsPrompt">Complète le schéma, puis les phrases.</p>
       <div class="mp-stage"><div style="width:100%" id="pcsHost"></div></div>
-      <div class="mp-feedback" id="pcsFeedback"></div>
+      <div class="mp-feedback" id="pcsFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pcsActions">
         <button class="btn btn-primary" onclick="checkPcsAnswer()">Vérifier</button>
       </div>
@@ -3852,7 +3859,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pccPrompt">Complète le schéma, puis les phrases.</p>
       <div class="mp-stage"><div style="width:100%" id="pccHost"></div></div>
-      <div class="mp-feedback" id="pccFeedback"></div>
+      <div class="mp-feedback" id="pccFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pccActions">
         <button class="btn btn-primary" onclick="checkPccAnswer()">Vérifier</button>
       </div>
@@ -3867,7 +3874,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="psvPrompt">Place les deux pourcentages donnés dans le schéma, complète-le, puis la phrase à compléter.</p>
       <div class="mp-stage"><div style="width:100%" id="psvHost"></div></div>
-      <div class="mp-feedback" id="psvFeedback"></div>
+      <div class="mp-feedback" id="psvFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="psvActions">
         <button class="btn btn-primary" onclick="checkPsvAnswer()">Vérifier</button>
       </div>
@@ -3882,7 +3889,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pcpPrompt">Place les nombres dans le schéma, puis complète la phrase où il manque un pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="pcpHost"></div></div>
-      <div class="mp-feedback" id="pcpFeedback"></div>
+      <div class="mp-feedback" id="pcpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pcpActions">
         <button class="btn btn-primary" onclick="checkPcpAnswer()">Vérifier</button>
       </div>
@@ -3897,7 +3904,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="evbPrompt">Complète le schéma.</p>
       <div class="mp-stage"><div style="width:100%" id="evbHost"></div></div>
-      <div class="mp-feedback" id="evbFeedback"></div>
+      <div class="mp-feedback" id="evbFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="evbActions">
         <button class="btn btn-primary" onclick="checkEvbAnswer()">Vérifier</button>
       </div>
@@ -3912,7 +3919,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="evsPrompt">Complète le schéma.</p>
       <div class="mp-stage"><div style="width:100%" id="evsHost"></div></div>
-      <div class="mp-feedback" id="evsFeedback"></div>
+      <div class="mp-feedback" id="evsFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="evsActions">
         <button class="btn btn-primary" onclick="checkEvsAnswer()">Vérifier</button>
       </div>
@@ -3927,7 +3934,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="sevPrompt">Complète le schéma.</p>
       <div class="mp-stage"><div style="width:100%" id="sevHost"></div></div>
-      <div class="mp-feedback" id="sevFeedback"></div>
+      <div class="mp-feedback" id="sevFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="sevActions">
         <button class="btn btn-primary" onclick="checkSevAnswer()">Vérifier</button>
       </div>
@@ -3942,7 +3949,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="evcPrompt">Complète le schéma.</p>
       <div class="mp-stage"><div style="width:100%" id="evcHost"></div></div>
-      <div class="mp-feedback" id="evcFeedback"></div>
+      <div class="mp-feedback" id="evcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="evcActions">
         <button class="btn btn-primary" onclick="checkEvcAnswer()">Vérifier</button>
       </div>
@@ -3957,7 +3964,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="evpPrompt">Complète le schéma, puis la dernière phrase.</p>
       <div class="mp-stage"><div style="width:100%" id="evpHost"></div></div>
-      <div class="mp-feedback" id="evpFeedback"></div>
+      <div class="mp-feedback" id="evpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="evpActions">
         <button class="btn btn-primary" onclick="checkEvpAnswer()">Vérifier</button>
       </div>
@@ -3972,7 +3979,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="qPrompt">Retrouver la valeur initiale.</p>
       <div class="mp-stage"><div style="width:100%" id="qHost"></div></div>
-      <div class="mp-feedback" id="qFeedback"></div>
+      <div class="mp-feedback" id="qFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="qActions">
         <button class="btn btn-primary" onclick="checkQAnswer()">Vérifier</button>
       </div>
@@ -3987,7 +3994,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pslPrompt">Retrouve la bonne réponse, puis justifie-la.</p>
       <div class="mp-stage"><div style="width:100%" id="pslHost"></div></div>
-      <div class="mp-feedback" id="pslFeedback"></div>
+      <div class="mp-feedback" id="pslFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pslActions">
         <button class="btn btn-primary" onclick="checkPsl()">Vérifier</button>
       </div>
@@ -4002,7 +4009,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="salPrompt">Retrouve la bonne réponse, puis justifie-la.</p>
       <div class="mp-stage"><div style="width:100%" id="salHost"></div></div>
-      <div class="mp-feedback" id="salFeedback"></div>
+      <div class="mp-feedback" id="salFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="salActions">
         <button class="btn btn-primary" onclick="checkSal()">Vérifier</button>
       </div>
@@ -4025,7 +4032,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
       <div id="sprRed">
         <div class="mp-stage"><div style="width:100%" id="sprHost"></div></div>
-        <div class="mp-feedback" id="sprFeedback"></div>
+        <div class="mp-feedback" id="sprFeedback" aria-live="polite"></div>
         <div class="row" style="justify-content:center" id="sprActions">
           <button class="btn btn-primary" onclick="checkSpr()">Vérifier</button>
         </div>
@@ -4043,7 +4050,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <!-- l'aide schéma, comme au 4.5.9 : le schéma À CASES de la question (ppbSchemaHTML), qui REMPLACE la rédaction tant qu'il est ouvert ; il précède la rédaction, pour que la rangée des jetons se pose devant la zone visible -->
       <div id="ppbSch" hidden>
         <div class="mp-stage"><div style="width:100%" id="ppbSchHost"></div></div>
-        <div class="mp-feedback" id="ppbSchFeedback"></div>
+        <div class="mp-feedback" id="ppbSchFeedback" aria-live="polite"></div>
         <div class="row" style="justify-content:center" id="ppbSchActions"></div>
         <!-- le chemin du retour : il s'efface dès que le schéma a donné son verdict (« Question suivante ») -->
         <div class="row" style="justify-content:center" id="ppbRetourRow">
@@ -4052,7 +4059,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
       <div id="ppbRed">
         <div class="mp-stage"><div style="width:100%" id="ppbHost"></div></div>
-        <div class="mp-feedback" id="ppbFeedback"></div>
+        <div class="mp-feedback" id="ppbFeedback" aria-live="polite"></div>
         <div class="row" style="justify-content:center" id="ppbActions">
           <button class="btn btn-primary" onclick="checkPpb()">Vérifier</button>
         </div>
@@ -4068,7 +4075,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pcPrompt">Prendre un pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="pcHost"></div></div>
-      <div class="mp-feedback" id="pcFeedback"></div>
+      <div class="mp-feedback" id="pcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pcActions">
         <button class="btn btn-primary" onclick="checkPctColAnswer()">Vérifier</button>
       </div>
@@ -4083,7 +4090,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="fpPrompt">Fraction et pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="fpHost"></div></div>
-      <div class="mp-feedback" id="fpFeedback"></div>
+      <div class="mp-feedback" id="fpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="fpActions">
         <button class="btn btn-primary" onclick="checkFPAnswer()">Vérifier</button>
       </div>
@@ -4098,7 +4105,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="vPrompt">Retrouver la valeur initiale.</p>
       <div class="mp-stage"><div style="width:100%" id="vHost"></div></div>
-      <div class="mp-feedback" id="vFeedback"></div>
+      <div class="mp-feedback" id="vFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="vActions">
         <button class="btn btn-primary" onclick="checkVAnswer()">Vérifier</button>
       </div>
@@ -4113,7 +4120,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="wPrompt">Vérifier une proposition par le calcul direct.</p>
       <div class="mp-stage"><div style="width:100%" id="a2qHost"></div></div>
-      <div class="mp-feedback" id="wFeedback"></div>
+      <div class="mp-feedback" id="wFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="wActions">
         <button class="btn btn-primary" onclick="checkWAnswer()">Vérifier</button>
       </div>
@@ -4128,7 +4135,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="syPrompt">Synthèse sur les pourcentages.</p>
       <div class="mp-stage"><div style="width:100%" id="synHost"></div></div>
-      <div class="mp-feedback" id="syFeedback"></div>
+      <div class="mp-feedback" id="syFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="syActions">
         <button class="btn btn-primary" onclick="checkSynAnswer()">Vérifier</button>
       </div>
@@ -4143,7 +4150,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="aPrompt">Augmenter d'un pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="aHost"></div></div>
-      <div class="mp-feedback" id="aFeedback"></div>
+      <div class="mp-feedback" id="aFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="aActions">
         <button class="btn btn-primary" onclick="checkAAnswer()">Vérifier</button>
       </div>
@@ -4158,7 +4165,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="ag2Prompt">Augmenter d'un pourcentage — calculer l'augmentation.</p>
       <div class="mp-stage"><div style="width:100%" id="ag2Host"></div></div>
-      <div class="mp-feedback" id="ag2Feedback"></div>
+      <div class="mp-feedback" id="ag2Feedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="ag2Actions">
         <button class="btn btn-primary" onclick="checkAG2Answer()">Vérifier</button>
       </div>
@@ -4173,7 +4180,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="dPrompt">Diminuer d'un pourcentage.</p>
       <div class="mp-stage"><div style="width:100%" id="dHost"></div></div>
-      <div class="mp-feedback" id="dFeedback"></div>
+      <div class="mp-feedback" id="dFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="dActions">
         <button class="btn btn-primary" onclick="checkDAnswer()">Vérifier</button>
       </div>
@@ -4188,7 +4195,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="bsPrompt">Une baisse suivie d'une autre baisse.</p>
       <div class="mp-stage"><div style="width:100%" id="bsHost"></div></div>
-      <div class="mp-feedback" id="bsFeedback"></div>
+      <div class="mp-feedback" id="bsFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="bsActions">
         <button class="btn btn-primary" onclick="checkBSAnswer()">Vérifier</button>
       </div>
@@ -4203,7 +4210,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="hsPrompt">Une hausse suivie d'une autre hausse.</p>
       <div class="mp-stage"><div style="width:100%" id="hsHost"></div></div>
-      <div class="mp-feedback" id="hsFeedback"></div>
+      <div class="mp-feedback" id="hsFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="hsActions">
         <button class="btn btn-primary" onclick="checkHSAnswer()">Vérifier</button>
       </div>
@@ -4218,7 +4225,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="hscPrompt">Une hausse suivie d’une autre hausse, en partant de 100.</p>
       <div class="mp-stage"><div style="width:100%" id="hscHost"></div></div>
-      <div class="mp-feedback" id="hscFeedback"></div>
+      <div class="mp-feedback" id="hscFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="hscActions">
         <button class="btn btn-primary" onclick="checkHSCAnswer()">Vérifier</button>
       </div>
@@ -4233,7 +4240,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="lcPrompt">Lire un coefficient multiplicateur.</p>
       <div class="mp-stage"><div style="width:100%" id="lcHost"></div></div>
-      <div class="mp-feedback" id="lcFeedback"></div>
+      <div class="mp-feedback" id="lcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="lcActions">
         <button class="btn btn-primary" onclick="checkLCAnswer()">Vérifier</button>
       </div>
@@ -4248,7 +4255,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="enonce" id="tcPrompt">Compléter un tableau de coefficients multiplicateurs.</p>
       <div class="mp-stage"><div style="width:100%" id="tcHost"></div></div>
-      <div class="mp-feedback" id="tcFeedback"></div>
+      <div class="mp-feedback" id="tcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="tcActions">
         <button class="btn btn-primary" onclick="checkTCAnswer()">Vérifier</button>
       </div>
@@ -4263,7 +4270,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="ckPrompt">Reconnaître le coefficient multiplicateur.</p>
       <div class="mp-stage"><div style="width:100%" id="ckHost"></div></div>
-      <div class="mp-feedback" id="ckFeedback"></div>
+      <div class="mp-feedback" id="ckFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="ckActions">
         <button class="btn btn-primary" onclick="checkCKAnswer()">Vérifier</button>
       </div>
@@ -4278,7 +4285,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="acPrompt">Associer le bon coefficient multiplicateur.</p>
       <div class="mp-stage"><div style="width:100%" id="acHost"></div></div>
-      <div class="mp-feedback" id="acFeedback"></div>
+      <div class="mp-feedback" id="acFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="acActions">
         <button class="btn btn-primary" onclick="checkACAnswer()">Vérifier</button>
       </div>
@@ -4299,7 +4306,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="mp-instr">Complète chaque ligne avec <b>∈</b> (appartient) ou <b>∉</b> (n'appartient pas).</p>
       <p class="ens-note">L'appartenance dépend de la <i>valeur</i> du nombre, pas de son écriture.</p>
       <div class="mp-stage"><div style="width:100%" id="ensHost"></div></div>
-      <div class="mp-feedback" id="ensFeedback"></div>
+      <div class="mp-feedback" id="ensFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <button id="ensBilanBtn" class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()" hidden>🖼 Schéma des ensembles</button>
         <span id="ensActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkEnsAnswer()">Vérifier</button></span>
@@ -4334,7 +4341,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="mp-instr">Quel est le plus petit ensemble qui contient ce nombre ?</p>
       <div class="mp-stage"><div class="pge-num" id="pgeNum"></div></div>
       <div class="pge-opts" id="pgeOpts"></div>
-      <div class="mp-feedback" id="pgeFeedback"></div>
+      <div class="mp-feedback" id="pgeFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center" id="pgeActions"></div>
     </div>
   </section>
@@ -4349,7 +4356,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="mp-instr">Lis le schéma, puis complète chaque case avec les propositions données.</p>
       <p class="ens-note">Propositions : un nombre, ou <b>−∞</b> ; <b>+∞</b> ; <b>[</b> ; <b>]</b> ; <b>&lt;</b> ; <b>≤</b> ; <b>ouvert</b> ; <b>fermé</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="itvHost"></div></div>
-      <div class="mp-feedback" id="itvFeedback"></div>
+      <div class="mp-feedback" id="itvFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="itvActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkItvAnswer()">Vérifier</button></span>
       </div>
@@ -4366,7 +4373,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <p class="mp-instr">Voici une inégalité. Retrouve le schéma qui lui correspond, puis écris l’intervalle.</p>
       <p class="ens-note">Propositions : un nombre, ou <b>&minus;&infin;</b> ; <b>+&infin;</b> ; <b>[</b> ; <b>]</b> ; <b>ouvert</b> ; <b>ferm&eacute;</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="itqHost"></div></div>
-      <div class="mp-feedback" id="itqFeedback"></div>
+      <div class="mp-feedback" id="itqFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="itqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkItqAnswer()">Vérifier</button></span>
       </div>
@@ -4382,7 +4389,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Complète chaque ligne avec <b>&isin;</b> (appartient) ou <b>&notin;</b> (n&rsquo;appartient pas).</p>
       <div class="mp-stage"><div style="width:100%" id="appHost"></div></div>
-      <div class="mp-feedback" id="appFeedback"></div>
+      <div class="mp-feedback" id="appFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="appActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkAppAnswer()">Vérifier</button></span>
       </div>
@@ -4399,7 +4406,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pyAvant"></div>
       <p class="mp-instr">Lis le programme et dis ce qu&rsquo;il va afficher, en compl&eacute;tant la phrase. Une fois ta r&eacute;ponse v&eacute;rifi&eacute;e, tu pourras ex&eacute;cuter le programme pour le voir.</p>
       <div class="mp-stage"><div style="width:100%" id="pyHost"></div></div>
-      <div class="mp-feedback" id="pyFeedback"></div>
+      <div class="mp-feedback" id="pyFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pyActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pyValidate" onclick="checkPY()">Vérifier</button></span>
       </div>
@@ -4416,7 +4423,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="ptyAvant"></div>
       <p class="mp-instr">Lis le cours en trois cadres, puis le programme : dis le type de chaque variable &mdash; int, float ou str. Une fois ta r&eacute;ponse v&eacute;rifi&eacute;e, ex&eacute;cute le programme : c&rsquo;est Python qui r&eacute;pond, avec type().</p>
       <div class="mp-stage"><div style="width:100%" id="ptyHost"></div></div>
-      <div class="mp-feedback" id="ptyFeedback"></div>
+      <div class="mp-feedback" id="ptyFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="ptyActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ptyValidate" onclick="checkPTY()">Vérifier</button></span>
       </div>
@@ -4433,7 +4440,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pycAvant"></div>
       <p class="mp-instr" id="pycInstr">Ci-dessous le programme &agrave; compl&eacute;ter<br>Il doit afficher la valeur de la variable <code>note</code> &mdash; et seulement elle.</p>
       <div class="mp-stage"><div style="width:100%" id="pycHost"></div></div>
-      <div class="mp-feedback" id="pycFeedback"></div>
+      <div class="mp-feedback" id="pycFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pycActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pycValidate" onclick="checkPYC()">Vérifier</button></span>
       </div>
@@ -4450,7 +4457,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pvnAvant"></div>
       <p class="mp-instr">Quels sont les noms de variables <b>incorrects</b> parmi ceux propos&eacute;s&nbsp;? Pour chaque nom, dis s&rsquo;il est correct ou incorrect&nbsp;; s&rsquo;il est incorrect, indique pourquoi.</p>
       <div class="mp-stage"><div style="width:100%" id="pvnHost"></div></div>
-      <div class="mp-feedback" id="pvnFeedback"></div>
+      <div class="mp-feedback" id="pvnFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pvnActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pvnValidate" onclick="checkPVN()">Vérifier</button></span>
       </div>
@@ -4467,7 +4474,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pnvAvant"></div>
       <p class="mp-instr">Pour chaque grandeur, propose un <b>nom de variable</b> : seulement des lettres, des chiffres et le tiret bas <b>_</b> &mdash; <b>pas d&rsquo;espace</b>, pas de tiret, pas d&rsquo;apostrophe &mdash;, qui ne commence pas par un chiffre, qui n&rsquo;est pas un mot de Python (for, print&hellip;), d&rsquo;au moins 2 caract&egrave;res et pas trop long (20 au plus). Deux grandeurs ne portent pas le m&ecirc;me nom. Une fois ta r&eacute;ponse v&eacute;rifi&eacute;e, ex&eacute;cute le programme &eacute;crit avec tes noms.</p>
       <div class="mp-stage"><div style="width:100%" id="pnvHost"></div></div>
-      <div class="mp-feedback" id="pnvFeedback"></div>
+      <div class="mp-feedback" id="pnvFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pnvActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pnvValidate" onclick="checkPNV()">Vérifier</button></span>
       </div>
@@ -4487,7 +4494,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pynAvant"></div>
       <p class="mp-instr" id="pynInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pynHost"></div></div>
-      <div class="mp-feedback" id="pynFeedback"></div>
+      <div class="mp-feedback" id="pynFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pynActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pynValidate" onclick="checkPYN()">Vérifier</button></span>
       </div>
@@ -4503,7 +4510,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pclInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pclHost"></div></div>
-      <div class="mp-feedback" id="pclFeedback"></div>
+      <div class="mp-feedback" id="pclFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pclActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pclValidate" onclick="checkPCL()">Vérifier</button></span>
       </div>
@@ -4520,7 +4527,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pypAvant"></div>
       <p class="mp-instr">Lis le cours en trois cadres, puis &eacute;cris un programme qui affiche exactement le texte demand&eacute;. Ex&eacute;cute-le autant de fois que tu veux pour voir ce qu&rsquo;il affiche&nbsp;; quand il te convient, clique sur &laquo;&nbsp;V&eacute;rifier&nbsp;&raquo;.</p>
       <div class="mp-stage"><div style="width:100%" id="pypHost"></div></div>
-      <div class="mp-feedback" id="pypFeedback"></div>
+      <div class="mp-feedback" id="pypFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pypActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pypValidate" onclick="checkPYP()">Vérifier</button></span>
       </div>
@@ -4537,7 +4544,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pyiAvant"></div>
       <div class="mp-instr pyi-instr" id="pyiInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pyiHost"></div></div>
-      <div class="mp-feedback" id="pyiFeedback"></div>
+      <div class="mp-feedback" id="pyiFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pyiActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pyiValidate" onclick="checkPYI()">Vérifier</button></span>
       </div>
@@ -4554,7 +4561,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="piaAvant"></div>
       <div class="mp-instr pyi-instr" id="piaInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="piaHost"></div></div>
-      <div class="mp-feedback" id="piaFeedback"></div>
+      <div class="mp-feedback" id="piaFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="piaActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="piaValidate" onclick="checkPIA()">Vérifier</button></span>
       </div>
@@ -4571,7 +4578,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pisAvant"></div>
       <div class="mp-instr pyi-instr" id="pisInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pisHost"></div></div>
-      <div class="mp-feedback" id="pisFeedback"></div>
+      <div class="mp-feedback" id="pisFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pisActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pisValidate" onclick="checkPIS()">Vérifier</button></span>
       </div>
@@ -4587,7 +4594,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <div class="mp-instr pyi-instr" id="pkgInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pkgHost"></div></div>
-      <div class="mp-feedback" id="pkgFeedback"></div>
+      <div class="mp-feedback" id="pkgFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pkgActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pkgValidate" onclick="checkPKG()">Vérifier</button></span>
       </div>
@@ -4604,7 +4611,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="phmAvant"></div>
       <div class="mp-instr pyi-instr" id="phmInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="phmHost"></div></div>
-      <div class="mp-feedback" id="phmFeedback"></div>
+      <div class="mp-feedback" id="phmFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="phmActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="phmValidate" onclick="checkPHM()">Vérifier</button></span>
       </div>
@@ -4620,7 +4627,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <div class="mp-instr pyi-instr" id="pduInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pduHost"></div></div>
-      <div class="mp-feedback" id="pduFeedback"></div>
+      <div class="mp-feedback" id="pduFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pduActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pduValidate" onclick="checkPDU()">Vérifier</button></span>
       </div>
@@ -4636,7 +4643,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <div class="mp-instr pyi-instr" id="pvoInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pvoHost"></div></div>
-      <div class="mp-feedback" id="pvoFeedback"></div>
+      <div class="mp-feedback" id="pvoFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pvoActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pvoValidate" onclick="checkPVO()">Vérifier</button></span>
       </div>
@@ -4652,7 +4659,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <div class="mp-instr pyi-instr" id="pttInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pttHost"></div></div>
-      <div class="mp-feedback" id="pttFeedback"></div>
+      <div class="mp-feedback" id="pttFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pttActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pttValidate" onclick="checkPTT()">Vérifier</button></span>
       </div>
@@ -4670,7 +4677,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pmyAvant"></div>
       <div class="mp-instr pyi-instr" id="pmyInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pmyHost"></div></div>
-      <div class="mp-feedback" id="pmyFeedback"></div>
+      <div class="mp-feedback" id="pmyFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pmyActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pmyValidate" onclick="checkPMY()">Vérifier</button></span>
       </div>
@@ -4687,7 +4694,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="ptrAvant"></div>
       <div class="mp-instr pyi-instr" id="ptrInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="ptrHost"></div></div>
-      <div class="mp-feedback" id="ptrFeedback"></div>
+      <div class="mp-feedback" id="ptrFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="ptrActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ptrValidate" onclick="checkPTR()">Vérifier</button></span>
       </div>
@@ -4704,7 +4711,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pgcAvant"></div>
       <div class="mp-instr pyi-instr" id="pgcInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pgcHost"></div></div>
-      <div class="mp-feedback" id="pgcFeedback"></div>
+      <div class="mp-feedback" id="pgcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pgcActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pgcValidate" onclick="checkPGC()">Vérifier</button></span>
       </div>
@@ -4720,7 +4727,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <div class="mp-instr pyi-instr" id="prcInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="prcHost"></div></div>
-      <div class="mp-feedback" id="prcFeedback"></div>
+      <div class="mp-feedback" id="prcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="prcActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="prcValidate" onclick="checkPRC()">Vérifier</button></span>
       </div>
@@ -4737,7 +4744,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="prlAvant"></div>
       <div class="mp-instr pyi-instr" id="prlInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="prlHost"></div></div>
-      <div class="mp-feedback" id="prlFeedback"></div>
+      <div class="mp-feedback" id="prlFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="prlActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="prlValidate" onclick="checkPRL()">Vérifier</button></span>
       </div>
@@ -4753,7 +4760,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <div class="mp-instr pyi-instr" id="pblInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pblHost"></div></div>
-      <div class="mp-feedback" id="pblFeedback"></div>
+      <div class="mp-feedback" id="pblFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pblActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pblValidate" onclick="checkPBL()">Vérifier</button></span>
       </div>
@@ -4769,7 +4776,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <div class="mp-instr pyi-instr" id="pmnInstr"></div>
       <div class="mp-stage"><div style="width:100%" id="pmnHost"></div></div>
-      <div class="mp-feedback" id="pmnFeedback"></div>
+      <div class="mp-feedback" id="pmnFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pmnActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pmnValidate" onclick="checkPMN()">Vérifier</button></span>
       </div>
@@ -4789,7 +4796,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pyxAvant"></div>
       <p class="mp-instr" id="pyxInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pyxHost"></div></div>
-      <div class="mp-feedback" id="pyxFeedback"></div>
+      <div class="mp-feedback" id="pyxFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pyxActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pyxValidate" onclick="checkPYX()">Vérifier</button></span>
       </div>
@@ -4810,7 +4817,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="popAvant"></div>
       <p class="mp-instr" id="popInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="popHost"></div></div>
-      <div class="mp-feedback" id="popFeedback"></div>
+      <div class="mp-feedback" id="popFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="popActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="popValidate" onclick="checkPOP()">Vérifier</button></span>
       </div>
@@ -4830,7 +4837,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pdcAvant"></div>
       <p class="mp-instr" id="pdcInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pdcHost"></div></div>
-      <div class="mp-feedback" id="pdcFeedback"></div>
+      <div class="mp-feedback" id="pdcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pdcActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pdcValidate" onclick="checkPDC()">Vérifier</button></span>
       </div>
@@ -4848,7 +4855,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pchAvant"></div>
       <p class="mp-instr" id="pchInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="pchHost"></div></div>
-      <div class="mp-feedback" id="pchFeedback"></div>
+      <div class="mp-feedback" id="pchFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pchActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pchValidate" onclick="checkPCH()">Vérifier</button></span>
       </div>
@@ -4864,7 +4871,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="piiAvant"></div>
       <p class="mp-instr" id="piiInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="piiHost"></div></div>
-      <div class="mp-feedback" id="piiFeedback"></div>
+      <div class="mp-feedback" id="piiFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="piiActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="piiValidate" onclick="checkPII()">Vérifier</button></span>
       </div>
@@ -4879,7 +4886,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pydAvant"></div>
       <p class="mp-instr">Le programme affecte trois variables et en affiche d&eacute;j&agrave; une&nbsp;: cette ligne-l&agrave; est ton <b>mod&egrave;le</b>. &Eacute;cris les deux lignes qui manquent, ex&eacute;cute le programme pour voir ce qu&rsquo;il affiche, puis v&eacute;rifie.</p>
       <div class="mp-stage"><div style="width:100%" id="pydHost"></div></div>
-      <div class="mp-feedback" id="pydFeedback"></div>
+      <div class="mp-feedback" id="pydFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pydActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pydValidate" onclick="checkPYD()">Vérifier</button></span>
       </div>
@@ -4896,7 +4903,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pyvAvant"></div>
       <p class="mp-instr">Le programme est &eacute;crit en entier&nbsp;: seuls les <b>noms des variables</b> manquent dans le print. Place-les en lisant le texte qui pr&eacute;c&egrave;de chaque case, ex&eacute;cute le programme et <b>relis la phrase qu&rsquo;il &eacute;crit</b>, puis v&eacute;rifie.</p>
       <div class="mp-stage"><div style="width:100%" id="pyvHost"></div></div>
-      <div class="mp-feedback" id="pyvFeedback"></div>
+      <div class="mp-feedback" id="pyvFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pyvActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pyvValidate" onclick="checkPYV()">Vérifier</button></span>
       </div>
@@ -4916,7 +4923,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="ptvAvant"></div>
       <p class="mp-instr" id="ptvInstr"></p>
       <div class="mp-stage"><div style="width:100%" id="ptvHost"></div></div>
-      <div class="mp-feedback" id="ptvFeedback"></div>
+      <div class="mp-feedback" id="ptvFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="ptvActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ptvValidate" onclick="checkPTV()">Vérifier</button></span>
       </div>
@@ -4933,7 +4940,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pcvAvant"></div>
       <p class="mp-instr">Le programme range deux calculs dans des variables&nbsp;: <b>somme</b> et <b>produit</b>. Dis ce qu&rsquo;il va afficher, puis ex&eacute;cute-le pour le voir.</p>
       <div class="mp-stage"><div style="width:100%" id="pcvHost"></div></div>
-      <div class="mp-feedback" id="pcvFeedback"></div>
+      <div class="mp-feedback" id="pcvFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pcvActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pcvValidate" onclick="checkPCV()">V&eacute;rifier</button></span>
       </div>
@@ -4951,7 +4958,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="papAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, dis dans quelle <b>case m&eacute;moire</b> la valeur va, et ce que cette case contient ensuite.</p>
       <div class="mp-stage"><div style="width:100%" id="papHost"></div></div>
-      <div class="mp-feedback" id="papFeedback"></div>
+      <div class="mp-feedback" id="papFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="papActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="papValidate" onclick="checkPAP()">V&eacute;rifier cette ligne</button></span>
       </div>
@@ -4969,7 +4976,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pvmAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: tu n&rsquo;as qu&rsquo;&agrave; donner <b>la valeur</b> qu&rsquo;elle contient ensuite. &Agrave; la fin, on v&eacute;rifie que toutes les cases ont la bonne valeur.</p>
       <div class="mp-stage"><div style="width:100%" id="pvmHost"></div></div>
-      <div class="mp-feedback" id="pvmFeedback"></div>
+      <div class="mp-feedback" id="pvmFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pvmActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pvmValidate" onclick="checkPVM()">V&eacute;rifier cette ligne</button></span>
       </div>
@@ -4987,7 +4994,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="ppcAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: certaines lignes RECOPIENT une case, d&rsquo;autres CALCULENT une valeur avec ce que des cases contiennent &mdash; &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. &Agrave; la fin, on v&eacute;rifie que toutes les cases ont la bonne valeur.</p>
       <div class="mp-stage"><div style="width:100%" id="ppcHost"></div></div>
-      <div class="mp-feedback" id="ppcFeedback"></div>
+      <div class="mp-feedback" id="ppcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="ppcActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ppcValidate" onclick="checkPPC()">V&eacute;rifier cette ligne</button></span>
       </div>
@@ -5005,7 +5012,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="ppdAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: une case d&eacute;j&agrave; CALCUL&eacute;E peut &agrave; son tour nourrir un autre calcul &mdash; &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. &Agrave; la fin, on v&eacute;rifie que toutes les cases ont la bonne valeur.</p>
       <div class="mp-stage"><div style="width:100%" id="ppdHost"></div></div>
-      <div class="mp-feedback" id="ppdFeedback"></div>
+      <div class="mp-feedback" id="ppdFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="ppdActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ppdValidate" onclick="checkPPD()">V&eacute;rifier cette ligne</button></span>
       </div>
@@ -5023,7 +5030,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pevAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>ligne par ligne</b> : il &eacute;change les valeurs de deux cases &agrave; l&rsquo;aide d&rsquo;une troisi&egrave;me. La <b>case m&eacute;moire</b> que chaque ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. &Agrave; la fin, on v&eacute;rifie la m&eacute;moire, puis tu expliques avec tes mots ce qui s&rsquo;est pass&eacute;.</p>
       <div class="mp-stage"><div style="width:100%" id="pevHost"></div></div>
-      <div class="mp-feedback" id="pevFeedback"></div>
+      <div class="mp-feedback" id="pevFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pevActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pevValidate" onclick="checkPEV()">V&eacute;rifier cette ligne</button></span>
       </div>
@@ -5041,7 +5048,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="ppm-fig" id="ppmFig"></div>
       <p class="mp-instr"><b>Devine</b> d&rsquo;abord ce que contiendra une case &agrave; la fin du programme, PUIS ex&eacute;cute-le <b>ligne par ligne</b> pour v&eacute;rifier ta pr&eacute;diction. &Agrave; chaque ligne, la <b>case m&eacute;moire</b> que cette ligne remplit est d&eacute;j&agrave; &eacute;crite dans le tableau&nbsp;: certaines lignes CALCULENT une valeur avec ce que des cases contiennent, d&rsquo;autres R&Eacute;&Eacute;CRIVENT une case d&eacute;j&agrave; remplie &mdash; &agrave; toi de donner <b>la valeur</b> qu&rsquo;elle contient ensuite. Si ta pr&eacute;diction &eacute;tait fausse, tu recommences avec d&rsquo;autres nombres.</p>
       <div class="mp-stage"><div style="width:100%" id="ppmHost"></div></div>
-      <div class="mp-feedback" id="ppmFeedback"></div>
+      <div class="mp-feedback" id="ppmFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="ppmActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="ppmGuessValidate" onclick="checkPPMGuess()">V&eacute;rifier ma pr&eacute;diction</button></span>
       </div>
@@ -5059,7 +5066,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pelAvant"></div>
       <p class="mp-instr">Compl&egrave;te le programme <b>uniquement avec les lettres</b> propos&eacute;es dans chaque case, pour que les deux valeurs soient <b>&eacute;chang&eacute;es</b>. Clique sur <b>&laquo;&nbsp;Ex&eacute;cuter&nbsp;&raquo;</b>&nbsp;: si ce n&rsquo;est pas encore bon, modifie les cases et r&eacute;ex&eacute;cute, jusqu&rsquo;&agrave; ce que &ccedil;a fonctionne.</p>
       <div class="mp-stage"><div style="width:100%" id="pelHost"></div></div>
-      <div class="mp-feedback" id="pelFeedback"></div>
+      <div class="mp-feedback" id="pelFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pelActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pelValidate" onclick="checkPEL()">Ex&eacute;cuter</button></span>
       </div>
@@ -5077,7 +5084,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="py-avant" id="pphAvant"></div>
       <p class="mp-instr">Ex&eacute;cute le programme <b>en mode pas &agrave; pas</b>&nbsp;: &agrave; chaque &eacute;tape, l&rsquo;ordinateur lit une ligne et range un nombre dans une <b>case m&eacute;moire</b>. Quand il est arriv&eacute; au bout, <b>compl&egrave;te les phrases</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="pphHost"></div></div>
-      <div class="mp-feedback" id="pphFeedback"></div>
+      <div class="mp-feedback" id="pphFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pphActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" id="pphStep" onclick="pphSuivante()">&#9654; Ex&eacute;cuter la ligne 1</button></span>
       </div>
@@ -5093,7 +5100,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="sfPrompt">Calcule la somme.</p>
       <div class="mp-stage"><div style="width:100%" id="sfHost"></div></div>
-      <div class="mp-feedback" id="sfFeedback"></div>
+      <div class="mp-feedback" id="sfFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="sfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSFAnswer()">Vérifier</button></span>
       </div>
@@ -5109,7 +5116,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="sflPrompt">Calcule la somme.</p>
       <div class="mp-stage"><div style="width:100%" id="sflHost"></div></div>
-      <div class="mp-feedback" id="sflFeedback"></div>
+      <div class="mp-feedback" id="sflFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="sflActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSFL()">V&eacute;rifier</button></span>
       </div>
@@ -5124,7 +5131,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="mltPrompt">Calcule le produit.</p>
       <div class="mp-stage"><div style="width:100%" id="mltHost"></div></div>
-      <div class="mp-feedback" id="mltFeedback"></div>
+      <div class="mp-feedback" id="mltFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="mltActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkMltAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5139,7 +5146,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="mllPrompt">Calcule le produit.</p>
       <div class="mp-stage"><div style="width:100%" id="mllHost"></div></div>
-      <div class="mp-feedback" id="mllFeedback"></div>
+      <div class="mp-feedback" id="mllFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="mllActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkMLL()">V&eacute;rifier</button></span>
       </div>
@@ -5155,7 +5162,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pfPrompt">Calcule l&rsquo;expression.</p>
       <div class="mp-stage"><div style="width:100%" id="pfHost"></div></div>
-      <div class="mp-feedback" id="pfFeedback"></div>
+      <div class="mp-feedback" id="pfFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkPF()">V&eacute;rifier</button></span>
       </div>
@@ -5171,7 +5178,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="spfPrompt">Calcule l&rsquo;expression.</p>
       <div class="mp-stage"><div style="width:100%" id="spfHost"></div></div>
-      <div class="mp-feedback" id="spfFeedback"></div>
+      <div class="mp-feedback" id="spfFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="spfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSpfAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5187,7 +5194,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="pqdPrompt">Calcule l&rsquo;expression.</p>
       <div class="mp-stage"><div style="width:100%" id="pqdHost"></div></div>
-      <div class="mp-feedback" id="pqdFeedback"></div>
+      <div class="mp-feedback" id="pqdFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="pqdActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkPqdAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5203,7 +5210,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="qdbPrompt">Calcule l&rsquo;expression.</p>
       <div class="mp-stage"><div style="width:100%" id="qdbHost"></div></div>
-      <div class="mp-feedback" id="qdbFeedback"></div>
+      <div class="mp-feedback" id="qdbFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="qdbActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkQdbAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5219,7 +5226,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="tsfPrompt">Calcule l&rsquo;expression.</p>
       <div class="mp-stage"><div style="width:100%" id="tsfHost"></div></div>
-      <div class="mp-feedback" id="tsfFeedback"></div>
+      <div class="mp-feedback" id="tsfFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="tsfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkTsfAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5235,7 +5242,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Place chaque nombre dans la bonne zone de la droite gradu&eacute;e : <b>&#9312;</b> avant la premi&egrave;re graduation, <b>&#9313;</b> entre les deux, <b>&#9314;</b> apr&egrave;s la seconde.</p>
       <div class="mp-stage"><div style="width:100%" id="plcHost"></div></div>
-      <div class="mp-feedback" id="plcFeedback"></div>
+      <div class="mp-feedback" id="plcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="plcActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkPlcAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5250,7 +5257,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="smpPrompt">Simplifie la fraction.</p>
       <div class="mp-stage"><div style="width:100%" id="smpHost"></div></div>
-      <div class="mp-feedback" id="smpFeedback"></div>
+      <div class="mp-feedback" id="smpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="smpActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSmpAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5265,7 +5272,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Range ces trois nombres dans l&rsquo;ordre croissant, du plus petit au plus grand.</p>
       <div class="mp-stage"><div style="width:100%" id="ordHost"></div></div>
-      <div class="mp-feedback" id="ordFeedback"></div>
+      <div class="mp-feedback" id="ordFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="ordActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkOrdAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5281,7 +5288,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Pour chaque somme, trouve d&rsquo;abord le <b>signe</b> du r&eacute;sultat, puis le calcul &agrave; faire sans les signes, et enfin le r&eacute;sultat.</p>
       <div class="mp-stage"><div style="width:100%" id="relHost"></div></div>
-      <div class="mp-feedback" id="relFeedback"></div>
+      <div class="mp-feedback" id="relFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="relActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkRelAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5296,7 +5303,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="enonce">Complète chaque phrase avec <b>gagne</b> ou <b>perd</b> et un nombre, puis l&rsquo;écriture mathématique avec le signe <b>+</b> ou <b>&minus;</b> et un nombre.</p>
       <div class="mp-stage"><div style="width:100%" id="rgpHost"></div></div>
-      <div class="mp-feedback" id="rgpFeedback"></div>
+      <div class="mp-feedback" id="rgpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="rgpActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkRgpAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5312,7 +5319,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Choisis la r&egrave;gle, compl&egrave;te la <b>r&egrave;gle des signes</b>, puis, pour chaque produit, trouve d&rsquo;abord le <b>signe</b> du r&eacute;sultat, et enfin le r&eacute;sultat.</p>
       <div class="mp-stage"><div style="width:100%" id="mrlHost"></div></div>
-      <div class="mp-feedback" id="mrlFeedback"></div>
+      <div class="mp-feedback" id="mrlFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="mrlActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkMrlAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5328,7 +5335,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Pour chaque paire de nombres relatifs, calcule leur <b>somme</b>, puis leur <b>produit</b>. Attention, la r&egrave;gle du signe n&rsquo;est pas la m&ecirc;me : pour la somme, c&rsquo;est le signe du <b>plus fort</b> ; pour le produit, c&rsquo;est la <b>r&egrave;gle des signes</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="citHost"></div></div>
-      <div class="mp-feedback" id="citFeedback"></div>
+      <div class="mp-feedback" id="citFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="citActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkCitAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5344,7 +5351,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr enonce">R&eacute;duis chaque expression <b>si c&rsquo;est possible</b>. <b>Ne compl&egrave;te une case que si tu peux r&eacute;duire l&rsquo;&eacute;criture</b> : si l&rsquo;expression ne se r&eacute;duit pas, laisse la case vide. Pour &eacute;crire <i>x</i>&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="redHost"></div></div>
-      <div class="mp-feedback" id="redFeedback"></div>
+      <div class="mp-feedback" id="redFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="redActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkRedAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5360,7 +5367,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="asxInstr">Associe chaque expression au bon r&eacute;sultat.</p>
       <div class="mp-stage"><div style="width:100%" id="asxHost"></div></div>
-      <div class="mp-feedback" id="asxFeedback"></div>
+      <div class="mp-feedback" id="asxFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="asxActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkAsxAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5376,7 +5383,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Compl&egrave;te la r&egrave;gle, puis transforme chaque soustraction en addition&nbsp;: choisis le <b>signe</b> du nombre qu&rsquo;on additionne, et calcule le r&eacute;sultat.</p>
       <div class="mp-stage"><div style="width:100%" id="srlHost"></div></div>
-      <div class="mp-feedback" id="srlFeedback"></div>
+      <div class="mp-feedback" id="srlFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="srlActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSrlAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5392,7 +5399,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">R&eacute;duis chaque produit. D&rsquo;abord case par case &mdash; le <b>signe</b>, le <b>coefficient</b>, puis si &ccedil;a se termine par <b><i>x</i></b> ou par <b><i>x</i>&sup2;</b> &mdash;, puis directement le r&eacute;sultat r&eacute;duit. Pour &eacute;crire <i>x</i>&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="rpdHost"></div></div>
-      <div class="mp-feedback" id="rpdFeedback"></div>
+      <div class="mp-feedback" id="rpdFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="rpdActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkRpdAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5408,7 +5415,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="tdpPrompt"></p>
       <div class="mp-stage"><div style="width:100%" id="tdpHost"></div></div>
-      <div class="mp-feedback" id="tdpFeedback"></div>
+      <div class="mp-feedback" id="tdpFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="tdpActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkTdpAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5424,7 +5431,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="tdlPrompt"></p>
       <div class="mp-stage"><div style="width:100%" id="tdlHost"></div></div>
-      <div class="mp-feedback" id="tdlFeedback"></div>
+      <div class="mp-feedback" id="tdlFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="tdlActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkTdlAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5440,7 +5447,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr" id="tdcPrompt"></p>
       <div class="mp-stage"><div style="width:100%" id="tdcHost"></div></div>
-      <div class="mp-feedback" id="tdcFeedback"></div>
+      <div class="mp-feedback" id="tdcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="tdcActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkTdcAnswer()">V&eacute;rifier</button></span>
       </div>
@@ -5456,7 +5463,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <p class="mp-instr">Pour chaque question, choisis d&rsquo;abord la <b>r&egrave;gle</b>, puis compl&egrave;te le r&eacute;sultat en <b>fraction</b>. Une seule fraction &agrave; chaque fois, jamais r&eacute;duite plus qu&rsquo;il ne faut.</p>
       <div class="mp-stage"><div style="width:100%" id="rvfHost"></div></div>
-      <div class="mp-feedback" id="rvfFeedback"></div>
+      <div class="mp-feedback" id="rvfFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
         <span id="rvfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkRvfAnswer()">V&eacute;rifier</button></span>
       </div>
