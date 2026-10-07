@@ -2431,7 +2431,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=279;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=280;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3182,7 +3182,7 @@ function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dé
 function liveColorDec(id,tn,td){                       // case décimale
   const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
   el.classList.remove('ok','bad'); if(v==='') return;
-  const fr=parseDecToFrac(v); const ok=!!fr && fr.n*td===tn*fr.d;
+  const fr=parseDecToFrac(v); const ok=!!fr && Math.abs(fr.n*td - tn*fr.d) < 1e-9*Math.max(1,Math.abs(fr.n*td));
   el.classList.add(ok?'ok':'bad');
 }
 function liveColorDecCoef(id,coef){                    // coefficient décimal saisi après « 1, »
@@ -5801,6 +5801,12 @@ function fracToDec(num,d){
   let dec=String(num%d).padStart(k,'0').replace(/0+$/,'');
   return dec ? `${intPart},${dec}` : `${intPart}`;
 }
+/* Une fraction lue VAUT un décimal — en tolérant le dernier bit du flottant.
+   « fr.n===val*fr.d » refusait « 2,30 » pour 2,3 (2,3 × 100 n'est pas exact)
+   et « 0,8 » pour 8 − 7,2 = 0,7999999999999998 (audit, septembre 2026). */
+function fracVautDec(fr,val){ return !!fr && Math.abs(fr.n - val*fr.d) < 1e-9*Math.max(1,Math.abs(fr.n)); }
+/* Un montant en euros, au centième près : ce que la page affiche et juge. */
+function arrondiCent(x){ return Math.round(x*100)/100; }
 function parseDecToFrac(str){
   let s=String(str).trim().replace(/\s/g,'').replace(',', '.');
   if(s===''||!(/^\d+(\.\d+)?$/.test(s)||/^\.\d+$/.test(s))) return null;
@@ -6989,7 +6995,7 @@ function genAdx(fam){
     P=15; lignes=[{P:5,val:val5},{P:15,val:N*15/100}];
   }
   const aug=lignes[lignes.length-1].val;
-  const total=N+aug;
+  const total=arrondiCent(N+aug);
   const q={N,P,D,lignes,aug,total};
   q.v=tirerVariante(ADX_ENONCES,q);
   return q;
@@ -7055,7 +7061,7 @@ function checkAdxAnswer(live){
     return;
   }
   const v=id=>$(id).value.trim();
-  const egal=(id,val)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n===val*fr.d; };
+  const egal=(id,val)=>fracVautDec(parseDecToFrac(v(id)),val);
   const ok0=egal('adx0',q.D);
   const oksLignes=q.lignes.map(l=>egal('adxP'+l.P,l.val));
   const okA=egal('adxA',q.N), okB=egal('adxB',q.aug), okC=egal('adxC',q.total);
@@ -7428,7 +7434,7 @@ function genDdx(fam){
     P=15; lignes=[{P:5,val:val5},{P:15,val:N*15/100}];
   }
   const baisse=lignes[lignes.length-1].val;
-  const total=N-baisse;
+  const total=arrondiCent(N-baisse);   /* 8 − 7,2 vaut 0,8, pas 0,7999999999999998 */
   const q={N,P,D,lignes,baisse,total};
   q.v=tirerVariante(DDX_ENONCES,q);
   return q;
@@ -7494,7 +7500,7 @@ function checkDdxAnswer(live){
     return;
   }
   const v=id=>$(id).value.trim();
-  const egal=(id,val)=>{ const fr=parseDecToFrac(v(id)); return !!fr && fr.n===val*fr.d; };
+  const egal=(id,val)=>fracVautDec(parseDecToFrac(v(id)),val);
   const ok0=egal('ddx0',q.D);
   const oksLignes=q.lignes.map(l=>egal('ddxP'+l.P,l.val));
   const okA=egal('ddxA',q.N), okB=egal('ddxB',q.baisse), okC=egal('ddxC',q.total);
@@ -8533,7 +8539,7 @@ function checkWAnswer(live){
   const f3=parseDecToFrac(v('w3'));
   const ok3 = !!f3 && f3.n===c.aug*f3.d;
   const fa=parseDecToFrac(v('w4a')), fb=parseDecToFrac(v('w4b'));
-  const est=(fr,val)=>!!fr&&fr.n===val*fr.d;
+  const est=(fr,val)=>fracVautDec(fr,val);
   /* addition : N + aug dans les deux sens ; soustraction : N \u2212 baisse, dans cet ordre */
   const okA = neg ? (est(fa,c.N)&&est(fb,c.aug))
                   : ((est(fa,c.N)&&est(fb,c.aug))||(est(fa,c.aug)&&est(fb,c.N)));
@@ -9088,7 +9094,7 @@ function checkSynAnswer(live){
   const c=synCouple(q);
   const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
   const soutien=isSoutien();
-  const est=(fr,val)=>!!fr&&fr.n===val*fr.d;
+  const est=(fr,val)=>fracVautDec(fr,val);
   let oks={}, ids=[], calculOk=false;
   if(live){
     if(q.fam==='pct'){
@@ -10124,8 +10130,8 @@ function salVoiesTexte(s, c, dix){
     return c ? ('la multiplication ('+c.coefStr+' \u00d7 '+c.N+' = '+c.finStr+'), ou le quotient ('+c.finStr+'/'+c.N+' = '+c.P+'/100)')
              : 'la multiplication (le pourcentage en fraction ou en écriture décimale \u00d7 la valeur = le résultat), ou le quotient (résultat/valeur, simplifié en une fraction de dénominateur 100)';
   const neg=(s<0), evo=neg?'la diminution':'l\u2019augmentation', op=neg?'la soustraction':'l\u2019addition', mot=neg?'diminution':'augmentation';
-  const base = c ? ('le coefficient ('+c.coefStr+' \u00d7 '+c.N+' = '+c.finStr+'), le quotient ('+c.finStr+'/'+c.N+' = '+c.coefStr+'), ou '+evo+' ('+c.pDecStr+' \u00d7 '+c.N+' = '+c.augStr+') suivie de '+op+' ('+c.N+' '+(neg?'\u2212':'+')+' '+c.augStr+' = '+c.finStr+')')
-           : ('le coefficient ('+(neg?'0':'1')+',\u2026 \u00d7 valeur initiale = valeur finale), le quotient (valeur finale/valeur initiale = coefficient), ou '+evo+' (0,\u2026 \u00d7 valeur initiale, puis '+op+' qui donne la valeur finale)');
+  const base = c ? ('le coefficient ('+c.coefStr+' \u00d7 '+c.N+' = '+c.finStr+'), le quotient ('+c.finStr+'/'+c.N+' = '+c.coefStr+'), ou '+evo+' ('+c.pDecStr+' \u00d7 '+c.N+' = '+c.augStr+') suivie de '+op+' ('+c.N+' '+(neg?'\u2212':'+')+' '+c.augStr+' = '+c.finStr+'), ou le taux d\u2019\u00e9volution (('+c.finStr+' \u2212 '+c.N+')/'+c.N+' = '+(neg?'\u2212':'')+c.pDecStr+'), ou la valeur initiale ('+c.finStr+' \u00f7 '+c.coefStr+' = '+c.N+')')
+           : ('le coefficient ('+(neg?'0':'1')+',\u2026 \u00d7 valeur initiale = valeur finale), le quotient (valeur finale/valeur initiale = coefficient), ou '+evo+' (0,\u2026 \u00d7 valeur initiale, puis '+op+' qui donne la valeur finale), ou le taux d\u2019\u00e9volution ((valeur finale \u2212 valeur initiale)/valeur initiale = \u00b1P/100), ou la valeur initiale (valeur finale \u00f7 coefficient)');
   if(!dix) return base;
   /* {synthese-diminutions-libre-dix} : la QUATRIÈME voie, en pourcents et en
      mots — deux formes, celle qui calcule une valeur et celle qui retrouve
@@ -10350,7 +10356,7 @@ function salJuge(q, texte){
   const lignes=String(texte).split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l!==''; });
   if(!lignes.length) return { sait:false };
   const rInvN={n:rN.d, d:rN.n};
-  let coefOk=false, augProd=false, addOk=false, quotOk=false, commentaire=false;
+  let coefOk=false, augProd=false, addOk=false, quotOk=false, tauxOk=false, iniOk=false, commentaire=false;
   /* la méthode des 10 % ({synthese-diminutions-libre-dix}) : q.dix ouvre la
      lecture des lignes en pourcents et en mots ; sans lui, le 2.3.9 ne change
      pas d'un iota — ces lignes restent des écritures inconnues. Quand on
@@ -10434,6 +10440,35 @@ function salJuge(q, texte){
         return !x.termes.some(function(t){ return t.some(function(f){ return salEgal(f,rInvN); }); });
       })) quotOk=true;
     }
+    /* LA VOIE DU TAUX D'ÉVOLUTION et celle de la VALEUR INITIALE (audit,
+       septembre 2026 : « (300 − 240)/300 = 0,2 » et « 240/0,8 = 300 »
+       étaient REFUSÉS, avec le reproche « recopier la proposition n'est pas
+       justifier » — alors que la première est la définition même du taux
+       d'évolution au programme, t = (VA − VD)/VD, et la seconde la façon
+       de retrouver la valeur de départ). Le taux : un terme qui porte le
+       facteur 1/valeur-initiale et dont le produit vaut ±P/100 (ou ±P, taux
+       écrit en pourcents), ou un morceau « quotient − 1 » qui vaut ±P/100.
+       La valeur initiale : un terme qui porte la valeur finale et l'inverse
+       du coefficient, et dont le produit vaut la valeur initiale. Le signe
+       est libre : une baisse s'écrit −20 % ou 20 %. */
+    if(aDeuxMorceaux && c.sens!==0){
+      const rCoefInv={n:100,d:c.coef}, rPctNeg={n:-c.P,d:100}, rP={n:c.P,d:1}, rPNeg={n:-c.P,d:1};
+      const vautTaux=function(p){ return salEgal(p,rPct)||salEgal(p,rPctNeg)||salEgal(p,rP)||salEgal(p,rPNeg); };
+      const produit=function(t){ let p={n:1,d:1}; t.forEach(function(f){ p={n:p.n*f.n,d:p.d*f.d}; }); return p; };
+      const porte=function(x,r){ return x.termes.some(function(t){ return t.some(function(f){ return salEgal(f,r); }); }); };
+      /* la règle de la voie du quotient : un AUTRE morceau, d'une autre écriture,
+         doit nommer la valeur — « 60/300 = 60/300 » ne montre rien */
+      const nomme=function(i,val,r){ return lus.some(function(y,j){ return j!==i && salEgal(y.v,val) && !porte(y,r); }); };
+      lus.forEach(function(x,i){
+        x.termes.forEach(function(t){
+          const p=produit(t);
+          if(t.some(function(f){ return salEgal(f,rInvN); }) && vautTaux(p) && nomme(i,p,rInvN)) tauxOk=true;
+          if(t.some(function(f){ return salEgal(f,rFin); }) && t.some(function(f){ return salEgal(f,rCoefInv); }) && salEgal(p,rN) && nomme(i,p,rFin)) iniOk=true;
+        });
+        if(x.moinsHaut && (salEgal(x.v,rPct)||salEgal(x.v,rPctNeg)) && nomme(i,x.v,rInvN)
+           && x.termes.some(function(t){ return t.some(function(f){ return salEgal(f,rInvN); }) && salEgal(produit(t),rCoef); })) tauxOk=true;
+      });
+    }
   }
   /* « PRENDRE P % » N'A PAS DE VOIE PAR L'ADDITION : la multiplication et le
      quotient sont les seules. Aucun garde n'est posé ici pour autant — il
@@ -10474,7 +10509,7 @@ function salJuge(q, texte){
      diminution : le refus nomme alors les deux. */
   const voieDixEcart=dix && cherchePct && dixOk && ecartOk && conclOk;
   const voieDix=dix && dixOk && ((pctP && addOk) || pctCoef || (cherchePct && ecartOk && conclOk));
-  const voieOk=coefOk || quotOk || (augProd && addOk) || voieDix;
+  const voieOk=coefOk || quotOk || (augProd && addOk) || tauxOk || iniOk || voieDix;
   if(!voieOk && commentaire) return { sait:false };   /* la voie est peut-être dans le commentaire */
   if(!voieOk){
     const opNom=(c.sens>0)?'l’addition':'la soustraction', evoNom=(c.sens>0)?'l’augmentation':'la diminution';
@@ -10538,17 +10573,18 @@ function salAttenduIA(q, juge){
    +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
    +'\n1. LA PROPOSITION CHOISIE EST LA BONNE. L’élève a choisi '+QLET[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+' : '
      +(okChoix?'c’est la bonne.':'ce N’EST PAS la bonne — « correct » vaut donc false, quelle que soit la justification.')
-   +'\n2. LA JUSTIFICATION MONTRE UNE DES '+(part?'DEUX':(q.dix?'QUATRE':'TROIS'))+' VOIES, et SEULEMENT l’une d’elles est exigée :'
+   +'\n2. LA JUSTIFICATION MONTRE UNE DES '+(part?'DEUX':(q.dix?'SIX':'CINQ'))+' VOIES, et SEULEMENT l’une d’elles est exigée :'
    +(part
      ? ('\n   · la voie de la MULTIPLICATION : au moins une multiplication '+c.coefStr+' × '+c.N+' (dans un ordre ou l’autre, le coefficient pouvant s’écrire '+c.P+'/100) qui arrive à '+c.finStr+' ;'
        +'\n   · la voie du QUOTIENT : le résultat divisé par la valeur, égalé au pourcentage écrit sur 100 — par exemple '+c.finStr+'/'+c.N+' = '+c.coef+'/100, ou '+c.finStr+'/'+c.N+' = '+c.coefStr+'. Une simplification de fraction qui y mène SUFFIT, et cette seule égalité suffit ;'
        +'\n   Il n’y a PAS de voie par l’addition ni par la soustraction : on prend un pourcentage, on n’ajoute ni ne retire rien.')
      : ('\n   · la voie du COEFFICIENT : au moins une multiplication '+c.coefStr+' × '+c.N+' (dans un ordre ou l’autre) qui arrive à '+c.finStr+' ;'
-       +'\n   · la voie du QUOTIENT : la valeur finale divisée par la valeur initiale, égalée au coefficient — par exemple '+c.finStr+'/'+c.N+' = '+c.coef+'/100, ou '+c.finStr+'/'+c.N+' = '+c.coefStr+'. Cette seule égalité SUFFIT ;'
+       +'\n   · la voie du QUOTIENT : la valeur finale divisée par la valeur initiale, égalée au coefficient — par exemple '+c.finStr+'/'+c.N+' = '+c.coef+'/100, ou '+c.finStr+'/'+c.N+' = '+c.coefStr+'. Elle SUFFIT ;'
        +'\n   · la voie de '+(c.sens>0?'l’AUGMENTATION : au moins une multiplication '+c.pDecStr+' × '+c.N+' (= '+c.augStr+'), ET au moins une addition qui arrive à la valeur finale ('+c.N+' + '+c.augStr+' = '+c.finStr+').'
                               :'la DIMINUTION : au moins une multiplication '+c.pDecStr+' × '+c.N+' (= '+c.augStr+'), ET au moins une soustraction qui arrive à la valeur finale ('+c.N+' − '+c.augStr+' = '+c.finStr+').')
+       +'\n   · le TAUX ('+c.finStr+' − '+c.N+')/'+c.N+' = ±'+c.pDecStr+', ou la VALEUR INITIALE '+c.finStr+' ÷ '+c.coefStr+' = '+c.N+' : l’une SUFFIT ;'
        +(q.dix?('\n   · la voie des 10 % : « 10 % = '+c.dixStr+' », « '+c.P+' % = '+c.augStr+' », puis '+(c.sens>0?(c.N+' + '):(c.N+' − '))+c.augStr+' = '+c.finStr+' — ces trois lignes SUFFISENT, sans multiplication écrite (« '+c.coef+' % = '+c.finStr+' » après la ligne des 10 % suffit aussi). Pour retrouver un pourcentage, aussi : « 10 % = '+c.dixStr+' », « écart = '+c.augStr+' » ('+(c.sens>0?(c.finStr+' − '+c.N):(c.N+' − '+c.finStr))+'), et « '+(c.sens>0?'augmentation':'diminution')+' de '+c.P+' % ». Sans la ligne « 10 % = … », ce n’est pas cette voie.'):'')))
-   +'\n   Recopier la proposition, ou le résultat, sans aucun calcul, est REFUSÉ : ce n’est pas une justification. Un calcul qui ne montre AUCUNE de ces voies est REFUSÉ aussi.'
+   +'\n   Recopier la proposition, ou le résultat, sans aucun calcul, est REFUSÉ : ce n’est pas une justification. Sans l’une de ces voies : REFUSÉ.'
    +'\n3. AUCUNE ÉGALITÉ FAUSSE. Chaque ligne est un calcul indépendant ; à l’intérieur d’une ligne, découpe aux « = » : chaque morceau doit être mathématiquement vrai. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
    +(juge&&juge.sait?'\n\nVERDICT DE LA PAGE, DÉJÀ CALCULÉ ET PRIORITAIRE : correct='+(juge.correct?'true':'false')+' — '+juge.phrase+' Rédige le feedback EN ACCORD avec ce verdict, sans le contester.':'')
    +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
@@ -11688,9 +11724,12 @@ function checkHSAnswer(live){
     liveColorFrac('hsPn','hsPd',q.prodNum,q.prodDen,true);
     liveColorDec('hsDec',q.prodNum,q.prodDen);
     liveColorDec('hsP',q.hausseNum,10);
-    [['hsVp','0,',q.hausseNum],['hsVc','1,',q.prodNum]].forEach(p=>{ const el=$(p[0]); if(!el||el.disabled) return;
+    /* hsVc se juge sur prodNum/prodDen : prodDen vaut 100 quand les deux taux
+       sont multiples de dix (12/10 × 13/10) et 1000 sinon — comparer à 1000
+       d'office refusait « 1,56 » sur 17 paires sur 25 (audit, septembre 2026). */
+    [['hsVp','0,',q.hausseNum,1000],['hsVc','1,',q.prodNum,q.prodDen]].forEach(p=>{ const el=$(p[0]); if(!el||el.disabled) return;
       el.classList.remove('ok','bad'); if(v(p[0])==='') return;
-      el.classList.add(decOk(p[0],p[1],p[2],1000)?'ok':'bad'); });
+      el.classList.add(decOk(p[0],p[1],p[2],p[3])?'ok':'bad'); });
     [$('hsVn'),$('hsVd')].forEach(el=>{ if(!el||el.disabled) return;
       el.classList.remove('ok','bad');
       if(v('hsVn')==='' && v('hsVd')==='') return;
@@ -11735,9 +11774,9 @@ function checkHSAnswer(live){
   } else {
     [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
   }
-  [['hsVp','0,',q.hausseNum],['hsVc','1,',q.prodNum]].forEach(p=>{ const el=$(p[0]); if(!el) return;
+  [['hsVp','0,',q.hausseNum,1000],['hsVc','1,',q.prodNum,q.prodDen]].forEach(p=>{ const el=$(p[0]); if(!el) return;
     el.classList.remove('ok','bad'); if(v(p[0])==='') return;
-    const ok=decOk(p[0],p[1],p[2],1000); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien; });
+    const ok=decOk(p[0],p[1],p[2],p[3]); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien; });
   if(v('hsVn')!=='' || v('hsVd')!==''){
     const okV=fracDec('hsVn','hsVd',q.hausseNum,1000);
     [$('hsVn'),$('hsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });

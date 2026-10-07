@@ -2480,6 +2480,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div class="rc-jetons s1-jetons">
         <span class="rc-jlbl">Insérer&nbsp;:</span>
         <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="s1Pi()" title="Insérer la lettre π" aria-label="Insérer la lettre pi">π</button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="s1E()" title="Insérer la lettre e" aria-label="Insérer la lettre e"><i>e</i></button>
         <span class="sa-jsp"></span>
         <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="s1KB()" title="Clavier à l’écran" aria-label="Afficher ou masquer le clavier à l’écran">⌨️</button>
         <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="s1Raccourcis()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">☰</button>
@@ -3100,7 +3101,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=364;
+const APP_VERSION=365;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -16272,7 +16273,7 @@ function s1RootOK(raw, c){
 }
 /* inputmode numérique : sur tablette, le pavé de la page remplace le clavier
    du système — la convention de spBox et tg-in, que ces cases n'avaient jamais
-   reçue. π, lui, vient du jeton : le pavé n'a pas à le porter. */
+   reçue. π et e, eux, viennent des jetons : le pavé n'a pas à les porter. */
 function s1Box(id,sm){ return `<input type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" class="s1-in${sm?' sm':''}" id="${id}">`; }
 function s1ResHTML(c){
   if(c.level===1){
@@ -16332,6 +16333,15 @@ function s1Pi(){
   const el=s1Cible(); if(!el) return;
   try{ el.focus(); }catch(e){}
   paveInserer(el,'π');
+}
+/* Le jeton « e » : la racine de x − e s'écrit « e », et sur tablette le pavé
+   de la page n'a aucune lettre (le clavier du système y est coupé) — sans ce
+   jeton, 39 % des séances portaient une racine impossible à taper (audit,
+   septembre 2026). */
+function s1E(){
+  const el=s1Cible(); if(!el) return;
+  try{ el.focus(); }catch(e){}
+  paveInserer(el,'e');
 }
 function s1KB(){
   const deja=document.getElementById('paveNum');

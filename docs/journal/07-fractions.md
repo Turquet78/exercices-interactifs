@@ -1226,3 +1226,13 @@ est le sujet même) et {fraction-pourcentage} (aucune opération). La
 Terminale ne déclare pas la règle : le banc l'affiche « non applicable ».
 Éprouvé à l'envers : lancé avant le correctif, le contrôle a rougi sur le
 5.11 et sur lui seul.
+
+**{revision-fractions} : le RÉSULTAT accepte toute fraction égale.** L'audit
+de septembre 2026 : « 1/2 » pour 1/4 + 1/4 valait 1 point sur 3, « 2/4 »
+3/3 ; 4/2 ÷ 3/4 → « 8/3 » 3/5, « 16/6 » 5/5 — la consigne ne disait pas
+« n'écris pas la fraction simplifiée », et simplifier est le geste enseigné
+trois exercices plus haut. `rvfJuste` lit maintenant les deux cases du
+résultat ensemble (`rvfResultatEgal` : produit en croix avec `rvfReponse`),
+et seules ces deux cases y ont droit — les étapes intermédiaires gardent la
+forme brute de la règle, c'est elle que l'exercice fait écrire. Éprouvé dans
+jsdom : 8/9 + 1/9 répondu « 1/1 » vaut 3/3.

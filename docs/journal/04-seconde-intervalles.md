@@ -218,3 +218,17 @@ toutes les cases rougissaient dès que la correction posait ses zéros.
 contrôle le vérifie par une SECONDE méthode — les écritures complétées de zéros
 comparées comme des chaînes, les négatifs à part, où « plus grand » s'inverse
 sous le signe. Éprouvé en le cassant sept fois.
+
+**Le « Schéma des ensembles » disait √2 = 1,14, √3 = 1,69, π = 3,414 et
+8/7 = 1,428…** L'image du bilan (`#bilanModal`, PNG en base64, ouverte par le
+2.1 dans les deux modes et par le rappel du 2.4 en soutien) portait quatre
+valeurs fausses sur sa dernière ligne et sur la ligne ℚ — relevées par l'audit
+de septembre 2026 en décodant et agrandissant l'image. √2 ≈ 1,414, √3 ≈ 1,732
+(1,69 est 1,3²), π ≈ 3,1416, 8/7 = 1,142857… (1,428571 est 10/7), et le
+signe « = » ne convient pas à un irrationnel. L'image est repeinte aux mêmes
+pixels (les deux zones blanchies, les valeurs réécrites avec « ≈ ») ; le
+reste du schéma — emboîtement, 0,1 ; −12,748 ; 3/2 = 1,5 ; 358/100 ; 1/3 =
+0,333… — était juste et n'a pas bougé. Une image est hors de portée des
+bancs : c'est la seule pièce du site qu'aucun contrôle ne relit, et la
+chronique le dit ici pour qu'on y pense la prochaine fois qu'elle change.
+

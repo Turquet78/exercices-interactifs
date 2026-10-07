@@ -4744,3 +4744,16 @@ tolérées du 6.5.3, les mots absents, « temps » pour « heures », les bords 
 texte ; les trois lignes tolérées du 6.3.1 et l'apostrophe toujours reprochée.
 Pas de contrôle navigateur : la tolérance est une affaire de chaînes, et
 jsdom voit tout ce qu'un Chromium en dirait.
+
+**`prénom` est un identifiant VALIDE en Python 3 — la règle 4 est une
+convention de cours, et elle se présente comme telle.** L'audit de septembre
+2026 a fait tourner python3 sur les onze noms accentués de `PVN_NOMS_KO` :
+tous passent `str.isidentifier()`, `prénom = 3 ; print(prénom)` s'exécute
+(PEP 3131). Le lexeur de la page (`pyLex`) les acceptait lui-même, et le
+6.1.5 comptait `prénom` correct pendant que le 6.1.4 l'enseignait « interdit ».
+Éviter les accents reste la règle du cours (ils se tapent mal, d'autres
+langages les refusent) : le 6.1.4 continue de les compter incorrects, mais le
+rappel, la raison proposée, l'explication et le contexte envoyé au modèle
+disent désormais « la convention de ce cours — Python 3 l'accepterait »,
+jamais un refus de Python. Un énoncé qui affirme un fait faux sur le langage
+apprend l'inverse de ce qu'il croit enseigner.
