@@ -5182,7 +5182,10 @@ function tickTimer(){
 function submitAnswer(timedOut){
   if(test.locked)return;
   const q=test.questions[test.idx],ai=$('answerInput'),raw=ai.value.trim();
-  const given=raw===''?null:parseInt(raw,10), correct=(given===q.answer);
+  /* un ENTIER écrit, et rien d'autre : parseInt lisait « 12,7 » et « 12abc »
+     comme 12, comptés justes (audit, octobre 2026) — ce qui n'en est pas un
+     part tel quel dans la réponse donnée */
+  const given=raw===''?null:(/^\d+$/.test(raw)?parseInt(raw,10):raw), correct=(given===q.answer);
   // mode soutien : si c'est faux, on dit que c'est faux et on laisse reprendre
   if(isSoutien() && !correct){
     const mark=$('mark');mark.textContent='✗';mark.className='mark bad show';
@@ -5471,7 +5474,8 @@ function tmTick(){
 function tmValider(tempsEcoule){
   if(test.phase!=='saisie') return;
   const it=test.file[test.idx], ai=$('tmInput');
-  const brut=ai.value.trim(), donne=(brut===''?null:parseInt(brut,10));
+  /* un ENTIER écrit, et rien d'autre : « 42.5 » ne vaut pas 42 (audit, octobre 2026) */
+  const brut=ai.value.trim(), donne=(brut===''?null:(/^\d+$/.test(brut)?parseInt(brut,10):brut));
   test.phase='correction'; clearTimeout(test.qTimer);
   /* A la fin du temps, on juge ce qui est ECRIT dans la case : une reponse deja saisie
      compte, meme si l'eleve n'a pas eu le temps d'appuyer sur Entree. */
