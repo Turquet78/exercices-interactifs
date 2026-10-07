@@ -14984,7 +14984,7 @@ function tgFormHTML(c){
     <div class="tg-line"><span class="tg-eq">y =</span> ${f}\u00a0\u2032(\u00a0${inp('tg-a1')}\u00a0)(\u00a0<i>x</i> \u2212 ${inp('tg-a2')}\u00a0) + ${f}(\u00a0${inp('tg-a3')}\u00a0)</div>
     <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> ${inp('tg-m1')} (\u00a0<i>x</i> \u2212 ${inp('tg-a4')}\u00a0) + ${inp('tg-fa2')}</div>
     <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> <span class="tg-coef">${inp('tg-m2')}<i>x</i></span> ${inp('tg-t1')} ${inp('tg-t2')}</div>
-    <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> <span class="tg-coef">${inp('tg-m3')}<i>x</i></span> ${inp('tg-b')}</div>
+    <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> <span class="tg-coef">${inp('tg-m3')}<i>x</i></span>${c.ans.b===0?'':' '+inp('tg-b')}</div>
   </div>`;
 }
 async function startTG(){
@@ -15013,10 +15013,23 @@ function renderTG(){
     TG_IDS.forEach(id=>{ const el=$(id); if(el) el.addEventListener('input',()=>checkTG(true)); });
   }
 }
+/* Quand b = 0, la ligne réduite n'a pas de case « + b » (tgFormHTML ne la rend pas) :
+   une case pour écrire zéro n'apprend rien — la leçon du 5.2. Quand f(a) = 0, le
+   « + f(a) » de la deuxième ligne et la constante f(a) de la ligne développée valent
+   0 : la case laissée VIDE y vaut 0, elle n'est ni jugée ni comptée ; écrite, elle se
+   juge comme les autres. */
+function tgFixed(c){
+  const a=c.ans;
+  const L=[['tg-fa',a.fa,0],['tg-m',a.m,1],['tg-a1',a.a1,0],['tg-a2',a.a2,0],['tg-a3',a.a3,0],['tg-m1',a.m1,1],['tg-a4',a.a4,0],['tg-fa2',a.fa2,0],['tg-m2',a.m2,1],['tg-m3',a.m3,1]];
+  if(a.b!==0) L.push(['tg-b',a.b,0]);
+  return L;
+}
 function checkTG(live){
   if(test.locked && !live) return;
   const c=test.questions[test.idx], a=c.ans;
-  const fixed=[['tg-fa',a.fa,0],['tg-m',a.m,1],['tg-a1',a.a1,0],['tg-a2',a.a2,0],['tg-a3',a.a3,0],['tg-m1',a.m1,1],['tg-a4',a.a4,0],['tg-fa2',a.fa2,0],['tg-m2',a.m2,1],['tg-m3',a.m3,1],['tg-b',a.b,0]];
+  const fixed=tgFixed(c);
+  const faNul=(a.fa2===0);
+  const optionnel={};                          /* cases vides qui valent 0 : ni jugées ni comptées */
   let allOk=true, anyFilled=false;
   fixed.forEach(([id,good,frac])=>{
     const el=$(id); if(!el) return;
@@ -15024,46 +15037,72 @@ function checkTG(live){
     const v=((id==='tg-m'||id==='tg-m1'||id==='tg-m2'||id==='tg-m3')?tgParseCoef(raw):(frac?tgParseFrac(raw):tgParse(raw)));
     const ok=numOkTol(v,good);   /* valeur approchée au dixième acceptée */
     if(raw.trim()!=='') anyFilled=true;
-    el.classList.remove('ok','bad');
+    el.classList.remove('ok','bad','sol');
+    if(id==='tg-fa2' && faNul && raw.trim()===''){ optionnel[id]=true; return; }
     if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
     if(!ok) allOk=false;
+    /* une case laissée VIDE ne rougit jamais : en soutien elle reste neutre (et
+       ouverte) ; hors soutien, la révélation ci-dessous la remplit en « sol » */
+    if(raw.trim()==='' && isSoutien()){ el.disabled=false; return; }
     el.classList.add(ok?'ok':'bad'); el.disabled = ok || !isSoutien();
   });
-  /* Ligne développée : les deux constantes (−m·a et f(a)) sont acceptées dans n'importe quel ordre. */
+  /* Ligne développée : les deux constantes (−m·a et f(a)) sont acceptées dans n'importe quel ordre.
+     Quand f(a) = 0, une case laissée vide tient lieu de ce 0. */
   const e1=$('tg-t1'), e2=$('tg-t2');
+  const solPaire={};
   if(e1&&e2){
     const r1=e1.value, r2=e2.value, v1=tgParse(r1), v2=tgParse(r2);
     if(r1.trim()!=='') anyFilled=true; if(r2.trim()!=='') anyFilled=true;
     const left=[a.t1,a.t2];
     const take=(v)=>{ if(v===null) return false; const i=left.findIndex(t=>numOkTol(v,t)); if(i>=0){ left.splice(i,1); return true; } return false; };
     const ok1=take(v1), ok2=take(v2);
-    e1.classList.remove('ok','bad'); e2.classList.remove('ok','bad');
-    if(live){ if(r1.trim()!=='') e1.classList.add(ok1?'ok':'bad'); if(r2.trim()!=='') e2.classList.add(ok2?'ok':'bad'); }
-    else { e1.classList.add(ok1?'ok':'bad'); e1.disabled=ok1||!isSoutien(); e2.classList.add(ok2?'ok':'bad'); e2.disabled=ok2||!isSoutien(); }
-    if(!(ok1&&ok2)) allOk=false;
+    let opt1=false, opt2=false;
+    if(faNul){
+      const z=left.findIndex(t=>t===0);
+      if(z>=0){
+        /* le 0 restant est absorbé par une case vide — la seconde de préférence */
+        if(r2.trim()===''){ opt2=true; left.splice(z,1); }
+        else if(r1.trim()===''){ opt1=true; left.splice(z,1); }
+      }
+    }
+    /* la correction d'une case fausse ou vide est la constante qui reste à écrire */
+    const reste=left.slice();
+    if(!ok1 && !opt1) solPaire['tg-t1']=reste.length?reste.shift():a.t1;
+    if(!ok2 && !opt2) solPaire['tg-t2']=reste.length?reste.shift():a.t2;
+    if(opt1) optionnel['tg-t1']=true; if(opt2) optionnel['tg-t2']=true;
+    e1.classList.remove('ok','bad','sol'); e2.classList.remove('ok','bad','sol');
+    const marque=(el,r,ok,opt)=>{
+      if(opt) return;
+      if(live){ if(r.trim()!=='') el.classList.add(ok?'ok':'bad'); return; }
+      if(r.trim()==='' && isSoutien()){ el.disabled=false; return; }
+      el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
+    };
+    marque(e1,r1,ok1,opt1); marque(e2,r2,ok2,opt2);
+    if(!((ok1||opt1)&&(ok2||opt2))) allOk=false;
   }
   if(live) return;
   if(!anyFilled){ $('tgFeedback').textContent='Complète au moins une case avant de vérifier.'; $('tgFeedback').className='mp-feedback'; TG_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
   if(!allOk && isSoutien()){
-    $('tgFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('tgFeedback').textContent='Presque ! Corrige les cases en rouge et complète celles qui manquent, puis revérifie.';
     $('tgFeedback').className='mp-feedback bad';
     $('tgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTG()">Revérifier</button>';
     return;
   }
   test.locked=true;
+  /* « y = x », « y = −x + 2 » : jamais « 1 x » ni « −1 x » (txAX, comme le 5.2) */
+  const bTxt = a.b===0 ? '' : (a.b>0?` + ${numFmt(a.b)}`:` − ${numFmt(Math.abs(a.b))}`);
   if(allOk){
     test.score++; $('tgLiveScore').textContent=test.score;
     $('tgFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tangente exacte !']);
     $('tgFeedback').className='mp-feedback good';
   } else {
-    const bTxt = a.b===0 ? '' : (a.b>0?` + ${a.b}`:` \u2212 ${Math.abs(a.b)}`);
-    $('tgFeedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br>Tangente : <b>y = ${numFmt(a.m)}\u00a0x${bTxt}</b>&nbsp; (avec <i>f</i>(${numFmt(c.a)}) = ${numFmt(c.fa)} et <i>f</i>\u00a0\u2032(${numFmt(c.a)}) = ${numFmt(c.m)}).`;
+    $('tgFeedback').innerHTML=`Quelques erreurs — les bonnes réponses sont en vert.<br>Tangente : <b>y = ${txAX(a.m)}${bTxt}</b>&nbsp; (avec <i>${esc(c.fname)}</i>(${numFmt(c.a)}) = ${numFmt(c.fa)} et <i>${esc(c.fname)}</i> ′(${numFmt(c.a)}) = ${numFmt(c.m)}).`;
     $('tgFeedback').className='mp-feedback bad';
-    const reveal=fixed.concat([['tg-t1',a.t1],['tg-t2',a.t2]]);
-    reveal.forEach(([id,good])=>{ const el=$(id); if(el){ if(!el.classList.contains('ok')){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('sol'); } el.disabled=true; } });
+    const reveal=fixed.concat([['tg-t1',solPaire['tg-t1']],['tg-t2',solPaire['tg-t2']]]);
+    reveal.forEach(([id,good])=>{ const el=$(id); if(el){ if(!optionnel[id] && !el.classList.contains('ok') && good!==undefined){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('sol'); } el.disabled=true; } });
   }
-  const bRev = a.b===0 ? '' : (a.b>0?'+ '+a.b:'\u2212 '+Math.abs(a.b));
-  test.answers.push({...(ptsExo()||{}),q:`Graphique ${test.idx+1} \u2014 tangente en a = ${numFmt(c.a)} : y = ${numFmt(a.m)} x ${bRev}`, answer:'tangente', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  TG_IDS.forEach(id=>{ const el=$(id); if(el) el.disabled=true; });
+  test.answers.push({...(ptsExo()||{}),q:`Graphique ${test.idx+1} — tangente en a = ${numFmt(c.a)} : y = ${txAX(a.m).replace(/<[^>]*>/g,'')}${bTxt}`, answer:'tangente', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('tgActions').innerHTML=`<button class="btn btn-primary" onclick="nextTG()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
