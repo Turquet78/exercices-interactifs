@@ -1243,3 +1243,12 @@ eux : avec 2 et 4, le croisement figé attendait 8 quand le PPCM est 4, et la
 route du PPCM — celle du cours — rougissait dix cases. Au 5.11, les entiers
 tirés valent au moins 2 et aucune division ne se fait par une fraction égale
 à 1 (les fractions, elles, sont irréductibles depuis la règle universelle).
+
+**Le garde-fou mort de `divGen` était resté dans le code (audit d'octobre
+2026, M55).** Le paragraphe plus haut le dit retiré — « ne pas diviser par 1 »
+(`n2 !== d2`) n'écarte jamais rien —, mais la ligne était toujours là. Elle est
+retirée, avec ses deux voisines mortes pour la même raison (d2 vaut au moins
+2) : « 1 tout rond » (P = Q irréductible impose P = Q = 1, donc d2 = 1) et
+« rien à multiplier en haut » (n1 = d2 = 1). Le tirage n'a pas changé d'un
+seul résultat ; le contrôle de la division exigeait déjà les deux premiers
+bords sur 2 000 tirages, et il exige maintenant le troisième.

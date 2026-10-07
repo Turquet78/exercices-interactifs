@@ -4623,3 +4623,14 @@ jamais tiré) au 2.1.8, 300 € (et non 400 €) au 2.1.9, 40 € et 6 € (et n
 bien tiré (sondé) et reste. Déjà réglés par le lot des importantes, et
 vérifiés : la valeur de départ « 300,0 » et la virgule du 2.1.9. Chaque
 contrôle neuf a rougi sur son sabotage.
+
+**Le rappel de {pourcentage-chaine} décrivait des cases disparues (audit
+d'octobre 2026, M45).** `RAP_PCTC` disait « toutes les cases sont toujours
+vides, même le total, qui vaut toujours 100 % » : les boîtes ne portent plus
+que leur nom. Il décrit maintenant l'écran tel qu'il est — les deux flèches,
+la rangée du dessous, la phrase de conclusion — et la division qui retrouve
+un pourcentage manquant. Dans {pourcentage-schema}, le contexte
+« Entreprise » nommait sa boîte « Filles » sous des phrases qui parlent de
+femmes (« au mot près » de la fiche, qui se trompait là) : la boîte s'appelle
+« Femmes ». Le contrôle du tirage de {pourcentage-schema} exige que chaque
+boîte du premier sous-groupe se lise dans ses phrases.

@@ -474,3 +474,25 @@ d'une réponse fausse-mais-proposée bascule sur la voisine +1 (`rpd-c-0` à
 4 au lieu de 3), et un nouveau test lit les trois `<option>` du premier
 coefficient pour vérifier qu'elles sont bien la bonne valeur et ses deux
 voisines.
+
+**(3, 7) puis (7, 3), c'est deux fois la même page (audit d'octobre 2026,
+M41).** {multiplier-relatifs} retirait une paire déjà tirée, mais la clé était
+ORDONNÉE : (3, 7) et (7, 3) posent les quatre mêmes produits, et c'est
+arrivé dans 3 % des séances. La clé de `mrlGen` est la paire non ordonnée ; le
+contrôle de l'exercice, qui comparait des paires ordonnées, compare
+maintenant les paires triées (l'ancien code rougit : « 4-6 9-2 6-4 »).
+
+**« 0 » n'est pas un coefficient de x² (M42).** Au 7.8 en phase détaillée,
+le coefficient se propose avec ses deux voisines ; pour x × x (coefficient
+1), la voisine du dessous était 0 — un piège qui n'en est pas un. Un
+coefficient de 1 se propose désormais avec 2 et 3 (`rpdCoefOpts`). Le
+contrôle de l'exercice lit les options de la ligne b. (x × x) de la fiche.
+
+**« Corrige les cases en rouge » sans case rouge (M43).** En soutien, une
+case laissée vide reste neutre ; une page de {reduire-somme} dont il ne
+manquait qu'une ligne réductible recevait pourtant « Presque ! Corrige les
+cases en rouge ». `soutienAgain()` — partagée par 66 écrans — cherche le rouge
+dans tout l'écran (message excepté) avant de le nommer, et dit sinon
+« Complète ta réponse, puis revérifie. », la phrase du 1.6. Le contrôle de
+{reduire-somme} joue les deux bords en soutien : une case vide seule, puis une
+case fausse.
