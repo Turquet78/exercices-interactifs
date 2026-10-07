@@ -2738,6 +2738,9 @@ function ptsRep(a){
   if(p>=1) p=(a.cases>1)?(a.cases-1)/a.cases:0;
   return p;
 }
+/* Un nombre AFFICHÉ à l'élève (ou envoyé au modèle) s'écrit avec une virgule :
+   « 0.6 » est l'écriture de JavaScript, pas celle de la classe (audit M66). */
+function decVirgule(x){ return String(x).replace('.',','); }
 function fmtNote(v){ const r=Math.round(v*100)/100; return String(Number.isInteger(r)?r:Math.round(r*10)/10).replace('.',','); }
 function afficherNoteExo(){
   try{
@@ -6740,13 +6743,13 @@ function checkPdcAnswer(live){
   if(allOk){ test.score++; $('pdcLiveScore').textContent=test.score;
     $('pdcFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('pdcFeedback').className='mp-feedback good';
   } else {
-    const detail=q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ');
-    $('pdcFeedback').textContent=`Réponse : 10 % de ${q.N} = ${q.dix} ; ${detail} ${q.unit} (toute écriture égale est acceptée)`; $('pdcFeedback').className='mp-feedback bad';
+    const detail=q.lignes.map(l=>`${l.P} % = ${decVirgule(l.val)}`).join(' ; ');
+    $('pdcFeedback').textContent=`Réponse : 10 % de ${q.N} = ${decVirgule(q.dix)} ; ${detail} ${q.unit} (toute écriture égale est acceptée)`; $('pdcFeedback').className='mp-feedback bad';
     corTrainDec('pdc0',String(q.dix).replace('.',','));
     q.lignes.forEach(l=>corTrainDec('pdcP'+l.P,String(l.val).replace('.',',')));
   }
   const enonce=`pourcentages de ${q.N} ${q.unit} en passant par 10 %`;
-  const answer=`10 % = ${q.dix} ; `+q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ')+` ${q.unit}`;
+  const answer=`10 % = ${decVirgule(q.dix)} ; `+q.lignes.map(l=>`${l.P} % = ${decVirgule(l.val)}`).join(' ; ')+` ${q.unit}`;
   const given=`10 % = ${v('pdc0')||'∅'} ; `+q.lignes.map(l=>`${l.P} % = ${v('pdcP'+l.P)||'∅'}`).join(' ; ');
   test.answers.push({...(ptsExo()||{}),q:enonce, answer, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
@@ -7147,8 +7150,8 @@ function checkAdxAnswer(live){
   if(allOk){ test.score++; $('adxLiveScore').textContent=test.score;
     $('adxFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('adxFeedback').className='mp-feedback good';
   } else {
-    const detail=q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ');
-    $('adxFeedback').textContent=`Réponse : 10 % = ${q.D} ; ${detail} € ; prix augmenté = ${q.N} + ${q.aug} = ${q.total} € (toute écriture égale est acceptée)`; $('adxFeedback').className='mp-feedback bad';
+    const detail=q.lignes.map(l=>`${l.P} % = ${decVirgule(l.val)}`).join(' ; ');
+    $('adxFeedback').textContent=`Réponse : 10 % = ${decVirgule(q.D)} ; ${detail} € ; prix augmenté = ${q.N} + ${decVirgule(q.aug)} = ${decVirgule(q.total)} € (toute écriture égale est acceptée)`; $('adxFeedback').className='mp-feedback bad';
     corTrainDec('adx0',String(q.D).replace('.',','));
     q.lignes.forEach(l=>corTrainDec('adxP'+l.P,String(l.val).replace('.',',')));
     corTrainDec('adxA',String(q.N).replace('.',','));
@@ -7156,7 +7159,7 @@ function checkAdxAnswer(live){
     corTrainDec('adxC',String(q.total).replace('.',','));
   }
   const enonce=`augmentation de ${q.P} % sur ${q.N} € en passant par 10 %`;
-  const answer=`10 % = ${q.D} ; `+q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ')+` ; ${q.N} + ${q.aug} = ${q.total} €`;
+  const answer=`10 % = ${decVirgule(q.D)} ; `+q.lignes.map(l=>`${l.P} % = ${decVirgule(l.val)}`).join(' ; ')+` ; ${q.N} + ${decVirgule(q.aug)} = ${decVirgule(q.total)} €`;
   const given=`10 % = ${v('adx0')||'∅'} ; `+q.lignes.map(l=>`${l.P} % = ${v('adxP'+l.P)||'∅'}`).join(' ; ')+` ; ${v('adxA')||'∅'} + ${v('adxB')||'∅'} = ${v('adxC')||'∅'}`;
   test.answers.push({...(ptsExo()||{}),q:enonce, answer, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
@@ -7586,8 +7589,8 @@ function checkDdxAnswer(live){
   if(allOk){ test.score++; $('ddxLiveScore').textContent=test.score;
     $('ddxFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('ddxFeedback').className='mp-feedback good';
   } else {
-    const detail=q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ');
-    $('ddxFeedback').textContent=`Réponse : 10 % = ${q.D} ; ${detail} € ; prix diminué = ${q.N} − ${q.baisse} = ${q.total} € (toute écriture égale est acceptée)`; $('ddxFeedback').className='mp-feedback bad';
+    const detail=q.lignes.map(l=>`${l.P} % = ${decVirgule(l.val)}`).join(' ; ');
+    $('ddxFeedback').textContent=`Réponse : 10 % = ${decVirgule(q.D)} ; ${detail} € ; prix diminué = ${q.N} − ${decVirgule(q.baisse)} = ${decVirgule(q.total)} € (toute écriture égale est acceptée)`; $('ddxFeedback').className='mp-feedback bad';
     corTrainDec('ddx0',String(q.D).replace('.',','));
     q.lignes.forEach(l=>corTrainDec('ddxP'+l.P,String(l.val).replace('.',',')));
     corTrainDec('ddxA',String(q.N).replace('.',','));
@@ -7595,7 +7598,7 @@ function checkDdxAnswer(live){
     corTrainDec('ddxC',String(q.total).replace('.',','));
   }
   const enonce=`baisse de ${q.P} % sur ${q.N} € en passant par 10 %`;
-  const answer=`10 % = ${q.D} ; `+q.lignes.map(l=>`${l.P} % = ${l.val}`).join(' ; ')+` ; ${q.N} − ${q.baisse} = ${q.total} €`;
+  const answer=`10 % = ${decVirgule(q.D)} ; `+q.lignes.map(l=>`${l.P} % = ${decVirgule(l.val)}`).join(' ; ')+` ; ${q.N} − ${decVirgule(q.baisse)} = ${decVirgule(q.total)} €`;
   const given=`10 % = ${v('ddx0')||'∅'} ; `+q.lignes.map(l=>`${l.P} % = ${v('ddxP'+l.P)||'∅'}`).join(' ; ')+` ; ${v('ddxA')||'∅'} − ${v('ddxB')||'∅'} = ${v('ddxC')||'∅'}`;
   test.answers.push({...(ptsExo()||{}),q:enonce, answer, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
@@ -19039,11 +19042,11 @@ function conseilCtxCourant(){
       +'étape ② '+q.prod+'/100 ; étape ③ '+q.result+' '+q.unit+'. '
       +'Méthode enseignée : écrire le pourcentage sur 100, multiplier les numérateurs, puis diviser par 100 en décalant la virgule de deux rangs.';
   } else if(k==='pct10' && q){
-    att='Réponse attendue, STRICTEMENT SECRÈTE : '+q.N+' / 10 = '+q.result+' '+q.unit+' (toute écriture égale convient). '
+    att='Réponse attendue, STRICTEMENT SECRÈTE : '+q.N+' / 10 = '+decVirgule(q.result)+' '+q.unit+' (toute écriture égale convient). '
       +'Méthode enseignée : prendre 10 % d’un nombre revient à le diviser par 10 — c’est la méthode la plus simple, parce que 10 % est un dixième.';
   } else if(k==='pdc' && q){
-    const detail=q.lignes.map(function(l){ return l.P+' % = '+l.val; }).join(' ; ');
-    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.dix+' (toute écriture égale convient) ; puis '+detail+' '+q.unit+'. '
+    const detail=q.lignes.map(function(l){ return l.P+' % = '+decVirgule(l.val); }).join(' ; ');
+    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+decVirgule(q.dix)+' (toute écriture égale convient) ; puis '+detail+' '+q.unit+'. '
       +'Méthode enseignée, comme dans {pourcentage-dix} : diviser le nombre par 10 pour trouver 10 %, puis retrouver chaque autre pourcentage en multipliant, divisant ou additionnant ce 10 % — 20 %, 30 % et 40 % sont le double, le triple et le quadruple de 10 % ; 5 % en est la moitié ; 15 % = 10 % + 5 % ; 25 % = 20 % + 5 %. '
       +'Aucun pourcentage n’est donné à l’avance dans l’énoncé : chaque ligne du tableau porte le sien, et c’est justement ce que la question demande de retrouver.';
   } else if(k==='atd' && q){
@@ -19067,8 +19070,8 @@ function conseilCtxCourant(){
       +'Méthode enseignée, comme dans {pourcentage-dix} : diviser le nombre par 10 pour trouver 10 %, et — si le pourcentage cherché se termine par un 5 — diviser encore par 2 pour trouver 5 %, comme sur la fiche de cours. On cherche ensuite par QUEL nombre multiplier ce pourcentage connu (10 % ou 5 %) pour retomber sur le résultat de l’énoncé, et on applique ce même nombre au pourcentage pour trouver celui qui est cherché. '
       +'Aucun pourcentage n’est donné à l’avance dans l’énoncé, contrairement à {pourcentage} : c’est justement ce que la question demande de retrouver, sans les quatre propositions de {pourcentage-taux}.';
   } else if(k==='adx' && q){
-    const detail=q.lignes.map(function(l){ return l.P+' % = '+l.val; }).join(' ; ');
-    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.D+' (toute écriture égale convient) ; '+detail+' ; prix augmenté = '+q.N+' + '+q.aug+' = '+q.total+' € (pose en colonnes facultative). '
+    const detail=q.lignes.map(function(l){ return l.P+' % = '+decVirgule(l.val); }).join(' ; ');
+    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+decVirgule(q.D)+' (toute écriture égale convient) ; '+detail+' ; prix augmenté = '+q.N+' + '+decVirgule(q.aug)+' = '+decVirgule(q.total)+' € (pose en colonnes facultative). '
       +'Méthode enseignée, comme dans {pourcentage-dix} et {pourcentage-dix-cascade} : diviser le prix par 10 pour trouver 10 %, puis retrouver le pourcentage demandé en multipliant, divisant ou additionnant ce 10 % — un multiple de dix se trouve en multipliant 10 % ; 5 % en est la moitié ; 15 % = 10 % + 5 %. '
       +'On termine en AJOUTANT l’augmentation trouvée au prix de départ, comme en {augmenter-addition} : c’est cette dernière étape qui distingue cet exercice de {pourcentage-dix-cascade}, où l’on s’arrête au pourcentage.';
   } else if(k==='ddt' && q){
@@ -19084,8 +19087,8 @@ function conseilCtxCourant(){
         : ('Ici '+q.P+' % s’obtient en multipliant 10 % par '+q.k+'.'))
       +' Ne révèle jamais le pourcentage cherché directement : oriente vers l’étape qui bloque, dans l’ordre où elle se présente à l’écran.';
   } else if(k==='ddx' && q){
-    const detail=q.lignes.map(function(l){ return l.P+' % = '+l.val; }).join(' ; ');
-    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+q.D+' (toute écriture égale convient) ; '+detail+' ; prix diminué = '+q.N+' − '+q.baisse+' = '+q.total+' € (pose en colonnes facultative). '
+    const detail=q.lignes.map(function(l){ return l.P+' % = '+decVirgule(l.val); }).join(' ; ');
+    att='Réponses attendues, STRICTEMENT SECRÈTES : 10 % de '+q.N+' = '+decVirgule(q.D)+' (toute écriture égale convient) ; '+detail+' ; prix diminué = '+q.N+' − '+decVirgule(q.baisse)+' = '+decVirgule(q.total)+' € (pose en colonnes facultative). '
       +'Méthode enseignée, comme dans {pourcentage-dix} et {pourcentage-dix-cascade} : diviser le prix par 10 pour trouver 10 %, puis retrouver le pourcentage demandé en multipliant, divisant ou additionnant ce 10 % — un multiple de dix se trouve en multipliant 10 % ; 5 % en est la moitié ; 15 % = 10 % + 5 %. '
       +'On termine en RETIRANT la baisse trouvée du prix de départ, comme en {diminuer-soustraction} : c’est cette dernière étape qui distingue cet exercice de {pourcentage-dix-cascade}, où l’on s’arrête au pourcentage.';
   } else if(k==='pctq' && q){
