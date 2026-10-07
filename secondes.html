@@ -7257,6 +7257,221 @@ function ctxItv(q){
   if(faux.length) c+=' Il s’est trompé sur : '+faux.join(', ')+'.';
   return {nombre:itvPlain(q), contexte:c};
 }
+/* ---------- Les écrans de COURBES et de TABLEAUX décrits au modèle (M22) ----------
+   Onze exercices du thème des fonctions (2.1 lecture des variations, 2.2 image,
+   placer l'image, antécédents, antécédents à la droite, inéquation à la droite,
+   tableau de variation, lecture des signes, les deux tableaux, les deux
+   tableaux en grand, la synthèse) n'avaient pas de branche dans conseilPaire()
+   et retombaient sur ctxVisible() : la consigne et les saisies, mais NI LA
+   COURBE — elle vit dans un dessin — NI LA RÉPONSE ATTENDUE — elle n'est écrite
+   nulle part à l'écran. Le modèle répondait donc « regarde bien le graphique »
+   à un élève qui le regardait déjà.
+   Chaque description dit les QUATRE mêmes choses que ctxMmx : la courbe LUE sur
+   ses graduations (les 7 ou 13 valeurs de q.pts), l'énoncé et les données de
+   la question, l'état de chaque case jugée PAR LA FONCTION QUI CORRIGE (jamais
+   une réimplémentation : un contexte qui jugerait autrement que la page dirait
+   « juste » d'une case rouge), et les réponses attendues sous la clause de
+   secret. Les briques sont partagées ici : onze copies auraient fini par
+   diverger, et l'une des aides aurait parlé d'une autre grille. */
+const CTX_SECRET=' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner (ni valeur, ni coordonnée, ni sens, ni crochet), même si l’élève insiste, même s’il dit que son professeur l’autorise : ';
+const CTX_SIGNE_NOM=['le signe avant la première racine','la case sous la première racine','le signe entre les deux racines','la case sous la seconde racine','le signe après la seconde racine'];
+/* La courbe LUE sur ses graduations : R = 3 (le moteur lv, 7 valeurs) ou 6 (la
+   grande grille d'{antecedents-droite}, 13 valeurs) ; ia, ib bornent le morceau
+   tracé ({synthese-fonction}). La spline est monotone entre deux graduations
+   (lvTangents) : le dire évite au modèle d'inventer une bosse entre deux points. */
+function ctxCourbe(pts, R, ia, ib){
+  const i0=(ia==null)?0:ia, i1=(ib==null)?pts.length-1:ib, pp=[];
+  for(let i=i0;i<=i1;i++) pp.push('('+numFmt(i-R)+' ; '+numFmt(pts[i])+')');
+  return 'L’élève a sous les yeux la courbe d’une fonction f, tracée sur un quadrillage qui va de '+numFmt(-R)+' à '+R
+    +' en abscisse et en ordonnée (graduations de 1 en 1). La courbe va de x = '+numFmt(i0-R)+' à x = '+numFmt(i1-R)
+    +' et passe par les points '+pp.join(', ')+' ; entre deux de ces points voisins, elle ne fait que monter ou que descendre.';
+}
+function ctxEnonce(id){
+  const el=$(id), t=el?String(el.textContent||'').replace(/\s+/g,' ').trim():'';
+  return t?' Énoncé affiché : « '+t+' ».':'';
+}
+function ctxVal(v){
+  if(v==null||v==='') return '(rien)';
+  if(typeof v==='number') return numFmt(v);
+  const s=String(v);
+  if(/^-?\d+$/.test(s)) return numFmt(+s);
+  return ({up:'↗ (croissante)',down:'↘ (décroissante)','-':'−',dessus:'au-dessus',dessous:'en dessous',aucun:'n’existent pas'})[s]||s;
+}
+/* Ce que montre la case : le texte de l'option choisie pour une liste, la
+   saisie pour une case. */
+function ctxSaisie(id){
+  const el=$(id); if(!el) return '';
+  if(el.tagName==='SELECT'){ if(el.value==='') return ''; const o=el.options[el.selectedIndex]; return o?o.textContent.trim():el.value; }
+  return String(el.value==null?'':el.value).trim();
+}
+/* Le nom d'une case : les deux tableaux partagés (varTableHTML, et le tableau
+   de signes des 2.11 à 2.15) par leurs ids, le reste par son aria-label. */
+function ctxNomCase(id){
+  let m=id.match(/^(?:lv-c|lsv-v|gsv-v|tvd-v|syn-v)-(x|val|arr)-(\d+)$/);
+  if(m){ const j=+m[2]+1; return 'tableau de variation, '+(m[1]==='x'?'abscisse de la colonne '+j:(m[1]==='val'?'valeur de f sous la colonne '+j:'flèche n° '+j)); }
+  m=id.match(/^(?:ls-c|lsv-s|gsv-s|syn-s)-(x|s)-(\d+)$/);
+  if(m) return 'tableau de signes, '+(m[1]==='x'?(m[2]==='0'?'la première racine':'la seconde racine'):CTX_SIGNE_NOM[+m[2]]);
+  const el=$(id), a=el&&el.getAttribute('aria-label');
+  return a?a.charAt(0).toLowerCase()+a.slice(1):id;
+}
+/* L'état des cases, jugé par la fonction qui corrige (s.ok) ; une case que la
+   correction d'entraînement a remplie (classe sol) n'est pas une réponse de
+   l'élève, et se dit comme telle. */
+function ctxCases(subs, nom){
+  const ecrit=[], vides=[];
+  subs.forEach(function(s){
+    const n=(nom&&nom(s))||ctxNomCase(s.id), v=ctxSaisie(s.id), el=$(s.id);
+    if(v==='') vides.push(n);
+    else if(el && el.classList && el.classList.contains('sol')) ecrit.push(n+' : laissée vide, corrigée par l’application');
+    else ecrit.push(n+' : « '+v+' » '+(s.ok?'(juste)':'(FAUSSE)'));
+  });
+  let c=ecrit.length ? ' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.' : ' L’élève n’a encore rien écrit.';
+  if(ecrit.length && vides.length) c+=' Cases encore vides : '+vides.join(', ')+'.';
+  return c;
+}
+function ctxAttendus(subs, nom){
+  return subs.map(function(s){ return ((nom&&nom(s))||ctxNomCase(s.id))+' = '+ctxVal(s.val); }).join(' ; ');
+}
+/* Une correction déjà rédigée (lsCorrectionHTML, synCorrectionHTML) finit par
+   un point : on l'ôte avant d'y accrocher la suite. */
+function ctxSansPoint(t){ return String(t||'').replace(/\.\s*$/,''); }
+function ctxFin(methode){
+  return ' Méthode à faire appliquer, sans jamais donner le résultat : '+methode
+    +' Oriente l’élève sur la PREMIÈRE case fausse ; ne lui reproche pas les cases vides qui suivent, il n’y est pas encore.';
+}
+/* Le tableau de variation à remplir (varTableHTML), dit en mots : ce qui est
+   déjà écrit, ce que l'élève écrit. */
+function ctxVarConsigne(a){
+  const N=a.nodes.length;
+  return ' Le tableau de variation à remplir a '+N+' colonnes d’abscisses : la première (x = '+numFmt(a.nodes[0].x)+') et la dernière (x = '
+    +numFmt(a.nodes[N-1].x)+') sont déjà écrites ; l’élève écrit les abscisses des colonnes intérieures (les changements de sens), la valeur de f sous chaque colonne, et choisit ↗ ou ↘ pour chacune des '+a.segments.length+' flèches.';
+}
+const CTX_METH_VAR='repérer de gauche à droite les endroits où la courbe change de sens (sommet ou creux) et écrire leurs abscisses dans la ligne des x ; sous chaque abscisse, écrire la hauteur de la courbe en ce point ; puis une flèche ↗ là où la courbe monte, ↘ là où elle descend.';
+const CTX_METH_SIGNES='les racines sont les abscisses où la courbe TRAVERSE l’axe des abscisses (la plus petite à gauche) ; sous chaque racine on écrit 0 ; entre deux racines, le signe est + si la courbe est au-dessus de l’axe des abscisses, − si elle est en dessous.';
+
+function ctxLv(q){
+  const a=lvAnalyze(q.pts), res=lvCheckPart(q);
+  const nom = q.part==='a' ? function(s){ return 'f('+numFmt(a.xs[+s.id.split('-')[2]])+')'; }
+            : q.part==='b' ? function(s){ const sg=a.segments[+s.id.split('-')[2]]; return 'le sens sur ['+numFmt(sg.fromX)+' ; '+numFmt(sg.toX)+']'; }
+            : null;
+  const meth = q.part==='a' ? 'pour lire f(a), partir de a sur l’axe des abscisses, monter ou descendre jusqu’à la courbe, puis lire la hauteur atteinte sur l’axe des ordonnées.'
+             : q.part==='b' ? 'parcourir la courbe de gauche à droite sur l’intervalle : si elle monte, f est croissante ; si elle descend, f est décroissante.'
+             : CTX_METH_VAR;
+  const c=ctxCourbe(q.pts,3)+' Graphique '+q.gnum+' / '+q.gtot+', partie « '+lvPartLabel(q)+' ».'+ctxEnonce('lvInstr')
+    +(q.part==='c'?ctxVarConsigne(a):'')
+    +ctxCases(res.subs,nom)+CTX_SECRET+ctxAttendus(res.subs,nom)+'.'+ctxFin(meth);
+  return {nombre:'', contexte:c};
+}
+function ctxTvd(q){
+  const a=lvAnalyze(q.pts), res=tvdCheckPart(q);
+  const c=ctxCourbe(q.pts,3)+' Graphique '+q.gnum+' / '+q.gtot+'.'+ctxEnonce('tvdInstr')+ctxVarConsigne(a)
+    +ctxCases(res.subs)+CTX_SECRET+ctxAttendus(res.subs)+'.'+ctxFin(CTX_METH_VAR);
+  return {nombre:'', contexte:c};
+}
+const CTX_IMG_NOM={'img-c':'« C’est … » (la hauteur)','img-fx':'le nombre entre les parenthèses de f( … )','img-fv':'la valeur après « f( … ) = »',
+  'img-tx':'le tableau, case x','img-tv':'le tableau, case f(x)','pim-fx':'le nombre entre les parenthèses de f( … )','pim-fv':'la valeur après « f( … ) = »'};
+function ctxImg(q){
+  const y0=imgY(q), X=numFmt(q.x0), res=imgCheck(q), nom=function(s){ return CTX_IMG_NOM[s.id]; };
+  const c=ctxCourbe(q.pts,3)+' On demande l’image de '+X+' par f.'+ctxEnonce('imgInstr')
+    +' L’élève complète « L’image de '+X+' est la hauteur de '+X+'. C’est … », puis « f( … ) = … », puis un tableau de valeurs à une colonne (x et f(x)).'
+    +ctxCases(res.subs,nom)+CTX_SECRET+'l’image de '+X+' est '+numFmt(y0)+' : '+ctxAttendus(res.subs,nom)+'.'
+    +ctxFin('tracer un trait vertical qui part de '+X+' sur l’axe des abscisses et monte ou descend jusqu’à la courbe ; la hauteur atteinte, lue sur l’axe des ordonnées, est l’image ; on l’écrit f(nombre de départ) = image.');
+  return {nombre:'', contexte:c};
+}
+function ctxPim(q){
+  const y0=imgY(q), X=numFmt(q.x0), res=pimCheck(q), nom=function(s){ return CTX_IMG_NOM[s.id]; };
+  let c=ctxCourbe(q.pts,3)+' On demande l’image de '+X+' par f, en trois gestes : ① poser une droite VERTICALE sur l’abscisse '+X
+    +' (clic ou glisser sur le graphique), ② placer un point là où cette droite coupe la courbe, ③ compléter « f( … ) = … » (cases ouvertes seulement une fois le point posé).'
+    +' Droite de l’élève : '+(q.vl==null?'pas encore posée':'posée sur x = '+numFmt(q.vl)+(res.vlOk?' (juste)':' (FAUSSE)'))+'.'
+    +' Point de l’élève : '+(q.rep?'posé en ('+numFmt(q.rep.x)+' ; '+numFmt(q.rep.y)+')'+(res.ptOk?' (juste)':' (FAUX)'):'pas encore posé')+'.'
+    +ctxCases(res.subs,nom)
+    +CTX_SECRET+'droite verticale sur x = '+X+', point ('+X+' ; '+numFmt(y0)+'), '+ctxAttendus(res.subs,nom)+'.'
+    +ctxFin('la droite verticale se pose sur le nombre de départ, lu sur l’axe des abscisses ; le point est là où elle coupe la courbe ; sa hauteur, lue sur l’axe des ordonnées, est l’image.');
+  return {nombre:'', contexte:c};
+}
+function ctxAnt(q){
+  const ants=antAnts(q), n=ants.length, Y=numFmt(q.y0), res=antCheck(q);
+  const nom=function(s){ const m=s.id.match(/^ant-(s|fx|fy)-(\d+)$/); if(!m) return s.id; const i=+m[2]+1;
+    return m[1]==='s' ? (n===1?'la case de la phrase « L’antécédent de '+Y+' est … »':'la case n° '+i+' de la phrase « Les antécédents de '+Y+' sont … »')
+         : (m[1]==='fx' ? 'ligne '+i+', le nombre entre les parenthèses de f( … )' : 'ligne '+i+', la valeur après « = »'); };
+  const c=ctxCourbe(q.pts,3)+' On donne la hauteur '+Y+' et on demande son ou ses antécédents par f (le chemin inverse de l’image).'+ctxEnonce('antInstr')
+    +' L’écran affiche '+n+' case'+(n>1?'s':'')+' dans la phrase, puis '+n+' ligne'+(n>1?'s':'')+' « f( … ) = … » ; l’ordre des antécédents est libre.'
+    +ctxCases(res.subs,nom)
+    +CTX_SECRET+(n===1?'l’antécédent de '+Y+' est ':'les antécédents de '+Y+' sont ')+ants.map(numFmt).join(' ; ')
+    +(n>1?' (dans n’importe quel ordre)':'')+', et chaque ligne s’écrit f(antécédent) = '+Y+'.'
+    +ctxFin('tracer un trait horizontal (une ligne de niveau) à la hauteur '+Y+' ; chaque point où il coupe la courbe donne un antécédent, lu en descendant (ou en montant) sur l’axe des abscisses.');
+  return {nombre:'', contexte:c};
+}
+function ctxAdr(q){
+  const ants=adrAnts(q), n=ants.length, Y=numFmt(q.y0), res=adrCheck(q), reps=(q.rep||[]).slice().sort(function(a,b){ return a-b; });
+  const verbe={est:'est',sont:'sont',aucun:'n’existent pas'};
+  const nom=function(s){ const m=s.id.match(/^adr-n-(\d+)$/); return m?'la case de nombre n° '+(+m[1]+1):(s.id==='adr-v'?'le verbe de la phrase':s.id); };
+  const cases=[{id:'adr-v', val:res.vAtt, ok:res.vOk}].concat(res.subs);
+  const c=ctxCourbe(q.pts,ADR_R)+' On cherche les antécédents de '+Y+' par f, en trois gestes : ① poser une droite HORIZONTALE à la hauteur '+Y
+    +', ② placer sur elle chaque point où elle coupe la courbe (ou aucun point s’il n’y en a pas), ③ compléter « Les antécédents de '+Y+' [est / sont / n’existent pas] … ; … ; … » — trois cases de nombres toujours affichées, l’ordre est libre et les cases en trop restent vides.'
+    +' Droite de l’élève : '+(q.dr==null?'pas encore posée':'posée à la hauteur '+numFmt(q.dr)+(res.drOk?' (juste)':' (FAUSSE)'))+'.'
+    +' Points de l’élève : '+(reps.length?reps.map(function(x){ return '('+numFmt(x)+' ; '+numFmt(q.dr)+')'; }).join(', ')+(res.ptOk?' (justes)':' (pas les bons)'):'aucun point posé')+'.'
+    +ctxCases(cases,nom)
+    +CTX_SECRET+'droite à la hauteur '+Y+' ; '+(n?'points '+ants.map(function(x){ return '('+numFmt(x)+' ; '+Y+')'; }).join(', ')+' ; dans la phrase, le verbe « '+verbe[res.vAtt]+' » puis '+(n>1?'les nombres '+ants.map(numFmt).join(' ; ')+' (ordre libre)':'le nombre '+numFmt(ants[0]))
+      :'AUCUN point (la droite ne coupe pas la courbe) ; phrase « Les antécédents de '+Y+' n’existent pas », cases de nombres vides')+'.'
+    +ctxFin('la droite horizontale se pose à la hauteur demandée, lue sur l’axe des ordonnées ; chaque croisement avec la courbe donne un antécédent, lu sur l’axe des abscisses ; un seul croisement → « est », plusieurs → « sont », aucun → « n’existent pas ».');
+  return {nombre:'', contexte:c};
+}
+const CTX_IQD_NOM={'iqd-pos':'« au-dessus / en dessous »','iqd-tou':'« peut toucher cette droite : oui / non »','iqd-co':'le crochet de gauche de S',
+  'iqd-b1':'la première borne de S','iqd-b2':'la seconde borne de S','iqd-cf':'le crochet de droite de S'};
+function ctxIqd(q){
+  const K=numFmt(q.k), SG=ING_SIGNE[q.op], res=iqdCheck(q);
+  const cases=res.subs.map(function(s){ return {id:s.id, val:s.bon, ok:s.ok}; }), nom=function(s){ return CTX_IQD_NOM[s.id]; };
+  const c=ctxCourbe(q.pts,3)+' On demande de résoudre graphiquement l’inéquation f(x) '+SG+' '+K+'.'
+    +' ① Poser la droite horizontale y = '+K+' (clic ou glisser sur le graphique). ② Compléter « f(x) '+SG+' '+K+' signifie que f(x) est [au-dessus / en dessous] de cette droite, et f(x) peut toucher cette droite : [oui / non] » — le dessin colorie en rouge la partie choisie. ③ Écrire S = [crochet] [nombre] ; [nombre] [crochet], les crochets à choisir parmi [ ] { }.'
+    +' Droite de l’élève : '+(q.dr==null?'pas encore posée':'posée à la hauteur '+numFmt(q.dr)+(res.drOk?' (juste)':' (FAUSSE)'))+'.'
+    +ctxCases(cases,nom)
+    +CTX_SECRET+'droite y = '+K+' ; '+ctxAttendus(cases,nom)+'.'
+    +ctxFin('« ≥ » et « > » se lisent au-dessus de la droite, « ≤ » et « < » en dessous ; « ≥ » et « ≤ » peuvent toucher la droite (crochets tournés vers le nombre), « > » et « < » non (crochets ouverts) ; les bornes de S sont les abscisses où la courbe coupe la droite ; { } sert aux équations, pas aux inéquations.');
+  return {nombre:'f(x) '+SG+' '+K, contexte:c};
+}
+function ctxLs(q){
+  const res=lsCheckPart(q), iv=lsIntervalles(q.pts);
+  const nom = q.part==='a' ? function(s){ return 'la case n° '+(+s.id.split('-')[2]+1)+' de S = { … ; … }'; }
+            : q.part==='b' ? function(s){ const t=iv[+s.id.split('-')[2]]; return 'le signe sur ['+numFmt(t.a)+' ; '+numFmt(t.b)+']'; }
+            : null;
+  const att = q.part==='a' ? ctxSansPoint(lsCorrectionHTML(q))+' (ordre libre)' : ctxAttendus(res.subs,nom);
+  const meth = q.part==='a' ? 'les solutions de f(x) = 0 sont les abscisses où la courbe traverse l’axe des abscisses.'
+             : q.part==='b' ? 'sur chaque intervalle, f est positive si la courbe est au-dessus de l’axe des abscisses, négative si elle est en dessous.'
+             : CTX_METH_SIGNES;
+  const c=ctxCourbe(q.pts,3)+' Graphique '+q.gnum+' / '+q.gtot+', partie « '+lsPartLabel(q)+' ».'+ctxEnonce('lsInstr')
+    +(q.part==='c'?' Le tableau de signes va de −3 à 3 (déjà écrits) ; l’élève écrit les deux racines dans la ligne des x, puis choisit +, − ou 0 dans les cinq cases de la ligne du signe.':'')
+    +ctxCases(res.subs,nom)+CTX_SECRET+att+'.'+ctxFin(meth);
+  return {nombre:'', contexte:c};
+}
+/* Les deux tableaux (2.13 et 2.15) : la même description, à l'échelle près. */
+function ctxDeuxTableaux(q, R, a, res, instrId){
+  return ctxCourbe(q.pts,R)+' Graphique '+q.gnum+' / '+q.gtot+'.'+ctxEnonce(instrId)
+    +' ① Le tableau de signes va de '+numFmt(-R)+' à '+R+' (déjà écrits) : l’élève écrit les deux racines dans la ligne des x, puis choisit +, − ou 0 dans les cinq cases de la ligne du signe. ②'+ctxVarConsigne(a)
+    +ctxCases(res.subs)+CTX_SECRET+ctxAttendus(res.subs)+'.'
+    +ctxFin('pour le tableau de signes, '+CTX_METH_SIGNES+' Pour le tableau de variation, '+CTX_METH_VAR);
+}
+function ctxLsv(q){ return {nombre:'', contexte:ctxDeuxTableaux(q, 3, lvAnalyze(q.pts), lsvCheckPart(q), 'lsvInstr')}; }
+function ctxGsv(q){ return {nombre:'', contexte:ctxDeuxTableaux(q, GSV_R, gsvAnalyze(q.pts), gsvCheckPart(q), 'gsvInstr')}; }
+const CTX_SYN_METH={
+  a:'l’ensemble de définition va de l’abscisse du bout gauche de la courbe à celle du bout droit (les deux points marqués) ; pour une image, partir du nombre sur l’axe des abscisses, rejoindre la courbe, lire la hauteur.',
+  b:'les antécédents d’une hauteur et les solutions de f(x) = c sont les abscisses où la courbe coupe la droite horizontale à cette hauteur ; pour f(x) < c (ou ≤, >, ≥), garder les abscisses où la courbe est sous (ou sur) cette droite, crochets ouverts pour une inégalité stricte, fermés sinon.',
+  c:'pour le tableau de variation, '+CTX_METH_VAR+' Pour le tableau de signes, '+CTX_METH_SIGNES,
+  d:'f(x) > g(x) (ou <) : garder les abscisses où la courbe de f est au-dessus (ou en dessous) de la droite de g, entre ses deux croisements avec elle, crochets ouverts car l’inégalité est stricte ; le maximum est la plus grande hauteur atteinte par la courbe sur son ensemble de définition, le minimum la plus petite, chacun avec l’abscisse où il est atteint.'};
+function ctxSyn(q){
+  const res=synCheckPart(q);
+  const g='g(x) = '+(q.ga===1?'':(q.ga===-1?'−':numFmt(q.ga)))+'x'+(q.gb?(q.gb>0?' + '+q.gb:' − '+Math.abs(q.gb)):'');
+  const dem = q.part==='a' ? 'l’ensemble de définition D = [ … ; … ], puis les images de '+q.img.map(numFmt).join(', ')
+            : q.part==='b' ? 'les antécédents de '+numFmt(q.k)+' (trois cases, ordre libre, cases en trop laissées vides), les solutions de f(x) = '+numFmt(q.c)+' (S = { … ; … }, ordre libre), puis f(x) '+SYN_SIGNE[q.op]+' '+numFmt(q.c)+' écrit en intervalle'
+            : q.part==='c' ? 'le tableau de variation puis le tableau de signes de f sur son ensemble de définition'
+            : 'la résolution de f(x) '+SYN_SIGNE[q.sensG]+' g(x) en intervalle, puis le maximum M et le minimum m de f avec les abscisses où ils sont atteints';
+  const c=ctxCourbe(q.pts,SYN_R,q.ia,q.ib)+' Ses deux bouts sont marqués d’un point. Sur le même graphique, la droite de g est tracée en pointillés : '+g+'.'
+    +' Synthèse en quatre écrans sur ce même dessin ; écran « '+SYN_TITRES[q.part]+' » : on demande '+dem+'.'+ctxEnonce('synInstr')
+    +(q.part==='c'?ctxVarConsigne(synAnalyse(q))+' Le tableau de signes va de '+numFmt(synA(q))+' à '+numFmt(synB(q))+' (déjà écrits) : deux racines, puis +, − ou 0 dans cinq cases.':'')
+    +ctxCases(res.subs)+CTX_SECRET+ctxSansPoint(synCorrectionHTML(q))+(q.part==='b'?' (antécédents et solutions dans n’importe quel ordre)':'')+'.'
+    +ctxFin(CTX_SYN_METH[q.part]);
+  return {nombre:'', contexte:c};
+}
 /* Ce que le modèle sait de l'exercice affiché. Un seul endroit le construit :
    le Conseil du soutien et la fenêtre « Question à l'IA » s'en servent tous les
    deux, et deux constructions auraient fini par diverger — l'une des deux aides
@@ -7352,6 +7567,17 @@ function conseilPaire(){
   else if(test.kind==='pqd' && q) b=ctxPqd(q);
   else if(test.kind==='qdb' && q) b=ctxQdb(q);
   else if(test.kind==='tsf' && q) b=ctxTsf(q);
+  else if(test.kind==='lv' && q) b=ctxLv(q);
+  else if(test.kind==='tvd' && q) b=ctxTvd(q);
+  else if(test.kind==='img' && q) b=ctxImg(q);
+  else if(test.kind==='pim' && q) b=ctxPim(q);
+  else if(test.kind==='ant' && q) b=ctxAnt(q);
+  else if(test.kind==='adr' && q) b=ctxAdr(q);
+  else if(test.kind==='iqd' && q) b=ctxIqd(q);
+  else if(test.kind==='ls' && q) b=ctxLs(q);
+  else if(test.kind==='lsv' && q) b=ctxLsv(q);
+  else if(test.kind==='gsv' && q) b=ctxGsv(q);
+  else if(test.kind==='syn' && q) b=ctxSyn(q);
   else b={nombre:'', contexte:ctxVisible()};
   if(!b.contexte) b.contexte='L’élève est en difficulté sur un exercice de mathématiques de Seconde.';
   b.contexte=numeros(b.contexte); b.nombre=numeros(b.nombre);
