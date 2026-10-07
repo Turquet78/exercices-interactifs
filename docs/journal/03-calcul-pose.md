@@ -97,3 +97,13 @@ AUTREMENT garde la version de la Seconde — `finishTest()`, qui enregistre sous
   posée, ses retenues — par leur rang dans l'écran, comme en Première. En
   Seconde elles se perdaient, et les poses des pourcentages portés le matin
   même en souffraient déjà.
+
+**Pas de calcul trivial au calcul mental (Seconde, audit d'octobre 2026).**
+`genQuestion` tirait ses termes à partir de 0 (et ses facteurs à partir de
+1) : « 0 − 0 », « 0 + 7 », « 6 × 1 », « 8 ÷ 1 » sortaient dans 1,4 à 6 % des
+calculs. Les termes d'une addition ou d'une soustraction valent au moins 1
+(et la différence aussi), les facteurs, diviseurs et quotients au moins 2 ;
+une borne réglée trop bas est relevée plutôt que de figer le tirage. Tenu
+par « le calcul mental ne tire aucun calcul trivial » (6 000 tirages, les
+quatre opérations), rouge sur l'ancien tirage. La Première garde le sien
+(lot séparé).
