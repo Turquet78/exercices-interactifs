@@ -4592,3 +4592,34 @@ fausse, « 20,5 », « 20,0 », modèle simulé qui se trompe dans les deux sens
 3 000 tirages par QCM sans leurre impossible) ; reste connu : quand le sens
 ne laisse rien d'un côté, les trois leurres tombent du même côté (18 % des
 tirages de `genPctDepart`), ce que des entiers ne permettent pas d'éviter.
+
+**Les « mineures » de l'audit, thème des pourcentages (Première, octobre
+2026).** (1) **Aucune quantité dénombrée ne vaut 1** (`pasUnSeul`) : les
+tables de contextes écrivent l'unité au pluriel et accordent le verbe, et
+« soit 1 élèves », « dont 1 pratiquent », « 5 % de 20 = 1 hectares »,
+« un stock vaut 1 articles » sortaient de dix exercices (une séance sur
+cent environ). Plutôt que d'accorder une trentaine de gabarits, les tirages
+écartent le cas : jamais 10 % de 10 (`genPercent`, `genEvolAdd`,
+`genPctTaux`, `genSyn`), ni N = 10 au 2.1.2, ni 10 % ou 5 % qui vaille 1
+(`genPdt`, `genAtdN`, `genPdcN` perd 20), ni 10 diminué de 90 %, ni 1 % de
+100 (`genAugTauxAdd`, `genDimTauxSub`, `genSyn`), ni un leurre à 1
+(`leurresProches` reçoit `min:1`). Le contrôle relit vingt générateurs —
+chaque grandeur, et celle que chaque PROPOSITION ferait écrire — et dit
+combien de tirages à unité plurielle il a lus ; une sonde de 120 séances
+par exercice du thème, écran vérifié et contexte IA compris, n'en trouve
+plus aucun (elle en comptait quatorze familles avant). (2) `parseDecToFrac`
+accepte un « % » redondant (« 15 % » dans une case qu'un « % » suit déjà) et
+une virgule finale (« 12, ») — fonction partagée par toutes les cases
+décimales de la page. (3) Le 2.2.11 et les synthèses disent « l'augmentation
+de 5 % de 7000 € est ▢ € », plus « l'augmentation est … est ». (4) Le corrigé
+type des exercices à propositions (`QIA_MODELES.augq`) écrivait « \\( » et
+« \n » en toutes lettres, et montrait toujours un « retrouver le
+pourcentage » : il suit désormais l'inconnue de la question. (5) Les
+corrections des 2.2.7 et 2.3.7 écrivent « 1,26 − 1 = 0,26, soit 26 % ».
+(6) Les rappels montrent ce que le tirage pose : 10 % de 6 € (et non 32 €,
+jamais tiré) au 2.1.8, 300 € (et non 400 €) au 2.1.9, 40 € et 6 € (et non
+50 €) aux 2.2.11 et 2.3.10 ; `RAP_PDT` ne dit plus « un autre chiffre que 5
+(15 % ou 25 %) ». Le « 30 % de 600 » des rappels des synthèses rédigées est
+bien tiré (sondé) et reste. Déjà réglés par le lot des importantes, et
+vérifiés : la valeur de départ « 300,0 » et la virgule du 2.1.9. Chaque
+contrôle neuf a rougi sur son sabotage.

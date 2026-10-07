@@ -5057,14 +5057,22 @@ async function loadConfig(){
 }
 
 /* ---------- Génération des questions ---------- */
+/* PAS DE CALCUL TRIVIAL (audit, octobre 2026) : « 0 − 0 », « 0 + 7 », « 5 × 1 »
+   ou « 9 ÷ 1 » sortaient du tirage (1,4 à 6 % des calculs selon l'opération)
+   et ne font rien calculer. Un terme d'une somme vaut au moins 1, une
+   différence aussi (ni « a − 0 » ni « a − a ») ; un facteur, un diviseur et un
+   quotient valent au moins 2 — sauf si le réglage du professeur borne les
+   tables à 5 : il ne resterait que 16 produits pour une séance qui peut en
+   demander 20, et distinctes() rendrait un doublon. */
 function genQuestion(c){
   const ops=[];if(c.ops.add)ops.push('add');if(c.ops.sub)ops.push('sub');if(c.ops.mul)ops.push('mul');if(c.ops.div)ops.push('div');
   if(!ops.length)ops.push('add');
   const op=ops[rand(0,ops.length-1)]; let a,b,ans,sym;
-  if(op==='add'){a=rand(0,c.addSubMax);b=rand(0,c.addSubMax);ans=a+b;sym='+';}
-  else if(op==='sub'){a=rand(0,c.addSubMax);b=rand(0,a);ans=a-b;sym='−';}
-  else if(op==='mul'){a=rand(1,c.mulMax);b=rand(1,c.mulMax);ans=a*b;sym='×';}
-  else{b=rand(1,c.mulMax);ans=rand(1,c.mulMax);a=b*ans;sym='÷';}
+  const m1=c.mulMax>=6?2:1;     /* plus petit facteur : 2, sauf tables bornées à 5 */
+  if(op==='add'){a=rand(1,c.addSubMax);b=rand(1,c.addSubMax);ans=a+b;sym='+';}
+  else if(op==='sub'){a=rand(2,c.addSubMax);b=rand(1,a-1);ans=a-b;sym='−';}
+  else if(op==='mul'){a=rand(m1,c.mulMax);b=rand(m1,c.mulMax);ans=a*b;sym='×';}
+  else{b=rand(m1,c.mulMax);ans=rand(m1,c.mulMax);a=b*ans;sym='÷';}
   return {text:`${a} ${sym} ${b}`,answer:ans};
 }
 
@@ -5877,8 +5885,12 @@ function fracToDec(num,d){
 function fracVautDec(fr,val){ return !!fr && Math.abs(fr.n - val*fr.d) < 1e-9*Math.max(1,Math.abs(fr.n)); }
 /* Un montant en euros, au centième près : ce que la page affiche et juge. */
 function arrondiCent(x){ return Math.round(x*100)/100; }
+/* Deux écritures de plus, sans changer la valeur (audit, octobre 2026) : un
+   « % » redondant — « 15 % » dans la case qu'un « % » suit déjà — et une
+   virgule finale sans décimale, « 12, » ou « 12. », qui vaut 12. */
 function parseDecToFrac(str){
   let s=String(str).trim().replace(/\s/g,'').replace(',', '.');
+  s=s.replace(/\\?%$/,'').replace(/^(\d+)\.$/,'$1');
   if(s===''||!(/^\d+(\.\d+)?$/.test(s)||/^\.\d+$/.test(s))) return null;
   let intp='0',frac='';
   if(s.includes('.')){ const p=s.split('.'); intp=p[0]||'0'; frac=p[1]||''; } else intp=s;
@@ -6277,6 +6289,13 @@ async function finishParcours(){
    (q.v et q.ci) : ils ne changent donc pas quand l'écran est redessiné, ni quand un
    travail mis en pause est repris. On range l'INDICE du contexte, jamais l'objet :
    la question part en base de données, elle doit rester du JSON. */
+/* pasUnSeul — AUCUNE QUANTITÉ DÉNOMBRÉE NE VAUT 1 (audit, octobre 2026) : les
+   tables de contextes écrivent l'unité au pluriel et l'accord du verbe
+   (« soit 1 élèves », « dont 1 pratiquent », « 5 % de 20 = 1 hectares »),
+   à une trentaine d'endroits. Plutôt que d'accorder chacun, les tirages
+   écartent le cas — 10 % de 10, 5 % de 20, 10 diminué de 90 %, un leurre à 1 :
+   des nombres trop petits pour exercer quoi que ce soit. Le banc le relit sur
+   chaque générateur concerné. */
 function acc(n,sing,plur){ return n>1?plur:sing; }          /* accord sujet-verbe */
 function eFem(q){ return q.g==='f'?'e':''; }                /* « augmenté » / « augmentée » */
 function variante(tab,q){ return (tab[q.v]||tab[0])(q); }   /* q.v absent : anciennes pauses */
@@ -6483,7 +6502,7 @@ const DIM_ENONCES=[
 const PCT_NB=4;
 function genPercent(){
   let P,N;
-  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
+  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N) || P*N===100);   /* jamais « 1 élèves » : voir pasUnSeul */
   const prod=P*N;
   const ci=tirerContexte(CTX_PART,N);                      // le contexte impose l'unité
   const q={P,N,unit:CTX_PART[ci].u,prod,result:prod/100,ci};
@@ -6705,7 +6724,7 @@ const PDC_ENONCES=[
 function genPdcN(){
   const fam=pick(['trois','deux','petit']);
   if(fam==='trois') return rand(1,3)*100+pick([0,2,4,6,8])*10;  /* 3 chiffres, centaines 1 à 3, dizaines paires (0 compris) */
-  if(fam==='deux')  return pick([2,4,6,8])*10;                    /* 2 chiffres, dizaines paires */
+  if(fam==='deux')  return pick([4,6,8])*10;                      /* 2 chiffres, dizaines paires ; pas 20, dont 5 % vaudrait « 1 élèves » (pasUnSeul) */
   return pick([2,4,6,8]);                                          /* un nombre entre 1 et 8, pair */
 }
 function genPdc(){
@@ -6821,10 +6840,10 @@ const PDT_PCTS_CINQ=[5,15,25];
    filtre est donc calculé À L'APPEL, jamais au chargement du script, sinon
    « Cannot access 'PCT_VALEURS' before initialization » casse toute la page —
    le piège déjà noté pour {pourcentage-dix-cascade}. */
-function pdtValeursCinq(){ return PCT_VALEURS.filter(N=>(N/10)%2===0); }
+function pdtValeursCinq(){ return PCT_VALEURS.filter(N=>(N/10)%2===0 && N>20); }   /* N = 20 : 5 % vaudrait « 1 élèves » (pasUnSeul) */
 function genPdt(){
   const cinq=rand(0,1)===0;
-  const N=cinq?pick(pdtValeursCinq()):pick(PCT_VALEURS);
+  const N=cinq?pick(pdtValeursCinq()):pick(PCT_VALEURS.filter(x=>x>10));   /* N = 10 : 10 % vaudrait « 1 élèves » (pasUnSeul) */
   const P=cinq?pick(PDT_PCTS_CINQ):pick(PDT_PCTS_DIX);
   const d10=N/10;
   const d5=cinq?d10/2:null;
@@ -7099,7 +7118,7 @@ function renderAdx(){
   const fracFixe=(n,d)=>`<span class="f-whole">${mlTex('\\frac{'+n+'}{'+d+'}', n+'/'+d)}</span>`;
   const ligneBase=`<div class="pt-row"><span class="f-whole">On commence par 10 % de ${q.N} €</span>${fEq(fracFixe(q.N,10))}${fEq(dec('adx0','dix pour cent de '+q.N))}<span class="f-whole">€</span></div>`;
   const lignesAug=q.lignes.map(l=>
-    `<div class="pt-row"><span class="f-whole">donc : l’augmentation est ${l.P} % de ${q.N} € est</span>${dec('adxP'+l.P,l.P+' % de '+q.N)}<span class="f-whole">€</span></div>`
+    `<div class="pt-row"><span class="f-whole">donc : l’augmentation de ${l.P} % de ${q.N} € est</span>${dec('adxP'+l.P,l.P+' % de '+q.N)}<span class="f-whole">€</span></div>`
   ).join('');
   const ligneTot=`<div class="pt-row"><span class="f-whole">donc : le prix augmenté est</span>${dec('adxA','prix de départ')}<span class="f-whole">+</span>${dec('adxB','augmentation')}${fEq(dec('adxC','prix augmenté'))}<span class="f-whole">€</span></div>`;
   const pose='<div class="mp-op" id="adxMul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseOpEleveMAJ) */
@@ -7254,11 +7273,14 @@ async function finishAdx(){
    assure déjà. */
 const ATD_PCTS_DIX=[20,30,40,50,60,70,80,90];
 const ATD_PCTS_CINQ=[5,15,25];
+/* Jamais 10 % (ni 5 %) qui vaille 1 : « 10 % de 10 = 1 articles », « 5 % de
+   20 = 1 hectares » (pasUnSeul) — N = 10 quitte la famille « dix », N = 20 la
+   famille « cinq ». */
 function genAtdN(besoinCinq){
-  if(!besoinCinq) return rand(1,9)*Math.pow(10,pick([1,2,3]));   /* 10 % toujours entier */
+  if(!besoinCinq){ const k=pick([1,2,3]); return rand(k===1?2:1,9)*Math.pow(10,k); }   /* 10 % toujours entier, au moins 2 */
   const fam=pick(['cent','dix']);
   if(fam==='cent') return pick([1,2,3,4,5,6,7,8,9])*100;          /* 5 % = N/20 toujours entier */
-  return pick([2,4,6,8])*10;                                       /* dizaines paires : 5 % = N/20 entier */
+  return pick([4,6,8])*10;                                         /* dizaines paires : 5 % = N/20 entier, au moins 2 */
 }
 function genAtd(){
   const besoinCinq = Math.random()<0.5;
@@ -8070,7 +8092,7 @@ async function finishFP(){
 const PCOL_PARTS=10;                    /* les deux colonnes sont partagées pareil */
 function genPctCol(){
   let P,N;
-  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
+  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N) || N===10);   /* N = 10 : chaque part vaudrait « 1 élèves » (pasUnSeul) */
   const ci=tirerContexte(CTX_PART,N);                      /* le contexte impose l'unité */
   const q={P,N,unit:CTX_PART[ci].u,prod:P*N,result:P*N/100,ci,selL:0,selR:0};
   q.v=tirerVariante(PCT_ENONCES,q);        /* la question doit exister avant le tirage */
@@ -8208,7 +8230,7 @@ async function finishPctCol(){
    100) : l'augmentation est entière, l'addition se pose proprement. */
 function genEvolAdd(sens){
   let P,N;
-  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
+  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N) || P*N===100);   /* jamais « 1 article » d'augmentation : voir pasUnSeul */
   const aug=P*N/100, fin=N+sens*aug;
   const ci=tirerContexte(AUG_THEMES,N,sens<0?'poidsBaisse':'poidsHausse');
   const th=AUG_THEMES[ci];
@@ -8489,6 +8511,7 @@ function genDimTauxSub(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
   const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
   const opts=qdMelanger(leurres.concat([P]));
+  if(opts.some(o=>o*N===100)) return genDimTauxSub();   /* « 1 licenciés d’augmentation » (pasUnSeul) */
   const aug=P*N/100, fin=N-aug;
   const ci=augqTirerCtx(N);
   const q={type:'pct',sens:-1,P,N,aug,fin,unit:AUGQ_CTX[ci].u,ci,
@@ -8521,6 +8544,7 @@ function genAugTauxAdd(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
   const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
   const opts=qdMelanger(leurres.concat([P]));
+  if(opts.some(o=>o*N===100)) return genAugTauxAdd();   /* « 1 licenciés d’augmentation » (pasUnSeul) */
   const aug=P*N/100, fin=N+aug;
   const ci=augqTirerCtx(N);
   const q={type:'pct',sens:1,P,N,aug,fin,unit:AUGQ_CTX[ci].u,ci,
@@ -8772,7 +8796,7 @@ function genSyn(famVoulu, incVoulu, regl){
     if(inc==='pct'){
       let N,admis;
       do{ N=pick(PCT_VALEURS); admis=PCT_PCTS.filter(x=>pctCoupleOk(x,N)); } while(admis.length<4);
-      const P=pick(admis);
+      const P=pick(admis.filter(x=>x*N!==100));   /* « on en a compté 1 élèves » : pasUnSeul */
       const res=P*N/100, ci=tirerContexte(CTX_PART,N);
       const opts=qdMelanger(qdMelanger(admis.filter(x=>x!==P)).slice(0,3).concat([P]));
       q={fam,inc,sens:0,P,N,res,result:res,unit:CTX_PART[ci].u,ci,bonV:P,opts};
@@ -8784,7 +8808,7 @@ function genSyn(famVoulu, incVoulu, regl){
       const res=P*N/100, ci=tirerContexte(CTX_PART,N);
       q={fam,inc,sens:0,P,N,res,result:res,unit:CTX_PART[ci].u,ci};
       /* le sens : P % d'une valeur reste sous la valeur, la valeur au-dessus de ses P % */
-      if(inc==='fin'){ q.bonV=res; q.opts=qdMelanger(leurresProches(res,{max:N}).concat([res])); q.v=tirerVariante(PCT_ENONCES,q); }
+      if(inc==='fin'){ q.bonV=res; q.opts=qdMelanger(leurresProches(res,{min:1,max:N}).concat([res])); q.v=tirerVariante(PCT_ENONCES,q); }
       else { q.bonV=N; q.opts=qdMelanger(leurresProches(N,{min:res,pasMin:10}).concat([N])); q.v=tirerVariante(QD_ENONCES_VAL,q); }
     }
   } else {
@@ -8808,13 +8832,15 @@ function genSyn(famVoulu, incVoulu, regl){
     else if(inc==='ini'){ P=pick([10,20,30,40,50,60,70,80,90]); }   /* leurres fins : multiples de 10 */
     else { P=Math.random()<0.5?pick([10,20,30,40,50,60,70,80,90]):rand(1,9); }   /* un seul chiffre non nul : le coefficient garde au plus deux décimales */
     N=rand(1,9)*Math.pow(10,pick([2,3]));                      /* multiple de 100 : tout tombe juste */
+    if(P*N===100) return genSyn(famVoulu, incVoulu, regl);     /* 1 % de 100 : « 1 licenciés » (pasUnSeul) */
     const aug=P*N/100, fin=N+sens*aug;
     q={fam,inc,sens,P,N,aug,fin,decStr:String(fin).replace('.',',')};
     if(inc==='fin'){
       const ci=tirerContexte(AUG_THEMES,N,sens<0?'poidsBaisse':'poidsHausse');
       const th=AUG_THEMES[ci];
       Object.assign(q,{intro:th.intro,unit:th.unit,g:th.g,ci,bonV:fin,
-        opts:qdMelanger(leurresProches(fin, sens>0?{min:N}:{max:N}).concat([fin]))});   /* le sens : une hausse finit au-dessus du départ, une baisse en dessous */
+        opts:qdMelanger(leurresProches(fin, sens>0?{min:N}:{min:1,max:N}).concat([fin]))});   /* min:1 — aucun leurre « 1 hectares » (pasUnSeul) */
+        /* le sens : une hausse finit au-dessus du départ, une baisse en dessous */
       q.v=tirerVariante(sens>0?AUG_ENONCES:DIM_ENONCES,q);
     } else if(inc==='ini'){
       const ci=augqTirerCtx(fin);
@@ -8827,7 +8853,7 @@ function genSyn(famVoulu, incVoulu, regl){
          départ est le leurre naturel), jamais 3 % ou 7 % */
       const vivier=dix?[10].concat(ATD_PCTS_DIX,ATD_PCTS_CINQ):AUGQ_PCTS;
       Object.assign(q,{unit:AUGQ_CTX[ci].u,ci,bonV:P,
-        opts:qdMelanger(qdMelanger(vivier.filter(x=>x!==P)).slice(0,3).concat([P]))});
+        opts:qdMelanger(qdMelanger(vivier.filter(x=>x!==P && x*N!==100)).slice(0,3).concat([P]))});   /* aucun leurre « 1 % de 100 » (pasUnSeul) */
       q.v=rand(0,(sens>0?AUGQ_EN_PCT:DIMQ_EN_PCT).length-1);
     }
     if(dix) q.dix=true;   /* rangé dans la question : la reprise d'une pause relit la question, jamais le démarreur */
@@ -9091,7 +9117,7 @@ function renderSynTest(){
     /* les mots du 2.3.10 sur une baisse : « la baisse de P % de N est »,
        « la valeur diminuée est ▢ − ▢ = ▢ », la soustraction posée */
     const lignesAug=synDixLignes(q.P).map(p=>
-      `<div class="pt-row"><span class="f-whole">donc : ${neg?'la baisse de':'l\u2019augmentation est'} ${p} % de ${nAff} ${u} est</span>${dec('yP'+p,p+' % de la valeur de départ')}<span class="f-whole">${u}</span></div>`).join('');
+      `<div class="pt-row"><span class="f-whole">donc : ${neg?'la baisse de':'l\u2019augmentation de'} ${p} % de ${nAff} ${u} est</span>${dec('yP'+p,p+' % de la valeur de départ')}<span class="f-whole">${u}</span></div>`).join('');
     const ligneTot=`<div class="pt-row"><span class="f-whole">donc : la valeur ${neg?'diminuée':'augmentée'} est</span>${dec('y4a','valeur de départ')}<span class="f-whole">${neg?'\u2212':'+'}</span>${dec('y4b',neg?'baisse':'augmentation')}${fEq(dec('y4r','nouvelle valeur'))}<span class="f-whole">${u}</span></div>`;
     etapes=`<div class="pt-step syn-dix">${ligneBase}${lignesAug}${ligneTot}</div>`+
       `<div class="pt-step pt-opt step-hidden" id="syPose"><div class="pt-lab">${neg?'Pose la soustraction en colonnes':'Pose l\u2019addition en colonnes'}</div>
@@ -9591,7 +9617,7 @@ function genPctTaux(){
        sinon on ne peut pas former quatre propositions jouables. */
     admis=PCT_PCTS.filter(x=>pctCoupleOk(x,N));
   } while(admis.length<4);
-  const P0=pick(admis);
+  const P0=pick(admis.filter(x=>x*N!==100));   /* « dont 1 pratiquent » : pasUnSeul */
   const leurres=qdMelanger(admis.filter(x=>x!==P0)).slice(0,3);
   const opts=qdMelanger(leurres.concat([P0]));
   const prod=P0*N;
@@ -9625,7 +9651,7 @@ function genPctRes(){
   let P,N;
   do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N) || P*N/100<2);
   const prod=P*N, R=prod/100;
-  const opts=qdMelanger(leurresProches(R,{max:N}).concat([R]));   /* le sens : P % de N reste sous N */
+  const opts=qdMelanger(leurresProches(R,{min:1,max:N}).concat([R]));   /* le sens : P % de N reste sous N ; aucun leurre « 1 article » (pasUnSeul) */
   const ci=tirerContexte(CTX_PART,N);
   const q={type:'res',P,N,unit:CTX_PART[ci].u,prod,result:R,opts,bon:opts.indexOf(R),choisi:null,ci};
   q.v=tirerVariante(PCT_ENONCES,q);
@@ -11406,6 +11432,7 @@ function genDimDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
   const N = rand(1,9)*Math.pow(10,pick([1,2,3]));
   const coef=100-P, prodNum=N*coef;
+  if(prodNum===100) return genDimDepart();   /* 10 diminué de 90 % : « 1 articles » (pasUnSeul) */
   const leurres=leurresProches(N,{min:prodNum/100});   /* au pas de N, au-dessus de la valeur finale : voir leurresProches */
   const opts=qdMelanger(leurres.concat([N]));
   const ci=augqTirerCtx(prodNum/100);            /* c'est la valeur finale qui est affichée */
@@ -11421,6 +11448,7 @@ function genDimTaux(){
   const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
   const opts=qdMelanger(leurres.concat([P]));
   const coef=100-P, prodNum=N*coef;
+  if(opts.some(o=>N*(100-o)===100)) return genDimTaux();   /* 10 diminué de 90 % : « 1 articles » (pasUnSeul) */
   const ci=augqTirerCtx(N, prodNum%100===0);     /* N est affiché, mais la finale aussi */
   const q={type:'pct',sens:-1,P,N,coef,prodNum,unit:AUGQ_CTX[ci].u,ci,
     coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',','),
@@ -12015,7 +12043,7 @@ function checkHSAnswer(live){
   if(allOk){ test.score++; $('hsLiveScore').textContent=test.score;
     $('hsFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('hsFeedback').className='mp-feedback good';
   } else {
-    $('hsFeedback').textContent=`Méthode : 1 + ${pDecStr(q.P1)} = 1,${String(q.c1-100).padStart(2,'0')} et 1 + ${pDecStr(q.P2)} = 1,${String(q.c2-100).padStart(2,'0')} ; ${q.fA.num}/${q.fA.den} × ${q.fB.num}/${q.fB.den} = ${q.prodNum}/${q.prodDen} = ${q.coefStr} ; la hausse globale est ${q.coefStr} − 1 = ${q.hausseStr} %, et non ${q.P1}+${q.P2} = ${q.P1+q.P2} %.`;
+    $('hsFeedback').textContent=`Méthode : 1 + ${pDecStr(q.P1)} = 1,${String(q.c1-100).padStart(2,'0')} et 1 + ${pDecStr(q.P2)} = 1,${String(q.c2-100).padStart(2,'0')} ; ${q.fA.num}/${q.fA.den} × ${q.fB.num}/${q.fB.den} = ${q.prodNum}/${q.prodDen} = ${q.coefStr} ; la hausse globale est ${q.coefStr} − 1 = ${String(q.hausseNum/1000).replace('.', ',')}, soit ${q.hausseStr} %, et non ${q.P1}+${q.P2} = ${q.P1+q.P2} %.`;
     $('hsFeedback').className='mp-feedback bad';
     corTrainFrac('hs1n','hs1d',q.P1,100); corTrainDec('hs1p',String(q.P1).padStart(2,'0')); corTrainDec('hs1dec',String(q.c1-100).padStart(2,'0'));
     corTrainFrac('hs2n','hs2d',q.P2,100); corTrainDec('hs2p',String(q.P2).padStart(2,'0')); corTrainDec('hs2dec',String(q.c2-100).padStart(2,'0'));
@@ -14448,7 +14476,7 @@ function checkBSAnswer(live){
   if(allOk){ test.score++; $('bsLiveScore').textContent=test.score;
     $('bsFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('bsFeedback').className='mp-feedback good';
   } else {
-    $('bsFeedback').textContent=`Méthode : 1 − ${pDecStr(q.P1)} = 0,${String(q.c1).padStart(2,'0')} et 1 − ${pDecStr(q.P2)} = 0,${String(q.c2).padStart(2,'0')} ; ${q.fA.num}/${q.fA.den} × ${q.fB.num}/${q.fB.den} = ${q.prodNum}/${q.prodDen} = ${q.coefStr} ; la baisse globale est 1 − ${q.coefStr} = ${q.baisseStr} %, et non ${q.P1}+${q.P2} = ${q.P1+q.P2} %.`;
+    $('bsFeedback').textContent=`Méthode : 1 − ${pDecStr(q.P1)} = 0,${String(q.c1).padStart(2,'0')} et 1 − ${pDecStr(q.P2)} = 0,${String(q.c2).padStart(2,'0')} ; ${q.fA.num}/${q.fA.den} × ${q.fB.num}/${q.fB.den} = ${q.prodNum}/${q.prodDen} = ${q.coefStr} ; la baisse globale est 1 − ${q.coefStr} = ${String(q.baisseNum/100).replace('.', ',')}, soit ${q.baisseStr} %, et non ${q.P1}+${q.P2} = ${q.P1+q.P2} %.`;
     $('bsFeedback').className='mp-feedback bad';
     corTrainFrac('bs1n','bs1d',q.P1,100); corTrainDec('bs1p',String(q.P1).padStart(2,'0')); corTrainDec('bs1dec',String(q.c1).padStart(2,'0'));
     corTrainFrac('bs2n','bs2d',q.P2,100); corTrainDec('bs2p',String(q.P2).padStart(2,'0')); corTrainDec('bs2dec',String(q.c2).padStart(2,'0'));
@@ -18542,13 +18570,13 @@ const RAP_PCT10=`<b>Prendre 10 % d’un nombre</b><br>
 Prendre <b>10 %</b> d’un nombre, c’est le diviser par <b>10</b> — la méthode la plus simple, parce que 10 % c’est un dixième.<br>
 Exemple : 10 % de 40, c’est calculer \\(\\frac{40}{10}=4\\).<br>
 Autre exemple : 10 % de 300 €, c’est calculer \\(\\frac{300}{10}=30\\) €.<br>
-Le résultat n’est pas toujours entier : 10 % de 32 €, c’est calculer \\(\\frac{32}{10}=3{,}2\\) €.<br>
+Le résultat n’est pas toujours entier : 10 % de 6 €, c’est calculer \\(\\frac{6}{10}=0{,}6\\) €.<br>
 À retenir : diviser par 10 revient à décaler la virgule d’un rang vers la gauche.`;
 const RAP_PDC=`<b>Retrouver plusieurs pourcentages à partir de 10 %</b><br>
 Comme dans {pourcentage-dix}, on part de <b>10 %</b> du nombre, obtenu en divisant par 10 — mais ici aucun pourcentage n’est donné à l’avance : on s’en sert pour en retrouver PLUSIEURS.<br>
-<b>10 % de 400 €</b> : on divise par 10 — \\(\\frac{400}{10}=40\\) €.<br>
-<b>20 %, c’est le double de 10 %</b> : 40 × 2 = 80 €. <b>30 %, le triple</b> : 40 × 3 = 120 €. <b>40 %, quatre fois 10 %</b> : 40 × 4 = 160 €.<br>
-<b>5 %, c’est la moitié de 10 %</b> : 40 ÷ 2 = 20 €. <b>15 % = 10 % + 5 %</b> : 40 + 20 = 60 €. <b>25 % = 20 % + 5 %</b> : 80 + 20 = 100 €.<br>
+<b>10 % de 300 €</b> : on divise par 10 — \\(\\frac{300}{10}=30\\) €.<br>
+<b>20 %, c’est le double de 10 %</b> : 30 × 2 = 60 €. <b>30 %, le triple</b> : 30 × 3 = 90 €. <b>40 %, quatre fois 10 %</b> : 30 × 4 = 120 €.<br>
+<b>5 %, c’est la moitié de 10 %</b> : 30 ÷ 2 = 15 €. <b>15 % = 10 % + 5 %</b> : 30 + 15 = 45 €. <b>25 % = 20 % + 5 %</b> : 60 + 15 = 75 €.<br>
 Le nombre de départ n’est pas toujours un multiple de dix : sur 4 €, 10 % = 0,4 €, et 5 % en garde la même décimale — 0,4 ÷ 2 = 0,2 €.<br>
 À retenir : une fois 10 % trouvé, chaque autre pourcentage s’obtient en le multipliant, le divisant ou en l’additionnant à un autre déjà connu.`;
 const RAP_ATD=`<b>Retrouver le pourcentage d’une augmentation, en passant par 10 %</b><br>
@@ -18564,14 +18592,15 @@ Comme dans {pourcentage-dix}, on part de <b>10 %</b> du nombre, obtenu en divisa
 <b>Exemple :</b> dans une classe de 30 élèves, 12 ont la moyenne — quel pourcentage cela représente-t-il ?<br>
 <b>10 % de 30 élèves</b> : \\(\\frac{30}{10}=3\\) élèves. Pour passer de 3 à 12, on multiplie par 4 — donc <b>40 % de 30 élèves = 12 élèves</b>.<br>
 <b>Autre exemple :</b> dans une classe de 40 élèves, 2 ont les félicitations. 10 % de 40 élèves : \\(\\frac{40}{10}=4\\) élèves. Le pourcentage cherché se termine par un 5 : on trouve d’abord <b>5 %</b>, la moitié de 10 % — 4 ÷ 2 = 2 élèves — et 2 élèves est justement le résultat cherché, donc <b>5 % de 40 élèves = 2 élèves</b>.<br>
-Si le pourcentage cherché se termine par un autre chiffre que 5 (15 % ou 25 %), on multiplie ensuite ce 5 % par le bon nombre — 3 pour 15 %, 5 pour 25 %.<br>
+Si le pourcentage cherché est 15 % ou 25 %, on multiplie ensuite ce 5 % par le bon nombre — 3 pour 15 %, 5 pour 25 %.<br>
 À retenir : une fois 10 % (et, si besoin, 5 %) trouvé, on cherche par QUEL nombre le multiplier ou le diviser pour retomber sur le résultat de l’énoncé — ce même nombre, appliqué au pourcentage, donne la réponse.`;
 const RAP_ADX=`<b>Augmenter un prix en passant par 10 %</b><br>
 Comme dans {pourcentage-dix} et {pourcentage-dix-cascade}, on part de <b>10 %</b> du prix, obtenu en le divisant par 10.<br>
-<b>Si le pourcentage est un multiple de dix</b>, on multiplie 10 % autant de fois : augmenter <b>50 €</b> de <b>60 %</b>, c’est calculer \\(\\frac{50}{10}=5\\) €, puis 5 × 6 = 30 € d’augmentation.<br>
-<b>5 %, c’est la moitié de 10 %</b> : sur 50 €, 10 % = 5 €, donc 5 % = 2,5 €.<br>
-<b>15 % = 10 % + 5 %</b> : sur 50 €, 5 + 2,5 = 7,5 € d’augmentation.<br>
-On termine toujours en ajoutant l’augmentation trouvée au prix de départ : <b>prix augmenté = prix de départ + augmentation</b> — sur 50 € augmenté de 15 %, 50 + 7,5 = 57,5 €.`;
+<b>Si le pourcentage est un multiple de dix</b>, on multiplie 10 % autant de fois : augmenter <b>40 €</b> de <b>60 %</b>, c’est calculer \\(\\frac{40}{10}=4\\) €, puis 4 × 6 = 24 € d’augmentation.<br>
+<b>5 %, c’est la moitié de 10 %</b> : sur 40 €, 10 % = 4 €, donc 5 % = 2 €.<br>
+<b>15 % = 10 % + 5 %</b> : sur 40 €, 4 + 2 = 6 € d’augmentation.<br>
+Le prix n’est pas toujours un multiple de dix : sur 6 €, 10 % = 0,6 €, et 5 % = 0,3 €.<br>
+On termine toujours en ajoutant l’augmentation trouvée au prix de départ : <b>prix augmenté = prix de départ + augmentation</b> — sur 40 € augmenté de 15 %, 40 + 6 = 46 €.`;
 const RAP_DDT=`<b>Retrouver le pourcentage d’une baisse, en passant par 10 %</b><br>
 On connaît la valeur de départ et la valeur d’arrivée, et on cherche le pourcentage de baisse — le chemin inverse de {diminuer-taux-soustraction}.<br>
 Exemple : un prix passe de 80 € à 60 €.<br>
@@ -18582,10 +18611,11 @@ Quand le pourcentage cherché se termine par un 5 (5 %, 15 % ou 25 %), on ne le 
 À retenir : une fois la baisse et 10 % trouvés, le pourcentage cherché est celui qui, multiplié par la valeur de 10 % (ou de 5 % quand il le faut), retombe sur la baisse.`;
 const RAP_DDX=`<b>Diminuer un prix en passant par 10 %</b><br>
 Comme dans {pourcentage-dix} et {pourcentage-dix-cascade}, on part de <b>10 %</b> du prix, obtenu en le divisant par 10.<br>
-<b>Si le pourcentage est un multiple de dix</b>, on multiplie 10 % autant de fois : diminuer <b>50 €</b> de <b>60 %</b>, c’est calculer \\(\\frac{50}{10}=5\\) €, puis 5 × 6 = 30 € de baisse.<br>
-<b>5 %, c’est la moitié de 10 %</b> : sur 50 €, 10 % = 5 €, donc 5 % = 2,5 €.<br>
-<b>15 % = 10 % + 5 %</b> : sur 50 €, 5 + 2,5 = 7,5 € de baisse.<br>
-On termine toujours en retirant la baisse trouvée du prix de départ : <b>prix diminué = prix de départ − baisse</b> — sur 50 € diminué de 15 %, 50 − 7,5 = 42,5 €.`;
+<b>Si le pourcentage est un multiple de dix</b>, on multiplie 10 % autant de fois : diminuer <b>40 €</b> de <b>60 %</b>, c’est calculer \\(\\frac{40}{10}=4\\) €, puis 4 × 6 = 24 € de baisse.<br>
+<b>5 %, c’est la moitié de 10 %</b> : sur 40 €, 10 % = 4 €, donc 5 % = 2 €.<br>
+<b>15 % = 10 % + 5 %</b> : sur 40 €, 4 + 2 = 6 € de baisse.<br>
+Le prix n’est pas toujours un multiple de dix : sur 6 €, 10 % = 0,6 €, et 5 % = 0,3 €.<br>
+On termine toujours en retirant la baisse trouvée du prix de départ : <b>prix diminué = prix de départ − baisse</b> — sur 40 € diminué de 15 %, 40 − 6 = 34 €.`;
 const RAP_PCTQ=`<b>Retrouver la valeur initiale ou le pourcentage</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
 <b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
@@ -19403,15 +19433,23 @@ const QIA_MODELES={
       'R\u00e9sultat : '+q.result+'.'].join('\n');
   },
   augq:function(){
+    /* le corrigé type suit la question en cours : sa famille (hausse ou baisse)
+       ET son inconnue (le pourcentage, ou la valeur initiale) — l'exemple d'un
+       « retrouver le pourcentage » devant un « retrouver la valeur initiale »
+       montrait une autre démarche que celle de l'écran (audit, octobre 2026) */
     const act=(test && test.questions && test.questions[test.idx]) || null;
-    const neg=!!(act && act.sens===-1);
-    const q=qdmAutre(neg?genDimTaux:genAugTaux, c=>c.P+'x'+c.N);
-    return ['\u00c9nonc\u00e9 : un prix passe de '+q.N+' \u20ac \u00e0 '+q.decStr+' \u20ac. On teste la proposition '+q.P+' %.',
-      'Coefficient multiplicateur : \\\\(1 '+(neg?'-':'+')+' '+qdmFrac(q.P,100)+' = 1 '+(neg?'-':'+')+' '+pDecStr(q.P)+' = '+q.coefDec+' = '+qdmFrac(q.coef,100)+'\\\\)',
-      '\\\\('+qdmFrac(q.coef,100)+' \\\\times '+q.N+'\\\\)',
-      '\\\\(= '+qdmFrac(q.prodNum,100)+'\\\\)',
-      '\\\\(= '+q.decStr+'\\\\) \u20ac',
-      'On retrouve bien '+q.decStr+' \u20ac : la proposition '+q.P+' % est donc la bonne.'].join('\\n');
+    const neg=!!(act && act.sens===-1), val=!!(act && act.type==='val');
+    const gen=val?(neg?genDimDepart:genAugDepart):(neg?genDimTaux:genAugTaux);
+    const q=qdmAutre(gen, c=>c.P+'x'+c.N);
+    const enonce=val
+      ? '\u00c9nonc\u00e9 : apr\u00e8s une '+(neg?'baisse':'hausse')+' de '+q.P+' %, un prix vaut '+q.decStr+' \u20ac. On teste la proposition '+q.N+' \u20ac.'
+      : '\u00c9nonc\u00e9 : un prix passe de '+q.N+' \u20ac \u00e0 '+q.decStr+' \u20ac. On teste la proposition '+q.P+' %.';
+    return [enonce,
+      'Coefficient multiplicateur : \\(1 '+(neg?'-':'+')+' '+qdmFrac(q.P,100)+' = 1 '+(neg?'-':'+')+' '+pDecStr(q.P)+' = '+q.coefDec+' = '+qdmFrac(q.coef,100)+'\\)',
+      '\\('+qdmFrac(q.coef,100)+' \\times '+q.N+'\\)',
+      '\\(= '+qdmFrac(q.prodNum,100)+'\\)',
+      '\\(= '+q.decStr+'\\) \u20ac',
+      'On retrouve bien '+q.decStr+' \u20ac : la proposition '+(val?q.N+' \u20ac':q.P+' %')+' est donc la bonne.'].join('\n');
   },
   syn:function(){
     /* un exercice du MÊME type — même famille, même inconnue, même réglage

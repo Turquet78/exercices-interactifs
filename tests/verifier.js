@@ -38659,6 +38659,144 @@ function premiere(w){
   const [pct10Pb2, pct10Dec] = pct10Pb.split('|').map(Number);
   verifier('{pourcentage-dix} : un résultat décimal ne tombe jamais sur un thème humain ou dénombrable (20000 tirages)', pct10Pb2 === 0, pct10Pb2 + ' anomalies');
   verifier('{pourcentage-dix} : les deux branches (résultat entier, résultat décimal) sortent bien toutes les deux', pct10Dec > 4000 && pct10Dec < 16000, pct10Dec + ' tirages décimaux sur 20000');
+
+
+  /* ---- Les constats mineurs de l'audit (octobre 2026), lot Première ----- */
+
+  /* 1.4 calcul mental : aucun calcul trivial. « 0 − 0 », « 0 + 7 », « 5 × 1 »
+     sortaient du tirage. Deux bords : rien de trivial avec les réglages par
+     défaut ; et les tables bornées à 5 gardent assez de produits pour une
+     séance de 20 (sinon distinctes() rendrait un doublon). */
+  verifierEval(w, '1.4 : le calcul mental ne pose aucun calcul trivial (0 + x, x − 0, x − x, × 1, ÷ 1)', `(function(){
+    if(typeof genQuestion!=='function') return 'genQuestion() n\\'existe pas';
+    const vus=[], c=Object.assign({},DEFAULT_CFG,{ops:{add:true,sub:true,mul:true,div:true}});
+    const ops={};
+    for(let k=0;k<20000;k++){
+      const q=genQuestion(c), m=q.text.split(' '), a=+m[0], s=m[1], b=+m[2];
+      ops[s]=1;
+      const triv=(s==='+'&&(a===0||b===0)) || (s==='−'&&(b===0||a===b)) || (s==='×'&&(a===1||b===1)) || (s==='÷'&&(b===1||q.answer===1));
+      if(triv && vus.length<4) vus.push(q.text);
+    }
+    if(Object.keys(ops).length!==4) vus.push('les quatre opérations ne sont pas toutes sorties : '+Object.keys(ops).join(' '));
+    const petit=Object.assign({},DEFAULT_CFG,{ops:{add:false,sub:false,mul:true,div:false},mulMax:5});
+    const prods={}; for(let k=0;k<5000;k++) prods[genQuestion(petit).text]=1;
+    if(Object.keys(prods).length<20) vus.push('tables bornées à 5 : '+Object.keys(prods).length+' produits seulement, une séance de 20 se répéterait');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* pasUnSeul : aucune quantité dénombrée ne vaut 1 — les tables de contextes
+     écrivent l'unité au pluriel et accordent le verbe (« soit 1 élèves »,
+     « dont 1 pratiquent », « 5 % de 20 = 1 hectares »). On relit chaque
+     générateur concerné : chaque grandeur de la question, et celle que
+     chaque PROPOSITION ferait écrire. Second bord : le contrôle dit combien
+     de tirages à unité plurielle il a lus — zéro ne mesurerait rien. */
+  {
+    const r = evaluer(w, `(function(){
+      const GENS=['genPercent','genPctCol','genPctRes','genPctDepart','genPctTaux','genPdc','genPdt','genAtd','genDdt',
+        'genAugDepart','genAugTaux','genDimDepart','genDimTaux','genAugTauxAdd','genDimTauxSub','genAugDepAdd','genDimDepSub',
+        'genAugAdd','genDimSub','genSyn'];
+      const manquants=GENS.filter(function(n){ return typeof window[n]!=='function'; });
+      if(manquants.length) return {erreur:'générateur(s) absent(s) : '+manquants.join(', ')};
+      const pluriel=function(u){ return typeof u==='string' && /s$/.test(u) && u!=='colis'; };
+      const vus=[], nommes={}; let lus=0;   /* le premier défaut de CHAQUE générateur */
+      GENS.forEach(function(nom){
+        for(let k=0, n=(nom==='genSyn'?12000:3000);k<n;k++){   /* genSyn : six familles × trois inconnues, il lui faut plus de tirages */
+          const q=(nom==='genSyn' && k%2) ? genSyn(null,null,{dix:true}) : window[nom]();
+          if(!pluriel(q.unit)) continue;
+          lus++;
+          const v=[];
+          ['N','result','res','aug','baisse','fin','dix','cinq','d10','d5'].forEach(function(c){ if(typeof q[c]==='number') v.push([c,q[c]]); });
+          if(typeof q.decStr==='string') v.push(['decStr',parseFloat(q.decStr.replace(',','.'))]);
+          if(nom==='genPctCol') v.push(['une part',q.N/10]);
+          (q.lignes||[]).forEach(function(l){ v.push([l.P+' %',l.val]); });
+          if(Array.isArray(q.opts)){
+            const sens=(typeof q.sens==='number')?q.sens:0;
+            const quantites=q.type==='val'||q.type==='res'||q.inc==='fin'||q.inc==='ini';
+            /* les écrans à coefficient (augq, q.coef) n'écrivent que la valeur
+               finale d'une proposition ; ceux à addition, aussi l'évolution */
+            q.opts.forEach(function(o){
+              if(quantites) v.push(['proposition',o]);
+              else if(sens!==0){ if(typeof q.coef!=='number') v.push(['proposition '+o+' % (évolution)',o*q.N/100]); v.push(['proposition '+o+' % (finale)',q.N+sens*o*q.N/100]); }
+            });
+          }
+          const un=v.filter(function(p){ return p[1]===1; });
+          if(un.length && !(nom in nommes)){ nommes[nom]=1; vus.push(nom+' : '+un.map(function(p){ return p[0]; }).join(', ')+' = 1 '+q.unit+' (N='+q.N+', P='+q.P+')'); }
+        }
+      });
+      return {vus:vus, lus:lus};
+    })()`);
+    if(!r.ok || r.valeur.erreur) verifier('aucune quantité dénombrée ne vaut 1 (« 1 élèves », « dont 1 pratiquent »)', false, r.ok ? r.valeur.erreur : 'erreur JavaScript : ' + r.erreur);
+    else {
+      verifier('aucune quantité dénombrée ne vaut 1 (« 1 élèves », « dont 1 pratiquent ») — ' + r.valeur.lus + ' tirages à unité plurielle lus',
+        r.valeur.lus > 10000 && r.valeur.vus.length === 0,
+        r.valeur.lus <= 10000 ? 'seulement ' + r.valeur.lus + ' tirages à unité plurielle : le contrôle ne mesure presque rien' : r.valeur.vus.join(' | '));
+    }
+  }
+
+  /* parseDecToFrac : un « % » redondant et une virgule finale ne changent pas
+     la valeur (« 15 % » dans une case qu'un « % » suit déjà, « 12. ») — et ce
+     qui n'est pas un nombre reste refusé. */
+  verifierEval(w, 'une case décimale accepte « 15 % », « 15\\% », « 12. » et « 12, », refuse « % », « . » et « 1.2.3 »', `(function(){
+    const vus=[];
+    [['15 %',15,1],['15%',15,1],['15\\\\%',15,1],['12.',12,1],['12,',12,1],['0,5 %',5,10],['300,0',3000,10]].forEach(function(c){
+      const f=parseDecToFrac(c[0]); if(!f || f.n*c[2]!==c[1]*f.d) vus.push('« '+c[0]+' » lu '+JSON.stringify(f));
+    });
+    ['%','.',',','1.2.3','12%%','a12'].forEach(function(t){ const f=parseDecToFrac(t); if(f) vus.push('« '+t+' » accepté : '+JSON.stringify(f)); });
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* Le corrigé type des exercices à propositions sur une évolution (augq) :
+     du LaTeX à une barre (« \\( », pas « \\\\( »), de vrais retours à la ligne,
+     et l'exemple de l'inconnue de la question — une valeur initiale devant
+     une valeur initiale, un pourcentage devant un pourcentage. */
+  verifierEval(w, 'le corrigé type de {augmenter-depart} et voisins suit le type de la question, sans échappement doublé', `(function(){
+    const vus=[], BS=String.fromCharCode(92);
+    [['genAugDepart','val'],['genAugTaux','pct'],['genDimDepart','val'],['genDimTaux','pct']].forEach(function(c){
+      test.kind='augq'; test.questions=[window[c[0]]()]; test.idx=0;
+      const t=QIA_MODELES.augq();
+      if(t.indexOf(BS+BS)>=0) vus.push(c[0]+' : une barre doublée dans le corrigé type');
+      if(t.indexOf(BS+'n')>=0) vus.push(c[0]+' : un « '+BS+'n » écrit en toutes lettres');
+      if(t.split(String.fromCharCode(10)).length<5) vus.push(c[0]+' : le corrigé type tient sur une seule ligne');
+      if(t.indexOf(BS+'(')<0) vus.push(c[0]+' : aucune formule');
+      const prop=(t.match(/la proposition ([^ ]+) ([^ ]+) est donc la bonne/)||[])[2];
+      if((c[1]==='val') !== (prop==='\\u20ac')) vus.push(c[0]+' : la proposition testée est « '+prop+' » sur une question '+(c[1]==='val'?'de valeur initiale':'de pourcentage'));
+      if(c[0].indexOf('Dim')>=0 && t.indexOf('1 -')<0) vus.push(c[0]+' : le coefficient d\\'une baisse n\\'est pas 1 − P/100');
+    });
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* La hausse (la baisse) globale : « 1,26 − 1 = 26 % » sous-entendait que
+     0,26 vaut 26 % — la correction écrit le décimal, PUIS le pourcentage. */
+  verifierEval(w, '2.2.7 et 2.3.7 : la correction écrit « 1,26 − 1 = 0,26, soit 26 % »', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    for(let k=0;k<20;k++){
+      startHausses(); checkHSAnswer();
+      const h=$('hsFeedback').textContent, q=test.questions[test.idx];
+      const m=h.match(/la hausse globale est ([0-9,]+) − 1 = ([0-9,]+), soit ([0-9,]+) %/);
+      if(!m){ vus.push('hausses : « '+h.slice(h.indexOf('globale'),h.indexOf('globale')+60)+' »'); break; }
+      if(Math.abs(parseFloat(m[1].replace(',','.'))-1-parseFloat(m[2].replace(',','.')))>1e-9 || Math.abs(parseFloat(m[2].replace(',','.'))*100-parseFloat(m[3].replace(',','.')))>1e-9) { vus.push('hausses : '+m[0]); break; }
+      startBaisses(); checkBSAnswer();
+      const b=$('bsFeedback').textContent;
+      const n=b.match(/la baisse globale est 1 − ([0-9,]+) = ([0-9,]+), soit ([0-9,]+) %/);
+      if(!n){ vus.push('baisses : « '+b.slice(b.indexOf('globale'),b.indexOf('globale')+60)+' »'); break; }
+      if(Math.abs(1-parseFloat(n[1].replace(',','.'))-parseFloat(n[2].replace(',','.')))>1e-9 || Math.abs(parseFloat(n[2].replace(',','.'))*100-parseFloat(n[3].replace(',','.')))>1e-9) { vus.push('baisses : '+n[0]); break; }
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* « donc : l'augmentation est 5 % de 7000 € est ▢ € » — deux « est ». */
+  verifierEval(w, '2.2.11 : la ligne « l’augmentation de P % de N € est ▢ € » n’a qu’un verbe', `(function(){
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const vus=[];
+    for(let k=0;k<6;k++){
+      startAdx();
+      [...$('adxHost').querySelectorAll('.pt-row')].forEach(function(r){
+        const t=r.textContent; if((t.match(/\\best\\b/g)||[]).length>1 && vus.length<2) vus.push('« '+t.trim()+' »');
+      });
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
 }
 
 /* {python-pas-a-pas} (Seconde) : la fiche « variable pas à pas » — un programme
