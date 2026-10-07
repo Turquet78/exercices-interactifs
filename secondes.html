@@ -1381,6 +1381,14 @@
   margin-top:12px;min-height:1.4em;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink)}
 @media(max-width:760px){ .smp-lab{flex-basis:96px;font-size:.85rem} .smp-val{flex-basis:66px;font-size:1.15rem}
   .smp-bar{height:50px} .smp-ligne{gap:8px} }
+/* SUR UN TÉLÉPHONE, L'ÉTIQUETTE PASSE AU-DESSUS DE LA BARRE (audit d'octobre
+   2026, T2). En ligne, l'étiquette (96 px) et la fraction lue (66 px) prenaient
+   la moitié des 340 px de la carte : la barre « partagée en 20 » n'en gardait
+   que 100, des parts de 4 px qu'aucun doigt ne vise. Empilées, les deux barres
+   prennent toute la carte et partent toujours du même bord — c'est ce que
+   l'exercice compare. */
+@media(max-width:480px){ .smp-ligne{flex-direction:column;align-items:stretch;gap:4px}
+  .smp-lab{flex:none;text-align:left} .smp-bar{flex:none;width:100%} .smp-val{flex:none;justify-content:center;min-height:2.2em} }
 #smpPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 /* Les mêmes réglages que #sfHost, RECOPIÉS plutôt qu'ajoutés à ses sélecteurs :
    le bloc « sf » est le même texte dans les deux niveaux, et la Première n'a pas
