@@ -1049,6 +1049,9 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .tvg-svg .tvg-t.badc .dot{fill:var(--red);stroke:#bf2c3e;}
 .tvg-svg .tvg-t.missc .dot{fill:var(--green-soft);stroke:var(--green);stroke-width:2.4;}
 .tvg-svg .tvg-t.off{pointer-events:none;}
+/* le point atteint au clavier se montre : son anneau de touche se dessine */
+.tvg-svg .tvg-t:focus{outline:none}
+.tvg-svg .tvg-t:focus-visible .hit{stroke:var(--blue);stroke-width:2.5}
 /* La zone de touche des points (audit A3) : 14 px de rayon à l'écran, quelle
    que soit l'échelle du repère — le trait ne se met pas à l'échelle. */
 .tvg-svg .tvg-zone{fill:none;stroke:transparent;stroke-width:28px;stroke-linecap:round;vector-effect:non-scaling-stroke;pointer-events:stroke;cursor:pointer}
@@ -7866,23 +7869,44 @@ function tvgSVG(c){
      dessiné après lui, l'aurait volé. Ici, une cible gagne toujours sur le
      disque d'une autre ; le disque ne prend que ce qu'aucune cible ne prend. */
   let zones='', cibles='';
+  /* chaque cible est aussi un bouton pour le clavier (audit A4) : son nom dit
+     ce que l'œil lit sur le repère, l'ordonnée au dixième — les cibles qui ne
+     sont pas solution sont tenues à 0,9 au moins de k, l'arrondi ne trompe pas */
+  const lu=v=>String(Math.round(v*10)/10).replace('.',',').replace('-','\u2212');
   const zone=(x,y,fn)=>`<path class="tvg-zone" d="M${x.toFixed(1)} ${y.toFixed(1)}h0.01" onclick="${fn}"/>`;
   for(let n=TVG_XMIN;n<=TVG_XMAX;n++){
     const idx=n-TVG_XMIN, yv=f(n);
     if(yv>=c.yMin+0.2 && yv<=c.yMax-0.2){
       const sel=(c.selPts.indexOf(n)>=0)?' sel':'';
       zones+=zone(X(n),Y(yv),`tvgTogglePt(${n})`);
-      cibles+=`<g class="tvg-t${sel}" id="tvgp${idx}" onclick="tvgTogglePt(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="12"/><circle class="dot" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="4.6"/></g>`;
+      cibles+=`<g class="tvg-t${sel}" id="tvgp${idx}" onclick="tvgTogglePt(${n})" tabindex="0" role="button" aria-label="point (${lu(n)} ; ${lu(yv)}) de la courbe" aria-pressed="${sel?'true':'false'}"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="12"/><circle class="dot" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="4.6"/></g>`;
     }
     const selx=(c.selXs.indexOf(n)>=0)?' sel':'';
     zones+=zone(X(n),Y(0),`tvgToggleX(${n})`);
-    cibles+=`<g class="tvg-t${selx}" id="tvgx${idx}" onclick="tvgToggleX(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(0).toFixed(1)}" r="12"/><rect class="dot" x="${(X(n)-4.4).toFixed(1)}" y="${(Y(0)-4.4).toFixed(1)}" width="8.8" height="8.8" rx="2"/></g>`;
+    cibles+=`<g class="tvg-t${selx}" id="tvgx${idx}" onclick="tvgToggleX(${n})" tabindex="0" role="button" aria-label="abscisse ${lu(n)} sur l’axe des abscisses" aria-pressed="${selx?'true':'false'}"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(0).toFixed(1)}" r="12"/><rect class="dot" x="${(X(n)-4.4).toFixed(1)}" y="${(Y(0)-4.4).toFixed(1)}" width="8.8" height="8.8" rx="2"/></g>`;
   }
   g+=`<g class="tvg-zones" aria-hidden="true">${zones}</g>`+cibles;
   return `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" class="sv-svg tvg-svg"><defs><clipPath id="tvgClip"><rect x="${X(TVG_XMIN).toFixed(1)}" y="${Y(c.yMax).toFixed(1)}" width="${(X(TVG_XMAX)-X(TVG_XMIN)).toFixed(1)}" height="${(Y(c.yMin)-Y(c.yMax)).toFixed(1)}"/></clipPath></defs>${g}</svg>`;
 }
 /* Sélections : cliquer une cible l’ajoute/la retire ; l’état vit dans la question
    (q.selPts / q.selXs), donc il est sauvegardé et restauré avec la pause/reprise. */
+/* AU CLAVIER, UNE CIBLE QUI N'EST PAS UN VRAI BOUTON (audit d'octobre 2026,
+   A4). Les points du graphique et les parts à colorier sont des <g> et des
+   <div> munis d'un onclick : ni Tab ne les atteignait, ni Entrée ne les
+   actionnait, et ces exercices étaient infaisables sans souris ni doigt. Ils
+   portent désormais tabindex="0" et role="button" là où ils sont rendus ; ce
+   gestionnaire, UN SEUL pour toute la page, leur donne Entrée et Espace —
+   un clic, exactement celui de la souris. Ce qui gère déjà sa touche (la
+   zone de capture du signalement) l'annonce par preventDefault et passe ;
+   les vrais boutons, liens et champs gardent leur comportement natif. */
+document.addEventListener('keydown',function(e){
+  if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||(e.key!=='Enter'&&e.key!==' ')) return;
+  const t=e.target;
+  if(!t||!t.getAttribute||t.getAttribute('role')!=='button') return;
+  if(/^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(t.tagName)||t.isContentEditable) return;
+  e.preventDefault();
+  t.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+});
 function tvgTogglePt(n){
   if(test.locked||tvgBusy) return;
   const c=test.questions[test.idx]; if(!c||c.type!=='tvg') return;
@@ -7890,6 +7914,7 @@ function tvgTogglePt(n){
   const i=c.selPts.indexOf(n);
   if(i>=0){ c.selPts.splice(i,1); el.classList.remove('sel','badc'); }
   else { c.selPts.push(n); el.classList.add('sel'); el.classList.remove('badc'); }
+  el.setAttribute('aria-pressed', c.selPts.indexOf(n)>=0?'true':'false');
 }
 function tvgToggleX(n){
   if(test.locked||tvgBusy) return;
@@ -7898,6 +7923,7 @@ function tvgToggleX(n){
   const i=c.selXs.indexOf(n);
   if(i>=0){ c.selXs.splice(i,1); el.classList.remove('sel','badc'); }
   else { c.selXs.push(n); el.classList.add('sel'); el.classList.remove('badc'); }
+  el.setAttribute('aria-pressed', c.selXs.indexOf(n)>=0?'true':'false');
 }
 /* Soutien : colore les sélections (justes en vert et verrouillées, fausses en rouge à retirer),
    sans jamais révéler les cibles manquantes. */
