@@ -3083,6 +3083,13 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .asp-ret.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee;border-style:solid}
 .asp-ret.bad{color:var(--red);background:var(--red-soft);border-color:var(--red);border-style:solid}
 .asp-plus{position:absolute;left:1px;top:6px;font-family:"Fredoka";font-weight:700;font-size:.82rem;color:var(--red);line-height:21px}
+/* QUATRE COLONNES SUR UN TÉLÉPHONE (audit d'octobre 2026, T3) : 999 + 99 =
+   1098 pose quatre colonnes de 78 px, 390 px dans une carte de 340 — la
+   colonne des unités sortait de l'écran. Seules les colonnes se resserrent :
+   chiffres et cases gardent leur taille (la case a la taille des nombres qui
+   l'entourent), et une pose à quatre colonnes est une ADDITION, sans marque de
+   retenue devant le chiffre — la place qu'il fallait pour elle n'y sert pas. */
+@media(max-width:440px){ #aspHost:has(.mp-row > .mp-cl:nth-child(5)){--asp-col:68px} }
 /* --- Tables de multiplication : bandeau du tour en cours --- */
 .depart-titre{font-weight:800;color:var(--blue);}
 .depart-note{font-weight:700;color:var(--ink-soft);font-size:1rem;line-height:1.5;}
