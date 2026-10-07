@@ -9236,7 +9236,9 @@ function evalJustif(c, raw){
 /* Justification mod\u00e8le, affich\u00e9e en correction. */
 function modelJustif(c){
   const I=`${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`;
-  return `Sur ${I}, ${c.fname}(${c.v}) est continue et strictement ${c.sens}, elle varie de ${c.vGL} à ${c.vDL}. D\u2019apr\u00e8s le th\u00e9or\u00e8me des valeurs interm\u00e9diaires, l\u2019\u00e9quation ${c.fname}(${c.v}) = ${c.kL} admet une unique solution \u03b1.`;
+  /* c'est f qui est continue (pas le nombre f(x)) ; et l'encadrement de k, que RAP_TVI
+     exige, figure dans le corrigé */
+  return `Sur ${I}, ${c.fname} est continue et strictement ${c.sens}, elle varie de ${c.vGL} à ${c.vDL}. De plus, ${c.kL} est compris entre ${c.vGL} et ${c.vDL}. D\u2019apr\u00e8s le th\u00e9or\u00e8me des valeurs interm\u00e9diaires, l\u2019\u00e9quation ${c.fname}(${c.v}) = ${c.kL} admet une unique solution \u03b1.`;
 }
 function renderJustifCheck(r){
   const ess=(lab,ok)=>`<div class="just-item ${ok?'ok':'miss'}"><span>${ok?'\u2713':'\u2717'}</span> ${esc(lab)}</div>`;
@@ -16792,14 +16794,21 @@ const RAP_LR=
 +'<div class="rap-t">Limites usuelles en \u00b1\u221e</div>'
 +'<ul><li><i>x</i><sup><i>n</i></sup> \u2192 +\u221e en +\u221e &nbsp;;&nbsp; 1/<i>x</i> \u2192 0</li>'
 +'<li>e<sup><i>x</i></sup> \u2192 +\u221e en +\u221e &nbsp;et&nbsp; e<sup><i>x</i></sup> \u2192 0 en \u2212\u221e</li></ul>'
-+'<p>On r\u00e9dige une ligne par \u00e9tape : limite de chaque morceau, puis conclusion par somme, produit ou quotient.</p></div>';
++'<div class="rap-t">Limite en un r\u00e9el et asymptotes</div>'
++'<ul><li>en un r\u00e9el <i>a</i> (borne du domaine), on pr\u00e9cise le c\u00f4t\u00e9 : <b><i>x</i> \u2192 <i>a</i><sup>+</sup></b> (\u00e0 droite) ou <b><i>x</i> \u2192 <i>a</i><sup>\u2212</sup></b> (\u00e0 gauche) \u2014 par exemple 1/<i>x</i> \u2192 +\u221e quand <i>x</i> \u2192 0<sup>+</sup>, et \u2192 \u2212\u221e quand <i>x</i> \u2192 0<sup>\u2212</sup> ;</li>'
++'<li><i>f</i>(<i>x</i>) \u2192 \u00b1\u221e quand <i>x</i> \u2192 <i>a</i> : la droite <b><i>x</i> = <i>a</i></b> est une <b>asymptote verticale</b> ;</li>'
++'<li><i>f</i>(<i>x</i>) \u2192 <i>L</i> (un r\u00e9el) quand <i>x</i> \u2192 \u00b1\u221e : la droite <b><i>y</i> = <i>L</i></b> est une <b>asymptote horizontale</b> ;</li>'
++'<li>une limite infinie en \u00b1\u221e ne donne <b>aucune</b> asymptote.</li></ul>'
++'<p>On r\u00e9dige une ligne par \u00e9tape : limite de chaque morceau, puis conclusion par somme, produit ou quotient \u2014 et l\u2019on dit <b>toujours</b> ce qu\u2019il en est des asymptotes (leur \u00e9quation, ou \u00ab aucune asymptote \u00bb).</p></div>';
 const RAP_TVI=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 th\u00e9or\u00e8me des valeurs interm\u00e9diaires</h4>'
 +'<p>Si <i>f</i> est <b>continue</b> sur [<i>a</i>\u2009;\u2009<i>b</i>] et si <i>k</i> est <b>compris entre <i>f</i>(<i>a</i>) et <i>f</i>(<i>b</i>)</b>, alors l\u2019\u00e9quation <i>f</i>(<i>x</i>) = <i>k</i> admet <b>au moins une</b> solution dans [<i>a</i>\u2009;\u2009<i>b</i>].</p>'
 +'<div class="rap-t">Corollaire (unicit\u00e9)</div>'
 +'<p>Si de plus <i>f</i> est <b>strictement monotone</b> sur [<i>a</i>\u2009;\u2009<i>b</i>], la solution est <b>unique</b>.</p>'
++'<div class="rap-t">Intervalle ouvert ou infini</div>'
++'<p>Le corollaire s\u2019\u00e9tend \u00e0 un intervalle dont une borne est ouverte ou infinie (]<i>a</i>\u2009;\u2009<i>b</i>], [<i>a</i>\u2009;\u2009+\u221e[, ]\u2212\u221e\u2009;\u2009<i>b</i>[\u2026) : \u00e0 cette borne, on remplace <i>f</i>(<i>a</i>) ou <i>f</i>(<i>b</i>) par la <b>limite</b> de <i>f</i>. Une limite n\u2019est <b>pas atteinte</b> : <i>k</i> doit \u00eatre <b>strictement</b> compris entre elle et l\u2019autre valeur (ou limite).</p>'
 +'<div class="rap-t">R\u00e9daction attendue</div>'
-+'<p>Citer les trois points : continuit\u00e9, stricte monotonie, et <i>k</i> compris entre <i>f</i>(<i>a</i>) et <i>f</i>(<i>b</i>) \u2014 puis conclure.</p></div>';
++'<p>Citer les trois points : continuit\u00e9, stricte monotonie, et <i>k</i> compris entre <i>f</i>(<i>a</i>) et <i>f</i>(<i>b</i>) (ou leurs limites) \u2014 puis conclure.</p></div>';
 
 /* Le rappel du 4.6 est en HTML pur, sans un seul \( : sa seule \u00ab formule \u00bb
    est e^(\u2212x), qu'un <sup> \u00e9crit \u2014 une formule qui n'empile rien s'\u00e9crit sans
@@ -16835,6 +16844,7 @@ const RAP_TVINS=
 +'<p>On d\u00e9coupe gr\u00e2ce au <b>tableau de variations</b> : sur chaque intervalle o\u00f9 <i>f</i> est strictement monotone, on applique le corollaire du TVI.</p>'
 +'<ul><li>si <i>k</i> est compris entre les valeurs (ou limites) aux bornes de l\u2019intervalle : <b>une</b> solution ;</li>'
 +'<li>sinon : <b>aucune</b> sur cet intervalle.</li></ul>'
++'<p><b>Une limite n\u2019est pas une valeur prise.</b> \u00c0 une borne ouverte ou infinie, <i>f</i> s\u2019approche de sa limite sans jamais l\u2019atteindre : si <i>k</i> est <b>\u00e9gal</b> \u00e0 cette limite, il n\u2019y a <b>aucune</b> solution de ce c\u00f4t\u00e9. Seule une valeur <b>atteinte</b> (borne ferm\u00e9e, extremum) peut \u00eatre \u00e9gale \u00e0 <i>k</i>.</p>'
 +'<p>Le nombre total de solutions est la somme sur tous les intervalles. Attention aux extremums : si <i>k</i> vaut exactement un maximum ou un minimum, la solution est au sommet.</p></div>';
 const RAP_TVG=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 solutions sur le graphique</h4>'
