@@ -22754,48 +22754,28 @@ function checkAG2Answer(live){
     liveColorDec('g4r',q.fin,1);
     return;
   }
-  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const v=id=>$(id).value.trim(), iv=id=>entierDec(v(id));   /* « 20,5 » ne vaut pas 20 */
   const soutien=isSoutien();
-  const ok1 = v('g1n')!=='' && v('g1d')!=='' && fracEqual(iv('g1n'),iv('g1d'),q.P,100);
-  const ok2 = v('g2n')!=='' && v('g2d')!=='' && fracEqual(iv('g2n'),iv('g2d'),q.prod,100);
+  /* chaque case d'une fraction reçoit SON verdict, une case vide aucun */
+  const ok1 = marqueFracPaire('g1n','g1d',q.P,100,soutien);
+  const ok2 = marqueFracPaire('g2n','g2d',q.prod,100,soutien);
   const f3=parseDecToFrac(v('g3'));
   const ok3 = !!f3 && f3.n===q.aug*f3.d;
-  /* l'addition s'écrit dans les deux sens ; les deux cases partagent le même état,
-     comme les deux cases d'une fraction */
+  /* l'addition s'écrit dans les deux sens, et chaque terme se juge SEUL sur ce
+     qu'il promet (hscPaire) : un terme juste ne rougit plus parce que l'autre
+     est faux ; la soustraction, elle, a son ordre imposé */
   const fa=parseDecToFrac(v('g4a')), fb=parseDecToFrac(v('g4b'));
   const est=(fr,c)=>!!fr&&fr.n===c*fr.d;
   const neg=augqSens(q)<0;
-  const okA = neg ? (est(fa,q.N)&&est(fb,q.aug))
-                  : ((est(fa,q.N)&&est(fb,q.aug))||(est(fa,q.aug)&&est(fb,q.N)));
+  const sA = neg ? {ok:[est(fa,q.N),est(fb,q.aug)]} : hscPaire(['g4a','g4b'],[q.N,q.aug]);
+  const okA = sA.ok[0]&&sA.ok[1];
   const f5=parseDecToFrac(v('g4r'));
   const ok5 = !!f5 && f5.n===q.fin*f5.d;
   /* pose facultative : mêmes règles que la pose de multiplication de 3.2.1 */
-  const host=$('ag2Mul');
-  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
-  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
-  if(engaged){
-    boxes.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
-    });
-    carries.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim();
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.disabled=!soutien;
-      if(vv==='') return;
-      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
-    });
-  } else {
-    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
-  }
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('g1n',ok1); mark('g1d',ok1); mark('g2n',ok2); mark('g2d',ok2); mark('g3',ok3);
-  mark('g4a',okA); mark('g4b',okA); mark('g4r',ok5);
+  jugePoseFac($('ag2Mul'),soutien);   /* pose facultative : un chiffre vide ne rougit pas */
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
+  mark('g3',ok3);
+  mark('g4a',sA.ok[0]); mark('g4b',sA.ok[1]); mark('g4r',ok5);
   const allOk=ok1&&ok2&&ok3&&okA&&ok5;                     /* pose facultative non comptée */
   if(!allOk && soutien){ soutienAgain('ag2Feedback','ag2Actions','checkAG2Answer','ag2Host'); return; }
   test.locked=true;
@@ -22999,47 +22979,27 @@ function checkWAnswer(live){
     liveColorDec('w4r',c.fin,1);
     return;
   }
-  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const v=id=>$(id).value.trim(), iv=id=>entierDec(v(id));   /* « 20,5 » ne vaut pas 20 */
   const soutien=isSoutien();
-  const ok1 = v('w1n')!=='' && v('w1d')!=='' && fracEqual(iv('w1n'),iv('w1d'),c.P,100);
+  /* chaque case re\u00e7oit SON verdict (fractions : marqueFracPaire ; termes de
+     l'addition : hscPaire), et une case vide n'en re\u00e7oit aucun */
+  const ok1 = marqueFracPaire('w1n','w1d',c.P,100,soutien);
   const fv=parseDecToFrac(v('w1v'));
   const okV = !!fv && fv.n===c.N*fv.d;
-  const ok2 = v('w2n')!=='' && v('w2d')!=='' && fracEqual(iv('w2n'),iv('w2d'),c.prod,100);
+  const ok2 = marqueFracPaire('w2n','w2d',c.prod,100,soutien);
   const f3=parseDecToFrac(v('w3'));
   const ok3 = !!f3 && f3.n===c.aug*f3.d;
   const fa=parseDecToFrac(v('w4a')), fb=parseDecToFrac(v('w4b'));
   const est=(fr,val)=>!!fr&&fr.n===val*fr.d;
   /* addition : N + aug dans les deux sens ; soustraction : N \u2212 baisse, dans cet ordre */
-  const okA = neg ? (est(fa,c.N)&&est(fb,c.aug))
-                  : ((est(fa,c.N)&&est(fb,c.aug))||(est(fa,c.aug)&&est(fb,c.N)));
+  const sA = neg ? {ok:[est(fa,c.N),est(fb,c.aug)]} : hscPaire(['w4a','w4b'],[c.N,c.aug]);
+  const okA = sA.ok[0]&&sA.ok[1];
   const f5=parseDecToFrac(v('w4r'));
   const ok5 = !!f5 && f5.n===c.fin*f5.d;
-  const host=$('wMul');
-  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
-  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
-  if(engaged){
-    boxes.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
-    });
-    carries.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim();
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.disabled=!soutien;
-      if(vv==='') return;
-      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
-    });
-  } else {
-    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
-  }
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('w1n',ok1); mark('w1d',ok1); mark('w1v',okV); mark('w2n',ok2); mark('w2d',ok2);
-  mark('w3',ok3); mark('w4a',okA); mark('w4b',okA); mark('w4r',ok5);
+  jugePoseFac($('wMul'),soutien);   /* pose facultative : un chiffre vide ne rougit pas */
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
+  mark('w1v',okV);
+  mark('w3',ok3); mark('w4a',sA.ok[0]); mark('w4b',sA.ok[1]); mark('w4r',ok5);
   const calculOk=ok1&&okV&&ok2&&ok3&&okA&&ok5;             /* pose facultative non comptée */
   const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
   const btn=$('wc'+q.choisi);
@@ -24168,7 +24128,7 @@ function checkSynAnswer(live){
     $('syFeedback').className='mp-feedback bad'; return;
   }
   const c=synCouple(q);
-  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const v=id=>$(id).value.trim(), iv=id=>entierDec(v(id));   /* « 20,5 » ne vaut pas 20 */
   const soutien=isSoutien();
   const est=(fr,val)=>!!fr&&fr.n===val*fr.d;
   let oks={}, ids=[], calculOk=false;
@@ -24205,62 +24165,46 @@ function checkSynAnswer(live){
     }
     return;
   }
-  const mark=(id,ok)=>{const el=$(id);if(!el)return;el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  const jugePose=()=>{
-    const host=$('syMul'); if(!host) return;
-    const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
-    const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
-    if(!engaged){ [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); }); return; }
-    boxes.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
-    });
-    carries.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim();
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.disabled=!soutien;
-      if(vv==='') return;
-      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
-    });
-  };
+  /* Chaque case reçoit SON verdict, et une case vide n'en reçoit aucun
+     (marqueSaufVide) ; chaque case d'une fraction se juge seule contre la
+     valeur canonique (marqueFracPaire), chaque terme de l'addition sur ce
+     qu'il promet (hscPaire) — une case juste ne rougit plus parce que sa
+     jumelle est fausse ou vide (audit, octobre 2026). */
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);
+  const paire=(idn,idd,tn)=>marqueFracPaire(idn,idd,tn,100,soutien);
   if(q.fam==='pct'){
-    const ok1=v('y1n')!=='' && v('y1d')!=='' && fracEqual(iv('y1n'),iv('y1d'),c.P,100);
-    const ok2=v('y2n')!=='' && v('y2d')!=='' && fracEqual(iv('y2n'),iv('y2d'),c.prod,100);
+    const ok1=paire('y1n','y1d',c.P);
+    const ok2=paire('y2n','y2d',c.prod);
     const f3=parseDecToFrac(v('y3')); const ok3=est(f3,c.res);
-    mark('y1n',ok1);mark('y1d',ok1);mark('y2n',ok2);mark('y2d',ok2);mark('y3',ok3);
+    mark('y3',ok3);
     calculOk=ok1&&ok2&&ok3;
   } else if(q.meth==='coef'){
-    const ok1=v('y1n')!=='' && v('y1d')!=='' && fracEqual(iv('y1n'),iv('y1d'),c.P,100);
+    const ok1=paire('y1n','y1d',c.P);
     const frP=parseDecToFrac('0,'+v('y1p'));
     const okP=v('y1p')!=='' && !!frP && frP.n*100===c.P*frP.d;
     const frC=parseDecToFrac((neg?'0,':'1,')+v('y1dec'));
     const okC=v('y1dec')!=='' && !!frC && frC.n*100===c.coef*frC.d;
-    const ok2=v('y2n')!=='' && v('y2d')!=='' && fracEqual(iv('y2n'),iv('y2d'),c.coef,100);
-    const ok3=v('y3n')!=='' && v('y3d')!=='' && fracEqual(iv('y3n'),iv('y3d'),c.coef,100);
+    const ok2=paire('y2n','y2d',c.coef);
+    const ok3=paire('y3n','y3d',c.coef);
     const fV=parseDecToFrac(v('y3v')); const okV=est(fV,c.N);
-    jugePose();
-    const ok4=v('y4n')!=='' && v('y4d')!=='' && fracEqual(iv('y4n'),iv('y4d'),c.prodNum,100);
+    jugePoseFac($('syMul'),soutien);
+    const ok4=paire('y4n','y4d',c.prodNum);
     const f5=parseDecToFrac(v('y5')); const ok5=!!f5 && f5.n*100===c.prodNum*f5.d;
-    mark('y1n',ok1);mark('y1d',ok1);mark('y1p',okP);mark('y1dec',okC);mark('y2n',ok2);mark('y2d',ok2);
-    mark('y3n',ok3);mark('y3d',ok3);mark('y3v',okV);mark('y4n',ok4);mark('y4d',ok4);mark('y5',ok5);
+    mark('y1p',okP);mark('y1dec',okC);mark('y3v',okV);mark('y5',ok5);
     calculOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;
   } else {
-    const ok1=v('y1n')!=='' && v('y1d')!=='' && fracEqual(iv('y1n'),iv('y1d'),c.P,100);
+    const ok1=paire('y1n','y1d',c.P);
     const fV=parseDecToFrac(v('y1v')); const okV=est(fV,c.N);
-    jugePose();
-    const ok2=v('y2n')!=='' && v('y2d')!=='' && fracEqual(iv('y2n'),iv('y2d'),c.prod,100);
+    jugePoseFac($('syMul'),soutien);
+    const ok2=paire('y2n','y2d',c.prod);
     const f3=parseDecToFrac(v('y3')); const ok3=est(f3,c.res);
     const fa=parseDecToFrac(v('y4a')), fb=parseDecToFrac(v('y4b'));
-    const okA = neg ? (est(fa,c.N)&&est(fb,c.res))
-                    : ((est(fa,c.N)&&est(fb,c.res))||(est(fa,c.res)&&est(fb,c.N)));
+    /* addition : l'ordre est libre, chaque terme se juge seul ; soustraction : N − baisse, dans cet ordre */
+    const sA = neg ? {ok:[est(fa,c.N),est(fb,c.res)]} : hscPaire(['y4a','y4b'],[c.N,c.res]);
+    const okA = sA.ok[0]&&sA.ok[1];
     const f5=parseDecToFrac(v('y4r')); const ok5=est(f5,c.fin);
-    mark('y1n',ok1);mark('y1d',ok1);mark('y1v',okV);mark('y2n',ok2);mark('y2d',ok2);
-    mark('y3',ok3);mark('y4a',okA);mark('y4b',okA);mark('y4r',ok5);
+    mark('y1v',okV);
+    mark('y3',ok3);mark('y4a',sA.ok[0]);mark('y4b',sA.ok[1]);mark('y4r',ok5);
     calculOk=ok1&&okV&&ok2&&ok3&&okA&&ok5;
   }
   const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
@@ -26468,58 +26412,35 @@ function checkAAnswer(live){
     liveColorDecCoef('a1dec',q.coef);
     liveColorFrac('a2n','a2d',q.coef,100);
     liveColorFrac('a3n','a3d',q.coef,100);
-    liveColorExp($('a3v'));
+    liveColorDec('a3v',q.N,1);
     [...$('aMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     liveColorFrac('a4n','a4d',q.prodNum,100);
     liveColorDec('a5',q.prodNum,100);
     return;
   }
-  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const v=id=>$(id).value.trim(), iv=id=>entierDec(v(id));   /* « 20,5 » ne vaut pas 20 */
   const soutien=isSoutien();
   // ① 1 + P/100 = 1,… = (100+P)/100 (toute fraction égale acceptée)
-  const ok1 = v('a1n')!=='' && v('a1d')!=='' && fracEqual(iv('a1n'),iv('a1d'),q.P,100);
+  const ok1 = marqueFracPaire('a1n','a1d',q.P,100,soutien);
   const frP = parseDecToFrac('0,'+v('a1p'));
   const okP = v('a1p')!=='' && !!frP && frP.n*100===q.P*frP.d;          // P/100 en décimal
   const frC = parseDecToFrac('1,'+v('a1dec'));
   const okC = v('a1dec')!=='' && !!frC && frC.n*100===q.coef*frC.d;     // coefficient en décimal
-  const ok2 = v('a2n')!=='' && v('a2d')!=='' && fracEqual(iv('a2n'),iv('a2d'),q.coef,100);
+  const ok2 = marqueFracPaire('a2n','a2d',q.coef,100,soutien);
   // ② opération : coefficient × valeur
-  const ok3 = v('a3n')!=='' && v('a3d')!=='' && fracEqual(iv('a3n'),iv('a3d'),q.coef,100);
-  const okV = v('a3v')===String(q.N);
+  const ok3 = marqueFracPaire('a3n','a3d',q.coef,100,soutien);
+  const okV = decVaut(v('a3v'),q.N);   /* « 300,0 » vaut 300 */
   // ③ FACULTATIVE : pose des numérateurs sans zéros — feedback seulement, n'entre PAS dans allOk
-  const aMulHost=$('aMul');
-  const aBoxes=[...aMulHost.querySelectorAll('.mp-box')];
-  const aCarries=[...aMulHost.querySelectorAll('.mp-carry')];
-  const engaged=[...aBoxes,...aCarries].some(el=>el.value.trim()!=='');
-  if(engaged){
-    aBoxes.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
-    });
-    aCarries.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim();
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.disabled=!soutien;
-      if(vv===''){return;}
-      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
-    });
-  } else {
-    [...aBoxes,...aCarries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
-  }
+  jugePoseFac($('aMul'),soutien);   /* pose facultative : un chiffre vide ne rougit pas */
   // ④ produit en fraction
-  const ok4 = v('a4n')!=='' && v('a4d')!=='' && fracEqual(iv('a4n'),iv('a4d'),q.prodNum,100);
+  const ok4 = marqueFracPaire('a4n','a4d',q.prodNum,100,soutien);
   // ⑤ résultat décimal
   const fr=parseDecToFrac(v('a5'));
   const ok5 = !!fr && fr.n*100===q.prodNum*fr.d;
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('a1n',ok1); mark('a1d',ok1); mark('a1p',okP); mark('a1dec',okC); mark('a2n',ok2); mark('a2d',ok2);
-  mark('a3n',ok3); mark('a3d',ok3); mark('a3v',okV);
-  mark('a4n',ok4); mark('a4d',ok4); mark('a5',ok5);
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);   /* une case vide ne rougit jamais */
+  mark('a1p',okP); mark('a1dec',okC);
+  mark('a3v',okV);
+  mark('a5',ok5);
   const allOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;                   // étape ③ facultative non comptée
   if(!allOk && soutien){ soutienAgain('aFeedback','aActions','checkAAnswer','aHost'); return; }
   test.locked=true;
@@ -26913,53 +26834,31 @@ function checkVAnswer(live){
     (augqSens(q)<0?liveColorDecCoef0:liveColorDecCoef)('v1dec',c.coef);
     liveColorFrac('v2n','v2d',c.coef,100);
     liveColorFrac('v3n','v3d',c.coef,100);
-    liveColorExp($('v3v'));
+    liveColorDec('v3v',c.N,1);
     [...$('vMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     liveColorFrac('v4n','v4d',c.prodNum,100);
     liveColorDec('v5',c.prodNum,100);
     return;
   }
-  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const v=id=>$(id).value.trim(), iv=id=>entierDec(v(id));   /* « 20,5 » ne vaut pas 20 */
   const soutien=isSoutien(), neg=augqSens(q)<0;
-  const ok1 = v('v1n')!=='' && v('v1d')!=='' && fracEqual(iv('v1n'),iv('v1d'),c.P,100);
+  const ok1 = marqueFracPaire('v1n','v1d',c.P,100,soutien);
   const frP = parseDecToFrac('0,'+v('v1p'));
   const okP = v('v1p')!=='' && !!frP && frP.n*100===c.P*frP.d;          // P/100 en décimal
   const frC = parseDecToFrac((neg?'0,':'1,')+v('v1dec'));
   const okC = v('v1dec')!=='' && !!frC && frC.n*100===c.coef*frC.d;
-  const ok2 = v('v2n')!=='' && v('v2d')!=='' && fracEqual(iv('v2n'),iv('v2d'),c.coef,100);
-  const ok3 = v('v3n')!=='' && v('v3d')!=='' && fracEqual(iv('v3n'),iv('v3d'),c.coef,100);
-  const okV = v('v3v')===String(c.N);
+  const ok2 = marqueFracPaire('v2n','v2d',c.coef,100,soutien);
+  const ok3 = marqueFracPaire('v3n','v3d',c.coef,100,soutien);
+  const okV = decVaut(v('v3v'),c.N);   /* « 300,0 » vaut 300 */
   /* étape ③ facultative : mêmes règles qu'en 3.2.1, elle n'entre pas dans la note */
-  const host=$('vMul');
-  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
-  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
-  if(engaged){
-    boxes.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
-    });
-    carries.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim();
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.disabled=!soutien;
-      if(vv==='') return;
-      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
-    });
-  } else {
-    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
-  }
-  const ok4 = v('v4n')!=='' && v('v4d')!=='' && fracEqual(iv('v4n'),iv('v4d'),c.prodNum,100);
+  jugePoseFac($('vMul'),soutien);   /* pose facultative : un chiffre vide ne rougit pas */
+  const ok4 = marqueFracPaire('v4n','v4d',c.prodNum,100,soutien);
   const fr=parseDecToFrac(v('v5'));
   const ok5 = !!fr && fr.n*100===c.prodNum*fr.d;
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('v1n',ok1); mark('v1d',ok1); mark('v1p',okP); mark('v1dec',okC); mark('v2n',ok2); mark('v2d',ok2);
-  mark('v3n',ok3); mark('v3d',ok3); mark('v3v',okV);
-  mark('v4n',ok4); mark('v4d',ok4); mark('v5',ok5);
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);   /* une case vide ne rougit jamais */
+  mark('v1p',okP); mark('v1dec',okC);
+  mark('v3v',okV);
+  mark('v5',ok5);
   const calculOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5; /* étape ③ facultative non comptée */
   const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
   const btn=$('vc'+q.choisi);
@@ -27072,58 +26971,35 @@ function checkDAnswer(live){
     liveColorDecCoef0('d1dec',q.coef);
     liveColorFrac('d2n','d2d',q.coef,100);
     liveColorFrac('d3n','d3d',q.coef,100);
-    liveColorExp($('d3v'));
+    liveColorDec('d3v',q.N,1);
     [...$('dMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     liveColorFrac('d4n','d4d',q.prodNum,100);
     liveColorDec('d5',q.prodNum,100);
     return;
   }
-  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const v=id=>$(id).value.trim(), iv=id=>entierDec(v(id));   /* « 20,5 » ne vaut pas 20 */
   const soutien=isSoutien();
   // ① 1 − P/100 = 0,… = (100−P)/100 (toute fraction égale acceptée)
-  const ok1 = v('d1n')!=='' && v('d1d')!=='' && fracEqual(iv('d1n'),iv('d1d'),q.P,100);
+  const ok1 = marqueFracPaire('d1n','d1d',q.P,100,soutien);
   const frP = parseDecToFrac('0,'+v('d1p'));
   const okP = v('d1p')!=='' && !!frP && frP.n*100===q.P*frP.d;          // P/100 en décimal
   const frC = parseDecToFrac('0,'+v('d1dec'));
   const okC = v('d1dec')!=='' && !!frC && frC.n*100===q.coef*frC.d;
-  const ok2 = v('d2n')!=='' && v('d2d')!=='' && fracEqual(iv('d2n'),iv('d2d'),q.coef,100);
+  const ok2 = marqueFracPaire('d2n','d2d',q.coef,100,soutien);
   // ② opération : coefficient × valeur
-  const ok3 = v('d3n')!=='' && v('d3d')!=='' && fracEqual(iv('d3n'),iv('d3d'),q.coef,100);
-  const okV = v('d3v')===String(q.N);
+  const ok3 = marqueFracPaire('d3n','d3d',q.coef,100,soutien);
+  const okV = decVaut(v('d3v'),q.N);   /* « 300,0 » vaut 300 */
   // ③ FACULTATIVE : pose des numérateurs sans zéros — feedback seulement, n'entre PAS dans allOk
-  const dMulHost=$('dMul');
-  const dBoxes=[...dMulHost.querySelectorAll('.mp-box')];
-  const dCarries=[...dMulHost.querySelectorAll('.mp-carry')];
-  const engaged=[...dBoxes,...dCarries].some(el=>el.value.trim()!=='');
-  if(engaged){
-    dBoxes.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
-    });
-    dCarries.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim();
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.disabled=!soutien;
-      if(vv===''){return;}
-      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
-    });
-  } else {
-    [...dBoxes,...dCarries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
-  }
+  jugePoseFac($('dMul'),soutien);   /* pose facultative : un chiffre vide ne rougit pas */
   // ④ produit en fraction
-  const ok4 = v('d4n')!=='' && v('d4d')!=='' && fracEqual(iv('d4n'),iv('d4d'),q.prodNum,100);
+  const ok4 = marqueFracPaire('d4n','d4d',q.prodNum,100,soutien);
   // ⑤ résultat décimal
   const fr=parseDecToFrac(v('d5'));
   const ok5 = !!fr && fr.n*100===q.prodNum*fr.d;
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('d1n',ok1); mark('d1d',ok1); mark('d1p',okP); mark('d1dec',okC); mark('d2n',ok2); mark('d2d',ok2);
-  mark('d3n',ok3); mark('d3d',ok3); mark('d3v',okV);
-  mark('d4n',ok4); mark('d4d',ok4); mark('d5',ok5);
+  const mark=(id,ok)=>marqueSaufVide(id,ok,soutien);   /* une case vide ne rougit jamais */
+  mark('d1p',okP); mark('d1dec',okC);
+  mark('d3v',okV);
+  mark('d5',ok5);
   const allOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;
   if(!allOk && soutien){ soutienAgain('dFeedback','dActions','checkDAnswer','dHost'); return; }
   test.locked=true;
