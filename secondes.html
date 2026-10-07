@@ -47116,7 +47116,7 @@ function rvfFallback(type){
     case 'mult-frac': return {type:type, d1:3, d2:5, n1:2, n2:1};
     case 'mult-entier': return {type:type, d:5, n:2, k:3};
     case 'diff-add': return {type:type, d1:3, d2:5, n1:1, n2:2};
-    case 'diff-sub-entier': return {type:type, d1:4, n1:1, k:1};
+    case 'diff-sub-entier': return {type:type, d1:4, n1:1, k:2};
     default: return {type:type, d1:3, d2:5, n1:2, n2:1};
   }
 }
@@ -47141,7 +47141,7 @@ function rvfTirage(type){
     if(type==='mult-entier'){
       const d=rand(2,9), n=rand(1,9);
       if(gcd(n,d)!==1) continue;
-      return {type:type, d:d, n:n, k:rand(1,9)};
+      return {type:type, d:d, n:n, k:rand(2,9)};   /* un entier ≥ 2 : multiplier par 1 n'apprend rien */
     }
     if(type==='diff-add'){
       const d1=rand(2,9), d2=rand(2,9), n1=rand(1,9), n2=rand(1,9);
@@ -47150,13 +47150,14 @@ function rvfTirage(type){
       return {type:type, d1:d1, d2:d2, n1:n1, n2:n2};
     }
     if(type==='diff-sub-entier'){
-      const d1=rand(2,9), n1=rand(1,9), k=rand(1,9);
+      const d1=rand(2,9), n1=rand(1,9), k=rand(2,9);   /* entier ≥ 2, comme mult-entier */
       if(n1-k*d1===0) continue;
       if(gcd(n1,d1)!==1) continue;
       return {type:type, d1:d1, n1:n1, k:k};
     }
     if(type==='div-1' || type==='div-2'){
       const d1=rand(2,9), d2=rand(2,9), n1=rand(1,9), n2=rand(1,9);
+      if(n2===d2) continue;                /* jamais diviser par une fraction égale à 1 (3/3) */
       if(gcd(n1,d1)!==1 || gcd(n2,d2)!==1) continue;
       return {type:type, d1:d1, d2:d2, n1:n1, n2:n2};
     }
