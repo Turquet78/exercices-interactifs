@@ -19260,8 +19260,16 @@ const QIA_MODELES={
       'On retrouve bien '+q.decStr+' \u20ac : la proposition '+q.P+' % est donc la bonne.'].join('\\n');
   },
   syn:function(){
+    /* un exercice du MÊME type — même famille, même inconnue, même réglage
+       des 10 % — mais d'AUTRES nombres, comme tous les modèles : bâti sur la
+       question en cours, le corrigé type livrait la réponse au modèle, sommé
+       en même temps de la garder secrète (audit, octobre 2026). Ni le taux ni
+       la valeur de départ ne sont repris : un seul des deux suffirait à
+       donner l'inconnue quand c'est lui qu'on cherche. */
     const act=(test && test.questions && test.questions[test.idx]) || null;
-    const q=act||genSyn();
+    const gen1=()=>genSyn(act?act.fam:undefined, act?act.inc:undefined, (act&&act.dix)?{dix:true}:undefined);
+    const gen=()=>{ for(let i=0;i<40;i++){ const c=gen1(); if(!act || (c.P!==act.P && c.N!==act.N)) return c; } return gen1(); };
+    const q=qdmAutre(gen, c=>c.fam+'|'+c.P+'x'+c.N);
     if(q.fam==='pct'){
       return ['Prendre '+q.P+' % de '+q.N+' '+q.unit+' :',
         '\\('+qdmFrac(q.P,100)+' \\times '+q.N+' = '+qdmFrac(q.P*q.N,100)+' = '+q.result+'\\) '+q.unit+'.'].join('\n');
