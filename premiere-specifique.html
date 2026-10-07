@@ -1378,6 +1378,14 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #evsHost math-field.pm-mf.evs-mot{min-width:170px;max-width:300px}
 @media(max-width:900px){ #evsHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1))} .pctb-af-x{font-size:calc(1.15rem * var(--tab-nb,1))} }
 @media(max-width:560px){ #evsHost math-field.pm-mf{font-size:calc(1.2rem * var(--tab-nb,1));min-width:60px} .pctb-row{gap:14px} .pctb-af-x{font-size:calc(1.05rem * var(--tab-nb,1))} }
+/* ---- CIBLES TACTILES : 24 px au moins sous le doigt (audit d'octobre 2026,
+   A3 ; WCAG 2.5.8). Les parts de la colonne « pour 100 » du 1.x « fraction et
+   pourcentage » faisaient 12 px à 380 px, celles de la colonne du
+   pourcentage 23,8 px. Les deux colonnes gardent TOUJOURS la même hauteur —
+   c'est ce qu'elles comparent : 20 parts de 24 px, 19 traits d'un pixel et
+   5 px de bordure font 510 px, à toutes les largeurs. ---- */
+#fpHost .fp-col{height:510px}
+@media(max-width:520px){ #pcHost .fp-col{height:270px} }
 </style>
 
 <div class="wrap">

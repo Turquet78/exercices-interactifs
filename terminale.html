@@ -1049,6 +1049,9 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .tvg-svg .tvg-t.badc .dot{fill:var(--red);stroke:#bf2c3e;}
 .tvg-svg .tvg-t.missc .dot{fill:var(--green-soft);stroke:var(--green);stroke-width:2.4;}
 .tvg-svg .tvg-t.off{pointer-events:none;}
+/* La zone de touche des points (audit A3) : 14 px de rayon à l'écran, quelle
+   que soit l'échelle du repère — le trait ne se met pas à l'échelle. */
+.tvg-svg .tvg-zone{fill:none;stroke:transparent;stroke-width:28px;stroke-linecap:round;vector-effect:non-scaling-stroke;pointer-events:stroke;cursor:pointer}
 #tvgConsignes{line-height:2;}
 #tvgConsignes i{font-style:italic;}
 .tvg-solzone{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 12px;}
@@ -1764,6 +1767,24 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
 .rap ul{margin:2px 0 4px;padding-left:17px;}
 .rap li{margin:3px 0;}
 .rap i{font-family:KaTeX_Math,Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+/* ---- CIBLES TACTILES : 24 px au moins sous le doigt (audit d'octobre 2026,
+   A3 ; WCAG 2.5.8 — 32 px visés pour une case). Mesurées à 380 px : menus ↗↘
+   des tableaux de variation 48 × 23, cases tg-in 30 × 23 (exposants .tx-se)
+   à 30 × 29, menu .ec-sel 200 × 21, cases du 6.x (.sa2-in) dès 26 px, case
+   d'indice de la récurrence 20 × 30. Seule la BOÎTE grandit : la police des
+   cases ne bouge pas, et c'est elle que mesure le contrôle « les cases de
+   saisie ont la taille des nombres qui les entourent ». ---- */
+.vfcell .vt-sel2{min-height:32px}
+#scr-ec .ec-sel,.tvi-sel.ec-sel{min-height:32px}
+.tg-in{min-height:32px}
+.tg-in.tx-se{min-width:32px}
+/* .sa2-in est en content-box (sa2Ajuster écrit la largeur du TEXTE) : les
+   32 px se comptent donc sans rembourrage ni bordure — 2 + 2 et 2 + 2. */
+.sa2-in{min-height:24px;min-width:20px}
+.sa2-in.sa2-mot{min-height:26px}
+body math-field.dexp-mf.rc-mf{min-height:32px}
+body math-field.dexp-mf.rc-mf-idx,
+body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
 </style>
 
 <div class="wrap">
@@ -7830,15 +7851,34 @@ function tvgSVG(c){
   const cfy=Math.min(Math.max(ly+((ly>(c.yMin+c.yMax)/2)?-0.9:0.9), c.yMin+0.5), c.yMax-0.4);
   g+=`<text x="${X(lx).toFixed(1)}" y="${Y(cfy).toFixed(1)}" class="sv-cf">C<tspan font-size="11" dy="4">${c.fname}</tspan></text>`;
   g+=`<g id="tvgKgrp" style="display:none"><line x1="${X(TVG_XMIN).toFixed(1)}" y1="${Y(c.k).toFixed(1)}" x2="${X(TVG_XMAX).toFixed(1)}" y2="${Y(c.k).toFixed(1)}" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="6 4"/><text x="${(X(TVG_XMAX)-4).toFixed(1)}" y="${(Y(c.k)-6).toFixed(1)}" class="sv-ax" text-anchor="end" fill="var(--blue)" font-weight="800">y = ${c.kL}</text></g>`;
+  /* LA ZONE DE TOUCHE (audit d'octobre 2026, A3). À 380 px le repère est
+     réduit aux deux tiers : le rond « hit » de 12 unités n'y faisait plus que
+     8 px de rayon, une cible de 16 px qu'un doigt manque. Chaque cible reçoit
+     donc un disque de 14 px de rayon À L'ÉCRAN, quelle que soit l'échelle :
+     un trait de longueur nulle, à bouts ronds, dont l'épaisseur transparente
+     de 28 px ne se met pas à l'échelle (vector-effect, voir .tvg-zone dans la
+     feuille de styles). Pas un ROND épais : le tracé d'un cercle plus petit
+     que la moitié de son trait est un ANNEAU pour le test de touche de
+     Chromium — mesuré, le centre ne répondait plus, seul le bord à 14 px.
+     Ces disques vivent dans une couche À PART, dessinée AVANT toutes les
+     cibles, et non dans chaque groupe : un point de la courbe proche de l'axe
+     (f(n) = 0,6) tombe dans le disque du carré de son abscisse, et ce carré,
+     dessiné après lui, l'aurait volé. Ici, une cible gagne toujours sur le
+     disque d'une autre ; le disque ne prend que ce qu'aucune cible ne prend. */
+  let zones='', cibles='';
+  const zone=(x,y,fn)=>`<path class="tvg-zone" d="M${x.toFixed(1)} ${y.toFixed(1)}h0.01" onclick="${fn}"/>`;
   for(let n=TVG_XMIN;n<=TVG_XMAX;n++){
     const idx=n-TVG_XMIN, yv=f(n);
     if(yv>=c.yMin+0.2 && yv<=c.yMax-0.2){
       const sel=(c.selPts.indexOf(n)>=0)?' sel':'';
-      g+=`<g class="tvg-t${sel}" id="tvgp${idx}" onclick="tvgTogglePt(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="12"/><circle class="dot" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="4.6"/></g>`;
+      zones+=zone(X(n),Y(yv),`tvgTogglePt(${n})`);
+      cibles+=`<g class="tvg-t${sel}" id="tvgp${idx}" onclick="tvgTogglePt(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="12"/><circle class="dot" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="4.6"/></g>`;
     }
     const selx=(c.selXs.indexOf(n)>=0)?' sel':'';
-    g+=`<g class="tvg-t${selx}" id="tvgx${idx}" onclick="tvgToggleX(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(0).toFixed(1)}" r="12"/><rect class="dot" x="${(X(n)-4.4).toFixed(1)}" y="${(Y(0)-4.4).toFixed(1)}" width="8.8" height="8.8" rx="2"/></g>`;
+    zones+=zone(X(n),Y(0),`tvgToggleX(${n})`);
+    cibles+=`<g class="tvg-t${selx}" id="tvgx${idx}" onclick="tvgToggleX(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(0).toFixed(1)}" r="12"/><rect class="dot" x="${(X(n)-4.4).toFixed(1)}" y="${(Y(0)-4.4).toFixed(1)}" width="8.8" height="8.8" rx="2"/></g>`;
   }
+  g+=`<g class="tvg-zones" aria-hidden="true">${zones}</g>`+cibles;
   return `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" class="sv-svg tvg-svg"><defs><clipPath id="tvgClip"><rect x="${X(TVG_XMIN).toFixed(1)}" y="${Y(c.yMax).toFixed(1)}" width="${(X(TVG_XMAX)-X(TVG_XMIN)).toFixed(1)}" height="${(Y(c.yMin)-Y(c.yMax)).toFixed(1)}"/></clipPath></defs>${g}</svg>`;
 }
 /* Sélections : cliquer une cible l’ajoute/la retire ; l’état vit dans la question
