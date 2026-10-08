@@ -4063,6 +4063,48 @@ dénominateur rougissent, « de » reste bleue, le message écrit « 468 sur
 618 »). Le banc navigateur couvre l'écran par ses contrôles universels sans
 rien déclarer.
 
+## Seconde 4.6.7 — {tableau-proportions-trois-colonnes-directes} : le 4.6.6 en fraction directe, sans aucune aide
+
+**Demandé par Turquet en octobre 2026** : « en seconde créer un exercice comme
+le 4.6.6 mais où l'élève doit seulement donner la fraction correspondant à la
+réponse sans compléter des cases avec des lettres. Il ne faut aucune aide et
+pas de lettre dans le tableau. » C'est au 4.6.6 ce que le 4.6.4 est au 4.6.3.
+
+**Moteur partagé, identité propre** (journal 09) : même `kind` `tdc`, même
+écran `scr-tdc`, même tirage (`tdcBuildQuestions(true)`), mêmes situations,
+mêmes tournures, même tableau aux cases vides. Les questions portent
+`q.dir=1`, et cinq endroits s'y règlent : `tdcCases` (deux cases, `tdc-num`
+et `tdc-den`), `tdcTableHTML` (les têtes sans « (A) » … « (E) »), le rendu (le
+tableau complété, la question, la fraction à deux cases empilées — ni listes,
+ni « C'est la proportion de … parmi … », ni libellés), le pourquoi (dit en
+mots : « On étudie les femmes parmi les employés souhaitant prendre le train :
+ils sont 468 sur 618 ») et la copie enregistrée (« 196/462 »). `startTdc` et
+`startTdcDirectes` passent par `demarrerTdc(qId, dir)`. Barème : les cases
+vides du tableau + 6 × 2.
+
+**« Aucune aide » : une liste par identifiant, `AIDE_SANS`.** Le mécanisme
+qui existait (`IA_ECRANS_SANS`) vise un ÉCRAN, et cet écran est partagé avec
+le 4.6.6, qui garde son aide. `conseilInlineBtn()` traite donc un exercice de
+`AIDE_SANS` comme le mode évaluation, dans les DEUX modes : ni rappel, ni
+conseil, ni question à l'IA — et le bouton des tables n'y est pas non plus
+(`TABLES_SANS`). Comme toutes les rangées d'aide passent par cette fonction
+(rendu, `soutienAgain` après une erreur, `iaBoutons`), il n'y a qu'un seul
+endroit à tenir. Le profil le déclare dans `aideIA.sans`, à côté des
+exercices de rapidité. Ce qui reste : la correction en direct du mode
+soutien (c'est le mode, pas une aide de l'exercice) et la correction écrite
+après la vérification.
+
+**Contrôle** (`tableauProportionsTroisColonnesDirectes`, banc principal) : la
+place (4.6.7, le 4.6.6 ne bouge pas, `TABLES_SANS`, `AIDE_SANS`) ; 300
+tirages (sept questions, toutes directes, deux cases par proportion) et le
+4.6.6 qui ne le devient pas ; l'écran (têtes sans lettres, deux champs, aucune
+liste ni phrase à compléter, aucune « (A) » écrite, la question 7 de la fiche
+mot à mot) ; aucun bouton d'aide — sur le tableau, sur une proportion, en
+soutien, et après une erreur en soutien ; la copie juste (2 bleues, « 196/462 »
+enregistrée juste) ; un dénominateur faux (seul lui rougit, le message dit
+« 468 sur 618 » sans lettre) ; et le bord opposé : le 4.6.6 garde ses
+lettres et ses boutons d'aide.
+
 ## {pourcentage-phrases} — du texte au schéma, le 4.1.10 pris depuis les phrases (Seconde, septembre 2026, 4.1.11)
 
 **D'où il vient.** Demande de Turquet : « en seconde, un nouvel exercice comme
