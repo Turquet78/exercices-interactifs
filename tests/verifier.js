@@ -4150,6 +4150,7 @@ function exercices(suite){
     tableauProportionsDirectes(w, P);
     tableauProportionsParmi(w, P);
     tableauProportionsTroisColonnes(w, P);
+    tableauProportionsTroisColonnesDirectes(w, P);
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
@@ -17311,6 +17312,84 @@ function tableauProportionsTroisColonnes(w, P){
     if(!document.getElementById('tdc-qui').classList.contains('ok') || !document.getElementById('tdc-parmi').classList.contains('bad') || !document.getElementById('tdc-den').classList.contains('bad'))
       vus.push('« parmi tout » au lieu de « parmi A » : la liste « parmi » et le dénominateur doivent rougir, « de » rester bleue');
     if(!/468 sur 618/.test(document.getElementById('tdcFeedback').textContent)) vus.push('message : '+document.getElementById('tdcFeedback').textContent);
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {tableau-proportions-trois-colonnes-directes} — 4.6.7 : le 4.6.6 sans
+   lettres ni listes, et sans aucune aide (Turquet, octobre 2026). Le tirage,
+   les réponses et le tableau sont ceux du 4.6.6 (contrôlés ci-dessus) ; on
+   tient ici ce qui change : la place, la question marquée directe, deux
+   cases par proportion, aucune lettre à l'écran, aucun bouton d'aide dans
+   les deux modes, la copie juste et la copie fausse. */
+function tableauProportionsTroisColonnesDirectes(w, P){
+  const present = evaluer(w, "typeof startTdcDirectes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('proportions dans un tableau à trois colonnes, fraction directe : la place, l\'écran sans lettres et sans aide',
+      'ce niveau n\'a pas l\'exercice du tableau à trois colonnes en fraction directe');
+    return;
+  }
+  verifierEval(w, 'proportions dans un tableau à trois colonnes, fraction directe : la place, l\'écran sans lettres et sans aide', `(function(){
+    const vus=[], ID='tableau-proportions-trois-colonnes-directes';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=ID;
+    if(TEST_NUM[ID]!=='4.6.7') vus.push('numéro '+TEST_NUM[ID]+' au lieu de 4.6.7');
+    if(TEST_NUM['tableau-proportions-trois-colonnes']!=='4.6.6') vus.push('le 4.6.6 a bougé');
+    if(TABLES_SANS.indexOf(ID)<0) vus.push('le bouton des tables est proposé');
+    if(AIDE_SANS.indexOf(ID)<0) vus.push('l\\'exercice n\\'est pas déclaré sans aide');
+    for(let i=0;i<300 && !vus.length;i++){
+      const qs=tdcBuildQuestions(true);
+      if(qs.length!==7){ vus.push(qs.length+' questions au lieu de 7'); break; }
+      qs.forEach(function(q,ix){
+        if(!q.dir) vus.push('la question '+(ix+1)+' n\\'est pas directe');
+        if(q.phase==='prop'){
+          const ids=tdcCases(q).map(function(x){ return x.id; }).join(' ');
+          if(ids!=='tdc-num tdc-den') vus.push('cases de la proportion : '+ids);
+        }
+      });
+    }
+    if(tdcBuildQuestions(false).some(function(q){ return q.dir; })) vus.push('le 4.6.6 est devenu direct');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+    const T=[[468,196,56],[150,266,64]];
+    startTdcDirectes();
+    if(test.qId!==ID || test.kind!=='tdc') vus.push('identité '+test.qId+'/'+test.kind);
+    if(test.maxScore!==test.questions[0].vides.length+12) vus.push('barème '+test.maxScore+' au lieu de '+(test.questions[0].vides.length+12));
+    const host=document.getElementById('tdcHost'), scr=document.getElementById('scr-tdc');
+    const aide=function(){ return [].filter.call(scr.querySelectorAll('button'), function(b){ return /Rappel|Conseil|IA|tables/i.test(b.textContent); }).map(function(b){ return b.textContent.trim(); }); };
+    /* le tableau : aucune lettre dans les têtes */
+    let q=test.questions[0]; Object.assign(q, {ci:0, t:T, vides:['x02','x11']}); test.idx=0; renderTdcTest();
+    const tetes=[].map.call(host.querySelectorAll('th'), function(x){ return x.textContent.trim(); }).join(' | ');
+    if(tetes!==' | Train | Avion | Autocar | Total | Femmes | Hommes | Total') vus.push('têtes : « '+tetes+' »');
+    if(aide().length) vus.push('boutons d\\'aide sur le tableau : '+aide().join(', '));
+    /* une proportion : la question, deux cases, rien d'autre */
+    test.idx=6; q=test.questions[6]; Object.assign(q, {ci:0, t:T, vides:['x02','x11'], gk:'l0', rk:'c1', v:6}); renderTdcTest();
+    if(host.querySelectorAll('select').length || host.querySelectorAll('input').length!==2) vus.push('l\\'écran montre '+host.querySelectorAll('input,select').length+' champs au lieu des deux cases de la fraction');
+    if(host.querySelector('.tdp-lib, .tdp-etude, .tdl-tl')) vus.push('des lettres ou des phrases à compléter sont encore affichées');
+    if(/\\([A-E]\\)/.test(host.textContent)) vus.push('une lettre (A)…(E) reste écrite');
+    if(host.querySelector('.tdl-quest').textContent.indexOf('On s’intéresse aux employés souhaitant prendre l’avion. Quelle est la proportion des femmes parmi eux ?')<0) vus.push('question : « '+host.querySelector('.tdl-quest').textContent+' »');
+    if(aide().length) vus.push('boutons d\\'aide sur une proportion : '+aide().join(', '));
+    document.getElementById('tdc-num').value='196'; document.getElementById('tdc-den').value='462';
+    checkTdcAnswer();
+    let faux=host.querySelectorAll('.bad').length, bons=host.querySelectorAll('.ok').length;
+    if(faux || bons!==2) vus.push('copie juste : '+bons+' cases justes, '+faux+' fausses');
+    const der=test.answers[test.answers.length-1];
+    if(!der || !der.correct || der.given!=='196/462' || der.answer!=='196/462') vus.push('copie juste enregistrée : '+JSON.stringify(der));
+    /* un dénominateur faux : seul lui rougit, le pourquoi le dit en mots, sans lettre */
+    test.idx=5; q=test.questions[5]; Object.assign(q, {ci:0, t:T, vides:['x02','x11'], gk:'l0', rk:'c0', v:0}); renderTdcTest();
+    document.getElementById('tdc-num').value='468'; document.getElementById('tdc-den').value='1200';
+    checkTdcAnswer();
+    if(!document.getElementById('tdc-num').classList.contains('ok') || !document.getElementById('tdc-den').classList.contains('bad')) vus.push('dénominateur faux : le numérateur doit rester bleu, le dénominateur rougir');
+    const msg=document.getElementById('tdcFeedback').textContent;
+    if(!/468 sur 618/.test(msg) || /proportion de [A-E]\\b/.test(msg)) vus.push('message : '+msg);
+    /* le mode soutien non plus n'offre aucune aide, même après une erreur */
+    currentMode='soutien'; renderTdcTest(); test.locked=false;
+    if(aide().length) vus.push('boutons d\\'aide en soutien : '+aide().join(', '));
+    document.getElementById('tdc-num').value='1'; document.getElementById('tdc-den').value='2';
+    checkTdcAnswer();
+    if(aide().length) vus.push('boutons d\\'aide après une erreur en soutien : '+aide().join(', '));
+    /* le bord opposé : le 4.6.6 garde ses lettres et son aide */
+    currentMode='train'; currentTestId='tableau-proportions-trois-colonnes'; startTdc();
+    if(!aide().length) vus.push('le 4.6.6 a perdu ses boutons d\\'aide');
+    if(!/\\(A\\)/.test(host.textContent)) vus.push('le 4.6.6 a perdu ses lettres');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
