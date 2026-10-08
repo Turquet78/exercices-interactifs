@@ -2777,3 +2777,65 @@ vérification avec un message.
 **« y = 1 x » (M73)** était déjà corrigé dans la correction et la réponse
 enregistrée du 5.1 (`txAX`) ; l'attendu envoyé au modèle l'écrivait encore
 (« tangente réduite : y = 1 x ») : il passe par `txAX` lui aussi.
+
+**{etude-algo-convexite} (2.2.4) : LA FICHE « PRÉPA DS 2 » — LA COURBE LUE,
+f′ EN LITTÉRAL, L'ALGORITHME DE BALAYAGE ET LA CONVEXITÉ.** Demande de Turquet
+(octobre 2026), un PDF joint : « créer un exercice comme le PDF, où l'élève
+écrira les dérivées comme dans l'exercice 2.1.1 ; on donnera le tableau de
+valeurs correspondant à l'algorithme ; la fonction pourra varier avec
+différents a et b entiers, et l'exponentielle peut être e^(−x) comme e^x ou
+e^(x−1) ; en partie C, a) calculer f″(x), b) en déduire la convexité en
+présentant comme dans le 2.2.2 question h ». Il ferme la partie Convexité,
+après le 2.2.3. Un seul écran, trois parties, 63 cases, et la note COMPTE LES
+CASES comme au 2.2.2.
+**Le tirage** : f(x) = (ax + b)·e^(kx + c), (k, c) ∈ {(−1, 0), (1, 0),
+(1, −1)}, a ∈ {±3, ±4}, b ∈ {±1, …, ±5}. Alors f′ = (kax + a + kb)e^(kx+c),
+f″ = (ax + 2ka + b)e^(kx+c) ; α = −b/a, l'extremum en α − k, l'inflexion en
+α − 2k — des FRACTIONS, écrites empilées dans le texte et attendues exactes
+dans les cases (« 2/3 » ou « 4/6 », jamais « 0,67 »). Le point A est là où
+l'exposant s'annule (x₀ = 0, ou 1 pour e^(x−1)) : f(x₀) et f′(x₀) y sont des
+entiers, et la lecture graphique est honnête — le dessin est un quadrillage
+UNITÉ gradué sur les deux axes, la tangente pointillée. Rejets : α sur le pas
+de 0,1 (le balayage ne trancherait plus), |α| > 2, une lecture nulle ou hors
+du quadrillage, un extremum de moins de 0,5 (le « au dixième » ne dirait
+rien). Il reste 44 fonctions, les trois exponentielles sortent.
+**Le A b) se démontre EN LITTÉRAL, et c'est le juge du 2.1.1 qui le juge.**
+`asgDerVerdicts` a gagné l'exponentielle (D.k, D.c — par défaut −1 et 0, la
+chaîne d'avant inchangée pour le 4.6 et le 2.2.2) et les LETTRES (D.L) : a et
+b reçoivent des valeurs sans rapport entre elles ni avec un entier (1,73 et
+−0,59), substituées avant la compilation, et la copie est jugée comme une
+fonction de x — « −ax + a − b », « a − b − ax » et « −a(x−1) − b » passent,
+« −ax + a + b » non. D.T porte les écritures de la correction (« ax + b »).
+Les lettres a et b sont sur le clavier A de cet exercice (`kbVarsFor`).
+`asgDerBlocHTML` a gagné l'exponentielle écrite après les cases. Le C a)
+appelle la même chaîne sur f′, sans lettres.
+**L'algorithme de la fiche est réécrit en Python JUSTE** : « (3x+1)*e**(-x) »
+n'est pas du Python (3x n'existe pas, e ne s'importe pas) — la page écrit
+`from math import exp` et `(3*x+1)*exp(-x)`. Le départ est l'entier s de la
+branche monotone juste avant α (α − 1 ≤ s < α), et la condition du while est
+le signe que f a en s. Le tableau de valeurs part de s au pas de 0,1, comme
+la calculatrice réglée sur l'algorithme ; ses abscisses sont arrondies (une
+calculatrice affiche −0,3, Python renvoie −0,29999999999999993) et la case
+accepte l'écriture décimale exacte. La valeur renvoyée est toujours une
+valeur approchée de α PAR EXCÈS : le balayage avance de gauche à droite.
+**Deux fuites évitées, une assumée.** La ligne « Signe de … » du tableau de
+la partie C ne recopie pas le facteur de f″ (ce serait la réponse du a) juste
+au-dessus) : elle dit « facteur affine de f″ ». Le tableau de variations de
+la partie B n'a pas de ligne pour le facteur de f′. La fiche, elle, écrit
+f(x) = (3x + 1)e^(−x) en tête de la partie B, ce qui donne a et b du A c) :
+c'est la forme de la feuille, gardée — le A c) éprouve le raisonnement.
+**Le contrôle (`tests/verifier.js`, `etudeAlgoConvexite`) REFAIT
+l'arithmétique** sur toutes les fonctions que le tirage produit —
+différences finies pour f′ et f″, limites relues à ±60, stricte monotonie de
+la branche, et l'algorithme REJOUÉ en flottants comme Python l'exécute : la
+valeur renvoyée, l'encadrement de α et la ligne du tableau de valeurs où f
+change de signe disent la même chose. Puis la fiche (a = 3, b = 1) : ce que
+la page écrit (la fonction, le while, le départ, le visage e^(x−1)), la copie
+d'élève passe entière (63/63, la chaîne littérale TAPÉE comme un élève), les
+écritures égales (les deux ordres u/v en littéral, « 4/6 », « 1,6 » au
+dixième), huit fautes qui rougissent seules, les cases vides en `sol` en
+entraînement et sans couleur en soutien, le contexte du modèle. Le banc
+NAVIGATEUR (« 6 quadragies ») TAPE « ax+b » et « −ax+a−b » dans un vrai
+MathLive et relit le verdict, puis remplit la copie entière sur e^(−x) et sur
+e^(x−1) et la vérifie d'un clic, mesure les flèches dessinées et la page qui
+ne déborde pas.

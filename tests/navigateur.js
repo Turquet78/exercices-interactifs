@@ -5758,6 +5758,87 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies. LE 2.2.4 : LA FICHE « PRÉPA DS 2 » RENDUE =====
+       Ce que jsdom ne voit pas : les LETTRES a et b tapées dans un vrai
+       MathLive — la chaîne du A b) se démontre en littéral, et le juge relit
+       la sérialisation réelle (« ax+b », « -ax+a-b ») ; la copie entière
+       remplie depuis l'attendu de la page puis vérifiée d'un clic, sur la
+       fiche (e^(−x)) ET sur le visage e^(x−1), dont l'exposant passe par
+       asgML puis par MathLive ; les flèches du tableau DESSINÉES ; la page
+       qui ne déborde pas. */
+    titre('6 quadragies. LE 2.2.4 : LA FICHE « PRÉPA DS 2 » RENDUE — LES LETTRES TAPÉES, LA COPIE ENTIÈRE');
+    if(!P.etudeAlgoConvexite){
+      ['le 2.2.4 : « ax+b » et « -ax+a-b » tapés dans la chaîne littérale sont relus et jugés justes',
+       'le 2.2.4 : la copie de la fiche remplie est toute au vert, sur e^(−x) et sur e^(x−1)',
+       'le 2.2.4 : les flèches du tableau sont DESSINÉES à une taille lisible',
+       'le 2.2.4 : la page ne déborde pas'].forEach(n => ignorer(n, 'ce niveau n\'a pas l\'étude, algorithme et convexité'));
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.etudeAlgoConvexite.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(700);
+      const epingler = q => s.page.evaluate(q => { test.questions = [q]; test.idx = 0; test.score = 0; test.answers = []; test.locked = false; test.maxScore = eavMax(q); renderEAV(); }, q);
+      /* la fiche même : a = 3, b = 1, e^(−x) */
+      await epingler({ a: 3, b: 1, k: -1, c: 0 });
+      await s.page.waitForTimeout(400);
+      const taper = async (id, texte) => {
+        await s.page.click('#' + id);
+        await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide si la case n'a pas fini de prendre le focus */
+        await s.page.evaluate(id => document.getElementById(id).focus(), id);
+        await s.page.waitForTimeout(300);
+        await s.page.keyboard.type(texte, { delay: 60 });
+        await s.page.waitForTimeout(300);
+      };
+      await taper('eav-abu', 'ax+b');
+      await taper('eav-abfac', '-ax+a-b');
+      const lit = await s.page.evaluate(() => {
+        const q = test.questions[0], V = asgDerVerdicts(q, eavDerLit(q)).verdicts;
+        return { u: dexpCellValue('eav-abu'), fac: dexpCellValue('eav-abfac'), vu: V['eav-abu'], vfac: V['eav-abfac'] };
+      });
+      verifier('le 2.2.4 : « ax+b » et « -ax+a-b » tapés dans la chaîne littérale sont relus et jugés justes',
+        lit.u === 'ax+b' && lit.fac === '-ax+a-b' && lit.vu === true && lit.vfac === true,
+        'lu ' + JSON.stringify(lit.u) + ' (' + lit.vu + ') et ' + JSON.stringify(lit.fac) + ' (' + lit.vfac + ')');
+      /* la copie entière, remplie depuis l'attendu de la page, puis le CLIC */
+      const copie = async () => {
+        await s.page.evaluate(() => {
+          const q = test.questions[0];
+          const sol1 = asgDerVerdicts(q, eavDerLit(q)).sol, sol2 = asgDerVerdicts(q, eavDerSec(q)).sol;
+          eavCases(q).forEach(x => { const el = document.getElementById(x.id); if (!el) return;
+            const val = (x.type === 'der') ? ((x.grp === 2) ? sol2 : sol1)[x.id] : String(eavVal(q, x));
+            if (el.tagName === 'MATH-FIELD') el.setValue(asgML(val));
+            else el.value = val; });
+          eavArrowChange();   /* poser une valeur par script ne lève pas onchange */
+        });
+        await s.page.click('#eavActions .btn-primary');
+        await s.page.waitForTimeout(400);
+        return s.page.evaluate(() => {
+          const oks = document.querySelectorAll('#eavForm .ok').length, bads = [...document.querySelectorAll('#eavForm .bad')].map(e => e.id);
+          const ov = document.getElementById('eav-var-ov');
+          const fleches = ov ? [...ov.querySelectorAll('path,line,polygon')].filter(e => { try { const r = e.getBBox(); return r.width > 4 || r.height > 4; } catch (err) { return false; } }).length : 0;
+          const ovr = ov ? ov.getBoundingClientRect() : { width: 0, height: 0 };
+          const page = document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
+          return { oks, bads, score: test.score, max: test.maxScore, locked: test.locked, fleches, ovW: Math.round(ovr.width), ovH: Math.round(ovr.height), page };
+        });
+      };
+      const v1 = await copie();
+      await epingler({ a: 3, b: -1, k: 1, c: -1 });
+      await s.page.waitForTimeout(400);
+      const v2 = await copie();
+      const juste = v => v.oks === v.max && v.bads.length === 0 && v.score === v.max && v.max > 60 && v.locked;
+      verifier('le 2.2.4 : la copie de la fiche remplie est toute au vert, sur e^(−x) et sur e^(x−1)',
+        juste(v1) && juste(v2),
+        [v1, v2].map(v => v.oks + ' ok, rouges ' + JSON.stringify(v.bads.slice(0, 4)) + ', note ' + v.score + '/' + v.max).join(' — '));
+      verifier('le 2.2.4 : les flèches du tableau sont DESSINÉES à une taille lisible',
+        v2.fleches >= 2 && v2.ovW > 200 && v2.ovH > 60,
+        v2.fleches + ' flèche(s) dessinée(s), bande ' + v2.ovW + '×' + v2.ovH + ' px');
+      verifier('le 2.2.4 : la page ne déborde pas', !v1.page && !v2.page, 'la page défile horizontalement');
+      verifier('l\'étude, algorithme et convexité ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE =====
        Le 2.5.2 : le 2.5.1 posé sur le moteur rédigé du 2.2.10. Deux choses ne
        se voient QUE dans un vrai navigateur, et elles portent l'exercice.
