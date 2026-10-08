@@ -2137,6 +2137,10 @@ module.exports = {
        case est TAPÉE pour de vrai, le bouton ∞ cliqué, et la copie de la
        fiche — 102 cases — remplie puis vérifiée d'un clic. */
     etudeConvexite: { exercice: 'etude-convexite' },
+    /* Le 2.2.4 (la fiche « Prépa DS 2 ») : la chaîne LITTÉRALE du A b) — a et
+       b tapés dans un vrai MathLive —, puis la copie entière remplie et
+       vérifiée d'un clic sur deux visages, e^(−x) et e^(x−1). */
+    etudeAlgoConvexite: { exercice: 'etude-algo-convexite' },
     /* L'étiquette « Cf′ » du dessin partagé des dérivées (afGraphSVG) se pose
        À CÔTÉ de la courbe, jamais dessus : le banc navigateur mesure la boîte
        RENDUE (getBBox) contre le chemin RENDU (getPointAtLength) sur chacun

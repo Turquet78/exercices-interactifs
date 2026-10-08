@@ -886,7 +886,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-sag,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-sag,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-eav{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1416,6 +1416,21 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
   .cvx-lecture{display:flex;justify-content:space-between;gap:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.92rem;color:var(--blue-dark);background:#EAF0FF;border:1.5px solid var(--line);border-top:0;border-radius:0 0 14px 14px;padding:3px 12px}
   .cvx-marque{fill:var(--ink);stroke:#fff;stroke-width:1.2}
   .cvx-croix{stroke:var(--ink);stroke-width:1.2}
+  /* ---- {etude-algo-convexite} (2.2.4) : les intertitres des trois parties,
+     l'abscisse en fraction empilée, la tangente pointillée et le point A ---- */
+  .eav-partie{font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.12rem;color:var(--blue);border-bottom:2px solid var(--line);padding-bottom:3px;margin-top:22px}
+  .eav-pose{font-weight:700}
+  .eav-fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;margin:0 2px}
+  .eav-fr>span:first-child{border-bottom:2px solid currentColor;padding:0 3px}
+  .eav-fr>span{padding:0 3px}
+  .vfcell .eav-vin{position:absolute;transform:translate(-50%,-50%);width:58px;padding:5px 4px;font-size:.95rem;transition:top .2s ease;z-index:3}
+  .eav-tan{stroke:var(--ink);stroke-width:1.6;stroke-dasharray:6 4}
+  .eav-lblA{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;fill:var(--ink)}
+  .eav-graph .sv-svg{width:100%;max-width:520px}
+  .ec-graph.eav-graph{max-width:520px;margin:10px auto}
+  .eav-note{color:var(--ink-soft);margin:6px 0}
+  .eav-e{white-space:nowrap}
+  .eav-tabla-wrap{max-height:300px;max-width:340px;margin-left:auto;margin-right:auto}
   .vfcell .cvx-val{position:absolute;transform:translate(-50%,-50%);z-index:3;box-shadow:0 0 0 3px var(--surface)}
   /* ---- {convexite-qcm} : le tableau de variations de f′ de l'exercice 4, DONNÉ
      (les valeurs posées sur les nœuds, le 0 au milieu d'une flèche) ; les
@@ -2521,6 +2536,22 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
       <div class="mp-actions" id="ecvActions"></div>
     </div>
   </section>
+  <!-- 2.2.4 ÉTUDE, ALGORITHME ET CONVEXITÉ — la fiche « Prépa DS 2 » : la courbe
+       et sa tangente lues, f′ démontrée en littéral, le tableau de variations,
+       le TVI, l'algorithme de balayage et son tableau de valeurs, f″ et la
+       convexité. Ses ids sont tous eav-* : rien n'est partagé avec un autre écran. -->
+  <section class="screen" id="scr-eav">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="eavModeTag"></span><span class="q-idx" id="eavQIdx">Question 1 / 1</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="eavLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card tg-card">
+      <p class="enonce" id="eavPrompt"></p>
+      <div id="eavForm"></div>
+      <div class="mp-feedback" id="eavFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="eavActions"></div>
+    </div>
+  </section>
 
   <section class="screen" id="scr-s1">
     <div class="test-top">
@@ -3163,7 +3194,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=367;
+const APP_VERSION=368;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3364,6 +3395,7 @@ const TESTS={
   'etude-exponentielle': { name:'Étude complète — (ax+b)e\u207b\u02e3', icon:'\ud83d\udccb', desc:'L\u2019étude de la fiche, de bout en bout : les points d\u2019intersection avec les axes, la dérivée rédigée comme dans {derivee-exp-2}, le tableau de variations comme dans {etude-fonction}, l\u2019extremum, puis la tangente en x = 1 comme dans {tangente-exp}.', start:()=>startEC() },
   'etude-convexite': { name:'Étude de fonction et convexité', icon:'\u222a', desc:'La fiche 5, de bout en bout : les axes et les limites comme dans {tvi-alpha-signe}, f\u2009\u2032 démontrée comme dans {derivee-exp}, le tableau de variations comme dans {etude-fonction}, l\u2019unique solution de f(x) = k par le TVI, la tangente en 0 comme dans {equation-tangente}, puis f\u2009\u2033, son signe et la convexité, le point d\u2019inflexion, et la courbe sous sa tangente.', start:()=>startECV() },
   'convexite-qcm': { name:'Convexit\u00e9 \u2014 QCM vari\u00e9s', icon:'\u2611\ufe0f', desc:'La fiche \u00ab QCM convexit\u00e9 \u00bb, six visages par s\u00e9ance : la courbe de f\u2009\u2032, son tableau de variations, ou la courbe de f\u2009\u2033 \u2014 et \u00e0 chaque fois quatre affirmations dont UNE SEULE est vraie : f convexe ou concave sur un intervalle, extremum de f, tangente horizontale, point d\u2019inflexion, signe de f\u2009\u2033, extremum de f\u2009\u2032. Les pi\u00e8ges de la fiche y sont : l\u2019intervalle qui enjambe le point d\u2019inflexion, le z\u00e9ro de f\u2009\u2032 pris pour un point d\u2019inflexion, le sommet de f\u2009\u2032 pris pour un extremum de f \u2014 comme au {signe-derivee-qcm}.', start:()=>startCvq() },
+  'etude-algo-convexite': { name:'Étude, algorithme et convexité', icon:'\ud83d\udcbb', desc:'La fiche « Prépa DS 2 » : f(x) = (ax + b)e^(−x), e^x ou e^(x−1). A — lire f et f\u2009\u2032 sur la courbe et la tangente, démontrer f\u2009\u2032 en littéral comme dans {derivee-exp}, en déduire a et b ; B — limites, tableau de variations, unique solution α par le TVI, puis l\u2019algorithme Python de balayage au pas de 0,1 et son tableau de valeurs ; C — f\u2009\u2033 calculée de la même façon, et la convexité présentée comme dans {etude-convexite}.', start:()=>startEAV() },
   'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
   'signe-quotient-carre': { name:'Signe de (ax+b)/(cx+d)\u00b2', icon:'\u00f7',
@@ -3408,7 +3440,10 @@ const THEMES=[
       /* Puis les QCM de la fiche « QCM convexité » (demande de Turquet,
          septembre 2026 : « en terminale faire des QCM variés comme sur le
          PDF ») ferment la partie : 2.2.3. */
-      { num:2, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm'] }
+      /* Puis la fiche « Prépa DS 2 » (demande de Turquet, octobre 2026) — la
+         lecture graphique, l'algorithme de balayage et la convexité — ferme la
+         partie : 2.2.4. */
+      { num:2, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite'] }
     ] },
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique','tvi-alpha-signe'] },
@@ -3621,7 +3656,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-dexp','scr-lr','scr-ec','scr-asg','scr-ecv','scr-cvx'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-dexp','scr-lr','scr-ec','scr-asg','scr-ecv','scr-cvx','scr-eav'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -4084,6 +4119,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='rf' && test.questions && test.questions[test.idx]){ c=rfConseilCtx(); }
   else if(test && test.kind==='asg' && test.questions && test.questions[test.idx]){ c=asgConseilCtx(); }
   else if(test && test.kind==='ecv' && test.questions && test.questions[test.idx]){ c=ecvConseilCtx(); }
+  else if(test && test.kind==='eav' && test.questions && test.questions[test.idx]){ c=eavConseilCtx(); }
   else if(test && test.kind==='rr' && test.questions && test.questions[test.idx]){ c=rrConseilCtx(); }
   else if(test && test.kind==='sar' && test.questions && test.questions[test.idx]){ c=sarConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
@@ -5035,7 +5071,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], sag:['sag',renderSAG], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], sag:['sag',renderSAG], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], eav:['eav',renderEAV] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5158,7 +5194,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','sag','enc','rec','ef','eq','rc','rf','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','sag','enc','rec','ef','eq','rc','rf','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','eav'];
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
@@ -9720,7 +9756,7 @@ function dexpNeedParens(s, first){
   const neg=/^[\-\u2212]/.test(t);
   return inner || (neg && !first);
 }
-const DEXP_FIRSTS=['dexp-s2a','dq-s2a','asg-bs2a','ecv-cs2a','ecv-gs2a']; window.DEXP_FIRSTS=DEXP_FIRSTS;   /* cases qui ouvrent leur ligne (exposé au module MathLive) */
+const DEXP_FIRSTS=['dexp-s2a','dq-s2a','asg-bs2a','ecv-cs2a','ecv-gs2a','eav-abs2a','eav-cas2a']; window.DEXP_FIRSTS=DEXP_FIRSTS;   /* cases qui ouvrent leur ligne (exposé au module MathLive) */
 function dexpRender(ce){
   const st=dexpState(ce);
   let html=dexpEsc(st.base);
@@ -10205,6 +10241,10 @@ function dexpLiveCheck(id){
   }
   if(test && test.kind==='ecv'){   /* les c) et g) du 2.2.2 : même route, vers checkECV */
     if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkECV(true); },0);
+    return;
+  }
+  if(test && test.kind==='eav'){   /* le A b) et le C a) du 2.2.4 : même route, vers checkEAV */
+    if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkEAV(true); },0);
     return;
   }
   if(test && test.kind==='dexp' && test.dexpLevel===3) return d3LiveCheck(id);
@@ -16220,21 +16260,34 @@ function asgML(plain){ return mlTexN(plain).replace(/\^\(([^)]+)\)/g,'^{$1}'); }
    et la fonction à dériver, u = p·x + q avec v = e^(−x) (par défaut f même :
    p = A.p, q = A.q). Le 2.2.2 y passe f′ (p = A.dp, q = A.dq) pour démontrer
    f″ avec la même doctrine, sans recopier le juge. */
+/* Puis {etude-algo-convexite} (2.2.4) y a passé l'EXPONENTIELLE et les
+   LETTRES : D.k et D.c (v = e^(k·x + c), k = ±1 ; par défaut −1 et 0, la
+   chaîne d'avant), et D.L — les valeurs prêtées aux lettres a et b quand la
+   chaîne se démontre en LITTÉRAL (le b) de la partie A : u = ax + b). Chaque
+   lettre est remplacée par sa valeur avant la compilation, et la copie est
+   jugée comme une fonction de x : « −ax + a − b » et « a − b − ax » disent la
+   même chose. D.T porte alors les écritures de la correction (« ax + b »). */
 function asgDerVerdicts(q, D){
-  const A=ecAns(q); D=D||{};
+  D=D||{};
+  const A=(D.p!=null && D.q!=null)?null:ecAns(q);
   const I=asgDerIds(D.pre||'asg-b');
   const P=(D.p!=null)?D.p:A.p, Q=(D.q!=null)?D.q:A.q;
-  const DP=-P, DQ=P-Q;   /* (u·v)′ = (−P·x + P − Q)·e^(−x) */
-  const poly=x=>P*x+Q, dpoly=x=>P, expf=x=>Math.exp(-x), dexpf=x=>-Math.exp(-x);
-  const fprime=x=>(DP*x+DQ)*Math.exp(-x);
-  const U=dexpCellValue(I.u), DU=dexpCellValue(I.du), V=dexpCellValue(I.v), DV=dexpCellValue(I.dv);
+  const K=(D.k!=null)?D.k:-1, C=(D.c!=null)?D.c:0, L=D.L||null;
+  const DP=K*P, DQ=P+K*Q;   /* (u·v)′ = (K·P·x + P + K·Q)·e^(K·x + C) — pour K = −1 : (−P·x + P − Q)·e^(−x) */
+  const ex=x=>Math.exp(K*x+C);
+  const poly=x=>P*x+Q, dpoly=x=>P, expf=ex, dexpf=x=>K*ex(x);
+  const fprime=x=>(DP*x+DQ)*ex(x);
+  const lit=raw=>L?String(raw).replace(/[ab]/gi,m=>'('+L[m.toLowerCase()]+')'):raw;
+  const cmp1=id=>{ const raw=dexpCellValue(id); return raw===''?(x=>1):compileExprExp(lit(raw)); };
+  const cmp0=id=>{ if(!$(id)) return (x=>0); return cmp1(id); };
+  const U=lit(dexpCellValue(I.u)), DU=lit(dexpCellValue(I.du)), V=lit(dexpCellValue(I.v)), DV=lit(dexpCellValue(I.dv));
   const o1={}, o2={};
   o1[I.u]=checkExprFn(U,poly); o1[I.du]=checkExprFn(DU,dpoly); o1[I.v]=checkExprFn(V,expf); o1[I.dv]=checkExprFn(DV,dexpf);
   o2[I.u]=checkExprFn(U,expf); o2[I.du]=checkExprFn(DU,dexpf); o2[I.v]=checkExprFn(V,poly); o2[I.dv]=checkExprFn(DV,dpoly);
   const n1=Object.values(o1).filter(Boolean).length, n2=Object.values(o2).filter(Boolean).length;
   const order = n2>n1 ? 2 : (n1>n2 ? 1 : (o2[I.u]&&!o1[I.u] ? 2 : 1));   /* égalité : la définition posée en u départage */
   const verdicts = order===2 ? o2 : o1;
-  const f1=dexpCompile1(I.S2[0]),f2=dexpCompile1(I.S2[1]),f3=dexpCompile1(I.S2[2]),f4=dexpCompile1(I.S2[3]);
+  const f1=cmp1(I.S2[0]),f2=cmp1(I.S2[1]),f3=cmp1(I.S2[2]),f4=cmp1(I.S2[3]);
   const s2ok=!!(f1&&f2&&f3&&f4)&&cmpFns(x=>f1(x)*f2(x)+f3(x)*f4(x), fprime);
   const eqF=(f,g)=>!!f&&!!g&&cmpFns(f,g);
   const bestPair=(Fa,Fb,fa,fb)=>{ const d1=(eqF(Fa,fa)?1:0)+(eqF(Fb,fb)?1:0), d2=(eqF(Fa,fb)?1:0)+(eqF(Fb,fa)?1:0);
@@ -16248,15 +16301,15 @@ function asgDerVerdicts(q, D){
     const va=un?RA1.v:RA2.v, vb=un?RB1.v:RB2.v;
     verdicts[I.S2[0]]=va[0]; verdicts[I.S2[1]]=va[1]; verdicts[I.S2[2]]=vb[0]; verdicts[I.S2[3]]=vb[1];
   }
-  const g1=dexpCompile0(I.S3[0]),g2=dexpCompile0(I.S3[1]),g3=dexpCompile0(I.S3[2]);
-  const s3ok=!!(g1&&g2&&g3)&&cmpFns(x=>(g1(x)+g2(x)+g3(x))*Math.exp(-x), fprime);
+  const g1=cmp0(I.S3[0]),g2=cmp0(I.S3[1]),g3=cmp0(I.S3[2]);
+  const s3ok=!!(g1&&g2&&g3)&&cmpFns(x=>(g1(x)+g2(x)+g3(x))*ex(x), fprime);
   let s3TermeEntier=false;
   if(s3ok){ I.S3.forEach(id=>{ verdicts[id]=true; }); }
   else{
-    /* ligne fausse : chaque coefficient est apparié aux termes attendus (p, −p·x, −q) */
-    const terms=[dpoly, x=>-P*x, x=>-Q];
+    /* ligne fausse : chaque coefficient est apparié aux termes attendus (p, K·p·x, K·q — pour K = −1 : p, −p·x, −q) */
+    const terms=[dpoly, x=>K*P*x, x=>K*Q];
     const used=terms.map(()=>false);
-    const pass=lst=>lst.forEach(id=>{ const f=dexpCompile0(id); let ok=false;
+    const pass=lst=>lst.forEach(id=>{ const f=cmp0(id); let ok=false;
       for(let i=0;i<terms.length;i++){ if(!used[i]&&eqF(f,terms[i])){ used[i]=true; ok=true; break; } }
       verdicts[id]=ok; });
     pass(I.S3.filter(id=>dexpCellValue(id)!==''));   /* les cases saisies choisissent leur terme d'abord */
@@ -16269,29 +16322,32 @@ function asgDerVerdicts(q, D){
        autres cases vides de l'exercice (voir « lacunes » du profil). */
     I.S3.filter(id=>dexpCellValue(id)==='').forEach(id=>{ verdicts[id]=false; });
     s3TermeEntier=I.S3.some(id=>{ if(verdicts[id]) return false;
-      const f=dexpCompile1(id); if(!f) return false;
-      return terms.some(t=>eqF(f, x=>t(x)*Math.exp(-x))); });
+      const f=cmp1(id); if(!f) return false;
+      return terms.some(t=>eqF(f, x=>t(x)*ex(x))); });
   }
-  verdicts[I.fac]=checkExprFn(dexpCellValue(I.fac), x=>DP*x+DQ);
+  verdicts[I.fac]=checkExprFn(lit(dexpCellValue(I.fac)), x=>DP*x+DQ);
   /* les valeurs que la correction écrit, dans l'ordre u/v RETENU */
-  const polyT=dexpPoly1(P,Q), dpolyT=numFmt(P), expT='e^(−x)', dexpT='−e^(−x)';
+  const T=D.T||{};
+  const polyT=T.poly||dexpPoly1(P,Q), dpolyT=T.dpoly||numFmt(P), expT=T.exp||'e^(−x)', dexpT=(K<0?'−':'')+expT;
   const sol={};
   if(order===2){ sol[I.u]=expT; sol[I.du]=dexpT; sol[I.v]=polyT; sol[I.dv]=dpolyT;
     sol[I.S2[0]]=dexpT; sol[I.S2[1]]=polyT; sol[I.S2[2]]=expT; sol[I.S2[3]]=dpolyT; }
   else { sol[I.u]=polyT; sol[I.du]=dpolyT; sol[I.v]=expT; sol[I.dv]=dexpT;
     sol[I.S2[0]]=dpolyT; sol[I.S2[1]]=expT; sol[I.S2[2]]=polyT; sol[I.S2[3]]=dexpT; }
-  sol[I.S3[0]]=numFmt(P); sol[I.S3[1]]=polyFr([0,-P]); sol[I.S3[2]]=numFmt(-Q);
-  sol[I.fac]=s1ExprText(DP,DQ);
+  sol[I.S3[0]]=T.s3?T.s3[0]:numFmt(P); sol[I.S3[1]]=T.s3?T.s3[1]:polyFr([0,K*P]); sol[I.S3[2]]=T.s3?T.s3[2]:numFmt(K*Q);
+  sol[I.fac]=T.fac||s1ExprText(DP,DQ);
   return {verdicts, order, groups:{s2:s2ok, s3:s3ok, s3TermeEntier}, sol};
 }
 /* La chaîne du 2.1 rendue depuis un préfixe — le b) du 4.6 et les c) et g)
    du 2.2.2 : « On pose », la formule, la substitution, le développement, la
    factorisation. `nom` est le nom de la fonction dérivée ({tex, html}). */
-function asgDerBlocHTML(pre, nom){
+/* `ex` (facultatif) : l'exponentielle écrite après les cases, {tex, html} —
+   e^(−x) par défaut ; le 2.2.4 y passe e^x et e^(x−1). */
+function asgDerBlocHTML(pre, nom, ex){
   const I=asgDerIds(pre);
   const bm=(id,cls)=>'<math-field class="dexp-mf'+(cls?' '+cls:'')+'" id="'+id+'"></math-field>';
   const bp=id=>'<span class="dexp-pwrap"><span class="par">(</span>'+bm(id)+'<span class="par">)</span></span>';
-  const eML=mlTex('e^{-x}','<span class="dexp-ek">e<sup>−x</sup></span>');
+  const eML=ex?mlTex(ex.tex, '<span class="dexp-ek">'+ex.html+'</span>'):mlTex('e^{-x}','<span class="dexp-ek">e<sup>−x</sup></span>');
   const bs3=id=>bm(id,'dexp-mf-slim')+eML;
   return '<div class="dexp-pose">On pose <span class="dexp-hint">(u et v dans l’ordre que tu veux)</span> :</div>'
     +'<div class="dexp-row"><span>'+mlTex('u=','<i>u</i> = ')+bm(I.u)+'</span><span>'+mlTex('v=','<i>v</i> = ')+bm(I.v)+'</span></div>'
@@ -16778,6 +16834,455 @@ function ecvConseilCtx(){
    +'la courbe est '+(A.pos==='dessous'?'en dessous':'au-dessus')+' de Δ sur ]−∞ ; '+numFmt(A.xI)+']. '
    +'Méthode à faire appliquer : e^(−x) est toujours strictement positif, donc f′ et f″ ont le signe de leur facteur affine ; f est convexe là où f″ ≥ 0, concave là où f″ ≤ 0 ; le point d’inflexion est là où f″ s’annule en changeant de signe ; une fonction concave a sa courbe SOUS ses tangentes, une fonction convexe AU-DESSUS. '
    +'Saisies de l’élève : limite en +∞ '+lu('ecv-la')+', limite en −∞ '+lu('ecv-lb')+', dérivée '+lu('ecv-cfac')+', racine de f′ '+lu('ecv-d2')+', dérivée seconde '+lu('ecv-gfac')+', abscisse du point d’inflexion '+lu('ecv-i1')+'. '
+   +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
+
+/* ====================== TEST : Étude, algorithme et convexité (kind 'eav') ====================== */
+/* Repris de la fiche « Prépa DS 2 — exercice : f(x) = (ax + b)e^(−x) » (demande
+   de Turquet, octobre 2026 : « créer un exercice comme le PDF, où l'élève
+   écrira les dérivées comme dans l'exercice 2.1.1 ; on donnera le tableau de
+   valeurs correspondant à l'algorithme ; la fonction pourra varier avec
+   différents a et b entiers, et l'exponentielle peut être e^(−x) comme e^x ou
+   e^(x−1) ; en partie C, a) calculer f″(x), b) en déduire la convexité de f
+   en présentant comme dans le 2.2.2 question h »). Trois parties, dans
+   l'ordre de la feuille :
+   A — la courbe et sa tangente en A sont DONNÉES : a) f(x₀) et f′(x₀) se lisent
+       sur le dessin, b) f′(x) se démontre EN LITTÉRAL par la chaîne du 2.1.1
+       (u = ax + b : les lettres a et b sont sur le clavier mathématique),
+       c) b puis a se déduisent des deux lectures ;
+   B — f est connue : a) les limites et l'asymptote, b) f′ et le tableau de
+       variations avec les limites et l'extremum au dixième, c) l'unique
+       solution α de f(x) = 0 sur la branche monotone (les mots du 4.1),
+       d) l'algorithme Python de balayage au pas de 0,1 — « on met le
+       contraire » — et le tableau de valeurs de la calculatrice, qui part de
+       la même valeur et avance du même pas ;
+   C — a) f″ calculée par la MÊME chaîne du 2.1.1 (on dérive f′), b) le
+       tableau du h) du 2.2.2 : signe, signe de l'exponentielle, signe de f″,
+       convexité.
+   f(x) = (ax + b)·e^(kx + c) : (k, c) ∈ {(−1, 0), (1, 0), (1, −1)} — e^(−x),
+   e^x, e^(x−1). Alors f′(x) = (kax + a + kb)·e^(kx+c) et f″(x) = (ax + 2ka + b)
+   ·e^(kx+c) ; α = −b/a, l'extremum est en α − k, l'inflexion en α − 2k. Le
+   point A est là où l'exposant s'annule (x₀ = 0, ou 1 pour e^(x−1)) : f(x₀)
+   et f′(x₀) y sont ENTIERS, et la lecture graphique est honnête.
+   La question ne range que (a, b, k, c) ; eavAns() recalcule tout. La note
+   compte les CASES, comme au 2.2.2. */
+const EAV_EXPOS=[{k:-1,c:0},{k:1,c:0},{k:1,c:-1}];
+/* Les valeurs prêtées aux LETTRES pour juger la chaîne littérale du A b) :
+   deux nombres sans rapport entre eux ni avec un entier, pour qu'aucune
+   écriture fausse ne tombe juste par hasard. */
+const EAV_LETTRES={a:1.73, b:-0.59};
+function eavPgcd(m,n){ m=Math.abs(m); n=Math.abs(n); while(n){ const t=m%n; m=n; n=t; } return m||1; }
+/* Une abscisse rationnelle num/den, réduite, le signe au numérateur. */
+function eavFrac(num,den){ if(den<0){ num=-num; den=-den; } const g=eavPgcd(num,den); return {n:num/g, d:den/g, v:num/den}; }
+function eavFracTxt(F){ return F.d===1?numFmt(F.n):numFmt(F.n)+'/'+F.d; }
+function eavFracHTML(F){
+  if(F.d===1) return numFmt(F.n);
+  return (F.n<0?'−':'')+'<span class="eav-fr"><span>'+Math.abs(F.n)+'</span><span>'+F.d+'</span></span>';
+}
+function eavAns(q){
+  const a=q.a, b=q.b, k=q.k, c=q.c, A={a:a, b:b, k:k, c:c};
+  A.x0=-c*k;                                   /* là où l'exposant s'annule : le point A */
+  A.f=x=>(a*x+b)*Math.exp(k*x+c);
+  A.dp=k*a; A.dq=a+k*b;                        /* f′(x) = (dp·x + dq)·e^(kx+c) */
+  A.ddp=a; A.ddq=2*k*a+b;                      /* f″(x) = (ddp·x + ddq)·e^(kx+c) */
+  A.al=-b/a;                                   /* α, le zéro de f */
+  A.xmF=eavFrac(-b-k*a, a); A.xm=A.xmF.v;      /* l'extremum : α − k */
+  A.xIF=eavFrac(-b-2*k*a, a); A.xI=A.xIF.v;    /* l'inflexion : α − 2k */
+  A.f0=a*A.x0+b; A.fp0=A.dp*A.x0+A.dq;
+  A.M=A.f(A.xm); A.ext=(k*a<0)?'max':'min';
+  A.limP=(k<0)?0:(a>0?'+∞':'−∞');              /* en +∞ */
+  A.limM=(k<0)?(a>0?'−∞':'+∞'):0;              /* en −∞ */
+  A.mono=(a>0)?'croissante':'décroissante';    /* sur la branche qui porte α */
+  A.sL=(A.dp>0)?'−':'+'; A.sR=(A.dp>0)?'+':'−';             /* signe de f′ */
+  A.s2L=(a>0)?'−':'+'; A.s2R=(a>0)?'+':'−';                 /* signe de f″ */
+  /* l'algorithme : il part d'un entier s de la branche monotone, juste avant α
+     (α − 1 ≤ s < α), et avance de 0,1 tant que f garde le signe qu'elle a en s */
+  A.s=Math.ceil(A.al-1);
+  A.n=Math.ceil((A.al-A.s)*10-1e-9);
+  A.xr=Math.round((A.s+A.n/10)*10)/10;
+  A.cond=(a>0)?'<':'>';
+  A.stop=(a>0)?'ge':'le';
+  return A;
+}
+function eavExpo(q){
+  /* le html est ENVELOPPÉ : un <sup> nu dans une ligne flex en devient un
+     item et remonte sur la ligne de sa lettre (le piège documenté) */
+  if(q.k<0) return {tex:'e^{-x}', html:'<span class="eav-e">e<sup>−<i>x</i></sup></span>', plain:'e^(−x)', py:'exp(-x)'};
+  if(q.c===0) return {tex:'e^{x}', html:'<span class="eav-e">e<sup><i>x</i></sup></span>', plain:'e^(x)', py:'exp(x)'};
+  return {tex:'e^{x-1}', html:'<span class="eav-e">e<sup><i>x</i> − 1</sup></span>', plain:'e^(x − 1)', py:'exp(x-1)'};
+}
+function genEAVCase(){
+  for(let t=0;t<600;t++){
+    const E=pick(EAV_EXPOS), q={a:pick([-4,-3,3,4]), b:pick([-5,-4,-3,-2,-1,1,2,3,4,5]), k:E.k, c:E.c};
+    const A=eavAns(q);
+    if(Math.abs(A.al*10-Math.round(A.al*10))<1e-6) continue;   /* α jamais sur le pas : le balayage tranche toujours */
+    if(Math.abs(A.al)>2) continue;
+    if(!A.f0 || Math.abs(A.f0)>4 || !A.fp0 || Math.abs(A.fp0)>5) continue;   /* lisibles sur le quadrillage */
+    if(Math.abs(A.M)<0.5 || Math.abs(A.M)>6) continue;   /* une bosse qui se voit, un dixième qui veut dire quelque chose */
+    return q;
+  }
+  return {a:3, b:1, k:-1, c:0};   /* la fiche */
+}
+/* La courbe et sa tangente en A, sur un quadrillage UNITÉ gradué des deux
+   côtés : la lecture de f(x₀) et du coefficient directeur se fait en comptant
+   les carreaux, comme sur la fiche. */
+function eavGraphSVG(q){
+  const A=eavAns(q);
+  const xs=[A.x0, A.al, A.xm, 0];
+  let lo=Math.floor(Math.min.apply(null,xs))-1, hi=Math.ceil(Math.max.apply(null,xs))+1;
+  if(q.k<0) hi+=2; else lo-=2;   /* le côté de l'asymptote s'allonge : la courbe s'y couche */
+  const ys=[0, A.f0, A.M];
+  let ymin=Math.floor(Math.min.apply(null,ys))-1, ymax=Math.ceil(Math.max.apply(null,ys))+1;
+  while(ymax-ymin<5){ ymax++; if(ymax-ymin<5) ymin--; }
+  const L=34,R=350,T=12,Bm=246;
+  const sx=x=>L+(x-lo)/(hi-lo)*(R-L), sy=y=>T+(ymax-y)/(ymax-ymin)*(Bm-T);
+  let grid='', lab='';
+  for(let gx=lo; gx<=hi; gx++){ const X=sx(gx).toFixed(1); grid+='<line x1="'+X+'" y1="'+T+'" x2="'+X+'" y2="'+Bm+'" stroke="var(--grid)" stroke-width="1" opacity=".55"/>'; }
+  for(let gy=ymin; gy<=ymax; gy++){ const Y=sy(gy).toFixed(1); grid+='<line x1="'+L+'" y1="'+Y+'" x2="'+R+'" y2="'+Y+'" stroke="var(--grid)" stroke-width="1" opacity=".55"/>'; }
+  const y0=sy(0), x0=sx(0);
+  const axes='<line x1="'+L+'" y1="'+y0.toFixed(1)+'" x2="'+R+'" y2="'+y0.toFixed(1)+'" stroke="var(--ink-soft)" stroke-width="1.4"/>'
+    +'<line x1="'+x0.toFixed(1)+'" y1="'+T+'" x2="'+x0.toFixed(1)+'" y2="'+Bm+'" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+  for(let gx=lo+1; gx<hi; gx++){ if(gx===0) continue; lab+='<text x="'+sx(gx).toFixed(1)+'" y="'+Math.min(y0+14,Bm-3).toFixed(1)+'" class="sv-ax" text-anchor="middle">'+numFmt(gx)+'</text>'; }
+  for(let gy=ymin+1; gy<ymax; gy++){ if(gy===0) continue; lab+='<text x="'+(x0-5).toFixed(1)+'" y="'+(sy(gy)+4).toFixed(1)+'" class="sv-ax" text-anchor="end">'+numFmt(gy)+'</text>'; }
+  lab+='<text x="'+(x0-5).toFixed(1)+'" y="'+Math.min(y0+14,Bm-3).toFixed(1)+'" class="sv-ax" text-anchor="end">0</text>';
+  const path=svPath({f:A.f, xmin:lo, xmax:hi}, sx, sy, ymin, ymax);
+  /* la tangente en A, rognée au cadre */
+  const tg=x=>A.fp0*(x-A.x0)+A.f0;
+  let ta=lo, tb=hi;
+  const xa=A.x0+(ymin-A.f0)/A.fp0, xb=A.x0+(ymax-A.f0)/A.fp0;
+  ta=Math.max(ta,Math.min(xa,xb)); tb=Math.min(tb,Math.max(xa,xb));
+  const tan='<line class="eav-tan" x1="'+sx(ta).toFixed(1)+'" y1="'+sy(tg(ta)).toFixed(1)+'" x2="'+sx(tb).toFixed(1)+'" y2="'+sy(tg(tb)).toFixed(1)+'"/>';
+  const ax=sx(A.x0), ay=sy(A.f0);
+  const ptA='<circle class="ef-pt" cx="'+ax.toFixed(1)+'" cy="'+ay.toFixed(1)+'" r="4"/>'
+    /* l'étiquette se pose de travers à la tangente, jamais sur elle */
+    +'<text class="eav-lblA" x="'+(ax+(A.fp0>0?-16:8)).toFixed(1)+'" y="'+(ay-7).toFixed(1)+'">A</text>';
+  /* l'étiquette de la courbe : le coin le plus loin de tout point tracé (courbe ET tangente) */
+  const pts=[]; for(let i=0;i<=80;i++){ const x=lo+(hi-lo)*i/80, y=A.f(x), t=tg(x);
+    if(y>=ymin&&y<=ymax) pts.push([sx(x),sy(y)]); if(t>=ymin&&t<=ymax) pts.push([sx(x),sy(t)]); }
+  const coins=[[R-36,T+20],[L+22,T+20],[R-36,Bm-10],[L+22,Bm-10]];
+  let best=coins[0], bd=-1;
+  coins.forEach(function(p){ let dm=1e9; pts.forEach(function(t){ const dd=Math.hypot(t[0]-p[0],t[1]-p[1]); if(dd<dm) dm=dd; }); if(dm>bd){ bd=dm; best=p; } });
+  const cf='<text x="'+best[0].toFixed(1)+'" y="'+best[1].toFixed(1)+'" class="sv-cf">C<tspan dy="3" font-size="11" font-style="normal">f</tspan></text>';
+  return '<svg viewBox="0 0 360 258" xmlns="http://www.w3.org/2000/svg" class="sv-svg eav-svg">'+grid+axes+tan+'<path class="sv-curve" d="'+path+'"/>'+lab+ptA+cf+'</svg>';
+}
+const EAV_LIT=asgDerIds('eav-ab'), EAV_SEC=asgDerIds('eav-ca');
+const EAV_DER1=asgDerTous(EAV_LIT), EAV_DER2=asgDerTous(EAV_SEC);
+/* La chaîne LITTÉRALE du A b) : les valeurs prêtées aux lettres, et les
+   écritures que la correction pose. */
+function eavDerLit(q){
+  const E=eavExpo(q), m=(q.k<0)?'−':'';
+  return { pre:'eav-ab', p:EAV_LETTRES.a, q:EAV_LETTRES.b, k:q.k, c:q.c, L:EAV_LETTRES,
+    T:{ poly:'ax + b', dpoly:'a', exp:E.plain, s3:['a', m+'ax', m+'b'],
+        fac:(q.k<0)?'−ax + a − b':'ax + a + b' } };
+}
+function eavDerSec(q){
+  const A=eavAns(q);
+  return { pre:'eav-ca', p:A.dp, q:A.dq, k:q.k, c:q.c, T:{exp:eavExpo(q).plain} };
+}
+/* Toutes les cases, et la bonne réponse de chacune — UNE seule liste,
+   parcourue par le rendu, la vérification, la correction et le barème. Les
+   cases 'der' se jugent en GROUPE par asgDerVerdicts (grp 1 : la chaîne
+   littérale de f′, grp 2 : f″). */
+function eavCases(q){
+  const A=eavAns(q), out=[];
+  const N=(id,good)=>out.push({id:id, type:'int', good:good});
+  const S=(id,good)=>out.push({id:id, type:'sel', good:good});
+  const Lm=(id,lim)=>out.push({id:id, type:'lim', lim:lim});
+  /* A a) la lecture graphique */
+  N('eav-a1',A.f0); N('eav-a2',A.fp0);
+  /* A b) f′ en littéral, la chaîne du 2.1.1 */
+  EAV_DER1.forEach(id=>out.push({id:id, type:'der', grp:1}));
+  /* A c) b puis a */
+  N('eav-c1',q.b); N('eav-c2',q.a);
+  /* B a) les limites et l'asymptote */
+  Lm('eav-la',A.limP); S('eav-lat',(q.k<0)?'ah':'rien');
+  Lm('eav-lb',A.limM); S('eav-lbt',(q.k<0)?'rien':'ah');
+  N('eav-lae',0);
+  /* B b) f′, puis le tableau de variations */
+  out.push({id:'eav-bd', type:'expr', fn:x=>A.dp*x+A.dq, txt:s1ExprText(A.dp,A.dq)});
+  out.push({id:'eav-tx', type:'frac', good:A.xm, F:A.xmF});
+  S('eav-te0','+'); S('eav-te1','+');
+  S('eav-tf0',A.sL); S('eav-tf1',A.sR);
+  S('eav-ta0',A.sL==='+'?'up':'down'); S('eav-ta1',A.sR==='+'?'up':'down');
+  Lm('eav-tv0',A.limM);
+  out.push({id:'eav-tv1', type:'tabnum', good:Math.round(A.M*10)/10, vrai:A.M});
+  Lm('eav-tv2',A.limP);
+  /* B c) le TVI sur la branche qui porte α */
+  S('eav-e1','continue'); S('eav-e2',A.mono); Lm('eav-e3',(q.k<0)?A.limM:A.limP); S('eav-e4','TVI'); S('eav-e5','unique');
+  /* B d) l'algorithme */
+  S('eav-d1',A.stop);
+  out.push({id:'eav-d2', type:'dec', good:A.xr});
+  out.push({id:'eav-d3', type:'dec', good:Math.round((A.xr-0.1)*10)/10});
+  out.push({id:'eav-d4', type:'dec', good:A.xr});
+  S('eav-d5','exces');
+  /* C a) f″ — la même chaîne, appliquée à f′ */
+  EAV_DER2.forEach(id=>out.push({id:id, type:'der', grp:2}));
+  /* C b) le tableau du h) du 2.2.2 */
+  out.push({id:'eav-h0', type:'frac', good:A.xI, F:A.xIF});
+  S('eav-h1',A.s2L); S('eav-h2',A.s2R); S('eav-h3','+'); S('eav-h4','+'); S('eav-h5',A.s2L); S('eav-h6',A.s2R);
+  S('eav-h7',A.s2L==='+'?'convexe':'concave'); S('eav-h8',A.s2R==='+'?'convexe':'concave');
+  return out;
+}
+function eavMax(q){ return eavCases(q).length; }
+/* Les juges propres à l'exercice ; le reste est celui du 4.6 et du 2.2.2. */
+function eavOkCase(q,x,raw){
+  const t=String(raw==null?'':raw).trim();
+  if(t==='') return false;
+  if(x.type==='frac'){ const v=efParse(t); return v!=null && Math.abs(v-x.good)<1e-9; }   /* une fraction EXACTE : « 2/3 », jamais « 0,67 » */
+  if(x.type==='dec'){ const v=tgParse(t); return v!=null && Math.abs(v-x.good)<1e-9; }
+  if(x.type==='expr') return checkExprFn(t, x.fn);
+  if(x.type==='tabnum'){ const v=efParse(t); return v!=null && Math.abs(v-x.vrai)<0.1; }   /* au dixième près */
+  return asgOkCase(q,x,t);
+}
+function eavVal(q,x){
+  if(x.type==='frac') return eavFracTxt(x.F);
+  if(x.type==='dec'||x.type==='tabnum') return numFmt(x.good);
+  if(x.type==='expr') return x.txt;
+  return asgVal(q,x);
+}
+/* ---- affichage ---- */
+function eavSel(id, opts){ return '<select class="tvi-sel" id="'+id+'" style="width:auto"><option value="">…</option>'+opts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('')+'</select>'; }
+function eavFx(q){ return '('+txAX(q.a)+txB(q.b)+') '+eavExpo(q).html; }
+function eavPyPoly(q){ return (q.a===1?'x':q.a===-1?'-x':q.a+'*x')+(q.b>0?'+'+q.b:String(q.b)); }
+/* Le tableau de variations : la géométrie du 3.3 (lg2Geo) — les limites et
+   l'extremum se posent au bout des flèches choisies, et les suivent. */
+function eavTvTab(){ return { xs:[{t:'−∞'},{t:''},{t:'+∞'}], fleches:['',''], vals:[{k:'n',j:0},{k:'n',j:1},{k:'n',j:2}] }; }
+function eavTableVarHTML(q){
+  const E=eavExpo(q), n=3, innerW=n*LG2WN+(n-1)*LG2WS;
+  const xrow='<td class="vlab" style="width:'+LG2WL+'px"><i>x</i></td><td class="vnx" style="width:'+LG2WN+'px">−∞</td><td class="vax" style="width:'+LG2WS+'px"></td>'
+    +'<td class="vnx" style="width:'+LG2WN+'px">'+s1Box('eav-tx',1)+'</td><td class="vax" style="width:'+LG2WS+'px"></td><td class="vnx" style="width:'+LG2WN+'px">+∞</td>';
+  const ligne=(lab,pre,zero)=>'<tr class="vt-xr"><td class="vlab">'+lab+'</td><td></td><td>'+efSign(pre+'0')+'</td><td class="ef-node">'+(zero?'<b>0</b>':'')+'</td><td>'+efSign(pre+'1')+'</td><td></td></tr>';
+  let inner='<svg class="vt-overlay" id="eav-var-ov" viewBox="0 0 '+innerW+' '+LG2H+'" preserveAspectRatio="none"></svg>';
+  for(let i=0;i<2;i++){ const x=i*(LG2WN+LG2WS)+LG2WN+LG2WS/2;
+    inner+='<select id="eav-ta'+i+'" class="vt-sel2" onchange="eavArrowChange()" style="left:'+x+'px;top:'+(LG2H/2)+'px"><option value="">—</option><option value="up">↗</option><option value="down">↘</option></select>'; }
+  inner+=limHTML('eav-tv0','lg2-vin','left:'+lg2ncx(0)+'px;top:'+(LG2H/2)+'px');
+  inner+='<input type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" class="s1-in sm eav-vin" id="eav-tv1" title="valeur de l’extremum, au dixième près" style="left:'+lg2ncx(1)+'px;top:'+(LG2H/2)+'px">';
+  inner+=limHTML('eav-tv2','lg2-vin','left:'+lg2ncx(2)+'px;top:'+(LG2H/2)+'px');
+  return '<div class="lv-tblwrap"><table class="lv-vartbl2" style="width:'+(LG2WL+innerW)+'px"><tbody>'
+    +'<tr class="vt-xr">'+xrow+'</tr>'
+    +ligne('Signe de '+E.html,'eav-te',false)
+    +ligne('Signe de <i>f</i> ′(<i>x</i>)','eav-tf',true)
+    +'<tr class="vt-fr"><td class="vlab">Variations de <i>f</i></td><td class="vfcell" colspan="5" style="height:'+LG2H+'px">'+inner+'</td></tr>'
+    +'</tbody></table></div>';
+}
+function eavArrowChange(){
+  if(test.kind!=='eav') return;
+  const ov=$('eav-var-ov'); if(!ov) return;
+  const tv=eavTvTab();
+  const dirs=[0,1].map(i=>String(($('eav-ta'+i)||{}).value||''));
+  const geo=lg2Geo(tv,dirs);
+  let g=''; geo.arr.forEach(a2=>{ g+=svArrowSVG(a2.xg,a2.y0,a2.xd,a2.y1); });
+  ov.innerHTML=g;
+  ['eav-tv0','eav-tv1','eav-tv2'].forEach((id,k)=>{ const el=$(id); if(!el) return; el.style.top=geo.ys[k]+'px';
+    const b=el.nextElementSibling; if(b&&b.classList&&b.classList.contains('mf-cor')) b.style.top=el.style.top; });
+}
+function eavPromptHTML(q){
+  const A=eavAns(q), E=eavExpo(q), fx='<i>f</i>(<i>x</i>)';
+  return '<b>Partie A</b> — Soit <i>f</i> la fonction définie et dérivable sur ℝ par '+fx+' = (<i>ax</i> + <i>b</i>) '+E.html+', avec <i>a</i> et <i>b</i> deux entiers relatifs fixés. Sa courbe C<sub>f</sub> et sa tangente au point A d’abscisse '+numFmt(A.x0)+' sont tracées ci-dessous.';
+}
+function eavFormHTML(q){
+  const A=eavAns(q), E=eavExpo(q), f='<i>f</i>', fp='<i>f</i> ′', fs='<i>f</i> ″', fx=f+'(<i>x</i>)';
+  const x0=numFmt(A.x0), aff=s1ExprHTML(A.dp,A.dq);
+  const litFac=(q.k<0)?'−<i>ax</i> + <i>a</i> − <i>b</i>':'<i>ax</i> + <i>a</i> + <i>b</i>';
+  const XM=eavFracHTML(A.xmF);
+  const branche=(q.k<0)?']−∞ ; '+XM+']':'['+XM+' ; +∞[';
+  let h='';
+  /* ======== Partie A ======== */
+  h+='<div class="ec-graph eav-graph">'+eavGraphSVG(q)+'</div>';
+  h+='<p class="tx-part">a. Détermine graphiquement '+f+'('+x0+') et '+fp+'('+x0+') :</p>'
+    +'<div class="tg-line"><span class="tg-eq">'+f+'('+x0+') =</span> '+txInp('eav-a1')+' <span>et</span> <span class="tg-eq">'+fp+'('+x0+') =</span> '+txInp('eav-a2')+' <span class="dexp-hint">(le coefficient directeur de la tangente en A)</span></div>';
+  h+='<p class="tx-part">b. Démontre que '+fp+'(<i>x</i>) = ('+litFac+') '+E.html+' :</p>'
+    +'<p class="eav-note">Les lettres <i>a</i> et <i>b</i> s’écrivent comme <i>x</i> : elles sont sur le clavier mathématique.</p>'
+    +asgDerBlocHTML('eav-ab', {tex:"f\\;{}'(x)", html:fp+'(x)'}, E);
+  h+='<p class="tx-part">c. Détermine <i>b</i> avec '+f+'('+x0+'), puis <i>a</i> avec '+fp+'('+x0+') :</p>';
+  if(A.x0===0){
+    h+='<div class="tg-line"><span>'+f+'(0) = (<i>a</i> × 0 + <i>b</i>) e<sup>0</sup> = <i>b</i>, donc</span> <span class="tg-eq"><i>b</i> =</span> '+txInp('eav-c1')+'</div>'
+      +'<div class="tg-line"><span>'+fp+'(0) = <i>a</i> '+(q.k<0?'−':'+')+' <i>b</i>, donc</span> <span class="tg-eq"><i>a</i> =</span> '+txInp('eav-c2')+'</div>';
+  } else {
+    h+='<div class="tg-line"><span>'+f+'(1) = (<i>a</i> + <i>b</i>) e<sup>0</sup> = <i>a</i> + <i>b</i> et '+fp+'(1) = 2<i>a</i> + <i>b</i> : '+fp+'(1) − '+f+'(1) = <i>a</i>, donc</span> <span class="tg-eq"><i>a</i> =</span> '+txInp('eav-c2')+'</div>'
+      +'<div class="tg-line"><span>puis <i>b</i> = '+f+'(1) − <i>a</i>, donc</span> <span class="tg-eq"><i>b</i> =</span> '+txInp('eav-c1')+'</div>';
+  }
+  /* ======== Partie B ======== */
+  h+='<p class="tx-part eav-partie">Partie B</p>'
+    +'<p class="tx-part eav-pose">On considère que '+fx+' = '+eavFx(q)+'.</p>';
+  h+='<p class="tx-part">a. Conjecture les limites de '+fx+' en +∞ et en −∞, et précise les asymptotes éventuelles :</p>'
+    +'<div class="tg-line asg-line">Quand <i>x</i> → +∞ : '+fx+' → '+asgLim('eav-la')+' <span>— il y a donc</span> '+asgSelTyp('eav-lat')+'<span>.</span></div>'
+    +'<div class="tg-line asg-line">Quand <i>x</i> → −∞ : '+fx+' → '+asgLim('eav-lb')+' <span>— il y a donc</span> '+asgSelTyp('eav-lbt')+'<span>.</span></div>'
+    +'<div class="tg-line asg-line"><span>L’asymptote horizontale a pour équation</span> <span class="tg-eq"><i>y</i> =</span> '+txInp('eav-lae')+'</div>';
+  h+='<p class="tx-part">b. Détermine la dérivée '+fp+' de '+f+', puis dresse son tableau de variations sur ℝ, avec les limites et l’extremum au dixième près :</p>'
+    +'<div class="tg-line"><span>D’après la partie A,</span> <span class="tg-eq">'+fp+'(<i>x</i>) =</span> ( <math-field class="dexp-mf dexp-mf-wide" id="eav-bd"></math-field> ) '+E.html+'</div>'
+    +'<p class="eav-note">'+E.html+' est toujours strictement positif : '+fp+'(<i>x</i>) a le signe de son facteur affine. Une abscisse qui n’est pas entière s’écrit en fraction (par exemple 2/3).</p>'
+    +eavTableVarHTML(q);
+  h+='<p class="tx-part">c. Démontre que l’équation '+fx+' = 0 admet une unique solution, notée α, sur '+branche+' :</p>'
+    +'<div class="tg-line asg-line"><span>Sur '+branche+', '+f+' est</span> '+asgSelMot('eav-e1')+' <span>et strictement</span> '+asgSelMot('eav-e2')
+    +((q.k<0)?'<span>, elle varie de</span> '+asgLim('eav-e3')+' <span>à '+f+'('+XM+').</span>'
+             :'<span>, elle varie de '+f+'('+XM+') à</span> '+asgLim('eav-e3')+'<span>.</span>')+'</div>'
+    +'<div class="tg-line asg-line"><span>0 est compris entre ces deux valeurs : d’après le</span> '+asgSelMot('eav-e4')
+    +'<span>, l’équation '+fx+' = 0 admet une</span> '+asgSelMot('eav-e5')+' <span>solution α sur cet intervalle.</span></div>';
+  /* l'algorithme de la fiche, en Python juste : « 3x » n'existe pas en Python, et e s'importe */
+  const py=eavPyPoly(q);
+  h+='<p class="tx-part">d. Algorithme — on considère le programme suivant, écrit en langage Python :</p>'
+    +'<div class="sag-code eav-code">'
+    +'<div class="sag-ligne">from math import exp</div>'
+    +'<div class="sag-ligne">def algo():</div>'
+    +'<div class="sag-ligne sag-ind1">x = '+A.s+'</div>'
+    +'<div class="sag-ligne sag-ind1">while ('+py+')*'+E.py+' '+A.cond+' 0 :</div>'
+    +'<div class="sag-ligne sag-ind2">x = x + 0.1</div>'
+    +'<div class="sag-ligne sag-ind1">return x</div>'
+    +'</div>'
+    +'<p class="eav-note">Le tableau de valeurs de '+f+' sur la calculatrice, réglé comme l’algorithme : X début = '+numFmt(A.s)+', pas = 0,1.</p>'
+    +'<div class="sag-tabla-wrap eav-tabla-wrap" tabindex="0">'+eavTablaHTML(q)+'</div>'
+    +'<p class="tx-part">1. Interprète la valeur de <i>x</i> renvoyée par l’appel de la fonction algo() :</p>'
+    +'<div class="tg-line asg-line"><span>Le programme renvoie la première valeur de <i>x</i> pour laquelle</span> '
+    +eavSel('eav-d1',[['lt','f(𝑥) < 0'],['le','f(𝑥) ≤ 0'],['gt','f(𝑥) > 0'],['ge','f(𝑥) ≥ 0']])+' <span class="dexp-hint">(on met le contraire de la condition du while)</span></div>'
+    +'<p class="tx-part">2. Donne, sans justifier, la valeur de <i>x</i> renvoyée, puis interprète :</p>'
+    +'<div class="tg-line"><span>Avec le tableau de valeurs, le programme renvoie</span> <span class="tg-eq"><i>x</i> =</span> '+txInp('eav-d2')+'</div>'
+    +'<div class="tg-line asg-line"><span>Interprétation :</span> '+txInp('eav-d3')+' <span class="tg-eq">&lt; α &lt;</span> '+txInp('eav-d4')
+    +'<span>, donc la valeur renvoyée est une valeur approchée de α à 0,1 près</span> '+eavSel('eav-d5',[['defaut','par défaut'],['exces','par excès']])+'<span>.</span></div>';
+  /* ======== Partie C ======== */
+  h+='<p class="tx-part eav-partie">Partie C</p>';
+  h+='<p class="tx-part">a. Calcule '+fs+'(<i>x</i>) :</p>'
+    +'<p class="eav-note">On dérive '+fp+'(<i>x</i>) = ('+aff+') '+E.html+' : c’est encore un produit.</p>'
+    +asgDerBlocHTML('eav-ca', {tex:"f\\;{}''(x)", html:fs+'(x)'}, E);
+  h+='<p class="tx-part">b. Déduis-en la convexité de '+f+' — complète le tableau :</p>'
+    +'<table class="sv-tbl s1-tbl ecv-tbl"><tbody>'
+    +'<tr><td class="lab"><i>x</i></td><td class="bnd s1-bl">−∞</td><td>'+s1Box('eav-h0')+'</td><td class="bnd s1-br">+∞</td></tr>'
+    +'<tr><td class="lab">Signe du facteur affine de '+fs+'(<i>x</i>)</td><td>'+asgSelPM('eav-h1')+'</td><td class="sv-zero s-rootcol"><span>0</span></td><td>'+asgSelPM('eav-h2')+'</td></tr>'
+    +'<tr><td class="lab">Signe de '+E.html+'</td><td>'+asgSelPM('eav-h3')+'</td><td class="sv-zero s-rootcol"></td><td>'+asgSelPM('eav-h4')+'</td></tr>'
+    +'<tr><td class="lab">Signe de '+fs+'(<i>x</i>)</td><td>'+asgSelPM('eav-h5')+'</td><td class="sv-zero s-rootcol"><span>0</span></td><td>'+asgSelPM('eav-h6')+'</td></tr>'
+    +'<tr><td class="lab">Convexité de '+f+'</td><td>'+ecvSelCv('eav-h7')+'</td><td class="sv-zero s-rootcol"></td><td>'+ecvSelCv('eav-h8')+'</td></tr>'
+    +'</tbody></table>';
+  return h;
+}
+/* Le tableau de valeurs de la calculatrice : il part de la valeur de départ
+   de l'algorithme et avance de son pas — la ligne où f change de signe est
+   celle que le programme renvoie. Quatre décimales, comme un écran de
+   calculatrice ; les abscisses sont calculées sans l'erreur d'arrondi
+   cumulée du « x = x + 0.1 » (une calculatrice affiche −0,3, pas
+   −0,29999999999999993). */
+const EAV_LIGNES=21;
+function eavTablaHTML(q){
+  const A=eavAns(q);
+  let rows='';
+  for(let i=0;i<EAV_LIGNES;i++){
+    const x=Math.round((A.s+i/10)*10)/10;
+    let v=Math.round(A.f(x)*1e4)/1e4; if(Object.is(v,-0)||v===0) v=0;
+    rows+='<tr><td>'+numFmt(x)+'</td><td>'+numFmt(v)+'</td></tr>';
+  }
+  return '<table class="sag-tabla"><thead><tr><th><i>x</i></th><th><i>f</i>(<i>x</i>)</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+async function startEAV(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='etude-algo-convexite'; test.kind='eav';
+  test.questions=[genEAVCase()];   /* une étude complète : forme fixe, la coupe seule agit */
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : la note compte les cases, comme au 2.2.2 */
+  test.maxScore=eavMax(test.questions[0]);
+  show('eav'); renderEAV();
+}
+function renderEAV(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('eavQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('eavModeTag').innerHTML=modeTagHTML();
+  $('eavLiveScore').textContent=test.score;
+  $('eavFeedback').textContent=''; $('eavFeedback').className='mp-feedback';
+  $('eavActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEAV()">Vérifier</button>';
+  $('eavPrompt').innerHTML=eavPromptHTML(q);
+  $('eavForm').innerHTML=eavFormHTML(q);
+  if(window.mlDexp) window.mlDexp.upgrade($('eavForm'));   /* les chaînes du A b) et du C a) sont des math-field, comme au 2.1.1 */
+  setTimeout(eavArrowChange,0);
+  if(isSoutien()){
+    $('eavForm').querySelectorAll('input,select').forEach(el=>{
+      el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>checkEAV(true)); });
+    /* les math-field ne se colorent qu'à la SORTIE de la case : la greffe
+       appelle dexpLiveCheck sur focusout, qui route vers checkEAV(true) */
+  }
+}
+function checkEAV(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], cases=eavCases(q), A=eavAns(q);
+  const D1=asgDerVerdicts(q, eavDerLit(q));
+  const D2=asgDerVerdicts(q, eavDerSec(q));   /* f″ : on dérive f′ */
+  const dis=(el,on)=>{ if(el.tagName==='MATH-FIELD') el.readOnly=on; else el.disabled=on; };
+  let nOk=0, vides=0, anyFilled=false;
+  const etats={};
+  cases.forEach(x=>{
+    const el=$(x.id); if(!el) return;
+    const raw=(el.tagName==='MATH-FIELD')?dexpCellValue(x.id):String(el.value==null?'':el.value);
+    let vide=raw.trim()==='', ok;
+    if(x.type==='der'){
+      const D=(x.grp===2)?D2:D1, I=(x.grp===2)?EAV_SEC:EAV_LIT;
+      ok=!vide && !!D.verdicts[x.id];
+      /* la convention du 2.1 : une case vide dans une LIGNE juste est le
+         facteur 1 omis — elle compte juste et ne manque pas */
+      if(vide && ((I.S2.indexOf(x.id)>=0 && D.groups.s2) || (I.S3.indexOf(x.id)>=0 && D.groups.s3))){ vide=false; ok=true; }
+    } else ok=!vide && eavOkCase(q,x,raw);
+    etats[x.id]={ok:ok,vide:vide};
+    if(!vide) anyFilled=true;
+    if(vide) vides++; else if(ok) nOk++;
+    el.classList.remove('ok','bad');
+    if(!vide) el.classList.add(ok?'ok':'bad');   /* une case VIDE ne reçoit jamais de couleur */
+  });
+  const nTot=cases.length, allOk=(nOk===nTot);
+  if(live) return;
+  const fb=$('eavFeedback');
+  const avertTerme=(D1.groups.s3TermeEntier||D2.groups.s3TermeEntier)
+    ? '<br>⚠ Dans les lignes développées (A b. et C a.), l’exponentielle est déjà écrite APRÈS chaque case : écris seulement le COEFFICIENT dans la case.'
+    : '';
+  if(!anyFilled){
+    fb.textContent='Complète au moins une case avant de vérifier.'; fb.className='mp-feedback';
+    return;
+  }
+  if(!allOk && isSoutien()){
+    fb.innerHTML=(vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.')+avertTerme+limAvisSigne('scr-eav');
+    fb.className='mp-feedback bad';
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return; dis(el, !!(etats[x.id] && etats[x.id].ok)); });
+    $('eavActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEAV()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  test.score=nOk; $('eavLiveScore').textContent=test.score;
+  if(allOk){
+    fb.textContent=pick(['Parfait, étude complète !','Excellent !','Bravo, tout y est !']);
+    fb.className='mp-feedback good';
+    cases.forEach(x=>{ const el=$(x.id); if(el) dis(el,true); });
+  } else {
+    fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+nOk+' cases justes sur '+nTot+'.'+avertTerme+limAvisSigne('scr-eav');
+    fb.className='mp-feedback bad';
+    cases.forEach(x=>{ const e=etats[x.id]||{ok:false,vide:true};
+      const el=$(x.id); if(!el) return;
+      const val=(x.type==='der')?((x.grp===2)?D2:D1).sol[x.id]:eavVal(q,x);
+      if(el.tagName==='MATH-FIELD') rfReveal(x.id, asgML(val), val, e.ok, e.vide);
+      else corrCase(x.id, val, e.ok);
+    });
+    /* les parenthèses de la substitution suivent le contenu — une correction
+       posée par setValue ne lève pas input, on les rajuste ici */
+    EAV_LIT.S2.concat(EAV_SEC.S2).forEach(id=>{ const el=$(id), w=el&&el.closest&&el.closest('.dexp-pwrap');
+      if(w) w.classList.toggle('show-paren', dexpNeedParens(dexpCellValue(id), DEXP_FIRSTS.indexOf(id)>=0)); });
+    eavArrowChange();   /* les flèches complétées en vert se redessinent */
+  }
+  test.answers.push({...(ptsExo()||{}),q:'Étude de ('+s1ExprText(q.a,q.b)+')'+eavExpo(q).plain+' : lecture graphique, f′ en littéral, limites, tableau, TVI, algorithme (x = '+numFmt(A.xr)+'), f″ et convexité',
+    answer:'étude complète', given:nOk+'/'+nTot, correct:allOk, pts:nOk/nTot, cases:nTot, type:'tvi'});
+  $('eavActions').innerHTML='<button class="btn btn-primary" onclick="finishTest()">Voir mes résultats</button>';
+}
+function eavConseilCtx(){
+  const q=test.questions[test.idx], A=eavAns(q), E=eavExpo(q);
+  const lu=id=>{ const el=$(id); const v=el?((el.tagName==='MATH-FIELD')?dexpCellValue(id):String(el.value||'').trim()):''; return v===''?'(vide)':'« '+v+' »'; };
+  return 'Exercice : ÉTUDE, ALGORITHME ET CONVEXITÉ — f(x) = (ax + b)'+E.plain+' (la fiche « Prépa DS 2 », trois parties). '
+   +'Partie A : la courbe et la tangente en A (abscisse '+numFmt(A.x0)+') sont tracées ; a) lire f('+numFmt(A.x0)+') et f′('+numFmt(A.x0)+') (coefficient directeur de la tangente) ; '
+   +'b) DÉMONTRER en littéral f′(x) = ('+((q.k<0)?'−ax + a − b':'ax + a + b')+')'+E.plain+' par (u·v)′ = u′v + uv′ avec u = ax + b ; c) en déduire b puis a. '
+   +'Partie B : f(x) = ('+s1ExprText(q.a,q.b)+')'+E.plain+' ; a) limites en ±∞ et asymptote horizontale ; b) f′ et tableau de variations (limites et extremum au dixième) ; '
+   +'c) f(x) = 0 admet une unique solution α sur la branche strictement monotone (continuité + stricte monotonie + 0 entre les valeurs : TVI) ; '
+   +'d) un algorithme Python part de x = '+numFmt(A.s)+' et ajoute 0,1 tant que f(x) '+A.cond+' 0 : il renvoie la première valeur de x pour laquelle la condition devient fausse, à lire dans le tableau de valeurs affiché ; elle encadre α à 0,1 près. '
+   +'Partie C : a) calculer f″(x) en dérivant f′ (encore un produit) ; b) tableau de signe de f″ et convexité (convexe là où f″ ≥ 0, concave là où f″ ≤ 0). '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les révèle jamais, même si l’élève insiste : f('+numFmt(A.x0)+') = '+numFmt(A.f0)+', f′('+numFmt(A.x0)+') = '+numFmt(A.fp0)
+   +' ; a = '+numFmt(q.a)+', b = '+numFmt(q.b)+' ; f′(x) = ('+s1ExprText(A.dp,A.dq)+')'+E.plain+', extremum en x = '+eavFracTxt(A.xmF)+' ; valeur renvoyée x = '+numFmt(A.xr)
+   +' ; f″(x) = ('+s1ExprText(A.ddp,A.ddq)+')'+E.plain+', qui s’annule en x = '+eavFracTxt(A.xIF)+'. '
+   +'Méthode à faire appliquer : une exponentielle est toujours strictement positive, donc f′ et f″ ont le signe de leur facteur affine ; dans une boucle while, le programme s’arrête dès que la condition est FAUSSE — on écrit le contraire de la condition. '
+   +'Saisies de l’élève : f('+numFmt(A.x0)+') '+lu('eav-a1')+', f′('+numFmt(A.x0)+') '+lu('eav-a2')+', dérivée littérale '+lu('eav-abfac')+', a '+lu('eav-c2')+', b '+lu('eav-c1')
+   +', limite en +∞ '+lu('eav-la')+', limite en −∞ '+lu('eav-lb')+', f′ '+lu('eav-bd')+', valeur renvoyée '+lu('eav-d2')+', dérivée seconde '+lu('eav-cafac')+'. '
    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
 }
 
@@ -17384,6 +17889,17 @@ const RAP_ECV=
 +'<p>Sur un intervalle o\u00f9 <i>f</i> est <b>continue</b> et <b>strictement</b> croissante (ou d\u00e9croissante), si <i>k</i> est compris entre les valeurs (ou limites) aux deux bouts, alors <i>f</i>(<i>x</i>) = <i>k</i> admet une <b>unique</b> solution.</p>'
 +'<div class="rap-t">Convexit\u00e9 et point d\u2019inflexion</div>'
 +'<p>L\u00e0 o\u00f9 <i>f</i>\u2009\u2033 \u2265 0, <i>f</i> est <b>convexe</b> et sa courbe est <b>au-dessus</b> de ses tangentes ; l\u00e0 o\u00f9 <i>f</i>\u2009\u2033 \u2264 0, <i>f</i> est <b>concave</b> et sa courbe est <b>en dessous</b>. Le <b>point d\u2019inflexion</b> est le point o\u00f9 <i>f</i>\u2009\u2033 s\u2019annule EN CHANGEANT DE SIGNE : la courbe y traverse sa tangente. Pour comparer <i>f</i>(<i>x</i>) \u00e0 une tangente sur un intervalle, on regarde la convexit\u00e9 sur cet intervalle.</p></div>';
+const RAP_EAV=
+ '<div class="rap"><h4>\ud83d\udcbb Rappel \u2014 \u00e9tude, algorithme et convexit\u00e9</h4>'
++'<p><b>1. Lire sur la courbe</b> : <i>f</i>(<i>a</i>) est l\u2019ordonn\u00e9e du point d\u2019abscisse <i>a</i> ; <i>f</i>\u2009\u2032(<i>a</i>) est le <b>coefficient directeur de la tangente</b> en ce point \u2014 on compte les carreaux : mont\u00e9e \u00f7 avanc\u00e9e.</p>'
++'<p><b>2. D\u00e9river un produit</b> : (<i>u</i>\u00b7<i>v</i>)\u2032 = <i>u</i>\u2032<i>v</i> + <i>u</i><i>v</i>\u2032, avec (e<sup>\u2212<i>x</i></sup>)\u2032 = \u2212e<sup>\u2212<i>x</i></sup>, (e<sup><i>x</i></sup>)\u2032 = e<sup><i>x</i></sup> et (e<sup><i>x</i> \u2212 1</sup>)\u2032 = e<sup><i>x</i> \u2212 1</sup>. Avec des lettres, <i>a</i> et <i>b</i> se manipulent comme des nombres : (<i>ax</i> + <i>b</i>)\u2032 = <i>a</i>.</p>'
++'<p><b>3. Le signe</b> : une exponentielle est TOUJOURS strictement positive \u2014 <i>f</i>\u2009\u2032 et <i>f</i>\u2009\u2033 ont le signe de leur facteur affine.</p>'
++'<div class="rap-t">Le TVI, avec la stricte monotonie</div>'
++'<p>Sur un intervalle o\u00f9 <i>f</i> est <b>continue</b> et <b>strictement</b> monotone, si 0 est compris entre les valeurs (ou limites) aux deux bouts, <i>f</i>(<i>x</i>) = 0 admet une <b>unique</b> solution \u03b1.</p>'
++'<div class="rap-t">L\u2019algorithme de balayage</div>'
++'<p>La boucle <b>while</b> tourne TANT QUE sa condition est vraie : le programme renvoie la premi\u00e8re valeur de <i>x</i> pour laquelle elle est FAUSSE \u2014 on \u00e9crit le contraire de la condition. Avec un pas de 0,1, la valeur renvoy\u00e9e <i>x</i> v\u00e9rifie <i>x</i> \u2212 0,1 &lt; \u03b1 &lt; <i>x</i> : c\u2019est une valeur approch\u00e9e de \u03b1 \u00e0 0,1 pr\u00e8s par exc\u00e8s. Elle se lit dans le tableau de valeurs, \u00e0 la ligne o\u00f9 <i>f</i>(<i>x</i>) change de signe.</p>'
++'<div class="rap-t">Convexit\u00e9</div>'
++'<p>L\u00e0 o\u00f9 <i>f</i>\u2009\u2033 \u2265 0, <i>f</i> est <b>convexe</b> ; l\u00e0 o\u00f9 <i>f</i>\u2009\u2033 \u2264 0, <i>f</i> est <b>concave</b>.</p></div>';
 const RAP_TVICE=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 les hypoth\u00e8ses du TVI</h4>'
 +'<p>Chaque hypoth\u00e8se est indispensable :</p><ul>'
@@ -17597,7 +18113,7 @@ const RAP_SSV=`<b>Synthèse : variations d’une suite U<sub>n+1</sub> = f (U<su
 • <b>Le théorème de convergence monotone</b> : une suite <b>croissante et majorée</b> converge ; une suite <b>décroissante et minorée</b> converge aussi. C’est la borne du BON côté qui compte.<br>
 • <b>La limite, par produit en croix</b> : U<sub>n</sub> et U<sub>n+1</sub> ont la MÊME limite ℓ. On remplace les deux par ℓ dans la relation, puis on chasse le dénominateur : \(\ell=\frac{a\ell-p}{\ell+c}\) devient ℓ(ℓ + <i>c</i>) = <i>a</i>ℓ − <i>p</i>, c’est-à-dire une équation du second degré, avec en général <b>deux</b> solutions. C’est l’ENCADREMENT démontré à la récurrence qui dit laquelle garder : la limite est du même côté que tous les termes de la suite.`;
 const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, sag:RAP_SAG, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ,
-  tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, dhv:RAP_DHV,
+  tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -25219,6 +25735,7 @@ const QIA_SUGG={
   su:["Faire un rappel de cours pour cet exercice.","Comment reconna\u00eetre une suite arithm\u00e9tique ou g\u00e9om\u00e9trique ?","\u00c0 quoi sert la formule explicite d\u2019une suite ?","Pourquoi la formule change quand le premier terme est U\u2081 ou U\u2082 ?"],
   rc:["Quelles sont les \u00e9tapes d\u2019une r\u00e9currence ?","Pourquoi f croissante conserve-t-elle les in\u00e9galit\u00e9s ?","Comment conclure quand f(M) est plus petit que M ?","\u00c0 quoi sert l\u2019initialisation ?"],
   rf:["Comment calculer la formule au rang 0 ?","Comment utiliser l\u2019hypoth\u00e8se de r\u00e9currence dans le calcul ?","Pourquoi 0,5 \u00d7 0,5\u207f donne-t-il 0,5\u207f\u207a\u00b9 ?","Comment conclure une r\u00e9currence ?"],
+  eav:["Comment lire f\u2009\u2032(0) sur la tangente ?","Comment dériver (ax + b)e^(\u2212x) avec les lettres a et b ?","Pourquoi le programme renvoie-t-il x quand la condition du while devient fausse ?","Comment déduire la convexité du signe de f\u2009\u2033 ?"],
   ecv:["Comment savoir si f est convexe ou concave ?","C\u2019est quoi, un point d\u2019inflexion ?","Pourquoi la courbe est-elle sous ses tangentes quand f est concave ?","Comment trouver l\u2019\u00e9quation de la tangente en 0 ?"],
   asg:["Comment conjecturer une limite sur la courbe ?","Pourquoi e\u207b\u02e3 est-il toujours strictement positif ?","Pourquoi la solution \u03b1 est-elle unique ?","Comment d\u00e9duire le signe de f \u00e0 partir de \u03b1 ?"],
   rr:["Faire un rappel de cours pour cet exercice.","Comment r\u00e9dige-t-on une r\u00e9currence ?","Que faut-il \u00e9crire dans l\u2019initialisation ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb ?","Pourquoi faut-il justifier que f est croissante ?"],
@@ -25978,7 +26495,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3'];
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -26475,6 +26992,8 @@ function kbVarsFor(id){
     {latex:"\\le",tooltip:"inférieur ou égal"},{latex:"\\ge",tooltip:"supérieur ou égal"},
     {latex:"<",tooltip:"strictement inférieur"},{latex:">",tooltip:"strictement supérieur"}];
   if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-formule' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction' || id === 'suite-variation-difference') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
+  /* 2.2.4 : la dérivée se démontre EN LITTÉRAL (u = ax + b) — les lettres a et b sur le clavier A */
+  if(id === 'etude-algo-convexite') return [{latex:"f"},{latex:"x"},{latex:"a"},{latex:"b"}];
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;

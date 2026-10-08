@@ -4157,6 +4157,7 @@ function exercices(suite){
     recurrenceFormule(w, P);
     alphaSigne(w, P);
     etudeConvexite(w, P);
+    etudeAlgoConvexite(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     suiteTcmLimite(w, P);
@@ -13447,6 +13448,181 @@ function alphaSigne(w, P){
    où f est concave, donc SOUS sa tangente) : c'est la fonction qui tranche,
    et le contrôle l'exige — le k du TVI est entre la limite et l'extremum de
    la branche, et f − Δ a le signe annoncé sur tout l'intervalle. */
+/* ---------- Le 2.2.4 : étude, algorithme et convexité (la fiche « Prépa DS 2 ») ----------
+   Demande de Turquet (octobre 2026). Le contrôle REFAIT l'arithmétique par ses
+   propres moyens sur toutes les fonctions que le tirage sait produire —
+   dérivées par différences finies, exponentielle de Math, et l'algorithme
+   Python REJOUÉ en flottants comme Python l'exécute (x = x + 0.1 accumule
+   son erreur) : la valeur renvoyée, l'encadrement de α et la ligne du
+   tableau de valeurs où f change de signe doivent dire la même chose. Puis la
+   fiche même (a = 3, b = 1, e^(−x)) : la copie passe entière, les écritures
+   égales passent (la chaîne LITTÉRALE dans les deux ordres, « a − b − ax »),
+   une faute ne rougit qu'elle, une case vide ne rougit jamais. */
+function etudeAlgoConvexite(w, P){
+  const nom='le 2.2.4 : l\'étude, l\'algorithme et la convexité — la fiche « Prépa DS 2 »';
+  const present = evaluer(w, "typeof startEAV==='function' && typeof genEAVCase==='function' && typeof eavCases==='function' && typeof eavAns==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'étude, algorithme et convexité');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='etude-algo-convexite';
+
+    /* ---- 0. la place au menu : le dernier de la partie « Convexité » ---- */
+    { const th=THEMES.filter(function(t){ return t.num===2; })[0];
+      const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==="Convexité"; })[0];
+      if(!st || st.ids[st.ids.length-1]!=='etude-algo-convexite') vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème 2");
+      if(TEST_NUM['etude-algo-convexite']!=='2.2.4') vus.push('le numéro n\\'est pas 2.2.4 : '+TEST_NUM['etude-algo-convexite']); }
+
+    /* ---- 1. le tirage : (a, b, k, c) et rien d'autre ; les trois exponentielles sortent ---- */
+    const vus2={}, faces={};
+    for(let t=0;t<1500 && vus.length<4;t++){
+      const q=genEAVCase();
+      const cles=Object.keys(q).sort().join(',');
+      if(cles!=='a,b,c,k') vus.push('la question range autre chose que a, b, k, c : '+cles);
+      if(!((q.k===-1&&q.c===0)||(q.k===1&&q.c===0)||(q.k===1&&q.c===-1))) vus.push('exponentielle hors vivier : k='+q.k+', c='+q.c);
+      if(!Number.isInteger(q.a)||!Number.isInteger(q.b)||!q.a||!q.b) vus.push('a et b ne sont pas des entiers non nuls : '+JSON.stringify(q));
+      vus2[JSON.stringify(q)]=q; faces[q.k+','+q.c]=1;
+    }
+    if(Object.keys(faces).length<3) vus.push('les trois exponentielles e^(−x), e^x, e^(x−1) ne sortent pas toutes');
+    if(Object.keys(vus2).length<20) vus.push('le tirage ne sait produire que '+Object.keys(vus2).length+' fonctions');
+
+    /* ---- 2. l'arithmétique, refaite sur chaque fonction tirée ---- */
+    Object.keys(vus2).forEach(function(k){
+      if(vus.length>=6) return;
+      const q=vus2[k], a=q.a, b=q.b, tag=' ('+k+')';
+      const f=function(x){ return (a*x+b)*Math.exp(q.k*x+q.c); };
+      const d1=function(x){ return (f(x+1e-5)-f(x-1e-5))/2e-5; };
+      const d2=function(x){ return (f(x+1e-4)-2*f(x)+f(x-1e-4))/1e-8; };
+      const A=eavAns(q), cases=eavCases(q), cs={}; cases.forEach(function(x){ cs[x.id]=x; });
+      if(cases.length!==eavMax(q) || cases.length<60) vus.push(cases.length+' cases'+tag);
+      /* le point A : l'exposant s'y annule, f(x₀) et f′(x₀) ENTIERS, lisibles */
+      const x0=(q.c===0)?0:1;
+      if(Math.abs(f(x0)-cs['eav-a1'].good)>1e-12 || Math.abs(d1(x0)-cs['eav-a2'].good)>1e-4) vus.push('f(x₀) ou f′(x₀) attendu contredit la courbe'+tag);
+      if(!Number.isInteger(cs['eav-a1'].good)||!Number.isInteger(cs['eav-a2'].good)||!cs['eav-a2'].good) vus.push('la lecture graphique n\\'est pas un entier non nul'+tag);
+      if(cs['eav-c1'].good!==b || cs['eav-c2'].good!==a) vus.push('a et b attendus au c) ne sont pas ceux de la fonction'+tag);
+      /* f′ et f″ contre les différences finies */
+      for(let i=0;i<5;i++){ const x=A.al-2+i;
+        if(Math.abs(d1(x)-cs['eav-bd'].fn(x)*Math.exp(q.k*x+q.c))>1e-4){ vus.push('f′ attendue ne vaut pas la dérivée de f'+tag); break; }
+        if(Math.abs(d2(x)-(A.ddp*x+A.ddq)*Math.exp(q.k*x+q.c))>1e-2){ vus.push('f″ ne vaut pas la dérivée seconde de f'+tag); break; } }
+      if(Math.abs(d1(cs['eav-tx'].good))>1e-4) vus.push('f′ ne s\\'annule pas à l\\'abscisse du tableau'+tag);
+      if(Math.abs(d2(cs['eav-h0'].good))>1e-2) vus.push('f″ ne s\\'annule pas à l\\'abscisse du h)'+tag);
+      const sg=function(v){ return v>0?'+':'−'; }, xm=cs['eav-tx'].good, xI=cs['eav-h0'].good;
+      if(cs['eav-tf0'].good!==sg(d1(xm-1)) || cs['eav-tf1'].good!==sg(d1(xm+1))) vus.push('le signe de f′ attendu contredit la fonction'+tag);
+      if(cs['eav-ta0'].good!==(d1(xm-1)>0?'up':'down') || cs['eav-ta1'].good!==(d1(xm+1)>0?'up':'down')) vus.push('les flèches attendues contredisent la fonction'+tag);
+      if(Math.abs(cs['eav-tv1'].vrai-f(xm))>1e-9 || Math.abs(cs['eav-tv1'].good-f(xm))>0.05+1e-9) vus.push('l\\'extremum attendu n\\'est pas f(xm) au dixième'+tag);
+      if(sg(d2(xI-1))===sg(d2(xI+1))) vus.push('f″ ne change pas de signe en xI'+tag);
+      if(cs['eav-h5'].good!==sg(d2(xI-1)) || cs['eav-h6'].good!==sg(d2(xI+1)) || cs['eav-h1'].good!==cs['eav-h5'].good || cs['eav-h2'].good!==cs['eav-h6'].good) vus.push('le signe de f″ attendu contredit la fonction'+tag);
+      if(cs['eav-h7'].good!==(cs['eav-h5'].good==='+'?'convexe':'concave') || cs['eav-h8'].good!==(cs['eav-h6'].good==='+'?'convexe':'concave')) vus.push('la convexité attendue contredit le signe de f″'+tag);
+      /* les limites, relues au loin */
+      const lim=function(x){ const v=f(x); return Math.abs(v)<1e-6?0:(v>0?'+∞':'−∞'); };
+      if(cs['eav-la'].lim!==lim(60) || cs['eav-lb'].lim!==lim(-60) || cs['eav-tv2'].lim!==lim(60) || cs['eav-tv0'].lim!==lim(-60)) vus.push('une limite attendue contredit la fonction'+tag);
+      if(cs['eav-lat'].good!==(lim(60)===0?'ah':'rien') || cs['eav-lbt'].good!==(lim(-60)===0?'ah':'rien')) vus.push('le type d\\'asymptote attendu contredit les limites'+tag);
+      /* le TVI : f strictement monotone sur la branche qui porte α, et 0 entre ses bornes */
+      const al=-b/a, gauche=(q.k<0);
+      if(Math.abs(f(al))>1e-12) vus.push('α = −b/a n\\'annule pas f'+tag);
+      if(gauche ? !(al<xm) : !(al>xm)) vus.push('α n\\'est pas sur la branche annoncée'+tag);
+      let mono=true; for(let i=0;i<10;i++){ const x1=gauche?xm-10+i:xm+i, x2=x1+1; if(a>0 ? f(x2)<=f(x1) : f(x2)>=f(x1)) mono=false; }
+      if(!mono) vus.push('f n\\'est pas strictement monotone sur la branche de α'+tag);
+      if(cs['eav-e2'].good!==(a>0?'croissante':'décroissante')) vus.push('le sens de variation du c) contredit la fonction'+tag);
+      if(cs['eav-e3'].lim!==(gauche?lim(-60):lim(60))) vus.push('la limite du c) n\\'est pas celle du bout infini de la branche'+tag);
+      /* l'algorithme, REJOUÉ comme Python l'exécute */
+      let x=A.s, n=0; const cond=(A.cond==='<')?function(v){ return v<0; }:function(v){ return v>0; };
+      if(!cond(f(x))) vus.push('la boucle ne tourne pas une seule fois depuis x = '+A.s+tag);
+      if(gauche ? !(A.s<al) : !(A.s>=xm && A.s<al)) vus.push('le départ de l\\'algorithme n\\'est pas sur la branche, avant α'+tag);
+      while(cond(f(x)) && n<200){ x=x+0.1; n++; }
+      if(Math.abs(x-cs['eav-d2'].good)>1e-9) vus.push('Python renvoie '+x+', la page attend '+cs['eav-d2'].good+tag);
+      if(!(cs['eav-d3'].good<al && al<cs['eav-d4'].good) || Math.abs(cs['eav-d4'].good-cs['eav-d3'].good-0.1)>1e-9) vus.push('l\\'encadrement attendu ne contient pas α à 0,1 près'+tag);
+      if(cs['eav-d1'].good!==(A.cond==='<'?'ge':'le')) vus.push('la condition d\\'arrêt n\\'est pas le contraire du while'+tag);
+      /* le tableau de valeurs : la ligne qui change de signe est celle que le programme renvoie */
+      const tb=document.createElement('div'); tb.innerHTML=eavTablaHTML(q);
+      const lignes=[].map.call(tb.querySelectorAll('tbody tr'),function(tr){ return [].map.call(tr.children,function(td){ return parseFloat(td.textContent.replace('−','-').replace(',','.')); }); });
+      let k0=-1; for(let i=0;i<lignes.length;i++){ if(!cond(lignes[i][1])){ k0=i; break; } }
+      if(k0<1 || Math.abs(lignes[k0][0]-cs['eav-d2'].good)>1e-9) vus.push('le tableau de valeurs ne montre pas le changement de signe à la valeur renvoyée'+tag);
+      if(lignes[0][0]!==A.s) vus.push('le tableau ne part pas de la valeur de départ de l\\'algorithme'+tag);
+    });
+
+    /* ---- montage : la fiche même — f(x) = (3x + 1)e^(−x) ---- */
+    const Q={a:3,b:1,k:-1,c:0};
+    const poser=function(vals, q, mode){
+      currentMode=mode||'train';
+      Object.assign(test,{kind:'eav', questions:[JSON.parse(JSON.stringify(q||Q))], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:eavMax(q||Q)});
+      renderEAV();
+      eavCases(q||Q).forEach(function(x){ const el=document.getElementById(x.id); if(!el) return;
+        const v=vals[x.id]; const s=(v===undefined||v===null)?'':String(v);
+        if(el.tagName==='MATH-FIELD'){
+          el.getValue=function(){ return s; };
+          el.setValue=function(nv){ const t=String(nv); el.getValue=function(){ return t; }; };
+        } else el.value=s;
+      });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?' '+el.className+' ':'';
+      return c.indexOf(' ok ')>=0?'vert':(c.indexOf(' bad ')>=0?'rouge':(c.indexOf(' sol ')>=0?'sol':'rien')); };
+    /* la copie d'un élève : la chaîne littérale écrite comme il l'écrit */
+    const BON={};
+    { const sol2=asgDerVerdicts(Q,eavDerSec(Q)).sol;
+      eavCases(Q).forEach(function(x){ BON[x.id]=(x.type==='der')?(x.grp===2?sol2[x.id]:''):String(eavVal(Q,x)); });
+      Object.assign(BON,{'eav-abu':'ax+b','eav-abv':'e^(-x)','eav-abdu':'a','eav-abdv':'-e^(-x)',
+        'eav-abs2a':'a','eav-abs2b':'e^(-x)','eav-abs2c':'-e^(-x)','eav-abs2d':'ax+b',
+        'eav-abs3a':'a','eav-abs3b':'-ax','eav-abs3c':'-b','eav-abfac':'-ax+a-b'}); }
+    const NT=eavMax(Q);
+    const ids=eavCases(Q).map(function(x){ return x.id; });
+
+    /* ---- 3. ce que la page écrit : la fonction, le programme, la valeur de départ ---- */
+    poser({});
+    { const t=(document.getElementById('eavForm').textContent||'').replace(/\\s+/g,' ');
+      [['(3x + 1) e','la fonction de la partie B'],['(−ax + a − b) e','la dérivée littérale à démontrer'],['x = -1','le départ de l\\'algorithme'],['while (3*x+1)*exp(-x) < 0','la condition du while'],['x = x + 0.1','le pas']]
+        .forEach(function(p){ if(t.indexOf(p[0])<0) vus.push('la fiche : '+p[1]+' n\\'est pas écrite « '+p[0]+' »'); });
+      const pr=(document.getElementById('eavPrompt').textContent||'').replace(/\\s+/g,' ');
+      if(pr.indexOf('(ax + b) e')<0 || pr.indexOf('abscisse 0')<0) vus.push('l\\'énoncé n\\'écrit pas f(x) = (ax + b)e^(−x) et le point A d\\'abscisse 0 : '+pr.slice(0,80)); }
+    poser({}, {a:3,b:-1,k:1,c:-1});
+    { const t=(document.getElementById('eavForm').textContent||'').replace(/\\s+/g,' ');
+      if(t.indexOf('exp(x-1)')<0 || t.indexOf('2a + b')<0) vus.push('le visage e^(x−1) n\\'écrit pas exp(x-1) ni f′(1) = 2a + b'); }
+
+    /* ---- 4. la copie de la fiche passe entière ---- */
+    poser(BON); checkEAV();
+    { const pas=ids.filter(function(id){ return peint(id)!=='vert'; });
+      if(pas.length) vus.push('la copie de la fiche ne passe pas entière au vert : '+pas.slice(0,6).join(','));
+      if(test.score!==NT||!test.locked) vus.push('la copie de la fiche vaut '+test.score+'/'+test.maxScore);
+      const r=test.answers[0]||{};
+      if(r.given!==NT+'/'+NT||r.correct!==true||r.pts!==1||r.cases!==NT) vus.push('la réponse enregistrée ne dit pas '+NT+'/'+NT+' : '+JSON.stringify(r).slice(0,80)); }
+
+    /* ---- 5. toute écriture ÉGALE passe ---- */
+    [['eav-abfac','a-b-ax'],['eav-abfac','-a(x-1)-b'],['eav-abu','b+ax'],['eav-bd','-3x+2'],['eav-bd','2-3x'],['eav-tx','4/6'],['eav-tv1','1,5'],['eav-tv1','1.6'],['eav-d2','-0.3'],['eav-d3','−0,4'],['eav-tv0','-inf'],['eav-cafac','3x-5']].forEach(function(p){
+      const v=Object.assign({},BON); v[p[0]]=p[1];
+      poser(v); checkEAV();
+      if(test.score!==NT) vus.push('l\\'écriture égale « '+p[1]+' » est refusée en '+p[0]); });
+    { const v=Object.assign({},BON,{'eav-abu':'e^(-x)','eav-abv':'ax+b','eav-abdu':'-e^(-x)','eav-abdv':'a',
+        'eav-abs2a':'-e^(-x)','eav-abs2b':'ax+b','eav-abs2c':'e^(-x)','eav-abs2d':'a'});
+      poser(v); checkEAV();
+      if(test.score!==NT) vus.push('l\\'ordre u = e^(−x), v = ax + b est refusé dans la chaîne littérale'); }
+
+    /* ---- 6. ce qui est faux est refusé : une lettre de trop, une fraction arrondie, le mauvais bout de l'encadrement ---- */
+    [['eav-abfac','-ax+a+b'],['eav-abu','ab+x'],['eav-tx','0,67'],['eav-d2','-0,4'],['eav-tv1','1,7'],['eav-d1','gt'],['eav-d5','defaut'],['eav-lat','rien']].forEach(function(p){
+      const v=Object.assign({},BON); v[p[0]]=p[1];
+      poser(v); checkEAV();
+      if(test.score!==NT-1 || peint(p[0])!=='rouge') vus.push('« '+p[1]+' » en '+p[0]+' n\\'est pas refusé seul (note '+test.score+'/'+NT+', '+peint(p[0])+')'); });
+
+    /* ---- 7. une case vide ne rougit jamais : la correction s'y écrit en sol en entraînement, rien en soutien ---- */
+    { const v=Object.assign({},BON); delete v['eav-d2']; delete v['eav-h0'];
+      poser(v); checkEAV();
+      if(peint('eav-d2')!=='sol' || peint('eav-h0')!=='sol') vus.push('entraînement : une case vide ne reçoit pas la correction en sol ('+peint('eav-d2')+', '+peint('eav-h0')+')');
+      if(test.score!==NT-2) vus.push('deux cases vides valent '+test.score+' au lieu de '+(NT-2));
+      poser(v, Q, 'soutien'); checkEAV();
+      if(peint('eav-d2')!=='rien' || peint('eav-h0')!=='rien') vus.push('soutien : une case vide est colorée');
+      currentMode='train'; }
+
+    /* ---- 8. le contexte du modèle : les trois parties, les saisies, la clause de secret ---- */
+    poser(BON);
+    { const c=eavConseilCtx();
+      if(c.indexOf('SECRÈTES')<0 || c.indexOf('Partie C')<0 || c.indexOf('Saisies de l')<0) vus.push('le contexte du modèle ne porte pas les trois parties, les saisies et la clause de secret');
+      if(!RAPPELS.eav || !QIA_SUGG.eav || QIA_SUGG.eav.length<3) vus.push('le rappel ou les questions suggérées manquent'); }
+    return vus.join(' | ');
+  })()`, v => v === '');
+}
+
 function etudeConvexite(w, P){
   const nom='le 2.2.2 : l\'étude de fonction et la convexité — la fiche 5';
   const present = evaluer(w, "typeof startECV==='function' && typeof genECVCase==='function' && typeof ecvCases==='function' && typeof ecvAns==='function' && typeof asgDerVerdicts==='function'");
