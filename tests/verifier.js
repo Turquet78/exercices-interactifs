@@ -33715,9 +33715,10 @@ function problemesPourcentages(w, P){
   const t3='{pourcentages-problemes} : le juge lit les copies épinglées (unités, mots, signe)';
   const t4='{pourcentages-problemes} : « Aide schéma » fonctionne comme au 4.5.9 — le schéma remplace la rédaction, se juge, se quitte, se reprend, et se marque pour le professeur';
   const t5='{pourcentages-problemes} : chaque situation se résout sur son schéma à cases (les valeurs justes valent le point, une case faussée non), cadres compris';
+  const t6='{pourcentages-problemes-sans-aide} : le même exercice, sans « Aide schéma » — ni bouton, ni phrase, ni rappel qui y renvoie, et sa propre identité';
   const present = evaluer(w, "typeof startPpb==='function'");
   if(!present.ok || !present.valeur){
-    [t1,t2,t3,t4,t5].forEach(t => ignorer(t, 'ce niveau n\'a pas les problèmes de pourcentages rédigés'));
+    [t1,t2,t3,t4,t5,t6].forEach(t => ignorer(t, 'ce niveau n\'a pas les problèmes de pourcentages rédigés'));
     return;
   }
   verifierEval(w, t1, `(function(){
@@ -33884,6 +33885,40 @@ function problemesPourcentages(w, P){
     if(n<300) vus.push('seulement '+n+' schémas essayés');
     show('theme');
     return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* {pourcentages-problemes-sans-aide} (4.5.11) : « exactement le même
+     exercice que le 4.5.10, mais sans le bouton aide schéma » (Turquet,
+     octobre 2026). Même moteur ; le bord tenu des deux côtés : le 4.5.10
+     garde son bouton, le 4.5.11 n'en a aucune trace, même par une question
+     où l'aide aurait été rangée. */
+  verifierEval(w, t6, `(function(){
+    const vus=[], ID='pourcentages-problemes-sans-aide';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    if(!TESTS[ID]) return 'pas d’exercice '+ID;
+    currentTestId='pourcentages-problemes'; TESTS['pourcentages-problemes'].start();
+    if(!document.getElementById('ppbAide')) vus.push('le 4.5.10 a perdu son bouton « Aide schéma »');
+    currentTestId=ID; TESTS[ID].start();
+    if(test.kind!=='ppb' || test.qId!==ID) vus.push('kind « '+test.kind+' », identité « '+test.qId+' »');
+    if(test.questions.length!==4) vus.push(test.questions.length+' questions au lieu de 4');
+    if(document.getElementById('ppbAide')) vus.push('le bouton « Aide schéma » est là');
+    if(/Aide schéma/.test(document.getElementById('scr-ppb').textContent.replace(/Aide schéma[\s\S]*Revenir à la rédaction/,''))) vus.push('l’écran parle encore de l’aide schéma');
+    ppbAideSchema();
+    if(test.questions[0].aide || !document.getElementById('ppbSch').hidden) vus.push('ppbAideSchema() ouvre le schéma quand même');
+    test.questions[0].aide=true; renderPpb();
+    if(!document.getElementById('ppbSch').hidden || document.getElementById('ppbRed').hidden) vus.push('une aide rangée dans la question rouvre le schéma');
+    if(/Aide schéma/.test(RAPPELS_ID[ID]||'') || !RAPPELS_ID[ID]) vus.push('le rappel renvoie au bouton absent, ou manque');
+    /* une copie dont le calcul ne mène pas à la réponse : la phrase du juge ne renvoie pas au bouton absent */
+    const q0={grp:'pct',fam:'remise',o:2,pi:0,P:24,N:5200,F:3952,aide:false};
+    const ph=ppbJuge(q0,'52*2=104').phrase;
+    if(!ph || /Aide schéma/.test(ph)) vus.push('le juge renvoie au bouton absent : « '+ph+' »');
+    test.qId='pourcentages-problemes';
+    if(!/Aide schéma/.test(ppbJuge(q0,'52*2=104').phrase||'')) vus.push('le témoin ne mesure rien : la phrase du 4.5.10 ne cite plus l’aide');
+    test.qId=ID;
+    restartCurrentTest();
+    if(test.qId!==ID) vus.push('« Recommencer » perd l’identité ('+test.qId+')');
+    show('theme');
+    return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
 /* ---- {evolutions-successives-phrases} (4.5.8) : Seconde SEULE, LE SCHÉMA DU 4.5.5 AVEC SES DEUX PREMIÈRES PHRASES DONNÉES
