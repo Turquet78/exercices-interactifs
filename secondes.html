@@ -5760,7 +5760,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=424;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=425;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6415,6 +6415,7 @@ const TESTS={
   'evolutions-successives-phrases':{ name:'Deux évolutions : phrases données', icon:'💬', desc:'Le schéma de {evolutions-successives}, mais les deux premières évolutions sont données par deux phrases (une hausse ou une baisse de tant de pour cent) : tu complètes les pourcentages et les coefficients du schéma, le calcul du coefficient global et son pourcentage, puis la phrase de l’évolution globale : hausse ou baisse, et de combien de pour cent.', start:()=>startEvolSuccPhrases() },
   'synthese-pourcentages-redigee':{ name:'Synthèse rédigée sur les pourcentages', icon:'✍️', desc:'Les questions de {pourcentage-boite}, {pourcentage-chaine}, {synthese-evolutions} et {evolutions-successives}, mélangées à parts égales — mais sans schéma : tu RÉDIGES ta solution dans une case, et la page vérifie que tu as écrit au moins la multiplication ou la division qui donne la réponse. Pour un pourcentage, « … % », « +… % » ou « −… % » suffit après le calcul. Bloqué ? Le bouton « Aide schéma » reprend la question sur le schéma de son exercice.', start:()=>startSpr() },
   'pourcentages-problemes':{ name:'Problèmes de pourcentages — rédigés', icon:'🧮', desc:'Comme {synthese-pourcentages-redigee}, mais avec des énoncés de problèmes : une remise donnée en euros, un prix hors taxe et toutes taxes comprises, l’ancien prix d’un article soldé, une proportion de proportion, un taux d’évolution, la cantine ou la population d’une ville d’une année sur l’autre, deux évolutions de suite. Tu RÉDIGES ta solution dans une case, et la page vérifie que tu as écrit au moins la multiplication ou la division qui donne la réponse. Bloqué ? Le bouton « Aide schéma » reprend la question sur un schéma à compléter, comme au {synthese-pourcentages-redigee}.', start:()=>startPpb() },
+  'pourcentages-problemes-sans-aide':{ name:'Problèmes de pourcentages — rédigés, sans aide', icon:'🧮', desc:'Exactement {pourcentages-problemes}, mais SANS le bouton « Aide schéma » : tu rédiges ta solution jusqu’au bout, sans pouvoir passer sur le schéma à compléter.', start:()=>startPpb('pourcentages-problemes-sans-aide') },
   'intervalles': { name:'Intervalles', icon:'\ud83d\udccf', desc:'Le chemin inverse de {intervalles-inegalite} : on te donne le schéma, et tu écris les crochets, l’inégalité et la phrase « ouvert / fermé en … ».', start:()=>startItv() },
   'intervalles-inegalite': { name:'De l’inégalité à l’intervalle', icon:'\ud83d\udd01', desc:'On ne te donne que l’inégalité : retrouve le schéma qui lui correspond, l’écriture de l’intervalle et la phrase « ouvert / fermé en … ».', start:()=>startItq() },
   'appartient-intervalle': { name:'Appartient ou pas ? — niveau 1', icon:'\ud83c\udfaf', desc:'Un nombre, un intervalle : dis s’il appartient (∈) ou non (∉). Attention aux bornes — c’est le crochet qui décide.', start:()=>startApp1() },
@@ -6594,7 +6595,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 3.2 ni de 3.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient','tableau-coefficients'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions','evolutions-successives','schema-evolution','evolutions-successives-coef','evolutions-successives-phrases','synthese-pourcentages-redigee','pourcentages-problemes'] },
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions','evolutions-successives','schema-evolution','evolutions-successives-coef','evolutions-successives-phrases','synthese-pourcentages-redigee','pourcentages-problemes','pourcentages-problemes-sans-aide'] },
       /* Une proportion AVANT le pourcentage : le tableau \u00e0 double entr\u00e9e de la
          fiche papier (demande de Turquet, septembre 2026). Ajout\u00e9e EN DERNIER,
          la partie ne renum\u00e9rote rien. */
@@ -8252,6 +8253,8 @@ Repère d’abord la <b>valeur de départ</b>, la <b>valeur d’arrivée</b> et 
 • <b>une proportion d’une proportion</b> : 25 % de 60 %, c’est 0,6 × 0,25 = 0,15, soit <b>15 %</b> ; s’il y a 40 % de filles, il y a 1 − 0,4 = 0,6, soit 60 % de garçons ;<br>
 • <b>deux évolutions de suite</b> : on multiplie les coefficients, 1,1 × 1,2 = 1,32, soit <b>+32 %</b> ; et un taux d’évolution s’écrit <b>avec son signe</b> : 21 ÷ 28 = 0,75, soit <b>−25 %</b>.<br>
 Un énoncé peut donner des nombres qui ne servent pas : lis bien ce qu’on te demande. Bloqué ? Le bouton <b>Aide schéma</b> reprend la question sur un schéma à compléter : les boîtes, les flèches et leurs coefficients, comme dans {synthese-evolutions} ou {evolutions-successives}.`;
+/* {pourcentages-problemes-sans-aide} : le rappel du 4.5.10, sans la phrase qui renvoie au bouton qu'il n'a pas */
+const RAP_PPS=RAP_PPB.replace(/ Bloqué \? Le bouton <b>Aide schéma<\/b>[\s\S]*$/,'');
 const RAP_SEV=`<b>Du coefficient multiplicateur au pourcentage</b><br>
 C’est le schéma de {synthese-evolutions}, lu dans l’autre sens : le coefficient multiplicateur est déjà écrit sous la flèche, et c’est à toi de retrouver le pourcentage.<br>
 Le coefficient et le pourcentage sont liés par la flèche « −1 » : pour une <b>hausse</b>, <b>coefficient = 1 + pourcentage</b>, donc pourcentage = coefficient − 1 ; pour une <b>baisse</b>, <b>coefficient = 1 − pourcentage</b>, donc pourcentage = 1 − coefficient. Par exemple, 1,3 − 1 = 0,3, soit <b>× (1 + 0,3)</b>, une hausse de <b>30 %</b> ; et 1 − 0,8 = 0,2, soit <b>× (1 − 0,2)</b>, une baisse de <b>20 %</b>.<br>
@@ -9217,7 +9220,7 @@ const RAP_RVF=`<b>Réviser les quatre règles des fractions</b><br>
 const RAPPELS={ pgc:RAP_PGC, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, cit:RAP_CIT, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, prc:RAP_PRC, pkg:RAP_PKG, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pbl:RAP_PBL, pmn:RAP_PMN, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
-const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
+const RAPPELS_ID={ 'python-input-float':RAP_PIF, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -26290,10 +26293,13 @@ function genPpb(grp, fam){
   return q;
 }
 function ppbPgcd(a,b){ while(b){ const t=a%b; a=b; b=t; } return a; }
-async function startPpb(){
+/* id : {pourcentages-problemes-sans-aide} (4.5.11) tourne sur le MÊME moteur,
+   sans le bouton « Aide schéma » ; son identité vit dans test.qId (la note,
+   le rappel), et ppbSansAide() la relit — la pause garde test.qId. */
+async function startPpb(id){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
-  test.kind='ppb'; test.qId='pourcentages-problemes';
+  test.kind='ppb'; test.qId=(id==='pourcentages-problemes-sans-aide')?id:'pourcentages-problemes';
   const grps=qdMelanger(Object.keys(PPB_FAMILLES));
   const cyc={}; grps.forEach(g=>{ cyc[g]=qdMelanger(PPB_FAMILLES[g].slice()); });
   test.questions=distinctes(dmNbQuestions(PPB_NB),(_,i)=>{ const g=grps[i%grps.length], k=Math.floor(i/grps.length); return genPpb(g, cyc[g][k%cyc[g].length]); });
@@ -26601,8 +26607,14 @@ function ppbTexte(t){
     .replace(/\\(?:approx|simeq)(?![a-zA-Z])|≈/g,'=')
     .replace(/[A-Za-zÀ-ÖØ-öø-ÿ’']+/g,'\n');
 }
-function ppbJuge(q, texte){ return sprJuge({src:'ppb'}, ppbTexte(texte), ppbCible(q)); }
+function ppbJuge(q, texte){
+  const r=sprJuge({src:'ppb'}, ppbTexte(texte), ppbCible(q));
+  /* le 4.5.11 n'a pas le bouton : la phrase n'y renvoie pas */
+  if(ppbSansAide() && r.phrase) r.phrase=r.phrase.replace(/ Le bouton « Aide schéma » peut te guider\./,'');
+  return r;
+}
 let ppbFeuille=null;
+function ppbSansAide(){ return test.qId==='pourcentages-problemes-sans-aide'; }
 function renderPpb(){
   const q=test.questions[test.idx]; test.locked=false;
   const scr=$('scr-ppb');
@@ -26614,6 +26626,7 @@ function renderPpb(){
   $('ppbLiveScore').textContent=test.score;
   $('ppbFeedback').textContent=''; $('ppbFeedback').className='mp-feedback';
   $('ppbSchFeedback').textContent=''; $('ppbSchFeedback').className='mp-feedback';
+  if(q.aide && ppbSansAide()) q.aide=false;
   if(q.aide){
     /* l'aide schéma, comme au 4.5.9 : le schéma REMPLACE la rédaction */
     $('ppbRed').hidden=true; $('ppbSch').hidden=false;
@@ -26637,7 +26650,7 @@ function renderPpb(){
   $('ppbHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">ta solution</div>
        <div class="dexp2-sheet" id="ppbSheet"></div>
-       <p class="dexp-hint">Écris UN calcul par ligne, avec son résultat. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Il faut au moins la multiplication ou la division qui donne la réponse — et, si la réponse est un pourcentage, le pourcentage&nbsp;: «&nbsp;…&nbsp;%&nbsp;», «&nbsp;+…&nbsp;%&nbsp;» ou «&nbsp;−…&nbsp;%&nbsp;». Bloqué&nbsp;? Le bouton <b>Aide schéma</b> reprend la question sur le schéma.</p></div>`;
+       <p class="dexp-hint">Écris UN calcul par ligne, avec son résultat. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Il faut au moins la multiplication ou la division qui donne la réponse — et, si la réponse est un pourcentage, le pourcentage&nbsp;: «&nbsp;…&nbsp;%&nbsp;», «&nbsp;+…&nbsp;%&nbsp;» ou «&nbsp;−…&nbsp;%&nbsp;».${ppbSansAide()?'':' Bloqué&nbsp;? Le bouton <b>Aide schéma</b> reprend la question sur le schéma.'}</p></div>`;
   ppbFeuille=mlFeuille({ conteneur:'ppbSheet', mode:'calcul', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
   /* revenu du schéma : la rédaction commencée avant l'aide est récrite */
   (Array.isArray(q.brouillon)?q.brouillon.filter(s=>s):[]).forEach(function(s,i){
@@ -26647,13 +26660,13 @@ function renderPpb(){
 }
 function ppbBoutons(revoir){
   $('ppbActions').innerHTML=conseilInlineBtn()
-    +'<button class="btn btn-ghost" type="button" id="ppbAide" onclick="ppbAideSchema()">🧩 Aide schéma</button>'
+    +(ppbSansAide()?'':'<button class="btn btn-ghost" type="button" id="ppbAide" onclick="ppbAideSchema()">🧩 Aide schéma</button>')
     +`<button class="btn btn-primary" onclick="checkPpb()">${revoir?'Revérifier':'Vérifier'}</button>`;
 }
 /* « Aide schéma » : la question passe sur son schéma, aux mêmes nombres. Le
    choix est RANGÉ dans la question : une pause le reprend. */
 function ppbAideSchema(){
-  if(test.locked || test.kind!=='ppb') return;
+  if(test.locked || test.kind!=='ppb' || ppbSansAide()) return;
   const q=test.questions[test.idx]; if(!q || q.aide) return;
   /* la rédaction commencée est gardée (en LaTeX, du JSON) : « Revenir à la rédaction » la rend */
   q.brouillon=(ppbFeuille&&Array.isArray(ppbFeuille.lignes)?ppbFeuille.lignes:[]).map(function(L){
@@ -26721,7 +26734,7 @@ async function finishPpb(){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentages-problemes',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:test.qId||'pourcentages-problemes',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }

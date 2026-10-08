@@ -4697,3 +4697,23 @@ de la note. {diminuer-soustraction} a ses questions à l'IA (il proposait
 « Pourquoi calcule-t-on d'abord l'augmentation ? ») et deux contextes envoyés
 au modèle disaient « Exercice de mathématiques de Première ». Contrôles du
 banc principal (`seconde()`, fin de section), rougis sur le code d'avant.
+
+## {pourcentages-problemes-sans-aide} — le 4.5.10 sans « Aide schéma » (Seconde, 4.5.11, octobre 2026)
+
+« En seconde faire exactement le même exercice que le 2.5.10 mais sans le
+bouton aide schéma » (Turquet, octobre 2026). Le numéro cité n'existe pas en
+Seconde ; l'exercice à « Aide schéma » numéroté x.5.10 est le 4.5.10 : c'est
+lui qui a été doublé. Ajouté EN DERNIER dans sa partie, il ne renumérote rien.
+
+Même moteur (kind `ppb`, même écran, même tirage, même juge), identité propre
+(`test.qId`, donc la note, le rappel et la pause). `ppbSansAide()` relit
+l'identité, et l'aide disparaît à QUATRE endroits — en oublier un laissait une
+porte ou un renvoi vers un bouton absent : le bouton lui-même, la phrase de la
+feuille (« Bloqué ? Le bouton Aide schéma… »), la phrase du juge après une
+copie fausse (« Le bouton « Aide schéma » peut te guider. », écrite par
+`sprJuge`, partagé avec le 4.5.9 — retirée dans `ppbJuge` seulement), et le
+rappel de cours (`RAP_PPS`, celui du 4.5.10 sans sa dernière phrase).
+`ppbAideSchema()` refuse, et une question qui porterait `aide` (une pause
+bricolée) retombe sur la rédaction. Contrôle du banc principal, section des
+problèmes (`t6`), avec un témoin : la phrase du juge du 4.5.10 cite toujours
+l'aide, sans quoi le contrôle ne mesurerait rien.
