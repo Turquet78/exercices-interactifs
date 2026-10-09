@@ -184,3 +184,16 @@ sont parties avec : elles disaient d'avance s'il fallait un indice.
 Vérifié dans Chromium (bureau et téléphone, entraînement et soutien) : copie
 juste 13/13, indice de P laissé vide rempli en vert sans rougir (10 cases
 justes sur 11).
+
+**Les questions proposées à l'IA écrivent l'indice EN INDICE** (v291, demande
+de Turquet, octobre 2026). Le bouton « Quelle différence entre P(A∩B) et
+P_B(A) ? » affichait le trait bas tel quel : l'élève lisait « P_B », une
+écriture de clavier qu'il ne voit nulle part ailleurs. `qiaIndices()` met
+désormais en `<sub>` toute écriture `L_X` ou `L_{X}` (X d'un caractère,
+barre combinante comprise : `P_B̄`) — sur les boutons ET dans la bulle de la
+question posée, qu'elle vienne d'un bouton ou du clavier. Le texte envoyé au
+modèle, lui, garde `P_B(A)`, qu'il comprend : le bouton porte la question dans
+`data-q`, et `qiaPoser(this.dataset.q)` remplace `this.textContent`, qui
+aurait envoyé « PB(A) ». Les réponses du modèle n'étaient pas en cause : elles
+passent par le LaTeX, déjà rendu en indice. Éprouvé dans Chromium : bouton,
+bulle et question transmise relus après un clic.
