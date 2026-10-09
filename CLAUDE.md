@@ -333,6 +333,7 @@ tenus, les sabotages qui les ont éprouvés.
 - Pourcentages, évolutions et coefficients (Première, et Seconde depuis septembre 2026) — `docs/journal/10-premiere-pourcentages.md`
 - Terminale — dérivées, suites, récurrences et TVI — `docs/journal/14-terminale.md`
 - Seconde — calcul littéral (thème 7 : les nombres relatifs, somme et produit, réduire une somme) — `docs/journal/16-seconde-calcul-litteral.md`
+- Première — probabilités (thème 3 : le tableau à double entrée) — `docs/journal/18-premiere-probabilites.md`
 
 ## Ajouter un exercice
 
