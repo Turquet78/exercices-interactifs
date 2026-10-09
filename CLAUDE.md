@@ -288,6 +288,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis, en PORTRAIT sur une tablette, le clavier tient sur TROIS rangées.**
 - **Puis la Seconde, le jour même : « fais pareil pour la Seconde ».**
 - **Et la TERMINALE, le lendemain : « fais pareil pour la terminale ».**
+- **Puis le clavier de la Seconde a commencé à sa PREMIÈRE RANGÉE.**
 - **Sur tablette, la feuille de calcul libre écrit plus petit.**
 - **La touche « = » est sur le clavier mathématique à l'écran**
 - **Sur un TÉLÉPHONE en portrait, les touches du clavier mathématique sont RÉDUITES — et ses deux couches se nomment « clavier A » et « clavier B ».**

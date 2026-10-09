@@ -14337,7 +14337,8 @@ async function parcours(page, N){
           const q = ent && ent.getBoundingClientRect();
           const ls = [...document.querySelectorAll(lignes)];
           return { visible: !!(vk && vk.visible), rangees: rangees.length, touches: caps.length,
-                   plaque: Math.round(plaque.height), part: Math.round(100 * plaque.height / window.innerHeight),
+                   plaque: Math.round(plaque.height),
+                   ecartHaut: rangees.length ? Math.round(rangees[0].getBoundingClientRect().top - plaque.top) : null, part: Math.round(100 * plaque.height / window.innerHeight),
                    hMin: Math.round(Math.min(...caps.map(c => c.getBoundingClientRect().height))),
                    debord: Math.round(Math.max(0, ...caps.map(c => c.getBoundingClientRect().right)) - window.innerWidth),
                    entree: ent ? { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2) } : null,
@@ -14381,6 +14382,20 @@ async function parcours(page, N){
               + ', touche la plus basse ' + por.hMin + ' px'
               + (por.entree ? '' : ', et plus de touche « ' + K.entree + ' »')
               + (por.debord > 1 ? ', DÉBORDE de ' + por.debord + ' px' : ''));
+        /* le clavier commence à sa PREMIÈRE RANGÉE, dans les deux orientations
+           (clavierEcran.ecartHautMax, demande de Turquet, octobre 2026) : la
+           barre d'outils de MathLive, vide sur ce clavier, laissait 32 px
+           au-dessus des touches. Mesuré sur la plaque RENDUE — seul un
+           navigateur sait ce qu'occupe une barre qu'aucune disposition ne
+           déclare. */
+        if(K.ecartHautMax != null){
+          verifier('le clavier ancré commence à sa première rangée, en paysage comme en portrait (au plus ' + K.ecartHautMax + ' px au-dessus)',
+            pay.ecartHaut != null && por.ecartHaut != null && pay.ecartHaut <= K.ecartHautMax && por.ecartHaut <= K.ecartHautMax,
+            pay.ecartHaut == null || por.ecartHaut == null ? 'aucune rangée rendue à mesurer'
+              : pay.ecartHaut + ' px au-dessus de la première rangée en paysage, ' + por.ecartHaut + ' px en portrait');
+        } else {
+          ignorer('le clavier ancré commence à sa première rangée, en paysage comme en portrait', 'ce fichier ne déclare pas d\'écart maximal (clavierEcran.ecartHautMax)');
+        }
         console.log('   · la plaque du clavier : ' + pay.plaque + ' px en paysage (' + pay.rangees + ' rangées), '
           + por.plaque + ' px en portrait (' + por.rangees + ' rangées), sur un écran de ' + por.part + ' %');
         /* le bord opposé, et il compte autant : un TÉLÉPHONE en portrait garde

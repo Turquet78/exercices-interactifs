@@ -389,6 +389,31 @@ le navigateur voit (`kbOnRotate` qui ne réapplique plus la forme — « 3 rang�
 rendue(s) en paysage au lieu de 4 » — et la règle CSS retirée). Les trois
 niveaux ont maintenant leur forme de portrait.
 
+**Puis le clavier de la Seconde a commencé à sa PREMIÈRE RANGÉE.** Demande de
+Turquet (octobre 2026), sur le 4.5.2 : « un clavier virtuel avec les mêmes
+touches sur 3 lignes en mode portrait, et qui n'a pas d'espace au-dessus de la
+première ligne en mode portrait et paysage ». Les trois rangées du portrait
+étaient déjà là (paragraphe « fais pareil pour la Seconde ») ; l'espace, lui,
+n'était écrit nulle part dans la page : c'est la BARRE D'OUTILS de MathLive
+(`.MLK__toolbar` — onglets des dispositions, annuler, refaire), 32 px au-dessus
+des touches, VIDE sur ce clavier qui n'a qu'une disposition. Mesurée à
+768 × 1024, elle prenait 32 px d'une plaque de 182 (18 %), et à 1024 × 768,
+32 px d'une plaque de 132 (24 %). La Terminale la cachait déjà ; la Seconde la
+cache désormais sur le clavier ANCRÉ (`body > .ML__keyboard .MLK__toolbar`) :
+182 → 150 px debout, 132 → 100 px couchée, les mêmes touches. La fenêtre
+flottante de l'ordinateur n'est pas touchée. Le correctif vaut pour TOUS les
+exercices de la Seconde qui ouvrent ce clavier — c'est le même clavier — et
+la PREMIÈRE, qui garde la même barre vide, n'était pas dans la demande : elle
+n'est pas touchée, et le dire vaut mieux que le taire.
+Le NAVIGATEUR (« 11 quinquies ») mesure l'écart entre le haut de la plaque
+rendue et sa première rangée, couchée puis debout, et l'exige sous le plafond
+déclaré (`clavierEcran.ecartHautMax` dans `tests/profils.js`, 4 px) ; un
+fichier qui ne le déclare pas le dit (« non applicable »). Seul un navigateur
+voit cette barre : aucune disposition ne la déclare, jsdom n'a rien à lire.
+Sabotage : la règle retirée, la même mesure (haut de la première rangée moins
+haut de la plaque, sur le 4.5.2) rend 32 px en paysage et 32 px en portrait —
+au-dessus du plafond, le contrôle rougit ; règle remise, 0 et 0.
+
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
 calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
