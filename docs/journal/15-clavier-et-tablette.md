@@ -414,6 +414,60 @@ Sabotage : la règle retirée, la même mesure (haut de la première rangée moi
 haut de la plaque, sur le 4.5.2) rend 32 px en paysage et 32 px en portrait —
 au-dessus du plafond, le contrôle rougit ; règle remise, 0 et 0.
 
+**Puis le pavé sur une ligne a pris la FORME DU CLAVIER — en Seconde et en
+Première.** Demande de Turquet (octobre 2026), le lendemain du 4.5.2 : « dans
+tous les exercices de Seconde et de Première où il y a un clavier sur une
+ligne avec les tablettes, remplacer par ce clavier pour les tablettes et
+téléphones ». Le pavé sur une ligne servait deux sortes de cases, et elles
+ne pouvaient pas recevoir la même chose :
+* les cases MATHÉMATIQUES (`math-field.pm-mf` : numérateurs, dénominateurs,
+  écritures décimales) reçoivent désormais le VRAI clavier mathématique —
+  `PAVE_MF` est vide dans les deux niveaux, la case garde la politique
+  « auto » de MathLive ;
+* les cases numériques SIMPLES (`<input inputmode="numeric">` : calcul mental,
+  opérations posées, lectures graphiques — 79 en Seconde, 17 en Première)
+  ne peuvent pas recevoir le clavier MathLive : le pavé y reste, REDESSINÉ à
+  la forme du clavier. Turquet a choisi entre trois propositions « même forme,
+  touches utiles » : ancré au bas de l'écran sur toute sa largeur, les
+  couleurs et les mesures du clavier RENDU (touches de 69 × 42 px, 8 px
+  d'écart, fond `#cacfd7`, touches d'action `#a0a9b8` — relevées par
+  `getComputedStyle` sur le 4.5.2, pas devinées), le même nombre de rangées —
+  TROIS sur une tablette debout, DEUX couchée, QUATRE sur un téléphone
+  debout —, rien au-dessus de la première rangée ; et seulement les touches
+  qui servent à un nombre : chiffres, virgule, −, ⌫, ⏎, et les flèches ← →,
+  ajoutées ce jour-là. Aucune touche ×, /, ( ), = ou % : dans une case qui
+  n'attend qu'un nombre, elles n'écriraient qu'une réponse fausse.
+**La place des touches est une GRILLE de la feuille de styles**
+(`grid-template-areas`, une zone par `data-t`) : le moteur ne sait rien de la
+forme, et il reste le même texte dans les trois fichiers — c'est pourquoi les
+flèches y sont entrées dans les TROIS, Terminale comprise, où `PAVE_TOUCHES`
+ne les porte pas et où rien ne change. Elles DÉPLACENT le curseur
+(`setSelectionRange`, ou `moveToPreviousChar` sur une case MathLive) et
+n'écrivent rien. Les touches supplémentaires d'une case (`data-pave-plus`, les
+six symboles de l'écriture des solutions) forment une rangée DE PLUS, sous les
+autres. Le pavé ouvert prend le bas comme le clavier ancré, donc les
+commandes du bas montent en haut (`body:has(#paveNum:not([hidden]))`, la règle
+de `clavier-ouvert`). Ce qui a disparu avec la rangée unique : sa largeur qui
+suivait celle des commandes (`--ctrls-w`, toujours mesurée par le moteur
+commun, que la Seconde et la Première ne lisent plus) et les paliers de
+paysage qui la logeaient à côté d'elles.
+**La Première a perdu, le même jour, la barre vide au-dessus de son clavier
+mathématique** (le correctif de la Seconde, paragraphe précédent) : « ce
+clavier », c'est celui qui commence à sa première rangée.
+**Deux bancs.** Le NAVIGATEUR (§ 11) a une branche nouvelle, déclarée par
+`pave.forme` dans `tests/profils.js` (deux sources) : sur une tablette
+debout, une tablette couchée, un téléphone debout et un téléphone couché, il
+mesure au RECTANGLE le pavé ancré au bas sur toute la largeur, le nombre de
+rangées, l'écart au-dessus de la première (au plus 8 px, l'écart entre deux
+touches), le jeu de touches exact, aucune touche de moins de 40 px ni hors de
+l'écran, ni la case ni les commandes recouvertes ; puis il TAPE et vérifie
+que « ← » recule le curseur sans rien écrire. `pave.clavierMaths` vérifie le
+bord opposé : sur une case mathématique touchée, le clavier mathématique se
+déploie et le pavé reste caché. Les anciens contrôles de la rangée unique
+restent ceux de la Terminale, qui ne déclare pas de forme ; le mode
+application de la Première ouvre désormais son pavé sur la case numérique
+déclarée. jsdom (`paveNumerique`) éprouve les flèches sur une vraie case.
+
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
 calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
@@ -1552,25 +1606,27 @@ hidden`), zéro visible. La leçon est celle du § 9 bis : un contrôle qui n'a
 rien à mesurer doit le dire — ici c'est le contrôle du banc qui a attrapé le
 script muet, parce qu'il mesure le DOM rendu et non le script.
 
-**Sur un TÉLÉPHONE en portrait, le pavé se replie sur DEUX rangées — et ne
-sort plus de l'écran.** Demande de Turquet (octobre 2026) : « quand un élève
-doit rentrer son code, le clavier virtuel sur tablette ou téléphone ne doit pas
-dépasser la largeur de l'écran ; faire une 2ème ligne si nécessaire en mode
-portrait ». La case du code (`#loginPin`, `inputmode="numeric"`) est servie par
-le pavé comme toute case numérique, et le pavé est UNE rangée de 14 touches
-(15 en Terminale, qui porte « / ») : ~720 px, ~770 en Terminale. Sous cette
-largeur, `overflow-x:auto` le faisait DÉFILER, et c'étaient ⌫ et ⏎ — ceux qui
-corrigent et valident le code — qui sortaient de l'écran. Une règle
-`@media (orientation:portrait) and (max-width:739px)` (789 px en Terminale)
-étend le pavé à la largeur de l'écran et le replie (`flex-wrap`) en rangées
-égales de 7 touches (8 en Terminale) qui se partagent la largeur ; une touche
-ne descend jamais sous 40 px : sur un écran plus étroit encore, le repli ajoute
-une rangée plutôt que de rétrécir les touches. Au-delà du seuil — la tablette
-en portrait, 768 ou 820 px —, la rangée unique d'avant reste intacte, et le
-contrôle « en PORTRAIT, le pavé est une seule rangée » (820 px) le tient
-toujours. La règle vaut pour TOUTE case servie par le pavé : un exercice sur
-téléphone défilait de la même façon. Le contrôle (§ 11 du banc navigateur)
+**Sur un TÉLÉPHONE en portrait, le pavé de la TERMINALE se replie sur DEUX
+rangées — et ne sort plus de l'écran.** Demande de Turquet (octobre 2026) :
+« quand un élève doit rentrer son code, le clavier virtuel sur tablette ou
+téléphone ne doit pas dépasser la largeur de l'écran ; faire une 2ème ligne si
+nécessaire en mode portrait ». La case du code (`#loginPin`,
+`inputmode="numeric"`) est servie par le pavé comme toute case numérique. En
+Seconde et en Première, la forme du clavier (pull request #544, fusionnée le
+même jour) règle déjà la question : grille ancrée sur toute la largeur, quatre
+rangées sur un téléphone. En TERMINALE, le pavé est resté UNE rangée de 15
+touches (« / » en plus), ~770 px : sous cette largeur, `overflow-x:auto` le
+faisait DÉFILER, et c'étaient ⌫ et ⏎ — ceux qui corrigent et valident le code —
+qui sortaient de l'écran. Une règle `@media (orientation:portrait) and
+(max-width:789px)` étend le pavé à la largeur de l'écran et le replie
+(`flex-wrap`) en rangées égales de 8 touches qui se partagent la largeur ; une
+touche ne descend jamais sous 40 px : sur un écran plus étroit encore, le repli
+ajoute une rangée plutôt que de rétrécir les touches. Au-delà du seuil — la
+tablette en portrait —, la rangée unique d'avant reste intacte, et le contrôle
+« en PORTRAIT, le pavé est une seule rangée » (820 px) le tient toujours. La
+règle vaut pour TOUTE case servie par le pavé. Le contrôle (§ 11 du banc
+navigateur) vaut pour les TROIS niveaux, quelle que soit la forme du pavé : il
 ouvre l'écran de connexion à 390 et 360 px de large, donne le focus à la case
-du code et MESURE : pavé visible, aucune touche hors de l'écran, pas de
-défilement, au moins deux rangées, touches d'au moins 40 px — puis tape les six
-chiffres au pavé.
+du code et MESURE — pavé visible, aucune touche hors de l'écran, pas de
+défilement, au moins deux rangées, touches d'au moins 40 px —, puis tape les
+six chiffres au pavé.
