@@ -977,7 +977,14 @@ module.exports = {
                        (« fais pareil pour la Seconde », Turquet, septembre 2026).
                        Un TÉLÉPHONE en portrait garde les quatre : c'est le bord
                        opposé, et il est vérifié lui aussi. */
-                    portraitTablette: { rangees: 3, telephone: 4 } },
+                    portraitTablette: { rangees: 3, telephone: 4 },
+                    /* Et le clavier ancré COMMENCE À SA PREMIÈRE RANGÉE, en
+                       portrait comme en paysage (demande de Turquet, octobre
+                       2026, sur le 4.5.2) : la barre d'outils vide de MathLive
+                       ne laisse plus 32 px au-dessus des touches. L'écart
+                       mesuré entre le haut de la plaque et la première rangée
+                       ne dépasse pas ce plafond, en pixels. */
+                    ecartHautMax: 4 },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,

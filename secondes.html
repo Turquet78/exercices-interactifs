@@ -2939,6 +2939,13 @@ math-field.dexp-mf.sol{border-color:var(--green);background:var(--green-soft);}
 .kbwin-bar:active{cursor:grabbing}
 .kbwin-close{border:none;background:transparent;cursor:pointer;color:var(--ink-soft);font-size:14px;padding:2px 6px}
 #kbwin .ML__keyboard{position:relative !important;transform:none !important;height:var(--_keyboard-height,auto);}
+/* Le clavier ANCRÉ commence à sa première rangée (demande de Turquet, octobre
+   2026, sur le 4.5.2 : « pas d'espace au-dessus de la première ligne, en
+   portrait et en paysage »). MathLive pose au-dessus des touches une barre
+   d'outils de 32 px — onglets des dispositions, annuler, refaire — qui reste
+   VIDE ici : une seule disposition, aucune commande. Elle prenait 18 % d'une
+   plaque de trois rangées, et 24 % d'une plaque de deux. */
+body > .ML__keyboard .MLK__toolbar{display:none !important;}
 #kbhelp{position:fixed;right:24px;top:24px;z-index:3200;width:360px;max-width:calc(100vw - 32px);display:none;background:#fff;
   max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);
   border:1px solid var(--grid);border-radius:12px;box-shadow:0 18px 50px -18px rgba(15,23,42,.45);overflow:hidden;}
@@ -5760,7 +5767,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=425;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=426;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
