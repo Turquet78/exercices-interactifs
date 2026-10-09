@@ -5768,10 +5768,10 @@ async function parcours(page, N){
        qui ne déborde pas. */
     titre('6 quadragies. LE 2.2.4 : LA FICHE « PRÉPA DS 2 » RENDUE — LES LETTRES TAPÉES, LA COPIE ENTIÈRE');
     if(!P.etudeAlgoConvexite){
-      ['le 2.2.4 : « ax+b », « -ax+a-b » et le « a-b » du c) tapés en lettres sont relus et jugés justes',
-       'le 2.2.4 : la copie de la fiche remplie est toute au vert, sur e^(−x) et sur e^(x−1)',
-       'le 2.2.4 : les flèches du tableau sont DESSINÉES à une taille lisible',
-       'le 2.2.4 : la page ne déborde pas'].forEach(n => ignorer(n, 'ce niveau n\'a pas l\'étude, algorithme et convexité'));
+      ['le 4.3.4 : « ax+b », « -ax+a-b » et le « a-b » du c) tapés en lettres sont relus et jugés justes',
+       'le 4.3.4 : la copie de la fiche remplie est toute au vert, sur e^(−x) et sur e^(x−1)',
+       'le 4.3.4 : les flèches du tableau sont DESSINÉES à une taille lisible',
+       'le 4.3.4 : la page ne déborde pas'].forEach(n => ignorer(n, 'ce niveau n\'a pas l\'étude, algorithme et convexité'));
     } else {
       s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
       await connecter(s.page);
@@ -5800,7 +5800,7 @@ async function parcours(page, N){
         return { u: dexpCellValue('eav-abu'), fac: dexpCellValue('eav-abfac'), vu: V['eav-abu'], vfac: V['eav-abfac'],
                  c: dexpCellValue('eav-c10'), vc: eavOkCase(q, c10, dexpCellValue('eav-c10')) };
       });
-      verifier('le 2.2.4 : « ax+b », « -ax+a-b » et le « a-b » du c) tapés en lettres sont relus et jugés justes',
+      verifier('le 4.3.4 : « ax+b », « -ax+a-b » et le « a-b » du c) tapés en lettres sont relus et jugés justes',
         lit.u === 'ax+b' && lit.fac === '-ax+a-b' && lit.vu === true && lit.vfac === true && lit.c === 'a-b' && lit.vc === true,
         'lu ' + JSON.stringify(lit.u) + ' (' + lit.vu + '), ' + JSON.stringify(lit.fac) + ' (' + lit.vfac + ') et ' + JSON.stringify(lit.c) + ' (' + lit.vc + ')');
       /* la copie entière, remplie depuis l'attendu de la page, puis le CLIC */
@@ -5830,13 +5830,13 @@ async function parcours(page, N){
       await s.page.waitForTimeout(400);
       const v2 = await copie();
       const juste = v => v.oks === v.max && v.bads.length === 0 && v.score === v.max && v.max > 60 && v.locked;
-      verifier('le 2.2.4 : la copie de la fiche remplie est toute au vert, sur e^(−x) et sur e^(x−1)',
+      verifier('le 4.3.4 : la copie de la fiche remplie est toute au vert, sur e^(−x) et sur e^(x−1)',
         juste(v1) && juste(v2),
         [v1, v2].map(v => v.oks + ' ok, rouges ' + JSON.stringify(v.bads.slice(0, 4)) + ', note ' + v.score + '/' + v.max).join(' — '));
-      verifier('le 2.2.4 : les flèches du tableau sont DESSINÉES à une taille lisible',
+      verifier('le 4.3.4 : les flèches du tableau sont DESSINÉES à une taille lisible',
         v2.fleches >= 2 && v2.ovW > 200 && v2.ovH > 60,
         v2.fleches + ' flèche(s) dessinée(s), bande ' + v2.ovW + '×' + v2.ovH + ' px');
-      verifier('le 2.2.4 : la page ne déborde pas', !v1.page && !v2.page, 'la page défile horizontalement');
+      verifier('le 4.3.4 : la page ne déborde pas', !v1.page && !v2.page, 'la page défile horizontalement');
       verifier('l\'étude, algorithme et convexité ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
