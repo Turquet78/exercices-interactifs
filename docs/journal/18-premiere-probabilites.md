@@ -112,6 +112,13 @@ l'exercice. La v286 avait laissé ces quatre lignes à gauche exprès, « sous
 A représente l'évènement » — c'était une supposition, et c'était la mauvaise :
 dans cet exercice, tout se lit dans l'axe du tableau.
 
+**Puis les totaux portent leur lettre (v288).** Nouvelle version de la fiche,
+envoyée par Turquet : « rajoute les lettres en fin de ligne et de colonne ».
+Les totaux de ligne et de colonne s'étiquettent comme les cases du milieu —
+B, B̄ au bout des lignes, A, Ā au pied des colonnes (`nomsCase`). Le total
+général reste sans lettre, comme sur la fiche. L'étiquette nomme aussi la
+case pour un lecteur d'écran (« effectif de B »).
+
 ## {lire-probabilites} (3.1) : traduire une phrase en probabilité
 
 Demande de Turquet (octobre 2026), d'après sa fiche papier « proba 2 » : « en
@@ -150,3 +157,7 @@ choisit le démarreur par `test.qId`. L'indice vide de P s'écrit `'0'`
 Vérifié en l'ouvrant dans Chromium (bureau 1280 px, téléphone 390 px) :
 copie juste comptée 9/9 en entraînement et en soutien ; dénominateur « tout »
 au lieu de A rougi avec le badge A, 10 cases justes sur 11.
+
+Publié en v289 : la v288 de `main` (les totaux du tableau portent leur
+lettre, au 3.2) était arrivée pendant les contrôles. Elle vaut aussi pour le
+3.1, qui dessine le même tableau (`pbTableHTML`).
