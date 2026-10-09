@@ -1297,7 +1297,15 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #pbHost .f-frac-input{align-items:stretch}
 #pbHost .f-fbar{width:auto;align-self:stretch;height:4px}
 #pbHost .mf-cor{font-size:calc(1.1rem * var(--tab-nb,1));white-space:nowrap}
-i.pb-bar{text-decoration:overline;text-decoration-thickness:2px}
+/* LA BARRE DE Ā ET B̄ EST UN TRAIT DESSINÉ, pas un « overline » de texte
+   (signalé par Turquet, octobre 2026, capture : « on ne voit pas bien les
+   barres »). Sur la lettre italique de KaTeX_Math, le soulignement par le
+   haut du navigateur sortait fin, court et décalé vers la gauche — à peine un
+   accent. Le trait est donc posé par-dessus la lettre, épais (au moins 2 px),
+   décalé vers la droite comme la pente de l'italique, et un peu plus large
+   qu'elle. */
+i.pb-bar{display:inline-block;position:relative;text-decoration:none;padding-top:.14em;line-height:1}
+i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;border-top:max(2px,.085em) solid currentColor;border-radius:1px}
 .pb-sel{flex:0 0 auto;appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;
   width:96px;padding:0 6px;height:46px;font-family:"Fredoka";font-weight:600;
   font-size:calc(1.25rem * var(--tab-nb,1));color:var(--blue-dark);background:#F3F7FF;
@@ -2575,7 +2583,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=284;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=285;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
