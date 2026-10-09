@@ -1278,7 +1278,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    suivent la convention de {associer-coefficient} : juste en bleu, faux en
    rouge, correction en vert. */
 #pbHost .pt-row{margin:10px 0}
-.pb-def{font-family:"Nunito";font-weight:700;font-size:calc(1.05rem * var(--tab-nb,1));color:var(--ink);margin:10px 0;text-align:left}
+.pb-def{font-family:"Nunito";font-weight:700;font-size:calc(1.05rem * var(--tab-nb,1));color:var(--ink);margin:10px 0;text-align:center}
 .pb-phrase{line-height:2.5}
 .pb-phrase .pb-case{vertical-align:middle;margin:2px 0;flex-wrap:wrap;max-width:100%}
 .pb-phrase>i{font-size:calc(1.15rem * var(--tab-nb,1))}
@@ -2597,7 +2597,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=286;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=287;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
