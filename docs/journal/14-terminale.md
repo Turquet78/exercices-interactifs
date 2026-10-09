@@ -2854,3 +2854,12 @@ de la demande. Le contrôle jsdom relit chaque case contre la fonction écrite
 en lettres (f et f′ en x₀ par différences finies), exige que la dernière
 case de chaque déduction soit a ou b et que le calcul écrit y mène ; le banc
 navigateur TAPE « a-b » dans la case de f′(0).
+**Puis le b) de la partie B s'est décomposé (v370).** Demande de Turquet :
+« f′(x) = (−ax + a − b)e^(−x) = (− … x + … − …)e^(−x) = (… x + …)e^(−x) ». La
+case unique de f′ est devenue cinq cases à nombres : a, a et b remplacés dans
+la formule de la partie A (le signe de chaque terme écrit par la page, selon
+k), puis le coefficient et la constante réduits — la constante avec son
+signe, comme à la ligne réduite de la tangente. Le contrôle exige que les
+trois premières cases soient a, a, b et que la ligne réduite soit la dérivée
+de f (différences finies) ; « −1 » à la place de b, « 3 » à la place de −3
+rougissent seuls.
