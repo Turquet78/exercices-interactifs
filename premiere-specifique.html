@@ -326,31 +326,75 @@
   .mp-digit{font-family:"Fredoka";font-weight:500;font-size:2rem;color:var(--ink)}
   .mp-sign{font-family:"Fredoka";font-weight:500;font-size:1.8rem;color:var(--ink)}
   .mp-line{height:4px;width:156px;background:var(--ink);border-radius:3px;margin:5px 0}
-  /* ---- Pavé numérique compact des écrans tactiles ----
-     UNE SEULE RANGÉE, en bas de l'écran, au-dessus des commandes Pause /
-     Abandonner (elles vivent à bottom:16px, à droite) — en portrait COMME en
-     paysage. Le paysage a porté un temps un rectangle de 4 rangées × 3
-     colonnes posé à droite (demande de Turquet, septembre 2026), retiré le
-     même mois sur sa demande : « en format paysage, mettre le clavier sur une
-     ligne aussi ». La forme est affaire de feuille de styles : le moteur, lui,
-     est le même texte dans les trois fichiers. */
-#paveNum{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:9500;display:flex;gap:6px;
-  background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px;
-  box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:calc(100vw - 12px);overflow-x:auto}
+/* ---- Pavé des cases numériques des écrans tactiles : LA FORME DU CLAVIER ----
+   Demande de Turquet (octobre 2026) : « dans tous les exercices de Seconde
+   et de Première où il y a un clavier sur une ligne avec les tablettes,
+   remplacer par ce clavier [le clavier mathématique du 4.5.2] pour les
+   tablettes et téléphones ». Les cases MATHÉMATIQUES reçoivent désormais le
+   vrai clavier (PAVE_MF vide) ; les cases numériques SIMPLES — un <input>,
+   que MathLive ne sait pas servir — gardent ce pavé, redessiné à la forme
+   du clavier : ANCRÉ au bas de l'écran sur toute sa largeur, ses couleurs et
+   ses mesures (touches de 69 × 42 px, 8 px d'écart, mesurées sur le clavier
+   rendu), et le MÊME nombre de rangées — TROIS sur une tablette debout,
+   DEUX couchée, QUATRE sur un téléphone debout — sans rien au-dessus de la
+   première. Les touches sont celles qui servent à un nombre (choix de
+   Turquet : « même forme, touches utiles ») : chiffres, virgule, −, ⌫, ⏎ et
+   les flèches ; aucune touche ×, /, ( ), = ou % qui n'écrirait qu'une
+   réponse fausse. La place de chaque touche est affaire de feuille de
+   styles (grid-template-areas, par data-t) : le moteur, lui, reste le même
+   texte dans les trois fichiers. Le pavé sur UNE rangée (septembre 2026)
+   et sa largeur suivant celle des commandes ont vécu jusque-là. */
+#paveNum{position:fixed;left:0;right:0;bottom:0;z-index:9500;display:grid;gap:8px;
+  justify-content:center;box-sizing:border-box;
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px) + var(--bas-systeme));
+  background:#cacfd7;box-shadow:0 -5px 6px rgba(0,0,0,.08);
+  /* TÉLÉPHONE DEBOUT : quatre rangées, comme le clavier mathématique */
+  grid-template-columns:repeat(5,minmax(0,69px));
+  grid-template-areas:"s7 s8 s9 eff eff" "s4 s5 s6 moins moins" "s1 s2 s3 gauche droite" "s0 virg ent ent ent"}
 #paveNum[hidden]{display:none}
-.pave-t{min-width:44px;height:44px;flex:none;border:1.5px solid var(--grid);border-radius:10px;background:var(--paper);
-  color:var(--ink);font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:800;cursor:pointer}
-.pave-t:active{background:var(--blue);color:#fff;border-color:var(--blue)}
-.pave-eff{min-width:54px}
-/* Les touches supplementaires d'une case (data-pave-plus) : display:contents
-   les rend soeurs des chiffres dans la rangee flex, et le REPLI (flex-wrap,
-   pose seulement quand il y en a) les renvoie a la ligne plutot que de les
-   laisser sortir de l'ecran — « le pave ne defile jamais ». Un saut de ligne
-   FORCE y a d'abord ete ecrit, puis retire : le sabotage l'a montre inerte,
-   la rangee se repliant d'elle-meme exactement quand elle ne tient pas. Sans
-   touche supplementaire, rien ne change : le pave reste la rangee d'avant. */
-#paveSup{display:contents}
-#paveNum.pave-2r{flex-wrap:wrap;justify-content:center}
+.pave-t{height:42px;min-width:0;border:none;border-radius:6px;background:#f0f0f0;color:#000;padding:0;
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:24px;font-weight:400;cursor:pointer;
+  touch-action:manipulation}
+.pave-t:active{background:#d8dbe0}
+.pave-eff,#paveNum .pave-t[data-t="⏎"],#paveNum .pave-t[data-t="←"],#paveNum .pave-t[data-t="→"]{background:#a0a9b8;color:#060707}
+#paveNum .pave-t[data-t="0"]{grid-area:s0}
+#paveNum .pave-t[data-t="1"]{grid-area:s1}
+#paveNum .pave-t[data-t="2"]{grid-area:s2}
+#paveNum .pave-t[data-t="3"]{grid-area:s3}
+#paveNum .pave-t[data-t="4"]{grid-area:s4}
+#paveNum .pave-t[data-t="5"]{grid-area:s5}
+#paveNum .pave-t[data-t="6"]{grid-area:s6}
+#paveNum .pave-t[data-t="7"]{grid-area:s7}
+#paveNum .pave-t[data-t="8"]{grid-area:s8}
+#paveNum .pave-t[data-t="9"]{grid-area:s9}
+#paveNum .pave-t[data-t=","]{grid-area:virg}
+#paveNum .pave-t[data-t="−"]{grid-area:moins}
+#paveNum .pave-t[data-t="⌫"]{grid-area:eff}
+#paveNum .pave-t[data-t="⏎"]{grid-area:ent}
+#paveNum .pave-t[data-t="←"]{grid-area:gauche}
+#paveNum .pave-t[data-t="→"]{grid-area:droite}
+/* TABLETTE DEBOUT (écran tactile d'au moins 600 px, la définition de la
+   tablette dans toute la page) : trois rangées, les chiffres dans leurs
+   colonnes — 7 8 9 / 4 5 6 / 1 2 3 —, et ⏎ haut de deux rangées, à droite,
+   comme sur un pavé numérique. */
+@media (orientation:portrait) and (min-width:600px){
+  #paveNum{grid-template-columns:repeat(6,minmax(0,69px));
+    grid-template-areas:"s7 s8 s9 moins eff eff" "s4 s5 s6 gauche droite ent" "s1 s2 s3 s0 virg ent"}
+  #paveNum .pave-t[data-t="⏎"]{height:auto}
+}
+/* COUCHÉ (tablette ou téléphone) : deux rangées — les chiffres de 1 à 0 avec
+   la virgule et ⌫, puis −, les flèches et ⏎, comme la forme courte du
+   clavier mathématique. */
+@media (orientation:landscape){
+  #paveNum{grid-template-columns:repeat(12,minmax(0,69px));
+    grid-template-areas:"s1 s2 s3 s4 s5 s6 s7 s8 s9 s0 virg eff" "moins moins moins gauche gauche gauche droite droite droite ent ent ent"}
+}
+/* Les touches supplementaires d'une case (data-pave-plus) : une rangee DE
+   PLUS, sous les autres, sur toute la largeur — elle n'existe que quand la
+   case en demande (#paveSup vide sinon). */
+#paveSup{grid-column:1/-1;display:flex;justify-content:center;gap:8px}
+#paveSup:empty{display:none}
+#paveSup .pave-t{flex:0 1 69px}
 
 /* ---- Tablette : les commandes du bas et le pavé se rangent ensemble ----
    (demande de Turquet, septembre 2026 — Première et Seconde, sur les écrans
@@ -412,7 +456,6 @@
 :root{--bas-systeme:0px}
 body.mode-app{--bas-systeme:48px}
 #testCtrls{margin-bottom:var(--bas-systeme)}
-#paveNum{margin-bottom:var(--bas-systeme)}
 body > .ML__keyboard .MLK__rows{padding-bottom:var(--bas-systeme)}
 /* LA LARGEUR D'UNE TOUCHE SUIT LA RANGÉE LA PLUS LARGE — applyKbLayout pose
    --kb-unites depuis la disposition qu'elle vient d'installer (kbUnites), et
@@ -436,7 +479,6 @@ body > .ML__keyboard .MLK__rows{padding-bottom:var(--bas-systeme)}
    unités de large, et le rembourrage ramené à 4 px (la leçon de la Terminale). */
 .ML__keyboard .MLK__rows > .MLK__row > .kb-couche{padding-left:4px;padding-right:4px;}
 body.pave-actif #testCtrls{bottom:6px;right:8px}
-body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
 /* SUR UN TÉLÉPHONE EN PORTRAIT, les commandes du bas prennent leurs libellés
    COURTS (audit d'octobre 2026, T12) : à 380 px, « Signaler un problème »,
@@ -455,11 +497,6 @@ body.pave-actif #paveNum{bottom:54px}
   body.pave-actif #testCtrls button{padding:7px 10px;font-size:.8rem}
   body.pave-actif #testCtrls .tc-long{display:none}
   body.pave-actif #testCtrls .tc-court{display:inline}
-  body.pave-actif #paveNum{bottom:6px;left:8px;right:calc(var(--ctrls-w, 200px) + 16px);
-    transform:none;padding:6px;gap:4px;width:auto;max-width:none;overflow:visible;
-    justify-content:center}
-  body.pave-actif #paveNum .pave-t{height:40px;min-width:40px;flex:1 1 0;max-width:80px}
-  body.pave-actif #paveNum .pave-eff{min-width:50px}
 }
 /* Palier 1 — sous 1024 px (tablette Android à 960 px de large en paysage,
    la police réelle élargissant en plus les libellés) : les commandes ne
@@ -477,8 +514,6 @@ body.pave-actif #paveNum{bottom:54px}
   body.pave-actif #testCtrls{bottom:6px}
   body.pave-actif #testCtrls .tc-court{display:inline}
   body.pave-actif #testCtrls button{padding:7px 10px;font-size:.8rem}
-  body.pave-actif #paveNum{bottom:54px;left:8px;right:8px;transform:none;width:auto;
-    max-width:none;overflow:visible}
 }
 /* ---- LE CLAVIER ANCRÉ PREND LE BAS : LES COMMANDES MONTENT EN HAUT ----
    Signalé par Turquet (septembre 2026) : « occupe-toi du clavier qui recouvre
@@ -500,6 +535,9 @@ body.pave-actif #paveNum{bottom:54px}
    « pave-actif », qui posent le même « bottom » : à spécificité égale, c'est
    l'ORDRE qui tranche. */
 body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
+/* Et le PAVÉ ouvert prend le bas de la même façon (octobre 2026 : il a la
+   forme du clavier ancré, sur toute la largeur) — les commandes montent. */
+body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .mp-box{width:44px;height:44px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.7rem;color:var(--blue-dark);
     background:#F3F7FF;border:2px solid #BBD0F7;border-radius:11px;outline:none;padding:0;-moz-appearance:textfield}
   .mp-box::-webkit-outer-spin-button,.mp-box::-webkit-inner-spin-button,.mp-carry::-webkit-outer-spin-button,.mp-carry::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -990,6 +1028,12 @@ math-field::part(virtual-keyboard-toggle),math-field::part(menu-toggle){display:
 .kbwin-bar:active{cursor:grabbing}
 .kbwin-close{border:none;background:transparent;cursor:pointer;color:var(--ink-soft);font-size:14px;padding:2px 6px}
 #kbwin .ML__keyboard{position:relative !important;transform:none !important;height:var(--_keyboard-height,auto);}
+/* Le clavier ANCRÉ commence à sa première rangée, comme en Seconde (octobre
+   2026 : « remplacer par ce clavier » — celui du 4.5.2 de la Seconde, qui
+   n'a pas d'espace au-dessus de sa première ligne). La barre d'outils de
+   MathLive, 32 px au-dessus des touches, n'y portait que l'onglet des
+   couches : la bascule passe par les touches « clavier A » / « clavier B ». */
+body > .ML__keyboard .MLK__toolbar{display:none !important;}
 #kbhelp{position:fixed;right:24px;top:24px;z-index:3200;width:360px;max-width:calc(100vw - 32px);display:none;background:#fff;
   max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);
   border:1px solid var(--grid);border-radius:12px;box-shadow:0 18px 50px -18px rgba(15,23,42,.45);overflow:hidden;}
@@ -2476,7 +2520,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=282;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=283;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -17532,14 +17576,18 @@ $('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault
 
 /* La liste des touches vit HORS du moteur partagé, comme SF_NB : les trois
    niveaux ont le même pavé, la Terminale a une touche de plus. */
-const PAVE_TOUCHES=['1','2','3','4','5','6','7','8','9','0',',','−','⌫','⏎'];
+const PAVE_TOUCHES=['1','2','3','4','5','6','7','8','9','0',',','−','⌫','⏎','←','→'];
 
 /* Les cases MATHÉMATIQUES que le pavé sert aussi — un sélecteur, à côté du
    moteur comme PAVE_TOUCHES. En Première, TOUTES les cases pm-mf n'attendent
    qu'un nombre (numérateur, dénominateur, écriture décimale) : la feuille de
    calcul libre (dexp2-mf) n'en fait pas partie, elle attend des expressions
-   (demande de Turquet, septembre 2026). */
-const PAVE_MF='math-field.pm-mf';
+   (demande de Turquet, septembre 2026).
+   VIDE depuis octobre 2026 (demande de Turquet : le clavier mathématique
+   remplace le pavé sur une ligne, tablettes et téléphones) : les cases pm-mf
+   reçoivent le VRAI clavier mathématique, le pavé ne sert plus que les cases
+   numériques simples (<input>). */
+const PAVE_MF='';
 /* ================= Pavé numérique compact (écrans tactiles) =================
    Sur tablette, le clavier du système recouvre la moitié de l'écran alors que
    les cases d'exercice ne demandent que des chiffres. Sur les écrans tactiles
@@ -17548,9 +17596,10 @@ const PAVE_MF='math-field.pm-mf';
    touches qui servent (PAVE_TOUCHES, une constante par niveau à CÔTÉ du
    moteur : la Terminale y ajoute « / » pour ses fractions). Sa FORME est
    affaire de feuille de styles, pas de moteur : une rangée en bas de
-   l'écran, dans les deux orientations (le paysage de la Première et de la
-   Seconde a porté un temps un rectangle 4 × 3 posé à droite, retiré à la
-   demande de Turquet, septembre 2026).
+   l'écran en Terminale ; en Seconde et en Première, depuis octobre 2026,
+   la forme du clavier mathématique ancré — trois rangées sur une tablette
+   debout, deux couchée, quatre sur un téléphone (demande de Turquet :
+   « remplacer par ce clavier pour les tablettes et téléphones »).
    Le pavé ne s'attache qu'aux cases DÉCLARÉES numériques (inputmode="numeric")
    — une liste en POSITIF, contrairement au bouton des tables, parce que le
    mauvais bord n'est pas le même : un pavé sans lettres attaché à un champ de
@@ -17675,6 +17724,14 @@ function paveBrancher(){
       if(t==='⏎'){
         if(el.tagName==='MATH-FIELD'){ try{ el.executeCommand('commit'); }catch(er){} }
         else el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+        return;
+      }
+      /* les flèches DÉPLACENT le curseur, elles n'écrivent rien (octobre
+         2026 : le pavé a pris les touches du clavier mathématique) */
+      if(t==='←' || t==='→'){
+        if(el.tagName==='MATH-FIELD'){ try{ el.executeCommand(t==='←' ? 'moveToPreviousChar' : 'moveToNextChar'); }catch(er){} }
+        else { const p=(el.selectionStart==null ? el.value.length : el.selectionStart)+(t==='←' ? -1 : 1);
+               const q=Math.max(0, Math.min(el.value.length, p)); try{ el.setSelectionRange(q,q); }catch(er){} }
         return;
       }
       paveInserer(el, t==='−' ? '-' : t);
