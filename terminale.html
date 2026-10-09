@@ -3196,7 +3196,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=372;
+const APP_VERSION=373;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -15629,7 +15629,7 @@ function txCalcHTML(lettre, fn, x, a, b, ids, cible, avecE){
   return '<p class="tx-part">'+lettre+'. Démontre que '+fn+'('+x+') = '+cible+' :</p>'
     +'<div class="tg-line tx-avec">Avec '+fn+'(<i>x</i>) = '+txFx(a,b)+', on a :</div>'
     +'<div class="tg-line"><span class="tg-eq">'+fn+'('+x+') =</span> '
-    +txSubst(a,b,txInp(ids[0]))+' '+txEsup(ids[1])+' <span class="tg-eq">=</span> '+txInp(ids[2])
+    +txSubst(a,b,txInp(ids[0]))+' '+txEsup(ids[1])+' '+tEq('<span class="tg-eq">=</span> ', txInp(ids[2]))
     +(avecE?' <span class="tx-e">e</span>':'')+'</div>';
 }
 function txFormHTML(q){
@@ -15922,7 +15922,7 @@ function ecFormHTML(q){
   h+='<p class="tx-part">d. Démontre que ce '+(A.ext==='max'?'maximum':'minimum')+' vaut m = '+ecMHtml(q.a,A.mE)+' :</p>'
     +'<div class="tg-line"><span class="tg-eq">m =</span> '+f+'( '+txInp('ec-d1')+' ) <span class="tg-eq">=</span> '
     +txSubst(A.p,A.q,txInp('ec-d2'))+' '+ecEsupNeg('ec-d3')
-    +' <span class="tg-eq">=</span> '+txInp('ec-d4')+' <span class="tx-e">e</span><sup>'+txInp('ec-d5','tx-se')+'</sup></div>';
+    +' '+tEq('<span class="tg-eq">=</span> ', txInp('ec-d4'))+' <span class="tx-e">e</span><sup>'+txInp('ec-d5','tx-se')+'</sup></div>';
   /* ---- e. et f. les valeurs en 1 ---- */
   h+='<p class="tx-part">e. Démontre que '+f+'(1) = '+ecFracN(numFmt(A.f1))+' :</p>'
     +'<div class="tg-line tx-avec">Avec '+f+'(<i>x</i>) = '+ecFx(A.p,A.q)+', on a :</div>'
@@ -16390,7 +16390,7 @@ function asgFormHTML(q){
   h+='<p class="tx-part">d. Démontre que ce '+(A.ext==='max'?'maximum':'minimum')+' vaut M = '+ecMHtml(q.a,A.mE)+' :</p>'
     +'<div class="tg-line"><span class="tg-eq">M =</span> <i>f</i>( '+txInp('asg-d1')+' ) <span class="tg-eq">=</span> '
     +txSubst(A.p,A.q,txInp('asg-d2'))+' '+ecEsupNeg('asg-d3')
-    +' <span class="tg-eq">=</span> '+txInp('asg-d4')+' <span class="tx-e">e</span><sup>'+txInp('asg-d5','tx-se')+'</sup></div>';
+    +' '+tEq('<span class="tg-eq">=</span> ', txInp('asg-d4'))+' <span class="tx-e">e</span><sup>'+txInp('asg-d5','tx-se')+'</sup></div>';
   h+='<p class="tx-part">e. Démontre que '+f+' = 0 admet une unique solution α sur ]−∞ ; '+numFmt(A.r)+'] :</p>'
     +'<div class="tg-line asg-line"><span>Sur ]−∞ ; '+numFmt(A.r)+'], <i>f</i> est</span> '+asgSelMot('asg-e1')+' <span>et strictement</span> '+asgSelMot('asg-e2')
     +'<span>, elle varie de</span> '+asgLim('asg-e3')+' <span>à '+ecMHtml(q.a,A.mE)+'.</span></div>'
@@ -16673,7 +16673,7 @@ function ecvFormHTML(q){
     +efTableHTML(ecTab(q))+efSyntHTML(ecTab(q))
     +'<div class="tg-line"><span>Ce '+(A.ext==='max'?'maximum':'minimum')+' vaut</span> <span class="tg-eq">M =</span> '+f+'( '+txInp('ecv-d3')+' ) <span class="tg-eq">=</span> '
     +txSubst(A.p,A.q,txInp('ecv-d4'))+' '+ecEsupNeg('ecv-d5')
-    +' <span class="tg-eq">=</span> '+txInp('ecv-d6')+' '+esup('ecv-d7')+'</div>';
+    +' '+tEq('<span class="tg-eq">=</span> ', txInp('ecv-d6'))+' '+esup('ecv-d7')+'</div>';
   /* ---- e. le TVI (le 4.1) ---- */
   h+='<p class="tx-part">e. Démontre que l’équation '+fx+' = '+numFmt(A.k)+' admet une unique solution sur '+']−∞ ; '+numFmt(A.r)+']'+' :</p>'
     +'<div class="tg-line asg-line"><span>Sur ]−∞ ; '+numFmt(A.r)+'], '+f+' est</span> '+asgSelMot('ecv-e1')+' <span>et strictement</span> '+asgSelMot('ecv-e2')
@@ -16683,8 +16683,8 @@ function ecvFormHTML(q){
   /* ---- f. la tangente en 0 (le 5.2) ---- */
   h+='<p class="tx-part">f. Démontre que la tangente Δ à la courbe en a = 0 a pour équation <b>y = '+ecvDeltaHTML(A)+'</b> :</p>'
     +'<div class="tg-line tx-avec">y = '+fp+'(a)(<i>x</i> − a) + '+f+'(a), avec a = 0. On calcule d’abord '+f+'(0) et '+fp+'(0) :</div>'
-    +'<div class="tg-line"><span class="tg-eq">'+f+'(0) =</span> '+txSubst(A.p,A.q,txInp('ecv-f1'))+' '+ecEsupNeg('ecv-f2')+' <span class="tg-eq">=</span> '+txInp('ecv-f3')+'</div>'
-    +'<div class="tg-line"><span class="tg-eq">'+fp+'(0) =</span> '+txSubst(A.dp,A.dq,txInp('ecv-f4'))+' '+ecEsupNeg('ecv-f5')+' <span class="tg-eq">=</span> '+txInp('ecv-f6')+'</div>'
+    +'<div class="tg-line"><span class="tg-eq">'+f+'(0) =</span> '+txSubst(A.p,A.q,txInp('ecv-f1'))+' '+ecEsupNeg('ecv-f2')+' '+tEq('<span class="tg-eq">=</span> ', txInp('ecv-f3'))+'</div>'
+    +'<div class="tg-line"><span class="tg-eq">'+fp+'(0) =</span> '+txSubst(A.dp,A.dq,txInp('ecv-f4'))+' '+ecEsupNeg('ecv-f5')+' '+tEq('<span class="tg-eq">=</span> ', txInp('ecv-f6'))+'</div>'
     +'<div class="tg-line"><span class="tg-eq">y =</span> '+fp+'( '+txInp('ecv-f7')+' )( <i>x</i> − '+txInp('ecv-f8')+' ) + '+f+'( '+txInp('ecv-f9')+' )</div>'
     +'<div class="tg-line"><span class="tg-imp">⟺</span> <span class="tg-eq">y =</span> '+txInp('ecv-f10')+' ( <i>x</i> − '+txInp('ecv-f11')+' ) + '+txInp('ecv-f12')+'</div>'
     +'<div class="tg-line"><span class="tg-imp">⟺</span> <span class="tg-eq">y =</span> '+txInp('ecv-f13')+' <i>x</i> '+txInp('ecv-f14')+' <span class="dexp-hint">(la constante s’écrit avec son signe)</span></div>';
@@ -16705,7 +16705,7 @@ function ecvFormHTML(q){
   h+='<p class="tx-part">i. Donne les coordonnées du point d’inflexion I de la courbe :</p>'
     +'<div class="tg-line asg-line"><span>Le point d’inflexion se situe en <i>x</i> =</span> '+txInp('ecv-i1')+' <span>(là où '+fs+' s’annule en changeant de signe), et</span></div>'
     +'<div class="tg-line"><span class="tg-eq">'+f+'(</span> '+txInp('ecv-i2')+' <span class="tg-eq">) =</span> '+txSubst(A.p,A.q,txInp('ecv-i3'))+' '+ecEsupNeg('ecv-i4')
-    +' <span class="tg-eq">=</span> '+txInp('ecv-i5')+' '+esup('ecv-i6')+'</div>'
+    +' '+tEq('<span class="tg-eq">=</span> ', txInp('ecv-i5'))+' '+esup('ecv-i6')+'</div>'
     +'<div class="tg-line"><span>Donc</span> <span class="tg-eq">I (</span> '+txInp('ecv-i7')+' <span class="tg-eq">;</span> '+txInp('ecv-i8')+' '+esup('ecv-i9')+' <span class="tg-eq">)</span></div>';
   /* ---- j. la courbe et sa tangente ---- */
   h+='<p class="tx-part">j. Démontre que '+fx+' '+(A.ineg==='inf'?'≤':'≥')+' '+ecvDeltaHTML(A)+' sur '+IG+' :</p>'

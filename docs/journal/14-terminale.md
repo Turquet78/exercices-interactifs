@@ -2865,7 +2865,7 @@ de f (différences finies) ; « −1 » à la place de b, « 3 » à la place de
 rougissent seuls.
 
 **Le thème de la Dérivée a rejoint celui de l'Étude de fonction (octobre
-2026, v372).** Demande de Turquet : « mettre le thème dérivée dans le thème
+2026, v373).** Demande de Turquet : « mettre le thème dérivée dans le thème
 étude de fonction ». Le thème 4 · Étude de fonction a désormais quatre
 parties : 4.1 *Révision sur la dérivée et les variations* (les huit
 exercices de l'ancienne partie Dérivée et variations, puis {etude-quotient},
@@ -2880,3 +2880,11 @@ numéro (2.2.2, 2.2.4, 6.3.1, 6.4.x) et le menu du banc navigateur
 {recurrence-complete} — « Et la suite se rédige comme à l'exercice 6.3 » —
 citait un numéro en toutes lettres, déjà faux depuis le découpage des Suites :
 elle passe par `numeros('{suites-encadrement}')`.
+
+Le banc navigateur a rougi une fois, à 390 px, sur « un « = » et ce qu'il
+annonce restent sur la même ligne » au {tvi-alpha-signe} : la ligne d) posait
+« = » nu devant la case `asg-d4`, et selon le tirage la ligne se coupait
+juste après le signe — défaut antérieur à la réorganisation, vert à la
+passe précédente. Le même motif (`<span class="tg-eq">=</span> '+txInp(…)`)
+vivait sur sept lignes de la famille tx/ec/asg/ecv : toutes passent par
+`tEq()`.
