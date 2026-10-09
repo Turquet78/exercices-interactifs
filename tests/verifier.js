@@ -11495,7 +11495,7 @@ function suiteTcmLimite(w, P){
     if(!TESTS['suite-tcm-limite']) vus.push('l’exercice n’est pas dans TESTS');
     const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-tcm-limite')>=0; })[0];
     if(!th || th.nom!=='Suites') vus.push('l’exercice n’est pas dans le thème Suites');
-    else if(TEST_NUM['suite-tcm-limite']!=='6.4.2') vus.push('l’exercice a changé de numéro (' + TEST_NUM['suite-tcm-limite'] + ' au lieu de 6.4.2, partie « Théorème de convergence monotone ») : un exercice inséré AVANT lui renumérote ses voisins');
+    else if(TEST_NUM['suite-tcm-limite']!=='5.4.2') vus.push('l’exercice a changé de numéro (' + TEST_NUM['suite-tcm-limite'] + ' au lieu de 5.4.2, partie « Théorème de convergence monotone ») : un exercice inséré AVANT lui renumérote ses voisins');
     if(typeof RAPPELS==='undefined' || !RAPPELS.tcl) vus.push('aucun rappel de cours pour tcl');
     else if(!/convergence monotone/.test(RAPPELS.tcl) || !/passage à la limite/i.test(RAPPELS.tcl)) vus.push('le rappel ne nomme pas le théorème ou le passage à la limite');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.tcl) vus.push('aucune question proposée pour tcl');
@@ -12867,8 +12867,8 @@ function suiteSyntheseVariations(w, P){
     if(!TESTS['suite-synthese-variations']) dit('l’exercice n’est pas dans TESTS');
     { const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-synthese-variations')>=0; })[0];
       if(!th || th.nom!=='Suites') dit('l’exercice n’est pas dans le thème Suites');
-      else if(TEST_NUM['suite-synthese-variations']!=='6.4.3') dit('l’exercice porte le numéro '+TEST_NUM['suite-synthese-variations']+' au lieu de 6.4.3');
-      if(TEST_NUM['suite-vocabulaire']!=='6.4.1') dit('l’exercice a renuméroté son voisin : {suite-vocabulaire} est passé en '+TEST_NUM['suite-vocabulaire']); }
+      else if(TEST_NUM['suite-synthese-variations']!=='5.4.3') dit('l’exercice porte le numéro '+TEST_NUM['suite-synthese-variations']+' au lieu de 5.4.3');
+      if(TEST_NUM['suite-vocabulaire']!=='5.4.1') dit('l’exercice a renuméroté son voisin : {suite-vocabulaire} est passé en '+TEST_NUM['suite-vocabulaire']); }
     if(typeof RAPPELS==='undefined' || !RAPPELS.ssv) dit('aucun rappel de cours pour ssv');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.ssv) dit('aucune question proposée pour ssv');
     if(!afficherEcranDe('ssv')) dit('la reprise après pause ne connaît pas l’écran ssv');
@@ -13040,7 +13040,7 @@ function recurrenceFormule(w, P){
       const st=th&&th.sous?th.sous.filter(function(s){ return s.ids.indexOf('recurrence-formule')>=0; })[0]:null;
       if(!st || st.nom!=='Récurrence et égalité' || st.ids[0]!=='recurrence-formule')
         vus.push('{recurrence-formule} n’ouvre pas la partie « Récurrence et égalité » au menu');
-      else if(TEST_NUM['recurrence-formule']!=='6.3.1') vus.push('{recurrence-formule} porte le numéro '+TEST_NUM['recurrence-formule']+' au lieu de 6.3.1'); }
+      else if(TEST_NUM['recurrence-formule']!=='5.3.1') vus.push('{recurrence-formule} porte le numéro '+TEST_NUM['recurrence-formule']+' au lieu de 5.3.1'); }
 
     /* ---- 1. le tirage, refait par sa propre arithmétique : b = k(1−a)
        ENTIER, u0 = k ± 1, n0 = 0, RIEN d'autre dans la question — l'énoncé ne
@@ -13461,7 +13461,7 @@ function alphaSigne(w, P){
    égales passent (la chaîne LITTÉRALE dans les deux ordres, « a − b − ax »),
    une faute ne rougit qu'elle, une case vide ne rougit jamais. */
 function etudeAlgoConvexite(w, P){
-  const nom='le 2.2.4 : l\'étude, l\'algorithme et la convexité — la fiche « Prépa DS 2 »';
+  const nom='le 4.3.4 : l\'étude, l\'algorithme et la convexité — la fiche « Prépa DS 2 »';
   const present = evaluer(w, "typeof startEAV==='function' && typeof genEAVCase==='function' && typeof eavCases==='function' && typeof eavAns==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas l\'étude, algorithme et convexité');
@@ -13473,10 +13473,10 @@ function etudeAlgoConvexite(w, P){
     currentTestId='etude-algo-convexite';
 
     /* ---- 0. la place au menu : le dernier de la partie « Convexité » ---- */
-    { const th=THEMES.filter(function(t){ return t.num===2; })[0];
+    { const th=THEMES.filter(function(t){ return t.nom==='Étude de fonction'; })[0];
       const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==="Convexité"; })[0];
-      if(!st || st.ids[st.ids.length-1]!=='etude-algo-convexite') vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème 2");
-      if(TEST_NUM['etude-algo-convexite']!=='2.2.4') vus.push('le numéro n\\'est pas 2.2.4 : '+TEST_NUM['etude-algo-convexite']); }
+      if(!st || st.ids[st.ids.length-1]!=='etude-algo-convexite') vus.push("{etude-algo-convexite} n'est pas dans la partie « Convexité » du thème Étude de fonction");
+      if(TEST_NUM['etude-algo-convexite']!=='4.3.4') vus.push('le numéro n\\'est pas 4.3.4 : '+TEST_NUM['etude-algo-convexite']); }
 
     /* ---- 1. le tirage : (a, b, k, c) et rien d'autre ; les trois exponentielles sortent ---- */
     const vus2={}, faces={};
@@ -13637,7 +13637,7 @@ function etudeAlgoConvexite(w, P){
 }
 
 function etudeConvexite(w, P){
-  const nom='le 2.2.2 : l\'étude de fonction et la convexité — la fiche 5';
+  const nom='le 4.3.2 : l\'étude de fonction et la convexité — la fiche 5';
   const present = evaluer(w, "typeof startECV==='function' && typeof genECVCase==='function' && typeof ecvCases==='function' && typeof ecvAns==='function' && typeof asgDerVerdicts==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas l\'étude de fonction et convexité');
@@ -13655,14 +13655,17 @@ function etudeConvexite(w, P){
        exigeait « le dernier de la partie » : le jour où les QCM de
        convexité (2.2.3) sont venus derrière, il rougissait sur une place
        parfaitement juste — la règle est le RANG, pas la fin de liste. ---- */
-    { const th=THEMES.filter(function(t){ return t.num===2; })[0];
+    /* Puis le thème de la Dérivée a rejoint celui de l'Étude de fonction
+       (Turquet, octobre 2026) : la partie Convexité y est la troisième, entre
+       les tangentes et l'étude complète — 2.2.2 devient 4.3.2. */
+    { const th=THEMES.filter(function(t){ return t.nom==='Étude de fonction'; })[0];
       const st=th&&th.sous&&th.sous.filter(function(x){ return x.nom==='Convexité'; })[0];
       if(!th || !st || st.ids.indexOf('etude-convexite')!==1 || st.ids[0]!=='convexite-trois-courbes')
-        vus.push('{etude-convexite} n\\'est pas le deuxième de la partie « Convexité » du thème 2, juste après {convexite-trois-courbes}');
-      if(TEST_NUM['etude-convexite']!=='2.2.2') vus.push('le numéro n\\'est pas 2.2.2 : '+TEST_NUM['etude-convexite']);
-      if(TEST_NUM['etude-exponentielle']!=='5.5'||TEST_NUM['equation-tangente']!=='5.1') vus.push('le thème 5 a été renuméroté');
-      const t5=THEMES.filter(function(t){ return t.num===5; })[0];
-      if(!t5 || t5.ids.indexOf('etude-convexite')>=0) vus.push('{etude-convexite} est encore dans le thème 5'); }
+        vus.push('{etude-convexite} n\\'est pas le deuxième de la partie « Convexité » du thème Étude de fonction, juste après {convexite-trois-courbes}');
+      if(TEST_NUM['etude-convexite']!=='4.3.2') vus.push('le numéro n\\'est pas 4.3.2 : '+TEST_NUM['etude-convexite']);
+      if(TEST_NUM['equation-tangente']!=='4.2.1'||TEST_NUM['etude-exponentielle']!=='4.4.2') vus.push('les tangentes ou l\\'étude complète ont changé de numéro');
+      const autres=th?th.sous.filter(function(x){ return x!==st && x.ids.indexOf('etude-convexite')>=0; }):[];
+      if(autres.length) vus.push('{etude-convexite} est aussi dans la partie « '+autres[0].nom+' »'); }
 
     /* ---- 1. le tirage : a ∈ {±1, ±2, ±3}, b ∈ {−3, −2, −1}, rien d'autre dans
        la question — et chaque visage sort ---- */
@@ -36776,7 +36779,7 @@ function suiteVocabulaire(w, P){
        la même que celle du {suite-tcm-limite} : le numéro, épinglé. */
     { const th=THEMES.filter(function(t){ return t.ids.indexOf('suite-vocabulaire')>=0; })[0];
       if(!th || th.nom!=='Suites') vus.push('l\\'exercice n\\'est pas dans le th\u00e8me Suites');
-      else if(TEST_NUM['suite-vocabulaire']!=='6.4.1') vus.push('l\\'exercice a chang\u00e9 de num\u00e9ro (' + TEST_NUM['suite-vocabulaire'] + ' au lieu de 6.4.1) : un exercice ins\u00e9r\u00e9 AVANT lui renum\u00e9rote ses voisins'); }
+      else if(TEST_NUM['suite-vocabulaire']!=='5.4.1') vus.push('l\\'exercice a chang\u00e9 de num\u00e9ro (' + TEST_NUM['suite-vocabulaire'] + ' au lieu de 5.4.1) : un exercice ins\u00e9r\u00e9 AVANT lui renum\u00e9rote ses voisins'); }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

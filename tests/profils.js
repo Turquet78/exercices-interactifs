@@ -2199,7 +2199,7 @@ module.exports = {
     /* Le thème des Suites est découpé en cinq parties (septembre 2026, la
        cinquième — Algorithme — ajoutée le même mois) : le banc navigateur
        clique les deux étages comme le ferait un élève. */
-    menu: { theme: 6, parties: 5, exercice: 'suite-explicite' },
+    menu: { theme: 5, parties: 5, exercice: 'suite-explicite' },
     niveau: 'Terminale',
     /* .tvi-instr n'est PAS un énoncé : c'est la consigne de travail qui suit
        (« Rédige la justification : »). L'application elle-même les distingue,
