@@ -103,3 +103,11 @@ centrée aussi ; dans les écritures P(…) la lettre P est collée au symbole
   caractère combinant, avec une police à empattements (Cambria, Times) qui le
   pose correctement sur la plupart des appareils ; sur une tablette, le
   sélecteur du système peut l'ignorer.
+
+**Puis toutes les phrases sont centrées (v287).** Troisième capture de
+Turquet : « les 4 lignes avant le tableau doivent être centrées aussi ». Les
+définitions de A et B et les deux phrases contraires de la question 1 ne
+restent plus à gauche : `.pb-def` est centrée, pour toutes les phrases de
+l'exercice. La v286 avait laissé ces quatre lignes à gauche exprès, « sous
+A représente l'évènement » — c'était une supposition, et c'était la mauvaise :
+dans cet exercice, tout se lit dans l'axe du tableau.
