@@ -1290,6 +1290,20 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .pb-v{font-family:"Fredoka";font-weight:600;font-size:calc(1.5rem * var(--tab-nb,1));color:var(--ink)}
 #pbHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.15;min-width:56px}
 .pb-case{display:inline-flex;align-items:center;justify-content:center}
+.pb-centre{text-align:center}
+/* le « P » italique penche vers sa parenthèse : on l'en écarte */
+i.pb-P{margin-right:.14em}
+/* la vitrine posée sur une liste de lettres (voir pbAffMaj) : la liste garde
+   son cadre et ses couleurs, son texte devient transparent, et l'écriture de
+   la page se lit par-dessus, de la même encre que la liste */
+.pb-case{position:relative}
+#pbHost .pb-sel.pb-lettres{color:transparent}
+#pbHost .pb-sel.pb-lettres option{color:var(--ink);font-family:"Cambria Math","Cambria","Times New Roman",serif}
+.pb-aff{position:absolute;left:0;top:0;width:96px;height:46px;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;font-family:"Fredoka";font-weight:600;font-size:calc(1.25rem * var(--tab-nb,1));color:var(--blue-dark);white-space:nowrap}
+.pb-sel.ok~.pb-aff{color:var(--blue)}
+.pb-sel.bad~.pb-aff{color:var(--red)}
+.pb-sel.sol~.pb-aff{color:var(--green)}
 .pb-nom{display:inline-block;font-family:"Fredoka";font-weight:600;font-size:calc(1.45rem * var(--tab-nb,1));color:var(--ink);white-space:nowrap}
 .pb-nom sub{font-size:.7em}
 .pb-parmi{font-family:"Nunito";font-style:italic;font-weight:700;font-size:calc(1rem * var(--tab-nb,1));color:var(--ink-soft)}
@@ -1317,7 +1331,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .pb-sel:disabled{opacity:1;cursor:default}
 /* les phrases contraires : la liste prend la largeur de sa plus longue fin de phrase */
 .pb-sel.pb-mots{width:auto;min-width:96px;padding:0 14px;font-size:calc(1.1rem * var(--tab-nb,1))}
-@media(max-width:560px){ .pb-tab th,.pb-tab td{padding:4px 5px} .pb-tab th{font-size:calc(.82rem * var(--tab-nb,1))} .pb-tab td{min-width:52px} .pb-phrase .mf-cor{white-space:normal} .pb-sel{width:84px;font-size:calc(1.1rem * var(--tab-nb,1))} }
+@media(max-width:560px){ .pb-aff{width:84px;font-size:calc(1.1rem * var(--tab-nb,1))} .pb-tab th,.pb-tab td{padding:4px 5px} .pb-tab th{font-size:calc(.82rem * var(--tab-nb,1))} .pb-tab td{min-width:52px} .pb-phrase .mf-cor{white-space:normal} .pb-sel{width:84px;font-size:calc(1.1rem * var(--tab-nb,1))} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
 #fpHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.15;}
@@ -2583,7 +2597,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=285;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=286;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14436,7 +14450,7 @@ function pbInter(y,x){
 }
 function pbEff(q,c){ return pbValeurs(q.n)[PB_CASE[c]]; }
 function pbNomHTML(y,x){
-  return '<span class="pb-nom"><i>P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+')</span>';
+  return '<span class="pb-nom"><i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+')</span>';
 }
 /* Les cases d'une question, et ce qu'on attend dans chacune. */
 function pbAttendus(q){
@@ -14456,6 +14470,7 @@ function choisirPB(id, v){
   if(test.locked) return;
   const q=test.questions[test.idx];
   q.rep[id]=(v===''||v==null)?null:String(v);
+  pbAffMaj();
   autoSave();
 }
 function pbSel(q, id, opts, lab, cls){
@@ -14463,7 +14478,27 @@ function pbSel(q, id, opts, lab, cls){
   return '<span class="pb-case"><select class="pb-sel'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(lab)+'" onchange="choisirPB(\''+id+'\',this.value)">'
     +'<option value="">…</option>'
     +opts.map(o=>'<option value="'+o.v+'"'+(r===o.v?' selected':'')+'>'+esc(o.t)+'</option>').join('')
-    +'</select></span>';
+    +'</select>'
+    +(cls==='pb-lettres' ? '<span class="pb-aff" aria-hidden="true">'+(r ? pbHTML(r) : '…')+'</span>' : '')
+    +'</span>';
+}
+/* LA VITRINE D'UNE LISTE DE LETTRES. Une <option> ne se met pas en forme : la
+   barre de Ā et B̄ y est le caractère combinant U+0305, que la police du site
+   n'a pas — le navigateur va la chercher dans une autre police, et elle tombe
+   À CÔTÉ de la lettre (signalé par Turquet, octobre 2026, capture : « dans les
+   cases bleues les barres au-dessus des lettres sont décalées »). La liste
+   fermée montre donc, par-dessus son texte rendu transparent, la même écriture
+   que la page (pbHTML, la barre dessinée de i.pb-bar). Elle se refait à chaque
+   choix et après chaque vérification — corrCase écrit la valeur sans
+   déclencher « change ». */
+function pbAffMaj(){
+  document.querySelectorAll('#pbHost select.pb-lettres').forEach(function(el){
+    const a=el.parentNode && el.parentNode.querySelector('.pb-aff');
+    if(a) a.innerHTML=el.value ? pbHTML(el.value) : '…';
+    /* le badge vert de la correction porte, lui aussi, l'écriture de la page */
+    const b=el.nextElementSibling;
+    if(b && b.classList && b.classList.contains('mf-cor')){ const att=pbAttendus(test.questions[test.idx])[el.id]; if(att) b.innerHTML=pbHTML(att); }
+  });
 }
 function pbMf(id, lab){ return '<span class="pb-case"><math-field class="dexp-mf pm-mf" id="'+id+'" aria-label="'+esc(lab)+'"></math-field></span>'; }
 /* Le tableau. « saisie » : les cases inconnues deviennent des cases à
@@ -14512,12 +14547,12 @@ function renderPBTest(){
     $('pbPrompt').innerHTML='Partie '+(cond?'B':'A')+' : probabilité '+(cond?'conditionnelle':'non conditionnelle')+' — question '+num
       +'. Complète avec les lettres, puis, dans la dernière fraction, avec les effectifs du tableau.';
     const opts=PB_EVTS.map(e=>({ v:e, t:pbTxt(e) }));
-    const s=(id,lab)=>pbSel(q,id,opts,lab);
+    const s=(id,lab)=>pbSel(q,id,opts,lab,'pb-lettres');
     const parmi='<span class="pb-parmi">parmi</span>';
     $('pbHost').innerHTML=
       '<div class="pt-step">'+pbTableHTML(q,false)+'</div>'
      +'<div class="pt-step">'
-       +'<p class="pb-def pb-phrase">'+pbNomHTML(y,x)+' représente la probabilité d’avoir '
+       +'<p class="pb-def pb-phrase pb-centre">'+pbNomHTML(y,x)+' représente la probabilité d’avoir '
          +s('pb-s1','ce qu’on veut avoir')+' parmi '+s('pb-s2','parmi quoi')+'</p>'
        +'<div class="pt-row">'+pbNomHTML(y,x)
          +fEq('<span class="f-frac-input"><span class="pb-l">'+s('pb-s3','numérateur : ce qu’on veut avoir')+parmi+s('pb-s4','numérateur : parmi quoi')+'</span>'
@@ -14571,6 +14606,7 @@ function checkPBAnswer(live){
     /* la convention commune : juste en BLEU, faux en ROUGE avec la bonne
        réponse en VERT à côté, une case vide reçoit la réponse en VERT */
     ids.forEach(id=>corrCase(id, att[id], verd[id]));
+    pbAffMaj();
   }
   test.locked=true;
   ids.forEach(id=>{ const el=$(id); if(el) el.disabled=true; });

@@ -77,3 +77,29 @@ polices réelles chargées (phrases, en-têtes, étiquettes du tableau, indice d
 P_B̄). Les listes, elles, gardent le caractère combinant U+0305 (une
 `<option>` ne se met pas en forme) : lisible dans Chromium, à surveiller sur
 tablette.
+
+**Puis les cases bleues, le « P » et la phrase (v286).** Deuxième capture de
+Turquet, le même jour : « la ligne juste en dessous du tableau doit être
+centrée aussi ; dans les écritures P(…) la lettre P est collée au symbole
+“(” ; dans les cases bleues les barres au-dessus des lettres sont décalées ».
+- La phrase « P(…) représente la probabilité d'avoir … parmi … » est centrée
+  (`pb-centre`), comme le tableau et la chaîne de fractions. Les phrases
+  contraires de la question 1 restent alignées à gauche, sous « A représente
+  l'évènement ».
+- Le P italique de KaTeX_Math penche vers la parenthèse : `i.pb-P` l'en
+  écarte de 0,14 em.
+- LES LISTES : une `<option>` ne se met pas en forme, et la barre y était le
+  caractère combinant U+0305. La police du site ne l'a pas : le navigateur va
+  la chercher ailleurs et la pose À CÔTÉ de la lettre. Dans Chromium Linux,
+  la police de repli la plaçait bien — mes captures étaient justes, la
+  tablette non : un rendu qui dépend des polices de l'appareil ne se juge pas
+  sur un seul appareil. La liste fermée montre donc une VITRINE (`pb-aff`)
+  posée par-dessus son texte rendu transparent : la même écriture que la
+  page (`pbHTML`, barre dessinée), de la même encre que la liste (bleu juste,
+  rouge faux, vert correction, par `.pb-sel.ok~.pb-aff`…). `pbAffMaj()` la
+  refait à chaque choix et après chaque vérification — `corrCase` écrit la
+  valeur sans déclencher « change » — et réécrit aussi le badge vert de la
+  correction, qui portait le libellé de l'option. La liste DÉROULÉE garde le
+  caractère combinant, avec une police à empattements (Cambria, Times) qui le
+  pose correctement sur la plupart des appareils ; sur une tablette, le
+  sélecteur du système peut l'ignorer.
