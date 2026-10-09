@@ -13506,6 +13506,7 @@ function etudeAlgoConvexite(w, P){
          prises aux valeurs d'EAV_LETTRES, f et f′ en x₀ recalculées ici avec ces lettres */
       { const La=EAV_LETTRES.a, Lb=EAV_LETTRES.b;
         const fL=function(x){ return (La*x+Lb)*Math.exp(q.k*x+q.c); }, dL=function(x){ return (fL(x+1e-6)-fL(x-1e-6))/2e-6; };
+        if(cs['eav-bd1'].good!==a || cs['eav-bd2'].good!==a || cs['eav-bd3'].good!==b) vus.push('le b) ne remplace pas a et b par leurs valeurs'+tag);
         if(Math.abs(cs['eav-c5'].val-fL(x0))>1e-9 || Math.abs(cs['eav-c10'].val-dL(x0))>1e-5) vus.push('« Démontre que f(x₀) = … » ou « f′(x₀) = … » contredit la fonction écrite en lettres'+tag);
         if(cs['eav-c1'].good!==x0 || cs['eav-c6'].good!==x0 || cs['eav-c2'].good!==0 || cs['eav-c7'].good!==0 || cs['eav-c4'].good!==1 || cs['eav-c9'].good!==1) vus.push('les cases x₀, exposant et e⁰ du c) ne disent pas x₀, 0 et 1'+tag);
         if(Math.abs(cs['eav-c3'].val-La*x0)>1e-12 || Math.abs(cs['eav-c8'].val-q.k*La*x0)>1e-12) vus.push('la case a × x₀ du c) contredit x₀'+tag);
@@ -13515,7 +13516,7 @@ function etudeAlgoConvexite(w, P){
                   : (cs['eav-c15'].good+(q.k<0?1:-1)*cs['eav-c16'].good!==a)) vus.push('le calcul écrit au c) ne donne pas la valeur déduite'+tag); }
       /* f′ et f″ contre les différences finies */
       for(let i=0;i<5;i++){ const x=A.al-2+i;
-        if(Math.abs(d1(x)-cs['eav-bd'].fn(x)*Math.exp(q.k*x+q.c))>1e-4){ vus.push('f′ attendue ne vaut pas la dérivée de f'+tag); break; }
+        if(Math.abs(d1(x)-(cs['eav-bd4'].good*x+cs['eav-bd5'].good)*Math.exp(q.k*x+q.c))>1e-4){ vus.push('f′ attendue ne vaut pas la dérivée de f'+tag); break; }
         if(Math.abs(d2(x)-(A.ddp*x+A.ddq)*Math.exp(q.k*x+q.c))>1e-2){ vus.push('f″ ne vaut pas la dérivée seconde de f'+tag); break; } }
       if(Math.abs(d1(cs['eav-tx'].good))>1e-4) vus.push('f′ ne s\\'annule pas à l\\'abscisse du tableau'+tag);
       if(Math.abs(d2(cs['eav-h0'].good))>1e-2) vus.push('f″ ne s\\'annule pas à l\\'abscisse du h)'+tag);
@@ -13600,7 +13601,7 @@ function etudeAlgoConvexite(w, P){
       if(r.given!==NT+'/'+NT||r.correct!==true||r.pts!==1||r.cases!==NT) vus.push('la réponse enregistrée ne dit pas '+NT+'/'+NT+' : '+JSON.stringify(r).slice(0,80)); }
 
     /* ---- 5. toute écriture ÉGALE passe ---- */
-    [['eav-abfac','a-b-ax'],['eav-abfac','-a(x-1)-b'],['eav-abu','b+ax'],['eav-bd','-3x+2'],['eav-bd','2-3x'],['eav-tx','4/6'],['eav-tv1','1,5'],['eav-tv1','1.6'],['eav-d2','-0.3'],['eav-d3','−0,4'],['eav-tv0','-inf'],['eav-cafac','3x-5'],['eav-c10','-b+a'],['eav-c5','B'],['eav-c3','0a']].forEach(function(p){
+    [['eav-abfac','a-b-ax'],['eav-abfac','-a(x-1)-b'],['eav-abu','b+ax'],['eav-bd5','+2'],['eav-bd1','3,0'],['eav-tx','4/6'],['eav-tv1','1,5'],['eav-tv1','1.6'],['eav-d2','-0.3'],['eav-d3','−0,4'],['eav-tv0','-inf'],['eav-cafac','3x-5'],['eav-c10','-b+a'],['eav-c5','B'],['eav-c3','0a']].forEach(function(p){
       const v=Object.assign({},BON); v[p[0]]=p[1];
       poser(v); checkEAV();
       if(test.score!==NT) vus.push('l\\'écriture égale « '+p[1]+' » est refusée en '+p[0]); });
@@ -13610,7 +13611,7 @@ function etudeAlgoConvexite(w, P){
       if(test.score!==NT) vus.push('l\\'ordre u = e^(−x), v = ax + b est refusé dans la chaîne littérale'); }
 
     /* ---- 6. ce qui est faux est refusé : une lettre de trop, une fraction arrondie, le mauvais bout de l'encadrement ---- */
-    [['eav-abfac','-ax+a+b'],['eav-c10','a+b'],['eav-c17','2'],['eav-abu','ab+x'],['eav-tx','0,67'],['eav-d2','-0,4'],['eav-tv1','1,7'],['eav-d1','gt'],['eav-d5','defaut'],['eav-lat','rien']].forEach(function(p){
+    [['eav-abfac','-ax+a+b'],['eav-bd3','-1'],['eav-bd4','3'],['eav-c10','a+b'],['eav-c17','2'],['eav-abu','ab+x'],['eav-tx','0,67'],['eav-d2','-0,4'],['eav-tv1','1,7'],['eav-d1','gt'],['eav-d5','defaut'],['eav-lat','rien']].forEach(function(p){
       const v=Object.assign({},BON); v[p[0]]=p[1];
       poser(v); checkEAV();
       if(test.score!==NT-1 || peint(p[0])!=='rouge') vus.push('« '+p[1]+' » en '+p[0]+' n\\'est pas refusé seul (note '+test.score+'/'+NT+', '+peint(p[0])+')'); });

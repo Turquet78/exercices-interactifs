@@ -3196,7 +3196,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=369;
+const APP_VERSION=370;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -17001,7 +17001,9 @@ function eavCases(q){
   Lm('eav-lb',A.limM); S('eav-lbt',(q.k<0)?'rien':'ah');
   N('eav-lae',0);
   /* B b) f′, puis le tableau de variations */
-  out.push({id:'eav-bd', type:'expr', fn:x=>A.dp*x+A.dq, txt:s1ExprText(A.dp,A.dq)});
+  /* le b) pas à pas (demande de Turquet, octobre 2026) : f′(x) = (−ax + a − b)e^(−x)
+     = (−… x + … − …)e^(−x) = (… x + …)e^(−x) — a et b remplacés, puis réduits */
+  N('eav-bd1',q.a); N('eav-bd2',q.a); N('eav-bd3',q.b); N('eav-bd4',A.dp); N('eav-bd5',A.dq);
   out.push({id:'eav-tx', type:'frac', good:A.xm, F:A.xmF});
   S('eav-te0','+'); S('eav-te1','+');
   S('eav-tf0',A.sL); S('eav-tf1',A.sR);
@@ -17156,7 +17158,10 @@ function eavFormHTML(q){
     +'<div class="tg-line asg-line">Quand <i>x</i> → −∞ : '+fx+' → '+asgLim('eav-lb')+' <span>— il y a donc</span> '+asgSelTyp('eav-lbt')+'<span>.</span></div>'
     +'<div class="tg-line asg-line"><span>L’asymptote horizontale a pour équation</span> <span class="tg-eq"><i>y</i> =</span> '+txInp('eav-lae')+'</div>';
   h+='<p class="tx-part">b. Détermine la dérivée '+fp+' de '+f+', puis dresse son tableau de variations sur ℝ, avec les limites et l’extremum au dixième près :</p>'
-    +'<div class="tg-line"><span>D’après la partie A,</span> <span class="tg-eq">'+fp+'(<i>x</i>) =</span> ( <math-field class="dexp-mf dexp-mf-wide" id="eav-bd"></math-field> ) '+E.html+'</div>'
+    +'<div class="tg-line"><span>D’après la partie A,</span> <span class="tg-eq">'+fp+'(<i>x</i>) =</span> ('+litFac+') '+E.html
+    +' '+tEq('<span class="tg-eq">= (</span> '+(q.k<0?'−':''), txInp('eav-bd1'))+' <i>x</i> + '+txInp('eav-bd2')+' '+(q.k<0?'−':'+')+' '+txInp('eav-bd3')+' ) '+E.html
+    +' '+tEq('<span class="tg-eq">= (</span> ', txInp('eav-bd4'))+' <i>x</i> '+txInp('eav-bd5')+' ) '+E.html
+    +' <span class="dexp-hint">(la constante s’écrit avec son signe)</span></div>'
     +'<p class="eav-note">'+E.html+' est toujours strictement positif : '+fp+'(<i>x</i>) a le signe de son facteur affine. Une abscisse qui n’est pas entière s’écrit en fraction (par exemple 2/3).</p>'
     +eavTableVarHTML(q);
   h+='<p class="tx-part">c. Démontre que l’équation '+fx+' = 0 admet une unique solution, notée α, sur '+branche+' :</p>'
@@ -17328,7 +17333,7 @@ function eavConseilCtx(){
    +' ; f″(x) = ('+s1ExprText(A.ddp,A.ddq)+')'+E.plain+', qui s’annule en x = '+eavFracTxt(A.xIF)+'. '
    +'Méthode à faire appliquer : une exponentielle est toujours strictement positive, donc f′ et f″ ont le signe de leur facteur affine ; dans une boucle while, le programme s’arrête dès que la condition est FAUSSE — on écrit le contraire de la condition. '
    +'Saisies de l’élève : f('+numFmt(A.x0)+') '+lu('eav-a1')+', f′('+numFmt(A.x0)+') '+lu('eav-a2')+', dérivée littérale '+lu('eav-abfac')+', a '+lu(eavAns(q).x0===1?'eav-c13':'eav-c17')+', b '+lu(eavAns(q).x0===1?'eav-c19':'eav-c11')
-   +', limite en +∞ '+lu('eav-la')+', limite en −∞ '+lu('eav-lb')+', f′ '+lu('eav-bd')+', valeur renvoyée '+lu('eav-d2')+', dérivée seconde '+lu('eav-cafac')+'. '
+   +', limite en +∞ '+lu('eav-la')+', limite en −∞ '+lu('eav-lb')+', f′ '+lu('eav-bd4')+'x '+lu('eav-bd5')+', valeur renvoyée '+lu('eav-d2')+', dérivée seconde '+lu('eav-cafac')+'. '
    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
 }
 
