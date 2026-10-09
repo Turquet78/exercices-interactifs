@@ -5768,7 +5768,7 @@ async function parcours(page, N){
        qui ne déborde pas. */
     titre('6 quadragies. LE 2.2.4 : LA FICHE « PRÉPA DS 2 » RENDUE — LES LETTRES TAPÉES, LA COPIE ENTIÈRE');
     if(!P.etudeAlgoConvexite){
-      ['le 2.2.4 : « ax+b » et « -ax+a-b » tapés dans la chaîne littérale sont relus et jugés justes',
+      ['le 2.2.4 : « ax+b », « -ax+a-b » et le « a-b » du c) tapés en lettres sont relus et jugés justes',
        'le 2.2.4 : la copie de la fiche remplie est toute au vert, sur e^(−x) et sur e^(x−1)',
        'le 2.2.4 : les flèches du tableau sont DESSINÉES à une taille lisible',
        'le 2.2.4 : la page ne déborde pas'].forEach(n => ignorer(n, 'ce niveau n\'a pas l\'étude, algorithme et convexité'));
@@ -5793,13 +5793,16 @@ async function parcours(page, N){
       };
       await taper('eav-abu', 'ax+b');
       await taper('eav-abfac', '-ax+a-b');
+      await taper('eav-c10', 'a-b');   /* le c) : « f′(0) = … = a − b », la lettre tapée dans sa case */
       const lit = await s.page.evaluate(() => {
         const q = test.questions[0], V = asgDerVerdicts(q, eavDerLit(q)).verdicts;
-        return { u: dexpCellValue('eav-abu'), fac: dexpCellValue('eav-abfac'), vu: V['eav-abu'], vfac: V['eav-abfac'] };
+        const c10 = eavCases(q).filter(x => x.id === 'eav-c10')[0];
+        return { u: dexpCellValue('eav-abu'), fac: dexpCellValue('eav-abfac'), vu: V['eav-abu'], vfac: V['eav-abfac'],
+                 c: dexpCellValue('eav-c10'), vc: eavOkCase(q, c10, dexpCellValue('eav-c10')) };
       });
-      verifier('le 2.2.4 : « ax+b » et « -ax+a-b » tapés dans la chaîne littérale sont relus et jugés justes',
-        lit.u === 'ax+b' && lit.fac === '-ax+a-b' && lit.vu === true && lit.vfac === true,
-        'lu ' + JSON.stringify(lit.u) + ' (' + lit.vu + ') et ' + JSON.stringify(lit.fac) + ' (' + lit.vfac + ')');
+      verifier('le 2.2.4 : « ax+b », « -ax+a-b » et le « a-b » du c) tapés en lettres sont relus et jugés justes',
+        lit.u === 'ax+b' && lit.fac === '-ax+a-b' && lit.vu === true && lit.vfac === true && lit.c === 'a-b' && lit.vc === true,
+        'lu ' + JSON.stringify(lit.u) + ' (' + lit.vu + '), ' + JSON.stringify(lit.fac) + ' (' + lit.vfac + ') et ' + JSON.stringify(lit.c) + ' (' + lit.vc + ')');
       /* la copie entière, remplie depuis l'attendu de la page, puis le CLIC */
       const copie = async () => {
         await s.page.evaluate(() => {
