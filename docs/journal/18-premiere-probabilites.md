@@ -162,7 +162,30 @@ Publié en v289 : la v288 de `main` (les totaux du tableau portent leur
 lettre, au 3.2) était arrivée pendant les contrôles. Elle vaut aussi pour le
 3.1, qui dessine le même tableau (`pbTableHTML`).
 
-**Les questions proposées à l'IA écrivent l'indice EN INDICE** (v290, demande
+**Puis le 3.2 a posé ses questions EN MOTS, comme le 3.1 (v290).** Demande
+de Turquet, le même jour : « je veux que l'exercice soit présenté comme sur
+le pdf, et que tout ce qui est similaire au 3.1 soit fait de la même façon.
+Il faut donc une question sous forme de texte ; on fera varier les
+différentes façons de poser ces questions. » Les douze probabilités du 3.2
+(Partie A et Partie B) ne sont plus annoncées par leur nom — « Partie B :
+probabilité conditionnelle », P_B(A) écrit d'avance — mais par une phrase
+(`lpEnonce`, partagée avec le 3.1), et l'élève écrit lui-même P…(…) :
+l'écran est désormais celui du 3.1. Les étiquettes « Partie A / Partie B »
+sont parties avec : elles disaient d'avance s'il fallait un indice.
+- Les tournures (`q.v`) : trois pour les six probabilités sans condition,
+  quatre pour les six conditionnelles, mélangées deux fois
+  (`[0,1,2,3,0,1,2,3]`) — aucune ne sort plus de deux fois.
+- Une intersection se dit avec « et » : « d'être externe et de faire du
+  sport en club » (P(A∩B)), « d'être un garçon et de ne pas avoir de
+  lunettes » (P(A∩B̄)).
+- Une pause prise AVANT la v290 n'a pas de `q.v` : la tournure 0 la reprend.
+- Le rappel de cours (`RAP_PB`) a gagné « Lire la question ».
+
+Vérifié dans Chromium (bureau et téléphone, entraînement et soutien) : copie
+juste 13/13, indice de P laissé vide rempli en vert sans rougir (10 cases
+justes sur 11).
+
+**Les questions proposées à l'IA écrivent l'indice EN INDICE** (v291, demande
 de Turquet, octobre 2026). Le bouton « Quelle différence entre P(A∩B) et
 P_B(A) ? » affichait le trait bas tel quel : l'élève lisait « P_B », une
 écriture de clavier qu'il ne voit nulle part ailleurs. `qiaIndices()` met
