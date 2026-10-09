@@ -289,6 +289,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis la Seconde, le jour même : « fais pareil pour la Seconde ».**
 - **Et la TERMINALE, le lendemain : « fais pareil pour la terminale ».**
 - **Puis le clavier de la Seconde a commencé à sa PREMIÈRE RANGÉE.**
+- **Puis le pavé sur une ligne a pris la FORME DU CLAVIER — en Seconde et en Première.** Les cases `pm-mf` reçoivent le vrai clavier (`PAVE_MF` vide) ; les cases numériques simples, un pavé ancré de la même forme, touches utiles seulement (`pave.forme`).
 - **Sur tablette, la feuille de calcul libre écrit plus petit.**
 - **La touche « = » est sur le clavier mathématique à l'écran**
 - **Sur un TÉLÉPHONE en portrait, les touches du clavier mathématique sont RÉDUITES — et ses deux couches se nomment « clavier A » et « clavier B ».**
