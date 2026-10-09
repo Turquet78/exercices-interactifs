@@ -62,3 +62,18 @@ Vérifié en l'ouvrant dans Chromium (bureau 1280 px, téléphone 390 px,
 entraînement et soutien) : copie juste comptée parfaite (9/9), dénominateur
 « tout » au lieu de B rougi avec le badge B et l'effectif 10 à côté, cases
 vides remplies en vert sans rougir.
+
+**La barre de Ā et B̄ est un trait DESSINÉ (v285).** Signalé par Turquet le
+jour même, capture à l'appui : « on ne voit pas bien les barres au-dessus des
+lettres ». La v284 posait `text-decoration: overline` sur la lettre italique
+de KaTeX_Math : le navigateur traçait un trait fin, court, décalé vers la
+gauche — sur la capture, à peine un accent posé à côté de la lettre. Mes
+captures de contrôle ne le montraient pas : les polices de MathLive y étaient
+coupées, et la lettre de repli, droite, recevait un soulignement correct. Le
+défaut ne se voyait qu'avec la VRAIE fonte. `i.pb-bar` porte désormais un
+`::before` : un trait d'au moins 2 px, décalé vers la droite comme la pente
+de l'italique, un peu plus large que la lettre. Revu en capture avec les
+polices réelles chargées (phrases, en-têtes, étiquettes du tableau, indice de
+P_B̄). Les listes, elles, gardent le caractère combinant U+0305 (une
+`<option>` ne se met pas en forme) : lisible dans Chromium, à surveiller sur
+tablette.
