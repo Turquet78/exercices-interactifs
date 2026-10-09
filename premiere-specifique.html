@@ -2597,7 +2597,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=288;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=289;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -18676,7 +18676,7 @@ function ouvrirQIA(){
   const bd=ov.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
   rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
   $('qiaSugg').innerHTML=(rappelDispo()?'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">\ud83d\udcd8 Faire un rappel de cours pour cet exercice.</button>':'')
-    +qiaSuggestions().map(t=>'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">'+esc(t)+'</button>').join('');
+    +qiaSuggestions().map(t=>'<button type="button" class="qia-chip" data-q="'+esc(t)+'" onclick="qiaPoser(this.dataset.q)">'+qiaIndices(t)+'</button>').join('');
   const mic=$('qiaMic');
   if(mic){
     const dispo=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
@@ -18705,6 +18705,14 @@ function fermerQIA(){
   }
   qiaMicStop();
 }
+/*### qiaIndices ###*/
+/* Une question s'affiche avec ses indices écrits en indice : « P_B(A) » ou
+   « P_{B}(A) » se lit P<sub>B</sub>(A), comme au tableau. Le texte envoyé au
+   modèle garde l'écriture P_B(A), qu'il comprend ; seul l'affichage change. */
+function qiaIndices(t){
+  return esc(t).replace(/\b([A-Za-z])_(?:\{([^{}]{1,12})\}|([A-Za-z0-9\u0100-\u017f][\u0304\u0305]?))/g,
+    function(m,l,a,b){ return l+'<sub>'+(a||b)+'</sub>'; });
+}
 /*### qiaPoser ###*/
 function qiaPoser(t){ const inp=$('qiaInput'); if(inp) inp.value=String(t||''); qiaEnvoyer(); }
 /*### qiaEnvoyer ###*/
@@ -18715,7 +18723,7 @@ async function qiaEnvoyer(){
   const q=String((inp&&inp.value)||'').trim().slice(0,300);
   if(!q||!dlg) return;
   qiaBusy=true; if(inp) inp.value='';
-  const bq=document.createElement('div'); bq.className='qia-q'; bq.textContent=q; dlg.appendChild(bq);
+  const bq=document.createElement('div'); bq.className='qia-q'; bq.innerHTML=qiaIndices(q); dlg.appendChild(bq);
   const br=document.createElement('div'); br.className='qia-r'; br.textContent='Je réfléchis…'; dlg.appendChild(br);
   dlg.scrollTop=dlg.scrollHeight;
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
