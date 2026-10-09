@@ -1533,6 +1533,23 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
     overflow:visible;gap:4px;justify-content:center}
   body.pave-actif #paveNum .pave-t{flex:1 1 0;max-width:80px}
 }
+/* ---- PORTRAIT ÉTROIT : le pavé se replie sur DEUX rangées ----
+   Demande de Turquet (octobre 2026) : « quand un élève doit rentrer son code,
+   le clavier virtuel sur tablette ou téléphone ne doit pas dépasser la
+   largeur de l'écran ; faire une 2ème ligne si nécessaire en mode portrait ».
+   La rangée unique fait ~770 px : sous ce seuil elle DÉFILAIT
+   (overflow-x), et le ⌫ et le ⏎ — ceux qui valident le code — sortaient de
+   l'écran. Le pavé prend alors la largeur de l'écran et se replie en rangées
+   égales de 8 touches qui se partagent la largeur ; une touche ne
+   descend jamais sous 40 px (un doigt) : sur un écran plus étroit encore,
+   le repli ajoute une rangée plutôt que de rétrécir les touches. Au-delà du
+   seuil (tablette en portrait), la rangée unique d'avant est intacte. La
+   règle vaut pour TOUTE case servie par le pavé, pas seulement le code. */
+@media (orientation:portrait) and (max-width:789px){
+  body.pave-actif #paveNum{left:6px;right:6px;transform:none;width:auto;max-width:none;
+    overflow:visible;flex-wrap:wrap;justify-content:center;gap:6px;padding:6px}
+  body.pave-actif #paveNum .pave-t{flex:1 1 calc((100% - 42px) / 8);min-width:40px;max-width:none}
+}
 /* ---- LE CLAVIER ANCRÉ PREND LE BAS : LES COMMANDES MONTENT EN HAUT ----
    Signalé par Turquet (septembre 2026) : « occupe-toi du clavier qui recouvre
    les commandes ». Mesuré avant tout correctif, sur les TROIS niveaux, dans
@@ -3196,7 +3213,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=370;
+const APP_VERSION=371;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */

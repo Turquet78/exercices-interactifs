@@ -1551,3 +1551,26 @@ mesure. Même sonde après : les trois collisions sont cédées (`visibility:
 hidden`), zéro visible. La leçon est celle du § 9 bis : un contrôle qui n'a
 rien à mesurer doit le dire — ici c'est le contrôle du banc qui a attrapé le
 script muet, parce qu'il mesure le DOM rendu et non le script.
+
+**Sur un TÉLÉPHONE en portrait, le pavé se replie sur DEUX rangées — et ne
+sort plus de l'écran.** Demande de Turquet (octobre 2026) : « quand un élève
+doit rentrer son code, le clavier virtuel sur tablette ou téléphone ne doit pas
+dépasser la largeur de l'écran ; faire une 2ème ligne si nécessaire en mode
+portrait ». La case du code (`#loginPin`, `inputmode="numeric"`) est servie par
+le pavé comme toute case numérique, et le pavé est UNE rangée de 14 touches
+(15 en Terminale, qui porte « / ») : ~720 px, ~770 en Terminale. Sous cette
+largeur, `overflow-x:auto` le faisait DÉFILER, et c'étaient ⌫ et ⏎ — ceux qui
+corrigent et valident le code — qui sortaient de l'écran. Une règle
+`@media (orientation:portrait) and (max-width:739px)` (789 px en Terminale)
+étend le pavé à la largeur de l'écran et le replie (`flex-wrap`) en rangées
+égales de 7 touches (8 en Terminale) qui se partagent la largeur ; une touche
+ne descend jamais sous 40 px : sur un écran plus étroit encore, le repli ajoute
+une rangée plutôt que de rétrécir les touches. Au-delà du seuil — la tablette
+en portrait, 768 ou 820 px —, la rangée unique d'avant reste intacte, et le
+contrôle « en PORTRAIT, le pavé est une seule rangée » (820 px) le tient
+toujours. La règle vaut pour TOUTE case servie par le pavé : un exercice sur
+téléphone défilait de la même façon. Le contrôle (§ 11 du banc navigateur)
+ouvre l'écran de connexion à 390 et 360 px de large, donne le focus à la case
+du code et MESURE : pavé visible, aucune touche hors de l'écran, pas de
+défilement, au moins deux rangées, touches d'au moins 40 px — puis tape les six
+chiffres au pavé.

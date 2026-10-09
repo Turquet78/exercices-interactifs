@@ -2839,6 +2839,23 @@ body.pave-actif #paveNum{bottom:54px}
   body.pave-actif #paveNum{bottom:54px;left:8px;right:8px;transform:none;width:auto;
     max-width:none;overflow:visible}
 }
+/* ---- PORTRAIT ÉTROIT : le pavé se replie sur DEUX rangées ----
+   Demande de Turquet (octobre 2026) : « quand un élève doit rentrer son code,
+   le clavier virtuel sur tablette ou téléphone ne doit pas dépasser la
+   largeur de l'écran ; faire une 2ème ligne si nécessaire en mode portrait ».
+   La rangée unique fait ~720 px : sous ce seuil elle DÉFILAIT
+   (overflow-x), et le ⌫ et le ⏎ — ceux qui valident le code — sortaient de
+   l'écran. Le pavé prend alors la largeur de l'écran et se replie en rangées
+   égales de 7 touches qui se partagent la largeur ; une touche ne
+   descend jamais sous 40 px (un doigt) : sur un écran plus étroit encore,
+   le repli ajoute une rangée plutôt que de rétrécir les touches. Au-delà du
+   seuil (tablette en portrait), la rangée unique d'avant est intacte. La
+   règle vaut pour TOUTE case servie par le pavé, pas seulement le code. */
+@media (orientation:portrait) and (max-width:739px){
+  body.pave-actif #paveNum{left:6px;right:6px;transform:none;width:auto;max-width:none;
+    overflow:visible;flex-wrap:wrap;justify-content:center;gap:6px;padding:6px}
+  body.pave-actif #paveNum .pave-t{flex:1 1 calc((100% - 36px) / 7);min-width:40px;max-width:none}
+}
 /* ---- LE CLAVIER ANCRÉ PREND LE BAS : LES COMMANDES MONTENT EN HAUT ----
    Signalé par Turquet (septembre 2026) : « occupe-toi du clavier qui recouvre
    les commandes ». Mesuré avant tout correctif, sur les TROIS niveaux, dans
@@ -5767,7 +5784,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=426;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=427;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
