@@ -13256,6 +13256,42 @@ async function parcours(page, N){
         }), champ);
       };
 
+      /* ---- LE CODE DE L'ÉLÈVE, sur un TÉLÉPHONE en portrait ----
+         Demande de Turquet (octobre 2026) : « quand un élève doit rentrer son
+         code, le clavier virtuel sur tablette ou téléphone ne doit pas
+         dépasser la largeur de l'écran ; faire une 2ème ligne si nécessaire
+         en mode portrait ». La rangée unique (~720 px) DÉFILAIT : ⌫ et ⏎
+         sortaient de l'écran. Mesuré au RECTANGLE, sur la case du code, à
+         deux largeurs de téléphone : le pavé tient dans l'écran, ne défile
+         pas, s'est replié (plus d'une rangée), ses touches restent
+         touchables — et il écrit le code. Le bord opposé (une seule rangée
+         sur la tablette en portrait) est tenu juste après, à 820 px. */
+      for(const [w, h] of [[390, 844], [360, 740]]){
+        const sc = await ouvrir(chromium, ml, { viewport: { width: w, height: h } });
+        try{
+          await sc.page.waitForSelector('#nameChips .chip', { timeout: 15000 });
+          await sc.page.evaluate(() => { window.__paveForce = true; paveObserver(); });
+          await sc.page.click('#nameChips .chip');
+          await sc.page.waitForTimeout(200);
+          await sc.page.focus('#loginPin');
+          await sc.page.waitForTimeout(400);
+          const q = await sc.page.evaluate(mesurerPave, '#loginPin');
+          const touches = await sc.page.evaluate(() => [...document.querySelectorAll('#paveNum .pave-t')]
+            .map(b => b.getBoundingClientRect()).filter(r => r.left < -0.5 || r.right > window.innerWidth + 0.5).length);
+          verifier('à ' + w + ' px en portrait, le pavé du code tient dans la largeur de l\'écran, replié sans défiler',
+            !q.absent && q.visible && !q.deborde && touches === 0 && q.gauche >= 0 && q.droite <= w
+              && q.rangees >= 2 && q.petites === 0,
+            q.absent ? 'aucun pavé dans la page' : !q.visible ? 'le pavé reste caché sur la case du code'
+              : q.deborde ? 'le pavé défile : ' + q.largeur + 'px de large'
+              : touches ? touches + ' touche(s) hors de l\'écran'
+              : (q.gauche < 0 || q.droite > w) ? 'le pavé va de ' + q.gauche + ' à ' + q.droite + 'px sur ' + w
+              : q.rangees < 2 ? 'une seule rangée' : q.petites + ' touche(s) trop petites');
+          const code = await frapper(sc.page, '#loginPin', ['1', '2', '3', '4', '5', '6']);
+          verifier('à ' + w + ' px en portrait, le pavé écrit le code', code.valeur === '123456' && code.focus === true,
+            '« ' + code.valeur + ' », focus ' + (code.focus ? 'gardé' : 'perdu'));
+        } finally { await sc.nav.close(); }
+      }
+
       s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 } });
       if(await connecter(s.page) !== 'scr-space'){
         ignorer('le pavé numérique est petit, touchable, et il écrit', 'connexion impossible');

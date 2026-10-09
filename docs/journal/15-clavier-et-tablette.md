@@ -1605,3 +1605,28 @@ mesure. Même sonde après : les trois collisions sont cédées (`visibility:
 hidden`), zéro visible. La leçon est celle du § 9 bis : un contrôle qui n'a
 rien à mesurer doit le dire — ici c'est le contrôle du banc qui a attrapé le
 script muet, parce qu'il mesure le DOM rendu et non le script.
+
+**Sur un TÉLÉPHONE en portrait, le pavé de la TERMINALE se replie sur DEUX
+rangées — et ne sort plus de l'écran.** Demande de Turquet (octobre 2026) :
+« quand un élève doit rentrer son code, le clavier virtuel sur tablette ou
+téléphone ne doit pas dépasser la largeur de l'écran ; faire une 2ème ligne si
+nécessaire en mode portrait ». La case du code (`#loginPin`,
+`inputmode="numeric"`) est servie par le pavé comme toute case numérique. En
+Seconde et en Première, la forme du clavier (pull request #544, fusionnée le
+même jour) règle déjà la question : grille ancrée sur toute la largeur, quatre
+rangées sur un téléphone. En TERMINALE, le pavé est resté UNE rangée de 15
+touches (« / » en plus), ~770 px : sous cette largeur, `overflow-x:auto` le
+faisait DÉFILER, et c'étaient ⌫ et ⏎ — ceux qui corrigent et valident le code —
+qui sortaient de l'écran. Une règle `@media (orientation:portrait) and
+(max-width:789px)` étend le pavé à la largeur de l'écran et le replie
+(`flex-wrap`) en rangées égales de 8 touches qui se partagent la largeur ; une
+touche ne descend jamais sous 40 px : sur un écran plus étroit encore, le repli
+ajoute une rangée plutôt que de rétrécir les touches. Au-delà du seuil — la
+tablette en portrait —, la rangée unique d'avant reste intacte, et le contrôle
+« en PORTRAIT, le pavé est une seule rangée » (820 px) le tient toujours. La
+règle vaut pour TOUTE case servie par le pavé. Le contrôle (§ 11 du banc
+navigateur) vaut pour les TROIS niveaux, quelle que soit la forme du pavé : il
+ouvre l'écran de connexion à 390 et 360 px de large, donne le focus à la case
+du code et MESURE — pavé visible, aucune touche hors de l'écran, pas de
+défilement, au moins deux rangées, touches d'au moins 40 px —, puis tape les
+six chiffres au pavé.

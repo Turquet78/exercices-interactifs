@@ -293,6 +293,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Sur tablette, la feuille de calcul libre écrit plus petit.**
 - **La touche « = » est sur le clavier mathématique à l'écran**
 - **Sur un TÉLÉPHONE en portrait, les touches du clavier mathématique sont RÉDUITES — et ses deux couches se nomment « clavier A » et « clavier B ».**
+- **Sur un TÉLÉPHONE en portrait, le pavé de la Terminale se replie sur DEUX rangées — et aucun pavé ne sort de l'écran.**
 - **Puis le clavier de la Terminale s'est partagé en deux couches lisibles, et ses touches ont maigri sur tablette.**
 - **Puis la TABLETTE COUCHÉE a pris la forme courte, et un exercice sur les limites a rendu ses quatre touches au clavier A.**
 - **Une case où l'élève écrit une LIMITE est un champ mathématique — le clavier du 3.5.**
