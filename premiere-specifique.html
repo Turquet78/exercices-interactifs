@@ -714,7 +714,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1271,6 +1271,45 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .ac-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
 .ac-sel:disabled{opacity:1;cursor:default}
 @media(max-width:560px){ .ac-phrase,.ac-c,.ac-sel{font-size:calc(1.15rem * var(--tab-nb,1))} .ac-sel{width:120px} }
+/* {tableau-probabilites} (3.1) : le tableau à double entrée, les phrases et
+   les fractions de lettres. Les nombres écrits du tableau et les cases où
+   l'élève écrit ont la MÊME taille (1,5 rem) : une case plus petite que ses
+   voisines passerait pour une note en bas de page. Les listes de lettres
+   suivent la convention de {associer-coefficient} : juste en bleu, faux en
+   rouge, correction en vert. */
+#pbHost .pt-row{margin:10px 0}
+.pb-def{font-family:"Nunito";font-weight:700;font-size:calc(1.05rem * var(--tab-nb,1));color:var(--ink);margin:10px 0;text-align:left}
+.pb-phrase{line-height:2.5}
+.pb-phrase .pb-case{vertical-align:middle;margin:2px 0;flex-wrap:wrap;max-width:100%}
+.pb-phrase>i{font-size:calc(1.15rem * var(--tab-nb,1))}
+.pb-tab{border-collapse:collapse;margin:4px auto 6px;font-family:"Nunito"}
+.pb-tab th,.pb-tab td{border:2px solid var(--ink-soft);padding:6px 12px;text-align:center;vertical-align:middle}
+.pb-tab th{font-weight:700;font-size:calc(.98rem * var(--tab-nb,1));color:var(--ink);background:var(--surface)}
+.pb-tab td{min-width:84px}
+.pb-cl{display:block;font-family:"Nunito";font-weight:700;font-size:calc(.85rem * var(--tab-nb,1));color:var(--ink-soft);margin-bottom:3px;white-space:nowrap}
+.pb-v{font-family:"Fredoka";font-weight:600;font-size:calc(1.5rem * var(--tab-nb,1));color:var(--ink)}
+#pbHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.15;min-width:56px}
+.pb-case{display:inline-flex;align-items:center;justify-content:center}
+.pb-nom{display:inline-block;font-family:"Fredoka";font-weight:600;font-size:calc(1.45rem * var(--tab-nb,1));color:var(--ink);white-space:nowrap}
+.pb-nom sub{font-size:.7em}
+.pb-parmi{font-family:"Nunito";font-style:italic;font-weight:700;font-size:calc(1rem * var(--tab-nb,1));color:var(--ink-soft)}
+.pb-l{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+#pbHost .f-frac-input{align-items:stretch}
+#pbHost .f-fbar{width:auto;align-self:stretch;height:4px}
+#pbHost .mf-cor{font-size:calc(1.1rem * var(--tab-nb,1));white-space:nowrap}
+i.pb-bar{text-decoration:overline;text-decoration-thickness:2px}
+.pb-sel{flex:0 0 auto;appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;
+  width:96px;padding:0 6px;height:46px;font-family:"Fredoka";font-weight:600;
+  font-size:calc(1.25rem * var(--tab-nb,1));color:var(--blue-dark);background:#F3F7FF;
+  border:2px solid #BBD0F7;border-radius:12px;outline:none;cursor:pointer}
+.pb-sel:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+.pb-sel.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+.pb-sel.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+.pb-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
+.pb-sel:disabled{opacity:1;cursor:default}
+/* les phrases contraires : la liste prend la largeur de sa plus longue fin de phrase */
+.pb-sel.pb-mots{width:auto;min-width:96px;padding:0 14px;font-size:calc(1.1rem * var(--tab-nb,1))}
+@media(max-width:560px){ .pb-tab th,.pb-tab td{padding:4px 5px} .pb-tab th{font-size:calc(.82rem * var(--tab-nb,1))} .pb-tab td{min-width:52px} .pb-phrase .mf-cor{white-space:normal} .pb-sel{width:84px;font-size:calc(1.1rem * var(--tab-nb,1))} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
 #fpHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.15;}
@@ -2278,6 +2317,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : PROBABILITÉS — TABLEAU À DOUBLE ENTRÉE (3.1) -->
+  <section class="screen" id="scr-pbtest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPb"></span><span class="q-idx" id="pbIdx">Question 1 / 13</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="pbLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="pbPrompt">Compléter le tableau, puis lire les probabilités.</p>
+      <div class="mp-stage"><div style="width:100%" id="pbHost"></div></div>
+      <div class="mp-feedback" id="pbFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center" id="pbActions">
+        <button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-teacher-login">
     <div class="card">
       <h2 class="title">Espace professeur</h2>
@@ -2520,7 +2575,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=283;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=284;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2969,7 +3024,8 @@ const TESTS={
   'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
-  'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() }
+  'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
+  'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe : complète-le à partir de quatre nombres, puis lis-y six probabilités, P(A), P(A ∩ B)…, et six probabilités conditionnelles, P<sub>B</sub>(A)… — d’abord avec les lettres, puis avec les effectifs du tableau.', start:()=>startPB() }
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
 const FRAC_INFO={
@@ -3004,7 +3060,10 @@ const THEMES=[
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
       { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient','synthese-evolutions-successives','evolutions-successives','synthese-evolutions-successives-libre','synthese-generale-libre','devoir-blanc-pourcentages'] }
-  ] }
+  ] },
+  /* Demande de Turquet, octobre 2026 : le tableau à double entrée de sa fiche
+     « proba 1 ». */
+  { num:3, nom:'Probabilit\u00e9s', ids:['tableau-probabilites'] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
    fichier (côté prof, comptages, devoirs) ne connaît que celle-là et n'a pas à savoir
@@ -3124,7 +3183,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') startSF(); else if(test.kind==='pb') startPB(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -4051,7 +4110,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
-    sf:['sf',renderSFTest]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest]
   };
   const e=table[k];
   if(!e) return false;
@@ -4287,7 +4346,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','pct10','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0 && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && testScreens.indexOf(ecranQuitte)<0 && ['mode','results','dmenonce','s2lvl'].indexOf(ecranQuitte)<0) ecranAvantModes=ecranQuitte;
@@ -14279,6 +14338,295 @@ function sfCtxTexte(q){
   return c;
 }
 
+/* ---------- 3.1 : {tableau-probabilites} — TABLEAU À DOUBLE ENTRÉE ----------
+   Demande de Turquet (octobre 2026), d'après sa fiche papier « proba 1 » :
+   un tableau à double entrée qui représente une classe, puis les
+   probabilités qu'on y lit — six sans condition (Partie A), six
+   conditionnelles (Partie B). La chronique : docs/journal/18-premiere-probabilites.md.
+   LA SÉANCE EST LA FICHE, dans son ordre : la question 1 fait compléter les
+   deux phrases contraires et le tableau, les douze suivantes posent chacune
+   une probabilité sur ce MÊME tableau. Les treize questions portent donc le
+   même tableau et diffèrent par la probabilité demandée (« it ») : c'est sa
+   forme fixe — le réglage « Questions » d'un devoir ne peut que la couper.
+   QUATRE NOMBRES SONT DONNÉS, différents et plus petits que 10, et pas
+   forcément dans les cases du milieu : un total peut en faire partie
+   (« pas forcément dans la ligne ou la colonne du total »). Les quatre cases
+   du milieu sont elles aussi différentes et plus petites que 10, comme sur la
+   fiche. Le jeu de cases données est tiré parmi ceux qui se résolvent PAS À
+   PAS — une ligne ou une colonne où il ne manque qu'un nombre, puis une
+   autre — et dont aucune ligne n'est déjà pleine (trois nombres d'une même
+   ligne n'en font que deux : le tableau ne serait plus déterminé).
+   LES POINTILLÉS SONT DES LETTRES, sauf à la fin : « la probabilité d'avoir
+   … parmi … », les deux premières fractions s'écrivent avec les évènements
+   (A, Ā, B, B̄, A∩B, …, tout), la dernière avec les EFFECTIFS du tableau. Les
+   lettres se CHOISISSENT dans une liste (toujours les neuf mêmes, dans le même
+   ordre) ; les effectifs s'écrivent dans des cases. La dernière fraction n'est
+   pas à simplifier : ce sont les effectifs, et rien d'autre.
+   CHAQUE CASE SE JUGE SEULE : chacune a une seule bonne réponse, qui ne
+   dépend d'aucune autre case — une case juste ne rougit donc jamais pour une
+   voisine vide ou fausse.
+   AUCUNE CORRECTION AU FIL DES CLICS (soutienEnDirect.sans) : colorer une
+   liste au moment où l'élève la choisit lui dirait la bonne lettre par
+   élimination — la règle de {associer-coefficient}. */
+const PB_CTX=[
+  /* « ind » commence les phrases ; A, nA, B, nB les finissent ; cA, cnA, lB,
+     lnB sont les en-têtes du tableau. */
+  { ind:'La personne', A:'est un garçon', nA:'est une fille', B:'a des lunettes', nB:'n’a pas de lunettes',
+    cA:'garçons', cnA:'filles', lB:'a des lunettes', lnB:'n’a pas de lunettes' },
+  { ind:'L’élève', A:'est externe', nA:'est demi-pensionnaire', B:'fait du sport en club', nB:'ne fait pas de sport en club',
+    cA:'externes', cnA:'demi-pensionnaires', lB:'fait du sport en club', lnB:'n’en fait pas' },
+  { ind:'L’élève', A:'prend le bus', nA:'ne prend pas le bus', B:'mange à la cantine', nB:'ne mange pas à la cantine',
+    cA:'prend le bus', cnA:'ne prend pas le bus', lB:'mange à la cantine', lnB:'n’y mange pas' }
+];
+/* Les neuf cases du tableau, ligne par ligne : la ligne B, la ligne B̄, la
+   ligne des totaux. Le code d'un évènement désigne sa case. */
+const PB_CASE={ 'A.B':0, 'nA.B':1, 'B':2, 'A.nB':3, 'nA.nB':4, 'nB':5, 'A':6, 'nA':7, 'T':8 };
+const PB_LIGNES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8]];
+/* Les neuf lettres que propose chaque liste, toujours dans cet ordre. */
+const PB_EVTS=['A','nA','B','nB','A.B','A.nB','nA.B','nA.nB','T'];
+/* Les douze probabilités de la fiche, dans son ordre : [évènement, univers].
+   L'univers « T » (tout) fait la Partie A ; un autre, la Partie B. */
+const PB_ITEMS=[['A','T'],['nA','T'],['B','T'],['nB','T'],['A.B','T'],['A.nB','T'],
+                ['A','B'],['B','A'],['A','nB'],['nB','A'],['nA','nB'],['nB','nA']];
+/* n = [A∩B, Ā∩B, A∩B̄, Ā∩B̄] — les quatre cases du milieu. */
+function pbValeurs(n){
+  return [n[0], n[1], n[0]+n[1], n[2], n[3], n[2]+n[3], n[0]+n[2], n[1]+n[3], n[0]+n[1]+n[2]+n[3]];
+}
+/* Le jeu de cases données se résout-il pas à pas ? */
+function pbResoluble(k){
+  const su=new Set(k);
+  if(PB_LIGNES.some(l=>l.every(i=>su.has(i)))) return false;
+  let avance=true;
+  while(avance){ avance=false;
+    PB_LIGNES.forEach(l=>{ const manque=l.filter(i=>!su.has(i)); if(manque.length===1){ su.add(manque[0]); avance=true; } }); }
+  return su.size===9;
+}
+function pbTableau(){
+  const n=qdMelanger([1,2,3,4,5,6,7,8,9]).slice(0,4), v=pbValeurs(n), jeux=[];
+  for(let a=0;a<9;a++) for(let b=a+1;b<9;b++) for(let c=b+1;c<9;c++) for(let d=c+1;d<9;d++){
+    const k=[a,b,c,d], vs=k.map(i=>v[i]);
+    if(vs.some(x=>x>=10) || new Set(vs).size<4 || !pbResoluble(k)) continue;
+    jeux.push(k);
+  }
+  /* les quatre cases du milieu sont toujours un jeu valable : la liste n'est jamais vide */
+  return { n:n, k:pick(jeux) };
+}
+function pbSeance(){
+  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[];
+  for(let it=-1; it<PB_ITEMS.length; it++)
+    qs.push(distincte(qs, ()=>({ t:(it<0?'tab':'p'), it:it, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  return qs;
+}
+/* L'écriture d'un évènement : en texte (les listes) et en HTML (la page). */
+function pbTxt(c){ return c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? e.charAt(1)+'̅' : e).join(' ∩ '); }
+function pbHTML(c){ return c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? '<i class="pb-bar">'+e.charAt(1)+'</i>' : '<i>'+e+'</i>').join(' ∩ '); }
+/* A∩B s'écrit toujours la lettre A d'abord : P_A(B̄) se calcule sur A∩B̄. */
+function pbInter(y,x){
+  if(x==='T') return y;
+  const p=(y+'.'+x).split('.'), a=p.find(e=>/A$/.test(e)), b=p.find(e=>/B$/.test(e));
+  return a+'.'+b;
+}
+function pbEff(q,c){ return pbValeurs(q.n)[PB_CASE[c]]; }
+function pbNomHTML(y,x){
+  return '<span class="pb-nom"><i>P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+')</span>';
+}
+/* Les cases d'une question, et ce qu'on attend dans chacune. */
+function pbAttendus(q){
+  if(q.t==='tab'){
+    const v=pbValeurs(q.n), a={ 'pb-ca':'nA', 'pb-cb':'nB' };
+    for(let i=0;i<9;i++) if(q.k.indexOf(i)<0) a['pb-c'+i]=String(v[i]);
+    return a;
+  }
+  const y=PB_ITEMS[q.it][0], x=PB_ITEMS[q.it][1], s6=pbInter(y,x);
+  return { 'pb-s1':y, 'pb-s2':x, 'pb-s3':y, 'pb-s4':x, 'pb-s5':x, 'pb-s6':s6, 'pb-s7':x,
+           'pb-n1':String(pbEff(q,s6)), 'pb-n2':String(pbEff(q,x)) };
+}
+function pbCases(q){ return Object.keys(pbAttendus(q)); }
+/* Choisir ne redessine JAMAIS l'écran : rien n'y dépend du choix, et un
+   redessin viderait les cases des effectifs. */
+function choisirPB(id, v){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  q.rep[id]=(v===''||v==null)?null:String(v);
+  autoSave();
+}
+function pbSel(q, id, opts, lab, cls){
+  const r=q.rep[id];
+  return '<span class="pb-case"><select class="pb-sel'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(lab)+'" onchange="choisirPB(\''+id+'\',this.value)">'
+    +'<option value="">…</option>'
+    +opts.map(o=>'<option value="'+o.v+'"'+(r===o.v?' selected':'')+'>'+esc(o.t)+'</option>').join('')
+    +'</select></span>';
+}
+function pbMf(id, lab){ return '<span class="pb-case"><math-field class="dexp-mf pm-mf" id="'+id+'" aria-label="'+esc(lab)+'"></math-field></span>'; }
+/* Le tableau. « saisie » : les cases inconnues deviennent des cases à
+   remplir (question 1) ; sinon tout est écrit (les questions suivantes). */
+function pbTableHTML(q, saisie){
+  const C=PB_CTX[q.ci]||PB_CTX[0], v=pbValeurs(q.n);
+  const nomsCase=['A.B','nA.B','','A.nB','nA.nB','','','',''];
+  const cel=i=>{
+    const lab=nomsCase[i] ? '<span class="pb-cl">'+pbHTML(nomsCase[i])+'</span>' : '';
+    const dedans=(saisie && q.k.indexOf(i)<0)
+      ? pbMf('pb-c'+i, 'effectif'+(nomsCase[i]?' de '+pbTxt(nomsCase[i]):' total'))
+      : '<span class="pb-v">'+v[i]+'</span>';
+    return '<td>'+lab+dedans+'</td>';
+  };
+  return '<table class="pb-tab">'
+    +'<tr><th></th><th>'+pbHTML('A')+' = '+esc(C.cA)+'</th><th>'+pbHTML('nA')+' = '+esc(C.cnA)+'</th><th>total</th></tr>'
+    +'<tr><th>'+pbHTML('B')+' = '+esc(C.lB)+'</th>'+cel(0)+cel(1)+cel(2)+'</tr>'
+    +'<tr><th>'+pbHTML('nB')+' = '+esc(C.lnB)+'</th>'+cel(3)+cel(4)+cel(5)+'</tr>'
+    +'<tr><th>total</th>'+cel(6)+cel(7)+cel(8)+'</tr>'
+    +'</table>';
+}
+function renderPBTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  const C=PB_CTX[q.ci]||PB_CTX[0];
+  $('pbIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPb').innerHTML=modeTagHTML();
+  $('pbLiveScore').textContent=test.score;
+  $('pbFeedback').textContent=''; $('pbFeedback').className='mp-feedback';
+  $('pbActions').innerHTML='<button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>';
+  if(q.t==='tab'){
+    $('pbPrompt').innerHTML='On prend une personne au hasard dans la classe. Complète les deux phrases, puis le tableau qui représente la classe.';
+    const preds=['A','nA','B','nB'].map(e=>({ v:e, t:C[e] }));
+    $('pbHost').innerHTML=
+      '<div class="pt-step">'
+       +'<p class="pb-def">'+pbHTML('A')+' représente l’évènement : « '+esc(C.ind+' '+C.A)+' »</p>'
+       +'<p class="pb-def pb-phrase">'+pbHTML('nA')+' représente l’évènement contraire de '+pbHTML('A')+' : « '+esc(C.ind)+' '
+         +pbSel(q,'pb-ca',preds,'évènement contraire de A','pb-mots')+' »</p>'
+       +'<p class="pb-def">'+pbHTML('B')+' représente l’évènement : « '+esc(C.ind+' '+C.B)+' »</p>'
+       +'<p class="pb-def pb-phrase">'+pbHTML('nB')+' représente l’évènement contraire de '+pbHTML('B')+' : « '+esc(C.ind)+' '
+         +pbSel(q,'pb-cb',preds,'évènement contraire de B','pb-mots')+' »</p>'
+      +'</div>'
+      +'<div class="pt-step"><div class="pt-lab">Chaque total est la somme de sa ligne, ou de sa colonne</div>'+pbTableHTML(q,true)+'</div>';
+  } else {
+    const y=PB_ITEMS[q.it][0], x=PB_ITEMS[q.it][1], cond=(x!=='T');
+    const num=cond ? q.it-5 : q.it+1;
+    $('pbPrompt').innerHTML='Partie '+(cond?'B':'A')+' : probabilité '+(cond?'conditionnelle':'non conditionnelle')+' — question '+num
+      +'. Complète avec les lettres, puis, dans la dernière fraction, avec les effectifs du tableau.';
+    const opts=PB_EVTS.map(e=>({ v:e, t:pbTxt(e) }));
+    const s=(id,lab)=>pbSel(q,id,opts,lab);
+    const parmi='<span class="pb-parmi">parmi</span>';
+    $('pbHost').innerHTML=
+      '<div class="pt-step">'+pbTableHTML(q,false)+'</div>'
+     +'<div class="pt-step">'
+       +'<p class="pb-def pb-phrase">'+pbNomHTML(y,x)+' représente la probabilité d’avoir '
+         +s('pb-s1','ce qu’on veut avoir')+' parmi '+s('pb-s2','parmi quoi')+'</p>'
+       +'<div class="pt-row">'+pbNomHTML(y,x)
+         +fEq('<span class="f-frac-input"><span class="pb-l">'+s('pb-s3','numérateur : ce qu’on veut avoir')+parmi+s('pb-s4','numérateur : parmi quoi')+'</span>'
+              +'<span class="f-fbar"></span><span class="pb-l">'+parmi+s('pb-s5','dénominateur : parmi quoi')+'</span></span>')
+         +fEq('<span class="f-frac-input"><span class="pb-l">'+s('pb-s6','numérateur en lettres')+'</span>'
+              +'<span class="f-fbar"></span><span class="pb-l">'+s('pb-s7','dénominateur en lettres')+'</span></span>')
+         +fEq('<span class="f-frac-input">'+pbMf('pb-n1','numérateur : un effectif du tableau')
+              +'<span class="f-fbar"></span>'+pbMf('pb-n2','dénominateur : un effectif du tableau')+'</span>')
+       +'</div>'
+     +'</div>';
+  }
+}
+/* Ce que l'élève a mis dans une case : la valeur de la liste, ou le nombre
+   écrit (pmPlain, le lecteur qui retire les résidus de MathLive). */
+function pbLu(id){
+  const el=$(id); if(!el) return '';
+  if(el.tagName==='SELECT') return String(el.value||'');
+  return String(pmPlain(el)||'').replace(/\s/g,'');
+}
+/* Le message nomme la MÉTHODE de la question, avec ses nombres : « faux »
+   tout court ne dit pas où reprendre. */
+function pbPourquoi(q){
+  if(q.t==='tab'){
+    const C=PB_CTX[q.ci]||PB_CTX[0];
+    return 'Le contraire de « '+C.A+' », c’est « '+C.nA+' » ; celui de « '+C.B+' », « '+C.nB+' ». '
+      +'Dans le tableau, chaque total est la somme de sa ligne (ou de sa colonne) : une case qui manque se trouve par une soustraction.';
+  }
+  const y=PB_ITEMS[q.it][0], x=PB_ITEMS[q.it][1], s6=pbInter(y,x);
+  if(x==='T') return 'On prend une personne dans TOUTE la classe : on compte '+pbHTML(y)+' parmi tout, '
+    +pbEff(q,y)+' sur '+pbEff(q,'T')+'.';
+  return 'On se place PARMI '+pbHTML(x)+' seulement : on y compte ceux qui sont aussi '+pbHTML(y)+', c’est-à-dire '
+    +pbHTML(s6)+'. Cela fait '+pbEff(q,s6)+' sur '+pbEff(q,x)+' — le dénominateur est '+pbHTML(x)+', pas tout.';
+}
+function checkPBAnswer(live){
+  if(test.locked) return;
+  /* Rien à colorer pendant que l'élève choisit : voir l'en-tête du bloc. */
+  if(live) return;
+  const q=test.questions[test.idx], att=pbAttendus(q), ids=Object.keys(att), soutien=isSoutien();
+  const verd={}; let allOk=true, vide=false;
+  ids.forEach(id=>{ const v=pbLu(id); if(v==='') vide=true; verd[id]=(v===att[id]); if(!verd[id]) allOk=false; });
+  if(soutien){
+    /* En soutien l'élève corrige lui-même : une case juste se verrouille en
+       bleu, une fausse rougit et reste à reprendre, une vide reste à remplir
+       sans couleur — rien ne révèle la bonne réponse. */
+    ids.forEach(id=>{ const el=$(id); if(!el) return;
+      el.classList.remove('ok','bad','sol');
+      if(pbLu(id)!=='') el.classList.add(verd[id]?'ok':'bad');
+      el.disabled=verd[id]; });
+    if(!allOk){ soutienAgain('pbFeedback','pbActions','checkPBAnswer','pbHost'); return; }
+  } else {
+    /* la convention commune : juste en BLEU, faux en ROUGE avec la bonne
+       réponse en VERT à côté, une case vide reçoit la réponse en VERT */
+    ids.forEach(id=>corrCase(id, att[id], verd[id]));
+  }
+  test.locked=true;
+  ids.forEach(id=>{ const el=$(id); if(el) el.disabled=true; });
+  if(allOk){ test.score++; $('pbLiveScore').textContent=test.score;
+    $('pbFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']);
+    $('pbFeedback').className='mp-feedback good';
+  } else {
+    const faux=ids.some(id=>!verd[id] && pbLu(id)!=='');
+    $('pbFeedback').innerHTML=(vide && !faux)
+      ? 'Il manque des cases : les réponses qui manquent sont écrites en vert. '+pbPourquoi(q)
+      : pbPourquoi(q);
+    $('pbFeedback').className='mp-feedback bad';
+  }
+  const dit=v=>(PB_EVTS.indexOf(v)>=0 ? pbTxt(v) : v);
+  test.answers.push({...(ptsExo()||{}),
+    q: q.t==='tab' ? 'Compléter les phrases contraires et le tableau'
+                   : 'P'+(PB_ITEMS[q.it][1]==='T' ? '' : '_'+pbTxt(PB_ITEMS[q.it][1]))+'('+pbTxt(PB_ITEMS[q.it][0])+')',
+    answer: ids.map(id=>dit(att[id])).join(' ; '),
+    given: ids.map(id=>dit(pbLu(id))||'?').join(' ; '),
+    correct: allOk});
+  const last=test.idx===test.questions.length-1;
+  $('pbActions').innerHTML='<button class="btn btn-primary" id="pbNext" onclick="nextPBQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pbNext'); if(nb) nb.focus();
+}
+function nextPBQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPBTest(); autoSave(); } else finishPB(); }
+async function startPB(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=pbSeance();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'pb', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.qId='tableau-probabilites';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pbtest'); renderPBTest();
+}
+async function finishPB(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'tableau-probabilites',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+/* Le contexte envoyé au modèle. */
+function pbCtxTexte(q){
+  const C=PB_CTX[q.ci]||PB_CTX[0], v=pbValeurs(q.n);
+  let c='Tableau à double entrée d’une classe : A = « '+C.ind+' '+C.A+' », B = « '+C.ind+' '+C.B+' ». '
+    +'Effectifs : A∩B = '+v[0]+', Ā∩B = '+v[1]+', total B = '+v[2]+', A∩B̄ = '+v[3]+', Ā∩B̄ = '+v[4]+', total B̄ = '+v[5]
+    +', total A = '+v[6]+', total Ā = '+v[7]+', total = '+v[8]+'. ';
+  if(q.t==='tab') c+='L’élève complète les deux phrases contraires (Ā, B̄) puis les cases manquantes du tableau ; quatre nombres sont donnés. ';
+  else {
+    const y=PB_ITEMS[q.it][0], x=PB_ITEMS[q.it][1];
+    c+='L’élève calcule '+(x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')')
+      +' : il écrit « la probabilité d’avoir … parmi … » avec des lettres choisies dans une liste (A, Ā, B, B̄, A∩B, A∩B̄, Ā∩B, Ā∩B̄, tout), '
+      +'puis la fraction « … parmi … / parmi … », la fraction en lettres, et enfin la fraction des EFFECTIFS du tableau, sans la simplifier. ';
+  }
+  return c+'Les réponses attendues sont STRICTEMENT SECRÈTES. '
+    +'Méthode enseignée : P(A) = effectif de A / effectif total ; P_B(A) = effectif de A∩B / effectif de B — on se restreint à B. '
+    +'L’erreur classique est de diviser par le total dans une probabilité conditionnelle, ou de confondre P(A∩B) et P_B(A).';
+}
+
 async function finishHausses(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
@@ -18924,8 +19272,16 @@ Exemple : gagner 20 % puis 30 %.<br>
 On est parti de 100 et on arrive à 156 : l’augmentation est de <b>56 pour 100</b>, c’est-à-dire <b>56 %</b> — et non 20 + 30 = 50 %.<br>
 Chaque hausse se calcule comme dans {augmenter-addition} : l’augmentation d’abord, l’addition ensuite. C’est le même résultat qu’en {hausses-successives}, par l’autre chemin — là on multiplie deux coefficients, ici on suit une valeur : ce sont les mêmes pourcentages, et son rappel trouve 56 % lui aussi.<br>
 Piège classique : refaire la seconde hausse sur 100. Elle porte sur 120, sinon les deux hausses s’additionneraient.`;
+const RAP_PB=`<b>Lire des probabilités dans un tableau à double entrée</b><br>
+<b>Le tableau.</b> Chaque total est la somme de sa ligne, ou de sa colonne. Une case qui manque se trouve donc par une soustraction : total − la case connue. L’effectif total est en bas à droite.<br>
+<b>L’évènement contraire</b> \\(\\overline{A}\\) se réalise quand \\(A\\) ne se réalise pas : le contraire de « est un garçon » est « est une fille ».<br>
+<b>Partie A — probabilité non conditionnelle.</b> On prend une personne dans TOUTE la classe :<br>
+\\(P(A)=\\dfrac{A \\text{ parmi tout}}{\\text{parmi tout}}=\\dfrac{A}{\\text{tout}}\\), par exemple \\(\\dfrac{9}{20}\\) s’il y a 9 garçons sur 20 élèves. Même chose pour \\(P(A\\cap B)=\\dfrac{A\\cap B}{\\text{tout}}\\) : les garçons À lunettes, parmi tout.<br>
+<b>Partie B — probabilité conditionnelle.</b> \\(P_B(A)\\) est la probabilité d’avoir \\(A\\) <b>parmi</b> \\(B\\) : on se restreint à \\(B\\), et on y compte ceux qui sont aussi \\(A\\) :<br>
+\\(P_B(A)=\\dfrac{A \\text{ parmi } B}{\\text{parmi } B}=\\dfrac{A\\cap B}{B}\\), par exemple \\(\\dfrac{4}{7}\\) s’il y a 4 garçons parmi les 7 élèves à lunettes.<br>
+Piège classique : diviser par le total dans une probabilité conditionnelle. Le dénominateur est l’évènement écrit EN BAS de \\(P\\) — \\(P_B\\) divise par l’effectif de \\(B\\).`;
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, \\(\\frac{P}{100}\\) × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
@@ -19056,6 +19412,7 @@ const QIA_SUGG={
   pcol:["Que vaut une part de la colonne de droite ?","Pourquoi les deux colonnes ont-elles le même nombre de parts ?","Comment lire le résultat sur la colonne ?","Fais-moi un rappel de cours pour cet exercice."],
   fp:["Pourquoi 3/4 égale 75 % ?","Comment passer d’une fraction à un pourcentage ?","Que vaut une part quand la colonne est divisée en 5 ?","Pourquoi 1/2 et 50 % ont-ils la même hauteur ?"],
   sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
+  pb:["Quelle différence entre P(A∩B) et P_B(A) ?","Comment trouver une case qui manque dans le tableau ?","Que veut dire « parmi » dans une probabilité conditionnelle ?","Que représente l’évènement contraire Ā ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
 
@@ -19437,6 +19794,7 @@ function conseilCtxCourant(){
     att='Exercice de rapidité sur les tables de multiplication : '+TM_SECONDES+' secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';
   }
   if(k==='sf' && q) att=sfCtxTexte(q);
+  if(k==='pb' && q) att=pbCtxTexte(q);
   const ec=ctxEcranPremiere();
   /* numeros() en dernier : le contexte est assemblé de dix morceaux, et plusieurs
      citent un exercice voisin. Les résoudre ici les prend tous d'un coup. */
@@ -19678,7 +20036,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

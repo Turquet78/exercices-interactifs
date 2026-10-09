@@ -51,7 +51,7 @@ const RAPPELS_PREMIERE = `(function(){
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
     'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd','synthese-evolutions-successives':'ess',
-    'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
+    'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     /* un exercice peut avoir SON rappel, indépendant du kind : deux exercices
@@ -269,7 +269,11 @@ module.exports = {
     /* « esl » : {synthese-evolutions-successives-libre} (2.5.6), une feuille
        rédigée relue à la vérification, comme « sal » ; « sgl » :
        {synthese-generale-libre} (2.5.7), qui enchaîne les deux moteurs */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'esl', 'sgl'] },
+    /* « pb » — {tableau-probabilites} (3.1) : les lettres se CHOISISSENT
+       dans des listes, comme au 2.4.2 — colorer une liste au moment du choix
+       donnerait la bonne lettre par élimination. Ses cases d'effectifs se
+       jugent avec elles, à la vérification. */
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'esl', 'sgl', 'pb'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
