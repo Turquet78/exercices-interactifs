@@ -1,6 +1,6 @@
 # Première — probabilités (thème 3)
 
-## {tableau-probabilites} (3.1) : le tableau à double entrée
+## {tableau-probabilites} (3.2, d'abord 3.1) : le tableau à double entrée
 
 Demande de Turquet (octobre 2026), d'après sa fiche papier « proba 1 » : « en
 première faire un exercice comme le pdf, avec 4 nombres différents plus petits
@@ -111,3 +111,42 @@ restent plus à gauche : `.pb-def` est centrée, pour toutes les phrases de
 l'exercice. La v286 avait laissé ces quatre lignes à gauche exprès, « sous
 A représente l'évènement » — c'était une supposition, et c'était la mauvaise :
 dans cet exercice, tout se lit dans l'axe du tableau.
+
+## {lire-probabilites} (3.1) : traduire une phrase en probabilité
+
+Demande de Turquet (octobre 2026), d'après sa fiche papier « proba 2 » : « en
+première fait un exercice comme le pdf en le présentant comme le 3.1 ». Il
+prend la PREMIÈRE place du thème 3 ; {tableau-probabilites} devient 3.2
+(la numérotation découle de `THEMES`, rien d'autre n'a été renuméroté).
+
+**Ce qui change par rapport au 3.2.** Le tableau est DONNÉ, entier. Les
+questions sont posées EN MOTS — « la probabilité d'avoir des lunettes parmi
+les garçons », « sachant qu'on est un garçon », « on choisit un élève qui est
+un garçon » — et l'élève doit les TRADUIRE : « c'est la probabilité d'avoir …
+parmi … », puis le nom de la probabilité, P…(…), dont il choisit l'indice
+(« rien » quand la phrase ne pose aucune condition) et l'évènement, puis les
+trois fractions du 3.2 (« … parmi … / parmi … », lettres, effectifs).
+
+**La séance est la fiche** : une question pour les deux phrases contraires
+(`t:'phr'`), puis les huit de la fiche dans son ordre (`LP_ITEMS`) : P(B),
+P(A), P(B̄), P(Ā), P_A(B), P_A(B̄), P_A(B) encore — dite autrement, c'est
+l'objet même de la fiche — et P_Ā(B). Neuf questions.
+
+**Les tournures** (`q.v`, tirées à la génération, `lpEnonce`) : trois pour
+les probabilités sans condition, quatre pour les conditionnelles (« parmi
+les … », « sachant que … », « on choisit … qui … », « Sachant que …,
+quelle est … ? »). Les quatre conditionnelles se partagent les quatre
+tournures, une chacune : la 5ᵉ et la 7ᵉ question, qui demandent la même
+probabilité, ne se disent jamais de la même façon. Les mots viennent de
+`PB_CTX`, qui a gagné l'infinitif (`iA`…), le groupe (`gA`…) et
+l'article (`un`, `le`) de chaque contexte.
+
+**Un moteur, deux identités** : même `kind` (`pb`), même écran, même juge
+(`checkPBAnswer`) ; la note part sous `test.qId`, le rappel vit dans
+`RAPPELS_ID` (`RAP_LP`), les questions dans `QIA_SUGG`, « Recommencer »
+choisit le démarreur par `test.qId`. L'indice vide de P s'écrit `'0'`
+(« rien » dans la liste et dans la vitrine).
+
+Vérifié en l'ouvrant dans Chromium (bureau 1280 px, téléphone 390 px) :
+copie juste comptée 9/9 en entraînement et en soutien ; dénominateur « tout »
+au lieu de A rougi avec le badge A, 10 cases justes sur 11.
