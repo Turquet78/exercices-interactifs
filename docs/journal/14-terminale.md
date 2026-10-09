@@ -2863,3 +2863,20 @@ signe, comme à la ligne réduite de la tangente. Le contrôle exige que les
 trois premières cases soient a, a, b et que la ligne réduite soit la dérivée
 de f (différences finies) ; « −1 » à la place de b, « 3 » à la place de −3
 rougissent seuls.
+
+**Le thème de la Dérivée a rejoint celui de l'Étude de fonction (octobre
+2026, v371).** Demande de Turquet : « mettre le thème dérivée dans le thème
+étude de fonction ». Le thème 4 · Étude de fonction a désormais quatre
+parties : 4.1 *Révision sur la dérivée et les variations* (les huit
+exercices de l'ancienne partie Dérivée et variations, puis {etude-quotient},
+l'ex-5.4), 4.2 *Équation de tangente* ({equation-tangente} et
+{tangente-exp}, ex-5.1 et 5.2), 4.3 *Convexité* (inchangée, ex-2.2) et
+4.4 *Étude complète de fonction* ({etude-fonction} et
+{etude-exponentielle}). Le thème 2 disparaissant, les suivants remontent
+d'un rang : Limites 3 → 2, TVI 4 → 3, Suites 6 → 5. Les notes portent
+l'identifiant : rien d'enregistré ne bouge. Les contrôles qui épinglaient un
+numéro (2.2.2, 2.2.4, 6.3.1, 6.4.x) et le menu du banc navigateur
+(`menu.theme`) ont suivi. Au passage, une phrase affichée à l'élève au
+{recurrence-complete} — « Et la suite se rédige comme à l'exercice 6.3 » —
+citait un numéro en toutes lettres, déjà faux depuis le découpage des Suites :
+elle passe par `numeros('{suites-encadrement}')`.

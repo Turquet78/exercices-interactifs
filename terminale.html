@@ -3196,7 +3196,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=370;
+const APP_VERSION=371;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3428,14 +3428,19 @@ const TESTS={
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
   { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations','signe-produit','signe-quotient-carre'] },
-  /* Le thème de la Dérivée est découpé en deux PARTIES (demande de Turquet,
-     septembre 2026 : « dans le sous-thème convexité, créer un exercice comme
-     le PDF ») : la première garde les huit exercices qu'il avait, dans leur
-     ordre — 2.1 devient 2.1.1, et ainsi de suite — ; la seconde, Convexité,
-     ouvre avec {convexite-trois-courbes}. Les notes portent l'IDENTIFIANT,
+  { num:2, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
+  { num:3, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique','tvi-alpha-signe'] },
+  /* Le thème de la Dérivée a rejoint celui de l'Étude de fonction (demande de
+     Turquet, octobre 2026) : ses exercices de dérivée et variations forment la
+     partie de révision, avec {etude-quotient} (ex-5.4) ; {equation-tangente} et
+     {tangente-exp} (ex-5.1, 5.2) ouvrent la partie des tangentes ; la partie
+     Convexité garde ses quatre exercices et son ordre ; {etude-fonction} et
+     {etude-exponentielle} ferment le thème. Les thèmes suivants remontent d'un
+     rang (Limites 3→2, TVI 4→3, Suites 6→5). Les notes portent l'IDENTIFIANT,
      pas le numéro : rien de ce qui est enregistré ne bouge. */
-  { num:2, nom:'Dérivée', sous:[
-      { num:1, nom:'Dérivée et variations', ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2','associer-derivee','variations-depuis-derivee','signe-derivee-qcm'] },
+  { num:4, nom:'Étude de fonction', sous:[
+      { num:1, nom:'Révision sur la dérivée et les variations', ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2','associer-derivee','variations-depuis-derivee','signe-derivee-qcm','etude-quotient'] },
+      { num:2, nom:'Équation de tangente',  ids:['equation-tangente','tangente-exp'] },
       /* Puis {etude-convexite}, la fiche 5 née 5.6 le même matin, a rejoint
          la partie Convexité le jour même (demande de Turquet : « créer un
          exercice comme le pdf dans le sous-thème convexité ») : 2.2.2. */
@@ -3445,11 +3450,9 @@ const THEMES=[
       /* Puis la fiche « Prépa DS 2 » (demande de Turquet, octobre 2026) — la
          lecture graphique, l'algorithme de balayage et la convexité — ferme la
          partie : 2.2.4. */
-      { num:2, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite'] }
+      { num:3, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite'] },
+      { num:4, nom:'Étude complète de fonction', ids:['etude-fonction','etude-exponentielle'] }
     ] },
-  { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
-  { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique','tvi-alpha-signe'] },
-  { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
   /* Le thème des Suites est découpé en PARTIES (demande de Turquet, septembre
      2026) — le motif de la Seconde et de la Première, porté. Le découpage suit
      le SUJET de l'exercice, jamais son moteur ; l'ordre à l'intérieur de
@@ -3462,7 +3465,7 @@ const THEMES=[
      la synthèse y compris, bien qu'elle démontre aussi un encadrement ; le
      vocabulaire (monotone, bornée, convergente) l'ouvre. Les notes portent l'IDENTIFIANT, pas le
      numéro : rien de ce qui est enregistré ne bouge. */
-  { num:6, nom:'Suites', sous:[
+  { num:5, nom:'Suites', sous:[
       { num:1, nom:'Suite auxiliaire',                  ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suite-auxiliaire-redaction'] },
       { num:2, nom:'Récurrence et inégalité',           ids:['suites-encadrement','recurrence-encadrement','recurrence-complete','recurrence-redaction','suite-variation-recurrence','suite-variation-difference'] },
       { num:3, nom:'Récurrence et égalité',             ids:['recurrence-formule','recurrence-fractions'] },
@@ -20094,7 +20097,7 @@ function renderREC(){
     +'<div class="rec-ligne rec-hline">on '+recSel('rec-v2',q.v2)+' que c\u2019est vrai pour '+recMF('rec-p2')+'&nbsp;: '
     +recMF('rec-h2m')+' \u2264 '+recMFidx('rec-h2i')+' \u2264 '+recMF('rec-h2M')+'.</div>'
     +'</div>'
-    +'<p class="tvi-instr">Et la suite se r\u00e9dige comme \u00e0 l\u2019exercice 6.3&nbsp;:</p>';
+    +'<p class="tvi-instr">Et la suite se r\u00e9dige comme \u00e0 l\u2019exercice '+numeros('{suites-encadrement}')+'&nbsp;:</p>';
   $('recChaine').innerHTML=encChaineHTML(q.ch,'rec-');
   if(window.mlDexp) window.mlDexp.upgrade($('scr-rec'));
   /* soutien : coloration immediate des menus, comme au 6.3 */
