@@ -2597,7 +2597,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=287;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=288;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14505,9 +14505,14 @@ function pbMf(id, lab){ return '<span class="pb-case"><math-field class="dexp-mf
    remplir (question 1) ; sinon tout est écrit (les questions suivantes). */
 function pbTableHTML(q, saisie){
   const C=PB_CTX[q.ci]||PB_CTX[0], v=pbValeurs(q.n);
-  const nomsCase=['A.B','nA.B','','A.nB','nA.nB','','','',''];
+  /* Chaque case porte la lettre de son évènement, les totaux de ligne et de
+     colonne compris (B, B̄, A, Ā), comme sur la fiche ; le total général n'en
+     porte pas — c'est « tout » (demande de Turquet, octobre 2026). */
+  const nomsCase=['A.B','nA.B','B','A.nB','nA.nB','nB','A','nA',''];
   const cel=i=>{
-    const lab=nomsCase[i] ? '<span class="pb-cl">'+pbHTML(nomsCase[i])+'</span>' : '';
+    /* le total général n'a pas de lettre, mais garde sa place : son nombre
+       reste à la hauteur de ceux de sa ligne */
+    const lab='<span class="pb-cl">'+(nomsCase[i] ? pbHTML(nomsCase[i]) : '&nbsp;')+'</span>';
     const dedans=(saisie && q.k.indexOf(i)<0)
       ? pbMf('pb-c'+i, 'effectif'+(nomsCase[i]?' de '+pbTxt(nomsCase[i]):' total'))
       : '<span class="pb-v">'+v[i]+'</span>';

@@ -111,3 +111,10 @@ restent plus à gauche : `.pb-def` est centrée, pour toutes les phrases de
 l'exercice. La v286 avait laissé ces quatre lignes à gauche exprès, « sous
 A représente l'évènement » — c'était une supposition, et c'était la mauvaise :
 dans cet exercice, tout se lit dans l'axe du tableau.
+
+**Puis les totaux portent leur lettre (v288).** Nouvelle version de la fiche,
+envoyée par Turquet : « rajoute les lettres en fin de ligne et de colonne ».
+Les totaux de ligne et de colonne s'étiquettent comme les cases du milieu —
+B, B̄ au bout des lignes, A, Ā au pied des colonnes (`nomsCase`). Le total
+général reste sans lettre, comme sur la fiche. L'étiquette nomme aussi la
+case pour un lecteur d'écran (« effectif de B »).
