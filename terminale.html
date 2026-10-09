@@ -1420,6 +1420,8 @@ math-field.dexp-mf.lim-mf[disabled]{opacity:.5;}
      l'abscisse en fraction empilée, la tangente pointillée et le point A ---- */
   .eav-partie{font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.12rem;color:var(--blue);border-bottom:2px solid var(--line);padding-bottom:3px;margin-top:22px}
   .eav-pose{font-weight:700}
+  .eav-sous{font-weight:700;margin:12px 0 4px;color:var(--ink)}
+  math-field.dexp-mf.eav-mf{min-width:3.2em}
   .eav-fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;margin:0 2px}
   .eav-fr>span:first-child{border-bottom:2px solid currentColor;padding:0 3px}
   .eav-fr>span{padding:0 3px}
@@ -3194,7 +3196,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=368;
+const APP_VERSION=369;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -16993,7 +16995,7 @@ function eavCases(q){
   /* A b) f′ en littéral, la chaîne du 2.1.1 */
   EAV_DER1.forEach(id=>out.push({id:id, type:'der', grp:1}));
   /* A c) b puis a */
-  N('eav-c1',q.b); N('eav-c2',q.a);
+  { const P=eavCplan(q); Object.keys(P).forEach(c=>out.push(Object.assign({id:'eav-'+c}, P[c]))); }
   /* B a) les limites et l'asymptote */
   Lm('eav-la',A.limP); S('eav-lat',(q.k<0)?'ah':'rien');
   Lm('eav-lb',A.limM); S('eav-lbt',(q.k<0)?'rien':'ah');
@@ -17024,6 +17026,29 @@ function eavCases(q){
   return out;
 }
 function eavMax(q){ return eavCases(q).length; }
+/* Le c) de la partie A, écrit pas à pas (demande de Turquet, octobre 2026) :
+   « Démontrer que f(0) = … » avec f(0) = (a × … + b) e^… = (… + b) × … = …,
+   puis de même pour f′(0), puis « en déduire b » par a + b = … donc … + b = …
+   donc b = … − … = …. Une seule liste, que lisent le rendu, le juge et la
+   correction. Les cases 'lit' sont des champs mathématiques où l'élève écrit
+   une LETTRE (« b », « a − b », « a ») : jugées comme la chaîne du b), les
+   lettres remplacées par les valeurs d'EAV_LETTRES. Au point x₀ = 0, f(0) = b
+   donne b, puis f′(0) donne a ; au point x₀ = 1 (e^(x−1)), f(1) = a + b et
+   f′(1) = 2a + b : la différence donne a, puis a + b donne b. */
+function eavCplan(q){
+  const A=eavAns(q), L=EAV_LETTRES, N=v=>({type:'int', good:v}), Lt=(txt,val)=>({type:'lit', txt:txt, val:val});
+  const un=(A.x0===1);
+  const P={
+    c1:N(A.x0), c2:N(0), c3:un?Lt('a',L.a):Lt('0',0), c4:N(1),
+    c5:un?Lt('a + b',L.a+L.b):Lt('b',L.b),
+    c6:N(A.x0), c7:N(0), c8:un?Lt('a',L.a):Lt('0',0), c9:N(1),
+    c10:un?Lt('2a + b',2*L.a+L.b):(q.k<0?Lt('a − b',L.a-L.b):Lt('a + b',L.a+L.b))
+  };
+  if(!un) Object.assign(P,{ c11:N(q.b), c12:N(A.fp0), c13:N(q.b), c14:N(A.fp0), c15:N(A.fp0), c16:N(q.b), c17:N(q.a) });
+  else Object.assign(P,{ c11:N(A.fp0), c12:N(A.f0), c13:N(q.a), c14:N(A.f0), c15:N(q.a), c16:N(A.f0), c17:N(A.f0), c18:N(q.a), c19:N(q.b) });
+  return P;
+}
+function eavLit(raw){ return String(raw).replace(/[ab]/gi, m=>'('+EAV_LETTRES[m.toLowerCase()]+')'); }
 /* Les juges propres à l'exercice ; le reste est celui du 4.6 et du 2.2.2. */
 function eavOkCase(q,x,raw){
   const t=String(raw==null?'':raw).trim();
@@ -17031,13 +17056,14 @@ function eavOkCase(q,x,raw){
   if(x.type==='frac'){ const v=efParse(t); return v!=null && Math.abs(v-x.good)<1e-9; }   /* une fraction EXACTE : « 2/3 », jamais « 0,67 » */
   if(x.type==='dec'){ const v=tgParse(t); return v!=null && Math.abs(v-x.good)<1e-9; }
   if(x.type==='expr') return checkExprFn(t, x.fn);
+  if(x.type==='lit') return checkExprFn(eavLit(t), ()=>x.val);   /* une écriture en lettres, jugée comme une valeur */
   if(x.type==='tabnum'){ const v=efParse(t); return v!=null && Math.abs(v-x.vrai)<0.1; }   /* au dixième près */
   return asgOkCase(q,x,t);
 }
 function eavVal(q,x){
   if(x.type==='frac') return eavFracTxt(x.F);
   if(x.type==='dec'||x.type==='tabnum') return numFmt(x.good);
-  if(x.type==='expr') return x.txt;
+  if(x.type==='expr'||x.type==='lit') return x.txt;
   return asgVal(q,x);
 }
 /* ---- affichage ---- */
@@ -17094,13 +17120,33 @@ function eavFormHTML(q){
   h+='<p class="tx-part">b. Démontre que '+fp+'(<i>x</i>) = ('+litFac+') '+E.html+' :</p>'
     +'<p class="eav-note">Les lettres <i>a</i> et <i>b</i> s’écrivent comme <i>x</i> : elles sont sur le clavier mathématique.</p>'
     +asgDerBlocHTML('eav-ab', {tex:"f\\;{}'(x)", html:fp+'(x)'}, E);
-  h+='<p class="tx-part">c. Détermine <i>b</i> avec '+f+'('+x0+'), puis <i>a</i> avec '+fp+'('+x0+') :</p>';
-  if(A.x0===0){
-    h+='<div class="tg-line"><span>'+f+'(0) = (<i>a</i> × 0 + <i>b</i>) e<sup>0</sup> = <i>b</i>, donc</span> <span class="tg-eq"><i>b</i> =</span> '+txInp('eav-c1')+'</div>'
-      +'<div class="tg-line"><span>'+fp+'(0) = <i>a</i> '+(q.k<0?'−':'+')+' <i>b</i>, donc</span> <span class="tg-eq"><i>a</i> =</span> '+txInp('eav-c2')+'</div>';
-  } else {
-    h+='<div class="tg-line"><span>'+f+'(1) = (<i>a</i> + <i>b</i>) e<sup>0</sup> = <i>a</i> + <i>b</i> et '+fp+'(1) = 2<i>a</i> + <i>b</i> : '+fp+'(1) − '+f+'(1) = <i>a</i>, donc</span> <span class="tg-eq"><i>a</i> =</span> '+txInp('eav-c2')+'</div>'
-      +'<div class="tg-line"><span>puis <i>b</i> = '+f+'(1) − <i>a</i>, donc</span> <span class="tg-eq"><i>b</i> =</span> '+txInp('eav-c1')+'</div>';
+  { const P=eavCplan(q), un=(A.x0===1);
+    const B=c=>(P[c].type==='lit')?'<math-field class="dexp-mf eav-mf" id="eav-'+c+'"></math-field>':txInp('eav-'+c);
+    const es=c=>'<span class="tx-e">e</span><sup>'+txInp('eav-'+c,'tx-se')+'</sup>';
+    const I=t=>t.replace(/([ab])/g,'<i>$1</i>');   /* « a − b » → lettres en italique */
+    const fac2=(q.k<0)?'−<i>a</i>':'<i>a</i>', rest2=(q.k<0)?' + <i>a</i> − <i>b</i>':' + <i>a</i> + <i>b</i>';
+    h+='<p class="tx-part">c. Démontre que '+f+'('+x0+') = '+I(P.c5.txt)+' et que '+fp+'('+x0+') = '+I(P.c10.txt)+', puis déduis-en '+(un?'<i>a</i> et <i>b</i>':'<i>b</i> et <i>a</i>')+' :</p>'
+      +'<p class="eav-sous">Démontre que '+f+'('+x0+') = '+I(P.c5.txt)+' :</p>'
+      +'<div class="tg-line"><span class="tg-eq">'+f+'('+x0+') =</span> ( <i>a</i> × '+B('c1')+' + <i>b</i> ) '+es('c2')
+      +' '+tEq('<span class="tg-eq">= (</span> ', B('c3'))+' + <i>b</i> ) × '+B('c4')+' '+tEq('<span class="tg-eq">=</span> ', B('c5'))+'</div>'
+      +'<p class="eav-sous">Démontre que '+fp+'('+x0+') = '+I(P.c10.txt)+' :</p>'
+      +'<div class="tg-line"><span class="tg-eq">'+fp+'('+x0+') =</span> ( '+fac2+' × '+B('c6')+rest2+' ) '+es('c7')
+      +' '+tEq('<span class="tg-eq">= (</span> ', B('c8'))+rest2+' ) × '+B('c9')+' '+tEq('<span class="tg-eq">=</span> ', B('c10'))+'</div>';
+    if(!un){
+      const op=(q.k<0)?'−':'+', inv=(q.k<0)?'+':'−';
+      h+='<p class="eav-sous">Déduis-en <i>b</i>, puis <i>a</i> (avec les lectures du a.) :</p>'
+        +'<div class="tg-line"><span>'+f+'(0) = <i>b</i>, donc</span> '+tEq('<span class="tg-eq"><i>b</i> =</span> ', B('c11'))+'</div>'
+        +'<div class="tg-line"><span>'+fp+'(0) = <i>a</i> '+op+' <i>b</i>, donc</span> '+tEq('<span class="tg-eq"><i>a</i> '+op+' <i>b</i> =</span> ', B('c12'))
+        +' <span>donc</span> '+tEq('<span class="tg-eq"><i>a</i> '+op+'</span> ', B('c13'))+' '+tEq('<span class="tg-eq">=</span> ', B('c14'))
+        +' <span>donc</span> '+tEq('<span class="tg-eq"><i>a</i> =</span> ', B('c15'))+' <span class="tg-eq">'+inv+'</span> '+B('c16')+' '+tEq('<span class="tg-eq">=</span> ', B('c17'))+'</div>';
+    } else {
+      h+='<p class="eav-sous">Déduis-en <i>a</i>, puis <i>b</i> (avec les lectures du a.) :</p>'
+        +'<div class="tg-line"><span>'+fp+'(1) − '+f+'(1) = (2<i>a</i> + <i>b</i>) − (<i>a</i> + <i>b</i>) = <i>a</i>, donc</span> '+tEq('<span class="tg-eq"><i>a</i> =</span> ', B('c11'))
+        +' <span class="tg-eq">−</span> '+B('c12')+' '+tEq('<span class="tg-eq">=</span> ', B('c13'))+'</div>'
+        +'<div class="tg-line"><span>'+f+'(1) = <i>a</i> + <i>b</i>, donc</span> '+tEq('<span class="tg-eq"><i>a</i> + <i>b</i> =</span> ', B('c14'))
+        +' <span>donc</span> '+B('c15')+' '+tEq('<span class="tg-eq">+ <i>b</i> =</span> ', B('c16'))
+        +' <span>donc</span> '+tEq('<span class="tg-eq"><i>b</i> =</span> ', B('c17'))+' <span class="tg-eq">−</span> '+B('c18')+' '+tEq('<span class="tg-eq">=</span> ', B('c19'))+'</div>';
+    }
   }
   /* ======== Partie B ======== */
   h+='<p class="tx-part eav-partie">Partie B</p>'
@@ -17281,7 +17327,7 @@ function eavConseilCtx(){
    +' ; a = '+numFmt(q.a)+', b = '+numFmt(q.b)+' ; f′(x) = ('+s1ExprText(A.dp,A.dq)+')'+E.plain+', extremum en x = '+eavFracTxt(A.xmF)+' ; valeur renvoyée x = '+numFmt(A.xr)
    +' ; f″(x) = ('+s1ExprText(A.ddp,A.ddq)+')'+E.plain+', qui s’annule en x = '+eavFracTxt(A.xIF)+'. '
    +'Méthode à faire appliquer : une exponentielle est toujours strictement positive, donc f′ et f″ ont le signe de leur facteur affine ; dans une boucle while, le programme s’arrête dès que la condition est FAUSSE — on écrit le contraire de la condition. '
-   +'Saisies de l’élève : f('+numFmt(A.x0)+') '+lu('eav-a1')+', f′('+numFmt(A.x0)+') '+lu('eav-a2')+', dérivée littérale '+lu('eav-abfac')+', a '+lu('eav-c2')+', b '+lu('eav-c1')
+   +'Saisies de l’élève : f('+numFmt(A.x0)+') '+lu('eav-a1')+', f′('+numFmt(A.x0)+') '+lu('eav-a2')+', dérivée littérale '+lu('eav-abfac')+', a '+lu(eavAns(q).x0===1?'eav-c13':'eav-c17')+', b '+lu(eavAns(q).x0===1?'eav-c19':'eav-c11')
    +', limite en +∞ '+lu('eav-la')+', limite en −∞ '+lu('eav-lb')+', f′ '+lu('eav-bd')+', valeur renvoyée '+lu('eav-d2')+', dérivée seconde '+lu('eav-cafac')+'. '
    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
 }

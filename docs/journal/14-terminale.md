@@ -2786,7 +2786,7 @@ valeurs correspondant à l'algorithme ; la fonction pourra varier avec
 différents a et b entiers, et l'exponentielle peut être e^(−x) comme e^x ou
 e^(x−1) ; en partie C, a) calculer f″(x), b) en déduire la convexité en
 présentant comme dans le 2.2.2 question h ». Il ferme la partie Convexité,
-après le 2.2.3. Un seul écran, trois parties, 63 cases, et la note COMPTE LES
+après le 2.2.3. Un seul écran, trois parties, 63 cases (78 ou 80 depuis le c) pas à pas, ci-dessous), et la note COMPTE LES
 CASES comme au 2.2.2.
 **Le tirage** : f(x) = (ax + b)·e^(kx + c), (k, c) ∈ {(−1, 0), (1, 0),
 (1, −1)}, a ∈ {±3, ±4}, b ∈ {±1, …, ±5}. Alors f′ = (kax + a + kb)e^(kx+c),
@@ -2839,3 +2839,18 @@ NAVIGATEUR (« 6 quadragies ») TAPE « ax+b » et « −ax+a−b » dans un vra
 MathLive et relit le verdict, puis remplit la copie entière sur e^(−x) et sur
 e^(x−1) et la vérifie d'un clic, mesure les flèches dessinées et la page qui
 ne déborde pas.
+**Puis le c) de la partie A s'est écrit PAS À PAS (v369).** Demande de
+Turquet, le lendemain : « écrire Démontrer que f(0) = …, puis f(0) = (a × … +
+b) e^… = (… + b) × … = …, de même pour f′(0), puis en déduire b : a + b = …
+donc … + b = … donc b = … − … = … ». Le c) donnait deux cases (b, a) sous une
+phrase toute faite ; il en a maintenant 17 (x₀ = 0) ou 19 (x₀ = 1), tirées
+d'une seule liste, `eavCplan`, que lisent le rendu, le juge et la correction.
+Les cases où l'élève écrit une LETTRE (« b », « a − b », « 2a + b », le « a »
+de a × 1) sont des champs mathématiques jugés comme la chaîne du b) — les
+lettres remplacées par EAV_LETTRES —, les autres des cases à nombres. Au
+point x₀ = 0, f(0) = b donne b, puis f′(0) = a ∓ b donne a ; au point x₀ = 1
+(e^(x−1)), f′(1) − f(1) = a donne a, puis a + b = f(1) donne b, la ligne même
+de la demande. Le contrôle jsdom relit chaque case contre la fonction écrite
+en lettres (f et f′ en x₀ par différences finies), exige que la dernière
+case de chaque déduction soit a ou b et que le calcul écrit y mène ; le banc
+navigateur TAPE « a-b » dans la case de f′(0).
