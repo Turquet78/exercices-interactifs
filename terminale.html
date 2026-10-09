@@ -26572,9 +26572,10 @@ const PAVE_MF='';
    touches qui servent (PAVE_TOUCHES, une constante par niveau à CÔTÉ du
    moteur : la Terminale y ajoute « / » pour ses fractions). Sa FORME est
    affaire de feuille de styles, pas de moteur : une rangée en bas de
-   l'écran, dans les deux orientations (le paysage de la Première et de la
-   Seconde a porté un temps un rectangle 4 × 3 posé à droite, retiré à la
-   demande de Turquet, septembre 2026).
+   l'écran en Terminale ; en Seconde et en Première, depuis octobre 2026,
+   la forme du clavier mathématique ancré — trois rangées sur une tablette
+   debout, deux couchée, quatre sur un téléphone (demande de Turquet :
+   « remplacer par ce clavier pour les tablettes et téléphones »).
    Le pavé ne s'attache qu'aux cases DÉCLARÉES numériques (inputmode="numeric")
    — une liste en POSITIF, contrairement au bouton des tables, parce que le
    mauvais bord n'est pas le même : un pavé sans lettres attaché à un champ de
@@ -26699,6 +26700,14 @@ function paveBrancher(){
       if(t==='⏎'){
         if(el.tagName==='MATH-FIELD'){ try{ el.executeCommand('commit'); }catch(er){} }
         else el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+        return;
+      }
+      /* les flèches DÉPLACENT le curseur, elles n'écrivent rien (octobre
+         2026 : le pavé a pris les touches du clavier mathématique) */
+      if(t==='←' || t==='→'){
+        if(el.tagName==='MATH-FIELD'){ try{ el.executeCommand(t==='←' ? 'moveToPreviousChar' : 'moveToNextChar'); }catch(er){} }
+        else { const p=(el.selectionStart==null ? el.value.length : el.selectionStart)+(t==='←' ? -1 : 1);
+               const q=Math.max(0, Math.min(el.value.length, p)); try{ el.setSelectionRange(q,q); }catch(er){} }
         return;
       }
       paveInserer(el, t==='−' ? '-' : t);

@@ -2960,7 +2960,9 @@ function branchements(w){
        serait un garde-fou mort de plus. */
   const largeurP = P.pave && P.pave.largeurPaysage;
   if(!largeurP){
-    ignorer('en paysage, le pavé s’élargit avec l’écran', 'ce fichier ne déclare pas de pavé');
+    ignorer('en paysage, le pavé s’élargit avec l’écran', P.pave && P.pave.forme
+      ? 'le pavé de ce fichier a la forme du clavier mathématique, ancré sur toute la largeur (pave.forme, mesurée au banc navigateur)'
+      : 'ce fichier ne déclare pas de pavé');
   } else {
     /* les blocs @media (orientation:landscape) du fichier, accolades comptées */
     const blocs = [];
@@ -15945,6 +15947,18 @@ function paveNumerique(w, P){
     if(essai.value!=='-') vus.push('le signe moins insère « '+essai.value+' » au lieu du tiret du clavier — parseFloat ne le lirait pas');
     appuyer('⏎');
     if(entrees!==1) vus.push('la touche ⏎ n\\'envoie pas la touche Entrée — sur tablette, le calcul mental ne pourrait plus valider');
+    /* les FLÈCHES, là où le niveau les porte (octobre 2026 : le pavé a pris
+       les touches du clavier mathématique) : elles déplacent le curseur et
+       n'écrivent rien */
+    if(PAVE_TOUCHES.indexOf('←')>=0){
+      essai.value='12'; essai.setSelectionRange(2,2); frappes=0;
+      appuyer('←');
+      if(essai.value!=='12' || essai.selectionStart!==1) vus.push('la flèche ← laisse « '+essai.value+' », curseur en '+essai.selectionStart+' — elle doit reculer le curseur sans rien écrire');
+      appuyer('→');
+      if(essai.value!=='12' || essai.selectionStart!==2) vus.push('la flèche → laisse « '+essai.value+' », curseur en '+essai.selectionStart);
+      appuyer('→');
+      if(essai.selectionStart!==2) vus.push('la flèche → sort du texte (curseur en '+essai.selectionStart+')');
+    }
 
     /* ---- 3 bis. les cases MATHÉMATIQUES confiées au pavé (PAVE_MF) ---- */
     if(typeof PAVE_MF!=='string') vus.push('PAVE_MF manque : le moteur ne sait pas quelles cases mathématiques servir');

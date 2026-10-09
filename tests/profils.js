@@ -472,6 +472,10 @@ module.exports = {
                        une forme courte qui fuirait sur le téléphone rendrait ses
                        touches intouchables. */
                     portraitTablette: { rangees: 3, telephone: 4 },
+                    /* Et le clavier ancré COMMENCE À SA PREMIÈRE RANGÉE, comme en
+                       Seconde (octobre 2026 : « remplacer par ce clavier ») —
+                       au plus ce plafond, en pixels, au-dessus des touches. */
+                    ecartHautMax: 4,
                     /* LE CLAVIER B — les lettres (demande de Turquet, septembre
                        2026 : « en première pour l'exercice 2.3.13 sur les
                        tablettes il faudrait un clavier B avec l'alphabet, et la
@@ -495,18 +499,20 @@ module.exports = {
                                   le 2.5.2 lui-même reste hors du clavier B : c'est le bord opposé */
                                exercices: ['synthese-diminutions-libre-dix', 'synthese-augmentations-libre-dix', 'synthese-evolutions-successives-libre', 'synthese-generale-libre'], hors: ['synthese-diminutions-libre', 'synthese-augmentations-libre', 'synthese-pourcentages-libre'] } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
-            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
-            champsMaths: 'math-field.pm-mf', commandes: true,
-            /* LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET en paysage
-               (demande de Turquet, septembre 2026) : ses touches grandissent
-               pour occuper la largeur libre — jusqu'au plafond, au-delà
-               duquel la rangée se centre plutôt que de devenir des barres.
-               Le plafond vit ICI et la page doit porter le même (deux
-               sources) ; le plancher est ce que le banc navigateur exige
-               d'une touche RENDUE sur une tablette de 1180 px, où le pavé
-               faisait 634 px et ses touches 40. */
-            largeurPaysage: { toucheMax: 80, plancher: 52 },
-            maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
+            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce','\u2190','\u2192'],
+            /* LE PAVÉ A LA FORME DU CLAVIER MATHÉMATIQUE (demande de Turquet,
+               octobre 2026 : « remplacer par ce clavier pour les tablettes et
+               téléphones ») : ancré au bas de l'écran, le même nombre de
+               rangées que le clavier ancré — trois sur une tablette debout,
+               deux couchée, quatre sur un téléphone debout —, et au plus
+               ecartHautMax px au-dessus de sa première rangée (l'écart entre
+               deux touches). Les touches sont celles qui servent à un nombre,
+               flèches comprises (« même forme, touches utiles »). Les cases
+               MATHÉMATIQUES ne sont plus confiées au pavé (champsMaths vide) :
+               elles reçoivent le vrai clavier — clavierMaths le vérifie. */
+            champsMaths: '',
+            forme: { portraitTablette: 3, paysage: 2, telephone: 4, ecartHautMax: 8 },
+            clavierMaths: { exercice: 'pourcentage', champ: '#p3' } },
     /* le témoin des réglages par exercice d'un devoir (coupe du nombre de
        questions) : un exercice au tirage homogène, présent dans la table du
        rejeu. « allonge » : les exercices dont la séance DOIT s'allonger quand
@@ -986,18 +992,20 @@ module.exports = {
                        ne dépasse pas ce plafond, en pixels. */
                     ecartHautMax: 4 },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
-            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
-            champsMaths: 'math-field.pm-mf', commandes: true,
-            /* LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET en paysage
-               (demande de Turquet, septembre 2026) : ses touches grandissent
-               pour occuper la largeur libre — jusqu'au plafond, au-delà
-               duquel la rangée se centre plutôt que de devenir des barres.
-               Le plafond vit ICI et la page doit porter le même (deux
-               sources) ; le plancher est ce que le banc navigateur exige
-               d'une touche RENDUE sur une tablette de 1180 px, où le pavé
-               faisait 634 px et ses touches 40. */
-            largeurPaysage: { toucheMax: 80, plancher: 52 },
-            maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
+            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce','\u2190','\u2192'],
+            /* LE PAVÉ A LA FORME DU CLAVIER MATHÉMATIQUE (demande de Turquet,
+               octobre 2026 : « remplacer par ce clavier pour les tablettes et
+               téléphones ») : ancré au bas de l'écran, le même nombre de
+               rangées que le clavier ancré — trois sur une tablette debout,
+               deux couchée, quatre sur un téléphone debout —, et au plus
+               ecartHautMax px au-dessus de sa première rangée (l'écart entre
+               deux touches). Les touches sont celles qui servent à un nombre,
+               flèches comprises (« même forme, touches utiles »). Les cases
+               MATHÉMATIQUES ne sont plus confiées au pavé (champsMaths vide) :
+               elles reçoivent le vrai clavier — clavierMaths le vérifie. */
+            champsMaths: '',
+            forme: { portraitTablette: 3, paysage: 2, telephone: 4, ecartHautMax: 8 },
+            clavierMaths: { exercice: 'pourcentage', champ: '#p3' } },
     /* LA SYNTHÈSE (fiche « Synthèse fonction », septembre 2026) : le banc
        navigateur ouvre l'exercice, mesure le dessin contre ses graduations
        RENDUES — la courbe s'arrête à son domaine — et joue la copie juste
