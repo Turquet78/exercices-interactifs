@@ -2865,7 +2865,7 @@ de f (différences finies) ; « −1 » à la place de b, « 3 » à la place de
 rougissent seuls.
 
 **Le thème de la Dérivée a rejoint celui de l'Étude de fonction (octobre
-2026, v371).** Demande de Turquet : « mettre le thème dérivée dans le thème
+2026, v372).** Demande de Turquet : « mettre le thème dérivée dans le thème
 étude de fonction ». Le thème 4 · Étude de fonction a désormais quatre
 parties : 4.1 *Révision sur la dérivée et les variations* (les huit
 exercices de l'ancienne partie Dérivée et variations, puis {etude-quotient},
