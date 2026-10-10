@@ -324,3 +324,27 @@ soutien) : les douze noms affichés dans l'ordre, barres comprises ; une case
 fausse rougit seule, une question vide se remplit en vert sans rougir
 (10/12, 3 cases justes sur 4 comptées) ; aucun débordement ; « Recommencer »
 garde l'identité.
+
+**Puis le 3.1 a DONNÉ le nom de la probabilité (v296).** Demande de
+Turquet, capture à l'appui : « je veux que l'énoncé soit “Déterminer la
+probabilité demandée.” ; l'exercice écrit pour la première question “P(A)
+est la probabilité d'avoir … parmi …”, puis en dessous P(A) = et la suite
+comme le fait déjà l'exercice ; ainsi de suite pour chaque question. »
+- Les questions de probabilité du 3.1 ont un type à elles (`q.t = 'ln'`,
+  `lnSeance`) : plus de phrase en mots, plus de listes sous le P — la page
+  écrit le nom (`pbNomHTML`) deux fois, en tête de la phrase « … est la
+  probabilité d'avoir … parmi … » et en tête de la ligne de fractions.
+  L'énoncé encadré, sous le tableau, dit seulement « Déterminer la
+  probabilité demandée. » La question des phrases contraires reste la
+  première, avec son énoncé à elle.
+- La septième question de la fiche « proba 2 » était P_A(B) DITE
+  AUTREMENT : sans phrase, elle aurait recopié la cinquième. Elle devient
+  P_B(A) (`LN_ITEMS`) — le renversement qu'on confond avec P_A(B).
+- Le 3.3 garde `lpSeance` et ses phrases : il ne change pas. Une pause du
+  3.1 prise avant la v296 (`q.t = 'lp'`) se reprend avec l'ancien écran.
+- Rappel de cours propre (`RAP_LN`, « Lire une probabilité » : ce qui est
+  entre parenthèses va avant « parmi », l'indice après) ; questions
+  proposées à l'IA et contexte envoyé au modèle réécrits pour le nom donné.
+
+Vérifié dans Chromium (1280 et 390 px) : énoncé sous le tableau, nom écrit
+dans la phrase et devant la ligne, copie juste comptée, aucun débordement.
