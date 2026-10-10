@@ -1278,6 +1278,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    suivent la convention de {associer-coefficient} : juste en bleu, faux en
    rouge, correction en vert. */
 #pbHost .pt-row{margin:10px 0}
+#pbHost .pb-enonce-ici .mp-instr{margin:16px 0 6px}
 .pb-def{font-family:"Nunito";font-weight:700;font-size:calc(1.05rem * var(--tab-nb,1));color:var(--ink);margin:10px 0;text-align:center}
 .pb-phrase{line-height:2.5}
 .pb-phrase .pb-case{vertical-align:middle;margin:2px 0;flex-wrap:wrap;max-width:100%}
@@ -2602,7 +2603,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=291;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=292;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14591,8 +14592,22 @@ function pbTableHTML(q, saisie){
     +'<tr><th>total</th>'+cel(6)+cel(7)+cel(8)+'</tr>'
     +'</table>';
 }
+/* L'ÉNONCÉ SOUS LE TABLEAU (v292, demande de Turquet, octobre 2026 : « mettre
+   l'énoncé sous le tableau ») : sur les questions de probabilité, la phrase se
+   lit comme sur la fiche — le tableau, puis la question, puis « C'est la
+   probabilité d'avoir … ». Le paragraphe #pbPrompt est DÉPLACÉ, pas recopié :
+   il reste le seul encadré « Énoncé » de l'écran. Il revient à sa place
+   d'origine avant chaque redessin, sans quoi le innerHTML de #pbHost
+   l'effacerait avec le reste. */
+function pbPlacerEnonce(sous){
+  const pr=$('pbPrompt'), host=$('pbHost'); if(!pr || !host) return;
+  if(sous){ const ici=$('pbEnonceIci'); if(ici) ici.appendChild(pr); return; }
+  const stage=host.closest('.mp-stage');
+  if(stage && pr.nextElementSibling!==stage) stage.parentNode.insertBefore(pr, stage);
+}
 function renderPBTest(){
   const q=test.questions[test.idx]; test.locked=false;
+  pbPlacerEnonce(false);
   const C=PB_CTX[q.ci]||PB_CTX[0];
   $('pbIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPb').innerHTML=modeTagHTML();
@@ -14629,6 +14644,7 @@ function renderPBTest(){
       +'<span class="pb-par">(</span>'+s('pb-py','entre parenthèses : l’évènement dont on veut la probabilité')+'<span class="pb-par">)</span></span>';
     $('pbHost').innerHTML=
       '<div class="pt-step">'+pbTableHTML(q,false)+'</div>'
+     +'<div class="pt-step pb-enonce-ici" id="pbEnonceIci"></div>'
      +'<div class="pt-step">'
        +'<p class="pb-def pb-phrase pb-centre">C’est la probabilité d’avoir '
          +s('pb-s1','ce qu’on veut avoir')+' parmi '+s('pb-s2','parmi quoi')+'</p>'
@@ -14641,6 +14657,7 @@ function renderPBTest(){
               +'<span class="f-fbar"></span>'+pbMf('pb-n2','dénominateur : un effectif du tableau')+'</span>')
        +'</div>'
      +'</div>';
+    pbPlacerEnonce(true);
   }
 }
 /* Ce que l'élève a mis dans une case : la valeur de la liste, ou le nombre
@@ -20198,7 +20215,12 @@ function pmJetons(scr){
   if(s.querySelector('.rc-jetons')) return;
   /* En tete de l'enonce : l'eleve doit voir le clavier et les raccourcis avant de
      commencer a ecrire, pas apres les cases. */
-  const cible=s.querySelector('.mp-instr') || s.querySelector('.mp-stage') || s.querySelector('.mp-feedback');
+  /* Un énoncé posé DANS la scène (le 3.1 et le 3.2 le placent sous leur
+     tableau) n'est pas « en tête » : la rangée va alors devant la scène,
+     sans quoi elle tomberait entre le tableau et la question — et le
+     redessin de la scène l'effacerait. */
+  const ins=s.querySelector('.mp-instr');
+  const cible=(ins && !ins.closest('.mp-stage') ? ins : null) || s.querySelector('.mp-stage') || s.querySelector('.mp-feedback');
   if(cible) cible.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
