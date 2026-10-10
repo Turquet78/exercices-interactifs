@@ -1381,6 +1381,14 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
   #pbHost .pbf-q .pb-sel.pb-mots{width:auto}
   .pbf-sol{margin:0 auto}
 }
+/* LA CASE DE L'INDICE DE P EST PLUS ÉTROITE ET PLUS PETITE que les autres
+   (demande de Turquet, octobre 2026, v294) : c'est un indice, il s'écrit en
+   petit sous la ligne, comme sur papier. Elle vaut pour les trois exercices
+   du moteur (3.1, 3.2, 3.3) ; la vitrine (.pb-aff) suit la même taille. */
+#pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff{width:52px;height:30px;font-size:calc(.95rem * var(--tab-nb,1))}
+#pbHost .pb-ind .pb-sel{padding:0 2px;border-radius:8px}
+#pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:46px;height:28px;font-size:calc(.9rem * var(--tab-nb,1))}
+@media(max-width:560px){ #pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff,#pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:42px} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
 #fpHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.15;}
@@ -2646,7 +2654,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=293;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=294;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3096,8 +3104,8 @@ const TESTS={
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
-  'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe est donné. Une phrase demande une probabilité — « dans la classe », « parmi les garçons », « sachant que… » : écris-la P(…) ou P<sub>…</sub>(…), puis calcule-la avec les lettres et les effectifs du tableau.', start:()=>startLP() },
-  'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe : complète-le à partir de quatre nombres, puis lis-y douze probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : écris-les P(…) ou P<sub>…</sub>(…), d’abord avec les lettres, puis avec les effectifs du tableau.', start:()=>startPB() },
+  'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné. Une phrase demande une probabilité — « dans la classe », « parmi les garçons », « sachant que… » : écris-la P(…) ou P<sub>…</sub>(…), puis calcule-la avec les lettres et les effectifs du tableau.', start:()=>startLP() },
+  'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe, une entreprise, un club… : complète-le à partir de quatre nombres, puis lis-y douze probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : écris-les P(…) ou P<sub>…</sub>(…), d’abord avec les lettres, puis avec les effectifs du tableau.', start:()=>startPB() },
   'probabilites-fiche': { name:'Probabilités : la fiche', icon:'\ud83d\udcdd', desc:'Le {lire-probabilites} sur une seule page, comme une fiche papier : le tableau reste en haut de l’écran, toutes les questions sont posées ensemble, et chaque réponse s’écrit sur une ligne : la probabilité, la fraction en lettres, puis celle des effectifs.', start:()=>startPBF() }
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
@@ -14449,16 +14457,48 @@ const PB_CTX=[
      d'être un garçon ») et gA… (le groupe : « parmi les garçons »). */
   { ind:'La personne', A:'est un garçon', nA:'est une fille', B:'a des lunettes', nB:'n’a pas de lunettes',
     cA:'garçons', cnA:'filles', lB:'a des lunettes', lnB:'n’a pas de lunettes',
+    nom:'la classe', de:'de la classe', ens:'une classe',
     un:'une personne', le:'la personne', iA:'être un garçon', inA:'être une fille', iB:'avoir des lunettes', inB:'ne pas avoir de lunettes',
     gA:'les garçons', gnA:'les filles', gB:'les personnes qui ont des lunettes', gnB:'les personnes qui n’ont pas de lunettes' },
   { ind:'L’élève', A:'est externe', nA:'est demi-pensionnaire', B:'fait du sport en club', nB:'ne fait pas de sport en club',
     cA:'externes', cnA:'demi-pensionnaires', lB:'fait du sport en club', lnB:'n’en fait pas',
+    nom:'la classe', de:'de la classe', ens:'une classe',
     un:'un élève', le:'l’élève', iA:'être externe', inA:'être demi-pensionnaire', iB:'faire du sport en club', inB:'ne pas faire de sport en club',
     gA:'les externes', gnA:'les demi-pensionnaires', gB:'les élèves qui font du sport en club', gnB:'les élèves qui ne font pas de sport en club' },
   { ind:'L’élève', A:'prend le bus', nA:'ne prend pas le bus', B:'mange à la cantine', nB:'ne mange pas à la cantine',
     cA:'prend le bus', cnA:'ne prend pas le bus', lB:'mange à la cantine', lnB:'n’y mange pas',
+    nom:'la classe', de:'de la classe', ens:'une classe',
     un:'un élève', le:'l’élève', iA:'prendre le bus', inA:'ne pas prendre le bus', iB:'manger à la cantine', inB:'ne pas manger à la cantine',
-    gA:'les élèves qui prennent le bus', gnA:'les élèves qui ne prennent pas le bus', gB:'les élèves qui mangent à la cantine', gnB:'les élèves qui ne mangent pas à la cantine' }
+    gA:'les élèves qui prennent le bus', gnA:'les élèves qui ne prennent pas le bus', gB:'les élèves qui mangent à la cantine', gnB:'les élèves qui ne mangent pas à la cantine' },
+  /* PAS TOUJOURS UNE CLASSE (demande de Turquet, octobre 2026 : « diversifie
+     plus les énoncés, pas toujours une classe »). Chaque contexte nomme son
+     ensemble : nom (« dans l’entreprise »), de (« tout l’effectif du club »),
+     ens (« le tableau représente un camping »). */
+  { ind:'Le salarié', A:'travaille à temps plein', nA:'travaille à temps partiel', B:'vient au travail en voiture', nB:'ne vient pas au travail en voiture',
+    cA:'temps plein', cnA:'temps partiel', lB:'vient en voiture', lnB:'n’y vient pas en voiture',
+    nom:'l’entreprise', de:'de l’entreprise', ens:'une entreprise',
+    un:'un salarié', le:'le salarié', iA:'travailler à temps plein', inA:'travailler à temps partiel', iB:'venir au travail en voiture', inB:'ne pas venir au travail en voiture',
+    gA:'les salariés à temps plein', gnA:'les salariés à temps partiel', gB:'les salariés qui viennent en voiture', gnB:'les salariés qui ne viennent pas en voiture' },
+  { ind:'L’adhérent', A:'est majeur', nA:'est mineur', B:'fait de la compétition', nB:'ne fait pas de compétition',
+    cA:'majeurs', cnA:'mineurs', lB:'fait de la compétition', lnB:'n’en fait pas',
+    nom:'le club', de:'du club', ens:'un club de sport',
+    un:'un adhérent', le:'l’adhérent', iA:'être majeur', inA:'être mineur', iB:'faire de la compétition', inB:'ne pas faire de compétition',
+    gA:'les adhérents majeurs', gnA:'les adhérents mineurs', gB:'les adhérents qui font de la compétition', gnB:'les adhérents qui ne font pas de compétition' },
+  { ind:'Le spectateur', A:'a moins de 25 ans', nA:'a 25 ans ou plus', B:'a acheté du pop-corn', nB:'n’a pas acheté de pop-corn',
+    cA:'moins de 25 ans', cnA:'25 ans ou plus', lB:'a acheté du pop-corn', lnB:'n’en a pas acheté',
+    nom:'la salle', de:'de la salle', ens:'une salle de cinéma',
+    un:'un spectateur', le:'le spectateur', iA:'avoir moins de 25 ans', inA:'avoir 25 ans ou plus', iB:'avoir acheté du pop-corn', inB:'ne pas avoir acheté de pop-corn',
+    gA:'les spectateurs de moins de 25 ans', gnA:'les spectateurs de 25 ans ou plus', gB:'les spectateurs qui ont acheté du pop-corn', gnB:'les spectateurs qui n’ont pas acheté de pop-corn' },
+  { ind:'Le vacancier', A:'est français', nA:'est étranger', B:'loge sous une tente', nB:'ne loge pas sous une tente',
+    cA:'français', cnA:'étrangers', lB:'loge sous une tente', lnB:'n’y loge pas',
+    nom:'le camping', de:'du camping', ens:'un camping',
+    un:'un vacancier', le:'le vacancier', iA:'être français', inA:'être étranger', iB:'loger sous une tente', inB:'ne pas loger sous une tente',
+    gA:'les vacanciers français', gnA:'les vacanciers étrangers', gB:'les vacanciers qui logent sous une tente', gnB:'les vacanciers qui ne logent pas sous une tente' },
+  { ind:'Le joueur', A:'joue sur console', nA:'ne joue pas sur console', B:'joue en ligne', nB:'ne joue pas en ligne',
+    cA:'sur console', cnA:'pas sur console', lB:'joue en ligne', lnB:'pas en ligne',
+    nom:'le tournoi', de:'du tournoi', ens:'un tournoi de jeux vidéo',
+    un:'un joueur', le:'le joueur', iA:'jouer sur console', inA:'ne pas jouer sur console', iB:'jouer en ligne', inB:'ne pas jouer en ligne',
+    gA:'les joueurs sur console', gnA:'les joueurs qui ne jouent pas sur console', gB:'les joueurs qui jouent en ligne', gnB:'les joueurs qui ne jouent pas en ligne' }
 ];
 /* Les neuf cases du tableau, ligne par ligne : la ligne B, la ligne B̄, la
    ligne des totaux. Le code d'un évènement désigne sa case. */
@@ -14532,17 +14572,21 @@ function lpDe(s){ return (/^[aeéêiouh]/i.test(s) ? 'd’' : 'de ')+s; }
 /* La phrase de la question, en mots : rien n'y nomme A ni B. Une
    intersection se dit avec « et » : « d'être un garçon et d'avoir des
    lunettes ». Elle sert aux deux exercices du moteur (3.1 et 3.2). */
+/* L'ensemble du contexte : « la classe », « l’entreprise », « le club »…
+   Une pause prise avant la v295 n'a que les trois classes : nom vaut alors
+   « la classe ». */
+function pbNom(C){ return C.nom||'la classe'; }
 function lpEnonce(q){
   const C=PB_CTX[q.ci]||PB_CTX[0], y=pbItem(q)[0], x=pbItem(q)[1];
   const py=y.split('.').map(e=>lpDe(C['i'+e])).join(' et ');
   if(x==='T') return [
-    'Donne la probabilité '+py+' dans la classe.',
-    'Dans la classe, donne la probabilité '+py+'.',
-    'On prend '+C.un+' au hasard dans la classe : quelle est la probabilité '+py+' ?'][q.v||0]||'';
+    'Donne la probabilité '+py+' dans '+pbNom(C)+'.',
+    'Dans '+pbNom(C)+', donne la probabilité '+py+'.',
+    'On prend '+C.un+' au hasard dans '+pbNom(C)+' : quelle est la probabilité '+py+' ?'][q.v||0]||'';
   return [
     'Donne la probabilité '+py+' parmi '+C['g'+x]+'.',
     'Donne la probabilité '+py+' sachant que '+C.le+' '+C[x]+'.',
-    'On choisit dans la classe '+C.un+' qui '+C[x]+'. Donne la probabilité '+py+'.',
+    'On choisit dans '+pbNom(C)+' '+C.un+' qui '+C[x]+'. Donne la probabilité '+py+'.',
     'Sachant que '+C.le+' '+C[x]+', quelle est la probabilité '+py+' ?'][q.v||0]||'';
 }
 /* L'écriture d'un évènement : en texte (les listes) et en HTML (la page).
@@ -14670,8 +14714,8 @@ function renderPBTest(){
   $('pbActions').innerHTML='<button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>';
   if(q.t==='tab' || q.t==='phr'){
     $('pbPrompt').innerHTML = q.t==='tab'
-      ? 'On prend une personne au hasard dans la classe. Complète les deux phrases, puis le tableau qui représente la classe.'
-      : 'Le tableau représente une classe. On prend une personne au hasard dans la classe : complète les deux phrases.';
+      ? 'On prend '+C.un+' au hasard dans '+pbNom(C)+'. Complète les deux phrases, puis le tableau qui représente '+pbNom(C)+'.'
+      : 'Le tableau représente '+(C.ens||'une classe')+'. On prend '+C.un+' au hasard dans '+pbNom(C)+' : complète les deux phrases.';
     const preds=['A','nA','B','nB'].map(e=>({ v:e, t:C[e] }));
     $('pbHost').innerHTML=
       '<div class="pt-step">'
@@ -14733,13 +14777,13 @@ function pbPourquoi(q){
     const C=PB_CTX[q.ci]||PB_CTX[0];
     return 'Le contraire de « '+C.A+' », c’est « '+C.nA+' » ; celui de « '+C.B+' », « '+C.nB+' ».';
   }
-  const y=pbItem(q)[0], x=pbItem(q)[1], s6=pbInter(y,x);
+  const C=PB_CTX[q.ci]||PB_CTX[0], y=pbItem(q)[0], x=pbItem(q)[1], s6=pbInter(y,x);
   /* {lire-probabilites} : d'abord la TRADUCTION de la phrase */
   const nomTxt='<i>P</i>'+(x==='T' ? '' : '<sub>'+pbHTML(x)+'</sub>')+'('+pbHTML(y)+')';
   const trad = (q.t!=='lp' && q.t!=='p') ? ''
-    : x==='T' ? 'Aucune condition dans la phrase (« dans la classe ») : P n’a pas d’indice, on écrit '+nomTxt+'. '
+    : x==='T' ? 'Aucune condition dans la phrase (« dans '+pbNom(C)+' ») : P n’a pas d’indice, on écrit '+nomTxt+'. '
               : '« Parmi », « sachant que », « on choisit … qui … » : c’est la CONDITION, elle s’écrit en bas de P — '+nomTxt+'. ';
-  if(x==='T') return trad+'On prend une personne dans TOUTE la classe : on compte '+pbHTML(y)+' parmi tout, '
+  if(x==='T') return trad+'On prend '+C.un+' parmi TOUT l’effectif '+(C.de||'de la classe')+' : on compte '+pbHTML(y)+' parmi tout, '
     +pbEff(q,y)+' sur '+pbEff(q,'T')+'.';
   return trad+'On se place PARMI '+pbHTML(x)+' seulement : on y compte ceux qui sont aussi '+pbHTML(y)+', c’est-à-dire '
     +pbHTML(s6)+'. Cela fait '+pbEff(q,s6)+' sur '+pbEff(q,x)+' — le dénominateur est '+pbHTML(x)+', pas tout.';
@@ -14853,7 +14897,7 @@ function renderPBFiche(){
   $('pbLiveScore').textContent=test.score;
   $('pbFeedback').textContent=''; $('pbFeedback').className='mp-feedback';
   $('pbActions').innerHTML='<button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>';
-  $('pbPrompt').innerHTML='Le tableau représente une classe ; on prend une personne au hasard dans la classe. '
+  $('pbPrompt').innerHTML='Le tableau représente '+(C.ens||'une classe')+' ; on prend '+C.un+' au hasard dans '+pbNom(C)+'. '
     +'Réponds à toutes les questions, chacune sur sa ligne, puis vérifie la fiche.';
   const opts=PB_EVTS.map(e=>({ v:e, t:pbTxt(e) }));
   const optsInd=['0','A','nA','B','nB'].map(e=>({ v:e, t:pbTxt(e) }));
@@ -14950,7 +14994,7 @@ async function startPBF(){
 function pbfCtxTexte(){
   const qs=test.questions||[]; if(!qs.length) return '';
   const C=PB_CTX[qs[0].ci]||PB_CTX[0], v=pbValeurs(qs[0].n);
-  return 'Tableau à double entrée d’une classe : A = « '+C.ind+' '+C.A+' », B = « '+C.ind+' '+C.B+' ». '
+  return 'Tableau à double entrée qui représente '+(C.ens||'une classe')+' : A = « '+C.ind+' '+C.A+' », B = « '+C.ind+' '+C.B+' ». '
     +'Effectifs : A∩B = '+v[0]+', Ā∩B = '+v[1]+', total B = '+v[2]+', A∩B̄ = '+v[3]+', Ā∩B̄ = '+v[4]+', total B̄ = '+v[5]
     +', total A = '+v[6]+', total Ā = '+v[7]+', total = '+v[8]+'. '
     +'C’est une FICHE : toutes les questions sont à l’écran ensemble, le tableau reste visible en haut. '
@@ -14958,7 +15002,7 @@ function pbfCtxTexte(){
     +qs.slice(1).map((q,i)=>(i+2)+') « '+lpEnonce(q)+' »').join(' ; ')+'. '
     +'Pour chaque question, l’élève rédige sur UNE ligne : P…(…) (il choisit l’indice — « rien » sans condition — et l’évènement dans des listes) '
     +'= fraction en lettres (A, Ā, B, B̄, A∩B, A∩B̄, Ā∩B, Ā∩B̄, tout) = fraction des EFFECTIFS du tableau, sans la simplifier. '
-    +'« Dans la classe » = pas de condition ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. '
+    +'« Dans '+pbNom(C)+' » = pas de condition ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. '
     +'Les réponses attendues sont STRICTEMENT SECRÈTES. '
     +'Méthode enseignée : P(A) = effectif de A / effectif total ; P_B(A) = effectif de A∩B / effectif de B — on se restreint à B. '
     +'L’erreur classique est de diviser par le total dans une probabilité conditionnelle.';
@@ -14976,7 +15020,7 @@ async function finishPB(){
 /* Le contexte envoyé au modèle. */
 function pbCtxTexte(q){
   const C=PB_CTX[q.ci]||PB_CTX[0], v=pbValeurs(q.n);
-  let c='Tableau à double entrée d’une classe : A = « '+C.ind+' '+C.A+' », B = « '+C.ind+' '+C.B+' ». '
+  let c='Tableau à double entrée qui représente '+(C.ens||'une classe')+' : A = « '+C.ind+' '+C.A+' », B = « '+C.ind+' '+C.B+' ». '
     +'Effectifs : A∩B = '+v[0]+', Ā∩B = '+v[1]+', total B = '+v[2]+', A∩B̄ = '+v[3]+', Ā∩B̄ = '+v[4]+', total B̄ = '+v[5]
     +', total A = '+v[6]+', total Ā = '+v[7]+', total = '+v[8]+'. ';
   if(q.t==='tab') c+='L’élève complète les deux phrases contraires (Ā, B̄) puis les cases manquantes du tableau ; quatre nombres sont donnés. ';
@@ -14984,7 +15028,7 @@ function pbCtxTexte(q){
   else {
     const y=pbItem(q)[0], x=pbItem(q)[1];
     c+='La question est posée EN MOTS : « '+lpEnonce(q)+' ». L’élève doit d’abord la traduire : '
-      +'« dans la classe » = pas de condition, P sans indice ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. '
+      +'« dans '+pbNom(C)+' » = pas de condition, P sans indice ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. '
       +'Il choisit l’indice de P (ou « rien ») et l’évènement entre parenthèses dans des listes ; une intersection se dit avec « et ». ';
     c+='L’élève calcule '+(x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')')
       +' : il écrit « la probabilité d’avoir … parmi … » avec des lettres choisies dans une liste (A, Ā, B, B̄, A∩B, A∩B̄, Ā∩B, Ā∩B̄, tout), '
@@ -19658,7 +19702,7 @@ const RAP_PB=`<b>Lire des probabilités dans un tableau à double entrée</b><br
 <b>Lire la question.</b> « Dans la classe » : pas de condition, \\(P\\) sans indice. « Parmi les… », « sachant que… », « on choisit un élève qui… » : c’est la condition, elle s’écrit en bas de \\(P\\). « Être un garçon ET avoir des lunettes », c’est \\(A\\cap B\\).<br>
 Piège classique : diviser par le total dans une probabilité conditionnelle. Le dénominateur est l’évènement écrit EN BAS de \\(P\\) — \\(P_B\\) divise par l’effectif de \\(B\\).`;
 const RAP_LP=`<b>Traduire une phrase en probabilité</b><br>
-<b>Sans condition.</b> « Dans la classe », « on prend une personne au hasard dans la classe » : on regarde TOUTE la classe, et P n’a pas d’indice :<br>
+<b>Sans condition.</b> « Dans la classe », « on prend une personne au hasard dans la classe » (ou dans l’entreprise, dans le club…) : on regarde TOUT l’effectif, et P n’a pas d’indice :<br>
 \\(P(B)=\\dfrac{B \\text{ parmi tout}}{\\text{parmi tout}}=\\dfrac{B}{\\text{tout}}\\), par exemple \\(\\dfrac{7}{20}\\) s’il y a 7 élèves à lunettes sur 20.<br>
 <b>Avec une condition.</b> « Parmi les garçons », « sachant que la personne est un garçon », « on choisit un élève qui est un garçon » : trois façons de dire la MÊME chose — on se restreint aux garçons. La condition s’écrit EN BAS de P :<br>
 \\(P_A(B)=\\dfrac{B \\text{ parmi } A}{\\text{parmi } A}=\\dfrac{A\\cap B}{A}\\), par exemple \\(\\dfrac{4}{9}\\) s’il y a 4 garçons à lunettes parmi les 9 garçons.<br>
@@ -19796,8 +19840,8 @@ const QIA_SUGG={
   pcol:["Que vaut une part de la colonne de droite ?","Pourquoi les deux colonnes ont-elles le même nombre de parts ?","Comment lire le résultat sur la colonne ?","Fais-moi un rappel de cours pour cet exercice."],
   fp:["Pourquoi 3/4 égale 75 % ?","Comment passer d’une fraction à un pourcentage ?","Que vaut une part quand la colonne est divisée en 5 ?","Pourquoi 1/2 et 50 % ont-ils la même hauteur ?"],
   sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
-  'probabilites-fiche':["Comment savoir s’il faut un indice sous P ?","Quelle différence entre « dans la classe » et « parmi les garçons » ?","Pourquoi le dénominateur n’est-il pas toujours le total ?","Que représente l’évènement contraire Ā ?"],
-  'lire-probabilites':["Comment savoir s’il faut un indice sous P ?","Que veut dire « sachant que » dans une probabilité ?","Quelle différence entre « dans la classe » et « parmi les garçons » ?","Que représente l’évènement contraire Ā ?"],
+  'probabilites-fiche':["Comment savoir s’il faut un indice sous P ?","Quelle différence entre une probabilité sans condition et une probabilité « parmi … » ?","Pourquoi le dénominateur n’est-il pas toujours le total ?","Que représente l’évènement contraire Ā ?"],
+  'lire-probabilites':["Comment savoir s’il faut un indice sous P ?","Que veut dire « sachant que » dans une probabilité ?","Quelle différence entre une probabilité sans condition et une probabilité « parmi … » ?","Que représente l’évènement contraire Ā ?"],
   pb:["Quelle différence entre P(A∩B) et P_B(A) ?","Comment trouver une case qui manque dans le tableau ?","Que veut dire « parmi » dans une probabilité conditionnelle ?","Que représente l’évènement contraire Ā ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
