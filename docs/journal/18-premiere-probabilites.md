@@ -325,7 +325,31 @@ fausse rougit seule, une question vide se remplit en vert sans rougir
 (10/12, 3 cases justes sur 4 comptées) ; aucun débordement ; « Recommencer »
 garde l'identité.
 
-## Les lettres des évènements suivent le contexte (v296)
+**Puis le 3.1 a DONNÉ le nom de la probabilité (v296).** Demande de
+Turquet, capture à l'appui : « je veux que l'énoncé soit “Déterminer la
+probabilité demandée.” ; l'exercice écrit pour la première question “P(A)
+est la probabilité d'avoir … parmi …”, puis en dessous P(A) = et la suite
+comme le fait déjà l'exercice ; ainsi de suite pour chaque question. »
+- Les questions de probabilité du 3.1 ont un type à elles (`q.t = 'ln'`,
+  `lnSeance`) : plus de phrase en mots, plus de listes sous le P — la page
+  écrit le nom (`pbNomHTML`) deux fois, en tête de la phrase « … est la
+  probabilité d'avoir … parmi … » et en tête de la ligne de fractions.
+  L'énoncé encadré, sous le tableau, dit seulement « Déterminer la
+  probabilité demandée. » La question des phrases contraires reste la
+  première, avec son énoncé à elle.
+- La septième question de la fiche « proba 2 » était P_A(B) DITE
+  AUTREMENT : sans phrase, elle aurait recopié la cinquième. Elle devient
+  P_B(A) (`LN_ITEMS`) — le renversement qu'on confond avec P_A(B).
+- Le 3.3 garde `lpSeance` et ses phrases : il ne change pas. Une pause du
+  3.1 prise avant la v296 (`q.t = 'lp'`) se reprend avec l'ancien écran.
+- Rappel de cours propre (`RAP_LN`, « Lire une probabilité » : ce qui est
+  entre parenthèses va avant « parmi », l'indice après) ; questions
+  proposées à l'IA et contexte envoyé au modèle réécrits pour le nom donné.
+
+Vérifié dans Chromium (1280 et 390 px) : énoncé sous le tableau, nom écrit
+dans la phrase et devant la ligne, copie juste comptée, aucun débordement.
+
+## Les lettres des évènements suivent le contexte (v297)
 
 Demande de Turquet (octobre 2026), pour les quatre exercices du thème : « je
 veux que les lettres correspondant aux évènements ne soient pas toujours A et
@@ -343,14 +367,14 @@ valeurs des listes, `q.rep` des pauses, le juge, `pbInter` qui range « A
 d'abord » — un évènement reste `A`, `nA`, `B`, `nB`, `A.nB`… Seule
 l'ÉCRITURE passe par `pbLettre`, que lisent `pbTxt` (les listes, les copies
 enregistrées, le contexte du modèle) et `pbHTML` (la page, la vitrine des
-listes, le tableau, les badges de correction). Une pause d'avant la v296
+listes, le tableau, les badges de correction). Une pause d'avant la v297
 reprend donc sans perte, avec les nouvelles lettres de son contexte. Le
 contexte envoyé au modèle (`pbEffTxt`, `pbMethodeTxt`) écrit aussi les
 lettres de la séance, pour que l'IA parle comme la page. Le code `T` de
 « tout » n'est pas une lettre : il s'écrit « tout », et le T de « temps
 plein » ne le rencontre jamais.
 
-**Le rappel de cours** (`RAP_PB`, `RAP_LP`), qui prend l'exemple des garçons
+**Le rappel de cours** (`RAP_PB`, `RAP_LP`, et `RAP_LN` arrivé avec la v296 du 3.1), qui prend l'exemple des garçons
 à lunettes, écrit G et L au lieu de A et B, et dit d'où viennent les
 lettres. Ses titres « Partie A / Partie B » sont devenus « Sans condition /
 Probabilité conditionnelle » : à côté d'évènements nommés par des lettres,
