@@ -1044,3 +1044,25 @@ des exercices prenait donc SA clé pour celle d'un exercice, posait une note
 dans le vide et accusait la page de ne pas la relire. Il vise
 `.dm-noteinput:not(.dm-notedev)` désormais, et un onzième sabotage (la clé
 retirée) rougit en nommant son défaut.
+
+**Un exercice de devoir se refait, et la page DIT que seule la meilleure note
+compte.** Demande de Turquet (octobre 2026) : « pour les devoirs maison, quand
+un élève a fini, lui laisser la possibilité de le refaire et de ne compter que
+la meilleure des notes ». Le CALCUL le faisait déjà, sur les trois niveaux :
+aucun exercice fait ne se verrouille, chaque essai est enregistré, et la note
+retenue est la meilleure — `dmBest()` côté élève, `dmMeilleur()` côté
+professeur, et le meilleur des deux modes par `noteDevoirExo()`. Ce qui
+manquait était la PHRASE : la page du devoir disait « Ton résultat se met à
+jour à chaque essai », ce qui se lit « le dernier essai remplace le
+précédent » — l'élève qui avait 9 n'osait pas refaire, de peur d'avoir 4.
+Elle dit désormais « tu peux refaire chaque exercice autant de fois que tu
+veux, seule ta meilleure note compte », en gras, sur la page du devoir comme
+sur celle de la fiche (même calcul, même règle). La note POSÉE par le
+professeur en Terminale prime toujours, refaire ne la change pas : c'est son
+choix, et il n'a pas bougé.
+**Le contrôle tient la phrase ET le calcul** (`meilleureNoteCompte`, banc
+principal, les trois niveaux) : un essai à 90 % puis un PLUS RÉCENT à 40 %
+laissent 9 / 10 sur la page et dans la liste, la carte de l'exercice fait
+reste ouvrable, la phrase est écrite et l'ancienne a disparu. Le bord opposé —
+un seul essai à 40 % s'affiche 4 / 10 — prouve que la page lit bien les
+résultats : sans lui, un 9 venu de n'importe où passerait le contrôle.

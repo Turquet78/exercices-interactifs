@@ -4693,7 +4693,7 @@ function renderDevoirDetail(devoirId){
     <div class="dm-head" style="margin-top:8px"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
     <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
     ${cours}
-    <p class="lead" style="margin-top:14px">${ordreImpose?'Les exercices de cette fiche se font <b>dans l\u2019ordre</b> : le suivant se débloque quand le précédent est fait. ':''}Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.${G.sur20?' La note de la fiche est ramenée sur 20.':''}</p>
+    <p class="lead" style="margin-top:14px">${ordreImpose?'Les exercices de cette fiche se font <b>dans l\u2019ordre</b> : le suivant se débloque quand le précédent est fait. ':''}Choisis un exercice pour le faire ou le refaire : <b>tu peux refaire chaque exercice autant de fois que tu veux, seule ta meilleure note compte</b>. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement.${G.sur20?' La note de la fiche est ramenée sur 20.':''}</p>
     <div class="choices">${cards}</div>`;
 }
 async function openTestDevoir(devoirId, testId){
