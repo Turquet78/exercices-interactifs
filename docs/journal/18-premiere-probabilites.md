@@ -210,3 +210,63 @@ Un défaut s'est vu en l'ouvrant sur téléphone : `pmJetons` posait la
 rangée « Insérer : » devant `.mp-instr` — donc ENTRE le tableau et la
 question, là où le redessin l'effaçait. Un énoncé posé dans la scène n'est
 plus pris pour « la tête » de l'écran : la rangée va alors devant la scène.
+
+## {probabilites-fiche} (3.3) : le 3.1 présenté comme une fiche papier
+
+Demande de Turquet (octobre 2026) : « présente l'exercice 3.1 autrement et
+nomme-le 3.3, en rédigeant les solutions sur une ligne comme dans le pdf, en
+plaçant toutes les questions sur une seule page et en laissant le tableau de
+valeurs toujours visible à l'écran. Je souhaite que le maximum de questions
+puisse apparaître à l'écran comme sur une fiche papier. »
+
+**Les questions sont celles du 3.1** (`lpSeance`) : les phrases contraires,
+puis les huit probabilités de la fiche « proba 2 », posées en mots, avec les
+mêmes tournures. Le 3.1 reste tel quel ; le 3.3 est une troisième identité du
+moteur `pb` (`test.qId`, `startPBF`, « Recommencer » par la table des
+démarreurs), sur le même écran `scr-pbtest`.
+
+**Ce qui change, c'est la page.**
+- TOUTES les questions sont à l'écran ensemble, numérotées 1 à 9, et UN SEUL
+  « Vérifier » corrige la fiche entière, puis « Voir mes résultats ».
+- Chaque réponse tient sur UNE ligne : P…(…) = fraction en lettres =
+  fraction des effectifs. L'étape « C'est la probabilité d'avoir … parmi … »
+  et la fraction « … parmi … / parmi … » du 3.1 ne sont PAS posées : la
+  ligne de lettres les porte. Je n'avais pas le PDF sous les yeux — c'est la
+  lecture la plus compacte de « sur une ligne » ; si la fiche écrit aussi
+  l'étape « parmi », elle se rajoute dans `pbfAttendus` (qui écarte
+  aujourd'hui `pb-s1` à `pb-s5`).
+- Le tableau reste COLLÉ EN HAUT pendant que la page défile
+  (`.pbf-tete`, `position:sticky`). Pour qu'il prenne moins de place, la
+  lettre de chaque case passe dans son coin (159 px de haut au lieu de 263),
+  et la ligne de définitions de A et B a rejoint l'énoncé de la question 1.
+- Les cases sont un peu plus petites qu'au 3.1 (listes de 36 px de haut,
+  nombres à 1,3 rem — ceux du tableau AUSSI : même taille que les cases
+  d'effectifs). Sur un écran de 1280 × 900, six questions se lisent sous le
+  tableau ; sur un téléphone de 390 px, la ligne de réponse tient sans se
+  replier (282 px), sous le texte de la question.
+
+**Les cases portent le numéro de leur question en suffixe** (`pb-s6-3`) :
+`pbBase` rend le nom de base (ce que la case attend), `pbQDe` la question.
+`choisirPB`, `pbSel` et `pbAffMaj` les lisent tous deux ; les cases du 3.1 et
+du 3.2 n'ont pas de suffixe, rien n'y change. Les cases d'effectifs gardent
+leur id : la pause les retrouve par `captureBoxes`, les listes par `q.rep`.
+
+**La note** : une question est juste quand toutes ses cases le sont ; le
+score compte les questions justes (comme au 3.1), et chaque réponse garde sa
+part de cases justes (`pts`, `justes`, `cases`). La vérification refait
+`test.answers` et `test.score` de zéro plutôt que de les incrémenter. Après
+la vérification, chaque énoncé reçoit ✓ ou ✗, et une question fausse sa
+méthode (`pbPourquoi`) en dessous. En soutien, la fiche se revérifie jusqu'à
+ce que tout soit juste : case juste verrouillée en bleu, fausse en rouge,
+vide sans couleur.
+
+**Le contexte envoyé au modèle** (`pbfCtxTexte`) donne le tableau et TOUTES
+les questions de la fiche : `conseilCtxCourant` ne voyait que la question
+courante, qui est toujours la première ici.
+
+Vérifié en l'ouvrant dans Chromium (1280 × 900, 1024 × 768, 768 × 1024,
+390 × 844, 360 × 740 ; entraînement et soutien) : tableau collé en haut de
+l'écran après défilement jusqu'en bas, aucun débordement horizontal ; copie
+juste sauf une case fausse (question 3) et une question vide (question 4) :
+7/9, une seule case rouge (la fausse), la question vide remplie en vert sans
+rougir, 5 cases justes sur 6 comptées à la question 3.
