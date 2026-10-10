@@ -280,3 +280,18 @@ suit la même taille, sans quoi l'écriture de la page déborderait de son
 cadre. La règle vaut pour les trois exercices du moteur (3.1, 3.2, 3.3) :
 c'est la même case. Mesuré dans Chromium de 1280 à 360 px de large, aucun
 débordement.
+
+**Puis les énoncés ont quitté la classe (v294).** Demande de Turquet :
+« diversifie plus les énoncés, pas toujours une classe ». `PB_CTX` passe de
+trois contextes (tous des classes) à huit : une entreprise (temps plein /
+voiture), un club de sport (majeur / compétition), une salle de cinéma
+(moins de 25 ans / pop-corn), un camping (français / tente), un tournoi de
+jeux vidéo (console / en ligne). Chaque contexte nomme désormais son
+ensemble — `nom` (« dans l’entreprise »), `de` (« tout l’effectif du
+club »), `ens` (« le tableau représente un camping ») — et plus aucun texte
+n'écrit « la classe » en dur : `lpEnonce`, les consignes du 3.2 et de la
+fiche, `pbPourquoi` (qui ne connaissait pas `C` hors des phrases), les deux
+contextes envoyés au modèle. `pbNom` rend « la classe » pour une pause
+prise avant (les trois anciens contextes n'ont pas changé d'indice).
+Les phrases des cinq nouveaux contextes ont été relues une par une, dans
+les sept tournures.
