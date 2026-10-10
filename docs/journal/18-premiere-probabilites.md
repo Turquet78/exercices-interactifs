@@ -324,3 +324,39 @@ soutien) : les douze noms affichés dans l'ordre, barres comprises ; une case
 fausse rougit seule, une question vide se remplit en vert sans rougir
 (10/12, 3 cases justes sur 4 comptées) ; aucun débordement ; « Recommencer »
 garde l'identité.
+
+## Les lettres des évènements suivent le contexte (v296)
+
+Demande de Turquet (octobre 2026), pour les quatre exercices du thème : « je
+veux que les lettres correspondant aux évènements ne soient pas toujours A et
+B, mais correspondent aux évènements. Par exemple pour “vient en voiture”
+mettre un V, pour “temps plein” T ou P, “moins de 25 ans” J pour “jeune”,
+“a acheté du pop-corn” P ».
+
+**Chaque contexte de `PB_CTX` porte ses deux lettres** (`let:{A,B}`) :
+G / L (garçon, lunettes), E / S (externe, sport en club), B / C (bus,
+cantine), T / V (temps plein, voiture), M / C (majeur, compétition), J / P
+(jeune, pop-corn), F / T (français, tente), C / L (console, en ligne).
+
+**Les CODES ne changent pas.** Partout dans le moteur — réponses attendues,
+valeurs des listes, `q.rep` des pauses, le juge, `pbInter` qui range « A
+d'abord » — un évènement reste `A`, `nA`, `B`, `nB`, `A.nB`… Seule
+l'ÉCRITURE passe par `pbLettre`, que lisent `pbTxt` (les listes, les copies
+enregistrées, le contexte du modèle) et `pbHTML` (la page, la vitrine des
+listes, le tableau, les badges de correction). Une pause d'avant la v296
+reprend donc sans perte, avec les nouvelles lettres de son contexte. Le
+contexte envoyé au modèle (`pbEffTxt`, `pbMethodeTxt`) écrit aussi les
+lettres de la séance, pour que l'IA parle comme la page. Le code `T` de
+« tout » n'est pas une lettre : il s'écrit « tout », et le T de « temps
+plein » ne le rencontre jamais.
+
+**Le rappel de cours** (`RAP_PB`, `RAP_LP`), qui prend l'exemple des garçons
+à lunettes, écrit G et L au lieu de A et B, et dit d'où viennent les
+lettres. Ses titres « Partie A / Partie B » sont devenus « Sans condition /
+Probabilité conditionnelle » : à côté d'évènements nommés par des lettres,
+« Partie B » se lisait comme un évènement. Les questions proposées à l'IA
+(`QIA_SUGG`) restent générales, en A et B : ce sont des questions de cours.
+
+Vérifié dans Chromium sur les quatre exercices (3.1 à 3.4) et trois
+contextes : en-têtes et coins du tableau, listes (barres comprises), noms
+écrits du 3.4, contexte du modèle.
