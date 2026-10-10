@@ -197,3 +197,16 @@ modèle, lui, garde `P_B(A)`, qu'il comprend : le bouton porte la question dans
 aurait envoyé « PB(A) ». Les réponses du modèle n'étaient pas en cause : elles
 passent par le LaTeX, déjà rendu en indice. Éprouvé dans Chromium : bouton,
 bulle et question transmise relus après un clic.
+
+**Puis l'énoncé est passé SOUS le tableau (v292).** Demande de Turquet :
+« mettre l'énoncé sous le tableau ». Sur les questions de probabilité (3.1
+et 3.2), l'écran se lit comme la fiche : le tableau, la question, puis
+« C'est la probabilité d'avoir … ». Le paragraphe `#pbPrompt` est DÉPLACÉ
+dans la scène (`pbPlacerEnonce`), pas recopié : il reste le seul encadré
+« Énoncé ». Il revient à sa place avant chaque redessin, sinon le
+`innerHTML` de `#pbHost` l'effacerait. Les questions des phrases et du
+tableau à compléter gardent leur énoncé en tête : il dit quoi compléter.
+Un défaut s'est vu en l'ouvrant sur téléphone : `pmJetons` posait la
+rangée « Insérer : » devant `.mp-instr` — donc ENTRE le tableau et la
+question, là où le redessin l'effaçait. Un énoncé posé dans la scène n'est
+plus pris pour « la tête » de l'écran : la rangée va alors devant la scène.
