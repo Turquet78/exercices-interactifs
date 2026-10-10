@@ -2664,7 +2664,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=296;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=297;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14465,18 +14465,24 @@ const PB_CTX=[
      lnB sont les en-têtes du tableau. Les questions en mots de
      {lire-probabilites} lisent les autres : un, le (« on choisit un élève
      qui… », « sachant que l'élève… »), iA… (l'infinitif : « la probabilité
-     d'être un garçon ») et gA… (le groupe : « parmi les garçons »). */
-  { ind:'La personne', A:'est un garçon', nA:'est une fille', B:'a des lunettes', nB:'n’a pas de lunettes',
+     d'être un garçon ») et gA… (le groupe : « parmi les garçons »).
+     « let » : les LETTRES qui s'affichent pour A et B — l'initiale de ce que
+     dit l'évènement (G pour « est un garçon », V pour « vient en voiture »,
+     J pour « jeune » : moins de 25 ans). Demande de Turquet, octobre 2026 :
+     « que les lettres ne soient pas toujours A et B, mais correspondent aux
+     évènements ». Les CODES restent A, B, nA, nB partout (réponses, pause,
+     juge) : seule l'écriture change, par pbLettre. */
+  { let:{A:'G',B:'L'}, ind:'La personne', A:'est un garçon', nA:'est une fille', B:'a des lunettes', nB:'n’a pas de lunettes',
     cA:'garçons', cnA:'filles', lB:'a des lunettes', lnB:'n’a pas de lunettes',
     nom:'la classe', de:'de la classe', ens:'une classe',
     un:'une personne', le:'la personne', iA:'être un garçon', inA:'être une fille', iB:'avoir des lunettes', inB:'ne pas avoir de lunettes',
     gA:'les garçons', gnA:'les filles', gB:'les personnes qui ont des lunettes', gnB:'les personnes qui n’ont pas de lunettes' },
-  { ind:'L’élève', A:'est externe', nA:'est demi-pensionnaire', B:'fait du sport en club', nB:'ne fait pas de sport en club',
+  { let:{A:'E',B:'S'}, ind:'L’élève', A:'est externe', nA:'est demi-pensionnaire', B:'fait du sport en club', nB:'ne fait pas de sport en club',
     cA:'externes', cnA:'demi-pensionnaires', lB:'fait du sport en club', lnB:'n’en fait pas',
     nom:'la classe', de:'de la classe', ens:'une classe',
     un:'un élève', le:'l’élève', iA:'être externe', inA:'être demi-pensionnaire', iB:'faire du sport en club', inB:'ne pas faire de sport en club',
     gA:'les externes', gnA:'les demi-pensionnaires', gB:'les élèves qui font du sport en club', gnB:'les élèves qui ne font pas de sport en club' },
-  { ind:'L’élève', A:'prend le bus', nA:'ne prend pas le bus', B:'mange à la cantine', nB:'ne mange pas à la cantine',
+  { let:{A:'B',B:'C'}, ind:'L’élève', A:'prend le bus', nA:'ne prend pas le bus', B:'mange à la cantine', nB:'ne mange pas à la cantine',
     cA:'prend le bus', cnA:'ne prend pas le bus', lB:'mange à la cantine', lnB:'n’y mange pas',
     nom:'la classe', de:'de la classe', ens:'une classe',
     un:'un élève', le:'l’élève', iA:'prendre le bus', inA:'ne pas prendre le bus', iB:'manger à la cantine', inB:'ne pas manger à la cantine',
@@ -14485,27 +14491,27 @@ const PB_CTX=[
      plus les énoncés, pas toujours une classe »). Chaque contexte nomme son
      ensemble : nom (« dans l’entreprise »), de (« tout l’effectif du club »),
      ens (« le tableau représente un camping »). */
-  { ind:'Le salarié', A:'travaille à temps plein', nA:'travaille à temps partiel', B:'vient au travail en voiture', nB:'ne vient pas au travail en voiture',
+  { let:{A:'T',B:'V'}, ind:'Le salarié', A:'travaille à temps plein', nA:'travaille à temps partiel', B:'vient au travail en voiture', nB:'ne vient pas au travail en voiture',
     cA:'temps plein', cnA:'temps partiel', lB:'vient en voiture', lnB:'n’y vient pas en voiture',
     nom:'l’entreprise', de:'de l’entreprise', ens:'une entreprise',
     un:'un salarié', le:'le salarié', iA:'travailler à temps plein', inA:'travailler à temps partiel', iB:'venir au travail en voiture', inB:'ne pas venir au travail en voiture',
     gA:'les salariés à temps plein', gnA:'les salariés à temps partiel', gB:'les salariés qui viennent en voiture', gnB:'les salariés qui ne viennent pas en voiture' },
-  { ind:'L’adhérent', A:'est majeur', nA:'est mineur', B:'fait de la compétition', nB:'ne fait pas de compétition',
+  { let:{A:'M',B:'C'}, ind:'L’adhérent', A:'est majeur', nA:'est mineur', B:'fait de la compétition', nB:'ne fait pas de compétition',
     cA:'majeurs', cnA:'mineurs', lB:'fait de la compétition', lnB:'n’en fait pas',
     nom:'le club', de:'du club', ens:'un club de sport',
     un:'un adhérent', le:'l’adhérent', iA:'être majeur', inA:'être mineur', iB:'faire de la compétition', inB:'ne pas faire de compétition',
     gA:'les adhérents majeurs', gnA:'les adhérents mineurs', gB:'les adhérents qui font de la compétition', gnB:'les adhérents qui ne font pas de compétition' },
-  { ind:'Le spectateur', A:'a moins de 25 ans', nA:'a 25 ans ou plus', B:'a acheté du pop-corn', nB:'n’a pas acheté de pop-corn',
+  { let:{A:'J',B:'P'}, ind:'Le spectateur', A:'a moins de 25 ans', nA:'a 25 ans ou plus', B:'a acheté du pop-corn', nB:'n’a pas acheté de pop-corn',
     cA:'moins de 25 ans', cnA:'25 ans ou plus', lB:'a acheté du pop-corn', lnB:'n’en a pas acheté',
     nom:'la salle', de:'de la salle', ens:'une salle de cinéma',
     un:'un spectateur', le:'le spectateur', iA:'avoir moins de 25 ans', inA:'avoir 25 ans ou plus', iB:'avoir acheté du pop-corn', inB:'ne pas avoir acheté de pop-corn',
     gA:'les spectateurs de moins de 25 ans', gnA:'les spectateurs de 25 ans ou plus', gB:'les spectateurs qui ont acheté du pop-corn', gnB:'les spectateurs qui n’ont pas acheté de pop-corn' },
-  { ind:'Le vacancier', A:'est français', nA:'est étranger', B:'loge sous une tente', nB:'ne loge pas sous une tente',
+  { let:{A:'F',B:'T'}, ind:'Le vacancier', A:'est français', nA:'est étranger', B:'loge sous une tente', nB:'ne loge pas sous une tente',
     cA:'français', cnA:'étrangers', lB:'loge sous une tente', lnB:'n’y loge pas',
     nom:'le camping', de:'du camping', ens:'un camping',
     un:'un vacancier', le:'le vacancier', iA:'être français', inA:'être étranger', iB:'loger sous une tente', inB:'ne pas loger sous une tente',
     gA:'les vacanciers français', gnA:'les vacanciers étrangers', gB:'les vacanciers qui logent sous une tente', gnB:'les vacanciers qui ne logent pas sous une tente' },
-  { ind:'Le joueur', A:'joue sur console', nA:'ne joue pas sur console', B:'joue en ligne', nB:'ne joue pas en ligne',
+  { let:{A:'C',B:'L'}, ind:'Le joueur', A:'joue sur console', nA:'ne joue pas sur console', B:'joue en ligne', nB:'ne joue pas en ligne',
     cA:'sur console', cnA:'pas sur console', lB:'joue en ligne', lnB:'pas en ligne',
     nom:'le tournoi', de:'du tournoi', ens:'un tournoi de jeux vidéo',
     un:'un joueur', le:'le joueur', iA:'jouer sur console', inA:'ne pas jouer sur console', iB:'jouer en ligne', inB:'ne pas jouer en ligne',
@@ -14618,8 +14624,23 @@ function lpEnonce(q){
 }
 /* L'écriture d'un évènement : en texte (les listes) et en HTML (la page).
    « 0 » est l'indice VIDE de P, dans la liste sous le P de {lire-probabilites}. */
-function pbTxt(c){ return c==='0' ? 'rien' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? e.charAt(1)+'̅' : e).join(' ∩ '); }
-function pbHTML(c){ return c==='0' ? '<span class="pb-rien">rien</span>' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? '<i class="pb-bar">'+e.charAt(1)+'</i>' : '<i>'+e+'</i>').join(' ∩ '); }
+/* La lettre AFFICHÉE d'un code (« A » ou « B ») : celle du contexte de la
+   séance (PB_CTX, « let »). Une pause sans « let » garde A et B. */
+function pbLettre(e){
+  const q=test.questions && test.questions[0], C=q && PB_CTX[q.ci];
+  return (C && C.let && C.let[e]) || e;
+}
+function pbTxt(c){ return c==='0' ? 'rien' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? pbLettre(e.charAt(1))+'̅' : pbLettre(e)).join(' ∩ '); }
+function pbHTML(c){ return c==='0' ? '<span class="pb-rien">rien</span>' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? '<i class="pb-bar">'+pbLettre(e.charAt(1))+'</i>' : '<i>'+pbLettre(e)+'</i>').join(' ∩ '); }
+/* Le tableau et la méthode en texte, pour le modèle : avec les lettres de la séance. */
+function pbEffTxt(v){
+  return 'Effectifs : '+pbTxt('A.B')+' = '+v[0]+', '+pbTxt('nA.B')+' = '+v[1]+', total '+pbTxt('B')+' = '+v[2]+', '+pbTxt('A.nB')+' = '+v[3]+', '+pbTxt('nA.nB')+' = '+v[4]+', total '+pbTxt('nB')+' = '+v[5]
+    +', total '+pbTxt('A')+' = '+v[6]+', total '+pbTxt('nA')+' = '+v[7]+', total = '+v[8]+'. ';
+}
+function pbMethodeTxt(){
+  const a=pbTxt('A'), b=pbTxt('B');
+  return 'Méthode enseignée : P('+a+') = effectif de '+a+' / effectif total ; P_'+b+'('+a+') = effectif de '+a+'∩'+b+' / effectif de '+b+' — on se restreint à '+b+'. ';
+}
 /* A∩B s'écrit toujours la lettre A d'abord : P_A(B̄) se calcule sur A∩B̄. */
 function pbInter(y,x){
   if(x==='T') return y;
@@ -14748,10 +14769,10 @@ function renderPBTest(){
       '<div class="pt-step">'
        +'<p class="pb-def">'+pbHTML('A')+' représente l’évènement : « '+esc(C.ind+' '+C.A)+' »</p>'
        +'<p class="pb-def pb-phrase">'+pbHTML('nA')+' représente l’évènement contraire de '+pbHTML('A')+' : « '+esc(C.ind)+' '
-         +pbSel(q,'pb-ca',preds,'évènement contraire de A','pb-mots')+' »</p>'
+         +pbSel(q,'pb-ca',preds,'évènement contraire de '+pbTxt('A'),'pb-mots')+' »</p>'
        +'<p class="pb-def">'+pbHTML('B')+' représente l’évènement : « '+esc(C.ind+' '+C.B)+' »</p>'
        +'<p class="pb-def pb-phrase">'+pbHTML('nB')+' représente l’évènement contraire de '+pbHTML('B')+' : « '+esc(C.ind)+' '
-         +pbSel(q,'pb-cb',preds,'évènement contraire de B','pb-mots')+' »</p>'
+         +pbSel(q,'pb-cb',preds,'évènement contraire de '+pbTxt('B'),'pb-mots')+' »</p>'
       +'</div>'
       +(q.t==='tab'
         ? '<div class="pt-step"><div class="pt-lab">Chaque total est la somme de sa ligne, ou de sa colonne</div>'+pbTableHTML(q,true)+'</div>'
@@ -14975,8 +14996,8 @@ function renderPBFiche(){
   const ligne=(q,i)=>{
     const s=(b,lab)=>pbSel(q,b+'-'+i,opts,lab,'pb-lettres');
     if(q.t==='phr') return '<div class="pbf-phr">'
-      +'<p class="pb-def pb-phrase">'+pbHTML('nA')+' : « '+esc(C.ind)+' '+pbSel(q,'pb-ca-'+i,preds,'évènement contraire de A','pb-mots')+' »</p>'
-      +'<p class="pb-def pb-phrase">'+pbHTML('nB')+' : « '+esc(C.ind)+' '+pbSel(q,'pb-cb-'+i,preds,'évènement contraire de B','pb-mots')+' »</p>'
+      +'<p class="pb-def pb-phrase">'+pbHTML('nA')+' : « '+esc(C.ind)+' '+pbSel(q,'pb-ca-'+i,preds,'évènement contraire de '+pbTxt('A'),'pb-mots')+' »</p>'
+      +'<p class="pb-def pb-phrase">'+pbHTML('nB')+' : « '+esc(C.ind)+' '+pbSel(q,'pb-cb-'+i,preds,'évènement contraire de '+pbTxt('B'),'pb-mots')+' »</p>'
       +'</div>';
     const nom = q.t==='nom' ? pbNomHTML(pbItem(q)[0], pbItem(q)[1])
       : '<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px-'+i,optsInd,'question '+(i+1)+' : indice de P, la condition ou rien','pb-lettres')+'</span>'
@@ -15080,22 +15101,21 @@ async function startPBE(){
 function pbfCtxTexte(){
   const qs=test.questions||[]; if(!qs.length) return '';
   const C=PB_CTX[qs[0].ci]||PB_CTX[0], v=pbValeurs(qs[0].n);
-  return 'Tableau à double entrée qui représente '+(C.ens||'une classe')+' : A = « '+C.ind+' '+C.A+' », B = « '+C.ind+' '+C.B+' ». '
-    +'Effectifs : A∩B = '+v[0]+', Ā∩B = '+v[1]+', total B = '+v[2]+', A∩B̄ = '+v[3]+', Ā∩B̄ = '+v[4]+', total B̄ = '+v[5]
-    +', total A = '+v[6]+', total Ā = '+v[7]+', total = '+v[8]+'. '
+  return 'Tableau à double entrée qui représente '+(C.ens||'une classe')+' : '+pbTxt('A')+' = « '+C.ind+' '+C.A+' », '+pbTxt('B')+' = « '+C.ind+' '+C.B+' ». '
+    +pbEffTxt(v)
     +'C’est une FICHE : toutes les questions sont à l’écran ensemble, le tableau reste visible en haut. '
     +(test.qId==='probabilites-ecriture'
       ? 'Les questions ne sont PAS des phrases : la page écrit le nom de chaque probabilité — '
         +qs.map((q,k)=>(k+1)+') '+(pbItem(q)[1]==='T' ? 'P('+pbTxt(pbItem(q)[0])+')' : 'P_'+pbTxt(pbItem(q)[1])+'('+pbTxt(pbItem(q)[0])+')')).join(' ; ')+'. '
-        +'Pour chaque ligne, l’élève complète = fraction en lettres (A, Ā, B, B̄, A∩B, A∩B̄, Ā∩B, Ā∩B̄, tout) = fraction des EFFECTIFS du tableau, sans la simplifier. '
-        +'P sans indice : on divise par tout ; P_X(Y) : on se restreint à X, numérateur X∩Y (écrit A d’abord), dénominateur X. '
-      : 'Question 1 : compléter les évènements contraires Ā et B̄. Puis, chacune posée EN MOTS : '
+        +'Pour chaque ligne, l’élève complète = fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau, sans la simplifier. '
+        +'P sans indice : on divise par tout ; P_X(Y) : on se restreint à X, numérateur X∩Y (écrit '+pbTxt('A')+' d’abord), dénominateur X. '
+      : 'Question 1 : compléter les évènements contraires '+pbTxt('nA')+' et '+pbTxt('nB')+'. Puis, chacune posée EN MOTS : '
       +qs.slice(1).map((q,i)=>(i+2)+') « '+lpEnonce(q)+' »').join(' ; ')+'. '
       +'Pour chaque question, l’élève rédige sur UNE ligne : P…(…) (il choisit l’indice — « rien » sans condition — et l’évènement dans des listes) '
-      +'= fraction en lettres (A, Ā, B, B̄, A∩B, A∩B̄, Ā∩B, Ā∩B̄, tout) = fraction des EFFECTIFS du tableau, sans la simplifier. '
+      +'= fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau, sans la simplifier. '
       +'« Dans '+pbNom(C)+' » = pas de condition ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. ')
     +'Les réponses attendues sont STRICTEMENT SECRÈTES. '
-    +'Méthode enseignée : P(A) = effectif de A / effectif total ; P_B(A) = effectif de A∩B / effectif de B — on se restreint à B. '
+    +pbMethodeTxt()
     +'L’erreur classique est de diviser par le total dans une probabilité conditionnelle.';
 }
 async function finishPB(){
@@ -15111,15 +15131,14 @@ async function finishPB(){
 /* Le contexte envoyé au modèle. */
 function pbCtxTexte(q){
   const C=PB_CTX[q.ci]||PB_CTX[0], v=pbValeurs(q.n);
-  let c='Tableau à double entrée qui représente '+(C.ens||'une classe')+' : A = « '+C.ind+' '+C.A+' », B = « '+C.ind+' '+C.B+' ». '
-    +'Effectifs : A∩B = '+v[0]+', Ā∩B = '+v[1]+', total B = '+v[2]+', A∩B̄ = '+v[3]+', Ā∩B̄ = '+v[4]+', total B̄ = '+v[5]
-    +', total A = '+v[6]+', total Ā = '+v[7]+', total = '+v[8]+'. ';
-  if(q.t==='tab') c+='L’élève complète les deux phrases contraires (Ā, B̄) puis les cases manquantes du tableau ; quatre nombres sont donnés. ';
-  else if(q.t==='phr') c+='Le tableau est donné en entier. L’élève complète les deux phrases contraires (Ā, B̄). ';
+  let c='Tableau à double entrée qui représente '+(C.ens||'une classe')+' : '+pbTxt('A')+' = « '+C.ind+' '+C.A+' », '+pbTxt('B')+' = « '+C.ind+' '+C.B+' ». '
+    +pbEffTxt(v);
+  if(q.t==='tab') c+='L’élève complète les deux phrases contraires ('+pbTxt('nA')+', '+pbTxt('nB')+') puis les cases manquantes du tableau ; quatre nombres sont donnés. ';
+  else if(q.t==='phr') c+='Le tableau est donné en entier. L’élève complète les deux phrases contraires ('+pbTxt('nA')+', '+pbTxt('nB')+'). ';
   else if(q.t==='ln'){
     const y=pbItem(q)[0], x=pbItem(q)[1], nm=(x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')');
     c+='La page écrit la probabilité demandée : '+nm+'. L’élève complète d’abord « '+nm+' est la probabilité d’avoir … parmi … » '
-      +'avec des lettres choisies dans une liste (A, Ā, B, B̄, A∩B, A∩B̄, Ā∩B, Ā∩B̄, tout) — sans indice, c’est « parmi tout » ; '
+      +'avec des lettres choisies dans une liste ('+PB_EVTS.map(pbTxt).join(', ')+') — sans indice, c’est « parmi tout » ; '
       +'avec un indice, l’indice est ce qui suit « parmi ». Puis il écrit '+nm+' = fraction « … parmi … / parmi … » = fraction en lettres '
       +'= fraction des EFFECTIFS du tableau, sans la simplifier. ';
   }
@@ -15129,12 +15148,12 @@ function pbCtxTexte(q){
       +'« dans '+pbNom(C)+' » = pas de condition, P sans indice ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. '
       +'Il choisit l’indice de P (ou « rien ») et l’évènement entre parenthèses dans des listes ; une intersection se dit avec « et ». ';
     c+='L’élève calcule '+(x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')')
-      +' : il écrit « la probabilité d’avoir … parmi … » avec des lettres choisies dans une liste (A, Ā, B, B̄, A∩B, A∩B̄, Ā∩B, Ā∩B̄, tout), '
+      +' : il écrit « la probabilité d’avoir … parmi … » avec des lettres choisies dans une liste ('+PB_EVTS.map(pbTxt).join(', ')+'), '
       +'puis la fraction « … parmi … / parmi … », la fraction en lettres, et enfin la fraction des EFFECTIFS du tableau, sans la simplifier. ';
   }
   return c+'Les réponses attendues sont STRICTEMENT SECRÈTES. '
-    +'Méthode enseignée : P(A) = effectif de A / effectif total ; P_B(A) = effectif de A∩B / effectif de B — on se restreint à B. '
-    +'L’erreur classique est de diviser par le total dans une probabilité conditionnelle, ou de confondre P(A∩B) et P_B(A).';
+    +pbMethodeTxt()
+    +'L’erreur classique est de diviser par le total dans une probabilité conditionnelle, ou de confondre P('+pbTxt('A.B')+') et P_'+pbTxt('B')+'('+pbTxt('A')+').';
 }
 
 async function finishHausses(){
@@ -19792,28 +19811,29 @@ Chaque hausse se calcule comme dans {augmenter-addition} : l’augmentation d’
 Piège classique : refaire la seconde hausse sur 100. Elle porte sur 120, sinon les deux hausses s’additionneraient.`;
 const RAP_PB=`<b>Lire des probabilités dans un tableau à double entrée</b><br>
 <b>Le tableau.</b> Chaque total est la somme de sa ligne, ou de sa colonne. Une case qui manque se trouve donc par une soustraction : total − la case connue. L’effectif total est en bas à droite.<br>
-<b>L’évènement contraire</b> \\(\\overline{A}\\) se réalise quand \\(A\\) ne se réalise pas : le contraire de « est un garçon » est « est une fille ».<br>
-<b>Partie A — probabilité non conditionnelle.</b> On prend une personne dans TOUTE la classe :<br>
-\\(P(A)=\\dfrac{A \\text{ parmi tout}}{\\text{parmi tout}}=\\dfrac{A}{\\text{tout}}\\), par exemple \\(\\dfrac{9}{20}\\) s’il y a 9 garçons sur 20 élèves. Même chose pour \\(P(A\\cap B)=\\dfrac{A\\cap B}{\\text{tout}}\\) : les garçons À lunettes, parmi tout.<br>
-<b>Partie B — probabilité conditionnelle.</b> \\(P_B(A)\\) est la probabilité d’avoir \\(A\\) <b>parmi</b> \\(B\\) : on se restreint à \\(B\\), et on y compte ceux qui sont aussi \\(A\\) :<br>
-\\(P_B(A)=\\dfrac{A \\text{ parmi } B}{\\text{parmi } B}=\\dfrac{A\\cap B}{B}\\), par exemple \\(\\dfrac{4}{7}\\) s’il y a 4 garçons parmi les 7 élèves à lunettes.<br>
-<b>Lire la question.</b> « Dans la classe » : pas de condition, \\(P\\) sans indice. « Parmi les… », « sachant que… », « on choisit un élève qui… » : c’est la condition, elle s’écrit en bas de \\(P\\). « Être un garçon ET avoir des lunettes », c’est \\(A\\cap B\\).<br>
-Piège classique : diviser par le total dans une probabilité conditionnelle. Le dénominateur est l’évènement écrit EN BAS de \\(P\\) — \\(P_B\\) divise par l’effectif de \\(B\\).`;
+<b>L’évènement contraire</b> \\(\\overline{G}\\) se réalise quand \\(G\\) ne se réalise pas : le contraire de « est un garçon » est « est une fille ».<br>
+<b>Les lettres.</b> Chaque évènement porte l’initiale de ce qu’il dit : \\(G\\) pour « est un garçon », \\(L\\) pour « a des lunettes », \\(V\\) pour « vient en voiture », \\(J\\) pour « jeune » (moins de 25 ans)…<br>
+<b>Sans condition.</b> On prend une personne dans TOUTE la classe :<br>
+\\(P(G)=\\dfrac{G \\text{ parmi tout}}{\\text{parmi tout}}=\\dfrac{G}{\\text{tout}}\\), par exemple \\(\\dfrac{9}{20}\\) s’il y a 9 garçons sur 20 élèves. Même chose pour \\(P(G\\cap L)=\\dfrac{G\\cap L}{\\text{tout}}\\) : les garçons À lunettes, parmi tout.<br>
+<b>Probabilité conditionnelle.</b> \\(P_L(G)\\) est la probabilité d’avoir \\(G\\) <b>parmi</b> \\(L\\) : on se restreint à \\(L\\), et on y compte ceux qui sont aussi \\(G\\) :<br>
+\\(P_L(G)=\\dfrac{G \\text{ parmi } L}{\\text{parmi } L}=\\dfrac{G\\cap L}{L}\\), par exemple \\(\\dfrac{4}{7}\\) s’il y a 4 garçons parmi les 7 élèves à lunettes.<br>
+<b>Lire la question.</b> « Dans la classe » : pas de condition, \\(P\\) sans indice. « Parmi les… », « sachant que… », « on choisit un élève qui… » : c’est la condition, elle s’écrit en bas de \\(P\\). « Être un garçon ET avoir des lunettes », c’est \\(G\\cap L\\).<br>
+Piège classique : diviser par le total dans une probabilité conditionnelle. Le dénominateur est l’évènement écrit EN BAS de \\(P\\) — \\(P_L\\) divise par l’effectif de \\(L\\).`;
 const RAP_LP=`<b>Traduire une phrase en probabilité</b><br>
 <b>Sans condition.</b> « Dans la classe », « on prend une personne au hasard dans la classe » (ou dans l’entreprise, dans le club…) : on regarde TOUT l’effectif, et P n’a pas d’indice :<br>
-\\(P(B)=\\dfrac{B \\text{ parmi tout}}{\\text{parmi tout}}=\\dfrac{B}{\\text{tout}}\\), par exemple \\(\\dfrac{7}{20}\\) s’il y a 7 élèves à lunettes sur 20.<br>
+\\(P(L)=\\dfrac{L \\text{ parmi tout}}{\\text{parmi tout}}=\\dfrac{L}{\\text{tout}}\\), par exemple \\(\\dfrac{7}{20}\\) s’il y a 7 élèves à lunettes sur 20.<br>
 <b>Avec une condition.</b> « Parmi les garçons », « sachant que la personne est un garçon », « on choisit un élève qui est un garçon » : trois façons de dire la MÊME chose — on se restreint aux garçons. La condition s’écrit EN BAS de P :<br>
-\\(P_A(B)=\\dfrac{B \\text{ parmi } A}{\\text{parmi } A}=\\dfrac{A\\cap B}{A}\\), par exemple \\(\\dfrac{4}{9}\\) s’il y a 4 garçons à lunettes parmi les 9 garçons.<br>
+\\(P_G(L)=\\dfrac{L \\text{ parmi } G}{\\text{parmi } G}=\\dfrac{G\\cap L}{G}\\), par exemple \\(\\dfrac{4}{9}\\) s’il y a 4 garçons à lunettes parmi les 9 garçons.<br>
 <b>Lire la phrase.</b> Ce qu’on veut avoir va entre les parenthèses ; ce qui suit « parmi », « sachant que » ou « qui » va en indice.<br>
 Piège classique : diviser par le total alors que la phrase se restreint à un groupe — le dénominateur est l’effectif de ce groupe.`;
 /* {lire-probabilites} depuis la v296 : le nom est donné, on le LIT. */
 const RAP_LN=`<b>Lire une probabilité</b><br>
-<b>Sans indice.</b> \\(P(B)\\) est la probabilité d’avoir B parmi TOUT l’effectif :<br>
-\\(P(B)=\\dfrac{B \\text{ parmi tout}}{\\text{parmi tout}}=\\dfrac{B}{\\text{tout}}\\), par exemple \\(\\dfrac{7}{20}\\) s’il y a 7 élèves à lunettes sur 20.<br>
-<b>Avec un indice.</b> L’indice est la CONDITION : \\(P_A(B)\\) est la probabilité d’avoir B parmi A — on se restreint à A :<br>
-\\(P_A(B)=\\dfrac{B \\text{ parmi } A}{\\text{parmi } A}=\\dfrac{A\\cap B}{A}\\), par exemple \\(\\dfrac{4}{9}\\) s’il y a 4 garçons à lunettes parmi les 9 garçons.<br>
+<b>Sans indice.</b> \\(P(L)\\) est la probabilité d’avoir \\(L\\) parmi TOUT l’effectif :<br>
+\\(P(L)=\\dfrac{L \\text{ parmi tout}}{\\text{parmi tout}}=\\dfrac{L}{\\text{tout}}\\), par exemple \\(\\dfrac{7}{20}\\) s’il y a 7 élèves à lunettes sur 20.<br>
+<b>Avec un indice.</b> L’indice est la CONDITION : \\(P_G(L)\\) est la probabilité d’avoir \\(L\\) parmi \\(G\\) — on se restreint à \\(G\\) :<br>
+\\(P_G(L)=\\dfrac{L \\text{ parmi } G}{\\text{parmi } G}=\\dfrac{G\\cap L}{G}\\), par exemple \\(\\dfrac{4}{9}\\) s’il y a 4 garçons à lunettes parmi les 9 garçons.<br>
 <b>Lire le nom.</b> Ce qui est entre les parenthèses va avant « parmi » ; ce qui est en indice va après. Sans indice, c’est « parmi tout ».<br>
-Piège classique : confondre \\(P_A(B)\\) et \\(P_B(A)\\) — le dénominateur est l’effectif de l’INDICE.`;
+Piège classique : confondre \\(P_G(L)\\) et \\(P_L(G)\\) — le dénominateur est l’effectif de l’INDICE.`;
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
