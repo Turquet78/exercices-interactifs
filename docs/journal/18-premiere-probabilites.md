@@ -295,3 +295,32 @@ contextes envoyés au modèle. `pbNom` rend « la classe » pour une pause
 prise avant (les trois anciens contextes n'ont pas changé d'indice).
 Les phrases des cinq nouveaux contextes ont été relues une par une, dans
 les sept tournures.
+
+## {probabilites-ecriture} (3.4) : la fiche sans phrase
+
+Demande de Turquet (octobre 2026) : « fais une version 3.4 de cet exercice
+sans question avec du texte, comme sur le pdf joint, avec P(A) ou P(non A)
+ou P(A inter B) ou P_A(B)…, avec la même ligne que le pdf, qui tient sur une
+même ligne à l'écran ». Le PDF n'est pas parvenu jusqu'à la session : la
+ligne est celle du 3.3, qui tient déjà sur une ligne.
+
+**Les questions sont les douze probabilités du 3.2** (`PB_ITEMS`, dans
+l'ordre de la fiche « proba 1 ») : P(A), P(Ā), P(B), P(B̄), P(A∩B), P(A∩B̄),
+puis P_B(A), P_A(B), P_B̄(A), P_A(B̄), P_B̄(Ā), P_Ā(B̄), sur un même tableau
+DONNÉ (`pbeSeance`, `q.t = 'nom'`). Aucune phrase : la page ÉCRIT le nom de
+la probabilité (`pbNomHTML`), et l'élève complète la ligne
+`P_A(B) = lettres / lettres = effectifs / effectifs` — quatre cases.
+
+**Même page et même juge que le 3.3** : `pbEstFiche()` couvre les deux
+identités (rendu, vérification, contexte du modèle). Sur un écran large, les
+lignes se rangent sur DEUX colonnes (`.pbf-2col`, 400 px au moins chacune) :
+une ligne fait moins de 400 px, une colonne unique gâchait la moitié de
+l'écran ; douze questions tiennent alors en six rangées sous le tableau. Sur
+téléphone, une colonne. Rappel de cours : `RAP_PB` (Partie A / Partie B),
+celui du 3.2, qui part des noms.
+
+Vérifié dans Chromium (1280, 1024, 768, 390, 360 px ; entraînement et
+soutien) : les douze noms affichés dans l'ordre, barres comprises ; une case
+fausse rougit seule, une question vide se remplit en vert sans rougir
+(10/12, 3 cases justes sur 4 comptées) ; aucun débordement ; « Recommencer »
+garde l'identité.
