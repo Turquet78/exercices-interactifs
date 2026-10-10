@@ -1381,6 +1381,14 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
   #pbHost .pbf-q .pb-sel.pb-mots{width:auto}
   .pbf-sol{margin:0 auto}
 }
+/* LA CASE DE L'INDICE DE P EST PLUS ÉTROITE ET PLUS PETITE que les autres
+   (demande de Turquet, octobre 2026, v294) : c'est un indice, il s'écrit en
+   petit sous la ligne, comme sur papier. Elle vaut pour les trois exercices
+   du moteur (3.1, 3.2, 3.3) ; la vitrine (.pb-aff) suit la même taille. */
+#pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff{width:52px;height:30px;font-size:calc(.95rem * var(--tab-nb,1))}
+#pbHost .pb-ind .pb-sel{padding:0 2px;border-radius:8px}
+#pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:46px;height:28px;font-size:calc(.9rem * var(--tab-nb,1))}
+@media(max-width:560px){ #pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff,#pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:42px} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
 #fpHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.15;}
@@ -2646,7 +2654,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=293;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=294;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
