@@ -4205,6 +4205,7 @@ function exercices(suite){
     ecrireSolutions(w, P);
     exercicesBonus(w, P);
     bonusEcrit(w, P);
+    meilleureNoteCompte(w, P);
     resolutionsGraphiques(w, P);
     tableauSignesGraphique(w, P);
     lectureSignes(w, P);
@@ -20763,6 +20764,59 @@ function bonusEcrit(w, P){
     mesResultats=sauve.res; currentEleve=sauve.el; currentMode=sauve.mode;
     if(sauveGenre!==null) genreEleve=sauveGenre;
     return vus.slice(0,4).join(' | ');
+  })()`, function(v){ return v===''; });
+}
+/* UN EXERCICE DE DEVOIR SE REFAIT, ET SEULE LA MEILLEURE NOTE COMPTE —
+   et la page le DIT (demande de Turquet, octobre 2026 : « quand un élève a fini,
+   lui laisser la possibilité de le refaire et de ne compter que la meilleure
+   des notes »). Le calcul le faisait déjà (dmBest) ; la page disait « ton
+   résultat se met à jour à chaque essai », ce qui laissait croire qu'un essai
+   moins bon ferait baisser la note — et l'élève n'osait pas refaire.
+   Deux bords : la phrase est écrite sur la page du devoir, et un SECOND essai
+   moins bon, plus récent, ne fait baisser ni la page ni la liste. Le bord
+   opposé — un seul essai à 40 % s'affiche 4 — prouve que la page lit bien les
+   résultats, sans quoi le 9 pourrait venir de n'importe où. */
+function meilleureNoteCompte(w, P){
+  const present = evaluer(w, "typeof renderDevoirDetail==='function' && typeof renderDevoirsList==='function' && typeof dmBest==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('un exercice de devoir se refait, et seule la meilleure note compte', 'ce niveau n\'a pas de page de devoir côté élève');
+    return;
+  }
+  verifierEval(w, 'un exercice de devoir se refait, et seule la meilleure note compte', `(function(){
+    const vus=[];
+    const ids=Object.keys(TESTS).filter(function(k){ return TESTS[k] && TESTS[k].start; });
+    if(!ids.length) return 'aucun exercice : le contrôle ne mesure rien';
+    const A=ids[0];
+    const sauve={dm:currentDM, id:currentTestId, dev:mesDevoirs, res:mesResultats, el:currentEleve};
+    const sauveGenre=(typeof genreEleve!=='undefined')?genreEleve:null;
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    if(typeof genreEleve!=='undefined') genreEleve='dm';
+    mesDevoirs=[{id:'dev-m', genre:'dm', num:4, actif:true, titre:'Devoir du contrôle', cours:'', notes:{},
+      exercices:[{id:A, modes:['soutien','train']}]}];
+    const essai=function(p, quand){ return {eleve_id:'e-controle', percent:p, score:p/10, total:10,
+      created_at:quand, details:{test:A, mode:'train', dm:'dev-m'}}; };
+    const net=function(){ return ((document.getElementById('devoirsBody')||{}).textContent||'').replace(/\\s+/g,' '); };
+    const lire=function(){ renderDevoirDetail('dev-m'); const page=net(); renderDevoirsList(); return {page:page, liste:net()}; };
+
+    mesResultats=[essai(40,'2026-10-01T08:00:00Z')];
+    const seul=lire();
+    if(seul.page.indexOf('Note : 4 / 10')<0) vus.push('un seul essai à 40 % ne s\\'affiche pas 4 / 10 sur la page : la page ne lit pas les résultats');
+
+    mesResultats=[essai(90,'2026-10-01T08:00:00Z'), essai(40,'2026-10-02T08:00:00Z')];
+    const deux=lire();
+    if(!/seule ta meilleure note compte/.test(deux.page)) vus.push('la page du devoir ne dit pas que seule la meilleure note compte');
+    if(/se met à jour à chaque essai/.test(deux.page)) vus.push('la page dit encore « ton résultat se met à jour à chaque essai »');
+    if(deux.page.indexOf('Note : 9 / 10')<0) vus.push('un second essai moins bon fait baisser la note de la page : « '+deux.page.slice(0,160)+' »');
+    if(deux.liste.indexOf('9 / 10')<0) vus.push('un second essai moins bon fait baisser la note de la liste : « '+deux.liste.slice(0,160)+' »');
+    /* et la carte reste CLIQUABLE : rien ne verrouille un exercice fait */
+    renderDevoirDetail('dev-m');
+    const carte=document.querySelector('#devoirsBody .choices .choice');
+    if(!carte || /locked/.test(carte.className) || !/openTestDevoir/.test(carte.getAttribute('onclick')||''))
+      vus.push('l\\'exercice fait n\\'est plus ouvrable depuis la page du devoir');
+
+    currentDM=sauve.dm; currentTestId=sauve.id; mesDevoirs=sauve.dev; mesResultats=sauve.res; currentEleve=sauve.el;
+    if(sauveGenre!==null) genreEleve=sauveGenre;
+    return vus.join(' | ');
   })()`, function(v){ return v===''; });
 }
 /* Construire une fonction : l'INVERSE de la lecture graphique — le tirage
