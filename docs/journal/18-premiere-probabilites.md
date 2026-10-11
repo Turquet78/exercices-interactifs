@@ -119,6 +119,25 @@ B, B̄ au bout des lignes, A, Ā au pied des colonnes (`nomsCase`). Le total
 général reste sans lettre, comme sur la fiche. L'étiquette nomme aussi la
 case pour un lecteur d'écran (« effectif de B »).
 
+**Puis le début de ligne s'est écrit tout seul (v298).** Demande de
+Turquet : « dans l'exercice 3.2, quand l'élève a interprété la question avec
+des lettres ou “tout”, afficher la formule du début de ligne, par exemple
+P(M) = ou P_L(M) =, et laisser l'élève compléter le reste de la ligne comme
+avant. » Les deux listes du nom (`pb-px`, `pb-py`) quittent le 3.2 : la page
+écrit P…(…) d'après « C'est la probabilité d'avoir Y parmi X » — P_X(Y), ou
+P(Y) pour « parmi tout » (`pbNomVifMaj`, appelée au dessin et par
+`pbAffMaj` à chaque choix et après la vérification). Le nom se lit sur les
+CHOIX de l'élève, jamais sur la réponse attendue : il ne donne rien par
+élimination, et une traduction fausse écrit un nom faux. Tant qu'un choix
+manque, sa place reste « … ». Le nom n'est plus une case : la question compte
+neuf cases au lieu de onze. Une pause du 3.1 d'avant la v296 (`q.t = 'lp'`)
+garde ses listes.
+
+Vérifié dans Chromium (1280 et 390 px) : P…(…), puis P…(F), puis P(F) au fil
+des choix ; P_F(T̄) écrit indice et barre compris ; copie juste comptée ; une
+liste « parmi » laissée vide se remplit en vert à la vérification et le nom
+suit ; aucun débordement.
+
 ## {lire-probabilites} (3.1) : traduire une phrase en probabilité
 
 Demande de Turquet (octobre 2026), d'après sa fiche papier « proba 2 » : « en
