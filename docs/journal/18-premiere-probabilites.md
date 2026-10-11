@@ -385,7 +385,14 @@ Vérifié dans Chromium sur les quatre exercices (3.1 à 3.4) et trois
 contextes : en-têtes et coins du tableau, listes (barres comprises), noms
 écrits du 3.4, contexte du modèle.
 
-## v298 — au 3.3, l'indice vide de P se dit « tout », et la case s'efface
+**Puis l'indice s'est écarté de sa parenthèse (v298).** Demande de Turquet,
+capture du 3.4 à l'appui : « l'indice ne doit pas toucher la parenthèse ».
+L'indice italique (P, J…) penche vers la droite et venait mordre sur le « ( »
+de P_P(J), P_J(P̄). Une seule règle, `.pb-nom sub{margin-right:.18em}`, vaut
+pour tous les noms écrits par `pbNomHTML` (3.1 et 3.4). Vérifié dans Chromium
+par une capture avant/après des noms P_P(J), P_J(P̄), P_G(L).
+
+## v299 — au 3.3, l'indice vide de P se dit « tout », et la case s'efface
 
 Demande de Turquet (octobre 2026) : « en première dans le 3.3, remplacer le
 choix "rien" par "tout" et quand il est choisi, la case doit devenir
