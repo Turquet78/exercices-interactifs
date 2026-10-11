@@ -1397,6 +1397,10 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
    du moteur (3.1, 3.2, 3.3) ; la vitrine (.pb-aff) suit la même taille. */
 #pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff{width:52px;height:30px;font-size:calc(.95rem * var(--tab-nb,1))}
 #pbHost .pb-ind .pb-sel{padding:0 2px;border-radius:8px}
+/* 3.3 : l'indice « tout » choisi — la case devient transparente, presque
+   invisible (voir pbAffMaj) ; elle reste cliquable pour changer d'avis */
+#pbHost .pb-case.pb-transp .pb-sel{background:transparent;border-color:rgba(187,208,247,.35);box-shadow:none}
+#pbHost .pb-case.pb-transp .pb-aff{opacity:.22}
 #pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:46px;height:28px;font-size:calc(.9rem * var(--tab-nb,1))}
 @media(max-width:560px){ #pbHost .pb-ind .pb-sel,#pbHost .pb-ind .pb-aff,#pbHost .pbf-q .pb-ind .pb-sel,#pbHost .pbf-q .pb-ind .pb-aff{width:42px} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
@@ -2664,7 +2668,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=297;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=298;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14630,8 +14634,11 @@ function pbLettre(e){
   const q=test.questions && test.questions[0], C=q && PB_CTX[q.ci];
   return (C && C.let && C.let[e]) || e;
 }
-function pbTxt(c){ return c==='0' ? 'rien' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? pbLettre(e.charAt(1))+'̅' : pbLettre(e)).join(' ∩ '); }
-function pbHTML(c){ return c==='0' ? '<span class="pb-rien">rien</span>' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? '<i class="pb-bar">'+pbLettre(e.charAt(1))+'</i>' : '<i>'+pbLettre(e)+'</i>').join(' ∩ '); }
+/* L'indice VIDE de P se dit « rien » au 3.1 ; sur la fiche (3.3) il se dit
+   « tout » — on prend parmi tout (demande de Turquet, octobre 2026). */
+function pbRien(){ return (typeof test!=='undefined' && test.qId==='probabilites-fiche') ? 'tout' : 'rien'; }
+function pbTxt(c){ return c==='0' ? pbRien() : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? pbLettre(e.charAt(1))+'̅' : pbLettre(e)).join(' ∩ '); }
+function pbHTML(c){ return c==='0' ? '<span class="pb-rien">'+pbRien()+'</span>' : c==='T' ? 'tout' : c.split('.').map(e=>e.charAt(0)==='n' ? '<i class="pb-bar">'+pbLettre(e.charAt(1))+'</i>' : '<i>'+pbLettre(e)+'</i>').join(' ∩ '); }
 /* Le tableau et la méthode en texte, pour le modèle : avec les lettres de la séance. */
 function pbEffTxt(v){
   return 'Effectifs : '+pbTxt('A.B')+' = '+v[0]+', '+pbTxt('nA.B')+' = '+v[1]+', total '+pbTxt('B')+' = '+v[2]+', '+pbTxt('A.nB')+' = '+v[3]+', '+pbTxt('nA.nB')+' = '+v[4]+', total '+pbTxt('nB')+' = '+v[5]
@@ -14707,6 +14714,12 @@ function pbAffMaj(){
   document.querySelectorAll('#pbHost select.pb-lettres').forEach(function(el){
     const a=el.parentNode && el.parentNode.querySelector('.pb-aff');
     if(a) a.innerHTML=el.value ? pbHTML(el.value) : '…';
+    /* 3.3 : l'indice « tout » choisi, la case s'efface presque — P n'a pas
+       d'indice. Elle reprend ses couleurs si la vérification la dit fausse,
+       ou y écrit la correction. */
+    const ca=el.parentNode;
+    if(ca && ca.classList) ca.classList.toggle('pb-transp', pbRien()==='tout' && el.value==='0'
+      && !el.classList.contains('bad') && !el.classList.contains('sol'));
     /* le badge vert de la correction porte, lui aussi, l'écriture de la page */
     const b=el.nextElementSibling;
     if(b && b.classList && b.classList.contains('mf-cor')){ const att=pbAttendus(pbQDe(el.id))[pbBase(el.id)]; if(att) b.innerHTML=pbHTML(att); }
@@ -15000,7 +15013,7 @@ function renderPBFiche(){
       +'<p class="pb-def pb-phrase">'+pbHTML('nB')+' : « '+esc(C.ind)+' '+pbSel(q,'pb-cb-'+i,preds,'évènement contraire de '+pbTxt('B'),'pb-mots')+' »</p>'
       +'</div>';
     const nom = q.t==='nom' ? pbNomHTML(pbItem(q)[0], pbItem(q)[1])
-      : '<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px-'+i,optsInd,'question '+(i+1)+' : indice de P, la condition ou rien','pb-lettres')+'</span>'
+      : '<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px-'+i,optsInd,'question '+(i+1)+' : indice de P, la condition ou tout','pb-lettres')+'</span>'
       +'<span class="pb-par">(</span>'+s('pb-py','question '+(i+1)+' : l’évènement dont on veut la probabilité')+'<span class="pb-par">)</span></span>';
     return '<div class="pbf-sol">'+nom
       +fEq('<span class="f-frac-input"><span class="pb-l">'+s('pb-s6','question '+(i+1)+' : numérateur en lettres')+'</span>'
@@ -15022,6 +15035,7 @@ function renderPBFiche(){
       ? '<li class="pbf-q pbf-ligne" id="pbf-q'+i+'"><span class="pbf-txt pbf-num-seul"><span class="pbf-num">'+(i+1)+'.</span></span>'+ligne(q,i)+'</li>'
       : '<li class="pbf-q" id="pbf-q'+i+'"><div class="pbf-txt"><span class="pbf-num">'+(i+1)+'.</span>'+txt(q)+'</div>'+ligne(q,i)+'</li>').join('')
    +'</ol>';
+  pbAffMaj();
 }
 function checkPBFiche(){
   const qs=test.questions, soutien=isSoutien(), att={}, parQ=[];
@@ -15037,6 +15051,7 @@ function checkPBFiche(){
       el.classList.remove('ok','bad','sol');
       if(pbLu(id)!=='') el.classList.add(verd[id]?'ok':'bad');
       el.disabled=verd[id]; });
+    pbAffMaj();
     if(!allOk){ soutienAgain('pbFeedback','pbActions','checkPBAnswer','pbHost'); return; }
   } else {
     ids.forEach(id=>corrCase(id, att[id], verd[id]));
@@ -15111,7 +15126,7 @@ function pbfCtxTexte(){
         +'P sans indice : on divise par tout ; P_X(Y) : on se restreint à X, numérateur X∩Y (écrit '+pbTxt('A')+' d’abord), dénominateur X. '
       : 'Question 1 : compléter les évènements contraires '+pbTxt('nA')+' et '+pbTxt('nB')+'. Puis, chacune posée EN MOTS : '
       +qs.slice(1).map((q,i)=>(i+2)+') « '+lpEnonce(q)+' »').join(' ; ')+'. '
-      +'Pour chaque question, l’élève rédige sur UNE ligne : P…(…) (il choisit l’indice — « rien » sans condition — et l’évènement dans des listes) '
+      +'Pour chaque question, l’élève rédige sur UNE ligne : P…(…) (il choisit l’indice — « tout » sans condition : on prend parmi tout — et l’évènement dans des listes) '
       +'= fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau, sans la simplifier. '
       +'« Dans '+pbNom(C)+' » = pas de condition ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. ')
     +'Les réponses attendues sont STRICTEMENT SECRÈTES. '

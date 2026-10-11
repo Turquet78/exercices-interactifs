@@ -384,3 +384,30 @@ Probabilité conditionnelle » : à côté d'évènements nommés par des lettre
 Vérifié dans Chromium sur les quatre exercices (3.1 à 3.4) et trois
 contextes : en-têtes et coins du tableau, listes (barres comprises), noms
 écrits du 3.4, contexte du modèle.
+
+## v298 — au 3.3, l'indice vide de P se dit « tout », et la case s'efface
+
+Demande de Turquet (octobre 2026) : « en première dans le 3.3, remplacer le
+choix "rien" par "tout" et quand il est choisi, la case doit devenir
+transparente, et presque invisible ».
+
+**Le code ne change pas** : l'indice vide reste `0`, dans la réponse
+attendue, la valeur de la liste et les pauses. Seule l'écriture change, par
+`pbRien()`, que lisent `pbTxt` et `pbHTML` : « tout » sur la fiche
+(`probabilites-fiche`), « rien » ailleurs — le 3.1 garde son mot, la demande
+ne le visait pas. Le contexte envoyé au modèle pour la fiche dit « tout » lui
+aussi.
+
+**La case s'efface** par la classe `pb-transp` posée sur son `.pb-case` par
+`pbAffMaj()` — fond transparent, cadre à peine tracé, « tout » à 22 %
+d'opacité. Elle reste cliquable (l'élève peut changer d'avis). Le sélecteur
+ne nomme aucune classe de verdict, exprès : le contrôle « 9 bis » relit
+toutes les règles `.ok`/`.bad`/`.sol`. La classe tombe quand la vérification
+dit la case FAUSSE (`bad`) ou y écrit la correction (`sol`) : une erreur ou
+une correction invisibles ne servent à rien. Une case juste reste effacée.
+`pbAffMaj()` est donc aussi appelée à la fin de `renderPBFiche()` (reprise
+d'une pause) et après la vérification en soutien.
+
+Vérifié dans Chromium : la liste propose « tout », le choix efface la case
+(fond `rgba(0,0,0,0)`, vitrine à 0,22), et une fois jugée juste elle reste
+effacée.
