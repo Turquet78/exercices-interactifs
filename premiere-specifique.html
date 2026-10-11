@@ -1312,6 +1312,8 @@ i.pb-P{margin-right:.14em}
 .pb-sel.sol~.pb-aff{color:var(--green)}
 .pb-nom{display:inline-block;font-family:"Fredoka";font-weight:600;font-size:calc(1.45rem * var(--tab-nb,1));color:var(--ink);white-space:nowrap}
 .pb-nom sub{font-size:.7em}
+/* l'indice italique penche vers la parenthèse qui le suit : on l'en écarte */
+.pb-nom sub{margin-right:.18em}
 .pb-parmi{font-family:"Nunito";font-style:italic;font-weight:700;font-size:calc(1rem * var(--tab-nb,1));color:var(--ink-soft)}
 .pb-l{display:inline-flex;align-items:center;justify-content:center;gap:6px}
 #pbHost .f-frac-input{align-items:stretch}
@@ -2664,7 +2666,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=297;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=298;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
