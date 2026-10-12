@@ -867,3 +867,27 @@ texte `inputmode="numeric"` : le pavé numérique s'y attache toujours, le banc
 navigateur s'y connecte toujours (`page.fill`). Tenu par deux bords dans
 `tests/verifier.js` (masqué, et pas en password) et, au navigateur, par le
 style calculé (`webkitTextSecurity` = `disc`, type `text`).
+
+**Le décor d'Halloween, en Seconde seulement (demande de Turquet, octobre
+2026, v449).** Ciel de nuit, guirlande de citrouilles, chauves-souris, toile
+d'araignée dans le coin des cadres, boutons d'action orange. Il s'allume TOUT
+SEUL du 15 octobre au 2 novembre (script `#decor-halloween`, juste avant
+`#italiquer-x`) : hors de ces dates le script rend la main sans rien poser, et
+il n'y a rien à retirer après la fête. Le bouton 🎃 de l'en-tête l'éteint ; le
+choix est retenu (`localStorage`, clé `decor-halloween`, enveloppé). Trois
+limites, tenues EXPRÈS :
+* **aucune encre de verdict ne bouge** — `--blue`, `--red`, `--green` restent :
+  le décor colore le fond, l'en-tête, les cadres et `.btn-primary`, jamais
+  `.ok`, `.bad`, `.sol` ;
+* **aucun positionnement ne bouge** — la toile et le fantôme des cartes sont des
+  IMAGES DE FOND, le ciel est sous la page (`z-index:-1`). Le premier aperçu
+  posait `position:relative` sur `.card` et un `z-index` sur `.wrap` : le
+  premier aurait rattaché à la carte tout ce qui s'y accroche en absolu, le
+  second aurait enfermé les commandes flottantes dans un contexte d'empilement ;
+* **ce qui s'écrit HORS des cadres** passe en clair sur la nuit : le titre de
+  l'exercice (`.exo-name`), son numéro, « Question n / N » (`.q-idx`), le
+  numéro de version (`#appVer`, couleur en ligne, d'où le `!important`). Le
+  premier aperçu les laissait sombres sur sombre : le titre était illisible.
+Les animations disparaissent sous `prefers-reduced-motion`, et le décor à
+l'impression. Le banc navigateur a été rejoué deux fois : à la date du jour
+(décor absent) et sur une copie où la saison était forcée (décor posé).
