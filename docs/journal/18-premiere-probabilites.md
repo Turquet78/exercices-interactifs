@@ -119,7 +119,7 @@ B, B̄ au bout des lignes, A, Ā au pied des colonnes (`nomsCase`). Le total
 général reste sans lettre, comme sur la fiche. L'étiquette nomme aussi la
 case pour un lecteur d'écran (« effectif de B »).
 
-**Puis le début de ligne s'est écrit tout seul (v298).** Demande de
+**Puis le début de ligne s'est écrit tout seul (v300 — préparé en v298, la v298 et la v299 de `main` étant arrivées pendant les contrôles).** Demande de
 Turquet : « dans l'exercice 3.2, quand l'élève a interprété la question avec
 des lettres ou “tout”, afficher la formule du début de ligne, par exemple
 P(M) = ou P_L(M) =, et laisser l'élève compléter le reste de la ligne comme
@@ -403,3 +403,37 @@ Probabilité conditionnelle » : à côté d'évènements nommés par des lettre
 Vérifié dans Chromium sur les quatre exercices (3.1 à 3.4) et trois
 contextes : en-têtes et coins du tableau, listes (barres comprises), noms
 écrits du 3.4, contexte du modèle.
+
+**Puis l'indice s'est écarté de sa parenthèse (v298).** Demande de Turquet,
+capture du 3.4 à l'appui : « l'indice ne doit pas toucher la parenthèse ».
+L'indice italique (P, J…) penche vers la droite et venait mordre sur le « ( »
+de P_P(J), P_J(P̄). Une seule règle, `.pb-nom sub{margin-right:.18em}`, vaut
+pour tous les noms écrits par `pbNomHTML` (3.1 et 3.4). Vérifié dans Chromium
+par une capture avant/après des noms P_P(J), P_J(P̄), P_G(L).
+
+## v299 — au 3.3, l'indice vide de P se dit « tout », et la case s'efface
+
+Demande de Turquet (octobre 2026) : « en première dans le 3.3, remplacer le
+choix "rien" par "tout" et quand il est choisi, la case doit devenir
+transparente, et presque invisible ».
+
+**Le code ne change pas** : l'indice vide reste `0`, dans la réponse
+attendue, la valeur de la liste et les pauses. Seule l'écriture change, par
+`pbRien()`, que lisent `pbTxt` et `pbHTML` : « tout » sur la fiche
+(`probabilites-fiche`), « rien » ailleurs — le 3.1 garde son mot, la demande
+ne le visait pas. Le contexte envoyé au modèle pour la fiche dit « tout » lui
+aussi.
+
+**La case s'efface** par la classe `pb-transp` posée sur son `.pb-case` par
+`pbAffMaj()` — fond transparent, cadre à peine tracé, « tout » à 22 %
+d'opacité. Elle reste cliquable (l'élève peut changer d'avis). Le sélecteur
+ne nomme aucune classe de verdict, exprès : le contrôle « 9 bis » relit
+toutes les règles `.ok`/`.bad`/`.sol`. La classe tombe quand la vérification
+dit la case FAUSSE (`bad`) ou y écrit la correction (`sol`) : une erreur ou
+une correction invisibles ne servent à rien. Une case juste reste effacée.
+`pbAffMaj()` est donc aussi appelée à la fin de `renderPBFiche()` (reprise
+d'une pause) et après la vérification en soutien.
+
+Vérifié dans Chromium : la liste propose « tout », le choix efface la case
+(fond `rgba(0,0,0,0)`, vitrine à 0,22), et une fois jugée juste elle reste
+effacée.
