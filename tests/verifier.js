@@ -25447,6 +25447,37 @@ function pythonForRange(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
 
+  verifierEval(w, 'les questions inversées : ' + J(D.inversees) + ' ; le a) demande les cases SANS exécuter, « Exécuter » refuse de tourner sur une case vide sans rien rougir, puis juge la prévision', `(function(){
+    const vus=[];
+    for(let s=0;s<50&&!vus.length;s++){ const inv=pfrBuildQuestions().map(function(q){ return !!q.inv; }); if(JSON.stringify(inv)!==${J(J(D.inversees))}) vus.push("l’ordre des questions : "+JSON.stringify(inv)); }
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPFR();
+    const i=test.questions.findIndex(function(q){ return q.inv; });
+    if(i<0) return vus.concat("aucune question inversée").join(" | ");
+    test.idx=i; renderPFR();
+    const q=test.questions[i], b=pfrBornes(q);
+    const ea=document.querySelector("#pfrEtapeA .pii-titre"), eb=document.querySelector("#pfrEtapeB .pii-titre");
+    if(!ea||!/a\\)\\s*Sans exécuter/.test(ea.textContent)||!/explique/.test(ea.textContent)) vus.push("l’énoncé du a) : "+(ea&&ea.textContent));
+    if(!eb||!/b\\)\\s*Exécute/.test(eb.textContent)) vus.push("l’énoncé du b) : "+(eb&&eb.textContent));
+    const de=document.getElementById("pfr-de"), a=document.getElementById("pfr-a");
+    if(!de||!a||!document.getElementById("pfrEtapeA").contains(de)) vus.push("les cases ne sont pas dans le a)");
+    if(!document.getElementById("pfrEtapeB").contains(document.getElementById("pfrRun"))) vus.push("« Exécuter » n’est pas dans le b)");
+    if(document.getElementById("pfrConsole").textContent!=="") vus.push("la console n’est pas vide avant l’exécution");
+    de.value=String(b[0]); pfrExecuter();
+    if(q.etape!=="a"||document.getElementById("pfrConsole").textContent!==""||document.querySelector("#pfrHost .bad, #pfrHost .sol, #pfrHost .ok")) vus.push("« Exécuter » tourne ou juge avec une case vide");
+    if(!/Complète d’abord/.test(document.getElementById("pfrFeedback").textContent)) vus.push("la case vide n’est pas redemandée");
+    document.getElementById("pfr-a").value=String(q.n); pfrExecuter();
+    const c=document.getElementById("pfrConsole").textContent;
+    if(c!==pyRun(pfrProg(q)).out.replace(/\\n$/,"")) vus.push("la console après l’exécution : "+JSON.stringify(c));
+    const de2=document.getElementById("pfr-de"), a2=document.getElementById("pfr-a");
+    if(!de2.classList.contains("ok")||!a2.classList.contains("bad")||!test.locked) vus.push("la prévision n’est pas jugée : "+de2.className+" / "+a2.className);
+    const ans=test.answers[test.answers.length-1];
+    if(!ans||ans.justes!==1||ans.cases!==2) vus.push("la note : "+JSON.stringify(ans));
+    if(!/AVANT/.test(document.getElementById("pfrFeedback").textContent)) vus.push("l’erreur de la borne n’est pas nommée");
+    if(!/SANS exécuter/.test(ctxPfr(q).contexte)) vus.push("le contexte de l’IA ne dit pas l’ordre inversé");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
   const nomPy = 'ce que les programmes de {python-for-range} affichent est ce qu’affiche un vrai CPython';
   const cmd = pythonDisponible();
   if(!cmd){

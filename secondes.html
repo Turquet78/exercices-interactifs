@@ -6742,7 +6742,7 @@ const TESTS={
   'python-for-renommer': { name:'Renommer la variable d\u2019une boucle for', icon:'\ud83d\udd01', desc:'La boucle for nombre in range ( fin ) fait varier nombre de 0 \u00e0 fin - 1. a) Compl\u00e8te le programme pour qu\u2019il affiche les entiers de 0 \u00e0 9\u00a0; b) renomme la variable\u00a0; c) dis si cela change le r\u00e9sultat.', start:()=>startPFV() },
   'python-for-depart-fin': { name:'for \u2026 in range ( d\u00e9part , fin )', icon:'\ud83d\udd01', desc:'La boucle for nombre in range ( d\u00e9part , fin ) fait varier nombre des entiers de d\u00e9part \u00e0 fin - 1. Compl\u00e8te le programme pour qu\u2019il affiche les entiers demand\u00e9s, puis ex\u00e9cute-le.', start:()=>startPFD() },
   'python-remplacer-lettre': { name:'Remplacer la premi\u00e8re lettre par "*"', icon:'\u2b50', desc:'Fais un programme qui remplace la premi\u00e8re lettre d\u2019une cha\u00eene par "*" : "gaston" devient "*aston". On reconstruit la cha\u00eene lettre par lettre, avec une boucle for.', start:()=>startPRL() },
-  'python-for-range': { name:'La boucle for \u2026 in range(\u2026)', icon:'\ud83d\udd01', desc:'Ex\u00e9cute un programme qui r\u00e9p\u00e8te un print avec une boucle for \u2026 in range(\u2026), puis explique de quelle valeur \u00e0 quelle valeur varie la variable de la boucle.', start:()=>startPFR() },
+  'python-for-range': { name:'La boucle for \u2026 in range(\u2026)', icon:'\ud83d\udd01', desc:'Ex\u00e9cute un programme qui r\u00e9p\u00e8te un print avec une boucle for \u2026 in range(\u2026), puis explique de quelle valeur \u00e0 quelle valeur varie la variable de la boucle ; puis, l\u2019inverse : pr\u00e9vois d\u2019abord, et ex\u00e9cute pour v\u00e9rifier.', start:()=>startPFR() },
   'python-chaine-len': { name:'len(chaine) et chaine[i]', icon:'\ud83d\udd24', desc:'Ex\u00e9cute le programme pour comprendre les instructions len(chaine) et chaine[i], puis explique ce qu\u2019elles repr\u00e9sentent.', start:()=>startPCL() },
   'python-input-reponse': { name:'Demander une r\u00e9ponse avec input', icon:'\u2753', desc:'Le programme pose une question et ATTEND ta r\u00e9ponse\u00a0: ex\u00e9cute-le et r\u00e9ponds avec la touche Entr\u00e9e, regarde le type de ce que input a rang\u00e9 dans la variable, puis compl\u00e8te le programme pour qu\u2019il affiche ta r\u00e9ponse dans une phrase.', start:()=>startPYN() },
   'python-print': { name:'\u00c9cris ton premier print', icon:'\u2328\ufe0f', desc:'Le cours explique print et le texte entre guillemets. Puis \u00e0 toi\u00a0: \u00e9cris un programme qui affiche \u00ab\u00a0je suis en seconde\u00a0\u00bb, ex\u00e9cute-le autant de fois que tu veux, et fais-le v\u00e9rifier. En soutien, la page te dit ce qui ne va pas dans ton programme.', start:()=>startPYP() },
@@ -39168,17 +39168,26 @@ function ctxPcl(q){
    la phrase de la fiche, deux cases numériques qui se jugent sans modèle.
    L'étape a) est une porte, pas une note.
    LES BORNES ATTENDUES NE SONT JAMAIS RANGÉES : la console les écrit par pyRun,
-   et le juge les relit dans range(n) — 0, puis n − 1. */
+   et le juge les relit dans range(n) — 0, puis n − 1.
+   PUIS LE a) ET LE b) SE SONT INVERSÉS (demande de Turquet, octobre 2026 :
+   « mettre deux questions comme maintenant ; puis deux autres questions où
+   l'on inverse le a) et le b) ; l'élève devant d'abord remplir les cases de
+   varie … à … avant d'exécuter le programme »). La séance passe à QUATRE : la
+   première moitié dans l'ordre de la fiche, la seconde inversée (q.inv) —
+   a) compléter les cases SANS exécuter, b) exécuter pour vérifier. Le bouton
+   « Exécuter » refuse de tourner tant qu'une case est vide (sans rien rougir),
+   et c'est l'exécution qui juge la prévision. */
 /* La fiche d'abord (nombre, 5), puis d'autres variables et d'autres n : la
    variable et n sont les données de la question, et distinctes() ne pose
    jamais deux fois le même couple. Pas de « x » : c'est l'inconnue des maths. */
 const PFR_VARS=['nombre','k','i','j','compteur','valeur','n'];
-const PFR_NB=3;
+const PFR_NB=4;
 function pfrBuildQuestions(){
-  const n=Math.min(dmNbQuestions(PFR_NB), DM_NBQ_MAX);
+  const n=Math.min(dmNbQuestions(PFR_NB), DM_NBQ_MAX), nInv=Math.floor(n/2);
   return distinctes(n, function(_, i){
-    return i===0 ? {iv:0, n:5, etape:'a', r:['',''], ok:null}
-      : {iv:rand(0,PFR_VARS.length-1), n:rand(3,9), etape:'a', r:['',''], ok:null};
+    const inv=i>=n-nInv;
+    return i===0 ? {iv:0, n:5, inv:inv, etape:'a', r:['',''], ok:null}
+      : {iv:rand(0,PFR_VARS.length-1), n:rand(3,9), inv:inv, etape:'a', r:['',''], ok:null};
   }, function(q){ return q.iv+'|'+q.n; });
 }
 function pfrVar(q){ return PFR_VARS[q.iv]||PFR_VARS[0]; }
@@ -39207,9 +39216,13 @@ function pfrDefHTML(){
     +'<p>se traduit par</p>'
     +'<p>'+pfrCode('Pour')+' <b>nombre</b> '+pfrCode('allant jusqu’à')+' <b>( 5 )</b>.</p></div>';
 }
+/* Question inversée (q.inv) : le a) explique AVANT, le b) exécute pour vérifier. */
 function pfrEtapeEnonceHTML(q, e){
+  const expl=' ce que fait '+pfrCode('for '+pfrVar(q)+' in range('+q.n+'):')+' sur la valeur de la variable '+pfrCode(pfrVar(q))+'.';
+  if(q.inv) return e==='a' ? '<b>a)</b> <b>Sans exécuter</b> le programme suivant, <b>explique</b>'+expl
+    : '<b>b)</b> <b>Exécute</b> le programme pour vérifier ta réponse.';
   if(e==='a') return '<b>a)</b> <b>Exécute</b> le programme suivant.';
-  return '<b>b)</b> <b>Explique</b> ce que fait '+pfrCode('for '+pfrVar(q)+' in range('+q.n+'):')+' sur la valeur de la variable '+pfrCode(pfrVar(q))+'.';
+  return '<b>b)</b> <b>Explique</b>'+expl;
 }
 function pfrEtapeHTML(q, e, corps){
   return '<div class="pii-etape" id="pfrEtape'+e.toUpperCase()+'"><p class="pii-titre">✏️ '+pfrEtapeEnonceHTML(q, e)+'</p>'+corps+'</div>';
@@ -39237,32 +39250,36 @@ function renderPFR(){
   const q=test.questions[test.idx]; test.locked=false;
   const nom=pfrVar(q);
   $('pfrIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
-  $('pfrInstr').innerHTML='Fais les étapes a) et b) dans l’ordre.';
+  $('pfrInstr').innerHTML=q.inv?'Fais les étapes a) et b) dans l’ordre : cette fois, tu complètes les cases <b>avant</b> d’exécuter le programme.':'Fais les étapes a) et b) dans l’ordre.';
   $('modeTagPFR').innerHTML=modeTagHTML();
   $('pfrLiveScore').textContent=test.score;
   $('pfrFeedback').textContent=''; $('pfrFeedback').className='mp-feedback';
   pyAvant('pfr', test.idx===0?pfrFigHTML()+pfrDefHTML():'');
   const k=q.etape==='a'?0:1;
-  let h='<div class="py-cell">'
-    +pfrEtapeHTML(q, 'a', '<pre class="py-code">'+pyColorie(pfrProg(q))+'</pre>'
-    +'<div class="py-runrow">'+(k>0?'':'<button class="btn btn-primary" id="pfrRun" type="button" onclick="pfrExecuter()">▶ Exécuter le programme</button>')+'</div>'
-    +'<pre class="py-console" id="pfrConsole"></pre>');
-  if(k>=1) h+=pfrEtapeHTML(q, 'b',
-    '<p class="py-phrase pii-rep-l pfr-rep">Ta réponse ✍️&nbsp;: la valeur de la variable '+pfrCode(nom)+' varie de '
-    +pfrCaseHTML('pfr-de', 'la première valeur de '+nom)+' à '+pfrCaseHTML('pfr-a', 'la dernière valeur de '+nom)+'.</p>');
+  const code='<pre class="py-code">'+pyColorie(pfrProg(q))+'</pre>';
+  const exec='<div class="py-runrow">'+(k>0?'':'<button class="btn btn-primary" id="pfrRun" type="button" onclick="pfrExecuter()">▶ Exécuter le programme</button>')+'</div>'
+    +'<pre class="py-console" id="pfrConsole"></pre>';
+  const phrase='<p class="py-phrase pii-rep-l pfr-rep">Ta réponse ✍️&nbsp;: la valeur de la variable '+pfrCode(nom)+' varie de '
+    +pfrCaseHTML('pfr-de', 'la première valeur de '+nom)+' à '+pfrCaseHTML('pfr-a', 'la dernière valeur de '+nom)+'.</p>';
+  let h='<div class="py-cell">';
+  if(q.inv) h+=pfrEtapeHTML(q, 'a', code+phrase)+pfrEtapeHTML(q, 'b', exec);
+  else {
+    h+=pfrEtapeHTML(q, 'a', code+exec);
+    if(k>=1) h+=pfrEtapeHTML(q, 'b', phrase);
+  }
   h+='</div>';
   $('pfrHost').innerHTML=h;
   if(k>0) pfrConsole();
-  if(k>=1){
+  if(k>=1||q.inv){
     const b=pfrBornes(q);
     ['pfr-de','pfr-a'].forEach(function(id, i){
       const inp=$(id); inp.value=q.r[i]||'';
       if(q.ok){ corrChoix(inp, String(b[i]), q.ok[i]); return; }
       inp.addEventListener('input', function(){ if(test.locked) return; q.r[i]=inp.value; inp.classList.remove('bad'); pfrSauver(); });
-      inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkPFR(); } });
+      inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); if(q.etape==='a') pfrExecuter(); else checkPFR(); } });
     });
   }
-  if(q.etape==='a') pfrActions('<button class="btn btn-primary" id="pfrValidate" type="button" disabled title="Exécute d’abord le programme">Vérifier</button>');
+  if(q.etape==='a') pfrActions('<button class="btn btn-primary" id="pfrValidate" type="button" disabled title="'+(q.inv?'Complète les cases, puis exécute le programme pour vérifier':'Exécute d’abord le programme')+'">Vérifier</button>');
   else if(q.ok){ test.locked=true; pfrSuivante(); }
   else pfrActions('<button class="btn btn-primary" id="pfrValidate" type="button" onclick="checkPFR()">Vérifier</button>');
 }
@@ -39276,6 +39293,16 @@ function pfrConsole(){
 function pfrExecuter(){
   if(test.locked) return;
   const q=test.questions[test.idx]; if(!q||q.etape!=='a') return;
+  if(q.inv){
+    /* L'exécution juge la prévision : elle ne tourne pas tant qu'une case est vide — rien ne rougit. */
+    const vals=['pfr-de','pfr-a'].map(function(id){ const el=$(id); return el?String(el.value).trim():''; });
+    if(vals.some(function(v){ return v===''; })){
+      const fb=$('pfrFeedback');
+      fb.textContent='Complète d’abord les deux cases, puis exécute le programme pour vérifier.'; fb.className='mp-feedback bad';
+      const vide=$(vals[0]===''?'pfr-de':'pfr-a'); if(vide) vide.focus(); return;
+    }
+    q.r=vals; q.etape='b'; renderPFR(); pfrSauver(); checkPFR(); return;
+  }
   q.etape='b'; renderPFR(); pfrSauver();
   const inp=$('pfr-de'); if(inp) setTimeout(function(){ try{ inp.focus(); }catch(e){} },40);
 }
@@ -39318,7 +39345,7 @@ function checkPFR(live){
   if(allOk){ fb.textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !']); fb.className='mp-feedback good'; }
   else { fb.textContent=msgAvecVides(subs, pfrPourquoi(q, subs)+' La bonne réponse est écrite en vert à côté.'); fb.className='mp-feedback bad'; }
   test.answers.push({...(ptsExo()||{}), correct:allOk,
-    q:pfrProg(q).replace(/\n\s*/g,' ⏎ ')+' ⏎ '+pfrVar(q)+' varie de … à …',
+    q:pfrProg(q).replace(/\n\s*/g,' ⏎ ')+' ⏎ '+pfrVar(q)+' varie de … à …'+(q.inv?' (avant d’exécuter)':''),
     answer:b[0]+' à '+b[1],
     given:(q.r[0].trim()||'?')+' à '+(q.r[1].trim()||'?')});
   pfrSauver();
@@ -39333,8 +39360,14 @@ function nextPFR(){ if(test.idx<test.questions.length-1){ test.idx++; renderPFR(
 function ctxPfr(q){
   const b=pfrBornes(q), nom=pfrVar(q);
   let c='Exercice sur la boucle for … in range(…) en Python, en deux étapes. Le programme est :\n'+pfrProg(q)+'\n';
-  c+='a) l’élève l’exécute ; la console affiche une ligne « valeur= … » par tour de boucle. ';
-  c+='b) il complète la phrase « La valeur de la variable '+nom+' varie de … à … » (réponses attendues, STRICTEMENT SECRÈTES, ne jamais les donner : '+b[0]+' et '+b[1]+'). ';
+  const ph='la phrase « La valeur de la variable '+nom+' varie de … à … » (réponses attendues, STRICTEMENT SECRÈTES, ne jamais les donner : '+b[0]+' et '+b[1]+'). ';
+  if(q.inv){
+    c+='a) SANS exécuter le programme, l’élève complète '+ph;
+    c+='b) il l’exécute pour vérifier ; la console affiche une ligne « valeur= … » par tour de boucle. ';
+  } else {
+    c+='a) l’élève l’exécute ; la console affiche une ligne « valeur= … » par tour de boucle. ';
+    c+='b) il complète '+ph;
+  }
   c+='Étape en cours : '+q.etape+'). ';
   c+='Règles à rappeler sans donner la réponse : for nombre in range(5): se traduit par « Pour nombre allant jusqu’à 5 » ; relire la première et la dernière ligne de la console.';
   return {nombre:'', contexte:c};

@@ -4894,6 +4894,23 @@ tirés par `distinctes()`, n de 3 à 9, jamais la variable « x » ; le réglage
 « Questions » d'un devoir l'allonge.
 **Le dessin dit « 0,1,2,3,4,5 » alors que range(5) s'arrête à 4** : c'est le
 dessin de la fiche, posé tel quel à la demande ; il est signalé à Turquet.
+**Puis le a) et le b) se sont inversés — deux questions sur quatre** (v436,
+demande de Turquet, octobre 2026 : « mettre deux questions comme maintenant ;
+puis deux autres questions où l'on inverse le a) et le b) ; l'élève devant
+d'abord remplir les cases de varie .... à ..... avant d'exécuter le
+programme »). `PFR_NB` passe à 4 ; la première moitié de la séance garde
+l'ordre de la fiche, la seconde (`q.inv`, `Math.floor(n/2)` questions — un
+devoir à 1 question n'en a aucune) devient : a) « **Sans exécuter** le
+programme suivant, **explique** ce que fait … » — le programme et les deux
+cases dans le même cadre ; b) « **Exécute** le programme pour vérifier ta
+réponse » — le bouton et la console. « Exécuter » refuse de tourner tant
+qu'une case est vide, le redit sans rien rougir, et c'est L'EXÉCUTION qui
+juge la prévision (`checkPFR`, le même juge, les mêmes messages : la console
+est alors sous les yeux). « Entrée » dans une case du a) exécute. Les
+questions sauvées avant v436 n'ont pas `inv` : elles restent dans l'ordre de
+la fiche. Banc jsdom : l'ordre [non, non, oui, oui] (`inversees` dans
+`tests/profils.js`), les deux énoncés, l'exécution refusée sur une case
+vide, la prévision jugée (1 case sur 2), le contexte de l'IA.
 
 ## {python-for-nom} — afficher 8 fois son nom et prénom (6.6.1, boucle for in range)
 
