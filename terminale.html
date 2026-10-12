@@ -3302,7 +3302,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=379;
+const APP_VERSION=380;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -5138,11 +5138,35 @@ const PM_ICO_FRAC='<svg width="16" height="18" viewBox="0 0 16 18" aria-hidden="
  +'<rect x="4" y="2" width="8" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/>'
  +'<line x1="2" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.8"/>'
  +'<rect x="4" y="12" width="8" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
-let pmLastMF=null;
+let pmLastMF=null, pmLastTxt=null;
 document.addEventListener('focusin',e=>{
   const el=e.target;
-  if(el && el.tagName==='MATH-FIELD' && pmEstCase(el)) pmLastMF=el;
+  if(el && el.tagName==='MATH-FIELD' && pmEstCase(el)){ pmLastMF=el; pmLastTxt=null; }
+  else if(pmEstTexte(el)) pmLastTxt=el;
 });
+/* UN JETON TOMBE AUSSI DANS UNE CASE DE TEXTE. La rangée se greffe sur l'écran
+   dès qu'il a un champ mathématique, mais certains écrans ont AUSSI une case de
+   texte simple — le « avec » du 5.6.1, où l'on écrit « 0 < 0,6 < 1 ». La
+   virgule y partait dans le champ mathématique d'à côté, et l'élève voyait
+   « 0<06<1 » rougir (signalé par Turquet sur une capture, octobre 2026). */
+function pmEstTexte(el){
+  return !!(el && el.tagName==='INPUT' && (el.type==='text' || el.type==='') && !el.readOnly && !el.disabled
+    && el.closest && el.closest('.screen'));
+}
+function pmActiveTexte(){
+  const a=document.activeElement;
+  if(pmEstTexte(a)) return a;
+  if(a && a.tagName==='MATH-FIELD') return null;
+  return (pmLastTxt && document.contains(pmLastTxt) && pmEstTexte(pmLastTxt) && pmLastTxt.closest('.screen.on')) ? pmLastTxt : null;
+}
+function pmInsertTexte(el, lx){
+  const t=lx.indexOf('\\frac')===0 ? '/' : (lx.length===1 ? lx : '');
+  if(!t) return;
+  try{ el.focus(); }catch(e){}
+  const d=el.selectionStart==null?el.value.length:el.selectionStart, f=el.selectionEnd==null?d:el.selectionEnd;
+  el.setRangeText(t, d, f, 'end');
+  el.dispatchEvent(new Event('input',{bubbles:true}));
+}
 function pmEstCase(el){
   return !!(el && el.classList && (el.classList.contains('dexp-mf') || el.classList.contains('dexp2-mf')));
 }
@@ -5153,6 +5177,7 @@ function pmActiveMF(){
   return document.querySelector('.screen.on math-field.dexp-mf:not([readonly]), .screen.on math-field.dexp2-mf:not([readonly])');
 }
 function pmInsert(lx){
+  const tx=pmActiveTexte(); if(tx){ pmInsertTexte(tx, lx); return; }
   const el=pmActiveMF(); if(!el || el.readOnly) return;
   try{ el.focus(); }catch(e){}
   try{ el.executeCommand(['insert', lx]); }catch(e){ try{ el.insert(lx); }catch(e2){} }

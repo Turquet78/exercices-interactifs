@@ -2105,6 +2105,11 @@ module.exports = {
          montre qu'un raccourci et une touche écrivent. */
       navigateur: { exercice: 'limites-graphiques', mode: 'train', case: 'lg-lim0',
                     bouton: '#lg-lim0 + button.lg-inf' },
+      /* et le jeton « , » de la rangée générique, l'élève posé dans une case de
+         TEXTE voisine (le « avec » du 5.6.1) : la virgule doit y tomber, pas
+         dans le champ mathématique d'à côté (octobre 2026). */
+      jetonTexte: { exercice: 'suite-limite-puissance', case: 'lqn-avec',
+                    pose: "test.questions=[{fam:'p',q:0.6}]; test.idx=0; renderLQN();" },
     },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
