@@ -1364,3 +1364,70 @@ lit chaque case attendue de chaque question et recalcule le numérateur final
 par sa propre arithmétique ; sans la déclaration, il se dit non applicable.
 La copie juste fixe du contrôle des étapes (1 − 1/4) attend 3/4 en Première,
 −3/4 en Seconde — la même fixture, lue selon le profil.
+
+**Puis le thème 4 de la Première a reçu quatre exercices de la Seconde —
+4.2 à 4.5 (octobre 2026, Première v307, Seconde v438).** Demande de Turquet :
+« en première mettre les exercices de seconde 5.2 ; 5.3 ; 5.6 ; 5.8 dans le
+thème fraction de première. Il faut que tous les nombres au départ soient
+entre 1 et 5 ; qu'il n'y ait pas de résultat intermédiaire ou final en
+négatif. Les fractions au début doivent être irréductibles ; si le résultat
+peut être simplifié, proposer les simplifications comme dans l'exercice de
+première 4.1. » Comme au 4.1, « mettre en Première » est une copie : la
+Seconde garde ses quatre exercices, inchangés.
+
+* **{croiser-denominateurs} (4.2) et {somme-fractions-2} (4.3)** tournent sur
+  le moteur sf, PARTAGÉ au caractère près avec la Seconde (le contrôle « le
+  moteur des fractions est identique dans les deux niveaux » le tient). Le 5.3
+  de la Seconde s'appelle {somme-fractions}, mais cet identifiant vit déjà en
+  Première au 1.9 (calcul mental) : un exercice ne vit que dans un thème, et
+  ses notes portent l'IDENTIFIANT. Le 4.3 en a donc un neuf, et le 1.9 ne
+  change pas (nombres de 1 à 9, pas de chaîne). Les flèches du croisement
+  (`crdDecorer` et ses voisines) et leur feuille de styles sont recopiées.
+* **{multiplier-fractions} (4.4) et {diviser-fractions} (4.5)** : le moteur
+  mlt de la Seconde, RECOPIÉ — il n'existait pas en Première —, avec quatre
+  écarts nommés dans son en-tête (borne, produit qui se simplifie, tirage par
+  `distinctes(dmNbQuestions(MLT_NB), …)`, pas de version rédigée).
+* **La borne** est un paramètre de `sfGen(op, mode, max)` (9 par défaut : la
+  Seconde ne change pas d'un tirage) et `FRAC_MAX` (5) côté Première.
+  **Rien de négatif** : `sfGen` écartait déjà les différences négatives ; un
+  produit ou un quotient de fractions positives l'est. **Départ
+  irréductible** : `sfGen` le tenait déjà, `mltGen`/`divGen` le testent
+  désormais fraction par fraction — l'irréductibilité du PRODUIT, qui
+  l'impliquait en Seconde, n'est plus exigée.
+* **La simplification par étapes** reprend le geste du 4.1 (`rvfSimpPas`,
+  `rvfMajSimp`) dans un module partagé par les deux moteurs, `se…` (Première
+  seulement) : `… = [a]/[b] = (a ÷ [k])/(b ÷ [k]) = [a′]/[b′] = …`, diviseur au
+  choix, recopié en haut et en bas, nombres divisés recopiés de la fraction
+  d'avant, étape suivante tant que la fraction se simplifie, diviseur vide ou
+  faux corrigé par le PGCD, fraction brute et diviseurs RANGÉS dans la
+  question (`q.sbrut`, `q.sdiv`) pour la reprise. Le moteur sf l'appelle par
+  des lignes gardées (`test.etapes && typeof seJuge==='function'`), exactement
+  comme il appelait déjà `crdDecorer` : la Seconde ne pose jamais
+  `test.etapes`, et ces lignes y sont lettre morte.
+* **La fraction à simplifier d'une SOMME dépend de la route.** Avec des
+  nombres de 1 à 5, une somme sur le PLUS PETIT dénominateur commun n'est
+  jamais réductible (seul le couple 2 et 4 partage un diviseur, et
+  n1/2 + n2/4 = (2·n1 + n2)/4 a un numérateur impair, n2 étant impair) — la
+  chaîne ne naît donc que si l'élève prend un dénominateur plus grand :
+  1/2 + 1/4 par 8 donne 6/8, qui se simplifie. Le dénominateur commun restant
+  libre, la chaîne apparaît et disparaît PENDANT la saisie (`seMaj`, branché
+  sur les évènements « input » de l'hôte). Pour un produit ou un quotient, la
+  fraction brute ne dépend que de l'énoncé : la chaîne est posée d'emblée,
+  comme au 4.1.
+* **Quand la fraction obtenue se simplifie, la dernière case attend le calcul
+  TEL QUEL** (6/8, pas 3/4) : c'est la chaîne qui simplifie. Une fraction
+  irréductible garde la règle de la Seconde (toute fraction égale).
+
+Contrôles : « le thème Fractions : nombres de 1 à 5, rien de négatif, et la
+simplification par étapes » (`tests/verifier.js`, déclaré par
+`fractionsEtapes` dans le profil de la Première) — deux cents séances par
+exercice, lancées par les VRAIS démarreurs, chaque nombre de départ lu contre
+la borne (et la borne atteinte), l'irréductibilité, et chaque nombre
+intermédiaire recalculé par une arithmétique propre ; puis la chaîne de la
+somme (par 4, 8 et 16), du produit et du quotient, par de vrais évènements
+« input ». `multiplierFractions` se déclare désormais par niveau
+(`multiplierFractions` : borne, simplification, version rédigée). Le banc
+navigateur (« 6 terdecies bis ») TAPE la chaîne au clavier dans les vraies
+cases MathLive — 1/2 + 1/4 par 8, 2/3 × 3/5 — et exige la note et aucune
+case rouge ; « 6 terdecies » (les flèches qui se croisent) court maintenant
+sur les deux niveaux.

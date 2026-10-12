@@ -6559,6 +6559,101 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 terdecies bis. LA SIMPLIFICATION PAR ÉTAPES S'OUVRE EN ÉCRIVANT =====
+       Le thème 4 de la Première (octobre 2026) : quand le résultat d'une somme,
+       d'un produit ou d'un quotient se simplifie, la rangée continue sur la
+       même ligne — « = (a ÷ k)/(b ÷ k) = a′/b′ » —, et une étape de plus
+       s'ouvre tant que la fraction se simplifie encore. Pour une somme, la
+       fraction à simplifier dépend du dénominateur commun que l'élève CHOISIT :
+       la chaîne naît donc PENDANT qu'il écrit, des évènements « input » de vrais
+       champs MathLive, et c'est la seule chose que jsdom ne peut pas montrer —
+       ses cases sont des éléments inconnus, et le banc y simule l'évènement.
+       Ici on TAPE, au clavier, dans les vraies cases : 1/2 + 1/4 par le
+       dénominateur 8 (6/8, puis ÷ 2 = 3/4), et 2/3 × 3/5 = 6/15 (÷ 3 = 2/5),
+       dont la chaîne est posée d'emblée. Puis le bouton : la copie vaut le
+       point, et rien ne rougit. */
+    titre('6 terdecies bis. LA SIMPLIFICATION PAR ÉTAPES S\'OUVRE EN ÉCRIVANT');
+    if(!P.fractionsEtapes){
+      ignorer('la simplification par étapes s\'ouvre en écrivant, et la copie juste vaut le point',
+        'ce niveau n\'a pas les exercices de fractions à simplification par étapes');
+    } else if(!ml){
+      ignorer('la simplification par étapes s\'ouvre en écrivant, et la copie juste vaut le point', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      const dits = [];
+      const tape = async (id, v) => {
+        const ok = await s.page.evaluate(i => { const el = document.getElementById(i); if(!el) return false; el.focus(); return true; }, id);
+        if(!ok){ dits.push('pas de case ' + id); return; }
+        await s.page.waitForTimeout(60);
+        await s.page.keyboard.type(String(v), { delay: 20 });
+        await s.page.waitForTimeout(120);
+      };
+      /* « p » nomme le moteur lu : l'écran de la somme reste dans la page
+         quand on passe au produit, et ses cases y gardent leurs valeurs. */
+      const lit = p => s.page.evaluate(p => {
+        const v = id => { const e = document.getElementById(p + id); return e ? String(e.value) : null; };
+        const t = id => { const e = document.getElementById(p + id); return e ? e.textContent : null; };
+        return { e0: !!document.getElementById(p + 'e0-dn'), e1: !!document.getElementById(p + 'e1-dn'),
+                 dd: v('e0-dd'), an: t('e0-an'), ad: t('e0-ad') };
+      }, p);
+      const verdict = () => s.page.evaluate(() => {
+        const d = test.answers[test.answers.length - 1];
+        return { juste: !!(d && d.correct), rouges: [...document.querySelectorAll('.screen.on .bad')].map(e => e.id || e.className) };
+      });
+      /* ① la somme */
+      if(P.fractionsEtapes.exercices.indexOf('somme-fractions-2') >= 0){
+        await s.page.evaluate(() => openTest('somme-fractions-2'));
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        await s.page.evaluate(() => { test.questions[test.idx] = {n1:1,d1:2,n2:1,d2:4,op:'+',D:4,k1:2,k2:1,N1:2,N2:1,N:3,Nr:3,Dr:4}; renderSFTest(); });
+        await s.page.waitForTimeout(700);
+        if((await lit('sf-')).e0) dits.push('somme : une étape s’affiche avant que l’élève ait écrit');
+        for(const [id, v] of [['sf-a1',4],['sf-b1',4],['sf-a2',2],['sf-b2',2],['sf-num1',4],['sf-num2',2],['sf-den',8],['sf-fn',6],['sf-fd',8]]) await tape(id, v);
+        let l = await lit('sf-');
+        if(!l.e0) dits.push('somme : par le dénominateur 8, la fraction 6/8 n’ouvre aucune étape');
+        else {
+          if(l.an !== '6' || l.ad !== '8') dits.push('somme : les nombres divisés ne recopient pas 6/8 (' + l.an + '/' + l.ad + ')');
+          await tape('sf-e0-dn', 2);
+          l = await lit('sf-');
+          if(l.dd !== '2') dits.push('somme : le diviseur tapé en haut ne se recopie pas en bas (' + l.dd + ')');
+          if(l.e1) dits.push('somme : 3/4 est irréductible, et une étape de plus s’ouvre');
+          await tape('sf-e0-n', 3); await tape('sf-e0-d', 4);
+          await s.page.evaluate(() => checkSFAnswer());
+          await s.page.waitForTimeout(300);
+          const r = await verdict();
+          if(!r.juste) dits.push('somme : 1/2 + 1/4 = 4/8 + 2/8 = 6/8 = 3/4, tapé au clavier, est compté faux');
+          if(r.rouges.length) dits.push('somme : des cases rougissent sur une copie juste : ' + r.rouges.slice(0, 4).join(', '));
+        }
+      }
+      /* ② le produit */
+      if(P.fractionsEtapes.exercices.indexOf('multiplier-fractions') >= 0){
+        await s.page.evaluate(() => openTest('multiplier-fractions'));
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        await s.page.evaluate(() => { test.questions[test.idx] = {n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15}; delete test.questions[test.idx].sbrut; renderMltTest(); });
+        await s.page.waitForTimeout(700);
+        if(!(await lit('mlt-')).e0) dits.push('produit : 6/15 se simplifie, et aucune étape n’est posée d’emblée');
+        for(const [id, v] of [['mlt-h1',2],['mlt-h2',3],['mlt-b1',3],['mlt-b2',5],['mlt-fn',6],['mlt-fd',15],['mlt-e0-dd',3],['mlt-e0-n',2],['mlt-e0-d',5]]) await tape(id, v);
+        const l = await lit('mlt-');
+        if(l.an !== '6' || l.ad !== '15') dits.push('produit : les nombres divisés ne recopient pas 6/15 (' + l.an + '/' + l.ad + ')');
+        const haut = await s.page.evaluate(() => { const e = document.getElementById('mlt-e0-dn'); return e ? String(e.value) : null; });
+        if(haut !== '3') dits.push('produit : le diviseur tapé en bas ne se recopie pas en haut (' + haut + ')');
+        await s.page.evaluate(() => checkMltAnswer());
+        await s.page.waitForTimeout(300);
+        const r = await verdict();
+        if(!r.juste) dits.push('produit : 2/3 × 3/5 = 6/15 = 2/5, tapé au clavier, est compté faux');
+        if(r.rouges.length) dits.push('produit : des cases rougissent sur une copie juste : ' + r.rouges.slice(0, 4).join(', '));
+      }
+      verifier('la simplification par étapes s\'ouvre en écrivant, et la copie juste vaut le point',
+        dits.length === 0, dits.slice(0, 3).join(' | '));
+      verifier('les écrans de la simplification par étapes ne lèvent aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 sexdecies. SIMPLIFIER EN COLORIANT : LA MÊME LONGUEUR =====
        Tout l'exercice tient dans une chose qu'aucun banc hors navigateur ne
        peut voir : les deux barres VONT EXACTEMENT AUSSI LOIN. Si l'une était
