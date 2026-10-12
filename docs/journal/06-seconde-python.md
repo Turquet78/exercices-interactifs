@@ -4808,7 +4808,94 @@ accolades d'une carte ne soient qu'un ensemble (« … » ou « ; », jamais
 `note+0`, qui se sert de la variable : il nomme maintenant un CALCUL autour du
 nom.
 
-## {python-for-nom} — afficher 8 fois son nom et prénom (6.6.2 — 6.6.1 à sa fusion —, boucle for in range)
+---
+
+## {python-for-oui-non} — « oui » répété, « non » une seule fois (6.6.3, Boucle for in range)
+
+**Le sous-thème « Boucle for in range », et la fiche « Exercice 4 ».**
+{python-for-oui-non} (Seconde, 6.6.3, APP_VERSION 432 — 429 à 431 pris sur `main` pendant les bancs —, demande de Turquet,
+octobre 2026 : « en seconde dans le sous thème "boucle for in range", créer
+un exercice qui suit les images jointes. Il faudra respecter les consignes de
+présentation des autres exercices d'algo du sous-thème "input". mettre le
+dessin en premier, dans la définition ne rien rajouter de plus ainsi que dans
+les coups de pouce éventuels […] ne rien écrire dans le cadre de la
+console ») : a) « Exécuter le programme ci-dessous » — `for k in range (9):`,
+`print ("oui")` décalé, `print("non")` au bord —, b) « Expliquer pourquoi
+"oui" est répété plusieurs fois et "non" une seule fois ! », avec la cellule
+de réponse « Votre réponse ✍ : "non" est répété une seule fois car .... ».
+Le sous-thème n'existait pas au départ de la branche : il y était 6.6, ajouté
+EN DERNIER. **Pendant les bancs, {python-for-nom} a créé le MÊME sous-thème
+sur `main`** (même nom, même numéro 6.6, même v429) : à la fusion, celui-ci
+le rejoint en 6.6.2, derrière lui — rien d'autre n'est renuméroté, la version
+passe à 431 (430 pris à son tour sur `main` entre-temps), et le contrôle exige désormais l'ordre ({python-for-nom} en
+6.6.1, celui-ci en 6.6.2). DISPATCH, `testScreens` et la liste des rendus
+enveloppés avaient perdu leur entrée `pfo` dans la résolution : rétablie.
+**Puis une troisième session, la même matinée** : {python-for-range} (la fiche
+« Définition d'une boucle for … in range ») a pris 6.6.1 sur `main` et poussé
+{python-for-nom} en 6.6.2. Celui-ci passe en **6.6.3**, version 432, et son
+contrôle exige l'ordre des trois (définition, nom, puis oui/non).
+
+**Les consignes du sous-thème Input** : chaque question en gras en tête de son
+cadre `.pyn-etape` ; le b) ne s'ouvre qu'après l'exécution et le a) reste au
+dessus, figé (le motif du 6.3.1) ; « Vérifier » est fermé avant ; aucune
+consigne au bouton ; la console reste un cadre VIDE avant l'exécution
+(`#pfoConsole` rejoint `content:none`). La capture n'a pas de dessin (seul le
+crayon des cadres de la fiche) : l'écran n'en a pas. La fiche n'a ni
+définition ni coup de pouce : l'écran n'en a aucun (exception nommée de
+`pythonAvant.sans`), et le rappel obligatoire (`RAP_PFO`) ne porte que le
+programme de la fiche.
+
+**L'exécution passe par le moteur du 6.4.5** (`ptrEssai` : boucles déroulées,
+puis `pyRun`) — rien n'est ajouté à l'interpréteur. **Le b) est jugé par le
+modèle** (action `verif`, le motif du 6.2.5) : une explication en mots ne se
+juge pas à la règle. La règle de décision porte l'idée — la ligne de « non »
+n'est pas décalée, donc hors de la boucle, après elle — tolérante à la
+formulation ; une raison fausse ou vide de sens est refusée. Une explication
+vide ne part pas et ne rougit pas. Faux en entraînement : la case rougit, et
+une réponse qui convient s'écrit en vert dessous ; en soutien : rouge, rien
+de révélé, la question reste ouverte. L'application du verdict est une
+fonction à part (`pfoVerdict`) pour que le banc l'exerce sans réseau.
+
+**La séance** : la fiche épinglée (9, « oui », « non »), puis un programme
+tiré par `distinctes()` — un autre nombre de tours, deux autres mots
+(`PFO_SITUATIONS`) ; `dmNbQuestions()` l'allonge. Pas de correction au fil
+de la frappe (`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForOuiNon`) : la place, le tirage (300 séances) et ce que chaque
+programme affiche, l'écran (console vide, b) fermé avant l'exécution), ce qui
+part au modèle, les verdicts juste, faux, indisponible et en soutien. Pas de
+section propre au banc navigateur : la visite universelle (section 9) l'ouvre
+dans les deux modes.
+**La boucle for … in range(…) — un sous-thème neuf, et la fiche « 1/ Définition ».**
+{python-for-range} (Seconde, 6.6.1, demande de Turquet, octobre 2026 : « en
+seconde dans algo créer un sous-thème "boucle for in range", et créer un
+exercice qui suit les images jointes ; respecter les consignes de présentation
+des autres exercices d'algo du sous-thème "input" ; mettre le dessin en
+premier ; dans la définition ne rien rajouter de plus, ainsi que dans les coups
+de pouce éventuels ; ne rien écrire dans le cadre de la console »). Le
+sous-thème « Boucle for in range » est ajouté EN DERNIER (6.6) : rien n'est
+renuméroté.
+**La présentation est celle du 6.3.3** : le dessin de la fiche (le serpent qui
+compte « 0,1,2,3,4,5 », détouré, WebP de 10 Ko, `PFR_IMG`) EN PREMIER, puis le
+cadre orange `.pii-def` qui porte la définition mot pour mot (« for nombre in
+range ( 5 ): se traduit par Pour nombre allant jusqu'à ( 5 ). »), tous deux
+dans `pyAvant`, au premier écran seulement. Puis les étapes dans des cadres
+`.pii-etape` à titre en gras, gardés quand la suivante s'ouvre : a) exécuter le
+programme (une porte, pas une note), b) « Ta réponse ✍️ : la valeur de la
+variable nombre varie de [ ] à [ ]. » — deux cases numériques, deux points. La
+fiche n'a pas de coup de pouce : l'écran n'en ajoute pas. La console vide
+reste un cadre vide (`#pfrConsole:empty::before{content:none}`), sans
+étiquette au-dessus, comme au 6.3.3. Le rappel ne reprend que la définition.
+**Le juge** relit les bornes dans ce que `pyRun` affiche (0, puis n − 1) :
+rien d'attendu n'est rangé dans la question. Deux erreurs sont nommées sans
+donner la réponse — commencer à 1, finir à n (« range(5) s'arrête AVANT 5 »).
+Une case vide ne rougit pas (`corrChoix`).
+**La séance** : la fiche épinglée (nombre, 5), puis des couples (variable, n)
+tirés par `distinctes()`, n de 3 à 9, jamais la variable « x » ; le réglage
+« Questions » d'un devoir l'allonge.
+**Le dessin dit « 0,1,2,3,4,5 » alors que range(5) s'arrête à 4** : c'est le
+dessin de la fiche, posé tel quel à la demande ; il est signalé à Turquet.
+
+## {python-for-nom} — afficher 8 fois son nom et prénom (6.6.1, boucle for in range)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous-thème boucle
 for in range, créer un exercice qui suit l'image jointe […] respecter les
@@ -4845,43 +4932,58 @@ erreurs de boucle. La séance : la fiche épinglée (8 fois), puis d'autres
 nombres tirés par `distinctes()`. Contrôle : `pythonForNom` (banc
 principal), modèles comparés à un vrai CPython.
 
----
+**Puis les deux exercices du 6.6 se sont rencontrés** (octobre 2026) : deux
+sessions ont créé le sous-thème « Boucle for in range » le même jour —
+{python-for-nom} (l'« Exercice 5 » du carnet) a été fusionné pendant que
+{python-for-range} (la fiche « 1/ Définition » et son « Exercice 1 ») passait
+ses bancs, avec le même numéro 6.6.1 et la même `APP_VERSION` 429. Les
+identifiants et les kinds (`pfn`, `pfr`) ne se touchaient pas ; la fusion a
+gardé UN sous-thème, et **l'ordre du carnet a décidé**, comme au 6.3 : la
+définition en 6.6.1, {python-for-nom} en 6.6.2 — les notes portent
+l'identifiant et ne bougent pas. Son contrôle épingle désormais 6.6.2 et exige
+la définition devant lui. Version 431 (la 430 a été prise sur `main` pendant les bancs).
 
 ---
 
-## {python-for-range} — la boucle for … in range (6.6.1, Boucle for in range)
+## {python-for-renommer} — renommer la variable d'une boucle for (6.6.4, Boucle for in range)
 
-**Le sous-thème « Boucle for in range », et l'exercice 2 du carnet sur la
-boucle.** {python-for-range} (Seconde, 6.6.1, APP_VERSION 431 — 429 et 430 pris sur `main` pendant les bancs —, demande de
-Turquet, octobre 2026 : « en seconde dans le sous thème "boucle for in
-range", créer un exercice qui suit les images jointes ; respecter les
-consignes de présentation des autres exercices d'algo du sous-thème input ;
-mettre le dessin en premier ; dans la définition ne rien rajouter de plus,
-ainsi que dans les coups de pouce éventuels ; respecter les couleurs et
-présentations des exercices du sous-thème input ; ne rien écrire dans le
-cadre de la console ») : les deux serpents (« Tu vas la boucler ? » /
+**L'exercice 2 du carnet sur la boucle.** {python-for-renommer} (Seconde,
+6.6.4, APP_VERSION 433, demande de Turquet, octobre 2026 : « en seconde dans
+le sous thème "boucle for in range", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ») : les deux serpents (« Tu vas la boucler ? » /
 « Pfff… »), la définition de `for nombre in range ( fin )`, puis a)
-compléter `for nombre in range ( … ):` pour afficher les entiers de 0 à 9,
-b) renommer la variable `nombre` en `k` (deux coups de pouce repliés), c)
-« Cela change-t-il le résultat du programme ? » et sa case « Votre
-réponse ✍️ ». Écrit sur une branche où le sous-thème 6.6 n'existait pas
-encore, il l'a trouvé sur `main` à la fusion : {python-for-nom}, l'exercice 5
-du carnet, y était déjà en 6.6.1. **Celui-ci passe DEVANT, en 6.6.1, et
-{python-for-nom} devient 6.6.2** — l'ordre du carnet est celui de la
-découverte (la définition et un programme donné avant un programme à
-écrire), le choix déjà fait au 6.3.1. Les notes portent l'identifiant et ne
-bougent pas ; le contrôle du 6.6.2 exige désormais de suivre celui-ci.
+compléter `for nombre in range ( … ):` pour afficher les entiers de 0 à 9, b)
+renommer la variable `nombre` en `k` (deux coups de pouce repliés), c) « Cela
+change-t-il le résultat du programme ? » et sa case « Votre réponse ✍️ ».
+
+**QUATRE SESSIONS ONT OUVERT LE 6.6 LE MÊME MATIN — ET DEUX ONT PRIS LE MÊME
+IDENTIFIANT.** Celle-ci avait écrit son exercice sous `python-for-range`,
+préfixe `pfr`, sur une branche où le 6.6 n'existait pas. Pendant ses bancs,
+une autre session a mis en ligne l'exercice 1 du carnet (la fiche « 1/
+Définition ») sous le MÊME identifiant et le MÊME préfixe. La fusion aurait
+remplacé l'exercice en ligne par celui-ci, ses notes comprises : les notes
+portent l'identifiant. La branche a donc repris les fichiers de `main` et y a
+REJOUÉ son exercice sous un nom libre — `python-for-renommer`, préfixe `pfv`
+(`pfv` n'apparaissait dans la page qu'au milieu d'images encodées ; le
+renommage les a mises de côté avant de remplacer, pour ne pas les abîmer).
+Ce qui est en ligne garde sa place : il ferme le sous-thème, en 6.6.4,
+derrière {python-for-oui-non}. Un identifiant se vérifie sur `main` AVANT la
+poussée, pas seulement le numéro de version.
 
 **Le moteur est celui du 6.3.1** ({python-input-reponse}) : le dessin en tête
-(`#pfrFig`, découpé dans la capture, détouré, WebP de 16 Ko, `PFR_IMG`), puis
-la définition dans `#pfrAvant` (le cadre orange `.pii-def`, à puces séparées
+(`#pfvFig`, découpé dans la capture, détouré, WebP de 16 Ko, `PFV_IMG`), puis
+la définition dans `#pfvAvant` (le cadre orange `.pii-def`, à puces séparées
 d'un trait comme le carnet), puis l'énoncé, puis les trois étapes sur le MÊME
 écran, chacune dans son cadre `.pyn-etape` ouvert par SA question en gras,
 gardée quand la suivante s'ouvre. Le dessin et la définition à la question 1
 seulement. Aucune consigne au bouton ; les deux consoles vides restent des
-cadres vides (`#pfrConsoleA`, `#pfrConsoleB` rejoignent `content:none`).
-**La définition est celle de la fiche, mot pour mot** (`pfrDefHTML`, et le
-rappel `RAP_PFR`) ; seules les coquilles sont corrigées (« décaller »,
+cadres vides (`#pfvConsoleA`, `#pfvConsoleB` rejoignent `content:none`).
+**La définition est celle de la fiche, mot pour mot** (`pfvDefHTML`, et le
+rappel `RAP_PFV`) ; seules les coquilles sont corrigées (« décaller »,
 « instuction », « a la fin »), le « <> » du titre est écrit « ⟺ », et le
 `for ... in range ( ... )` du schéma de la remarque 2 reçoit ses deux-points,
 que la remarque 1 exige.
@@ -4916,10 +5018,12 @@ d'autres bornes (5 à 15) et d'autres noms (`i`, `n`, `j`, `compteur`, `p` —
 jamais `x`, que le filet italiquerait) tirés par `distinctes()` ;
 `dmNbQuestions()` l'allonge. Pas de correction au fil de la frappe
 (`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
-(`pythonForRange`, déclaré dans `tests/profils.js`) : la place, le tirage
+(`pythonForRenommer`, déclaré dans `tests/profils.js`) : la place, le tirage
 (300 séances), les trois juges, l'écran tenu aux consignes (dessin avant la
 définition, définition avant l'énoncé, quatre puces), le trajet a) → b) → c)
 et ses portes, la copie fausse corrigée en vert, les cases vides jamais
-rougies, le soutien qui redemande sans révéler, et la reprise. Pas de section
+rougies, le soutien qui redemande sans révéler, et la reprise. La cellule du b) porte `pts-case` : sans elle, la note affichée disait « 2 cases
+justes sur 2 » sur une copie qui en vaut 3 — vu en OUVRANT la page, et le
+banc l'exige désormais. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans les
 deux modes.
