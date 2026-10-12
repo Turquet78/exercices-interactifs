@@ -2099,7 +2099,7 @@ module.exports = {
           pose: "test.questions=[{a:2,b:-1}]; test.idx=0; renderECV();", cases: 3 },
         { exercice: 'suite-vocabulaire',    ecran: 'svq', kind: 'svq',
           pose: "test.questions=[{fam:'decconv',L:1,A:3,q:0.8,rep:{}}]; test.idx=0; renderSVQ();", cases: 1 },
-        /* le 5.6.1 (fiche « limite qⁿ ») : la limite, et les deux limites du « car … et … » */
+        /* le 5.6.1 (fiche « limite qⁿ ») : la limite, et les deux limites du « car … et … » (chacune suivie de son menu « car ») */
         { exercice: 'suite-limite-puissance', ecran: 'lqn', kind: 'lqn',
           pose: "test.questions=[{fam:'prod',q:3,r:0.25,a:1}]; test.idx=0; renderLQN();", cases: 3 },
       ],

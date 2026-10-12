@@ -3019,3 +3019,21 @@ par la limite d'une suite géométrique : ils deviennent 5.6.2 et 5.6.3, après
 partie, si bien qu'aucun voisin n'est renuméroté. Les identifiants ne bougent
 pas — notes, devoirs et pauses suivent. Le banc principal tient les trois
 numéros du 5.6 (contrôle de {recurrence-limite}, section 0).
+
+**Puis le « avec » est devenu un MENU « car », et 4ⁿ a eu sa limite (5.6.1,
+v381).** Demande de Turquet, sur une capture de la question 8 (Uₙ = 4ⁿ ×
+(5 + 0,95ⁿ)/(5 + 0,8ⁿ)) : « il manque la limite de 4ⁿ » — la famille
+`prodq` demandait les limites des deux puissances de la fraction, jamais
+celle du facteur qui donne +∞. Elle en demande désormais trois (`l1` = 4ⁿ,
+`l2`, `l3`). Puis : « remplacer les *avec* par *car* », et laisser l'élève
+CHOISIR la condition parmi « q > 0 ; q > 1 ; q < 1 ; −1 < q < 1 ; q > −1 ».
+La case de texte et son juge `lqnAvecOK` disparaissent : chaque puissance
+dont la limite est demandée reçoit, sur la rangée suivante, « car [menu] »
+(« car lim 4ⁿ = +∞ / car 4 > 1 ») ; les familles qui ne demandent aucune
+limite intermédiaire gardent un seul menu, sous la limite. Les options
+s'écrivent avec LA base (« −1 < 0,95 < 1 », « 5/7 > 0 »), et une seule est
+juste : la condition du théorème — « 0,95 < 1 » et « 0,95 > 0 » sont vrais,
+mais ne suffisent pas. Le menu est sur SA rangée, pas au bout de la limite :
+à 390 px, posé au bout, il repliait la rangée. Exécuté dans Chromium à 1280
+et 390 px : copie juste en bleu, choix faux en rouge avec la bonne condition
+écrite à côté, menus vides complétés en vert, aucune erreur JavaScript.
