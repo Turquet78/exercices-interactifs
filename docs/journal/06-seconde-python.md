@@ -5017,6 +5017,28 @@ caractère près, une correction qui ne nomme plus `nombre`, et CPython refuse
 le programme (SyntaxError) puis, les deux-points remis, l'exécute et affiche
 `valeur= 0` à `valeur= 8`.
 
+**Puis l'exercice a posé TROIS programmes faux** (Seconde, 6.6.4 au moment de la demande) (demande de Turquet, octobre
+2026, version 450 — 439 à 449 pris sur `main` pendant les bancs, et l'exercice passé entre-temps en 6.6.5 : « faire aussi une question où l'erreur est qu'il n'y a pas
+de décalage après le "for in range :", et une autre question où l'erreur est
+que k est la variable du for et i est la variable dans la ligne du print »).
+La séance passe à trois questions, toujours dans le même ordre : la fiche
+(les deux-points), puis `for k  in range ( 9 ):` / `print ("valeur=", k )`
+collé à gauche (IndentationError), puis `for k  in range ( 9 ):` /
+`   print ("valeur=", i )` (NameError). Chaque programme ne porte QU'UNE faute :
+les deux nouveaux ont leurs deux-points, sans quoi CPython s'arrêterait à
+eux et la question redeviendrait la première. Trois programmes fixes, tous
+différents : toujours ni `distinctes()` ni `dmNbQuestions()`. Les données de
+chaque question (programme, faute, règle du juge, fausses pistes, correction)
+vivent dans `PFE_QS` ; la question ne range que l'indice `q.t`, et une pause
+d'avant, sans `q.t`, reprend la fiche. L'énoncé envoyé au modèle et le
+contexte de l'aide ne recopient plus un message de console écrit à la main :
+ils lisent ce que `pyRun` répond (`pfeConsoleTexte`), donc ce que l'élève a vu.
+Le contrôle suit : séance de 3, barème 3, chaque programme au caractère près,
+sa console vide puis son erreur, une correction qui ne parle plus des
+deux-points hors de la fiche, et CPython refuse chacun des trois pour SA faute
+(SyntaxError, IndentationError, NameError) puis, la faute corrigée, affiche
+`valeur= 0` à `valeur= 8`.
+
 ---
 
 ## {python-for-renommer} — renommer la variable d'une boucle for (6.6.5, Boucle for in range)
