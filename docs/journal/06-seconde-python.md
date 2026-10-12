@@ -5153,8 +5153,21 @@ bornes tirées par `distinctes()` parmi huit autres (`PFD_BORNES`) ;
 portes, la case juste bleue à côté d'une fausse, les trous vides jamais
 rougis, le soutien, la reprise.
 
+**Puis l'ordre du carnet** (APP_VERSION 439 — 436 à 438 pris sur `main` pendant les bancs —, demande de Turquet, octobre
+2026 : « mets-le dans l'ordre du carnet, en 6.6.2 »). {python-for-renommer},
+l'exercice 2 du carnet, passe de 6.6.5 à 6.6.2, juste derrière
+{python-for-range} (l'exercice 1). Les trois suivants reculent d'un rang :
+{python-for-nom} 6.6.3, {python-for-oui-non} 6.6.4, {python-for-erreur} 6.6.5.
+Les notes portent l'identifiant et ne bougent pas. Les quatre contrôles de place
+(un par exercice déplacé, et celui-ci) épinglent le nouvel ordre, et
+`tests/profils.js` porte les nouveaux numéros.
+Pendant ces bancs, {python-for-depart-fin} (l'exercice 6 du carnet) a été
+fusionné en 6.6.6. Il ferme le sous-thème, derrière {python-for-erreur} : son
+contrôle exigeait qu'il suive {python-for-renommer}, alors en 6.6.5 ; il exige
+désormais de suivre {python-for-erreur}, et {python-for-renommer} en 6.6.2.
+
 **La moyenne de N notes, une seconde fois : le 6.6.7, « Bonus ».**
-{python-for-moyenne-notes} (Seconde, 6.6.7, version 437 puis 439 — la fusion de `main` a apporté le 6.6.6 {python-for-depart-fin} et la 438 —, demande de Turquet,
+{python-for-moyenne-notes} (Seconde, 6.6.7, version 437 puis 440 — les fusions de `main` ont apporté le 6.6.6 {python-for-depart-fin}, l'ordre du carnet ({python-for-renommer} en 6.6.2) et les 438 et 439 —, demande de Turquet,
 octobre 2026 : « en seconde dans le sous thème "boucle for in range", créer un
 exercice qui suit les images jointes ; respecter les consignes de
 présentation des autres exercices d'algo du sous-thème input ; mettre le
@@ -5179,6 +5192,6 @@ et une case de dialogue encore ouverte est désactivée. La fiche n'a pas de
 dessin : il n'y en a pas en tête. Le titre commence par « Bonus ». Banc jsdom
 (`pythonForMoyenneNotes`) : la place (il ferme le 6.6 derrière
 {python-for-depart-fin}, rien ne bouge — le contrôle du 6.6.6 passe de « il
-ferme » à « il est le sixième »), l'écran et les coups de pouce au
+ferme » à « il est le sixième, derrière {python-for-erreur} »), l'écran et les coups de pouce au
 caractère près, le programme des coups de pouce accepté par le juge, juste,
 faux, vide, et la console laissée vide par la vérification.

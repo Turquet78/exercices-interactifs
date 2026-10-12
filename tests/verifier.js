@@ -25893,7 +25893,7 @@ function pythonProgrammeCalcul(w, P){
   verifier(nomPy + ' (' + liste.length + ' programmes)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-for-oui-non} (Seconde, 6.6.3, derrière {python-for-range} et {python-for-nom}) : la fiche « Exercice 4 » — a)
+/* {python-for-oui-non} (Seconde, 6.6.4 — 6.6.3 à sa création —, derrière {python-for-range}, {python-for-renommer} et {python-for-nom}) : la fiche « Exercice 4 » — a)
    exécuter for k in range (9): print ("oui") puis print("non"), b) expliquer
    pourquoi « oui » est répété et « non » une seule fois. Le troisième exercice
    du sous-thème 6.6 « Boucle for in range ». L'explication est jugée par le
@@ -25908,12 +25908,13 @@ function pythonForOuiNon(w, P){
     verifier(nom, false, 'startPFO / pfoBuildQuestions / pfoVerdict introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
-  verifierEval(w, 'il suit {python-for-range} et {python-for-nom} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-range}, {python-for-renommer} et {python-for-nom} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle for in range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
-    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="python-for-nom"||st.ids[2]!=="${ID}") vus.push("il ne suit pas {python-for-range} puis {python-for-nom} : "+st.ids.join(","));
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.2") vus.push("les deux premiers du 6.6 ont bougé");
+    /* {python-for-renommer} (l'exercice 2 du carnet) est passé en 6.6.2, dans l'ordre du carnet */
+    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="python-for-renommer"||st.ids[2]!=="python-for-nom"||st.ids[3]!=="${ID}") vus.push("il ne suit pas {python-for-range}, {python-for-renommer} puis {python-for-nom} : "+st.ids.join(","));
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.3") vus.push("les trois premiers du 6.6 ont bougé");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
@@ -27264,14 +27265,14 @@ function pythonForDepartFin(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il est le sixième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-renommer}, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est le sixième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-erreur}, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
     /* il fermait le sous-thème ; {python-for-moyenne-notes} (6.6.7) est venu derrière lui, sans rien renuméroter */
-    else if(st.ids[5]!=="${ID}"||st.ids[4]!=="python-for-renommer") vus.push("il n’est pas le sixième du sous-thème, derrière {python-for-renommer} : "+st.ids.join(","));
+    else if(st.ids[5]!=="${ID}"||st.ids[4]!=="python-for-erreur") vus.push("il n’est pas le sixième du sous-thème, derrière {python-for-erreur} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(!RAPPELS.pfd) vus.push("pas de rappel");
     return vus.join(" | ");
@@ -27398,7 +27399,7 @@ function pythonForDepartFin(w, P){
   })()`, v => v === '');
 }
 
-/* {python-for-renommer} (Seconde, 6.6.5, sous-thème « Boucle for in range ») :
+/* {python-for-renommer} (Seconde, 6.6.2 — 6.6.5 à sa création —, sous-thème « Boucle for in range ») :
    l'exercice 2 du carnet sur la boucle — le dessin, la définition de
    for nombre in range ( fin ), puis a) compléter range pour afficher les
    entiers de 0 à 9, b) renommer la variable, c) « Cela change-t-il le
@@ -27421,15 +27422,14 @@ function pythonForRenommer(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il est le cinquième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-erreur}, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-range} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dans l’ordre du carnet', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||!/boucle/i.test(st.nom)||!/range/i.test(st.nom)) vus.push("pas de sous-thème 6.6 Boucle for in range");
-    /* il fermait le sous-thème ; {python-for-depart-fin} (6.6.6) est venu derrière lui, sans rien renuméroter */
-    else if(st.ids[4]!=="${ID}"||st.ids[3]!=="python-for-erreur") vus.push("il n’est pas le cinquième du sous-thème, derrière {python-for-erreur} : "+st.ids.join(","));
+    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="${ID}") vus.push("il n’est pas le deuxième du sous-thème, derrière {python-for-range} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-oui-non"]!=="6.6.3"||TEST_NUM["python-for-erreur"]!=="6.6.4") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-oui-non"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.5") vus.push("les autres exercices du 6.6 ne sont pas à leur place");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
@@ -27601,7 +27601,7 @@ function pythonForMoyenneNotes(w, P){
     else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-for-depart-fin") vus.push("il ne ferme pas le sous-thème derrière {python-for-depart-fin} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-erreur"]!=="6.6.4"||TEST_NUM["python-for-renommer"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-for-range"]!=="6.6.1"||TEST_NUM["python-for-renommer"]!=="6.6.2"||TEST_NUM["python-for-erreur"]!=="6.6.5"||TEST_NUM["python-for-depart-fin"]!=="6.6.6"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("le titre ne dit pas Bonus : "+TESTS["${ID}"].name);
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
@@ -28283,7 +28283,7 @@ function pythonInputPrix(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-for-nom} (Seconde, 6.6.2 — 6.6.1 à sa création) : l'exercice 5 du carnet — les deux
+/* {python-for-nom} (Seconde, 6.6.3 — 6.6.1 à sa création, puis 6.6.2) : l'exercice 5 du carnet — les deux
    serpents, la bulle « Bonjour » ×4. Afficher 8 fois son nom et prénom avec
    une boucle for. Le contrôle tient la place au menu (il ouvre le sous-thème
    6.6 « Boucle for in range », ajouté en dernier : rien d'autre ne bouge), la
@@ -28305,12 +28305,12 @@ function pythonForNom(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il suit {python-for-range} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-range} et {python-for-renommer} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
     /* l'ordre du carnet : la définition ({python-for-range}, exercice 1) devant, puis celui-ci (exercice 5) */
-    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="${ID}") vus.push("il ne suit pas la définition : "+st.ids.join(","));
+    else if(st.ids[0]!=="python-for-range"||st.ids[1]!=="python-for-renommer"||st.ids[2]!=="${ID}") vus.push("il ne suit pas {python-for-range} puis {python-for-renommer} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
@@ -28474,7 +28474,7 @@ function pythonForNom(w, P){
    fausse et vide, le soutien qui explique sans révéler, puis compare à un
    vrai CPython ce que le modèle affiche. Aucun accent grave ni antislash
    littéral dans le code évalué. */
-/* {python-for-erreur} (Seconde, 6.6.4) : l'exercice 3 du carnet — le serpent
+/* {python-for-erreur} (Seconde, 6.6.5 — 6.6.4 à sa création) : l'exercice 3 du carnet — le serpent
    étourdi, un programme faux à EXÉCUTER, puis « Il y a une erreur car … ».
    Le juge est le modèle (action 'verif') : le banc joue son verdict par
    pfeVerdict, sans attendre la promesse. */
@@ -28488,15 +28488,15 @@ function pythonForErreur(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il est le quatrième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dernier sous-thème du thème, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est le cinquième du sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', dernier sous-thème du thème, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
-    /* il fermait le sous-thème ; {python-for-renommer} (6.6.5) est venu derrière lui, sans rien renuméroter */
-    else if(st.ids[3]!=="${ID}") vus.push("il n’est pas le quatrième du sous-thème : "+st.ids.join(","));
+    /* il fermait le sous-thème ; {python-for-renommer} est passé devant lui en 6.6.2 (ordre du carnet) : il est le cinquième */
+    else if(st.ids[4]!=="${ID}") vus.push("il n’est pas le cinquième du sous-thème : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-nom"]!=="6.6.2"||TEST_NUM["python-for-range"]!=="6.6.1") vus.push("{python-for-nom} a bougé : "+TEST_NUM["python-for-nom"]);
+    if(TEST_NUM["python-for-nom"]!=="6.6.3"||TEST_NUM["python-for-range"]!=="6.6.1") vus.push("{python-for-nom} a bougé : "+TEST_NUM["python-for-nom"]);
     if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     return vus.join(" | ");
   })()`, v => v === '');
