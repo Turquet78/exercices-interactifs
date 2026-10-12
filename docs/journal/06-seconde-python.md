@@ -5085,3 +5085,12 @@ justes sur 2 » sur une copie qui en vaut 3 — vu en OUVRANT la page, et le
 banc l'exige désormais. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans les
 deux modes.
+
+**Puis l'ordre du carnet** (APP_VERSION 436, demande de Turquet, octobre
+2026 : « mets-le dans l'ordre du carnet, en 6.6.2 »). {python-for-renommer},
+l'exercice 2 du carnet, passe de 6.6.5 à 6.6.2, juste derrière
+{python-for-range} (l'exercice 1). Les trois suivants reculent d'un rang :
+{python-for-nom} 6.6.3, {python-for-oui-non} 6.6.4, {python-for-erreur} 6.6.5.
+Les notes portent l'identifiant et ne bougent pas. Les quatre contrôles de place
+(un par exercice déplacé, et celui-ci) épinglent le nouvel ordre, et
+`tests/profils.js` porte les nouveaux numéros.

@@ -1270,7 +1270,7 @@ module.exports = {
        la fiche « Exercice 4 » — exécuter une boucle for, puis expliquer pourquoi
        « oui » est répété et « non » une seule fois. « nb » est la seconde source
        du compte (la page a PFO_NB). */
-    pythonForOuiNon: { exercice: 'python-for-oui-non', nb: 2, numero: '6.6.3' },
+    pythonForOuiNon: { exercice: 'python-for-oui-non', nb: 2, numero: '6.6.4' },
     /* {python-programme-calcul} (6.2.9, demande de Turquet, octobre 2026) :
        l'exercice 19 du carnet — un programme de calcul en étapes (A prend la
        valeur 5, multiplier A par 3, soustraire 4, élever au carré, afficher)
@@ -1295,7 +1295,7 @@ module.exports = {
        son nom et son prénom avec une boucle for. Le juge lit ce que le
        programme AFFICHE. « nb » est la seconde source du compte (la page a
        PFN_NB). */
-    pythonForNom: { exercice: 'python-for-nom', nb: 3, numero: '6.6.2' },
+    pythonForNom: { exercice: 'python-for-nom', nb: 3, numero: '6.6.3' },
     /* {python-input-duree} (6.5.1, sous-thème « Bonus : input », demande de
        Turquet, octobre 2026) : l'exercice 11 du carnet — demander une durée
        en minutes et l'afficher en heures et minutes (// et %). La fiche ne
@@ -1312,7 +1312,7 @@ module.exports = {
        de Turquet, octobre 2026) : l'exercice 3 du carnet — exécuter un
        programme faux, puis expliquer l'erreur (juge : le modèle). Une seule
        question, la fiche : rien à tirer. */
-    pythonForErreur: { exercice: 'python-for-erreur', numero: '6.6.4' },
+    pythonForErreur: { exercice: 'python-for-erreur', numero: '6.6.5' },
     /* {python-inverser-lettres} (6.4.4, sous-thème « Bonus », derrière
        {python-chaine-len}, {python-chaine-tirets} et {python-remplacer-lettre} ;
        demande de Turquet, octobre 2026) : l'exercice 29 du carnet — inverser
@@ -1330,11 +1330,11 @@ module.exports = {
        le nombre de notes, puis chaque note dans une boucle, et afficher leur
        moyenne. « nb » est la seconde source du compte (la page a PMN_NB). */
     pythonMoyenneNotes: { exercice: 'python-moyenne-notes', nb: 3, numero: '6.5.4' },
-    /* {python-for-renommer} (6.6.5, sous-thème « Boucle for in range », demande
+    /* {python-for-renommer} (6.6.2, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 2 du carnet sur la boucle —
        a) compléter range, b) renommer la variable, c) le résultat change-t-il ?
        « nb » est la seconde source du compte (la page a PFV_NB). */
-    pythonForRenommer: { exercice: 'python-for-renommer', nb: 3, numero: '6.6.5' },
+    pythonForRenommer: { exercice: 'python-for-renommer', nb: 3, numero: '6.6.2' },
     /* {python-chaines} (6.1.14, demande de Turquet, octobre 2026) : les
        exercices 21 et 22 du carnet — a) exécuter un programme qui concatène
        et répète, b) compléter un programme pour qu'il affiche 10 fois le nom
