@@ -39007,6 +39007,86 @@ function revisionFractions(w, P){
 
     return vus.join(' | ');
   })()`, v => v === '', undefined);
+
+  /* LA SIMPLIFICATION DU RÉSULTAT (Première, octobre 2026) : le diviseur
+     écrit en haut se recopie en bas et inversement, tout diviseur commun est
+     juste, et une fraction qui se simplifie ENCORE ouvre une nouvelle étape
+     sur la même ligne. Les saisies passent par de vrais évènements « input » :
+     c'est eux qui ouvrent les étapes. */
+  if(!R.simplifier){
+    ignorer('réviser les quatre règles des fractions : le résultat se simplifie par étapes',
+      'ce niveau ne demande pas de simplifier le résultat');
+    return;
+  }
+  verifierEval(w, 'réviser les quatre règles des fractions : le résultat se simplifie par étapes', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='revision-fractions';
+    const $$=function(id){ return document.getElementById(id); };
+    const tape=function(id,v){ const el=$$(id); if(!el){ vus.push('pas de case '+id); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const peint=function(id){ const el=$$(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    startRvf();
+    /* 2/3 × 3/4 = 6/12, qui se simplifie par 6 */
+    const neuve=function(){ return {type:'mult-frac', d1:3, d2:4, n1:2, n2:3}; };
+    const base=function(){ $$('rvf-regle').value='non'; tape('rvf-num',6); tape('rvf-den',12); };
+
+    /* ① en deux temps : ÷2, puis ÷3 */
+    test.questions=[neuve()]; test.idx=0; renderRvfTest();
+    const lab=document.querySelector('#rvfHost .pt-lab');
+    if(!lab || !/simplifier/.test(lab.textContent)) vus.push("6/12 : aucun libellé n'annonce la simplification");
+    if(!$$('rvf-s0-dn') || $$('rvf-s1-dn')) vus.push('6/12 : il faut exactement une étape de simplification au départ');
+    if($$('rvf-s0-an') && $$('rvf-s0-an').textContent!=='…') vus.push('le nombre divisé est écrit avant que l’élève ait écrit le résultat : '+$$('rvf-s0-an').textContent);
+    base();
+    if(($$('rvf-s0-an')||{}).textContent!=='6' || ($$('rvf-s0-ad')||{}).textContent!=='12') vus.push('les nombres divisés ne recopient pas 6/12');
+    tape('rvf-s0-dn',2);
+    if(($$('rvf-s0-dd')||{}).value!=='2') vus.push('le diviseur écrit en haut ne se recopie pas en bas');
+    if(!$$('rvf-s1-dn')) vus.push('6/12 ÷ 2 = 3/6 se simplifie encore, et aucune nouvelle étape ne s’ouvre');
+    if(($$('rvf-num')||{}).value!=='6') vus.push('ouvrir une étape a effacé le résultat');
+    tape('rvf-s0-n',3); tape('rvf-s0-d',6);
+    tape('rvf-s1-dd',3);
+    if(($$('rvf-s1-dn')||{}).value!=='3') vus.push('le diviseur écrit en bas ne se recopie pas en haut');
+    if($$('rvf-s2-dn')) vus.push('3/6 ÷ 3 = 1/2 est irréductible, et une étape de plus s’ouvre');
+    tape('rvf-s1-n',1); tape('rvf-s1-d',2);
+    checkRvfAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('6/12 = 3/6 = 1/2 (÷2 puis ÷3) est compté faux');
+    if(der && !/= 1\\/2$/.test(der.given)) vus.push('la réponse enregistrée n’est pas la fraction simplifiée : '+(der&&der.given));
+
+    /* ② d'un coup : ÷6 */
+    test.questions=[neuve()]; renderRvfTest(); base();
+    tape('rvf-s0-dd',6);
+    if($$('rvf-s1-dn')) vus.push('6/12 ÷ 6 est irréductible, et une étape de plus s’ouvre');
+    tape('rvf-s0-n',1); tape('rvf-s0-d',2);
+    checkRvfAnswer(); der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('6/12 = 1/2 (÷6) est compté faux');
+
+    /* ③ un diviseur qui ne divise pas : rouge, la correction montre 6 */
+    test.questions=[neuve()]; renderRvfTest(); base();
+    tape('rvf-s0-dn',5); tape('rvf-s0-n',1); tape('rvf-s0-d',2);
+    checkRvfAnswer(); der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('le diviseur 5 de 6/12 est compté juste');
+    if(peint('rvf-s0-dn')!=='faux') vus.push('le diviseur 5 est peint '+peint('rvf-s0-dn'));
+    const cor=$$('rvf-s0-dn') && $$('rvf-s0-dn').nextElementSibling;
+    if(!cor || cor.textContent!=='6') vus.push('la correction du diviseur ne montre pas 6');
+
+    /* ④ simplifier dès le résultat brut ne suffit plus : la ligne le demande */
+    test.questions=[neuve()]; renderRvfTest(); $$('rvf-regle').value='non';
+    tape('rvf-num',1); tape('rvf-den',2);
+    checkRvfAnswer();
+    if(peint('rvf-s0-dn')==='faux') vus.push('un diviseur laissé vide rougit');
+
+    /* ⑤ la reprise : les diviseurs rangés redessinent les mêmes étapes */
+    test.questions=[neuve()]; renderRvfTest(); base(); tape('rvf-s0-dn',2);
+    renderRvfTest();
+    if(!$$('rvf-s1-dn')) vus.push('après un redessin (reprise), la seconde étape a disparu');
+    if(JSON.stringify(test.questions[0].sdiv)!=='["2"]') vus.push('diviseurs rangés : '+JSON.stringify(test.questions[0].sdiv));
+
+    /* ⑥ un résultat irréductible n'a aucune étape de simplification */
+    test.questions=[{type:'mult-frac', d1:3, d2:5, n1:2, n2:1}]; renderRvfTest();
+    if($$('rvf-s0-dn')) vus.push('2/15 est irréductible, et une simplification est demandée');
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
 }
 
 /* ---------- 4 quinquies. Placer trois nombres sur une droite graduée -------
