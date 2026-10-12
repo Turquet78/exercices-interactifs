@@ -1299,3 +1299,26 @@ niveaux : ce qui diffère se DÉCLARE dans le profil (`revisionFractions` :
 numéro, borne, barème), et une seconde mesure tire trois cents séances pour
 lire chaque nombre de départ contre la borne — et exige que la borne soit
 atteinte, sans quoi elle ne mesurerait qu'un tirage trop étroit.
+
+**Puis la Première a perdu ses nombres négatifs — 4.1, quatrième écart
+(octobre 2026, v302).** Demande de Turquet : « ne pas avoir de résultat
+intermédiaire ou final négatif ». Deux types en donnaient. {meme-sub} tirait
+deux numérateurs DISTINCTS, dans n'importe quel ordre : 1/5 − 4/5 sortait une
+fois sur deux. Il tire désormais n1 > n2. {diff-sub-entier} était pire : sur
+des nombres de 1 à 5, « n1/d1 − k » ôte un entier d'au moins 2 à une fraction
+qui vaut au plus 5/2, et k×d1 vaut au moins 4 — le résultat n'était positif
+que pour 5/2 − 2, la seule exception du tirage. Restreindre le tirage aurait
+posé ce même calcul à chaque séance ; l'ordre s'est RETOURNÉ à la place :
+« k − n1/d1 », entier devant. Les étapes restent les mêmes cases, dans le
+même ordre d'écriture (k/1, puis (k×d1)/(1×d1), puis le produit calculé),
+simplement posées à gauche du signe : seul le numérateur final change
+(k×d1 − n1), et il est positif sauf quand k×d1 ≤ n1 (2×2 contre 5), que le
+tirage écarte. Une question rangée en pause avant ce changement se rouvre
+retournée, juste : on range les nombres, jamais la réponse. La Seconde garde
+« n1/d1 − k » et ses négatifs : la demande ne la visait pas.
+Le profil le DÉCLARE (`revisionFractions.positif`), et le contrôle
+« aucun résultat intermédiaire ou final négatif » tire trois cents séances,
+lit chaque case attendue de chaque question et recalcule le numérateur final
+par sa propre arithmétique ; sans la déclaration, il se dit non applicable.
+La copie juste fixe du contrôle des étapes (1 − 1/4) attend 3/4 en Première,
+−3/4 en Seconde — la même fixture, lue selon le profil.

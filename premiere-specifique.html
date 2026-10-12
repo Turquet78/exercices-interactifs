@@ -2713,7 +2713,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=301;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=302;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14550,15 +14550,22 @@ function msgAvecVides(subs, pourquoi){
    2026 : « mettre l'exercice de seconde 5.11 en première dans un nouveau
    thème fraction ; les nombres au départ doivent être entre 1 et 5, et
    comme d'habitude les fractions au départ doivent être irréductibles ».
-   Le moteur est celui de la Seconde, au mot près, sauf TROIS écarts nommés :
+   Le moteur est celui de la Seconde, au mot près, sauf QUATRE écarts nommés :
    ① les bornes du tirage (RVF_MAX, ci-dessous) ; ② la NOTE se compte par
    question parfaite, comme tout exercice de ce niveau — finishTest() note
    sur le nombre de questions, la Seconde seule lit maxScore —, la note
    partielle de chaque question restant lue sur l'écran (ptsExo) ; ③ les
    boutons d'aide ne s'écrivent pas dans la rangée : iaBoutons() les pose
    sous chaque écran d'exercice. Les cases sont des <input> NUMÉRIQUES : le
-   pavé de la page les sert sur tablette, signe moins compris (le résultat
-   de diff-sub-entier est négatif).
+   pavé de la page les sert sur tablette. ④ AUCUN NOMBRE NÉGATIF, ni dans
+   une étape ni dans le résultat (demande de Turquet, octobre 2026 : « ne pas
+   avoir de résultat intermédiaire ou final négatif ») : {meme-sub} tire
+   n1 > n2, et {diff-sub-entier} s'écrit ENTIER DEVANT, « k − n1/d1 » au lieu
+   de « n1/d1 − k » de la Seconde — avec des nombres de 1 à 5, k×d1 vaut au
+   moins 4, la fraction ôtée était presque toujours la plus petite, et le
+   résultat presque toujours négatif ; retourné, il est positif, et le tirage
+   écarte les rares cas k×d1 ≤ n1. Les étapes restent les mêmes cases (k/1,
+   puis k×d1 / 1×d1) : seul l'ordre de lecture change.
    Demandé à l'origine par Turquet en septembre 2026, d'après une fiche papier « Révision
    sur les fractions » à cinq remarques : même dénominateur (①), produit (②
    et ④ — la MÊME règle, un facteur entier ou non), dénominateurs différents
@@ -14587,8 +14594,8 @@ function msgAvecVides(subs, pourquoi){
    fractions étant irréductibles, aucune ne vaut 1 (5/5 est réductible). AUCUNE simplification n'est demandée ni recherchée — ce n'est pas le
    sujet ici, à la différence de {multiplier-fractions} — et le tirage écarte
    un résultat NUL là où la case deviendrait ambiguë (meme-sub : deux
-   numérateurs distincts ; diff-sub-entier : le numérateur final n'est jamais
-   zéro). LES FRACTIONS DE L'ÉNONCÉ SONT TOUJOURS IRRÉDUCTIBLES (décision de
+   n1 > n2 ; diff-sub-entier : le numérateur final n'est jamais zéro — ni
+   négatif, voir ④). LES FRACTIONS DE L'ÉNONCÉ SONT TOUJOURS IRRÉDUCTIBLES (décision de
    Turquet, octobre 2026, pour tous les calculs de fractions de la Seconde et
    de la Première) : « 6/8 + 3/8 » ne sort plus. Le résultat, lui, reste le
    calcul direct, non simplifié, comme avant (rvfReponse).
@@ -14641,7 +14648,7 @@ function rvfTirage(type){
     }
     if(type==='meme-sub'){
       const d=rand(2,RVF_MAX), n1=rand(1,RVF_MAX), n2=rand(1,RVF_MAX);
-      if(n1===n2) continue;
+      if(n1<=n2) continue;                 /* ④ : jamais de résultat négatif ni nul */
       if(gcd(n1,d)!==1 || gcd(n2,d)!==1) continue;
       return {type:type, d:d, n1:n1, n2:n2};
     }
@@ -14663,7 +14670,7 @@ function rvfTirage(type){
     }
     if(type==='diff-sub-entier'){
       const d1=rand(2,RVF_MAX), n1=rand(1,RVF_MAX), k=rand(2,RVF_MAX);   /* entier ≥ 2, comme mult-entier */
-      if(n1-k*d1===0) continue;
+      if(k*d1-n1<=0) continue;             /* ④ : k − n1/d1 reste positif, jamais nul */
       if(gcd(n1,d1)!==1) continue;
       return {type:type, d1:d1, n1:n1, k:k};
     }
@@ -14696,7 +14703,7 @@ function rvfReponse(q){
     case 'mult-frac': return {num:q.n1*q.n2, den:q.d1*q.d2};
     case 'mult-entier': return {num:q.n*q.k, den:q.d};
     case 'diff-add': return {num:q.n1*q.d2+q.n2*q.d1, den:q.d1*q.d2};
-    case 'diff-sub-entier': return {num:q.n1-q.k*q.d1, den:q.d1};
+    case 'diff-sub-entier': return {num:q.k*q.d1-q.n1, den:q.d1};
     case 'div-1': case 'div-2': return {num:q.n1*q.d2, den:q.d1*q.n2};
   }
 }
@@ -14712,7 +14719,7 @@ function rvfGauche(q){
     case 'mult-frac': return t(q.n1,q.d1)+op('×')+t(q.n2,q.d2);
     case 'mult-entier': return t(q.n,q.d)+op('×')+t(q.k,1);
     case 'diff-add': return t(q.n1,q.d1)+op('+')+t(q.n2,q.d2);
-    case 'diff-sub-entier': return t(q.n1,q.d1)+op('−')+t(q.k,1);
+    case 'diff-sub-entier': return t(q.k,1)+op('−')+t(q.n1,q.d1);
     case 'div-1': case 'div-2': return t(q.n1,q.d1)+op('÷')+t(q.n2,q.d2);
   }
 }
@@ -14774,10 +14781,10 @@ function rvfEtapes(q){
         +fEq(t(q.n,q.d)+op('×')+rvfEntierCaseHTML(q.k,'rvf-kden'))
         +finale;
     case 'diff-sub-entier':
-      return t(q.n1,q.d1)+op('−')+t(q.k,1)
-        +fEq(t(q.n1,q.d1)+op('−')+rvfEntierCaseHTML(q.k,'rvf-kden'))
-        +fEq(t(q.n1,q.d1)+op('−')+rvfProduitCaseHTML(q.k,1,'rvf-ka','rvf-kb'))
-        +fEq(t(q.n1,q.d1)+op('−')+rvfFracHTML('rvf-kpn','rvf-kpd'))
+      return t(q.k,1)+op('−')+t(q.n1,q.d1)
+        +fEq(rvfEntierCaseHTML(q.k,'rvf-kden')+op('−')+t(q.n1,q.d1))
+        +fEq(rvfProduitCaseHTML(q.k,1,'rvf-ka','rvf-kb')+op('−')+t(q.n1,q.d1))
+        +fEq(rvfFracHTML('rvf-kpn','rvf-kpd')+op('−')+t(q.n1,q.d1))
         +finale;
     case 'diff-add':
       return t(q.n1,q.d1)+op('+')+t(q.n2,q.d2)
@@ -14800,7 +14807,7 @@ function rvfTexte(q){
     case 'mult-frac': return q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2;
     case 'mult-entier': return q.n+'/'+q.d+' × '+q.k;
     case 'diff-add': return q.n1+'/'+q.d1+' + '+q.n2+'/'+q.d2;
-    case 'diff-sub-entier': return q.n1+'/'+q.d1+' − '+q.k;
+    case 'diff-sub-entier': return q.k+' − '+q.n1+'/'+q.d1;
     case 'div-1': case 'div-2': return q.n1+'/'+q.d1+' ÷ '+q.n2+'/'+q.d2;
   }
 }
@@ -14910,7 +14917,7 @@ function rvfPourquoi(q){
     case 'mult-frac': return 'Pour multiplier deux fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux, sans jamais chercher un dénominateur commun. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'mult-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. Ensuite, on multiplie comme deux fractions : les numérateurs entre eux, les dénominateurs entre eux. '+rvfTexte(q)+' = '+r.num+'/'+r.den+'.';
     case 'diff-add': return 'Avec des dénominateurs différents, on multiplie chaque fraction, en haut ET en bas, par le dénominateur de l’autre, puis on effectue les produits. '+rvfTexte(q)+' = ('+q.n1+'×'+q.d2+')/('+q.d1+'×'+q.d2+') + ('+q.n2+'×'+q.d1+')/('+q.d2+'×'+q.d1+') = '+(q.n1*q.d2)+'/'+(q.d1*q.d2)+' + '+(q.n2*q.d1)+'/'+(q.d1*q.d2)+' = '+r.num+'/'+r.den+'.';
-    case 'diff-sub-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. Puis on le met au même dénominateur que l’autre fraction, en multipliant en haut ET en bas par '+q.d1+' : '+q.k+'/1 = ('+q.k+'×'+q.d1+')/(1×'+q.d1+'). '+rvfTexte(q)+' = '+q.n1+'/'+q.d1+' − '+(q.k*q.d1)+'/'+q.d1+' = '+r.num+'/'+r.den+'.';
+    case 'diff-sub-entier': return 'Un entier s’écrit comme une fraction de dénominateur 1 : '+q.k+' = '+q.k+'/1. Puis on le met au même dénominateur que l’autre fraction, en multipliant en haut ET en bas par '+q.d1+' : '+q.k+'/1 = ('+q.k+'×'+q.d1+')/(1×'+q.d1+'). '+rvfTexte(q)+' = '+(q.k*q.d1)+'/'+q.d1+' − '+q.n1+'/'+q.d1+' = '+r.num+'/'+r.den+'.';
     case 'div-1': case 'div-2': return 'Diviser par une fraction, c’est multiplier par son inverse : on échange son numérateur et son dénominateur. '+rvfTexte(q)+' = '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' = '+r.num+'/'+r.den+'.';
   }
 }

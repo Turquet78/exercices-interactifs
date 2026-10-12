@@ -213,8 +213,11 @@ module.exports = {
     sommeFractions: { exercice: 'somme-fractions' },
     /* {revision-fractions} (4.1), porté de la Seconde (octobre 2026) : les
        nombres de départ vont de 1 à 5 (consigne de Turquet — RVF_MAX dans la
-       page, deux sources), et la note se compte par question parfaite. */
-    revisionFractions: { num: '4.1', max: 5, bareme: 'questions' },
+       page, deux sources), et la note se compte par question parfaite.
+       « positif » : aucune case — étape ni résultat — n'attend un nombre
+       négatif (demande de Turquet, octobre 2026) ; la soustraction de
+       l'entier s'écrit donc « k − n1/d1 ». La Seconde garde ses négatifs. */
+    revisionFractions: { num: '4.1', max: 5, bareme: 'questions', positif: true },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
