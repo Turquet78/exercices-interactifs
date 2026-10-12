@@ -10634,6 +10634,8 @@ async function parcours(page, N){
     if(!P.casesLimite || !P.casesLimite.navigateur){
       ignorer('la case de limite : « inf » écrit ∞, le bouton ∞ écrit, et le juge relit',
         'ce niveau ne déclare aucune case de limite');
+      ignorer('le jeton « , » tombe dans la case de texte où l\'élève écrit',
+        'ce niveau ne déclare aucune case de limite');
     } else {
       const L = P.casesLimite.navigateur;
       s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
@@ -10672,6 +10674,39 @@ async function parcours(page, N){
         !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran d\'une case de limite ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      /* LE JETON « , » DANS UNE CASE DE TEXTE. La rangée générique n'écrivait
+         que dans un champ MathLive : l'élève posé dans le « avec » du 5.6.1
+         touchait « , » et la virgule partait dans la case de limite — il
+         voyait « 0<06<1 » rougir. On CLIQUE le vrai jeton, et on regarde où
+         la virgule tombe. Le témoin, ce qu'on tape et le juge sont ceux du
+         profil : le « avec » est devenu un menu (v382), le contrôle a changé
+         de case sans changer de bord. */
+      const J = P.casesLimite.jetonTexte;
+      if(J){
+        await s.page.evaluate(id => openTest(id), J.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(900);
+        await s.page.evaluate(J.pose);
+        await s.page.waitForTimeout(600);
+        await s.page.evaluate(() => pmJetons());
+        await s.page.click('#' + J.case);
+        await s.page.keyboard.type(J.avant);
+        const avantMF = await s.page.evaluate(() => [...document.querySelectorAll('.screen.on math-field')].map(m => m.getValue()).join('|'));
+        await s.page.click('.screen.on .pm-jetons button[aria-label="Insérer une virgule"]');
+        await s.page.keyboard.type(J.apres);
+        const jt = await s.page.evaluate(([id, av, juge]) => ({
+          lu: document.getElementById(id).value,
+          mf: [...document.querySelectorAll('.screen.on math-field')].map(m => m.getValue()).join('|') === av,
+          juge: (0, eval)(juge)(document.getElementById(id).value),
+        }), [J.case, avantMF, J.juge]);
+        verifier('le jeton « , » tombe dans la case de texte où l\'élève écrit',
+          jt.lu === J.attendu && jt.mf && jt.juge,
+          'case : ' + JSON.stringify(jt.lu) + ', champs mathématiques intacts : ' + jt.mf + ', juge : ' + jt.juge);
+      } else {
+        ignorer('le jeton « , » tombe dans la case de texte où l\'élève écrit',
+          'ce niveau ne déclare aucune case de texte voisine d\'un champ mathématique');
+      }
       await s.nav.close(); s = null;
     }
 

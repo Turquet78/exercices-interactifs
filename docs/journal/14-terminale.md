@@ -3020,8 +3020,23 @@ partie, si bien qu'aucun voisin n'est renuméroté. Les identifiants ne bougent
 pas — notes, devoirs et pauses suivent. Le banc principal tient les trois
 numéros du 5.6 (contrôle de {recurrence-limite}, section 0).
 
+**Puis la virgule du jeton est tombée dans le « avec » (5.6.1, v381).**
+Turquet a montré une capture : « 0<06<1 » rouge après « avec », pour
+U = 0,6ⁿ, et demandé d'accepter « 0 < 0.6 < 1 ». Le juge l'acceptait déjà —
+« 0<0.6<1 », « 0<0,6<1 », « -1<0.6<1 » tapés au clavier dans Chromium sont
+justes. La panne était ailleurs : la case « avec » est une case de TEXTE, et
+le jeton « , » de la rangée « Insérer » (`pmInsert`) n'écrivait que dans un
+champ MathLive — la virgule partait dans la case de limite d'à côté, et
+l'élève voyait son « 0,6 » devenu « 06 ». `pmInsert` écrit désormais dans la
+case de texte où l'élève est posé (« , » et « − » tels quels, la fraction en
+« / »), et lève « input » pour que la case s'élargisse et que le soutien
+corrige en direct. « 06 » reste faux : ce n'est pas 0,6.
+Le banc navigateur (6 tricies duodecies) clique le VRAI jeton, l'élève posé
+dans « avec » après « 0<0 », et exige « 0<0,6<1 » dans la case, les champs
+mathématiques intacts, et le juge d'accord (`casesLimite.jetonTexte`).
+
 **Puis le « avec » est devenu un MENU « car », et 4ⁿ a eu sa limite (5.6.1,
-v381).** Demande de Turquet, sur une capture de la question 8 (Uₙ = 4ⁿ ×
+v382).** Demande de Turquet, sur une capture de la question 8 (Uₙ = 4ⁿ ×
 (5 + 0,95ⁿ)/(5 + 0,8ⁿ)) : « il manque la limite de 4ⁿ » — la famille
 `prodq` demandait les limites des deux puissances de la fraction, jamais
 celle du facteur qui donne +∞. Elle en demande désormais trois (`l1` = 4ⁿ,
@@ -3037,3 +3052,8 @@ mais ne suffisent pas. Le menu est sur SA rangée, pas au bout de la limite :
 à 390 px, posé au bout, il repliait la rangée. Exécuté dans Chromium à 1280
 et 390 px : copie juste en bleu, choix faux en rouge avec la bonne condition
 écrite à côté, menus vides complétés en vert, aucune erreur JavaScript.
+Le contrôle du jeton « , » dans une case de texte (6 tricies duodecies),
+posé la veille sur la case « avec », a perdu son témoin avec elle : il vise
+désormais la case « Majorée par … » de {suite-vocabulaire} (5.4.1), case de
+texte voisine d'un champ de limite, et le profil nomme ce qu'on tape, ce
+qu'on attend et le juge qui relit (`casesLimite.jetonTexte`).
