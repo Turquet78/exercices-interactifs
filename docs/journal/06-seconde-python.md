@@ -4855,7 +4855,7 @@ dans les coups de pouce éventuels ; ne rien écrire dans le cadre de la
 console »). Le sous-thème a été ouvert LE MÊME MATIN, dans une autre session,
 par {python-for-nom} (6.6.1) : celui-ci le suit en 6.6.2 — collision résolue
 à la fusion de main, rien d'autre n'est renuméroté, et la version passe à
-430. La fiche : le serpent étourdi (« Houlàlla »), puis
+431 (la 430 a été prise par main pendant les contrôles). La fiche : le serpent étourdi (« Houlàlla »), puis
 « **Exécuter** le programme ci-dessous et expliquer pourquoi il y a une
 erreur ! », le programme `for k  in range ( 9 )` / `print ("valeur=", nombre )`
 au caractère près (les doubles espaces compris), et la cellule « Votre
