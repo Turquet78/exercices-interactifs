@@ -28806,6 +28806,8 @@ function pythonIfElse(w, P){
     startPCE();
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
+    /* textContent colle les blocs : un espace après chaque puce, paragraphe et cellule de la définition */
+    const lit=function(el){ const c=el.cloneNode(true); c.querySelectorAll("li,p,ul,div,.pce-def-g>span").forEach(function(e){ e.appendChild(document.createTextNode(" ")); }); return net(c.textContent); };
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     const ecr=document.getElementById("scr-pce"), img=ecr.querySelector("#pceFig img.pce-img");
     if(!img||(img.getAttribute("src")||"").indexOf("data:image/webp")!==0) vus.push("pas de dessin");
@@ -28813,10 +28815,10 @@ function pythonIfElse(w, P){
     if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
     const def=document.querySelector("#pceAvant .pii-def");
     const D="⚠ Définition d’une condition if age < 18 : … else … if age < 18 : signifie: si age < 18 alors print (\\"Tu es mineur.\\") afficher \\"Tu es mineur.\\" else : sinon print (\\"Tu es majeur.\\") afficher \\"Tu es majeur.\\"";
-    if(!def||net(def.textContent)!==D) vus.push("la définition : "+(def&&JSON.stringify(net(def.textContent))));
+    if(!def||lit(def)!==D) vus.push("la définition : "+(def&&JSON.stringify(lit(def))));
     const et=document.getElementById("pceEtape"), ti=et&&et.querySelector(".pyn-titre");
     const E="✏️ Faire un programme Qui demande l’âge de l’utilisateur et qui met le résultat dans la variable entière age. Si l’age est plus petit que 18 Alors il affiche \\"Tu es mineur\\" Sinon il affiche \\"Tu es majeur.\\" Rappel: Pour demander un nombre entier il faut mettre: = int ( input (\\" ... texte de la question... \\"))";
-    if(!ti||net(ti.textContent).split(String.fromCharCode(39)).join("’")!==E) vus.push("l’énoncé : "+(ti&&JSON.stringify(net(ti.textContent))));
+    if(!ti||lit(ti).split(String.fromCharCode(39)).join("’")!==E) vus.push("l’énoncé : "+(ti&&JSON.stringify(lit(ti))));
     if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
     ["pce-prog","pceRun","pceConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
     const pouces=document.querySelectorAll("#pceEtape details.pyd-pouce");
