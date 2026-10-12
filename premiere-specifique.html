@@ -3164,7 +3164,7 @@ const TESTS={
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
   'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné, et la probabilité demandée est écrite : P(A), P<sub>A</sub>(B)… Dis ce qu’elle veut dire — « la probabilité d’avoir … parmi … » —, puis calcule-la avec les lettres et les effectifs du tableau.', start:()=>startLP() },
-  'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe, une entreprise, un club… : complète-le à partir de quatre nombres, puis lis-y douze probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : écris-les P(…) ou P<sub>…</sub>(…), d’abord avec les lettres, puis avec les effectifs du tableau.', start:()=>startPB() },
+  'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe, une entreprise, un club… : complète-le à partir de quatre nombres, puis lis-y douze probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : traduis-les avec des lettres, la page en écrit le nom P(…) ou P<sub>…</sub>(…), puis calcule-les avec les lettres et les effectifs du tableau.', start:()=>startPB() },
   'probabilites-fiche': { name:'Probabilités : la fiche', icon:'\ud83d\udcdd', desc:'Le {lire-probabilites} sur une seule page, comme une fiche papier : le tableau reste en haut de l’écran, toutes les questions sont posées ensemble, et chaque réponse s’écrit sur une ligne : la probabilité, la fraction en lettres, puis celle des effectifs.', start:()=>startPBF() },
   /* {revision-fractions} (4.1) : porté de la Seconde (5.11), demande de Turquet, octobre 2026. */
   'revision-fractions': { name:'R\u00e9viser les quatre r\u00e8gles des fractions', icon:'\ud83d\udcda', desc:'Quatre r\u00e8gles des fractions \u00e0 r\u00e9viser vite\u00a0: m\u00eame d\u00e9nominateur, produit, d\u00e9nominateurs diff\u00e9rents, division. Pour chaque question, une petite r\u00e8gle \u00e0 choisir puis le r\u00e9sultat en fraction. Le bouton des tables est l\u00e0 si tu en as besoin.', start:()=>startRvf() },
@@ -15213,9 +15213,11 @@ function pbAttendus(q){
   }
   if(q.t==='phr') return { 'pb-ca':'nA', 'pb-cb':'nB' };
   const y=pbItem(q)[0], x=pbItem(q)[1], s6=pbInter(y,x);
-  /* {lire-probabilites} : l'élève écrit aussi le NOM de la probabilité,
-     l'indice (« rien » sans condition) et l'évènement entre parenthèses */
-  const nom = (q.t==='lp' || q.t==='p') ? { 'pb-px':(x==='T' ? '0' : x), 'pb-py':y } : {};
+  /* {lire-probabilites} d'avant la v296 : l'élève écrit aussi le NOM de la
+     probabilité, l'indice (« rien » sans condition) et l'évènement entre
+     parenthèses. Le 3.2 ne les choisit plus depuis la v300 : la page écrit le
+     nom d'après « la probabilité d'avoir … parmi … » (pbNomVifMaj). */
+  const nom = q.t==='lp' ? { 'pb-px':(x==='T' ? '0' : x), 'pb-py':y } : {};
   return Object.assign({ 'pb-s1':y, 'pb-s2':x }, nom, { 'pb-s3':y, 'pb-s4':x, 'pb-s5':x, 'pb-s6':s6, 'pb-s7':x,
            'pb-n1':String(pbEff(q,s6)), 'pb-n2':String(pbEff(q,x)) });
 }
@@ -15257,6 +15259,7 @@ function pbSel(q, id, opts, lab, cls){
    choix et après chaque vérification — corrCase écrit la valeur sans
    déclencher « change ». */
 function pbAffMaj(){
+  pbNomVifMaj();
   document.querySelectorAll('#pbHost select.pb-lettres').forEach(function(el){
     const a=el.parentNode && el.parentNode.querySelector('.pb-aff');
     if(a) a.innerHTML=el.value ? pbHTML(el.value) : '…';
@@ -15270,6 +15273,20 @@ function pbAffMaj(){
     const b=el.nextElementSibling;
     if(b && b.classList && b.classList.contains('mf-cor')){ const att=pbAttendus(pbQDe(el.id))[pbBase(el.id)]; if(att) b.innerHTML=pbHTML(att); }
   });
+}
+/* {tableau-probabilites} (3.2, v300) : LE DÉBUT DE LIGNE S'ÉCRIT TOUT SEUL.
+   Demande de Turquet (octobre 2026) : « quand l'élève a interprété la
+   question avec des lettres ou “tout”, afficher la formule du début de ligne,
+   par exemple P(M) = ou P_L(M) =, et laisser l'élève compléter le reste de
+   la ligne ». Le nom se lit sur les DEUX CHOIX de l'élève — « la probabilité
+   d'avoir Y parmi X » donne P_X(Y), « parmi tout » donne P(Y) — jamais sur la
+   réponse attendue : il ne révèle rien, et une traduction fausse donne un nom
+   faux, écrit tel quel. Tant qu'un choix manque, sa place reste « … ». Le
+   nom n'est pas une case : il ne se note pas, ses deux listes le sont. */
+function pbNomVifMaj(){
+  const el=$('pbNomVif'); if(!el) return;
+  const y=pbLu('pb-s1'), x=pbLu('pb-s2'), vide='<span class="pb-rien">…</span>';
+  el.innerHTML='<i class="pb-P">P</i>'+(x==='T' ? '' : '<sub>'+(x ? pbHTML(x) : vide)+'</sub>')+'('+(y ? pbHTML(y) : vide)+')';
 }
 function pbMf(id, lab){ return '<span class="pb-case"><math-field class="dexp-mf pm-mf" id="'+id+'" aria-label="'+esc(lab)+'"></math-field></span>'; }
 /* Le tableau. « saisie » : les cases inconnues deviennent des cases à
@@ -15363,13 +15380,16 @@ function renderPBTest(){
   } else {
     /* La question est en MOTS, au 3.1 comme au 3.2 (v290) : l'élève la
        traduit en « la probabilité d'avoir … parmi … », puis en P…(…), puis
-       calcule. */
+       calcule. Au 3.2 depuis la v300, P…(…) s'écrit d'après sa traduction
+       (pbNomVifMaj) ; seule une pause du 3.1 d'avant la v296 (q.t = 'lp')
+       garde les deux listes du nom. */
     $('pbPrompt').innerHTML=esc(lpEnonce(q));
     const opts=PB_EVTS.map(e=>({ v:e, t:pbTxt(e) }));
     const optsInd=['0','A','nA','B','nB'].map(e=>({ v:e, t:pbTxt(e) }));
     const s=(id,lab)=>pbSel(q,id,opts,lab,'pb-lettres');
     const parmi='<span class="pb-parmi">parmi</span>';
-    const nom='<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px',optsInd,'indice de P : la condition, ou rien','pb-lettres')+'</span>'
+    const nom = q.t==='p' ? '<span class="pb-nom" id="pbNomVif"></span>'
+      : '<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px',optsInd,'indice de P : la condition, ou rien','pb-lettres')+'</span>'
       +'<span class="pb-par">(</span>'+s('pb-py','entre parenthèses : l’évènement dont on veut la probabilité')+'<span class="pb-par">)</span></span>';
     $('pbHost').innerHTML=
       '<div class="pt-step">'+pbTableHTML(q,false)+'</div>'
@@ -15387,6 +15407,7 @@ function renderPBTest(){
        +'</div>'
      +'</div>';
     pbPlacerEnonce(true);
+    pbNomVifMaj();
   }
 }
 /* Ce que l'élève a mis dans une case : la valeur de la liste, ou le nombre
@@ -15707,7 +15728,9 @@ function pbCtxTexte(q){
     const y=pbItem(q)[0], x=pbItem(q)[1];
     c+='La question est posée EN MOTS : « '+lpEnonce(q)+' ». L’élève doit d’abord la traduire : '
       +'« dans '+pbNom(C)+' » = pas de condition, P sans indice ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. '
-      +'Il choisit l’indice de P (ou « rien ») et l’évènement entre parenthèses dans des listes ; une intersection se dit avec « et ». ';
+      +(q.t==='p'
+        ? 'Il choisit dans des listes « la probabilité d’avoir … parmi … » ; la page en déduit le début de ligne P…(…) — l’indice est ce qu’il a mis après « parmi » (rien pour « tout »). Une intersection se dit avec « et ». '
+        : 'Il choisit l’indice de P (ou « rien ») et l’évènement entre parenthèses dans des listes ; une intersection se dit avec « et ». ');
     c+='L’élève calcule '+(x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')')
       +' : il écrit « la probabilité d’avoir … parmi … » avec des lettres choisies dans une liste ('+PB_EVTS.map(pbTxt).join(', ')+'), '
       +'puis la fraction « … parmi … / parmi … », la fraction en lettres, et enfin la fraction des EFFECTIFS du tableau, sans la simplifier. ';
