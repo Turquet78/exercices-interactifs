@@ -51,7 +51,7 @@ const RAPPELS_PREMIERE = `(function(){
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
     'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd','synthese-evolutions-successives':'ess',
-    'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb','lire-probabilites':'pb','probabilites-fiche':'pb','probabilites-ecriture':'pb' };
+    'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb','lire-probabilites':'pb','probabilites-fiche':'pb','probabilites-ecriture':'pb','revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     /* un exercice peut avoir SON rappel, indépendant du kind : deux exercices
@@ -211,6 +211,10 @@ module.exports = {
        qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
        juge pas à moitié écrite —, puis mesure l'alignement des termes. */
     sommeFractions: { exercice: 'somme-fractions' },
+    /* {revision-fractions} (4.1), porté de la Seconde (octobre 2026) : les
+       nombres de départ vont de 1 à 5 (consigne de Turquet — RVF_MAX dans la
+       page, deux sources), et la note se compte par question parfaite. */
+    revisionFractions: { num: '4.1', max: 5, bareme: 'questions' },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le
@@ -760,6 +764,9 @@ module.exports = {
        qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
        juge pas à moitié écrite —, puis mesure l'alignement des termes. */
     sommeFractions: { exercice: 'somme-fractions' },
+    /* {revision-fractions} (5.11) : un chiffre de 1 à 9 (RVF_MAX dans la
+       page), et le barème compte les CASES — finishTest lit maxScore. */
+    revisionFractions: { num: '5.11', max: 9, bareme: 'cases' },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le

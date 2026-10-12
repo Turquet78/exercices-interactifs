@@ -1268,3 +1268,34 @@ IRRÉDUCTIBLE. La correction verte écrit la fraction irréductible (ou complèt
 la route d'une case juste : 312 en haut appelle 132), le message dit « 156 sur
 66, soit 26 sur 11 une fois simplifiée ». `RAP_TSF` va jusqu'à 1/30 et le ④ de
 `RAP_RVF` jusqu'à 5/6. Contrôles dans `seconde()` (banc principal).
+
+**{revision-fractions} est passé en Première — thème 4 « Fractions », 4.1
+(demande de Turquet, octobre 2026 : « mettre l'exercice de seconde 5.11 en
+première dans un nouveau thème fraction ; les nombres au départ doivent être
+entre 1 et 5, et comme d'habitude les fractions au départ doivent être
+irréductibles »).** La Seconde le GARDE : « mettre en Première » a été lu
+comme une copie, pas un déménagement — retirer l'exercice de la Seconde
+aurait fait disparaître du menu des notes déjà obtenues. Le moteur est celui
+de la Seconde, recopié au mot près, sauf trois écarts nommés dans son
+en-tête. ① La borne des nombres de départ vit HORS du moteur, comme `SF_NB` :
+`RVF_MAX`, 5 en Première, 9 en Seconde (la constante y a été posée le même
+jour, sans rien changer à ses tirages) — dénominateurs de 2 à la borne,
+numérateurs de 1 à la borne, entiers de 2 à la borne ; l'irréductibilité
+écarte d'elle-même 5/5 et toute fraction égale à 1. Sur des nombres aussi
+petits, {div-1} et {div-2} tombaient parfois sur le même calcul : le second
+est retiré tant qu'il recopie le premier. ② La note se compte par question
+PARFAITE : le `finishTest()` de la Première note sur le nombre de questions,
+seule la Seconde lit `maxScore` — garder le barème aux cases (42) aurait
+enregistré « 42 / 8 ». La note partielle de chaque question reste lue sur
+l'écran (`ptsExo`), comme partout dans ce niveau. ③ Les boutons d'aide ne
+s'écrivent pas dans la rangée : `iaBoutons()` les pose sous chaque écran.
+Les cases sont des `<input inputmode="numeric">` : le pavé de la page les sert
+sur tablette, signe moins compris (le résultat de {diff-sub-entier} est
+négatif). `corrChoix()` et `msgAvecVides()` ont été portées avec lui, et les
+cases `.f-num`/`.f-den` ont gagné leur règle `.sol` verte dans `#rvfHost` —
+ce fichier n'en avait aucune.
+Le contrôle `revisionFractions` (banc principal) court désormais sur les deux
+niveaux : ce qui diffère se DÉCLARE dans le profil (`revisionFractions` :
+numéro, borne, barème), et une seconde mesure tire trois cents séances pour
+lire chaque nombre de départ contre la borne — et exige que la borne soit
+atteinte, sans quoi elle ne mesurerait qu'un tirage trop étroit.
