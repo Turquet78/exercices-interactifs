@@ -1420,7 +1420,7 @@ module.exports = {
        des samoussas, 1.20 € sous 10, 0.80 € à partir de 10. Le juge lit le
        prix AFFICHÉ sous quatre réponses. « nb » est la seconde source du
        compte (la page a PSM_NB). */
-    pythonSamoussa: { exercice: 'python-samoussa', nb: 3, numero: '6.7.4' },
+    pythonSamoussa: { exercice: 'python-samoussa', nb: 3, numero: '6.7.2' },
     /* {python-if-else} (6.7.1, devant {python-samoussa} : la fiche « 1/
        Définition d'une condition if age < 18 : … else … » ouvre le sous-thème)
        — demander l'âge, afficher mineur ou majeur. Le juge EXÉCUTE la copie
