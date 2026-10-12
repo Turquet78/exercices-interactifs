@@ -5103,6 +5103,7 @@ banc l'exige désormais. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans les
 deux modes.
 
+<<<<<<< HEAD
 ## {python-for-table} — la table de 3, puis la table de 7 (6.6.6, Boucle for in range)
 
 **L'exercice 8 du carnet.** {python-for-table} (Seconde, 6.6.6, demande de
@@ -5144,3 +5145,168 @@ coups de pouce repliés au a) et aucun au b), cellules et consoles vides,
 rappel réduit aux coups de pouce), les copies juste, fausse, vide et mixte,
 le soutien, et les modèles comparés à CPython. Pas de section propre au banc
 navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
+=======
+---
+
+## {python-for-depart-fin} — for … in range ( départ , fin ) (6.6.6, Boucle for in range)
+
+**L'exercice 6 du carnet sur la boucle.** {python-for-depart-fin} (Seconde,
+6.6.6, APP_VERSION 437 — la 436 prise sur `main` par le 6.6.1 pendant les bancs —, demande de Turquet, octobre 2026 : « en seconde dans
+le sous thème "boucle for in range", créer un exercice qui suit les images
+jointes ; respecter les consignes de présentation des autres exercices d'algo
+du sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ») : le serpent à lunettes qui écrit, la
+définition de `for nombre in range (départ , fin)` et son exemple
+`range ( 3 , 10 )`, puis a) compléter `for k in range ( … , … ):` /
+`print (k)` pour afficher les entiers de 5 à 15, b) le même programme pour
+les entiers de 1 à 9. Il ferme le sous-thème derrière {python-for-renommer},
+préfixe `pfd` : rien n'est renuméroté, et le contrôle du 6.6.5 exige
+désormais qu'il soit le cinquième, plus le dernier.
+
+**Le moteur est celui du 6.6.5**, allégé de ce que la fiche n'a pas : le
+dessin en tête (`#pfdFig`, découpé dans la capture, détouré par remplissage
+depuis les bords — les blancs des yeux restent —, WebP de 10 Ko, `PFD_IMG`),
+la définition dans `#pfdAvant` (le cadre orange, les deux puces de la fiche
+et RIEN d'autre : ni « Traduction », ni remarques), puis l'énoncé et les deux
+étapes dans leurs cadres `.pyn-etape`. **La fiche n'a aucun coup de pouce :
+l'exercice n'en a pas**, et le contrôle refuse qu'il en apparaisse un. Les
+consoles vides restent des cadres vides (`#pfdConsoleA`, `#pfdConsoleB`
+rejoignent `content:none`). Le `print (k)` est décalé de 4 espaces, comme la
+capture.
+
+**Deux trous dans la ligne du `for`, et chacun est une CASE** — quatre cases
+par question. Chaque trou est jugé SEUL, sur sa valeur lue par l'interpréteur
+(`15+1` vaut 16) : un départ juste reste bleu à côté d'une fin fausse, qui
+rougit avec sa correction verte. Le programme est aussi EXÉCUTÉ pour nommer
+l'erreur : 15 au lieu de 16 (le piège : il manque la dernière valeur), 17
+(une valeur de trop), un départ décalé, un décimal (ENTIERS), une lettre
+(NOMBRES), des bornes inversées (la boucle ne tourne pas). Un trou vide ne
+rougit pas : l'étape est redemandée. « Vérifier » ne s'ouvre que sur la ligne
+exécutée telle qu'elle est écrite ; en soutien, le faux est redemandé sans
+correction.
+
+**La séance** : la fiche épinglée (5 à 15, puis 1 à 9), puis des paires de
+bornes tirées par `distinctes()` parmi huit autres (`PFD_BORNES`) ;
+`dmNbQuestions()` l'allonge. Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. Banc jsdom
+(`pythonForDepartFin`, déclaré dans `tests/profils.js`) : la place, le tirage
+(300 séances), le juge, l'écran tenu aux consignes, le trajet a) → b) et ses
+portes, la case juste bleue à côté d'une fausse, les trous vides jamais
+rougis, le soutien, la reprise.
+
+**Puis l'ordre du carnet** (APP_VERSION 439 — 436 à 438 pris sur `main` pendant les bancs —, demande de Turquet, octobre
+2026 : « mets-le dans l'ordre du carnet, en 6.6.2 »). {python-for-renommer},
+l'exercice 2 du carnet, passe de 6.6.5 à 6.6.2, juste derrière
+{python-for-range} (l'exercice 1). Les trois suivants reculent d'un rang :
+{python-for-nom} 6.6.3, {python-for-oui-non} 6.6.4, {python-for-erreur} 6.6.5.
+Les notes portent l'identifiant et ne bougent pas. Les quatre contrôles de place
+(un par exercice déplacé, et celui-ci) épinglent le nouvel ordre, et
+`tests/profils.js` porte les nouveaux numéros.
+Pendant ces bancs, {python-for-depart-fin} (l'exercice 6 du carnet) a été
+fusionné en 6.6.6. Il ferme le sous-thème, derrière {python-for-erreur} : son
+contrôle exigeait qu'il suive {python-for-renommer}, alors en 6.6.5 ; il exige
+désormais de suivre {python-for-erreur}, et {python-for-renommer} en 6.6.2.
+
+---
+
+## {python-trois-des} — les résultats de trois dés (6.6.7, Boucle for in range, BONUS)
+
+**L'exercice 13 du carnet.** {python-trois-des} (Seconde, 6.6.7, APP_VERSION
+445 — 437 à 444 pris ou réservés par les sessions voisines du même jour —, demande de Turquet, octobre 2026 : « en seconde dans le sous thème
+"boucle for in range", créer un exercice qui suit les images jointes ;
+respecter les consignes de présentation des autres exercices d'algo du
+sous-thème input ; mettre le dessin en premier ; dans la définition ne rien
+rajouter de plus, ainsi que dans les coups de pouce éventuels ; respecter les
+couleurs et présentations des exercices du sous-thème input ; ne rien écrire
+dans le cadre de la console ; mettre bonus dans le titre ») : la jeune femme à
+lunettes devant son ordinateur, puis a) « **Faire** un programme qui affiche
+tous les résultats possibles si on lance 3 dés à six faces », b)
+« **Compléter** le programme pour qu'il compte le nombre de fois où le total
+des points vaut 9 » (« S'il affiche la probabilité d'avoir 9 points c'est
+encore mieux ! »), c) la même chose pour « au-dessus de 12 » (« … la
+probabilité d'avoir au moins 12 points … »). Il ferme le 6.6, derrière
+{python-for-depart-fin}, fusionné en 6.6.6 pendant ses bancs : rien n'est
+renuméroté. « Bonus » est dans le titre
+(`TESTS.name`, « Bonus : les résultats de trois dés ») et en tête de la
+description, comme au 6.5. Coquilles corrigées, rien d'ajouté : « dés »,
+« où », « au-dessus ».
+
+**La présentation est celle du 6.6.5** : le dessin seul EN PREMIER
+(`#ptdsFig`, découpé dans la capture, détouré depuis les bords, WebP de 8 Ko,
+`PTDS_IMG`), puis les trois étapes sur le même écran, chacune dans son cadre
+`.pyn-etape` ouvert par SA question (le verbe en gras, comme la fiche), les
+deux « encore mieux » en puces dessous ; une étape gardée quand la suivante
+s'ouvre (« Passer au b) »). La fiche n'a ni définition ni coup de pouce :
+l'écran n'en ajoute pas (exception déclarée, `pythonAvant.sans`), et le rappel
+(`RAP_PTDS`) ne redit que les trois consignes. Les consoles vides restent des
+cadres vides (`#ptdsConsoleA/B/C` rejoignent `content:none`) ; pleines, elles
+défilent dans leur cadre (216 lignes).
+
+**L'exécution est celle de `pyRun`**, qui connaît les blocs (trois `for`
+imbriqués, `if`) : 216 tours. Chaque étape a sa cellule (Tab = 4 espaces,
+Entrée après « : » décale, le retrait du carnet Jupyter), son « Exécuter » et
+sa console ; « Vérifier » ne s'ouvre que sur le programme exécuté tel qu'il
+est écrit. Le b) s'ouvre sur le programme du a) — celui de l'élève s'il était
+juste, la correction sinon —, le c) sur celui du b) : « Compléter le
+programme ». Une cellule laissée telle qu'elle s'ouvre est une copie vide,
+redemandée sans rougir.
+
+**Les juges lisent la console.** a) une ligne qui porte trois dés (séparés,
+entre parenthèses, collés « 126 », ou suivis de leur total) est un résultat :
+il en faut 216, différents, de 1 à 6. Nommés : un 0 (`range(6)`), un 7, le 6
+manquant (`range(1,6)`), deux dés, le total seul, des doublons, des résultats
+manquants. Trois chiffres collés ne sont des dés que dans une LISTE (vingt
+lignes au moins) : le banc l'a montré, un compteur seul qui affiche « 216 »
+se lisait comme le résultat 2, 1, 6. b) un nombre affiché HORS des lignes de dés vaut 25. c) 81 (au
+moins 12) ou 56 (strictement au-dessus de 12) : **la fiche dit les deux** —
+« au-dessus de 12 » dans la question, « au moins 12 » dans la probabilité —,
+les deux sont justes, et le message dit lequel a été compté (la correction
+verte prend « au moins 12 », celui de la probabilité). Nommés : le nombre
+attendu écrit dans le programme (il faut le COMPTER), le compteur affiché à
+chaque tour, le compteur à 0 (remis à zéro dans la boucle), le compteur qui
+compte tout (pas de if), un autre total. **La probabilité est « encore
+mieux »** : elle ne change pas la note ; reconnue en décimal, en pourcentage
+ou en fraction (`25 / 216`), le message le dit, ou propose de l'ajouter.
+
+**La séance** : une seule question, la fiche — rien à tirer (le motif du
+6.6.4), trois cases (une par étape). Pas de correction au fil de la frappe
+(`soutienEnDirect.sans`), pas de bouton des tables. En soutien, le faux se
+reprend sans rien révéler. Banc jsdom (`pythonTroisDes`) : la place et le
+titre, l'écran (dessin d'abord, aucune définition, console vide, b) fermé),
+25 copies jugées chacune avec son mot, le trajet a) → b) → c) et la reprise,
+le soutien, et les trois programmes de la correction comparés à un vrai
+CPython. Pas de section propre au banc navigateur : la visite universelle
+(section 9) l'ouvre dans les deux modes.
+
+**La moyenne de N notes, une seconde fois : le 6.6.8, « Bonus ».**
+{python-for-moyenne-notes} (Seconde, 6.6.8, version 437 puis 446 — les fusions de `main` ont apporté le 6.6.6 {python-for-depart-fin}, l'ordre du carnet ({python-for-renommer} en 6.6.2), le 6.6.7 {python-trois-des} et les versions 438 à 445 —, demande de Turquet,
+octobre 2026 : « en seconde dans le sous thème "boucle for in range", créer un
+exercice qui suit les images jointes ; respecter les consignes de
+présentation des autres exercices d'algo du sous-thème input ; mettre le
+dessin en premier ; dans la définition ne rien rajouter de plus ainsi que
+dans les coups de pouce ; ne rien écrire dans le cadre de la console ; mettre
+bonus dans le titre »). L'image est la fiche « Exercice 11 » — la même que
+celle du 6.5.4 ({python-moyenne-notes}). Le 6.5.4 reste en ligne, intact :
+l'exercice neuf est une IDENTITÉ de plus sur le MÊME moteur (kind `pmn`, le
+motif du 6.3.3/6.3.5), distinguée par `q.f=1` dans chaque question — elle part
+en base avec elles, la reprise d'une pause la retrouve sans rien déclarer. La
+note passe par `currentTestId`, le rappel par `RAPPELS_ID` (`RAP_PFM`).
+
+Ce qui change sous `q.f` : aucune consigne au-dessus de la fiche (le 6.5.4
+écrit « Le programme demande des notes… », phrase AJOUTÉE — `#pmnInstr` est
+caché) ; « Faire un programme » en gras, comme la fiche ; les coups de pouce
+MOT POUR MOT (`pfmPoucesHTML`), `range (N)` du second compris — seul
+l'`input ( "ta note",k,"?")` est récrit `"ta note "+str(k)+" ?"`, parce que
+CPython le refuse et que l'élève qui le recopie échouerait (voir le 6.5.4) ;
+et la vérification n'écrit RIEN dans la console (le 6.5.4 y rejoue
+l'exécution du juge, « (la page a répondu …) ») : seul « Exécuter » y écrit,
+et une case de dialogue encore ouverte est désactivée. La fiche n'a pas de
+dessin : il n'y en a pas en tête. Le titre commence par « Bonus ». Banc jsdom
+(`pythonForMoyenneNotes`) : la place (il ferme le 6.6 derrière
+{python-trois-des}, rien ne bouge — le contrôle du 6.6.7 passe de « il
+ferme » à « il est le septième »), l'écran et les coups de pouce au
+caractère près, le programme des coups de pouce accepté par le juge, juste,
+faux, vide, et la console laissée vide par la vérification.
+>>>>>>> origin/main
