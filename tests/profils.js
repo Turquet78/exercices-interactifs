@@ -109,7 +109,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-completer':'pyx','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc','python-noms-variables':'pvn',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
-               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'synthese-fonction':'syn', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc', 'python-input-prix':'pkg', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-samoussa':'psm', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -920,7 +920,7 @@ module.exports = {
        fini, et le juger à chaque changement de lettre serait absurde. */
     /* « psl », « sal » et « ac » : les trois dispenses de la Première, portées
        avec leurs exercices — voir le profil de la Première. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pof', 'pfn', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfq', 'pfi', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pkg', 'pof', 'pfn', 'pmt', 'ptm', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'psm', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1126,7 +1126,7 @@ module.exports = {
        du code proposé au choix de l'élève — pas l'inconnue d'une équation. */
     xItalique: { dispenses: [] },
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage',
-                  sans: ['python-pile-face', 'python-for-range', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                  sans: ['python-pile-face', 'python-samoussa', 'python-for-range', 'python-for-couples', 'python-tables-multiplication', 'python-trois-des', 'python-for-multiples', 'python-for-moyenne-notes', 'python-for-table', 'definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'additionner-relatifs', 'nombres-relatifs', 'reduire-somme', 'associer-expressions', 'soustraire-relatifs', 'tableau-proportions', 'tableau-proportions-lettres', 'tableau-proportions-lettres-tirees', 'tableau-proportions-directes', 'tableau-proportions-parmi', 'tableau-proportions-trois-colonnes', 'tableau-proportions-trois-colonnes-directes', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
@@ -1185,10 +1185,14 @@ module.exports = {
     pythonAvant: { sans: {
       'python-for-oui-non': 'la fiche n\u2019a ni définition ni coup de pouce (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ») : son rappel ne porte que le programme de la fiche',
       'python-chaine-len': 'l\u2019élève découvre en exécutant ce que représentent len(chaine) et chaine[i] : leur définition est la réponse attendue',
+      'python-samoussa': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les trois coups de pouce (l\u2019input, le if / else, les deux formules) — demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ».',
       'python-for-images': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que les deux coups de pouce (range(11) puis x=x/10), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait la boucle à écrire',
+      'python-for-couples': 'la fiche n\u2019a ni dessin ni définition : son rappel n\u2019est que le coup de pouce (la double boucle), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait le squelette du programme',
       'python-for-nom': 'la fiche n\u2019a pas de définition : l\u2019énoncé du haut est son dessin, et son rappel n\u2019est que le coup de pouce (le for k in range), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait la boucle à écrire',
       'python-input-prix': 'la fiche n\u2019a pas de définition : son étiquette (le dessin, les deux prix au kilo) est l\u2019énoncé, et son rappel ne reprend que la formule du coup de pouce — l\u2019écrire avant l\u2019énoncé donnerait le calcul à écrire',
+      'python-tables-multiplication': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (la double boucle), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait le programme (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus »)',
       'python-for-erreur': 'la fiche n\u2019a ni définition ni coup de pouce : son rappel ne redit que la consigne, et l\u2019erreur à expliquer est la réponse attendue',
+      'python-for-table': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que les deux coups de pouce (la boucle de 1 à 9, le print), qui restent REPLIÉS sous l\u2019énoncé — les écrire avant lui donnerait le programme à écrire',
       'python-for-multiples': 'la fiche n\u2019a ni définition ni coup de pouce (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ») : l\u2019énoncé du haut est son dessin, et son rappel ne porte que le programme de la fiche',
       'python-trois-des': 'la fiche (l\u2019exercice 13 du carnet) n\u2019a ni définition ni coup de pouce : l\u2019énoncé du haut est son dessin, et son rappel ne redit que les consignes a), b) et c)',
       'python-input-duree': 'la fiche n\u2019a pas de définition : son rappel n\u2019est que le coup de pouce (les trois calculs à essayer), qui reste REPLIÉ sous l\u2019énoncé — l\u2019écrire avant lui donnerait les calculs à écrire',
@@ -1312,18 +1316,25 @@ module.exports = {
        que le programme AFFICHE. « nb » est la seconde source du compte
        (la page a PKG_NB). */
     pythonInputPrix: { exercice: 'python-input-prix', nb: 3, numero: '6.3.9' },
-    /* {python-pile-face} (6.7.1, sous-thème « Condition if else », demande de
+    /* {python-pile-face} (6.7.2, derrière {python-samoussa}, sous-thème « Condition if else », demande de
        Turquet, octobre 2026) : l'exercice 7 du carnet — jouons à pile ou face,
        six questions qui montent un jeu (a à f). Le juge EXÉCUTE, en imposant
        les réponses et les tirages de la pièce. « nb » est la seconde source du
        compte (la page a POF_NB). */
-    pythonPileFace: { exercice: 'python-pile-face', nb: 6, numero: '6.7.1' },
+    pythonPileFace: { exercice: 'python-pile-face', nb: 6, numero: '6.7.2' },
     /* {python-for-nom} (6.6.2 — 6.6.1 à sa création, avant que {python-for-range}, la fiche de la définition, ne passe devant ; sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 5 du carnet — afficher 8 fois
        son nom et son prénom avec une boucle for. Le juge lit ce que le
        programme AFFICHE. « nb » est la seconde source du compte (la page a
        PFN_NB). */
     pythonForNom: { exercice: 'python-for-nom', nb: 3, numero: '6.6.3' },
+    /* {python-for-couples} (6.6.13, dans le sous-thème « Boucle for in
+       range », derrière {python-tables-multiplication} ; demande de Turquet, octobre
+       2026) : l'exercice 12 du carnet, BONUS — afficher tous les couples
+       d'entiers (a ; b) avec a et b entre 0 et 2. Le juge lit ce que le
+       programme AFFICHE. « nb » est la seconde source du compte (la page a
+       PFC_NB). */
+    pythonForCouples: { exercice: 'python-for-couples', nb: 3, numero: '6.6.13' },
     /* {python-input-duree} (6.5.1, sous-thème « Bonus : input », demande de
        Turquet, octobre 2026) : l'exercice 11 du carnet — demander une durée
        en minutes et l'afficher en heures et minutes (// et %). La fiche ne
@@ -1338,9 +1349,21 @@ module.exports = {
     pythonInputDureeSecondes: { exercice: 'python-input-duree-secondes', nb: 3, numero: '6.5.3' },
     /* {python-for-erreur} (6.6.4, dernier du sous-thème, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 3 du carnet — exécuter un
-       programme faux, puis expliquer l'erreur (juge : le modèle). Une seule
-       question, la fiche : rien à tirer. */
+       programme faux, puis expliquer l'erreur (juge : le modèle). Trois
+       questions fixes, une faute chacune (deux-points, décalage, i au lieu
+       de k) : rien à tirer. */
     pythonForErreur: { exercice: 'python-for-erreur', numero: '6.6.5' },
+    /* {python-for-table} (6.6.11, dernier du sous-thème « Boucle for in range »,
+       demande de Turquet, octobre 2026) : l'exercice 8 du carnet — a) la
+       table de 3, b) la table de 7, avec une boucle for. Le juge lit ce que
+       le programme AFFICHE. Une seule question (la fiche), deux cases. */
+    pythonForTable: { exercice: 'python-for-table', numero: '6.6.11' },
+    /* {python-tables-multiplication} (6.6.12, BONUS, derrière {python-for-table}, dans le sous-thème
+       « Boucle for in range », demande de Turquet, octobre 2026) :
+       l'exercice 12 du carnet — afficher les tables de 2 à 9 avec une double
+       boucle for. Le juge lit ce que le programme AFFICHE. Une seule
+       question, la fiche : rien à tirer. */
+    pythonForTables: { exercice: 'python-tables-multiplication', numero: '6.6.12' },
     /* {python-inverser-lettres} (6.4.4, sous-thème « Bonus », derrière
        {python-chaine-len}, {python-chaine-tirets} et {python-remplacer-lettre} ;
        demande de Turquet, octobre 2026) : l'exercice 29 du carnet — inverser
@@ -1391,6 +1414,12 @@ module.exports = {
        dixième. Le juge lit ce que le programme AFFICHE. « nb » est la seconde
        source du compte (la page a PFI_NB). */
     pythonForImages: { exercice: 'python-for-images', nb: 3, numero: '6.6.10' },
+    /* {python-samoussa} (6.7.1, il ouvre le sous-thème « Condition if else »,
+       demande de Turquet, octobre 2026) : l'exercice 3 du carnet — le prix
+       des samoussas, 1.20 € sous 10, 0.80 € à partir de 10. Le juge lit le
+       prix AFFICHÉ sous quatre réponses. « nb » est la seconde source du
+       compte (la page a PSM_NB). */
+    pythonSamoussa: { exercice: 'python-samoussa', nb: 3, numero: '6.7.1' },
     /* {python-chaines} (6.1.14, demande de Turquet, octobre 2026) : les
        exercices 21 et 22 du carnet — a) exécuter un programme qui concatène
        et répète, b) compléter un programme pour qu'il affiche 10 fois le nom
