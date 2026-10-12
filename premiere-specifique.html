@@ -2713,7 +2713,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=305;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=306;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3163,8 +3163,8 @@ const TESTS={
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
-  'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné, et la probabilité demandée est écrite : P(A), P<sub>A</sub>(B)… Dis ce qu’elle veut dire — « la probabilité d’avoir … parmi … » —, puis calcule-la avec les lettres et les effectifs du tableau.', start:()=>startLP() },
-  'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe, une entreprise, un club… : complète-le à partir de quatre nombres, puis lis-y douze probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : traduis-les avec des lettres, la page en écrit le nom P(…) ou P<sub>…</sub>(…), puis calcule-les avec les lettres et les effectifs du tableau.', start:()=>startPB() },
+  'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné, et la probabilité demandée est écrite : P(A), P<sub>A</sub>(B)… Complète d’abord les évènements contraires, puis calcule chaque probabilité sur sa ligne, avec les lettres et les effectifs du tableau.', start:()=>startLP() },
+  'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe, une entreprise, un club… : complète d’abord les évènements contraires, puis le tableau à partir de quatre nombres, et lis-y sept probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : traduis-les avec des lettres, la page en écrit le nom P(…) ou P<sub>…</sub>(…), puis calcule-les avec les lettres et les effectifs du tableau.', start:()=>startPB() },
   'probabilites-fiche': { name:'Probabilités : la fiche', icon:'\ud83d\udcdd', desc:'Le {lire-probabilites} sur une seule page, comme une fiche papier : le tableau reste en haut de l’écran, toutes les questions sont posées ensemble, et chaque réponse s’écrit sur une ligne : la probabilité, la fraction en lettres, puis celle des effectifs.', start:()=>startPBF() },
   /* {revision-fractions} (4.1) : porté de la Seconde (5.11), demande de Turquet, octobre 2026. */
   'revision-fractions': { name:'R\u00e9viser les quatre r\u00e8gles des fractions', icon:'\ud83d\udcda', desc:'Quatre r\u00e8gles des fractions \u00e0 r\u00e9viser vite\u00a0: m\u00eame d\u00e9nominateur, produit, d\u00e9nominateurs diff\u00e9rents, division. Pour chaque question, une petite r\u00e8gle \u00e0 choisir puis le r\u00e9sultat en fraction. Le bouton des tables est l\u00e0 si tu en as besoin.', start:()=>startRvf() },
@@ -15204,8 +15204,8 @@ const LP_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],[
    renversement à ne pas confondre avec elle. */
 const LN_ITEMS=[['B','T'],['A','T'],['nB','T'],['nA','T'],['B','A'],['nB','A'],['A','B'],['B','nA']];
 /* Une question peut porter sa probabilité ELLE-MÊME (q.ev = [évènement,
-   univers]) : c'est le cas des intersections tirées du 3.3 et du 3.2 (pbInterTirees). Une
-   pause d'avant la v302 n'a pas q.ev et relit PB_ITEMS. */
+   univers]) : c'est le cas de toutes les probabilités tirées depuis la v306
+   (pbSeptTirees). Une pause d'avant n'a pas toujours q.ev, et relit ses tables par q.it. */
 function pbItem(q){ return q.ev || (q.t==='lp' ? LP_ITEMS : q.t==='ln' ? LN_ITEMS : PB_ITEMS)[q.it]; }
 /* n = [A∩B, Ā∩B, A∩B̄, Ā∩B̄] — les quatre cases du milieu. */
 function pbValeurs(n){
@@ -15230,36 +15230,42 @@ function pbTableau(){
   /* les quatre cases du milieu sont toujours un jeu valable : la liste n'est jamais vide */
   return { n:n, k:pick(jeux) };
 }
-/* Les deux intersections sans condition de PB_ITEMS — P(A∩B) et P(A∩B̄) —
-   ne sortent plus toujours telles quelles : au 3.3 comme au 3.2, elles se
-   tirent parmi les QUATRE cases du milieu du tableau, deux différentes, dans
-   un ordre quelconque (demandes de Turquet, octobre 2026 : « varier les
-   intersections possibles pour les questions 5 et 6 », puis « dans le 3.2
-   aussi », le 3.3 d'aujourd'hui). Le tirage est rangé dans la question (q.ev), que pbItem lit
-   avant PB_ITEMS. pbInterTirees() rend, pour l'indice d'un item, ce qu'il
-   faut ajouter à sa question : { ev } pour une intersection, rien sinon. */
+/* Les quatre intersections : les quatre cases du milieu du tableau, écrites
+   « A d'abord », comme pbInter l'exige. */
 const PB_INTER=['A.B','A.nB','nA.B','nA.nB'];
-function pbInterTirees(){
-  const inter=qdMelanger(PB_INTER.slice());
-  let ii=0;
-  return function(it){
-    const e=PB_ITEMS[it];
-    return (e && e[1]==='T' && e[0].indexOf('.')>=0) ? { ev:[inter[ii++],'T'] } : {};
-  };
+/* LES SEPT PROBABILITÉS DE CHAQUE SÉANCE (v306), aux quatre exercices du
+   thème. Demande de Turquet (octobre 2026) : « dans tous les exercices de
+   proba il doit y avoir deux probabilités de la forme P(…), deux de la forme
+   P(… ∩ …) et trois de la forme P_…(…) ». Deux évènements simples différents
+   parmi A, Ā, B, B̄ ; deux intersections différentes parmi les quatre cases
+   du milieu ; trois conditionnelles différentes parmi les huit — l'indice
+   est un évènement simple, l'évènement entre parenthèses un évènement simple
+   de l'AUTRE critère (P_A(B̄), P_B̄(Ā)…). Rangées dans cet ordre, chacune dans
+   sa question (q.ev, que pbItem lit d'abord) : le juge, le nom écrit, la
+   méthode et le contexte du modèle suivent sans rien changer. Une pause
+   d'avant la v306 n'a pas q.ev partout, et relit ses tables par q.it. */
+const PB_SIMPLES=['A','nA','B','nB'];
+const PB_CONDS=[['B','A'],['nB','A'],['B','nA'],['nB','nA'],['A','B'],['nA','B'],['A','nB'],['nA','nB']];
+function pbSeptTirees(){
+  const deux=(t)=>qdMelanger(t.slice()).slice(0,2);
+  return deux(PB_SIMPLES).map(e=>[e,'T'])
+    .concat(deux(PB_INTER).map(e=>[e,'T']))
+    .concat(qdMelanger(PB_CONDS.map(c=>c.slice())).slice(0,3));
 }
-/* Depuis la v290, les douze probabilités se posent EN MOTS, comme au 3.1
-   (demande de Turquet, octobre 2026 : « tout ce qui est similaire au 3.1
-   fait de la même façon ») : chacune tire sa tournure (q.v). Les six
-   conditionnelles puisent dans les quatre tournures mélangées deux fois :
-   aucune ne sort plus de deux fois. */
+/* Depuis la v290, les probabilités se posent EN MOTS, comme au 3.1 d'alors :
+   chacune tire sa tournure (q.v) ; les trois conditionnelles prennent trois
+   tournures différentes parmi les quatre. Depuis la v306, les phrases
+   contraires sont une question à elles, AVANT le tableau (demande de Turquet :
+   « compléter les évènements contraires avant d'afficher le tableau ») : la
+   séance est phrases, tableau, puis les sept probabilités. Les tirages se
+   font hors de la fabrique passée à distincte(), qui peut la rappeler. */
 function pbSeance(){
-  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], tc=qdMelanger([0,1,2,3,0,1,2,3]);
+  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], tc=qdMelanger([0,1,2,3]);
   let ic=0;
-  const ev=pbInterTirees();
-  for(let it=-1; it<PB_ITEMS.length; it++){
-    const v = it<0 ? 0 : (PB_ITEMS[it][1]==='T' ? rand(0,2) : tc[ic++]), e=ev(it);
-    qs.push(distincte(qs, ()=>Object.assign({ t:(it<0?'tab':'p'), it:it }, e, { v:v, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
-  }
+  const pose=(o)=>qs.push(distincte(qs, ()=>Object.assign(o, { n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  pose({ t:'phr', it:-1, v:0 });
+  pose({ t:'tab', it:-1, v:0 });
+  pbSeptTirees().forEach(e=>pose({ t:'p', it:'ev', ev:e, v:(e[1]==='T' ? rand(0,2) : tc[ic++]) }));
   return qs;
 }
 /* {lire-probabilites} : une question pour les phrases contraires (le tableau
@@ -15267,35 +15273,32 @@ function pbSeance(){
    TOURNURE (q.v) : les quatre questions conditionnelles se partagent les
    quatre tournures, une chacune — la cinquième et la septième, qui demandent
    la même probabilité, ne se disent donc jamais de la même façon. */
+/* Depuis la v306, la fiche ({probabilites-fiche}, 3.4) n'a plus de phrases
+   contraires (demande de Turquet : « dans le 3.4 enlever les phrases à
+   compléter pour les évènements contraires ») : ses sept questions sont les
+   sept probabilités de la séance (pbSeptTirees), posées en mots. */
 function lpSeance(){
   const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], tc=qdMelanger([0,1,2,3]);
   let ic=0;
-  for(let it=-1; it<LP_ITEMS.length; it++){
-    const v = it<0 ? 0 : (LP_ITEMS[it][1]==='T' ? rand(0,2) : tc[ic++]);
-    qs.push(distincte(qs, ()=>({ t:(it<0?'phr':'lp'), it:it, v:v, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
-  }
+  pbSeptTirees().forEach(e=>{
+    const v=(e[1]==='T' ? rand(0,2) : tc[ic++]);
+    qs.push(distincte(qs, ()=>({ t:'lp', it:'ev', ev:e, v:v, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  });
   return qs;
 }
 /* {lire-probabilites} (3.1, v296) : les phrases contraires, puis les huit
    probabilités (dix depuis la v305), chacune DONNÉE par son nom (q.t = 'ln') — demande de
    Turquet, octobre 2026 : « Déterminer la probabilité demandée », puis
-   « P(A) est la probabilité d'avoir … parmi … », puis P(A) = … */
-/* Depuis la v305, deux INTERSECTIONS s'ajoutent aux huit, juste après les
-   quatre probabilités sans condition (demande de Turquet, octobre 2026 :
-   « dans le 3.1 aussi, varier les intersections », réponse « ajouter 2
-   intersections ») : deux différentes parmi les quatre cases du milieu
-   (pbInterTirees, comme au 3.2 et au 3.4), rangées dans la question (q.ev).
-   LN_ITEMS ne bouge pas : une pause d'avant la v305 y relit ses huit
-   questions par leur indice. Une intersection porte it:'inter' — son
-   indice ne désigne rien, c'est q.ev qui la dit. */
-const LN_NB_INTER=2, LN_INTER_APRES=3;
+   « P(A) est la probabilité d'avoir … parmi … », puis P(A) = … — la phrase
+   est partie en v306. */
+/* Depuis la v306 : les phrases contraires, SANS le tableau (il n'apparaît
+   qu'aux questions suivantes), puis les sept probabilités de la séance
+   (pbSeptTirees) — deux simples, deux intersections, trois conditionnelles. */
 function lnSeance(){
-  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], inter=qdMelanger(PB_INTER.slice()).slice(0,LN_NB_INTER);
+  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[];
   const pose=(o)=>qs.push(distincte(qs, ()=>Object.assign(o, { n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
-  for(let it=-1; it<LN_ITEMS.length; it++){
-    pose({ t:(it<0?'phr':'ln'), it:it });
-    if(it===LN_INTER_APRES) inter.forEach(e=>pose({ t:'ln', it:'inter', ev:[e,'T'] }));
-  }
+  pose({ t:'phr', it:-1 });
+  pbSeptTirees().forEach(e=>pose({ t:'ln', it:'ev', ev:e }));
   return qs;
 }
 /* « de » devant l'infinitif : « d'être », « d'avoir », « de prendre ». */
@@ -15355,7 +15358,9 @@ function pbNomHTML(y,x){
 /* Les cases d'une question, et ce qu'on attend dans chacune. */
 function pbAttendus(q){
   if(q.t==='tab'){
-    const v=pbValeurs(q.n), a={ 'pb-ca':'nA', 'pb-cb':'nB' };
+    /* depuis la v306, les phrases contraires sont une question à part (« phr »),
+       posée avant le tableau */
+    const v=pbValeurs(q.n), a={};
     for(let i=0;i<9;i++) if(q.k.indexOf(i)<0) a['pb-c'+i]=String(v[i]);
     return a;
   }
@@ -15366,7 +15371,9 @@ function pbAttendus(q){
      parenthèses. Le 3.2 ne les choisit plus depuis la v300 : la page écrit le
      nom d'après « la probabilité d'avoir … parmi … » (pbNomVifMaj). */
   const nom = q.t==='lp' ? { 'pb-px':(x==='T' ? '0' : x), 'pb-py':y } : {};
-  return Object.assign({ 'pb-s1':y, 'pb-s2':x }, nom, { 'pb-s3':y, 'pb-s4':x, 'pb-s5':x, 'pb-s6':s6, 'pb-s7':x,
+  /* {lire-probabilites} (3.1) depuis la v306 : plus de phrase « P(…) est la
+     probabilité d'avoir … parmi … » avant la ligne (demande de Turquet) */
+  return Object.assign(q.t==='ln' ? {} : { 'pb-s1':y, 'pb-s2':x }, nom, { 'pb-s3':y, 'pb-s4':x, 'pb-s5':x, 'pb-s6':s6, 'pb-s7':x,
            'pb-n1':String(pbEff(q,s6)), 'pb-n2':String(pbEff(q,x)) });
 }
 function pbCases(q){ return Object.keys(pbAttendus(q)); }
@@ -15485,11 +15492,13 @@ function renderPBTest(){
   $('pbFeedback').textContent=''; $('pbFeedback').className='mp-feedback';
   $('pbActions').innerHTML='<button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>';
   if(q.t==='tab' || q.t==='phr'){
+    /* v306 : les phrases contraires d'abord, SANS le tableau ; le tableau
+       vient à la question suivante (au 3.3, à compléter) */
     $('pbPrompt').innerHTML = q.t==='tab'
-      ? 'On prend '+C.un+' au hasard dans '+pbNom(C)+'. Complète les deux phrases, puis le tableau qui représente '+pbNom(C)+'.'
-      : 'Le tableau représente '+(C.ens||'une classe')+'. On prend '+C.un+' au hasard dans '+pbNom(C)+' : complète les deux phrases.';
+      ? 'Le tableau représente '+(C.ens||'une classe')+'. Complète les cases qui manquent.'
+      : 'On prend '+C.un+' au hasard dans '+pbNom(C)+'. Complète les phrases des deux évènements contraires.';
     const preds=['A','nA','B','nB'].map(e=>({ v:e, t:C[e] }));
-    $('pbHost').innerHTML=
+    $('pbHost').innerHTML=(q.t==='tab' ? '' :
       '<div class="pt-step">'
        +'<p class="pb-def">'+pbHTML('A')+' représente l’évènement : « '+esc(C.ind+' '+C.A)+' »</p>'
        +'<p class="pb-def pb-phrase">'+pbHTML('nA')+' représente l’évènement contraire de '+pbHTML('A')+' : « '+esc(C.ind)+' '
@@ -15497,10 +15506,10 @@ function renderPBTest(){
        +'<p class="pb-def">'+pbHTML('B')+' représente l’évènement : « '+esc(C.ind+' '+C.B)+' »</p>'
        +'<p class="pb-def pb-phrase">'+pbHTML('nB')+' représente l’évènement contraire de '+pbHTML('B')+' : « '+esc(C.ind)+' '
          +pbSel(q,'pb-cb',preds,'évènement contraire de '+pbTxt('B'),'pb-mots')+' »</p>'
-      +'</div>'
+      +'</div>')
       +(q.t==='tab'
         ? '<div class="pt-step"><div class="pt-lab">Chaque total est la somme de sa ligne, ou de sa colonne</div>'+pbTableHTML(q,true)+'</div>'
-        : '<div class="pt-step">'+pbTableHTML(q,false)+'</div>');
+        : '');
   } else if(q.t==='ln'){
     /* {lire-probabilites} (v296) : la page écrit le nom ; l'élève dit ce qu'il
        veut dire, puis le calcule sur la ligne P(A) = … = … = … */
@@ -15513,8 +15522,6 @@ function renderPBTest(){
       '<div class="pt-step">'+pbTableHTML(q,false)+'</div>'
      +'<div class="pt-step pb-enonce-ici" id="pbEnonceIci"></div>'
      +'<div class="pt-step">'
-       +'<p class="pb-def pb-phrase pb-centre">'+nom+' est la probabilité d’avoir '
-         +s('pb-s1','ce qu’on veut avoir')+' parmi '+s('pb-s2','parmi quoi')+'</p>'
        +'<div class="pt-row">'+nom
          +fEq('<span class="f-frac-input"><span class="pb-l">'+s('pb-s3','numérateur : ce qu’on veut avoir')+parmi+s('pb-s4','numérateur : parmi quoi')+'</span>'
               +'<span class="f-fbar"></span><span class="pb-l">'+parmi+s('pb-s5','dénominateur : parmi quoi')+'</span></span>')
@@ -15570,8 +15577,7 @@ function pbLu(id){
 function pbPourquoi(q){
   if(q.t==='tab'){
     const C=PB_CTX[q.ci]||PB_CTX[0];
-    return 'Le contraire de « '+C.A+' », c’est « '+C.nA+' » ; celui de « '+C.B+' », « '+C.nB+' ». '
-      +'Dans le tableau, chaque total est la somme de sa ligne (ou de sa colonne) : une case qui manque se trouve par une soustraction.';
+    return 'Dans le tableau, chaque total est la somme de sa ligne (ou de sa colonne) : une case qui manque se trouve par une soustraction.';
   }
   if(q.t==='phr'){
     const C=PB_CTX[q.ci]||PB_CTX[0];
@@ -15625,7 +15631,7 @@ function checkPBAnswer(live){
   }
   const dit=v=>((PB_EVTS.indexOf(v)>=0 || v==='0') ? pbTxt(v) : v);
   test.answers.push({...(ptsExo()||{}),
-    q: q.t==='tab' ? 'Compléter les phrases contraires et le tableau'
+    q: q.t==='tab' ? 'Compléter le tableau'
      : q.t==='phr' ? 'Compléter les phrases contraires'
      : q.t==='ln' ? 'P'+(pbItem(q)[1]==='T' ? '' : '_'+pbTxt(pbItem(q)[1]))+'('+pbTxt(pbItem(q)[0])+')'
                    : lpEnonce(q)+' — P'+(pbItem(q)[1]==='T' ? '' : '_'+pbTxt(pbItem(q)[1]))+'('+pbTxt(pbItem(q)[0])+')',
@@ -15693,12 +15699,12 @@ async function startLP(){
    en lettres = fraction des effectifs. Même page que le 3.3 (pbEstFiche),
    mêmes cases, même juge. Sur un écran large, deux colonnes de lignes. */
 function pbEstFiche(){ return test.qId==='probabilites-fiche' || test.qId==='probabilites-ecriture'; }
+/* Depuis la v306 : les sept probabilités de la séance (pbSeptTirees). */
 function pbeSeance(){
-  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[], ev=pbInterTirees();
-  for(let it=0; it<PB_ITEMS.length; it++){
-    const e=ev(it);   /* hors de la fabrique : distincte() peut la rappeler */
-    qs.push(distincte(qs, ()=>Object.assign({ t:'nom', it:it }, e, { n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
-  }
+  const t=pbTableau(), ci=rand(0,PB_CTX.length-1), qs=[];
+  pbSeptTirees().forEach(e=>{
+    qs.push(distincte(qs, ()=>({ t:'nom', it:'ev', ev:e, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
+  });
   return qs;
 }
 function pbfAttendus(q, i){
@@ -15841,8 +15847,8 @@ function pbfCtxTexte(){
         +qs.map((q,k)=>(k+1)+') '+(pbItem(q)[1]==='T' ? 'P('+pbTxt(pbItem(q)[0])+')' : 'P_'+pbTxt(pbItem(q)[1])+'('+pbTxt(pbItem(q)[0])+')')).join(' ; ')+'. '
         +'Pour chaque ligne, l’élève complète = fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau, sans la simplifier. '
         +'P sans indice : on divise par tout ; P_X(Y) : on se restreint à X, numérateur X∩Y (écrit '+pbTxt('A')+' d’abord), dénominateur X. '
-      : 'Question 1 : compléter les évènements contraires '+pbTxt('nA')+' et '+pbTxt('nB')+'. Puis, chacune posée EN MOTS : '
-      +qs.slice(1).map((q,i)=>(i+2)+') « '+lpEnonce(q)+' »').join(' ; ')+'. '
+      : 'Les questions, chacune posée EN MOTS : '
+      +qs.map((q,i)=>(i+1)+') '+(q.t==='phr' ? 'compléter les évènements contraires '+pbTxt('nA')+' et '+pbTxt('nB') : '« '+lpEnonce(q)+' »')).join(' ; ')+'. '
       +'Pour chaque question, l’élève rédige sur UNE ligne : P…(…) (il choisit l’indice — « tout » sans condition : on prend parmi tout — et l’évènement dans des listes) '
       +'= fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau, sans la simplifier. '
       +'« Dans '+pbNom(C)+' » = pas de condition ; « parmi … », « sachant que … », « on choisit … qui … » = la condition, écrite en indice de P. ')
@@ -15865,13 +15871,12 @@ function pbCtxTexte(q){
   const C=PB_CTX[q.ci]||PB_CTX[0], v=pbValeurs(q.n);
   let c='Tableau à double entrée qui représente '+(C.ens||'une classe')+' : '+pbTxt('A')+' = « '+C.ind+' '+C.A+' », '+pbTxt('B')+' = « '+C.ind+' '+C.B+' ». '
     +pbEffTxt(v);
-  if(q.t==='tab') c+='L’élève complète les deux phrases contraires ('+pbTxt('nA')+', '+pbTxt('nB')+') puis les cases manquantes du tableau ; quatre nombres sont donnés. ';
-  else if(q.t==='phr') c+='Le tableau est donné en entier. L’élève complète les deux phrases contraires ('+pbTxt('nA')+', '+pbTxt('nB')+'). ';
+  if(q.t==='tab') c+='L’élève complète les cases manquantes du tableau ; quatre nombres sont donnés. ';
+  else if(q.t==='phr') c+='Le tableau n’est pas encore affiché : il vient à la question suivante. L’élève complète les deux phrases contraires ('+pbTxt('nA')+', '+pbTxt('nB')+'). ';
   else if(q.t==='ln'){
     const y=pbItem(q)[0], x=pbItem(q)[1], nm=(x==='T' ? 'P('+pbTxt(y)+')' : 'P_'+pbTxt(x)+'('+pbTxt(y)+')');
-    c+='La page écrit la probabilité demandée : '+nm+'. L’élève complète d’abord « '+nm+' est la probabilité d’avoir … parmi … » '
-      +'avec des lettres choisies dans une liste ('+PB_EVTS.map(pbTxt).join(', ')+') — sans indice, c’est « parmi tout » ; '
-      +'avec un indice, l’indice est ce qui suit « parmi ». Puis il écrit '+nm+' = fraction « … parmi … / parmi … » = fraction en lettres '
+    c+='La page écrit la probabilité demandée : '+nm+'. L’élève écrit '+nm+', avec des lettres choisies dans une liste ('+PB_EVTS.map(pbTxt).join(', ')+') : '
+      +'sans indice, c’est « parmi tout » ; avec un indice, l’indice est ce qui suit « parmi ». La ligne est '+nm+' = fraction « … parmi … / parmi … » = fraction en lettres '
       +'= fraction des EFFECTIFS du tableau, sans la simplifier. ';
   }
   else {
