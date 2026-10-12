@@ -4813,7 +4813,7 @@ nom.
 ## {python-for-oui-non} — « oui » répété, « non » une seule fois (6.6.2, Boucle for in range)
 
 **Le sous-thème « Boucle for in range », et la fiche « Exercice 4 ».**
-{python-for-oui-non} (Seconde, 6.6.2, APP_VERSION 430, demande de Turquet,
+{python-for-oui-non} (Seconde, 6.6.2, APP_VERSION 431 — 429 et 430 pris sur `main` pendant les bancs —, demande de Turquet,
 octobre 2026 : « en seconde dans le sous thème "boucle for in range", créer
 un exercice qui suit les images jointes. Il faudra respecter les consignes de
 présentation des autres exercices d'algo du sous-thème "input". mettre le
@@ -4827,7 +4827,7 @@ Le sous-thème n'existait pas au départ de la branche : il y était 6.6, ajout�
 EN DERNIER. **Pendant les bancs, {python-for-nom} a créé le MÊME sous-thème
 sur `main`** (même nom, même numéro 6.6, même v429) : à la fusion, celui-ci
 le rejoint en 6.6.2, derrière lui — rien d'autre n'est renuméroté, la version
-passe à 430, et le contrôle exige désormais l'ordre ({python-for-nom} en
+passe à 431 (430 pris à son tour sur `main` entre-temps), et le contrôle exige désormais l'ordre ({python-for-nom} en
 6.6.1, celui-ci en 6.6.2). DISPATCH, `testScreens` et la liste des rendus
 enveloppés avaient perdu leur entrée `pfo` dans la résolution : rétablie.
 
