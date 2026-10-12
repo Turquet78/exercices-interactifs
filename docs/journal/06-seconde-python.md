@@ -5103,7 +5103,7 @@ banc l'exige désormais. Pas de section
 propre au banc navigateur : la visite universelle (section 9) l'ouvre dans les
 deux modes.
 
-**Puis l'ordre du carnet** (APP_VERSION 436, demande de Turquet, octobre
+**Puis l'ordre du carnet** (APP_VERSION 437 — 436 pris sur `main` pendant les bancs —, demande de Turquet, octobre
 2026 : « mets-le dans l'ordre du carnet, en 6.6.2 »). {python-for-renommer},
 l'exercice 2 du carnet, passe de 6.6.5 à 6.6.2, juste derrière
 {python-for-range} (l'exercice 1). Les trois suivants reculent d'un rang :
