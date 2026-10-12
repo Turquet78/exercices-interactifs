@@ -5494,8 +5494,9 @@ résultat dans la variable entière age ; si l'age est plus petit que 18 alors
 il affiche "Tu dois payer 6 €. " et sinon il affiche "Tu dois payer 9€." ».
 
 **Le sous-thème 6.7 « Condition if else » n'existait pas : il est né avec
-cet exercice**, ajouté EN DERNIER au thème 6 — rien n'est renuméroté. Six
-contrôles d'exercices du 6.6 exigeaient que le 6.6 soit le DERNIER
+cet exercice**, ajouté EN DERNIER au thème 6 — rien n'est renuméroté. Sept
+contrôles d'exercices du 6.6 (dont celui de {python-for-table}, arrivé par
+une fusion de `main`) exigeaient que le 6.6 soit le DERNIER
 sous-thème du thème : ils exigent désormais qu'il reste le SIXIÈME, ce qui
 était leur intention (rien ne doit bouger devant), et le contrôle du 6.7.1
 reprend l'exigence « dernier » pour lui.
